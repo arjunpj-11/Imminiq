@@ -1,12 +1,15 @@
 {
   "compilerOptions": {
-    "target": "ES2022",
     "strict": true,
-    "skipLibCheck": true,
+    "target": "ES2022",
+    "module": "CommonJS",
+    "moduleResolution": "node",
     "esModuleInterop": true,
+    "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "noUncheckedIndexedAccess": true,
-    "exactOptionalPropertyTypes": true
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true
   }
 }
