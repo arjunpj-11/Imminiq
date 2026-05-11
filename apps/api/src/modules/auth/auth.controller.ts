@@ -151,30 +151,29 @@ export const authController = {
     }
   },
 
-  verifyResetCode: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { identifier, otp } = req.body
+ verifyResetCode: async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { identifier, otp } = req.body
 
-      await authService.verifyResetCode(identifier, otp)
+    const result = await authService.verifyResetCode(identifier, otp)
 
-      res.json(new ApiResponse('Code verified'))
-    } catch (error) {
-      next(error)
-    }
-  },
+    res.json(new ApiResponse('Code verified', result))
+  } catch (error) {
+    next(error)
+  }
+},
 
-  resetPassword: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { identifier, otp, newPassword } = req.body
+resetPassword: async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { resetToken, newPassword } = req.body
 
-      await authService.resetPassword(identifier, otp, newPassword)
+    await authService.resetPassword(resetToken, newPassword)
 
-      res.json(new ApiResponse('Password reset successfully'))
-    } catch (error) {
-      next(error)
-    }
-  },
-
+    res.json(new ApiResponse('Password reset successfully'))
+  } catch (error) {
+    next(error)
+  }
+},
   changePassword: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { currentPassword, newPassword } = req.body

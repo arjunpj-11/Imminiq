@@ -3,10 +3,14 @@ import bcrypt from 'bcryptjs'
 import { User, IUser } from '../../infrastructure/database/models/user.model'
 import { AuthToken } from '../../infrastructure/database/models/auth-token.model'
 import { otpCache, OtpPurpose } from '../../infrastructure/cache/otp.cache'
-import { BCRYPT_ROUNDS } from '../../config/constants'
+import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../config/constants'
 
 const hashToken = (token: string) => {
   return crypto.createHash('sha256').update(token).digest('hex')
+}
+
+const normalizePhone = (phone: string) => {
+  return phone.trim().replace(/\s/g, '')
 }
 
 export const authRepository = {
@@ -20,7 +24,7 @@ export const authRepository = {
 
   findByPhone: (phone: string) =>
     User.findOne({
-      phone: phone.trim(),
+      phone: normalizePhone(phone),
       deletedAt: null,
     }).select('+passwordHash'),
 
@@ -31,7 +35,7 @@ export const authRepository = {
     return User.findOne({
       ...(isEmail
         ? { email: value.toLowerCase() }
-        : { phone: value.replace(/\s/g, '') }),
+        : { phone: normalizePhone(value) }),
       deletedAt: null,
     }).select('+passwordHash')
   },
@@ -56,7 +60,7 @@ export const authRepository = {
 
   phoneExists: async (phone: string) =>
     !!(await User.exists({
-      phone: phone.trim(),
+      phone: normalizePhone(phone),
       deletedAt: null,
     })),
 
@@ -76,10 +80,17 @@ export const authRepository = {
     User.create({
       fullName: data.fullName.trim(),
       email: data.email?.toLowerCase().trim(),
-      phone: data.phone?.trim(),
+      phone: data.phone ? normalizePhone(data.phone) : undefined,
       username: data.username.toLowerCase().trim(),
       passwordHash: data.passwordHash,
       provider: 'local',
+      emailVerified: false,
+      phoneVerified: false,
+
+      // Unverified account will be deleted automatically after 30 minutes.
+      verificationExpiresAt: new Date(
+        Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000
+      ),
     }),
 
   createOAuthUser: (data: {
@@ -100,6 +111,9 @@ export const authRepository = {
       emailVerified: true,
       phoneVerified: false,
       passwordHash: null,
+
+      // OAuth accounts are already verified, so never auto-delete them.
+      verificationExpiresAt: null,
     }),
 
   updateProfile: (
@@ -128,32 +142,38 @@ export const authRepository = {
   markEmailVerified: (id: string) =>
     User.findByIdAndUpdate(
       id,
-      { emailVerified: true },
+      {
+        emailVerified: true,
+
+        // Important: stop TTL deletion after verification.
+        verificationExpiresAt: null,
+      },
       { new: true }
     ),
 
   markPhoneVerified: (id: string) =>
     User.findByIdAndUpdate(
       id,
-      { phoneVerified: true },
+      {
+        phoneVerified: true,
+
+        // Important: stop TTL deletion after verification.
+        verificationExpiresAt: null,
+      },
       { new: true }
     ),
 
   updatePassword: async (id: string, newPassword: string) => {
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS)
 
-    return User.findByIdAndUpdate(
-      id,
-      { passwordHash },
-      { new: true }
-    )
+    return User.findByIdAndUpdate(id, { passwordHash }, { new: true })
   },
 
   updateLastActive: (id: string) =>
-    User.findByIdAndUpdate(
-      id,
-      { lastActiveAt: new Date() }
-    ),
+    User.findByIdAndUpdate(id, { lastActiveAt: new Date() }),
+
+  // Optional helper if you ever want to manually remove unverified users.
+  deleteUserById: (id: string) => User.findByIdAndDelete(id),
 
   // ─── TOKEN QUERIES ───────────────────────────────
 
@@ -250,15 +270,11 @@ export const authRepository = {
 
     const normalizedIdentifier = data.email
       ? data.email.toLowerCase().trim()
-      : data.phone!.trim()
+      : normalizePhone(data.phone!)
 
     const otpHash = await bcrypt.hash(data.otp, BCRYPT_ROUNDS)
 
-    await otpCache.save(
-      normalizedIdentifier,
-      data.purpose,
-      otpHash
-    )
+    await otpCache.save(normalizedIdentifier, data.purpose, otpHash)
 
     return true
   },
@@ -277,12 +293,9 @@ export const authRepository = {
 
     const normalizedIdentifier = data.email
       ? data.email.toLowerCase().trim()
-      : data.phone!.trim()
+      : normalizePhone(data.phone!)
 
-    const otpHash = await otpCache.get(
-      normalizedIdentifier,
-      data.purpose
-    )
+    const otpHash = await otpCache.get(normalizedIdentifier, data.purpose)
 
     if (!otpHash) {
       return false
@@ -291,10 +304,7 @@ export const authRepository = {
     const match = await bcrypt.compare(data.otp, otpHash)
 
     if (match) {
-      await otpCache.delete(
-        normalizedIdentifier,
-        data.purpose
-      )
+      await otpCache.delete(normalizedIdentifier, data.purpose)
     }
 
     return match

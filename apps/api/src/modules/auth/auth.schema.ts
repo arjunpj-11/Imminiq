@@ -62,8 +62,7 @@ export const verifyResetCodeSchema = z.object({
 })
 
 export const resetPasswordSchema = z.object({
-  identifier: identifierSchema,
-  otp: otpSchema,
+  resetToken: z.string().min(1, 'Reset token is required'),
   newPassword: passwordSchema,
 })
 

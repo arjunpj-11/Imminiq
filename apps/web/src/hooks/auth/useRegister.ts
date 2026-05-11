@@ -47,9 +47,10 @@ export const useRegister = () => {
       navigate('/verify-account', {
         replace: true,
         state: {
-          identifier:
-            data.data?.verificationTarget || variables.identifier,
+          identifier: data.data?.verificationTarget || variables.identifier,
           method: data.data?.verificationMethod,
+          purpose: 'account_verification',
+          from: 'register',
         },
       })
     },

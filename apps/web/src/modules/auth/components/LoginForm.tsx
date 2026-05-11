@@ -1,51 +1,22 @@
 import { useState } from 'react'
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
-import { useRegister } from '../../../hooks/auth/useRegister'
 import ThemeToggle from '../../../components/ui/ThemeToggle'
+import { useLogin } from '../../../hooks/auth/useLogin'
 
 interface FormState {
-  fullName: string
   identifier: string
   password: string
-  confirmPassword: string
-  terms: boolean
+  rememberMe: boolean
 }
 
 interface FormErrors {
-  fullName?: string
   identifier?: string
   password?: string
-  confirmPassword?: string
-  terms?: string
 }
 
 const cn = (...classes: Array<string | false | null | undefined>) => {
   return classes.filter(Boolean).join(' ')
-}
-
-const getPasswordStrength = (val: string) => {
-  if (!val) return { level: 0, label: '', textClass: '' }
-
-  let score = 0
-
-  if (val.length >= 8) score++
-  if (/[A-Z]/.test(val) && /[a-z]/.test(val)) score++
-  if (/[0-9]/.test(val)) score++
-  if (/[^A-Za-z0-9]/.test(val)) score++
-
-  const level = Math.min(4, score)
-
-  const labels = ['', 'Weak', 'Fair', 'Good', 'Strong']
-
-  return {
-    level,
-    label: labels[level],
-    textClass:
-      level >= 3
-        ? 'text-[#4caf7d] dark:text-[#5cc98a]'
-        : 'text-[#b84c2b] dark:text-[#e8816a]',
-  }
 }
 
 const validateIdentifier = (value: string) => {
@@ -61,7 +32,7 @@ const validateIdentifier = (value: string) => {
     if (digitsOnly.length < 7) return 'Phone number seems too short.'
     if (digitsOnly.length > 15) return 'Phone number is too long.'
 
-    return null
+    return undefined
   }
 
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
@@ -70,50 +41,19 @@ const validateIdentifier = (value: string) => {
     return 'Enter a valid email address or phone number.'
   }
 
-  return null
+  return undefined
 }
 
 const validateField = (
   name: keyof FormState,
-  value: string | boolean,
-  password?: string
+  value: string | boolean
 ): string | undefined => {
   switch (name) {
-    case 'fullName': {
-      const trimmedValue = (value as string).trim()
-
-      if (!trimmedValue) return 'Full name is required.'
-      if (trimmedValue.length < 3) return 'Name must be at least 3 characters.'
-      if (!/[a-zA-Z]/.test(trimmedValue)) return 'Name must contain letters.'
-      if (trimmedValue.length > 80) return 'Name is too long.'
-
-      return undefined
-    }
-
     case 'identifier':
-      return validateIdentifier(value as string) || undefined
+      return validateIdentifier(value as string)
 
-    case 'password': {
-      const passwordValue = value as string
-
-      if (!passwordValue) return 'Password is required.'
-      if (passwordValue.length < 8) return 'Password must be at least 8 characters.'
-      if (passwordValue.length > 128) return 'Password is too long.'
-      if (!/[a-zA-Z]/.test(passwordValue)) return 'Must include at least one letter.'
-      if (!/[0-9\W]/.test(passwordValue)) return 'Must include a number or symbol.'
-
-      return undefined
-    }
-
-    case 'confirmPassword':
-      if (!value) return 'Please confirm your password.'
-      if (value !== password) return "Passwords don't match."
-
-      return undefined
-
-    case 'terms':
-      if (!value) return 'You must agree to continue.'
-
+    case 'password':
+      if (!value) return 'Password is required.'
       return undefined
 
     default:
@@ -173,25 +113,41 @@ const AlertIcon = ({ className = '' }: { className?: string }) => {
   )
 }
 
-export default function RegisterForm() {
-  const { mutate: register, isPending, error } = useRegister()
+const WarningIcon = ({ className = '' }: { className?: string }) => {
+  return (
+    <svg
+      className={cn('shrink-0', className)}
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      aria-hidden="true"
+    >
+      <path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+      <line x1="12" y1="9" x2="12" y2="13" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
+    </svg>
+  )
+}
 
-  const apiError = error?.response?.data?.message
+export default function LoginForm() {
+  const { mutate: login, isPending, error } = useLogin()
+
+  const loginError = error as any
+  const apiError = loginError?.response?.data?.message
+  const tooManyAttempts = loginError?.response?.status === 429
 
   const [form, setForm] = useState<FormState>({
-    fullName: '',
     identifier: '',
     password: '',
-    confirmPassword: '',
-    terms: false,
+    rememberMe: false,
   })
 
   const [errors, setErrors] = useState<FormErrors>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showPw, setShowPw] = useState(false)
-  const [showCpw, setShowCpw] = useState(false)
-
-  const strength = getPasswordStrength(form.password)
 
   const handleChange = (e: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target
@@ -205,28 +161,11 @@ export default function RegisterForm() {
     }))
 
     if (touched[name]) {
-      const errorMessage = validateField(
-        fieldName,
-        fieldValue,
-        fieldName === 'confirmPassword' ? form.password : undefined
-      )
+      const errorMessage = validateField(fieldName, fieldValue)
 
       setErrors((prev) => ({
         ...prev,
         [fieldName]: errorMessage,
-      }))
-    }
-
-    if (fieldName === 'password' && touched.confirmPassword) {
-      const confirmPasswordError = validateField(
-        'confirmPassword',
-        form.confirmPassword,
-        value
-      )
-
-      setErrors((prev) => ({
-        ...prev,
-        confirmPassword: confirmPasswordError,
       }))
     }
   }
@@ -242,11 +181,7 @@ export default function RegisterForm() {
       [fieldName]: true,
     }))
 
-    const errorMessage = validateField(
-      fieldName,
-      fieldValue,
-      fieldName === 'confirmPassword' ? form.password : undefined
-    )
+    const errorMessage = validateField(fieldName, fieldValue)
 
     setErrors((prev) => ({
       ...prev,
@@ -257,22 +192,11 @@ export default function RegisterForm() {
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
 
-    const fields: (keyof FormState)[] = [
-      'fullName',
-      'identifier',
-      'password',
-      'confirmPassword',
-      'terms',
-    ]
-
+    const fields: (keyof FormState)[] = ['identifier', 'password']
     const newErrors: FormErrors = {}
 
     fields.forEach((field) => {
-      const errorMessage = validateField(
-        field,
-        field === 'terms' ? form.terms : form[field],
-        field === 'confirmPassword' ? form.password : undefined
-      )
+      const errorMessage = validateField(field, form[field])
 
       if (errorMessage) {
         newErrors[field] = errorMessage
@@ -282,22 +206,16 @@ export default function RegisterForm() {
     setErrors(newErrors)
 
     setTouched({
-      fullName: true,
       identifier: true,
       password: true,
-      confirmPassword: true,
-      terms: true,
     })
 
     if (Object.keys(newErrors).length > 0) return
 
-    sessionStorage.removeItem('otp_expiry')
-    sessionStorage.removeItem('otp_resend_expiry')
-
-    register({
-      fullName: form.fullName.trim(),
+    login({
       identifier: form.identifier.trim(),
       password: form.password,
+      rememberMe: form.rememberMe,
     })
   }
 
@@ -332,18 +250,18 @@ export default function RegisterForm() {
     >
       {/* Mobile Brand Bar */}
       <div className="flex shrink-0 items-center justify-between px-4 pt-5 sm:px-8 sm:pt-7 lg:hidden">
-        <div className="inline-flex items-center gap-2.5 leading-none">
+        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
           <LogoIcon className="h-9 w-9 rounded-[10px] sm:h-10 sm:w-10" />
 
           <span className="text-[22px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb] sm:text-2xl">
             immin<span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
             <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
           </span>
-        </div>
+        </Link>
 
         <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[8.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a] sm:text-[9px]">
           <span className="h-[5px] w-[5px] rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-          Onboarding now
+          Welcome back
         </div>
       </div>
 
@@ -369,35 +287,35 @@ export default function RegisterForm() {
 
             <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
               <span className="h-[5px] w-[5px] rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-              Now onboarding ambitious learners
+              Welcome back, keep building
             </div>
           </div>
 
           <div className="relative flex max-w-[560px] flex-1 flex-col justify-center py-8">
             <p className="font-serif text-[clamp(36px,4vw,54px)] font-extrabold leading-[1.08] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
-              Start learning.
+              Welcome back.
               <br />
-              Build your path.
+              Your roadmap
               <br />
-              Prove it.
+              awaits.
             </p>
 
             <p className="mt-3.5 max-w-[430px] text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
-              AI builds your roadmap, you master the skills, then challenge others
-              in 1v1 battles to prove what you know.
+              Continue your learning path, resume your streaks, and jump back
+              into battles that prove what you know.
             </p>
 
             <div className="mt-8 flex flex-col gap-[18px]">
               <div className="flex items-start gap-3">
-                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-                  ✦
+                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(76,175,125,0.10)] text-[17px] text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]">
+                  ✓
                 </div>
                 <div>
                   <strong className="mb-0.5 block text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
-                    AI Roadmaps
+                    Pick Up Where You Left Off
                   </strong>
                   <span className="text-xs leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
-                    Personalized paths carved from scholarly datasets.
+                    Your progress, streaks, and roadmap are saved automatically.
                   </span>
                 </div>
               </div>
@@ -408,10 +326,10 @@ export default function RegisterForm() {
                 </div>
                 <div>
                   <strong className="mb-0.5 block text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
-                    1v1 Skill Battles
+                    Jump Into Battles
                   </strong>
                   <span className="text-xs leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
-                    Real-time intellectual duels to validate your mastery.
+                    Challenge others in live 1v1 duels to validate your mastery.
                   </span>
                 </div>
               </div>
@@ -422,10 +340,10 @@ export default function RegisterForm() {
                 </div>
                 <div>
                   <strong className="mb-0.5 block text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
-                    Streaks &amp; Progress
+                    Keep Your Streak Alive
                   </strong>
                   <span className="text-xs leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
-                    Visual proof of your daily intellectual commitment.
+                    Daily consistency compounds into intellectual excellence.
                   </span>
                 </div>
               </div>
@@ -455,44 +373,44 @@ export default function RegisterForm() {
         <div className="flex justify-center px-4 pb-10 pt-4 sm:flex-1 sm:items-center sm:px-8 sm:py-8 lg:w-1/2 lg:min-w-0 lg:px-14 lg:py-7 xl:px-[72px] xl:py-[52px]">
           <main
             className="flex w-full justify-center sm:items-start lg:items-center"
-            aria-label="Create your Imminiq account"
+            aria-label="Sign in to your Imminiq account"
           >
-           <form
-  className={cn(
-    'w-full max-w-[480px] rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-7 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
-    'dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]',
-    'sm:max-w-[500px] sm:px-8 sm:py-9',
-    'lg:max-h-[calc(100vh-80px)] lg:max-w-[480px] lg:overflow-y-auto lg:px-9 lg:py-[38px]',
+            <form
+              className={cn(
+                'w-full max-w-[480px] rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-7 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
+                'dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]',
+                'sm:max-w-[500px] sm:px-8 sm:py-9',
+                'lg:max-h-[calc(100vh-80px)] lg:max-w-[480px] lg:overflow-y-auto lg:px-9 lg:py-[38px]',
 
-    // themed scrollbar
-    '[scrollbar-width:thin] [scrollbar-color:#b84c2b_transparent]',
-    'dark:[scrollbar-color:#e8816a_transparent]',
-    '[&::-webkit-scrollbar]:w-1.5',
-    '[&::-webkit-scrollbar-track]:bg-transparent',
-    '[&::-webkit-scrollbar-thumb]:rounded-full',
-    '[&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.35)]',
-    'dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(232,129,106,0.45)]',
-    '[&::-webkit-scrollbar-thumb:hover]:bg-[#b84c2b]',
-    'dark:[&::-webkit-scrollbar-thumb:hover]:bg-[#e8816a]'
-  )}
-  onSubmit={handleSubmit}
-  noValidate
->
+                // themed scrollbar
+                '[scrollbar-width:thin] [scrollbar-color:#b84c2b_transparent]',
+                'dark:[scrollbar-color:#e8816a_transparent]',
+                '[&::-webkit-scrollbar]:w-1.5',
+                '[&::-webkit-scrollbar-track]:bg-transparent',
+                '[&::-webkit-scrollbar-thumb]:rounded-full',
+                '[&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.35)]',
+                'dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(232,129,106,0.45)]',
+                '[&::-webkit-scrollbar-thumb:hover]:bg-[#b84c2b]',
+                'dark:[&::-webkit-scrollbar-thumb:hover]:bg-[#e8816a]'
+              )}
+              onSubmit={handleSubmit}
+              noValidate
+            >
               <div className="mb-1.5 text-center font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
-                Create Account
+                Sign In
               </div>
 
               <h1 className="mb-1.5 text-center font-serif text-[clamp(22px,5vw,28px)] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                Join Imminiq
+                Access your account
               </h1>
 
               <p className="mb-[22px] text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
-                Already have an account?{' '}
+                Don&apos;t have an account?{' '}
                 <Link
                   className="font-medium text-[#b84c2b] hover:underline dark:text-[#e8816a]"
-                  to="/login"
+                  to="/register"
                 >
-                  Sign in
+                  Create one
                 </Link>
               </p>
 
@@ -504,6 +422,16 @@ export default function RegisterForm() {
                 >
                   <AlertIcon className="mt-1 h-3.5 w-3.5" />
                   <span>{apiError}</span>
+                </div>
+              )}
+
+              {tooManyAttempts && (
+                <div
+                  className="mb-[18px] flex items-start gap-2.5 rounded-[10px] border border-[rgba(176,112,18,0.2)] border-l-[3px] border-l-[#b07012] bg-[rgba(240,165,0,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#9a650b] dark:border-l-[#f0a842] dark:bg-[rgba(240,168,66,0.10)] dark:text-[#f0a842]"
+                  role="alert"
+                >
+                  <WarningIcon className="mt-1 h-3.5 w-3.5" />
+                  <span>Too many attempts. Your account will be locked for 5 minutes.</span>
                 </div>
               )}
 
@@ -566,39 +494,6 @@ export default function RegisterForm() {
                 <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/15" />
               </div>
 
-              {/* Full Name */}
-              <div className="mb-3.5">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <label className={labelClass} htmlFor="fullname">
-                    Full Name
-                  </label>
-                </div>
-
-                <input
-                  type="text"
-                  id="fullname"
-                  name="fullName"
-                  placeholder="E.g. Alexander von Humboldt"
-                  autoComplete="name"
-                  value={form.fullName}
-                  onChange={handleChange}
-                  onBlur={handleBlur}
-                  className={inputClass(
-                    errors.fullName,
-                    touched.fullName && !errors.fullName
-                  )}
-                  aria-invalid={!!errors.fullName}
-                  aria-describedby={errors.fullName ? 'e-name' : undefined}
-                />
-
-                {errors.fullName && (
-                  <div className={errorClass} id="e-name" role="alert">
-                    <AlertIcon />
-                    <span>{errors.fullName}</span>
-                  </div>
-                )}
-              </div>
-
               {/* Identifier */}
               <div className="mb-3.5">
                 <div className="mb-1.5 flex items-center justify-between">
@@ -608,10 +503,10 @@ export default function RegisterForm() {
                 </div>
 
                 <input
-                  type="text"
                   id="identifier"
                   name="identifier"
-                  placeholder="scholar@university.edu or +91 98765 43210"
+                  type="text"
+                  placeholder="name@example.com or +91 98765 43210"
                   autoComplete="username"
                   inputMode="text"
                   value={form.identifier}
@@ -626,8 +521,8 @@ export default function RegisterForm() {
                 />
 
                 <p
-                  className="mt-1.5 text-[11px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]"
                   id="hint-identifier"
+                  className="mt-1.5 text-[11px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]"
                 >
                   We'll detect email vs. phone automatically.
                 </p>
@@ -646,15 +541,21 @@ export default function RegisterForm() {
                   <label className={labelClass} htmlFor="password">
                     Password
                   </label>
+                  <Link
+                    to="/forgot-password"
+                    className="font-mono text-[9.5px] font-medium uppercase tracking-[0.1em] text-[#b84c2b] transition hover:underline dark:text-[#e8816a]"
+                  >
+                    Forgot password?
+                  </Link>
                 </div>
 
                 <div className="relative">
                   <input
-                    type={showPw ? 'text' : 'password'}
                     id="password"
                     name="password"
-                    placeholder="8+ chars, letters + numbers"
-                    autoComplete="new-password"
+                    type={showPw ? 'text' : 'password'}
+                    placeholder="••••••••"
+                    autoComplete="current-password"
                     value={form.password}
                     onChange={handleChange}
                     onBlur={handleBlur}
@@ -667,12 +568,12 @@ export default function RegisterForm() {
                   />
 
                   <button
+                    type="button"
+                    onClick={() => setShowPw((prev) => !prev)}
                     className={cn(
                       'absolute right-3 top-1/2 flex -translate-y-1/2 items-center rounded p-1 text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]',
                       showPw && 'text-[#b84c2b] dark:text-[#e8816a]'
                     )}
-                    type="button"
-                    onClick={() => setShowPw((prev) => !prev)}
                     aria-label={showPw ? 'Hide password' : 'Show password'}
                     aria-pressed={showPw}
                   >
@@ -704,37 +605,6 @@ export default function RegisterForm() {
                   </button>
                 </div>
 
-                {form.password && (
-                  <div className="mt-2 flex items-center gap-1.5" aria-hidden="true">
-                    <div className="flex flex-1 gap-1">
-                      {[1, 2, 3, 4].map((item) => {
-                        const isActive = item <= strength.level
-
-                        return (
-                          <div
-                            key={item}
-                            className={cn(
-                              'h-[3px] flex-1 rounded-sm transition-all duration-300',
-                              isActive
-                                ? 'bg-[#4caf7d] dark:bg-[#5cc98a]'
-                                : 'bg-[#e0d0c5] dark:bg-white/15'
-                            )}
-                          />
-                        )
-                      })}
-                    </div>
-
-                    <span
-                      className={cn(
-                        'min-w-12 text-right font-mono text-[9px] uppercase tracking-[0.08em]',
-                        strength.textClass
-                      )}
-                    >
-                      {strength.label}
-                    </span>
-                  </div>
-                )}
-
                 {errors.password && (
                   <div className={errorClass} id="e-pw" role="alert">
                     <AlertIcon />
@@ -743,143 +613,40 @@ export default function RegisterForm() {
                 )}
               </div>
 
-              {/* Confirm Password */}
-              <div className="mb-3.5">
-                <div className="mb-1.5 flex items-center justify-between">
-                  <label className={labelClass} htmlFor="confirm-password">
-                    Confirm Password
-                  </label>
-                </div>
-
-                <div className="relative">
+              {/* Remember Me */}
+              <div className="mt-4 flex items-center gap-2.5">
+                <div className="relative h-[17px] w-[17px] shrink-0">
                   <input
-                    type={showCpw ? 'text' : 'password'}
-                    id="confirm-password"
-                    name="confirmPassword"
-                    placeholder="Re-enter your password"
-                    autoComplete="new-password"
-                    value={form.confirmPassword}
+                    className="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
+                    type="checkbox"
+                    id="rememberMe"
+                    name="rememberMe"
+                    checked={form.rememberMe}
                     onChange={handleChange}
-                    onBlur={handleBlur}
-                    className={cn(
-                      inputClass(
-                        errors.confirmPassword,
-                        touched.confirmPassword && !errors.confirmPassword
-                      ),
-                      'pr-10'
-                    )}
-                    aria-invalid={!!errors.confirmPassword}
-                    aria-describedby={errors.confirmPassword ? 'e-cpw' : undefined}
                   />
 
-                  <button
+                  <div
                     className={cn(
-                      'absolute right-3 top-1/2 flex -translate-y-1/2 items-center rounded p-1 text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]',
-                      showCpw && 'text-[#b84c2b] dark:text-[#e8816a]'
+                      'flex h-[17px] w-[17px] items-center justify-center rounded-[5px] border-[1.5px] border-[#e0d0c5] bg-white transition',
+                      'peer-focus-visible:shadow-[0_0_0_3px_rgba(184,76,43,0.09)]',
+                      'dark:border-white/15 dark:bg-[#252320]',
+                      form.rememberMe &&
+                        'border-[#b84c2b] bg-[#b84c2b] dark:border-[#e8816a] dark:bg-[#e8816a]'
                     )}
-                    type="button"
-                    onClick={() => setShowCpw((prev) => !prev)}
-                    aria-label={showCpw ? 'Hide password' : 'Show password'}
-                    aria-pressed={showCpw}
+                    aria-hidden="true"
                   >
-                    {showCpw ? (
-                      <svg
-                        width="17"
-                        height="17"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24" />
-                        <line x1="1" y1="1" x2="23" y2="23" />
-                      </svg>
-                    ) : (
-                      <svg
-                        width="17"
-                        height="17"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2"
-                      >
-                        <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z" />
-                        <circle cx="12" cy="12" r="3" />
-                      </svg>
+                    {form.rememberMe && (
+                      <span className="h-[8px] w-[5px] rotate-45 border-b-2 border-r-2 border-[#f5ede4] dark:border-[#141412]" />
                     )}
-                  </button>
+                  </div>
                 </div>
 
-                {errors.confirmPassword && (
-                  <div className={errorClass} id="e-cpw" role="alert">
-                    <AlertIcon />
-                    <span>{errors.confirmPassword}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Terms */}
-              <div>
-                <div className="mt-4 flex items-start gap-2.5">
-                  <div className="relative mt-px h-[17px] w-[17px] shrink-0">
-                    <input
-                      className="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
-                      type="checkbox"
-                      id="terms"
-                      name="terms"
-                      checked={form.terms}
-                      onChange={handleChange}
-                      onBlur={handleBlur}
-                      aria-describedby={errors.terms ? 'e-terms' : undefined}
-                    />
-
-                    <div
-                      className={cn(
-                        'flex h-[17px] w-[17px] items-center justify-center rounded-[5px] border-[1.5px] border-[#e0d0c5] bg-white transition',
-                        'peer-focus-visible:shadow-[0_0_0_3px_rgba(184,76,43,0.09)]',
-                        'dark:border-white/15 dark:bg-[#252320]',
-                        form.terms &&
-                          'border-[#b84c2b] bg-[#b84c2b] dark:border-[#e8816a] dark:bg-[#e8816a]',
-                        errors.terms &&
-                          !form.terms &&
-                          'border-[#d94535] bg-[rgba(217,69,53,0.07)] dark:border-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)]'
-                      )}
-                      aria-hidden="true"
-                    >
-                      {form.terms && (
-                        <span className="h-[8px] w-[5px] rotate-45 border-b-2 border-r-2 border-[#f5ede4] dark:border-[#141412]" />
-                      )}
-                    </div>
-                  </div>
-
-                  <label
-                    className="flex-1 cursor-pointer text-[12.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]"
-                    htmlFor="terms"
-                  >
-                    I agree to the{' '}
-                    <Link
-                      className="text-[#b84c2b] underline underline-offset-2 dark:text-[#e8816a]"
-                      to="/terms"
-                    >
-                      Terms of Service
-                    </Link>{' '}
-                    and{' '}
-                    <Link
-                      className="text-[#b84c2b] underline underline-offset-2 dark:text-[#e8816a]"
-                      to="/privacy"
-                    >
-                      Scholarly Privacy Policy
-                    </Link>
-                    .
-                  </label>
-                </div>
-
-                {errors.terms && (
-                  <div className={cn(errorClass, 'mb-1 mt-1.5')} id="e-terms" role="alert">
-                    <AlertIcon />
-                    <span>{errors.terms}</span>
-                  </div>
-                )}
+                <label
+                  className="flex-1 cursor-pointer text-[12.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]"
+                  htmlFor="rememberMe"
+                >
+                  Remember me for 30 days
+                </label>
               </div>
 
               <button
@@ -893,7 +660,7 @@ export default function RegisterForm() {
                 type="submit"
                 disabled={isPending}
               >
-                {isPending ? 'Creating account...' : 'Create account'}
+                {isPending ? 'Signing in...' : 'Sign in'}
               </button>
 
               <div className="mt-5 flex flex-wrap justify-center gap-6">

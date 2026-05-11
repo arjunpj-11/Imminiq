@@ -1,0 +1,1068 @@
+import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
+import { Link, useLocation, useNavigate } from 'react-router-dom'
+import ThemeToggle from '../../../components/ui/ThemeToggle'
+
+const cn = (...classes: Array<string | false | null | undefined>) => {
+  return classes.filter(Boolean).join(' ')
+}
+
+const TOC = [
+  { id: 's1', num: '01', label: 'Acceptance of Terms' },
+  { id: 's2', num: '02', label: 'Eligibility' },
+  { id: 's3', num: '03', label: 'Account Registration & Security' },
+  { id: 's4', num: '04', label: 'Platform Services' },
+  { id: 's5', num: '05', label: 'User Conduct & Acceptable Use' },
+  { id: 's6', num: '06', label: 'Intellectual Property' },
+  { id: 's7', num: '07', label: 'User-Generated Content' },
+  { id: 's8', num: '08', label: 'AI Features & Limitations' },
+  { id: 's9', num: '09', label: 'Subscriptions & Payments' },
+  { id: 's10', num: '10', label: 'Coins, Store & Rewards' },
+  { id: 's11', num: '11', label: 'Termination & Suspension' },
+  { id: 's12', num: '12', label: 'Disclaimers & Warranties' },
+  { id: 's13', num: '13', label: 'Limitation of Liability' },
+  { id: 's14', num: '14', label: 'Governing Law & Disputes' },
+  { id: 's15', num: '15', label: 'Changes to These Terms' },
+  { id: 's16', num: '16', label: 'Contact Us' },
+]
+
+const scrollbarClass =
+  '[scrollbar-width:thin] [scrollbar-color:#b84c2b_transparent] dark:[scrollbar-color:#e8816a_transparent] [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.35)] dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(232,129,106,0.45)] [&::-webkit-scrollbar-thumb:hover]:bg-[#b84c2b] dark:[&::-webkit-scrollbar-thumb:hover]:bg-[#e8816a]'
+
+const LogoIcon = ({ className = '' }: { className?: string }) => {
+  return (
+    <svg
+      className={cn('block shrink-0 rounded-[10px]', className)}
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="10" y="10" width="80" height="80" rx="18" fill="#050505" />
+      <g transform="translate(-5, 1)">
+        <rect x="31" y="35" width="9" height="34" rx="4.5" fill="#fff8ed" />
+        <circle cx="35.5" cy="28.5" r="5.3" fill="#f15a35" />
+        <path
+          d="M64 32.8 C73.8 34.7 79.5 42.2 79.5 51.5 C79.5 61.8 71.2 68 60.2 68 C53.2 68 48.2 65.5 45.1 60.8"
+          fill="none"
+          stroke="#fff8ed"
+          strokeWidth="9"
+          strokeLinecap="round"
+        />
+        <line
+          x1="63.8"
+          y1="55.5"
+          x2="75.8"
+          y2="67.5"
+          stroke="#f15a35"
+          strokeWidth="9"
+          strokeLinecap="round"
+        />
+      </g>
+    </svg>
+  )
+}
+
+const IconArrowLeft = ({ className = '' }: { className?: string }) => (
+  <svg
+    className={cn('shrink-0', className)}
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
+  </svg>
+)
+
+const IconArrowRight = ({ className = '' }: { className?: string }) => (
+  <svg
+    className={cn('shrink-0', className)}
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+)
+
+const IconCheck = ({ className = '' }: { className?: string }) => (
+  <svg
+    className={cn('shrink-0', className)}
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+)
+
+const IconShield = ({ className = '' }: { className?: string }) => (
+  <svg
+    className={cn('shrink-0', className)}
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+)
+
+const IconDoc = ({ className = '' }: { className?: string }) => (
+  <svg
+    className={cn('shrink-0', className)}
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+    <polyline points="14 2 14 8 20 8" />
+  </svg>
+)
+
+const IconMail = ({ className = '' }: { className?: string }) => (
+  <svg
+    className={cn('shrink-0', className)}
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    aria-hidden="true"
+  >
+    <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+    <polyline points="22,6 12,13 2,6" />
+  </svg>
+)
+
+const BodyP = ({ children }: { children: ReactNode }) => (
+  <p className="text-sm leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
+    {children}
+  </p>
+)
+
+const EmailLink = ({ children }: { children: ReactNode }) => (
+  <a
+    href={`mailto:${children}`}
+    className="font-medium text-[#b84c2b] underline underline-offset-4 hover:text-[#963d22] dark:text-[#e8816a] dark:hover:text-[#f5a090]"
+  >
+    {children}
+  </a>
+)
+
+const TermsList = ({
+  items,
+  variant = 'dot',
+}: {
+  items: ReactNode[]
+  variant?: 'dot' | 'check' | 'cross'
+}) => {
+  return (
+    <ul className="flex flex-col gap-2.5">
+      {items.map((item, index) => (
+        <li
+          key={index}
+          className="flex items-start gap-2.5 text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]"
+        >
+          {variant === 'check' ? (
+            <span className="mt-1 text-[#4caf7d] dark:text-[#5cc98a]">
+              <IconCheck />
+            </span>
+          ) : (
+            <span
+              className={cn(
+                'mt-2.5 h-[5px] w-[5px] shrink-0 rounded-full opacity-70',
+                variant === 'cross'
+                  ? 'bg-[#d94535] dark:bg-[#ff6b5f]'
+                  : 'bg-[#b84c2b] dark:bg-[#e8816a]'
+              )}
+            />
+          )}
+
+          <span>{item}</span>
+        </li>
+      ))}
+    </ul>
+  )
+}
+
+const HighlightCard = ({
+  label,
+  children,
+  variant = 'rust',
+}: {
+  label: string
+  children: ReactNode
+  variant?: 'rust' | 'green' | 'amber'
+}) => {
+  const styles = {
+    rust:
+      'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.05)] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.07)]',
+    green:
+      'border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)]',
+    amber:
+      'border-[rgba(240,165,0,0.22)] bg-[rgba(240,165,0,0.07)] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.08)]',
+  }
+
+  const labelStyles = {
+    rust: 'text-[#b84c2b] dark:text-[#e8816a]',
+    green: 'text-[#4caf7d] dark:text-[#5cc98a]',
+    amber: 'text-[#f0a500] dark:text-[#f0a842]',
+  }
+
+  return (
+    <div className={cn('rounded-xl border px-5 py-4', styles[variant])}>
+      <div
+        className={cn(
+          'mb-2 font-mono text-[9px] uppercase tracking-[0.12em]',
+          labelStyles[variant]
+        )}
+      >
+        {label}
+      </div>
+
+      <p className="m-0 text-[13.5px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+        {children}
+      </p>
+    </div>
+  )
+}
+
+const Section = ({
+  id,
+  num,
+  title,
+  children,
+}: {
+  id: string
+  num: string
+  title: string
+  children: ReactNode
+}) => {
+  return (
+    <section
+      id={id}
+      className="pp-section mb-[52px] scroll-mt-8"
+      aria-labelledby={`title-${id}`}
+    >
+      <div className="mb-5 flex items-start gap-3.5 border-b border-[rgba(184,76,43,0.10)] pb-3.5 dark:border-[rgba(232,129,106,0.12)]">
+        <span className="mt-1 shrink-0 rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[10px] tracking-[0.08em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+          {num}
+        </span>
+
+        <h2
+          id={`title-${id}`}
+          className="font-serif text-[clamp(18px,3vw,24px)] font-bold leading-tight text-[#1a1714] dark:text-[#f2f0eb]"
+        >
+          {title}
+        </h2>
+      </div>
+
+      <div className="flex flex-col gap-3.5">{children}</div>
+    </section>
+  )
+}
+
+export default function TermsPage() {
+  const navigate = useNavigate()
+  const location = useLocation()
+
+  const scrollAreaRef = useRef<HTMLElement | null>(null)
+
+  const [activeId, setActiveId] = useState('s1')
+  const [readPct, setReadPct] = useState(0)
+
+  const handleBack = () => {
+    const from = (location.state as { from?: string } | null)?.from
+
+    if (from) {
+      navigate(from, { replace: true })
+      return
+    }
+
+    navigate('/register', { replace: true })
+  }
+
+  const handleTocClick = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
+    e.preventDefault()
+
+    const scrollArea = scrollAreaRef.current
+    const section = document.getElementById(id)
+
+    if (!scrollArea || !section) return
+
+    const scrollAreaRect = scrollArea.getBoundingClientRect()
+    const sectionRect = section.getBoundingClientRect()
+
+    const top = sectionRect.top - scrollAreaRect.top + scrollArea.scrollTop - 24
+
+    scrollArea.scrollTo({
+      top,
+      behavior: 'smooth',
+    })
+
+    window.history.replaceState(null, '', window.location.pathname)
+    setActiveId(id)
+  }
+
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current
+
+    if (!scrollArea) return
+
+    const onScroll = () => {
+      const scrollHeight = scrollArea.scrollHeight - scrollArea.clientHeight
+
+      if (scrollHeight <= 0) {
+        setReadPct(0)
+        return
+      }
+
+      const pct = (scrollArea.scrollTop / scrollHeight) * 100
+      setReadPct(Math.min(Math.max(pct, 0), 100))
+    }
+
+    onScroll()
+
+    scrollArea.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+
+    return () => {
+      scrollArea.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+    }
+  }, [])
+
+  useEffect(() => {
+    const scrollArea = scrollAreaRef.current
+
+    if (!scrollArea) return
+
+    const sections = scrollArea.querySelectorAll('.pp-section[id]')
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) setActiveId(entry.target.id)
+        })
+      },
+      {
+        root: scrollArea,
+        rootMargin: '-20% 0px -70% 0px',
+        threshold: 0,
+      }
+    )
+
+    sections.forEach((section) => observer.observe(section))
+
+    return () => observer.disconnect()
+  }, [])
+
+  return (
+    <div className="h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif] dark:bg-[#141412] dark:text-[#f2f0eb]">
+      <div
+        aria-hidden="true"
+        className="fixed left-0 top-0 z-[100] h-0.5 bg-gradient-to-r from-[#b84c2b] to-[#e8816a] transition-[width] duration-100"
+        style={{ width: `${readPct}%` }}
+      />
+
+      <div className="flex h-full min-h-0 flex-col overflow-hidden">
+        <nav
+          className="z-50 flex shrink-0 items-center justify-between gap-4 border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 lg:px-12 xl:px-16"
+          aria-label="Site navigation"
+        >
+          <div className="flex min-w-0 items-center gap-4">
+            <Link
+              to="/"
+              className="inline-flex shrink-0 items-center gap-2.5 leading-none"
+              aria-label="Imminiq home"
+            >
+              <LogoIcon className="h-[34px] w-[34px]" />
+
+              <span className="text-xl font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+                immin
+                <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
+                <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
+              </span>
+            </Link>
+
+            <div
+              className="hidden h-[18px] w-px bg-[#e0d0c5] dark:bg-white/15 sm:block"
+              aria-hidden="true"
+            />
+
+            <span className="hidden truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92] sm:block">
+              Terms of Service
+            </span>
+          </div>
+
+          <div className="flex shrink-0 items-center gap-2.5">
+            <ThemeToggle />
+
+            <button
+              type="button"
+              onClick={handleBack}
+              className="group inline-flex items-center gap-1.5 bg-transparent px-1 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+            >
+              <IconArrowLeft className="transition group-hover:-translate-x-0.5" />
+              Back
+            </button>
+          </div>
+        </nav>
+
+        <div className="mx-auto flex min-h-0 w-full max-w-[1200px] flex-1 items-start gap-12 overflow-hidden px-5 lg:gap-14 lg:px-12 xl:px-16">
+          <aside
+            className={cn(
+              'hidden h-full w-60 shrink-0 overflow-y-auto py-7 pr-2 lg:block',
+              scrollbarClass
+            )}
+            aria-label="Table of contents"
+          >
+            <div className="mb-3 px-3 font-mono text-[9px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">
+              Contents
+            </div>
+
+            <ul className="flex flex-col gap-0.5">
+              {TOC.map((item) => (
+                <li key={item.id}>
+                  <a
+                    href={`#${item.id}`}
+                    onClick={(e) => handleTocClick(e, item.id)}
+                    className={cn(
+                      'flex items-center gap-2 rounded-lg px-3 py-2 text-[12.5px] leading-snug text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.06)] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[#e8816a]',
+                      activeId === item.id &&
+                        'bg-[rgba(184,76,43,0.06)] font-medium text-[#b84c2b] dark:bg-[rgba(232,129,106,0.08)] dark:text-[#e8816a]'
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        'min-w-4 shrink-0 font-mono text-[9px] text-[#e0d0c5] transition dark:text-white/20',
+                        activeId === item.id &&
+                          'text-[#e8816a] dark:text-[#f5a090]'
+                      )}
+                    >
+                      {item.num}
+                    </span>
+                    {item.label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+
+            <div className="mx-3 my-3 h-px bg-[#e0d0c5] dark:bg-white/15" />
+
+            <div className="px-3 font-mono text-[9px] tracking-[0.06em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+              Version 6.6.2 · May 2026
+            </div>
+          </aside>
+
+          <main
+            ref={scrollAreaRef}
+            className={cn(
+              'h-full min-w-0 flex-1 overflow-y-auto overflow-x-hidden py-10 pb-20 pr-1',
+              scrollbarClass
+            )}
+            aria-label="Terms of Service content"
+          >
+            <div className="pp-section mb-9">
+              <div className="mb-[18px] inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <span className="h-[5px] w-[5px] animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+                Legal Agreement
+              </div>
+
+              <h1 className="mb-3.5 font-serif text-[clamp(30px,5vw,48px)] font-extrabold leading-[1.08] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
+                Terms of Service
+              </h1>
+
+              <p className="mb-5 max-w-[640px] text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+                These terms govern your access to and use of Imminiq — our
+                AI-powered personalized learning platform. Please read them
+                carefully before creating an account.
+              </p>
+
+              <div className="flex flex-wrap items-center gap-4">
+                {[
+                  'Effective: 1 May 2026',
+                  'Last Updated: 10 May 2026',
+                  'Version 6.6.2',
+                ].map((item) => (
+                  <div
+                    key={item}
+                    className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#6b5f58] dark:text-[#9b9a92]"
+                  >
+                    <span className="text-[#b84c2b] opacity-70 dark:text-[#e8816a]">
+                      <IconShield className="h-3 w-3" />
+                    </span>
+                    {item}
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div
+              className="mb-10 flex items-start gap-3.5 rounded-xl border border-[rgba(240,165,0,0.22)] bg-[rgba(240,165,0,0.07)] px-5 py-4 dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.08)]"
+              role="note"
+              aria-label="Important notice"
+            >
+              <div className="mt-0.5 shrink-0 text-[#f0a500] dark:text-[#f0a842]">
+                <svg
+                  width="18"
+                  height="18"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  aria-hidden="true"
+                >
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="12" y1="8" x2="12" y2="12" />
+                  <line x1="12" y1="16" x2="12.01" y2="16" />
+                </svg>
+              </div>
+
+              <div>
+                <strong className="mb-1.5 block text-[13.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                  Important — Please Read Before Using Imminiq
+                </strong>
+                <p className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                  By registering an account or using any part of this platform,
+                  you agree to be bound by these Terms. If you do not agree, you
+                  must not access or use Imminiq. These Terms apply to all users
+                  — free, pro, and premium.
+                </p>
+              </div>
+            </div>
+
+            <Section id="s1" num="01" title="Acceptance of Terms">
+              <BodyP>
+                Welcome to Imminiq. These Terms of Service constitute a legally
+                binding agreement between you and Imminiq regarding your access
+                to and use of the Imminiq platform, including our website, mobile
+                applications, APIs, and associated services.
+              </BodyP>
+
+              <BodyP>
+                By clicking <strong>Create account</strong>, completing the
+                registration process, signing in via Google or GitHub, or
+                otherwise accessing the Platform, you acknowledge that you have
+                read, understood, and agreed to these Terms and our{' '}
+                <Link
+                  className="font-medium text-[#b84c2b] underline underline-offset-4 hover:text-[#963d22] dark:text-[#e8816a] dark:hover:text-[#f5a090]"
+                  to="/privacy"
+                >
+                  Scholarly Privacy Policy
+                </Link>
+                .
+              </BodyP>
+
+              <HighlightCard label="Quick Summary">
+                Using Imminiq means agreeing to these Terms. If you are
+                registering on behalf of an organization, you confirm that you
+                have the authority to bind that organization to these Terms.
+              </HighlightCard>
+            </Section>
+
+            <Section id="s2" num="02" title="Eligibility">
+              <BodyP>To use Imminiq, you must meet the following requirements:</BodyP>
+
+              <TermsList
+                items={[
+                  <>
+                    You must be at least <strong>13 years of age</strong>. If you
+                    are under 18, you may only use the Platform with the consent
+                    and supervision of a parent or legal guardian.
+                  </>,
+                  'You must not be prohibited from using the Platform under applicable law in your jurisdiction.',
+                  'You must not have had a previous account suspended or terminated by Imminiq for violations of these Terms.',
+                  'If using institutional or educational access, you must comply with any additional terms established by your institution.',
+                ]}
+              />
+
+              <BodyP>
+                We reserve the right to verify eligibility and to refuse service,
+                close accounts, and remove or edit content at our sole discretion.
+              </BodyP>
+            </Section>
+
+            <Section id="s3" num="03" title="Account Registration & Security">
+              <BodyP>
+                To access most features of Imminiq, you must create an account.
+                When registering, you agree to:
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Provide accurate, current, and complete information during registration, including a valid email address or phone number.',
+                  'Maintain and promptly update your account information to keep it accurate and complete.',
+                  'Choose a strong password and keep it confidential. You are responsible for all activity under your account.',
+                  <>
+                    Notify us immediately at{' '}
+                    <EmailLink>security@imminiq.com</EmailLink> if you suspect
+                    any unauthorized use of your account.
+                  </>,
+                  'Not share your account credentials with any third party or allow others to access your account.',
+                ]}
+              />
+
+              <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
+                <div className="rounded-[10px] border border-[#e0d0c5] bg-white p-4 dark:border-white/15 dark:bg-[#252320]">
+                  <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <IconShield className="text-[#b84c2b] dark:text-[#e8816a]" />
+                    Two-Factor Authentication
+                  </strong>
+                  <p className="m-0 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                    We strongly recommend enabling TOTP-based 2FA from your
+                    account settings for additional security.
+                  </p>
+                </div>
+
+                <div className="rounded-[10px] border border-[#e0d0c5] bg-white p-4 dark:border-white/15 dark:bg-[#252320]">
+                  <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <IconDoc className="text-[#b84c2b] dark:text-[#e8816a]" />
+                    One Account Per Person
+                  </strong>
+                  <p className="m-0 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                    Each individual may only maintain one active Imminiq account.
+                    Creating multiple accounts to bypass restrictions is
+                    prohibited.
+                  </p>
+                </div>
+              </div>
+            </Section>
+
+            <Section id="s4" num="04" title="Platform Services">
+              <BodyP>
+                Imminiq provides an AI-powered personalized learning platform.
+                Our core services include:
+              </BodyP>
+
+              <TermsList
+                variant="check"
+                items={[
+                  'AI-generated personalized learning roadmaps and tracker management.',
+                  'Mock test creation, AI evaluation, and performance analytics.',
+                  'In-browser code practice environment with multi-language support.',
+                  'Community learning features: tracker sharing, challenges, and leaderboards.',
+                  'Real-time chat, video calls, and social learning tools.',
+                  'Streak tracking, coins, store items, and gamification rewards.',
+                ]}
+              />
+
+              <BodyP>
+                We reserve the right to modify, suspend, or discontinue any
+                feature or service at any time, with or without notice.
+              </BodyP>
+            </Section>
+
+            <Section id="s5" num="05" title="User Conduct & Acceptable Use">
+              <BodyP>
+                You agree to use Imminiq only for lawful, educational, and
+                personal learning purposes. The following are{' '}
+                <strong>strictly prohibited</strong>:
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Submitting false, misleading, or fraudulent information to the Platform or other users.',
+                  'Harassing, bullying, threatening, or abusing other users through challenges, chat, or community posts.',
+                  'Sharing, distributing, or uploading content that is offensive, defamatory, obscene, or illegal.',
+                  'Using bots, scripts, or automation tools to interact with the Platform in an unauthorized manner.',
+                  'Attempting to gain unauthorized access to accounts, systems, or restricted areas of the Platform.',
+                  'Using AI features to generate or propagate misinformation, fake academic content, or plagiarized material.',
+                  'Reverse engineering, decompiling, or attempting to extract source code from the Platform.',
+                  'Violating any applicable local, national, or international laws or regulations.',
+                  'Creating multiple accounts to manipulate leaderboards, challenges, or referral rewards.',
+                ]}
+              />
+
+              <BodyP>
+                Violation of these conduct rules may result in immediate account
+                suspension, permanent banning, and legal action where applicable.
+              </BodyP>
+            </Section>
+
+            <Section id="s6" num="06" title="Intellectual Property">
+              <BodyP>
+                All content on the Platform created by or on behalf of Imminiq —
+                including platform design, interface elements, brand assets,
+                AI-generated roadmap frameworks, proprietary algorithms, lesson
+                structures, and documentation — is the exclusive property of
+                Imminiq.
+              </BodyP>
+
+              <BodyP>
+                You may not copy, reproduce, distribute, transmit, display, sell,
+                or create derivative works from our proprietary content without
+                express prior written permission.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Viewing and using platform content for your own personal, non-commercial learning.',
+                  'Cloning publicly shared community trackers for your own educational use within the Platform.',
+                  'Sharing your personal learning progress, streaks, and certificates on external platforms.',
+                ]}
+              />
+
+              <BodyP>
+                The Imminiq name, logo, and brand identity are trademarks of
+                Imminiq. Unauthorized use of our trademarks is prohibited.
+              </BodyP>
+            </Section>
+
+            <Section id="s7" num="07" title="User-Generated Content">
+              <BodyP>
+                You may create and share content on Imminiq, including learning
+                trackers, community posts, comments, reviews, and code
+                submissions.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'You retain ownership of your User Content. You grant Imminiq a worldwide, non-exclusive, royalty-free licence to use, display, reproduce, and distribute your User Content solely for operating and improving the Platform.',
+                  'You confirm that your User Content does not infringe upon the intellectual property rights, privacy rights, or other rights of any third party.',
+                  'Imminiq may remove any User Content that violates these Terms, our Community Guidelines, or applicable law.',
+                  'Once published to the community feed, your tracker may be cloned by other users under the Platform sharing system.',
+                ]}
+              />
+
+              <BodyP>
+                You are solely responsible for all User Content you submit.
+                Imminiq does not endorse or verify the accuracy of User Content.
+              </BodyP>
+            </Section>
+
+            <Section id="s8" num="08" title="AI Features & Limitations">
+              <BodyP>
+                Imminiq uses third-party AI models to power features including
+                roadmap generation, lesson explanations, mock test creation, code
+                review, and performance analysis.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  <>
+                    <strong>
+                      AI outputs are not guaranteed to be accurate, complete, or
+                      appropriate for all use cases.
+                    </strong>{' '}
+                    You should verify critical information from authoritative
+                    external sources.
+                  </>,
+                  'AI-generated roadmaps, test questions, and lesson content are learning aids — not substitutes for professional academic advice or certified curricula.',
+                  'Your prompts and interactions with AI features may be used to improve our AI systems, subject to our Privacy Policy.',
+                  'AI usage is subject to daily quotas based on your subscription plan.',
+                  'We reserve the right to update, change, or replace the AI models powering our features as technology evolves.',
+                ]}
+              />
+
+              <HighlightCard label="Academic Integrity">
+                AI features on Imminiq are designed to support learning, not to
+                replace your own intellectual effort. You are responsible for how
+                you use AI outputs outside Imminiq.
+              </HighlightCard>
+            </Section>
+
+            <Section id="s9" num="09" title="Subscriptions & Payments">
+              <BodyP>
+                Imminiq offers Free, Pro, and Premium subscription tiers. Paid
+                subscriptions are billed through our payment gateway Razorpay.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  <>
+                    <strong>Billing.</strong> Subscriptions are billed monthly or
+                    annually as selected at checkout.
+                  </>,
+                  <>
+                    <strong>Auto-renewal.</strong> Subscriptions renew
+                    automatically unless you cancel before the renewal date.
+                  </>,
+                  <>
+                    <strong>Upgrades & Downgrades.</strong> Plan changes take
+                    effect at the next billing cycle unless upgrading.
+                  </>,
+                  <>
+                    <strong>Cancellation.</strong> You may cancel at any time.
+                    Your subscription remains active until the end of the current
+                    billing period.
+                  </>,
+                  <>
+                    <strong>Refunds.</strong> Refund requests may be submitted
+                    within 7 days of an initial purchase and are assessed case by
+                    case.
+                  </>,
+                  <>
+                    <strong>Taxes.</strong> Applicable taxes may be calculated
+                    and added at checkout based on your billing location.
+                  </>,
+                  <>
+                    <strong>Failed Payments.</strong> If payment continues to
+                    fail, your subscription may be downgraded to the Free tier.
+                  </>,
+                ]}
+              />
+            </Section>
+
+            <Section id="s10" num="10" title="Coins, Store & Rewards">
+              <BodyP>
+                Imminiq operates an in-app virtual economy using Coins as a
+                non-monetary reward currency.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Coins have no real-world monetary value, cannot be exchanged for cash, and are non-transferable between accounts.',
+                  'Coins are earned through legitimate platform activities such as completing subtopics, winning challenges, verifying trackers, and successful referrals.',
+                  'Purchased store items, badges, and powerups are tied to your account and are non-transferable and non-refundable.',
+                  'We reserve the right to modify earning rates, store catalog, and item prices at any time.',
+                  'Coins obtained through exploits, bugs, or unauthorized means will be revoked and may result in account suspension.',
+                  'Referral rewards are subject to verification and may be withheld if fraudulent activity is detected.',
+                ]}
+              />
+            </Section>
+
+            <Section id="s11" num="11" title="Termination & Suspension">
+              <BodyP>Either you or Imminiq may terminate your account at any time.</BodyP>
+
+              <BodyP>
+                <strong>By you:</strong> You may delete your account at any time
+                from Settings → Account → Delete Account. Deletion initiates a
+                30-day grace period during which your account is deactivated.
+              </BodyP>
+
+              <BodyP>
+                <strong>By Imminiq:</strong> We may suspend or terminate your
+                account without prior notice if we determine that you violated
+                these Terms, engaged in fraudulent activity, or pose a risk to
+                users or the platform.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Access to all account features may be immediately revoked.',
+                  'Active subscriptions may be cancelled without refund.',
+                  'Accumulated Coins and store items may be forfeited.',
+                  <>
+                    You may appeal a suspension by contacting{' '}
+                    <EmailLink>appeals@imminiq.com</EmailLink>.
+                  </>,
+                ]}
+              />
+            </Section>
+
+            <Section id="s12" num="12" title="Disclaimers & Warranties">
+              <BodyP>
+                The Platform is provided on an <strong>as is</strong> and{' '}
+                <strong>as available</strong> basis without warranties of any
+                kind, either express or implied.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Implied warranties of merchantability, fitness for a particular purpose, and non-infringement.',
+                  'Warranties that the Platform will be error-free, uninterrupted, secure, or free from viruses.',
+                  'Warranties regarding the accuracy, reliability, or completeness of AI-generated content.',
+                  'Warranties that the Platform will meet your specific educational or professional requirements.',
+                ]}
+              />
+
+              <BodyP>
+                We do not warrant that learning outcomes will result from use of
+                the Platform. Educational progress depends on your individual
+                effort, consistency, and application of knowledge.
+              </BodyP>
+            </Section>
+
+            <Section id="s13" num="13" title="Limitation of Liability">
+              <BodyP>
+                To the fullest extent permitted by applicable law, Imminiq and
+                its officers, directors, employees, partners, and licensors shall
+                not be liable for:
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Indirect, incidental, special, consequential, or punitive damages arising out of your use of the Platform.',
+                  'Loss of data, profits, goodwill, or business opportunities.',
+                  'Damages resulting from unauthorized access to your account due to your failure to maintain account security.',
+                  'Errors, inaccuracies, or omissions in any AI-generated content or platform data.',
+                ]}
+              />
+
+              <BodyP>
+                Our total aggregate liability to you shall not exceed the greater
+                of either the amount you paid to Imminiq in the 12 months
+                preceding the claim, or INR 1,000.
+              </BodyP>
+            </Section>
+
+            <Section id="s14" num="14" title="Governing Law & Disputes">
+              <BodyP>
+                These Terms are governed by and construed in accordance with the
+                laws of India. Any disputes shall be subject to the exclusive
+                jurisdiction of the competent courts located in Kerala, India.
+              </BodyP>
+
+              <BodyP>
+                Before initiating formal legal proceedings, both parties agree to
+                make a good-faith effort to resolve disputes through informal
+                negotiation. Contact us at{' '}
+                <EmailLink>legal@imminiq.com</EmailLink>.
+              </BodyP>
+
+              <HighlightCard label="Users Outside India">
+                If you access Imminiq from outside India, you do so at your own
+                risk and are responsible for compliance with local laws.
+              </HighlightCard>
+            </Section>
+
+            <Section id="s15" num="15" title="Changes to These Terms">
+              <BodyP>
+                We may update these Terms from time to time to reflect changes in
+                our services, legal requirements, or business practices.
+              </BodyP>
+
+              <TermsList
+                items={[
+                  'Update the Last Updated date at the top of this page.',
+                  'Send an in-app notification and, where appropriate, an email notification to registered users.',
+                  'Display a prominent notice within the Platform for a period of at least 14 days.',
+                ]}
+              />
+
+              <BodyP>
+                Your continued use of Imminiq after the effective date of
+                revised Terms constitutes your acceptance of those changes.
+              </BodyP>
+            </Section>
+
+            <Section id="s16" num="16" title="Contact Us">
+              <BodyP>
+                If you have any questions, concerns, or requests regarding these
+                Terms, please reach out through one of the following channels:
+              </BodyP>
+
+              <div className="rounded-[13px] border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
+                <div className="mb-4 flex items-start gap-4">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                    <IconMail />
+                  </div>
+
+                  <div>
+                    <strong className="mb-1 block text-[13.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                      Legal Enquiries
+                    </strong>
+                    <p className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                      For Terms of Service questions, legal notices, and
+                      compliance requests:{' '}
+                      <EmailLink>legal@imminiq.com</EmailLink>
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-start gap-4 border-t border-[#e0d0c5] pt-4 dark:border-white/15">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                    <IconShield />
+                  </div>
+
+                  <div>
+                    <strong className="mb-1 block text-[13.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                      Account & Security
+                    </strong>
+                    <p className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                      For account access, security concerns, and suspension
+                      appeals: <EmailLink>support@imminiq.com</EmailLink>
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </Section>
+
+            <div className="mt-[60px] rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 py-12 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-8">
+              <div className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-[14px] border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)] dark:text-[#5cc98a]">
+                <IconCheck className="h-6 w-6" />
+              </div>
+
+              <h3 className="mb-2.5 font-serif text-[22px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                Ready to start learning?
+              </h3>
+
+              <p className="mx-auto mb-6 max-w-[560px] text-sm leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+                By creating your account, you confirm you have read and agree to
+                these Terms and our Scholarly Privacy Policy.
+              </p>
+
+              <Link
+                to="/register"
+                className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-6 py-3 text-sm font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+              >
+                Create Account
+                <IconArrowRight />
+              </Link>
+            </div>
+
+            <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] pt-5 text-xs text-[#6b5f58] dark:border-white/15 dark:text-[#9b9a92]">
+              <span>© 2026 Imminiq. Crafted for the intentional learner.</span>
+
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
+                <Link
+                  to="/privacy"
+                  className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+                >
+                  Scholarly Privacy Policy
+                </Link>
+                <Link
+                  to="/terms"
+                  className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+                >
+                  Terms of Service
+                </Link>
+                <a
+                  href="mailto:legal@imminiq.com"
+                  className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+                >
+                  Legal Contact
+                </a>
+              </div>
+            </footer>
+          </main>
+        </div>
+      </div>
+    </div>
+  )
+}

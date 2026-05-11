@@ -1,6 +1,11 @@
 export type AuthRole = 'user' | 'admin' | 'moderator' | 'superadmin'
 
-export type UserStatus = 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
+export type UserStatus =
+  | 'active'
+  | 'paused'
+  | 'blocked'
+  | 'deactivated'
+  | 'banned'
 
 export type VerificationMethod = 'email' | 'phone'
 

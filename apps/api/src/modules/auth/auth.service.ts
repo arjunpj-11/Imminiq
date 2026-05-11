@@ -39,12 +39,48 @@ const normalizeIdentifier = (identifier: string) => {
     }
   }
 
+  const normalizedPhone = value.replace(/\s/g, '')
+
   return {
     email: undefined,
-    phone: value.replace(/\s/g, ''),
+    phone: normalizedPhone,
     method: 'phone' as const,
-    value: value.replace(/\s/g, ''),
+    value: normalizedPhone,
   }
+}
+
+const getVerificationPurpose = (
+  method: 'email' | 'phone'
+): OtpPurpose => {
+  return method === 'email' ? 'email_verification' : 'phone_verification'
+}
+
+const sendVerificationOtp = async (data: {
+  email?: string
+  phone?: string
+  method: 'email' | 'phone'
+}) => {
+  const otp = authService.generateOtp()
+  const purpose = getVerificationPurpose(data.method)
+
+  await authRepository.saveOtp({
+    email: data.email,
+    phone: data.phone,
+    otp,
+    purpose,
+  })
+
+  if (data.email) {
+    await sendMail(
+      data.email,
+      'Verify your Imminiq account',
+      `<p>Your verification code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`
+    )
+  }
+
+  // TODO: send SMS when phone verification provider is added.
+
+  return otp
 }
 
 export const authService = {
@@ -59,18 +95,50 @@ export const authService = {
 
     const parsedIdentifier = normalizeIdentifier(identifier)
 
+    // If same email exists but is unverified:
+    // Do not show "Email already in use".
+    // Resend OTP and return verification response.
     if (parsedIdentifier.email) {
-      const exists = await authRepository.emailExists(parsedIdentifier.email)
+      const existingUser = await authRepository.findByEmail(parsedIdentifier.email)
 
-      if (exists) {
+      if (existingUser) {
+        if (!existingUser.emailVerified) {
+          await sendVerificationOtp({
+            email: parsedIdentifier.email,
+            method: 'email',
+          })
+
+          return {
+            user: authService.formatUser(existingUser),
+            verificationTarget: parsedIdentifier.value,
+            verificationMethod: parsedIdentifier.method,
+          }
+        }
+
         throw new ApiError(409, 'Email already in use', 'EMAIL_TAKEN')
       }
     }
 
+    // If same phone exists but is unverified:
+    // Do not show "Phone already in use".
+    // Resend OTP and return verification response.
     if (parsedIdentifier.phone) {
-      const exists = await authRepository.phoneExists(parsedIdentifier.phone)
+      const existingUser = await authRepository.findByPhone(parsedIdentifier.phone)
 
-      if (exists) {
+      if (existingUser) {
+        if (!existingUser.phoneVerified) {
+          await sendVerificationOtp({
+            phone: parsedIdentifier.phone,
+            method: 'phone',
+          })
+
+          return {
+            user: authService.formatUser(existingUser),
+            verificationTarget: parsedIdentifier.value,
+            verificationMethod: parsedIdentifier.method,
+          }
+        }
+
         throw new ApiError(409, 'Phone already in use', 'PHONE_TAKEN')
       }
     }
@@ -88,29 +156,11 @@ export const authService = {
       passwordHash,
     })
 
-    const otp = authService.generateOtp()
-
-    const purpose: OtpPurpose =
-      parsedIdentifier.method === 'email'
-        ? 'email_verification'
-        : 'phone_verification'
-
-    await authRepository.saveOtp({
+    await sendVerificationOtp({
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
-      otp,
-      purpose,
+      method: parsedIdentifier.method,
     })
-
-    if (parsedIdentifier.email) {
-      await sendMail(
-        parsedIdentifier.email,
-        'Verify your Imminiq account',
-        `<p>Your verification code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`
-      )
-    }
-
-    // TODO: send SMS when phone verification provider is added.
 
     return {
       user: authService.formatUser(user),
@@ -125,6 +175,8 @@ export const authService = {
     payload: LoginPayload,
     meta?: RequestMeta
   ): Promise<{ tokens: TokenPair; user: AuthUser }> => {
+    const parsedIdentifier = normalizeIdentifier(payload.identifier)
+
     const user = await authRepository.findByIdentifier(payload.identifier)
 
     if (!user) {
@@ -139,6 +191,10 @@ export const authService = {
       throw new ApiError(403, 'Account deactivated', 'ACCOUNT_DEACTIVATED')
     }
 
+    if (user.status === 'paused') {
+      throw new ApiError(403, 'Account paused', 'ACCOUNT_PAUSED')
+    }
+
     if (!user.passwordHash) {
       throw new ApiError(
         400,
@@ -151,6 +207,36 @@ export const authService = {
 
     if (!valid) {
       throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
+    }
+
+    // Email login: block if email is not verified.
+    // Also resend OTP so user can verify immediately.
+    if (parsedIdentifier.method === 'email' && !user.emailVerified) {
+      await sendVerificationOtp({
+        email: parsedIdentifier.email,
+        method: 'email',
+      })
+
+      throw new ApiError(
+        403,
+        'Please verify your email before signing in. A new OTP has been sent.',
+        'EMAIL_NOT_VERIFIED'
+      )
+    }
+
+    // Phone login: block if phone is not verified.
+    // Also resend OTP so user can verify immediately.
+    if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
+      await sendVerificationOtp({
+        phone: parsedIdentifier.phone,
+        method: 'phone',
+      })
+
+      throw new ApiError(
+        403,
+        'Please verify your phone before signing in. A new OTP has been sent.',
+        'PHONE_NOT_VERIFIED'
+      )
     }
 
     const tokens = await authService.generateTokenPair(
@@ -223,6 +309,10 @@ export const authService = {
       throw new ApiError(403, 'Account deactivated', 'ACCOUNT_DEACTIVATED')
     }
 
+    if (user.status === 'paused') {
+      throw new ApiError(403, 'Account paused', 'ACCOUNT_PAUSED')
+    }
+
     await authRepository.revokeRefreshToken(refreshToken)
 
     return authService.generateTokenPair(
@@ -272,24 +362,61 @@ export const authService = {
     }
 
     if (parsedIdentifier.method === 'email') {
+      if (user.emailVerified) {
+        throw new ApiError(
+          400,
+          'Email is already verified',
+          'EMAIL_ALREADY_VERIFIED'
+        )
+      }
+
       await authRepository.markEmailVerified(user._id.toString())
     } else {
+      if (user.phoneVerified) {
+        throw new ApiError(
+          400,
+          'Phone is already verified',
+          'PHONE_ALREADY_VERIFIED'
+        )
+      }
+
       await authRepository.markPhoneVerified(user._id.toString())
     }
   },
 
   // ─── RESEND OTP ──────────────────────────────────
 
-  resendOtp: async (
-    identifier: string,
-    purpose: OtpPurpose
-  ) => {
+  resendOtp: async (identifier: string, purpose: OtpPurpose) => {
     const parsedIdentifier = normalizeIdentifier(identifier)
 
     const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
     if (!user) {
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
+    }
+
+    if (
+      purpose === 'email_verification' &&
+      parsedIdentifier.method === 'email' &&
+      user.emailVerified
+    ) {
+      throw new ApiError(
+        400,
+        'Email is already verified',
+        'EMAIL_ALREADY_VERIFIED'
+      )
+    }
+
+    if (
+      purpose === 'phone_verification' &&
+      parsedIdentifier.method === 'phone' &&
+      user.phoneVerified
+    ) {
+      throw new ApiError(
+        400,
+        'Phone is already verified',
+        'PHONE_ALREADY_VERIFIED'
+      )
     }
 
     const otp = authService.generateOtp()
@@ -351,50 +478,74 @@ export const authService = {
 
   // ─── VERIFY RESET CODE ───────────────────────────
 
-  verifyResetCode: async (identifier: string, otp: string) => {
-    const parsedIdentifier = normalizeIdentifier(identifier)
+verifyResetCode: async (identifier: string, otp: string) => {
+  const parsedIdentifier = normalizeIdentifier(identifier)
 
-    const valid = await authRepository.verifyOtp({
-      email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
-      otp,
+  const valid = await authRepository.verifyOtp({
+    email: parsedIdentifier.email,
+    phone: parsedIdentifier.phone,
+    otp,
+    purpose: 'password_reset',
+  })
+
+  if (!valid) {
+    throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+  }
+
+  const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+
+  if (!user) {
+    throw new ApiError(404, 'User not found', 'NOT_FOUND')
+  }
+
+  const resetToken = jwt.sign(
+    {
+      userId: user._id.toString(),
       purpose: 'password_reset',
-    })
-
-    if (!valid) {
-      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+    },
+    env.JWT_SECRET,
+    {
+      expiresIn: '10m',
     }
-  },
+  )
+
+  return {
+    resetToken,
+  }
+},
 
   // ─── RESET PASSWORD ──────────────────────────────
 
-  resetPassword: async (
-    identifier: string,
-    otp: string,
-    newPassword: string
-  ) => {
-    const parsedIdentifier = normalizeIdentifier(identifier)
+ resetPassword: async (resetToken: string, newPassword: string) => {
+  let decoded: ResetTokenPayload
 
-    const valid = await authRepository.verifyOtp({
-      email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
-      otp,
-      purpose: 'password_reset',
-    })
+  try {
+    decoded = jwt.verify(resetToken, env.JWT_SECRET) as ResetTokenPayload
+  } catch {
+    throw new ApiError(
+      400,
+      'Invalid or expired reset token',
+      'INVALID_RESET_TOKEN'
+    )
+  }
 
-    if (!valid) {
-      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
-    }
+  if (decoded.purpose !== 'password_reset') {
+    throw new ApiError(
+      400,
+      'Invalid reset token',
+      'INVALID_RESET_TOKEN'
+    )
+  }
 
-    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+  const user = await authRepository.findById(decoded.userId)
 
-    if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
-    }
+  if (!user) {
+    throw new ApiError(404, 'User not found', 'NOT_FOUND')
+  }
 
-    await authRepository.updatePassword(user._id.toString(), newPassword)
-    await authRepository.revokeAllUserTokens(user._id.toString())
-  },
+  await authRepository.updatePassword(user._id.toString(), newPassword)
+  await authRepository.revokeAllUserTokens(user._id.toString())
+},
 
   // ─── CHANGE PASSWORD ─────────────────────────────
 
@@ -432,14 +583,30 @@ export const authService = {
   checkIdentifier: async (identifier: string) => {
     const parsedIdentifier = normalizeIdentifier(identifier)
 
-    const exists =
+    const existingUser =
       parsedIdentifier.method === 'email'
-        ? await authRepository.emailExists(parsedIdentifier.value)
-        : await authRepository.phoneExists(parsedIdentifier.value)
+        ? await authRepository.findByEmail(parsedIdentifier.value)
+        : await authRepository.findByPhone(parsedIdentifier.value)
+
+    // Important:
+    // Unverified users should not block the frontend with "already used".
+    if (existingUser) {
+      const isVerified =
+        parsedIdentifier.method === 'email'
+          ? existingUser.emailVerified
+          : existingUser.phoneVerified
+
+      return {
+        available: !isVerified,
+        type: parsedIdentifier.method,
+        needsVerification: !isVerified,
+      }
+    }
 
     return {
-      available: !exists,
+      available: true,
       type: parsedIdentifier.method,
+      needsVerification: false,
     }
   },
 

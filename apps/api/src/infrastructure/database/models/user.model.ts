@@ -19,6 +19,9 @@ export interface IUser extends Document {
   emailVerified: boolean
   phoneVerified: boolean
 
+  // Used to auto-delete unverified accounts
+  verificationExpiresAt?: Date | null
+
   provider: 'local' | 'google' | 'github'
   providerId?: string
 
@@ -104,6 +107,15 @@ const userSchema = new Schema<IUser>(
     phoneVerified: {
       type: Boolean,
       default: false,
+    },
+
+    // New field:
+    // While user is unverified, this has a future date.
+    // After verification, it becomes null.
+    // MongoDB TTL index deletes users when this date passes.
+    verificationExpiresAt: {
+      type: Date,
+      default: null,
     },
 
     provider: {
@@ -216,6 +228,21 @@ userSchema.index(
     unique: true,
     partialFilterExpression: {
       referralCode: { $type: 'string' },
+    },
+  }
+)
+
+// Auto-delete unverified local accounts after verificationExpiresAt.
+// Verified users will have verificationExpiresAt: null, so they are safe.
+userSchema.index(
+  { verificationExpiresAt: 1 },
+  {
+    expireAfterSeconds: 0,
+    partialFilterExpression: {
+      provider: 'local',
+      emailVerified: false,
+      phoneVerified: false,
+      deletedAt: null,
     },
   }
 )
