@@ -71,7 +71,7 @@ export const initPassport = () => {
             })
           }
 
-          return done(null, user)
+          return done(null, user as unknown as Express.User)
         } catch (error) {
           return done(error)
         }
@@ -118,7 +118,7 @@ export const initPassport = () => {
             })
           }
 
-          return done(null, user)
+         return done(null, user as unknown as Express.User)
         } catch (error) {
           return done(error)
         }
