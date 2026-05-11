@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import type { ClipboardEvent, KeyboardEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import api from '../../../lib/axios'
 import ThemeToggle from '../../../components/ui/ThemeToggle'
 
@@ -211,9 +213,9 @@ export default function VerifyAccountPage() {
   }
 
   const handleKeyDown = (
-    event: React.KeyboardEvent<HTMLInputElement>,
-    index: number
-  ) => {
+  event: KeyboardEvent<HTMLInputElement>,
+  index: number
+) => {
     if (event.key === 'Backspace') {
       event.preventDefault()
 
@@ -253,7 +255,7 @@ export default function VerifyAccountPage() {
     }
   }
 
-  const handlePaste = (event: React.ClipboardEvent<HTMLInputElement>) => {
+ const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
     event.preventDefault()
 
     const pastedText = event.clipboardData.getData('text')
@@ -342,14 +344,17 @@ if (isPasswordReset) {
   },
 })
       }, 1300)
-    } catch (error: any) {
-      const message =
-        error.response?.data?.message || 'Invalid code. Please try again.'
+    } catch (error: unknown) {
+  let message = 'Invalid code. Please try again.'
 
-      setError(message)
-      setDigits(Array(OTP_LENGTH).fill(''))
-      inputRefs.current[0]?.focus()
-    } finally {
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    message = error.response?.data?.message || message
+  }
+
+  setError(message)
+  setDigits(Array(OTP_LENGTH).fill(''))
+  inputRefs.current[0]?.focus()
+} finally {
       setIsVerifying(false)
     }
   }
@@ -386,9 +391,12 @@ if (isPasswordReset) {
       setSecondsLeft(TOTAL_SECONDS)
       setResendLeft(RESEND_WAIT)
       inputRefs.current[0]?.focus()
-    } catch (error: any) {
-      const message =
-        error.response?.data?.message || 'Failed to resend OTP. Please try again.'
+    } catch (error: unknown) {
+      let message = 'Failed to resend OTP. Please try again.'
+
+      if (axios.isAxiosError<{ message?: string }>(error)) {
+        message = error.response?.data?.message || message
+      }
 
       setError(message)
     } finally {
@@ -420,7 +428,7 @@ if (isPasswordReset) {
     <>
       {isSuccess && (
         <div
-          className="fixed inset-0 z-[100] flex flex-col items-center justify-center gap-4 bg-[#f5ede4] px-6 text-center text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]"
+          className="fixed inset-0 z-100 flex flex-col items-center justify-center gap-4 bg-[#f5ede4] px-6 text-center text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]"
           aria-live="polite"
           aria-atomic="true"
           role="status"
@@ -457,7 +465,7 @@ if (isPasswordReset) {
 
       <div
         className={cn(
-          'flex min-h-screen flex-col bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif]',
+          'flex min-h-screen flex-col bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif]',
           'dark:bg-[#141412] dark:text-[#f2f0eb]',
           isExiting &&
             'pointer-events-none fixed inset-0 scale-90 opacity-0 transition duration-500'
@@ -472,7 +480,7 @@ if (isPasswordReset) {
             to="/"
             aria-label="Imminiq home"
           >
-            <LogoIcon className="h-[34px] w-[34px]" />
+            <LogoIcon className="h-8.5 w-8.5" />
 
             <span className="text-xl font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
               immin<span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
@@ -509,14 +517,14 @@ if (isPasswordReset) {
         </nav>
 
         <main className="flex flex-1 flex-col items-center justify-center px-4 pb-9 pt-5">
-          <div className="relative w-full max-w-[460px] overflow-hidden rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-8 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-7">
-            <div className="pointer-events-none absolute -top-[60px] left-1/2 h-40 w-[260px] -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(184,76,43,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse,rgba(232,129,106,0.13)_0%,transparent_70%)]" />
+          <div className="relative w-full max-w-115 overflow-hidden rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-8 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-7">
+            <div className="pointer-events-none absolute -top-15 left-1/2 h-40 w-65 -translate-x-1/2 rounded-full bg-[radial-gradient(ellipse,rgba(184,76,43,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(ellipse,rgba(232,129,106,0.13)_0%,transparent_70%)]" />
 
             <div
-              className="relative mb-[18px] flex justify-center"
+              className="relative mb-4.5 flex justify-center"
               aria-hidden="true"
             >
-              <div className="flex h-[62px] w-[62px] items-center justify-center rounded-full border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+              <div className="flex h-15.5 w-15.5 items-center justify-center rounded-full border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
                 <svg
                   width="28"
                   height="28"
@@ -548,7 +556,7 @@ if (isPasswordReset) {
               {isPasswordReset ? 'Verify reset code' : 'Verify your account'}
             </h1>
 
-            <p className="relative mx-auto mb-[26px] max-w-[300px] text-[13.5px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="relative mx-auto mb-6.5 max-w-75 text-[13.5px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
               We sent a 6-digit code to
               <br />
               <span className="break-all font-mono text-[11.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
@@ -562,18 +570,18 @@ if (isPasswordReset) {
             </p>
 
             <div
-              className="relative mb-1.5 flex flex-nowrap justify-center gap-[7px]"
+              className="relative mb-1.5 flex flex-nowrap justify-center gap-1.75"
               role="group"
               aria-label="6-digit verification code"
             >
               {digits.map((digit, index) => (
-                <div className="flex items-center gap-[7px]" key={index}>
+                <div className="flex items-center gap-1.75" key={index}>
                   {index === 3 && (
                     <div
                       className="flex shrink-0 items-center px-0.5"
                       aria-hidden="true"
                     >
-                      <span className="h-[5px] w-[5px] rounded-full bg-[#e0d0c5] dark:bg-white/15" />
+                      <span className="h-1.25 w-1.25 rounded-full bg-[#e0d0c5] dark:bg-white/15" />
                     </div>
                   )}
 
@@ -668,7 +676,7 @@ if (isPasswordReset) {
               onClick={handleVerify}
               disabled={isVerifying || otp.length < OTP_LENGTH}
               className={cn(
-                'mt-6 w-full rounded-[11px] bg-[#b84c2b] p-[13px] text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
+                'mt-6 w-full rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
                 'hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)]',
                 'active:translate-y-0 active:shadow-none',
                 'disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none',
@@ -688,7 +696,7 @@ if (isPasswordReset) {
                 onClick={handleResend}
                 disabled={!canResend}
                 className={cn(
-                  'font-mono text-[10px] uppercase tracking-[0.1em] transition',
+                  'font-mono text-[10px] uppercase tracking-widest transition',
                   canResend
                     ? 'text-[#b84c2b] hover:text-[#963d22] dark:text-[#e8816a] dark:hover:text-[#f5a090]'
                     : 'cursor-not-allowed text-[#6b5f58]/70 dark:text-[#9b9a92]/70'

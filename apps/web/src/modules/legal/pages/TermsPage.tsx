@@ -203,7 +203,7 @@ const TermsList = ({
           ) : (
             <span
               className={cn(
-                'mt-2.5 h-[5px] w-[5px] shrink-0 rounded-full opacity-70',
+                'mt-2.5 h-1.25 w-1.25 shrink-0 rounded-full opacity-70',
                 variant === 'cross'
                   ? 'bg-[#d94535] dark:bg-[#ff6b5f]'
                   : 'bg-[#b84c2b] dark:bg-[#e8816a]'
@@ -274,7 +274,7 @@ const Section = ({
   return (
     <section
       id={id}
-      className="pp-section mb-[52px] scroll-mt-8"
+      className="pp-section mb-13 scroll-mt-8"
       aria-labelledby={`title-${id}`}
     >
       <div className="mb-5 flex items-start gap-3.5 border-b border-[rgba(184,76,43,0.10)] pb-3.5 dark:border-[rgba(232,129,106,0.12)]">
@@ -391,10 +391,10 @@ export default function TermsPage() {
   }, [])
 
   return (
-    <div className="h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif] dark:bg-[#141412] dark:text-[#f2f0eb]">
+    <div className="h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <div
         aria-hidden="true"
-        className="fixed left-0 top-0 z-[100] h-0.5 bg-gradient-to-r from-[#b84c2b] to-[#e8816a] transition-[width] duration-100"
+        className="fixed left-0 top-0 z-100 h-0.5 bg-linear-to-r from-[#b84c2b] to-[#e8816a] transition-[width] duration-100"
         style={{ width: `${readPct}%` }}
       />
 
@@ -409,7 +409,7 @@ export default function TermsPage() {
               className="inline-flex shrink-0 items-center gap-2.5 leading-none"
               aria-label="Imminiq home"
             >
-              <LogoIcon className="h-[34px] w-[34px]" />
+              <LogoIcon className="h-8.5 w-8.5" />
 
               <span className="text-xl font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
                 immin
@@ -419,7 +419,7 @@ export default function TermsPage() {
             </Link>
 
             <div
-              className="hidden h-[18px] w-px bg-[#e0d0c5] dark:bg-white/15 sm:block"
+              className="hidden h-4.5 w-px bg-[#e0d0c5] dark:bg-white/15 sm:block"
               aria-hidden="true"
             />
 
@@ -442,7 +442,7 @@ export default function TermsPage() {
           </div>
         </nav>
 
-        <div className="mx-auto flex min-h-0 w-full max-w-[1200px] flex-1 items-start gap-12 overflow-hidden px-5 lg:gap-14 lg:px-12 xl:px-16">
+        <div className="mx-auto flex min-h-0 w-full max-w-300 flex-1 items-start gap-12 overflow-hidden px-5 lg:gap-14 lg:px-12 xl:px-16">
           <aside
             className={cn(
               'hidden h-full w-60 shrink-0 overflow-y-auto py-7 pr-2 lg:block',
@@ -497,8 +497,8 @@ export default function TermsPage() {
             aria-label="Terms of Service content"
           >
             <div className="pp-section mb-9">
-              <div className="mb-[18px] inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-                <span className="h-[5px] w-[5px] animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+              <div className="mb-4.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
                 Legal Agreement
               </div>
 
@@ -506,7 +506,7 @@ export default function TermsPage() {
                 Terms of Service
               </h1>
 
-              <p className="mb-5 max-w-[640px] text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mb-5 max-w-160 text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
                 These terms govern your access to and use of Imminiq — our
                 AI-powered personalized learning platform. Please read them
                 carefully before creating an account.
@@ -1013,8 +1013,8 @@ export default function TermsPage() {
               </div>
             </Section>
 
-            <div className="mt-[60px] rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 py-12 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-8">
-              <div className="mx-auto mb-4 flex h-[52px] w-[52px] items-center justify-center rounded-[14px] border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)] dark:text-[#5cc98a]">
+            <div className="mt-15 rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 py-12 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-8">
+              <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-[14px] border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)] dark:text-[#5cc98a]">
                 <IconCheck className="h-6 w-6" />
               </div>
 
@@ -1022,7 +1022,7 @@ export default function TermsPage() {
                 Ready to start learning?
               </h3>
 
-              <p className="mx-auto mb-6 max-w-[560px] text-sm leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mx-auto mb-6 max-w-140 text-sm leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
                 By creating your account, you confirm you have read and agree to
                 these Terms and our Scholarly Privacy Policy.
               </p>

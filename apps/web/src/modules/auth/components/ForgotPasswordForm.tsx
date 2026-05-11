@@ -206,7 +206,7 @@ export default function ForgotPasswordForm() {
     <div
       id="forgot-page"
       className={cn(
-        'flex min-h-screen flex-col bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif]',
+        'flex min-h-screen flex-col bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif]',
         'dark:bg-[#141412] dark:text-[#f2f0eb]'
       )}
     >
@@ -222,7 +222,7 @@ export default function ForgotPasswordForm() {
 
         <Link
           to="/login"
-          className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+          className="inline-flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-widest text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
         >
           <svg
             width="13"
@@ -244,11 +244,11 @@ export default function ForgotPasswordForm() {
 
       <main className="relative flex flex-1 items-center justify-center px-4 py-10 sm:px-8">
         <div
-          className="pointer-events-none absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.06)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.10)_0%,transparent_70%)]"
+          className="pointer-events-none absolute left-1/2 top-1/2 h-125 w-125 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.06)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.10)_0%,transparent_70%)]"
           aria-hidden="true"
         />
 
-        <div className="relative w-full max-w-[480px]">
+        <div className="relative w-full max-w-120">
           <div
             className={cn(
               'w-full rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-8 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
@@ -258,7 +258,7 @@ export default function ForgotPasswordForm() {
           >
             <form onSubmit={handleSubmit} noValidate>
               <div className="mb-5 flex justify-center">
-                <div className="flex h-[60px] w-[60px] items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.10)]">
+                <div className="flex h-15 w-15 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.10)]">
                   <svg
                     width="26"
                     height="26"
@@ -292,7 +292,7 @@ export default function ForgotPasswordForm() {
 
               {apiError && (
                 <div
-                  className="mb-[18px] flex items-start gap-2.5 rounded-[10px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+                  className="mb-4.5 flex items-start gap-2.5 rounded-[10px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
                   role="alert"
                   key={apiError}
                 >
@@ -358,7 +358,7 @@ export default function ForgotPasswordForm() {
 
               <button
                 className={cn(
-                  'relative w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-[13px] text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
+                  'relative w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
                   'hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)]',
                   'active:translate-y-0 active:shadow-none',
                   'disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none',

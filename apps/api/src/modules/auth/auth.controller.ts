@@ -3,6 +3,7 @@ import { authService } from './auth.service'
 import { ApiResponse } from '../../shared/utils/ApiResponse'
 import { ApiError } from '../../shared/utils/ApiError'
 import { env } from '../../config/env'
+import { getAuthUser } from '../../shared/utils/getAuthUser'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
@@ -70,7 +71,7 @@ export const authController = {
 
   logoutAll: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await authService.logoutAll(req.user.userId)
+      await authService.logoutAll(getAuthUser(req).userId)
 
       res
         .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
@@ -107,7 +108,7 @@ export const authController = {
 
   getMe: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = await authService.getMe(req.user.userId)
+      const user = await authService.getMe(getAuthUser(req).userId)
 
       res.json(new ApiResponse('User fetched', { user }))
     } catch (error) {
@@ -179,7 +180,7 @@ resetPassword: async (req: Request, res: Response, next: NextFunction) => {
       const { currentPassword, newPassword } = req.body
 
       await authService.changePassword(
-        req.user.userId,
+        getAuthUser(req).userId,
         currentPassword,
         newPassword
       )
@@ -212,7 +213,7 @@ resetPassword: async (req: Request, res: Response, next: NextFunction) => {
 
   getSessions: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const sessions = await authService.getSessions(req.user.userId)
+      const sessions = await authService.getSessions(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Sessions fetched', { sessions }))
     } catch (error) {
@@ -220,15 +221,22 @@ resetPassword: async (req: Request, res: Response, next: NextFunction) => {
     }
   },
 
-  revokeSession: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await authService.revokeSession(req.user.userId, req.params.sessionId)
+revokeSession: async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const user = getAuthUser(req)
+    const { sessionId } = req.params
 
-      res.json(new ApiResponse('Session revoked'))
-    } catch (error) {
-      next(error)
+    if (!sessionId || Array.isArray(sessionId)) {
+      throw new ApiError(400, 'Session ID is required', 'SESSION_ID_REQUIRED')
     }
-  },
+
+    await authService.revokeSession(user.userId, sessionId)
+
+    res.json(new ApiResponse('Session revoked'))
+  } catch (error) {
+    next(error)
+  }
+},
 
   oauthCallback: async (req: Request, res: Response, next: NextFunction) => {
     try {

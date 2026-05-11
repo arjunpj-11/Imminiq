@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
+import jwt, { SignOptions } from 'jsonwebtoken'
 import crypto from 'crypto'
 import { authRepository } from './auth.repository'
 import { ApiError } from '../../shared/utils/ApiError'
@@ -14,6 +14,11 @@ import {
   JwtPayload,
   AuthRole,
 } from './auth.types'
+
+type ResetTokenPayload = {
+  userId: string
+  purpose: 'password_reset'
+}
 
 type OtpPurpose = 'email_verification' | 'phone_verification' | 'password_reset'
 
@@ -498,16 +503,18 @@ verifyResetCode: async (identifier: string, otp: string) => {
     throw new ApiError(404, 'User not found', 'NOT_FOUND')
   }
 
-  const resetToken = jwt.sign(
-    {
-      userId: user._id.toString(),
-      purpose: 'password_reset',
-    },
-    env.JWT_SECRET,
-    {
-      expiresIn: '10m',
-    }
-  )
+  const resetTokenOptions: SignOptions = {
+  expiresIn: '10m',
+}
+
+const resetToken = jwt.sign(
+  {
+    userId: user._id.toString(),
+    purpose: 'password_reset',
+  },
+  env.JWT_SECRET,
+  resetTokenOptions
+)
 
   return {
     resetToken,
@@ -629,35 +636,39 @@ verifyResetCode: async (identifier: string, otp: string) => {
   // ─── HELPERS ─────────────────────────────────────
 
   generateTokenPair: async (
-    userId: string,
-    role: AuthRole,
-    meta?: RequestMeta
-  ): Promise<TokenPair> => {
-    const accessToken = jwt.sign(
-      {
-        userId,
-        role,
-        type: 'access',
-      } as JwtPayload,
-      env.JWT_SECRET,
-      { expiresIn: env.JWT_EXPIRES_IN }
-    )
+  userId: string,
+  role: AuthRole,
+  meta?: RequestMeta
+): Promise<TokenPair> => {
+  const accessTokenOptions: SignOptions = {
+    expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
+  }
 
-    const refreshToken = crypto.randomBytes(64).toString('hex')
-
-    await authRepository.saveRefreshToken({
+  const accessToken = jwt.sign(
+    {
       userId,
-      refreshToken,
-      device: meta?.device,
-      ipAddress: meta?.ipAddress,
-      userAgent: meta?.userAgent,
-    })
+      role,
+      type: 'access',
+    } as JwtPayload,
+    env.JWT_SECRET,
+    accessTokenOptions
+  )
 
-    return {
-      accessToken,
-      refreshToken,
-    }
-  },
+  const refreshToken = crypto.randomBytes(64).toString('hex')
+
+  await authRepository.saveRefreshToken({
+    userId,
+    refreshToken,
+    device: meta?.device,
+    ipAddress: meta?.ipAddress,
+    userAgent: meta?.userAgent,
+  })
+
+  return {
+    accessToken,
+    refreshToken,
+  }
+},
 
   generateOtp: (): string => {
     return crypto.randomInt(100000, 1000000).toString()

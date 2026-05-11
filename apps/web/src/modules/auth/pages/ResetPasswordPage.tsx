@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import type { ChangeEvent, FormEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
+import axios from 'axios'
 import api from '../../../lib/axios'
 
 type FormState = {
@@ -189,9 +190,15 @@ export default function ResetPasswordPage() {
       setIsSubmitting(true)
       await api.post('/auth/reset-password', { resetToken, newPassword: form.newPassword })
       setIsSuccess(true)
-    } catch (error: any) {
-      setErrors({ api: error.response?.data?.message || 'Failed to reset password. Please try again.' })
-    } finally {
+    } catch (error: unknown) {
+  let message = 'Failed to reset password. Please try again.'
+
+  if (axios.isAxiosError<{ message?: string }>(error)) {
+    message = error.response?.data?.message || message
+  }
+
+  setErrors({ api: message })
+} finally {
       setIsSubmitting(false)
     }
   }
@@ -201,19 +208,19 @@ export default function ResetPasswordPage() {
     return (
       <div
         className={cn(
-          'min-h-screen bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif]',
+          'min-h-screen bg-[#f5ede4] text-[#1a1714] font-family:DM_Sans,sans-serif',
           'dark:bg-[#141412] dark:text-[#f2f0eb]',
           'flex flex-col items-center justify-center px-4 py-12'
         )}
       >
         <div
           className={cn(
-            'w-full max-w-[440px] rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-8 py-10 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
+            'w-full max-w-110 rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-8 py-10 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
             'dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]'
           )}
         >
           {/* Success icon */}
-          <div className="mx-auto mb-5 flex h-[56px] w-[56px] items-center justify-center rounded-full bg-[rgba(76,175,125,0.12)] text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(76,175,125,0.12)] text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]">
             <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
               <polyline points="20 6 9 17 4 12" />
             </svg>
@@ -227,7 +234,7 @@ export default function ResetPasswordPage() {
             Reset successful
           </h1>
 
-          <p className="mx-auto mb-7 max-w-[310px] text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mx-auto mb-7 max-w-77.5 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
             Your password has been changed. You can now sign in with your new credentials.
           </p>
 
@@ -235,7 +242,7 @@ export default function ResetPasswordPage() {
             type="button"
             onClick={() => navigate('/login', { replace: true })}
             className={cn(
-              'relative w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-[13px] text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
+              'relative w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
               'hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)]',
               'active:translate-y-0 active:shadow-none',
               'dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]'
@@ -245,7 +252,7 @@ export default function ResetPasswordPage() {
           </button>
         </div>
 
-        <footer className="mt-8 font-mono text-[9px] uppercase tracking-[0.05em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
+        <footer className="mt-8 font-mono text-[9px] uppercase tracking-wider text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
           © 2024 Imminiq. Crafted for the intentional learner.
         </footer>
       </div>
@@ -257,7 +264,7 @@ export default function ResetPasswordPage() {
     <div
       id="page"
       className={cn(
-        'min-h-screen bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif]',
+        'min-h-screen bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif]',
         'dark:bg-[#141412] dark:text-[#f2f0eb]',
         'lg:fixed lg:inset-0 lg:flex lg:flex-col lg:overflow-hidden'
       )}
@@ -273,7 +280,7 @@ export default function ResetPasswordPage() {
         </Link>
 
         <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[8.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a] sm:text-[9px]">
-          <span className="h-[5px] w-[5px] rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+          <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
           Step 2 of 2
         </div>
       </div>
@@ -281,7 +288,7 @@ export default function ResetPasswordPage() {
       <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
         {/* Left Panel */}
         <aside
-          className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-[72px] xl:py-[52px]"
+          className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-18 xl:py-13"
           aria-hidden="true"
         >
           <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.13)_0%,transparent_70%)]" />
@@ -296,12 +303,12 @@ export default function ResetPasswordPage() {
             </div>
 
             <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-              <span className="h-[5px] w-[5px] rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+              <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
               Almost there — step 2 of 2
             </div>
           </div>
 
-          <div className="relative flex max-w-[560px] flex-1 flex-col justify-center py-8">
+          <div className="relative flex max-w-140 flex-1 flex-col justify-center py-8">
             <p className="font-serif text-[clamp(36px,4vw,54px)] font-extrabold leading-[1.08] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
               Secure your
               <br />
@@ -310,13 +317,13 @@ export default function ResetPasswordPage() {
               a new key.
             </p>
 
-            <p className="mt-3.5 max-w-[430px] text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-3.5 max-w-107.5 text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
               Choose a strong password to protect your learning progress, streaks, and battle history.
             </p>
 
-            <div className="mt-8 flex flex-col gap-[18px]">
+            <div className="mt-8 flex flex-col gap-4.5">
               <div className="flex items-start gap-3">
-                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(76,175,125,0.10)] text-[17px] text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]">
+                <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(76,175,125,0.10)] text-[17px] text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]">
                   ✓
                 </div>
                 <div>
@@ -330,7 +337,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
                   #
                 </div>
                 <div>
@@ -344,7 +351,7 @@ export default function ResetPasswordPage() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
                   🔒
                 </div>
                 <div>
@@ -362,7 +369,7 @@ export default function ResetPasswordPage() {
           {/* Step indicator */}
           <div className="relative flex items-center gap-3">
             <div className="flex items-center gap-2">
-              <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[rgba(76,175,125,0.12)] font-mono text-[9px] font-semibold text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]">
+              <span className="flex h-5.5 w-5.5 items-center justify-center rounded-full bg-[rgba(76,175,125,0.12)] font-mono text-[9px] font-semibold text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]">
                 ✓
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#6b5f58] dark:text-[#9b9a92]">
@@ -371,7 +378,7 @@ export default function ResetPasswordPage() {
             </div>
             <div className="h-px w-6 bg-[#e0d0c5] dark:bg-white/15" />
             <div className="flex items-center gap-2">
-              <span className="flex h-[22px] w-[22px] items-center justify-center rounded-full bg-[rgba(184,76,43,0.10)] font-mono text-[9px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
+              <span className="flex h-5.5 w-5.5 items-center justify-center rounded-full bg-[rgba(184,76,43,0.10)] font-mono text-[9px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
                 2
               </span>
               <span className="font-mono text-[10px] uppercase tracking-[0.06em] text-[#b84c2b] dark:text-[#e8816a]">
@@ -382,18 +389,18 @@ export default function ResetPasswordPage() {
         </aside>
 
         {/* Right Panel — Form */}
-        <div className="flex justify-center px-4 pb-10 pt-4 sm:flex-1 sm:items-center sm:px-8 sm:py-8 lg:w-1/2 lg:min-w-0 lg:px-14 lg:py-7 xl:px-[72px] xl:py-[52px]">
+        <div className="flex justify-center px-4 pb-10 pt-4 sm:flex-1 sm:items-center sm:px-8 sm:py-8 lg:w-1/2 lg:min-w-0 lg:px-14 lg:py-7 xl:px-18 xl:py-13">
           <main
             className="flex w-full justify-center sm:items-start lg:items-center"
             aria-label="Set a new password"
           >
             <form
               className={cn(
-                'w-full max-w-[480px] rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-7 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
+                'w-full max-w-120 rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-7 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
                 'dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]',
-                'sm:max-w-[500px] sm:px-8 sm:py-9',
-                'lg:max-h-[calc(100vh-80px)] lg:max-w-[480px] lg:overflow-y-auto lg:px-9 lg:py-[38px]',
-                '[scrollbar-width:thin] [scrollbar-color:#b84c2b_transparent]',
+                'sm:max-w-125 sm:px-8 sm:py-9',
+                'lg:max-h-[calc(100vh-80px)] lg:max-w-120 lg:overflow-y-auto lg:px-9 lg:py-9.5',
+                'scrollbar-thin [scrollbar-color:#b84c2b_transparent]',
                 'dark:[scrollbar-color:#e8816a_transparent]',
                 '[&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-track]:bg-transparent',
                 '[&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.35)]',
@@ -411,7 +418,7 @@ export default function ResetPasswordPage() {
                 Set a new password
               </h1>
 
-              <p className="mb-[22px] text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mb-5.5 text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
                 Remember it?{' '}
                 <Link
                   className="font-medium text-[#b84c2b] hover:underline dark:text-[#e8816a]"
@@ -424,7 +431,7 @@ export default function ResetPasswordPage() {
               {/* API Error Banner */}
               {errors.api && (
                 <div
-                  className="mb-[18px] flex items-start gap-2.5 rounded-[10px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+                  className="mb-4.5 flex items-start gap-2.5 rounded-[10px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
                   role="alert"
                 >
                   <AlertIcon className="mt-1 h-3.5 w-3.5" />
@@ -481,12 +488,12 @@ export default function ResetPasswordPage() {
               {form.newPassword && (
                 <div className="mb-4">
                   <div className="mb-1.5 flex items-center justify-between">
-                    <span className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <span className="font-mono text-[9.5px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">
                       Strength
                     </span>
                     <span
                       className={cn(
-                        'font-mono text-[9.5px] font-semibold uppercase tracking-[0.1em]',
+                        'font-mono text-[9.5px] font-semibold uppercase tracking-widest',
                         strength.score <= 1 && 'text-[#d94535] dark:text-[#ff6b5f]',
                         strength.score === 2 && 'text-[#c9830a] dark:text-[#f0a842]',
                         strength.score >= 3 && 'text-[#4caf7d] dark:text-[#5cc98a]'
@@ -500,7 +507,7 @@ export default function ResetPasswordPage() {
                       <div
                         key={level}
                         className={cn(
-                          'h-[4px] rounded-full bg-[#e0d0c5] dark:bg-white/10 transition-all',
+                          'h-1 rounded-full bg-[#e0d0c5] dark:bg-white/10 transition-all',
                           strength.score >= level && strengthColors[level]
                         )}
                       />
@@ -559,7 +566,7 @@ export default function ResetPasswordPage() {
 
               {/* Password checklist */}
               <div className="mb-5 rounded-[10px] border border-[#e0d0c5] bg-white/60 px-4 py-3.5 dark:border-white/10 dark:bg-white/5">
-                <p className="mb-2.5 font-mono text-[9px] uppercase tracking-[0.1em] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mb-2.5 font-mono text-[9px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">
                   Requirements
                 </p>
                 <div className="space-y-2">
@@ -571,7 +578,7 @@ export default function ResetPasswordPage() {
                     <div key={label} className="flex items-center gap-2.5">
                       <span
                         className={cn(
-                          'flex h-[14px] w-[14px] shrink-0 items-center justify-center rounded-full border-[1.5px] transition',
+                          'flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border-[1.5px] transition',
                           ok
                             ? 'border-[#4caf7d] bg-[#4caf7d] dark:border-[#5cc98a] dark:bg-[#5cc98a]'
                             : 'border-[#e0d0c5] dark:border-white/15'
@@ -601,7 +608,7 @@ export default function ResetPasswordPage() {
               {/* Submit */}
               <button
                 className={cn(
-                  'relative mt-1 w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-[13px] text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
+                  'relative mt-1 w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
                   'hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)]',
                   'active:translate-y-0 active:shadow-none',
                   'disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none',
@@ -620,7 +627,7 @@ export default function ResetPasswordPage() {
                     <rect x="3" y="11" width="18" height="11" rx="2" />
                     <path d="M7 11V7a5 5 0 0110 0v4" />
                   </svg>
-                  <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+                  <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
                     Secure Reset
                   </span>
                 </div>
@@ -628,7 +635,7 @@ export default function ResetPasswordPage() {
                   <svg className="text-[#6b5f58] opacity-50 dark:text-[#9b9a92]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
-                  <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+                  <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
                     Encrypted
                   </span>
                 </div>
@@ -636,7 +643,7 @@ export default function ResetPasswordPage() {
                   <svg className="text-[#6b5f58] opacity-50 dark:text-[#9b9a92]" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                     <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
                   </svg>
-                  <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+                  <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
                     Link Expires
                   </span>
                 </div>
@@ -646,7 +653,7 @@ export default function ResetPasswordPage() {
         </div>
       </div>
 
-      <footer className="flex shrink-0 flex-col gap-1.5 px-5 py-3.5 text-center font-mono text-[9px] uppercase tracking-[0.05em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92] sm:flex-row sm:justify-between sm:px-10 sm:py-4 sm:text-[9.5px] lg:pointer-events-none lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:px-12">
+      <footer className="flex shrink-0 flex-col gap-1.5 px-5 py-3.5 text-center font-mono text-[9px] uppercase tracking-wider text-[#6b5f58] opacity-45 dark:text-[#9b9a92] sm:flex-row sm:justify-between sm:px-10 sm:py-4 sm:text-[9.5px] lg:pointer-events-none lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:px-12">
         <span>© 2024 Imminiq. Crafted for the intentional learner.</span>
         <div className="flex flex-wrap justify-center gap-4 lg:pointer-events-auto">
           <span>Privacy</span>

@@ -212,7 +212,7 @@ const TermsList = ({
           ) : (
             <span
               className={cn(
-                'mt-2.5 h-[5px] w-[5px] shrink-0 rounded-full opacity-70',
+                'mt-2.5 h-1.25 w-1.25 shrink-0 rounded-full opacity-70',
                 variant === 'cross'
                   ? 'bg-[#d94535] dark:bg-[#ff6b5f]'
                   : 'bg-[#b84c2b] dark:bg-[#e8816a]'
@@ -283,7 +283,7 @@ const Section = ({
   return (
     <section
       id={id}
-      className="pp-section mb-[52px] scroll-mt-8"
+      className="pp-section mb-13 scroll-mt-8"
       aria-labelledby={`title-${id}`}
     >
       <div className="mb-5 flex items-start gap-3.5 border-b border-[rgba(184,76,43,0.10)] pb-3.5 dark:border-[rgba(232,129,106,0.12)]">
@@ -402,11 +402,11 @@ export default function PrivacyPage() {
   return (
     <div
       id="privacy-page"
-      className="h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif] dark:bg-[#141412] dark:text-[#f2f0eb]"
+      className="h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif] dark:bg-[#141412] dark:text-[#f2f0eb]"
     >
       <div
         aria-hidden="true"
-        className="fixed left-0 top-0 z-[100] h-0.5 bg-gradient-to-r from-[#b84c2b] to-[#e8816a] transition-[width] duration-100"
+        className="fixed left-0 top-0 z-100 h-0.5 bg-linear-to-r from-[#b84c2b] to-[#e8816a] transition-[width] duration-100"
         style={{ width: `${readPct}%` }}
       />
 
@@ -421,7 +421,7 @@ export default function PrivacyPage() {
               className="inline-flex shrink-0 items-center gap-2.5 leading-none"
               aria-label="Imminiq home"
             >
-              <LogoIcon className="h-[34px] w-[34px]" />
+              <LogoIcon className="h-8.5 w-8.5" />
 
               <span className="text-xl font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
                 immin
@@ -431,7 +431,7 @@ export default function PrivacyPage() {
             </Link>
 
             <div
-              className="hidden h-[18px] w-px bg-[#e0d0c5] dark:bg-white/15 sm:block"
+              className="hidden h-4.5 w-px bg-[#e0d0c5] dark:bg-white/15 sm:block"
               aria-hidden="true"
             />
 
@@ -454,7 +454,7 @@ export default function PrivacyPage() {
           </div>
         </nav>
 
-        <div className="mx-auto flex min-h-0 w-full max-w-[1200px] flex-1 items-start gap-12 overflow-hidden px-5 lg:gap-14 lg:px-12 xl:px-16">
+        <div className="mx-auto flex min-h-0 w-full max-w-300 flex-1 items-start gap-12 overflow-hidden px-5 lg:gap-14 lg:px-12 xl:px-16">
           <aside
             className={cn(
               'hidden h-full w-60 shrink-0 overflow-y-auto py-7 pr-2 lg:block',
@@ -509,8 +509,8 @@ export default function PrivacyPage() {
             aria-label="Privacy policy content"
           >
             <div className="pp-section mb-12 border-b border-[rgba(184,76,43,0.10)] pb-9 dark:border-[rgba(232,129,106,0.12)]">
-              <div className="mb-[18px] inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-                <span className="h-[5px] w-[5px] animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+              <div className="mb-4.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
                 Privacy First
               </div>
 
@@ -518,7 +518,7 @@ export default function PrivacyPage() {
                 Scholarly Privacy Policy
               </h1>
 
-              <p className="mb-5 max-w-[600px] text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mb-5 max-w-150 text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
                 We believe your learning data is yours. This policy explains what
                 we collect, why we collect it, who sees it, and the controls you
                 have over it — written in plain language.
@@ -627,7 +627,7 @@ export default function PrivacyPage() {
                       {['Category', 'Examples', 'Purpose'].map((heading) => (
                         <th
                           key={heading}
-                          className="whitespace-nowrap border-b border-[#e0d0c5] px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-[0.1em] text-[#b84c2b] dark:border-white/15 dark:text-[#e8816a]"
+                          className="whitespace-nowrap border-b border-[#e0d0c5] px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-[#b84c2b] dark:border-white/15 dark:text-[#e8816a]"
                         >
                           {heading}
                         </th>
@@ -660,7 +660,7 @@ export default function PrivacyPage() {
                     ].map(([category, examples, purpose]) => (
                       <tr
                         key={category}
-                        className="even:bg-[rgba(26,23,20,0.025)] dark:even:bg-white/[0.03]"
+                        className="even:bg-[rgba(26,23,20,0.025)] dark:even:bg-white/3"
                       >
                         <td className="border-b border-[#e0d0c5] px-4 py-3 align-top font-semibold text-[#1a1714] dark:border-white/15 dark:text-[#f2f0eb]">
                           {category}
@@ -761,7 +761,7 @@ export default function PrivacyPage() {
                         (heading) => (
                           <th
                             key={heading}
-                            className="whitespace-nowrap border-b border-[#e0d0c5] px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-[0.1em] text-[#b84c2b] dark:border-white/15 dark:text-[#e8816a]"
+                            className="whitespace-nowrap border-b border-[#e0d0c5] px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-[#b84c2b] dark:border-white/15 dark:text-[#e8816a]"
                           >
                             {heading}
                           </th>
@@ -803,7 +803,7 @@ export default function PrivacyPage() {
                     ].map(([type, purpose, duration, required, variant]) => (
                       <tr
                         key={type}
-                        className="even:bg-[rgba(26,23,20,0.025)] dark:even:bg-white/[0.03]"
+                        className="even:bg-[rgba(26,23,20,0.025)] dark:even:bg-white/3"
                       >
                         <td className="border-b border-[#e0d0c5] px-4 py-3 align-top font-semibold text-[#1a1714] dark:border-white/15 dark:text-[#f2f0eb]">
                           {type}

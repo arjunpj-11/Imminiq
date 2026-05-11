@@ -325,7 +325,7 @@ export default function RegisterForm() {
     <div
       id="page"
       className={cn(
-        'min-h-screen bg-[#f5ede4] text-[#1a1714] [font-family:DM_Sans,sans-serif]',
+        'min-h-screen bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif]',
         'dark:bg-[#141412] dark:text-[#f2f0eb]',
         'lg:fixed lg:inset-0 lg:flex lg:flex-col lg:overflow-hidden'
       )}
@@ -342,7 +342,7 @@ export default function RegisterForm() {
         </div>
 
         <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[8.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a] sm:text-[9px]">
-          <span className="h-[5px] w-[5px] rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+          <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
           Onboarding now
         </div>
       </div>
@@ -350,7 +350,7 @@ export default function RegisterForm() {
       <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
         {/* Left Panel */}
         <aside
-          className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-[72px] xl:py-[52px]"
+          className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-18 xl:py-13"
           aria-hidden="true"
         >
           <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.13)_0%,transparent_70%)]" />
@@ -368,12 +368,12 @@ export default function RegisterForm() {
             <ThemeToggle />
 
             <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-              <span className="h-[5px] w-[5px] rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+              <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
               Now onboarding ambitious learners
             </div>
           </div>
 
-          <div className="relative flex max-w-[560px] flex-1 flex-col justify-center py-8">
+          <div className="relative flex max-w-140 flex-1 flex-col justify-center py-8">
             <p className="font-serif text-[clamp(36px,4vw,54px)] font-extrabold leading-[1.08] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
               Start learning.
               <br />
@@ -382,14 +382,14 @@ export default function RegisterForm() {
               Prove it.
             </p>
 
-            <p className="mt-3.5 max-w-[430px] text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-3.5 max-w-107.5 text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
               AI builds your roadmap, you master the skills, then challenge others
               in 1v1 battles to prove what you know.
             </p>
 
-            <div className="mt-8 flex flex-col gap-[18px]">
+            <div className="mt-8 flex flex-col gap-4.5">
               <div className="flex items-start gap-3">
-                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
                   ✦
                 </div>
                 <div>
@@ -403,7 +403,7 @@ export default function RegisterForm() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
                   ⚔
                 </div>
                 <div>
@@ -417,7 +417,7 @@ export default function RegisterForm() {
               </div>
 
               <div className="flex items-start gap-3">
-                <div className="flex h-[38px] w-[38px] shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(184,76,43,0.08)] text-[17px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
                   ↗
                 </div>
                 <div>
@@ -434,13 +434,13 @@ export default function RegisterForm() {
 
           <div className="relative flex flex-wrap items-center gap-2.5">
             <div className="flex">
-              <div className="-mr-2 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-[#f5ede4] bg-[#c4654e] font-mono text-[9px] font-semibold text-white dark:border-[#141412]">
+              <div className="-mr-2 flex h-7.5 w-7.5 items-center justify-center rounded-full border-2 border-[#f5ede4] bg-[#c4654e] font-mono text-[9px] font-semibold text-white dark:border-[#141412]">
                 AS
               </div>
-              <div className="-mr-2 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-[#f5ede4] bg-[#4caf7d] font-mono text-[9px] font-semibold text-white dark:border-[#141412]">
+              <div className="-mr-2 flex h-7.5 w-7.5 items-center justify-center rounded-full border-2 border-[#f5ede4] bg-[#4caf7d] font-mono text-[9px] font-semibold text-white dark:border-[#141412]">
                 ML
               </div>
-              <div className="-mr-2 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-[#f5ede4] bg-[#5b8de8] font-mono text-[9px] font-semibold text-white dark:border-[#141412]">
+              <div className="-mr-2 flex h-7.5 w-7.5 items-center justify-center rounded-full border-2 border-[#f5ede4] bg-[#5b8de8] font-mono text-[9px] font-semibold text-white dark:border-[#141412]">
                 RK
               </div>
             </div>
@@ -452,20 +452,20 @@ export default function RegisterForm() {
         </aside>
 
         {/* Right Panel */}
-        <div className="flex justify-center px-4 pb-10 pt-4 sm:flex-1 sm:items-center sm:px-8 sm:py-8 lg:w-1/2 lg:min-w-0 lg:px-14 lg:py-7 xl:px-[72px] xl:py-[52px]">
+        <div className="flex justify-center px-4 pb-10 pt-4 sm:flex-1 sm:items-center sm:px-8 sm:py-8 lg:w-1/2 lg:min-w-0 lg:px-14 lg:py-7 xl:px-18 xl:py-13">
           <main
             className="flex w-full justify-center sm:items-start lg:items-center"
             aria-label="Create your Imminiq account"
           >
            <form
   className={cn(
-    'w-full max-w-[480px] rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-7 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
+    'w-full max-w-120 rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-7 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
     'dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]',
-    'sm:max-w-[500px] sm:px-8 sm:py-9',
-    'lg:max-h-[calc(100vh-80px)] lg:max-w-[480px] lg:overflow-y-auto lg:px-9 lg:py-[38px]',
+    'sm:max-w-125 sm:px-8 sm:py-9',
+    'lg:max-h-[calc(100vh-80px)] lg:max-w-120 lg:overflow-y-auto lg:px-9 lg:py-9.5',
 
     // themed scrollbar
-    '[scrollbar-width:thin] [scrollbar-color:#b84c2b_transparent]',
+    'scrollbar-thin [scrollbar-color:#b84c2b_transparent]',
     'dark:[scrollbar-color:#e8816a_transparent]',
     '[&::-webkit-scrollbar]:w-1.5',
     '[&::-webkit-scrollbar-track]:bg-transparent',
@@ -486,7 +486,7 @@ export default function RegisterForm() {
                 Join Imminiq
               </h1>
 
-              <p className="mb-[22px] text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mb-5.5 text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
                 Already have an account?{' '}
                 <Link
                   className="font-medium text-[#b84c2b] hover:underline dark:text-[#e8816a]"
@@ -498,7 +498,7 @@ export default function RegisterForm() {
 
               {apiError && (
                 <div
-                  className="mb-[18px] flex items-start gap-2.5 rounded-[10px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+                  className="mb-4.5 flex items-start gap-2.5 rounded-[10px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
                   role="alert"
                   key={apiError}
                 >
@@ -509,7 +509,7 @@ export default function RegisterForm() {
 
               <div className="mb-5 grid grid-cols-1 gap-2.5 min-[480px]:grid-cols-2">
                 <button
-                  className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-white px-2 py-[11px] text-[13px] font-medium text-[#1a1714] transition hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb]"
+                  className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-white px-2 py-2.75 text-[13px] font-medium text-[#1a1714] transition hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb]"
                   type="button"
                   aria-label="Continue with Google"
                   onClick={() => {
@@ -538,7 +538,7 @@ export default function RegisterForm() {
                 </button>
 
                 <button
-                  className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-white px-2 py-[11px] text-[13px] font-medium text-[#1a1714] transition hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb]"
+                  className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-white px-2 py-2.75 text-[13px] font-medium text-[#1a1714] transition hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb]"
                   type="button"
                   aria-label="Continue with GitHub"
                   onClick={() => {
@@ -560,7 +560,7 @@ export default function RegisterForm() {
 
               <div className="mb-5 flex items-center gap-2.5">
                 <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/15" />
-                <span className="whitespace-nowrap font-mono text-[9.5px] uppercase tracking-[0.1em] text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="whitespace-nowrap font-mono text-[9.5px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">
                   or continue with credentials
                 </span>
                 <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/15" />
@@ -714,7 +714,7 @@ export default function RegisterForm() {
                           <div
                             key={item}
                             className={cn(
-                              'h-[3px] flex-1 rounded-sm transition-all duration-300',
+                              'h-0.75 flex-1 rounded-sm transition-all duration-300',
                               isActive
                                 ? 'bg-[#4caf7d] dark:bg-[#5cc98a]'
                                 : 'bg-[#e0d0c5] dark:bg-white/15'
@@ -821,7 +821,7 @@ export default function RegisterForm() {
               {/* Terms */}
               <div>
                 <div className="mt-4 flex items-start gap-2.5">
-                  <div className="relative mt-px h-[17px] w-[17px] shrink-0">
+                  <div className="relative mt-px h-4.25 w-4.25 shrink-0">
                     <input
                       className="peer absolute inset-0 z-10 h-full w-full cursor-pointer opacity-0"
                       type="checkbox"
@@ -835,7 +835,7 @@ export default function RegisterForm() {
 
                     <div
                       className={cn(
-                        'flex h-[17px] w-[17px] items-center justify-center rounded-[5px] border-[1.5px] border-[#e0d0c5] bg-white transition',
+                        'flex h-4.25 w-4.25 items-center justify-center rounded-[5px] border-[1.5px] border-[#e0d0c5] bg-white transition',
                         'peer-focus-visible:shadow-[0_0_0_3px_rgba(184,76,43,0.09)]',
                         'dark:border-white/15 dark:bg-[#252320]',
                         form.terms &&
@@ -847,7 +847,7 @@ export default function RegisterForm() {
                       aria-hidden="true"
                     >
                       {form.terms && (
-                        <span className="h-[8px] w-[5px] rotate-45 border-b-2 border-r-2 border-[#f5ede4] dark:border-[#141412]" />
+                        <span className="h-2 w-1.25 rotate-45 border-b-2 border-r-2 border-[#f5ede4] dark:border-[#141412]" />
                       )}
                     </div>
                   </div>
@@ -884,7 +884,7 @@ export default function RegisterForm() {
 
               <button
                 className={cn(
-                  'relative mt-4 w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-[13px] text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
+                  'relative mt-4 w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition',
                   'hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)]',
                   'active:translate-y-0 active:shadow-none',
                   'disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none',
@@ -910,7 +910,7 @@ export default function RegisterForm() {
                     <rect x="3" y="11" width="18" height="11" rx="2" />
                     <path d="M7 11V7a5 5 0 0110 0v4" />
                   </svg>
-                  <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+                  <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
                     Secure Auth
                   </span>
                 </div>
@@ -927,7 +927,7 @@ export default function RegisterForm() {
                   >
                     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
                   </svg>
-                  <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+                  <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
                     OAuth Support
                   </span>
                 </div>
@@ -945,7 +945,7 @@ export default function RegisterForm() {
                     <rect x="5" y="2" width="14" height="20" rx="2" />
                     <line x1="12" y1="18" x2="12.01" y2="18" />
                   </svg>
-                  <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+                  <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
                     Dual Method
                   </span>
                 </div>
@@ -955,7 +955,7 @@ export default function RegisterForm() {
         </div>
       </div>
 
-      <footer className="flex shrink-0 flex-col gap-1.5 px-5 py-3.5 text-center font-mono text-[9px] uppercase tracking-[0.05em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92] sm:flex-row sm:justify-between sm:px-10 sm:py-4 sm:text-[9.5px] lg:pointer-events-none lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:px-12">
+      <footer className="flex shrink-0 flex-col gap-1.5 px-5 py-3.5 text-center font-mono text-[9px] uppercase tracking-wider text-[#6b5f58] opacity-45 dark:text-[#9b9a92] sm:flex-row sm:justify-between sm:px-10 sm:py-4 sm:text-[9.5px] lg:pointer-events-none lg:absolute lg:bottom-0 lg:left-0 lg:right-0 lg:px-12">
         <span>© 2024 Imminiq. Crafted for the intentional learner.</span>
 
         <div className="flex flex-wrap justify-center gap-4 lg:pointer-events-auto">

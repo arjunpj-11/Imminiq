@@ -2,7 +2,7 @@ import { redis } from './redis.client'
 
 const OTP_TTL_SECONDS = 10 * 60 // 10 minutes
 
-type OtpPurpose =
+export type OtpPurpose =
   | 'email_verification'
   | 'phone_verification'
   | 'password_reset'
