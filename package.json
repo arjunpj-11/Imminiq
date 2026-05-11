@@ -1,12 +1,15 @@
 {
   "name": "imminiq",
   "private": true,
+  "packageManager": "npm@10.9.0",
   "workspaces": [
     "apps/*",
     "packages/*"
   ],
   "scripts": {
     "dev": "turbo run dev",
+    "dev:web": "turbo run dev --filter=@imminiq/web",
+    "dev:api": "turbo run dev --filter=@imminiq/api",
     "build": "turbo run build",
     "lint": "turbo run lint"
   },
