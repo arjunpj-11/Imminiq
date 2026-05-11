@@ -21,6 +21,8 @@ pnpm-debug.log*
 # macOS
 .DS_Store
 
+
+
 # editors
 .vscode/
 .idea/
@@ -30,3 +32,6 @@ pnpm-debug.log*
 
 # vite
 apps/web/.vite/
+
+# demo folder
+demo/

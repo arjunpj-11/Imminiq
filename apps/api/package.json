@@ -1,15 +1,14 @@
 {
-  "name": "api",
+  "name": "@imminiq/api",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "lint": "eslint ."
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "commonjs",
   "dependencies": {
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
@@ -32,7 +31,6 @@
     "passport-google-oauth20": "^2.0.0",
     "razorpay": "^2.9.6",
     "socket.io": "^4.8.3",
-    "vite": "^8.0.10",
     "zod": "^4.4.3"
   },
   "devDependencies": {
@@ -47,8 +45,6 @@
     "@types/passport": "^1.0.17",
     "@types/passport-github2": "^1.2.9",
     "@types/passport-google-oauth20": "^2.0.17",
-    "nodemon": "^3.1.14",
-    "ts-node": "^10.9.2",
     "tsx": "^4.21.0",
     "typescript": "^6.0.3"
   }
