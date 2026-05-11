@@ -28,6 +28,12 @@ const generateUniqueUsername = async (baseValue: string) => {
 }
 
 export const initPassport = () => {
+  console.log('OAuth config:', {
+  serverUrl: env.SERVER_URL,
+  githubClientId: Boolean(env.GITHUB_CLIENT_ID),
+  githubClientSecret: Boolean(env.GITHUB_CLIENT_SECRET),
+  githubCallbackURL: `${env.SERVER_URL}/api/auth/oauth/github/callback`,
+})
   passport.use(
     'google',
     new GoogleStrategy(

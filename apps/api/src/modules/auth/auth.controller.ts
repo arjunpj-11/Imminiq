@@ -239,17 +239,17 @@ revokeSession: async (req: Request, res: Response, next: NextFunction) => {
 },
 
   oauthCallback: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { tokens } = await authService.handleOAuthLogin(
-        req.user,
-        getRequestMeta(req)
-      )
+  try {
+    const { tokens } = await authService.handleOAuthLogin(
+      req.user,
+      getRequestMeta(req)
+    )
 
-      res
-        .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-        .redirect(`${env.CLIENT_URL}/oauth/callback?accessToken=${tokens.accessToken}`)
-    } catch (error) {
-      next(error)
-    }
-  },
+    res
+      .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
+      .redirect(`${env.CLIENT_URL}/dashboard`)
+  } catch (error) {
+    next(error)
+  }
+},
 }
