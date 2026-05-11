@@ -6,6 +6,8 @@ import { ApiError } from '../../shared/utils/ApiError'
 import { env } from '../../config/env'
 import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../config/constants'
 import { sendMail } from '../../infrastructure/email/email.client'
+import { otpEmailTemplate } from '../../shared/email/email.templates'
+
 import {
   RegisterPayload,
   LoginPayload,
@@ -77,10 +79,14 @@ const sendVerificationOtp = async (data: {
 
   if (data.email) {
     await sendMail(
-      data.email,
-      'Verify your Imminiq account',
-      `<p>Your verification code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`
-    )
+  data.email,
+  'Verify your Imminiq account',
+  otpEmailTemplate({
+
+    otp,
+    type: 'verify_account',
+  })
+)
   }
 
   // TODO: send SMS when phone verification provider is added.
@@ -446,7 +452,10 @@ export const authService = {
         password_reset: `<p>Your password reset code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`,
       }
 
-      await sendMail(parsedIdentifier.email, subjects[purpose], bodies[purpose])
+      await sendMail(parsedIdentifier.email, subjects[purpose], otpEmailTemplate({
+        otp,
+        type: purpose === 'password_reset' ? 'reset_password' : 'verify_account'
+      }))
     }
 
     // TODO: send SMS when phone verification provider is added.
@@ -474,7 +483,10 @@ export const authService = {
       await sendMail(
         parsedIdentifier.email,
         'Reset your Imminiq password',
-        `<p>Your password reset code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`
+        otpEmailTemplate({
+          otp,
+          type: 'reset_password'
+        })
       )
     }
 
