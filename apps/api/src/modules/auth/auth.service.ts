@@ -7,6 +7,12 @@ import { env } from '../../config/env'
 import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../config/constants'
 import { sendMail } from '../../infrastructure/email/email.client'
 import { otpEmailTemplate } from '../../shared/email/email.templates'
+import {
+  sendPhoneOtp,
+  verifyPhoneOtp,
+} from '../../infrastructure/sms/message-central.client'
+
+import { phoneOtpSessionCache } from '../../infrastructure/cache/phone-otp-session.cache'
 
 import {
   RegisterPayload,
@@ -67,31 +73,38 @@ const sendVerificationOtp = async (data: {
   phone?: string
   method: 'email' | 'phone'
 }) => {
-  const otp = authService.generateOtp()
   const purpose = getVerificationPurpose(data.method)
 
-  await authRepository.saveOtp({
-    email: data.email,
-    phone: data.phone,
-    otp,
-    purpose,
-  })
-
   if (data.email) {
-    await sendMail(
-  data.email,
-  'Verify your Imminiq account',
-  otpEmailTemplate({
+    const otp = authService.generateOtp()
 
-    otp,
-    type: 'verify_account',
-  })
-)
+    await authRepository.saveOtp({
+      email: data.email,
+      otp,
+      purpose,
+    })
+
+    await sendMail(
+      data.email,
+      'Verify your Imminiq account',
+      otpEmailTemplate({
+        otp,
+        type: 'verify_account',
+      })
+    )
+
+    return
   }
 
-  // TODO: send SMS when phone verification provider is added.
+  if (data.phone) {
+    const { verificationId } = await sendPhoneOtp(data.phone)
 
-  return otp
+    await phoneOtpSessionCache.saveVerificationId(
+      data.phone,
+      'phone_verification',
+      verificationId
+    )
+  }
 }
 
 export const authService = {
@@ -347,53 +360,77 @@ export const authService = {
 
   // ─── VERIFY ACCOUNT ──────────────────────────────
 
-  verifyAccount: async (identifier: string, otp: string) => {
-    const parsedIdentifier = normalizeIdentifier(identifier)
+ verifyAccount: async (identifier: string, otp: string) => {
+  const parsedIdentifier = normalizeIdentifier(identifier)
 
-    const purpose: OtpPurpose =
-      parsedIdentifier.method === 'email'
-        ? 'email_verification'
-        : 'phone_verification'
+  const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
+  if (!user) {
+    throw new ApiError(404, 'User not found', 'NOT_FOUND')
+  }
+
+  // ─── EMAIL OTP VERIFICATION ─────────────────────
+  if (parsedIdentifier.method === 'email') {
     const valid = await authRepository.verifyOtp({
       email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
       otp,
-      purpose,
+      purpose: 'email_verification',
     })
 
     if (!valid) {
       throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
     }
 
-    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
-
-    if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+    if (user.emailVerified) {
+      throw new ApiError(
+        400,
+        'Email is already verified',
+        'EMAIL_ALREADY_VERIFIED'
+      )
     }
 
-    if (parsedIdentifier.method === 'email') {
-      if (user.emailVerified) {
-        throw new ApiError(
-          400,
-          'Email is already verified',
-          'EMAIL_ALREADY_VERIFIED'
-        )
-      }
+    await authRepository.markEmailVerified(user._id.toString())
+    return
+  }
 
-      await authRepository.markEmailVerified(user._id.toString())
-    } else {
-      if (user.phoneVerified) {
-        throw new ApiError(
-          400,
-          'Phone is already verified',
-          'PHONE_ALREADY_VERIFIED'
-        )
-      }
+  // ─── PHONE OTP VERIFICATION ─────────────────────
+  if (parsedIdentifier.method === 'phone') {
+    const verificationId =
+      await phoneOtpSessionCache.getVerificationId(
+        parsedIdentifier.phone!,
+        'phone_verification'
+      )
 
-      await authRepository.markPhoneVerified(user._id.toString())
+    if (!verificationId) {
+      throw new ApiError(
+        400,
+        'OTP session expired. Please request a new OTP.',
+        'OTP_SESSION_EXPIRED'
+      )
     }
-  },
+
+    const valid = await verifyPhoneOtp(verificationId, otp)
+
+    if (!valid) {
+      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+    }
+
+    if (user.phoneVerified) {
+      throw new ApiError(
+        400,
+        'Phone is already verified',
+        'PHONE_ALREADY_VERIFIED'
+      )
+    }
+
+    await authRepository.markPhoneVerified(user._id.toString())
+
+    await phoneOtpSessionCache.deleteVerificationId(
+      parsedIdentifier.phone!,
+      'phone_verification'
+    )
+  }
+},
 
   // ─── RESEND OTP ──────────────────────────────────
 
@@ -464,50 +501,50 @@ export const authService = {
   // ─── FORGOT PASSWORD ─────────────────────────────
 
   forgotPassword: async (identifier: string) => {
-    const parsedIdentifier = normalizeIdentifier(identifier)
+  const parsedIdentifier = normalizeIdentifier(identifier)
 
-    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+  const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
-    if (!user) return
+  if (!user) return
 
+  // ─── EMAIL PASSWORD RESET OTP ───────────────────
+  if (parsedIdentifier.email) {
     const otp = authService.generateOtp()
 
     await authRepository.saveOtp({
       email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
       otp,
       purpose: 'password_reset',
     })
 
-    if (parsedIdentifier.email) {
-      await sendMail(
-        parsedIdentifier.email,
-        'Reset your Imminiq password',
-        otpEmailTemplate({
-          otp,
-          type: 'reset_password'
-        })
-      )
-    }
+    await sendMail(
+      parsedIdentifier.email,
+      'Reset your Imminiq password',
+      otpEmailTemplate({
+        otp,
+        type: 'reset_password',
+      })
+    )
 
-    // TODO: send SMS when phone password reset provider is added.
-  },
+    return
+  }
+
+  // ─── PHONE PASSWORD RESET OTP ───────────────────
+  if (parsedIdentifier.phone) {
+    const { verificationId } = await sendPhoneOtp(parsedIdentifier.phone)
+
+    await phoneOtpSessionCache.saveVerificationId(
+      parsedIdentifier.phone,
+      'password_reset',
+      verificationId
+    )
+  }
+},
 
   // ─── VERIFY RESET CODE ───────────────────────────
 
 verifyResetCode: async (identifier: string, otp: string) => {
   const parsedIdentifier = normalizeIdentifier(identifier)
-
-  const valid = await authRepository.verifyOtp({
-    email: parsedIdentifier.email,
-    phone: parsedIdentifier.phone,
-    otp,
-    purpose: 'password_reset',
-  })
-
-  if (!valid) {
-    throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
-  }
 
   const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
@@ -515,24 +552,64 @@ verifyResetCode: async (identifier: string, otp: string) => {
     throw new ApiError(404, 'User not found', 'NOT_FOUND')
   }
 
-  const resetTokenOptions: SignOptions = {
-  expiresIn: '10m',
-}
+  // ─── EMAIL RESET OTP VERIFICATION ───────────────
+  if (parsedIdentifier.email) {
+    const valid = await authRepository.verifyOtp({
+      email: parsedIdentifier.email,
+      otp,
+      purpose: 'password_reset',
+    })
 
-const resetToken = jwt.sign(
-  {
-    userId: user._id.toString(),
-    purpose: 'password_reset',
-  },
-  env.JWT_SECRET,
-  resetTokenOptions
-)
+    if (!valid) {
+      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+    }
+  }
+
+  // ─── PHONE RESET OTP VERIFICATION ───────────────
+  if (parsedIdentifier.phone) {
+    const verificationId =
+      await phoneOtpSessionCache.getVerificationId(
+        parsedIdentifier.phone,
+        'password_reset'
+      )
+
+    if (!verificationId) {
+      throw new ApiError(
+        400,
+        'OTP session expired. Please request a new OTP.',
+        'OTP_SESSION_EXPIRED'
+      )
+    }
+
+    const valid = await verifyPhoneOtp(verificationId, otp)
+
+    if (!valid) {
+      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+    }
+
+    await phoneOtpSessionCache.deleteVerificationId(
+      parsedIdentifier.phone,
+      'password_reset'
+    )
+  }
+
+  const resetTokenOptions: SignOptions = {
+    expiresIn: '10m',
+  }
+
+  const resetToken = jwt.sign(
+    {
+      userId: user._id.toString(),
+      purpose: 'password_reset',
+    },
+    env.JWT_SECRET,
+    resetTokenOptions
+  )
 
   return {
     resetToken,
   }
 },
-
   // ─── RESET PASSWORD ──────────────────────────────
 
  resetPassword: async (resetToken: string, newPassword: string) => {
