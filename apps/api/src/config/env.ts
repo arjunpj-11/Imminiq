@@ -29,6 +29,11 @@ GEMINI_API_KEY: z.string(),
 GOOGLE_CLIENT_SECRET: z.string(),
 GITHUB_CLIENT_ID: z.string(),
 GITHUB_CLIENT_SECRET: z.string(),
+FAST2SMS_API_KEY: z.string().min(1),
+MESSAGE_CENTRAL_CUSTOMER_ID: z.string().min(1),
+MESSAGE_CENTRAL_EMAIL: z.string().email(),
+MESSAGE_CENTRAL_PASSWORD: z.string().min(1),
+MESSAGE_CENTRAL_COUNTRY_CODE: z.string().default('91'),
 })
 
 export const env = envSchema.parse(process.env)
