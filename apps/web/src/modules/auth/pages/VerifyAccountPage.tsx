@@ -14,7 +14,7 @@ type VerifyState = {
   from?: 'register' | 'forgot-password'
 }
 
-const TOTAL_SECONDS = 120
+const TOTAL_SECONDS = 10 * 60
 const RESEND_WAIT = 45
 const OTP_LENGTH = 6
 
@@ -344,19 +344,19 @@ if (isPasswordReset) {
   },
 })
       }, 1300)
-    } catch (error: unknown) {
+   } catch (error: unknown) {
   let message = 'Invalid code. Please try again.'
 
   if (axios.isAxiosError<{ message?: string }>(error)) {
     message = error.response?.data?.message || message
   }
 
-  setError(message)
   setDigits(Array(OTP_LENGTH).fill(''))
   inputRefs.current[0]?.focus()
+  setError(message)
 } finally {
-      setIsVerifying(false)
-    }
+  setIsVerifying(false)
+}
   }
 
   const handleResend = async () => {
