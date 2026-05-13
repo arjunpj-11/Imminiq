@@ -1,6 +1,6 @@
 // apps/web/src/modules/onboarding/pages/OnboardingStepOnePage.tsx
 
-import { useEffect, useMemo, useState } from 'react'
+import {  useMemo, useState } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import ThemeToggle from '../../../components/ui/ThemeToggle'
@@ -504,7 +504,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
       </header>
 
       <div
-        className="h-[3px] w-full bg-[rgba(184,76,43,0.12)] dark:bg-[rgba(232,129,106,0.14)]"
+        className="h-0.75 w-full bg-[rgba(184,76,43,0.12)] dark:bg-[rgba(232,129,106,0.14)]"
         role="progressbar"
         aria-valuenow={50}
         aria-valuemin={0}
@@ -515,10 +515,10 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
       </div>
 
       <main
-        className="mx-auto flex w-full max-w-[700px] flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-10 md:py-13"
+        className="mx-auto flex w-full max-w-175 flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-10 md:py-13"
         onKeyDown={handleMainKeyDown}
       >
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.25 font-mono text-[9.5px] font-medium uppercase tracking-[0.1em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.25 font-mono text-[9.5px] font-medium uppercase tracking-widest text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
           <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
           Let&apos;s build your roadmap
         </div>
@@ -527,14 +527,14 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
           What are you preparing for?
         </h1>
 
-        <p className="mb-8 max-w-[420px] text-center text-sm leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mb-8 max-w-105 text-center text-sm leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
           Tell us anything — exam, skill, role, or subject. We&apos;ll craft a
           roadmap built for you.
         </p>
 
         {apiError && (
           <div
-            className="mb-5 flex w-full items-start gap-2.5 rounded-[12px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+            className="mb-5 flex w-full items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
             role="alert"
           >
             <AlertIcon className="mt-0.5 h-3.5 w-3.5" />
@@ -628,7 +628,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             maxLength={400}
             aria-label="Describe your ultimate goal"
             className={cn(
-              'min-h-[110px] w-full resize-y rounded-[14px] border-[1.5px] bg-white p-3.5 text-sm leading-[1.6] text-[#1a1714] outline-none transition',
+              'min-h-27.5 w-full resize-y rounded-[14px] border-[1.5px] bg-white p-3.5 text-sm leading-[1.6] text-[#1a1714] outline-none transition',
               'placeholder:text-[#9f8f86]',
               'shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
               'focus:border-[#b84c2b] focus:shadow-[0_0_0_4px_rgba(184,76,43,0.12),0_6px_32px_rgba(26,23,20,0.07)]',
@@ -675,11 +675,11 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
           </div>
         </section>
 
-        <section className="w-full rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
+        <section className="w-full rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
           <div className="mb-3.5 flex items-center gap-2">
             <span className="h-1.75 w-1.75 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
 
-            <span className="font-mono text-[9px] uppercase tracking-[0.1em] text-[#6b5f58] dark:text-[#9b9a92]">
+            <span className="font-mono text-[9px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">
               AI Roadmap Preview
             </span>
           </div>

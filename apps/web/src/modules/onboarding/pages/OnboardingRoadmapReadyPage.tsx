@@ -155,7 +155,7 @@ const SectionDifficultyBadge = ({
   return (
     <span
       className={cn(
-        'shrink-0 whitespace-nowrap rounded-[4px] border px-2 py-[3px] font-mono text-[8px] uppercase tracking-[0.1em]',
+        'shrink-0 whitespace-nowrap rounded-sm border px-2 py-0.75 font-mono text-[8px] uppercase tracking-widest',
         difficulty === 'beginner' &&
           'border-[rgba(76,175,125,0.25)] bg-[rgba(76,175,125,0.10)] text-[#4caf7d] dark:border-[rgba(92,201,138,0.25)] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]',
         difficulty === 'intermediate' &&
@@ -171,7 +171,7 @@ const SectionDifficultyBadge = ({
 
 const LoadingPanel = () => {
   return (
-    <div className="flex min-h-[420px] w-full items-center justify-center rounded-[18px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
+    <div className="flex min-h-105 w-full items-center justify-center rounded-[18px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
       <div className="flex flex-col items-center">
         <div className="mb-4 h-10 w-10 animate-spin rounded-full border-2 border-transparent border-t-[#b84c2b] dark:border-t-[#e8816a]" />
 
@@ -179,7 +179,7 @@ const LoadingPanel = () => {
           Loading your generated roadmap
         </p>
 
-        <p className="mt-2 max-w-[360px] text-sm leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mt-2 max-w-90 text-sm leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]">
           Fetching the tracker, topics, and roadmap structure saved by the AI job.
         </p>
       </div>
@@ -189,13 +189,13 @@ const LoadingPanel = () => {
 
 const EmptyPanel = ({ message }: { message: string }) => {
   return (
-    <div className="flex min-h-[320px] w-full items-center justify-center rounded-[18px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
+    <div className="flex min-h-80 w-full items-center justify-center rounded-[18px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
       <div>
         <p className="font-serif text-xl font-bold text-[#1a1714] dark:text-[#f2f0eb]">
           Roadmap result unavailable
         </p>
 
-        <p className="mt-2 max-w-[460px] text-sm leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mt-2 max-w-115 text-sm leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]">
           {message}
         </p>
       </div>
@@ -211,7 +211,9 @@ export default function OnboardingRoadmapReadyPage() {
   const runRoadmapEvaluation = useRunRoadmapEvaluation()
 
   const tracker = data?.data?.tracker
-  const topics = data?.data?.topics || []
+  const topics = useMemo(() => {
+  return data?.data?.topics || []
+}, [data?.data?.topics])
 
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
   const [sectionOverrides, setSectionOverrides] = useState<
@@ -311,7 +313,7 @@ export default function OnboardingRoadmapReadyPage() {
       <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
           <Link to="/" className="inline-flex items-center gap-2.5">
-            <LogoIcon className="h-8 w-8 rounded-[8px]" />
+            <LogoIcon className="h-8 w-8 rounded-lg" />
             <span className="text-[19px] font-bold tracking-[-0.5px]">
               immin
               <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
@@ -322,7 +324,7 @@ export default function OnboardingRoadmapReadyPage() {
           <ThemeToggle />
         </header>
 
-        <main className="mx-auto flex w-full max-w-[1120px] flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
+        <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
           <LoadingPanel />
         </main>
       </div>
@@ -334,7 +336,7 @@ export default function OnboardingRoadmapReadyPage() {
       <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
           <Link to="/" className="inline-flex items-center gap-2.5">
-            <LogoIcon className="h-8 w-8 rounded-[8px]" />
+            <LogoIcon className="h-8 w-8 rounded-lg" />
             <span className="text-[19px] font-bold tracking-[-0.5px]">
               immin
               <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
@@ -345,7 +347,7 @@ export default function OnboardingRoadmapReadyPage() {
           <ThemeToggle />
         </header>
 
-        <main className="mx-auto flex w-full max-w-[1120px] flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
+        <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
           <EmptyPanel message={resultError} />
         </main>
       </div>
@@ -356,7 +358,7 @@ export default function OnboardingRoadmapReadyPage() {
     <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
         <Link to="/" className="inline-flex items-center gap-2.5">
-          <LogoIcon className="h-8 w-8 rounded-[8px]" />
+          <LogoIcon className="h-8 w-8 rounded-lg" />
 
           <span className="text-[19px] font-bold leading-none tracking-[-0.5px]">
             immin
@@ -368,9 +370,9 @@ export default function OnboardingRoadmapReadyPage() {
         <ThemeToggle />
       </header>
 
-      <main className="mx-auto flex w-full max-w-[1120px] flex-1 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">
+      <main className="mx-auto flex w-full max-w-280 flex-1 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">
         <section className="relative overflow-hidden rounded-[18px] bg-[#1a1714] px-5 py-6 text-[#fdf8f5] shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:bg-[#0f0e0c] sm:px-7 sm:py-7 md:px-9 md:py-8">
-          <div className="pointer-events-none absolute -right-12 -top-12 h-[220px] w-[220px] rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.20)_0%,transparent_70%)]" />
+          <div className="pointer-events-none absolute -right-12 -top-12 h-55 w-55 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.20)_0%,transparent_70%)]" />
 
           <div className="relative flex flex-col gap-5 sm:flex-row sm:items-start sm:justify-between">
             <div className="min-w-0 flex-1">
@@ -379,12 +381,12 @@ export default function OnboardingRoadmapReadyPage() {
                 Roadmap Ready
               </div>
 
-              <h1 className="max-w-[700px] font-serif text-[clamp(24px,5vw,38px)] font-extrabold leading-[1.08] tracking-[-1px]">
+              <h1 className="max-w-175 font-serif text-[clamp(24px,5vw,38px)] font-extrabold leading-[1.08] tracking-[-1px]">
                 {tracker.title}
               </h1>
 
               {tracker.description && (
-                <p className="mt-3 max-w-[700px] text-sm leading-relaxed text-[#f2f0eb]/70">
+                <p className="mt-3 max-w-175 text-sm leading-relaxed text-[#f2f0eb]/70">
                   {tracker.description}
                 </p>
               )}
@@ -427,7 +429,7 @@ export default function OnboardingRoadmapReadyPage() {
         </section>
 
         <section className="flex flex-col gap-5 lg:flex-row lg:items-start">
-          <div className="min-w-0 flex-1 overflow-hidden rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
+          <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
             <div className="flex flex-wrap gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
               {topics.map((topic) => {
                 const active = topic._id === activeTopic?._id
@@ -483,7 +485,7 @@ export default function OnboardingRoadmapReadyPage() {
                         className="flex w-full items-center justify-between gap-4 px-4 py-4 text-left transition hover:bg-[rgba(184,76,43,0.04)] dark:hover:bg-[rgba(232,129,106,0.05)] sm:px-6"
                       >
                         <div className="flex min-w-0 items-center gap-3">
-                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-[8px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[12px] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[12px] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
                             ✦
                           </span>
 
@@ -538,8 +540,8 @@ export default function OnboardingRoadmapReadyPage() {
             )}
           </div>
 
-          <aside className="flex w-full flex-col gap-4 lg:w-[312px] lg:shrink-0">
-            <div className="rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/15 dark:bg-[#1e1c19]">
+          <aside className="flex w-full flex-col gap-4 lg:w-78 lg:shrink-0">
+            <div className="rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/15 dark:bg-[#1e1c19]">
               <h3 className="mb-4 font-serif text-[15px] font-bold tracking-[-0.3px]">
                 Coverage
               </h3>
@@ -557,7 +559,7 @@ export default function OnboardingRoadmapReadyPage() {
                       </span>
                     </div>
 
-                    <div className="h-1 overflow-hidden rounded-full bg-[#1a1714]/[0.08] dark:bg-[#f2f0eb]/[0.09]">
+                    <div className="h-1 overflow-hidden rounded-full bg-[#1a1714]/8 dark:bg-[#f2f0eb]/9">
                       <div
                         className={cn(
                           'h-full rounded-full',
@@ -585,7 +587,7 @@ export default function OnboardingRoadmapReadyPage() {
               </div>
             </div>
 
-            <div className="rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/15 dark:bg-[#1e1c19]">
+            <div className="rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/15 dark:bg-[#1e1c19]">
               <div className="mb-3 flex items-center gap-2">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
                 <span className="font-mono text-[9px] uppercase tracking-[0.13em] text-[#b84c2b] dark:text-[#e8816a]">
@@ -619,7 +621,7 @@ export default function OnboardingRoadmapReadyPage() {
               </p>
             )}
 
-            <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
+            <p className="text-center font-mono text-[9px] uppercase tracking-widest text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
               Gemini-powered roadmap quality score
             </p>
           </aside>

@@ -4,6 +4,7 @@ import { ApiResponse } from '../../shared/utils/ApiResponse'
 import { ApiError } from '../../shared/utils/ApiError'
 import { env } from '../../config/env'
 import { getAuthUser } from '../../shared/utils/getAuthUser'
+import type { OAuthLoginUser } from './auth.service'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
@@ -245,12 +246,19 @@ oauthCallback: async (
   next: NextFunction
 ) => {
   try {
-    const { tokens, redirectPath } =
-      await authService.handleOAuthLogin(
-        req.user,
-        getRequestMeta(req)
-      )
+    if (!req.user) {
+  throw new ApiError(
+    401,
+    'OAuth authentication failed',
+    'OAUTH_USER_MISSING'
+  )
+}
 
+   const { tokens, redirectPath } =
+  await authService.handleOAuthLogin(
+   req.user as unknown as OAuthLoginUser,
+    getRequestMeta(req)
+  )
     res
       .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
       .redirect(`${env.CLIENT_URL}${redirectPath}`)

@@ -170,7 +170,7 @@ const ArrowLeftIcon = () => {
 const StatueIllustration = () => {
   return (
     <svg
-      className="pointer-events-none absolute right-[-20px] top-5 hidden w-[220px] select-none text-[#1a1714]/[0.07] dark:text-[#f2f0eb]/[0.04] md:block"
+      className="pointer-events-none absolute -right-5 top-5 hidden w-55 select-none text-[#1a1714]/[0.07] dark:text-[#f2f0eb]/4 md:block"
       viewBox="0 0 200 280"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -514,7 +514,7 @@ export default function OnboardingStepTwoPage() {
               type="button"
               onClick={handleBack}
               disabled={isSubmitting}
-              className="hidden max-w-[180px] truncate font-mono text-[9px] tracking-[0.06em] text-[#6b5f58]/70 transition hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#9b9a92]/70 dark:hover:text-[#e8816a] md:block"
+              className="hidden max-w-45 truncate font-mono text-[9px] tracking-[0.06em] text-[#6b5f58]/70 transition hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#9b9a92]/70 dark:hover:text-[#e8816a] md:block"
             >
               Previous: {topic || 'Goal Selection'}
             </button>
@@ -525,7 +525,7 @@ export default function OnboardingStepTwoPage() {
       </header>
 
       <div
-        className="h-[3px] w-full bg-[rgba(184,76,43,0.12)] dark:bg-[rgba(232,129,106,0.14)]"
+        className="h-0.75 w-full bg-[rgba(184,76,43,0.12)] dark:bg-[rgba(232,129,106,0.14)]"
         role="progressbar"
         aria-valuenow={100}
         aria-valuemin={0}
@@ -535,7 +535,7 @@ export default function OnboardingStepTwoPage() {
         <div className="h-full w-full rounded-r-sm bg-[#b84c2b] dark:bg-[#e8816a]" />
       </div>
 
-      <main className="relative mx-auto flex w-full max-w-[740px] flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-10 md:py-13">
+      <main className="relative mx-auto flex w-full max-w-185 flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-10 md:py-13">
         <StatueIllustration />
 
         <button
@@ -543,7 +543,7 @@ export default function OnboardingStepTwoPage() {
           onClick={handleBack}
           disabled={isSubmitting}
           aria-label="Edit topic and goal"
-          className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-[rgba(26,23,20,0.12)] bg-[rgba(26,23,20,0.05)] px-4 py-2 font-mono text-[9.5px] uppercase tracking-[0.12em] text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/15 dark:bg-white/[0.06] dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)]"
+          className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-[rgba(26,23,20,0.12)] bg-[rgba(26,23,20,0.05)] px-4 py-2 font-mono text-[9.5px] uppercase tracking-[0.12em] text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/15 dark:bg-white/6 dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)]"
         >
           <span className="truncate">{contextText}</span>
           <span className="shrink-0 text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
@@ -551,18 +551,18 @@ export default function OnboardingStepTwoPage() {
           </span>
         </button>
 
-        <h1 className="mb-3 max-w-[620px] text-center font-serif text-[clamp(26px,5.5vw,42px)] font-extrabold leading-[1.1] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
+        <h1 className="mb-3 max-w-155 text-center font-serif text-[clamp(26px,5.5vw,42px)] font-extrabold leading-[1.1] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
           How would you describe your current level?
         </h1>
 
-        <p className="mb-9 max-w-[500px] text-center text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mb-9 max-w-125 text-center text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
           Select the stage that best represents your familiarity with the
           subject matter to customise your learning path.
         </p>
 
         {apiError && (
           <div
-            className="mb-5 flex w-full items-start gap-2.5 rounded-[12px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+            className="mb-5 flex w-full items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
             role="alert"
           >
             <AlertIcon className="mt-0.5 h-3.5 w-3.5" />
@@ -591,7 +591,7 @@ export default function OnboardingStepTwoPage() {
                 onKeyDown={(e) => handleLevelKeyDown(e, index)}
                 className={levelCardClass(selected)}
               >
-                <span className="pointer-events-none absolute left-[-100%] top-0 h-full w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] transition-[left] duration-700 group-hover:left-[160%]" />
+                <span className="pointer-events-none absolute -left-full top-0 h-full w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] transition-[left] duration-700 group-hover:left-[160%]" />
 
                 <span
                   className={cn(
@@ -646,7 +646,7 @@ export default function OnboardingStepTwoPage() {
 
         <section
           className={cn(
-            'mb-8 flex w-full items-start gap-3.5 rounded-[16px] border-[1.5px] px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] transition',
+            'mb-8 flex w-full items-start gap-3.5 rounded-2xl border-[1.5px] px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] transition',
             'border-[#e0d0c5] bg-[#fdf8f5] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.05)]',
             summaryHighlight &&
               'border-[#e8816a] dark:border-[#f5a090]'
@@ -669,11 +669,11 @@ export default function OnboardingStepTwoPage() {
         </section>
 
         <section className="mb-2 flex w-full gap-3.5" aria-hidden="true">
-          <div className="flex min-h-[120px] flex-1 items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
+          <div className="flex min-h-30 flex-1 items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
             <WorkspaceIllustration />
           </div>
 
-          <div className="flex min-h-[120px] w-[38%] items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
+          <div className="flex min-h-30 w-[38%] items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
             <RoadmapIllustration />
           </div>
         </section>
@@ -692,7 +692,7 @@ export default function OnboardingStepTwoPage() {
 
         <div className="flex shrink-0 items-center gap-3.5">
           <div className="hidden flex-col items-end gap-0.5 md:flex" aria-hidden="true">
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
+            <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
               Final Step
             </span>
 
@@ -705,9 +705,9 @@ export default function OnboardingStepTwoPage() {
             type="button"
             onClick={handleGenerate}
             disabled={isSubmitting}
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-[12px] bg-[#b84c2b] px-5.5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-[#b84c2b] px-5.5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
           >
-            <span className="pointer-events-none absolute left-[-100%] top-0 h-full w-[55%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent)] transition-[left] duration-700 group-hover:left-[160%]" />
+            <span className="pointer-events-none absolute -left-full top-0 h-full w-[55%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent)] transition-[left] duration-700 group-hover:left-[160%]" />
 
             {buttonLabel}
 

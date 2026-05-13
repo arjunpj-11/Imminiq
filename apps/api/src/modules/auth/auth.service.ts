@@ -4,7 +4,7 @@ import crypto from 'crypto'
 import { authRepository } from './auth.repository'
 import { ApiError } from '../../shared/utils/ApiError'
 import { env } from '../../config/env'
-import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../config/constants'
+import { BCRYPT_ROUNDS } from '../../config/constants'
 import { sendMail } from '../../infrastructure/email/email.client'
 import { otpEmailTemplate } from '../../shared/email/email.templates'
 import { trackerRepository } from '../trackers/tracker.repository'
@@ -27,6 +27,29 @@ import {
 type ResetTokenPayload = {
   userId: string
   purpose: 'password_reset'
+}
+
+export type OAuthLoginUser = OAuthFormattedUserSource & {
+  role: 'user' | 'admin' | 'moderator' | 'superadmin'
+}
+
+type OAuthFormattedUserSource = Pick<
+  AuthUser,
+  | 'fullName'
+  | 'username'
+  | 'email'
+  | 'phone'
+  | 'role'
+  | 'status'
+  | 'emailVerified'
+  | 'phoneVerified'
+  | 'isPremium'
+  | 'avatarUrl'
+  | 'onboardingCompleted'
+> & {
+  _id: {
+    toString(): string
+  }
 }
 
 type OtpPurpose = 'email_verification' | 'phone_verification' | 'password_reset'
@@ -134,7 +157,7 @@ export const authService = {
           })
 
           return {
-            user: authService.formatUser(existingUser),
+            user: authService.formatter(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -158,7 +181,7 @@ export const authService = {
           })
 
           return {
-            user: authService.formatUser(existingUser),
+            user: authService.formatter(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -188,7 +211,7 @@ export const authService = {
     })
 
     return {
-      user: authService.formatUser(user),
+      user: authService.formatter(user),
       verificationTarget: parsedIdentifier.value,
       verificationMethod: parsedIdentifier.method,
     }
@@ -282,15 +305,15 @@ export const authService = {
 
   return {
     tokens,
-    user: authService.formatUser(user),
+    user: authService.formatter(user),
     redirectPath,
   }
 },
 
   // ─── OAUTH LOGIN ─────────────────────────────────
 
- handleOAuthLogin: async (
-  user: any,
+handleOAuthLogin: async (
+  user: OAuthLoginUser,
   meta?: RequestMeta
 ): Promise<{
   tokens: TokenPair
@@ -315,7 +338,7 @@ export const authService = {
 
   return {
     tokens,
-    user: authService.formatUser(user),
+    user: authService.formatter(user),
     redirectPath,
   }
 },
@@ -378,7 +401,7 @@ export const authService = {
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
 
-    return authService.formatUser(user)
+    return authService.formatter(user)
   },
 
   // ─── VERIFY ACCOUNT ──────────────────────────────
@@ -506,11 +529,6 @@ export const authService = {
         password_reset: 'Reset your Imminiq password',
       }
 
-      const bodies: Record<OtpPurpose, string> = {
-        email_verification: `<p>Your verification code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`,
-        phone_verification: `<p>Your verification code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`,
-        password_reset: `<p>Your password reset code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`,
-      }
 
       await sendMail(parsedIdentifier.email, subjects[purpose], otpEmailTemplate({
         otp,
@@ -804,7 +822,7 @@ verifyResetCode: async (identifier: string, otp: string) => {
     return username
   },
 
-  formatUser: (user: any): AuthUser => ({
+ formatter: (user: OAuthFormattedUserSource): AuthUser => ({
     _id: user._id.toString(),
     fullName: user.fullName,
     username: user.username,

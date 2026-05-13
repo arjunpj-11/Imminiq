@@ -4,7 +4,10 @@ import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import ThemeToggle from '../../../components/ui/ThemeToggle'
-import { useRoadmapEvaluationJobStatus } from '../../../hooks/onboarding/useRoadmapEvaluationJobStatus'
+import {
+  useRoadmapEvaluationJobStatus,
+  type EvaluationJobStatus,
+} from '../../../hooks/onboarding/useRoadmapEvaluationJobStatus'
 
 type JobTerminalState = 'completed' | 'failed' | null
 
@@ -92,7 +95,9 @@ const defaultEvalStatus = {
   activeActivityIndex: 0,
 }
 
-const normalizeEvalStatus = (status: any) => {
+const normalizeEvalStatus = (
+  status?: EvaluationJobStatus
+) => {
   if (!status) return defaultEvalStatus
 
   const rawStatus = (status.status || '').toLowerCase()
@@ -107,13 +112,18 @@ const normalizeEvalStatus = (status: any) => {
   const completedSteps =
     typeof status.completedSteps === 'number' ? status.completedSteps : undefined
 
-  const rawProgress = status.progressPercent ?? status.progress ?? undefined
+  const rawProgress =
+  status.totalSteps > 0
+    ? Math.round(
+        (status.completedSteps / status.totalSteps) * 100
+      )
+    : undefined
 
-  const activeStepIndex = normalizeStepIndex(
-    status.currentStep,
-    completedSteps,
-    rawProgress ?? 0
-  )
+ const activeStepIndex = normalizeStepIndex(
+  status.currentStepNumber,
+  completedSteps,
+  rawProgress ?? 0
+)
 
   const progress = clampProgress(
     rawProgress ??
@@ -155,12 +165,11 @@ const normalizeEvalStatus = (status: any) => {
     activeStepIndex,
     terminalState,
     logMessage:
-      status.message ||
-      (terminalState === 'completed'
+     terminalState === 'completed'
         ? 'Evaluation complete. Your roadmap score is ready. ✦'
         : terminalState === 'failed'
           ? 'Evaluation failed. Please try again.'
-          : defaultLogByStep[activeStepIndex] || defaultEvalStatus.logMessage),
+          : defaultLogByStep[activeStepIndex] || defaultEvalStatus.logMessage,
     engineLabel:
       terminalState === 'completed'
         ? 'Evaluation complete'
@@ -322,7 +331,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
       {/* ── Header ── */}
       <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/92 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/94 sm:px-8 md:px-12">
         <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
-          <LogoIcon className="h-8 w-8 rounded-[8px]" />
+          <LogoIcon className="h-8 w-8 rounded-lg" />
           <span className="text-[19px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
             immin
             <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
@@ -339,18 +348,18 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
       </header>
 
       {/* ── Main ── */}
-      <main className="mx-auto flex w-full max-w-[1040px] flex-1 flex-col items-center gap-8 px-4 py-10 sm:px-6 md:px-8 md:py-12">
+      <main className="mx-auto flex w-full max-w-260 flex-1 flex-col items-center gap-8 px-4 py-10 sm:px-6 md:px-8 md:py-12">
         {/* Hero */}
         <section className="flex flex-col items-center text-center">
           <div className="mb-3 font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">
             AI Roadmap Evaluation
           </div>
 
-          <h1 className="mb-4 max-w-[620px] font-serif text-[clamp(32px,6vw,54px)] font-extrabold leading-[1.08] tracking-[-1.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h1 className="mb-4 max-w-155 font-serif text-[clamp(32px,6vw,54px)] font-extrabold leading-[1.08] tracking-[-1.5px] text-[#1a1714] dark:text-[#f2f0eb]">
             Scoring your learning roadmap
           </h1>
 
-          <p className="max-w-[510px] text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="max-w-127.5 text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
             Gemini is analysing completeness, depth, interview-readiness, and
             identifying gaps and opportunities in your roadmap.
           </p>
@@ -377,7 +386,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
               Roadmap being evaluated
             </h2>
 
-            <p className="mb-5 text-[12.5px] leading-[1.5] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mb-5 text-[12.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
               Gemini is scoring this roadmap against your learning goals.
             </p>
 
@@ -408,7 +417,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
               Evaluation progress
             </h2>
 
-            <p className="mb-4 text-[12.5px] leading-[1.5] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mb-4 text-[12.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
               Each stage analyses a different dimension of your roadmap quality.
             </p>
 
@@ -424,7 +433,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
                     role="listitem"
                     aria-current={isActive ? 'true' : undefined}
                     className={cn(
-                      'flex items-center gap-3 rounded-[12px] border-[1.5px] px-3.5 py-2.5 transition',
+                      'flex items-center gap-3 rounded-xl border-[1.5px] px-3.5 py-2.5 transition',
                       isActive &&
                         'border-[rgba(184,76,43,0.30)] bg-[rgba(184,76,43,0.07)] dark:border-[rgba(232,129,106,0.30)] dark:bg-[rgba(232,129,106,0.08)]',
                       isPending && 'border-transparent opacity-45',
@@ -454,7 +463,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           aria-live="polite"
           aria-atomic="true"
         >
-          <p className="mb-4 min-h-[48px] text-[16px] font-semibold leading-[1.5] text-[#1a1714] dark:text-[#f2f0eb]">
+          <p className="mb-4 min-h-12 text-[16px] font-semibold leading-normal text-[#1a1714] dark:text-[#f2f0eb]">
             {evalStatus.logMessage}
           </p>
 
@@ -468,7 +477,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           </div>
 
           <div
-            className="relative mb-2 h-[5px] w-full overflow-hidden rounded-full bg-[#1a1714]/[0.08] dark:bg-[#f2f0eb]/[0.10]"
+            className="relative mb-2 h-1.25 w-full overflow-hidden rounded-full bg-[#1a1714]/8 dark:bg-[#f2f0eb]/10"
             role="progressbar"
             aria-valuemin={0}
             aria-valuemax={100}
@@ -535,7 +544,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="rounded-[12px] bg-[#b84c2b] px-5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="rounded-xl bg-[#b84c2b] px-5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
           >
             Return to roadmap
           </button>
@@ -544,21 +553,21 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
 
       {/* ── Footer ── */}
       <footer className="flex w-full flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[#f5ede4] px-5 py-5 dark:border-white/15 dark:bg-[#141412] sm:px-8 md:px-12">
-        <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
+        <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
           © 2026 Imminiq. Scholarly rigor meets digital intelligence.
         </span>
 
         <div className="flex items-center gap-4">
           <Link
             to="/privacy"
-            className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
+            className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
           >
             Privacy
           </Link>
 
           <Link
             to="/terms"
-            className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
+            className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
           >
             Terms
           </Link>
