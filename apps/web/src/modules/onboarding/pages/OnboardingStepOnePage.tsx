@@ -257,50 +257,46 @@ export default function OnboardingStepOnePage() {
     error?.response?.data?.message ||
     (error ? 'Failed to save onboarding details. Please try again.' : '')
 
-  const [topic, setTopic] = useState('')
-  const [goal, setGoal] = useState('')
+  const [topic, setTopic] = useState(() => {
+  return (
+    sessionStorage.getItem('imminiq_draft_topic') ||
+    sessionStorage.getItem('imminiq_topic') ||
+    ''
+  )
+})
+
+const [goal, setGoal] = useState(() => {
+  return (
+    sessionStorage.getItem('imminiq_draft_goal') ||
+    sessionStorage.getItem('imminiq_goal') ||
+    ''
+  )
+})
+
+const [selectedTopicChip, setSelectedTopicChip] = useState<string | null>(() => {
+  const savedTopic =
+    sessionStorage.getItem('imminiq_draft_topic') ||
+    sessionStorage.getItem('imminiq_topic') ||
+    ''
+
+  return topicChips.find((chip) => chip === savedTopic) || null
+})
+
+const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
+  const savedGoal =
+    sessionStorage.getItem('imminiq_draft_goal') ||
+    sessionStorage.getItem('imminiq_goal') ||
+    ''
+
+  return goalChips.find((chip) => chip === savedGoal) || null
+})
   const [topicError, setTopicError] = useState('')
   const [toast, setToast] = useState('')
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
 
-  const [selectedTopicChip, setSelectedTopicChip] = useState<string | null>(
-    null
-  )
-  const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(
-    null
-  )
 
-  useEffect(() => {
-    const savedTopic =
-      sessionStorage.getItem('imminiq_draft_topic') ||
-      sessionStorage.getItem('imminiq_topic') ||
-      ''
 
-    const savedGoal =
-      sessionStorage.getItem('imminiq_draft_goal') ||
-      sessionStorage.getItem('imminiq_goal') ||
-      ''
-
-    if (savedTopic) {
-      setTopic(savedTopic)
-
-      const matchedTopicChip = topicChips.find((chip) => chip === savedTopic)
-
-      if (matchedTopicChip) {
-        setSelectedTopicChip(matchedTopicChip)
-      }
-    }
-
-    if (savedGoal) {
-      setGoal(savedGoal)
-
-      const matchedGoalChip = goalChips.find((chip) => chip === savedGoal)
-
-      if (matchedGoalChip) {
-        setSelectedGoalChip(matchedGoalChip)
-      }
-    }
-  }, [])
+  
 
   const previewItems = useMemo(() => {
     const trimmedTopic = topic.trim().toLowerCase()
