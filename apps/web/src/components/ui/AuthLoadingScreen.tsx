@@ -38,9 +38,9 @@ export default function AuthLoadingScreen() {
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5ede4] px-6 font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       {/* ambient background */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 h-[420px] w-[420px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.14)_0%,rgba(184,76,43,0.04)_38%,transparent_72%)] blur-2xl dark:bg-[radial-gradient(circle,rgba(232,129,106,0.16)_0%,rgba(232,129,106,0.05)_38%,transparent_72%)]" />
+      <div className="pointer-events-none absolute left-1/2 top-1/2 h-105 w-105 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.14)_0%,rgba(184,76,43,0.04)_38%,transparent_72%)] blur-2xl dark:bg-[radial-gradient(circle,rgba(232,129,106,0.16)_0%,rgba(232,129,106,0.05)_38%,transparent_72%)]" />
 
-      <div className="relative flex w-full max-w-[420px] flex-col items-center text-center">
+      <div className="relative flex w-full max-w-105 flex-col items-center text-center">
         {/* loader emblem */}
         <div className="relative mb-8 flex h-36 w-36 items-center justify-center">
           <div className="absolute inset-0 animate-spin rounded-full border border-transparent border-t-[#b84c2b]/70 border-r-[#b84c2b]/25 dark:border-t-[#e8816a]/80 dark:border-r-[#e8816a]/25" />
@@ -64,12 +64,12 @@ export default function AuthLoadingScreen() {
           Restoring your learning space
         </h1>
 
-        <p className="max-w-[340px] text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="max-w-85 text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
           Reconnecting your session and preparing your Imminiq workspace.
         </p>
 
         {/* animated progress line */}
-        <div className="mt-7 h-1.5 w-full max-w-[270px] overflow-hidden rounded-full bg-[rgba(184,76,43,0.12)] dark:bg-[rgba(232,129,106,0.14)]">
+        <div className="mt-7 h-1.5 w-full max-w-67.5 overflow-hidden rounded-full bg-[rgba(184,76,43,0.12)] dark:bg-[rgba(232,129,106,0.14)]">
           <div className="h-full w-1/2 animate-[loadingSweep_1.5s_ease-in-out_infinite] rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
         </div>
       </div>
