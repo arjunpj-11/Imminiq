@@ -1,5 +1,16 @@
 import { z } from 'zod'
-import { geminiChat } from './gemini.client'
+
+import {
+  geminiChat,
+  geminiFlashLiteChat,
+  gemini31FlashLiteChat,
+} from './gemini.client'
+
+import {
+  cerebrasRoadmapStructureChat,
+  cerebrasRoadmapEvaluationChat,
+} from './cerebras.client'
+
 import { groqChat } from './groq.client'
 
 // ============================================================
@@ -93,7 +104,95 @@ const parseAIJson = <T>(
 }
 
 // ============================================================
-// GEMINI — COMPLEX GENERATION TASKS
+// AI FALLBACK HELPERS
+// ============================================================
+
+const shouldFallbackFromProvider = (
+  error: unknown
+): boolean => {
+  if (!error || typeof error !== 'object') {
+    return false
+  }
+
+  const possibleError = error as {
+    status?: number
+    statusCode?: number
+    message?: string
+  }
+
+  const message =
+    possibleError.message?.toLowerCase() || ''
+
+  return (
+    possibleError.status === 429 ||
+    possibleError.statusCode === 429 ||
+    possibleError.status === 503 ||
+    possibleError.statusCode === 503 ||
+    possibleError.status === 500 ||
+    possibleError.statusCode === 500 ||
+    message.includes('429') ||
+    message.includes('503') ||
+    message.includes('500') ||
+    message.includes('resource_exhausted') ||
+    message.includes('quota') ||
+    message.includes('rate limit') ||
+    message.includes('high demand') ||
+    message.includes('service unavailable') ||
+    message.includes('unavailable') ||
+    message.includes('temporarily unavailable') ||
+    message.includes('overloaded')
+  )
+}
+
+const heavyAIChatWithFallback = async (
+  prompt: string,
+  system: string,
+  cerebrasFallback: (
+    prompt: string,
+    system?: string
+  ) => Promise<string>
+) => {
+  try {
+    return await geminiChat(prompt, system)
+  } catch (geminiFlashError) {
+    if (!shouldFallbackFromProvider(geminiFlashError)) {
+      throw geminiFlashError
+    }
+
+    console.warn(
+      '⚠️ Gemini 2.5 Flash unavailable or quota-limited. Trying Gemini 2.5 Flash-Lite.'
+    )
+  }
+
+  try {
+    return await geminiFlashLiteChat(prompt, system)
+  } catch (geminiFlashLiteError) {
+    if (!shouldFallbackFromProvider(geminiFlashLiteError)) {
+      throw geminiFlashLiteError
+    }
+
+    console.warn(
+      '⚠️ Gemini 2.5 Flash-Lite unavailable or quota-limited. Trying Gemini 3.1 Flash-Lite.'
+    )
+  }
+
+  try {
+    return await gemini31FlashLiteChat(prompt, system)
+  } catch (gemini31FlashLiteError) {
+    if (!shouldFallbackFromProvider(gemini31FlashLiteError)) {
+      throw gemini31FlashLiteError
+    }
+
+    console.warn(
+      '⚠️ Gemini 3.1 Flash-Lite unavailable or quota-limited. Falling back to Cerebras structured output.'
+    )
+  }
+
+  return cerebrasFallback(prompt, system)
+}
+
+// ============================================================
+// GEMINI / CEREBRAS — COMPLEX GENERATION TASKS
 // ============================================================
 
 /**
@@ -312,9 +411,10 @@ Final checks before responding:
 - The roadmap must feel like a complete study tracker, not a short outline.
 `
 
-  const response = await geminiChat(
+  const response = await heavyAIChatWithFallback(
     prompt,
-    'You are an elite curriculum architect. Return strict valid JSON only. Build complete zero-to-hero master roadmaps with interview depth.'
+    'You are an elite curriculum architect. Return strict valid JSON only. Build complete zero-to-hero master roadmaps with interview depth.',
+    cerebrasRoadmapStructureChat
   )
 
   return parseAIJson(
@@ -329,11 +429,8 @@ Final checks before responding:
  * Evaluates the full generated roadmap and returns:
  * - score
  * - grade
- * - verdict
- * - strengths
- * - weaknesses
- * - missing areas
- * - improvement suggestions
+ * - summary
+ * - missing topics with suggested tracker placement
  */
 export const evaluateRoadmap = async (
   roadmap: unknown
@@ -437,9 +534,10 @@ Final checks:
 - Do not return strengths, weaknesses, verdict, or improvementSuggestions.
 `
 
-  const response = await geminiChat(
+  const response = await heavyAIChatWithFallback(
     prompt,
-    'You are a strict roadmap evaluator. Return strict valid JSON only.'
+    'You are a strict roadmap evaluator. Return strict valid JSON only.',
+    cerebrasRoadmapEvaluationChat
   )
 
   return parseAIJson(
