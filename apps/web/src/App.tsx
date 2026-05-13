@@ -8,21 +8,29 @@ import VerifyAccountPage from './modules/auth/pages/VerifyAccountPage'
 import PrivacyPage from './modules/legal/pages/PrivacyPage'
 import TermsPage from './modules/legal/pages/TermsPage'
 import ResetPasswordPage from './modules/auth/pages/ResetPasswordPage'
+import OnboardingStepTwoPage from './modules/onboarding/pages/OnboardingStepTwoPage'
+import OnboardingGeneratingPage from './modules/onboarding/pages/OnboardingGeneratingPage'
 import { useEffect } from 'react'
 import { useThemeStore } from './store/useThemeStore'
-
+import OnboardingStepOnePage from './modules/onboarding/pages/OnboardingStepOnePage'
+import { useRestoreSession } from './hooks/auth/useRestoreSession'
+import OnboardingRoadmapReadyPage from './modules/onboarding/pages/OnboardingRoadmapReadyPage'
+import OnboardingRoadmapEvaluationScorePage from './modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage'
+import OnboardingRoadmapEvaluationLoadingPage from './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
 
 
 export default function App() {
- const initTheme = useThemeStore((state) => state.initTheme)
+  const initTheme = useThemeStore((state) => state.initTheme)
 
   useEffect(() => {
     initTheme()
   }, [initTheme])
 
+  useRestoreSession()
+
   return (
     <Routes>
-      {/* public routes */}
+      {/* Public routes */}
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
@@ -30,17 +38,72 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+     <Route
+  path="/onboarding/roadmap-evaluation/:jobId"
+  element={<OnboardingRoadmapEvaluationLoadingPage />}
+/>
 
+<Route
+  path="/onboarding/roadmap-evaluation/:jobId/score"
+  element={<OnboardingRoadmapEvaluationScorePage />}
+/>
 
-      {/* protected routes — replace divs with real pages as you build */}
-      <Route path="/dashboard" element={
-        <ProtectedRoute><div>Dashboard</div></ProtectedRoute>
-      } />
+      {/* Protected onboarding route */}
+      <Route
+        path="/onboarding/step-1"
+        element={
+          <ProtectedRoute>
+            <OnboardingStepOnePage />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* admin routes */}
-      <Route path="/admin" element={
-        <AdminRoute><div>Admin</div></AdminRoute>
-      } />
+      <Route
+  path="/onboarding/step-2"
+  element={
+    <ProtectedRoute>
+      <OnboardingStepTwoPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/onboarding/generating/:jobId"
+  element={
+    <ProtectedRoute>
+      <OnboardingGeneratingPage />
+    </ProtectedRoute>
+  }
+/>
+
+<Route
+  path="/onboarding/roadmap-ready/:jobId"
+  element={
+    <ProtectedRoute>
+      <OnboardingRoadmapReadyPage />
+    </ProtectedRoute>
+  }
+/>
+
+      {/* Protected routes */}
+      <Route
+        path="/dashboard"
+        element={
+          <ProtectedRoute>
+            <div>Dashboard</div>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Admin routes */}
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <div>Admin</div>
+          </AdminRoute>
+        }
+      />
     </Routes>
   )
 }

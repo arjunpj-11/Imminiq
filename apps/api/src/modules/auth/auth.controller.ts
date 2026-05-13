@@ -4,6 +4,7 @@ import { ApiResponse } from '../../shared/utils/ApiResponse'
 import { ApiError } from '../../shared/utils/ApiError'
 import { env } from '../../config/env'
 import { getAuthUser } from '../../shared/utils/getAuthUser'
+import type { OAuthLoginUser } from './auth.service'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
@@ -33,25 +34,26 @@ export const authController = {
     }
   },
 
-  login: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { tokens, user } = await authService.login(
-        req.body,
-        getRequestMeta(req)
-      )
+login: async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { tokens, user, redirectPath } = await authService.login(
+      req.body,
+      getRequestMeta(req)
+    )
 
-      res
-        .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-        .json(
-          new ApiResponse('Login successful', {
-            accessToken: tokens.accessToken,
-            user,
-          })
-        )
-    } catch (error) {
-      next(error)
-    }
-  },
+    res
+      .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
+      .json(
+        new ApiResponse('Login successful', {
+          accessToken: tokens.accessToken,
+          user,
+          redirectPath,
+        })
+      )
+  } catch (error) {
+    next(error)
+  }
+},
 
   logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -238,16 +240,28 @@ revokeSession: async (req: Request, res: Response, next: NextFunction) => {
   }
 },
 
-  oauthCallback: async (req: Request, res: Response, next: NextFunction) => {
+oauthCallback: async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const { tokens } = await authService.handleOAuthLogin(
-      req.user,
-      getRequestMeta(req)
-    )
+    if (!req.user) {
+  throw new ApiError(
+    401,
+    'OAuth authentication failed',
+    'OAUTH_USER_MISSING'
+  )
+}
 
+   const { tokens, redirectPath } =
+  await authService.handleOAuthLogin(
+   req.user as unknown as OAuthLoginUser,
+    getRequestMeta(req)
+  )
     res
       .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-      .redirect(`${env.CLIENT_URL}/dashboard`)
+      .redirect(`${env.CLIENT_URL}${redirectPath}`)
   } catch (error) {
     next(error)
   }
