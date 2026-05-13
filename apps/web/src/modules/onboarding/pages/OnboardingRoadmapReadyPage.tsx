@@ -1,34 +1,17 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from 'react'
-import type {
-  MouseEvent,
-  ReactNode,
-} from 'react'
-import {
-  Link,
-  useParams,
-} from 'react-router-dom'
+import { useMemo, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import ThemeToggle from '../../../components/ui/ThemeToggle'
 import {
   useRoadmapJobResult,
   type RoadmapSubtopic,
   type RoadmapTopic,
 } from '../../../hooks/onboarding/useRoadmapJobResult'
+import { useRunRoadmapEvaluation } from '../../../hooks/onboarding/useRunRoadmapEvaluation'
 
 type Section = {
   id: string
   title: string
   items: RoadmapSubtopic[]
-}
-
-type EvalLine = {
-  message: string
-  progress: number
-  tone?: 'normal' | 'success' | 'highlight'
 }
 
 const cn = (...classes: Array<string | false | null | undefined>) => {
@@ -92,22 +75,6 @@ const ChevronDownIcon = () => {
   )
 }
 
-const ArrowRightIcon = () => {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      aria-hidden="true"
-    >
-      <polyline points="9 18 15 12 9 6" />
-    </svg>
-  )
-}
-
 const PulseIcon = () => {
   return (
     <svg
@@ -120,23 +87,6 @@ const PulseIcon = () => {
       aria-hidden="true"
     >
       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
-    </svg>
-  )
-}
-
-const CloseIcon = () => {
-  return (
-    <svg
-      width="14"
-      height="14"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      aria-hidden="true"
-    >
-      <line x1="18" y1="6" x2="6" y2="18" />
-      <line x1="6" y1="6" x2="18" y2="18" />
     </svg>
   )
 }
@@ -221,7 +171,7 @@ const SectionDifficultyBadge = ({
 
 const LoadingPanel = () => {
   return (
-    <div className="flex min-h-[420px] w-full items-center justify-center rounded-[18px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_8px_40px_rgba(0,0,0,0.35),0_1px_4px_rgba(0,0,0,0.2)]">
+    <div className="flex min-h-[420px] w-full items-center justify-center rounded-[18px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 text-center shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
       <div className="flex flex-col items-center">
         <div className="mb-4 h-10 w-10 animate-spin rounded-full border-2 border-transparent border-t-[#b84c2b] dark:border-t-[#e8816a]" />
 
@@ -255,13 +205,10 @@ const EmptyPanel = ({ message }: { message: string }) => {
 
 export default function OnboardingRoadmapReadyPage() {
   const { jobId } = useParams<{ jobId: string }>()
-  const previewRef = useRef<HTMLDivElement | null>(null)
+  const navigate = useNavigate()
 
-  const {
-    data,
-    isLoading,
-    error,
-  } = useRoadmapJobResult(jobId)
+  const { data, isLoading, error } = useRoadmapJobResult(jobId)
+  const runRoadmapEvaluation = useRunRoadmapEvaluation()
 
   const tracker = data?.data?.tracker
   const topics = data?.data?.topics || []
@@ -270,13 +217,9 @@ export default function OnboardingRoadmapReadyPage() {
   const [sectionOverrides, setSectionOverrides] = useState<
     Record<string, boolean>
   >({})
-  const [isEvalOpen, setIsEvalOpen] = useState(false)
-  const [evaluationRunning, setEvaluationRunning] = useState(false)
-  const [evalLines, setEvalLines] = useState<EvalLine[]>([])
-  const [evalProgress, setEvalProgress] = useState(0)
+  const [evaluationError, setEvaluationError] = useState<string | null>(null)
 
-  const activeTopicId =
-    selectedTopicId || topics[0]?._id || ''
+  const activeTopicId = selectedTopicId || topics[0]?._id || ''
 
   const activeTopic = useMemo(() => {
     return topics.find((topic) => topic._id === activeTopicId) || topics[0]
@@ -298,9 +241,7 @@ export default function OnboardingRoadmapReadyPage() {
 
   const coverageRows = useMemo(() => {
     return topics.map((topic) => {
-      const count =
-        topic.subtopicsCount ||
-        flattenSectionCount(topic)
+      const count = topic.subtopicsCount || flattenSectionCount(topic)
 
       const percent =
         totalSubtopics > 0
@@ -321,7 +262,7 @@ export default function OnboardingRoadmapReadyPage() {
   const aiInsight = useMemo(() => {
     const firstTopicTitle = topics[0]?.title || 'your first learning module'
 
-    return `Your roadmap starts with ${firstTopicTitle} and expands into ${totalTopics} structured topic areas. Begin with the first section, then move through the roadmap in order to keep the learning curve steady.`
+    return `Your roadmap starts with ${firstTopicTitle} and expands into ${totalTopics} structured topic areas. Run AI Evaluation to let Gemini score the roadmap quality, completeness, and interview-readiness.`
   }, [topics, totalTopics])
 
   const resultError =
@@ -330,10 +271,7 @@ export default function OnboardingRoadmapReadyPage() {
       ? 'Missing roadmap generation job ID.'
       : 'Unable to fetch the generated roadmap result.')
 
-  const toggleSection = (
-    sectionId: string,
-    defaultOpen: boolean
-  ) => {
+  const toggleSection = (sectionId: string, defaultOpen: boolean) => {
     setSectionOverrides((current) => ({
       ...current,
       [sectionId]:
@@ -343,135 +281,29 @@ export default function OnboardingRoadmapReadyPage() {
     }))
   }
 
-  const handleStartLearning = () => {
-    const firstSection = sections[0]
-
-    if (firstSection) {
-      setSectionOverrides((current) => ({
-        ...current,
-        [firstSection.id]: true,
-      }))
-    }
-
-    previewRef.current?.scrollIntoView({
-      behavior: 'smooth',
-      block: 'start',
-    })
-  }
-
-  const evalSteps = useMemo<EvalLine[]>(() => {
-    return [
-      {
-        message: '↳ Loading generated tracker tree…',
-        progress: 12,
-      },
-      {
-        message: `✓ Parsed ${totalTopics} topics and ${totalSubtopics} subtopics`,
-        progress: 28,
-        tone: 'success',
-      },
-      {
-        message: '↳ Reviewing topic sequence and roadmap balance…',
-        progress: 45,
-      },
-      {
-        message: '✓ Topic progression appears structurally consistent',
-        progress: 62,
-        tone: 'success',
-      },
-      {
-        message: '↳ Scanning for missing structural coverage…',
-        progress: 78,
-      },
-      {
-        message: '✓ No blocking structural gaps detected in the generated preview',
-        progress: 92,
-        tone: 'success',
-      },
-      {
-        message: '✦ Preview evaluation complete',
-        progress: 100,
-        tone: 'highlight',
-      },
-    ]
-  }, [totalTopics, totalSubtopics])
-
-  useEffect(() => {
-    if (!evaluationRunning) {
+  const handleRunAiEvaluation = async () => {
+    if (!jobId || !tracker) {
+      setEvaluationError('Roadmap data is missing. Please regenerate it.')
       return
     }
 
-    let timeoutId: number | undefined
-    let index = 0
+    setEvaluationError(null)
 
-    const runNext = () => {
-      const current = evalSteps[index]
+    try {
+     const response =
+  await runRoadmapEvaluation.mutateAsync(jobId)
 
-      if (!current) {
-        setEvaluationRunning(false)
-        return
-      }
+     navigate(
+  `/onboarding/roadmap-evaluation/${response.data.jobId}`
+)
+    } catch (mutationError) {
+      const message =
+        mutationError instanceof Error
+          ? mutationError.message
+          : 'Unable to evaluate roadmap right now.'
 
-      setEvalLines((lines) => [...lines, current])
-      setEvalProgress(current.progress)
-
-      index += 1
-
-      timeoutId = window.setTimeout(
-        runNext,
-        index % 2 === 0 ? 650 : 850
-      )
+      setEvaluationError(message)
     }
-
-    timeoutId = window.setTimeout(runNext, 250)
-
-    return () => {
-      if (timeoutId) {
-        window.clearTimeout(timeoutId)
-      }
-    }
-  }, [evaluationRunning, evalSteps])
-
-  useEffect(() => {
-    if (!isEvalOpen) return
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsEvalOpen(false)
-      }
-    }
-
-    window.addEventListener('keydown', handleEscape)
-
-    return () => {
-      window.removeEventListener('keydown', handleEscape)
-    }
-  }, [isEvalOpen])
-
-  const openEvaluation = () => {
-    setEvalLines([])
-    setEvalProgress(0)
-    setEvaluationRunning(false)
-    setIsEvalOpen(true)
-  }
-
-  const closeEvaluation = () => {
-    setIsEvalOpen(false)
-    setEvaluationRunning(false)
-    setEvalLines([])
-    setEvalProgress(0)
-  }
-
-  const handleOverlayClick = (event: MouseEvent<HTMLDivElement>) => {
-    if (event.target === event.currentTarget) {
-      closeEvaluation()
-    }
-  }
-
-  const runEvaluation = () => {
-    setEvalLines([])
-    setEvalProgress(0)
-    setEvaluationRunning(true)
   }
 
   if (isLoading) {
@@ -480,7 +312,6 @@ export default function OnboardingRoadmapReadyPage() {
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
           <Link to="/" className="inline-flex items-center gap-2.5">
             <LogoIcon className="h-8 w-8 rounded-[8px]" />
-
             <span className="text-[19px] font-bold tracking-[-0.5px]">
               immin
               <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
@@ -504,7 +335,6 @@ export default function OnboardingRoadmapReadyPage() {
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
           <Link to="/" className="inline-flex items-center gap-2.5">
             <LogoIcon className="h-8 w-8 rounded-[8px]" />
-
             <span className="text-[19px] font-bold tracking-[-0.5px]">
               immin
               <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
@@ -579,7 +409,6 @@ export default function OnboardingRoadmapReadyPage() {
                 <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#f2f0eb]/40">
                   Topics
                 </span>
-
                 <span className="font-serif text-[34px] font-extrabold leading-none text-[#f0a842]">
                   {totalTopics}
                 </span>
@@ -589,7 +418,6 @@ export default function OnboardingRoadmapReadyPage() {
                 <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#f2f0eb]/40">
                   Subtopics
                 </span>
-
                 <span className="font-serif text-[34px] font-extrabold leading-none text-[#fdf8f5]">
                   {totalSubtopics}
                 </span>
@@ -599,10 +427,7 @@ export default function OnboardingRoadmapReadyPage() {
         </section>
 
         <section className="flex flex-col gap-5 lg:flex-row lg:items-start">
-          <div
-            ref={previewRef}
-            className="min-w-0 flex-1 overflow-hidden rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_8px_40px_rgba(0,0,0,0.35),0_1px_4px_rgba(0,0,0,0.2)]"
-          >
+          <div className="min-w-0 flex-1 overflow-hidden rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
             <div className="flex flex-wrap gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
               {topics.map((topic) => {
                 const active = topic._id === activeTopic?._id
@@ -616,7 +441,7 @@ export default function OnboardingRoadmapReadyPage() {
                       'rounded-full border-[1.5px] px-3 py-2 text-[12.5px] font-medium transition',
                       active
                         ? 'border-[#b84c2b] bg-[#b84c2b] text-[#fdf8f5] dark:border-[#e8816a] dark:bg-[#e8816a] dark:text-[#141412]'
-                        : 'border-[#e0d0c5] bg-transparent text-[#6b5f58] hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/15 dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]'
+                        : 'border-[#e0d0c5] bg-transparent text-[#6b5f58] hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/15 dark:text-[#9b9a92]'
                     )}
                   >
                     {topic.title}
@@ -644,9 +469,7 @@ export default function OnboardingRoadmapReadyPage() {
               <div>
                 {sections.map((section, index) => {
                   const defaultOpen = index === 0
-
-                  const open =
-                    sectionOverrides[section.id] ?? defaultOpen
+                  const open = sectionOverrides[section.id] ?? defaultOpen
 
                   return (
                     <div
@@ -694,7 +517,6 @@ export default function OnboardingRoadmapReadyPage() {
                             >
                               <div className="flex min-w-0 flex-1 items-center gap-2">
                                 <span className="h-1.5 w-1.5 shrink-0 rounded-full bg-[#e0d0c5] dark:bg-white/20" />
-
                                 <span className="min-w-0 text-[13px] text-[#1a1714] dark:text-[#f2f0eb]">
                                   {item.title}
                                 </span>
@@ -717,7 +539,7 @@ export default function OnboardingRoadmapReadyPage() {
           </div>
 
           <aside className="flex w-full flex-col gap-4 lg:w-[312px] lg:shrink-0">
-            <div className="rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_8px_40px_rgba(0,0,0,0.35),0_1px_4px_rgba(0,0,0,0.2)]">
+            <div className="rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/15 dark:bg-[#1e1c19]">
               <h3 className="mb-4 font-serif text-[15px] font-bold tracking-[-0.3px]">
                 Coverage
               </h3>
@@ -726,11 +548,11 @@ export default function OnboardingRoadmapReadyPage() {
                 {coverageRows.map((row, index) => (
                   <div key={row.id}>
                     <div className="mb-1.5 flex items-center justify-between gap-2">
-                      <span className="truncate text-[12px] font-medium text-[#1a1714] dark:text-[#f2f0eb]">
+                      <span className="truncate text-[12px] font-medium">
                         {row.title}
                       </span>
 
-                      <span className="font-mono text-[9.5px] tracking-[0.06em] text-[#6b5f58] dark:text-[#9b9a92]">
+                      <span className="font-mono text-[9.5px] text-[#6b5f58] dark:text-[#9b9a92]">
                         {row.count}
                       </span>
                     </div>
@@ -738,7 +560,7 @@ export default function OnboardingRoadmapReadyPage() {
                     <div className="h-1 overflow-hidden rounded-full bg-[#1a1714]/[0.08] dark:bg-[#f2f0eb]/[0.09]">
                       <div
                         className={cn(
-                          'relative h-full overflow-hidden rounded-full transition-[width] duration-1000 ease-out',
+                          'h-full rounded-full',
                           index % 3 === 1
                             ? 'bg-[#4caf7d] dark:bg-[#5cc98a]'
                             : index % 3 === 2
@@ -752,7 +574,7 @@ export default function OnboardingRoadmapReadyPage() {
                 ))}
               </div>
 
-              <div className="mt-4 flex items-center justify-between rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-3 dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)]">
+              <div className="mt-4 flex items-center justify-between rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-3">
                 <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
                   Total nodes
                 </span>
@@ -763,46 +585,9 @@ export default function OnboardingRoadmapReadyPage() {
               </div>
             </div>
 
-            <div className="rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
-              <h3 className="mb-4 font-serif text-[15px] font-bold tracking-[-0.3px]">
-                Your Context
-              </h3>
-
-              <div className="flex items-center justify-between gap-3 border-b border-[#e0d0c5] py-2.5 dark:border-white/15">
-                <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
-                  Field
-                </span>
-
-                <span className="max-w-[60%] truncate rounded-[5px] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 text-[11.5px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-                  {tracker.field || 'AI-generated'}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 border-b border-[#e0d0c5] py-2.5 dark:border-white/15">
-                <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
-                  Level
-                </span>
-
-                <span className="rounded-[5px] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 text-[11.5px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-                  {capitalize(tracker.level)}
-                </span>
-              </div>
-
-              <div className="flex items-center justify-between gap-3 py-2.5">
-                <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
-                  Status
-                </span>
-
-                <span className="rounded-[5px] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 text-[11.5px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-                  {capitalize(tracker.status || 'draft')}
-                </span>
-              </div>
-            </div>
-
-            <div className="rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19]">
+            <div className="rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/15 dark:bg-[#1e1c19]">
               <div className="mb-3 flex items-center gap-2">
                 <span className="h-2 w-2 animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-
                 <span className="font-mono text-[9px] uppercase tracking-[0.13em] text-[#b84c2b] dark:text-[#e8816a]">
                   AI Insight
                 </span>
@@ -815,145 +600,31 @@ export default function OnboardingRoadmapReadyPage() {
 
             <button
               type="button"
-              onClick={handleStartLearning}
-              className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-[11px] bg-[#b84c2b] px-4 py-3.5 text-sm font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.28)] active:translate-y-0 active:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
-            >
-              <span className="pointer-events-none absolute left-[-100%] top-0 h-full w-[55%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.13),transparent)] transition-[left] duration-500 group-hover:left-[160%]" />
-
-              <ArrowRightIcon />
-              Start Learning
-            </button>
-
-            <button
-              type="button"
-              onClick={openEvaluation}
-              className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#1a1714] px-4 py-3.5 text-sm font-bold text-[#f5ede4] transition hover:-translate-y-px hover:shadow-[0_6px_24px_rgba(26,23,20,0.22)] active:translate-y-0 active:shadow-none dark:bg-[#f2f0eb] dark:text-[#141412] dark:hover:shadow-[0_6px_24px_rgba(242,240,235,0.10)]"
+              onClick={handleRunAiEvaluation}
+              disabled={runRoadmapEvaluation.isPending}
+              className="flex w-full items-center justify-center gap-2 rounded-[11px] bg-[#1a1714] px-4 py-3.5 text-sm font-bold text-[#f5ede4] transition hover:-translate-y-px hover:shadow-[0_6px_24px_rgba(26,23,20,0.22)] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 dark:bg-[#f2f0eb] dark:text-[#141412]"
             >
               <span className="flex h-5 w-5 items-center justify-center rounded-[5px] bg-[#b84c2b] text-white dark:bg-[#e8816a]">
                 <PulseIcon />
               </span>
 
-              Run AI Evaluation
+              {runRoadmapEvaluation.isPending
+                ? 'Gemini is evaluating roadmap...'
+                : 'Run AI Evaluation'}
             </button>
 
+            {evaluationError && (
+              <p className="rounded-[10px] border border-red-300 bg-red-50 px-3 py-2 text-center text-[12px] font-medium text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">
+                {evaluationError}
+              </p>
+            )}
+
             <p className="text-center font-mono text-[9px] uppercase tracking-[0.1em] text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
-              Preview-quality check UI
+              Gemini-powered roadmap quality score
             </p>
           </aside>
         </section>
       </main>
-
-      <footer className="flex flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] px-5 py-4 dark:border-white/15 sm:px-8 md:px-12">
-        <span className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
-          © 2026 Imminiq. Scholarly rigor meets digital intelligence.
-        </span>
-
-        <div className="flex items-center gap-4">
-          <Link
-            to="/privacy"
-            className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58]/50 transition hover:text-[#b84c2b] dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
-          >
-            Privacy
-          </Link>
-
-          <Link
-            to="/terms"
-            className="font-mono text-[8.5px] uppercase tracking-[0.1em] text-[#6b5f58]/50 transition hover:text-[#b84c2b] dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
-          >
-            Terms
-          </Link>
-        </div>
-      </footer>
-
-      {isEvalOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-labelledby="roadmap-eval-title"
-          onMouseDown={handleOverlayClick}
-          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 p-4 backdrop-blur-md"
-        >
-          <div className="w-full max-w-[440px] rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_24px_80px_rgba(0,0,0,0.30)] dark:border-white/15 dark:bg-[#1e1c19] sm:p-6">
-            <div className="mb-4 flex items-start justify-between gap-3">
-              <div>
-                <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
-                  AI Evaluation
-                </p>
-
-                <h2
-                  id="roadmap-eval-title"
-                  className="mt-1 font-serif text-[20px] font-bold tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]"
-                >
-                  Evaluate Roadmap Preview
-                </h2>
-              </div>
-
-              <button
-                type="button"
-                onClick={closeEvaluation}
-                aria-label="Close"
-                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[8px] border-[1.5px] border-[#e0d0c5] text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/15 dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
-              >
-                <CloseIcon />
-              </button>
-            </div>
-
-            {!evalLines.length && (
-              <p className="mb-5 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
-                This preview check analyses the generated roadmap layout, topic spread,
-                and visible structural completeness before you begin learning.
-              </p>
-            )}
-
-            {!!evalLines.length && (
-              <div className="mb-5 max-h-[210px] overflow-y-auto rounded-[10px] border border-[#e0d0c5] bg-[#f5ede4] p-3.5 dark:border-white/15 dark:bg-[#141412]">
-                <div className="space-y-1.5">
-                  {evalLines.map((line, index) => (
-                    <div
-                      key={`${line.message}-${index}`}
-                      className={cn(
-                        'font-mono text-[11px] leading-[1.7] tracking-[0.04em] text-[#6b5f58] dark:text-[#9b9a92]',
-                        line.tone === 'success' &&
-                          'text-[#4caf7d] dark:text-[#5cc98a]',
-                        line.tone === 'highlight' &&
-                          'text-[#b84c2b] dark:text-[#e8816a]'
-                      )}
-                    >
-                      {line.message}
-                    </div>
-                  ))}
-                </div>
-
-                <div className="mt-3 h-[3px] overflow-hidden rounded-full bg-[#1a1714]/[0.08] dark:bg-[#f2f0eb]/[0.09]">
-                  <div
-                    className="h-full rounded-full bg-[#b84c2b] transition-[width] duration-700 ease-out dark:bg-[#e8816a]"
-                    style={{ width: `${evalProgress}%` }}
-                  />
-                </div>
-              </div>
-            )}
-
-            <div className="flex flex-col gap-2 sm:flex-row">
-              <button
-                type="button"
-                onClick={closeEvaluation}
-                className="flex-1 rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-3 text-sm font-medium text-[#6b5f58] transition hover:border-[#6b5f58] hover:text-[#1a1714] dark:border-white/15 dark:text-[#9b9a92] dark:hover:border-white/30 dark:hover:text-[#f2f0eb]"
-              >
-                {evalLines.length && !evaluationRunning ? 'Close' : 'Cancel'}
-              </button>
-
-              <button
-                type="button"
-                onClick={runEvaluation}
-                disabled={evaluationRunning}
-                className="flex-[2] rounded-[10px] bg-[#b84c2b] px-4 py-3 text-sm font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
-              >
-                {evaluationRunning ? 'Running evaluation…' : 'Run Evaluation'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }

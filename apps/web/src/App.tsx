@@ -15,6 +15,9 @@ import { useThemeStore } from './store/useThemeStore'
 import OnboardingStepOnePage from './modules/onboarding/pages/OnboardingStepOnePage'
 import { useRestoreSession } from './hooks/auth/useRestoreSession'
 import OnboardingRoadmapReadyPage from './modules/onboarding/pages/OnboardingRoadmapReadyPage'
+import OnboardingRoadmapEvaluationScorePage from './modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage'
+import OnboardingRoadmapEvaluationLoadingPage from './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
+
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme)
@@ -35,6 +38,15 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
+     <Route
+  path="/onboarding/roadmap-evaluation/:jobId"
+  element={<OnboardingRoadmapEvaluationLoadingPage />}
+/>
+
+<Route
+  path="/onboarding/roadmap-evaluation/:jobId/score"
+  element={<OnboardingRoadmapEvaluationScorePage />}
+/>
 
       {/* Protected onboarding route */}
       <Route

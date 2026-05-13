@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/ai/ai.service.ts
-
 import { z } from 'zod'
 import { geminiChat } from './gemini.client'
 import { groqChat } from './groq.client'
@@ -40,6 +38,40 @@ const generatedRoadmapStructureSchema = z.object({
 
 export type GeneratedRoadmapStructure = z.infer<
   typeof generatedRoadmapStructureSchema
+>
+
+// ============================================================
+// ROADMAP EVALUATION TYPES
+// ============================================================
+
+const roadmapEvaluationSchema = z.object({
+  score: z.number().int().min(0).max(100),
+
+  grade: z.enum([
+    'Poor',
+    'Fair',
+    'Good',
+    'Very Good',
+    'Excellent',
+  ]),
+
+  summary: z.string().trim().min(1),
+
+  missingTopics: z.array(
+    z.object({
+      title: z.string().trim().min(1),
+
+      description: z.string().trim().min(1),
+
+      reason: z.string().trim().min(1),
+
+      suggestedParentTitle: z.string().trim().min(1),
+    })
+  ),
+})
+
+export type RoadmapEvaluation = z.infer<
+  typeof roadmapEvaluationSchema
 >
 
 // ============================================================
@@ -292,6 +324,131 @@ Final checks before responding:
 }
 
 /**
+ * Used after roadmap generation is completed.
+ *
+ * Evaluates the full generated roadmap and returns:
+ * - score
+ * - grade
+ * - verdict
+ * - strengths
+ * - weaknesses
+ * - missing areas
+ * - improvement suggestions
+ */
+export const evaluateRoadmap = async (
+  roadmap: unknown
+): Promise<RoadmapEvaluation> => {
+  const prompt = `
+You are a strict expert curriculum evaluator, interview mentor, and learning-path reviewer.
+
+Your task is to critically evaluate this AI-generated roadmap.
+
+The roadmap must be judged as a COMPLETE ZERO-TO-HERO MASTER ROADMAP.
+
+============================================================
+EVALUATION TARGET
+============================================================
+
+A strong roadmap should:
+- take a learner from beginner foundations to advanced mastery
+- be sufficiently detailed, not just a short overview
+- be logically sequenced
+- include practical learning steps
+- include interview-readiness where relevant
+- include common interview questions, comparisons, practice tasks, edge cases, and misconceptions where relevant
+- include production-minded concepts where relevant
+- feel suitable as a serious long-term tracker
+
+============================================================
+ROADMAP TO EVALUATE
+============================================================
+
+${JSON.stringify(roadmap, null, 2)}
+
+============================================================
+SCORING RULES
+============================================================
+
+Score from 0 to 100.
+
+Be strict:
+- 90–100: truly excellent, very detailed, highly complete, strongly interview-ready
+- 75–89: strong roadmap, but some meaningful improvements are still possible
+- 60–74: usable, but incomplete or not detailed enough in several areas
+- 40–59: weak, too shallow, or significantly missing major coverage
+- 0–39: poor, highly incomplete, or unsuitable as a zero-to-hero roadmap
+
+Lower the score when:
+- the roadmap is shallow
+- the roadmap is not genuinely zero-to-hero
+- advanced depth is lacking
+- topic sequencing is weak
+- interview preparation is weak where expected
+- practical projects, implementation tasks, or applied learning are missing
+- testing, debugging, performance, security, deployment, or architecture are missing where relevant
+- roadmap nodes are too vague
+- roadmap does not have enough concrete checklist-style items
+
+============================================================
+GRADE RULES
+============================================================
+
+Assign grade exactly as:
+- 0 to 39 = "Poor"
+- 40 to 59 = "Fair"
+- 60 to 74 = "Good"
+- 75 to 89 = "Very Good"
+- 90 to 100 = "Excellent"
+
+============================================================
+OUTPUT FORMAT
+============================================================
+
+Return ONLY valid JSON.
+No markdown.
+No comments.
+No explanation before or after JSON.
+
+Use this exact JSON structure:
+
+{
+  "score": 0,
+  "grade": "Poor",
+  "summary": "A clear overall evaluation of the roadmap quality, completeness, and interview-readiness.",
+  "missingTopics": [
+    {
+      "title": "Exact topic that should be added",
+      "description": "Short checklist-ready description for this missing topic.",
+      "reason": "Why this topic is important and why it is considered missing.",
+      "suggestedParentTitle": "The most suitable existing roadmap section or topic title where this should be added."
+    }
+  ]
+}
+
+Final checks:
+- JSON must be valid.
+- score must be an integer from 0 to 100.
+- grade must exactly match the score range.
+- summary must explain the overall quality clearly.
+- missingTopics should contain only genuinely useful additions.
+- Each missing topic must be concrete enough to insert directly into the tracker.
+- suggestedParentTitle must match or closely reference the best existing roadmap topic or section title.
+- If the roadmap is already extremely complete, missingTopics may be an empty array.
+- Do not return strengths, weaknesses, verdict, or improvementSuggestions.
+`
+
+  const response = await geminiChat(
+    prompt,
+    'You are a strict roadmap evaluator. Return strict valid JSON only.'
+  )
+
+  return parseAIJson(
+    response,
+    roadmapEvaluationSchema
+  )
+}
+
+/**
  * Legacy/general roadmap text generator.
  * Keep this only if you use it somewhere else outside onboarding.
  *
@@ -315,12 +472,6 @@ export const generateLesson = (topic: string) =>
   geminiChat(
     `Generate a detailed lesson for: ${topic}`,
     'You are an expert educator.'
-  )
-
-export const evaluateRoadmap = (roadmap: string) =>
-  geminiChat(
-    `Evaluate this roadmap for completeness and accuracy: ${roadmap}`,
-    'You are a curriculum quality reviewer.'
   )
 
 export const detectMissingTopics = (

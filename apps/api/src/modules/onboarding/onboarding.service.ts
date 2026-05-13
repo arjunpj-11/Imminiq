@@ -12,6 +12,14 @@ const ROADMAP_GENERATION_STEPS = [
   'Finalising',
 ]
 
+const ROADMAP_EVALUATION_STEPS = [
+  'Loading your generated roadmap',
+  'Reviewing roadmap structure and coverage',
+  'Scoring roadmap quality with Gemini',
+  'Preparing gaps, strengths, and suggestions',
+  'Finalising evaluation report',
+]
+
 type RoadmapLevel =
   | 'beginner'
   | 'intermediate'
@@ -24,6 +32,16 @@ const getTrackerIdFromOutputData = (
 
   return typeof trackerId === 'string'
     ? trackerId
+    : null
+}
+
+const getEvaluationFromOutputData = (
+  outputData: Record<string, unknown> | undefined
+) => {
+  const evaluation = outputData?.evaluation
+
+  return evaluation && typeof evaluation === 'object'
+    ? evaluation
     : null
 }
 
@@ -105,28 +123,26 @@ export const onboardingService = {
 
     try {
       await aiQueue.add(
-  'generate-roadmap',
-  {
-    jobId: aiJob._id.toString(),
-    userId,
-    topic,
-    goal,
-    level,
-  },
-  {
-    removeOnComplete: 100,
-    removeOnFail: 100,
+        'generate-roadmap',
+        {
+          jobId: aiJob._id.toString(),
+          userId,
+          topic,
+          goal,
+          level,
+        },
+        {
+          removeOnComplete: 100,
+          removeOnFail: 100,
 
-    // Retries for non-rate-limit temporary failures.
-    // Rate-limit 429 is handled specially inside the worker.
-    attempts: 3,
+          attempts: 3,
 
-    backoff: {
-      type: 'exponential',
-      delay: 30_000,
-    },
-  }
-)
+          backoff: {
+            type: 'exponential',
+            delay: 30_000,
+          },
+        }
+      )
     } catch (error) {
       const message =
         error instanceof Error
@@ -184,6 +200,8 @@ export const onboardingService = {
     return {
       jobId: job._id.toString(),
 
+      jobType: job.jobType,
+
       status: job.status,
 
       currentStepNumber: job.currentStep,
@@ -236,6 +254,14 @@ export const onboardingService = {
       )
     }
 
+    if (job.jobType !== 'roadmap') {
+      throw new ApiError(
+        400,
+        'This job is not a roadmap generation job',
+        'INVALID_JOB_TYPE'
+      )
+    }
+
     if (job.status !== 'completed') {
       throw new ApiError(
         400,
@@ -269,5 +295,173 @@ export const onboardingService = {
     }
 
     return result
+  },
+
+  evaluateRoadmap: async (
+    roadmapJobId: string,
+    userId: string
+  ) => {
+    const roadmapJob =
+      await onboardingRepository.getJobById(
+        roadmapJobId
+      )
+
+    if (!roadmapJob) {
+      throw new ApiError(
+        404,
+        'Roadmap job not found',
+        'NOT_FOUND'
+      )
+    }
+
+    if (roadmapJob.userId.toString() !== userId) {
+      throw new ApiError(
+        403,
+        'Forbidden',
+        'FORBIDDEN'
+      )
+    }
+
+    if (roadmapJob.jobType !== 'roadmap') {
+      throw new ApiError(
+        400,
+        'Only roadmap generation jobs can be evaluated',
+        'INVALID_JOB_TYPE'
+      )
+    }
+
+    if (roadmapJob.status !== 'completed') {
+      throw new ApiError(
+        400,
+        'Roadmap generation is not completed yet',
+        'JOB_PENDING'
+      )
+    }
+
+    const trackerId =
+      getTrackerIdFromOutputData(
+        roadmapJob.outputData
+      )
+
+    if (!trackerId) {
+      throw new ApiError(
+        500,
+        'Generated tracker is missing',
+        'TRACKER_NOT_FOUND'
+      )
+    }
+
+    const evaluationJob =
+      await onboardingRepository.createEvaluationAIJob(
+        userId,
+        {
+          sourceRoadmapJobId: roadmapJobId,
+          trackerId,
+        }
+      )
+
+    await onboardingRepository.createAIJobSteps(
+      evaluationJob._id.toString(),
+      ROADMAP_EVALUATION_STEPS
+    )
+
+    try {
+      await aiQueue.add(
+        'evaluate-roadmap',
+        {
+          jobId: evaluationJob._id.toString(),
+          userId,
+          trackerId,
+          sourceRoadmapJobId: roadmapJobId,
+        },
+        {
+          removeOnComplete: 100,
+          removeOnFail: 100,
+
+          attempts: 3,
+
+          backoff: {
+            type: 'exponential',
+            delay: 30_000,
+          },
+        }
+      )
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : 'Failed to enqueue AI roadmap evaluation job'
+
+      throw new ApiError(
+        500,
+        message,
+        'AI_QUEUE_ERROR'
+      )
+    }
+
+    return {
+      jobId: evaluationJob._id.toString(),
+    }
+  },
+
+  getEvaluationResult: async (
+    jobId: string,
+    userId: string
+  ) => {
+    const job =
+      await onboardingRepository.getJobById(jobId)
+
+    if (!job) {
+      throw new ApiError(
+        404,
+        'Evaluation job not found',
+        'NOT_FOUND'
+      )
+    }
+
+    if (job.userId.toString() !== userId) {
+      throw new ApiError(
+        403,
+        'Forbidden',
+        'FORBIDDEN'
+      )
+    }
+
+    if (job.jobType !== 'evaluation') {
+      throw new ApiError(
+        400,
+        'This job is not a roadmap evaluation job',
+        'INVALID_JOB_TYPE'
+      )
+    }
+
+    if (job.status !== 'completed') {
+      throw new ApiError(
+        400,
+        'Evaluation is not completed yet',
+        'JOB_PENDING'
+      )
+    }
+
+    const evaluation =
+      getEvaluationFromOutputData(job.outputData)
+
+    if (!evaluation) {
+      throw new ApiError(
+        500,
+        'Evaluation result is missing',
+        'EVALUATION_RESULT_MISSING'
+      )
+    }
+
+    return {
+      jobId: job._id.toString(),
+
+      trackerId: getTrackerIdFromOutputData(
+        job.outputData
+      ),
+
+      evaluation,
+    }
   },
 }

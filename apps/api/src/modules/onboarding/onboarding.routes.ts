@@ -49,4 +49,14 @@ router.get(
   onboardingController.getJobResult
 )
 
+router.post(
+  '/jobs/:jobId/evaluate',
+  onboardingController.evaluateRoadmap
+)
+
+router.get(
+  '/jobs/:jobId/evaluation-result',
+  onboardingController.getEvaluationResult
+)
+
 export default router

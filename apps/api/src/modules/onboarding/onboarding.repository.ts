@@ -13,6 +13,11 @@ type RoadmapJobInput = {
   level: 'beginner' | 'intermediate' | 'advanced'
 }
 
+type EvaluationJobInput = {
+  sourceRoadmapJobId: string
+  trackerId: string
+}
+
 export type SubtopicTreeNode = {
   _id: string
   title: string
@@ -97,6 +102,20 @@ export const onboardingRepository = {
     return AIGenerationJob.create({
       userId,
       jobType: 'roadmap',
+      status: 'pending',
+      inputData,
+      totalSteps: 5,
+      currentStep: 0,
+    })
+  },
+
+  createEvaluationAIJob: async (
+    userId: string,
+    inputData: EvaluationJobInput
+  ) => {
+    return AIGenerationJob.create({
+      userId,
+      jobType: 'evaluation',
       status: 'pending',
       inputData,
       totalSteps: 5,

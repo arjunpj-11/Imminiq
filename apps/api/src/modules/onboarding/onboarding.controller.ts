@@ -163,4 +163,50 @@ export const onboardingController = {
       next(error)
     }
   },
+
+  evaluateRoadmap: async (
+    req: Request<JobIdParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result =
+        await onboardingService.evaluateRoadmap(
+          req.params.jobId,
+          req.user!.userId
+        )
+
+      res.status(202).json(
+        new ApiResponse(
+          'Roadmap evaluation started',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getEvaluationResult: async (
+    req: Request<JobIdParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result =
+        await onboardingService.getEvaluationResult(
+          req.params.jobId,
+          req.user!.userId
+        )
+
+      res.json(
+        new ApiResponse(
+          'Roadmap evaluation ready',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
 }

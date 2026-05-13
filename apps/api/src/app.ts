@@ -11,6 +11,7 @@ import { initPassport } from './infrastructure/auth/passport'
 
 import authRouter from './modules/auth/auth.routes'
 import onboardingRouter from './modules/onboarding/onboarding.routes'
+import trackerRoutes from './modules/trackers/trackers.routes'
 
 const app = express()
 
@@ -26,7 +27,7 @@ app.use(passport.initialize())
 
 app.use('/api/auth', authRouter)
 app.use('/api/onboarding', onboardingRouter)
-
+app.use('/api/trackers', trackerRoutes)
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
 
 // module routers will be registered here later

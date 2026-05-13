@@ -12,22 +12,15 @@ import { TrackerSubtopic } from '../../database/models/tracker-subtopic.model'
 
 import {
   generateRoadmapStructure,
+  evaluateRoadmap,
   RoadmapNestedNode,
 } from '../../ai/ai.service'
 
 // ============================================================
-// GEMINI PRO ROADMAP RATE-LIMIT SETTINGS
+// GEMINI RATE-LIMIT SETTINGS
 // ============================================================
-//
-// You observed your Gemini Pro free-tier limit around 2 RPM.
-// So this worker will process at most:
-//
-//   2 roadmap generation jobs per 60 seconds
-//
-// Remaining jobs stay waiting in BullMQ automatically.
-//
 
-const GEMINI_PRO_ROADMAP_REQUESTS_PER_MINUTE = 2
+const GEMINI_AI_REQUESTS_PER_MINUTE = 2
 const ONE_MINUTE_MS = 60_000
 
 // ============================================================
@@ -71,9 +64,9 @@ const startStep = async (
         status: 'active',
         startedAt: new Date(),
       },
-     {
-  returnDocument: 'after',
-}
+      {
+        new: true,
+      }
     ),
   ])
 }
@@ -92,8 +85,8 @@ const completeStep = async (
       completedAt: new Date(),
     },
     {
-  returnDocument: 'after',
-}
+      new: true,
+    }
   )
 }
 
@@ -205,21 +198,108 @@ const saveNestedSubtopics = async ({
   }
 }
 
+type EvaluationSubtopicNode = {
+  _id: string
+  title: string
+  description: string
+  order: number
+  depth: number
+  children: EvaluationSubtopicNode[]
+}
+
+const getRoadmapTreeForEvaluation = async (
+  trackerId: string
+) => {
+  const tracker = await Tracker.findById(trackerId)
+
+  const topics = await TrackerTopic.find({
+    trackerId,
+    deletedAt: null,
+  }).sort({
+    order: 1,
+  })
+
+  const subtopics = await TrackerSubtopic.find({
+    trackerId,
+    deletedAt: null,
+  }).sort({
+    depth: 1,
+    order: 1,
+  })
+
+  const subtopicMap = new Map<
+    string,
+    EvaluationSubtopicNode
+  >()
+
+  for (const subtopic of subtopics) {
+    subtopicMap.set(subtopic._id.toString(), {
+      _id: subtopic._id.toString(),
+      title: subtopic.title,
+      description: subtopic.description,
+      order: subtopic.order,
+      depth: subtopic.depth,
+      children: [],
+    })
+  }
+
+  const topicChildrenMap = new Map<
+    string,
+    EvaluationSubtopicNode[]
+  >()
+
+  for (const topic of topics) {
+    topicChildrenMap.set(topic._id.toString(), [])
+  }
+
+  for (const subtopic of subtopics) {
+    const currentNode = subtopicMap.get(
+      subtopic._id.toString()
+    )
+
+    if (!currentNode) continue
+
+    if (subtopic.parentSubtopicId) {
+      const parentNode = subtopicMap.get(
+        subtopic.parentSubtopicId.toString()
+      )
+
+      if (parentNode) {
+        parentNode.children.push(currentNode)
+      }
+
+      continue
+    }
+
+    const rootChildren = topicChildrenMap.get(
+      subtopic.topicId.toString()
+    )
+
+    if (rootChildren) {
+      rootChildren.push(currentNode)
+    }
+  }
+
+  const roadmapTopics = topics.map((topic) => ({
+    _id: topic._id.toString(),
+    title: topic.title,
+    description: topic.description,
+    order: topic.order,
+    children:
+      topicChildrenMap.get(topic._id.toString()) || [],
+  }))
+
+  return {
+    tracker,
+    topics: roadmapTopics,
+  }
+}
+
 // ============================================================
 // GEMINI RATE-LIMIT ERROR DETECTOR
 // ============================================================
-//
-// Different SDK/API errors can expose 429 in slightly different ways.
-// So we safely detect:
-// - HTTP status 429
-// - statusCode 429
-// - RESOURCE_EXHAUSTED
-// - "429"
-// - "quota"
-// - "rate limit"
-//
 
-const isGeminiRateLimitError = (
+const isGeminiTemporaryError = (
   error: unknown
 ): boolean => {
   if (!error || typeof error !== 'object') {
@@ -238,11 +318,262 @@ const isGeminiRateLimitError = (
   return (
     possibleError.status === 429 ||
     possibleError.statusCode === 429 ||
+    possibleError.status === 503 ||
+    possibleError.statusCode === 503 ||
     message.includes('429') ||
+    message.includes('503') ||
     message.includes('resource_exhausted') ||
     message.includes('rate limit') ||
-    message.includes('quota')
+    message.includes('quota') ||
+    message.includes('service unavailable') ||
+    message.includes('high demand') ||
+    message.includes('unavailable')
   )
+}
+
+// ============================================================
+// ROADMAP GENERATION JOB
+// ============================================================
+
+const processRoadmapGeneration = async (
+  jobId: string,
+  userId: string,
+  topic: string,
+  goal: string | undefined,
+  level: 'beginner' | 'intermediate' | 'advanced'
+) => {
+  // Step 1 — Analyse goal
+  await startStep(jobId, 1)
+  await completeStep(jobId, 1)
+
+  // Step 2 — Prepare roadmap mapping
+  await startStep(jobId, 2)
+  await completeStep(jobId, 2)
+
+  // Step 3 — Gemini roadmap generation
+  await startStep(jobId, 3)
+
+  const roadmap = await generateRoadmapStructure(
+    topic,
+    goal,
+    level
+  )
+
+  await completeStep(jobId, 3)
+
+  // Step 4 — Save tracker tree to MongoDB
+  await startStep(jobId, 4)
+
+  const session = await mongoose.startSession()
+
+  let createdTrackerId:
+    | mongoose.Types.ObjectId
+    | null = null
+
+  try {
+    await session.withTransaction(async () => {
+      const slug = createSlug(roadmap.title)
+
+      const totalSubtopicCount =
+        roadmap.topics.reduce(
+          (total, topicItem) => {
+            return (
+              total +
+              countNestedNodes(
+                topicItem.children || []
+              )
+            )
+          },
+          0
+        )
+
+      const trackers = await Tracker.create(
+        [
+          {
+            ownerId: userId,
+
+            title: roadmap.title,
+            slug,
+            description: roadmap.description,
+
+            category: 'general',
+            field: topic,
+            goal: goal || '',
+
+            level,
+
+            visibility: 'private',
+            status: 'draft',
+
+            isAIGenerated: true,
+            aiJobId: jobId,
+
+            topicsCount: roadmap.topics.length,
+            subtopicsCount: totalSubtopicCount,
+
+            cloneCount: 0,
+            likeCount: 0,
+            saveCount: 0,
+
+            progressPercent: 0,
+            ratingAverage: 0,
+            ratingCount: 0,
+          },
+        ],
+        {
+          session,
+        }
+      )
+
+      const tracker = trackers[0]
+
+      createdTrackerId =
+        tracker._id as mongoose.Types.ObjectId
+
+      for (
+        let topicIndex = 0;
+        topicIndex < roadmap.topics.length;
+        topicIndex++
+      ) {
+        const topicData =
+          roadmap.topics[topicIndex]
+
+        const savedTopics =
+          await TrackerTopic.create(
+            [
+              {
+                trackerId: tracker._id,
+                title: topicData.title,
+                description:
+                  topicData.description || '',
+                order: topicData.order,
+                status:
+                  topicIndex === 0
+                    ? 'active'
+                    : 'locked',
+                estimatedHours: 0,
+                progressPercent: 0,
+              },
+            ],
+            {
+              session,
+            }
+          )
+
+        const savedTopic = savedTopics[0]
+
+        if (topicData.children?.length) {
+          await saveNestedSubtopics({
+            trackerId:
+              tracker._id as mongoose.Types.ObjectId,
+            topicId:
+              savedTopic._id as mongoose.Types.ObjectId,
+            parentSubtopicId: null,
+            nodes: topicData.children,
+            depth: 1,
+            session,
+          })
+        }
+      }
+    })
+  } finally {
+    await session.endSession()
+  }
+
+  await completeStep(jobId, 4)
+
+  if (!createdTrackerId) {
+    throw new Error('Tracker was not created')
+  }
+
+  const trackerId =
+    createdTrackerId as mongoose.Types.ObjectId
+
+  // Step 5 — Finalise
+  await startStep(jobId, 5)
+
+  await AIGenerationJob.findByIdAndUpdate(
+    jobId,
+    {
+      status: 'completed',
+      currentStep: 5,
+      completedAt: new Date(),
+      outputData: {
+        trackerId: trackerId.toString(),
+      },
+    }
+  )
+
+  await completeStep(jobId, 5)
+}
+
+// ============================================================
+// ROADMAP EVALUATION JOB
+// ============================================================
+
+const processRoadmapEvaluation = async (
+  jobId: string,
+  trackerId: string,
+  sourceRoadmapJobId: string
+) => {
+  // Step 1 — Load generated roadmap reference
+  await startStep(jobId, 1)
+  await completeStep(jobId, 1)
+
+  // Step 2 — Build full roadmap tree for Gemini
+  await startStep(jobId, 2)
+
+  const roadmap =
+    await getRoadmapTreeForEvaluation(trackerId)
+
+  if (!roadmap.tracker) {
+    throw new Error('Generated tracker not found')
+  }
+
+  await completeStep(jobId, 2)
+
+  // Step 3 — Gemini evaluation
+  await startStep(jobId, 3)
+
+  const evaluation =
+    await evaluateRoadmap(roadmap)
+
+  await completeStep(jobId, 3)
+
+  // Step 4 — Prepare and store result payload
+  await startStep(jobId, 4)
+
+  await AIGenerationJob.findByIdAndUpdate(
+    jobId,
+    {
+      outputData: {
+        trackerId,
+        sourceRoadmapJobId,
+        evaluation,
+      },
+    }
+  )
+
+  await completeStep(jobId, 4)
+
+  // Step 5 — Finalise evaluation job
+  await startStep(jobId, 5)
+
+  await AIGenerationJob.findByIdAndUpdate(
+    jobId,
+    {
+      status: 'completed',
+      currentStep: 5,
+      completedAt: new Date(),
+      outputData: {
+        trackerId,
+        sourceRoadmapJobId,
+        evaluation,
+      },
+    }
+  )
+
+  await completeStep(jobId, 5)
 }
 
 // ============================================================
@@ -252,224 +583,75 @@ const isGeminiRateLimitError = (
 const aiWorker = new Worker(
   'ai',
   async (job) => {
-    if (job.name !== 'generate-roadmap') return
-
-    const {
-      jobId,
-      topic,
-      goal,
-      level,
-      userId,
-    } = job.data as {
+    const { jobId } = job.data as {
       jobId: string
-      topic: string
-      goal?: string
-      level: 'beginner' | 'intermediate' | 'advanced'
-      userId: string
     }
 
     try {
-      // --------------------------------------------
-      // Step 1 — Analyse goal
-      // --------------------------------------------
-      await startStep(jobId, 1)
-      await completeStep(jobId, 1)
-
-      // --------------------------------------------
-      // Step 2 — Prepare roadmap mapping
-      // --------------------------------------------
-      await startStep(jobId, 2)
-      await completeStep(jobId, 2)
-
-      // --------------------------------------------
-      // Step 3 — Gemini Pro roadmap generation
-      // --------------------------------------------
-      await startStep(jobId, 3)
-
-      const roadmap = await generateRoadmapStructure(
-        topic,
-        goal,
-        level
-      )
-
-      await completeStep(jobId, 3)
-
-      // --------------------------------------------
-      // Step 4 — Save tracker tree to MongoDB
-      // --------------------------------------------
-      await startStep(jobId, 4)
-
-      const session = await mongoose.startSession()
-
-      let createdTrackerId:
-        | mongoose.Types.ObjectId
-        | null = null
-
-      try {
-        await session.withTransaction(async () => {
-          const slug = createSlug(roadmap.title)
-
-          const totalSubtopicCount =
-            roadmap.topics.reduce(
-              (total, topicItem) => {
-                return (
-                  total +
-                  countNestedNodes(
-                    topicItem.children || []
-                  )
-                )
-              },
-              0
-            )
-
-          const trackers = await Tracker.create(
-            [
-              {
-                ownerId: userId,
-
-                title: roadmap.title,
-                slug,
-                description: roadmap.description,
-
-                category: 'general',
-                field: topic,
-                goal: goal || '',
-
-                level,
-
-                visibility: 'private',
-                status: 'draft',
-
-                isAIGenerated: true,
-                aiJobId: jobId,
-
-                topicsCount: roadmap.topics.length,
-                subtopicsCount: totalSubtopicCount,
-
-                cloneCount: 0,
-                likeCount: 0,
-                saveCount: 0,
-
-                progressPercent: 0,
-                ratingAverage: 0,
-                ratingCount: 0,
-              },
-            ],
-            {
-              session,
-            }
-          )
-
-          const tracker = trackers[0]
-
-          createdTrackerId =
-            tracker._id as mongoose.Types.ObjectId
-
-          for (
-            let topicIndex = 0;
-            topicIndex < roadmap.topics.length;
-            topicIndex++
-          ) {
-            const topicData =
-              roadmap.topics[topicIndex]
-
-            const savedTopics =
-              await TrackerTopic.create(
-                [
-                  {
-                    trackerId: tracker._id,
-                    title: topicData.title,
-                    description: topicData.description || '',
-                    order: topicData.order,
-                    status:
-                      topicIndex === 0
-                        ? 'active'
-                        : 'locked',
-                    estimatedHours: 0,
-                    progressPercent: 0,
-                  },
-                ],
-                {
-                  session,
-                }
-              )
-
-            const savedTopic = savedTopics[0]
-
-            if (topicData.children?.length) {
-              await saveNestedSubtopics({
-                trackerId:
-                  tracker._id as mongoose.Types.ObjectId,
-                topicId:
-                  savedTopic._id as mongoose.Types.ObjectId,
-                parentSubtopicId: null,
-                nodes: topicData.children,
-                depth: 1,
-                session,
-              })
-            }
-          }
-        })
-      } finally {
-        await session.endSession()
-      }
-
-      await completeStep(jobId, 4)
-
-      if (!createdTrackerId) {
-        throw new Error('Tracker was not created')
-      }
-
-      const trackerId =
-        createdTrackerId as mongoose.Types.ObjectId
-
-      // --------------------------------------------
-      // Step 5 — Finalise
-      // --------------------------------------------
-      await startStep(jobId, 5)
-
-      await AIGenerationJob.findByIdAndUpdate(
-        jobId,
-        {
-          status: 'completed',
-          currentStep: 5,
-          completedAt: new Date(),
-          outputData: {
-            trackerId: trackerId.toString(),
-          },
+      if (job.name === 'generate-roadmap') {
+        const {
+          userId,
+          topic,
+          goal,
+          level,
+        } = job.data as {
+          jobId: string
+          userId: string
+          topic: string
+          goal?: string
+          level:
+            | 'beginner'
+            | 'intermediate'
+            | 'advanced'
         }
-      )
 
-      await completeStep(jobId, 5)
+        await processRoadmapGeneration(
+          jobId,
+          userId,
+          topic,
+          goal,
+          level
+        )
+
+        return
+      }
+
+      if (job.name === 'evaluate-roadmap') {
+        const {
+          trackerId,
+          sourceRoadmapJobId,
+        } = job.data as {
+          jobId: string
+          userId: string
+          trackerId: string
+          sourceRoadmapJobId: string
+        }
+
+        await processRoadmapEvaluation(
+          jobId,
+          trackerId,
+          sourceRoadmapJobId
+        )
+
+        return
+      }
     } catch (error) {
-
-      console.error('❌ Full roadmap generation error:', error)
-      //==================================================
-      // CASE 1: GEMINI RATE LIMIT HIT — PAUSE QUEUE FOR 1 MINUTE
-      // ============================================================
-      if (isGeminiRateLimitError(error)) {
+     if (isGeminiTemporaryError(error)) {
         console.warn(
           '⚠️ Gemini rate limit hit. Pausing AI queue for 60 seconds.'
         )
 
-        // Pause the whole BullMQ AI worker rate-limited queue
         await aiWorker.rateLimit(ONE_MINUTE_MS)
 
-        // Put DB job back to pending-style state
         await resetCurrentActiveStepToPending(jobId)
 
-        // Special BullMQ error:
-        // moves this queue job back to waiting instead of marking it failed
         throw Worker.RateLimitError()
       }
 
-      // ============================================================
-      // CASE 2: REAL FAILURE — MARK AS FAILED
-      // ============================================================
       const errorMessage =
         error instanceof Error
           ? error.message
-          : 'Unknown roadmap generation failure'
+          : 'Unknown AI job failure'
 
       await failCurrentStep(jobId)
 
@@ -488,17 +670,15 @@ const aiWorker = new Worker(
   {
     connection: redis,
 
-    // Process one AI roadmap job at a time.
-    // This keeps behavior predictable and avoids bursty concurrent Pro calls.
     concurrency: 1,
 
-    // At most 2 roadmap jobs can start per minute.
-    // Extra jobs remain waiting automatically.
     limiter: {
-      max: GEMINI_PRO_ROADMAP_REQUESTS_PER_MINUTE,
+      max: GEMINI_AI_REQUESTS_PER_MINUTE,
       duration: ONE_MINUTE_MS,
     },
   }
 )
 
-console.log('✅ AI Worker running with Gemini Pro rate-limit protection')
+console.log(
+  '✅ AI Worker running with roadmap generation + evaluation support'
+)
