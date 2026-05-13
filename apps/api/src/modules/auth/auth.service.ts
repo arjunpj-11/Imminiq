@@ -4,9 +4,10 @@ import crypto from 'crypto'
 import { authRepository } from './auth.repository'
 import { ApiError } from '../../shared/utils/ApiError'
 import { env } from '../../config/env'
-import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../config/constants'
+import { BCRYPT_ROUNDS } from '../../config/constants'
 import { sendMail } from '../../infrastructure/email/email.client'
 import { otpEmailTemplate } from '../../shared/email/email.templates'
+import { trackerRepository } from '../trackers/tracker.repository'
 import {
   sendPhoneOtp,
   verifyPhoneOtp,
@@ -26,6 +27,29 @@ import {
 type ResetTokenPayload = {
   userId: string
   purpose: 'password_reset'
+}
+
+export type OAuthLoginUser = OAuthFormattedUserSource & {
+  role: 'user' | 'admin' | 'moderator' | 'superadmin'
+}
+
+type OAuthFormattedUserSource = Pick<
+  AuthUser,
+  | 'fullName'
+  | 'username'
+  | 'email'
+  | 'phone'
+  | 'role'
+  | 'status'
+  | 'emailVerified'
+  | 'phoneVerified'
+  | 'isPremium'
+  | 'avatarUrl'
+  | 'onboardingCompleted'
+> & {
+  _id: {
+    toString(): string
+  }
 }
 
 type OtpPurpose = 'email_verification' | 'phone_verification' | 'password_reset'
@@ -133,7 +157,7 @@ export const authService = {
           })
 
           return {
-            user: authService.formatUser(existingUser),
+            user: authService.formatter(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -157,7 +181,7 @@ export const authService = {
           })
 
           return {
-            user: authService.formatUser(existingUser),
+            user: authService.formatter(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -187,7 +211,7 @@ export const authService = {
     })
 
     return {
-      user: authService.formatUser(user),
+      user: authService.formatter(user),
       verificationTarget: parsedIdentifier.value,
       verificationMethod: parsedIdentifier.method,
     }
@@ -195,107 +219,129 @@ export const authService = {
 
   // ─── LOGIN ───────────────────────────────────────
 
-  login: async (
-    payload: LoginPayload,
-    meta?: RequestMeta
-  ): Promise<{ tokens: TokenPair; user: AuthUser }> => {
-    const parsedIdentifier = normalizeIdentifier(payload.identifier)
+ login: async (
+  payload: LoginPayload,
+  meta?: RequestMeta
+): Promise<{
+  tokens: TokenPair
+  user: AuthUser
+  redirectPath: '/dashboard' | '/onboarding/step-1'
+}> => {
+  const parsedIdentifier = normalizeIdentifier(payload.identifier)
 
-    const user = await authRepository.findByIdentifier(payload.identifier)
+  const user = await authRepository.findByIdentifier(payload.identifier)
 
-    if (!user) {
-      throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
-    }
+  if (!user) {
+    throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
+  }
 
-    if (user.status === 'blocked' || user.status === 'banned') {
-      throw new ApiError(403, 'Account blocked', 'ACCOUNT_BLOCKED')
-    }
+  if (user.status === 'blocked' || user.status === 'banned') {
+    throw new ApiError(403, 'Account blocked', 'ACCOUNT_BLOCKED')
+  }
 
-    if (user.status === 'deactivated') {
-      throw new ApiError(403, 'Account deactivated', 'ACCOUNT_DEACTIVATED')
-    }
+  if (user.status === 'deactivated') {
+    throw new ApiError(403, 'Account deactivated', 'ACCOUNT_DEACTIVATED')
+  }
 
-    if (user.status === 'paused') {
-      throw new ApiError(403, 'Account paused', 'ACCOUNT_PAUSED')
-    }
+  if (user.status === 'paused') {
+    throw new ApiError(403, 'Account paused', 'ACCOUNT_PAUSED')
+  }
 
-    if (!user.passwordHash) {
-      throw new ApiError(
-        400,
-        'This account uses social login. Please sign in with Google or GitHub.',
-        'OAUTH_ACCOUNT'
-      )
-    }
-
-    const valid = await bcrypt.compare(payload.password, user.passwordHash)
-
-    if (!valid) {
-      throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
-    }
-
-    // Email login: block if email is not verified.
-    // Also resend OTP so user can verify immediately.
-    if (parsedIdentifier.method === 'email' && !user.emailVerified) {
-      await sendVerificationOtp({
-        email: parsedIdentifier.email,
-        method: 'email',
-      })
-
-      throw new ApiError(
-        403,
-        'Please verify your email before signing in. A new OTP has been sent.',
-        'EMAIL_NOT_VERIFIED'
-      )
-    }
-
-    // Phone login: block if phone is not verified.
-    // Also resend OTP so user can verify immediately.
-    if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
-      await sendVerificationOtp({
-        phone: parsedIdentifier.phone,
-        method: 'phone',
-      })
-
-      throw new ApiError(
-        403,
-        'Please verify your phone before signing in. A new OTP has been sent.',
-        'PHONE_NOT_VERIFIED'
-      )
-    }
-
-    const tokens = await authService.generateTokenPair(
-      user._id.toString(),
-      user.role,
-      meta
+  if (!user.passwordHash) {
+    throw new ApiError(
+      400,
+      'This account uses social login. Please sign in with Google or GitHub.',
+      'OAUTH_ACCOUNT'
     )
+  }
 
-    await authRepository.updateLastActive(user._id.toString())
+  const valid = await bcrypt.compare(payload.password, user.passwordHash)
 
-    return {
-      tokens,
-      user: authService.formatUser(user),
-    }
-  },
+  if (!valid) {
+    throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
+  }
+
+  if (parsedIdentifier.method === 'email' && !user.emailVerified) {
+    await sendVerificationOtp({
+      email: parsedIdentifier.email,
+      method: 'email',
+    })
+
+    throw new ApiError(
+      403,
+      'Please verify your email before signing in. A new OTP has been sent.',
+      'EMAIL_NOT_VERIFIED'
+    )
+  }
+
+  if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
+    await sendVerificationOtp({
+      phone: parsedIdentifier.phone,
+      method: 'phone',
+    })
+
+    throw new ApiError(
+      403,
+      'Please verify your phone before signing in. A new OTP has been sent.',
+      'PHONE_NOT_VERIFIED'
+    )
+  }
+
+  const tokens = await authService.generateTokenPair(
+    user._id.toString(),
+    user.role,
+    meta
+  )
+
+  const hasTracker = await trackerRepository.hasAnyTrackerForUser(
+    user._id.toString()
+  )
+
+  const redirectPath = hasTracker
+    ? '/dashboard'
+    : '/onboarding/step-1'
+
+  await authRepository.updateLastActive(user._id.toString())
+
+  return {
+    tokens,
+    user: authService.formatter(user),
+    redirectPath,
+  }
+},
 
   // ─── OAUTH LOGIN ─────────────────────────────────
 
-  handleOAuthLogin: async (
-    user: any,
-    meta?: RequestMeta
-  ): Promise<{ tokens: TokenPair; user: AuthUser }> => {
-    await authRepository.updateLastActive(user._id.toString())
+handleOAuthLogin: async (
+  user: OAuthLoginUser,
+  meta?: RequestMeta
+): Promise<{
+  tokens: TokenPair
+  user: AuthUser
+  redirectPath: '/dashboard' | '/onboarding/step-1'
+}> => {
+  await authRepository.updateLastActive(user._id.toString())
 
-    const tokens = await authService.generateTokenPair(
-      user._id.toString(),
-      user.role,
-      meta
-    )
+  const tokens = await authService.generateTokenPair(
+    user._id.toString(),
+    user.role,
+    meta
+  )
 
-    return {
-      tokens,
-      user: authService.formatUser(user),
-    }
-  },
+  const hasTracker = await trackerRepository.hasAnyTrackerForUser(
+    user._id.toString()
+  )
+
+  const redirectPath = hasTracker
+    ? '/dashboard'
+    : '/onboarding/step-1'
+
+  return {
+    tokens,
+    user: authService.formatter(user),
+    redirectPath,
+  }
+},
 
   // ─── LOGOUT ─────────────────────────────────────
 
@@ -355,7 +401,7 @@ export const authService = {
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
 
-    return authService.formatUser(user)
+    return authService.formatter(user)
   },
 
   // ─── VERIFY ACCOUNT ──────────────────────────────
@@ -483,11 +529,6 @@ export const authService = {
         password_reset: 'Reset your Imminiq password',
       }
 
-      const bodies: Record<OtpPurpose, string> = {
-        email_verification: `<p>Your verification code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`,
-        phone_verification: `<p>Your verification code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`,
-        password_reset: `<p>Your password reset code is: <strong>${otp}</strong>. Expires in ${OTP_EXPIRES_MINUTES} minutes.</p>`,
-      }
 
       await sendMail(parsedIdentifier.email, subjects[purpose], otpEmailTemplate({
         otp,
@@ -781,7 +822,7 @@ verifyResetCode: async (identifier: string, otp: string) => {
     return username
   },
 
-  formatUser: (user: any): AuthUser => ({
+ formatter: (user: OAuthFormattedUserSource): AuthUser => ({
     _id: user._id.toString(),
     fullName: user.fullName,
     username: user.username,

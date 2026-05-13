@@ -3,18 +3,57 @@ import { env } from '../../config/env'
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY)
 
-export const geminiChat = async (
+type GeminiModel =
+  | 'gemini-2.5-flash'
+  | 'gemini-2.5-flash-lite'
+  | 'gemini-3.1-flash-lite'
+
+export const geminiChatWithModel = async (
+  modelName: GeminiModel,
   prompt: string,
   system?: string
 ) => {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-pro',
-    // model: 'gemini-2.0-flash'
+    model: modelName,
     systemInstruction: system,
   })
 
   const result = await model.generateContent(prompt)
+
   return result.response.text()
+}
+
+export const geminiChat = async (
+  prompt: string,
+  system?: string
+) => {
+  return geminiChatWithModel(
+    'gemini-2.5-flash',
+    prompt,
+    system
+  )
+}
+
+export const geminiFlashLiteChat = async (
+  prompt: string,
+  system?: string
+) => {
+  return geminiChatWithModel(
+    'gemini-2.5-flash-lite',
+    prompt,
+    system
+  )
+}
+
+export const gemini31FlashLiteChat = async (
+  prompt: string,
+  system?: string
+) => {
+  return geminiChatWithModel(
+    'gemini-3.1-flash-lite',
+    prompt,
+    system
+  )
 }
 
 export const geminiChatWithHistory = async (
@@ -32,7 +71,12 @@ export const geminiChatWithHistory = async (
   }))
 
   const chat = model.startChat({ history })
-  const lastMessage = messages[messages.length - 1].content
-  const result = await chat.sendMessage(lastMessage)
+
+  const lastMessage =
+    messages[messages.length - 1].content
+
+  const result =
+    await chat.sendMessage(lastMessage)
+
   return result.response.text()
 }

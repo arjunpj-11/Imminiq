@@ -1,0 +1,737 @@
+// apps/web/src/modules/onboarding/pages/OnboardingStepTwoPage.tsx
+
+import { useMemo, useRef, useState } from 'react'
+import type { KeyboardEvent } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
+import ThemeToggle from '../../../components/ui/ThemeToggle'
+import {
+  useSaveOnboardingStepTwo,
+  type OnboardingLevel,
+} from '../../../hooks/onboarding/useSaveOnboardingStepTwo'
+import { useGenerateRoadmap } from '../../../hooks/onboarding/useGenerateRoadmap'
+
+type Level = OnboardingLevel
+
+type LevelOption = {
+  value: Level
+  badge: string
+  title: string
+  description: string
+}
+
+const cn = (...classes: Array<string | false | null | undefined>) => {
+  return classes.filter(Boolean).join(' ')
+}
+
+const levelOptions: LevelOption[] = [
+  {
+    value: 'beginner',
+    badge: 'Beginner',
+    title: 'New to this field',
+    description:
+      'I need a roadmap that starts from the basics and builds a solid foundation before moving to complex concepts.',
+  },
+  {
+    value: 'intermediate',
+    badge: 'Intermediate',
+    title: 'Expanding Horizons',
+    description:
+      'I know the basics and want to move toward stronger concepts, applied problem solving, and interview depth.',
+  },
+  {
+    value: 'advanced',
+    badge: 'Advanced',
+    title: 'High-level Mastery',
+    description:
+      'I already have strong knowledge and want advanced refinement, deeper edge cases, and high-level mastery.',
+  },
+]
+
+const getInitialLevel = (): Level => {
+  const savedLevel = sessionStorage.getItem('imminiq_level') as Level | null
+
+  if (
+    savedLevel === 'beginner' ||
+    savedLevel === 'intermediate' ||
+    savedLevel === 'advanced'
+  ) {
+    return savedLevel
+  }
+
+  return 'intermediate'
+}
+
+const LogoIcon = ({ className = '' }: { className?: string }) => {
+  return (
+    <svg
+      className={cn('block shrink-0 rounded-xl', className)}
+      viewBox="0 0 100 100"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <rect x="10" y="10" width="80" height="80" rx="18" fill="#050505" />
+
+      <g transform="translate(-5, 1)">
+        <rect x="31" y="35" width="9" height="34" rx="4.5" fill="#fff8ed" />
+        <circle cx="35.5" cy="28.5" r="5.3" fill="#f15a35" />
+
+        <path
+          d="M64 32.8 C73.8 34.7 79.5 42.2 79.5 51.5 C79.5 61.8 71.2 68 60.2 68 C53.2 68 48.2 65.5 45.1 60.8"
+          fill="none"
+          stroke="#fff8ed"
+          strokeWidth="9"
+          strokeLinecap="round"
+        />
+
+        <line
+          x1="63.8"
+          y1="55.5"
+          x2="75.8"
+          y2="67.5"
+          stroke="#f15a35"
+          strokeWidth="9"
+          strokeLinecap="round"
+        />
+      </g>
+    </svg>
+  )
+}
+
+const EditIcon = () => {
+  return (
+    <svg
+      width="11"
+      height="11"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      aria-hidden="true"
+    >
+      <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
+      <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
+    </svg>
+  )
+}
+
+const AlertIcon = ({ className = '' }: { className?: string }) => {
+  return (
+    <svg
+      className={cn('shrink-0', className)}
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      aria-hidden="true"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <line x1="12" y1="8" x2="12" y2="12" />
+      <line x1="12" y1="16" x2="12.01" y2="16" />
+    </svg>
+  )
+}
+
+const SparkIcon = ({ className = '' }: { className?: string }) => {
+  return (
+    <svg
+      className={className}
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
+    </svg>
+  )
+}
+
+const ArrowLeftIcon = () => {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      aria-hidden="true"
+    >
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  )
+}
+
+const StatueIllustration = () => {
+  return (
+    <svg
+      className="pointer-events-none absolute -right-5 top-5 hidden w-55 select-none text-[#1a1714]/[0.07] dark:text-[#f2f0eb]/4 md:block"
+      viewBox="0 0 200 280"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      aria-hidden="true"
+    >
+      <ellipse cx="100" cy="60" rx="36" ry="44" fill="currentColor" />
+      <rect x="72" y="98" width="56" height="70" rx="12" fill="currentColor" />
+      <ellipse cx="100" cy="168" rx="34" ry="8" fill="currentColor" opacity="0.4" />
+      <rect x="80" y="176" width="16" height="60" rx="6" fill="currentColor" />
+      <rect x="104" y="176" width="16" height="60" rx="6" fill="currentColor" />
+      <rect
+        x="36"
+        y="104"
+        width="14"
+        height="50"
+        rx="7"
+        fill="currentColor"
+        transform="rotate(-8 36 104)"
+      />
+      <rect
+        x="150"
+        y="104"
+        width="14"
+        height="50"
+        rx="7"
+        fill="currentColor"
+        transform="rotate(8 150 104)"
+      />
+      <ellipse cx="84" cy="52" rx="6" ry="7" fill="currentColor" opacity="0.3" />
+      <ellipse cx="116" cy="52" rx="6" ry="7" fill="currentColor" opacity="0.3" />
+      <path
+        d="M88 72 Q100 80 112 72"
+        stroke="currentColor"
+        strokeWidth="3"
+        strokeLinecap="round"
+        fill="none"
+        opacity="0.4"
+      />
+    </svg>
+  )
+}
+
+const WorkspaceIllustration = () => {
+  return (
+    <svg
+      width="90"
+      height="90"
+      viewBox="0 0 90 90"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect
+        x="10"
+        y="20"
+        width="70"
+        height="50"
+        rx="6"
+        stroke="currentColor"
+        strokeWidth="2"
+        fill="none"
+      />
+      <line x1="10" y1="32" x2="80" y2="32" stroke="currentColor" strokeWidth="1.5" />
+      <rect x="18" y="40" width="20" height="14" rx="3" fill="currentColor" opacity="0.3" />
+      <rect x="44" y="40" width="28" height="5" rx="2" fill="currentColor" opacity="0.3" />
+      <rect x="44" y="49" width="20" height="5" rx="2" fill="currentColor" opacity="0.2" />
+      <circle cx="14" cy="26" r="2.5" fill="currentColor" opacity="0.4" />
+      <circle cx="21" cy="26" r="2.5" fill="currentColor" opacity="0.4" />
+      <circle cx="28" cy="26" r="2.5" fill="currentColor" opacity="0.4" />
+    </svg>
+  )
+}
+
+const RoadmapIllustration = () => {
+  return (
+    <svg
+      width="82"
+      height="90"
+      viewBox="0 0 82 90"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <circle cx="20" cy="20" r="8" fill="currentColor" opacity="0.28" />
+      <circle cx="60" cy="42" r="8" fill="currentColor" opacity="0.38" />
+      <circle cx="28" cy="68" r="8" fill="currentColor" opacity="0.28" />
+
+      <path
+        d="M27 24 C37 27 47 31 54 37"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeDasharray="4 4"
+        opacity="0.5"
+      />
+
+      <path
+        d="M54 49 C47 56 39 62 34 65"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeDasharray="4 4"
+        opacity="0.5"
+      />
+
+      <circle cx="20" cy="20" r="3" fill="currentColor" opacity="0.8" />
+      <circle cx="60" cy="42" r="3" fill="currentColor" opacity="0.8" />
+      <circle cx="28" cy="68" r="3" fill="currentColor" opacity="0.8" />
+    </svg>
+  )
+}
+
+export default function OnboardingStepTwoPage() {
+  const navigate = useNavigate()
+  const firstLevelCardRef = useRef<HTMLButtonElement | null>(null)
+
+  const {
+    mutate: saveStepTwo,
+    isPending: isSavingStepTwo,
+    error: saveStepTwoError,
+    reset: resetSaveStepTwoError,
+  } = useSaveOnboardingStepTwo()
+
+  const {
+    mutate: generateRoadmap,
+    isPending: isGeneratingRoadmap,
+    error: generateRoadmapError,
+    reset: resetGenerateRoadmapError,
+  } = useGenerateRoadmap()
+
+  const apiError =
+    saveStepTwoError?.response?.data?.message ||
+    generateRoadmapError?.response?.data?.message ||
+    (saveStepTwoError || generateRoadmapError
+      ? 'Something went wrong. Please try again.'
+      : '')
+
+  const isSubmitting = isSavingStepTwo || isGeneratingRoadmap
+
+  const [topic] = useState(() => {
+    return (
+      sessionStorage.getItem('imminiq_topic') ||
+      sessionStorage.getItem('imminiq_draft_topic') ||
+      'MERN Stack Interviews'
+    )
+  })
+
+  const [goal] = useState(() => {
+    return (
+      sessionStorage.getItem('imminiq_goal') ||
+      sessionStorage.getItem('imminiq_draft_goal') ||
+      'Crack product company roles'
+    )
+  })
+
+  const [selectedLevel, setSelectedLevel] = useState<Level>(() => {
+    return getInitialLevel()
+  })
+
+  const [levelError, setLevelError] = useState('')
+  const [summaryHighlight, setSummaryHighlight] = useState(false)
+  const [toast, setToast] = useState('')
+
+  const contextText = useMemo(() => {
+    return [topic, goal].filter(Boolean).join(' · ')
+  }, [topic, goal])
+
+  const showToast = (message: string) => {
+    setToast(message)
+
+    window.setTimeout(() => {
+      setToast('')
+    }, 2600)
+  }
+
+  const clearMutationError = () => {
+    if (saveStepTwoError) {
+      resetSaveStepTwoError()
+    }
+
+    if (generateRoadmapError) {
+      resetGenerateRoadmapError()
+    }
+  }
+
+  const pulseSummary = () => {
+    setSummaryHighlight(true)
+
+    window.setTimeout(() => {
+      setSummaryHighlight(false)
+    }, 800)
+  }
+
+  const handleSelectLevel = (level: Level) => {
+    clearMutationError()
+    setSelectedLevel(level)
+    setLevelError('')
+    pulseSummary()
+  }
+
+  const validate = () => {
+    if (!selectedLevel) {
+      setLevelError('Please select your current level to continue.')
+      firstLevelCardRef.current?.focus()
+      return false
+    }
+
+    setLevelError('')
+    return true
+  }
+
+  const handleBack = () => {
+    if (isSubmitting) return
+    navigate('/onboarding/step-1')
+  }
+
+  const handleGenerate = () => {
+    if (!validate()) return
+
+    clearMutationError()
+
+    sessionStorage.setItem('imminiq_level', selectedLevel)
+
+    saveStepTwo(
+      {
+        level: selectedLevel,
+      },
+      {
+        onSuccess: () => {
+          generateRoadmap(
+            {
+              topic: topic.trim(),
+              goal: goal.trim() || undefined,
+              level: selectedLevel,
+            },
+            {
+              onSuccess: (response) => {
+                const jobId = response.data?.jobId
+
+                if (!jobId) {
+                  showToast(
+                    'Roadmap generation started, but no job ID was returned.'
+                  )
+                  return
+                }
+
+                navigate(`/onboarding/generating/${jobId}`, {
+                  replace: true,
+                })
+              },
+            }
+          )
+        },
+      }
+    )
+  }
+
+  const handleLevelKeyDown = (
+    e: KeyboardEvent<HTMLButtonElement>,
+    currentIndex: number
+  ) => {
+    if (
+      e.key !== 'ArrowDown' &&
+      e.key !== 'ArrowRight' &&
+      e.key !== 'ArrowUp' &&
+      e.key !== 'ArrowLeft'
+    ) {
+      return
+    }
+
+    e.preventDefault()
+
+    const direction =
+      e.key === 'ArrowDown' || e.key === 'ArrowRight' ? 1 : -1
+
+    const nextIndex =
+      (currentIndex + direction + levelOptions.length) % levelOptions.length
+
+    const nextLevel = levelOptions[nextIndex]?.value
+
+    if (nextLevel) {
+      handleSelectLevel(nextLevel)
+
+      const nextElement = document.getElementById(
+        `level-card-${nextLevel}`
+      ) as HTMLButtonElement | null
+
+      nextElement?.focus()
+    }
+  }
+
+  const levelCardClass = (selected: boolean) =>
+    cn(
+      'group relative flex w-full items-start gap-4 overflow-hidden rounded-[16px] border-[1.5px] px-5 py-5 text-left transition',
+      'border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
+      'hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_8px_28px_rgba(184,76,43,0.09)]',
+      'disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0',
+      'dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.05)]',
+      'dark:hover:border-[#f5a090]',
+      selected &&
+        'border-[#b84c2b] bg-[rgba(184,76,43,0.06)] shadow-[0_6px_28px_rgba(184,76,43,0.18)] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.08)] dark:shadow-[0_8px_36px_rgba(232,129,106,0.22)]'
+    )
+
+  const levelBadgeClass = (level: Level) =>
+    cn(
+      'inline-flex items-center rounded px-2 py-0.75 font-mono text-[8.5px] font-medium uppercase tracking-[0.1em]',
+      level === 'beginner' &&
+        'bg-[rgba(76,175,125,0.10)] text-[#2d8a5e] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]',
+      level === 'intermediate' &&
+        'bg-[rgba(232,129,106,0.14)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.16)] dark:text-[#e8816a]',
+      level === 'advanced' &&
+        'bg-[rgba(90,100,200,0.10)] text-[#4a56b5] dark:bg-[rgba(140,148,240,0.14)] dark:text-[#8c94f0]'
+    )
+
+  const buttonLabel = isSavingStepTwo
+    ? 'Saving your level…'
+    : isGeneratingRoadmap
+      ? 'Starting roadmap generation…'
+      : 'Generate my roadmap'
+
+  return (
+    <div className="flex min-h-screen flex-col bg-[#f5ede4] pb-24 font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
+      <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-transparent bg-[#f5ede4]/95 px-5 py-4 backdrop-blur-xl dark:bg-[#141412]/95 sm:px-8 md:px-12">
+        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
+          <LogoIcon className="h-8.5 w-8.5 rounded-[9px]" />
+
+          <span className="text-[20px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+            immin
+            <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
+            <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
+          </span>
+        </Link>
+
+        <div className="flex items-center gap-3 sm:gap-4">
+          <div className="flex items-center gap-3" aria-label="Step 2 of 2">
+            <span className="hidden font-mono text-[9.5px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92] sm:inline">
+              Step 2 of 2
+            </span>
+
+            <span className="hidden h-3.5 w-px bg-[#e0d0c5] dark:bg-white/15 sm:block" />
+
+            <button
+              type="button"
+              onClick={handleBack}
+              disabled={isSubmitting}
+              className="hidden max-w-45 truncate font-mono text-[9px] tracking-[0.06em] text-[#6b5f58]/70 transition hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#9b9a92]/70 dark:hover:text-[#e8816a] md:block"
+            >
+              Previous: {topic || 'Goal Selection'}
+            </button>
+          </div>
+
+          <ThemeToggle />
+        </div>
+      </header>
+
+      <div
+        className="h-0.75 w-full bg-[rgba(184,76,43,0.12)] dark:bg-[rgba(232,129,106,0.14)]"
+        role="progressbar"
+        aria-valuenow={100}
+        aria-valuemin={0}
+        aria-valuemax={100}
+        aria-label="Step 2 of 2 complete"
+      >
+        <div className="h-full w-full rounded-r-sm bg-[#b84c2b] dark:bg-[#e8816a]" />
+      </div>
+
+      <main className="relative mx-auto flex w-full max-w-185 flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-10 md:py-13">
+        <StatueIllustration />
+
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={isSubmitting}
+          aria-label="Edit topic and goal"
+          className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-[rgba(26,23,20,0.12)] bg-[rgba(26,23,20,0.05)] px-4 py-2 font-mono text-[9.5px] uppercase tracking-[0.12em] text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/15 dark:bg-white/6 dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)]"
+        >
+          <span className="truncate">{contextText}</span>
+          <span className="shrink-0 text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
+            <EditIcon />
+          </span>
+        </button>
+
+        <h1 className="mb-3 max-w-155 text-center font-serif text-[clamp(26px,5.5vw,42px)] font-extrabold leading-[1.1] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
+          How would you describe your current level?
+        </h1>
+
+        <p className="mb-9 max-w-125 text-center text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+          Select the stage that best represents your familiarity with the
+          subject matter to customise your learning path.
+        </p>
+
+        {apiError && (
+          <div
+            className="mb-5 flex w-full items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+            role="alert"
+          >
+            <AlertIcon className="mt-0.5 h-3.5 w-3.5" />
+            <span>{apiError}</span>
+          </div>
+        )}
+
+        <section
+          className="mb-3 flex w-full flex-col gap-3"
+          role="radiogroup"
+          aria-label="Select your current level"
+        >
+          {levelOptions.map((option, index) => {
+            const selected = selectedLevel === option.value
+
+            return (
+              <button
+                key={option.value}
+                id={`level-card-${option.value}`}
+                ref={index === 0 ? firstLevelCardRef : undefined}
+                type="button"
+                role="radio"
+                aria-checked={selected}
+                disabled={isSubmitting}
+                onClick={() => handleSelectLevel(option.value)}
+                onKeyDown={(e) => handleLevelKeyDown(e, index)}
+                className={levelCardClass(selected)}
+              >
+                <span className="pointer-events-none absolute -left-full top-0 h-full w-1/2 bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.08),transparent)] transition-[left] duration-700 group-hover:left-[160%]" />
+
+                <span
+                  className={cn(
+                    'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition',
+                    selected
+                      ? 'border-[#b84c2b] bg-[#b84c2b] dark:border-[#e8816a] dark:bg-[#e8816a]'
+                      : 'border-[#e0d0c5] bg-transparent dark:border-white/15'
+                  )}
+                >
+                  <span
+                    className={cn(
+                      'h-2 w-2 rounded-full bg-white transition dark:bg-[#141412]',
+                      selected
+                        ? 'scale-100 opacity-100'
+                        : 'scale-0 opacity-0'
+                    )}
+                  />
+                </span>
+
+                <span className="min-w-0 flex-1">
+                  <span className="mb-2 flex flex-wrap items-center gap-2.5">
+                    <span className={levelBadgeClass(option.value)}>
+                      {option.badge}
+                    </span>
+
+                    <span className="font-serif text-[20px] font-bold leading-none tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+                      {option.title}
+                    </span>
+                  </span>
+
+                  <span className="block text-[13.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                    {option.description}
+                  </span>
+                </span>
+              </button>
+            )
+          })}
+        </section>
+
+        {levelError && (
+          <div
+            className="mb-8 mt-1 flex w-full items-center gap-1.5 text-[11.5px] text-[#d94535] dark:text-[#ff6b5f]"
+            role="alert"
+            aria-live="polite"
+          >
+            <AlertIcon />
+            <span>{levelError}</span>
+          </div>
+        )}
+
+        {!levelError && <div className="mb-8" />}
+
+        <section
+          className={cn(
+            'mb-8 flex w-full items-start gap-3.5 rounded-2xl border-[1.5px] px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] transition',
+            'border-[#e0d0c5] bg-[#fdf8f5] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.05)]',
+            summaryHighlight &&
+              'border-[#e8816a] dark:border-[#f5a090]'
+          )}
+          role="status"
+          aria-live="polite"
+        >
+          <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+            <SparkIcon className="animate-spin [animation-duration:6s]" />
+          </div>
+
+          <p className="text-[13.5px] leading-[1.65] text-[#1a1714] dark:text-[#f2f0eb]">
+            “Based on your answers, your roadmap will be calibrated for your{' '}
+            <strong className="font-semibold capitalize text-[#b84c2b] dark:text-[#e8816a]">
+              {selectedLevel}
+            </strong>{' '}
+            level, with a personalized learning path shaped around your goal and
+            current preparation stage.”
+          </p>
+        </section>
+
+        <section className="mb-2 flex w-full gap-3.5" aria-hidden="true">
+          <div className="flex min-h-30 flex-1 items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
+            <WorkspaceIllustration />
+          </div>
+
+          <div className="flex min-h-30 w-[38%] items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
+            <RoadmapIllustration />
+          </div>
+        </section>
+      </main>
+
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[#f5ede4]/94 px-4 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/94 sm:px-8 md:px-12">
+        <button
+          type="button"
+          onClick={handleBack}
+          disabled={isSubmitting}
+          className="inline-flex items-center gap-1.75 py-2 text-[13px] font-medium text-[#6b5f58] transition hover:text-[#1a1714] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#9b9a92] dark:hover:text-[#f2f0eb]"
+        >
+          <ArrowLeftIcon />
+          Back
+        </button>
+
+        <div className="flex shrink-0 items-center gap-3.5">
+          <div className="hidden flex-col items-end gap-0.5 md:flex" aria-hidden="true">
+            <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
+              Final Step
+            </span>
+
+            <span className="font-mono text-[10px] italic tracking-[0.06em] text-[#6b5f58] dark:text-[#9b9a92]">
+              Generate Strategy
+            </span>
+          </div>
+
+          <button
+            type="button"
+            onClick={handleGenerate}
+            disabled={isSubmitting}
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-[#b84c2b] px-5.5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+          >
+            <span className="pointer-events-none absolute -left-full top-0 h-full w-[55%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent)] transition-[left] duration-700 group-hover:left-[160%]" />
+
+            {buttonLabel}
+
+            <SparkIcon
+              className={cn(
+                'h-4 w-4 shrink-0',
+                isSubmitting
+                  ? 'animate-spin [animation-duration:0.6s]'
+                  : 'animate-spin [animation-duration:3s]'
+              )}
+            />
+          </button>
+        </div>
+      </div>
+
+      {toast && (
+        <div
+          className="fixed bottom-20 left-1/2 z-50 -translate-x-1/2 rounded-full bg-[#1a1714] px-4.5 py-2.5 text-[12.5px] font-medium text-[#f5ede4] shadow-lg dark:bg-[#f2f0eb] dark:text-[#141412]"
+          role="status"
+          aria-live="polite"
+        >
+          {toast}
+        </div>
+      )}
+    </div>
+  )
+}
