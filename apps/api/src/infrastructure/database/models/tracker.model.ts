@@ -201,7 +201,6 @@ const trackerSchema = new Schema<ITracker>(
 )
 
 trackerSchema.index({ ownerId: 1, status: 1 })
-trackerSchema.index({ slug: 1 }, { unique: true })
 trackerSchema.index({ visibility: 1, status: 1 })
 trackerSchema.index({ field: 1 })
 trackerSchema.index({ category: 1 })

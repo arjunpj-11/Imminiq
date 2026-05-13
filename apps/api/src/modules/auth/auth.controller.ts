@@ -33,25 +33,26 @@ export const authController = {
     }
   },
 
-  login: async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const { tokens, user } = await authService.login(
-        req.body,
-        getRequestMeta(req)
-      )
+login: async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { tokens, user, redirectPath } = await authService.login(
+      req.body,
+      getRequestMeta(req)
+    )
 
-      res
-        .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-        .json(
-          new ApiResponse('Login successful', {
-            accessToken: tokens.accessToken,
-            user,
-          })
-        )
-    } catch (error) {
-      next(error)
-    }
-  },
+    res
+      .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
+      .json(
+        new ApiResponse('Login successful', {
+          accessToken: tokens.accessToken,
+          user,
+          redirectPath,
+        })
+      )
+  } catch (error) {
+    next(error)
+  }
+},
 
   logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -238,16 +239,21 @@ revokeSession: async (req: Request, res: Response, next: NextFunction) => {
   }
 },
 
-  oauthCallback: async (req: Request, res: Response, next: NextFunction) => {
+oauthCallback: async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
-    const { tokens } = await authService.handleOAuthLogin(
-      req.user,
-      getRequestMeta(req)
-    )
+    const { tokens, redirectPath } =
+      await authService.handleOAuthLogin(
+        req.user,
+        getRequestMeta(req)
+      )
 
     res
       .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-      .redirect(`${env.CLIENT_URL}/dashboard`)
+      .redirect(`${env.CLIENT_URL}${redirectPath}`)
   } catch (error) {
     next(error)
   }

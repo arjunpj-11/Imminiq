@@ -71,9 +71,9 @@ const startStep = async (
         status: 'active',
         startedAt: new Date(),
       },
-      {
-        new: true,
-      }
+     {
+  returnDocument: 'after',
+}
     ),
   ])
 }
@@ -92,8 +92,8 @@ const completeStep = async (
       completedAt: new Date(),
     },
     {
-      new: true,
-    }
+  returnDocument: 'after',
+}
   )
 }
 
@@ -177,7 +177,7 @@ const saveNestedSubtopics = async ({
             topicId,
             parentSubtopicId,
             title: node.title,
-            description: '',
+            description: node.description || '',
             order: node.order,
             depth,
             isLocked: true,
@@ -379,7 +379,7 @@ const aiWorker = new Worker(
                   {
                     trackerId: tracker._id,
                     title: topicData.title,
-                    description: '',
+                    description: topicData.description || '',
                     order: topicData.order,
                     status:
                       topicIndex === 0
@@ -442,7 +442,9 @@ const aiWorker = new Worker(
 
       await completeStep(jobId, 5)
     } catch (error) {
-      // ============================================================
+
+      console.error('❌ Full roadmap generation error:', error)
+      //==================================================
       // CASE 1: GEMINI RATE LIMIT HIT — PAUSE QUEUE FOR 1 MINUTE
       // ============================================================
       if (isGeminiRateLimitError(error)) {

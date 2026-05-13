@@ -8,7 +8,7 @@ export const geminiChat = async (
   system?: string
 ) => {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-pro',
+    model: 'gemini-2.5-flash',
     // model: 'gemini-2.0-flash'
     systemInstruction: system,
   })

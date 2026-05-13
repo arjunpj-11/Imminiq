@@ -79,7 +79,6 @@ const onboardingResponseSchema = new Schema<IOnboardingResponse>(
   }
 )
 
-onboardingResponseSchema.index({ userId: 1 }, { unique: true })
 onboardingResponseSchema.index({ userId: 1, isCompleted: 1 })
 
 export const OnboardingResponse =

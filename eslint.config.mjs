@@ -3,17 +3,22 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import { fileURLToPath } from 'url'        // ← add
+import path from 'path'                    // ← add
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url))   // ← add
 
 export default tseslint.config(
-  {
-    ignores: [
-      '**/node_modules/**',
-      '**/dist/**',
-      '**/build/**',
-      '**/.turbo/**',
-      '**/coverage/**',
-    ],
-  },
+ {
+  ignores: [
+    'eslint.config.js',       
+    '**/node_modules/**',
+    '**/dist/**',
+    '**/build/**',
+    '**/.turbo/**',
+    '**/coverage/**',
+  ],
+},
 
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -21,8 +26,10 @@ export default tseslint.config(
   {
     files: ['apps/api/**/*.{ts,tsx}', 'packages/**/*.{ts,tsx}'],
     languageOptions: {
-      globals: {
-        ...globals.node,
+      globals: { ...globals.node },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,         // ← __dirname instead of import.meta.dirname
       },
     },
     rules: {
@@ -41,8 +48,10 @@ export default tseslint.config(
   {
     files: ['apps/web/**/*.{ts,tsx}'],
     languageOptions: {
-      globals: {
-        ...globals.browser,
+      globals: { ...globals.browser },
+      parserOptions: {
+        projectService: true,
+        tsconfigRootDir: __dirname,         // ← __dirname instead of import.meta.dirname
       },
     },
     plugins: {
@@ -51,10 +60,7 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
-      ],
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'warn',
