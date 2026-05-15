@@ -2,16 +2,18 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import morgan from 'morgan'
-import { env } from './config/env'
-import { errorHandler } from './shared/middlewares/errorHandler'
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
-import { initPassport } from './infrastructure/auth/passport'
 
+import { env } from './config/env'
+import { errorHandler } from './shared/middlewares/errorHandler'
+import { initPassport } from './infrastructure/auth/passport'
 
 import authRouter from './modules/auth/auth.routes'
 import onboardingRouter from './modules/onboarding/onboarding.routes'
 import trackerRoutes from './modules/trackers/trackers.routes'
+import usersRouter from './modules/users/users.routes'
+import uploadsRouter from './modules/uploads/uploads.routes'
 
 const app = express()
 
@@ -21,14 +23,23 @@ app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
 initPassport()
 app.use(passport.initialize())
-
 
 app.use('/api/auth', authRouter)
 app.use('/api/onboarding', onboardingRouter)
 app.use('/api/trackers', trackerRoutes)
-app.get('/api/health', (req, res) => res.json({ status: 'ok' }))
+
+/* Profile & account routes */
+app.use('/api/users', usersRouter)
+
+/* Avatar and banner upload routes */
+app.use('/api/uploads', uploadsRouter)
+
+app.get('/api/health', (_req, res) => {
+  res.json({ status: 'ok' })
+})
 
 // module routers will be registered here later
 
