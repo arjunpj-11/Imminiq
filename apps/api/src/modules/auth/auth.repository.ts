@@ -4,6 +4,7 @@ import { User, IUser } from '../../infrastructure/database/models/user.model'
 import { AuthToken } from '../../infrastructure/database/models/auth-token.model'
 import { otpCache, OtpPurpose } from '../../infrastructure/cache/otp.cache'
 import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../config/constants'
+import { UserProfile } from '../../infrastructure/database/models/user-profile.model'
 
 const hashToken = (token: string) => {
   return crypto.createHash('sha256').update(token).digest('hex')
@@ -93,15 +94,15 @@ export const authRepository = {
       ),
     }),
 
-  createOAuthUser: (data: {
+  createOAuthUser: async (data: {
     fullName: string
     email: string
     username: string
     avatarUrl?: string
     provider: 'google' | 'github'
     providerId: string
-  }) =>
-    User.create({
+  }) => {
+    const user = await User.create({
       fullName: data.fullName.trim(),
       email: data.email.toLowerCase().trim(),
       username: data.username.toLowerCase().trim(),
@@ -114,7 +115,27 @@ export const authRepository = {
 
       // OAuth accounts are already verified, so never auto-delete them.
       verificationExpiresAt: null,
-    }),
+    })
+
+    // OAuth accounts are verified immediately, so create the profile immediately too.
+    await UserProfile.findOneAndUpdate(
+      { userId: user._id },
+      {
+        $setOnInsert: {
+          userId: user._id,
+          fullName: user.fullName,
+          publicProfileEnabled: true,
+        },
+      },
+      {
+        upsert: true,
+        returnDocument: 'after',
+        setDefaultsOnInsert: true,
+      }
+    )
+
+    return user
+  },
 
   updateProfile: (
     id: string,
@@ -139,29 +160,67 @@ export const authRepository = {
   updateUser: (id: string, data: Partial<IUser>) =>
     User.findByIdAndUpdate(id, data, { new: true }),
 
-  markEmailVerified: (id: string) =>
-    User.findByIdAndUpdate(
-      id,
+markEmailVerified: async (id: string) => {
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      emailVerified: true,
+      verificationExpiresAt: null,
+    },
+    { returnDocument: 'after' }
+  )
+
+  if (user) {
+    await UserProfile.findOneAndUpdate(
+      { userId: user._id },
       {
-        emailVerified: true,
-
-        // Important: stop TTL deletion after verification.
-        verificationExpiresAt: null,
+        $setOnInsert: {
+          userId: user._id,
+          fullName: user.fullName,
+          publicProfileEnabled: true,
+        },
       },
-      { new: true }
-    ),
-
-  markPhoneVerified: (id: string) =>
-    User.findByIdAndUpdate(
-      id,
       {
-        phoneVerified: true,
+        upsert: true,
+        returnDocument: 'after',
+        setDefaultsOnInsert: true,
+      }
+    )
+  }
 
-        // Important: stop TTL deletion after verification.
-        verificationExpiresAt: null,
+  return user
+},
+
+ markPhoneVerified: async (id: string) => {
+  const user = await User.findByIdAndUpdate(
+    id,
+    {
+      phoneVerified: true,
+      verificationExpiresAt: null,
+    },
+    { returnDocument: 'after' }
+  )
+
+  if (user) {
+    await UserProfile.findOneAndUpdate(
+      { userId: user._id },
+      {
+        $setOnInsert: {
+          userId: user._id,
+          fullName: user.fullName,
+          publicProfileEnabled: true,
+        },
       },
-      { new: true }
-    ),
+      {
+        upsert: true,
+        returnDocument: 'after',
+        setDefaultsOnInsert: true,
+      }
+    )
+  }
+
+  return user
+},
 
   updatePassword: async (id: string, newPassword: string) => {
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS)

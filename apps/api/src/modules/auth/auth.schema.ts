@@ -34,17 +34,6 @@ export const registerSchema = z.object({
   identifier: identifierSchema,
 
   password: passwordSchema,
-
-  username: z
-    .string()
-    .trim()
-    .min(3, 'Username must be at least 3 characters')
-    .max(30, 'Username is too long')
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      'Username can only contain letters, numbers, underscore'
-    )
-    .optional(),
 })
 
 export const loginSchema = z.object({
@@ -89,6 +78,11 @@ export const checkIdentifierSchema = z.object({
   identifier: identifierSchema,
 })
 
+/**
+ * Keep this endpoint/schema.
+ * Username is no longer entered during registration,
+ * but this will still be useful later when the user edits their username.
+ */
 export const checkUsernameSchema = z.object({
   username: z
     .string()

@@ -17,7 +17,7 @@ import { useRestoreSession } from './hooks/auth/useRestoreSession'
 import OnboardingRoadmapReadyPage from './modules/onboarding/pages/OnboardingRoadmapReadyPage'
 import OnboardingRoadmapEvaluationScorePage from './modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage'
 import OnboardingRoadmapEvaluationLoadingPage from './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
-
+import ProfilePage from './modules/users/pages/ProfilePage'
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme)
@@ -38,17 +38,21 @@ export default function App() {
       <Route path="/reset-password" element={<ResetPasswordPage />} />
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
-     <Route
-  path="/onboarding/roadmap-evaluation/:jobId"
-  element={<OnboardingRoadmapEvaluationLoadingPage />}
-/>
 
-<Route
-  path="/onboarding/roadmap-evaluation/:jobId/score"
-  element={<OnboardingRoadmapEvaluationScorePage />}
-/>
+      {/* Public profile route — guests can view this */}
+      <Route path="/profile/:username" element={<ProfilePage />} />
 
-      {/* Protected onboarding route */}
+      <Route
+        path="/onboarding/roadmap-evaluation/:jobId"
+        element={<OnboardingRoadmapEvaluationLoadingPage />}
+      />
+
+      <Route
+        path="/onboarding/roadmap-evaluation/:jobId/score"
+        element={<OnboardingRoadmapEvaluationScorePage />}
+      />
+
+      {/* Protected onboarding routes */}
       <Route
         path="/onboarding/step-1"
         element={
@@ -59,38 +63,48 @@ export default function App() {
       />
 
       <Route
-  path="/onboarding/step-2"
-  element={
-    <ProtectedRoute>
-      <OnboardingStepTwoPage />
-    </ProtectedRoute>
-  }
-/>
+        path="/onboarding/step-2"
+        element={
+          <ProtectedRoute>
+            <OnboardingStepTwoPage />
+          </ProtectedRoute>
+        }
+      />
 
-<Route
-  path="/onboarding/generating/:jobId"
-  element={
-    <ProtectedRoute>
-      <OnboardingGeneratingPage />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/onboarding/generating/:jobId"
+        element={
+          <ProtectedRoute>
+            <OnboardingGeneratingPage />
+          </ProtectedRoute>
+        }
+      />
 
-<Route
-  path="/onboarding/roadmap-ready/:jobId"
-  element={
-    <ProtectedRoute>
-      <OnboardingRoadmapReadyPage />
-    </ProtectedRoute>
-  }
-/>
+      <Route
+        path="/onboarding/roadmap-ready/:jobId"
+        element={
+          <ProtectedRoute>
+            <OnboardingRoadmapReadyPage />
+          </ProtectedRoute>
+        }
+      />
 
-      {/* Protected routes */}
+      {/* Protected app routes */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
             <div>Dashboard</div>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Own editable profile route */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <ProfilePage />
           </ProtectedRoute>
         }
       />

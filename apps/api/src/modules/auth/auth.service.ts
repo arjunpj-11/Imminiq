@@ -191,8 +191,10 @@ export const authService = {
       }
     }
 
-    const username =
-      payload.username || (await authService.generateUsername(fullName))
+    const username = await authService.generateRegistrationUsername({
+      email: parsedIdentifier.email,
+      fullName,
+    })
 
     const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
 
@@ -804,22 +806,73 @@ verifyResetCode: async (identifier: string, otp: string) => {
     return crypto.randomInt(100000, 1000000).toString()
   },
 
+  /**
+   * Registration username generation:
+   * - Email signup: use the email prefix before "@"
+   * - Phone signup: use fullName as the source
+   * - If the base is taken, append random numbers or "_numbers"
+   * - Max length stays aligned with the User model's 30-char limit
+   */
+  generateRegistrationUsername: async (data: {
+    email?: string
+    fullName: string
+  }): Promise<string> => {
+    const source = data.email
+      ? data.email.split('@')[0]
+      : data.fullName
+
+    return authService.generateUniqueUsernameFromSource(source)
+  },
+
+  /**
+   * Kept for backward compatibility with any existing OAuth/passport code
+   * that may still call authService.generateUsername(fullName).
+   *
+   * For OAuth, prefer:
+   *   generateRegistrationUsername({ email, fullName })
+   */
   generateUsername: async (fullName: string): Promise<string> => {
-    const base =
-      fullName
+    return authService.generateUniqueUsernameFromSource(fullName)
+  },
+
+  generateUniqueUsernameFromSource: async (
+    source: string
+  ): Promise<string> => {
+    const sanitizedBase =
+      source
         .toLowerCase()
-        .replace(/[^a-z0-9]/g, '')
-        .slice(0, 20) || 'user'
+        .trim()
+        .replace(/[^a-z0-9_]/g, '')
+        .replace(/_+/g, '_')
+        .replace(/^_+|_+$/g, '')
+        .slice(0, 24) || 'user'
 
-    let username = base
-    let counter = 1
+    const base =
+      sanitizedBase.length >= 3
+        ? sanitizedBase
+        : `${sanitizedBase}user`.slice(0, 24)
 
-    while (await authRepository.usernameExists(username)) {
-      username = `${base}${counter}`
-      counter++
+    if (!(await authRepository.usernameExists(base))) {
+      return base
     }
 
-    return username
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      const suffix = crypto.randomInt(10, 100000).toString()
+      const separator = attempt % 2 === 0 ? '_' : ''
+      const maxBaseLength = 30 - separator.length - suffix.length
+      const candidateBase = base.slice(0, Math.max(3, maxBaseLength))
+      const candidate = `${candidateBase}${separator}${suffix}`
+
+      if (!(await authRepository.usernameExists(candidate))) {
+        return candidate
+      }
+    }
+
+    throw new ApiError(
+      500,
+      'Could not generate a unique username. Please try again.',
+      'USERNAME_GENERATION_FAILED'
+    )
   },
 
  formatter: (user: OAuthFormattedUserSource): AuthUser => ({
