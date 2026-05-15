@@ -37,6 +37,13 @@ const envSchema = z.object({
   MESSAGE_CENTRAL_PASSWORD: z.string().min(1),
   MESSAGE_CENTRAL_COUNTRY_CODE: z.string().default("91"),
   CEREBRAS_API_KEY: z.string().min(1),
+  CLOUDFLARE_ACCOUNT_ID: z.string().min(1, 'CLOUDFLARE_ACCOUNT_ID is required'),
+CLOUDFLARE_AI_API_TOKEN: z
+  .string()
+  .min(1, 'CLOUDFLARE_AI_API_TOKEN is required'),
+CLOUDFLARE_IMAGE_MODEL: z
+  .string()
+  .default('@cf/black-forest-labs/flux-1-schnell'),
 });
 
 export const env = envSchema.parse(process.env);
