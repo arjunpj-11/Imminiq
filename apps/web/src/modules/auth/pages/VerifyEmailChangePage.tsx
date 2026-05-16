@@ -70,11 +70,11 @@ localStorage.setItem(
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5ede4] px-4 py-10 font-['DM_Sans',sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <div className="pointer-events-none absolute left-[-120px] top-[-120px] h-[340px] w-[340px] rounded-full bg-[rgba(184,76,43,0.12)] blur-3xl dark:bg-[rgba(232,129,106,0.10)]" />
-      <div className="pointer-events-none absolute bottom-[-140px] right-[-120px] h-[360px] w-[360px] rounded-full bg-[rgba(59,108,183,0.10)] blur-3xl dark:bg-[rgba(107,159,232,0.08)]" />
+      <div className="pointer-events-none absolute -left-30 -top-30 h-85 w-85 rounded-full bg-[rgba(184,76,43,0.12)] blur-3xl dark:bg-[rgba(232,129,106,0.10)]" />
+      <div className="pointer-events-none absolute -bottom-35 -right-30 h-90 w-90 rounded-full bg-[rgba(59,108,183,0.10)] blur-3xl dark:bg-[rgba(107,159,232,0.08)]" />
 
-      <div className="relative w-full max-w-[560px] overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-white/[0.09] dark:bg-[#1e1c19]">
-        <div className="h-[5px] bg-[#b84c2b] dark:bg-[#e8816a]" />
+      <div className="relative w-full max-w-140 overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-white/9 dark:bg-[#1e1c19]">
+        <div className="h-1.25 bg-[#b84c2b] dark:bg-[#e8816a]" />
 
         <div className="px-6 py-8 text-center sm:px-10 sm:py-10">
           <div className="mb-7">
@@ -100,7 +100,7 @@ localStorage.setItem(
                 Invalid Verification Link
               </h1>
 
-              <p className="mx-auto mt-4 max-w-[430px] text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mx-auto mt-4 max-w-107.5 text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
                 The verification token is missing. Please open the complete
                 verification link sent to your new email address.
               </p>
@@ -125,7 +125,7 @@ localStorage.setItem(
                 Verifying Your New Email
               </h1>
 
-              <p className="mx-auto mt-4 max-w-[430px] text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mx-auto mt-4 max-w-107.5 text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
                 Please wait while Imminiq confirms your email change request.
               </p>
 
@@ -145,13 +145,13 @@ localStorage.setItem(
                 Email Updated Successfully
               </h1>
 
-              <p className="mx-auto mt-4 max-w-[450px] text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mx-auto mt-4 max-w-112.5 text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
                 Your new email address has been verified and saved. For
                 security, your active sessions were revoked. Please sign in
                 again using your updated email.
               </p>
 
-              <div className="mt-7 rounded-[16px] border border-[rgba(45,106,71,0.18)] bg-[rgba(45,106,71,0.08)] px-4 py-3 text-[13px] font-semibold text-[#2d6a47] dark:text-[#5cc98a]">
+              <div className="mt-7 rounded-2xl border border-[rgba(45,106,71,0.18)] bg-[rgba(45,106,71,0.08)] px-4 py-3 text-[13px] font-semibold text-[#2d6a47] dark:text-[#5cc98a]">
                 Verification complete.
               </div>
 
@@ -175,7 +175,7 @@ localStorage.setItem(
                 Verification Failed
               </h1>
 
-              <p className="mx-auto mt-4 max-w-[450px] text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mx-auto mt-4 max-w-112.5 text-[14px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
                 {errorMessage}
               </p>
 
@@ -183,7 +183,7 @@ localStorage.setItem(
                 <button
                   type="button"
                   onClick={() => navigate('/settings/security')}
-                  className="rounded-[13px] border-[1.5px] border-[#e0d0c5] px-6 py-3 text-[14px] font-bold text-[#1a1714] transition hover:border-[#b84c2b] hover:text-[#b84c2b] dark:border-white/[0.09] dark:text-[#f2f0eb] dark:hover:border-[#e8816a] dark:hover:text-[#e8816a]"
+                  className="rounded-[13px] border-[1.5px] border-[#e0d0c5] px-6 py-3 text-[14px] font-bold text-[#1a1714] transition hover:border-[#b84c2b] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#f2f0eb] dark:hover:border-[#e8816a] dark:hover:text-[#e8816a]"
                 >
                   Back to Security
                 </button>

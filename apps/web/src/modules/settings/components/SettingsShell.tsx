@@ -4,7 +4,10 @@ import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 import SettingsTabs from './SettingsTabs'
-import { cn } from './SettingsUi'
+import {
+  cn,
+} from '../utils/settingsUi.utils'
+
 
 export default function SettingsShell({
   title,
@@ -55,7 +58,7 @@ export default function SettingsShell({
 
           <div className="flex min-w-0 flex-1 flex-col">
             <section className="px-4 pb-28 pt-6 sm:px-6 lg:px-8">
-              <div className="mx-auto w-full max-w-[1180px]">
+              <div className="mx-auto w-full max-w-295">
                 <div className="mb-6">
                   <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
                     Settings

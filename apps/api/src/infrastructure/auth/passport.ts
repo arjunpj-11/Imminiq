@@ -1,6 +1,10 @@
 import passport from 'passport'
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
-import { Strategy as GitHubStrategy } from 'passport-github2'
+import {
+  Strategy as GitHubStrategy,
+  Profile as GitHubProfile,
+} from 'passport-github2'
+import type { VerifyCallback } from 'passport-oauth2'
 import { env } from '../../config/env'
 import { authRepository } from '../../modules/auth/auth.repository'
 
@@ -88,7 +92,12 @@ export const initPassport = () => {
         callbackURL: `${env.SERVER_URL}/api/auth/oauth/github/callback`,
         scope: ['user:email'],
       },
-      async (_accessToken: string, _refreshToken: string, profile: any, done: any) => {
+      async (
+  _accessToken: string,
+  _refreshToken: string,
+  profile: GitHubProfile,
+  done: VerifyCallback
+) => {
         try {
           const email = profile.emails?.[0]?.value?.toLowerCase()
           const avatarUrl = profile.photos?.[0]?.value

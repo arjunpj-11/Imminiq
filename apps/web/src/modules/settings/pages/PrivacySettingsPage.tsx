@@ -28,7 +28,7 @@ export default function PrivacySettingsPage() {
         title="Privacy"
         subtitle="Control what others can see across your Imminiq presence."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/[0.09] dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
           Loading privacy settings...
         </div>
       </SettingsShell>
@@ -41,7 +41,7 @@ export default function PrivacySettingsPage() {
         title="Privacy"
         subtitle="Control what others can see across your Imminiq presence."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/[0.09] dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
           Unable to load privacy settings.
         </div>
       </SettingsShell>

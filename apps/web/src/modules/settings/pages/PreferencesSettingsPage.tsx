@@ -67,7 +67,7 @@ export default function PreferencesSettingsPage() {
         title="Preferences"
         subtitle="Customise the way Imminiq looks, behaves and supports your learning flow."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/[0.09] dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
           Loading preferences...
         </div>
       </SettingsShell>
@@ -80,7 +80,7 @@ export default function PreferencesSettingsPage() {
         title="Preferences"
         subtitle="Customise the way Imminiq looks, behaves and supports your learning flow."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/[0.09] dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
           Unable to load preferences.
         </div>
       </SettingsShell>
@@ -286,10 +286,10 @@ function PreferencesSettingsForm({
                       type="button"
                       key={item.key}
                       tabIndex={-1}
-                      className={`rounded-[16px] border-[1.5px] p-4 text-center transition ${
+                      className={`rounded-2xl border-[1.5px] p-4 text-center transition ${
                         active
                           ? 'border-[rgba(184,76,43,0.26)] bg-[rgba(184,76,43,0.10)] dark:border-[rgba(232,129,106,0.28)] dark:bg-[rgba(232,129,106,0.12)]'
-                          : 'border-[#e0d0c5] dark:border-white/[0.09]'
+                          : 'border-[#e0d0c5] dark:border-white/9'
                       }`}
                     >
                       <div className="text-[24px]">{item.icon}</div>
@@ -325,7 +325,7 @@ function PreferencesSettingsForm({
           </div>
 
           <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#fdf8f5]/55 px-4 backdrop-blur-[2px] dark:bg-[#141412]/60">
-            <div className="w-full max-w-[430px] rounded-[22px] border-[1.5px] border-[rgba(184,76,43,0.24)] bg-[#fdf8f5]/95 p-6 text-center shadow-[0_18px_60px_rgba(26,23,20,0.14)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[#1e1c19]/95 dark:shadow-[0_22px_70px_rgba(0,0,0,0.40)]">
+            <div className="w-full max-w-107.5 rounded-[22px] border-[1.5px] border-[rgba(184,76,43,0.24)] bg-[#fdf8f5]/95 p-6 text-center shadow-[0_18px_60px_rgba(26,23,20,0.14)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[#1e1c19]/95 dark:shadow-[0_22px_70px_rgba(0,0,0,0.40)]">
               <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] bg-[rgba(184,76,43,0.10)] text-[28px] dark:bg-[rgba(232,129,106,0.12)]">
                 🖐
               </div>
@@ -447,7 +447,7 @@ function PreferencesSettingsForm({
             ))}
           </div>
 
-          <div className="mb-5 overflow-hidden rounded-[16px] bg-[#1a1714] p-4 font-['DM_Mono',monospace] text-[12px] leading-[1.8] text-[#f2f0eb]">
+          <div className="mb-5 overflow-hidden rounded-2xl bg-[#1a1714] p-4 font-['DM_Mono',monospace] text-[12px] leading-[1.8] text-[#f2f0eb]">
             <div>1&nbsp;&nbsp;class Polymath {'{'}</div>
             <div>2&nbsp;&nbsp;&nbsp;&nbsp;constructor(subject) {'{'}</div>
             <div>

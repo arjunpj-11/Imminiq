@@ -132,7 +132,7 @@ export default function TwoFactorChallengePage() {
         'lg:flex lg:min-h-screen lg:items-center lg:justify-center lg:px-8'
       )}
     >
-      <div className="flex min-h-screen w-full flex-col lg:min-h-0 lg:max-w-[1120px] lg:flex-row lg:items-stretch lg:overflow-hidden lg:rounded-[28px] lg:border lg:border-[#e0d0c5] lg:bg-[#fdf8f5] lg:shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:lg:border-white/15 dark:lg:bg-[#1e1c19]">
+      <div className="flex min-h-screen w-full flex-col lg:min-h-0 lg:max-w-280 lg:flex-row lg:items-stretch lg:overflow-hidden lg:rounded-[28px] lg:border lg:border-[#e0d0c5] lg:bg-[#fdf8f5] lg:shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:lg:border-white/15 dark:lg:bg-[#1e1c19]">
         {/* Left Panel */}
         <aside className="relative hidden w-[48%] overflow-hidden bg-[#f1e6da] px-12 py-12 dark:bg-[#191714] lg:flex lg:flex-col lg:justify-between">
           <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.12)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.14)_0%,transparent_70%)]" />
@@ -153,7 +153,7 @@ export default function TwoFactorChallengePage() {
             </div>
           </div>
 
-          <div className="relative max-w-[430px]">
+          <div className="relative max-w-107.5">
             <div className="mb-6 inline-flex h-16 w-16 items-center justify-center rounded-[18px] bg-[rgba(184,76,43,0.10)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
               <ShieldIcon />
             </div>
@@ -177,7 +177,7 @@ export default function TwoFactorChallengePage() {
 
         {/* Right Panel */}
         <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-8 lg:px-14">
-          <div className="w-full max-w-[480px]">
+          <div className="w-full max-w-120">
             {/* Mobile Brand */}
             <div className="mb-8 flex items-center justify-between lg:hidden">
               <Link to="/" className="inline-flex items-center gap-2.5">
@@ -206,7 +206,7 @@ export default function TwoFactorChallengePage() {
                 Enter your secure code
               </h2>
 
-              <p className="mx-auto mt-3 max-w-[390px] text-center text-[13.5px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mx-auto mt-3 max-w-97.5 text-center text-[13.5px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
                 Use the 6-digit code from your authenticator app. You may also
                 use one of your backup codes.
               </p>
@@ -224,7 +224,7 @@ export default function TwoFactorChallengePage() {
               <div className="mt-6">
                 <label
                   htmlFor="twoFactorCode"
-                  className="font-mono text-[9.5px] font-medium uppercase tracking-[0.1em]"
+                  className="font-mono text-[9.5px] font-medium uppercase tracking-widest"
                 >
                   Authenticator or Backup Code
                 </label>
@@ -241,7 +241,7 @@ export default function TwoFactorChallengePage() {
                   autoComplete="one-time-code"
                   inputMode="text"
                   className={cn(
-                    'mt-1.5 w-full rounded-[12px] border-[1.5px] bg-white px-4 py-3.5 text-center font-mono text-[17px] font-bold tracking-[0.12em] text-[#1a1714] outline-none transition',
+                    'mt-1.5 w-full rounded-xl border-[1.5px] bg-white px-4 py-3.5 text-center font-mono text-[17px] font-bold tracking-[0.12em] text-[#1a1714] outline-none transition',
                     'placeholder:text-[13px] placeholder:font-normal placeholder:tracking-normal placeholder:text-[#9f8f86]',
                     'focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.09)]',
                     'dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb] dark:placeholder:text-[#aaa59d]',
@@ -272,7 +272,7 @@ export default function TwoFactorChallengePage() {
                   !isValidTwoFactorCode(code)
                 }
                 className={cn(
-                  'mt-5 w-full rounded-[12px] bg-[#b84c2b] px-5 py-3.5 text-[15px] font-bold text-[#f5ede4] transition',
+                  'mt-5 w-full rounded-xl bg-[#b84c2b] px-5 py-3.5 text-[15px] font-bold text-[#f5ede4] transition',
                   'hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)]',
                   'disabled:cursor-not-allowed disabled:opacity-65 disabled:hover:translate-y-0 disabled:hover:shadow-none',
                   'dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]'

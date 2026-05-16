@@ -143,7 +143,7 @@ export default function NotificationSettingsPage() {
         title="Notification Settings"
         subtitle="Choose what you're notified about and how."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/[0.09] dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
           Loading notification settings...
         </div>
       </SettingsShell>
@@ -156,7 +156,7 @@ export default function NotificationSettingsPage() {
         title="Notification Settings"
         subtitle="Choose what you're notified about and how."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/[0.09] dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
           Unable to load notification settings.
         </div>
       </SettingsShell>
@@ -475,7 +475,7 @@ function NotificationSettingsForm({
                       quietHoursStart: event.target.value,
                     }))
                   }
-                  className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/[0.09] dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+                  className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
                 />
               </label>
 
@@ -491,7 +491,7 @@ function NotificationSettingsForm({
                       quietHoursEnd: event.target.value,
                     }))
                   }
-                  className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/[0.09] dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+                  className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
                 />
               </label>
             </div>

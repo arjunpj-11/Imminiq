@@ -427,7 +427,7 @@ export default function AccountSecuritySettingsPage() {
                 type="button"
                 onClick={handleEmailUpdate}
                 disabled={!newEmail || changeEmail.isPending}
-                className="mt-[22px] h-[46px] rounded-[11px] bg-[#b84c2b] px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
+                className="mt-5.5 h-11.5 rounded-[11px] bg-[#b84c2b] px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
               >
                 {changeEmail.isPending ? 'Sending...' : 'Send Verify Link'}
               </button>
@@ -460,7 +460,7 @@ export default function AccountSecuritySettingsPage() {
                   />
                 </div>
 
-                <div className="mt-5 rounded-[16px] bg-[#f9f3ef] p-4 dark:bg-[#1a1816]">
+                <div className="mt-5 rounded-2xl bg-[#f9f3ef] p-4 dark:bg-[#1a1816]">
                   <div className="mb-2 flex items-center justify-between">
                     <MonoLabel>Password Strength</MonoLabel>
 
@@ -499,7 +499,7 @@ export default function AccountSecuritySettingsPage() {
                 </button>
               </>
             ) : (
-              <div className="rounded-[16px] border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] p-5">
+              <div className="rounded-2xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] p-5">
                 <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#3b6cb7] dark:text-[#6b9fe8]">
                   Password Managed Externally
                 </div>
@@ -524,7 +524,7 @@ export default function AccountSecuritySettingsPage() {
           >
             <div className="space-y-3">
               {(security?.activeSessions ?? []).length === 0 && (
-                <div className="rounded-[14px] border border-dashed border-[#e0d0c5] p-4 text-[13px] text-[#6b5f58] dark:border-white/[0.09] dark:text-[#9b9a92]">
+                <div className="rounded-[14px] border border-dashed border-[#e0d0c5] p-4 text-[13px] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">
                   No active sessions found.
                 </div>
               )}
@@ -532,7 +532,7 @@ export default function AccountSecuritySettingsPage() {
               {(security?.activeSessions ?? []).map((session) => (
                 <div
                   key={session.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-[16px] border-[1.5px] border-[#e0d0c5] p-4 dark:border-white/[0.09]"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-[1.5px] border-[#e0d0c5] p-4 dark:border-white/9"
                 >
                   <div>
                     <div className="flex items-center gap-2 text-[14px] font-bold">
@@ -556,7 +556,7 @@ export default function AccountSecuritySettingsPage() {
                       type="button"
                       onClick={() => handleTerminateSession(session.id)}
                       disabled={terminateSession.isPending}
-                      className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/[0.09] dark:text-[#9b9a92]"
+                      className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92]"
                     >
                       Terminate
                     </button>
@@ -673,8 +673,8 @@ export default function AccountSecuritySettingsPage() {
 
       {/* ─── 2FA SETUP MODAL ─────────────────────────── */}
       {twoFactorSetupOpen && twoFactorSetupData && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="max-h-[92vh] w-full max-w-[640px] overflow-y-auto rounded-[24px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/[0.09] dark:bg-[#1e1c19]">
+        <div className="fixed inset-0 z-160 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="max-h-[92vh] w-full max-w-160 overflow-y-auto rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/9 dark:bg-[#1e1c19]">
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
@@ -689,7 +689,7 @@ export default function AccountSecuritySettingsPage() {
               <button
                 type="button"
                 onClick={handleCloseTwoFactorSetup}
-                className="rounded-full border border-[#e0d0c5] px-3 py-1.5 text-[13px] font-bold dark:border-white/[0.09]"
+                className="rounded-full border border-[#e0d0c5] px-3 py-1.5 text-[13px] font-bold dark:border-white/9"
               >
                 ✕
               </button>
@@ -747,7 +747,7 @@ export default function AccountSecuritySettingsPage() {
               </>
             ) : (
               <div className="mt-6">
-                <div className="rounded-[16px] border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] p-4">
+                <div className="rounded-2xl border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] p-4">
                   <h3 className="text-[16px] font-bold text-[#2d6a47] dark:text-[#5cc98a]">
                     2FA is enabled
                   </h3>
@@ -762,7 +762,7 @@ export default function AccountSecuritySettingsPage() {
                   {backupCodes.map((code) => (
                     <div
                       key={code}
-                      className="rounded-[12px] border-[1.5px] border-[#e0d0c5] bg-[#fffaf6] px-4 py-3 font-['DM_Mono',monospace] text-[14px] font-bold text-[#1a1714] dark:border-white/[0.09] dark:bg-[#252320] dark:text-[#f2f0eb]"
+                      className="rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fffaf6] px-4 py-3 font-['DM_Mono',monospace] text-[14px] font-bold text-[#1a1714] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb]"
                     >
                       {code}
                     </div>
@@ -784,8 +784,8 @@ export default function AccountSecuritySettingsPage() {
 
       {/* ─── DISABLE 2FA MODAL ───────────────────────── */}
       {disableTwoFactorOpen && (
-        <div className="fixed inset-0 z-[160] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-[480px] rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/[0.09] dark:bg-[#1e1c19]">
+        <div className="fixed inset-0 z-160 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-120 rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/9 dark:bg-[#1e1c19]">
             <h2 className="font-['Playfair_Display',serif] text-[24px] font-extrabold">
               Disable Two-Factor Authentication
             </h2>
@@ -810,7 +810,7 @@ export default function AccountSecuritySettingsPage() {
                   setDisableTwoFactorOpen(false)
                   setDisableTwoFactorToken('')
                 }}
-                className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/[0.09]"
+                className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/9"
               >
                 Cancel
               </button>
@@ -833,8 +833,8 @@ export default function AccountSecuritySettingsPage() {
 
       {/* ─── DELETE ACCOUNT MODAL ─────────────────────── */}
       {deleteModalOpen && (
-        <div className="fixed inset-0 z-[140] flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-[480px] rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/[0.09] dark:bg-[#1e1c19]">
+        <div className="fixed inset-0 z-140 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
+          <div className="w-full max-w-120 rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/9 dark:bg-[#1e1c19]">
             <h2 className="font-['Playfair_Display',serif] text-[24px] font-extrabold text-[#c43c3c] dark:text-[#e05252]">
               Delete Account
             </h2>
@@ -857,7 +857,7 @@ export default function AccountSecuritySettingsPage() {
               <button
                 type="button"
                 onClick={() => setDeleteModalOpen(false)}
-                className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/[0.09]"
+                className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/9"
               >
                 Cancel
               </button>

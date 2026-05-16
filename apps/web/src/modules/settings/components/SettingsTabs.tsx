@@ -1,5 +1,8 @@
 import { NavLink } from 'react-router-dom'
-import { cn } from './SettingsUi'
+import {
+  cn,
+} from '../utils/settingsUi.utils'
+
 
 const settingsTabs = [
   {
@@ -22,7 +25,7 @@ const settingsTabs = [
 
 export default function SettingsTabs() {
   return (
-    <div className="mb-5 flex flex-wrap gap-2 rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-2 dark:border-white/[0.09] dark:bg-[#1e1c19]">
+    <div className="mb-5 flex flex-wrap gap-2 rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-2 dark:border-white/9 dark:bg-[#1e1c19]">
       {settingsTabs.map((tab) => (
         <NavLink
           key={tab.to}
