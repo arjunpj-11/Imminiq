@@ -39,6 +39,7 @@ import type {
   ProfileBadge,
   PublishedTracker,
 } from "../../../types/profile.types";
+import { useSendFriendRequest } from "../../../hooks/friends/useSendFriendRequest";
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(" ");
@@ -110,7 +111,11 @@ function useToast() {
 }
 
 /* ─── Frontend submit rate limiting / duplicate-submit guard ─── */
-type SubmitActionKey = "profile-save" | "avatar-upload" | "banner-upload";
+type SubmitActionKey =
+  | "profile-save"
+  | "avatar-upload"
+  | "banner-upload"
+  | "friend-request";
 
 function useSubmitRateLimit(cooldownMs = 1800) {
   const lastRequestAt = useRef<Partial<Record<SubmitActionKey, number>>>({});
@@ -1961,6 +1966,26 @@ const formatRelativeTime = (value: string | Date) => {
   });
 };
 
+
+const fallbackCopyText = (value: string) => {
+  const textarea = document.createElement("textarea");
+
+  textarea.value = value;
+  textarea.style.position = "fixed";
+  textarea.style.left = "-9999px";
+  textarea.style.top = "0";
+
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+
+  const copied = document.execCommand("copy");
+
+  document.body.removeChild(textarea);
+
+  return copied;
+};
+
 /* ─── Main ProfilePage ─── */
 export default function ProfilePage() {
   const { username } = useParams<{ username: string }>();
@@ -2039,6 +2064,52 @@ export default function ProfilePage() {
     ? publicProfileQuery.data
     : profileQuery.data;
 
+  const shareUsername =
+    activeProfileData?.user?.username || username || "";
+
+  const profileShareUrl = useMemo(() => {
+    if (typeof window === "undefined") return "";
+
+    if (!shareUsername) {
+      return window.location.href;
+    }
+
+    return `${window.location.origin}/profile/${shareUsername}`;
+  }, [shareUsername]);
+
+  const copyProfileLink = async () => {
+    if (!profileShareUrl) {
+      showToast("Profile URL is unavailable.", "error");
+      return;
+    }
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(profileShareUrl);
+      } else {
+        const copied = fallbackCopyText(profileShareUrl);
+
+        if (!copied) {
+          throw new Error("Clipboard fallback failed");
+        }
+      }
+
+      showToast("Profile URL copied!", "success");
+    } catch {
+      try {
+        const copied = fallbackCopyText(profileShareUrl);
+
+        if (!copied) {
+          throw new Error("Clipboard fallback failed");
+        }
+
+        showToast("Profile URL copied!", "success");
+      } catch {
+        showToast("Unable to copy profile URL.", "error");
+      }
+    }
+  };
+
   const activeStats = isPublicView
     ? (publicProfileQuery.data?.stats ?? undefined)
     : statsQuery.data;
@@ -2062,6 +2133,8 @@ export default function ProfilePage() {
   const updateProfileMutation = useUpdateProfile();
   const uploadAvatarMutation = useUploadAvatar();
   const uploadBannerMutation = useUploadBanner();
+  const sendFriendRequestMutation = useSendFriendRequest();
+const [friendRequestSent, setFriendRequestSent] = useState(false);
 
   const profile = useMemo<ProfileData | null>(() => {
     if (!activeProfileData) return null;
@@ -2148,6 +2221,53 @@ export default function ProfilePage() {
 
     showToast(successMessage, "info");
   };
+
+  const handleSendFriendRequest = async () => {
+  if (!isAuthenticated) {
+    redirectGuestToLogin();
+    return;
+  }
+
+  const receiverId = activeProfileData?.user?._id;
+
+  if (!receiverId) {
+    showToast("Unable to find this user.", "error");
+    return;
+  }
+
+  if (!submitRateLimit.canStart("friend-request")) {
+    showToast("Please wait before sending another request.", "info");
+    return;
+  }
+
+  showLoadingToast("Sending friend request…");
+
+  try {
+    await sendFriendRequestMutation.mutateAsync({
+      receiverId,
+    });
+
+    setFriendRequestSent(true);
+    showToast("Friend request sent!", "success");
+  } catch (error) {
+    const message =
+      error.response?.data?.message ||
+      "Unable to send friend request right now.";
+
+    showToast(message, "error");
+  } finally {
+    submitRateLimit.finish("friend-request");
+  }
+};
+
+const handleOpenChats = () => {
+  if (!isAuthenticated) {
+    redirectGuestToLogin();
+    return;
+  }
+
+  navigate("/chats");
+};
 
   const handleSave = async (data: Partial<ProfileData>) => {
     if (!isOwnView) return;
@@ -2678,50 +2798,56 @@ export default function ProfilePage() {
                   <div className="flex self-center translate-y-1.5 items-center gap-2 flex-wrap max-[900px]:w-full max-[900px]:self-auto max-[900px]:translate-y-0 max-[640px]:gap-2">
                     {isPublicView ? (
                       <>
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleProtectedPublicAction(
-                              "Friend request flow is ready to connect.",
-                            )
-                          }
-                          className="inline-flex items-center gap-1.75 px-5.5 py-2.5 rounded-[10px] bg-[#b84c2b] dark:bg-[#e8816a] text-[#fdf8f5] dark:text-[#141412] text-[13px] font-bold transition hover:-translate-y-px hover:bg-[#963d22] dark:hover:bg-[#d4705a] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] max-[640px]:flex-[1_1_150px] max-[640px]:justify-center whitespace-nowrap"
-                        >
-                          <svg
-                            width="13"
-                            height="13"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2.5"
-                          >
-                            <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
-                            <circle cx="12" cy="7" r="4" />
-                          </svg>
-                          Send Request
-                        </button>
+             <button
+  type="button"
+  onClick={handleSendFriendRequest}
+  disabled={
+    sendFriendRequestMutation.isPending ||
+    friendRequestSent
+  }
+  className={cn(
+    "inline-flex items-center gap-1.75 px-5.5 py-2.5 rounded-[10px] text-[13px] font-bold transition max-[640px]:flex-[1_1_150px] max-[640px]:justify-center whitespace-nowrap disabled:cursor-not-allowed disabled:opacity-70",
+    friendRequestSent
+      ? "border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]"
+      : "bg-[#b84c2b] dark:bg-[#e8816a] text-[#fdf8f5] dark:text-[#141412] hover:-translate-y-px hover:bg-[#963d22] dark:hover:bg-[#d4705a] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)]",
+  )}
+>
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+  >
+    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
+    <circle cx="12" cy="7" r="4" />
+  </svg>
 
-                        <button
-                          type="button"
-                          onClick={() =>
-                            handleProtectedPublicAction(
-                              "Messaging flow is ready to connect.",
-                            )
-                          }
-                          className="inline-flex items-center gap-1.75 px-5.5 py-2.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 text-[#1a1714] dark:text-[#f2f0eb] text-[13px] font-semibold transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] max-[640px]:flex-[1_1_150px] max-[640px]:justify-center whitespace-nowrap"
-                        >
-                          <svg
-                            width="13"
-                            height="13"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                          >
-                            <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-                          </svg>
-                          Message
-                        </button>
+  {sendFriendRequestMutation.isPending
+    ? "Sending..."
+    : friendRequestSent
+      ? "Request Sent"
+      : "Send Request"}
+</button>
+
+                      <button
+  type="button"
+  onClick={handleOpenChats}
+  className="inline-flex items-center gap-1.75 px-5.5 py-2.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 text-[#1a1714] dark:text-[#f2f0eb] text-[13px] font-semibold transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] max-[640px]:flex-[1_1_150px] max-[640px]:justify-center whitespace-nowrap"
+>
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+  >
+    <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+  </svg>
+  Message
+</button>
                       </>
                     ) : (
                       <button
@@ -2746,24 +2872,21 @@ export default function ProfilePage() {
 
                     <button
                       type="button"
-                      onClick={() => showToast("Link copied!")}
-                      aria-label="Share profile"
-                      className="w-9.5 h-9.5 max-[640px]:flex-[0_0_38px] rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 flex items-center justify-center text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] transition"
+                      onClick={copyProfileLink}
+                      className="inline-flex items-center gap-1.75 px-4.5 py-2.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 text-[#1a1714] dark:text-[#f2f0eb] text-[13px] font-semibold transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] max-[640px]:flex-[1_1_170px] max-[640px]:justify-center whitespace-nowrap"
                     >
                       <svg
-                        width="14"
-                        height="14"
+                        width="13"
+                        height="13"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="2"
                       >
-                        <circle cx="18" cy="5" r="3" />
-                        <circle cx="6" cy="12" r="3" />
-                        <circle cx="18" cy="19" r="3" />
-                        <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
-                        <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
+                        <rect x="9" y="9" width="13" height="13" rx="2" />
+                        <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
                       </svg>
+                      Copy Profile URL
                     </button>
                   </div>
                 </div>
@@ -3305,16 +3428,13 @@ export default function ProfilePage() {
                     <h2 className="font-['Playfair_Display',serif] text-[clamp(20px,3vw,24px)] font-extrabold text-[#1a1714] dark:text-[#f2f0eb] tracking-[-0.4px]">
                       Published Trackers
                     </h2>
-                    <a
-                      href="#"
-                      onClick={(e) => {
-                        e.preventDefault();
-                        showToast("Viewing all trackers…");
-                      }}
-                      className="font-['DM_Mono',monospace] text-[10px] tracking-widest uppercase text-[#b84c2b] dark:text-[#e8816a] hover:opacity-70 transition"
-                    >
-                      View All →
-                    </a>
+                   <button
+  type="button"
+  onClick={() => navigate("/community")}
+  className="font-['DM_Mono',monospace] text-[10px] tracking-widest uppercase text-[#b84c2b] dark:text-[#e8816a] hover:opacity-70 transition"
+>
+  View All →
+</button>
                   </div>
                   <div className="grid grid-cols-3 max-[860px]:grid-cols-2 max-[640px]:grid-cols-1 gap-3.5 animate-[fadeUp_0.38s_ease_0.36s_both]">
                     {trackers.map((t) => (

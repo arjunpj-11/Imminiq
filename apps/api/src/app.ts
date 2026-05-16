@@ -16,6 +16,7 @@ import usersRouter from './modules/users/users.routes'
 import uploadsRouter from './modules/uploads/uploads.routes'
 import settingsRouter from './modules/settings/settings.routes'
 import { securityRoutes } from './modules/security/security.routes'
+import dashboardRoutes from './modules/dashboard/dashboard.routes'
 
 const app = express()
 
@@ -41,6 +42,8 @@ app.use('/api/uploads', uploadsRouter)
 
 /* User settings routes */
 app.use('/api/settings', settingsRouter)
+
+app.use('/api/dashboard', dashboardRoutes)
 
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })

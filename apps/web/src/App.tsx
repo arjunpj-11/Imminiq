@@ -1,37 +1,45 @@
+// apps/web/src/App.tsx
+
 import { useEffect } from 'react'
-import { Routes, Route } from 'react-router-dom'
+import { Navigate, Route, Routes } from 'react-router-dom'
 
-import { ProtectedRoute } from './routes/ProtectedRoute'
 import { AdminRoute } from './routes/AdminRoute'
+import { ProtectedRoute } from './routes/ProtectedRoute'
 
-import { useThemeStore } from './store/useThemeStore'
-import { useRestoreSession } from './hooks/auth/useRestoreSession'
 import { useAuthSync } from './hooks/auth/useAuthSync'
+import { useRestoreSession } from './hooks/auth/useRestoreSession'
+import { useThemeStore } from './store/useThemeStore'
 
-import RegisterPage from './modules/auth/pages/RegisterPage'
-import LoginPage from './modules/auth/pages/LoginPage'
+// ─── AUTH PAGES ─────────────────────────────────────
 import ForgotPasswordPage from './modules/auth/pages/ForgotPasswordPage'
-import VerifyAccountPage from './modules/auth/pages/VerifyAccountPage'
+import LoginPage from './modules/auth/pages/LoginPage'
+import RegisterPage from './modules/auth/pages/RegisterPage'
 import ResetPasswordPage from './modules/auth/pages/ResetPasswordPage'
+import TwoFactorChallengePage from './modules/auth/pages/TwoFactorChallengePage'
+import VerifyAccountPage from './modules/auth/pages/VerifyAccountPage'
 import VerifyEmailChangePage from './modules/auth/pages/VerifyEmailChangePage'
 
+// ─── LEGAL PAGES ────────────────────────────────────
 import PrivacyPage from './modules/legal/pages/PrivacyPage'
 import TermsPage from './modules/legal/pages/TermsPage'
 
+// ─── ONBOARDING PAGES ───────────────────────────────
+import OnboardingGeneratingPage from './modules/onboarding/pages/OnboardingGeneratingPage'
+import OnboardingRoadmapEvaluationLoadingPage from './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
+import OnboardingRoadmapEvaluationScorePage from './modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage'
+import OnboardingRoadmapReadyPage from './modules/onboarding/pages/OnboardingRoadmapReadyPage'
 import OnboardingStepOnePage from './modules/onboarding/pages/OnboardingStepOnePage'
 import OnboardingStepTwoPage from './modules/onboarding/pages/OnboardingStepTwoPage'
-import OnboardingGeneratingPage from './modules/onboarding/pages/OnboardingGeneratingPage'
-import OnboardingRoadmapReadyPage from './modules/onboarding/pages/OnboardingRoadmapReadyPage'
-import OnboardingRoadmapEvaluationScorePage from './modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage'
-import OnboardingRoadmapEvaluationLoadingPage from './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
 
+// ─── MAIN APP PAGES ─────────────────────────────────
+import DashboardPage from './modules/dashboard/pages/DashboardPage'
 import ProfilePage from './modules/users/pages/ProfilePage'
 
+// ─── SETTINGS PAGES ─────────────────────────────────
 import AccountSecuritySettingsPage from './modules/settings/pages/AccountSecuritySettingsPage'
 import NotificationSettingsPage from './modules/settings/pages/NotificationSettingsPage'
 import PreferencesSettingsPage from './modules/settings/pages/PreferencesSettingsPage'
 import PrivacySettingsPage from './modules/settings/pages/PrivacySettingsPage'
-import TwoFactorChallengePage from './modules/auth/pages/TwoFactorChallengePage'
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme)
@@ -45,35 +53,29 @@ export default function App() {
 
   return (
     <Routes>
-      {/* ─── PUBLIC ROUTES ───────────────────────────── */}
+      {/* ─── PUBLIC AUTH ROUTES ─────────────────────── */}
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/login" element={<LoginPage />} />
       <Route path="/forgot-password" element={<ForgotPasswordPage />} />
       <Route path="/verify-account" element={<VerifyAccountPage />} />
       <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route path="/verify-email-change" element={<VerifyEmailChangePage />} />
+      <Route
+        path="/verify-email-change"
+        element={<VerifyEmailChangePage />}
+      />
+      <Route
+        path="/two-factor-challenge"
+        element={<TwoFactorChallengePage />}
+      />
 
+      {/* ─── PUBLIC LEGAL ROUTES ────────────────────── */}
       <Route path="/privacy" element={<PrivacyPage />} />
       <Route path="/terms" element={<TermsPage />} />
-<Route
-  path="/two-factor-challenge"
-  element={<TwoFactorChallengePage />}
-/>
-      {/* Public profile route — guests can view this */}
+
+      {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
       <Route path="/profile/:username" element={<ProfilePage />} />
 
-      {/* ─── ROADMAP EVALUATION ROUTES ───────────────── */}
-      <Route
-        path="/onboarding/roadmap-evaluation/:jobId"
-        element={<OnboardingRoadmapEvaluationLoadingPage />}
-      />
-
-      <Route
-        path="/onboarding/roadmap-evaluation/:jobId/score"
-        element={<OnboardingRoadmapEvaluationScorePage />}
-      />
-
-      {/* ─── PROTECTED ONBOARDING ROUTES ─────────────── */}
+      {/* ─── PROTECTED ONBOARDING ROUTES ────────────── */}
       <Route
         path="/onboarding/step-1"
         element={
@@ -110,12 +112,30 @@ export default function App() {
         }
       />
 
-      {/* ─── PROTECTED APP ROUTES ────────────────────── */}
+      <Route
+        path="/onboarding/roadmap-evaluation/:jobId"
+        element={
+          <ProtectedRoute>
+            <OnboardingRoadmapEvaluationLoadingPage />
+          </ProtectedRoute>
+        }
+      />
+
+      <Route
+        path="/onboarding/roadmap-evaluation/:jobId/score"
+        element={
+          <ProtectedRoute>
+            <OnboardingRoadmapEvaluationScorePage />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* ─── PROTECTED MAIN APP ROUTES ──────────────── */}
       <Route
         path="/dashboard"
         element={
           <ProtectedRoute>
-            <div>Dashboard</div>
+            <DashboardPage />
           </ProtectedRoute>
         }
       />
@@ -129,7 +149,8 @@ export default function App() {
         }
       />
 
-      {/* ─── PROTECTED SETTINGS ROUTES ──────────────── */}
+      {/* ─── PROTECTED SETTINGS ROUTES ─────────────── */}
+
       <Route
         path="/settings/security"
         element={
@@ -166,7 +187,7 @@ export default function App() {
         }
       />
 
-      {/* ─── ADMIN ROUTES ────────────────────────────── */}
+      {/* ─── ADMIN ROUTES ───────────────────────────── */}
       <Route
         path="/admin"
         element={
