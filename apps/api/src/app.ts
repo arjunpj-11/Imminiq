@@ -14,6 +14,8 @@ import onboardingRouter from './modules/onboarding/onboarding.routes'
 import trackerRoutes from './modules/trackers/trackers.routes'
 import usersRouter from './modules/users/users.routes'
 import uploadsRouter from './modules/uploads/uploads.routes'
+import settingsRouter from './modules/settings/settings.routes'
+import { securityRoutes } from './modules/security/security.routes'
 
 const app = express()
 
@@ -37,12 +39,16 @@ app.use('/api/users', usersRouter)
 /* Avatar and banner upload routes */
 app.use('/api/uploads', uploadsRouter)
 
+/* User settings routes */
+app.use('/api/settings', settingsRouter)
+
 app.get('/api/health', (_req, res) => {
   res.json({ status: 'ok' })
 })
 
 // module routers will be registered here later
 
+app.use('/api/security', securityRoutes)
 app.use(errorHandler)
 
 export default app

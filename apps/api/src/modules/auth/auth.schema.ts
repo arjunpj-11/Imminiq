@@ -23,6 +23,20 @@ const otpSchema = z
   .trim()
   .regex(/^\d{6}$/, 'OTP must be 6 digits')
 
+const twoFactorLoginCodeSchema = z
+  .string()
+  .trim()
+  .min(1, 'Two-factor code is required')
+  .max(32, 'Two-factor code is too long')
+  .refine((value) => {
+    const compact = value.replace(/\s/g, '')
+
+    const isTotp = /^\d{6}$/.test(compact)
+    const isBackupCode = /^[A-Fa-f0-9]{5}-?[A-Fa-f0-9]{5}$/.test(compact)
+
+    return isTotp || isBackupCode
+  }, 'Enter a valid 6-digit authenticator code or backup code')
+
 export const registerSchema = z.object({
   fullName: z
     .string()
@@ -39,6 +53,10 @@ export const registerSchema = z.object({
 export const loginSchema = z.object({
   identifier: identifierSchema,
   password: z.string().min(1, 'Password is required'),
+})
+
+export const verifyTwoFactorLoginSchema = z.object({
+  code: twoFactorLoginCodeSchema,
 })
 
 export const forgotPasswordSchema = z.object({

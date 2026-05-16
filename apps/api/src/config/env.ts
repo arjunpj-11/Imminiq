@@ -44,6 +44,9 @@ CLOUDFLARE_AI_API_TOKEN: z
 CLOUDFLARE_IMAGE_MODEL: z
   .string()
   .default('@cf/black-forest-labs/flux-1-schnell'),
+  TOTP_ENCRYPTION_KEY: z
+  .string()
+  .regex(/^[0-9a-fA-F]{64}$/, 'TOTP_ENCRYPTION_KEY must be a 64-character hex string'),
 });
 
 export const env = envSchema.parse(process.env);

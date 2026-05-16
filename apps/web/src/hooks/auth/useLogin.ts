@@ -28,19 +28,37 @@ type LoginRedirectPath =
   | '/dashboard'
   | '/onboarding/step-1'
 
+interface StandardLoginData {
+  accessToken?: string
+  user?: User
+  redirectPath?: LoginRedirectPath
+  requiresTwoFactor?: false
+}
+
+interface TwoFactorRequiredLoginData {
+  requiresTwoFactor: true
+  challengeExpiresInMinutes?: number
+}
+
+type LoginResponseData =
+  | StandardLoginData
+  | TwoFactorRequiredLoginData
+
 interface LoginResponse {
   success: boolean
   message: string
-  data?: {
-    accessToken?: string
-    user?: User
-    redirectPath?: LoginRedirectPath
-  }
+  data?: LoginResponseData
 }
 
 interface ApiErrorResponse {
   success?: boolean
   message?: string
+}
+
+const isTwoFactorRequired = (
+  data: LoginResponseData | undefined
+): data is TwoFactorRequiredLoginData => {
+  return !!data && data.requiresTwoFactor === true
 }
 
 export const useLogin = () => {
@@ -65,11 +83,21 @@ export const useLogin = () => {
       return response.data
     },
 
-    onSuccess: (data) => {
-      const user = data.data?.user
-      const accessToken = data.data?.accessToken
+    onSuccess: (response) => {
+      const data = response.data
+
+      if (isTwoFactorRequired(data)) {
+        navigate('/two-factor-challenge', {
+          replace: true,
+        })
+
+        return
+      }
+
+      const user = data?.user
+      const accessToken = data?.accessToken
       const redirectPath =
-        data.data?.redirectPath || '/dashboard'
+        data?.redirectPath || '/dashboard'
 
       if (!user) {
         console.error(

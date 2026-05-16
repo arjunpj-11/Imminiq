@@ -1,12 +1,15 @@
 import { Router } from 'express'
 import passport from 'passport'
+
 import { authController } from './auth.controller'
 import { validate } from '../../shared/middlewares/validate'
 import { authenticate } from '../../shared/middlewares/auth.middleware'
 import { env } from '../../config/env'
+
 import {
   registerSchema,
   loginSchema,
+  verifyTwoFactorLoginSchema,
   forgotPasswordSchema,
   verifyResetCodeSchema,
   resetPasswordSchema,
@@ -31,6 +34,12 @@ router.post(
   '/login',
   validate(loginSchema),
   authController.login
+)
+
+router.post(
+  '/2fa/verify-login',
+  validate(verifyTwoFactorLoginSchema),
+  authController.verifyTwoFactorLogin
 )
 
 router.post(

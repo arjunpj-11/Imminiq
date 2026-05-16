@@ -62,12 +62,15 @@ api.interceptors.response.use(
     const isLoginRequest = requestUrl.includes('/auth/login')
     const isRegisterRequest = requestUrl.includes('/auth/register')
     const isLogoutRequest = requestUrl.includes('/auth/logout')
+    const isTwoFactorVerifyLoginRequest =
+      requestUrl.includes('/auth/2fa/verify-login')
 
     const shouldSkipRefresh =
       isRefreshRequest ||
       isLoginRequest ||
       isRegisterRequest ||
-      isLogoutRequest
+      isLogoutRequest ||
+      isTwoFactorVerifyLoginRequest
 
     if (
       status !== 401 ||

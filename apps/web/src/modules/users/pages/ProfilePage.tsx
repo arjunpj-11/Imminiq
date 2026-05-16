@@ -173,10 +173,10 @@ function StatCard({
     blue: "from-[#7aa4e8] to-[#3b6cb7]",
   };
   return (
-    <div className="relative overflow-hidden bg-[#fdf8f5] dark:bg-[#1e1c19] border-[1.5px] border-[#e0d0c5] dark:border-white/[0.09] rounded-[16px] p-4 flex flex-col gap-2 shadow-[0_2px_16px_rgba(26,23,20,0.06)]">
+    <div className="relative overflow-hidden bg-[#fdf8f5] dark:bg-[#1e1c19] border-[1.5px] border-[#e0d0c5] dark:border-white/9 rounded-2xl p-4 flex flex-col gap-2 shadow-[0_2px_16px_rgba(26,23,20,0.06)]">
       <div
         className={cn(
-          "absolute top-0 left-0 right-0 h-[2.5px] rounded-t-[16px] bg-gradient-to-r",
+          "absolute top-0 left-0 right-0 h-[2.5px] rounded-t-2xl bg-linear-to-r",
           accentColors[accent],
         )}
       />
@@ -502,7 +502,7 @@ function EditPanel({
     <>
       <div
         className={cn(
-          "fixed inset-0 z-[100] bg-[rgba(26,23,20,0.55)] dark:bg-[rgba(0,0,0,0.70)] backdrop-blur transition-opacity duration-300",
+          "fixed inset-0 z-100 bg-[rgba(26,23,20,0.55)] dark:bg-[rgba(0,0,0,0.70)] backdrop-blur transition-opacity duration-300",
           open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
@@ -511,12 +511,12 @@ function EditPanel({
       />
       <div
         className={cn(
-          "fixed top-0 right-0 bottom-0 z-[101] w-[min(520px,100vw)] bg-[#fdf8f5] dark:bg-[#1e1c19] border-l border-[#e0d0c5] dark:border-white/[0.09] shadow-[-8px_0_48px_rgba(26,23,20,0.14)] flex flex-col overflow-hidden transition-transform duration-[360ms] ease-in-out",
+          "fixed top-0 right-0 bottom-0 z-101 w-[min(520px,100vw)] bg-[#fdf8f5] dark:bg-[#1e1c19] border-l border-[#e0d0c5] dark:border-white/9 shadow-[-8px_0_48px_rgba(26,23,20,0.14)] flex flex-col overflow-hidden transition-transform duration-360 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
         {/* Head */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-[22px] py-[18px] border-b border-[#e0d0c5] dark:border-white/[0.09] bg-[#fdf8f5] dark:bg-[#1e1c19]">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5.5 py-4.5 border-b border-[#e0d0c5] dark:border-white/9 bg-[#fdf8f5] dark:bg-[#1e1c19]">
           <span className="font-['Playfair_Display',serif] text-[20px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb] tracking-[-0.4px]">
             Edit Profile
           </span>
@@ -524,7 +524,7 @@ function EditPanel({
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-[34px] h-[34px] rounded-[9px] border-[1.5px] border-[#e0d0c5] dark:border-white/[0.09] flex items-center justify-center text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] hover:bg-[rgba(184,76,43,0.08)] transition"
+            className="w-8.5 h-8.5 rounded-[9px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 flex items-center justify-center text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] hover:bg-[rgba(184,76,43,0.08)] transition"
           >
             <svg
               width="14"
@@ -543,16 +543,16 @@ function EditPanel({
         {/* Body */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto px-[22px] py-6 flex flex-col gap-[22px]",
+            "flex-1 overflow-y-auto px-5.5 py-6 flex flex-col gap-5.5",
             themedScrollbar,
           )}
         >
           {/* Basic Info */}
           <div>
-            <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.18em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-55 pb-2.5 border-b border-[#e0d0c5] dark:border-white/[0.09] mb-3.5">
+            <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.18em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-55 pb-2.5 border-b border-[#e0d0c5] dark:border-white/9 mb-3.5">
               Basic Information
             </div>
-            <div className="grid grid-cols-2 gap-[13px]">
+            <div className="grid grid-cols-2 gap-3.25">
               <div className="flex flex-col">
                 <label className={labelCls}>Full Name</label>
                 <input
@@ -576,7 +576,7 @@ function EditPanel({
                 <textarea
                   className={cn(
                     inputCls,
-                    "resize-y min-h-[80px] leading-[1.6]",
+                    "resize-y min-h-20 leading-[1.6]",
                   )}
                   value={bio}
                   onChange={(e) => setBio(e.target.value)}
@@ -589,10 +589,10 @@ function EditPanel({
 
           {/* Location */}
           <div>
-            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/[0.09] dark:text-[#9b9a92]">
+            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/9 dark:text-[#9b9a92]">
               Location
             </div>
-            <div className="grid grid-cols-2 gap-[13px] max-[640px]:grid-cols-1">
+            <div className="grid grid-cols-2 gap-3.25 max-[640px]:grid-cols-1">
               <div className="flex flex-col">
                 <label className={labelCls}>Country</label>
                 <select
@@ -673,17 +673,17 @@ function EditPanel({
 
           {/* Skills */}
           <div>
-            <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.18em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-55 pb-2.5 border-b border-[#e0d0c5] dark:border-white/[0.09] mb-3.5">
+            <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.18em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-55 pb-2.5 border-b border-[#e0d0c5] dark:border-white/9 mb-3.5">
               Skills
             </div>
             <div
-              className="min-h-[46px] flex flex-wrap gap-1.5 items-center px-2.5 py-2 border-[1.5px] border-[#e0d0c5] dark:border-white/[0.09] rounded-[9px] bg-white dark:bg-[#252320] cursor-text focus-within:border-[#b84c2b] dark:focus-within:border-[#e8816a] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] transition"
+              className="min-h-11.5 flex flex-wrap gap-1.5 items-center px-2.5 py-2 border-[1.5px] border-[#e0d0c5] dark:border-white/9 rounded-[9px] bg-white dark:bg-[#252320] cursor-text focus-within:border-[#b84c2b] dark:focus-within:border-[#e8816a] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] transition"
               onClick={() => document.getElementById("skill-input")?.focus()}
             >
               {skills.map((s, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-[5px] px-2.5 py-[3px] rounded-full bg-[rgba(184,76,43,0.07)] dark:bg-[rgba(232,129,106,0.09)] border border-[rgba(184,76,43,0.18)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-medium text-[#1a1714] dark:text-[#f2f0eb] whitespace-nowrap"
+                  className="inline-flex items-center gap-1.25 px-2.5 py-0.75 rounded-full bg-[rgba(184,76,43,0.07)] dark:bg-[rgba(232,129,106,0.09)] border border-[rgba(184,76,43,0.18)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-medium text-[#1a1714] dark:text-[#f2f0eb] whitespace-nowrap"
                 >
                   {s}
                   <button
@@ -697,7 +697,7 @@ function EditPanel({
               ))}
               <input
                 id="skill-input"
-                className="border-none bg-transparent outline-none text-[12.5px] font-['DM_Sans',sans-serif] text-[#1a1714] dark:text-[#f2f0eb] min-w-[90px] flex-1 placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]"
+                className="border-none bg-transparent outline-none text-[12.5px] font-['DM_Sans',sans-serif] text-[#1a1714] dark:text-[#f2f0eb] min-w-22.5 flex-1 placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]"
                 placeholder="+ Add skill"
                 value={skillInput}
                 onChange={(e) => setSkillInput(e.target.value)}
@@ -711,7 +711,7 @@ function EditPanel({
 
           {/* Links */}
           <div>
-            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/[0.09] dark:text-[#9b9a92]">
+            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/9 dark:text-[#9b9a92]">
               Links
             </div>
             <div className="flex flex-col gap-2.5">
@@ -737,7 +737,7 @@ function EditPanel({
               ].map((item) => (
                 <label
                   key={item.icon}
-                  className="flex items-center gap-2.5 rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-3 py-2.5 text-[#6b5f58] transition focus-within:border-[#b84c2b] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/[0.09] dark:bg-[#252320] dark:text-[#9b9a92] dark:focus-within:border-[#e8816a]"
+                  className="flex items-center gap-2.5 rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-3 py-2.5 text-[#6b5f58] transition focus-within:border-[#b84c2b] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#9b9a92] dark:focus-within:border-[#e8816a]"
                 >
                   {item.icon === "github" ? (
                     <svg
@@ -786,7 +786,7 @@ function EditPanel({
 
           {/* Open To */}
           <div>
-            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/[0.09] dark:text-[#9b9a92]">
+            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/9 dark:text-[#9b9a92]">
               Open To
             </div>
             <div className="flex flex-wrap gap-2">
@@ -808,7 +808,7 @@ function EditPanel({
                       "rounded-full border-[1.5px] px-3.5 py-2 text-[12px] font-semibold transition",
                       active
                         ? "border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.26)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]"
-                        : "border-[#e0d0c5] bg-transparent text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/[0.09] dark:text-[#9b9a92]",
+                        : "border-[#e0d0c5] bg-transparent text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]",
                     )}
                   >
                     {label}
@@ -820,11 +820,11 @@ function EditPanel({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2.5 px-[22px] py-4 border-t border-[#e0d0c5] dark:border-white/[0.09] bg-[#fdf8f5] dark:bg-[#1e1c19]">
+        <div className="flex items-center justify-end gap-2.5 px-5.5 py-4 border-t border-[#e0d0c5] dark:border-white/9 bg-[#fdf8f5] dark:bg-[#1e1c19]">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/[0.09] text-[13px] font-semibold text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] transition"
+            className="px-5 py-2.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 text-[13px] font-semibold text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] transition"
           >
             Cancel
           </button>
@@ -832,7 +832,7 @@ function EditPanel({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="px-[22px] py-2.5 rounded-[10px] bg-[#b84c2b] dark:bg-[#e8816a] text-[#fdf8f5] dark:text-[#141412] text-[13px] font-bold transition hover:-translate-y-px hover:bg-[#963d22] dark:hover:bg-[#d4705a] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            className="px-5.5 py-2.5 rounded-[10px] bg-[#b84c2b] dark:bg-[#e8816a] text-[#fdf8f5] dark:text-[#141412] text-[13px] font-bold transition hover:-translate-y-px hover:bg-[#963d22] dark:hover:bg-[#d4705a] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </button>
