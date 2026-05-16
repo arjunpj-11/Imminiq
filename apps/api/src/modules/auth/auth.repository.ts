@@ -1,10 +1,13 @@
 import crypto from 'crypto'
 import bcrypt from 'bcryptjs'
+
 import { User, IUser } from '../../infrastructure/database/models/user.model'
 import { AuthToken } from '../../infrastructure/database/models/auth-token.model'
+import { TwoFactorAuth } from '../../infrastructure/database/models/two-factor-auth.model'
+import { UserProfile } from '../../infrastructure/database/models/user-profile.model'
+
 import { otpCache, OtpPurpose } from '../../infrastructure/cache/otp.cache'
 import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../config/constants'
-import { UserProfile } from '../../infrastructure/database/models/user-profile.model'
 
 const hashToken = (token: string) => {
   return crypto.createHash('sha256').update(token).digest('hex')
@@ -88,7 +91,6 @@ export const authRepository = {
       emailVerified: false,
       phoneVerified: false,
 
-      // Unverified account will be deleted automatically after 30 minutes.
       verificationExpiresAt: new Date(
         Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000
       ),
@@ -112,12 +114,9 @@ export const authRepository = {
       emailVerified: true,
       phoneVerified: false,
       passwordHash: null,
-
-      // OAuth accounts are already verified, so never auto-delete them.
       verificationExpiresAt: null,
     })
 
-    // OAuth accounts are verified immediately, so create the profile immediately too.
     await UserProfile.findOneAndUpdate(
       { userId: user._id },
       {
@@ -160,67 +159,67 @@ export const authRepository = {
   updateUser: (id: string, data: Partial<IUser>) =>
     User.findByIdAndUpdate(id, data, { new: true }),
 
-markEmailVerified: async (id: string) => {
-  const user = await User.findByIdAndUpdate(
-    id,
-    {
-      emailVerified: true,
-      verificationExpiresAt: null,
-    },
-    { returnDocument: 'after' }
-  )
-
-  if (user) {
-    await UserProfile.findOneAndUpdate(
-      { userId: user._id },
+  markEmailVerified: async (id: string) => {
+    const user = await User.findByIdAndUpdate(
+      id,
       {
-        $setOnInsert: {
-          userId: user._id,
-          fullName: user.fullName,
-          publicProfileEnabled: true,
-        },
+        emailVerified: true,
+        verificationExpiresAt: null,
       },
-      {
-        upsert: true,
-        returnDocument: 'after',
-        setDefaultsOnInsert: true,
-      }
+      { returnDocument: 'after' }
     )
-  }
 
-  return user
-},
-
- markPhoneVerified: async (id: string) => {
-  const user = await User.findByIdAndUpdate(
-    id,
-    {
-      phoneVerified: true,
-      verificationExpiresAt: null,
-    },
-    { returnDocument: 'after' }
-  )
-
-  if (user) {
-    await UserProfile.findOneAndUpdate(
-      { userId: user._id },
-      {
-        $setOnInsert: {
-          userId: user._id,
-          fullName: user.fullName,
-          publicProfileEnabled: true,
+    if (user) {
+      await UserProfile.findOneAndUpdate(
+        { userId: user._id },
+        {
+          $setOnInsert: {
+            userId: user._id,
+            fullName: user.fullName,
+            publicProfileEnabled: true,
+          },
         },
-      },
-      {
-        upsert: true,
-        returnDocument: 'after',
-        setDefaultsOnInsert: true,
-      }
-    )
-  }
+        {
+          upsert: true,
+          returnDocument: 'after',
+          setDefaultsOnInsert: true,
+        }
+      )
+    }
 
-  return user
-},
+    return user
+  },
+
+  markPhoneVerified: async (id: string) => {
+    const user = await User.findByIdAndUpdate(
+      id,
+      {
+        phoneVerified: true,
+        verificationExpiresAt: null,
+      },
+      { returnDocument: 'after' }
+    )
+
+    if (user) {
+      await UserProfile.findOneAndUpdate(
+        { userId: user._id },
+        {
+          $setOnInsert: {
+            userId: user._id,
+            fullName: user.fullName,
+            publicProfileEnabled: true,
+          },
+        },
+        {
+          upsert: true,
+          returnDocument: 'after',
+          setDefaultsOnInsert: true,
+        }
+      )
+    }
+
+    return user
+  },
 
   updatePassword: async (id: string, newPassword: string) => {
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS)
@@ -231,8 +230,73 @@ markEmailVerified: async (id: string) => {
   updateLastActive: (id: string) =>
     User.findByIdAndUpdate(id, { lastActiveAt: new Date() }),
 
-  // Optional helper if you ever want to manually remove unverified users.
   deleteUserById: (id: string) => User.findByIdAndDelete(id),
+
+  // ─── TWO-FACTOR LOGIN QUERIES ───────────────────
+
+  hasActiveTwoFactor: async (userId: string) => {
+    return !!(await TwoFactorAuth.exists({
+      userId,
+      status: 'active',
+      deletedAt: null,
+    }))
+  },
+
+  findActiveTwoFactorForLogin: async (userId: string) => {
+    return TwoFactorAuth.findOne({
+      userId,
+      status: 'active',
+      deletedAt: null,
+    }).select(
+      '+totpSecretEncrypted +backupCodes +backupCodes.codeHash'
+    )
+  },
+
+  touchTwoFactorLastUsed: async (userId: string) => {
+    return TwoFactorAuth.findOneAndUpdate(
+      {
+        userId,
+        status: 'active',
+        deletedAt: null,
+      },
+      {
+        $set: {
+          lastUsedAt: new Date(),
+        },
+      },
+      {
+        returnDocument: 'after',
+      }
+    )
+  },
+
+  markBackupCodeUsed: async (
+    userId: string,
+    backupCodeIndex: number
+  ) => {
+    const usedAtPath = `backupCodes.${backupCodeIndex}.usedAt`
+
+    return TwoFactorAuth.findOneAndUpdate(
+      {
+        userId,
+        status: 'active',
+        deletedAt: null,
+        [usedAtPath]: null,
+      },
+      {
+        $set: {
+          [usedAtPath]: new Date(),
+          lastUsedAt: new Date(),
+        },
+        $inc: {
+          backupCodesUsed: 1,
+        },
+      },
+      {
+        returnDocument: 'after',
+      }
+    )
+  },
 
   // ─── TOKEN QUERIES ───────────────────────────────
 
@@ -266,6 +330,39 @@ markEmailVerified: async (id: string) => {
       deletedAt: null,
     })
   },
+
+  rotateRefreshTokenInSameSession: async (
+  sessionId: string,
+  newRefreshToken: string,
+  meta?: {
+    device?: string
+    ipAddress?: string
+    userAgent?: string
+  }
+) => {
+  const refreshTokenHash = hashToken(newRefreshToken)
+  const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+
+  return AuthToken.findOneAndUpdate(
+    {
+      _id: sessionId,
+      revokedAt: null,
+      deletedAt: null,
+    },
+    {
+      $set: {
+        refreshTokenHash,
+        expiresAt,
+        ...(meta?.device ? { device: meta.device } : {}),
+        ...(meta?.ipAddress ? { ipAddress: meta.ipAddress } : {}),
+        ...(meta?.userAgent ? { userAgent: meta.userAgent } : {}),
+      },
+    },
+    {
+      returnDocument: 'after',
+    }
+  )
+},
 
   findAllUserTokens: (userId: string) =>
     AuthToken.find({

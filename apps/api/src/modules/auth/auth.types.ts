@@ -9,6 +9,10 @@ export type UserStatus =
 
 export type VerificationMethod = 'email' | 'phone'
 
+export type LoginRedirectPath =
+  | '/dashboard'
+  | '/onboarding/step-1'
+
 export interface RegisterPayload {
   fullName: string
   identifier: string
@@ -18,6 +22,10 @@ export interface RegisterPayload {
 export interface LoginPayload {
   identifier: string
   password: string
+}
+
+export interface TwoFactorLoginVerifyPayload {
+  code: string
 }
 
 export interface TokenPair {
@@ -52,13 +60,36 @@ export interface JwtPayload {
   type: 'access'
 }
 
+export interface AuthLoginSuccessResult {
+  requiresTwoFactor: false
+  tokens: TokenPair
+  user: AuthUser
+  redirectPath: LoginRedirectPath
+}
+
+export interface AuthTwoFactorChallengeResult {
+  requiresTwoFactor: true
+  challengeToken: string
+  challengeExpiresInMinutes: number
+}
+
+export type AuthLoginResult =
+  | AuthLoginSuccessResult
+  | AuthTwoFactorChallengeResult
+
 export interface AuthResponse {
   success: boolean
   message: string
-  data: {
-    user: AuthUser
-    tokens: TokenPair
-  }
+  data:
+    | {
+        accessToken: string
+        user: AuthUser
+        redirectPath: LoginRedirectPath
+      }
+    | {
+        requiresTwoFactor: true
+        challengeExpiresInMinutes: number
+      }
 }
 
 export interface RegisterResponse {
