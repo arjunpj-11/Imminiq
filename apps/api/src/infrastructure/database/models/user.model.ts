@@ -22,6 +22,12 @@ export interface IUser extends Document {
   // Used to auto-delete unverified accounts
   verificationExpiresAt?: Date | null
 
+  // Pending email change verification
+  pendingEmail?: string | null
+  pendingEmailChangeTokenHash?: string | null
+  pendingEmailChangeExpiresAt?: Date | null
+  pendingEmailChangeRequestedAt?: Date | null
+
   provider: 'local' | 'google' | 'github'
   providerId?: string
 
@@ -109,11 +115,37 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
 
-    // New field:
     // While user is unverified, this has a future date.
     // After verification, it becomes null.
     // MongoDB TTL index deletes users when this date passes.
     verificationExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    // ─── PENDING EMAIL CHANGE ─────────────────────────────
+    // Current email is NOT changed immediately.
+    // These fields are set when user requests an email change.
+    // Email updates only after the verification link is clicked.
+    pendingEmail: {
+      type: String,
+      lowercase: true,
+      trim: true,
+      default: null,
+    },
+
+    pendingEmailChangeTokenHash: {
+      type: String,
+      default: null,
+      select: false,
+    },
+
+    pendingEmailChangeExpiresAt: {
+      type: Date,
+      default: null,
+    },
+
+    pendingEmailChangeRequestedAt: {
       type: Date,
       default: null,
     },
@@ -251,5 +283,11 @@ userSchema.index({ role: 1, status: 1 })
 userSchema.index({ status: 1, lastActiveAt: -1 })
 userSchema.index({ deletedAt: 1 })
 userSchema.index({ provider: 1, providerId: 1 })
+
+// Helps lookup email-change verification tokens efficiently.
+userSchema.index({
+  pendingEmailChangeTokenHash: 1,
+  pendingEmailChangeExpiresAt: 1,
+})
 
 export const User = mongoose.model<IUser>('User', userSchema)

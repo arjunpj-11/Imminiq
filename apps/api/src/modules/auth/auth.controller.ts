@@ -7,12 +7,20 @@ import { getAuthUser } from '../../shared/utils/getAuthUser'
 import type { OAuthLoginUser } from './auth.service'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
+const TWO_FACTOR_CHALLENGE_COOKIE_NAME = 'twoFactorChallengeToken'
 
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
   sameSite: 'strict' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000,
+}
+
+const TWO_FACTOR_COOKIE_OPTIONS = {
+  httpOnly: true,
+  secure: env.NODE_ENV === 'production',
+  sameSite: 'strict' as const,
+  maxAge: 5 * 60 * 1000,
 }
 
 const getRequestMeta = (req: Request) => ({
@@ -34,26 +42,93 @@ export const authController = {
     }
   },
 
-login: async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { tokens, user, redirectPath } = await authService.login(
-      req.body,
-      getRequestMeta(req)
-    )
-
-    res
-      .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-      .json(
-        new ApiResponse('Login successful', {
-          accessToken: tokens.accessToken,
-          user,
-          redirectPath,
-        })
+  login: async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await authService.login(
+        req.body,
+        getRequestMeta(req)
       )
-  } catch (error) {
-    next(error)
-  }
-},
+
+      if (result.requiresTwoFactor) {
+        res
+          .cookie(
+            TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+            result.challengeToken,
+            TWO_FACTOR_COOKIE_OPTIONS
+          )
+          .json(
+            new ApiResponse('Two-factor verification required', {
+              requiresTwoFactor: true,
+              challengeExpiresInMinutes:
+                result.challengeExpiresInMinutes,
+            })
+          )
+
+        return
+      }
+
+      res
+        .cookie(
+          REFRESH_COOKIE_NAME,
+          result.tokens.refreshToken,
+          COOKIE_OPTIONS
+        )
+        .json(
+          new ApiResponse('Login successful', {
+            accessToken: result.tokens.accessToken,
+            user: result.user,
+            redirectPath: result.redirectPath,
+          })
+        )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  verifyTwoFactorLogin: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const challengeToken =
+        req.cookies?.[TWO_FACTOR_CHALLENGE_COOKIE_NAME]
+
+      if (!challengeToken) {
+        throw new ApiError(
+          401,
+          'Two-factor challenge is missing. Please sign in again.',
+          'TWO_FACTOR_CHALLENGE_MISSING'
+        )
+      }
+
+      const result = await authService.verifyTwoFactorLogin(
+        challengeToken,
+        req.body,
+        getRequestMeta(req)
+      )
+
+      res
+        .cookie(
+          REFRESH_COOKIE_NAME,
+          result.tokens.refreshToken,
+          COOKIE_OPTIONS
+        )
+        .clearCookie(
+          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+          TWO_FACTOR_COOKIE_OPTIONS
+        )
+        .json(
+          new ApiResponse('Two-factor verification successful', {
+            accessToken: result.tokens.accessToken,
+            user: result.user,
+            redirectPath: result.redirectPath,
+          })
+        )
+    } catch (error) {
+      next(error)
+    }
+  },
 
   logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -65,6 +140,10 @@ login: async (req: Request, res: Response, next: NextFunction) => {
 
       res
         .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
+        .clearCookie(
+          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+          TWO_FACTOR_COOKIE_OPTIONS
+        )
         .json(new ApiResponse('Logged out successfully'))
     } catch (error) {
       next(error)
@@ -77,6 +156,10 @@ login: async (req: Request, res: Response, next: NextFunction) => {
 
       res
         .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
+        .clearCookie(
+          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+          TWO_FACTOR_COOKIE_OPTIONS
+        )
         .json(new ApiResponse('Logged out from all devices'))
     } catch (error) {
       next(error)
@@ -154,30 +237,43 @@ login: async (req: Request, res: Response, next: NextFunction) => {
     }
   },
 
- verifyResetCode: async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { identifier, otp } = req.body
+  verifyResetCode: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { identifier, otp } = req.body
 
-    const result = await authService.verifyResetCode(identifier, otp)
+      const result = await authService.verifyResetCode(identifier, otp)
 
-    res.json(new ApiResponse('Code verified', result))
-  } catch (error) {
-    next(error)
-  }
-},
+      res.json(new ApiResponse('Code verified', result))
+    } catch (error) {
+      next(error)
+    }
+  },
 
-resetPassword: async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const { resetToken, newPassword } = req.body
+  resetPassword: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { resetToken, newPassword } = req.body
 
-    await authService.resetPassword(resetToken, newPassword)
+      await authService.resetPassword(resetToken, newPassword)
 
-    res.json(new ApiResponse('Password reset successfully'))
-  } catch (error) {
-    next(error)
-  }
-},
-  changePassword: async (req: Request, res: Response, next: NextFunction) => {
+      res.json(new ApiResponse('Password reset successfully'))
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  changePassword: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const { currentPassword, newPassword } = req.body
 
@@ -193,7 +289,11 @@ resetPassword: async (req: Request, res: Response, next: NextFunction) => {
     }
   },
 
-  checkIdentifier: async (req: Request, res: Response, next: NextFunction) => {
+  checkIdentifier: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const result = await authService.checkIdentifier(req.body.identifier)
 
@@ -203,7 +303,11 @@ resetPassword: async (req: Request, res: Response, next: NextFunction) => {
     }
   },
 
-  checkUsername: async (req: Request, res: Response, next: NextFunction) => {
+  checkUsername: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
     try {
       const result = await authService.checkUsername(req.body.username)
 
@@ -223,47 +327,71 @@ resetPassword: async (req: Request, res: Response, next: NextFunction) => {
     }
   },
 
-revokeSession: async (req: Request, res: Response, next: NextFunction) => {
-  try {
-    const user = getAuthUser(req)
-    const { sessionId } = req.params
+  revokeSession: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const user = getAuthUser(req)
+      const { sessionId } = req.params
 
-    if (!sessionId || Array.isArray(sessionId)) {
-      throw new ApiError(400, 'Session ID is required', 'SESSION_ID_REQUIRED')
+      if (!sessionId || Array.isArray(sessionId)) {
+        throw new ApiError(
+          400,
+          'Session ID is required',
+          'SESSION_ID_REQUIRED'
+        )
+      }
+
+      await authService.revokeSession(user.userId, sessionId)
+
+      res.json(new ApiResponse('Session revoked'))
+    } catch (error) {
+      next(error)
     }
+  },
 
-    await authService.revokeSession(user.userId, sessionId)
+  oauthCallback: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      if (!req.user) {
+        throw new ApiError(
+          401,
+          'OAuth authentication failed',
+          'OAUTH_USER_MISSING'
+        )
+      }
 
-    res.json(new ApiResponse('Session revoked'))
-  } catch (error) {
-    next(error)
-  }
-},
+      const result = await authService.handleOAuthLogin(
+        req.user as unknown as OAuthLoginUser,
+        getRequestMeta(req)
+      )
 
-oauthCallback: async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    if (!req.user) {
-  throw new ApiError(
-    401,
-    'OAuth authentication failed',
-    'OAUTH_USER_MISSING'
-  )
-}
+      if (result.requiresTwoFactor) {
+        res
+          .cookie(
+            TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+            result.challengeToken,
+            TWO_FACTOR_COOKIE_OPTIONS
+          )
+          .redirect(`${env.CLIENT_URL}/two-factor-challenge`)
 
-   const { tokens, redirectPath } =
-  await authService.handleOAuthLogin(
-   req.user as unknown as OAuthLoginUser,
-    getRequestMeta(req)
-  )
-    res
-      .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-      .redirect(`${env.CLIENT_URL}${redirectPath}`)
-  } catch (error) {
-    next(error)
-  }
-},
+        return
+      }
+
+      res
+        .cookie(
+          REFRESH_COOKIE_NAME,
+          result.tokens.refreshToken,
+          COOKIE_OPTIONS
+        )
+        .redirect(`${env.CLIENT_URL}${result.redirectPath}`)
+    } catch (error) {
+      next(error)
+    }
+  },
 }

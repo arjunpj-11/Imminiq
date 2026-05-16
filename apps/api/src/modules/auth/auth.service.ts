@@ -1,6 +1,8 @@
 import bcrypt from 'bcryptjs'
 import jwt, { SignOptions } from 'jsonwebtoken'
 import crypto from 'crypto'
+import { verify } from 'otplib'
+
 import { authRepository } from './auth.repository'
 import { ApiError } from '../../shared/utils/ApiError'
 import { env } from '../../config/env'
@@ -8,12 +10,14 @@ import { BCRYPT_ROUNDS } from '../../config/constants'
 import { sendMail } from '../../infrastructure/email/email.client'
 import { otpEmailTemplate } from '../../shared/email/email.templates'
 import { trackerRepository } from '../trackers/tracker.repository'
+
 import {
   sendPhoneOtp,
   verifyPhoneOtp,
 } from '../../infrastructure/sms/message-central.client'
 
 import { phoneOtpSessionCache } from '../../infrastructure/cache/phone-otp-session.cache'
+import { decryptTotpSecret } from '../security/two-factor-secret.util'
 
 import {
   RegisterPayload,
@@ -22,11 +26,20 @@ import {
   AuthUser,
   JwtPayload,
   AuthRole,
+  LoginRedirectPath,
+  AuthLoginResult,
+  AuthLoginSuccessResult,
+  TwoFactorLoginVerifyPayload,
 } from './auth.types'
 
 type ResetTokenPayload = {
   userId: string
   purpose: 'password_reset'
+}
+
+type TwoFactorChallengeTokenPayload = {
+  userId: string
+  purpose: 'two_factor_login'
 }
 
 export type OAuthLoginUser = OAuthFormattedUserSource & {
@@ -52,13 +65,18 @@ type OAuthFormattedUserSource = Pick<
   }
 }
 
-type OtpPurpose = 'email_verification' | 'phone_verification' | 'password_reset'
+type OtpPurpose =
+  | 'email_verification'
+  | 'phone_verification'
+  | 'password_reset'
 
 type RequestMeta = {
   device?: string
   ipAddress?: string
   userAgent?: string
 }
+
+const TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES = 5
 
 const isEmailIdentifier = (identifier: string) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(identifier.trim())
@@ -89,7 +107,9 @@ const normalizeIdentifier = (identifier: string) => {
 const getVerificationPurpose = (
   method: 'email' | 'phone'
 ): OtpPurpose => {
-  return method === 'email' ? 'email_verification' : 'phone_verification'
+  return method === 'email'
+    ? 'email_verification'
+    : 'phone_verification'
 }
 
 const sendVerificationOtp = async (data: {
@@ -131,6 +151,46 @@ const sendVerificationOtp = async (data: {
   }
 }
 
+const ensureUserCanAuthenticate = (user: {
+  status: string
+}) => {
+  if (user.status === 'blocked' || user.status === 'banned') {
+    throw new ApiError(403, 'Account blocked', 'ACCOUNT_BLOCKED')
+  }
+
+  if (user.status === 'deactivated') {
+    throw new ApiError(403, 'Account deactivated', 'ACCOUNT_DEACTIVATED')
+  }
+
+  if (user.status === 'paused') {
+    throw new ApiError(403, 'Account paused', 'ACCOUNT_PAUSED')
+  }
+}
+
+const resolveRedirectPath = async (
+  userId: string
+): Promise<LoginRedirectPath> => {
+  const hasTracker = await trackerRepository.hasAnyTrackerForUser(userId)
+
+  return hasTracker
+    ? '/dashboard'
+    : '/onboarding/step-1'
+}
+
+const normalizeBackupCode = (code: string) => {
+  const compact = code
+    .trim()
+    .toUpperCase()
+    .replace(/\s/g, '')
+    .replace(/-/g, '')
+
+  if (compact.length !== 10) {
+    return code.trim().toUpperCase()
+  }
+
+  return `${compact.slice(0, 5)}-${compact.slice(5, 10)}`
+}
+
 export const authService = {
   // ─── REGISTER ────────────────────────────────────
 
@@ -143,11 +203,10 @@ export const authService = {
 
     const parsedIdentifier = normalizeIdentifier(identifier)
 
-    // If same email exists but is unverified:
-    // Do not show "Email already in use".
-    // Resend OTP and return verification response.
     if (parsedIdentifier.email) {
-      const existingUser = await authRepository.findByEmail(parsedIdentifier.email)
+      const existingUser = await authRepository.findByEmail(
+        parsedIdentifier.email
+      )
 
       if (existingUser) {
         if (!existingUser.emailVerified) {
@@ -167,11 +226,10 @@ export const authService = {
       }
     }
 
-    // If same phone exists but is unverified:
-    // Do not show "Phone already in use".
-    // Resend OTP and return verification response.
     if (parsedIdentifier.phone) {
-      const existingUser = await authRepository.findByPhone(parsedIdentifier.phone)
+      const existingUser = await authRepository.findByPhone(
+        parsedIdentifier.phone
+      )
 
       if (existingUser) {
         if (!existingUser.phoneVerified) {
@@ -221,129 +279,256 @@ export const authService = {
 
   // ─── LOGIN ───────────────────────────────────────
 
- login: async (
-  payload: LoginPayload,
-  meta?: RequestMeta
-): Promise<{
-  tokens: TokenPair
-  user: AuthUser
-  redirectPath: '/dashboard' | '/onboarding/step-1'
-}> => {
-  const parsedIdentifier = normalizeIdentifier(payload.identifier)
+  login: async (
+    payload: LoginPayload,
+    meta?: RequestMeta
+  ): Promise<AuthLoginResult> => {
+    const parsedIdentifier = normalizeIdentifier(payload.identifier)
 
-  const user = await authRepository.findByIdentifier(payload.identifier)
+    const user = await authRepository.findByIdentifier(payload.identifier)
 
-  if (!user) {
-    throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
-  }
+    if (!user) {
+      throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
+    }
 
-  if (user.status === 'blocked' || user.status === 'banned') {
-    throw new ApiError(403, 'Account blocked', 'ACCOUNT_BLOCKED')
-  }
+    ensureUserCanAuthenticate(user)
 
-  if (user.status === 'deactivated') {
-    throw new ApiError(403, 'Account deactivated', 'ACCOUNT_DEACTIVATED')
-  }
+    if (!user.passwordHash) {
+      throw new ApiError(
+        400,
+        'This account uses social login. Please sign in with Google or GitHub.',
+        'OAUTH_ACCOUNT'
+      )
+    }
 
-  if (user.status === 'paused') {
-    throw new ApiError(403, 'Account paused', 'ACCOUNT_PAUSED')
-  }
+    const valid = await bcrypt.compare(payload.password, user.passwordHash)
 
-  if (!user.passwordHash) {
-    throw new ApiError(
-      400,
-      'This account uses social login. Please sign in with Google or GitHub.',
-      'OAUTH_ACCOUNT'
+    if (!valid) {
+      throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
+    }
+
+    if (parsedIdentifier.method === 'email' && !user.emailVerified) {
+      await sendVerificationOtp({
+        email: parsedIdentifier.email,
+        method: 'email',
+      })
+
+      throw new ApiError(
+        403,
+        'Please verify your email before signing in. A new OTP has been sent.',
+        'EMAIL_NOT_VERIFIED'
+      )
+    }
+
+    if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
+      await sendVerificationOtp({
+        phone: parsedIdentifier.phone,
+        method: 'phone',
+      })
+
+      throw new ApiError(
+        403,
+        'Please verify your phone before signing in. A new OTP has been sent.',
+        'PHONE_NOT_VERIFIED'
+      )
+    }
+
+    const userId = user._id.toString()
+
+    const twoFactorEnabled =
+      await authRepository.hasActiveTwoFactor(userId)
+
+    if (twoFactorEnabled) {
+      return {
+        requiresTwoFactor: true,
+        challengeToken: authService.generateTwoFactorChallengeToken(userId),
+        challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
+      }
+    }
+
+    const redirectPath = await resolveRedirectPath(userId)
+
+    const tokens = await authService.generateTokenPair(
+      userId,
+      user.role,
+      meta
     )
-  }
 
-  const valid = await bcrypt.compare(payload.password, user.passwordHash)
+    await authRepository.updateLastActive(userId)
 
-  if (!valid) {
-    throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
-  }
-
-  if (parsedIdentifier.method === 'email' && !user.emailVerified) {
-    await sendVerificationOtp({
-      email: parsedIdentifier.email,
-      method: 'email',
-    })
-
-    throw new ApiError(
-      403,
-      'Please verify your email before signing in. A new OTP has been sent.',
-      'EMAIL_NOT_VERIFIED'
-    )
-  }
-
-  if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
-    await sendVerificationOtp({
-      phone: parsedIdentifier.phone,
-      method: 'phone',
-    })
-
-    throw new ApiError(
-      403,
-      'Please verify your phone before signing in. A new OTP has been sent.',
-      'PHONE_NOT_VERIFIED'
-    )
-  }
-
-  const tokens = await authService.generateTokenPair(
-    user._id.toString(),
-    user.role,
-    meta
-  )
-
-  const hasTracker = await trackerRepository.hasAnyTrackerForUser(
-    user._id.toString()
-  )
-
-  const redirectPath = hasTracker
-    ? '/dashboard'
-    : '/onboarding/step-1'
-
-  await authRepository.updateLastActive(user._id.toString())
-
-  return {
-    tokens,
-    user: authService.formatter(user),
-    redirectPath,
-  }
-},
+    return {
+      requiresTwoFactor: false,
+      tokens,
+      user: authService.formatter(user),
+      redirectPath,
+    }
+  },
 
   // ─── OAUTH LOGIN ─────────────────────────────────
 
-handleOAuthLogin: async (
-  user: OAuthLoginUser,
-  meta?: RequestMeta
-): Promise<{
-  tokens: TokenPair
-  user: AuthUser
-  redirectPath: '/dashboard' | '/onboarding/step-1'
-}> => {
-  await authRepository.updateLastActive(user._id.toString())
+  handleOAuthLogin: async (
+    user: OAuthLoginUser,
+    meta?: RequestMeta
+  ): Promise<AuthLoginResult> => {
+    ensureUserCanAuthenticate(user)
 
-  const tokens = await authService.generateTokenPair(
-    user._id.toString(),
-    user.role,
-    meta
-  )
+    const userId = user._id.toString()
 
-  const hasTracker = await trackerRepository.hasAnyTrackerForUser(
-    user._id.toString()
-  )
+    const twoFactorEnabled =
+      await authRepository.hasActiveTwoFactor(userId)
 
-  const redirectPath = hasTracker
-    ? '/dashboard'
-    : '/onboarding/step-1'
+    if (twoFactorEnabled) {
+      return {
+        requiresTwoFactor: true,
+        challengeToken: authService.generateTwoFactorChallengeToken(userId),
+        challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
+      }
+    }
 
-  return {
-    tokens,
-    user: authService.formatter(user),
-    redirectPath,
-  }
-},
+    const redirectPath = await resolveRedirectPath(userId)
+
+    const tokens = await authService.generateTokenPair(
+      userId,
+      user.role,
+      meta
+    )
+
+    await authRepository.updateLastActive(userId)
+
+    return {
+      requiresTwoFactor: false,
+      tokens,
+      user: authService.formatter(user),
+      redirectPath,
+    }
+  },
+
+  // ─── VERIFY LOGIN 2FA ────────────────────────────
+
+  verifyTwoFactorLogin: async (
+    challengeToken: string,
+    payload: TwoFactorLoginVerifyPayload,
+    meta?: RequestMeta
+  ): Promise<AuthLoginSuccessResult> => {
+    let decoded: TwoFactorChallengeTokenPayload
+
+    try {
+      decoded = jwt.verify(
+        challengeToken,
+        env.JWT_SECRET
+      ) as TwoFactorChallengeTokenPayload
+    } catch {
+      throw new ApiError(
+        401,
+        'Two-factor challenge expired. Please sign in again.',
+        'TWO_FACTOR_CHALLENGE_EXPIRED'
+      )
+    }
+
+    if (decoded.purpose !== 'two_factor_login') {
+      throw new ApiError(
+        401,
+        'Invalid two-factor challenge',
+        'INVALID_TWO_FACTOR_CHALLENGE'
+      )
+    }
+
+    const user = await authRepository.findById(decoded.userId)
+
+    if (!user) {
+      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+    }
+
+    ensureUserCanAuthenticate(user)
+
+    const twoFactor =
+      await authRepository.findActiveTwoFactorForLogin(user._id.toString())
+
+    if (!twoFactor) {
+      throw new ApiError(
+        401,
+        'Two-factor authentication is no longer active. Please sign in again.',
+        'TWO_FACTOR_NOT_ACTIVE'
+      )
+    }
+
+    const code = payload.code.trim()
+    let verified = false
+
+    // ─── TOTP CODE ────────────────────────────────
+    if (/^\d{6}$/.test(code)) {
+      const secret = decryptTotpSecret(twoFactor.totpSecretEncrypted)
+
+      const result = await verify({
+        secret,
+        token: code,
+      })
+
+      if (result.valid) {
+        verified = true
+        await authRepository.touchTwoFactorLastUsed(user._id.toString())
+      }
+    }
+
+    // ─── BACKUP CODE ──────────────────────────────
+    if (!verified) {
+      const normalizedBackupCode = normalizeBackupCode(code)
+
+      for (let index = 0; index < twoFactor.backupCodes.length; index += 1) {
+        const backupCode = twoFactor.backupCodes[index]
+
+        if (backupCode.usedAt) {
+          continue
+        }
+
+        const matches = await bcrypt.compare(
+          normalizedBackupCode,
+          backupCode.codeHash
+        )
+
+        if (!matches) {
+          continue
+        }
+
+        const markedUsed = await authRepository.markBackupCodeUsed(
+          user._id.toString(),
+          index
+        )
+
+        if (markedUsed) {
+          verified = true
+        }
+
+        break
+      }
+    }
+
+    if (!verified) {
+      throw new ApiError(
+        400,
+        'Invalid two-factor code',
+        'INVALID_TWO_FACTOR_LOGIN_CODE'
+      )
+    }
+
+    const userId = user._id.toString()
+    const redirectPath = await resolveRedirectPath(userId)
+
+    const tokens = await authService.generateTokenPair(
+      userId,
+      user.role,
+      meta
+    )
+
+    await authRepository.updateLastActive(userId)
+
+    return {
+      requiresTwoFactor: false,
+      tokens,
+      user: authService.formatter(user),
+      redirectPath,
+    }
+  },
 
   // ─── LOGOUT ─────────────────────────────────────
 
@@ -357,42 +542,60 @@ handleOAuthLogin: async (
 
   // ─── REFRESH TOKEN ───────────────────────────────
 
-  refreshTokens: async (
-    refreshToken: string,
-    meta?: RequestMeta
-  ): Promise<TokenPair> => {
-    const tokenRecord = await authRepository.findRefreshToken(refreshToken)
+refreshTokens: async (
+  refreshToken: string,
+  meta?: RequestMeta
+): Promise<TokenPair> => {
+  const tokenRecord = await authRepository.findRefreshToken(refreshToken)
 
-    if (!tokenRecord) {
-      throw new ApiError(401, 'Invalid refresh token', 'UNAUTHORIZED')
-    }
+  if (!tokenRecord) {
+    throw new ApiError(401, 'Invalid refresh token', 'UNAUTHORIZED')
+  }
 
-    const user = await authRepository.findById(tokenRecord.userId.toString())
+  const user = await authRepository.findById(tokenRecord.userId.toString())
 
-    if (!user) {
-      throw new ApiError(401, 'User not found', 'UNAUTHORIZED')
-    }
+  if (!user) {
+    throw new ApiError(401, 'User not found', 'UNAUTHORIZED')
+  }
 
-    if (user.status === 'blocked' || user.status === 'banned') {
-      throw new ApiError(403, 'Account blocked', 'ACCOUNT_BLOCKED')
-    }
+  ensureUserCanAuthenticate(user)
 
-    if (user.status === 'deactivated') {
-      throw new ApiError(403, 'Account deactivated', 'ACCOUNT_DEACTIVATED')
-    }
+  const accessTokenOptions: SignOptions = {
+    expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
+  }
 
-    if (user.status === 'paused') {
-      throw new ApiError(403, 'Account paused', 'ACCOUNT_PAUSED')
-    }
+  const accessToken = jwt.sign(
+    {
+      userId: user._id.toString(),
+      role: user.role,
+      type: 'access',
+    } as JwtPayload,
+    env.JWT_SECRET,
+    accessTokenOptions
+  )
 
-    await authRepository.revokeRefreshToken(refreshToken)
+  const newRefreshToken = crypto.randomBytes(64).toString('hex')
 
-    return authService.generateTokenPair(
-      user._id.toString(),
-      user.role,
+  const rotatedSession =
+    await authRepository.rotateRefreshTokenInSameSession(
+      tokenRecord._id.toString(),
+      newRefreshToken,
       meta
     )
-  },
+
+  if (!rotatedSession) {
+    throw new ApiError(
+      401,
+      'Unable to refresh session',
+      'SESSION_REFRESH_FAILED'
+    )
+  }
+
+  return {
+    accessToken,
+    refreshToken: newRefreshToken,
+  }
+},
 
   // ─── GET ME ──────────────────────────────────────
 
@@ -408,77 +611,75 @@ handleOAuthLogin: async (
 
   // ─── VERIFY ACCOUNT ──────────────────────────────
 
- verifyAccount: async (identifier: string, otp: string) => {
-  const parsedIdentifier = normalizeIdentifier(identifier)
+  verifyAccount: async (identifier: string, otp: string) => {
+    const parsedIdentifier = normalizeIdentifier(identifier)
 
-  const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
-  if (!user) {
-    throw new ApiError(404, 'User not found', 'NOT_FOUND')
-  }
-
-  // ─── EMAIL OTP VERIFICATION ─────────────────────
-  if (parsedIdentifier.method === 'email') {
-    const valid = await authRepository.verifyOtp({
-      email: parsedIdentifier.email,
-      otp,
-      purpose: 'email_verification',
-    })
-
-    if (!valid) {
-      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+    if (!user) {
+      throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
 
-    if (user.emailVerified) {
-      throw new ApiError(
-        400,
-        'Email is already verified',
-        'EMAIL_ALREADY_VERIFIED'
-      )
+    if (parsedIdentifier.method === 'email') {
+      const valid = await authRepository.verifyOtp({
+        email: parsedIdentifier.email,
+        otp,
+        purpose: 'email_verification',
+      })
+
+      if (!valid) {
+        throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+      }
+
+      if (user.emailVerified) {
+        throw new ApiError(
+          400,
+          'Email is already verified',
+          'EMAIL_ALREADY_VERIFIED'
+        )
+      }
+
+      await authRepository.markEmailVerified(user._id.toString())
+      return
     }
 
-    await authRepository.markEmailVerified(user._id.toString())
-    return
-  }
+    if (parsedIdentifier.method === 'phone') {
+      const verificationId =
+        await phoneOtpSessionCache.getVerificationId(
+          parsedIdentifier.phone!,
+          'phone_verification'
+        )
 
-  // ─── PHONE OTP VERIFICATION ─────────────────────
-  if (parsedIdentifier.method === 'phone') {
-    const verificationId =
-      await phoneOtpSessionCache.getVerificationId(
+      if (!verificationId) {
+        throw new ApiError(
+          400,
+          'OTP session expired. Please request a new OTP.',
+          'OTP_SESSION_EXPIRED'
+        )
+      }
+
+      const valid = await verifyPhoneOtp(verificationId, otp)
+
+      if (!valid) {
+        throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+      }
+
+      if (user.phoneVerified) {
+        throw new ApiError(
+          400,
+          'Phone is already verified',
+          'PHONE_ALREADY_VERIFIED'
+        )
+      }
+
+      await authRepository.markPhoneVerified(user._id.toString())
+
+      await phoneOtpSessionCache.deleteVerificationId(
         parsedIdentifier.phone!,
         'phone_verification'
       )
-
-    if (!verificationId) {
-      throw new ApiError(
-        400,
-        'OTP session expired. Please request a new OTP.',
-        'OTP_SESSION_EXPIRED'
-      )
     }
-
-    const valid = await verifyPhoneOtp(verificationId, otp)
-
-    if (!valid) {
-      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
-    }
-
-    if (user.phoneVerified) {
-      throw new ApiError(
-        400,
-        'Phone is already verified',
-        'PHONE_ALREADY_VERIFIED'
-      )
-    }
-
-    await authRepository.markPhoneVerified(user._id.toString())
-
-    await phoneOtpSessionCache.deleteVerificationId(
-      parsedIdentifier.phone!,
-      'phone_verification'
-    )
-  }
-},
+  },
 
   // ─── RESEND OTP ──────────────────────────────────
 
@@ -531,160 +732,161 @@ handleOAuthLogin: async (
         password_reset: 'Reset your Imminiq password',
       }
 
-
-      await sendMail(parsedIdentifier.email, subjects[purpose], otpEmailTemplate({
-        otp,
-        type: purpose === 'password_reset' ? 'reset_password' : 'verify_account'
-      }))
+      await sendMail(
+        parsedIdentifier.email,
+        subjects[purpose],
+        otpEmailTemplate({
+          otp,
+          type:
+            purpose === 'password_reset'
+              ? 'reset_password'
+              : 'verify_account',
+        })
+      )
     }
-
-    // TODO: send SMS when phone verification provider is added.
   },
 
   // ─── FORGOT PASSWORD ─────────────────────────────
 
   forgotPassword: async (identifier: string) => {
-  const parsedIdentifier = normalizeIdentifier(identifier)
+    const parsedIdentifier = normalizeIdentifier(identifier)
 
-  const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
-  if (!user) return
+    if (!user) return
 
-  // ─── EMAIL PASSWORD RESET OTP ───────────────────
-  if (parsedIdentifier.email) {
-    const otp = authService.generateOtp()
+    if (parsedIdentifier.email) {
+      const otp = authService.generateOtp()
 
-    await authRepository.saveOtp({
-      email: parsedIdentifier.email,
-      otp,
-      purpose: 'password_reset',
-    })
-
-    await sendMail(
-      parsedIdentifier.email,
-      'Reset your Imminiq password',
-      otpEmailTemplate({
+      await authRepository.saveOtp({
+        email: parsedIdentifier.email,
         otp,
-        type: 'reset_password',
+        purpose: 'password_reset',
       })
-    )
 
-    return
-  }
+      await sendMail(
+        parsedIdentifier.email,
+        'Reset your Imminiq password',
+        otpEmailTemplate({
+          otp,
+          type: 'reset_password',
+        })
+      )
 
-  // ─── PHONE PASSWORD RESET OTP ───────────────────
-  if (parsedIdentifier.phone) {
-    const { verificationId } = await sendPhoneOtp(parsedIdentifier.phone)
+      return
+    }
 
-    await phoneOtpSessionCache.saveVerificationId(
-      parsedIdentifier.phone,
-      'password_reset',
-      verificationId
-    )
-  }
-},
+    if (parsedIdentifier.phone) {
+      const { verificationId } = await sendPhoneOtp(parsedIdentifier.phone)
+
+      await phoneOtpSessionCache.saveVerificationId(
+        parsedIdentifier.phone,
+        'password_reset',
+        verificationId
+      )
+    }
+  },
 
   // ─── VERIFY RESET CODE ───────────────────────────
 
-verifyResetCode: async (identifier: string, otp: string) => {
-  const parsedIdentifier = normalizeIdentifier(identifier)
+  verifyResetCode: async (identifier: string, otp: string) => {
+    const parsedIdentifier = normalizeIdentifier(identifier)
 
-  const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
-  if (!user) {
-    throw new ApiError(404, 'User not found', 'NOT_FOUND')
-  }
-
-  // ─── EMAIL RESET OTP VERIFICATION ───────────────
-  if (parsedIdentifier.email) {
-    const valid = await authRepository.verifyOtp({
-      email: parsedIdentifier.email,
-      otp,
-      purpose: 'password_reset',
-    })
-
-    if (!valid) {
-      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+    if (!user) {
+      throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
-  }
 
-  // ─── PHONE RESET OTP VERIFICATION ───────────────
-  if (parsedIdentifier.phone) {
-    const verificationId =
-      await phoneOtpSessionCache.getVerificationId(
+    if (parsedIdentifier.email) {
+      const valid = await authRepository.verifyOtp({
+        email: parsedIdentifier.email,
+        otp,
+        purpose: 'password_reset',
+      })
+
+      if (!valid) {
+        throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+      }
+    }
+
+    if (parsedIdentifier.phone) {
+      const verificationId =
+        await phoneOtpSessionCache.getVerificationId(
+          parsedIdentifier.phone,
+          'password_reset'
+        )
+
+      if (!verificationId) {
+        throw new ApiError(
+          400,
+          'OTP session expired. Please request a new OTP.',
+          'OTP_SESSION_EXPIRED'
+        )
+      }
+
+      const valid = await verifyPhoneOtp(verificationId, otp)
+
+      if (!valid) {
+        throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+      }
+
+      await phoneOtpSessionCache.deleteVerificationId(
         parsedIdentifier.phone,
         'password_reset'
       )
+    }
 
-    if (!verificationId) {
+    const resetTokenOptions: SignOptions = {
+      expiresIn: '10m',
+    }
+
+    const resetToken = jwt.sign(
+      {
+        userId: user._id.toString(),
+        purpose: 'password_reset',
+      },
+      env.JWT_SECRET,
+      resetTokenOptions
+    )
+
+    return {
+      resetToken,
+    }
+  },
+
+  // ─── RESET PASSWORD ──────────────────────────────
+
+  resetPassword: async (resetToken: string, newPassword: string) => {
+    let decoded: ResetTokenPayload
+
+    try {
+      decoded = jwt.verify(resetToken, env.JWT_SECRET) as ResetTokenPayload
+    } catch {
       throw new ApiError(
         400,
-        'OTP session expired. Please request a new OTP.',
-        'OTP_SESSION_EXPIRED'
+        'Invalid or expired reset token',
+        'INVALID_RESET_TOKEN'
       )
     }
 
-    const valid = await verifyPhoneOtp(verificationId, otp)
-
-    if (!valid) {
-      throw new ApiError(400, 'Invalid or expired OTP', 'INVALID_OTP')
+    if (decoded.purpose !== 'password_reset') {
+      throw new ApiError(
+        400,
+        'Invalid reset token',
+        'INVALID_RESET_TOKEN'
+      )
     }
 
-    await phoneOtpSessionCache.deleteVerificationId(
-      parsedIdentifier.phone,
-      'password_reset'
-    )
-  }
+    const user = await authRepository.findById(decoded.userId)
 
-  const resetTokenOptions: SignOptions = {
-    expiresIn: '10m',
-  }
+    if (!user) {
+      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+    }
 
-  const resetToken = jwt.sign(
-    {
-      userId: user._id.toString(),
-      purpose: 'password_reset',
-    },
-    env.JWT_SECRET,
-    resetTokenOptions
-  )
-
-  return {
-    resetToken,
-  }
-},
-  // ─── RESET PASSWORD ──────────────────────────────
-
- resetPassword: async (resetToken: string, newPassword: string) => {
-  let decoded: ResetTokenPayload
-
-  try {
-    decoded = jwt.verify(resetToken, env.JWT_SECRET) as ResetTokenPayload
-  } catch {
-    throw new ApiError(
-      400,
-      'Invalid or expired reset token',
-      'INVALID_RESET_TOKEN'
-    )
-  }
-
-  if (decoded.purpose !== 'password_reset') {
-    throw new ApiError(
-      400,
-      'Invalid reset token',
-      'INVALID_RESET_TOKEN'
-    )
-  }
-
-  const user = await authRepository.findById(decoded.userId)
-
-  if (!user) {
-    throw new ApiError(404, 'User not found', 'NOT_FOUND')
-  }
-
-  await authRepository.updatePassword(user._id.toString(), newPassword)
-  await authRepository.revokeAllUserTokens(user._id.toString())
-},
+    await authRepository.updatePassword(user._id.toString(), newPassword)
+    await authRepository.revokeAllUserTokens(user._id.toString())
+  },
 
   // ─── CHANGE PASSWORD ─────────────────────────────
 
@@ -710,7 +912,11 @@ verifyResetCode: async (identifier: string, otp: string) => {
     const valid = await bcrypt.compare(currentPassword, user.passwordHash)
 
     if (!valid) {
-      throw new ApiError(400, 'Current password is incorrect', 'WRONG_PASSWORD')
+      throw new ApiError(
+        400,
+        'Current password is incorrect',
+        'WRONG_PASSWORD'
+      )
     }
 
     await authRepository.updatePassword(userId, newPassword)
@@ -727,8 +933,6 @@ verifyResetCode: async (identifier: string, otp: string) => {
         ? await authRepository.findByEmail(parsedIdentifier.value)
         : await authRepository.findByPhone(parsedIdentifier.value)
 
-    // Important:
-    // Unverified users should not block the frontend with "already used".
     if (existingUser) {
       const isVerified =
         parsedIdentifier.method === 'email'
@@ -765,54 +969,64 @@ verifyResetCode: async (identifier: string, otp: string) => {
     await authRepository.revokeSessionById(sessionId, userId)
   },
 
-  // ─── HELPERS ─────────────────────────────────────
+  // ─── TOKEN HELPERS ───────────────────────────────
 
   generateTokenPair: async (
-  userId: string,
-  role: AuthRole,
-  meta?: RequestMeta
-): Promise<TokenPair> => {
-  const accessTokenOptions: SignOptions = {
-    expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
-  }
+    userId: string,
+    role: AuthRole,
+    meta?: RequestMeta
+  ): Promise<TokenPair> => {
+    const accessTokenOptions: SignOptions = {
+      expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
+    }
 
-  const accessToken = jwt.sign(
-    {
+    const accessToken = jwt.sign(
+      {
+        userId,
+        role,
+        type: 'access',
+      } as JwtPayload,
+      env.JWT_SECRET,
+      accessTokenOptions
+    )
+
+    const refreshToken = crypto.randomBytes(64).toString('hex')
+
+    await authRepository.saveRefreshToken({
       userId,
-      role,
-      type: 'access',
-    } as JwtPayload,
-    env.JWT_SECRET,
-    accessTokenOptions
-  )
+      refreshToken,
+      device: meta?.device,
+      ipAddress: meta?.ipAddress,
+      userAgent: meta?.userAgent,
+    })
 
-  const refreshToken = crypto.randomBytes(64).toString('hex')
+    return {
+      accessToken,
+      refreshToken,
+    }
+  },
 
-  await authRepository.saveRefreshToken({
-    userId,
-    refreshToken,
-    device: meta?.device,
-    ipAddress: meta?.ipAddress,
-    userAgent: meta?.userAgent,
-  })
+  generateTwoFactorChallengeToken: (userId: string) => {
+    const challengeOptions: SignOptions = {
+      expiresIn: `${TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES}m`,
+    }
 
-  return {
-    accessToken,
-    refreshToken,
-  }
-},
+    return jwt.sign(
+      {
+        userId,
+        purpose: 'two_factor_login',
+      },
+      env.JWT_SECRET,
+      challengeOptions
+    )
+  },
 
   generateOtp: (): string => {
     return crypto.randomInt(100000, 1000000).toString()
   },
 
-  /**
-   * Registration username generation:
-   * - Email signup: use the email prefix before "@"
-   * - Phone signup: use fullName as the source
-   * - If the base is taken, append random numbers or "_numbers"
-   * - Max length stays aligned with the User model's 30-char limit
-   */
+  // ─── USERNAME HELPERS ────────────────────────────
+
   generateRegistrationUsername: async (data: {
     email?: string
     fullName: string
@@ -824,13 +1038,6 @@ verifyResetCode: async (identifier: string, otp: string) => {
     return authService.generateUniqueUsernameFromSource(source)
   },
 
-  /**
-   * Kept for backward compatibility with any existing OAuth/passport code
-   * that may still call authService.generateUsername(fullName).
-   *
-   * For OAuth, prefer:
-   *   generateRegistrationUsername({ email, fullName })
-   */
   generateUsername: async (fullName: string): Promise<string> => {
     return authService.generateUniqueUsernameFromSource(fullName)
   },
@@ -875,7 +1082,7 @@ verifyResetCode: async (identifier: string, otp: string) => {
     )
   },
 
- formatter: (user: OAuthFormattedUserSource): AuthUser => ({
+  formatter: (user: OAuthFormattedUserSource): AuthUser => ({
     _id: user._id.toString(),
     fullName: user.fullName,
     username: user.username,
