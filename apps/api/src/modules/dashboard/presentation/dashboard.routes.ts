@@ -1,10 +1,14 @@
 import { Router } from 'express'
 import { dashboardController } from './dashboard.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
+import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 
 const router = Router()
 
-router.use(authenticate)
+router.use(
+  authenticatedApiIpLimiter,
+  authenticate
+)
 
 router.get(
   '/summary',

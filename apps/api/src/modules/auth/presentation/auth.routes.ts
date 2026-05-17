@@ -9,10 +9,14 @@ import {
   validateOAuthState,
 } from '../../../shared/middlewares/oauth-state.middleware'
 import {
+  authenticatedApiIpLimiter,
   authOtpSendIpLimiter,
   authOtpVerifyIpLimiter,
+  authSessionActionIpLimiter,
   forgotPasswordIpLimiter,
   loginIpLimiter,
+  oauthFlowIpLimiter,
+  publicAccountLookupIpLimiter,
   registerIpLimiter,
   resetPasswordIpLimiter,
   twoFactorLoginIpLimiter,
@@ -60,11 +64,13 @@ router.post(
 
 router.post(
   '/logout',
+  authSessionActionIpLimiter,
   authController.logout
 )
 
 router.post(
   '/refresh-token',
+  authSessionActionIpLimiter,
   authController.refreshToken
 )
 
@@ -105,12 +111,14 @@ router.post(
 
 router.post(
   '/check-identifier',
+  publicAccountLookupIpLimiter,
   validate(checkIdentifierSchema),
   authController.checkIdentifier
 )
 
 router.post(
   '/check-username',
+  publicAccountLookupIpLimiter,
   validate(checkUsernameSchema),
   authController.checkUsername
 )
@@ -119,12 +127,14 @@ router.post(
 
 router.get(
   '/me',
+  authenticatedApiIpLimiter,
   authenticate,
   authController.getMe
 )
 
 router.post(
   '/change-password',
+  authenticatedApiIpLimiter,
   authenticate,
   validate(changePasswordSchema),
   authController.changePassword
@@ -132,18 +142,21 @@ router.post(
 
 router.get(
   '/sessions',
+  authenticatedApiIpLimiter,
   authenticate,
   authController.getSessions
 )
 
 router.delete(
   '/sessions/:sessionId',
+  authenticatedApiIpLimiter,
   authenticate,
   authController.revokeSession
 )
 
 router.delete(
   '/sessions',
+  authenticatedApiIpLimiter,
   authenticate,
   authController.logoutAll
 )
@@ -152,6 +165,7 @@ router.delete(
 
 router.get(
   '/oauth/google',
+  oauthFlowIpLimiter,
   issueOAuthState('google'),
   (req, res, next) => {
     passport.authenticate('google', {
@@ -164,6 +178,7 @@ router.get(
 
 router.get(
   '/oauth/google/callback',
+  oauthFlowIpLimiter,
   validateOAuthState('google'),
   passport.authenticate('google', {
     session: false,
@@ -174,6 +189,7 @@ router.get(
 
 router.get(
   '/oauth/github',
+  oauthFlowIpLimiter,
   issueOAuthState('github'),
   (req, res, next) => {
     passport.authenticate('github', {
@@ -186,6 +202,7 @@ router.get(
 
 router.get(
   '/oauth/github/callback',
+  oauthFlowIpLimiter,
   validateOAuthState('github'),
   passport.authenticate('github', {
     session: false,

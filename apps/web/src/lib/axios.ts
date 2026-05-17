@@ -29,6 +29,33 @@ const api = axios.create({
   withCredentials: true,
 })
 
+const UNSAFE_METHODS = new Set([
+  'post',
+  'put',
+  'patch',
+  'delete',
+])
+
+const getCookieValue = (
+  cookieName: string
+): string | null => {
+  const prefix = `${cookieName}=`
+
+  const cookie = document.cookie
+    .split('; ')
+    .find((entry) => entry.startsWith(prefix))
+
+  if (!cookie) {
+    return null
+  }
+
+  return decodeURIComponent(cookie.slice(prefix.length))
+}
+
+const getCsrfToken = (): string | null => {
+  return getCookieValue('csrfToken')
+}
+
 const isRestrictedAccountError = (
   status?: number,
   code?: string
@@ -46,6 +73,7 @@ const isRestrictedAccountError = (
 
 /**
  * Add access token to every protected request automatically.
+ * Add a CSRF header to unsafe requests when the backend-issued CSRF cookie exists.
  */
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
@@ -53,6 +81,16 @@ api.interceptors.request.use(
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`
+    }
+
+    const requestMethod = config.method?.toLowerCase() || 'get'
+
+    if (UNSAFE_METHODS.has(requestMethod)) {
+      const csrfToken = getCsrfToken()
+
+      if (csrfToken) {
+        config.headers['X-CSRF-Token'] = csrfToken
+      }
     }
 
     return config
@@ -89,13 +127,6 @@ api.interceptors.response.use(
     const isTwoFactorVerifyLoginRequest =
       requestUrl.includes('/auth/2fa/verify-login')
 
-    /**
-     * Login-specific blocked errors must be handled by the login hooks,
-     * because they know which identifier the user just entered.
-     *
-     * If Axios redirects first, it can accidentally restore or save the wrong
-     * previous user context.
-     */
     const shouldLetCallerHandleRestrictedError =
       isLoginRequest || isTwoFactorVerifyLoginRequest
 
@@ -143,11 +174,18 @@ api.interceptors.response.use(
     originalRequest._retry = true
 
     try {
+      const csrfToken = getCsrfToken()
+
       const refreshResponse = await axios.post<RefreshTokenResponse>(
         `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
         {},
         {
           withCredentials: true,
+          headers: csrfToken
+            ? {
+                'X-CSRF-Token': csrfToken,
+              }
+            : undefined,
         }
       )
 

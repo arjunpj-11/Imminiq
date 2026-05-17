@@ -3,17 +3,59 @@ import crypto from 'crypto'
 import { authRepository } from '../../auth.repository'
 import { ApiError } from '../../../../shared/utils/ApiError'
 
+const collapseRepeatedUnderscores = (
+  value: string
+): string => {
+  let result = ''
+  let previousWasUnderscore = false
+
+  for (const character of value) {
+    if (character === '_') {
+      if (!previousWasUnderscore) {
+        result += character
+      }
+
+      previousWasUnderscore = true
+      continue
+    }
+
+    previousWasUnderscore = false
+    result += character
+  }
+
+  return result
+}
+
+const trimOuterUnderscores = (
+  value: string
+): string => {
+  let start = 0
+  let end = value.length
+
+  while (start < end && value[start] === '_') {
+    start += 1
+  }
+
+  while (end > start && value[end - 1] === '_') {
+    end -= 1
+  }
+
+  return value.slice(start, end)
+}
+
 export const generateUniqueUsernameFromSource = async (
   source: string
 ): Promise<string> => {
-  const sanitizedBase =
+  const alphanumericSource =
     source
       .toLowerCase()
       .trim()
       .replace(/[^a-z0-9_]/g, '')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '')
-      .slice(0, 24) || 'user'
+
+  const sanitizedBase =
+    trimOuterUnderscores(
+      collapseRepeatedUnderscores(alphanumericSource)
+    ).slice(0, 24) || 'user'
 
   const base =
     sanitizedBase.length >= 3

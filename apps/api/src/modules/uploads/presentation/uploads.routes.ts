@@ -4,7 +4,10 @@ import {
   bannerUpload,
 } from '../../../shared/middlewares/profile-image-upload'
 import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware'
-import { profileImageUploadIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
+import {
+  authenticatedApiIpLimiter,
+  profileImageUploadIpLimiter,
+} from '../../../shared/middlewares/security-rate-limit.middleware'
 import { uploadsController } from './uploads.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
@@ -15,7 +18,10 @@ import {
 
 const router = Router()
 
-router.use(authenticate)
+router.use(
+  authenticatedApiIpLimiter,
+  authenticate
+)
 
 router.post(
   '/avatar',
