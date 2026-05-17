@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { settingsController } from './settings.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
+import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import {
   updateAccountSettingsSchema,
   updateAppearanceSchema,
@@ -19,7 +20,10 @@ import {
 
 const router = Router()
 
-router.use(authenticate)
+router.use(
+  authenticatedApiIpLimiter,
+  authenticate
+)
 
 // GET ALL
 router.get('/', settingsController.getAllSettings)
