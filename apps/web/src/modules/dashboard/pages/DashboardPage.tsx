@@ -174,7 +174,7 @@ function FriendsCard({
           Friends Hub
         </h2>
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-2.5 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.10em] text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-2.5 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-widest text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
           <span className="h-1.25 w-1.25 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
           {onlineCount} online
         </span>
@@ -205,7 +205,7 @@ function FriendsCard({
 
                 <span
                   className={cn(
-                    'absolute bottom-0.25 right-0.25 h-2 w-2 rounded-full border-2 border-[#fdf8f5] dark:border-[#1e1c19]',
+                    'absolute bottom-px right-px h-2 w-2 rounded-full border-2 border-[#fdf8f5] dark:border-[#1e1c19]',
                     friend.isOnline
                       ? 'bg-[#4caf7d]'
                       : 'bg-[#6b5f58]/50 dark:bg-[#9b9a92]/50'
@@ -361,7 +361,7 @@ function ActivityHeatmap({
 
       <div className={cn('overflow-x-auto pb-2', themedScrollbar)}>
         <div className="grid min-w-max grid-cols-[34px_auto] grid-rows-[18px_auto] gap-x-2 gap-y-2">
-          <div className="relative col-start-2 row-start-1 h-[18px]">
+          <div className="relative col-start-2 row-start-1 h-4.5">
             {monthLabels.map((item) => (
               <span
                 key={`${item.label}-${item.left}`}
@@ -373,12 +373,12 @@ function ActivityHeatmap({
             ))}
           </div>
 
-          <div className="col-start-1 row-start-2 grid grid-rows-7 gap-[3px]">
+          <div className="col-start-1 row-start-2 grid grid-rows-7 gap-0.75">
             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
               (day) => (
                 <span
                   key={day}
-                  className="h-[11px] font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] leading-[11px] text-[#6b5f58] opacity-58 dark:text-[#9b9a92]"
+                  className="h-2.75 font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] leading-2.75 text-[#6b5f58] opacity-58 dark:text-[#9b9a92]"
                 >
                   {day}
                 </span>
@@ -386,11 +386,11 @@ function ActivityHeatmap({
             )}
           </div>
 
-          <div className="col-start-2 row-start-2 flex gap-[3px]">
+          <div className="col-start-2 row-start-2 flex gap-0.75">
             {weeks.map((week, weekIndex) => (
               <div
                 key={weekIndex}
-                className="flex flex-col gap-[3px]"
+                className="flex flex-col gap-0.75"
               >
                 {week.map((cell) => (
                   <div
@@ -404,7 +404,7 @@ function ActivityHeatmap({
                         : 'No activity'
                     }`}
                     className={cn(
-                      'h-[11px] w-[11px] shrink-0 rounded-[2px] transition hover:scale-110 hover:opacity-85',
+                      'h-2.75 w-2.75 shrink-0 rounded-xs transition hover:scale-110 hover:opacity-85',
                       !cell.insideRange &&
                         'pointer-events-none opacity-0',
                       cell.insideRange &&
@@ -518,7 +518,7 @@ function RecentBattles({
                     battle.result === 'loss' &&
                       'border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.10)] text-[#b83232] dark:border-[rgba(220,80,80,0.22)] dark:bg-[rgba(220,80,80,0.10)] dark:text-[#e05252]',
                     battle.result === 'draw' &&
-                      'border-[#e0d0c5] bg-[rgba(26,23,20,0.05)] text-[#6b5f58] dark:border-white/9 dark:bg-white/[0.06] dark:text-[#9b9a92]'
+                      'border-[#e0d0c5] bg-[rgba(26,23,20,0.05)] text-[#6b5f58] dark:border-white/9 dark:bg-white/6 dark:text-[#9b9a92]'
                   )}
                 >
                   {battle.result}
@@ -695,7 +695,7 @@ export default function DashboardPage() {
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
-            <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0px)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+            <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
               {/* Welcome */}
               <section className="flex flex-wrap items-start justify-between gap-4">
                 <div>
@@ -711,13 +711,13 @@ export default function DashboardPage() {
                     </span>
                   </h1>
 
-                  <p className="mt-2 max-w-[460px] text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
+                  <p className="mt-2 max-w-115 text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
                     Every focused session compounds. Keep your roadmap moving
                     forward today.
                   </p>
                 </div>
 
-                <div className="relative flex min-w-[190px] items-center gap-4 overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+                <div className="relative flex min-w-47.5 items-center gap-4 overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
                   <div className="flex h-11 w-11 items-center justify-center rounded-xl border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[20px]">
                     🔥
                   </div>
@@ -836,7 +836,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
 
-                      <div className="h-1.75 overflow-hidden rounded-full bg-[rgba(26,23,20,0.09)] dark:bg-white/[0.09]">
+                      <div className="h-1.75 overflow-hidden rounded-full bg-[rgba(26,23,20,0.09)] dark:bg-white/9">
                         <div
                           className="h-full rounded-full bg-linear-to-r from-[#e8816a] to-[#b84c2b] transition-all duration-700 dark:from-[#f5a090] dark:to-[#e8816a]"
                           style={{ width: `${Math.min(progress, 100)}%` }}
@@ -885,7 +885,7 @@ export default function DashboardPage() {
                       AI Daily Insight
                     </div>
 
-                    <div className="text-[13.5px] font-semibold leading-[1.5] text-white">
+                    <div className="text-[13.5px] font-semibold leading-normal text-white">
                       {aiInsight ??
                         'Keep your streak alive by completing at least one learning step today.'}
                     </div>
