@@ -20,15 +20,6 @@ const notificationTypeSchema = z.object({
 
 export const updateAppearanceSchema = z.object({
   theme: z.enum(['light', 'dark', 'system']).optional(),
-
-  accentColor: z
-    .string()
-    .regex(/^#[0-9A-Fa-f]{6}$/, 'Invalid hex color')
-    .optional(),
-
-  fontSize: z.enum(['small', 'medium', 'large']).optional(),
-
-  layoutDensity: z.enum(['comfortable', 'compact']).optional(),
 })
 
 export const updateNotificationsSchema = z.object({

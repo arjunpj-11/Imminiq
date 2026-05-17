@@ -46,7 +46,6 @@ const navItems = [
   {
     label: 'Dashboard',
     to: '/dashboard',
-    kbd: 'G D',
     icon: (
       <svg
         width="15"
@@ -66,7 +65,6 @@ const navItems = [
   {
     label: 'Trackers',
     to: '/trackers',
-    kbd: 'G T',
     icon: (
       <svg
         width="15"
@@ -83,7 +81,6 @@ const navItems = [
   {
     label: 'Mock Tests',
     to: '/mock-tests',
-    kbd: 'G M',
     icon: (
       <svg
         width="15"
@@ -101,7 +98,6 @@ const navItems = [
   {
     label: 'Leaderboard',
     to: '/leaderboard',
-    kbd: 'G L',
     icon: (
       <svg
         width="15"
@@ -261,7 +257,6 @@ export default function Sidebar({
                           : 'bg-[rgba(26,23,20,0.09)] text-[#6b5f58] opacity-60 dark:bg-[rgba(242,240,235,0.09)] dark:text-[#9b9a92]'
                       )}
                     >
-                      {item.kbd}
                     </span>
                   ) : null}
                 </>
