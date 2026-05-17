@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import { useRegister } from '../../../hooks/auth/useRegister'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 
 interface FormState {
   fullName: string
@@ -365,7 +365,6 @@ export default function RegisterForm() {
               </span>
             </div>
 
-            <ThemeToggle />
 
             <div className="inline-flex w-fit items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
               <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />

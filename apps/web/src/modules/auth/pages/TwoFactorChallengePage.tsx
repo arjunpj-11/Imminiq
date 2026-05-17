@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 import { useVerifyTwoFactorLogin } from '../../../hooks/auth/useVerifyTwoFactorLogin'
 
 const cn = (...classes: Array<string | false | null | undefined>) => {
@@ -149,7 +149,7 @@ export default function TwoFactorChallengePage() {
             </div>
 
             <div className="mt-5">
-              <ThemeToggle />
+    
             </div>
           </div>
 
@@ -190,7 +190,7 @@ export default function TwoFactorChallengePage() {
                 </span>
               </Link>
 
-              <ThemeToggle />
+
             </div>
 
             <form

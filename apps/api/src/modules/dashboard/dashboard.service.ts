@@ -1,157 +1,57 @@
-// apps/api/src/modules/dashboard/dashboard.service.ts
+import { mongoDashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository'
+import { aiDashboardInsightGenerator } from './infrastructure/gateways/ai-dashboard-insight.generator'
 
-import { dashboardRepository } from './dashboard.repository'
-import { ApiError } from '../../shared/utils/ApiError'
-import { generateDashboardInsights } from '../../infrastructure/ai/ai.service'
-import type { DashboardSummary } from './dashboard.types'
+import { GetDashboardSummaryUseCase } from './application/use-cases/get-dashboard-summary.usecase'
+import { GetCurrentRoadmapUseCase } from './application/use-cases/get-current-roadmap.usecase'
+import { GetActivityIntensityUseCase } from './application/use-cases/get-activity-intensity.usecase'
+import { GetRecentBattlesUseCase } from './application/use-cases/get-recent-battles.usecase'
+import { GetFriendsHubUseCase } from './application/use-cases/get-friends-hub.usecase'
+import { GetRecommendedActionsUseCase } from './application/use-cases/get-recommended-actions.usecase'
+import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase'
+
+const getDashboardSummaryUseCase =
+  new GetDashboardSummaryUseCase(mongoDashboardRepository)
+
+const getCurrentRoadmapUseCase =
+  new GetCurrentRoadmapUseCase(mongoDashboardRepository)
+
+const getActivityIntensityUseCase =
+  new GetActivityIntensityUseCase(mongoDashboardRepository)
+
+const getRecentBattlesUseCase =
+  new GetRecentBattlesUseCase(mongoDashboardRepository)
+
+const getFriendsHubUseCase =
+  new GetFriendsHubUseCase(mongoDashboardRepository)
+
+const getRecommendedActionsUseCase =
+  new GetRecommendedActionsUseCase(mongoDashboardRepository)
+
+const getAIInsightsUseCase =
+  new GetAIInsightsUseCase(
+    mongoDashboardRepository,
+    aiDashboardInsightGenerator
+  )
 
 export const dashboardService = {
-  // ─── FULL DASHBOARD SUMMARY ──────────────────────
+  getSummary: (userId: string) =>
+    getDashboardSummaryUseCase.execute(userId),
 
-  getSummary: async (
-    userId: string
-  ): Promise<DashboardSummary> => {
-    const [
-      { user, profile },
-      streak,
-      trackers,
-      stats,
-      recentActivity,
-      unreadNotificationCount,
-    ] = await Promise.all([
-      dashboardRepository.getUserWithProfile(userId),
-      dashboardRepository.getStreakData(userId),
-      dashboardRepository.getTrackerOverview(userId),
-      dashboardRepository.getAggregatedStats(userId),
-      dashboardRepository.getRecentActivity(userId, 5),
-      dashboardRepository.getUnreadNotificationCount(userId),
-    ])
+  getCurrentRoadmap: (userId: string) =>
+    getCurrentRoadmapUseCase.execute(userId),
 
-    if (!user) {
-      throw new ApiError(
-        404,
-        'User not found',
-        'NOT_FOUND'
-      )
-    }
+  getActivityIntensity: (userId: string, months?: number) =>
+    getActivityIntensityUseCase.execute(userId, months),
 
-    return {
-      user: {
-        _id: user._id.toString(),
-        fullName: user.fullName,
-        username: user.username,
-        avatarUrl: profile?.avatarUrl || '',
-        isPremium: user.isPremium,
-        coinBalance: user.coins || 0,
-      },
+  getRecentBattles: (userId: string, limit?: number) =>
+    getRecentBattlesUseCase.execute(userId, limit),
 
-      streak,
+  getFriendsHub: (userId: string, limit?: number) =>
+    getFriendsHubUseCase.execute(userId, limit),
 
-      trackers,
+  getRecommendedActions: (userId: string) =>
+    getRecommendedActionsUseCase.execute(userId),
 
-      stats,
-
-      recentActivity,
-
-      notifications: {
-        unreadCount: unreadNotificationCount,
-        hasUnread: unreadNotificationCount > 0,
-      },
-
-      isPremium: user.isPremium,
-    }
-  },
-
-  // ─── CURRENT ROADMAP ─────────────────────────────
-
-  getCurrentRoadmap: async (userId: string) => {
-    const trackers =
-      await dashboardRepository.getTrackerOverview(userId)
-
-    if (trackers.activeTrackers.length === 0) {
-      return null
-    }
-
-    return trackers.activeTrackers[0]
-  },
-
-  // ─── ACTIVITY INTENSITY ──────────────────────────
-
-  getActivityIntensity: async (
-    userId: string,
-    months?: number
-  ) => {
-    return dashboardRepository.getActivityIntensity(
-      userId,
-      months
-    )
-  },
-
-  // ─── RECENT BATTLES ──────────────────────────────
-
-  getRecentBattles: async (
-    userId: string,
-    limit?: number
-  ) => {
-    return dashboardRepository.getRecentBattles(
-      userId,
-      limit
-    )
-  },
-
-  // ─── FRIENDS HUB ─────────────────────────────────
-
-  getFriendsHub: async (
-    userId: string,
-    limit?: number
-  ) => {
-    return dashboardRepository.getFriendsHub(
-      userId,
-      limit
-    )
-  },
-
-  // ─── RECOMMENDED ACTIONS ─────────────────────────
-
-  getRecommendedActions: async (userId: string) => {
-    return dashboardRepository.getRecommendedActions(userId)
-  },
-
-  // ─── AI INSIGHTS ─────────────────────────────────
-
-  getAIInsights: async (userId: string) => {
-    const [streak, trackers, stats] =
-      await Promise.all([
-        dashboardRepository.getStreakData(userId),
-        dashboardRepository.getTrackerOverview(userId),
-        dashboardRepository.getAggregatedStats(userId),
-      ])
-
-    const userData = JSON.stringify({
-      streak: streak.current,
-      longestStreak: streak.longest,
-      activeTrackers: trackers.active,
-      completedTrackers: trackers.completed,
-      totalTrackers: trackers.total,
-      totalTimeSpentMinutes:
-        stats.totalTimeSpentMinutes,
-      totalSubtopicsCompleted:
-        stats.totalSubtopicsCompleted,
-      totalPoints: stats.totalPoints,
-      publishedTrackers: stats.publishedTrackers,
-    })
-
-    try {
-      const insight =
-        await generateDashboardInsights(userData)
-
-      return {
-        insight,
-      }
-    } catch {
-      return {
-        insight: `You have a ${streak.current}-day streak going. Keep it up by studying at least one subtopic today.`,
-      }
-    }
-  },
+  getAIInsights: (userId: string) =>
+    getAIInsightsUseCase.execute(userId),
 }

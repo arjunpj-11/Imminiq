@@ -1,7 +1,6 @@
 import { useRef, useState } from 'react'
 import type { FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
-import ThemeToggle from '../components/ui/ThemeToggle'
 import { useSubmitModerationAppeal } from '../hooks/moderation/useSubmitModerationAppeal'
 import { useGetModerationAppealStatus } from '../hooks/moderation/useGetModerationAppealStatus'
 import { useAuthStore } from '../store/useAuthStore'
@@ -473,7 +472,7 @@ export default function BlockedPage() {
             Community Guidelines
           </button>
 
-          <ThemeToggle />
+          
 
           <Link
             to="/login"

@@ -3,7 +3,7 @@
 import {  useMemo, useState } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 import { useSaveOnboardingStepOne } from '../../../hooks/onboarding/useSaveOnboardingStepOne'
 
 type PreviewItem = [string, string]
@@ -499,7 +499,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             </div>
           </div>
 
-          <ThemeToggle />
+          
         </div>
       </header>
 

@@ -1,5 +1,3 @@
-// apps/api/src/modules/security/security.schema.ts
-
 import { z } from 'zod'
 
 const passwordSchema = z

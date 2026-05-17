@@ -1,5 +1,3 @@
-// apps/api/src/modules/onboarding/onboarding.schema.ts
-
 import { z } from 'zod'
 
 export const step1Schema = z.object({
@@ -43,3 +41,7 @@ export const generateRoadmapSchema = z.object({
     'advanced',
   ]),
 })
+
+export type Step1Payload = z.infer<typeof step1Schema>
+export type Step2Payload = z.infer<typeof step2Schema>
+export type GenerateRoadmapPayload = z.infer<typeof generateRoadmapSchema>

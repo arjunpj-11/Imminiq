@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import SettingsShell from '../components/SettingsShell'
 import SettingsContentLoading from '../components/SettingsContentLoading'
 import {
@@ -114,11 +114,53 @@ function PreferencesSettingsForm({
 
   const setThemeMode = useThemeStore((state) => state.setMode)
 
+  const previewThemeMode = useThemeStore(
+    (state) => state.previewThemeMode
+  )
+
+  const clearThemePreview = useThemeStore(
+    (state) => state.clearThemePreview
+  )
+
   const [form, setForm] = useState<UserSettings>(initialForm)
 
+  /**
+   * The Preferences form gets remounted after settings refetches.
+   * During a successful save, we must not let the old form cleanup
+   * restore the previous previewed theme for a split second.
+   */
+  const skipThemeRestoreOnUnmountRef = useRef(false)
+
+  useEffect(() => {
+    return () => {
+      if (!skipThemeRestoreOnUnmountRef.current) {
+        clearThemePreview()
+      }
+    }
+  }, [clearThemePreview])
+
   const handleSave = async () => {
+    const previouslySavedTheme = useThemeStore.getState().mode
+    const selectedTheme = form.appearance.theme
+
     try {
       toast.showToast('Saving preferences...', 'loading')
+
+      /**
+       * Prevent the old form instance from restoring the previous
+       * theme if React Query refetches settings and remounts this form.
+       */
+      skipThemeRestoreOnUnmountRef.current = true
+
+      /**
+       * Commit the currently previewed theme locally before saving.
+       * This keeps:
+       * - page theme
+       * - top-bar theme button
+       * - saved local theme mode
+       * fully aligned while the DB request is happening.
+       */
+      setThemeMode(selectedTheme)
 
       await updateAppearance.mutateAsync(form.appearance)
       await updateGestures.mutateAsync(form.gestures)
@@ -129,12 +171,19 @@ function PreferencesSettingsForm({
 
       toast.showToast('Preferences saved.', 'success')
     } catch {
+      /**
+       * If saving fails, restore the previously committed saved theme.
+       */
+      skipThemeRestoreOnUnmountRef.current = false
+      setThemeMode(previouslySavedTheme)
+
       toast.showToast('Unable to save preferences.', 'error')
     }
   }
 
   const handleReset = async () => {
     try {
+      clearThemePreview()
       await resetSettings.mutateAsync()
       toast.showToast('Settings reset to defaults.', 'success')
     } catch {
@@ -158,24 +207,24 @@ function PreferencesSettingsForm({
 
           <div className="mb-5 flex flex-wrap gap-2">
             {(['light', 'dark', 'system'] as const).map((theme) => (
-  <PillButton
-    key={theme}
-    active={form.appearance.theme === theme}
-    onClick={() => {
-      setForm((current) => ({
-        ...current,
-        appearance: {
-          ...current.appearance,
-          theme,
-        },
-      }))
+              <PillButton
+                key={theme}
+                active={form.appearance.theme === theme}
+                onClick={() => {
+                  setForm((current) => ({
+                    ...current,
+                    appearance: {
+                      ...current.appearance,
+                      theme,
+                    },
+                  }))
 
-      setThemeMode(theme)
-    }}
-  >
-    {theme[0].toUpperCase() + theme.slice(1)}
-  </PillButton>
-))}
+                  previewThemeMode(theme)
+                }}
+              >
+                {theme[0].toUpperCase() + theme.slice(1)}
+              </PillButton>
+            ))}
           </div>
 
           <MonoLabel>Accent Color</MonoLabel>

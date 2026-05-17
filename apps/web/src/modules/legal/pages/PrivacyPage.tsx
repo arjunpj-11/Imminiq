@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState, type MouseEvent, type ReactNode } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 
 const cn = (...classes: Array<string | false | null | undefined>) => {
   return classes.filter(Boolean).join(' ')
@@ -441,7 +441,7 @@ export default function PrivacyPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2.5">
-            <ThemeToggle />
+            
 
             <button
               type="button"
