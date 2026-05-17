@@ -3,22 +3,22 @@ import globals from 'globals'
 import tseslint from 'typescript-eslint'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
-import { fileURLToPath } from 'url'        // ← add
-import path from 'path'                    // ← add
+import { fileURLToPath } from 'url'
+import path from 'path'
 
-const __dirname = path.dirname(fileURLToPath(import.meta.url))   // ← add
+const __dirname = path.dirname(fileURLToPath(import.meta.url))
 
 export default tseslint.config(
- {
-  ignores: [
-    'eslint.config.js',       
-    '**/node_modules/**',
-    '**/dist/**',
-    '**/build/**',
-    '**/.turbo/**',
-    '**/coverage/**',
-  ],
-},
+  {
+    ignores: [
+      'eslint.config.js',
+      '**/node_modules/**',
+      '**/dist/**',
+      '**/build/**',
+      '**/.turbo/**',
+      '**/coverage/**',
+    ],
+  },
 
   js.configs.recommended,
   ...tseslint.configs.recommended,
@@ -28,8 +28,10 @@ export default tseslint.config(
     languageOptions: {
       globals: { ...globals.node },
       parserOptions: {
-        projectService: true,
-        tsconfigRootDir: __dirname,         // ← __dirname instead of import.meta.dirname
+        projectService: {
+          allowDefaultProject: ['apps/api/vitest.config.ts'],
+        },
+        tsconfigRootDir: __dirname,
       },
     },
     rules: {
@@ -51,7 +53,7 @@ export default tseslint.config(
       globals: { ...globals.browser },
       parserOptions: {
         projectService: true,
-        tsconfigRootDir: __dirname,         // ← __dirname instead of import.meta.dirname
+        tsconfigRootDir: __dirname,
       },
     },
     plugins: {
@@ -60,7 +62,10 @@ export default tseslint.config(
     },
     rules: {
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      'react-refresh/only-export-components': [
+        'warn',
+        { allowConstantExport: true },
+      ],
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': [
         'warn',
