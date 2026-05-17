@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import SettingsShell from '../components/SettingsShell'
+import SettingsContentLoading from '../components/SettingsContentLoading'
 import {
   MonoLabel,
   PillButton,
@@ -67,9 +68,11 @@ export default function PreferencesSettingsPage() {
         title="Preferences"
         subtitle="Customise the way Imminiq looks, behaves and supports your learning flow."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
-          Loading preferences...
-        </div>
+        <SettingsContentLoading
+          eyebrow="Loading Preferences"
+          title="Preparing your preferences"
+          description="Fetching your appearance, compiler, editor, and learning-flow settings."
+        />
       </SettingsShell>
     )
   }
