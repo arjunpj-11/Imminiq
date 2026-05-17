@@ -5,8 +5,108 @@ import type {
   AddMissingEvaluationTopicInput,
   AddMissingEvaluationTopicResult,
   EvaluationOutputData,
+  TrackerTopicRecord,
 } from '../../domain/types/trackers.types'
 import { findBestMatchingParent } from '../utils/tracker-parent-matching.util'
+
+type NewTopLevelPlacement = {
+  isNewTopLevel: boolean
+  relation?: 'before' | 'after'
+  referenceTitle?: string
+}
+
+const normalizePlacementReference = (value: string) => {
+  return value
+    .trim()
+    .replace(/^["'“”‘’]+/, '')
+    .replace(/["'“”‘’.)\]]+$/, '')
+    .trim()
+}
+
+const parseNewTopLevelPlacement = (
+  suggestedParentTitle: string
+): NewTopLevelPlacement => {
+  const placement = suggestedParentTitle.trim()
+
+  if (!/^new\s+top\s+level\s+topic/i.test(placement)) {
+    return {
+      isNewTopLevel: false,
+    }
+  }
+
+  const followMatch = placement.match(
+    /should\s+follow\s+(.+?)(?:\)|$)/i
+  )
+
+  if (followMatch?.[1]) {
+    return {
+      isNewTopLevel: true,
+      relation: 'after',
+      referenceTitle: normalizePlacementReference(
+        followMatch[1]
+      ),
+    }
+  }
+
+  const precedeMatch = placement.match(
+    /should\s+(?:precede|come\s+before)\s+(.+?)(?:\)|$)/i
+  )
+
+  if (precedeMatch?.[1]) {
+    return {
+      isNewTopLevel: true,
+      relation: 'before',
+      referenceTitle: normalizePlacementReference(
+        precedeMatch[1]
+      ),
+    }
+  }
+
+  return {
+    isNewTopLevel: true,
+  }
+}
+
+const resolveTopLevelTopicOrder = async (
+  trackerRepository: TrackerRepository,
+  trackerId: string,
+  trackerTopics: TrackerTopicRecord[],
+  placement: NewTopLevelPlacement
+): Promise<number> => {
+  if (
+    placement.referenceTitle &&
+    placement.relation
+  ) {
+    const referenceTopic =
+      findBestMatchingParent(
+        trackerTopics,
+        placement.referenceTitle
+      )
+
+    if (referenceTopic) {
+      const referenceOrder = referenceTopic.order
+
+      const newOrder =
+        placement.relation === 'before'
+          ? referenceOrder
+          : referenceOrder + 1
+
+      await trackerRepository.shiftTopicOrdersFrom({
+        trackerId,
+        fromOrder: newOrder,
+      })
+
+      return newOrder
+    }
+  }
+
+  const lastTopic =
+    await trackerRepository.findLastTopicForTracker(
+      trackerId
+    )
+
+  return (lastTopic?.order || 0) + 1
+}
 
 export class AddMissingEvaluationTopicUseCase {
   constructor(
@@ -103,7 +203,8 @@ export class AddMissingEvaluationTopicUseCase {
 
     if (
       missingTopic.isAdded ||
-      missingTopic.addedSubtopicId
+      missingTopic.addedSubtopicId ||
+      missingTopic.addedTopicId
     ) {
       throw new ApiError(
         409,
@@ -127,6 +228,65 @@ export class AddMissingEvaluationTopicUseCase {
 
     const suggestedParentTitle =
       missingTopic.suggestedParentTitle
+
+    const newTopLevelPlacement =
+      parseNewTopLevelPlacement(
+        suggestedParentTitle
+      )
+
+    if (newTopLevelPlacement.isNewTopLevel) {
+      const newTopicOrder =
+        await resolveTopLevelTopicOrder(
+          this.trackerRepository,
+          trackerId,
+          trackerTopics,
+          newTopLevelPlacement
+        )
+
+      const addedTopic =
+        await this.trackerRepository.createTrackerTopic({
+          trackerId,
+          title: missingTopic.title,
+          description: missingTopic.description,
+          order: newTopicOrder,
+        })
+
+      await Promise.all([
+        this.trackerRepository.incrementTrackerTopicsCount(
+          trackerId
+        ),
+
+        this.trackerRepository.markMissingEvaluationTopicAsAdded({
+          evaluationJobId,
+          topicIndex: parsedTopicIndex,
+          addedTopicId:
+            addedTopic._id.toString(),
+        }),
+      ])
+
+      return {
+        trackerId,
+
+        evaluationJobId,
+
+        missingTopicIndex: parsedTopicIndex,
+
+        addedTopic: {
+          _id: addedTopic._id.toString(),
+          trackerId:
+            addedTopic.trackerId.toString(),
+          title: addedTopic.title,
+          description: addedTopic.description,
+          order: addedTopic.order,
+        },
+
+        placedUnder: {
+          type: 'tracker',
+          _id: trackerId,
+          title: 'Top Level',
+        },
+      }
+    }
 
     const matchedSubtopicParent =
       findBestMatchingParent(

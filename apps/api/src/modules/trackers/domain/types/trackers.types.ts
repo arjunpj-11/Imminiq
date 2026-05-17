@@ -1,3 +1,10 @@
+export type CreateTrackerTopicInput = {
+  trackerId: string
+  title: string
+  description: string
+  order: number
+}
+
 export type CreateTrackerSubtopicInput = {
   trackerId: string
   topicId: string
@@ -22,6 +29,7 @@ export type MissingTopicSuggestion = {
   suggestedParentTitle: string
   isAdded?: boolean
   addedSubtopicId?: string
+  addedTopicId?: string
   addedAt?: Date | string
 }
 
@@ -54,7 +62,12 @@ export interface TrackerTopicRecord {
   _id: {
     toString(): string
   }
+  trackerId?: {
+    toString(): string
+  }
   title: string
+  description?: string
+  order: number
 }
 
 export interface TrackerSubtopicRecord {
@@ -76,7 +89,23 @@ export interface TrackerSubtopicRecord {
   depth: number
 }
 
+export type CreatedTrackerTopicRecord = {
+  _id: {
+    toString(): string
+  }
+  trackerId: {
+    toString(): string
+  }
+  title: string
+  description: string
+  order: number
+}
+
 export type CreatedTrackerSubtopicRecord = TrackerSubtopicRecord
+
+export interface LastTopicRecord {
+  order?: number
+}
 
 export interface LastSiblingSubtopicRecord {
   order?: number
@@ -86,7 +115,8 @@ export interface AddMissingEvaluationTopicResult {
   trackerId: string
   evaluationJobId: string
   missingTopicIndex: number
-  addedSubtopic: {
+
+  addedSubtopic?: {
     _id: string
     trackerId: string
     topicId: string
@@ -96,6 +126,15 @@ export interface AddMissingEvaluationTopicResult {
     order: number
     depth: number
   }
+
+  addedTopic?: {
+    _id: string
+    trackerId: string
+    title: string
+    description: string
+    order: number
+  }
+
   placedUnder:
     | {
         type: 'subtopic'
@@ -106,5 +145,10 @@ export interface AddMissingEvaluationTopicResult {
         type: 'topic'
         _id: string
         title: string
+      }
+    | {
+        type: 'tracker'
+        _id: string
+        title: 'Top Level'
       }
 }

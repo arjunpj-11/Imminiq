@@ -1,8 +1,11 @@
 import type {
+  CreateTrackerTopicInput,
   CreateTrackerSubtopicInput,
+  CreatedTrackerTopicRecord,
   CreatedTrackerSubtopicRecord,
   EvaluationJobRecord,
   LastSiblingSubtopicRecord,
+  LastTopicRecord,
   TrackerRecord,
   TrackerSubtopicRecord,
   TrackerTopicRecord,
@@ -29,6 +32,19 @@ export interface TrackerRepository {
     trackerId: string
   ): Promise<TrackerSubtopicRecord[]>
 
+  findLastTopicForTracker(
+    trackerId: string
+  ): Promise<LastTopicRecord | null>
+
+  shiftTopicOrdersFrom(data: {
+    trackerId: string
+    fromOrder: number
+  }): Promise<unknown>
+
+  createTrackerTopic(
+    data: CreateTrackerTopicInput
+  ): Promise<CreatedTrackerTopicRecord>
+
   findLastSiblingSubtopic(data: {
     topicId: string
     parentSubtopicId: string | null
@@ -38,6 +54,10 @@ export interface TrackerRepository {
     data: CreateTrackerSubtopicInput
   ): Promise<CreatedTrackerSubtopicRecord>
 
+  incrementTrackerTopicsCount(
+    trackerId: string
+  ): Promise<unknown>
+
   incrementTrackerSubtopicsCount(
     trackerId: string
   ): Promise<unknown>
@@ -45,6 +65,7 @@ export interface TrackerRepository {
   markMissingEvaluationTopicAsAdded(data: {
     evaluationJobId: string
     topicIndex: number
-    addedSubtopicId: string
+    addedSubtopicId?: string
+    addedTopicId?: string
   }): Promise<unknown>
 }

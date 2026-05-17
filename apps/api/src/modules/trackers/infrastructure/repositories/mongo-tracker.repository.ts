@@ -5,10 +5,13 @@ import { AIGenerationJob } from '../../../../infrastructure/database/models/ai-g
 
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
+  CreateTrackerTopicInput,
   CreateTrackerSubtopicInput,
+  CreatedTrackerTopicRecord,
   CreatedTrackerSubtopicRecord,
   EvaluationJobRecord,
   LastSiblingSubtopicRecord,
+  LastTopicRecord,
   TrackerRecord,
   TrackerSubtopicRecord,
   TrackerTopicRecord,
@@ -79,6 +82,58 @@ export const mongoTrackerRepository: TrackerRepository = {
     return subtopics as TrackerSubtopicRecord[]
   },
 
+  findLastTopicForTracker: async (
+    trackerId: string
+  ): Promise<LastTopicRecord | null> => {
+    const topic = await TrackerTopic.findOne({
+      trackerId,
+      deletedAt: null,
+    }).sort({
+      order: -1,
+    })
+
+    return topic as LastTopicRecord | null
+  },
+
+  shiftTopicOrdersFrom: async ({
+    trackerId,
+    fromOrder,
+  }: {
+    trackerId: string
+    fromOrder: number
+  }) => {
+    return TrackerTopic.updateMany(
+      {
+        trackerId,
+        order: {
+          $gte: fromOrder,
+        },
+        deletedAt: null,
+      },
+      {
+        $inc: {
+          order: 1,
+        },
+      }
+    )
+  },
+
+  createTrackerTopic: async (
+    data: CreateTrackerTopicInput
+  ): Promise<CreatedTrackerTopicRecord> => {
+    const topic = await TrackerTopic.create({
+      trackerId: data.trackerId,
+      title: data.title,
+      description: data.description,
+      order: data.order,
+      status: 'locked',
+      estimatedHours: 0,
+      progressPercent: 0,
+    })
+
+    return topic as CreatedTrackerTopicRecord
+  },
+
   findLastSiblingSubtopic: async ({
     topicId,
     parentSubtopicId,
@@ -115,6 +170,22 @@ export const mongoTrackerRepository: TrackerRepository = {
     return subtopic as CreatedTrackerSubtopicRecord
   },
 
+  incrementTrackerTopicsCount: async (
+    trackerId: string
+  ) => {
+    return Tracker.findByIdAndUpdate(
+      trackerId,
+      {
+        $inc: {
+          topicsCount: 1,
+        },
+      },
+      {
+        returnDocument: 'after',
+      }
+    )
+  },
+
   incrementTrackerSubtopicsCount: async (
     trackerId: string
   ) => {
@@ -126,7 +197,7 @@ export const mongoTrackerRepository: TrackerRepository = {
         },
       },
       {
-        new: true,
+        returnDocument: 'after',
       }
     )
   },
@@ -135,27 +206,40 @@ export const mongoTrackerRepository: TrackerRepository = {
     evaluationJobId,
     topicIndex,
     addedSubtopicId,
+    addedTopicId,
   }: {
     evaluationJobId: string
     topicIndex: number
-    addedSubtopicId: string
+    addedSubtopicId?: string
+    addedTopicId?: string
   }) => {
+    const update: Record<string, unknown> = {
+      [`outputData.evaluation.missingTopics.${topicIndex}.isAdded`]:
+        true,
+
+      [`outputData.evaluation.missingTopics.${topicIndex}.addedAt`]:
+        new Date(),
+    }
+
+    if (addedSubtopicId) {
+      update[
+        `outputData.evaluation.missingTopics.${topicIndex}.addedSubtopicId`
+      ] = addedSubtopicId
+    }
+
+    if (addedTopicId) {
+      update[
+        `outputData.evaluation.missingTopics.${topicIndex}.addedTopicId`
+      ] = addedTopicId
+    }
+
     return AIGenerationJob.findByIdAndUpdate(
       evaluationJobId,
       {
-        $set: {
-          [`outputData.evaluation.missingTopics.${topicIndex}.isAdded`]:
-            true,
-
-          [`outputData.evaluation.missingTopics.${topicIndex}.addedSubtopicId`]:
-            addedSubtopicId,
-
-          [`outputData.evaluation.missingTopics.${topicIndex}.addedAt`]:
-            new Date(),
-        },
+        $set: update,
       },
       {
-        new: true,
+        returnDocument: 'after',
       }
     )
   },
