@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import SettingsShell from '../components/SettingsShell'
+import SettingsContentLoading from '../components/SettingsContentLoading'
 import {
   MonoLabel,
   PillButton,
@@ -28,9 +29,11 @@ export default function PrivacySettingsPage() {
         title="Privacy"
         subtitle="Control what others can see across your Imminiq presence."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
-          Loading privacy settings...
-        </div>
+        <SettingsContentLoading
+          eyebrow="Loading Privacy"
+          title="Preparing privacy controls"
+          description="Fetching your visibility, interaction, and tracker-sharing preferences."
+        />
       </SettingsShell>
     )
   }

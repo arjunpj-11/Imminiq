@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react'
 import SettingsShell from '../components/SettingsShell'
+import SettingsContentLoading from '../components/SettingsContentLoading'
 import {
   MonoLabel,
   PillButton,
@@ -143,9 +144,11 @@ export default function NotificationSettingsPage() {
         title="Notification Settings"
         subtitle="Choose what you're notified about and how."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
-          Loading notification settings...
-        </div>
+        <SettingsContentLoading
+          eyebrow="Loading Notifications"
+          title="Preparing notification settings"
+          description="Fetching your alert preferences, digest options, and quiet-hour rules."
+        />
       </SettingsShell>
     )
   }
