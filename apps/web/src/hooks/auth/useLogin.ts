@@ -3,6 +3,10 @@ import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
 import { useAuthStore } from '../../store/useAuthStore'
+import {
+  clearBlockedAppealIdentifier,
+  saveBlockedAppealIdentifier,
+} from '../../lib/blockedAppealSession'
 
 interface LoginPayload {
   identifier: string
@@ -17,6 +21,7 @@ interface User {
   email?: string
   phone?: string
   role: string
+  status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
   isPremium?: boolean
   avatarUrl?: string
   emailVerified?: boolean
@@ -53,12 +58,22 @@ interface LoginResponse {
 interface ApiErrorResponse {
   success?: boolean
   message?: string
+  code?: string
 }
 
 const isTwoFactorRequired = (
   data: LoginResponseData | undefined
 ): data is TwoFactorRequiredLoginData => {
   return !!data && data.requiresTwoFactor === true
+}
+
+const isRestrictedAccountCode = (code?: string) => {
+  return (
+    code === 'ACCOUNT_BLOCKED' ||
+    code === 'ACCOUNT_BANNED' ||
+    code === 'ACCOUNT_DEACTIVATED' ||
+    code === 'ACCOUNT_PAUSED'
+  )
 }
 
 export const useLogin = () => {
@@ -68,6 +83,7 @@ export const useLogin = () => {
   const setAccessToken = useAuthStore(
     (state) => state.setAccessToken
   )
+  const clearAuth = useAuthStore((state) => state.clearAuth)
 
   return useMutation<
     LoginResponse,
@@ -113,6 +129,8 @@ export const useLogin = () => {
         return
       }
 
+      clearBlockedAppealIdentifier()
+
       setUser(user)
       setAccessToken(accessToken)
 
@@ -121,7 +139,20 @@ export const useLogin = () => {
       })
     },
 
-    onError: (error) => {
+    onError: (error, payload) => {
+      const errorCode = error.response?.data?.code
+
+      if (isRestrictedAccountCode(errorCode)) {
+        clearAuth()
+        saveBlockedAppealIdentifier(payload.identifier)
+
+        navigate('/blocked', {
+          replace: true,
+        })
+
+        return
+      }
+
       console.error(
         error.response?.data?.message ||
           'Login failed. Please try again.'

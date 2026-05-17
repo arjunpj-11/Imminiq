@@ -590,9 +590,29 @@ export const analyzeTestPerformance = (results: string) =>
 export const generateDashboardInsights = (
   userData: string
 ) =>
-  geminiChat(
-    `Generate personalized learning insights for this user: ${userData}`,
-    'You are a personalized learning coach.'
+  groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are a concise personalized learning coach for a dashboard card. Return only one short, helpful insight. No markdown, no bullet points, no numbering, no greeting, no emojis. Keep the response under 35 words.',
+      },
+      {
+        role: 'user',
+        content: `
+Create one short personalized dashboard insight from this learner data:
+
+${userData}
+
+Rules:
+- Mention the most useful next action.
+- Be encouraging but direct.
+- Keep it to 1 or 2 short sentences maximum.
+- Do not exceed 35 words.
+        `.trim(),
+      },
+    ],
+    'llama-3.1-8b-instant'
   )
 
 // ============================================================
