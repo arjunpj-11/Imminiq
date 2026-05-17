@@ -17,6 +17,7 @@ import uploadsRouter from './modules/uploads/uploads.routes'
 import settingsRouter from './modules/settings/settings.routes'
 import { securityRoutes } from './modules/security/security.routes'
 import dashboardRoutes from './modules/dashboard/dashboard.routes'
+import moderationAppealRoutes from './modules/moderation-appeals/moderation-appeal.routes'
 
 const app = express()
 
@@ -52,6 +53,9 @@ app.get('/api/health', (_req, res) => {
 // module routers will be registered here later
 
 app.use('/api/security', securityRoutes)
+
+app.use('/api/moderation-appeals', moderationAppealRoutes)
+
 app.use(errorHandler)
 
 export default app

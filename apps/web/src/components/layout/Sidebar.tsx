@@ -1,4 +1,4 @@
-import { Link, NavLink } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom'
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ')
@@ -181,6 +181,14 @@ export default function Sidebar({
   onCloseMobile,
   onToggleCollapsed,
 }: SidebarProps) {
+  const location = useLocation()
+
+  const isInsideSettings =
+    location.pathname === '/settings' ||
+    location.pathname.startsWith('/settings/')
+
+  const currentPathWithSearchAndHash = `${location.pathname}${location.search}${location.hash}`
+
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
       "mb-px flex items-center justify-between rounded-[9px] px-2.5 py-[9px] font-['DM_Sans',sans-serif] text-[13px] font-medium tracking-normal no-underline transition",
@@ -193,7 +201,7 @@ export default function Sidebar({
     <>
       <div
         className={cn(
-          'fixed inset-0 z-[29] bg-[rgba(26,23,20,0.55)] opacity-0 backdrop-blur-sm transition-opacity duration-300 dark:bg-[rgba(0,0,0,0.70)] min-[901px]:hidden',
+          'fixed inset-0 z-29 bg-[rgba(26,23,20,0.55)] opacity-0 backdrop-blur-sm transition-opacity duration-300 dark:bg-[rgba(0,0,0,0.70)] min-[901px]:hidden',
           mobileOpen
             ? 'pointer-events-auto opacity-100'
             : 'pointer-events-none'
@@ -204,19 +212,19 @@ export default function Sidebar({
 
       <aside
         className={cn(
-          "fixed bottom-0 left-0 top-0 z-[30] flex w-[224px] flex-col border-r border-[#e0d0c5] bg-[#fdf8f5] font-['DM_Sans',sans-serif] tracking-normal shadow-[0_16px_56px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out dark:border-white/[0.09] dark:bg-[#1a1816] min-[901px]:shadow-none",
+          "fixed bottom-0 left-0 top-0 z-30 flex w-56 flex-col border-r border-[#e0d0c5] bg-[#fdf8f5] font-['DM_Sans',sans-serif] tracking-normal shadow-[0_16px_56px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out dark:border-white/9 dark:bg-[#1a1816] min-[901px]:shadow-none",
           mobileOpen
             ? 'max-[900px]:translate-x-0'
             : 'max-[900px]:-translate-x-full',
           collapsed
-            ? 'min-[901px]:-translate-x-[224px]'
+            ? 'min-[901px]:-translate-x-56'
             : 'min-[901px]:translate-x-0'
         )}
       >
         <Link
           to="/dashboard"
           onClick={onCloseMobile}
-          className="flex items-center gap-2.5 border-b border-[#e0d0c5] px-5 pb-3.5 pt-[18px] no-underline dark:border-white/[0.09]"
+          className="flex items-center gap-2.5 border-b border-[#e0d0c5] px-5 pb-3.5 pt-4.5 no-underline dark:border-white/9"
         >
           <LogoIcon />
 
@@ -226,7 +234,7 @@ export default function Sidebar({
         </Link>
 
         <nav className="flex-1 overflow-y-auto px-2.5 py-3.5">
-          <div className="px-2.5 pb-[5px] pt-2.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
+          <div className="px-2.5 pb-1.25 pt-2.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
             Main
           </div>
 
@@ -247,7 +255,7 @@ export default function Sidebar({
                   {'kbd' in item && item.kbd ? (
                     <span
                       className={cn(
-                        "rounded px-[5px] py-0.5 font-['DM_Mono',monospace] text-[9px]",
+                        "rounded px-1.25 py-0.5 font-['DM_Mono',monospace] text-[9px]",
                         isActive
                           ? 'bg-[rgba(184,76,43,0.14)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.16)] dark:text-[#e8816a]'
                           : 'bg-[rgba(26,23,20,0.09)] text-[#6b5f58] opacity-60 dark:bg-[rgba(242,240,235,0.09)] dark:text-[#9b9a92]'
@@ -261,33 +269,46 @@ export default function Sidebar({
             </NavLink>
           ))}
 
-          <div className="px-2.5 pb-[5px] pt-[18px] font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
+          <div className="px-2.5 pb-1.25 pt-4.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
             Personal
           </div>
 
-          {activityItems.map((item) => (
-            <NavLink
-              key={item.label}
-              to={item.to}
-              onClick={onCloseMobile}
-              className={navLinkClass}
-            >
-              <span className="flex items-center gap-2.5">
-                {item.icon}
-                {item.label}
-              </span>
-            </NavLink>
-          ))}
+          {activityItems.map((item) => {
+            const isSettingsItem = item.label === 'Settings'
+
+            const target =
+              isSettingsItem && isInsideSettings
+                ? currentPathWithSearchAndHash
+                : item.to
+
+            return (
+              <NavLink
+                key={item.label}
+                to={target}
+                onClick={onCloseMobile}
+                className={({ isActive }) =>
+                  navLinkClass({
+                    isActive: isSettingsItem ? isInsideSettings : isActive,
+                  })
+                }
+              >
+                <span className="flex items-center gap-2.5">
+                  {item.icon}
+                  {item.label}
+                </span>
+              </NavLink>
+            )
+          })}
         </nav>
 
         <div className="relative mx-2.5 mb-4 overflow-hidden rounded-[14px] border border-[rgba(184,76,43,0.14)] bg-[rgba(184,76,43,0.07)] p-3.5 dark:border-[rgba(232,129,106,0.16)] dark:bg-[rgba(232,129,106,0.07)]">
           <span className="pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full bg-[#b84c2b] opacity-[0.06] dark:bg-[#e8816a]" />
 
-          <div className="relative z-[1] mb-[3px] text-[12px] font-bold tracking-normal text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="relative z-1 mb-0.75 text-[12px] font-bold tracking-normal text-[#b84c2b] dark:text-[#e8816a]">
             Upgrade to Pro
           </div>
 
-          <p className="relative z-[1] mb-2.5 text-[11px] leading-[1.45] tracking-normal text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="relative z-1 mb-2.5 text-[11px] leading-[1.45] tracking-normal text-[#6b5f58] dark:text-[#9b9a92]">
             Unlock advanced insights, AI evaluations, and unlimited tracker
             sharing.
           </p>
@@ -295,7 +316,7 @@ export default function Sidebar({
           <Link
             to="/pricing"
             onClick={onCloseMobile}
-            className="relative z-[1] block w-full rounded-lg border-none bg-[#b84c2b] p-[9px] text-center font-['DM_Sans',sans-serif] text-[12px] font-bold tracking-normal text-[#fdf8f5] no-underline transition hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="relative z-1 block w-full rounded-lg border-none bg-[#b84c2b] p-2.25 text-center font-['DM_Sans',sans-serif] text-[12px] font-bold tracking-normal text-[#fdf8f5] no-underline transition hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
           >
             Upgrade
           </Link>
@@ -307,8 +328,8 @@ export default function Sidebar({
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         onClick={onToggleCollapsed}
         className={cn(
-          'fixed top-1/2 z-[31] hidden h-16 w-7 -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 border-[#e0d0c5] bg-[#fdf8f5] text-[#b84c2b] shadow-[3px_0_16px_rgba(26,23,20,0.10)] transition-[left,width,background] duration-300 hover:w-[34px] hover:bg-[rgba(184,76,43,0.08)] dark:border-white/[0.09] dark:bg-[#1a1816] dark:text-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.10)] min-[901px]:flex',
-          collapsed ? 'left-0' : 'left-[224px]'
+          'fixed top-1/2 z-31 hidden h-16 w-7 -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 border-[#e0d0c5] bg-[#fdf8f5] text-[#b84c2b] shadow-[3px_0_16px_rgba(26,23,20,0.10)] transition-[left,width,background] duration-300 hover:w-8.5 hover:bg-[rgba(184,76,43,0.08)] dark:border-white/9 dark:bg-[#1a1816] dark:text-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.10)] min-[901px]:flex',
+          collapsed ? 'left-0' : 'left-56'
         )}
       >
         <svg

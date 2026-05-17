@@ -29,6 +29,33 @@ const getRequestMeta = (req: Request) => ({
   ipAddress: req.ip,
 })
 
+const getAuthErrorCode = (error: unknown) => {
+  const authError = error as {
+    code?: string
+    errorCode?: string
+  }
+
+  return authError.code || authError.errorCode
+}
+
+const isRestrictedAccountCode = (code?: string) => {
+  return (
+    code === 'ACCOUNT_BLOCKED' ||
+    code === 'ACCOUNT_BANNED' ||
+    code === 'ACCOUNT_DEACTIVATED' ||
+    code === 'ACCOUNT_PAUSED'
+  )
+}
+
+const clearAuthCookies = (res: Response) => {
+  res
+    .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
+    .clearCookie(
+      TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+      TWO_FACTOR_COOKIE_OPTIONS
+    )
+}
+
 export const authController = {
   register: async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -81,6 +108,12 @@ export const authController = {
           })
         )
     } catch (error) {
+      const errorCode = getAuthErrorCode(error)
+
+      if (isRestrictedAccountCode(errorCode)) {
+        clearAuthCookies(res)
+      }
+
       next(error)
     }
   },
@@ -126,6 +159,12 @@ export const authController = {
           })
         )
     } catch (error) {
+      const errorCode = getAuthErrorCode(error)
+
+      if (isRestrictedAccountCode(errorCode)) {
+        clearAuthCookies(res)
+      }
+
       next(error)
     }
   },
@@ -138,13 +177,9 @@ export const authController = {
         await authService.logout(refreshToken)
       }
 
-      res
-        .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
-        .clearCookie(
-          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-          TWO_FACTOR_COOKIE_OPTIONS
-        )
-        .json(new ApiResponse('Logged out successfully'))
+      clearAuthCookies(res)
+
+      res.json(new ApiResponse('Logged out successfully'))
     } catch (error) {
       next(error)
     }
@@ -154,13 +189,9 @@ export const authController = {
     try {
       await authService.logoutAll(getAuthUser(req).userId)
 
-      res
-        .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
-        .clearCookie(
-          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-          TWO_FACTOR_COOKIE_OPTIONS
-        )
-        .json(new ApiResponse('Logged out from all devices'))
+      clearAuthCookies(res)
+
+      res.json(new ApiResponse('Logged out from all devices'))
     } catch (error) {
       next(error)
     }
@@ -187,6 +218,12 @@ export const authController = {
           })
         )
     } catch (error) {
+      const errorCode = getAuthErrorCode(error)
+
+      if (isRestrictedAccountCode(errorCode)) {
+        clearAuthCookies(res)
+      }
+
       next(error)
     }
   },
@@ -391,6 +428,14 @@ export const authController = {
         )
         .redirect(`${env.CLIENT_URL}${result.redirectPath}`)
     } catch (error) {
+      const errorCode = getAuthErrorCode(error)
+
+      if (isRestrictedAccountCode(errorCode)) {
+        clearAuthCookies(res)
+        res.redirect(`${env.CLIENT_URL}/blocked`)
+        return
+      }
+
       next(error)
     }
   },

@@ -1,7 +1,7 @@
 // apps/web/src/App.tsx
 
 import { useEffect } from 'react'
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { Route, Routes } from 'react-router-dom'
 
 import { AdminRoute } from './routes/AdminRoute'
 import { ProtectedRoute } from './routes/ProtectedRoute'
@@ -9,6 +9,9 @@ import { ProtectedRoute } from './routes/ProtectedRoute'
 import { useAuthSync } from './hooks/auth/useAuthSync'
 import { useRestoreSession } from './hooks/auth/useRestoreSession'
 import { useThemeStore } from './store/useThemeStore'
+
+// ─── SYSTEM COMPONENTS ──────────────────────────────
+import NetworkRedirector from './components/system/NetworkRedirector'
 
 // ─── AUTH PAGES ─────────────────────────────────────
 import ForgotPasswordPage from './modules/auth/pages/ForgotPasswordPage'
@@ -41,6 +44,11 @@ import NotificationSettingsPage from './modules/settings/pages/NotificationSetti
 import PreferencesSettingsPage from './modules/settings/pages/PreferencesSettingsPage'
 import PrivacySettingsPage from './modules/settings/pages/PrivacySettingsPage'
 
+// ─── SPECIAL SYSTEM PAGES ───────────────────────────
+import BlockedPage from './pages/BlockedPage'
+import NoConnectionPage from './pages/NoConnectionPage'
+import NotFoundPage from './pages/NotFoundPage'
+
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme)
 
@@ -52,150 +60,160 @@ export default function App() {
   useAuthSync()
 
   return (
-    <Routes>
-      {/* ─── PUBLIC AUTH ROUTES ─────────────────────── */}
-      <Route path="/register" element={<RegisterPage />} />
-      <Route path="/login" element={<LoginPage />} />
-      <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-      <Route path="/verify-account" element={<VerifyAccountPage />} />
-      <Route path="/reset-password" element={<ResetPasswordPage />} />
-      <Route
-        path="/verify-email-change"
-        element={<VerifyEmailChangePage />}
-      />
-      <Route
-        path="/two-factor-challenge"
-        element={<TwoFactorChallengePage />}
-      />
+    <>
+      <NetworkRedirector />
 
-      {/* ─── PUBLIC LEGAL ROUTES ────────────────────── */}
-      <Route path="/privacy" element={<PrivacyPage />} />
-      <Route path="/terms" element={<TermsPage />} />
+      <Routes>
+        {/* ─── PUBLIC AUTH ROUTES ─────────────────────── */}
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+        <Route path="/verify-account" element={<VerifyAccountPage />} />
+        <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route
+          path="/verify-email-change"
+          element={<VerifyEmailChangePage />}
+        />
+        <Route
+          path="/two-factor-challenge"
+          element={<TwoFactorChallengePage />}
+        />
 
-      {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
-      <Route path="/profile/:username" element={<ProfilePage />} />
+        {/* ─── PUBLIC SYSTEM ROUTES ───────────────────── */}
+        <Route path="/blocked" element={<BlockedPage />} />
+        <Route path="/offline" element={<NoConnectionPage />} />
 
-      {/* ─── PROTECTED ONBOARDING ROUTES ────────────── */}
-      <Route
-        path="/onboarding/step-1"
-        element={
-          <ProtectedRoute>
-            <OnboardingStepOnePage />
-          </ProtectedRoute>
-        }
-      />
+        {/* ─── PUBLIC LEGAL ROUTES ────────────────────── */}
+        <Route path="/privacy" element={<PrivacyPage />} />
+        <Route path="/terms" element={<TermsPage />} />
 
-      <Route
-        path="/onboarding/step-2"
-        element={
-          <ProtectedRoute>
-            <OnboardingStepTwoPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
+        <Route path="/profile/:username" element={<ProfilePage />} />
 
-      <Route
-        path="/onboarding/generating/:jobId"
-        element={
-          <ProtectedRoute>
-            <OnboardingGeneratingPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* ─── PROTECTED ONBOARDING ROUTES ────────────── */}
+        <Route
+          path="/onboarding/step-1"
+          element={
+            <ProtectedRoute>
+              <OnboardingStepOnePage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/onboarding/roadmap-ready/:jobId"
-        element={
-          <ProtectedRoute>
-            <OnboardingRoadmapReadyPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/onboarding/step-2"
+          element={
+            <ProtectedRoute>
+              <OnboardingStepTwoPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/onboarding/roadmap-evaluation/:jobId"
-        element={
-          <ProtectedRoute>
-            <OnboardingRoadmapEvaluationLoadingPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/onboarding/generating/:jobId"
+          element={
+            <ProtectedRoute>
+              <OnboardingGeneratingPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/onboarding/roadmap-evaluation/:jobId/score"
-        element={
-          <ProtectedRoute>
-            <OnboardingRoadmapEvaluationScorePage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/onboarding/roadmap-ready/:jobId"
+          element={
+            <ProtectedRoute>
+              <OnboardingRoadmapReadyPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ─── PROTECTED MAIN APP ROUTES ──────────────── */}
-      <Route
-        path="/dashboard"
-        element={
-          <ProtectedRoute>
-            <DashboardPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/onboarding/roadmap-evaluation/:jobId"
+          element={
+            <ProtectedRoute>
+              <OnboardingRoadmapEvaluationLoadingPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/profile"
-        element={
-          <ProtectedRoute>
-            <ProfilePage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/onboarding/roadmap-evaluation/:jobId/score"
+          element={
+            <ProtectedRoute>
+              <OnboardingRoadmapEvaluationScorePage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ─── PROTECTED SETTINGS ROUTES ─────────────── */}
+        {/* ─── PROTECTED MAIN APP ROUTES ──────────────── */}
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <DashboardPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/settings/security"
-        element={
-          <ProtectedRoute>
-            <AccountSecuritySettingsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <ProfilePage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/settings/notifications"
-        element={
-          <ProtectedRoute>
-            <NotificationSettingsPage />
-          </ProtectedRoute>
-        }
-      />
+        {/* ─── PROTECTED SETTINGS ROUTES ─────────────── */}
+        <Route
+          path="/settings/security"
+          element={
+            <ProtectedRoute>
+              <AccountSecuritySettingsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/settings/preferences"
-        element={
-          <ProtectedRoute>
-            <PreferencesSettingsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/settings/notifications"
+          element={
+            <ProtectedRoute>
+              <NotificationSettingsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      <Route
-        path="/settings/privacy"
-        element={
-          <ProtectedRoute>
-            <PrivacySettingsPage />
-          </ProtectedRoute>
-        }
-      />
+        <Route
+          path="/settings/preferences"
+          element={
+            <ProtectedRoute>
+              <PreferencesSettingsPage />
+            </ProtectedRoute>
+          }
+        />
 
-      {/* ─── ADMIN ROUTES ───────────────────────────── */}
-      <Route
-        path="/admin"
-        element={
-          <AdminRoute>
-            <div>Admin</div>
-          </AdminRoute>
-        }
-      />
-    </Routes>
+        <Route
+          path="/settings/privacy"
+          element={
+            <ProtectedRoute>
+              <PrivacySettingsPage />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* ─── ADMIN ROUTES ───────────────────────────── */}
+        <Route
+          path="/admin"
+          element={
+            <AdminRoute>
+              <div>Admin</div>
+            </AdminRoute>
+          }
+        />
+
+        {/* ─── 404 FALLBACK — KEEP THIS LAST ──────────── */}
+        <Route path="*" element={<NotFoundPage />} />
+      </Routes>
+    </>
   )
 }

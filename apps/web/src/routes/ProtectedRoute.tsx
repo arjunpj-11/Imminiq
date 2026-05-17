@@ -16,6 +16,15 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
     return <AuthLoadingScreen />
   }
 
+  if (
+  user?.status === 'blocked' ||
+  user?.status === 'banned' ||
+  user?.status === 'deactivated' ||
+  user?.status === 'paused'
+) {
+  return <Navigate to="/blocked" replace />
+}
+
   if (!user || !isAuthenticated) {
     return <Navigate to="/login" replace />
   }

@@ -599,15 +599,17 @@ refreshTokens: async (
 
   // ─── GET ME ──────────────────────────────────────
 
-  getMe: async (userId: string): Promise<AuthUser> => {
-    const user = await authRepository.findById(userId)
+getMe: async (userId: string): Promise<AuthUser> => {
+  const user = await authRepository.findById(userId)
 
-    if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
-    }
+  if (!user) {
+    throw new ApiError(404, 'User not found', 'NOT_FOUND')
+  }
 
-    return authService.formatter(user)
-  },
+  ensureUserCanAuthenticate(user)
+
+  return authService.formatter(user)
+},
 
   // ─── VERIFY ACCOUNT ──────────────────────────────
 

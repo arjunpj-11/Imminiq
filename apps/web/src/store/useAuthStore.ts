@@ -8,6 +8,7 @@ export interface AuthUser {
   email?: string
   phone?: string
   role: string
+  status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
   isPremium?: boolean
   avatarUrl?: string
   emailVerified?: boolean

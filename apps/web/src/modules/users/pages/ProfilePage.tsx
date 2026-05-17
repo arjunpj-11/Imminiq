@@ -40,6 +40,8 @@ import type {
   PublishedTracker,
 } from "../../../types/profile.types";
 import { useSendFriendRequest } from "../../../hooks/friends/useSendFriendRequest";
+import PageLoadingScreen from "../../../components/ui/PageLoadingScreen";
+import { isAxiosError } from "axios";
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(" ");
@@ -2213,14 +2215,6 @@ const [friendRequestSent, setFriendRequestSent] = useState(false);
     navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
   };
 
-  const handleProtectedPublicAction = (successMessage: string) => {
-    if (!isAuthenticated) {
-      redirectGuestToLogin();
-      return;
-    }
-
-    showToast(successMessage, "info");
-  };
 
   const handleSendFriendRequest = async () => {
   if (!isAuthenticated) {
@@ -2249,13 +2243,14 @@ const [friendRequestSent, setFriendRequestSent] = useState(false);
 
     setFriendRequestSent(true);
     showToast("Friend request sent!", "success");
-  } catch (error) {
-    const message =
-      error.response?.data?.message ||
-      "Unable to send friend request right now.";
+   } catch (error: unknown) {
+  const message = isAxiosError<{ message?: string }>(error)
+    ? error.response?.data?.message ||
+      "Unable to send friend request right now."
+    : "Unable to send friend request right now.";
 
-    showToast(message, "error");
-  } finally {
+  showToast(message, "error");
+} finally {
     submitRateLimit.finish("friend-request");
   }
 };
@@ -2474,11 +2469,11 @@ const handleOpenChats = () => {
 
   if (activeProfileQueryLoading || !profile) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5ede4] font-['DM_Sans',sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-6 py-5 text-[14px] font-semibold shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
-          Loading your profile…
-        </div>
-      </div>
+      <PageLoadingScreen
+        eyebrow="Loading Profile"
+        title="Preparing your profile"
+        description="Fetching your details, progress, and profile activity."
+      />
     );
   }
 

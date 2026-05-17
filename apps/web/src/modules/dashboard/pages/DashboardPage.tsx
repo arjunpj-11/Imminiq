@@ -15,6 +15,7 @@ import { useDashboardFriendsHub } from '../../../hooks/dashboard/useDashboardFri
 import { useDashboardRecommendedActions } from '../../../hooks/dashboard/useDashboardRecommendedActions'
 import { useDashboardAIInsights } from '../../../hooks/dashboard/useDashboardAIInsights'
 import { useDashboardStore } from '../../../store/useDashboardStore'
+import PageLoadingScreen from '../../../components/ui/PageLoadingScreen'
 
 import type {
   DashboardActivityIntensityItem,
@@ -618,14 +619,14 @@ export default function DashboardPage() {
     actionsQuery.isError
 
   if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f5ede4] dark:bg-[#141412]">
-        <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] px-6 py-5 text-[14px] font-semibold text-[#1a1714] shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
-          Loading dashboard…
-        </div>
-      </div>
-    )
-  }
+  return (
+    <PageLoadingScreen
+      eyebrow="Loading Dashboard"
+      title="Preparing your dashboard"
+      description="Fetching your trackers, insights, activity, and progress."
+    />
+  )
+}
 
   if (hasError || !summary) {
     return (
