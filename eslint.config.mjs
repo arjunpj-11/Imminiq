@@ -47,6 +47,22 @@ export default tseslint.config(
     },
   },
 
+  /**
+   * Test files are intentionally outside the main API tsconfig project.
+   * Disable ESLint project-service typing here so CI can lint test files
+   * without parser errors.
+   */
+  {
+    files: ['apps/api/tests/**/*.{ts,tsx}'],
+    languageOptions: {
+      globals: { ...globals.node },
+      parserOptions: {
+        projectService: false,
+        project: false,
+      },
+    },
+  },
+
   {
     files: ['apps/web/**/*.{ts,tsx}'],
     languageOptions: {
