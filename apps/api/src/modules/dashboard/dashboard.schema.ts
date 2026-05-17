@@ -1,5 +1,3 @@
-// apps/api/src/modules/dashboard/dashboard.schema.ts
-
 import { z } from 'zod'
 
 export const dashboardRecentItemsQuerySchema = z.object({

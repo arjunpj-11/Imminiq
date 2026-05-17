@@ -3,7 +3,7 @@ import type { ClipboardEvent, KeyboardEvent } from 'react'
 import { Link, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 import api from '../../../lib/axios'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 
 type VerifyPurpose = 'account_verification' | 'password_reset'
 
@@ -489,7 +489,7 @@ if (isPasswordReset) {
           </Link>
 
           <div className="flex items-center gap-3">
-            <ThemeToggle />
+         
 
             <button
               className="inline-flex items-center gap-1.5 bg-transparent px-0.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"

@@ -2,7 +2,7 @@ import {
   Link,
   useParams,
 } from 'react-router-dom'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 import { useRoadmapEvaluationResult } from '../../../hooks/onboarding/useRoadmapEvaluationResult'
 import type { MissingRoadmapTopic } from '../../../hooks/onboarding/useRoadmapEvaluationResult'
 import { useAddMissingEvaluationTopic } from '../../../hooks/trackers/useAddMissingEvaluationTopic'
@@ -144,7 +144,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
           </span>
         </Link>
 
-        <ThemeToggle />
+        
       </header>
 
       <main className="mx-auto flex w-full max-w-280 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">

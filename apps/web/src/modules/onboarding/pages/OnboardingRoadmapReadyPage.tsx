@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 import {
   useRoadmapJobResult,
   type RoadmapSubtopic,
@@ -341,7 +341,7 @@ export default function OnboardingRoadmapReadyPage() {
             </span>
           </Link>
 
-          <ThemeToggle />
+          
         </header>
 
         <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
@@ -364,7 +364,7 @@ export default function OnboardingRoadmapReadyPage() {
             </span>
           </Link>
 
-          <ThemeToggle />
+          
         </header>
 
         <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
@@ -387,7 +387,7 @@ export default function OnboardingRoadmapReadyPage() {
           </span>
         </Link>
 
-        <ThemeToggle />
+        
       </header>
 
       <main className="mx-auto flex w-full max-w-280 flex-1 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">

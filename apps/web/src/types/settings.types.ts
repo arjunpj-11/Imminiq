@@ -238,7 +238,6 @@ export interface UpdateLearningJourneyPayload {
   reminderTime?: string
   autoPlayNextTopic?: boolean
   showEstimatedTime?: boolean
-
 }
 
 export interface UpdateGesturesPayload {
@@ -259,7 +258,7 @@ export interface UpdateAccountSettingsPayload {
   dateFormat?: string
 }
 
-/* ─── Security future backend types ─── */
+/* ─── Account Security ─── */
 
 export interface SecuritySession {
   id: string
@@ -283,7 +282,12 @@ export interface SecurityOverview {
   passwordLastChangedAt: string | null
 }
 
-export interface ChangeEmailPayload {
+export interface SensitiveActionStepUpPayload {
+  currentPassword?: string
+  twoFactorCode?: string
+}
+
+export interface ChangeEmailPayload extends SensitiveActionStepUpPayload {
   newEmail: string
 }
 
@@ -292,8 +296,8 @@ export interface ChangePasswordPayload {
   newPassword: string
 }
 
-export interface DeleteAccountPayload {
-  confirmation: string
+export interface DeleteAccountPayload extends SensitiveActionStepUpPayload {
+  confirmation: 'DELETE'
 }
 
 export interface TwoFactorSetupResponse {
