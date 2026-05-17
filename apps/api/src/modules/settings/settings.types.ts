@@ -1,7 +1,5 @@
 export type {
   ThemeType,
-  FontSizeType,
-  LayoutDensityType,
   ProfileVisibilityType,
   MessagePermissionType,
   AIResponseStyleType,

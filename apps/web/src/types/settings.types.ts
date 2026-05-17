@@ -1,10 +1,9 @@
 export type ThemeType = 'light' | 'dark' | 'system'
-export type FontSizeType = 'small' | 'medium' | 'large'
-export type LayoutDensityType = 'comfortable' | 'compact'
 export type ProfileVisibilityType = 'public' | 'friends' | 'private'
 export type MessagePermissionType = 'everyone' | 'friends' | 'nobody'
 export type AIResponseStyleType = 'concise' | 'detailed' | 'eli5'
 export type DigestFrequencyType = 'daily' | 'weekly' | 'never'
+
 export type QuietHoursDayType =
   | 'Mon'
   | 'Tue'
@@ -16,9 +15,6 @@ export type QuietHoursDayType =
 
 export interface AppearanceSettings {
   theme: ThemeType
-  accentColor: string
-  fontSize: FontSizeType
-  layoutDensity: LayoutDensityType
 }
 
 export interface NotificationTypeSettings {
@@ -160,9 +156,6 @@ export interface ApiEnvelope<T> {
 
 export interface UpdateAppearancePayload {
   theme?: ThemeType
-  accentColor?: string
-  fontSize?: FontSizeType
-  layoutDensity?: LayoutDensityType
 }
 
 export interface UpdateNotificationsPayload {

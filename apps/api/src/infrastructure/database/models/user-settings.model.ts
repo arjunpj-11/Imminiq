@@ -1,5 +1,3 @@
-// apps/api/src/infrastructure/database/models/user-settings.model.ts
-
 import mongoose, { Document, Schema } from 'mongoose'
 
 export type QuietHoursDay =
@@ -26,9 +24,6 @@ export interface IUserSettings extends Document {
   // Appearance
   appearance: {
     theme: 'light' | 'dark' | 'system'
-    accentColor: string
-    fontSize: 'small' | 'medium' | 'large'
-    layoutDensity: 'comfortable' | 'compact'
   }
 
   // Notifications
@@ -126,7 +121,6 @@ export interface IUserSettings extends Document {
     reminderTime: string
     autoPlayNextTopic: boolean
     showEstimatedTime: boolean
-
   }
 
   // Gestures
@@ -202,23 +196,6 @@ const userSettingsSchema = new Schema<IUserSettings>(
         type: String,
         enum: ['light', 'dark', 'system'],
         default: 'system',
-      },
-
-      accentColor: {
-        type: String,
-        default: '#b84c2b',
-      },
-
-      fontSize: {
-        type: String,
-        enum: ['small', 'medium', 'large'],
-        default: 'medium',
-      },
-
-      layoutDensity: {
-        type: String,
-        enum: ['comfortable', 'compact'],
-        default: 'comfortable',
       },
     },
 
@@ -626,8 +603,6 @@ const userSettingsSchema = new Schema<IUserSettings>(
     collection: 'user_settings',
   }
 )
-
-
 
 export const UserSettings =
   mongoose.models.UserSettings ||

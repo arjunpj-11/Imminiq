@@ -24,8 +24,6 @@ import {
 import type { UserSettings } from '../../../types/settings.types'
 import { useThemeStore } from '../../../store/useThemeStore'
 
-const accentColors = ['#b84c2b', '#2d6a47', '#8a6200', '#2a2a2a']
-
 type GestureToggleKey =
   | 'backGesture'
   | 'zoomGesture'
@@ -124,11 +122,6 @@ function PreferencesSettingsForm({
 
   const [form, setForm] = useState<UserSettings>(initialForm)
 
-  /**
-   * The Preferences form gets remounted after settings refetches.
-   * During a successful save, we must not let the old form cleanup
-   * restore the previous previewed theme for a split second.
-   */
   const skipThemeRestoreOnUnmountRef = useRef(false)
 
   useEffect(() => {
@@ -146,20 +139,8 @@ function PreferencesSettingsForm({
     try {
       toast.showToast('Saving preferences...', 'loading')
 
-      /**
-       * Prevent the old form instance from restoring the previous
-       * theme if React Query refetches settings and remounts this form.
-       */
       skipThemeRestoreOnUnmountRef.current = true
 
-      /**
-       * Commit the currently previewed theme locally before saving.
-       * This keeps:
-       * - page theme
-       * - top-bar theme button
-       * - saved local theme mode
-       * fully aligned while the DB request is happening.
-       */
       setThemeMode(selectedTheme)
 
       await updateAppearance.mutateAsync(form.appearance)
@@ -171,9 +152,6 @@ function PreferencesSettingsForm({
 
       toast.showToast('Preferences saved.', 'success')
     } catch {
-      /**
-       * If saving fails, restore the previously committed saved theme.
-       */
       skipThemeRestoreOnUnmountRef.current = false
       setThemeMode(previouslySavedTheme)
 
@@ -205,7 +183,7 @@ function PreferencesSettingsForm({
         >
           <MonoLabel>Theme Selector</MonoLabel>
 
-          <div className="mb-5 flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2">
             {(['light', 'dark', 'system'] as const).map((theme) => (
               <PillButton
                 key={theme}
@@ -223,77 +201,6 @@ function PreferencesSettingsForm({
                 }}
               >
                 {theme[0].toUpperCase() + theme.slice(1)}
-              </PillButton>
-            ))}
-          </div>
-
-          <MonoLabel>Accent Color</MonoLabel>
-
-          <div className="mb-5 flex flex-wrap gap-3">
-            {accentColors.map((color) => (
-              <button
-                type="button"
-                key={color}
-                onClick={() =>
-                  setForm((current) => ({
-                    ...current,
-                    appearance: {
-                      ...current.appearance,
-                      accentColor: color,
-                    },
-                  }))
-                }
-                className={`h-10 w-10 rounded-full border-4 transition ${
-                  form.appearance.accentColor === color
-                    ? 'border-[#1a1714] dark:border-[#f2f0eb]'
-                    : 'border-transparent'
-                }`}
-                style={{ backgroundColor: color }}
-                aria-label={`Select accent ${color}`}
-              />
-            ))}
-          </div>
-
-          <MonoLabel>Font Size</MonoLabel>
-
-          <div className="mb-5 flex flex-wrap gap-2">
-            {(['small', 'medium', 'large'] as const).map((fontSize) => (
-              <PillButton
-                key={fontSize}
-                active={form.appearance.fontSize === fontSize}
-                onClick={() =>
-                  setForm((current) => ({
-                    ...current,
-                    appearance: {
-                      ...current.appearance,
-                      fontSize,
-                    },
-                  }))
-                }
-              >
-                {fontSize[0].toUpperCase() + fontSize.slice(1)}
-              </PillButton>
-            ))}
-          </div>
-
-          <MonoLabel>Layout Density</MonoLabel>
-
-          <div className="flex flex-wrap gap-2">
-            {(['comfortable', 'compact'] as const).map((layoutDensity) => (
-              <PillButton
-                key={layoutDensity}
-                active={form.appearance.layoutDensity === layoutDensity}
-                onClick={() =>
-                  setForm((current) => ({
-                    ...current,
-                    appearance: {
-                      ...current.appearance,
-                      layoutDensity,
-                    },
-                  }))
-                }
-              >
-                {layoutDensity[0].toUpperCase() + layoutDensity.slice(1)}
               </PillButton>
             ))}
           </div>

@@ -1,6 +1,4 @@
 export type ThemeType = 'light' | 'dark' | 'system'
-export type FontSizeType = 'small' | 'medium' | 'large'
-export type LayoutDensityType = 'comfortable' | 'compact'
 export type ProfileVisibilityType = 'public' | 'friends' | 'private'
 export type MessagePermissionType = 'everyone' | 'friends' | 'nobody'
 export type AIResponseStyleType = 'concise' | 'detailed' | 'eli5'
@@ -35,9 +33,6 @@ export interface NotificationTypeSettings {
 
 export interface UpdateAppearancePayload {
   theme?: ThemeType
-  accentColor?: string
-  fontSize?: FontSizeType
-  layoutDensity?: LayoutDensityType
 }
 
 export interface UpdateNotificationsPayload {

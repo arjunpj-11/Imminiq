@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../../lib/axios'
-import { useSettingsStore } from './useSettingsStore'
+import { useSettingsStore } from '../../store/useSettingsStore'
 import type {
   ApiEnvelope,
   GestureSettings,

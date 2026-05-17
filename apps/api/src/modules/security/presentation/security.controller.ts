@@ -7,9 +7,27 @@ import type {
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { securityService } from '../application/services/security.service'
+import { decryptAuthCookieToken } from '../../../shared/security/auth-cookie-token.util'
+import { securityService } from '../security.service'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
+
+const getRawRefreshTokenFromCookie = (
+  req: Request
+): string | undefined => {
+  const encryptedRefreshToken =
+    req.cookies?.[REFRESH_COOKIE_NAME]
+
+  if (typeof encryptedRefreshToken !== 'string') {
+    return undefined
+  }
+
+  try {
+    return decryptAuthCookieToken(encryptedRefreshToken)
+  } catch {
+    return undefined
+  }
+}
 
 export const securityController = {
   // ─── SECURITY OVERVIEW ────────────────────────────
@@ -21,12 +39,14 @@ export const securityController = {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME]
+      const refreshToken =
+        getRawRefreshTokenFromCookie(req)
 
-      const result = await securityService.getOverview(
-        userId,
-        refreshToken
-      )
+      const result =
+        await securityService.getOverview(
+          userId,
+          refreshToken
+        )
 
       res.json(
         new ApiResponse(
@@ -49,10 +69,11 @@ export const securityController = {
     try {
       const userId = getAuthUser(req).userId
 
-      const result = await securityService.requestEmailChange(
-        userId,
-        req.body
-      )
+      const result =
+        await securityService.requestEmailChange(
+          userId,
+          req.body
+        )
 
       res.json(
         new ApiResponse(
@@ -73,7 +94,10 @@ export const securityController = {
     next: NextFunction
   ) => {
     try {
-      const result = await securityService.verifyEmailChange(req.body)
+      const result =
+        await securityService.verifyEmailChange(
+          req.body
+        )
 
       res.json(
         new ApiResponse(
@@ -96,10 +120,11 @@ export const securityController = {
     try {
       const userId = getAuthUser(req).userId
 
-      const result = await securityService.changePassword(
-        userId,
-        req.body
-      )
+      const result =
+        await securityService.changePassword(
+          userId,
+          req.body
+        )
 
       res.json(
         new ApiResponse(
@@ -121,12 +146,14 @@ export const securityController = {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME]
+      const refreshToken =
+        getRawRefreshTokenFromCookie(req)
 
-      const result = await securityService.getSessions(
-        userId,
-        refreshToken
-      )
+      const result =
+        await securityService.getSessions(
+          userId,
+          refreshToken
+        )
 
       res.json(
         new ApiResponse(
@@ -148,7 +175,8 @@ export const securityController = {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME]
+      const refreshToken =
+        getRawRefreshTokenFromCookie(req)
       const { sessionId } = req.params
 
       if (!sessionId || Array.isArray(sessionId)) {
@@ -159,11 +187,12 @@ export const securityController = {
         )
       }
 
-      const result = await securityService.revokeSession(
-        userId,
-        sessionId,
-        refreshToken
-      )
+      const result =
+        await securityService.revokeSession(
+          userId,
+          sessionId,
+          refreshToken
+        )
 
       res.json(
         new ApiResponse(
@@ -186,7 +215,10 @@ export const securityController = {
     try {
       const userId = getAuthUser(req).userId
 
-      const result = await securityService.getTwoFactorStatus(userId)
+      const result =
+        await securityService.getTwoFactorStatus(
+          userId
+        )
 
       res.json(
         new ApiResponse(
@@ -209,7 +241,10 @@ export const securityController = {
     try {
       const userId = getAuthUser(req).userId
 
-      const result = await securityService.setupTwoFactor(userId)
+      const result =
+        await securityService.setupTwoFactor(
+          userId
+        )
 
       res.json(
         new ApiResponse(
@@ -232,10 +267,11 @@ export const securityController = {
     try {
       const userId = getAuthUser(req).userId
 
-      const result = await securityService.verifyTwoFactorSetup(
-        userId,
-        req.body
-      )
+      const result =
+        await securityService.verifyTwoFactorSetup(
+          userId,
+          req.body
+        )
 
       res.json(
         new ApiResponse(
@@ -258,10 +294,11 @@ export const securityController = {
     try {
       const userId = getAuthUser(req).userId
 
-      const result = await securityService.disableTwoFactor(
-        userId,
-        req.body
-      )
+      const result =
+        await securityService.disableTwoFactor(
+          userId,
+          req.body
+        )
 
       res.json(
         new ApiResponse(
@@ -284,10 +321,11 @@ export const securityController = {
     try {
       const userId = getAuthUser(req).userId
 
-      const result = await securityService.deleteAccount(
-        userId,
-        req.body
-      )
+      const result =
+        await securityService.deleteAccount(
+          userId,
+          req.body
+        )
 
       res.json(
         new ApiResponse(
