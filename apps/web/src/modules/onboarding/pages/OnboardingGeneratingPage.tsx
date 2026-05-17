@@ -3,7 +3,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
 import { useRoadmapJobStatus } from '../../../hooks/onboarding/useRoadmapJobStatus'
 
 type JobTerminalState = 'completed' | 'failed' | null
@@ -534,7 +533,7 @@ export default function OnboardingGeneratingPage() {
             AI Roadmap Generator
           </span>
 
-          <ThemeToggle />
+          
         </div>
       </header>
 

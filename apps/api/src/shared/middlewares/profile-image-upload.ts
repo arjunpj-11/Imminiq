@@ -1,4 +1,6 @@
+import { extname } from 'node:path'
 import multer from 'multer'
+
 import { ApiError } from '../utils/ApiError'
 
 const MAX_AVATAR_SIZE = 5 * 1024 * 1024
@@ -11,7 +13,20 @@ const imageMimeTypes = new Set([
   'image/webp',
 ])
 
+const imageExtensions = new Set([
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.webp',
+])
+
 const memoryStorage = multer.memoryStorage()
+
+const hasAllowedExtension = (originalName: string) => {
+  return imageExtensions.has(
+    extname(originalName).trim().toLowerCase()
+  )
+}
 
 const createImageUpload = (maxSize: number) =>
   multer({
@@ -22,7 +37,24 @@ const createImageUpload = (maxSize: number) =>
     },
     fileFilter: (_req, file, callback) => {
       if (!imageMimeTypes.has(file.mimetype)) {
-        callback(new ApiError(400, 'Only JPG, PNG, and WEBP images are allowed'))
+        callback(
+          new ApiError(
+            400,
+            'Only JPG, PNG, and WEBP images are allowed',
+            'INVALID_IMAGE_MIME_TYPE'
+          )
+        )
+        return
+      }
+
+      if (!hasAllowedExtension(file.originalname)) {
+        callback(
+          new ApiError(
+            400,
+            'Image filename must use .jpg, .jpeg, .png, or .webp',
+            'INVALID_IMAGE_EXTENSION'
+          )
+        )
         return
       }
 

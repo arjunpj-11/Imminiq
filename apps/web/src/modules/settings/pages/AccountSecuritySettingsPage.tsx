@@ -19,7 +19,11 @@ import {
   useTerminateSession,
   useVerifyTwoFactorSetup,
 } from '../../../hooks/settings/useSecuritySettings'
-import type { TwoFactorSetupResponse } from '../../../types/settings.types'
+import type {
+  ChangeEmailPayload,
+  DeleteAccountPayload,
+  TwoFactorSetupResponse,
+} from '../../../types/settings.types'
 
 type ApiErrorResponse = {
   message?: string
@@ -129,6 +133,9 @@ export default function AccountSecuritySettingsPage() {
   const toast = useSettingsToast()
 
   const [newEmail, setNewEmail] = useState('')
+  const [emailChangePassword, setEmailChangePassword] = useState('')
+  const [emailChangeTwoFactorCode, setEmailChangeTwoFactorCode] = useState('')
+
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
 
@@ -155,6 +162,8 @@ export default function AccountSecuritySettingsPage() {
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deleteConfirmation, setDeleteConfirmation] = useState('')
+  const [deleteCurrentPassword, setDeleteCurrentPassword] = useState('')
+  const [deleteTwoFactorCode, setDeleteTwoFactorCode] = useState('')
 
   const score = useMemo(() => passwordScore(newPassword), [newPassword])
 
@@ -169,6 +178,14 @@ export default function AccountSecuritySettingsPage() {
       : security?.authProvider === 'github'
         ? 'GitHub'
         : 'Imminiq'
+
+  const stepUpRequiresPassword = Boolean(security?.canChangePassword)
+  const stepUpRequiresTwoFactor = Boolean(security?.twoFactorEnabled)
+
+  const sensitiveActionUnavailableForSocialAccount =
+    Boolean(security) &&
+    !stepUpRequiresPassword &&
+    !stepUpRequiresTwoFactor
 
   const pendingEmail = normalizeEmail(security?.pendingEmail)
 
@@ -187,6 +204,14 @@ export default function AccountSecuritySettingsPage() {
     showPendingEmailNotice &&
     timerMatchesPendingEmail &&
     pendingEmailSecondsLeft > 0
+
+  const emailChangeStepUpReady =
+    (!stepUpRequiresPassword || !!emailChangePassword) &&
+    (!stepUpRequiresTwoFactor || emailChangeTwoFactorCode.length === 6)
+
+  const deleteStepUpReady =
+    (!stepUpRequiresPassword || !!deleteCurrentPassword) &&
+    (!stepUpRequiresTwoFactor || deleteTwoFactorCode.length === 6)
 
   useEffect(() => {
     if (!pendingEmailTimer) {
@@ -229,7 +254,17 @@ export default function AccountSecuritySettingsPage() {
 
   const handleEmailUpdate = async () => {
     try {
-      const result = await changeEmail.mutateAsync({ newEmail })
+      const payload: ChangeEmailPayload = {
+        newEmail,
+        ...(stepUpRequiresPassword
+          ? { currentPassword: emailChangePassword }
+          : {}),
+        ...(stepUpRequiresTwoFactor
+          ? { twoFactorCode: emailChangeTwoFactorCode }
+          : {}),
+      }
+
+      const result = await changeEmail.mutateAsync(payload)
 
       const timer: PendingEmailTimer = {
         email: normalizeEmail(result.pendingEmail),
@@ -243,6 +278,8 @@ export default function AccountSecuritySettingsPage() {
       )
 
       setNewEmail('')
+      setEmailChangePassword('')
+      setEmailChangeTwoFactorCode('')
 
       toast.showToast(
         'Verification link sent to the new email. Your current email will stay unchanged until it is verified.',
@@ -360,14 +397,34 @@ export default function AccountSecuritySettingsPage() {
     }
   }
 
+  const resetDeleteModal = () => {
+    setDeleteModalOpen(false)
+    setDeleteConfirmation('')
+    setDeleteCurrentPassword('')
+    setDeleteTwoFactorCode('')
+  }
+
   const handleDeleteAccount = async () => {
+    if (deleteConfirmation !== 'DELETE') {
+      toast.showToast('Type DELETE to confirm account deletion.', 'error')
+      return
+    }
+
     try {
-      await deleteAccount.mutateAsync({
-        confirmation: deleteConfirmation,
-      })
+      const payload: DeleteAccountPayload = {
+        confirmation: 'DELETE',
+        ...(stepUpRequiresPassword
+          ? { currentPassword: deleteCurrentPassword }
+          : {}),
+        ...(stepUpRequiresTwoFactor
+          ? { twoFactorCode: deleteTwoFactorCode }
+          : {}),
+      }
+
+      await deleteAccount.mutateAsync(payload)
 
       toast.showToast('Account deletion request submitted.', 'success')
-      setDeleteModalOpen(false)
+      resetDeleteModal()
     } catch (error) {
       toast.showToast(
         getApiErrorMessage(error, 'Unable to delete account.'),
@@ -430,7 +487,14 @@ export default function AccountSecuritySettingsPage() {
               </div>
             )}
 
-            <div className="grid gap-3 md:grid-cols-[1fr_auto]">
+            {sensitiveActionUnavailableForSocialAccount && (
+              <div className="mb-4 rounded-[14px] border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                This {providerLabel} account has no local password. Enable
+                two-factor authentication first to securely change your email.
+              </div>
+            )}
+
+            <div className="grid gap-3">
               <TextField
                 label="New Email Address"
                 value={newEmail}
@@ -439,14 +503,40 @@ export default function AccountSecuritySettingsPage() {
                 placeholder="you@example.com"
               />
 
-              <button
-                type="button"
-                onClick={handleEmailUpdate}
-                disabled={!newEmail || changeEmail.isPending}
-                className="mt-5.5 h-11.5 rounded-[11px] bg-[#b84c2b] px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
-              >
-                {changeEmail.isPending ? 'Sending...' : 'Send Verify Link'}
-              </button>
+              {stepUpRequiresPassword && (
+                <TextField
+                  label="Current Password"
+                  value={emailChangePassword}
+                  onChange={setEmailChangePassword}
+                  type="password"
+                  placeholder="Re-enter your password"
+                />
+              )}
+
+              {stepUpRequiresTwoFactor && (
+                <TextField
+                  label="Two-Factor Code"
+                  value={emailChangeTwoFactorCode}
+                  onChange={setEmailChangeTwoFactorCode}
+                  placeholder="123456"
+                />
+              )}
+
+              <div>
+                <button
+                  type="button"
+                  onClick={handleEmailUpdate}
+                  disabled={
+                    !newEmail ||
+                    !emailChangeStepUpReady ||
+                    sensitiveActionUnavailableForSocialAccount ||
+                    changeEmail.isPending
+                  }
+                  className="h-11.5 rounded-[11px] bg-[#b84c2b] px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
+                >
+                  {changeEmail.isPending ? 'Sending...' : 'Send Verify Link'}
+                </button>
+              </div>
             </div>
           </SettingsCard>
 
@@ -632,10 +722,18 @@ export default function AccountSecuritySettingsPage() {
               badges and saved progress.
             </p>
 
+            {sensitiveActionUnavailableForSocialAccount && (
+              <p className="mt-3 rounded-xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-3 py-2 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                Enable two-factor authentication first before deleting this
+                {` ${providerLabel}`} account.
+              </p>
+            )}
+
             <button
               type="button"
               onClick={() => setDeleteModalOpen(true)}
-              className="mt-4 rounded-[11px] bg-[#c43c3c] px-5 py-3 text-[13px] font-bold text-white transition"
+              disabled={sensitiveActionUnavailableForSocialAccount}
+              className="mt-4 rounded-[11px] bg-[#c43c3c] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
             >
               Delete My Archive
             </button>
@@ -860,19 +958,38 @@ export default function AccountSecuritySettingsPage() {
               deletion.
             </p>
 
-            <div className="mt-4">
+            <div className="mt-4 space-y-4">
               <TextField
                 label="Confirmation"
                 value={deleteConfirmation}
                 onChange={setDeleteConfirmation}
                 placeholder="DELETE"
               />
+
+              {stepUpRequiresPassword && (
+                <TextField
+                  label="Current Password"
+                  value={deleteCurrentPassword}
+                  onChange={setDeleteCurrentPassword}
+                  type="password"
+                  placeholder="Re-enter your password"
+                />
+              )}
+
+              {stepUpRequiresTwoFactor && (
+                <TextField
+                  label="Two-Factor Code"
+                  value={deleteTwoFactorCode}
+                  onChange={setDeleteTwoFactorCode}
+                  placeholder="123456"
+                />
+              )}
             </div>
 
             <div className="mt-5 flex justify-end gap-2">
               <button
                 type="button"
-                onClick={() => setDeleteModalOpen(false)}
+                onClick={resetDeleteModal}
                 className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/9"
               >
                 Cancel
@@ -881,7 +998,9 @@ export default function AccountSecuritySettingsPage() {
               <button
                 type="button"
                 disabled={
-                  deleteConfirmation !== 'DELETE' || deleteAccount.isPending
+                  deleteConfirmation !== 'DELETE' ||
+                  !deleteStepUpReady ||
+                  deleteAccount.isPending
                 }
                 onClick={handleDeleteAccount}
                 className="rounded-[10px] bg-[#c43c3c] px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"

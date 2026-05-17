@@ -3,11 +3,10 @@
 import { useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
-import {
-  useSaveOnboardingStepTwo,
+ import { useSaveOnboardingStepTwo,
   type OnboardingLevel,
-} from '../../../hooks/onboarding/useSaveOnboardingStepTwo'
+} from '../../../hooks/onboarding/useSaveOnboardingStepTwo';
+
 import { useGenerateRoadmap } from '../../../hooks/onboarding/useGenerateRoadmap'
 
 type Level = OnboardingLevel
@@ -520,7 +519,7 @@ export default function OnboardingStepTwoPage() {
             </button>
           </div>
 
-          <ThemeToggle />
+          
         </div>
       </header>
 

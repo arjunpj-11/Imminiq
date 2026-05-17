@@ -25,19 +25,13 @@ const generateUniqueUsername = async (baseValue: string) => {
 
   while (await authRepository.usernameExists(username)) {
     username = `${base}${counter}`
-    counter++
+    counter += 1
   }
 
   return username
 }
 
 export const initPassport = () => {
-  console.log('OAuth config:', {
-  serverUrl: env.SERVER_URL,
-  githubClientId: Boolean(env.GITHUB_CLIENT_ID),
-  githubClientSecret: Boolean(env.GITHUB_CLIENT_SECRET),
-  githubCallbackURL: `${env.SERVER_URL}/api/auth/oauth/github/callback`,
-})
   passport.use(
     'google',
     new GoogleStrategy(
@@ -93,11 +87,11 @@ export const initPassport = () => {
         scope: ['user:email'],
       },
       async (
-  _accessToken: string,
-  _refreshToken: string,
-  profile: GitHubProfile,
-  done: VerifyCallback
-) => {
+        _accessToken: string,
+        _refreshToken: string,
+        profile: GitHubProfile,
+        done: VerifyCallback
+      ) => {
         try {
           const email = profile.emails?.[0]?.value?.toLowerCase()
           const avatarUrl = profile.photos?.[0]?.value
@@ -127,7 +121,7 @@ export const initPassport = () => {
             })
           }
 
-         return done(null, user as unknown as Express.User)
+          return done(null, user as unknown as Express.User)
         } catch (error) {
           return done(error)
         }

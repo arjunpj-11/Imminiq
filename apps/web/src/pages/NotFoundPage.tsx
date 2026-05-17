@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Link } from 'react-router-dom'
-import ThemeToggle from '../components/ui/ThemeToggle'
+
 
 const cn = (...classes: Array<string | false | null | undefined>) => {
   return classes.filter(Boolean).join(' ')
@@ -229,7 +229,7 @@ export default function NotFoundPage() {
             Community Guidelines
           </button>
 
-          <ThemeToggle />
+          
 
           <Link
             to="/dashboard"

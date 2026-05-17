@@ -4,13 +4,41 @@ import { ApiError } from '../../shared/utils/ApiError'
 
 const MESSAGE_CENTRAL_BASE_URL = 'https://cpaas.messagecentral.com'
 
+type MessageCentralTokenResponse = {
+  token?: string
+}
+
+type MessageCentralSendOtpResponse = {
+  data?: {
+    verificationId?: string | number
+  }
+}
+
+type MessageCentralVerifyOtpResponse = {
+  data?: {
+    verificationStatus?: string
+  }
+}
+
 const getBase64Password = () => {
   return Buffer.from(env.MESSAGE_CENTRAL_PASSWORD).toString('base64')
 }
 
+const getProviderErrorDetails = (error: unknown): unknown => {
+  if (axios.isAxiosError(error)) {
+    return error.response?.data ?? error.message
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return 'Unknown Message Central error'
+}
+
 const generateMessageCentralToken = async () => {
   try {
-    const response = await axios.get(
+    const response = await axios.get<MessageCentralTokenResponse>(
       `${MESSAGE_CENTRAL_BASE_URL}/auth/v1/authentication/token`,
       {
         params: {
@@ -23,17 +51,17 @@ const generateMessageCentralToken = async () => {
       }
     )
 
-    const token = response.data?.token
+    const token = response.data.token
 
     if (!token) {
       throw new Error('Message Central token not returned')
     }
 
     return token
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(
       'Message Central auth token error:',
-      error?.response?.data || error?.message
+      getProviderErrorDetails(error)
     )
 
     throw new ApiError(
@@ -48,7 +76,7 @@ export const sendPhoneOtp = async (phone: string) => {
   try {
     const authToken = await generateMessageCentralToken()
 
-    const response = await axios.post(
+    const response = await axios.post<MessageCentralSendOtpResponse>(
       `${MESSAGE_CENTRAL_BASE_URL}/verification/v3/send`,
       null,
       {
@@ -65,7 +93,7 @@ export const sendPhoneOtp = async (phone: string) => {
       }
     )
 
-    const verificationId = response.data?.data?.verificationId
+    const verificationId = response.data.data?.verificationId
 
     if (!verificationId) {
       throw new Error('Verification ID not returned')
@@ -74,10 +102,10 @@ export const sendPhoneOtp = async (phone: string) => {
     return {
       verificationId: String(verificationId),
     }
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(
       'Message Central send OTP error:',
-      error?.response?.data || error?.message
+      getProviderErrorDetails(error)
     )
 
     throw new ApiError(
@@ -95,7 +123,7 @@ export const verifyPhoneOtp = async (
   try {
     const authToken = await generateMessageCentralToken()
 
-    const response = await axios.get(
+    const response = await axios.get<MessageCentralVerifyOtpResponse>(
       `${MESSAGE_CENTRAL_BASE_URL}/verification/v3/validateOtp`,
       {
         params: {
@@ -109,13 +137,13 @@ export const verifyPhoneOtp = async (
       }
     )
 
-    const status = response.data?.data?.verificationStatus
+    const status = response.data.data?.verificationStatus
 
     return status === 'VERIFICATION_COMPLETED'
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error(
       'Message Central verify OTP error:',
-      error?.response?.data || error?.message
+      getProviderErrorDetails(error)
     )
 
     return false

@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { ReactNode } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import ThemeToggle from '../../../components/ui/ThemeToggle'
+
 import {
   useRoadmapEvaluationJobStatus,
   type EvaluationJobStatus,
@@ -343,7 +343,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           <span className="hidden rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a] sm:inline-flex">
             AI Roadmap Evaluation
           </span>
-          <ThemeToggle />
+          
         </div>
       </header>
 

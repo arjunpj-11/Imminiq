@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import ThemeToggle from '../components/ui/ThemeToggle'
+
 
 const LAST_ONLINE_PATH_KEY = 'last_online_path_before_offline'
 
@@ -310,7 +310,7 @@ export default function NoConnectionPage() {
             No connection
           </div>
 
-          <ThemeToggle />
+          
         </div>
       </header>
 
