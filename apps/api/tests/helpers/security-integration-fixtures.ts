@@ -16,6 +16,7 @@ export type TestUserFixture = {
 export type AuthenticatedFixture = TestUserFixture & {
   accessToken: string
   cookieHeader: string[]
+  csrfToken: string
 }
 
 const readSetCookies = (
@@ -26,6 +27,25 @@ const readSetCookies = (
   }
 
   return setCookieHeader ? [setCookieHeader] : []
+}
+
+const readCookieValue = (
+  cookies: string[],
+  cookieName: string
+): string => {
+  const prefix = `${cookieName}=`
+
+  const cookie = cookies.find((value) => {
+    return value.startsWith(prefix)
+  })
+
+  if (!cookie) {
+    return ''
+  }
+
+  return decodeURIComponent(
+    cookie.split(';')[0]?.slice(prefix.length) || ''
+  )
 }
 
 export const createVerifiedLocalUser = async (
@@ -93,9 +113,17 @@ export const loginFixtureUser = async (
     throw new Error('Fixture login did not return access token')
   }
 
+  const cookieHeader = readSetCookies(response.headers['set-cookie'])
+  const csrfToken = readCookieValue(cookieHeader, 'csrfToken')
+
+  if (!csrfToken) {
+    throw new Error('Fixture login did not return CSRF token cookie')
+  }
+
   return {
     ...user,
     accessToken,
-    cookieHeader: readSetCookies(response.headers['set-cookie']),
+    cookieHeader,
+    csrfToken,
   }
 }

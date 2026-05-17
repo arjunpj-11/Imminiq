@@ -3,6 +3,7 @@ import { Router } from 'express'
 import { onboardingController } from './onboarding.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
+import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 
 import {
   step1Schema,
@@ -12,7 +13,10 @@ import {
 
 const router = Router()
 
-router.use(authenticate)
+router.use(
+  authenticatedApiIpLimiter,
+  authenticate
+)
 
 router.get(
   '/status',

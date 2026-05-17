@@ -24,6 +24,34 @@ const createSensitiveLimiter = (config: {
   })
 }
 
+export const authenticatedApiIpLimiter = createSensitiveLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 360,
+  message: 'Too many authenticated API requests. Please try again later.',
+  code: 'AUTHENTICATED_API_RATE_LIMITED',
+})
+
+export const authSessionActionIpLimiter = createSensitiveLimiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 60,
+  message: 'Too many session requests. Please try again later.',
+  code: 'AUTH_SESSION_ACTION_RATE_LIMITED',
+})
+
+export const publicAccountLookupIpLimiter = createSensitiveLimiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 80,
+  message: 'Too many account lookup requests. Please try again later.',
+  code: 'PUBLIC_ACCOUNT_LOOKUP_RATE_LIMITED',
+})
+
+export const oauthFlowIpLimiter = createSensitiveLimiter({
+  windowMs: 10 * 60 * 1000,
+  limit: 40,
+  message: 'Too many OAuth requests. Please try again later.',
+  code: 'OAUTH_FLOW_RATE_LIMITED',
+})
+
 export const registerIpLimiter = createSensitiveLimiter({
   windowMs: 60 * 60 * 1000,
   limit: 10,

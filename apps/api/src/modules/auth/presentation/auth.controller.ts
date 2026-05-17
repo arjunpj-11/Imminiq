@@ -5,6 +5,14 @@ import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { env } from '../../../config/env'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
+import {
+  clearCsrfCookie,
+  setCsrfCookie,
+} from '../../../shared/middlewares/csrf-token.middleware'
+import {
+  decryptAuthCookieToken,
+  encryptAuthCookieToken,
+} from '../../../shared/security/auth-cookie-token.util'
 import type { OAuthLoginUser } from '../auth.service'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
@@ -55,6 +63,63 @@ const clearAuthCookies = (res: Response) => {
       TWO_FACTOR_CHALLENGE_COOKIE_NAME,
       TWO_FACTOR_COOKIE_OPTIONS
     )
+
+  clearCsrfCookie(res)
+}
+
+const setRefreshSessionCookies = (
+  res: Response,
+  rawRefreshToken: string
+): void => {
+  res.cookie(
+    REFRESH_COOKIE_NAME,
+    encryptAuthCookieToken(rawRefreshToken),
+    COOKIE_OPTIONS
+  )
+
+  setCsrfCookie(res)
+}
+
+const setTwoFactorChallengeCookies = (
+  res: Response,
+  rawChallengeToken: string
+): void => {
+  res.cookie(
+    TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+    encryptAuthCookieToken(rawChallengeToken),
+    TWO_FACTOR_COOKIE_OPTIONS
+  )
+
+  setCsrfCookie(res)
+}
+
+const decryptRequiredCookie = (
+  req: Request,
+  cookieName: string,
+  missingMessage: string,
+  missingCode: string,
+  invalidMessage: string,
+  invalidCode: string
+): string => {
+  const encryptedCookieValue = req.cookies?.[cookieName]
+
+  if (typeof encryptedCookieValue !== 'string') {
+    throw new ApiError(
+      401,
+      missingMessage,
+      missingCode
+    )
+  }
+
+  try {
+    return decryptAuthCookieToken(encryptedCookieValue)
+  } catch {
+    throw new ApiError(
+      401,
+      invalidMessage,
+      invalidCode
+    )
+  }
 }
 
 export const authController = {
@@ -78,36 +143,34 @@ export const authController = {
       )
 
       if (result.requiresTwoFactor) {
-        res
-          .cookie(
-            TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-            result.challengeToken,
-            TWO_FACTOR_COOKIE_OPTIONS
-          )
-          .json(
-            new ApiResponse('Two-factor verification required', {
-              requiresTwoFactor: true,
-              challengeExpiresInMinutes:
-                result.challengeExpiresInMinutes,
-            })
-          )
+        setTwoFactorChallengeCookies(
+          res,
+          result.challengeToken
+        )
+
+        res.json(
+          new ApiResponse('Two-factor verification required', {
+            requiresTwoFactor: true,
+            challengeExpiresInMinutes:
+              result.challengeExpiresInMinutes,
+          })
+        )
 
         return
       }
 
-      res
-        .cookie(
-          REFRESH_COOKIE_NAME,
-          result.tokens.refreshToken,
-          COOKIE_OPTIONS
-        )
-        .json(
-          new ApiResponse('Login successful', {
-            accessToken: result.tokens.accessToken,
-            user: result.user,
-            redirectPath: result.redirectPath,
-          })
-        )
+      setRefreshSessionCookies(
+        res,
+        result.tokens.refreshToken
+      )
+
+      res.json(
+        new ApiResponse('Login successful', {
+          accessToken: result.tokens.accessToken,
+          user: result.user,
+          redirectPath: result.redirectPath,
+        })
+      )
     } catch (error) {
       const errorCode = getAuthErrorCode(error)
 
@@ -126,15 +189,14 @@ export const authController = {
   ) => {
     try {
       const challengeToken =
-        req.cookies?.[TWO_FACTOR_CHALLENGE_COOKIE_NAME]
-
-      if (!challengeToken) {
-        throw new ApiError(
-          401,
+        decryptRequiredCookie(
+          req,
+          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
           'Two-factor challenge is missing. Please sign in again.',
-          'TWO_FACTOR_CHALLENGE_MISSING'
+          'TWO_FACTOR_CHALLENGE_MISSING',
+          'Two-factor challenge is invalid. Please sign in again.',
+          'TWO_FACTOR_CHALLENGE_INVALID'
         )
-      }
 
       const result = await authService.verifyTwoFactorLogin(
         challengeToken,
@@ -142,12 +204,12 @@ export const authController = {
         getRequestMeta(req)
       )
 
+      setRefreshSessionCookies(
+        res,
+        result.tokens.refreshToken
+      )
+
       res
-        .cookie(
-          REFRESH_COOKIE_NAME,
-          result.tokens.refreshToken,
-          COOKIE_OPTIONS
-        )
         .clearCookie(
           TWO_FACTOR_CHALLENGE_COOKIE_NAME,
           TWO_FACTOR_COOKIE_OPTIONS
@@ -172,10 +234,18 @@ export const authController = {
 
   logout: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME]
+      const encryptedRefreshToken =
+        req.cookies?.[REFRESH_COOKIE_NAME]
 
-      if (refreshToken) {
-        await authService.logout(refreshToken)
+      if (typeof encryptedRefreshToken === 'string') {
+        try {
+          const refreshToken =
+            decryptAuthCookieToken(encryptedRefreshToken)
+
+          await authService.logout(refreshToken)
+        } catch {
+          // Invalid or stale encrypted cookies should still be cleared.
+        }
       }
 
       clearAuthCookies(res)
@@ -200,24 +270,31 @@ export const authController = {
 
   refreshToken: async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken = req.cookies?.[REFRESH_COOKIE_NAME]
-
-      if (!refreshToken) {
-        throw new ApiError(401, 'No refresh token', 'NO_REFRESH_TOKEN')
-      }
+      const refreshToken =
+        decryptRequiredCookie(
+          req,
+          REFRESH_COOKIE_NAME,
+          'No refresh token',
+          'NO_REFRESH_TOKEN',
+          'Refresh token cookie is invalid',
+          'INVALID_REFRESH_COOKIE'
+        )
 
       const tokens = await authService.refreshTokens(
         refreshToken,
         getRequestMeta(req)
       )
 
-      res
-        .cookie(REFRESH_COOKIE_NAME, tokens.refreshToken, COOKIE_OPTIONS)
-        .json(
-          new ApiResponse('Token refreshed', {
-            accessToken: tokens.accessToken,
-          })
-        )
+      setRefreshSessionCookies(
+        res,
+        tokens.refreshToken
+      )
+
+      res.json(
+        new ApiResponse('Token refreshed', {
+          accessToken: tokens.accessToken,
+        })
+      )
     } catch (error) {
       const errorCode = getAuthErrorCode(error)
 
@@ -410,24 +487,21 @@ export const authController = {
       )
 
       if (result.requiresTwoFactor) {
-        res
-          .cookie(
-            TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-            result.challengeToken,
-            TWO_FACTOR_COOKIE_OPTIONS
-          )
-          .redirect(`${env.CLIENT_URL}/two-factor-challenge`)
+        setTwoFactorChallengeCookies(
+          res,
+          result.challengeToken
+        )
 
+        res.redirect(`${env.CLIENT_URL}/two-factor-challenge`)
         return
       }
 
-      res
-        .cookie(
-          REFRESH_COOKIE_NAME,
-          result.tokens.refreshToken,
-          COOKIE_OPTIONS
-        )
-        .redirect(`${env.CLIENT_URL}${result.redirectPath}`)
+      setRefreshSessionCookies(
+        res,
+        result.tokens.refreshToken
+      )
+
+      res.redirect(`${env.CLIENT_URL}${result.redirectPath}`)
     } catch (error) {
       const errorCode = getAuthErrorCode(error)
 

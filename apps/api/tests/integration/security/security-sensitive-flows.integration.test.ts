@@ -61,6 +61,7 @@ describe('security-sensitive HTTP integration flows', () => {
       .post('/api/auth/refresh-token')
       .set('Origin', TRUSTED_TEST_ORIGIN)
       .set('Cookie', authenticated.cookieHeader)
+      .set('X-CSRF-Token', authenticated.csrfToken)
 
     expect(firstRefresh.status).toBe(200)
     expect(firstRefresh.body?.data?.accessToken).toEqual(
@@ -71,11 +72,28 @@ describe('security-sensitive HTTP integration flows', () => {
       .post('/api/auth/refresh-token')
       .set('Origin', TRUSTED_TEST_ORIGIN)
       .set('Cookie', authenticated.cookieHeader)
+      .set('X-CSRF-Token', authenticated.csrfToken)
 
     expect(reuseResponse.status).toBe(401)
     expect(reuseResponse.body).toMatchObject({
       success: false,
       code: 'REFRESH_TOKEN_REUSE_DETECTED',
+    })
+  })
+
+  it('rejects refresh-token requests that carry auth cookies without a matching CSRF header', async () => {
+    const user = await createVerifiedLocalUser()
+    const authenticated = await loginFixtureUser(app, user)
+
+    const response = await request(app)
+      .post('/api/auth/refresh-token')
+      .set('Origin', TRUSTED_TEST_ORIGIN)
+      .set('Cookie', authenticated.cookieHeader)
+
+    expect(response.status).toBe(403)
+    expect(response.body).toMatchObject({
+      success: false,
+      code: 'CSRF_TOKEN_INVALID',
     })
   })
 

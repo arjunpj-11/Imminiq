@@ -8,6 +8,7 @@ import passport from 'passport'
 import { env } from './config/env'
 import { errorHandler } from './shared/middlewares/errorHandler'
 import { verifyBrowserRequestOrigin } from './shared/middlewares/request-origin.middleware'
+import { validateCsrfToken } from './shared/middlewares/csrf-token.middleware'
 import { initPassport } from './infrastructure/auth/passport'
 
 import authRouter from './modules/auth/auth.routes'
@@ -29,6 +30,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
 app.use(verifyBrowserRequestOrigin)
+app.use(validateCsrfToken)
 
 initPassport()
 app.use(passport.initialize())
