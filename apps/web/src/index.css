@@ -1,3 +1,59 @@
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
+
+/* ─── Global Imminiq Scrollbar ───────────────────────────── */
+
+html,
+body,
+#root {
+  background-color: #f5ede4;
+}
+
+html.dark,
+html.dark body,
+html.dark #root {
+  background-color: #141412;
+}
+
+html {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(184, 76, 43, 0.42) transparent;
+}
+
+html.dark {
+  scrollbar-color: rgba(232, 129, 106, 0.5) transparent;
+}
+
+/* Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+  background: transparent;
+}
+
+::-webkit-scrollbar-track,
+::-webkit-scrollbar-track-piece {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(184, 76, 43, 0.42);
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: rgba(232, 129, 106, 0.5);
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(184, 76, 43, 0.62);
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: rgba(232, 129, 106, 0.7);
+}
+
+::-webkit-scrollbar-corner {
+  background: transparent;
+}

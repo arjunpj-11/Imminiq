@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
 import type { AxiosError } from 'axios'
 import SettingsShell from '../components/SettingsShell'
+import SettingsContentLoading from '../components/SettingsContentLoading'
 import {
   MonoLabel,
   SettingsCard,
@@ -210,6 +211,21 @@ export default function AccountSecuritySettingsPage() {
       window.clearInterval(intervalId)
     }
   }, [pendingEmailTimer])
+
+  if (securityQuery.isLoading) {
+    return (
+      <SettingsShell
+        title="Account Security"
+        subtitle="Manage your email, password, sessions, two-factor authentication and account safety."
+      >
+        <SettingsContentLoading
+          eyebrow="Loading Security"
+          title="Preparing account security"
+          description="Fetching your email, password options, sessions, and two-factor settings."
+        />
+      </SettingsShell>
+    )
+  }
 
   const handleEmailUpdate = async () => {
     try {
