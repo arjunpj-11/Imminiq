@@ -1,4 +1,8 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
+import {
+  AI_JOB_QUOTA_POLICIES,
+  aiJobQuotaCache,
+} from '../../../../infrastructure/cache/ai-job-quota.cache'
 
 import type { AIJobQueueGateway } from '../../domain/gateways/ai-job-queue.gateway'
 import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
@@ -22,6 +26,32 @@ export class GenerateRoadmapUseCase {
     goal: string | undefined,
     level: RoadmapLevel
   ): Promise<GenerateRoadmapResult> {
+    const activeRoadmapJob =
+      await this.onboardingRepository.findActiveRoadmapJobForUser(userId)
+
+    if (activeRoadmapJob) {
+      throw new ApiError(
+        409,
+        'A roadmap generation job is already running for this account.',
+        'ROADMAP_JOB_ALREADY_ACTIVE'
+      )
+    }
+
+    const quota =
+      await aiJobQuotaCache.consume(
+        'roadmap_generation',
+        userId,
+        AI_JOB_QUOTA_POLICIES.roadmapGeneration
+      )
+
+    if (!quota.allowed) {
+      throw new ApiError(
+        429,
+        'Roadmap generation limit reached. Please try again later.',
+        'ROADMAP_GENERATION_QUOTA_EXCEEDED'
+      )
+    }
+
     await this.onboardingRepository.saveStep1(
       userId,
       topic,

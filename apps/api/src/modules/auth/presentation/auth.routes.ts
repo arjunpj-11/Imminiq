@@ -4,6 +4,19 @@ import passport from 'passport'
 import { authController } from './auth.controller'
 import { validate } from '../../../shared/middlewares/validate'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
+import {
+  issueOAuthState,
+  validateOAuthState,
+} from '../../../shared/middlewares/oauth-state.middleware'
+import {
+  authOtpSendIpLimiter,
+  authOtpVerifyIpLimiter,
+  forgotPasswordIpLimiter,
+  loginIpLimiter,
+  registerIpLimiter,
+  resetPasswordIpLimiter,
+  twoFactorLoginIpLimiter,
+} from '../../../shared/middlewares/security-rate-limit.middleware'
 import { env } from '../../../config/env'
 
 import {
@@ -26,18 +39,21 @@ const router = Router()
 
 router.post(
   '/register',
+  registerIpLimiter,
   validate(registerSchema),
   authController.register
 )
 
 router.post(
   '/login',
+  loginIpLimiter,
   validate(loginSchema),
   authController.login
 )
 
 router.post(
   '/2fa/verify-login',
+  twoFactorLoginIpLimiter,
   validate(verifyTwoFactorLoginSchema),
   authController.verifyTwoFactorLogin
 )
@@ -54,30 +70,35 @@ router.post(
 
 router.post(
   '/verify-account',
+  authOtpVerifyIpLimiter,
   validate(verifyOtpSchema),
   authController.verifyAccount
 )
 
 router.post(
   '/send-otp',
+  authOtpSendIpLimiter,
   validate(sendOtpSchema),
   authController.sendOtp
 )
 
 router.post(
   '/forgot-password',
+  forgotPasswordIpLimiter,
   validate(forgotPasswordSchema),
   authController.forgotPassword
 )
 
 router.post(
   '/verify-reset-code',
+  authOtpVerifyIpLimiter,
   validate(verifyResetCodeSchema),
   authController.verifyResetCode
 )
 
 router.post(
   '/reset-password',
+  resetPasswordIpLimiter,
   validate(resetPasswordSchema),
   authController.resetPassword
 )
@@ -131,14 +152,19 @@ router.delete(
 
 router.get(
   '/oauth/google',
-  passport.authenticate('google', {
-    scope: ['profile', 'email'],
-    session: false,
-  })
+  issueOAuthState('google'),
+  (req, res, next) => {
+    passport.authenticate('google', {
+      scope: ['profile', 'email'],
+      session: false,
+      state: String(res.locals.oauthState),
+    })(req, res, next)
+  }
 )
 
 router.get(
   '/oauth/google/callback',
+  validateOAuthState('google'),
   passport.authenticate('google', {
     session: false,
     failureRedirect: `${env.CLIENT_URL}/login?error=oauth_failed`,
@@ -148,14 +174,19 @@ router.get(
 
 router.get(
   '/oauth/github',
-  passport.authenticate('github', {
-    scope: ['user:email'],
-    session: false,
-  })
+  issueOAuthState('github'),
+  (req, res, next) => {
+    passport.authenticate('github', {
+      scope: ['user:email'],
+      session: false,
+      state: String(res.locals.oauthState),
+    })(req, res, next)
+  }
 )
 
 router.get(
   '/oauth/github/callback',
+  validateOAuthState('github'),
   passport.authenticate('github', {
     session: false,
     failureRedirect: `${env.CLIENT_URL}/login?error=oauth_failed`,

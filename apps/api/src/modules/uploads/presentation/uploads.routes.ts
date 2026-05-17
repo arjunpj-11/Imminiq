@@ -3,6 +3,8 @@ import {
   avatarUpload,
   bannerUpload,
 } from '../../../shared/middlewares/profile-image-upload'
+import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware'
+import { profileImageUploadIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { uploadsController } from './uploads.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
@@ -17,7 +19,9 @@ router.use(authenticate)
 
 router.post(
   '/avatar',
+  profileImageUploadIpLimiter,
   avatarUpload.single('file'),
+  validateUploadedImageSignature,
   uploadsController.uploadAvatar
 )
 
@@ -31,7 +35,9 @@ router.post(
 
 router.post(
   '/banner',
+  profileImageUploadIpLimiter,
   bannerUpload.single('file'),
+  validateUploadedImageSignature,
   uploadsController.uploadBanner
 )
 

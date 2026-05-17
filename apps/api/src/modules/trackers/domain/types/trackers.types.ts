@@ -76,7 +76,7 @@ export interface TrackerSubtopicRecord {
   depth: number
 }
 
-export interface CreatedTrackerSubtopicRecord extends TrackerSubtopicRecord {}
+export type CreatedTrackerSubtopicRecord = TrackerSubtopicRecord
 
 export interface LastSiblingSubtopicRecord {
   order?: number

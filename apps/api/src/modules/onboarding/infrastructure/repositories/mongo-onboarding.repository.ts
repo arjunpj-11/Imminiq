@@ -83,6 +83,34 @@ export const mongoOnboardingRepository: OnboardingRepository = {
     )
   },
 
+  findActiveRoadmapJobForUser: async (
+    userId: string
+  ) => {
+    return AIGenerationJob.findOne({
+      userId,
+      jobType: 'roadmap',
+      status: {
+        $in: ['pending', 'processing'],
+      },
+      deletedAt: null,
+    }).sort({ createdAt: -1 })
+  },
+
+  findActiveEvaluationJobForRoadmap: async (
+    userId: string,
+    sourceRoadmapJobId: string
+  ) => {
+    return AIGenerationJob.findOne({
+      userId,
+      jobType: 'evaluation',
+      'inputData.sourceRoadmapJobId': sourceRoadmapJobId,
+      status: {
+        $in: ['pending', 'processing'],
+      },
+      deletedAt: null,
+    }).sort({ createdAt: -1 })
+  },
+
   createAIJob: async (
     userId: string,
     inputData: RoadmapJobInput

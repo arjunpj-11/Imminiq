@@ -1,14 +1,10 @@
 import type {
   ActivityFeedItemView,
   ActivityRecord,
-  BadgeShowcaseView,
-  CriteriaRecord,
   CurrentUserView,
   EditableProfileView,
   IdLike,
-  MetadataRecord,
   ProfileRecord,
-  StreakHeatmapDay,
   UserRecord,
 } from '../../domain/types/users.types'
 

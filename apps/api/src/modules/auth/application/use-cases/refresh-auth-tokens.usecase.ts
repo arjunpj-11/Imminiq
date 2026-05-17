@@ -1,5 +1,7 @@
 import { authRepository } from '../../auth.repository'
 import { ApiError } from '../../../../shared/utils/ApiError'
+import { retiredRefreshTokenCache } from '../../../../infrastructure/cache/retired-refresh-token.cache'
+import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
 import type {
   RequestMeta,
   TokenPair,
@@ -18,6 +20,30 @@ export class RefreshAuthTokensUseCase {
     const tokenRecord = await authRepository.findRefreshToken(refreshToken)
 
     if (!tokenRecord) {
+      const retired =
+        await retiredRefreshTokenCache.findByRawToken(refreshToken)
+
+      if (retired) {
+        await authRepository.revokeAllUserTokens(retired.userId)
+
+        await securityAuditLogger.record({
+          userId: retired.userId,
+          eventType: 'REFRESH_TOKEN_REUSE_DETECTED',
+          outcome: 'detected',
+          ipAddress: meta?.ipAddress,
+          userAgent: meta?.userAgent,
+          metadata: {
+            sessionId: retired.sessionId,
+          },
+        })
+
+        throw new ApiError(
+          401,
+          'Refresh token reuse detected. Please sign in again.',
+          'REFRESH_TOKEN_REUSE_DETECTED'
+        )
+      }
+
       throw new ApiError(401, 'Invalid refresh token', 'UNAUTHORIZED')
     }
 
@@ -35,6 +61,13 @@ export class RefreshAuthTokensUseCase {
     )
 
     const newRefreshToken = generateRefreshToken()
+
+    await retiredRefreshTokenCache.retire({
+      refreshTokenHash: tokenRecord.refreshTokenHash,
+      userId: tokenRecord.userId.toString(),
+      sessionId: tokenRecord._id.toString(),
+      expiresAt: tokenRecord.expiresAt,
+    })
 
     const rotatedSession =
       await authRepository.rotateRefreshTokenInSameSession(

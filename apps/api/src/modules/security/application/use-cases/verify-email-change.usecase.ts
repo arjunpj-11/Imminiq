@@ -1,4 +1,5 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
+import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
   VerifyEmailChangePayload,
@@ -60,6 +61,12 @@ export class VerifyEmailChangeUseCase {
     }
 
     await this.securityRepository.revokeAllSessions(String(user._id))
+
+    await securityAuditLogger.record({
+      userId: String(user._id),
+      eventType: 'EMAIL_CHANGE_VERIFIED',
+      outcome: 'success',
+    })
 
     return {
       email: updatedUser.email ?? pendingEmail,

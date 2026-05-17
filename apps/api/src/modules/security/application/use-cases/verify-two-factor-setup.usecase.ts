@@ -1,4 +1,8 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
+import {
+  SECURITY_ATTEMPT_POLICIES,
+  securityAttemptCache,
+} from '../../../../infrastructure/cache/security-attempt.cache'
 import type { TwoFactorGateway } from '../../domain/gateways/two-factor.gateway'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
@@ -10,6 +14,43 @@ import {
   hashBackupCodes,
 } from '../utils/two-factor-backup-codes.util'
 
+const TWO_FACTOR_SETUP_SCOPE = 'security_two_factor_setup' as const
+
+const assertSetupVerificationAllowed = async (
+  userId: string
+) => {
+  const blocked = await securityAttemptCache.isBlocked(
+    TWO_FACTOR_SETUP_SCOPE,
+    userId
+  )
+
+  if (!blocked) return
+
+  throw new ApiError(
+    429,
+    'Too many invalid authenticator codes. Start setup again or try later.',
+    'TWO_FACTOR_SETUP_TEMPORARILY_BLOCKED'
+  )
+}
+
+const recordInvalidSetupCode = async (
+  userId: string
+) => {
+  const result = await securityAttemptCache.recordFailure(
+    TWO_FACTOR_SETUP_SCOPE,
+    userId,
+    SECURITY_ATTEMPT_POLICIES.twoFactorVerification
+  )
+
+  if (result.blocked) {
+    throw new ApiError(
+      429,
+      'Too many invalid authenticator codes. Start setup again or try later.',
+      'TWO_FACTOR_SETUP_TEMPORARILY_BLOCKED'
+    )
+  }
+}
+
 export class VerifyTwoFactorSetupUseCase {
   constructor(
     private readonly securityRepository: SecurityRepository,
@@ -20,6 +61,8 @@ export class VerifyTwoFactorSetupUseCase {
     userId: string,
     payload: VerifyTwoFactorSetupPayload
   ): Promise<TwoFactorVerifyResponse> {
+    await assertSetupVerificationAllowed(userId)
+
     const twoFactor =
       await this.securityRepository.findTwoFactorWithSecret(userId)
 
@@ -61,12 +104,19 @@ export class VerifyTwoFactorSetupUseCase {
     })
 
     if (!valid) {
+      await recordInvalidSetupCode(userId)
+
       throw new ApiError(
         400,
         'Invalid authenticator code',
         'INVALID_TWO_FACTOR_CODE'
       )
     }
+
+    await securityAttemptCache.clear(
+      TWO_FACTOR_SETUP_SCOPE,
+      userId
+    )
 
     const backupCodes = generateBackupCodes()
     const hashedBackupCodes = await hashBackupCodes(backupCodes)

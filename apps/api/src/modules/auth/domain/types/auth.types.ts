@@ -116,6 +116,7 @@ export interface ApiErrorResponse {
 export type ResetTokenPayload = {
   userId: string
   purpose: 'password_reset'
+  jti: string
 }
 
 export type TwoFactorChallengeTokenPayload = {

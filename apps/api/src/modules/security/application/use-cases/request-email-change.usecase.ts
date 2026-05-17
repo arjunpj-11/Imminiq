@@ -1,5 +1,6 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
 import { env } from '../../../../config/env'
+import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
 import type { SecurityEmailGateway } from '../../domain/gateways/security-email.gateway'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
@@ -10,11 +11,13 @@ import {
   EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES,
   generateEmailChangeToken,
 } from '../utils/email-change-token.util'
+import { SensitiveActionStepUpService } from '../services/sensitive-action-step-up.service'
 
 export class RequestEmailChangeUseCase {
   constructor(
     private readonly securityRepository: SecurityRepository,
-    private readonly securityEmailGateway: SecurityEmailGateway
+    private readonly securityEmailGateway: SecurityEmailGateway,
+    private readonly sensitiveActionStepUpService: SensitiveActionStepUpService
   ) {}
 
   async execute(
@@ -26,6 +29,12 @@ export class RequestEmailChangeUseCase {
     if (!user) {
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
+
+    await this.sensitiveActionStepUpService.assertSatisfied({
+      user,
+      payload,
+      action: 'change_email',
+    })
 
     const normalizedEmail = payload.newEmail.trim().toLowerCase()
 
@@ -99,6 +108,15 @@ export class RequestEmailChangeUseCase {
         }
       )
     }
+
+    await securityAuditLogger.record({
+      userId,
+      eventType: 'EMAIL_CHANGE_REQUESTED',
+      outcome: 'success',
+      metadata: {
+        hasPendingEmail: true,
+      },
+    })
 
     return {
       pendingEmail: normalizedEmail,

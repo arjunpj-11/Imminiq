@@ -67,7 +67,6 @@ export interface TrackerRecord {
   _id?: {
     toString(): string
   }
-  [key: string]: unknown
 }
 
 export type SubtopicTreeNode = {

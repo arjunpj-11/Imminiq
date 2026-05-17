@@ -1,4 +1,5 @@
 export type {
+  SensitiveActionStepUpPayload,
   ChangeEmailPayload,
   VerifyEmailChangePayload,
   ChangePasswordPayload,

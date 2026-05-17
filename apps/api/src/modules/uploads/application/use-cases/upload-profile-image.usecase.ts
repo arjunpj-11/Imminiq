@@ -29,10 +29,10 @@ export class UploadProfileImageUseCase {
       throw new ApiError(404, 'User not found')
     }
 
-    const profile = await this.usersProfileGateway.ensureProfileForUser(
-      user._id,
-      user.fullName ?? ''
-    )
+const profile = await this.usersProfileGateway.ensureProfileForUser(
+  String(user._id),
+  user.fullName ?? ''
+)
 
     const folder =
       kind === 'avatar' ? 'imminiq/avatars' : 'imminiq/banners'

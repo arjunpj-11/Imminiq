@@ -23,6 +23,10 @@ const activeOnly = { deletedAt: null }
 const toObjectId = (id: string | Types.ObjectId) =>
   typeof id === 'string' ? new Types.ObjectId(id) : id
 
+const escapeRegex = (value: string) => {
+  return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+}
+
 export const mongoUsersRepository: UsersRepository = {
   findUserById(userId: string) {
     return User.findOne({
@@ -250,22 +254,24 @@ export const mongoUsersRepository: UsersRepository = {
     }
 
     if (query.search) {
+      const safeSearch = escapeRegex(query.search)
+
       filter.$or = [
         {
           title: {
-            $regex: query.search,
+            $regex: safeSearch,
             $options: 'i',
           },
         },
         {
           description: {
-            $regex: query.search,
+            $regex: safeSearch,
             $options: 'i',
           },
         },
         {
           category: {
-            $regex: query.search,
+            $regex: safeSearch,
             $options: 'i',
           },
         },

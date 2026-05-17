@@ -1,6 +1,10 @@
 import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
+import {
+  publicEmailChangeVerifyIpLimiter,
+  securityTwoFactorIpLimiter,
+} from '../../../shared/middlewares/security-rate-limit.middleware'
 import { securityController } from './security.controller'
 import {
   changeEmailSchema,
@@ -19,6 +23,7 @@ const router = Router()
 // and may not be logged in.
 router.post(
   '/verify-email-change',
+  publicEmailChangeVerifyIpLimiter,
   validate(verifyEmailChangeSchema),
   securityController.verifyEmailChange
 )
@@ -64,12 +69,14 @@ router.post(
 
 router.post(
   '/2fa/verify',
+  securityTwoFactorIpLimiter,
   validate(verifyTwoFactorSetupSchema),
   securityController.verifyTwoFactorSetup
 )
 
 router.post(
   '/2fa/disable',
+  securityTwoFactorIpLimiter,
   validate(disableTwoFactorSchema),
   securityController.disableTwoFactor
 )

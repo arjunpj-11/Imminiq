@@ -1,6 +1,14 @@
 import type { Request, Response, NextFunction } from 'express'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { usersService } from '../application/services/users.service'
+import type {
+  PaginationQuery,
+  ProfileSort,
+} from '../domain/types/users.types'
+
+const MAX_PAGE = 100_000
+const MAX_LIMIT = 50
+const MAX_SEARCH_LENGTH = 80
 
 const requireUserId = (req: Request) => {
   const userId = req.user?.userId
@@ -14,6 +22,69 @@ const requireUserId = (req: Request) => {
 
 type UsernameParams = {
   username: string
+}
+
+const clampInteger = (
+  value: unknown,
+  fallback: number,
+  minimum: number,
+  maximum: number
+) => {
+  const parsed =
+    typeof value === 'string'
+      ? Number(value)
+      : Number(value ?? fallback)
+
+  if (!Number.isInteger(parsed)) {
+    return fallback
+  }
+
+  return Math.min(Math.max(parsed, minimum), maximum)
+}
+
+const normalizeSearch = (
+  value: unknown
+): string | undefined => {
+  if (typeof value !== 'string') {
+    return undefined
+  }
+
+  const trimmed = value.trim().slice(0, MAX_SEARCH_LENGTH)
+
+  return trimmed || undefined
+}
+
+const normalizeStatus = (
+  value: unknown
+): PaginationQuery['status'] => {
+  return value === 'active' ||
+    value === 'draft' ||
+    value === 'archived'
+    ? value
+    : undefined
+}
+
+const normalizeSort = (
+  value: unknown
+): ProfileSort => {
+  return value === 'createdAt' ||
+    value === 'publishedAt' ||
+    value === 'ratingAverage' ||
+    value === 'cloneCount'
+    ? value
+    : 'publishedAt'
+}
+
+const buildTrackerPaginationQuery = (
+  req: Request
+): PaginationQuery => {
+  return {
+    page: clampInteger(req.query.page, 1, 1, MAX_PAGE),
+    limit: clampInteger(req.query.limit, 10, 1, MAX_LIMIT),
+    search: normalizeSearch(req.query.search),
+    status: normalizeStatus(req.query.status),
+    sort: normalizeSort(req.query.sort),
+  }
 }
 
 export const usersController = {
@@ -86,32 +157,7 @@ export const usersController = {
       const result = await usersService.getPublicProfilePage(
         req.params.username,
         req.user?.userId,
-        {
-          page: Number(req.query.page ?? 1),
-          limit: Number(req.query.limit ?? 10),
-
-          search:
-            typeof req.query.search === 'string'
-              ? req.query.search
-              : undefined,
-
-          status:
-            typeof req.query.status === 'string'
-              ? (req.query.status as
-                  | 'active'
-                  | 'draft'
-                  | 'archived')
-              : undefined,
-
-          sort:
-            typeof req.query.sort === 'string'
-              ? (req.query.sort as
-                  | 'createdAt'
-                  | 'publishedAt'
-                  | 'ratingAverage'
-                  | 'cloneCount')
-              : 'publishedAt',
-        }
+        buildTrackerPaginationQuery(req)
       )
 
       res
@@ -148,8 +194,8 @@ export const usersController = {
     try {
       const result = await usersService.getMyActivity(
         requireUserId(req),
-        Number(req.query.page ?? 1),
-        Number(req.query.limit ?? 10)
+        clampInteger(req.query.page, 1, 1, MAX_PAGE),
+        clampInteger(req.query.limit, 10, 1, MAX_LIMIT)
       )
 
       res
@@ -173,7 +219,7 @@ export const usersController = {
     try {
       const result = await usersService.getMyRecentActivity(
         requireUserId(req),
-        Number(req.query.limit ?? 10)
+        clampInteger(req.query.limit, 10, 1, MAX_LIMIT)
       )
 
       res
@@ -191,9 +237,10 @@ export const usersController = {
 
   async getMyStreak(req: Request, res: Response, next: NextFunction) {
     try {
+      const currentYear = new Date().getUTCFullYear()
       const year =
         typeof req.query.year === 'string'
-          ? Number(req.query.year)
+          ? clampInteger(req.query.year, currentYear, 2000, currentYear + 1)
           : undefined
 
       const result = await usersService.getMyStreak(
@@ -222,32 +269,7 @@ export const usersController = {
     try {
       const result = await usersService.getMyPublishedTrackers(
         requireUserId(req),
-        {
-          page: Number(req.query.page ?? 1),
-          limit: Number(req.query.limit ?? 10),
-
-          search:
-            typeof req.query.search === 'string'
-              ? req.query.search
-              : undefined,
-
-          status:
-            typeof req.query.status === 'string'
-              ? (req.query.status as
-                  | 'active'
-                  | 'draft'
-                  | 'archived')
-              : undefined,
-
-          sort:
-            typeof req.query.sort === 'string'
-              ? (req.query.sort as
-                  | 'createdAt'
-                  | 'publishedAt'
-                  | 'ratingAverage'
-                  | 'cloneCount')
-              : 'publishedAt',
-        }
+        buildTrackerPaginationQuery(req)
       )
 
       res
@@ -267,8 +289,8 @@ export const usersController = {
     try {
       const result = await usersService.getMyBadges(
         requireUserId(req),
-        Number(req.query.page ?? 1),
-        Number(req.query.limit ?? 10)
+        clampInteger(req.query.page, 1, 1, MAX_PAGE),
+        clampInteger(req.query.limit, 10, 1, MAX_LIMIT)
       )
 
       res

@@ -1,3 +1,4 @@
+import type { Types } from 'mongoose'
 import type {
   UserProfileRecordForUpload,
   UserRecordForUpload,
@@ -9,7 +10,7 @@ export interface UsersProfileGateway {
   ): Promise<UserRecordForUpload | null>
 
   ensureProfileForUser(
-    userId: unknown,
+    userId: string | Types.ObjectId,
     fullName: string
   ): Promise<UserProfileRecordForUpload>
 }

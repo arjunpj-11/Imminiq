@@ -2,6 +2,10 @@ import bcrypt from 'bcryptjs'
 
 import { authRepository } from '../../auth.repository'
 import { ApiError } from '../../../../shared/utils/ApiError'
+import {
+  SECURITY_ATTEMPT_POLICIES,
+  securityAttemptCache,
+} from '../../../../infrastructure/cache/security-attempt.cache'
 import type {
   AuthLoginResult,
   LoginPayload,
@@ -18,6 +22,53 @@ import {
 import { resolveRedirectPath } from '../services/auth-redirect.service'
 import { formatAuthUser } from '../services/auth-user-formatter.service'
 
+const LOGIN_SCOPE = 'auth_login' as const
+
+const throwIfLoginTemporarilyBlocked = async (
+  identifier: string
+) => {
+  const blocked = await securityAttemptCache.isBlocked(
+    LOGIN_SCOPE,
+    identifier
+  )
+
+  if (!blocked) return
+
+  const retryAfterSeconds =
+    await securityAttemptCache.getRetryAfterSeconds(
+      LOGIN_SCOPE,
+      identifier
+    )
+
+  throw new ApiError(
+    429,
+    retryAfterSeconds > 0
+      ? `Too many failed login attempts. Try again in about ${Math.ceil(
+          retryAfterSeconds / 60
+        )} minute(s).`
+      : 'Too many failed login attempts. Please try again later.',
+    'LOGIN_TEMPORARILY_BLOCKED'
+  )
+}
+
+const recordLoginFailure = async (
+  identifier: string
+) => {
+  const result = await securityAttemptCache.recordFailure(
+    LOGIN_SCOPE,
+    identifier,
+    SECURITY_ATTEMPT_POLICIES.authLogin
+  )
+
+  if (result.blocked) {
+    throw new ApiError(
+      429,
+      'Too many failed login attempts. Please try again later.',
+      'LOGIN_TEMPORARILY_BLOCKED'
+    )
+  }
+}
+
 export class LoginUserUseCase {
   async execute(
     payload: LoginPayload,
@@ -25,9 +76,13 @@ export class LoginUserUseCase {
   ): Promise<AuthLoginResult> {
     const parsedIdentifier = normalizeIdentifier(payload.identifier)
 
+    await throwIfLoginTemporarilyBlocked(parsedIdentifier.value)
+
     const user = await authRepository.findByIdentifier(payload.identifier)
 
     if (!user) {
+      await recordLoginFailure(parsedIdentifier.value)
+
       throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
     }
 
@@ -44,8 +99,15 @@ export class LoginUserUseCase {
     const valid = await bcrypt.compare(payload.password, user.passwordHash)
 
     if (!valid) {
+      await recordLoginFailure(parsedIdentifier.value)
+
       throw new ApiError(401, 'Invalid credentials', 'INVALID_CREDENTIALS')
     }
+
+    await securityAttemptCache.clear(
+      LOGIN_SCOPE,
+      parsedIdentifier.value
+    )
 
     if (parsedIdentifier.method === 'email' && !user.emailVerified) {
       await sendVerificationOtp({

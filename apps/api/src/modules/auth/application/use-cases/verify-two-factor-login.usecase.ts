@@ -3,6 +3,10 @@ import { verify } from 'otplib'
 
 import { authRepository } from '../../auth.repository'
 import { ApiError } from '../../../../shared/utils/ApiError'
+import {
+  SECURITY_ATTEMPT_POLICIES,
+  securityAttemptCache,
+} from '../../../../infrastructure/cache/security-attempt.cache'
 import { decryptTotpSecret } from '../../../security/two-factor-secret.util'
 import type {
   AuthLoginSuccessResult,
@@ -18,6 +22,43 @@ import { resolveRedirectPath } from '../services/auth-redirect.service'
 import { formatAuthUser } from '../services/auth-user-formatter.service'
 import { normalizeBackupCode } from '../services/backup-code.service'
 
+const TWO_FACTOR_LOGIN_SCOPE = 'auth_two_factor_login' as const
+
+const assertTwoFactorLoginAllowed = async (
+  userId: string
+) => {
+  const blocked = await securityAttemptCache.isBlocked(
+    TWO_FACTOR_LOGIN_SCOPE,
+    userId
+  )
+
+  if (!blocked) return
+
+  throw new ApiError(
+    429,
+    'Too many invalid two-factor attempts. Please sign in again later.',
+    'TWO_FACTOR_LOGIN_TEMPORARILY_BLOCKED'
+  )
+}
+
+const recordInvalidTwoFactorLogin = async (
+  userId: string
+) => {
+  const result = await securityAttemptCache.recordFailure(
+    TWO_FACTOR_LOGIN_SCOPE,
+    userId,
+    SECURITY_ATTEMPT_POLICIES.twoFactorVerification
+  )
+
+  if (result.blocked) {
+    throw new ApiError(
+      429,
+      'Too many invalid two-factor attempts. Please sign in again later.',
+      'TWO_FACTOR_LOGIN_TEMPORARILY_BLOCKED'
+    )
+  }
+}
+
 export class VerifyTwoFactorLoginUseCase {
   async execute(
     challengeToken: string,
@@ -26,9 +67,13 @@ export class VerifyTwoFactorLoginUseCase {
   ): Promise<AuthLoginSuccessResult> {
     const decoded = verifyTwoFactorChallengeToken(challengeToken)
 
+    await assertTwoFactorLoginAllowed(decoded.userId)
+
     const user = await authRepository.findById(decoded.userId)
 
     if (!user) {
+      await recordInvalidTwoFactorLogin(decoded.userId)
+
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
 
@@ -95,12 +140,19 @@ export class VerifyTwoFactorLoginUseCase {
     }
 
     if (!verified) {
+      await recordInvalidTwoFactorLogin(decoded.userId)
+
       throw new ApiError(
         400,
         'Invalid two-factor code',
         'INVALID_TWO_FACTOR_LOGIN_CODE'
       )
     }
+
+    await securityAttemptCache.clear(
+      TWO_FACTOR_LOGIN_SCOPE,
+      decoded.userId
+    )
 
     const userId = user._id.toString()
     const redirectPath = await resolveRedirectPath(userId)

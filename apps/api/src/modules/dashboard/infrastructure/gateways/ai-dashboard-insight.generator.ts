@@ -3,6 +3,12 @@ import type { DashboardInsightGenerator } from '../../domain/gateways/dashboard-
 
 export const aiDashboardInsightGenerator: DashboardInsightGenerator = {
   generate: async (userData: string) => {
-    return generateDashboardInsights(userData)
+    const insight = await generateDashboardInsights(userData)
+
+    if (!insight) {
+      throw new Error('Dashboard insight generation returned an empty response')
+    }
+
+    return insight
   },
 }

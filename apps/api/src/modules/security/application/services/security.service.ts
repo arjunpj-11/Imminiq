@@ -23,6 +23,13 @@ import { SetupTwoFactorUseCase } from '../use-cases/setup-two-factor.usecase'
 import { VerifyTwoFactorSetupUseCase } from '../use-cases/verify-two-factor-setup.usecase'
 import { DisableTwoFactorUseCase } from '../use-cases/disable-two-factor.usecase'
 import { DeleteSecurityAccountUseCase } from '../use-cases/delete-security-account.usecase'
+import { SensitiveActionStepUpService } from './sensitive-action-step-up.service'
+
+const sensitiveActionStepUpService =
+  new SensitiveActionStepUpService(
+    mongoSecurityRepository,
+    otplibTwoFactorGateway
+  )
 
 const getSecurityOverviewUseCase =
   new GetSecurityOverviewUseCase(mongoSecurityRepository)
@@ -30,7 +37,8 @@ const getSecurityOverviewUseCase =
 const requestEmailChangeUseCase =
   new RequestEmailChangeUseCase(
     mongoSecurityRepository,
-    securityEmailGateway
+    securityEmailGateway,
+    sensitiveActionStepUpService
   )
 
 const verifyEmailChangeUseCase =
@@ -67,7 +75,10 @@ const disableTwoFactorUseCase =
   )
 
 const deleteSecurityAccountUseCase =
-  new DeleteSecurityAccountUseCase(mongoSecurityRepository)
+  new DeleteSecurityAccountUseCase(
+    mongoSecurityRepository,
+    sensitiveActionStepUpService
+  )
 
 export const securityService = {
   getOverview: async (

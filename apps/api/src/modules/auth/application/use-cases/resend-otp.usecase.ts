@@ -12,8 +12,13 @@ export class ResendOtpUseCase {
 
     const user = await authRepository.findByIdentifier(parsedIdentifier.value)
 
+    /**
+     * Deliberately return silently when the account does not exist.
+     * The controller already returns "OTP sent successfully", which avoids
+     * disclosing whether an email/phone is registered.
+     */
     if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+      return
     }
 
     if (

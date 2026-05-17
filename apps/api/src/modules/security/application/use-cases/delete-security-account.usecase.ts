@@ -1,13 +1,16 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
+import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
   DeleteAccountPayload,
   DeleteAccountResponse,
 } from '../../domain/types/security.types'
+import { SensitiveActionStepUpService } from '../services/sensitive-action-step-up.service'
 
 export class DeleteSecurityAccountUseCase {
   constructor(
-    private readonly securityRepository: SecurityRepository
+    private readonly securityRepository: SecurityRepository,
+    private readonly sensitiveActionStepUpService: SensitiveActionStepUpService
   ) {}
 
   async execute(
@@ -28,6 +31,12 @@ export class DeleteSecurityAccountUseCase {
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
 
+    await this.sensitiveActionStepUpService.assertSatisfied({
+      user,
+      payload,
+      action: 'delete_account',
+    })
+
     await this.securityRepository.revokeAllSessions(userId)
 
     const deletedUser =
@@ -40,6 +49,12 @@ export class DeleteSecurityAccountUseCase {
         'ACCOUNT_DELETE_FAILED'
       )
     }
+
+    await securityAuditLogger.record({
+      userId,
+      eventType: 'ACCOUNT_DELETED',
+      outcome: 'success',
+    })
 
     return {
       deleted: true,

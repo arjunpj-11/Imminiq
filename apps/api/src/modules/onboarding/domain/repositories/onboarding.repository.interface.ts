@@ -24,6 +24,15 @@ export interface OnboardingRepository {
 
   markCompleted(userId: string): Promise<OnboardingResponseRecord | null>
 
+  findActiveRoadmapJobForUser(
+    userId: string
+  ): Promise<AIGenerationJobRecord | null>
+
+  findActiveEvaluationJobForRoadmap(
+    userId: string,
+    sourceRoadmapJobId: string
+  ): Promise<AIGenerationJobRecord | null>
+
   createAIJob(
     userId: string,
     inputData: RoadmapJobInput

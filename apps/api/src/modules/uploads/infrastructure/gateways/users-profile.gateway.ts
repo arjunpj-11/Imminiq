@@ -1,3 +1,4 @@
+import type { Types } from 'mongoose'
 import { usersRepository } from '../../../users/users.repository'
 import type { UsersProfileGateway } from '../../domain/gateways/users-profile.gateway'
 import type {
@@ -14,7 +15,7 @@ export const usersProfileGateway: UsersProfileGateway = {
   },
 
   async ensureProfileForUser(
-    userId: unknown,
+    userId: string | Types.ObjectId,
     fullName: string
   ): Promise<UserProfileRecordForUpload> {
     const profile = await usersRepository.ensureProfileForUser(

@@ -1,5 +1,4 @@
 import type {
-  FlatUpdate,
   UserSettingsView,
 } from '../types/settings.types'
 

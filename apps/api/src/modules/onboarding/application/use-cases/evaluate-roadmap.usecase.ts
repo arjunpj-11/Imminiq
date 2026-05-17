@@ -1,4 +1,8 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
+import {
+  AI_JOB_QUOTA_POLICIES,
+  aiJobQuotaCache,
+} from '../../../../infrastructure/cache/ai-job-quota.cache'
 
 import type { AIJobQueueGateway } from '../../domain/gateways/ai-job-queue.gateway'
 import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
@@ -65,6 +69,35 @@ export class EvaluateRoadmapUseCase {
         500,
         'Generated tracker is missing',
         'TRACKER_NOT_FOUND'
+      )
+    }
+
+    const activeEvaluationJob =
+      await this.onboardingRepository.findActiveEvaluationJobForRoadmap(
+        userId,
+        roadmapJobId
+      )
+
+    if (activeEvaluationJob) {
+      throw new ApiError(
+        409,
+        'A roadmap evaluation job is already running for this roadmap.',
+        'EVALUATION_JOB_ALREADY_ACTIVE'
+      )
+    }
+
+    const quota =
+      await aiJobQuotaCache.consume(
+        'roadmap_evaluation',
+        userId,
+        AI_JOB_QUOTA_POLICIES.roadmapEvaluation
+      )
+
+    if (!quota.allowed) {
+      throw new ApiError(
+        429,
+        'Roadmap evaluation limit reached. Please try again later.',
+        'ROADMAP_EVALUATION_QUOTA_EXCEEDED'
       )
     }
 

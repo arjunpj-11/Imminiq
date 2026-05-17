@@ -1,4 +1,9 @@
-export type ChangeEmailPayload = {
+export type SensitiveActionStepUpPayload = {
+  currentPassword?: string
+  twoFactorCode?: string
+}
+
+export type ChangeEmailPayload = SensitiveActionStepUpPayload & {
   newEmail: string
 }
 
@@ -11,7 +16,7 @@ export type ChangePasswordPayload = {
   newPassword: string
 }
 
-export type DeleteAccountPayload = {
+export type DeleteAccountPayload = SensitiveActionStepUpPayload & {
   confirmation: 'DELETE'
 }
 
@@ -106,6 +111,7 @@ export interface SecurityUserRecord {
   provider: 'local' | 'google' | 'github'
   fullName: string
   username: string
+  passwordHash?: string | null
 }
 
 export interface PendingEmailUserRecord extends SecurityUserRecord {

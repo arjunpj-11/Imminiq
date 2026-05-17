@@ -8,12 +8,26 @@ const passwordSchema = z
     message: 'Password must include at least one number or symbol',
   })
 
+const optionalStepUpPasswordSchema = z
+  .string()
+  .min(1, 'Current password is required')
+  .optional()
+
+const optionalTwoFactorCodeSchema = z
+  .string()
+  .trim()
+  .regex(/^\d{6}$/, 'Enter the 6-digit authenticator code')
+  .optional()
+
 export const changeEmailSchema = z.object({
   newEmail: z
     .string()
     .trim()
     .email('Enter a valid email address')
     .transform((value) => value.toLowerCase()),
+
+  currentPassword: optionalStepUpPasswordSchema,
+  twoFactorCode: optionalTwoFactorCodeSchema,
 })
 
 export const verifyEmailChangeSchema = z.object({
@@ -35,6 +49,9 @@ export const deleteAccountSchema = z.object({
   confirmation: z.literal('DELETE', {
     error: 'Type DELETE to confirm account deletion',
   }),
+
+  currentPassword: optionalStepUpPasswordSchema,
+  twoFactorCode: optionalTwoFactorCodeSchema,
 })
 
 export const verifyTwoFactorSetupSchema = z.object({
