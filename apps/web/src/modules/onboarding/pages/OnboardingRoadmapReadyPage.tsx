@@ -91,6 +91,25 @@ const PulseIcon = () => {
   )
 }
 
+const DashboardIcon = () => {
+  return (
+    <svg
+      width="15"
+      height="15"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
+      <rect x="3" y="3" width="7" height="7" />
+      <rect x="14" y="3" width="7" height="7" />
+      <rect x="3" y="14" width="7" height="7" />
+      <rect x="14" y="14" width="7" height="7" />
+    </svg>
+  )
+}
+
 const getChildren = (node?: RoadmapSubtopic) => {
   return node?.children || node?.subtopics || []
 }
@@ -211,9 +230,10 @@ export default function OnboardingRoadmapReadyPage() {
   const runRoadmapEvaluation = useRunRoadmapEvaluation()
 
   const tracker = data?.data?.tracker
+
   const topics = useMemo(() => {
-  return data?.data?.topics || []
-}, [data?.data?.topics])
+    return data?.data?.topics || []
+  }, [data?.data?.topics])
 
   const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
   const [sectionOverrides, setSectionOverrides] = useState<
@@ -292,12 +312,12 @@ export default function OnboardingRoadmapReadyPage() {
     setEvaluationError(null)
 
     try {
-     const response =
-  await runRoadmapEvaluation.mutateAsync(jobId)
+      const response =
+        await runRoadmapEvaluation.mutateAsync(jobId)
 
-     navigate(
-  `/onboarding/roadmap-evaluation/${response.data.jobId}`
-)
+      navigate(
+        `/onboarding/roadmap-evaluation/${response.data.jobId}`
+      )
     } catch (mutationError) {
       const message =
         mutationError instanceof Error
@@ -613,6 +633,18 @@ export default function OnboardingRoadmapReadyPage() {
               {runRoadmapEvaluation.isPending
                 ? 'Gemini is evaluating roadmap...'
                 : 'Run AI Evaluation'}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => navigate('/dashboard')}
+              className="flex w-full items-center justify-center gap-2 rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3.5 text-sm font-bold text-[#6b5f58] transition hover:-translate-y-px hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] hover:shadow-[0_6px_24px_rgba(184,76,43,0.10)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:border-[#e8816a] dark:hover:text-[#e8816a]"
+            >
+              <span className="flex h-5 w-5 items-center justify-center rounded-[5px] border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                <DashboardIcon />
+              </span>
+
+              Go to Dashboard
             </button>
 
             {evaluationError && (

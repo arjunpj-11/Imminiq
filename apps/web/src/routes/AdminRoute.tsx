@@ -15,6 +15,15 @@ export const AdminRoute = ({ children }: { children: React.ReactNode }) => {
     return <Navigate to="/login" replace />
   }
 
+  if (
+  user?.status === 'blocked' ||
+  user?.status === 'banned' ||
+  user?.status === 'deactivated' ||
+  user?.status === 'paused'
+) {
+  return <Navigate to="/blocked" replace />
+}
+
   return ['admin', 'superadmin'].includes(user?.role ?? '') ? (
     <>{children}</>
   ) : (

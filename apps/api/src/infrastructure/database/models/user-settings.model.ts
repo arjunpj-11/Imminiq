@@ -627,8 +627,7 @@ const userSettingsSchema = new Schema<IUserSettings>(
   }
 )
 
-// Keep indexes here only.
-userSettingsSchema.index({ userId: 1 })
+
 
 export const UserSettings =
   mongoose.models.UserSettings ||

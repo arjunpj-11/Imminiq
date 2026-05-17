@@ -17,6 +17,8 @@ interface TopBarProps {
   userAvatarUrl?: string
   userLevel?: string
   isGuest?: boolean
+  notificationCount?: number
+  messageCount?: number
 }
 
 const LogoIcon = () => (
@@ -52,6 +54,45 @@ const LogoIcon = () => (
   </svg>
 )
 
+const BellIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
+    <path d="M18 8a6 6 0 00-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
+    <path d="M13.73 21a2 2 0 01-3.46 0" />
+  </svg>
+)
+
+const MessageIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
+    <path d="M21 15a2 2 0 01-2 2H8l-5 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+  </svg>
+)
+
+const CountBadge = ({ count }: { count: number }) => {
+  if (count <= 0) return null
+
+  return (
+    <span className="absolute -right-1.5 -top-1.5 flex min-h-4 min-w-4 items-center justify-center rounded-full border-2 border-[#f5ede4] bg-[#b84c2b] px-1 text-[8px] font-bold leading-none text-white shadow-[0_4px_12px_rgba(184,76,43,0.30)] dark:border-[#141412] dark:bg-[#e8816a] dark:text-[#141412]">
+      {count > 99 ? '99+' : count}
+    </span>
+  )
+}
+
 export default function TopBar({
   streakDays = 42,
   userName = 'Arjun Kumar',
@@ -59,6 +100,8 @@ export default function TopBar({
   userAvatarUrl,
   userLevel = 'Level 12 · Adept',
   isGuest = false,
+  notificationCount = 0,
+  messageCount = 0,
 }: TopBarProps) {
   const [dark, setDark] = useState(() => {
     const stored = localStorage.getItem('imminiq_theme')
@@ -109,6 +152,7 @@ export default function TopBar({
         className="flex min-w-0 items-center gap-2.5 rounded-[10px] no-underline transition hover:opacity-90"
       >
         <LogoIcon />
+
         <span className="truncate font-['Playfair_Display',serif] text-[20px] font-extrabold leading-none tracking-[-0.45px] text-[#b84c2b] dark:text-[#e8816a] max-[420px]:text-[18px]">
           Imminiq
         </span>
@@ -185,6 +229,32 @@ export default function TopBar({
               {streakDays}-Day Streak
             </div>
 
+            <Link
+              to="/chats"
+              aria-label={
+                messageCount > 0
+                  ? `${messageCount} unread messages`
+                  : 'Open messages'
+              }
+              className="relative flex h-8 w-8 items-center justify-center rounded-lg border-[1.5px] border-[#e0d0c5] text-[#6b5f58] no-underline transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+            >
+              <MessageIcon />
+              <CountBadge count={messageCount} />
+            </Link>
+
+            <Link
+              to="/notifications"
+              aria-label={
+                notificationCount > 0
+                  ? `${notificationCount} unread notifications`
+                  : 'Open notifications'
+              }
+              className="relative flex h-8 w-8 items-center justify-center rounded-lg border-[1.5px] border-[#e0d0c5] text-[#6b5f58] no-underline transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+            >
+              <BellIcon />
+              <CountBadge count={notificationCount} />
+            </Link>
+
             <div className="relative" ref={ddRef}>
               <button
                 type="button"
@@ -256,7 +326,7 @@ export default function TopBar({
                     </Link>
 
                     <Link
-                      to="/settings"
+                      to="/settings/security"
                       onClick={() => setDdOpen(false)}
                       className="flex items-center gap-2.5 rounded-[9px] px-2.5 py-2.25 text-[13px] font-medium text-[#6b5f58] no-underline transition hover:bg-[rgba(184,76,43,0.04)] hover:text-[#1a1714] dark:text-[#9b9a92] dark:hover:text-[#f2f0eb]"
                     >

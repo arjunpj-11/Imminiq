@@ -1,5 +1,10 @@
 import { useEffect } from 'react'
+import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
+import {
+  clearBlockedAppealIdentifier,
+  saveBlockedAppealIdentifier,
+} from '../../lib/blockedAppealSession'
 import { useAuthStore } from '../../store/useAuthStore'
 
 interface RefreshTokenResponse {
@@ -17,6 +22,7 @@ interface AuthUser {
   email?: string
   phone?: string
   role: string
+  status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
   isPremium?: boolean
   avatarUrl?: string
   emailVerified?: boolean
@@ -30,6 +36,30 @@ interface MeResponse {
   data?: {
     user?: AuthUser
   }
+}
+
+interface ApiErrorResponse {
+  success?: boolean
+  message?: string
+  code?: string
+}
+
+const isRestrictedAccountCode = (code?: string) => {
+  return (
+    code === 'ACCOUNT_BLOCKED' ||
+    code === 'ACCOUNT_BANNED' ||
+    code === 'ACCOUNT_DEACTIVATED' ||
+    code === 'ACCOUNT_PAUSED'
+  )
+}
+
+const isRestrictedStatus = (status?: AuthUser['status']) => {
+  return (
+    status === 'blocked' ||
+    status === 'banned' ||
+    status === 'deactivated' ||
+    status === 'paused'
+  )
 }
 
 export const useRestoreSession = () => {
@@ -68,9 +98,38 @@ export const useRestoreSession = () => {
           return
         }
 
+        if (isRestrictedStatus(user.status)) {
+          const restrictedIdentifier = user.email || user.phone || ''
+
+          if (restrictedIdentifier) {
+            saveBlockedAppealIdentifier(restrictedIdentifier)
+          }
+
+          clearAuth()
+
+          if (window.location.pathname !== '/blocked') {
+            window.location.replace('/blocked')
+          }
+
+          return
+        }
+
+        // Active restored users must not keep old restricted-account context.
+        clearBlockedAppealIdentifier()
         setUser(user)
-      } catch {
+      } catch (error) {
+        const axiosError = error as AxiosError<ApiErrorResponse>
+        const errorCode = axiosError.response?.data?.code
+
         clearAuth()
+
+        if (isRestrictedAccountCode(errorCode)) {
+          if (window.location.pathname !== '/blocked') {
+            window.location.replace('/blocked')
+          }
+
+          return
+        }
       } finally {
         setAuthReady(true)
       }

@@ -24,6 +24,7 @@
     "typescript-eslint": "^8.59.3"
   },
   "dependencies": {
-    "cookie-parser": "^1.4.7"
+    "cookie-parser": "^1.4.7",
+    "passport-strategy": "^1.0.0"
   }
 }
