@@ -4,6 +4,7 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import cookieParser from 'cookie-parser'
 import passport from 'passport'
+import { rateLimit } from 'express-rate-limit'
 
 import { env } from './config/env'
 import { errorHandler } from './shared/middlewares/errorHandler'
@@ -23,12 +24,21 @@ import moderationAppealRoutes from './modules/moderation-appeals/moderation-appe
 
 const app = express()
 
+const globalApiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 1000,
+  standardHeaders: 'draft-8',
+  legacyHeaders: false,
+})
+
 app.use(helmet())
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }))
 app.use(morgan('dev'))
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 app.use(cookieParser())
+
+app.use(globalApiLimiter)
 app.use(verifyBrowserRequestOrigin)
 app.use(validateCsrfToken)
 
