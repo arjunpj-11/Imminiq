@@ -257,9 +257,12 @@ export const mongoSecurityRepository: SecurityRepository = {
     return authRepository.revokeAllUserTokens(userId)
   },
 
-  // ─── ACCOUNT DELETE ───────────────────────────────
+  // ─── ACCOUNT DELETION SCHEDULING ──────────────────
 
-  softDeleteAccount: async (userId: string) => {
+  scheduleAccountDeletion: async (
+    userId: string,
+    scheduledDeletionAt: Date
+  ) => {
     const user = await User.findOneAndUpdate(
       {
         _id: userId,
@@ -268,7 +271,8 @@ export const mongoSecurityRepository: SecurityRepository = {
       {
         $set: {
           status: 'deactivated',
-          deletedAt: new Date(),
+          deletionRequestedAt: new Date(),
+          scheduledDeletionAt,
         },
       },
       {

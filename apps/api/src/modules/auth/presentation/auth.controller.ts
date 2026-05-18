@@ -21,15 +21,17 @@ const TWO_FACTOR_CHALLENGE_COOKIE_NAME = 'twoFactorChallengeToken'
 const COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000,
+  path: '/',
 }
 
 const TWO_FACTOR_COOKIE_OPTIONS = {
   httpOnly: true,
   secure: env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  sameSite: 'lax' as const,
   maxAge: 5 * 60 * 1000,
+  path: '/',
 }
 
 const getRequestMeta = (req: Request) => ({

@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from 'react'
+import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
+
 import SettingsShell from '../components/SettingsShell'
 import SettingsContentLoading from '../components/SettingsContentLoading'
 import {
@@ -9,6 +11,7 @@ import {
   TextField,
 } from '../components/SettingsUi'
 import { useSettingsToast } from '../components/useSettingsToast'
+
 import {
   useChangeEmail,
   useChangePassword,
@@ -19,11 +22,14 @@ import {
   useTerminateSession,
   useVerifyTwoFactorSetup,
 } from '../../../hooks/settings/useSecuritySettings'
+
 import type {
   ChangeEmailPayload,
   DeleteAccountPayload,
   TwoFactorSetupResponse,
 } from '../../../types/settings.types'
+
+import { useAuthStore } from '../../../store/useAuthStore'
 
 type ApiErrorResponse = {
   message?: string
@@ -121,7 +127,21 @@ function passwordScore(password: string) {
   return Math.min(100, score)
 }
 
+const InlineError = ({ message }: { message: string }) => {
+  return (
+    <div
+      role="alert"
+      className="rounded-xl border border-[rgba(196,60,60,0.24)] bg-[rgba(196,60,60,0.08)] px-3.5 py-2.5 text-[12.5px] font-semibold leading-[1.55] text-[#c43c3c] dark:text-[#e05252]"
+    >
+      {message}
+    </div>
+  )
+}
+
 export default function AccountSecuritySettingsPage() {
+  const navigate = useNavigate()
+  const clearAuth = useAuthStore((state) => state.clearAuth)
+
   const securityQuery = useSecurityOverview()
   const changeEmail = useChangeEmail()
   const changePassword = useChangePassword()
@@ -135,6 +155,7 @@ export default function AccountSecuritySettingsPage() {
   const [newEmail, setNewEmail] = useState('')
   const [emailChangePassword, setEmailChangePassword] = useState('')
   const [emailChangeTwoFactorCode, setEmailChangeTwoFactorCode] = useState('')
+  const [emailChangeError, setEmailChangeError] = useState('')
 
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
@@ -155,15 +176,18 @@ export default function AccountSecuritySettingsPage() {
   const [twoFactorSetupData, setTwoFactorSetupData] =
     useState<TwoFactorSetupResponse | null>(null)
   const [twoFactorVerifyToken, setTwoFactorVerifyToken] = useState('')
+  const [twoFactorVerifyError, setTwoFactorVerifyError] = useState('')
   const [backupCodes, setBackupCodes] = useState<string[]>([])
 
   const [disableTwoFactorOpen, setDisableTwoFactorOpen] = useState(false)
   const [disableTwoFactorToken, setDisableTwoFactorToken] = useState('')
+  const [disableTwoFactorError, setDisableTwoFactorError] = useState('')
 
   const [deleteModalOpen, setDeleteModalOpen] = useState(false)
   const [deleteConfirmation, setDeleteConfirmation] = useState('')
   const [deleteCurrentPassword, setDeleteCurrentPassword] = useState('')
   const [deleteTwoFactorCode, setDeleteTwoFactorCode] = useState('')
+  const [deleteAccountError, setDeleteAccountError] = useState('')
 
   const score = useMemo(() => passwordScore(newPassword), [newPassword])
 
@@ -254,6 +278,8 @@ export default function AccountSecuritySettingsPage() {
 
   const handleEmailUpdate = async () => {
     try {
+      setEmailChangeError('')
+
       const payload: ChangeEmailPayload = {
         newEmail,
         ...(stepUpRequiresPassword
@@ -286,13 +312,13 @@ export default function AccountSecuritySettingsPage() {
         'success'
       )
     } catch (error) {
-      toast.showToast(
-        getApiErrorMessage(
-          error,
-          'Unable to send email verification link.'
-        ),
-        'error'
+      const message = getApiErrorMessage(
+        error,
+        'Unable to send email verification link.'
       )
+
+      setEmailChangeError(message)
+      toast.showToast(message, 'error')
     }
   }
 
@@ -336,6 +362,7 @@ export default function AccountSecuritySettingsPage() {
 
       setTwoFactorSetupData(setup)
       setTwoFactorVerifyToken('')
+      setTwoFactorVerifyError('')
       setBackupCodes([])
       setTwoFactorSetupOpen(true)
 
@@ -350,6 +377,8 @@ export default function AccountSecuritySettingsPage() {
 
   const handleVerifyTwoFactorSetup = async () => {
     try {
+      setTwoFactorVerifyError('')
+
       const result = await verifyTwoFactorSetup.mutateAsync({
         token: twoFactorVerifyToken,
       })
@@ -362,10 +391,13 @@ export default function AccountSecuritySettingsPage() {
         'success'
       )
     } catch (error) {
-      toast.showToast(
-        getApiErrorMessage(error, 'Unable to verify authenticator code.'),
-        'error'
+      const message = getApiErrorMessage(
+        error,
+        'Unable to verify authenticator code.'
       )
+
+      setTwoFactorVerifyError(message)
+      toast.showToast(message, 'error')
     }
   }
 
@@ -373,16 +405,20 @@ export default function AccountSecuritySettingsPage() {
     setTwoFactorSetupOpen(false)
     setTwoFactorSetupData(null)
     setTwoFactorVerifyToken('')
+    setTwoFactorVerifyError('')
     setBackupCodes([])
   }
 
   const handleDisableTwoFactor = async () => {
     try {
+      setDisableTwoFactorError('')
+
       await disableTwoFactor.mutateAsync({
         token: disableTwoFactorToken,
       })
 
       setDisableTwoFactorToken('')
+      setDisableTwoFactorError('')
       setDisableTwoFactorOpen(false)
 
       toast.showToast(
@@ -390,10 +426,10 @@ export default function AccountSecuritySettingsPage() {
         'success'
       )
     } catch (error) {
-      toast.showToast(
-        getApiErrorMessage(error, 'Unable to disable 2FA.'),
-        'error'
-      )
+      const message = getApiErrorMessage(error, 'Unable to disable 2FA.')
+
+      setDisableTwoFactorError(message)
+      toast.showToast(message, 'error')
     }
   }
 
@@ -402,15 +438,21 @@ export default function AccountSecuritySettingsPage() {
     setDeleteConfirmation('')
     setDeleteCurrentPassword('')
     setDeleteTwoFactorCode('')
+    setDeleteAccountError('')
   }
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmation !== 'DELETE') {
-      toast.showToast('Type DELETE to confirm account deletion.', 'error')
+      const message = 'Type DELETE to confirm account deletion.'
+
+      setDeleteAccountError(message)
+      toast.showToast(message, 'error')
       return
     }
 
     try {
+      setDeleteAccountError('')
+
       const payload: DeleteAccountPayload = {
         confirmation: 'DELETE',
         ...(stepUpRequiresPassword
@@ -423,13 +465,20 @@ export default function AccountSecuritySettingsPage() {
 
       await deleteAccount.mutateAsync(payload)
 
-      toast.showToast('Account deletion request submitted.', 'success')
       resetDeleteModal()
+      clearAuth()
+
+      navigate('/login', {
+        replace: true,
+      })
     } catch (error) {
-      toast.showToast(
-        getApiErrorMessage(error, 'Unable to delete account.'),
-        'error'
+      const message = getApiErrorMessage(
+        error,
+        'Unable to schedule account deletion.'
       )
+
+      setDeleteAccountError(message)
+      toast.showToast(message, 'error')
     }
   }
 
@@ -498,7 +547,10 @@ export default function AccountSecuritySettingsPage() {
               <TextField
                 label="New Email Address"
                 value={newEmail}
-                onChange={setNewEmail}
+                onChange={(value) => {
+                  setNewEmail(value)
+                  setEmailChangeError('')
+                }}
                 type="email"
                 placeholder="you@example.com"
               />
@@ -507,7 +559,10 @@ export default function AccountSecuritySettingsPage() {
                 <TextField
                   label="Current Password"
                   value={emailChangePassword}
-                  onChange={setEmailChangePassword}
+                  onChange={(value) => {
+                    setEmailChangePassword(value)
+                    setEmailChangeError('')
+                  }}
                   type="password"
                   placeholder="Re-enter your password"
                 />
@@ -517,9 +572,16 @@ export default function AccountSecuritySettingsPage() {
                 <TextField
                   label="Two-Factor Code"
                   value={emailChangeTwoFactorCode}
-                  onChange={setEmailChangeTwoFactorCode}
+                  onChange={(value) => {
+                    setEmailChangeTwoFactorCode(value)
+                    setEmailChangeError('')
+                  }}
                   placeholder="123456"
                 />
+              )}
+
+              {emailChangeError && (
+                <InlineError message={emailChangeError} />
               )}
 
               <div>
@@ -693,7 +755,10 @@ export default function AccountSecuritySettingsPage() {
               {security?.twoFactorEnabled ? (
                 <button
                   type="button"
-                  onClick={() => setDisableTwoFactorOpen(true)}
+                  onClick={() => {
+                    setDisableTwoFactorOpen(true)
+                    setDisableTwoFactorError('')
+                  }}
                   className="rounded-[11px] border-[1.5px] border-[rgba(196,60,60,0.30)] bg-[rgba(196,60,60,0.08)] px-5 py-3 text-[13px] font-bold text-[#c43c3c] transition hover:bg-[rgba(196,60,60,0.12)] dark:text-[#e05252]"
                 >
                   Disable 2FA
@@ -718,8 +783,10 @@ export default function AccountSecuritySettingsPage() {
             </h2>
 
             <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
-              Delete your account and permanently remove your trackers, streaks,
-              badges and saved progress.
+              Deleting your account starts a <strong>30-day recovery period</strong>.
+              Your active sessions will be signed out immediately, and the
+              account will be scheduled for deletion. Signing in again within
+              30 days automatically cancels the deletion request.
             </p>
 
             {sensitiveActionUnavailableForSocialAccount && (
@@ -731,7 +798,10 @@ export default function AccountSecuritySettingsPage() {
 
             <button
               type="button"
-              onClick={() => setDeleteModalOpen(true)}
+              onClick={() => {
+                setDeleteModalOpen(true)
+                setDeleteAccountError('')
+              }}
               disabled={sensitiveActionUnavailableForSocialAccount}
               className="mt-4 rounded-[11px] bg-[#c43c3c] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
             >
@@ -838,10 +908,19 @@ export default function AccountSecuritySettingsPage() {
                       <TextField
                         label="6-Digit Authenticator Code"
                         value={twoFactorVerifyToken}
-                        onChange={setTwoFactorVerifyToken}
+                        onChange={(value) => {
+                          setTwoFactorVerifyToken(value)
+                          setTwoFactorVerifyError('')
+                        }}
                         placeholder="123456"
                       />
                     </div>
+
+                    {twoFactorVerifyError && (
+                      <div className="mt-3">
+                        <InlineError message={twoFactorVerifyError} />
+                      </div>
+                    )}
 
                     <button
                       type="button"
@@ -912,10 +991,19 @@ export default function AccountSecuritySettingsPage() {
               <TextField
                 label="Authenticator Code"
                 value={disableTwoFactorToken}
-                onChange={setDisableTwoFactorToken}
+                onChange={(value) => {
+                  setDisableTwoFactorToken(value)
+                  setDisableTwoFactorError('')
+                }}
                 placeholder="123456"
               />
             </div>
+
+            {disableTwoFactorError && (
+              <div className="mt-3">
+                <InlineError message={disableTwoFactorError} />
+              </div>
+            )}
 
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -923,6 +1011,7 @@ export default function AccountSecuritySettingsPage() {
                 onClick={() => {
                   setDisableTwoFactorOpen(false)
                   setDisableTwoFactorToken('')
+                  setDisableTwoFactorError('')
                 }}
                 className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/9"
               >
@@ -950,19 +1039,24 @@ export default function AccountSecuritySettingsPage() {
         <div className="fixed inset-0 z-140 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
           <div className="w-full max-w-120 rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/9 dark:bg-[#1e1c19]">
             <h2 className="font-['Playfair_Display',serif] text-[24px] font-extrabold text-[#c43c3c] dark:text-[#e05252]">
-              Delete Account
+              Schedule Account Deletion
             </h2>
 
             <p className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
-              Type <strong>DELETE</strong> to confirm permanent account
-              deletion.
+              Type <strong>DELETE</strong> to continue. Your account will be
+              scheduled for deletion after <strong>30 days</strong>. Signing in
+              again during that 30-day recovery window automatically cancels
+              the deletion request.
             </p>
 
             <div className="mt-4 space-y-4">
               <TextField
                 label="Confirmation"
                 value={deleteConfirmation}
-                onChange={setDeleteConfirmation}
+                onChange={(value) => {
+                  setDeleteConfirmation(value)
+                  setDeleteAccountError('')
+                }}
                 placeholder="DELETE"
               />
 
@@ -970,7 +1064,10 @@ export default function AccountSecuritySettingsPage() {
                 <TextField
                   label="Current Password"
                   value={deleteCurrentPassword}
-                  onChange={setDeleteCurrentPassword}
+                  onChange={(value) => {
+                    setDeleteCurrentPassword(value)
+                    setDeleteAccountError('')
+                  }}
                   type="password"
                   placeholder="Re-enter your password"
                 />
@@ -980,11 +1077,20 @@ export default function AccountSecuritySettingsPage() {
                 <TextField
                   label="Two-Factor Code"
                   value={deleteTwoFactorCode}
-                  onChange={setDeleteTwoFactorCode}
+                  onChange={(value) => {
+                    setDeleteTwoFactorCode(value)
+                    setDeleteAccountError('')
+                  }}
                   placeholder="123456"
                 />
               )}
             </div>
+
+            {deleteAccountError && (
+              <div className="mt-3">
+                <InlineError message={deleteAccountError} />
+              </div>
+            )}
 
             <div className="mt-5 flex justify-end gap-2">
               <button
@@ -1005,7 +1111,9 @@ export default function AccountSecuritySettingsPage() {
                 onClick={handleDeleteAccount}
                 className="rounded-[10px] bg-[#c43c3c] px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {deleteAccount.isPending ? 'Deleting...' : 'Delete Account'}
+                {deleteAccount.isPending
+                  ? 'Scheduling...'
+                  : 'Schedule Deletion'}
               </button>
             </div>
           </div>

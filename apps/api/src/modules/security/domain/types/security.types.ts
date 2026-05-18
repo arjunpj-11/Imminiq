@@ -99,6 +99,9 @@ export type DisableTwoFactorResponse = {
 
 export type DeleteAccountResponse = {
   deleted: true
+  deletionScheduled: true
+  scheduledDeletionAt: string
+  recoveryWindowDays: 30
 }
 
 export type IdLike = string | { toString(): string }

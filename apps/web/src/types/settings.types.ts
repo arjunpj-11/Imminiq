@@ -293,6 +293,13 @@ export interface DeleteAccountPayload extends SensitiveActionStepUpPayload {
   confirmation: 'DELETE'
 }
 
+ export interface DeleteAccountResponse {
+  deleted: true
+  deletionScheduled: true
+  scheduledDeletionAt: string
+  recoveryWindowDays: number
+}
+
 export interface TwoFactorSetupResponse {
   qrCodeDataUrl: string
   manualEntryKey: string

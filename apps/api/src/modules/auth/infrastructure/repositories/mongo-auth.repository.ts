@@ -56,23 +56,20 @@ export const mongoAuthRepository = {
       deletedAt: null,
     }),
 
-  emailExists: async (email: string) =>
-    !!(await User.exists({
-      email: email.toLowerCase().trim(),
-      deletedAt: null,
-    })),
+emailExists: async (email: string) =>
+  !!(await User.exists({
+    email: email.toLowerCase().trim(),
+  })),
 
-  phoneExists: async (phone: string) =>
-    !!(await User.exists({
-      phone: normalizePhone(phone),
-      deletedAt: null,
-    })),
+phoneExists: async (phone: string) =>
+  !!(await User.exists({
+    phone: normalizePhone(phone),
+  })),
 
-  usernameExists: async (username: string) =>
-    !!(await User.exists({
-      username: username.toLowerCase().trim(),
-      deletedAt: null,
-    })),
+usernameExists: async (username: string) =>
+  !!(await User.exists({
+    username: username.toLowerCase().trim(),
+  })),
 
   createUser: async (data: {
     fullName: string
@@ -229,6 +226,31 @@ export const mongoAuthRepository = {
 
   updateLastActive: (id: string) =>
     User.findByIdAndUpdate(id, { lastActiveAt: new Date() }),
+
+    cancelScheduledDeletionIfRecoverable: async (id: string) => {
+    return User.findOneAndUpdate(
+      {
+        _id: id,
+        status: 'deactivated',
+        deletedAt: null,
+        scheduledDeletionAt: {
+          $gt: new Date(),
+        },
+      },
+      {
+        $set: {
+          status: 'active',
+        },
+        $unset: {
+          deletionRequestedAt: '',
+          scheduledDeletionAt: '',
+        },
+      },
+      {
+        returnDocument: 'after',
+      }
+    )
+  },
 
   deleteUserById: (id: string) => User.findByIdAndDelete(id),
 

@@ -7,6 +7,10 @@ import type {
 } from '../../domain/types/security.types'
 import { SensitiveActionStepUpService } from '../services/sensitive-action-step-up.service'
 
+const ACCOUNT_DELETION_RECOVERY_DAYS = 30
+const ACCOUNT_DELETION_RECOVERY_MS =
+  ACCOUNT_DELETION_RECOVERY_DAYS * 24 * 60 * 60 * 1000
+
 export class DeleteSecurityAccountUseCase {
   constructor(
     private readonly securityRepository: SecurityRepository,
@@ -39,13 +43,20 @@ export class DeleteSecurityAccountUseCase {
 
     await this.securityRepository.revokeAllSessions(userId)
 
-    const deletedUser =
-      await this.securityRepository.softDeleteAccount(userId)
+    const scheduledDeletionAt = new Date(
+      Date.now() + ACCOUNT_DELETION_RECOVERY_MS
+    )
 
-    if (!deletedUser) {
+    const scheduledUser =
+      await this.securityRepository.scheduleAccountDeletion(
+        userId,
+        scheduledDeletionAt
+      )
+
+    if (!scheduledUser) {
       throw new ApiError(
         500,
-        'Failed to delete account',
+        'Failed to schedule account deletion',
         'ACCOUNT_DELETE_FAILED'
       )
     }
@@ -58,6 +69,9 @@ export class DeleteSecurityAccountUseCase {
 
     return {
       deleted: true,
+      deletionScheduled: true,
+      scheduledDeletionAt: scheduledDeletionAt.toISOString(),
+      recoveryWindowDays: ACCOUNT_DELETION_RECOVERY_DAYS,
     }
   }
 }
