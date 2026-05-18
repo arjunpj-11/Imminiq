@@ -78,7 +78,8 @@ export interface SecurityRepository {
     userId: string
   ): Promise<unknown>
 
-  softDeleteAccount(
-    userId: string
+  scheduleAccountDeletion(
+    userId: string,
+    scheduledDeletionAt: Date
   ): Promise<SecurityUserRecord | null>
 }

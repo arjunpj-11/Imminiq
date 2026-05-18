@@ -28,6 +28,10 @@ export interface IUser extends Document {
   pendingEmailChangeExpiresAt?: Date | null
   pendingEmailChangeRequestedAt?: Date | null
 
+  // Scheduled account deletion grace period
+  deletionRequestedAt?: Date | null
+  scheduledDeletionAt?: Date | null
+
   provider: 'local' | 'google' | 'github'
   providerId?: string
 
@@ -115,18 +119,13 @@ const userSchema = new Schema<IUser>(
       default: false,
     },
 
-    // While user is unverified, this has a future date.
-    // After verification, it becomes null.
-    // MongoDB TTL index deletes users when this date passes.
     verificationExpiresAt: {
       type: Date,
       default: null,
     },
 
     // ─── PENDING EMAIL CHANGE ─────────────────────────────
-    // Current email is NOT changed immediately.
-    // These fields are set when user requests an email change.
-    // Email updates only after the verification link is clicked.
+
     pendingEmail: {
       type: String,
       lowercase: true,
@@ -146,6 +145,18 @@ const userSchema = new Schema<IUser>(
     },
 
     pendingEmailChangeRequestedAt: {
+      type: Date,
+      default: null,
+    },
+
+    // ─── SCHEDULED ACCOUNT DELETION ───────────────────────
+
+    deletionRequestedAt: {
+      type: Date,
+      default: null,
+    },
+
+    scheduledDeletionAt: {
       type: Date,
       default: null,
     },
@@ -225,7 +236,6 @@ const userSchema = new Schema<IUser>(
 )
 
 // ─── INDEXES ─────────────────────────────────────
-// Keep indexes here only. Do not also add unique/index inside fields.
 
 userSchema.index(
   { email: 1 },
@@ -264,8 +274,6 @@ userSchema.index(
   }
 )
 
-// Auto-delete unverified local accounts after verificationExpiresAt.
-// Verified users will have verificationExpiresAt: null, so they are safe.
 userSchema.index(
   { verificationExpiresAt: 1 },
   {
@@ -281,10 +289,10 @@ userSchema.index(
 
 userSchema.index({ role: 1, status: 1 })
 userSchema.index({ status: 1, lastActiveAt: -1 })
+userSchema.index({ status: 1, scheduledDeletionAt: 1 })
 userSchema.index({ deletedAt: 1 })
 userSchema.index({ provider: 1, providerId: 1 })
 
-// Helps lookup email-change verification tokens efficiently.
 userSchema.index({
   pendingEmailChangeTokenHash: 1,
   pendingEmailChangeExpiresAt: 1,

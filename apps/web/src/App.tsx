@@ -22,6 +22,7 @@ import TwoFactorChallengePage from './modules/auth/pages/TwoFactorChallengePage'
 import VerifyAccountPage from './modules/auth/pages/VerifyAccountPage'
 import VerifyEmailChangePage from './modules/auth/pages/VerifyEmailChangePage'
 
+
 // ─── LEGAL PAGES ────────────────────────────────────
 import PrivacyPage from './modules/legal/pages/PrivacyPage'
 import TermsPage from './modules/legal/pages/TermsPage'

@@ -148,6 +148,11 @@ export class LoginUserUseCase {
       }
     }
 
+    const recoveredUser =
+      await authRepository.cancelScheduledDeletionIfRecoverable(userId)
+
+    const authenticatedUser = recoveredUser ?? user
+
     const redirectPath = await resolveRedirectPath(userId)
 
     const tokens = await issueTokenPair(
@@ -161,7 +166,7 @@ export class LoginUserUseCase {
     return {
       requiresTwoFactor: false,
       tokens,
-      user: formatAuthUser(user),
+      user: formatAuthUser(authenticatedUser),
       redirectPath,
     }
   }

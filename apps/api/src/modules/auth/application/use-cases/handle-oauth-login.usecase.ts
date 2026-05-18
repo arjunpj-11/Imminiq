@@ -1,9 +1,12 @@
 import { authRepository } from '../../auth.repository'
+import { ApiError } from '../../../../shared/utils/ApiError'
+
 import type {
   AuthLoginResult,
   OAuthLoginUser,
   RequestMeta,
 } from '../../domain/types/auth.types'
+
 import { ensureUserCanAuthenticate } from '../services/auth-account-policy.service'
 import {
   generateTwoFactorChallengeToken,
@@ -18,9 +21,15 @@ export class HandleOAuthLoginUseCase {
     user: OAuthLoginUser,
     meta?: RequestMeta
   ): Promise<AuthLoginResult> {
-    ensureUserCanAuthenticate(user)
-
     const userId = user._id.toString()
+
+    const dbUser = await authRepository.findById(userId)
+
+    if (!dbUser) {
+      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+    }
+
+    ensureUserCanAuthenticate(dbUser)
 
     const twoFactorEnabled =
       await authRepository.hasActiveTwoFactor(userId)
@@ -33,11 +42,16 @@ export class HandleOAuthLoginUseCase {
       }
     }
 
+    const recoveredUser =
+      await authRepository.cancelScheduledDeletionIfRecoverable(userId)
+
+    const authenticatedUser = recoveredUser ?? dbUser
+
     const redirectPath = await resolveRedirectPath(userId)
 
     const tokens = await issueTokenPair(
       userId,
-      user.role,
+      authenticatedUser.role,
       meta
     )
 
@@ -46,7 +60,7 @@ export class HandleOAuthLoginUseCase {
     return {
       requiresTwoFactor: false,
       tokens,
-      user: formatAuthUser(user),
+      user: formatAuthUser(authenticatedUser),
       redirectPath,
     }
   }

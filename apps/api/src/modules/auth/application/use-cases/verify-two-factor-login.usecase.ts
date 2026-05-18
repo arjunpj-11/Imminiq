@@ -155,6 +155,12 @@ export class VerifyTwoFactorLoginUseCase {
     )
 
     const userId = user._id.toString()
+
+    const recoveredUser =
+      await authRepository.cancelScheduledDeletionIfRecoverable(userId)
+
+    const authenticatedUser = recoveredUser ?? user
+
     const redirectPath = await resolveRedirectPath(userId)
 
     const tokens = await issueTokenPair(
@@ -168,7 +174,7 @@ export class VerifyTwoFactorLoginUseCase {
     return {
       requiresTwoFactor: false,
       tokens,
-      user: formatAuthUser(user),
+      user: formatAuthUser(authenticatedUser),
       redirectPath,
     }
   }

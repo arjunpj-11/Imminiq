@@ -11,6 +11,7 @@ import type {
   TwoFactorSetupResponse,
   VerifyTwoFactorSetupPayload,
   VerifyTwoFactorSetupResponse,
+  DeleteAccountResponse,
 } from '../../types/settings.types'
 
 const SECURITY_KEY = ['security', 'overview'] as const
@@ -174,11 +175,11 @@ export const useDisableTwoFactor = () => {
 
 export const useDeleteAccount = () =>
   useMutation({
-    mutationFn: async (payload: DeleteAccountPayload) => {
+    mutationFn: async (
+      payload: DeleteAccountPayload
+    ): Promise<DeleteAccountResponse> => {
       const response = await api.delete<
-        ApiEnvelope<{
-          deleted: boolean
-        }>
+        ApiEnvelope<DeleteAccountResponse>
       >('/security/delete-account', {
         data: payload,
       })
