@@ -22,6 +22,7 @@ vi.mock(
 
 import { authRepository } from '../../../src/modules/auth/auth.repository'
 import { AIGenerationJob } from '../../../src/infrastructure/database/models/ai-generation-job.model'
+import { User } from '../../../src/infrastructure/database/models/user.model'
 import {
   AI_JOB_QUOTA_POLICIES,
   aiJobQuotaCache,
@@ -222,7 +223,7 @@ describe('security-sensitive HTTP integration flows', () => {
     })
   })
 
-  it('allows account deletion after valid password step-up', async () => {
+  it('schedules account deletion after valid password step-up', async () => {
     const user = await createVerifiedLocalUser()
     const authenticated = await loginFixtureUser(app, user)
 
@@ -240,8 +241,114 @@ describe('security-sensitive HTTP integration flows', () => {
       success: true,
       data: {
         deleted: true,
+        deletionScheduled: true,
+        recoveryWindowDays: 30,
       },
     })
+
+    expect(response.body.data.scheduledDeletionAt).toEqual(
+      expect.any(String)
+    )
+
+    const storedUser = await User.findById(user.userId)
+
+    expect(storedUser).toMatchObject({
+      status: 'deactivated',
+    })
+
+    expect(storedUser?.deletionRequestedAt).toBeInstanceOf(Date)
+    expect(storedUser?.scheduledDeletionAt).toBeInstanceOf(Date)
+  })
+
+  it('cancels scheduled account deletion when the user logs in again within 30 days', async () => {
+    const user = await createVerifiedLocalUser()
+    const authenticated = await loginFixtureUser(app, user)
+
+    const deletionResponse = await request(app)
+      .delete('/api/security/delete-account')
+      .set('Origin', TRUSTED_TEST_ORIGIN)
+      .set('Authorization', `Bearer ${authenticated.accessToken}`)
+      .send({
+        confirmation: 'DELETE',
+        currentPassword: user.password,
+      })
+
+    expect(deletionResponse.status).toBe(200)
+
+    const deactivatedUser = await User.findById(user.userId)
+
+    expect(deactivatedUser).toMatchObject({
+      status: 'deactivated',
+    })
+
+    expect(deactivatedUser?.deletionRequestedAt).toBeInstanceOf(Date)
+    expect(deactivatedUser?.scheduledDeletionAt).toBeInstanceOf(Date)
+
+    const reloginResponse = await request(app)
+      .post('/api/auth/login')
+      .set('Origin', TRUSTED_TEST_ORIGIN)
+      .send({
+        identifier: user.email,
+        password: user.password,
+      })
+
+    expect(reloginResponse.status).toBe(200)
+    expect(reloginResponse.body).toMatchObject({
+      success: true,
+      data: {
+        user: {
+          status: 'active',
+        },
+      },
+    })
+
+    const restoredUser = await User.findById(user.userId)
+
+    expect(restoredUser).toMatchObject({
+      status: 'active',
+    })
+
+    expect(restoredUser?.deletionRequestedAt ?? null).toBeNull()
+    expect(restoredUser?.scheduledDeletionAt ?? null).toBeNull()
+  })
+
+  it('rejects login when the scheduled deletion recovery window has expired', async () => {
+    const user = await createVerifiedLocalUser()
+
+    await User.findByIdAndUpdate(user.userId, {
+      $set: {
+        status: 'deactivated',
+        deletionRequestedAt: new Date(
+          Date.now() - 31 * 24 * 60 * 60 * 1000
+        ),
+        scheduledDeletionAt: new Date(
+          Date.now() - 24 * 60 * 60 * 1000
+        ),
+      },
+    })
+
+    const response = await request(app)
+      .post('/api/auth/login')
+      .set('Origin', TRUSTED_TEST_ORIGIN)
+      .send({
+        identifier: user.email,
+        password: user.password,
+      })
+
+    expect(response.status).toBe(403)
+    expect(response.body).toMatchObject({
+      success: false,
+      code: 'ACCOUNT_DEACTIVATED',
+    })
+
+    const expiredUser = await User.findById(user.userId)
+
+    expect(expiredUser).toMatchObject({
+      status: 'deactivated',
+    })
+
+    expect(expiredUser?.deletionRequestedAt).toBeInstanceOf(Date)
+    expect(expiredUser?.scheduledDeletionAt).toBeInstanceOf(Date)
   })
 
   it('rejects roadmap generation when an active roadmap job already exists', async () => {

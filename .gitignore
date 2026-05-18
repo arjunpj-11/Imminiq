@@ -5,11 +5,16 @@ node_modules/
 .env
 .env.local
 .env.*.local
+.env.*
+!.env.example
 
 # build outputs
 dist/
 build/
 coverage/
+
+# TypeScript build cache
+*.tsbuildinfo
 
 # logs
 *.log
@@ -18,10 +23,19 @@ yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
+# test and tooling temp output
+.nyc_output/
+.vitest/
+test-results/
+
+# ESLint cache
+.eslintcache
+
 # macOS
 .DS_Store
 
-
+# Windows
+Thumbs.db
 
 # editors
 .vscode/
@@ -35,3 +49,9 @@ apps/web/.vite/
 
 # demo folder
 demo/
+
+# local curl / API testing artifacts
+cookies.txt
+*.cookies
+*-response.json
+ai-banner-response.json

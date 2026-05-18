@@ -57,10 +57,17 @@ export const createMockResponse = (): MockResponse => {
       return response as Response
     }),
 
-    redirect: vi.fn((location: string) => {
-      response.redirectedTo = location
-      return response as Response
-    }),
+   redirect: vi.fn(
+  (
+    statusOrLocation: number | string,
+    maybeLocation?: string
+  ) => {
+    response.redirectedTo =
+      typeof statusOrLocation === 'string'
+        ? statusOrLocation
+        : maybeLocation ?? null
+  }
+) as unknown as Response['redirect'],
   }
 
   return response
