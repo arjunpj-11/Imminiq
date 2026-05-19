@@ -11,6 +11,9 @@ on:
       - main
       - sub-main
 
+permissions:
+  contents: read
+
 jobs:
   build-and-lint:
     name: Build and Lint
