@@ -151,8 +151,7 @@ describe('security HTTP integration flows', () => {
   })
 
   it('starts Google OAuth with a one-time state nonce and HttpOnly state cookie', async () => {
-    const response = await request(app)
-      .get('/api/auth/oauth/google')
+    const response = await request(app).get('/api/auth/oauth/google')
 
     expect(response.status).toBe(302)
 
@@ -181,8 +180,9 @@ describe('security HTTP integration flows', () => {
   })
 
   it('rejects a Google OAuth callback that has no state parameter', async () => {
-    const response = await request(app)
-      .get('/api/auth/oauth/google/callback')
+    const response = await request(app).get(
+      '/api/auth/oauth/google/callback'
+    )
 
     expect(response.status).toBe(302)
     expect(response.headers.location).toBe(
@@ -191,8 +191,7 @@ describe('security HTTP integration flows', () => {
   })
 
   it('accepts a valid OAuth state pair before Passport handles the missing provider code', async () => {
-    const startResponse = await request(app)
-      .get('/api/auth/oauth/google')
+    const startResponse = await request(app).get('/api/auth/oauth/google')
 
     expect(startResponse.status).toBe(302)
 
@@ -207,14 +206,18 @@ describe('security HTTP integration flows', () => {
       : [setCookieHeader].filter(Boolean)
 
     const callbackResponse = await request(app)
-      .get(`/api/auth/oauth/google/callback?state=${encodeURIComponent(String(state))}`)
+      .get(
+        `/api/auth/oauth/google/callback?state=${encodeURIComponent(
+          String(state)
+        )}`
+      )
       .set('Cookie', cookies as string[])
 
-   expect(callbackResponse.status).toBe(302)
+    expect(callbackResponse.status).toBe(302)
 
-const callbackRedirect = callbackResponse.headers.location
+    const callbackRedirect = callbackResponse.headers.location
 
-expect(callbackRedirect).toContain('accounts.google.com')
-expect(callbackRedirect).not.toContain('oauth_state_invalid')
+    expect(callbackRedirect).toContain('accounts.google.com')
+    expect(callbackRedirect).not.toContain('oauth_state_invalid')
   })
 })

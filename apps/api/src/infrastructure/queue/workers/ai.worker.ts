@@ -1,4 +1,3 @@
-// apps/api/src/infrastructure/queue/workers/ai.worker.ts
 
 import mongoose from 'mongoose'
 import { Worker } from 'bullmq'
