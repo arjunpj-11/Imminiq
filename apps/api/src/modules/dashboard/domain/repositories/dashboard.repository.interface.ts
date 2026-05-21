@@ -13,6 +13,7 @@ export interface DashboardUserRecord {
   }
   fullName: string
   username: string
+  avatarUrl?: string | null
   isPremium: boolean
   coins?: number | null
 }

@@ -12,10 +12,10 @@ import { Notification } from '../../../../infrastructure/database/models/notific
 export const mongoDashboardRepository = {
   // ─── USER ────────────────────────────────────────
 
-  getUserWithProfile: async (userId: string) => {
+ getUserWithProfile: async (userId: string) => {
     const [user, profile] = await Promise.all([
       User.findById(userId)
-        .select('_id fullName username isPremium coins')
+        .select('_id fullName username avatarUrl isPremium coins')
         .lean(),
 
       UserProfile.findOne({ userId })
