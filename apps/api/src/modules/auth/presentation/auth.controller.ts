@@ -1,4 +1,9 @@
-import { Request, Response, NextFunction } from 'express'
+import type {
+  CookieOptions,
+  Request,
+  Response,
+  NextFunction,
+} from 'express'
 
 import { authService } from '../auth.service'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
@@ -18,20 +23,27 @@ import type { OAuthLoginUser } from '../auth.service'
 const REFRESH_COOKIE_NAME = 'refreshToken'
 const TWO_FACTOR_CHALLENGE_COOKIE_NAME = 'twoFactorChallengeToken'
 
-const COOKIE_OPTIONS = {
-  httpOnly: true,
-  secure: env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+const isProduction = env.NODE_ENV === 'production'
+
+const CROSS_SITE_COOKIE_OPTIONS: Pick<
+  CookieOptions,
+  'secure' | 'sameSite' | 'path'
+> = {
+  secure: isProduction,
+  sameSite: isProduction ? 'none' : 'lax',
   path: '/',
 }
 
-const TWO_FACTOR_COOKIE_OPTIONS = {
+const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
-  secure: env.NODE_ENV === 'production',
-  sameSite: 'lax' as const,
+  ...CROSS_SITE_COOKIE_OPTIONS,
+  maxAge: 7 * 24 * 60 * 60 * 1000,
+}
+
+const TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
+  httpOnly: true,
+  ...CROSS_SITE_COOKIE_OPTIONS,
   maxAge: 5 * 60 * 1000,
-  path: '/',
 }
 
 const getRequestMeta = (req: Request) => ({
