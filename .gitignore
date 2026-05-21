@@ -7,6 +7,7 @@ node_modules/
 .env.*.local
 .env.*
 !.env.example
+!apps/**/.env.example
 
 # build outputs
 dist/
