@@ -25,10 +25,12 @@ const UNSAFE_METHODS = new Set([
   'DELETE',
 ])
 
+const isProduction = env.NODE_ENV === 'production'
+
 export const CSRF_COOKIE_OPTIONS = {
   httpOnly: false,
-  secure: env.NODE_ENV === 'production',
-  sameSite: 'strict' as const,
+  secure: isProduction,
+  sameSite: isProduction ? 'none' as const : 'lax' as const,
   maxAge: 7 * 24 * 60 * 60 * 1000,
   path: '/',
 }
