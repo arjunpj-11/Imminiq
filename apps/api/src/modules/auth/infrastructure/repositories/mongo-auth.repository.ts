@@ -93,7 +93,7 @@ usernameExists: async (username: string) =>
       ),
     }),
 
-  createOAuthUser: async (data: {
+    createOAuthUser: async (data: {
     fullName: string
     email: string
     username: string
@@ -101,9 +101,55 @@ usernameExists: async (username: string) =>
     provider: 'google' | 'github'
     providerId: string
   }) => {
+    const normalizedEmail = data.email.toLowerCase().trim()
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    }).select('+passwordHash')
+
+    if (existingUser) {
+      const updatedUser = await User.findByIdAndUpdate(
+        existingUser._id,
+        {
+          $set: {
+            fullName: existingUser.fullName || data.fullName.trim(),
+            avatarUrl: existingUser.avatarUrl || data.avatarUrl,
+            provider: existingUser.provider || data.provider,
+            providerId: existingUser.providerId || data.providerId,
+            emailVerified: true,
+            verificationExpiresAt: null,
+            deletedAt: null,
+          },
+        },
+        {
+          returnDocument: 'after',
+        }
+      ).select('+passwordHash')
+
+      if (updatedUser) {
+        await UserProfile.findOneAndUpdate(
+          { userId: updatedUser._id },
+          {
+            $setOnInsert: {
+              userId: updatedUser._id,
+              fullName: updatedUser.fullName,
+              publicProfileEnabled: true,
+            },
+          },
+          {
+            upsert: true,
+            returnDocument: 'after',
+            setDefaultsOnInsert: true,
+          }
+        )
+
+        return updatedUser
+      }
+    }
+
     const user = await User.create({
       fullName: data.fullName.trim(),
-      email: data.email.toLowerCase().trim(),
+      email: normalizedEmail,
       username: data.username.toLowerCase().trim(),
       avatarUrl: data.avatarUrl,
       provider: data.provider,
