@@ -1,0 +1,373 @@
+// apps/web/src/types/tracker.types.ts
+
+export type TrackerStatus =
+  | 'active'
+  | 'stalled'
+  | 'completed'
+  | 'archived'
+
+export type TrackerStatusFilter = TrackerStatus | 'all'
+
+export type TrackerVisibility = 'private' | 'public'
+
+export type TrackerDomain =
+  | 'engineering'
+  | 'frontend'
+  | 'backend'
+  | 'algorithms'
+  | 'architecture'
+  | 'development'
+  | 'design'
+  | 'ai'
+  | 'other'
+
+export type TrackerDomainFilter = TrackerDomain | 'all'
+
+export type TrackerLevel =
+  | 'beginner'
+  | 'intermediate'
+  | 'advanced'
+
+export type TrackerSortBy =
+  | 'lastActive'
+  | 'createdAt'
+  | 'progress'
+  | 'title'
+
+export type LessonStatus =
+  | 'locked'
+  | 'available'
+  | 'in_progress'
+  | 'completed'
+
+export type LessonType =
+  | 'concept'
+  | 'coding'
+  | 'interview'
+  | 'system_design'
+  | 'theory'
+
+export interface ApiResponse<T> {
+  success: boolean
+  message: string
+  data: T
+}
+
+export interface Tracker {
+  _id: string
+  title: string
+  description?: string
+  domain?: TrackerDomain
+  goal?: string
+  level?: TrackerLevel
+  status?: TrackerStatus
+  visibility?: TrackerVisibility
+  progressPercent?: number
+  topicsCount?: number
+  subtopicsCount?: number
+  completedSubtopicsCount?: number
+  totalTimeSpentMinutes?: number
+  lastActiveAt?: string | null
+  publishedAt?: string | null
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface TrackerSummary {
+  totalTrackers: number
+  activeTrackers: number
+  completedTrackers: number
+  publishedTrackers: number
+  averageProgress: number
+}
+
+export interface TrackerListResponse {
+  trackers: Tracker[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface TrackerListQuery {
+  status?: TrackerStatusFilter
+  domain?: TrackerDomainFilter
+  sortBy?: TrackerSortBy
+  page?: number
+  limit?: number
+}
+
+export interface CreateTrackerPayload {
+  title: string
+  description?: string
+  domain?: TrackerDomain
+  goal?: string
+  level?: TrackerLevel
+  visibility?: TrackerVisibility
+}
+
+export interface UpdateTrackerPayload
+  extends Partial<CreateTrackerPayload> {
+  trackerId: string
+}
+
+export interface RoadmapSubtopic {
+  _id: string
+  title: string
+  description?: string
+  order: number
+  depth: number
+  status: LessonStatus
+  isLocked: boolean
+  estimatedMinutes?: number
+  progressPercent?: number
+  completedAt?: string | null
+  children?: RoadmapSubtopic[]
+}
+
+export interface RoadmapTopic {
+  _id: string
+  title: string
+  description?: string
+  order: number
+  status: LessonStatus
+  progressPercent?: number
+  estimatedHours?: number
+  subtopics: RoadmapSubtopic[]
+}
+
+export interface TrackerRoadmapResponse {
+  tracker: Tracker
+  roadmap: RoadmapTopic[]
+}
+
+export interface CreateTopicPayload {
+  trackerId: string
+  title: string
+  description?: string
+}
+
+export interface CreateSubtopicPayload {
+  trackerId: string
+  topicId: string
+  title: string
+  description?: string
+  parentSubtopicId?: string | null
+  estimatedMinutes?: number
+}
+
+export interface UpdateSubtopicProgressPayload {
+  trackerId: string
+  subtopicId: string
+  status: 'in_progress' | 'completed'
+  timeSpentMinutes?: number
+}
+
+export interface LessonListItem {
+  _id: string
+  title: string
+  status: LessonStatus
+  isLocked: boolean
+  estimatedMinutes?: number
+}
+
+export interface TrackerLessonNode {
+  _id: string
+  trackerId: string
+  topicId: string
+  parentSubtopicId: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+  status: LessonStatus
+  isLocked: boolean
+  progressPercent: number
+  topicTitle?: string
+}
+
+export interface GeneratedLesson {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  userId: string
+  title: string
+  summary: string
+  explanation: string
+  insight: string
+  lessonType: LessonType
+  requiresCompiler: boolean
+  codeExample: {
+    language: string
+    fileName: string
+    code: string
+  }
+  practiceTask: {
+    title: string
+    description: string
+    expectedOutput?: string
+    starterCode: string
+  }
+  tags: string[]
+  difficulty: TrackerLevel
+  estimatedMinutes: number
+}
+
+export interface LessonNavigationItem {
+  _id: string
+  title: string
+}
+
+export interface TrackerLessonResponse {
+  tracker: Tracker
+  lessonNode: TrackerLessonNode
+  generatedLesson: GeneratedLesson
+  previousLesson: LessonNavigationItem | null
+  nextLesson: LessonNavigationItem | null
+  lessonRoadmap: LessonListItem[]
+}
+
+export type LessonChatMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+export type LessonChatPayload = {
+  trackerId: string
+  subtopicId: string
+  messages: LessonChatMessage[]
+}
+
+export type LessonChatResponse = ApiResponse<{
+  answer: string
+}>
+
+export type RunLessonCodePayload = {
+  trackerId: string
+  subtopicId: string
+  sourceCode: string
+  languageId?: number
+  language?: string
+  stdin?: string
+}
+
+export type RunLessonCodeResponse = ApiResponse<{
+  stdout: string
+  stderr: string
+  compileOutput: string
+  message: string
+  status: {
+    id: number
+    description: string
+  }
+  time?: string | null
+  memory?: number | null
+}>
+
+export type AddMissingEvaluationTopicPayload = {
+  trackerId: string
+  evaluationJobId: string
+  topicIndex: number
+}
+
+export type AddedSubtopic = {
+  _id: string
+  trackerId: string
+  topicId: string
+  parentSubtopicId: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+}
+
+export type AddedTopic = {
+  _id: string
+  trackerId: string
+  title: string
+  description: string
+  order: number
+}
+
+export type AddMissingEvaluationTopicResponse =
+  ApiResponse<{
+    trackerId: string
+    evaluationJobId: string
+    missingTopicIndex: number
+    addedSubtopic?: AddedSubtopic
+    addedTopic?: AddedTopic
+    placedUnder: {
+      type: 'topic' | 'subtopic' | 'tracker'
+      _id: string
+      title: string
+    }
+  }>
+
+  export type SubmitLessonCodePayload = {
+  trackerId: string
+  subtopicId: string
+  sourceCode: string
+  languageId?: number
+  language?: string
+  stdin?: string
+}
+
+export type SubmitLessonCodeResponse = ApiResponse<{
+  isCorrect: boolean
+  expectedOutput: string
+  actualOutput: string
+  stdout: string
+  stderr: string
+  compileOutput: string
+  message: string
+  status: {
+    id: number
+    description: string
+  }
+  canCompareOptimized: boolean
+  canAskHints: boolean
+}>
+
+export type GetCodeHintPayload = {
+  trackerId: string
+  subtopicId: string
+  sourceCode: string
+  actualOutput?: string
+  errorOutput?: string
+  hintCount: number
+}
+
+export type GetCodeHintResponse = ApiResponse<{
+  mode: 'hint' | 'issue'
+  hintCount: number
+  title: string
+  explanation: string
+}>
+
+export type GetOptimizedSolutionPayload = {
+  trackerId: string
+  subtopicId: string
+  sourceCode: string
+  language?: string
+}
+
+export type GetOptimizedSolutionResponse = ApiResponse<{
+  optimizedCode: string
+  explanation: string
+  improvements: string[]
+}>
+
+export type VerifyLessonAnswerPayload = {
+  trackerId: string
+  subtopicId: string
+  question: string
+  answer: string
+}
+
+export type VerifyLessonAnswerResponse = ApiResponse<{
+  verdict: 'correct' | 'partially_correct' | 'incorrect'
+  score: number
+  feedback: string
+  correctedAnswer: string
+  keyPoints: string[]
+}>

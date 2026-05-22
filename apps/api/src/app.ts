@@ -14,7 +14,7 @@ import { initPassport } from './infrastructure/auth/passport'
 
 import authRouter from './modules/auth/auth.routes'
 import onboardingRouter from './modules/onboarding/onboarding.routes'
-import trackerRoutes from './modules/trackers/trackers.routes'
+import trackerRoutes from './modules/trackers'
 import usersRouter from './modules/users/users.routes'
 import uploadsRouter from './modules/uploads/uploads.routes'
 import settingsRouter from './modules/settings/settings.routes'

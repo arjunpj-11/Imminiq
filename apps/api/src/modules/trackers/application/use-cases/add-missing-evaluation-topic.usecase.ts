@@ -1,3 +1,5 @@
+// apps/api/src/modules/trackers/application/use-cases/add-missing-evaluation-topic.usecase.ts
+
 import { ApiError } from '../../../../shared/utils/ApiError'
 
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
@@ -18,8 +20,8 @@ type NewTopLevelPlacement = {
 const normalizePlacementReference = (value: string) => {
   return value
     .trim()
-    .replace(/^["'“”‘’]+/, '')
-    .replace(/["'“”‘’.)\]]+$/, '')
+    .replace(/^["'""'']+/, '')
+    .replace(/["'""''.)\]]+$/, '')
     .trim()
 }
 
@@ -29,22 +31,16 @@ const parseNewTopLevelPlacement = (
   const placement = suggestedParentTitle.trim()
 
   if (!/^new\s+top\s+level\s+topic/i.test(placement)) {
-    return {
-      isNewTopLevel: false,
-    }
+    return { isNewTopLevel: false }
   }
 
-  const followMatch = placement.match(
-    /should\s+follow\s+(.+?)(?:\)|$)/i
-  )
+  const followMatch = placement.match(/should\s+follow\s+(.+?)(?:\)|$)/i)
 
   if (followMatch?.[1]) {
     return {
       isNewTopLevel: true,
       relation: 'after',
-      referenceTitle: normalizePlacementReference(
-        followMatch[1]
-      ),
+      referenceTitle: normalizePlacementReference(followMatch[1]),
     }
   }
 
@@ -56,15 +52,11 @@ const parseNewTopLevelPlacement = (
     return {
       isNewTopLevel: true,
       relation: 'before',
-      referenceTitle: normalizePlacementReference(
-        precedeMatch[1]
-      ),
+      referenceTitle: normalizePlacementReference(precedeMatch[1]),
     }
   }
 
-  return {
-    isNewTopLevel: true,
-  }
+  return { isNewTopLevel: true }
 }
 
 const resolveTopLevelTopicOrder = async (
@@ -73,23 +65,17 @@ const resolveTopLevelTopicOrder = async (
   trackerTopics: TrackerTopicRecord[],
   placement: NewTopLevelPlacement
 ): Promise<number> => {
-  if (
-    placement.referenceTitle &&
-    placement.relation
-  ) {
-    const referenceTopic =
-      findBestMatchingParent(
-        trackerTopics,
-        placement.referenceTitle
-      )
+  if (placement.referenceTitle && placement.relation) {
+    const referenceTopic = findBestMatchingParent(
+      trackerTopics,
+      placement.referenceTitle
+    )
 
     if (referenceTopic) {
       const referenceOrder = referenceTopic.order
 
       const newOrder =
-        placement.relation === 'before'
-          ? referenceOrder
-          : referenceOrder + 1
+        placement.relation === 'before' ? referenceOrder : referenceOrder + 1
 
       await trackerRepository.shiftTopicOrdersFrom({
         trackerId,
@@ -100,18 +86,13 @@ const resolveTopLevelTopicOrder = async (
     }
   }
 
-  const lastTopic =
-    await trackerRepository.findLastTopicForTracker(
-      trackerId
-    )
+  const lastTopic = await trackerRepository.findLastTopicForTracker(trackerId)
 
   return (lastTopic?.order || 0) + 1
 }
 
 export class AddMissingEvaluationTopicUseCase {
-  constructor(
-    private readonly trackerRepository: TrackerRepository
-  ) {}
+  constructor(private readonly trackerRepository: TrackerRepository) {}
 
   async execute({
     trackerId,
@@ -121,10 +102,7 @@ export class AddMissingEvaluationTopicUseCase {
   }: AddMissingEvaluationTopicInput): Promise<AddMissingEvaluationTopicResult> {
     const parsedTopicIndex = Number(topicIndex)
 
-    if (
-      !Number.isInteger(parsedTopicIndex) ||
-      parsedTopicIndex < 0
-    ) {
+    if (!Number.isInteger(parsedTopicIndex) || parsedTopicIndex < 0) {
       throw new ApiError(
         400,
         'Invalid missing topic index',
@@ -132,25 +110,19 @@ export class AddMissingEvaluationTopicUseCase {
       )
     }
 
-    const tracker =
-      await this.trackerRepository.findOwnedTrackerById(
-        trackerId,
-        userId
-      )
+    const tracker = await this.trackerRepository.findOwnedTrackerById(
+      trackerId,
+      userId
+    )
 
     if (!tracker) {
-      throw new ApiError(
-        404,
-        'Tracker not found',
-        'TRACKER_NOT_FOUND'
-      )
+      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
-    const evaluationJob =
-      await this.trackerRepository.findEvaluationJobById(
-        evaluationJobId,
-        userId
-      )
+    const evaluationJob = await this.trackerRepository.findEvaluationJobById(
+      evaluationJobId,
+      userId
+    )
 
     if (!evaluationJob) {
       throw new ApiError(
@@ -168,8 +140,7 @@ export class AddMissingEvaluationTopicUseCase {
       )
     }
 
-    const outputData =
-      evaluationJob.outputData as EvaluationOutputData | undefined
+    const outputData = evaluationJob.outputData as EvaluationOutputData | undefined
 
     if (outputData?.trackerId !== trackerId) {
       throw new ApiError(
@@ -179,8 +150,7 @@ export class AddMissingEvaluationTopicUseCase {
       )
     }
 
-    const missingTopics =
-      outputData?.evaluation?.missingTopics
+    const missingTopics = outputData?.evaluation?.missingTopics
 
     if (!Array.isArray(missingTopics)) {
       throw new ApiError(
@@ -190,8 +160,7 @@ export class AddMissingEvaluationTopicUseCase {
       )
     }
 
-    const missingTopic =
-      missingTopics[parsedTopicIndex]
+    const missingTopic = missingTopics[parsedTopicIndex]
 
     if (!missingTopic) {
       throw new ApiError(
@@ -213,73 +182,49 @@ export class AddMissingEvaluationTopicUseCase {
       )
     }
 
-    const [
-      trackerTopics,
-      trackerSubtopics,
-    ] = await Promise.all([
-      this.trackerRepository.getTopicsForTracker(
-        trackerId
-      ),
-
-      this.trackerRepository.getSubtopicsForTracker(
-        trackerId
-      ),
+    const [trackerTopics, trackerSubtopics] = await Promise.all([
+      this.trackerRepository.getTopicsForTracker(trackerId),
+      this.trackerRepository.getSubtopicsForTracker(trackerId),
     ])
 
-    const suggestedParentTitle =
-      missingTopic.suggestedParentTitle
-
-    const newTopLevelPlacement =
-      parseNewTopLevelPlacement(
-        suggestedParentTitle
-      )
+    const suggestedParentTitle = missingTopic.suggestedParentTitle
+    const newTopLevelPlacement = parseNewTopLevelPlacement(suggestedParentTitle)
 
     if (newTopLevelPlacement.isNewTopLevel) {
-      const newTopicOrder =
-        await resolveTopLevelTopicOrder(
-          this.trackerRepository,
-          trackerId,
-          trackerTopics,
-          newTopLevelPlacement
-        )
+      const newTopicOrder = await resolveTopLevelTopicOrder(
+        this.trackerRepository,
+        trackerId,
+        trackerTopics,
+        newTopLevelPlacement
+      )
 
-      const addedTopic =
-        await this.trackerRepository.createTrackerTopic({
-          trackerId,
-          title: missingTopic.title,
-          description: missingTopic.description,
-          order: newTopicOrder,
-        })
+      const addedTopic = await this.trackerRepository.createTrackerTopic({
+        trackerId,
+        title: missingTopic.title,
+        description: missingTopic.description,
+        order: newTopicOrder,
+      })
 
       await Promise.all([
-        this.trackerRepository.incrementTrackerTopicsCount(
-          trackerId
-        ),
-
+        this.trackerRepository.incrementTrackerTopicsCount(trackerId),
         this.trackerRepository.markMissingEvaluationTopicAsAdded({
           evaluationJobId,
           topicIndex: parsedTopicIndex,
-          addedTopicId:
-            addedTopic._id.toString(),
+          addedTopicId: addedTopic._id.toString(),
         }),
       ])
 
       return {
         trackerId,
-
         evaluationJobId,
-
         missingTopicIndex: parsedTopicIndex,
-
         addedTopic: {
           _id: addedTopic._id.toString(),
-          trackerId:
-            addedTopic.trackerId.toString(),
+          trackerId: addedTopic.trackerId.toString(),
           title: addedTopic.title,
           description: addedTopic.description,
           order: addedTopic.order,
         },
-
         placedUnder: {
           type: 'tracker',
           _id: trackerId,
@@ -288,24 +233,16 @@ export class AddMissingEvaluationTopicUseCase {
       }
     }
 
-    const matchedSubtopicParent =
-      findBestMatchingParent(
-        trackerSubtopics,
-        suggestedParentTitle
-      )
+    const matchedSubtopicParent = findBestMatchingParent(
+      trackerSubtopics,
+      suggestedParentTitle
+    )
 
-    const matchedTopicParent =
-      matchedSubtopicParent
-        ? null
-        : findBestMatchingParent(
-            trackerTopics,
-            suggestedParentTitle
-          )
+    const matchedTopicParent = matchedSubtopicParent
+      ? null
+      : findBestMatchingParent(trackerTopics, suggestedParentTitle)
 
-    if (
-      !matchedSubtopicParent &&
-      !matchedTopicParent
-    ) {
+    if (!matchedSubtopicParent && !matchedTopicParent) {
       throw new ApiError(
         404,
         `Suggested parent "${suggestedParentTitle}" was not found in this tracker`,
@@ -313,91 +250,69 @@ export class AddMissingEvaluationTopicUseCase {
       )
     }
 
-    const topicId =
-      matchedSubtopicParent
-        ? matchedSubtopicParent.topicId.toString()
-        : matchedTopicParent!._id.toString()
+    const topicId = matchedSubtopicParent
+      ? matchedSubtopicParent.topicId.toString()
+      : matchedTopicParent!._id.toString()
 
-    const parentSubtopicId =
-      matchedSubtopicParent
-        ? matchedSubtopicParent._id.toString()
-        : null
+    const parentSubtopicId = matchedSubtopicParent
+      ? matchedSubtopicParent._id.toString()
+      : null
 
-    const depth =
-      matchedSubtopicParent
-        ? matchedSubtopicParent.depth + 1
-        : 1
+    const depth = matchedSubtopicParent ? matchedSubtopicParent.depth + 1 : 1
 
-    const lastSibling =
-      await this.trackerRepository.findLastSiblingSubtopic({
-        topicId,
-        parentSubtopicId,
-      })
+    const lastSibling = await this.trackerRepository.findLastSiblingSubtopic({
+      topicId,
+      parentSubtopicId,
+    })
 
-    const nextOrder =
-      (lastSibling?.order || 0) + 1
-
-    const addedSubtopic =
-      await this.trackerRepository.createTrackerSubtopic({
-        trackerId,
-        topicId,
-        parentSubtopicId,
-        title: missingTopic.title,
-        description: missingTopic.description,
-        order: nextOrder,
-        depth,
-      })
+    const addedSubtopic = await this.trackerRepository.createTrackerSubtopic({
+      trackerId,
+      topicId,
+      parentSubtopicId,
+      title: missingTopic.title,
+      description: missingTopic.description,
+      order: (lastSibling?.order || 0) + 1,
+      depth,
+    })
 
     await Promise.all([
-      this.trackerRepository.incrementTrackerSubtopicsCount(
-        trackerId
-      ),
-
+      this.trackerRepository.incrementTrackerSubtopicsCount(trackerId),
+      // FIX: removed non-existent recomputeTopicProgress call;
+      // recomputeTrackerProgress covers overall progress recomputation
+      this.trackerRepository.recomputeTrackerProgress(trackerId),
       this.trackerRepository.markMissingEvaluationTopicAsAdded({
         evaluationJobId,
         topicIndex: parsedTopicIndex,
-        addedSubtopicId:
-          addedSubtopic._id.toString(),
+        addedSubtopicId: addedSubtopic._id.toString(),
       }),
     ])
 
     return {
       trackerId,
-
       evaluationJobId,
-
       missingTopicIndex: parsedTopicIndex,
-
       addedSubtopic: {
         _id: addedSubtopic._id.toString(),
-        trackerId:
-          addedSubtopic.trackerId.toString(),
-        topicId:
-          addedSubtopic.topicId.toString(),
-        parentSubtopicId:
-          addedSubtopic.parentSubtopicId
-            ? addedSubtopic.parentSubtopicId.toString()
-            : null,
+        trackerId: addedSubtopic.trackerId.toString(),
+        topicId: addedSubtopic.topicId.toString(),
+        parentSubtopicId: addedSubtopic.parentSubtopicId
+          ? addedSubtopic.parentSubtopicId.toString()
+          : null,
         title: addedSubtopic.title,
         description: addedSubtopic.description,
         order: addedSubtopic.order,
         depth: addedSubtopic.depth,
       },
-
       placedUnder: matchedSubtopicParent
         ? {
             type: 'subtopic',
-            _id:
-              matchedSubtopicParent._id.toString(),
-            title:
-              matchedSubtopicParent.title,
+            _id: matchedSubtopicParent._id.toString(),
+            title: matchedSubtopicParent.title,
           }
         : {
             type: 'topic',
-            _id:
-              matchedTopicParent!._id.toString(),
-            title:
-              matchedTopicParent!.title,
+            _id: matchedTopicParent!._id.toString(),
+            title: matchedTopicParent!.title,
           },
     }
   }
