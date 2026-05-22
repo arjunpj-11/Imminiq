@@ -1,3 +1,5 @@
+// apps/api/src/modules/trackers/domain/repositories/tracker.repository.interface.ts
+
 import type {
   CreateTrackerInput,
   CreateTrackerTopicInput,
@@ -124,41 +126,49 @@ export interface TrackerRepository {
     trackerId: string
   ): Promise<TrackerRecord | null>
 
+  // FIX: added missing unlockNextSubtopic method used in update-subtopic-progress.usecase.ts
+  unlockNextSubtopic(data: {
+    trackerId: string
+    topicId: string
+    completedSubtopicOrder: number
+    parentSubtopicId: string | null
+  }): Promise<unknown>
+
   findLessonBySubtopicId(data: {
     trackerId: string
     subtopicId: string
     userId: string
   }): Promise<GeneratedTrackerLessonRecord | null>
 
- createLesson(data: {
-  trackerId: string
-  subtopicId: string
-  userId: string
-  title: string
-  summary: string
-  explanation: string
-  insight: string
-  lessonType:
-    | 'concept'
-    | 'coding'
-    | 'interview'
-    | 'system_design'
-    | 'theory'
-  requiresCompiler: boolean
-  codeExample: {
-    language: string
-    fileName: string
-    code: string
-  }
-  practiceTask: {
+  createLesson(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
     title: string
-    description: string
-    starterCode: string
-  }
-  tags: string[]
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
-  estimatedMinutes: number
-}): Promise<GeneratedTrackerLessonRecord>
+    summary: string
+    explanation: string
+    insight: string
+    lessonType:
+      | 'concept'
+      | 'coding'
+      | 'interview'
+      | 'system_design'
+      | 'theory'
+    requiresCompiler: boolean
+    codeExample: {
+      language: string
+      fileName: string
+      code: string
+    }
+    practiceTask: {
+      title: string
+      description: string
+      starterCode: string
+    }
+    tags: string[]
+    difficulty: 'beginner' | 'intermediate' | 'advanced'
+    estimatedMinutes: number
+  }): Promise<GeneratedTrackerLessonRecord>
 
   markMissingEvaluationTopicAsAdded(data: {
     evaluationJobId: string
@@ -168,8 +178,8 @@ export interface TrackerRepository {
   }): Promise<unknown>
 
   findGeneratedLessonBySubtopic(data: {
-  trackerId: string
-  subtopicId: string
-  userId: string
-}): Promise<GeneratedLessonData | null>
+    trackerId: string
+    subtopicId: string
+    userId: string
+  }): Promise<GeneratedLessonData | null>
 }

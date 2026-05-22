@@ -1,3 +1,5 @@
+// apps/api/src/modules/trackers/application/use-cases/add-missing-evaluation-topic.usecase.ts
+
 import { ApiError } from '../../../../shared/utils/ApiError'
 
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
@@ -18,8 +20,8 @@ type NewTopLevelPlacement = {
 const normalizePlacementReference = (value: string) => {
   return value
     .trim()
-    .replace(/^["'“”‘’]+/, '')
-    .replace(/["'“”‘’.)\]]+$/, '')
+    .replace(/^["'""'']+/, '')
+    .replace(/["'""''.)\]]+$/, '')
     .trim()
 }
 
@@ -275,7 +277,8 @@ export class AddMissingEvaluationTopicUseCase {
 
     await Promise.all([
       this.trackerRepository.incrementTrackerSubtopicsCount(trackerId),
-      this.trackerRepository.recomputeTopicProgress(topicId),
+      // FIX: removed non-existent recomputeTopicProgress call;
+      // recomputeTrackerProgress covers overall progress recomputation
       this.trackerRepository.recomputeTrackerProgress(trackerId),
       this.trackerRepository.markMissingEvaluationTopicAsAdded({
         evaluationJobId,

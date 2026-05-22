@@ -38,6 +38,7 @@ type MongoPrimitive =
 
 type MongoOperatorValue = {
   $ne?: MongoPrimitive
+   $gt?: string | number | Date
   $gte?: string | number | Date
   $lte?: string | number | Date
   $in?: Array<string | number | Types.ObjectId>
@@ -711,6 +712,7 @@ export const mongoTrackerRepository: TrackerRepository = {
 
     return subtopic as TrackerSubtopicRecord | null
   },
+  
 
   recomputeTrackerProgress: async (
     trackerId: string
@@ -878,5 +880,38 @@ createLesson: async (data) => {
   if (!lesson?.generatedLesson) return null
 
   return lesson.generatedLesson
+},
+
+unlockNextSubtopic: async ({ trackerId, topicId, completedSubtopicOrder }) => {
+  // Find the next subtopic by order within the same topic
+  const query: MongoQuery = {
+    trackerId: toObjectId(trackerId),
+    topicId: toObjectId(topicId),
+    order: { $gt: completedSubtopicOrder },
+    deletedAt: null,
+  }
+
+  const nextSubtopic = await TrackerSubtopic.findOne(
+    asMongoFilter(query)
+  ).sort({ order: 1 })
+
+  if (!nextSubtopic) return null
+
+  // Avoid re-unlocking
+  if (nextSubtopic.isLocked) {
+    const updated = await TrackerSubtopic.findByIdAndUpdate(
+      nextSubtopic._id,
+      asMongoUpdate({
+        $set: {
+          isLocked: false,
+          status: 'available',
+        },
+      }),
+      { returnDocument: 'after' }
+    )
+    return updated as TrackerSubtopicRecord | null
+  }
+
+  return nextSubtopic as TrackerSubtopicRecord
 },
 }

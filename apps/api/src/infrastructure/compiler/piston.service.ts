@@ -9,12 +9,6 @@ type PistonRuntime = {
   runtime?: string
 }
 
-type PistonExecuteInput = {
-  sourceCode: string
-  language: string
-  stdin?: string
-}
-
 type PistonRunResult = {
   stdout?: string
   stderr?: string
@@ -72,7 +66,8 @@ const getPistonHeaders = () => {
   return headers
 }
 
-const parseJsonResponse = async <T>(
+// FIX: added `extends object` constraint so T is compatible with { raw?: string }
+const parseJsonResponse = async <T extends object>(
   response: Response
 ): Promise<T & { raw?: string }> => {
   const text = await response.text()

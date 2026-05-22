@@ -571,7 +571,8 @@ export const trackerController = {
           subtopicId: req.params.subtopicId,
           userId: req.user!.userId,
           sourceCode: body.sourceCode,
-          languageId: body.languageId,
+          // FIX: body.languageId is number | undefined; default to 63 (JavaScript)
+          languageId: body.languageId ?? 63,
           language: body.language,
           stdin: body.stdin,
         })

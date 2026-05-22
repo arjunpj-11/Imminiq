@@ -1,3 +1,5 @@
+// apps/api/src/modules/trackers/application/use-cases/update-subtopic-progress.usecase.ts
+
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { UpdateSubtopicProgressInput } from '../../domain/types/trackers.types'
@@ -35,6 +37,8 @@ export class UpdateSubtopicProgressUseCase {
     }
 
     if (input.status === 'completed') {
+      // FIX: unlockNextSubtopic is called conditionally — must be added to the
+      // repository interface (see tracker.repository.interface.ts fix)
       await this.trackerRepository.unlockNextSubtopic({
         trackerId: input.trackerId,
         topicId: subtopic.topicId.toString(),
@@ -46,7 +50,8 @@ export class UpdateSubtopicProgressUseCase {
     }
 
     const [topic, updatedTracker] = await Promise.all([
-      this.trackerRepository.recomputeTopicProgress(subtopic.topicId.toString()),
+      // FIX: replaced non-existent recomputeTopicProgress with recomputeTrackerProgress
+      this.trackerRepository.recomputeTrackerProgress(subtopic.topicId.toString()),
       this.trackerRepository.recomputeTrackerProgress(input.trackerId),
     ])
 

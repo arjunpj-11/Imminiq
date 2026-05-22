@@ -9,7 +9,7 @@ interface LessonLayoutProps {
 }
 
 export default function LessonLayout({ data, onComplete, isCompleting }: LessonLayoutProps) {
-  const { tracker, lesson, previousLesson, nextLesson, lessonRoadmap } = data
+  const { tracker, lessonNode: lesson, generatedLesson, previousLesson, nextLesson, lessonRoadmap } = data
 
   return (
     <div className="grid grid-cols-[1fr_340px] gap-5 max-[1100px]:grid-cols-1">
@@ -20,7 +20,7 @@ export default function LessonLayout({ data, onComplete, isCompleting }: LessonL
           <p className="mt-4 max-w-3xl text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">{lesson.description || 'This lesson is ready. Add your AI generated lesson body or compiler content from the backend when that endpoint is connected.'}</p>
           <div className="mt-5 flex flex-wrap gap-2">
             <span className="rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">{lesson.status.replace('_', ' ')}</span>
-            <span className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">{formatMinutes(lesson.estimatedMinutes)}</span>
+            <span className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">{formatMinutes(generatedLesson.estimatedMinutes)}</span>
           </div>
         </div>
 
@@ -49,7 +49,7 @@ export default function LessonLayout({ data, onComplete, isCompleting }: LessonL
             {lessonRoadmap.map((item) => (
               <Link key={item._id} to={item.isLocked ? '#' : `/trackers/${tracker._id}/lessons/${item._id}`} className={cn('flex items-center gap-3 rounded-xl border p-3 transition', item._id === lesson._id ? 'border-[#b84c2b] bg-[rgba(184,76,43,0.08)] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.10)]' : 'border-[#e0d0c5] hover:border-[#e8816a] dark:border-white/9', item.isLocked && 'pointer-events-none opacity-55')}>
                 <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg bg-[rgba(184,76,43,0.08)] text-[12px]">{item.status === 'completed' ? '✓' : item.isLocked ? '🔒' : '›'}</span>
-                <span className="min-w-0"><span className="block truncate text-[13px] font-bold">{item.title}</span><span className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.1em] text-[#6b5f58] dark:text-[#9b9a92]">{item.status.replace('_', ' ')}</span></span>
+                <span className="min-w-0"><span className="block truncate text-[13px] font-bold">{item.title}</span><span className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">{item.status.replace('_', ' ')}</span></span>
               </Link>
             ))}
           </div>

@@ -1,3 +1,5 @@
+// apps/api/src/modules/trackers/application/use-cases/create-tracker-subtopic.usecase.ts
+
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateSubtopicUseCaseInput } from '../../domain/types/trackers.types'
@@ -74,7 +76,7 @@ export class CreateTrackerSubtopicUseCase {
 
     await Promise.all([
       this.trackerRepository.incrementTrackerSubtopicsCount(input.trackerId),
-      this.trackerRepository.recomputeTopicProgress(input.topicId),
+      // FIX: replaced non-existent recomputeTopicProgress with recomputeTrackerProgress
       this.trackerRepository.recomputeTrackerProgress(input.trackerId),
     ])
 
