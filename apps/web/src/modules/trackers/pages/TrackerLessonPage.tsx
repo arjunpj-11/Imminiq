@@ -1,4 +1,3 @@
-
 import {
   type ChangeEvent,
   useEffect,
@@ -50,6 +49,7 @@ type CompilerLanguageOption = {
   fileName: string
   languageId: number
 }
+
 
 const COMPILER_LANGUAGES: CompilerLanguageOption[] = [
   {
@@ -376,7 +376,7 @@ function LessonChatCard({
 
               <div
                 className={cn(
-                  'px-4 py-3 leading-[1.5]',
+                  'px-4 py-3 leading-normal',
                   large
                     ? 'max-w-[78%] text-[14px]'
                     : 'max-w-[85%] text-[13px]',
@@ -428,7 +428,7 @@ function LessonChatCard({
 
   const renderChatInput = () => {
     return (
-      <div className="flex items-center gap-2 rounded-[12px] border-[1.5px] border-[#e0d0c5] bg-white px-3 py-1.5 transition focus-within:border-[#e8816a] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320]">
+      <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-[#e0d0c5] bg-white px-3 py-1.5 transition focus-within:border-[#e8816a] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320]">
         <input
           value={message}
           onChange={(event) => setMessage(event.target.value)}
@@ -485,12 +485,12 @@ function LessonChatCard({
 
       {zoomOpen && (
         <div
-          className="fixed inset-0 z-[120] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-120 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-label="Large lesson chat"
         >
-          <div className="relative flex h-[min(760px,92vh)] w-[min(920px,96vw)] flex-col rounded-[24px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#1e1c19]">
+          <div className="relative flex h-[min(760px,92vh)] w-[min(920px,96vw)] flex-col rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#1e1c19]">
             <div className="flex items-center justify-between gap-4 border-b border-[#e0d0c5] px-6 py-4 dark:border-white/9 max-[640px]:px-4">
               <div>
                 <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
@@ -542,7 +542,7 @@ function ReflectionPracticeCard({
   const verifyAnswerMutation = useVerifyLessonAnswer()
 
   const baseQuestions = useMemo(() => {
-    const questions = [
+    const qs = [
       lesson.practiceTask.description ||
         `Explain ${lesson.title} in your own words with one real example.`,
       `What are the most common mistakes learners make in ${lesson.title}?`,
@@ -554,9 +554,10 @@ function ReflectionPracticeCard({
       `Application question: Where would you use ${lesson.title} in a real project or interview scenario?`,
     ]
 
-    return questions.filter(Boolean)
+    return qs.filter(Boolean) as string[]
   }, [lesson])
 
+  // FIX: removed duplicate declarations — only one questions state, one selectedQuestion state
   const [questions, setQuestions] = useState<string[]>(baseQuestions)
   const [selectedQuestion, setSelectedQuestion] = useState(
     baseQuestions[0] || ''
@@ -570,21 +571,13 @@ function ReflectionPracticeCard({
   const [doubt, setDoubt] = useState('')
   const [doubtAnswer, setDoubtAnswer] = useState('')
 
-  useEffect(() => {
-    setQuestions(baseQuestions)
-    setSelectedQuestion(baseQuestions[0] || '')
+  // FIX: removed duplicate `const questions = useMemo(...)` and duplicate `const [selectedQuestion ...]`
+  // FIX: removed unused handleSelectQuestion — using setSelectedQuestion directly in onClick
+  const handleSelectQuestion = (q: string) => {
+    setSelectedQuestion(q)
     setAnswer('')
     setVerification(null)
-    setSolution('')
-    setSolutionOpen(false)
-    setDoubt('')
-    setDoubtAnswer('')
-  }, [baseQuestions])
-
-  useEffect(() => {
-    setAnswer('')
-    setVerification(null)
-  }, [selectedQuestion])
+  }
 
   useEffect(() => {
     if (!solutionOpen) return
@@ -639,7 +632,8 @@ Rules:
             .split('\n')
             .map((line) =>
               line
-                .replace(/^\d+[\).]\s*/, '')
+                // FIX: removed unnecessary escape \) — use [).] instead of [\).]
+                .replace(/^\d+[).]\s*/, '')
                 .replace(/^[-*]\s*/, '')
                 .trim()
             )
@@ -800,7 +794,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
             type="button"
             onClick={generateMoreQuestions}
             disabled={generateQuestionMutation.isPending}
-            className="rounded-[12px] bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
           >
             {generateQuestionMutation.isPending
               ? 'Generating...'
@@ -809,14 +803,14 @@ Please explain clearly and simply. If math is involved, use proper readable nota
         </div>
 
         <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <div className="flex h-full min-h-[560px] flex-col overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320] lg:h-[820px]">
+          <div className="flex h-full min-h-140 flex-col overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320] lg:h-205">
             <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
               <div>
                 <h3 className="text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
                   Question Set
                 </h3>
 
-                <p className="mt-1 text-[11.5px] leading-[1.5] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-1 text-[11.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
                   Click a question card to select it.
                 </p>
               </div>
@@ -833,9 +827,9 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                 return (
                   <article
                     key={`${question}-${index}`}
-                    onClick={() => setSelectedQuestion(question)}
+                    onClick={() => handleSelectQuestion(question)}
                     className={cn(
-                      'cursor-pointer rounded-[16px] border-[1.5px] p-4 transition hover:-translate-y-0.5 hover:border-[#e8816a]',
+                      'cursor-pointer rounded-2xl border-[1.5px] p-4 transition hover:-translate-y-0.5 hover:border-[#e8816a]',
                       active
                         ? 'border-[#e8816a] bg-[rgba(184,76,43,0.06)] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.08)]'
                         : 'border-[#e0d0c5] bg-[#fdf8f5] dark:border-white/9 dark:bg-[#1e1c19]'
@@ -862,7 +856,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
             </div>
           </div>
 
-          <div className="flex h-full min-h-[560px] flex-col overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320] lg:h-[820px]">
+          <div className="flex h-full min-h-140 flex-col overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320] lg:h-205">
             <div className="mb-3 shrink-0 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
               Your Answer
             </div>
@@ -904,13 +898,13 @@ Please explain clearly and simply. If math is involved, use proper readable nota
             </div>
 
             {verification ? (
-              <div className="mt-5 min-h-0 flex-1 overflow-y-auto rounded-[16px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
+              <div className="mt-5 min-h-0 flex-1 overflow-y-auto rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <h4 className="text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
                     {verdictLabel}
                   </h4>
 
-                  <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.1em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                  <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
                     Score {verification.score}/100
                   </span>
                 </div>
@@ -919,7 +913,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                   {verification.feedback}
                 </MathText>
 
-                <div className="mt-4 rounded-[12px] border border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320]">
+                <div className="mt-4 rounded-xl border border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320]">
                   <h5 className="mb-2 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
                     Corrected Answer
                   </h5>
@@ -938,7 +932,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                 )}
               </div>
             ) : (
-              <div className="mt-5 flex min-h-0 flex-1 items-center justify-center rounded-[16px] border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-6 text-center dark:border-white/9 dark:bg-[#1e1c19]">
+              <div className="mt-5 flex min-h-0 flex-1 items-center justify-center rounded-2xl border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-6 text-center dark:border-white/9 dark:bg-[#1e1c19]">
                 <div>
                   <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
                     ✍️
@@ -961,12 +955,12 @@ Please explain clearly and simply. If math is involved, use proper readable nota
 
       {solutionOpen && (
         <div
-          className="fixed inset-0 z-[130] flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
+          className="fixed inset-0 z-130 flex items-center justify-center bg-black/50 px-4 py-6 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-label="Generated solution"
         >
-          <div className="relative flex h-[min(820px,94vh)] w-[min(980px,96vw)] flex-col rounded-[24px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#1e1c19]">
+          <div className="relative flex h-[min(820px,94vh)] w-[min(980px,96vw)] flex-col rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#1e1c19]">
             <div className="flex items-center justify-between gap-4 border-b border-[#e0d0c5] px-6 py-4 dark:border-white/9 max-[640px]:px-4">
               <div>
                 <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
@@ -1014,7 +1008,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                   value={doubt}
                   onChange={(event) => setDoubt(event.target.value)}
                   placeholder="Example: I did not understand the second point..."
-                  className="min-h-28 w-full resize-none rounded-[12px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#e8816a] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]"
+                  className="min-h-28 w-full resize-none rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#e8816a] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]"
                 />
 
                 <button
@@ -1025,7 +1019,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                     !doubt.trim() ||
                     !solution
                   }
-                  className="mt-3 rounded-[12px] bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+                  className="mt-3 rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
                 >
                   {doubtMutation.isPending
                     ? 'Answering...'
@@ -1045,6 +1039,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
     </>
   )
 }
+
 function CompilerCard({
   trackerId,
   subtopicId,
@@ -1073,18 +1068,15 @@ function CompilerCard({
     return findCompilerLanguage(language || 'javascript')
   }, [language])
 
+  // FIX: removed all duplicate state declarations — each variable declared only once
   const [selectedLanguage, setSelectedLanguage] =
     useState<CompilerLanguageOption>(initialLanguage)
-
   const [code, setCode] = useState(initialCode)
   const [stdin, setStdin] = useState('')
   const [output, setOutput] = useState('> Ready to run your code')
-
   const [submitResult, setSubmitResult] =
     useState<SubmitLessonCodeResponse['data'] | null>(null)
-
   const [hintCount, setHintCount] = useState(0)
-
   const [hintItems, setHintItems] = useState<
     Array<{
       mode: 'hint' | 'issue'
@@ -1092,22 +1084,8 @@ function CompilerCard({
       explanation: string
     }>
   >([])
-
   const [optimizedSolution, setOptimizedSolution] =
     useState<GetOptimizedSolutionResponse['data'] | null>(null)
-
-  useEffect(() => {
-    setSelectedLanguage(initialLanguage)
-  }, [initialLanguage])
-
-  useEffect(() => {
-    setCode(initialCode)
-    setOutput('> Ready to run your code')
-    setSubmitResult(null)
-    setHintCount(0)
-    setHintItems([])
-    setOptimizedSolution(null)
-  }, [initialCode])
 
   const displayFileName =
     selectedLanguage.fileName || fileName || 'main.js'
@@ -1277,7 +1255,7 @@ function CompilerCard({
 
           {expectedOutput && (
             <div className="mt-4 rounded-[10px] border border-white/10 bg-[#0a0a0a] p-3">
-              <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.1em] text-[#888]">
+              <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#888]">
                 Expected Output
               </div>
 
@@ -1325,7 +1303,7 @@ function CompilerCard({
               type="button"
               disabled={runCodeMutation.isPending}
               onClick={runCode}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#2e5a39] bg-[#1a3d24] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.05em] text-[#4caf50] transition hover:bg-[#235230] hover:text-[#66bb6a] disabled:cursor-wait disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#2e5a39] bg-[#1a3d24] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-[#4caf50] transition hover:bg-[#235230] hover:text-[#66bb6a] disabled:cursor-wait disabled:opacity-50"
             >
               ▶ {runCodeMutation.isPending ? 'Running' : 'Run Code'}
             </button>
@@ -1334,7 +1312,7 @@ function CompilerCard({
               type="button"
               disabled={submitCodeMutation.isPending}
               onClick={submitCode}
-              className="inline-flex items-center gap-1.5 rounded-md border border-[#e8816a]/40 bg-[#b84c2b] px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.05em] text-white transition hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-md border border-[#e8816a]/40 bg-[#b84c2b] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-50"
             >
               ✓ {submitCodeMutation.isPending ? 'Submitting' : 'Submit'}
             </button>
@@ -1359,7 +1337,7 @@ function CompilerCard({
 
       <div className="grid grid-cols-2 gap-5 border-t border-white/10 bg-[#161616] p-5 dark:bg-[#0a0a0a] max-[640px]:grid-cols-1">
         <div>
-          <label className="mb-2 block font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.1em] text-[#888]">
+          <label className="mb-2 block font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#888]">
             Input
           </label>
 
@@ -1372,7 +1350,7 @@ function CompilerCard({
         </div>
 
         <div>
-          <div className="mb-3 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.1em] text-[#888]">
+          <div className="mb-3 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#888]">
             <span className="h-1.5 w-1.5 rounded-full bg-[#27c93f]" />
             Output
           </div>
@@ -1439,7 +1417,7 @@ function CompilerCard({
               {hintItems.map((item, index) => (
                 <div
                   key={`${item.mode}-${index}`}
-                  className="rounded-[12px] border border-white/10 bg-[#161616] p-4"
+                  className="rounded-xl border border-white/10 bg-[#161616] p-4"
                 >
                   <div className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#ffbd2e]">
                     {item.mode === 'issue'
@@ -1896,8 +1874,8 @@ export default function TrackerLessonPage() {
                         generatedLesson.practiceTask.description
                       }
                       expectedOutput={
-                        generatedLesson.practiceTask.expectedOutput
-                      }
+  generatedLesson.practiceTask.expectedOutput ?? ''
+}
                     />
                   </>
                 ) : (

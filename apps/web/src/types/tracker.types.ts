@@ -205,6 +205,7 @@ export interface GeneratedLesson {
   practiceTask: {
     title: string
     description: string
+    expectedOutput?: string
     starterCode: string
   }
   tags: string[]
