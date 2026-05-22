@@ -1,0 +1,58 @@
+import { ApiError } from '../../../../shared/utils/ApiError'
+import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { chatWithLessonTutor } from '../../../../infrastructure/ai/ai.service'
+
+export class ChatWithLessonTutorUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepository
+  ) {}
+
+  async execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    messages: {
+      role: 'user' | 'assistant'
+      content: string
+    }[]
+  }) {
+    const tracker =
+      await this.trackerRepository.findOwnedTrackerById(
+        input.trackerId,
+        input.userId
+      )
+
+    if (!tracker) {
+      throw new ApiError(
+        404,
+        'Tracker not found',
+        'TRACKER_NOT_FOUND'
+      )
+    }
+
+    const lesson =
+      await this.trackerRepository.findLessonBySubtopicId({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+      })
+
+    if (!lesson) {
+      throw new ApiError(
+        404,
+        'Generate the lesson before chatting',
+        'LESSON_NOT_GENERATED'
+      )
+    }
+
+    const answer = await chatWithLessonTutor({
+      lessonTitle: lesson.title,
+      lessonContent: `${lesson.summary}\n\n${lesson.explanation}\n\n${lesson.insight}`,
+      messages: input.messages,
+    })
+
+    return {
+      answer,
+    }
+  }
+}

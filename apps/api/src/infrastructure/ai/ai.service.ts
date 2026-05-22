@@ -1,4 +1,8 @@
+// apps/api/src/infrastructure/ai/ai.service.ts
+
 import { z } from 'zod'
+
+import { ApiError } from '../../shared/utils/ApiError'
 
 import {
   geminiChat,
@@ -71,11 +75,8 @@ const roadmapEvaluationSchema = z.object({
   missingTopics: z.array(
     z.object({
       title: z.string().trim().min(1),
-
       description: z.string().trim().min(1),
-
       reason: z.string().trim().min(1),
-
       suggestedParentTitle: z.string().trim().min(1),
     })
   ),
@@ -83,6 +84,96 @@ const roadmapEvaluationSchema = z.object({
 
 export type RoadmapEvaluation = z.infer<
   typeof roadmapEvaluationSchema
+>
+
+// ============================================================
+// GROQ LESSON GENERATION TYPES
+// ============================================================
+
+const generatedLessonSchema = z.object({
+  title: z.string().trim().min(1),
+
+  summary: z.string().trim().min(1),
+
+  explanation: z.string().trim().min(1),
+
+  insight: z.string().trim().min(1),
+
+  lessonType: z
+    .enum([
+      'concept',
+      'coding',
+      'interview',
+      'system_design',
+      'theory',
+    ])
+    .default('concept'),
+
+  requiresCompiler: z.boolean().default(false),
+
+  codeExample: z.object({
+    language: z.string().trim().default('javascript'),
+    fileName: z.string().trim().default('lesson.js'),
+    code: z.string().default(''),
+  }),
+
+  practiceTask: z.object({
+    title: z.string().trim().default('Practice task'),
+    description: z.string().trim().default(''),
+    starterCode: z.string().default(''),
+    expectedOutput: z.string().default(''),
+    expectedAnswer: z.string().default(''),
+  }),
+
+  tags: z.array(z.string().trim()).default([]),
+
+  difficulty: z
+    .enum(['beginner', 'intermediate', 'advanced'])
+    .default('beginner'),
+
+  estimatedMinutes: z.number().int().min(5).max(90).default(15),
+})
+
+export type GeneratedLesson = z.infer<
+  typeof generatedLessonSchema
+>
+
+// ============================================================
+// PRACTICE / ANSWER VERIFICATION TYPES
+// ============================================================
+
+const codeHintSchema = z.object({
+  mode: z.enum(['hint', 'issue']),
+  title: z.string().trim().min(1),
+  explanation: z.string().trim().min(1),
+})
+
+export type CodeHintAIResult = z.infer<typeof codeHintSchema>
+
+const optimizedSolutionSchema = z.object({
+  optimizedCode: z.string().default(''),
+  explanation: z.string().trim().min(1),
+  improvements: z.array(z.string().trim().min(1)).default([]),
+})
+
+export type OptimizedSolutionAIResult = z.infer<
+  typeof optimizedSolutionSchema
+>
+
+const answerVerificationSchema = z.object({
+  verdict: z.enum([
+    'correct',
+    'partially_correct',
+    'incorrect',
+  ]),
+  score: z.number().int().min(0).max(100),
+  feedback: z.string().trim().min(1),
+  correctedAnswer: z.string().trim().min(1),
+  keyPoints: z.array(z.string().trim().min(1)).default([]),
+})
+
+export type AnswerVerificationAIResult = z.infer<
+  typeof answerVerificationSchema
 >
 
 // ============================================================
@@ -98,9 +189,21 @@ const parseAIJson = <T>(
     .replace(/```/g, '')
     .trim()
 
-  const parsed = JSON.parse(cleaned)
+  try {
+    const parsed = JSON.parse(cleaned)
+    return schema.parse(parsed)
+  } catch (error) {
+    console.error('AI JSON parse failed:', {
+      response: cleaned,
+      error,
+    })
 
-  return schema.parse(parsed)
+    throw new ApiError(
+      502,
+      'AI returned invalid JSON',
+      'AI_INVALID_JSON'
+    )
+  }
 }
 
 // ============================================================
@@ -192,24 +295,9 @@ const heavyAIChatWithFallback = async (
 }
 
 // ============================================================
-// GEMINI / CEREBRAS — COMPLEX GENERATION TASKS
+// GEMINI / CEREBRAS — COMPLEX ROADMAP GENERATION
 // ============================================================
 
-/**
- * Used by onboarding flow.
- *
- * Generates only roadmap structure:
- * - tracker title
- * - top-level roadmap topics
- * - nested child nodes
- *
- * Does NOT generate:
- * - lessons
- * - explanations
- * - code examples
- * - visualizations
- * - resources
- */
 export const generateRoadmapStructure = async (
   topic: string,
   goal: string | undefined,
@@ -335,36 +423,6 @@ Description style:
 - Do not write full lessons.
 - Do not write paragraphs.
 
-Examples:
-- title: "Closures and lexical scope"
-  description: "Understand how functions retain outer scope and how closures appear in real interview traps."
-
-- title: "Interview Q: Explain event loop ordering"
-  description: "Be able to predict sync, microtask, and macrotask execution order."
-
-============================================================
-CONTENT PRIORITY
-============================================================
-
-Prioritize:
-1. Complete coverage
-2. Strong sequence
-3. Interview relevance
-4. Real-world usefulness
-5. Specificity over generic wording
-
-If the user chooses beginner:
-- Still create the full zero-to-hero roadmap.
-- Begin more gently and include prerequisites.
-- Do not reduce the final roadmap into a beginner-only mini syllabus.
-
-If the user chooses intermediate:
-- Include refresh foundations but move faster into applied and advanced depth.
-
-If the user chooses advanced:
-- Keep foundations compact but still include them as checkpoints.
-- Expand advanced internals, architecture, performance, edge cases, and interviews.
-
 ============================================================
 OUTPUT FORMAT
 ============================================================
@@ -423,15 +481,6 @@ Final checks before responding:
   )
 }
 
-/**
- * Used after roadmap generation is completed.
- *
- * Evaluates the full generated roadmap and returns:
- * - score
- * - grade
- * - summary
- * - missing topics with suggested tracker placement
- */
 export const evaluateRoadmap = async (
   roadmap: unknown
 ): Promise<RoadmapEvaluation> => {
@@ -441,20 +490,6 @@ You are a strict expert curriculum evaluator, interview mentor, and learning-pat
 Your task is to critically evaluate this AI-generated roadmap.
 
 The roadmap must be judged as a COMPLETE ZERO-TO-HERO MASTER ROADMAP.
-
-============================================================
-EVALUATION TARGET
-============================================================
-
-A strong roadmap should:
-- take a learner from beginner foundations to advanced mastery
-- be sufficiently detailed, not just a short overview
-- be logically sequenced
-- include practical learning steps
-- include interview-readiness where relevant
-- include common interview questions, comparisons, practice tasks, edge cases, and misconceptions where relevant
-- include production-minded concepts where relevant
-- feel suitable as a serious long-term tracker
 
 ============================================================
 ROADMAP TO EVALUATE
@@ -531,7 +566,6 @@ Final checks:
 - Each missing topic must be concrete enough to insert directly into the tracker.
 - suggestedParentTitle must match or closely reference the best existing roadmap topic or section title.
 - If the roadmap is already extremely complete, missingTopics may be an empty array.
-- Do not return strengths, weaknesses, verdict, or improvementSuggestions.
 `
 
   const response = await heavyAIChatWithFallback(
@@ -546,12 +580,431 @@ Final checks:
   )
 }
 
-/**
- * Legacy/general roadmap text generator.
- * Keep this only if you use it somewhere else outside onboarding.
- *
- * For onboarding flow, use generateRoadmapStructure instead.
- */
+// ============================================================
+// GROQ — LESSON GENERATION
+// ============================================================
+
+export const generateLesson = async (input: {
+  trackerTitle: string
+  topicTitle?: string
+  subtopicTitle: string
+  subtopicDescription?: string
+  level?: 'beginner' | 'intermediate' | 'advanced'
+}): Promise<GeneratedLesson> => {
+  const codingKeywordText = [
+    input.trackerTitle,
+    input.topicTitle || '',
+    input.subtopicTitle,
+    input.subtopicDescription || '',
+  ]
+    .join(' ')
+    .toLowerCase()
+
+  const shouldForceCompiler =
+    /\b(javascript|typescript|react|node|express|mongodb|mongoose|array|object|string|function|loop|promise|async|await|callback|closure|scope|hoisting|var|let|const|class|inheritance|prototype|dom|api|fetch|axios|algorithm|dsa|stack|queue|linked list|tree|graph|sorting|searching|recursion|dynamic programming|code|coding|programming|implementation|debug|debugging)\b/.test(
+      codingKeywordText
+    )
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, an expert programming tutor inside Imminiq. Return only strict valid JSON. No markdown. No extra explanation.',
+      },
+      {
+        role: 'user',
+        content: `
+Generate a full lesson for this roadmap node.
+
+Tracker:
+${input.trackerTitle}
+
+Parent topic:
+${input.topicTitle || 'Not provided'}
+
+Lesson node:
+${input.subtopicTitle}
+
+Node description:
+${input.subtopicDescription || 'No description provided'}
+
+Learner level:
+${input.level || 'beginner'}
+
+Important compiler decision:
+This lesson ${
+          shouldForceCompiler
+            ? 'IS detected as a coding/programming lesson, so requiresCompiler MUST be true.'
+            : 'may or may not need compiler. Decide based on whether the learner should write/run code.'
+        }
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "title": "string",
+  "summary": "short overview",
+  "explanation": "clear detailed lesson explanation in simple English",
+  "insight": "one helpful analogy or mental model",
+  "lessonType": "concept",
+  "requiresCompiler": false,
+  "codeExample": {
+    "language": "javascript",
+    "fileName": "lesson.js",
+    "code": ""
+  },
+  "practiceTask": {
+    "title": "practice title",
+    "description": "what the user should try",
+    "starterCode": "",
+    "expectedOutput": "",
+    "expectedAnswer": ""
+  },
+  "tags": ["tag1", "tag2"],
+  "difficulty": "beginner",
+  "estimatedMinutes": 15
+}
+
+Lesson type rule:
+- Use "coding" for JavaScript, TypeScript, React, Node.js, Express, MongoDB query, DSA, algorithm, implementation, debugging, syntax, or programming lessons.
+- Use "interview" for interview-question/explanation lessons.
+- Use "system_design" for architecture, scaling, distributed systems, database design, API design, or design lessons.
+- Use "theory" for pure conceptual/theoretical lessons.
+- Use "concept" for normal non-code learning concepts.
+
+Compiler rule:
+- Set "requiresCompiler": true for any lesson where code can help the learner understand by running examples.
+- Set "requiresCompiler": true for JavaScript syntax topics like var, let, const, scope, hoisting, closure, functions, arrays, objects, promises, async/await, loops, and DOM.
+- Set "requiresCompiler": true for DSA, algorithms, implementation tasks, debugging, backend logic, API examples, MongoDB query examples, and coding interview topics.
+- Set "requiresCompiler": false only for pure theory, system design, architecture explanation, comparison-only lessons, or non-coding lessons.
+- If requiresCompiler is true, provide runnable codeExample.code and useful practiceTask.starterCode.
+- If requiresCompiler is false, keep codeExample.code and practiceTask.starterCode as empty strings.
+- Use JavaScript code by default unless another language is clearly implied.
+
+Practice task rule:
+- If requiresCompiler is true:
+  - Create a coding problem, not only a reflection question.
+  - practiceTask.description must clearly state the coding challenge.
+  - practiceTask.starterCode must include incomplete starter code the learner can edit.
+  - practiceTask.expectedOutput must be the exact stdout expected from a correct solution.
+  - practiceTask.expectedAnswer must be an empty string.
+- If requiresCompiler is false:
+  - Create a written answer/problem-solving question.
+  - practiceTask.description must be a question or problem the learner can answer by typing.
+  - practiceTask.expectedAnswer must contain a reference answer for verification.
+  - practiceTask.starterCode and practiceTask.expectedOutput must be empty strings.
+
+Quality rules:
+- Make the lesson practical and interview-useful.
+- Explanation should be detailed but readable.
+- Avoid vague generic content.
+- Do not use markdown fences.
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty lesson response',
+      'GROQ_EMPTY_LESSON_RESPONSE'
+    )
+  }
+
+  const lesson = parseAIJson(response, generatedLessonSchema)
+
+  if (shouldForceCompiler) {
+    return {
+      ...lesson,
+      lessonType: 'coding',
+      requiresCompiler: true,
+      codeExample: {
+        language: lesson.codeExample.language || 'javascript',
+        fileName: lesson.codeExample.fileName || 'lesson.js',
+        code:
+          lesson.codeExample.code ||
+          `// ${input.subtopicTitle}\n\nconsole.log("Practice ${input.subtopicTitle} here");`,
+      },
+      practiceTask: {
+        title:
+          lesson.practiceTask.title ||
+          `Practice ${input.subtopicTitle}`,
+        description:
+          lesson.practiceTask.description ||
+          `Write and run code examples to understand ${input.subtopicTitle}.`,
+        starterCode:
+          lesson.practiceTask.starterCode ||
+          `// Try examples for ${input.subtopicTitle}\n\n`,
+        expectedOutput:
+          lesson.practiceTask.expectedOutput || '',
+        expectedAnswer: '',
+      },
+    }
+  }
+
+  return lesson
+}
+
+export const chatWithLessonTutor = async (input: {
+  lessonTitle: string
+  lessonContent: string
+  messages: {
+    role: 'user' | 'assistant' | 'system'
+    content: string
+  }[]
+}) => {
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content: `
+You are Scribe AI, a helpful tutor for one lesson inside Imminiq.
+
+Lesson title:
+${input.lessonTitle}
+
+Lesson content:
+${input.lessonContent}
+
+Rules:
+- Answer clearly and simply.
+- Use examples when helpful.
+- Keep answers focused on this lesson.
+- Do not hallucinate app data.
+        `.trim(),
+      },
+      ...input.messages,
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty tutor response',
+      'GROQ_EMPTY_TUTOR_RESPONSE'
+    )
+  }
+
+  return response
+}
+
+// ============================================================
+// GROQ — LESSON PRACTICE AI HELPERS
+// ============================================================
+
+export const generateCodeHint = async (input: {
+  lessonTitle: string
+  practiceTitle: string
+  practiceDescription: string
+  expectedOutput: string
+  sourceCode: string
+  actualOutput?: string
+  errorOutput?: string
+  hintCount: number
+}): Promise<CodeHintAIResult> => {
+  const revealIssue = input.hintCount >= 3
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, a supportive coding tutor. Return only strict valid JSON. No markdown.',
+      },
+      {
+        role: 'user',
+        content: `
+The learner submitted code for a coding practice.
+
+Lesson:
+${input.lessonTitle}
+
+Practice title:
+${input.practiceTitle}
+
+Practice task:
+${input.practiceDescription}
+
+Expected output:
+${input.expectedOutput || 'Not provided'}
+
+User code:
+${input.sourceCode}
+
+Actual stdout:
+${input.actualOutput || 'No stdout'}
+
+Error output:
+${input.errorOutput || 'No error'}
+
+Hints already used:
+${input.hintCount}
+
+Rule:
+${
+  revealIssue
+    ? 'The learner already used 3 hints. Now directly reveal the exact issue in the code and explain how to fix it.'
+    : 'Give only one useful hint. Do not reveal the full answer or fixed code.'
+}
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "mode": "${revealIssue ? 'issue' : 'hint'}",
+  "title": "short title",
+  "explanation": "clear explanation"
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty code hint response',
+      'GROQ_EMPTY_CODE_HINT_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, codeHintSchema)
+}
+
+export const generateOptimizedCodeSolution = async (input: {
+  lessonTitle: string
+  practiceTitle: string
+  practiceDescription: string
+  sourceCode: string
+  language?: string
+}): Promise<OptimizedSolutionAIResult> => {
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, an expert coding mentor. Return only strict valid JSON. No markdown.',
+      },
+      {
+        role: 'user',
+        content: `
+The learner solved this coding task correctly.
+
+Compare their code with a more optimized or cleaner solution.
+
+Lesson:
+${input.lessonTitle}
+
+Practice title:
+${input.practiceTitle}
+
+Practice task:
+${input.practiceDescription}
+
+Language:
+${input.language || 'javascript'}
+
+User code:
+${input.sourceCode}
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "optimizedCode": "optimized code here",
+  "explanation": "why this version is better or cleaner",
+  "improvements": ["improvement 1", "improvement 2", "improvement 3"]
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty optimized solution response',
+      'GROQ_EMPTY_OPTIMIZED_SOLUTION_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, optimizedSolutionSchema)
+}
+
+export const verifyNonCodingAnswer = async (input: {
+  lessonTitle: string
+  lessonExplanation: string
+  question: string
+  expectedAnswer?: string
+  userAnswer: string
+}): Promise<AnswerVerificationAIResult> => {
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, a strict but supportive lesson-answer evaluator. Return only strict valid JSON. No markdown.',
+      },
+      {
+        role: 'user',
+        content: `
+Verify the learner's answer.
+
+Lesson:
+${input.lessonTitle}
+
+Lesson explanation:
+${input.lessonExplanation}
+
+Question:
+${input.question}
+
+Reference answer:
+${input.expectedAnswer || 'Not provided'}
+
+Learner answer:
+${input.userAnswer}
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "verdict": "correct",
+  "score": 0,
+  "feedback": "short supportive feedback",
+  "correctedAnswer": "a better complete answer",
+  "keyPoints": ["key point 1", "key point 2", "key point 3"]
+}
+
+Rules:
+- verdict must be one of: "correct", "partially_correct", "incorrect".
+- score must be an integer from 0 to 100.
+- If the answer is fully correct, still give a polished correctedAnswer.
+- If the answer is weak, explain what is missing.
+- Keep feedback simple and helpful.
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty answer verification response',
+      'GROQ_EMPTY_ANSWER_VERIFICATION_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, answerVerificationSchema)
+}
+
+// ============================================================
+// LEGACY / GENERAL AI HELPERS
+// ============================================================
+
 export const generateRoadmap = (
   goal: string,
   level: string
@@ -559,17 +1012,6 @@ export const generateRoadmap = (
   geminiChat(
     `Generate a detailed learning roadmap for ${goal} at ${level} level`,
     'You are an expert learning path designer.'
-  )
-
-/**
- * Future feature:
- * Generate a full lesson only when the user enters a roadmap node.
- * Not used during onboarding generation.
- */
-export const generateLesson = (topic: string) =>
-  geminiChat(
-    `Generate a detailed lesson for: ${topic}`,
-    'You are an expert educator.'
   )
 
 export const detectMissingTopics = (
@@ -587,10 +1029,10 @@ export const analyzeTestPerformance = (results: string) =>
     'You are a learning analytics expert.'
   )
 
-export const generateDashboardInsights = (
+export const generateDashboardInsights = async (
   userData: string
-) =>
-  groqChat(
+) => {
+  const response = await groqChat(
     [
       {
         role: 'system',
@@ -615,23 +1057,40 @@ Rules:
     'llama-3.1-8b-instant'
   )
 
+  return (
+    response ||
+    'Focus on completing one small lesson today to keep your learning momentum strong.'
+  )
+}
+
 // ============================================================
 // GROQ LLAMA 3.3 70B — CONVERSATIONAL TASKS
 // ============================================================
 
-export const chatWithTutor = (
+export const chatWithTutor = async (
   messages: {
     role: 'user' | 'assistant' | 'system'
     content: string
   }[]
-) =>
-  groqChat(
+) => {
+  const response = await groqChat(
     messages,
     'llama-3.3-70b-versatile'
   )
 
-export const explainTopic = (topic: string) =>
-  groqChat(
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty chat response',
+      'GROQ_EMPTY_CHAT_RESPONSE'
+    )
+  }
+
+  return response
+}
+
+export const explainTopic = async (topic: string) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -641,8 +1100,19 @@ export const explainTopic = (topic: string) =>
     'llama-3.3-70b-versatile'
   )
 
-export const explainELI5 = (topic: string) =>
-  groqChat(
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty topic explanation',
+      'GROQ_EMPTY_TOPIC_EXPLANATION'
+    )
+  }
+
+  return response
+}
+
+export const explainELI5 = async (topic: string) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -652,11 +1122,22 @@ export const explainELI5 = (topic: string) =>
     'llama-3.3-70b-versatile'
   )
 
-export const generateMockQuestions = (
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty ELI5 explanation',
+      'GROQ_EMPTY_ELI5_RESPONSE'
+    )
+  }
+
+  return response
+}
+
+export const generateMockQuestions = async (
   topic: string,
   count: number
-) =>
-  groqChat(
+) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -666,11 +1147,22 @@ export const generateMockQuestions = (
     'llama-3.3-70b-versatile'
   )
 
-export const reviewCode = (
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty mock questions',
+      'GROQ_EMPTY_MOCK_QUESTIONS'
+    )
+  }
+
+  return response
+}
+
+export const reviewCode = async (
   code: string,
   language: string
-) =>
-  groqChat(
+) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -680,11 +1172,22 @@ export const reviewCode = (
     'llama-3.3-70b-versatile'
   )
 
-export const optimizeCode = (
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty code review',
+      'GROQ_EMPTY_CODE_REVIEW'
+    )
+  }
+
+  return response
+}
+
+export const optimizeCode = async (
   code: string,
   language: string
-) =>
-  groqChat(
+) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -694,8 +1197,19 @@ export const optimizeCode = (
     'llama-3.3-70b-versatile'
   )
 
-export const simplifyLesson = (content: string) =>
-  groqChat(
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty optimized code response',
+      'GROQ_EMPTY_OPTIMIZE_RESPONSE'
+    )
+  }
+
+  return response
+}
+
+export const simplifyLesson = async (content: string) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -705,11 +1219,22 @@ export const simplifyLesson = (content: string) =>
     'llama-3.3-70b-versatile'
   )
 
-export const generateCodeExample = (
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty simplified lesson',
+      'GROQ_EMPTY_SIMPLIFY_RESPONSE'
+    )
+  }
+
+  return response
+}
+
+export const generateCodeExample = async (
   topic: string,
   language: string
-) =>
-  groqChat(
+) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -719,12 +1244,23 @@ export const generateCodeExample = (
     'llama-3.3-70b-versatile'
   )
 
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty code example',
+      'GROQ_EMPTY_CODE_EXAMPLE'
+    )
+  }
+
+  return response
+}
+
 // ============================================================
 // GROQ LLAMA 3.1 8B — FAST SIMPLE TASKS
 // ============================================================
 
-export const quickSummary = (content: string) =>
-  groqChat(
+export const quickSummary = async (content: string) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -734,8 +1270,19 @@ export const quickSummary = (content: string) =>
     'llama-3.1-8b-instant'
   )
 
-export const generateTopicTags = (content: string) =>
-  groqChat(
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty summary',
+      'GROQ_EMPTY_SUMMARY'
+    )
+  }
+
+  return response
+}
+
+export const generateTopicTags = async (content: string) => {
+  const response = await groqChat(
     [
       {
         role: 'user',
@@ -744,3 +1291,14 @@ export const generateTopicTags = (content: string) =>
     ],
     'llama-3.1-8b-instant'
   )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty topic tags',
+      'GROQ_EMPTY_TOPIC_TAGS'
+    )
+  }
+
+  return response
+}

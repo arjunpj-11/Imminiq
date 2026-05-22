@@ -45,6 +45,13 @@ import NotificationSettingsPage from './modules/settings/pages/NotificationSetti
 import PreferencesSettingsPage from './modules/settings/pages/PreferencesSettingsPage'
 import PrivacySettingsPage from './modules/settings/pages/PrivacySettingsPage'
 
+
+import MyTrackersPage from './modules/trackers/pages/MyTrackersPage'
+import TrackerRoadmapPage from './modules/trackers/pages/TrackerRoadmapPage'
+import TrackerLessonPage from './modules/trackers/pages/TrackerLessonPage'
+
+
+
 // ─── SPECIAL SYSTEM PAGES ───────────────────────────
 import BlockedPage from './pages/BlockedPage'
 import NoConnectionPage from './pages/NoConnectionPage'
@@ -201,6 +208,11 @@ export default function App() {
             </ProtectedRoute>
           }
         />
+
+
+<Route path="/trackers" element={<MyTrackersPage />} />
+<Route path="/trackers/:trackerId/roadmap" element={<TrackerRoadmapPage />} />
+<Route path="/trackers/:trackerId/lessons/:subtopicId" element={<TrackerLessonPage />} />
 
         {/* ─── ADMIN ROUTES ───────────────────────────── */}
         <Route

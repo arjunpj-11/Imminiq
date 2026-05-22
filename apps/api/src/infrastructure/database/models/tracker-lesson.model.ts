@@ -1,0 +1,139 @@
+import mongoose, { Schema } from 'mongoose'
+
+const trackerLessonSchema = new Schema(
+  {
+    trackerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Tracker',
+      required: true,
+      index: true,
+    },
+
+    subtopicId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TrackerSubtopic',
+      required: true,
+      unique: true,
+      index: true,
+    },
+
+    userId: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      required: true,
+      index: true,
+    },
+
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    summary: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    explanation: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    insight: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
+    lessonType: {
+      type: String,
+      enum: [
+        'concept',
+        'coding',
+        'interview',
+        'system_design',
+        'theory',
+      ],
+      default: 'concept',
+      index: true,
+    },
+
+    requiresCompiler: {
+      type: Boolean,
+      default: false,
+      index: true,
+    },
+
+    codeExample: {
+      language: {
+        type: String,
+        default: 'javascript',
+      },
+
+      fileName: {
+        type: String,
+        default: 'lesson.js',
+      },
+
+      code: {
+        type: String,
+        default: '',
+      },
+    },
+
+    practiceTask: {
+      title: {
+        type: String,
+        default: '',
+      },
+
+      description: {
+        type: String,
+        default: '',
+      },
+
+      starterCode: {
+        type: String,
+        default: '',
+      },
+    },
+
+    tags: {
+      type: [String],
+      default: [],
+    },
+
+    difficulty: {
+      type: String,
+      enum: ['beginner', 'intermediate', 'advanced'],
+      default: 'beginner',
+    },
+
+    estimatedMinutes: {
+      type: Number,
+      default: 15,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+      index: true,
+    },
+  },
+  {
+    timestamps: true,
+  }
+)
+
+trackerLessonSchema.index({
+  trackerId: 1,
+  subtopicId: 1,
+  userId: 1,
+})
+
+export const TrackerLesson =
+  mongoose.models.TrackerLesson ||
+  mongoose.model('TrackerLesson', trackerLessonSchema)

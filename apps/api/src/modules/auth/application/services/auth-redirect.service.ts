@@ -1,5 +1,5 @@
 import type { LoginRedirectPath } from '../../domain/types/auth.types'
-import { trackerRepository } from '../../../trackers/tracker.repository'
+import { trackerRepository } from '../../../trackers'
 
 export const resolveRedirectPath = async (
   userId: string
