@@ -1,114 +1,127 @@
+# Imminiq
+
+> An AI-powered learning platform — built with a clean architecture monorepo, hardened auth, and intelligent onboarding and tracking flows.
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Frontend | React + Vite + TypeScript |
+| Backend | Express + TypeScript (Strict Clean Architecture) |
+| Database | MongoDB Atlas |
+| Cache / Sessions | Redis |
+| Realtime | Socket.io |
+| Background Jobs | BullMQ |
+| Monorepo | Turborepo + npm workspaces |
+
+---
 
 ## Project Status
 
-Imminiq is now in **active feature development**.
+**Active feature development** — started May 6, 2026.
 
-Development officially started on **May 6, 2026**. The project has moved well beyond the initial setup phase and now includes a stable monorepo foundation, core authentication flows, AI-powered onboarding, dashboard features, profile/settings modules, and a stronger security/testing layer.
+Core platform foundation is in place. Development is now focused on deeper product modules.
 
-### Current Progress
+---
 
-* Monorepo architecture configured with **Turborepo + npm workspaces**
-* Frontend running with **React + Vite + TypeScript**
-* Backend API running with **Express + TypeScript**
-* **MongoDB Atlas**, **Redis**, and **Socket.io** integrated
-* Backend reorganized toward **Strict Clean Architecture**
-* Root-level development, build, lint, and testing scripts configured
-* Git workflow using feature branches, `sub-main`, and `main` established
+## What's Built
+
+### Infrastructure
+- Turborepo monorepo with root-level dev, build, lint, and test scripts
+- Git workflow: feature branches → `sub-main` → `main`
 
 ### Authentication & Security
+- Email/phone registration with OTP (Redis-backed)
+- Login, logout, refresh-token rotation, and `/me` session restoration
+- Google OAuth and GitHub OAuth with cookie-based callback flow
+- Two-factor authentication (setup, verify, disable, login challenge)
+- Active session listing and remote termination
+- Secure email-change flow with step-up verification
+- Password reset with one-time token protection and replay prevention
+- Refresh-token reuse detection
+- Account status restrictions (blocked, banned, paused, deactivated)
+- Sensitive-route rate limiting and failed-attempt controls
+- **30-day recoverable account deletion** — sessions revoked on schedule, signing in again within the window cancels deletion
 
-* Email/phone-based registration flow implemented
-* OTP verification flow backed by Redis temporary storage
-* Login, logout, refresh-token, and `/me` session restoration flows implemented
-* Google OAuth and GitHub OAuth integrated
-* OAuth callback flow supports cookie-based session restoration instead of exposing tokens in redirect URLs
-* Account status restrictions supported for blocked, banned, paused, and deactivated users
-* Two-factor authentication setup, verification, disabling, and login challenge flow implemented
-* Active session listing and session termination implemented
-* Secure email-change flow with step-up verification implemented
-* Password reset flow hardened with one-time reset token protection
-* Refresh-token reuse detection added
-* Sensitive-route rate limiting and failed-attempt controls added
-* Account deletion now uses a **30-day recoverable deletion window**
+### AI & Learning
+- Learner onboarding: topic + goal → learning level
+- AI roadmap generation via BullMQ background job with progress polling
+- AI roadmap evaluation with missing-topic detection
+- Missing topics insertable into tracker structure
+- AI fallback and worker reliability handling
 
-  * deletion is scheduled
-  * sessions are revoked
-  * signing in again within 30 days cancels the deletion process
+### Tracker
+- Full tracker flow implemented
+- Evaluation and missing-topic insertion
+- Tracker UX and APIs complete
 
-### AI & Learning Flow
+### Dashboard
+- Summary widgets and AI insights
 
-* Learner onboarding flow implemented:
+### Profile
+- Avatar and banner support with AI preview flows
 
-  * Step 1: topic + goal
-  * Step 2: learning level
-* AI roadmap generation moved into a **BullMQ background job**
-* Job progress polling and result retrieval implemented
-* AI roadmap evaluation flow added
-* Evaluation results can suggest missing topics for a tracker
-* Missing suggested topics can be inserted into the tracker structure
-* AI fallback and worker reliability improvements added
+### Settings
+- Appearance/theme, notifications, privacy
+- Code editor/compiler preferences
+- AI behavior and learning preferences
+- Gesture settings
+- Security page: email management, password management, active sessions, 2FA, account deletion controls
 
-### Product Modules in Progress / Implemented
+---
 
-* Dashboard module implemented with summary widgets and AI insights
-* User profile module implemented with avatar and banner support
-* AI avatar/banner preview flows added
-* Settings module implemented:
+## Testing & CI
 
-  * appearance/theme
-  * notifications
-  * privacy
-  * code editor/compiler preferences
-  * AI behavior preferences
-  * learning preferences
-  * gesture settings
-* Security settings page implemented with:
+| Suite | Passing |
+|---|---|
+| Integration tests (Vitest + Supertest + MongoDB Memory Server) | 18 / 18 |
+| Security unit/middleware tests | 19 / 19 |
 
-  * email management
-  * password management
-  * active sessions
-  * two-factor authentication
-  * account deletion controls
-* Tracker evaluation and missing-topic insertion flow implemented
+**Coverage includes:**
+- Auth and security-sensitive HTTP flows
+- CSRF checks
+- Refresh-token rotation and reuse detection
+- OAuth state protection
+- Request-origin protection
+- Password reset replay prevention
+- Upload signature validation
+- Scheduled account deletion recovery flow
 
-### Testing & CI
+**CI pipelines:** lint, build, dependency review, CodeQL security scanning
 
-* CI checks configured for lint and build verification
-* Dependency review and CodeQL security scanning configured
-* Security-focused Vitest test suite added
-* HTTP integration tests implemented with:
+---
 
-  * **Vitest**
-  * **Supertest**
-  * **MongoDB Memory Server**
-* Current automated coverage includes:
+## What's Next
 
-  * auth and security-sensitive HTTP flows
-  * CSRF checks
-  * refresh-token rotation and reuse detection
-  * OAuth state protection
-  * request-origin protection
-  * password reset replay prevention
-  * upload signature validation
-  * scheduled account deletion recovery flow
-* Latest security tests passing:
+- Community, challenge, mock test, and social modules
+- AI lesson and explanation flows
+- Background purge worker for expired 30-day deletion windows
+- Expanded automated test coverage as new modules ship
+- API docs, database design, and frontend flows kept aligned throughout
 
-  * **18/18 integration tests**
-  * **19/19 security unit/middleware tests**
+---
 
-### Current Stage
+## Development
 
-**Core platform foundation, authentication/security hardening, onboarding, dashboard, profile, and settings modules are now in place.**
+```bash
+# Install dependencies
+npm install
 
-The project is currently progressing into deeper product-module development and refinement.
+# Run all packages in dev mode
+npm run dev
 
-### Next Focus Areas
+# Build all packages
+npm run build
 
-* Complete remaining tracker-related UX and APIs
-* Continue community, challenge, mock test, and social modules
-* Expand AI lesson/explanation flows
-* Add the final background purge worker for accounts whose 30-day deletion window has expired
-* Continue strengthening automated testing as new modules are added
-* Keep API docs, database design, and frontend flows aligned as the platform grows
+# Lint
+npm run lint
 
+# Run tests
+npm run test
+```
 
+---
+
+*Development started May 6, 2026.*
