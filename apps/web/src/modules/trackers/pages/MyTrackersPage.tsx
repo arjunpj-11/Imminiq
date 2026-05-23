@@ -1,6 +1,6 @@
 // apps/web/src/modules/trackers/pages/MyTrackersPage.tsx
 
-import { useState } from 'react'
+import { useState, } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import Sidebar from '../../../components/layout/Sidebar'
@@ -36,6 +36,86 @@ const getInitials = (name: string) =>
 const formatLevelLabel = (isPremium: boolean) =>
   isPremium ? 'Imminiq Pro' : 'Free Scholar'
 
+// ─── SVG Icons ──────────────────────────────────────────────────────────────
+
+const PlusIcon = () => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 14 14"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M7 1.5V12.5M1.5 7H12.5"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+    />
+  </svg>
+)
+
+const CompassIcon = () => (
+  <svg
+    width="28"
+    height="28"
+    viewBox="0 0 28 28"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <circle
+      cx="14"
+      cy="14"
+      r="10.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+    />
+    <circle cx="14" cy="14" r="1.5" fill="currentColor" />
+    <path
+      d="M14 4.5V6.5M14 21.5V23.5M4.5 14H6.5M21.5 14H23.5"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+    />
+    <path
+      d="M17.5 10.5L15.5 13.5L10.5 17.5L12.5 14.5L17.5 10.5Z"
+      fill="currentColor"
+    />
+  </svg>
+)
+
+// ─── Tracker Grid Skeleton ───────────────────────────────────────────────────
+
+const TrackerCardSkeleton = () => (
+  <div className="animate-pulse rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]">
+    <div className="mb-3 flex items-start justify-between gap-3">
+      <div className="h-5 w-3/5 rounded-lg bg-[#e8ddd6] dark:bg-white/10" />
+      <div className="h-5 w-12 rounded-full bg-[#e8ddd6] dark:bg-white/10" />
+    </div>
+    <div className="mb-4 h-3.5 w-4/5 rounded bg-[#e8ddd6] dark:bg-white/10" />
+    <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-[#e8ddd6] dark:bg-white/10">
+      <div className="h-full w-2/5 rounded-full bg-[#d4c5bc] dark:bg-white/20" />
+    </div>
+    <div className="flex gap-2">
+      <div className="h-8 flex-1 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
+      <div className="h-8 w-8 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
+      <div className="h-8 w-8 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
+    </div>
+  </div>
+)
+
+const TrackerGridSkeleton = () => (
+  <section className="grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1">
+    {Array.from({ length: 6 }).map((_, i) => (
+      <TrackerCardSkeleton key={i} />
+    ))}
+  </section>
+)
+
+// ─── Page ────────────────────────────────────────────────────────────────────
+
 export default function MyTrackersPage() {
   const navigate = useNavigate()
 
@@ -65,17 +145,22 @@ export default function MyTrackersPage() {
   const summary = summaryQuery.data
   const trackers = trackersQuery.data?.trackers || []
 
-  const isLoading =
-    dashboardSummaryQuery.isLoading ||
-    summaryQuery.isLoading ||
-    trackersQuery.isLoading
+  // True only on the very first load (no data yet at all)
+  const isInitialLoad =
+    (dashboardSummaryQuery.isLoading && !dashboardSummary) ||
+    (summaryQuery.isLoading && !summary) ||
+    (trackersQuery.isLoading && !trackersQuery.data)
+
+  // Filter/refetch loading — page shell stays, only the grid area shows skeleton
+  const isTrackersRefetching =
+    trackersQuery.isLoading || trackersQuery.isFetching
 
   const hasError =
     dashboardSummaryQuery.isError ||
     summaryQuery.isError ||
     trackersQuery.isError
 
-  if (isLoading) {
+  if (isInitialLoad) {
     return (
       <PageLoadingScreen
         eyebrow="Trackers"
@@ -122,12 +207,7 @@ export default function MyTrackersPage() {
           onToggleCollapsed={() =>
             setSidebarCollapsed((value) => {
               const next = !value
-
-              localStorage.setItem(
-                'imminiq_sb',
-                next ? 'closed' : 'open'
-              )
-
+              localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
               return next
             })
           }
@@ -153,6 +233,8 @@ export default function MyTrackersPage() {
 
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+
+              {/* ─── Header ───────────────────────────────── */}
               <section className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
@@ -179,10 +261,12 @@ export default function MyTrackersPage() {
                   onClick={() => navigate('/onboarding/step-1')}
                   className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a] max-[560px]:w-full max-[560px]:justify-center"
                 >
+                  <PlusIcon />
                   Create Tracker
                 </button>
               </section>
 
+              {/* ─── Stat Cards ───────────────────────────── */}
               <section className="grid grid-cols-4 gap-3 max-[860px]:grid-cols-2 max-[440px]:grid-cols-1 max-[440px]:gap-2">
                 <TrackerStatCard
                   label="Total"
@@ -190,21 +274,18 @@ export default function MyTrackersPage() {
                   helper="Created trackers"
                   tone="rust"
                 />
-
                 <TrackerStatCard
                   label="Active"
                   value={summary.activeTrackers || 0}
                   helper="In progress"
                   tone="blue"
                 />
-
                 <TrackerStatCard
                   label="Completed"
                   value={summary.completedTrackers || 0}
                   helper="Finished paths"
                   tone="green"
                 />
-
                 <TrackerStatCard
                   label="Average"
                   value={`${summary.averageProgress || 0}%`}
@@ -213,42 +294,46 @@ export default function MyTrackersPage() {
                 />
               </section>
 
+              {/* ─── Filter Bar ───────────────────────────── */}
               <TrackerFilterBar
                 status={status}
                 onStatusChange={setStatus}
               />
 
-              {trackers.length ? (
+              {/* ─── Tracker Grid — inline skeleton on refetch ── */}
+              {isTrackersRefetching ? (
+                <TrackerGridSkeleton />
+              ) : trackers.length ? (
                 <section className="grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1">
-   {trackers.map((tracker) => (
-  <TrackerCard
-    key={tracker._id}
-    tracker={tracker}
-    onOpenStudy={(trackerId) =>
-      navigate(`/trackers/${trackerId}/roadmap`)
-    }
-    onPublish={(trackerId) =>
-      navigate(`/trackers/${trackerId}/publish`)
-    }
-    onViewPublished={(trackerId) =>
-      navigate(`/trackers/${trackerId}/preview`)
-    }
-    onRunEvaluation={(trackerId) =>
-      navigate(`/trackers/${trackerId}/evaluation`)
-    }
-    onInfo={(trackerId) =>
-      navigate(`/trackers/${trackerId}/manage`)
-    }
-    onArchive={(trackerId) =>
-      archiveTrackerMutation.mutate(trackerId)
-    }
-  />
-))}
+                  {trackers.map((tracker) => (
+                    <TrackerCard
+                      key={tracker._id}
+                      tracker={tracker}
+                      onOpenStudy={(trackerId) =>
+                        navigate(`/trackers/${trackerId}/roadmap`)
+                      }
+                      onPublish={(trackerId) =>
+                        navigate(`/trackers/${trackerId}/publish`)
+                      }
+                      onViewPublished={(trackerId) =>
+                        navigate(`/trackers/${trackerId}/preview`)
+                      }
+                      onRunEvaluation={(trackerId) =>
+                        navigate(`/trackers/${trackerId}/evaluation`)
+                      }
+                      onInfo={(trackerId) =>
+                        navigate(`/trackers/${trackerId}/manage`)
+                      }
+                      onArchive={(trackerId) =>
+                        archiveTrackerMutation.mutate(trackerId)
+                      }
+                    />
+                  ))}
                 </section>
               ) : (
                 <section className="rounded-[22px] border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-10 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-6">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-2xl dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)]">
-                    🧭
+                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                    <CompassIcon />
                   </div>
 
                   <h2 className="font-['Playfair_Display',serif] text-2xl font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
@@ -263,8 +348,9 @@ export default function MyTrackersPage() {
                   <button
                     type="button"
                     onClick={() => navigate('/onboarding/step-1')}
-                    className="mt-5 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412]"
+                    className="mt-5 inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412]"
                   >
+                    <PlusIcon />
                     Create Tracker
                   </button>
                 </section>
