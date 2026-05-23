@@ -1,3 +1,5 @@
+// apps/api/src/modules/trackers/domain/types/trackers.types.ts
+
 export type TrackerStatus = 'active' | 'stalled' | 'completed' | 'archived'
 export type TrackerVisibility = 'private' | 'public'
 export type TrackerDomain =
@@ -169,7 +171,7 @@ export interface TrackerSubtopicRecord {
   description: string
   order: number
   depth: number
-  defaultLocked: boolean
+  isLocked: boolean  // renamed from defaultLocked
   estimatedMinutes?: number
 }
 

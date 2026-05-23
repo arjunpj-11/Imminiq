@@ -7,7 +7,9 @@ export interface ITrackerTopic extends Document {
   title: string
   description: string
   order: number
+  status: string
   estimatedHours: number
+  progressPercent: number
   deletedAt?: Date | null
   createdAt: Date
   updatedAt: Date
@@ -35,10 +37,21 @@ const trackerTopicSchema = new Schema<ITrackerTopic>(
       required: true,
       min: 1,
     },
+    status: {
+      type: String,
+      enum: ['active', 'locked', 'completed'],
+      default: 'locked',
+    },
     estimatedHours: {
       type: Number,
       default: 0,
       min: 0,
+    },
+    progressPercent: {
+      type: Number,
+      default: 0,
+      min: 0,
+      max: 100,
     },
     deletedAt: {
       type: Date,

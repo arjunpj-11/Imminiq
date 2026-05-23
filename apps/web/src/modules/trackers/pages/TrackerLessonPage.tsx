@@ -1220,13 +1220,7 @@ export default function TrackerLessonPage() {
     () => lessonNode?.status === 'completed'
   )
 
-  // Keep in sync if the user navigates back to the same lesson from a fresh
-  // server fetch (e.g. after returning from roadmap).
-  useEffect(() => {
-    if (lessonNode?.status === 'completed') {
-      setIsCompleted(true)
-    }
-  }, [lessonNode?.status])
+
   // ───────────────────────────────────────────────────────────────────────────
 
   const codeForCompiler = useMemo(() => {

@@ -1,6 +1,4 @@
-// apps/web/src/modules/trackers/pages/TrackerRoadmapPage.tsx
-
-import { useMemo, useState,useEffect } from 'react'
+import { useMemo, useState } from 'react'
 import {
   useLocation,
   useNavigate,
@@ -99,7 +97,6 @@ const LayersIcon = () => (
   </svg>
 )
 
-// Topic-specific node icons — all SVG, keyed by keyword
 const CodeIcon = () => (
   <svg width="22" height="22" viewBox="0 0 22 22" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M7 7L2.5 11L7 15M15 7L19.5 11L15 15" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
@@ -239,7 +236,6 @@ const BoxIcon = () => (
   </svg>
 )
 
-// Fallback icons cycling array
 const FALLBACK_ICONS = [
   <BookIcon />,
   <BrainIcon />,
@@ -251,7 +247,6 @@ const FALLBACK_ICONS = [
 
 const getNodeIcon = (title: string, index: number): React.ReactNode => {
   const lower = title.toLowerCase()
-
   if (lower.includes('javascript')) return <CodeIcon />
   if (lower.includes('typescript')) return <TypeIcon />
   if (lower.includes('react')) return <AtomIcon />
@@ -264,7 +259,6 @@ const getNodeIcon = (title: string, index: number): React.ReactNode => {
   if (lower.includes('deploy')) return <RocketIcon />
   if (lower.includes('interview')) return <MicIcon />
   if (lower.includes('project')) return <PuzzleIcon />
-
   return FALLBACK_ICONS[index % FALLBACK_ICONS.length]
 }
 
@@ -333,6 +327,22 @@ const getNodeState = (node: RoadmapNode, isFirstLevel: boolean) => {
   return 'available'
 }
 
+// ─── Helpers for fresh node lookup ───────────────────────────────────────────
+
+const findFreshNodes = (
+  nodes: RoadmapNode[],
+  targetId: string
+): RoadmapNode[] | null => {
+  for (const node of nodes) {
+    if (node._id === targetId) return node.children
+    if (node.children.length > 0) {
+      const found = findFreshNodes(node.children, targetId)
+      if (found) return found
+    }
+  }
+  return null
+}
+
 // ─── Flow connectors ─────────────────────────────────────────────────────────
 
 function FlowConnector({ direction }: { direction: 'down' | 'left' | 'right' }) {
@@ -345,7 +355,6 @@ function FlowConnector({ direction }: { direction: 'down' | 'left' | 'right' }) 
       </div>
     )
   }
-
   return (
     <div className="h-20 w-full max-w-150">
       <svg viewBox="0 0 600 90" preserveAspectRatio="none" className="h-full w-full overflow-visible">
@@ -418,10 +427,8 @@ function RoadmapFlowNode({
         <div className="pointer-events-none absolute inset-0 rounded-[18px] bg-linear-to-br from-white/50 to-transparent dark:from-white/3" />
 
         <div className="relative flex items-center gap-4">
-          {/* Node icon */}
           <div className="relative flex h-13 w-13 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
             {getNodeIcon(node.title, index)}
-
             {locked && (
               <div className="absolute bottom-0.75 right-0.75 flex h-5 w-5 items-center justify-center rounded-md border border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] dark:border-white/9 dark:bg-[#252320] dark:text-[#9b9a92]">
                 <LockIcon />
@@ -469,7 +476,6 @@ function RoadmapFlowNode({
                       style={{ width: `${completed ? 100 : progress}%` }}
                     />
                   </div>
-
                   <span className="font-['DM_Mono',monospace] text-[8px] text-[#6b5f58] dark:text-[#9b9a92]">
                     {completed ? 100 : progress}%
                   </span>
@@ -478,7 +484,6 @@ function RoadmapFlowNode({
             </div>
           </div>
 
-          {/* Arrow */}
           {!locked && (
             <div
               className={cn(
@@ -527,42 +532,29 @@ export default function TrackerRoadmapPage() {
     () => (roadmapData?.roadmap || []).map(mapTopicToNode),
     [roadmapData?.roadmap]
   )
-useEffect(() => {
-  if (breadcrumbStack.length === 0) return
 
-  setBreadcrumbStack((currentStack) => {
-    return currentStack.map((crumb) => {
-      // Find the matching node in the fresh top-level nodes
-      const findFreshNodes = (
-        nodes: RoadmapNode[],
-        targetId: string
-      ): RoadmapNode[] | null => {
-        for (const node of nodes) {
-          if (node._id === targetId) return node.children
-          if (node.children.length > 0) {
-            const found = findFreshNodes(node.children, targetId)
-            if (found) return found
-          }
-        }
-        return null
-      }
-
+  // ✅ Sync breadcrumb nodes with fresh server data using useMemo — no useEffect/setState
+  const syncedBreadcrumbStack = useMemo(() => {
+    if (breadcrumbStack.length === 0 || topLevelNodes.length === 0) {
+      return breadcrumbStack
+    }
+    return breadcrumbStack.map((crumb) => {
       const freshNodes = findFreshNodes(topLevelNodes, crumb.id)
       return freshNodes ? { ...crumb, nodes: freshNodes } : crumb
     })
-  })
-}, [topLevelNodes])
+  }, [topLevelNodes, breadcrumbStack])
+
   const currentNodes =
-    breadcrumbStack.length > 0
-      ? breadcrumbStack[breadcrumbStack.length - 1].nodes
+    syncedBreadcrumbStack.length > 0
+      ? syncedBreadcrumbStack[syncedBreadcrumbStack.length - 1].nodes
       : topLevelNodes
 
   const currentTitle =
-    breadcrumbStack.length > 0
-      ? breadcrumbStack[breadcrumbStack.length - 1].title
+    syncedBreadcrumbStack.length > 0
+      ? syncedBreadcrumbStack[syncedBreadcrumbStack.length - 1].title
       : roadmapData?.tracker.title || 'Study Roadmap'
 
-  const isFirstLevel = breadcrumbStack.length === 0
+  const isFirstLevel = syncedBreadcrumbStack.length === 0
 
   const completedCount = currentNodes.filter(
     (node) => getNodeState(node, isFirstLevel) === 'completed'
@@ -708,7 +700,7 @@ useEffect(() => {
                     onClick={() => goToBreadcrumb(-1)}
                     className={cn(
                       "font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.14em] transition",
-                      breadcrumbStack.length === 0
+                      syncedBreadcrumbStack.length === 0
                         ? 'text-[#b84c2b] dark:text-[#e8816a]'
                         : 'text-[#6b5f58] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]'
                     )}
@@ -716,7 +708,7 @@ useEffect(() => {
                     {roadmapData.tracker.title}
                   </button>
 
-                  {breadcrumbStack.map((item, index) => (
+                  {syncedBreadcrumbStack.map((item, index) => (
                     <span key={item.id} className="flex items-center gap-2">
                       <span className="text-[#6b5f58]/40 dark:text-[#9b9a92]/40">/</span>
                       <button
@@ -724,7 +716,7 @@ useEffect(() => {
                         onClick={() => goToBreadcrumb(index)}
                         className={cn(
                           "max-w-42 truncate font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.14em] transition",
-                          index === breadcrumbStack.length - 1
+                          index === syncedBreadcrumbStack.length - 1
                             ? 'text-[#b84c2b] dark:text-[#e8816a]'
                             : 'text-[#6b5f58] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]'
                         )}
@@ -749,7 +741,7 @@ useEffect(() => {
                     </p>
                   </div>
 
-                  {breadcrumbStack.length > 0 && (
+                  {syncedBreadcrumbStack.length > 0 && (
                     <button
                       type="button"
                       onClick={goBackOneLevel}
@@ -772,7 +764,7 @@ useEffect(() => {
                       Current Level
                     </div>
                     <div className="font-['Playfair_Display',serif] text-[22px] font-extrabold leading-none text-[#1a1714] dark:text-[#f2f0eb]">
-                      {breadcrumbStack.length + 1}
+                      {syncedBreadcrumbStack.length + 1}
                     </div>
                   </div>
                 </div>
@@ -847,7 +839,6 @@ useEffect(() => {
                           isFirstLevel={isFirstLevel}
                           onClick={() => handleNodeClick(node)}
                         />
-
                         {index < currentNodes.length - 1 && (
                           <FlowConnector direction={index % 2 === 0 ? 'right' : 'left'} />
                         )}

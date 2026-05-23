@@ -277,9 +277,8 @@ export class AddMissingEvaluationTopicUseCase {
 
     await Promise.all([
       this.trackerRepository.incrementTrackerSubtopicsCount(trackerId),
-      // FIX: removed non-existent recomputeTopicProgress call;
-      // recomputeTrackerProgress covers overall progress recomputation
-      this.trackerRepository.recomputeTrackerProgress(trackerId),
+      // FIX: pass userId as required second argument
+      this.trackerRepository.recomputeTrackerProgress(trackerId, userId),
       this.trackerRepository.markMissingEvaluationTopicAsAdded({
         evaluationJobId,
         topicIndex: parsedTopicIndex,

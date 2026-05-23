@@ -10,7 +10,7 @@ export interface ITrackerSubtopic extends Document {
   description: string
   order: number
   depth: number
-  defaultLocked: boolean  // ← starting lock state for any new user
+  isLocked: boolean
   estimatedMinutes: number
   deletedAt?: Date | null
   createdAt: Date
@@ -55,9 +55,9 @@ const trackerSubtopicSchema = new Schema<ITrackerSubtopic>(
       min: 1,
       default: 1,
     },
-    defaultLocked: {
+    isLocked: {
       type: Boolean,
-      default: true, // depth > 1 starts locked for every new user
+      default: true,
     },
     estimatedMinutes: {
       type: Number,

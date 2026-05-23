@@ -261,7 +261,7 @@ export const mongoTrackerRepository: TrackerRepository = {
 
     return subtopics.map((subtopic) => {
       const progress = progressMap.get(subtopic._id.toString())
-      const defaultStatus = subtopic.defaultLocked ? 'locked' : 'available'
+      const defaultStatus = subtopic.isLocked ? 'locked' : 'available'
       return {
         _id: subtopic._id,
         trackerId: subtopic.trackerId,
@@ -271,11 +271,10 @@ export const mongoTrackerRepository: TrackerRepository = {
         description: subtopic.description,
         order: subtopic.order,
         depth: subtopic.depth,
-        defaultLocked: subtopic.defaultLocked,
+        isLocked: subtopic.isLocked,
         estimatedMinutes: subtopic.estimatedMinutes || 0,
         status: (progress?.status ?? defaultStatus) as SubtopicWithProgressRecord['status'],
-        isUnlocked: progress ? progress.isUnlocked : !subtopic.defaultLocked,
-        isLocked: progress ? !progress.isUnlocked : subtopic.defaultLocked,
+        isUnlocked: progress ? progress.isUnlocked : !subtopic.isLocked,
         progressPercent: progress?.progressPercent ?? 0,
         timeSpentMinutes: progress?.timeSpentMinutes ?? 0,
         completedAt: progress?.completedAt ?? null,
@@ -337,7 +336,7 @@ export const mongoTrackerRepository: TrackerRepository = {
       order: data.order,
       depth: data.depth,
       // depth=1 nodes start unlocked; deeper nodes are locked until parent completes
-      defaultLocked: data.depth !== 1,
+      isLocked: data.depth !== 1,
       estimatedMinutes: data.estimatedMinutes || 0,
       deletedAt: null,
     }))
@@ -366,13 +365,11 @@ export const mongoTrackerRepository: TrackerRepository = {
     const userObjId = toObjectId(userId)
     const trackerObjId = toObjectId(trackerId)
 
-    // Check if already initialized — if any progress doc exists, skip
     const existing = await UserSubtopicProgress.findOne(
       asMongoFilter({ userId: userObjId, trackerId: trackerObjId })
     )
     if (existing) return
 
-    // Fetch all content
     const [topics, subtopics] = await Promise.all([
       TrackerTopic.find(
         asMongoFilter({ trackerId: trackerObjId, deletedAt: null })
@@ -382,7 +379,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       ).sort({ depth: 1, order: 1 }).lean(),
     ])
 
-    // Create one UserTopicProgress per topic — all start as active
     if (topics.length > 0) {
       await UserTopicProgress.insertMany(
         topics.map((topic) => ({
@@ -396,8 +392,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       )
     }
 
-    // Create one UserSubtopicProgress per subtopic
-    // depth=1 → available/unlocked, depth>1 → locked
     if (subtopics.length > 0) {
       await UserSubtopicProgress.insertMany(
         subtopics.map((subtopic) => ({
@@ -405,8 +399,8 @@ export const mongoTrackerRepository: TrackerRepository = {
           trackerId: trackerObjId,
           topicId: subtopic.topicId,
           subtopicId: subtopic._id,
-          status: subtopic.defaultLocked ? 'locked' : 'available',
-          isUnlocked: !subtopic.defaultLocked,
+          status: subtopic.isLocked ? 'locked' : 'available',
+          isUnlocked: !subtopic.isLocked,
           progressPercent: 0,
           timeSpentMinutes: 0,
           completedAt: null,
@@ -414,7 +408,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       )
     }
 
-    // Create top-level TrackerProgress doc for this user
     await TrackerProgress.findOneAndUpdate(
       asMongoFilter({ userId: userObjId, trackerId: trackerObjId }),
       asMongoUpdate({
@@ -461,7 +454,6 @@ export const mongoTrackerRepository: TrackerRepository = {
     const subtopicObjId = toObjectId(subtopicId)
     const trackerObjId = toObjectId(trackerId)
 
-    // Get subtopic content for metadata
     const subtopic = await TrackerSubtopic.findOne(
       asMongoFilter({ _id: subtopicObjId, trackerId: trackerObjId, deletedAt: null })
     ).lean()
@@ -480,7 +472,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       progressUpdate.progressPercent = 50
     }
 
-    // Update (or create) the user's progress for this subtopic
     const userProgress = await UserSubtopicProgress.findOneAndUpdate(
       asMongoFilter({ userId: userObjId, subtopicId: subtopicObjId }),
       asMongoUpdate({
@@ -490,13 +481,11 @@ export const mongoTrackerRepository: TrackerRepository = {
       { returnDocument: 'after', upsert: true }
     )
 
-    // Touch the tracker's lastActiveAt
     await Tracker.findByIdAndUpdate(
       trackerObjId,
       asMongoUpdate({ $set: { lastActiveAt: new Date() } })
     )
 
-    // Return merged content + progress
     return {
       _id: subtopic._id,
       trackerId: subtopic.trackerId,
@@ -506,11 +495,10 @@ export const mongoTrackerRepository: TrackerRepository = {
       description: subtopic.description,
       order: subtopic.order,
       depth: subtopic.depth,
-      defaultLocked: subtopic.defaultLocked,
+      isLocked: subtopic.isLocked,
       estimatedMinutes: subtopic.estimatedMinutes || 0,
       status: userProgress?.status ?? status,
       isUnlocked: userProgress?.isUnlocked ?? true,
-      isLocked: userProgress ? !userProgress.isUnlocked : false,
       progressPercent: userProgress?.progressPercent ?? 0,
       timeSpentMinutes: userProgress?.timeSpentMinutes ?? 0,
       completedAt: userProgress?.completedAt ?? null,
@@ -526,7 +514,6 @@ export const mongoTrackerRepository: TrackerRepository = {
     const trackerObjId = toObjectId(trackerId)
     const userObjId = toObjectId(userId)
 
-    // Find the next sibling subtopic content
     const nextSubtopic = await TrackerSubtopic.findOne(
       asMongoFilter({
         trackerId: trackerObjId,
@@ -538,7 +525,6 @@ export const mongoTrackerRepository: TrackerRepository = {
 
     if (!nextSubtopic) return null
 
-    // Unlock it for this user only
     return UserSubtopicProgress.findOneAndUpdate(
       asMongoFilter({ userId: userObjId, subtopicId: nextSubtopic._id }),
       asMongoUpdate({ $set: { isUnlocked: true, status: 'available' } }),
@@ -546,98 +532,92 @@ export const mongoTrackerRepository: TrackerRepository = {
     )
   },
 
- checkAndCompleteParentSubtopic: async ({
-  trackerId,
-  topicId,
-  parentSubtopicId,
-  userId,
-}) => {
-  const userObjId = toObjectId(userId)
-  const trackerObjId = toObjectId(trackerId)
-  const topicObjId = toObjectId(topicId)
-  const parentObjId = toObjectId(parentSubtopicId)
+  checkAndCompleteParentSubtopic: async ({
+    trackerId,
+    topicId,
+    parentSubtopicId,
+    userId,
+  }) => {
+    const userObjId = toObjectId(userId)
+    const trackerObjId = toObjectId(trackerId)
+    const topicObjId = toObjectId(topicId)
+    const parentObjId = toObjectId(parentSubtopicId)
 
-  // Get all children of this parent from content
-  const allChildren = await TrackerSubtopic.find(
-    asMongoFilter({
-      trackerId: trackerObjId,
-      topicId: topicObjId,
-      parentSubtopicId: parentObjId,
-      deletedAt: null,
-    })
-  ).lean()
+    const allChildren = await TrackerSubtopic.find(
+      asMongoFilter({
+        trackerId: trackerObjId,
+        topicId: topicObjId,
+        parentSubtopicId: parentObjId,
+        deletedAt: null,
+      })
+    ).lean()
 
-  if (allChildren.length === 0) return null
+    if (allChildren.length === 0) return null
 
-  // Check how many this user has completed
-  const childIds = allChildren.map((c) => c._id)
-  const completedCount = await UserSubtopicProgress.countDocuments(
-    asMongoFilter({
-      userId: userObjId,
-      subtopicId: { $in: childIds },
-      status: 'completed',
-    })
-  )
+    const childIds = allChildren.map((c) => c._id)
+    const completedCount = await UserSubtopicProgress.countDocuments(
+      asMongoFilter({
+        userId: userObjId,
+        subtopicId: { $in: childIds },
+        status: 'completed',
+      })
+    )
 
-  // ✅ Always update partial progress on every child completion
-  const progressPercent = Math.round(
-    (completedCount / allChildren.length) * 100
-  )
+    const progressPercent = Math.round(
+      (completedCount / allChildren.length) * 100
+    )
 
-  if (completedCount < allChildren.length) {
-    // Partial progress — update percent and mark in_progress
-    await UserSubtopicProgress.findOneAndUpdate(
+    if (completedCount < allChildren.length) {
+      await UserSubtopicProgress.findOneAndUpdate(
+        asMongoFilter({ userId: userObjId, subtopicId: parentObjId }),
+        asMongoUpdate({
+          $set: {
+            progressPercent,
+            status: 'in_progress',
+            isUnlocked: true,
+          },
+        }),
+        { upsert: true }
+      )
+      return null
+    }
+
+    const updatedParent = await UserSubtopicProgress.findOneAndUpdate(
       asMongoFilter({ userId: userObjId, subtopicId: parentObjId }),
       asMongoUpdate({
         $set: {
-          progressPercent,
-          status: 'in_progress',
+          status: 'completed',
+          progressPercent: 100,
+          completedAt: new Date(),
           isUnlocked: true,
         },
       }),
-      { upsert: true }
+      { returnDocument: 'after', upsert: true }
     )
-    return null
-  }
 
-  // All children done — mark parent as completed for this user
-  const updatedParent = await UserSubtopicProgress.findOneAndUpdate(
-    asMongoFilter({ userId: userObjId, subtopicId: parentObjId }),
-    asMongoUpdate({
-      $set: {
-        status: 'completed',
-        progressPercent: 100,
-        completedAt: new Date(),
-        isUnlocked: true,
-      },
-    }),
-    { returnDocument: 'after', upsert: true }
-  )
+    const parentContent = await TrackerSubtopic.findById(parentObjId).lean()
+    if (!parentContent) return updatedParent
 
-  // Unlock the next sibling of the parent for this user
-  const parentContent = await TrackerSubtopic.findById(parentObjId).lean()
-  if (!parentContent) return updatedParent
+    const nextSibling = await TrackerSubtopic.findOne(
+      asMongoFilter({
+        trackerId: trackerObjId,
+        topicId: topicObjId,
+        parentSubtopicId: parentContent.parentSubtopicId ?? null,
+        order: { $gt: parentContent.order },
+        deletedAt: null,
+      })
+    ).sort({ order: 1 }).lean()
 
-  const nextSibling = await TrackerSubtopic.findOne(
-    asMongoFilter({
-      trackerId: trackerObjId,
-      topicId: topicObjId,
-      parentSubtopicId: parentContent.parentSubtopicId ?? null,
-      order: { $gt: parentContent.order },
-      deletedAt: null,
-    })
-  ).sort({ order: 1 }).lean()
+    if (nextSibling) {
+      await UserSubtopicProgress.findOneAndUpdate(
+        asMongoFilter({ userId: userObjId, subtopicId: nextSibling._id }),
+        asMongoUpdate({ $set: { isUnlocked: true, status: 'available' } }),
+        { upsert: true }
+      )
+    }
 
-  if (nextSibling) {
-    await UserSubtopicProgress.findOneAndUpdate(
-      asMongoFilter({ userId: userObjId, subtopicId: nextSibling._id }),
-      asMongoUpdate({ $set: { isUnlocked: true, status: 'available' } }),
-      { upsert: true }
-    )
-  }
-
-  return updatedParent
-},
+    return updatedParent
+  },
 
   checkAndCompleteTopicAndUnlockNext: async ({
     trackerId,
@@ -648,7 +628,6 @@ export const mongoTrackerRepository: TrackerRepository = {
     const trackerObjId = toObjectId(trackerId)
     const topicObjId = toObjectId(topicId)
 
-    // Get all subtopics in this topic
     const allSubtopics = await TrackerSubtopic.find(
       asMongoFilter({ trackerId: trackerObjId, topicId: topicObjId, deletedAt: null })
     ).lean()
@@ -669,7 +648,6 @@ export const mongoTrackerRepository: TrackerRepository = {
     const progressPercent = Math.round((completedCount / total) * 100)
 
     if (completedCount < total) {
-      // Update topic progress % for this user
       await UserTopicProgress.findOneAndUpdate(
         asMongoFilter({ userId: userObjId, topicId: topicObjId }),
         asMongoUpdate({ $set: { progressPercent, status: 'active' } }),
@@ -678,7 +656,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       return null
     }
 
-    // All subtopics done — mark topic as completed for this user
     const completedTopic = await UserTopicProgress.findOneAndUpdate(
       asMongoFilter({ userId: userObjId, topicId: topicObjId }),
       asMongoUpdate({
@@ -687,7 +664,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       { returnDocument: 'after', upsert: true }
     )
 
-    // Find and unlock the next topic + its first subtopic for this user
     const currentTopic = await TrackerTopic.findById(topicObjId).lean()
     if (!currentTopic) return completedTopic
 
@@ -701,14 +677,12 @@ export const mongoTrackerRepository: TrackerRepository = {
 
     if (!nextTopic) return completedTopic
 
-    // Activate next topic for this user
     await UserTopicProgress.findOneAndUpdate(
       asMongoFilter({ userId: userObjId, topicId: nextTopic._id }),
       asMongoUpdate({ $set: { status: 'active' } }),
       { upsert: true }
     )
 
-    // Unlock the first depth=1 subtopic of the next topic for this user
     const firstSubtopic = await TrackerSubtopic.findOne(
       asMongoFilter({
         trackerId: trackerObjId,
@@ -754,17 +728,17 @@ export const mongoTrackerRepository: TrackerRepository = {
         ? 0
         : Math.round((completedSubtopics / totalSubtopics) * 100)
 
-      await Tracker.findByIdAndUpdate(
-    trackerObjId,
-    asMongoUpdate({
-      $set: {
-        progressPercent: completionPercentage,
-        completedSubtopicsCount: completedSubtopics,
-        lastActiveAt: new Date(),
-        ...(completionPercentage === 100 ? { status: 'completed', completedAt: new Date() } : {}),
-      },
-    })
-  )
+    await Tracker.findByIdAndUpdate(
+      trackerObjId,
+      asMongoUpdate({
+        $set: {
+          progressPercent: completionPercentage,
+          completedSubtopicsCount: completedSubtopics,
+          lastActiveAt: new Date(),
+          ...(completionPercentage === 100 ? { status: 'completed', completedAt: new Date() } : {}),
+        },
+      })
+    )
 
     const progress = await TrackerProgress.findOneAndUpdate(
       asMongoFilter({ userId: userObjId, trackerId: trackerObjId }),
@@ -856,30 +830,31 @@ export const mongoTrackerRepository: TrackerRepository = {
 
     return lesson.generatedLesson
   },
+
   getTopicsWithUserProgress: async ({ trackerId, userId }) => {
-  const trackerObjId = toObjectId(trackerId)
-  const userObjId = toObjectId(userId)
+    const trackerObjId = toObjectId(trackerId)
+    const userObjId = toObjectId(userId)
 
-  const [topics, userProgress] = await Promise.all([
-    TrackerTopic.find(
-      asMongoFilter({ trackerId: trackerObjId, deletedAt: null })
-    ).sort({ order: 1 }).lean(),
-    UserTopicProgress.find(
-      asMongoFilter({ userId: userObjId, trackerId: trackerObjId })
-    ).lean(),
-  ])
+    const [topics, userProgress] = await Promise.all([
+      TrackerTopic.find(
+        asMongoFilter({ trackerId: trackerObjId, deletedAt: null })
+      ).sort({ order: 1 }).lean(),
+      UserTopicProgress.find(
+        asMongoFilter({ userId: userObjId, trackerId: trackerObjId })
+      ).lean(),
+    ])
 
-  const progressMap = new Map(
-    userProgress.map((p) => [p.topicId.toString(), p])
-  )
+    const progressMap = new Map(
+      userProgress.map((p) => [p.topicId.toString(), p])
+    )
 
-  return topics.map((topic) => {
-    const progress = progressMap.get(topic._id.toString())
-    return {
-      ...topic,
-      status: progress?.status ?? 'active',
-      progressPercent: progress?.progressPercent ?? 0,
-    }
-  }) as TopicWithProgressRecord[]
-},
+    return topics.map((topic) => {
+      const progress = progressMap.get(topic._id.toString())
+      return {
+        ...topic,
+        status: progress?.status ?? 'active',
+        progressPercent: progress?.progressPercent ?? 0,
+      }
+    }) as TopicWithProgressRecord[]
+  },
 }
