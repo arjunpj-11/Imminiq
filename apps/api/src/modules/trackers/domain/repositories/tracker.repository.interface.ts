@@ -10,35 +10,34 @@ import type {
   GeneratedTrackerLessonRecord,
   LastSiblingSubtopicRecord,
   LastTopicRecord,
+  SubtopicWithProgressRecord,
   TrackerListFilter,
   TrackerListResult,
+  TrackerProgressRecord,
   TrackerRecord,
   TrackerSubtopicRecord,
   TrackerSummaryRecord,
   TrackerTopicRecord,
   UpdateSubtopicProgressInput,
   UpdateTrackerInput,
+  UserSubtopicProgressRecord,
+  UserTopicProgressRecord,
+  TopicWithProgressRecord
 } from '../types/trackers.types'
 import type { GeneratedLessonData } from '../types/lesson-practice.types'
 
 export interface TrackerRepository {
+  // ─── Tracker CRUD ────────────────────────────────────────────────────────────
+
   hasAnyTrackerForUser(userId: string): Promise<boolean>
 
-  getTrackerSummary(
-    userId: string
-  ): Promise<TrackerSummaryRecord>
+  getTrackerSummary(userId: string): Promise<TrackerSummaryRecord>
 
-  listOwnedTrackers(
-    filter: TrackerListFilter
-  ): Promise<TrackerListResult>
+  listOwnedTrackers(filter: TrackerListFilter): Promise<TrackerListResult>
 
-  createTracker(
-    data: CreateTrackerInput
-  ): Promise<TrackerRecord>
+  createTracker(data: CreateTrackerInput): Promise<TrackerRecord>
 
-  updateOwnedTracker(
-    data: UpdateTrackerInput
-  ): Promise<TrackerRecord | null>
+  updateOwnedTracker(data: UpdateTrackerInput): Promise<TrackerRecord | null>
 
   softDeleteOwnedTracker(data: {
     trackerId: string
@@ -70,27 +69,35 @@ export interface TrackerRepository {
     userId: string
   }): Promise<TrackerRecord | null>
 
+  // ─── Topics & Subtopics (content) ─────────────────────────────────────────
+
   findEvaluationJobById(
     evaluationJobId: string,
     userId: string
   ): Promise<EvaluationJobRecord | null>
 
-  getTopicsForTracker(
-    trackerId: string
-  ): Promise<TrackerTopicRecord[]>
+  getTopicsForTracker(trackerId: string): Promise<TrackerTopicRecord[]>
 
-  getSubtopicsForTracker(
+getTopicsWithUserProgress(data: {
+  trackerId: string
+  userId: string
+}): Promise<TopicWithProgressRecord[]>   
+
+  // Content only — no progress fields
+  getSubtopicsForTracker(trackerId: string): Promise<TrackerSubtopicRecord[]>
+
+  // Content merged with this user's progress
+  getSubtopicsWithUserProgress(data: {
     trackerId: string
-  ): Promise<TrackerSubtopicRecord[]>
+    userId: string
+  }): Promise<SubtopicWithProgressRecord[]>
 
   getSubtopicById(data: {
     trackerId: string
     subtopicId: string
   }): Promise<TrackerSubtopicRecord | null>
 
-  findLastTopicForTracker(
-    trackerId: string
-  ): Promise<LastTopicRecord | null>
+  findLastTopicForTracker(trackerId: string): Promise<LastTopicRecord | null>
 
   shiftTopicOrdersFrom(data: {
     trackerId: string
@@ -110,29 +117,60 @@ export interface TrackerRepository {
     data: CreateTrackerSubtopicInput
   ): Promise<CreatedTrackerSubtopicRecord>
 
-  incrementTrackerTopicsCount(
-    trackerId: string
-  ): Promise<unknown>
+  incrementTrackerTopicsCount(trackerId: string): Promise<unknown>
 
-  incrementTrackerSubtopicsCount(
+  incrementTrackerSubtopicsCount(trackerId: string): Promise<unknown>
+
+  // ─── User Progress ────────────────────────────────────────────────────────
+
+  // Lazily creates UserSubtopicProgress + UserTopicProgress + TrackerProgress
+  // for a user the first time they access a tracker
+  ensureUserProgressInitialized(data: {
+    userId: string
     trackerId: string
-  ): Promise<unknown>
+  }): Promise<void>
+
+  getUserSubtopicsProgress(data: {
+    userId: string
+    trackerId: string
+  }): Promise<UserSubtopicProgressRecord[]>
+
+  getUserTopicsProgress(data: {
+    userId: string
+    trackerId: string
+  }): Promise<UserTopicProgressRecord[]>
 
   updateSubtopicProgress(
     data: UpdateSubtopicProgressInput
-  ): Promise<TrackerSubtopicRecord | null>
+  ): Promise<SubtopicWithProgressRecord | null>
 
-  recomputeTrackerProgress(
-    trackerId: string
-  ): Promise<TrackerRecord | null>
-
-  // FIX: added missing unlockNextSubtopic method used in update-subtopic-progress.usecase.ts
   unlockNextSubtopic(data: {
     trackerId: string
     topicId: string
     completedSubtopicOrder: number
     parentSubtopicId: string | null
+    userId: string
   }): Promise<unknown>
+
+  checkAndCompleteParentSubtopic(input: {
+    trackerId: string
+    topicId: string
+    parentSubtopicId: string
+    userId: string
+  }): Promise<unknown>
+
+  checkAndCompleteTopicAndUnlockNext(input: {
+    trackerId: string
+    topicId: string
+    userId: string
+  }): Promise<unknown>
+
+  recomputeTrackerProgress(
+    trackerId: string,
+    userId: string
+  ): Promise<TrackerProgressRecord | null>
+
+  // ─── Lessons ──────────────────────────────────────────────────────────────
 
   findLessonBySubtopicId(data: {
     trackerId: string
@@ -148,23 +186,10 @@ export interface TrackerRepository {
     summary: string
     explanation: string
     insight: string
-    lessonType:
-      | 'concept'
-      | 'coding'
-      | 'interview'
-      | 'system_design'
-      | 'theory'
+    lessonType: 'concept' | 'coding' | 'interview' | 'system_design' | 'theory'
     requiresCompiler: boolean
-    codeExample: {
-      language: string
-      fileName: string
-      code: string
-    }
-    practiceTask: {
-      title: string
-      description: string
-      starterCode: string
-    }
+    codeExample: { language: string; fileName: string; code: string }
+    practiceTask: { title: string; description: string; starterCode: string }
     tags: string[]
     difficulty: 'beginner' | 'intermediate' | 'advanced'
     estimatedMinutes: number

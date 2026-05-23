@@ -10,6 +10,7 @@ import type {
 export const useCurrentDashboardRoadmap = () => {
   return useQuery({
     queryKey: ['dashboard', 'current-roadmap'],
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const response =
         await api.get<ApiResponse<DashboardCurrentRoadmap | null>>(

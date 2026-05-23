@@ -1,6 +1,6 @@
 // apps/web/src/modules/trackers/pages/TrackerRoadmapPage.tsx
 
-import { useMemo, useState } from 'react'
+import { useMemo, useState,useEffect } from 'react'
 import {
   useLocation,
   useNavigate,
@@ -527,7 +527,31 @@ export default function TrackerRoadmapPage() {
     () => (roadmapData?.roadmap || []).map(mapTopicToNode),
     [roadmapData?.roadmap]
   )
+useEffect(() => {
+  if (breadcrumbStack.length === 0) return
 
+  setBreadcrumbStack((currentStack) => {
+    return currentStack.map((crumb) => {
+      // Find the matching node in the fresh top-level nodes
+      const findFreshNodes = (
+        nodes: RoadmapNode[],
+        targetId: string
+      ): RoadmapNode[] | null => {
+        for (const node of nodes) {
+          if (node._id === targetId) return node.children
+          if (node.children.length > 0) {
+            const found = findFreshNodes(node.children, targetId)
+            if (found) return found
+          }
+        }
+        return null
+      }
+
+      const freshNodes = findFreshNodes(topLevelNodes, crumb.id)
+      return freshNodes ? { ...crumb, nodes: freshNodes } : crumb
+    })
+  })
+}, [topLevelNodes])
   const currentNodes =
     breadcrumbStack.length > 0
       ? breadcrumbStack[breadcrumbStack.length - 1].nodes

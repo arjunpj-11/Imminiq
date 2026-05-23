@@ -10,6 +10,7 @@ import type {
 export const useDashboardSummary = () => {
   return useQuery({
     queryKey: ['dashboard', 'summary'],
+    refetchOnWindowFocus: true,
     queryFn: async () => {
       const response =
         await api.get<ApiResponse<DashboardSummary>>(

@@ -137,12 +137,10 @@ export const mongoDashboardRepository = {
               _id: null,
 
               totalSubtopicsCompleted: {
-                $sum: {
-                  $size: {
-                    $ifNull: ['$completedSubtopics', []],
-                  },
-                },
-              },
+  $sum: {
+    $ifNull: ['$completedSubtopics', 0],
+  },
+},
 
               totalTimeSpentMinutes: {
                 $sum: {

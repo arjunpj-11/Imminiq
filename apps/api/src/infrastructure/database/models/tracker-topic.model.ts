@@ -2,25 +2,13 @@
 
 import mongoose, { Document, Schema } from 'mongoose'
 
-export type TrackerTopicStatus =
-  | 'locked'
-  | 'active'
-  | 'completed'
-
 export interface ITrackerTopic extends Document {
   trackerId: mongoose.Types.ObjectId
-
   title: string
   description: string
   order: number
-
-  status: TrackerTopicStatus
-
   estimatedHours: number
-  progressPercent: number
-
   deletedAt?: Date | null
-
   createdAt: Date
   updatedAt: Date
 }
@@ -32,59 +20,37 @@ const trackerTopicSchema = new Schema<ITrackerTopic>(
       ref: 'Tracker',
       required: true,
     },
-
     title: {
       type: String,
       required: true,
       trim: true,
     },
-
     description: {
       type: String,
       default: '',
       trim: true,
     },
-
     order: {
       type: Number,
       required: true,
       min: 1,
     },
-
-    status: {
-      type: String,
-      enum: ['locked', 'active', 'completed'],
-      default: 'locked',
-    },
-
     estimatedHours: {
       type: Number,
       default: 0,
       min: 0,
     },
-
-    progressPercent: {
-      type: Number,
-      default: 0,
-      min: 0,
-      max: 100,
-    },
-
     deletedAt: {
       type: Date,
       default: null,
     },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 )
 
 trackerTopicSchema.index({ trackerId: 1, order: 1 })
-trackerTopicSchema.index({ trackerId: 1, status: 1 })
 
-export const TrackerTopic =
-  mongoose.model<ITrackerTopic>(
-    'TrackerTopic',
-    trackerTopicSchema
-  )
+export const TrackerTopic = mongoose.model<ITrackerTopic>(
+  'TrackerTopic',
+  trackerTopicSchema
+)

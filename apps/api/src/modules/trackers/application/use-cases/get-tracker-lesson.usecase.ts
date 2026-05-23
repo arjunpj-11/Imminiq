@@ -1,79 +1,67 @@
+// apps/api/src/modules/trackers/application/use-cases/get-tracker-lesson.usecase.ts
+
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
 import { generateLesson } from '../../../../infrastructure/ai/ai.service'
 
-const flattenSubtopics = (
-  subtopics: Awaited<
-    ReturnType<TrackerRepository['getSubtopicsForTracker']>
-  >
-) => {
+const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
   return [...subtopics].sort((a, b) => {
     if (a.topicId.toString() !== b.topicId.toString()) {
       return a.topicId.toString().localeCompare(b.topicId.toString())
     }
-
-    if (a.depth !== b.depth) {
-      return a.depth - b.depth
-    }
-
+    if (a.depth !== b.depth) return a.depth - b.depth
     return a.order - b.order
   })
 }
 
 export class GetTrackerLessonUseCase {
-  constructor(
-    private readonly trackerRepository: TrackerRepository
-  ) {}
+  constructor(private readonly trackerRepository: TrackerRepository) {}
 
   async execute(input: {
     trackerId: string
     subtopicId: string
     userId: string
   }) {
-    const tracker =
-      await this.trackerRepository.findOwnedTrackerById(
-        input.trackerId,
-        input.userId
-      )
-
+    const tracker = await this.trackerRepository.findOwnedTrackerById(
+      input.trackerId,
+      input.userId
+    )
     if (!tracker) {
-      throw new ApiError(
-        404,
-        'Tracker not found',
-        'TRACKER_NOT_FOUND'
-      )
+      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
+
+    // Ensure this user has progress docs — no-op if already initialized
+    await this.trackerRepository.ensureUserProgressInitialized({
+      userId: input.userId,
+      trackerId: input.trackerId,
+    })
 
     const [topics, subtopics] = await Promise.all([
       this.trackerRepository.getTopicsForTracker(input.trackerId),
-      this.trackerRepository.getSubtopicsForTracker(input.trackerId),
+      // Returns content merged with this user's progress
+      this.trackerRepository.getSubtopicsWithUserProgress({
+        trackerId: input.trackerId,
+        userId: input.userId,
+      }),
     ])
 
     const currentSubtopic = subtopics.find(
-      (subtopic) =>
-        subtopic._id.toString() === input.subtopicId
+      (s) => s._id.toString() === input.subtopicId
     )
-
     if (!currentSubtopic) {
-      throw new ApiError(
-        404,
-        'Lesson node not found',
-        'LESSON_NODE_NOT_FOUND'
-      )
+      throw new ApiError(404, 'Lesson node not found', 'LESSON_NODE_NOT_FOUND')
     }
 
     const topic = topics.find(
-      (item) =>
-        item._id.toString() ===
-        currentSubtopic.topicId.toString()
+      (t) => t._id.toString() === currentSubtopic.topicId.toString()
     )
 
-    let lesson =
-      await this.trackerRepository.findLessonBySubtopicId({
-        trackerId: input.trackerId,
-        subtopicId: input.subtopicId,
-        userId: input.userId,
-      })
+    let lesson = await this.trackerRepository.findLessonBySubtopicId({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+    })
 
     if (!lesson) {
       const generated = await generateLesson({
@@ -93,18 +81,12 @@ export class GetTrackerLessonUseCase {
     }
 
     const flatSubtopics = flattenSubtopics(subtopics)
-
     const currentIndex = flatSubtopics.findIndex(
-      (subtopic) =>
-        subtopic._id.toString() === input.subtopicId
+      (s) => s._id.toString() === input.subtopicId
     )
-
-    const previousSubtopic =
-      currentIndex > 0 ? flatSubtopics[currentIndex - 1] : null
-
+    const previousSubtopic = currentIndex > 0 ? flatSubtopics[currentIndex - 1] : null
     const nextSubtopic =
-      currentIndex >= 0 &&
-      currentIndex < flatSubtopics.length - 1
+      currentIndex >= 0 && currentIndex < flatSubtopics.length - 1
         ? flatSubtopics[currentIndex + 1]
         : null
 
@@ -114,36 +96,30 @@ export class GetTrackerLessonUseCase {
         _id: currentSubtopic._id.toString(),
         trackerId: currentSubtopic.trackerId.toString(),
         topicId: currentSubtopic.topicId.toString(),
-        parentSubtopicId:
-          currentSubtopic.parentSubtopicId?.toString() || null,
+        parentSubtopicId: currentSubtopic.parentSubtopicId?.toString() || null,
         title: currentSubtopic.title,
         description: currentSubtopic.description,
         order: currentSubtopic.order,
         depth: currentSubtopic.depth,
-        status: currentSubtopic.status || 'available',
-        isLocked: Boolean(currentSubtopic.isLocked),
-        progressPercent: currentSubtopic.progressPercent || 0,
+        // ✅ Now from per-user UserSubtopicProgress
+        status: currentSubtopic.status,
+        isLocked: currentSubtopic.isLocked,
+        progressPercent: currentSubtopic.progressPercent,
         topicTitle: topic?.title || '',
       },
       generatedLesson: lesson,
       previousLesson: previousSubtopic
-        ? {
-            _id: previousSubtopic._id.toString(),
-            title: previousSubtopic.title,
-          }
+        ? { _id: previousSubtopic._id.toString(), title: previousSubtopic.title }
         : null,
       nextLesson: nextSubtopic
-        ? {
-            _id: nextSubtopic._id.toString(),
-            title: nextSubtopic.title,
-          }
+        ? { _id: nextSubtopic._id.toString(), title: nextSubtopic.title }
         : null,
-      lessonRoadmap: flatSubtopics.map((subtopic) => ({
-        _id: subtopic._id.toString(),
-        title: subtopic.title,
-        status: subtopic.status || 'available',
-        isLocked: Boolean(subtopic.isLocked),
-        estimatedMinutes: subtopic.estimatedMinutes || 5,
+      lessonRoadmap: flatSubtopics.map((s) => ({
+        _id: s._id.toString(),
+        title: s.title,
+        status: s.status,
+        isLocked: s.isLocked,
+        estimatedMinutes: s.estimatedMinutes || 5,
       })),
     }
   }

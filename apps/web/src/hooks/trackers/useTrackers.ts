@@ -140,6 +140,7 @@ export const useTrackerRoadmap = (
   return useQuery({
     queryKey: trackerKeys.roadmap(trackerId || ''),
     enabled: Boolean(trackerId),
+    refetchOnWindowFocus: true,  // ← add this
 
     queryFn: async () => {
       const response =
@@ -437,26 +438,35 @@ export const useUpdateSubtopicProgress = () => {
       return response.data
     },
 
-    onSuccess: (_response, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.roadmap(variables.trackerId),
-      })
+   onSuccess: (_response, variables) => {
+  // Roadmap: node status and progress % update live
+  queryClient.invalidateQueries({
+    queryKey: trackerKeys.roadmap(variables.trackerId),
+  })
 
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.lesson(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
+  // Lesson query: previousLesson/nextLesson nav refreshes
+  queryClient.invalidateQueries({
+    queryKey: trackerKeys.lesson(
+      variables.trackerId,
+      variables.subtopicId
+    ),
+  })
 
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.detail(variables.trackerId),
-      })
+  // Tracker detail: progressPercent on TrackerCard refreshes
+  queryClient.invalidateQueries({
+    queryKey: trackerKeys.detail(variables.trackerId),
+  })
 
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.all,
-      })
-    },
+  // Summary: the stat cards (Completed count, Average %) on MyTrackersPage
+  queryClient.invalidateQueries({
+    queryKey: trackerKeys.summary(),
+  })
+
+  // Tracker list: TrackerCard progress bars in the grid refresh
+  queryClient.invalidateQueries({
+    queryKey: trackerKeys.lists(),
+  })
+},
   })
 }
 
