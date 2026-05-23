@@ -75,6 +75,93 @@ const getTone = (status: Tracker['status']) => {
   }
 }
 
+// ─── SVG Icons ───────────────────────────────────────────────────────────────
+
+const SparkleIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M7.5 1.5C7.5 1.5 7.9 4.1 9.2 5.8C10.5 7.5 13 7.5 13 7.5C13 7.5 10.5 7.5 9.2 9.2C7.9 10.9 7.5 13.5 7.5 13.5C7.5 13.5 7.1 10.9 5.8 9.2C4.5 7.5 2 7.5 2 7.5C2 7.5 4.5 7.5 5.8 5.8C7.1 4.1 7.5 1.5 7.5 1.5Z"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12.5 1.5C12.5 1.5 12.65 2.35 13.075 2.925C13.5 3.5 14.5 3.5 14.5 3.5C14.5 3.5 13.5 3.5 13.075 4.075C12.65 4.65 12.5 5.5 12.5 5.5C12.5 5.5 12.35 4.65 11.925 4.075C11.5 3.5 10.5 3.5 10.5 3.5C10.5 3.5 11.5 3.5 11.925 2.925C12.35 2.35 12.5 1.5 12.5 1.5Z"
+      stroke="currentColor"
+      strokeWidth="1.1"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
+const InfoIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <circle
+      cx="7.5"
+      cy="7.5"
+      r="6"
+      stroke="currentColor"
+      strokeWidth="1.25"
+    />
+    <path
+      d="M7.5 6.5V10.5"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+    />
+    <circle cx="7.5" cy="4.5" r="0.75" fill="currentColor" />
+  </svg>
+)
+
+const ArchiveIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <rect
+      x="1.5"
+      y="1.5"
+      width="12"
+      height="3"
+      rx="1"
+      stroke="currentColor"
+      strokeWidth="1.25"
+    />
+    <path
+      d="M2.5 4.5V12.5C2.5 13.05 2.95 13.5 3.5 13.5H11.5C12.05 13.5 12.5 13.05 12.5 12.5V4.5"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+    />
+    <path
+      d="M5.5 7.5H9.5"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+    />
+  </svg>
+)
+
+// ─── Types ───────────────────────────────────────────────────────────────────
+
 type TrackerCardProps = {
   tracker: Tracker
   onOpenStudy: (trackerId: string) => void
@@ -84,6 +171,8 @@ type TrackerCardProps = {
   onInfo: (trackerId: string) => void
   onArchive?: (trackerId: string) => void
 }
+
+// ─── Component ───────────────────────────────────────────────────────────────
 
 export default function TrackerCard({
   tracker,
@@ -170,6 +259,7 @@ export default function TrackerCard({
           )}
         </div>
 
+        {/* ── Dropdown trigger ── */}
         <div ref={menuRef} className="relative">
           <button
             type="button"
@@ -185,6 +275,7 @@ export default function TrackerCard({
               height="16"
               viewBox="0 0 24 24"
               fill="currentColor"
+              aria-hidden="true"
             >
               <circle cx="5" cy="12" r="2" />
               <circle cx="12" cy="12" r="2" />
@@ -192,6 +283,7 @@ export default function TrackerCard({
             </svg>
           </button>
 
+          {/* ── Dropdown menu ── */}
           {menuOpen && (
             <div className="absolute right-0 top-10 z-30 w-52 overflow-hidden rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_16px_56px_rgba(26,23,20,0.18)] dark:border-white/9 dark:bg-[#1e1c19]">
               <button
@@ -203,7 +295,8 @@ export default function TrackerCard({
                 }
                 className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#1a1714] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
               >
-                ✨ Run AI Evaluation
+                <SparkleIcon />
+                Run AI Evaluation
               </button>
 
               <button
@@ -213,7 +306,8 @@ export default function TrackerCard({
                 }
                 className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#1a1714] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
               >
-                ℹ Info / Manage
+                <InfoIcon />
+                Info / Manage
               </button>
 
               {onArchive && tracker.status !== 'archived' && (
@@ -229,7 +323,8 @@ export default function TrackerCard({
                     }
                     className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)]"
                   >
-                    🗄 Archive
+                    <ArchiveIcon />
+                    Archive
                   </button>
                 </>
               )}

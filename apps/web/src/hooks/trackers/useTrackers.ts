@@ -1,6 +1,7 @@
 // apps/web/src/hooks/trackers/useTrackers.ts
 
 import {
+  keepPreviousData,
   useMutation,
   useQuery,
   useQueryClient,
@@ -102,6 +103,16 @@ export const useTrackers = (
 
       return unwrap(response.data)
     },
+
+    // Keep the previous filter's data visible in the grid while the
+    // new filter fetch is in-flight. This means isLoading stays false
+    // (data is never undefined during a filter change) and only
+    // isFetching flips to true — which the page uses for the skeleton.
+    placeholderData: keepPreviousData,
+
+    // Cache each filter result for 30 s so switching back to a
+    // previously-seen filter is instant with no loading state at all.
+    staleTime: 30_000,
   })
 }
 
