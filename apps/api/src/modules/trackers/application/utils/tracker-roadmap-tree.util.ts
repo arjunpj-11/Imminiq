@@ -2,16 +2,16 @@ import type {
   FlattenedLessonNode,
   RoadmapSubtopicNode,
   RoadmapTopicNode,
-  TrackerSubtopicRecord,
-  TrackerTopicRecord,
+  SubtopicWithProgressRecord,
+  TopicWithProgressRecord,   // ← add this
 } from '../../domain/types/trackers.types'
 
 export const buildRoadmapTree = ({
   topics,
   subtopics,
 }: {
-  topics: TrackerTopicRecord[]
-  subtopics: TrackerSubtopicRecord[]
+    topics: TopicWithProgressRecord[] 
+  subtopics: SubtopicWithProgressRecord[]
 }): RoadmapTopicNode[] => {
   const subtopicMap = new Map<string, RoadmapSubtopicNode[]>()
 

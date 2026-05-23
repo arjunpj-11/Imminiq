@@ -76,8 +76,8 @@ export class CreateTrackerSubtopicUseCase {
 
     await Promise.all([
       this.trackerRepository.incrementTrackerSubtopicsCount(input.trackerId),
-      // FIX: replaced non-existent recomputeTopicProgress with recomputeTrackerProgress
-      this.trackerRepository.recomputeTrackerProgress(input.trackerId),
+      // FIX: pass input.userId as required second argument
+      this.trackerRepository.recomputeTrackerProgress(input.trackerId, input.userId),
     ])
 
     return subtopic

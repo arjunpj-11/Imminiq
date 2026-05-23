@@ -1,29 +1,16 @@
+// apps/api/src/modules/trackers/domain/types/trackers.types.ts
+
 export type TrackerStatus = 'active' | 'stalled' | 'completed' | 'archived'
-
 export type TrackerVisibility = 'private' | 'public'
-
 export type TrackerDomain =
-  | 'engineering'
-  | 'frontend'
-  | 'backend'
-  | 'algorithms'
-  | 'architecture'
-  | 'development'
-  | 'design'
-  | 'ai'
-  | 'other'
-
+  | 'engineering' | 'frontend' | 'backend' | 'algorithms'
+  | 'architecture' | 'development' | 'design' | 'ai' | 'other'
 export type TrackerLevel = 'beginner' | 'intermediate' | 'advanced'
-
-export type TopicStatus = 'locked' | 'available' | 'in_progress' | 'completed'
-
+export type TopicStatus = 'locked' | 'active' | 'completed'
 export type SubtopicStatus = 'locked' | 'available' | 'in_progress' | 'completed'
-
 export type TrackerSortBy = 'lastActive' | 'createdAt' | 'progress' | 'title'
 
-export type ObjectIdLike = {
-  toString(): string
-}
+export type ObjectIdLike = { toString(): string }
 
 export type TrackerListFilter = {
   userId: string
@@ -126,6 +113,8 @@ export type EvaluationOutputData = {
   }
 }
 
+// ─── Tracker ──────────────────────────────────────────────────────────────────
+
 export interface TrackerRecord {
   _id: ObjectIdLike
   ownerId?: ObjectIdLike | string
@@ -154,17 +143,25 @@ export interface EvaluationJobRecord {
   outputData?: unknown
 }
 
+// ─── Topic ────────────────────────────────────────────────────────────────────
+
 export interface TrackerTopicRecord {
   _id: ObjectIdLike
   trackerId?: ObjectIdLike
   title: string
   description?: string
   order: number
-  status?: TopicStatus
-  progressPercent?: number
   estimatedHours?: number
 }
 
+export interface TopicWithProgressRecord extends TrackerTopicRecord {
+  status: TopicStatus
+  progressPercent: number
+}
+
+// ─── Subtopic ─────────────────────────────────────────────────────────────────
+
+// Content only — no progress fields
 export interface TrackerSubtopicRecord {
   _id: ObjectIdLike
   trackerId: ObjectIdLike
@@ -174,11 +171,17 @@ export interface TrackerSubtopicRecord {
   description: string
   order: number
   depth: number
-  status?: SubtopicStatus
-  isLocked?: boolean
+  isLocked: boolean  // renamed from defaultLocked
   estimatedMinutes?: number
-  timeSpentMinutes?: number
-  progressPercent?: number
+}
+
+// Content merged with user progress — used in use cases and API responses
+export interface SubtopicWithProgressRecord extends TrackerSubtopicRecord {
+  status: SubtopicStatus
+  isUnlocked: boolean
+  isLocked: boolean
+  progressPercent: number
+  timeSpentMinutes: number
   completedAt?: Date | null
 }
 
@@ -192,15 +195,52 @@ export type CreatedTrackerTopicRecord = {
 
 export type CreatedTrackerSubtopicRecord = TrackerSubtopicRecord
 
-export interface LastTopicRecord {
-  order?: number
+export interface LastTopicRecord { order?: number }
+export interface LastSiblingSubtopicRecord { order?: number }
+
+// ─── User Progress ────────────────────────────────────────────────────────────
+
+export interface UserSubtopicProgressRecord {
+  _id: ObjectIdLike
+  userId: ObjectIdLike
+  trackerId: ObjectIdLike
+  topicId: ObjectIdLike
+  subtopicId: ObjectIdLike
+  status: SubtopicStatus
+  isUnlocked: boolean
+  progressPercent: number
+  timeSpentMinutes: number
+  completedAt?: Date | null
 }
 
-export interface LastSiblingSubtopicRecord {
-  order?: number
+export interface UserTopicProgressRecord {
+  _id: ObjectIdLike
+  userId: ObjectIdLike
+  trackerId: ObjectIdLike
+  topicId: ObjectIdLike
+  status: TopicStatus
+  progressPercent: number
+  completedAt?: Date | null
 }
 
-export type TrackerSummaryResult = {
+export interface TrackerProgressRecord {
+  _id: ObjectIdLike
+  userId: ObjectIdLike
+  trackerId: ObjectIdLike
+  totalTopics: number
+  completedTopics: number
+  totalSubtopics: number
+  completedSubtopics: number
+  completionPercentage: number
+  timeSpentMinutes: number
+  lastStudiedAt: Date | null
+  startedAt: Date
+  completedAt?: Date | null
+}
+
+// ─── Summary & List ───────────────────────────────────────────────────────────
+
+export type TrackerSummaryRecord = {
   totalTrackers: number
   activeTrackers: number
   completedTrackers: number
@@ -215,6 +255,8 @@ export type TrackerListResult = {
   limit: number
   totalPages: number
 }
+
+// ─── Roadmap ──────────────────────────────────────────────────────────────────
 
 export type RoadmapSubtopicNode = {
   _id: string
@@ -250,7 +292,6 @@ export interface AddMissingEvaluationTopicResult {
   trackerId: string
   evaluationJobId: string
   missingTopicIndex: number
-
   addedSubtopic?: {
     _id: string
     trackerId: string
@@ -261,7 +302,6 @@ export interface AddMissingEvaluationTopicResult {
     order: number
     depth: number
   }
-
   addedTopic?: {
     _id: string
     trackerId: string
@@ -269,72 +309,32 @@ export interface AddMissingEvaluationTopicResult {
     description: string
     order: number
   }
-
   placedUnder:
-    | {
-        type: 'subtopic'
-        _id: string
-        title: string
-      }
-    | {
-        type: 'topic'
-        _id: string
-        title: string
-      }
-    | {
-        type: 'tracker'
-        _id: string
-        title: 'Top Level'
-      }
+    | { type: 'subtopic'; _id: string; title: string }
+    | { type: 'topic'; _id: string; title: string }
+    | { type: 'tracker'; _id: string; title: 'Top Level' }
 }
 
+// ─── Lesson ───────────────────────────────────────────────────────────────────
+
 export type LessonType =
-  | 'concept'
-  | 'coding'
-  | 'interview'
-  | 'system_design'
-  | 'theory'
+  | 'concept' | 'coding' | 'interview' | 'system_design' | 'theory'
 
 export type GeneratedTrackerLessonRecord = {
-  _id: {
-    toString(): string
-  }
-
-  trackerId: {
-    toString(): string
-  }
-
-  subtopicId: {
-    toString(): string
-  }
-
-  userId: {
-    toString(): string
-  }
-
+  _id: ObjectIdLike
+  trackerId: ObjectIdLike
+  subtopicId: ObjectIdLike
+  userId: ObjectIdLike
   title: string
   summary: string
   explanation: string
   insight: string
   lessonType: LessonType
   requiresCompiler: boolean
-
-  codeExample: {
-    language: string
-    fileName: string
-    code: string
-  }
-
-  practiceTask: {
-    title: string
-    description: string
-    starterCode: string
-  }
-
+  codeExample: { language: string; fileName: string; code: string }
+  practiceTask: { title: string; description: string; starterCode: string }
   tags: string[]
-
   difficulty: 'beginner' | 'intermediate' | 'advanced'
-
   estimatedMinutes: number
 }
 
@@ -347,30 +347,11 @@ export type RunLessonCodeInput = {
   stdin?: string
 }
 
-export type TrackerSummaryRecord = {
-  totalTrackers: number
-  activeTrackers: number
-  completedTrackers: number
-  publishedTrackers: number
-  averageProgress: number
-}
-
 export type TrackerStatusFilter =
-  | 'all'
-  | 'active'
-  | 'stalled'
-  | 'completed'
-  | 'archived'
+  | 'all' | 'active' | 'stalled' | 'completed' | 'archived'
 
 export type TrackerDomainFilter =
-  | 'all'
-  | 'engineering'
-  | 'frontend'
-  | 'backend'
-  | 'algorithms'
-  | 'architecture'
-  | 'development'
-  | 'design'
-  | 'ai'
-  | 'other'
+  | 'all' | 'engineering' | 'frontend' | 'backend' | 'algorithms'
+  | 'architecture' | 'development' | 'design' | 'ai' | 'other'
 
+export type TrackerSummaryResult = TrackerSummaryRecord
