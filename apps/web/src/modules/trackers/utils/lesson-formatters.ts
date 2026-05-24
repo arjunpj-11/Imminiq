@@ -10,7 +10,7 @@ export const formatLevelLabel = (isPremium: boolean) =>
   isPremium ? 'Imminiq Pro' : 'Free Scholar'
 
 export const formatLessonType = (value: string) =>
-  value.split('_').join(' ').replace(/\w/g, (letter) => letter.toUpperCase())
+  value.split('_').join(' ').replace(/\b\w/g, (letter) => letter.toUpperCase())
 
 export const getLanguageId = (language: string) => {
   const normalized = language.toLowerCase()

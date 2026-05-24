@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
-import { useRegister } from '../../../hooks/auth/useRegister'
+import { useRegister } from '../hooks/useRegister'
 import AuthLayout from './AuthLayout'
 import AuthSocialButtons from './AuthSocialButtons'
 import { ApiErrorBanner, FieldError } from './AuthError'
@@ -208,7 +208,7 @@ export default function RegisterForm() {
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#e0d0c5] dark:bg-white/10">
                 <div className="h-full rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" style={{ width: `${strength.level * 25}%` }} />
               </div>
-              <span className={cn('font-mono text-[9px] uppercase tracking-[0.1em]', strength.textClass)}>
+              <span className={cn('font-mono text-[9px] uppercase tracking-widest', strength.textClass)}>
                 {strength.label}
               </span>
             </div>
@@ -235,7 +235,7 @@ export default function RegisterForm() {
           <FieldError message={errors.confirmPassword} />
         </label>
 
-        <label className="flex items-start gap-2 text-[12.5px] leading-[1.5] text-[#6b5f58] dark:text-[#9b9a92]">
+        <label className="flex items-start gap-2 text-[12.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
           <input type="checkbox" name="terms" checked={form.terms} onChange={handleChange} onBlur={handleBlur} className="mt-0.5 accent-[#b84c2b] dark:accent-[#e8816a]" />
           <span>
             I agree to the <Link to="/terms" className="text-[#b84c2b] dark:text-[#e8816a]">Terms</Link> and{' '}

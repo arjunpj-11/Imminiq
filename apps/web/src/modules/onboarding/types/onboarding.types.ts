@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
-import type { OnboardingLevel } from '../../dashboard/hooks/useSaveOnboardingStepTwo'
-import type { RoadmapSubtopic } from '../../dashboard/hooks/useRoadmapJobResult'
+import type { OnboardingLevel } from '../hooks/useSaveOnboardingStepTwo'
+import type { RoadmapSubtopic } from '../hooks/useRoadmapJobResult'
 
 export type PreviewItem = [string, string]
 

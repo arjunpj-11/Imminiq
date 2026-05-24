@@ -6,7 +6,7 @@ import { Link, useNavigate, useParams } from 'react-router-dom'
 import {
   useRoadmapEvaluationJobStatus,
   type EvaluationJobStatus,
-} from '../../dashboard/hooks/useRoadmapEvaluationJobStatus'
+} from '../hooks/useRoadmapEvaluationJobStatus'
 import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
 import { evaluationSteps } from '../constants/onboarding.constants'
 import type { ActivityChip, JobTerminalState, ProgressStepState } from '../types/onboarding.types'

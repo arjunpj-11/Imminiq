@@ -5,8 +5,8 @@ import {
   useRoadmapJobResult,
   type RoadmapSubtopic,
   type RoadmapTopic,
-} from '../../dashboard/hooks/useRoadmapJobResult'
-import { useRunRoadmapEvaluation } from '../../dashboard/hooks/useRunRoadmapEvaluation'
+} from '../hooks/useRoadmapJobResult'
+import { useRunRoadmapEvaluation } from '../hooks/useRunRoadmapEvaluation'
 import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
 import type { Section } from '../types/onboarding.types'
 import { cn } from '../utils/cn'

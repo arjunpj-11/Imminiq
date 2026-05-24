@@ -12,7 +12,7 @@ import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import {
   useTrackerLesson,
   useUpdateSubtopicProgress,
-} from '../../../hooks/trackers/useTrackers'
+} from '../hooks/useTrackers'
 
 import CompilerCard from '../components/lesson/CompilerCard'
 import LessonChatCard from '../components/lesson/LessonChatCard'

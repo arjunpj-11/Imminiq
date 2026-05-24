@@ -3,9 +3,9 @@ import {
   useParams,
 } from 'react-router-dom'
 
-import { useRoadmapEvaluationResult } from '../../dashboard/hooks/useRoadmapEvaluationResult'
-import type { MissingRoadmapTopic } from '../../dashboard/hooks/useRoadmapEvaluationResult'
-import { useAddMissingEvaluationTopic } from '../../../hooks/trackers/useAddMissingEvaluationTopic'
+import { useRoadmapEvaluationResult } from '../hooks/useRoadmapEvaluationResult'
+import type { MissingRoadmapTopic } from '../hooks/useRoadmapEvaluationResult'
+import { useAddMissingEvaluationTopic } from '../../trackers/hooks/useAddMissingEvaluationTopic'
 import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
 import { cn } from '../utils/cn'
 

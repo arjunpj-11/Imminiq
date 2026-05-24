@@ -16,7 +16,7 @@ import {
   usePrivacySettings,
   useResetSettings,
   useUpdatePrivacy,
-} from '../../../hooks/settings/useSettings'
+} from '../hooks/useSettings'
 import type {
   MessagePermissionType,
   PrivacySettings,

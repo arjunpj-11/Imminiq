@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import api from '../../lib/axios'
-import { useAuthStore } from '../../store/useAuthStore'
+import { useAuthStore } from '../../modules/auth/store/useAuthStore'
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ')

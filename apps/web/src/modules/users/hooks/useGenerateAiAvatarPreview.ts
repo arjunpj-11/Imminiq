@@ -1,6 +1,6 @@
 import { useMutation } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
-import api from '../../lib/axios'
+import api from '../../../lib/axios'
 
 interface GenerateAiAvatarPreviewPayload {
   prompt: string

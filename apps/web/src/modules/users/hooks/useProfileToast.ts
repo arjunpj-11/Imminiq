@@ -1,5 +1,5 @@
 import { useCallback, useRef, useState } from 'react'
-import type { ToastTone } from '../../../types/profile.types'
+import type { ToastTone } from '../types/profile.types'
 
 export const useProfileToast = () => {
   const [message, setMessage] = useState('')

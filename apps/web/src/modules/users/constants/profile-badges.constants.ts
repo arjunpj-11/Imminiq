@@ -1,5 +1,5 @@
-import type { ProfileBadge } from '../../../types/profile.types'
-import type { BadgeColor } from '../../../types/profile.types'
+import type { ProfileBadge } from '../types/profile.types'
+import type { BadgeColor } from '../types/profile.types'
 
 /* ─── Badge item ─── */
 export const badgeEmojiByType: Record<ProfileBadge["badgeType"], string> = {

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import type React from 'react'
-import { useGenerateAiBannerPreview } from '../../../hooks/users/useGenerateAiBannerPreview'
+import { useGenerateAiBannerPreview } from '../hooks/useGenerateAiBannerPreview'
 import { cn, themedScrollbar } from '../utils/profile-ui.utils'
 import { bannerDataUrlToPng, loadImage, svgBannerDataUrl } from '../utils/profile-image.utils'
 

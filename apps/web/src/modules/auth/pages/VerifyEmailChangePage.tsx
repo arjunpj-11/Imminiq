@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 
-import { useVerifyEmailChange } from '../../../hooks/settings/useSecuritySettings'
+import { useVerifyEmailChange } from '../../settings/hooks/useSecuritySettings'
 import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.types'
 
 export default function VerifyEmailChangePage() {

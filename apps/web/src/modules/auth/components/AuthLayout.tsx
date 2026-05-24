@@ -50,7 +50,7 @@ export default function AuthLayout({ badge, title, subtitle, children }: AuthLay
             <h2 className="font-serif text-[clamp(40px,5vw,64px)] font-extrabold leading-[1.02] tracking-[-1.6px]">
               Learn with structure, speed, and confidence.
             </h2>
-            <p className="mt-5 max-w-112 text-[15px] leading-[1.8] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-5 max-w-md text-[15px] leading-[1.8] text-[#6b5f58] dark:text-[#9b9a92]">
               Sign in to continue your roadmap, progress streaks, battles, and AI-guided practice.
             </p>
           </div>

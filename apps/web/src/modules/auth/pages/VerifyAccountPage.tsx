@@ -282,13 +282,13 @@ export default function VerifyAccountPage() {
               <span>{error}</span>
             </div>
           ) : (
-            <div className="mt-2.5 min-h-5 font-mono text-[10px] uppercase tracking-[0.1em] text-[#6b5f58] dark:text-[#9b9a92]">
+            <div className="mt-2.5 min-h-5 font-mono text-[10px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">
               Code expires in {formatTime(secondsLeft)}
             </div>
           )}
 
           {isSuccess && (
-            <div className="mt-4 rounded-[12px] border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.08)] px-3 py-2 text-[12px] font-semibold text-[#2d6a47] dark:text-[#5cc98a]">
+            <div className="mt-4 rounded-xl border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.08)] px-3 py-2 text-[12px] font-semibold text-[#2d6a47] dark:text-[#5cc98a]">
               Verified. Redirecting...
             </div>
           )}

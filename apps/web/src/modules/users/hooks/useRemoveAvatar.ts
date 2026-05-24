@@ -1,39 +1,36 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
-import api from '../../lib/axios'
-import { useAuthStore } from '../../store/useAuthStore'
+import api from '../../../lib/axios'
+import { useAuthStore } from '../../auth/store/useAuthStore'
 import type {
   ApiErrorResponse,
   ApiResponse,
-  ProfileImageUploadResponse,
-} from '../../types/profile.types'
+  RemoveAvatarResponse,
+} from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
-export const useUploadAvatar = () => {
+export const useRemoveAvatar = () => {
   const queryClient = useQueryClient()
   const user = useAuthStore((state) => state.user)
   const setUser = useAuthStore((state) => state.setUser)
 
   return useMutation<
-    ApiResponse<ProfileImageUploadResponse>,
+    ApiResponse<RemoveAvatarResponse>,
     AxiosError<ApiErrorResponse>,
-    File
+    void
   >({
-    mutationFn: async (file) => {
-      const formData = new FormData()
-      formData.append('file', file)
-
-      const response = await api.post<
-        ApiResponse<ProfileImageUploadResponse>
-      >('/uploads/avatar', formData)
+    mutationFn: async () => {
+      const response = await api.delete<ApiResponse<RemoveAvatarResponse>>(
+        '/uploads/avatar'
+      )
 
       return response.data
     },
-    onSuccess: (response) => {
+    onSuccess: () => {
       if (user) {
         setUser({
           ...user,
-          avatarUrl: response.data.fileUrl,
+          avatarUrl: undefined,
         })
       }
 

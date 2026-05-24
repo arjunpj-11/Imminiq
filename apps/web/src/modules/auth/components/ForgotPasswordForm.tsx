@@ -2,7 +2,7 @@ import { useState } from 'react'
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useForgotPassword } from '../../../hooks/auth/useForgotPassword'
+import { useForgotPassword } from '../hooks/useForgotPassword'
 import AuthLayout from './AuthLayout'
 import { ApiErrorBanner, FieldError } from './AuthError'
 import { authInputClass, authLabelClass } from '../utils/auth-ui'

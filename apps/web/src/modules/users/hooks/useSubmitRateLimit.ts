@@ -1,5 +1,5 @@
 import { useCallback, useRef } from 'react'
-import type { SubmitActionKey } from '../../../types/profile.types'
+import type { SubmitActionKey } from '../types/profile.types'
 
 export const useSubmitRateLimit = (cooldownMs = 1800) => {
   const lastRequestAt = useRef<Partial<Record<SubmitActionKey, number>>>({})

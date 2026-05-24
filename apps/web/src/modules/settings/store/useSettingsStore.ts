@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { UserSettings } from '../modules/settings/types/settings.types'
+import type { UserSettings } from '../types/settings.types'
 
 interface SettingsStore {
   settings: UserSettings | null

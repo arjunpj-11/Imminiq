@@ -12,7 +12,7 @@ import BottomNav from '../../../components/layout/BottomNav'
 import PageLoadingScreen from '../../../components/ui/PageLoadingScreen'
 
 import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
-import { useTrackerRoadmap } from '../../../hooks/trackers/useTrackers'
+import { useTrackerRoadmap } from '../hooks/useTrackers'
 
 import type {
   RoadmapSubtopic,

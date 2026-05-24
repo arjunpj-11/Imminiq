@@ -2,7 +2,7 @@ import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
-import { useVerifyTwoFactorLogin } from '../../../hooks/auth/useVerifyTwoFactorLogin'
+import { useVerifyTwoFactorLogin } from '../hooks/useVerifyTwoFactorLogin'
 import { AlertIcon, LogoIcon } from '../components/icons/AuthIcons'
 import { cn } from '../utils/auth-ui'
 

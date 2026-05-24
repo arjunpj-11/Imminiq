@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
-import { useRoadmapJobStatus } from '../../dashboard/hooks/useRoadmapJobStatus'
+import { useRoadmapJobStatus } from '../hooks/useRoadmapJobStatus'
 import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
 import { generationSteps } from '../constants/onboarding.constants'
 import type { ActivityChip, JobStatusApiData, JobTerminalState, NormalizedJobStatus, ProgressStepState } from '../types/onboarding.types'

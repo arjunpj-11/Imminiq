@@ -5,7 +5,7 @@ import type {
   ApiErrorResponse,
   ApiResponse,
   StreakSummary,
-} from '../../types/profile.types'
+} from '../../modules/users/types/profile.types'
 import { streakQueryKeys } from './streak.query-keys'
 
 interface UseStreakOptions {

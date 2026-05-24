@@ -3,7 +3,7 @@ import type { ChangeEvent, FocusEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
-import { useLogin } from '../../../hooks/auth/useLogin'
+import { useLogin } from '../hooks/useLogin'
 import AuthLayout from './AuthLayout'
 import AuthSocialButtons from './AuthSocialButtons'
 import { ApiErrorBanner, FieldError } from './AuthError'
@@ -132,7 +132,7 @@ export default function LoginForm() {
         <label className="block">
           <div className="mb-1.5 flex items-center justify-between">
             <span className={authLabelClass}>Password</span>
-            <Link to="/forgot-password" className="font-mono text-[9.5px] uppercase tracking-[0.1em] text-[#b84c2b] hover:opacity-70 dark:text-[#e8816a]">
+            <Link to="/forgot-password" className="font-mono text-[9.5px] uppercase tracking-widest text-[#b84c2b] hover:opacity-70 dark:text-[#e8816a]">
               Forgot?
             </Link>
           </div>

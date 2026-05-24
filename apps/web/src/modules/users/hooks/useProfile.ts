@@ -1,28 +1,28 @@
 import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
-import api from '../../lib/axios'
+import api from '../../../lib/axios'
 import type {
   ApiErrorResponse,
   ApiResponse,
-  ProfileStats,
-} from '../../types/profile.types'
+  GetMyProfileResponse,
+} from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
-interface UseProfileStatsOptions {
+interface UseProfileOptions {
   enabled?: boolean
 }
 
-export const useProfileStats = (options: UseProfileStatsOptions = {}) => {
+export const useProfile = (options: UseProfileOptions = {}) => {
   return useQuery<
-    ApiResponse<ProfileStats>,
+    ApiResponse<GetMyProfileResponse>,
     AxiosError<ApiErrorResponse>,
-    ProfileStats
+    GetMyProfileResponse
   >({
-    queryKey: profileQueryKeys.stats(),
+    queryKey: profileQueryKeys.me(),
     enabled: options.enabled ?? true,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<ProfileStats>>(
-        '/users/me/stats'
+      const response = await api.get<ApiResponse<GetMyProfileResponse>>(
+        '/users/me'
       )
 
       return response.data

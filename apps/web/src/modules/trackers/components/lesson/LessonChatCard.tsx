@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 
-import { useChatWithLessonTutor } from '../../../../hooks/trackers/useTrackers'
+import { useChatWithLessonTutor } from '../../hooks/useTrackers'
 import type { LessonChatMessage } from '../../types/tracker.types'
 
 import { DEFAULT_CHAT_GREETING } from '../../constants/lesson-compiler.constants'

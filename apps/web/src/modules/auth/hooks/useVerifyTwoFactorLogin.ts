@@ -1,8 +1,8 @@
 import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
-import api from '../../lib/axios'
-import { useAuthStore } from '../../store/useAuthStore'
+import api from '../../../lib/axios'
+import { useAuthStore } from '../store/useAuthStore'
 
 interface VerifyTwoFactorLoginPayload {
   code: string

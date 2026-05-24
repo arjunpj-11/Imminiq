@@ -1,4 +1,4 @@
-import type { ToastTone } from '../../../types/profile.types'
+import type { ToastTone } from '../types/profile.types'
 import { cn } from '../utils/profile-ui.utils'
 
 interface ProfileToastProps {

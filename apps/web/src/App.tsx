@@ -22,7 +22,6 @@ import TwoFactorChallengePage from './modules/auth/pages/TwoFactorChallengePage'
 import VerifyAccountPage from './modules/auth/pages/VerifyAccountPage'
 import VerifyEmailChangePage from './modules/auth/pages/VerifyEmailChangePage'
 
-
 // ─── LEGAL PAGES ────────────────────────────────────
 import PrivacyPage from './modules/legal/pages/PrivacyPage'
 import TermsPage from './modules/legal/pages/TermsPage'
@@ -45,12 +44,10 @@ import NotificationSettingsPage from './modules/settings/pages/NotificationSetti
 import PreferencesSettingsPage from './modules/settings/pages/PreferencesSettingsPage'
 import PrivacySettingsPage from './modules/settings/pages/PrivacySettingsPage'
 
-
+// ─── TRACKER PAGES ──────────────────────────────────
 import MyTrackersPage from './modules/trackers/pages/MyTrackersPage'
-import TrackerRoadmapPage from './modules/trackers/pages/TrackerRoadmapPage'
 import TrackerLessonPage from './modules/trackers/pages/TrackerLessonPage'
-
-
+import TrackerRoadmapPage from './modules/trackers/pages/TrackerRoadmapPage'
 
 // ─── SPECIAL SYSTEM PAGES ───────────────────────────
 import BlockedPage from './pages/BlockedPage'
@@ -209,10 +206,33 @@ export default function App() {
           }
         />
 
+        {/* ─── PROTECTED TRACKER ROUTES ───────────────── */}
+        <Route
+          path="/trackers"
+          element={
+            <ProtectedRoute>
+              <MyTrackersPage />
+            </ProtectedRoute>
+          }
+        />
 
-<Route path="/trackers" element={<MyTrackersPage />} />
-<Route path="/trackers/:trackerId/roadmap" element={<TrackerRoadmapPage />} />
-<Route path="/trackers/:trackerId/lessons/:subtopicId" element={<TrackerLessonPage />} />
+        <Route
+          path="/trackers/:trackerId/roadmap"
+          element={
+            <ProtectedRoute>
+              <TrackerRoadmapPage />
+            </ProtectedRoute>
+          }
+        />
+
+        <Route
+          path="/trackers/:trackerId/lessons/:subtopicId"
+          element={
+            <ProtectedRoute>
+              <TrackerLessonPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* ─── ADMIN ROUTES ───────────────────────────── */}
         <Route

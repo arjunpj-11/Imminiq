@@ -1,25 +1,28 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
-import api from '../../lib/axios'
+import api from '../../../lib/axios'
 import type {
   ApiErrorResponse,
   ApiResponse,
-  RemoveBannerResponse,
-} from '../../types/profile.types'
+  ProfileImageUploadResponse,
+} from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
-export const useRemoveBanner = () => {
+export const useUploadBanner = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<RemoveBannerResponse>,
+    ApiResponse<ProfileImageUploadResponse>,
     AxiosError<ApiErrorResponse>,
-    void
+    File
   >({
-    mutationFn: async () => {
-      const response = await api.delete<ApiResponse<RemoveBannerResponse>>(
-        '/uploads/banner'
-      )
+    mutationFn: async (file) => {
+      const formData = new FormData()
+      formData.append('file', file)
+
+      const response = await api.post<
+        ApiResponse<ProfileImageUploadResponse>
+      >('/uploads/banner', formData)
 
       return response.data
     },

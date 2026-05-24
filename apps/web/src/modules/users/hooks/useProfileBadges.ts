@@ -1,12 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
-import api from '../../lib/axios'
+import api from '../../../lib/axios'
 import type {
   ApiErrorResponse,
   ApiResponse,
   PaginatedResult,
   ProfileBadge,
-} from '../../types/profile.types'
+} from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
 interface UseProfileBadgesOptions {

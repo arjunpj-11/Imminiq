@@ -153,7 +153,7 @@ export default function ResetPasswordPage() {
               <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-[#e0d0c5] dark:bg-white/10">
                 <div className="h-full rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" style={{ width: `${strength.level * 25}%` }} />
               </div>
-              <span className={cn('font-mono text-[9px] uppercase tracking-[0.1em]', strength.textClass)}>{strength.label}</span>
+              <span className={cn('font-mono text-[9px] uppercase tracking-widest', strength.textClass)}>{strength.label}</span>
             </div>
           )}
         </label>

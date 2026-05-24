@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import api from '../../lib/axios'
-import { useSettingsStore } from '../../store/useSettingsStore'
+import api from '../../../lib/axios'
+import { useSettingsStore } from '../store/useSettingsStore'
 import type {
   ApiEnvelope,
   GestureSettings,
@@ -18,7 +18,7 @@ import type {
   UpdatePrivacyPayload,
   UpdateQuietHoursPayload,
   UserSettings,
-} from '../../modules/settings/types/settings.types'
+} from '../types/settings.types'
 
 const SETTINGS_KEY = ['settings'] as const
 

@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
-import api from '../../lib/axios'
+import api from '../../../lib/axios'
 import type {
   ApiEnvelope,
   ChangeEmailPayload,
@@ -12,7 +12,7 @@ import type {
   VerifyTwoFactorSetupPayload,
   VerifyTwoFactorSetupResponse,
   DeleteAccountResponse,
-} from '../../modules/settings/types/settings.types'
+} from '../types/settings.types'
 
 const SECURITY_KEY = ['security', 'overview'] as const
 

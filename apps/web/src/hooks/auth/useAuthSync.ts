@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../../store/useAuthStore'
+import { useAuthStore } from '../../modules/auth/store/useAuthStore'
 
 type AuthSyncPayload = {
   type?: 'EMAIL_CHANGED_LOGOUT'

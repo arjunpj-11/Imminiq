@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react'
 import type React from 'react'
 import { getCitiesOfState, getCountries, getStatesOfCountry } from '@countrystatecity/countries-browser'
 import type { ICity, ICountry, IState } from '@countrystatecity/countries-browser'
-import type { ProfileData } from '../../../types/profile.types'
+import type { ProfileData } from '../types/profile.types'
 import { cn, themedScrollbar } from '../utils/profile-ui.utils'
 
 /* ─── Edit Panel ─── */

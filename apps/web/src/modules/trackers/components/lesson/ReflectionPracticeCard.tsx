@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react'
 import {
   useChatWithLessonTutor,
   useVerifyLessonAnswer,
-} from '../../../../hooks/trackers/useTrackers'
+} from '../../hooks/useTrackers'
 import type {
   GeneratedLesson,
   VerifyLessonAnswerResponse,

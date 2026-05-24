@@ -3,9 +3,9 @@
 import { useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useSaveOnboardingStepTwo } from '../../dashboard/hooks/useSaveOnboardingStepTwo'
+import { useSaveOnboardingStepTwo } from '../hooks/useSaveOnboardingStepTwo'
 
-import { useGenerateRoadmap } from '../../dashboard/hooks/useGenerateRoadmap'
+import { useGenerateRoadmap } from '../hooks/useGenerateRoadmap'
 import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
 import { levelOptions } from '../constants/onboarding.constants'
 import type { Level } from '../types/onboarding.types'

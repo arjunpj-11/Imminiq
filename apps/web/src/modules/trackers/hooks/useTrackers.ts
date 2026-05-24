@@ -7,7 +7,7 @@ import {
   useQueryClient,
 } from '@tanstack/react-query'
 
-import api from '../../lib/axios'
+import api from '../../../lib/axios'
 
 import type {
   AddMissingEvaluationTopicPayload,
@@ -36,7 +36,7 @@ import type {
   UpdateTrackerPayload,
   VerifyLessonAnswerPayload,
   VerifyLessonAnswerResponse,
-} from '../../modules/trackers/types/tracker.types'
+} from '../types/tracker.types'
 
 export const trackerKeys = {
   all: ['trackers'] as const,

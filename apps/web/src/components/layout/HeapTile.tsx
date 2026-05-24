@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type {
   HeatmapIntensity,
   StreakSummary,
-} from "../../types/profile.types";
+} from "../../modules/users/types/profile.types";
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(" ");

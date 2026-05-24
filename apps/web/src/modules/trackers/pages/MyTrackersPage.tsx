@@ -14,9 +14,9 @@ import {
   useArchiveTracker,
   useTrackerSummary,
   useTrackers,
-} from '../../../hooks/trackers/useTrackers'
+} from '../hooks/useTrackers'
 
-import { useTrackerUiStore } from '../../../store/useTrackerUiStore'
+import { useTrackerUiStore } from '../store/useTrackerUiStore'
 
 import TrackerCard from '../components/TrackerCard'
 import TrackerFilterBar from '../components/TrackerFilterBar'

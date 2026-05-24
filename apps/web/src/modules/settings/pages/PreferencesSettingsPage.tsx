@@ -22,7 +22,7 @@ import {
   useUpdateCompiler,
   useUpdateGestures,
   useUpdateLearningJourney,
-} from '../../../hooks/settings/useSettings'
+} from '../hooks/useSettings'
 import type { UserSettings } from '../types/settings.types'
 import { useThemeStore } from '../../../store/useThemeStore'
 

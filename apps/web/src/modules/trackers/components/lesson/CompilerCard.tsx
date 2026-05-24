@@ -5,7 +5,7 @@ import {
   useGetOptimizedSolution,
   useRunLessonCode,
   useSubmitLessonCode,
-} from '../../../../hooks/trackers/useTrackers'
+} from '../../hooks/useTrackers'
 import type {
   GetOptimizedSolutionResponse,
   SubmitLessonCodeResponse,

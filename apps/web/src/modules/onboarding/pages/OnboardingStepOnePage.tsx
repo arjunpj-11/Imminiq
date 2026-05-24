@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useSaveOnboardingStepOne } from '../../dashboard/hooks/useSaveOnboardingStepOne'
+import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne'
 import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
 import { goalChips, roadmapPreviewMap, topicChips } from '../constants/onboarding.constants'
 import type { PendingAction } from '../types/onboarding.types'
