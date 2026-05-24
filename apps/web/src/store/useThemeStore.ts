@@ -23,10 +23,21 @@ interface ThemeStore {
   previewMode: ThemeMode | null
 
   /**
+   * True after initTheme runs once.
+   */
+  initialized: boolean
+
+  /**
    * Permanently apply and save the theme locally.
    * Use this only after "Save Changes" succeeds.
    */
   setMode: (mode: ThemeMode) => void
+
+  /**
+   * Apply DB theme only when localStorage does not already have a theme.
+   * Useful after login / current user settings fetch.
+   */
+  syncServerModeIfLocalMissing: (mode: ThemeMode) => void
 
   /**
    * Temporarily preview the selected theme without saving it.
@@ -42,6 +53,12 @@ interface ThemeStore {
 
   toggleTheme: () => void
   initTheme: () => void
+}
+
+const THEME_STORAGE_KEY = 'theme_mode'
+
+const isThemeMode = (value: string | null): value is ThemeMode => {
+  return value === 'light' || value === 'dark' || value === 'system'
 }
 
 const getSystemTheme = (): Theme => {
@@ -64,14 +81,14 @@ const applyTheme = (theme: Theme) => {
   }
 }
 
-const getSavedThemeMode = (): ThemeMode => {
-  const savedMode = localStorage.getItem('theme_mode')
+export const hasSavedLocalThemeMode = () => {
+  return isThemeMode(localStorage.getItem(THEME_STORAGE_KEY))
+}
 
-  if (
-    savedMode === 'light' ||
-    savedMode === 'dark' ||
-    savedMode === 'system'
-  ) {
+const getSavedThemeMode = (): ThemeMode => {
+  const savedMode = localStorage.getItem(THEME_STORAGE_KEY)
+
+  if (isThemeMode(savedMode)) {
     return savedMode
   }
 
@@ -82,17 +99,37 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
   mode: 'system',
   theme: 'light',
   previewMode: null,
+  initialized: false,
 
   setMode: (mode) => {
     const theme = resolveTheme(mode)
 
     applyTheme(theme)
-    localStorage.setItem('theme_mode', mode)
+    localStorage.setItem(THEME_STORAGE_KEY, mode)
 
     set({
       mode,
       theme,
       previewMode: null,
+      initialized: true,
+    })
+  },
+
+  syncServerModeIfLocalMissing: (mode) => {
+    if (hasSavedLocalThemeMode()) {
+      return
+    }
+
+    const theme = resolveTheme(mode)
+
+    applyTheme(theme)
+    localStorage.setItem(THEME_STORAGE_KEY, mode)
+
+    set({
+      mode,
+      theme,
+      previewMode: null,
+      initialized: true,
     })
   },
 
@@ -132,16 +169,23 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     const nextTheme = resolveTheme(nextMode)
 
     applyTheme(nextTheme)
-    localStorage.setItem('theme_mode', nextMode)
+    localStorage.setItem(THEME_STORAGE_KEY, nextMode)
 
     set({
       mode: nextMode,
       theme: nextTheme,
       previewMode: null,
+      initialized: true,
     })
   },
 
   initTheme: () => {
+    const alreadyInitialized = get().initialized
+
+    if (alreadyInitialized) {
+      return
+    }
+
     const mode = getSavedThemeMode()
     const theme = resolveTheme(mode)
 
@@ -151,6 +195,7 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
       mode,
       theme,
       previewMode: null,
+      initialized: true,
     })
 
     const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
