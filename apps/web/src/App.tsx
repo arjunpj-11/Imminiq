@@ -32,6 +32,8 @@ import NotFoundPage from './pages/NotFoundPage'
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./modules/legal/pages/TermsPage'))
 
+const LandingPage = lazy(() => import('./modules/landing/pages/LandingPage'))
+
 // ─── LAZY ONBOARDING PAGES ──────────────────────────
 const OnboardingGeneratingPage = lazy(
   () => import('./modules/onboarding/pages/OnboardingGeneratingPage')
@@ -146,6 +148,8 @@ export default function App() {
           {/* ─── PUBLIC LEGAL ROUTES ────────────────────── */}
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
+
+          <Route path="/" element={<LandingPage />} />
 
           {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
           <Route path="/profile/:username" element={<ProfilePage />} />
