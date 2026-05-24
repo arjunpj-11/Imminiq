@@ -14,9 +14,9 @@ import {
   Section,
   Tag,
   TermsList,
-  cn,
-  scrollbarClass,
 } from '../components/LegalShared'
+
+import { cn, scrollbarClass } from '../utils/legal-ui'
 
 const TOC = [
   { id: 's1', num: '01', label: 'Introduction' },

@@ -1,6 +1,6 @@
 // apps/web/src/App.tsx
 
-import { useEffect } from 'react'
+import { lazy, Suspense, useEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { AdminRoute } from './routes/AdminRoute'
@@ -12,6 +12,7 @@ import { useThemeStore } from './store/useThemeStore'
 
 // ─── SYSTEM COMPONENTS ──────────────────────────────
 import NetworkRedirector from './components/system/NetworkRedirector'
+import PageLoadingScreen from './components/ui/PageLoadingScreen'
 
 // ─── AUTH PAGES ─────────────────────────────────────
 import ForgotPasswordPage from './modules/auth/pages/ForgotPasswordPage'
@@ -22,37 +23,80 @@ import TwoFactorChallengePage from './modules/auth/pages/TwoFactorChallengePage'
 import VerifyAccountPage from './modules/auth/pages/VerifyAccountPage'
 import VerifyEmailChangePage from './modules/auth/pages/VerifyEmailChangePage'
 
-// ─── LEGAL PAGES ────────────────────────────────────
-import PrivacyPage from './modules/legal/pages/PrivacyPage'
-import TermsPage from './modules/legal/pages/TermsPage'
-
-// ─── ONBOARDING PAGES ───────────────────────────────
-import OnboardingGeneratingPage from './modules/onboarding/pages/OnboardingGeneratingPage'
-import OnboardingRoadmapEvaluationLoadingPage from './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
-import OnboardingRoadmapEvaluationScorePage from './modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage'
-import OnboardingRoadmapReadyPage from './modules/onboarding/pages/OnboardingRoadmapReadyPage'
-import OnboardingStepOnePage from './modules/onboarding/pages/OnboardingStepOnePage'
-import OnboardingStepTwoPage from './modules/onboarding/pages/OnboardingStepTwoPage'
-
-// ─── MAIN APP PAGES ─────────────────────────────────
-import DashboardPage from './modules/dashboard/pages/DashboardPage'
-import ProfilePage from './modules/users/pages/ProfilePage'
-
-// ─── SETTINGS PAGES ─────────────────────────────────
-import AccountSecuritySettingsPage from './modules/settings/pages/AccountSecuritySettingsPage'
-import NotificationSettingsPage from './modules/settings/pages/NotificationSettingsPage'
-import PreferencesSettingsPage from './modules/settings/pages/PreferencesSettingsPage'
-import PrivacySettingsPage from './modules/settings/pages/PrivacySettingsPage'
-
-// ─── TRACKER PAGES ──────────────────────────────────
-import MyTrackersPage from './modules/trackers/pages/MyTrackersPage'
-import TrackerLessonPage from './modules/trackers/pages/TrackerLessonPage'
-import TrackerRoadmapPage from './modules/trackers/pages/TrackerRoadmapPage'
-
 // ─── SPECIAL SYSTEM PAGES ───────────────────────────
 import BlockedPage from './pages/BlockedPage'
 import NoConnectionPage from './pages/NoConnectionPage'
 import NotFoundPage from './pages/NotFoundPage'
+
+// ─── LAZY LEGAL PAGES ───────────────────────────────
+const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
+const TermsPage = lazy(() => import('./modules/legal/pages/TermsPage'))
+
+// ─── LAZY ONBOARDING PAGES ──────────────────────────
+const OnboardingGeneratingPage = lazy(
+  () => import('./modules/onboarding/pages/OnboardingGeneratingPage')
+)
+
+const OnboardingRoadmapEvaluationLoadingPage = lazy(
+  () =>
+    import(
+      './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
+    )
+)
+
+const OnboardingRoadmapEvaluationScorePage = lazy(
+  () =>
+    import('./modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage')
+)
+
+const OnboardingRoadmapReadyPage = lazy(
+  () => import('./modules/onboarding/pages/OnboardingRoadmapReadyPage')
+)
+
+const OnboardingStepOnePage = lazy(
+  () => import('./modules/onboarding/pages/OnboardingStepOnePage')
+)
+
+const OnboardingStepTwoPage = lazy(
+  () => import('./modules/onboarding/pages/OnboardingStepTwoPage')
+)
+
+// ─── LAZY MAIN APP PAGES ────────────────────────────
+const DashboardPage = lazy(
+  () => import('./modules/dashboard/pages/DashboardPage')
+)
+
+const ProfilePage = lazy(() => import('./modules/users/pages/ProfilePage'))
+
+// ─── LAZY SETTINGS PAGES ────────────────────────────
+const AccountSecuritySettingsPage = lazy(
+  () => import('./modules/settings/pages/AccountSecuritySettingsPage')
+)
+
+const NotificationSettingsPage = lazy(
+  () => import('./modules/settings/pages/NotificationSettingsPage')
+)
+
+const PreferencesSettingsPage = lazy(
+  () => import('./modules/settings/pages/PreferencesSettingsPage')
+)
+
+const PrivacySettingsPage = lazy(
+  () => import('./modules/settings/pages/PrivacySettingsPage')
+)
+
+// ─── LAZY TRACKER PAGES ─────────────────────────────
+const MyTrackersPage = lazy(
+  () => import('./modules/trackers/pages/MyTrackersPage')
+)
+
+const TrackerLessonPage = lazy(
+  () => import('./modules/trackers/pages/TrackerLessonPage')
+)
+
+const TrackerRoadmapPage = lazy(
+  () => import('./modules/trackers/pages/TrackerRoadmapPage')
+)
 
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme)
@@ -68,185 +112,197 @@ export default function App() {
     <>
       <NetworkRedirector />
 
-      <Routes>
-        {/* ─── PUBLIC AUTH ROUTES ─────────────────────── */}
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-        <Route path="/verify-account" element={<VerifyAccountPage />} />
-        <Route path="/reset-password" element={<ResetPasswordPage />} />
-        <Route
-          path="/verify-email-change"
-          element={<VerifyEmailChangePage />}
-        />
-        <Route
-          path="/two-factor-challenge"
-          element={<TwoFactorChallengePage />}
-        />
+      <Suspense
+        fallback={
+          <PageLoadingScreen
+            eyebrow="Loading"
+            title="Opening Imminiq"
+            description="Preparing your page."
+          />
+        }
+      >
+        <Routes>
+          {/* ─── PUBLIC AUTH ROUTES ─────────────────────── */}
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+          <Route path="/verify-account" element={<VerifyAccountPage />} />
+          <Route path="/reset-password" element={<ResetPasswordPage />} />
 
-        {/* ─── PUBLIC SYSTEM ROUTES ───────────────────── */}
-        <Route path="/blocked" element={<BlockedPage />} />
-        <Route path="/offline" element={<NoConnectionPage />} />
+          <Route
+            path="/verify-email-change"
+            element={<VerifyEmailChangePage />}
+          />
 
-        {/* ─── PUBLIC LEGAL ROUTES ────────────────────── */}
-        <Route path="/privacy" element={<PrivacyPage />} />
-        <Route path="/terms" element={<TermsPage />} />
+          <Route
+            path="/two-factor-challenge"
+            element={<TwoFactorChallengePage />}
+          />
 
-        {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
-        <Route path="/profile/:username" element={<ProfilePage />} />
+          {/* ─── PUBLIC SYSTEM ROUTES ───────────────────── */}
+          <Route path="/blocked" element={<BlockedPage />} />
+          <Route path="/offline" element={<NoConnectionPage />} />
 
-        {/* ─── PROTECTED ONBOARDING ROUTES ────────────── */}
-        <Route
-          path="/onboarding/step-1"
-          element={
-            <ProtectedRoute>
-              <OnboardingStepOnePage />
-            </ProtectedRoute>
-          }
-        />
+          {/* ─── PUBLIC LEGAL ROUTES ────────────────────── */}
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
 
-        <Route
-          path="/onboarding/step-2"
-          element={
-            <ProtectedRoute>
-              <OnboardingStepTwoPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
+          <Route path="/profile/:username" element={<ProfilePage />} />
 
-        <Route
-          path="/onboarding/generating/:jobId"
-          element={
-            <ProtectedRoute>
-              <OnboardingGeneratingPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* ─── PROTECTED ONBOARDING ROUTES ────────────── */}
+          <Route
+            path="/onboarding/step-1"
+            element={
+              <ProtectedRoute>
+                <OnboardingStepOnePage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/onboarding/roadmap-ready/:jobId"
-          element={
-            <ProtectedRoute>
-              <OnboardingRoadmapReadyPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/onboarding/step-2"
+            element={
+              <ProtectedRoute>
+                <OnboardingStepTwoPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/onboarding/roadmap-evaluation/:jobId"
-          element={
-            <ProtectedRoute>
-              <OnboardingRoadmapEvaluationLoadingPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/onboarding/generating/:jobId"
+            element={
+              <ProtectedRoute>
+                <OnboardingGeneratingPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/onboarding/roadmap-evaluation/:jobId/score"
-          element={
-            <ProtectedRoute>
-              <OnboardingRoadmapEvaluationScorePage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/onboarding/roadmap-ready/:jobId"
+            element={
+              <ProtectedRoute>
+                <OnboardingRoadmapReadyPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ─── PROTECTED MAIN APP ROUTES ──────────────── */}
-        <Route
-          path="/dashboard"
-          element={
-            <ProtectedRoute>
-              <DashboardPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/onboarding/roadmap-evaluation/:jobId"
+            element={
+              <ProtectedRoute>
+                <OnboardingRoadmapEvaluationLoadingPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/profile"
-          element={
-            <ProtectedRoute>
-              <ProfilePage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/onboarding/roadmap-evaluation/:jobId/score"
+            element={
+              <ProtectedRoute>
+                <OnboardingRoadmapEvaluationScorePage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ─── PROTECTED SETTINGS ROUTES ─────────────── */}
-        <Route
-          path="/settings/security"
-          element={
-            <ProtectedRoute>
-              <AccountSecuritySettingsPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* ─── PROTECTED MAIN APP ROUTES ──────────────── */}
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <DashboardPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/settings/notifications"
-          element={
-            <ProtectedRoute>
-              <NotificationSettingsPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/settings/preferences"
-          element={
-            <ProtectedRoute>
-              <PreferencesSettingsPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* ─── PROTECTED SETTINGS ROUTES ─────────────── */}
+          <Route
+            path="/settings/security"
+            element={
+              <ProtectedRoute>
+                <AccountSecuritySettingsPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/settings/privacy"
-          element={
-            <ProtectedRoute>
-              <PrivacySettingsPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/settings/notifications"
+            element={
+              <ProtectedRoute>
+                <NotificationSettingsPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ─── PROTECTED TRACKER ROUTES ───────────────── */}
-        <Route
-          path="/trackers"
-          element={
-            <ProtectedRoute>
-              <MyTrackersPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/settings/preferences"
+            element={
+              <ProtectedRoute>
+                <PreferencesSettingsPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/trackers/:trackerId/roadmap"
-          element={
-            <ProtectedRoute>
-              <TrackerRoadmapPage />
-            </ProtectedRoute>
-          }
-        />
+          <Route
+            path="/settings/privacy"
+            element={
+              <ProtectedRoute>
+                <PrivacySettingsPage />
+              </ProtectedRoute>
+            }
+          />
 
-        <Route
-          path="/trackers/:trackerId/lessons/:subtopicId"
-          element={
-            <ProtectedRoute>
-              <TrackerLessonPage />
-            </ProtectedRoute>
-          }
-        />
+          {/* ─── PROTECTED TRACKER ROUTES ───────────────── */}
+          <Route
+            path="/trackers"
+            element={
+              <ProtectedRoute>
+                <MyTrackersPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ─── ADMIN ROUTES ───────────────────────────── */}
-        <Route
-          path="/admin"
-          element={
-            <AdminRoute>
-              <div>Admin</div>
-            </AdminRoute>
-          }
-        />
+          <Route
+            path="/trackers/:trackerId/roadmap"
+            element={
+              <ProtectedRoute>
+                <TrackerRoadmapPage />
+              </ProtectedRoute>
+            }
+          />
 
-        {/* ─── 404 FALLBACK — KEEP THIS LAST ──────────── */}
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
+          <Route
+            path="/trackers/:trackerId/lessons/:subtopicId"
+            element={
+              <ProtectedRoute>
+                <TrackerLessonPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ─── ADMIN ROUTES ───────────────────────────── */}
+          <Route
+            path="/admin"
+            element={
+              <AdminRoute>
+                <div>Admin</div>
+              </AdminRoute>
+            }
+          />
+
+          {/* ─── 404 FALLBACK — KEEP THIS LAST ──────────── */}
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </Suspense>
     </>
   )
 }
