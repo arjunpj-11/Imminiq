@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { RoadmapSubtopic, RoadmapTopic } from '../../../types/tracker.types'
+import type { RoadmapSubtopic, RoadmapTopic } from '../types/tracker.types'
 import { cn, formatMinutes } from '../utils/tracker-ui'
 
 interface RoadmapTreeProps { trackerId: string; roadmap: RoadmapTopic[] }

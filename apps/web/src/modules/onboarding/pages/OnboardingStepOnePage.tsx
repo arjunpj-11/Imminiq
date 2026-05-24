@@ -1,127 +1,14 @@
 // apps/web/src/modules/onboarding/pages/OnboardingStepOnePage.tsx
 
-import {  useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useSaveOnboardingStepOne } from '../../../hooks/onboarding/useSaveOnboardingStepOne'
-
-type PreviewItem = [string, string]
-
-type PendingAction = 'draft' | 'continue' | null
-
-const cn = (...classes: Array<string | false | null | undefined>) => {
-  return classes.filter(Boolean).join(' ')
-}
-
-const topicChips = [
-  'MERN interviews',
-  'System Design',
-  'IELTS',
-  'UPSC',
-  'German',
-  'Data Structures',
-  'Machine Learning',
-  'SQL & Databases',
-]
-
-const goalChips = [
-  'Crack top companies',
-  'Get first job',
-  'Switch career',
-  'Build fundamentals',
-  'Ace competitive exam',
-  'Freelance & remote work',
-]
-
-const roadmapPreviewMap: Record<string, PreviewItem[]> = {
-  default: [
-    ['Foundations', 'Core concepts and fundamentals assessment'],
-    ['Structured Practice', 'Curated problem sets and challenges'],
-    ['Personalized Roadmap', 'A learning path shaped around your goal'],
-  ],
-
-  MERN: [
-    ['JavaScript & Node.js', 'Core language fundamentals and backend building blocks'],
-    ['React & UI Systems', 'Components, hooks, state management, and frontend structure'],
-    ['MongoDB & APIs', 'Database modeling, Express APIs, and authentication patterns'],
-  ],
-
-  'System Design': [
-    ['Scalability Fundamentals', 'Caching, load balancing, queues, and CDNs'],
-    ['Database Architecture', 'SQL vs NoSQL, sharding, indexing, and replication'],
-    ['Design Case Studies', 'Break down real systems like Netflix, Uber, and Twitter'],
-  ],
-
-  IELTS: [
-    ['Reading & Listening', 'Comprehension strategies and speed improvement'],
-    ['Writing Task 1 & 2', 'Structure, vocabulary, and high-band response patterns'],
-    ['Speaking Practice', 'Fluency, confidence, and examiner-style preparation'],
-  ],
-
-  UPSC: [
-    ['Foundation Subjects', 'History, polity, geography, economics, and governance'],
-    ['Current Affairs Engine', 'Daily issue mapping and editorial analysis'],
-    ['Answer Writing', 'Mains structure, ethics practice, and revision cycles'],
-  ],
-
-  German: [
-    ['Grammar Foundation', 'Cases, verbs, genders, and sentence structure'],
-    ['Vocabulary Growth', 'Core words, phrases, and everyday communication'],
-    ['Fluency Practice', 'Listening, speaking, and real-life conversation training'],
-  ],
-
-  'Data Structures': [
-    ['Linear Structures', 'Arrays, strings, linked lists, stacks, and queues'],
-    ['Trees & Graphs', 'Traversal, recursion, shortest paths, and core patterns'],
-    ['Interview Patterns', 'Sliding window, DP, backtracking, and problem solving'],
-  ],
-
-  'Machine Learning': [
-    ['Math Foundations', 'Statistics, linear algebra, and probability essentials'],
-    ['Core Algorithms', 'Regression, classification, clustering, and model evaluation'],
-    ['Project Roadmap', 'Datasets, pipelines, experimentation, and deployment'],
-  ],
-
-  SQL: [
-    ['Database Fundamentals', 'Tables, relationships, normalization, and schema thinking'],
-    ['Query Mastery', 'Joins, subqueries, grouping, and window functions'],
-    ['Performance Skills', 'Indexes, query tuning, and real-world database design'],
-  ],
-}
-
-const LogoIcon = ({ className = '' }: { className?: string }) => {
-  return (
-    <svg
-      className={cn('block shrink-0 rounded-xl', className)}
-      viewBox="0 0 100 100"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <rect x="10" y="10" width="80" height="80" rx="18" fill="#050505" />
-      <g transform="translate(-5, 1)">
-        <rect x="31" y="35" width="9" height="34" rx="4.5" fill="#fff8ed" />
-        <circle cx="35.5" cy="28.5" r="5.3" fill="#f15a35" />
-        <path
-          d="M64 32.8 C73.8 34.7 79.5 42.2 79.5 51.5 C79.5 61.8 71.2 68 60.2 68 C53.2 68 48.2 65.5 45.1 60.8"
-          fill="none"
-          stroke="#fff8ed"
-          strokeWidth="9"
-          strokeLinecap="round"
-        />
-        <line
-          x1="63.8"
-          y1="55.5"
-          x2="75.8"
-          y2="67.5"
-          stroke="#f15a35"
-          strokeWidth="9"
-          strokeLinecap="round"
-        />
-      </g>
-    </svg>
-  )
-}
+import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne'
+import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
+import { goalChips, roadmapPreviewMap, topicChips } from '../constants/onboarding.constants'
+import type { PendingAction } from '../types/onboarding.types'
+import { cn } from '../utils/cn'
 
 const SearchIcon = () => {
   return (

@@ -10,7 +10,7 @@ import {
   SettingsToast,
   TextField,
 } from '../components/SettingsUi'
-import { useSettingsToast } from '../components/useSettingsToast'
+import { useSettingsToast } from '../hooks/useSettingsToast'
 
 import {
   useChangeEmail,
@@ -21,15 +21,15 @@ import {
   useSetupTwoFactor,
   useTerminateSession,
   useVerifyTwoFactorSetup,
-} from '../../../hooks/settings/useSecuritySettings'
+} from '../hooks/useSecuritySettings'
 
 import type {
   ChangeEmailPayload,
   DeleteAccountPayload,
   TwoFactorSetupResponse,
-} from '../../../types/settings.types'
+} from '../types/settings.types'
 
-import { useAuthStore } from '../../../store/useAuthStore'
+import { useAuthStore } from '../../auth/store/useAuthStore'
 
 type ApiErrorResponse = {
   message?: string

@@ -1,8 +1,7 @@
 import type {
   GetMyProfileResponse,
-
   UpdateProfilePayload,
-} from '../../../types/profile.types'
+} from '../types/profile.types'
 
 export interface ProfilePageViewModel {
   name: string

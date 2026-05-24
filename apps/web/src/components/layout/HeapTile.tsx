@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type {
   HeatmapIntensity,
   StreakSummary,
-} from "../../types/profile.types";
+} from "../../modules/users/types/profile.types";
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(" ");
@@ -146,7 +146,7 @@ export default function HeapTile({
   );
 
   return (
-    <section className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-[22px] shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-white/[0.09] dark:bg-[#1e1c19] dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-[18px]">
+    <section className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5.5 shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-white/9 dark:bg-[#1e1c19] dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-4.5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3.5">
         <div className="flex items-center gap-2">
           <svg
@@ -188,7 +188,7 @@ export default function HeapTile({
             </div>
           </div>
 
-          <div className="flex min-w-[108px] flex-col gap-[5px]">
+          <div className="flex min-w-27 flex-col gap-1.25">
             <label className="text-right font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92] max-[640px]:text-left">
               Year
             </label>
@@ -196,7 +196,7 @@ export default function HeapTile({
               value={year}
               onChange={(event) => onYearChange(Number(event.target.value))}
               aria-label="Select learning activity year"
-              className="min-w-[108px] appearance-none rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-[11px] py-2 pr-8 font-['DM_Sans',sans-serif] text-[12.5px] font-semibold text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/[0.09] dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+              className="min-w-27 appearance-none rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-2.75 py-2 pr-8 font-['DM_Sans',sans-serif] text-[12.5px] font-semibold text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
             >
               {years.map((value) => (
                 <option key={value} value={value}>
@@ -210,10 +210,10 @@ export default function HeapTile({
 
       <div
         ref={scrollRef}
-        className="overflow-x-auto pb-1.5 [scrollbar-width:thin] [scrollbar-color:rgba(184,76,43,0.28)_transparent] dark:[scrollbar-color:rgba(232,129,106,0.34)_transparent] [&::-webkit-scrollbar]:h-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.28)] dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(232,129,106,0.34)]"
+        className="overflow-x-auto pb-1.5 scrollbar-thin [scrollbar-color:rgba(184,76,43,0.28)_transparent] dark:[scrollbar-color:rgba(232,129,106,0.34)_transparent] [&::-webkit-scrollbar]:h-1.5 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.28)] dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(232,129,106,0.34)]"
       >
         <div
-          className="grid min-w-max items-start gap-x-2 gap-y-[7px]"
+          className="grid min-w-max items-start gap-x-2 gap-y-1.75"
           style={{
             gridTemplateColumns: "34px auto",
             gridTemplateRows: "18px auto",
@@ -223,7 +223,7 @@ export default function HeapTile({
         >
           <div
             style={{ gridColumn: 2, gridRow: 1 }}
-            className="relative h-[18px] min-w-fit"
+            className="relative h-4.5 min-w-fit"
           >
             {months.map((month) => (
               <span
@@ -238,13 +238,13 @@ export default function HeapTile({
 
           <div
             style={{ gridColumn: 1, gridRow: 2 }}
-            className="grid grid-rows-7 gap-[3px]"
+            className="grid grid-rows-7 gap-0.75"
             aria-hidden="true"
           >
             {["", "Mon", "", "Wed", "", "Fri", ""].map((weekday, index) => (
               <span
                 key={`${weekday}-${index}`}
-                className="h-[11px] font-['DM_Mono',monospace] text-[7px] uppercase leading-[11px] tracking-[0.08em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]"
+                className="h-2.75 font-['DM_Mono',monospace] text-[7px] uppercase leading-2.75 tracking-[0.08em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]"
               >
                 {weekday}
               </span>
@@ -253,15 +253,15 @@ export default function HeapTile({
 
           <div
             style={{ gridColumn: 2, gridRow: 2 }}
-            className="flex min-w-fit gap-[3px]"
+            className="flex min-w-fit gap-0.75"
           >
             {weeks.map((week, weekIndex) => (
-              <div key={weekIndex} className="flex flex-col gap-[3px]">
+              <div key={weekIndex} className="flex flex-col gap-0.75">
                 {week.map((cell, dayIndex) => (
                   <div
                     key={`${weekIndex}-${dayIndex}`}
                     className={cn(
-                      "h-[11px] w-[11px] shrink-0 cursor-default rounded-[2px] transition-all duration-150 hover:scale-[1.12] hover:opacity-85",
+                      "h-2.75 w-2.75 shrink-0 cursor-default rounded-xs transition-all duration-150 hover:scale-[1.12] hover:opacity-85",
                       cell.inside
                         ? intensityClass[cell.intensityLevel]
                         : "pointer-events-none opacity-0",
@@ -294,7 +294,7 @@ export default function HeapTile({
           (level) => (
             <div
               key={level}
-              className={cn("h-[11px] w-[11px] rounded-[2px]", intensityClass[level])}
+              className={cn("h-2.75 w-2.75 rounded-xs", intensityClass[level])}
             />
           ),
         )}

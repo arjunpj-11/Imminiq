@@ -5,24 +5,26 @@ import {
   MonoLabel,
   PillButton,
   SaveBar,
+  UnsavedChangesDialog,
   SettingsCard,
   SettingsToast,
   ToggleRow,
 } from '../components/SettingsUi'
-import { useSettingsToast } from '../components/useSettingsToast'
+import { useSettingsToast } from '../hooks/useSettingsToast'
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
 import {
   useNotificationSettings,
   useResetSettings,
   useUpdateEmailDigest,
   useUpdateNotifications,
   useUpdateQuietHours,
-} from '../../../hooks/settings/useSettings'
+} from '../hooks/useSettings'
 import type {
   DigestFrequencyType,
   NotificationSettings,
   NotificationTypeSettings,
   QuietHoursDayType,
-} from '../../../types/settings.types'
+} from '../types/settings.types'
 
 const notificationItems = [
   {
@@ -186,6 +188,17 @@ function NotificationSettingsForm({
   const toast = useSettingsToast()
 
   const [form, setForm] = useState<NotificationSettings>(initialForm)
+  const [savedForm, setSavedForm] = useState(initialForm)
+
+  const isDirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(savedForm),
+    [form, savedForm]
+  )
+
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    when: isDirty,
+    onDiscard: () => setForm(savedForm),
+  })
 
   const masterLabel = form.globalEnabled
     ? 'All Enabled'
@@ -224,9 +237,13 @@ function NotificationSettingsForm({
   quietHoursDays: form.quietHoursDays,
 })
 
+      setSavedForm(form)
+
       toast.showToast('Notification settings saved.', 'success')
+      return true
     } catch {
       toast.showToast('Unable to save notification settings.', 'error')
+      return false
     }
   }
 
@@ -528,6 +545,7 @@ function NotificationSettingsForm({
               updateEmailDigest.isPending ||
               updateQuietHours.isPending
             }
+            isDirty={isDirty}
             onSave={handleSave}
             onReset={handleReset}
           />
@@ -613,6 +631,16 @@ function NotificationSettingsForm({
           </SettingsCard>
         </aside>
       </div>
+
+      <UnsavedChangesDialog
+        open={unsavedChangesGuard.isBlocked}
+        isSaving={unsavedChangesGuard.isSavingChanges}
+        onStay={unsavedChangesGuard.stayOnPage}
+        onDiscard={unsavedChangesGuard.discardAndLeave}
+        onSaveChanges={() =>
+          void unsavedChangesGuard.saveChangesAndLeave(handleSave)
+        }
+      />
 
       <SettingsToast
         visible={toast.visible}

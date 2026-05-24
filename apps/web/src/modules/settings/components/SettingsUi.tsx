@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import type { ToastTone } from './useSettingsToast'
+import type { ToastTone } from '../types/settings-ui.types'
 
 import {
   cn,
@@ -205,19 +205,23 @@ export function PillButton({
 
 export function SaveBar({
   isSaving,
+  isDirty = true,
   onSave,
   onReset,
   saveLabel = 'Save Changes',
 }: {
   isSaving?: boolean
-  onSave: () => void
+  isDirty?: boolean
+  onSave: () => void | Promise<unknown>
   onReset?: () => void
   saveLabel?: string
 }) {
   return (
-    <div className="sticky bottom-0 z-10 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5]/95 px-5 py-4 shadow-[0_-8px_28px_rgba(26,23,20,0.08)] backdrop-blur dark:border-white/9 dark:bg-[#1e1c19]/95">
+    <div className="sticky bottom-24 z-30 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5]/95 px-5 py-4 shadow-[0_-8px_28px_rgba(26,23,20,0.08)] backdrop-blur min-[901px]:bottom-0 dark:border-white/9 dark:bg-[#1e1c19]/95">
       <p className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
-        Changes are saved to your Imminiq settings profile.
+        {isDirty
+          ? 'You have unsaved changes. Save before leaving this page.'
+          : 'Changes are saved to your Imminiq settings profile.'}
       </p>
 
       <div className="flex items-center gap-2">
@@ -233,7 +237,7 @@ export function SaveBar({
 
         <button
           type="button"
-          disabled={isSaving}
+          disabled={isSaving || !isDirty}
           onClick={onSave}
           className="rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
         >
@@ -256,7 +260,7 @@ export function SettingsToast({
   return (
     <div
       className={cn(
-        'fixed bottom-6 right-6 z-130 rounded-[14px] border px-4 py-3 text-[13px] font-semibold shadow-[0_16px_50px_rgba(0,0,0,0.22)] transition duration-300',
+        'fixed bottom-28 right-4 z-130 rounded-[14px] border px-4 py-3 text-[13px] font-semibold shadow-[0_16px_50px_rgba(0,0,0,0.22)] transition duration-300 sm:right-6 min-[901px]:bottom-6',
         visible
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-4 opacity-0',
@@ -271,6 +275,84 @@ export function SettingsToast({
       )}
     >
       {message}
+    </div>
+  )
+}
+
+export function UnsavedChangesDialog({
+  open,
+  isSaving = false,
+  onStay,
+  onDiscard,
+  onSaveChanges,
+}: {
+  open: boolean
+  isSaving?: boolean
+  onStay: () => void
+  onDiscard: () => void
+  onSaveChanges: () => void
+}) {
+  if (!open) {
+    return null
+  }
+
+  return (
+    <div
+      className="fixed inset-0 z-160 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="settings-unsaved-title"
+      aria-describedby="settings-unsaved-description"
+    >
+      <div className="w-full max-w-md rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#1a1714] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
+          Unsaved Changes
+        </p>
+
+        <h2
+          id="settings-unsaved-title"
+          className="mt-2 font-['Playfair_Display',serif] text-[25px] font-extrabold tracking-[-0.5px]"
+        >
+          Save changes before leaving?
+        </h2>
+
+        <p
+          id="settings-unsaved-description"
+          className="mt-3 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]"
+        >
+          You changed settings on this page. You can save them now,
+          discard them and leave, or stay on this page.
+        </p>
+
+        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onDiscard}
+            className="rounded-xl border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-bold text-[#6b5f58] transition hover:border-[#c43c3c] hover:text-[#c43c3c] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92]"
+          >
+            Discard and Leave
+          </button>
+
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onStay}
+            className="rounded-xl border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92]"
+          >
+            Stay
+          </button>
+
+          <button
+            type="button"
+            disabled={isSaving}
+            onClick={onSaveChanges}
+            className="rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+          >
+            {isSaving ? 'Saving...' : 'Save Changes'}
+          </button>
+        </div>
+      </div>
     </div>
   )
 }

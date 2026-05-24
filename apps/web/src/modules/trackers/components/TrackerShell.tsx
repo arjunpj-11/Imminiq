@@ -1,12 +1,14 @@
-import { useState } from 'react'
+import { useState, type ReactNode } from 'react'
+
 import Sidebar from '../../../components/layout/Sidebar'
 import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
+
 import { cn } from '../utils/tracker-ui'
 
 interface TrackerShellProps {
-  children: React.ReactNode
+  children: ReactNode
   className?: string
 }
 
@@ -20,17 +22,24 @@ export default function TrackerShell({ children, className }: TrackerShellProps)
         mobileOpen={mobileOpen}
         collapsed={collapsed}
         onCloseMobile={() => setMobileOpen(false)}
-        onToggleCollapsed={() => setCollapsed((c) => !c)}
+        onToggleCollapsed={() => setCollapsed((current) => !current)}
       />
+
       <div className="min-h-screen lg:pl-56">
         <TopBar />
         <main className="min-h-[calc(100vh-54px)]">
-          <div className={cn('mx-auto flex w-[min(1280px,calc(100%-32px))] flex-col gap-5 py-5 pb-24 max-[640px]:w-[calc(100%-20px)]', className)}>
+          <div
+            className={cn(
+              'mx-auto flex w-[min(1280px,calc(100%-32px))] flex-col gap-5 py-5 pb-24 max-[640px]:w-[calc(100%-20px)]',
+              className
+            )}
+          >
             {children}
           </div>
           <AppFooter />
         </main>
       </div>
+
       <BottomNav />
     </div>
   )

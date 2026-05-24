@@ -9,14 +9,14 @@ import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 import PageLoadingScreen from '../../../components/ui/PageLoadingScreen'
 
-import { useDashboardSummary } from '../../../hooks/dashboard/useDashboardSummary'
+import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import {
   useArchiveTracker,
   useTrackerSummary,
   useTrackers,
-} from '../../../hooks/trackers/useTrackers'
+} from '../hooks/useTrackers'
 
-import { useTrackerUiStore } from '../../../store/useTrackerUiStore'
+import { useTrackerUiStore } from '../store/useTrackerUiStore'
 
 import TrackerCard from '../components/TrackerCard'
 import TrackerFilterBar from '../components/TrackerFilterBar'

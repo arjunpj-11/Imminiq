@@ -5,7 +5,7 @@ import type {
   ActivityFeedItem,
   ApiErrorResponse,
   ApiResponse,
-} from '../../types/profile.types'
+} from '../../modules/users/types/profile.types'
 import { activityQueryKeys } from './activity.query-keys'
 
 interface RecentActivityResponse {

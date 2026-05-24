@@ -3,7 +3,7 @@ import type { FormEvent } from 'react'
 import { Link, Navigate } from 'react-router-dom'
 import { useSubmitModerationAppeal } from '../hooks/moderation/useSubmitModerationAppeal'
 import { useGetModerationAppealStatus } from '../hooks/moderation/useGetModerationAppealStatus'
-import { useAuthStore } from '../store/useAuthStore'
+import { useAuthStore } from '../modules/auth/store/useAuthStore'
 import {
   getBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,

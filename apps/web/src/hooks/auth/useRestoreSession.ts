@@ -5,7 +5,7 @@ import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
 } from '../../lib/blockedAppealSession'
-import { useAuthStore } from '../../store/useAuthStore'
+import { useAuthStore } from '../../modules/auth/store/useAuthStore'
 
 interface RefreshTokenResponse {
   success: boolean

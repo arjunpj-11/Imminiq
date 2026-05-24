@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import SettingsShell from '../components/SettingsShell'
 import SettingsContentLoading from '../components/SettingsContentLoading'
 import {
@@ -6,11 +6,13 @@ import {
   PillButton,
   SaveBar,
   SelectField,
+  UnsavedChangesDialog,
   SettingsCard,
   SettingsToast,
   ToggleRow,
 } from '../components/SettingsUi'
-import { useSettingsToast } from '../components/useSettingsToast'
+import { useSettingsToast } from '../hooks/useSettingsToast'
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
 import {
   useResetSettings,
   useSettings,
@@ -20,8 +22,8 @@ import {
   useUpdateCompiler,
   useUpdateGestures,
   useUpdateLearningJourney,
-} from '../../../hooks/settings/useSettings'
-import type { UserSettings } from '../../../types/settings.types'
+} from '../hooks/useSettings'
+import type { UserSettings } from '../types/settings.types'
 import { useThemeStore } from '../../../store/useThemeStore'
 
 type GestureToggleKey =
@@ -121,6 +123,17 @@ function PreferencesSettingsForm({
   )
 
   const [form, setForm] = useState<UserSettings>(initialForm)
+  const [savedForm, setSavedForm] = useState(initialForm)
+
+  const isDirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(savedForm),
+    [form, savedForm]
+  )
+
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    when: isDirty,
+    onDiscard: () => setForm(savedForm),
+  })
 
   const skipThemeRestoreOnUnmountRef = useRef(false)
 
@@ -150,12 +163,16 @@ function PreferencesSettingsForm({
       await updateAIBehaviour.mutateAsync(form.aiBehaviour)
       await updateLearningJourney.mutateAsync(form.learningJourney)
 
+      setSavedForm(form)
+
       toast.showToast('Preferences saved.', 'success')
+      return true
     } catch {
       skipThemeRestoreOnUnmountRef.current = false
       setThemeMode(previouslySavedTheme)
 
       toast.showToast('Unable to save preferences.', 'error')
+      return false
     }
   }
 
@@ -650,10 +667,21 @@ function PreferencesSettingsForm({
             updateAIBehaviour.isPending ||
             updateLearningJourney.isPending
           }
+          isDirty={isDirty}
           onSave={handleSave}
           onReset={handleReset}
         />
       </div>
+
+      <UnsavedChangesDialog
+        open={unsavedChangesGuard.isBlocked}
+        isSaving={unsavedChangesGuard.isSavingChanges}
+        onStay={unsavedChangesGuard.stayOnPage}
+        onDiscard={unsavedChangesGuard.discardAndLeave}
+        onSaveChanges={() =>
+          void unsavedChangesGuard.saveChangesAndLeave(handleSave)
+        }
+      />
 
       <SettingsToast
         visible={toast.visible}

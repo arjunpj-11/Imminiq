@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
-import type { TrackerDomain, TrackerLevel } from '../../../types/tracker.types'
-import { useCreateTracker } from '../../../hooks/trackers/useTrackers'
+import type { TrackerDomain, TrackerLevel } from '../types/tracker.types'
+import { useCreateTracker } from '../hooks/useTrackers'
 import { cn, themedScrollbar, trackerDomainOptions } from '../utils/tracker-ui'
 
 interface NewTrackerPanelProps { open: boolean; onClose: () => void }

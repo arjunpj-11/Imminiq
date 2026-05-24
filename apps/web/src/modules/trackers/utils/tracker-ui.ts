@@ -1,11 +1,15 @@
-import type { Tracker, TrackerDomain, TrackerStatus } from '../../../types/tracker.types'
+import type { Tracker, TrackerDomain, TrackerStatus } from '../types/tracker.types'
 
-export const cn = (...classes: Array<string | false | null | undefined>) => classes.filter(Boolean).join(' ')
+export const cn = (...classes: Array<string | false | null | undefined>) =>
+  classes.filter(Boolean).join(' ')
 
 export const themedScrollbar =
   '[scrollbar-width:thin] [scrollbar-color:rgba(184,76,43,0.28)_transparent] dark:[scrollbar-color:rgba(232,129,106,0.34)_transparent] [&::-webkit-scrollbar]:h-[6px] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.28)] dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(232,129,106,0.34)]'
 
-export const trackerDomainOptions: Array<{ label: string; value: TrackerDomain | 'all' }> = [
+export const trackerDomainOptions: Array<{
+  label: string
+  value: TrackerDomain | 'all'
+}> = [
   { label: 'All domains', value: 'all' },
   { label: 'Engineering', value: 'engineering' },
   { label: 'Frontend', value: 'frontend' },
@@ -18,7 +22,10 @@ export const trackerDomainOptions: Array<{ label: string; value: TrackerDomain |
   { label: 'Other', value: 'other' },
 ]
 
-export const trackerStatusOptions: Array<{ label: string; value: TrackerStatus | 'all' }> = [
+export const trackerStatusOptions: Array<{
+  label: string
+  value: TrackerStatus | 'all'
+}> = [
   { label: 'All', value: 'all' },
   { label: 'Active', value: 'active' },
   { label: 'Stalled', value: 'stalled' },
@@ -35,12 +42,15 @@ export const formatMinutes = (minutes?: number) => {
 }
 
 export const getTrackerInitials = (tracker: Pick<Tracker, 'title'>) => {
-  return tracker.title
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((part) => part[0]?.toUpperCase())
-    .join('') || 'IQ'
+  return (
+    tracker.title
+      .split(' ')
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0]?.toUpperCase())
+      .join('') || 'IQ'
+  )
 }
 
-export const getProgressLabel = (progress?: number) => `${Math.max(0, Math.min(100, Math.round(progress || 0)))}%`
+export const getProgressLabel = (progress?: number) =>
+  `${Math.max(0, Math.min(100, Math.round(progress || 0)))}%`
