@@ -21,7 +21,7 @@
     "eslint-plugin-react-refresh": "^0.5.2",
     "globals": "^17.6.0",
     "turbo": "latest",
-    "typescript-eslint": "^8.59.3"
+    "typescript-eslint": "^8.59.4"
   },
   "dependencies": {
     "cookie-parser": "^1.4.7",
