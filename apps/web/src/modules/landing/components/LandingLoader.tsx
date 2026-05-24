@@ -84,7 +84,7 @@ export default function LandingLoader({
   return (
     <div
       className={cn(
-        'fixed inset-0 z-9999 flex h-screen w-screen items-center justify-center overflow-hidden bg-[#050505] text-[#f2f0eb] transition-all duration-700',
+        'fixed inset-0 z-9999 flex h-screen w-screen items-center justify-center overflow-hidden bg-[#f5ede4] text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb] transition-all duration-700',
         leaving && '-translate-y-24 scale-75 opacity-0'
       )}
       role="status"
@@ -96,13 +96,13 @@ export default function LandingLoader({
           className="h-full w-full"
           style={{
             backgroundImage:
-              'linear-gradient(rgba(255,255,255,.18) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.18) 1px, transparent 1px)',
+              'linear-gradient(rgba(26,23,20,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(26,23,20,.16) 1px, transparent 1px)',
             backgroundSize: '48px 48px',
           }}
         />
       </div>
 
-      <div className="landing-loader-orb pointer-events-none absolute h-90 w-90 rounded-full bg-[radial-gradient(circle,rgba(232,129,106,0.36),transparent_68%)] blur-3xl" />
+      <div className="landing-loader-orb pointer-events-none absolute h-90 w-90 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.20),transparent_68%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.36),transparent_68%)] blur-3xl" />
 
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
         <img
@@ -112,7 +112,7 @@ export default function LandingLoader({
           onError={(e) => { e.currentTarget.style.display = 'none' }}
         />
 
-        <div className="min-h-22 overflow-visible font-['Playfair_Display',serif] text-[clamp(42px,8vw,98px)] font-black leading-none tracking-[-0.06em] text-[#f2f0eb]">
+        <div className="min-h-22 overflow-visible font-['Playfair_Display',serif] text-[clamp(42px,8vw,98px)] font-black leading-none tracking-[-0.06em] text-[#1a1714] dark:text-[#f2f0eb]">
           <span
             key={loaderWords[index]}
             className={cn(
@@ -124,7 +124,7 @@ export default function LandingLoader({
           </span>
         </div>
 
-        <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.26em] text-[#e8816a]">
+        <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.26em] text-[#b84c2b] dark:text-[#e8816a]">
           Preparing the learning arena
         </div>
       </div>

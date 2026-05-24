@@ -1,6 +1,6 @@
 // apps/web/src/App.tsx
 
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useLayoutEffect } from 'react'
 import { Route, Routes } from 'react-router-dom'
 
 import { AdminRoute } from './routes/AdminRoute'
@@ -103,7 +103,7 @@ const TrackerRoadmapPage = lazy(
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme)
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     initTheme()
   }, [initTheme])
 

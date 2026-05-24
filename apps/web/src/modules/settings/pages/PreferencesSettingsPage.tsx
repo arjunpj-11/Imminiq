@@ -112,6 +112,7 @@ function PreferencesSettingsForm({
   const resetSettings = useResetSettings()
   const toast = useSettingsToast()
 
+  const themeMode = useThemeStore((state) => state.mode)
   const setThemeMode = useThemeStore((state) => state.setMode)
 
   const previewThemeMode = useThemeStore(
@@ -122,8 +123,24 @@ function PreferencesSettingsForm({
     (state) => state.clearThemePreview
   )
 
-  const [form, setForm] = useState<UserSettings>(initialForm)
-  const [savedForm, setSavedForm] = useState(initialForm)
+  const initialFormWithLocalTheme = useMemo<UserSettings>(
+    () => ({
+      ...initialForm,
+      appearance: {
+        ...initialForm.appearance,
+        theme: themeMode,
+      },
+    }),
+    [initialForm, themeMode]
+  )
+
+  const [form, setForm] = useState<UserSettings>(
+    initialFormWithLocalTheme
+  )
+
+  const [savedForm, setSavedForm] = useState<UserSettings>(
+    initialFormWithLocalTheme
+  )
 
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(savedForm),
@@ -132,7 +149,10 @@ function PreferencesSettingsForm({
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     when: isDirty,
-    onDiscard: () => setForm(savedForm),
+    onDiscard: () => {
+      setForm(savedForm)
+      clearThemePreview()
+    },
   })
 
   const skipThemeRestoreOnUnmountRef = useRef(false)
@@ -163,7 +183,15 @@ function PreferencesSettingsForm({
       await updateAIBehaviour.mutateAsync(form.aiBehaviour)
       await updateLearningJourney.mutateAsync(form.learningJourney)
 
-      setSavedForm(form)
+      setSavedForm({
+        ...form,
+        appearance: {
+          ...form.appearance,
+          theme: selectedTheme,
+        },
+      })
+
+      skipThemeRestoreOnUnmountRef.current = false
 
       toast.showToast('Preferences saved.', 'success')
       return true

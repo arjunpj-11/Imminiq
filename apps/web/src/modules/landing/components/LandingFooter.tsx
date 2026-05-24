@@ -21,7 +21,7 @@ export default function LandingFooter() {
   return (
     <footer
       ref={footerRef}
-      className="bg-[#141412] px-5 pb-24 pt-8 text-center font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-white/36 dark:bg-[#050505]"
+      className="bg-[#f5ede4] px-5 pb-24 pt-8 text-center font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#6b5f58] dark:bg-[#050505] dark:text-white/36"
     >
       <div>
         {text.split('').map((char, i) => (
