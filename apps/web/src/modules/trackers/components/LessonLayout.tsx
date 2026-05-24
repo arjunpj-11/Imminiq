@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import type { TrackerLessonResponse } from '../../../types/tracker.types'
+import type { TrackerLessonResponse } from '../types/tracker.types'
 import { cn, formatMinutes } from '../utils/tracker-ui'
 
 interface LessonLayoutProps {

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import type { TrackerDomain, TrackerLevel } from '../../../types/tracker.types'
+import type { TrackerDomain, TrackerLevel } from '../types/tracker.types'
 import { useCreateTracker } from '../../../hooks/trackers/useTrackers'
 import { cn, themedScrollbar, trackerDomainOptions } from '../utils/tracker-ui'
 

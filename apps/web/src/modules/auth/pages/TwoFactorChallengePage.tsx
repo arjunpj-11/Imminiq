@@ -1,65 +1,10 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useState, type FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 import axios from 'axios'
 
 import { useVerifyTwoFactorLogin } from '../../../hooks/auth/useVerifyTwoFactorLogin'
-
-const cn = (...classes: Array<string | false | null | undefined>) => {
-  return classes.filter(Boolean).join(' ')
-}
-
-const LogoIcon = ({ className = '' }: { className?: string }) => {
-  return (
-    <svg
-      className={cn('block shrink-0 rounded-xl', className)}
-      viewBox="0 0 100 100"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-hidden="true"
-    >
-      <rect x="10" y="10" width="80" height="80" rx="18" fill="#050505" />
-      <g transform="translate(-5, 1)">
-        <rect x="31" y="35" width="9" height="34" rx="4.5" fill="#fff8ed" />
-        <circle cx="35.5" cy="28.5" r="5.3" fill="#f15a35" />
-        <path
-          d="M64 32.8 C73.8 34.7 79.5 42.2 79.5 51.5 C79.5 61.8 71.2 68 60.2 68 C53.2 68 48.2 65.5 45.1 60.8"
-          fill="none"
-          stroke="#fff8ed"
-          strokeWidth="9"
-          strokeLinecap="round"
-        />
-        <line
-          x1="63.8"
-          y1="55.5"
-          x2="75.8"
-          y2="67.5"
-          stroke="#f15a35"
-          strokeWidth="9"
-          strokeLinecap="round"
-        />
-      </g>
-    </svg>
-  )
-}
-
-const AlertIcon = ({ className = '' }: { className?: string }) => {
-  return (
-    <svg
-      className={cn('shrink-0', className)}
-      width="12"
-      height="12"
-      viewBox="0 0 24 24"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="2.5"
-      aria-hidden="true"
-    >
-      <circle cx="12" cy="12" r="10" />
-      <line x1="12" y1="8" x2="12" y2="12" />
-      <line x1="12" y1="16" x2="12.01" y2="16" />
-    </svg>
-  )
-}
+import { AlertIcon, LogoIcon } from '../components/icons/AuthIcons'
+import { cn } from '../utils/auth-ui'
 
 const ShieldIcon = () => {
   return (
@@ -133,7 +78,6 @@ export default function TwoFactorChallengePage() {
       )}
     >
       <div className="flex min-h-screen w-full flex-col lg:min-h-0 lg:max-w-280 lg:flex-row lg:items-stretch lg:overflow-hidden lg:rounded-[28px] lg:border lg:border-[#e0d0c5] lg:bg-[#fdf8f5] lg:shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:lg:border-white/15 dark:lg:bg-[#1e1c19]">
-        {/* Left Panel */}
         <aside className="relative hidden w-[48%] overflow-hidden bg-[#f1e6da] px-12 py-12 dark:bg-[#191714] lg:flex lg:flex-col lg:justify-between">
           <div className="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.12)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.14)_0%,transparent_70%)]" />
 
@@ -146,10 +90,6 @@ export default function TwoFactorChallengePage() {
                 <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
                 <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
               </span>
-            </div>
-
-            <div className="mt-5">
-    
             </div>
           </div>
 
@@ -175,10 +115,8 @@ export default function TwoFactorChallengePage() {
           </div>
         </aside>
 
-        {/* Right Panel */}
         <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-8 lg:px-14">
           <div className="w-full max-w-120">
-            {/* Mobile Brand */}
             <div className="mb-8 flex items-center justify-between lg:hidden">
               <Link to="/" className="inline-flex items-center gap-2.5">
                 <LogoIcon className="h-10 w-10" />
@@ -189,8 +127,6 @@ export default function TwoFactorChallengePage() {
                   <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
                 </span>
               </Link>
-
-
             </div>
 
             <form

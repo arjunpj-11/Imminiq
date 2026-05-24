@@ -11,13 +11,13 @@ import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 import PageLoadingScreen from '../../../components/ui/PageLoadingScreen'
 
-import { useDashboardSummary } from '../../../hooks/dashboard/useDashboardSummary'
+import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import { useTrackerRoadmap } from '../../../hooks/trackers/useTrackers'
 
 import type {
   RoadmapSubtopic,
   RoadmapTopic,
-} from '../../../types/tracker.types'
+} from '../types/tracker.types'
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ')

@@ -5,11 +5,13 @@ import {
   MonoLabel,
   PillButton,
   SaveBar,
+  UnsavedChangesDialog,
   SettingsCard,
   SettingsToast,
   ToggleRow,
 } from '../components/SettingsUi'
-import { useSettingsToast } from '../components/useSettingsToast'
+import { useSettingsToast } from '../hooks/useSettingsToast'
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
 import {
   usePrivacySettings,
   useResetSettings,
@@ -18,7 +20,7 @@ import {
 import type {
   MessagePermissionType,
   PrivacySettings,
-} from '../../../types/settings.types'
+} from '../types/settings.types'
 
 export default function PrivacySettingsPage() {
   const privacyQuery = usePrivacySettings()
@@ -69,6 +71,17 @@ function PrivacySettingsForm({
   const toast = useSettingsToast()
 
   const [form, setForm] = useState<PrivacySettings>(initialForm)
+  const [savedForm, setSavedForm] = useState(initialForm)
+
+  const isDirty = useMemo(
+    () => JSON.stringify(form) !== JSON.stringify(savedForm),
+    [form, savedForm]
+  )
+
+  const unsavedChangesGuard = useUnsavedChangesGuard({
+    when: isDirty,
+    onDiscard: () => setForm(savedForm),
+  })
 
   const privacyScore = useMemo(() => {
     let score = 100
@@ -125,9 +138,13 @@ function PrivacySettingsForm({
         showTrackerProgress: form.showTrackerProgress,
       })
 
+      setSavedForm(form)
+
       toast.showToast('Privacy settings saved.', 'success')
+      return true
     } catch {
       toast.showToast('Unable to save privacy settings.', 'error')
+      return false
     }
   }
 
@@ -466,6 +483,7 @@ function PrivacySettingsForm({
 
           <SaveBar
             isSaving={updatePrivacy.isPending}
+            isDirty={isDirty}
             onSave={handleSave}
             onReset={handleReset}
           />
@@ -548,6 +566,16 @@ function PrivacySettingsForm({
           </SettingsCard>
         </aside>
       </div>
+
+      <UnsavedChangesDialog
+        open={unsavedChangesGuard.isBlocked}
+        isSaving={unsavedChangesGuard.isSavingChanges}
+        onStay={unsavedChangesGuard.stayOnPage}
+        onDiscard={unsavedChangesGuard.discardAndLeave}
+        onSaveChanges={() =>
+          void unsavedChangesGuard.saveChangesAndLeave(handleSave)
+        }
+      />
 
       <SettingsToast
         visible={toast.visible}

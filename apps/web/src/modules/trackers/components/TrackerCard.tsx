@@ -1,7 +1,7 @@
 // apps/web/src/modules/trackers/components/TrackerCard.tsx
 
 import { useEffect, useRef, useState } from 'react'
-import type { Tracker } from '../../../types/tracker.types'
+import type { Tracker } from '../types/tracker.types'
 
 const cn = (...classes: Array<string | false | null | undefined>) =>
   classes.filter(Boolean).join(' ')

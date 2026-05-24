@@ -10,7 +10,7 @@ import {
   SettingsToast,
   TextField,
 } from '../components/SettingsUi'
-import { useSettingsToast } from '../components/useSettingsToast'
+import { useSettingsToast } from '../hooks/useSettingsToast'
 
 import {
   useChangeEmail,

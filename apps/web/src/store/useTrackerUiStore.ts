@@ -1,7 +1,7 @@
 // apps/web/src/store/useTrackerUiStore.ts
 
 import { create } from 'zustand'
-import type { TrackerStatusFilter } from '../types/tracker.types'
+import type { TrackerStatusFilter } from '../modules/trackers/types/tracker.types'
 
 type TrackerUiStore = {
   status: TrackerStatusFilter

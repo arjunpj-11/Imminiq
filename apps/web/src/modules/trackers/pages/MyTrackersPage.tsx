@@ -9,7 +9,7 @@ import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 import PageLoadingScreen from '../../../components/ui/PageLoadingScreen'
 
-import { useDashboardSummary } from '../../../hooks/dashboard/useDashboardSummary'
+import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import {
   useArchiveTracker,
   useTrackerSummary,

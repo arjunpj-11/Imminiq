@@ -36,7 +36,7 @@ import type {
   UpdateTrackerPayload,
   VerifyLessonAnswerPayload,
   VerifyLessonAnswerResponse,
-} from '../../types/tracker.types'
+} from '../../modules/trackers/types/tracker.types'
 
 export const trackerKeys = {
   all: ['trackers'] as const,

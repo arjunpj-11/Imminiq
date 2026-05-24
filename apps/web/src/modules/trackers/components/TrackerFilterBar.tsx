@@ -1,25 +1,12 @@
-// apps/web/src/modules/trackers/components/TrackerFilterBar.tsx
+import type { TrackerStatusFilter } from '../types/tracker.types'
 
-import type { TrackerStatusFilter } from '../../../types/tracker.types'
-
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
+import { trackerFilterStatusOptions } from '../constants/tracker-filter.constants'
+import { cn } from '../utils/tracker-ui'
 
 type TrackerFilterBarProps = {
   status: TrackerStatusFilter
   onStatusChange: (status: TrackerStatusFilter) => void
 }
-
-const statusOptions: Array<{
-  label: string
-  value: TrackerStatusFilter
-}> = [
-  { label: 'All Trackers', value: 'all' },
-  { label: 'In Progress', value: 'active' },
-  { label: 'Stalled', value: 'stalled' },
-  { label: 'Completed', value: 'completed' },
-  { label: 'Archived', value: 'archived' },
-]
 
 export default function TrackerFilterBar({
   status,
@@ -28,7 +15,7 @@ export default function TrackerFilterBar({
   return (
     <section className="flex items-center justify-between rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:overflow-x-auto">
       <div className="flex min-w-max items-center gap-1.5">
-        {statusOptions.map((item) => (
+        {trackerFilterStatusOptions.map((item) => (
           <button
             key={item.value}
             type="button"

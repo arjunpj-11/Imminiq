@@ -12,7 +12,7 @@ import type {
   VerifyTwoFactorSetupPayload,
   VerifyTwoFactorSetupResponse,
   DeleteAccountResponse,
-} from '../../types/settings.types'
+} from '../../modules/settings/types/settings.types'
 
 const SECURITY_KEY = ['security', 'overview'] as const
 

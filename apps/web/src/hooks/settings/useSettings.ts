@@ -18,7 +18,7 @@ import type {
   UpdatePrivacyPayload,
   UpdateQuietHoursPayload,
   UserSettings,
-} from '../../types/settings.types'
+} from '../../modules/settings/types/settings.types'
 
 const SETTINGS_KEY = ['settings'] as const
 

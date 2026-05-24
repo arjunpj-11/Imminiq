@@ -4,10 +4,7 @@ import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 import SettingsTabs from './SettingsTabs'
-import {
-  cn,
-} from '../utils/settingsUi.utils'
-
+import { cn } from '../utils/settingsUi.utils'
 
 export default function SettingsShell({
   title,

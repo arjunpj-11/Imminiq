@@ -1,32 +1,11 @@
 import { NavLink } from 'react-router-dom'
-import {
-  cn,
-} from '../utils/settingsUi.utils'
-
-
-const settingsTabs = [
-  {
-    label: 'Account Security',
-    to: '/settings/security',
-  },
-  {
-    label: 'Notifications',
-    to: '/settings/notifications',
-  },
-  {
-    label: 'Preferences',
-    to: '/settings/preferences',
-  },
-  {
-    label: 'Privacy',
-    to: '/settings/privacy',
-  },
-]
+import { SETTINGS_TABS } from '../constants/settings-tabs.constants'
+import { cn } from '../utils/settingsUi.utils'
 
 export default function SettingsTabs() {
   return (
     <div className="mb-5 flex flex-wrap gap-2 rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-2 dark:border-white/9 dark:bg-[#1e1c19]">
-      {settingsTabs.map((tab) => (
+      {SETTINGS_TABS.map((tab) => (
         <NavLink
           key={tab.to}
           to={tab.to}
