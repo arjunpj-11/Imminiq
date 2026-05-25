@@ -76,11 +76,16 @@ export type CreateSubtopicUseCaseInput = {
   estimatedMinutes?: number
 }
 
-export type UpdateSubtopicProgressInput = {
+export type SubtopicProgressStatus =
+  | 'available'
+  | 'in_progress'
+  | 'completed'
+
+export interface UpdateSubtopicProgressInput {
   trackerId: string
   subtopicId: string
   userId: string
-  status: 'in_progress' | 'completed'
+  status: SubtopicProgressStatus
   timeSpentMinutes?: number
 }
 
@@ -330,7 +335,7 @@ export type GeneratedTrackerLessonRecord = {
   explanation: string
   insight: string
   lessonType: LessonType
-  requiresCompiler: boolean
+ compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
   codeExample: { language: string; fileName: string; code: string }
   practiceTask: { title: string; description: string; starterCode: string }
   tags: string[]

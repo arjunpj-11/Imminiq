@@ -7,12 +7,14 @@
     "packages/*"
   ],
   "scripts": {
-    "dev": "turbo run dev",
-    "dev:web": "turbo run dev --filter=@imminiq/web",
-    "dev:api": "turbo run dev --filter=@imminiq/api",
-    "build": "turbo run build",
-    "lint": "turbo run lint"
-  },
+  "piston:up": "docker compose up -d piston",
+  "piston:down": "docker compose down",
+  "dev": "npm run piston:up && turbo run dev",
+  "dev:web": "turbo run dev --filter=@imminiq/web",
+  "dev:api": "npm run piston:up && turbo run dev --filter=@imminiq/api",
+  "build": "turbo run build",
+  "lint": "turbo run lint"
+},
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@types/cookie-parser": "^1.4.10",

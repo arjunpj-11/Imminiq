@@ -7,6 +7,7 @@ import { UserProfile } from '../../../../infrastructure/database/models/user-pro
 import { Tracker } from '../../../../infrastructure/database/models/tracker.model'
 import { TrackerProgress } from '../../../../infrastructure/database/models/tracker-progress.model'
 import { StreakHistory } from '../../../../infrastructure/database/models/streak-history.model'
+import { StreakSnapshot } from '../../../../infrastructure/database/models/streak-snapshot.model'
 import { Notification } from '../../../../infrastructure/database/models/notification.model'
 
 export const mongoDashboardRepository = {
@@ -28,26 +29,29 @@ export const mongoDashboardRepository = {
 
   // ─── STREAK ──────────────────────────────────────
 
-  getStreakData: async (userId: string) => {
-    const streak = await StreakHistory.findOne({ userId })
-      .sort({ createdAt: -1 })
-      .select('currentStreak longestStreak lastActiveAt')
-      .lean()
+getStreakData: async (userId: string) => {
+  const streak = await StreakSnapshot.findOne({
+    userId,
+    deletedAt: null,
+  })
+    .sort({ snapshotDate: -1 })
+    .select('currentStreak longestStreak snapshotDate')
+    .lean()
 
-    if (!streak) {
-      return {
-        current: 0,
-        longest: 0,
-        lastActiveAt: null,
-      }
-    }
-
+  if (!streak) {
     return {
-      current: streak.currentStreak || 0,
-      longest: streak.longestStreak || 0,
-      lastActiveAt: streak.lastActiveAt || null,
+      current: 0,
+      longest: 0,
+      lastActiveAt: null,
     }
-  },
+  }
+
+  return {
+    current: streak.currentStreak || 0,
+    longest: streak.longestStreak || 0,
+    lastActiveAt: streak.snapshotDate || null,
+  }
+},
 
   // ─── TRACKER OVERVIEW ────────────────────────────
 
@@ -205,45 +209,47 @@ export const mongoDashboardRepository = {
 
   // ─── ACTIVITY HEATMAP ────────────────────────────
 
-  getActivityIntensity: async (
-    userId: string,
-    months = 6
-  ) => {
-    const fromDate = new Date()
-    fromDate.setMonth(fromDate.getMonth() - months)
+ getActivityIntensity: async (
+  userId: string,
+  months = 6
+) => {
+  const fromDate = new Date()
+  fromDate.setMonth(fromDate.getMonth() - months)
 
-    const progressEntries = await TrackerProgress.find({
-      userId,
-      lastStudiedAt: { $gte: fromDate },
-    })
-      .select('lastStudiedAt timeSpentMinutes')
-      .lean()
+  const streakEntries = await StreakHistory.find({
+    userId,
+    date: { $gte: fromDate },
+    deletedAt: null,
+  })
+    .sort({ date: 1 })
+    .select('date activityCount intensityLevel isFrozen')
+    .lean()
 
-    const heatmap: Record<string, number> = {}
+  return streakEntries.map((entry) => {
+    const date = new Date(entry.date)
+      .toISOString()
+      .split('T')[0]
 
-    progressEntries.forEach((entry) => {
-      if (!entry.lastStudiedAt) return
+    const activityCount = entry.activityCount || 0
 
-      const date = new Date(entry.lastStudiedAt)
-        .toISOString()
-        .split('T')[0]
+    const intensityCount =
+      entry.intensityLevel === 'high'
+        ? 4
+        : entry.intensityLevel === 'medium'
+          ? 3
+          : entry.intensityLevel === 'low'
+            ? 2
+            : entry.isFrozen
+              ? 1
+              : 0
 
-      heatmap[date] =
-        (heatmap[date] || 0) +
-        (entry.timeSpentMinutes || 1)
-    })
-
-    return Object.entries(heatmap).map(
-      ([date, minutes]) => ({
-        date,
-        minutes,
-        count: Math.min(
-          Math.ceil(minutes / 30),
-          4
-        ),
-      })
-    )
-  },
+    return {
+  date,
+  activityCount,
+  count: intensityCount,
+}
+  })
+},
 
   // ─── RECENT BATTLES ──────────────────────────────
 
@@ -437,77 +443,78 @@ getRecentBattles: async (
 
   // ─── RECOMMENDED ACTIONS ─────────────────────────
 
-  getRecommendedActions: async (userId: string) => {
-    const [latestProgress, activeTrackersCount] =
-      await Promise.all([
-        TrackerProgress.findOne({ userId })
-          .sort({ lastStudiedAt: -1 })
-          .select(
-            'trackerId completionPercentage lastStudiedAt'
-          )
-          .lean(),
+ getRecommendedActions: async (userId: string) => {
+  const [latestProgress, totalTrackersCount] = await Promise.all([
+    TrackerProgress.findOne({
+      userId,
+    })
+      .sort({ lastStudiedAt: -1 })
+      .select('trackerId completionPercentage lastStudiedAt')
+      .lean(),
 
-        Tracker.countDocuments({
-          ownerId: userId,
-          status: 'active',
-        }),
-      ])
+    Tracker.countDocuments({
+      ownerId: userId,
+      deletedAt: null,
+    }),
+  ])
 
-    const actions: {
-      type: string
-      title: string
-      description: string
-      link: string
-    }[] = []
+  const actions: {
+    type: string
+    title: string
+    description: string
+    link: string
+  }[] = []
 
-    if (
-      latestProgress &&
-      latestProgress.completionPercentage < 100
-    ) {
-      const tracker = await Tracker.findOne({
-        _id: latestProgress.trackerId,
-        ownerId: userId,
-        status: 'active',
-      })
-        .select('_id title')
-        .lean()
+  if (
+    latestProgress &&
+    latestProgress.completionPercentage < 100
+  ) {
+    const tracker = await Tracker.findOne({
+      _id: latestProgress.trackerId,
+      ownerId: userId,
+      deletedAt: null,
+    })
+      .select('_id title')
+      .lean()
 
-      if (tracker) {
-        actions.push({
-          type: 'continue_tracker',
-          title: `Continue "${tracker.title}"`,
-          description: `You are ${latestProgress.completionPercentage}% through`,
-          link: `/trackers/${tracker._id.toString()}`,
-        })
-      }
-    }
-
-    if (activeTrackersCount === 0) {
+    if (tracker) {
       actions.push({
-        type: 'create_tracker',
-        title: 'Create your first tracker',
-        description:
-          'Use AI to build a personalized learning roadmap',
-        link: '/onboarding/step-1',
+        type: 'continue_tracker',
+        title: `Continue "${tracker.title}"`,
+        description: `You are ${Math.round(
+          latestProgress.completionPercentage || 0
+        )}% through`,
+        link: `/trackers/${tracker._id.toString()}`,
       })
     }
+  }
 
+  if (totalTrackersCount === 0) {
     actions.push({
-      type: 'explore_community',
-      title: 'Explore Community',
+      type: 'create_tracker',
+      title: 'Create your first tracker',
       description:
-        'Discover trackers shared by other learners',
-      link: '/community',
+        'Use AI to build a personalized learning roadmap',
+      link: '/onboarding/step-1',
     })
+  }
 
-    actions.push({
-      type: 'start_mock_test',
-      title: 'Take a Mock Test',
-      description:
-        'Evaluate your knowledge with AI-generated questions',
-      link: '/mock-tests',
-    })
+  actions.push({
+    type: 'explore_community',
+    title: 'Explore Community',
+    description:
+      'Discover trackers shared by other learners',
+    link: '/community',
+  })
 
-    return actions.slice(0, 4)
-  },
+  actions.push({
+    type: 'start_mock_test',
+    title: 'Take a Mock Test',
+    description:
+      'Evaluate your knowledge with AI-generated questions',
+    link: '/mock-tests',
+  })
+
+  return actions.slice(0, 4)
+},
 } satisfies DashboardRepository

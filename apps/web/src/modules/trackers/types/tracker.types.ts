@@ -197,6 +197,7 @@ export interface GeneratedLesson {
   insight: string
   lessonType: LessonType
   requiresCompiler: boolean
+  compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
   codeExample: {
     language: string
     fileName: string
@@ -324,6 +325,9 @@ export type SubmitLessonCodeResponse = ApiResponse<{
     id: number
     description: string
   }
+  time: string | null
+  memory: number | null
+  feedback?: string
   canCompareOptimized: boolean
   canAskHints: boolean
 }>
@@ -370,4 +374,143 @@ export type VerifyLessonAnswerResponse = ApiResponse<{
   feedback: string
   correctedAnswer: string
   keyPoints: string[]
+}>
+
+export type LessonChatRole = 'user' | 'assistant'
+
+export type LessonChatScope =
+  | 'lesson_doubt_chat'
+  | 'question_solution_chat'
+
+export type PersistedLessonChatMessage = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  scope: LessonChatScope
+  questionId?: string | null
+  role: LessonChatRole
+  content: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonAnswerAttempt = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  questionId?: string | null
+  question: string
+  answer: string
+  feedback: VerifyLessonAnswerResponse['data']
+  isCorrect: boolean
+  score: number
+  attemptNumber: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonCodeSubmissionAction = 'run' | 'submit'
+
+export type LessonCodeSubmission = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  questionId?: string | null
+  action: LessonCodeSubmissionAction
+  language: string
+  languageId?: number | null
+  sourceCode: string
+  stdin?: string
+  stdout?: string
+  stderr?: string
+  compileOutput?: string
+  message?: string
+  status?: {
+    id?: number
+    description?: string
+  } | null
+  time?: string | null
+  memory?: number | null
+  isCorrect: boolean
+  expectedOutput?: string
+  actualOutput?: string
+  feedback?: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonGeneratedQuestion = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  question: string
+  questionHash: string
+  source: 'base' | 'ai_generated'
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonQuestionSolution = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  question: string
+  questionHash: string
+  solution: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonQuestionSolutionDoubt = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  solutionId?: string | null
+  userId: string
+  question: string
+  questionHash: string
+  role: 'user' | 'assistant'
+  content: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type GenerateLessonQuestionsPayload = {
+  trackerId: string
+  subtopicId: string
+  count?: number
+}
+
+export type GenerateLessonQuestionsResponse =
+  ApiResponse<LessonGeneratedQuestion[]>
+
+export type GenerateLessonQuestionSolutionPayload = {
+  trackerId: string
+  subtopicId: string
+  question: string
+}
+
+export type GenerateLessonQuestionSolutionResponse =
+  ApiResponse<LessonQuestionSolution>
+
+export type AskLessonQuestionSolutionDoubtPayload = {
+  trackerId: string
+  subtopicId: string
+  question: string
+  message: string
+}
+
+export type AskLessonQuestionSolutionDoubtResponse = ApiResponse<{
+  answer: string
 }>

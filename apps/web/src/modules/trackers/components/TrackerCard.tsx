@@ -75,32 +75,6 @@ const getTone = (status: Tracker['status']) => {
   }
 }
 
-// ─── SVG Icons ───────────────────────────────────────────────────────────────
-
-const SparkleIcon = () => (
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 15 15"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    aria-hidden="true"
-  >
-    <path
-      d="M7.5 1.5C7.5 1.5 7.9 4.1 9.2 5.8C10.5 7.5 13 7.5 13 7.5C13 7.5 10.5 7.5 9.2 9.2C7.9 10.9 7.5 13.5 7.5 13.5C7.5 13.5 7.1 10.9 5.8 9.2C4.5 7.5 2 7.5 2 7.5C2 7.5 4.5 7.5 5.8 5.8C7.1 4.1 7.5 1.5 7.5 1.5Z"
-      stroke="currentColor"
-      strokeWidth="1.25"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M12.5 1.5C12.5 1.5 12.65 2.35 13.075 2.925C13.5 3.5 14.5 3.5 14.5 3.5C14.5 3.5 13.5 3.5 13.075 4.075C12.65 4.65 12.5 5.5 12.5 5.5C12.5 5.5 12.35 4.65 11.925 4.075C11.5 3.5 10.5 3.5 10.5 3.5C10.5 3.5 11.5 3.5 11.925 2.925C12.35 2.35 12.5 1.5 12.5 1.5Z"
-      stroke="currentColor"
-      strokeWidth="1.1"
-      strokeLinejoin="round"
-    />
-  </svg>
-)
-
 const InfoIcon = () => (
   <svg
     width="15"
@@ -160,26 +134,20 @@ const ArchiveIcon = () => (
   </svg>
 )
 
-// ─── Types ───────────────────────────────────────────────────────────────────
-
 type TrackerCardProps = {
   tracker: Tracker
   onOpenStudy: (trackerId: string) => void
   onPublish: (trackerId: string) => void
   onViewPublished: (trackerId: string) => void
-  onRunEvaluation: (trackerId: string) => void
   onInfo: (trackerId: string) => void
   onArchive?: (trackerId: string) => void
 }
-
-// ─── Component ───────────────────────────────────────────────────────────────
 
 export default function TrackerCard({
   tracker,
   onOpenStudy,
   onPublish,
   onViewPublished,
-  onRunEvaluation,
   onInfo,
   onArchive,
 }: TrackerCardProps) {
@@ -188,13 +156,15 @@ export default function TrackerCard({
 
   const progress = Math.min(
     100,
-    Math.max(0, Number(tracker.progressPercent ?? 0))
+    Math.max(0, Number(tracker.progressPercent ?? 0)),
   )
 
   const tone = getTone(tracker.status)
 
   const isPublished =
     tracker.visibility === 'public' || Boolean(tracker.publishedAt)
+
+  const isArchived = tracker.status === 'archived'
 
   useEffect(() => {
     if (!menuOpen) return
@@ -215,7 +185,7 @@ export default function TrackerCard({
 
   const handleMenuAction = (
     event: React.MouseEvent<HTMLButtonElement>,
-    action: () => void
+    action: () => void,
   ) => {
     event.stopPropagation()
     setMenuOpen(false)
@@ -237,7 +207,7 @@ export default function TrackerCard({
       <div
         className={cn(
           'absolute bottom-0 left-0 right-0 h-0.75 rounded-b-[20px] bg-linear-to-r',
-          tone.bar
+          tone.bar,
         )}
       />
 
@@ -246,7 +216,7 @@ export default function TrackerCard({
           <span
             className={cn(
               'rounded-full border px-3 py-1 font-["DM_Mono",monospace] text-[8px] uppercase tracking-[0.12em]',
-              tone.badge
+              tone.badge,
             )}
           >
             {domainLabel(tracker.domain)}
@@ -257,9 +227,14 @@ export default function TrackerCard({
               Published
             </span>
           )}
+
+          {isArchived && (
+            <span className="rounded-full border border-[#e0d0c5] bg-[rgba(26,23,20,0.05)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:border-white/9 dark:bg-white/6 dark:text-[#9b9a92]">
+              Archived
+            </span>
+          )}
         </div>
 
-        {/* ── Dropdown trigger ── */}
         <div ref={menuRef} className="relative">
           <button
             type="button"
@@ -283,22 +258,8 @@ export default function TrackerCard({
             </svg>
           </button>
 
-          {/* ── Dropdown menu ── */}
           {menuOpen && (
             <div className="absolute right-0 top-10 z-30 w-52 overflow-hidden rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_16px_56px_rgba(26,23,20,0.18)] dark:border-white/9 dark:bg-[#1e1c19]">
-              <button
-                type="button"
-                onClick={(event) =>
-                  handleMenuAction(event, () =>
-                    onRunEvaluation(tracker._id)
-                  )
-                }
-                className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#1a1714] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
-              >
-                <SparkleIcon />
-                Run AI Evaluation
-              </button>
-
               <button
                 type="button"
                 onClick={(event) =>
@@ -310,7 +271,7 @@ export default function TrackerCard({
                 Info / Manage
               </button>
 
-              {onArchive && tracker.status !== 'archived' && (
+              {onArchive && (
                 <>
                   <div className="h-px bg-[#e0d0c5] dark:bg-white/9" />
 
@@ -318,13 +279,18 @@ export default function TrackerCard({
                     type="button"
                     onClick={(event) =>
                       handleMenuAction(event, () =>
-                        onArchive(tracker._id)
+                        onArchive(tracker._id),
                       )
                     }
-                    className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)]"
+                    className={cn(
+                      'flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold transition',
+                      isArchived
+                        ? 'text-[#2d6a47] hover:bg-[rgba(45,106,71,0.08)] hover:text-[#2d6a47] dark:text-[#5cc98a] dark:hover:bg-[rgba(92,201,138,0.10)]'
+                        : 'text-[#b83232] hover:bg-[rgba(200,50,50,0.08)]',
+                    )}
                   >
                     <ArchiveIcon />
-                    Archive
+                    {isArchived ? 'Unarchive' : 'Archive'}
                   </button>
                 </>
               )}
@@ -358,7 +324,7 @@ export default function TrackerCard({
           <div
             className={cn(
               'h-full rounded-full bg-linear-to-r transition-all duration-700',
-              tone.bar
+              tone.bar,
             )}
             style={{ width: `${progress}%` }}
           />
@@ -395,7 +361,7 @@ export default function TrackerCard({
             {Math.max(
               0,
               Number(tracker.subtopicsCount ?? 0) -
-                Number(tracker.completedSubtopicsCount ?? 0)
+                Number(tracker.completedSubtopicsCount ?? 0),
             )}
           </div>
         </div>
@@ -403,9 +369,11 @@ export default function TrackerCard({
 
       <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
         <span className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92]">
-          {tracker.status === 'completed'
-            ? 'Completed'
-            : `Active ${formatRelativeTime(tracker.lastActiveAt)}`}
+          {isArchived
+            ? 'Archived'
+            : tracker.status === 'completed'
+              ? 'Completed'
+              : `Active ${formatRelativeTime(tracker.lastActiveAt)}`}
         </span>
 
         {isPublished ? (

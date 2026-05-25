@@ -13,7 +13,6 @@ const trackerLessonSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'TrackerSubtopic',
       required: true,
-      unique: true,
       index: true,
     },
 
@@ -61,11 +60,12 @@ const trackerLessonSchema = new Schema(
       index: true,
     },
 
-    requiresCompiler: {
-      type: Boolean,
-      default: false,
-      index: true,
-    },
+ compilerRuntime: {
+  type: String,
+  enum: ['javascript', 'typescript', 'python', 'c++', 'c', 'java', null],
+  default: null,
+  index: true,
+},
 
     codeExample: {
       language: {
@@ -85,20 +85,11 @@ const trackerLessonSchema = new Schema(
     },
 
     practiceTask: {
-      title: {
-        type: String,
-        default: '',
-      },
-
-      description: {
-        type: String,
-        default: '',
-      },
-
-      starterCode: {
-        type: String,
-        default: '',
-      },
+       title:         { type: String, default: '' },
+  description:   { type: String, default: '' },
+  starterCode:   { type: String, default: '' },
+  expectedOutput: { type: String, default: '' },  
+  expectedAnswer: { type: String, default: '' },  
     },
 
     tags: {
@@ -128,11 +119,16 @@ const trackerLessonSchema = new Schema(
   }
 )
 
-trackerLessonSchema.index({
-  trackerId: 1,
-  subtopicId: 1,
-  userId: 1,
-})
+trackerLessonSchema.index(
+  {
+    trackerId: 1,
+    subtopicId: 1,
+    userId: 1,
+  },
+  {
+    unique: true,
+  }
+)
 
 export const TrackerLesson =
   mongoose.models.TrackerLesson ||

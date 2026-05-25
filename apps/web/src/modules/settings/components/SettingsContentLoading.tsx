@@ -11,7 +11,7 @@ export default function SettingsContentLoading({
 }: SettingsContentLoadingProps) {
   return (
     <div
-      className="relative flex min-h-105 w-full items-center justify-center overflow-hidden rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-10 text-[#1a1714] shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb] dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
+      className="relative min-h-105 w-full overflow-hidden rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-6 text-[#1a1714] shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb] dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
       role="status"
       aria-live="polite"
       aria-label={title}
@@ -35,24 +35,41 @@ export default function SettingsContentLoading({
         className="pointer-events-none absolute bottom-[10%] right-[10%] h-44 w-44 rounded-full bg-[rgba(59,108,183,0.10)] blur-3xl dark:bg-[rgba(107,159,232,0.08)]"
       />
 
-      <div className="relative z-10 flex w-full max-w-sm flex-col items-center rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5]/95 px-8 py-8 text-center shadow-[0_12px_38px_rgba(26,23,20,0.10)] backdrop-blur-sm dark:border-white/9 dark:bg-[#1e1c19]/95 dark:shadow-[0_16px_48px_rgba(0,0,0,0.34)]">
-        <div className="relative mb-5 flex h-16 w-16 items-center justify-center rounded-full border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)]">
-          <span className="absolute h-16 w-16 animate-ping rounded-full border border-[rgba(184,76,43,0.18)] dark:border-[rgba(232,129,106,0.22)]" />
-          <span className="h-7 w-7 animate-spin rounded-full border-[3px] border-[rgba(184,76,43,0.18)] border-t-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:border-t-[#e8816a]" />
+      <div className="relative z-10 space-y-6">
+        <div className="space-y-3">
+          <div className="h-3 w-24 animate-pulse rounded-full bg-[#e8d8cf] dark:bg-white/10" />
+          <div className="h-8 w-56 animate-pulse rounded-2xl bg-[#e8d8cf] dark:bg-white/10" />
+          <div className="h-4 w-full max-w-xl animate-pulse rounded-full bg-[#efe2dc] dark:bg-white/8" />
+          <div className="h-4 w-3/4 animate-pulse rounded-full bg-[#efe2dc] dark:bg-white/8" />
         </div>
 
-        <div className="mb-2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
-          {eyebrow}
+        <div className="grid gap-4 md:grid-cols-2">
+          {Array.from({ length: 4 }).map((_, index) => (
+            <div
+              key={index}
+              className="rounded-3xl border-[1.5px] border-[#e0d0c5] bg-white/45 p-5 shadow-[0_10px_28px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-white/[0.035]"
+            >
+              <div className="mb-5 flex items-center gap-3">
+                <div className="h-11 w-11 animate-pulse rounded-2xl bg-[#e8d8cf] dark:bg-white/10" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-4 w-32 animate-pulse rounded-full bg-[#e8d8cf] dark:bg-white/10" />
+                  <div className="h-3 w-44 animate-pulse rounded-full bg-[#efe2dc] dark:bg-white/8" />
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <div className="h-11 w-full animate-pulse rounded-2xl bg-[#efe2dc] dark:bg-white/8" />
+                <div className="h-11 w-full animate-pulse rounded-2xl bg-[#efe2dc] dark:bg-white/8" />
+                <div className="h-11 w-2/3 animate-pulse rounded-2xl bg-[#efe2dc] dark:bg-white/8" />
+              </div>
+            </div>
+          ))}
         </div>
-
-        <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
-          {title}
-        </h2>
-
-        <p className="mt-2 max-w-72 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
-          {description}
-        </p>
       </div>
+
+      <span className="sr-only">
+        {eyebrow}. {title}. {description}
+      </span>
     </div>
   )
 }

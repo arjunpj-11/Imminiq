@@ -37,14 +37,78 @@ router.patch(
   trackerController.updateSubtopicProgress
 )
 
+// ─── Lesson Main ─────────────────────────────────────────────────────────────
+
 router.get(
   '/:trackerId/lessons/:subtopicId',
   trackerController.getLesson
 )
 
+// ─── Lesson Doubt Chat ───────────────────────────────────────────────────────
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/chat',
+  trackerController.getLessonChatHistory
+)
+
 router.post(
   '/:trackerId/lessons/:subtopicId/chat',
   trackerController.chatWithLessonTutor
+)
+
+// ─── Lesson Generated Questions ──────────────────────────────────────────────
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/questions',
+  trackerController.getLessonGeneratedQuestions
+)
+
+router.post(
+  '/:trackerId/lessons/:subtopicId/questions/generate',
+  trackerController.generateLessonQuestions
+)
+
+// ─── Lesson Question Solution ────────────────────────────────────────────────
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/question-solution',
+  trackerController.getLessonQuestionSolution
+)
+
+router.post(
+  '/:trackerId/lessons/:subtopicId/question-solution/generate',
+  trackerController.generateLessonQuestionSolution
+)
+
+// ─── Lesson Question Solution Chat ───────────────────────────────────────────
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/question-solution/doubts',
+  trackerController.getLessonQuestionSolutionDoubts
+)
+
+router.post(
+  '/:trackerId/lessons/:subtopicId/question-solution/doubts',
+  trackerController.askLessonQuestionSolutionDoubt
+)
+
+// ─── Lesson Answer Attempts ──────────────────────────────────────────────────
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/answer/attempts',
+  trackerController.getLessonAnswerAttempts
+)
+
+router.post(
+  '/:trackerId/lessons/:subtopicId/answer/verify',
+  trackerController.verifyLessonAnswer
+)
+
+// ─── Lesson Code Compiler ────────────────────────────────────────────────────
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/code/submissions',
+  trackerController.getLessonCodeSubmissions
 )
 
 router.post(
@@ -67,9 +131,13 @@ router.post(
   trackerController.getOptimizedSolution
 )
 
+// ─── AI Topic/Subtopic Verification ──────────────────────────────────────────
+
+router.post('/:trackerId/topics/verify', trackerController.verifyTopic)
+
 router.post(
-  '/:trackerId/lessons/:subtopicId/answer/verify',
-  trackerController.verifyLessonAnswer
+  '/:trackerId/topics/:topicId/subtopics/verify',
+  trackerController.verifySubtopic
 )
 
 router.post(

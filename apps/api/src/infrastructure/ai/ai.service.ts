@@ -109,7 +109,10 @@ const generatedLessonSchema = z.object({
     ])
     .default('concept'),
 
-  requiresCompiler: z.boolean().default(false),
+  compilerRuntime: z
+    .enum(['javascript', 'typescript', 'python', 'c++', 'c', 'java'])
+    .nullable()
+    .default(null),
 
   codeExample: z.object({
     language: z.string().trim().default('javascript'),
@@ -175,6 +178,33 @@ const answerVerificationSchema = z.object({
 export type AnswerVerificationAIResult = z.infer<
   typeof answerVerificationSchema
 >
+
+// ============================================================
+// TRACKER VERIFICATION TYPES
+// ============================================================
+
+const trackerTopicVerificationSchema = z.object({
+  verified: z.boolean(),
+  message: z.string().trim().min(1),
+  polishedTitle: z.string().trim().min(1),
+  polishedDescription: z.string().trim().default(''),
+})
+
+const trackerSubtopicVerificationSchema = z.object({
+  verified: z.boolean(),
+  message: z.string().trim().min(1),
+  polishedTitle: z.string().trim().min(1),
+  polishedDescription: z.string().trim().default(''),
+})
+
+export type TrackerTopicVerificationResult = z.infer<
+  typeof trackerTopicVerificationSchema
+>
+
+export type TrackerSubtopicVerificationResult = z.infer<
+  typeof trackerSubtopicVerificationSchema
+>
+
 
 // ============================================================
 // JSON PARSER HELPER
@@ -591,20 +621,6 @@ export const generateLesson = async (input: {
   subtopicDescription?: string
   level?: 'beginner' | 'intermediate' | 'advanced'
 }): Promise<GeneratedLesson> => {
-  const codingKeywordText = [
-    input.trackerTitle,
-    input.topicTitle || '',
-    input.subtopicTitle,
-    input.subtopicDescription || '',
-  ]
-    .join(' ')
-    .toLowerCase()
-
-  const shouldForceCompiler =
-    /\b(javascript|typescript|react|node|express|mongodb|mongoose|array|object|string|function|loop|promise|async|await|callback|closure|scope|hoisting|var|let|const|class|inheritance|prototype|dom|api|fetch|axios|algorithm|dsa|stack|queue|linked list|tree|graph|sorting|searching|recursion|dynamic programming|code|coding|programming|implementation|debug|debugging)\b/.test(
-      codingKeywordText
-    )
-
   const response = await groqChat(
     [
       {
@@ -632,13 +648,6 @@ ${input.subtopicDescription || 'No description provided'}
 Learner level:
 ${input.level || 'beginner'}
 
-Important compiler decision:
-This lesson ${
-          shouldForceCompiler
-            ? 'IS detected as a coding/programming lesson, so requiresCompiler MUST be true.'
-            : 'may or may not need compiler. Decide based on whether the learner should write/run code.'
-        }
-
 Return ONLY valid JSON using this exact structure:
 
 {
@@ -647,7 +656,7 @@ Return ONLY valid JSON using this exact structure:
   "explanation": "clear detailed lesson explanation in simple English",
   "insight": "one helpful analogy or mental model",
   "lessonType": "concept",
-  "requiresCompiler": false,
+  "compilerRuntime": null,
   "codeExample": {
     "language": "javascript",
     "fileName": "lesson.js",
@@ -665,40 +674,74 @@ Return ONLY valid JSON using this exact structure:
   "estimatedMinutes": 15
 }
 
-Lesson type rule:
-- Use "coding" for JavaScript, TypeScript, React, Node.js, Express, MongoDB query, DSA, algorithm, implementation, debugging, syntax, or programming lessons.
-- Use "interview" for interview-question/explanation lessons.
-- Use "system_design" for architecture, scaling, distributed systems, database design, API design, or design lessons.
-- Use "theory" for pure conceptual/theoretical lessons.
-- Use "concept" for normal non-code learning concepts.
+============================================================
+LESSON TYPE RULE
+============================================================
 
-Compiler rule:
-- Set "requiresCompiler": true for any lesson where code can help the learner understand by running examples.
-- Set "requiresCompiler": true for JavaScript syntax topics like var, let, const, scope, hoisting, closure, functions, arrays, objects, promises, async/await, loops, and DOM.
-- Set "requiresCompiler": true for DSA, algorithms, implementation tasks, debugging, backend logic, API examples, MongoDB query examples, and coding interview topics.
-- Set "requiresCompiler": false only for pure theory, system design, architecture explanation, comparison-only lessons, or non-coding lessons.
-- If requiresCompiler is true, provide runnable codeExample.code and useful practiceTask.starterCode.
-- If requiresCompiler is false, keep codeExample.code and practiceTask.starterCode as empty strings.
-- Use JavaScript code by default unless another language is clearly implied.
+- "coding"        → JavaScript, TypeScript, Node.js, Express, MongoDB queries, DSA, algorithms, implementation, debugging, syntax
+- "interview"     → interview question / explanation lessons
+- "system_design" → architecture, scaling, distributed systems, database design, API design
+- "theory"        → pure conceptual or theoretical lessons with no code
+- "concept"       → general non-code learning concepts
 
-Practice task rule:
-- If requiresCompiler is true:
-  - Create a coding problem, not only a reflection question.
+============================================================
+COMPILER RUNTIME RULE
+============================================================
+
+Set "compilerRuntime" to one of these exact string values if the learner needs to
+execute code in a terminal to understand the lesson. Otherwise set it to null.
+
+Allowed runtime values:
+- "javascript" → JS syntax, Node.js, Express, async/await, closures, scope, hoisting,
+                 var/let/const, arrays, objects, promises, loops, callbacks, fetch,
+                 DOM manipulation, MongoDB query logic, debugging, DSA in JS
+- "typescript" → TypeScript-specific lessons (types, interfaces, generics, decorators)
+- "python"     → any Python lesson
+- "c++"        → any C++ lesson
+- "c"          → any C lesson
+- "java"       → any Java lesson
+- null         → React, JSX, Vue, Angular, Svelte, or any UI/component framework
+                 (Piston is a terminal runtime — it CANNOT render UI or JSX),
+                 system design, architecture, pure theory, comparison-only lessons,
+                 interview Q&A with no runnable code, HTTP concepts, CSS, HTML
+
+CRITICAL RULES:
+- React/JSX lessons MUST always be null. Components cannot run in a terminal.
+- Vue, Angular, Svelte MUST always be null. Same reason.
+- If the lesson involves writing and running actual terminal-executable code, set the runtime.
+- If the lesson is conceptual, comparison-based, or UI-framework-based, use null.
+
+============================================================
+CODE EXAMPLE RULE
+============================================================
+
+- If compilerRuntime is not null: provide a clear, runnable codeExample.code.
+- If compilerRuntime is null: codeExample.code may be empty or contain a non-runnable
+  pseudocode / illustration snippet (it will be shown as a static block, not executed).
+
+============================================================
+PRACTICE TASK RULE
+============================================================
+
+- If compilerRuntime is not null:
   - practiceTask.description must clearly state the coding challenge.
-  - practiceTask.starterCode must include incomplete starter code the learner can edit.
+  - practiceTask.starterCode must include incomplete starter code the learner can edit and run.
   - practiceTask.expectedOutput must be the exact stdout expected from a correct solution.
   - practiceTask.expectedAnswer must be an empty string.
-- If requiresCompiler is false:
-  - Create a written answer/problem-solving question.
-  - practiceTask.description must be a question or problem the learner can answer by typing.
+
+- If compilerRuntime is null:
+  - practiceTask.description must be a written question or problem the learner answers by typing.
   - practiceTask.expectedAnswer must contain a reference answer for verification.
   - practiceTask.starterCode and practiceTask.expectedOutput must be empty strings.
 
-Quality rules:
+============================================================
+QUALITY RULES
+============================================================
+
 - Make the lesson practical and interview-useful.
 - Explanation should be detailed but readable.
 - Avoid vague generic content.
-- Do not use markdown fences.
+- Do not use markdown fences inside any string value.
         `.trim(),
       },
     ],
@@ -715,36 +758,10 @@ Quality rules:
 
   const lesson = parseAIJson(response, generatedLessonSchema)
 
-  if (shouldForceCompiler) {
-    return {
-      ...lesson,
-      lessonType: 'coding',
-      requiresCompiler: true,
-      codeExample: {
-        language: lesson.codeExample.language || 'javascript',
-        fileName: lesson.codeExample.fileName || 'lesson.js',
-        code:
-          lesson.codeExample.code ||
-          `// ${input.subtopicTitle}\n\nconsole.log("Practice ${input.subtopicTitle} here");`,
-      },
-      practiceTask: {
-        title:
-          lesson.practiceTask.title ||
-          `Practice ${input.subtopicTitle}`,
-        description:
-          lesson.practiceTask.description ||
-          `Write and run code examples to understand ${input.subtopicTitle}.`,
-        starterCode:
-          lesson.practiceTask.starterCode ||
-          `// Try examples for ${input.subtopicTitle}\n\n`,
-        expectedOutput:
-          lesson.practiceTask.expectedOutput || '',
-        expectedAnswer: '',
-      },
-    }
+  return {
+    ...lesson,
+    compilerRuntime: lesson.compilerRuntime ?? null,
   }
-
-  return lesson
 }
 
 export const chatWithLessonTutor = async (input: {
@@ -1001,6 +1018,176 @@ Rules:
   return parseAIJson(response, answerVerificationSchema)
 }
 
+const lessonPracticeQuestionsSchema = z.object({
+  questions: z.array(z.string().trim().min(1)).min(1).max(10),
+})
+
+export type LessonPracticeQuestionsAIResult = z.infer<
+  typeof lessonPracticeQuestionsSchema
+>
+
+export const generateLessonPracticeQuestions = async (input: {
+  lessonTitle: string
+  lessonSummary: string
+  lessonExplanation: string
+  count?: number
+}): Promise<LessonPracticeQuestionsAIResult> => {
+  const count = input.count || 5
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, an expert lesson practice question generator. Return only strict valid JSON. No markdown.',
+      },
+      {
+        role: 'user',
+        content: `
+Generate ${count} more practice questions for this lesson.
+
+Lesson title:
+${input.lessonTitle}
+
+Lesson summary:
+${input.lessonSummary}
+
+Lesson explanation:
+${input.lessonExplanation}
+
+Rules:
+- Questions must be specific to this lesson.
+- Include conceptual, previous-year style, interview-style, application, and math-style questions where relevant.
+- Use readable math notation where needed, like x^2, H_2O, a_n, \\frac{a}{b}, or $$E = mc^2$$.
+- Do not include answers.
+- Return only JSON.
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "questions": ["question 1", "question 2"]
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty lesson practice questions',
+      'GROQ_EMPTY_LESSON_PRACTICE_QUESTIONS'
+    )
+  }
+
+  return parseAIJson(response, lessonPracticeQuestionsSchema)
+}
+
+export const generateLessonQuestionSolution = async (input: {
+  lessonTitle: string
+  lessonExplanation: string
+  question: string
+}): Promise<string> => {
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, a clear and supportive lesson solution tutor.',
+      },
+      {
+        role: 'user',
+        content: `
+Generate a clear solution/answer for this question.
+
+Lesson title:
+${input.lessonTitle}
+
+Lesson explanation:
+${input.lessonExplanation}
+
+Question:
+${input.question}
+
+Rules:
+- Answer in simple English.
+- Make it useful for interview/exam preparation.
+- Include key points the user should remember.
+- If math is involved, format equations clearly using:
+  - x^2 for powers
+  - a_n for subscripts
+  - \\frac{a}{b} for fractions
+  - $$equation$$ for important standalone equations
+- If relevant, include a short example.
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty question solution',
+      'GROQ_EMPTY_QUESTION_SOLUTION'
+    )
+  }
+
+  return response.trim()
+}
+
+export const chatWithLessonQuestionSolutionDoubt = async (input: {
+  lessonTitle: string
+  lessonExplanation: string
+  question: string
+  solution: string
+  messages: {
+    role: 'user' | 'assistant'
+    content: string
+  }[]
+}): Promise<string> => {
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, a helpful tutor answering doubts about a saved generated solution.',
+      },
+      {
+        role: 'user',
+        content: `
+Lesson:
+${input.lessonTitle}
+
+Lesson explanation:
+${input.lessonExplanation}
+
+Question:
+${input.question}
+
+Saved solution:
+${input.solution}
+
+The learner is asking follow-up doubts about this solution.
+Answer clearly and simply. Do not regenerate the whole solution unless needed.
+        `.trim(),
+      },
+      ...input.messages,
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty solution doubt response',
+      'GROQ_EMPTY_SOLUTION_DOUBT_RESPONSE'
+    )
+  }
+
+  return response.trim()
+}
 // ============================================================
 // LEGACY / GENERAL AI HELPERS
 // ============================================================
@@ -1061,6 +1248,161 @@ Rules:
     response ||
     'Focus on completing one small lesson today to keep your learning momentum strong.'
   )
+}
+
+// ============================================================
+// GROQ — TRACKER TOPIC / SUBTOPIC VERIFICATION
+// ============================================================
+
+export const verifyTrackerTopic = async (input: {
+  trackerTitle: string
+  topicTitle: string
+  topicDescription: string
+  existingTopics: { id: string; title: string; description: string }[]
+}): Promise<TrackerTopicVerificationResult> => {
+  const existingList = input.existingTopics.length
+    ? input.existingTopics
+        .map((t, i) => `${i + 1}. ${t.title}${t.description ? ` — ${t.description}` : ''}`)
+        .join('\n')
+    : 'None yet'
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.',
+      },
+      {
+        role: 'user',
+        content: `
+A user wants to add a new topic to their learning tracker.
+
+Tracker title:
+${input.trackerTitle}
+
+New topic title:
+${input.topicTitle}
+
+New topic description:
+${input.topicDescription || 'Not provided'}
+
+Existing topics already in this tracker:
+${existingList}
+
+Your task:
+- Decide whether this new topic genuinely belongs in this tracker.
+- Reject it if it is off-topic, too vague, completely duplicate, or clearly does not fit the tracker's subject.
+- Approve it if it is a relevant, meaningful topic that adds value to this learning roadmap.
+- Be practical: slight overlaps are fine as long as the new topic has its own distinct value.
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "verified": true,
+  "message": "Short explanation of why this topic was approved or rejected.",
+  "polishedTitle": "Fix obvious typos only (e.g. 'Javascrpt' → 'JavaScript'). Otherwise return the title exactly as given.",
+  "polishedDescription": "One clear sentence describing what the learner will cover. If user left it empty, write one based on the title and tracker context."
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty topic verification response',
+      'GROQ_EMPTY_TOPIC_VERIFICATION_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, trackerTopicVerificationSchema)
+}
+
+export const verifyTrackerSubtopic = async (input: {
+  trackerTitle: string
+  topicTitle: string
+  topicDescription: string
+  subtopicTitle: string
+  subtopicDescription: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  existingSubtopics: {
+    id: string
+    title: string
+    description: string
+    difficulty: string
+  }[]
+}): Promise<TrackerSubtopicVerificationResult> => {
+  const existingList = input.existingSubtopics.length
+    ? input.existingSubtopics
+        .map(
+          (s, i) =>
+            `${i + 1}. ${s.title}${s.difficulty ? ` [${s.difficulty}]` : ''}${s.description ? ` — ${s.description}` : ''}`
+        )
+        .join('\n')
+    : 'None yet'
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.',
+      },
+      {
+        role: 'user',
+        content: `
+A user wants to add a new subtopic (lesson) under a topic in their learning tracker.
+
+Tracker title:
+${input.trackerTitle}
+
+Parent topic:
+${input.topicTitle}${input.topicDescription ? ` — ${input.topicDescription}` : ''}
+
+New subtopic title:
+${input.subtopicTitle}
+
+New subtopic description:
+${input.subtopicDescription || 'Not provided'}
+
+Difficulty:
+${input.difficulty}
+
+Existing subtopics already under this topic:
+${existingList}
+
+Your task:
+- Decide whether this new subtopic genuinely belongs under this specific topic.
+- Reject it if it is off-topic for the parent topic, too vague, a clear duplicate of an existing subtopic, or does not add learning value.
+- Approve it if it is a relevant, distinct, and meaningful lesson that fits logically under the parent topic.
+- Be practical: minor wording differences from existing subtopics are fine if the learning content is clearly distinct.
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "verified": true,
+  "message": "Short explanation of why this subtopic was approved or rejected.",
+  "polishedTitle": "Fix obvious typos only. Otherwise return the title exactly as given.",
+  "polishedDescription": "One clear sentence describing what the learner will understand or practice in this subtopic."
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty subtopic verification response',
+      'GROQ_EMPTY_SUBTOPIC_VERIFICATION_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, trackerSubtopicVerificationSchema)
 }
 
 // ============================================================

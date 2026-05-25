@@ -58,8 +58,8 @@ export interface DashboardSummary {
 
 export interface DashboardActivityIntensityItem {
   date: string
+  activityCount: number
   count: number
-  minutes: number
 }
 
 export interface DashboardFriendItem {
