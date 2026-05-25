@@ -15,6 +15,9 @@ import { StreakSnapshot } from '../../../../infrastructure/database/models/strea
 import { LessonChatMessage } from '../../../../infrastructure/database/models/lesson-chat-message.model'
 import { LessonAnswerAttempt } from '../../../../infrastructure/database/models/lesson-answer-attempt.model'
 import { LessonCodeSubmission } from '../../../../infrastructure/database/models/lesson-code-submission.model'
+import { LessonGeneratedQuestion } from '../../../../infrastructure/database/models/lesson-generated-question.model'
+import { LessonQuestionSolution } from '../../../../infrastructure/database/models/lesson-question-solution.model'
+import { LessonQuestionSolutionDoubt } from '../../../../infrastructure/database/models/lesson-question-solution-doubt.model'
 
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
@@ -1266,6 +1269,177 @@ export const mongoTrackerRepository: TrackerRepository = {
 
     return submission
   },
+
+    getLessonGeneratedQuestions: async ({
+    trackerId,
+    subtopicId,
+    userId,
+  }) => {
+    const questions = await LessonGeneratedQuestion.find(
+      asMongoFilter({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        deletedAt: null,
+      })
+    )
+      .sort({ createdAt: 1 })
+      .lean()
+
+    return questions
+  },
+
+  createLessonGeneratedQuestions: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    lessonId,
+    questions,
+  }) => {
+    try {
+      const docs = await LessonGeneratedQuestion.insertMany(
+        questions.map((item) =>
+          asMongoCreatePayload({
+            trackerId: toObjectId(trackerId),
+            subtopicId: toObjectId(subtopicId),
+            userId: toObjectId(userId),
+            lessonId: lessonId ? toObjectId(lessonId) : null,
+            question: item.question,
+            questionHash: item.questionHash,
+            source: item.source || 'ai_generated',
+            deletedAt: null,
+          })
+        ),
+        {
+          ordered: false,
+        }
+      )
+
+      return docs
+    } catch {
+      const docs = await LessonGeneratedQuestion.find(
+        asMongoFilter({
+          trackerId: toObjectId(trackerId),
+          subtopicId: toObjectId(subtopicId),
+          userId: toObjectId(userId),
+          questionHash: {
+            $in: questions.map((item) => item.questionHash),
+          },
+          deletedAt: null,
+        })
+      ).lean()
+
+      return docs
+    }
+  },
+
+  findLessonQuestionSolution: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    questionHash,
+  }) => {
+    const solution = await LessonQuestionSolution.findOne(
+      asMongoFilter({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        questionHash,
+        deletedAt: null,
+      })
+    ).lean()
+
+    return solution
+  },
+
+  createLessonQuestionSolution: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    lessonId,
+    question,
+    questionHash,
+    solution,
+  }) => {
+    const saved = await LessonQuestionSolution.findOneAndUpdate(
+      asMongoFilter({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        questionHash,
+        deletedAt: null,
+      }),
+      asMongoUpdate({
+        $setOnInsert: {
+          trackerId: toObjectId(trackerId),
+          subtopicId: toObjectId(subtopicId),
+          userId: toObjectId(userId),
+          lessonId: lessonId ? toObjectId(lessonId) : null,
+          question,
+          questionHash,
+          solution,
+          deletedAt: null,
+        },
+      }),
+      {
+        upsert: true,
+        new: true,
+      }
+    ).lean()
+
+    return saved
+  },
+
+  getLessonQuestionSolutionDoubts: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    questionHash,
+  }) => {
+    const doubts = await LessonQuestionSolutionDoubt.find(
+      asMongoFilter({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        questionHash,
+        deletedAt: null,
+      })
+    )
+      .sort({ createdAt: 1 })
+      .lean()
+
+    return doubts
+  },
+
+  createLessonQuestionSolutionDoubt: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    lessonId,
+    solutionId,
+    question,
+    questionHash,
+    role,
+    content,
+  }) => {
+    const doubt = await LessonQuestionSolutionDoubt.create(
+      asMongoCreatePayload({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        lessonId: lessonId ? toObjectId(lessonId) : null,
+        solutionId: solutionId ? toObjectId(solutionId) : null,
+        question,
+        questionHash,
+        role,
+        content,
+        deletedAt: null,
+      })
+    )
+
+    return doubt
+  },
+
   markMissingEvaluationTopicAsAdded: async ({
     evaluationJobId,
     topicIndex,
@@ -1329,4 +1503,5 @@ export const mongoTrackerRepository: TrackerRepository = {
       }
     }) as TopicWithProgressRecord[]
   },
+  
 }

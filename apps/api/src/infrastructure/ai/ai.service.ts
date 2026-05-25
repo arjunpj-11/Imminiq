@@ -1018,6 +1018,176 @@ Rules:
   return parseAIJson(response, answerVerificationSchema)
 }
 
+const lessonPracticeQuestionsSchema = z.object({
+  questions: z.array(z.string().trim().min(1)).min(1).max(10),
+})
+
+export type LessonPracticeQuestionsAIResult = z.infer<
+  typeof lessonPracticeQuestionsSchema
+>
+
+export const generateLessonPracticeQuestions = async (input: {
+  lessonTitle: string
+  lessonSummary: string
+  lessonExplanation: string
+  count?: number
+}): Promise<LessonPracticeQuestionsAIResult> => {
+  const count = input.count || 5
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, an expert lesson practice question generator. Return only strict valid JSON. No markdown.',
+      },
+      {
+        role: 'user',
+        content: `
+Generate ${count} more practice questions for this lesson.
+
+Lesson title:
+${input.lessonTitle}
+
+Lesson summary:
+${input.lessonSummary}
+
+Lesson explanation:
+${input.lessonExplanation}
+
+Rules:
+- Questions must be specific to this lesson.
+- Include conceptual, previous-year style, interview-style, application, and math-style questions where relevant.
+- Use readable math notation where needed, like x^2, H_2O, a_n, \\frac{a}{b}, or $$E = mc^2$$.
+- Do not include answers.
+- Return only JSON.
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "questions": ["question 1", "question 2"]
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty lesson practice questions',
+      'GROQ_EMPTY_LESSON_PRACTICE_QUESTIONS'
+    )
+  }
+
+  return parseAIJson(response, lessonPracticeQuestionsSchema)
+}
+
+export const generateLessonQuestionSolution = async (input: {
+  lessonTitle: string
+  lessonExplanation: string
+  question: string
+}): Promise<string> => {
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, a clear and supportive lesson solution tutor.',
+      },
+      {
+        role: 'user',
+        content: `
+Generate a clear solution/answer for this question.
+
+Lesson title:
+${input.lessonTitle}
+
+Lesson explanation:
+${input.lessonExplanation}
+
+Question:
+${input.question}
+
+Rules:
+- Answer in simple English.
+- Make it useful for interview/exam preparation.
+- Include key points the user should remember.
+- If math is involved, format equations clearly using:
+  - x^2 for powers
+  - a_n for subscripts
+  - \\frac{a}{b} for fractions
+  - $$equation$$ for important standalone equations
+- If relevant, include a short example.
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty question solution',
+      'GROQ_EMPTY_QUESTION_SOLUTION'
+    )
+  }
+
+  return response.trim()
+}
+
+export const chatWithLessonQuestionSolutionDoubt = async (input: {
+  lessonTitle: string
+  lessonExplanation: string
+  question: string
+  solution: string
+  messages: {
+    role: 'user' | 'assistant'
+    content: string
+  }[]
+}): Promise<string> => {
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are Scribe AI, a helpful tutor answering doubts about a saved generated solution.',
+      },
+      {
+        role: 'user',
+        content: `
+Lesson:
+${input.lessonTitle}
+
+Lesson explanation:
+${input.lessonExplanation}
+
+Question:
+${input.question}
+
+Saved solution:
+${input.solution}
+
+The learner is asking follow-up doubts about this solution.
+Answer clearly and simply. Do not regenerate the whole solution unless needed.
+        `.trim(),
+      },
+      ...input.messages,
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned empty solution doubt response',
+      'GROQ_EMPTY_SOLUTION_DOUBT_RESPONSE'
+    )
+  }
+
+  return response.trim()
+}
 // ============================================================
 // LEGACY / GENERAL AI HELPERS
 // ============================================================

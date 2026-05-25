@@ -4,7 +4,7 @@ import {
   useChatWithLessonTutor,
   useLessonChatHistory,
 } from '../../hooks/useTrackers'
-import type { LessonChatMessage } from '../../types/tracker.types'
+import type { PersistedLessonChatMessage } from '../../types/tracker.types'
 
 import { DEFAULT_CHAT_GREETING } from '../../constants/lesson-compiler.constants'
 import { cn } from '../../utils/tracker-ui'
@@ -362,8 +362,11 @@ export default function LessonChatCard({
   const chatMutation = useChatWithLessonTutor()
   const chatHistoryQuery = useLessonChatHistory(trackerId, subtopicId)
 
+  const sendLockRef = useRef(false)
+
   const [message, setMessage] = useState('')
   const [zoomOpen, setZoomOpen] = useState(false)
+  const [isSending, setIsSending] = useState(false)
   const [localMessages, setLocalMessages] = useState<
     LocalLessonChatMessage[]
   >([])
@@ -372,19 +375,22 @@ export default function LessonChatCard({
     setMessage((prev) => (prev ? `${prev} ${transcript}` : transcript))
   )
 
-  const messages = useMemo<LocalLessonChatMessage[]>(() => {
-    const savedMessages =
-      chatHistoryQuery.data?.map((item: LessonChatMessage) => ({
+  const savedMessages = useMemo<LocalLessonChatMessage[]>(() => {
+    return (
+      chatHistoryQuery.data?.map((item: PersistedLessonChatMessage) => ({
         role: item.role,
         content: item.content,
       })) ?? []
+    )
+  }, [chatHistoryQuery.data])
 
+  const messages = useMemo<LocalLessonChatMessage[]>(() => {
     return [
       { role: 'assistant', content: DEFAULT_CHAT_GREETING },
       ...savedMessages,
       ...localMessages,
     ]
-  }, [chatHistoryQuery.data, localMessages])
+  }, [savedMessages, localMessages])
 
   useEffect(() => {
     if (!zoomOpen) return
@@ -401,37 +407,46 @@ export default function LessonChatCard({
   const sendMessage = () => {
     const trimmed = message.trim()
 
-    if (!trimmed || chatMutation.isPending) return
+    if (!trimmed || chatMutation.isPending || sendLockRef.current) {
+      return
+    }
+
+    sendLockRef.current = true
+    setIsSending(true)
 
     const apiMessages = [
-      ...messages,
+      ...savedMessages,
+      ...localMessages,
       { role: 'user' as const, content: trimmed },
-    ].filter((item) => item.content !== DEFAULT_CHAT_GREETING)
+    ]
 
-    setLocalMessages((current) => [
-      ...current,
-      { role: 'user', content: trimmed },
-    ])
+    setLocalMessages([{ role: 'user', content: trimmed }])
     setMessage('')
 
     chatMutation.mutate(
-      { trackerId, subtopicId, messages: apiMessages },
       {
-        onSuccess: (response) => {
-          setLocalMessages((current) => [
-            ...current,
-            { role: 'assistant', content: response.data.answer },
-          ])
+        trackerId,
+        subtopicId,
+        messages: apiMessages,
+      },
+      {
+        onSuccess: async () => {
+          await chatHistoryQuery.refetch()
+          setLocalMessages([])
         },
 
         onError: (error) => {
-          setLocalMessages((current) => [
-            ...current,
+          setLocalMessages([
             {
               role: 'assistant',
               content: `I could not answer right now. ${error.message}`,
             },
           ])
+        },
+
+        onSettled: () => {
+          sendLockRef.current = false
+          setIsSending(false)
         },
       }
     )
@@ -470,7 +485,9 @@ export default function LessonChatCard({
             <div
               className={cn(
                 'px-4 py-3 leading-normal',
-                large ? 'max-w-[78%] text-[14px]' : 'max-w-[85%] text-[13px]',
+                large
+                  ? 'max-w-[78%] text-[14px]'
+                  : 'max-w-[85%] text-[13px]',
                 isUser
                   ? 'rounded-[16px_16px_4px_16px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
                   : 'rounded-[16px_16px_16px_4px] bg-[rgba(26,23,20,0.09)] text-[#1a1714] dark:bg-white/9 dark:text-[#f2f0eb]'
@@ -482,7 +499,7 @@ export default function LessonChatCard({
         )
       })}
 
-      {chatMutation.isPending && (
+      {isSending && (
         <div className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
           Scribe AI is thinking...
         </div>
@@ -494,7 +511,9 @@ export default function LessonChatCard({
     <div className="flex flex-wrap gap-2">
       <button
         type="button"
-        onClick={() => setMessage('Explain this lesson in simple words')}
+        onClick={() =>
+          setMessage('Explain this lesson in simple words')
+        }
         className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-semibold uppercase tracking-[0.08em] text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
       >
         Explain simply
@@ -516,9 +535,17 @@ export default function LessonChatCard({
         value={message}
         onChange={(event) => setMessage(event.target.value)}
         onKeyDown={(event) => {
-          if (event.key === 'Enter') sendMessage()
+          if (event.key === 'Enter') {
+            event.preventDefault()
+
+            if (!isSending && !chatMutation.isPending) {
+              sendMessage()
+            }
+          }
         }}
-        placeholder={voice.isListening ? 'Listening...' : 'Send a message...'}
+        placeholder={
+          voice.isListening ? 'Listening...' : 'Send a message...'
+        }
         className="min-w-0 flex-1 bg-transparent py-1.5 text-[13px] text-[#1a1714] outline-none placeholder:text-[#6b5f58]/60 dark:text-[#f2f0eb] dark:placeholder:text-[#9b9a92]/60"
       />
 
@@ -532,7 +559,7 @@ export default function LessonChatCard({
       <button
         type="button"
         onClick={sendMessage}
-        disabled={chatMutation.isPending}
+        disabled={chatMutation.isPending || isSending}
         className="flex h-8 w-8 items-center justify-center text-[#b84c2b] transition hover:translate-x-0.5 hover:scale-110 disabled:cursor-wait disabled:opacity-50 dark:text-[#e8816a]"
       >
         ➤

@@ -444,3 +444,73 @@ export type LessonCodeSubmission = {
   createdAt: string
   updatedAt: string
 }
+
+export type LessonGeneratedQuestion = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  question: string
+  questionHash: string
+  source: 'base' | 'ai_generated'
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonQuestionSolution = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  question: string
+  questionHash: string
+  solution: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonQuestionSolutionDoubt = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  solutionId?: string | null
+  userId: string
+  question: string
+  questionHash: string
+  role: 'user' | 'assistant'
+  content: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type GenerateLessonQuestionsPayload = {
+  trackerId: string
+  subtopicId: string
+  count?: number
+}
+
+export type GenerateLessonQuestionsResponse =
+  ApiResponse<LessonGeneratedQuestion[]>
+
+export type GenerateLessonQuestionSolutionPayload = {
+  trackerId: string
+  subtopicId: string
+  question: string
+}
+
+export type GenerateLessonQuestionSolutionResponse =
+  ApiResponse<LessonQuestionSolution>
+
+export type AskLessonQuestionSolutionDoubtPayload = {
+  trackerId: string
+  subtopicId: string
+  question: string
+  message: string
+}
+
+export type AskLessonQuestionSolutionDoubtResponse = ApiResponse<{
+  answer: string
+}>

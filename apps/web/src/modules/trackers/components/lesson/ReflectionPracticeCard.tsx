@@ -1,8 +1,13 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
-  useChatWithLessonTutor,
+  useAskLessonQuestionSolutionDoubt,
+  useGenerateLessonQuestionSolution,
+  useGenerateLessonQuestions,
   useLessonAnswerAttempts,
+  useLessonGeneratedQuestions,
+  useLessonQuestionSolution,
+  useLessonQuestionSolutionDoubts,
   useVerifyLessonAnswer,
 } from '../../hooks/useTrackers'
 import type {
@@ -72,9 +77,7 @@ function useVoiceInput(onTranscript: (text: string) => void) {
     Boolean(getSpeechRecognitionConstructor())
   )
 
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(
-    null
-  )
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null)
   const shouldListenRef = useRef(false)
   const restartTimeoutRef = useRef<number | null>(null)
 
@@ -86,8 +89,7 @@ function useVoiceInput(onTranscript: (text: string) => void) {
   }
 
   const startListening = () => {
-    const SpeechRecognitionConstructor =
-      getSpeechRecognitionConstructor()
+    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor()
 
     if (!SpeechRecognitionConstructor || !isSupported) return
 
@@ -367,6 +369,22 @@ const formatDateTime = (value?: string) => {
   }).format(new Date(value))
 }
 
+const uniqueQuestions = (questions: string[]) => {
+  const seen = new Set<string>()
+
+  return questions.filter((question) => {
+    const normalized = question.trim().toLowerCase()
+
+    if (!normalized || seen.has(normalized)) {
+      return false
+    }
+
+    seen.add(normalized)
+
+    return true
+  })
+}
+
 const getAttemptFeedback = (attempt: LessonAnswerAttempt) => {
   const feedback = attempt.feedback
 
@@ -408,14 +426,20 @@ export default function ReflectionPracticeCard({
   trackerId: string
   subtopicId: string
 }) {
-  const generateQuestionMutation = useChatWithLessonTutor()
-  const generateSolutionMutation = useChatWithLessonTutor()
-  const doubtMutation = useChatWithLessonTutor()
-  const verifyAnswerMutation = useVerifyLessonAnswer()
+  const generatedQuestionsQuery = useLessonGeneratedQuestions(
+    trackerId,
+    subtopicId
+  )
   const answerAttemptsQuery = useLessonAnswerAttempts(
     trackerId,
     subtopicId
   )
+  
+
+  const generateQuestionMutation = useGenerateLessonQuestions()
+  const generateSolutionMutation = useGenerateLessonQuestionSolution()
+  const doubtMutation = useAskLessonQuestionSolutionDoubt()
+  const verifyAnswerMutation = useVerifyLessonAnswer()
 
   const baseQuestions = useMemo(() => {
     const qs = [
@@ -430,7 +454,14 @@ export default function ReflectionPracticeCard({
     return qs.filter(Boolean) as string[]
   }, [lesson])
 
-  const [questions, setQuestions] = useState<string[]>(baseQuestions)
+  const generatedQuestions = useMemo(() => {
+    return generatedQuestionsQuery.data?.map((item) => item.question) ?? []
+  }, [generatedQuestionsQuery.data])
+
+  const questions = useMemo(() => {
+    return uniqueQuestions([...baseQuestions, ...generatedQuestions])
+  }, [baseQuestions, generatedQuestions])
+
   const [selectedQuestion, setSelectedQuestion] = useState(
     baseQuestions[0] || ''
   )
@@ -439,9 +470,21 @@ export default function ReflectionPracticeCard({
     VerifyLessonAnswerResponse['data'] | null
   >(null)
   const [solution, setSolution] = useState('')
+  const [solutionQuestion, setSolutionQuestion] = useState('')
   const [solutionOpen, setSolutionOpen] = useState(false)
   const [doubt, setDoubt] = useState('')
-  const [doubtAnswer, setDoubtAnswer] = useState('')
+
+  const selectedSolutionQuery = useLessonQuestionSolution(
+    trackerId,
+    subtopicId,
+    solutionQuestion || selectedQuestion
+  )
+
+  const solutionDoubtsQuery = useLessonQuestionSolutionDoubts(
+    trackerId,
+    subtopicId,
+    solutionQuestion || selectedQuestion
+  )
 
   const answerVoice = useVoiceInput((transcript) =>
     setAnswer((prev) => (prev ? `${prev} ${transcript}` : transcript))
@@ -458,6 +501,10 @@ export default function ReflectionPracticeCard({
       ) ?? []
     )
   }, [answerAttemptsQuery.data, selectedQuestion])
+
+  const savedSolutionText = selectedSolutionQuery.data?.solution || ''
+  const activeSolution = solution || savedSolutionText
+  const activeSolutionQuestion = solutionQuestion || selectedQuestion
 
   const handleSelectQuestion = (q: string) => {
     setSelectedQuestion(q)
@@ -478,52 +525,11 @@ export default function ReflectionPracticeCard({
   }, [solutionOpen])
 
   const generateMoreQuestions = () => {
-    generateQuestionMutation.mutate(
-      {
-        trackerId,
-        subtopicId,
-        messages: [
-          {
-            role: 'user',
-            content: `
-Generate 5 more practice questions for this lesson.
-
-Lesson title:
-${lesson.title}
-
-Lesson summary:
-${lesson.summary}
-
-Lesson explanation:
-${lesson.explanation}
-
-The user is preparing for interviews / exams / previous-year style questions.
-
-Rules:
-- Questions must be specific to this lesson.
-- Include conceptual, previous-year style, interview-style, application, and math-style questions where relevant.
-- Use readable math notation where needed, like x^2, H_2O, a_n, \\frac{a}{b}, or $$E = mc^2$$.
-- Return only the questions as a numbered list.
-            `.trim(),
-          },
-        ],
-      },
-      {
-        onSuccess: (response) => {
-          const generated = response.data.answer
-            .split('\n')
-            .map((line) =>
-              line
-                .replace(/^\d+[).]\s*/, '')
-                .replace(/^[-*]\s*/, '')
-                .trim()
-            )
-            .filter(Boolean)
-
-          setQuestions((current) => [...current, ...generated])
-        },
-      }
-    )
+    generateQuestionMutation.mutate({
+      trackerId,
+      subtopicId,
+      count: 5,
+    })
   }
 
   const verifyAnswer = () => {
@@ -546,48 +552,25 @@ Rules:
 
   const generateSolution = (question: string) => {
     setSelectedQuestion(question)
+    setSolutionQuestion(question)
     setSolution('')
     setDoubt('')
-    setDoubtAnswer('')
     setSolutionOpen(true)
 
     generateSolutionMutation.mutate(
       {
         trackerId,
         subtopicId,
-        messages: [
-          {
-            role: 'user',
-            content: `
-Generate a clear solution/answer for this question.
-
-Lesson title:
-${lesson.title}
-
-Lesson explanation:
-${lesson.explanation}
-
-Question:
-${question}
-
-Rules:
-- Answer in simple English.
-- Make it useful for interview/exam preparation.
-- Include key points the user should remember.
-- If math is involved, format equations clearly using:
-  - x^2 for powers
-  - a_n for subscripts
-  - \\frac{a}{b} for fractions
-  - $$equation$$ for important standalone equations
-- If relevant, include a short example.
-            `.trim(),
-          },
-        ],
+        question,
       },
       {
-        onSuccess: (response) => setSolution(response.data.answer),
-        onError: (error) =>
-          setSolution(`Could not generate solution. ${error.message}`),
+        onSuccess: (response) => {
+          setSolution(response.data.solution)
+        },
+
+        onError: (error) => {
+          setSolution(`Could not generate solution. ${error.message}`)
+        },
       }
     )
   }
@@ -595,39 +578,19 @@ Rules:
   const askDoubtAboutSolution = () => {
     const trimmed = doubt.trim()
 
-    if (!trimmed || !solution) return
+    if (!trimmed || !activeSolution || !activeSolutionQuestion) return
 
     doubtMutation.mutate(
       {
         trackerId,
         subtopicId,
-        messages: [
-          {
-            role: 'user',
-            content: `
-I have a doubt about this solution.
-
-Lesson:
-${lesson.title}
-
-Question:
-${selectedQuestion}
-
-Solution:
-${solution}
-
-My doubt:
-${trimmed}
-
-Please explain clearly and simply. If math is involved, use proper readable notation like x^2, a_n, \\frac{a}{b}, or $$equation$$.
-            `.trim(),
-          },
-        ],
+        question: activeSolutionQuestion,
+        message: trimmed,
       },
       {
-        onSuccess: (response) => setDoubtAnswer(response.data.answer),
-        onError: (error) =>
-          setDoubtAnswer(`Could not answer doubt. ${error.message}`),
+        onSuccess: () => {
+          setDoubt('')
+        },
       }
     )
   }
@@ -786,6 +749,12 @@ Please explain clearly and simply. If math is involved, use proper readable nota
               </span>
             </div>
 
+            {generatedQuestionsQuery.isLoading ? (
+              <div className="mb-3 rounded-xl border border-dashed border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3 text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]">
+                Loading saved generated questions...
+              </div>
+            ) : null}
+
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-2">
               {questions.map((question, index) => {
                 const active = selectedQuestion === question
@@ -881,10 +850,14 @@ Please explain clearly and simply. If math is involved, use proper readable nota
               <button
                 type="button"
                 onClick={() => generateSolution(selectedQuestion)}
-                disabled={generateSolutionMutation.isPending}
+                disabled={
+                  generateSolutionMutation.isPending || !selectedQuestion
+                }
                 className="rounded-[10px] border border-[#e0d0c5] px-3 py-2 text-[11px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-wait disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
               >
-                Generate Solution
+                {generateSolutionMutation.isPending
+                  ? 'Opening...'
+                  : 'Generate Solution'}
               </button>
             </div>
 
@@ -963,7 +936,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                 </div>
 
                 <MathText className="mt-1 line-clamp-2 text-[18px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                  {selectedQuestion}
+                  {activeSolutionQuestion}
                 </MathText>
               </div>
 
@@ -983,13 +956,15 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                   Solution
                 </h4>
 
-                {generateSolutionMutation.isPending && !solution ? (
+                {(generateSolutionMutation.isPending ||
+                  selectedSolutionQuery.isLoading) &&
+                !activeSolution ? (
                   <p className="text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
-                    Generating a clear answer...
+                    Loading a saved solution or generating a new one...
                   </p>
                 ) : (
                   <MathText className="text-[13.5px] leading-[1.75] text-[#6b5f58] dark:text-[#d8d6cf]">
-                    {solution || 'No solution generated yet.'}
+                    {activeSolution || 'No solution generated yet.'}
                   </MathText>
                 )}
               </div>
@@ -998,6 +973,55 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                 <h4 className="mb-2 text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
                   Ask doubt about this solution
                 </h4>
+
+                <p className="mb-3 text-[12px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                  These doubts are saved separately for this exact question
+                  solution.
+                </p>
+
+                {solutionDoubtsQuery.isLoading ? (
+                  <div className="mb-4 rounded-xl border border-dashed border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3 text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]">
+                    Loading saved solution doubts...
+                  </div>
+                ) : solutionDoubtsQuery.data &&
+                  solutionDoubtsQuery.data.length > 0 ? (
+                  <div className="mb-4 max-h-72 space-y-3 overflow-y-auto pr-1">
+                    {solutionDoubtsQuery.data.map((item) => {
+                      const isUser = item.role === 'user'
+
+                      return (
+                        <div
+                          key={item._id}
+                          className={cn(
+                            'flex items-end gap-3',
+                            isUser && 'flex-row-reverse'
+                          )}
+                        >
+                          {!isUser && (
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-[#b84c2b] dark:bg-white/9 dark:text-[#e8816a]">
+                              🤖
+                            </div>
+                          )}
+
+                          <div
+                            className={cn(
+                              'max-w-[82%] px-4 py-3 text-[13px] leading-normal',
+                              isUser
+                                ? 'rounded-[16px_16px_4px_16px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
+                                : 'rounded-[16px_16px_16px_4px] bg-[rgba(26,23,20,0.09)] text-[#1a1714] dark:bg-white/9 dark:text-[#f2f0eb]'
+                            )}
+                          >
+                            <MathText>{item.content}</MathText>
+                          </div>
+                        </div>
+                      )
+                    })}
+                  </div>
+                ) : (
+                  <div className="mb-4 rounded-xl border border-dashed border-[#e0d0c5] bg-[#fdf8f5] px-4 py-4 text-center text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]">
+                    No doubts asked for this solution yet.
+                  </div>
+                )}
 
                 <div className="relative">
                   <textarea
@@ -1025,18 +1049,14 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                   type="button"
                   onClick={askDoubtAboutSolution}
                   disabled={
-                    doubtMutation.isPending || !doubt.trim() || !solution
+                    doubtMutation.isPending ||
+                    !doubt.trim() ||
+                    !activeSolution
                   }
                   className="mt-3 rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
                 >
                   {doubtMutation.isPending ? 'Answering...' : 'Ask Doubt'}
                 </button>
-
-                {doubtAnswer && (
-                  <div className="mt-4 rounded-[14px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] p-4 text-[13px] leading-[1.7] text-[#6b5f58] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#f2f0eb]">
-                    <MathText>{doubtAnswer}</MathText>
-                  </div>
-                )}
               </div>
             </div>
           </div>

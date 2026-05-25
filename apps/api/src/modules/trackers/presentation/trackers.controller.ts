@@ -36,6 +36,13 @@ import { VerifyTrackerTopicUseCase } from '../application/use-cases/verify-track
 import { VerifyTrackerSubtopicUseCase } from '../application/use-cases/verify-tracker-subtopic.usecase'
 import { VerifyLessonAnswerUseCase } from '../application/use-cases/verify-lesson-answer.usecase'
 
+import { GetLessonGeneratedQuestionsUseCase } from '../application/use-cases/get-lesson-generated-questions.usecase'
+import { GenerateLessonQuestionsUseCase } from '../application/use-cases/generate-lesson-questions.usecase'
+import { GetLessonQuestionSolutionUseCase } from '../application/use-cases/get-lesson-question-solution.usecase'
+import { GenerateLessonQuestionSolutionUseCase } from '../application/use-cases/generate-lesson-question-solution.usecase'
+import { GetLessonQuestionSolutionDoubtsUseCase } from '../application/use-cases/get-lesson-question-solution-doubts.usecase'
+import { AskLessonQuestionSolutionDoubtUseCase } from '../application/use-cases/ask-lesson-question-solution-doubt.usecase'
+
 import {
   createSubtopicSchema,
   createTopicSchema,
@@ -51,6 +58,9 @@ import {
   updateTrackerSchema,
   verifyTopicSchema,
   verifySubtopicSchema,
+   generateLessonQuestionsSchema,
+  lessonQuestionSchema,
+  askLessonQuestionSolutionDoubtSchema,
 } from './trackers.validation'
 
 type TrackerParams = {
@@ -144,6 +154,24 @@ const addMissingEvaluationTopicUseCase =
 
 const verifyTrackerSubtopicUseCase =
   new VerifyTrackerSubtopicUseCase(mongoTrackerRepository)
+
+  const getLessonGeneratedQuestionsUseCase =
+  new GetLessonGeneratedQuestionsUseCase(mongoTrackerRepository)
+
+const generateLessonQuestionsUseCase =
+  new GenerateLessonQuestionsUseCase(mongoTrackerRepository)
+
+const getLessonQuestionSolutionUseCase =
+  new GetLessonQuestionSolutionUseCase(mongoTrackerRepository)
+
+const generateLessonQuestionSolutionUseCase =
+  new GenerateLessonQuestionSolutionUseCase(mongoTrackerRepository)
+
+const getLessonQuestionSolutionDoubtsUseCase =
+  new GetLessonQuestionSolutionDoubtsUseCase(mongoTrackerRepository)
+
+const askLessonQuestionSolutionDoubtUseCase =
+  new AskLessonQuestionSolutionDoubtUseCase(mongoTrackerRepository)
 
 export const trackerController = {
   getSummary: async (
@@ -844,6 +872,164 @@ export const trackerController = {
       res.json(
         new ApiResponse(
           'Lesson code submissions fetched successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+    getLessonGeneratedQuestions: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result =
+        await getLessonGeneratedQuestionsUseCase.execute({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson generated questions fetched successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  generateLessonQuestions: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const body = generateLessonQuestionsSchema.parse(req.body)
+
+      const result = await generateLessonQuestionsUseCase.execute({
+        trackerId: req.params.trackerId,
+        subtopicId: req.params.subtopicId,
+        userId: req.user!.userId,
+        count: body.count,
+      })
+
+      res.json(
+        new ApiResponse(
+          'Lesson questions generated successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getLessonQuestionSolution: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const query = lessonQuestionSchema.parse(req.query)
+
+      const result =
+        await getLessonQuestionSolutionUseCase.execute({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+          question: query.question,
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson question solution fetched successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  generateLessonQuestionSolution: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const body = lessonQuestionSchema.parse(req.body)
+
+      const result =
+        await generateLessonQuestionSolutionUseCase.execute({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+          question: body.question,
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson question solution generated successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getLessonQuestionSolutionDoubts: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const query = lessonQuestionSchema.parse(req.query)
+
+      const result =
+        await getLessonQuestionSolutionDoubtsUseCase.execute({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+          question: query.question,
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson question solution doubts fetched successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  askLessonQuestionSolutionDoubt: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const body = askLessonQuestionSolutionDoubtSchema.parse(req.body)
+
+      const result =
+        await askLessonQuestionSolutionDoubtUseCase.execute({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+          question: body.question,
+          message: body.message,
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson question solution doubt answered successfully',
           result
         )
       )

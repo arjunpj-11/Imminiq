@@ -113,3 +113,16 @@ export const verifySubtopicSchema = z.object({
     difficulty: z.string().optional().default(''),
   })).optional().default([]),
 })
+
+export const generateLessonQuestionsSchema = z.object({
+  count: z.number().int().min(1).max(10).optional(),
+})
+
+export const lessonQuestionSchema = z.object({
+  question: z.string().trim().min(1),
+})
+
+export const askLessonQuestionSolutionDoubtSchema = z.object({
+  question: z.string().trim().min(1),
+  message: z.string().trim().min(1),
+})

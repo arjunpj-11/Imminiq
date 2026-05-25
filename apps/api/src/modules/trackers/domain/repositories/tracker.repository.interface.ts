@@ -277,4 +277,61 @@ getTopicsWithUserProgress(data: {
     actualOutput?: string
     feedback?: string
   }): Promise<unknown>
+
+    getLessonGeneratedQuestions(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+  }): Promise<unknown[]>
+
+  createLessonGeneratedQuestions(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    lessonId?: string | null
+    questions: {
+      question: string
+      questionHash: string
+      source?: 'base' | 'ai_generated'
+    }[]
+  }): Promise<unknown[]>
+
+  findLessonQuestionSolution(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    questionHash: string
+  }): Promise<unknown | null>
+
+  createLessonQuestionSolution(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    lessonId?: string | null
+    question: string
+    questionHash: string
+    solution: string
+  }): Promise<unknown>
+
+  getLessonQuestionSolutionDoubts(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    questionHash: string
+  }): Promise<unknown[]>
+
+  createLessonQuestionSolutionDoubt(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    lessonId?: string | null
+    solutionId?: string | null
+    question: string
+    questionHash: string
+    role: 'user' | 'assistant'
+    content: string
+  }): Promise<unknown>
+
+  
 }
+
