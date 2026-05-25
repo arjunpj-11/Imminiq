@@ -876,6 +876,73 @@ export const useVerifyLessonAnswer = () => {
   })
 }
 
+export const useClearLessonChatHistory = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    ApiResponse<unknown>,
+    Error,
+    {
+      trackerId: string
+      subtopicId: string
+    }
+  >({
+    mutationFn: async ({ trackerId, subtopicId }) => {
+      const response = await api.delete<ApiResponse<unknown>>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/chat`
+      )
+
+      return response.data
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonChat(
+          variables.trackerId,
+          variables.subtopicId
+        ),
+      })
+    },
+  })
+}
+
+export const useClearLessonQuestionSolutionDoubts = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    ApiResponse<unknown>,
+    Error,
+    {
+      trackerId: string
+      subtopicId: string
+      question: string
+    }
+  >({
+    mutationFn: async ({ trackerId, subtopicId, question }) => {
+      const response = await api.delete<ApiResponse<unknown>>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
+        {
+          params: {
+            question,
+          },
+        }
+      )
+
+      return response.data
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonQuestionSolutionDoubts(
+          variables.trackerId,
+          variables.subtopicId,
+          variables.question
+        ),
+      })
+    },
+  })
+}
+
 export const useAddMissingEvaluationTopic = () => {
   const queryClient = useQueryClient()
 

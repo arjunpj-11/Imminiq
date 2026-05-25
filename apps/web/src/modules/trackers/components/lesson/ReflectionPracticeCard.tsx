@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   useAskLessonQuestionSolutionDoubt,
+  useClearLessonQuestionSolutionDoubts,
   useGenerateLessonQuestionSolution,
   useGenerateLessonQuestions,
   useLessonAnswerAttempts,
@@ -77,7 +78,9 @@ function useVoiceInput(onTranscript: (text: string) => void) {
     Boolean(getSpeechRecognitionConstructor())
   )
 
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null)
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(
+    null
+  )
   const shouldListenRef = useRef(false)
   const restartTimeoutRef = useRef<number | null>(null)
 
@@ -89,7 +92,8 @@ function useVoiceInput(onTranscript: (text: string) => void) {
   }
 
   const startListening = () => {
-    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor()
+    const SpeechRecognitionConstructor =
+      getSpeechRecognitionConstructor()
 
     if (!SpeechRecognitionConstructor || !isSupported) return
 
@@ -434,11 +438,12 @@ export default function ReflectionPracticeCard({
     trackerId,
     subtopicId
   )
-  
 
   const generateQuestionMutation = useGenerateLessonQuestions()
   const generateSolutionMutation = useGenerateLessonQuestionSolution()
   const doubtMutation = useAskLessonQuestionSolutionDoubt()
+  const clearSolutionDoubtsMutation =
+    useClearLessonQuestionSolutionDoubts()
   const verifyAnswerMutation = useVerifyLessonAnswer()
 
   const baseQuestions = useMemo(() => {
@@ -590,6 +595,37 @@ export default function ReflectionPracticeCard({
       {
         onSuccess: () => {
           setDoubt('')
+        },
+      }
+    )
+  }
+
+  const clearSolutionDoubts = () => {
+    if (
+      clearSolutionDoubtsMutation.isPending ||
+      !activeSolutionQuestion ||
+      !solutionDoubtsQuery.data ||
+      solutionDoubtsQuery.data.length === 0
+    ) {
+      return
+    }
+
+    const confirmed = window.confirm(
+      'Clear all doubts for this generated solution?'
+    )
+
+    if (!confirmed) return
+
+    clearSolutionDoubtsMutation.mutate(
+      {
+        trackerId,
+        subtopicId,
+        question: activeSolutionQuestion,
+      },
+      {
+        onSuccess: async () => {
+          setDoubt('')
+          await solutionDoubtsQuery.refetch()
         },
       }
     )
@@ -970,9 +1006,27 @@ export default function ReflectionPracticeCard({
               </div>
 
               <div className="mt-5 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-5 dark:border-white/9 dark:bg-[#252320]">
-                <h4 className="mb-2 text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                  Ask doubt about this solution
-                </h4>
+                <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
+                  <h4 className="text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                    Ask doubt about this solution
+                  </h4>
+
+                  <button
+                    type="button"
+                    onClick={clearSolutionDoubts}
+                    disabled={
+                      clearSolutionDoubtsMutation.isPending ||
+                      doubtMutation.isPending ||
+                      !solutionDoubtsQuery.data ||
+                      solutionDoubtsQuery.data.length === 0
+                    }
+                    className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em] text-[#6b5f58] transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-red-400"
+                  >
+                    {clearSolutionDoubtsMutation.isPending
+                      ? 'Clearing'
+                      : 'Clear Doubts'}
+                  </button>
+                </div>
 
                 <p className="mb-3 text-[12px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
                   These doubts are saved separately for this exact question
@@ -1023,16 +1077,23 @@ export default function ReflectionPracticeCard({
                   </div>
                 )}
 
+                {clearSolutionDoubtsMutation.isPending && (
+                  <div className="mb-4 text-[12px] text-red-500 dark:text-red-400">
+                    Clearing solution doubts...
+                  </div>
+                )}
+
                 <div className="relative">
                   <textarea
                     value={doubt}
                     onChange={(event) => setDoubt(event.target.value)}
+                    disabled={clearSolutionDoubtsMutation.isPending}
                     placeholder={
                       doubtVoice.isListening
                         ? 'Listening... speak your doubt'
                         : 'Example: I did not understand the second point...'
                     }
-                    className="min-h-28 w-full resize-none rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3 pr-16 text-[13px] text-[#1a1714] outline-none transition focus:border-[#e8816a] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]"
+                    className="min-h-28 w-full resize-none rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3 pr-16 text-[13px] text-[#1a1714] outline-none transition focus:border-[#e8816a] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]"
                   />
 
                   <div className="absolute bottom-3 right-3">
@@ -1050,6 +1111,7 @@ export default function ReflectionPracticeCard({
                   onClick={askDoubtAboutSolution}
                   disabled={
                     doubtMutation.isPending ||
+                    clearSolutionDoubtsMutation.isPending ||
                     !doubt.trim() ||
                     !activeSolution
                   }

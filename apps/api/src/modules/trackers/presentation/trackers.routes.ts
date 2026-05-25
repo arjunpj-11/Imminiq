@@ -131,6 +131,16 @@ router.post(
   trackerController.getOptimizedSolution
 )
 
+router.delete(
+  '/:trackerId/lessons/:subtopicId/chat',
+  trackerController.clearLessonChatHistory
+)
+
+router.delete(
+  '/:trackerId/lessons/:subtopicId/question-solution/doubts',
+  trackerController.clearLessonQuestionSolutionDoubts
+)
+
 // ─── AI Topic/Subtopic Verification ──────────────────────────────────────────
 
 router.post('/:trackerId/topics/verify', trackerController.verifyTopic)

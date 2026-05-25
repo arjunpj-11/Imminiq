@@ -42,6 +42,8 @@ import { GetLessonQuestionSolutionUseCase } from '../application/use-cases/get-l
 import { GenerateLessonQuestionSolutionUseCase } from '../application/use-cases/generate-lesson-question-solution.usecase'
 import { GetLessonQuestionSolutionDoubtsUseCase } from '../application/use-cases/get-lesson-question-solution-doubts.usecase'
 import { AskLessonQuestionSolutionDoubtUseCase } from '../application/use-cases/ask-lesson-question-solution-doubt.usecase'
+import { ClearLessonChatHistoryUseCase } from '../application/use-cases/clear-lesson-chat-history.usecase'
+import { ClearLessonQuestionSolutionDoubtsUseCase } from '../application/use-cases/clear-lesson-question-solution-doubts.usecase'
 
 import {
   createSubtopicSchema,
@@ -172,6 +174,12 @@ const getLessonQuestionSolutionDoubtsUseCase =
 
 const askLessonQuestionSolutionDoubtUseCase =
   new AskLessonQuestionSolutionDoubtUseCase(mongoTrackerRepository)
+
+  const clearLessonChatHistoryUseCase =
+  new ClearLessonChatHistoryUseCase(mongoTrackerRepository)
+
+const clearLessonQuestionSolutionDoubtsUseCase =
+  new ClearLessonQuestionSolutionDoubtsUseCase(mongoTrackerRepository)
 
 export const trackerController = {
   getSummary: async (
@@ -1037,4 +1045,54 @@ export const trackerController = {
       next(error)
     }
   },
+
+  clearLessonChatHistory: async (
+  req: Request<LessonParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await clearLessonChatHistoryUseCase.execute({
+      trackerId: req.params.trackerId,
+      subtopicId: req.params.subtopicId,
+      userId: req.user!.userId,
+    })
+
+    res.json(
+      new ApiResponse(
+        'Lesson chat history cleared successfully',
+        result
+      )
+    )
+  } catch (error) {
+    next(error)
+  }
+},
+
+clearLessonQuestionSolutionDoubts: async (
+  req: Request<LessonParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const query = lessonQuestionSchema.parse(req.query)
+
+    const result =
+      await clearLessonQuestionSolutionDoubtsUseCase.execute({
+        trackerId: req.params.trackerId,
+        subtopicId: req.params.subtopicId,
+        userId: req.user!.userId,
+        question: query.question,
+      })
+
+    res.json(
+      new ApiResponse(
+        'Lesson question solution doubts cleared successfully',
+        result
+      )
+    )
+  } catch (error) {
+    next(error)
+  }
+},
 }
