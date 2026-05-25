@@ -773,4 +773,82 @@ export const trackerController = {
       next(error)
     }
   },
+    getLessonChatHistory: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result =
+        await mongoTrackerRepository.getLessonChatMessages({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+          scope: 'lesson_doubt_chat',
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson chat history fetched successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getLessonAnswerAttempts: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result =
+        await mongoTrackerRepository.getLessonAnswerAttempts({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson answer attempts fetched successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
+
+  getLessonCodeSubmissions: async (
+    req: Request<LessonParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const action =
+        req.query.action === 'run' || req.query.action === 'submit'
+          ? req.query.action
+          : undefined
+
+      const result =
+        await mongoTrackerRepository.getLessonCodeSubmissions({
+          trackerId: req.params.trackerId,
+          subtopicId: req.params.subtopicId,
+          userId: req.user!.userId,
+          action,
+        })
+
+      res.json(
+        new ApiResponse(
+          'Lesson code submissions fetched successfully',
+          result
+        )
+      )
+    } catch (error) {
+      next(error)
+    }
+  },
 }

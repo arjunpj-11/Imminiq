@@ -45,11 +45,44 @@ export class ChatWithLessonTutorUseCase {
       )
     }
 
+    const latestUserMessage = [...input.messages]
+      .reverse()
+      .find((message) => message.role === 'user')
+
+    const lessonId =
+      typeof lesson._id === 'string'
+        ? lesson._id
+        : lesson._id?.toString?.() ?? null
+
+    if (latestUserMessage?.content?.trim()) {
+      await this.trackerRepository.createLessonChatMessage({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+        lessonId,
+        scope: 'lesson_doubt_chat',
+        role: 'user',
+        content: latestUserMessage.content.trim(),
+      })
+    }
+
     const answer = await chatWithLessonTutor({
       lessonTitle: lesson.title,
       lessonContent: `${lesson.summary}\n\n${lesson.explanation}\n\n${lesson.insight}`,
       messages: input.messages,
     })
+
+    if (answer?.trim()) {
+      await this.trackerRepository.createLessonChatMessage({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+        lessonId,
+        scope: 'lesson_doubt_chat',
+        role: 'assistant',
+        content: answer.trim(),
+      })
+    }
 
     return {
       answer,

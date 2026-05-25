@@ -325,6 +325,9 @@ export type SubmitLessonCodeResponse = ApiResponse<{
     id: number
     description: string
   }
+  time: string | null
+  memory: number | null
+  feedback?: string
   canCompareOptimized: boolean
   canAskHints: boolean
 }>
@@ -372,3 +375,72 @@ export type VerifyLessonAnswerResponse = ApiResponse<{
   correctedAnswer: string
   keyPoints: string[]
 }>
+
+export type LessonChatRole = 'user' | 'assistant'
+
+export type LessonChatScope =
+  | 'lesson_doubt_chat'
+  | 'question_solution_chat'
+
+export type PersistedLessonChatMessage = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  scope: LessonChatScope
+  questionId?: string | null
+  role: LessonChatRole
+  content: string
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonAnswerAttempt = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  questionId?: string | null
+  question: string
+  answer: string
+  feedback: VerifyLessonAnswerResponse['data']
+  isCorrect: boolean
+  score: number
+  attemptNumber: number
+  createdAt: string
+  updatedAt: string
+}
+
+export type LessonCodeSubmissionAction = 'run' | 'submit'
+
+export type LessonCodeSubmission = {
+  _id: string
+  trackerId: string
+  subtopicId: string
+  lessonId?: string | null
+  userId: string
+  questionId?: string | null
+  action: LessonCodeSubmissionAction
+  language: string
+  languageId?: number | null
+  sourceCode: string
+  stdin?: string
+  stdout?: string
+  stderr?: string
+  compileOutput?: string
+  message?: string
+  status?: {
+    id?: number
+    description?: string
+  } | null
+  time?: string | null
+  memory?: number | null
+  isCorrect: boolean
+  expectedOutput?: string
+  actualOutput?: string
+  feedback?: string
+  createdAt: string
+  updatedAt: string
+}

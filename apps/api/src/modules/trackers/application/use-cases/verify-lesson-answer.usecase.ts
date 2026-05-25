@@ -12,6 +12,30 @@ type VerifyLessonAnswerInput = {
   answer: string
 }
 
+const getLessonId = (lesson: unknown) => {
+  const lessonWithId = lesson as { _id?: unknown }
+
+  if (typeof lessonWithId._id === 'string') {
+    return lessonWithId._id
+  }
+
+  if (
+    lessonWithId._id &&
+    typeof lessonWithId._id === 'object' &&
+    'toString' in lessonWithId._id
+  ) {
+    return lessonWithId._id.toString()
+  }
+
+  return null
+}
+
+const getIsCorrectFromResult = (result: {
+  verdict?: 'correct' | 'partially_correct' | 'incorrect'
+}) => {
+  return result.verdict === 'correct'
+}
+
 export class VerifyLessonAnswerUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepository
@@ -33,20 +57,53 @@ export class VerifyLessonAnswerUseCase {
     }
 
     const lesson =
-      await this.trackerRepository.findGeneratedLessonBySubtopic({
+      await this.trackerRepository.findLessonBySubtopicId({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
       })
 
-    return verifyNonCodingAnswer({
-      lessonTitle: lesson?.title || tracker.title || 'Lesson practice',
-      lessonExplanation:
-        lesson?.explanation ||
-        'The learner is answering a practice question from this tracker lesson.',
+    if (!lesson) {
+      throw new ApiError(
+        404,
+        'Generate the lesson before verifying answer',
+        'LESSON_NOT_GENERATED'
+      )
+    }
+
+ const practiceTask = lesson.practiceTask as {
+  expectedAnswer?: string
+} | undefined
+
+const result = await verifyNonCodingAnswer({
+  lessonTitle: lesson.title || tracker.title || 'Lesson practice',
+  lessonExplanation:
+    lesson.explanation ||
+    'The learner is answering a practice question from this tracker lesson.',
+  question: input.question,
+  expectedAnswer: practiceTask?.expectedAnswer || '',
+  userAnswer: input.answer,
+})
+
+    const isCorrect = getIsCorrectFromResult(result)
+
+    await this.trackerRepository.createLessonAnswerAttempt({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+      lessonId: getLessonId(lesson),
       question: input.question,
-      expectedAnswer: lesson?.practiceTask?.expectedAnswer || '',
-      userAnswer: input.answer,
+      answer: input.answer,
+      feedback: result,
+      isCorrect,
+      score:
+        typeof result.score === 'number'
+          ? result.score
+          : isCorrect
+            ? 100
+            : 0,
     })
+
+    return result
   }
 }

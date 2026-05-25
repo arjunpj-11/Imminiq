@@ -34,6 +34,10 @@ import type {
   UpdateTrackerPayload,
   VerifyLessonAnswerPayload,
   VerifyLessonAnswerResponse,
+  LessonAnswerAttempt,
+LessonCodeSubmission,
+LessonCodeSubmissionAction,
+PersistedLessonChatMessage,
 } from "../types/tracker.types";
 
 export const trackerKeys = {
@@ -54,6 +58,23 @@ export const trackerKeys = {
 
   lesson: (trackerId: string, subtopicId: string) =>
     [...trackerKeys.detail(trackerId), "lesson", subtopicId] as const,
+
+  lessonChat: (trackerId: string, subtopicId: string) =>
+    [...trackerKeys.lesson(trackerId, subtopicId), "chat"] as const,
+
+  lessonAnswerAttempts: (trackerId: string, subtopicId: string) =>
+    [...trackerKeys.lesson(trackerId, subtopicId), "answer-attempts"] as const,
+
+  lessonCodeSubmissions: (
+    trackerId: string,
+    subtopicId: string,
+    action?: LessonCodeSubmissionAction
+  ) =>
+    [
+      ...trackerKeys.lesson(trackerId, subtopicId),
+      "code-submissions",
+      action || "all",
+    ] as const,
 };
 
 const unwrap = <T>(response: ApiResponse<T>) => {
@@ -139,6 +160,71 @@ export const useTrackerLesson = (trackerId?: string, subtopicId?: string) => {
     queryFn: async () => {
       const response = await api.get<ApiResponse<TrackerLessonResponse>>(
         `/trackers/${trackerId}/lessons/${subtopicId}`,
+      );
+
+      return unwrap(response.data);
+    },
+  });
+};
+
+export const useLessonChatHistory = (
+  trackerId?: string,
+  subtopicId?: string
+) => {
+  return useQuery({
+    queryKey: trackerKeys.lessonChat(trackerId || "", subtopicId || ""),
+    enabled: Boolean(trackerId && subtopicId),
+
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<PersistedLessonChatMessage[]>>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/chat`
+      );
+
+      return unwrap(response.data);
+    },
+  });
+};
+
+export const useLessonAnswerAttempts = (
+  trackerId?: string,
+  subtopicId?: string
+) => {
+  return useQuery({
+    queryKey: trackerKeys.lessonAnswerAttempts(
+      trackerId || "",
+      subtopicId || ""
+    ),
+    enabled: Boolean(trackerId && subtopicId),
+
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<LessonAnswerAttempt[]>>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/answer/attempts`
+      );
+
+      return unwrap(response.data);
+    },
+  });
+};
+
+export const useLessonCodeSubmissions = (
+  trackerId?: string,
+  subtopicId?: string,
+  action?: LessonCodeSubmissionAction
+) => {
+  return useQuery({
+    queryKey: trackerKeys.lessonCodeSubmissions(
+      trackerId || "",
+      subtopicId || "",
+      action
+    ),
+    enabled: Boolean(trackerId && subtopicId),
+
+    queryFn: async () => {
+      const response = await api.get<ApiResponse<LessonCodeSubmission[]>>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/code/submissions`,
+        {
+          params: action ? { action } : undefined,
+        }
       );
 
       return unwrap(response.data);
@@ -405,21 +491,34 @@ export const useUpdateSubtopicProgress = () => {
 };
 
 export const useChatWithLessonTutor = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<LessonChatResponse, Error, LessonChatPayload>({
     mutationFn: async ({ trackerId, subtopicId, messages }) => {
       const response = await api.post<LessonChatResponse>(
         `/trackers/${trackerId}/lessons/${subtopicId}/chat`,
         {
           messages,
-        },
+        }
       );
 
       return response.data;
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonChat(
+          variables.trackerId,
+          variables.subtopicId
+        ),
+      });
     },
   });
 };
 
 export const useRunLessonCode = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<RunLessonCodeResponse, Error, RunLessonCodePayload>({
     mutationFn: async ({
       trackerId,
@@ -436,15 +535,34 @@ export const useRunLessonCode = () => {
           languageId,
           language,
           stdin,
-        },
+        }
       );
 
       return response.data;
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonCodeSubmissions(
+          variables.trackerId,
+          variables.subtopicId
+        ),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonCodeSubmissions(
+          variables.trackerId,
+          variables.subtopicId,
+          "run"
+        ),
+      });
     },
   });
 };
 
 export const useSubmitLessonCode = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<SubmitLessonCodeResponse, Error, SubmitLessonCodePayload>({
     mutationFn: async ({
       trackerId,
@@ -461,10 +579,27 @@ export const useSubmitLessonCode = () => {
           languageId,
           language,
           stdin,
-        },
+        }
       );
 
       return response.data;
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonCodeSubmissions(
+          variables.trackerId,
+          variables.subtopicId
+        ),
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonCodeSubmissions(
+          variables.trackerId,
+          variables.subtopicId,
+          "submit"
+        ),
+      });
     },
   });
 };
@@ -515,6 +650,8 @@ export const useGetOptimizedSolution = () => {
 };
 
 export const useVerifyLessonAnswer = () => {
+  const queryClient = useQueryClient();
+
   return useMutation<
     VerifyLessonAnswerResponse,
     Error,
@@ -526,10 +663,19 @@ export const useVerifyLessonAnswer = () => {
         {
           question,
           answer,
-        },
+        }
       );
 
       return response.data;
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonAnswerAttempts(
+          variables.trackerId,
+          variables.subtopicId
+        ),
+      });
     },
   });
 };

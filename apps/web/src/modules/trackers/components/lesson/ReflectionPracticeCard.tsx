@@ -2,10 +2,12 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 
 import {
   useChatWithLessonTutor,
+  useLessonAnswerAttempts,
   useVerifyLessonAnswer,
 } from '../../hooks/useTrackers'
 import type {
   GeneratedLesson,
+  LessonAnswerAttempt,
   VerifyLessonAnswerResponse,
 } from '../../types/tracker.types'
 
@@ -41,7 +43,8 @@ type BrowserSpeechRecognition = {
   abort: () => void
 }
 
-type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition
+type BrowserSpeechRecognitionConstructor =
+  new () => BrowserSpeechRecognition
 
 type SpeechRecognitionWindow = Window &
   typeof globalThis & {
@@ -65,9 +68,13 @@ function getSpeechRecognitionConstructor() {
 
 function useVoiceInput(onTranscript: (text: string) => void) {
   const [isListening, setIsListening] = useState(false)
-  const [isSupported] = useState(() => Boolean(getSpeechRecognitionConstructor()))
+  const [isSupported] = useState(() =>
+    Boolean(getSpeechRecognitionConstructor())
+  )
 
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null)
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(
+    null
+  )
   const shouldListenRef = useRef(false)
   const restartTimeoutRef = useRef<number | null>(null)
 
@@ -79,7 +86,8 @@ function useVoiceInput(onTranscript: (text: string) => void) {
   }
 
   const startListening = () => {
-    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor()
+    const SpeechRecognitionConstructor =
+      getSpeechRecognitionConstructor()
 
     if (!SpeechRecognitionConstructor || !isSupported) return
 
@@ -222,6 +230,7 @@ function MicIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+
       <path
         d="M5.75 10.75c0 3.45 2.8 6.25 6.25 6.25s6.25-2.8 6.25-6.25"
         stroke="currentColor"
@@ -229,12 +238,14 @@ function MicIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+
       <path
         d="M12 17v4"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
       />
+
       <path
         d="M8.75 21h6.5"
         stroke="currentColor"
@@ -286,7 +297,9 @@ function MicButton({
       type="button"
       onClick={onToggle}
       title={isListening ? 'Stop listening' : 'Voice input'}
-      aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+      aria-label={
+        isListening ? 'Stop voice input' : 'Start voice input'
+      }
       className={cn(
         'relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border transition',
         size === 'sm' ? 'h-9 w-9' : 'h-10 w-10',
@@ -297,7 +310,7 @@ function MicButton({
     >
       {isListening && (
         <>
-          <span className="absolute inset-0 rounded-full bg-red-500/10 animate-ping" />
+          <span className="absolute inset-0 animate-ping rounded-full bg-red-500/10" />
 
           <span className="absolute bottom-1.5 left-1/2 flex h-4 -translate-x-1/2 items-end gap-0.5">
             <span className="h-1.5 w-0.75 animate-[voiceWave_0.55s_ease-in-out_infinite] rounded-full bg-current opacity-70" />
@@ -334,6 +347,56 @@ function MicButton({
   )
 }
 
+// ─── Helpers ─────────────────────────────────────────────────────────────────
+
+const formatVerdict = (verdict?: string) => {
+  if (!verdict) return 'Not checked'
+
+  return verdict
+    .split('_')
+    .join(' ')
+    .replace(/\b\w/g, (letter) => letter.toUpperCase())
+}
+
+const formatDateTime = (value?: string) => {
+  if (!value) return ''
+
+  return new Intl.DateTimeFormat(undefined, {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(value))
+}
+
+const getAttemptFeedback = (attempt: LessonAnswerAttempt) => {
+  const feedback = attempt.feedback
+
+  if (
+    feedback &&
+    typeof feedback === 'object' &&
+    'feedback' in feedback &&
+    typeof feedback.feedback === 'string'
+  ) {
+    return feedback.feedback
+  }
+
+  return ''
+}
+
+const getAttemptCorrectedAnswer = (attempt: LessonAnswerAttempt) => {
+  const feedback = attempt.feedback
+
+  if (
+    feedback &&
+    typeof feedback === 'object' &&
+    'correctedAnswer' in feedback &&
+    typeof feedback.correctedAnswer === 'string'
+  ) {
+    return feedback.correctedAnswer
+  }
+
+  return ''
+}
+
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function ReflectionPracticeCard({
@@ -349,6 +412,10 @@ export default function ReflectionPracticeCard({
   const generateSolutionMutation = useChatWithLessonTutor()
   const doubtMutation = useChatWithLessonTutor()
   const verifyAnswerMutation = useVerifyLessonAnswer()
+  const answerAttemptsQuery = useLessonAnswerAttempts(
+    trackerId,
+    subtopicId
+  )
 
   const baseQuestions = useMemo(() => {
     const qs = [
@@ -364,7 +431,9 @@ export default function ReflectionPracticeCard({
   }, [lesson])
 
   const [questions, setQuestions] = useState<string[]>(baseQuestions)
-  const [selectedQuestion, setSelectedQuestion] = useState(baseQuestions[0] || '')
+  const [selectedQuestion, setSelectedQuestion] = useState(
+    baseQuestions[0] || ''
+  )
   const [answer, setAnswer] = useState('')
   const [verification, setVerification] = useState<
     VerifyLessonAnswerResponse['data'] | null
@@ -381,6 +450,14 @@ export default function ReflectionPracticeCard({
   const doubtVoice = useVoiceInput((transcript) =>
     setDoubt((prev) => (prev ? `${prev} ${transcript}` : transcript))
   )
+
+  const selectedQuestionAttempts = useMemo(() => {
+    return (
+      answerAttemptsQuery.data?.filter(
+        (attempt) => attempt.question === selectedQuestion
+      ) ?? []
+    )
+  }, [answerAttemptsQuery.data, selectedQuestion])
 
   const handleSelectQuestion = (q: string) => {
     setSelectedQuestion(q)
@@ -436,7 +513,10 @@ Rules:
           const generated = response.data.answer
             .split('\n')
             .map((line) =>
-              line.replace(/^\d+[).]\s*/, '').replace(/^[-*]\s*/, '').trim()
+              line
+                .replace(/^\d+[).]\s*/, '')
+                .replace(/^[-*]\s*/, '')
+                .trim()
             )
             .filter(Boolean)
 
@@ -452,8 +532,15 @@ Rules:
     if (!trimmed) return
 
     verifyAnswerMutation.mutate(
-      { trackerId, subtopicId, question: selectedQuestion, answer: trimmed },
-      { onSuccess: (response) => setVerification(response.data) }
+      {
+        trackerId,
+        subtopicId,
+        question: selectedQuestion,
+        answer: trimmed,
+      },
+      {
+        onSuccess: (response) => setVerification(response.data),
+      }
     )
   }
 
@@ -546,11 +633,109 @@ Please explain clearly and simply. If math is involved, use proper readable nota
   }
 
   const verdictLabel = verification
-    ? verification.verdict
-        .split('_')
-        .join(' ')
-        .replace(/\b\w/g, (letter) => letter.toUpperCase())
+    ? formatVerdict(verification.verdict)
     : ''
+
+  const renderPreviousAttempts = () => (
+    <div className="mt-5 rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h4 className="text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+            Previous Responses
+          </h4>
+
+          <p className="mt-1 text-[11.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+            Only submitted answers are saved. Draft typing is not stored.
+          </p>
+        </div>
+
+        <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+          {selectedQuestionAttempts.length} Attempts
+        </span>
+      </div>
+
+      {answerAttemptsQuery.isLoading ? (
+        <div className="rounded-xl border border-dashed border-[#e0d0c5] bg-white/60 px-4 py-5 text-center text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-white/5 dark:text-[#9b9a92]">
+          Loading previous responses...
+        </div>
+      ) : selectedQuestionAttempts.length === 0 ? (
+        <div className="rounded-xl border border-dashed border-[#e0d0c5] bg-white/60 px-4 py-5 text-center text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-white/5 dark:text-[#9b9a92]">
+          No previous responses for this question yet.
+        </div>
+      ) : (
+        <div className="max-h-90 space-y-3 overflow-y-auto pr-1">
+          {selectedQuestionAttempts.map((attempt) => {
+            const feedback = getAttemptFeedback(attempt)
+            const correctedAnswer = getAttemptCorrectedAnswer(attempt)
+
+            return (
+              <article
+                key={attempt._id}
+                className="rounded-2xl border border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320]"
+              >
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="rounded-full bg-[#1a1714] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-white dark:bg-[#f2f0eb] dark:text-[#141412]">
+                      Attempt {attempt.attemptNumber}
+                    </span>
+
+                    <span
+                      className={cn(
+                        'rounded-full border px-2.5 py-1 font-[\'DM_Mono\',monospace] text-[8px] uppercase tracking-[0.08em]',
+                        attempt.isCorrect
+                          ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
+                          : 'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
+                      )}
+                    >
+                      Score {attempt.score}/100
+                    </span>
+                  </div>
+
+                  <span className="text-[10.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+                    {formatDateTime(attempt.createdAt)}
+                  </span>
+                </div>
+
+                <div>
+                  <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+                    Your Answer
+                  </div>
+
+                  <MathText className="text-[12.5px] leading-[1.65] text-[#1a1714] dark:text-[#f2f0eb]">
+                    {attempt.answer}
+                  </MathText>
+                </div>
+
+                {feedback && (
+                  <div className="mt-3 rounded-xl border border-[#e0d0c5] bg-[#fdf8f5] p-3 dark:border-white/9 dark:bg-[#1e1c19]">
+                    <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+                      Feedback
+                    </div>
+
+                    <MathText className="text-[12.5px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                      {feedback}
+                    </MathText>
+                  </div>
+                )}
+
+                {correctedAnswer && (
+                  <div className="mt-3 rounded-xl border border-[#e0d0c5] bg-[#fdf8f5] p-3 dark:border-white/9 dark:bg-[#1e1c19]">
+                    <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+                      Corrected Answer
+                    </div>
+
+                    <MathText className="text-[12.5px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                      {correctedAnswer}
+                    </MathText>
+                  </div>
+                )}
+              </article>
+            )
+          })}
+        </div>
+      )}
+    </div>
+  )
 
   return (
     <>
@@ -567,7 +752,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
 
             <p className="mt-2 max-w-2xl text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
               Select a question, type your answer, and let Scribe AI correct
-              and improve it.
+              and improve it. Your submitted attempts are saved as history.
             </p>
           </div>
 
@@ -590,6 +775,7 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                 <h3 className="text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
                   Question Set
                 </h3>
+
                 <p className="mt-1 text-[11.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
                   Click a question card to select it.
                 </p>
@@ -603,6 +789,10 @@ Please explain clearly and simply. If math is involved, use proper readable nota
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-2">
               {questions.map((question, index) => {
                 const active = selectedQuestion === question
+                const attemptCount =
+                  answerAttemptsQuery.data?.filter(
+                    (attempt) => attempt.question === question
+                  ).length ?? 0
 
                 return (
                   <article
@@ -620,11 +810,20 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                         Question {index + 1}
                       </div>
 
-                      {active && (
-                        <span className="rounded-full bg-[#b84c2b] px-2 py-0.5 font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] text-white dark:bg-[#e8816a] dark:text-[#141412]">
-                          Selected
-                        </span>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {attemptCount > 0 && (
+                          <span className="rounded-full border border-[#e0d0c5] px-2 py-0.5 font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">
+                            {attemptCount} Try
+                            {attemptCount > 1 ? 's' : ''}
+                          </span>
+                        )}
+
+                        {active && (
+                          <span className="rounded-full bg-[#b84c2b] px-2 py-0.5 font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] text-white dark:bg-[#e8816a] dark:text-[#141412]">
+                            Selected
+                          </span>
+                        )}
+                      </div>
                     </div>
 
                     <MathText className="text-[13.5px] leading-[1.6] text-[#1a1714] dark:text-[#f2f0eb]">
@@ -689,58 +888,62 @@ Please explain clearly and simply. If math is involved, use proper readable nota
               </button>
             </div>
 
-            {verification ? (
-              <div className="mt-5 min-h-0 flex-1 overflow-y-auto rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <h4 className="text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                    {verdictLabel}
-                  </h4>
+            <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
+              {verification ? (
+                <div className="rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <h4 className="text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                      {verdictLabel}
+                    </h4>
 
-                  <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-                    Score {verification.score}/100
-                  </span>
-                </div>
-
-                <MathText className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
-                  {verification.feedback}
-                </MathText>
-
-                <div className="mt-4 rounded-xl border border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320]">
-                  <h5 className="mb-2 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                    Corrected Answer
-                  </h5>
-
-                  <MathText className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
-                    {verification.correctedAnswer}
-                  </MathText>
-                </div>
-
-                {verification.keyPoints.length > 0 && (
-                  <ul className="mt-4 list-disc space-y-1 pl-5 text-[13px] text-[#6b5f58] dark:text-[#d8d6cf]">
-                    {verification.keyPoints.map((point) => (
-                      <li key={point}>{point}</li>
-                    ))}
-                  </ul>
-                )}
-              </div>
-            ) : (
-              <div className="mt-5 flex min-h-0 flex-1 items-center justify-center rounded-2xl border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-6 text-center dark:border-white/9 dark:bg-[#1e1c19]">
-                <div>
-                  <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-                    ✍️
+                    <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                      Score {verification.score}/100
+                    </span>
                   </div>
 
-                  <p className="text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
-                    Your AI feedback will appear here
-                  </p>
+                  <MathText className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                    {verification.feedback}
+                  </MathText>
 
-                  <p className="mt-1 max-w-sm text-[12px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
-                    Type your answer above and click verify to get score,
-                    correction, and key points.
-                  </p>
+                  <div className="mt-4 rounded-xl border border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320]">
+                    <h5 className="mb-2 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                      Corrected Answer
+                    </h5>
+
+                    <MathText className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                      {verification.correctedAnswer}
+                    </MathText>
+                  </div>
+
+                  {verification.keyPoints.length > 0 && (
+                    <ul className="mt-4 list-disc space-y-1 pl-5 text-[13px] text-[#6b5f58] dark:text-[#d8d6cf]">
+                      {verification.keyPoints.map((point) => (
+                        <li key={point}>{point}</li>
+                      ))}
+                    </ul>
+                  )}
                 </div>
-              </div>
-            )}
+              ) : (
+                <div className="flex min-h-56 items-center justify-center rounded-2xl border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-6 text-center dark:border-white/9 dark:bg-[#1e1c19]">
+                  <div>
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                      ✍️
+                    </div>
+
+                    <p className="text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                      Your AI feedback will appear here
+                    </p>
+
+                    <p className="mt-1 max-w-sm text-[12px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                      Type your answer above and click verify to get score,
+                      correction, and key points.
+                    </p>
+                  </div>
+                </div>
+              )}
+
+              {renderPreviousAttempts()}
+            </div>
           </div>
         </div>
       </section>
@@ -821,7 +1024,9 @@ Please explain clearly and simply. If math is involved, use proper readable nota
                 <button
                   type="button"
                   onClick={askDoubtAboutSolution}
-                  disabled={doubtMutation.isPending || !doubt.trim() || !solution}
+                  disabled={
+                    doubtMutation.isPending || !doubt.trim() || !solution
+                  }
                   className="mt-3 rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
                 >
                   {doubtMutation.isPending ? 'Answering...' : 'Ask Doubt'}

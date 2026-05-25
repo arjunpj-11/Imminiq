@@ -207,4 +207,74 @@ getTopicsWithUserProgress(data: {
     subtopicId: string
     userId: string
   }): Promise<GeneratedLessonData | null>
+
+    getLessonChatMessages(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    scope?: 'lesson_doubt_chat' | 'question_solution_chat'
+    questionId?: string | null
+  }): Promise<unknown[]>
+
+  createLessonChatMessage(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    lessonId?: string | null
+    scope?: 'lesson_doubt_chat' | 'question_solution_chat'
+    questionId?: string | null
+    role: 'user' | 'assistant'
+    content: string
+  }): Promise<unknown>
+
+  getLessonAnswerAttempts(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    questionId?: string | null
+  }): Promise<unknown[]>
+
+  createLessonAnswerAttempt(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    lessonId?: string | null
+    questionId?: string | null
+    question: string
+    answer: string
+    feedback: unknown
+    isCorrect: boolean
+    score: number
+  }): Promise<unknown>
+
+  getLessonCodeSubmissions(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    action?: 'run' | 'submit'
+  }): Promise<unknown[]>
+
+  createLessonCodeSubmission(data: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    lessonId?: string | null
+    questionId?: string | null
+    action: 'run' | 'submit'
+    language: string
+    languageId?: number | null
+    sourceCode: string
+    stdin?: string
+    stdout?: string
+    stderr?: string
+    compileOutput?: string
+    message?: string
+    status?: unknown
+    time?: string | null
+    memory?: number | null
+    isCorrect?: boolean
+    expectedOutput?: string
+    actualOutput?: string
+    feedback?: string
+  }): Promise<unknown>
 }

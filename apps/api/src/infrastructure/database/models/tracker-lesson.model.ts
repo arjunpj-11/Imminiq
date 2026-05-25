@@ -13,7 +13,6 @@ const trackerLessonSchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'TrackerSubtopic',
       required: true,
-      unique: true,
       index: true,
     },
 
@@ -120,11 +119,16 @@ const trackerLessonSchema = new Schema(
   }
 )
 
-trackerLessonSchema.index({
-  trackerId: 1,
-  subtopicId: 1,
-  userId: 1,
-})
+trackerLessonSchema.index(
+  {
+    trackerId: 1,
+    subtopicId: 1,
+    userId: 1,
+  },
+  {
+    unique: true,
+  }
+)
 
 export const TrackerLesson =
   mongoose.models.TrackerLesson ||

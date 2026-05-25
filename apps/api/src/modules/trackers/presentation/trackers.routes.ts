@@ -42,6 +42,21 @@ router.get(
   trackerController.getLesson
 )
 
+router.get(
+  '/:trackerId/lessons/:subtopicId/chat',
+  trackerController.getLessonChatHistory
+)
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/answer/attempts',
+  trackerController.getLessonAnswerAttempts
+)
+
+router.get(
+  '/:trackerId/lessons/:subtopicId/code/submissions',
+  trackerController.getLessonCodeSubmissions
+)
+
 router.post(
   '/:trackerId/lessons/:subtopicId/chat',
   trackerController.chatWithLessonTutor

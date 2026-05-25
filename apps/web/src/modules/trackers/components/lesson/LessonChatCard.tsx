@@ -1,6 +1,9 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { useChatWithLessonTutor } from '../../hooks/useTrackers'
+import {
+  useChatWithLessonTutor,
+  useLessonChatHistory,
+} from '../../hooks/useTrackers'
 import type { LessonChatMessage } from '../../types/tracker.types'
 
 import { DEFAULT_CHAT_GREETING } from '../../constants/lesson-compiler.constants'
@@ -36,13 +39,19 @@ type BrowserSpeechRecognition = {
   abort: () => void
 }
 
-type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition
+type BrowserSpeechRecognitionConstructor =
+  new () => BrowserSpeechRecognition
 
 type SpeechRecognitionWindow = Window &
   typeof globalThis & {
     SpeechRecognition?: BrowserSpeechRecognitionConstructor
     webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor
   }
+
+type LocalLessonChatMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
 
 function getSpeechRecognitionConstructor() {
   if (typeof window === 'undefined') return null
@@ -60,9 +69,13 @@ function getSpeechRecognitionConstructor() {
 
 function useVoiceInput(onTranscript: (text: string) => void) {
   const [isListening, setIsListening] = useState(false)
-  const [isSupported] = useState(() => Boolean(getSpeechRecognitionConstructor()))
+  const [isSupported] = useState(() =>
+    Boolean(getSpeechRecognitionConstructor())
+  )
 
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null)
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(
+    null
+  )
   const shouldListenRef = useRef(false)
   const restartTimeoutRef = useRef<number | null>(null)
 
@@ -74,7 +87,8 @@ function useVoiceInput(onTranscript: (text: string) => void) {
   }
 
   const startListening = () => {
-    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor()
+    const SpeechRecognitionConstructor =
+      getSpeechRecognitionConstructor()
 
     if (!SpeechRecognitionConstructor || !isSupported) return
 
@@ -217,6 +231,7 @@ function MicIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+
       <path
         d="M5.75 10.75c0 3.45 2.8 6.25 6.25 6.25s6.25-2.8 6.25-6.25"
         stroke="currentColor"
@@ -224,12 +239,14 @@ function MicIcon({ className }: { className?: string }) {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+
       <path
         d="M12 17v4"
         stroke="currentColor"
         strokeWidth="1.8"
         strokeLinecap="round"
       />
+
       <path
         d="M8.75 21h6.5"
         stroke="currentColor"
@@ -281,7 +298,9 @@ function MicButton({
       type="button"
       onClick={onToggle}
       title={isListening ? 'Stop listening' : 'Voice input'}
-      aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
+      aria-label={
+        isListening ? 'Stop voice input' : 'Start voice input'
+      }
       className={cn(
         'relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border transition',
         size === 'sm' ? 'h-9 w-9' : 'h-10 w-10',
@@ -292,7 +311,7 @@ function MicButton({
     >
       {isListening && (
         <>
-          <span className="absolute inset-0 rounded-full bg-red-500/10 animate-ping" />
+          <span className="absolute inset-0 animate-ping rounded-full bg-red-500/10" />
 
           <span className="absolute bottom-1.5 left-1/2 flex h-4 -translate-x-1/2 items-end gap-0.5">
             <span className="h-1.5 w-0.75 animate-[voiceWave_0.55s_ease-in-out_infinite] rounded-full bg-current opacity-70" />
@@ -320,7 +339,9 @@ function MicButton({
         {isListening ? (
           <StopIcon className="h-4 w-4" />
         ) : (
-          <MicIcon className={size === 'sm' ? 'h-4.5 w-4.5' : 'h-5 w-5'} />
+          <MicIcon
+            className={size === 'sm' ? 'h-4.5 w-4.5' : 'h-5 w-5'}
+          />
         )}
       </span>
     </button>
@@ -339,15 +360,31 @@ export default function LessonChatCard({
   subtopicId: string
 }) {
   const chatMutation = useChatWithLessonTutor()
+  const chatHistoryQuery = useLessonChatHistory(trackerId, subtopicId)
+
   const [message, setMessage] = useState('')
   const [zoomOpen, setZoomOpen] = useState(false)
-  const [messages, setMessages] = useState<LessonChatMessage[]>([
-    { role: 'assistant', content: DEFAULT_CHAT_GREETING },
-  ])
+  const [localMessages, setLocalMessages] = useState<
+    LocalLessonChatMessage[]
+  >([])
 
   const voice = useVoiceInput((transcript) =>
     setMessage((prev) => (prev ? `${prev} ${transcript}` : transcript))
   )
+
+  const messages = useMemo<LocalLessonChatMessage[]>(() => {
+    const savedMessages =
+      chatHistoryQuery.data?.map((item: LessonChatMessage) => ({
+        role: item.role,
+        content: item.content,
+      })) ?? []
+
+    return [
+      { role: 'assistant', content: DEFAULT_CHAT_GREETING },
+      ...savedMessages,
+      ...localMessages,
+    ]
+  }, [chatHistoryQuery.data, localMessages])
 
   useEffect(() => {
     if (!zoomOpen) return
@@ -366,29 +403,29 @@ export default function LessonChatCard({
 
     if (!trimmed || chatMutation.isPending) return
 
-    const nextMessages: LessonChatMessage[] = [
+    const apiMessages = [
       ...messages,
+      { role: 'user' as const, content: trimmed },
+    ].filter((item) => item.content !== DEFAULT_CHAT_GREETING)
+
+    setLocalMessages((current) => [
+      ...current,
       { role: 'user', content: trimmed },
-    ]
-
-    setMessages(nextMessages)
+    ])
     setMessage('')
-
-    const apiMessages = nextMessages.filter(
-      (item) => item.content !== DEFAULT_CHAT_GREETING
-    )
 
     chatMutation.mutate(
       { trackerId, subtopicId, messages: apiMessages },
       {
         onSuccess: (response) => {
-          setMessages((current) => [
+          setLocalMessages((current) => [
             ...current,
             { role: 'assistant', content: response.data.answer },
           ])
         },
+
         onError: (error) => {
-          setMessages((current) => [
+          setLocalMessages((current) => [
             ...current,
             {
               role: 'assistant',
@@ -407,13 +444,22 @@ export default function LessonChatCard({
         large ? 'max-h-[58vh]' : 'max-h-90'
       )}
     >
+      {chatHistoryQuery.isLoading && localMessages.length === 0 && (
+        <div className="rounded-2xl border border-[#e0d0c5] bg-white/60 px-4 py-3 text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-white/5 dark:text-[#9b9a92]">
+          Loading previous chat...
+        </div>
+      )}
+
       {messages.map((item, index) => {
         const isUser = item.role === 'user'
 
         return (
           <div
-            key={`${item.role}-${index}`}
-            className={cn('flex items-end gap-3', isUser && 'flex-row-reverse')}
+            key={`${item.role}-${index}-${item.content.slice(0, 24)}`}
+            className={cn(
+              'flex items-end gap-3',
+              isUser && 'flex-row-reverse'
+            )}
           >
             {!isUser && (
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-[#b84c2b] dark:bg-white/9 dark:text-[#e8816a]">
@@ -518,7 +564,9 @@ export default function LessonChatCard({
         </div>
 
         <div className="mb-5">{renderMessages()}</div>
+
         <div className="mb-4">{renderQuickActions()}</div>
+
         {renderChatInput()}
       </section>
 

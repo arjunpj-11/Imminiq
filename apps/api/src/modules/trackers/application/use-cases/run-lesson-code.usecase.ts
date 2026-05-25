@@ -34,11 +34,58 @@ export class RunLessonCodeUseCase {
       )
     }
 
-    return executeCodeWithPiston({
+    const lesson =
+      await this.trackerRepository.findLessonBySubtopicId({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+      })
+
+    if (!lesson) {
+      throw new ApiError(
+        404,
+        'Generate the lesson before running code',
+        'LESSON_NOT_GENERATED'
+      )
+    }
+
+    const language = input.language || 'javascript'
+
+    const result = await executeCodeWithPiston({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
-      language: input.language || 'javascript',
+      language,
       stdin: input.stdin,
     })
+
+    const lessonId =
+      typeof lesson._id === 'string'
+        ? lesson._id
+        : lesson._id?.toString?.() ?? null
+
+    await this.trackerRepository.createLessonCodeSubmission({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+      lessonId,
+      action: 'run',
+      language,
+      languageId: input.languageId,
+      sourceCode: input.sourceCode,
+      stdin: input.stdin ?? '',
+      stdout: result.stdout ?? '',
+      stderr: result.stderr ?? '',
+      compileOutput: result.compileOutput ?? '',
+      message: result.message ?? '',
+      status: result.status ?? null,
+      time: result.time ?? null,
+      memory: result.memory ?? null,
+      isCorrect: false,
+      expectedOutput: '',
+      actualOutput: result.stdout ?? '',
+      feedback: '',
+    })
+
+    return result
   }
 }

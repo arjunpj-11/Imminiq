@@ -12,6 +12,9 @@ import { UserTopicProgress } from '../../../../infrastructure/database/models/us
 import { TrackerProgress } from '../../../../infrastructure/database/models/tracker-progress.model'
 import { StreakHistory } from '../../../../infrastructure/database/models/streak-history.model'
 import { StreakSnapshot } from '../../../../infrastructure/database/models/streak-snapshot.model'
+import { LessonChatMessage } from '../../../../infrastructure/database/models/lesson-chat-message.model'
+import { LessonAnswerAttempt } from '../../../../infrastructure/database/models/lesson-answer-attempt.model'
+import { LessonCodeSubmission } from '../../../../infrastructure/database/models/lesson-code-submission.model'
 
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
@@ -1071,7 +1074,198 @@ export const mongoTrackerRepository: TrackerRepository = {
     }))
     return lesson as GeneratedTrackerLessonRecord
   },
+  getLessonChatMessages: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    scope = 'lesson_doubt_chat',
+    questionId = null,
+  }) => {
+    const messages = await LessonChatMessage.find(
+      asMongoFilter({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        scope,
+        questionId,
+        deletedAt: null,
+      })
+    )
+      .sort({ createdAt: 1 })
+      .lean()
 
+    return messages
+  },
+
+  createLessonChatMessage: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    lessonId,
+    scope = 'lesson_doubt_chat',
+    questionId = null,
+    role,
+    content,
+  }) => {
+    const message = await LessonChatMessage.create(
+      asMongoCreatePayload({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        lessonId: lessonId ? toObjectId(lessonId) : null,
+        scope,
+        questionId,
+        role,
+        content,
+        deletedAt: null,
+      })
+    )
+
+    return message
+  },
+
+  getLessonAnswerAttempts: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    questionId = null,
+  }) => {
+    const attempts = await LessonAnswerAttempt.find(
+      asMongoFilter({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        questionId,
+        deletedAt: null,
+      })
+    )
+      .sort({ createdAt: -1 })
+      .lean()
+
+    return attempts
+  },
+
+  createLessonAnswerAttempt: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    lessonId,
+    questionId = null,
+    question,
+    answer,
+    feedback,
+    isCorrect,
+    score,
+  }) => {
+    const previousAttempts = await LessonAnswerAttempt.countDocuments(
+      asMongoFilter({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        questionId,
+        deletedAt: null,
+      })
+    )
+
+    const attempt = await LessonAnswerAttempt.create(
+      asMongoCreatePayload({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        lessonId: lessonId ? toObjectId(lessonId) : null,
+        questionId,
+        question,
+        answer,
+        feedback,
+        isCorrect,
+        score,
+        attemptNumber: previousAttempts + 1,
+        deletedAt: null,
+      })
+    )
+
+    return attempt
+  },
+
+  getLessonCodeSubmissions: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    action,
+  }) => {
+    const query: MongoQuery = {
+      trackerId: toObjectId(trackerId),
+      subtopicId: toObjectId(subtopicId),
+      userId: toObjectId(userId),
+      deletedAt: null,
+    }
+
+    if (action) {
+      query.action = action
+    }
+
+    const submissions = await LessonCodeSubmission.find(
+      asMongoFilter(query)
+    )
+      .sort({ createdAt: -1 })
+      .limit(50)
+      .lean()
+
+    return submissions
+  },
+
+  createLessonCodeSubmission: async ({
+    trackerId,
+    subtopicId,
+    userId,
+    lessonId,
+    questionId = null,
+    action,
+    language,
+    languageId,
+    sourceCode,
+    stdin,
+    stdout,
+    stderr,
+    compileOutput,
+    message,
+    status,
+    time,
+    memory,
+    isCorrect,
+    expectedOutput,
+    actualOutput,
+    feedback,
+  }) => {
+    const submission = await LessonCodeSubmission.create(
+      asMongoCreatePayload({
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+        lessonId: lessonId ? toObjectId(lessonId) : null,
+        questionId,
+        action,
+        language,
+        languageId,
+        sourceCode,
+        stdin,
+        stdout,
+        stderr,
+        compileOutput,
+        message,
+        status,
+        time,
+        memory,
+        isCorrect,
+        expectedOutput,
+        actualOutput,
+        feedback,
+        deletedAt: null,
+      })
+    )
+
+    return submission
+  },
   markMissingEvaluationTopicAsAdded: async ({
     evaluationJobId,
     topicIndex,
