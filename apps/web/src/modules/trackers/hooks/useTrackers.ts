@@ -713,8 +713,6 @@ export const useAskLessonQuestionSolutionDoubt = () => {
 }
 
 export const useRunLessonCode = () => {
-  const queryClient = useQueryClient()
-
   return useMutation<RunLessonCodeResponse, Error, RunLessonCodePayload>({
     mutationFn: async ({
       trackerId,
@@ -735,23 +733,6 @@ export const useRunLessonCode = () => {
       )
 
       return response.data
-    },
-
-    onSuccess: (_response, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonCodeSubmissions(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
-
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonCodeSubmissions(
-          variables.trackerId,
-          variables.subtopicId,
-          'run'
-        ),
-      })
     },
   })
 }
