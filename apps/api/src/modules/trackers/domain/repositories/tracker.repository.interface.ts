@@ -332,6 +332,17 @@ getTopicsWithUserProgress(data: {
     content: string
   }): Promise<unknown>
 
-  
+  clearLessonChatMessages(data: {
+  trackerId: string
+  subtopicId: string
+  userId: string
+}): Promise<unknown>
+
+clearLessonQuestionSolutionDoubts(data: {
+  trackerId: string
+  subtopicId: string
+  userId: string
+  questionHash: string
+}): Promise<unknown>
 }
 

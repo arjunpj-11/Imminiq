@@ -1503,5 +1503,45 @@ export const mongoTrackerRepository: TrackerRepository = {
       }
     }) as TopicWithProgressRecord[]
   },
-  
+  clearLessonChatMessages: async ({
+  trackerId,
+  subtopicId,
+  userId,
+}) => {
+  return LessonChatMessage.updateMany(
+    asMongoFilter({
+      trackerId: toObjectId(trackerId),
+      subtopicId: toObjectId(subtopicId),
+      userId: toObjectId(userId),
+      deletedAt: null,
+    }),
+    asMongoUpdate({
+      $set: {
+        deletedAt: new Date(),
+      },
+    })
+  )
+},
+
+clearLessonQuestionSolutionDoubts: async ({
+  trackerId,
+  subtopicId,
+  userId,
+  questionHash,
+}) => {
+  return LessonQuestionSolutionDoubt.updateMany(
+    asMongoFilter({
+      trackerId: toObjectId(trackerId),
+      subtopicId: toObjectId(subtopicId),
+      userId: toObjectId(userId),
+      questionHash,
+      deletedAt: null,
+    }),
+    asMongoUpdate({
+      $set: {
+        deletedAt: new Date(),
+      },
+    })
+  )
+},
 }

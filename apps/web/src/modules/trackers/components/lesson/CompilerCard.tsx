@@ -10,7 +10,6 @@ import {
 import type {
   GetOptimizedSolutionResponse,
   LessonCodeSubmission,
-  LessonCodeSubmissionAction,
   SubmitLessonCodeResponse,
 } from '../../types/tracker.types'
 
@@ -27,6 +26,29 @@ const formatDateTime = (value?: string) => {
     dateStyle: 'medium',
     timeStyle: 'short',
   }).format(new Date(value))
+}
+
+const getSafeStatus = (
+  status?: {
+    id?: number
+    description?: string
+  } | null
+) => {
+  if (
+    status &&
+    typeof status.id === 'number' &&
+    typeof status.description === 'string'
+  ) {
+    return {
+      id: status.id,
+      description: status.description,
+    }
+  }
+
+  return {
+    id: 0,
+    description: 'Restored',
+  }
 }
 
 export default function CompilerCard({
@@ -52,7 +74,12 @@ export default function CompilerCard({
   const submitCodeMutation = useSubmitLessonCode()
   const hintMutation = useGetCodeHint()
   const optimizedMutation = useGetOptimizedSolution()
-  const codeHistoryQuery = useLessonCodeSubmissions(trackerId, subtopicId)
+
+  const codeHistoryQuery = useLessonCodeSubmissions(
+    trackerId,
+    subtopicId,
+    'submit'
+  )
 
   const initialLanguage = useMemo(
     () => findCompilerLanguage(language || 'javascript'),
@@ -78,11 +105,12 @@ export default function CompilerCard({
   const [optimizedSolution, setOptimizedSolution] = useState<
     GetOptimizedSolutionResponse['data'] | null
   >(null)
-  const [historyFilter, setHistoryFilter] =
-    useState<LessonCodeSubmissionAction | 'all'>('submit')
 
   const displayFileName =
     selectedLanguage.fileName || fileName || 'main.js'
+
+  const historyItems = codeHistoryQuery.data ?? []
+  const submitCount = historyItems.length
 
   const buildOutput = (data: {
     stdout?: string
@@ -109,24 +137,6 @@ export default function CompilerCard({
       .filter(Boolean)
       .join('\n\n')
   }
-
-  const historyItems = useMemo(() => {
-    const items = codeHistoryQuery.data ?? []
-
-    if (historyFilter === 'all') {
-      return items
-    }
-
-    return items.filter((item) => item.action === historyFilter)
-  }, [codeHistoryQuery.data, historyFilter])
-
-  const runCount =
-    codeHistoryQuery.data?.filter((item) => item.action === 'run')
-      .length ?? 0
-
-  const submitCount =
-    codeHistoryQuery.data?.filter((item) => item.action === 'submit')
-      .length ?? 0
 
   const resetAssistiveState = () => {
     setSubmitResult(null)
@@ -252,39 +262,24 @@ export default function CompilerCard({
         status: submission.status,
         time: submission.time,
         memory: submission.memory,
-      }) || '> Restored previous code'
+      }) || '> Restored previous submission'
     )
 
-    if (submission.action === 'submit') {
-      setSubmitResult({
-        isCorrect: submission.isCorrect,
-        expectedOutput: submission.expectedOutput ?? '',
-        actualOutput: submission.actualOutput ?? '',
-        stdout: submission.stdout ?? '',
-        stderr: submission.stderr ?? '',
-        compileOutput: submission.compileOutput ?? '',
-        message: submission.message ?? '',
-       status:
-  submission.status &&
-  typeof submission.status.id === 'number' &&
-  typeof submission.status.description === 'string'
-    ? {
-        id: submission.status.id,
-        description: submission.status.description,
-      }
-    : {
-        id: 0,
-        description: 'Restored',
-      },
-        time: submission.time ?? null,
-        memory: submission.memory ?? null,
-        feedback: submission.feedback ?? '',
-        canCompareOptimized: submission.isCorrect,
-        canAskHints: !submission.isCorrect,
-      })
-    } else {
-      resetAssistiveState()
-    }
+    setSubmitResult({
+      isCorrect: submission.isCorrect,
+      expectedOutput: submission.expectedOutput ?? '',
+      actualOutput: submission.actualOutput ?? '',
+      stdout: submission.stdout ?? '',
+      stderr: submission.stderr ?? '',
+      compileOutput: submission.compileOutput ?? '',
+      message: submission.message ?? '',
+      status: getSafeStatus(submission.status),
+      time: submission.time ?? null,
+      memory: submission.memory ?? null,
+      feedback: submission.feedback ?? '',
+      canCompareOptimized: submission.isCorrect,
+      canAskHints: !submission.isCorrect,
+    })
   }
 
   const lineCount = Math.max(1, code.split('\n').length)
@@ -525,46 +520,27 @@ export default function CompilerCard({
             </div>
 
             <h4 className="mt-1 text-[15px] font-bold text-[#f2f0eb]">
-              Runs and submissions
+              Previous submissions
             </h4>
 
             <p className="mt-1 text-[12px] leading-[1.6] text-[#888]">
-              Click restore to load an old run or submit back into the
-              editor.
+              Only official submits are saved. Run Code is temporary and
+              will not appear here.
             </p>
           </div>
 
-          <div className="flex flex-wrap gap-2">
-            {(['submit', 'run', 'all'] as const).map((item) => (
-              <button
-                key={item}
-                type="button"
-                onClick={() => setHistoryFilter(item)}
-                className={cn(
-                  "rounded-full border px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-bold uppercase tracking-[0.08em] transition",
-                  historyFilter === item
-                    ? 'border-[#e8816a] bg-[#b84c2b] text-white'
-                    : 'border-white/10 bg-[#111] text-[#888] hover:border-[#e8816a] hover:text-[#e8816a]'
-                )}
-              >
-                {item === 'submit'
-                  ? `Submits ${submitCount}`
-                  : item === 'run'
-                    ? `Runs ${runCount}`
-                    : `All ${codeHistoryQuery.data?.length ?? 0}`}
-              </button>
-            ))}
-          </div>
+          <span className="rounded-full border border-white/10 bg-[#111] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-bold uppercase tracking-[0.08em] text-[#888]">
+            Submits {submitCount}
+          </span>
         </div>
 
         {codeHistoryQuery.isLoading ? (
           <div className="rounded-xl border border-dashed border-white/10 bg-[#111] px-4 py-6 text-center text-[12px] text-[#888]">
-            Loading previous code activity...
+            Loading previous submissions...
           </div>
         ) : historyItems.length === 0 ? (
           <div className="rounded-xl border border-dashed border-white/10 bg-[#111] px-4 py-6 text-center text-[12px] text-[#888]">
-            No previous {historyFilter === 'all' ? 'activity' : historyFilter}
-            {' '}yet.
+            No previous submissions yet.
           </div>
         ) : (
           <div className="max-h-110 space-y-3 overflow-y-auto pr-1">
@@ -590,18 +566,14 @@ export default function CompilerCard({
                       <span
                         className={cn(
                           "rounded-full px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em]",
-                          item.action === 'submit'
-                            ? item.isCorrect
-                              ? 'border border-[#2e5a39] bg-[#1a3d24] text-[#4caf50]'
-                              : 'border border-[#ffbd2e]/40 bg-[#3a2b12] text-[#ffbd2e]'
-                            : 'border border-white/10 bg-[#161616] text-[#888]'
+                          item.isCorrect
+                            ? 'border border-[#2e5a39] bg-[#1a3d24] text-[#4caf50]'
+                            : 'border border-[#ffbd2e]/40 bg-[#3a2b12] text-[#ffbd2e]'
                         )}
                       >
-                        {item.action === 'submit'
-                          ? item.isCorrect
-                            ? 'Submit Passed'
-                            : 'Submit Failed'
-                          : 'Run'}
+                        {item.isCorrect
+                          ? 'Submit Passed'
+                          : 'Submit Failed'}
                       </span>
 
                       <span className="rounded-full border border-white/10 bg-[#161616] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#888]">
@@ -652,28 +624,26 @@ export default function CompilerCard({
                     </div>
                   </div>
 
-                  {item.action === 'submit' && (
-                    <div className="mt-3 rounded-[10px] border border-white/10 bg-[#161616] p-3">
-                      <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#777]">
-                        Submit Feedback
-                      </div>
-
-                      <p className="text-[12px] leading-[1.6] text-[#aaa]">
-                        {item.feedback ||
-                          (item.isCorrect
-                            ? 'This submission passed.'
-                            : 'This submission did not match the expected output.')}
-                      </p>
-
-                      {item.expectedOutput && (
-                        <pre className="mt-3 whitespace-pre-wrap rounded-lg border border-white/10 bg-[#0a0a0a] p-3 font-['DM_Mono',monospace] text-[11.5px] leading-[1.6] text-[#aaa]">
-                          Expected:
-                          {'\n'}
-                          {item.expectedOutput}
-                        </pre>
-                      )}
+                  <div className="mt-3 rounded-[10px] border border-white/10 bg-[#161616] p-3">
+                    <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#777]">
+                      Submit Feedback
                     </div>
-                  )}
+
+                    <p className="text-[12px] leading-[1.6] text-[#aaa]">
+                      {item.feedback ||
+                        (item.isCorrect
+                          ? 'This submission passed.'
+                          : 'This submission did not match the expected output.')}
+                    </p>
+
+                    {item.expectedOutput && (
+                      <pre className="mt-3 whitespace-pre-wrap rounded-lg border border-white/10 bg-[#0a0a0a] p-3 font-['DM_Mono',monospace] text-[11.5px] leading-[1.6] text-[#aaa]">
+                        Expected:
+                        {'\n'}
+                        {item.expectedOutput}
+                      </pre>
+                    )}
+                  </div>
                 </article>
               )
             })}

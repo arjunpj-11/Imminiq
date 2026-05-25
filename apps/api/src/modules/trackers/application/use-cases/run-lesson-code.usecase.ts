@@ -49,43 +49,11 @@ export class RunLessonCodeUseCase {
       )
     }
 
-    const language = input.language || 'javascript'
-
-    const result = await executeCodeWithPiston({
+    return executeCodeWithPiston({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
-      language,
+      language: input.language || lesson.codeExample?.language || 'javascript',
       stdin: input.stdin,
     })
-
-    const lessonId =
-      typeof lesson._id === 'string'
-        ? lesson._id
-        : lesson._id?.toString?.() ?? null
-
-    await this.trackerRepository.createLessonCodeSubmission({
-      trackerId: input.trackerId,
-      subtopicId: input.subtopicId,
-      userId: input.userId,
-      lessonId,
-      action: 'run',
-      language,
-      languageId: input.languageId,
-      sourceCode: input.sourceCode,
-      stdin: input.stdin ?? '',
-      stdout: result.stdout ?? '',
-      stderr: result.stderr ?? '',
-      compileOutput: result.compileOutput ?? '',
-      message: result.message ?? '',
-      status: result.status ?? null,
-      time: result.time ?? null,
-      memory: result.memory ?? null,
-      isCorrect: false,
-      expectedOutput: '',
-      actualOutput: result.stdout ?? '',
-      feedback: '',
-    })
-
-    return result
   }
 }

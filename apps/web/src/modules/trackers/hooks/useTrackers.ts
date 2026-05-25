@@ -713,8 +713,6 @@ export const useAskLessonQuestionSolutionDoubt = () => {
 }
 
 export const useRunLessonCode = () => {
-  const queryClient = useQueryClient()
-
   return useMutation<RunLessonCodeResponse, Error, RunLessonCodePayload>({
     mutationFn: async ({
       trackerId,
@@ -735,23 +733,6 @@ export const useRunLessonCode = () => {
       )
 
       return response.data
-    },
-
-    onSuccess: (_response, variables) => {
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonCodeSubmissions(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
-
-      queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonCodeSubmissions(
-          variables.trackerId,
-          variables.subtopicId,
-          'run'
-        ),
-      })
     },
   })
 }
@@ -870,6 +851,73 @@ export const useVerifyLessonAnswer = () => {
         queryKey: trackerKeys.lessonAnswerAttempts(
           variables.trackerId,
           variables.subtopicId
+        ),
+      })
+    },
+  })
+}
+
+export const useClearLessonChatHistory = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    ApiResponse<unknown>,
+    Error,
+    {
+      trackerId: string
+      subtopicId: string
+    }
+  >({
+    mutationFn: async ({ trackerId, subtopicId }) => {
+      const response = await api.delete<ApiResponse<unknown>>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/chat`
+      )
+
+      return response.data
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonChat(
+          variables.trackerId,
+          variables.subtopicId
+        ),
+      })
+    },
+  })
+}
+
+export const useClearLessonQuestionSolutionDoubts = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    ApiResponse<unknown>,
+    Error,
+    {
+      trackerId: string
+      subtopicId: string
+      question: string
+    }
+  >({
+    mutationFn: async ({ trackerId, subtopicId, question }) => {
+      const response = await api.delete<ApiResponse<unknown>>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
+        {
+          params: {
+            question,
+          },
+        }
+      )
+
+      return response.data
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.lessonQuestionSolutionDoubts(
+          variables.trackerId,
+          variables.subtopicId,
+          variables.question
         ),
       })
     },
