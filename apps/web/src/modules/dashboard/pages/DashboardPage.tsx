@@ -5,7 +5,6 @@ import Sidebar from '../../../components/layout/Sidebar'
 import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
-import PageLoadingScreen from '../../../components/ui/PageLoadingScreen'
 
 import { useDashboardSummary } from '../hooks/useDashboardSummary'
 import { useCurrentDashboardRoadmap } from '../hooks/useCurrentDashboardRoadmap'
@@ -27,6 +26,32 @@ import RecentBattles from '../components/RecentBattles'
 import RecommendedActions from '../components/RecommendedActions'
 import { cn } from '../utils/cn'
 import { formatLevelLabel, getInitials } from '../utils/dashboard-formatters'
+
+function DashboardMainContentSkeleton() {
+  return (
+    <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+      <div className="h-37.5 animate-pulse rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]" />
+
+      <div className="grid grid-cols-4 gap-4 max-[900px]:grid-cols-2 max-[520px]:grid-cols-1">
+        {Array.from({ length: 4 }).map((_, index) => (
+          <div
+            key={index}
+            className="h-24 animate-pulse rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]"
+          />
+        ))}
+      </div>
+
+      <div className="grid grid-cols-[1fr_300px] gap-4 max-[900px]:grid-cols-1">
+        <div className="h-52.5 animate-pulse rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]" />
+        <div className="h-52.5 animate-pulse rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]" />
+      </div>
+
+      <div className="h-75 animate-pulse rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]" />
+
+      <div className="h-55 animate-pulse rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]" />
+    </div>
+  )
+}
 
 export default function DashboardPage() {
   const navigate = useNavigate()
@@ -53,8 +78,7 @@ export default function DashboardPage() {
 
   const summaryQuery = useDashboardSummary()
   const roadmapQuery = useCurrentDashboardRoadmap()
-  const activityQuery =
-    useDashboardActivityIntensity(activityMonths)
+  const activityQuery = useDashboardActivityIntensity(activityMonths)
   const battlesQuery = useDashboardRecentBattles(3)
   const friendsQuery = useDashboardFriendsHub(4)
   const actionsQuery = useDashboardRecommendedActions()
@@ -68,37 +92,25 @@ export default function DashboardPage() {
   const actions = actionsQuery.data ?? []
   const aiInsight = insightQuery.data?.insight
 
-  const isLoading =
+  const isMainContentLoading =
     summaryQuery.isLoading ||
     roadmapQuery.isLoading ||
-    activityQuery.isLoading ||
     battlesQuery.isLoading ||
     friendsQuery.isLoading ||
     actionsQuery.isLoading
 
-  const hasError =
+  const hasMainContentError =
     summaryQuery.isError ||
     roadmapQuery.isError ||
-    activityQuery.isError ||
     battlesQuery.isError ||
     friendsQuery.isError ||
     actionsQuery.isError
 
-  if (isLoading) {
-    return (
-      <PageLoadingScreen
-        eyebrow="Loading Dashboard"
-        title="Preparing your dashboard"
-        description="Fetching your trackers, insights, activity, and progress."
-      />
-    )
-  }
+  const shouldShowMainSkeleton = isMainContentLoading || !summary
+  const shouldShowMainError = hasMainContentError && !isMainContentLoading
 
-  if (hasError || !summary) {
-    return <DashboardErrorState />
-  }
-
-  const userInitials = getInitials(summary.user.fullName)
+  const userFullName = summary?.user.fullName ?? 'Learner'
+  const userInitials = getInitials(userFullName)
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
@@ -140,53 +152,66 @@ export default function DashboardPage() {
         >
           <TopBar
             onMenuClick={() => setSidebarOpen(true)}
-            streakDays={summary.streak.current}
-            userName={summary.user.fullName}
+            streakDays={summary?.streak.current ?? 0}
+            userName={userFullName}
             userInitials={userInitials}
-            userAvatarUrl={summary.user.avatarUrl || undefined}
-            userLevel={formatLevelLabel(summary.user.isPremium)}
+            userAvatarUrl={summary?.user.avatarUrl || undefined}
+            userLevel={
+              summary
+                ? formatLevelLabel(summary.user.isPremium)
+                : 'Free'
+            }
             isGuest={false}
           />
 
           <div className="flex min-w-0 flex-1 flex-col">
-            <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-              <DashboardWelcome summary={summary} />
+            {shouldShowMainSkeleton ? (
+              <DashboardMainContentSkeleton />
+            ) : shouldShowMainError || !summary ? (
+              <div className="mx-auto mt-5.5 w-[min(1180px,calc(100%-48px))] max-w-full pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+                <DashboardErrorState />
+              </div>
+            ) : (
+              <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+                <DashboardWelcome summary={summary} />
 
-              <RecommendedActions
-                actions={actions}
-                onNavigate={navigate}
-              />
-
-              <DashboardStatsGrid summary={summary} />
-
-              <section className="grid grid-cols-[1fr_300px] gap-4 max-[900px]:grid-cols-1">
-                <CurrentRoadmapCard
-                  currentRoadmap={currentRoadmap}
-                  summary={summary}
+                <RecommendedActions
+                  actions={actions}
                   onNavigate={navigate}
                 />
 
-                <FriendsCard
-                  friends={friends}
-                  onOpenCommunity={() => navigate('/community')}
+                <DashboardStatsGrid summary={summary} />
+
+                <section className="grid grid-cols-[1fr_300px] gap-4 max-[900px]:grid-cols-1">
+                  <CurrentRoadmapCard
+                    currentRoadmap={currentRoadmap}
+                    summary={summary}
+                    onNavigate={navigate}
+                  />
+
+                  <FriendsCard
+                    friends={friends}
+                    onOpenCommunity={() => navigate('/community')}
+                  />
+                </section>
+
+                <ActivityHeatmap
+                  activity={activity}
+                  months={activityMonths}
+                  onMonthsChange={setActivityMonths}
+                  isLoading={activityQuery.isFetching}
                 />
-              </section>
 
-              <ActivityHeatmap
-                activity={activity}
-                months={activityMonths}
-                onMonthsChange={setActivityMonths}
-              />
+                <RecentBattles battles={battles} />
 
-              <RecentBattles battles={battles} />
-
-              {!dailyInsightDismissed && (
-                <DailyInsightCard
-                  insight={aiInsight}
-                  onDismiss={dismissDailyInsight}
-                />
-              )}
-            </div>
+                {!dailyInsightDismissed && (
+                  <DailyInsightCard
+                    insight={aiInsight}
+                    onDismiss={dismissDailyInsight}
+                  />
+                )}
+              </div>
+            )}
 
             <AppFooter />
           </div>

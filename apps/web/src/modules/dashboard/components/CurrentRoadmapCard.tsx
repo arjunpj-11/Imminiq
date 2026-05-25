@@ -53,7 +53,7 @@ export default function CurrentRoadmapCard({
           onClick={() =>
             onNavigate(
               currentRoadmap
-                ? `/trackers/${currentRoadmap._id}`
+                ? `/trackers/${currentRoadmap._id}/roadmap`
                 : '/onboarding/step-1'
             )
           }

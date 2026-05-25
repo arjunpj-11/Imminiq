@@ -1,17 +1,17 @@
 // apps/web/src/modules/trackers/pages/MyTrackersPage.tsx
 
-import { useState, } from 'react'
+import { useState, type Dispatch, type SetStateAction } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import Sidebar from '../../../components/layout/Sidebar'
 import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
-import PageLoadingScreen from '../../../components/ui/PageLoadingScreen'
 
 import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import {
   useArchiveTracker,
+  useRestoreTracker,
   useTrackerSummary,
   useTrackers,
 } from '../hooks/useTrackers'
@@ -35,8 +35,6 @@ const getInitials = (name: string) =>
 
 const formatLevelLabel = (isPremium: boolean) =>
   isPremium ? 'Imminiq Pro' : 'Free Scholar'
-
-// ─── SVG Icons ──────────────────────────────────────────────────────────────
 
 const PlusIcon = () => (
   <svg
@@ -86,7 +84,14 @@ const CompassIcon = () => (
   </svg>
 )
 
-// ─── Tracker Grid Skeleton ───────────────────────────────────────────────────
+const SkeletonBlock = ({ className }: { className?: string }) => (
+  <div
+    className={cn(
+      'animate-pulse rounded-full bg-[#e8ddd6] dark:bg-white/10',
+      className,
+    )}
+  />
+)
 
 const TrackerCardSkeleton = () => (
   <div className="animate-pulse rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]">
@@ -94,10 +99,13 @@ const TrackerCardSkeleton = () => (
       <div className="h-5 w-3/5 rounded-lg bg-[#e8ddd6] dark:bg-white/10" />
       <div className="h-5 w-12 rounded-full bg-[#e8ddd6] dark:bg-white/10" />
     </div>
+
     <div className="mb-4 h-3.5 w-4/5 rounded bg-[#e8ddd6] dark:bg-white/10" />
+
     <div className="mb-4 h-2 w-full overflow-hidden rounded-full bg-[#e8ddd6] dark:bg-white/10">
       <div className="h-full w-2/5 rounded-full bg-[#d4c5bc] dark:bg-white/20" />
     </div>
+
     <div className="flex gap-2">
       <div className="h-8 flex-1 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
       <div className="h-8 w-8 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
@@ -114,7 +122,122 @@ const TrackerGridSkeleton = () => (
   </section>
 )
 
-// ─── Page ────────────────────────────────────────────────────────────────────
+const TrackerStatCardSkeleton = () => (
+  <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+    <SkeletonBlock className="h-3 w-20" />
+    <SkeletonBlock className="mt-5 h-9 w-24 rounded-2xl" />
+    <SkeletonBlock className="mt-4 h-3 w-32" />
+  </div>
+)
+
+const TrackerFilterSkeleton = () => (
+  <section className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+    <div className="flex flex-wrap gap-2">
+      {Array.from({ length: 4 }).map((_, index) => (
+        <SkeletonBlock
+          key={index}
+          className="h-9 w-24 rounded-[10px]"
+        />
+      ))}
+    </div>
+
+    <SkeletonBlock className="h-9 w-36 rounded-[10px]" />
+  </section>
+)
+
+function MyTrackersPageSkeleton({
+  sidebarOpen,
+  sidebarCollapsed,
+  setSidebarOpen,
+  setSidebarCollapsed,
+}: {
+  sidebarOpen: boolean
+  sidebarCollapsed: boolean
+  setSidebarOpen: (value: boolean) => void
+  setSidebarCollapsed: Dispatch<SetStateAction<boolean>>
+}) {
+  return (
+    <div
+      className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]"
+      role="status"
+      aria-live="polite"
+      aria-label="Loading trackers"
+    >
+      <div
+        className="pointer-events-none fixed inset-0 z-0 opacity-[0.025] dark:opacity-[0.04]"
+        style={{
+          backgroundImage:
+            'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")',
+          backgroundSize: '180px',
+        }}
+      />
+
+      <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
+        <Sidebar
+          mobileOpen={sidebarOpen}
+          collapsed={sidebarCollapsed}
+          onCloseMobile={() => setSidebarOpen(false)}
+          onToggleCollapsed={() =>
+            setSidebarCollapsed((value) => {
+              const next = !value
+              localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
+              return next
+            })
+          }
+        />
+
+        <main
+          className={cn(
+            'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300',
+            sidebarCollapsed
+              ? 'min-[901px]:ml-0'
+              : 'min-[901px]:ml-56',
+          )}
+        >
+          <TopBar
+            onMenuClick={() => setSidebarOpen(true)}
+            streakDays={0}
+            userName="Loading Trackers"
+            userInitials="IM"
+            userLevel="Loading"
+            isGuest={false}
+          />
+
+          <div className="flex min-w-0 flex-1 flex-col">
+            <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+              <section className="flex flex-wrap items-start justify-between gap-4">
+                <div className="min-w-0 flex-1">
+                  <SkeletonBlock className="mb-3 h-7 w-32 rounded-full" />
+                  <SkeletonBlock className="h-10 w-[min(540px,100%)] rounded-2xl" />
+                  <SkeletonBlock className="mt-3 h-4 w-[min(620px,100%)]" />
+                  <SkeletonBlock className="mt-2 h-4 w-[min(480px,85%)]" />
+                </div>
+
+                <SkeletonBlock className="h-10 w-40 rounded-[10px] max-[560px]:w-full" />
+              </section>
+
+              <section className="grid grid-cols-4 gap-3 max-[860px]:grid-cols-2 max-[440px]:grid-cols-1 max-[440px]:gap-2">
+                {Array.from({ length: 4 }).map((_, index) => (
+                  <TrackerStatCardSkeleton key={index} />
+                ))}
+              </section>
+
+              <TrackerFilterSkeleton />
+
+              <TrackerGridSkeleton />
+            </div>
+
+            <AppFooter />
+          </div>
+        </main>
+      </div>
+
+      <BottomNav />
+
+      <span className="sr-only">Loading tracker content</span>
+    </div>
+  )
+}
 
 export default function MyTrackersPage() {
   const navigate = useNavigate()
@@ -123,7 +246,7 @@ export default function MyTrackersPage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () =>
       typeof window !== 'undefined' &&
-      localStorage.getItem('imminiq_sb') === 'closed'
+      localStorage.getItem('imminiq_sb') === 'closed',
   )
 
   const { status, setStatus } = useTrackerUiStore()
@@ -140,18 +263,17 @@ export default function MyTrackersPage() {
   })
 
   const archiveTrackerMutation = useArchiveTracker()
+  const restoreTrackerMutation = useRestoreTracker()
 
   const dashboardSummary = dashboardSummaryQuery.data
   const summary = summaryQuery.data
   const trackers = trackersQuery.data?.trackers || []
 
-  // True only on the very first load (no data yet at all)
   const isInitialLoad =
     (dashboardSummaryQuery.isLoading && !dashboardSummary) ||
     (summaryQuery.isLoading && !summary) ||
     (trackersQuery.isLoading && !trackersQuery.data)
 
-  // Filter/refetch loading — page shell stays, only the grid area shows skeleton
   const isTrackersRefetching =
     trackersQuery.isLoading || trackersQuery.isFetching
 
@@ -160,12 +282,25 @@ export default function MyTrackersPage() {
     summaryQuery.isError ||
     trackersQuery.isError
 
+  const handleArchiveToggle = (
+    trackerId: string,
+    trackerStatus?: string,
+  ) => {
+    if (trackerStatus === 'archived') {
+      restoreTrackerMutation.mutate(trackerId)
+      return
+    }
+
+    archiveTrackerMutation.mutate(trackerId)
+  }
+
   if (isInitialLoad) {
     return (
-      <PageLoadingScreen
-        eyebrow="Trackers"
-        title="Preparing your learning trackers"
-        description="Fetching your active roadmaps, progress, and tracker library."
+      <MyTrackersPageSkeleton
+        sidebarOpen={sidebarOpen}
+        sidebarCollapsed={sidebarCollapsed}
+        setSidebarOpen={setSidebarOpen}
+        setSidebarCollapsed={setSidebarCollapsed}
       />
     )
   }
@@ -218,7 +353,7 @@ export default function MyTrackersPage() {
             'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300',
             sidebarCollapsed
               ? 'min-[901px]:ml-0'
-              : 'min-[901px]:ml-56'
+              : 'min-[901px]:ml-56',
           )}
         >
           <TopBar
@@ -233,8 +368,6 @@ export default function MyTrackersPage() {
 
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-
-              {/* ─── Header ───────────────────────────────── */}
               <section className="flex flex-wrap items-start justify-between gap-4">
                 <div>
                   <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
@@ -251,8 +384,8 @@ export default function MyTrackersPage() {
                   </h1>
 
                   <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
-                    Manage your roadmaps, continue lessons, evaluate gaps, and
-                    improve your learning path step by step.
+                    Manage your roadmaps, continue lessons, and improve your
+                    learning path step by step.
                   </p>
                 </div>
 
@@ -266,7 +399,6 @@ export default function MyTrackersPage() {
                 </button>
               </section>
 
-              {/* ─── Stat Cards ───────────────────────────── */}
               <section className="grid grid-cols-4 gap-3 max-[860px]:grid-cols-2 max-[440px]:grid-cols-1 max-[440px]:gap-2">
                 <TrackerStatCard
                   label="Total"
@@ -274,18 +406,21 @@ export default function MyTrackersPage() {
                   helper="Created trackers"
                   tone="rust"
                 />
+
                 <TrackerStatCard
                   label="Active"
                   value={summary.activeTrackers || 0}
                   helper="In progress"
                   tone="blue"
                 />
+
                 <TrackerStatCard
                   label="Completed"
                   value={summary.completedTrackers || 0}
                   helper="Finished paths"
                   tone="green"
                 />
+
                 <TrackerStatCard
                   label="Average"
                   value={`${summary.averageProgress || 0}%`}
@@ -294,13 +429,8 @@ export default function MyTrackersPage() {
                 />
               </section>
 
-              {/* ─── Filter Bar ───────────────────────────── */}
-              <TrackerFilterBar
-                status={status}
-                onStatusChange={setStatus}
-              />
+              <TrackerFilterBar status={status} onStatusChange={setStatus} />
 
-              {/* ─── Tracker Grid — inline skeleton on refetch ── */}
               {isTrackersRefetching ? (
                 <TrackerGridSkeleton />
               ) : trackers.length ? (
@@ -318,14 +448,11 @@ export default function MyTrackersPage() {
                       onViewPublished={(trackerId) =>
                         navigate(`/trackers/${trackerId}/preview`)
                       }
-                      onRunEvaluation={(trackerId) =>
-                        navigate(`/trackers/${trackerId}/evaluation`)
-                      }
                       onInfo={(trackerId) =>
                         navigate(`/trackers/${trackerId}/manage`)
                       }
                       onArchive={(trackerId) =>
-                        archiveTrackerMutation.mutate(trackerId)
+                        handleArchiveToggle(trackerId, tracker.status)
                       }
                     />
                   ))}

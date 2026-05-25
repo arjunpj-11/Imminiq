@@ -27,6 +27,7 @@ import VerifyEmailChangePage from './modules/auth/pages/VerifyEmailChangePage'
 import BlockedPage from './pages/BlockedPage'
 import NoConnectionPage from './pages/NoConnectionPage'
 import NotFoundPage from './pages/NotFoundPage'
+import TrackerManagePage from './modules/trackers/pages/TrackerManagePage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
@@ -208,6 +209,11 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+  path="/trackers/:trackerId/manage"
+  element={<TrackerManagePage />}
+/>
 
           {/* ─── PROTECTED MAIN APP ROUTES ──────────────── */}
           <Route

@@ -76,11 +76,16 @@ export type CreateSubtopicUseCaseInput = {
   estimatedMinutes?: number
 }
 
-export type UpdateSubtopicProgressInput = {
+export type SubtopicProgressStatus =
+  | 'available'
+  | 'in_progress'
+  | 'completed'
+
+export interface UpdateSubtopicProgressInput {
   trackerId: string
   subtopicId: string
   userId: string
-  status: 'in_progress' | 'completed'
+  status: SubtopicProgressStatus
   timeSpentMinutes?: number
 }
 

@@ -1,10 +1,29 @@
 import { useState, type ReactNode } from 'react'
+
 import Sidebar from '../../../components/layout/Sidebar'
 import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 import SettingsTabs from './SettingsTabs'
+
+import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import { cn } from '../utils/settingsUi.utils'
+
+const getInitials = (name?: string | null) => {
+  if (!name?.trim()) return 'L'
+
+  return name
+    .trim()
+    .split(/\s+/)
+    .slice(0, 2)
+    .map((part) => part[0])
+    .join('')
+    .toUpperCase()
+}
+
+const formatLevelLabel = (isPremium?: boolean) => {
+  return isPremium ? 'Premium Scholar' : 'Free Scholar'
+}
 
 export default function SettingsShell({
   title,
@@ -22,6 +41,17 @@ export default function SettingsShell({
       typeof window !== 'undefined' &&
       localStorage.getItem('imminiq_sb') === 'closed'
   )
+
+  const dashboardSummaryQuery = useDashboardSummary()
+  const dashboardSummary = dashboardSummaryQuery.data
+
+  const topBarUserName = dashboardSummary?.user.fullName || 'Learner'
+  const topBarInitials = getInitials(topBarUserName)
+  const topBarStreakDays = dashboardSummary?.streak.current ?? 0
+  const topBarAvatarUrl = dashboardSummary?.user.avatarUrl || undefined
+  const topBarLevel = dashboardSummary
+    ? formatLevelLabel(dashboardSummary.user.isPremium)
+    : 'Free Scholar'
 
   const handleToggleSidebarCollapsed = () => {
     setSidebarCollapsed((current) => {
@@ -51,7 +81,15 @@ export default function SettingsShell({
             sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56'
           )}
         >
-          <TopBar onMenuClick={() => setSidebarOpen(true)} />
+          <TopBar
+            onMenuClick={() => setSidebarOpen(true)}
+            streakDays={topBarStreakDays}
+            userName={topBarUserName}
+            userInitials={topBarInitials}
+            userAvatarUrl={topBarAvatarUrl}
+            userLevel={topBarLevel}
+            isGuest={false}
+          />
 
           <div className="flex min-w-0 flex-1 flex-col">
             <section className="px-4 pb-28 pt-6 sm:px-6 lg:px-8">

@@ -10,6 +10,8 @@ import { TrackerLesson } from '../../../../infrastructure/database/models/tracke
 import { UserSubtopicProgress } from '../../../../infrastructure/database/models/user-subtopic-progress.model'
 import { UserTopicProgress } from '../../../../infrastructure/database/models/user-topic-progress.model'
 import { TrackerProgress } from '../../../../infrastructure/database/models/tracker-progress.model'
+import { StreakHistory } from '../../../../infrastructure/database/models/streak-history.model'
+import { StreakSnapshot } from '../../../../infrastructure/database/models/streak-snapshot.model'
 
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
@@ -67,6 +69,182 @@ const buildTrackerSort = (
   return { lastActiveAt: -1, updatedAt: -1 }
 }
 
+type StreakIntensityLevel = 'none' | 'low' | 'medium' | 'high'
+
+const getUtcDayStart = (date = new Date()) =>
+  new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+
+const getPreviousUtcDayStart = (date: Date) => {
+  const previous = new Date(date)
+  previous.setUTCDate(previous.getUTCDate() - 1)
+  return previous
+}
+
+const getIntensityLevel = (activityCount: number): StreakIntensityLevel => {
+  if (activityCount <= 0) return 'none'
+  if (activityCount < 3) return 'low'
+  if (activityCount < 6) return 'medium'
+  return 'high'
+}
+
+const updateUserStreakAfterTrackerActivity = async ({
+  userObjId,
+  trackerObjId,
+  subtopicObjId,
+}: {
+  userObjId: Types.ObjectId
+  trackerObjId: Types.ObjectId
+  subtopicObjId: Types.ObjectId
+}) => {
+  const todayStart = getUtcDayStart()
+  const yesterdayStart = getPreviousUtcDayStart(todayStart)
+  const heatmapKey = todayStart.toISOString().slice(0, 10)
+  const source = `tracker:${trackerObjId.toString()}:subtopic:${subtopicObjId.toString()}`
+
+  const existingToday = await StreakHistory.findOne(
+    asMongoFilter({
+      userId: userObjId,
+      date: todayStart,
+      deletedAt: null,
+    })
+  ).lean()
+
+  const yesterdayHistory = await StreakHistory.findOne(
+    asMongoFilter({
+      userId: userObjId,
+      date: yesterdayStart,
+      deletedAt: null,
+    })
+  ).lean()
+
+  const yesterdayContinuesStreak =
+    Boolean(yesterdayHistory) &&
+    ((yesterdayHistory.activityCount ?? 0) > 0 || yesterdayHistory.isFrozen)
+
+  const streakDay =
+    existingToday?.streakDay && existingToday.streakDay > 0
+      ? existingToday.streakDay
+      : yesterdayContinuesStreak
+        ? (yesterdayHistory?.streakDay ?? 0) + 1
+        : 1
+
+  const todayHistory = await StreakHistory.findOneAndUpdate(
+    asMongoFilter({
+      userId: userObjId,
+      date: todayStart,
+      deletedAt: null,
+    }),
+    asMongoUpdate({
+      $setOnInsert: {
+        userId: userObjId,
+        date: todayStart,
+        streakDay,
+        isFrozen: false,
+        freezeUsedId: null,
+        deletedAt: null,
+      },
+      $inc: {
+        activityCount: 1,
+      },
+      $addToSet: {
+        sources: source,
+      },
+    }),
+    {
+      upsert: true,
+      returnDocument: 'after',
+    }
+  ).lean()
+
+  const activityCount = todayHistory?.activityCount ?? 1
+  const intensityLevel = getIntensityLevel(activityCount)
+
+  await StreakHistory.findOneAndUpdate(
+    asMongoFilter({
+      userId: userObjId,
+      date: todayStart,
+      deletedAt: null,
+    }),
+    asMongoUpdate({
+      $set: {
+        intensityLevel,
+        streakDay,
+      },
+    })
+  )
+
+  const [totalActiveDays, totalFreezeUsed, latestSnapshot] = await Promise.all([
+    StreakHistory.countDocuments(
+      asMongoFilter({
+        userId: userObjId,
+        deletedAt: null,
+        activityCount: { $gt: 0 },
+      })
+    ),
+    StreakHistory.countDocuments(
+      asMongoFilter({
+        userId: userObjId,
+        deletedAt: null,
+        isFrozen: true,
+      })
+    ),
+    StreakSnapshot.findOne(
+      asMongoFilter({
+        userId: userObjId,
+        deletedAt: null,
+      })
+    )
+      .sort({ snapshotDate: -1 })
+      .lean(),
+  ])
+
+  const currentStreak = streakDay
+  const longestStreak = Math.max(
+    latestSnapshot?.longestStreak ?? 0,
+    currentStreak
+  )
+
+  const previousHeatmapData =
+    latestSnapshot?.heatmapData &&
+    typeof latestSnapshot.heatmapData === 'object'
+      ? latestSnapshot.heatmapData
+      : {}
+
+  await StreakSnapshot.findOneAndUpdate(
+    asMongoFilter({
+      userId: userObjId,
+      snapshotDate: todayStart,
+      deletedAt: null,
+    }),
+    asMongoUpdate({
+      $setOnInsert: {
+        userId: userObjId,
+        snapshotDate: todayStart,
+        deletedAt: null,
+      },
+      $set: {
+        currentStreak,
+        longestStreak,
+        totalActiveDays,
+        totalFreezeUsed,
+        heatmapData: {
+          ...previousHeatmapData,
+          [heatmapKey]: {
+            activityCount,
+            intensityLevel,
+            streakDay,
+            isFrozen: false,
+            sources: todayHistory?.sources ?? [source],
+          },
+        },
+      },
+    }),
+    {
+      upsert: true,
+      returnDocument: 'after',
+    }
+  )
+}
 // ─── Repository ───────────────────────────────────────────────────────────────
 
 export const mongoTrackerRepository: TrackerRepository = {
@@ -443,67 +621,167 @@ export const mongoTrackerRepository: TrackerRepository = {
     return docs as UserTopicProgressRecord[]
   },
 
-  updateSubtopicProgress: async ({
-    trackerId,
-    subtopicId,
-    userId,
+ updateSubtopicProgress: async ({
+  trackerId,
+  subtopicId,
+  userId,
+  status,
+  timeSpentMinutes = 0,
+}: UpdateSubtopicProgressInput) => {
+  const userObjId = toObjectId(userId)
+  const subtopicObjId = toObjectId(subtopicId)
+  const trackerObjId = toObjectId(trackerId)
+
+  const subtopic = await TrackerSubtopic.findOne(
+    asMongoFilter({
+      _id: subtopicObjId,
+      trackerId: trackerObjId,
+      deletedAt: null,
+    })
+  ).lean()
+
+  if (!subtopic) return null
+
+  const now = new Date()
+
+  const previousProgress = await UserSubtopicProgress.findOne(
+    asMongoFilter({
+      userId: userObjId,
+      trackerId: trackerObjId,
+      subtopicId: subtopicObjId,
+    })
+  ).lean()
+
+
+  const progressUpdate: Record<string, unknown> = {
     status,
-    timeSpentMinutes = 0,
-  }: UpdateSubtopicProgressInput) => {
-    const userObjId = toObjectId(userId)
-    const subtopicObjId = toObjectId(subtopicId)
-    const trackerObjId = toObjectId(trackerId)
+    isUnlocked: true,
+  }
 
-    const subtopic = await TrackerSubtopic.findOne(
-      asMongoFilter({ _id: subtopicObjId, trackerId: trackerObjId, deletedAt: null })
-    ).lean()
+  if (status === 'completed') {
+    progressUpdate.progressPercent = 100
+    progressUpdate.completedAt = previousProgress?.completedAt ?? now
+  } else if (status === 'in_progress') {
+    progressUpdate.progressPercent = 50
+    progressUpdate.completedAt = null
+  } else if (status === 'available') {
+    progressUpdate.progressPercent = 0
+    progressUpdate.completedAt = null
+  }
 
-    if (!subtopic) return null
-
-    const progressUpdate: Record<string, unknown> = {
-      status,
-      isUnlocked: true,
+  const userProgress = await UserSubtopicProgress.findOneAndUpdate(
+    asMongoFilter({
+      userId: userObjId,
+      trackerId: trackerObjId,
+      subtopicId: subtopicObjId,
+    }),
+    asMongoUpdate({
+      $setOnInsert: {
+        userId: userObjId,
+        trackerId: trackerObjId,
+        topicId: subtopic.topicId,
+        subtopicId: subtopicObjId,
+      },
+      $set: progressUpdate,
+      $inc: {
+        timeSpentMinutes,
+      },
+    }),
+    {
+      returnDocument: 'after',
+      upsert: true,
     }
-    if (status === 'completed') {
-      progressUpdate.progressPercent = 100
-      progressUpdate.completedAt = new Date()
-    }
-    if (status === 'in_progress') {
-      progressUpdate.progressPercent = 50
-    }
+  )
 
-    const userProgress = await UserSubtopicProgress.findOneAndUpdate(
-      asMongoFilter({ userId: userObjId, subtopicId: subtopicObjId }),
-      asMongoUpdate({
-        $set: progressUpdate,
-        $inc: { timeSpentMinutes },
-      }),
-      { returnDocument: 'after', upsert: true }
-    )
+  const [totalSubtopics, completedSubtopics] = await Promise.all([
+    TrackerSubtopic.countDocuments(
+      asMongoFilter({
+        trackerId: trackerObjId,
+        deletedAt: null,
+      })
+    ),
 
-    await Tracker.findByIdAndUpdate(
+    UserSubtopicProgress.countDocuments(
+      asMongoFilter({
+        userId: userObjId,
+        trackerId: trackerObjId,
+        status: 'completed',
+      })
+    ),
+  ])
+
+  const completionPercentage =
+    totalSubtopics > 0
+      ? Math.min(100, Math.round((completedSubtopics / totalSubtopics) * 100))
+      : 0
+
+  await Promise.all([
+    Tracker.findByIdAndUpdate(
       trackerObjId,
-      asMongoUpdate({ $set: { lastActiveAt: new Date() } })
-    )
+      asMongoUpdate({
+        $set: {
+          lastActiveAt: now,
+        },
+      })
+    ),
 
-    return {
-      _id: subtopic._id,
-      trackerId: subtopic.trackerId,
-      topicId: subtopic.topicId,
-      parentSubtopicId: subtopic.parentSubtopicId ?? null,
-      title: subtopic.title,
-      description: subtopic.description,
-      order: subtopic.order,
-      depth: subtopic.depth,
-      isLocked: subtopic.isLocked,
-      estimatedMinutes: subtopic.estimatedMinutes || 0,
-      status: userProgress?.status ?? status,
-      isUnlocked: userProgress?.isUnlocked ?? true,
-      progressPercent: userProgress?.progressPercent ?? 0,
-      timeSpentMinutes: userProgress?.timeSpentMinutes ?? 0,
-      completedAt: userProgress?.completedAt ?? null,
-    } as SubtopicWithProgressRecord
-  },
+    TrackerProgress.findOneAndUpdate(
+      asMongoFilter({
+        userId: userObjId,
+        trackerId: trackerObjId,
+      }),
+      asMongoUpdate({
+        $setOnInsert: {
+          userId: userObjId,
+          trackerId: trackerObjId,
+        },
+        $set: {
+          lastStudiedAt: now,
+          completedSubtopics,
+          totalSubtopics,
+          completionPercentage,
+          status:
+            completionPercentage >= 100
+              ? 'completed'
+              : completionPercentage > 0
+                ? 'in_progress'
+                : 'not_started',
+        },
+        $inc: {
+          timeSpentMinutes,
+        },
+      }),
+      {
+        upsert: true,
+        returnDocument: 'after',
+      }
+    ),
+
+    updateUserStreakAfterTrackerActivity({
+      userObjId,
+      trackerObjId,
+      subtopicObjId,
+    }),
+  ])
+
+  return {
+    _id: subtopic._id,
+    trackerId: subtopic.trackerId,
+    topicId: subtopic.topicId,
+    parentSubtopicId: subtopic.parentSubtopicId ?? null,
+    title: subtopic.title,
+    description: subtopic.description,
+    order: subtopic.order,
+    depth: subtopic.depth,
+    isLocked: subtopic.isLocked,
+    estimatedMinutes: subtopic.estimatedMinutes || 0,
+    status: userProgress?.status ?? status,
+    isUnlocked: userProgress?.isUnlocked ?? true,
+    progressPercent: userProgress?.progressPercent ?? 0,
+    timeSpentMinutes: userProgress?.timeSpentMinutes ?? 0,
+    completedAt: userProgress?.completedAt ?? null,
+  } as SubtopicWithProgressRecord
+},
 
   unlockNextSubtopic: async ({
     trackerId,

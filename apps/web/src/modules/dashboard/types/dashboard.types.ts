@@ -69,7 +69,7 @@ export interface DashboardCurrentRoadmap {
 export interface DashboardActivityIntensityItem {
   date: string
   count: number
-  minutes: number
+  activityCount: number
 }
 
 export interface DashboardFriend {
