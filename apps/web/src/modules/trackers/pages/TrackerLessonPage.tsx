@@ -1,3 +1,5 @@
+// apps/web/src/modules/trackers/pages/TrackerLessonPage.tsx
+
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useQueryClient } from '@tanstack/react-query'
@@ -27,6 +29,8 @@ import {
 } from '../utils/lesson-formatters'
 import { cn } from '../utils/tracker-ui'
 
+
+
 export default function TrackerLessonPage() {
   const navigate = useNavigate()
   const location = useLocation()
@@ -55,9 +59,13 @@ export default function TrackerLessonPage() {
   const lessonNode = lessonData?.lessonNode
   const generatedLesson = lessonData?.generatedLesson
 
-  const [isCompleted, setIsCompleted] = useState(
-    () => lessonNode?.status === 'completed'
-  )
+  // ✅ FIX: Derive completed state directly from server data so it always resets
+  // correctly when navigating between lessons (same component instance reused).
+  // localCompleted is only set to true optimistically after a successful mutation,
+  // and is keyed to subtopicId so it resets automatically on lesson change.
+  const [optimisticCompletedId, setOptimisticCompletedId] = useState<string | null>(null)
+  const isCompleted =
+    lessonNode?.status === 'completed' || optimisticCompletedId === subtopicId
 
   const codeForCompiler = useMemo(() => {
     return (
@@ -88,6 +96,7 @@ export default function TrackerLessonPage() {
     const state = location.state as LessonLocationState | null
     if (state?.returnToRoadmapStack?.length) return state.returnToRoadmapStack
     if (typeof window === 'undefined' || !trackerId) return []
+
     try {
       const raw = sessionStorage.getItem(getRoadmapStackStorageKey(trackerId))
       if (!raw) return []
@@ -109,7 +118,7 @@ export default function TrackerLessonPage() {
       },
       {
         onSuccess: async () => {
-          setIsCompleted(true)
+          setOptimisticCompletedId(subtopicId ?? null)
 
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
@@ -165,23 +174,9 @@ export default function TrackerLessonPage() {
     })
   }
 
-  const compilerKeywords = [
-    tracker?.title || '',
-    lessonNode?.title || '',
-    lessonNode?.description || '',
-    generatedLesson?.title || '',
-    generatedLesson?.summary || '',
-    generatedLesson?.lessonType || '',
-  ]
-    .join(' ')
-    .toLowerCase()
-
-  const showCompiler =
-    generatedLesson?.requiresCompiler ||
-    generatedLesson?.lessonType === 'coding' ||
-    /\b(javascript|typescript|react|node|express|mongodb|mongoose|array|object|string|function|loop|promise|async|await|callback|closure|scope|hoisting|var|let|const|class|prototype|algorithm|dsa|coding|programming|implementation|debug)\b/.test(
-      compilerKeywords
-    )
+  const compilerRuntime = generatedLesson?.compilerRuntime ?? null
+  const showCompiler = Boolean(compilerRuntime)
+  const compilerLanguage = compilerRuntime ?? 'javascript'
 
   return (
     <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
@@ -277,14 +272,17 @@ export default function TrackerLessonPage() {
                       <span className="inline-flex rounded-full bg-[rgba(26,23,20,0.09)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#6b5f58] dark:bg-white/9 dark:text-[#9b9a92]">
                         Groq Lesson
                       </span>
+
                       <span className="inline-flex rounded-full bg-[rgba(26,23,20,0.09)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#6b5f58] dark:bg-white/9 dark:text-[#9b9a92]">
                         {formatLessonType(generatedLesson.lessonType)}
                       </span>
+
                       {showCompiler && (
                         <span className="inline-flex rounded-full bg-[rgba(26,23,20,0.09)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#6b5f58] dark:bg-white/9 dark:text-[#9b9a92]">
                           Piston Compiler
                         </span>
                       )}
+
                       <span className="inline-flex rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
                         {generatedLesson.difficulty}
                       </span>
@@ -293,9 +291,11 @@ export default function TrackerLessonPage() {
                     <h1 className="font-['Playfair_Display',serif] text-[clamp(32px,4vw,44px)] font-extrabold leading-[1.08] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
                       {generatedLesson.title}
                     </h1>
+
                     <p className="mt-3 max-w-3xl text-[14px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
                       {generatedLesson.summary}
                     </p>
+
                     <div className="mt-5 flex flex-wrap items-center gap-5 text-[12.5px] font-medium text-[#6b5f58] dark:text-[#9b9a92]">
                       <div>⏱ {generatedLesson.estimatedMinutes} min</div>
                       <div>◇ Level {lessonNode.depth}</div>
@@ -307,17 +307,21 @@ export default function TrackerLessonPage() {
                     <h2 className="mb-4 flex items-center gap-2 text-[15px] font-bold text-[#b84c2b] dark:text-[#e8816a]">
                       ⬢ Scribe AI Explanation
                     </h2>
+
                     <MathText className="text-[15px] leading-[1.7] text-[#1a1714]/90 dark:text-[#f2f0eb]/90">
                       {generatedLesson.explanation}
                     </MathText>
+
                     <div className="mt-6 rounded-r-xl border-l-4 border-[#c98000] bg-[rgba(138,98,0,0.08)] p-5 dark:bg-[rgba(240,168,66,0.10)]">
                       <h3 className="mb-2 flex items-center gap-2 text-[14px] font-bold text-[#8a6200] dark:text-[#f0a842]">
                         💬 Insight
                       </h3>
+
                       <MathText className="text-[14px] italic leading-[1.55] text-[#1a1714]/85 dark:text-[#f2f0eb]/85">
                         {generatedLesson.insight}
                       </MathText>
                     </div>
+
                     {generatedLesson.codeExample.code && (
                       <pre className="mt-6 overflow-x-auto rounded-xl border border-white/10 bg-[#1e1e1e] p-5 font-['DM_Mono',monospace] text-[13.5px] leading-[1.6] text-[#d4d4d4]">
                         <code>{generatedLesson.codeExample.code}</code>
@@ -331,6 +335,7 @@ export default function TrackerLessonPage() {
                         <h2 className="font-['Playfair_Display',serif] text-[24px] font-extrabold">
                           Coding Practice
                         </h2>
+
                         <MathText className="mt-2 text-[14px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
                           {`${generatedLesson.practiceTask.title || 'Practice task'}: ${
                             generatedLesson.practiceTask.description ||
@@ -338,10 +343,11 @@ export default function TrackerLessonPage() {
                           }`}
                         </MathText>
                       </section>
+
                       <CompilerCard
                         trackerId={trackerId}
                         subtopicId={subtopicId}
-                        language={generatedLesson.codeExample.language}
+                        language={compilerLanguage}
                         fileName={generatedLesson.codeExample.fileName}
                         initialCode={codeForCompiler}
                         practiceTitle={generatedLesson.practiceTask.title}

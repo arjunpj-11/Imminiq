@@ -21,7 +21,7 @@ export type GeneratedLessonData = {
     | 'interview'
     | 'system_design'
     | 'theory'
-  requiresCompiler: boolean
+  compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
   codeExample: {
     language: string
     fileName: string

@@ -109,7 +109,10 @@ const generatedLessonSchema = z.object({
     ])
     .default('concept'),
 
-  requiresCompiler: z.boolean().default(false),
+  compilerRuntime: z
+    .enum(['javascript', 'typescript', 'python', 'c++', 'c', 'java'])
+    .nullable()
+    .default(null),
 
   codeExample: z.object({
     language: z.string().trim().default('javascript'),
@@ -618,20 +621,6 @@ export const generateLesson = async (input: {
   subtopicDescription?: string
   level?: 'beginner' | 'intermediate' | 'advanced'
 }): Promise<GeneratedLesson> => {
-  const codingKeywordText = [
-    input.trackerTitle,
-    input.topicTitle || '',
-    input.subtopicTitle,
-    input.subtopicDescription || '',
-  ]
-    .join(' ')
-    .toLowerCase()
-
-  const shouldForceCompiler =
-    /\b(javascript|typescript|react|node|express|mongodb|mongoose|array|object|string|function|loop|promise|async|await|callback|closure|scope|hoisting|var|let|const|class|inheritance|prototype|dom|api|fetch|axios|algorithm|dsa|stack|queue|linked list|tree|graph|sorting|searching|recursion|dynamic programming|code|coding|programming|implementation|debug|debugging)\b/.test(
-      codingKeywordText
-    )
-
   const response = await groqChat(
     [
       {
@@ -659,13 +648,6 @@ ${input.subtopicDescription || 'No description provided'}
 Learner level:
 ${input.level || 'beginner'}
 
-Important compiler decision:
-This lesson ${
-          shouldForceCompiler
-            ? 'IS detected as a coding/programming lesson, so requiresCompiler MUST be true.'
-            : 'may or may not need compiler. Decide based on whether the learner should write/run code.'
-        }
-
 Return ONLY valid JSON using this exact structure:
 
 {
@@ -674,7 +656,7 @@ Return ONLY valid JSON using this exact structure:
   "explanation": "clear detailed lesson explanation in simple English",
   "insight": "one helpful analogy or mental model",
   "lessonType": "concept",
-  "requiresCompiler": false,
+  "compilerRuntime": null,
   "codeExample": {
     "language": "javascript",
     "fileName": "lesson.js",
@@ -692,40 +674,74 @@ Return ONLY valid JSON using this exact structure:
   "estimatedMinutes": 15
 }
 
-Lesson type rule:
-- Use "coding" for JavaScript, TypeScript, React, Node.js, Express, MongoDB query, DSA, algorithm, implementation, debugging, syntax, or programming lessons.
-- Use "interview" for interview-question/explanation lessons.
-- Use "system_design" for architecture, scaling, distributed systems, database design, API design, or design lessons.
-- Use "theory" for pure conceptual/theoretical lessons.
-- Use "concept" for normal non-code learning concepts.
+============================================================
+LESSON TYPE RULE
+============================================================
 
-Compiler rule:
-- Set "requiresCompiler": true for any lesson where code can help the learner understand by running examples.
-- Set "requiresCompiler": true for JavaScript syntax topics like var, let, const, scope, hoisting, closure, functions, arrays, objects, promises, async/await, loops, and DOM.
-- Set "requiresCompiler": true for DSA, algorithms, implementation tasks, debugging, backend logic, API examples, MongoDB query examples, and coding interview topics.
-- Set "requiresCompiler": false only for pure theory, system design, architecture explanation, comparison-only lessons, or non-coding lessons.
-- If requiresCompiler is true, provide runnable codeExample.code and useful practiceTask.starterCode.
-- If requiresCompiler is false, keep codeExample.code and practiceTask.starterCode as empty strings.
-- Use JavaScript code by default unless another language is clearly implied.
+- "coding"        → JavaScript, TypeScript, Node.js, Express, MongoDB queries, DSA, algorithms, implementation, debugging, syntax
+- "interview"     → interview question / explanation lessons
+- "system_design" → architecture, scaling, distributed systems, database design, API design
+- "theory"        → pure conceptual or theoretical lessons with no code
+- "concept"       → general non-code learning concepts
 
-Practice task rule:
-- If requiresCompiler is true:
-  - Create a coding problem, not only a reflection question.
+============================================================
+COMPILER RUNTIME RULE
+============================================================
+
+Set "compilerRuntime" to one of these exact string values if the learner needs to
+execute code in a terminal to understand the lesson. Otherwise set it to null.
+
+Allowed runtime values:
+- "javascript" → JS syntax, Node.js, Express, async/await, closures, scope, hoisting,
+                 var/let/const, arrays, objects, promises, loops, callbacks, fetch,
+                 DOM manipulation, MongoDB query logic, debugging, DSA in JS
+- "typescript" → TypeScript-specific lessons (types, interfaces, generics, decorators)
+- "python"     → any Python lesson
+- "c++"        → any C++ lesson
+- "c"          → any C lesson
+- "java"       → any Java lesson
+- null         → React, JSX, Vue, Angular, Svelte, or any UI/component framework
+                 (Piston is a terminal runtime — it CANNOT render UI or JSX),
+                 system design, architecture, pure theory, comparison-only lessons,
+                 interview Q&A with no runnable code, HTTP concepts, CSS, HTML
+
+CRITICAL RULES:
+- React/JSX lessons MUST always be null. Components cannot run in a terminal.
+- Vue, Angular, Svelte MUST always be null. Same reason.
+- If the lesson involves writing and running actual terminal-executable code, set the runtime.
+- If the lesson is conceptual, comparison-based, or UI-framework-based, use null.
+
+============================================================
+CODE EXAMPLE RULE
+============================================================
+
+- If compilerRuntime is not null: provide a clear, runnable codeExample.code.
+- If compilerRuntime is null: codeExample.code may be empty or contain a non-runnable
+  pseudocode / illustration snippet (it will be shown as a static block, not executed).
+
+============================================================
+PRACTICE TASK RULE
+============================================================
+
+- If compilerRuntime is not null:
   - practiceTask.description must clearly state the coding challenge.
-  - practiceTask.starterCode must include incomplete starter code the learner can edit.
+  - practiceTask.starterCode must include incomplete starter code the learner can edit and run.
   - practiceTask.expectedOutput must be the exact stdout expected from a correct solution.
   - practiceTask.expectedAnswer must be an empty string.
-- If requiresCompiler is false:
-  - Create a written answer/problem-solving question.
-  - practiceTask.description must be a question or problem the learner can answer by typing.
+
+- If compilerRuntime is null:
+  - practiceTask.description must be a written question or problem the learner answers by typing.
   - practiceTask.expectedAnswer must contain a reference answer for verification.
   - practiceTask.starterCode and practiceTask.expectedOutput must be empty strings.
 
-Quality rules:
+============================================================
+QUALITY RULES
+============================================================
+
 - Make the lesson practical and interview-useful.
 - Explanation should be detailed but readable.
 - Avoid vague generic content.
-- Do not use markdown fences.
+- Do not use markdown fences inside any string value.
         `.trim(),
       },
     ],
@@ -742,36 +758,10 @@ Quality rules:
 
   const lesson = parseAIJson(response, generatedLessonSchema)
 
-  if (shouldForceCompiler) {
-    return {
-      ...lesson,
-      lessonType: 'coding',
-      requiresCompiler: true,
-      codeExample: {
-        language: lesson.codeExample.language || 'javascript',
-        fileName: lesson.codeExample.fileName || 'lesson.js',
-        code:
-          lesson.codeExample.code ||
-          `// ${input.subtopicTitle}\n\nconsole.log("Practice ${input.subtopicTitle} here");`,
-      },
-      practiceTask: {
-        title:
-          lesson.practiceTask.title ||
-          `Practice ${input.subtopicTitle}`,
-        description:
-          lesson.practiceTask.description ||
-          `Write and run code examples to understand ${input.subtopicTitle}.`,
-        starterCode:
-          lesson.practiceTask.starterCode ||
-          `// Try examples for ${input.subtopicTitle}\n\n`,
-        expectedOutput:
-          lesson.practiceTask.expectedOutput || '',
-        expectedAnswer: '',
-      },
-    }
+  return {
+    ...lesson,
+    compilerRuntime: lesson.compilerRuntime ?? null,
   }
-
-  return lesson
 }
 
 export const chatWithLessonTutor = async (input: {
@@ -1089,6 +1079,7 @@ Rules:
     'Focus on completing one small lesson today to keep your learning momentum strong.'
   )
 }
+
 // ============================================================
 // GROQ — TRACKER TOPIC / SUBTOPIC VERIFICATION
 // ============================================================
@@ -1243,6 +1234,7 @@ Return ONLY valid JSON using this exact structure:
 
   return parseAIJson(response, trackerSubtopicVerificationSchema)
 }
+
 // ============================================================
 // GROQ LLAMA 3.3 70B — CONVERSATIONAL TASKS
 // ============================================================

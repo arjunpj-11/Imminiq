@@ -335,7 +335,7 @@ export type GeneratedTrackerLessonRecord = {
   explanation: string
   insight: string
   lessonType: LessonType
-  requiresCompiler: boolean
+ compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
   codeExample: { language: string; fileName: string; code: string }
   practiceTask: { title: string; description: string; starterCode: string }
   tags: string[]

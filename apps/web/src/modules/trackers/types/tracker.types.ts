@@ -197,6 +197,7 @@ export interface GeneratedLesson {
   insight: string
   lessonType: LessonType
   requiresCompiler: boolean
+  compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
   codeExample: {
     language: string
     fileName: string

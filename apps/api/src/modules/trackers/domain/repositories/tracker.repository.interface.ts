@@ -187,7 +187,7 @@ getTopicsWithUserProgress(data: {
     explanation: string
     insight: string
     lessonType: 'concept' | 'coding' | 'interview' | 'system_design' | 'theory'
-    requiresCompiler: boolean
+   compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
     codeExample: { language: string; fileName: string; code: string }
     practiceTask: { title: string; description: string; starterCode: string }
     tags: string[]

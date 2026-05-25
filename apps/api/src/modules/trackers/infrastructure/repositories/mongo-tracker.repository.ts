@@ -1061,7 +1061,7 @@ export const mongoTrackerRepository: TrackerRepository = {
       explanation: data.explanation,
       insight: data.insight,
       lessonType: data.lessonType,
-      requiresCompiler: data.requiresCompiler,
+      compilerRuntime: data.compilerRuntime ?? null,
       codeExample: data.codeExample,
       practiceTask: data.practiceTask,
       tags: data.tags,
