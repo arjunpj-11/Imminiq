@@ -454,6 +454,8 @@ export default function MyTrackersPage() {
                       onArchive={(trackerId) =>
                         handleArchiveToggle(trackerId, tracker.status)
                       }
+
+                      onQuickRevision={(trackerId) => navigate(`/trackers/${trackerId}/revision`)}
                     />
                   ))}
                 </section>

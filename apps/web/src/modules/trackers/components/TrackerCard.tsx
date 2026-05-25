@@ -134,6 +134,38 @@ const ArchiveIcon = () => (
   </svg>
 )
 
+const QuickRevisionIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M1.5 7.5a6 6 0 1 0 6-6"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+    />
+    <path
+      d="M1.5 3.5v4h4"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7.5 5v3l2 1"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+)
+
 type TrackerCardProps = {
   tracker: Tracker
   onOpenStudy: (trackerId: string) => void
@@ -141,6 +173,7 @@ type TrackerCardProps = {
   onViewPublished: (trackerId: string) => void
   onInfo: (trackerId: string) => void
   onArchive?: (trackerId: string) => void
+  onQuickRevision: (trackerId: string) => void  
 }
 
 export default function TrackerCard({
@@ -150,6 +183,7 @@ export default function TrackerCard({
   onViewPublished,
   onInfo,
   onArchive,
+  onQuickRevision,
 }: TrackerCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const menuRef = useRef<HTMLDivElement | null>(null)
@@ -270,6 +304,19 @@ export default function TrackerCard({
                 <InfoIcon />
                 Info / Manage
               </button>
+
+              <button
+  type="button"
+  onClick={(event) =>
+    handleMenuAction(event, () => onQuickRevision(tracker._id))
+  }
+  className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#1a1714] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
+>
+  <QuickRevisionIcon />
+  Quick Revision
+</button>
+
+<div className="h-px bg-[#e0d0c5] dark:bg-white/9" />
 
               {onArchive && (
                 <>

@@ -9,6 +9,7 @@ import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 
+
 import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import {
   useTrackerLesson,
@@ -392,7 +393,6 @@ export default function TrackerLessonPage() {
                 </aside>
               </div>
             )}
-
             <AppFooter />
           </div>
         </main>

@@ -28,6 +28,7 @@ import BlockedPage from './pages/BlockedPage'
 import NoConnectionPage from './pages/NoConnectionPage'
 import NotFoundPage from './pages/NotFoundPage'
 import TrackerManagePage from './modules/trackers/pages/TrackerManagePage'
+import TrackerQuickRevisionPage from './modules/trackers/pages/TrackerQuickRevisionPage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
@@ -298,6 +299,8 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route path="/trackers/:trackerId/revision" element={<TrackerQuickRevisionPage />} />
 
           {/* ─── ADMIN ROUTES ───────────────────────────── */}
           <Route
