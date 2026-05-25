@@ -177,6 +177,33 @@ export type AnswerVerificationAIResult = z.infer<
 >
 
 // ============================================================
+// TRACKER VERIFICATION TYPES
+// ============================================================
+
+const trackerTopicVerificationSchema = z.object({
+  verified: z.boolean(),
+  message: z.string().trim().min(1),
+  polishedTitle: z.string().trim().min(1),
+  polishedDescription: z.string().trim().default(''),
+})
+
+const trackerSubtopicVerificationSchema = z.object({
+  verified: z.boolean(),
+  message: z.string().trim().min(1),
+  polishedTitle: z.string().trim().min(1),
+  polishedDescription: z.string().trim().default(''),
+})
+
+export type TrackerTopicVerificationResult = z.infer<
+  typeof trackerTopicVerificationSchema
+>
+
+export type TrackerSubtopicVerificationResult = z.infer<
+  typeof trackerSubtopicVerificationSchema
+>
+
+
+// ============================================================
 // JSON PARSER HELPER
 // ============================================================
 
@@ -1062,7 +1089,160 @@ Rules:
     'Focus on completing one small lesson today to keep your learning momentum strong.'
   )
 }
+// ============================================================
+// GROQ — TRACKER TOPIC / SUBTOPIC VERIFICATION
+// ============================================================
 
+export const verifyTrackerTopic = async (input: {
+  trackerTitle: string
+  topicTitle: string
+  topicDescription: string
+  existingTopics: { id: string; title: string; description: string }[]
+}): Promise<TrackerTopicVerificationResult> => {
+  const existingList = input.existingTopics.length
+    ? input.existingTopics
+        .map((t, i) => `${i + 1}. ${t.title}${t.description ? ` — ${t.description}` : ''}`)
+        .join('\n')
+    : 'None yet'
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.',
+      },
+      {
+        role: 'user',
+        content: `
+A user wants to add a new topic to their learning tracker.
+
+Tracker title:
+${input.trackerTitle}
+
+New topic title:
+${input.topicTitle}
+
+New topic description:
+${input.topicDescription || 'Not provided'}
+
+Existing topics already in this tracker:
+${existingList}
+
+Your task:
+- Decide whether this new topic genuinely belongs in this tracker.
+- Reject it if it is off-topic, too vague, completely duplicate, or clearly does not fit the tracker's subject.
+- Approve it if it is a relevant, meaningful topic that adds value to this learning roadmap.
+- Be practical: slight overlaps are fine as long as the new topic has its own distinct value.
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "verified": true,
+  "message": "Short explanation of why this topic was approved or rejected.",
+  "polishedTitle": "Fix obvious typos only (e.g. 'Javascrpt' → 'JavaScript'). Otherwise return the title exactly as given.",
+  "polishedDescription": "One clear sentence describing what the learner will cover. If user left it empty, write one based on the title and tracker context."
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty topic verification response',
+      'GROQ_EMPTY_TOPIC_VERIFICATION_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, trackerTopicVerificationSchema)
+}
+
+export const verifyTrackerSubtopic = async (input: {
+  trackerTitle: string
+  topicTitle: string
+  topicDescription: string
+  subtopicTitle: string
+  subtopicDescription: string
+  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  existingSubtopics: {
+    id: string
+    title: string
+    description: string
+    difficulty: string
+  }[]
+}): Promise<TrackerSubtopicVerificationResult> => {
+  const existingList = input.existingSubtopics.length
+    ? input.existingSubtopics
+        .map(
+          (s, i) =>
+            `${i + 1}. ${s.title}${s.difficulty ? ` [${s.difficulty}]` : ''}${s.description ? ` — ${s.description}` : ''}`
+        )
+        .join('\n')
+    : 'None yet'
+
+  const response = await groqChat(
+    [
+      {
+        role: 'system',
+        content:
+          'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.',
+      },
+      {
+        role: 'user',
+        content: `
+A user wants to add a new subtopic (lesson) under a topic in their learning tracker.
+
+Tracker title:
+${input.trackerTitle}
+
+Parent topic:
+${input.topicTitle}${input.topicDescription ? ` — ${input.topicDescription}` : ''}
+
+New subtopic title:
+${input.subtopicTitle}
+
+New subtopic description:
+${input.subtopicDescription || 'Not provided'}
+
+Difficulty:
+${input.difficulty}
+
+Existing subtopics already under this topic:
+${existingList}
+
+Your task:
+- Decide whether this new subtopic genuinely belongs under this specific topic.
+- Reject it if it is off-topic for the parent topic, too vague, a clear duplicate of an existing subtopic, or does not add learning value.
+- Approve it if it is a relevant, distinct, and meaningful lesson that fits logically under the parent topic.
+- Be practical: minor wording differences from existing subtopics are fine if the learning content is clearly distinct.
+
+Return ONLY valid JSON using this exact structure:
+
+{
+  "verified": true,
+  "message": "Short explanation of why this subtopic was approved or rejected.",
+  "polishedTitle": "Fix obvious typos only. Otherwise return the title exactly as given.",
+  "polishedDescription": "One clear sentence describing what the learner will understand or practice in this subtopic."
+}
+        `.trim(),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Groq returned an empty subtopic verification response',
+      'GROQ_EMPTY_SUBTOPIC_VERIFICATION_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, trackerSubtopicVerificationSchema)
+}
 // ============================================================
 // GROQ LLAMA 3.3 70B — CONVERSATIONAL TASKS
 // ============================================================

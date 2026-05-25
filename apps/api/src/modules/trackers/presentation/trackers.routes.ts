@@ -71,7 +71,11 @@ router.post(
   '/:trackerId/lessons/:subtopicId/answer/verify',
   trackerController.verifyLessonAnswer
 )
-
+router.post('/:trackerId/topics/verify', trackerController.verifyTopic)
+router.post(
+  '/:trackerId/topics/:topicId/subtopics/verify',
+  trackerController.verifySubtopic
+)
 router.post(
   '/:trackerId/evaluation-jobs/:evaluationJobId/missing-topics/:topicIndex/add',
   trackerController.addMissingEvaluationTopic

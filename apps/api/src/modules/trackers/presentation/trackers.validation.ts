@@ -86,3 +86,30 @@ export const verifyLessonAnswerSchema = z.object({
   question: z.string().min(1, 'Question is required'),
   answer: z.string().min(1, 'Answer is required'),
 })
+
+// Add these two schemas alongside your existing ones
+export const verifyTopicSchema = z.object({
+  trackerTitle: z.string().min(1),
+  topicTitle: z.string().min(1),
+  topicDescription: z.string().optional().default(''),
+  existingTopics: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string().optional().default(''),
+  })).optional().default([]),
+})
+
+export const verifySubtopicSchema = z.object({
+  trackerTitle: z.string().min(1),
+  topicTitle: z.string().min(1),
+  topicDescription: z.string().optional().default(''),
+  subtopicTitle: z.string().min(1),
+  subtopicDescription: z.string().optional().default(''),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
+  existingSubtopics: z.array(z.object({
+    id: z.string(),
+    title: z.string(),
+    description: z.string().optional().default(''),
+    difficulty: z.string().optional().default(''),
+  })).optional().default([]),
+})
