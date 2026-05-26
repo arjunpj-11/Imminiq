@@ -1,8 +1,8 @@
 import { mongoAuthRepository } from './infrastructure/repositories/mongo-auth.repository'
 
 /**
- * Compatibility export:
- * Existing modules that import `authRepository` from `./auth.repository`
- * keep working while the implementation now lives in infrastructure.
+ * Temporary compatibility shim.
+ * New code should depend on domain contracts and wire concrete repositories
+ * through auth.service.ts.
  */
 export const authRepository = mongoAuthRepository

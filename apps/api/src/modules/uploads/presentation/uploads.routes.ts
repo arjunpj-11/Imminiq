@@ -1,4 +1,5 @@
 import { Router } from 'express'
+
 import {
   avatarUpload,
   bannerUpload,
@@ -8,13 +9,13 @@ import {
   authenticatedApiIpLimiter,
   profileImageUploadIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { uploadsController } from './uploads.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
+import { uploadsController } from './uploads.controller'
 import {
   generateAiAvatarPreviewSchema,
   generateAiBannerPreviewSchema,
-} from '../uploads.schema'
+} from './uploads.schema'
 
 const router = Router()
 

@@ -1,4 +1,4 @@
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
 import { ApiError } from '../../../../shared/utils/ApiError'
 import {
   SECURITY_ATTEMPT_POLICIES,
@@ -48,12 +48,16 @@ const recordInvalidOtpAttempt = async (
 }
 
 export class VerifyAccountUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract
+  ) {}
+
   async execute(identifier: string, otp: string) {
     const parsedIdentifier = normalizeIdentifier(identifier)
 
     await assertOtpVerificationAllowed(parsedIdentifier.value)
 
-    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this.authRepository.findByIdentifier(parsedIdentifier.value)
 
     if (!user) {
       await recordInvalidOtpAttempt(parsedIdentifier.value)
@@ -66,7 +70,7 @@ export class VerifyAccountUseCase {
     }
 
     if (parsedIdentifier.method === 'email') {
-      const valid = await authRepository.verifyOtp({
+      const valid = await this.authRepository.verifyOtp({
         email: parsedIdentifier.email,
         otp,
         purpose: 'email_verification',
@@ -91,7 +95,7 @@ export class VerifyAccountUseCase {
         )
       }
 
-      await authRepository.markEmailVerified(user._id.toString())
+      await this.authRepository.markEmailVerified(user._id.toString())
       return
     }
 
@@ -133,7 +137,7 @@ export class VerifyAccountUseCase {
         )
       }
 
-      await authRepository.markPhoneVerified(user._id.toString())
+      await this.authRepository.markPhoneVerified(user._id.toString())
 
       await phoneOtpSessionCache.deleteVerificationId(
         parsedIdentifier.phone!,

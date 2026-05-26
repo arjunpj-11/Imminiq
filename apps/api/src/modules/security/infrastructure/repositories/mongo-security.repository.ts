@@ -1,6 +1,9 @@
+import crypto from 'crypto'
+
 import { User } from '../../../../infrastructure/database/models/user.model'
+import { AuthToken } from '../../../../infrastructure/database/models/auth-token.model'
 import { TwoFactorAuth } from '../../../../infrastructure/database/models/two-factor-auth.model'
-import { authRepository } from '../../../auth/auth.repository'
+import { authRepository } from '../../../auth'
 
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
@@ -10,9 +13,11 @@ import type {
   TwoFactorRecord,
 } from '../../domain/types/security.types'
 
-export const mongoSecurityRepository: SecurityRepository = {
-  // ─── USER LOOKUPS ─────────────────────────────────
+const hashToken = (token: string) => {
+  return crypto.createHash('sha256').update(token).digest('hex')
+}
 
+export const mongoSecurityRepository: SecurityRepository = {
   findUserById: async (userId: string) => {
     const user = await authRepository.findById(userId)
     return user as SecurityUserRecord | null
@@ -21,8 +26,6 @@ export const mongoSecurityRepository: SecurityRepository = {
   emailExists: async (email: string) => {
     return authRepository.emailExists(email)
   },
-
-  // ─── EMAIL CHANGE REQUEST ─────────────────────────
 
   savePendingEmailChange: async (
     userId: string,
@@ -48,7 +51,7 @@ export const mongoSecurityRepository: SecurityRepository = {
       {
         returnDocument: 'after',
       }
-    )
+    ).select('+passwordHash')
 
     return user as SecurityUserRecord | null
   },
@@ -63,7 +66,8 @@ export const mongoSecurityRepository: SecurityRepository = {
         $ne: null,
       },
       deletedAt: null,
-    }).select('+pendingEmailChangeTokenHash')
+    })
+      .select('+passwordHash +pendingEmailChangeTokenHash')
 
     return user as PendingEmailUserRecord | null
   },
@@ -93,7 +97,7 @@ export const mongoSecurityRepository: SecurityRepository = {
       {
         returnDocument: 'after',
       }
-    )
+    ).select('+passwordHash')
 
     return user as SecurityUserRecord | null
   },
@@ -114,18 +118,16 @@ export const mongoSecurityRepository: SecurityRepository = {
       {
         returnDocument: 'after',
       }
-    )
+    ).select('+passwordHash')
 
     return user as SecurityUserRecord | null
   },
-
-  // ─── TWO FACTOR AUTH ──────────────────────────────
 
   findTwoFactorByUserId: async (userId: string) => {
     const twoFactor = await TwoFactorAuth.findOne({
       userId,
       deletedAt: null,
-    })
+    }).lean()
 
     return twoFactor as TwoFactorRecord | null
   },
@@ -134,7 +136,7 @@ export const mongoSecurityRepository: SecurityRepository = {
     const twoFactor = await TwoFactorAuth.findOne({
       userId,
       deletedAt: null,
-    }).select('+totpSecretEncrypted +qrCodeUri')
+    }).select('+totpSecretEncrypted')
 
     return twoFactor as TwoFactorRecord | null
   },
@@ -151,30 +153,25 @@ export const mongoSecurityRepository: SecurityRepository = {
     const twoFactor = await TwoFactorAuth.findOneAndUpdate(
       {
         userId,
+        deletedAt: null,
       },
       {
         $set: {
+          userId,
           status: 'pending',
           totpSecretEncrypted: data.encryptedSecret,
-          totpIssuer: data.issuer,
-          totpAccountLabel: data.accountLabel,
+          issuer: data.issuer,
+          accountLabel: data.accountLabel,
           qrCodeUri: data.qrCodeUri,
-
           backupCodes: [],
-          backupCodesUsed: 0,
-          backupCodesRegeneratedAt: null,
-
-          enabledAt: null,
-          disabledAt: null,
-          lastUsedAt: null,
-          deletedAt: null,
         },
       },
       {
         upsert: true,
         returnDocument: 'after',
+        setDefaultsOnInsert: true,
       }
-    )
+    ).select('+totpSecretEncrypted')
 
     return twoFactor as TwoFactorRecord | null
   },
@@ -195,18 +192,14 @@ export const mongoSecurityRepository: SecurityRepository = {
       {
         $set: {
           status: 'active',
-          backupCodes,
-          backupCodesUsed: 0,
-          backupCodesRegeneratedAt: new Date(),
           enabledAt: new Date(),
-          disabledAt: null,
-          qrCodeUri: null,
+          backupCodes,
         },
       },
       {
         returnDocument: 'after',
       }
-    )
+    ).select('+totpSecretEncrypted')
 
     return twoFactor as TwoFactorRecord | null
   },
@@ -223,7 +216,10 @@ export const mongoSecurityRepository: SecurityRepository = {
           status: 'disabled',
           disabledAt: new Date(),
           backupCodes: [],
-          backupCodesUsed: 0,
+        },
+        $unset: {
+          totpSecretEncrypted: '',
+          qrCodeUri: '',
         },
       },
       {
@@ -234,30 +230,69 @@ export const mongoSecurityRepository: SecurityRepository = {
     return twoFactor as TwoFactorRecord | null
   },
 
-  // ─── SESSIONS ─────────────────────────────────────
-
   findActiveSessions: async (userId: string) => {
-    const sessions = await authRepository.findAllUserTokens(userId)
+    const sessions = await AuthToken.find({
+      userId,
+      revokedAt: null,
+      expiresAt: {
+        $gt: new Date(),
+      },
+      deletedAt: null,
+    })
+      .sort({ updatedAt: -1 })
+      .lean()
+
     return sessions as SessionRecord[]
   },
 
   findCurrentRefreshTokenRecord: async (refreshToken: string) => {
-    const record = await authRepository.findRefreshToken(refreshToken)
-    return record as SessionRecord | null
+    const tokenHash = hashToken(refreshToken)
+
+    const session = await AuthToken.findOne({
+      refreshTokenHash: tokenHash,
+      revokedAt: null,
+      expiresAt: {
+        $gt: new Date(),
+      },
+      deletedAt: null,
+    }).lean()
+
+    return session as SessionRecord | null
   },
 
-  revokeSessionById: async (
-    userId: string,
-    sessionId: string
-  ) => {
-    return authRepository.revokeSessionById(sessionId, userId)
+  revokeSessionById: async (userId: string, sessionId: string) => {
+    return AuthToken.findOneAndUpdate(
+      {
+        _id: sessionId,
+        userId,
+        revokedAt: null,
+        deletedAt: null,
+      },
+      {
+        $set: {
+          revokedAt: new Date(),
+        },
+      },
+      {
+        returnDocument: 'after',
+      }
+    ).lean()
   },
 
   revokeAllSessions: async (userId: string) => {
-    return authRepository.revokeAllUserTokens(userId)
+    return AuthToken.updateMany(
+      {
+        userId,
+        revokedAt: null,
+        deletedAt: null,
+      },
+      {
+        $set: {
+          revokedAt: new Date(),
+        },
+      }
+    )
   },
-
-  // ─── ACCOUNT DELETION SCHEDULING ──────────────────
 
   scheduleAccountDeletion: async (
     userId: string,
@@ -271,14 +306,14 @@ export const mongoSecurityRepository: SecurityRepository = {
       {
         $set: {
           status: 'deactivated',
-          deletionRequestedAt: new Date(),
           scheduledDeletionAt,
+          deactivatedAt: new Date(),
         },
       },
       {
         returnDocument: 'after',
       }
-    )
+    ).select('+passwordHash')
 
     return user as SecurityUserRecord | null
   },

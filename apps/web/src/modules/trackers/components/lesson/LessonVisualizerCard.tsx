@@ -75,6 +75,80 @@ function GeneratingPulse() {
   )
 }
 
+// ─── Scaled iframe that fits Gemini's output without clipping ─────────────────
+//
+// Gemini tends to generate HTML at a fixed ~1100–1400px wide canvas.
+// We render it at GEMINI_CANVAS_W × GEMINI_CANVAS_H inside the iframe, then
+// use CSS transform: scale() to shrink it so it fills the available modal area
+// without scrollbars and without cutting anything off.
+
+const GEMINI_CANVAS_W = 1280
+const GEMINI_CANVAS_H = 900
+
+function ScaledIframe({
+  html,
+  title,
+}: {
+  html: string
+  title: string
+}) {
+  const wrapperRef = useRef<HTMLDivElement>(null)
+  const [scale, setScale] = useState(1)
+
+  useEffect(() => {
+    const el = wrapperRef.current
+    if (!el) return
+
+    const recalc = () => {
+      const scaleX = el.clientWidth / GEMINI_CANVAS_W
+      const scaleY = el.clientHeight / GEMINI_CANVAS_H
+      // Use the smaller axis so nothing is clipped; cap at 1 (never upscale)
+      setScale(Math.min(scaleX, scaleY, 1))
+    }
+
+    recalc()
+
+    const ro = new ResizeObserver(recalc)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+
+  return (
+    // Outer wrapper — fills modal body, hides any stray overflow
+    <div ref={wrapperRef} className="relative h-full w-full overflow-hidden bg-[#0a0a0a]">
+      {/*
+        Inner container positioned at top-left, sized to the Gemini canvas,
+        then scaled down. transform-origin top-left keeps it anchored to the
+        top-left corner so nothing disappears behind the header.
+      */}
+      <div
+        style={{
+          width: GEMINI_CANVAS_W,
+          height: GEMINI_CANVAS_H,
+          transform: `scale(${scale})`,
+          transformOrigin: 'top left',
+          position: 'absolute',
+          top: 0,
+          left: 0,
+        }}
+      >
+        <iframe
+          srcDoc={html}
+          sandbox="allow-scripts"
+          title={title}
+          style={{
+            width: '100%',
+            height: '100%',
+            border: 'none',
+            colorScheme: 'dark',
+            display: 'block',
+          }}
+        />
+      </div>
+    </div>
+  )
+}
+
 // ─── Visualizer modal ────────────────────────────────────────────────────────
 
 function VisualizerModal({
@@ -143,20 +217,14 @@ function VisualizerModal({
           </div>
         </div>
 
-        {/* Canvas iframe */}
-        <div className="relative flex-1 overflow-hidden">
+        {/* Canvas — flex-1 so it fills all space between header and footer */}
+        <div className="relative min-h-0 flex-1">
           {isRegenerating ? (
             <div className="flex h-full items-center justify-center bg-[#0a0a0a]">
               <GeneratingPulse />
             </div>
           ) : (
-            <iframe
-              srcDoc={html}
-              sandbox="allow-scripts"
-              title={`${lessonTitle} Visualization`}
-              className="h-full w-full border-0"
-              style={{ colorScheme: 'dark' }}
-            />
+            <ScaledIframe html={html} title={`${lessonTitle} Visualization`} />
           )}
         </div>
 
@@ -196,21 +264,21 @@ export default function LessonVisualizerCard({
 
   const isGenerating = visualizeMutation.isPending
 
- const generate = () => {
-  setError(null)
-  visualizeMutation.mutate(
-    { trackerId, subtopicId },            // no regenerate flag = use cache if available
-    {
-      onSuccess: (data) => {
-        setGeneratedHtml(data.data.html)
-        setModalOpen(true)
-      },
-      onError: (err) => {
-        setError(err.message || 'Failed to generate visualization.')
-      },
-    }
-  )
-}
+  const generate = () => {
+    setError(null)
+    visualizeMutation.mutate(
+      { trackerId, subtopicId },
+      {
+        onSuccess: (data) => {
+          setGeneratedHtml(data.data.html)
+          setModalOpen(true)
+        },
+        onError: (err) => {
+          setError(err.message || 'Failed to generate visualization.')
+        },
+      }
+    )
+  }
 
   const handleOpenOrGenerate = () => {
     if (generatedHtml) {
@@ -220,22 +288,22 @@ export default function LessonVisualizerCard({
     }
   }
 
- const handleRegenerate = () => {
-  setGeneratedHtml(null)
-  setError(null)
-  visualizeMutation.mutate(
-    { trackerId, subtopicId, regenerate: true },
-    {
-      onSuccess: (data) => {
-        setGeneratedHtml(data.data.html)
-        setModalOpen(true)
-      },
-      onError: (err) => {
-        setError(err.message || 'Failed to generate visualization.')
-      },
-    }
-  )
-}
+  const handleRegenerate = () => {
+    setGeneratedHtml(null)
+    setError(null)
+    visualizeMutation.mutate(
+      { trackerId, subtopicId, regenerate: true },
+      {
+        onSuccess: (data) => {
+          setGeneratedHtml(data.data.html)
+          setModalOpen(true)
+        },
+        onError: (err) => {
+          setError(err.message || 'Failed to generate visualization.')
+        },
+      }
+    )
+  }
 
   const isReady = Boolean(generatedHtml) && !isGenerating
 

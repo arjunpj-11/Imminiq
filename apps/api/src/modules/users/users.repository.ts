@@ -1,3 +1,3 @@
-export {
-  mongoUsersRepository as usersRepository,
-} from './infrastructure/repositories/mongo-users.repository'
+import { mongoUsersRepository } from './infrastructure/repositories/mongo-users.repository'
+
+export const usersRepository = mongoUsersRepository

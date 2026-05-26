@@ -1,9 +1,7 @@
-// apps/api/src/modules/trackers/application/use-cases/get-tracker-lesson.usecase.ts
-
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
-import { generateLesson } from '../../../../infrastructure/ai/ai.service'
+import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
   return [...subtopics].sort((a, b) => {
@@ -16,7 +14,10 @@ const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
 }
 
 export class GetTrackerLessonUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerAIService: TrackerAIServiceContract
+  ) {}
 
   async execute(input: {
     trackerId: string
@@ -31,7 +32,6 @@ export class GetTrackerLessonUseCase {
       throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
-    // Ensure this user has progress docs — no-op if already initialized
     await this.trackerRepository.ensureUserProgressInitialized({
       userId: input.userId,
       trackerId: input.trackerId,
@@ -39,7 +39,6 @@ export class GetTrackerLessonUseCase {
 
     const [topics, subtopics] = await Promise.all([
       this.trackerRepository.getTopicsForTracker(input.trackerId),
-      // Returns content merged with this user's progress
       this.trackerRepository.getSubtopicsWithUserProgress({
         trackerId: input.trackerId,
         userId: input.userId,
@@ -64,7 +63,7 @@ export class GetTrackerLessonUseCase {
     })
 
     if (!lesson) {
-      const generated = await generateLesson({
+      const generated = await this.trackerAIService.generateLesson({
         trackerTitle: tracker.title || 'Tracker',
         topicTitle: topic?.title,
         subtopicTitle: currentSubtopic.title,
@@ -101,7 +100,6 @@ export class GetTrackerLessonUseCase {
         description: currentSubtopic.description,
         order: currentSubtopic.order,
         depth: currentSubtopic.depth,
-        // ✅ Now from per-user UserSubtopicProgress
         status: currentSubtopic.status,
         isLocked: currentSubtopic.isLocked,
         progressPercent: currentSubtopic.progressPercent,

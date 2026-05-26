@@ -13,14 +13,10 @@ import {
   disableTwoFactorSchema,
   verifyEmailChangeSchema,
   verifyTwoFactorSetupSchema,
-} from '../security.schema'
+} from './security.schema'
 
 const router = Router()
 
-// ─── PUBLIC EMAIL CHANGE VERIFICATION ─────────────
-// Must stay before router.use(authenticate)
-// because the user clicks this link from their email
-// and may not be logged in.
 router.post(
   '/verify-email-change',
   publicEmailChangeVerifyIpLimiter,
@@ -28,27 +24,22 @@ router.post(
   securityController.verifyEmailChange
 )
 
-// ─── PROTECTED ROUTES ──────────────────────────────
 router.use(authenticate)
 
-// ─── OVERVIEW ─────────────────────────────────────
 router.get('/overview', securityController.getOverview)
 
-// ─── EMAIL CHANGE REQUEST ─────────────────────────
 router.patch(
   '/change-email',
   validate(changeEmailSchema),
   securityController.requestEmailChange
 )
 
-// ─── PASSWORD ─────────────────────────────────────
 router.patch(
   '/change-password',
   validate(changePasswordSchema),
   securityController.changePassword
 )
 
-// ─── SESSIONS ─────────────────────────────────────
 router.get('/sessions', securityController.getSessions)
 
 router.delete(
@@ -56,7 +47,6 @@ router.delete(
   securityController.revokeSession
 )
 
-// ─── TWO FACTOR AUTH ──────────────────────────────
 router.get(
   '/2fa/status',
   securityController.getTwoFactorStatus
@@ -81,7 +71,6 @@ router.post(
   securityController.disableTwoFactor
 )
 
-// ─── DELETE ACCOUNT ───────────────────────────────
 router.delete(
   '/delete-account',
   validate(deleteAccountSchema),
@@ -89,3 +78,4 @@ router.delete(
 )
 
 export { router as securityRoutes }
+export default router

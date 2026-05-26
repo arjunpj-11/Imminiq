@@ -1,5 +1,5 @@
 import type { DashboardRepository } from '../../domain/repositories/dashboard.repository.interface'
-import type { DashboardInsightGenerator } from '../../domain/gateways/dashboard-insight-generator.interface'
+import type { DashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
 
 export class GetAIInsightsUseCase {
   constructor(

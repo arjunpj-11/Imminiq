@@ -1,5 +1,3 @@
-import type { Types } from 'mongoose'
-
 export type ProfileSort = 'createdAt' | 'publishedAt' | 'ratingAverage' | 'cloneCount'
 
 export type RelationshipState =
@@ -170,7 +168,7 @@ export interface PublicProfilePageView {
 }
 
 export interface UserProfileLookup {
-  userId: Types.ObjectId
+  userId: IdLike
   username: string
 }
 

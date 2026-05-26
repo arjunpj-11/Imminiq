@@ -1,47 +1,49 @@
-import type { Types } from 'mongoose'
 import type {
+  IdLike,
   PaginationQuery,
   RelationshipState,
   UpdateMyProfileInput,
 } from '../types/users.types'
 
+export type UserIdInput = string | IdLike
+
 export interface UsersRepository {
   findUserById(userId: string): Promise<unknown>
   findUserByUsername(username: string): Promise<unknown>
-  findProfileByUserId(userId: string | Types.ObjectId): Promise<unknown>
+  findProfileByUserId(userId: UserIdInput): Promise<unknown>
 
   ensureProfileForUser(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     fallbackName?: string
   ): Promise<unknown>
 
   updateProfileByUserId(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     payload: UpdateMyProfileInput
   ): Promise<unknown>
 
   findSettingsByUserId(
-    userId: string | Types.ObjectId
+    userId: UserIdInput
   ): Promise<unknown>
 
   findLatestStreakSnapshot(
-    userId: string | Types.ObjectId
+    userId: UserIdInput
   ): Promise<unknown>
 
   findStreakHistoryByYear(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     year: number
   ): Promise<unknown[]>
 
   findBadgeShowcase(
-    userId: string | Types.ObjectId
+    userId: UserIdInput
   ): Promise<{
     catalog: unknown[]
     earned: unknown[]
   }>
 
   findEarnedBadgesPaginated(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     page?: number,
     limit?: number
   ): Promise<{
@@ -50,7 +52,7 @@ export interface UsersRepository {
   }>
 
   findPublishedTrackers(
-    ownerId: string | Types.ObjectId,
+    ownerId: UserIdInput,
     query: PaginationQuery,
     includePrivate?: boolean
   ): Promise<{
@@ -59,7 +61,7 @@ export interface UsersRepository {
   }>
 
   findActivityFeed(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     page?: number,
     limit?: number
   ): Promise<{
@@ -68,13 +70,13 @@ export interface UsersRepository {
   }>
 
   findRecentActivity(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     limit?: number
   ): Promise<unknown[]>
 
   getRelationshipState(
     viewerUserId: string | undefined,
-    targetUserId: string | Types.ObjectId
+    targetUserId: UserIdInput
   ): Promise<RelationshipState>
 
   updateUserFullName(

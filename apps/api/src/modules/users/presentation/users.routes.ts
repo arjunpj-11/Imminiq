@@ -3,7 +3,7 @@ import { Router } from 'express'
 import { usersController } from './users.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { updateMyProfileSchema } from '../users.schema'
+import { updateMyProfileSchema } from './users.schema'
 
 const router = Router()
 

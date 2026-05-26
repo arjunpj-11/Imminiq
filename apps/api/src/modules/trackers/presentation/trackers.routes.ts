@@ -1,5 +1,3 @@
-// apps/api/src/modules/trackers/presentation/trackers.routes.ts
-
 import { Router } from 'express'
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
@@ -37,14 +35,10 @@ router.patch(
   trackerController.updateSubtopicProgress
 )
 
-// ─── Lesson Main ─────────────────────────────────────────────────────────────
-
 router.get(
   '/:trackerId/lessons/:subtopicId',
   trackerController.getLesson
 )
-
-// ─── Lesson Doubt Chat ───────────────────────────────────────────────────────
 
 router.get(
   '/:trackerId/lessons/:subtopicId/chat',
@@ -56,8 +50,6 @@ router.post(
   trackerController.chatWithLessonTutor
 )
 
-// ─── Lesson Generated Questions ──────────────────────────────────────────────
-
 router.get(
   '/:trackerId/lessons/:subtopicId/questions',
   trackerController.getLessonGeneratedQuestions
@@ -67,8 +59,6 @@ router.post(
   '/:trackerId/lessons/:subtopicId/questions/generate',
   trackerController.generateLessonQuestions
 )
-
-// ─── Lesson Question Solution ────────────────────────────────────────────────
 
 router.get(
   '/:trackerId/lessons/:subtopicId/question-solution',
@@ -80,8 +70,6 @@ router.post(
   trackerController.generateLessonQuestionSolution
 )
 
-// ─── Lesson Question Solution Chat ───────────────────────────────────────────
-
 router.get(
   '/:trackerId/lessons/:subtopicId/question-solution/doubts',
   trackerController.getLessonQuestionSolutionDoubts
@@ -92,8 +80,6 @@ router.post(
   trackerController.askLessonQuestionSolutionDoubt
 )
 
-// ─── Lesson Answer Attempts ──────────────────────────────────────────────────
-
 router.get(
   '/:trackerId/lessons/:subtopicId/answer/attempts',
   trackerController.getLessonAnswerAttempts
@@ -103,8 +89,6 @@ router.post(
   '/:trackerId/lessons/:subtopicId/answer/verify',
   trackerController.verifyLessonAnswer
 )
-
-// ─── Lesson Code Compiler ────────────────────────────────────────────────────
 
 router.get(
   '/:trackerId/lessons/:subtopicId/code/submissions',
@@ -140,8 +124,6 @@ router.delete(
   '/:trackerId/lessons/:subtopicId/question-solution/doubts',
   trackerController.clearLessonQuestionSolutionDoubts
 )
-
-// ─── AI Topic/Subtopic Verification ──────────────────────────────────────────
 
 router.post('/:trackerId/topics/verify', trackerController.verifyTopic)
 

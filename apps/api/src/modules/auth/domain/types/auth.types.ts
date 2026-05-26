@@ -40,22 +40,16 @@ export interface TokenPair {
 
 export interface AuthUser {
   _id: string
-
   fullName: string
   username: string
-
   email?: string
   phone?: string
-
   role: AuthRole
   status: UserStatus
-
   emailVerified: boolean
   phoneVerified: boolean
-
   isPremium: boolean
   avatarUrl?: string | null
-
   onboardingCompleted: boolean
 }
 
@@ -137,6 +131,10 @@ export type ParsedIdentifier = {
   value: string
 }
 
+export type EntityIdLike = {
+  toString(): string
+}
+
 export type OAuthFormattedUserSource = Pick<
   AuthUser,
   | 'fullName'
@@ -151,11 +149,40 @@ export type OAuthFormattedUserSource = Pick<
   | 'avatarUrl'
   | 'onboardingCompleted'
 > & {
-  _id: {
-    toString(): string
-  }
+  _id: EntityIdLike
+}
+
+export type AuthUserRecord = OAuthFormattedUserSource & {
+  passwordHash?: string | null
+  scheduledDeletionAt?: Date | string | null
 }
 
 export type OAuthLoginUser = OAuthFormattedUserSource & {
   role: AuthRole
+}
+
+export type AuthSessionRecord = {
+  _id: EntityIdLike
+  userId: EntityIdLike | string
+  refreshTokenHash?: string
+  expiresAt: Date
+  revokedAt?: Date | null
+  deletedAt?: Date | null
+  device?: string
+  ipAddress?: string
+  userAgent?: string
+  createdAt?: Date
+}
+
+export type TwoFactorBackupCodeRecord = {
+  codeHash: string
+  usedAt?: Date | null
+}
+
+export type TwoFactorAuthRecord = {
+  _id: EntityIdLike
+  userId: EntityIdLike | string
+  status: string
+  totpSecretEncrypted: string
+  backupCodes: TwoFactorBackupCodeRecord[]
 }

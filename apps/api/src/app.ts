@@ -12,15 +12,15 @@ import { verifyBrowserRequestOrigin } from './shared/middlewares/request-origin.
 import { validateCsrfToken } from './shared/middlewares/csrf-token.middleware'
 import { initPassport } from './infrastructure/auth/passport'
 
-import authRouter from './modules/auth/auth.routes'
-import onboardingRouter from './modules/onboarding/onboarding.routes'
+import authRouter from './modules/auth/presentation/auth.routes'
+import onboardingRouter from './modules/onboarding/presentation/onboarding.routes'
 import trackerRoutes from './modules/trackers'
-import usersRouter from './modules/users/users.routes'
-import uploadsRouter from './modules/uploads/uploads.routes'
-import settingsRouter from './modules/settings/settings.routes'
+import usersRouter from './modules/users/presentation/users.routes'
+import uploadsRouter from './modules/uploads/presentation/uploads.routes'
+import settingsRouter from './modules/settings/presentation/settings.routes'
 import { securityRoutes } from './modules/security/security.routes'
-import dashboardRoutes from './modules/dashboard/dashboard.routes'
-import moderationAppealRoutes from './modules/moderation-appeals/moderation-appeal.routes'
+import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes'
+import moderationAppealRoutes from './modules/moderation-appeals/presentation/moderation-appeal.routes'
 
 const app = express()
 

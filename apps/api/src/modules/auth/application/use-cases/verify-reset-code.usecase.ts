@@ -1,4 +1,4 @@
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
 import { ApiError } from '../../../../shared/utils/ApiError'
 import {
   SECURITY_ATTEMPT_POLICIES,
@@ -49,12 +49,16 @@ const recordInvalidResetOtp = async (
 }
 
 export class VerifyResetCodeUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract
+  ) {}
+
   async execute(identifier: string, otp: string) {
     const parsedIdentifier = normalizeIdentifier(identifier)
 
     await assertResetOtpAllowed(parsedIdentifier.value)
 
-    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this.authRepository.findByIdentifier(parsedIdentifier.value)
 
     if (!user) {
       await recordInvalidResetOtp(parsedIdentifier.value)
@@ -67,7 +71,7 @@ export class VerifyResetCodeUseCase {
     }
 
     if (parsedIdentifier.email) {
-      const valid = await authRepository.verifyOtp({
+      const valid = await this.authRepository.verifyOtp({
         email: parsedIdentifier.email,
         otp,
         purpose: 'password_reset',

@@ -1,6 +1,6 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
-import { verifyTrackerSubtopic } from '../../../../infrastructure/ai/ai.service'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 type ExistingSubtopic = {
   id: string
@@ -24,25 +24,21 @@ type VerifyTrackerSubtopicInput = {
 
 export class VerifyTrackerSubtopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository
+    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerAIService: TrackerAIServiceContract
   ) {}
 
   async execute(input: VerifyTrackerSubtopicInput) {
-    const tracker =
-      await this.trackerRepository.findOwnedTrackerById(
-        input.trackerId,
-        input.userId
-      )
+    const tracker = await this.trackerRepository.findOwnedTrackerById(
+      input.trackerId,
+      input.userId
+    )
 
     if (!tracker) {
-      throw new ApiError(
-        404,
-        'Tracker not found',
-        'TRACKER_NOT_FOUND'
-      )
+      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
-    return verifyTrackerSubtopic({
+    return this.trackerAIService.verifyTrackerSubtopic({
       trackerTitle: input.trackerTitle || tracker.title || '',
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,

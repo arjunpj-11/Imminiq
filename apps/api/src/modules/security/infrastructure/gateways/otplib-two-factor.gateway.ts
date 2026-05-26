@@ -8,7 +8,7 @@ import {
 import type {
   TwoFactorGateway,
   TwoFactorProvisioning,
-} from '../../domain/gateways/two-factor.gateway'
+} from '../../domain/services/two-factor.service.interface'
 import {
   decryptTotpSecret,
   encryptTotpSecret,

@@ -5,10 +5,10 @@ import type {
 } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { ApiError } from '../../../shared/utils/ApiError'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import { decryptAuthCookieToken } from '../../../shared/security/auth-cookie-token.util'
 import { securityService } from '../security.service'
+import { ApiError } from '@/shared/utils/ApiError'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
@@ -30,8 +30,6 @@ const getRawRefreshTokenFromCookie = (
 }
 
 export const securityController = {
-  // ─── SECURITY OVERVIEW ────────────────────────────
-
   getOverview: async (
     req: Request,
     res: Response,
@@ -59,8 +57,6 @@ export const securityController = {
     }
   },
 
-  // ─── REQUEST EMAIL CHANGE ─────────────────────────
-
   requestEmailChange: async (
     req: Request,
     res: Response,
@@ -86,8 +82,6 @@ export const securityController = {
     }
   },
 
-  // ─── VERIFY EMAIL CHANGE LINK ─────────────────────
-
   verifyEmailChange: async (
     req: Request,
     res: Response,
@@ -95,13 +89,11 @@ export const securityController = {
   ) => {
     try {
       const result =
-        await securityService.verifyEmailChange(
-          req.body
-        )
+        await securityService.verifyEmailChange(req.body)
 
       res.json(
         new ApiResponse(
-          'Email address verified and updated successfully',
+          'Email changed successfully. Please sign in again.',
           result
         )
       )
@@ -109,8 +101,6 @@ export const securityController = {
       next(error)
     }
   },
-
-  // ─── CHANGE PASSWORD ──────────────────────────────
 
   changePassword: async (
     req: Request,
@@ -136,8 +126,6 @@ export const securityController = {
       next(error)
     }
   },
-
-  // ─── GET ACTIVE SESSIONS ──────────────────────────
 
   getSessions: async (
     req: Request,
@@ -166,8 +154,6 @@ export const securityController = {
     }
   },
 
-  // ─── REVOKE SESSION ───────────────────────────────
-
   revokeSession: async (
     req: Request,
     res: Response,
@@ -177,26 +163,28 @@ export const securityController = {
       const userId = getAuthUser(req).userId
       const refreshToken =
         getRawRefreshTokenFromCookie(req)
-      const { sessionId } = req.params
 
-      if (!sessionId || Array.isArray(sessionId)) {
-        throw new ApiError(
-          400,
-          'Session ID is required',
-          'SESSION_ID_REQUIRED'
-        )
-      }
+     const sessionId = Array.isArray(req.params.sessionId)
+  ? req.params.sessionId[0]
+  : req.params.sessionId
 
-      const result =
-        await securityService.revokeSession(
-          userId,
-          sessionId,
-          refreshToken
-        )
+if (!sessionId) {
+  throw new ApiError(
+    400,
+    'Session id is required',
+    'SESSION_ID_REQUIRED'
+  )
+}
+
+const result = await securityService.revokeSession(
+  userId,
+  sessionId,
+  refreshToken
+)
 
       res.json(
         new ApiResponse(
-          'Session revoked successfully',
+          'Session revoked',
           result
         )
       )
@@ -204,8 +192,6 @@ export const securityController = {
       next(error)
     }
   },
-
-  // ─── 2FA STATUS ───────────────────────────────────
 
   getTwoFactorStatus: async (
     req: Request,
@@ -216,9 +202,7 @@ export const securityController = {
       const userId = getAuthUser(req).userId
 
       const result =
-        await securityService.getTwoFactorStatus(
-          userId
-        )
+        await securityService.getTwoFactorStatus(userId)
 
       res.json(
         new ApiResponse(
@@ -231,8 +215,6 @@ export const securityController = {
     }
   },
 
-  // ─── 2FA SETUP ────────────────────────────────────
-
   setupTwoFactor: async (
     req: Request,
     res: Response,
@@ -242,13 +224,11 @@ export const securityController = {
       const userId = getAuthUser(req).userId
 
       const result =
-        await securityService.setupTwoFactor(
-          userId
-        )
+        await securityService.setupTwoFactor(userId)
 
       res.json(
         new ApiResponse(
-          'Two-factor setup created',
+          'Two-factor setup started',
           result
         )
       )
@@ -256,8 +236,6 @@ export const securityController = {
       next(error)
     }
   },
-
-  // ─── 2FA VERIFY SETUP ─────────────────────────────
 
   verifyTwoFactorSetup: async (
     req: Request,
@@ -284,8 +262,6 @@ export const securityController = {
     }
   },
 
-  // ─── 2FA DISABLE ──────────────────────────────────
-
   disableTwoFactor: async (
     req: Request,
     res: Response,
@@ -311,8 +287,6 @@ export const securityController = {
     }
   },
 
-  // ─── DELETE ACCOUNT ───────────────────────────────
-
   deleteAccount: async (
     req: Request,
     res: Response,
@@ -329,7 +303,7 @@ export const securityController = {
 
       res.json(
         new ApiResponse(
-          'Account deleted successfully',
+          'Account deletion scheduled',
           result
         )
       )

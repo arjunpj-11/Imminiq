@@ -1,7 +1,9 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
-import type { SubmitModerationAppealPayload } from '../../moderation-appeal.schema'
 import type { ModerationAppealRepository } from '../../domain/repositories/moderation-appeal.repository.interface'
-import type { SubmitModerationAppealResult } from '../../domain/types/moderation-appeal.types'
+import type {
+  SubmitModerationAppealPayload,
+  SubmitModerationAppealResult,
+} from '../../domain/types/moderation-appeal.types'
 import { generateModerationAppealCaseId } from '../services/moderation-appeal-case-id.service'
 
 export class SubmitModerationAppealUseCase {

@@ -1,4 +1,4 @@
-// apps/api/src/modules/dashboard/dashboard.repository.ts
+// apps/api/src/modules/dashboard/infrastructure/repositories/mongo-dashboard.repository.ts
 
 import mongoose from 'mongoose'
 import type { DashboardRepository } from '../../domain/repositories/dashboard.repository.interface'

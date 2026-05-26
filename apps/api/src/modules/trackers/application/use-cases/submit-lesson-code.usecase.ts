@@ -1,8 +1,7 @@
-// apps/api/src/modules/trackers/application/use-cases/submit-lesson-code.usecase.ts
-
 import { ApiError } from '../../../../shared/utils/ApiError'
-import { executeCodeWithPiston } from '../../../../infrastructure/compiler/piston.service'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
+import { getDocumentId } from '../utils/tracker-question.util'
 
 type SubmitLessonCodeInput = {
   trackerId: string
@@ -18,26 +17,11 @@ const normalizeOutput = (value: string) => {
   return value.replace(/\r\n/g, '\n').trim()
 }
 
-const getLessonId = (lesson: unknown) => {
-  const lessonWithId = lesson as { _id?: unknown }
-
-  if (typeof lessonWithId._id === 'string') {
-    return lessonWithId._id
-  }
-
-  if (
-    lessonWithId._id &&
-    typeof lessonWithId._id === 'object' &&
-    'toString' in lessonWithId._id
-  ) {
-    return lessonWithId._id.toString()
-  }
-
-  return null
-}
-
 export class SubmitLessonCodeUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepository,
+    private readonly codeExecutionService: CodeExecutionServiceContract
+  ) {}
 
   async execute(input: SubmitLessonCodeInput) {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
@@ -46,11 +30,7 @@ export class SubmitLessonCodeUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(
-        404,
-        'Tracker not found',
-        'TRACKER_NOT_FOUND'
-      )
+      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -67,21 +47,20 @@ export class SubmitLessonCodeUseCase {
       )
     }
 
-    const language =
-      input.language || lesson.codeExample?.language || 'javascript'
+    const language = input.language || lesson.codeExample?.language || 'javascript'
 
-    const result = await executeCodeWithPiston({
+    const result = await this.codeExecutionService.executeCode({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
       language,
       stdin: input.stdin,
     })
 
-  const practiceTask = lesson.practiceTask as {
-  expectedOutput?: string
-} | undefined
+    const practiceTask = lesson.practiceTask as {
+      expectedOutput?: string
+    } | undefined
 
-const expectedOutput = practiceTask?.expectedOutput || ''
+    const expectedOutput = practiceTask?.expectedOutput || ''
 
     const actualOutput =
       result.stdout ||
@@ -127,7 +106,7 @@ const expectedOutput = practiceTask?.expectedOutput || ''
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      lessonId: getLessonId(lesson),
+      lessonId: getDocumentId(lesson),
       action: 'submit',
       language,
       languageId: input.languageId,

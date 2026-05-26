@@ -1,32 +1,13 @@
-// apps/api/src/modules/trackers/application/use-cases/generate-lesson-question-solution.usecase.ts
-
-import { createHash } from 'crypto'
-
 import { ApiError } from '../../../../shared/utils/ApiError'
-import { generateLessonQuestionSolution } from '../../../../infrastructure/ai/ai.service'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-
-const hashQuestion = (question: string) =>
-  createHash('sha256').update(question.trim().toLowerCase()).digest('hex')
-
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') return doc._id
-
-  if (
-    doc._id &&
-    typeof doc._id === 'object' &&
-    'toString' in doc._id
-  ) {
-    return doc._id.toString()
-  }
-
-  return null
-}
+import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import { getDocumentId, hashQuestion } from '../utils/tracker-question.util'
 
 export class GenerateLessonQuestionSolutionUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerAIService: TrackerAIServiceContract
+  ) {}
 
   async execute(input: {
     trackerId: string
@@ -59,17 +40,16 @@ export class GenerateLessonQuestionSolutionUseCase {
 
     const questionHash = hashQuestion(input.question)
 
-    const existing =
-      await this.trackerRepository.findLessonQuestionSolution({
-        trackerId: input.trackerId,
-        subtopicId: input.subtopicId,
-        userId: input.userId,
-        questionHash,
-      })
+    const existing = await this.trackerRepository.findLessonQuestionSolution({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+      questionHash,
+    })
 
     if (existing) return existing
 
-    const solution = await generateLessonQuestionSolution({
+    const solution = await this.trackerAIService.generateLessonQuestionSolution({
       lessonTitle: lesson.title,
       lessonExplanation: lesson.explanation,
       question: input.question,

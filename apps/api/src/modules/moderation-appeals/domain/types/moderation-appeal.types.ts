@@ -1,5 +1,14 @@
 export type ModerationAppealStatus = 'pending' | 'under_review'
 
+export interface SubmitModerationAppealPayload {
+  identifier: string
+  appealReason: string
+}
+
+export interface GetModerationAppealStatusPayload {
+  identifier: string
+}
+
 export interface RestrictedModerationAppealUser {
   _id: {
     toString(): string

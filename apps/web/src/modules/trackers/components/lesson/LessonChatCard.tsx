@@ -10,6 +10,7 @@ import type { PersistedLessonChatMessage } from '../../types/tracker.types'
 import { DEFAULT_CHAT_GREETING } from '../../constants/lesson-compiler.constants'
 import { cn } from '../../utils/tracker-ui'
 import MathText from './MathText'
+import ConfirmDialog from '../ConfirmDialog'
 
 // ─── Voice types ─────────────────────────────────────────────────────────────
 
@@ -372,6 +373,7 @@ export default function LessonChatCard({
   const [localMessages, setLocalMessages] = useState<
     LocalLessonChatMessage[]
   >([])
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
 
   const voice = useVoiceInput((transcript) =>
     setMessage((prev) => (prev ? `${prev} ${transcript}` : transcript))
@@ -395,6 +397,7 @@ export default function LessonChatCard({
   }, [savedMessages, localMessages])
 
   const hasSavedMessages = savedMessages.length > 0
+
   const isChatBusy =
     isSending || chatMutation.isPending || clearChatMutation.isPending
 
@@ -463,11 +466,13 @@ export default function LessonChatCard({
       return
     }
 
-    const confirmed = window.confirm(
-      'Clear this lesson chat history? This will remove the saved chat from this lesson.'
-    )
+    setClearConfirmOpen(true)
+  }
 
-    if (!confirmed) return
+  const confirmClearChatHistory = () => {
+    if (clearChatMutation.isPending || isSending || !hasSavedMessages) {
+      return
+    }
 
     clearChatMutation.mutate(
       {
@@ -478,9 +483,16 @@ export default function LessonChatCard({
         onSuccess: async () => {
           setLocalMessages([])
           await chatHistoryQuery.refetch()
+          setClearConfirmOpen(false)
         },
       }
     )
+  }
+
+  const closeClearConfirm = () => {
+    if (clearChatMutation.isPending) return
+
+    setClearConfirmOpen(false)
   }
 
   const renderMessages = (large = false) => (
@@ -645,6 +657,18 @@ export default function LessonChatCard({
 
         {renderChatInput()}
       </section>
+
+      <ConfirmDialog
+        open={clearConfirmOpen}
+        title="Clear lesson chat?"
+        description="This will permanently remove the saved chat history for this lesson. Your lesson content and progress will not be affected."
+        confirmText="Clear chat"
+        cancelText="Keep chat"
+        variant="danger"
+        isLoading={clearChatMutation.isPending}
+        onClose={closeClearConfirm}
+        onConfirm={confirmClearChatHistory}
+      />
 
       {zoomOpen && (
         <div

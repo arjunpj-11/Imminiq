@@ -1,1 +1,3 @@
-export { mongoDashboardRepository as dashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository'
+import { mongoDashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository'
+
+export const dashboardRepository = mongoDashboardRepository

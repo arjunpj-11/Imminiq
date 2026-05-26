@@ -3,9 +3,14 @@ import {
   Response,
   NextFunction,
 } from 'express'
+
 import { dashboardService } from '../dashboard.service'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { ApiError } from '../../../shared/utils/ApiError'
+import {
+  dashboardActivityIntensityQuerySchema,
+  dashboardRecentItemsQuerySchema,
+} from './dashboard.schema'
 
 const getAuthenticatedUserId = (req: Request) => {
   const userId = req.user?.userId
@@ -76,9 +81,13 @@ export const dashboardController = {
     try {
       const userId = getAuthenticatedUserId(req)
 
+      const query =
+        dashboardActivityIntensityQuerySchema.parse(req.query)
+
       const data =
         await dashboardService.getActivityIntensity(
-          userId
+          userId,
+          query.months
         )
 
       res.json(
@@ -100,9 +109,13 @@ export const dashboardController = {
     try {
       const userId = getAuthenticatedUserId(req)
 
+      const query =
+        dashboardRecentItemsQuerySchema.parse(req.query)
+
       const data =
         await dashboardService.getRecentBattles(
-          userId
+          userId,
+          query.limit
         )
 
       res.json(
@@ -124,9 +137,13 @@ export const dashboardController = {
     try {
       const userId = getAuthenticatedUserId(req)
 
+      const query =
+        dashboardRecentItemsQuerySchema.parse(req.query)
+
       const data =
         await dashboardService.getFriendsHub(
-          userId
+          userId,
+          query.limit
         )
 
       res.json(

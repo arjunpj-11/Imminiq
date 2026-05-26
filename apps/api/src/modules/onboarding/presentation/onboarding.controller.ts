@@ -4,7 +4,7 @@ import {
   NextFunction,
 } from 'express'
 
-import { onboardingService } from '../application/services/onboarding.service'
+import { onboardingService } from '../onboarding.service'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 
 type JobIdParams = {

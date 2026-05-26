@@ -15,18 +15,17 @@ export class GetTrackerRoadmapUseCase {
       throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
-    // Make sure progress rows exist before reading them
     await this.trackerRepository.ensureUserProgressInitialized({
       userId: input.userId,
       trackerId: input.trackerId,
     })
 
     const [topics, subtopics] = await Promise.all([
-      this.trackerRepository.getTopicsWithUserProgress({   // ← needs user progress
+      this.trackerRepository.getTopicsWithUserProgress({
         trackerId: input.trackerId,
         userId: input.userId,
       }),
-      this.trackerRepository.getSubtopicsWithUserProgress({ // ← already exists
+      this.trackerRepository.getSubtopicsWithUserProgress({
         trackerId: input.trackerId,
         userId: input.userId,
       }),

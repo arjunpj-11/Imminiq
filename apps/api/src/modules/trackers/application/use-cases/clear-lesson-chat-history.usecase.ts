@@ -1,5 +1,3 @@
-// apps/api/src/modules/trackers/application/use-cases/clear-lesson-chat-history.usecase.ts
-
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 
@@ -20,10 +18,6 @@ export class ClearLessonChatHistoryUseCase {
       throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
-    return this.trackerRepository.clearLessonChatMessages({
-      trackerId: input.trackerId,
-      subtopicId: input.subtopicId,
-      userId: input.userId,
-    })
+    return this.trackerRepository.clearLessonChatMessages(input)
   }
 }

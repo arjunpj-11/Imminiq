@@ -26,24 +26,24 @@ export class GetDashboardSummaryUseCase {
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
     }
 
-  return {
-  user: {
-    _id: user._id.toString(),
-    fullName: user.fullName,
-    username: user.username,
-    avatarUrl: profile?.avatarUrl || user.avatarUrl || '',
-    isPremium: user.isPremium,
-    coinBalance: user.coins || 0,
-  },
-  streak,
-  trackers,
-  stats,
-  recentActivity,
-  notifications: {
-    unreadCount: unreadNotificationCount,
-    hasUnread: unreadNotificationCount > 0,
-  },
-  isPremium: user.isPremium,
-}
+    return {
+      user: {
+        _id: user._id.toString(),
+        fullName: user.fullName,
+        username: user.username,
+        avatarUrl: profile?.avatarUrl || user.avatarUrl || '',
+        isPremium: user.isPremium,
+        coinBalance: user.coins || 0,
+      },
+      streak,
+      trackers,
+      stats,
+      recentActivity,
+      notifications: {
+        unreadCount: unreadNotificationCount,
+        hasUnread: unreadNotificationCount > 0,
+      },
+      isPremium: user.isPremium,
+    }
   }
 }

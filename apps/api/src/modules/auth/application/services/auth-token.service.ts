@@ -2,7 +2,8 @@ import crypto from 'crypto'
 import jwt, { SignOptions } from 'jsonwebtoken'
 
 import { env } from '../../../../config/env'
-import { authRepository } from '../../auth.repository'
+import { ApiError } from '../../../../shared/utils/ApiError'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
 import type {
   AuthRole,
   JwtPayload,
@@ -10,7 +11,6 @@ import type {
   TokenPair,
   TwoFactorChallengeTokenPayload,
 } from '../../domain/types/auth.types'
-import { ApiError } from '../../../../shared/utils/ApiError'
 
 export const TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES = 5
 
@@ -38,6 +38,7 @@ export const generateRefreshToken = (): string => {
 }
 
 export const issueTokenPair = async (
+  authRepository: AuthRepositoryContract,
   userId: string,
   role: AuthRole,
   meta?: RequestMeta

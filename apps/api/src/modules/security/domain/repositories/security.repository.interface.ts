@@ -57,13 +57,9 @@ export interface SecurityRepository {
     }>
   ): Promise<TwoFactorRecord | null>
 
-  disableTwoFactor(
-    userId: string
-  ): Promise<TwoFactorRecord | null>
+  disableTwoFactor(userId: string): Promise<TwoFactorRecord | null>
 
-  findActiveSessions(
-    userId: string
-  ): Promise<SessionRecord[]>
+  findActiveSessions(userId: string): Promise<SessionRecord[]>
 
   findCurrentRefreshTokenRecord(
     refreshToken: string
@@ -74,9 +70,7 @@ export interface SecurityRepository {
     sessionId: string
   ): Promise<unknown>
 
-  revokeAllSessions(
-    userId: string
-  ): Promise<unknown>
+  revokeAllSessions(userId: string): Promise<unknown>
 
   scheduleAccountDeletion(
     userId: string,

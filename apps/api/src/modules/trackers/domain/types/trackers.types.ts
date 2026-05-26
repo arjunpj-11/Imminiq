@@ -337,7 +337,13 @@ export type GeneratedTrackerLessonRecord = {
   lessonType: LessonType
  compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
   codeExample: { language: string; fileName: string; code: string }
-  practiceTask: { title: string; description: string; starterCode: string }
+  practiceTask: {
+    title: string
+    description: string
+    starterCode?: string
+    expectedOutput?: string
+    expectedAnswer?: string
+  }
   tags: string[]
   difficulty: 'beginner' | 'intermediate' | 'advanced'
   estimatedMinutes: number

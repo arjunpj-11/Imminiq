@@ -1,4 +1,4 @@
-import type { SecurityPasswordGateway } from '../../domain/gateways/security-password.gateway'
+import type { SecurityPasswordGateway } from '../../domain/services/security-password.service.interface'
 import type {
   ChangePasswordPayload,
   ChangePasswordResponse,

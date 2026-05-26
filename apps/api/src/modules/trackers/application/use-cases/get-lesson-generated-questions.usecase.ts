@@ -1,5 +1,3 @@
-// apps/api/src/modules/trackers/application/use-cases/get-lesson-generated-questions.usecase.ts
-
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 

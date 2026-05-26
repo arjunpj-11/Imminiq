@@ -9,7 +9,7 @@ import {
   step1Schema,
   step2Schema,
   generateRoadmapSchema,
-} from '../onboarding.schema'
+} from './onboarding.schema'
 
 const router = Router()
 

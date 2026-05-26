@@ -1,3 +1,1 @@
-export {
-  mongoSettingsRepository as settingsRepository,
-} from './infrastructure/repositories/mongo-settings.repository'
+export { mongoSettingsRepository as settingsRepository } from './infrastructure/repositories/mongo-settings.repository'

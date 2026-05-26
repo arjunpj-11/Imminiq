@@ -7,19 +7,35 @@ import { TrackerSubtopic } from '../../../../infrastructure/database/models/trac
 
 import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
 import type {
+  AIGenerationJobRecord,
+  AIGenerationStepRecord,
   EvaluationJobInput,
+  OnboardingResponseRecord,
   RoadmapJobInput,
   RoadmapLevel,
   RoadmapTreeResult,
   SubtopicTreeNode,
+  TrackerRecord,
 } from '../../domain/types/onboarding.types'
+
+type MaybeMongooseDocument<T> = T & {
+  toObject?: () => T
+}
+
+const toPlainRecord = <T>(
+  value: MaybeMongooseDocument<T>
+): T => {
+  return typeof value.toObject === 'function'
+    ? value.toObject()
+    : value
+}
 
 export const mongoOnboardingRepository: OnboardingRepository = {
   getStatus: async (userId: string) => {
     return OnboardingResponse.findOne({
       userId,
       deletedAt: null,
-    })
+    }).lean<OnboardingResponseRecord>()
   },
 
   saveStep1: async (
@@ -43,7 +59,7 @@ export const mongoOnboardingRepository: OnboardingRepository = {
         new: true,
         setDefaultsOnInsert: true,
       }
-    )
+    ).lean<OnboardingResponseRecord>()
   },
 
   saveStep2: async (
@@ -65,7 +81,7 @@ export const mongoOnboardingRepository: OnboardingRepository = {
         new: true,
         setDefaultsOnInsert: true,
       }
-    )
+    ).lean<OnboardingResponseRecord>()
   },
 
   markCompleted: async (userId: string) => {
@@ -80,7 +96,7 @@ export const mongoOnboardingRepository: OnboardingRepository = {
       {
         new: true,
       }
-    )
+    ).lean<OnboardingResponseRecord>()
   },
 
   findActiveRoadmapJobForUser: async (
@@ -93,7 +109,9 @@ export const mongoOnboardingRepository: OnboardingRepository = {
         $in: ['pending', 'processing'],
       },
       deletedAt: null,
-    }).sort({ createdAt: -1 })
+    })
+      .sort({ createdAt: -1 })
+      .lean<AIGenerationJobRecord>()
   },
 
   findActiveEvaluationJobForRoadmap: async (
@@ -108,14 +126,16 @@ export const mongoOnboardingRepository: OnboardingRepository = {
         $in: ['pending', 'processing'],
       },
       deletedAt: null,
-    }).sort({ createdAt: -1 })
+    })
+      .sort({ createdAt: -1 })
+      .lean<AIGenerationJobRecord>()
   },
 
   createAIJob: async (
     userId: string,
     inputData: RoadmapJobInput
   ) => {
-    return AIGenerationJob.create({
+    const aiJob = await AIGenerationJob.create({
       userId,
       jobType: 'roadmap',
       status: 'pending',
@@ -123,13 +143,15 @@ export const mongoOnboardingRepository: OnboardingRepository = {
       totalSteps: 5,
       currentStep: 0,
     })
+
+    return toPlainRecord(aiJob as unknown as MaybeMongooseDocument<AIGenerationJobRecord>)
   },
 
   createEvaluationAIJob: async (
     userId: string,
     inputData: EvaluationJobInput
   ) => {
-    return AIGenerationJob.create({
+    const aiJob = await AIGenerationJob.create({
       userId,
       jobType: 'evaluation',
       status: 'pending',
@@ -137,6 +159,8 @@ export const mongoOnboardingRepository: OnboardingRepository = {
       totalSteps: 5,
       currentStep: 0,
     })
+
+    return toPlainRecord(aiJob as unknown as MaybeMongooseDocument<AIGenerationJobRecord>)
   },
 
   createAIJobSteps: async (
@@ -154,32 +178,51 @@ export const mongoOnboardingRepository: OnboardingRepository = {
   },
 
   getJobById: async (jobId: string) => {
-    return AIGenerationJob.findById(jobId)
+    return AIGenerationJob.findById(jobId).lean<AIGenerationJobRecord>()
   },
 
   getJobSteps: async (jobId: string) => {
-    return AIGenerationStep.find({ jobId }).sort({
-      stepNumber: 1,
-    })
+    return AIGenerationStep.find({ jobId })
+      .sort({
+        stepNumber: 1,
+      })
+      .lean<AIGenerationStepRecord[]>()
   },
 
   getRoadmapTree: async (
     trackerId: string
   ): Promise<RoadmapTreeResult> => {
-    const tracker = await Tracker.findById(trackerId)
+    const tracker = await Tracker.findById(trackerId).lean<TrackerRecord>()
 
     const topics = await TrackerTopic.find({
       trackerId,
       deletedAt: null,
-    }).sort({ order: 1 })
+    })
+      .sort({ order: 1 })
+      .lean<Array<{
+        _id: { toString(): string }
+        title: string
+        description: string
+        order: number
+      }>>()
 
     const subtopics = await TrackerSubtopic.find({
       trackerId,
       deletedAt: null,
-    }).sort({
-      depth: 1,
-      order: 1,
     })
+      .sort({
+        depth: 1,
+        order: 1,
+      })
+      .lean<Array<{
+        _id: { toString(): string }
+        topicId: { toString(): string }
+        parentSubtopicId?: { toString(): string } | null
+        title: string
+        description: string
+        order: number
+        depth: number
+      }>>()
 
     const subtopicMap = new Map<string, SubtopicTreeNode>()
 

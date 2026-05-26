@@ -4,7 +4,7 @@ import {
   aiJobQuotaCache,
 } from '../../../../infrastructure/cache/ai-job-quota.cache'
 
-import type { AIJobQueueGateway } from '../../domain/gateways/ai-job-queue.gateway'
+import type { AIJobQueueGateway } from '../../domain/services/ai-job-queue.gateway.interface'
 import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
 import type { GenerateRoadmapResult } from '../../domain/types/onboarding.types'
 import {

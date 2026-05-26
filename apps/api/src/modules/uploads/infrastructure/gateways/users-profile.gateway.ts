@@ -1,12 +1,11 @@
-import type { Types } from 'mongoose'
 import { usersRepository } from '../../../users/users.repository'
-import type { UsersProfileGateway } from '../../domain/gateways/users-profile.gateway'
+import type { UsersProfileServiceContract } from '../../domain/services/users-profile.service.interface'
 import type {
   UserProfileRecordForUpload,
   UserRecordForUpload,
 } from '../../domain/types/uploads.types'
 
-export const usersProfileGateway: UsersProfileGateway = {
+export const usersProfileGateway: UsersProfileServiceContract = {
   async findUserById(
     userId: string
   ): Promise<UserRecordForUpload | null> {
@@ -15,7 +14,7 @@ export const usersProfileGateway: UsersProfileGateway = {
   },
 
   async ensureProfileForUser(
-    userId: string | Types.ObjectId,
+    userId: string,
     fullName: string
   ): Promise<UserProfileRecordForUpload> {
     const profile = await usersRepository.ensureProfileForUser(
