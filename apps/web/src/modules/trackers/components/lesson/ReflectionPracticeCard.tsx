@@ -19,6 +19,7 @@ import type {
 
 import { cn } from '../../utils/tracker-ui'
 import MathText from './MathText'
+import ConfirmDialog from '../ConfirmDialog'
 
 // ─── Voice types ─────────────────────────────────────────────────────────────
 
@@ -478,6 +479,7 @@ export default function ReflectionPracticeCard({
   const [solutionQuestion, setSolutionQuestion] = useState('')
   const [solutionOpen, setSolutionOpen] = useState(false)
   const [doubt, setDoubt] = useState('')
+  const [clearDoubtsConfirmOpen, setClearDoubtsConfirmOpen] = useState(false)
 
   const selectedSolutionQuery = useLessonQuestionSolution(
     trackerId,
@@ -610,11 +612,18 @@ export default function ReflectionPracticeCard({
       return
     }
 
-    const confirmed = window.confirm(
-      'Clear all doubts for this generated solution?'
-    )
+    setClearDoubtsConfirmOpen(true)
+  }
 
-    if (!confirmed) return
+  const confirmClearSolutionDoubts = () => {
+    if (
+      clearSolutionDoubtsMutation.isPending ||
+      !activeSolutionQuestion ||
+      !solutionDoubtsQuery.data ||
+      solutionDoubtsQuery.data.length === 0
+    ) {
+      return
+    }
 
     clearSolutionDoubtsMutation.mutate(
       {
@@ -626,9 +635,16 @@ export default function ReflectionPracticeCard({
         onSuccess: async () => {
           setDoubt('')
           await solutionDoubtsQuery.refetch()
+          setClearDoubtsConfirmOpen(false)
         },
       }
     )
+  }
+
+  const closeClearDoubtsConfirm = () => {
+    if (clearSolutionDoubtsMutation.isPending) return
+
+    setClearDoubtsConfirmOpen(false)
   }
 
   const verdictLabel = verification
@@ -956,6 +972,18 @@ export default function ReflectionPracticeCard({
           </div>
         </div>
       </section>
+
+      <ConfirmDialog
+        open={clearDoubtsConfirmOpen}
+        title="Clear solution doubts?"
+        description="This will permanently remove all saved doubts and AI replies for this generated solution. Your answer attempts and solution will not be affected."
+        confirmText="Clear doubts"
+        cancelText="Keep doubts"
+        variant="danger"
+        isLoading={clearSolutionDoubtsMutation.isPending}
+        onClose={closeClearDoubtsConfirm}
+        onConfirm={confirmClearSolutionDoubts}
+      />
 
       {solutionOpen && (
         <div
