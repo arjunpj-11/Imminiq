@@ -8,6 +8,7 @@ import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import { decryptAuthCookieToken } from '../../../shared/security/auth-cookie-token.util'
 import { securityService } from '../security.service'
+import { ApiError } from '@/shared/utils/ApiError'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
@@ -163,12 +164,23 @@ export const securityController = {
       const refreshToken =
         getRawRefreshTokenFromCookie(req)
 
-      const result =
-        await securityService.revokeSession(
-          userId,
-          req.params.sessionId,
-          refreshToken
-        )
+     const sessionId = Array.isArray(req.params.sessionId)
+  ? req.params.sessionId[0]
+  : req.params.sessionId
+
+if (!sessionId) {
+  throw new ApiError(
+    400,
+    'Session id is required',
+    'SESSION_ID_REQUIRED'
+  )
+}
+
+const result = await securityService.revokeSession(
+  userId,
+  sessionId,
+  refreshToken
+)
 
       res.json(
         new ApiResponse(
