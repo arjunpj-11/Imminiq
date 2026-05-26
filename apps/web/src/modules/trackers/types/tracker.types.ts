@@ -514,3 +514,18 @@ export type AskLessonQuestionSolutionDoubtPayload = {
 export type AskLessonQuestionSolutionDoubtResponse = ApiResponse<{
   answer: string
 }>
+
+
+ 
+export type GenerateLessonVisualizationResponse = ApiResponse<{
+  html: string
+  visualTitle: string
+  visualDescription: string
+}>
+
+export type GenerateLessonVisualizationPayload = {
+  trackerId: string
+  subtopicId: string
+  regenerate?: boolean
+}
+ 

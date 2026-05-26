@@ -18,6 +18,8 @@ import { LessonCodeSubmission } from '../../../../infrastructure/database/models
 import { LessonGeneratedQuestion } from '../../../../infrastructure/database/models/lesson-generated-question.model'
 import { LessonQuestionSolution } from '../../../../infrastructure/database/models/lesson-question-solution.model'
 import { LessonQuestionSolutionDoubt } from '../../../../infrastructure/database/models/lesson-question-solution-doubt.model'
+import { LessonVisualization } from '../../../../infrastructure/database/models/lesson-visualization.model'
+ 
 
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
@@ -1544,4 +1546,60 @@ clearLessonQuestionSolutionDoubts: async ({
     })
   )
 },
+
+findLessonVisualization: async ({ trackerId, subtopicId, userId }) => {
+  const doc = await LessonVisualization.findOne(
+    asMongoFilter({
+      trackerId: toObjectId(trackerId),
+      subtopicId: toObjectId(subtopicId),
+      userId: toObjectId(userId),
+      deletedAt: null,
+    })
+  ).lean()
+ 
+  if (!doc) return null
+ 
+  return {
+    html: doc.html as string,
+    visualTitle: doc.visualTitle as string,
+    visualDescription: doc.visualDescription as string,
+  }
+},
+ 
+saveLessonVisualization: async ({
+  trackerId,
+  subtopicId,
+  userId,
+  lessonId,
+  html,
+  visualTitle,
+  visualDescription,
+}) => {
+  return LessonVisualization.findOneAndUpdate(
+    asMongoFilter({
+      trackerId: toObjectId(trackerId),
+      subtopicId: toObjectId(subtopicId),
+      userId: toObjectId(userId),
+    }),
+    asMongoUpdate({
+      $set: {
+        lessonId: lessonId ? toObjectId(lessonId) : null,
+        html,
+        visualTitle,
+        visualDescription,
+        deletedAt: null,
+      },
+      $setOnInsert: {
+        trackerId: toObjectId(trackerId),
+        subtopicId: toObjectId(subtopicId),
+        userId: toObjectId(userId),
+      },
+    }),
+    {
+      upsert: true,
+      returnDocument: 'after',
+    }
+  )
+},
+ 
 }
