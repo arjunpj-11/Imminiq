@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { settingsService } from '../application/services/settings.service'
+import { settingsService } from '../settings.service'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 
 export const settingsController = {

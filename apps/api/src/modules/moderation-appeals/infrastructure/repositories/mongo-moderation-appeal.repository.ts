@@ -24,6 +24,31 @@ const normalizeIdentifier = (identifier: string) => {
   }
 }
 
+const mapRestrictedUser = (
+  user: RestrictedModerationAppealUser | null
+): RestrictedModerationAppealUser | null => {
+  if (!user) return null
+
+  return {
+    _id: {
+      toString: () => user._id.toString(),
+    },
+  }
+}
+
+const mapAppeal = (
+  appeal: ActiveModerationAppealRecord | null
+): ActiveModerationAppealRecord | null => {
+  if (!appeal) return null
+
+  return {
+    caseId: appeal.caseId,
+    status: appeal.status,
+    createdAt: appeal.createdAt,
+    appealReason: appeal.appealReason,
+  }
+}
+
 export const mongoModerationAppealRepository: ModerationAppealRepository = {
   findRestrictedUserByIdentifier: async (
     identifier: string
@@ -38,9 +63,9 @@ export const mongoModerationAppealRepository: ModerationAppealRepository = {
         $in: ['blocked', 'banned', 'paused', 'deactivated'],
       },
       deletedAt: null,
-    })
+    }).lean()
 
-    return user
+    return mapRestrictedUser(user as RestrictedModerationAppealUser | null)
   },
 
   findActiveAppealForUser: async (
@@ -52,9 +77,11 @@ export const mongoModerationAppealRepository: ModerationAppealRepository = {
         $in: ['pending', 'under_review'],
       },
       deletedAt: null,
-    }).sort({ createdAt: -1 })
+    })
+      .sort({ createdAt: -1 })
+      .lean()
 
-    return appeal
+    return mapAppeal(appeal as ActiveModerationAppealRecord | null)
   },
 
   caseIdExists: async (caseId: string): Promise<boolean> => {
@@ -75,7 +102,7 @@ export const mongoModerationAppealRepository: ModerationAppealRepository = {
       status: 'pending',
     })
 
-    return appeal
+    return mapAppeal(appeal.toObject()) as ActiveModerationAppealRecord
   },
 
   findLatestActiveAppealForRestrictedIdentifier: async (
@@ -91,7 +118,7 @@ export const mongoModerationAppealRepository: ModerationAppealRepository = {
         $in: ['blocked', 'banned', 'paused', 'deactivated'],
       },
       deletedAt: null,
-    })
+    }).lean()
 
     if (!user) {
       return null
@@ -103,8 +130,10 @@ export const mongoModerationAppealRepository: ModerationAppealRepository = {
         $in: ['pending', 'under_review'],
       },
       deletedAt: null,
-    }).sort({ createdAt: -1 })
+    })
+      .sort({ createdAt: -1 })
+      .lean()
 
-    return appeal
+    return mapAppeal(appeal as ActiveModerationAppealRecord | null)
   },
 }

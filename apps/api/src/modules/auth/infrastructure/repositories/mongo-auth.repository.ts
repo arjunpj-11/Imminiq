@@ -6,8 +6,10 @@ import { AuthToken } from '../../../../infrastructure/database/models/auth-token
 import { TwoFactorAuth } from '../../../../infrastructure/database/models/two-factor-auth.model'
 import { UserProfile } from '../../../../infrastructure/database/models/user-profile.model'
 
-import { otpCache, OtpPurpose } from '../../../../infrastructure/cache/otp.cache'
+import { otpCache } from '../../../../infrastructure/cache/otp.cache'
 import { BCRYPT_ROUNDS, OTP_EXPIRES_MINUTES } from '../../../../config/constants'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { OtpPurpose } from '../../domain/types/auth.types'
 
 const hashToken = (token: string) => {
   return crypto.createHash('sha256').update(token).digest('hex')
@@ -17,20 +19,20 @@ const normalizePhone = (phone: string) => {
   return phone.trim().replace(/\s/g, '')
 }
 
-export const mongoAuthRepository = {
+export const mongoAuthRepository: AuthRepositoryContract = {
   // ─── USER QUERIES ───────────────────────────────
 
   findByEmail: (email: string) =>
     User.findOne({
       email: email.toLowerCase().trim(),
       deletedAt: null,
-    }).select('+passwordHash'),
+    }).select('+passwordHash') as never,
 
   findByPhone: (phone: string) =>
     User.findOne({
       phone: normalizePhone(phone),
       deletedAt: null,
-    }).select('+passwordHash'),
+    }).select('+passwordHash') as never,
 
   findByIdentifier: (identifier: string) => {
     const value = identifier.trim()
@@ -41,35 +43,35 @@ export const mongoAuthRepository = {
         ? { email: value.toLowerCase() }
         : { phone: normalizePhone(value) }),
       deletedAt: null,
-    }).select('+passwordHash')
+    }).select('+passwordHash') as never
   },
 
   findById: (id: string) =>
     User.findOne({
       _id: id,
       deletedAt: null,
-    }).select('+passwordHash'),
+    }).select('+passwordHash') as never,
 
   findByUsername: (username: string) =>
     User.findOne({
       username: username.toLowerCase().trim(),
       deletedAt: null,
-    }),
+    }) as never,
 
-emailExists: async (email: string) =>
-  !!(await User.exists({
-    email: email.toLowerCase().trim(),
-  })),
+  emailExists: async (email: string) =>
+    !!(await User.exists({
+      email: email.toLowerCase().trim(),
+    })),
 
-phoneExists: async (phone: string) =>
-  !!(await User.exists({
-    phone: normalizePhone(phone),
-  })),
+  phoneExists: async (phone: string) =>
+    !!(await User.exists({
+      phone: normalizePhone(phone),
+    })),
 
-usernameExists: async (username: string) =>
-  !!(await User.exists({
-    username: username.toLowerCase().trim(),
-  })),
+  usernameExists: async (username: string) =>
+    !!(await User.exists({
+      username: username.toLowerCase().trim(),
+    })),
 
   createUser: async (data: {
     fullName: string
@@ -87,13 +89,12 @@ usernameExists: async (username: string) =>
       provider: 'local',
       emailVerified: false,
       phoneVerified: false,
-
       verificationExpiresAt: new Date(
         Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000
       ),
-    }),
+    }) as never,
 
-    createOAuthUser: async (data: {
+  createOAuthUser: async (data: {
     fullName: string
     email: string
     username: string
@@ -143,7 +144,7 @@ usernameExists: async (username: string) =>
           }
         )
 
-        return updatedUser
+        return updatedUser as never
       }
     }
 
@@ -176,7 +177,7 @@ usernameExists: async (username: string) =>
       }
     )
 
-    return user
+    return user as never
   },
 
   updateProfile: (
@@ -197,10 +198,10 @@ usernameExists: async (username: string) =>
         ...(data.avatarUrl ? { avatarUrl: data.avatarUrl } : {}),
       },
       { new: true }
-    ),
+    ) as never,
 
   updateUser: (id: string, data: Partial<IUser>) =>
-    User.findByIdAndUpdate(id, data, { new: true }),
+    User.findByIdAndUpdate(id, data, { new: true }) as never,
 
   markEmailVerified: async (id: string) => {
     const user = await User.findByIdAndUpdate(
@@ -230,7 +231,7 @@ usernameExists: async (username: string) =>
       )
     }
 
-    return user
+    return user as never
   },
 
   markPhoneVerified: async (id: string) => {
@@ -261,19 +262,19 @@ usernameExists: async (username: string) =>
       )
     }
 
-    return user
+    return user as never
   },
 
   updatePassword: async (id: string, newPassword: string) => {
     const passwordHash = await bcrypt.hash(newPassword, BCRYPT_ROUNDS)
 
-    return User.findByIdAndUpdate(id, { passwordHash }, { new: true })
+    return User.findByIdAndUpdate(id, { passwordHash }, { new: true }) as never
   },
 
   updateLastActive: (id: string) =>
-    User.findByIdAndUpdate(id, { lastActiveAt: new Date() }),
+    User.findByIdAndUpdate(id, { lastActiveAt: new Date() }) as never,
 
-    cancelScheduledDeletionIfRecoverable: async (id: string) => {
+  cancelScheduledDeletionIfRecoverable: async (id: string) => {
     return User.findOneAndUpdate(
       {
         _id: id,
@@ -295,10 +296,10 @@ usernameExists: async (username: string) =>
       {
         returnDocument: 'after',
       }
-    )
+    ) as never
   },
 
-  deleteUserById: (id: string) => User.findByIdAndDelete(id),
+  deleteUserById: (id: string) => User.findByIdAndDelete(id) as never,
 
   // ─── TWO-FACTOR LOGIN QUERIES ───────────────────
 
@@ -317,7 +318,7 @@ usernameExists: async (username: string) =>
       deletedAt: null,
     }).select(
       '+totpSecretEncrypted +backupCodes +backupCodes.codeHash'
-    )
+    ) as never
   },
 
   touchTwoFactorLastUsed: async (userId: string) => {
@@ -335,7 +336,7 @@ usernameExists: async (username: string) =>
       {
         returnDocument: 'after',
       }
-    )
+    ) as never
   },
 
   markBackupCodeUsed: async (
@@ -363,7 +364,7 @@ usernameExists: async (username: string) =>
       {
         returnDocument: 'after',
       }
-    )
+    ) as never
   },
 
   // ─── TOKEN QUERIES ───────────────────────────────
@@ -385,7 +386,7 @@ usernameExists: async (username: string) =>
       ipAddress: data.ipAddress,
       userAgent: data.userAgent,
       expiresAt,
-    })
+    }) as never
   },
 
   findRefreshToken: async (refreshToken: string) => {
@@ -396,7 +397,7 @@ usernameExists: async (username: string) =>
       expiresAt: { $gt: new Date() },
       revokedAt: null,
       deletedAt: null,
-    })
+    }) as never
   },
 
   rotateRefreshTokenInSameSession: async (
@@ -429,7 +430,7 @@ usernameExists: async (username: string) =>
       {
         returnDocument: 'after',
       }
-    )
+    ) as never
   },
 
   findAllUserTokens: (userId: string) =>
@@ -438,7 +439,7 @@ usernameExists: async (username: string) =>
       expiresAt: { $gt: new Date() },
       revokedAt: null,
       deletedAt: null,
-    }).sort({ createdAt: -1 }),
+    }).sort({ createdAt: -1 }) as never,
 
   revokeRefreshToken: async (refreshToken: string) => {
     const refreshTokenHash = hashToken(refreshToken)
@@ -476,7 +477,7 @@ usernameExists: async (username: string) =>
       },
       { revokedAt: new Date() },
       { new: true }
-    ),
+    ) as never,
 
   // ─── OTP QUERIES USING REDIS ─────────────────────
 

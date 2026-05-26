@@ -86,8 +86,9 @@ export interface DashboardBattleItem {
     username: string
     avatarUrl: string
   } | null
-  myScore: number
-  opponentScore: number
+  myScore?: number
+  opponentScore?: number
   result: 'win' | 'loss' | 'draw'
+  startedAt?: Date | null
   completedAt: Date
 }

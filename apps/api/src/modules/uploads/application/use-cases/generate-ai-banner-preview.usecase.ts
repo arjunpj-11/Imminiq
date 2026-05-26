@@ -1,10 +1,10 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
-import type { AiImageGenerationGateway } from '../../domain/gateways/ai-image-generation.gateway'
+import type { AiImageGenerationServiceContract } from '../../domain/services/ai-image-generation.service.interface'
 import type { AiImagePreviewResult } from '../../domain/types/uploads.types'
 
 export class GenerateAiBannerPreviewUseCase {
   constructor(
-    private readonly aiImageGenerationGateway: AiImageGenerationGateway
+    private readonly aiImageGenerationService: AiImageGenerationServiceContract
   ) {}
 
   async execute(prompt: string): Promise<AiImagePreviewResult> {
@@ -24,7 +24,7 @@ Style: polished digital artwork, elegant lighting, detailed background, premium 
 no text, no letters, no watermark, no logo, no UI elements.
 `.trim()
 
-    const image = await this.aiImageGenerationGateway.generatePreviewImage({
+    const image = await this.aiImageGenerationService.generatePreviewImage({
       prompt: bannerOptimizedPrompt,
       steps: 4,
       seed: Math.floor(Math.random() * 1_000_000),

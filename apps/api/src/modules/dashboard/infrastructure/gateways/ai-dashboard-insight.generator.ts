@@ -1,5 +1,5 @@
 import { generateDashboardInsights } from '../../../../infrastructure/ai/ai.service'
-import type { DashboardInsightGenerator } from '../../domain/gateways/dashboard-insight-generator.interface'
+import type { DashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
 
 export const aiDashboardInsightGenerator: DashboardInsightGenerator = {
   generate: async (userData: string) => {

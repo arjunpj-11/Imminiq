@@ -1,15 +1,19 @@
 import bcrypt from 'bcryptjs'
 
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
 import { ApiError } from '../../../../shared/utils/ApiError'
 
 export class ChangePasswordUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract
+  ) {}
+
   async execute(
     userId: string,
     currentPassword: string,
     newPassword: string
   ) {
-    const user = await authRepository.findById(userId)
+    const user = await this.authRepository.findById(userId)
 
     if (!user) {
       throw new ApiError(404, 'User not found', 'NOT_FOUND')
@@ -33,7 +37,7 @@ export class ChangePasswordUseCase {
       )
     }
 
-    await authRepository.updatePassword(userId, newPassword)
-    await authRepository.revokeAllUserTokens(userId)
+    await this.authRepository.updatePassword(userId, newPassword)
+    await this.authRepository.revokeAllUserTokens(userId)
   }
 }

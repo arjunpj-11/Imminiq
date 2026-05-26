@@ -5,7 +5,7 @@ import { moderationAppealController } from './moderation-appeal.controller'
 import {
   submitModerationAppealSchema,
   getModerationAppealStatusSchema,
-} from '../moderation-appeal.schema'
+} from './moderation-appeal.schema'
 
 const router = Router()
 
@@ -22,3 +22,4 @@ router.post(
 )
 
 export default router
+export { router as moderationAppealRoutes }

@@ -1,12 +1,16 @@
 import { Readable } from 'node:stream'
+
 import { ApiError } from '../../../../shared/utils/ApiError'
 import { cloudinary } from '../../../../infrastructure/storage/cloudinary.client'
-import type { StoredProfileImage } from '../../domain/types/uploads.types'
-import type { ProfileImageStorageGateway } from '../../domain/gateways/profile-image-storage.gateway'
+import type { ProfileImageStorageServiceContract } from '../../domain/services/profile-image-storage.service.interface'
+import type {
+  StoredProfileImage,
+  UploadedProfileImageFile,
+} from '../../domain/types/uploads.types'
 
-export const cloudinaryProfileImageStorageGateway: ProfileImageStorageGateway = {
+export const cloudinaryProfileImageStorageGateway: ProfileImageStorageServiceContract = {
   async uploadProfileImage(
-    file: Express.Multer.File,
+    file: UploadedProfileImageFile,
     folder: string
   ): Promise<StoredProfileImage> {
     return new Promise((resolve, reject) => {

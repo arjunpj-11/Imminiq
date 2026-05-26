@@ -1,7 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { moderationAppealService } from '../application/services/moderation-appeal.service'
+import { moderationAppealService } from '../moderation-appeal.service'
 
 export const moderationAppealController = {
   submitAppeal: async (

@@ -4,7 +4,7 @@ import type {
   AIJobQueueGateway,
   EvaluateRoadmapQueuePayload,
   GenerateRoadmapQueuePayload,
-} from '../../domain/gateways/ai-job-queue.gateway'
+} from '../../domain/services/ai-job-queue.gateway.interface'
 
 export const bullMqAIJobQueueGateway: AIJobQueueGateway = {
   enqueueRoadmapGeneration: async (

@@ -3,7 +3,7 @@ import {
   SECURITY_ATTEMPT_POLICIES,
   securityAttemptCache,
 } from '../../../../infrastructure/cache/security-attempt.cache'
-import type { TwoFactorGateway } from '../../domain/gateways/two-factor.gateway'
+import type { TwoFactorGateway } from '../../domain/services/two-factor.service.interface'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
   TwoFactorVerifyResponse,

@@ -24,7 +24,7 @@ import type {
   UserTopicProgressRecord,
   TopicWithProgressRecord
 } from '../types/trackers.types'
-import type { GeneratedLessonData } from '../types/lesson-practice.types'
+import type { GeneratedLessonData, GeneratedLessonPracticeTask } from '../types/lesson-practice.types'
 
 export interface TrackerRepository {
   // ─── Tracker CRUD ────────────────────────────────────────────────────────────
@@ -189,7 +189,7 @@ getTopicsWithUserProgress(data: {
     lessonType: 'concept' | 'coding' | 'interview' | 'system_design' | 'theory'
    compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
     codeExample: { language: string; fileName: string; code: string }
-    practiceTask: { title: string; description: string; starterCode: string }
+    practiceTask: GeneratedLessonPracticeTask
     tags: string[]
     difficulty: 'beginner' | 'intermediate' | 'advanced'
     estimatedMinutes: number

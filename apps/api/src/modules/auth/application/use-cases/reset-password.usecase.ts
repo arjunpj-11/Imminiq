@@ -1,10 +1,14 @@
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
 import { ApiError } from '../../../../shared/utils/ApiError'
 import { passwordResetSessionCache } from '../../../../infrastructure/cache/password-reset-session.cache'
 import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
 import { verifyPasswordResetToken } from '../services/password-reset-token.service'
 
 export class ResetPasswordUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract
+  ) {}
+
   async execute(resetToken: string, newPassword: string) {
     const decoded = verifyPasswordResetToken(resetToken)
 
@@ -25,7 +29,7 @@ export class ResetPasswordUseCase {
       )
     }
 
-    const user = await authRepository.findById(decoded.userId)
+    const user = await this.authRepository.findById(decoded.userId)
 
     if (!user) {
       throw new ApiError(
@@ -35,8 +39,8 @@ export class ResetPasswordUseCase {
       )
     }
 
-    await authRepository.updatePassword(user._id.toString(), newPassword)
-    await authRepository.revokeAllUserTokens(user._id.toString())
+    await this.authRepository.updatePassword(user._id.toString(), newPassword)
+    await this.authRepository.revokeAllUserTokens(user._id.toString())
 
     await securityAuditLogger.record({
       userId: user._id.toString(),

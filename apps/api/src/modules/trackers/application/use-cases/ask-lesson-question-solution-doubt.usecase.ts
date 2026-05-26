@@ -1,32 +1,13 @@
-// apps/api/src/modules/trackers/application/use-cases/ask-lesson-question-solution-doubt.usecase.ts
-
-import { createHash } from 'crypto'
-
 import { ApiError } from '../../../../shared/utils/ApiError'
-import { chatWithLessonQuestionSolutionDoubt } from '../../../../infrastructure/ai/ai.service'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-
-const hashQuestion = (question: string) =>
-  createHash('sha256').update(question.trim().toLowerCase()).digest('hex')
-
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') return doc._id
-
-  if (
-    doc._id &&
-    typeof doc._id === 'object' &&
-    'toString' in doc._id
-  ) {
-    return doc._id.toString()
-  }
-
-  return null
-}
+import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import { getDocumentId, hashQuestion } from '../utils/tracker-question.util'
 
 export class AskLessonQuestionSolutionDoubtUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerAIService: TrackerAIServiceContract
+  ) {}
 
   async execute(input: {
     trackerId: string
@@ -60,13 +41,12 @@ export class AskLessonQuestionSolutionDoubtUseCase {
 
     const questionHash = hashQuestion(input.question)
 
-    const solution =
-      await this.trackerRepository.findLessonQuestionSolution({
-        trackerId: input.trackerId,
-        subtopicId: input.subtopicId,
-        userId: input.userId,
-        questionHash,
-      })
+    const solution = await this.trackerRepository.findLessonQuestionSolution({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+      questionHash,
+    })
 
     if (!solution) {
       throw new ApiError(
@@ -84,11 +64,7 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     const solutionText = typedSolution.solution || ''
 
     if (!solutionText) {
-      throw new ApiError(
-        409,
-        'Saved solution is empty',
-        'SOLUTION_EMPTY'
-      )
+      throw new ApiError(409, 'Saved solution is empty', 'SOLUTION_EMPTY')
     }
 
     const lessonId = getDocumentId(lesson)
@@ -106,13 +82,12 @@ export class AskLessonQuestionSolutionDoubtUseCase {
       content: input.message,
     })
 
-    const history =
-      await this.trackerRepository.getLessonQuestionSolutionDoubts({
-        trackerId: input.trackerId,
-        subtopicId: input.subtopicId,
-        userId: input.userId,
-        questionHash,
-      })
+    const history = await this.trackerRepository.getLessonQuestionSolutionDoubts({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+      questionHash,
+    })
 
     const messages = history.map((item) => {
       const message = item as {
@@ -126,7 +101,7 @@ export class AskLessonQuestionSolutionDoubtUseCase {
       }
     })
 
-    const answer = await chatWithLessonQuestionSolutionDoubt({
+    const answer = await this.trackerAIService.chatWithLessonQuestionSolutionDoubt({
       lessonTitle: lesson.title,
       lessonExplanation: lesson.explanation,
       question: input.question,

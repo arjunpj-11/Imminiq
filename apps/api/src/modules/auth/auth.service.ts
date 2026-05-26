@@ -12,6 +12,10 @@ import type {
   OtpPurpose,
 } from './domain/types/auth.types'
 
+import { mongoAuthRepository } from './infrastructure/repositories/mongo-auth.repository'
+import { AuthNotificationService } from './infrastructure/auth-notification.service'
+import { AuthRedirectService } from './infrastructure/auth-redirect.service'
+
 import { RegisterUserUseCase } from './application/use-cases/register-user.usecase'
 import { LoginUserUseCase } from './application/use-cases/login-user.usecase'
 import { HandleOAuthLoginUseCase } from './application/use-cases/handle-oauth-login.usecase'
@@ -43,29 +47,59 @@ import {
 } from './application/services/username-generator.service'
 import { formatAuthUser } from './application/services/auth-user-formatter.service'
 
-const registerUserUseCase = new RegisterUserUseCase()
-const loginUserUseCase = new LoginUserUseCase()
-const handleOAuthLoginUseCase = new HandleOAuthLoginUseCase()
-const verifyTwoFactorLoginUseCase = new VerifyTwoFactorLoginUseCase()
-const logoutUserUseCase = new LogoutUserUseCase()
-const logoutAllSessionsUseCase = new LogoutAllSessionsUseCase()
-const refreshAuthTokensUseCase = new RefreshAuthTokensUseCase()
-const getCurrentUserUseCase = new GetCurrentUserUseCase()
-const verifyAccountUseCase = new VerifyAccountUseCase()
-const resendOtpUseCase = new ResendOtpUseCase()
-const forgotPasswordUseCase = new ForgotPasswordUseCase()
-const verifyResetCodeUseCase = new VerifyResetCodeUseCase()
-const resetPasswordUseCase = new ResetPasswordUseCase()
-const changePasswordUseCase = new ChangePasswordUseCase()
-const checkIdentifierUseCase = new CheckIdentifierUseCase()
-const checkUsernameUseCase = new CheckUsernameUseCase()
-const getAuthSessionsUseCase = new GetAuthSessionsUseCase()
-const revokeAuthSessionUseCase = new RevokeAuthSessionUseCase()
+const authRepository = mongoAuthRepository
+const authNotificationService = new AuthNotificationService(authRepository)
+const authRedirectService = new AuthRedirectService()
+
+const registerUserUseCase = new RegisterUserUseCase(
+  authRepository,
+  authNotificationService
+)
+
+const loginUserUseCase = new LoginUserUseCase(
+  authRepository,
+  authNotificationService,
+  authRedirectService
+)
+
+const handleOAuthLoginUseCase = new HandleOAuthLoginUseCase(
+  authRepository,
+  authRedirectService
+)
+
+const verifyTwoFactorLoginUseCase = new VerifyTwoFactorLoginUseCase(
+  authRepository,
+  authRedirectService
+)
+
+const logoutUserUseCase = new LogoutUserUseCase(authRepository)
+const logoutAllSessionsUseCase = new LogoutAllSessionsUseCase(authRepository)
+const refreshAuthTokensUseCase = new RefreshAuthTokensUseCase(authRepository)
+const getCurrentUserUseCase = new GetCurrentUserUseCase(authRepository)
+const verifyAccountUseCase = new VerifyAccountUseCase(authRepository)
+
+const resendOtpUseCase = new ResendOtpUseCase(
+  authRepository,
+  authNotificationService
+)
+
+const forgotPasswordUseCase = new ForgotPasswordUseCase(
+  authRepository,
+  authNotificationService
+)
+
+const verifyResetCodeUseCase = new VerifyResetCodeUseCase(authRepository)
+const resetPasswordUseCase = new ResetPasswordUseCase(authRepository)
+const changePasswordUseCase = new ChangePasswordUseCase(authRepository)
+const checkIdentifierUseCase = new CheckIdentifierUseCase(authRepository)
+const checkUsernameUseCase = new CheckUsernameUseCase(authRepository)
+const getAuthSessionsUseCase = new GetAuthSessionsUseCase(authRepository)
+const revokeAuthSessionUseCase = new RevokeAuthSessionUseCase(authRepository)
 
 /**
- * Compatibility facade:
- * Existing imports of `authService` keep working.
- * Internally, each method now delegates to a dedicated use case/service.
+ * Composition root / service facade.
+ * Controllers call this facade. This file wires concrete infrastructure to
+ * application use cases and contains no business or HTTP logic.
  */
 export const authService = {
   register: (payload: RegisterPayload) =>
@@ -145,17 +179,22 @@ export const authService = {
     role: AuthRole,
     meta?: RequestMeta
   ): Promise<TokenPair> =>
-    issueTokenPair(userId, role, meta),
+    issueTokenPair(authRepository, userId, role, meta),
 
   generateTwoFactorChallengeToken,
 
   generateOtp,
 
-  generateRegistrationUsername,
+  generateRegistrationUsername: (data: {
+    email?: string
+    fullName: string
+  }) => generateRegistrationUsername(data, authRepository),
 
-  generateUsername,
+  generateUsername: (fullName: string) =>
+    generateUsername(fullName, authRepository),
 
-  generateUniqueUsernameFromSource,
+  generateUniqueUsernameFromSource: (source: string) =>
+    generateUniqueUsernameFromSource(source, authRepository),
 
   formatter: formatAuthUser,
 }

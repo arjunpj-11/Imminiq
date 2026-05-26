@@ -1,4 +1,15 @@
 import type {
+  UpdateAccountPayload,
+  UpdateAIBehaviourPayload,
+  UpdateAppearancePayload,
+  UpdateCodeEditorPayload,
+  UpdateCompilerPayload,
+  UpdateEmailDigestPayload,
+  UpdateGesturesPayload,
+  UpdateLearningJourneyPayload,
+  UpdateNotificationsPayload,
+  UpdatePrivacyPayload,
+  UpdateQuietHoursPayload,
   UserSettingsView,
 } from '../types/settings.types'
 
@@ -8,12 +19,12 @@ export interface SettingsRepository {
 
   updateAppearance(
     userId: string,
-    data: object
+    data: UpdateAppearancePayload
   ): Promise<UserSettingsView | null>
 
   updateNotifications(
     userId: string,
-    data: object
+    data: Omit<UpdateNotificationsPayload, 'types'>
   ): Promise<UserSettingsView | null>
 
   updateNotificationTypes(
@@ -23,47 +34,47 @@ export interface SettingsRepository {
 
   updatePrivacy(
     userId: string,
-    data: object
+    data: UpdatePrivacyPayload
   ): Promise<UserSettingsView | null>
 
   updateCodeEditor(
     userId: string,
-    data: object
+    data: UpdateCodeEditorPayload
   ): Promise<UserSettingsView | null>
 
   updateCompiler(
     userId: string,
-    data: object
+    data: UpdateCompilerPayload
   ): Promise<UserSettingsView | null>
 
   updateAIBehaviour(
     userId: string,
-    data: object
+    data: UpdateAIBehaviourPayload
   ): Promise<UserSettingsView | null>
 
   updateLearningJourney(
     userId: string,
-    data: object
+    data: UpdateLearningJourneyPayload
   ): Promise<UserSettingsView | null>
 
   updateGestures(
     userId: string,
-    data: object
+    data: UpdateGesturesPayload
   ): Promise<UserSettingsView | null>
 
   updateQuietHours(
     userId: string,
-    data: object
+    data: UpdateQuietHoursPayload
   ): Promise<UserSettingsView | null>
 
   updateEmailDigest(
     userId: string,
-    data: object
+    data: UpdateEmailDigestPayload
   ): Promise<UserSettingsView | null>
 
   updateAccountSettings(
     userId: string,
-    data: object
+    data: UpdateAccountPayload
   ): Promise<UserSettingsView | null>
 
   updateCookieConsent(

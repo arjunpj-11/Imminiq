@@ -9,27 +9,29 @@ import { GetFriendsHubUseCase } from './application/use-cases/get-friends-hub.us
 import { GetRecommendedActionsUseCase } from './application/use-cases/get-recommended-actions.usecase'
 import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase'
 
+const dashboardRepository = mongoDashboardRepository
+
 const getDashboardSummaryUseCase =
-  new GetDashboardSummaryUseCase(mongoDashboardRepository)
+  new GetDashboardSummaryUseCase(dashboardRepository)
 
 const getCurrentRoadmapUseCase =
-  new GetCurrentRoadmapUseCase(mongoDashboardRepository)
+  new GetCurrentRoadmapUseCase(dashboardRepository)
 
 const getActivityIntensityUseCase =
-  new GetActivityIntensityUseCase(mongoDashboardRepository)
+  new GetActivityIntensityUseCase(dashboardRepository)
 
 const getRecentBattlesUseCase =
-  new GetRecentBattlesUseCase(mongoDashboardRepository)
+  new GetRecentBattlesUseCase(dashboardRepository)
 
 const getFriendsHubUseCase =
-  new GetFriendsHubUseCase(mongoDashboardRepository)
+  new GetFriendsHubUseCase(dashboardRepository)
 
 const getRecommendedActionsUseCase =
-  new GetRecommendedActionsUseCase(mongoDashboardRepository)
+  new GetRecommendedActionsUseCase(dashboardRepository)
 
 const getAIInsightsUseCase =
   new GetAIInsightsUseCase(
-    mongoDashboardRepository,
+    dashboardRepository,
     aiDashboardInsightGenerator
   )
 

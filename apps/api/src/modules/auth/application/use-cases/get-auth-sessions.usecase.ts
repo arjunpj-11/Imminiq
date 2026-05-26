@@ -1,7 +1,11 @@
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
 
 export class GetAuthSessionsUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract
+  ) {}
+
   async execute(userId: string) {
-    return authRepository.findAllUserTokens(userId)
+    return this.authRepository.findAllUserTokens(userId)
   }
 }

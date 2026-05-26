@@ -1,7 +1,7 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
-import type { ProfileImageStorageGateway } from '../../domain/gateways/profile-image-storage.gateway'
-import type { UsersProfileGateway } from '../../domain/gateways/users-profile.gateway'
 import type { UploadsRepository } from '../../domain/repositories/uploads.repository.interface'
+import type { ProfileImageStorageServiceContract } from '../../domain/services/profile-image-storage.service.interface'
+import type { UsersProfileServiceContract } from '../../domain/services/users-profile.service.interface'
 import type {
   UploadProfileImageInput,
   UploadProfileImageResult,
@@ -9,8 +9,8 @@ import type {
 
 export class UploadProfileImageUseCase {
   constructor(
-    private readonly usersProfileGateway: UsersProfileGateway,
-    private readonly profileImageStorageGateway: ProfileImageStorageGateway,
+    private readonly usersProfileService: UsersProfileServiceContract,
+    private readonly profileImageStorageService: ProfileImageStorageServiceContract,
     private readonly uploadsRepository: UploadsRepository
   ) {}
 
@@ -23,22 +23,22 @@ export class UploadProfileImageUseCase {
       throw new ApiError(400, 'Image file is required')
     }
 
-    const user = await this.usersProfileGateway.findUserById(userId)
+    const user = await this.usersProfileService.findUserById(userId)
 
     if (!user) {
       throw new ApiError(404, 'User not found')
     }
 
-const profile = await this.usersProfileGateway.ensureProfileForUser(
-  String(user._id),
-  user.fullName ?? ''
-)
+    const profile = await this.usersProfileService.ensureProfileForUser(
+      String(user._id),
+      user.fullName ?? ''
+    )
 
     const folder =
       kind === 'avatar' ? 'imminiq/avatars' : 'imminiq/banners'
 
     const stored =
-      await this.profileImageStorageGateway.uploadProfileImage(
+      await this.profileImageStorageService.uploadProfileImage(
         file,
         folder
       )

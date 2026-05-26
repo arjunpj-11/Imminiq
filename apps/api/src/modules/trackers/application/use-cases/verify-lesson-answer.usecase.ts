@@ -1,8 +1,7 @@
-// apps/api/src/modules/trackers/application/use-cases/verify-lesson-answer.usecase.ts
-
 import { ApiError } from '../../../../shared/utils/ApiError'
-import { verifyNonCodingAnswer } from '../../../../infrastructure/ai/ai.service'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import { getDocumentId } from '../utils/tracker-question.util'
 
 type VerifyLessonAnswerInput = {
   trackerId: string
@@ -10,24 +9,6 @@ type VerifyLessonAnswerInput = {
   userId: string
   question: string
   answer: string
-}
-
-const getLessonId = (lesson: unknown) => {
-  const lessonWithId = lesson as { _id?: unknown }
-
-  if (typeof lessonWithId._id === 'string') {
-    return lessonWithId._id
-  }
-
-  if (
-    lessonWithId._id &&
-    typeof lessonWithId._id === 'object' &&
-    'toString' in lessonWithId._id
-  ) {
-    return lessonWithId._id.toString()
-  }
-
-  return null
 }
 
 const getIsCorrectFromResult = (result: {
@@ -38,30 +19,25 @@ const getIsCorrectFromResult = (result: {
 
 export class VerifyLessonAnswerUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository
+    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerAIService: TrackerAIServiceContract
   ) {}
 
   async execute(input: VerifyLessonAnswerInput) {
-    const tracker =
-      await this.trackerRepository.findOwnedTrackerById(
-        input.trackerId,
-        input.userId
-      )
+    const tracker = await this.trackerRepository.findOwnedTrackerById(
+      input.trackerId,
+      input.userId
+    )
 
     if (!tracker) {
-      throw new ApiError(
-        404,
-        'Tracker not found',
-        'TRACKER_NOT_FOUND'
-      )
+      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
-    const lesson =
-      await this.trackerRepository.findLessonBySubtopicId({
-        trackerId: input.trackerId,
-        subtopicId: input.subtopicId,
-        userId: input.userId,
-      })
+    const lesson = await this.trackerRepository.findLessonBySubtopicId({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+    })
 
     if (!lesson) {
       throw new ApiError(
@@ -71,19 +47,19 @@ export class VerifyLessonAnswerUseCase {
       )
     }
 
- const practiceTask = lesson.practiceTask as {
-  expectedAnswer?: string
-} | undefined
+    const practiceTask = lesson.practiceTask as {
+      expectedAnswer?: string
+    } | undefined
 
-const result = await verifyNonCodingAnswer({
-  lessonTitle: lesson.title || tracker.title || 'Lesson practice',
-  lessonExplanation:
-    lesson.explanation ||
-    'The learner is answering a practice question from this tracker lesson.',
-  question: input.question,
-  expectedAnswer: practiceTask?.expectedAnswer || '',
-  userAnswer: input.answer,
-})
+    const result = await this.trackerAIService.verifyNonCodingAnswer({
+      lessonTitle: lesson.title || tracker.title || 'Lesson practice',
+      lessonExplanation:
+        lesson.explanation ||
+        'The learner is answering a practice question from this tracker lesson.',
+      question: input.question,
+      expectedAnswer: practiceTask?.expectedAnswer || '',
+      userAnswer: input.answer,
+    })
 
     const isCorrect = getIsCorrectFromResult(result)
 
@@ -91,7 +67,7 @@ const result = await verifyNonCodingAnswer({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      lessonId: getLessonId(lesson),
+      lessonId: getDocumentId(lesson),
       question: input.question,
       answer: input.answer,
       feedback: result,

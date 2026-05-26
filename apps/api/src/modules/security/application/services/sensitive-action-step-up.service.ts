@@ -2,7 +2,7 @@ import bcrypt from 'bcryptjs'
 
 import { ApiError } from '../../../../shared/utils/ApiError'
 import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import type { TwoFactorGateway } from '../../domain/gateways/two-factor.gateway'
+import type { TwoFactorGateway } from '../../domain/services/two-factor.service.interface'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
   SecurityUserRecord,
@@ -63,11 +63,6 @@ export class SensitiveActionStepUpService {
         )
       }
     } else if (twoFactor?.status !== 'active') {
-      /**
-       * For social-login accounts without a local password, the current backend
-       * cannot perform provider reauthentication inline. Requiring 2FA here
-       * prevents sensitive changes from relying only on an existing access token.
-       */
       throw new ApiError(
         403,
         'Enable two-factor authentication before performing this security action.',

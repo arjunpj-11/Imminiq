@@ -1,11 +1,11 @@
 import { generateImageWithCloudflare } from '../../../../infrastructure/ai/cloudflare-image.client'
 import type {
-  AiImageGenerationGateway,
+  AiImageGenerationServiceContract,
   GeneratePreviewImageInput,
   GeneratedPreviewImage,
-} from '../../domain/gateways/ai-image-generation.gateway'
+} from '../../domain/services/ai-image-generation.service.interface'
 
-export const cloudflareAiImageGenerationGateway: AiImageGenerationGateway = {
+export const cloudflareAiImageGenerationGateway: AiImageGenerationServiceContract = {
   async generatePreviewImage(
     input: GeneratePreviewImageInput
   ): Promise<GeneratedPreviewImage> {

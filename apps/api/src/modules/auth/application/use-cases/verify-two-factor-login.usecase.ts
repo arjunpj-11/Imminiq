@@ -1,13 +1,14 @@
 import bcrypt from 'bcryptjs'
 import { verify } from 'otplib'
 
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { AuthRedirectServiceContract } from '../../domain/services/auth-redirect.service.interface'
 import { ApiError } from '../../../../shared/utils/ApiError'
 import {
   SECURITY_ATTEMPT_POLICIES,
   securityAttemptCache,
 } from '../../../../infrastructure/cache/security-attempt.cache'
-import { decryptTotpSecret } from '../../../security/two-factor-secret.util'
+import { decryptTotpSecret } from '../../../security/infrastructure/crypto/two-factor-secret.crypto'
 import type {
   AuthLoginSuccessResult,
   RequestMeta,
@@ -18,7 +19,6 @@ import {
   issueTokenPair,
   verifyTwoFactorChallengeToken,
 } from '../services/auth-token.service'
-import { resolveRedirectPath } from '../services/auth-redirect.service'
 import { formatAuthUser } from '../services/auth-user-formatter.service'
 import { normalizeBackupCode } from '../services/backup-code.service'
 
@@ -60,6 +60,11 @@ const recordInvalidTwoFactorLogin = async (
 }
 
 export class VerifyTwoFactorLoginUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract,
+    private readonly authRedirectService: AuthRedirectServiceContract
+  ) {}
+
   async execute(
     challengeToken: string,
     payload: TwoFactorLoginVerifyPayload,
@@ -69,7 +74,7 @@ export class VerifyTwoFactorLoginUseCase {
 
     await assertTwoFactorLoginAllowed(decoded.userId)
 
-    const user = await authRepository.findById(decoded.userId)
+    const user = await this.authRepository.findById(decoded.userId)
 
     if (!user) {
       await recordInvalidTwoFactorLogin(decoded.userId)
@@ -80,7 +85,7 @@ export class VerifyTwoFactorLoginUseCase {
     ensureUserCanAuthenticate(user)
 
     const twoFactor =
-      await authRepository.findActiveTwoFactorForLogin(user._id.toString())
+      await this.authRepository.findActiveTwoFactorForLogin(user._id.toString())
 
     if (!twoFactor) {
       throw new ApiError(
@@ -103,7 +108,7 @@ export class VerifyTwoFactorLoginUseCase {
 
       if (result.valid) {
         verified = true
-        await authRepository.touchTwoFactorLastUsed(user._id.toString())
+        await this.authRepository.touchTwoFactorLastUsed(user._id.toString())
       }
     }
 
@@ -126,7 +131,7 @@ export class VerifyTwoFactorLoginUseCase {
           continue
         }
 
-        const markedUsed = await authRepository.markBackupCodeUsed(
+        const markedUsed = await this.authRepository.markBackupCodeUsed(
           user._id.toString(),
           index
         )
@@ -157,19 +162,21 @@ export class VerifyTwoFactorLoginUseCase {
     const userId = user._id.toString()
 
     const recoveredUser =
-      await authRepository.cancelScheduledDeletionIfRecoverable(userId)
+      await this.authRepository.cancelScheduledDeletionIfRecoverable(userId)
 
     const authenticatedUser = recoveredUser ?? user
 
-    const redirectPath = await resolveRedirectPath(userId)
+    const redirectPath =
+      await this.authRedirectService.resolveRedirectPath(userId)
 
     const tokens = await issueTokenPair(
+      this.authRepository,
       userId,
       user.role,
       meta
     )
 
-    await authRepository.updateLastActive(userId)
+    await this.authRepository.updateLastActive(userId)
 
     return {
       requiresTwoFactor: false,

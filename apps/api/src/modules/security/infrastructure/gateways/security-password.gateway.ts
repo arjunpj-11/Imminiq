@@ -1,5 +1,5 @@
-import { authService } from '../../../auth/auth.service'
-import type { SecurityPasswordGateway } from '../../domain/gateways/security-password.gateway'
+import { authService } from '../../../auth'
+import type { SecurityPasswordGateway } from '../../domain/services/security-password.service.interface'
 
 export const securityPasswordGateway: SecurityPasswordGateway = {
   async changePassword(

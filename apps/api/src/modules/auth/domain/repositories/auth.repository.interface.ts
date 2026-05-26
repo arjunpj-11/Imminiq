@@ -1,19 +1,16 @@
-import type { OtpPurpose } from '../types/auth.types'
+import type {
+  AuthSessionRecord,
+  AuthUserRecord,
+  OtpPurpose,
+  TwoFactorAuthRecord,
+} from '../types/auth.types'
 
-/**
- * Domain-facing repository contract.
- * The current Mongo implementation is exposed through
- * `infrastructure/repositories/mongo-auth.repository.ts`.
- *
- * This contract is intentionally focused on the capabilities the Auth
- * application layer needs, rather than Mongoose implementation details.
- */
 export interface AuthRepositoryContract {
-  findByEmail(email: string): Promise<unknown>
-  findByPhone(phone: string): Promise<unknown>
-  findByIdentifier(identifier: string): Promise<unknown>
-  findById(id: string): Promise<unknown>
-  findByUsername(username: string): Promise<unknown>
+  findByEmail(email: string): Promise<AuthUserRecord | null>
+  findByPhone(phone: string): Promise<AuthUserRecord | null>
+  findByIdentifier(identifier: string): Promise<AuthUserRecord | null>
+  findById(id: string): Promise<AuthUserRecord | null>
+  findByUsername(username: string): Promise<AuthUserRecord | null>
 
   emailExists(email: string): Promise<boolean>
   phoneExists(phone: string): Promise<boolean>
@@ -25,7 +22,7 @@ export interface AuthRepositoryContract {
     phone?: string
     username: string
     passwordHash: string
-  }): Promise<unknown>
+  }): Promise<AuthUserRecord>
 
   createOAuthUser(data: {
     fullName: string
@@ -34,20 +31,33 @@ export interface AuthRepositoryContract {
     avatarUrl?: string
     provider: 'google' | 'github'
     providerId: string
-  }): Promise<unknown>
+  }): Promise<AuthUserRecord>
 
-  markEmailVerified(id: string): Promise<unknown>
-  markPhoneVerified(id: string): Promise<unknown>
-  updatePassword(id: string, newPassword: string): Promise<unknown>
-  updateLastActive(id: string): Promise<unknown>
+  updateProfile(
+    id: string,
+    data: {
+      fullName?: string
+      username?: string
+      avatarUrl?: string
+    }
+  ): Promise<AuthUserRecord | null>
+
+  updateUser(id: string, data: Record<string, unknown>): Promise<AuthUserRecord | null>
+
+  markEmailVerified(id: string): Promise<AuthUserRecord | null>
+  markPhoneVerified(id: string): Promise<AuthUserRecord | null>
+  updatePassword(id: string, newPassword: string): Promise<AuthUserRecord | null>
+  updateLastActive(id: string): Promise<AuthUserRecord | null>
+  cancelScheduledDeletionIfRecoverable(id: string): Promise<AuthUserRecord | null>
+  deleteUserById(id: string): Promise<AuthUserRecord | null>
 
   hasActiveTwoFactor(userId: string): Promise<boolean>
-  findActiveTwoFactorForLogin(userId: string): Promise<unknown>
-  touchTwoFactorLastUsed(userId: string): Promise<unknown>
+  findActiveTwoFactorForLogin(userId: string): Promise<TwoFactorAuthRecord | null>
+  touchTwoFactorLastUsed(userId: string): Promise<TwoFactorAuthRecord | null>
   markBackupCodeUsed(
     userId: string,
     backupCodeIndex: number
-  ): Promise<unknown>
+  ): Promise<TwoFactorAuthRecord | null>
 
   saveRefreshToken(data: {
     userId: string
@@ -55,9 +65,9 @@ export interface AuthRepositoryContract {
     device?: string
     ipAddress?: string
     userAgent?: string
-  }): Promise<unknown>
+  }): Promise<AuthSessionRecord>
 
-  findRefreshToken(refreshToken: string): Promise<unknown>
+  findRefreshToken(refreshToken: string): Promise<AuthSessionRecord | null>
   rotateRefreshTokenInSameSession(
     sessionId: string,
     newRefreshToken: string,
@@ -66,11 +76,11 @@ export interface AuthRepositoryContract {
       ipAddress?: string
       userAgent?: string
     }
-  ): Promise<unknown>
-  findAllUserTokens(userId: string): Promise<unknown>
+  ): Promise<AuthSessionRecord | null>
+  findAllUserTokens(userId: string): Promise<AuthSessionRecord[]>
   revokeRefreshToken(refreshToken: string): Promise<boolean>
   revokeAllUserTokens(userId: string): Promise<unknown>
-  revokeSessionById(sessionId: string, userId: string): Promise<unknown>
+  revokeSessionById(sessionId: string, userId: string): Promise<AuthSessionRecord | null>
 
   saveOtp(data: {
     email?: string

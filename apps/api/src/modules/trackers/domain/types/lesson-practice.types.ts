@@ -1,5 +1,3 @@
-// apps/api/src/modules/trackers/domain/types/lesson-practice.types.ts
-
 export type LessonChatRole = 'user' | 'assistant'
 
 export type GeneratedLessonPracticeTask = {
@@ -21,7 +19,14 @@ export type GeneratedLessonData = {
     | 'interview'
     | 'system_design'
     | 'theory'
-  compilerRuntime: 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
+  compilerRuntime:
+    | 'javascript'
+    | 'typescript'
+    | 'python'
+    | 'c++'
+    | 'c'
+    | 'java'
+    | null
   codeExample: {
     language: string
     fileName: string

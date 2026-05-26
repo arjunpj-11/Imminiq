@@ -1,10 +1,10 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
-import type { AiImageGenerationGateway } from '../../domain/gateways/ai-image-generation.gateway'
+import type { AiImageGenerationServiceContract } from '../../domain/services/ai-image-generation.service.interface'
 import type { AiImagePreviewResult } from '../../domain/types/uploads.types'
 
 export class GenerateAiAvatarPreviewUseCase {
   constructor(
-    private readonly aiImageGenerationGateway: AiImageGenerationGateway
+    private readonly aiImageGenerationService: AiImageGenerationServiceContract
   ) {}
 
   async execute(prompt: string): Promise<AiImagePreviewResult> {
@@ -22,7 +22,7 @@ professional profile picture composition, balanced lighting, simple background,
 no text, no watermark, no logo, square-friendly framing.
 `.trim()
 
-    const image = await this.aiImageGenerationGateway.generatePreviewImage({
+    const image = await this.aiImageGenerationService.generatePreviewImage({
       prompt: avatarOptimizedPrompt,
       steps: 4,
       seed: Math.floor(Math.random() * 1_000_000),

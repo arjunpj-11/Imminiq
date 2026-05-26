@@ -1,7 +1,7 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
 import { env } from '../../../../config/env'
 import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import type { SecurityEmailGateway } from '../../domain/gateways/security-email.gateway'
+import type { SecurityEmailGateway } from '../../domain/services/security-email.service.interface'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
   ChangeEmailPayload,

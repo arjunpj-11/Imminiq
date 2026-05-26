@@ -1,5 +1,12 @@
 export type ProfileUploadKind = 'avatar' | 'banner'
 
+export interface UploadedProfileImageFile {
+  originalname: string
+  mimetype: string
+  size: number
+  buffer: Buffer
+}
+
 export interface StoredProfileImage {
   fileUrl: string
   fileName: string
@@ -12,7 +19,7 @@ export interface StoredProfileImage {
 export interface UploadProfileImageInput {
   userId: string
   kind: ProfileUploadKind
-  file: Express.Multer.File
+  file: UploadedProfileImageFile
 }
 
 export interface UploadProfileImageResult {

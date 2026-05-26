@@ -1,6 +1,8 @@
-import type { GetModerationAppealStatusPayload } from '../../moderation-appeal.schema'
 import type { ModerationAppealRepository } from '../../domain/repositories/moderation-appeal.repository.interface'
-import type { GetActiveModerationAppealStatusResult } from '../../domain/types/moderation-appeal.types'
+import type {
+  GetActiveModerationAppealStatusResult,
+  GetModerationAppealStatusPayload,
+} from '../../domain/types/moderation-appeal.types'
 
 export class GetActiveModerationAppealStatusUseCase {
   constructor(

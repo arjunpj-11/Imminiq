@@ -1,22 +1,20 @@
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
 import { ApiError } from '../../../../shared/utils/ApiError'
-import { sendMail } from '../../../../infrastructure/email/email.client'
-import { otpEmailTemplate } from '../../../../shared/email/email.templates'
 import type { OtpPurpose } from '../../domain/types/auth.types'
 import { normalizeIdentifier } from '../services/identifier-normalizer.service'
-import { generateOtp } from '../services/otp.service'
 
 export class ResendOtpUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract,
+    private readonly authNotificationService: AuthNotificationServiceContract
+  ) {}
+
   async execute(identifier: string, purpose: OtpPurpose) {
     const parsedIdentifier = normalizeIdentifier(identifier)
 
-    const user = await authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this.authRepository.findByIdentifier(parsedIdentifier.value)
 
-    /**
-     * Deliberately return silently when the account does not exist.
-     * The controller already returns "OTP sent successfully", which avoids
-     * disclosing whether an email/phone is registered.
-     */
     if (!user) {
       return
     }
@@ -45,33 +43,10 @@ export class ResendOtpUseCase {
       )
     }
 
-    const otp = generateOtp()
-
-    await authRepository.saveOtp({
+    await this.authNotificationService.resendOtp({
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
-      otp,
       purpose,
     })
-
-    if (parsedIdentifier.email) {
-      const subjects: Record<OtpPurpose, string> = {
-        email_verification: 'Verify your Imminiq account',
-        phone_verification: 'Verify your Imminiq account',
-        password_reset: 'Reset your Imminiq password',
-      }
-
-      await sendMail(
-        parsedIdentifier.email,
-        subjects[purpose],
-        otpEmailTemplate({
-          otp,
-          type:
-            purpose === 'password_reset'
-              ? 'reset_password'
-              : 'verify_account',
-        })
-      )
-    }
   }
 }

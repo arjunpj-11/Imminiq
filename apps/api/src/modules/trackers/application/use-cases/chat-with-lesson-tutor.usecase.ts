@@ -1,10 +1,11 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import { chatWithLessonTutor } from '../../../../infrastructure/ai/ai.service'
+import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 export class ChatWithLessonTutorUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository
+    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerAIService: TrackerAIServiceContract
   ) {}
 
   async execute(input: {
@@ -16,26 +17,20 @@ export class ChatWithLessonTutorUseCase {
       content: string
     }[]
   }) {
-    const tracker =
-      await this.trackerRepository.findOwnedTrackerById(
-        input.trackerId,
-        input.userId
-      )
+    const tracker = await this.trackerRepository.findOwnedTrackerById(
+      input.trackerId,
+      input.userId
+    )
 
     if (!tracker) {
-      throw new ApiError(
-        404,
-        'Tracker not found',
-        'TRACKER_NOT_FOUND'
-      )
+      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
     }
 
-    const lesson =
-      await this.trackerRepository.findLessonBySubtopicId({
-        trackerId: input.trackerId,
-        subtopicId: input.subtopicId,
-        userId: input.userId,
-      })
+    const lesson = await this.trackerRepository.findLessonBySubtopicId({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+    })
 
     if (!lesson) {
       throw new ApiError(
@@ -66,7 +61,7 @@ export class ChatWithLessonTutorUseCase {
       })
     }
 
-    const answer = await chatWithLessonTutor({
+    const answer = await this.trackerAIService.chatWithLessonTutor({
       lessonTitle: lesson.title,
       lessonContent: `${lesson.summary}\n\n${lesson.explanation}\n\n${lesson.insight}`,
       messages: input.messages,

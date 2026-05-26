@@ -1,10 +1,11 @@
-export {
-  mongoTrackerRepository as trackerRepository,
-} from './infrastructure/repositories/mongo-tracker.repository'
-
-export { trackerController } from './presentation/trackers.controller'
 export { default } from './presentation/trackers.routes'
+export { default as trackerRoutes } from './presentation/trackers.routes'
+export { trackerController } from './presentation/trackers.controller'
+export { trackerService } from './trackers.service'
 
-export * from './application/use-cases'
+// Compatibility export for existing modules that still import trackerRepository
+// from the public trackers barrel during the migration.
+export { trackerRepository } from './trackers.repository'
+
 export * from './domain/types/trackers.types'
-export type { TrackerRepository } from './domain/repositories/tracker.repository.interface'
+export * from './domain/types/lesson-practice.types'

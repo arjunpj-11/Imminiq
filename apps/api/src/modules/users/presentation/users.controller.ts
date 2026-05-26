@@ -1,6 +1,6 @@
 import type { Request, Response, NextFunction } from 'express'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { usersService } from '../application/services/users.service'
+import { usersService } from '../users.service'
 import type {
   PaginationQuery,
   ProfileSort,

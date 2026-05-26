@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 
-import { authRepository } from '../../auth.repository'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
 import { ApiError } from '../../../../shared/utils/ApiError'
 
 const collapseRepeatedUnderscores = (
@@ -44,7 +44,8 @@ const trimOuterUnderscores = (
 }
 
 export const generateUniqueUsernameFromSource = async (
-  source: string
+  source: string,
+  authRepository: AuthRepositoryContract
 ): Promise<string> => {
   const alphanumericSource =
     source
@@ -88,16 +89,17 @@ export const generateUniqueUsernameFromSource = async (
 export const generateRegistrationUsername = async (data: {
   email?: string
   fullName: string
-}): Promise<string> => {
+}, authRepository: AuthRepositoryContract): Promise<string> => {
   const source = data.email
     ? data.email.split('@')[0]
     : data.fullName
 
-  return generateUniqueUsernameFromSource(source)
+  return generateUniqueUsernameFromSource(source, authRepository)
 }
 
 export const generateUsername = async (
-  fullName: string
+  fullName: string,
+  authRepository: AuthRepositoryContract
 ): Promise<string> => {
-  return generateUniqueUsernameFromSource(fullName)
+  return generateUniqueUsernameFromSource(fullName, authRepository)
 }

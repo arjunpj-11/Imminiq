@@ -1,32 +1,13 @@
-// apps/api/src/modules/trackers/application/use-cases/generate-lesson-questions.usecase.ts
-
-import { createHash } from 'crypto'
-
 import { ApiError } from '../../../../shared/utils/ApiError'
-import { generateLessonPracticeQuestions } from '../../../../infrastructure/ai/ai.service'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-
-const hashQuestion = (question: string) =>
-  createHash('sha256').update(question.trim().toLowerCase()).digest('hex')
-
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') return doc._id
-
-  if (
-    doc._id &&
-    typeof doc._id === 'object' &&
-    'toString' in doc._id
-  ) {
-    return doc._id.toString()
-  }
-
-  return null
-}
+import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import { getDocumentId, hashQuestion } from '../utils/tracker-question.util'
 
 export class GenerateLessonQuestionsUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerAIService: TrackerAIServiceContract
+  ) {}
 
   async execute(input: {
     trackerId: string
@@ -57,7 +38,7 @@ export class GenerateLessonQuestionsUseCase {
       )
     }
 
-    const generated = await generateLessonPracticeQuestions({
+    const generated = await this.trackerAIService.generateLessonPracticeQuestions({
       lessonTitle: lesson.title,
       lessonSummary: lesson.summary,
       lessonExplanation: lesson.explanation,

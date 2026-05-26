@@ -3,14 +3,14 @@ import type {
   RoadmapSubtopicNode,
   RoadmapTopicNode,
   SubtopicWithProgressRecord,
-  TopicWithProgressRecord,   // ← add this
+  TopicWithProgressRecord,
 } from '../../domain/types/trackers.types'
 
 export const buildRoadmapTree = ({
   topics,
   subtopics,
 }: {
-    topics: TopicWithProgressRecord[] 
+  topics: TopicWithProgressRecord[]
   subtopics: SubtopicWithProgressRecord[]
 }): RoadmapTopicNode[] => {
   const subtopicMap = new Map<string, RoadmapSubtopicNode[]>()

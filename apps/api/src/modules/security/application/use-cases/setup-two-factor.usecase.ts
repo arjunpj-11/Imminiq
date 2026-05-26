@@ -1,5 +1,5 @@
 import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TwoFactorGateway } from '../../domain/gateways/two-factor.gateway'
+import type { TwoFactorGateway } from '../../domain/services/two-factor.service.interface'
 import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type { TwoFactorSetupResponse } from '../../domain/types/security.types'
 

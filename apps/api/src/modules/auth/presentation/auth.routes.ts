@@ -35,7 +35,7 @@ import {
   sendOtpSchema,
   checkIdentifierSchema,
   checkUsernameSchema,
-} from '../auth.schema'
+} from './auth.schema'
 
 const router = Router()
 
@@ -212,3 +212,4 @@ router.get(
 )
 
 export default router
+export { router as authRoutes }

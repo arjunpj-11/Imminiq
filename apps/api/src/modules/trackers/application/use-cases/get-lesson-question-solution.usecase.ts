@@ -1,12 +1,6 @@
-// apps/api/src/modules/trackers/application/use-cases/get-lesson-question-solution.usecase.ts
-
-import { createHash } from 'crypto'
-
 import { ApiError } from '../../../../shared/utils/ApiError'
 import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-
-const hashQuestion = (question: string) =>
-  createHash('sha256').update(question.trim().toLowerCase()).digest('hex')
+import { hashQuestion } from '../utils/tracker-question.util'
 
 export class GetLessonQuestionSolutionUseCase {
   constructor(private readonly trackerRepository: TrackerRepository) {}

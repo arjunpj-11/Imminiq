@@ -8,7 +8,7 @@ import type {
   EmailChangeAlertTemplateInput,
   EmailChangeVerificationTemplateInput,
   SecurityEmailGateway,
-} from '../../domain/gateways/security-email.gateway'
+} from '../../domain/services/security-email.service.interface'
 
 export const securityEmailGateway: SecurityEmailGateway = {
   async sendEmailChangeVerification(

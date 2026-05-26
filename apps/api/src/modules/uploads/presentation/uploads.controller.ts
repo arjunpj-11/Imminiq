@@ -1,6 +1,7 @@
 import type { Request, Response, NextFunction } from 'express'
+
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { uploadsService } from '../application/services/uploads.service'
+import { uploadsService } from '../uploads.service'
 
 const requireUserId = (req: Request) => {
   const userId = req.user?.userId

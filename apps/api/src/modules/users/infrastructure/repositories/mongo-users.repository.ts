@@ -11,7 +11,10 @@ import { Friend } from '../../../../infrastructure/database/models/friend.model'
 import { FriendRequest } from '../../../../infrastructure/database/models/friend-request.model'
 import { Tracker } from '../../../../infrastructure/database/models/tracker.model'
 
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
+import type {
+  UserIdInput,
+  UsersRepository,
+} from '../../domain/repositories/users.repository.interface'
 import type {
   PaginationQuery,
   RelationshipState,
@@ -20,8 +23,8 @@ import type {
 
 const activeOnly = { deletedAt: null }
 
-const toObjectId = (id: string | Types.ObjectId) =>
-  typeof id === 'string' ? new Types.ObjectId(id) : id
+const toObjectId = (id: UserIdInput) =>
+  typeof id === 'string' ? new Types.ObjectId(id) : new Types.ObjectId(id.toString())
 
 const escapeRegex = (value: string) => {
   return value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
@@ -50,7 +53,7 @@ export const mongoUsersRepository: UsersRepository = {
       .lean()
   },
 
-  findProfileByUserId(userId: string | Types.ObjectId) {
+  findProfileByUserId(userId: UserIdInput) {
     return UserProfile.findOne({
       userId: toObjectId(userId),
       ...activeOnly,
@@ -58,7 +61,7 @@ export const mongoUsersRepository: UsersRepository = {
   },
 
   async ensureProfileForUser(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     fallbackName = ''
   ) {
     const id = toObjectId(userId)
@@ -81,7 +84,7 @@ export const mongoUsersRepository: UsersRepository = {
   },
 
   async updateProfileByUserId(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     payload: UpdateMyProfileInput
   ) {
     const id = toObjectId(userId)
@@ -149,14 +152,14 @@ export const mongoUsersRepository: UsersRepository = {
     ).lean()
   },
 
-  findSettingsByUserId(userId: string | Types.ObjectId) {
+  findSettingsByUserId(userId: UserIdInput) {
     return UserSettings.findOne({
       userId: toObjectId(userId),
       ...activeOnly,
     }).lean()
   },
 
-  findLatestStreakSnapshot(userId: string | Types.ObjectId) {
+  findLatestStreakSnapshot(userId: UserIdInput) {
     return StreakSnapshot.findOne({
       userId: toObjectId(userId),
       ...activeOnly,
@@ -166,7 +169,7 @@ export const mongoUsersRepository: UsersRepository = {
   },
 
   findStreakHistoryByYear(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     year: number
   ) {
     const start = new Date(Date.UTC(year, 0, 1, 0, 0, 0))
@@ -184,7 +187,7 @@ export const mongoUsersRepository: UsersRepository = {
       .lean()
   },
 
-  async findBadgeShowcase(userId: string | Types.ObjectId) {
+  async findBadgeShowcase(userId: UserIdInput) {
     const id = toObjectId(userId)
 
     const [catalog, earned] = await Promise.all([
@@ -202,7 +205,7 @@ export const mongoUsersRepository: UsersRepository = {
   },
 
   async findEarnedBadgesPaginated(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     page = 1,
     limit = 10
   ) {
@@ -231,7 +234,7 @@ export const mongoUsersRepository: UsersRepository = {
   },
 
   async findPublishedTrackers(
-    ownerId: string | Types.ObjectId,
+    ownerId: UserIdInput,
     query: PaginationQuery,
     includePrivate = false
   ) {
@@ -324,7 +327,7 @@ export const mongoUsersRepository: UsersRepository = {
   },
 
   async findActivityFeed(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     page = 1,
     limit = 10
   ) {
@@ -354,7 +357,7 @@ export const mongoUsersRepository: UsersRepository = {
   },
 
   findRecentActivity(
-    userId: string | Types.ObjectId,
+    userId: UserIdInput,
     limit = 10
   ) {
     return ActivityLog.find({
@@ -369,7 +372,7 @@ export const mongoUsersRepository: UsersRepository = {
 
   async getRelationshipState(
     viewerUserId: string | undefined,
-    targetUserId: string | Types.ObjectId
+    targetUserId: UserIdInput
   ): Promise<RelationshipState> {
     if (!viewerUserId) {
       return 'not_connected'

@@ -16,7 +16,7 @@ import {
   updateQuietHoursSchema,
   updateEmailDigestSchema,
   updateCookieConsentSchema,
-} from '../settings.schema'
+} from './settings.schema'
 
 const router = Router()
 
@@ -25,17 +25,14 @@ router.use(
   authenticate
 )
 
-// GET ALL
 router.get('/', settingsController.getAllSettings)
 
-// ACCOUNT LOCALIZATION
 router.patch(
   '/account',
   validate(updateAccountSettingsSchema),
   settingsController.updateAccountSettings
 )
 
-// APPEARANCE
 router.get('/appearance', settingsController.getAppearanceSettings)
 router.patch(
   '/appearance',
@@ -43,7 +40,6 @@ router.patch(
   settingsController.updateAppearance
 )
 
-// NOTIFICATIONS
 router.get('/notifications', settingsController.getNotificationSettings)
 router.patch(
   '/notifications',
@@ -63,7 +59,6 @@ router.patch(
   settingsController.updateEmailDigest
 )
 
-// PRIVACY
 router.get('/privacy', settingsController.getPrivacySettings)
 router.patch(
   '/privacy',
@@ -71,35 +66,30 @@ router.patch(
   settingsController.updatePrivacy
 )
 
-// CODE EDITOR
 router.patch(
   '/code-editor',
   validate(updateCodeEditorSchema),
   settingsController.updateCodeEditor
 )
 
-// COMPILER
 router.patch(
   '/compiler',
   validate(updateCompilerSchema),
   settingsController.updateCompiler
 )
 
-// AI BEHAVIOUR
 router.patch(
   '/ai-behavior',
   validate(updateAIBehaviourSchema),
   settingsController.updateAIBehaviour
 )
 
-// LEARNING JOURNEY
 router.patch(
   '/learning-journey',
   validate(updateLearningJourneySchema),
   settingsController.updateLearningJourney
 )
 
-// GESTURES
 router.get('/gestures', settingsController.getGestureSettings)
 router.patch(
   '/gestures',
@@ -107,7 +97,6 @@ router.patch(
   settingsController.updateGestures
 )
 
-// LEGAL / CONSENT
 router.patch(
   '/preferences',
   validate(updateCookieConsentSchema),
@@ -116,7 +105,6 @@ router.patch(
 
 router.post('/accept-terms', settingsController.acceptTerms)
 
-// RESET
 router.post('/reset', settingsController.resetToDefaults)
 
 export default router

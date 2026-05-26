@@ -1,11 +1,13 @@
 import bcrypt from 'bcryptjs'
 
-import { authRepository } from '../../auth.repository'
 import { ApiError } from '../../../../shared/utils/ApiError'
 import {
   SECURITY_ATTEMPT_POLICIES,
   securityAttemptCache,
 } from '../../../../infrastructure/cache/security-attempt.cache'
+import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { AuthRedirectServiceContract } from '../../domain/services/auth-redirect.service.interface'
+import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
 import type {
   AuthLoginResult,
   LoginPayload,
@@ -13,13 +15,11 @@ import type {
 } from '../../domain/types/auth.types'
 import { normalizeIdentifier } from '../services/identifier-normalizer.service'
 import { ensureUserCanAuthenticate } from '../services/auth-account-policy.service'
-import { sendVerificationOtp } from '../services/verification-otp.service'
 import {
   generateTwoFactorChallengeToken,
   issueTokenPair,
   TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
 } from '../services/auth-token.service'
-import { resolveRedirectPath } from '../services/auth-redirect.service'
 import { formatAuthUser } from '../services/auth-user-formatter.service'
 
 const LOGIN_SCOPE = 'auth_login' as const
@@ -70,6 +70,12 @@ const recordLoginFailure = async (
 }
 
 export class LoginUserUseCase {
+  constructor(
+    private readonly authRepository: AuthRepositoryContract,
+    private readonly authNotificationService: AuthNotificationServiceContract,
+    private readonly authRedirectService: AuthRedirectServiceContract
+  ) {}
+
   async execute(
     payload: LoginPayload,
     meta?: RequestMeta
@@ -78,7 +84,7 @@ export class LoginUserUseCase {
 
     await throwIfLoginTemporarilyBlocked(parsedIdentifier.value)
 
-    const user = await authRepository.findByIdentifier(payload.identifier)
+    const user = await this.authRepository.findByIdentifier(payload.identifier)
 
     if (!user) {
       await recordLoginFailure(parsedIdentifier.value)
@@ -110,7 +116,7 @@ export class LoginUserUseCase {
     )
 
     if (parsedIdentifier.method === 'email' && !user.emailVerified) {
-      await sendVerificationOtp({
+      await this.authNotificationService.sendVerificationOtp({
         email: parsedIdentifier.email,
         method: 'email',
       })
@@ -123,7 +129,7 @@ export class LoginUserUseCase {
     }
 
     if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
-      await sendVerificationOtp({
+      await this.authNotificationService.sendVerificationOtp({
         phone: parsedIdentifier.phone,
         method: 'phone',
       })
@@ -138,7 +144,7 @@ export class LoginUserUseCase {
     const userId = user._id.toString()
 
     const twoFactorEnabled =
-      await authRepository.hasActiveTwoFactor(userId)
+      await this.authRepository.hasActiveTwoFactor(userId)
 
     if (twoFactorEnabled) {
       return {
@@ -149,19 +155,21 @@ export class LoginUserUseCase {
     }
 
     const recoveredUser =
-      await authRepository.cancelScheduledDeletionIfRecoverable(userId)
+      await this.authRepository.cancelScheduledDeletionIfRecoverable(userId)
 
     const authenticatedUser = recoveredUser ?? user
 
-    const redirectPath = await resolveRedirectPath(userId)
+    const redirectPath =
+      await this.authRedirectService.resolveRedirectPath(userId)
 
     const tokens = await issueTokenPair(
+      this.authRepository,
       userId,
       user.role,
       meta
     )
 
-    await authRepository.updateLastActive(userId)
+    await this.authRepository.updateLastActive(userId)
 
     return {
       requiresTwoFactor: false,
