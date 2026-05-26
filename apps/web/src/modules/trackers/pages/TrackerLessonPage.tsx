@@ -1,4 +1,5 @@
 // apps/web/src/modules/trackers/pages/TrackerLessonPage.tsx
+// ─── DIFF: Added LessonVisualizerCard import and placement in <aside> ─────────
 
 import { useMemo, useState } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
@@ -9,7 +10,6 @@ import TopBar from '../../../components/layout/TopBar'
 import AppFooter from '../../../components/layout/Footer'
 import BottomNav from '../../../components/layout/BottomNav'
 
-
 import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import {
   useTrackerLesson,
@@ -19,6 +19,7 @@ import {
 import CompilerCard from '../components/lesson/CompilerCard'
 import LessonChatCard from '../components/lesson/LessonChatCard'
 import LessonNavigationPreview from '../components/lesson/LessonNavigationPreview'
+import LessonVisualizerCard from '../components/lesson/LessonVisualizerCard'   // ← NEW
 import MathText from '../components/lesson/MathText'
 import ReflectionPracticeCard from '../components/lesson/ReflectionPracticeCard'
 import type { LessonLocationState } from '../types/lesson.types'
@@ -29,8 +30,6 @@ import {
   getRoadmapStackStorageKey,
 } from '../utils/lesson-formatters'
 import { cn } from '../utils/tracker-ui'
-
-
 
 export default function TrackerLessonPage() {
   const navigate = useNavigate()
@@ -60,10 +59,6 @@ export default function TrackerLessonPage() {
   const lessonNode = lessonData?.lessonNode
   const generatedLesson = lessonData?.generatedLesson
 
-  // ✅ FIX: Derive completed state directly from server data so it always resets
-  // correctly when navigating between lessons (same component instance reused).
-  // localCompleted is only set to true optimistically after a successful mutation,
-  // and is keyed to subtopicId so it resets automatically on lesson change.
   const [optimisticCompletedId, setOptimisticCompletedId] = useState<string | null>(null)
   const isCompleted =
     lessonNode?.status === 'completed' || optimisticCompletedId === subtopicId
@@ -97,7 +92,6 @@ export default function TrackerLessonPage() {
     const state = location.state as LessonLocationState | null
     if (state?.returnToRoadmapStack?.length) return state.returnToRoadmapStack
     if (typeof window === 'undefined' || !trackerId) return []
-
     try {
       const raw = sessionStorage.getItem(getRoadmapStackStorageKey(trackerId))
       if (!raw) return []
@@ -124,33 +118,17 @@ export default function TrackerLessonPage() {
           await Promise.all([
             queryClient.invalidateQueries({ queryKey: ['dashboard'] }),
             queryClient.invalidateQueries({ queryKey: ['dashboard', 'summary'] }),
-            queryClient.invalidateQueries({
-              queryKey: ['dashboard', 'current-roadmap'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: ['dashboard', 'activity-intensity'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: ['dashboard', 'activity-intensity', 6],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: ['dashboard', 'activity-intensity', 12],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: ['dashboard', 'heatmap'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: ['activity-intensity'],
-            }),
-            queryClient.invalidateQueries({
-              queryKey: ['trackers', 'roadmap', trackerId],
-            }),
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'current-roadmap'] }),
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity'] }),
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity', 6] }),
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'activity-intensity', 12] }),
+            queryClient.invalidateQueries({ queryKey: ['dashboard', 'heatmap'] }),
+            queryClient.invalidateQueries({ queryKey: ['activity-intensity'] }),
+            queryClient.invalidateQueries({ queryKey: ['trackers', 'roadmap', trackerId] }),
             queryClient.invalidateQueries({ queryKey: ['trackers', 'list'] }),
             queryClient.invalidateQueries({ queryKey: ['trackers'] }),
             queryClient.invalidateQueries({ queryKey: ['tracker', trackerId] }),
-            queryClient.invalidateQueries({
-              queryKey: ['tracker-lesson', trackerId, subtopicId],
-            }),
+            queryClient.invalidateQueries({ queryKey: ['tracker-lesson', trackerId, subtopicId] }),
           ])
 
           await lessonQuery.refetch()
@@ -225,19 +203,15 @@ export default function TrackerLessonPage() {
               <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
                 <div className="w-full max-w-md rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-8 text-center shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-white/9 dark:bg-[#1e1c19]">
                   <div className="mx-auto mb-5 h-13 w-13 animate-pulse rounded-2xl bg-[rgba(184,76,43,0.10)] dark:bg-[rgba(232,129,106,0.12)]" />
-
                   <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
                     Lesson
                   </p>
-
                   <h1 className="mt-2 font-['Playfair_Display',serif] text-[28px] font-extrabold tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
                     Preparing your lesson
                   </h1>
-
                   <p className="mt-2 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
                     Loading Groq lesson, AI chat, and roadmap.
                   </p>
-
                   <div className="mt-6 space-y-3">
                     <div className="h-3 w-full animate-pulse rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8" />
                     <div className="mx-auto h-3 w-4/5 animate-pulse rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8" />
@@ -263,6 +237,7 @@ export default function TrackerLessonPage() {
               </div>
             ) : (
               <div className="mx-auto mt-6 grid w-[min(1280px,calc(100%-48px))] max-w-full grid-cols-[1fr_340px] gap-6 pb-8 max-[1024px]:grid-cols-1 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[900px]:pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+                {/* ── Main content column ─────────────────────────────────── */}
                 <div className="flex min-w-0 flex-col gap-6">
                   <section className="rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-4.5">
                     <div className="mb-4 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]">
@@ -273,17 +248,14 @@ export default function TrackerLessonPage() {
                       <span className="inline-flex rounded-full bg-[rgba(26,23,20,0.09)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#6b5f58] dark:bg-white/9 dark:text-[#9b9a92]">
                         Groq Lesson
                       </span>
-
                       <span className="inline-flex rounded-full bg-[rgba(26,23,20,0.09)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#6b5f58] dark:bg-white/9 dark:text-[#9b9a92]">
                         {formatLessonType(generatedLesson.lessonType)}
                       </span>
-
                       {showCompiler && (
                         <span className="inline-flex rounded-full bg-[rgba(26,23,20,0.09)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#6b5f58] dark:bg-white/9 dark:text-[#9b9a92]">
                           Piston Compiler
                         </span>
                       )}
-
                       <span className="inline-flex rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-semibold uppercase tracking-wider text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
                         {generatedLesson.difficulty}
                       </span>
@@ -317,7 +289,6 @@ export default function TrackerLessonPage() {
                       <h3 className="mb-2 flex items-center gap-2 text-[14px] font-bold text-[#8a6200] dark:text-[#f0a842]">
                         💬 Insight
                       </h3>
-
                       <MathText className="text-[14px] italic leading-[1.55] text-[#1a1714]/85 dark:text-[#f2f0eb]/85">
                         {generatedLesson.insight}
                       </MathText>
@@ -336,7 +307,6 @@ export default function TrackerLessonPage() {
                         <h2 className="font-['Playfair_Display',serif] text-[24px] font-extrabold">
                           Coding Practice
                         </h2>
-
                         <MathText className="mt-2 text-[14px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
                           {`${generatedLesson.practiceTask.title || 'Practice task'}: ${
                             generatedLesson.practiceTask.description ||
@@ -353,9 +323,7 @@ export default function TrackerLessonPage() {
                         initialCode={codeForCompiler}
                         practiceTitle={generatedLesson.practiceTask.title}
                         practiceDescription={generatedLesson.practiceTask.description}
-                        expectedOutput={
-                          generatedLesson.practiceTask.expectedOutput ?? ''
-                        }
+                        expectedOutput={generatedLesson.practiceTask.expectedOutput ?? ''}
                       />
                     </>
                   ) : (
@@ -367,11 +335,19 @@ export default function TrackerLessonPage() {
                   )}
                 </div>
 
+                {/* ── Sidebar column ──────────────────────────────────────── */}
                 <aside className="flex min-w-0 flex-col gap-6">
                   <LessonChatCard
                     lessonTitle={generatedLesson.title}
                     trackerId={trackerId}
                     subtopicId={subtopicId}
+                  />
+
+                  {/* ✦ AI Visualizer — NEW */}
+                  <LessonVisualizerCard
+                    trackerId={trackerId!}
+                    subtopicId={subtopicId!}
+                    lessonTitle={generatedLesson.title}
                   />
 
                   <LessonNavigationPreview

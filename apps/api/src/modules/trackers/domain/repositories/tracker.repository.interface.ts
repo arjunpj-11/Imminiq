@@ -344,5 +344,27 @@ clearLessonQuestionSolutionDoubts(data: {
   userId: string
   questionHash: string
 }): Promise<unknown>
+
+findLessonVisualization(data: {
+  trackerId: string
+  subtopicId: string
+  userId: string
+}): Promise<{
+  html: string
+  visualTitle: string
+  visualDescription: string
+} | null>
+ 
+saveLessonVisualization(data: {
+  trackerId: string
+  subtopicId: string
+  userId: string
+  lessonId?: string | null
+  html: string
+  visualTitle: string
+  visualDescription: string
+}): Promise<unknown>
+ 
+
 }
 

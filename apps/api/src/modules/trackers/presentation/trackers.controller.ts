@@ -44,6 +44,7 @@ import { GetLessonQuestionSolutionDoubtsUseCase } from '../application/use-cases
 import { AskLessonQuestionSolutionDoubtUseCase } from '../application/use-cases/ask-lesson-question-solution-doubt.usecase'
 import { ClearLessonChatHistoryUseCase } from '../application/use-cases/clear-lesson-chat-history.usecase'
 import { ClearLessonQuestionSolutionDoubtsUseCase } from '../application/use-cases/clear-lesson-question-solution-doubts.usecase'
+import { GenerateLessonVisualizationUseCase } from '../application/use-cases/generate-lesson-visualization.usecase'
 
 import {
   createSubtopicSchema,
@@ -180,6 +181,9 @@ const askLessonQuestionSolutionDoubtUseCase =
 
 const clearLessonQuestionSolutionDoubtsUseCase =
   new ClearLessonQuestionSolutionDoubtsUseCase(mongoTrackerRepository)
+
+  const generateLessonVisualizationUseCase =
+  new GenerateLessonVisualizationUseCase(mongoTrackerRepository)
 
 export const trackerController = {
   getSummary: async (
@@ -1088,6 +1092,29 @@ clearLessonQuestionSolutionDoubts: async (
     res.json(
       new ApiResponse(
         'Lesson question solution doubts cleared successfully',
+        result
+      )
+    )
+  } catch (error) {
+    next(error)
+  }
+},
+generateLessonVisualization: async (
+  req: Request<LessonParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const result = await generateLessonVisualizationUseCase.execute({
+      trackerId: req.params.trackerId,
+      subtopicId: req.params.subtopicId,
+      userId: req.user!.userId,
+      regenerate: req.query.regenerate === 'true',   // ← reads ?regenerate=true
+    })
+ 
+    res.json(
+      new ApiResponse(
+        'Lesson visualization generated successfully',
         result
       )
     )

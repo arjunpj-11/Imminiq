@@ -155,4 +155,9 @@ router.post(
   trackerController.addMissingEvaluationTopic
 )
 
+router.post(
+  '/:trackerId/lessons/:subtopicId/visualize',
+  trackerController.generateLessonVisualization
+)
+
 export default router

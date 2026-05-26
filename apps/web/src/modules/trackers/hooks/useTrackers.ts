@@ -47,6 +47,9 @@ import type {
   UpdateTrackerPayload,
   VerifyLessonAnswerPayload,
   VerifyLessonAnswerResponse,
+  GenerateLessonVisualizationPayload,
+ GenerateLessonVisualizationResponse,
+
 } from '../types/tracker.types'
 
 export const trackerKeys = {
@@ -923,6 +926,26 @@ export const useClearLessonQuestionSolutionDoubts = () => {
     },
   })
 }
+
+export const useGenerateLessonVisualization = () => {
+  return useMutation<
+    GenerateLessonVisualizationResponse,
+    Error,
+    GenerateLessonVisualizationPayload
+  >({
+    mutationFn: async ({ trackerId, subtopicId, regenerate }) => {
+      const response = await api.post<GenerateLessonVisualizationResponse>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/visualize`,
+        {},
+        { params: regenerate ? { regenerate: 'true' } : undefined }
+      )
+      return response.data
+    },
+    
+  })
+}
+ 
+ 
 
 export const useAddMissingEvaluationTopic = () => {
   const queryClient = useQueryClient()
