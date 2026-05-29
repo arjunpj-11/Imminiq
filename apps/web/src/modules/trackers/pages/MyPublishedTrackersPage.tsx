@@ -95,6 +95,26 @@ const StarIcon = () => (
   </svg>
 )
 
+const WarningIcon = () => (
+  <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
+    <path d="M11 2L20.5 19H1.5L11 2Z" stroke="currentColor" strokeWidth="1.6" strokeLinejoin="round" />
+    <path d="M11 9V13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" />
+    <circle cx="11" cy="16.5" r="0.75" fill="currentColor" />
+  </svg>
+)
+
+const HeartIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+    <path d="M7 12S1.5 8 1.5 4.5A2.5 2.5 0 0 1 7 3.5a2.5 2.5 0 0 1 5.5 1C12.5 8 7 12 7 12Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+  </svg>
+)
+
+const CommentIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+    <path d="M2 2h10a1 1 0 0 1 1 1v6a1 1 0 0 1-1 1H5l-3 2V3a1 1 0 0 1 1-1Z" stroke="currentColor" strokeWidth="1.25" strokeLinejoin="round" />
+  </svg>
+)
+
 // ─── Skeletons ─────────────────────────────────────────────────────────────────
 
 const SkeletonBlock = ({ className }: { className?: string }) => (
@@ -130,16 +150,118 @@ const PublishedCardSkeleton = () => (
   </div>
 )
 
+// ─── Unpublish Confirmation Modal ──────────────────────────────────────────────
+
+type UnpublishConfirmModalProps = {
+  tracker: Tracker | null
+  isUnpublishing: boolean
+  onConfirm: () => void
+  onCancel: () => void
+}
+
+function UnpublishConfirmModal({ tracker, isUnpublishing, onConfirm, onCancel }: UnpublishConfirmModalProps) {
+  if (!tracker) return null
+
+  return (
+    // Backdrop
+    <div
+      className="fixed inset-0 z-50 flex items-end justify-center p-4 sm:items-center"
+      style={{ backgroundColor: 'rgba(20,18,16,0.60)', backdropFilter: 'blur(6px)' }}
+      onClick={(e) => { if (e.target === e.currentTarget) onCancel() }}
+    >
+      {/* Panel */}
+      <div className="w-full max-w-[400px] overflow-hidden rounded-[22px] border-[1.5px] border-[rgba(200,50,50,0.18)] bg-[#fdf8f5] shadow-[0_24px_64px_rgba(20,18,16,0.28)] dark:border-[rgba(255,120,120,0.14)] dark:bg-[#1e1c19]">
+
+        {/* Red accent top bar */}
+        <div className="h-0.5 w-full bg-gradient-to-r from-[#c83232] to-[#e05555]" />
+
+        <div className="p-6">
+          {/* Warning icon */}
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] border-[1.5px] border-[rgba(200,50,50,0.20)] bg-[rgba(200,50,50,0.08)] text-[#b83232] dark:border-[rgba(255,120,120,0.18)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]">
+            <WarningIcon />
+          </div>
+
+          {/* Title */}
+          <h2 className="font-['Playfair_Display',serif] text-[19px] font-extrabold leading-[1.2] tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+            Unpublish this tracker?
+          </h2>
+
+          {/* Tracker name */}
+          <p className="mt-1 text-[12.5px] font-semibold text-[#6b5f58] dark:text-[#9b9a92]">
+            "{tracker.title}"
+          </p>
+
+          {/* Warning message */}
+          <p className="mt-3 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+            This will remove it from the community. The following will be{' '}
+            <span className="font-bold text-[#b83232] dark:text-[#ff8c8c]">permanently lost</span>{' '}
+            and cannot be recovered:
+          </p>
+
+          {/* Loss list */}
+          <ul className="mt-3 space-y-2">
+            <li className="flex items-center gap-2.5 rounded-[10px] border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
+              <span className="text-[#b83232] dark:text-[#ff8c8c]"><HeartIcon /></span>
+              <span className="text-[12.5px] font-medium text-[#4a3f3a] dark:text-[#c8c4bc]">All likes from the community</span>
+            </li>
+            <li className="flex items-center gap-2.5 rounded-[10px] border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
+              <span className="text-[#b83232] dark:text-[#ff8c8c]"><CommentIcon /></span>
+              <span className="text-[12.5px] font-medium text-[#4a3f3a] dark:text-[#c8c4bc]">All comments & replies</span>
+            </li>
+            <li className="flex items-center gap-2.5 rounded-[10px] border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
+              <span className="text-[#b83232] dark:text-[#ff8c8c]"><GlobeSmallIcon /></span>
+              <span className="text-[12.5px] font-medium text-[#4a3f3a] dark:text-[#c8c4bc]">Public share link & visibility</span>
+            </li>
+          </ul>
+
+          <p className="mt-3 text-[11.5px] italic leading-[1.5] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
+            Your tracker itself and your personal progress are safe — only the community data is lost.
+          </p>
+        </div>
+
+        {/* Actions */}
+        <div className="flex gap-2.5 border-t border-[#e0d0c5] px-6 py-4 dark:border-white/9">
+          <button
+            type="button"
+            onClick={onCancel}
+            disabled={isUnpublishing}
+            className="flex-1 rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-bold text-[#6b5f58] transition hover:border-[rgba(26,23,20,0.25)] hover:text-[#1a1714] disabled:opacity-50 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#f2f0eb]"
+          >
+            Keep it public
+          </button>
+          <button
+            type="button"
+            onClick={onConfirm}
+            disabled={isUnpublishing}
+            className="flex-1 rounded-[10px] bg-[#b83232] px-4 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#9a2828] hover:shadow-[0_6px_20px_rgba(184,50,50,0.28)] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#c84444] dark:hover:bg-[#b03030]"
+          >
+            {isUnpublishing ? 'Unpublishing…' : 'Yes, unpublish'}
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+// Small globe icon for the modal list item
+const GlobeSmallIcon = () => (
+  <svg width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+    <circle cx="7" cy="7" r="5.25" stroke="currentColor" strokeWidth="1.25" />
+    <ellipse cx="7" cy="7" rx="2.25" ry="5.25" stroke="currentColor" strokeWidth="1.25" />
+    <path d="M1.75 7H12.25M2.25 4.5H11.75M2.25 9.5H11.75" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
+  </svg>
+)
+
 // ─── Published Tracker Card ────────────────────────────────────────────────────
 
 type PublishedTrackerCardProps = {
   tracker: Tracker
   onView: (trackerId: string) => void
-  onUnpublish: (trackerId: string) => void
+  onRequestUnpublish: (tracker: Tracker) => void
   isUnpublishing: boolean
 }
 
-function PublishedTrackerCard({ tracker, onView, onUnpublish, isUnpublishing }: PublishedTrackerCardProps) {
+function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublishing }: PublishedTrackerCardProps) {
   const [copied, setCopied] = useState(false)
 
   const levelCfg = levelColors[tracker.level ?? 'beginner'] ?? levelColors.beginner
@@ -177,7 +299,7 @@ function PublishedTrackerCard({ tracker, onView, onUnpublish, isUnpublishing }: 
           </span>
         </div>
 
-        {/* Right: clone / star count */}
+        {/* Right: star count */}
         <div className="flex shrink-0 items-center gap-1 rounded-lg border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-2.5 py-1 dark:border-white/9 dark:bg-white/3">
           <span className="text-[#b84c2b] dark:text-[#e8816a]">
             <StarIcon />
@@ -230,11 +352,6 @@ function PublishedTrackerCard({ tracker, onView, onUnpublish, isUnpublishing }: 
       </div>
 
       {/* ── Actions ── */}
-      {/*
-        FIX: Replaced single flex-wrap row with two-row layout.
-        Row 1 (primary actions): View Page + Copy Link — always side by side.
-        Row 2 (destructive): Unpublish — full width so it's clearly separated and never wraps awkwardly.
-      */}
       <div className="mt-4 flex flex-col gap-2">
         {/* Primary actions */}
         <div className="flex items-center gap-2">
@@ -260,7 +377,7 @@ function PublishedTrackerCard({ tracker, onView, onUnpublish, isUnpublishing }: 
         <button
           type="button"
           disabled={isUnpublishing}
-          onClick={(e) => { e.stopPropagation(); onUnpublish(tracker._id) }}
+          onClick={(e) => { e.stopPropagation(); onRequestUnpublish(tracker) }}
           className="inline-flex w-full items-center justify-center gap-1.5 rounded-[9px] border-[1.5px] border-[rgba(200,50,50,0.20)] px-3.5 py-2 text-[12px] font-bold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[rgba(255,120,120,0.18)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
         >
           <UnpublishIcon />
@@ -335,6 +452,7 @@ export default function MyPublishedTrackersPage() {
     () => typeof window !== 'undefined' && localStorage.getItem('imminiq_sb') === 'closed'
   )
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null)
+  const [confirmTracker, setConfirmTracker] = useState<Tracker | null>(null)
 
   const dashboardSummaryQuery = useDashboardSummary()
   const trackersQuery = useTrackers({ status: 'all', domain: 'all', sortBy: 'lastActive', page: 1, limit: 50 })
@@ -350,13 +468,23 @@ export default function MyPublishedTrackersPage() {
     (dashboardSummaryQuery.isLoading && !dashboardSummary) ||
     (trackersQuery.isLoading && !trackersQuery.data)
 
-  const handleUnpublish = async (trackerId: string) => {
-    setUnpublishingId(trackerId)
+  const handleRequestUnpublish = (tracker: Tracker) => {
+    setConfirmTracker(tracker)
+  }
+
+  const handleConfirmUnpublish = async () => {
+    if (!confirmTracker) return
+    setUnpublishingId(confirmTracker._id)
     try {
-      await unpublishMutation.mutateAsync(trackerId)
+      await unpublishMutation.mutateAsync(confirmTracker._id)
     } finally {
       setUnpublishingId(null)
+      setConfirmTracker(null)
     }
+  }
+
+  const handleCancelUnpublish = () => {
+    setConfirmTracker(null)
   }
 
   if (isLoading) {
@@ -381,6 +509,14 @@ export default function MyPublishedTrackersPage() {
           backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")',
           backgroundSize: '180px',
         }}
+      />
+
+      {/* ── Unpublish confirmation modal ── */}
+      <UnpublishConfirmModal
+        tracker={confirmTracker}
+        isUnpublishing={unpublishingId === confirmTracker?._id}
+        onConfirm={handleConfirmUnpublish}
+        onCancel={handleCancelUnpublish}
       />
 
       <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
@@ -455,7 +591,7 @@ export default function MyPublishedTrackersPage() {
                       key={tracker._id}
                       tracker={tracker}
                       onView={(id) => navigate(`/trackers/${id}/preview`)}
-                      onUnpublish={handleUnpublish}
+                      onRequestUnpublish={handleRequestUnpublish}
                       isUnpublishing={unpublishingId === tracker._id}
                     />
                   ))}
