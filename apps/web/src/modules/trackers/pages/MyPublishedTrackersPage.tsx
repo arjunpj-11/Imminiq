@@ -108,7 +108,7 @@ const PublishedCardSkeleton = () => (
         <SkeletonBlock className="h-5 w-20 rounded-full" />
         <SkeletonBlock className="h-5 w-16 rounded-full" />
       </div>
-      <SkeletonBlock className="h-7 w-20 rounded-[8px]" />
+      <SkeletonBlock className="h-7 w-20 rounded-lg" />
     </div>
     <SkeletonBlock className="mb-2 h-6 w-3/4 rounded-lg" />
     <SkeletonBlock className="mb-1 h-4 w-full rounded" />
@@ -123,9 +123,9 @@ const PublishedCardSkeleton = () => (
       ))}
     </div>
     <div className="mt-4 flex gap-2">
-      <SkeletonBlock className="h-8 w-[90px] rounded-[9px]" />
-      <SkeletonBlock className="h-8 w-[90px] rounded-[9px]" />
-      <SkeletonBlock className="ml-auto h-8 w-[90px] rounded-[9px]" />
+      <SkeletonBlock className="h-8 w-22.5 rounded-[9px]" />
+      <SkeletonBlock className="h-8 w-22.5 rounded-[9px]" />
+      <SkeletonBlock className="ml-auto h-8 w-22.5 rounded-[9px]" />
     </div>
   </div>
 )
@@ -160,7 +160,7 @@ function PublishedTrackerCard({ tracker, onView, onUnpublish, isUnpublishing }: 
     <article className="group relative flex flex-col overflow-hidden rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(45,106,71,0.30)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19] dark:hover:border-[rgba(92,201,138,0.20)]">
 
       {/* Green accent bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-b-[20px] bg-gradient-to-r from-[#70d49a] to-[#4caf7d]" />
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-b-[20px] bg-linear-to-r from-[#70d49a] to-[#4caf7d]" />
 
       {/* ── Header: badges + clone count ── */}
       <div className="mb-4 flex items-start justify-between gap-2">
@@ -178,7 +178,7 @@ function PublishedTrackerCard({ tracker, onView, onUnpublish, isUnpublishing }: 
         </div>
 
         {/* Right: clone / star count */}
-        <div className="flex shrink-0 items-center gap-1 rounded-[8px] border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-2.5 py-1 dark:border-white/9 dark:bg-white/3">
+        <div className="flex shrink-0 items-center gap-1 rounded-lg border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-2.5 py-1 dark:border-white/9 dark:bg-white/3">
           <span className="text-[#b84c2b] dark:text-[#e8816a]">
             <StarIcon />
           </span>
@@ -207,7 +207,7 @@ function PublishedTrackerCard({ tracker, onView, onUnpublish, isUnpublishing }: 
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8">
           <div
-            className="h-full rounded-full bg-gradient-to-r from-[#70d49a] to-[#4caf7d] transition-all duration-700"
+            className="h-full rounded-full bg-linear-to-r from-[#70d49a] to-[#4caf7d] transition-all duration-700"
             style={{ width: `${progress}%` }}
           />
         </div>
@@ -318,7 +318,7 @@ function SummaryStrip({ count }: { count: number }) {
       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(45,106,71,0.12)] text-[#2d6a47] dark:bg-[rgba(92,201,138,0.14)] dark:text-[#5cc98a]">
         <GlobeIcon />
       </div>
-      <p className="text-[12.5px] leading-[1.5] text-[#2d6a47] dark:text-[#5cc98a]">
+      <p className="text-[12.5px] leading-normal text-[#2d6a47] dark:text-[#5cc98a]">
         <span className="font-bold">{count}</span> tracker{count === 1 ? '' : 's'} currently{' '}
         <span className="font-bold">live</span> in the community.
       </p>

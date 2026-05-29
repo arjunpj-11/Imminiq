@@ -212,7 +212,7 @@ function DifficultyPicker({ value, disabled = false, onChange }: DifficultyPicke
           disabled={disabled}
           onClick={() => onChange(d.value)}
           className={cn(
-            'flex-1 rounded-[8px] border-[1.5px] py-2 text-[11px] font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60',
+            'flex-1 rounded-lg border-[1.5px] py-2 text-[11px] font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60',
             value === d.value
               ? 'border-[#b84c2b] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
               : 'border-[#e0d0c5] bg-transparent text-[#6b5f58] hover:border-[rgba(184,76,43,0.30)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:border-[rgba(232,129,106,0.30)] dark:hover:text-[#e8816a]',
@@ -275,7 +275,7 @@ function PublishModal({ tracker, isPublishing, publishError, onClose, onConfirm 
         aria-modal="true"
         aria-labelledby="publish-modal-title"
         onClick={(e) => e.stopPropagation()}
-        className="w-full max-h-[92dvh] overflow-y-auto rounded-t-[24px] border-t border-x border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_-8px_48px_rgba(26,23,20,0.18)] sm:max-h-none sm:max-w-[500px] sm:rounded-[22px] sm:border-[1.5px] sm:shadow-[0_24px_72px_rgba(26,23,20,0.24)] dark:border-white/9 dark:bg-[#1e1c19]"
+        className="w-full max-h-[92dvh] overflow-y-auto rounded-t-3xl border-t border-x border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_-8px_48px_rgba(26,23,20,0.18)] sm:max-h-none sm:max-w-125 sm:rounded-[22px] sm:border-[1.5px] sm:shadow-[0_24px_72px_rgba(26,23,20,0.24)] dark:border-white/9 dark:bg-[#1e1c19]"
       >
         <div className="flex justify-center pt-3 pb-1 sm:hidden">
           <div className="h-1 w-10 rounded-full bg-[#e0d0c5] dark:bg-white/15" />
@@ -291,11 +291,11 @@ function PublishModal({ tracker, isPublishing, publishError, onClose, onConfirm 
               <h2 id="publish-modal-title" className="font-['Playfair_Display',serif] text-[22px] font-extrabold leading-[1.15] tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
                 Share your tracker
               </h2>
-              <p className="mt-1 text-[12px] leading-[1.5] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mt-1 text-[12px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
                 Fill in the details so others can discover and learn from your roadmap.
               </p>
             </div>
-            <button type="button" disabled={isPublishing} onClick={onClose} aria-label="Close publish modal" className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-[10px] text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]">
+            <button type="button" disabled={isPublishing} onClick={onClose} aria-label="Close publish modal" className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]">
               <CloseIcon />
             </button>
           </div>
@@ -361,16 +361,16 @@ function PublishModal({ tracker, isPublishing, publishError, onClose, onConfirm 
             <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/9" />
           </div>
 
-          <div className="mt-3 mb-4 rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-white/60 p-4 dark:border-white/9 dark:bg-white/[0.03]">
+          <div className="mt-3 mb-4 rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-white/60 p-4 dark:border-white/9 dark:bg-white/3">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
                 <p className="text-[13px] font-semibold leading-tight text-[#1a1714] dark:text-[#f2f0eb]">Allow others to clone</p>
-                <p className="mt-1 text-[11.5px] leading-[1.5] text-[#6b5f58] dark:text-[#9b9a92]">Learners can copy this tracker to their own account and customise it.</p>
+                <p className="mt-1 text-[11.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">Learners can copy this tracker to their own account and customise it.</p>
               </div>
               <ToggleSwitch checked={form.allowClone} disabled={isPublishing} onChange={(v) => setForm((prev) => ({ ...prev, allowClone: v }))} />
             </div>
             {!form.allowClone && (
-              <p className="mt-3 rounded-[8px] border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.06)] px-3 py-2 text-[11px] leading-[1.5] text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-[#f0a842]">
+              <p className="mt-3 rounded-lg border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.06)] px-3 py-2 text-[11px] leading-normal text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-[#f0a842]">
                 Your tracker will be public but read-only — learners can view it but not clone it.
               </p>
             )}
