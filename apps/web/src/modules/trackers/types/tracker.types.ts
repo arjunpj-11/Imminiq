@@ -66,6 +66,8 @@ export interface Tracker {
   topicsCount?: number
   subtopicsCount?: number
   completedSubtopicsCount?: number
+  completedTopics?: number   // 👈 add
+  totalTopics?: number       // 👈 add (same as topicsCount but from progress)
   lastActiveAt?: string | null
   publishedAt?: string | null
   createdAt?: string

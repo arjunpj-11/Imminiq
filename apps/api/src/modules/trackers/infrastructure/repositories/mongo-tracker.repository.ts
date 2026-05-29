@@ -292,25 +292,52 @@ export const mongoTrackerRepository: TrackerRepository = {
     }
   },
 
-  listOwnedTrackers: async ({ userId, status = 'all', domain = 'all', sortBy = 'lastActive', page, limit }) => {
-    const query: MongoQuery = { ownerId: toObjectId(userId), deletedAt: null }
-    if (status !== 'all') query.status = status
-    if (domain !== 'all') query.domain = domain
+listOwnedTrackers: async ({ userId, status = 'all', domain = 'all', sortBy = 'lastActive', page, limit }) => {
+  const query: MongoQuery = { ownerId: toObjectId(userId), deletedAt: null }
+  if (status !== 'all') query.status = status
+  if (domain !== 'all') query.domain = domain
 
-    const skip = (page - 1) * limit
-    const [trackers, total] = await Promise.all([
-      Tracker.find(asMongoFilter(query)).sort(buildTrackerSort(sortBy)).skip(skip).limit(limit).lean(),
-      Tracker.countDocuments(asMongoFilter(query)),
-    ])
+  const skip = (page - 1) * limit
 
+  const [trackers, total] = await Promise.all([
+    Tracker.find(asMongoFilter(query))
+      .sort(buildTrackerSort(sortBy))
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Tracker.countDocuments(asMongoFilter(query)),
+  ])
+
+  // 👈 fetch progress for all returned trackers in one query
+  const trackerIds = trackers.map((t) => t._id)
+
+  const progressList = await TrackerProgress.find(
+    asMongoFilter({ userId: toObjectId(userId), trackerId: { $in: trackerIds } })
+  )
+    .select('trackerId completedTopics totalTopics')
+    .lean()
+
+  const progressMap = new Map(
+    progressList.map((p) => [p.trackerId.toString(), p])
+  )
+
+  const enrichedTrackers = trackers.map((tracker) => {
+    const progress = progressMap.get(tracker._id.toString())
     return {
-      trackers: trackers as TrackerRecord[],
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      ...tracker,
+      completedTopics: progress?.completedTopics ?? 0,
+      totalTopics: progress?.totalTopics ?? tracker.topicsCount ?? 0,
     }
-  },
+  })
+
+  return {
+    trackers: enrichedTrackers as TrackerRecord[],
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  }
+},
 
   createTracker: async (data: CreateTrackerInput) => {
     const tracker = await Tracker.create(asMongoCreatePayload({
@@ -676,7 +703,7 @@ export const mongoTrackerRepository: TrackerRepository = {
     return docs as UserTopicProgressRecord[]
   },
 
- updateSubtopicProgress: async ({
+updateSubtopicProgress: async ({
   trackerId,
   subtopicId,
   userId,
@@ -705,7 +732,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       subtopicId: subtopicObjId,
     })
   ).lean()
-
 
   const progressUpdate: Record<string, unknown> = {
     status,
@@ -737,7 +763,6 @@ export const mongoTrackerRepository: TrackerRepository = {
         subtopicId: subtopicObjId,
       },
       $set: progressUpdate,
-      
     }),
     {
       returnDocument: 'after',
@@ -745,22 +770,38 @@ export const mongoTrackerRepository: TrackerRepository = {
     }
   )
 
-  const [totalSubtopics, completedSubtopics] = await Promise.all([
-    TrackerSubtopic.countDocuments(
-      asMongoFilter({
-        trackerId: trackerObjId,
-        deletedAt: null,
-      })
-    ),
+  const [totalSubtopics, completedSubtopics, totalTopics, completedTopics] =
+    await Promise.all([
+      TrackerSubtopic.countDocuments(
+        asMongoFilter({
+          trackerId: trackerObjId,
+          deletedAt: null,
+        })
+      ),
 
-    UserSubtopicProgress.countDocuments(
-      asMongoFilter({
-        userId: userObjId,
-        trackerId: trackerObjId,
-        status: 'completed',
-      })
-    ),
-  ])
+      UserSubtopicProgress.countDocuments(
+        asMongoFilter({
+          userId: userObjId,
+          trackerId: trackerObjId,
+          status: 'completed',
+        })
+      ),
+
+      UserTopicProgress.countDocuments(
+        asMongoFilter({
+          userId: userObjId,
+          trackerId: trackerObjId,
+        })
+      ),
+
+      UserTopicProgress.countDocuments(
+        asMongoFilter({
+          userId: userObjId,
+          trackerId: trackerObjId,
+          status: 'completed',
+        })
+      ),
+    ])
 
   const completionPercentage =
     totalSubtopics > 0
@@ -791,6 +832,8 @@ export const mongoTrackerRepository: TrackerRepository = {
           lastStudiedAt: now,
           completedSubtopics,
           totalSubtopics,
+          completedTopics,      // 👈 now tracked live
+          totalTopics,          // 👈 now tracked live
           completionPercentage,
           status:
             completionPercentage >= 100
@@ -827,7 +870,6 @@ export const mongoTrackerRepository: TrackerRepository = {
     status: userProgress?.status ?? status,
     isUnlocked: userProgress?.isUnlocked ?? true,
     progressPercent: userProgress?.progressPercent ?? 0,
-   
     completedAt: userProgress?.completedAt ?? null,
   } as SubtopicWithProgressRecord
 },
