@@ -20,7 +20,7 @@ export class GetAIInsightsUseCase {
       activeTrackers: trackers.active,
       completedTrackers: trackers.completed,
       totalTrackers: trackers.total,
-      totalTimeSpentMinutes: stats.totalTimeSpentMinutes,
+      
       totalSubtopicsCompleted: stats.totalSubtopicsCompleted,
       totalPoints: stats.totalPoints,
       publishedTrackers: stats.publishedTrackers,

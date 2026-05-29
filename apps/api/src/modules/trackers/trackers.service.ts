@@ -103,6 +103,7 @@ type VerifyTopicInput = Parameters<typeof verifyTrackerTopicUseCase.execute>[0]
 type VerifySubtopicInput = Parameters<typeof verifyTrackerSubtopicUseCase.execute>[0]
 type AddMissingEvaluationTopicInput = Parameters<typeof addMissingEvaluationTopicUseCase.execute>[0]
 type GenerateLessonVisualizationInput = Parameters<typeof generateLessonVisualizationUseCase.execute>[0]
+type PublishTrackerInput = Parameters<typeof publishTrackerUseCase.execute>[0]
 
 
 export const trackerService = {
@@ -133,8 +134,8 @@ export const trackerService = {
   restoreTracker: (input: { trackerId: string; userId: string }) =>
     restoreTrackerUseCase.execute(input),
 
-  publishTracker: (input: { trackerId: string; userId: string }) =>
-    publishTrackerUseCase.execute(input),
+publishTracker: (input: PublishTrackerInput) =>
+  publishTrackerUseCase.execute(input),
 
   unpublishTracker: (input: { trackerId: string; userId: string }) =>
     unpublishTrackerUseCase.execute(input),

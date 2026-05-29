@@ -326,7 +326,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       topicsCount: 0,
       subtopicsCount: 0,
       completedSubtopicsCount: 0,
-      totalTimeSpentMinutes: 0,
       lastActiveAt: new Date(),
       publishedAt: null,
       completedAt: null,
@@ -385,14 +384,65 @@ export const mongoTrackerRepository: TrackerRepository = {
     return tracker as TrackerRecord | null
   },
 
-  publishOwnedTracker: async ({ trackerId, userId }) => {
-    const tracker = await Tracker.findOneAndUpdate(
-      asMongoFilter({ _id: toObjectId(trackerId), ownerId: toObjectId(userId), deletedAt: null }),
-      asMongoUpdate({ $set: { visibility: 'public', publishedAt: new Date() } }),
-      { returnDocument: 'after' }
-    )
-    return tracker as TrackerRecord | null
-  },
+ publishOwnedTracker: async ({
+  trackerId,
+  userId,
+  name,
+  description,
+  domain,
+  difficulty,
+  tags,
+  allowClone,
+}) => {
+  const update: Record<string, unknown> = {
+    visibility: 'public',
+    publishedAt: new Date(),
+  }
+
+  if (typeof name === 'string' && name.trim()) {
+    update.title = name.trim()
+  }
+
+  if (typeof description === 'string') {
+    update.description = description.trim()
+  }
+
+  if (typeof domain === 'string' && domain.trim()) {
+    update.field = domain.trim()
+  }
+
+  if (
+    difficulty === 'beginner' ||
+    difficulty === 'intermediate' ||
+    difficulty === 'advanced'
+  ) {
+    update.level = difficulty
+  }
+
+  if (Array.isArray(tags)) {
+    update.tags = tags
+      .map((tag) => String(tag).trim().toLowerCase())
+      .filter(Boolean)
+  }
+
+  if (typeof allowClone === 'boolean') {
+    update.allowClone = allowClone
+  }
+
+  const tracker = await Tracker.findOneAndUpdate(
+    asMongoFilter({
+      _id: toObjectId(trackerId),
+      ownerId: toObjectId(userId),
+      deletedAt: null,
+    }),
+    asMongoUpdate({
+      $set: update,
+    }),
+    { returnDocument: 'after' }
+  )
+
+  return tracker as TrackerRecord | null
+},
 
   unpublishOwnedTracker: async ({ trackerId, userId }) => {
     const tracker = await Tracker.findOneAndUpdate(
@@ -462,7 +512,6 @@ export const mongoTrackerRepository: TrackerRepository = {
         status: (progress?.status ?? defaultStatus) as SubtopicWithProgressRecord['status'],
         isUnlocked: progress ? progress.isUnlocked : !subtopic.isLocked,
         progressPercent: progress?.progressPercent ?? 0,
-        timeSpentMinutes: progress?.timeSpentMinutes ?? 0,
         completedAt: progress?.completedAt ?? null,
       } as SubtopicWithProgressRecord
     })
@@ -588,7 +637,6 @@ export const mongoTrackerRepository: TrackerRepository = {
           status: subtopic.isLocked ? 'locked' : 'available',
           isUnlocked: !subtopic.isLocked,
           progressPercent: 0,
-          timeSpentMinutes: 0,
           completedAt: null,
         }))
       )
@@ -605,7 +653,6 @@ export const mongoTrackerRepository: TrackerRepository = {
           totalSubtopics: subtopics.length,
           completedSubtopics: 0,
           completionPercentage: 0,
-          timeSpentMinutes: 0,
           lastStudiedAt: null,
           startedAt: new Date(),
           completedAt: null,
@@ -634,7 +681,6 @@ export const mongoTrackerRepository: TrackerRepository = {
   subtopicId,
   userId,
   status,
-  timeSpentMinutes = 0,
 }: UpdateSubtopicProgressInput) => {
   const userObjId = toObjectId(userId)
   const subtopicObjId = toObjectId(subtopicId)
@@ -691,9 +737,7 @@ export const mongoTrackerRepository: TrackerRepository = {
         subtopicId: subtopicObjId,
       },
       $set: progressUpdate,
-      $inc: {
-        timeSpentMinutes,
-      },
+      
     }),
     {
       returnDocument: 'after',
@@ -755,9 +799,6 @@ export const mongoTrackerRepository: TrackerRepository = {
                 ? 'in_progress'
                 : 'not_started',
         },
-        $inc: {
-          timeSpentMinutes,
-        },
       }),
       {
         upsert: true,
@@ -786,7 +827,7 @@ export const mongoTrackerRepository: TrackerRepository = {
     status: userProgress?.status ?? status,
     isUnlocked: userProgress?.isUnlocked ?? true,
     progressPercent: userProgress?.progressPercent ?? 0,
-    timeSpentMinutes: userProgress?.timeSpentMinutes ?? 0,
+   
     completedAt: userProgress?.completedAt ?? null,
   } as SubtopicWithProgressRecord
 },

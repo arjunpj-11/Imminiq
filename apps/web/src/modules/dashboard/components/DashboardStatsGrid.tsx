@@ -1,8 +1,6 @@
+// DashboardStatsGrid.tsx
 import StatCard from './StatCard'
-import {
-  formatCompactNumber,
-  formatStudyMinutes,
-} from '../utils/dashboard-formatters'
+import { formatCompactNumber } from '../utils/dashboard-formatters'
 
 type DashboardStatsGridProps = {
   summary: {
@@ -12,7 +10,8 @@ type DashboardStatsGridProps = {
       completed: number
     }
     stats: {
-      totalTimeSpentMinutes: number
+      totalSubtopicsCompleted: number
+      publishedTrackers: number
     }
     user: {
       coinBalance: number
@@ -49,8 +48,8 @@ export default function DashboardStatsGrid({
 
       <StatCard
         accent="amber"
-        label="Study Time"
-        value={formatStudyMinutes(summary.stats.totalTimeSpentMinutes)}
+        label="Subtopics Done"
+        value={formatCompactNumber(summary.stats.totalSubtopicsCompleted)}
         footer={
           <span className="text-[11px] text-[#6b5f58] dark:text-[#9b9a92]">
             Across all trackers

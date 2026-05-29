@@ -11,6 +11,7 @@ import BottomNav from '../../../components/layout/BottomNav'
 import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
 import {
   useArchiveTracker,
+  usePublishTracker,
   useRestoreTracker,
   useTrackerSummary,
   useTrackers,
@@ -18,7 +19,7 @@ import {
 
 import { useTrackerUiStore } from '../store/useTrackerUiStore'
 
-import TrackerCard from '../components/TrackerCard'
+import TrackerCard, { type PublishFormData } from '../components/TrackerCard'
 import TrackerFilterBar from '../components/TrackerFilterBar'
 import TrackerStatCard from '../components/TrackerStatCard'
 
@@ -134,10 +135,7 @@ const TrackerFilterSkeleton = () => (
   <section className="flex flex-wrap items-center justify-between gap-3 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
     <div className="flex flex-wrap gap-2">
       {Array.from({ length: 4 }).map((_, index) => (
-        <SkeletonBlock
-          key={index}
-          className="h-9 w-24 rounded-[10px]"
-        />
+        <SkeletonBlock key={index} className="h-9 w-24 rounded-[10px]" />
       ))}
     </div>
 
@@ -189,9 +187,7 @@ function MyTrackersPageSkeleton({
         <main
           className={cn(
             'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300',
-            sidebarCollapsed
-              ? 'min-[901px]:ml-0'
-              : 'min-[901px]:ml-56',
+            sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56',
           )}
         >
           <TopBar
@@ -243,6 +239,7 @@ export default function MyTrackersPage() {
   const navigate = useNavigate()
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
+
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
     () =>
       typeof window !== 'undefined' &&
@@ -264,6 +261,7 @@ export default function MyTrackersPage() {
 
   const archiveTrackerMutation = useArchiveTracker()
   const restoreTrackerMutation = useRestoreTracker()
+  const publishTrackerMutation = usePublishTracker()
 
   const dashboardSummary = dashboardSummaryQuery.data
   const summary = summaryQuery.data
@@ -292,6 +290,21 @@ export default function MyTrackersPage() {
     }
 
     archiveTrackerMutation.mutate(trackerId)
+  }
+
+  const handlePublish = async (trackerId: string, data: PublishFormData) => {
+    await publishTrackerMutation.mutateAsync({
+      trackerId,
+      name: data.name,
+      description: data.description,
+      domain: data.domain,
+      difficulty: data.difficulty,
+      tags: data.tags
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
+      allowClone: data.allowClone,
+    })
   }
 
   if (isInitialLoad) {
@@ -351,9 +364,7 @@ export default function MyTrackersPage() {
         <main
           className={cn(
             'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300',
-            sidebarCollapsed
-              ? 'min-[901px]:ml-0'
-              : 'min-[901px]:ml-56',
+            sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56',
           )}
         >
           <TopBar
@@ -442,9 +453,7 @@ export default function MyTrackersPage() {
                       onOpenStudy={(trackerId) =>
                         navigate(`/trackers/${trackerId}/roadmap`)
                       }
-                      onPublish={(trackerId) =>
-                        navigate(`/trackers/${trackerId}/publish`)
-                      }
+                      onPublish={handlePublish}
                       onViewPublished={(trackerId) =>
                         navigate(`/trackers/${trackerId}/preview`)
                       }
@@ -454,8 +463,9 @@ export default function MyTrackersPage() {
                       onArchive={(trackerId) =>
                         handleArchiveToggle(trackerId, tracker.status)
                       }
-
-                      onQuickRevision={(trackerId) => navigate(`/trackers/${trackerId}/revision`)}
+                      onQuickRevision={(trackerId) =>
+                        navigate(`/trackers/${trackerId}/revision`)
+                      }
                     />
                   ))}
                 </section>

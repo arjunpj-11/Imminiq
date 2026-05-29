@@ -30,6 +30,9 @@ export interface ITracker extends Document {
 
   level: TrackerLevel
 
+  tags: string[]
+  allowClone: boolean
+
   visibility: TrackerVisibility
   status: TrackerStatus
 
@@ -109,6 +112,23 @@ const trackerSchema = new Schema<ITracker>(
       default: 'beginner',
     },
 
+    tags: {
+      type: [String],
+      default: [],
+      index: true,
+      set: (tags: unknown[]) =>
+        Array.isArray(tags)
+          ? tags
+              .map((tag) => String(tag).trim().toLowerCase())
+              .filter(Boolean)
+          : [],
+    },
+
+    allowClone: {
+      type: Boolean,
+      default: true,
+    },
+
     visibility: {
       type: String,
       enum: ['private', 'public', 'unlisted'],
@@ -178,6 +198,7 @@ const trackerSchema = new Schema<ITracker>(
       type: Number,
       default: 0,
       min: 0,
+      max: 5,
     },
 
     ratingCount: {
@@ -202,11 +223,12 @@ const trackerSchema = new Schema<ITracker>(
 
 trackerSchema.index({ ownerId: 1, status: 1 })
 trackerSchema.index({ visibility: 1, status: 1 })
+trackerSchema.index({ visibility: 1, publishedAt: -1 })
 trackerSchema.index({ field: 1 })
 trackerSchema.index({ category: 1 })
+trackerSchema.index({ level: 1 })
+trackerSchema.index({ tags: 1 })
 
 export const Tracker =
-  mongoose.model<ITracker>(
-    'Tracker',
-    trackerSchema
-  )
+  mongoose.models.Tracker ||
+  mongoose.model<ITracker>('Tracker', trackerSchema)

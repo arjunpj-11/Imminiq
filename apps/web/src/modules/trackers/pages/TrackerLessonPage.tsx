@@ -109,7 +109,7 @@ export default function TrackerLessonPage() {
         trackerId,
         subtopicId,
         status: 'completed',
-        timeSpentMinutes: generatedLesson.estimatedMinutes,
+       
       },
       {
         onSuccess: async () => {

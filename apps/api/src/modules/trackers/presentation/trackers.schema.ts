@@ -47,7 +47,7 @@ export const createSubtopicSchema = z.object({
 
 export const updateSubtopicProgressSchema = z.object({
   status: z.enum(['in_progress', 'completed']),
-  timeSpentMinutes: z.coerce.number().int().min(0).optional(),
+  
 })
 
 export const lessonChatSchema = z.object({

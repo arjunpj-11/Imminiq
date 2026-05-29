@@ -55,76 +55,76 @@ getStreakData: async (userId: string) => {
 
   // ─── TRACKER OVERVIEW ────────────────────────────
 
-  getTrackerOverview: async (userId: string) => {
-    const [allTrackers, allProgress] = await Promise.all([
-      Tracker.find({
-        ownerId: userId,
-        status: { $ne: 'archived' },
-      })
-        .select('_id title level updatedAt')
-        .sort({ updatedAt: -1 })
-        .lean(),
-
-      TrackerProgress.find({ userId })
-        .select(
-          'trackerId completionPercentage lastStudiedAt completedSubtopics timeSpentMinutes'
-        )
-        .lean(),
-    ])
-
-    const progressMap = new Map(
-      allProgress.map((progress) => [
-        progress.trackerId.toString(),
-        progress,
-      ])
-    )
-
-    const trackersWithProgress = allTrackers.map((tracker) => {
-      const progress = progressMap.get(tracker._id.toString())
-
-      return {
-        _id: tracker._id.toString(),
-        title: tracker.title,
-        level: tracker.level,
-        completionPercentage:
-          progress?.completionPercentage || 0,
-        lastStudiedAt:
-          progress?.lastStudiedAt || null,
-        updatedAt: tracker.updatedAt,
-      }
+getTrackerOverview: async (userId: string) => {
+  const [allTrackers, allProgress] = await Promise.all([
+    Tracker.find({
+      ownerId: userId,
+      status: { $ne: 'archived' },
     })
+      .select('_id title level updatedAt topicsCount subtopicsCount')
+      .sort({ updatedAt: -1 })
+      .lean(),
 
-    const activeTrackerList = trackersWithProgress.filter(
-      (tracker) => tracker.completionPercentage < 100
-    )
+    TrackerProgress.find({ userId })
+      .select('trackerId completionPercentage lastStudiedAt completedTopics')
+      .lean(),
+  ])
 
-    const completedTrackerList = trackersWithProgress.filter(
-      (tracker) => tracker.completionPercentage >= 100
-    )
+  const progressMap = new Map(
+    allProgress.map((progress) => [
+      progress.trackerId.toString(),
+      progress,
+    ])
+  )
 
-    const activeTrackers = [...activeTrackerList]
-      .sort((a, b) => {
-        const aDate = a.lastStudiedAt
-          ? new Date(a.lastStudiedAt).getTime()
-          : new Date(a.updatedAt).getTime()
+  const trackersWithProgress = allTrackers.map((tracker) => {
+    const progress = progressMap.get(tracker._id.toString())
 
-        const bDate = b.lastStudiedAt
-          ? new Date(b.lastStudiedAt).getTime()
-          : new Date(b.updatedAt).getTime()
-
-        return bDate - aDate
-      })
-      .slice(0, 5)
-      .map(({ updatedAt: _updatedAt, ...tracker }) => tracker)
+    const totalTopics = tracker.topicsCount ?? 0
+    const completedTopics = progress?.completedTopics ?? 0
+    const remainingTopics = Math.max(0, totalTopics - completedTopics)
 
     return {
-      total: trackersWithProgress.length,
-      active: activeTrackerList.length,
-      completed: completedTrackerList.length,
-      activeTrackers,
+      _id: tracker._id.toString(),
+      title: tracker.title,
+      level: tracker.level,
+      completionPercentage: progress?.completionPercentage || 0,
+      lastStudiedAt: progress?.lastStudiedAt || null,
+      updatedAt: tracker.updatedAt,
+      totalTopics,
+      completedTopics,
+      remainingTopics,
     }
-  },
+  })
 
+  const activeTrackerList = trackersWithProgress.filter(
+    (t) => t.completionPercentage < 100
+  )
+
+  const completedTrackerList = trackersWithProgress.filter(
+    (t) => t.completionPercentage >= 100
+  )
+
+  const activeTrackers = [...activeTrackerList]
+    .sort((a, b) => {
+      const aDate = a.lastStudiedAt
+        ? new Date(a.lastStudiedAt).getTime()
+        : new Date(a.updatedAt).getTime()
+      const bDate = b.lastStudiedAt
+        ? new Date(b.lastStudiedAt).getTime()
+        : new Date(b.updatedAt).getTime()
+      return bDate - aDate
+    })
+    .slice(0, 5)
+    .map(({ updatedAt: _updatedAt, ...tracker }) => tracker)
+
+  return {
+    total: trackersWithProgress.length,
+    active: activeTrackerList.length,
+    completed: completedTrackerList.length,
+    activeTrackers,
+  }
+},
   // ─── DASHBOARD STATS ─────────────────────────────
 
   getAggregatedStats: async (userId: string) => {
@@ -146,11 +146,7 @@ getStreakData: async (userId: string) => {
   },
 },
 
-              totalTimeSpentMinutes: {
-                $sum: {
-                  $ifNull: ['$timeSpentMinutes', 0],
-                },
-              },
+              
             },
           },
         ]),
@@ -169,8 +165,7 @@ getStreakData: async (userId: string) => {
       totalSubtopicsCompleted:
         progressAggregation[0]?.totalSubtopicsCompleted || 0,
 
-      totalTimeSpentMinutes:
-        progressAggregation[0]?.totalTimeSpentMinutes || 0,
+     
 
       totalPoints:
         user?.coins || 0,

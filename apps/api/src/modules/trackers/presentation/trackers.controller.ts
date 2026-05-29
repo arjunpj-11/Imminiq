@@ -232,27 +232,42 @@ export const trackerController = {
     }
   },
 
-  publishTracker: async (
-    req: Request<TrackerParams>,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const result = await trackerService.publishTracker({
-        trackerId: req.params.trackerId,
-        userId: req.user!.userId,
-      })
+ publishTracker: async (
+  req: Request<TrackerParams>,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const {
+      name,
+      description,
+      domain,
+      difficulty,
+      tags,
+      allowClone,
+    } = req.body
 
-      res.json(
-        new ApiResponse(
-          'Tracker published successfully',
-          result
-        )
+    const result = await trackerService.publishTracker({
+      trackerId: req.params.trackerId,
+      userId: req.user!.userId,
+      name,
+      description,
+      domain,
+      difficulty,
+      tags,
+      allowClone,
+    })
+
+    res.json(
+      new ApiResponse(
+        'Tracker published successfully',
+        result
       )
-    } catch (error) {
-      next(error)
-    }
-  },
+    )
+  } catch (error) {
+    next(error)
+  }
+},
 
   unpublishTracker: async (
     req: Request<TrackerParams>,
@@ -366,7 +381,7 @@ export const trackerController = {
         subtopicId: req.params.subtopicId,
         userId: req.user!.userId,
         status: body.status,
-        timeSpentMinutes: body.timeSpentMinutes,
+       
       })
 
       res.json(

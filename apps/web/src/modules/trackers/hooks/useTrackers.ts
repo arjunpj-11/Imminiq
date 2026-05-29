@@ -48,8 +48,8 @@ import type {
   VerifyLessonAnswerPayload,
   VerifyLessonAnswerResponse,
   GenerateLessonVisualizationPayload,
- GenerateLessonVisualizationResponse,
-
+  GenerateLessonVisualizationResponse,
+  PublishTrackerPayload,
 } from '../types/tracker.types'
 
 export const trackerKeys = {
@@ -451,22 +451,31 @@ export const useRestoreTracker = () => {
 export const usePublishTracker = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<Tracker>, Error, string>({
-    mutationFn: async (trackerId) => {
+  return useMutation<
+    ApiResponse<Tracker>,
+    Error,
+    PublishTrackerPayload
+  >({
+    mutationFn: async ({ trackerId, ...payload }) => {
       const response = await api.post<ApiResponse<Tracker>>(
-        `/trackers/${trackerId}/publish`
+        `/trackers/${trackerId}/publish`,
+        payload
       )
 
       return response.data
     },
 
-    onSuccess: (_response, trackerId) => {
+    onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
         queryKey: trackerKeys.all,
       })
 
       queryClient.invalidateQueries({
-        queryKey: trackerKeys.detail(trackerId),
+        queryKey: trackerKeys.summary(),
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: trackerKeys.detail(variables.trackerId),
       })
     },
   })
