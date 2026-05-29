@@ -107,7 +107,7 @@ export default function CurrentRoadmapCard({
             <div className="relative">
               <div className="h-2.5 overflow-hidden rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-[#e8816a] to-[#b84c2b] transition-all duration-700 dark:from-[#f5a090] dark:to-[#e8816a]"
+                  className="h-full rounded-full bg-linear-to-r from-[#e8816a] to-[#b84c2b] transition-all duration-700 dark:from-[#f5a090] dark:to-[#e8816a]"
                   style={{ width: `${Math.min(progress, 100)}%` }}
                 />
               </div>
@@ -158,9 +158,9 @@ export default function CurrentRoadmapCard({
 ].map(({ label, value, sub }) => (
               <div
                 key={label}
-                className="rounded-[12px] border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-3 py-2.5 dark:border-white/8 dark:bg-white/3"
+                className="rounded-xl border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-3 py-2.5 dark:border-white/8 dark:bg-white/3"
               >
-                <div className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.1em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+                <div className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
                   {label}
                 </div>
                 <div className="mt-0.5 font-['Playfair_Display',serif] text-[18px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
