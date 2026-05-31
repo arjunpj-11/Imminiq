@@ -16,7 +16,7 @@
     "@cerebras/cerebras_cloud_sdk": "^1.64.1",
     "@google/generative-ai": "^0.24.1",
     "bcryptjs": "^3.0.3",
-    "bullmq": "^5.77.2",
+    "bullmq": "^5.77.6",
     "cloudinary": "^2.10.0",
     "cors": "^2.8.6",
     "dotenv": "^17.4.2",
