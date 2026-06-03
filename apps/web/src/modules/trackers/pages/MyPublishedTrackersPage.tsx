@@ -170,10 +170,10 @@ function UnpublishConfirmModal({ tracker, isUnpublishing, onConfirm, onCancel }:
       onClick={(e) => { if (e.target === e.currentTarget) onCancel() }}
     >
       {/* Panel */}
-      <div className="w-full max-w-[400px] overflow-hidden rounded-[22px] border-[1.5px] border-[rgba(200,50,50,0.18)] bg-[#fdf8f5] shadow-[0_24px_64px_rgba(20,18,16,0.28)] dark:border-[rgba(255,120,120,0.14)] dark:bg-[#1e1c19]">
+      <div className="w-full max-w-100 overflow-hidden rounded-[22px] border-[1.5px] border-[rgba(200,50,50,0.18)] bg-[#fdf8f5] shadow-[0_24px_64px_rgba(20,18,16,0.28)] dark:border-[rgba(255,120,120,0.14)] dark:bg-[#1e1c19]">
 
         {/* Red accent top bar */}
-        <div className="h-0.5 w-full bg-gradient-to-r from-[#c83232] to-[#e05555]" />
+        <div className="h-0.5 w-full bg-linear-to-r from-[#c83232] to-[#e05555]" />
 
         <div className="p-6">
           {/* Warning icon */}
@@ -214,7 +214,7 @@ function UnpublishConfirmModal({ tracker, isUnpublishing, onConfirm, onCancel }:
             </li>
           </ul>
 
-          <p className="mt-3 text-[11.5px] italic leading-[1.5] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
+          <p className="mt-3 text-[11.5px] italic leading-normal text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
             Your tracker itself and your personal progress are safe — only the community data is lost.
           </p>
         </div>
