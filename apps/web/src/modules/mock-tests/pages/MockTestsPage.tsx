@@ -105,8 +105,8 @@ export default function MockTestsPage() {
         test.tags.some((tag) => tag.toLowerCase().includes(query))
 
       const matchesFilter =
-        filter === 'All' ||
-        (filter === 'High score' && score >= 85) 
+        filter === 'All' || (filter === 'High score' && score >= 85)
+
       return matchesSearch && matchesFilter
     })
   }, [tests, filter, search])
@@ -127,7 +127,7 @@ export default function MockTestsPage() {
     'Complete more tests to unlock personalized insights.'
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#141412] text-[#f2f0eb]">
+    <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <NoiseOverlay />
 
       <GenerateMockTestModal
@@ -157,29 +157,32 @@ export default function MockTestsPage() {
             <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#e8816a]" />
-                    <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#9b9a92]">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 dark:border-white/10 dark:bg-white/5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+
+                    <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#9b9a92]">
                       Mock tests
                     </span>
                   </div>
 
-                  <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#f2f0eb]">
+                  <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#1a1714] dark:text-[#f2f0eb]">
                     Practice{' '}
-                    <span className="text-[#e8816a]">under pressure</span>
+                    <span className="text-[#b84c2b] dark:text-[#e8816a]">
+                      under pressure
+                    </span>
                   </h1>
 
-                  <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#6b6560]">
+                  <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#6b5f58] dark:text-[#6b6560]">
                     Generate AI mock tests, attempt timed questions, review
                     results, and track weak areas.
                   </p>
                 </div>
 
-                <div className="flex items-center gap-3 self-start">
+                <div className="flex items-center gap-3 self-start max-[520px]:w-full max-[520px]:flex-col">
                   <button
                     type="button"
                     onClick={() => navigate('/mock-tests/create')}
-                    className="inline-flex items-center gap-2 rounded-[14px] border border-white/10 bg-transparent px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-[#9b9a92] transition hover:border-white/20 hover:text-[#f2f0eb]"
+                    className="inline-flex items-center justify-center gap-2 rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] max-[520px]:w-full dark:border-white/10 dark:bg-transparent dark:text-[#9b9a92] dark:shadow-none dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
                   >
                     <span className="text-lg leading-none">+</span>
                     Create manual test
@@ -188,7 +191,7 @@ export default function MockTestsPage() {
                   <button
                     type="button"
                     onClick={() => setGenerateModalOpen(true)}
-                    className="inline-flex items-center gap-2 rounded-[14px] bg-[#e8816a] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-[#d9522d] hover:shadow-[0_8px_24px_rgba(232,129,106,0.3)]"
+                    className="inline-flex items-center justify-center gap-2 rounded-[14px] bg-[#b84c2b] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] max-[520px]:w-full dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d] dark:hover:shadow-[0_8px_24px_rgba(232,129,106,0.3)]"
                   >
                     <SparklesSmall />
                     Generate test
@@ -229,7 +232,7 @@ export default function MockTestsPage() {
                       <TestRowSkeleton />
                     </div>
                   ) : testsQuery.isError ? (
-                    <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-300">
+                    <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-600 dark:text-red-300">
                       Failed to load mock tests.
                     </div>
                   ) : filteredTests.length ? (
@@ -244,12 +247,12 @@ export default function MockTestsPage() {
                       ))}
                     </div>
                   ) : (
-                    <div className="rounded-2xl border border-dashed border-white/10 bg-[#1c1a18] p-10 text-center">
-                      <h3 className="font-['Playfair_Display',serif] text-[22px] font-black text-[#f2f0eb]">
+                    <div className="rounded-2xl border border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-10 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
+                      <h3 className="font-['Playfair_Display',serif] text-[22px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
                         No mock tests found
                       </h3>
 
-                      <p className="mt-2 text-sm text-[#6b6560]">
+                      <p className="mt-2 text-sm text-[#6b5f58] dark:text-[#6b6560]">
                         Generate your first test or adjust the filter.
                       </p>
                     </div>
@@ -257,19 +260,21 @@ export default function MockTestsPage() {
                 </section>
 
                 <aside className="space-y-4">
-                  <div className="rounded-2xl border border-white/10 bg-[#1c1a18] p-5">
-                    <div className="mb-2 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#9b9a92]">
-                      <TrophyIcon />
+                  <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
+                    <div className="mb-2 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+                      <span className="text-[#b84c2b] dark:text-[#e8816a]">
+                        <TrophyIcon />
+                      </span>
                       AI insights
                     </div>
 
-                    <h3 className="font-['Playfair_Display',serif] text-[17px] font-black text-[#f2f0eb]">
+                    <h3 className="font-['Playfair_Display',serif] text-[17px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
                       {weakestTopic
                         ? `Focus: ${weakestTopic.topic}`
                         : 'Keep building consistency'}
                     </h3>
 
-                    <p className="mt-3 text-[12.5px] leading-6 text-[#6b6560]">
+                    <p className="mt-3 text-[12.5px] leading-6 text-[#6b5f58] dark:text-[#6b6560]">
                       {aiInsightsQuery.isLoading || topicBreakdownQuery.isLoading
                         ? 'Preparing your test insights...'
                         : aiInsight}
@@ -278,7 +283,7 @@ export default function MockTestsPage() {
                     <button
                       type="button"
                       onClick={() => setGenerateModalOpen(true)}
-                      className="mt-4 w-full rounded-xl border border-[#e8816a]/25 bg-[#e8816a]/8 py-2.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#e8816a] transition hover:bg-[#e8816a]/15"
+                      className="mt-4 w-full rounded-xl border border-[rgba(184,76,43,0.25)] bg-[rgba(184,76,43,0.08)] py-2.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#b84c2b] transition hover:bg-[rgba(184,76,43,0.14)] dark:border-[#e8816a]/25 dark:bg-[#e8816a]/8 dark:text-[#e8816a] dark:hover:bg-[#e8816a]/15"
                     >
                       ✦ Generate a test now
                     </button>

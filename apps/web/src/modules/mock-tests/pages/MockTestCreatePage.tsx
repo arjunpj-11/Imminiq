@@ -1,6 +1,7 @@
 // ============================================================
 // MockTestCreatePage.tsx — aligned with Trackers design
 // ============================================================
+
 import { useMemo, useState, type FormEvent } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -45,12 +46,11 @@ const emptyQuestion = (): QuestionDraft => ({
   points: 1,
 })
 
-// shared input / label styles — dark theme
 const inputClass =
-  'w-full rounded-[12px] border border-white/10 bg-[#141412] px-4 py-3 text-sm text-[#f2f0eb] outline-none transition placeholder:text-[#6b6560] focus:border-[#e8816a]'
+  'w-full rounded-[12px] border border-[#e0d0c5] bg-[#f5ede4] px-4 py-3 text-sm text-[#1a1714] outline-none transition placeholder:text-[#9b8f87] focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:placeholder:text-[#6b6560] dark:focus:border-[#e8816a]'
 
 const labelClass =
-  "mb-2 block font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#9b9a92]"
+  "mb-2 block font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]"
 
 const NoiseOverlay = () => (
   <div
@@ -69,7 +69,9 @@ export default function MockTestCreatePage() {
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () => typeof window !== 'undefined' && localStorage.getItem('imminiq_sb') === 'closed'
+    () =>
+      typeof window !== 'undefined' &&
+      localStorage.getItem('imminiq_sb') === 'closed'
   )
 
   const [title, setTitle] = useState('')
@@ -84,7 +86,11 @@ export default function MockTestCreatePage() {
   const [error, setError] = useState('')
 
   const tags = useMemo(
-    () => tagsText.split(',').map((t) => t.trim()).filter(Boolean),
+    () =>
+      tagsText
+        .split(',')
+        .map((tag) => tag.trim())
+        .filter(Boolean),
     [tagsText]
   )
 
@@ -94,32 +100,49 @@ export default function MockTestCreatePage() {
     value: QuestionDraft[K]
   ) => {
     setQuestions((current) =>
-      current.map((q, i) => {
-        if (i !== index) return q
+      current.map((question, currentIndex) => {
+        if (currentIndex !== index) return question
+
         if (key === 'type') {
           const nextType = value as QuestionType
+
           return {
-            ...q,
+            ...question,
             type: nextType,
-            options: nextType === 'mcq' ? (q.options.length === 4 ? q.options : ['', '', '', '']) : [],
-            correctAnswer: nextType === 'coding' ? '' : q.correctAnswer,
+            options:
+              nextType === 'mcq'
+                ? question.options.length === 4
+                  ? question.options
+                  : ['', '', '', '']
+                : [],
+            correctAnswer:
+              nextType === 'coding' ? '' : question.correctAnswer,
           }
         }
-        return { ...q, [key]: value }
+
+        return { ...question, [key]: value }
       })
     )
   }
 
-  const updateOption = (qi: number, oi: number, value: string) => {
+  const updateOption = (questionIndex: number, optionIndex: number, value: string) => {
     setQuestions((current) =>
-      current.map((q, i) =>
-        i !== qi ? q : { ...q, options: q.options.map((o, j) => (j === oi ? value : o)) }
+      current.map((question, currentIndex) =>
+        currentIndex !== questionIndex
+          ? question
+          : {
+              ...question,
+              options: question.options.map((option, currentOptionIndex) =>
+                currentOptionIndex === optionIndex ? value : option
+              ),
+            }
       )
     )
   }
 
   const addQuestion = () => {
     if (questions.length >= 100) return
+
     setQuestions((current) => [...current, emptyQuestion()])
   }
 
@@ -130,31 +153,68 @@ export default function MockTestCreatePage() {
   }
 
   const validateForm = () => {
-    if (title.trim().length < 3) return 'Title must be at least 3 characters.'
-    if (timeLimitMinutes < 5 || timeLimitMinutes > 180) return 'Time limit must be between 5 and 180 minutes.'
-    if (passingScore < 1 || passingScore > 100) return 'Passing score must be between 1 and 100.'
-    if (tags.length > 10) return 'Maximum 10 tags are allowed.'
-    for (let i = 0; i < questions.length; i++) {
-      const q = questions[i]
-      const n = i + 1
-      if (q.question.trim().length < 5) return `Question ${n} must be at least 5 characters.`
-      if (q.points < 1) return `Question ${n} must have at least 1 point.`
-      if (q.type === 'mcq') {
-        const opts = q.options.map((o) => o.trim())
-        if (opts.length !== 4 || opts.some((o) => !o)) return `Question ${n} must have exactly 4 filled options.`
-        if (!q.correctAnswer.trim()) return `Question ${n} needs a correct answer.`
-        if (!opts.includes(q.correctAnswer.trim())) return `Question ${n} correct answer must exactly match one option.`
-      }
-      if (q.type === 'short_answer' && !q.correctAnswer.trim()) return `Question ${n} needs a correct answer.`
+    if (title.trim().length < 3) {
+      return 'Title must be at least 3 characters.'
     }
+
+    if (timeLimitMinutes < 5 || timeLimitMinutes > 180) {
+      return 'Time limit must be between 5 and 180 minutes.'
+    }
+
+    if (passingScore < 1 || passingScore > 100) {
+      return 'Passing score must be between 1 and 100.'
+    }
+
+    if (tags.length > 10) {
+      return 'Maximum 10 tags are allowed.'
+    }
+
+    for (let index = 0; index < questions.length; index += 1) {
+      const question = questions[index]
+      const number = index + 1
+
+      if (question.question.trim().length < 5) {
+        return `Question ${number} must be at least 5 characters.`
+      }
+
+      if (question.points < 1) {
+        return `Question ${number} must have at least 1 point.`
+      }
+
+      if (question.type === 'mcq') {
+        const options = question.options.map((option) => option.trim())
+
+        if (options.length !== 4 || options.some((option) => !option)) {
+          return `Question ${number} must have exactly 4 filled options.`
+        }
+
+        if (!question.correctAnswer.trim()) {
+          return `Question ${number} needs a correct answer.`
+        }
+
+        if (!options.includes(question.correctAnswer.trim())) {
+          return `Question ${number} correct answer must exactly match one option.`
+        }
+      }
+
+      if (question.type === 'short_answer' && !question.correctAnswer.trim()) {
+        return `Question ${number} needs a correct answer.`
+      }
+    }
+
     return ''
   }
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault()
     setError('')
+
     const validationError = validateForm()
-    if (validationError) { setError(validationError); return }
+
+    if (validationError) {
+      setError(validationError)
+      return
+    }
 
     const payload: CreateMockTestPayload = {
       title: title.trim(),
@@ -165,17 +225,20 @@ export default function MockTestCreatePage() {
       passingScore,
       tags,
       trackerId: trackerId.trim() || undefined,
-      questions: questions.map((q) => ({
-        type: q.type,
-        question: q.question.trim(),
-        options: q.type === 'mcq' ? q.options.map((o) => o.trim()) : undefined,
+      questions: questions.map((question) => ({
+        type: question.type,
+        question: question.question.trim(),
+        options:
+          question.type === 'mcq'
+            ? question.options.map((option) => option.trim())
+            : undefined,
         correctAnswer:
-          q.type === 'coding'
-            ? q.correctAnswer.trim() || undefined
-            : q.correctAnswer.trim(),
-        explanation: q.explanation.trim() || undefined,
-        difficulty: q.difficulty,
-        points: q.points,
+          question.type === 'coding'
+            ? question.correctAnswer.trim() || undefined
+            : question.correctAnswer.trim(),
+        explanation: question.explanation.trim() || undefined,
+        difficulty: question.difficulty,
+        points: question.points,
       })),
     }
 
@@ -184,7 +247,7 @@ export default function MockTestCreatePage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#141412] text-[#f2f0eb]">
+    <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <NoiseOverlay />
 
       <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
@@ -195,7 +258,11 @@ export default function MockTestCreatePage() {
           onToggleCollapsed={() =>
             setSidebarCollapsed((current) => {
               const next = !current
-              if (typeof window !== 'undefined') localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
+
+              if (typeof window !== 'undefined') {
+                localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
+              }
+
               return next
             })
           }
@@ -207,32 +274,45 @@ export default function MockTestCreatePage() {
             sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56'
           )}
         >
-          <TopBar onMenuClick={() => setSidebarOpen(true)} streakDays={0} userName="Achu" userInitials="AC" userLevel="Free Scholar" isGuest={false} />
+          <TopBar
+            onMenuClick={() => setSidebarOpen(true)}
+            streakDays={0}
+            userName="Achu"
+            userInitials="AC"
+            userLevel="Free Scholar"
+            isGuest={false}
+          />
 
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="mx-auto mt-5.5 flex w-[min(1060px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-
               {/* ── page header ── */}
               <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
                 <div>
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#e8816a]" />
-                    <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#9b9a92]">
+                  <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 dark:border-white/10 dark:bg-white/5">
+                    <span className="h-1.5 w-1.5 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+
+                    <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#9b9a92]">
                       Manual mock test
                     </span>
                   </div>
-                  <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#f2f0eb]">
-                    Create your <span className="text-[#e8816a]">own test</span>
+
+                  <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#1a1714] dark:text-[#f2f0eb]">
+                    Create your{' '}
+                    <span className="text-[#b84c2b] dark:text-[#e8816a]">
+                      own test
+                    </span>
                   </h1>
-                  <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#6b6560]">
-                    Add MCQ, short answer, or coding questions and save them as a timed mock test.
+
+                  <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#6b5f58] dark:text-[#6b6560]">
+                    Add MCQ, short answer, or coding questions and save them as a
+                    timed mock test.
                   </p>
                 </div>
 
                 <button
                   type="button"
                   onClick={() => navigate('/mock-tests')}
-                  className="self-start rounded-[14px] border border-white/10 bg-white/5 px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-[#f2f0eb] transition hover:-translate-y-px hover:border-white/20"
+                  className="self-start rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-[#1a1714] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-px hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/10 dark:bg-white/5 dark:text-[#f2f0eb] dark:shadow-none dark:hover:border-white/20"
                 >
                   Back to tests
                 </button>
@@ -240,8 +320,8 @@ export default function MockTestCreatePage() {
 
               <form onSubmit={handleSubmit} className="space-y-6">
                 {/* ── test details card ── */}
-                <section className="rounded-2xl border border-white/10 bg-[#1c1a18] p-6">
-                  <h2 className="font-['Playfair_Display',serif] text-[24px] font-black text-[#f2f0eb]">
+                <section className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
+                  <h2 className="font-['Playfair_Display',serif] text-[24px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
                     Test details
                   </h2>
 
@@ -251,7 +331,7 @@ export default function MockTestCreatePage() {
                       <input
                         className={inputClass}
                         value={title}
-                        onChange={(e) => setTitle(e.target.value)}
+                        onChange={(event) => setTitle(event.target.value)}
                         placeholder="JavaScript fundamentals mock test"
                       />
                     </label>
@@ -261,7 +341,7 @@ export default function MockTestCreatePage() {
                       <input
                         className={inputClass}
                         value={tagsText}
-                        onChange={(e) => setTagsText(e.target.value)}
+                        onChange={(event) => setTagsText(event.target.value)}
                         placeholder="javascript, arrays, interview"
                       />
                     </label>
@@ -271,7 +351,7 @@ export default function MockTestCreatePage() {
                       <textarea
                         className={`${inputClass} min-h-24 resize-none`}
                         value={description}
-                        onChange={(e) => setDescription(e.target.value)}
+                        onChange={(event) => setDescription(event.target.value)}
                         placeholder="Short note about what this test covers"
                       />
                     </label>
@@ -281,10 +361,14 @@ export default function MockTestCreatePage() {
                       <select
                         className={inputClass}
                         value={difficulty}
-                        onChange={(e) => setDifficulty(e.target.value as DifficultyLevel)}
+                        onChange={(event) =>
+                          setDifficulty(event.target.value as DifficultyLevel)
+                        }
                       >
-                        {DIFFICULTY_OPTIONS.map((o) => (
-                          <option key={o} value={o}>{o}</option>
+                        {DIFFICULTY_OPTIONS.map((option) => (
+                          <option key={option} value={option}>
+                            {option}
+                          </option>
                         ))}
                       </select>
                     </label>
@@ -294,7 +378,9 @@ export default function MockTestCreatePage() {
                       <select
                         className={inputClass}
                         value={visibility}
-                        onChange={(e) => setVisibility(e.target.value as TestVisibility)}
+                        onChange={(event) =>
+                          setVisibility(event.target.value as TestVisibility)
+                        }
                       >
                         <option value="private">private</option>
                         <option value="public">public</option>
@@ -309,7 +395,9 @@ export default function MockTestCreatePage() {
                         min={5}
                         max={180}
                         value={timeLimitMinutes}
-                        onChange={(e) => setTimeLimitMinutes(Number(e.target.value))}
+                        onChange={(event) =>
+                          setTimeLimitMinutes(Number(event.target.value))
+                        }
                       />
                     </label>
 
@@ -321,7 +409,9 @@ export default function MockTestCreatePage() {
                         min={1}
                         max={100}
                         value={passingScore}
-                        onChange={(e) => setPassingScore(Number(e.target.value))}
+                        onChange={(event) =>
+                          setPassingScore(Number(event.target.value))
+                        }
                       />
                     </label>
 
@@ -330,7 +420,7 @@ export default function MockTestCreatePage() {
                       <input
                         className={inputClass}
                         value={trackerId}
-                        onChange={(e) => setTrackerId(e.target.value)}
+                        onChange={(event) => setTrackerId(event.target.value)}
                         placeholder="Paste tracker id only if this test belongs to a tracker"
                       />
                     </label>
@@ -341,31 +431,33 @@ export default function MockTestCreatePage() {
                 <section className="space-y-4">
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                     <div>
-                      <div className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.16em] text-[#9b9a92]">
+                      <div className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">
                         Questions
                       </div>
-                      <h2 className="mt-1 font-['Playfair_Display',serif] text-[26px] font-black text-[#f2f0eb]">
-                        {questions.length} question{questions.length === 1 ? '' : 's'}
+
+                      <h2 className="mt-1 font-['Playfair_Display',serif] text-[26px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+                        {questions.length} question
+                        {questions.length === 1 ? '' : 's'}
                       </h2>
                     </div>
 
                     <button
                       type="button"
                       onClick={addQuestion}
-                      className="inline-flex items-center gap-2 self-start rounded-[14px] bg-[#e8816a] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-[#d9522d]"
+                      className="inline-flex items-center gap-2 self-start rounded-[14px] bg-[#b84c2b] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d]"
                     >
                       <span className="text-lg leading-none">+</span>
                       Add question
                     </button>
                   </div>
 
-                  {questions.map((q, index) => (
+                  {questions.map((question, index) => (
                     <div
                       key={index}
-                      className="rounded-2xl border border-white/10 bg-[#1c1a18] p-5"
+                      className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
                     >
                       <div className="mb-5 flex items-center justify-between gap-3">
-                        <h3 className="font-['Playfair_Display',serif] text-[20px] font-black text-[#f2f0eb]">
+                        <h3 className="font-['Playfair_Display',serif] text-[20px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
                           Question {index + 1}
                         </h3>
 
@@ -373,7 +465,7 @@ export default function MockTestCreatePage() {
                           type="button"
                           onClick={() => removeQuestion(index)}
                           disabled={questions.length === 1}
-                          className="rounded-[10px] border border-white/10 px-3 py-2 text-xs font-bold text-[#9b9a92] transition hover:border-white/20 hover:text-[#f2f0eb] disabled:cursor-not-allowed disabled:opacity-40"
+                          className="rounded-[10px] border border-[#e0d0c5] bg-[#f5ede4] px-3 py-2 text-xs font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/10 dark:bg-transparent dark:text-[#9b9a92] dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
                         >
                           Remove
                         </button>
@@ -384,11 +476,19 @@ export default function MockTestCreatePage() {
                           <span className={labelClass}>Type</span>
                           <select
                             className={inputClass}
-                            value={q.type}
-                            onChange={(e) => updateQuestion(index, 'type', e.target.value as QuestionType)}
+                            value={question.type}
+                            onChange={(event) =>
+                              updateQuestion(
+                                index,
+                                'type',
+                                event.target.value as QuestionType
+                              )
+                            }
                           >
-                            {QUESTION_TYPE_OPTIONS.map((o) => (
-                              <option key={o} value={o}>{o}</option>
+                            {QUESTION_TYPE_OPTIONS.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
                             ))}
                           </select>
                         </label>
@@ -397,11 +497,19 @@ export default function MockTestCreatePage() {
                           <span className={labelClass}>Difficulty</span>
                           <select
                             className={inputClass}
-                            value={q.difficulty}
-                            onChange={(e) => updateQuestion(index, 'difficulty', e.target.value as DifficultyLevel)}
+                            value={question.difficulty}
+                            onChange={(event) =>
+                              updateQuestion(
+                                index,
+                                'difficulty',
+                                event.target.value as DifficultyLevel
+                              )
+                            }
                           >
-                            {DIFFICULTY_OPTIONS.map((o) => (
-                              <option key={o} value={o}>{o}</option>
+                            {DIFFICULTY_OPTIONS.map((option) => (
+                              <option key={option} value={option}>
+                                {option}
+                              </option>
                             ))}
                           </select>
                         </label>
@@ -412,8 +520,14 @@ export default function MockTestCreatePage() {
                             className={inputClass}
                             type="number"
                             min={1}
-                            value={q.points}
-                            onChange={(e) => updateQuestion(index, 'points', Number(e.target.value))}
+                            value={question.points}
+                            onChange={(event) =>
+                              updateQuestion(
+                                index,
+                                'points',
+                                Number(event.target.value)
+                              )
+                            }
                           />
                         </label>
 
@@ -421,22 +535,33 @@ export default function MockTestCreatePage() {
                           <span className={labelClass}>Question</span>
                           <textarea
                             className={`${inputClass} min-h-27 resize-none`}
-                            value={q.question}
-                            onChange={(e) => updateQuestion(index, 'question', e.target.value)}
+                            value={question.question}
+                            onChange={(event) =>
+                              updateQuestion(index, 'question', event.target.value)
+                            }
                             placeholder="Write the question here"
                           />
                         </label>
 
-                        {q.type === 'mcq' && (
+                        {question.type === 'mcq' && (
                           <div className="grid grid-cols-1 gap-3 lg:col-span-3 lg:grid-cols-2">
-                            {q.options.map((option, oi) => (
-                              <label key={oi}>
-                                <span className={labelClass}>Option {oi + 1}</span>
+                            {question.options.map((option, optionIndex) => (
+                              <label key={optionIndex}>
+                                <span className={labelClass}>
+                                  Option {optionIndex + 1}
+                                </span>
+
                                 <input
                                   className={inputClass}
                                   value={option}
-                                  onChange={(e) => updateOption(index, oi, e.target.value)}
-                                  placeholder={`Option ${oi + 1}`}
+                                  onChange={(event) =>
+                                    updateOption(
+                                      index,
+                                      optionIndex,
+                                      event.target.value
+                                    )
+                                  }
+                                  placeholder={`Option ${optionIndex + 1}`}
                                 />
                               </label>
                             ))}
@@ -445,16 +570,25 @@ export default function MockTestCreatePage() {
 
                         <label className="lg:col-span-3">
                           <span className={labelClass}>
-                            {q.type === 'coding' ? 'Expected approach (optional)' : 'Correct answer'}
+                            {question.type === 'coding'
+                              ? 'Expected approach (optional)'
+                              : 'Correct answer'}
                           </span>
+
                           <input
                             className={inputClass}
-                            value={q.correctAnswer}
-                            onChange={(e) => updateQuestion(index, 'correctAnswer', e.target.value)}
+                            value={question.correctAnswer}
+                            onChange={(event) =>
+                              updateQuestion(
+                                index,
+                                'correctAnswer',
+                                event.target.value
+                              )
+                            }
                             placeholder={
-                              q.type === 'mcq'
+                              question.type === 'mcq'
                                 ? 'Must exactly match one option'
-                                : q.type === 'coding'
+                                : question.type === 'coding'
                                   ? 'Optional expected approach'
                                   : 'Keyword, phrase, or expected answer'
                             }
@@ -462,11 +596,20 @@ export default function MockTestCreatePage() {
                         </label>
 
                         <label className="lg:col-span-3">
-                          <span className={labelClass}>Explanation (optional)</span>
+                          <span className={labelClass}>
+                            Explanation (optional)
+                          </span>
+
                           <textarea
                             className={`${inputClass} min-h-23 resize-none`}
-                            value={q.explanation}
-                            onChange={(e) => updateQuestion(index, 'explanation', e.target.value)}
+                            value={question.explanation}
+                            onChange={(event) =>
+                              updateQuestion(
+                                index,
+                                'explanation',
+                                event.target.value
+                              )
+                            }
                             placeholder="Explain why the answer is correct"
                           />
                         </label>
@@ -477,13 +620,13 @@ export default function MockTestCreatePage() {
 
                 {/* ── errors ── */}
                 {error && (
-                  <div className="rounded-[14px] border border-[#e8816a]/30 bg-[#e8816a]/10 px-4 py-3 text-sm font-semibold text-[#e8816a]">
+                  <div className="rounded-[14px] border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] px-4 py-3 text-sm font-semibold text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]">
                     {error}
                   </div>
                 )}
 
                 {createMutation.isError && (
-                  <div className="rounded-[14px] border border-[#e8816a]/30 bg-[#e8816a]/10 px-4 py-3 text-sm font-semibold text-[#e8816a]">
+                  <div className="rounded-[14px] border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] px-4 py-3 text-sm font-semibold text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]">
                     {createMutation.error instanceof Error
                       ? createMutation.error.message
                       : 'Failed to create mock test.'}
@@ -491,17 +634,20 @@ export default function MockTestCreatePage() {
                 )}
 
                 {/* ── sticky footer ── */}
-                <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-white/10 bg-[#1c1a18]/95 p-4 backdrop-blur-md sm:flex-row sm:items-center sm:justify-between">
-                  <p className="text-sm text-[#6b6560]">
-                    Save this test with {questions.length} question{questions.length === 1 ? '' : 's'}.
+                <div className="sticky bottom-4 z-10 flex flex-col gap-3 rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5]/95 p-4 shadow-[0_10px_40px_rgba(26,23,20,0.10)] backdrop-blur-md sm:flex-row sm:items-center sm:justify-between dark:border-white/10 dark:bg-[#1c1a18]/95 dark:shadow-none">
+                  <p className="text-sm text-[#6b5f58] dark:text-[#6b6560]">
+                    Save this test with {questions.length} question
+                    {questions.length === 1 ? '' : 's'}.
                   </p>
 
                   <button
                     type="submit"
                     disabled={createMutation.isPending}
-                    className="rounded-[14px] bg-[#e8816a] px-6 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-[#d9522d] disabled:cursor-not-allowed disabled:opacity-60"
+                    className="rounded-[14px] bg-[#b84c2b] px-6 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d]"
                   >
-                    {createMutation.isPending ? 'Creating...' : 'Create mock test'}
+                    {createMutation.isPending
+                      ? 'Creating...'
+                      : 'Create mock test'}
                   </button>
                 </div>
               </form>
