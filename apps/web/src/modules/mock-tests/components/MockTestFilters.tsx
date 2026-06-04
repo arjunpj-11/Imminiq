@@ -9,7 +9,7 @@ export function MockTestFilters() {
   const { filter, setFilter, search, setSearch } = useMockTestsStore()
 
   return (
-    <div className="flex flex-col gap-3 rounded-[16px] border border-white/10 bg-[#1c1a18] p-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="flex flex-col gap-3 rounded-2xl border border-white/10 bg-[#1c1a18] p-3 lg:flex-row lg:items-center lg:justify-between">
       {/* filter pills — coral active, matching Trackers */}
       <div className="flex flex-wrap gap-1.5">
         {MOCK_TEST_FILTERS.map((item) => (
@@ -34,7 +34,7 @@ export function MockTestFilters() {
         value={search}
         onChange={(e) => setSearch(e.target.value)}
         placeholder="Search mock tests..."
-        className="min-w-0 rounded-[12px] border border-white/10 bg-[#141412] px-4 py-2.5 text-sm text-[#f2f0eb] outline-none placeholder:text-[#6b6560] transition focus:border-[#e8816a] lg:w-72"
+        className="min-w-0 rounded-xl border border-white/10 bg-[#141412] px-4 py-2.5 text-sm text-[#f2f0eb] outline-none placeholder:text-[#6b6560] transition focus:border-[#e8816a] lg:w-72"
       />
     </div>
   )

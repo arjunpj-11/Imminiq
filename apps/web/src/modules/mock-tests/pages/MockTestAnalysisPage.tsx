@@ -73,7 +73,7 @@ export default function MockTestAnalysisPage() {
                     Mock test
                   </span>
                 </div>
-                <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-[900] leading-tight text-[#f2f0eb]">
+                <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#f2f0eb]">
                   Attempt <span className="text-[#e8816a]">analysis</span>
                 </h1>
               </div>
@@ -81,19 +81,19 @@ export default function MockTestAnalysisPage() {
               {/* ── loading ── */}
               {query.isLoading ? (
                 <div className="space-y-4">
-                  <div className="h-52 animate-pulse rounded-[16px] border border-white/10 bg-[#1c1a18]" />
-                  <div className="h-36 animate-pulse rounded-[16px] border border-white/10 bg-[#1c1a18]" />
-                  <div className="h-36 animate-pulse rounded-[16px] border border-white/10 bg-[#1c1a18]" />
+                  <div className="h-52 animate-pulse rounded-2xl border border-white/10 bg-[#1c1a18]" />
+                  <div className="h-36 animate-pulse rounded-2xl border border-white/10 bg-[#1c1a18]" />
+                  <div className="h-36 animate-pulse rounded-2xl border border-white/10 bg-[#1c1a18]" />
                 </div>
               ) : query.isError ? (
-                <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-6 text-red-300">
+                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-300">
                   Failed to load attempt analysis.
                 </div>
               ) : data ? (
                 <>
                   {/* ── summary card ── */}
                   <section
-                    className="rounded-[16px] border border-white/10 bg-[#1c1a18] p-6"
+                    className="rounded-2xl border border-white/10 bg-[#1c1a18] p-6"
                     style={{ borderTop: `2.5px solid ${data.passed ? '#3dbf82' : '#e8816a'}` }}
                   >
                     <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
@@ -101,14 +101,14 @@ export default function MockTestAnalysisPage() {
                         <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#9b9a92]">
                           Final score
                         </div>
-                        <div className="mt-2 font-['Playfair_Display',serif] text-[54px] font-[900] leading-none text-[#f2f0eb]">
+                        <div className="mt-2 font-['Playfair_Display',serif] text-[54px] font-black leading-none text-[#f2f0eb]">
                           {data.scorePercentage}%
                         </div>
                       </div>
 
                       <div
                         className={cn(
-                          'w-fit rounded-full px-4 py-2 font-["DM_Mono",monospace] text-[11px] font-bold uppercase tracking-[0.1em]',
+                          'w-fit rounded-full px-4 py-2 font-["DM_Mono",monospace] text-[11px] font-bold uppercase tracking-widest',
                           data.passed
                             ? 'border border-[#3dbf82]/30 bg-[#3dbf82]/10 text-[#3dbf82]'
                             : 'border border-[#e8816a]/30 bg-[#e8816a]/10 text-[#e8816a]'
@@ -129,7 +129,7 @@ export default function MockTestAnalysisPage() {
                               key={rec}
                               className="flex items-start gap-2 text-[13px] leading-6 text-[#9b9a92]"
                             >
-                              <span className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-[#e8816a]" />
+                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#e8816a]" />
                               {rec}
                             </li>
                           ))}
@@ -138,7 +138,7 @@ export default function MockTestAnalysisPage() {
                     )}
 
                     <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-[12px] border border-white/8 bg-[#141412] p-4">
+                      <div className="rounded-xl border border-white/8 bg-[#141412] p-4">
                         <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#9b9a92]">
                           Strong areas
                         </div>
@@ -149,7 +149,7 @@ export default function MockTestAnalysisPage() {
                         </p>
                       </div>
 
-                      <div className="rounded-[12px] border border-white/8 bg-[#141412] p-4">
+                      <div className="rounded-xl border border-white/8 bg-[#141412] p-4">
                         <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#9b9a92]">
                           Weak areas
                         </div>
@@ -167,21 +167,21 @@ export default function MockTestAnalysisPage() {
                     {data.questionBreakdown.map((item, index) => (
                       <article
                         key={item.questionId}
-                        className="rounded-[16px] border border-white/10 bg-[#1c1a18] p-5 transition hover:-translate-y-0.5 hover:border-white/20"
+                        className="rounded-2xl border border-white/10 bg-[#1c1a18] p-5 transition hover:-translate-y-0.5 hover:border-white/20"
                       >
                         <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                           <div>
                             <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#9b9a92]">
                               Question {index + 1}
                             </div>
-                            <h3 className="mt-2 font-['Playfair_Display',serif] text-[16px] font-[900] leading-snug text-[#f2f0eb]">
+                            <h3 className="mt-2 font-['Playfair_Display',serif] text-[16px] font-black leading-snug text-[#f2f0eb]">
                               {item.question}
                             </h3>
                           </div>
 
                           <div
                             className={cn(
-                              'flex-shrink-0 rounded-full px-3 py-1 font-["DM_Mono",monospace] text-[10px] font-bold uppercase tracking-[0.1em]',
+                              'shrink-0 rounded-full px-3 py-1 font-["DM_Mono",monospace] text-[10px] font-bold uppercase tracking-widest',
                               item.isCorrect
                                 ? 'border border-[#3dbf82]/30 bg-[#3dbf82]/10 text-[#3dbf82]'
                                 : 'border border-[#e8816a]/30 bg-[#e8816a]/10 text-[#e8816a]'
@@ -205,7 +205,7 @@ export default function MockTestAnalysisPage() {
                           )}
 
                           {item.explanation && (
-                            <p className="rounded-[12px] border border-white/8 bg-[#141412] p-4 leading-6 text-[#9b9a92]">
+                            <p className="rounded-xl border border-white/8 bg-[#141412] p-4 leading-6 text-[#9b9a92]">
                               {item.explanation}
                             </p>
                           )}
@@ -215,13 +215,14 @@ export default function MockTestAnalysisPage() {
                   </section>
                 </>
               ) : (
-                <div className="rounded-[16px] border border-white/10 bg-[#1c1a18] p-6 text-[#9b9a92]">
+                <div className="rounded-2xl border border-white/10 bg-[#1c1a18] p-6 text-[#9b9a92]">
                   No analysis found.
                 </div>
               )}
 
-              <AppFooter />
+             
             </div>
+             <AppFooter />
           </div>
         </main>
       </div>

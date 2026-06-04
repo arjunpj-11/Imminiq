@@ -1,6 +1,8 @@
 // CurrentRoadmapCard.tsx
 import EmptyCard from './EmptyCard'
 import { formatRelativeTime } from '../utils/dashboard-formatters'
+import type { ReactElement } from 'react'
+
 
 type CurrentRoadmap = {
   _id: string
@@ -19,10 +21,31 @@ type CurrentRoadmapCardProps = {
   onNavigate: (link: string) => void
 }
 
-const LEVEL_CONFIG: Record<string, { emoji: string; color: string; bg: string; darkColor: string; darkBg: string }> = {
-  beginner:     { emoji: '🌱', color: '#2d6a47', bg: 'rgba(45,106,71,0.08)',   darkColor: '#5cc98a', darkBg: 'rgba(92,201,138,0.10)' },
-  intermediate: { emoji: '⚡', color: '#b84c2b', bg: 'rgba(184,76,43,0.08)',  darkColor: '#e8816a', darkBg: 'rgba(232,129,106,0.10)' },
-  advanced:     { emoji: '🔥', color: '#7c5a1e', bg: 'rgba(124,90,30,0.08)',  darkColor: '#d4a84b', darkBg: 'rgba(212,168,75,0.10)' },
+const BeginnerIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+  </svg>
+)
+
+const IntermediateIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+    <line x1="15" y1="5" x2="19" y2="9" />
+  </svg>
+)
+
+const AdvancedIcon = () => (
+  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
+    <line x1="15" y1="5" x2="19" y2="9" />
+    <line x1="2" y1="22" x2="6" y2="18" />
+  </svg>
+)
+
+const LEVEL_CONFIG: Record<string, { icon: ReactElement; color: string; bg: string; darkColor: string; darkBg: string }> = {
+  beginner:     { icon: <BeginnerIcon />,     color: '#2d6a47', bg: 'rgba(45,106,71,0.08)',   darkColor: '#5cc98a', darkBg: 'rgba(92,201,138,0.10)' },
+  intermediate: { icon: <IntermediateIcon />, color: '#b84c2b', bg: 'rgba(184,76,43,0.08)',  darkColor: '#e8816a', darkBg: 'rgba(232,129,106,0.10)' },
+  advanced:     { icon: <AdvancedIcon />,     color: '#7c5a1e', bg: 'rgba(124,90,30,0.08)',  darkColor: '#d4a84b', darkBg: 'rgba(212,168,75,0.10)' },
 }
 
 function getMilestones(progress: number) {
@@ -72,7 +95,8 @@ export default function CurrentRoadmapCard({
                     borderColor: levelCfg.color + '33',
                   }}
                 >
-                  {levelCfg.emoji} {currentRoadmap.level}
+                  {levelCfg.icon}
+                  {currentRoadmap.level}
                 </span>
                 <span className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
                   Last studied {formatRelativeTime(currentRoadmap.lastStudiedAt)}
@@ -152,10 +176,10 @@ export default function CurrentRoadmapCard({
           {/* ── Mini stat pills ── */}
           <div className="mt-4 grid grid-cols-3 gap-2">
             {[
-  { label: 'Topics',    value: currentRoadmap.totalTopics,     sub: 'total in roadmap' },
-  { label: 'Done',      value: currentRoadmap.completedTopics, sub: 'topics completed' },
-  { label: 'Remaining', value: currentRoadmap.remainingTopics, sub: 'left to study' },
-].map(({ label, value, sub }) => (
+              { label: 'Topics',    value: currentRoadmap.totalTopics,     sub: 'total in roadmap' },
+              { label: 'Done',      value: currentRoadmap.completedTopics, sub: 'topics completed' },
+              { label: 'Remaining', value: currentRoadmap.remainingTopics, sub: 'left to study' },
+            ].map(({ label, value, sub }) => (
               <div
                 key={label}
                 className="rounded-xl border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-3 py-2.5 dark:border-white/8 dark:bg-white/3"

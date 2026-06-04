@@ -63,8 +63,9 @@ function PageShell({
           <div className="flex min-w-0 flex-1 flex-col">
             <div className="mx-auto mt-5.5 flex w-[min(860px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
               {children}
-              <AppFooter />
+             
             </div>
+             <AppFooter />
           </div>
         </main>
       </div>
@@ -98,10 +99,10 @@ export default function MockTestDetailsPage() {
   if (detailsQuery.isLoading) {
     return (
       <PageShell {...shellProps}>
-        <div className="h-72 animate-pulse rounded-[16px] border border-white/10 bg-[#1c1a18]" />
+        <div className="h-72 animate-pulse rounded-2xl border border-white/10 bg-[#1c1a18]" />
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="h-24 animate-pulse rounded-[16px] border border-white/10 bg-[#1c1a18]" />
+            <div key={i} className="h-24 animate-pulse rounded-2xl border border-white/10 bg-[#1c1a18]" />
           ))}
         </div>
       </PageShell>
@@ -111,7 +112,7 @@ export default function MockTestDetailsPage() {
   if (detailsQuery.isError) {
     return (
       <PageShell {...shellProps}>
-        <div className="rounded-[16px] border border-red-500/30 bg-red-500/10 p-6 text-red-300">
+        <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-300">
           Failed to load mock test.
         </div>
       </PageShell>
@@ -121,7 +122,7 @@ export default function MockTestDetailsPage() {
   if (!data) {
     return (
       <PageShell {...shellProps}>
-        <div className="rounded-[16px] border border-white/10 bg-[#1c1a18] p-6 text-[#9b9a92]">
+        <div className="rounded-2xl border border-white/10 bg-[#1c1a18] p-6 text-[#9b9a92]">
           Test not found.
         </div>
       </PageShell>
@@ -133,14 +134,14 @@ export default function MockTestDetailsPage() {
   return (
     <PageShell {...shellProps}>
       {/* ── hero card ── */}
-      <section className="rounded-[16px] border border-white/10 bg-[#1c1a18] p-7"
+      <section className="rounded-2xl border border-white/10 bg-[#1c1a18] p-7"
         style={{ borderTop: '2.5px solid #e8816a' }}
       >
         <div className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.16em] text-[#9b9a92]">
           {data.test.difficulty} · {data.test.questionCount} questions · {data.test.timeLimitMinutes} min
         </div>
 
-        <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-[900] leading-tight text-[#f2f0eb]">
+        <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#f2f0eb]">
           {data.test.title}
         </h1>
 
@@ -152,16 +153,16 @@ export default function MockTestDetailsPage() {
 
         {/* tags */}
         <div className="mt-5 flex flex-wrap gap-2">
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.1em] text-[#9b9a92]">
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#9b9a92]">
             {data.test.visibility}
           </span>
-          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.1em] text-[#9b9a92]">
+          <span className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#9b9a92]">
             {data.test.isAIGenerated ? 'AI generated' : 'Manual'}
           </span>
           {data.test.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.1em] text-[#9b9a92]"
+              className="rounded-full border border-white/10 bg-white/5 px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#9b9a92]"
             >
               {tag}
             </span>
@@ -183,13 +184,13 @@ export default function MockTestDetailsPage() {
         {data.questions.map((question, index) => (
           <article
             key={question._id}
-            className="rounded-[16px] border border-white/10 bg-[#1c1a18] p-4 transition hover:-translate-y-0.5 hover:border-white/20"
+            className="rounded-2xl border border-white/10 bg-[#1c1a18] p-4 transition hover:-translate-y-0.5 hover:border-white/20"
           >
             <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#9b9a92]">
               Question {index + 1} · {question.type.replace('_', ' ')} · {question.points} pts
             </div>
 
-            <h3 className="mt-2 font-['Playfair_Display',serif] text-[16px] font-[900] leading-snug text-[#f2f0eb]">
+            <h3 className="mt-2 font-['Playfair_Display',serif] text-[16px] font-black leading-snug text-[#f2f0eb]">
               {question.question}
             </h3>
 

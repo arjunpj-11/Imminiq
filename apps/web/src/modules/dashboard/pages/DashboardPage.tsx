@@ -185,7 +185,6 @@ export default function DashboardPage() {
                 <section className="grid grid-cols-[1fr_300px] gap-4 max-[900px]:grid-cols-1">
                   <CurrentRoadmapCard
                     currentRoadmap={currentRoadmap}
-                    summary={summary}
                     onNavigate={navigate}
                   />
 

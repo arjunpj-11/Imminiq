@@ -526,7 +526,6 @@ const SectionTabSwitcher = ({
 
 const LeaderboardSection = ({
   section,
-  scope,
   search,
   trackFilter,
 }: {
@@ -702,7 +701,6 @@ const LeaderboardSection = ({
 // ── Main page ─────────────────────────────────────────────────────────────
 
 export default function LeaderboardPage() {
-  const navigate = useNavigate()
 
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [sidebarCollapsed, setSidebarCollapsed] = useState(

@@ -27,13 +27,13 @@ export function GenerateMockTestPanel() {
   }
 
   return (
-    <div className="rounded-[16px] border border-white/10 bg-[#1c1a18] p-5">
+    <div className="rounded-2xl border border-white/10 bg-[#1c1a18] p-5">
       {/* header */}
       <div className="mb-4 flex items-center gap-2">
         <span className="text-[#e8816a]">
           <SparklesIcon />
         </span>
-        <h3 className="font-['Playfair_Display',serif] text-[17px] font-[900] text-[#f2f0eb]">
+        <h3 className="font-['Playfair_Display',serif] text-[17px] font-black text-[#f2f0eb]">
           Generate AI mock test
         </h3>
       </div>
@@ -44,7 +44,7 @@ export function GenerateMockTestPanel() {
           value={generateDraft.topic}
           onChange={(e) => updateGenerateDraft({ topic: e.target.value })}
           placeholder="Topic, e.g. Recursion"
-          className="w-full rounded-[12px] border border-white/10 bg-[#141412] px-4 py-3 text-sm text-[#f2f0eb] outline-none placeholder:text-[#6b6560] transition focus:border-[#e8816a]"
+          className="w-full rounded-xl border border-white/10 bg-[#141412] px-4 py-3 text-sm text-[#f2f0eb] outline-none placeholder:text-[#6b6560] transition focus:border-[#e8816a]"
         />
 
         {/* difficulty + count row */}
@@ -52,7 +52,7 @@ export function GenerateMockTestPanel() {
           <select
             value={generateDraft.difficulty}
             onChange={(e) => updateGenerateDraft({ difficulty: e.target.value as any })}
-            className="rounded-[12px] border border-white/10 bg-[#141412] px-3 py-3 text-sm text-[#f2f0eb] outline-none transition focus:border-[#e8816a]"
+            className="rounded-xl border border-white/10 bg-[#141412] px-3 py-3 text-sm text-[#f2f0eb] outline-none transition focus:border-[#e8816a]"
           >
             {DIFFICULTY_OPTIONS.map((item) => (
               <option key={item} value={item}>{item}</option>
@@ -65,7 +65,7 @@ export function GenerateMockTestPanel() {
             max={50}
             value={generateDraft.questionCount}
             onChange={(e) => updateGenerateDraft({ questionCount: Number(e.target.value) })}
-            className="rounded-[12px] border border-white/10 bg-[#141412] px-3 py-3 text-sm text-[#f2f0eb] outline-none transition focus:border-[#e8816a]"
+            className="rounded-xl border border-white/10 bg-[#141412] px-3 py-3 text-sm text-[#f2f0eb] outline-none transition focus:border-[#e8816a]"
           />
         </div>
 
@@ -77,7 +77,7 @@ export function GenerateMockTestPanel() {
               type="button"
               onClick={() => toggleType(type)}
               className={cn(
-                'rounded-full border px-3 py-1.5 font-["DM_Mono",monospace] text-[10px] font-bold capitalize uppercase tracking-[0.08em] transition hover:-translate-y-px',
+                'rounded-full border px-3 py-1.5 font-["DM_Mono",monospace] text-[10px] font-bold capitalize tracking-[0.08em] transition hover:-translate-y-px',
                 generateDraft.questionTypes.includes(type)
                   ? 'border-[#e8816a] bg-[#e8816a] text-white'
                   : 'border-white/10 text-[#9b9a92] hover:border-white/20 hover:text-[#f2f0eb]'
@@ -93,7 +93,7 @@ export function GenerateMockTestPanel() {
           type="button"
           onClick={submit}
           disabled={generateMutation.isPending || !generateDraft.topic.trim()}
-          className="w-full rounded-[12px] bg-[#e8816a] px-4 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-[#d9522d] disabled:cursor-not-allowed disabled:opacity-60"
+          className="w-full rounded-xl bg-[#e8816a] px-4 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-[#d9522d] disabled:cursor-not-allowed disabled:opacity-60"
         >
           {generateMutation.isPending ? 'Generating...' : 'Generate test'}
         </button>

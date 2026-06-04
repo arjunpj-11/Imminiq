@@ -112,7 +112,7 @@ export default function BottomNav({
   activeTab: _activeTab,
 }: BottomNavProps) {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 w-full max-w-full overflow-x-hidden border-t border-[#e0d0c5] bg-[rgba(253,248,245,0.97)] font-['DM_Sans',sans-serif] tracking-normal backdrop-blur-[20px] pb-[env(safe-area-inset-bottom,0px)] dark:border-white/[0.09] dark:bg-[rgba(26,24,22,0.97)] lg:hidden">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 w-full max-w-full overflow-x-hidden border-t border-[#e0d0c5] bg-[rgba(253,248,245,0.97)] font-['DM_Sans',sans-serif] tracking-normal backdrop-blur-[20px] pb-[env(safe-area-inset-bottom,0px)] dark:border-white/9 dark:bg-[rgba(26,24,22,0.97)] lg:hidden">
       <div className="grid h-14 w-full grid-cols-5 items-stretch">
         {tabs.map((tab) => (
           <NavLink
@@ -121,7 +121,7 @@ export default function BottomNav({
             end={tab.to === '/dashboard'}
             className={({ isActive }) =>
               cn(
-                'relative flex min-w-0 flex-col items-center justify-center gap-[3px] overflow-hidden bg-transparent px-1 text-[9px] font-["DM_Mono",monospace] tracking-[0.03em] no-underline transition-colors',
+                'relative flex min-w-0 flex-col items-center justify-center gap-0.75 overflow-hidden bg-transparent px-1 text-[9px] font-["DM_Mono",monospace] tracking-[0.03em] no-underline transition-colors',
                 isActive
                   ? 'text-[#b84c2b] dark:text-[#e8816a]'
                   : 'text-[#6b5f58] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]'
@@ -131,7 +131,7 @@ export default function BottomNav({
             {({ isActive }) => (
               <>
                 {isActive && (
-                  <span className="absolute top-0 h-[2px] w-8 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+                  <span className="absolute top-0 h-0.5 w-8 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
                 )}
 
                 <span
