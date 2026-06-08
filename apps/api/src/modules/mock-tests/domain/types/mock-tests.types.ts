@@ -164,12 +164,18 @@ export interface GenerateMockTestPayload {
   visibility?: TestVisibility
 }
 
-export interface SubmitAnswerPayload { questionId: string; answer: string }
+export interface SubmitAnswerPayload {
+  questionId: string
+  answer: string
+}
 
 export interface TestAttemptResult {
   attempt: MockTestAttempt
   report: MockTestReport | null
-  answers: (MockTestAnswer & { question?: MockTestQuestion; aiEvaluation?: MockTestAIEvaluation })[]
+  answers: (MockTestAnswer & {
+    question?: MockTestQuestion
+    aiEvaluation?: MockTestAIEvaluation
+  })[]
 }
 
 export interface TestAnalytics {
@@ -208,4 +214,133 @@ export interface MockTestSummary {
   bestScore: number
   totalQuestions: number
   passedAttempts: number
+}
+
+export type RawRecord = Record<string, unknown>
+
+export interface RawMockTestDoc {
+  _id?: unknown
+  ownerId?: unknown
+  trackerId?: unknown
+  title?: string
+  description?: string
+  difficulty?: DifficultyLevel
+  visibility?: TestVisibility
+  questionCount?: number
+  timeLimitMinutes?: number
+  passingScore?: number
+  isAIGenerated?: boolean
+  tags?: string[]
+  cloneCount?: number
+  averageScore?: number
+  attemptCount?: number
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface RawMockTestQuestionDoc {
+  _id?: unknown
+  testId?: unknown
+  type?: QuestionType
+  question?: string
+  options?: string[]
+  correctAnswer?: string
+  explanation?: string
+  difficulty?: DifficultyLevel
+  order?: number
+  points?: number
+}
+
+export interface RawMockTestAttemptDoc {
+  _id?: unknown
+  testId?: unknown
+  userId?: unknown
+  status?: AttemptStatus
+  startedAt?: Date
+  completedAt?: Date
+  timeTakenSeconds?: number
+  score?: number
+  scorePercentage?: number
+  passed?: boolean
+  flaggedQuestions?: unknown[]
+  totalQuestions?: number
+  answeredQuestions?: number
+  createdAt?: Date
+}
+
+export interface RawMockTestAnswerDoc {
+  _id?: unknown
+  attemptId?: unknown
+  questionId?: unknown
+  answer?: string
+  isCorrect?: boolean
+  pointsEarned?: number
+  aiEvaluationId?: unknown
+  submittedAt?: Date
+  createdAt?: Date
+}
+
+export interface RawMockTestAIEvaluationDoc {
+  _id?: unknown
+  attemptId?: unknown
+  questionId?: unknown
+  answerId?: unknown
+  score?: number
+  maxScore?: number
+  feedback?: string
+  status?: EvaluationStatus
+  createdAt?: Date
+}
+
+export interface RawMockTestReportDoc {
+  _id?: unknown
+  attemptId?: unknown
+  userId?: unknown
+  testId?: unknown
+  score?: number
+  scorePercentage?: number
+  passed?: boolean
+  timeTakenSeconds?: number
+  totalQuestions?: number
+  correctAnswers?: number
+  incorrectAnswers?: number
+  skippedAnswers?: number
+  strongTopics?: string[]
+  weakTopics?: string[]
+  recommendations?: string[]
+  createdAt?: Date
+}
+
+export interface RawMockTestCreationSessionDoc {
+  _id?: unknown
+  userId?: unknown
+  status?: CreationSessionStatus
+  step?: number
+  draftData?: MockTestCreationSession['draftData']
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export interface UserSummaryAggregation {
+  completedAttempts?: number
+  averageScore?: number
+  bestScore?: number
+  passedAttempts?: number
+}
+
+export interface PerformanceTrendAggregation {
+  _id: string
+  averageScore: number
+  attempts: number
+}
+
+export interface AnalyticsSnapshotAggregation {
+  totalAttempts: number
+  averageScore: number
+  passCount: number
+  averageTimeTaken?: number
+}
+
+export interface QuestionCountDoc {
+  questionCount?: number
 }
