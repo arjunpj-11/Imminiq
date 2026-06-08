@@ -37,11 +37,22 @@ const SAFE_TAG_PATTERN = /^[a-zA-Z0-9 _-]{1,40}$/
 const isRecord = (value: unknown): value is RawRecord =>
   typeof value === 'object' && value !== null
 
+const isObjectId = (value: unknown): value is mongoose.Types.ObjectId =>
+  value instanceof mongoose.Types.ObjectId
+
 const id = (value: unknown): string => {
   if (!value) return ''
 
+  if (typeof value === 'string') return value
+
+  if (isObjectId(value)) return value.toString()
+
   if (isRecord(value) && '_id' in value) {
-    return id(value._id)
+    const nestedId = value._id
+
+    if (nestedId === value) return String(value)
+
+    return id(nestedId)
   }
 
   return String(value)
