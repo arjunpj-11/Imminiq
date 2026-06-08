@@ -81,7 +81,7 @@ export default function ScrambleWord({
   }, [delay, text, skip])
 
   return (
-    <span className={`landing-word ${className}`} aria-label={text}>
+   <span className={`landing-word ${className}`}>
       {text.split('').map((char, index) => (
         <span
           key={`${char}-${index}`}
