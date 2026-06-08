@@ -166,22 +166,49 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
       mapTest(doc as RawMockTestDoc),
     ),
 
-  findPublicTests: async ({ difficulty, tags, page = 1, limit = 20 }) => {
-    const query: Record<string, unknown> = { visibility: 'public' }
+ findPublicTests: async ({ difficulty, tags, page = 1, limit = 20 }) => {
+  const allowedDifficulties = new Set(['easy', 'medium', 'hard'])
 
-    if (difficulty) query.difficulty = difficulty
-    if (tags?.length) query.tags = { $in: tags }
+  const safeDifficulty =
+    difficulty && allowedDifficulties.has(difficulty) ? difficulty : undefined
 
-    const [docs, total] = await Promise.all([
-      MockTestModel.find(query).sort({ createdAt: -1 }).skip((page - 1) * limit).limit(limit).lean(),
-      MockTestModel.countDocuments(query),
-    ])
+  const safeTags = Array.isArray(tags)
+    ? tags
+        .filter((tag): tag is string => typeof tag === 'string')
+        .map((tag) => tag.trim())
+        .filter((tag) => /^[a-zA-Z0-9 _-]{1,40}$/.test(tag))
+        .slice(0, 20)
+    : []
 
-    return {
-      tests: docs.map((doc) => mapTest(doc as RawMockTestDoc)),
-      total,
-    }
-  },
+  const safePage = Number.isInteger(page) && page > 0 ? page : 1
+  const safeLimit = Number.isInteger(limit) && limit > 0 && limit <= 50 ? limit : 20
+
+  const query: Record<string, unknown> = {
+    visibility: 'public',
+  }
+
+  if (safeDifficulty) {
+    query.difficulty = safeDifficulty
+  }
+
+  if (safeTags.length) {
+    query.tags = { $in: safeTags }
+  }
+
+  const [docs, total] = await Promise.all([
+    MockTestModel.find(query)
+      .sort({ createdAt: -1 })
+      .skip((safePage - 1) * safeLimit)
+      .limit(safeLimit)
+      .lean(),
+    MockTestModel.countDocuments(query),
+  ])
+
+  return {
+    tests: docs.map((doc) => mapTest(doc as RawMockTestDoc)),
+    total,
+  }
+},
 
   createTest: async (data) =>
     mapTest((await MockTestModel.create(data)).toObject() as RawMockTestDoc),
