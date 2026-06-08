@@ -2,6 +2,7 @@ import mongoose from 'mongoose'
 import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
 import {
   AnalyticsSnapshotAggregation,
+  DifficultyLevel,
   MockTest,
   MockTestAIEvaluation,
   MockTestAnswer,
@@ -30,6 +31,9 @@ import { MockTestReportModel } from '../../../../infrastructure/database/models/
 import { MockTestAnalyticsSnapshotModel } from '../../../../infrastructure/database/models/mock-test-analytics-snapshot.model'
 import { MockTestCreationSessionModel } from '../../../../infrastructure/database/models/mock-test-creation-session.model'
 
+const ALLOWED_DIFFICULTIES = ['easy', 'medium', 'hard'] as const
+const SAFE_TAG_PATTERN = /^[a-zA-Z0-9 _-]{1,40}$/
+
 const isRecord = (value: unknown): value is RawRecord =>
   typeof value === 'object' && value !== null
 
@@ -52,6 +56,35 @@ const numberOrZero = (value: unknown): number =>
   typeof value === 'number' ? value : 0
 
 const dateOrNow = (value: Date | undefined): Date => value || new Date()
+
+const toObjectId = (value: string): mongoose.Types.ObjectId | null => {
+  if (!mongoose.Types.ObjectId.isValid(value)) return null
+  return new mongoose.Types.ObjectId(value)
+}
+
+const toObjectIds = (values: string[]): mongoose.Types.ObjectId[] =>
+  values
+    .filter((value) => mongoose.Types.ObjectId.isValid(value))
+    .map((value) => new mongoose.Types.ObjectId(value))
+
+const sanitizeDifficulty = (value?: DifficultyLevel): DifficultyLevel | undefined =>
+  value && ALLOWED_DIFFICULTIES.includes(value) ? value : undefined
+
+const sanitizeTags = (tags?: string[]): string[] => {
+  if (!Array.isArray(tags)) return []
+
+  return tags
+    .filter((tag): tag is string => typeof tag === 'string')
+    .map((tag) => tag.trim())
+    .filter((tag) => SAFE_TAG_PATTERN.test(tag))
+    .slice(0, 20)
+}
+
+const sanitizePage = (page: number): number =>
+  Number.isInteger(page) && page > 0 ? page : 1
+
+const sanitizeLimit = (limit: number): number =>
+  Number.isInteger(limit) && limit > 0 && limit <= 50 ? limit : 20
 
 const mapTest = (doc: RawMockTestDoc): MockTest => ({
   _id: id(doc._id),
@@ -157,81 +190,109 @@ const mapSession = (doc: RawMockTestCreationSessionDoc): MockTestCreationSession
 
 export const mongoMockTestsRepository: MockTestsRepositoryContract = {
   findTestById: async (testId) => {
-    const doc = await MockTestModel.findById(testId).lean()
+    const safeTestId = toObjectId(testId)
+    if (!safeTestId) return null
+
+    const doc = await MockTestModel.findOne({ _id: safeTestId }).lean()
     return doc ? mapTest(doc as RawMockTestDoc) : null
   },
 
-  findTestsByOwner: async (ownerId) =>
-    (await MockTestModel.find({ ownerId }).sort({ createdAt: -1 }).lean()).map((doc) =>
-      mapTest(doc as RawMockTestDoc),
-    ),
+  findTestsByOwner: async (ownerId) => {
+    const safeOwnerId = toObjectId(ownerId)
+    if (!safeOwnerId) return []
 
- findPublicTests: async ({ difficulty, tags, page = 1, limit = 20 }) => {
-  const allowedDifficulties = new Set(['easy', 'medium', 'hard'])
+    return (
+      await MockTestModel.find({ ownerId: safeOwnerId })
+        .sort({ createdAt: -1 })
+        .lean()
+    ).map((doc) => mapTest(doc as RawMockTestDoc))
+  },
 
-  const safeDifficulty =
-    difficulty && allowedDifficulties.has(difficulty) ? difficulty : undefined
+  findPublicTests: async ({ difficulty, tags, page = 1, limit = 20 }) => {
+    const safeDifficulty = sanitizeDifficulty(difficulty)
+    const safeTags = sanitizeTags(tags)
+    const safePage = sanitizePage(page)
+    const safeLimit = sanitizeLimit(limit)
+    const skip = (safePage - 1) * safeLimit
 
-  const safeTags = Array.isArray(tags)
-    ? tags
-        .filter((tag): tag is string => typeof tag === 'string')
-        .map((tag) => tag.trim())
-        .filter((tag) => /^[a-zA-Z0-9 _-]{1,40}$/.test(tag))
-        .slice(0, 20)
-    : []
+    const query =
+      safeDifficulty && safeTags.length
+        ? {
+            visibility: 'public' as const,
+            difficulty: safeDifficulty,
+            tags: { $in: safeTags },
+          }
+        : safeDifficulty
+          ? {
+              visibility: 'public' as const,
+              difficulty: safeDifficulty,
+            }
+          : safeTags.length
+            ? {
+                visibility: 'public' as const,
+                tags: { $in: safeTags },
+              }
+            : {
+                visibility: 'public' as const,
+              }
 
-  const safePage = Number.isInteger(page) && page > 0 ? page : 1
-  const safeLimit = Number.isInteger(limit) && limit > 0 && limit <= 50 ? limit : 20
+    const [docs, total] = await Promise.all([
+      MockTestModel.find(query)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(safeLimit)
+        .lean(),
+      MockTestModel.countDocuments(query),
+    ])
 
-  const query: Record<string, unknown> = {
-    visibility: 'public',
-  }
-
-  if (safeDifficulty) {
-    query.difficulty = safeDifficulty
-  }
-
-  if (safeTags.length) {
-    query.tags = { $in: safeTags }
-  }
-
-  const [docs, total] = await Promise.all([
-    MockTestModel.find(query)
-      .sort({ createdAt: -1 })
-      .skip((safePage - 1) * safeLimit)
-      .limit(safeLimit)
-      .lean(),
-    MockTestModel.countDocuments(query),
-  ])
-
-  return {
-    tests: docs.map((doc) => mapTest(doc as RawMockTestDoc)),
-    total,
-  }
-},
+    return {
+      tests: docs.map((doc) => mapTest(doc as RawMockTestDoc)),
+      total,
+    }
+  },
 
   createTest: async (data) =>
     mapTest((await MockTestModel.create(data)).toObject() as RawMockTestDoc),
 
   updateTest: async (testId, data) => {
-    const doc = await MockTestModel.findByIdAndUpdate(testId, data, { new: true }).lean()
+    const safeTestId = toObjectId(testId)
+    if (!safeTestId) return null
+
+    const doc = await MockTestModel.findOneAndUpdate(
+      { _id: safeTestId },
+      data,
+      { new: true },
+    ).lean()
+
     return doc ? mapTest(doc as RawMockTestDoc) : null
   },
 
   deleteTest: async (testId) => {
+    const safeTestId = toObjectId(testId)
+    if (!safeTestId) return
+
     await Promise.all([
-      MockTestQuestionModel.deleteMany({ testId }),
-      MockTestModel.findByIdAndDelete(testId),
+      MockTestQuestionModel.deleteMany({ testId: safeTestId }),
+      MockTestModel.findOneAndDelete({ _id: safeTestId }),
     ])
   },
 
-  findQuestionsByTest: async (testId) =>
-    (await MockTestQuestionModel.find({ testId }).sort({ order: 1 }).lean()).map((doc) =>
-      mapQuestion(doc as RawMockTestQuestionDoc),
-    ),
+  findQuestionsByTest: async (testId) => {
+    const safeTestId = toObjectId(testId)
+    if (!safeTestId) return []
+
+    return (
+      await MockTestQuestionModel.find({ testId: safeTestId })
+        .sort({ order: 1 })
+        .lean()
+    ).map((doc) => mapQuestion(doc as RawMockTestQuestionDoc))
+  },
 
   findQuestionById: async (questionId) => {
-    const doc = await MockTestQuestionModel.findById(questionId).lean()
+    const safeQuestionId = toObjectId(questionId)
+    if (!safeQuestionId) return null
+
+    const doc = await MockTestQuestionModel.findOne({ _id: safeQuestionId }).lean()
     return doc ? mapQuestion(doc as RawMockTestQuestionDoc) : null
   },
 
@@ -241,26 +302,48 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
     ),
 
   findAttemptById: async (attemptId) => {
-    const doc = await MockTestAttemptModel.findById(attemptId).lean()
+    const safeAttemptId = toObjectId(attemptId)
+    if (!safeAttemptId) return null
+
+    const doc = await MockTestAttemptModel.findOne({ _id: safeAttemptId }).lean()
     return doc ? mapAttempt(doc as RawMockTestAttemptDoc) : null
   },
 
   findAttemptsByUser: async (userId, testId) => {
-    const query: Record<string, unknown> = { userId }
+    const safeUserId = toObjectId(userId)
+    if (!safeUserId) return []
 
-    if (testId) query.testId = testId
+    if (testId) {
+      const safeTestId = toObjectId(testId)
+      if (!safeTestId) return []
 
-    return (await MockTestAttemptModel.find(query).sort({ createdAt: -1 }).lean()).map((doc) =>
-      mapAttempt(doc as RawMockTestAttemptDoc),
-    )
+      return (
+        await MockTestAttemptModel.find({
+          userId: safeUserId,
+          testId: safeTestId,
+        })
+          .sort({ createdAt: -1 })
+          .lean()
+      ).map((doc) => mapAttempt(doc as RawMockTestAttemptDoc))
+    }
+
+    return (
+      await MockTestAttemptModel.find({ userId: safeUserId })
+        .sort({ createdAt: -1 })
+        .lean()
+    ).map((doc) => mapAttempt(doc as RawMockTestAttemptDoc))
   },
 
   findLatestAttemptsForTests: async (userId, testIds) => {
-    if (!testIds.length) return {}
+    const safeUserId = toObjectId(userId)
+    if (!safeUserId || !testIds.length) return {}
+
+    const safeTestIds = toObjectIds(testIds)
+    if (!safeTestIds.length) return {}
 
     const docs = await MockTestAttemptModel.find({
-      userId,
-      testId: { $in: testIds },
+      userId: safeUserId,
+      testId: { $in: safeTestIds },
     })
       .sort({ createdAt: -1 })
       .lean()
@@ -276,9 +359,14 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
   },
 
   findActiveAttempt: async (userId, testId) => {
+    const safeUserId = toObjectId(userId)
+    const safeTestId = toObjectId(testId)
+
+    if (!safeUserId || !safeTestId) return null
+
     const doc = await MockTestAttemptModel.findOne({
-      userId,
-      testId,
+      userId: safeUserId,
+      testId: safeTestId,
       status: 'in_progress',
     }).lean()
 
@@ -299,33 +387,64 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
     ),
 
   updateAttempt: async (attemptId, data) => {
-    const doc = await MockTestAttemptModel.findByIdAndUpdate(attemptId, data, {
-      new: true,
-    }).lean()
+    const safeAttemptId = toObjectId(attemptId)
+    if (!safeAttemptId) return null
+
+    const doc = await MockTestAttemptModel.findOneAndUpdate(
+      { _id: safeAttemptId },
+      data,
+      { new: true },
+    ).lean()
 
     return doc ? mapAttempt(doc as RawMockTestAttemptDoc) : null
   },
 
   incrementAnsweredCount: async (attemptId) => {
-    await MockTestAttemptModel.findByIdAndUpdate(attemptId, {
-      $inc: { answeredQuestions: 1 },
-    })
+    const safeAttemptId = toObjectId(attemptId)
+    if (!safeAttemptId) return
+
+    await MockTestAttemptModel.findOneAndUpdate(
+      { _id: safeAttemptId },
+      { $inc: { answeredQuestions: 1 } },
+    )
   },
 
   abandonActiveAttempts: async (userId, testId) => {
+    const safeUserId = toObjectId(userId)
+    const safeTestId = toObjectId(testId)
+
+    if (!safeUserId || !safeTestId) return
+
     await MockTestAttemptModel.updateMany(
-      { userId, testId, status: 'in_progress' },
+      {
+        userId: safeUserId,
+        testId: safeTestId,
+        status: 'in_progress',
+      },
       { status: 'abandoned' },
     )
   },
 
-  findAnswersByAttempt: async (attemptId) =>
-    (await MockTestAnswerModel.find({ attemptId }).lean()).map((doc) =>
+  findAnswersByAttempt: async (attemptId) => {
+    const safeAttemptId = toObjectId(attemptId)
+    if (!safeAttemptId) return []
+
+    return (await MockTestAnswerModel.find({ attemptId: safeAttemptId }).lean()).map((doc) =>
       mapAnswer(doc as RawMockTestAnswerDoc),
-    ),
+    )
+  },
 
   findAnswerByQuestion: async (attemptId, questionId) => {
-    const doc = await MockTestAnswerModel.findOne({ attemptId, questionId }).lean()
+    const safeAttemptId = toObjectId(attemptId)
+    const safeQuestionId = toObjectId(questionId)
+
+    if (!safeAttemptId || !safeQuestionId) return null
+
+    const doc = await MockTestAnswerModel.findOne({
+      attemptId: safeAttemptId,
+      questionId: safeQuestionId,
+    }).lean()
+
     return doc ? mapAnswer(doc as RawMockTestAnswerDoc) : null
   },
 
@@ -333,23 +452,40 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
     mapAnswer((await MockTestAnswerModel.create(data)).toObject() as RawMockTestAnswerDoc),
 
   updateAnswer: async (answerId, data) => {
-    const doc = await MockTestAnswerModel.findByIdAndUpdate(answerId, data, {
-      new: true,
-    }).lean()
+    const safeAnswerId = toObjectId(answerId)
+    if (!safeAnswerId) return null
+
+    const doc = await MockTestAnswerModel.findOneAndUpdate(
+      { _id: safeAnswerId },
+      data,
+      { new: true },
+    ).lean()
 
     return doc ? mapAnswer(doc as RawMockTestAnswerDoc) : null
   },
 
   flagQuestion: async (attemptId, questionId) => {
-    await MockTestAttemptModel.findByIdAndUpdate(attemptId, {
-      $addToSet: { flaggedQuestions: questionId },
-    })
+    const safeAttemptId = toObjectId(attemptId)
+    const safeQuestionId = toObjectId(questionId)
+
+    if (!safeAttemptId || !safeQuestionId) return
+
+    await MockTestAttemptModel.findOneAndUpdate(
+      { _id: safeAttemptId },
+      { $addToSet: { flaggedQuestions: safeQuestionId } },
+    )
   },
 
   unflagQuestion: async (attemptId, questionId) => {
-    await MockTestAttemptModel.findByIdAndUpdate(attemptId, {
-      $pull: { flaggedQuestions: questionId },
-    })
+    const safeAttemptId = toObjectId(attemptId)
+    const safeQuestionId = toObjectId(questionId)
+
+    if (!safeAttemptId || !safeQuestionId) return
+
+    await MockTestAttemptModel.findOneAndUpdate(
+      { _id: safeAttemptId },
+      { $pull: { flaggedQuestions: safeQuestionId } },
+    )
   },
 
   createAIEvaluation: async (data) =>
@@ -362,22 +498,32 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
       ).toObject() as RawMockTestAIEvaluationDoc,
     ),
 
-  findAIEvaluationsByAttempt: async (attemptId) =>
-    (await MockTestAIEvaluationModel.find({ attemptId }).lean()).map((doc) =>
-      mapAIEvaluation(doc as RawMockTestAIEvaluationDoc),
-    ),
+  findAIEvaluationsByAttempt: async (attemptId) => {
+    const safeAttemptId = toObjectId(attemptId)
+    if (!safeAttemptId) return []
+
+    return (
+      await MockTestAIEvaluationModel.find({ attemptId: safeAttemptId }).lean()
+    ).map((doc) => mapAIEvaluation(doc as RawMockTestAIEvaluationDoc))
+  },
 
   findReportByAttempt: async (attemptId) => {
-    const doc = await MockTestReportModel.findOne({ attemptId }).lean()
+    const safeAttemptId = toObjectId(attemptId)
+    if (!safeAttemptId) return null
+
+    const doc = await MockTestReportModel.findOne({ attemptId: safeAttemptId }).lean()
     return doc ? mapReport(doc as RawMockTestReportDoc) : null
   },
 
   createReport: async (data) =>
     mapReport((await MockTestReportModel.create(data)).toObject() as RawMockTestReportDoc),
 
-  getAttemptHistory: async (userId) =>
-    (
-      await MockTestAttemptModel.find({ userId })
+  getAttemptHistory: async (userId) => {
+    const safeUserId = toObjectId(userId)
+    if (!safeUserId) return []
+
+    return (
+      await MockTestAttemptModel.find({ userId: safeUserId })
         .populate('testId')
         .sort({ createdAt: -1 })
         .lean()
@@ -391,15 +537,29 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
         ...mapAttempt(attemptDoc),
         test: populatedTest,
       }
-    }),
+    })
+  },
 
   getUserSummary: async (userId) => {
+    const safeUserId = toObjectId(userId)
+
+    if (!safeUserId) {
+      return {
+        totalTests: 0,
+        totalQuestions: 0,
+        completedAttempts: 0,
+        averageScore: 0,
+        bestScore: 0,
+        passedAttempts: 0,
+      }
+    }
+
     const [tests, completedAgg] = await Promise.all([
-      MockTestModel.find({ ownerId: userId }).select('questionCount').lean(),
+      MockTestModel.find({ ownerId: safeUserId }).select('questionCount').lean(),
       MockTestAttemptModel.aggregate<UserSummaryAggregation>([
         {
           $match: {
-            userId: new mongoose.Types.ObjectId(userId),
+            userId: safeUserId,
             status: 'completed',
           },
         },
@@ -434,13 +594,16 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
   },
 
   getPerformanceTrends: async (userId) => {
+    const safeUserId = toObjectId(userId)
+    if (!safeUserId) return []
+
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
     const aggregation = await MockTestAttemptModel.aggregate<PerformanceTrendAggregation>([
       {
         $match: {
-          userId: new mongoose.Types.ObjectId(userId),
+          userId: safeUserId,
           status: 'completed',
           completedAt: { $gte: thirtyDaysAgo },
         },
@@ -468,8 +631,11 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
   },
 
   getTopicBreakdown: async (userId) => {
+    const safeUserId = toObjectId(userId)
+    if (!safeUserId) return []
+
     const attempts = await MockTestAttemptModel.find({
-      userId,
+      userId: safeUserId,
       status: 'completed',
     })
       .populate('testId', 'tags')
@@ -498,10 +664,13 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
   },
 
   updateAnalyticsSnapshot: async (testId) => {
+    const safeTestId = toObjectId(testId)
+    if (!safeTestId) return
+
     const aggregation = await MockTestAttemptModel.aggregate<AnalyticsSnapshotAggregation>([
       {
         $match: {
-          testId: new mongoose.Types.ObjectId(testId),
+          testId: safeTestId,
           status: 'completed',
         },
       },
@@ -521,7 +690,7 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
     const data = aggregation[0]
 
     await MockTestAnalyticsSnapshotModel.findOneAndUpdate(
-      { testId },
+      { testId: safeTestId },
       {
         totalAttempts: data.totalAttempts,
         averageScore: Math.round(data.averageScore),
@@ -531,20 +700,29 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
       { upsert: true, new: true },
     )
 
-    await MockTestModel.findByIdAndUpdate(testId, {
-      averageScore: Math.round(data.averageScore),
-      attemptCount: data.totalAttempts,
-    })
+    await MockTestModel.findOneAndUpdate(
+      { _id: safeTestId },
+      {
+        averageScore: Math.round(data.averageScore),
+        attemptCount: data.totalAttempts,
+      },
+    )
   },
 
   findCreationSession: async (sessionId) => {
-    const doc = await MockTestCreationSessionModel.findById(sessionId).lean()
+    const safeSessionId = toObjectId(sessionId)
+    if (!safeSessionId) return null
+
+    const doc = await MockTestCreationSessionModel.findOne({ _id: safeSessionId }).lean()
     return doc ? mapSession(doc as RawMockTestCreationSessionDoc) : null
   },
 
   findActiveCreationSession: async (userId) => {
+    const safeUserId = toObjectId(userId)
+    if (!safeUserId) return null
+
     const doc = await MockTestCreationSessionModel.findOne({
-      userId,
+      userId: safeUserId,
       status: 'draft',
     }).lean()
 
@@ -564,16 +742,25 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
     ),
 
   updateCreationSession: async (sessionId, data) => {
-    const doc = await MockTestCreationSessionModel.findByIdAndUpdate(sessionId, data, {
-      new: true,
-    }).lean()
+    const safeSessionId = toObjectId(sessionId)
+    if (!safeSessionId) return null
+
+    const doc = await MockTestCreationSessionModel.findOneAndUpdate(
+      { _id: safeSessionId },
+      data,
+      { new: true },
+    ).lean()
 
     return doc ? mapSession(doc as RawMockTestCreationSessionDoc) : null
   },
 
   cancelCreationSession: async (sessionId) => {
-    await MockTestCreationSessionModel.findByIdAndUpdate(sessionId, {
-      status: 'cancelled',
-    })
+    const safeSessionId = toObjectId(sessionId)
+    if (!safeSessionId) return
+
+    await MockTestCreationSessionModel.findOneAndUpdate(
+      { _id: safeSessionId },
+      { status: 'cancelled' },
+    )
   },
 }
