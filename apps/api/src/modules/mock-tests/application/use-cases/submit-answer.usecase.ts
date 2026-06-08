@@ -1,0 +1,63 @@
+import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
+import { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
+import { SubmitAnswerPayload } from '../../domain/types/mock-tests.types'
+import { ApiError } from '../../../../shared/utils/ApiError'
+import { isMCQCorrect } from '../services/test-scorer.service'
+
+export class SubmitAnswerUseCase {
+  constructor(private readonly repo: MockTestsRepositoryContract, private readonly aiService: MockTestAIServiceContract) {}
+
+  async execute(attemptId: string, userId: string, payload: SubmitAnswerPayload) {
+    const attempt = await this.repo.findAttemptById(attemptId)
+    if (!attempt) throw new ApiError(404, 'Attempt not found', 'NOT_FOUND')
+    if (attempt.userId !== userId) throw new ApiError(403, 'Forbidden', 'FORBIDDEN')
+    if (attempt.status !== 'in_progress') throw new ApiError(400, 'Test is not in progress', 'TEST_NOT_ACTIVE')
+
+    const question = await this.repo.findQuestionById(payload.questionId)
+    if (!question || question.testId !== attempt.testId) throw new ApiError(404, 'Question not found', 'NOT_FOUND')
+
+    const existing = await this.repo.findAnswerByQuestion(attemptId, payload.questionId)
+    let isCorrect: boolean | undefined
+    let pointsEarned: number | undefined
+
+    if (question.type === 'mcq') {
+      isCorrect = question.correctAnswer ? isMCQCorrect(payload.answer, question.correctAnswer) : false
+      pointsEarned = isCorrect ? question.points : 0
+    }
+
+    let savedAnswer = existing
+      ? await this.repo.updateAnswer(existing._id, { answer: payload.answer, isCorrect, pointsEarned, submittedAt: new Date() })
+      : await this.repo.saveAnswer({ attemptId, questionId: payload.questionId, answer: payload.answer, isCorrect, pointsEarned })
+
+    if (!existing) await this.repo.incrementAnsweredCount(attemptId)
+
+    if (question.type !== 'mcq' && savedAnswer) {
+      try {
+        const evaluation = await this.aiService.evaluateOpenAnswer({
+          question: question.question,
+          correctAnswer: question.correctAnswer,
+          userAnswer: payload.answer,
+          questionType: question.type,
+          maxPoints: question.points,
+        })
+        const aiEval = await this.repo.createAIEvaluation({
+          attemptId,
+          questionId: payload.questionId,
+          answerId: savedAnswer._id,
+          score: evaluation.score,
+          maxScore: question.points,
+          feedback: evaluation.feedback,
+        })
+        savedAnswer = await this.repo.updateAnswer(savedAnswer._id, {
+          isCorrect: evaluation.isCorrect,
+          pointsEarned: evaluation.score,
+          aiEvaluationId: aiEval._id,
+        })
+      } catch {
+        // Keep answer saved even when AI evaluation fails.
+      }
+    }
+
+    return savedAnswer
+  }
+}

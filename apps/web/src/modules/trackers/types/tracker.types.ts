@@ -66,7 +66,8 @@ export interface Tracker {
   topicsCount?: number
   subtopicsCount?: number
   completedSubtopicsCount?: number
-  totalTimeSpentMinutes?: number
+  completedTopics?: number   // 👈 add
+  totalTopics?: number       // 👈 add (same as topicsCount but from progress)
   lastActiveAt?: string | null
   publishedAt?: string | null
   createdAt?: string
@@ -160,7 +161,7 @@ export interface UpdateSubtopicProgressPayload {
   trackerId: string
   subtopicId: string
   status: 'in_progress' | 'completed'
-  timeSpentMinutes?: number
+  
 }
 
 export interface LessonListItem {
@@ -529,3 +530,12 @@ export type GenerateLessonVisualizationPayload = {
   regenerate?: boolean
 }
  
+export type PublishTrackerPayload = {
+  trackerId: string
+  name: string
+  description: string
+  domain: string
+  difficulty: string
+  tags: string[]
+  allowClone: boolean
+}

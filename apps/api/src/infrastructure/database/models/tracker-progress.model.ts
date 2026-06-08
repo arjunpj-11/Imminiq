@@ -10,7 +10,6 @@ export interface ITrackerProgress extends Document {
   totalSubtopics: number
   completedSubtopics: number
   completionPercentage: number
-  timeSpentMinutes: number
   lastStudiedAt: Date | null
   startedAt: Date
   completedAt?: Date | null
@@ -51,10 +50,6 @@ const trackerProgressSchema = new Schema<ITrackerProgress>(
       default: 0,
       min: 0,
       max: 100,
-    },
-    timeSpentMinutes: {
-      type: Number,
-      default: 0,
     },
     lastStudiedAt: {
       type: Date,

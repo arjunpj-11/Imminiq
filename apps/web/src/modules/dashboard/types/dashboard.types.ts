@@ -32,7 +32,7 @@ export interface DashboardTrackers {
 
 export interface DashboardStats {
   totalSubtopicsCompleted: number
-  totalTimeSpentMinutes: number
+ 
   totalPoints: number
   publishedTrackers: number
 }
@@ -64,6 +64,9 @@ export interface DashboardCurrentRoadmap {
   level: string
   completionPercentage: number
   lastStudiedAt: string | null
+  totalTopics: number
+  completedTopics: number
+  remainingTopics?: number | null 
 }
 
 export interface DashboardActivityIntensityItem {

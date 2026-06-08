@@ -16,7 +16,6 @@ export interface IUserSubtopicProgress extends Document {
   status: SubtopicProgressStatus
   isUnlocked: boolean
   progressPercent: number
-  timeSpentMinutes: number
   completedAt?: Date | null
   createdAt: Date
   updatedAt: Date
@@ -59,11 +58,7 @@ const userSubtopicProgressSchema = new Schema<IUserSubtopicProgress>(
       min: 0,
       max: 100,
     },
-    timeSpentMinutes: {
-      type: Number,
-      default: 0,
-      min: 0,
-    },
+   
     completedAt: {
       type: Date,
       default: null,

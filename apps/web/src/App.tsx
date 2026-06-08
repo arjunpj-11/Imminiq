@@ -29,6 +29,15 @@ import NoConnectionPage from './pages/NoConnectionPage'
 import NotFoundPage from './pages/NotFoundPage'
 import TrackerManagePage from './modules/trackers/pages/TrackerManagePage'
 import TrackerQuickRevisionPage from './modules/trackers/pages/TrackerQuickRevisionPage'
+import MyPublishedTrackersPage from './modules/trackers/pages/MyPublishedTrackersPage' 
+// import MyCommunityPage from './modules/community/pages/MyCommunity'
+// import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
+import MockTestAnalysisPage from './modules/mock-tests/pages/MockTestAnalysisPage'
+import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
+import MockTestAttemptPage from './modules/mock-tests/pages/MockTestAttemptPage'
+import MockTestDetailsPage from './modules/mock-tests/pages/MockTestDetailsPage'
+import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
+import MockTestCreatePage from './modules/mock-tests/pages/MockTestCreatePage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
@@ -301,6 +310,17 @@ export default function App() {
           />
 
           <Route path="/trackers/:trackerId/revision" element={<TrackerQuickRevisionPage />} />
+          <Route path="/trackers/published" element={<MyPublishedTrackersPage />} />
+            {/* <Route path="/community" element={<MyCommunityPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} /> */}
+            <Route path="/mock-tests" element={<MockTestsPage />} />
+<Route path="/mock-tests/create" element={<MockTestCreatePage />} />
+<Route path="/mock-tests/:testId" element={<MockTestDetailsPage />} />
+<Route path="/mock-tests/attempts/:attemptId" element={<MockTestAttemptPage />} />
+<Route path="/mock-tests/attempts/:attemptId/result" element={<MockTestResultPage />} />
+<Route path="/mock-tests/attempts/:attemptId/analysis" element={<MockTestAnalysisPage />} />
+```
+            
 
           {/* ─── ADMIN ROUTES ───────────────────────────── */}
           <Route

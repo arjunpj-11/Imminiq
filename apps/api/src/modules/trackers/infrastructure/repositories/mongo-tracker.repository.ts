@@ -292,25 +292,52 @@ export const mongoTrackerRepository: TrackerRepository = {
     }
   },
 
-  listOwnedTrackers: async ({ userId, status = 'all', domain = 'all', sortBy = 'lastActive', page, limit }) => {
-    const query: MongoQuery = { ownerId: toObjectId(userId), deletedAt: null }
-    if (status !== 'all') query.status = status
-    if (domain !== 'all') query.domain = domain
+listOwnedTrackers: async ({ userId, status = 'all', domain = 'all', sortBy = 'lastActive', page, limit }) => {
+  const query: MongoQuery = { ownerId: toObjectId(userId), deletedAt: null }
+  if (status !== 'all') query.status = status
+  if (domain !== 'all') query.domain = domain
 
-    const skip = (page - 1) * limit
-    const [trackers, total] = await Promise.all([
-      Tracker.find(asMongoFilter(query)).sort(buildTrackerSort(sortBy)).skip(skip).limit(limit).lean(),
-      Tracker.countDocuments(asMongoFilter(query)),
-    ])
+  const skip = (page - 1) * limit
 
+  const [trackers, total] = await Promise.all([
+    Tracker.find(asMongoFilter(query))
+      .sort(buildTrackerSort(sortBy))
+      .skip(skip)
+      .limit(limit)
+      .lean(),
+    Tracker.countDocuments(asMongoFilter(query)),
+  ])
+
+  // 👈 fetch progress for all returned trackers in one query
+  const trackerIds = trackers.map((t) => t._id)
+
+  const progressList = await TrackerProgress.find(
+    asMongoFilter({ userId: toObjectId(userId), trackerId: { $in: trackerIds } })
+  )
+    .select('trackerId completedTopics totalTopics')
+    .lean()
+
+  const progressMap = new Map(
+    progressList.map((p) => [p.trackerId.toString(), p])
+  )
+
+  const enrichedTrackers = trackers.map((tracker) => {
+    const progress = progressMap.get(tracker._id.toString())
     return {
-      trackers: trackers as TrackerRecord[],
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+      ...tracker,
+      completedTopics: progress?.completedTopics ?? 0,
+      totalTopics: progress?.totalTopics ?? tracker.topicsCount ?? 0,
     }
-  },
+  })
+
+  return {
+    trackers: enrichedTrackers as TrackerRecord[],
+    total,
+    page,
+    limit,
+    totalPages: Math.ceil(total / limit),
+  }
+},
 
   createTracker: async (data: CreateTrackerInput) => {
     const tracker = await Tracker.create(asMongoCreatePayload({
@@ -326,7 +353,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       topicsCount: 0,
       subtopicsCount: 0,
       completedSubtopicsCount: 0,
-      totalTimeSpentMinutes: 0,
       lastActiveAt: new Date(),
       publishedAt: null,
       completedAt: null,
@@ -385,14 +411,65 @@ export const mongoTrackerRepository: TrackerRepository = {
     return tracker as TrackerRecord | null
   },
 
-  publishOwnedTracker: async ({ trackerId, userId }) => {
-    const tracker = await Tracker.findOneAndUpdate(
-      asMongoFilter({ _id: toObjectId(trackerId), ownerId: toObjectId(userId), deletedAt: null }),
-      asMongoUpdate({ $set: { visibility: 'public', publishedAt: new Date() } }),
-      { returnDocument: 'after' }
-    )
-    return tracker as TrackerRecord | null
-  },
+ publishOwnedTracker: async ({
+  trackerId,
+  userId,
+  name,
+  description,
+  domain,
+  difficulty,
+  tags,
+  allowClone,
+}) => {
+  const update: Record<string, unknown> = {
+    visibility: 'public',
+    publishedAt: new Date(),
+  }
+
+  if (typeof name === 'string' && name.trim()) {
+    update.title = name.trim()
+  }
+
+  if (typeof description === 'string') {
+    update.description = description.trim()
+  }
+
+  if (typeof domain === 'string' && domain.trim()) {
+    update.field = domain.trim()
+  }
+
+  if (
+    difficulty === 'beginner' ||
+    difficulty === 'intermediate' ||
+    difficulty === 'advanced'
+  ) {
+    update.level = difficulty
+  }
+
+  if (Array.isArray(tags)) {
+    update.tags = tags
+      .map((tag) => String(tag).trim().toLowerCase())
+      .filter(Boolean)
+  }
+
+  if (typeof allowClone === 'boolean') {
+    update.allowClone = allowClone
+  }
+
+  const tracker = await Tracker.findOneAndUpdate(
+    asMongoFilter({
+      _id: toObjectId(trackerId),
+      ownerId: toObjectId(userId),
+      deletedAt: null,
+    }),
+    asMongoUpdate({
+      $set: update,
+    }),
+    { returnDocument: 'after' }
+  )
+
+  return tracker as TrackerRecord | null
+},
 
   unpublishOwnedTracker: async ({ trackerId, userId }) => {
     const tracker = await Tracker.findOneAndUpdate(
@@ -462,7 +539,6 @@ export const mongoTrackerRepository: TrackerRepository = {
         status: (progress?.status ?? defaultStatus) as SubtopicWithProgressRecord['status'],
         isUnlocked: progress ? progress.isUnlocked : !subtopic.isLocked,
         progressPercent: progress?.progressPercent ?? 0,
-        timeSpentMinutes: progress?.timeSpentMinutes ?? 0,
         completedAt: progress?.completedAt ?? null,
       } as SubtopicWithProgressRecord
     })
@@ -588,7 +664,6 @@ export const mongoTrackerRepository: TrackerRepository = {
           status: subtopic.isLocked ? 'locked' : 'available',
           isUnlocked: !subtopic.isLocked,
           progressPercent: 0,
-          timeSpentMinutes: 0,
           completedAt: null,
         }))
       )
@@ -605,7 +680,6 @@ export const mongoTrackerRepository: TrackerRepository = {
           totalSubtopics: subtopics.length,
           completedSubtopics: 0,
           completionPercentage: 0,
-          timeSpentMinutes: 0,
           lastStudiedAt: null,
           startedAt: new Date(),
           completedAt: null,
@@ -629,12 +703,11 @@ export const mongoTrackerRepository: TrackerRepository = {
     return docs as UserTopicProgressRecord[]
   },
 
- updateSubtopicProgress: async ({
+updateSubtopicProgress: async ({
   trackerId,
   subtopicId,
   userId,
   status,
-  timeSpentMinutes = 0,
 }: UpdateSubtopicProgressInput) => {
   const userObjId = toObjectId(userId)
   const subtopicObjId = toObjectId(subtopicId)
@@ -659,7 +732,6 @@ export const mongoTrackerRepository: TrackerRepository = {
       subtopicId: subtopicObjId,
     })
   ).lean()
-
 
   const progressUpdate: Record<string, unknown> = {
     status,
@@ -691,9 +763,6 @@ export const mongoTrackerRepository: TrackerRepository = {
         subtopicId: subtopicObjId,
       },
       $set: progressUpdate,
-      $inc: {
-        timeSpentMinutes,
-      },
     }),
     {
       returnDocument: 'after',
@@ -701,22 +770,38 @@ export const mongoTrackerRepository: TrackerRepository = {
     }
   )
 
-  const [totalSubtopics, completedSubtopics] = await Promise.all([
-    TrackerSubtopic.countDocuments(
-      asMongoFilter({
-        trackerId: trackerObjId,
-        deletedAt: null,
-      })
-    ),
+  const [totalSubtopics, completedSubtopics, totalTopics, completedTopics] =
+    await Promise.all([
+      TrackerSubtopic.countDocuments(
+        asMongoFilter({
+          trackerId: trackerObjId,
+          deletedAt: null,
+        })
+      ),
 
-    UserSubtopicProgress.countDocuments(
-      asMongoFilter({
-        userId: userObjId,
-        trackerId: trackerObjId,
-        status: 'completed',
-      })
-    ),
-  ])
+      UserSubtopicProgress.countDocuments(
+        asMongoFilter({
+          userId: userObjId,
+          trackerId: trackerObjId,
+          status: 'completed',
+        })
+      ),
+
+      UserTopicProgress.countDocuments(
+        asMongoFilter({
+          userId: userObjId,
+          trackerId: trackerObjId,
+        })
+      ),
+
+      UserTopicProgress.countDocuments(
+        asMongoFilter({
+          userId: userObjId,
+          trackerId: trackerObjId,
+          status: 'completed',
+        })
+      ),
+    ])
 
   const completionPercentage =
     totalSubtopics > 0
@@ -747,6 +832,8 @@ export const mongoTrackerRepository: TrackerRepository = {
           lastStudiedAt: now,
           completedSubtopics,
           totalSubtopics,
+          completedTopics,      // 👈 now tracked live
+          totalTopics,          // 👈 now tracked live
           completionPercentage,
           status:
             completionPercentage >= 100
@@ -754,9 +841,6 @@ export const mongoTrackerRepository: TrackerRepository = {
               : completionPercentage > 0
                 ? 'in_progress'
                 : 'not_started',
-        },
-        $inc: {
-          timeSpentMinutes,
         },
       }),
       {
@@ -786,7 +870,6 @@ export const mongoTrackerRepository: TrackerRepository = {
     status: userProgress?.status ?? status,
     isUnlocked: userProgress?.isUnlocked ?? true,
     progressPercent: userProgress?.progressPercent ?? 0,
-    timeSpentMinutes: userProgress?.timeSpentMinutes ?? 0,
     completedAt: userProgress?.completedAt ?? null,
   } as SubtopicWithProgressRecord
 },

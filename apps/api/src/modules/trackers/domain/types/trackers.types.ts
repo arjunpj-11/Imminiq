@@ -31,6 +31,17 @@ export type CreateTrackerInput = {
   visibility?: TrackerVisibility
 }
 
+export type PublishTrackerInput = {
+  trackerId: string
+  userId: string
+  name?: string
+  description?: string
+  domain?: string
+  difficulty?: TrackerLevel
+  tags?: string[]
+  allowClone?: boolean
+}
+
 export type UpdateTrackerInput = {
   trackerId: string
   userId: string
@@ -86,7 +97,6 @@ export interface UpdateSubtopicProgressInput {
   subtopicId: string
   userId: string
   status: SubtopicProgressStatus
-  timeSpentMinutes?: number
 }
 
 export type AddMissingEvaluationTopicInput = {
@@ -128,13 +138,14 @@ export interface TrackerRecord {
   domain?: TrackerDomain | string
   goal?: string
   level?: TrackerLevel | string
+  tags?: string[]
+  allowClone?: boolean
   status?: TrackerStatus
   visibility?: TrackerVisibility
   progressPercent?: number
   topicsCount?: number
   subtopicsCount?: number
   completedSubtopicsCount?: number
-  totalTimeSpentMinutes?: number
   publishedAt?: Date | null
   completedAt?: Date | null
   lastActiveAt?: Date | null
@@ -186,7 +197,6 @@ export interface SubtopicWithProgressRecord extends TrackerSubtopicRecord {
   isUnlocked: boolean
   isLocked: boolean
   progressPercent: number
-  timeSpentMinutes: number
   completedAt?: Date | null
 }
 
@@ -214,7 +224,6 @@ export interface UserSubtopicProgressRecord {
   status: SubtopicStatus
   isUnlocked: boolean
   progressPercent: number
-  timeSpentMinutes: number
   completedAt?: Date | null
 }
 
@@ -237,7 +246,7 @@ export interface TrackerProgressRecord {
   totalSubtopics: number
   completedSubtopics: number
   completionPercentage: number
-  timeSpentMinutes: number
+
   lastStudiedAt: Date | null
   startedAt: Date
   completedAt?: Date | null

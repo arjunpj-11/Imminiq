@@ -21,6 +21,8 @@ import settingsRouter from './modules/settings/presentation/settings.routes'
 import { securityRoutes } from './modules/security/security.routes'
 import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes'
 import moderationAppealRoutes from './modules/moderation-appeals/presentation/moderation-appeal.routes'
+import { mockTestsRouter } from './modules/mock-tests'
+
 
 const app = express()
 
@@ -67,6 +69,7 @@ app.get('/api/health', (_req, res) => {
 // module routers will be registered here later
 
 app.use('/api/security', securityRoutes)
+app.use('/api/mock-tests', mockTestsRouter)
 
 app.use('/api/moderation-appeals', moderationAppealRoutes)
 

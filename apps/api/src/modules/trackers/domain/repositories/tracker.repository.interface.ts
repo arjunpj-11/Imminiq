@@ -10,6 +10,7 @@ import type {
   GeneratedTrackerLessonRecord,
   LastSiblingSubtopicRecord,
   LastTopicRecord,
+  PublishTrackerInput,
   SubtopicWithProgressRecord,
   TrackerListFilter,
   TrackerListResult,
@@ -22,8 +23,9 @@ import type {
   UpdateTrackerInput,
   UserSubtopicProgressRecord,
   UserTopicProgressRecord,
-  TopicWithProgressRecord
+  TopicWithProgressRecord,
 } from '../types/trackers.types'
+
 import type { GeneratedLessonData, GeneratedLessonPracticeTask } from '../types/lesson-practice.types'
 
 export interface TrackerRepository {
@@ -59,10 +61,7 @@ export interface TrackerRepository {
     userId: string
   }): Promise<TrackerRecord | null>
 
-  publishOwnedTracker(data: {
-    trackerId: string
-    userId: string
-  }): Promise<TrackerRecord | null>
+publishOwnedTracker(data: PublishTrackerInput): Promise<TrackerRecord | null>
 
   unpublishOwnedTracker(data: {
     trackerId: string

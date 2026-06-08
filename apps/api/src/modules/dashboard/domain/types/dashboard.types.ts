@@ -19,6 +19,9 @@ export interface DashboardActiveTracker {
   level: string
   completionPercentage: number
   lastStudiedAt: Date | null
+  totalTopics: number        
+  completedTopics: number    
+  remainingTopics: number    
 }
 
 export interface DashboardTrackerSummary {
@@ -30,7 +33,7 @@ export interface DashboardTrackerSummary {
 
 export interface DashboardStats {
   totalSubtopicsCompleted: number
-  totalTimeSpentMinutes: number
+  
   totalPoints: number
   publishedTrackers: number
 }
