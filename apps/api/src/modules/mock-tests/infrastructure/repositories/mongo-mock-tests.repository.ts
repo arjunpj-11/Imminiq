@@ -188,6 +188,41 @@ const mapSession = (doc: RawMockTestCreationSessionDoc): MockTestCreationSession
   updatedAt: dateOrNow(doc.updatedAt),
 })
 
+const getPublicTestsByDifficulty = async (difficulty?: DifficultyLevel) => {
+  if (difficulty === 'easy') {
+    return MockTestModel.find({
+      visibility: 'public',
+      difficulty: 'easy',
+    })
+      .sort({ createdAt: -1 })
+      .lean()
+  }
+
+  if (difficulty === 'medium') {
+    return MockTestModel.find({
+      visibility: 'public',
+      difficulty: 'medium',
+    })
+      .sort({ createdAt: -1 })
+      .lean()
+  }
+
+  if (difficulty === 'hard') {
+    return MockTestModel.find({
+      visibility: 'public',
+      difficulty: 'hard',
+    })
+      .sort({ createdAt: -1 })
+      .lean()
+  }
+
+  return MockTestModel.find({
+    visibility: 'public',
+  })
+    .sort({ createdAt: -1 })
+    .lean()
+}
+
 export const mongoMockTestsRepository: MockTestsRepositoryContract = {
   findTestById: async (testId) => {
     const safeTestId = toObjectId(testId)
@@ -215,39 +250,22 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
     const safeLimit = sanitizeLimit(limit)
     const skip = (safePage - 1) * safeLimit
 
-    const query =
-      safeDifficulty && safeTags.length
-        ? {
-            visibility: 'public' as const,
-            difficulty: safeDifficulty,
-            tags: { $in: safeTags },
-          }
-        : safeDifficulty
-          ? {
-              visibility: 'public' as const,
-              difficulty: safeDifficulty,
-            }
-          : safeTags.length
-            ? {
-                visibility: 'public' as const,
-                tags: { $in: safeTags },
-              }
-            : {
-                visibility: 'public' as const,
-              }
+    const docs = await getPublicTestsByDifficulty(safeDifficulty)
 
-    const [docs, total] = await Promise.all([
-      MockTestModel.find(query)
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(safeLimit)
-        .lean(),
-      MockTestModel.countDocuments(query),
-    ])
+    const filteredDocs = safeTags.length
+      ? docs.filter((doc) => {
+          const test = doc as RawMockTestDoc
+          const docTags = Array.isArray(test.tags) ? test.tags : []
+
+          return safeTags.some((tag) => docTags.includes(tag))
+        })
+      : docs
+
+    const paginatedDocs = filteredDocs.slice(skip, skip + safeLimit)
 
     return {
-      tests: docs.map((doc) => mapTest(doc as RawMockTestDoc)),
-      total,
+      tests: paginatedDocs.map((doc) => mapTest(doc as RawMockTestDoc)),
+      total: filteredDocs.length,
     }
   },
 
