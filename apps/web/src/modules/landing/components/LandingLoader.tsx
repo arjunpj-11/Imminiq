@@ -106,7 +106,7 @@ export default function LandingLoader({
 
       <div className="relative z-10 flex flex-col items-center gap-6 px-6 text-center">
         <img
-          src="/logo.svg"
+          src="./../../../../public/imminiq-logo.svg"
           alt="Imminiq"
           className="h-11 w-11 object-contain opacity-95"
           onError={(e) => { e.currentTarget.style.display = 'none' }}
