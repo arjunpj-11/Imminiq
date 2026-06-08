@@ -23,6 +23,8 @@ import type { OAuthLoginUser } from '../auth.service'
 const REFRESH_COOKIE_NAME = 'refreshToken'
 const TWO_FACTOR_CHALLENGE_COOKIE_NAME = 'twoFactorChallengeToken'
 
+const AUTH_COOKIE_PATH = '/api/auth'
+
 const isProduction = env.NODE_ENV === 'production'
 
 const CROSS_SITE_COOKIE_OPTIONS: Pick<
@@ -31,7 +33,7 @@ const CROSS_SITE_COOKIE_OPTIONS: Pick<
 > = {
   secure: isProduction,
   sameSite: isProduction ? 'none' : 'lax',
-  path: '/',
+  path: AUTH_COOKIE_PATH,
 }
 
 const COOKIE_OPTIONS: CookieOptions = {
@@ -44,6 +46,16 @@ const TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   ...CROSS_SITE_COOKIE_OPTIONS,
   maxAge: 5 * 60 * 1000,
+}
+
+const LEGACY_ROOT_COOKIE_OPTIONS: CookieOptions = {
+  ...COOKIE_OPTIONS,
+  path: '/',
+}
+
+const LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
+  ...TWO_FACTOR_COOKIE_OPTIONS,
+  path: '/',
 }
 
 const getRequestMeta = (req: Request) => ({
@@ -72,10 +84,18 @@ const isRestrictedAccountCode = (code?: string) => {
 
 const clearAuthCookies = (res: Response) => {
   res
+    // Current scoped cookies
     .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
     .clearCookie(
       TWO_FACTOR_CHALLENGE_COOKIE_NAME,
       TWO_FACTOR_COOKIE_OPTIONS
+    )
+
+    // Old cookies that were previously created with Path=/
+    .clearCookie(REFRESH_COOKIE_NAME, LEGACY_ROOT_COOKIE_OPTIONS)
+    .clearCookie(
+      TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+      LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS
     )
 
   clearCsrfCookie(res)
@@ -227,6 +247,10 @@ export const authController = {
         .clearCookie(
           TWO_FACTOR_CHALLENGE_COOKIE_NAME,
           TWO_FACTOR_COOKIE_OPTIONS
+        )
+        .clearCookie(
+          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+          LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS
         )
         .json(
           new ApiResponse('Two-factor verification successful', {

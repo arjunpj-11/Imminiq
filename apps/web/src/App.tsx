@@ -1,7 +1,7 @@
 // apps/web/src/App.tsx
 
 import { lazy, Suspense, useLayoutEffect } from 'react'
-import { Route, Routes } from 'react-router-dom'
+import { Route, Routes, useLocation } from 'react-router-dom'
 
 import { AdminRoute } from './routes/AdminRoute'
 import { ProtectedRoute } from './routes/ProtectedRoute'
@@ -27,22 +27,28 @@ import VerifyEmailChangePage from './modules/auth/pages/VerifyEmailChangePage'
 import BlockedPage from './pages/BlockedPage'
 import NoConnectionPage from './pages/NoConnectionPage'
 import NotFoundPage from './pages/NotFoundPage'
+
+// ─── TRACKER PAGES ──────────────────────────────────
+import MyPublishedTrackersPage from './modules/trackers/pages/MyPublishedTrackersPage'
 import TrackerManagePage from './modules/trackers/pages/TrackerManagePage'
 import TrackerQuickRevisionPage from './modules/trackers/pages/TrackerQuickRevisionPage'
-import MyPublishedTrackersPage from './modules/trackers/pages/MyPublishedTrackersPage' 
+
+// ─── MOCK TEST PAGES ────────────────────────────────
+import MockTestAnalysisPage from './modules/mock-tests/pages/MockTestAnalysisPage'
+import MockTestAttemptPage from './modules/mock-tests/pages/MockTestAttemptPage'
+import MockTestCreatePage from './modules/mock-tests/pages/MockTestCreatePage'
+import MockTestDetailsPage from './modules/mock-tests/pages/MockTestDetailsPage'
+import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
+import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
+
 // import MyCommunityPage from './modules/community/pages/MyCommunity'
 // import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
-import MockTestAnalysisPage from './modules/mock-tests/pages/MockTestAnalysisPage'
-import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
-import MockTestAttemptPage from './modules/mock-tests/pages/MockTestAttemptPage'
-import MockTestDetailsPage from './modules/mock-tests/pages/MockTestDetailsPage'
-import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
-import MockTestCreatePage from './modules/mock-tests/pages/MockTestCreatePage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
 const TermsPage = lazy(() => import('./modules/legal/pages/TermsPage'))
 
+// ─── LAZY LANDING PAGE ──────────────────────────────
 const LandingPage = lazy(() => import('./modules/landing/pages/LandingPage'))
 
 // ─── LAZY ONBOARDING PAGES ──────────────────────────
@@ -111,6 +117,52 @@ const TrackerRoadmapPage = lazy(
   () => import('./modules/trackers/pages/TrackerRoadmapPage')
 )
 
+const PUBLIC_EXACT_PATHS = new Set([
+  '/',
+  '/register',
+  '/login',
+  '/forgot-password',
+  '/verify-account',
+  '/reset-password',
+  '/verify-email-change',
+  '/two-factor-challenge',
+  '/blocked',
+  '/offline',
+  '/privacy',
+  '/terms',
+])
+
+const isPublicRoute = (pathname: string) => {
+  if (PUBLIC_EXACT_PATHS.has(pathname)) {
+    return true
+  }
+
+  // Public user profile route: /profile/:username
+  // But /profile itself is protected.
+  if (pathname.startsWith('/profile/') && pathname !== '/profile') {
+    return true
+  }
+
+  return false
+}
+
+function AuthSessionSync() {
+  useRestoreSession()
+  useAuthSync()
+
+  return null
+}
+
+function AuthSessionBridge() {
+  const location = useLocation()
+
+  if (isPublicRoute(location.pathname)) {
+    return null
+  }
+
+  return <AuthSessionSync />
+}
+
 export default function App() {
   const initTheme = useThemeStore((state) => state.initTheme)
 
@@ -118,12 +170,10 @@ export default function App() {
     initTheme()
   }, [initTheme])
 
-  useRestoreSession()
-  useAuthSync()
-
   return (
     <>
       <NetworkRedirector />
+      <AuthSessionBridge />
 
       <Suspense
         fallback={
@@ -160,6 +210,7 @@ export default function App() {
           <Route path="/privacy" element={<PrivacyPage />} />
           <Route path="/terms" element={<TermsPage />} />
 
+          {/* ─── PUBLIC LANDING ROUTE ───────────────────── */}
           <Route path="/" element={<LandingPage />} />
 
           {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
@@ -219,11 +270,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
-          <Route
-  path="/trackers/:trackerId/manage"
-  element={<TrackerManagePage />}
-/>
 
           {/* ─── PROTECTED MAIN APP ROUTES ──────────────── */}
           <Route
@@ -292,6 +338,15 @@ export default function App() {
           />
 
           <Route
+            path="/trackers/:trackerId/manage"
+            element={
+              <ProtectedRoute>
+                <TrackerManagePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/trackers/:trackerId/roadmap"
             element={
               <ProtectedRoute>
@@ -309,18 +364,81 @@ export default function App() {
             }
           />
 
-          <Route path="/trackers/:trackerId/revision" element={<TrackerQuickRevisionPage />} />
-          <Route path="/trackers/published" element={<MyPublishedTrackersPage />} />
-            {/* <Route path="/community" element={<MyCommunityPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} /> */}
-            <Route path="/mock-tests" element={<MockTestsPage />} />
-<Route path="/mock-tests/create" element={<MockTestCreatePage />} />
-<Route path="/mock-tests/:testId" element={<MockTestDetailsPage />} />
-<Route path="/mock-tests/attempts/:attemptId" element={<MockTestAttemptPage />} />
-<Route path="/mock-tests/attempts/:attemptId/result" element={<MockTestResultPage />} />
-<Route path="/mock-tests/attempts/:attemptId/analysis" element={<MockTestAnalysisPage />} />
-```
-            
+          <Route
+            path="/trackers/:trackerId/revision"
+            element={
+              <ProtectedRoute>
+                <TrackerQuickRevisionPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/trackers/published"
+            element={
+              <ProtectedRoute>
+                <MyPublishedTrackersPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* <Route path="/community" element={<MyCommunityPage />} /> */}
+          {/* <Route path="/leaderboard" element={<LeaderboardPage />} /> */}
+
+          {/* ─── PROTECTED MOCK TEST ROUTES ─────────────── */}
+          <Route
+            path="/mock-tests"
+            element={
+              <ProtectedRoute>
+                <MockTestsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/mock-tests/create"
+            element={
+              <ProtectedRoute>
+                <MockTestCreatePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/mock-tests/:testId"
+            element={
+              <ProtectedRoute>
+                <MockTestDetailsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/mock-tests/attempts/:attemptId"
+            element={
+              <ProtectedRoute>
+                <MockTestAttemptPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/mock-tests/attempts/:attemptId/result"
+            element={
+              <ProtectedRoute>
+                <MockTestResultPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/mock-tests/attempts/:attemptId/analysis"
+            element={
+              <ProtectedRoute>
+                <MockTestAnalysisPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* ─── ADMIN ROUTES ───────────────────────────── */}
           <Route
