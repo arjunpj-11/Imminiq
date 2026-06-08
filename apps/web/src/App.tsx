@@ -30,8 +30,8 @@ import NotFoundPage from './pages/NotFoundPage'
 import TrackerManagePage from './modules/trackers/pages/TrackerManagePage'
 import TrackerQuickRevisionPage from './modules/trackers/pages/TrackerQuickRevisionPage'
 import MyPublishedTrackersPage from './modules/trackers/pages/MyPublishedTrackersPage' 
-import MyCommunityPage from './modules/community/pages/MyCommunity'
-import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
+// import MyCommunityPage from './modules/community/pages/MyCommunity'
+// import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
 import MockTestAnalysisPage from './modules/mock-tests/pages/MockTestAnalysisPage'
 import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
 import MockTestAttemptPage from './modules/mock-tests/pages/MockTestAttemptPage'
@@ -311,8 +311,8 @@ export default function App() {
 
           <Route path="/trackers/:trackerId/revision" element={<TrackerQuickRevisionPage />} />
           <Route path="/trackers/published" element={<MyPublishedTrackersPage />} />
-            <Route path="/community" element={<MyCommunityPage />} />
-            <Route path="/leaderboard" element={<LeaderboardPage />} />
+            {/* <Route path="/community" element={<MyCommunityPage />} />
+            <Route path="/leaderboard" element={<LeaderboardPage />} /> */}
             <Route path="/mock-tests" element={<MockTestsPage />} />
 <Route path="/mock-tests/create" element={<MockTestCreatePage />} />
 <Route path="/mock-tests/:testId" element={<MockTestDetailsPage />} />
