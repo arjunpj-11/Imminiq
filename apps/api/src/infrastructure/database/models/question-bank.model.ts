@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
-const mockTestCodingTestCaseSchema = new Schema(
+const codingTestCaseSchema = new Schema(
   {
     input: {
       type: [Schema.Types.Mixed],
@@ -16,7 +16,6 @@ const mockTestCodingTestCaseSchema = new Schema(
     isHidden: {
       type: Boolean,
       default: false,
-      index: true,
     },
 
     explanation: {
@@ -27,7 +26,7 @@ const mockTestCodingTestCaseSchema = new Schema(
   { _id: false },
 )
 
-const mockTestCodingSchema = new Schema(
+const codingSchema = new Schema(
   {
     functionName: {
       type: String,
@@ -110,19 +109,26 @@ const mockTestCodingSchema = new Schema(
     },
 
     testCases: {
-      type: [mockTestCodingTestCaseSchema],
+      type: [codingTestCaseSchema],
       default: [],
     },
   },
   { _id: false },
 )
 
-const mockTestQuestionSchema = new Schema(
+const questionBankSchema = new Schema(
   {
-    testId: {
-      type: Schema.Types.ObjectId,
-      ref: 'MockTest',
+    bankId: {
+      type: Number,
       required: true,
+      unique: true,
+      index: true,
+    },
+
+    topic: {
+      type: String,
+      required: true,
+      trim: true,
       index: true,
     },
 
@@ -157,11 +163,7 @@ const mockTestQuestionSchema = new Schema(
       type: String,
       enum: ['easy', 'medium', 'hard'],
       default: 'medium',
-    },
-
-    order: {
-      type: Number,
-      required: true,
+      index: true,
     },
 
     points: {
@@ -171,15 +173,15 @@ const mockTestQuestionSchema = new Schema(
     },
 
     coding: {
-      type: mockTestCodingSchema,
+      type: codingSchema,
       default: undefined,
     },
   },
   { timestamps: true },
 )
 
-mockTestQuestionSchema.index({ testId: 1, order: 1 }, { unique: true })
+questionBankSchema.index({ topic: 1, difficulty: 1 })
 
-export const MockTestQuestionModel =
-  mongoose.models.MockTestQuestion ||
-  mongoose.model('MockTestQuestion', mockTestQuestionSchema)
+export const QuestionBankModel =
+  mongoose.models.QuestionBank ||
+  mongoose.model('QuestionBank', questionBankSchema)

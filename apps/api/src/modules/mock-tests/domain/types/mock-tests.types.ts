@@ -5,10 +5,46 @@ export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned'
 export type EvaluationStatus = 'pending' | 'completed' | 'failed'
 export type CreationSessionStatus = 'draft' | 'completed' | 'cancelled'
 
+export type MockTestCodingLanguage =
+  | 'javascript'
+  | 'typescript'
+  | 'python'
+  | 'java'
+  | 'cpp'
+  | 'c'
+
+export type MockTestCodingValueType =
+  | 'number'
+  | 'string'
+  | 'boolean'
+  | 'number[]'
+  | 'string[]'
+  | 'boolean[]'
+  | 'number[][]'
+  | 'string[][]'
+
+export interface MockTestCodingTestCase {
+  input: unknown[]
+  expectedOutput: unknown
+  isHidden: boolean
+  explanation?: string
+}
+
+export interface MockTestCodingDetails {
+  functionName: string
+  language: MockTestCodingLanguage
+  inputTypes: MockTestCodingValueType[]
+  outputType: MockTestCodingValueType
+  starterCode: string
+  templates?: Partial<Record<MockTestCodingLanguage, string>>
+  testCases: MockTestCodingTestCase[]
+}
+
 export interface MockTest {
   _id: string
   ownerId: string
   trackerId?: string
+  sourceTestId?: string
   title: string
   description: string
   difficulty: DifficultyLevel
@@ -18,6 +54,8 @@ export interface MockTest {
   passingScore: number
   isAIGenerated: boolean
   tags: string[]
+  shareToken?: string
+  isShareEnabled: boolean
   cloneCount: number
   averageScore: number
   attemptCount: number
@@ -36,9 +74,13 @@ export interface MockTestQuestion {
   difficulty: DifficultyLevel
   order: number
   points: number
+  coding?: MockTestCodingDetails
 }
 
-export type PublicMockTestQuestion = Omit<MockTestQuestion, 'correctAnswer' | 'explanation'>
+export type PublicMockTestQuestion = Omit<
+  MockTestQuestion,
+  'correctAnswer' | 'explanation'
+>
 
 export interface MockTestAttempt {
   _id: string
@@ -106,7 +148,11 @@ export interface MockTestAnalyticsSnapshot {
   averageScore: number
   passRate: number
   averageTimeTakenSeconds: number
-  topicBreakdown: { topic: string; averageScore: number; attemptCount: number }[]
+  topicBreakdown: {
+    topic: string
+    averageScore: number
+    attemptCount: number
+  }[]
   createdAt: Date
 }
 
@@ -149,6 +195,7 @@ export interface CreateMockTestPayload {
     explanation?: string
     difficulty?: DifficultyLevel
     points?: number
+    coding?: MockTestCodingDetails
   }[]
 }
 
@@ -169,6 +216,18 @@ export interface SubmitAnswerPayload {
   answer: string
 }
 
+export interface RunMockTestCodePayload {
+  sourceCode: string
+  language?: MockTestCodingLanguage
+  languageId?: number
+}
+
+export interface SubmitMockTestCodePayload {
+  sourceCode: string
+  language?: MockTestCodingLanguage
+  languageId?: number
+}
+
 export interface TestAttemptResult {
   attempt: MockTestAttempt
   report: MockTestReport | null
@@ -179,8 +238,16 @@ export interface TestAttemptResult {
 }
 
 export interface TestAnalytics {
-  trends: { date: string; averageScore: number; attempts: number }[]
-  topicBreakdown: { topic: string; averageScore: number; totalAttempts: number }[]
+  trends: {
+    date: string
+    averageScore: number
+    attempts: number
+  }[]
+  topicBreakdown: {
+    topic: string
+    averageScore: number
+    totalAttempts: number
+  }[]
   aiInsights: string
 }
 
@@ -222,6 +289,7 @@ export interface RawMockTestDoc {
   _id?: unknown
   ownerId?: unknown
   trackerId?: unknown
+  sourceTestId?: unknown
   title?: string
   description?: string
   difficulty?: DifficultyLevel
@@ -231,6 +299,8 @@ export interface RawMockTestDoc {
   passingScore?: number
   isAIGenerated?: boolean
   tags?: string[]
+  shareToken?: string
+  isShareEnabled?: boolean
   cloneCount?: number
   averageScore?: number
   attemptCount?: number
@@ -249,6 +319,7 @@ export interface RawMockTestQuestionDoc {
   difficulty?: DifficultyLevel
   order?: number
   points?: number
+  coding?: MockTestCodingDetails
 }
 
 export interface RawMockTestAttemptDoc {

@@ -37,11 +37,22 @@ const SAFE_TAG_PATTERN = /^[a-zA-Z0-9 _-]{1,40}$/
 const isRecord = (value: unknown): value is RawRecord =>
   typeof value === 'object' && value !== null
 
+const isObjectId = (value: unknown): value is mongoose.Types.ObjectId =>
+  value instanceof mongoose.Types.ObjectId
+
 const id = (value: unknown): string => {
   if (!value) return ''
 
+  if (typeof value === 'string') return value
+
+  if (isObjectId(value)) return value.toString()
+
   if (isRecord(value) && '_id' in value) {
-    return id(value._id)
+    const nestedId = value._id
+
+    if (nestedId === value) return String(value)
+
+    return id(nestedId)
   }
 
   return String(value)
@@ -90,6 +101,7 @@ const mapTest = (doc: RawMockTestDoc): MockTest => ({
   _id: id(doc._id),
   ownerId: id(doc.ownerId),
   trackerId: optionalId(doc.trackerId),
+  sourceTestId: optionalId(doc.sourceTestId),
   title: doc.title || '',
   description: doc.description || '',
   difficulty: doc.difficulty || 'easy',
@@ -99,6 +111,8 @@ const mapTest = (doc: RawMockTestDoc): MockTest => ({
   passingScore: numberOrZero(doc.passingScore),
   isAIGenerated: Boolean(doc.isAIGenerated),
   tags: doc.tags || [],
+  shareToken: doc.shareToken,
+  isShareEnabled: Boolean(doc.isShareEnabled),
   cloneCount: doc.cloneCount || 0,
   averageScore: doc.averageScore || 0,
   attemptCount: doc.attemptCount || 0,
@@ -117,6 +131,7 @@ const mapQuestion = (doc: RawMockTestQuestionDoc): MockTestQuestion => ({
   difficulty: doc.difficulty || 'easy',
   order: numberOrZero(doc.order),
   points: numberOrZero(doc.points),
+  coding: doc.coding,
 })
 
 const mapAttempt = (doc: RawMockTestAttemptDoc): MockTestAttempt => ({
@@ -232,16 +247,35 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
     return doc ? mapTest(doc as RawMockTestDoc) : null
   },
 
-  findTestsByOwner: async (ownerId) => {
-    const safeOwnerId = toObjectId(ownerId)
-    if (!safeOwnerId) return []
+findTestsByOwner: async (ownerId, options = {}) => {
+  const safeOwnerId = toObjectId(ownerId)
 
-    return (
-      await MockTestModel.find({ ownerId: safeOwnerId })
-        .sort({ createdAt: -1 })
-        .lean()
-    ).map((doc) => mapTest(doc as RawMockTestDoc))
-  },
+  if (!safeOwnerId) {
+    return {
+      tests: [],
+      total: 0,
+    }
+  }
+
+  const safePage = sanitizePage(options.page || 1)
+  const safeLimit = sanitizeLimit(options.limit || 6)
+  const skip = (safePage - 1) * safeLimit
+
+  const [docs, total] = await Promise.all([
+    MockTestModel.find({ ownerId: safeOwnerId })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(safeLimit)
+      .lean(),
+
+    MockTestModel.countDocuments({ ownerId: safeOwnerId }),
+  ])
+
+  return {
+    tests: docs.map((doc) => mapTest(doc as RawMockTestDoc)),
+    total,
+  }
+},
 
   findPublicTests: async ({ difficulty, tags, page = 1, limit = 20 }) => {
     const safeDifficulty = sanitizeDifficulty(difficulty)
@@ -781,4 +815,58 @@ export const mongoMockTestsRepository: MockTestsRepositoryContract = {
       { status: 'cancelled' },
     )
   },
+  findSharedTestByToken: async (shareToken) => {
+  const doc = await MockTestModel.findOne({
+    shareToken,
+    isShareEnabled: true,
+  }).lean()
+
+  return doc ? mapTest(doc as RawMockTestDoc) : null
+},
+
+findImportedSharedTest: async (ownerId, sourceTestId) => {
+  const safeOwnerId = toObjectId(ownerId)
+  const safeSourceTestId = toObjectId(sourceTestId)
+
+  if (!safeOwnerId || !safeSourceTestId) return null
+
+  const doc = await MockTestModel.findOne({
+    ownerId: safeOwnerId,
+    sourceTestId: safeSourceTestId,
+  }).lean()
+
+  return doc ? mapTest(doc as RawMockTestDoc) : null
+},
+
+enableTestSharing: async (ownerId, testId, shareToken) => {
+  const safeOwnerId = toObjectId(ownerId)
+  const safeTestId = toObjectId(testId)
+
+  if (!safeOwnerId || !safeTestId) return null
+
+  const doc = await MockTestModel.findOneAndUpdate(
+    {
+      _id: safeTestId,
+      ownerId: safeOwnerId,
+    },
+    {
+      shareToken,
+      isShareEnabled: true,
+    },
+    { new: true },
+  ).lean()
+
+  return doc ? mapTest(doc as RawMockTestDoc) : null
+},
+
+incrementCloneCount: async (testId) => {
+  const safeTestId = toObjectId(testId)
+
+  if (!safeTestId) return
+
+  await MockTestModel.findOneAndUpdate(
+    { _id: safeTestId },
+    { $inc: { cloneCount: 1 } },
+  )
+},
 }
