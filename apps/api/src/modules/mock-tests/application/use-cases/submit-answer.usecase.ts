@@ -1,7 +1,7 @@
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
-import { SubmitAnswerPayload } from '../../domain/types/mock-tests.types'
 import { ApiError } from '../../../../shared/utils/ApiError'
+import type { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
+import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
+import type { SubmitAnswerPayload } from '../../domain/types/mock-tests.types'
 import { isMCQCorrect } from '../services/test-scorer.service'
 
 export class SubmitAnswerUseCase {
@@ -78,11 +78,15 @@ export class SubmitAnswerUseCase {
           pointsEarned,
         })
 
+    if (!savedAnswer) {
+      throw new ApiError(500, 'Failed to save answer', 'ANSWER_SAVE_FAILED')
+    }
+
     if (!existing) {
       await this.repo.incrementAnsweredCount(attemptId)
     }
 
-    if (question.type === 'short_answer' && savedAnswer) {
+    if (question.type === 'short_answer') {
       try {
         const evaluation = await this.aiService.evaluateOpenAnswer({
           question: question.question,
@@ -101,13 +105,31 @@ export class SubmitAnswerUseCase {
           feedback: evaluation.feedback,
         })
 
-        savedAnswer = await this.repo.updateAnswer(savedAnswer._id, {
+        const evaluatedAnswer = await this.repo.updateAnswer(savedAnswer._id, {
           isCorrect: evaluation.isCorrect,
           pointsEarned: evaluation.score,
           aiEvaluationId: aiEval._id,
         })
-      } catch {
-        // Keep answer saved even when AI evaluation fails.
+
+        if (evaluatedAnswer) {
+          savedAnswer = evaluatedAnswer
+        }
+      } catch (error) {
+        console.error('Mock test short answer AI evaluation failed', {
+          attemptId,
+          questionId: payload.questionId,
+          answerId: savedAnswer._id,
+          error,
+        })
+
+        const fallbackAnswer = await this.repo.updateAnswer(savedAnswer._id, {
+          isCorrect: false,
+          pointsEarned: 0,
+        })
+
+        if (fallbackAnswer) {
+          savedAnswer = fallbackAnswer
+        }
       }
     }
 
