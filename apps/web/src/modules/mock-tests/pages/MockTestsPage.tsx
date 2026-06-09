@@ -272,14 +272,6 @@ export default function MockTestsPage() {
                 </div>
 
                 <div className="flex items-center gap-3 self-start max-[520px]:w-full max-[520px]:flex-col">
-                  <button
-                    type="button"
-                    onClick={() => navigate('/mock-tests/create')}
-                    className="inline-flex items-center justify-center gap-2 rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] max-[520px]:w-full dark:border-white/10 dark:bg-transparent dark:text-[#9b9a92] dark:shadow-none dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
-                  >
-                    <span className="text-lg leading-none">+</span>
-                    Create manual test
-                  </button>
 
                   <button
                     type="button"

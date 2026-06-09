@@ -131,6 +131,7 @@ const mapQuestion = (doc: RawMockTestQuestionDoc): MockTestQuestion => ({
   difficulty: doc.difficulty || 'easy',
   order: numberOrZero(doc.order),
   points: numberOrZero(doc.points),
+  coding: doc.coding,
 })
 
 const mapAttempt = (doc: RawMockTestAttemptDoc): MockTestAttempt => ({

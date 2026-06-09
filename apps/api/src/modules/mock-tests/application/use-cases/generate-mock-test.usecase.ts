@@ -73,18 +73,19 @@ export class GenerateMockTestUseCase {
     })
 
     await this.repo.createQuestions(
-      questions.map((q, i) => ({
-        testId: test._id,
-        type: q.type,
-        question: q.question,
-        options: q.options,
-        correctAnswer: q.correctAnswer,
-        explanation: q.explanation,
-        difficulty: q.difficulty,
-        order: i + 1,
-        points: q.points,
-      })),
-    )
+  questions.map((q, i) => ({
+    testId: test._id,
+    type: q.type,
+    question: q.question,
+    options: q.options,
+    correctAnswer: q.correctAnswer,
+    explanation: q.explanation,
+    difficulty: q.difficulty,
+    order: i + 1,
+    points: q.points,
+    coding: q.coding,
+  })),
+)
 
     return test
   }

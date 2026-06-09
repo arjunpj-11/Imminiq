@@ -450,4 +450,49 @@ export const mockTestsController = {
       next(error)
     }
   },
+  runCode: async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = getAuthUserId(req)
+    const attemptId = getParam(req.params.attemptId, 'attemptId')
+    const questionId = getParam(req.params.questionId, 'questionId')
+
+    const data = await mockTestsService.runCode(
+      attemptId,
+      userId,
+      questionId,
+      req.body,
+    )
+
+    res.json(new ApiResponse('Code executed', data))
+  } catch (error: unknown) {
+    next(error)
+  }
+},
+
+submitCode: async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = getAuthUserId(req)
+    const attemptId = getParam(req.params.attemptId, 'attemptId')
+    const questionId = getParam(req.params.questionId, 'questionId')
+
+    const data = await mockTestsService.submitCode(
+      attemptId,
+      userId,
+      questionId,
+      req.body,
+    )
+
+    res.json(new ApiResponse('Code submitted', data))
+  } catch (error: unknown) {
+    next(error)
+  }
+},
 }

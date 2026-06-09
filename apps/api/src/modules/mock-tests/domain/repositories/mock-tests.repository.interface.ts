@@ -10,6 +10,7 @@ import {
   DifficultyLevel,
   TestVisibility,
   MockTestSummary,
+  MockTestCodingDetails,
 } from '../types/mock-tests.types'
 
 export interface MockTestsRepositoryContract {
@@ -68,19 +69,20 @@ export interface MockTestsRepositoryContract {
   findQuestionsByTest(testId: string): Promise<MockTestQuestion[]>
   findQuestionById(questionId: string): Promise<MockTestQuestion | null>
 
-  createQuestions(
-    questions: {
-      testId: string
-      type: QuestionType
-      question: string
-      options?: string[]
-      correctAnswer?: string
-      explanation?: string
-      difficulty: DifficultyLevel
-      order: number
-      points: number
-    }[],
-  ): Promise<MockTestQuestion[]>
+ createQuestions(
+  questions: {
+    testId: string
+    type: QuestionType
+    question: string
+    options?: string[]
+    correctAnswer?: string
+    explanation?: string
+    difficulty: DifficultyLevel
+    order: number
+    points: number
+    coding?: MockTestCodingDetails
+  }[],
+): Promise<MockTestQuestion[]>
 
   findAttemptById(attemptId: string): Promise<MockTestAttempt | null>
   findAttemptsByUser(userId: string, testId?: string): Promise<MockTestAttempt[]>

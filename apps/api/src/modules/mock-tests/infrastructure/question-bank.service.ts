@@ -1,11 +1,15 @@
 // infrastructure/database/services/question-bank.service.ts
 import { QuestionBankCounterModel } from '../../../infrastructure/database/models/question-bank-counter.model'
 import { QuestionBankModel } from '../../../infrastructure/database/models/question-bank.model'
-import { DifficultyLevel, QuestionType } from '../domain/types/mock-tests.types'
+import type {
+  DifficultyLevel,
+  QuestionType,
+  MockTestCodingDetails,
+} from '../domain/types/mock-tests.types'
 
-export interface QuestionBankItem {
-  bankId: number
-  topic: string
+export type QuestionBankItem = {
+  bankId?: number
+  topic?: string
   type: QuestionType
   question: string
   options?: string[]
@@ -13,8 +17,8 @@ export interface QuestionBankItem {
   explanation?: string
   difficulty: DifficultyLevel
   points: number
+  coding?: MockTestCodingDetails
 }
-
 /**
  * Atomically increments the global question bank counter and returns the next value.
  */

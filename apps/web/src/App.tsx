@@ -36,7 +36,6 @@ import TrackerQuickRevisionPage from './modules/trackers/pages/TrackerQuickRevis
 // ─── MOCK TEST PAGES ────────────────────────────────
 import MockTestAnalysisPage from './modules/mock-tests/pages/MockTestAnalysisPage'
 import MockTestAttemptPage from './modules/mock-tests/pages/MockTestAttemptPage'
-import MockTestCreatePage from './modules/mock-tests/pages/MockTestCreatePage'
 import MockTestDetailsPage from './modules/mock-tests/pages/MockTestDetailsPage'
 import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
 import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
@@ -395,14 +394,7 @@ export default function App() {
             }
           />
 
-          <Route
-            path="/mock-tests/create"
-            element={
-              <ProtectedRoute>
-                <MockTestCreatePage />
-              </ProtectedRoute>
-            }
-          />
+        
 
           <Route
             path="/mock-tests/:testId"

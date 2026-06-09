@@ -4,10 +4,46 @@ export type TestVisibility = 'private' | 'public'
 export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned'
 export type EvaluationStatus = 'pending' | 'completed' | 'failed'
 
+export type MockTestCodingLanguage =
+  | 'javascript'
+  | 'typescript'
+  | 'python'
+  | 'java'
+  | 'cpp'
+  | 'c'
+
+export type MockTestCodingValueType =
+  | 'number'
+  | 'string'
+  | 'boolean'
+  | 'number[]'
+  | 'string[]'
+  | 'boolean[]'
+  | 'number[][]'
+  | 'string[][]'
+
+export interface MockTestCodingTestCase {
+  input: unknown[]
+  expectedOutput: unknown
+  isHidden: boolean
+  explanation?: string
+}
+
+export interface MockTestCodingDetails {
+  functionName: string
+  language: MockTestCodingLanguage
+  inputTypes: MockTestCodingValueType[]
+  outputType: MockTestCodingValueType
+  starterCode: string
+  templates?: Partial<Record<MockTestCodingLanguage, string>>
+  testCases: MockTestCodingTestCase[]
+}
+
 export interface MockTest {
   _id: string
   ownerId: string
   trackerId?: string
+  sourceTestId?: string
   title: string
   description: string
   difficulty: DifficultyLevel
@@ -17,14 +53,13 @@ export interface MockTest {
   passingScore: number
   isAIGenerated: boolean
   tags: string[]
+  shareToken?: string
+  isShareEnabled: boolean
   cloneCount: number
   averageScore: number
   attemptCount: number
   createdAt: string
   updatedAt: string
-  sourceTestId?: string
-shareToken?: string
-isShareEnabled: boolean
 }
 
 export interface MockTestQuestion {
@@ -38,6 +73,7 @@ export interface MockTestQuestion {
   difficulty: DifficultyLevel
   order: number
   points: number
+  coding?: MockTestCodingDetails
 }
 
 export interface PublicMockTestQuestion {
@@ -48,7 +84,9 @@ export interface PublicMockTestQuestion {
   difficulty: DifficultyLevel
   order: number
   points: number
+  coding?: MockTestCodingDetails
 }
+
 export interface MockTestShareResponse {
   shareToken: string
   shareUrl: string
@@ -59,6 +97,7 @@ export interface ImportSharedMockTestResponse {
   imported: boolean
   alreadyImported: boolean
 }
+
 export interface MockTestAttempt {
   _id: string
   testId: string
@@ -218,6 +257,7 @@ export interface CreateMockTestPayload {
     explanation?: string
     difficulty?: DifficultyLevel
     points?: number
+    coding?: MockTestCodingDetails
   }[]
 }
 
@@ -236,6 +276,52 @@ export interface GenerateMockTestPayload {
 export interface SubmitAnswerPayload {
   questionId: string
   answer: string
+}
+
+export interface RunMockTestCodePayload {
+  sourceCode: string
+  language: MockTestCodingLanguage
+  languageId: number
+}
+
+export interface SubmitMockTestCodePayload {
+  sourceCode: string
+  language: MockTestCodingLanguage
+  languageId: number
+}
+
+export interface MockTestCodeCaseResult {
+  index: number
+  input: unknown[]
+  expectedOutput: unknown
+  actualOutput: unknown
+  passed: boolean
+  isHidden: boolean
+  error?: string
+  explanation?: string
+}
+
+export interface MockTestCodeRunResponse {
+  passed: boolean
+  passedCount: number
+  totalCount: number
+  testCases: MockTestCodeCaseResult[]
+  stdout: string
+  stderr: string
+  compileOutput: string
+  message: string
+  status: {
+    id: number
+    description: string
+  }
+}
+
+export interface MockTestCodeSubmitResponse extends MockTestCodeRunResponse {
+  answer: MockTestAnswer | null
+  isCorrect: boolean
+  pointsEarned: number
+  maxPoints: number
+  feedback: string
 }
 
 export interface ApiResponse<T> {

@@ -17,11 +17,15 @@ import type {
   ListMockTestsResponse,
   MockTest,
   MockTestAnswer,
+  MockTestCodeRunResponse,
+  MockTestCodeSubmitResponse,
   MockTestDetailsResponse,
   MockTestQuestion,
   MockTestShareResponse,
+  RunMockTestCodePayload,
   StartAttemptResponse,
   SubmitAnswerPayload,
+  SubmitMockTestCodePayload,
   TestAnalytics,
 } from '../types/mock-tests.types'
 
@@ -331,6 +335,64 @@ export const useFinishMockTestAttempt = () => {
 
       queryClient.invalidateQueries({
         queryKey: mockTestKeys.all,
+      })
+    },
+  })
+}
+
+export const useRunMockTestCode = () => {
+  return useMutation<
+    ApiResponse<MockTestCodeRunResponse>,
+    Error,
+    {
+      attemptId: string
+      questionId: string
+      payload: RunMockTestCodePayload
+    }
+  >({
+    mutationFn: async ({ attemptId, questionId, payload }) => {
+      const response = await api.post<ApiResponse<MockTestCodeRunResponse>>(
+        `/mock-tests/attempts/${attemptId}/questions/${questionId}/run-code`,
+        payload
+      )
+
+      return response.data
+    },
+  })
+}
+
+export const useSubmitMockTestCode = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<
+    ApiResponse<MockTestCodeSubmitResponse>,
+    Error,
+    {
+      attemptId: string
+      questionId: string
+      payload: SubmitMockTestCodePayload
+    }
+  >({
+    mutationFn: async ({ attemptId, questionId, payload }) => {
+      const response = await api.post<ApiResponse<MockTestCodeSubmitResponse>>(
+        `/mock-tests/attempts/${attemptId}/questions/${questionId}/submit-code`,
+        payload
+      )
+
+      return response.data
+    },
+
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({
+        queryKey: mockTestKeys.attemptQuestions(variables.attemptId),
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: mockTestKeys.attempt(variables.attemptId),
+      })
+
+      queryClient.invalidateQueries({
+        queryKey: mockTestKeys.attemptResult(variables.attemptId),
       })
     },
   })

@@ -14,12 +14,17 @@ import { RetakeTestUseCase } from './application/use-cases/retake-test.usecase'
 import { GetAnalyticsUseCase } from './application/use-cases/get-analytics.usecase'
 import { ShareMockTestUseCase } from './application/use-cases/share-mock-test.usecase'
 import { ImportSharedMockTestUseCase } from './application/use-cases/import-shared-mock-test.usecase'
+import { RunMockTestCodeUseCase } from './application/use-cases/run-mock-test-code.usecase'
+import { SubmitMockTestCodeUseCase } from './application/use-cases/submit-mock-test-code.usecase'
 import {
   CreateMockTestPayload,
   GenerateMockTestPayload,
   SubmitAnswerPayload,
   DifficultyLevel,
+  RunMockTestCodePayload,
+  SubmitMockTestCodePayload,
 } from './domain/types/mock-tests.types'
+
 import { sanitizeQuestionForAttempt } from './application/services/test-scorer.service'
 
 const repo = mongoMockTestsRepository
@@ -39,6 +44,8 @@ const retakeTestUseCase = new RetakeTestUseCase(repo)
 const getAnalyticsUseCase = new GetAnalyticsUseCase(repo, aiService)
 const shareMockTestUseCase = new ShareMockTestUseCase(repo)
 const importSharedMockTestUseCase = new ImportSharedMockTestUseCase(repo)
+const runMockTestCodeUseCase = new RunMockTestCodeUseCase(repo)
+const submitMockTestCodeUseCase = new SubmitMockTestCodeUseCase(repo)
 
 export const mockTestsService = {
   listTests: (
@@ -114,4 +121,18 @@ export const mockTestsService = {
   }),
 
   getTopicBreakdown: (userId: string) => repo.getTopicBreakdown(userId),
+
+  runCode: (
+  attemptId: string,
+  userId: string,
+  questionId: string,
+  payload: RunMockTestCodePayload,
+) => runMockTestCodeUseCase.execute(attemptId, userId, questionId, payload),
+
+submitCode: (
+  attemptId: string,
+  userId: string,
+  questionId: string,
+  payload: SubmitMockTestCodePayload,
+) => submitMockTestCodeUseCase.execute(attemptId, userId, questionId, payload),
 }

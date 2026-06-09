@@ -76,4 +76,19 @@ export const sanitizeQuestionForAttempt = (q: MockTestQuestion) => ({
   difficulty: q.difficulty,
   order: q.order,
   points: q.points,
+  coding: q.coding
+    ? {
+        functionName: q.coding.functionName,
+        language: q.coding.language,
+        starterCode: q.coding.starterCode,
+        testCases: q.coding.testCases
+          .filter((testCase) => !testCase.isHidden)
+          .map((testCase) => ({
+            input: testCase.input,
+            expectedOutput: testCase.expectedOutput,
+            isHidden: false,
+            explanation: testCase.explanation,
+          })),
+      }
+    : undefined,
 })

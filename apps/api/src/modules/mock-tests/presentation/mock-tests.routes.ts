@@ -8,6 +8,8 @@ import {
   generateMockTestSchema,
   submitAnswerSchema,
   flagQuestionSchema,
+  runMockTestCodeSchema,
+  submitMockTestCodeSchema,
 } from './mock-tests.schema'
 
 const router = Router()
@@ -21,6 +23,18 @@ router.post('/generate', validate(generateMockTestSchema), mockTestsController.g
 router.get('/public', mockTestsController.listPublicTests)
 
 router.post('/shared/:shareToken/import', mockTestsController.importSharedTest)
+
+router.post(
+  '/attempts/:attemptId/questions/:questionId/run-code',
+  validate(runMockTestCodeSchema),
+  mockTestsController.runCode,
+)
+
+router.post(
+  '/attempts/:attemptId/questions/:questionId/submit-code',
+  validate(submitMockTestCodeSchema),
+  mockTestsController.submitCode,
+)
 
 router.get('/history', mockTestsController.getHistory)
 router.get('/analytics', mockTestsController.getAnalytics)
