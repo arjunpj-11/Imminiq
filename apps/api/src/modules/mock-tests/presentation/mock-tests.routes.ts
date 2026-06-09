@@ -3,15 +3,25 @@ import { mockTestsController } from './mock-tests.controller'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { createMockTestSchema, generateMockTestSchema, submitAnswerSchema, flagQuestionSchema } from './mock-tests.schema'
+import {
+  createMockTestSchema,
+  generateMockTestSchema,
+  submitAnswerSchema,
+  flagQuestionSchema,
+} from './mock-tests.schema'
 
 const router = Router()
+
 router.use(authenticatedApiIpLimiter, authenticate)
 
 router.get('/', mockTestsController.listTests)
 router.post('/', validate(createMockTestSchema), mockTestsController.createTest)
 router.post('/generate', validate(generateMockTestSchema), mockTestsController.generateTest)
+
 router.get('/public', mockTestsController.listPublicTests)
+
+router.post('/shared/:shareToken/import', mockTestsController.importSharedTest)
+
 router.get('/history', mockTestsController.getHistory)
 router.get('/analytics', mockTestsController.getAnalytics)
 router.get('/analytics/trends', mockTestsController.getAnalytics)
@@ -26,6 +36,7 @@ router.get('/attempts/:attemptId/result', mockTestsController.getAttemptResult)
 router.get('/attempts/:attemptId/analysis', mockTestsController.getAttemptAnalysis)
 router.post('/attempts/:attemptId/retake', mockTestsController.retakeTest)
 
+router.post('/:testId/share', mockTestsController.shareTest)
 router.get('/:testId', mockTestsController.getTest)
 router.post('/:testId/start', mockTestsController.startAttempt)
 

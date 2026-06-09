@@ -13,11 +13,13 @@ import type {
   AttemptResultResponse,
   CreateMockTestPayload,
   GenerateMockTestPayload,
+  ImportSharedMockTestResponse,
   ListMockTestsResponse,
   MockTest,
   MockTestAnswer,
   MockTestDetailsResponse,
   MockTestQuestion,
+  MockTestShareResponse,
   StartAttemptResponse,
   SubmitAnswerPayload,
   TestAnalytics,
@@ -28,22 +30,26 @@ export const mockTestKeys = {
 
   lists: () => [...mockTestKeys.all, 'list'] as const,
 
-  list: () => [...mockTestKeys.lists()] as const,
+  list: (page = 1, limit = 6) =>
+    [...mockTestKeys.lists(), { page, limit }] as const,
 
   details: () => [...mockTestKeys.all, 'detail'] as const,
 
-  detail: (testId: string) =>
-    [...mockTestKeys.details(), testId] as const,
+  detail: (testId: string) => [...mockTestKeys.details(), testId] as const,
+
+  share: (testId: string) =>
+    [...mockTestKeys.detail(testId), 'share'] as const,
+
+  sharedImport: (shareToken: string) =>
+    [...mockTestKeys.all, 'shared-import', shareToken] as const,
 
   history: () => [...mockTestKeys.all, 'history'] as const,
 
   analytics: () => [...mockTestKeys.all, 'analytics'] as const,
 
-  analyticsTrends: () =>
-    [...mockTestKeys.analytics(), 'trends'] as const,
+  analyticsTrends: () => [...mockTestKeys.analytics(), 'trends'] as const,
 
-  aiInsights: () =>
-    [...mockTestKeys.analytics(), 'ai-insights'] as const,
+  aiInsights: () => [...mockTestKeys.analytics(), 'ai-insights'] as const,
 
   topicBreakdown: () =>
     [...mockTestKeys.analytics(), 'topic-breakdown'] as const,
@@ -69,13 +75,20 @@ const unwrap = <T>(response: ApiResponse<T>) => {
 
 // ─── Tests ───────────────────────────────────────────────────────────────────
 
-export const useMockTests = () => {
+export const useMockTests = (page = 1, limit = 6) => {
   return useQuery({
-    queryKey: mockTestKeys.list(),
+    queryKey: mockTestKeys.list(page, limit),
 
     queryFn: async () => {
-      const response =
-        await api.get<ApiResponse<ListMockTestsResponse>>('/mock-tests')
+      const response = await api.get<ApiResponse<ListMockTestsResponse>>(
+        '/mock-tests',
+        {
+          params: {
+            page,
+            limit,
+          },
+        }
+      )
 
       return unwrap(response.data)
     },
@@ -99,7 +112,6 @@ export const useMockTestDetails = (testId?: string) => {
     },
   })
 }
-
 
 export const useCreateMockTest = () => {
   const queryClient = useQueryClient()
@@ -131,6 +143,38 @@ export const useGenerateMockTest = () => {
         '/mock-tests/generate',
         payload
       )
+
+      return response.data
+    },
+
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: mockTestKeys.all,
+      })
+    },
+  })
+}
+
+export const useShareMockTest = () => {
+  return useMutation<ApiResponse<MockTestShareResponse>, Error, string>({
+    mutationFn: async (testId) => {
+      const response = await api.post<ApiResponse<MockTestShareResponse>>(
+        `/mock-tests/${testId}/share`
+      )
+
+      return response.data
+    },
+  })
+}
+
+export const useImportSharedMockTest = () => {
+  const queryClient = useQueryClient()
+
+  return useMutation<ApiResponse<ImportSharedMockTestResponse>, Error, string>({
+    mutationFn: async (shareToken) => {
+      const response = await api.post<
+        ApiResponse<ImportSharedMockTestResponse>
+      >(`/mock-tests/shared/${shareToken}/import`)
 
       return response.data
     },

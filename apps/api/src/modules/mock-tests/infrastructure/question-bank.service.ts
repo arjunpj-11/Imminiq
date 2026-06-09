@@ -1,0 +1,64 @@
+// infrastructure/database/services/question-bank.service.ts
+import { QuestionBankCounterModel } from '../../../infrastructure/database/models/question-bank-counter.model'
+import { QuestionBankModel } from '../../../infrastructure/database/models/question-bank.model'
+import { DifficultyLevel, QuestionType } from '../domain/types/mock-tests.types'
+
+export interface QuestionBankItem {
+  bankId: number
+  topic: string
+  type: QuestionType
+  question: string
+  options?: string[]
+  correctAnswer?: string
+  explanation?: string
+  difficulty: DifficultyLevel
+  points: number
+}
+
+/**
+ * Atomically increments the global question bank counter and returns the next value.
+ */
+const nextBankId = async (): Promise<number> => {
+  const doc = await QuestionBankCounterModel.findByIdAndUpdate(
+    'questionBank',
+    { $inc: { seq: 1 } },
+    { new: true, upsert: true },
+  )
+  return doc.seq
+}
+
+/**
+ * Saves a batch of questions to the question bank, assigning sequential bankIds.
+ */
+export const saveToQuestionBank = async (
+  topic: string,
+  questions: Omit<QuestionBankItem, 'bankId' | 'topic'>[],
+): Promise<QuestionBankItem[]> => {
+  const docs = await Promise.all(
+    questions.map(async (q) => {
+      const bankId = await nextBankId()
+      return QuestionBankModel.create({ ...q, topic, bankId })
+    }),
+  )
+  return docs.map((d) => d.toObject() as QuestionBankItem)
+}
+
+/**
+ * Randomly samples `count` questions from the bank matching topic and optional difficulty.
+ * Uses MongoDB $sample for true random selection.
+ */
+export const sampleFromQuestionBank = async (
+  topic: string,
+  count: number,
+  difficulty?: DifficultyLevel,
+): Promise<QuestionBankItem[]> => {
+  const match: Record<string, unknown> = {
+    topic: { $regex: new RegExp(`^${topic.trim()}$`, 'i') }, // case-insensitive exact match
+  }
+  if (difficulty) match.difficulty = difficulty
+
+  return QuestionBankModel.aggregate<QuestionBankItem>([
+    { $match: match },
+    { $sample: { size: count } },
+  ])
+}

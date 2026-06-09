@@ -9,6 +9,7 @@ export interface MockTest {
   _id: string
   ownerId: string
   trackerId?: string
+  sourceTestId?: string
   title: string
   description: string
   difficulty: DifficultyLevel
@@ -18,6 +19,8 @@ export interface MockTest {
   passingScore: number
   isAIGenerated: boolean
   tags: string[]
+  shareToken?: string
+  isShareEnabled: boolean
   cloneCount: number
   averageScore: number
   attemptCount: number
@@ -222,6 +225,7 @@ export interface RawMockTestDoc {
   _id?: unknown
   ownerId?: unknown
   trackerId?: unknown
+  sourceTestId?: unknown
   title?: string
   description?: string
   difficulty?: DifficultyLevel
@@ -231,6 +235,8 @@ export interface RawMockTestDoc {
   passingScore?: number
   isAIGenerated?: boolean
   tags?: string[]
+  shareToken?: string
+  isShareEnabled?: boolean
   cloneCount?: number
   averageScore?: number
   attemptCount?: number

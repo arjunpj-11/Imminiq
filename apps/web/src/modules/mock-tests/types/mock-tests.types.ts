@@ -22,6 +22,9 @@ export interface MockTest {
   attemptCount: number
   createdAt: string
   updatedAt: string
+  sourceTestId?: string
+shareToken?: string
+isShareEnabled: boolean
 }
 
 export interface MockTestQuestion {
@@ -46,7 +49,16 @@ export interface PublicMockTestQuestion {
   order: number
   points: number
 }
+export interface MockTestShareResponse {
+  shareToken: string
+  shareUrl: string
+}
 
+export interface ImportSharedMockTestResponse {
+  test: MockTest
+  imported: boolean
+  alreadyImported: boolean
+}
 export interface MockTestAttempt {
   _id: string
   testId: string
@@ -119,9 +131,19 @@ export interface MockTestSummary {
   passedAttempts: number
 }
 
+export interface MockTestPagination {
+  page: number
+  limit: number
+  totalItems: number
+  totalPages: number
+  hasNextPage: boolean
+  hasPreviousPage: boolean
+}
+
 export interface ListMockTestsResponse {
   summary: MockTestSummary
   tests: MockTestListItem[]
+  pagination?: MockTestPagination
 }
 
 export interface MockTestDetailsResponse {

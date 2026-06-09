@@ -12,6 +12,11 @@ type AuthenticatedRequestUser = {
   userId?: string
 }
 
+type ListTestsQuery = {
+  page?: number
+  limit?: number
+}
+
 type PublicTestsQuery = {
   difficulty?: DifficultyLevel
   tags?: string[]
@@ -71,9 +76,7 @@ const parseTagsQuery = (
 ): string[] | undefined => {
   if (!value) return undefined
 
-  const tags = Array.isArray(value)
-    ? value
-    : value.split(',')
+  const tags = Array.isArray(value) ? value : value.split(',')
 
   const cleaned = tags
     .map((tag) => tag.trim())
@@ -82,11 +85,17 @@ const parseTagsQuery = (
   return cleaned.length ? cleaned : undefined
 }
 
+const parseListTestsQuery = (req: Request): ListTestsQuery => {
+  return {
+    page: parseNumberQuery(req.query.page as string | string[] | undefined),
+    limit: parseNumberQuery(req.query.limit as string | string[] | undefined),
+  }
+}
+
 const parsePublicTestsQuery = (req: Request): PublicTestsQuery => {
-  const difficulty = parseStringQuery(req.query.difficulty as
-    | string
-    | string[]
-    | undefined)
+  const difficulty = parseStringQuery(
+    req.query.difficulty as string | string[] | undefined
+  )
 
   return {
     difficulty:
@@ -112,7 +121,9 @@ export const mockTestsController = {
   ) => {
     try {
       const userId = getAuthUserId(req)
-      const data = await mockTestsService.listTests(userId)
+      const options = parseListTestsQuery(req)
+
+      const data = await mockTestsService.listTests(userId, options)
 
       res.json(new ApiResponse('Tests fetched', data))
     } catch (error: unknown) {
@@ -390,6 +401,51 @@ export const mockTestsController = {
       const data = await mockTestsService.getTopicBreakdown(userId)
 
       res.json(new ApiResponse('Topic breakdown fetched', data))
+    } catch (error: unknown) {
+      next(error)
+    }
+  },
+
+    shareTest: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = getAuthUserId(req)
+      const testId = getParam(req.params.testId, 'testId')
+
+      const origin =
+        req.get('origin') ||
+        `${req.protocol}://${req.get('host')}`
+
+      const data = await mockTestsService.shareTest(
+        userId,
+        testId,
+        origin
+      )
+
+      res.json(new ApiResponse('Share link created', data))
+    } catch (error: unknown) {
+      next(error)
+    }
+  },
+
+  importSharedTest: async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = getAuthUserId(req)
+      const shareToken = getParam(req.params.shareToken, 'shareToken')
+
+      const data = await mockTestsService.importSharedTest(
+        userId,
+        shareToken
+      )
+
+      res.status(201).json(new ApiResponse('Shared test imported', data))
     } catch (error: unknown) {
       next(error)
     }

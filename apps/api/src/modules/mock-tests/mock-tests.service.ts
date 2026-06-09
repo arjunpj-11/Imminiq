@@ -12,7 +12,14 @@ import { GetAttemptResultUseCase } from './application/use-cases/get-attempt-res
 import { GetAttemptAnalysisUseCase } from './application/use-cases/get-attempt-analysis.usecase'
 import { RetakeTestUseCase } from './application/use-cases/retake-test.usecase'
 import { GetAnalyticsUseCase } from './application/use-cases/get-analytics.usecase'
-import { CreateMockTestPayload, GenerateMockTestPayload, SubmitAnswerPayload, DifficultyLevel } from './domain/types/mock-tests.types'
+import { ShareMockTestUseCase } from './application/use-cases/share-mock-test.usecase'
+import { ImportSharedMockTestUseCase } from './application/use-cases/import-shared-mock-test.usecase'
+import {
+  CreateMockTestPayload,
+  GenerateMockTestPayload,
+  SubmitAnswerPayload,
+  DifficultyLevel,
+} from './domain/types/mock-tests.types'
 import { sanitizeQuestionForAttempt } from './application/services/test-scorer.service'
 
 const repo = mongoMockTestsRepository
@@ -30,28 +37,81 @@ const getAttemptResultUseCase = new GetAttemptResultUseCase(repo)
 const getAttemptAnalysisUseCase = new GetAttemptAnalysisUseCase(repo)
 const retakeTestUseCase = new RetakeTestUseCase(repo)
 const getAnalyticsUseCase = new GetAnalyticsUseCase(repo, aiService)
+const shareMockTestUseCase = new ShareMockTestUseCase(repo)
+const importSharedMockTestUseCase = new ImportSharedMockTestUseCase(repo)
 
 export const mockTestsService = {
-  listTests: (userId: string) => listMockTestsUseCase.execute(userId),
-  listPublicTests: (filters: { difficulty?: DifficultyLevel; tags?: string[]; page?: number; limit?: number }) => repo.findPublicTests(filters),
-  createTest: (userId: string, payload: CreateMockTestPayload) => createMockTestUseCase.execute(userId, payload),
-  generateTest: (userId: string, payload: GenerateMockTestPayload) => generateMockTestUseCase.execute(userId, payload),
-  getTest: (testId: string, userId: string) => getMockTestDetailsUseCase.execute(testId, userId),
-  startAttempt: (testId: string, userId: string) => startTestAttemptUseCase.execute(testId, userId),
+  listTests: (
+    userId: string,
+    options?: {
+      page?: number
+      limit?: number
+    },
+  ) => listMockTestsUseCase.execute(userId, options),
+
+  listPublicTests: (filters: {
+    difficulty?: DifficultyLevel
+    tags?: string[]
+    page?: number
+    limit?: number
+  }) => repo.findPublicTests(filters),
+
+  createTest: (userId: string, payload: CreateMockTestPayload) =>
+    createMockTestUseCase.execute(userId, payload),
+
+  generateTest: (userId: string, payload: GenerateMockTestPayload) =>
+    generateMockTestUseCase.execute(userId, payload),
+
+  shareTest: (userId: string, testId: string, origin: string) =>
+    shareMockTestUseCase.execute({ userId, testId, origin }),
+
+  importSharedTest: (userId: string, shareToken: string) =>
+    importSharedMockTestUseCase.execute({ userId, shareToken }),
+
+  getTest: (testId: string, userId: string) =>
+    getMockTestDetailsUseCase.execute(testId, userId),
+
+  startAttempt: (testId: string, userId: string) =>
+    startTestAttemptUseCase.execute(testId, userId),
+
   getAttemptQuestions: async (attemptId: string, userId: string) => {
     const attempt = await repo.findAttemptById(attemptId)
+
     if (!attempt || attempt.userId !== userId) return []
+
     const questions = await repo.findQuestionsByTest(attempt.testId)
+
     return questions.map(sanitizeQuestionForAttempt)
   },
-  submitAnswer: (attemptId: string, userId: string, payload: SubmitAnswerPayload) => submitAnswerUseCase.execute(attemptId, userId, payload),
-  flagQuestion: (attemptId: string, userId: string, questionId: string) => flagQuestionUseCase.execute(attemptId, userId, questionId),
-  finishAttempt: (attemptId: string, userId: string) => finishTestAttemptUseCase.execute(attemptId, userId),
-  getAttemptResult: (attemptId: string, userId: string) => getAttemptResultUseCase.execute(attemptId, userId),
-  getAttemptAnalysis: (attemptId: string, userId: string) => getAttemptAnalysisUseCase.execute(attemptId, userId),
-  retakeTest: (attemptId: string, userId: string) => retakeTestUseCase.execute(attemptId, userId),
+
+  submitAnswer: (
+    attemptId: string,
+    userId: string,
+    payload: SubmitAnswerPayload,
+  ) => submitAnswerUseCase.execute(attemptId, userId, payload),
+
+  flagQuestion: (attemptId: string, userId: string, questionId: string) =>
+    flagQuestionUseCase.execute(attemptId, userId, questionId),
+
+  finishAttempt: (attemptId: string, userId: string) =>
+    finishTestAttemptUseCase.execute(attemptId, userId),
+
+  getAttemptResult: (attemptId: string, userId: string) =>
+    getAttemptResultUseCase.execute(attemptId, userId),
+
+  getAttemptAnalysis: (attemptId: string, userId: string) =>
+    getAttemptAnalysisUseCase.execute(attemptId, userId),
+
+  retakeTest: (attemptId: string, userId: string) =>
+    retakeTestUseCase.execute(attemptId, userId),
+
   getHistory: (userId: string) => repo.getAttemptHistory(userId),
+
   getAnalytics: (userId: string) => getAnalyticsUseCase.execute(userId),
-  getAIInsights: async (userId: string) => ({ insight: (await getAnalyticsUseCase.execute(userId)).aiInsights }),
+
+  getAIInsights: async (userId: string) => ({
+    insight: (await getAnalyticsUseCase.execute(userId)).aiInsights,
+  }),
+
   getTopicBreakdown: (userId: string) => repo.getTopicBreakdown(userId),
 }
