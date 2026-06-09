@@ -7,6 +7,8 @@ import type {
   MockTestCodingDetails,
 } from '../domain/types/mock-tests.types'
 
+const escapeRegExp = (value: string): string => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+
 export type QuestionBankItem = {
   bankId?: number
   topic?: string
@@ -56,8 +58,10 @@ export const sampleFromQuestionBank = async (
   count: number,
   difficulty?: DifficultyLevel,
 ): Promise<QuestionBankItem[]> => {
+  const normalizedTopic = topic.trim()
+  const safeTopic = escapeRegExp(normalizedTopic)
   const match: Record<string, unknown> = {
-    topic: { $regex: new RegExp(`^${topic.trim()}$`, 'i') }, // case-insensitive exact match
+    topic: { $regex: new RegExp(`^${safeTopic}$`, 'i') }, // case-insensitive exact match
   }
   if (difficulty) match.difficulty = difficulty
 
