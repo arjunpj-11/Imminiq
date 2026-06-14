@@ -265,7 +265,8 @@ export default function MockTestsPage() {
                     </span>
                   </h1>
 
-                  <p className="mt-2 max-w-2xl text-[14px] leading-6 text-[#6b5f58] dark:text-[#6b6560]">
+
+<p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
                     Generate AI mock tests, attempt timed questions, review
                     results, and track weak areas.
                   </p>
@@ -283,6 +284,28 @@ export default function MockTestsPage() {
                   </button>
                 </div>
               </div>
+
+               {testsQuery.isLoading ? (
+                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+                  <StatCardSkeleton />
+                  <StatCardSkeleton />
+                  <StatCardSkeleton />
+                  <StatCardSkeleton />
+                </div>
+              ) : (
+                <MockTestStatsGrid
+                  summary={
+                    testsQuery.data?.summary || {
+                      totalTests: 0,
+                      completedAttempts: 0,
+                      averageScore: 0,
+                      bestScore: 0,
+                      totalQuestions: 0,
+                      passedAttempts: 0,
+                    }
+                  }
+                />
+              )}
 
               <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
                 {/* ── Share token card ── */}
@@ -363,27 +386,6 @@ export default function MockTestsPage() {
                 </div>
               </div>
 
-              {testsQuery.isLoading ? (
-                <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-                  <StatCardSkeleton />
-                  <StatCardSkeleton />
-                  <StatCardSkeleton />
-                  <StatCardSkeleton />
-                </div>
-              ) : (
-                <MockTestStatsGrid
-                  summary={
-                    testsQuery.data?.summary || {
-                      totalTests: 0,
-                      completedAttempts: 0,
-                      averageScore: 0,
-                      bestScore: 0,
-                      totalQuestions: 0,
-                      passedAttempts: 0,
-                    }
-                  }
-                />
-              )}
 
               <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
                 <section className="space-y-4">
