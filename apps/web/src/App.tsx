@@ -40,8 +40,11 @@ import MockTestDetailsPage from './modules/mock-tests/pages/MockTestDetailsPage'
 import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
 import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
 
-// import MyCommunityPage from './modules/community/pages/MyCommunity'
-// import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
+import MyCommunityPage from './modules/community/pages/CommunityBrowsePage'
+import VerifyAndEarnPage from './modules/community/pages/CommunityVerifyPage'
+import StorePage from './modules/community/pages/CommunityStorePage'
+import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
+import ActivityPage from './modules/activity/pages/activity'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
@@ -381,8 +384,11 @@ export default function App() {
             }
           />
 
-          {/* <Route path="/community" element={<MyCommunityPage />} /> */}
-          {/* <Route path="/leaderboard" element={<LeaderboardPage />} /> */}
+          <Route path="/community" element={<MyCommunityPage />} />
+          <Route path="/leaderboard" element={<LeaderboardPage />} />
+          <Route path="/activity" element={<ActivityPage />} />
+          <Route path="/verify-and-earn" element={<VerifyAndEarnPage />} />
+          <Route path="/store" element={<StorePage/>}/>
 
           {/* ─── PROTECTED MOCK TEST ROUTES ─────────────── */}
           <Route

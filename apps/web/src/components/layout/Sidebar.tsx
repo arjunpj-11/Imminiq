@@ -96,24 +96,6 @@ const navItems = [
     ),
   },
   {
-    label: 'Leaderboard',
-    to: '/leaderboard',
-    icon: (
-      <svg
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <line x1="18" y1="20" x2="18" y2="10" />
-        <line x1="12" y1="20" x2="12" y2="4" />
-        <line x1="6" y1="20" x2="6" y2="14" />
-      </svg>
-    ),
-  },
-  {
     label: 'Community',
     to: '/community',
     icon: (
@@ -129,6 +111,24 @@ const navItems = [
         <circle cx="9" cy="7" r="4" />
         <path d="M23 21v-2a4 4 0 00-3-3.87" />
         <path d="M16 3.13a4 4 0 010 7.75" />
+      </svg>
+    ),
+  },
+  {
+    label: 'Leaderboard',
+    to: '/leaderboard',
+    icon: (
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <line x1="18" y1="20" x2="18" y2="10" />
+        <line x1="12" y1="20" x2="12" y2="4" />
+        <line x1="6" y1="20" x2="6" y2="14" />
       </svg>
     ),
   },
