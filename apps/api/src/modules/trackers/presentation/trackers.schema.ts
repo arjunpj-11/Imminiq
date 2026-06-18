@@ -47,7 +47,6 @@ export const createSubtopicSchema = z.object({
 
 export const updateSubtopicProgressSchema = z.object({
   status: z.enum(['in_progress', 'completed']),
-  
 })
 
 export const lessonChatSchema = z.object({
@@ -56,7 +55,7 @@ export const lessonChatSchema = z.object({
       z.object({
         role: z.enum(['user', 'assistant']),
         content: z.string().trim().min(1).max(4000),
-      })
+      }),
     )
     .min(1)
     .max(20),
@@ -98,7 +97,7 @@ export const verifyTopicSchema = z.object({
         id: z.string(),
         title: z.string(),
         description: z.string().optional().default(''),
-      })
+      }),
     )
     .optional()
     .default([]),
@@ -118,7 +117,7 @@ export const verifySubtopicSchema = z.object({
         title: z.string(),
         description: z.string().optional().default(''),
         difficulty: z.string().optional().default(''),
-      })
+      }),
     )
     .optional()
     .default([]),
@@ -136,3 +135,7 @@ export const askLessonQuestionSolutionDoubtSchema = z.object({
   question: z.string().trim().min(1),
   message: z.string().trim().min(1),
 })
+
+export type TrackerListQueryInput = z.infer<typeof trackerListQuerySchema>
+export type CreateTrackerInput = z.infer<typeof createTrackerSchema>
+export type UpdateTrackerInput = z.infer<typeof updateTrackerSchema>

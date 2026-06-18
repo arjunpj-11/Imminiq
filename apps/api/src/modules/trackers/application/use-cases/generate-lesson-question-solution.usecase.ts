@@ -1,12 +1,29 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
-import { getDocumentId, hashQuestion } from '../utils/tracker-question.util'
+import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+
+const getDocumentId = (document: unknown) => {
+  const doc = document as { _id?: unknown }
+
+  if (typeof doc._id === 'string') return doc._id
+
+  if (
+    doc._id &&
+    typeof doc._id === 'object' &&
+    'toString' in doc._id
+  ) {
+    return doc._id.toString()
+  }
+
+  return null
+}
 
 export class GenerateLessonQuestionSolutionUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly questionHasher: QuestionHasherServiceContract,
   ) {}
 
   async execute(input: {
@@ -21,7 +38,7 @@ export class GenerateLessonQuestionSolutionUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -31,14 +48,10 @@ export class GenerateLessonQuestionSolutionUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
-        'Generate the lesson before generating solution',
-        'LESSON_NOT_GENERATED'
-      )
+      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before generating solution')
     }
 
-    const questionHash = hashQuestion(input.question)
+    const questionHash = this.questionHasher.hash(input.question)
 
     const existing = await this.trackerRepository.findLessonQuestionSolution({
       trackerId: input.trackerId,

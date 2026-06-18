@@ -1,12 +1,11 @@
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
-import { getStats } from '../helpers/users-profile-data.helper'
+import type { UsersProfileDataServiceContract } from '../services/users-profile-data.service'
 
 export class GetMyStatsUseCase {
   constructor(
-    private readonly usersRepository: UsersRepository
+    private readonly usersProfileDataService: UsersProfileDataServiceContract,
   ) {}
 
   async execute(userId: string) {
-    return getStats(this.usersRepository, userId)
+    return this.usersProfileDataService.getStats(userId)
   }
 }

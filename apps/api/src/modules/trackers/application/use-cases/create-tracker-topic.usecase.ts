@@ -1,9 +1,9 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateTopicUseCaseInput } from '../../domain/types/trackers.types'
 
 export class CreateTrackerTopicUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
 
   async execute(input: CreateTopicUseCaseInput) {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
@@ -12,7 +12,7 @@ export class CreateTrackerTopicUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lastTopic = await this.trackerRepository.findLastTopicForTracker(

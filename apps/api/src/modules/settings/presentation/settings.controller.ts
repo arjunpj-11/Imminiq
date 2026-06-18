@@ -1,291 +1,299 @@
-import { Request, Response, NextFunction } from 'express'
-import { settingsService } from '../settings.service'
-import { ApiResponse } from '../../../shared/utils/ApiResponse'
+import type { NextFunction, Request, Response } from 'express'
 
-export const settingsController = {
-  getAllSettings: async (
+import { ApiResponse } from '../../../shared/utils/ApiResponse'
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
+import { settingsService, type SettingsService } from '../settings.service'
+
+export class SettingsController {
+  constructor(private readonly service: SettingsService) {}
+
+  getAllSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.getAllSettings(req.user!.userId)
+      const data = await this.service.getAllSettings(getAuthUser(req).userId)
       res.json(new ApiResponse('Settings fetched', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getAppearanceSettings: async (
+  getAppearanceSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.getAppearanceSettings(req.user!.userId)
+      const data = await this.service.getAppearanceSettings(
+        getAuthUser(req).userId,
+      )
       res.json(new ApiResponse('Appearance settings fetched', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getNotificationSettings: async (
+  getNotificationSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.getNotificationSettings(req.user!.userId)
+      const data = await this.service.getNotificationSettings(
+        getAuthUser(req).userId,
+      )
       res.json(new ApiResponse('Notification settings fetched', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getPrivacySettings: async (
+  getPrivacySettings = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.getPrivacySettings(req.user!.userId)
+      const data = await this.service.getPrivacySettings(getAuthUser(req).userId)
       res.json(new ApiResponse('Privacy settings fetched', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getGestureSettings: async (
+  getGestureSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.getGestureSettings(req.user!.userId)
+      const data = await this.service.getGestureSettings(getAuthUser(req).userId)
       res.json(new ApiResponse('Gesture settings fetched', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateAccountSettings: async (
+  updateAccountSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateAccountSettings(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateAccountSettings(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Account settings updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateAppearance: async (
+  updateAppearance = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateAppearance(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateAppearance(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Appearance updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateNotifications: async (
+  updateNotifications = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateNotifications(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateNotifications(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Notifications updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateQuietHours: async (
+  updateQuietHours = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateQuietHours(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateQuietHours(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Quiet hours updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateEmailDigest: async (
+  updateEmailDigest = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateEmailDigest(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateEmailDigest(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Email digest updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updatePrivacy: async (
+  updatePrivacy = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updatePrivacy(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updatePrivacy(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Privacy settings updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateCodeEditor: async (
+  updateCodeEditor = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateCodeEditor(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateCodeEditor(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Code editor settings updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateCompiler: async (
+  updateCompiler = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateCompiler(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateCompiler(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Compiler settings updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateAIBehaviour: async (
+  updateAIBehaviour = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateAIBehaviour(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateAIBehaviour(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('AI behaviour updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateLearningJourney: async (
+  updateLearningJourney = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateLearningJourney(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateLearningJourney(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Learning journey updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateGestures: async (
+  updateGestures = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.updateGestures(
-        req.user!.userId,
-        req.body
+      const data = await this.service.updateGestures(
+        getAuthUser(req).userId,
+        req.body,
       )
       res.json(new ApiResponse('Gesture settings updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  updateCookieConsent: async (
+  updateCookieConsent = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
       const { cookieConsent } = req.body
-
-      const data = await settingsService.updateCookieConsent(
-        req.user!.userId,
-        cookieConsent
+      const data = await this.service.updateCookieConsent(
+        getAuthUser(req).userId,
+        cookieConsent,
       )
-
       res.json(new ApiResponse('Cookie consent updated', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  acceptTerms: async (
+  acceptTerms = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.acceptTerms(req.user!.userId)
+      const data = await this.service.acceptTerms(getAuthUser(req).userId)
       res.json(new ApiResponse('Terms accepted', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  resetToDefaults: async (
+  resetToDefaults = async (
     req: Request,
     res: Response,
-    next: NextFunction
+    next: NextFunction,
   ) => {
     try {
-      const data = await settingsService.resetToDefaults(req.user!.userId)
+      const data = await this.service.resetToDefaults(getAuthUser(req).userId)
       res.json(new ApiResponse('Settings reset to defaults', data))
     } catch (error) {
       next(error)
     }
-  },
+  }
 }
+
+export const settingsController = new SettingsController(settingsService)

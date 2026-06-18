@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const objectId = z.string().min(1)
+const objectIdSchema = z.string().min(1)
 
 const codingLanguageSchema = z.enum([
   'javascript',
@@ -60,10 +60,7 @@ const questionSchema = z
     coding: codingSchema.optional(),
   })
   .superRefine((value, ctx) => {
-    if (
-      value.type === 'mcq' &&
-      (!value.options || value.options.length !== 4)
-    ) {
+    if (value.type === 'mcq' && (!value.options || value.options.length !== 4)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['options'],
@@ -104,10 +101,7 @@ export const generateMockTestSchema = z.object({
   topic: z.string().min(2).max(200),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
   questionCount: z.number().min(1).max(50).optional(),
-  questionTypes: z
-    .array(z.enum(['mcq', 'short_answer', 'coding']))
-    .min(1)
-    .optional(),
+  questionTypes: z.array(z.enum(['mcq', 'short_answer', 'coding'])).min(1).optional(),
   trackerId: z.string().optional(),
   topicId: z.string().optional(),
   timeLimitMinutes: z.number().min(5).max(180).optional(),
@@ -116,7 +110,7 @@ export const generateMockTestSchema = z.object({
 })
 
 export const submitAnswerSchema = z.object({
-  questionId: objectId,
+  questionId: objectIdSchema,
   answer: z.string().min(1, 'Answer cannot be empty'),
 })
 
@@ -129,5 +123,6 @@ export const runMockTestCodeSchema = z.object({
 export const submitMockTestCodeSchema = runMockTestCodeSchema
 
 export const flagQuestionSchema = z.object({
-  questionId: objectId,
+  questionId: objectIdSchema,
 })
+

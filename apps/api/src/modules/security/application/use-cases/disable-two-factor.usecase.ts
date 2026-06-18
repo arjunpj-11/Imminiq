@@ -1,81 +1,35 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import {
-  SECURITY_ATTEMPT_POLICIES,
-  securityAttemptCache,
-} from '../../../../infrastructure/cache/security-attempt.cache'
-import type { TwoFactorGateway } from '../../domain/services/two-factor.service.interface'
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
+import { TWO_FACTOR_DISABLE_ATTEMPT_SCOPE } from '../../domain/constants/security.constants'
+import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
+import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
 import type {
   DisableTwoFactorPayload,
-  DisableTwoFactorResponse,
-} from '../../domain/types/security.types'
-
-const TWO_FACTOR_DISABLE_SCOPE = 'security_two_factor_disable' as const
-
-const assertDisableVerificationAllowed = async (
-  userId: string
-) => {
-  const blocked = await securityAttemptCache.isBlocked(
-    TWO_FACTOR_DISABLE_SCOPE,
-    userId
-  )
-
-  if (!blocked) return
-
-  throw new ApiError(
-    429,
-    'Too many invalid authenticator codes. Please try again later.',
-    'TWO_FACTOR_DISABLE_TEMPORARILY_BLOCKED'
-  )
-}
-
-const recordInvalidDisableCode = async (
-  userId: string
-) => {
-  const result = await securityAttemptCache.recordFailure(
-    TWO_FACTOR_DISABLE_SCOPE,
-    userId,
-    SECURITY_ATTEMPT_POLICIES.twoFactorVerification
-  )
-
-  if (result.blocked) {
-    throw new ApiError(
-      429,
-      'Too many invalid authenticator codes. Please try again later.',
-      'TWO_FACTOR_DISABLE_TEMPORARILY_BLOCKED'
-    )
-  }
-}
+  DisableTwoFactorResponseDto,
+} from '../dtos/security.dto'
+import { SecurityApplicationError } from '../errors/security-application.error'
 
 export class DisableTwoFactorUseCase {
   constructor(
-    private readonly securityRepository: SecurityRepository,
-    private readonly twoFactorGateway: TwoFactorGateway
+    private readonly twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly twoFactorGateway: TwoFactorGatewayContract,
+    private readonly securityAttemptStore: SecurityAttemptStoreContract,
   ) {}
 
   async execute(
     userId: string,
-    payload: DisableTwoFactorPayload
-  ): Promise<DisableTwoFactorResponse> {
-    await assertDisableVerificationAllowed(userId)
+    payload: DisableTwoFactorPayload,
+  ): Promise<DisableTwoFactorResponseDto> {
+    await this.assertDisableVerificationAllowed(userId)
 
     const twoFactor =
-      await this.securityRepository.findTwoFactorWithSecret(userId)
+      await this.twoFactorRepository.findTwoFactorWithSecret(userId)
 
     if (!twoFactor || twoFactor.status !== 'active') {
-      throw new ApiError(
-        400,
-        'Two-factor authentication is not enabled',
-        'TWO_FACTOR_NOT_ENABLED'
-      )
+      throw SecurityApplicationError.twoFactorNotEnabled()
     }
 
     if (!twoFactor.totpSecretEncrypted) {
-      throw new ApiError(
-        500,
-        'Two-factor secret is missing',
-        'TWO_FACTOR_SECRET_MISSING'
-      )
+      throw SecurityApplicationError.twoFactorSecretMissing()
     }
 
     const valid = await this.twoFactorGateway.verifyToken({
@@ -84,33 +38,47 @@ export class DisableTwoFactorUseCase {
     })
 
     if (!valid) {
-      await recordInvalidDisableCode(userId)
-
-      throw new ApiError(
-        400,
-        'Invalid authenticator code',
-        'INVALID_TWO_FACTOR_CODE'
-      )
+      await this.recordInvalidDisableCode(userId)
+      throw SecurityApplicationError.invalidTwoFactorCode()
     }
 
-    await securityAttemptCache.clear(
-      TWO_FACTOR_DISABLE_SCOPE,
-      userId
+    await this.securityAttemptStore.clear(
+      TWO_FACTOR_DISABLE_ATTEMPT_SCOPE,
+      userId,
     )
 
     const disabledTwoFactor =
-      await this.securityRepository.disableTwoFactor(userId)
+      await this.twoFactorRepository.disableTwoFactor(userId)
 
     if (!disabledTwoFactor) {
-      throw new ApiError(
-        500,
-        'Unable to disable two-factor authentication',
-        'TWO_FACTOR_DISABLE_FAILED'
-      )
+      throw SecurityApplicationError.twoFactorDisableFailed()
     }
 
-    return {
-      disabled: true,
+    return { disabled: true }
+  }
+
+  private async assertDisableVerificationAllowed(
+    userId: string,
+  ): Promise<void> {
+    const blocked = await this.securityAttemptStore.isBlocked(
+      TWO_FACTOR_DISABLE_ATTEMPT_SCOPE,
+      userId,
+    )
+
+    if (blocked) {
+      throw SecurityApplicationError.twoFactorDisableTemporarilyBlocked()
+    }
+  }
+
+  private async recordInvalidDisableCode(userId: string): Promise<void> {
+    const result = await this.securityAttemptStore.recordFailure(
+      TWO_FACTOR_DISABLE_ATTEMPT_SCOPE,
+      userId,
+      'twoFactorVerification',
+    )
+
+    if (result.blocked) {
+      throw SecurityApplicationError.twoFactorDisableTemporarilyBlocked()
     }
   }
 }

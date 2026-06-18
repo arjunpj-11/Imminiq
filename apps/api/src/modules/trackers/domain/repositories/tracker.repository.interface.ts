@@ -1,5 +1,3 @@
-// apps/api/src/modules/trackers/domain/repositories/tracker.repository.interface.ts
-
 import type {
   CreateTrackerInput,
   CreateTrackerTopicInput,
@@ -28,7 +26,7 @@ import type {
 
 import type { GeneratedLessonData, GeneratedLessonPracticeTask } from '../types/lesson-practice.types'
 
-export interface TrackerRepository {
+export interface TrackerRepositoryContract {
   // ─── Tracker CRUD ────────────────────────────────────────────────────────────
 
   hasAnyTrackerForUser(userId: string): Promise<boolean>
@@ -61,7 +59,7 @@ export interface TrackerRepository {
     userId: string
   }): Promise<TrackerRecord | null>
 
-publishOwnedTracker(data: PublishTrackerInput): Promise<TrackerRecord | null>
+  publishOwnedTracker(data: PublishTrackerInput): Promise<TrackerRecord | null>
 
   unpublishOwnedTracker(data: {
     trackerId: string
@@ -77,10 +75,10 @@ publishOwnedTracker(data: PublishTrackerInput): Promise<TrackerRecord | null>
 
   getTopicsForTracker(trackerId: string): Promise<TrackerTopicRecord[]>
 
-getTopicsWithUserProgress(data: {
+  getTopicsWithUserProgress(data: {
   trackerId: string
   userId: string
-}): Promise<TopicWithProgressRecord[]>   
+}): Promise<TopicWithProgressRecord[]>
 
   // Content only — no progress fields
   getSubtopicsForTracker(trackerId: string): Promise<TrackerSubtopicRecord[]>
@@ -207,7 +205,7 @@ getTopicsWithUserProgress(data: {
     userId: string
   }): Promise<GeneratedLessonData | null>
 
-    getLessonChatMessages(data: {
+  getLessonChatMessages(data: {
     trackerId: string
     subtopicId: string
     userId: string

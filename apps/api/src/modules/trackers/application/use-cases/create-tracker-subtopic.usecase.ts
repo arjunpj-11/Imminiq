@@ -1,9 +1,9 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateSubtopicUseCaseInput } from '../../domain/types/trackers.types'
 
 export class CreateTrackerSubtopicUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
 
   async execute(input: CreateSubtopicUseCaseInput) {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
@@ -12,7 +12,7 @@ export class CreateTrackerSubtopicUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const topics = await this.trackerRepository.getTopicsForTracker(
@@ -24,7 +24,7 @@ export class CreateTrackerSubtopicUseCase {
     })
 
     if (!topicExists) {
-      throw new ApiError(404, 'Topic not found', 'TOPIC_NOT_FOUND')
+      throw TrackerApplicationError.topicNotFound('Topic not found')
     }
 
     let depth = 1
@@ -36,19 +36,11 @@ export class CreateTrackerSubtopicUseCase {
       })
 
       if (!parent) {
-        throw new ApiError(
-          404,
-          'Parent subtopic not found',
-          'PARENT_SUBTOPIC_NOT_FOUND'
-        )
+        throw TrackerApplicationError.parentSubtopicNotFound('Parent subtopic not found')
       }
 
       if (parent.topicId.toString() !== input.topicId) {
-        throw new ApiError(
-          400,
-          'Parent subtopic does not belong to this topic',
-          'PARENT_TOPIC_MISMATCH'
-        )
+        throw TrackerApplicationError.parentTopicMismatch('Parent subtopic does not belong to this topic')
       }
 
       depth = parent.depth + 1

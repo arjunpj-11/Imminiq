@@ -1,56 +1,79 @@
 import * as QRCode from 'qrcode'
-import {
-  generateSecret,
-  generateURI,
-  verify,
-} from 'otplib'
+import { generateSecret, generateURI, verify } from 'otplib'
 
-import type {
-  TwoFactorGateway,
-  TwoFactorProvisioning,
-} from '../../domain/services/two-factor.service.interface'
 import {
   decryptTotpSecret,
   encryptTotpSecret,
-} from '../crypto/two-factor-secret.crypto'
+} from '../../../../infrastructure/security/two-factor-secret.crypto'
+import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import type {
+  TwoFactorGatewayContract,
+  TwoFactorProvisioning,
+} from '../../domain/services/two-factor-gateway.interface'
 
-export const otplibTwoFactorGateway: TwoFactorGateway = {
+export class OtplibTwoFactorGateway
+  implements TwoFactorGatewayContract
+{
   async createSetup(data: {
     issuer: string
     accountLabel: string
   }): Promise<TwoFactorProvisioning> {
-    const secret = generateSecret()
+    try {
+      const secret = generateSecret()
 
-    const qrCodeUri = generateURI({
-      issuer: data.issuer,
-      label: data.accountLabel,
-      secret,
-    })
+      const qrCodeUri = generateURI({
+        issuer: data.issuer,
+        label: data.accountLabel,
+        secret,
+      })
 
-    const qrCodeDataUrl = await QRCode.toDataURL(qrCodeUri)
+      const qrCodeDataUrl = await QRCode.toDataURL(qrCodeUri)
 
-    return {
-      secret,
-      qrCodeUri,
-      qrCodeDataUrl,
+      return {
+        secret,
+        qrCodeUri,
+        qrCodeDataUrl,
+      }
+    } catch {
+      throw new SecurityDomainError(
+        'TWO_FACTOR_SETUP_GENERATION_FAILED',
+        'Two-factor setup generation failed',
+      )
     }
-  },
+  }
 
   async verifyToken(data: {
     encryptedSecret: string
     token: string
   }): Promise<boolean> {
-    const secret = decryptTotpSecret(data.encryptedSecret)
+    try {
+      const secret = decryptTotpSecret(data.encryptedSecret)
 
-    const verification = await verify({
-      secret,
-      token: data.token,
-    })
+      const verification = await verify({
+        secret,
+        token: data.token,
+      })
 
-    return verification.valid
-  },
+      return verification.valid
+    } catch {
+      throw new SecurityDomainError(
+        'TWO_FACTOR_VERIFICATION_FAILED',
+        'Two-factor verification failed',
+      )
+    }
+  }
 
   encryptSecret(secret: string): string {
-    return encryptTotpSecret(secret)
-  },
+    try {
+      return encryptTotpSecret(secret)
+    } catch {
+      throw new SecurityDomainError(
+        'TWO_FACTOR_SECRET_ENCRYPTION_FAILED',
+        'Two-factor secret encryption failed',
+      )
+    }
+  }
 }
+
+export const otplibTwoFactorGateway =
+  new OtplibTwoFactorGateway()

@@ -1,45 +1,33 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
-import type { RevokeSessionResponse } from '../../domain/types/security.types'
-import { getCurrentSessionId } from '../helpers/current-session.helper'
+import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
+import type { RevokeSessionResponseDto } from '../dtos/security.dto'
+import { SecurityApplicationError } from '../errors/security-application.error'
+import type { CurrentSessionServiceContract } from '../services/current-session.service'
 
 export class RevokeSecuritySessionUseCase {
   constructor(
-    private readonly securityRepository: SecurityRepository
+    private readonly securitySessionRepository: SecuritySessionRepositoryContract,
+    private readonly currentSessionService: CurrentSessionServiceContract,
   ) {}
 
   async execute(
     userId: string,
     sessionId: string,
-    refreshToken?: string
-  ): Promise<RevokeSessionResponse> {
-    const currentSessionId = await getCurrentSessionId(
-      this.securityRepository,
-      refreshToken
-    )
+    refreshToken?: string,
+  ): Promise<RevokeSessionResponseDto> {
+    const currentSessionId =
+      await this.currentSessionService.getCurrentSessionId(refreshToken)
 
     if (currentSessionId === sessionId) {
-      throw new ApiError(
-        403,
-        'Use logout to end your current session',
-        'CANNOT_REVOKE_CURRENT_SESSION'
-      )
+      throw SecurityApplicationError.cannotRevokeCurrentSession()
     }
 
     const revokedSession =
-      await this.securityRepository.revokeSessionById(userId, sessionId)
+      await this.securitySessionRepository.revokeSessionById(userId, sessionId)
 
     if (!revokedSession) {
-      throw new ApiError(
-        404,
-        'Session not found',
-        'SESSION_NOT_FOUND'
-      )
+      throw SecurityApplicationError.sessionNotFound()
     }
 
-    return {
-      revoked: true,
-      sessionId,
-    }
+    return { revoked: true, sessionId }
   }
 }

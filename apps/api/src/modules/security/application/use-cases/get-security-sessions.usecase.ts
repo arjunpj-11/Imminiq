@@ -1,26 +1,27 @@
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
-import type { SessionsResponse } from '../../domain/types/security.types'
-import { getCurrentSessionId } from '../helpers/current-session.helper'
-import { mapSession } from '../utils/security-session.util'
+import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
+import type { SessionsResponseDto } from '../dtos/security.dto'
+import type { SecurityMapperContract } from '../mappers/security.mapper'
+import type { CurrentSessionServiceContract } from '../services/current-session.service'
 
 export class GetSecuritySessionsUseCase {
   constructor(
-    private readonly securityRepository: SecurityRepository
+    private readonly securitySessionRepository: SecuritySessionRepositoryContract,
+    private readonly currentSessionService: CurrentSessionServiceContract,
+    private readonly securityMapper: SecurityMapperContract,
   ) {}
 
   async execute(
     userId: string,
-    refreshToken?: string
-  ): Promise<SessionsResponse> {
-    const sessions = await this.securityRepository.findActiveSessions(userId)
-    const currentSessionId = await getCurrentSessionId(
-      this.securityRepository,
-      refreshToken
-    )
+    refreshToken?: string,
+  ): Promise<SessionsResponseDto> {
+    const sessions =
+      await this.securitySessionRepository.findActiveSessions(userId)
+    const currentSessionId =
+      await this.currentSessionService.getCurrentSessionId(refreshToken)
 
     return {
       activeSessions: sessions.map((session) =>
-        mapSession(session, currentSessionId)
+        this.securityMapper.toSessionDto(session, currentSessionId),
       ),
     }
   }

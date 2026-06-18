@@ -1,114 +1,115 @@
-import bcrypt from 'bcryptjs'
+import type { SecurityUserEntity } from '../../domain/entities/security-user.entity'
+import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { SecurityPasswordHasherServiceContract } from '../../domain/services/security-password-hasher.service.interface'
+import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
+import type { SensitiveSecurityAction } from '../../domain/value-objects/sensitive-security-action.vo'
+import type { SensitiveActionStepUpPayload } from '../dtos/security.dto'
+import { SecurityApplicationError } from '../errors/security-application.error'
 
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import type { TwoFactorGateway } from '../../domain/services/two-factor.service.interface'
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
-import type {
-  SecurityUserRecord,
-  SensitiveActionStepUpPayload,
-} from '../../domain/types/security.types'
+export interface SensitiveActionStepUpServiceContract {
+  assertSatisfied(input: {
+    user: SecurityUserEntity
+    payload: SensitiveActionStepUpPayload
+    action: SensitiveSecurityAction
+  }): Promise<void>
+}
 
-export class SensitiveActionStepUpService {
+export class SensitiveActionStepUpService implements SensitiveActionStepUpServiceContract {
   constructor(
-    private readonly securityRepository: SecurityRepository,
-    private readonly twoFactorGateway: TwoFactorGateway
+    private readonly twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly twoFactorGateway: TwoFactorGatewayContract,
+    private readonly passwordHasher: SecurityPasswordHasherServiceContract,
+    private readonly securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async assertSatisfied(input: {
-    user: SecurityUserRecord
+    user: SecurityUserEntity
     payload: SensitiveActionStepUpPayload
-    action: 'change_email' | 'delete_account'
+    action: SensitiveSecurityAction
   }): Promise<void> {
-    const userId = String(input.user._id)
-    const twoFactor =
-      await this.securityRepository.findTwoFactorWithSecret(userId)
+    const twoFactor = await this.twoFactorRepository.findTwoFactorWithSecret(
+      input.user.id,
+    )
 
     if (input.user.provider === 'local') {
-      if (!input.payload.currentPassword) {
-        throw new ApiError(
-          400,
-          'Current password is required for this security action',
-          'STEP_UP_PASSWORD_REQUIRED'
-        )
-      }
-
-      if (!input.user.passwordHash) {
-        throw new ApiError(
-          400,
-          'Password reauthentication is unavailable for this account',
-          'STEP_UP_PASSWORD_UNAVAILABLE'
-        )
-      }
-
-      const validPassword = await bcrypt.compare(
-        input.payload.currentPassword,
-        input.user.passwordHash
-      )
-
-      if (!validPassword) {
-        await securityAuditLogger.record({
-          userId,
-          eventType: 'SENSITIVE_ACTION_PASSWORD_REAUTH_FAILED',
-          outcome: 'failure',
-          metadata: {
-            action: input.action,
-          },
-        })
-
-        throw new ApiError(
-          401,
-          'Current password is incorrect',
-          'STEP_UP_PASSWORD_INVALID'
-        )
-      }
+      await this.assertPasswordStepSatisfied(input)
     } else if (twoFactor?.status !== 'active') {
-      throw new ApiError(
-        403,
-        'Enable two-factor authentication before performing this security action.',
-        'STEP_UP_REQUIRES_TWO_FACTOR_FOR_SOCIAL_ACCOUNT'
-      )
+      throw SecurityApplicationError.stepUpRequiresTwoFactorForSocialAccount()
     }
 
     if (twoFactor?.status === 'active') {
-      if (!input.payload.twoFactorCode) {
-        throw new ApiError(
-          400,
-          'Two-factor code is required for this security action',
-          'STEP_UP_TWO_FACTOR_REQUIRED'
-        )
-      }
-
-      if (!twoFactor.totpSecretEncrypted) {
-        throw new ApiError(
-          500,
-          'Two-factor secret is missing',
-          'TWO_FACTOR_SECRET_MISSING'
-        )
-      }
-
-      const validTwoFactorCode =
-        await this.twoFactorGateway.verifyToken({
-          encryptedSecret: twoFactor.totpSecretEncrypted,
-          token: input.payload.twoFactorCode,
-        })
-
-      if (!validTwoFactorCode) {
-        await securityAuditLogger.record({
-          userId,
-          eventType: 'SENSITIVE_ACTION_TWO_FACTOR_REAUTH_FAILED',
-          outcome: 'failure',
-          metadata: {
-            action: input.action,
-          },
-        })
-
-        throw new ApiError(
-          401,
-          'Invalid two-factor code',
-          'STEP_UP_TWO_FACTOR_INVALID'
-        )
-      }
+      await this.assertTwoFactorStepSatisfied({
+        userId: input.user.id,
+        encryptedSecret: twoFactor.totpSecretEncrypted,
+        payload: input.payload,
+        action: input.action,
+      })
     }
+  }
+
+  private async assertPasswordStepSatisfied(input: {
+    user: SecurityUserEntity
+    payload: SensitiveActionStepUpPayload
+    action: SensitiveSecurityAction
+  }): Promise<void> {
+    if (!input.payload.currentPassword) {
+      throw SecurityApplicationError.stepUpPasswordRequired()
+    }
+
+    if (!input.user.passwordHash) {
+      throw SecurityApplicationError.stepUpPasswordUnavailable()
+    }
+
+    const validPassword = await this.passwordHasher.compare(
+      input.payload.currentPassword,
+      input.user.passwordHash,
+    )
+
+    if (validPassword) {
+      return
+    }
+
+    await this.securityAuditLogger.record({
+      userId: input.user.id,
+      eventType: 'SENSITIVE_ACTION_PASSWORD_REAUTH_FAILED',
+      outcome: 'failure',
+      metadata: { action: input.action },
+    })
+
+    throw SecurityApplicationError.stepUpPasswordInvalid()
+  }
+
+  private async assertTwoFactorStepSatisfied(input: {
+    userId: string
+    encryptedSecret: string | null
+    payload: SensitiveActionStepUpPayload
+    action: SensitiveSecurityAction
+  }): Promise<void> {
+    if (!input.payload.twoFactorCode) {
+      throw SecurityApplicationError.stepUpTwoFactorRequired()
+    }
+
+    if (!input.encryptedSecret) {
+      throw SecurityApplicationError.twoFactorSecretMissing()
+    }
+
+    const validTwoFactorCode = await this.twoFactorGateway.verifyToken({
+      encryptedSecret: input.encryptedSecret,
+      token: input.payload.twoFactorCode,
+    })
+
+    if (validTwoFactorCode) {
+      return
+    }
+
+    await this.securityAuditLogger.record({
+      userId: input.userId,
+      eventType: 'SENSITIVE_ACTION_TWO_FACTOR_REAUTH_FAILED',
+      outcome: 'failure',
+      metadata: { action: input.action },
+    })
+
+    throw SecurityApplicationError.stepUpTwoFactorInvalid()
   }
 }

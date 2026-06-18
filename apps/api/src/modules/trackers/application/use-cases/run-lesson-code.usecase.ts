@@ -1,5 +1,5 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
 
 type RunLessonCodeInput = {
@@ -14,7 +14,7 @@ type RunLessonCodeInput = {
 
 export class RunLessonCodeUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerRepository: TrackerRepositoryContract,
     private readonly codeExecutionService: CodeExecutionServiceContract
   ) {}
 
@@ -25,7 +25,7 @@ export class RunLessonCodeUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -35,11 +35,7 @@ export class RunLessonCodeUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
-        'Generate the lesson before running code',
-        'LESSON_NOT_GENERATED'
-      )
+      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before running code')
     }
 
     return this.codeExecutionService.executeCode({

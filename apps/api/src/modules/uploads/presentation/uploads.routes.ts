@@ -1,15 +1,15 @@
 import { Router } from 'express'
 
+import { authenticate } from '../../../shared/middlewares/auth.middleware'
+import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware'
 import {
   avatarUpload,
   bannerUpload,
 } from '../../../shared/middlewares/profile-image-upload'
-import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware'
 import {
   authenticatedApiIpLimiter,
   profileImageUploadIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { uploadsController } from './uploads.controller'
 import {
@@ -19,17 +19,16 @@ import {
 
 const router = Router()
 
-router.use(
-  authenticatedApiIpLimiter,
-  authenticate
-)
+// ─── PROTECTED ───────────────────────────────────────────────
+
+router.use(authenticatedApiIpLimiter, authenticate)
 
 router.post(
   '/avatar',
   profileImageUploadIpLimiter,
   avatarUpload.single('file'),
   validateUploadedImageSignature,
-  uploadsController.uploadAvatar
+  uploadsController.uploadAvatar,
 )
 
 router.delete('/avatar', uploadsController.removeAvatar)
@@ -37,7 +36,7 @@ router.delete('/avatar', uploadsController.removeAvatar)
 router.post(
   '/avatar/ai-preview',
   validate(generateAiAvatarPreviewSchema),
-  uploadsController.generateAiAvatarPreview
+  uploadsController.generateAiAvatarPreview,
 )
 
 router.post(
@@ -45,7 +44,7 @@ router.post(
   profileImageUploadIpLimiter,
   bannerUpload.single('file'),
   validateUploadedImageSignature,
-  uploadsController.uploadBanner
+  uploadsController.uploadBanner,
 )
 
 router.delete('/banner', uploadsController.removeBanner)
@@ -53,7 +52,8 @@ router.delete('/banner', uploadsController.removeBanner)
 router.post(
   '/banner/ai-preview',
   validate(generateAiBannerPreviewSchema),
-  uploadsController.generateAiBannerPreview
+  uploadsController.generateAiBannerPreview,
 )
 
 export default router
+export { router as uploadsRoutes }

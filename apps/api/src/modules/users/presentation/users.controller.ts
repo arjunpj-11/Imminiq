@@ -1,308 +1,261 @@
-import type { Request, Response, NextFunction } from 'express'
+import type { NextFunction, Request, Response } from 'express'
+
+import {
+  USERS_DEFAULT_LIMIT,
+  USERS_MAX_LIMIT,
+  USERS_MAX_PAGE,
+  USERS_MAX_SEARCH_LENGTH,
+  USERS_MIN_STREAK_YEAR,
+} from '../domain/constants/users.constants'
+import type { PaginationQuery } from '../application/dtos/users.dto'
+import type { ProfileSort } from '../domain/value-objects/profile-sort.vo'
+import { usersService, type UsersService } from '../users.service'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { usersService } from '../users.service'
-import type {
-  PaginationQuery,
-  ProfileSort,
-} from '../domain/types/users.types'
-
-const MAX_PAGE = 100_000
-const MAX_LIMIT = 50
-const MAX_SEARCH_LENGTH = 80
-
-const requireUserId = (req: Request) => {
-  const userId = req.user?.userId
-
-  if (!userId) {
-    throw new Error('Authenticated user id is missing')
-  }
-
-  return userId
-}
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
 type UsernameParams = {
   username: string
 }
 
-const clampInteger = (
-  value: unknown,
-  fallback: number,
-  minimum: number,
-  maximum: number
-) => {
-  const parsed =
-    typeof value === 'string'
-      ? Number(value)
-      : Number(value ?? fallback)
+export class UsersController {
+  constructor(private readonly service: UsersService) {}
 
-  if (!Number.isInteger(parsed)) {
-    return fallback
-  }
-
-  return Math.min(Math.max(parsed, minimum), maximum)
-}
-
-const normalizeSearch = (
-  value: unknown
-): string | undefined => {
-  if (typeof value !== 'string') {
-    return undefined
-  }
-
-  const trimmed = value.trim().slice(0, MAX_SEARCH_LENGTH)
-
-  return trimmed || undefined
-}
-
-const normalizeStatus = (
-  value: unknown
-): PaginationQuery['status'] => {
-  return value === 'active' ||
-    value === 'draft' ||
-    value === 'archived'
-    ? value
-    : undefined
-}
-
-const normalizeSort = (
-  value: unknown
-): ProfileSort => {
-  return value === 'createdAt' ||
-    value === 'publishedAt' ||
-    value === 'ratingAverage' ||
-    value === 'cloneCount'
-    ? value
-    : 'publishedAt'
-}
-
-const buildTrackerPaginationQuery = (
-  req: Request
-): PaginationQuery => {
-  return {
-    page: clampInteger(req.query.page, 1, 1, MAX_PAGE),
-    limit: clampInteger(req.query.limit, 10, 1, MAX_LIMIT),
-    search: normalizeSearch(req.query.search),
-    status: normalizeStatus(req.query.status),
-    sort: normalizeSort(req.query.sort),
-  }
-}
-
-export const usersController = {
-  async getMe(req: Request, res: Response, next: NextFunction) {
+  getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await usersService.getMe(requireUserId(req))
+      const result = await this.service.getMe(getAuthUser(req).userId)
 
-      res
+      return res
         .status(200)
-        .json(
-          new ApiResponse(
-            'Current user profile fetched',
-            result
-          )
-        )
+        .json(new ApiResponse('Current user profile fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async updateMe(req: Request, res: Response, next: NextFunction) {
+  updateMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await usersService.updateMe(
-        requireUserId(req),
-        req.body
+      const result = await this.service.updateMe(
+        getAuthUser(req).userId,
+        req.body,
       )
 
-      res
+      return res
         .status(200)
-        .json(
-          new ApiResponse(
-            'Profile updated successfully',
-            result
-          )
-        )
+        .json(new ApiResponse('Profile updated successfully', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async getUserByUsername(
+  getUserByUsername = async (
     req: Request<UsernameParams>,
     res: Response,
-    next: NextFunction
-  ) {
+    next: NextFunction,
+  ) => {
     try {
-      const result = await usersService.getUserByUsername(
-        req.params.username
-      )
+      const result = await this.service.getUserByUsername(req.params.username)
 
-      res
-        .status(200)
-        .json(
-          new ApiResponse(
-            'User fetched',
-            result
-          )
-        )
+      return res.status(200).json(new ApiResponse('User fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async getPublicProfile(
+  getPublicProfile = async (
     req: Request<UsernameParams>,
     res: Response,
-    next: NextFunction
-  ) {
+    next: NextFunction,
+  ) => {
     try {
-      const result = await usersService.getPublicProfilePage(
+      const result = await this.service.getPublicProfilePage(
         req.params.username,
-        req.user?.userId,
-        buildTrackerPaginationQuery(req)
+        undefined,
+        this.buildTrackerPaginationQuery(req),
       )
 
-      res
+      return res
         .status(200)
-        .json(
-          new ApiResponse(
-            'Public profile fetched',
-            result
-          )
-        )
+        .json(new ApiResponse('Public profile fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async getMyStats(req: Request, res: Response, next: NextFunction) {
+  getMyStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await usersService.getMyStats(requireUserId(req))
+      const result = await this.service.getMyStats(getAuthUser(req).userId)
 
-      res
-        .status(200)
-        .json(
-          new ApiResponse(
-            'Stats fetched',
-            result
-          )
-        )
+      return res.status(200).json(new ApiResponse('Stats fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async getMyActivity(req: Request, res: Response, next: NextFunction) {
-    try {
-      const result = await usersService.getMyActivity(
-        requireUserId(req),
-        clampInteger(req.query.page, 1, 1, MAX_PAGE),
-        clampInteger(req.query.limit, 10, 1, MAX_LIMIT)
-      )
-
-      res
-        .status(200)
-        .json(
-          new ApiResponse(
-            'Activity feed fetched',
-            result
-          )
-        )
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  async getMyRecentActivity(
+  getMyActivity = async (
     req: Request,
     res: Response,
-    next: NextFunction
-  ) {
+    next: NextFunction,
+  ) => {
     try {
-      const result = await usersService.getMyRecentActivity(
-        requireUserId(req),
-        clampInteger(req.query.limit, 10, 1, MAX_LIMIT)
+      const result = await this.service.getMyActivity(
+        getAuthUser(req).userId,
+        this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
+        this.clampInteger(
+          req.query.limit,
+          USERS_DEFAULT_LIMIT,
+          1,
+          USERS_MAX_LIMIT,
+        ),
       )
 
-      res
+      return res
         .status(200)
-        .json(
-          new ApiResponse(
-            'Recent activity fetched',
-            result
-          )
-        )
+        .json(new ApiResponse('Activity feed fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async getMyStreak(req: Request, res: Response, next: NextFunction) {
+  getMyRecentActivity = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const result = await this.service.getMyRecentActivity(
+        getAuthUser(req).userId,
+        this.clampInteger(
+          req.query.limit,
+          USERS_DEFAULT_LIMIT,
+          1,
+          USERS_MAX_LIMIT,
+        ),
+      )
+
+      return res
+        .status(200)
+        .json(new ApiResponse('Recent activity fetched', result))
+    } catch (error) {
+      return next(error)
+    }
+  }
+
+  getMyStreak = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const currentYear = new Date().getUTCFullYear()
       const year =
         typeof req.query.year === 'string'
-          ? clampInteger(req.query.year, currentYear, 2000, currentYear + 1)
+          ? this.clampInteger(
+              req.query.year,
+              currentYear,
+              USERS_MIN_STREAK_YEAR,
+              currentYear + 1,
+            )
           : undefined
 
-      const result = await usersService.getMyStreak(
-        requireUserId(req),
-        year
+      const result = await this.service.getMyStreak(
+        getAuthUser(req).userId,
+        year,
       )
 
-      res
-        .status(200)
-        .json(
-          new ApiResponse(
-            'Streak fetched',
-            result
-          )
-        )
+      return res.status(200).json(new ApiResponse('Streak fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async getMyPublishedTrackers(
+  getMyPublishedTrackers = async (
     req: Request,
     res: Response,
-    next: NextFunction
-  ) {
+    next: NextFunction,
+  ) => {
     try {
-      const result = await usersService.getMyPublishedTrackers(
-        requireUserId(req),
-        buildTrackerPaginationQuery(req)
+      const result = await this.service.getMyPublishedTrackers(
+        getAuthUser(req).userId,
+        this.buildTrackerPaginationQuery(req),
       )
 
-      res
+      return res
         .status(200)
-        .json(
-          new ApiResponse(
-            'Published trackers fetched',
-            result
-          )
-        )
+        .json(new ApiResponse('Published trackers fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
 
-  async getMyBadges(req: Request, res: Response, next: NextFunction) {
+  getMyBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await usersService.getMyBadges(
-        requireUserId(req),
-        clampInteger(req.query.page, 1, 1, MAX_PAGE),
-        clampInteger(req.query.limit, 10, 1, MAX_LIMIT)
+      const result = await this.service.getMyBadges(
+        getAuthUser(req).userId,
+        this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
+        this.clampInteger(
+          req.query.limit,
+          USERS_DEFAULT_LIMIT,
+          1,
+          USERS_MAX_LIMIT,
+        ),
       )
 
-      res
-        .status(200)
-        .json(
-          new ApiResponse(
-            'Badges fetched',
-            result
-          )
-        )
+      return res.status(200).json(new ApiResponse('Badges fetched', result))
     } catch (error) {
-      next(error)
+      return next(error)
     }
-  },
+  }
+
+
+  private clampInteger(
+    value: unknown,
+    fallback: number,
+    minimum: number,
+    maximum: number,
+  ): number {
+    const parsed = typeof value === 'string' ? Number(value) : Number(value)
+
+    if (!Number.isInteger(parsed)) return fallback
+
+    return Math.min(Math.max(parsed, minimum), maximum)
+  }
+
+  private normalizeSearch(value: unknown): string | undefined {
+    if (typeof value !== 'string') return undefined
+
+    const trimmed = value.trim().slice(0, USERS_MAX_SEARCH_LENGTH)
+
+    return trimmed || undefined
+  }
+
+  private normalizeStatus(value: unknown): PaginationQuery['status'] {
+    return value === 'active' || value === 'draft' || value === 'archived'
+      ? value
+      : undefined
+  }
+
+  private normalizeSort(value: unknown): ProfileSort {
+    return value === 'createdAt' ||
+      value === 'publishedAt' ||
+      value === 'ratingAverage' ||
+      value === 'cloneCount'
+      ? value
+      : 'publishedAt'
+  }
+
+  private buildTrackerPaginationQuery(req: Request): PaginationQuery {
+    const search = this.normalizeSearch(req.query.search)
+    const status = this.normalizeStatus(req.query.status)
+
+    return {
+      page: this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
+      limit: this.clampInteger(
+        req.query.limit,
+        USERS_DEFAULT_LIMIT,
+        1,
+        USERS_MAX_LIMIT,
+      ),
+      ...(search ? { search } : {}),
+      ...(status ? { status } : {}),
+      sort: this.normalizeSort(req.query.sort),
+    }
+  }
 }
+
+export const usersController = new UsersController(usersService)

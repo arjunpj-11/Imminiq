@@ -1,5 +1,5 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
@@ -15,7 +15,7 @@ const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
 
 export class GetTrackerLessonUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerRepository: TrackerRepositoryContract,
     private readonly trackerAIService: TrackerAIServiceContract
   ) {}
 
@@ -29,7 +29,7 @@ export class GetTrackerLessonUseCase {
       input.userId
     )
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     await this.trackerRepository.ensureUserProgressInitialized({
@@ -49,7 +49,7 @@ export class GetTrackerLessonUseCase {
       (s) => s._id.toString() === input.subtopicId
     )
     if (!currentSubtopic) {
-      throw new ApiError(404, 'Lesson node not found', 'LESSON_NODE_NOT_FOUND')
+      throw TrackerApplicationError.lessonNodeNotFound('Lesson node not found')
     }
 
     const topic = topics.find(

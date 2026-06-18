@@ -14,14 +14,14 @@ import { initPassport } from './infrastructure/auth/passport'
 
 import authRouter from './modules/auth/presentation/auth.routes'
 import onboardingRouter from './modules/onboarding/presentation/onboarding.routes'
-import trackerRoutes from './modules/trackers'
+import trackerRoutes from './modules/trackers/presentation/trackers.routes'
 import usersRouter from './modules/users/presentation/users.routes'
 import uploadsRouter from './modules/uploads/presentation/uploads.routes'
 import settingsRouter from './modules/settings/presentation/settings.routes'
-import { securityRoutes } from './modules/security/security.routes'
+import { securityRoutes } from './modules/security/presentation/security.routes'
 import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes'
 import moderationAppealRoutes from './modules/moderation-appeals/presentation/moderation-appeal.routes'
-import { mockTestsRouter } from './modules/mock-tests'
+import  mockTestsRouter  from './modules/mock-tests/presentation/mock-tests.routes'
 
 
 const app = express()

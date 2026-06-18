@@ -1,3 +1,30 @@
 export { mockTestsService } from './mock-tests.service'
-export * from './domain/types/mock-tests.types'
-export { default as mockTestsRouter } from './presentation/mock-tests.routes'
+export type { MockTestsService } from './mock-tests.service'
+
+export type {
+  AttemptAnalysis,
+  CreateMockTestPayload,
+  GenerateMockTestPayload,
+  MockTest,
+  MockTestAIEvaluation,
+  MockTestAnswer,
+  MockTestAttempt,
+  MockTestCodingDetails,
+  MockTestCodingLanguage,
+  MockTestCreationSession,
+  MockTestQuestion,
+  MockTestReport,
+  MockTestSummary,
+  PublicMockTestQuestion,
+  RunMockTestCodePayload,
+  SubmitAnswerPayload,
+  SubmitMockTestCodePayload,
+  TestAnalytics,
+  TestAttemptResult,
+} from './application/dtos/mock-tests.dto'
+
+export type {
+  DifficultyLevel,
+  QuestionType,
+  TestVisibility,
+} from './domain/types/mock-tests.types'

@@ -1,77 +1,59 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
+import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { OnboardingRoadmapRepositoryContract } from '../../domain/repositories/onboarding-roadmap.repository.interface'
+import type { RoadmapTreeResult } from '../dtos/onboarding.dto'
+import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
+import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
 
-import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
-import type { RoadmapTreeResult } from '../../domain/types/onboarding.types'
-import { getTrackerIdFromOutputData } from '../utils/onboarding-job-output.util'
+type RoadmapJobResultRepository =
+  OnboardingAIJobQueryRepositoryContract &
+  OnboardingRoadmapRepositoryContract
 
 export class GetRoadmapJobResultUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingRepository
+    private readonly onboardingRepository: RoadmapJobResultRepository,
+    private readonly onboardingMapper: OnboardingMapperContract,
+    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     jobId: string,
-    userId: string
+    userId: string,
   ): Promise<RoadmapTreeResult> {
-    const job =
-      await this.onboardingRepository.getJobById(jobId)
+    const job = await this.onboardingRepository.getJobById(jobId)
 
     if (!job) {
-      throw new ApiError(
-        404,
-        'Job not found',
-        'NOT_FOUND'
-      )
+      throw OnboardingApplicationError.notFound('Job not found')
     }
 
-    if (job.userId.toString() !== userId) {
-      throw new ApiError(
-        403,
-        'Forbidden',
-        'FORBIDDEN'
-      )
+    if (!job.belongsTo(userId)) {
+      throw OnboardingApplicationError.forbidden()
     }
 
-    if (job.jobType !== 'roadmap') {
-      throw new ApiError(
-        400,
+    if (!job.isRoadmapJob()) {
+      throw OnboardingApplicationError.invalidJobType(
         'This job is not a roadmap generation job',
-        'INVALID_JOB_TYPE'
       )
     }
 
-    if (job.status !== 'completed') {
-      throw new ApiError(
-        400,
-        'Job not completed yet',
-        'JOB_PENDING'
-      )
+    if (!job.isCompleted()) {
+      throw OnboardingApplicationError.jobPending('Job not completed yet')
     }
 
-    const trackerId =
-      getTrackerIdFromOutputData(job.outputData)
+    const trackerId = this.onboardingJobOutputReader.getTrackerId(job.outputData)
 
     if (!trackerId) {
-      throw new ApiError(
-        500,
-        'Tracker not created',
-        'SERVER_ERROR'
-      )
+      throw OnboardingApplicationError.serverError('Tracker not created')
     }
 
-    const result =
-      await this.onboardingRepository.getRoadmapTree(
-        trackerId
-      )
+    const result = await this.onboardingRepository.getRoadmapTree(trackerId)
 
     if (!result.tracker) {
-      throw new ApiError(
-        404,
+      throw OnboardingApplicationError.trackerNotFound(
         'Generated tracker not found',
-        'TRACKER_NOT_FOUND'
       )
     }
 
-    return result
+    return this.onboardingMapper.toRoadmapTreeDto(result)
   }
 }

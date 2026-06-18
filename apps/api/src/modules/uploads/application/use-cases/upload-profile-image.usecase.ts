@@ -1,65 +1,83 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { UploadsRepository } from '../../domain/repositories/uploads.repository.interface'
+import {
+  AVATAR_FOLDER,
+  BANNER_FOLDER,
+} from '../../domain/constants/uploads.constants'
+import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
+import type { ProfileImageRepositoryContract } from '../../domain/repositories/profile-image.repository.interface'
+import type { UploadRecordRepositoryContract } from '../../domain/repositories/upload-record.repository.interface'
 import type { ProfileImageStorageServiceContract } from '../../domain/services/profile-image-storage.service.interface'
-import type { UsersProfileServiceContract } from '../../domain/services/users-profile.service.interface'
 import type {
   UploadProfileImageInput,
   UploadProfileImageResult,
-} from '../../domain/types/uploads.types'
+} from '../dtos/uploads.dto'
+import { UploadsApplicationError } from '../errors/uploads-application.error'
+import type { UploadsMapperContract } from '../mappers/uploads.mapper'
+import type { UploadUserProfileServiceContract } from '../services/upload-user-profile.service'
+
+type UploadProfileImageRepository =
+  ProfileImageRepositoryContract & UploadRecordRepositoryContract
 
 export class UploadProfileImageUseCase {
   constructor(
-    private readonly usersProfileService: UsersProfileServiceContract,
+    private readonly uploadUserProfileService: UploadUserProfileServiceContract,
     private readonly profileImageStorageService: ProfileImageStorageServiceContract,
-    private readonly uploadsRepository: UploadsRepository
+    private readonly uploadsRepository: UploadProfileImageRepository,
+    private readonly uploadsMapper: UploadsMapperContract,
   ) {}
 
-  async execute({
-    userId,
-    kind,
-    file,
-  }: UploadProfileImageInput): Promise<UploadProfileImageResult> {
-    if (!file) {
-      throw new ApiError(400, 'Image file is required')
+  async execute(
+    input: UploadProfileImageInput,
+  ): Promise<UploadProfileImageResult> {
+    if (!input.file) {
+      throw UploadsApplicationError.imageFileRequired()
     }
 
-    const user = await this.usersProfileService.findUserById(userId)
+    const context =
+      await this.uploadUserProfileService.getRequiredContext(input.userId)
+    const folder = input.kind === 'avatar' ? AVATAR_FOLDER : BANNER_FOLDER
 
-    if (!user) {
-      throw new ApiError(404, 'User not found')
+    let storedImage
+
+    try {
+      storedImage = await this.profileImageStorageService.uploadProfileImage(
+        input.file,
+        folder,
+      )
+    } catch (error) {
+      if (error instanceof UploadsDomainError) {
+        throw UploadsApplicationError.imageUploadFailed()
+      }
+
+      throw error
     }
 
-    const profile = await this.usersProfileService.ensureProfileForUser(
-      String(user._id),
-      user.fullName ?? ''
-    )
+    try {
+      if (input.kind === 'avatar') {
+        await this.uploadsRepository.setAvatarUrl(
+          context.userId,
+          storedImage.fileUrl,
+        )
+      } else {
+        await this.uploadsRepository.setBannerUrl(
+          context.userId,
+          storedImage.fileUrl,
+        )
+      }
 
-    const folder =
-      kind === 'avatar' ? 'imminiq/avatars' : 'imminiq/banners'
-
-    const stored =
-      await this.profileImageStorageService.uploadProfileImage(
-        file,
-        folder
+      const upload = await this.uploadsRepository.saveUploadRecord(
+        context.userId,
+        input.kind,
+        storedImage,
+        context.profileId,
       )
 
-    if (kind === 'avatar') {
-      await this.uploadsRepository.setAvatarUrl(userId, stored.fileUrl)
-    } else {
-      await this.uploadsRepository.setBannerUrl(userId, stored.fileUrl)
-    }
+      return this.uploadsMapper.toUploadProfileImageResult(upload)
+    } catch (error) {
+      if (error instanceof UploadsDomainError) {
+        throw UploadsApplicationError.profileImageUpdateFailed()
+      }
 
-    const upload = await this.uploadsRepository.saveUploadRecord(
-      userId,
-      kind,
-      stored,
-      String(profile._id)
-    )
-
-    return {
-      uploadId: String(upload._id),
-      fileUrl: stored.fileUrl,
-      kind,
+      throw error
     }
   }
 }

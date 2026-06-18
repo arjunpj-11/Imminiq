@@ -1,11 +1,12 @@
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { AuthSessionEntity } from '../../domain/entities/auth-session.entity'
+import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
 
 export class GetAuthSessionsUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: AuthSessionRepositoryContract
   ) {}
 
-  async execute(userId: string) {
+  async execute(userId: string): Promise<AuthSessionEntity[]> {
     return this.authRepository.findAllUserTokens(userId)
   }
 }

@@ -1,11 +1,11 @@
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
 
 export class LogoutAllSessionsUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: AuthSessionRepositoryContract
   ) {}
 
-  async execute(userId: string) {
+  async execute(userId: string): Promise<void> {
     await this.authRepository.revokeAllUserTokens(userId)
   }
 }

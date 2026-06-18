@@ -1,23 +1,25 @@
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { AuthUser } from '../../domain/types/auth.types'
-import { ensureUserCanAuthenticate } from '../services/auth-account-policy.service'
-import { formatAuthUser } from '../services/auth-user-formatter.service'
+import { AuthApplicationError } from '../errors/auth-application.error'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
+import type { AuthUser } from '../dtos/auth.dto'
+import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
+import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
 
 export class GetCurrentUserUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: AuthUserRepositoryContract,
+    private readonly authAccountPolicy: AuthAccountPolicyContract,
+    private readonly authUserMapper: AuthUserMapperContract
   ) {}
 
   async execute(userId: string): Promise<AuthUser> {
     const user = await this.authRepository.findById(userId)
 
     if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+      throw AuthApplicationError.notFound('User not found')
     }
 
-    ensureUserCanAuthenticate(user)
+    this.authAccountPolicy.ensureUserCanAuthenticate(user)
 
-    return formatAuthUser(user)
+    return this.authUserMapper.toAuthUser(user)
   }
 }

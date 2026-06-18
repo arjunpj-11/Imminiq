@@ -1,13 +1,29 @@
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import { CreateMockTestPayload, MockTest } from '../../domain/types/mock-tests.types'
-import { ApiError } from '../../../../shared/utils/ApiError'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { CreateMockTestPayload, MockTest } from '../dtos/mock-tests.dto'
+import { MAX_MANUAL_QUESTIONS } from '../../domain/constants/mock-tests.constants'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+
+type CreateMockTestRepository =
+  MockTestRepositoryContract &
+  MockTestQuestionRepositoryContract
 
 export class CreateMockTestUseCase {
-  constructor(private readonly repo: MockTestsRepositoryContract) {}
+  constructor(private readonly repo: CreateMockTestRepository) { }
 
-  async execute(userId: string, payload: CreateMockTestPayload): Promise<MockTest> {
-    if (!payload.questions?.length) throw new ApiError(400, 'At least one question is required', 'VALIDATION_ERROR')
-    if (payload.questions.length > 100) throw new ApiError(400, 'Maximum 100 questions allowed', 'VALIDATION_ERROR')
+  async execute(
+    userId: string,
+    payload: CreateMockTestPayload,
+  ): Promise<MockTest> {
+    if (!payload.questions?.length) {
+      throw MockTestsApplicationError.validation('At least one question is required')
+    }
+
+    if (payload.questions.length > MAX_MANUAL_QUESTIONS) {
+      throw MockTestsApplicationError.validation(
+        `Maximum ${MAX_MANUAL_QUESTIONS} questions allowed`,
+      )
+    }
 
     const test = await this.repo.createTest({
       ownerId: userId,
@@ -23,17 +39,26 @@ export class CreateMockTestUseCase {
       isAIGenerated: false,
     })
 
-    await this.repo.createQuestions(payload.questions.map((q, i) => ({
-      testId: test._id,
-      type: q.type,
-      question: q.question,
-      options: q.options,
-      correctAnswer: q.correctAnswer,
-      explanation: q.explanation,
-      difficulty: q.difficulty || payload.difficulty || 'medium',
-      order: i + 1,
-      points: q.points || (q.difficulty === 'hard' ? 3 : q.difficulty === 'medium' ? 2 : 1),
-    })))
+    await this.repo.createQuestions(
+      payload.questions.map((question, index) => ({
+        testId: test._id,
+        type: question.type,
+        question: question.question,
+        options: question.options,
+        correctAnswer: question.correctAnswer,
+        explanation: question.explanation,
+        difficulty: question.difficulty || payload.difficulty || 'medium',
+        order: index + 1,
+        points:
+          question.points ||
+          (question.difficulty === 'hard'
+            ? 3
+            : question.difficulty === 'medium'
+              ? 2
+              : 1),
+        coding: question.coding,
+      })),
+    )
 
     return test
   }

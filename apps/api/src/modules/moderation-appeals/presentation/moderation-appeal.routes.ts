@@ -1,24 +1,25 @@
 import { Router } from 'express'
-
 import { validate } from '../../../shared/middlewares/validate'
 import { moderationAppealController } from './moderation-appeal.controller'
 import {
-  submitModerationAppealSchema,
   getModerationAppealStatusSchema,
+  submitModerationAppealSchema,
 } from './moderation-appeal.schema'
 
 const router = Router()
 
+// ─── PUBLIC ──────────────────────────────────────────────────
+
 router.post(
   '/',
   validate(submitModerationAppealSchema),
-  moderationAppealController.submitAppeal
+  moderationAppealController.submitAppeal,
 )
 
 router.post(
   '/status',
   validate(getModerationAppealStatusSchema),
-  moderationAppealController.getAppealStatus
+  moderationAppealController.getAppealStatus,
 )
 
 export default router

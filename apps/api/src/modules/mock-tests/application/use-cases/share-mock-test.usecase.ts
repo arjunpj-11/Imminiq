@@ -1,12 +1,17 @@
-import crypto from 'crypto'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { MockTestSharingRepositoryContract } from '../../domain/repositories/mock-test-sharing.repository.interface'
+import type { ShareTokenGeneratorServiceContract } from '../../domain/services/share-token-generator.service.interface'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-
-const createShareToken = (): string => crypto.randomBytes(24).toString('base64url')
+type ShareMockTestRepository =
+  MockTestRepositoryContract &
+  MockTestSharingRepositoryContract
 
 export class ShareMockTestUseCase {
-  constructor(private readonly repo: MockTestsRepositoryContract) {}
+  constructor(
+    private readonly repo: ShareMockTestRepository,
+    private readonly shareTokenGenerator: ShareTokenGeneratorServiceContract,
+  ) { }
 
   async execute(input: {
     userId: string
@@ -16,7 +21,7 @@ export class ShareMockTestUseCase {
     const test = await this.repo.findTestById(input.testId)
 
     if (!test || test.ownerId !== input.userId) {
-      throw new ApiError(404, 'Mock test not found', 'MOCK_TEST_NOT_FOUND')
+      throw MockTestsApplicationError.mockTestNotFound()
     }
 
     if (test.shareToken && test.isShareEnabled) {
@@ -26,7 +31,7 @@ export class ShareMockTestUseCase {
       }
     }
 
-    const shareToken = createShareToken()
+    const shareToken = this.shareTokenGenerator.generate()
 
     const updatedTest = await this.repo.enableTestSharing(
       input.userId,
@@ -35,7 +40,7 @@ export class ShareMockTestUseCase {
     )
 
     if (!updatedTest?.shareToken) {
-      throw new ApiError(500, 'Failed to create share link', 'SHARE_LINK_FAILED')
+      throw MockTestsApplicationError.shareLinkFailed()
     }
 
     return {
@@ -43,4 +48,5 @@ export class ShareMockTestUseCase {
       shareUrl: `${input.origin}/mock-tests/shared/${updatedTest.shareToken}`,
     }
   }
+
 }

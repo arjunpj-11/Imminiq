@@ -1,15 +1,47 @@
 // apps/api/src/modules/trackers/application/use-cases/add-missing-evaluation-topic.usecase.ts
 
-import { ApiError } from '../../../../shared/utils/ApiError'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
 
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type {
   AddMissingEvaluationTopicInput,
   AddMissingEvaluationTopicResult,
   EvaluationOutputData,
   TrackerTopicRecord,
 } from '../../domain/types/trackers.types'
-import { findBestMatchingParent } from '../utils/tracker-parent-matching.util'
+
+
+const normalizeTitle = (value: string) => {
+  return value
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+}
+
+const findBestMatchingParent = <T extends { title: string }>(
+  items: T[],
+  suggestedParentTitle: string,
+): T | null => {
+  const target = normalizeTitle(suggestedParentTitle)
+
+  const exactMatch = items.find((item) => normalizeTitle(item.title) === target)
+
+  if (exactMatch) {
+    return exactMatch
+  }
+
+  const softMatch = items.find((item) => {
+    const normalizedItemTitle = normalizeTitle(item.title)
+
+    return (
+      normalizedItemTitle.includes(target) ||
+      target.includes(normalizedItemTitle)
+    )
+  })
+
+  return softMatch || null
+}
 
 type NewTopLevelPlacement = {
   isNewTopLevel: boolean
@@ -60,7 +92,7 @@ const parseNewTopLevelPlacement = (
 }
 
 const resolveTopLevelTopicOrder = async (
-  trackerRepository: TrackerRepository,
+  trackerRepository: TrackerRepositoryContract,
   trackerId: string,
   trackerTopics: TrackerTopicRecord[],
   placement: NewTopLevelPlacement
@@ -92,7 +124,7 @@ const resolveTopLevelTopicOrder = async (
 }
 
 export class AddMissingEvaluationTopicUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
 
   async execute({
     trackerId,
@@ -103,11 +135,7 @@ export class AddMissingEvaluationTopicUseCase {
     const parsedTopicIndex = Number(topicIndex)
 
     if (!Number.isInteger(parsedTopicIndex) || parsedTopicIndex < 0) {
-      throw new ApiError(
-        400,
-        'Invalid missing topic index',
-        'INVALID_TOPIC_INDEX'
-      )
+      throw TrackerApplicationError.invalidTopicIndex('Invalid missing topic index')
     }
 
     const tracker = await this.trackerRepository.findOwnedTrackerById(
@@ -116,7 +144,7 @@ export class AddMissingEvaluationTopicUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const evaluationJob = await this.trackerRepository.findEvaluationJobById(
@@ -125,49 +153,29 @@ export class AddMissingEvaluationTopicUseCase {
     )
 
     if (!evaluationJob) {
-      throw new ApiError(
-        404,
-        'Evaluation job not found',
-        'EVALUATION_JOB_NOT_FOUND'
-      )
+      throw TrackerApplicationError.evaluationJobNotFound('Evaluation job not found')
     }
 
     if (evaluationJob.status !== 'completed') {
-      throw new ApiError(
-        400,
-        'Evaluation job is not completed yet',
-        'EVALUATION_JOB_PENDING'
-      )
+      throw TrackerApplicationError.evaluationJobPending('Evaluation job is not completed yet')
     }
 
     const outputData = evaluationJob.outputData as EvaluationOutputData | undefined
 
     if (outputData?.trackerId !== trackerId) {
-      throw new ApiError(
-        400,
-        'Evaluation result does not belong to this tracker',
-        'TRACKER_EVALUATION_MISMATCH'
-      )
+      throw TrackerApplicationError.trackerEvaluationMismatch('Evaluation result does not belong to this tracker')
     }
 
     const missingTopics = outputData?.evaluation?.missingTopics
 
     if (!Array.isArray(missingTopics)) {
-      throw new ApiError(
-        404,
-        'Missing topic suggestions not found',
-        'MISSING_TOPICS_NOT_FOUND'
-      )
+      throw TrackerApplicationError.missingTopicsNotFound('Missing topic suggestions not found')
     }
 
     const missingTopic = missingTopics[parsedTopicIndex]
 
     if (!missingTopic) {
-      throw new ApiError(
-        404,
-        'Missing topic suggestion not found',
-        'MISSING_TOPIC_NOT_FOUND'
-      )
+      throw TrackerApplicationError.missingTopicNotFound('Missing topic suggestion not found')
     }
 
     if (
@@ -175,11 +183,7 @@ export class AddMissingEvaluationTopicUseCase {
       missingTopic.addedSubtopicId ||
       missingTopic.addedTopicId
     ) {
-      throw new ApiError(
-        409,
-        'This missing topic has already been added',
-        'MISSING_TOPIC_ALREADY_ADDED'
-      )
+      throw TrackerApplicationError.missingTopicAlreadyAdded('This missing topic has already been added')
     }
 
     const [trackerTopics, trackerSubtopics] = await Promise.all([
@@ -243,11 +247,7 @@ export class AddMissingEvaluationTopicUseCase {
       : findBestMatchingParent(trackerTopics, suggestedParentTitle)
 
     if (!matchedSubtopicParent && !matchedTopicParent) {
-      throw new ApiError(
-        404,
-        `Suggested parent "${suggestedParentTitle}" was not found in this tracker`,
-        'SUGGESTED_PARENT_NOT_FOUND'
-      )
+      throw TrackerApplicationError.suggestedParentNotFound(`Suggested parent "${suggestedParentTitle}" was not found in this tracker`)
     }
 
     const topicId = matchedSubtopicParent

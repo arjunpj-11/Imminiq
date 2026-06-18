@@ -1,13 +1,18 @@
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
-import { normalizeIdentifier } from '../services/identifier-normalizer.service'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
 
 export class CheckIdentifierUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: AuthUserRepositoryContract,
+    private readonly identifierNormalizer: IdentifierNormalizerContract
   ) {}
 
-  async execute(identifier: string) {
-    const parsedIdentifier = normalizeIdentifier(identifier)
+  async execute(identifier: string): Promise<{
+    available: boolean
+    type: 'email' | 'phone'
+    needsVerification: boolean
+  }> {
+    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
 
     const existingUser =
       parsedIdentifier.method === 'email'

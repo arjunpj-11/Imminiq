@@ -1,74 +1,51 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-
-import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
-import type { GetEvaluationResult } from '../../domain/types/onboarding.types'
-import {
-  getEvaluationFromOutputData,
-  getTrackerIdFromOutputData,
-} from '../utils/onboarding-job-output.util'
+import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { GetEvaluationResult } from '../dtos/onboarding.dto'
+import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
 
 export class GetRoadmapEvaluationResultUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingRepository
+    private readonly onboardingRepository: OnboardingAIJobQueryRepositoryContract,
+    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     jobId: string,
-    userId: string
+    userId: string,
   ): Promise<GetEvaluationResult> {
-    const job =
-      await this.onboardingRepository.getJobById(jobId)
+    const job = await this.onboardingRepository.getJobById(jobId)
 
     if (!job) {
-      throw new ApiError(
-        404,
-        'Evaluation job not found',
-        'NOT_FOUND'
-      )
+      throw OnboardingApplicationError.notFound('Evaluation job not found')
     }
 
-    if (job.userId.toString() !== userId) {
-      throw new ApiError(
-        403,
-        'Forbidden',
-        'FORBIDDEN'
-      )
+    if (!job.belongsTo(userId)) {
+      throw OnboardingApplicationError.forbidden()
     }
 
-    if (job.jobType !== 'evaluation') {
-      throw new ApiError(
-        400,
+    if (!job.isEvaluationJob()) {
+      throw OnboardingApplicationError.invalidJobType(
         'This job is not a roadmap evaluation job',
-        'INVALID_JOB_TYPE'
       )
     }
 
-    if (job.status !== 'completed') {
-      throw new ApiError(
-        400,
+    if (!job.isCompleted()) {
+      throw OnboardingApplicationError.jobPending(
         'Evaluation is not completed yet',
-        'JOB_PENDING'
       )
     }
 
-    const evaluation =
-      getEvaluationFromOutputData(job.outputData)
+    const evaluation = this.onboardingJobOutputReader.getEvaluation(
+      job.outputData,
+    )
 
     if (!evaluation) {
-      throw new ApiError(
-        500,
-        'Evaluation result is missing',
-        'EVALUATION_RESULT_MISSING'
-      )
+      throw OnboardingApplicationError.evaluationResultMissing()
     }
 
     return {
-      jobId: job._id.toString(),
-
-      trackerId: getTrackerIdFromOutputData(
-        job.outputData
-      ),
-
+      jobId: job.id,
+      trackerId: this.onboardingJobOutputReader.getTrackerId(job.outputData),
       evaluation,
     }
   }

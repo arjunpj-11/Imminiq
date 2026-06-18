@@ -24,24 +24,17 @@ export const changeEmailSchema = z.object({
     .string()
     .trim()
     .email('Enter a valid email address')
-    .transform((value) => value.toLowerCase()),
-
+    .transform((value: string) => value.toLowerCase()),
   currentPassword: optionalStepUpPasswordSchema,
   twoFactorCode: optionalTwoFactorCodeSchema,
 })
 
 export const verifyEmailChangeSchema = z.object({
-  token: z
-    .string()
-    .trim()
-    .min(1, 'Email verification token is required'),
+  token: z.string().trim().min(1, 'Email verification token is required'),
 })
 
 export const changePasswordSchema = z.object({
-  currentPassword: z
-    .string()
-    .min(1, 'Current password is required'),
-
+  currentPassword: z.string().min(1, 'Current password is required'),
   newPassword: passwordSchema,
 })
 
@@ -49,7 +42,6 @@ export const deleteAccountSchema = z.object({
   confirmation: z.literal('DELETE', {
     error: 'Type DELETE to confirm account deletion',
   }),
-
   currentPassword: optionalStepUpPasswordSchema,
   twoFactorCode: optionalTwoFactorCodeSchema,
 })
@@ -67,3 +59,12 @@ export const disableTwoFactorSchema = z.object({
     .trim()
     .regex(/^\d{6}$/, 'Enter the 6-digit authenticator code'),
 })
+
+export type ChangeEmailInput = z.infer<typeof changeEmailSchema>
+export type VerifyEmailChangeInput = z.infer<typeof verifyEmailChangeSchema>
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
+export type DeleteAccountInput = z.infer<typeof deleteAccountSchema>
+export type VerifyTwoFactorSetupInput = z.infer<
+  typeof verifyTwoFactorSetupSchema
+>
+export type DisableTwoFactorInput = z.infer<typeof disableTwoFactorSchema>

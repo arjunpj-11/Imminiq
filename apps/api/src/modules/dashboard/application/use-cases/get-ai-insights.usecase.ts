@@ -1,13 +1,19 @@
-import type { DashboardRepository } from '../../domain/repositories/dashboard.repository.interface'
-import type { DashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
+import type { DashboardStreakRepositoryContract } from '../../domain/repositories/dashboard-streak.repository.interface'
+import type { DashboardTrackerRepositoryContract } from '../../domain/repositories/dashboard-tracker.repository.interface'
+import type { DashboardInsightGeneratorContract } from '../../domain/services/dashboard-insight-generator.interface'
+import type { DashboardAIInsightResult } from '../dtos/dashboard.dto'
+import { DashboardApplicationError } from '../errors/dashboard-application.error'
+
+type DashboardInsightRepository =
+  DashboardStreakRepositoryContract & DashboardTrackerRepositoryContract
 
 export class GetAIInsightsUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardRepository,
-    private readonly dashboardInsightGenerator: DashboardInsightGenerator
+    private readonly dashboardRepository: DashboardInsightRepository,
+    private readonly dashboardInsightGenerator: DashboardInsightGeneratorContract
   ) {}
 
-  async execute(userId: string): Promise<{ insight: string }> {
+  async execute(userId: string): Promise<DashboardAIInsightResult> {
     const [streak, trackers, stats] = await Promise.all([
       this.dashboardRepository.getStreakData(userId),
       this.dashboardRepository.getTrackerOverview(userId),
@@ -20,7 +26,6 @@ export class GetAIInsightsUseCase {
       activeTrackers: trackers.active,
       completedTrackers: trackers.completed,
       totalTrackers: trackers.total,
-      
       totalSubtopicsCompleted: stats.totalSubtopicsCompleted,
       totalPoints: stats.totalPoints,
       publishedTrackers: stats.publishedTrackers,
@@ -28,12 +33,9 @@ export class GetAIInsightsUseCase {
 
     try {
       const insight = await this.dashboardInsightGenerator.generate(userData)
-
       return { insight }
     } catch {
-      return {
-        insight: `You have a ${streak.current}-day streak going. Keep it up by studying at least one subtopic today.`,
-      }
+      throw DashboardApplicationError.insightGenerationFailed()
     }
   }
 }

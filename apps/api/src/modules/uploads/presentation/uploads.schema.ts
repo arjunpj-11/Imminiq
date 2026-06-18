@@ -19,3 +19,13 @@ export const generateAiBannerPreviewSchema = z.object({
     .min(5, 'Prompt must be at least 5 characters')
     .max(500, 'Prompt must not exceed 500 characters'),
 })
+
+export type ProfileImageUploadInput = z.infer<
+  typeof profileImageUploadSchema
+>
+export type GenerateAiAvatarPreviewInput = z.infer<
+  typeof generateAiAvatarPreviewSchema
+>
+export type GenerateAiBannerPreviewInput = z.infer<
+  typeof generateAiBannerPreviewSchema
+>

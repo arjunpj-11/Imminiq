@@ -1,101 +1,139 @@
-import { mongoUsersRepository } from './infrastructure/repositories/mongo-users.repository'
-import type {
-  PaginationQuery,
-  UpdateMyProfileInput,
-} from './domain/types/users.types'
-
+import type { PaginationQuery, UpdateMyProfileInput } from './application/dtos/users.dto'
+import { UsersMapper, type UsersMapperContract } from './application/mappers/users.mapper'
+import {
+  UsersProfileDataService,
+  type UsersProfileDataServiceContract,
+} from './application/services/users-profile-data.service'
 import { GetMeUseCase } from './application/use-cases/get-me.usecase'
-import { UpdateMeUseCase } from './application/use-cases/update-me.usecase'
-import { GetUserByUsernameUseCase } from './application/use-cases/get-user-by-username.usecase'
-import { GetMyStatsUseCase } from './application/use-cases/get-my-stats.usecase'
 import { GetMyActivityUseCase } from './application/use-cases/get-my-activity.usecase'
-import { GetMyRecentActivityUseCase } from './application/use-cases/get-my-recent-activity.usecase'
-import { GetMyStreakUseCase } from './application/use-cases/get-my-streak.usecase'
-import { GetMyPublishedTrackersUseCase } from './application/use-cases/get-my-published-trackers.usecase'
 import { GetMyBadgesUseCase } from './application/use-cases/get-my-badges.usecase'
+import { GetMyPublishedTrackersUseCase } from './application/use-cases/get-my-published-trackers.usecase'
+import { GetMyRecentActivityUseCase } from './application/use-cases/get-my-recent-activity.usecase'
+import { GetMyStatsUseCase } from './application/use-cases/get-my-stats.usecase'
+import { GetMyStreakUseCase } from './application/use-cases/get-my-streak.usecase'
 import { GetPublicProfilePageUseCase } from './application/use-cases/get-public-profile-page.usecase'
+import { GetUserByUsernameUseCase } from './application/use-cases/get-user-by-username.usecase'
+import { UpdateMeUseCase } from './application/use-cases/update-me.usecase'
+import type { UsersRepositoryContract } from './domain/repositories/users.repository.interface'
+import { mongoUsersRepository } from './infrastructure/repositories/mongo-users.repository'
 
-const usersRepository = mongoUsersRepository
+export class UsersService {
+  private readonly getMeUseCase: GetMeUseCase
+  private readonly updateMeUseCase: UpdateMeUseCase
+  private readonly getUserByUsernameUseCase: GetUserByUsernameUseCase
+  private readonly getMyStatsUseCase: GetMyStatsUseCase
+  private readonly getMyActivityUseCase: GetMyActivityUseCase
+  private readonly getMyRecentActivityUseCase: GetMyRecentActivityUseCase
+  private readonly getMyStreakUseCase: GetMyStreakUseCase
+  private readonly getMyPublishedTrackersUseCase: GetMyPublishedTrackersUseCase
+  private readonly getMyBadgesUseCase: GetMyBadgesUseCase
+  private readonly getPublicProfilePageUseCase: GetPublicProfilePageUseCase
 
-const getMeUseCase =
-  new GetMeUseCase(usersRepository)
-
-const updateMeUseCase =
-  new UpdateMeUseCase(usersRepository)
-
-const getUserByUsernameUseCase =
-  new GetUserByUsernameUseCase(usersRepository)
-
-const getMyStatsUseCase =
-  new GetMyStatsUseCase(usersRepository)
-
-const getMyActivityUseCase =
-  new GetMyActivityUseCase(usersRepository)
-
-const getMyRecentActivityUseCase =
-  new GetMyRecentActivityUseCase(usersRepository)
-
-const getMyStreakUseCase =
-  new GetMyStreakUseCase(usersRepository)
-
-const getMyPublishedTrackersUseCase =
-  new GetMyPublishedTrackersUseCase(usersRepository)
-
-const getMyBadgesUseCase =
-  new GetMyBadgesUseCase(usersRepository)
-
-const getPublicProfilePageUseCase =
-  new GetPublicProfilePageUseCase(usersRepository)
-
-export const usersService = {
-  async getMe(userId: string) {
-    return getMeUseCase.execute(userId)
-  },
-
-  async updateMe(userId: string, payload: UpdateMyProfileInput) {
-    return updateMeUseCase.execute(userId, payload)
-  },
-
-  async getUserByUsername(username: string) {
-    return getUserByUsernameUseCase.execute(username)
-  },
-
-  async getMyStats(userId: string) {
-    return getMyStatsUseCase.execute(userId)
-  },
-
-  async getMyActivity(userId: string, page: number, limit: number) {
-    return getMyActivityUseCase.execute(userId, page, limit)
-  },
-
-  async getMyRecentActivity(userId: string, limit = 10) {
-    return getMyRecentActivityUseCase.execute(userId, limit)
-  },
-
-  async getMyStreak(userId: string, year?: number) {
-    return getMyStreakUseCase.execute(userId, year)
-  },
-
-  async getMyPublishedTrackers(
-    userId: string,
-    query: PaginationQuery
+  constructor(
+    private readonly usersRepository: UsersRepositoryContract,
+    private readonly usersMapper: UsersMapperContract,
+    private readonly usersProfileDataService: UsersProfileDataServiceContract,
   ) {
-    return getMyPublishedTrackersUseCase.execute(userId, query)
-  },
+    this.getMeUseCase = new GetMeUseCase(
+      this.usersRepository,
+      this.usersMapper,
+    )
+    this.updateMeUseCase = new UpdateMeUseCase(
+      this.usersRepository,
+      this.usersMapper,
+    )
+    this.getUserByUsernameUseCase = new GetUserByUsernameUseCase(
+      this.usersRepository,
+      this.usersMapper,
+    )
+    this.getMyStatsUseCase = new GetMyStatsUseCase(
+      this.usersProfileDataService,
+    )
+    this.getMyActivityUseCase = new GetMyActivityUseCase(
+      this.usersRepository,
+      this.usersMapper,
+    )
+    this.getMyRecentActivityUseCase = new GetMyRecentActivityUseCase(
+      this.usersRepository,
+      this.usersMapper,
+    )
+    this.getMyStreakUseCase = new GetMyStreakUseCase(
+      this.usersProfileDataService,
+    )
+    this.getMyPublishedTrackersUseCase =
+      new GetMyPublishedTrackersUseCase(
+        this.usersRepository,
+        this.usersMapper,
+      )
+    this.getMyBadgesUseCase = new GetMyBadgesUseCase(
+      this.usersRepository,
+      this.usersMapper,
+    )
+    this.getPublicProfilePageUseCase = new GetPublicProfilePageUseCase(
+      this.usersRepository,
+      this.usersMapper,
+      this.usersProfileDataService,
+    )
+  }
 
-  async getMyBadges(userId: string, page: number, limit: number) {
-    return getMyBadgesUseCase.execute(userId, page, limit)
-  },
+  getMe(userId: string) {
+    return this.getMeUseCase.execute(userId)
+  }
 
-  async getPublicProfilePage(
+  updateMe(userId: string, payload: UpdateMyProfileInput) {
+    return this.updateMeUseCase.execute(userId, payload)
+  }
+
+  getUserByUsername(username: string) {
+    return this.getUserByUsernameUseCase.execute(username)
+  }
+
+  getMyStats(userId: string) {
+    return this.getMyStatsUseCase.execute(userId)
+  }
+
+  getMyActivity(userId: string, page: number, limit: number) {
+    return this.getMyActivityUseCase.execute(userId, page, limit)
+  }
+
+  getMyRecentActivity(userId: string, limit = 10) {
+    return this.getMyRecentActivityUseCase.execute(userId, limit)
+  }
+
+  getMyStreak(userId: string, year?: number) {
+    return this.getMyStreakUseCase.execute(userId, year)
+  }
+
+  getMyPublishedTrackers(userId: string, query: PaginationQuery) {
+    return this.getMyPublishedTrackersUseCase.execute(userId, query)
+  }
+
+  getMyBadges(userId: string, page: number, limit: number) {
+    return this.getMyBadgesUseCase.execute(userId, page, limit)
+  }
+
+  getPublicProfilePage(
     username: string,
     viewerUserId: string | undefined,
-    query: PaginationQuery
+    query: PaginationQuery,
   ) {
-    return getPublicProfilePageUseCase.execute(
+    return this.getPublicProfilePageUseCase.execute(
       username,
       viewerUserId,
-      query
+      query,
     )
-  },
+  }
 }
+
+const usersRepository = mongoUsersRepository
+const usersMapper = new UsersMapper()
+const usersProfileDataService = new UsersProfileDataService(
+  usersRepository,
+  usersMapper,
+)
+
+export const usersService = new UsersService(
+  usersRepository,
+  usersMapper,
+  usersProfileDataService,
+)

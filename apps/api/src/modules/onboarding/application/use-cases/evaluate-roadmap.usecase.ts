@@ -1,142 +1,105 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import {
-  AI_JOB_QUOTA_POLICIES,
-  aiJobQuotaCache,
-} from '../../../../infrastructure/cache/ai-job-quota.cache'
+import { ROADMAP_EVALUATION_STEPS } from '../constants/onboarding.constants'
+import type { OnboardingAIJobCommandRepositoryContract } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
+import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { AIJobQueueGatewayContract } from '../../domain/services/ai-job-queue.interface'
+import type { AIJobQuotaStoreContract } from '../../domain/services/ai-job-quota-store.interface'
+import type { GenerateRoadmapResult } from '../dtos/onboarding.dto'
+import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
 
-import type { AIJobQueueGateway } from '../../domain/services/ai-job-queue.gateway.interface'
-import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
-import type { GenerateRoadmapResult } from '../../domain/types/onboarding.types'
-import {
-  ROADMAP_EVALUATION_STEPS,
-} from '../constants/onboarding-job-steps'
-import { getTrackerIdFromOutputData } from '../utils/onboarding-job-output.util'
+type EvaluateRoadmapRepository =
+  OnboardingAIJobQueryRepositoryContract &
+  OnboardingAIJobCommandRepositoryContract
 
 export class EvaluateRoadmapUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingRepository,
-    private readonly aiJobQueueGateway: AIJobQueueGateway
+    private readonly onboardingRepository: EvaluateRoadmapRepository,
+    private readonly aiJobQueueGateway: AIJobQueueGatewayContract,
+    private readonly aiJobQuotaStore: AIJobQuotaStoreContract,
+    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     roadmapJobId: string,
-    userId: string
+    userId: string,
   ): Promise<GenerateRoadmapResult> {
-    const roadmapJob =
-      await this.onboardingRepository.getJobById(
-        roadmapJobId
-      )
+    const roadmapJob = await this.onboardingRepository.getJobById(roadmapJobId)
 
     if (!roadmapJob) {
-      throw new ApiError(
-        404,
-        'Roadmap job not found',
-        'NOT_FOUND'
-      )
+      throw OnboardingApplicationError.notFound('Roadmap job not found')
     }
 
-    if (roadmapJob.userId.toString() !== userId) {
-      throw new ApiError(
-        403,
-        'Forbidden',
-        'FORBIDDEN'
-      )
+    if (!roadmapJob.belongsTo(userId)) {
+      throw OnboardingApplicationError.forbidden()
     }
 
-    if (roadmapJob.jobType !== 'roadmap') {
-      throw new ApiError(
-        400,
+    if (!roadmapJob.isRoadmapJob()) {
+      throw OnboardingApplicationError.invalidJobType(
         'Only roadmap generation jobs can be evaluated',
-        'INVALID_JOB_TYPE'
       )
     }
 
-    if (roadmapJob.status !== 'completed') {
-      throw new ApiError(
-        400,
+    if (!roadmapJob.isCompleted()) {
+      throw OnboardingApplicationError.jobPending(
         'Roadmap generation is not completed yet',
-        'JOB_PENDING'
       )
     }
 
-    const trackerId =
-      getTrackerIdFromOutputData(
-        roadmapJob.outputData
-      )
+    const trackerId = this.onboardingJobOutputReader.getTrackerId(
+      roadmapJob.outputData,
+    )
 
     if (!trackerId) {
-      throw new ApiError(
-        500,
+      throw OnboardingApplicationError.trackerNotFound(
         'Generated tracker is missing',
-        'TRACKER_NOT_FOUND'
       )
     }
 
     const activeEvaluationJob =
       await this.onboardingRepository.findActiveEvaluationJobForRoadmap(
         userId,
-        roadmapJobId
+        roadmapJobId,
       )
 
     if (activeEvaluationJob) {
-      throw new ApiError(
-        409,
-        'A roadmap evaluation job is already running for this roadmap.',
-        'EVALUATION_JOB_ALREADY_ACTIVE'
-      )
+      throw OnboardingApplicationError.evaluationJobAlreadyActive()
     }
 
-    const quota =
-      await aiJobQuotaCache.consume(
-        'roadmap_evaluation',
-        userId,
-        AI_JOB_QUOTA_POLICIES.roadmapEvaluation
-      )
+    const quota = await this.aiJobQuotaStore.consume(
+      'roadmap_evaluation',
+      userId,
+    )
 
     if (!quota.allowed) {
-      throw new ApiError(
-        429,
-        'Roadmap evaluation limit reached. Please try again later.',
-        'ROADMAP_EVALUATION_QUOTA_EXCEEDED'
-      )
+      throw OnboardingApplicationError.roadmapEvaluationQuotaExceeded()
     }
 
     const evaluationJob =
-      await this.onboardingRepository.createEvaluationAIJob(
-        userId,
-        {
-          sourceRoadmapJobId: roadmapJobId,
-          trackerId,
-        }
-      )
+      await this.onboardingRepository.createEvaluationAIJob(userId, {
+        sourceRoadmapJobId: roadmapJobId,
+        trackerId,
+      })
 
     await this.onboardingRepository.createAIJobSteps(
-      evaluationJob._id.toString(),
-      ROADMAP_EVALUATION_STEPS
+      evaluationJob.id,
+      ROADMAP_EVALUATION_STEPS,
     )
 
     try {
       await this.aiJobQueueGateway.enqueueRoadmapEvaluation({
-        jobId: evaluationJob._id.toString(),
+        jobId: evaluationJob.id,
         userId,
         trackerId,
         sourceRoadmapJobId: roadmapJobId,
       })
     } catch (error) {
-      const message =
+      throw OnboardingApplicationError.aiQueueError(
         error instanceof Error
           ? error.message
-          : 'Failed to enqueue AI roadmap evaluation job'
-
-      throw new ApiError(
-        500,
-        message,
-        'AI_QUEUE_ERROR'
+          : 'Failed to enqueue AI roadmap evaluation job',
       )
     }
 
-    return {
-      jobId: evaluationJob._id.toString(),
-    }
+    return { jobId: evaluationJob.id }
   }
 }

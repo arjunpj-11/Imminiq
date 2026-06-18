@@ -1,1 +1,2 @@
-export { default, securityRoutes } from './presentation/security.routes'
+export { securityRoutes } from './presentation/security.routes'
+export { default } from './presentation/security.routes'

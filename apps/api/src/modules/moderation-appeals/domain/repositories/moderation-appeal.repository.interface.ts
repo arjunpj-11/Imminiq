@@ -1,31 +1,8 @@
-import type {
-  RestrictedModerationAppealUser,
-  ActiveModerationAppealRecord,
-} from '../types/moderation-appeal.types'
+import type { ModerationAppealCommandRepositoryContract } from './moderation-appeal-command.repository.interface'
+import type { ModerationAppealQueryRepositoryContract } from './moderation-appeal-query.repository.interface'
 
-export interface CreateModerationAppealInput {
-  userId: string
-  caseId: string
-  identifier: string
-  appealReason: string
-}
+export interface ModerationAppealRepositoryContract
+  extends ModerationAppealQueryRepositoryContract,
+    ModerationAppealCommandRepositoryContract {}
 
-export interface ModerationAppealRepository {
-  findRestrictedUserByIdentifier(
-    identifier: string
-  ): Promise<RestrictedModerationAppealUser | null>
-
-  findActiveAppealForUser(
-    userId: string
-  ): Promise<ActiveModerationAppealRecord | null>
-
-  caseIdExists(caseId: string): Promise<boolean>
-
-  createAppeal(
-    data: CreateModerationAppealInput
-  ): Promise<ActiveModerationAppealRecord>
-
-  findLatestActiveAppealForRestrictedIdentifier(
-    identifier: string
-  ): Promise<ActiveModerationAppealRecord | null>
-}
+export type { CreateModerationAppealInput } from './moderation-appeal-command.repository.interface'

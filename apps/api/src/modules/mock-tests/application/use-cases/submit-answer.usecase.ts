@@ -1,14 +1,24 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
 import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
-import type { SubmitAnswerPayload } from '../../domain/types/mock-tests.types'
-import { isMCQCorrect } from '../services/test-scorer.service'
+import type { MockTestAIEvaluationRepositoryContract } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
+import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { SubmitAnswerPayload } from '../dtos/mock-tests.dto'
+import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+
+type SubmitAnswerRepository =
+  MockTestAttemptRepositoryContract &
+  MockTestQuestionRepositoryContract &
+  MockTestAnswerRepositoryContract &
+  MockTestAIEvaluationRepositoryContract
 
 export class SubmitAnswerUseCase {
   constructor(
-    private readonly repo: MockTestsRepositoryContract,
+    private readonly repo: SubmitAnswerRepository,
     private readonly aiService: MockTestAIServiceContract,
-  ) {}
+    private readonly scoringService: MockTestScoringServiceContract,
+  ) { }
 
   async execute(
     attemptId: string,
@@ -18,33 +28,25 @@ export class SubmitAnswerUseCase {
     const attempt = await this.repo.findAttemptById(attemptId)
 
     if (!attempt) {
-      throw new ApiError(404, 'Attempt not found', 'NOT_FOUND')
+      throw MockTestsApplicationError.notFound('Attempt not found')
     }
 
     if (attempt.userId !== userId) {
-      throw new ApiError(403, 'Forbidden', 'FORBIDDEN')
+      throw MockTestsApplicationError.forbidden()
     }
 
     if (attempt.status !== 'in_progress') {
-      throw new ApiError(
-        400,
-        'Test is not in progress',
-        'TEST_NOT_ACTIVE',
-      )
+      throw MockTestsApplicationError.testNotActive()
     }
 
     const question = await this.repo.findQuestionById(payload.questionId)
 
     if (!question || question.testId !== attempt.testId) {
-      throw new ApiError(404, 'Question not found', 'NOT_FOUND')
+      throw MockTestsApplicationError.notFound('Question not found')
     }
 
     if (question.type === 'coding') {
-      throw new ApiError(
-        400,
-        'Use the coding submit endpoint for coding questions',
-        'USE_CODING_SUBMIT_ENDPOINT',
-      )
+      throw MockTestsApplicationError.useCodingSubmitEndpoint()
     }
 
     const existing = await this.repo.findAnswerByQuestion(
@@ -57,7 +59,7 @@ export class SubmitAnswerUseCase {
 
     if (question.type === 'mcq') {
       isCorrect = question.correctAnswer
-        ? isMCQCorrect(payload.answer, question.correctAnswer)
+        ? this.scoringService.isMCQCorrect(payload.answer, question.correctAnswer)
         : false
 
       pointsEarned = isCorrect ? question.points : 0
@@ -65,21 +67,21 @@ export class SubmitAnswerUseCase {
 
     let savedAnswer = existing
       ? await this.repo.updateAnswer(existing._id, {
-          answer: payload.answer,
-          isCorrect,
-          pointsEarned,
-          submittedAt: new Date(),
-        })
+        answer: payload.answer,
+        isCorrect,
+        pointsEarned,
+        submittedAt: new Date(),
+      })
       : await this.repo.saveAnswer({
-          attemptId,
-          questionId: payload.questionId,
-          answer: payload.answer,
-          isCorrect,
-          pointsEarned,
-        })
+        attemptId,
+        questionId: payload.questionId,
+        answer: payload.answer,
+        isCorrect,
+        pointsEarned,
+      })
 
     if (!savedAnswer) {
-      throw new ApiError(500, 'Failed to save answer', 'ANSWER_SAVE_FAILED')
+      throw MockTestsApplicationError.answerSaveFailed()
     }
 
     if (!existing) {
@@ -114,14 +116,7 @@ export class SubmitAnswerUseCase {
         if (evaluatedAnswer) {
           savedAnswer = evaluatedAnswer
         }
-      } catch (error) {
-        console.error('Mock test short answer AI evaluation failed', {
-          attemptId,
-          questionId: payload.questionId,
-          answerId: savedAnswer._id,
-          error,
-        })
-
+      } catch {
         const fallbackAnswer = await this.repo.updateAnswer(savedAnswer._id, {
           isCorrect: false,
           pointsEarned: 0,

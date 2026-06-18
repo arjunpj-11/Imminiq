@@ -1,7 +1,6 @@
 import type {
   AuthLoginResult,
   AuthLoginSuccessResult,
-  AuthRole,
   AuthUser,
   LoginPayload,
   OAuthLoginUser,
@@ -9,12 +8,25 @@ import type {
   RequestMeta,
   TokenPair,
   TwoFactorLoginVerifyPayload,
-  OtpPurpose,
-} from './domain/types/auth.types'
+} from './application/dtos/auth.dto'
+import type { AuthRole } from './domain/value-objects/auth-role.vo'
+import type { OtpPurpose } from './domain/value-objects/otp-purpose.vo'
 
 import { mongoAuthRepository } from './infrastructure/repositories/mongo-auth.repository'
-import { AuthNotificationService } from './infrastructure/auth-notification.service'
-import { AuthRedirectService } from './infrastructure/auth-redirect.service'
+import { bcryptPasswordHasherService } from './infrastructure/services/bcrypt-password-hasher.service'
+import { cryptoOtpGeneratorService } from './infrastructure/services/crypto-otp-generator.service'
+import { cryptoRandomNumberGeneratorService } from './infrastructure/services/crypto-random-number-generator.service'
+import { jwtAuthTokenService } from './infrastructure/services/jwt-auth-token.service'
+import { jwtPasswordResetTokenService } from './infrastructure/services/jwt-password-reset-token.service'
+import { otplibTwoFactorCodeVerifierService } from './infrastructure/services/otplib-two-factor-code-verifier.service'
+import { redisPasswordResetSessionStore } from './infrastructure/stores/redis-password-reset-session.store'
+import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store'
+import { redisPhoneOtpSessionStore } from './infrastructure/stores/redis-phone-otp-session.store'
+import { redisRetiredRefreshTokenStore } from './infrastructure/stores/redis-retired-refresh-token.store'
+import { redisOtpStore } from './infrastructure/stores/redis-otp.store'
+import { messageCentralPhoneOtpProvider } from './infrastructure/providers/message-central-phone-otp.provider'
+import { nodemailerOtpEmailProvider } from './infrastructure/providers/nodemailer-otp-email.provider'
+import { securityAuditLogger } from './infrastructure/loggers/security-audit.logger'
 
 import { RegisterUserUseCase } from './application/use-cases/register-user.usecase'
 import { LoginUserUseCase } from './application/use-cases/login-user.usecase'
@@ -36,167 +48,408 @@ import { GetAuthSessionsUseCase } from './application/use-cases/get-auth-session
 import { RevokeAuthSessionUseCase } from './application/use-cases/revoke-auth-session.usecase'
 
 import {
-  issueTokenPair,
-  generateTwoFactorChallengeToken,
-} from './application/services/auth-token.service'
-import { generateOtp } from './application/services/otp.service'
+  AuthUserMapper,
+  type AuthUserMapperContract,
+} from './application/mappers/auth-user.mapper'
 import {
-  generateRegistrationUsername,
-  generateUsername,
-  generateUniqueUsernameFromSource,
+  AuthAccountPolicyService,
+  type AuthAccountPolicyContract,
+} from './application/policies/auth-account-policy.policy'
+import {
+  AuthNotificationService,
+} from './application/services/auth-notification.service'
+import {
+  AuthRedirectService,
+} from './application/services/auth-redirect.service'
+import {
+  AuthSessionService,
+  type AuthSessionServiceContract,
+} from './application/services/auth-session.service'
+import {
+  BackupCodeNormalizerService,
+  type BackupCodeNormalizerServiceContract,
+} from './application/services/backup-code-normalizer.service'
+import { IdentifierNormalizerService } from './application/services/identifier-normalizer.service'
+import {
+  UsernameGeneratorService,
+  type UsernameGeneratorServiceContract,
 } from './application/services/username-generator.service'
-import { formatAuthUser } from './application/services/auth-user-formatter.service'
 
-const authRepository = mongoAuthRepository
-const authNotificationService = new AuthNotificationService(authRepository)
-const authRedirectService = new AuthRedirectService()
+import type { AuthRepositoryContract } from './domain/repositories/auth.repository.interface'
+import type { AuthNotificationServiceContract } from './domain/services/auth-notification.service.interface'
+import type { AuthRedirectServiceContract } from './domain/services/auth-redirect.service.interface'
+import type { AuthTokenServiceContract } from './domain/services/auth-token.service.interface'
+import type { IdentifierNormalizerContract } from './domain/services/identifier-normalizer.service.interface'
+import type { OtpGeneratorContract } from './domain/services/otp-generator.service.interface'
+import type { OtpStoreContract } from './domain/services/otp-store.interface'
+import type { PasswordHasherServiceContract } from './domain/services/password-hasher.service.interface'
+import type { PasswordResetSessionStoreContract } from './domain/services/password-reset-session-store.interface'
+import type { PasswordResetTokenServiceContract } from './domain/services/password-reset-token.service.interface'
+import type { PhoneOtpProviderContract } from './domain/services/phone-otp-provider.interface'
+import type { PhoneOtpSessionStoreContract } from './domain/services/phone-otp-session-store.interface'
+import type { RetiredRefreshTokenStoreContract } from './domain/services/retired-refresh-token-store.interface'
+import type { SecurityAttemptStoreContract } from './domain/services/security-attempt-store.interface'
+import type { SecurityAuditLoggerContract } from './domain/services/security-audit-logger.interface'
+import type { TwoFactorCodeVerifierContract } from './domain/services/two-factor-code-verifier.interface'
 
-const registerUserUseCase = new RegisterUserUseCase(
-  authRepository,
-  authNotificationService
-)
+export class AuthService {
+  private readonly registerUserUseCase: RegisterUserUseCase
+  private readonly loginUserUseCase: LoginUserUseCase
+  private readonly handleOAuthLoginUseCase: HandleOAuthLoginUseCase
+  private readonly verifyTwoFactorLoginUseCase: VerifyTwoFactorLoginUseCase
+  private readonly logoutUserUseCase: LogoutUserUseCase
+  private readonly logoutAllSessionsUseCase: LogoutAllSessionsUseCase
+  private readonly refreshAuthTokensUseCase: RefreshAuthTokensUseCase
+  private readonly getCurrentUserUseCase: GetCurrentUserUseCase
+  private readonly verifyAccountUseCase: VerifyAccountUseCase
+  private readonly resendOtpUseCase: ResendOtpUseCase
+  private readonly forgotPasswordUseCase: ForgotPasswordUseCase
+  private readonly verifyResetCodeUseCase: VerifyResetCodeUseCase
+  private readonly resetPasswordUseCase: ResetPasswordUseCase
+  private readonly changePasswordUseCase: ChangePasswordUseCase
+  private readonly checkIdentifierUseCase: CheckIdentifierUseCase
+  private readonly checkUsernameUseCase: CheckUsernameUseCase
+  private readonly getAuthSessionsUseCase: GetAuthSessionsUseCase
+  private readonly revokeAuthSessionUseCase: RevokeAuthSessionUseCase
 
-const loginUserUseCase = new LoginUserUseCase(
-  authRepository,
-  authNotificationService,
-  authRedirectService
-)
+  constructor(
+    private readonly authRepository: AuthRepositoryContract,
+    private readonly authUserMapper: AuthUserMapperContract,
+    private readonly identifierNormalizer: IdentifierNormalizerContract,
+    private readonly otpGenerator: OtpGeneratorContract,
+    private readonly usernameGenerator: UsernameGeneratorServiceContract,
+    private readonly authAccountPolicy: AuthAccountPolicyContract,
+    private readonly backupCodeNormalizer: BackupCodeNormalizerServiceContract,
+    private readonly passwordHasher: PasswordHasherServiceContract,
+    private readonly authTokenService: AuthTokenServiceContract,
+    private readonly passwordResetSessionStore: PasswordResetSessionStoreContract,
+    private readonly passwordResetTokenService: PasswordResetTokenServiceContract,
+    private readonly securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly phoneOtpSessionStore: PhoneOtpSessionStoreContract,
+    private readonly phoneOtpProvider: PhoneOtpProviderContract,
+    private readonly retiredRefreshTokenStore: RetiredRefreshTokenStoreContract,
+    private readonly otpStore: OtpStoreContract,
+    private readonly securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly twoFactorCodeVerifier: TwoFactorCodeVerifierContract,
+    private readonly authNotificationService: AuthNotificationServiceContract,
+    private readonly authRedirectService: AuthRedirectServiceContract,
+    private readonly authSessionService: AuthSessionServiceContract
+  ) {
+    this.registerUserUseCase = new RegisterUserUseCase(
+      this.authRepository,
+      this.authNotificationService,
+      this.identifierNormalizer,
+      this.usernameGenerator,
+      this.passwordHasher,
+      this.authUserMapper
+    )
 
-const handleOAuthLoginUseCase = new HandleOAuthLoginUseCase(
-  authRepository,
-  authRedirectService
-)
+    this.loginUserUseCase = new LoginUserUseCase(
+      this.authRepository,
+      this.authNotificationService,
+      this.authRedirectService,
+      this.identifierNormalizer,
+      this.authAccountPolicy,
+      this.authSessionService,
+      this.authTokenService,
+      this.passwordHasher,
+      this.securityAttemptStore,
+      this.authUserMapper
+    )
 
-const verifyTwoFactorLoginUseCase = new VerifyTwoFactorLoginUseCase(
-  authRepository,
-  authRedirectService
-)
+    this.handleOAuthLoginUseCase = new HandleOAuthLoginUseCase(
+      this.authRepository,
+      this.authRedirectService,
+      this.authTokenService,
+      this.authAccountPolicy,
+      this.authSessionService,
+      this.authUserMapper
+    )
 
-const logoutUserUseCase = new LogoutUserUseCase(authRepository)
-const logoutAllSessionsUseCase = new LogoutAllSessionsUseCase(authRepository)
-const refreshAuthTokensUseCase = new RefreshAuthTokensUseCase(authRepository)
-const getCurrentUserUseCase = new GetCurrentUserUseCase(authRepository)
-const verifyAccountUseCase = new VerifyAccountUseCase(authRepository)
+    this.verifyTwoFactorLoginUseCase = new VerifyTwoFactorLoginUseCase(
+      this.authRepository,
+      this.authRedirectService,
+      this.authTokenService,
+      this.authAccountPolicy,
+      this.authSessionService,
+      this.securityAttemptStore,
+      this.twoFactorCodeVerifier,
+      this.backupCodeNormalizer,
+      this.passwordHasher,
+      this.authUserMapper
+    )
 
-const resendOtpUseCase = new ResendOtpUseCase(
-  authRepository,
-  authNotificationService
-)
+    this.logoutUserUseCase = new LogoutUserUseCase(this.authRepository)
 
-const forgotPasswordUseCase = new ForgotPasswordUseCase(
-  authRepository,
-  authNotificationService
-)
+    this.logoutAllSessionsUseCase =
+      new LogoutAllSessionsUseCase(this.authRepository)
 
-const verifyResetCodeUseCase = new VerifyResetCodeUseCase(authRepository)
-const resetPasswordUseCase = new ResetPasswordUseCase(authRepository)
-const changePasswordUseCase = new ChangePasswordUseCase(authRepository)
-const checkIdentifierUseCase = new CheckIdentifierUseCase(authRepository)
-const checkUsernameUseCase = new CheckUsernameUseCase(authRepository)
-const getAuthSessionsUseCase = new GetAuthSessionsUseCase(authRepository)
-const revokeAuthSessionUseCase = new RevokeAuthSessionUseCase(authRepository)
+    this.refreshAuthTokensUseCase = new RefreshAuthTokensUseCase(
+      this.authRepository,
+      this.authTokenService,
+      this.retiredRefreshTokenStore,
+      this.securityAuditLogger,
+      this.authAccountPolicy
+    )
 
-/**
- * Composition root / service facade.
- * Controllers call this facade. This file wires concrete infrastructure to
- * application use cases and contains no business or HTTP logic.
- */
-export const authService = {
-  register: (payload: RegisterPayload) =>
-    registerUserUseCase.execute(payload),
+    this.getCurrentUserUseCase = new GetCurrentUserUseCase(
+      this.authRepository,
+      this.authAccountPolicy,
+      this.authUserMapper
+    )
 
-  login: (
+    this.verifyAccountUseCase = new VerifyAccountUseCase(
+      this.authRepository,
+      this.identifierNormalizer,
+      this.securityAttemptStore,
+      this.phoneOtpProvider,
+      this.phoneOtpSessionStore,
+      this.otpStore
+    )
+
+    this.resendOtpUseCase = new ResendOtpUseCase(
+      this.authRepository,
+      this.authNotificationService,
+      this.identifierNormalizer
+    )
+
+    this.forgotPasswordUseCase = new ForgotPasswordUseCase(
+      this.authRepository,
+      this.authNotificationService,
+      this.identifierNormalizer
+    )
+
+    this.verifyResetCodeUseCase = new VerifyResetCodeUseCase(
+      this.authRepository,
+      this.identifierNormalizer,
+      this.securityAttemptStore,
+      this.phoneOtpProvider,
+      this.phoneOtpSessionStore,
+      this.passwordResetTokenService,
+      this.otpStore
+    )
+
+    this.resetPasswordUseCase = new ResetPasswordUseCase(
+      this.authRepository,
+      this.passwordResetTokenService,
+      this.passwordResetSessionStore,
+      this.securityAuditLogger,
+      this.passwordHasher
+    )
+
+    this.changePasswordUseCase = new ChangePasswordUseCase(
+      this.authRepository,
+      this.passwordHasher
+    )
+
+    this.checkIdentifierUseCase = new CheckIdentifierUseCase(
+      this.authRepository,
+      this.identifierNormalizer
+    )
+
+    this.checkUsernameUseCase =
+      new CheckUsernameUseCase(this.authRepository)
+
+    this.getAuthSessionsUseCase =
+      new GetAuthSessionsUseCase(this.authRepository)
+
+    this.revokeAuthSessionUseCase =
+      new RevokeAuthSessionUseCase(this.authRepository)
+  }
+
+  register(payload: RegisterPayload) {
+    return this.registerUserUseCase.execute(payload)
+  }
+
+  login(
     payload: LoginPayload,
     meta?: RequestMeta
-  ): Promise<AuthLoginResult> =>
-    loginUserUseCase.execute(payload, meta),
+  ): Promise<AuthLoginResult> {
+    return this.loginUserUseCase.execute(payload, meta)
+  }
 
-  handleOAuthLogin: (
+  handleOAuthLogin(
     user: OAuthLoginUser,
     meta?: RequestMeta
-  ): Promise<AuthLoginResult> =>
-    handleOAuthLoginUseCase.execute(user, meta),
+  ): Promise<AuthLoginResult> {
+    return this.handleOAuthLoginUseCase.execute(user, meta)
+  }
 
-  verifyTwoFactorLogin: (
+  verifyTwoFactorLogin(
     challengeToken: string,
     payload: TwoFactorLoginVerifyPayload,
     meta?: RequestMeta
-  ): Promise<AuthLoginSuccessResult> =>
-    verifyTwoFactorLoginUseCase.execute(challengeToken, payload, meta),
+  ): Promise<AuthLoginSuccessResult> {
+    return this.verifyTwoFactorLoginUseCase.execute(
+      challengeToken,
+      payload,
+      meta
+    )
+  }
 
-  logout: (refreshToken: string) =>
-    logoutUserUseCase.execute(refreshToken),
+  logout(refreshToken: string) {
+    return this.logoutUserUseCase.execute(refreshToken)
+  }
 
-  logoutAll: (userId: string) =>
-    logoutAllSessionsUseCase.execute(userId),
+  logoutAll(userId: string) {
+    return this.logoutAllSessionsUseCase.execute(userId)
+  }
 
-  refreshTokens: (
+  refreshTokens(
     refreshToken: string,
     meta?: RequestMeta
-  ): Promise<TokenPair> =>
-    refreshAuthTokensUseCase.execute(refreshToken, meta),
+  ): Promise<TokenPair> {
+    return this.refreshAuthTokensUseCase.execute(refreshToken, meta)
+  }
 
-  getMe: (userId: string): Promise<AuthUser> =>
-    getCurrentUserUseCase.execute(userId),
+  getMe(userId: string): Promise<AuthUser> {
+    return this.getCurrentUserUseCase.execute(userId)
+  }
 
-  verifyAccount: (identifier: string, otp: string) =>
-    verifyAccountUseCase.execute(identifier, otp),
+  verifyAccount(identifier: string, otp: string) {
+    return this.verifyAccountUseCase.execute(identifier, otp)
+  }
 
-  resendOtp: (identifier: string, purpose: OtpPurpose) =>
-    resendOtpUseCase.execute(identifier, purpose),
+  resendOtp(identifier: string, purpose: OtpPurpose) {
+    return this.resendOtpUseCase.execute(identifier, purpose)
+  }
 
-  forgotPassword: (identifier: string) =>
-    forgotPasswordUseCase.execute(identifier),
+  forgotPassword(identifier: string) {
+    return this.forgotPasswordUseCase.execute(identifier)
+  }
 
-  verifyResetCode: (identifier: string, otp: string) =>
-    verifyResetCodeUseCase.execute(identifier, otp),
+  verifyResetCode(identifier: string, otp: string) {
+    return this.verifyResetCodeUseCase.execute(identifier, otp)
+  }
 
-  resetPassword: (resetToken: string, newPassword: string) =>
-    resetPasswordUseCase.execute(resetToken, newPassword),
+  resetPassword(resetToken: string, newPassword: string) {
+    return this.resetPasswordUseCase.execute(resetToken, newPassword)
+  }
 
-  changePassword: (
+  changePassword(
     userId: string,
     currentPassword: string,
     newPassword: string
-  ) =>
-    changePasswordUseCase.execute(userId, currentPassword, newPassword),
+  ) {
+    return this.changePasswordUseCase.execute(
+      userId,
+      currentPassword,
+      newPassword
+    )
+  }
 
-  checkIdentifier: (identifier: string) =>
-    checkIdentifierUseCase.execute(identifier),
+  checkIdentifier(identifier: string) {
+    return this.checkIdentifierUseCase.execute(identifier)
+  }
 
-  checkUsername: (username: string) =>
-    checkUsernameUseCase.execute(username),
+  checkUsername(username: string) {
+    return this.checkUsernameUseCase.execute(username)
+  }
 
-  getSessions: (userId: string) =>
-    getAuthSessionsUseCase.execute(userId),
+  getSessions(userId: string) {
+    return this.getAuthSessionsUseCase.execute(userId)
+  }
 
-  revokeSession: (userId: string, sessionId: string) =>
-    revokeAuthSessionUseCase.execute(userId, sessionId),
+  revokeSession(userId: string, sessionId: string) {
+    return this.revokeAuthSessionUseCase.execute(userId, sessionId)
+  }
 
-  // Kept for compatibility with current external/internal usages.
-  generateTokenPair: (
+  generateTokenPair(
     userId: string,
     role: AuthRole,
     meta?: RequestMeta
-  ): Promise<TokenPair> =>
-    issueTokenPair(authRepository, userId, role, meta),
+  ): Promise<TokenPair> {
+    return this.authSessionService.issueTokenPair(userId, role, meta)
+  }
 
-  generateTwoFactorChallengeToken,
+  generateTwoFactorChallengeToken(userId: string): string {
+    return this.authTokenService.generateTwoFactorChallengeToken(userId)
+  }
 
-  generateOtp,
+  generateOtp(): string {
+    return this.otpGenerator.generate()
+  }
 
-  generateRegistrationUsername: (data: {
+  generateRegistrationUsername(data: {
     email?: string
     fullName: string
-  }) => generateRegistrationUsername(data, authRepository),
+  }) {
+    return this.usernameGenerator.generateRegistrationUsername(data)
+  }
 
-  generateUsername: (fullName: string) =>
-    generateUsername(fullName, authRepository),
+  generateUsername(fullName: string) {
+    return this.usernameGenerator.generateUsername(fullName)
+  }
 
-  generateUniqueUsernameFromSource: (source: string) =>
-    generateUniqueUsernameFromSource(source, authRepository),
+  generateUniqueUsernameFromSource(source: string) {
+    return this.usernameGenerator.generateUniqueUsernameFromSource(source)
+  }
 
-  formatter: formatAuthUser,
+  formatter(user: Parameters<AuthUserMapperContract['toAuthUser']>[0]) {
+    return this.authUserMapper.toAuthUser(user)
+  }
 }
 
-export type { OAuthLoginUser }
+const authRepository = mongoAuthRepository
+const authUserMapper = new AuthUserMapper()
+const identifierNormalizer = new IdentifierNormalizerService()
+const otpGenerator = cryptoOtpGeneratorService
+const usernameGenerator = new UsernameGeneratorService(
+  authRepository,
+  cryptoRandomNumberGeneratorService
+)
+const authAccountPolicy = new AuthAccountPolicyService()
+const backupCodeNormalizer = new BackupCodeNormalizerService()
+
+const passwordHasher = bcryptPasswordHasherService
+const authTokenService = jwtAuthTokenService
+const passwordResetSessionStore = redisPasswordResetSessionStore
+const passwordResetTokenService = jwtPasswordResetTokenService
+const securityAttemptStore = redisSecurityAttemptStore
+const phoneOtpSessionStore = redisPhoneOtpSessionStore
+const phoneOtpProvider = messageCentralPhoneOtpProvider
+const retiredRefreshTokenStore = redisRetiredRefreshTokenStore
+const otpStore = redisOtpStore
+const securityAuditLoggerService = securityAuditLogger
+const twoFactorCodeVerifier = otplibTwoFactorCodeVerifierService
+const authRedirectService = new AuthRedirectService()
+
+const authNotificationService = new AuthNotificationService(
+  otpStore,
+  otpGenerator,
+  identifierNormalizer,
+  phoneOtpProvider,
+  phoneOtpSessionStore,
+  nodemailerOtpEmailProvider
+)
+
+const authSessionService = new AuthSessionService(
+  authRepository,
+  authTokenService
+)
+
+export const authService = new AuthService(
+  authRepository,
+  authUserMapper,
+  identifierNormalizer,
+  otpGenerator,
+  usernameGenerator,
+  authAccountPolicy,
+  backupCodeNormalizer,
+  passwordHasher,
+  authTokenService,
+  passwordResetSessionStore,
+  passwordResetTokenService,
+  securityAttemptStore,
+  phoneOtpSessionStore,
+  phoneOtpProvider,
+  retiredRefreshTokenStore,
+  otpStore,
+  securityAuditLoggerService,
+  twoFactorCodeVerifier,
+  authNotificationService,
+  authRedirectService,
+  authSessionService
+)
+
+export type { OAuthLoginUser } from './application/dtos/auth.dto'

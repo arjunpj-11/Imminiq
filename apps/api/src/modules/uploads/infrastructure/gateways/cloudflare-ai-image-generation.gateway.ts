@@ -1,14 +1,27 @@
 import { generateImageWithCloudflare } from '../../../../infrastructure/ai/cloudflare-image.client'
+import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
 import type {
   AiImageGenerationServiceContract,
-  GeneratePreviewImageInput,
   GeneratedPreviewImage,
+  GeneratePreviewImageInput,
 } from '../../domain/services/ai-image-generation.service.interface'
 
-export const cloudflareAiImageGenerationGateway: AiImageGenerationServiceContract = {
+export class CloudflareAiImageGenerationGateway
+  implements AiImageGenerationServiceContract
+{
   async generatePreviewImage(
-    input: GeneratePreviewImageInput
+    input: GeneratePreviewImageInput,
   ): Promise<GeneratedPreviewImage> {
-    return generateImageWithCloudflare(input)
-  },
+    try {
+      return await generateImageWithCloudflare(input)
+    } catch {
+      throw new UploadsDomainError(
+        'AI_IMAGE_GENERATION_FAILED',
+        'AI image generation failed',
+      )
+    }
+  }
 }
+
+export const cloudflareAiImageGenerationGateway =
+  new CloudflareAiImageGenerationGateway()

@@ -1,10 +1,17 @@
-export { onboardingController } from './presentation/onboarding.controller'
-export { default } from './presentation/onboarding.routes'
-export { default as onboardingRoutes } from './presentation/onboarding.routes'
 export { onboardingService } from './onboarding.service'
+export type { OnboardingService } from './onboarding.service'
 
 export type {
+  GenerateRoadmapPayload,
+  GenerateRoadmapResult,
+  GetEvaluationResult,
+  GetJobStatusResult,
+  OnboardingResponseRecord,
+  OnboardingStatusResult,
+  RoadmapTreeResult,
+  SaveOnboardingStepOnePayload,
+  SaveOnboardingStepTwoPayload,
   SubtopicTreeNode,
-} from './domain/types/onboarding.types'
+} from './application/dtos/onboarding.dto'
 
-export * from './domain/types/onboarding.types'
+export type { RoadmapLevel } from './domain/types/onboarding.types'

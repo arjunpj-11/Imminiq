@@ -18,23 +18,17 @@ export const updateMyProfileSchema = z
     bio: optionalCleanString(1200),
     location: optionalCleanString(180),
     education: optionalCleanString(220),
-
-    skills: z
-      .array(z.string().trim().min(1).max(40))
-      .max(24)
-      .optional(),
-
-    interests: z
-      .array(z.string().trim().min(1).max(40))
-      .max(24)
-      .optional(),
-
+    skills: z.array(z.string().trim().min(1).max(40)).max(24).optional(),
+    interests: z.array(z.string().trim().min(1).max(40)).max(24).optional(),
     githubUrl: optionalUrl,
     linkedinUrl: optionalUrl,
     portfolioUrl: optionalUrl,
-
     publicProfileEnabled: z.boolean().optional(),
   })
-  .refine((payload) => Object.keys(payload).length > 0, {
+  .refine((payload: Record<string, unknown>) => Object.keys(payload).length > 0, {
     message: 'At least one profile field is required',
   })
+
+export type UpdateMyProfileSchemaInput = z.infer<
+  typeof updateMyProfileSchema
+>

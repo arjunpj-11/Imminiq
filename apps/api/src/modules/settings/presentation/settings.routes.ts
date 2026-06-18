@@ -1,110 +1,114 @@
 import { Router } from 'express'
-import { settingsController } from './settings.controller'
+
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
-import { validate } from '../../../shared/middlewares/validate'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
+import { validate } from '../../../shared/middlewares/validate'
+import { settingsController } from './settings.controller'
 import {
   updateAccountSettingsSchema,
+  updateAIBehaviourSchema,
   updateAppearanceSchema,
-  updateNotificationsSchema,
-  updatePrivacySchema,
   updateCodeEditorSchema,
   updateCompilerSchema,
-  updateAIBehaviourSchema,
-  updateLearningJourneySchema,
-  updateGesturesSchema,
-  updateQuietHoursSchema,
-  updateEmailDigestSchema,
   updateCookieConsentSchema,
+  updateEmailDigestSchema,
+  updateGesturesSchema,
+  updateLearningJourneySchema,
+  updateNotificationsSchema,
+  updatePrivacySchema,
+  updateQuietHoursSchema,
 } from './settings.schema'
 
 const router = Router()
 
-router.use(
-  authenticatedApiIpLimiter,
-  authenticate
-)
+router.use(authenticatedApiIpLimiter, authenticate)
+
+// ─── READ SETTINGS ───────────────────────────────────────────
 
 router.get('/', settingsController.getAllSettings)
+router.get('/appearance', settingsController.getAppearanceSettings)
+router.get('/notifications', settingsController.getNotificationSettings)
+router.get('/privacy', settingsController.getPrivacySettings)
+router.get('/gestures', settingsController.getGestureSettings)
+
+// ─── UPDATE SETTINGS ─────────────────────────────────────────
 
 router.patch(
   '/account',
   validate(updateAccountSettingsSchema),
-  settingsController.updateAccountSettings
+  settingsController.updateAccountSettings,
 )
 
-router.get('/appearance', settingsController.getAppearanceSettings)
 router.patch(
   '/appearance',
   validate(updateAppearanceSchema),
-  settingsController.updateAppearance
+  settingsController.updateAppearance,
 )
 
-router.get('/notifications', settingsController.getNotificationSettings)
 router.patch(
   '/notifications',
   validate(updateNotificationsSchema),
-  settingsController.updateNotifications
+  settingsController.updateNotifications,
 )
 
 router.patch(
   '/notifications/quiet-hours',
   validate(updateQuietHoursSchema),
-  settingsController.updateQuietHours
+  settingsController.updateQuietHours,
 )
 
 router.patch(
   '/notifications/email-digest',
   validate(updateEmailDigestSchema),
-  settingsController.updateEmailDigest
+  settingsController.updateEmailDigest,
 )
 
-router.get('/privacy', settingsController.getPrivacySettings)
 router.patch(
   '/privacy',
   validate(updatePrivacySchema),
-  settingsController.updatePrivacy
+  settingsController.updatePrivacy,
 )
 
 router.patch(
   '/code-editor',
   validate(updateCodeEditorSchema),
-  settingsController.updateCodeEditor
+  settingsController.updateCodeEditor,
 )
 
 router.patch(
   '/compiler',
   validate(updateCompilerSchema),
-  settingsController.updateCompiler
+  settingsController.updateCompiler,
 )
 
 router.patch(
   '/ai-behavior',
   validate(updateAIBehaviourSchema),
-  settingsController.updateAIBehaviour
+  settingsController.updateAIBehaviour,
 )
 
 router.patch(
   '/learning-journey',
   validate(updateLearningJourneySchema),
-  settingsController.updateLearningJourney
+  settingsController.updateLearningJourney,
 )
 
-router.get('/gestures', settingsController.getGestureSettings)
 router.patch(
   '/gestures',
   validate(updateGesturesSchema),
-  settingsController.updateGestures
+  settingsController.updateGestures,
 )
 
 router.patch(
   '/preferences',
   validate(updateCookieConsentSchema),
-  settingsController.updateCookieConsent
+  settingsController.updateCookieConsent,
 )
 
-router.post('/accept-terms', settingsController.acceptTerms)
+// ─── ACCOUNT AGREEMENTS / RESET ──────────────────────────────
 
+router.post('/accept-terms', settingsController.acceptTerms)
 router.post('/reset', settingsController.resetToDefaults)
 
 export default router
+export { router as settingsRoutes }

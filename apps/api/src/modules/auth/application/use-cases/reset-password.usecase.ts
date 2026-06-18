@@ -1,49 +1,51 @@
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { passwordResetSessionCache } from '../../../../infrastructure/cache/password-reset-session.cache'
-import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import { verifyPasswordResetToken } from '../services/password-reset-token.service'
+import { AuthApplicationError } from '../errors/auth-application.error'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
+import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
+import type { PasswordResetSessionStoreContract } from '../../domain/services/password-reset-session-store.interface'
+import type { PasswordResetTokenServiceContract } from '../../domain/services/password-reset-token.service.interface'
+import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
+
+type ResetPasswordRepository = AuthUserRepositoryContract & AuthSessionRepositoryContract
 
 export class ResetPasswordUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: ResetPasswordRepository,
+    private readonly passwordResetTokenService: PasswordResetTokenServiceContract,
+    private readonly passwordResetSessionStore: PasswordResetSessionStoreContract,
+    private readonly securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly passwordHasher: PasswordHasherServiceContract
   ) {}
 
-  async execute(resetToken: string, newPassword: string) {
-    const decoded = verifyPasswordResetToken(resetToken)
+  async execute(resetToken: string, newPassword: string): Promise<void> {
+    const decoded = this.passwordResetTokenService.verify(resetToken)
 
     const resetSessionUserId =
-      await passwordResetSessionCache.consume(decoded.jti)
+      await this.passwordResetSessionStore.consume(decoded.jti)
 
     if (resetSessionUserId !== decoded.userId) {
-      await securityAuditLogger.record({
+      await this.securityAuditLogger.record({
         userId: decoded.userId,
         eventType: 'PASSWORD_RESET_TOKEN_REPLAY_OR_EXPIRED',
         outcome: 'detected',
       })
 
-      throw new ApiError(
-        400,
-        'Invalid or already-used reset token',
-        'INVALID_RESET_TOKEN'
-      )
+      throw AuthApplicationError.invalidResetToken('Invalid or already-used reset token')
     }
 
     const user = await this.authRepository.findById(decoded.userId)
 
     if (!user) {
-      throw new ApiError(
-        400,
-        'Invalid or expired reset token',
-        'INVALID_RESET_TOKEN'
-      )
+      throw AuthApplicationError.invalidResetToken('Invalid or expired reset token')
     }
 
-    await this.authRepository.updatePassword(user._id.toString(), newPassword)
-    await this.authRepository.revokeAllUserTokens(user._id.toString())
+    const passwordHash = await this.passwordHasher.hash(newPassword)
 
-    await securityAuditLogger.record({
-      userId: user._id.toString(),
+    await this.authRepository.updatePasswordHash(user.id, passwordHash)
+    await this.authRepository.revokeAllUserTokens(user.id)
+
+    await this.securityAuditLogger.record({
+      userId: user.id,
       eventType: 'PASSWORD_RESET_COMPLETED',
       outcome: 'success',
     })

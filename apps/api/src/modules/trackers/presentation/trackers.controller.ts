@@ -1,30 +1,26 @@
-import {
-  Request,
-  Response,
-  NextFunction,
-} from 'express'
+import type { NextFunction, Request, Response } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { trackerService } from '../trackers.service'
-
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
+import { trackerService, type TrackerService } from '../trackers.service'
 import {
-  askLessonQuestionSolutionDoubtSchema,
-  createSubtopicSchema,
-  createTopicSchema,
+  trackerListQuerySchema,
   createTrackerSchema,
-  generateLessonQuestionsSchema,
-  getCodeHintSchema,
-  getOptimizedSolutionSchema,
+  updateTrackerSchema,
+  createTopicSchema,
+  createSubtopicSchema,
+  updateSubtopicProgressSchema,
   lessonChatSchema,
+  generateLessonQuestionsSchema,
   lessonQuestionSchema,
+  askLessonQuestionSolutionDoubtSchema,
+  verifyLessonAnswerSchema,
   runLessonCodeSchema,
   submitLessonCodeSchema,
-  trackerListQuerySchema,
-  updateSubtopicProgressSchema,
-  updateTrackerSchema,
-  verifyLessonAnswerSchema,
-  verifySubtopicSchema,
+  getCodeHintSchema,
+  getOptimizedSolutionSchema,
   verifyTopicSchema,
+  verifySubtopicSchema,
 } from './trackers.schema'
 
 type TrackerParams = {
@@ -47,14 +43,29 @@ type AddMissingTopicParams = {
   topicIndex: string
 }
 
-export const trackerController = {
-  getSummary: async (
+type VerifyAnswerResult = {
+  isCorrect: boolean
+  feedback?: string
+  explanation?: string
+  expectedAnswer?: string
+}
+
+type MissingTopicEvaluationResult = {
+  mode: 'issue' | 'suggestions' | 'none'
+  message?: string
+  suggestions?: unknown[]
+}
+
+export class TrackerController {
+  constructor(private readonly service: TrackerService) {}
+
+  readonly getSummary = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.getSummary(req.user!.userId)
+      const result = await this.service.getSummary(getAuthUser(req).userId)
 
       res.json(
         new ApiResponse(
@@ -65,9 +76,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  listTrackers: async (
+  }
+  readonly listTrackers = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -75,8 +85,8 @@ export const trackerController = {
     try {
       const query = trackerListQuerySchema.parse(req.query)
 
-      const result = await trackerService.listTrackers({
-        userId: req.user!.userId,
+      const result = await this.service.listTrackers({
+        userId: getAuthUser(req).userId,
         status: query.status || 'all',
         domain: query.domain || 'all',
         sortBy: query.sortBy || 'lastActive',
@@ -93,9 +103,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  createTracker: async (
+  }
+  readonly createTracker = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -103,8 +112,8 @@ export const trackerController = {
     try {
       const body = createTrackerSchema.parse(req.body)
 
-      const result = await trackerService.createTracker({
-        userId: req.user!.userId,
+      const result = await this.service.createTracker({
+        userId: getAuthUser(req).userId,
         ...body,
       })
 
@@ -117,17 +126,16 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getTrackerDetails: async (
+  }
+  readonly getTrackerDetails = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.getTrackerDetails({
+      const result = await this.service.getTrackerDetails({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -139,9 +147,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  updateTracker: async (
+  }
+  readonly updateTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -149,9 +156,9 @@ export const trackerController = {
     try {
       const body = updateTrackerSchema.parse(req.body)
 
-      const result = await trackerService.updateTracker({
+      const result = await this.service.updateTracker({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         ...body,
       })
 
@@ -164,17 +171,16 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  deleteTracker: async (
+  }
+  readonly deleteTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.deleteTracker({
+      const result = await this.service.deleteTracker({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -186,17 +192,16 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  archiveTracker: async (
+  }
+  readonly archiveTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.archiveTracker({
+      const result = await this.service.archiveTracker({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -208,17 +213,16 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  restoreTracker: async (
+  }
+  readonly restoreTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.restoreTracker({
+      const result = await this.service.restoreTracker({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -230,9 +234,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
- publishTracker: async (
+  }
+  readonly publishTracker = async (
   req: Request<TrackerParams>,
   res: Response,
   next: NextFunction
@@ -247,9 +250,9 @@ export const trackerController = {
       allowClone,
     } = req.body
 
-    const result = await trackerService.publishTracker({
+    const result = await this.service.publishTracker({
       trackerId: req.params.trackerId,
-      userId: req.user!.userId,
+      userId: getAuthUser(req).userId,
       name,
       description,
       domain,
@@ -267,17 +270,17 @@ export const trackerController = {
   } catch (error) {
     next(error)
   }
-},
+}
 
-  unpublishTracker: async (
+  readonly unpublishTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.unpublishTracker({
+      const result = await this.service.unpublishTracker({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -289,17 +292,16 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getRoadmap: async (
+  }
+  readonly getRoadmap = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.getRoadmap({
+      const result = await this.service.getRoadmap({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -311,9 +313,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  createTopic: async (
+  }
+  readonly createTopic = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -321,9 +322,9 @@ export const trackerController = {
     try {
       const body = createTopicSchema.parse(req.body)
 
-      const result = await trackerService.createTopic({
+      const result = await this.service.createTopic({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         title: body.title,
         description: body.description,
       })
@@ -337,9 +338,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  createSubtopic: async (
+  }
+  readonly createSubtopic = async (
     req: Request<TopicParams>,
     res: Response,
     next: NextFunction
@@ -347,10 +347,10 @@ export const trackerController = {
     try {
       const body = createSubtopicSchema.parse(req.body)
 
-      const result = await trackerService.createSubtopic({
+      const result = await this.service.createSubtopic({
         trackerId: req.params.trackerId,
         topicId: req.params.topicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         title: body.title,
         description: body.description,
         parentSubtopicId: body.parentSubtopicId,
@@ -366,9 +366,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  updateSubtopicProgress: async (
+  }
+  readonly updateSubtopicProgress = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -376,10 +375,10 @@ export const trackerController = {
     try {
       const body = updateSubtopicProgressSchema.parse(req.body)
 
-      const result = await trackerService.updateSubtopicProgress({
+      const result = await this.service.updateSubtopicProgress({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         status: body.status,
        
       })
@@ -393,18 +392,17 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getLesson: async (
+  }
+  readonly getLesson = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.getLesson({
+      const result = await this.service.getLesson({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -416,18 +414,17 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getLessonChatHistory: async (
+  }
+  readonly getLessonChatHistory = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.getLessonChatHistory({
+      const result = await this.service.getLessonChatHistory({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -439,9 +436,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  chatWithLessonTutor: async (
+  }
+  readonly chatWithLessonTutor = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -449,10 +445,10 @@ export const trackerController = {
     try {
       const body = lessonChatSchema.parse(req.body)
 
-      const result = await trackerService.chatWithLessonTutor({
+      const result = await this.service.chatWithLessonTutor({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         messages: body.messages,
       })
 
@@ -465,18 +461,17 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getLessonGeneratedQuestions: async (
+  }
+  readonly getLessonGeneratedQuestions = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.getLessonGeneratedQuestions({
+      const result = await this.service.getLessonGeneratedQuestions({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -488,9 +483,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  generateLessonQuestions: async (
+  }
+  readonly generateLessonQuestions = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -498,10 +492,10 @@ export const trackerController = {
     try {
       const body = generateLessonQuestionsSchema.parse(req.body)
 
-      const result = await trackerService.generateLessonQuestions({
+      const result = await this.service.generateLessonQuestions({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         count: body.count,
       })
 
@@ -514,9 +508,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getLessonQuestionSolution: async (
+  }
+  readonly getLessonQuestionSolution = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -524,10 +517,10 @@ export const trackerController = {
     try {
       const query = lessonQuestionSchema.parse(req.query)
 
-      const result = await trackerService.getLessonQuestionSolution({
+      const result = await this.service.getLessonQuestionSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         question: query.question,
       })
 
@@ -540,9 +533,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  generateLessonQuestionSolution: async (
+  }
+  readonly generateLessonQuestionSolution = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -550,10 +542,10 @@ export const trackerController = {
     try {
       const body = lessonQuestionSchema.parse(req.body)
 
-      const result = await trackerService.generateLessonQuestionSolution({
+      const result = await this.service.generateLessonQuestionSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         question: body.question,
       })
 
@@ -566,9 +558,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getLessonQuestionSolutionDoubts: async (
+  }
+  readonly getLessonQuestionSolutionDoubts = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -576,10 +567,10 @@ export const trackerController = {
     try {
       const query = lessonQuestionSchema.parse(req.query)
 
-      const result = await trackerService.getLessonQuestionSolutionDoubts({
+      const result = await this.service.getLessonQuestionSolutionDoubts({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         question: query.question,
       })
 
@@ -592,9 +583,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  askLessonQuestionSolutionDoubt: async (
+  }
+  readonly askLessonQuestionSolutionDoubt = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -602,10 +592,10 @@ export const trackerController = {
     try {
       const body = askLessonQuestionSolutionDoubtSchema.parse(req.body)
 
-      const result = await trackerService.askLessonQuestionSolutionDoubt({
+      const result = await this.service.askLessonQuestionSolutionDoubt({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         question: body.question,
         message: body.message,
       })
@@ -619,18 +609,17 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getLessonAnswerAttempts: async (
+  }
+  readonly getLessonAnswerAttempts = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.getLessonAnswerAttempts({
+      const result = await this.service.getLessonAnswerAttempts({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -642,9 +631,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  verifyLessonAnswer: async (
+  }
+  readonly verifyLessonAnswer = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -652,10 +640,10 @@ export const trackerController = {
     try {
       const body = verifyLessonAnswerSchema.parse(req.body)
 
-      const result = await trackerService.verifyLessonAnswer({
+      const result = await this.service.verifyLessonAnswer({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         question: body.question,
         answer: body.answer,
       })
@@ -669,9 +657,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getLessonCodeSubmissions: async (
+  }
+  readonly getLessonCodeSubmissions = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -682,10 +669,10 @@ export const trackerController = {
           ? req.query.action
           : undefined
 
-      const result = await trackerService.getLessonCodeSubmissions({
+      const result = await this.service.getLessonCodeSubmissions({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         action,
       })
 
@@ -698,9 +685,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  runLessonCode: async (
+  }
+  readonly runLessonCode = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -708,10 +694,10 @@ export const trackerController = {
     try {
       const body = runLessonCodeSchema.parse(req.body)
 
-      const result = await trackerService.runLessonCode({
+      const result = await this.service.runLessonCode({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         sourceCode: body.sourceCode,
         languageId: body.languageId ?? 63,
         language: body.language,
@@ -727,9 +713,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  submitLessonCode: async (
+  }
+  readonly submitLessonCode = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -737,15 +722,15 @@ export const trackerController = {
     try {
       const body = submitLessonCodeSchema.parse(req.body)
 
-      const result = await trackerService.submitLessonCode({
+      const result = await this.service.submitLessonCode({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         sourceCode: body.sourceCode,
         languageId: body.languageId ?? 63,
         language: body.language,
         stdin: body.stdin,
-      })
+      })as VerifyAnswerResult
 
       res.json(
         new ApiResponse(
@@ -758,9 +743,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getCodeHint: async (
+  }
+  readonly getCodeHint = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -768,15 +752,15 @@ export const trackerController = {
     try {
       const body = getCodeHintSchema.parse(req.body)
 
-      const result = await trackerService.getCodeHint({
+      const result = await this.service.getCodeHint({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         sourceCode: body.sourceCode,
         actualOutput: body.actualOutput,
         errorOutput: body.errorOutput,
         hintCount: body.hintCount,
-      })
+      }) as MissingTopicEvaluationResult
 
       res.json(
         new ApiResponse(
@@ -789,9 +773,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  getOptimizedSolution: async (
+  }
+  readonly getOptimizedSolution = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -799,10 +782,10 @@ export const trackerController = {
     try {
       const body = getOptimizedSolutionSchema.parse(req.body)
 
-      const result = await trackerService.getOptimizedSolution({
+      const result = await this.service.getOptimizedSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         sourceCode: body.sourceCode,
         language: body.language,
       })
@@ -816,18 +799,17 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  clearLessonChatHistory: async (
+  }
+  readonly clearLessonChatHistory = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.clearLessonChatHistory({
+      const result = await this.service.clearLessonChatHistory({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.json(
@@ -839,9 +821,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  clearLessonQuestionSolutionDoubts: async (
+  }
+  readonly clearLessonQuestionSolutionDoubts = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -849,10 +830,10 @@ export const trackerController = {
     try {
       const query = lessonQuestionSchema.parse(req.query)
 
-      const result = await trackerService.clearLessonQuestionSolutionDoubts({
+      const result = await this.service.clearLessonQuestionSolutionDoubts({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         question: query.question,
       })
 
@@ -865,9 +846,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  verifyTopic: async (
+  }
+  readonly verifyTopic = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -875,9 +855,9 @@ export const trackerController = {
     try {
       const body = verifyTopicSchema.parse(req.body)
 
-      const result = await trackerService.verifyTopic({
+      const result = await this.service.verifyTopic({
         trackerId: req.params.trackerId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         trackerTitle: body.trackerTitle,
         topicTitle: body.topicTitle,
         topicDescription: body.topicDescription,
@@ -893,9 +873,8 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  verifySubtopic: async (
+  }
+  readonly verifySubtopic = async (
     req: Request<TopicParams>,
     res: Response,
     next: NextFunction
@@ -903,10 +882,10 @@ export const trackerController = {
     try {
       const body = verifySubtopicSchema.parse(req.body)
 
-      const result = await trackerService.verifySubtopic({
+      const result = await this.service.verifySubtopic({
         trackerId: req.params.trackerId,
         topicId: req.params.topicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         trackerTitle: body.trackerTitle,
         topicTitle: body.topicTitle,
         topicDescription: body.topicDescription,
@@ -925,19 +904,18 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  addMissingEvaluationTopic: async (
+  }
+  readonly addMissingEvaluationTopic = async (
     req: Request<AddMissingTopicParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.addMissingEvaluationTopic({
+      const result = await this.service.addMissingEvaluationTopic({
         trackerId: req.params.trackerId,
         evaluationJobId: req.params.evaluationJobId,
         topicIndex: req.params.topicIndex,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
       })
 
       res.status(201).json(
@@ -949,18 +927,17 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
-
-  generateLessonVisualization: async (
+  }
+  readonly generateLessonVisualization = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await trackerService.generateLessonVisualization({
+      const result = await this.service.generateLessonVisualization({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
-        userId: req.user!.userId,
+        userId: getAuthUser(req).userId,
         regenerate: req.query.regenerate === 'true',
       })
 
@@ -973,5 +950,7 @@ export const trackerController = {
     } catch (error) {
       next(error)
     }
-  },
+  }
 }
+
+export const trackerController = new TrackerController(trackerService)

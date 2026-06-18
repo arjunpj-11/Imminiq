@@ -1,20 +1,50 @@
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { sanitizeQuestionForAttempt } from '../services/test-scorer.service'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+
+type RetakeTestRepository =
+  MockTestRepositoryContract &
+  MockTestQuestionRepositoryContract &
+  MockTestAttemptRepositoryContract
 
 export class RetakeTestUseCase {
-  constructor(private readonly repo: MockTestsRepositoryContract) {}
+  constructor(
+    private readonly repo: RetakeTestRepository,
+    private readonly mapper: MockTestsMapperContract,
+  ) { }
 
   async execute(attemptId: string, userId: string) {
     const attempt = await this.repo.findAttemptById(attemptId)
-    if (!attempt) throw new ApiError(404, 'Attempt not found', 'NOT_FOUND')
-    if (attempt.userId !== userId) throw new ApiError(403, 'Forbidden', 'FORBIDDEN')
+
+    if (!attempt) {
+      throw MockTestsApplicationError.notFound('Attempt not found')
+    }
+
+    if (attempt.userId !== userId) {
+      throw MockTestsApplicationError.forbidden()
+    }
+
     const test = await this.repo.findTestById(attempt.testId)
-    if (!test) throw new ApiError(404, 'Test not found', 'NOT_FOUND')
+
+    if (!test) {
+      throw MockTestsApplicationError.notFound('Test not found')
+    }
 
     await this.repo.abandonActiveAttempts(userId, attempt.testId)
-    const newAttempt = await this.repo.createAttempt({ testId: attempt.testId, userId, totalQuestions: test.questionCount })
+
+    const newAttempt = await this.repo.createAttempt({
+      testId: attempt.testId,
+      userId,
+      totalQuestions: test.questionCount,
+    })
+
     const questions = await this.repo.findQuestionsByTest(attempt.testId)
-    return { attempt: newAttempt, questions: questions.map(sanitizeQuestionForAttempt) }
+
+    return {
+      attempt: newAttempt,
+      questions: questions.map((question) => this.mapper.sanitizeQuestionForAttempt(question)),
+    }
   }
 }

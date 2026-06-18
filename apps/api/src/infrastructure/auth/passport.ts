@@ -6,7 +6,7 @@ import {
 } from 'passport-github2'
 import type { VerifyCallback } from 'passport-oauth2'
 import { env } from '../../config/env'
-import { authRepository } from '../../modules/auth/auth.repository'
+import { mongoAuthRepository as authRepository } from '../../modules/auth/infrastructure/repositories/mongo-auth.repository'
 
 const normalizeUsernameBase = (value: string) => {
   return (

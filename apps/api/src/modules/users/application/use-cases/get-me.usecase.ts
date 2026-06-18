@@ -1,37 +1,31 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
-import type {
-  ProfileRecord,
-  UserRecord,
-} from '../../domain/types/users.types'
-import {
-  mapProfile,
-  mapUser,
-  toIdString,
-} from '../utils/users-view-mappers'
+import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
+import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import { UsersApplicationError } from '../errors/users-application.error'
+import type { UsersMapperContract } from '../mappers/users.mapper'
+
+type GetMeRepository = UserRepositoryContract & UserProfileRepositoryContract
 
 export class GetMeUseCase {
   constructor(
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: GetMeRepository,
+    private readonly usersMapper: UsersMapperContract,
   ) {}
 
   async execute(userId: string) {
-    const user =
-      (await this.usersRepository.findUserById(userId)) as UserRecord | null
+    const user = await this.usersRepository.findById(userId)
 
     if (!user) {
-      throw new ApiError(404, 'User not found')
+      throw UsersApplicationError.userNotFound()
     }
 
-    const profile =
-      (await this.usersRepository.ensureProfileForUser(
-        toIdString(user._id),
-        user.fullName ?? ''
-      )) as ProfileRecord
+    const profile = await this.usersRepository.ensureForUser(
+      user.id,
+      user.fullName,
+    )
 
     return {
-      user: mapUser(user),
-      profile: mapProfile(profile, toIdString(user._id)),
+      user: this.usersMapper.toUserView(user),
+      profile: this.usersMapper.toProfileView(profile),
     }
   }
 }

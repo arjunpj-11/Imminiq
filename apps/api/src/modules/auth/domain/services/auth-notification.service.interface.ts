@@ -1,7 +1,5 @@
-import type {
-  OtpPurpose,
-  VerificationMethod,
-} from '../types/auth.types'
+import type { OtpPurpose } from '../value-objects/otp-purpose.vo'
+import type { VerificationMethod } from '../value-objects/verification-method.vo'
 
 export interface AuthNotificationServiceContract {
   sendVerificationOtp(data: {

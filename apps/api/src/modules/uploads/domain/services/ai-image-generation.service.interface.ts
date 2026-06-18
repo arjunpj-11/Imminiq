@@ -10,6 +10,6 @@ export interface GeneratedPreviewImage {
 
 export interface AiImageGenerationServiceContract {
   generatePreviewImage(
-    input: GeneratePreviewImageInput
+    input: GeneratePreviewImageInput,
   ): Promise<GeneratedPreviewImage>
 }

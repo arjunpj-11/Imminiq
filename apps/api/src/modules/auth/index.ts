@@ -1,7 +1,23 @@
-export { default } from './presentation/auth.routes'
-export { default as authRoutes } from './presentation/auth.routes'
-export { authController } from './presentation/auth.controller'
 export { authService } from './auth.service'
-export { authRepository } from './auth.repository'
+export type { AuthService } from './auth.service'
 
-export * from './domain/types/auth.types'
+export type {
+  AuthLoginResult,
+  AuthLoginSuccessResult,
+  AuthUser,
+  LoginPayload,
+  OAuthLoginUser,
+  RegisterPayload,
+  RequestMeta,
+  TokenPair,
+  TwoFactorLoginVerifyPayload,
+} from './application/dtos/auth.dto'
+
+export type {
+  AuthRole,
+  LoginRedirectPath,
+  OAuthProvider,
+  OtpPurpose,
+  UserStatus,
+  VerificationMethod,
+} from './domain/types/auth.types'

@@ -1,0 +1,9 @@
+export const UPLOAD_MODULE = 'profile'
+export const UPLOAD_REFERENCE_TYPE = 'user_profile'
+export const AVATAR_FOLDER = 'imminiq/avatars'
+export const BANNER_FOLDER = 'imminiq/banners'
+export const MIN_AI_PROMPT_LENGTH = 5
+export const MAX_AI_PROMPT_LENGTH = 500
+export const MAX_IMAGE_ALT_TEXT_LENGTH = 180
+export const AI_IMAGE_GENERATION_STEPS = 4
+export const AI_IMAGE_SEED_UPPER_BOUND = 1_000_000

@@ -1,41 +1,40 @@
-import type {
-  OtpPurpose,
-  ParsedIdentifier,
-  VerificationMethod,
-} from '../../domain/types/auth.types'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
+import type { ParsedIdentifier } from '../../domain/value-objects/parsed-identifier.vo'
+import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
 
-export const isEmailIdentifier = (identifier: string) => {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(identifier.trim())
-}
+export type { IdentifierNormalizerContract }
 
-export const normalizeIdentifier = (
-  identifier: string
-): ParsedIdentifier => {
-  const value = identifier.trim()
+export class IdentifierNormalizerService implements IdentifierNormalizerContract {
+  isEmailIdentifier(identifier: string): boolean {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(identifier.trim())
+  }
 
-  if (isEmailIdentifier(value)) {
+  normalize(identifier: string): ParsedIdentifier {
+    const value = identifier.trim()
+
+    if (this.isEmailIdentifier(value)) {
+      return {
+        email: value.toLowerCase(),
+        phone: undefined,
+        method: 'email',
+        value: value.toLowerCase(),
+      }
+    }
+
+    const normalizedPhone = value.replace(/\s/g, '')
+
     return {
-      email: value.toLowerCase(),
-      phone: undefined,
-      method: 'email',
-      value: value.toLowerCase(),
+      email: undefined,
+      phone: normalizedPhone,
+      method: 'phone',
+      value: normalizedPhone,
     }
   }
 
-  const normalizedPhone = value.replace(/\s/g, '')
-
-  return {
-    email: undefined,
-    phone: normalizedPhone,
-    method: 'phone',
-    value: normalizedPhone,
+  getVerificationPurpose(method: VerificationMethod): OtpPurpose {
+    return method === 'email'
+      ? 'email_verification'
+      : 'phone_verification'
   }
-}
-
-export const getVerificationPurpose = (
-  method: VerificationMethod
-): OtpPurpose => {
-  return method === 'email'
-    ? 'email_verification'
-    : 'phone_verification'
 }

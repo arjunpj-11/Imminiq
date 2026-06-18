@@ -33,7 +33,6 @@ export const updateNotificationsSchema = z.object({
 
 export const updatePrivacySchema = z.object({
   profileVisibility: z.enum(['public', 'friends', 'private']).optional(),
-
   showProfile: z.boolean().optional(),
   showStreak: z.boolean().optional(),
   showProgress: z.boolean().optional(),
@@ -41,12 +40,10 @@ export const updatePrivacySchema = z.object({
   showActivity: z.boolean().optional(),
   showOnlineStatus: z.boolean().optional(),
   showStats: z.boolean().optional(),
-
   allowFriendRequests: z.boolean().optional(),
   allowChallenges: z.boolean().optional(),
   allowMessages: z.boolean().optional(),
   messagePermission: z.enum(['everyone', 'friends', 'nobody']).optional(),
-
   allowPublicTrackerView: z.boolean().optional(),
   allowTrackerCloning: z.boolean().optional(),
   showTrackerProgress: z.boolean().optional(),
@@ -77,14 +74,11 @@ export const updateAIBehaviourSchema = z.object({
 
 export const updateLearningJourneySchema = z.object({
   dailyGoalMinutes: z.number().min(5).max(480).optional(),
-
   reminderEnabled: z.boolean().optional(),
-
   reminderTime: z
     .string()
     .regex(/^\d{2}:\d{2}$/, 'Format must be HH:MM')
     .optional(),
-
   autoPlayNextTopic: z.boolean().optional(),
   showEstimatedTime: z.boolean().optional(),
 })
@@ -103,29 +97,16 @@ export const updateGesturesSchema = z.object({
 
 export const updateQuietHoursSchema = z.object({
   quietHoursEnabled: z.boolean(),
-
   quietHoursStart: z
     .string()
     .regex(/^\d{2}:\d{2}$/, 'Format must be HH:MM')
     .optional(),
-
   quietHoursEnd: z
     .string()
     .regex(/^\d{2}:\d{2}$/, 'Format must be HH:MM')
     .optional(),
-
   quietHoursDays: z
-    .array(
-      z.enum([
-        'Mon',
-        'Tue',
-        'Wed',
-        'Thu',
-        'Fri',
-        'Sat',
-        'Sun',
-      ])
-    )
+    .array(z.enum(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']))
     .optional(),
 })
 
@@ -145,3 +126,18 @@ export const updateAccountSettingsSchema = z.object({
 export const updateCookieConsentSchema = z.object({
   cookieConsent: z.boolean(),
 })
+
+export type UpdateAppearanceInput = z.infer<typeof updateAppearanceSchema>
+export type UpdateNotificationsInput = z.infer<typeof updateNotificationsSchema>
+export type UpdatePrivacyInput = z.infer<typeof updatePrivacySchema>
+export type UpdateCodeEditorInput = z.infer<typeof updateCodeEditorSchema>
+export type UpdateCompilerInput = z.infer<typeof updateCompilerSchema>
+export type UpdateAIBehaviourInput = z.infer<typeof updateAIBehaviourSchema>
+export type UpdateLearningJourneyInput = z.infer<typeof updateLearningJourneySchema>
+export type UpdateGesturesInput = z.infer<typeof updateGesturesSchema>
+export type UpdateQuietHoursInput = z.infer<typeof updateQuietHoursSchema>
+export type UpdateEmailDigestInput = z.infer<typeof updateEmailDigestSchema>
+export type UpdateAccountSettingsInput = z.infer<
+  typeof updateAccountSettingsSchema
+>
+export type UpdateCookieConsentInput = z.infer<typeof updateCookieConsentSchema>

@@ -1,0 +1,8 @@
+export type SecurityAuditEventType =
+  | 'SENSITIVE_ACTION_PASSWORD_REAUTH_FAILED'
+  | 'SENSITIVE_ACTION_TWO_FACTOR_REAUTH_FAILED'
+  | 'EMAIL_CHANGE_REQUESTED'
+  | 'EMAIL_CHANGE_VERIFIED'
+  | 'ACCOUNT_DELETION_SCHEDULED'
+
+export type SecurityAuditOutcome = 'success' | 'failure'

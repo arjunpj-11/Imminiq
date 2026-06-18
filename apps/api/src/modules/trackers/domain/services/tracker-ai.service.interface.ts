@@ -1,5 +1,10 @@
 import type { GeneratedLessonData } from '../types/lesson-practice.types'
 
+export type LessonVisualizationCodeExample = {
+  code?: string
+  language?: string
+}
+
 export interface TrackerAIServiceContract {
   generateLesson(input: {
     trackerTitle: string
@@ -43,7 +48,7 @@ export interface TrackerAIServiceContract {
     lessonType: string
     tags: string[]
     difficulty: string
-    codeExample?: unknown
+    codeExample?: LessonVisualizationCodeExample
   }): Promise<{
     html: string
     visualTitle: string

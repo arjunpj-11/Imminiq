@@ -1,11 +1,44 @@
-export { default } from './presentation/trackers.routes'
-export { default as trackerRoutes } from './presentation/trackers.routes'
-export { trackerController } from './presentation/trackers.controller'
 export { trackerService } from './trackers.service'
+export type { TrackerService } from './trackers.service'
 
-// Compatibility export for existing modules that still import trackerRepository
-// from the public trackers barrel during the migration.
-export { trackerRepository } from './trackers.repository'
+export type {
+  AddMissingEvaluationTopicDto,
+  ClearLessonHistoryResultDto,
+  GeneratedTrackerLessonDto,
+  LessonAnswerAttemptsDto,
+  LessonAnswerVerificationDto,
+  LessonChatHistoryDto,
+  LessonCodeExecutionDto,
+  LessonCodeHintDto,
+  LessonCodeSubmissionsDto,
+  LessonGeneratedQuestionsDto,
+  LessonOptimizedSolutionDto,
+  LessonQuestionSolutionDoubtAnswerDto,
+  LessonQuestionSolutionDoubtsDto,
+  LessonQuestionSolutionDto,
+  LessonTutorChatResponseDto,
+  LessonVisualizationDto,
+  RunLessonCodeDto,
+  TrackerAIValidationDto,
+  TrackerDetailsDto,
+  TrackerDto,
+  TrackerListDto,
+  TrackerListQueryDto,
+  TrackerRoadmapDto,
+  TrackerSubtopicDto,
+  TrackerSummaryDto,
+  TrackerTopicDto,
+  UpdateSubtopicProgressResultDto,
+} from './application/dtos/tracker.dto'
 
-export * from './domain/types/trackers.types'
-export * from './domain/types/lesson-practice.types'
+export type {
+  CompilerRuntime,
+  LessonType,
+  SubtopicStatus,
+  TopicStatus,
+  TrackerDomain,
+  TrackerLevel,
+  TrackerSortBy,
+  TrackerStatus,
+  TrackerVisibility,
+} from './domain/types/trackers.types'

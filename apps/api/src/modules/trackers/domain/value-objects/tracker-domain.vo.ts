@@ -1,0 +1,10 @@
+export type TrackerDomain =
+  | 'engineering'
+  | 'frontend'
+  | 'backend'
+  | 'algorithms'
+  | 'architecture'
+  | 'development'
+  | 'design'
+  | 'ai'
+  | 'other'

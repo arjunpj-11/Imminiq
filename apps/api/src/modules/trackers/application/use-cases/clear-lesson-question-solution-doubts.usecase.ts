@@ -1,9 +1,12 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import { hashQuestion } from '../utils/tracker-question.util'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
 
 export class ClearLessonQuestionSolutionDoubtsUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly questionHasher: QuestionHasherServiceContract,
+  ) {}
 
   async execute(input: {
     trackerId: string
@@ -17,14 +20,14 @@ export class ClearLessonQuestionSolutionDoubtsUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     return this.trackerRepository.clearLessonQuestionSolutionDoubts({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      questionHash: hashQuestion(input.question),
+      questionHash: this.questionHasher.hash(input.question),
     })
   }
 }

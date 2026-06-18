@@ -1,5 +1,5 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 type ExistingTopic = {
@@ -19,7 +19,7 @@ type VerifyTrackerTopicInput = {
 
 export class VerifyTrackerTopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerRepository: TrackerRepositoryContract,
     private readonly trackerAIService: TrackerAIServiceContract
   ) {}
 
@@ -30,7 +30,7 @@ export class VerifyTrackerTopicUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     return this.trackerAIService.verifyTrackerTopic({

@@ -1,17 +1,19 @@
-export { default } from './presentation/uploads.routes'
-export { default as uploadsRoutes } from './presentation/uploads.routes'
-export { uploadsController } from './presentation/uploads.controller'
 export { uploadsService } from './uploads.service'
+export type { UploadsService } from './uploads.service'
 
 export type {
-  ProfileUploadKind,
-  StoredProfileImage,
-  UploadedProfileImageFile,
-  UploadProfileImageInput,
-  UploadProfileImageResult,
+  AiImagePreviewResult,
+  GenerateAiImagePreviewInput,
   RemoveAvatarResult,
   RemoveBannerResult,
-  AiImagePreviewResult,
-  UserRecordForUpload,
-  UserProfileRecordForUpload,
+  UploadProfileImageInput,
+  UploadProfileImageResult,
+} from './application/dtos/uploads.dto'
+
+export type {
+  ProfileImageFolder,
+  ProfileUploadKind,
+  UploadedProfileImageFile,
+  UploadModule,
+  UploadReferenceType,
 } from './domain/types/uploads.types'

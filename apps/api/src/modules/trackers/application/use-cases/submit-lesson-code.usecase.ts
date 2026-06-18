@@ -1,7 +1,22 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
-import { getDocumentId } from '../utils/tracker-question.util'
+
+const getDocumentId = (document: unknown) => {
+  const doc = document as { _id?: unknown }
+
+  if (typeof doc._id === 'string') return doc._id
+
+  if (
+    doc._id &&
+    typeof doc._id === 'object' &&
+    'toString' in doc._id
+  ) {
+    return doc._id.toString()
+  }
+
+  return null
+}
 
 type SubmitLessonCodeInput = {
   trackerId: string
@@ -19,7 +34,7 @@ const normalizeOutput = (value: string) => {
 
 export class SubmitLessonCodeUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
+    private readonly trackerRepository: TrackerRepositoryContract,
     private readonly codeExecutionService: CodeExecutionServiceContract
   ) {}
 
@@ -30,7 +45,7 @@ export class SubmitLessonCodeUseCase {
     )
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -40,11 +55,7 @@ export class SubmitLessonCodeUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
-        'Generate the lesson before submitting code',
-        'LESSON_NOT_GENERATED'
-      )
+      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before submitting code')
     }
 
     const language = input.language || lesson.codeExample?.language || 'javascript'

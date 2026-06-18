@@ -1,106 +1,82 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import {
-  AI_JOB_QUOTA_POLICIES,
-  aiJobQuotaCache,
-} from '../../../../infrastructure/cache/ai-job-quota.cache'
-
-import type { AIJobQueueGateway } from '../../domain/services/ai-job-queue.gateway.interface'
-import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
+import { ROADMAP_GENERATION_STEPS } from '../constants/onboarding.constants'
+import type { OnboardingAIJobCommandRepositoryContract } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
+import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { OnboardingResponseCommandRepositoryContract } from '../../domain/repositories/onboarding-response-command.repository.interface'
+import type { AIJobQueueGatewayContract } from '../../domain/services/ai-job-queue.interface'
+import type { AIJobQuotaStoreContract } from '../../domain/services/ai-job-quota-store.interface'
 import type {
+  GenerateRoadmapPayload,
   GenerateRoadmapResult,
-  RoadmapLevel,
-} from '../../domain/types/onboarding.types'
-import {
-  ROADMAP_GENERATION_STEPS,
-} from '../constants/onboarding-job-steps'
+} from '../dtos/onboarding.dto'
+import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+
+type GenerateRoadmapRepository =
+  OnboardingAIJobQueryRepositoryContract &
+  OnboardingAIJobCommandRepositoryContract &
+  OnboardingResponseCommandRepositoryContract
 
 export class GenerateRoadmapUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingRepository,
-    private readonly aiJobQueueGateway: AIJobQueueGateway
+    private readonly onboardingRepository: GenerateRoadmapRepository,
+    private readonly aiJobQueueGateway: AIJobQueueGatewayContract,
+    private readonly aiJobQuotaStore: AIJobQuotaStoreContract,
   ) {}
 
   async execute(
     userId: string,
-    topic: string,
-    goal: string | undefined,
-    level: RoadmapLevel
+    payload: GenerateRoadmapPayload,
   ): Promise<GenerateRoadmapResult> {
     const activeRoadmapJob =
       await this.onboardingRepository.findActiveRoadmapJobForUser(userId)
 
     if (activeRoadmapJob) {
-      throw new ApiError(
-        409,
-        'A roadmap generation job is already running for this account.',
-        'ROADMAP_JOB_ALREADY_ACTIVE'
-      )
+      throw OnboardingApplicationError.roadmapJobAlreadyActive()
     }
 
-    const quota =
-      await aiJobQuotaCache.consume(
-        'roadmap_generation',
-        userId,
-        AI_JOB_QUOTA_POLICIES.roadmapGeneration
-      )
+    const quota = await this.aiJobQuotaStore.consume(
+      'roadmap_generation',
+      userId,
+    )
 
     if (!quota.allowed) {
-      throw new ApiError(
-        429,
-        'Roadmap generation limit reached. Please try again later.',
-        'ROADMAP_GENERATION_QUOTA_EXCEEDED'
-      )
+      throw OnboardingApplicationError.roadmapGenerationQuotaExceeded()
     }
 
     await this.onboardingRepository.saveStep1(
       userId,
-      topic,
-      goal
+      payload.topic,
+      payload.goal,
     )
 
-    await this.onboardingRepository.saveStep2(
-      userId,
-      level
-    )
+    await this.onboardingRepository.saveStep2(userId, payload.level)
 
-    const aiJob =
-      await this.onboardingRepository.createAIJob(
-        userId,
-        {
-          topic,
-          goal,
-          level,
-        }
-      )
+    const aiJob = await this.onboardingRepository.createAIJob(userId, {
+      topic: payload.topic,
+      ...(payload.goal ? { goal: payload.goal } : {}),
+      level: payload.level,
+    })
 
     await this.onboardingRepository.createAIJobSteps(
-      aiJob._id.toString(),
-      ROADMAP_GENERATION_STEPS
+      aiJob.id,
+      ROADMAP_GENERATION_STEPS,
     )
 
     try {
       await this.aiJobQueueGateway.enqueueRoadmapGeneration({
-        jobId: aiJob._id.toString(),
+        jobId: aiJob.id,
         userId,
-        topic,
-        goal,
-        level,
+        topic: payload.topic,
+        ...(payload.goal ? { goal: payload.goal } : {}),
+        level: payload.level,
       })
     } catch (error) {
-      const message =
+      throw OnboardingApplicationError.aiQueueError(
         error instanceof Error
           ? error.message
-          : 'Failed to enqueue AI roadmap generation job'
-
-      throw new ApiError(
-        500,
-        message,
-        'AI_QUEUE_ERROR'
+          : 'Failed to enqueue AI roadmap generation job',
       )
     }
 
-    return {
-      jobId: aiJob._id.toString(),
-    }
+    return { jobId: aiJob.id }
   }
 }
