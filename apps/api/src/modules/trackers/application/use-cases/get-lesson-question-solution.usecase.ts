@@ -1,9 +1,14 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import { hashQuestion } from '../utils/tracker-question.util'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
 
 export class GetLessonQuestionSolutionUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly questionHasher: QuestionHasherServiceContract,
+    private readonly trackerMapper: TrackerMapperContract,
+  ) {}
 
   async execute(input: {
     trackerId: string
@@ -11,20 +16,22 @@ export class GetLessonQuestionSolutionUseCase {
     userId: string
     question: string
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerRepository.findLessonQuestionSolution({
+    const solution = await this.trackerRepository.findLessonQuestionSolution({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      questionHash: hashQuestion(input.question),
+      questionHash: this.questionHasher.hash(input.question),
     })
+
+    return this.trackerMapper.toLessonQuestionSolutionDto(solution)
   }
 }

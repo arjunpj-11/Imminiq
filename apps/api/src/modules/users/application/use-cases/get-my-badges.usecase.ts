@@ -1,38 +1,24 @@
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
-import type { EarnedBadgeRecord } from '../../domain/types/users.types'
-import { isRecord, toIdString } from '../utils/users-view-mappers'
+import type { UserBadgeRepositoryContract } from '../../domain/repositories/user-badge.repository.interface'
+import type { UsersMapperContract } from '../mappers/users.mapper'
 
 export class GetMyBadgesUseCase {
   constructor(
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: UserBadgeRepositoryContract,
+    private readonly usersMapper: UsersMapperContract,
   ) {}
 
   async execute(userId: string, page: number, limit: number) {
     const { items, total } =
-      await this.usersRepository.findEarnedBadgesPaginated(userId, page, limit)
-
-    const typedItems = items as EarnedBadgeRecord[]
+      await this.usersRepository.findEarnedBadgesPaginated({
+        userId,
+        page,
+        limit,
+      })
 
     return {
-      items: typedItems
-        .filter(
-          (
-            item
-          ): item is EarnedBadgeRecord & {
-            badgeId: NonNullable<EarnedBadgeRecord['badgeId']>
-          } => Boolean(item.badgeId)
-        )
-        .map((item) => ({
-          _id: toIdString(item.badgeId._id),
-          name: item.badgeId.name ?? '',
-          description: item.badgeId.description ?? '',
-          iconUrl: item.badgeId.iconUrl ?? '',
-          badgeType: item.badgeId.badgeType,
-          criteria: isRecord(item.badgeId.criteria)
-            ? item.badgeId.criteria
-            : {},
-          earnedAt: item.earnedAt,
-        })),
+      items: items.map((item) =>
+        this.usersMapper.toEarnedBadgeView(item),
+      ),
       pagination: {
         page,
         limit,

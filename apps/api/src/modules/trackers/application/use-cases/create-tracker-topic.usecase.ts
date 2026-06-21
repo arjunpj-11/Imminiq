@@ -1,18 +1,28 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateTopicUseCaseInput } from '../../domain/types/trackers.types'
 
-export class CreateTrackerTopicUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+type CreateTrackerTopicResultDto = ReturnType<
+  TrackerMapperContract['toTrackerTopicDto']
+>
 
-  async execute(input: CreateTopicUseCaseInput) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+export class CreateTrackerTopicUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
+
+  async execute(
+    input: CreateTopicUseCaseInput
+  ): Promise<CreateTrackerTopicResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lastTopic = await this.trackerRepository.findLastTopicForTracker(
@@ -28,6 +38,6 @@ export class CreateTrackerTopicUseCase {
 
     await this.trackerRepository.incrementTrackerTopicsCount(input.trackerId)
 
-    return topic
+    return this.trackerMapper.toTrackerTopicDto(topic)
   }
 }

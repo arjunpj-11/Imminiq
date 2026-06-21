@@ -1,0 +1,97 @@
+import {
+  UsersMapper,
+} from './application/mappers/users.mapper'
+import {
+  UsersProfileDataService,
+} from './application/services/users-profile-data.service'
+import { GetMeUseCase } from './application/use-cases/get-me.usecase'
+import { GetMyActivityUseCase } from './application/use-cases/get-my-activity.usecase'
+import { GetMyBadgesUseCase } from './application/use-cases/get-my-badges.usecase'
+import { GetMyPublishedTrackersUseCase } from './application/use-cases/get-my-published-trackers.usecase'
+import { GetMyRecentActivityUseCase } from './application/use-cases/get-my-recent-activity.usecase'
+import { GetMyStatsUseCase } from './application/use-cases/get-my-stats.usecase'
+import { GetMyStreakUseCase } from './application/use-cases/get-my-streak.usecase'
+import { GetPublicProfilePageUseCase } from './application/use-cases/get-public-profile-page.usecase'
+import { GetUserByUsernameUseCase } from './application/use-cases/get-user-by-username.usecase'
+import { UpdateMeUseCase } from './application/use-cases/update-me.usecase'
+import { mongoUsersRepository } from './infrastructure/repositories/mongo-users.repository'
+
+export type UsersUseCases = {
+  getMe: GetMeUseCase
+  updateMe: UpdateMeUseCase
+  getUserByUsername: GetUserByUsernameUseCase
+  getMyStats: GetMyStatsUseCase
+  getMyActivity: GetMyActivityUseCase
+  getMyRecentActivity: GetMyRecentActivityUseCase
+  getMyStreak: GetMyStreakUseCase
+  getMyPublishedTrackers: GetMyPublishedTrackersUseCase
+  getMyBadges: GetMyBadgesUseCase
+  getPublicProfilePage: GetPublicProfilePageUseCase
+}
+
+export type UsersComposition = {
+  useCases: UsersUseCases
+}
+
+export const createUsersComposition = (): UsersComposition => {
+  const usersRepository = mongoUsersRepository
+  const usersMapper = new UsersMapper()
+
+  const usersProfileDataService = new UsersProfileDataService(
+    usersRepository,
+    usersMapper
+  )
+
+  return {
+    useCases: {
+      getMe: new GetMeUseCase(
+        usersRepository,
+        usersMapper
+      ),
+
+      updateMe: new UpdateMeUseCase(
+        usersRepository,
+        usersMapper
+      ),
+
+      getUserByUsername: new GetUserByUsernameUseCase(
+        usersRepository,
+        usersMapper
+      ),
+
+      getMyStats: new GetMyStatsUseCase(
+        usersProfileDataService
+      ),
+
+      getMyActivity: new GetMyActivityUseCase(
+        usersRepository,
+        usersMapper
+      ),
+
+      getMyRecentActivity: new GetMyRecentActivityUseCase(
+        usersRepository,
+        usersMapper
+      ),
+
+      getMyStreak: new GetMyStreakUseCase(
+        usersProfileDataService
+      ),
+
+      getMyPublishedTrackers: new GetMyPublishedTrackersUseCase(
+        usersRepository,
+        usersMapper
+      ),
+
+      getMyBadges: new GetMyBadgesUseCase(
+        usersRepository,
+        usersMapper
+      ),
+
+      getPublicProfilePage: new GetPublicProfilePageUseCase(
+        usersRepository,
+        usersMapper,
+        usersProfileDataService
+      ),
+    },
+  }
+}

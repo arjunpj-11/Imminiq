@@ -1,16 +1,11 @@
-// apps/api/src/modules/mock-tests/presentation/mock-tests.controller.ts
+import type { NextFunction, Request, Response } from 'express'
 
-import { Request, Response, NextFunction } from 'express'
-
-import { mockTestsService } from '../mock-tests.service'
-import { ApiResponse } from '../../../shared/utils/ApiResponse'
+import type { DifficultyLevel } from '../application/dtos/mock-tests.dto'
+import { mockTestsService, type MockTestsService } from '../mock-tests.service'
+import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
-
-import type { DifficultyLevel } from '../domain/types/mock-tests.types'
-
-type AuthenticatedRequestUser = {
-  userId?: string
-}
+import { ApiResponse } from '../../../shared/utils/ApiResponse'
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
 type ListTestsQuery = {
   page?: number
@@ -24,475 +19,380 @@ type PublicTestsQuery = {
   limit?: number
 }
 
-const getAuthUserId = (req: Request): string => {
-  const user = req.user as AuthenticatedRequestUser | undefined
+export class MockTestsController {
+  constructor(private readonly service: MockTestsService) {}
 
-  if (!user?.userId) {
-    throw new ApiError(401, 'Unauthorized', 'UNAUTHORIZED')
-  }
-
-  return user.userId
-}
-
-const getParam = (
-  value: string | string[] | undefined,
-  name: string
-): string => {
-  if (Array.isArray(value)) {
-    return value[0] || ''
-  }
-
-  if (!value) {
-    throw new ApiError(400, `${name} is required`, 'VALIDATION_ERROR')
-  }
-
-  return value
-}
-
-const parseStringQuery = (
-  value: string | string[] | undefined
-): string | undefined => {
-  if (Array.isArray(value)) {
-    return value[0]
-  }
-
-  return value
-}
-
-const parseNumberQuery = (
-  value: string | string[] | undefined
-): number | undefined => {
-  const raw = parseStringQuery(value)
-
-  if (!raw) return undefined
-
-  const parsed = Number(raw)
-
-  return Number.isFinite(parsed) ? parsed : undefined
-}
-
-const parseTagsQuery = (
-  value: string | string[] | undefined
-): string[] | undefined => {
-  if (!value) return undefined
-
-  const tags = Array.isArray(value) ? value : value.split(',')
-
-  const cleaned = tags
-    .map((tag) => tag.trim())
-    .filter(Boolean)
-
-  return cleaned.length ? cleaned : undefined
-}
-
-const parseListTestsQuery = (req: Request): ListTestsQuery => {
-  return {
-    page: parseNumberQuery(req.query.page as string | string[] | undefined),
-    limit: parseNumberQuery(req.query.limit as string | string[] | undefined),
-  }
-}
-
-const parsePublicTestsQuery = (req: Request): PublicTestsQuery => {
-  const difficulty = parseStringQuery(
-    req.query.difficulty as string | string[] | undefined
-  )
-
-  return {
-    difficulty:
-      difficulty === 'easy' ||
-      difficulty === 'medium' ||
-      difficulty === 'hard'
-        ? difficulty
-        : undefined,
-
-    tags: parseTagsQuery(req.query.tags as string | string[] | undefined),
-
-    page: parseNumberQuery(req.query.page as string | string[] | undefined),
-
-    limit: parseNumberQuery(req.query.limit as string | string[] | undefined),
-  }
-}
-
-export const mockTestsController = {
-  listTests: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  listTests = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const options = parseListTestsQuery(req)
-
-      const data = await mockTestsService.listTests(userId, options)
+      const userId = getAuthUser(req).userId
+      const data = await this.service.listTests(
+        userId,
+        this.parseListTestsQuery(req)
+      )
 
       res.json(new ApiResponse('Tests fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  listPublicTests: async (
+  listPublicTests = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const filters = parsePublicTestsQuery(req)
-      const data = await mockTestsService.listPublicTests(filters)
+      const data = await this.service.listPublicTests(
+        this.parsePublicTestsQuery(req)
+      )
 
       res.json(new ApiResponse('Public tests fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  createTest: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  createTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const data = await mockTestsService.createTest(userId, req.body)
+      const data = await this.service.createTest(
+        getAuthUser(req).userId,
+        req.body
+      )
 
-      res.status(201).json(new ApiResponse('Test created', data))
-    } catch (error: unknown) {
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Test created', data))
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  generateTest: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  generateTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const data = await mockTestsService.generateTest(userId, req.body)
+      const data = await this.service.generateTest(
+        getAuthUser(req).userId,
+        req.body
+      )
 
-      res.status(201).json(new ApiResponse('Test generated', data))
-    } catch (error: unknown) {
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Test generated', data))
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getTest: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  getTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const testId = getParam(req.params.testId, 'testId')
-
-      const data = await mockTestsService.getTest(testId, userId)
+      const data = await this.service.getTest(
+        this.getParam(req.params.testId, 'testId'),
+        getAuthUser(req).userId
+      )
 
       res.json(new ApiResponse('Test fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  startAttempt: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  startAttempt = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const testId = getParam(req.params.testId, 'testId')
-
-      const data = await mockTestsService.startAttempt(testId, userId)
+      const data = await this.service.startAttempt(
+        this.getParam(req.params.testId, 'testId'),
+        getAuthUser(req).userId
+      )
 
       res.json(new ApiResponse('Test started', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getAttemptQuestions: async (
+  getAttemptQuestions = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const userId = getAuthUserId(req)
-      const attemptId = getParam(req.params.attemptId, 'attemptId')
-
-      const data = await mockTestsService.getAttemptQuestions(
-        attemptId,
-        userId
+      const data = await this.service.getAttemptQuestions(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId
       )
 
       res.json(new ApiResponse('Questions fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  submitAnswer: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  submitAnswer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const attemptId = getParam(req.params.attemptId, 'attemptId')
-
-      const data = await mockTestsService.submitAnswer(
-        attemptId,
-        userId,
+      const data = await this.service.submitAnswer(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId,
         req.body
       )
 
       res.json(new ApiResponse('Answer submitted', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  flagQuestion: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  flagQuestion = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const attemptId = getParam(req.params.attemptId, 'attemptId')
-
-      const data = await mockTestsService.flagQuestion(
-        attemptId,
-        userId,
+      const data = await this.service.flagQuestion(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId,
         req.body.questionId
       )
 
       res.json(new ApiResponse('Question flag toggled', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  finishAttempt: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  finishAttempt = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const attemptId = getParam(req.params.attemptId, 'attemptId')
-
-      const data = await mockTestsService.finishAttempt(attemptId, userId)
+      const data = await this.service.finishAttempt(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId
+      )
 
       res.json(new ApiResponse('Test finished', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getAttemptResult: async (
+  getAttemptResult = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const userId = getAuthUserId(req)
-      const attemptId = getParam(req.params.attemptId, 'attemptId')
-
-      const data = await mockTestsService.getAttemptResult(
-        attemptId,
-        userId
+      const data = await this.service.getAttemptResult(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId
       )
 
       res.json(new ApiResponse('Result fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getAttemptAnalysis: async (
+  getAttemptAnalysis = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const userId = getAuthUserId(req)
-      const attemptId = getParam(req.params.attemptId, 'attemptId')
-
-      const data = await mockTestsService.getAttemptAnalysis(
-        attemptId,
-        userId
+      const data = await this.service.getAttemptAnalysis(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId
       )
 
       res.json(new ApiResponse('Analysis fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  retakeTest: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  retakeTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const attemptId = getParam(req.params.attemptId, 'attemptId')
-
-      const data = await mockTestsService.retakeTest(attemptId, userId)
+      const data = await this.service.retakeTest(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId
+      )
 
       res.json(new ApiResponse('Retake started', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getHistory: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  getHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const data = await mockTestsService.getHistory(userId)
+      const data = await this.service.getHistory(getAuthUser(req).userId)
 
       res.json(new ApiResponse('History fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getAnalytics: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  getAnalytics = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const data = await mockTestsService.getAnalytics(userId)
+      const data = await this.service.getAnalytics(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Analytics fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getAIInsights: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  getAIInsights = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const data = await mockTestsService.getAIInsights(userId)
+      const data = await this.service.getAIInsights(getAuthUser(req).userId)
 
       res.json(new ApiResponse('AI insights fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getTopicBreakdown: async (
+  getTopicBreakdown = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const userId = getAuthUserId(req)
-      const data = await mockTestsService.getTopicBreakdown(userId)
+      const data = await this.service.getTopicBreakdown(
+        getAuthUser(req).userId
+      )
 
       res.json(new ApiResponse('Topic breakdown fetched', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-    shareTest: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  shareTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUserId(req)
-      const testId = getParam(req.params.testId, 'testId')
+      const origin = req.get('origin') || `${req.protocol}://${req.get('host')}`
 
-      const origin =
-        req.get('origin') ||
-        `${req.protocol}://${req.get('host')}`
-
-      const data = await mockTestsService.shareTest(
-        userId,
-        testId,
+      const data = await this.service.shareTest(
+        getAuthUser(req).userId,
+        this.getParam(req.params.testId, 'testId'),
         origin
       )
 
       res.json(new ApiResponse('Share link created', data))
-    } catch (error: unknown) {
+    } catch (error) {
       next(error)
     }
-  },
+  }
 
-  importSharedTest: async (
+  importSharedTest = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const userId = getAuthUserId(req)
-      const shareToken = getParam(req.params.shareToken, 'shareToken')
-
-      const data = await mockTestsService.importSharedTest(
-        userId,
-        shareToken
+      const data = await this.service.importSharedTest(
+        getAuthUser(req).userId,
+        this.getParam(req.params.shareToken, 'shareToken')
       )
 
-      res.status(201).json(new ApiResponse('Shared test imported', data))
-    } catch (error: unknown) {
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Shared test imported', data))
+    } catch (error) {
       next(error)
     }
-  },
-  runCode: async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = getAuthUserId(req)
-    const attemptId = getParam(req.params.attemptId, 'attemptId')
-    const questionId = getParam(req.params.questionId, 'questionId')
-
-    const data = await mockTestsService.runCode(
-      attemptId,
-      userId,
-      questionId,
-      req.body,
-    )
-
-    res.json(new ApiResponse('Code executed', data))
-  } catch (error: unknown) {
-    next(error)
   }
-},
 
-submitCode: async (
-  req: Request,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const userId = getAuthUserId(req)
-    const attemptId = getParam(req.params.attemptId, 'attemptId')
-    const questionId = getParam(req.params.questionId, 'questionId')
+  runCode = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this.service.runCode(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId,
+        this.getParam(req.params.questionId, 'questionId'),
+        req.body
+      )
 
-    const data = await mockTestsService.submitCode(
-      attemptId,
-      userId,
-      questionId,
-      req.body,
-    )
-
-    res.json(new ApiResponse('Code submitted', data))
-  } catch (error: unknown) {
-    next(error)
+      res.json(new ApiResponse('Code executed', data))
+    } catch (error) {
+      next(error)
+    }
   }
-},
+
+  submitCode = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this.service.submitCode(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        getAuthUser(req).userId,
+        this.getParam(req.params.questionId, 'questionId'),
+        req.body
+      )
+
+      res.json(new ApiResponse('Code submitted', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  private getParam(value: string | string[] | undefined, name: string): string {
+    const resolved = Array.isArray(value) ? value[0] : value
+
+    if (!resolved) {
+      throw new ApiError(
+        HttpStatusCode.BAD_REQUEST,
+        `${name} is required`,
+        'VALIDATION_ERROR'
+      )
+    }
+
+    return resolved
+  }
+
+  private parseStringQuery(value: unknown): string | undefined {
+    if (Array.isArray(value)) {
+      return typeof value[0] === 'string' ? value[0] : undefined
+    }
+
+    return typeof value === 'string' ? value : undefined
+  }
+
+  private parseNumberQuery(value: unknown): number | undefined {
+    const raw = this.parseStringQuery(value)
+
+    if (!raw) {
+      return undefined
+    }
+
+    const parsed = Number(raw)
+
+    return Number.isFinite(parsed) ? parsed : undefined
+  }
+
+  private parseTagsQuery(value: unknown): string[] | undefined {
+    if (!value) {
+      return undefined
+    }
+
+    const values = Array.isArray(value) ? value : String(value).split(',')
+
+    const tags = values
+      .filter((item): item is string => typeof item === 'string')
+      .map((tag) => tag.trim())
+      .filter(Boolean)
+
+    return tags.length ? tags : undefined
+  }
+
+  private parseListTestsQuery(req: Request): ListTestsQuery {
+    return {
+      page: this.parseNumberQuery(req.query.page),
+      limit: this.parseNumberQuery(req.query.limit),
+    }
+  }
+
+  private parsePublicTestsQuery(req: Request): PublicTestsQuery {
+    const difficulty = this.parseStringQuery(req.query.difficulty)
+
+    return {
+      difficulty:
+        difficulty === 'easy' || difficulty === 'medium' || difficulty === 'hard'
+          ? difficulty
+          : undefined,
+      tags: this.parseTagsQuery(req.query.tags),
+      page: this.parseNumberQuery(req.query.page),
+      limit: this.parseNumberQuery(req.query.limit),
+    }
+  }
 }
+
+export const mockTestsController = new MockTestsController(mockTestsService)

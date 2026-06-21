@@ -1,320 +1,467 @@
-import crypto from 'crypto'
-
-import { User } from '../../../../infrastructure/database/models/user.model'
 import { AuthToken } from '../../../../infrastructure/database/models/auth-token.model'
 import { TwoFactorAuth } from '../../../../infrastructure/database/models/two-factor-auth.model'
-import { authRepository } from '../../../auth'
-
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
+import { User } from '../../../../infrastructure/database/models/user.model'
+import type { RevokeSecuritySessionInput } from '../../domain/repositories/security-session.repository.interface'
+import type { SecurityRepositoryContract } from '../../domain/repositories/security.repository.interface'
 import type {
-  PendingEmailUserRecord,
-  SecurityUserRecord,
-  SessionRecord,
-  TwoFactorRecord,
-} from '../../domain/types/security.types'
+  ActivateTwoFactorInput,
+  SavePendingTwoFactorSetupInput,
+} from '../../domain/repositories/security-two-factor.repository.interface'
+import type {
+  ConfirmPendingEmailChangeInput,
+  SavePendingEmailChangeInput,
+  ScheduleAccountDeletionInput,
+  UpdateSecurityPasswordHashInput,
+} from '../../domain/repositories/security-user.repository.interface'
+import { MongoSecurityBaseRepository } from './mongo-security-base.repository'
+import { MongoSecurityErrorMapper } from './mongo-security-error.mapper'
+import { MongoSecurityMapper } from './mongo-security.mapper'
+import type {
+  MongoSecuritySessionRecord,
+  MongoSecurityUserRecord,
+  MongoTwoFactorRecord,
+} from './mongo-security.types'
 
-const hashToken = (token: string) => {
-  return crypto.createHash('sha256').update(token).digest('hex')
-}
+export class MongoSecurityRepository
+  extends MongoSecurityBaseRepository
+  implements SecurityRepositoryContract
+{
+  constructor(private readonly mapper = new MongoSecurityMapper()) {
+    super()
+  }
 
-export const mongoSecurityRepository: SecurityRepository = {
-  findUserById: async (userId: string) => {
-    const user = await authRepository.findById(userId)
-    return user as SecurityUserRecord | null
-  },
+  async findUserById(userId: string) {
+    return this.execute(
+      'SECURITY_USER_LOOKUP_FAILED',
+      'Failed to read security user',
+      async () => {
+        const user = await User.findOne({
+          _id: userId,
+          deletedAt: null,
+        })
+          .select('+passwordHash')
+          .lean<MongoSecurityUserRecord>()
 
-  emailExists: async (email: string) => {
-    return authRepository.emailExists(email)
-  },
-
-  savePendingEmailChange: async (
-    userId: string,
-    data: {
-      pendingEmail: string
-      tokenHash: string
-      expiresAt: Date
-    }
-  ) => {
-    const user = await User.findOneAndUpdate(
-      {
-        _id: userId,
-        deletedAt: null,
+        return this.mapper.toSecurityUserEntity(user)
       },
-      {
-        $set: {
-          pendingEmail: data.pendingEmail.toLowerCase().trim(),
-          pendingEmailChangeTokenHash: data.tokenHash,
-          pendingEmailChangeExpiresAt: data.expiresAt,
-          pendingEmailChangeRequestedAt: new Date(),
-        },
+    )
+  }
+
+  async emailExists(email: string): Promise<boolean> {
+    return this.execute(
+      'SECURITY_EMAIL_LOOKUP_FAILED',
+      'Failed to check security email',
+      async () => {
+        const user = await User.exists({
+          email: this.normalizeEmail(email),
+          deletedAt: null,
+        })
+
+        return Boolean(user)
       },
-      {
-        returnDocument: 'after',
-      }
-    ).select('+passwordHash')
+    )
+  }
 
-    return user as SecurityUserRecord | null
-  },
+  async findUserByPendingEmailTokenHash(tokenHash: string) {
+    return this.execute(
+      'PENDING_EMAIL_LOOKUP_FAILED',
+      'Failed to read user by pending email token',
+      async () => {
+        const user = await User.findOne({
+          pendingEmailChangeTokenHash: tokenHash,
+          pendingEmailChangeExpiresAt: {
+            $gt: new Date(),
+          },
+          pendingEmail: {
+            $ne: null,
+          },
+          deletedAt: null,
+        })
+          .select('+passwordHash +pendingEmailChangeTokenHash')
+          .lean<MongoSecurityUserRecord>()
 
-  findUserByPendingEmailTokenHash: async (tokenHash: string) => {
-    const user = await User.findOne({
-      pendingEmailChangeTokenHash: tokenHash,
-      pendingEmailChangeExpiresAt: {
-        $gt: new Date(),
+        return this.mapper.toSecurityUserEntity(user)
       },
-      pendingEmail: {
-        $ne: null,
+    )
+  }
+
+  async savePendingEmailChange(input: SavePendingEmailChangeInput) {
+    return this.execute(
+      'PENDING_EMAIL_SAVE_FAILED',
+      'Failed to save pending email change',
+      async () => {
+        const user = await User.findOneAndUpdate(
+          {
+            _id: input.userId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              pendingEmail: this.normalizeEmail(input.data.pendingEmail),
+              pendingEmailChangeTokenHash: input.data.tokenHash,
+              pendingEmailChangeExpiresAt: input.data.expiresAt,
+              pendingEmailChangeRequestedAt: new Date(),
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        )
+          .select('+passwordHash')
+          .lean<MongoSecurityUserRecord>()
+
+        return this.mapper.toSecurityUserEntity(user)
       },
-      deletedAt: null,
-    })
-      .select('+passwordHash +pendingEmailChangeTokenHash')
+      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
+    )
+  }
 
-    return user as PendingEmailUserRecord | null
-  },
+  async confirmPendingEmailChange(input: ConfirmPendingEmailChangeInput) {
+    return this.execute(
+      'PENDING_EMAIL_CONFIRM_FAILED',
+      'Failed to confirm pending email change',
+      async () => {
+        const normalizedEmail = this.normalizeEmail(input.pendingEmail)
 
-  confirmPendingEmailChange: async (
-    userId: string,
-    pendingEmail: string
-  ) => {
-    const user = await User.findOneAndUpdate(
-      {
-        _id: userId,
-        pendingEmail: pendingEmail.toLowerCase().trim(),
-        deletedAt: null,
+        const user = await User.findOneAndUpdate(
+          {
+            _id: input.userId,
+            pendingEmail: normalizedEmail,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              email: normalizedEmail,
+              emailVerified: true,
+            },
+            $unset: {
+              pendingEmail: '',
+              pendingEmailChangeTokenHash: '',
+              pendingEmailChangeExpiresAt: '',
+              pendingEmailChangeRequestedAt: '',
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        )
+          .select('+passwordHash')
+          .lean<MongoSecurityUserRecord>()
+
+        return this.mapper.toSecurityUserEntity(user)
       },
-      {
-        $set: {
-          email: pendingEmail.toLowerCase().trim(),
-          emailVerified: true,
-        },
-        $unset: {
-          pendingEmail: '',
-          pendingEmailChangeTokenHash: '',
-          pendingEmailChangeExpiresAt: '',
-          pendingEmailChangeRequestedAt: '',
-        },
+      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
+    )
+  }
+
+  async clearPendingEmailChange(userId: string) {
+    return this.execute(
+      'PENDING_EMAIL_CLEAR_FAILED',
+      'Failed to clear pending email change',
+      async () => {
+        const user = await User.findOneAndUpdate(
+          {
+            _id: userId,
+            deletedAt: null,
+          },
+          {
+            $unset: {
+              pendingEmail: '',
+              pendingEmailChangeTokenHash: '',
+              pendingEmailChangeExpiresAt: '',
+              pendingEmailChangeRequestedAt: '',
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        )
+          .select('+passwordHash')
+          .lean<MongoSecurityUserRecord>()
+
+        return this.mapper.toSecurityUserEntity(user)
       },
-      {
-        returnDocument: 'after',
-      }
-    ).select('+passwordHash')
+    )
+  }
 
-    return user as SecurityUserRecord | null
-  },
+  async updatePasswordHash(input: UpdateSecurityPasswordHashInput) {
+    return this.execute(
+      'PASSWORD_UPDATE_FAILED',
+      'Failed to update password hash',
+      async () => {
+        const user = await User.findOneAndUpdate(
+          {
+            _id: input.userId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              passwordHash: input.passwordHash,
+              passwordChangedAt: new Date(),
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        )
+          .select('+passwordHash')
+          .lean<MongoSecurityUserRecord>()
 
-  clearPendingEmailChange: async (userId: string) => {
-    const user = await User.findOneAndUpdate(
-      {
-        _id: userId,
+        return this.mapper.toSecurityUserEntity(user)
       },
-      {
-        $unset: {
-          pendingEmail: '',
-          pendingEmailChangeTokenHash: '',
-          pendingEmailChangeExpiresAt: '',
-          pendingEmailChangeRequestedAt: '',
-        },
+    )
+  }
+
+  async scheduleAccountDeletion(input: ScheduleAccountDeletionInput) {
+    return this.execute(
+      'ACCOUNT_DELETION_SCHEDULE_FAILED',
+      'Failed to schedule account deletion',
+      async () => {
+        const user = await User.findOneAndUpdate(
+          {
+            _id: input.userId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              status: 'deactivated',
+              scheduledDeletionAt: input.scheduledDeletionAt,
+              deactivatedAt: new Date(),
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        )
+          .select('+passwordHash')
+          .lean<MongoSecurityUserRecord>()
+
+        return this.mapper.toSecurityUserEntity(user)
       },
-      {
-        returnDocument: 'after',
-      }
-    ).select('+passwordHash')
+    )
+  }
 
-    return user as SecurityUserRecord | null
-  },
-
-  findTwoFactorByUserId: async (userId: string) => {
-    const twoFactor = await TwoFactorAuth.findOne({
-      userId,
-      deletedAt: null,
-    }).lean()
-
-    return twoFactor as TwoFactorRecord | null
-  },
-
-  findTwoFactorWithSecret: async (userId: string) => {
-    const twoFactor = await TwoFactorAuth.findOne({
-      userId,
-      deletedAt: null,
-    }).select('+totpSecretEncrypted')
-
-    return twoFactor as TwoFactorRecord | null
-  },
-
-  savePendingTwoFactorSetup: async (
-    userId: string,
-    data: {
-      encryptedSecret: string
-      issuer: string
-      accountLabel: string
-      qrCodeUri: string
-    }
-  ) => {
-    const twoFactor = await TwoFactorAuth.findOneAndUpdate(
-      {
-        userId,
-        deletedAt: null,
-      },
-      {
-        $set: {
+  async findActiveSessions(userId: string) {
+    return this.execute(
+      'SESSION_LOOKUP_FAILED',
+      'Failed to read active security sessions',
+      async () => {
+        const sessions = await AuthToken.find({
           userId,
-          status: 'pending',
-          totpSecretEncrypted: data.encryptedSecret,
-          issuer: data.issuer,
-          accountLabel: data.accountLabel,
-          qrCodeUri: data.qrCodeUri,
-          backupCodes: [],
-        },
-      },
-      {
-        upsert: true,
-        returnDocument: 'after',
-        setDefaultsOnInsert: true,
-      }
-    ).select('+totpSecretEncrypted')
+          revokedAt: null,
+          expiresAt: {
+            $gt: new Date(),
+          },
+          deletedAt: null,
+        })
+          .sort({
+            updatedAt: -1,
+          })
+          .lean<MongoSecuritySessionRecord[]>()
 
-    return twoFactor as TwoFactorRecord | null
-  },
-
-  activateTwoFactor: async (
-    userId: string,
-    backupCodes: Array<{
-      codeHash: string
-      usedAt: null
-    }>
-  ) => {
-    const twoFactor = await TwoFactorAuth.findOneAndUpdate(
-      {
-        userId,
-        status: 'pending',
-        deletedAt: null,
+        return sessions.map((session) =>
+          this.mapper.toSecuritySessionEntity(session),
+        )
       },
-      {
-        $set: {
-          status: 'active',
-          enabledAt: new Date(),
-          backupCodes,
-        },
-      },
-      {
-        returnDocument: 'after',
-      }
-    ).select('+totpSecretEncrypted')
-
-    return twoFactor as TwoFactorRecord | null
-  },
-
-  disableTwoFactor: async (userId: string) => {
-    const twoFactor = await TwoFactorAuth.findOneAndUpdate(
-      {
-        userId,
-        status: 'active',
-        deletedAt: null,
-      },
-      {
-        $set: {
-          status: 'disabled',
-          disabledAt: new Date(),
-          backupCodes: [],
-        },
-        $unset: {
-          totpSecretEncrypted: '',
-          qrCodeUri: '',
-        },
-      },
-      {
-        returnDocument: 'after',
-      }
     )
+  }
 
-    return twoFactor as TwoFactorRecord | null
-  },
+  async findCurrentSessionByRefreshTokenHash(refreshTokenHash: string) {
+    return this.execute(
+      'CURRENT_SESSION_LOOKUP_FAILED',
+      'Failed to read current refresh token session',
+      async () => {
+        const session = await AuthToken.findOne({
+          refreshTokenHash,
+          revokedAt: null,
+          expiresAt: {
+            $gt: new Date(),
+          },
+          deletedAt: null,
+        }).lean<MongoSecuritySessionRecord>()
 
-  findActiveSessions: async (userId: string) => {
-    const sessions = await AuthToken.find({
-      userId,
-      revokedAt: null,
-      expiresAt: {
-        $gt: new Date(),
+        return session ? this.mapper.toSecuritySessionEntity(session) : null
       },
-      deletedAt: null,
-    })
-      .sort({ updatedAt: -1 })
-      .lean()
-
-    return sessions as SessionRecord[]
-  },
-
-  findCurrentRefreshTokenRecord: async (refreshToken: string) => {
-    const tokenHash = hashToken(refreshToken)
-
-    const session = await AuthToken.findOne({
-      refreshTokenHash: tokenHash,
-      revokedAt: null,
-      expiresAt: {
-        $gt: new Date(),
-      },
-      deletedAt: null,
-    }).lean()
-
-    return session as SessionRecord | null
-  },
-
-  revokeSessionById: async (userId: string, sessionId: string) => {
-    return AuthToken.findOneAndUpdate(
-      {
-        _id: sessionId,
-        userId,
-        revokedAt: null,
-        deletedAt: null,
-      },
-      {
-        $set: {
-          revokedAt: new Date(),
-        },
-      },
-      {
-        returnDocument: 'after',
-      }
-    ).lean()
-  },
-
-  revokeAllSessions: async (userId: string) => {
-    return AuthToken.updateMany(
-      {
-        userId,
-        revokedAt: null,
-        deletedAt: null,
-      },
-      {
-        $set: {
-          revokedAt: new Date(),
-        },
-      }
     )
-  },
+  }
 
-  scheduleAccountDeletion: async (
-    userId: string,
-    scheduledDeletionAt: Date
-  ) => {
-    const user = await User.findOneAndUpdate(
-      {
-        _id: userId,
-        deletedAt: null,
-      },
-      {
-        $set: {
-          status: 'deactivated',
-          scheduledDeletionAt,
-          deactivatedAt: new Date(),
-        },
-      },
-      {
-        returnDocument: 'after',
-      }
-    ).select('+passwordHash')
+  async revokeSessionById(input: RevokeSecuritySessionInput) {
+    return this.execute(
+      'SESSION_REVOKE_FAILED',
+      'Failed to revoke security session',
+      async () => {
+        const session = await AuthToken.findOneAndUpdate(
+          {
+            _id: input.sessionId,
+            userId: input.userId,
+            revokedAt: null,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              revokedAt: new Date(),
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        ).lean<MongoSecuritySessionRecord>()
 
-    return user as SecurityUserRecord | null
-  },
+        return session ? this.mapper.toSecuritySessionEntity(session) : null
+      },
+    )
+  }
+
+  async revokeAllSessions(userId: string): Promise<void> {
+    await this.execute(
+      'SESSIONS_REVOKE_FAILED',
+      'Failed to revoke all security sessions',
+      async () => {
+        await AuthToken.updateMany(
+          {
+            userId,
+            revokedAt: null,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              revokedAt: new Date(),
+            },
+          },
+        )
+      },
+    )
+  }
+
+  async findTwoFactorByUserId(userId: string) {
+    return this.execute(
+      'TWO_FACTOR_LOOKUP_FAILED',
+      'Failed to read two-factor auth',
+      async () => {
+        const twoFactor = await TwoFactorAuth.findOne({
+          userId,
+          deletedAt: null,
+        }).lean<MongoTwoFactorRecord>()
+
+        return this.mapper.toTwoFactorEntity(twoFactor)
+      },
+    )
+  }
+
+  async findTwoFactorWithSecret(userId: string) {
+    return this.execute(
+      'TWO_FACTOR_LOOKUP_FAILED',
+      'Failed to read two-factor auth with secret',
+      async () => {
+        const twoFactor = await TwoFactorAuth.findOne({
+          userId,
+          deletedAt: null,
+        })
+          .select('+totpSecretEncrypted')
+          .lean<MongoTwoFactorRecord>()
+
+        return this.mapper.toTwoFactorEntity(twoFactor)
+      },
+    )
+  }
+
+  async savePendingTwoFactorSetup(input: SavePendingTwoFactorSetupInput) {
+    return this.execute(
+      'TWO_FACTOR_SETUP_SAVE_FAILED',
+      'Failed to save pending two-factor setup',
+      async () => {
+        const twoFactor = await TwoFactorAuth.findOneAndUpdate(
+          {
+            userId: input.userId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              userId: input.userId,
+              status: 'pending',
+              totpSecretEncrypted: input.data.encryptedSecret,
+              issuer: input.data.issuer,
+              accountLabel: input.data.accountLabel,
+              qrCodeUri: input.data.qrCodeUri,
+              backupCodes: [],
+            },
+          },
+          {
+            upsert: true,
+            returnDocument: 'after',
+            setDefaultsOnInsert: true,
+          },
+        )
+          .select('+totpSecretEncrypted')
+          .lean<MongoTwoFactorRecord>()
+
+        return this.mapper.toTwoFactorEntity(twoFactor)
+      },
+      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
+    )
+  }
+
+  async activateTwoFactor(input: ActivateTwoFactorInput) {
+    return this.execute(
+      'TWO_FACTOR_ACTIVATE_FAILED',
+      'Failed to activate two-factor auth',
+      async () => {
+        const twoFactor = await TwoFactorAuth.findOneAndUpdate(
+          {
+            userId: input.userId,
+            status: 'pending',
+            deletedAt: null,
+          },
+          {
+            $set: {
+              status: 'active',
+              enabledAt: new Date(),
+              backupCodes: input.backupCodes,
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        )
+          .select('+totpSecretEncrypted')
+          .lean<MongoTwoFactorRecord>()
+
+        return this.mapper.toTwoFactorEntity(twoFactor)
+      },
+    )
+  }
+
+  async disableTwoFactor(userId: string) {
+    return this.execute(
+      'TWO_FACTOR_DISABLE_FAILED',
+      'Failed to disable two-factor auth',
+      async () => {
+        const twoFactor = await TwoFactorAuth.findOneAndUpdate(
+          {
+            userId,
+            status: 'active',
+            deletedAt: null,
+          },
+          {
+            $set: {
+              status: 'disabled',
+              disabledAt: new Date(),
+              backupCodes: [],
+            },
+            $unset: {
+              totpSecretEncrypted: '',
+              qrCodeUri: '',
+            },
+          },
+          {
+            returnDocument: 'after',
+          },
+        ).lean<MongoTwoFactorRecord>()
+
+        return this.mapper.toTwoFactorEntity(twoFactor)
+      },
+    )
+  }
 }
+
+export const mongoSecurityRepository = new MongoSecurityRepository()

@@ -1,291 +1,364 @@
-import { OnboardingResponse } from '../../../../infrastructure/database/models/onboarding-response.model'
 import { AIGenerationJob } from '../../../../infrastructure/database/models/ai-generation-job.model'
 import { AIGenerationStep } from '../../../../infrastructure/database/models/ai-generation-step.model'
+import { OnboardingResponse } from '../../../../infrastructure/database/models/onboarding-response.model'
 import { Tracker } from '../../../../infrastructure/database/models/tracker.model'
-import { TrackerTopic } from '../../../../infrastructure/database/models/tracker-topic.model'
 import { TrackerSubtopic } from '../../../../infrastructure/database/models/tracker-subtopic.model'
-
-import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
+import { TrackerTopic } from '../../../../infrastructure/database/models/tracker-topic.model'
+import {
+  ROADMAP_EVALUATION_TOTAL_STEPS,
+  ROADMAP_GENERATION_TOTAL_STEPS,
+} from '../../domain/constants/onboarding.constants'
+import type { AIGenerationJobEntity } from '../../domain/entities/ai-generation-job.entity'
+import type { AIGenerationStepEntity } from '../../domain/entities/ai-generation-step.entity'
+import type { OnboardingResponseEntity } from '../../domain/entities/onboarding-response.entity'
+import type { RoadmapTreeEntity } from '../../domain/entities/roadmap-tree.entity'
 import type {
-  AIGenerationJobRecord,
-  AIGenerationStepRecord,
-  EvaluationJobInput,
-  OnboardingResponseRecord,
-  RoadmapJobInput,
-  RoadmapLevel,
-  RoadmapTreeResult,
-  SubtopicTreeNode,
-  TrackerRecord,
-} from '../../domain/types/onboarding.types'
+  CreateAIJobStepsInput,
+  CreateEvaluationAIJobInput,
+  CreateRoadmapAIJobInput,
+} from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
+import type { FindActiveEvaluationJobForRoadmapInput } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type {
+  SaveOnboardingStep1Input,
+  SaveOnboardingStep2Input,
+} from '../../domain/repositories/onboarding-response-command.repository.interface'
+import type { OnboardingRepositoryContract } from '../../domain/repositories/onboarding.repository.interface'
+import { MongoOnboardingBaseRepository } from './mongo-onboarding-base.repository'
+import { MongoOnboardingErrorMapper } from './mongo-onboarding-error.mapper'
+import { MongoOnboardingMapper } from './mongo-onboarding.mapper'
+import type {
+  MaybeMongooseDocument,
+  MongoAIGenerationJobRecord,
+  MongoAIGenerationStepRecord,
+  MongoOnboardingResponseRecord,
+  MongoRoadmapSubtopicRecord,
+  MongoRoadmapTopicRecord,
+  MongoTrackerRecord,
+} from './mongo-onboarding.types'
 
-type MaybeMongooseDocument<T> = T & {
-  toObject?: () => T
-}
+export class MongoOnboardingRepository
+  extends MongoOnboardingBaseRepository
+  implements OnboardingRepositoryContract
+{
+  constructor(private readonly mapper = new MongoOnboardingMapper()) {
+    super()
+  }
 
-const toPlainRecord = <T>(
-  value: MaybeMongooseDocument<T>
-): T => {
-  return typeof value.toObject === 'function'
-    ? value.toObject()
-    : value
-}
+  async getStatus(userId: string): Promise<OnboardingResponseEntity | null> {
+    return this.execute(
+      'ONBOARDING_STATUS_QUERY_FAILED',
+      'Onboarding status query failed',
+      async () => {
+        const response = await OnboardingResponse.findOne({
+          userId,
+          deletedAt: null,
+        }).lean<MongoOnboardingResponseRecord>()
 
-export const mongoOnboardingRepository: OnboardingRepository = {
-  getStatus: async (userId: string) => {
-    return OnboardingResponse.findOne({
-      userId,
-      deletedAt: null,
-    }).lean<OnboardingResponseRecord>()
-  },
-
-  saveStep1: async (
-    userId: string,
-    topic: string,
-    goal?: string
-  ) => {
-    return OnboardingResponse.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          preparingFor: topic,
-          goal: goal || '',
-        },
-        $max: {
-          completedStep: 1,
-        },
+        return this.mapper.toOnboardingResponseEntity(response)
       },
-      {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      }
-    ).lean<OnboardingResponseRecord>()
-  },
-
-  saveStep2: async (
-    userId: string,
-    level: RoadmapLevel
-  ) => {
-    return OnboardingResponse.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          currentLevel: level,
-        },
-        $max: {
-          completedStep: 2,
-        },
-      },
-      {
-        upsert: true,
-        new: true,
-        setDefaultsOnInsert: true,
-      }
-    ).lean<OnboardingResponseRecord>()
-  },
-
-  markCompleted: async (userId: string) => {
-    return OnboardingResponse.findOneAndUpdate(
-      { userId },
-      {
-        $set: {
-          isCompleted: true,
-          completedStep: 2,
-        },
-      },
-      {
-        new: true,
-      }
-    ).lean<OnboardingResponseRecord>()
-  },
-
-  findActiveRoadmapJobForUser: async (
-    userId: string
-  ) => {
-    return AIGenerationJob.findOne({
-      userId,
-      jobType: 'roadmap',
-      status: {
-        $in: ['pending', 'processing'],
-      },
-      deletedAt: null,
-    })
-      .sort({ createdAt: -1 })
-      .lean<AIGenerationJobRecord>()
-  },
-
-  findActiveEvaluationJobForRoadmap: async (
-    userId: string,
-    sourceRoadmapJobId: string
-  ) => {
-    return AIGenerationJob.findOne({
-      userId,
-      jobType: 'evaluation',
-      'inputData.sourceRoadmapJobId': sourceRoadmapJobId,
-      status: {
-        $in: ['pending', 'processing'],
-      },
-      deletedAt: null,
-    })
-      .sort({ createdAt: -1 })
-      .lean<AIGenerationJobRecord>()
-  },
-
-  createAIJob: async (
-    userId: string,
-    inputData: RoadmapJobInput
-  ) => {
-    const aiJob = await AIGenerationJob.create({
-      userId,
-      jobType: 'roadmap',
-      status: 'pending',
-      inputData,
-      totalSteps: 5,
-      currentStep: 0,
-    })
-
-    return toPlainRecord(aiJob as unknown as MaybeMongooseDocument<AIGenerationJobRecord>)
-  },
-
-  createEvaluationAIJob: async (
-    userId: string,
-    inputData: EvaluationJobInput
-  ) => {
-    const aiJob = await AIGenerationJob.create({
-      userId,
-      jobType: 'evaluation',
-      status: 'pending',
-      inputData,
-      totalSteps: 5,
-      currentStep: 0,
-    })
-
-    return toPlainRecord(aiJob as unknown as MaybeMongooseDocument<AIGenerationJobRecord>)
-  },
-
-  createAIJobSteps: async (
-    jobId: string,
-    stepLabels: string[]
-  ) => {
-    return AIGenerationStep.insertMany(
-      stepLabels.map((stepLabel, index) => ({
-        jobId,
-        stepNumber: index + 1,
-        stepLabel,
-        status: 'pending',
-      }))
     )
-  },
+  }
 
-  getJobById: async (jobId: string) => {
-    return AIGenerationJob.findById(jobId).lean<AIGenerationJobRecord>()
-  },
+  async saveStep1(
+    data: SaveOnboardingStep1Input,
+  ): Promise<OnboardingResponseEntity | null> {
+    return this.execute(
+      'ONBOARDING_STEP_ONE_SAVE_FAILED',
+      'Failed to save onboarding step one',
+      async () => {
+        const response = await OnboardingResponse.findOneAndUpdate(
+          {
+            userId: data.userId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              preparingFor: data.topic,
+              goal: data.goal ?? '',
+            },
+            $max: {
+              completedStep: 1,
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true,
+          },
+        ).lean<MongoOnboardingResponseRecord>()
 
-  getJobSteps: async (jobId: string) => {
-    return AIGenerationStep.find({ jobId })
-      .sort({
-        stepNumber: 1,
-      })
-      .lean<AIGenerationStepRecord[]>()
-  },
+        return this.mapper.toOnboardingResponseEntity(response)
+      },
+      MongoOnboardingErrorMapper.mapDuplicateRecordError,
+    )
+  }
 
-  getRoadmapTree: async (
-    trackerId: string
-  ): Promise<RoadmapTreeResult> => {
-    const tracker = await Tracker.findById(trackerId).lean<TrackerRecord>()
+  async saveStep2(
+    data: SaveOnboardingStep2Input,
+  ): Promise<OnboardingResponseEntity | null> {
+    return this.execute(
+      'ONBOARDING_STEP_TWO_SAVE_FAILED',
+      'Failed to save onboarding step two',
+      async () => {
+        const response = await OnboardingResponse.findOneAndUpdate(
+          {
+            userId: data.userId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              currentLevel: data.level,
+            },
+            $max: {
+              completedStep: 2,
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+            setDefaultsOnInsert: true,
+          },
+        ).lean<MongoOnboardingResponseRecord>()
 
-    const topics = await TrackerTopic.find({
-      trackerId,
-      deletedAt: null,
-    })
-      .sort({ order: 1 })
-      .lean<Array<{
-        _id: { toString(): string }
-        title: string
-        description: string
-        order: number
-      }>>()
+        return this.mapper.toOnboardingResponseEntity(response)
+      },
+      MongoOnboardingErrorMapper.mapDuplicateRecordError,
+    )
+  }
 
-    const subtopics = await TrackerSubtopic.find({
-      trackerId,
-      deletedAt: null,
-    })
-      .sort({
-        depth: 1,
-        order: 1,
-      })
-      .lean<Array<{
-        _id: { toString(): string }
-        topicId: { toString(): string }
-        parentSubtopicId?: { toString(): string } | null
-        title: string
-        description: string
-        order: number
-        depth: number
-      }>>()
+  async markCompleted(
+    userId: string,
+  ): Promise<OnboardingResponseEntity | null> {
+    return this.execute(
+      'ONBOARDING_COMPLETION_SAVE_FAILED',
+      'Failed to save onboarding completion',
+      async () => {
+        const response = await OnboardingResponse.findOneAndUpdate(
+          {
+            userId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              isCompleted: true,
+              completedStep: 2,
+            },
+          },
+          {
+            new: true,
+          },
+        ).lean<MongoOnboardingResponseRecord>()
 
-    const subtopicMap = new Map<string, SubtopicTreeNode>()
+        return this.mapper.toOnboardingResponseEntity(response)
+      },
+    )
+  }
 
-    for (const subtopic of subtopics) {
-      subtopicMap.set(subtopic._id.toString(), {
-        _id: subtopic._id.toString(),
-        title: subtopic.title,
-        description: subtopic.description,
-        order: subtopic.order,
-        depth: subtopic.depth,
-        children: [],
-      })
-    }
+  async findActiveRoadmapJobForUser(
+    userId: string,
+  ): Promise<AIGenerationJobEntity | null> {
+    return this.execute(
+      'ACTIVE_ROADMAP_JOB_QUERY_FAILED',
+      'Failed to read active roadmap job',
+      async () => {
+        const job = await AIGenerationJob.findOne({
+          userId,
+          jobType: 'roadmap',
+          status: {
+            $in: ['pending', 'processing'],
+          },
+          deletedAt: null,
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .lean<MongoAIGenerationJobRecord>()
 
-    const topicChildrenMap = new Map<
-      string,
-      SubtopicTreeNode[]
-    >()
+        return this.mapper.toAIJobEntity(job)
+      },
+    )
+  }
 
-    for (const topic of topics) {
-      topicChildrenMap.set(topic._id.toString(), [])
-    }
+  async findActiveEvaluationJobForRoadmap(
+    input: FindActiveEvaluationJobForRoadmapInput,
+  ): Promise<AIGenerationJobEntity | null> {
+    return this.execute(
+      'ACTIVE_EVALUATION_JOB_QUERY_FAILED',
+      'Failed to read active evaluation job',
+      async () => {
+        const job = await AIGenerationJob.findOne({
+          userId: input.userId,
+          jobType: 'evaluation',
+          'inputData.sourceRoadmapJobId': input.sourceRoadmapJobId,
+          status: {
+            $in: ['pending', 'processing'],
+          },
+          deletedAt: null,
+        })
+          .sort({
+            createdAt: -1,
+          })
+          .lean<MongoAIGenerationJobRecord>()
 
-    for (const subtopic of subtopics) {
-      const currentNode = subtopicMap.get(
-        subtopic._id.toString()
-      )
+        return this.mapper.toAIJobEntity(job)
+      },
+    )
+  }
 
-      if (!currentNode) continue
-
-      if (subtopic.parentSubtopicId) {
-        const parentNode = subtopicMap.get(
-          subtopic.parentSubtopicId.toString()
-        )
-
-        if (parentNode) {
-          parentNode.children.push(currentNode)
+  async createAIJob(
+    data: CreateRoadmapAIJobInput,
+  ): Promise<AIGenerationJobEntity> {
+    return this.execute(
+      'ROADMAP_JOB_CREATE_FAILED',
+      'Failed to create roadmap AI job',
+      async () => {
+        const persistenceInputData: Record<string, unknown> = {
+          topic: data.inputData.topic,
+          ...(data.inputData.goal !== undefined
+            ? { goal: data.inputData.goal }
+            : {}),
+          level: data.inputData.level,
         }
 
-        continue
-      }
+        const aiJob = await AIGenerationJob.create({
+          userId: data.userId,
+          jobType: 'roadmap',
+          status: 'pending',
+          inputData: persistenceInputData,
+          totalSteps: ROADMAP_GENERATION_TOTAL_STEPS,
+          currentStep: 0,
+        })
 
-      const rootChildren = topicChildrenMap.get(
-        subtopic.topicId.toString()
-      )
+        return this.mapper.toAIJobEntityOrThrow(
+          this.mapper.toPlainRecord(
+            aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>,
+          ),
+        )
+      },
+      MongoOnboardingErrorMapper.mapDuplicateRecordError,
+    )
+  }
 
-      if (rootChildren) {
-        rootChildren.push(currentNode)
-      }
-    }
+  async createEvaluationAIJob(
+    data: CreateEvaluationAIJobInput,
+  ): Promise<AIGenerationJobEntity> {
+    return this.execute(
+      'EVALUATION_JOB_CREATE_FAILED',
+      'Failed to create evaluation AI job',
+      async () => {
+        const persistenceInputData: Record<string, unknown> = {
+          sourceRoadmapJobId: data.inputData.sourceRoadmapJobId,
+          trackerId: data.inputData.trackerId,
+        }
 
-    const roadmapTopics = topics.map((topic) => ({
-      _id: topic._id.toString(),
-      title: topic.title,
-      description: topic.description,
-      order: topic.order,
-      children:
-        topicChildrenMap.get(topic._id.toString()) || [],
-    }))
+        const aiJob = await AIGenerationJob.create({
+          userId: data.userId,
+          jobType: 'evaluation',
+          status: 'pending',
+          inputData: persistenceInputData,
+          totalSteps: ROADMAP_EVALUATION_TOTAL_STEPS,
+          currentStep: 0,
+        })
 
-    return {
-      tracker,
-      topics: roadmapTopics,
-    }
-  },
+        return this.mapper.toAIJobEntityOrThrow(
+          this.mapper.toPlainRecord(
+            aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>,
+          ),
+        )
+      },
+      MongoOnboardingErrorMapper.mapDuplicateRecordError,
+    )
+  }
+
+  async createAIJobSteps(data: CreateAIJobStepsInput): Promise<void> {
+    await this.execute(
+      'AI_JOB_STEPS_CREATE_FAILED',
+      'Failed to create AI job steps',
+      async () => {
+        await AIGenerationStep.insertMany(
+          data.stepLabels.map((stepLabel, index) => ({
+            jobId: data.jobId,
+            stepNumber: index + 1,
+            stepLabel,
+            status: 'pending',
+          })),
+        )
+      },
+      MongoOnboardingErrorMapper.mapDuplicateRecordError,
+    )
+  }
+
+  async getJobById(jobId: string): Promise<AIGenerationJobEntity | null> {
+    return this.execute(
+      'AI_JOB_QUERY_FAILED',
+      'Failed to read AI job',
+      async () => {
+        const job = await AIGenerationJob.findOne({
+          _id: jobId,
+          deletedAt: null,
+        }).lean<MongoAIGenerationJobRecord>()
+
+        return this.mapper.toAIJobEntity(job)
+      },
+    )
+  }
+
+  async getJobSteps(jobId: string): Promise<AIGenerationStepEntity[]> {
+    return this.execute(
+      'AI_JOB_STEPS_QUERY_FAILED',
+      'Failed to read AI job steps',
+      async () => {
+        const steps = await AIGenerationStep.find({
+          jobId,
+          deletedAt: null,
+        })
+          .sort({
+            stepNumber: 1,
+          })
+          .lean<MongoAIGenerationStepRecord[]>()
+
+        return steps.map((step) => this.mapper.toAIJobStepEntity(step))
+      },
+    )
+  }
+
+  async getRoadmapTree(trackerId: string): Promise<RoadmapTreeEntity> {
+    return this.execute(
+      'ROADMAP_TREE_QUERY_FAILED',
+      'Failed to read roadmap tree',
+      async () => {
+        const [tracker, topics, subtopics] = await Promise.all([
+          Tracker.findOne({
+            _id: trackerId,
+            deletedAt: null,
+          }).lean<MongoTrackerRecord>(),
+          TrackerTopic.find({
+            trackerId,
+            deletedAt: null,
+          })
+            .sort({
+              order: 1,
+            })
+            .lean<MongoRoadmapTopicRecord[]>(),
+          TrackerSubtopic.find({
+            trackerId,
+            deletedAt: null,
+          })
+            .sort({
+              depth: 1,
+              order: 1,
+            })
+            .lean<MongoRoadmapSubtopicRecord[]>(),
+        ])
+
+        return this.mapper.toRoadmapTreeEntity({
+          tracker,
+          topics,
+          subtopics,
+        })
+      },
+    )
+  }
 }
+
+export const mongoOnboardingRepository = new MongoOnboardingRepository()

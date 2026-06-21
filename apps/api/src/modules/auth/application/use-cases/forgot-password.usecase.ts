@@ -1,15 +1,16 @@
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
 import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
-import { normalizeIdentifier } from '../services/identifier-normalizer.service'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
 
 export class ForgotPasswordUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract,
-    private readonly authNotificationService: AuthNotificationServiceContract
+    private readonly authRepository: AuthUserRepositoryContract,
+    private readonly authNotificationService: AuthNotificationServiceContract,
+    private readonly identifierNormalizer: IdentifierNormalizerContract
   ) {}
 
-  async execute(identifier: string) {
-    const parsedIdentifier = normalizeIdentifier(identifier)
+  async execute(identifier: string): Promise<void> {
+    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
 
     const user = await this.authRepository.findByIdentifier(parsedIdentifier.value)
 

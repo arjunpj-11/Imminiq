@@ -1,11 +1,19 @@
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import { createHash } from 'crypto'
+
+import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
 
 export class LogoutUserUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: AuthSessionRepositoryContract
   ) {}
 
-  async execute(refreshToken: string) {
-    await this.authRepository.revokeRefreshToken(refreshToken)
+  async execute(refreshToken: string): Promise<void> {
+    const refreshTokenHash = this.hashRefreshToken(refreshToken)
+
+    await this.authRepository.revokeSessionByRefreshTokenHash(refreshTokenHash)
+  }
+
+  private hashRefreshToken(refreshToken: string): string {
+    return createHash('sha256').update(refreshToken).digest('hex')
   }
 }

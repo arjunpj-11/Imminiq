@@ -1,65 +1,45 @@
-import { mongoUploadsRepository } from './infrastructure/repositories/mongo-uploads.repository'
-import { cloudinaryProfileImageStorageGateway } from './infrastructure/gateways/cloudinary-profile-image-storage.gateway'
-import { cloudflareAiImageGenerationGateway } from './infrastructure/gateways/cloudflare-ai-image-generation.gateway'
-import { usersProfileGateway } from './infrastructure/gateways/users-profile.gateway'
-
 import type {
+  AiImagePreviewResult,
+  RemoveAvatarResult,
+  RemoveBannerResult,
   UploadProfileImageInput,
-} from './domain/types/uploads.types'
+  UploadProfileImageResult,
+} from './application/dtos/uploads.dto'
+import {
+  createUploadsComposition,
+  type UploadsComposition,
+} from './uploads.factory'
 
-import { UploadProfileImageUseCase } from './application/use-cases/upload-profile-image.usecase'
-import { RemoveAvatarUseCase } from './application/use-cases/remove-avatar.usecase'
-import { RemoveBannerUseCase } from './application/use-cases/remove-banner.usecase'
-import { GenerateAiAvatarPreviewUseCase } from './application/use-cases/generate-ai-avatar-preview.usecase'
-import { GenerateAiBannerPreviewUseCase } from './application/use-cases/generate-ai-banner-preview.usecase'
+export class UploadsService {
+  private readonly useCases: UploadsComposition['useCases']
 
-const uploadProfileImageUseCase =
-  new UploadProfileImageUseCase(
-    usersProfileGateway,
-    cloudinaryProfileImageStorageGateway,
-    mongoUploadsRepository
-  )
+  constructor(composition: UploadsComposition) {
+    this.useCases = composition.useCases
+  }
 
-const removeAvatarUseCase =
-  new RemoveAvatarUseCase(
-    usersProfileGateway,
-    mongoUploadsRepository
-  )
+  uploadProfileImage(
+    input: UploadProfileImageInput
+  ): Promise<UploadProfileImageResult> {
+    return this.useCases.uploadProfileImage.execute(input)
+  }
 
-const removeBannerUseCase =
-  new RemoveBannerUseCase(
-    usersProfileGateway,
-    mongoUploadsRepository
-  )
+  removeAvatar(userId: string): Promise<RemoveAvatarResult> {
+    return this.useCases.removeAvatar.execute(userId)
+  }
 
-const generateAiAvatarPreviewUseCase =
-  new GenerateAiAvatarPreviewUseCase(
-    cloudflareAiImageGenerationGateway
-  )
+  removeBanner(userId: string): Promise<RemoveBannerResult> {
+    return this.useCases.removeBanner.execute(userId)
+  }
 
-const generateAiBannerPreviewUseCase =
-  new GenerateAiBannerPreviewUseCase(
-    cloudflareAiImageGenerationGateway
-  )
+  generateAiAvatarPreview(prompt: string): Promise<AiImagePreviewResult> {
+    return this.useCases.generateAiAvatarPreview.execute(prompt)
+  }
 
-export const uploadsService = {
-  async uploadProfileImage(input: UploadProfileImageInput) {
-    return uploadProfileImageUseCase.execute(input)
-  },
-
-  async removeAvatar(userId: string) {
-    return removeAvatarUseCase.execute(userId)
-  },
-
-  async removeBanner(userId: string) {
-    return removeBannerUseCase.execute(userId)
-  },
-
-  async generateAiAvatarPreview(prompt: string) {
-    return generateAiAvatarPreviewUseCase.execute(prompt)
-  },
-
-  async generateAiBannerPreview(prompt: string) {
-    return generateAiBannerPreviewUseCase.execute(prompt)
-  },
+  generateAiBannerPreview(prompt: string): Promise<AiImagePreviewResult> {
+    return this.useCases.generateAiBannerPreview.execute(prompt)
+  }
 }
+
+export const uploadsService = new UploadsService(
+  createUploadsComposition()
+)

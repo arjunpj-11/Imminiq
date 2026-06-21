@@ -1,81 +1,35 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-
-import type { OnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
-import type { GetJobStatusResult } from '../../domain/types/onboarding.types'
-import { getTrackerIdFromOutputData } from '../utils/onboarding-job-output.util'
+import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { GetJobStatusResult } from '../dtos/onboarding.dto'
+import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
+import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
 
 export class GetRoadmapJobStatusUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingRepository
+    private readonly onboardingRepository: OnboardingAIJobQueryRepositoryContract,
+    private readonly onboardingMapper: OnboardingMapperContract,
+    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     jobId: string,
-    userId: string
+    userId: string,
   ): Promise<GetJobStatusResult> {
-    const job =
-      await this.onboardingRepository.getJobById(jobId)
+    const job = await this.onboardingRepository.getJobById(jobId)
 
     if (!job) {
-      throw new ApiError(
-        404,
-        'Job not found',
-        'NOT_FOUND'
-      )
+      throw OnboardingApplicationError.notFound('Job not found')
     }
 
-    if (job.userId.toString() !== userId) {
-      throw new ApiError(
-        403,
-        'Forbidden',
-        'FORBIDDEN'
-      )
+    if (!job.belongsTo(userId)) {
+      throw OnboardingApplicationError.forbidden()
     }
 
-    const steps =
-      await this.onboardingRepository.getJobSteps(jobId)
+    const steps = await this.onboardingRepository.getJobSteps(jobId)
+    const trackerId = this.onboardingJobOutputReader.getTrackerId(
+      job.outputData,
+    )
 
-    const activeStep =
-      steps.find((step) => step.status === 'active') ||
-      steps.find(
-        (step) => step.stepNumber === job.currentStep
-      )
-
-    const completedSteps = steps.filter(
-      (step) => step.status === 'completed'
-    ).length
-
-    return {
-      jobId: job._id.toString(),
-
-      jobType: job.jobType,
-
-      status: job.status,
-
-      currentStepNumber: job.currentStep,
-
-      currentStep:
-        activeStep?.stepLabel ||
-        (job.status === 'completed'
-          ? 'Complete'
-          : 'Queued'),
-
-      completedSteps,
-      totalSteps: job.totalSteps,
-
-      steps: steps.map((step) => ({
-        stepNumber: step.stepNumber,
-        stepLabel: step.stepLabel,
-        status: step.status,
-        startedAt: step.startedAt || null,
-        completedAt: step.completedAt || null,
-      })),
-
-      trackerId: getTrackerIdFromOutputData(
-        job.outputData
-      ),
-
-      errorMessage: job.errorMessage || null,
-    }
+    return this.onboardingMapper.toJobStatusDto(job, steps, trackerId)
   }
 }

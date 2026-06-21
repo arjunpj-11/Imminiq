@@ -1,205 +1,108 @@
-import { mongoSettingsRepository } from './infrastructure/repositories/mongo-settings.repository'
 import type {
+  UpdateAccountPayload,
+  UpdateAIBehaviourPayload,
   UpdateAppearancePayload,
-  UpdateNotificationsPayload,
-  UpdatePrivacyPayload,
   UpdateCodeEditorPayload,
   UpdateCompilerPayload,
-  UpdateAIBehaviourPayload,
-  UpdateLearningJourneyPayload,
-  UpdateGesturesPayload,
-  UpdateQuietHoursPayload,
   UpdateEmailDigestPayload,
-  UpdateAccountPayload,
-} from './domain/types/settings.types'
+  UpdateGesturesPayload,
+  UpdateLearningJourneyPayload,
+  UpdateNotificationsPayload,
+  UpdatePrivacyPayload,
+  UpdateQuietHoursPayload,
+} from './application/dtos/settings.dto'
+import {
+  createSettingsComposition,
+  type SettingsComposition,
+} from './settings.factory'
 
-import { GetAllSettingsUseCase } from './application/use-cases/get-all-settings.usecase'
-import { GetAppearanceSettingsUseCase } from './application/use-cases/get-appearance-settings.usecase'
-import { GetNotificationSettingsUseCase } from './application/use-cases/get-notification-settings.usecase'
-import { GetPrivacySettingsUseCase } from './application/use-cases/get-privacy-settings.usecase'
-import { GetGestureSettingsUseCase } from './application/use-cases/get-gesture-settings.usecase'
-import { UpdateAccountSettingsUseCase } from './application/use-cases/update-account-settings.usecase'
-import { UpdateAppearanceUseCase } from './application/use-cases/update-appearance.usecase'
-import { UpdateNotificationsUseCase } from './application/use-cases/update-notifications.usecase'
-import { UpdateQuietHoursUseCase } from './application/use-cases/update-quiet-hours.usecase'
-import { UpdateEmailDigestUseCase } from './application/use-cases/update-email-digest.usecase'
-import { UpdatePrivacyUseCase } from './application/use-cases/update-privacy.usecase'
-import { UpdateCodeEditorUseCase } from './application/use-cases/update-code-editor.usecase'
-import { UpdateCompilerUseCase } from './application/use-cases/update-compiler.usecase'
-import { UpdateAIBehaviourUseCase } from './application/use-cases/update-ai-behaviour.usecase'
-import { UpdateLearningJourneyUseCase } from './application/use-cases/update-learning-journey.usecase'
-import { UpdateGesturesUseCase } from './application/use-cases/update-gestures.usecase'
-import { UpdateCookieConsentUseCase } from './application/use-cases/update-cookie-consent.usecase'
-import { AcceptTermsUseCase } from './application/use-cases/accept-terms.usecase'
-import { ResetSettingsToDefaultsUseCase } from './application/use-cases/reset-settings-to-defaults.usecase'
+export class SettingsService {
+  private readonly useCases: SettingsComposition['useCases']
 
-const getAllSettingsUseCase =
-  new GetAllSettingsUseCase(mongoSettingsRepository)
+  constructor(composition: SettingsComposition) {
+    this.useCases = composition.useCases
+  }
 
-const getAppearanceSettingsUseCase =
-  new GetAppearanceSettingsUseCase(mongoSettingsRepository)
+  getAllSettings(userId: string) {
+    return this.useCases.getAllSettings.execute(userId)
+  }
 
-const getNotificationSettingsUseCase =
-  new GetNotificationSettingsUseCase(mongoSettingsRepository)
+  getAppearanceSettings(userId: string) {
+    return this.useCases.getAppearanceSettings.execute(userId)
+  }
 
-const getPrivacySettingsUseCase =
-  new GetPrivacySettingsUseCase(mongoSettingsRepository)
+  getNotificationSettings(userId: string) {
+    return this.useCases.getNotificationSettings.execute(userId)
+  }
 
-const getGestureSettingsUseCase =
-  new GetGestureSettingsUseCase(mongoSettingsRepository)
+  getPrivacySettings(userId: string) {
+    return this.useCases.getPrivacySettings.execute(userId)
+  }
 
-const updateAccountSettingsUseCase =
-  new UpdateAccountSettingsUseCase(mongoSettingsRepository)
+  getGestureSettings(userId: string) {
+    return this.useCases.getGestureSettings.execute(userId)
+  }
 
-const updateAppearanceUseCase =
-  new UpdateAppearanceUseCase(mongoSettingsRepository)
+  updateAccountSettings(userId: string, payload: UpdateAccountPayload) {
+    return this.useCases.updateAccountSettings.execute(userId, payload)
+  }
 
-const updateNotificationsUseCase =
-  new UpdateNotificationsUseCase(mongoSettingsRepository)
+  updateAppearance(userId: string, payload: UpdateAppearancePayload) {
+    return this.useCases.updateAppearance.execute(userId, payload)
+  }
 
-const updateQuietHoursUseCase =
-  new UpdateQuietHoursUseCase(mongoSettingsRepository)
+  updateNotifications(userId: string, payload: UpdateNotificationsPayload) {
+    return this.useCases.updateNotifications.execute(userId, payload)
+  }
 
-const updateEmailDigestUseCase =
-  new UpdateEmailDigestUseCase(mongoSettingsRepository)
+  updateQuietHours(userId: string, payload: UpdateQuietHoursPayload) {
+    return this.useCases.updateQuietHours.execute(userId, payload)
+  }
 
-const updatePrivacyUseCase =
-  new UpdatePrivacyUseCase(mongoSettingsRepository)
+  updateEmailDigest(userId: string, payload: UpdateEmailDigestPayload) {
+    return this.useCases.updateEmailDigest.execute(userId, payload)
+  }
 
-const updateCodeEditorUseCase =
-  new UpdateCodeEditorUseCase(mongoSettingsRepository)
+  updatePrivacy(userId: string, payload: UpdatePrivacyPayload) {
+    return this.useCases.updatePrivacy.execute(userId, payload)
+  }
 
-const updateCompilerUseCase =
-  new UpdateCompilerUseCase(mongoSettingsRepository)
+  updateCodeEditor(userId: string, payload: UpdateCodeEditorPayload) {
+    return this.useCases.updateCodeEditor.execute(userId, payload)
+  }
 
-const updateAIBehaviourUseCase =
-  new UpdateAIBehaviourUseCase(mongoSettingsRepository)
+  updateCompiler(userId: string, payload: UpdateCompilerPayload) {
+    return this.useCases.updateCompiler.execute(userId, payload)
+  }
 
-const updateLearningJourneyUseCase =
-  new UpdateLearningJourneyUseCase(mongoSettingsRepository)
+  updateAIBehaviour(userId: string, payload: UpdateAIBehaviourPayload) {
+    return this.useCases.updateAIBehaviour.execute(userId, payload)
+  }
 
-const updateGesturesUseCase =
-  new UpdateGesturesUseCase(mongoSettingsRepository)
-
-const updateCookieConsentUseCase =
-  new UpdateCookieConsentUseCase(mongoSettingsRepository)
-
-const acceptTermsUseCase =
-  new AcceptTermsUseCase(mongoSettingsRepository)
-
-const resetSettingsToDefaultsUseCase =
-  new ResetSettingsToDefaultsUseCase(mongoSettingsRepository)
-
-export const settingsService = {
-  getAllSettings: async (userId: string) => {
-    return getAllSettingsUseCase.execute(userId)
-  },
-
-  getAppearanceSettings: async (userId: string) => {
-    return getAppearanceSettingsUseCase.execute(userId)
-  },
-
-  getNotificationSettings: async (userId: string) => {
-    return getNotificationSettingsUseCase.execute(userId)
-  },
-
-  getPrivacySettings: async (userId: string) => {
-    return getPrivacySettingsUseCase.execute(userId)
-  },
-
-  getGestureSettings: async (userId: string) => {
-    return getGestureSettingsUseCase.execute(userId)
-  },
-
-  updateAccountSettings: async (
-    userId: string,
-    payload: UpdateAccountPayload
-  ) => {
-    return updateAccountSettingsUseCase.execute(userId, payload)
-  },
-
-  updateAppearance: async (
-    userId: string,
-    payload: UpdateAppearancePayload
-  ) => {
-    return updateAppearanceUseCase.execute(userId, payload)
-  },
-
-  updateNotifications: async (
-    userId: string,
-    payload: UpdateNotificationsPayload
-  ) => {
-    return updateNotificationsUseCase.execute(userId, payload)
-  },
-
-  updateQuietHours: async (
-    userId: string,
-    payload: UpdateQuietHoursPayload
-  ) => {
-    return updateQuietHoursUseCase.execute(userId, payload)
-  },
-
-  updateEmailDigest: async (
-    userId: string,
-    payload: UpdateEmailDigestPayload
-  ) => {
-    return updateEmailDigestUseCase.execute(userId, payload)
-  },
-
-  updatePrivacy: async (
-    userId: string,
-    payload: UpdatePrivacyPayload
-  ) => {
-    return updatePrivacyUseCase.execute(userId, payload)
-  },
-
-  updateCodeEditor: async (
-    userId: string,
-    payload: UpdateCodeEditorPayload
-  ) => {
-    return updateCodeEditorUseCase.execute(userId, payload)
-  },
-
-  updateCompiler: async (
-    userId: string,
-    payload: UpdateCompilerPayload
-  ) => {
-    return updateCompilerUseCase.execute(userId, payload)
-  },
-
-  updateAIBehaviour: async (
-    userId: string,
-    payload: UpdateAIBehaviourPayload
-  ) => {
-    return updateAIBehaviourUseCase.execute(userId, payload)
-  },
-
-  updateLearningJourney: async (
+  updateLearningJourney(
     userId: string,
     payload: UpdateLearningJourneyPayload
-  ) => {
-    return updateLearningJourneyUseCase.execute(userId, payload)
-  },
+  ) {
+    return this.useCases.updateLearningJourney.execute(userId, payload)
+  }
 
-  updateGestures: async (
-    userId: string,
-    payload: UpdateGesturesPayload
-  ) => {
-    return updateGesturesUseCase.execute(userId, payload)
-  },
+  updateGestures(userId: string, payload: UpdateGesturesPayload) {
+    return this.useCases.updateGestures.execute(userId, payload)
+  }
 
-  updateCookieConsent: async (
-    userId: string,
-    cookieConsent: boolean
-  ) => {
-    return updateCookieConsentUseCase.execute(userId, cookieConsent)
-  },
+  updateCookieConsent(userId: string, cookieConsent: boolean) {
+    return this.useCases.updateCookieConsent.execute(userId, cookieConsent)
+  }
 
-  acceptTerms: async (userId: string) => {
-    return acceptTermsUseCase.execute(userId)
-  },
+  acceptTerms(userId: string) {
+    return this.useCases.acceptTerms.execute(userId)
+  }
 
-  resetToDefaults: async (userId: string) => {
-    return resetSettingsToDefaultsUseCase.execute(userId)
-  },
+  resetToDefaults(userId: string) {
+    return this.useCases.resetSettingsToDefaults.execute(userId)
+  }
 }
+
+export const settingsService = new SettingsService(
+  createSettingsComposition()
+)

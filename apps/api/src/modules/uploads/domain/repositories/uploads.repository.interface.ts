@@ -1,44 +1,16 @@
-import type {
-  ProfileUploadKind,
-  StoredProfileImage,
-} from '../types/uploads.types'
+import type { ProfileImageRepositoryContract } from './profile-image.repository.interface'
+import type { UploadRecordRepositoryContract } from './upload-record.repository.interface'
 
-export interface UploadRecordLike {
-  _id: unknown
-}
+export interface UploadsRepositoryContract
+  extends ProfileImageRepositoryContract,
+    UploadRecordRepositoryContract {}
 
-export interface UploadsRepository {
-  saveUploadRecord(
-    userId: string,
-    kind: ProfileUploadKind,
-    file: StoredProfileImage,
-    referenceId: string
-  ): Promise<UploadRecordLike>
+export type {
+  SetProfileAvatarUrlInput,
+  SetProfileBannerUrlInput,
+} from './profile-image.repository.interface'
 
-  setAvatarUrl(
-    userId: string,
-    avatarUrl: string
-  ): Promise<unknown>
-
-  clearAvatarUrl(
-    userId: string
-  ): Promise<unknown>
-
-  setBannerUrl(
-    userId: string,
-    bannerUrl: string
-  ): Promise<unknown>
-
-  clearBannerUrl(
-    userId: string
-  ): Promise<unknown>
-
-  findProfileByUserId(
-    userId: string
-  ): Promise<unknown>
-
-  softDeleteLatestProfileUpload(
-    userId: string,
-    kind: ProfileUploadKind
-  ): Promise<unknown>
-}
+export type {
+  SaveUploadRecordInput,
+  SoftDeleteLatestProfileUploadInput,
+} from './upload-record.repository.interface'

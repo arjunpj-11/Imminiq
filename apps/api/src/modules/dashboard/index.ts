@@ -1,6 +1,24 @@
-export { default } from './presentation/dashboard.routes'
-export { default as dashboardRoutes } from './presentation/dashboard.routes'
-export { dashboardController } from './presentation/dashboard.controller'
 export { dashboardService } from './dashboard.service'
+export type { DashboardService } from './dashboard.service'
 
-export * from './domain/types/dashboard.types'
+export type {
+  DashboardActivityIntensityItem,
+  DashboardActiveTracker,
+  DashboardAIInsightResult,
+  DashboardBattleItem,
+  DashboardFriendItem,
+  DashboardNotificationMeta,
+  DashboardRecentActivity,
+  DashboardRecommendedAction,
+  DashboardStats,
+  DashboardStreakSummary,
+  DashboardSummary,
+  DashboardTrackerSummary,
+  DashboardUserSummary,
+} from './application/dtos/dashboard.dto'
+
+export type {
+  DashboardBattleResult,
+  DashboardIntensityLevel,
+  DashboardRecommendedActionType,
+} from './domain/types/dashboard.types'

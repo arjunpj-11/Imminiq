@@ -1,6 +1,27 @@
-export { default } from './presentation/users.routes'
-export { default as usersRoutes } from './presentation/users.routes'
-export { usersController } from './presentation/users.controller'
 export { usersService } from './users.service'
+export type { UsersService } from './users.service'
 
-export * from './domain/types/users.types'
+export type {
+  ActivityFeedItemView,
+  BadgeShowcaseItem,
+  BadgeShowcaseView,
+  CurrentUserView,
+  EarnedBadgeView,
+  EditableProfileView,
+  PaginationQuery,
+  PaginationView,
+  ProfileStatsView,
+  PublicProfilePageView,
+  PublishedTrackerView,
+  StreakHeatmapDay,
+  StreakSummaryView,
+  UpdateMyProfileInput,
+} from './application/dtos/users.dto'
+
+export type {
+  BadgeType,
+  ProfileSort,
+  ProfileTrackerStatus,
+  RelationshipState,
+  StreakIntensity,
+} from './domain/types/users.types'

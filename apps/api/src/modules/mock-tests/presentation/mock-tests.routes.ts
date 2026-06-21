@@ -1,57 +1,140 @@
 import { Router } from 'express'
-import { mockTestsController } from './mock-tests.controller'
+
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
-import { validate } from '../../../shared/middlewares/validate'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
+import { validate } from '../../../shared/middlewares/validate'
+import { mockTestsController } from './mock-tests.controller'
+import { MOCK_TEST_ROUTE_PATHS } from './mock-tests.route.constants'
 import {
   createMockTestSchema,
-  generateMockTestSchema,
-  submitAnswerSchema,
   flagQuestionSchema,
+  generateMockTestSchema,
   runMockTestCodeSchema,
+  submitAnswerSchema,
   submitMockTestCodeSchema,
 } from './mock-tests.schema'
 
 const router = Router()
 
+// ─── PROTECTED ───────────────────────────────────────────────
+
 router.use(authenticatedApiIpLimiter, authenticate)
 
-router.get('/', mockTestsController.listTests)
-router.post('/', validate(createMockTestSchema), mockTestsController.createTest)
-router.post('/generate', validate(generateMockTestSchema), mockTestsController.generateTest)
-
-router.get('/public', mockTestsController.listPublicTests)
-
-router.post('/shared/:shareToken/import', mockTestsController.importSharedTest)
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ROOT,
+  mockTestsController.listTests
+)
 
 router.post(
-  '/attempts/:attemptId/questions/:questionId/run-code',
+  MOCK_TEST_ROUTE_PATHS.ROOT,
+  validate(createMockTestSchema),
+  mockTestsController.createTest
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.GENERATE,
+  validate(generateMockTestSchema),
+  mockTestsController.generateTest
+)
+
+router.get(
+  MOCK_TEST_ROUTE_PATHS.PUBLIC,
+  mockTestsController.listPublicTests
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.IMPORT_SHARED,
+  mockTestsController.importSharedTest
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.RUN_CODE,
   validate(runMockTestCodeSchema),
-  mockTestsController.runCode,
+  mockTestsController.runCode
 )
 
 router.post(
-  '/attempts/:attemptId/questions/:questionId/submit-code',
+  MOCK_TEST_ROUTE_PATHS.SUBMIT_CODE,
   validate(submitMockTestCodeSchema),
-  mockTestsController.submitCode,
+  mockTestsController.submitCode
 )
 
-router.get('/history', mockTestsController.getHistory)
-router.get('/analytics', mockTestsController.getAnalytics)
-router.get('/analytics/trends', mockTestsController.getAnalytics)
-router.get('/analytics/ai-insights', mockTestsController.getAIInsights)
-router.get('/analytics/topic-breakdown', mockTestsController.getTopicBreakdown)
+router.get(
+  MOCK_TEST_ROUTE_PATHS.HISTORY,
+  mockTestsController.getHistory
+)
 
-router.get('/attempts/:attemptId/questions', mockTestsController.getAttemptQuestions)
-router.post('/attempts/:attemptId/answers', validate(submitAnswerSchema), mockTestsController.submitAnswer)
-router.post('/attempts/:attemptId/flag', validate(flagQuestionSchema), mockTestsController.flagQuestion)
-router.post('/attempts/:attemptId/finish', mockTestsController.finishAttempt)
-router.get('/attempts/:attemptId/result', mockTestsController.getAttemptResult)
-router.get('/attempts/:attemptId/analysis', mockTestsController.getAttemptAnalysis)
-router.post('/attempts/:attemptId/retake', mockTestsController.retakeTest)
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ANALYTICS,
+  mockTestsController.getAnalytics
+)
 
-router.post('/:testId/share', mockTestsController.shareTest)
-router.get('/:testId', mockTestsController.getTest)
-router.post('/:testId/start', mockTestsController.startAttempt)
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ANALYTICS_TRENDS,
+  mockTestsController.getAnalytics
+)
+
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ANALYTICS_AI_INSIGHTS,
+  mockTestsController.getAIInsights
+)
+
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ANALYTICS_TOPIC_BREAKDOWN,
+  mockTestsController.getTopicBreakdown
+)
+
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ATTEMPT_QUESTIONS,
+  mockTestsController.getAttemptQuestions
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.ATTEMPT_ANSWERS,
+  validate(submitAnswerSchema),
+  mockTestsController.submitAnswer
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.ATTEMPT_FLAG,
+  validate(flagQuestionSchema),
+  mockTestsController.flagQuestion
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.ATTEMPT_FINISH,
+  mockTestsController.finishAttempt
+)
+
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ATTEMPT_RESULT,
+  mockTestsController.getAttemptResult
+)
+
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ATTEMPT_ANALYSIS,
+  mockTestsController.getAttemptAnalysis
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.ATTEMPT_RETAKE,
+  mockTestsController.retakeTest
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.SHARE_TEST,
+  mockTestsController.shareTest
+)
+
+router.get(
+  MOCK_TEST_ROUTE_PATHS.TEST_BY_ID,
+  mockTestsController.getTest
+)
+
+router.post(
+  MOCK_TEST_ROUTE_PATHS.START_ATTEMPT,
+  mockTestsController.startAttempt
+)
 
 export default router
+export { router as mockTestsRoutes }

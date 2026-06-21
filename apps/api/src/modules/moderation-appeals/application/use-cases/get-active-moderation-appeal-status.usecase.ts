@@ -1,37 +1,24 @@
-import type { ModerationAppealRepository } from '../../domain/repositories/moderation-appeal.repository.interface'
+import type { ModerationAppealQueryRepositoryContract } from '../../domain/repositories/moderation-appeal-query.repository.interface'
 import type {
-  GetActiveModerationAppealStatusResult,
+  GetActiveModerationAppealStatusResultDto,
   GetModerationAppealStatusPayload,
-} from '../../domain/types/moderation-appeal.types'
+} from '../dtos/moderation-appeal.dto'
+import type { ModerationAppealMapperContract } from '../mappers/moderation-appeal.mapper'
 
 export class GetActiveModerationAppealStatusUseCase {
   constructor(
-    private readonly moderationAppealRepository: ModerationAppealRepository
+    private readonly moderationAppealRepository: ModerationAppealQueryRepositoryContract,
+    private readonly moderationAppealMapper: ModerationAppealMapperContract,
   ) {}
 
   async execute(
-    payload: GetModerationAppealStatusPayload
-  ): Promise<GetActiveModerationAppealStatusResult> {
+    payload: GetModerationAppealStatusPayload,
+  ): Promise<GetActiveModerationAppealStatusResultDto> {
     const appeal =
       await this.moderationAppealRepository.findLatestActiveAppealForRestrictedIdentifier(
-        payload.identifier
+        payload.identifier,
       )
 
-    if (!appeal) {
-      return {
-        exists: false,
-        appeal: null,
-      }
-    }
-
-    return {
-      exists: true,
-      appeal: {
-        caseId: appeal.caseId,
-        status: appeal.status,
-        submittedAt: appeal.createdAt,
-        appealReason: appeal.appealReason,
-      },
-    }
+    return this.moderationAppealMapper.toActiveStatusResult(appeal)
   }
 }

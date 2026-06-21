@@ -1,47 +1,50 @@
 import { z } from 'zod'
 
-export const step1Schema = z.object({
-  topic: z
-    .string()
-    .trim()
-    .min(2, 'Topic is required')
-    .max(200, 'Topic must be 200 characters or fewer'),
+const topicSchema = z
+  .string()
+  .trim()
+  .min(2, 'Topic is required')
+  .max(200, 'Topic must be 200 characters or fewer')
 
-  goal: z
+const goalSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== 'string') {
+      return value
+    }
+
+    const trimmedValue = value.trim()
+
+    return trimmedValue.length > 0 ? trimmedValue : undefined
+  },
+  z
     .string()
-    .trim()
     .max(400, 'Goal must be 400 characters or fewer')
-    .optional(),
+    .optional()
+)
+
+const roadmapLevelSchema = z.enum([
+  'beginner',
+  'intermediate',
+  'advanced',
+])
+
+export const step1Schema = z.object({
+  topic: topicSchema,
+  goal: goalSchema,
 })
 
 export const step2Schema = z.object({
-  level: z.enum([
-    'beginner',
-    'intermediate',
-    'advanced',
-  ]),
+  level: roadmapLevelSchema,
 })
 
 export const generateRoadmapSchema = z.object({
-  topic: z
-    .string()
-    .trim()
-    .min(2, 'Topic is required')
-    .max(200, 'Topic must be 200 characters or fewer'),
-
-  goal: z
-    .string()
-    .trim()
-    .max(400, 'Goal must be 400 characters or fewer')
-    .optional(),
-
-  level: z.enum([
-    'beginner',
-    'intermediate',
-    'advanced',
-  ]),
+  topic: topicSchema,
+  goal: goalSchema,
+  level: roadmapLevelSchema,
 })
 
-export type Step1Payload = z.infer<typeof step1Schema>
-export type Step2Payload = z.infer<typeof step2Schema>
-export type GenerateRoadmapPayload = z.infer<typeof generateRoadmapSchema>
+export type Step1Input = z.infer<typeof step1Schema>
+
+export type Step2Input = z.infer<typeof step2Schema>
+
+export type GenerateRoadmapInput = z.infer<typeof generateRoadmapSchema>

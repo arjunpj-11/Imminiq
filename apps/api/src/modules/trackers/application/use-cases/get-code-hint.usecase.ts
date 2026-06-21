@@ -1,5 +1,6 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 type GetCodeHintInput = {
@@ -12,20 +13,25 @@ type GetCodeHintInput = {
   hintCount: number
 }
 
+type GetCodeHintResultDto = ReturnType<
+  TrackerMapperContract['toLessonCodeHintDto']
+>
+
 export class GetCodeHintUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
-  async execute(input: GetCodeHintInput) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  async execute(input: GetCodeHintInput): Promise<GetCodeHintResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findGeneratedLessonBySubtopic({
@@ -47,11 +53,11 @@ export class GetCodeHintUseCase {
       hintCount: input.hintCount,
     })
 
-    return {
+    return this.trackerMapper.toLessonCodeHintDto({
       mode: aiResult.mode,
       hintCount: input.hintCount + 1,
       title: aiResult.title,
       explanation: aiResult.explanation,
-    }
+    })
   }
 }

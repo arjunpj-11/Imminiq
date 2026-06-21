@@ -1,515 +1,460 @@
-// apps/api/src/modules/dashboard/infrastructure/repositories/mongo-dashboard.repository.ts
-
-import mongoose from 'mongoose'
-import type { DashboardRepository } from '../../domain/repositories/dashboard.repository.interface'
-import { User } from '../../../../infrastructure/database/models/user.model'
-import { UserProfile } from '../../../../infrastructure/database/models/user-profile.model'
-import { Tracker } from '../../../../infrastructure/database/models/tracker.model'
-import { TrackerProgress } from '../../../../infrastructure/database/models/tracker-progress.model'
+import { Battle } from '../../../../infrastructure/database/models/battle.model'
+import { Friend } from '../../../../infrastructure/database/models/friend.model'
+import { Notification } from '../../../../infrastructure/database/models/notification.model'
 import { StreakHistory } from '../../../../infrastructure/database/models/streak-history.model'
 import { StreakSnapshot } from '../../../../infrastructure/database/models/streak-snapshot.model'
-import { Notification } from '../../../../infrastructure/database/models/notification.model'
+import { Tracker } from '../../../../infrastructure/database/models/tracker.model'
+import { TrackerProgress } from '../../../../infrastructure/database/models/tracker-progress.model'
+import { User } from '../../../../infrastructure/database/models/user.model'
+import { UserProfile } from '../../../../infrastructure/database/models/user-profile.model'
+import {
+  DASHBOARD_DEFAULT_ACTIVITY_MONTHS,
+  DASHBOARD_DEFAULT_FRIENDS_LIMIT,
+  DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT,
+  DASHBOARD_DEFAULT_RECENT_BATTLES_LIMIT,
+} from '../../domain/constants/dashboard.constants'
+import type { DashboardActivityIntensityEntity } from '../../domain/entities/dashboard-activity-intensity.entity'
+import type { DashboardBattleEntity } from '../../domain/entities/dashboard-battle.entity'
+import type { DashboardFriendEntity } from '../../domain/entities/dashboard-friend.entity'
+import type { DashboardProfileEntity } from '../../domain/entities/dashboard-profile.entity'
+import type { DashboardRecentActivityEntity } from '../../domain/entities/dashboard-recent-activity.entity'
+import type { DashboardStatsEntity } from '../../domain/entities/dashboard-stats.entity'
+import type { DashboardStreakEntity } from '../../domain/entities/dashboard-streak.entity'
+import type { DashboardTrackerSummaryEntity } from '../../domain/entities/dashboard-tracker-summary.entity'
+import type { DashboardUserEntity } from '../../domain/entities/dashboard-user.entity'
+import type { GetRecentBattlesInput } from '../../domain/repositories/dashboard-battle.repository.interface'
+import type { GetFriendsHubInput } from '../../domain/repositories/dashboard-friend.repository.interface'
+import type { GetRecentActivityInput } from '../../domain/repositories/dashboard-notification.repository.interface'
+import type { DashboardRepositoryContract } from '../../domain/repositories/dashboard.repository.interface'
+import type { GetActivityIntensityInput } from '../../domain/repositories/dashboard-streak.repository.interface'
+import type { DashboardRecommendationContext } from '../../domain/value-objects/dashboard-recommendation-context.vo'
+import { MongoDashboardBaseRepository } from './mongo-dashboard-base.repository'
+import { MongoDashboardErrorMapper } from './mongo-dashboard-error.mapper'
+import { MongoDashboardMapper } from './mongo-dashboard.mapper'
+import type {
+  MongoBattleRecord,
+  MongoFriendRecord,
+  MongoNotificationRecord,
+  MongoProgressAggregationRecord,
+  MongoStreakHistoryRecord,
+  MongoStreakSnapshotRecord,
+  MongoTrackerProgressRecord,
+  MongoTrackerRecord,
+  MongoTrackerTitleRecord,
+  MongoUserProfileRecord,
+  MongoUserRecord,
+} from './mongo-dashboard.types'
 
-export const mongoDashboardRepository = {
-  // ─── USER ────────────────────────────────────────
-
- getUserWithProfile: async (userId: string) => {
-    const [user, profile] = await Promise.all([
-      User.findById(userId)
-        .select('_id fullName username avatarUrl isPremium coins')
-        .lean(),
-
-      UserProfile.findOne({ userId })
-        .select('avatarUrl')
-        .lean(),
-    ])
-
-    return { user, profile }
-  },
-
-  // ─── STREAK ──────────────────────────────────────
-
-getStreakData: async (userId: string) => {
-  const streak = await StreakSnapshot.findOne({
-    userId,
-    deletedAt: null,
-  })
-    .sort({ snapshotDate: -1 })
-    .select('currentStreak longestStreak snapshotDate')
-    .lean()
-
-  if (!streak) {
-    return {
-      current: 0,
-      longest: 0,
-      lastActiveAt: null,
-    }
+export class MongoDashboardRepository
+  extends MongoDashboardBaseRepository
+  implements DashboardRepositoryContract
+{
+  constructor(private readonly mapper = new MongoDashboardMapper()) {
+    super()
   }
 
-  return {
-    current: streak.currentStreak || 0,
-    longest: streak.longestStreak || 0,
-    lastActiveAt: streak.snapshotDate || null,
-  }
-},
-
-  // ─── TRACKER OVERVIEW ────────────────────────────
-
-getTrackerOverview: async (userId: string) => {
-  const [allTrackers, allProgress] = await Promise.all([
-    Tracker.find({
-      ownerId: userId,
-      status: { $ne: 'archived' },
-    })
-      .select('_id title level updatedAt topicsCount subtopicsCount')
-      .sort({ updatedAt: -1 })
-      .lean(),
-
-    TrackerProgress.find({ userId })
-      .select('trackerId completionPercentage lastStudiedAt completedTopics')
-      .lean(),
-  ])
-
-  const progressMap = new Map(
-    allProgress.map((progress) => [
-      progress.trackerId.toString(),
-      progress,
-    ])
-  )
-
-  const trackersWithProgress = allTrackers.map((tracker) => {
-    const progress = progressMap.get(tracker._id.toString())
-
-    const totalTopics = tracker.topicsCount ?? 0
-    const completedTopics = progress?.completedTopics ?? 0
-    const remainingTopics = Math.max(0, totalTopics - completedTopics)
-
-    return {
-      _id: tracker._id.toString(),
-      title: tracker.title,
-      level: tracker.level,
-      completionPercentage: progress?.completionPercentage || 0,
-      lastStudiedAt: progress?.lastStudiedAt || null,
-      updatedAt: tracker.updatedAt,
-      totalTopics,
-      completedTopics,
-      remainingTopics,
-    }
-  })
-
-  const activeTrackerList = trackersWithProgress.filter(
-    (t) => t.completionPercentage < 100
-  )
-
-  const completedTrackerList = trackersWithProgress.filter(
-    (t) => t.completionPercentage >= 100
-  )
-
-  const activeTrackers = [...activeTrackerList]
-    .sort((a, b) => {
-      const aDate = a.lastStudiedAt
-        ? new Date(a.lastStudiedAt).getTime()
-        : new Date(a.updatedAt).getTime()
-      const bDate = b.lastStudiedAt
-        ? new Date(b.lastStudiedAt).getTime()
-        : new Date(b.updatedAt).getTime()
-      return bDate - aDate
-    })
-    .slice(0, 5)
-    .map(({ updatedAt: _updatedAt, ...tracker }) => tracker)
-
-  return {
-    total: trackersWithProgress.length,
-    active: activeTrackerList.length,
-    completed: completedTrackerList.length,
-    activeTrackers,
-  }
-},
-  // ─── DASHBOARD STATS ─────────────────────────────
-
-  getAggregatedStats: async (userId: string) => {
-    const [progressAggregation, publishedTrackers, user] =
-      await Promise.all([
-        TrackerProgress.aggregate([
-          {
-            $match: {
-              userId: new mongoose.Types.ObjectId(userId),
-            },
-          },
-          {
-            $group: {
-              _id: null,
-
-              totalSubtopicsCompleted: {
-  $sum: {
-    $ifNull: ['$completedSubtopics', 0],
-  },
-},
-
-              
-            },
-          },
-        ]),
-
-        Tracker.countDocuments({
-          ownerId: userId,
-          visibility: 'public',
-        }),
-
-        User.findById(userId)
-          .select('coins')
-          .lean(),
-      ])
-
-    return {
-      totalSubtopicsCompleted:
-        progressAggregation[0]?.totalSubtopicsCompleted || 0,
-
-     
-
-      totalPoints:
-        user?.coins || 0,
-
-      publishedTrackers,
-    }
-  },
-
-  // ─── RECENT ACTIVITY ─────────────────────────────
-
-  getRecentActivity: async (
-    userId: string,
-    limit = 5
-  ) => {
-    const notifications = await Notification.find({ userId })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .select('type message createdAt')
-      .lean()
-
-    return notifications.map((notification) => ({
-      type: notification.type,
-      description: notification.message,
-      createdAt: notification.createdAt,
-    }))
-  },
-
-  // ─── UNREAD NOTIFICATION COUNT ──────────────────
-
-  getUnreadNotificationCount: async (userId: string) => {
-    return Notification.countDocuments({
-      userId,
-      isRead: false,
-    })
-  },
-
-  // ─── ACTIVITY HEATMAP ────────────────────────────
-
- getActivityIntensity: async (
-  userId: string,
-  months = 6
-) => {
-  const fromDate = new Date()
-  fromDate.setMonth(fromDate.getMonth() - months)
-
-  const streakEntries = await StreakHistory.find({
-    userId,
-    date: { $gte: fromDate },
-    deletedAt: null,
-  })
-    .sort({ date: 1 })
-    .select('date activityCount intensityLevel isFrozen')
-    .lean()
-
-  return streakEntries.map((entry) => {
-    const date = new Date(entry.date)
-      .toISOString()
-      .split('T')[0]
-
-    const activityCount = entry.activityCount || 0
-
-    const intensityCount =
-      entry.intensityLevel === 'high'
-        ? 4
-        : entry.intensityLevel === 'medium'
-          ? 3
-          : entry.intensityLevel === 'low'
-            ? 2
-            : entry.isFrozen
-              ? 1
-              : 0
-
-    return {
-  date,
-  activityCount,
-  count: intensityCount,
-}
-  })
-},
-
-  // ─── RECENT BATTLES ──────────────────────────────
-
- // ─── RECENT BATTLES ──────────────────────────────
-
-getRecentBattles: async (
-  userId: string,
-  limit = 5
-) => {
-  const { Battle } = await import(
-    '../../../../infrastructure/database/models/battle.model'
-  )
-
-  const battles = await Battle.find({
-    $or: [
-      { playerOneId: userId },
-      { playerTwoId: userId },
-    ],
-    status: 'completed',
-  })
-    .sort({ endedAt: -1, updatedAt: -1 })
-    .limit(limit)
-    .select(
-      '_id challengeId playerOneId playerTwoId winnerId startedAt endedAt updatedAt'
-    )
-    .lean()
-
-  if (battles.length === 0) {
-    return []
-  }
-
-  const opponentIds = battles.map((battle) => {
-    const playerOneId =
-      battle.playerOneId.toString()
-
-    const playerTwoId =
-      battle.playerTwoId.toString()
-
-    return playerOneId === userId
-      ? playerTwoId
-      : playerOneId
-  })
-
-  const [opponents, opponentProfiles] =
-    await Promise.all([
-      User.find({
-        _id: { $in: opponentIds },
-      })
-        .select('_id fullName username')
-        .lean(),
-
-      UserProfile.find({
-        userId: { $in: opponentIds },
-      })
-        .select('userId avatarUrl')
-        .lean(),
-    ])
-
-  const opponentMap = new Map(
-    opponents.map((opponent) => [
-      opponent._id.toString(),
-      opponent,
-    ])
-  )
-
-  const profileMap = new Map(
-    opponentProfiles.map((profile) => [
-      profile.userId.toString(),
-      profile.avatarUrl || '',
-    ])
-  )
-
-  return battles.map((battle) => {
-    const playerOneId =
-      battle.playerOneId.toString()
-
-    const playerTwoId =
-      battle.playerTwoId.toString()
-
-    const isCurrentUserPlayerOne =
-      playerOneId === userId
-
-    const actualOpponentId =
-      isCurrentUserPlayerOne
-        ? playerTwoId
-        : playerOneId
-
-    const opponent =
-      opponentMap.get(actualOpponentId)
-
-    let result: 'win' | 'loss' | 'draw' = 'draw'
-
-    if (battle.winnerId) {
-      result =
-        battle.winnerId.toString() === userId
-          ? 'win'
-          : 'loss'
-    }
-
-    return {
-      _id: battle._id.toString(),
-
-      opponent: opponent
-        ? {
-            _id: opponent._id.toString(),
-            fullName: opponent.fullName,
-            username: opponent.username,
-            avatarUrl:
-              profileMap.get(actualOpponentId) || '',
-          }
-        : null,
-
-      result,
-
-      startedAt: battle.startedAt || null,
-      completedAt:
-        battle.endedAt || battle.updatedAt,
-    }
-  })
-},
-
-  // ─── FRIENDS HUB ─────────────────────────────────
-
-  getFriendsHub: async (
-    userId: string,
-    limit = 10
-  ) => {
-    const { Friend } = await import(
-      '../../../../infrastructure/database/models/friend.model'
-    )
-
-    const friendships = await Friend.find({
-      $or: [
-        { userId },
-        { friendId: userId },
-      ],
-    })
-      .limit(limit)
-      .lean()
-
-    if (friendships.length === 0) {
-      return []
-    }
-
-    const friendIds = friendships.map((friendship) =>
-      friendship.userId.toString() === userId
-        ? friendship.friendId.toString()
-        : friendship.userId.toString()
-    )
-
-    const [friends, friendProfiles] =
-      await Promise.all([
-        User.find({
-          _id: { $in: friendIds },
+  async findUserById(userId: string): Promise<DashboardUserEntity | null> {
+    return this.execute(
+      'DASHBOARD_USER_READ_FAILED',
+      'Failed to read dashboard user',
+      async () => {
+        const user = await User.findOne({
+          _id: userId,
+          deletedAt: null,
         })
-          .select(
-            '_id fullName username lastActiveAt'
-          )
-          .lean(),
+          .select('_id fullName username avatarUrl isPremium coins lastActiveAt')
+          .lean<MongoUserRecord>()
 
-        UserProfile.find({
-          userId: { $in: friendIds },
+        return this.mapper.toDashboardUserEntity(user)
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async findProfileByUserId(
+    userId: string,
+  ): Promise<DashboardProfileEntity | null> {
+    return this.execute(
+      'DASHBOARD_PROFILE_READ_FAILED',
+      'Failed to read dashboard profile',
+      async () => {
+        const profile = await UserProfile.findOne({
+          userId,
+          deletedAt: null,
         })
           .select('userId avatarUrl')
-          .lean(),
-      ])
+          .lean<MongoUserProfileRecord>()
 
-    const profileMap = new Map(
-      friendProfiles.map((profile) => [
-        profile.userId.toString(),
-        profile.avatarUrl || '',
-      ])
+        return this.mapper.toDashboardProfileEntity(profile)
+      },
+      MongoDashboardErrorMapper.mapMongoError,
     )
-
-    return friends.map((friend) => ({
-      _id: friend._id.toString(),
-      fullName: friend.fullName,
-      username: friend.username,
-      avatarUrl:
-        profileMap.get(friend._id.toString()) || '',
-      lastActiveAt:
-        friend.lastActiveAt || null,
-
-      isOnline: friend.lastActiveAt
-        ? Date.now() -
-            new Date(friend.lastActiveAt).getTime() <
-          5 * 60 * 1000
-        : false,
-    }))
-  },
-
-  // ─── RECOMMENDED ACTIONS ─────────────────────────
-
- getRecommendedActions: async (userId: string) => {
-  const [latestProgress, totalTrackersCount] = await Promise.all([
-    TrackerProgress.findOne({
-      userId,
-    })
-      .sort({ lastStudiedAt: -1 })
-      .select('trackerId completionPercentage lastStudiedAt')
-      .lean(),
-
-    Tracker.countDocuments({
-      ownerId: userId,
-      deletedAt: null,
-    }),
-  ])
-
-  const actions: {
-    type: string
-    title: string
-    description: string
-    link: string
-  }[] = []
-
-  if (
-    latestProgress &&
-    latestProgress.completionPercentage < 100
-  ) {
-    const tracker = await Tracker.findOne({
-      _id: latestProgress.trackerId,
-      ownerId: userId,
-      deletedAt: null,
-    })
-      .select('_id title')
-      .lean()
-
-    if (tracker) {
-      actions.push({
-        type: 'continue_tracker',
-        title: `Continue "${tracker.title}"`,
-        description: `You are ${Math.round(
-          latestProgress.completionPercentage || 0
-        )}% through`,
-        link: `/trackers/${tracker._id.toString()}`,
-      })
-    }
   }
 
-  if (totalTrackersCount === 0) {
-    actions.push({
-      type: 'create_tracker',
-      title: 'Create your first tracker',
-      description:
-        'Use AI to build a personalized learning roadmap',
-      link: '/onboarding/step-1',
-    })
+  async getStreakData(userId: string): Promise<DashboardStreakEntity> {
+    return this.execute(
+      'DASHBOARD_STREAK_READ_FAILED',
+      'Failed to read dashboard streak',
+      async () => {
+        const streak = await StreakSnapshot.findOne({
+          userId,
+          deletedAt: null,
+        })
+          .sort({ snapshotDate: -1 })
+          .select('currentStreak longestStreak snapshotDate')
+          .lean<MongoStreakSnapshotRecord>()
+
+        return this.mapper.toDashboardStreakEntity(streak)
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
   }
 
-  actions.push({
-    type: 'explore_community',
-    title: 'Explore Community',
-    description:
-      'Discover trackers shared by other learners',
-    link: '/community',
-  })
+  async getTrackerOverview(
+    userId: string,
+  ): Promise<DashboardTrackerSummaryEntity> {
+    return this.execute(
+      'DASHBOARD_TRACKER_READ_FAILED',
+      'Failed to read dashboard trackers',
+      async () => {
+        const [allTrackers, allProgress] = await Promise.all([
+          Tracker.find({
+            ownerId: userId,
+            status: { $ne: 'archived' },
+            deletedAt: null,
+          })
+            .select('_id title level updatedAt topicsCount')
+            .sort({ updatedAt: -1 })
+            .lean<MongoTrackerRecord[]>(),
+          TrackerProgress.find({
+            userId,
+            deletedAt: null,
+          })
+            .select(
+              'trackerId completionPercentage lastStudiedAt completedTopics',
+            )
+            .lean<MongoTrackerProgressRecord[]>(),
+        ])
 
-  actions.push({
-    type: 'start_mock_test',
-    title: 'Take a Mock Test',
-    description:
-      'Evaluate your knowledge with AI-generated questions',
-    link: '/mock-tests',
-  })
+        const progressMap = new Map(
+          allProgress.map((progress) => [
+            this.mapper.toId(progress.trackerId),
+            progress,
+          ]),
+        )
 
-  return actions.slice(0, 4)
-},
-} satisfies DashboardRepository
+        const trackersWithProgress = allTrackers.map((tracker) =>
+          this.mapper.toDashboardActiveTrackerEntity(
+            tracker,
+            progressMap.get(this.mapper.toId(tracker._id)),
+          ),
+        )
+
+        return this.mapper.toDashboardTrackerSummaryEntity(
+          trackersWithProgress,
+        )
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async getAggregatedStats(userId: string): Promise<DashboardStatsEntity> {
+    return this.execute(
+      'DASHBOARD_STATS_READ_FAILED',
+      'Failed to read dashboard statistics',
+      async () => {
+        const userObjectId = this.toObjectId(userId)
+
+        const [progressAggregation, publishedTrackers, user] =
+          await Promise.all([
+            TrackerProgress.aggregate<MongoProgressAggregationRecord>([
+              {
+                $match: {
+                  userId: userObjectId,
+                  deletedAt: null,
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  totalSubtopicsCompleted: {
+                    $sum: { $ifNull: ['$completedSubtopics', 0] },
+                  },
+                },
+              },
+            ]),
+            Tracker.countDocuments({
+              ownerId: userId,
+              visibility: 'public',
+              deletedAt: null,
+            }),
+            User.findOne({
+              _id: userId,
+              deletedAt: null,
+            })
+              .select('coins')
+              .lean<Pick<MongoUserRecord, 'coins'>>(),
+          ])
+
+        return this.mapper.toDashboardStatsEntity(
+          progressAggregation[0],
+          publishedTrackers,
+          user,
+        )
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async getRecentActivity(
+    input: GetRecentActivityInput,
+  ): Promise<DashboardRecentActivityEntity[]> {
+    return this.execute(
+      'DASHBOARD_ACTIVITY_READ_FAILED',
+      'Failed to read recent dashboard activity',
+      async () => {
+        const {
+          userId,
+          limit = DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT,
+        } = input
+
+        const notifications = await Notification.find({
+          userId,
+          deletedAt: null,
+        })
+          .sort({ createdAt: -1 })
+          .limit(this.safeLimit(limit, DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT))
+          .select('type message createdAt')
+          .lean<MongoNotificationRecord[]>()
+
+        return notifications.map((notification) =>
+          this.mapper.toDashboardRecentActivityEntity(notification),
+        )
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async getUnreadNotificationCount(userId: string): Promise<number> {
+    return this.execute(
+      'DASHBOARD_NOTIFICATION_READ_FAILED',
+      'Failed to read dashboard notification count',
+      async () =>
+        Notification.countDocuments({
+          userId,
+          isRead: false,
+          deletedAt: null,
+        }),
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async getActivityIntensity(
+    input: GetActivityIntensityInput,
+  ): Promise<DashboardActivityIntensityEntity[]> {
+    return this.execute(
+      'DASHBOARD_INTENSITY_READ_FAILED',
+      'Failed to read dashboard activity intensity',
+      async () => {
+        const {
+          userId,
+          months = DASHBOARD_DEFAULT_ACTIVITY_MONTHS,
+        } = input
+
+        const fromDate = new Date()
+        fromDate.setMonth(fromDate.getMonth() - months)
+
+        const streakEntries = await StreakHistory.find({
+          userId,
+          date: { $gte: fromDate },
+          deletedAt: null,
+        })
+          .sort({ date: 1 })
+          .select('date activityCount intensityLevel isFrozen')
+          .lean<MongoStreakHistoryRecord[]>()
+
+        return streakEntries.map((entry) =>
+          this.mapper.toDashboardActivityIntensityEntity(entry),
+        )
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async getRecentBattles(
+    input: GetRecentBattlesInput,
+  ): Promise<DashboardBattleEntity[]> {
+    return this.execute(
+      'DASHBOARD_BATTLE_READ_FAILED',
+      'Failed to read recent dashboard battles',
+      async () => {
+        const {
+          userId,
+          limit = DASHBOARD_DEFAULT_RECENT_BATTLES_LIMIT,
+        } = input
+
+        const battles = (await Battle.find({
+          $or: [{ playerOneId: userId }, { playerTwoId: userId }],
+          status: 'completed',
+          deletedAt: null,
+        })
+          .sort({ endedAt: -1, updatedAt: -1 })
+          .limit(this.safeLimit(limit, DASHBOARD_DEFAULT_RECENT_BATTLES_LIMIT))
+          .select(
+            '_id playerOneId playerTwoId winnerId playerOneScore playerTwoScore startedAt endedAt updatedAt',
+          )
+          .lean()) as MongoBattleRecord[]
+
+        if (battles.length === 0) {
+          return []
+        }
+
+        const opponentIds = battles.map((battle) =>
+          this.mapper.getOpponentId(battle, userId),
+        )
+
+        const [opponents, opponentProfiles] = await Promise.all([
+          User.find({
+            _id: { $in: opponentIds },
+            deletedAt: null,
+          })
+            .select('_id fullName username')
+            .lean<MongoUserRecord[]>(),
+          UserProfile.find({
+            userId: { $in: opponentIds },
+            deletedAt: null,
+          })
+            .select('userId avatarUrl')
+            .lean<MongoUserProfileRecord[]>(),
+        ])
+
+        const opponentMap = new Map(
+          opponents.map((opponent) => [
+            this.mapper.toId(opponent._id),
+            opponent,
+          ]),
+        )
+
+        const profileMap = new Map(
+          opponentProfiles.map((profile) => [
+            this.mapper.toId(profile.userId),
+            profile.avatarUrl ?? '',
+          ]),
+        )
+
+        return battles.map((battle) =>
+          this.mapper.toDashboardBattleEntity(
+            battle,
+            userId,
+            opponentMap,
+            profileMap,
+          ),
+        )
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async getFriendsHub(
+    input: GetFriendsHubInput,
+  ): Promise<DashboardFriendEntity[]> {
+    return this.execute(
+      'DASHBOARD_FRIEND_READ_FAILED',
+      'Failed to read dashboard friends',
+      async () => {
+        const {
+          userId,
+          limit = DASHBOARD_DEFAULT_FRIENDS_LIMIT,
+        } = input
+
+        const friendships = (await Friend.find({
+          $or: [{ userId }, { friendId: userId }],
+          deletedAt: null,
+        })
+          .limit(this.safeLimit(limit, DASHBOARD_DEFAULT_FRIENDS_LIMIT))
+          .lean()) as MongoFriendRecord[]
+
+        if (friendships.length === 0) {
+          return []
+        }
+
+        const friendIds = friendships.map((friendship) =>
+          this.mapper.toId(friendship.userId) === userId
+            ? this.mapper.toId(friendship.friendId)
+            : this.mapper.toId(friendship.userId),
+        )
+
+        const [friends, friendProfiles] = await Promise.all([
+          User.find({
+            _id: { $in: friendIds },
+            deletedAt: null,
+          })
+            .select('_id fullName username lastActiveAt')
+            .lean<MongoUserRecord[]>(),
+          UserProfile.find({
+            userId: { $in: friendIds },
+            deletedAt: null,
+          })
+            .select('userId avatarUrl')
+            .lean<MongoUserProfileRecord[]>(),
+        ])
+
+        const profileMap = new Map(
+          friendProfiles.map((profile) => [
+            this.mapper.toId(profile.userId),
+            profile.avatarUrl ?? '',
+          ]),
+        )
+
+        return friends.map((friend) =>
+          this.mapper.toDashboardFriendEntity(friend, profileMap),
+        )
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+
+  async getRecommendationContext(
+    userId: string,
+  ): Promise<DashboardRecommendationContext> {
+    return this.execute(
+      'DASHBOARD_RECOMMENDATION_READ_FAILED',
+      'Failed to read dashboard recommendation context',
+      async () => {
+        const [latestProgress, totalTrackers] = await Promise.all([
+          TrackerProgress.findOne({
+            userId,
+            completionPercentage: { $lt: 100 },
+            deletedAt: null,
+          })
+            .sort({ lastStudiedAt: -1 })
+            .select('trackerId completionPercentage lastStudiedAt')
+            .lean<MongoTrackerProgressRecord>(),
+          Tracker.countDocuments({
+            ownerId: userId,
+            deletedAt: null,
+          }),
+        ])
+
+        const tracker = latestProgress
+          ? await Tracker.findOne({
+              _id: latestProgress.trackerId,
+              ownerId: userId,
+              deletedAt: null,
+            })
+              .select('_id title')
+              .lean<MongoTrackerTitleRecord>()
+          : null
+
+        return this.mapper.toDashboardRecommendationContext(
+          totalTrackers,
+          latestProgress,
+          tracker,
+        )
+      },
+      MongoDashboardErrorMapper.mapMongoError,
+    )
+  }
+}
+
+export const mongoDashboardRepository = new MongoDashboardRepository()

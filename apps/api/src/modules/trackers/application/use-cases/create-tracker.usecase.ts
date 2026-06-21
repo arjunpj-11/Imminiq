@@ -1,10 +1,18 @@
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateTrackerInput } from '../../domain/types/trackers.types'
 
-export class CreateTrackerUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+type CreateTrackerResultDto = ReturnType<TrackerMapperContract['toTrackerDto']>
 
-  async execute(input: CreateTrackerInput) {
-    return this.trackerRepository.createTracker(input)
+export class CreateTrackerUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
+
+  async execute(input: CreateTrackerInput): Promise<CreateTrackerResultDto> {
+    const tracker = await this.trackerRepository.createTracker(input)
+
+    return this.trackerMapper.toTrackerDto(tracker)
   }
 }

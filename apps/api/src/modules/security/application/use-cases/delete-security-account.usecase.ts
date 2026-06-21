@@ -1,38 +1,39 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
+import {
+  ACCOUNT_DELETION_RECOVERY_DAYS,
+  ACCOUNT_DELETION_RECOVERY_MS,
+} from '../../domain/constants/security.constants'
+import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
+import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
+import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
 import type {
   DeleteAccountPayload,
-  DeleteAccountResponse,
-} from '../../domain/types/security.types'
-import { SensitiveActionStepUpService } from '../services/sensitive-action-step-up.service'
+  DeleteAccountResponseDto,
+} from '../dtos/security.dto'
+import { SecurityApplicationError } from '../errors/security-application.error'
+import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
 
-const ACCOUNT_DELETION_RECOVERY_DAYS = 30
-const ACCOUNT_DELETION_RECOVERY_MS =
-  ACCOUNT_DELETION_RECOVERY_DAYS * 24 * 60 * 60 * 1000
+type DeleteSecurityAccountRepository =
+  SecurityUserRepositoryContract & SecuritySessionRepositoryContract
 
 export class DeleteSecurityAccountUseCase {
   constructor(
-    private readonly securityRepository: SecurityRepository,
-    private readonly sensitiveActionStepUpService: SensitiveActionStepUpService
+    private readonly securityRepository: DeleteSecurityAccountRepository,
+    private readonly sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
+    private readonly securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async execute(
     userId: string,
-    payload: DeleteAccountPayload
-  ): Promise<DeleteAccountResponse> {
+    payload: DeleteAccountPayload,
+  ): Promise<DeleteAccountResponseDto> {
     if (payload.confirmation !== 'DELETE') {
-      throw new ApiError(
-        400,
-        'Type DELETE to confirm account deletion',
-        'INVALID_DELETE_CONFIRMATION'
-      )
+      throw SecurityApplicationError.invalidDeleteConfirmation()
     }
 
     const user = await this.securityRepository.findUserById(userId)
 
     if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+      throw SecurityApplicationError.notFound()
     }
 
     await this.sensitiveActionStepUpService.assertSatisfied({
@@ -44,26 +45,22 @@ export class DeleteSecurityAccountUseCase {
     await this.securityRepository.revokeAllSessions(userId)
 
     const scheduledDeletionAt = new Date(
-      Date.now() + ACCOUNT_DELETION_RECOVERY_MS
+      Date.now() + ACCOUNT_DELETION_RECOVERY_MS,
     )
 
     const scheduledUser =
-      await this.securityRepository.scheduleAccountDeletion(
+      await this.securityRepository.scheduleAccountDeletion({
         userId,
-        scheduledDeletionAt
-      )
+        scheduledDeletionAt,
+      })
 
     if (!scheduledUser) {
-      throw new ApiError(
-        500,
-        'Failed to schedule account deletion',
-        'ACCOUNT_DELETE_FAILED'
-      )
+      throw SecurityApplicationError.accountDeleteFailed()
     }
 
-    await securityAuditLogger.record({
+    await this.securityAuditLogger.record({
       userId,
-      eventType: 'ACCOUNT_DELETED',
+      eventType: 'ACCOUNT_DELETION_SCHEDULED',
       outcome: 'success',
     })
 

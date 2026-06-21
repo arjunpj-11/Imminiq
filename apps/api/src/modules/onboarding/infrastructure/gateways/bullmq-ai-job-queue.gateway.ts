@@ -1,49 +1,49 @@
 import { aiQueue } from '../../../../infrastructure/queue/queues'
-
+import { OnboardingDomainError } from '../../domain/errors/onboarding-domain.error'
 import type {
-  AIJobQueueGateway,
+  AIJobQueueGatewayContract,
   EvaluateRoadmapQueuePayload,
   GenerateRoadmapQueuePayload,
-} from '../../domain/services/ai-job-queue.gateway.interface'
+} from '../../domain/services/ai-job-queue.interface'
 
-export const bullMqAIJobQueueGateway: AIJobQueueGateway = {
-  enqueueRoadmapGeneration: async (
-    payload: GenerateRoadmapQueuePayload
-  ) => {
-    await aiQueue.add(
-      'generate-roadmap',
-      payload,
-      {
-        removeOnComplete: 100,
-        removeOnFail: 100,
+export class BullMqAIJobQueueGateway implements AIJobQueueGatewayContract {
+  async enqueueRoadmapGeneration(
+    payload: GenerateRoadmapQueuePayload,
+  ): Promise<void> {
+    await this.enqueue('generate-roadmap', payload)
+  }
 
-        attempts: 3,
+  async enqueueRoadmapEvaluation(
+    payload: EvaluateRoadmapQueuePayload,
+  ): Promise<void> {
+    await this.enqueue('evaluate-roadmap', payload)
+  }
 
-        backoff: {
-          type: 'exponential',
-          delay: 30_000,
-        },
-      }
-    )
-  },
+  private async enqueue(
+    jobName: string,
+    payload: GenerateRoadmapQueuePayload | EvaluateRoadmapQueuePayload,
+  ): Promise<void> {
+    try {
+      await aiQueue.add(jobName, payload, this.getQueueOptions())
+    } catch {
+      throw new OnboardingDomainError(
+        'AI_QUEUE_ERROR',
+        'Failed to enqueue onboarding AI job',
+      )
+    }
+  }
 
-  enqueueRoadmapEvaluation: async (
-    payload: EvaluateRoadmapQueuePayload
-  ) => {
-    await aiQueue.add(
-      'evaluate-roadmap',
-      payload,
-      {
-        removeOnComplete: 100,
-        removeOnFail: 100,
-
-        attempts: 3,
-
-        backoff: {
-          type: 'exponential',
-          delay: 30_000,
-        },
-      }
-    )
-  },
+  private getQueueOptions() {
+    return {
+      removeOnComplete: 100,
+      removeOnFail: 100,
+      attempts: 3,
+      backoff: {
+        type: 'exponential',
+        delay: 30_000,
+      },
+    }
+  }
 }
+
+export const bullMqAIJobQueueGateway = new BullMqAIJobQueueGateway()

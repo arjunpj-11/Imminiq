@@ -1,16 +1,17 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerMapperContract } from '../mappers';
 
 export class RestoreTrackerUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(private readonly trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
 
   async execute(input: { trackerId: string; userId: string }) {
     const tracker = await this.trackerRepository.restoreOwnedTracker(input)
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return tracker
+    return this.trackerMapper.toTrackerDto(tracker)
   }
 }

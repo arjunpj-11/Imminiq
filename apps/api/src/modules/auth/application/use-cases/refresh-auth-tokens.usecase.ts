@@ -1,36 +1,40 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { retiredRefreshTokenCache } from '../../../../infrastructure/cache/retired-refresh-token.cache'
-import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
-import type {
-  RequestMeta,
-  TokenPair,
-} from '../../domain/types/auth.types'
-import { ensureUserCanAuthenticate } from '../services/auth-account-policy.service'
-import {
-  generateAccessToken,
-  generateRefreshToken,
-} from '../services/auth-token.service'
+import { createHash } from 'crypto'
+
+import { AuthApplicationError } from '../errors/auth-application.error'
+import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
+import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
+import type { RetiredRefreshTokenStoreContract } from '../../domain/services/retired-refresh-token-store.interface'
+import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { RequestMeta, TokenPair } from '../dtos/auth.dto'
+import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
+
+type RefreshTokensRepository =
+  AuthUserRepositoryContract & AuthSessionRepositoryContract
 
 export class RefreshAuthTokensUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: RefreshTokensRepository,
+    private readonly authTokenService: AuthTokenServiceContract,
+    private readonly retiredRefreshTokenStore: RetiredRefreshTokenStoreContract,
+    private readonly securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly authAccountPolicy: AuthAccountPolicyContract
   ) {}
 
-  async execute(
-    refreshToken: string,
-    meta?: RequestMeta
-  ): Promise<TokenPair> {
-    const tokenRecord = await this.authRepository.findRefreshToken(refreshToken)
+  async execute(refreshToken: string, meta?: RequestMeta): Promise<TokenPair> {
+    const refreshTokenHash = this.hashRefreshToken(refreshToken)
+
+    const tokenRecord =
+      await this.authRepository.findSessionByRefreshTokenHash(refreshTokenHash)
 
     if (!tokenRecord) {
       const retired =
-        await retiredRefreshTokenCache.findByRawToken(refreshToken)
+        await this.retiredRefreshTokenStore.findByRawToken(refreshToken)
 
       if (retired) {
-        await this.authRepository.revokeAllUserTokens(retired.userId)
+        await this.authRepository.revokeAllUserSessions(retired.userId)
 
-        await securityAuditLogger.record({
+        await this.securityAuditLogger.record({
           userId: retired.userId,
           eventType: 'REFRESH_TOKEN_REUSE_DETECTED',
           outcome: 'detected',
@@ -41,50 +45,47 @@ export class RefreshAuthTokensUseCase {
           },
         })
 
-        throw new ApiError(
-          401,
-          'Refresh token reuse detected. Please sign in again.',
-          'REFRESH_TOKEN_REUSE_DETECTED'
+        throw AuthApplicationError.refreshTokenReuseDetected(
+          'Refresh token reuse detected. Please sign in again.'
         )
       }
 
-      throw new ApiError(401, 'Invalid refresh token', 'UNAUTHORIZED')
+      throw AuthApplicationError.unauthorized('Invalid refresh token')
     }
 
-    const user = await this.authRepository.findById(tokenRecord.userId.toString())
+    const user = await this.authRepository.findById(tokenRecord.userId)
 
     if (!user) {
-      throw new ApiError(401, 'User not found', 'UNAUTHORIZED')
+      throw AuthApplicationError.unauthorized('User not found')
     }
 
-    ensureUserCanAuthenticate(user)
+    this.authAccountPolicy.ensureUserCanAuthenticate(user)
 
-    const accessToken = generateAccessToken(
-      user._id.toString(),
+    const accessToken = this.authTokenService.generateAccessToken(
+      user.id,
       user.role
     )
 
-    const newRefreshToken = generateRefreshToken()
+    const newRefreshToken = this.authTokenService.generateRefreshToken()
+    const newRefreshTokenHash = this.hashRefreshToken(newRefreshToken)
 
-    await retiredRefreshTokenCache.retire({
-      refreshTokenHash: tokenRecord.refreshTokenHash!,
-      userId: tokenRecord.userId.toString(),
-      sessionId: tokenRecord._id.toString(),
-      expiresAt: tokenRecord.expiresAt,
-    })
+  await this.retiredRefreshTokenStore.retire({
+  refreshTokenHash,
+  userId: tokenRecord.userId,
+  sessionId: tokenRecord.id,
+  expiresAt: tokenRecord.expiresAt,
+})
 
     const rotatedSession =
-      await this.authRepository.rotateRefreshTokenInSameSession(
-        tokenRecord._id.toString(),
-        newRefreshToken,
-        meta
-      )
+      await this.authRepository.rotateRefreshTokenInSameSession({
+        sessionId: tokenRecord.id,
+        newRefreshTokenHash,
+        meta,
+      })
 
     if (!rotatedSession) {
-      throw new ApiError(
-        401,
-        'Unable to refresh session',
-        'SESSION_REFRESH_FAILED'
+      throw AuthApplicationError.sessionRefreshFailed(
+        'Unable to refresh session'
       )
     }
 
@@ -92,5 +93,9 @@ export class RefreshAuthTokensUseCase {
       accessToken,
       refreshToken: newRefreshToken,
     }
+  }
+
+  private hashRefreshToken(refreshToken: string): string {
+    return createHash('sha256').update(refreshToken).digest('hex')
   }
 }

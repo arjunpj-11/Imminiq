@@ -1,86 +1,44 @@
-import type {
-  IdLike,
-  PaginationQuery,
-  RelationshipState,
-  UpdateMyProfileInput,
-} from '../types/users.types'
+import type { UserActivityRepositoryContract } from './user-activity.repository.interface'
+import type { UserBadgeRepositoryContract } from './user-badge.repository.interface'
+import type { UserProfileRepositoryContract } from './user-profile.repository.interface'
+import type { UserRelationshipRepositoryContract } from './user-relationship.repository.interface'
+import type { UserStreakRepositoryContract } from './user-streak.repository.interface'
+import type { UserTrackerRepositoryContract } from './user-tracker.repository.interface'
+import type { UserRepositoryContract } from './user.repository.interface'
 
-export type UserIdInput = string | IdLike
+export interface UsersRepositoryContract
+  extends UserRepositoryContract,
+    UserProfileRepositoryContract,
+    UserActivityRepositoryContract,
+    UserBadgeRepositoryContract,
+    UserStreakRepositoryContract,
+    UserTrackerRepositoryContract,
+    UserRelationshipRepositoryContract {}
 
-export interface UsersRepository {
-  findUserById(userId: string): Promise<unknown>
-  findUserByUsername(username: string): Promise<unknown>
-  findProfileByUserId(userId: UserIdInput): Promise<unknown>
+export type {
+  FindRecentUserActivityInput,
+  FindUserActivityFeedInput,
+  UserActivityListResult,
+} from './user-activity.repository.interface'
 
-  ensureProfileForUser(
-    userId: UserIdInput,
-    fallbackName?: string
-  ): Promise<unknown>
+export type {
+  EarnedUserBadgeListResult,
+  FindEarnedUserBadgesPaginatedInput,
+  UserBadgeShowcaseResult,
+} from './user-badge.repository.interface'
 
-  updateProfileByUserId(
-    userId: UserIdInput,
-    payload: UpdateMyProfileInput
-  ): Promise<unknown>
+export type {
+  EnsureUserProfileInput,
+  UpdateUserProfileInput,
+} from './user-profile.repository.interface'
 
-  findSettingsByUserId(
-    userId: UserIdInput
-  ): Promise<unknown>
+export type { GetRelationshipStateInput } from './user-relationship.repository.interface'
 
-  findLatestStreakSnapshot(
-    userId: UserIdInput
-  ): Promise<unknown>
+export type { FindUserStreakHistoryByYearInput } from './user-streak.repository.interface'
 
-  findStreakHistoryByYear(
-    userId: UserIdInput,
-    year: number
-  ): Promise<unknown[]>
+export type {
+  FindPublishedTrackersInput,
+  PublishedTrackerListResult,
+} from './user-tracker.repository.interface'
 
-  findBadgeShowcase(
-    userId: UserIdInput
-  ): Promise<{
-    catalog: unknown[]
-    earned: unknown[]
-  }>
-
-  findEarnedBadgesPaginated(
-    userId: UserIdInput,
-    page?: number,
-    limit?: number
-  ): Promise<{
-    items: unknown[]
-    total: number
-  }>
-
-  findPublishedTrackers(
-    ownerId: UserIdInput,
-    query: PaginationQuery,
-    includePrivate?: boolean
-  ): Promise<{
-    items: unknown[]
-    total: number
-  }>
-
-  findActivityFeed(
-    userId: UserIdInput,
-    page?: number,
-    limit?: number
-  ): Promise<{
-    items: unknown[]
-    total: number
-  }>
-
-  findRecentActivity(
-    userId: UserIdInput,
-    limit?: number
-  ): Promise<unknown[]>
-
-  getRelationshipState(
-    viewerUserId: string | undefined,
-    targetUserId: UserIdInput
-  ): Promise<RelationshipState>
-
-  updateUserFullName(
-    userId: string,
-    fullName: string
-  ): Promise<unknown>
-}
+export type { UpdateUserFullNameInput } from './user.repository.interface'

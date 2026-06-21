@@ -1,20 +1,25 @@
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
-import type { PaginationQuery } from '../../domain/types/users.types'
+import type { UserTrackerRepositoryContract } from '../../domain/repositories/user-tracker.repository.interface'
+import type { PaginationQuery } from '../dtos/users.dto'
+import type { UsersMapperContract } from '../mappers/users.mapper'
 
 export class GetMyPublishedTrackersUseCase {
   constructor(
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: UserTrackerRepositoryContract,
+    private readonly usersMapper: UsersMapperContract,
   ) {}
 
-  async execute(
-    userId: string,
-    query: PaginationQuery
-  ) {
+  async execute(userId: string, query: PaginationQuery) {
     const { items, total } =
-      await this.usersRepository.findPublishedTrackers(userId, query, false)
+      await this.usersRepository.findPublishedTrackers({
+        ownerId: userId,
+        query,
+        includePrivate: false,
+      })
 
     return {
-      items,
+      items: items.map((item) =>
+        this.usersMapper.toPublishedTrackerView(item),
+      ),
       pagination: {
         page: query.page,
         limit: query.limit,

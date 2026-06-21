@@ -1,8 +1,7 @@
-import {
-  DifficultyLevel,
-  QuestionType,
-  MockTestCodingDetails,
-} from '../types/mock-tests.types'
+import type { DifficultyLevel } from '../value-objects/difficulty-level.vo'
+import type { MockTestPerformanceTrend, MockTestTopicBreakdown } from '../value-objects/mock-test-analytics.vo'
+import type { MockTestCodingDetails } from '../value-objects/mock-test-coding.vo'
+import type { QuestionType } from '../value-objects/question-type.vo'
 
 export interface GenerateQuestionsInput {
   topic: string
@@ -27,8 +26,8 @@ export interface EvaluateAnswerOutput {
 
 export interface GenerateInsightsInput {
   userId: string
-  performanceTrends: object[]
-  topicBreakdown: object[]
+  performanceTrends: MockTestPerformanceTrend[]
+  topicBreakdown: MockTestTopicBreakdown[]
 }
 
 export type GeneratedMockTestQuestion = {
@@ -48,8 +47,6 @@ export interface MockTestAIServiceContract {
     description: string
     questions: GeneratedMockTestQuestion[]
   }>
-
   evaluateOpenAnswer(input: EvaluateAnswerInput): Promise<EvaluateAnswerOutput>
-
   generatePerformanceInsights(input: GenerateInsightsInput): Promise<string>
 }

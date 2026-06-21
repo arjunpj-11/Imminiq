@@ -1,11 +1,27 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+
+const getDocumentId = (document: unknown) => {
+  const doc = document as { _id?: unknown }
+
+  if (typeof doc._id === 'string') {
+    return doc._id
+  }
+
+  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
+    return doc._id.toString()
+  }
+
+  return null
+}
 
 export class GenerateLessonVisualizationUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
@@ -14,13 +30,13 @@ export class GenerateLessonVisualizationUseCase {
     userId: string
     regenerate?: boolean
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     if (!input.regenerate) {
@@ -31,7 +47,7 @@ export class GenerateLessonVisualizationUseCase {
       })
 
       if (cached) {
-        return cached
+        return this.trackerMapper.toLessonVisualizationDto(cached)
       }
     }
 
@@ -42,10 +58,8 @@ export class GenerateLessonVisualizationUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
-        'Generate the lesson before visualizing',
-        'LESSON_NOT_GENERATED'
+      throw TrackerApplicationError.lessonNotGenerated(
+        'Generate the lesson before visualizing'
       )
     }
 
@@ -59,16 +73,17 @@ export class GenerateLessonVisualizationUseCase {
       codeExample: lesson.codeExample,
     })
 
-    await this.trackerRepository.saveLessonVisualization({
-      trackerId: input.trackerId,
-      subtopicId: input.subtopicId,
-      userId: input.userId,
-      lessonId: lesson._id?.toString?.() ?? null,
-      html: result.html,
-      visualTitle: result.visualTitle,
-      visualDescription: result.visualDescription,
-    })
+    const savedVisualization =
+      await this.trackerRepository.saveLessonVisualization({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+        lessonId: getDocumentId(lesson),
+        html: result.html,
+        visualTitle: result.visualTitle,
+        visualDescription: result.visualDescription,
+      })
 
-    return result
+    return this.trackerMapper.toLessonVisualizationDto(savedVisualization)
   }
 }

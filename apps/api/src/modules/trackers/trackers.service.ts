@@ -1,253 +1,222 @@
-import { mongoTrackerRepository } from './infrastructure/repositories/mongo-tracker.repository'
-import { aiTrackerService } from './infrastructure/gateways/ai-tracker.service'
-import { pistonCodeExecutionService } from './infrastructure/gateways/piston-code-execution.service'
+import {
+  createTrackerComposition,
+  type AddMissingEvaluationTopicInput,
+  type AskLessonQuestionSolutionDoubtInput,
+  type ChatWithLessonTutorInput,
+  type ClearLessonQuestionSolutionDoubtsInput,
+  type CreateSubtopicInput,
+  type CreateTopicInput,
+  type CreateTrackerInput,
+  type GenerateLessonQuestionSolutionInput,
+  type GenerateLessonQuestionsInput,
+  type GenerateLessonVisualizationInput,
+  type GetCodeHintInput,
+  type GetLessonQuestionSolutionDoubtsInput,
+  type GetLessonQuestionSolutionInput,
+  type GetOptimizedSolutionInput,
+  type PublishTrackerInput,
+  type RunLessonCodeInput,
+  type SubmitLessonCodeInput,
+  type TrackerComposition,
+  type TrackerListInput,
+  type UpdateSubtopicProgressInput,
+  type UpdateTrackerInput,
+  type VerifyLessonAnswerInput,
+  type VerifySubtopicInput,
+  type VerifyTopicInput,
+} from './tracker.factory'
 
-import { AddMissingEvaluationTopicUseCase } from './application/use-cases/add-missing-evaluation-topic.usecase'
-import { ArchiveTrackerUseCase } from './application/use-cases/archive-tracker.usecase'
-import { AskLessonQuestionSolutionDoubtUseCase } from './application/use-cases/ask-lesson-question-solution-doubt.usecase'
-import { ChatWithLessonTutorUseCase } from './application/use-cases/chat-with-lesson-tutor.usecase'
-import { ClearLessonChatHistoryUseCase } from './application/use-cases/clear-lesson-chat-history.usecase'
-import { ClearLessonQuestionSolutionDoubtsUseCase } from './application/use-cases/clear-lesson-question-solution-doubts.usecase'
-import { CreateTrackerSubtopicUseCase } from './application/use-cases/create-tracker-subtopic.usecase'
-import { CreateTrackerTopicUseCase } from './application/use-cases/create-tracker-topic.usecase'
-import { CreateTrackerUseCase } from './application/use-cases/create-tracker.usecase'
-import { DeleteTrackerUseCase } from './application/use-cases/delete-tracker.usecase'
-import { GenerateLessonQuestionSolutionUseCase } from './application/use-cases/generate-lesson-question-solution.usecase'
-import { GenerateLessonQuestionsUseCase } from './application/use-cases/generate-lesson-questions.usecase'
-import { GenerateLessonVisualizationUseCase } from './application/use-cases/generate-lesson-visualization.usecase'
-import { GetCodeHintUseCase } from './application/use-cases/get-code-hint.usecase'
-import { GetLessonAnswerAttemptsUseCase } from './application/use-cases/get-lesson-answer-attempts.usecase'
-import { GetLessonChatHistoryUseCase } from './application/use-cases/get-lesson-chat-history.usecase'
-import { GetLessonCodeSubmissionsUseCase } from './application/use-cases/get-lesson-code-submissions.usecase'
-import { GetLessonGeneratedQuestionsUseCase } from './application/use-cases/get-lesson-generated-questions.usecase'
-import { GetLessonQuestionSolutionDoubtsUseCase } from './application/use-cases/get-lesson-question-solution-doubts.usecase'
-import { GetLessonQuestionSolutionUseCase } from './application/use-cases/get-lesson-question-solution.usecase'
-import { GetOptimizedSolutionUseCase } from './application/use-cases/get-optimized-solution.usecase'
-import { GetTrackerDetailsUseCase } from './application/use-cases/get-tracker-details.usecase'
-import { GetTrackerLessonUseCase } from './application/use-cases/get-tracker-lesson.usecase'
-import { GetTrackerRoadmapUseCase } from './application/use-cases/get-tracker-roadmap.usecase'
-import { GetTrackerSummaryUseCase } from './application/use-cases/get-tracker-summary.usecase'
-import { ListTrackersUseCase } from './application/use-cases/list-trackers.usecase'
-import { PublishTrackerUseCase } from './application/use-cases/publish-tracker.usecase'
-import { RestoreTrackerUseCase } from './application/use-cases/restore-tracker.usecase'
-import { RunLessonCodeUseCase } from './application/use-cases/run-lesson-code.usecase'
-import { SubmitLessonCodeUseCase } from './application/use-cases/submit-lesson-code.usecase'
-import { UnpublishTrackerUseCase } from './application/use-cases/unpublish-tracker.usecase'
-import { UpdateSubtopicProgressUseCase } from './application/use-cases/update-subtopic-progress.usecase'
-import { UpdateTrackerUseCase } from './application/use-cases/update-tracker.usecase'
-import { VerifyLessonAnswerUseCase } from './application/use-cases/verify-lesson-answer.usecase'
-import { VerifyTrackerSubtopicUseCase } from './application/use-cases/verify-tracker-subtopic.usecase'
-import { VerifyTrackerTopicUseCase } from './application/use-cases/verify-tracker-topic.usecase'
+export class TrackerService {
+  private readonly useCases: TrackerComposition['useCases']
+  private readonly helpers: TrackerComposition['helpers']
 
-const trackerRepository = mongoTrackerRepository
+  constructor(composition: TrackerComposition) {
+    this.useCases = composition.useCases
+    this.helpers = composition.helpers
+  }
 
-const getTrackerSummaryUseCase = new GetTrackerSummaryUseCase(trackerRepository)
-const listTrackersUseCase = new ListTrackersUseCase(trackerRepository)
-const createTrackerUseCase = new CreateTrackerUseCase(trackerRepository)
-const getTrackerDetailsUseCase = new GetTrackerDetailsUseCase(trackerRepository)
-const updateTrackerUseCase = new UpdateTrackerUseCase(trackerRepository)
-const deleteTrackerUseCase = new DeleteTrackerUseCase(trackerRepository)
-const archiveTrackerUseCase = new ArchiveTrackerUseCase(trackerRepository)
-const restoreTrackerUseCase = new RestoreTrackerUseCase(trackerRepository)
-const publishTrackerUseCase = new PublishTrackerUseCase(trackerRepository)
-const unpublishTrackerUseCase = new UnpublishTrackerUseCase(trackerRepository)
-const getTrackerRoadmapUseCase = new GetTrackerRoadmapUseCase(trackerRepository)
-const createTrackerTopicUseCase = new CreateTrackerTopicUseCase(trackerRepository)
-const createTrackerSubtopicUseCase = new CreateTrackerSubtopicUseCase(trackerRepository)
-const updateSubtopicProgressUseCase = new UpdateSubtopicProgressUseCase(trackerRepository)
-const addMissingEvaluationTopicUseCase = new AddMissingEvaluationTopicUseCase(trackerRepository)
+  hasAnyTrackerForUser(userId: string) {
+    return this.helpers.trackerRepository.hasAnyTrackerForUser(userId)
+  }
 
-const getTrackerLessonUseCase = new GetTrackerLessonUseCase(trackerRepository, aiTrackerService)
-const chatWithLessonTutorUseCase = new ChatWithLessonTutorUseCase(trackerRepository, aiTrackerService)
-const generateLessonQuestionsUseCase = new GenerateLessonQuestionsUseCase(trackerRepository, aiTrackerService)
-const generateLessonQuestionSolutionUseCase = new GenerateLessonQuestionSolutionUseCase(trackerRepository, aiTrackerService)
-const askLessonQuestionSolutionDoubtUseCase = new AskLessonQuestionSolutionDoubtUseCase(trackerRepository, aiTrackerService)
-const generateLessonVisualizationUseCase = new GenerateLessonVisualizationUseCase(trackerRepository, aiTrackerService)
-const getCodeHintUseCase = new GetCodeHintUseCase(trackerRepository, aiTrackerService)
-const getOptimizedSolutionUseCase = new GetOptimizedSolutionUseCase(trackerRepository, aiTrackerService)
-const verifyLessonAnswerUseCase = new VerifyLessonAnswerUseCase(trackerRepository, aiTrackerService)
-const verifyTrackerTopicUseCase = new VerifyTrackerTopicUseCase(trackerRepository, aiTrackerService)
-const verifyTrackerSubtopicUseCase = new VerifyTrackerSubtopicUseCase(trackerRepository, aiTrackerService)
+  getSummary(userId: string) {
+    return this.useCases.getTrackerSummary.execute(userId)
+  }
 
-const runLessonCodeUseCase = new RunLessonCodeUseCase(trackerRepository, pistonCodeExecutionService)
-const submitLessonCodeUseCase = new SubmitLessonCodeUseCase(trackerRepository, pistonCodeExecutionService)
+  listTrackers(filter: TrackerListInput) {
+    return this.useCases.listTrackers.execute(filter)
+  }
 
-const getLessonChatHistoryUseCase = new GetLessonChatHistoryUseCase(trackerRepository)
-const getLessonAnswerAttemptsUseCase = new GetLessonAnswerAttemptsUseCase(trackerRepository)
-const getLessonCodeSubmissionsUseCase = new GetLessonCodeSubmissionsUseCase(trackerRepository)
-const getLessonGeneratedQuestionsUseCase = new GetLessonGeneratedQuestionsUseCase(trackerRepository)
-const getLessonQuestionSolutionUseCase = new GetLessonQuestionSolutionUseCase(trackerRepository)
-const getLessonQuestionSolutionDoubtsUseCase = new GetLessonQuestionSolutionDoubtsUseCase(trackerRepository)
-const clearLessonChatHistoryUseCase = new ClearLessonChatHistoryUseCase(trackerRepository)
-const clearLessonQuestionSolutionDoubtsUseCase = new ClearLessonQuestionSolutionDoubtsUseCase(trackerRepository)
+  createTracker(input: CreateTrackerInput) {
+    return this.useCases.createTracker.execute(input)
+  }
 
-type TrackerListInput = Parameters<typeof listTrackersUseCase.execute>[0]
-type CreateTrackerInput = Parameters<typeof createTrackerUseCase.execute>[0]
-type UpdateTrackerInput = Parameters<typeof updateTrackerUseCase.execute>[0]
-type CreateTopicInput = Parameters<typeof createTrackerTopicUseCase.execute>[0]
-type CreateSubtopicInput = Parameters<typeof createTrackerSubtopicUseCase.execute>[0]
-type UpdateSubtopicProgressInput = Parameters<typeof updateSubtopicProgressUseCase.execute>[0]
-type ChatWithLessonTutorInput = Parameters<typeof chatWithLessonTutorUseCase.execute>[0]
-type GenerateLessonQuestionsInput = Parameters<typeof generateLessonQuestionsUseCase.execute>[0]
-type GetLessonQuestionSolutionInput = Parameters<typeof getLessonQuestionSolutionUseCase.execute>[0]
-type GenerateLessonQuestionSolutionInput = Parameters<typeof generateLessonQuestionSolutionUseCase.execute>[0]
-type GetLessonQuestionSolutionDoubtsInput = Parameters<typeof getLessonQuestionSolutionDoubtsUseCase.execute>[0]
-type AskLessonQuestionSolutionDoubtInput = Parameters<typeof askLessonQuestionSolutionDoubtUseCase.execute>[0]
-type VerifyLessonAnswerInput = Parameters<typeof verifyLessonAnswerUseCase.execute>[0]
-type RunLessonCodeInput = Parameters<typeof runLessonCodeUseCase.execute>[0]
-type SubmitLessonCodeInput = Parameters<typeof submitLessonCodeUseCase.execute>[0]
-type GetCodeHintInput = Parameters<typeof getCodeHintUseCase.execute>[0]
-type GetOptimizedSolutionInput = Parameters<typeof getOptimizedSolutionUseCase.execute>[0]
-type ClearLessonQuestionSolutionDoubtsInput = Parameters<typeof clearLessonQuestionSolutionDoubtsUseCase.execute>[0]
-type VerifyTopicInput = Parameters<typeof verifyTrackerTopicUseCase.execute>[0]
-type VerifySubtopicInput = Parameters<typeof verifyTrackerSubtopicUseCase.execute>[0]
-type AddMissingEvaluationTopicInput = Parameters<typeof addMissingEvaluationTopicUseCase.execute>[0]
-type GenerateLessonVisualizationInput = Parameters<typeof generateLessonVisualizationUseCase.execute>[0]
-type PublishTrackerInput = Parameters<typeof publishTrackerUseCase.execute>[0]
+  getTrackerDetails(input: { trackerId: string; userId: string }) {
+    return this.useCases.getTrackerDetails.execute(input)
+  }
 
+  updateTracker(input: UpdateTrackerInput) {
+    return this.useCases.updateTracker.execute(input)
+  }
 
-export const trackerService = {
-  hasAnyTrackerForUser: (userId: string) =>
-    trackerRepository.hasAnyTrackerForUser(userId),
+  deleteTracker(input: { trackerId: string; userId: string }) {
+    return this.useCases.deleteTracker.execute(input)
+  }
 
-  getSummary: (userId: string) =>
-    getTrackerSummaryUseCase.execute(userId),
+  archiveTracker(input: { trackerId: string; userId: string }) {
+    return this.useCases.archiveTracker.execute(input)
+  }
 
-  listTrackers: (filter: TrackerListInput) =>
-    listTrackersUseCase.execute(filter),
+  restoreTracker(input: { trackerId: string; userId: string }) {
+    return this.useCases.restoreTracker.execute(input)
+  }
 
-  createTracker: (input: CreateTrackerInput) =>
-    createTrackerUseCase.execute(input),
+  publishTracker(input: PublishTrackerInput) {
+    return this.useCases.publishTracker.execute(input)
+  }
 
-  getTrackerDetails: (input: { trackerId: string; userId: string }) =>
-    getTrackerDetailsUseCase.execute(input),
+  unpublishTracker(input: { trackerId: string; userId: string }) {
+    return this.useCases.unpublishTracker.execute(input)
+  }
 
-  updateTracker: (input: UpdateTrackerInput) =>
-    updateTrackerUseCase.execute(input),
+  getRoadmap(input: { trackerId: string; userId: string }) {
+    return this.useCases.getTrackerRoadmap.execute(input)
+  }
 
-  deleteTracker: (input: { trackerId: string; userId: string }) =>
-    deleteTrackerUseCase.execute(input),
+  createTopic(input: CreateTopicInput) {
+    return this.useCases.createTrackerTopic.execute(input)
+  }
 
-  archiveTracker: (input: { trackerId: string; userId: string }) =>
-    archiveTrackerUseCase.execute(input),
+  createSubtopic(input: CreateSubtopicInput) {
+    return this.useCases.createTrackerSubtopic.execute(input)
+  }
 
-  restoreTracker: (input: { trackerId: string; userId: string }) =>
-    restoreTrackerUseCase.execute(input),
+  updateSubtopicProgress(input: UpdateSubtopicProgressInput) {
+    return this.useCases.updateSubtopicProgress.execute(input)
+  }
 
-publishTracker: (input: PublishTrackerInput) =>
-  publishTrackerUseCase.execute(input),
-
-  unpublishTracker: (input: { trackerId: string; userId: string }) =>
-    unpublishTrackerUseCase.execute(input),
-
-  getRoadmap: (input: { trackerId: string; userId: string }) =>
-    getTrackerRoadmapUseCase.execute(input),
-
-  createTopic: (input: CreateTopicInput) =>
-    createTrackerTopicUseCase.execute(input),
-
-  createSubtopic: (input: CreateSubtopicInput) =>
-    createTrackerSubtopicUseCase.execute(input),
-
-  updateSubtopicProgress: (input: UpdateSubtopicProgressInput) =>
-    updateSubtopicProgressUseCase.execute(input),
-
-  getLesson: (input: {
+  getLesson(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }) =>
-    getTrackerLessonUseCase.execute(input),
+  }) {
+    return this.useCases.getTrackerLesson.execute(input)
+  }
 
-  getLessonChatHistory: (input: {
+  getLessonChatHistory(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }) =>
-    getLessonChatHistoryUseCase.execute(input),
+  }) {
+    return this.useCases.getLessonChatHistory.execute(input)
+  }
 
-  chatWithLessonTutor: (input: ChatWithLessonTutorInput) =>
-    chatWithLessonTutorUseCase.execute(input),
+  chatWithLessonTutor(input: ChatWithLessonTutorInput) {
+    return this.useCases.chatWithLessonTutor.execute(input)
+  }
 
-  getLessonGeneratedQuestions: (input: {
+  getLessonGeneratedQuestions(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }) =>
-    getLessonGeneratedQuestionsUseCase.execute(input),
+  }) {
+    return this.useCases.getLessonGeneratedQuestions.execute(input)
+  }
 
-  generateLessonQuestions: (input: GenerateLessonQuestionsInput) =>
-    generateLessonQuestionsUseCase.execute(input),
+  generateLessonQuestions(input: GenerateLessonQuestionsInput) {
+    return this.useCases.generateLessonQuestions.execute(input)
+  }
 
-  getLessonQuestionSolution: (input: GetLessonQuestionSolutionInput) =>
-    getLessonQuestionSolutionUseCase.execute(input),
+  getLessonQuestionSolution(input: GetLessonQuestionSolutionInput) {
+    return this.useCases.getLessonQuestionSolution.execute(input)
+  }
 
-  generateLessonQuestionSolution: (
+  generateLessonQuestionSolution(
     input: GenerateLessonQuestionSolutionInput
-  ) =>
-    generateLessonQuestionSolutionUseCase.execute(input),
+  ) {
+    return this.useCases.generateLessonQuestionSolution.execute(input)
+  }
 
-  getLessonQuestionSolutionDoubts: (
+  getLessonQuestionSolutionDoubts(
     input: GetLessonQuestionSolutionDoubtsInput
-  ) =>
-    getLessonQuestionSolutionDoubtsUseCase.execute(input),
+  ) {
+    return this.useCases.getLessonQuestionSolutionDoubts.execute(input)
+  }
 
-  askLessonQuestionSolutionDoubt: (
+  askLessonQuestionSolutionDoubt(
     input: AskLessonQuestionSolutionDoubtInput
-  ) =>
-    askLessonQuestionSolutionDoubtUseCase.execute(input),
+  ) {
+    return this.useCases.askLessonQuestionSolutionDoubt.execute(input)
+  }
 
-  getLessonAnswerAttempts: (input: {
+  getLessonAnswerAttempts(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }) =>
-    getLessonAnswerAttemptsUseCase.execute(input),
+  }) {
+    return this.useCases.getLessonAnswerAttempts.execute(input)
+  }
 
-  verifyLessonAnswer: (input: VerifyLessonAnswerInput) =>
-    verifyLessonAnswerUseCase.execute(input),
+  verifyLessonAnswer(input: VerifyLessonAnswerInput) {
+    return this.useCases.verifyLessonAnswer.execute(input)
+  }
 
-  getLessonCodeSubmissions: (input: {
+  getLessonCodeSubmissions(input: {
     trackerId: string
     subtopicId: string
     userId: string
     action?: 'run' | 'submit'
-  }) =>
-    getLessonCodeSubmissionsUseCase.execute(input),
+  }) {
+    return this.useCases.getLessonCodeSubmissions.execute(input)
+  }
 
-  runLessonCode: (input: RunLessonCodeInput) =>
-    runLessonCodeUseCase.execute(input),
+  runLessonCode(input: RunLessonCodeInput) {
+    return this.useCases.runLessonCode.execute(input)
+  }
 
-  submitLessonCode: (input: SubmitLessonCodeInput) =>
-    submitLessonCodeUseCase.execute(input),
+  submitLessonCode(input: SubmitLessonCodeInput) {
+    return this.useCases.submitLessonCode.execute(input)
+  }
 
-  getCodeHint: (input: GetCodeHintInput) =>
-    getCodeHintUseCase.execute(input),
+  getCodeHint(input: GetCodeHintInput) {
+    return this.useCases.getCodeHint.execute(input)
+  }
 
-  getOptimizedSolution: (input: GetOptimizedSolutionInput) =>
-    getOptimizedSolutionUseCase.execute(input),
+  getOptimizedSolution(input: GetOptimizedSolutionInput) {
+    return this.useCases.getOptimizedSolution.execute(input)
+  }
 
-  clearLessonChatHistory: (input: {
+  clearLessonChatHistory(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }) =>
-    clearLessonChatHistoryUseCase.execute(input),
+  }) {
+    return this.useCases.clearLessonChatHistory.execute(input)
+  }
 
-  clearLessonQuestionSolutionDoubts: (
+  clearLessonQuestionSolutionDoubts(
     input: ClearLessonQuestionSolutionDoubtsInput
-  ) =>
-    clearLessonQuestionSolutionDoubtsUseCase.execute(input),
+  ) {
+    return this.useCases.clearLessonQuestionSolutionDoubts.execute(input)
+  }
 
-  verifyTopic: (input: VerifyTopicInput) =>
-    verifyTrackerTopicUseCase.execute(input),
+  verifyTopic(input: VerifyTopicInput) {
+    return this.useCases.verifyTrackerTopic.execute(input)
+  }
 
-  verifySubtopic: (input: VerifySubtopicInput) =>
-    verifyTrackerSubtopicUseCase.execute(input),
+  verifySubtopic(input: VerifySubtopicInput) {
+    return this.useCases.verifyTrackerSubtopic.execute(input)
+  }
 
-  addMissingEvaluationTopic: (input: AddMissingEvaluationTopicInput) =>
-    addMissingEvaluationTopicUseCase.execute(input),
+  addMissingEvaluationTopic(input: AddMissingEvaluationTopicInput) {
+    return this.useCases.addMissingEvaluationTopic.execute(input)
+  }
 
-  generateLessonVisualization: (input: GenerateLessonVisualizationInput) =>
-    generateLessonVisualizationUseCase.execute(input),
+  generateLessonVisualization(input: GenerateLessonVisualizationInput) {
+    return this.useCases.generateLessonVisualization.execute(input)
+  }
 }
+
+export const trackerService = new TrackerService(
+  createTrackerComposition()
+)

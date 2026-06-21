@@ -1,31 +1,36 @@
 import { z } from 'zod'
 
-export const submitModerationAppealSchema = z.object({
-  identifier: z
-    .string()
-    .trim()
-    .min(1, 'Email or phone number is required')
-    .max(120, 'Identifier is too long'),
+const identifierSchema = z
+  .string()
+  .trim()
+  .min(1, 'Email or phone number is required')
+  .max(120, 'Identifier is too long')
+  .refine((value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+    const phoneRegex = /^[+\d][\d\s\-()]{6,}$/
 
-  appealReason: z
-    .string()
-    .trim()
-    .min(10, 'Appeal reason must be at least 10 characters')
-    .max(2000, 'Appeal reason must not exceed 2000 characters'),
+    return emailRegex.test(value) || phoneRegex.test(value)
+  }, 'Enter a valid email address or phone number')
+
+const appealReasonSchema = z
+  .string()
+  .trim()
+  .min(10, 'Appeal reason must be at least 10 characters')
+  .max(2000, 'Appeal reason must not exceed 2000 characters')
+
+export const submitModerationAppealSchema = z.object({
+  identifier: identifierSchema,
+  appealReason: appealReasonSchema,
 })
 
-export type SubmitModerationAppealPayload = z.infer<
+export const getModerationAppealStatusSchema = z.object({
+  identifier: identifierSchema,
+})
+
+export type SubmitModerationAppealInput = z.infer<
   typeof submitModerationAppealSchema
 >
 
-export const getModerationAppealStatusSchema = z.object({
-  identifier: z
-    .string()
-    .trim()
-    .min(1, 'Email or phone number is required')
-    .max(120, 'Identifier is too long'),
-})
-
-export type GetModerationAppealStatusPayload = z.infer<
+export type GetModerationAppealStatusInput = z.infer<
   typeof getModerationAppealStatusSchema
 >

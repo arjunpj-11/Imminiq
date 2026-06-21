@@ -1,17 +1,18 @@
 import { Router } from 'express'
 
+import { authenticate } from '../../../shared/middlewares/auth.middleware'
+import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware'
 import {
   avatarUpload,
   bannerUpload,
 } from '../../../shared/middlewares/profile-image-upload'
-import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware'
 import {
   authenticatedApiIpLimiter,
   profileImageUploadIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { uploadsController } from './uploads.controller'
+import { UPLOAD_ROUTE_PATHS } from './uploads.route.constants'
 import {
   generateAiAvatarPreviewSchema,
   generateAiBannerPreviewSchema,
@@ -19,41 +20,47 @@ import {
 
 const router = Router()
 
-router.use(
-  authenticatedApiIpLimiter,
-  authenticate
-)
+// ─── PROTECTED ───────────────────────────────────────────────
+
+router.use(authenticatedApiIpLimiter, authenticate)
 
 router.post(
-  '/avatar',
+  UPLOAD_ROUTE_PATHS.AVATAR,
   profileImageUploadIpLimiter,
   avatarUpload.single('file'),
   validateUploadedImageSignature,
   uploadsController.uploadAvatar
 )
 
-router.delete('/avatar', uploadsController.removeAvatar)
+router.delete(
+  UPLOAD_ROUTE_PATHS.AVATAR,
+  uploadsController.removeAvatar
+)
 
 router.post(
-  '/avatar/ai-preview',
+  UPLOAD_ROUTE_PATHS.AVATAR_AI_PREVIEW,
   validate(generateAiAvatarPreviewSchema),
   uploadsController.generateAiAvatarPreview
 )
 
 router.post(
-  '/banner',
+  UPLOAD_ROUTE_PATHS.BANNER,
   profileImageUploadIpLimiter,
   bannerUpload.single('file'),
   validateUploadedImageSignature,
   uploadsController.uploadBanner
 )
 
-router.delete('/banner', uploadsController.removeBanner)
+router.delete(
+  UPLOAD_ROUTE_PATHS.BANNER,
+  uploadsController.removeBanner
+)
 
 router.post(
-  '/banner/ai-preview',
+  UPLOAD_ROUTE_PATHS.BANNER_AI_PREVIEW,
   validate(generateAiBannerPreviewSchema),
   uploadsController.generateAiBannerPreview
 )
 
 export default router
+export { router as uploadsRoutes }

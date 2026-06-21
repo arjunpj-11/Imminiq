@@ -1,12 +1,35 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+// apps/api/src/modules/trackers/application/use-cases/ask-lesson-question-solution-doubt.usecase.ts
+
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
-import { getDocumentId, hashQuestion } from '../utils/tracker-question.util'
+import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+
+type AskLessonQuestionSolutionDoubtResultDto = ReturnType<
+  TrackerMapperContract['toLessonQuestionSolutionDoubtAnswerDto']
+>
+
+const getDocumentId = (document: unknown) => {
+  const doc = document as { _id?: unknown }
+
+  if (typeof doc._id === 'string') {
+    return doc._id
+  }
+
+  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
+    return doc._id.toString()
+  }
+
+  return null
+}
 
 export class AskLessonQuestionSolutionDoubtUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly questionHasher: QuestionHasherServiceContract,
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -15,14 +38,14 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     userId: string
     question: string
     message: string
-  }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  }): Promise<AskLessonQuestionSolutionDoubtResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -32,14 +55,12 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
+      throw TrackerApplicationError.lessonNotGenerated(
         'Generate the lesson before asking solution doubt',
-        'LESSON_NOT_GENERATED'
       )
     }
 
-    const questionHash = hashQuestion(input.question)
+    const questionHash = this.questionHasher.hash(input.question)
 
     const solution = await this.trackerRepository.findLessonQuestionSolution({
       trackerId: input.trackerId,
@@ -49,10 +70,8 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     })
 
     if (!solution) {
-      throw new ApiError(
-        404,
+      throw TrackerApplicationError.solutionNotGenerated(
         'Generate the solution before asking doubts',
-        'SOLUTION_NOT_GENERATED'
       )
     }
 
@@ -64,7 +83,7 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     const solutionText = typedSolution.solution || ''
 
     if (!solutionText) {
-      throw new ApiError(409, 'Saved solution is empty', 'SOLUTION_EMPTY')
+      throw TrackerApplicationError.solutionEmpty('Saved solution is empty')
     }
 
     const lessonId = getDocumentId(lesson)
@@ -82,12 +101,13 @@ export class AskLessonQuestionSolutionDoubtUseCase {
       content: input.message,
     })
 
-    const history = await this.trackerRepository.getLessonQuestionSolutionDoubts({
-      trackerId: input.trackerId,
-      subtopicId: input.subtopicId,
-      userId: input.userId,
-      questionHash,
-    })
+    const history =
+      await this.trackerRepository.getLessonQuestionSolutionDoubts({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+        questionHash,
+      })
 
     const messages = history.map((item) => {
       const message = item as {
@@ -101,14 +121,14 @@ export class AskLessonQuestionSolutionDoubtUseCase {
       }
     })
 
-    const answer = await this.trackerAIService.chatWithLessonQuestionSolutionDoubt({
-      lessonTitle: lesson.title,
-      lessonExplanation: lesson.explanation,
-      question: input.question,
-      solution: solutionText,
-      messages,
-    })
-
+ const answer =
+  await this.trackerAIService.chatWithLessonQuestionSolutionDoubt({
+    lessonTitle: lesson.title,
+    lessonExplanation: lesson.explanation,
+    question: input.question,
+    solution: solutionText,
+    messages,
+  })
     await this.trackerRepository.createLessonQuestionSolutionDoubt({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
@@ -121,8 +141,8 @@ export class AskLessonQuestionSolutionDoubtUseCase {
       content: answer,
     })
 
-    return {
+    return this.trackerMapper.toLessonQuestionSolutionDoubtAnswerDto({
       answer,
-    }
+    })
   }
 }

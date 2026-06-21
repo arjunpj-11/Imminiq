@@ -1,110 +1,141 @@
 import { Router } from 'express'
-import { settingsController } from './settings.controller'
+
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
-import { validate } from '../../../shared/middlewares/validate'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
+import { validate } from '../../../shared/middlewares/validate'
+import { settingsController } from './settings.controller'
+import { SETTINGS_ROUTE_PATHS } from './settings.route.constants'
 import {
   updateAccountSettingsSchema,
+  updateAIBehaviourSchema,
   updateAppearanceSchema,
-  updateNotificationsSchema,
-  updatePrivacySchema,
   updateCodeEditorSchema,
   updateCompilerSchema,
-  updateAIBehaviourSchema,
-  updateLearningJourneySchema,
-  updateGesturesSchema,
-  updateQuietHoursSchema,
-  updateEmailDigestSchema,
   updateCookieConsentSchema,
+  updateEmailDigestSchema,
+  updateGesturesSchema,
+  updateLearningJourneySchema,
+  updateNotificationsSchema,
+  updatePrivacySchema,
+  updateQuietHoursSchema,
 } from './settings.schema'
 
 const router = Router()
 
-router.use(
-  authenticatedApiIpLimiter,
-  authenticate
+router.use(authenticatedApiIpLimiter, authenticate)
+
+// ─── READ SETTINGS ───────────────────────────────────────────
+
+router.get(
+  SETTINGS_ROUTE_PATHS.ROOT,
+  settingsController.getAllSettings
 )
 
-router.get('/', settingsController.getAllSettings)
+router.get(
+  SETTINGS_ROUTE_PATHS.APPEARANCE,
+  settingsController.getAppearanceSettings
+)
+
+router.get(
+  SETTINGS_ROUTE_PATHS.NOTIFICATIONS,
+  settingsController.getNotificationSettings
+)
+
+router.get(
+  SETTINGS_ROUTE_PATHS.PRIVACY,
+  settingsController.getPrivacySettings
+)
+
+router.get(
+  SETTINGS_ROUTE_PATHS.GESTURES,
+  settingsController.getGestureSettings
+)
+
+// ─── UPDATE SETTINGS ─────────────────────────────────────────
 
 router.patch(
-  '/account',
+  SETTINGS_ROUTE_PATHS.ACCOUNT,
   validate(updateAccountSettingsSchema),
   settingsController.updateAccountSettings
 )
 
-router.get('/appearance', settingsController.getAppearanceSettings)
 router.patch(
-  '/appearance',
+  SETTINGS_ROUTE_PATHS.APPEARANCE,
   validate(updateAppearanceSchema),
   settingsController.updateAppearance
 )
 
-router.get('/notifications', settingsController.getNotificationSettings)
 router.patch(
-  '/notifications',
+  SETTINGS_ROUTE_PATHS.NOTIFICATIONS,
   validate(updateNotificationsSchema),
   settingsController.updateNotifications
 )
 
 router.patch(
-  '/notifications/quiet-hours',
+  SETTINGS_ROUTE_PATHS.NOTIFICATION_QUIET_HOURS,
   validate(updateQuietHoursSchema),
   settingsController.updateQuietHours
 )
 
 router.patch(
-  '/notifications/email-digest',
+  SETTINGS_ROUTE_PATHS.NOTIFICATION_EMAIL_DIGEST,
   validate(updateEmailDigestSchema),
   settingsController.updateEmailDigest
 )
 
-router.get('/privacy', settingsController.getPrivacySettings)
 router.patch(
-  '/privacy',
+  SETTINGS_ROUTE_PATHS.PRIVACY,
   validate(updatePrivacySchema),
   settingsController.updatePrivacy
 )
 
 router.patch(
-  '/code-editor',
+  SETTINGS_ROUTE_PATHS.CODE_EDITOR,
   validate(updateCodeEditorSchema),
   settingsController.updateCodeEditor
 )
 
 router.patch(
-  '/compiler',
+  SETTINGS_ROUTE_PATHS.COMPILER,
   validate(updateCompilerSchema),
   settingsController.updateCompiler
 )
 
 router.patch(
-  '/ai-behavior',
+  SETTINGS_ROUTE_PATHS.AI_BEHAVIOR,
   validate(updateAIBehaviourSchema),
   settingsController.updateAIBehaviour
 )
 
 router.patch(
-  '/learning-journey',
+  SETTINGS_ROUTE_PATHS.LEARNING_JOURNEY,
   validate(updateLearningJourneySchema),
   settingsController.updateLearningJourney
 )
 
-router.get('/gestures', settingsController.getGestureSettings)
 router.patch(
-  '/gestures',
+  SETTINGS_ROUTE_PATHS.GESTURES,
   validate(updateGesturesSchema),
   settingsController.updateGestures
 )
 
 router.patch(
-  '/preferences',
+  SETTINGS_ROUTE_PATHS.PREFERENCES,
   validate(updateCookieConsentSchema),
   settingsController.updateCookieConsent
 )
 
-router.post('/accept-terms', settingsController.acceptTerms)
+// ─── ACCOUNT AGREEMENTS / RESET ──────────────────────────────
 
-router.post('/reset', settingsController.resetToDefaults)
+router.post(
+  SETTINGS_ROUTE_PATHS.ACCEPT_TERMS,
+  settingsController.acceptTerms
+)
+
+router.post(
+  SETTINGS_ROUTE_PATHS.RESET,
+  settingsController.resetToDefaults
+)
 
 export default router
+export { router as settingsRoutes }

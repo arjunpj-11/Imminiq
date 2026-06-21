@@ -1,60 +1,50 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { ModerationAppealRepository } from '../../domain/repositories/moderation-appeal.repository.interface'
+import type { ModerationAppealCommandRepositoryContract } from '../../domain/repositories/moderation-appeal-command.repository.interface'
+import type { ModerationAppealQueryRepositoryContract } from '../../domain/repositories/moderation-appeal-query.repository.interface'
 import type {
   SubmitModerationAppealPayload,
-  SubmitModerationAppealResult,
-} from '../../domain/types/moderation-appeal.types'
-import { generateModerationAppealCaseId } from '../services/moderation-appeal-case-id.service'
+  SubmitModerationAppealResultDto,
+} from '../dtos/moderation-appeal.dto'
+import type { ModerationAppealMapperContract } from '../mappers/moderation-appeal.mapper'
+import type { ModerationAppealSubmissionPolicyContract } from '../policies/moderation-appeal-submission-policy.policy'
+import type { ModerationAppealCaseIdServiceContract } from '../services/moderation-appeal-case-id.service'
+
+type SubmitModerationAppealRepository =
+  ModerationAppealQueryRepositoryContract &
+  ModerationAppealCommandRepositoryContract
 
 export class SubmitModerationAppealUseCase {
   constructor(
-    private readonly moderationAppealRepository: ModerationAppealRepository
+    private readonly moderationAppealRepository: SubmitModerationAppealRepository,
+    private readonly moderationAppealCaseIdService: ModerationAppealCaseIdServiceContract,
+    private readonly moderationAppealSubmissionPolicy: ModerationAppealSubmissionPolicyContract,
+    private readonly moderationAppealMapper: ModerationAppealMapperContract,
   ) {}
 
   async execute(
-    payload: SubmitModerationAppealPayload
-  ): Promise<SubmitModerationAppealResult> {
+    payload: SubmitModerationAppealPayload,
+  ): Promise<SubmitModerationAppealResultDto> {
     const user =
       await this.moderationAppealRepository.findRestrictedUserByIdentifier(
-        payload.identifier
+        payload.identifier,
       )
 
-    if (!user) {
-      throw new ApiError(
-        404,
-        'No restricted account was found for this email or phone number.',
-        'RESTRICTED_ACCOUNT_NOT_FOUND'
-      )
-    }
+    this.moderationAppealSubmissionPolicy.ensureRestrictedUserExists(user)
 
     const existingAppeal =
-      await this.moderationAppealRepository.findActiveAppealForUser(
-        user._id.toString()
-      )
+      await this.moderationAppealRepository.findActiveAppealForUser(user.id)
 
-    if (existingAppeal) {
-      throw new ApiError(
-        409,
-        'An appeal is already under review for this account.',
-        'ACTIVE_APPEAL_ALREADY_EXISTS'
-      )
-    }
+    this.moderationAppealSubmissionPolicy.ensureNoActiveAppeal(existingAppeal)
 
-    const caseId = await generateModerationAppealCaseId(
-      this.moderationAppealRepository
-    )
+    const caseId =
+      await this.moderationAppealCaseIdService.generateUniqueCaseId()
 
     const appeal = await this.moderationAppealRepository.createAppeal({
-      userId: user._id.toString(),
+      userId: user.id,
       caseId,
       identifier: payload.identifier,
       appealReason: payload.appealReason,
     })
 
-    return {
-      caseId: appeal.caseId,
-      status: appeal.status,
-      submittedAt: appeal.createdAt,
-    }
+    return this.moderationAppealMapper.toSubmitResult(appeal)
   }
 }

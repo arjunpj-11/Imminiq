@@ -1,23 +1,35 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+// apps/api/src/modules/trackers/application/use-cases/clear-lesson-chat-history.usecase.ts
+
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+
+type ClearLessonChatHistoryResultDto = ReturnType<
+  TrackerMapperContract['toClearLessonHistoryResultDto']
+>
 
 export class ClearLessonChatHistoryUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract,
+  ) {}
 
   async execute(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  }): Promise<ClearLessonChatHistoryResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerRepository.clearLessonChatMessages(input)
+    const result = await this.trackerRepository.clearLessonChatMessages(input)
+
+    return this.trackerMapper.toClearLessonHistoryResultDto(result)
   }
 }

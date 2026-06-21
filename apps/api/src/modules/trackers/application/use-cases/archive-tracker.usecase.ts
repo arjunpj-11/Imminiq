@@ -1,16 +1,25 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+
+type ArchiveTrackerResultDto = ReturnType<TrackerMapperContract['toTrackerDto']>
 
 export class ArchiveTrackerUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
 
-  async execute(input: { trackerId: string; userId: string }) {
+  async execute(input: {
+    trackerId: string
+    userId: string
+  }): Promise<ArchiveTrackerResultDto> {
     const tracker = await this.trackerRepository.archiveOwnedTracker(input)
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return tracker
+    return this.trackerMapper.toTrackerDto(tracker)
   }
 }

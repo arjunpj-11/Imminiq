@@ -1,5 +1,6 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 type ExistingSubtopic = {
@@ -22,23 +23,30 @@ type VerifyTrackerSubtopicInput = {
   existingSubtopics: ExistingSubtopic[]
 }
 
+type VerifyTrackerSubtopicResultDto = ReturnType<
+  TrackerMapperContract['toTrackerAIValidationDto']
+>
+
 export class VerifyTrackerSubtopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
-  async execute(input: VerifyTrackerSubtopicInput) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  async execute(
+    input: VerifyTrackerSubtopicInput,
+  ): Promise<VerifyTrackerSubtopicResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerAIService.verifyTrackerSubtopic({
+    const result = await this.trackerAIService.verifyTrackerSubtopic({
       trackerTitle: input.trackerTitle || tracker.title || '',
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,
@@ -47,5 +55,7 @@ export class VerifyTrackerSubtopicUseCase {
       difficulty: input.difficulty,
       existingSubtopics: input.existingSubtopics,
     })
+
+    return this.trackerMapper.toTrackerAIValidationDto(result)
   }
 }

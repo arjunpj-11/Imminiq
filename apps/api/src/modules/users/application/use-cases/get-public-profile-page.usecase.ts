@@ -1,63 +1,50 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
+import type { UserActivityRepositoryContract } from '../../domain/repositories/user-activity.repository.interface'
+import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
+import type { UserRelationshipRepositoryContract } from '../../domain/repositories/user-relationship.repository.interface'
+import type { UserTrackerRepositoryContract } from '../../domain/repositories/user-tracker.repository.interface'
+import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
 import type {
-  ActivityRecord,
   PaginationQuery,
-  ProfileRecord,
   PublicProfilePageView,
-  UserRecord,
-} from '../../domain/types/users.types'
-import {
-  getBadgeShowcase,
-  getStats,
-  getStreakSummary,
-} from '../helpers/users-profile-data.helper'
-import {
-  mapActivity,
-  mapProfile,
-  mapUser,
-  toIdString,
-} from '../utils/users-view-mappers'
+} from '../dtos/users.dto'
+import { UsersApplicationError } from '../errors/users-application.error'
+import type { UsersMapperContract } from '../mappers/users.mapper'
+import type { UsersProfileDataServiceContract } from '../services/users-profile-data.service'
+
+type PublicProfileRepository =
+  UserRepositoryContract &
+  UserProfileRepositoryContract &
+  UserTrackerRepositoryContract &
+  UserActivityRepositoryContract &
+  UserRelationshipRepositoryContract
 
 export class GetPublicProfilePageUseCase {
   constructor(
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: PublicProfileRepository,
+    private readonly usersMapper: UsersMapperContract,
+    private readonly usersProfileDataService: UsersProfileDataServiceContract,
   ) {}
 
   async execute(
     username: string,
     viewerUserId: string | undefined,
-    query: PaginationQuery
+    query: PaginationQuery,
   ): Promise<PublicProfilePageView> {
-    const user =
-      (await this.usersRepository.findUserByUsername(
-        username
-      )) as UserRecord | null
+    const user = await this.usersRepository.findByUsername(username)
 
     if (!user) {
-      throw new ApiError(404, 'User not found')
+      throw UsersApplicationError.userNotFound()
     }
 
-    const userId = toIdString(user._id)
-
     const [profile, settings] = await Promise.all([
-      this.usersRepository.ensureProfileForUser(userId, user.fullName ?? ''),
-      this.usersRepository.findSettingsByUserId(userId),
+      this.usersRepository.ensureForUser({
+        userId: user.id,
+      }),
+      this.usersRepository.findPrivacySettings(user.id),
     ])
 
-    const typedProfile = profile as ProfileRecord
-    const typedSettings = settings as {
-      privacyShowProfile?: boolean
-      privacyShowStats?: boolean
-      privacyShowTrackers?: boolean
-      privacyShowActivity?: boolean
-    } | null
-
-    if (
-      !typedProfile.publicProfileEnabled ||
-      typedSettings?.privacyShowProfile === false
-    ) {
-      throw new ApiError(404, 'Public profile not available')
+    if (!profile.publicProfileEnabled || settings?.showProfile === false) {
+      throw UsersApplicationError.publicProfileNotAvailable()
     }
 
     const [
@@ -68,47 +55,58 @@ export class GetPublicProfilePageUseCase {
       recentActivity,
       relationship,
     ] = await Promise.all([
-      typedSettings?.privacyShowStats === false
+      settings?.showStats === false
         ? Promise.resolve(null)
-        : getStats(this.usersRepository, userId, user, typedProfile),
+        : this.usersProfileDataService.getStats(user.id, user, profile),
 
-      typedSettings?.privacyShowStats === false
+      settings?.showStats === false
         ? Promise.resolve(null)
-        : getStreakSummary(this.usersRepository, userId),
+        : this.usersProfileDataService.getStreakSummary(user.id),
 
-      getBadgeShowcase(this.usersRepository, userId),
+      this.usersProfileDataService.getBadgeShowcase(user.id),
 
-      typedSettings?.privacyShowTrackers === false
-        ? Promise.resolve({
-            items: [],
-            total: 0,
-          })
-        : this.usersRepository.findPublishedTrackers(userId, query, false),
+      settings?.showTrackers === false
+        ? Promise.resolve({ items: [], total: 0 })
+        : this.usersRepository.findPublishedTrackers({
+            ownerId: user.id,
+            query,
+            includePrivate: false,
+          }),
 
-      typedSettings?.privacyShowActivity === false
+      settings?.showActivity === false
         ? Promise.resolve(null)
         : this.usersRepository
-            .findRecentActivity(userId, 10)
-            .then((items) => (items as ActivityRecord[]).map(mapActivity)),
+            .findRecentActivity({
+              userId: user.id,
+              limit: 10,
+            })
+            .then((items) =>
+              items.map((item) => this.usersMapper.toActivityView(item)),
+            ),
 
-      this.usersRepository.getRelationshipState(viewerUserId, userId),
+      this.usersRepository.getRelationshipState({
+        viewerUserId,
+        targetUserId: user.id,
+      }),
     ])
 
     return {
-      user: mapUser(user),
-      profile: mapProfile(typedProfile, userId),
+      user: this.usersMapper.toUserView(user),
+      profile: this.usersMapper.toProfileView(profile),
       stats,
       streak,
       badges,
       publishedTrackers: {
-        items: publishedTrackers.items as PublicProfilePageView['publishedTrackers']['items'],
+        items: publishedTrackers.items.map((item) =>
+          this.usersMapper.toPublishedTrackerView(item),
+        ),
         pagination: {
           page: query.page,
           limit: query.limit,
           total: publishedTrackers.total,
           totalPages: Math.max(
             1,
-            Math.ceil(publishedTrackers.total / query.limit)
+            Math.ceil(publishedTrackers.total / query.limit),
           ),
         },
       },

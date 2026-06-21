@@ -1,138 +1,137 @@
-import { mongoMockTestsRepository } from './infrastructure/repositories/mongo-mock-tests.repository'
-import { MockTestAIService } from './infrastructure/mock-test-ai.service'
-import { CreateMockTestUseCase } from './application/use-cases/create-mock-test.usecase'
-import { GenerateMockTestUseCase } from './application/use-cases/generate-mock-test.usecase'
-import { ListMockTestsUseCase } from './application/use-cases/list-mock-tests.usecase'
-import { GetMockTestDetailsUseCase } from './application/use-cases/get-mock-test-details.usecase'
-import { StartTestAttemptUseCase } from './application/use-cases/start-test-attempt.usecase'
-import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.usecase'
-import { FlagQuestionUseCase } from './application/use-cases/flag-question.usecase'
-import { FinishTestAttemptUseCase } from './application/use-cases/finish-test-attempt.usecase'
-import { GetAttemptResultUseCase } from './application/use-cases/get-attempt-result.usecase'
-import { GetAttemptAnalysisUseCase } from './application/use-cases/get-attempt-analysis.usecase'
-import { RetakeTestUseCase } from './application/use-cases/retake-test.usecase'
-import { GetAnalyticsUseCase } from './application/use-cases/get-analytics.usecase'
-import { ShareMockTestUseCase } from './application/use-cases/share-mock-test.usecase'
-import { ImportSharedMockTestUseCase } from './application/use-cases/import-shared-mock-test.usecase'
-import { RunMockTestCodeUseCase } from './application/use-cases/run-mock-test-code.usecase'
-import { SubmitMockTestCodeUseCase } from './application/use-cases/submit-mock-test-code.usecase'
-import {
+import type {
   CreateMockTestPayload,
-  GenerateMockTestPayload,
-  SubmitAnswerPayload,
   DifficultyLevel,
+  GenerateMockTestPayload,
   RunMockTestCodePayload,
+  SubmitAnswerPayload,
   SubmitMockTestCodePayload,
-} from './domain/types/mock-tests.types'
+} from './application/dtos/mock-tests.dto'
+import {
+  createMockTestsComposition,
+  type MockTestsComposition,
+} from './mock-tests.factory'
 
-import { sanitizeQuestionForAttempt } from './application/services/test-scorer.service'
+export class MockTestsService {
+  private readonly useCases: MockTestsComposition['useCases']
 
-const repo = mongoMockTestsRepository
-const aiService = new MockTestAIService()
+  constructor(composition: MockTestsComposition) {
+    this.useCases = composition.useCases
+  }
 
-const listMockTestsUseCase = new ListMockTestsUseCase(repo)
-const getMockTestDetailsUseCase = new GetMockTestDetailsUseCase(repo)
-const createMockTestUseCase = new CreateMockTestUseCase(repo)
-const generateMockTestUseCase = new GenerateMockTestUseCase(repo, aiService)
-const startTestAttemptUseCase = new StartTestAttemptUseCase(repo)
-const submitAnswerUseCase = new SubmitAnswerUseCase(repo, aiService)
-const flagQuestionUseCase = new FlagQuestionUseCase(repo)
-const finishTestAttemptUseCase = new FinishTestAttemptUseCase(repo)
-const getAttemptResultUseCase = new GetAttemptResultUseCase(repo)
-const getAttemptAnalysisUseCase = new GetAttemptAnalysisUseCase(repo)
-const retakeTestUseCase = new RetakeTestUseCase(repo)
-const getAnalyticsUseCase = new GetAnalyticsUseCase(repo, aiService)
-const shareMockTestUseCase = new ShareMockTestUseCase(repo)
-const importSharedMockTestUseCase = new ImportSharedMockTestUseCase(repo)
-const runMockTestCodeUseCase = new RunMockTestCodeUseCase(repo)
-const submitMockTestCodeUseCase = new SubmitMockTestCodeUseCase(repo)
+  listTests(userId: string, options?: { page?: number; limit?: number }) {
+    return this.useCases.listMockTests.execute(userId, options)
+  }
 
-export const mockTestsService = {
-  listTests: (
-    userId: string,
-    options?: {
-      page?: number
-      limit?: number
-    },
-  ) => listMockTestsUseCase.execute(userId, options),
-
-  listPublicTests: (filters: {
+  listPublicTests(filters: {
     difficulty?: DifficultyLevel
     tags?: string[]
     page?: number
     limit?: number
-  }) => repo.findPublicTests(filters),
+  }) {
+    return this.useCases.listPublicMockTests.execute(filters)
+  }
 
-  createTest: (userId: string, payload: CreateMockTestPayload) =>
-    createMockTestUseCase.execute(userId, payload),
+  createTest(userId: string, payload: CreateMockTestPayload) {
+    return this.useCases.createMockTest.execute(userId, payload)
+  }
 
-  generateTest: (userId: string, payload: GenerateMockTestPayload) =>
-    generateMockTestUseCase.execute(userId, payload),
+  generateTest(userId: string, payload: GenerateMockTestPayload) {
+    return this.useCases.generateMockTest.execute(userId, payload)
+  }
 
-  shareTest: (userId: string, testId: string, origin: string) =>
-    shareMockTestUseCase.execute({ userId, testId, origin }),
+  shareTest(userId: string, testId: string, origin: string) {
+    return this.useCases.shareMockTest.execute({ userId, testId, origin })
+  }
 
-  importSharedTest: (userId: string, shareToken: string) =>
-    importSharedMockTestUseCase.execute({ userId, shareToken }),
+  importSharedTest(userId: string, shareToken: string) {
+    return this.useCases.importSharedMockTest.execute({ userId, shareToken })
+  }
 
-  getTest: (testId: string, userId: string) =>
-    getMockTestDetailsUseCase.execute(testId, userId),
+  getTest(testId: string, userId: string) {
+    return this.useCases.getMockTestDetails.execute(testId, userId)
+  }
 
-  startAttempt: (testId: string, userId: string) =>
-    startTestAttemptUseCase.execute(testId, userId),
+  startAttempt(testId: string, userId: string) {
+    return this.useCases.startTestAttempt.execute(testId, userId)
+  }
 
-  getAttemptQuestions: async (attemptId: string, userId: string) => {
-    const attempt = await repo.findAttemptById(attemptId)
+  getAttemptQuestions(attemptId: string, userId: string) {
+    return this.useCases.getAttemptQuestions.execute(attemptId, userId)
+  }
 
-    if (!attempt || attempt.userId !== userId) return []
-
-    const questions = await repo.findQuestionsByTest(attempt.testId)
-
-    return questions.map(sanitizeQuestionForAttempt)
-  },
-
-  submitAnswer: (
+  submitAnswer(
     attemptId: string,
     userId: string,
-    payload: SubmitAnswerPayload,
-  ) => submitAnswerUseCase.execute(attemptId, userId, payload),
+    payload: SubmitAnswerPayload
+  ) {
+    return this.useCases.submitAnswer.execute(attemptId, userId, payload)
+  }
 
-  flagQuestion: (attemptId: string, userId: string, questionId: string) =>
-    flagQuestionUseCase.execute(attemptId, userId, questionId),
+  flagQuestion(attemptId: string, userId: string, questionId: string) {
+    return this.useCases.flagQuestion.execute(attemptId, userId, questionId)
+  }
 
-  finishAttempt: (attemptId: string, userId: string) =>
-    finishTestAttemptUseCase.execute(attemptId, userId),
+  finishAttempt(attemptId: string, userId: string) {
+    return this.useCases.finishTestAttempt.execute(attemptId, userId)
+  }
 
-  getAttemptResult: (attemptId: string, userId: string) =>
-    getAttemptResultUseCase.execute(attemptId, userId),
+  getAttemptResult(attemptId: string, userId: string) {
+    return this.useCases.getAttemptResult.execute(attemptId, userId)
+  }
 
-  getAttemptAnalysis: (attemptId: string, userId: string) =>
-    getAttemptAnalysisUseCase.execute(attemptId, userId),
+  getAttemptAnalysis(attemptId: string, userId: string) {
+    return this.useCases.getAttemptAnalysis.execute(attemptId, userId)
+  }
 
-  retakeTest: (attemptId: string, userId: string) =>
-    retakeTestUseCase.execute(attemptId, userId),
+  retakeTest(attemptId: string, userId: string) {
+    return this.useCases.retakeTest.execute(attemptId, userId)
+  }
 
-  getHistory: (userId: string) => repo.getAttemptHistory(userId),
+  getHistory(userId: string) {
+    return this.useCases.getHistory.execute(userId)
+  }
 
-  getAnalytics: (userId: string) => getAnalyticsUseCase.execute(userId),
+  getAnalytics(userId: string) {
+    return this.useCases.getAnalytics.execute(userId)
+  }
 
-  getAIInsights: async (userId: string) => ({
-    insight: (await getAnalyticsUseCase.execute(userId)).aiInsights,
-  }),
+  getAIInsights(userId: string) {
+    return this.useCases.getAIInsights.execute(userId)
+  }
 
-  getTopicBreakdown: (userId: string) => repo.getTopicBreakdown(userId),
+  getTopicBreakdown(userId: string) {
+    return this.useCases.getTopicBreakdown.execute(userId)
+  }
 
-  runCode: (
-  attemptId: string,
-  userId: string,
-  questionId: string,
-  payload: RunMockTestCodePayload,
-) => runMockTestCodeUseCase.execute(attemptId, userId, questionId, payload),
+  runCode(
+    attemptId: string,
+    userId: string,
+    questionId: string,
+    payload: RunMockTestCodePayload
+  ) {
+    return this.useCases.runMockTestCode.execute(
+      attemptId,
+      userId,
+      questionId,
+      payload
+    )
+  }
 
-submitCode: (
-  attemptId: string,
-  userId: string,
-  questionId: string,
-  payload: SubmitMockTestCodePayload,
-) => submitMockTestCodeUseCase.execute(attemptId, userId, questionId, payload),
+  submitCode(
+    attemptId: string,
+    userId: string,
+    questionId: string,
+    payload: SubmitMockTestCodePayload
+  ) {
+    return this.useCases.submitMockTestCode.execute(
+      attemptId,
+      userId,
+      questionId,
+      payload
+    )
+  }
 }
+
+export const mockTestsService = new MockTestsService(
+  createMockTestsComposition()
+)

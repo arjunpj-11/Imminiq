@@ -1,35 +1,48 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
+// apps/api/src/modules/trackers/application/use-cases/get-tracker-lesson.usecase.ts
+
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
+
+type GetTrackerLessonResultDto = ReturnType<
+  TrackerMapperContract['toGeneratedLessonDto']
+>
 
 const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
   return [...subtopics].sort((a, b) => {
     if (a.topicId.toString() !== b.topicId.toString()) {
       return a.topicId.toString().localeCompare(b.topicId.toString())
     }
-    if (a.depth !== b.depth) return a.depth - b.depth
+
+    if (a.depth !== b.depth) {
+      return a.depth - b.depth
+    }
+
     return a.order - b.order
   })
 }
 
 export class GetTrackerLessonUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  }): Promise<GetTrackerLessonResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
+
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     await this.trackerRepository.ensureUserProgressInitialized({
@@ -45,16 +58,17 @@ export class GetTrackerLessonUseCase {
       }),
     ])
 
-    const currentSubtopic = subtopics.find(
-      (s) => s._id.toString() === input.subtopicId
-    )
+    const currentSubtopic = subtopics.find((subtopic) => {
+      return subtopic._id.toString() === input.subtopicId
+    })
+
     if (!currentSubtopic) {
-      throw new ApiError(404, 'Lesson node not found', 'LESSON_NODE_NOT_FOUND')
+      throw TrackerApplicationError.lessonNodeNotFound('Lesson node not found')
     }
 
-    const topic = topics.find(
-      (t) => t._id.toString() === currentSubtopic.topicId.toString()
-    )
+    const topic = topics.find((item) => {
+      return item._id.toString() === currentSubtopic.topicId.toString()
+    })
 
     let lesson = await this.trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
@@ -80,16 +94,20 @@ export class GetTrackerLessonUseCase {
     }
 
     const flatSubtopics = flattenSubtopics(subtopics)
-    const currentIndex = flatSubtopics.findIndex(
-      (s) => s._id.toString() === input.subtopicId
-    )
-    const previousSubtopic = currentIndex > 0 ? flatSubtopics[currentIndex - 1] : null
+
+    const currentIndex = flatSubtopics.findIndex((subtopic) => {
+      return subtopic._id.toString() === input.subtopicId
+    })
+
+    const previousSubtopic =
+      currentIndex > 0 ? flatSubtopics[currentIndex - 1] : null
+
     const nextSubtopic =
       currentIndex >= 0 && currentIndex < flatSubtopics.length - 1
         ? flatSubtopics[currentIndex + 1]
         : null
 
-    return {
+    const result = {
       tracker,
       lessonNode: {
         _id: currentSubtopic._id.toString(),
@@ -107,18 +125,26 @@ export class GetTrackerLessonUseCase {
       },
       generatedLesson: lesson,
       previousLesson: previousSubtopic
-        ? { _id: previousSubtopic._id.toString(), title: previousSubtopic.title }
+        ? {
+            _id: previousSubtopic._id.toString(),
+            title: previousSubtopic.title,
+          }
         : null,
       nextLesson: nextSubtopic
-        ? { _id: nextSubtopic._id.toString(), title: nextSubtopic.title }
+        ? {
+            _id: nextSubtopic._id.toString(),
+            title: nextSubtopic.title,
+          }
         : null,
-      lessonRoadmap: flatSubtopics.map((s) => ({
-        _id: s._id.toString(),
-        title: s.title,
-        status: s.status,
-        isLocked: s.isLocked,
-        estimatedMinutes: s.estimatedMinutes || 5,
+      lessonRoadmap: flatSubtopics.map((subtopic) => ({
+        _id: subtopic._id.toString(),
+        title: subtopic.title,
+        status: subtopic.status,
+        isLocked: subtopic.isLocked,
+        estimatedMinutes: subtopic.estimatedMinutes || 5,
       })),
     }
+
+    return this.trackerMapper.toGeneratedLessonDto(result)
   }
 }

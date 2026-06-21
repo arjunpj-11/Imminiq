@@ -5,11 +5,7 @@ import type {
   NextFunction,
 } from 'express'
 
-import { authService } from '../auth.service'
-import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { ApiError } from '../../../shared/utils/ApiError'
 import { env } from '../../../config/env'
-import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import {
   clearCsrfCookie,
   setCsrfCookie,
@@ -18,6 +14,11 @@ import {
   decryptAuthCookieToken,
   encryptAuthCookieToken,
 } from '../../../shared/security/auth-cookie-token.util'
+import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
+import { ApiError } from '../../../shared/utils/ApiError'
+import { ApiResponse } from '../../../shared/utils/ApiResponse'
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
+import { authService, type AuthService } from '../auth.service'
 import type { OAuthLoginUser } from '../auth.service'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
@@ -58,145 +59,47 @@ const LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
   path: '/',
 }
 
-const getRequestMeta = (req: Request) => ({
-  device: req.headers['sec-ch-ua-platform']?.toString(),
-  userAgent: req.headers['user-agent'],
-  ipAddress: req.ip,
-})
+export class AuthController {
+  constructor(private readonly service: AuthService) {}
 
-const getAuthErrorCode = (error: unknown) => {
-  const authError = error as {
-    code?: string
-    errorCode?: string
-  }
-
-  return authError.code || authError.errorCode
-}
-
-const isRestrictedAccountCode = (code?: string) => {
-  return (
-    code === 'ACCOUNT_BLOCKED' ||
-    code === 'ACCOUNT_BANNED' ||
-    code === 'ACCOUNT_DEACTIVATED' ||
-    code === 'ACCOUNT_PAUSED'
-  )
-}
-
-const clearAuthCookies = (res: Response) => {
-  res
-    // Current scoped cookies
-    .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
-    .clearCookie(
-      TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-      TWO_FACTOR_COOKIE_OPTIONS
-    )
-
-    // Old cookies that were previously created with Path=/
-    .clearCookie(REFRESH_COOKIE_NAME, LEGACY_ROOT_COOKIE_OPTIONS)
-    .clearCookie(
-      TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-      LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS
-    )
-
-  clearCsrfCookie(res)
-}
-
-const setRefreshSessionCookies = (
-  res: Response,
-  rawRefreshToken: string
-): void => {
-  res.cookie(
-    REFRESH_COOKIE_NAME,
-    encryptAuthCookieToken(rawRefreshToken),
-    COOKIE_OPTIONS
-  )
-
-  setCsrfCookie(res)
-}
-
-const setTwoFactorChallengeCookies = (
-  res: Response,
-  rawChallengeToken: string
-): void => {
-  res.cookie(
-    TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-    encryptAuthCookieToken(rawChallengeToken),
-    TWO_FACTOR_COOKIE_OPTIONS
-  )
-
-  setCsrfCookie(res)
-}
-
-const decryptRequiredCookie = (
-  req: Request,
-  cookieName: string,
-  missingMessage: string,
-  missingCode: string,
-  invalidMessage: string,
-  invalidCode: string
-): string => {
-  const encryptedCookieValue = req.cookies?.[cookieName]
-
-  if (typeof encryptedCookieValue !== 'string') {
-    throw new ApiError(
-      401,
-      missingMessage,
-      missingCode
-    )
-  }
-
-  try {
-    return decryptAuthCookieToken(encryptedCookieValue)
-  } catch {
-    throw new ApiError(
-      401,
-      invalidMessage,
-      invalidCode
-    )
-  }
-}
-
-export const authController = {
-  register: async (req: Request, res: Response, next: NextFunction) => {
+  register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await authService.register(req.body)
+      const result = await this.service.register(req.body)
 
-      res.status(201).json(
-        new ApiResponse('Account created. Please verify your account.', result)
-      )
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(
+          new ApiResponse(
+            'Account created. Please verify your account.',
+            result
+          )
+        )
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  login: async (req: Request, res: Response, next: NextFunction) => {
+  login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await authService.login(
+      const result = await this.service.login(
         req.body,
-        getRequestMeta(req)
+        this.getRequestMeta(req)
       )
 
-      if (result.requiresTwoFactor) {
-        setTwoFactorChallengeCookies(
-          res,
-          result.challengeToken
-        )
+      if (result.requiresTwoFactor === true) {
+        this.setTwoFactorChallengeCookies(res, result.challengeToken)
 
         res.json(
           new ApiResponse('Two-factor verification required', {
             requiresTwoFactor: true,
-            challengeExpiresInMinutes:
-              result.challengeExpiresInMinutes,
+            challengeExpiresInMinutes: result.challengeExpiresInMinutes,
           })
         )
 
         return
       }
 
-      setRefreshSessionCookies(
-        res,
-        result.tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, result.tokens.refreshToken)
 
       res.json(
         new ApiResponse('Login successful', {
@@ -206,42 +109,38 @@ export const authController = {
         })
       )
     } catch (error) {
-      const errorCode = getAuthErrorCode(error)
+      const errorCode = this.getAuthErrorCode(error)
 
-      if (isRestrictedAccountCode(errorCode)) {
-        clearAuthCookies(res)
+      if (this.isRestrictedAccountCode(errorCode)) {
+        this.clearAuthCookies(res)
       }
 
       next(error)
     }
-  },
+  }
 
-  verifyTwoFactorLogin: async (
+  verifyTwoFactorLogin = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const challengeToken =
-        decryptRequiredCookie(
-          req,
-          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-          'Two-factor challenge is missing. Please sign in again.',
-          'TWO_FACTOR_CHALLENGE_MISSING',
-          'Two-factor challenge is invalid. Please sign in again.',
-          'TWO_FACTOR_CHALLENGE_INVALID'
-        )
+      const challengeToken = this.decryptRequiredCookie(
+        req,
+        TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+        'Two-factor challenge is missing. Please sign in again.',
+        'TWO_FACTOR_CHALLENGE_MISSING',
+        'Two-factor challenge is invalid. Please sign in again.',
+        'TWO_FACTOR_CHALLENGE_INVALID'
+      )
 
-      const result = await authService.verifyTwoFactorLogin(
+      const result = await this.service.verifyTwoFactorLogin(
         challengeToken,
         req.body,
-        getRequestMeta(req)
+        this.getRequestMeta(req)
       )
 
-      setRefreshSessionCookies(
-        res,
-        result.tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, result.tokens.refreshToken)
 
       res
         .clearCookie(
@@ -260,73 +159,67 @@ export const authController = {
           })
         )
     } catch (error) {
-      const errorCode = getAuthErrorCode(error)
+      const errorCode = this.getAuthErrorCode(error)
 
-      if (isRestrictedAccountCode(errorCode)) {
-        clearAuthCookies(res)
+      if (this.isRestrictedAccountCode(errorCode)) {
+        this.clearAuthCookies(res)
       }
 
       next(error)
     }
-  },
+  }
 
-  logout: async (req: Request, res: Response, next: NextFunction) => {
+  logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const encryptedRefreshToken =
-        req.cookies?.[REFRESH_COOKIE_NAME]
+      const encryptedRefreshToken = req.cookies?.[REFRESH_COOKIE_NAME]
 
       if (typeof encryptedRefreshToken === 'string') {
         try {
-          const refreshToken =
-            decryptAuthCookieToken(encryptedRefreshToken)
+          const refreshToken = decryptAuthCookieToken(encryptedRefreshToken)
 
-          await authService.logout(refreshToken)
+          await this.service.logout(refreshToken)
         } catch {
           // Invalid or stale encrypted cookies should still be cleared.
         }
       }
 
-      clearAuthCookies(res)
+      this.clearAuthCookies(res)
 
       res.json(new ApiResponse('Logged out successfully'))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  logoutAll: async (req: Request, res: Response, next: NextFunction) => {
+  logoutAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await authService.logoutAll(getAuthUser(req).userId)
+      await this.service.logoutAll(getAuthUser(req).userId)
 
-      clearAuthCookies(res)
+      this.clearAuthCookies(res)
 
       res.json(new ApiResponse('Logged out from all devices'))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  refreshToken: async (req: Request, res: Response, next: NextFunction) => {
+  refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken =
-        decryptRequiredCookie(
-          req,
-          REFRESH_COOKIE_NAME,
-          'No refresh token',
-          'NO_REFRESH_TOKEN',
-          'Refresh token cookie is invalid',
-          'INVALID_REFRESH_COOKIE'
-        )
+      const refreshToken = this.decryptRequiredCookie(
+        req,
+        REFRESH_COOKIE_NAME,
+        'No refresh token',
+        'NO_REFRESH_TOKEN',
+        'Refresh token cookie is invalid',
+        'INVALID_REFRESH_COOKIE'
+      )
 
-      const tokens = await authService.refreshTokens(
+      const tokens = await this.service.refreshTokens(
         refreshToken,
-        getRequestMeta(req)
+        this.getRequestMeta(req)
       )
 
-      setRefreshSessionCookies(
-        res,
-        tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, tokens.refreshToken)
 
       res.json(
         new ApiResponse('Token refreshed', {
@@ -334,53 +227,53 @@ export const authController = {
         })
       )
     } catch (error) {
-      const errorCode = getAuthErrorCode(error)
+      const errorCode = this.getAuthErrorCode(error)
 
-      if (isRestrictedAccountCode(errorCode)) {
-        clearAuthCookies(res)
+      if (this.isRestrictedAccountCode(errorCode)) {
+        this.clearAuthCookies(res)
       }
 
       next(error)
     }
-  },
+  }
 
-  getMe: async (req: Request, res: Response, next: NextFunction) => {
+  getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = await authService.getMe(getAuthUser(req).userId)
+      const user = await this.service.getMe(getAuthUser(req).userId)
 
       res.json(new ApiResponse('User fetched', { user }))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  verifyAccount: async (req: Request, res: Response, next: NextFunction) => {
+  verifyAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { identifier, otp } = req.body
 
-      await authService.verifyAccount(identifier, otp)
+      await this.service.verifyAccount(identifier, otp)
 
       res.json(new ApiResponse('Account verified successfully'))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  sendOtp: async (req: Request, res: Response, next: NextFunction) => {
+  sendOtp = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { identifier, purpose } = req.body
 
-      await authService.resendOtp(identifier, purpose)
+      await this.service.resendOtp(identifier, purpose)
 
       res.json(new ApiResponse('OTP sent successfully'))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  forgotPassword: async (req: Request, res: Response, next: NextFunction) => {
+  forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await authService.forgotPassword(req.body.identifier)
+      await this.service.forgotPassword(req.body.identifier)
 
       res.json(
         new ApiResponse('If this account exists, a reset code has been sent')
@@ -388,9 +281,9 @@ export const authController = {
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  verifyResetCode: async (
+  verifyResetCode = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -398,15 +291,15 @@ export const authController = {
     try {
       const { identifier, otp } = req.body
 
-      const result = await authService.verifyResetCode(identifier, otp)
+      const result = await this.service.verifyResetCode(identifier, otp)
 
       res.json(new ApiResponse('Code verified', result))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  resetPassword: async (
+  resetPassword = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -414,15 +307,15 @@ export const authController = {
     try {
       const { resetToken, newPassword } = req.body
 
-      await authService.resetPassword(resetToken, newPassword)
+      await this.service.resetPassword(resetToken, newPassword)
 
       res.json(new ApiResponse('Password reset successfully'))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  changePassword: async (
+  changePassword = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -430,7 +323,7 @@ export const authController = {
     try {
       const { currentPassword, newPassword } = req.body
 
-      await authService.changePassword(
+      await this.service.changePassword(
         getAuthUser(req).userId,
         currentPassword,
         newPassword
@@ -440,47 +333,47 @@ export const authController = {
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  checkIdentifier: async (
+  checkIdentifier = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await authService.checkIdentifier(req.body.identifier)
+      const result = await this.service.checkIdentifier(req.body.identifier)
 
       res.json(new ApiResponse('Identifier checked', result))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  checkUsername: async (
+  checkUsername = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const result = await authService.checkUsername(req.body.username)
+      const result = await this.service.checkUsername(req.body.username)
 
       res.json(new ApiResponse('Username checked', result))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  getSessions: async (req: Request, res: Response, next: NextFunction) => {
+  getSessions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const sessions = await authService.getSessions(getAuthUser(req).userId)
+      const sessions = await this.service.getSessions(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Sessions fetched', { sessions }))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  revokeSession: async (
+  revokeSession = async (
     req: Request,
     res: Response,
     next: NextFunction
@@ -491,65 +384,171 @@ export const authController = {
 
       if (!sessionId || Array.isArray(sessionId)) {
         throw new ApiError(
-          400,
+          HttpStatusCode.BAD_REQUEST,
           'Session ID is required',
           'SESSION_ID_REQUIRED'
         )
       }
 
-      await authService.revokeSession(user.userId, sessionId)
+      await this.service.revokeSession(user.userId, sessionId)
 
       res.json(new ApiResponse('Session revoked'))
     } catch (error) {
       next(error)
     }
-  },
+  }
 
-  oauthCallback: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  oauthCallback = async (req: Request, res: Response) => {
     try {
       if (!req.user) {
         throw new ApiError(
-          401,
+          HttpStatusCode.UNAUTHORIZED,
           'OAuth authentication failed',
           'OAUTH_USER_MISSING'
         )
       }
 
-      const result = await authService.handleOAuthLogin(
+      const result = await this.service.handleOAuthLogin(
         req.user as unknown as OAuthLoginUser,
-        getRequestMeta(req)
+        this.getRequestMeta(req)
       )
 
-      if (result.requiresTwoFactor) {
-        setTwoFactorChallengeCookies(
-          res,
-          result.challengeToken
-        )
+      if (result.requiresTwoFactor === true) {
+        this.setTwoFactorChallengeCookies(res, result.challengeToken)
 
         res.redirect(`${env.CLIENT_URL}/two-factor-challenge`)
         return
       }
 
-      setRefreshSessionCookies(
-        res,
-        result.tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, result.tokens.refreshToken)
 
       res.redirect(`${env.CLIENT_URL}${result.redirectPath}`)
     } catch (error) {
-      const errorCode = getAuthErrorCode(error)
+      const errorCode = this.getAuthErrorCode(error)
 
-      if (isRestrictedAccountCode(errorCode)) {
-        clearAuthCookies(res)
+      this.clearAuthCookies(res)
+
+      if (this.isRestrictedAccountCode(errorCode)) {
         res.redirect(`${env.CLIENT_URL}/blocked`)
         return
       }
 
-      next(error)
+      res.redirect(this.buildOAuthFailureRedirectUrl(errorCode))
     }
-  },
+  }
+
+  private buildOAuthFailureRedirectUrl(code?: string) {
+    const searchParams = new URLSearchParams({
+      error: 'oauth_failed',
+    })
+
+    if (code && this.isSafeClientErrorCode(code)) {
+      searchParams.set('code', code)
+    }
+
+    return `${env.CLIENT_URL}/login?${searchParams.toString()}`
+  }
+
+  private isSafeClientErrorCode(code: string) {
+    return /^[A-Z0-9_]+$/.test(code)
+  }
+
+  private getRequestMeta(req: Request) {
+    return {
+      device: req.headers['sec-ch-ua-platform']?.toString(),
+      userAgent: req.headers['user-agent'],
+      ipAddress: req.ip,
+    }
+  }
+
+  private getAuthErrorCode(error: unknown) {
+    const authError = error as {
+      code?: string
+      errorCode?: string
+    }
+
+    return authError.code || authError.errorCode
+  }
+
+  private isRestrictedAccountCode(code?: string) {
+    return (
+      code === 'ACCOUNT_BLOCKED' ||
+      code === 'ACCOUNT_BANNED' ||
+      code === 'ACCOUNT_DEACTIVATED' ||
+      code === 'ACCOUNT_PAUSED'
+    )
+  }
+
+  private clearAuthCookies(res: Response) {
+    res
+      .clearCookie(REFRESH_COOKIE_NAME, COOKIE_OPTIONS)
+      .clearCookie(
+        TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+        TWO_FACTOR_COOKIE_OPTIONS
+      )
+      .clearCookie(REFRESH_COOKIE_NAME, LEGACY_ROOT_COOKIE_OPTIONS)
+      .clearCookie(
+        TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+        LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS
+      )
+
+    clearCsrfCookie(res)
+  }
+
+  private setRefreshSessionCookies(
+    res: Response,
+    rawRefreshToken: string
+  ): void {
+    res.cookie(
+      REFRESH_COOKIE_NAME,
+      encryptAuthCookieToken(rawRefreshToken),
+      COOKIE_OPTIONS
+    )
+
+    setCsrfCookie(res)
+  }
+
+  private setTwoFactorChallengeCookies(
+    res: Response,
+    rawChallengeToken: string
+  ): void {
+    res.cookie(
+      TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+      encryptAuthCookieToken(rawChallengeToken),
+      TWO_FACTOR_COOKIE_OPTIONS
+    )
+
+    setCsrfCookie(res)
+  }
+
+  private decryptRequiredCookie(
+    req: Request,
+    cookieName: string,
+    missingMessage: string,
+    missingCode: string,
+    invalidMessage: string,
+    invalidCode: string
+  ): string {
+    const encryptedCookieValue = req.cookies?.[cookieName]
+
+    if (typeof encryptedCookieValue !== 'string') {
+      throw new ApiError(
+        HttpStatusCode.UNAUTHORIZED,
+        missingMessage,
+        missingCode
+      )
+    }
+
+    try {
+      return decryptAuthCookieToken(encryptedCookieValue)
+    } catch {
+      throw new ApiError(
+        HttpStatusCode.UNAUTHORIZED,
+        invalidMessage,
+        invalidCode
+      )
+    }
+  }
 }
+
+export const authController = new AuthController(authService)

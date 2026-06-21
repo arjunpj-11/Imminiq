@@ -1,18 +1,28 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateSubtopicUseCaseInput } from '../../domain/types/trackers.types'
 
-export class CreateTrackerSubtopicUseCase {
-  constructor(private readonly trackerRepository: TrackerRepository) {}
+type CreateTrackerSubtopicResultDto = ReturnType<
+  TrackerMapperContract['toTrackerSubtopicDto']
+>
 
-  async execute(input: CreateSubtopicUseCaseInput) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+export class CreateTrackerSubtopicUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
+
+  async execute(
+    input: CreateSubtopicUseCaseInput
+  ): Promise<CreateTrackerSubtopicResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const topics = await this.trackerRepository.getTopicsForTracker(
@@ -24,7 +34,7 @@ export class CreateTrackerSubtopicUseCase {
     })
 
     if (!topicExists) {
-      throw new ApiError(404, 'Topic not found', 'TOPIC_NOT_FOUND')
+      throw TrackerApplicationError.topicNotFound('Topic not found')
     }
 
     let depth = 1
@@ -36,18 +46,14 @@ export class CreateTrackerSubtopicUseCase {
       })
 
       if (!parent) {
-        throw new ApiError(
-          404,
-          'Parent subtopic not found',
-          'PARENT_SUBTOPIC_NOT_FOUND'
+        throw TrackerApplicationError.parentSubtopicNotFound(
+          'Parent subtopic not found'
         )
       }
 
       if (parent.topicId.toString() !== input.topicId) {
-        throw new ApiError(
-          400,
-          'Parent subtopic does not belong to this topic',
-          'PARENT_TOPIC_MISMATCH'
+        throw TrackerApplicationError.parentTopicMismatch(
+          'Parent subtopic does not belong to this topic'
         )
       }
 
@@ -74,9 +80,12 @@ export class CreateTrackerSubtopicUseCase {
 
     await Promise.all([
       this.trackerRepository.incrementTrackerSubtopicsCount(input.trackerId),
-      this.trackerRepository.recomputeTrackerProgress(input.trackerId, input.userId),
+      this.trackerRepository.recomputeTrackerProgress({
+        trackerId: input.trackerId,
+        userId: input.userId,
+      }),
     ])
 
-    return subtopic
+    return this.trackerMapper.toTrackerSubtopicDto(subtopic)
   }
 }

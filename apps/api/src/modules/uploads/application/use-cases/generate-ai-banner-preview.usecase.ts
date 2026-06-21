@@ -1,37 +1,49 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
+import {
+  AI_IMAGE_GENERATION_STEPS,
+  AI_IMAGE_SEED_UPPER_BOUND,
+} from '../../domain/constants/uploads.constants'
+import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
 import type { AiImageGenerationServiceContract } from '../../domain/services/ai-image-generation.service.interface'
-import type { AiImagePreviewResult } from '../../domain/types/uploads.types'
+import type { RandomSeedServiceContract } from '../../domain/services/random-seed.service.interface'
+import type { AiImagePreviewResult } from '../dtos/uploads.dto'
+import { UploadsApplicationError } from '../errors/uploads-application.error'
+import type { UploadsMapperContract } from '../mappers/uploads.mapper'
+import type { AiUploadPromptServiceContract } from '../services/ai-upload-prompt.service'
 
 export class GenerateAiBannerPreviewUseCase {
   constructor(
-    private readonly aiImageGenerationService: AiImageGenerationServiceContract
+    private readonly aiImageGenerationService: AiImageGenerationServiceContract,
+    private readonly aiUploadPromptService: AiUploadPromptServiceContract,
+    private readonly randomSeedService: RandomSeedServiceContract,
+    private readonly uploadsMapper: UploadsMapperContract,
   ) {}
 
   async execute(prompt: string): Promise<AiImagePreviewResult> {
     const cleanedPrompt = prompt.trim()
 
     if (!cleanedPrompt) {
-      throw new ApiError(400, 'Prompt is required')
+      throw UploadsApplicationError.promptRequired()
     }
 
-    const bannerOptimizedPrompt = `
-Create a premium, high-quality profile banner background.
-Subject instructions: ${cleanedPrompt}.
-Composition: cinematic wide-profile cover style, visually rich but not cluttered,
-important visual elements placed near the center so the image can be cropped into a horizontal banner,
-balanced spacing on the left and right side.
-Style: polished digital artwork, elegant lighting, detailed background, premium visual quality,
-no text, no letters, no watermark, no logo, no UI elements.
-`.trim()
+    try {
+      const image = await this.aiImageGenerationService.generatePreviewImage({
+        prompt: this.aiUploadPromptService.buildPrompt(
+          'banner',
+          cleanedPrompt,
+        ),
+        steps: AI_IMAGE_GENERATION_STEPS,
+        seed: this.randomSeedService.createSeed(
+          AI_IMAGE_SEED_UPPER_BOUND,
+        ),
+      })
 
-    const image = await this.aiImageGenerationService.generatePreviewImage({
-      prompt: bannerOptimizedPrompt,
-      steps: 4,
-      seed: Math.floor(Math.random() * 1_000_000),
-    })
+      return this.uploadsMapper.toAiImagePreviewResult(image.dataUrl)
+    } catch (error) {
+      if (error instanceof UploadsDomainError) {
+        throw UploadsApplicationError.aiImageGenerationFailed()
+      }
 
-    return {
-      imageUrl: image.dataUrl,
+      throw error
     }
   }
 }

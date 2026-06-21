@@ -1,59 +1,45 @@
-import { mongoDashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository'
-import { aiDashboardInsightGenerator } from './infrastructure/gateways/ai-dashboard-insight.generator'
+import type { DashboardAIInsightResult } from './application/dtos/dashboard.dto'
+import {
+  createDashboardComposition,
+  type DashboardComposition,
+} from './dashboard.factory'
 
-import { GetDashboardSummaryUseCase } from './application/use-cases/get-dashboard-summary.usecase'
-import { GetCurrentRoadmapUseCase } from './application/use-cases/get-current-roadmap.usecase'
-import { GetActivityIntensityUseCase } from './application/use-cases/get-activity-intensity.usecase'
-import { GetRecentBattlesUseCase } from './application/use-cases/get-recent-battles.usecase'
-import { GetFriendsHubUseCase } from './application/use-cases/get-friends-hub.usecase'
-import { GetRecommendedActionsUseCase } from './application/use-cases/get-recommended-actions.usecase'
-import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase'
+export class DashboardService {
+  private readonly useCases: DashboardComposition['useCases']
 
-const dashboardRepository = mongoDashboardRepository
+  constructor(composition: DashboardComposition) {
+    this.useCases = composition.useCases
+  }
 
-const getDashboardSummaryUseCase =
-  new GetDashboardSummaryUseCase(dashboardRepository)
+  getSummary(userId: string) {
+    return this.useCases.getDashboardSummary.execute(userId)
+  }
 
-const getCurrentRoadmapUseCase =
-  new GetCurrentRoadmapUseCase(dashboardRepository)
+  getCurrentRoadmap(userId: string) {
+    return this.useCases.getCurrentRoadmap.execute(userId)
+  }
 
-const getActivityIntensityUseCase =
-  new GetActivityIntensityUseCase(dashboardRepository)
+  getActivityIntensity(userId: string, months?: number) {
+    return this.useCases.getActivityIntensity.execute(userId, months)
+  }
 
-const getRecentBattlesUseCase =
-  new GetRecentBattlesUseCase(dashboardRepository)
+  getRecentBattles(userId: string, limit?: number) {
+    return this.useCases.getRecentBattles.execute(userId, limit)
+  }
 
-const getFriendsHubUseCase =
-  new GetFriendsHubUseCase(dashboardRepository)
+  getFriendsHub(userId: string, limit?: number) {
+    return this.useCases.getFriendsHub.execute(userId, limit)
+  }
 
-const getRecommendedActionsUseCase =
-  new GetRecommendedActionsUseCase(dashboardRepository)
+  getRecommendedActions(userId: string) {
+    return this.useCases.getRecommendedActions.execute(userId)
+  }
 
-const getAIInsightsUseCase =
-  new GetAIInsightsUseCase(
-    dashboardRepository,
-    aiDashboardInsightGenerator
-  )
-
-export const dashboardService = {
-  getSummary: (userId: string) =>
-    getDashboardSummaryUseCase.execute(userId),
-
-  getCurrentRoadmap: (userId: string) =>
-    getCurrentRoadmapUseCase.execute(userId),
-
-  getActivityIntensity: (userId: string, months?: number) =>
-    getActivityIntensityUseCase.execute(userId, months),
-
-  getRecentBattles: (userId: string, limit?: number) =>
-    getRecentBattlesUseCase.execute(userId, limit),
-
-  getFriendsHub: (userId: string, limit?: number) =>
-    getFriendsHubUseCase.execute(userId, limit),
-
-  getRecommendedActions: (userId: string) =>
-    getRecommendedActionsUseCase.execute(userId),
-
-  getAIInsights: (userId: string) =>
-    getAIInsightsUseCase.execute(userId),
+  getAIInsights(userId: string): Promise<DashboardAIInsightResult> {
+    return this.useCases.getAIInsights.execute(userId)
+  }
 }
+
+export const dashboardService = new DashboardService(
+  createDashboardComposition()
+)

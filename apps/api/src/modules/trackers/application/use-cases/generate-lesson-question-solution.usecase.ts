@@ -1,12 +1,33 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
-import { getDocumentId, hashQuestion } from '../utils/tracker-question.util'
+import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+
+type GenerateLessonQuestionSolutionResultDto = ReturnType<
+  TrackerMapperContract['toLessonQuestionSolutionDto']
+>
+
+const getDocumentId = (document: unknown) => {
+  const doc = document as { _id?: unknown }
+
+  if (typeof doc._id === 'string') {
+    return doc._id
+  }
+
+  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
+    return doc._id.toString()
+  }
+
+  return null
+}
 
 export class GenerateLessonQuestionSolutionUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly questionHasher: QuestionHasherServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
@@ -14,14 +35,14 @@ export class GenerateLessonQuestionSolutionUseCase {
     subtopicId: string
     userId: string
     question: string
-  }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  }): Promise<GenerateLessonQuestionSolutionResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -31,14 +52,12 @@ export class GenerateLessonQuestionSolutionUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
-        'Generate the lesson before generating solution',
-        'LESSON_NOT_GENERATED'
+      throw TrackerApplicationError.lessonNotGenerated(
+        'Generate the lesson before generating solution'
       )
     }
 
-    const questionHash = hashQuestion(input.question)
+    const questionHash = this.questionHasher.hash(input.question)
 
     const existing = await this.trackerRepository.findLessonQuestionSolution({
       trackerId: input.trackerId,
@@ -47,7 +66,9 @@ export class GenerateLessonQuestionSolutionUseCase {
       questionHash,
     })
 
-    if (existing) return existing
+    if (existing) {
+      return this.trackerMapper.toLessonQuestionSolutionDto(existing)
+    }
 
     const solution = await this.trackerAIService.generateLessonQuestionSolution({
       lessonTitle: lesson.title,
@@ -55,14 +76,17 @@ export class GenerateLessonQuestionSolutionUseCase {
       question: input.question,
     })
 
-    return this.trackerRepository.createLessonQuestionSolution({
-      trackerId: input.trackerId,
-      subtopicId: input.subtopicId,
-      userId: input.userId,
-      lessonId: getDocumentId(lesson),
-      question: input.question,
-      questionHash,
-      solution,
-    })
+    const createdSolution =
+      await this.trackerRepository.createLessonQuestionSolution({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+        lessonId: getDocumentId(lesson),
+        question: input.question,
+        questionHash,
+        solution,
+      })
+
+    return this.trackerMapper.toLessonQuestionSolutionDto(createdSolution)
   }
 }

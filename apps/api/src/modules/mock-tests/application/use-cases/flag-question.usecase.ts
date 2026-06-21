@@ -1,20 +1,43 @@
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import { ApiError } from '../../../../shared/utils/ApiError'
+import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+
+type FlagQuestionRepository =
+  MockTestAttemptRepositoryContract &
+  MockTestAnswerRepositoryContract
 
 export class FlagQuestionUseCase {
-  constructor(private readonly repo: MockTestsRepositoryContract) {}
+  constructor(private readonly repo: FlagQuestionRepository) {}
 
   async execute(attemptId: string, userId: string, questionId: string) {
     const attempt = await this.repo.findAttemptById(attemptId)
-    if (!attempt) throw new ApiError(404, 'Attempt not found', 'NOT_FOUND')
-    if (attempt.userId !== userId) throw new ApiError(403, 'Forbidden', 'FORBIDDEN')
-    if (attempt.status !== 'in_progress') throw new ApiError(400, 'Test is not in progress', 'TEST_NOT_ACTIVE')
+
+    if (!attempt) {
+      throw MockTestsApplicationError.notFound('Attempt not found')
+    }
+
+    if (attempt.userId !== userId) {
+      throw MockTestsApplicationError.forbidden()
+    }
+
+    if (attempt.status !== 'in_progress') {
+      throw MockTestsApplicationError.testNotActive()
+    }
 
     if (attempt.flaggedQuestions.includes(questionId)) {
-      await this.repo.unflagQuestion(attemptId, questionId)
+      await this.repo.unflagQuestion({
+        attemptId,
+        questionId,
+      })
+
       return { flagged: false }
     }
-    await this.repo.flagQuestion(attemptId, questionId)
+
+    await this.repo.flagQuestion({
+      attemptId,
+      questionId,
+    })
+
     return { flagged: true }
   }
 }

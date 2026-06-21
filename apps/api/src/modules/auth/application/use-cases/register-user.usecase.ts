@@ -1,22 +1,21 @@
-import bcrypt from 'bcryptjs'
-
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { BCRYPT_ROUNDS } from '../../../../config/constants'
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import { AuthApplicationError } from '../errors/auth-application.error'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
 import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
-import type {
-  AuthUser,
-  RegisterPayload,
-  VerificationMethod,
-} from '../../domain/types/auth.types'
-import { normalizeIdentifier } from '../services/identifier-normalizer.service'
-import { generateRegistrationUsername } from '../services/username-generator.service'
-import { formatAuthUser } from '../services/auth-user-formatter.service'
+import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
+import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
+import type { RegisterPayload, AuthUser } from '../dtos/auth.dto'
+import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { UsernameGeneratorServiceContract } from '../services/username-generator.service'
 
 export class RegisterUserUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract,
-    private readonly authNotificationService: AuthNotificationServiceContract
+    private readonly authRepository: AuthUserRepositoryContract,
+    private readonly authNotificationService: AuthNotificationServiceContract,
+    private readonly identifierNormalizer: IdentifierNormalizerContract,
+    private readonly usernameGenerator: UsernameGeneratorServiceContract,
+    private readonly passwordHasher: PasswordHasherServiceContract,
+    private readonly authUserMapper: AuthUserMapperContract
   ) {}
 
   async execute(payload: RegisterPayload): Promise<{
@@ -26,7 +25,7 @@ export class RegisterUserUseCase {
   }> {
     const { fullName, identifier, password } = payload
 
-    const parsedIdentifier = normalizeIdentifier(identifier)
+    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
 
     if (parsedIdentifier.email) {
       const existingUser = await this.authRepository.findByEmail(
@@ -41,13 +40,13 @@ export class RegisterUserUseCase {
           })
 
           return {
-            user: formatAuthUser(existingUser),
+            user: this.authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
         }
 
-        throw new ApiError(409, 'Email already in use', 'EMAIL_TAKEN')
+        throw AuthApplicationError.emailTaken('Email already in use')
       }
     }
 
@@ -64,22 +63,22 @@ export class RegisterUserUseCase {
           })
 
           return {
-            user: formatAuthUser(existingUser),
+            user: this.authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
         }
 
-        throw new ApiError(409, 'Phone already in use', 'PHONE_TAKEN')
+        throw AuthApplicationError.phoneTaken('Phone already in use')
       }
     }
 
-    const username = await generateRegistrationUsername({
+    const username = await this.usernameGenerator.generateRegistrationUsername({
       email: parsedIdentifier.email,
       fullName,
-    }, this.authRepository)
+    })
 
-    const passwordHash = await bcrypt.hash(password, BCRYPT_ROUNDS)
+    const passwordHash = await this.passwordHasher.hash(password)
 
     const user = await this.authRepository.createUser({
       fullName,
@@ -96,7 +95,7 @@ export class RegisterUserUseCase {
     })
 
     return {
-      user: formatAuthUser(user),
+      user: this.authUserMapper.toAuthUser(user),
       verificationTarget: parsedIdentifier.value,
       verificationMethod: parsedIdentifier.method,
     }

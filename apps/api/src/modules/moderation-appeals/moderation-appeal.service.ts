@@ -1,29 +1,34 @@
-import { mongoModerationAppealRepository } from './infrastructure/repositories/mongo-moderation-appeal.repository'
-import { SubmitModerationAppealUseCase } from './application/use-cases/submit-moderation-appeal.usecase'
-import { GetActiveModerationAppealStatusUseCase } from './application/use-cases/get-active-moderation-appeal-status.usecase'
 import type {
+  GetActiveModerationAppealStatusResultDto,
   GetModerationAppealStatusPayload,
   SubmitModerationAppealPayload,
-} from './domain/types/moderation-appeal.types'
+  SubmitModerationAppealResultDto,
+} from './application/dtos/moderation-appeal.dto'
+import {
+  createModerationAppealComposition,
+  type ModerationAppealComposition,
+} from './moderation-appeal.factory'
 
-const moderationAppealRepository = mongoModerationAppealRepository
+export class ModerationAppealService {
+  private readonly useCases: ModerationAppealComposition['useCases']
 
-const submitModerationAppealUseCase =
-  new SubmitModerationAppealUseCase(moderationAppealRepository)
+  constructor(composition: ModerationAppealComposition) {
+    this.useCases = composition.useCases
+  }
 
-const getActiveModerationAppealStatusUseCase =
-  new GetActiveModerationAppealStatusUseCase(
-    moderationAppealRepository
-  )
+  submitAppeal(
+    payload: SubmitModerationAppealPayload
+  ): Promise<SubmitModerationAppealResultDto> {
+    return this.useCases.submitModerationAppeal.execute(payload)
+  }
 
-export const moderationAppealService = {
-  submitAppeal: async (payload: SubmitModerationAppealPayload) => {
-    return submitModerationAppealUseCase.execute(payload)
-  },
-
-  getActiveAppealStatus: async (
+  getActiveAppealStatus(
     payload: GetModerationAppealStatusPayload
-  ) => {
-    return getActiveModerationAppealStatusUseCase.execute(payload)
-  },
+  ): Promise<GetActiveModerationAppealStatusResultDto> {
+    return this.useCases.getActiveModerationAppealStatus.execute(payload)
+  }
 }
+
+export const moderationAppealService = new ModerationAppealService(
+  createModerationAppealComposition()
+)

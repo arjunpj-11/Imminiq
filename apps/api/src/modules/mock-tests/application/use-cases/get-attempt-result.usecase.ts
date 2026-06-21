@@ -1,14 +1,34 @@
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import { ApiError } from '../../../../shared/utils/ApiError'
+import type { MockTestAIEvaluationRepositoryContract } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
+import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
+
+type GetAttemptResultRepository =
+  MockTestAttemptRepositoryContract &
+  MockTestAnswerRepositoryContract &
+  MockTestQuestionRepositoryContract &
+  MockTestAIEvaluationRepositoryContract &
+  MockTestReportRepositoryContract
 
 export class GetAttemptResultUseCase {
-  constructor(private readonly repo: MockTestsRepositoryContract) {}
+  constructor(private readonly repo: GetAttemptResultRepository) { }
 
   async execute(attemptId: string, userId: string) {
     const attempt = await this.repo.findAttemptById(attemptId)
-    if (!attempt) throw new ApiError(404, 'Attempt not found', 'NOT_FOUND')
-    if (attempt.userId !== userId) throw new ApiError(403, 'Forbidden', 'FORBIDDEN')
-    if (attempt.status !== 'completed') throw new ApiError(400, 'Test not completed yet', 'NOT_COMPLETED')
+
+    if (!attempt) {
+      throw MockTestsApplicationError.notFound('Attempt not found')
+    }
+
+    if (attempt.userId !== userId) {
+      throw MockTestsApplicationError.forbidden()
+    }
+
+    if (attempt.status !== 'completed') {
+      throw MockTestsApplicationError.notCompleted()
+    }
 
     const [report, answers, questions, aiEvaluations] = await Promise.all([
       this.repo.findReportByAttempt(attemptId),
@@ -16,8 +36,20 @@ export class GetAttemptResultUseCase {
       this.repo.findQuestionsByTest(attempt.testId),
       this.repo.findAIEvaluationsByAttempt(attemptId),
     ])
-    const questionMap = new Map(questions.map((q) => [q._id, q]))
-    const aiEvalMap = new Map(aiEvaluations.map((e) => [e.answerId, e]))
-    return { attempt, report, answers: answers.map((a) => ({ ...a, question: questionMap.get(a.questionId), aiEvaluation: aiEvalMap.get(a._id) })) }
+
+    const questionMap = new Map(questions.map((question) => [question._id, question]))
+    const aiEvalMap = new Map(
+      aiEvaluations.map((evaluation) => [evaluation.answerId, evaluation]),
+    )
+
+    return {
+      attempt,
+      report,
+      answers: answers.map((answer) => ({
+        ...answer,
+        question: questionMap.get(answer.questionId),
+        aiEvaluation: aiEvalMap.get(answer._id),
+      })),
+    }
   }
 }

@@ -1,25 +1,29 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { MockTestSharingRepositoryContract } from '../../domain/repositories/mock-test-sharing.repository.interface'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+
+type ImportSharedMockTestRepository =
+  MockTestRepositoryContract &
+  MockTestQuestionRepositoryContract &
+  MockTestSharingRepositoryContract
 
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
 
 export class ImportSharedMockTestUseCase {
-  constructor(private readonly repo: MockTestsRepositoryContract) {}
+  constructor(private readonly repo: ImportSharedMockTestRepository) {}
 
-  async execute(input: {
-    userId: string
-    shareToken: string
-  }) {
+  async execute(input: { userId: string; shareToken: string }) {
     const shareToken = input.shareToken.trim()
 
     if (!SAFE_SHARE_TOKEN_PATTERN.test(shareToken)) {
-      throw new ApiError(400, 'Invalid share link', 'INVALID_SHARE_LINK')
+      throw MockTestsApplicationError.invalidShareLink()
     }
 
     const sourceTest = await this.repo.findSharedTestByToken(shareToken)
 
     if (!sourceTest || !sourceTest.isShareEnabled) {
-      throw new ApiError(404, 'Shared mock test not found', 'SHARED_TEST_NOT_FOUND')
+      throw MockTestsApplicationError.sharedTestNotFound()
     }
 
     if (sourceTest.ownerId === input.userId) {
@@ -30,10 +34,10 @@ export class ImportSharedMockTestUseCase {
       }
     }
 
-    const existingImport = await this.repo.findImportedSharedTest(
-      input.userId,
-      sourceTest._id,
-    )
+    const existingImport = await this.repo.findImportedSharedTest({
+  ownerId: input.userId,
+  sourceTestId: sourceTest._id,
+})
 
     if (existingImport) {
       return {
@@ -46,7 +50,7 @@ export class ImportSharedMockTestUseCase {
     const sourceQuestions = await this.repo.findQuestionsByTest(sourceTest._id)
 
     if (!sourceQuestions.length) {
-      throw new ApiError(400, 'Shared test has no questions', 'SHARED_TEST_EMPTY')
+      throw MockTestsApplicationError.sharedTestEmpty()
     }
 
     const importedTest = await this.repo.createTest({
@@ -74,6 +78,7 @@ export class ImportSharedMockTestUseCase {
         difficulty: question.difficulty,
         order: question.order,
         points: question.points,
+        coding: question.coding,
       })),
     )
 

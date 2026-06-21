@@ -1,101 +1,45 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import {
-  SECURITY_ATTEMPT_POLICIES,
-  securityAttemptCache,
-} from '../../../../infrastructure/cache/security-attempt.cache'
-import type { TwoFactorGateway } from '../../domain/services/two-factor.service.interface'
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
+import { TWO_FACTOR_SETUP_ATTEMPT_SCOPE } from '../../domain/constants/security.constants'
+import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
+import type { TwoFactorBackupCodeServiceContract } from '../../domain/services/two-factor-backup-code.service.interface'
+import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
 import type {
-  TwoFactorVerifyResponse,
+  TwoFactorVerifyResponseDto,
   VerifyTwoFactorSetupPayload,
-} from '../../domain/types/security.types'
-import {
-  generateBackupCodes,
-  hashBackupCodes,
-} from '../utils/two-factor-backup-codes.util'
-
-const TWO_FACTOR_SETUP_SCOPE = 'security_two_factor_setup' as const
-
-const assertSetupVerificationAllowed = async (
-  userId: string
-) => {
-  const blocked = await securityAttemptCache.isBlocked(
-    TWO_FACTOR_SETUP_SCOPE,
-    userId
-  )
-
-  if (!blocked) return
-
-  throw new ApiError(
-    429,
-    'Too many invalid authenticator codes. Start setup again or try later.',
-    'TWO_FACTOR_SETUP_TEMPORARILY_BLOCKED'
-  )
-}
-
-const recordInvalidSetupCode = async (
-  userId: string
-) => {
-  const result = await securityAttemptCache.recordFailure(
-    TWO_FACTOR_SETUP_SCOPE,
-    userId,
-    SECURITY_ATTEMPT_POLICIES.twoFactorVerification
-  )
-
-  if (result.blocked) {
-    throw new ApiError(
-      429,
-      'Too many invalid authenticator codes. Start setup again or try later.',
-      'TWO_FACTOR_SETUP_TEMPORARILY_BLOCKED'
-    )
-  }
-}
+} from '../dtos/security.dto'
+import { SecurityApplicationError } from '../errors/security-application.error'
 
 export class VerifyTwoFactorSetupUseCase {
   constructor(
-    private readonly securityRepository: SecurityRepository,
-    private readonly twoFactorGateway: TwoFactorGateway
+    private readonly twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly twoFactorGateway: TwoFactorGatewayContract,
+    private readonly securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly backupCodeService: TwoFactorBackupCodeServiceContract,
   ) {}
 
   async execute(
     userId: string,
-    payload: VerifyTwoFactorSetupPayload
-  ): Promise<TwoFactorVerifyResponse> {
-    await assertSetupVerificationAllowed(userId)
+    payload: VerifyTwoFactorSetupPayload,
+  ): Promise<TwoFactorVerifyResponseDto> {
+    await this.assertSetupVerificationAllowed(userId)
 
     const twoFactor =
-      await this.securityRepository.findTwoFactorWithSecret(userId)
+      await this.twoFactorRepository.findTwoFactorWithSecret(userId)
 
     if (!twoFactor) {
-      throw new ApiError(
-        404,
-        'Two-factor setup was not found',
-        'TWO_FACTOR_SETUP_NOT_FOUND'
-      )
+      throw SecurityApplicationError.twoFactorSetupNotFound()
     }
 
     if (twoFactor.status === 'active') {
-      throw new ApiError(
-        409,
-        'Two-factor authentication is already enabled',
-        'TWO_FACTOR_ALREADY_ENABLED'
-      )
+      throw SecurityApplicationError.twoFactorAlreadyEnabled()
     }
 
     if (twoFactor.status !== 'pending') {
-      throw new ApiError(
-        400,
-        'Start two-factor setup again before verifying',
-        'TWO_FACTOR_SETUP_NOT_PENDING'
-      )
+      throw SecurityApplicationError.twoFactorSetupNotPending()
     }
 
     if (!twoFactor.totpSecretEncrypted) {
-      throw new ApiError(
-        500,
-        'Two-factor secret is missing',
-        'TWO_FACTOR_SECRET_MISSING'
-      )
+      throw SecurityApplicationError.twoFactorSecretMissing()
     }
 
     const valid = await this.twoFactorGateway.verifyToken({
@@ -104,40 +48,50 @@ export class VerifyTwoFactorSetupUseCase {
     })
 
     if (!valid) {
-      await recordInvalidSetupCode(userId)
-
-      throw new ApiError(
-        400,
-        'Invalid authenticator code',
-        'INVALID_TWO_FACTOR_CODE'
-      )
+      await this.recordInvalidSetupCode(userId)
+      throw SecurityApplicationError.invalidTwoFactorCode()
     }
 
-    await securityAttemptCache.clear(
-      TWO_FACTOR_SETUP_SCOPE,
-      userId
+    await this.securityAttemptStore.clear(
+      TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
+      userId,
     )
 
-    const backupCodes = generateBackupCodes()
-    const hashedBackupCodes = await hashBackupCodes(backupCodes)
+    const backupCodes = this.backupCodeService.generate()
+    const hashedBackupCodes = await this.backupCodeService.hash(backupCodes)
 
-    const activatedTwoFactor =
-      await this.securityRepository.activateTwoFactor(
-        userId,
-        hashedBackupCodes
-      )
-
+  const activatedTwoFactor =
+  await this.twoFactorRepository.activateTwoFactor({
+    userId,
+    backupCodes: hashedBackupCodes,
+  })
     if (!activatedTwoFactor) {
-      throw new ApiError(
-        500,
-        'Unable to enable two-factor authentication',
-        'TWO_FACTOR_ENABLE_FAILED'
-      )
+      throw SecurityApplicationError.twoFactorEnableFailed()
     }
 
-    return {
-      enabled: true,
-      backupCodes,
+    return { enabled: true, backupCodes }
+  }
+
+  private async assertSetupVerificationAllowed(userId: string): Promise<void> {
+    const blocked = await this.securityAttemptStore.isBlocked(
+      TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
+      userId,
+    )
+
+    if (blocked) {
+      throw SecurityApplicationError.twoFactorSetupTemporarilyBlocked()
+    }
+  }
+
+  private async recordInvalidSetupCode(userId: string): Promise<void> {
+    const result = await this.securityAttemptStore.recordFailure(
+      TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
+      userId,
+      'twoFactorVerification',
+    )
+
+    if (result.blocked) {
+      throw SecurityApplicationError.twoFactorSetupTemporarilyBlocked()
     }
   }
 }

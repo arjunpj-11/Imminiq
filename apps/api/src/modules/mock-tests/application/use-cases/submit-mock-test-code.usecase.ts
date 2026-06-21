@@ -1,10 +1,20 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import type { SubmitMockTestCodePayload } from '../../domain/types/mock-tests.types'
-import { runMockTestCodingQuestion } from '../services/mock-test-code-runner.service'
+import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { MockTestCodeRunnerServiceContract } from '../../domain/services/mock-test-code-runner.service.interface'
+import type { SubmitMockTestCodePayload } from '../dtos/mock-tests.dto'
+import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+
+type SubmitMockTestCodeRepository =
+  MockTestAttemptRepositoryContract &
+  MockTestQuestionRepositoryContract &
+  MockTestAnswerRepositoryContract
 
 export class SubmitMockTestCodeUseCase {
-  constructor(private readonly repo: MockTestsRepositoryContract) {}
+  constructor(
+    private readonly repo: SubmitMockTestCodeRepository,
+    private readonly codeRunner: MockTestCodeRunnerServiceContract,
+  ) {}
 
   async execute(
     attemptId: string,
@@ -15,36 +25,28 @@ export class SubmitMockTestCodeUseCase {
     const attempt = await this.repo.findAttemptById(attemptId)
 
     if (!attempt) {
-      throw new ApiError(404, 'Attempt not found', 'NOT_FOUND')
+      throw MockTestsApplicationError.notFound('Attempt not found')
     }
 
     if (attempt.userId !== userId) {
-      throw new ApiError(403, 'Forbidden', 'FORBIDDEN')
+      throw MockTestsApplicationError.forbidden()
     }
 
     if (attempt.status !== 'in_progress') {
-      throw new ApiError(
-        400,
-        'Test is not in progress',
-        'TEST_NOT_ACTIVE',
-      )
+      throw MockTestsApplicationError.testNotActive()
     }
 
     const question = await this.repo.findQuestionById(questionId)
 
     if (!question || question.testId !== attempt.testId) {
-      throw new ApiError(404, 'Question not found', 'NOT_FOUND')
+      throw MockTestsApplicationError.notFound('Question not found')
     }
 
     if (question.type !== 'coding' || !question.coding) {
-      throw new ApiError(
-        400,
-        'This is not a coding question',
-        'NOT_CODING_QUESTION',
-      )
+      throw MockTestsApplicationError.notCodingQuestion()
     }
 
-    const result = await runMockTestCodingQuestion({
+    const result = await this.codeRunner.run({
       sourceCode: payload.sourceCode,
       coding: question.coding,
       mode: 'submit',
@@ -57,17 +59,16 @@ export class SubmitMockTestCodeUseCase {
         ? Math.round((result.passedCount / result.totalCount) * question.points)
         : 0
 
-    const existing = await this.repo.findAnswerByQuestion(
+    const existing = await this.repo.findAnswerByQuestion({
       attemptId,
       questionId,
-    )
+    })
 
     const answer = existing
       ? await this.repo.updateAnswer(existing._id, {
           answer: payload.sourceCode,
           isCorrect: result.passed,
           pointsEarned,
-          submittedAt: new Date(),
         })
       : await this.repo.saveAnswer({
           attemptId,
@@ -76,6 +77,10 @@ export class SubmitMockTestCodeUseCase {
           isCorrect: result.passed,
           pointsEarned,
         })
+
+    if (!answer) {
+      throw MockTestsApplicationError.answerSaveFailed()
+    }
 
     if (!existing) {
       await this.repo.incrementAnsweredCount(attemptId)

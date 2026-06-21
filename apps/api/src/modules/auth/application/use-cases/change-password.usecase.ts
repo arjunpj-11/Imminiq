@@ -1,43 +1,46 @@
-import bcrypt from 'bcryptjs'
+import { AuthApplicationError } from '../errors/auth-application.error'
+import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
+import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
 
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
-import { ApiError } from '../../../../shared/utils/ApiError'
+type ChangePasswordRepository =
+  AuthUserRepositoryContract & AuthSessionRepositoryContract
 
 export class ChangePasswordUseCase {
   constructor(
-    private readonly authRepository: AuthRepositoryContract
+    private readonly authRepository: ChangePasswordRepository,
+    private readonly passwordHasher: PasswordHasherServiceContract
   ) {}
 
   async execute(
     userId: string,
     currentPassword: string,
     newPassword: string
-  ) {
+  ): Promise<void> {
     const user = await this.authRepository.findById(userId)
 
     if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+      throw AuthApplicationError.notFound('User not found')
     }
 
     if (!user.passwordHash) {
-      throw new ApiError(
-        400,
-        'OAuth accounts cannot change password',
-        'OAUTH_ACCOUNT'
+      throw AuthApplicationError.oauthAccount(
+        'OAuth accounts cannot change password'
       )
     }
 
-    const valid = await bcrypt.compare(currentPassword, user.passwordHash)
+    const valid = await this.passwordHasher.compare(
+      currentPassword,
+      user.passwordHash
+    )
 
     if (!valid) {
-      throw new ApiError(
-        400,
-        'Current password is incorrect',
-        'WRONG_PASSWORD'
-      )
+      throw AuthApplicationError.wrongPassword('Current password is incorrect')
     }
 
-    await this.authRepository.updatePassword(userId, newPassword)
-    await this.authRepository.revokeAllUserTokens(userId)
+    const passwordHash = await this.passwordHasher.hash(newPassword)
+
+    await this.authRepository.updatePasswordHash(userId, passwordHash)
+    await this.authRepository.revokeAllUserSessions(userId)
   }
 }

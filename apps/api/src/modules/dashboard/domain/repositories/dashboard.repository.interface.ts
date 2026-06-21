@@ -1,66 +1,18 @@
-import type {
-  DashboardActivityIntensityItem,
-  DashboardRecentActivity,
-  DashboardRecommendedAction,
-  DashboardStats,
-  DashboardStreakSummary,
-  DashboardTrackerSummary,
-} from '../types/dashboard.types'
+import type { DashboardBattleRepositoryContract } from './dashboard-battle.repository.interface'
+import type { DashboardFriendRepositoryContract } from './dashboard-friend.repository.interface'
+import type { DashboardNotificationRepositoryContract } from './dashboard-notification.repository.interface'
+import type { DashboardProfileRepositoryContract } from './dashboard-profile.repository.interface'
+import type { DashboardRecommendationRepositoryContract } from './dashboard-recommendation.repository.interface'
+import type { DashboardStreakRepositoryContract } from './dashboard-streak.repository.interface'
+import type { DashboardTrackerRepositoryContract } from './dashboard-tracker.repository.interface'
+import type { DashboardUserRepositoryContract } from './dashboard-user.repository.interface'
 
-export interface DashboardUserRecord {
-  _id: {
-    toString(): string
-  }
-  fullName: string
-  username: string
-  avatarUrl?: string | null
-  isPremium: boolean
-  coins?: number | null
-}
-
-export interface DashboardProfileRecord {
-  avatarUrl?: string | null
-}
-
-export interface DashboardUserWithProfileRecord {
-  user: DashboardUserRecord | null
-  profile: DashboardProfileRecord | null
-}
-
-export interface DashboardRepository {
-  getUserWithProfile(
-    userId: string
-  ): Promise<DashboardUserWithProfileRecord>
-
-  getStreakData(userId: string): Promise<DashboardStreakSummary>
-
-  getTrackerOverview(userId: string): Promise<DashboardTrackerSummary>
-
-  getAggregatedStats(userId: string): Promise<DashboardStats>
-
-  getRecentActivity(
-    userId: string,
-    limit?: number
-  ): Promise<DashboardRecentActivity[]>
-
-  getUnreadNotificationCount(userId: string): Promise<number>
-
-  getActivityIntensity(
-    userId: string,
-    months?: number
-  ): Promise<DashboardActivityIntensityItem[]>
-
-  getRecentBattles(
-    userId: string,
-    limit?: number
-  ): Promise<unknown[]>
-
-  getFriendsHub(
-    userId: string,
-    limit?: number
-  ): Promise<unknown[]>
-
-  getRecommendedActions(
-    userId: string
-  ): Promise<DashboardRecommendedAction[]>
-}
+export interface DashboardRepositoryContract
+  extends DashboardUserRepositoryContract,
+    DashboardProfileRepositoryContract,
+    DashboardStreakRepositoryContract,
+    DashboardTrackerRepositoryContract,
+    DashboardNotificationRepositoryContract,
+    DashboardBattleRepositoryContract,
+    DashboardFriendRepositoryContract,
+    DashboardRecommendationRepositoryContract {}

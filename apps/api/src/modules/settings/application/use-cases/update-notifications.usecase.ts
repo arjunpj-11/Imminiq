@@ -1,25 +1,45 @@
-import type { SettingsRepository } from '../../domain/repositories/settings.repository.interface'
-import type { UpdateNotificationsPayload } from '../../domain/types/settings.types'
+import type { SettingsCommandRepositoryContract } from '../../domain/repositories/settings-command.repository.interface'
+import type { SettingsQueryRepositoryContract } from '../../domain/repositories/settings-query.repository.interface'
+import type {
+  UpdateNotificationsPayload,
+  UserSettingsView,
+} from '../dtos/settings.dto'
+import type { SettingsMapperContract } from '../mappers/settings.mapper'
+
+type UpdateNotificationsRepository = {
+  findOrCreate: SettingsQueryRepositoryContract['findOrCreate']
+  updateNotifications: SettingsCommandRepositoryContract['updateNotifications']
+  updateNotificationTypes: SettingsCommandRepositoryContract['updateNotificationTypes']
+}
 
 export class UpdateNotificationsUseCase {
   constructor(
-    private readonly settingsRepository: SettingsRepository
+    private readonly settingsRepository: UpdateNotificationsRepository,
+    private readonly settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
-    payload: UpdateNotificationsPayload
-  ) {
+    payload: UpdateNotificationsPayload,
+  ): Promise<UserSettingsView> {
     const { types, ...rest } = payload
 
     if (Object.keys(rest).length > 0) {
-      await this.settingsRepository.updateNotifications(userId, rest)
+      await this.settingsRepository.updateNotifications({
+        userId,
+        data: rest,
+      })
     }
 
     if (types && Object.keys(types).length > 0) {
-      await this.settingsRepository.updateNotificationTypes(userId, types)
+      await this.settingsRepository.updateNotificationTypes({
+        userId,
+        types,
+      })
     }
 
-    return this.settingsRepository.findOrCreate(userId)
+    const settings = await this.settingsRepository.findOrCreate(userId)
+
+    return this.settingsMapper.toDto(settings)
   }
 }

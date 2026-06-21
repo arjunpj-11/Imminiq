@@ -1,8 +1,3 @@
-import { mongoSecurityRepository } from './infrastructure/repositories/mongo-security.repository'
-import { securityEmailGateway } from './infrastructure/gateways/security-email.gateway'
-import { securityPasswordGateway } from './infrastructure/gateways/security-password.gateway'
-import { otplibTwoFactorGateway } from './infrastructure/gateways/otplib-two-factor.gateway'
-
 import type {
   ChangeEmailPayload,
   ChangePasswordPayload,
@@ -10,149 +5,68 @@ import type {
   DisableTwoFactorPayload,
   VerifyEmailChangePayload,
   VerifyTwoFactorSetupPayload,
-} from './domain/types/security.types'
+} from './application/dtos/security.dto'
+import {
+  createSecurityComposition,
+  type SecurityComposition,
+} from './security.factory'
 
-import { GetSecurityOverviewUseCase } from './application/use-cases/get-security-overview.usecase'
-import { RequestEmailChangeUseCase } from './application/use-cases/request-email-change.usecase'
-import { VerifyEmailChangeUseCase } from './application/use-cases/verify-email-change.usecase'
-import { ChangeSecurityPasswordUseCase } from './application/use-cases/change-security-password.usecase'
-import { GetSecuritySessionsUseCase } from './application/use-cases/get-security-sessions.usecase'
-import { RevokeSecuritySessionUseCase } from './application/use-cases/revoke-security-session.usecase'
-import { GetTwoFactorStatusUseCase } from './application/use-cases/get-two-factor-status.usecase'
-import { SetupTwoFactorUseCase } from './application/use-cases/setup-two-factor.usecase'
-import { VerifyTwoFactorSetupUseCase } from './application/use-cases/verify-two-factor-setup.usecase'
-import { DisableTwoFactorUseCase } from './application/use-cases/disable-two-factor.usecase'
-import { DeleteSecurityAccountUseCase } from './application/use-cases/delete-security-account.usecase'
-import { SensitiveActionStepUpService } from './application/services/sensitive-action-step-up.service'
+export class SecurityService {
+  private readonly useCases: SecurityComposition['useCases']
 
-const sensitiveActionStepUpService =
-  new SensitiveActionStepUpService(
-    mongoSecurityRepository,
-    otplibTwoFactorGateway
-  )
+  constructor(composition: SecurityComposition) {
+    this.useCases = composition.useCases
+  }
 
-const getSecurityOverviewUseCase =
-  new GetSecurityOverviewUseCase(mongoSecurityRepository)
+  getOverview(userId: string, refreshToken?: string) {
+    return this.useCases.getSecurityOverview.execute(userId, refreshToken)
+  }
 
-const requestEmailChangeUseCase =
-  new RequestEmailChangeUseCase(
-    mongoSecurityRepository,
-    securityEmailGateway,
-    sensitiveActionStepUpService
-  )
+  requestEmailChange(userId: string, payload: ChangeEmailPayload) {
+    return this.useCases.requestEmailChange.execute(userId, payload)
+  }
 
-const verifyEmailChangeUseCase =
-  new VerifyEmailChangeUseCase(mongoSecurityRepository)
+  verifyEmailChange(payload: VerifyEmailChangePayload) {
+    return this.useCases.verifyEmailChange.execute(payload)
+  }
 
-const changeSecurityPasswordUseCase =
-  new ChangeSecurityPasswordUseCase(securityPasswordGateway)
+  changePassword(userId: string, payload: ChangePasswordPayload) {
+    return this.useCases.changeSecurityPassword.execute(userId, payload)
+  }
 
-const getSecuritySessionsUseCase =
-  new GetSecuritySessionsUseCase(mongoSecurityRepository)
+  getSessions(userId: string, refreshToken?: string) {
+    return this.useCases.getSecuritySessions.execute(userId, refreshToken)
+  }
 
-const revokeSecuritySessionUseCase =
-  new RevokeSecuritySessionUseCase(mongoSecurityRepository)
-
-const getTwoFactorStatusUseCase =
-  new GetTwoFactorStatusUseCase(mongoSecurityRepository)
-
-const setupTwoFactorUseCase =
-  new SetupTwoFactorUseCase(
-    mongoSecurityRepository,
-    otplibTwoFactorGateway
-  )
-
-const verifyTwoFactorSetupUseCase =
-  new VerifyTwoFactorSetupUseCase(
-    mongoSecurityRepository,
-    otplibTwoFactorGateway
-  )
-
-const disableTwoFactorUseCase =
-  new DisableTwoFactorUseCase(
-    mongoSecurityRepository,
-    otplibTwoFactorGateway
-  )
-
-const deleteSecurityAccountUseCase =
-  new DeleteSecurityAccountUseCase(
-    mongoSecurityRepository,
-    sensitiveActionStepUpService
-  )
-
-export const securityService = {
-  getOverview: async (
-    userId: string,
-    refreshToken?: string
-  ) => {
-    return getSecurityOverviewUseCase.execute(userId, refreshToken)
-  },
-
-  requestEmailChange: async (
-    userId: string,
-    payload: ChangeEmailPayload
-  ) => {
-    return requestEmailChangeUseCase.execute(userId, payload)
-  },
-
-  verifyEmailChange: async (
-    payload: VerifyEmailChangePayload
-  ) => {
-    return verifyEmailChangeUseCase.execute(payload)
-  },
-
-  changePassword: async (
-    userId: string,
-    payload: ChangePasswordPayload
-  ) => {
-    return changeSecurityPasswordUseCase.execute(userId, payload)
-  },
-
-  getSessions: async (
-    userId: string,
-    refreshToken?: string
-  ) => {
-    return getSecuritySessionsUseCase.execute(userId, refreshToken)
-  },
-
-  revokeSession: async (
-    userId: string,
-    sessionId: string,
-    refreshToken?: string
-  ) => {
-    return revokeSecuritySessionUseCase.execute(
+  revokeSession(userId: string, sessionId: string, refreshToken?: string) {
+    return this.useCases.revokeSecuritySession.execute(
       userId,
       sessionId,
       refreshToken
     )
-  },
+  }
 
-  getTwoFactorStatus: async (userId: string) => {
-    return getTwoFactorStatusUseCase.execute(userId)
-  },
+  getTwoFactorStatus(userId: string) {
+    return this.useCases.getTwoFactorStatus.execute(userId)
+  }
 
-  setupTwoFactor: async (userId: string) => {
-    return setupTwoFactorUseCase.execute(userId)
-  },
+  setupTwoFactor(userId: string) {
+    return this.useCases.setupTwoFactor.execute(userId)
+  }
 
-  verifyTwoFactorSetup: async (
-    userId: string,
-    payload: VerifyTwoFactorSetupPayload
-  ) => {
-    return verifyTwoFactorSetupUseCase.execute(userId, payload)
-  },
+  verifyTwoFactorSetup(userId: string, payload: VerifyTwoFactorSetupPayload) {
+    return this.useCases.verifyTwoFactorSetup.execute(userId, payload)
+  }
 
-  disableTwoFactor: async (
-    userId: string,
-    payload: DisableTwoFactorPayload
-  ) => {
-    return disableTwoFactorUseCase.execute(userId, payload)
-  },
+  disableTwoFactor(userId: string, payload: DisableTwoFactorPayload) {
+    return this.useCases.disableTwoFactor.execute(userId, payload)
+  }
 
-  deleteAccount: async (
-    userId: string,
-    payload: DeleteAccountPayload
-  ) => {
-    return deleteSecurityAccountUseCase.execute(userId, payload)
-  },
+  deleteAccount(userId: string, payload: DeleteAccountPayload) {
+    return this.useCases.deleteSecurityAccount.execute(userId, payload)
+  }
 }
+
+export const securityService = new SecurityService(
+  createSecurityComposition()
+)

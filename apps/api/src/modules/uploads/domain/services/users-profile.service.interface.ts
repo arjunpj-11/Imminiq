@@ -1,15 +1,11 @@
-import type {
-  UserProfileRecordForUpload,
-  UserRecordForUpload,
-} from '../types/uploads.types'
+import type { UserProfileUploadEntity } from '../entities/user-profile-upload.entity'
+import type { UserUploadEntity } from '../entities/user-upload.entity'
+
+export interface UsersProfileContext {
+  user: UserUploadEntity
+  profile: UserProfileUploadEntity
+}
 
 export interface UsersProfileServiceContract {
-  findUserById(
-    userId: string
-  ): Promise<UserRecordForUpload | null>
-
-  ensureProfileForUser(
-    userId: string,
-    fullName: string
-  ): Promise<UserProfileRecordForUpload>
+  getMe(userId: string): Promise<UsersProfileContext>
 }

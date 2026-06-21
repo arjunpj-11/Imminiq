@@ -1,15 +1,29 @@
-import type { SettingsRepository } from '../../domain/repositories/settings.repository.interface'
-import type { UpdateGesturesPayload } from '../../domain/types/settings.types'
+import type { SettingsCommandRepositoryContract } from '../../domain/repositories/settings-command.repository.interface'
+import type {
+  UpdateGesturesPayload,
+  UserSettingsView,
+} from '../dtos/settings.dto'
+import type { SettingsMapperContract } from '../mappers/settings.mapper'
+
+type UpdateGesturesRepository = {
+  updateGestures: SettingsCommandRepositoryContract['updateGestures']
+}
 
 export class UpdateGesturesUseCase {
   constructor(
-    private readonly settingsRepository: SettingsRepository
+    private readonly settingsRepository: UpdateGesturesRepository,
+    private readonly settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
-    payload: UpdateGesturesPayload
-  ) {
-    return this.settingsRepository.updateGestures(userId, payload)
+    payload: UpdateGesturesPayload,
+  ): Promise<UserSettingsView | null> {
+    const settings = await this.settingsRepository.updateGestures({
+      userId,
+      data: payload,
+    })
+
+    return this.settingsMapper.toNullableDto(settings)
   }
 }

@@ -1,25 +1,36 @@
-import crypto from 'crypto'
+import {
+  MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS,
+} from '../constants/moderation-appeal.constants'
+import type { ModerationAppealQueryRepositoryContract } from '../../domain/repositories/moderation-appeal-query.repository.interface'
+import type { ModerationAppealCaseIdGeneratorContract } from '../../domain/services/case-id-generator.service.interface'
+import { ModerationAppealApplicationError } from '../errors/moderation-appeal-application.error'
 
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { ModerationAppealRepository } from '../../domain/repositories/moderation-appeal.repository.interface'
+export interface ModerationAppealCaseIdServiceContract {
+  generateUniqueCaseId(): Promise<string>
+}
 
-export const generateModerationAppealCaseId = async (
-  repository: ModerationAppealRepository
-): Promise<string> => {
-  for (let attempt = 0; attempt < 10; attempt += 1) {
-    const randomPart = crypto.randomInt(1000, 10000).toString()
-    const caseId = `CASE-IQ-${randomPart}`
+export class ModerationAppealCaseIdService
+  implements ModerationAppealCaseIdServiceContract
+{
+  constructor(
+    private readonly moderationAppealRepository: ModerationAppealQueryRepositoryContract,
+    private readonly caseIdGenerator: ModerationAppealCaseIdGeneratorContract,
+  ) {}
 
-    const exists = await repository.caseIdExists(caseId)
+  async generateUniqueCaseId(): Promise<string> {
+    for (
+      let attempt = 0;
+      attempt < MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS;
+      attempt += 1
+    ) {
+      const caseId = this.caseIdGenerator.generate()
+      const exists = await this.moderationAppealRepository.caseIdExists(caseId)
 
-    if (!exists) {
-      return caseId
+      if (!exists) {
+        return caseId
+      }
     }
-  }
 
-  throw new ApiError(
-    500,
-    'Unable to generate an appeal case ID. Please try again.',
-    'APPEAL_CASE_ID_GENERATION_FAILED'
-  )
+    throw ModerationAppealApplicationError.appealCaseIdGenerationFailed()
+  }
 }

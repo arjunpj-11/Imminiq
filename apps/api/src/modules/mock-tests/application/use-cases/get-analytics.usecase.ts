@@ -1,10 +1,12 @@
-import { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
-import { TestAnalytics } from '../../domain/types/mock-tests.types'
+import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
+import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
+import type { TestAnalytics } from '../dtos/mock-tests.dto'
+
+const DEFAULT_AI_INSIGHTS = 'Keep practicing to improve your performance.'
 
 export class GetAnalyticsUseCase {
   constructor(
-    private readonly repo: MockTestsRepositoryContract,
+    private readonly repo: MockTestAnalyticsRepositoryContract,
     private readonly aiService: MockTestAIServiceContract,
   ) {}
 
@@ -14,7 +16,7 @@ export class GetAnalyticsUseCase {
       this.repo.getTopicBreakdown(userId),
     ])
 
-    let aiInsights = 'Keep practicing to improve your performance.'
+    let aiInsights: string
 
     try {
       aiInsights = await this.aiService.generatePerformanceInsights({
@@ -22,8 +24,8 @@ export class GetAnalyticsUseCase {
         performanceTrends: trends,
         topicBreakdown,
       })
-    } catch (error) {
-      console.error('AI insights generation failed:', error)
+    } catch {
+      aiInsights = DEFAULT_AI_INSIGHTS
     }
 
     return { trends, topicBreakdown, aiInsights }

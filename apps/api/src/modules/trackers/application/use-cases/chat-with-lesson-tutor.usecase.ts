@@ -1,11 +1,19 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+// apps/api/src/modules/trackers/application/use-cases/chat-with-lesson-tutor.usecase.ts
+
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+
+type ChatWithLessonTutorResultDto = ReturnType<
+  TrackerMapperContract['toLessonTutorChatResponseDto']
+>
 
 export class ChatWithLessonTutorUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -16,14 +24,14 @@ export class ChatWithLessonTutorUseCase {
       role: 'user' | 'assistant'
       content: string
     }[]
-  }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  }): Promise<ChatWithLessonTutorResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -33,10 +41,8 @@ export class ChatWithLessonTutorUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
+      throw TrackerApplicationError.lessonNotGenerated(
         'Generate the lesson before chatting',
-        'LESSON_NOT_GENERATED'
       )
     }
 
@@ -79,8 +85,8 @@ export class ChatWithLessonTutorUseCase {
       })
     }
 
-    return {
+    return this.trackerMapper.toLessonTutorChatResponseDto({
       answer,
-    }
+    })
   }
 }

@@ -1,23 +1,20 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
-import type { UserRecord } from '../../domain/types/users.types'
-import { mapUser } from '../utils/users-view-mappers'
+import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import { UsersApplicationError } from '../errors/users-application.error'
+import type { UsersMapperContract } from '../mappers/users.mapper'
 
 export class GetUserByUsernameUseCase {
   constructor(
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: UserRepositoryContract,
+    private readonly usersMapper: UsersMapperContract,
   ) {}
 
   async execute(username: string) {
-    const user =
-      (await this.usersRepository.findUserByUsername(
-        username
-      )) as UserRecord | null
+    const user = await this.usersRepository.findByUsername(username)
 
     if (!user) {
-      throw new ApiError(404, 'User not found')
+      throw UsersApplicationError.userNotFound()
     }
 
-    return mapUser(user)
+    return this.usersMapper.toUserView(user)
   }
 }

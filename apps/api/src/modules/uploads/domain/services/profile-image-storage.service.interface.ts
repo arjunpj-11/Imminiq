@@ -1,11 +1,10 @@
-import type {
-  StoredProfileImage,
-  UploadedProfileImageFile,
-} from '../types/uploads.types'
+import type { StoredProfileImageEntity } from '../entities/stored-profile-image.entity'
+import type { ProfileImageFolder } from '../value-objects/profile-image-folder.vo'
+import type { UploadedProfileImageFile } from '../value-objects/uploaded-profile-image-file.vo'
 
 export interface ProfileImageStorageServiceContract {
   uploadProfileImage(
     file: UploadedProfileImageFile,
-    folder: string
-  ): Promise<StoredProfileImage>
+    folder: ProfileImageFolder,
+  ): Promise<StoredProfileImageEntity>
 }

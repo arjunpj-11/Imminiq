@@ -1,5 +1,6 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 type ExistingTopic = {
@@ -17,27 +18,36 @@ type VerifyTrackerTopicInput = {
   existingTopics: ExistingTopic[]
 }
 
+type VerifyTrackerTopicResultDto = ReturnType<
+  TrackerMapperContract['toTrackerAIValidationDto']
+>
+
 export class VerifyTrackerTopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
-  async execute(input: VerifyTrackerTopicInput) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  async execute(
+    input: VerifyTrackerTopicInput,
+  ): Promise<VerifyTrackerTopicResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerAIService.verifyTrackerTopic({
+    const result = await this.trackerAIService.verifyTrackerTopic({
       trackerTitle: input.trackerTitle || tracker.title || '',
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,
       existingTopics: input.existingTopics,
     })
+
+    return this.trackerMapper.toTrackerAIValidationDto(result)
   }
 }

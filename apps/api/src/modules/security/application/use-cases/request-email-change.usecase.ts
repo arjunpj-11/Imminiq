@@ -1,33 +1,34 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import { env } from '../../../../config/env'
-import { securityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import type { SecurityEmailGateway } from '../../domain/services/security-email.service.interface'
-import type { SecurityRepository } from '../../domain/repositories/security.repository.interface'
+import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/constants/security.constants'
+import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
+import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { SecurityEmailChangeTokenServiceContract } from '../../domain/services/security-email-change-token.service.interface'
+import type { SecurityEmailChangeUrlServiceContract } from '../../domain/services/security-email-change-url.service.interface'
+import type { SecurityEmailProviderContract } from '../../domain/services/security-email-provider.interface'
 import type {
   ChangeEmailPayload,
-  EmailChangeRequestResponse,
-} from '../../domain/types/security.types'
-import {
-  EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES,
-  generateEmailChangeToken,
-} from '../utils/email-change-token.util'
-import { SensitiveActionStepUpService } from '../services/sensitive-action-step-up.service'
+  EmailChangeRequestResponseDto,
+} from '../dtos/security.dto'
+import { SecurityApplicationError } from '../errors/security-application.error'
+import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
 
 export class RequestEmailChangeUseCase {
   constructor(
-    private readonly securityRepository: SecurityRepository,
-    private readonly securityEmailGateway: SecurityEmailGateway,
-    private readonly sensitiveActionStepUpService: SensitiveActionStepUpService
+    private readonly securityUserRepository: SecurityUserRepositoryContract,
+    private readonly securityEmailProvider: SecurityEmailProviderContract,
+    private readonly sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
+    private readonly emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
+    private readonly emailChangeUrlService: SecurityEmailChangeUrlServiceContract,
+    private readonly securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async execute(
     userId: string,
-    payload: ChangeEmailPayload
-  ): Promise<EmailChangeRequestResponse> {
-    const user = await this.securityRepository.findUserById(userId)
+    payload: ChangeEmailPayload,
+  ): Promise<EmailChangeRequestResponseDto> {
+    const user = await this.securityUserRepository.findUserById(userId)
 
     if (!user) {
-      throw new ApiError(404, 'User not found', 'NOT_FOUND')
+      throw SecurityApplicationError.notFound()
     }
 
     await this.sensitiveActionStepUpService.assertSatisfied({
@@ -39,83 +40,59 @@ export class RequestEmailChangeUseCase {
     const normalizedEmail = payload.newEmail.trim().toLowerCase()
 
     if (!normalizedEmail) {
-      throw new ApiError(
-        400,
-        'New email is required',
-        'EMAIL_REQUIRED'
-      )
+      throw SecurityApplicationError.emailRequired()
     }
 
     if (user.email?.trim().toLowerCase() === normalizedEmail) {
-      throw new ApiError(
-        400,
-        'New email must be different from current email',
-        'EMAIL_UNCHANGED'
-      )
+      throw SecurityApplicationError.emailUnchanged()
     }
 
-    const emailAlreadyUsed =
-      await this.securityRepository.emailExists(normalizedEmail)
-
-    if (emailAlreadyUsed) {
-      throw new ApiError(
-        409,
-        'Email is already in use',
-        'EMAIL_TAKEN'
-      )
+    if (await this.securityUserRepository.emailExists(normalizedEmail)) {
+      throw SecurityApplicationError.emailTaken()
     }
 
-    const {
-      rawToken,
-      tokenHash,
-      expiresAt,
-    } = generateEmailChangeToken()
+    const { rawToken, tokenHash, expiresAt } =
+      this.emailChangeTokenService.generate()
 
     const updatedUser =
-      await this.securityRepository.savePendingEmailChange(userId, {
-        pendingEmail: normalizedEmail,
-        tokenHash,
-        expiresAt,
+      await this.securityUserRepository.savePendingEmailChange({
+        userId,
+        data: {
+          pendingEmail: normalizedEmail,
+          tokenHash,
+          expiresAt,
+        },
       })
 
     if (!updatedUser) {
-      throw new ApiError(
-        500,
-        'Failed to create email change request',
-        'EMAIL_CHANGE_REQUEST_FAILED'
-      )
+      throw SecurityApplicationError.emailChangeRequestFailed()
     }
 
     const verificationUrl =
-      `${env.CLIENT_URL}/verify-email-change?token=${rawToken}`
+      this.emailChangeUrlService.buildVerificationUrl(rawToken)
 
-    await this.securityEmailGateway.sendEmailChangeVerification(
+    await this.securityEmailProvider.sendEmailChangeVerification(
       normalizedEmail,
       {
         fullName: user.fullName,
         newEmail: normalizedEmail,
         verificationUrl,
         expiresMinutes: EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES,
-      }
+      },
     )
 
     if (user.email) {
-      await this.securityEmailGateway.sendEmailChangeAlert(
-        user.email,
-        {
-          fullName: user.fullName,
-          requestedNewEmail: normalizedEmail,
-        }
-      )
+      await this.securityEmailProvider.sendEmailChangeAlert(user.email, {
+        fullName: user.fullName,
+        requestedNewEmail: normalizedEmail,
+      })
     }
 
-    await securityAuditLogger.record({
+    await this.securityAuditLogger.record({
       userId,
       eventType: 'EMAIL_CHANGE_REQUESTED',
       outcome: 'success',
-      metadata: {
-        hasPendingEmail: true,
-      },
+      metadata: { hasPendingEmail: true },
     })
 
     return {

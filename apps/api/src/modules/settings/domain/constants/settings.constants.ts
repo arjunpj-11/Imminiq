@@ -1,0 +1,17 @@
+export const SETTINGS_NOTIFICATION_TYPE_KEYS = [
+  'friendRequests',
+  'challenges',
+  'battleResults',
+  'testCompletion',
+  'postLiked',
+  'postCommented',
+  'trackerCloned',
+  'streakMilestones',
+  'studyReminders',
+  'adminBroadcasts',
+  'accountAlerts',
+  'subscriptionWarnings',
+  'paymentConfirmations',
+  'contributionUpdates',
+  'callMissed',
+] as const

@@ -1,51 +1,5 @@
-export type ProfileUploadKind = 'avatar' | 'banner'
-
-export interface UploadedProfileImageFile {
-  originalname: string
-  mimetype: string
-  size: number
-  buffer: Buffer
-}
-
-export interface StoredProfileImage {
-  fileUrl: string
-  fileName: string
-  fileType: string
-  mimeType: string
-  sizeBytes: number
-  storagePublicId?: string
-}
-
-export interface UploadProfileImageInput {
-  userId: string
-  kind: ProfileUploadKind
-  file: UploadedProfileImageFile
-}
-
-export interface UploadProfileImageResult {
-  uploadId: string
-  fileUrl: string
-  kind: ProfileUploadKind
-}
-
-export interface RemoveAvatarResult {
-  avatarRemoved: true
-  defaultAvatarApplied: true
-}
-
-export interface RemoveBannerResult {
-  bannerRemoved: true
-}
-
-export interface AiImagePreviewResult {
-  imageUrl: string
-}
-
-export interface UserRecordForUpload {
-  _id: unknown
-  fullName?: string | null
-}
-
-export interface UserProfileRecordForUpload {
-  _id: unknown
-}
+export type { ProfileImageFolder } from '../value-objects/profile-image-folder.vo'
+export type { ProfileUploadKind } from '../value-objects/profile-upload-kind.vo'
+export type { UploadedProfileImageFile } from '../value-objects/uploaded-profile-image-file.vo'
+export type { UploadModule } from '../value-objects/upload-module.vo'
+export type { UploadReferenceType } from '../value-objects/upload-reference-type.vo'

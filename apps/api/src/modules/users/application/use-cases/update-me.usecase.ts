@@ -1,69 +1,80 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { UsersRepository } from '../../domain/repositories/users.repository.interface'
-import type {
-  ProfileRecord,
-  UpdateMyProfileInput,
-  UserRecord,
-} from '../../domain/types/users.types'
-import {
-  cleanTags,
-  mapProfile,
-  mapUser,
-  toIdString,
-} from '../utils/users-view-mappers'
+import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
+import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import type { UserProfileUpdate } from '../../domain/value-objects/user-profile-update.vo'
+import type { UpdateMyProfileInput } from '../dtos/users.dto'
+import { UsersApplicationError } from '../errors/users-application.error'
+import type { UsersMapperContract } from '../mappers/users.mapper'
+
+type UpdateMeRepository = UserRepositoryContract & UserProfileRepositoryContract
 
 export class UpdateMeUseCase {
   constructor(
-    private readonly usersRepository: UsersRepository
+    private readonly usersRepository: UpdateMeRepository,
+    private readonly usersMapper: UsersMapperContract,
   ) {}
 
   async execute(userId: string, payload: UpdateMyProfileInput) {
-    const user =
-      (await this.usersRepository.findUserById(userId)) as UserRecord | null
+    const user = await this.usersRepository.findById(userId)
 
     if (!user) {
-      throw new ApiError(404, 'User not found')
+      throw UsersApplicationError.userNotFound()
     }
 
-    const normalizedPayload: UpdateMyProfileInput = {
-      ...payload,
-      fullName: payload.fullName?.trim(),
-      skills: cleanTags(payload.skills),
-      interests: cleanTags(payload.interests),
-    }
+    const normalizedPayload = this.normalizePayload(payload)
+    const { fullName, ...profilePayload } = normalizedPayload
 
-    const updatedProfile =
-      (await this.usersRepository.updateProfileByUserId(
-        toIdString(user._id),
-        normalizedPayload
-      )) as ProfileRecord | null
+    const hasProfileUpdates = Object.keys(profilePayload).length > 0
+
+    const updatedProfile = hasProfileUpdates
+      ? await this.usersRepository.updateByUserId({
+          userId: user.id,
+          payload: profilePayload as UserProfileUpdate,
+        })
+      : await this.usersRepository.ensureForUser({
+          userId: user.id,
+        })
 
     if (!updatedProfile) {
-      throw new ApiError(500, 'Profile update failed')
+      throw UsersApplicationError.profileUpdateFailed()
     }
 
-    let resolvedUser: UserRecord = user
+    let resolvedUser = user
 
-    if (
-      normalizedPayload.fullName &&
-      normalizedPayload.fullName !== user.fullName
-    ) {
-      const updatedUser =
-        (await this.usersRepository.updateUserFullName(
-          toIdString(user._id),
-          normalizedPayload.fullName
-        )) as UserRecord | null
+    if (fullName && fullName !== user.fullName) {
+      const updatedUser = await this.usersRepository.updateFullName({
+        userId: user.id,
+        fullName,
+      })
 
       if (!updatedUser) {
-        throw new ApiError(500, 'User full name update failed')
+        throw UsersApplicationError.userNameUpdateFailed()
       }
 
       resolvedUser = updatedUser
     }
 
     return {
-      user: mapUser(resolvedUser),
-      profile: mapProfile(updatedProfile, toIdString(user._id)),
+      user: this.usersMapper.toUserView(resolvedUser),
+      profile: this.usersMapper.toProfileView(updatedProfile),
     }
+  }
+
+  private normalizePayload(payload: UpdateMyProfileInput): UpdateMyProfileInput {
+    return {
+      ...payload,
+      ...(payload.fullName !== undefined
+        ? { fullName: payload.fullName.trim() }
+        : {}),
+      ...(payload.skills !== undefined
+        ? { skills: this.cleanTags(payload.skills) }
+        : {}),
+      ...(payload.interests !== undefined
+        ? { interests: this.cleanTags(payload.interests) }
+        : {}),
+    }
+  }
+
+  private cleanTags(tags: string[]): string[] {
+    return [...new Set(tags.map((tag) => tag.trim()).filter(Boolean))]
   }
 }

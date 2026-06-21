@@ -1,205 +1,120 @@
-import {
-  Request,
-  Response,
-  NextFunction,
-} from 'express'
+import type { NextFunction, Request, Response } from 'express'
 
-import { dashboardService } from '../dashboard.service'
+import type {
+  DashboardActivityIntensityQuery,
+  DashboardRecentItemsQuery,
+} from '../application/dtos/dashboard.dto'
+import { dashboardService, type DashboardService } from '../dashboard.service'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { ApiError } from '../../../shared/utils/ApiError'
-import {
-  dashboardActivityIntensityQuerySchema,
-  dashboardRecentItemsQuerySchema,
-} from './dashboard.schema'
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
-const getAuthenticatedUserId = (req: Request) => {
-  const userId = req.user?.userId
+export class DashboardController {
+  constructor(private readonly service: DashboardService) {}
 
-  if (!userId) {
-    throw new ApiError(
-      401,
-      'Unauthorized',
-      'UNAUTHORIZED'
-    )
+  getSummary = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = getAuthUser(req).userId
+      const data = await this.service.getSummary(userId)
+
+      res.json(new ApiResponse('Dashboard fetched', data))
+    } catch (error) {
+      next(error)
+    }
   }
 
-  return userId
+  getCurrentRoadmap = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = getAuthUser(req).userId
+      const data = await this.service.getCurrentRoadmap(userId)
+
+      res.json(new ApiResponse('Current roadmap fetched', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getActivityIntensity = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = getAuthUser(req).userId
+      const query = res.locals
+        .dashboardActivityIntensityQuery as DashboardActivityIntensityQuery
+
+      const data = await this.service.getActivityIntensity(
+        userId,
+        query.months
+      )
+
+      res.json(new ApiResponse('Activity intensity fetched', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getRecentBattles = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = getAuthUser(req).userId
+      const query = res.locals
+        .dashboardRecentItemsQuery as DashboardRecentItemsQuery
+
+      const data = await this.service.getRecentBattles(userId, query.limit)
+
+      res.json(new ApiResponse('Recent battles fetched', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getFriendsHub = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = getAuthUser(req).userId
+      const query = res.locals
+        .dashboardRecentItemsQuery as DashboardRecentItemsQuery
+
+      const data = await this.service.getFriendsHub(userId, query.limit)
+
+      res.json(new ApiResponse('Friends hub fetched', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getRecommendedActions = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const userId = getAuthUser(req).userId
+      const data = await this.service.getRecommendedActions(userId)
+
+      res.json(new ApiResponse('Recommended actions fetched', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getAIInsights = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const userId = getAuthUser(req).userId
+      const data = await this.service.getAIInsights(userId)
+
+      res.json(new ApiResponse('AI insights fetched', data))
+    } catch (error) {
+      next(error)
+    }
+  }
 }
 
-export const dashboardController = {
-  getSummary: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = getAuthenticatedUserId(req)
-
-      const data =
-        await dashboardService.getSummary(userId)
-
-      res.json(
-        new ApiResponse(
-          'Dashboard fetched',
-          data
-        )
-      )
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  getCurrentRoadmap: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = getAuthenticatedUserId(req)
-
-      const data =
-        await dashboardService.getCurrentRoadmap(
-          userId
-        )
-
-      res.json(
-        new ApiResponse(
-          'Current roadmap fetched',
-          data
-        )
-      )
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  getActivityIntensity: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = getAuthenticatedUserId(req)
-
-      const query =
-        dashboardActivityIntensityQuerySchema.parse(req.query)
-
-      const data =
-        await dashboardService.getActivityIntensity(
-          userId,
-          query.months
-        )
-
-      res.json(
-        new ApiResponse(
-          'Activity intensity fetched',
-          data
-        )
-      )
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  getRecentBattles: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = getAuthenticatedUserId(req)
-
-      const query =
-        dashboardRecentItemsQuerySchema.parse(req.query)
-
-      const data =
-        await dashboardService.getRecentBattles(
-          userId,
-          query.limit
-        )
-
-      res.json(
-        new ApiResponse(
-          'Recent battles fetched',
-          data
-        )
-      )
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  getFriendsHub: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = getAuthenticatedUserId(req)
-
-      const query =
-        dashboardRecentItemsQuerySchema.parse(req.query)
-
-      const data =
-        await dashboardService.getFriendsHub(
-          userId,
-          query.limit
-        )
-
-      res.json(
-        new ApiResponse(
-          'Friends hub fetched',
-          data
-        )
-      )
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  getRecommendedActions: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = getAuthenticatedUserId(req)
-
-      const data =
-        await dashboardService.getRecommendedActions(
-          userId
-        )
-
-      res.json(
-        new ApiResponse(
-          'Recommended actions fetched',
-          data
-        )
-      )
-    } catch (error) {
-      next(error)
-    }
-  },
-
-  getAIInsights: async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const userId = getAuthenticatedUserId(req)
-
-      const data =
-        await dashboardService.getAIInsights(userId)
-
-      res.json(
-        new ApiResponse(
-          'AI insights fetched',
-          data
-        )
-      )
-    } catch (error) {
-      next(error)
-    }
-  },
-}
+export const dashboardController = new DashboardController(dashboardService)

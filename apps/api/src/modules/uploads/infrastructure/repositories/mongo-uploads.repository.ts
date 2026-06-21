@@ -1,93 +1,209 @@
-import { Types } from 'mongoose'
-
 import { Upload } from '../../../../infrastructure/database/models/upload.model'
 import { User } from '../../../../infrastructure/database/models/user.model'
 import { UserProfile } from '../../../../infrastructure/database/models/user-profile.model'
+import {
+  UPLOAD_MODULE,
+  UPLOAD_REFERENCE_TYPE,
+} from '../../domain/constants/uploads.constants'
 import type {
-  ProfileUploadKind,
-  StoredProfileImage,
-} from '../../domain/types/uploads.types'
-import type {
-  UploadRecordLike,
-  UploadsRepository,
+  SaveUploadRecordInput,
+  SetProfileAvatarUrlInput,
+  SetProfileBannerUrlInput,
+  SoftDeleteLatestProfileUploadInput,
+  UploadsRepositoryContract,
 } from '../../domain/repositories/uploads.repository.interface'
+import { MongoUploadsBaseRepository } from './mongo-uploads-base.repository'
+import { MongoUploadsErrorMapper } from './mongo-uploads-error.mapper'
+import { MongoUploadsMapper } from './mongo-uploads.mapper'
+import type {
+  MongoIdLike,
+  MongoUploadRecord,
+  MongooseObjectLike,
+} from './mongo-uploads.types'
 
-const toObjectId = (id: string) => new Types.ObjectId(id)
+export class MongoUploadsRepository
+  extends MongoUploadsBaseRepository
+  implements UploadsRepositoryContract
+{
+  constructor(private readonly mapper = new MongoUploadsMapper()) {
+    super()
+  }
 
-export const mongoUploadsRepository: UploadsRepository = {
   async saveUploadRecord(
-    userId: string,
-    kind: ProfileUploadKind,
-    file: StoredProfileImage,
-    referenceId: string
-  ): Promise<UploadRecordLike> {
-    const upload = await Upload.create({
-      userId: toObjectId(userId),
-      fileName: file.fileName,
-      fileType: kind,
-      fileUrl: file.fileUrl,
-      mimeType: file.mimeType,
-      sizeBytes: file.sizeBytes,
-      module: 'profile',
-      referenceType: 'user_profile',
-      referenceId: toObjectId(referenceId),
-    })
+    input: SaveUploadRecordInput,
+  ) {
+    return this.execute(
+      'UPLOAD_RECORD_CREATE_FAILED',
+      'Failed to save upload record',
+      async () => {
+        const upload = await Upload.create({
+          userId: this.toObjectId(input.userId),
+          fileName: input.file.fileName,
+          fileType: input.kind,
+          fileUrl: input.file.fileUrl,
+          mimeType: input.file.mimeType,
+          sizeBytes: input.file.sizeBytes,
+          module: UPLOAD_MODULE,
+          referenceType: UPLOAD_REFERENCE_TYPE,
+          referenceId: this.toObjectId(input.referenceId),
+          ...(input.file.storagePublicId
+            ? { storagePublicId: input.file.storagePublicId }
+            : {}),
+        })
 
-    return upload.toObject() as UploadRecordLike
-  },
+        return this.mapper.toUploadEntityOrThrow(
+          this.mapper.toPlainRecord<MongoUploadRecord>(
+            upload as MongooseObjectLike<MongoUploadRecord>,
+          ),
+        )
+      },
+      MongoUploadsErrorMapper.mapDuplicateUploadRecordError,
+    )
+  }
 
-  async setAvatarUrl(userId: string, avatarUrl: string) {
-    return User.findOneAndUpdate(
-      { _id: userId, deletedAt: null },
-      { $set: { avatarUrl } },
-      { returnDocument: 'after', runValidators: true }
-    ).lean()
-  },
+  async setAvatarUrl(input: SetProfileAvatarUrlInput) {
+    return this.execute(
+      'UPLOAD_AVATAR_UPDATE_FAILED',
+      'Failed to update avatar url',
+      async () => {
+        const user = await User.findOneAndUpdate(
+          {
+            _id: this.toObjectId(input.userId),
+            deletedAt: null,
+          },
+          {
+            $set: {
+              avatarUrl: input.avatarUrl,
+            },
+          },
+          {
+            returnDocument: 'after',
+            runValidators: true,
+          },
+        ).lean<{ _id: MongoIdLike }>()
+
+        return Boolean(user)
+      },
+    )
+  }
 
   async clearAvatarUrl(userId: string) {
-    return User.findOneAndUpdate(
-      { _id: userId, deletedAt: null },
-      { $set: { avatarUrl: '' } },
-      { returnDocument: 'after', runValidators: true }
-    ).lean()
-  },
+    return this.execute(
+      'UPLOAD_AVATAR_CLEAR_FAILED',
+      'Failed to clear avatar url',
+      async () => {
+        const user = await User.findOneAndUpdate(
+          {
+            _id: this.toObjectId(userId),
+            deletedAt: null,
+          },
+          {
+            $set: {
+              avatarUrl: '',
+            },
+          },
+          {
+            returnDocument: 'after',
+            runValidators: true,
+          },
+        ).lean<{ _id: MongoIdLike }>()
 
-  async setBannerUrl(userId: string, bannerUrl: string) {
-    return UserProfile.findOneAndUpdate(
-      { userId: toObjectId(userId), deletedAt: null },
-      { $set: { profileBannerUrl: bannerUrl } },
-      { returnDocument: 'after', runValidators: true, upsert: true }
-    ).lean()
-  },
+        return Boolean(user)
+      },
+    )
+  }
+
+  async setBannerUrl(input: SetProfileBannerUrlInput) {
+    return this.execute(
+      'UPLOAD_BANNER_UPDATE_FAILED',
+      'Failed to update banner url',
+      async () => {
+        const userObjectId = this.toObjectId(input.userId)
+
+        const profile = await UserProfile.findOneAndUpdate(
+          {
+            userId: userObjectId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              profileBannerUrl: input.bannerUrl,
+            },
+            $setOnInsert: {
+              userId: userObjectId,
+              deletedAt: null,
+            },
+          },
+          {
+            returnDocument: 'after',
+            runValidators: true,
+            upsert: true,
+            setDefaultsOnInsert: true,
+          },
+        ).lean<{ _id: MongoIdLike }>()
+
+        return Boolean(profile)
+      },
+    )
+  }
 
   async clearBannerUrl(userId: string) {
-    return UserProfile.findOneAndUpdate(
-      { userId: toObjectId(userId), deletedAt: null },
-      { $set: { profileBannerUrl: '' } },
-      { returnDocument: 'after', runValidators: true }
-    ).lean()
-  },
+    return this.execute(
+      'UPLOAD_BANNER_CLEAR_FAILED',
+      'Failed to clear banner url',
+      async () => {
+        const profile = await UserProfile.findOneAndUpdate(
+          {
+            userId: this.toObjectId(userId),
+            deletedAt: null,
+          },
+          {
+            $set: {
+              profileBannerUrl: '',
+            },
+          },
+          {
+            returnDocument: 'after',
+            runValidators: true,
+          },
+        ).lean<{ _id: MongoIdLike }>()
 
-  findProfileByUserId(userId: string) {
-    return UserProfile.findOne({
-      userId: toObjectId(userId),
-      deletedAt: null,
-    }).lean()
-  },
+        return Boolean(profile)
+      },
+    )
+  }
 
   async softDeleteLatestProfileUpload(
-    userId: string,
-    kind: ProfileUploadKind
+    input: SoftDeleteLatestProfileUploadInput,
   ) {
-    return Upload.findOneAndUpdate(
-      {
-        userId: toObjectId(userId),
-        fileType: kind,
-        module: 'profile',
-        deletedAt: null,
+    return this.execute(
+      'UPLOAD_DELETE_FAILED',
+      'Failed to delete latest profile upload',
+      async () => {
+        const upload = await Upload.findOneAndUpdate(
+          {
+            userId: this.toObjectId(input.userId),
+            fileType: input.kind,
+            module: UPLOAD_MODULE,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              deletedAt: new Date(),
+            },
+          },
+          {
+            sort: {
+              createdAt: -1,
+            },
+            returnDocument: 'after',
+          },
+        ).lean<MongoUploadRecord>()
+
+        return Boolean(upload)
       },
-      { $set: { deletedAt: new Date() } },
-      { sort: { createdAt: -1 }, returnDocument: 'after' }
-    ).lean()
-  },
+    )
+  }
 }
+
+export const mongoUploadsRepository = new MongoUploadsRepository()

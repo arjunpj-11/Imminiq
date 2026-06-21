@@ -1,5 +1,8 @@
-import { ApiError } from '../../../../shared/utils/ApiError'
-import type { TrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+// apps/api/src/modules/trackers/application/use-cases/run-lesson-code.usecase.ts
+
+import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
 
 type RunLessonCodeInput = {
@@ -12,20 +15,25 @@ type RunLessonCodeInput = {
   stdin?: string
 }
 
+type RunLessonCodeResultDto = ReturnType<
+  TrackerMapperContract['toLessonCodeExecutionDto']
+>
+
 export class RunLessonCodeUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepository,
-    private readonly codeExecutionService: CodeExecutionServiceContract
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly codeExecutionService: CodeExecutionServiceContract,
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
-  async execute(input: RunLessonCodeInput) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+  async execute(input: RunLessonCodeInput): Promise<RunLessonCodeResultDto> {
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
-      throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
     const lesson = await this.trackerRepository.findLessonBySubtopicId({
@@ -35,18 +43,18 @@ export class RunLessonCodeUseCase {
     })
 
     if (!lesson) {
-      throw new ApiError(
-        404,
+      throw TrackerApplicationError.lessonNotGenerated(
         'Generate the lesson before running code',
-        'LESSON_NOT_GENERATED'
       )
     }
 
-    return this.codeExecutionService.executeCode({
+    const result = await this.codeExecutionService.executeCode({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
       language: input.language || lesson.codeExample?.language || 'javascript',
       stdin: input.stdin,
     })
+
+    return this.trackerMapper.toLessonCodeExecutionDto(result)
   }
 }

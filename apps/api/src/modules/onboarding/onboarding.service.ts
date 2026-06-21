@@ -1,140 +1,80 @@
-import type { RoadmapLevel } from './domain/types/onboarding.types'
+import type {
+  GenerateRoadmapPayload,
+  GenerateRoadmapResult,
+  GetEvaluationResult,
+  GetJobStatusResult,
+  OnboardingResponseRecord,
+  OnboardingStatusResult,
+  RoadmapTreeResult,
+  SaveOnboardingStepOnePayload,
+  SaveOnboardingStepTwoPayload,
+} from './application/dtos/onboarding.dto'
+import {
+  createOnboardingComposition,
+  type OnboardingComposition,
+} from './onboarding.factory'
 
-import { mongoOnboardingRepository } from './infrastructure/repositories/mongo-onboarding.repository'
-import { bullMqAIJobQueueGateway } from './infrastructure/gateways/bullmq-ai-job-queue.gateway'
+export class OnboardingService {
+  private readonly useCases: OnboardingComposition['useCases']
 
-import { GetOnboardingStatusUseCase } from './application/use-cases/get-onboarding-status.usecase'
-import { SaveOnboardingStepOneUseCase } from './application/use-cases/save-onboarding-step-one.usecase'
-import { SaveOnboardingStepTwoUseCase } from './application/use-cases/save-onboarding-step-two.usecase'
-import { GenerateRoadmapUseCase } from './application/use-cases/generate-roadmap.usecase'
-import { GetRoadmapJobStatusUseCase } from './application/use-cases/get-roadmap-job-status.usecase'
-import { GetRoadmapJobResultUseCase } from './application/use-cases/get-roadmap-job-result.usecase'
-import { EvaluateRoadmapUseCase } from './application/use-cases/evaluate-roadmap.usecase'
-import { GetRoadmapEvaluationResultUseCase } from './application/use-cases/get-roadmap-evaluation-result.usecase'
+  constructor(composition: OnboardingComposition) {
+    this.useCases = composition.useCases
+  }
 
-const onboardingRepository = mongoOnboardingRepository
-const aiJobQueueGateway = bullMqAIJobQueueGateway
+  getStatus(userId: string): Promise<OnboardingStatusResult> {
+    return this.useCases.getOnboardingStatus.execute(userId)
+  }
 
-const getOnboardingStatusUseCase =
-  new GetOnboardingStatusUseCase(
-    onboardingRepository
-  )
-
-const saveOnboardingStepOneUseCase =
-  new SaveOnboardingStepOneUseCase(
-    onboardingRepository
-  )
-
-const saveOnboardingStepTwoUseCase =
-  new SaveOnboardingStepTwoUseCase(
-    onboardingRepository
-  )
-
-const generateRoadmapUseCase =
-  new GenerateRoadmapUseCase(
-    onboardingRepository,
-    aiJobQueueGateway
-  )
-
-const getRoadmapJobStatusUseCase =
-  new GetRoadmapJobStatusUseCase(
-    onboardingRepository
-  )
-
-const getRoadmapJobResultUseCase =
-  new GetRoadmapJobResultUseCase(
-    onboardingRepository
-  )
-
-const evaluateRoadmapUseCase =
-  new EvaluateRoadmapUseCase(
-    onboardingRepository,
-    aiJobQueueGateway
-  )
-
-const getRoadmapEvaluationResultUseCase =
-  new GetRoadmapEvaluationResultUseCase(
-    onboardingRepository
-  )
-
-export const onboardingService = {
-  getStatus: async (userId: string) => {
-    return getOnboardingStatusUseCase.execute(userId)
-  },
-
-  saveStep1: async (
+  saveStep1(
     userId: string,
-    topic: string,
-    goal?: string
-  ) => {
-    return saveOnboardingStepOneUseCase.execute(
-      userId,
-      topic,
-      goal
-    )
-  },
+    payload: SaveOnboardingStepOnePayload
+  ): Promise<OnboardingResponseRecord | null> {
+    return this.useCases.saveOnboardingStepOne.execute(userId, payload)
+  }
 
-  saveStep2: async (
+  saveStep2(
     userId: string,
-    level: RoadmapLevel
-  ) => {
-    return saveOnboardingStepTwoUseCase.execute(
-      userId,
-      level
-    )
-  },
+    payload: SaveOnboardingStepTwoPayload
+  ): Promise<OnboardingResponseRecord | null> {
+    return this.useCases.saveOnboardingStepTwo.execute(userId, payload)
+  }
 
-  generateRoadmap: async (
+  generateRoadmap(
     userId: string,
-    topic: string,
-    goal: string | undefined,
-    level: RoadmapLevel
-  ) => {
-    return generateRoadmapUseCase.execute(
-      userId,
-      topic,
-      goal,
-      level
-    )
-  },
+    payload: GenerateRoadmapPayload
+  ): Promise<GenerateRoadmapResult> {
+    return this.useCases.generateRoadmap.execute(userId, payload)
+  }
 
-  getJobStatus: async (
+  getJobStatus(
     jobId: string,
     userId: string
-  ) => {
-    return getRoadmapJobStatusUseCase.execute(
-      jobId,
-      userId
-    )
-  },
+  ): Promise<GetJobStatusResult> {
+    return this.useCases.getRoadmapJobStatus.execute(jobId, userId)
+  }
 
-  getJobResult: async (
+  getJobResult(
     jobId: string,
     userId: string
-  ) => {
-    return getRoadmapJobResultUseCase.execute(
-      jobId,
-      userId
-    )
-  },
+  ): Promise<RoadmapTreeResult> {
+    return this.useCases.getRoadmapJobResult.execute(jobId, userId)
+  }
 
-  evaluateRoadmap: async (
+  evaluateRoadmap(
     roadmapJobId: string,
     userId: string
-  ) => {
-    return evaluateRoadmapUseCase.execute(
-      roadmapJobId,
-      userId
-    )
-  },
+  ): Promise<GenerateRoadmapResult> {
+    return this.useCases.evaluateRoadmap.execute(roadmapJobId, userId)
+  }
 
-  getEvaluationResult: async (
+  getEvaluationResult(
     jobId: string,
     userId: string
-  ) => {
-    return getRoadmapEvaluationResultUseCase.execute(
-      jobId,
-      userId
-    )
-  },
+  ): Promise<GetEvaluationResult> {
+    return this.useCases.getRoadmapEvaluationResult.execute(jobId, userId)
+  }
 }
+
+export const onboardingService = new OnboardingService(
+  createOnboardingComposition()
+)
