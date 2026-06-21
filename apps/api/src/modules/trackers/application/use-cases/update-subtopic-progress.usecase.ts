@@ -1,15 +1,26 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { UpdateSubtopicProgressInput } from '../../domain/types/trackers.types'
 
-export class UpdateSubtopicProgressUseCase {
-  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
+type UpdateSubtopicProgressResultDto = ReturnType<
+  TrackerMapperContract['toSubtopicProgressResultDto']
+>
 
-  async execute(input: UpdateSubtopicProgressInput) {
+export class UpdateSubtopicProgressUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
+
+  async execute(
+    input: UpdateSubtopicProgressInput
+  ): Promise<UpdateSubtopicProgressResultDto> {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
       input.trackerId,
       input.userId
     )
+
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
@@ -18,6 +29,7 @@ export class UpdateSubtopicProgressUseCase {
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
     })
+
     if (!existingSubtopic) {
       throw TrackerApplicationError.subtopicNotFound('Subtopic not found')
     }
@@ -28,6 +40,7 @@ export class UpdateSubtopicProgressUseCase {
     })
 
     const subtopic = await this.trackerRepository.updateSubtopicProgress(input)
+
     if (!subtopic) {
       throw TrackerApplicationError.subtopicNotFound('Subtopic not found')
     }
@@ -59,11 +72,15 @@ export class UpdateSubtopicProgressUseCase {
       })
     }
 
-    const updatedProgress = await this.trackerRepository.recomputeTrackerProgress(
-      input.trackerId,
-      input.userId
-    )
+    const updatedProgress =
+      await this.trackerRepository.recomputeTrackerProgress(
+        input.trackerId,
+        input.userId
+      )
 
-    return { subtopic, progress: updatedProgress }
+    return this.trackerMapper.toSubtopicProgressResultDto({
+      subtopic,
+      progress: updatedProgress,
+    })
   }
 }

@@ -3,6 +3,7 @@ import { Router, type RequestHandler } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { dashboardController } from './dashboard.controller'
+import { DASHBOARD_ROUTE_PATHS } from './dashboard.route.constants'
 import {
   dashboardActivityIntensityQuerySchema,
   dashboardRecentItemsQuerySchema,
@@ -35,25 +36,44 @@ const validateRecentItemsQuery: RequestHandler = (req, res, next) => {
 // ─── PROTECTED ──────────────────────────────────────────────────────────────
 
 router.use(authenticatedApiIpLimiter, authenticate)
-router.get('/summary', dashboardController.getSummary)
-router.get('/current-roadmap', dashboardController.getCurrentRoadmap)
+
 router.get(
-  '/activity-intensity',
+  DASHBOARD_ROUTE_PATHS.SUMMARY,
+  dashboardController.getSummary
+)
+
+router.get(
+  DASHBOARD_ROUTE_PATHS.CURRENT_ROADMAP,
+  dashboardController.getCurrentRoadmap
+)
+
+router.get(
+  DASHBOARD_ROUTE_PATHS.ACTIVITY_INTENSITY,
   validateActivityIntensityQuery,
   dashboardController.getActivityIntensity
 )
+
 router.get(
-  '/recent-battles',
+  DASHBOARD_ROUTE_PATHS.RECENT_BATTLES,
   validateRecentItemsQuery,
   dashboardController.getRecentBattles
 )
+
 router.get(
-  '/friends-hub',
+  DASHBOARD_ROUTE_PATHS.FRIENDS_HUB,
   validateRecentItemsQuery,
   dashboardController.getFriendsHub
 )
-router.get('/recommended-actions', dashboardController.getRecommendedActions)
-router.get('/ai-insights', dashboardController.getAIInsights)
+
+router.get(
+  DASHBOARD_ROUTE_PATHS.RECOMMENDED_ACTIONS,
+  dashboardController.getRecommendedActions
+)
+
+router.get(
+  DASHBOARD_ROUTE_PATHS.AI_INSIGHTS,
+  dashboardController.getAIInsights
+)
 
 export default router
 export { router as dashboardRoutes }

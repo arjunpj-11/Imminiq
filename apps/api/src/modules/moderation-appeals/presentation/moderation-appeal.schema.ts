@@ -5,6 +5,12 @@ const identifierSchema = z
   .trim()
   .min(1, 'Email or phone number is required')
   .max(120, 'Identifier is too long')
+  .refine((value) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/
+    const phoneRegex = /^[+\d][\d\s\-()]{6,}$/
+
+    return emailRegex.test(value) || phoneRegex.test(value)
+  }, 'Enter a valid email address or phone number')
 
 const appealReasonSchema = z
   .string()

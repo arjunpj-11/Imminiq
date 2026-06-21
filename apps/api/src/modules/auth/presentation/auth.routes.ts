@@ -2,6 +2,7 @@ import { Router } from 'express'
 import passport from 'passport'
 
 import { authController } from './auth.controller'
+import { AUTH_ROUTE_PATHS } from './auth.route.constants'
 import { validate } from '../../../shared/middlewares/validate'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import {
@@ -42,82 +43,82 @@ const router = Router()
 // ─── PUBLIC ROUTES ───────────────────────────────
 
 router.post(
-  '/register',
+  AUTH_ROUTE_PATHS.REGISTER,
   registerIpLimiter,
   validate(registerSchema),
   authController.register
 )
 
 router.post(
-  '/login',
+  AUTH_ROUTE_PATHS.LOGIN,
   loginIpLimiter,
   validate(loginSchema),
   authController.login
 )
 
 router.post(
-  '/2fa/verify-login',
+  AUTH_ROUTE_PATHS.TWO_FACTOR_VERIFY_LOGIN,
   twoFactorLoginIpLimiter,
   validate(verifyTwoFactorLoginSchema),
   authController.verifyTwoFactorLogin
 )
 
 router.post(
-  '/logout',
+  AUTH_ROUTE_PATHS.LOGOUT,
   authSessionActionIpLimiter,
   authController.logout
 )
 
 router.post(
-  '/refresh-token',
+  AUTH_ROUTE_PATHS.REFRESH_TOKEN,
   authSessionActionIpLimiter,
   authController.refreshToken
 )
 
 router.post(
-  '/verify-account',
+  AUTH_ROUTE_PATHS.VERIFY_ACCOUNT,
   authOtpVerifyIpLimiter,
   validate(verifyOtpSchema),
   authController.verifyAccount
 )
 
 router.post(
-  '/send-otp',
+  AUTH_ROUTE_PATHS.SEND_OTP,
   authOtpSendIpLimiter,
   validate(sendOtpSchema),
   authController.sendOtp
 )
 
 router.post(
-  '/forgot-password',
+  AUTH_ROUTE_PATHS.FORGOT_PASSWORD,
   forgotPasswordIpLimiter,
   validate(forgotPasswordSchema),
   authController.forgotPassword
 )
 
 router.post(
-  '/verify-reset-code',
+  AUTH_ROUTE_PATHS.VERIFY_RESET_CODE,
   authOtpVerifyIpLimiter,
   validate(verifyResetCodeSchema),
   authController.verifyResetCode
 )
 
 router.post(
-  '/reset-password',
+  AUTH_ROUTE_PATHS.RESET_PASSWORD,
   resetPasswordIpLimiter,
   validate(resetPasswordSchema),
   authController.resetPassword
 )
 
 router.post(
-  '/check-identifier',
+  AUTH_ROUTE_PATHS.CHECK_IDENTIFIER,
   publicAccountLookupIpLimiter,
   validate(checkIdentifierSchema),
   authController.checkIdentifier
 )
 
 router.post(
-  '/check-username',
+  AUTH_ROUTE_PATHS.CHECK_USERNAME,
   publicAccountLookupIpLimiter,
   validate(checkUsernameSchema),
   authController.checkUsername
@@ -126,14 +127,14 @@ router.post(
 // ─── PROTECTED ROUTES ────────────────────────────
 
 router.get(
-  '/me',
+  AUTH_ROUTE_PATHS.ME,
   authenticatedApiIpLimiter,
   authenticate,
   authController.getMe
 )
 
 router.post(
-  '/change-password',
+  AUTH_ROUTE_PATHS.CHANGE_PASSWORD,
   authenticatedApiIpLimiter,
   authenticate,
   validate(changePasswordSchema),
@@ -141,21 +142,21 @@ router.post(
 )
 
 router.get(
-  '/sessions',
+  AUTH_ROUTE_PATHS.SESSIONS,
   authenticatedApiIpLimiter,
   authenticate,
   authController.getSessions
 )
 
 router.delete(
-  '/sessions/:sessionId',
+  AUTH_ROUTE_PATHS.SESSION_BY_ID,
   authenticatedApiIpLimiter,
   authenticate,
   authController.revokeSession
 )
 
 router.delete(
-  '/sessions',
+  AUTH_ROUTE_PATHS.SESSIONS,
   authenticatedApiIpLimiter,
   authenticate,
   authController.logoutAll
@@ -164,7 +165,7 @@ router.delete(
 // ─── OAUTH ROUTES ────────────────────────────────
 
 router.get(
-  '/oauth/google',
+  AUTH_ROUTE_PATHS.OAUTH_GOOGLE,
   oauthFlowIpLimiter,
   issueOAuthState('google'),
   (req, res, next) => {
@@ -177,7 +178,7 @@ router.get(
 )
 
 router.get(
-  '/oauth/google/callback',
+  AUTH_ROUTE_PATHS.OAUTH_GOOGLE_CALLBACK,
   oauthFlowIpLimiter,
   validateOAuthState('google'),
   passport.authenticate('google', {
@@ -188,7 +189,7 @@ router.get(
 )
 
 router.get(
-  '/oauth/github',
+  AUTH_ROUTE_PATHS.OAUTH_GITHUB,
   oauthFlowIpLimiter,
   issueOAuthState('github'),
   (req, res, next) => {
@@ -201,7 +202,7 @@ router.get(
 )
 
 router.get(
-  '/oauth/github/callback',
+  AUTH_ROUTE_PATHS.OAUTH_GITHUB_CALLBACK,
   oauthFlowIpLimiter,
   validateOAuthState('github'),
   passport.authenticate('github', {

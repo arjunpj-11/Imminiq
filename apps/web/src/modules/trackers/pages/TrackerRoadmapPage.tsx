@@ -396,9 +396,9 @@ function RoadmapFlowNode({
     <div
       className={cn(
         'flex w-full',
-        index % 3 === 0 && 'justify-start',
-        index % 3 === 1 && 'justify-end',
-        index % 3 === 2 && 'justify-center'
+        // ── FIX: strict alternating left/right (no justify-center) ──
+        index % 2 === 0 && 'justify-start',
+        index % 2 === 1 && 'justify-end'
       )}
     >
       <button
@@ -875,6 +875,8 @@ export default function TrackerRoadmapPage() {
                           />
                           {index < currentNodes.length - 1 && (
                             <FlowConnector
+                              // ── FIX: even node is left → sweep right toward next (odd/right) node
+                              //        odd node is right → sweep left toward next (even/left) node
                               direction={index % 2 === 0 ? 'right' : 'left'}
                             />
                           )}

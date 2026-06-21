@@ -1,6 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import { TrackerMapperContract } from '../mappers'
 
 type GetOptimizedSolutionInput = {
   trackerId: string
@@ -13,7 +14,8 @@ type GetOptimizedSolutionInput = {
 export class GetOptimizedSolutionUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerAIService: TrackerAIServiceContract,
+     private readonly trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: GetOptimizedSolutionInput) {
@@ -32,7 +34,7 @@ export class GetOptimizedSolutionUseCase {
       userId: input.userId,
     })
 
-    return this.trackerAIService.generateOptimizedCodeSolution({
+    const optimizedSolution = await this.trackerAIService.generateOptimizedCodeSolution({
       lessonTitle: lesson?.title || tracker.title || 'Coding lesson',
       practiceTitle: lesson?.practiceTask?.title || 'Coding practice',
       practiceDescription:
@@ -44,5 +46,6 @@ export class GetOptimizedSolutionUseCase {
         lesson?.codeExample?.language ||
         'javascript',
     })
+    return this.trackerMapper.toLessonOptimizedSolutionDto(optimizedSolution)
   }
 }

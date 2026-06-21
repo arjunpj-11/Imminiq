@@ -1,11 +1,13 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+import { TrackerMapperContract } from '../mappers'
 
 export class GetLessonQuestionSolutionDoubtsUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
     private readonly questionHasher: QuestionHasherServiceContract,
+     private readonly trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
@@ -23,11 +25,12 @@ export class GetLessonQuestionSolutionDoubtsUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerRepository.getLessonQuestionSolutionDoubts({
+    const doubts = await this.trackerRepository.getLessonQuestionSolutionDoubts({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
       questionHash: this.questionHasher.hash(input.question),
     })
+    return this.trackerMapper.toLessonQuestionSolutionDoubtsDto(doubts)
   }
 }

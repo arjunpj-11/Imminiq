@@ -1,6 +1,11 @@
 import type { NextFunction, Request, Response } from 'express'
+
+import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { moderationAppealService, type ModerationAppealService } from '../moderation-appeal.service'
+import {
+  moderationAppealService,
+  type ModerationAppealService,
+} from '../moderation-appeal.service'
 
 export class ModerationAppealController {
   constructor(private readonly service: ModerationAppealService) {}
@@ -8,18 +13,20 @@ export class ModerationAppealController {
   submitAppeal = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const payload = req.body
       const result = await this.service.submitAppeal(payload)
 
-      res.status(201).json(
-        new ApiResponse(
-          'Appeal submitted successfully. Our team will review it shortly.',
-          result,
-        ),
-      )
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(
+          new ApiResponse(
+            'Appeal submitted successfully. Our team will review it shortly.',
+            result
+          )
+        )
     } catch (error) {
       next(error)
     }
@@ -28,7 +35,7 @@ export class ModerationAppealController {
   getAppealStatus = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const payload = req.body
@@ -42,5 +49,5 @@ export class ModerationAppealController {
 }
 
 export const moderationAppealController = new ModerationAppealController(
-  moderationAppealService,
+  moderationAppealService
 )

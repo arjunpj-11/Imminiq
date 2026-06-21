@@ -7,13 +7,10 @@ import { settingsService, type SettingsService } from '../settings.service'
 export class SettingsController {
   constructor(private readonly service: SettingsService) {}
 
-  getAllSettings = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  getAllSettings = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.service.getAllSettings(getAuthUser(req).userId)
+
       res.json(new ApiResponse('Settings fetched', data))
     } catch (error) {
       next(error)
@@ -23,12 +20,13 @@ export class SettingsController {
   getAppearanceSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.getAppearanceSettings(
-        getAuthUser(req).userId,
+        getAuthUser(req).userId
       )
+
       res.json(new ApiResponse('Appearance settings fetched', data))
     } catch (error) {
       next(error)
@@ -38,12 +36,13 @@ export class SettingsController {
   getNotificationSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.getNotificationSettings(
-        getAuthUser(req).userId,
+        getAuthUser(req).userId
       )
+
       res.json(new ApiResponse('Notification settings fetched', data))
     } catch (error) {
       next(error)
@@ -53,10 +52,13 @@ export class SettingsController {
   getPrivacySettings = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
-      const data = await this.service.getPrivacySettings(getAuthUser(req).userId)
+      const data = await this.service.getPrivacySettings(
+        getAuthUser(req).userId
+      )
+
       res.json(new ApiResponse('Privacy settings fetched', data))
     } catch (error) {
       next(error)
@@ -66,10 +68,13 @@ export class SettingsController {
   getGestureSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
-      const data = await this.service.getGestureSettings(getAuthUser(req).userId)
+      const data = await this.service.getGestureSettings(
+        getAuthUser(req).userId
+      )
+
       res.json(new ApiResponse('Gesture settings fetched', data))
     } catch (error) {
       next(error)
@@ -79,13 +84,14 @@ export class SettingsController {
   updateAccountSettings = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateAccountSettings(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Account settings updated', data))
     } catch (error) {
       next(error)
@@ -95,13 +101,14 @@ export class SettingsController {
   updateAppearance = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateAppearance(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Appearance updated', data))
     } catch (error) {
       next(error)
@@ -111,13 +118,14 @@ export class SettingsController {
   updateNotifications = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateNotifications(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Notifications updated', data))
     } catch (error) {
       next(error)
@@ -127,13 +135,14 @@ export class SettingsController {
   updateQuietHours = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateQuietHours(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Quiet hours updated', data))
     } catch (error) {
       next(error)
@@ -143,29 +152,27 @@ export class SettingsController {
   updateEmailDigest = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateEmailDigest(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Email digest updated', data))
     } catch (error) {
       next(error)
     }
   }
 
-  updatePrivacy = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  updatePrivacy = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.service.updatePrivacy(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Privacy settings updated', data))
     } catch (error) {
       next(error)
@@ -175,29 +182,27 @@ export class SettingsController {
   updateCodeEditor = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateCodeEditor(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Code editor settings updated', data))
     } catch (error) {
       next(error)
     }
   }
 
-  updateCompiler = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  updateCompiler = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.service.updateCompiler(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Compiler settings updated', data))
     } catch (error) {
       next(error)
@@ -207,13 +212,14 @@ export class SettingsController {
   updateAIBehaviour = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateAIBehaviour(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('AI behaviour updated', data))
     } catch (error) {
       next(error)
@@ -223,13 +229,14 @@ export class SettingsController {
   updateLearningJourney = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateLearningJourney(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Learning journey updated', data))
     } catch (error) {
       next(error)
@@ -239,13 +246,14 @@ export class SettingsController {
   updateGestures = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.updateGestures(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
+
       res.json(new ApiResponse('Gesture settings updated', data))
     } catch (error) {
       next(error)
@@ -255,27 +263,25 @@ export class SettingsController {
   updateCookieConsent = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const { cookieConsent } = req.body
       const data = await this.service.updateCookieConsent(
         getAuthUser(req).userId,
-        cookieConsent,
+        cookieConsent
       )
+
       res.json(new ApiResponse('Cookie consent updated', data))
     } catch (error) {
       next(error)
     }
   }
 
-  acceptTerms = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  acceptTerms = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.service.acceptTerms(getAuthUser(req).userId)
+
       res.json(new ApiResponse('Terms accepted', data))
     } catch (error) {
       next(error)
@@ -285,10 +291,11 @@ export class SettingsController {
   resetToDefaults = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const data = await this.service.resetToDefaults(getAuthUser(req).userId)
+
       res.json(new ApiResponse('Settings reset to defaults', data))
     } catch (error) {
       next(error)

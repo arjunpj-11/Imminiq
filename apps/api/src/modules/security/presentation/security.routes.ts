@@ -7,6 +7,7 @@ import {
 } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { securityController } from './security.controller'
+import { SECURITY_ROUTE_PATHS } from './security.route.constants'
 import {
   changeEmailSchema,
   changePasswordSchema,
@@ -21,63 +22,71 @@ const router = Router()
 // ─── PUBLIC ──────────────────────────────────────────────────
 
 router.post(
-  '/verify-email-change',
+  SECURITY_ROUTE_PATHS.VERIFY_EMAIL_CHANGE,
   publicEmailChangeVerifyIpLimiter,
   validate(verifyEmailChangeSchema),
-  securityController.verifyEmailChange,
+  securityController.verifyEmailChange
 )
 
 // ─── PROTECTED ───────────────────────────────────────────────
 
-router.get('/overview', authenticate, securityController.getOverview)
+router.use(authenticate)
+
+router.get(
+  SECURITY_ROUTE_PATHS.OVERVIEW,
+  securityController.getOverview
+)
 
 router.patch(
-  '/change-email',
-  authenticate,
+  SECURITY_ROUTE_PATHS.CHANGE_EMAIL,
   validate(changeEmailSchema),
-  securityController.requestEmailChange,
+  securityController.requestEmailChange
 )
 
 router.patch(
-  '/change-password',
-  authenticate,
+  SECURITY_ROUTE_PATHS.CHANGE_PASSWORD,
   validate(changePasswordSchema),
-  securityController.changePassword,
+  securityController.changePassword
 )
 
-router.get('/sessions', authenticate, securityController.getSessions)
+router.get(
+  SECURITY_ROUTE_PATHS.SESSIONS,
+  securityController.getSessions
+)
 
 router.delete(
-  '/sessions/:sessionId',
-  authenticate,
-  securityController.revokeSession,
+  SECURITY_ROUTE_PATHS.SESSION_BY_ID,
+  securityController.revokeSession
 )
 
-router.get('/2fa/status', authenticate, securityController.getTwoFactorStatus)
-
-router.post('/2fa/setup', authenticate, securityController.setupTwoFactor)
+router.get(
+  SECURITY_ROUTE_PATHS.TWO_FACTOR_STATUS,
+  securityController.getTwoFactorStatus
+)
 
 router.post(
-  '/2fa/verify',
-  authenticate,
+  SECURITY_ROUTE_PATHS.TWO_FACTOR_SETUP,
+  securityController.setupTwoFactor
+)
+
+router.post(
+  SECURITY_ROUTE_PATHS.TWO_FACTOR_VERIFY,
   securityTwoFactorIpLimiter,
   validate(verifyTwoFactorSetupSchema),
-  securityController.verifyTwoFactorSetup,
+  securityController.verifyTwoFactorSetup
 )
 
 router.post(
-  '/2fa/disable',
-  authenticate,
+  SECURITY_ROUTE_PATHS.TWO_FACTOR_DISABLE,
   securityTwoFactorIpLimiter,
   validate(disableTwoFactorSchema),
-  securityController.disableTwoFactor,
+  securityController.disableTwoFactor
 )
 
 router.delete(
-  '/delete-account',
-  authenticate,
+  SECURITY_ROUTE_PATHS.DELETE_ACCOUNT,
   validate(deleteAccountSchema),
-  securityController.deleteAccount,
+  securityController.deleteAccount
 )
 
 export default router

@@ -4,6 +4,7 @@ import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { settingsController } from './settings.controller'
+import { SETTINGS_ROUTE_PATHS } from './settings.route.constants'
 import {
   updateAccountSettingsSchema,
   updateAIBehaviourSchema,
@@ -25,90 +26,116 @@ router.use(authenticatedApiIpLimiter, authenticate)
 
 // ─── READ SETTINGS ───────────────────────────────────────────
 
-router.get('/', settingsController.getAllSettings)
-router.get('/appearance', settingsController.getAppearanceSettings)
-router.get('/notifications', settingsController.getNotificationSettings)
-router.get('/privacy', settingsController.getPrivacySettings)
-router.get('/gestures', settingsController.getGestureSettings)
+router.get(
+  SETTINGS_ROUTE_PATHS.ROOT,
+  settingsController.getAllSettings
+)
+
+router.get(
+  SETTINGS_ROUTE_PATHS.APPEARANCE,
+  settingsController.getAppearanceSettings
+)
+
+router.get(
+  SETTINGS_ROUTE_PATHS.NOTIFICATIONS,
+  settingsController.getNotificationSettings
+)
+
+router.get(
+  SETTINGS_ROUTE_PATHS.PRIVACY,
+  settingsController.getPrivacySettings
+)
+
+router.get(
+  SETTINGS_ROUTE_PATHS.GESTURES,
+  settingsController.getGestureSettings
+)
 
 // ─── UPDATE SETTINGS ─────────────────────────────────────────
 
 router.patch(
-  '/account',
+  SETTINGS_ROUTE_PATHS.ACCOUNT,
   validate(updateAccountSettingsSchema),
-  settingsController.updateAccountSettings,
+  settingsController.updateAccountSettings
 )
 
 router.patch(
-  '/appearance',
+  SETTINGS_ROUTE_PATHS.APPEARANCE,
   validate(updateAppearanceSchema),
-  settingsController.updateAppearance,
+  settingsController.updateAppearance
 )
 
 router.patch(
-  '/notifications',
+  SETTINGS_ROUTE_PATHS.NOTIFICATIONS,
   validate(updateNotificationsSchema),
-  settingsController.updateNotifications,
+  settingsController.updateNotifications
 )
 
 router.patch(
-  '/notifications/quiet-hours',
+  SETTINGS_ROUTE_PATHS.NOTIFICATION_QUIET_HOURS,
   validate(updateQuietHoursSchema),
-  settingsController.updateQuietHours,
+  settingsController.updateQuietHours
 )
 
 router.patch(
-  '/notifications/email-digest',
+  SETTINGS_ROUTE_PATHS.NOTIFICATION_EMAIL_DIGEST,
   validate(updateEmailDigestSchema),
-  settingsController.updateEmailDigest,
+  settingsController.updateEmailDigest
 )
 
 router.patch(
-  '/privacy',
+  SETTINGS_ROUTE_PATHS.PRIVACY,
   validate(updatePrivacySchema),
-  settingsController.updatePrivacy,
+  settingsController.updatePrivacy
 )
 
 router.patch(
-  '/code-editor',
+  SETTINGS_ROUTE_PATHS.CODE_EDITOR,
   validate(updateCodeEditorSchema),
-  settingsController.updateCodeEditor,
+  settingsController.updateCodeEditor
 )
 
 router.patch(
-  '/compiler',
+  SETTINGS_ROUTE_PATHS.COMPILER,
   validate(updateCompilerSchema),
-  settingsController.updateCompiler,
+  settingsController.updateCompiler
 )
 
 router.patch(
-  '/ai-behavior',
+  SETTINGS_ROUTE_PATHS.AI_BEHAVIOR,
   validate(updateAIBehaviourSchema),
-  settingsController.updateAIBehaviour,
+  settingsController.updateAIBehaviour
 )
 
 router.patch(
-  '/learning-journey',
+  SETTINGS_ROUTE_PATHS.LEARNING_JOURNEY,
   validate(updateLearningJourneySchema),
-  settingsController.updateLearningJourney,
+  settingsController.updateLearningJourney
 )
 
 router.patch(
-  '/gestures',
+  SETTINGS_ROUTE_PATHS.GESTURES,
   validate(updateGesturesSchema),
-  settingsController.updateGestures,
+  settingsController.updateGestures
 )
 
 router.patch(
-  '/preferences',
+  SETTINGS_ROUTE_PATHS.PREFERENCES,
   validate(updateCookieConsentSchema),
-  settingsController.updateCookieConsent,
+  settingsController.updateCookieConsent
 )
 
 // ─── ACCOUNT AGREEMENTS / RESET ──────────────────────────────
 
-router.post('/accept-terms', settingsController.acceptTerms)
-router.post('/reset', settingsController.resetToDefaults)
+router.post(
+  SETTINGS_ROUTE_PATHS.ACCEPT_TERMS,
+  settingsController.acceptTerms
+)
+
+router.post(
+  SETTINGS_ROUTE_PATHS.RESET,
+  settingsController.resetToDefaults
+)
 
 export default router
 export { router as settingsRoutes }

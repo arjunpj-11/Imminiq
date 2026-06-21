@@ -9,75 +9,57 @@ import { uploadsService, type UploadsService } from '../uploads.service'
 export class UploadsController {
   constructor(private readonly service: UploadsService) {}
 
-  uploadAvatar = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  uploadAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
       const file = this.getUploadedFile(req)
+
       const result = await this.service.uploadProfileImage({
         userId,
         kind: 'avatar',
         ...(file ? { file } : {}),
       })
 
-      res
-        .status(200)
-        .json(new ApiResponse('Avatar uploaded successfully', result))
+      res.json(new ApiResponse('Avatar uploaded successfully', result))
     } catch (error) {
       next(error)
     }
   }
 
-  removeAvatar = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  removeAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
       const result = await this.service.removeAvatar(userId)
 
-      res.status(200).json(new ApiResponse('Avatar removed', result))
+      res.json(new ApiResponse('Avatar removed', result))
     } catch (error) {
       next(error)
     }
   }
 
-  uploadBanner = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  uploadBanner = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
       const file = this.getUploadedFile(req)
+
       const result = await this.service.uploadProfileImage({
         userId,
         kind: 'banner',
         ...(file ? { file } : {}),
       })
 
-      res
-        .status(200)
-        .json(new ApiResponse('Banner uploaded successfully', result))
+      res.json(new ApiResponse('Banner uploaded successfully', result))
     } catch (error) {
       next(error)
     }
   }
 
-  removeBanner = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  removeBanner = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
       const result = await this.service.removeBanner(userId)
 
-      res.status(200).json(new ApiResponse('Banner removed', result))
+      res.json(new ApiResponse('Banner removed', result))
     } catch (error) {
       next(error)
     }
@@ -86,20 +68,15 @@ export class UploadsController {
   generateAiAvatarPreview = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const { prompt } = req.body as GenerateAiImagePreviewInput
       const result = await this.service.generateAiAvatarPreview(prompt)
 
-      res
-        .status(200)
-        .json(
-          new ApiResponse(
-            'AI avatar preview generated successfully',
-            result,
-          ),
-        )
+      res.json(
+        new ApiResponse('AI avatar preview generated successfully', result)
+      )
     } catch (error) {
       next(error)
     }
@@ -108,20 +85,15 @@ export class UploadsController {
   generateAiBannerPreview = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const { prompt } = req.body as GenerateAiImagePreviewInput
       const result = await this.service.generateAiBannerPreview(prompt)
 
-      res
-        .status(200)
-        .json(
-          new ApiResponse(
-            'AI banner preview generated successfully',
-            result,
-          ),
-        )
+      res.json(
+        new ApiResponse('AI banner preview generated successfully', result)
+      )
     } catch (error) {
       next(error)
     }

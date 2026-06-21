@@ -1,11 +1,21 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateSubtopicUseCaseInput } from '../../domain/types/trackers.types'
 
-export class CreateTrackerSubtopicUseCase {
-  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
+type CreateTrackerSubtopicResultDto = ReturnType<
+  TrackerMapperContract['toTrackerSubtopicDto']
+>
 
-  async execute(input: CreateSubtopicUseCaseInput) {
+export class CreateTrackerSubtopicUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
+
+  async execute(
+    input: CreateSubtopicUseCaseInput
+  ): Promise<CreateTrackerSubtopicResultDto> {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
       input.trackerId,
       input.userId
@@ -36,11 +46,15 @@ export class CreateTrackerSubtopicUseCase {
       })
 
       if (!parent) {
-        throw TrackerApplicationError.parentSubtopicNotFound('Parent subtopic not found')
+        throw TrackerApplicationError.parentSubtopicNotFound(
+          'Parent subtopic not found'
+        )
       }
 
       if (parent.topicId.toString() !== input.topicId) {
-        throw TrackerApplicationError.parentTopicMismatch('Parent subtopic does not belong to this topic')
+        throw TrackerApplicationError.parentTopicMismatch(
+          'Parent subtopic does not belong to this topic'
+        )
       }
 
       depth = parent.depth + 1
@@ -66,9 +80,12 @@ export class CreateTrackerSubtopicUseCase {
 
     await Promise.all([
       this.trackerRepository.incrementTrackerSubtopicsCount(input.trackerId),
-      this.trackerRepository.recomputeTrackerProgress(input.trackerId, input.userId),
+      this.trackerRepository.recomputeTrackerProgress(
+        input.trackerId,
+        input.userId
+      ),
     ])
 
-    return subtopic
+    return this.trackerMapper.toTrackerSubtopicDto(subtopic)
   }
 }

@@ -1,5 +1,37 @@
 import { z } from 'zod'
 
+const optionalTrimmedStringSchema = (
+  maxLength: number,
+  maxMessage: string
+) =>
+  z.preprocess(
+    (value) => {
+      if (typeof value !== 'string') {
+        return value
+      }
+
+      const trimmedValue = value.trim()
+
+      return trimmedValue.length > 0 ? trimmedValue : undefined
+    },
+    z.string().max(maxLength, maxMessage).optional()
+  )
+
+const timeSchema = z
+  .string()
+  .trim()
+  .regex(/^([01]\d|2[0-3]):[0-5]\d$/, 'Format must be HH:MM')
+
+const quietHoursDaySchema = z.enum([
+  'Mon',
+  'Tue',
+  'Wed',
+  'Thu',
+  'Fri',
+  'Sat',
+  'Sun',
+])
+
 const notificationTypeSchema = z.object({
   friendRequests: z.boolean().optional(),
   challenges: z.boolean().optional(),
@@ -50,9 +82,9 @@ export const updatePrivacySchema = z.object({
 })
 
 export const updateCodeEditorSchema = z.object({
-  theme: z.string().optional(),
-  fontSize: z.number().min(8).max(32).optional(),
-  tabSize: z.number().min(2).max(8).optional(),
+  theme: optionalTrimmedStringSchema(80, 'Editor theme is too long'),
+  fontSize: z.number().int().min(8).max(32).optional(),
+  tabSize: z.number().int().min(2).max(8).optional(),
   autoIndent: z.boolean().optional(),
   lineNumbers: z.boolean().optional(),
   wordWrap: z.boolean().optional(),
@@ -60,8 +92,14 @@ export const updateCodeEditorSchema = z.object({
 })
 
 export const updateCompilerSchema = z.object({
-  defaultLanguage: z.string().min(1).optional(),
-  defaultRuntime: z.string().min(1).optional(),
+  defaultLanguage: optionalTrimmedStringSchema(
+    40,
+    'Default language is too long'
+  ),
+  defaultRuntime: optionalTrimmedStringSchema(
+    80,
+    'Default runtime is too long'
+  ),
   autoSwitchLanguage: z.boolean().optional(),
 })
 
@@ -73,19 +111,16 @@ export const updateAIBehaviourSchema = z.object({
 })
 
 export const updateLearningJourneySchema = z.object({
-  dailyGoalMinutes: z.number().min(5).max(480).optional(),
+  dailyGoalMinutes: z.number().int().min(5).max(480).optional(),
   reminderEnabled: z.boolean().optional(),
-  reminderTime: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, 'Format must be HH:MM')
-    .optional(),
+  reminderTime: timeSchema.optional(),
   autoPlayNextTopic: z.boolean().optional(),
   showEstimatedTime: z.boolean().optional(),
 })
 
 export const updateGesturesSchema = z.object({
   enabled: z.boolean().optional(),
-  sensitivity: z.number().min(0).max(100).optional(),
+  sensitivity: z.number().int().min(0).max(100).optional(),
   swipeToNext: z.boolean().optional(),
   swipeToPrevious: z.boolean().optional(),
   pinchToZoom: z.boolean().optional(),
@@ -97,17 +132,9 @@ export const updateGesturesSchema = z.object({
 
 export const updateQuietHoursSchema = z.object({
   quietHoursEnabled: z.boolean(),
-  quietHoursStart: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, 'Format must be HH:MM')
-    .optional(),
-  quietHoursEnd: z
-    .string()
-    .regex(/^\d{2}:\d{2}$/, 'Format must be HH:MM')
-    .optional(),
-  quietHoursDays: z
-    .array(z.enum(['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun']))
-    .optional(),
+  quietHoursStart: timeSchema.optional(),
+  quietHoursEnd: timeSchema.optional(),
+  quietHoursDays: z.array(quietHoursDaySchema).max(7).optional(),
 })
 
 export const updateEmailDigestSchema = z.object({
@@ -118,9 +145,9 @@ export const updateEmailDigestSchema = z.object({
 })
 
 export const updateAccountSettingsSchema = z.object({
-  language: z.string().optional(),
-  timezone: z.string().optional(),
-  dateFormat: z.string().optional(),
+  language: optionalTrimmedStringSchema(40, 'Language is too long'),
+  timezone: optionalTrimmedStringSchema(80, 'Timezone is too long'),
+  dateFormat: optionalTrimmedStringSchema(40, 'Date format is too long'),
 })
 
 export const updateCookieConsentSchema = z.object({
@@ -128,16 +155,35 @@ export const updateCookieConsentSchema = z.object({
 })
 
 export type UpdateAppearanceInput = z.infer<typeof updateAppearanceSchema>
-export type UpdateNotificationsInput = z.infer<typeof updateNotificationsSchema>
+
+export type UpdateNotificationsInput = z.infer<
+  typeof updateNotificationsSchema
+>
+
 export type UpdatePrivacyInput = z.infer<typeof updatePrivacySchema>
+
 export type UpdateCodeEditorInput = z.infer<typeof updateCodeEditorSchema>
+
 export type UpdateCompilerInput = z.infer<typeof updateCompilerSchema>
-export type UpdateAIBehaviourInput = z.infer<typeof updateAIBehaviourSchema>
-export type UpdateLearningJourneyInput = z.infer<typeof updateLearningJourneySchema>
+
+export type UpdateAIBehaviourInput = z.infer<
+  typeof updateAIBehaviourSchema
+>
+
+export type UpdateLearningJourneyInput = z.infer<
+  typeof updateLearningJourneySchema
+>
+
 export type UpdateGesturesInput = z.infer<typeof updateGesturesSchema>
+
 export type UpdateQuietHoursInput = z.infer<typeof updateQuietHoursSchema>
+
 export type UpdateEmailDigestInput = z.infer<typeof updateEmailDigestSchema>
+
 export type UpdateAccountSettingsInput = z.infer<
   typeof updateAccountSettingsSchema
 >
-export type UpdateCookieConsentInput = z.infer<typeof updateCookieConsentSchema>
+
+export type UpdateCookieConsentInput = z.infer<
+  typeof updateCookieConsentSchema
+>

@@ -2,10 +2,19 @@ import type { PublishedTrackerEntity } from '../entities/published-tracker.entit
 import type { PublishedTrackerQuery } from '../value-objects/published-tracker-query.vo'
 import type { UserIdInput } from '../value-objects/user-id.vo'
 
+export type PublishedTrackerListResult = {
+  items: PublishedTrackerEntity[]
+  total: number
+}
+
+export type FindPublishedTrackersInput = {
+  ownerId: UserIdInput
+  query: PublishedTrackerQuery
+  includePrivate?: boolean
+}
+
 export interface UserTrackerRepositoryContract {
   findPublishedTrackers(
-    ownerId: UserIdInput,
-    query: PublishedTrackerQuery,
-    includePrivate?: boolean,
-  ): Promise<{ items: PublishedTrackerEntity[]; total: number }>
+    input: FindPublishedTrackersInput
+  ): Promise<PublishedTrackerListResult>
 }

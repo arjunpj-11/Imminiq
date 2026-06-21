@@ -1,11 +1,14 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 const getDocumentId = (document: unknown) => {
   const doc = document as { _id?: unknown }
 
-  if (typeof doc._id === 'string') return doc._id
+  if (typeof doc._id === 'string') {
+    return doc._id
+  }
 
   if (
     doc._id &&
@@ -26,6 +29,10 @@ type VerifyLessonAnswerInput = {
   answer: string
 }
 
+type VerifyLessonAnswerResultDto = ReturnType<
+  TrackerMapperContract['toLessonAnswerVerificationDto']
+>
+
 const getIsCorrectFromResult = (result: {
   verdict?: 'correct' | 'partially_correct' | 'incorrect'
 }) => {
@@ -35,10 +42,13 @@ const getIsCorrectFromResult = (result: {
 export class VerifyLessonAnswerUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
-  async execute(input: VerifyLessonAnswerInput) {
+  async execute(
+    input: VerifyLessonAnswerInput
+  ): Promise<VerifyLessonAnswerResultDto> {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
       input.trackerId,
       input.userId
@@ -55,12 +65,16 @@ export class VerifyLessonAnswerUseCase {
     })
 
     if (!lesson) {
-      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before verifying answer')
+      throw TrackerApplicationError.lessonNotGenerated(
+        'Generate the lesson before verifying answer'
+      )
     }
 
-    const practiceTask = lesson.practiceTask as {
-      expectedAnswer?: string
-    } | undefined
+    const practiceTask = lesson.practiceTask as
+      | {
+          expectedAnswer?: string
+        }
+      | undefined
 
     const result = await this.trackerAIService.verifyNonCodingAnswer({
       lessonTitle: lesson.title || tracker.title || 'Lesson practice',
@@ -91,6 +105,6 @@ export class VerifyLessonAnswerUseCase {
             : 0,
     })
 
-    return result
+    return this.trackerMapper.toLessonAnswerVerificationDto(result)
   }
 }

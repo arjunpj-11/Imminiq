@@ -10,11 +10,11 @@ import type { MockTestRepositoryContract } from './mock-test.repository.interfac
 
 export interface MockTestsRepositoryContract
   extends MockTestRepositoryContract,
-  MockTestQuestionRepositoryContract,
-  MockTestAttemptRepositoryContract,
-  MockTestAnswerRepositoryContract,
-  MockTestAIEvaluationRepositoryContract,
-  MockTestReportRepositoryContract,
-  MockTestAnalyticsRepositoryContract,
-  MockTestCreationSessionRepositoryContract,
-  MockTestSharingRepositoryContract { }
+    MockTestQuestionRepositoryContract,
+    MockTestAttemptRepositoryContract,
+    MockTestAnswerRepositoryContract,
+    MockTestAIEvaluationRepositoryContract,
+    MockTestReportRepositoryContract,
+    MockTestAnalyticsRepositoryContract,
+    MockTestCreationSessionRepositoryContract,
+    MockTestSharingRepositoryContract {}

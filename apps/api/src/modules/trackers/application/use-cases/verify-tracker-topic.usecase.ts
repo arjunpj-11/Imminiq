@@ -1,4 +1,5 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
@@ -17,13 +18,20 @@ type VerifyTrackerTopicInput = {
   existingTopics: ExistingTopic[]
 }
 
+type VerifyTrackerTopicResultDto = ReturnType<
+  TrackerMapperContract['toTrackerAIValidationDto']
+>
+
 export class VerifyTrackerTopicUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
-  async execute(input: VerifyTrackerTopicInput) {
+  async execute(
+    input: VerifyTrackerTopicInput
+  ): Promise<VerifyTrackerTopicResultDto> {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
       input.trackerId,
       input.userId
@@ -33,11 +41,13 @@ export class VerifyTrackerTopicUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerAIService.verifyTrackerTopic({
+    const result = await this.trackerAIService.verifyTrackerTopic({
       trackerTitle: input.trackerTitle || tracker.title || '',
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,
       existingTopics: input.existingTopics,
     })
+
+    return this.trackerMapper.toTrackerAIValidationDto(result)
   }
 }

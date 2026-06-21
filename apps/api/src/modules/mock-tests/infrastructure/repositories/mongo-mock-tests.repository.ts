@@ -1,414 +1,98 @@
-import mongoose from 'mongoose'
-import { MockTestAIEvaluationEntity } from '../../domain/entities/mock-test-ai-evaluation.entity'
-import { MockTestAnswerEntity } from '../../domain/entities/mock-test-answer.entity'
-import { MockTestAttemptEntity } from '../../domain/entities/mock-test-attempt.entity'
-import { MockTestCreationSessionEntity } from '../../domain/entities/mock-test-creation-session.entity'
-import { MockTestQuestionEntity } from '../../domain/entities/mock-test-question.entity'
-import { MockTestReportEntity } from '../../domain/entities/mock-test-report.entity'
-import { MockTestEntity } from '../../domain/entities/mock-test.entity'
-import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
-import type { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
-import type { AttemptStatus } from '../../domain/value-objects/attempt-status.vo'
-import type { CreationSessionStatus } from '../../domain/value-objects/creation-session-status.vo'
-import type { DifficultyLevel } from '../../domain/value-objects/difficulty-level.vo'
-import type { EvaluationStatus } from '../../domain/value-objects/evaluation-status.vo'
-import type { MockTestCodingDetails } from '../../domain/value-objects/mock-test-coding.vo'
-import type { MockTestCreationDraft } from '../../domain/value-objects/mock-test-creation-draft.vo'
-import type { QuestionType } from '../../domain/value-objects/question-type.vo'
-import type { TestVisibility } from '../../domain/value-objects/test-visibility.vo'
-import { MockTestModel } from '../../../../infrastructure/database/models/mock-test.model'
-import { MockTestQuestionModel } from '../../../../infrastructure/database/models/mock-test-question.model'
-import { MockTestAttemptModel } from '../../../../infrastructure/database/models/mock-test-attempt.model'
-import { MockTestAnswerModel } from '../../../../infrastructure/database/models/mock-test-answer.model'
 import { MockTestAIEvaluationModel } from '../../../../infrastructure/database/models/mock-test-ai-evaluation.model'
-import { MockTestReportModel } from '../../../../infrastructure/database/models/mock-test-report.model'
 import { MockTestAnalyticsSnapshotModel } from '../../../../infrastructure/database/models/mock-test-analytics-snapshot.model'
+import { MockTestAnswerModel } from '../../../../infrastructure/database/models/mock-test-answer.model'
+import { MockTestAttemptModel } from '../../../../infrastructure/database/models/mock-test-attempt.model'
 import { MockTestCreationSessionModel } from '../../../../infrastructure/database/models/mock-test-creation-session.model'
+import { MockTestQuestionModel } from '../../../../infrastructure/database/models/mock-test-question.model'
+import { MockTestReportModel } from '../../../../infrastructure/database/models/mock-test-report.model'
+import { MockTestModel } from '../../../../infrastructure/database/models/mock-test.model'
+import type { MockTestAttemptEntity } from '../../domain/entities/mock-test-attempt.entity'
+import type { CreateMockTestAIEvaluationInput } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
+import type {
+  FindMockTestAnswerByQuestionInput,
+  MockTestQuestionFlagInput,
+  SaveMockTestAnswerInput,
+  UpdateMockTestAnswerInput,
+} from '../../domain/repositories/mock-test-answer.repository.interface'
+import type {
+  AbandonActiveMockTestAttemptsInput,
+  CreateMockTestAttemptInput,
+  FindActiveMockTestAttemptInput,
+  FindLatestMockTestAttemptsInput,
+  FindMockTestAttemptsByUserInput,
+  UpdateMockTestAttemptInput,
+} from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type {
+  CreateMockTestCreationSessionInput,
+  UpdateMockTestCreationSessionInput,
+} from '../../domain/repositories/mock-test-creation-session.repository.interface'
+import type { CreateMockTestQuestionInput } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { CreateMockTestReportInput } from '../../domain/repositories/mock-test-report.repository.interface'
+import type {
+  EnableMockTestSharingInput,
+  FindImportedSharedTestInput,
+} from '../../domain/repositories/mock-test-sharing.repository.interface'
+import type {
+  CreateMockTestInput,
+  FindMockTestsByOwnerInput,
+  FindPublicMockTestsInput,
+  UpdateMockTestInput,
+} from '../../domain/repositories/mock-test.repository.interface'
+import type { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface'
+import type { DifficultyLevel } from '../../domain/value-objects/difficulty-level.vo'
+import { MongoMockTestsBaseRepository } from './mongo-mock-tests-base.repository'
+import { MongoMockTestsErrorMapper } from './mongo-mock-tests-error.mapper'
+import { MongoMockTestsMapper } from './mongo-mock-tests.mapper'
+import type {
+  AnalyticsSnapshotAggregation,
+  PerformanceTrendAggregation,
+  QuestionCountDoc,
+  RawMockTestAIEvaluationDoc,
+  RawMockTestAnswerDoc,
+  RawMockTestAttemptDoc,
+  RawMockTestCreationSessionDoc,
+  RawMockTestDoc,
+  RawMockTestQuestionDoc,
+  RawMockTestReportDoc,
+  UserSummaryAggregation,
+} from './mongo-mock-tests.types'
 
-
-type RawRecord = Record<string, unknown>
-
-type RawMockTestDoc = {
-  _id?: unknown
-  ownerId?: unknown
-  trackerId?: unknown
-  sourceTestId?: unknown
-  title?: string
-  description?: string
-  difficulty?: DifficultyLevel
-  visibility?: TestVisibility
-  questionCount?: number
-  timeLimitMinutes?: number
-  passingScore?: number
-  isAIGenerated?: boolean
-  tags?: string[]
-  shareToken?: string
-  isShareEnabled?: boolean
-  cloneCount?: number
-  averageScore?: number
-  attemptCount?: number
-  createdAt?: Date
-  updatedAt?: Date
-}
-
-type RawMockTestQuestionDoc = {
-  _id?: unknown
-  testId?: unknown
-  type?: QuestionType
-  question?: string
-  options?: string[]
-  correctAnswer?: string
-  explanation?: string
-  difficulty?: DifficultyLevel
-  order?: number
-  points?: number
-  coding?: MockTestCodingDetails
-}
-
-type RawMockTestAttemptDoc = {
-  _id?: unknown
-  testId?: unknown
-  userId?: unknown
-  status?: AttemptStatus
-  startedAt?: Date
-  completedAt?: Date
-  timeTakenSeconds?: number
-  score?: number
-  scorePercentage?: number
-  passed?: boolean
-  flaggedQuestions?: unknown[]
-  totalQuestions?: number
-  answeredQuestions?: number
-  createdAt?: Date
-}
-
-type RawMockTestAnswerDoc = {
-  _id?: unknown
-  attemptId?: unknown
-  questionId?: unknown
-  answer?: string
-  isCorrect?: boolean
-  pointsEarned?: number
-  aiEvaluationId?: unknown
-  submittedAt?: Date
-  createdAt?: Date
-}
-
-type RawMockTestAIEvaluationDoc = {
-  _id?: unknown
-  attemptId?: unknown
-  questionId?: unknown
-  answerId?: unknown
-  score?: number
-  maxScore?: number
-  feedback?: string
-  status?: EvaluationStatus
-  createdAt?: Date
-}
-
-type RawMockTestReportDoc = {
-  _id?: unknown
-  attemptId?: unknown
-  userId?: unknown
-  testId?: unknown
-  score?: number
-  scorePercentage?: number
-  passed?: boolean
-  timeTakenSeconds?: number
-  totalQuestions?: number
-  correctAnswers?: number
-  incorrectAnswers?: number
-  skippedAnswers?: number
-  strongTopics?: string[]
-  weakTopics?: string[]
-  recommendations?: string[]
-  createdAt?: Date
-}
-
-type RawMockTestCreationSessionDoc = {
-  _id?: unknown
-  userId?: unknown
-  status?: CreationSessionStatus
-  step?: number
-  draftData?: MockTestCreationDraft
-  createdAt?: Date
-  updatedAt?: Date
-}
-
-type UserSummaryAggregation = {
-  completedAttempts?: number
-  averageScore?: number
-  bestScore?: number
-  passedAttempts?: number
-}
-
-type PerformanceTrendAggregation = {
-  _id: string
-  averageScore: number
-  attempts: number
-}
-
-type AnalyticsSnapshotAggregation = {
-  totalAttempts: number
-  averageScore: number
-  passCount: number
-  averageTimeTaken?: number
-}
-
-type QuestionCountDoc = {
-  questionCount?: number
-}
-
-const ALLOWED_DIFFICULTIES = ['easy', 'medium', 'hard'] as const
-const SAFE_TAG_PATTERN = /^[a-zA-Z0-9 _-]{1,40}$/
-
-const isRecord = (value: unknown): value is RawRecord =>
-  typeof value === 'object' && value !== null
-
-const isObjectId = (value: unknown): value is mongoose.Types.ObjectId =>
-  value instanceof mongoose.Types.ObjectId
-
-const id = (value: unknown): string => {
-  if (!value) return ''
-
-  if (typeof value === 'string') return value
-
-  if (isObjectId(value)) return value.toString()
-
-  if (isRecord(value)) {
-    const nestedId = value['_id']
-
-    if (nestedId === value) return String(value)
-
-    return id(nestedId)
+export class MongoMockTestsRepository
+  extends MongoMockTestsBaseRepository
+  implements MockTestsRepositoryContract
+{
+  constructor(private readonly mapper = new MongoMockTestsMapper()) {
+    super()
   }
 
-  return String(value)
-}
+  async findTestById(testId: string) {
+    return this.execute(
+      'MOCK_TEST_READ_FAILED',
+      'Failed to read mock test',
+      async () => {
+        const safeTestId = this.toObjectId(testId)
 
-const optionalId = (value: unknown): string | undefined => {
-  const resolvedId = id(value)
-  return resolvedId || undefined
-}
+        if (!safeTestId) {
+          return null
+        }
 
-const numberOrZero = (value: unknown): number =>
-  typeof value === 'number' ? value : 0
+        const doc = await MockTestModel.findOne({
+          _id: safeTestId,
+          deletedAt: null,
+        }).lean()
 
-const dateOrNow = (value: Date | undefined): Date => value || new Date()
-
-const toObjectId = (value: string): mongoose.Types.ObjectId | null => {
-  if (!mongoose.Types.ObjectId.isValid(value)) return null
-  return new mongoose.Types.ObjectId(value)
-}
-
-const toObjectIds = (values: string[]): mongoose.Types.ObjectId[] =>
-  values
-    .filter((value) => mongoose.Types.ObjectId.isValid(value))
-    .map((value) => new mongoose.Types.ObjectId(value))
-
-const sanitizeDifficulty = (value?: DifficultyLevel): DifficultyLevel | undefined =>
-  value && ALLOWED_DIFFICULTIES.includes(value) ? value : undefined
-
-const sanitizeTags = (tags?: string[]): string[] => {
-  if (!Array.isArray(tags)) return []
-
-  return tags
-    .filter((tag): tag is string => typeof tag === 'string')
-    .map((tag) => tag.trim())
-    .filter((tag) => SAFE_TAG_PATTERN.test(tag))
-    .slice(0, 20)
-}
-
-const sanitizePage = (page: number): number =>
-  Number.isInteger(page) && page > 0 ? page : 1
-
-const sanitizeLimit = (limit: number): number =>
-  Number.isInteger(limit) && limit > 0 && limit <= 50 ? limit : 20
-
-const getPublicTestsByDifficulty = async (difficulty?: DifficultyLevel) => {
-  if (difficulty === 'easy') {
-    return MockTestModel.find({
-      visibility: 'public',
-      difficulty: 'easy',
-    })
-      .sort({ createdAt: -1 })
-      .lean()
-  }
-
-  if (difficulty === 'medium') {
-    return MockTestModel.find({
-      visibility: 'public',
-      difficulty: 'medium',
-    })
-      .sort({ createdAt: -1 })
-      .lean()
-  }
-
-  if (difficulty === 'hard') {
-    return MockTestModel.find({
-      visibility: 'public',
-      difficulty: 'hard',
-    })
-      .sort({ createdAt: -1 })
-      .lean()
-  }
-
-  return MockTestModel.find({
-    visibility: 'public',
-  })
-    .sort({ createdAt: -1 })
-    .lean()
-}
-
-
-export class MongoMockTestsRepository implements MockTestsRepositoryContract {
-  private readonly implementation: MockTestsRepositoryContract
-
-  private toMockTestEntity(doc: RawMockTestDoc): MockTestEntity {
-    return new MockTestEntity({
-      _id: id(doc._id),
-      ownerId: id(doc.ownerId),
-      trackerId: optionalId(doc.trackerId),
-      sourceTestId: optionalId(doc.sourceTestId),
-      title: doc.title || '',
-      description: doc.description || '',
-      difficulty: doc.difficulty || 'easy',
-      visibility: doc.visibility || 'private',
-      questionCount: numberOrZero(doc.questionCount),
-      timeLimitMinutes: numberOrZero(doc.timeLimitMinutes),
-      passingScore: numberOrZero(doc.passingScore),
-      isAIGenerated: Boolean(doc.isAIGenerated),
-      tags: doc.tags || [],
-      shareToken: doc.shareToken,
-      isShareEnabled: Boolean(doc.isShareEnabled),
-      cloneCount: doc.cloneCount || 0,
-      averageScore: doc.averageScore || 0,
-      attemptCount: doc.attemptCount || 0,
-      createdAt: dateOrNow(doc.createdAt),
-      updatedAt: dateOrNow(doc.updatedAt),
-    })
-  }
-
-  private toMockTestQuestionEntity(
-    doc: RawMockTestQuestionDoc,
-  ): MockTestQuestionEntity {
-    return new MockTestQuestionEntity({
-      _id: id(doc._id),
-      testId: id(doc.testId),
-      type: doc.type || 'mcq',
-      question: doc.question || '',
-      options: doc.options,
-      correctAnswer: doc.correctAnswer,
-      explanation: doc.explanation,
-      difficulty: doc.difficulty || 'easy',
-      order: numberOrZero(doc.order),
-      points: numberOrZero(doc.points),
-      coding: doc.coding,
-    })
-  }
-
-  private toMockTestAttemptEntity(
-    doc: RawMockTestAttemptDoc,
-  ): MockTestAttemptEntity {
-    return new MockTestAttemptEntity({
-      _id: id(doc._id),
-      testId: id(doc.testId),
-      userId: id(doc.userId),
-      status: doc.status || 'in_progress',
-      startedAt: dateOrNow(doc.startedAt),
-      completedAt: doc.completedAt,
-      timeTakenSeconds: doc.timeTakenSeconds,
-      score: doc.score,
-      scorePercentage: doc.scorePercentage,
-      passed: doc.passed,
-      flaggedQuestions: doc.flaggedQuestions?.map(id) || [],
-      totalQuestions: numberOrZero(doc.totalQuestions),
-      answeredQuestions: numberOrZero(doc.answeredQuestions),
-      createdAt: dateOrNow(doc.createdAt),
-    })
-  }
-
-  private toMockTestAnswerEntity(
-    doc: RawMockTestAnswerDoc,
-  ): MockTestAnswerEntity {
-    return new MockTestAnswerEntity({
-      _id: id(doc._id),
-      attemptId: id(doc.attemptId),
-      questionId: id(doc.questionId),
-      answer: doc.answer || '',
-      isCorrect: doc.isCorrect,
-      pointsEarned: doc.pointsEarned,
-      aiEvaluationId: optionalId(doc.aiEvaluationId),
-      submittedAt: dateOrNow(doc.submittedAt || doc.createdAt),
-    })
-  }
-
-  private toMockTestAIEvaluationEntity(
-    doc: RawMockTestAIEvaluationDoc,
-  ): MockTestAIEvaluationEntity {
-    return new MockTestAIEvaluationEntity({
-      _id: id(doc._id),
-      attemptId: id(doc.attemptId),
-      questionId: id(doc.questionId),
-      answerId: id(doc.answerId),
-      score: numberOrZero(doc.score),
-      maxScore: numberOrZero(doc.maxScore),
-      feedback: doc.feedback || '',
-      status: doc.status || 'pending',
-      createdAt: dateOrNow(doc.createdAt),
-    })
-  }
-
-  private toMockTestReportEntity(
-    doc: RawMockTestReportDoc,
-  ): MockTestReportEntity {
-    return new MockTestReportEntity({
-      _id: id(doc._id),
-      attemptId: id(doc.attemptId),
-      userId: id(doc.userId),
-      testId: id(doc.testId),
-      score: numberOrZero(doc.score),
-      scorePercentage: numberOrZero(doc.scorePercentage),
-      passed: Boolean(doc.passed),
-      timeTakenSeconds: numberOrZero(doc.timeTakenSeconds),
-      totalQuestions: numberOrZero(doc.totalQuestions),
-      correctAnswers: numberOrZero(doc.correctAnswers),
-      incorrectAnswers: numberOrZero(doc.incorrectAnswers),
-      skippedAnswers: numberOrZero(doc.skippedAnswers),
-      strongTopics: doc.strongTopics || [],
-      weakTopics: doc.weakTopics || [],
-      recommendations: doc.recommendations || [],
-      createdAt: dateOrNow(doc.createdAt),
-    })
-  }
-
-  private toMockTestCreationSessionEntity(
-    doc: RawMockTestCreationSessionDoc,
-  ): MockTestCreationSessionEntity {
-    return new MockTestCreationSessionEntity({
-      _id: id(doc._id),
-      userId: id(doc.userId),
-      status: doc.status || 'draft',
-      step: doc.step || 1,
-      draftData: doc.draftData || {},
-      createdAt: dateOrNow(doc.createdAt),
-      updatedAt: dateOrNow(doc.updatedAt),
-    })
-  }
-
-  constructor() {
-    this.implementation = {
-
-      findTestById: async (testId) => {
-        const safeTestId = toObjectId(testId)
-        if (!safeTestId) return null
-
-        const doc = await MockTestModel.findOne({ _id: safeTestId }).lean()
-        return doc ? this.toMockTestEntity(doc as RawMockTestDoc) : null
+        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
+    )
+  }
 
-      findTestsByOwner: async (ownerId, options = {}) => {
-        const safeOwnerId = toObjectId(ownerId)
+  async findTestsByOwner(input: FindMockTestsByOwnerInput) {
+    return this.execute(
+      'MOCK_TEST_READ_FAILED',
+      'Failed to read owner mock tests',
+      async () => {
+        const { ownerId, page = 1, limit = 6 } = input
+        const safeOwnerId = this.toObjectId(ownerId)
 
         if (!safeOwnerId) {
           return {
@@ -417,145 +101,398 @@ export class MongoMockTestsRepository implements MockTestsRepositoryContract {
           }
         }
 
-        const safePage = sanitizePage(options.page || 1)
-        const safeLimit = sanitizeLimit(options.limit || 6)
+        const safePage = this.sanitizePage(page)
+        const safeLimit = this.sanitizeLimit(limit)
         const skip = (safePage - 1) * safeLimit
 
+        const query = {
+          ownerId: safeOwnerId,
+          deletedAt: null,
+        }
+
         const [docs, total] = await Promise.all([
-          MockTestModel.find({ ownerId: safeOwnerId })
+          MockTestModel.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(safeLimit)
             .lean(),
-
-          MockTestModel.countDocuments({ ownerId: safeOwnerId }),
+          MockTestModel.countDocuments(query),
         ])
 
         return {
-          tests: docs.map((doc) => this.toMockTestEntity(doc as RawMockTestDoc)),
+          tests: docs.map((doc) =>
+            this.mapper.toMockTestEntity(doc as RawMockTestDoc),
+          ),
           total,
         }
       },
+    )
+  }
 
-      findPublicTests: async ({ difficulty, tags, page = 1, limit = 20 }) => {
-        const safeDifficulty = sanitizeDifficulty(difficulty)
-        const safeTags = sanitizeTags(tags)
-        const safePage = sanitizePage(page)
-        const safeLimit = sanitizeLimit(limit)
+  async findPublicTests(input: FindPublicMockTestsInput) {
+    return this.execute(
+      'MOCK_TEST_READ_FAILED',
+      'Failed to read public mock tests',
+      async () => {
+        const { difficulty, tags, page = 1, limit = 20 } = input
+
+        const safeDifficulty = this.sanitizeDifficulty(difficulty)
+        const safeTags = this.sanitizeTags(tags)
+        const safePage = this.sanitizePage(page)
+        const safeLimit = this.sanitizeLimit(limit)
         const skip = (safePage - 1) * safeLimit
 
-        const docs = await getPublicTestsByDifficulty(safeDifficulty)
+        const docs = await this.findPublicTestDocsByDifficulty(safeDifficulty)
 
         const filteredDocs = safeTags.length
           ? docs.filter((doc) => {
-            const test = doc as RawMockTestDoc
-            const docTags = Array.isArray(test.tags) ? test.tags : []
+              const docTags = Array.isArray(doc.tags) ? doc.tags : []
 
-            return safeTags.some((tag) => docTags.includes(tag))
-          })
+              return safeTags.some((tag) => docTags.includes(tag))
+            })
           : docs
 
         const paginatedDocs = filteredDocs.slice(skip, skip + safeLimit)
 
         return {
-          tests: paginatedDocs.map((doc) => this.toMockTestEntity(doc as RawMockTestDoc)),
+          tests: paginatedDocs.map((doc) => this.mapper.toMockTestEntity(doc)),
           total: filteredDocs.length,
         }
       },
+    )
+  }
 
-      createTest: async (data) =>
-        this.toMockTestEntity((await MockTestModel.create(data)).toObject() as RawMockTestDoc),
+  async findSharedTestByToken(shareToken: string) {
+    return this.execute(
+      'MOCK_TEST_READ_FAILED',
+      'Failed to read shared mock test',
+      async () => {
+        const doc = await MockTestModel.findOne({
+          shareToken,
+          isShareEnabled: true,
+          deletedAt: null,
+        }).lean()
 
-      updateTest: async (testId, data) => {
-        const safeTestId = toObjectId(testId)
-        if (!safeTestId) return null
-
-        const doc = await MockTestModel.findOneAndUpdate(
-          { _id: safeTestId },
-          data,
-          { new: true },
-        ).lean()
-
-        return doc ? this.toMockTestEntity(doc as RawMockTestDoc) : null
+        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
+    )
+  }
 
-      deleteTest: async (testId) => {
-        const safeTestId = toObjectId(testId)
-        if (!safeTestId) return
+  async findImportedSharedTest(input: FindImportedSharedTestInput) {
+    return this.execute(
+      'MOCK_TEST_READ_FAILED',
+      'Failed to read imported shared mock test',
+      async () => {
+        const { ownerId, sourceTestId } = input
 
-        await Promise.all([
-          MockTestQuestionModel.deleteMany({ testId: safeTestId }),
-          MockTestModel.findOneAndDelete({ _id: safeTestId }),
-        ])
-      },
+        const safeOwnerId = this.toObjectId(ownerId)
+        const safeSourceTestId = this.toObjectId(sourceTestId)
 
-      findQuestionsByTest: async (testId) => {
-        const safeTestId = toObjectId(testId)
-        if (!safeTestId) return []
-
-        return (
-          await MockTestQuestionModel.find({ testId: safeTestId })
-            .sort({ order: 1 })
-            .lean()
-        ).map((doc) => this.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc))
-      },
-
-      findQuestionById: async (questionId) => {
-        const safeQuestionId = toObjectId(questionId)
-        if (!safeQuestionId) return null
-
-        const doc = await MockTestQuestionModel.findOne({ _id: safeQuestionId }).lean()
-        return doc ? this.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc) : null
-      },
-
-      createQuestions: async (questions) =>
-        (await MockTestQuestionModel.insertMany(questions)).map((doc) =>
-          this.toMockTestQuestionEntity(doc.toObject() as RawMockTestQuestionDoc),
-        ),
-
-      findAttemptById: async (attemptId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        if (!safeAttemptId) return null
-
-        const doc = await MockTestAttemptModel.findOne({ _id: safeAttemptId }).lean()
-        return doc ? this.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc) : null
-      },
-
-      findAttemptsByUser: async (userId, testId) => {
-        const safeUserId = toObjectId(userId)
-        if (!safeUserId) return []
-
-        if (testId) {
-          const safeTestId = toObjectId(testId)
-          if (!safeTestId) return []
-
-          return (
-            await MockTestAttemptModel.find({
-              userId: safeUserId,
-              testId: safeTestId,
-            })
-              .sort({ createdAt: -1 })
-              .lean()
-          ).map((doc) => this.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc))
+        if (!safeOwnerId || !safeSourceTestId) {
+          return null
         }
 
-        return (
-          await MockTestAttemptModel.find({ userId: safeUserId })
-            .sort({ createdAt: -1 })
-            .lean()
-        ).map((doc) => this.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc))
+        const doc = await MockTestModel.findOne({
+          ownerId: safeOwnerId,
+          sourceTestId: safeSourceTestId,
+          deletedAt: null,
+        }).lean()
+
+        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
+    )
+  }
 
-      findLatestAttemptsForTests: async (userId, testIds) => {
-        const safeUserId = toObjectId(userId)
-        if (!safeUserId || !testIds.length) return {}
+  async enableTestSharing(input: EnableMockTestSharingInput) {
+    return this.execute(
+      'MOCK_TEST_WRITE_FAILED',
+      'Failed to enable mock test sharing',
+      async () => {
+        const { ownerId, testId, shareToken } = input
 
-        const safeTestIds = toObjectIds(testIds)
-        if (!safeTestIds.length) return {}
+        const safeOwnerId = this.toObjectId(ownerId)
+        const safeTestId = this.toObjectId(testId)
+
+        if (!safeOwnerId || !safeTestId) {
+          return null
+        }
+
+        const doc = await MockTestModel.findOneAndUpdate(
+          {
+            _id: safeTestId,
+            ownerId: safeOwnerId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              shareToken,
+              isShareEnabled: true,
+            },
+          },
+          {
+            new: true,
+          },
+        ).lean()
+
+        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
+      },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
+
+  async incrementCloneCount(testId: string) {
+    return this.execute(
+      'MOCK_TEST_WRITE_FAILED',
+      'Failed to increment mock test clone count',
+      async () => {
+        const safeTestId = this.toObjectId(testId)
+
+        if (!safeTestId) {
+          return
+        }
+
+        await MockTestModel.findOneAndUpdate(
+          {
+            _id: safeTestId,
+            deletedAt: null,
+          },
+          {
+            $inc: {
+              cloneCount: 1,
+            },
+          },
+        )
+      },
+    )
+  }
+
+  async createTest(data: CreateMockTestInput) {
+    return this.execute(
+      'MOCK_TEST_WRITE_FAILED',
+      'Failed to create mock test',
+      async () => {
+        const doc = await MockTestModel.create(data)
+
+        return this.mapper.toMockTestEntity(doc.toObject() as RawMockTestDoc)
+      },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
+
+  async updateTest(testId: string, data: UpdateMockTestInput) {
+    return this.execute(
+      'MOCK_TEST_WRITE_FAILED',
+      'Failed to update mock test',
+      async () => {
+        const safeTestId = this.toObjectId(testId)
+
+        if (!safeTestId) {
+          return null
+        }
+
+        const update = this.buildMockTestUpdate(data)
+
+        if (Object.keys(update.$set).length === 0) {
+          const existingDoc = await MockTestModel.findOne({
+            _id: safeTestId,
+            deletedAt: null,
+          }).lean()
+
+          return existingDoc
+            ? this.mapper.toMockTestEntity(existingDoc as RawMockTestDoc)
+            : null
+        }
+
+        const doc = await MockTestModel.findOneAndUpdate(
+          {
+            _id: safeTestId,
+            deletedAt: null,
+          },
+          update,
+          {
+            new: true,
+          },
+        ).lean()
+
+        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
+      },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
+
+  async deleteTest(testId: string) {
+    return this.execute(
+      'MOCK_TEST_DELETE_FAILED',
+      'Failed to delete mock test',
+      async () => {
+        const safeTestId = this.toObjectId(testId)
+
+        if (!safeTestId) {
+          return
+        }
+
+        await Promise.all([
+          MockTestQuestionModel.deleteMany({
+            testId: safeTestId,
+          }),
+          MockTestModel.findOneAndDelete({
+            _id: safeTestId,
+          }),
+        ])
+      },
+    )
+  }
+
+  async findQuestionsByTest(testId: string) {
+    return this.execute(
+      'MOCK_TEST_QUESTION_READ_FAILED',
+      'Failed to read mock test questions',
+      async () => {
+        const safeTestId = this.toObjectId(testId)
+
+        if (!safeTestId) {
+          return []
+        }
+
+        const docs = await MockTestQuestionModel.find({
+          testId: safeTestId,
+          deletedAt: null,
+        })
+          .sort({ order: 1 })
+          .lean()
+
+        return docs.map((doc) =>
+          this.mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc),
+        )
+      },
+    )
+  }
+
+  async findQuestionById(questionId: string) {
+    return this.execute(
+      'MOCK_TEST_QUESTION_READ_FAILED',
+      'Failed to read mock test question',
+      async () => {
+        const safeQuestionId = this.toObjectId(questionId)
+
+        if (!safeQuestionId) {
+          return null
+        }
+
+        const doc = await MockTestQuestionModel.findOne({
+          _id: safeQuestionId,
+          deletedAt: null,
+        }).lean()
+
+        return doc
+          ? this.mapper.toMockTestQuestionEntity(
+              doc as RawMockTestQuestionDoc,
+            )
+          : null
+      },
+    )
+  }
+
+  async createQuestions(questions: CreateMockTestQuestionInput[]) {
+    return this.execute(
+      'MOCK_TEST_QUESTION_WRITE_FAILED',
+      'Failed to create mock test questions',
+      async () => {
+        const docs = await MockTestQuestionModel.insertMany(questions)
+
+        return docs.map((doc) =>
+          this.mapper.toMockTestQuestionEntity(
+            doc.toObject() as RawMockTestQuestionDoc,
+          ),
+        )
+      },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
+
+  async findAttemptById(attemptId: string) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_READ_FAILED',
+      'Failed to read mock test attempt',
+      async () => {
+        const safeAttemptId = this.toObjectId(attemptId)
+
+        if (!safeAttemptId) {
+          return null
+        }
+
+        const doc = await MockTestAttemptModel.findOne({
+          _id: safeAttemptId,
+          deletedAt: null,
+        }).lean()
+
+        return doc
+          ? this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
+          : null
+      },
+    )
+  }
+
+  async findAttemptsByUser(input: FindMockTestAttemptsByUserInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_READ_FAILED',
+      'Failed to read user mock test attempts',
+      async () => {
+        const { userId, testId } = input
+        const safeUserId = this.toObjectId(userId)
+
+        if (!safeUserId) {
+          return []
+        }
+
+        const query: Record<string, unknown> = {
+          userId: safeUserId,
+          deletedAt: null,
+        }
+
+        if (testId) {
+          const safeTestId = this.toObjectId(testId)
+
+          if (!safeTestId) {
+            return []
+          }
+
+          query.testId = safeTestId
+        }
+
+        const docs = await MockTestAttemptModel.find(query)
+          .sort({ createdAt: -1 })
+          .lean()
+
+        return docs.map((doc) =>
+          this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc),
+        )
+      },
+    )
+  }
+
+  async findLatestAttemptsForTests(input: FindLatestMockTestAttemptsInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_READ_FAILED',
+      'Failed to read latest mock test attempts',
+      async () => {
+        const { userId, testIds } = input
+        const safeUserId = this.toObjectId(userId)
+
+        if (!safeUserId || !testIds.length) {
+          return {}
+        }
+
+        const safeTestIds = this.toObjectIds(testIds)
+
+        if (!safeTestIds.length) {
+          return {}
+        }
 
         const docs = await MockTestAttemptModel.find({
           userId: safeUserId,
           testId: { $in: safeTestIds },
+          deletedAt: null,
         })
           .sort({ createdAt: -1 })
           .lean()
@@ -563,197 +500,458 @@ export class MongoMockTestsRepository implements MockTestsRepositoryContract {
         const result: Record<string, MockTestAttemptEntity> = {}
 
         for (const doc of docs) {
-          const mapped = this.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
-          if (!result[mapped.testId]) result[mapped.testId] = mapped
+          const mapped = this.mapper.toMockTestAttemptEntity(
+            doc as RawMockTestAttemptDoc,
+          )
+
+          if (!result[mapped.testId]) {
+            result[mapped.testId] = mapped
+          }
         }
 
         return result
       },
+    )
+  }
 
-      findActiveAttempt: async (userId, testId) => {
-        const safeUserId = toObjectId(userId)
-        const safeTestId = toObjectId(testId)
+  async findActiveAttempt(input: FindActiveMockTestAttemptInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_READ_FAILED',
+      'Failed to read active mock test attempt',
+      async () => {
+        const { userId, testId } = input
 
-        if (!safeUserId || !safeTestId) return null
+        const safeUserId = this.toObjectId(userId)
+        const safeTestId = this.toObjectId(testId)
+
+        if (!safeUserId || !safeTestId) {
+          return null
+        }
 
         const doc = await MockTestAttemptModel.findOne({
           userId: safeUserId,
           testId: safeTestId,
           status: 'in_progress',
+          deletedAt: null,
         }).lean()
 
-        return doc ? this.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc) : null
+        return doc
+          ? this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
+          : null
       },
+    )
+  }
 
-      createAttempt: async (data) =>
-        this.toMockTestAttemptEntity(
-          (
-            await MockTestAttemptModel.create({
-              ...data,
-              status: 'in_progress',
-              startedAt: new Date(),
-              answeredQuestions: 0,
-              flaggedQuestions: [],
-            })
-          ).toObject() as RawMockTestAttemptDoc,
-        ),
+  async createAttempt(data: CreateMockTestAttemptInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_WRITE_FAILED',
+      'Failed to create mock test attempt',
+      async () => {
+        const doc = await MockTestAttemptModel.create({
+          ...data,
+          status: 'in_progress',
+          startedAt: new Date(),
+          answeredQuestions: 0,
+          flaggedQuestions: [],
+        })
 
-      updateAttempt: async (attemptId, data) => {
-        const safeAttemptId = toObjectId(attemptId)
-        if (!safeAttemptId) return null
-
-        const doc = await MockTestAttemptModel.findOneAndUpdate(
-          { _id: safeAttemptId },
-          data,
-          { new: true },
-        ).lean()
-
-        return doc ? this.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc) : null
-      },
-
-      incrementAnsweredCount: async (attemptId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        if (!safeAttemptId) return
-
-        await MockTestAttemptModel.findOneAndUpdate(
-          { _id: safeAttemptId },
-          { $inc: { answeredQuestions: 1 } },
+        return this.mapper.toMockTestAttemptEntity(
+          doc.toObject() as RawMockTestAttemptDoc,
         )
       },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
 
-      abandonActiveAttempts: async (userId, testId) => {
-        const safeUserId = toObjectId(userId)
-        const safeTestId = toObjectId(testId)
+  async updateAttempt(attemptId: string, data: UpdateMockTestAttemptInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_WRITE_FAILED',
+      'Failed to update mock test attempt',
+      async () => {
+        const safeAttemptId = this.toObjectId(attemptId)
 
-        if (!safeUserId || !safeTestId) return
+        if (!safeAttemptId) {
+          return null
+        }
+
+        const update = this.buildMockTestAttemptUpdate(data)
+
+        if (Object.keys(update.$set).length === 0) {
+          const existingDoc = await MockTestAttemptModel.findOne({
+            _id: safeAttemptId,
+            deletedAt: null,
+          }).lean()
+
+          return existingDoc
+            ? this.mapper.toMockTestAttemptEntity(
+                existingDoc as RawMockTestAttemptDoc,
+              )
+            : null
+        }
+
+        const doc = await MockTestAttemptModel.findOneAndUpdate(
+          {
+            _id: safeAttemptId,
+            deletedAt: null,
+          },
+          update,
+          {
+            new: true,
+          },
+        ).lean()
+
+        return doc
+          ? this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
+          : null
+      },
+    )
+  }
+
+  async incrementAnsweredCount(attemptId: string) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_WRITE_FAILED',
+      'Failed to increment answered count',
+      async () => {
+        const safeAttemptId = this.toObjectId(attemptId)
+
+        if (!safeAttemptId) {
+          return
+        }
+
+        await MockTestAttemptModel.findOneAndUpdate(
+          {
+            _id: safeAttemptId,
+            deletedAt: null,
+          },
+          {
+            $inc: {
+              answeredQuestions: 1,
+            },
+          },
+        )
+      },
+    )
+  }
+
+  async abandonActiveAttempts(input: AbandonActiveMockTestAttemptsInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_WRITE_FAILED',
+      'Failed to abandon active attempts',
+      async () => {
+        const { userId, testId } = input
+
+        const safeUserId = this.toObjectId(userId)
+        const safeTestId = this.toObjectId(testId)
+
+        if (!safeUserId || !safeTestId) {
+          return
+        }
 
         await MockTestAttemptModel.updateMany(
           {
             userId: safeUserId,
             testId: safeTestId,
             status: 'in_progress',
+            deletedAt: null,
           },
-          { status: 'abandoned' },
+          {
+            $set: {
+              status: 'abandoned',
+            },
+          },
         )
       },
+    )
+  }
 
-      findAnswersByAttempt: async (attemptId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        if (!safeAttemptId) return []
+  async findAnswersByAttempt(attemptId: string) {
+    return this.execute(
+      'MOCK_TEST_ANSWER_READ_FAILED',
+      'Failed to read mock test answers',
+      async () => {
+        const safeAttemptId = this.toObjectId(attemptId)
 
-        return (await MockTestAnswerModel.find({ attemptId: safeAttemptId }).lean()).map((doc) =>
-          this.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc),
+        if (!safeAttemptId) {
+          return []
+        }
+
+        const docs = await MockTestAnswerModel.find({
+          attemptId: safeAttemptId,
+          deletedAt: null,
+        }).lean()
+
+        return docs.map((doc) =>
+          this.mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc),
         )
       },
+    )
+  }
 
-      findAnswerByQuestion: async (attemptId, questionId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        const safeQuestionId = toObjectId(questionId)
+  async findAnswerByQuestion(input: FindMockTestAnswerByQuestionInput) {
+    return this.execute(
+      'MOCK_TEST_ANSWER_READ_FAILED',
+      'Failed to read mock test answer',
+      async () => {
+        const { attemptId, questionId } = input
 
-        if (!safeAttemptId || !safeQuestionId) return null
+        const safeAttemptId = this.toObjectId(attemptId)
+        const safeQuestionId = this.toObjectId(questionId)
+
+        if (!safeAttemptId || !safeQuestionId) {
+          return null
+        }
 
         const doc = await MockTestAnswerModel.findOne({
           attemptId: safeAttemptId,
           questionId: safeQuestionId,
+          deletedAt: null,
         }).lean()
 
-        return doc ? this.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc) : null
+        return doc
+          ? this.mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
+          : null
       },
+    )
+  }
 
-      saveAnswer: async (data) =>
-        this.toMockTestAnswerEntity((await MockTestAnswerModel.create(data)).toObject() as RawMockTestAnswerDoc),
+  async saveAnswer(data: SaveMockTestAnswerInput) {
+    return this.execute(
+      'MOCK_TEST_ANSWER_WRITE_FAILED',
+      'Failed to save mock test answer',
+      async () => {
+        const doc = await MockTestAnswerModel.create(data)
 
-      updateAnswer: async (answerId, data) => {
-        const safeAnswerId = toObjectId(answerId)
-        if (!safeAnswerId) return null
+        return this.mapper.toMockTestAnswerEntity(
+          doc.toObject() as RawMockTestAnswerDoc,
+        )
+      },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
+
+  async updateAnswer(answerId: string, data: UpdateMockTestAnswerInput) {
+    return this.execute(
+      'MOCK_TEST_ANSWER_WRITE_FAILED',
+      'Failed to update mock test answer',
+      async () => {
+        const safeAnswerId = this.toObjectId(answerId)
+
+        if (!safeAnswerId) {
+          return null
+        }
+
+        const update = this.buildMockTestAnswerUpdate(data)
+
+        if (Object.keys(update.$set).length === 0) {
+          const existingDoc = await MockTestAnswerModel.findOne({
+            _id: safeAnswerId,
+            deletedAt: null,
+          }).lean()
+
+          return existingDoc
+            ? this.mapper.toMockTestAnswerEntity(
+                existingDoc as RawMockTestAnswerDoc,
+              )
+            : null
+        }
 
         const doc = await MockTestAnswerModel.findOneAndUpdate(
-          { _id: safeAnswerId },
-          data,
-          { new: true },
+          {
+            _id: safeAnswerId,
+            deletedAt: null,
+          },
+          update,
+          {
+            new: true,
+          },
         ).lean()
 
-        return doc ? this.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc) : null
+        return doc
+          ? this.mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
+          : null
       },
+    )
+  }
 
-      flagQuestion: async (attemptId, questionId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        const safeQuestionId = toObjectId(questionId)
+  async flagQuestion(input: MockTestQuestionFlagInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_WRITE_FAILED',
+      'Failed to flag mock test question',
+      async () => {
+        const { attemptId, questionId } = input
 
-        if (!safeAttemptId || !safeQuestionId) return
+        const safeAttemptId = this.toObjectId(attemptId)
+        const safeQuestionId = this.toObjectId(questionId)
+
+        if (!safeAttemptId || !safeQuestionId) {
+          return
+        }
 
         await MockTestAttemptModel.findOneAndUpdate(
-          { _id: safeAttemptId },
-          { $addToSet: { flaggedQuestions: safeQuestionId } },
+          {
+            _id: safeAttemptId,
+            deletedAt: null,
+          },
+          {
+            $addToSet: {
+              flaggedQuestions: safeQuestionId,
+            },
+          },
         )
       },
+    )
+  }
 
-      unflagQuestion: async (attemptId, questionId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        const safeQuestionId = toObjectId(questionId)
+  async unflagQuestion(input: MockTestQuestionFlagInput) {
+    return this.execute(
+      'MOCK_TEST_ATTEMPT_WRITE_FAILED',
+      'Failed to unflag mock test question',
+      async () => {
+        const { attemptId, questionId } = input
 
-        if (!safeAttemptId || !safeQuestionId) return
+        const safeAttemptId = this.toObjectId(attemptId)
+        const safeQuestionId = this.toObjectId(questionId)
+
+        if (!safeAttemptId || !safeQuestionId) {
+          return
+        }
 
         await MockTestAttemptModel.findOneAndUpdate(
-          { _id: safeAttemptId },
-          { $pull: { flaggedQuestions: safeQuestionId } },
+          {
+            _id: safeAttemptId,
+            deletedAt: null,
+          },
+          {
+            $pull: {
+              flaggedQuestions: safeQuestionId,
+            },
+          },
         )
       },
+    )
+  }
 
-      createAIEvaluation: async (data) =>
-        this.toMockTestAIEvaluationEntity(
-          (
-            await MockTestAIEvaluationModel.create({
-              ...data,
-              status: 'completed',
-            })
-          ).toObject() as RawMockTestAIEvaluationDoc,
-        ),
+  async createAIEvaluation(data: CreateMockTestAIEvaluationInput) {
+    return this.execute(
+      'MOCK_TEST_AI_EVALUATION_WRITE_FAILED',
+      'Failed to create mock test AI evaluation',
+      async () => {
+        const doc = await MockTestAIEvaluationModel.create({
+          ...data,
+          status: 'completed',
+        })
 
-      findAIEvaluationsByAttempt: async (attemptId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        if (!safeAttemptId) return []
-
-        return (
-          await MockTestAIEvaluationModel.find({ attemptId: safeAttemptId }).lean()
-        ).map((doc) => this.toMockTestAIEvaluationEntity(doc as RawMockTestAIEvaluationDoc))
+        return this.mapper.toMockTestAIEvaluationEntity(
+          doc.toObject() as RawMockTestAIEvaluationDoc,
+        )
       },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
 
-      findReportByAttempt: async (attemptId) => {
-        const safeAttemptId = toObjectId(attemptId)
-        if (!safeAttemptId) return null
+  async findAIEvaluationsByAttempt(attemptId: string) {
+    return this.execute(
+      'MOCK_TEST_AI_EVALUATION_READ_FAILED',
+      'Failed to read mock test AI evaluations',
+      async () => {
+        const safeAttemptId = this.toObjectId(attemptId)
 
-        const doc = await MockTestReportModel.findOne({ attemptId: safeAttemptId }).lean()
-        return doc ? this.toMockTestReportEntity(doc as RawMockTestReportDoc) : null
+        if (!safeAttemptId) {
+          return []
+        }
+
+        const docs = await MockTestAIEvaluationModel.find({
+          attemptId: safeAttemptId,
+          deletedAt: null,
+        }).lean()
+
+        return docs.map((doc) =>
+          this.mapper.toMockTestAIEvaluationEntity(
+            doc as RawMockTestAIEvaluationDoc,
+          ),
+        )
       },
+    )
+  }
 
-      createReport: async (data) =>
-        this.toMockTestReportEntity((await MockTestReportModel.create(data)).toObject() as RawMockTestReportDoc),
+  async findReportByAttempt(attemptId: string) {
+    return this.execute(
+      'MOCK_TEST_REPORT_READ_FAILED',
+      'Failed to read mock test report',
+      async () => {
+        const safeAttemptId = this.toObjectId(attemptId)
 
-      getAttemptHistory: async (userId) => {
-        const safeUserId = toObjectId(userId)
-        if (!safeUserId) return []
+        if (!safeAttemptId) {
+          return null
+        }
 
-        return (
-          await MockTestAttemptModel.find({ userId: safeUserId })
-            .populate('testId')
-            .sort({ createdAt: -1 })
-            .lean()
-        ).map((doc) => {
+        const doc = await MockTestReportModel.findOne({
+          attemptId: safeAttemptId,
+          deletedAt: null,
+        }).lean()
+
+        return doc
+          ? this.mapper.toMockTestReportEntity(doc as RawMockTestReportDoc)
+          : null
+      },
+    )
+  }
+
+  async createReport(data: CreateMockTestReportInput) {
+    return this.execute(
+      'MOCK_TEST_REPORT_WRITE_FAILED',
+      'Failed to create mock test report',
+      async () => {
+        const doc = await MockTestReportModel.create(data)
+
+        return this.mapper.toMockTestReportEntity(
+          doc.toObject() as RawMockTestReportDoc,
+        )
+      },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
+
+  async getAttemptHistory(userId: string) {
+    return this.execute(
+      'MOCK_TEST_ANALYTICS_READ_FAILED',
+      'Failed to read mock test attempt history',
+      async () => {
+        const safeUserId = this.toObjectId(userId)
+
+        if (!safeUserId) {
+          return []
+        }
+
+        const docs = await MockTestAttemptModel.find({
+          userId: safeUserId,
+          deletedAt: null,
+        })
+          .populate('testId')
+          .sort({ createdAt: -1 })
+          .lean()
+
+        return docs.map((doc) => {
           const attemptDoc = doc as RawMockTestAttemptDoc
-          const populatedTest = isRecord(attemptDoc.testId)
-            ? this.toMockTestEntity(attemptDoc.testId as RawMockTestDoc)
+          const populatedTest = this.mapper.isRecord(attemptDoc.testId)
+            ? this.mapper.toMockTestEntity(attemptDoc.testId as RawMockTestDoc)
             : null
 
           return {
-            ...this.toMockTestAttemptEntity(attemptDoc),
+            ...this.mapper.toMockTestAttemptEntity(attemptDoc),
             test: populatedTest,
           }
         })
       },
+    )
+  }
 
-      getUserSummary: async (userId) => {
-        const safeUserId = toObjectId(userId)
+  async getUserSummary(userId: string) {
+    return this.execute(
+      'MOCK_TEST_ANALYTICS_READ_FAILED',
+      'Failed to read mock test user summary',
+      async () => {
+        const safeUserId = this.toObjectId(userId)
 
         if (!safeUserId) {
           return {
@@ -767,12 +965,18 @@ export class MongoMockTestsRepository implements MockTestsRepositoryContract {
         }
 
         const [tests, completedAgg] = await Promise.all([
-          MockTestModel.find({ ownerId: safeUserId }).select('questionCount').lean(),
+          MockTestModel.find({
+            ownerId: safeUserId,
+            deletedAt: null,
+          })
+            .select('questionCount')
+            .lean(),
           MockTestAttemptModel.aggregate<UserSummaryAggregation>([
             {
               $match: {
                 userId: safeUserId,
                 status: 'completed',
+                deletedAt: null,
               },
             },
             {
@@ -804,36 +1008,51 @@ export class MongoMockTestsRepository implements MockTestsRepositoryContract {
           passedAttempts: completed?.passedAttempts || 0,
         }
       },
+    )
+  }
 
-      getPerformanceTrends: async (userId) => {
-        const safeUserId = toObjectId(userId)
-        if (!safeUserId) return []
+  async getPerformanceTrends(userId: string) {
+    return this.execute(
+      'MOCK_TEST_ANALYTICS_READ_FAILED',
+      'Failed to read mock test performance trends',
+      async () => {
+        const safeUserId = this.toObjectId(userId)
+
+        if (!safeUserId) {
+          return []
+        }
 
         const thirtyDaysAgo = new Date()
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
 
-        const aggregation = await MockTestAttemptModel.aggregate<PerformanceTrendAggregation>([
-          {
-            $match: {
-              userId: safeUserId,
-              status: 'completed',
-              completedAt: { $gte: thirtyDaysAgo },
-            },
-          },
-          {
-            $group: {
-              _id: {
-                $dateToString: {
-                  format: '%Y-%m-%d',
-                  date: '$completedAt',
-                },
+        const aggregation =
+          await MockTestAttemptModel.aggregate<PerformanceTrendAggregation>([
+            {
+              $match: {
+                userId: safeUserId,
+                status: 'completed',
+                completedAt: { $gte: thirtyDaysAgo },
+                deletedAt: null,
               },
-              averageScore: { $avg: '$scorePercentage' },
-              attempts: { $sum: 1 },
             },
-          },
-          { $sort: { _id: 1 } },
-        ])
+            {
+              $group: {
+                _id: {
+                  $dateToString: {
+                    format: '%Y-%m-%d',
+                    date: '$completedAt',
+                  },
+                },
+                averageScore: { $avg: '$scorePercentage' },
+                attempts: { $sum: 1 },
+              },
+            },
+            {
+              $sort: {
+                _id: 1,
+              },
+            },
+          ])
 
         return aggregation.map((item) => ({
           date: item._id,
@@ -841,26 +1060,46 @@ export class MongoMockTestsRepository implements MockTestsRepositoryContract {
           attempts: item.attempts,
         }))
       },
+    )
+  }
 
-      getTopicBreakdown: async (userId) => {
-        const safeUserId = toObjectId(userId)
-        if (!safeUserId) return []
+  async getTopicBreakdown(userId: string) {
+    return this.execute(
+      'MOCK_TEST_ANALYTICS_READ_FAILED',
+      'Failed to read mock test topic breakdown',
+      async () => {
+        const safeUserId = this.toObjectId(userId)
+
+        if (!safeUserId) {
+          return []
+        }
 
         const attempts = await MockTestAttemptModel.find({
           userId: safeUserId,
           status: 'completed',
+          deletedAt: null,
         })
           .populate('testId', 'tags')
           .lean()
 
-        const topicData: Record<string, { total: number; scoreSum: number }> = {}
+        const topicData: Record<string, { total: number; scoreSum: number }> =
+          {}
 
         for (const attempt of attempts as RawMockTestAttemptDoc[]) {
-          const testDoc = isRecord(attempt.testId) ? attempt.testId : null
-          const tags = Array.isArray(testDoc?.tags) ? (testDoc.tags as string[]) : []
+          const testDoc = this.mapper.isRecord(attempt.testId)
+            ? attempt.testId
+            : null
+
+          const tags =
+            testDoc && Array.isArray(testDoc['tags'])
+              ? (testDoc['tags'] as string[])
+              : []
 
           for (const tag of tags) {
-            topicData[tag] ||= { total: 0, scoreSum: 0 }
+            topicData[tag] ||= {
+              total: 0,
+              scoreSum: 0,
+            }
             topicData[tag].total += 1
             topicData[tag].scoreSum += attempt.scorePercentage || 0
           }
@@ -872,343 +1111,389 @@ export class MongoMockTestsRepository implements MockTestsRepositoryContract {
             averageScore: Math.round(data.scoreSum / data.total),
             totalAttempts: data.total,
           }))
-          .sort((a, b) => a.averageScore - b.averageScore)
+          .sort((first, second) => first.averageScore - second.averageScore)
       },
+    )
+  }
 
-      updateAnalyticsSnapshot: async (testId) => {
-        const safeTestId = toObjectId(testId)
-        if (!safeTestId) return
+  async updateAnalyticsSnapshot(testId: string) {
+    return this.execute(
+      'MOCK_TEST_ANALYTICS_WRITE_FAILED',
+      'Failed to update mock test analytics snapshot',
+      async () => {
+        const safeTestId = this.toObjectId(testId)
 
-        const aggregation = await MockTestAttemptModel.aggregate<AnalyticsSnapshotAggregation>([
-          {
-            $match: {
-              testId: safeTestId,
-              status: 'completed',
+        if (!safeTestId) {
+          return
+        }
+
+        const aggregation =
+          await MockTestAttemptModel.aggregate<AnalyticsSnapshotAggregation>([
+            {
+              $match: {
+                testId: safeTestId,
+                status: 'completed',
+                deletedAt: null,
+              },
             },
-          },
-          {
-            $group: {
-              _id: null,
-              totalAttempts: { $sum: 1 },
-              averageScore: { $avg: '$scorePercentage' },
-              passCount: { $sum: { $cond: ['$passed', 1, 0] } },
-              averageTimeTaken: { $avg: '$timeTakenSeconds' },
+            {
+              $group: {
+                _id: null,
+                totalAttempts: { $sum: 1 },
+                averageScore: { $avg: '$scorePercentage' },
+                passCount: { $sum: { $cond: ['$passed', 1, 0] } },
+                averageTimeTaken: { $avg: '$timeTakenSeconds' },
+              },
             },
-          },
-        ])
+          ])
 
-        if (!aggregation.length) return
+        if (!aggregation.length) {
+          return
+        }
 
         const data = aggregation[0]
 
         await MockTestAnalyticsSnapshotModel.findOneAndUpdate(
-          { testId: safeTestId },
           {
-            totalAttempts: data.totalAttempts,
-            averageScore: Math.round(data.averageScore),
-            passRate: Math.round((data.passCount / data.totalAttempts) * 100),
-            averageTimeTakenSeconds: Math.round(data.averageTimeTaken || 0),
+            testId: safeTestId,
           },
-          { upsert: true, new: true },
+          {
+            $set: {
+              totalAttempts: data.totalAttempts,
+              averageScore: Math.round(data.averageScore),
+              passRate: Math.round((data.passCount / data.totalAttempts) * 100),
+              averageTimeTakenSeconds: Math.round(data.averageTimeTaken || 0),
+            },
+          },
+          {
+            upsert: true,
+            new: true,
+          },
         )
 
         await MockTestModel.findOneAndUpdate(
-          { _id: safeTestId },
           {
-            averageScore: Math.round(data.averageScore),
-            attemptCount: data.totalAttempts,
+            _id: safeTestId,
+            deletedAt: null,
+          },
+          {
+            $set: {
+              averageScore: Math.round(data.averageScore),
+              attemptCount: data.totalAttempts,
+            },
           },
         )
       },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
 
-      findCreationSession: async (sessionId) => {
-        const safeSessionId = toObjectId(sessionId)
-        if (!safeSessionId) return null
+  async findCreationSession(sessionId: string) {
+    return this.execute(
+      'MOCK_TEST_CREATION_SESSION_READ_FAILED',
+      'Failed to read mock test creation session',
+      async () => {
+        const safeSessionId = this.toObjectId(sessionId)
 
-        const doc = await MockTestCreationSessionModel.findOne({ _id: safeSessionId }).lean()
-        return doc ? this.toMockTestCreationSessionEntity(doc as RawMockTestCreationSessionDoc) : null
+        if (!safeSessionId) {
+          return null
+        }
+
+        const doc = await MockTestCreationSessionModel.findOne({
+          _id: safeSessionId,
+          deletedAt: null,
+        }).lean()
+
+        return doc
+          ? this.mapper.toMockTestCreationSessionEntity(
+              doc as RawMockTestCreationSessionDoc,
+            )
+          : null
       },
+    )
+  }
 
-      findActiveCreationSession: async (userId) => {
-        const safeUserId = toObjectId(userId)
-        if (!safeUserId) return null
+  async findActiveCreationSession(userId: string) {
+    return this.execute(
+      'MOCK_TEST_CREATION_SESSION_READ_FAILED',
+      'Failed to read active mock test creation session',
+      async () => {
+        const safeUserId = this.toObjectId(userId)
+
+        if (!safeUserId) {
+          return null
+        }
 
         const doc = await MockTestCreationSessionModel.findOne({
           userId: safeUserId,
           status: 'draft',
+          deletedAt: null,
         }).lean()
 
-        return doc ? this.toMockTestCreationSessionEntity(doc as RawMockTestCreationSessionDoc) : null
+        return doc
+          ? this.mapper.toMockTestCreationSessionEntity(
+              doc as RawMockTestCreationSessionDoc,
+            )
+          : null
       },
+    )
+  }
 
-      createCreationSession: async (userId) =>
-        this.toMockTestCreationSessionEntity(
-          (
-            await MockTestCreationSessionModel.create({
-              userId,
-              status: 'draft',
-              step: 1,
-              draftData: {},
-            })
-          ).toObject() as RawMockTestCreationSessionDoc,
-        ),
+  async createCreationSession(data: CreateMockTestCreationSessionInput) {
+    return this.execute(
+      'MOCK_TEST_CREATION_SESSION_WRITE_FAILED',
+      'Failed to create mock test creation session',
+      async () => {
+        const doc = await MockTestCreationSessionModel.create({
+          userId: data.userId,
+          status: 'draft',
+          step: 1,
+          draftData: {},
+        })
 
-      updateCreationSession: async (sessionId, data) => {
-        const safeSessionId = toObjectId(sessionId)
-        if (!safeSessionId) return null
+        return this.mapper.toMockTestCreationSessionEntity(
+          doc.toObject() as RawMockTestCreationSessionDoc,
+        )
+      },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
+
+  async updateCreationSession(
+    sessionId: string,
+    data: UpdateMockTestCreationSessionInput,
+  ) {
+    return this.execute(
+      'MOCK_TEST_CREATION_SESSION_WRITE_FAILED',
+      'Failed to update mock test creation session',
+      async () => {
+        const safeSessionId = this.toObjectId(sessionId)
+
+        if (!safeSessionId) {
+          return null
+        }
+
+        const update = this.buildMockTestCreationSessionUpdate(data)
+
+        if (Object.keys(update.$set).length === 0) {
+          const existingDoc = await MockTestCreationSessionModel.findOne({
+            _id: safeSessionId,
+            deletedAt: null,
+          }).lean()
+
+          return existingDoc
+            ? this.mapper.toMockTestCreationSessionEntity(
+                existingDoc as RawMockTestCreationSessionDoc,
+              )
+            : null
+        }
 
         const doc = await MockTestCreationSessionModel.findOneAndUpdate(
-          { _id: safeSessionId },
-          data,
-          { new: true },
+          {
+            _id: safeSessionId,
+            deletedAt: null,
+          },
+          update,
+          {
+            new: true,
+          },
         ).lean()
 
-        return doc ? this.toMockTestCreationSessionEntity(doc as RawMockTestCreationSessionDoc) : null
+        return doc
+          ? this.mapper.toMockTestCreationSessionEntity(
+              doc as RawMockTestCreationSessionDoc,
+            )
+          : null
       },
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+    )
+  }
 
-      cancelCreationSession: async (sessionId) => {
-        const safeSessionId = toObjectId(sessionId)
-        if (!safeSessionId) return
+  async cancelCreationSession(sessionId: string) {
+    return this.execute(
+      'MOCK_TEST_CREATION_SESSION_WRITE_FAILED',
+      'Failed to cancel mock test creation session',
+      async () => {
+        const safeSessionId = this.toObjectId(sessionId)
+
+        if (!safeSessionId) {
+          return
+        }
 
         await MockTestCreationSessionModel.findOneAndUpdate(
-          { _id: safeSessionId },
-          { status: 'cancelled' },
-        )
-      },
-      findSharedTestByToken: async (shareToken) => {
-        const doc = await MockTestModel.findOne({
-          shareToken,
-          isShareEnabled: true,
-        }).lean()
-
-        return doc ? this.toMockTestEntity(doc as RawMockTestDoc) : null
-      },
-
-      findImportedSharedTest: async (ownerId, sourceTestId) => {
-        const safeOwnerId = toObjectId(ownerId)
-        const safeSourceTestId = toObjectId(sourceTestId)
-
-        if (!safeOwnerId || !safeSourceTestId) return null
-
-        const doc = await MockTestModel.findOne({
-          ownerId: safeOwnerId,
-          sourceTestId: safeSourceTestId,
-        }).lean()
-
-        return doc ? this.toMockTestEntity(doc as RawMockTestDoc) : null
-      },
-
-      enableTestSharing: async (ownerId, testId, shareToken) => {
-        const safeOwnerId = toObjectId(ownerId)
-        const safeTestId = toObjectId(testId)
-
-        if (!safeOwnerId || !safeTestId) return null
-
-        const doc = await MockTestModel.findOneAndUpdate(
           {
-            _id: safeTestId,
-            ownerId: safeOwnerId,
+            _id: safeSessionId,
+            deletedAt: null,
           },
           {
-            shareToken,
-            isShareEnabled: true,
+            $set: {
+              status: 'cancelled',
+              cancelledAt: new Date(),
+            },
           },
-          { new: true },
-        ).lean()
-
-        return doc ? this.toMockTestEntity(doc as RawMockTestDoc) : null
-      },
-
-      incrementCloneCount: async (testId) => {
-        const safeTestId = toObjectId(testId)
-
-        if (!safeTestId) return
-
-        await MockTestModel.findOneAndUpdate(
-          { _id: safeTestId },
-          { $inc: { cloneCount: 1 } },
         )
       },
+    )
+  }
+
+  private buildMockTestUpdate(data: UpdateMockTestInput): {
+    $set: Record<string, unknown>
+  } {
+    const $set: Record<string, unknown> = {}
+
+    this.setIfDefined($set, data, 'title')
+    this.setIfDefined($set, data, 'description')
+    this.setIfDefined($set, data, 'difficulty')
+    this.setIfDefined($set, data, 'visibility')
+    this.setIfDefined($set, data, 'timeLimitMinutes')
+    this.setIfDefined($set, data, 'passingScore')
+    this.setIfDefined($set, data, 'questionCount')
+    this.setIfDefined($set, data, 'tags')
+    this.setIfDefined($set, data, 'trackerId')
+    this.setIfDefined($set, data, 'sourceTestId')
+    this.setIfDefined($set, data, 'shareToken')
+    this.setIfDefined($set, data, 'isShareEnabled')
+    this.setIfDefined($set, data, 'isAIGenerated')
+    this.setIfDefined($set, data, 'cloneCount')
+
+    return {
+      $set,
     }
   }
-  findTestById: MockTestsRepositoryContract['findTestById'] = (...args) => this.execute(() =>
-    this.implementation.findTestById(...args),
-  )
 
-  findTestsByOwner: MockTestsRepositoryContract['findTestsByOwner'] = (...args) => this.execute(() =>
-    this.implementation.findTestsByOwner(...args),
-  )
+  private buildMockTestAttemptUpdate(data: UpdateMockTestAttemptInput): {
+    $set: Record<string, unknown>
+  } {
+    const $set: Record<string, unknown> = {}
+    const source = data as Record<string, unknown>
 
-  findPublicTests: MockTestsRepositoryContract['findPublicTests'] = (...args) => this.execute(() =>
-    this.implementation.findPublicTests(...args),
-  )
+    this.setIfDefined($set, source, 'status')
+    this.setIfDefined($set, source, 'score')
+    this.setIfDefined($set, source, 'maxScore')
+    this.setIfDefined($set, source, 'scorePercentage')
+    this.setIfDefined($set, source, 'passed')
+    this.setIfDefined($set, source, 'answeredQuestions')
+    this.setIfDefined($set, source, 'correctAnswers')
+    this.setIfDefined($set, source, 'flaggedQuestions')
+    this.setIfDefined($set, source, 'startedAt')
+    this.setIfDefined($set, source, 'completedAt')
+    this.setIfDefined($set, source, 'abandonedAt')
+    this.setIfDefined($set, source, 'timeTakenSeconds')
 
-  findSharedTestByToken: MockTestsRepositoryContract['findSharedTestByToken'] = (...args) => this.execute(() =>
-    this.implementation.findSharedTestByToken(...args),
-  )
-
-  findImportedSharedTest: MockTestsRepositoryContract['findImportedSharedTest'] = (...args) => this.execute(() =>
-    this.implementation.findImportedSharedTest(...args),
-  )
-
-  enableTestSharing: MockTestsRepositoryContract['enableTestSharing'] = (...args) => this.execute(() =>
-    this.implementation.enableTestSharing(...args),
-  )
-
-  incrementCloneCount: MockTestsRepositoryContract['incrementCloneCount'] = (...args) => this.execute(() =>
-    this.implementation.incrementCloneCount(...args),
-  )
-
-  createTest: MockTestsRepositoryContract['createTest'] = (...args) => this.execute(() =>
-    this.implementation.createTest(...args),
-  )
-
-  updateTest: MockTestsRepositoryContract['updateTest'] = (...args) => this.execute(() =>
-    this.implementation.updateTest(...args),
-  )
-
-  deleteTest: MockTestsRepositoryContract['deleteTest'] = (...args) => this.execute(() =>
-    this.implementation.deleteTest(...args),
-  )
-
-  findQuestionsByTest: MockTestsRepositoryContract['findQuestionsByTest'] = (...args) => this.execute(() =>
-    this.implementation.findQuestionsByTest(...args),
-  )
-
-  findQuestionById: MockTestsRepositoryContract['findQuestionById'] = (...args) => this.execute(() =>
-    this.implementation.findQuestionById(...args),
-  )
-
-  createQuestions: MockTestsRepositoryContract['createQuestions'] = (...args) => this.execute(() =>
-    this.implementation.createQuestions(...args),
-  )
-
-  findAttemptById: MockTestsRepositoryContract['findAttemptById'] = (...args) => this.execute(() =>
-    this.implementation.findAttemptById(...args),
-  )
-
-  findAttemptsByUser: MockTestsRepositoryContract['findAttemptsByUser'] = (...args) => this.execute(() =>
-    this.implementation.findAttemptsByUser(...args),
-  )
-
-  findLatestAttemptsForTests: MockTestsRepositoryContract['findLatestAttemptsForTests'] = (...args) => this.execute(() =>
-    this.implementation.findLatestAttemptsForTests(...args),
-  )
-
-  findActiveAttempt: MockTestsRepositoryContract['findActiveAttempt'] = (...args) => this.execute(() =>
-    this.implementation.findActiveAttempt(...args),
-  )
-
-  createAttempt: MockTestsRepositoryContract['createAttempt'] = (...args) => this.execute(() =>
-    this.implementation.createAttempt(...args),
-  )
-
-  updateAttempt: MockTestsRepositoryContract['updateAttempt'] = (...args) => this.execute(() =>
-    this.implementation.updateAttempt(...args),
-  )
-
-  incrementAnsweredCount: MockTestsRepositoryContract['incrementAnsweredCount'] = (...args) => this.execute(() =>
-    this.implementation.incrementAnsweredCount(...args),
-  )
-
-  abandonActiveAttempts: MockTestsRepositoryContract['abandonActiveAttempts'] = (...args) => this.execute(() =>
-    this.implementation.abandonActiveAttempts(...args),
-  )
-
-  findAnswersByAttempt: MockTestsRepositoryContract['findAnswersByAttempt'] = (...args) => this.execute(() =>
-    this.implementation.findAnswersByAttempt(...args),
-  )
-
-  findAnswerByQuestion: MockTestsRepositoryContract['findAnswerByQuestion'] = (...args) => this.execute(() =>
-    this.implementation.findAnswerByQuestion(...args),
-  )
-
-  saveAnswer: MockTestsRepositoryContract['saveAnswer'] = (...args) => this.execute(() =>
-    this.implementation.saveAnswer(...args),
-  )
-
-  updateAnswer: MockTestsRepositoryContract['updateAnswer'] = (...args) => this.execute(() =>
-    this.implementation.updateAnswer(...args),
-  )
-
-  flagQuestion: MockTestsRepositoryContract['flagQuestion'] = (...args) => this.execute(() =>
-    this.implementation.flagQuestion(...args),
-  )
-
-  unflagQuestion: MockTestsRepositoryContract['unflagQuestion'] = (...args) => this.execute(() =>
-    this.implementation.unflagQuestion(...args),
-  )
-
-  createAIEvaluation: MockTestsRepositoryContract['createAIEvaluation'] = (...args) => this.execute(() =>
-    this.implementation.createAIEvaluation(...args),
-  )
-
-  findAIEvaluationsByAttempt: MockTestsRepositoryContract['findAIEvaluationsByAttempt'] = (...args) => this.execute(() =>
-    this.implementation.findAIEvaluationsByAttempt(...args),
-  )
-
-  findReportByAttempt: MockTestsRepositoryContract['findReportByAttempt'] = (...args) => this.execute(() =>
-    this.implementation.findReportByAttempt(...args),
-  )
-
-  createReport: MockTestsRepositoryContract['createReport'] = (...args) => this.execute(() =>
-    this.implementation.createReport(...args),
-  )
-
-  getAttemptHistory: MockTestsRepositoryContract['getAttemptHistory'] = (...args) => this.execute(() =>
-    this.implementation.getAttemptHistory(...args),
-  )
-
-  getUserSummary: MockTestsRepositoryContract['getUserSummary'] = (...args) => this.execute(() =>
-    this.implementation.getUserSummary(...args),
-  )
-
-  getPerformanceTrends: MockTestsRepositoryContract['getPerformanceTrends'] = (...args) => this.execute(() =>
-    this.implementation.getPerformanceTrends(...args),
-  )
-
-  getTopicBreakdown: MockTestsRepositoryContract['getTopicBreakdown'] = (...args) => this.execute(() =>
-    this.implementation.getTopicBreakdown(...args),
-  )
-
-  updateAnalyticsSnapshot: MockTestsRepositoryContract['updateAnalyticsSnapshot'] = (...args) => this.execute(() =>
-    this.implementation.updateAnalyticsSnapshot(...args),
-  )
-
-  findCreationSession: MockTestsRepositoryContract['findCreationSession'] = (...args) => this.execute(() =>
-    this.implementation.findCreationSession(...args),
-  )
-
-  findActiveCreationSession: MockTestsRepositoryContract['findActiveCreationSession'] = (...args) => this.execute(() =>
-    this.implementation.findActiveCreationSession(...args),
-  )
-
-  createCreationSession: MockTestsRepositoryContract['createCreationSession'] = (...args) => this.execute(() =>
-    this.implementation.createCreationSession(...args),
-  )
-
-  updateCreationSession: MockTestsRepositoryContract['updateCreationSession'] = (...args) => this.execute(() =>
-    this.implementation.updateCreationSession(...args),
-  )
-
-  cancelCreationSession: MockTestsRepositoryContract['cancelCreationSession'] = (...args) => this.execute(() =>
-    this.implementation.cancelCreationSession(...args),
-  )
-
-
-  private async execute<T>(operation: () => Promise<T>): Promise<T> {
-    try {
-      return await operation()
-    } catch (error) {
-      if (error instanceof MockTestsDomainError) {
-        throw error
-      }
-
-      throw new MockTestsDomainError(
-        'PERSISTENCE_ERROR',
-        'Mock test persistence operation failed',
-      )
+    if (source['percentage'] !== undefined) {
+      $set.scorePercentage = source['percentage']
     }
+
+    if (source['answeredCount'] !== undefined) {
+      $set.answeredQuestions = source['answeredCount']
+    }
+
+    if (source['correctCount'] !== undefined) {
+      $set.correctAnswers = source['correctCount']
+    }
+
+    if (source['timeSpentSeconds'] !== undefined) {
+      $set.timeTakenSeconds = source['timeSpentSeconds']
+    }
+
+    return {
+      $set,
+    }
+  }
+
+  private buildMockTestAnswerUpdate(data: UpdateMockTestAnswerInput): {
+    $set: Record<string, unknown>
+  } {
+    const $set: Record<string, unknown> = {}
+
+    this.setIfDefined($set, data, 'answer')
+    this.setIfDefined($set, data, 'isCorrect')
+    this.setIfDefined($set, data, 'pointsEarned')
+
+    return {
+      $set,
+    }
+  }
+
+  private buildMockTestCreationSessionUpdate(
+    data: UpdateMockTestCreationSessionInput,
+  ): {
+    $set: Record<string, unknown>
+  } {
+    const $set: Record<string, unknown> = {}
+    const source = data as Record<string, unknown>
+
+    this.setIfDefined($set, source, 'title')
+    this.setIfDefined($set, source, 'description')
+    this.setIfDefined($set, source, 'difficulty')
+    this.setIfDefined($set, source, 'visibility')
+    this.setIfDefined($set, source, 'timeLimitMinutes')
+    this.setIfDefined($set, source, 'passingScore')
+    this.setIfDefined($set, source, 'questionCount')
+    this.setIfDefined($set, source, 'tags')
+    this.setIfDefined($set, source, 'trackerId')
+    this.setIfDefined($set, source, 'generatedTestId')
+    this.setIfDefined($set, source, 'status')
+    this.setIfDefined($set, source, 'completedAt')
+    this.setIfDefined($set, source, 'cancelledAt')
+
+    this.setIfDefined($set, source, 'step')
+    this.setIfDefined($set, source, 'draftData')
+
+    return {
+      $set,
+    }
+  }
+
+  private setIfDefined(
+    target: Record<string, unknown>,
+    source: Record<string, unknown>,
+    key: string,
+  ): void {
+    if (source[key] !== undefined) {
+      target[key] = source[key]
+    }
+  }
+
+  private async findPublicTestDocsByDifficulty(
+    difficulty?: DifficultyLevel,
+  ): Promise<RawMockTestDoc[]> {
+    if (difficulty === 'easy') {
+      return (await MockTestModel.find({
+        visibility: 'public',
+        difficulty: 'easy',
+        deletedAt: null,
+      })
+        .sort({ createdAt: -1 })
+        .lean()) as RawMockTestDoc[]
+    }
+
+    if (difficulty === 'medium') {
+      return (await MockTestModel.find({
+        visibility: 'public',
+        difficulty: 'medium',
+        deletedAt: null,
+      })
+        .sort({ createdAt: -1 })
+        .lean()) as RawMockTestDoc[]
+    }
+
+    if (difficulty === 'hard') {
+      return (await MockTestModel.find({
+        visibility: 'public',
+        difficulty: 'hard',
+        deletedAt: null,
+      })
+        .sort({ createdAt: -1 })
+        .lean()) as RawMockTestDoc[]
+    }
+
+    return (await MockTestModel.find({
+      visibility: 'public',
+      deletedAt: null,
+    })
+      .sort({ createdAt: -1 })
+      .lean()) as RawMockTestDoc[]
   }
 }
 

@@ -2,7 +2,7 @@ import type { MockTestEntity } from '../entities/mock-test.entity'
 import type { DifficultyLevel } from '../value-objects/difficulty-level.vo'
 import type { TestVisibility } from '../value-objects/test-visibility.vo'
 
-export interface CreateMockTestInput {
+export type CreateMockTestInput = {
   ownerId: string
   title: string
   description: string
@@ -19,21 +19,58 @@ export interface CreateMockTestInput {
   isAIGenerated: boolean
 }
 
-export interface FindMockTestsOptions {
+export type FindMockTestsByOwnerInput = {
+  ownerId: string
   page?: number
   limit?: number
 }
 
-export interface FindPublicMockTestsFilters extends FindMockTestsOptions {
+export type FindPublicMockTestsInput = {
+  page?: number
+  limit?: number
   difficulty?: DifficultyLevel
   tags?: string[]
 }
 
+export type UpdateMockTestInput = {
+  title?: string
+  description?: string
+  difficulty?: DifficultyLevel
+  visibility?: TestVisibility
+  timeLimitMinutes?: number
+  passingScore?: number
+  questionCount?: number
+  tags?: string[]
+  trackerId?: string
+  sourceTestId?: string
+  shareToken?: string
+  isShareEnabled?: boolean
+  isAIGenerated?: boolean
+  cloneCount?: number
+}
+
+export type MockTestListResult = {
+  tests: MockTestEntity[]
+  total: number
+}
+
 export interface MockTestRepositoryContract {
   findTestById(testId: string): Promise<MockTestEntity | null>
-  findTestsByOwner(ownerId: string, options?: FindMockTestsOptions): Promise<{ tests: MockTestEntity[]; total: number }>
-  findPublicTests(filters: FindPublicMockTestsFilters): Promise<{ tests: MockTestEntity[]; total: number }>
+
+  findTestsByOwner(
+    input: FindMockTestsByOwnerInput
+  ): Promise<MockTestListResult>
+
+  findPublicTests(
+    input: FindPublicMockTestsInput
+  ): Promise<MockTestListResult>
+
   createTest(data: CreateMockTestInput): Promise<MockTestEntity>
-  updateTest(testId: string, data: Partial<MockTestEntity>): Promise<MockTestEntity | null>
+
+  updateTest(
+    testId: string,
+    data: UpdateMockTestInput
+  ): Promise<MockTestEntity | null>
+
   deleteTest(testId: string): Promise<void>
 }

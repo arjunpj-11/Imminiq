@@ -1,6 +1,6 @@
 import type { MockTestAIEvaluationEntity } from '../entities/mock-test-ai-evaluation.entity'
 
-export interface CreateMockTestAIEvaluationInput {
+export type CreateMockTestAIEvaluationInput = {
   attemptId: string
   questionId: string
   answerId: string
@@ -10,6 +10,11 @@ export interface CreateMockTestAIEvaluationInput {
 }
 
 export interface MockTestAIEvaluationRepositoryContract {
-  createAIEvaluation(data: CreateMockTestAIEvaluationInput): Promise<MockTestAIEvaluationEntity>
-  findAIEvaluationsByAttempt(attemptId: string): Promise<MockTestAIEvaluationEntity[]>
+  createAIEvaluation(
+    data: CreateMockTestAIEvaluationInput
+  ): Promise<MockTestAIEvaluationEntity>
+
+  findAIEvaluationsByAttempt(
+    attemptId: string
+  ): Promise<MockTestAIEvaluationEntity[]>
 }

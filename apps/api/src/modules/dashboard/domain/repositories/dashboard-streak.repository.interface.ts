@@ -1,11 +1,15 @@
 import type { DashboardActivityIntensityEntity } from '../entities/dashboard-activity-intensity.entity'
 import type { DashboardStreakEntity } from '../entities/dashboard-streak.entity'
 
+export type GetActivityIntensityInput = {
+  userId: string
+  months?: number
+}
+
 export interface DashboardStreakRepositoryContract {
   getStreakData(userId: string): Promise<DashboardStreakEntity>
 
   getActivityIntensity(
-    userId: string,
-    months?: number
+    input: GetActivityIntensityInput
   ): Promise<DashboardActivityIntensityEntity[]>
 }

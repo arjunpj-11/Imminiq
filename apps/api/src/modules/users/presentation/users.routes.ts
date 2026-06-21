@@ -3,29 +3,62 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { usersController } from './users.controller'
+import { USER_ROUTE_PATHS } from './users.route.constants'
 import { updateMyProfileSchema } from './users.schema'
 
 const router = Router()
 
 // ─── PUBLIC ──────────────────────────────────────────────────
 
-router.get('/:username/public-profile', usersController.getPublicProfile)
+router.get(
+  USER_ROUTE_PATHS.PUBLIC_PROFILE,
+  usersController.getPublicProfile
+)
 
 // ─── PROTECTED ───────────────────────────────────────────────
 
 router.use(authenticate)
-router.get('/me', usersController.getMe)
-router.patch(
-  '/me',
-  validate(updateMyProfileSchema),
-  usersController.updateMe,
+
+router.get(
+  USER_ROUTE_PATHS.ME,
+  usersController.getMe
 )
-router.get('/me/stats', usersController.getMyStats)
-router.get('/me/activity', usersController.getMyActivity)
-router.get('/me/recent-activity', usersController.getMyRecentActivity)
-router.get('/me/streak', usersController.getMyStreak)
-router.get('/me/published-trackers', usersController.getMyPublishedTrackers)
-router.get('/me/badges', usersController.getMyBadges)
+
+router.patch(
+  USER_ROUTE_PATHS.ME,
+  validate(updateMyProfileSchema),
+  usersController.updateMe
+)
+
+router.get(
+  USER_ROUTE_PATHS.MY_STATS,
+  usersController.getMyStats
+)
+
+router.get(
+  USER_ROUTE_PATHS.MY_ACTIVITY,
+  usersController.getMyActivity
+)
+
+router.get(
+  USER_ROUTE_PATHS.MY_RECENT_ACTIVITY,
+  usersController.getMyRecentActivity
+)
+
+router.get(
+  USER_ROUTE_PATHS.MY_STREAK,
+  usersController.getMyStreak
+)
+
+router.get(
+  USER_ROUTE_PATHS.MY_PUBLISHED_TRACKERS,
+  usersController.getMyPublishedTrackers
+)
+
+router.get(
+  USER_ROUTE_PATHS.MY_BADGES,
+  usersController.getMyBadges
+)
 
 export default router
 export { router as usersRoutes }

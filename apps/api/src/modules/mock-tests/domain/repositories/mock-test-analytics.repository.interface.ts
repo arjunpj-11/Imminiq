@@ -7,8 +7,12 @@ import type {
 
 export interface MockTestAnalyticsRepositoryContract {
   getAttemptHistory(userId: string): Promise<MockTestAttemptHistoryItem[]>
+
   getUserSummary(userId: string): Promise<MockTestSummary>
+
   getPerformanceTrends(userId: string): Promise<MockTestPerformanceTrend[]>
+
   getTopicBreakdown(userId: string): Promise<MockTestTopicBreakdown[]>
+
   updateAnalyticsSnapshot(testId: string): Promise<void>
 }

@@ -1,14 +1,28 @@
 import type { UserActivityEntity } from '../entities/user-activity.entity'
 import type { UserIdInput } from '../value-objects/user-id.vo'
 
+export type UserActivityListResult = {
+  items: UserActivityEntity[]
+  total: number
+}
+
+export type FindUserActivityFeedInput = {
+  userId: UserIdInput
+  page?: number
+  limit?: number
+}
+
+export type FindRecentUserActivityInput = {
+  userId: UserIdInput
+  limit?: number
+}
+
 export interface UserActivityRepositoryContract {
   findActivityFeed(
-    userId: UserIdInput,
-    page?: number,
-    limit?: number,
-  ): Promise<{ items: UserActivityEntity[]; total: number }>
+    input: FindUserActivityFeedInput
+  ): Promise<UserActivityListResult>
+
   findRecentActivity(
-    userId: UserIdInput,
-    limit?: number,
+    input: FindRecentUserActivityInput
   ): Promise<UserActivityEntity[]>
 }

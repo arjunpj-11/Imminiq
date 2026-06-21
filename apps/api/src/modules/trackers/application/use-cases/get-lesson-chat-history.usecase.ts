@@ -1,8 +1,9 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import { TrackerMapperContract } from '../mappers'
 
 export class GetLessonChatHistoryUseCase {
-  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
+  constructor(private readonly trackerRepository: TrackerRepositoryContract, private readonly trackerMapper: TrackerMapperContract) {}
 
   async execute(input: {
     trackerId: string
@@ -18,9 +19,11 @@ export class GetLessonChatHistoryUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerRepository.getLessonChatMessages({
+    const chatMessages = await this.trackerRepository.getLessonChatMessages({
       ...input,
       scope: 'lesson_doubt_chat',
     })
+
+    return this.trackerMapper.toLessonChatHistoryDto(chatMessages)
   }
 }

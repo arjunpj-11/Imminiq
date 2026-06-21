@@ -5,11 +5,7 @@ import type {
   NextFunction,
 } from 'express'
 
-import { authService, type AuthService } from '../auth.service'
-import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { ApiError } from '../../../shared/utils/ApiError'
 import { env } from '../../../config/env'
-import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import {
   clearCsrfCookie,
   setCsrfCookie,
@@ -18,6 +14,11 @@ import {
   decryptAuthCookieToken,
   encryptAuthCookieToken,
 } from '../../../shared/security/auth-cookie-token.util'
+import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
+import { ApiError } from '../../../shared/utils/ApiError'
+import { ApiResponse } from '../../../shared/utils/ApiResponse'
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
+import { authService, type AuthService } from '../auth.service'
 import type { OAuthLoginUser } from '../auth.service'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
@@ -65,9 +66,14 @@ export class AuthController {
     try {
       const result = await this.service.register(req.body)
 
-      res.status(201).json(
-        new ApiResponse('Account created. Please verify your account.', result)
-      )
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(
+          new ApiResponse(
+            'Account created. Please verify your account.',
+            result
+          )
+        )
     } catch (error) {
       next(error)
     }
@@ -81,26 +87,19 @@ export class AuthController {
       )
 
       if (result.requiresTwoFactor === true) {
-        this.setTwoFactorChallengeCookies(
-          res,
-          result.challengeToken
-        )
+        this.setTwoFactorChallengeCookies(res, result.challengeToken)
 
         res.json(
           new ApiResponse('Two-factor verification required', {
             requiresTwoFactor: true,
-            challengeExpiresInMinutes:
-              result.challengeExpiresInMinutes,
+            challengeExpiresInMinutes: result.challengeExpiresInMinutes,
           })
         )
 
         return
       }
 
-      this.setRefreshSessionCookies(
-        res,
-        result.tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, result.tokens.refreshToken)
 
       res.json(
         new ApiResponse('Login successful', {
@@ -126,15 +125,14 @@ export class AuthController {
     next: NextFunction
   ) => {
     try {
-      const challengeToken =
-        this.decryptRequiredCookie(
-          req,
-          TWO_FACTOR_CHALLENGE_COOKIE_NAME,
-          'Two-factor challenge is missing. Please sign in again.',
-          'TWO_FACTOR_CHALLENGE_MISSING',
-          'Two-factor challenge is invalid. Please sign in again.',
-          'TWO_FACTOR_CHALLENGE_INVALID'
-        )
+      const challengeToken = this.decryptRequiredCookie(
+        req,
+        TWO_FACTOR_CHALLENGE_COOKIE_NAME,
+        'Two-factor challenge is missing. Please sign in again.',
+        'TWO_FACTOR_CHALLENGE_MISSING',
+        'Two-factor challenge is invalid. Please sign in again.',
+        'TWO_FACTOR_CHALLENGE_INVALID'
+      )
 
       const result = await this.service.verifyTwoFactorLogin(
         challengeToken,
@@ -142,10 +140,7 @@ export class AuthController {
         this.getRequestMeta(req)
       )
 
-      this.setRefreshSessionCookies(
-        res,
-        result.tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, result.tokens.refreshToken)
 
       res
         .clearCookie(
@@ -176,13 +171,11 @@ export class AuthController {
 
   logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const encryptedRefreshToken =
-        req.cookies?.[REFRESH_COOKIE_NAME]
+      const encryptedRefreshToken = req.cookies?.[REFRESH_COOKIE_NAME]
 
       if (typeof encryptedRefreshToken === 'string') {
         try {
-          const refreshToken =
-            decryptAuthCookieToken(encryptedRefreshToken)
+          const refreshToken = decryptAuthCookieToken(encryptedRefreshToken)
 
           await this.service.logout(refreshToken)
         } catch {
@@ -212,25 +205,21 @@ export class AuthController {
 
   refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const refreshToken =
-        this.decryptRequiredCookie(
-          req,
-          REFRESH_COOKIE_NAME,
-          'No refresh token',
-          'NO_REFRESH_TOKEN',
-          'Refresh token cookie is invalid',
-          'INVALID_REFRESH_COOKIE'
-        )
+      const refreshToken = this.decryptRequiredCookie(
+        req,
+        REFRESH_COOKIE_NAME,
+        'No refresh token',
+        'NO_REFRESH_TOKEN',
+        'Refresh token cookie is invalid',
+        'INVALID_REFRESH_COOKIE'
+      )
 
       const tokens = await this.service.refreshTokens(
         refreshToken,
         this.getRequestMeta(req)
       )
 
-      this.setRefreshSessionCookies(
-        res,
-        tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, tokens.refreshToken)
 
       res.json(
         new ApiResponse('Token refreshed', {
@@ -395,7 +384,7 @@ export class AuthController {
 
       if (!sessionId || Array.isArray(sessionId)) {
         throw new ApiError(
-          400,
+          HttpStatusCode.BAD_REQUEST,
           'Session ID is required',
           'SESSION_ID_REQUIRED'
         )
@@ -409,14 +398,11 @@ export class AuthController {
     }
   }
 
-  oauthCallback = async (
-    req: Request,
-    res: Response,
-  ) => {
+  oauthCallback = async (req: Request, res: Response) => {
     try {
       if (!req.user) {
         throw new ApiError(
-          401,
+          HttpStatusCode.UNAUTHORIZED,
           'OAuth authentication failed',
           'OAUTH_USER_MISSING'
         )
@@ -428,19 +414,13 @@ export class AuthController {
       )
 
       if (result.requiresTwoFactor === true) {
-        this.setTwoFactorChallengeCookies(
-          res,
-          result.challengeToken
-        )
+        this.setTwoFactorChallengeCookies(res, result.challengeToken)
 
         res.redirect(`${env.CLIENT_URL}/two-factor-challenge`)
         return
       }
 
-      this.setRefreshSessionCookies(
-        res,
-        result.tokens.refreshToken
-      )
+      this.setRefreshSessionCookies(res, result.tokens.refreshToken)
 
       res.redirect(`${env.CLIENT_URL}${result.redirectPath}`)
     } catch (error) {
@@ -553,7 +533,7 @@ export class AuthController {
 
     if (typeof encryptedCookieValue !== 'string') {
       throw new ApiError(
-        401,
+        HttpStatusCode.UNAUTHORIZED,
         missingMessage,
         missingCode
       )
@@ -563,7 +543,7 @@ export class AuthController {
       return decryptAuthCookieToken(encryptedCookieValue)
     } catch {
       throw new ApiError(
-        401,
+        HttpStatusCode.UNAUTHORIZED,
         invalidMessage,
         invalidCode
       )

@@ -1,11 +1,19 @@
+// apps/api/src/modules/trackers/application/use-cases/chat-with-lesson-tutor.usecase.ts
+
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+
+type ChatWithLessonTutorResultDto = ReturnType<
+  TrackerMapperContract['toLessonTutorChatResponseDto']
+>
 
 export class ChatWithLessonTutorUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
@@ -16,7 +24,7 @@ export class ChatWithLessonTutorUseCase {
       role: 'user' | 'assistant'
       content: string
     }[]
-  }) {
+  }): Promise<ChatWithLessonTutorResultDto> {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
       input.trackerId,
       input.userId
@@ -33,7 +41,9 @@ export class ChatWithLessonTutorUseCase {
     })
 
     if (!lesson) {
-      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before chatting')
+      throw TrackerApplicationError.lessonNotGenerated(
+        'Generate the lesson before chatting'
+      )
     }
 
     const latestUserMessage = [...input.messages]
@@ -75,8 +85,8 @@ export class ChatWithLessonTutorUseCase {
       })
     }
 
-    return {
+    return this.trackerMapper.toLessonTutorChatResponseDto({
       answer,
-    }
+    })
   }
 }

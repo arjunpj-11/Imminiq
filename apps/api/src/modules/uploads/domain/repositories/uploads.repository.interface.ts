@@ -4,3 +4,13 @@ import type { UploadRecordRepositoryContract } from './upload-record.repository.
 export interface UploadsRepositoryContract
   extends ProfileImageRepositoryContract,
     UploadRecordRepositoryContract {}
+
+export type {
+  SetProfileAvatarUrlInput,
+  SetProfileBannerUrlInput,
+} from './profile-image.repository.interface'
+
+export type {
+  SaveUploadRecordInput,
+  SoftDeleteLatestProfileUploadInput,
+} from './upload-record.repository.interface'

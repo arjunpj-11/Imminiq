@@ -1,11 +1,21 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CreateTopicUseCaseInput } from '../../domain/types/trackers.types'
 
-export class CreateTrackerTopicUseCase {
-  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
+type CreateTrackerTopicResultDto = ReturnType<
+  TrackerMapperContract['toTrackerTopicDto']
+>
 
-  async execute(input: CreateTopicUseCaseInput) {
+export class CreateTrackerTopicUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
+
+  async execute(
+    input: CreateTopicUseCaseInput
+  ): Promise<CreateTrackerTopicResultDto> {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
       input.trackerId,
       input.userId
@@ -28,6 +38,6 @@ export class CreateTrackerTopicUseCase {
 
     await this.trackerRepository.incrementTrackerTopicsCount(input.trackerId)
 
-    return topic
+    return this.trackerMapper.toTrackerTopicDto(topic)
   }
 }

@@ -1,16 +1,25 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 
-export class DeleteTrackerUseCase {
-  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
+type DeleteTrackerResultDto = ReturnType<TrackerMapperContract['toTrackerDto']>
 
-  async execute(input: { trackerId: string; userId: string }) {
+export class DeleteTrackerUseCase {
+  constructor(
+    private readonly trackerRepository: TrackerRepositoryContract,
+    private readonly trackerMapper: TrackerMapperContract
+  ) {}
+
+  async execute(input: {
+    trackerId: string
+    userId: string
+  }): Promise<DeleteTrackerResultDto> {
     const tracker = await this.trackerRepository.softDeleteOwnedTracker(input)
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return tracker
+    return this.trackerMapper.toTrackerDto(tracker)
   }
 }

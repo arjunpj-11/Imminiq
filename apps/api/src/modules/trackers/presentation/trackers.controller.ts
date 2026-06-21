@@ -1,27 +1,9 @@
 import type { NextFunction, Request, Response } from 'express'
 
+import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import { trackerService, type TrackerService } from '../trackers.service'
-import {
-  trackerListQuerySchema,
-  createTrackerSchema,
-  updateTrackerSchema,
-  createTopicSchema,
-  createSubtopicSchema,
-  updateSubtopicProgressSchema,
-  lessonChatSchema,
-  generateLessonQuestionsSchema,
-  lessonQuestionSchema,
-  askLessonQuestionSolutionDoubtSchema,
-  verifyLessonAnswerSchema,
-  runLessonCodeSchema,
-  submitLessonCodeSchema,
-  getCodeHintSchema,
-  getOptimizedSolutionSchema,
-  verifyTopicSchema,
-  verifySubtopicSchema,
-} from './trackers.schema'
 
 type TrackerParams = {
   trackerId: string
@@ -43,6 +25,15 @@ type AddMissingTopicParams = {
   topicIndex: string
 }
 
+type TrackerListQuery = Omit<
+  Parameters<TrackerService['listTrackers']>[0],
+  'userId'
+>
+
+type LessonQuestionQuery = {
+  question: string
+}
+
 type VerifyAnswerResult = {
   isCorrect: boolean
   feedback?: string
@@ -59,31 +50,19 @@ type MissingTopicEvaluationResult = {
 export class TrackerController {
   constructor(private readonly service: TrackerService) {}
 
-  readonly getSummary = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+  getSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.service.getSummary(getAuthUser(req).userId)
 
-      res.json(
-        new ApiResponse(
-          'Tracker summary fetched successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker summary fetched successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly listTrackers = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
+
+  listTrackers = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const query = trackerListQuerySchema.parse(req.query)
+      const query = res.locals.trackerListQuery as TrackerListQuery
 
       const result = await this.service.listTrackers({
         userId: getAuthUser(req).userId,
@@ -94,40 +73,28 @@ export class TrackerController {
         limit: query.limit || 12,
       })
 
-      res.json(
-        new ApiResponse(
-          'Trackers fetched successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Trackers fetched successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly createTracker = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const body = createTrackerSchema.parse(req.body)
 
+  createTracker = async (req: Request, res: Response, next: NextFunction) => {
+    try {
       const result = await this.service.createTracker({
         userId: getAuthUser(req).userId,
-        ...body,
+        ...req.body,
       })
 
-      res.status(201).json(
-        new ApiResponse(
-          'Tracker created successfully',
-          result
-        )
-      )
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Tracker created successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly getTrackerDetails = async (
+
+  getTrackerDetails = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -138,41 +105,31 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Tracker fetched successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker fetched successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly updateTracker = async (
+
+  updateTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = updateTrackerSchema.parse(req.body)
-
       const result = await this.service.updateTracker({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
-        ...body,
+        ...req.body,
       })
 
-      res.json(
-        new ApiResponse(
-          'Tracker updated successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker updated successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly deleteTracker = async (
+
+  deleteTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -183,17 +140,13 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Tracker deleted successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker deleted successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly archiveTracker = async (
+
+  archiveTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -204,17 +157,13 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Tracker archived successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker archived successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly restoreTracker = async (
+
+  restoreTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -225,54 +174,39 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Tracker restored successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker restored successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly publishTracker = async (
-  req: Request<TrackerParams>,
-  res: Response,
-  next: NextFunction
-) => {
-  try {
-    const {
-      name,
-      description,
-      domain,
-      difficulty,
-      tags,
-      allowClone,
-    } = req.body
 
-    const result = await this.service.publishTracker({
-      trackerId: req.params.trackerId,
-      userId: getAuthUser(req).userId,
-      name,
-      description,
-      domain,
-      difficulty,
-      tags,
-      allowClone,
-    })
+  publishTracker = async (
+    req: Request<TrackerParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { name, description, domain, difficulty, tags, allowClone } =
+        req.body
 
-    res.json(
-      new ApiResponse(
-        'Tracker published successfully',
-        result
-      )
-    )
-  } catch (error) {
-    next(error)
+      const result = await this.service.publishTracker({
+        trackerId: req.params.trackerId,
+        userId: getAuthUser(req).userId,
+        name,
+        description,
+        domain,
+        difficulty,
+        tags,
+        allowClone,
+      })
+
+      res.json(new ApiResponse('Tracker published successfully', result))
+    } catch (error) {
+      next(error)
+    }
   }
-}
 
-  readonly unpublishTracker = async (
+  unpublishTracker = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -283,17 +217,13 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Tracker unpublished successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker unpublished successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly getRoadmap = async (
+
+  getRoadmap = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
@@ -304,96 +234,77 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Tracker roadmap fetched successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Tracker roadmap fetched successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly createTopic = async (
+
+  createTopic = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = createTopicSchema.parse(req.body)
-
       const result = await this.service.createTopic({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
-        title: body.title,
-        description: body.description,
+        title: req.body.title,
+        description: req.body.description,
       })
 
-      res.status(201).json(
-        new ApiResponse(
-          'Topic created successfully',
-          result
-        )
-      )
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Topic created successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly createSubtopic = async (
+
+  createSubtopic = async (
     req: Request<TopicParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = createSubtopicSchema.parse(req.body)
-
       const result = await this.service.createSubtopic({
         trackerId: req.params.trackerId,
         topicId: req.params.topicId,
         userId: getAuthUser(req).userId,
-        title: body.title,
-        description: body.description,
-        parentSubtopicId: body.parentSubtopicId,
-        estimatedMinutes: body.estimatedMinutes,
+        title: req.body.title,
+        description: req.body.description,
+        parentSubtopicId: req.body.parentSubtopicId,
+        estimatedMinutes: req.body.estimatedMinutes,
       })
 
-      res.status(201).json(
-        new ApiResponse(
-          'Subtopic created successfully',
-          result
-        )
-      )
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Subtopic created successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly updateSubtopicProgress = async (
+
+  updateSubtopicProgress = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = updateSubtopicProgressSchema.parse(req.body)
-
       const result = await this.service.updateSubtopicProgress({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        status: body.status,
-       
+        status: req.body.status,
       })
 
-      res.json(
-        new ApiResponse(
-          'Subtopic progress updated successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Subtopic progress updated successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly getLesson = async (
+
+  getLesson = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -405,17 +316,13 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Lesson fetched successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Lesson fetched successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly getLessonChatHistory = async (
+
+  getLessonChatHistory = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -428,41 +335,35 @@ export class TrackerController {
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson chat history fetched successfully',
-          result
-        )
+        new ApiResponse('Lesson chat history fetched successfully', result)
       )
     } catch (error) {
       next(error)
     }
   }
-  readonly chatWithLessonTutor = async (
+
+  chatWithLessonTutor = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = lessonChatSchema.parse(req.body)
-
       const result = await this.service.chatWithLessonTutor({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        messages: body.messages,
+        messages: req.body.messages,
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson tutor response generated successfully',
-          result
-        )
+        new ApiResponse('Lesson tutor response generated successfully', result)
       )
     } catch (error) {
       next(error)
     }
   }
-  readonly getLessonGeneratedQuestions = async (
+
+  getLessonGeneratedQuestions = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -475,47 +376,39 @@ export class TrackerController {
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson generated questions fetched successfully',
-          result
-        )
+        new ApiResponse('Lesson generated questions fetched successfully', result)
       )
     } catch (error) {
       next(error)
     }
   }
-  readonly generateLessonQuestions = async (
+
+  generateLessonQuestions = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = generateLessonQuestionsSchema.parse(req.body)
-
       const result = await this.service.generateLessonQuestions({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        count: body.count,
+        count: req.body.count,
       })
 
-      res.json(
-        new ApiResponse(
-          'Lesson questions generated successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Lesson questions generated successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly getLessonQuestionSolution = async (
+
+  getLessonQuestionSolution = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const query = lessonQuestionSchema.parse(req.query)
+      const query = res.locals.lessonQuestionQuery as LessonQuestionQuery
 
       const result = await this.service.getLessonQuestionSolution({
         trackerId: req.params.trackerId,
@@ -525,47 +418,41 @@ export class TrackerController {
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson question solution fetched successfully',
-          result
-        )
+        new ApiResponse('Lesson question solution fetched successfully', result)
       )
     } catch (error) {
       next(error)
     }
   }
-  readonly generateLessonQuestionSolution = async (
+
+  generateLessonQuestionSolution = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = lessonQuestionSchema.parse(req.body)
-
       const result = await this.service.generateLessonQuestionSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        question: body.question,
+        question: req.body.question,
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson question solution generated successfully',
-          result
-        )
+        new ApiResponse('Lesson question solution generated successfully', result)
       )
     } catch (error) {
       next(error)
     }
   }
-  readonly getLessonQuestionSolutionDoubts = async (
+
+  getLessonQuestionSolutionDoubts = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const query = lessonQuestionSchema.parse(req.query)
+      const query = res.locals.lessonQuestionQuery as LessonQuestionQuery
 
       const result = await this.service.getLessonQuestionSolutionDoubts({
         trackerId: req.params.trackerId,
@@ -584,20 +471,19 @@ export class TrackerController {
       next(error)
     }
   }
-  readonly askLessonQuestionSolutionDoubt = async (
+
+  askLessonQuestionSolutionDoubt = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = askLessonQuestionSolutionDoubtSchema.parse(req.body)
-
       const result = await this.service.askLessonQuestionSolutionDoubt({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        question: body.question,
-        message: body.message,
+        question: req.body.question,
+        message: req.body.message,
       })
 
       res.json(
@@ -610,7 +496,8 @@ export class TrackerController {
       next(error)
     }
   }
-  readonly getLessonAnswerAttempts = async (
+
+  getLessonAnswerAttempts = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -623,42 +510,34 @@ export class TrackerController {
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson answer attempts fetched successfully',
-          result
-        )
+        new ApiResponse('Lesson answer attempts fetched successfully', result)
       )
     } catch (error) {
       next(error)
     }
   }
-  readonly verifyLessonAnswer = async (
+
+  verifyLessonAnswer = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = verifyLessonAnswerSchema.parse(req.body)
-
       const result = await this.service.verifyLessonAnswer({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        question: body.question,
-        answer: body.answer,
+        question: req.body.question,
+        answer: req.body.answer,
       })
 
-      res.json(
-        new ApiResponse(
-          'Answer verified successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Answer verified successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly getLessonCodeSubmissions = async (
+
+  getLessonCodeSubmissions = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -677,60 +556,50 @@ export class TrackerController {
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson code submissions fetched successfully',
-          result
-        )
+        new ApiResponse('Lesson code submissions fetched successfully', result)
       )
     } catch (error) {
       next(error)
     }
   }
-  readonly runLessonCode = async (
+
+  runLessonCode = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = runLessonCodeSchema.parse(req.body)
-
       const result = await this.service.runLessonCode({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        sourceCode: body.sourceCode,
-        languageId: body.languageId ?? 63,
-        language: body.language,
-        stdin: body.stdin,
+        sourceCode: req.body.sourceCode,
+        languageId: req.body.languageId ?? 63,
+        language: req.body.language,
+        stdin: req.body.stdin,
       })
 
-      res.json(
-        new ApiResponse(
-          'Code executed successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Code executed successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly submitLessonCode = async (
+
+  submitLessonCode = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = submitLessonCodeSchema.parse(req.body)
-
-      const result = await this.service.submitLessonCode({
+      const result = (await this.service.submitLessonCode({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        sourceCode: body.sourceCode,
-        languageId: body.languageId ?? 63,
-        language: body.language,
-        stdin: body.stdin,
-      })as VerifyAnswerResult
+        sourceCode: req.body.sourceCode,
+        languageId: req.body.languageId ?? 63,
+        language: req.body.language,
+        stdin: req.body.stdin,
+      })) as VerifyAnswerResult
 
       res.json(
         new ApiResponse(
@@ -744,23 +613,22 @@ export class TrackerController {
       next(error)
     }
   }
-  readonly getCodeHint = async (
+
+  getCodeHint = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = getCodeHintSchema.parse(req.body)
-
-      const result = await this.service.getCodeHint({
+      const result = (await this.service.getCodeHint({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        sourceCode: body.sourceCode,
-        actualOutput: body.actualOutput,
-        errorOutput: body.errorOutput,
-        hintCount: body.hintCount,
-      }) as MissingTopicEvaluationResult
+        sourceCode: req.body.sourceCode,
+        actualOutput: req.body.actualOutput,
+        errorOutput: req.body.errorOutput,
+        hintCount: req.body.hintCount,
+      })) as MissingTopicEvaluationResult
 
       res.json(
         new ApiResponse(
@@ -774,33 +642,28 @@ export class TrackerController {
       next(error)
     }
   }
-  readonly getOptimizedSolution = async (
+
+  getOptimizedSolution = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = getOptimizedSolutionSchema.parse(req.body)
-
       const result = await this.service.getOptimizedSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
-        sourceCode: body.sourceCode,
-        language: body.language,
+        sourceCode: req.body.sourceCode,
+        language: req.body.language,
       })
 
-      res.json(
-        new ApiResponse(
-          'Optimized solution generated successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Optimized solution generated successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly clearLessonChatHistory = async (
+
+  clearLessonChatHistory = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -812,23 +675,19 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.json(
-        new ApiResponse(
-          'Lesson chat history cleared successfully',
-          result
-        )
-      )
+      res.json(new ApiResponse('Lesson chat history cleared successfully', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly clearLessonQuestionSolutionDoubts = async (
+
+  clearLessonQuestionSolutionDoubts = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const query = lessonQuestionSchema.parse(req.query)
+      const query = res.locals.lessonQuestionQuery as LessonQuestionQuery
 
       const result = await this.service.clearLessonQuestionSolutionDoubts({
         trackerId: req.params.trackerId,
@@ -847,65 +706,54 @@ export class TrackerController {
       next(error)
     }
   }
-  readonly verifyTopic = async (
+
+  verifyTopic = async (
     req: Request<TrackerParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = verifyTopicSchema.parse(req.body)
-
       const result = await this.service.verifyTopic({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
-        trackerTitle: body.trackerTitle,
-        topicTitle: body.topicTitle,
-        topicDescription: body.topicDescription,
-        existingTopics: body.existingTopics,
+        trackerTitle: req.body.trackerTitle,
+        topicTitle: req.body.topicTitle,
+        topicDescription: req.body.topicDescription,
+        existingTopics: req.body.existingTopics,
       })
 
-      res.json(
-        new ApiResponse(
-          'Topic verification completed',
-          result
-        )
-      )
+      res.json(new ApiResponse('Topic verification completed', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly verifySubtopic = async (
+
+  verifySubtopic = async (
     req: Request<TopicParams>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const body = verifySubtopicSchema.parse(req.body)
-
       const result = await this.service.verifySubtopic({
         trackerId: req.params.trackerId,
         topicId: req.params.topicId,
         userId: getAuthUser(req).userId,
-        trackerTitle: body.trackerTitle,
-        topicTitle: body.topicTitle,
-        topicDescription: body.topicDescription,
-        subtopicTitle: body.subtopicTitle,
-        subtopicDescription: body.subtopicDescription,
-        difficulty: body.difficulty,
-        existingSubtopics: body.existingSubtopics,
+        trackerTitle: req.body.trackerTitle,
+        topicTitle: req.body.topicTitle,
+        topicDescription: req.body.topicDescription,
+        subtopicTitle: req.body.subtopicTitle,
+        subtopicDescription: req.body.subtopicDescription,
+        difficulty: req.body.difficulty,
+        existingSubtopics: req.body.existingSubtopics,
       })
 
-      res.json(
-        new ApiResponse(
-          'Subtopic verification completed',
-          result
-        )
-      )
+      res.json(new ApiResponse('Subtopic verification completed', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly addMissingEvaluationTopic = async (
+
+  addMissingEvaluationTopic = async (
     req: Request<AddMissingTopicParams>,
     res: Response,
     next: NextFunction
@@ -918,17 +766,15 @@ export class TrackerController {
         userId: getAuthUser(req).userId,
       })
 
-      res.status(201).json(
-        new ApiResponse(
-          'Missing topic added to tracker',
-          result
-        )
-      )
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Missing topic added to tracker', result))
     } catch (error) {
       next(error)
     }
   }
-  readonly generateLessonVisualization = async (
+
+  generateLessonVisualization = async (
     req: Request<LessonParams>,
     res: Response,
     next: NextFunction
@@ -942,10 +788,7 @@ export class TrackerController {
       })
 
       res.json(
-        new ApiResponse(
-          'Lesson visualization generated successfully',
-          result
-        )
+        new ApiResponse('Lesson visualization generated successfully', result)
       )
     } catch (error) {
       next(error)

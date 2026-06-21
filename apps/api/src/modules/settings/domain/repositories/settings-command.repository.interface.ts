@@ -7,11 +7,11 @@ import type { QuietHoursDayType } from '../value-objects/quiet-hours-day-type.vo
 import type { ThemeType } from '../value-objects/theme-type.vo'
 import type { NotificationTypeSettings } from '../value-objects/user-settings-data.vo'
 
-export interface SettingsAppearanceUpdateInput {
+export type SettingsAppearanceUpdateInput = {
   theme?: ThemeType
 }
 
-export interface SettingsNotificationsUpdateInput {
+export type SettingsNotificationsUpdateInput = {
   globalEnabled?: boolean
   globalEmail?: boolean
   globalPush?: boolean
@@ -20,7 +20,11 @@ export interface SettingsNotificationsUpdateInput {
   types?: Partial<NotificationTypeSettings>
 }
 
-export interface SettingsPrivacyUpdateInput {
+export type SettingsNotificationTypesUpdateInput = {
+  types: Partial<NotificationTypeSettings>
+}
+
+export type SettingsPrivacyUpdateInput = {
   profileVisibility?: ProfileVisibilityType
   showProfile?: boolean
   showStreak?: boolean
@@ -38,7 +42,7 @@ export interface SettingsPrivacyUpdateInput {
   showTrackerProgress?: boolean
 }
 
-export interface SettingsCodeEditorUpdateInput {
+export type SettingsCodeEditorUpdateInput = {
   theme?: string
   fontSize?: number
   tabSize?: number
@@ -48,20 +52,20 @@ export interface SettingsCodeEditorUpdateInput {
   minimap?: boolean
 }
 
-export interface SettingsCompilerUpdateInput {
+export type SettingsCompilerUpdateInput = {
   defaultLanguage?: string
   defaultRuntime?: string
   autoSwitchLanguage?: boolean
 }
 
-export interface SettingsAIBehaviourUpdateInput {
+export type SettingsAIBehaviourUpdateInput = {
   responseStyle?: AIResponseStyleType
   autoGenerateLessons?: boolean
   showAIInsights?: boolean
   dailyQuotaAlert?: boolean
 }
 
-export interface SettingsLearningJourneyUpdateInput {
+export type SettingsLearningJourneyUpdateInput = {
   dailyGoalMinutes?: number
   reminderEnabled?: boolean
   reminderTime?: string
@@ -69,7 +73,7 @@ export interface SettingsLearningJourneyUpdateInput {
   showEstimatedTime?: boolean
 }
 
-export interface SettingsGesturesUpdateInput {
+export type SettingsGesturesUpdateInput = {
   enabled?: boolean
   sensitivity?: number
   swipeToNext?: boolean
@@ -81,92 +85,145 @@ export interface SettingsGesturesUpdateInput {
   scrollGesture?: boolean
 }
 
-export interface SettingsQuietHoursUpdateInput {
-  quietHoursEnabled: boolean
+export type SettingsQuietHoursUpdateInput = {
+  quietHoursEnabled?: boolean
   quietHoursStart?: string
   quietHoursEnd?: string
   quietHoursDays?: QuietHoursDayType[]
 }
 
-export interface SettingsEmailDigestUpdateInput {
+export type SettingsEmailDigestUpdateInput = {
   enabled?: boolean
   frequency?: DigestFrequencyType
   includeActivity?: boolean
   includeRecommendations?: boolean
 }
 
-export interface SettingsAccountUpdateInput {
+export type SettingsAccountUpdateInput = {
   language?: string
   timezone?: string
   dateFormat?: string
 }
 
+export type UpdateSettingsAppearanceInput = {
+  userId: string
+  data: SettingsAppearanceUpdateInput
+}
+
+export type UpdateSettingsNotificationsInput = {
+  userId: string
+  data: Omit<SettingsNotificationsUpdateInput, 'types'>
+}
+
+export type UpdateSettingsNotificationTypesInput = {
+  userId: string
+  types: Partial<NotificationTypeSettings>
+}
+
+export type UpdateSettingsPrivacyInput = {
+  userId: string
+  data: SettingsPrivacyUpdateInput
+}
+
+export type UpdateSettingsCodeEditorInput = {
+  userId: string
+  data: SettingsCodeEditorUpdateInput
+}
+
+export type UpdateSettingsCompilerInput = {
+  userId: string
+  data: SettingsCompilerUpdateInput
+}
+
+export type UpdateSettingsAIBehaviourInput = {
+  userId: string
+  data: SettingsAIBehaviourUpdateInput
+}
+
+export type UpdateSettingsLearningJourneyInput = {
+  userId: string
+  data: SettingsLearningJourneyUpdateInput
+}
+
+export type UpdateSettingsGesturesInput = {
+  userId: string
+  data: SettingsGesturesUpdateInput
+}
+
+export type UpdateSettingsQuietHoursInput = {
+  userId: string
+  data: SettingsQuietHoursUpdateInput
+}
+
+export type UpdateSettingsEmailDigestInput = {
+  userId: string
+  data: SettingsEmailDigestUpdateInput
+}
+
+export type UpdateSettingsAccountInput = {
+  userId: string
+  data: SettingsAccountUpdateInput
+}
+
+export type UpdateSettingsCookieConsentInput = {
+  userId: string
+  cookieConsent: boolean
+}
+
 export interface SettingsCommandRepositoryContract {
   updateAppearance(
-    userId: string,
-    data: SettingsAppearanceUpdateInput,
+    input: UpdateSettingsAppearanceInput
   ): Promise<UserSettingsEntity | null>
 
   updateNotifications(
-    userId: string,
-    data: Omit<SettingsNotificationsUpdateInput, 'types'>,
+    input: UpdateSettingsNotificationsInput
   ): Promise<UserSettingsEntity | null>
 
   updateNotificationTypes(
-    userId: string,
-    types: Partial<NotificationTypeSettings>,
+    input: UpdateSettingsNotificationTypesInput
   ): Promise<UserSettingsEntity | null>
 
   updatePrivacy(
-    userId: string,
-    data: SettingsPrivacyUpdateInput,
+    input: UpdateSettingsPrivacyInput
   ): Promise<UserSettingsEntity | null>
 
   updateCodeEditor(
-    userId: string,
-    data: SettingsCodeEditorUpdateInput,
+    input: UpdateSettingsCodeEditorInput
   ): Promise<UserSettingsEntity | null>
 
   updateCompiler(
-    userId: string,
-    data: SettingsCompilerUpdateInput,
+    input: UpdateSettingsCompilerInput
   ): Promise<UserSettingsEntity | null>
 
   updateAIBehaviour(
-    userId: string,
-    data: SettingsAIBehaviourUpdateInput,
+    input: UpdateSettingsAIBehaviourInput
   ): Promise<UserSettingsEntity | null>
 
   updateLearningJourney(
-    userId: string,
-    data: SettingsLearningJourneyUpdateInput,
+    input: UpdateSettingsLearningJourneyInput
   ): Promise<UserSettingsEntity | null>
 
   updateGestures(
-    userId: string,
-    data: SettingsGesturesUpdateInput,
+    input: UpdateSettingsGesturesInput
   ): Promise<UserSettingsEntity | null>
 
   updateQuietHours(
-    userId: string,
-    data: SettingsQuietHoursUpdateInput,
+    input: UpdateSettingsQuietHoursInput
   ): Promise<UserSettingsEntity | null>
 
   updateEmailDigest(
-    userId: string,
-    data: SettingsEmailDigestUpdateInput,
+    input: UpdateSettingsEmailDigestInput
   ): Promise<UserSettingsEntity | null>
 
   updateAccountSettings(
-    userId: string,
-    data: SettingsAccountUpdateInput,
+    input: UpdateSettingsAccountInput
   ): Promise<UserSettingsEntity | null>
 
   updateCookieConsent(
-    userId: string,
-    cookieConsent: boolean,
+    input: UpdateSettingsCookieConsentInput
   ): Promise<UserSettingsEntity | null>
 
   acceptTerms(userId: string): Promise<UserSettingsEntity | null>
+
   resetToDefaults(userId: string): Promise<UserSettingsEntity>
 }

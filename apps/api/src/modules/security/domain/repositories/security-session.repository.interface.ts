@@ -1,13 +1,20 @@
 import type { SecuritySessionEntity } from '../entities/security-session.entity'
 
+export type RevokeSecuritySessionInput = {
+  userId: string
+  sessionId: string
+}
+
 export interface SecuritySessionRepositoryContract {
   findActiveSessions(userId: string): Promise<SecuritySessionEntity[]>
-  findCurrentRefreshTokenSession(
-    refreshToken: string,
+
+  findCurrentSessionByRefreshTokenHash(
+    refreshTokenHash: string
   ): Promise<SecuritySessionEntity | null>
+
   revokeSessionById(
-    userId: string,
-    sessionId: string,
+    input: RevokeSecuritySessionInput
   ): Promise<SecuritySessionEntity | null>
+
   revokeAllSessions(userId: string): Promise<void>
 }

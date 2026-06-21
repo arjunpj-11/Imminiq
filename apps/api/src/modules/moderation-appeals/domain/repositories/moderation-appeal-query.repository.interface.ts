@@ -3,15 +3,15 @@ import type { RestrictedModerationUserEntity } from '../entities/restricted-mode
 
 export interface ModerationAppealQueryRepositoryContract {
   findRestrictedUserByIdentifier(
-    identifier: string,
+    identifier: string
   ): Promise<RestrictedModerationUserEntity | null>
 
   findActiveAppealForUser(
-    userId: string,
+    userId: string
   ): Promise<ModerationAppealEntity | null>
 
   findLatestActiveAppealForRestrictedIdentifier(
-    identifier: string,
+    identifier: string
   ): Promise<ModerationAppealEntity | null>
 
   caseIdExists(caseId: string): Promise<boolean>

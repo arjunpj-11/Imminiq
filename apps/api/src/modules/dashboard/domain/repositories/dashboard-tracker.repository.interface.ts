@@ -3,5 +3,6 @@ import type { DashboardTrackerSummaryEntity } from '../entities/dashboard-tracke
 
 export interface DashboardTrackerRepositoryContract {
   getTrackerOverview(userId: string): Promise<DashboardTrackerSummaryEntity>
+
   getAggregatedStats(userId: string): Promise<DashboardStatsEntity>
 }

@@ -16,9 +16,9 @@ export class DashboardController {
       const userId = getAuthUser(req).userId
       const data = await this.service.getSummary(userId)
 
-      return res.json(new ApiResponse('Dashboard fetched', data))
+      res.json(new ApiResponse('Dashboard fetched', data))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -31,9 +31,9 @@ export class DashboardController {
       const userId = getAuthUser(req).userId
       const data = await this.service.getCurrentRoadmap(userId)
 
-      return res.json(new ApiResponse('Current roadmap fetched', data))
+      res.json(new ApiResponse('Current roadmap fetched', data))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -46,11 +46,15 @@ export class DashboardController {
       const userId = getAuthUser(req).userId
       const query = res.locals
         .dashboardActivityIntensityQuery as DashboardActivityIntensityQuery
-      const data = await this.service.getActivityIntensity(userId, query.months)
 
-      return res.json(new ApiResponse('Activity intensity fetched', data))
+      const data = await this.service.getActivityIntensity(
+        userId,
+        query.months
+      )
+
+      res.json(new ApiResponse('Activity intensity fetched', data))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -61,24 +65,28 @@ export class DashboardController {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const query = res.locals.dashboardRecentItemsQuery as DashboardRecentItemsQuery
+      const query = res.locals
+        .dashboardRecentItemsQuery as DashboardRecentItemsQuery
+
       const data = await this.service.getRecentBattles(userId, query.limit)
 
-      return res.json(new ApiResponse('Recent battles fetched', data))
+      res.json(new ApiResponse('Recent battles fetched', data))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
   getFriendsHub = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const query = res.locals.dashboardRecentItemsQuery as DashboardRecentItemsQuery
+      const query = res.locals
+        .dashboardRecentItemsQuery as DashboardRecentItemsQuery
+
       const data = await this.service.getFriendsHub(userId, query.limit)
 
-      return res.json(new ApiResponse('Friends hub fetched', data))
+      res.json(new ApiResponse('Friends hub fetched', data))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -91,9 +99,9 @@ export class DashboardController {
       const userId = getAuthUser(req).userId
       const data = await this.service.getRecommendedActions(userId)
 
-      return res.json(new ApiResponse('Recommended actions fetched', data))
+      res.json(new ApiResponse('Recommended actions fetched', data))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -102,9 +110,9 @@ export class DashboardController {
       const userId = getAuthUser(req).userId
       const data = await this.service.getAIInsights(userId)
 
-      return res.json(new ApiResponse('AI insights fetched', data))
+      res.json(new ApiResponse('AI insights fetched', data))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 }

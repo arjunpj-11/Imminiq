@@ -1,4 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
+
+import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import {
@@ -13,11 +15,7 @@ type JobIdParams = {
 export class OnboardingController {
   constructor(private readonly service: OnboardingService) {}
 
-  getStatus = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  getStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const status = await this.service.getStatus(getAuthUser(req).userId)
 
@@ -27,15 +25,11 @@ export class OnboardingController {
     }
   }
 
-  saveStep1 = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  saveStep1 = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.service.saveStep1(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
 
       res.json(new ApiResponse('Step 1 saved', data))
@@ -44,15 +38,11 @@ export class OnboardingController {
     }
   }
 
-  saveStep2 = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  saveStep2 = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this.service.saveStep2(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
 
       res.json(new ApiResponse('Step 2 saved', data))
@@ -64,17 +54,17 @@ export class OnboardingController {
   generateRoadmap = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.generateRoadmap(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
 
-      res.status(202).json(
-        new ApiResponse('Roadmap generation started', result),
-      )
+      res
+        .status(HttpStatusCode.ACCEPTED)
+        .json(new ApiResponse('Roadmap generation started', result))
     } catch (error) {
       next(error)
     }
@@ -83,12 +73,12 @@ export class OnboardingController {
   getJobStatus = async (
     req: Request<JobIdParams>,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const status = await this.service.getJobStatus(
         req.params.jobId,
-        getAuthUser(req).userId,
+        getAuthUser(req).userId
       )
 
       res.json(new ApiResponse('Job status', status))
@@ -100,12 +90,12 @@ export class OnboardingController {
   getJobResult = async (
     req: Request<JobIdParams>,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.getJobResult(
         req.params.jobId,
-        getAuthUser(req).userId,
+        getAuthUser(req).userId
       )
 
       res.json(new ApiResponse('Roadmap ready', result))
@@ -117,17 +107,17 @@ export class OnboardingController {
   evaluateRoadmap = async (
     req: Request<JobIdParams>,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.evaluateRoadmap(
         req.params.jobId,
-        getAuthUser(req).userId,
+        getAuthUser(req).userId
       )
 
-      res.status(202).json(
-        new ApiResponse('Roadmap evaluation started', result),
-      )
+      res
+        .status(HttpStatusCode.ACCEPTED)
+        .json(new ApiResponse('Roadmap evaluation started', result))
     } catch (error) {
       next(error)
     }
@@ -136,12 +126,12 @@ export class OnboardingController {
   getEvaluationResult = async (
     req: Request<JobIdParams>,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.getEvaluationResult(
         req.params.jobId,
-        getAuthUser(req).userId,
+        getAuthUser(req).userId
       )
 
       res.json(new ApiResponse('Roadmap evaluation ready', result))

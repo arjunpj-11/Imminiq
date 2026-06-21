@@ -1,6 +1,6 @@
 import type { MockTestAnswerEntity } from '../entities/mock-test-answer.entity'
 
-export interface SaveMockTestAnswerInput {
+export type SaveMockTestAnswerInput = {
   attemptId: string
   questionId: string
   answer: string
@@ -8,11 +8,37 @@ export interface SaveMockTestAnswerInput {
   pointsEarned?: number
 }
 
+export type FindMockTestAnswerByQuestionInput = {
+  attemptId: string
+  questionId: string
+}
+
+export type UpdateMockTestAnswerInput = {
+  answer?: string
+  isCorrect?: boolean
+  pointsEarned?: number
+}
+
+export type MockTestQuestionFlagInput = {
+  attemptId: string
+  questionId: string
+}
+
 export interface MockTestAnswerRepositoryContract {
   findAnswersByAttempt(attemptId: string): Promise<MockTestAnswerEntity[]>
-  findAnswerByQuestion(attemptId: string, questionId: string): Promise<MockTestAnswerEntity | null>
+
+  findAnswerByQuestion(
+    input: FindMockTestAnswerByQuestionInput
+  ): Promise<MockTestAnswerEntity | null>
+
   saveAnswer(data: SaveMockTestAnswerInput): Promise<MockTestAnswerEntity>
-  updateAnswer(answerId: string, data: Partial<MockTestAnswerEntity>): Promise<MockTestAnswerEntity | null>
-  flagQuestion(attemptId: string, questionId: string): Promise<void>
-  unflagQuestion(attemptId: string, questionId: string): Promise<void>
+
+  updateAnswer(
+    answerId: string,
+    data: UpdateMockTestAnswerInput
+  ): Promise<MockTestAnswerEntity | null>
+
+  flagQuestion(input: MockTestQuestionFlagInput): Promise<void>
+
+  unflagQuestion(input: MockTestQuestionFlagInput): Promise<void>
 }

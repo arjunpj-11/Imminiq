@@ -1,8 +1,10 @@
 import { Router } from 'express'
+
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { onboardingController } from './onboarding.controller'
+import { ONBOARDING_ROUTE_PATHS } from './onboarding.route.constants'
 import {
   generateRoadmapSchema,
   step1Schema,
@@ -15,32 +17,47 @@ const router = Router()
 
 router.use(authenticatedApiIpLimiter, authenticate)
 
-router.get('/status', onboardingController.getStatus)
-
-router.post(
-  '/step-1',
-  validate(step1Schema),
-  onboardingController.saveStep1,
-)
-
-router.post(
-  '/step-2',
-  validate(step2Schema),
-  onboardingController.saveStep2,
-)
-
-router.post(
-  '/generate-roadmap',
-  validate(generateRoadmapSchema),
-  onboardingController.generateRoadmap,
-)
-
-router.get('/jobs/:jobId/status', onboardingController.getJobStatus)
-router.get('/jobs/:jobId/result', onboardingController.getJobResult)
-router.post('/jobs/:jobId/evaluate', onboardingController.evaluateRoadmap)
 router.get(
-  '/jobs/:jobId/evaluation-result',
-  onboardingController.getEvaluationResult,
+  ONBOARDING_ROUTE_PATHS.STATUS,
+  onboardingController.getStatus
+)
+
+router.post(
+  ONBOARDING_ROUTE_PATHS.STEP_1,
+  validate(step1Schema),
+  onboardingController.saveStep1
+)
+
+router.post(
+  ONBOARDING_ROUTE_PATHS.STEP_2,
+  validate(step2Schema),
+  onboardingController.saveStep2
+)
+
+router.post(
+  ONBOARDING_ROUTE_PATHS.GENERATE_ROADMAP,
+  validate(generateRoadmapSchema),
+  onboardingController.generateRoadmap
+)
+
+router.get(
+  ONBOARDING_ROUTE_PATHS.JOB_STATUS,
+  onboardingController.getJobStatus
+)
+
+router.get(
+  ONBOARDING_ROUTE_PATHS.JOB_RESULT,
+  onboardingController.getJobResult
+)
+
+router.post(
+  ONBOARDING_ROUTE_PATHS.EVALUATE_ROADMAP,
+  onboardingController.evaluateRoadmap
+)
+
+router.get(
+  ONBOARDING_ROUTE_PATHS.EVALUATION_RESULT,
+  onboardingController.getEvaluationResult
 )
 
 export default router

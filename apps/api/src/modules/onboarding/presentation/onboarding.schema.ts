@@ -6,11 +6,21 @@ const topicSchema = z
   .min(2, 'Topic is required')
   .max(200, 'Topic must be 200 characters or fewer')
 
-const goalSchema = z
-  .string()
-  .trim()
-  .max(400, 'Goal must be 400 characters or fewer')
-  .optional()
+const goalSchema = z.preprocess(
+  (value) => {
+    if (typeof value !== 'string') {
+      return value
+    }
+
+    const trimmedValue = value.trim()
+
+    return trimmedValue.length > 0 ? trimmedValue : undefined
+  },
+  z
+    .string()
+    .max(400, 'Goal must be 400 characters or fewer')
+    .optional()
+)
 
 const roadmapLevelSchema = z.enum([
   'beginner',
@@ -34,5 +44,7 @@ export const generateRoadmapSchema = z.object({
 })
 
 export type Step1Input = z.infer<typeof step1Schema>
+
 export type Step2Input = z.infer<typeof step2Schema>
+
 export type GenerateRoadmapInput = z.infer<typeof generateRoadmapSchema>

@@ -1,11 +1,13 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
 export class GenerateLessonVisualizationUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract
+    private readonly trackerAIService: TrackerAIServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
@@ -65,6 +67,6 @@ export class GenerateLessonVisualizationUseCase {
       visualDescription: result.visualDescription,
     })
 
-    return result
+    return this.trackerMapper.toLessonVisualizationDto(result)
   }
 }

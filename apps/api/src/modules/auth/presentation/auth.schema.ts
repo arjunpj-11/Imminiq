@@ -96,11 +96,6 @@ export const checkIdentifierSchema = z.object({
   identifier: identifierSchema,
 })
 
-/**
- * Keep this endpoint/schema.
- * Username is no longer entered during registration,
- * but this will still be useful later when the user edits their username.
- */
 export const checkUsernameSchema = z.object({
   username: z
     .string()
@@ -112,3 +107,27 @@ export const checkUsernameSchema = z.object({
       'Username can only contain letters, numbers, underscore'
     ),
 })
+
+export type RegisterInput = z.infer<typeof registerSchema>
+
+export type LoginInput = z.infer<typeof loginSchema>
+
+export type VerifyTwoFactorLoginInput = z.infer<
+  typeof verifyTwoFactorLoginSchema
+>
+
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>
+
+export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>
+
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
+
+export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
+
+export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>
+
+export type SendOtpInput = z.infer<typeof sendOtpSchema>
+
+export type CheckIdentifierInput = z.infer<typeof checkIdentifierSchema>
+
+export type CheckUsernameInput = z.infer<typeof checkUsernameSchema>

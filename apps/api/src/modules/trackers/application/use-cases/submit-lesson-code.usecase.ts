@@ -1,11 +1,14 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
+import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
 
 const getDocumentId = (document: unknown) => {
   const doc = document as { _id?: unknown }
 
-  if (typeof doc._id === 'string') return doc._id
+  if (typeof doc._id === 'string') {
+    return doc._id
+  }
 
   if (
     doc._id &&
@@ -28,6 +31,10 @@ type SubmitLessonCodeInput = {
   stdin?: string
 }
 
+type SubmitLessonCodeResultDto = ReturnType<
+  TrackerMapperContract['toLessonCodeExecutionDto']
+>
+
 const normalizeOutput = (value: string) => {
   return value.replace(/\r\n/g, '\n').trim()
 }
@@ -35,10 +42,13 @@ const normalizeOutput = (value: string) => {
 export class SubmitLessonCodeUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly codeExecutionService: CodeExecutionServiceContract
+    private readonly codeExecutionService: CodeExecutionServiceContract,
+    private readonly trackerMapper: TrackerMapperContract
   ) {}
 
-  async execute(input: SubmitLessonCodeInput) {
+  async execute(
+    input: SubmitLessonCodeInput
+  ): Promise<SubmitLessonCodeResultDto> {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
       input.trackerId,
       input.userId
@@ -55,10 +65,13 @@ export class SubmitLessonCodeUseCase {
     })
 
     if (!lesson) {
-      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before submitting code')
+      throw TrackerApplicationError.lessonNotGenerated(
+        'Generate the lesson before submitting code'
+      )
     }
 
-    const language = input.language || lesson.codeExample?.language || 'javascript'
+    const language =
+      input.language || lesson.codeExample?.language || 'javascript'
 
     const result = await this.codeExecutionService.executeCode({
       sourceCode: input.sourceCode,
@@ -67,9 +80,11 @@ export class SubmitLessonCodeUseCase {
       stdin: input.stdin,
     })
 
-    const practiceTask = lesson.practiceTask as {
-      expectedOutput?: string
-    } | undefined
+    const practiceTask = lesson.practiceTask as
+      | {
+          expectedOutput?: string
+        }
+      | undefined
 
     const expectedOutput = practiceTask?.expectedOutput || ''
 
@@ -136,6 +151,6 @@ export class SubmitLessonCodeUseCase {
       feedback,
     })
 
-    return response
+    return this.trackerMapper.toLessonCodeExecutionDto(response)
   }
 }

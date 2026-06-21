@@ -6,6 +6,7 @@ import type {
   SubtopicWithProgressRecord,
   TopicWithProgressRecord,
 } from '../../domain/types/trackers.types'
+import { TrackerMapperContract } from '../mappers'
 
 
 const buildRoadmapTree = ({
@@ -76,7 +77,7 @@ const buildRoadmapTree = ({
 }
 
 export class GetTrackerRoadmapUseCase {
-  constructor(private readonly trackerRepository: TrackerRepositoryContract) {}
+  constructor(private readonly trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
 
   async execute(input: { trackerId: string; userId: string }) {
     const tracker = await this.trackerRepository.findOwnedTrackerById(
@@ -104,9 +105,9 @@ export class GetTrackerRoadmapUseCase {
       }),
     ])
 
-    return {
+    return this.trackerMapper.toTrackerRoadmapDto({
       tracker,
       roadmap: buildRoadmapTree({ topics, subtopics }),
-    }
+    })
   }
 }

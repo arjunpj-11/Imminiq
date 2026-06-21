@@ -10,3 +10,18 @@ export interface OnboardingRepositoryContract
     OnboardingAIJobQueryRepositoryContract,
     OnboardingAIJobCommandRepositoryContract,
     OnboardingRoadmapRepositoryContract {}
+
+export type {
+  CreateAIJobStepsInput,
+  CreateEvaluationAIJobInput,
+  CreateRoadmapAIJobInput,
+  EvaluationJobInput,
+  RoadmapJobInput,
+} from './onboarding-ai-job-command.repository.interface'
+
+export type { FindActiveEvaluationJobForRoadmapInput } from './onboarding-ai-job-query.repository.interface'
+
+export type {
+  SaveOnboardingStep1Input,
+  SaveOnboardingStep2Input,
+} from './onboarding-response-command.repository.interface'

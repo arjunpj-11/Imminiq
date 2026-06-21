@@ -1,6 +1,6 @@
 import type { ModerationAppealEntity } from '../entities/moderation-appeal.entity'
 
-export interface CreateModerationAppealInput {
+export type CreateModerationAppealInput = {
   userId: string
   caseId: string
   identifier: string
@@ -9,6 +9,6 @@ export interface CreateModerationAppealInput {
 
 export interface ModerationAppealCommandRepositoryContract {
   createAppeal(
-    data: CreateModerationAppealInput,
+    data: CreateModerationAppealInput
   ): Promise<ModerationAppealEntity>
 }

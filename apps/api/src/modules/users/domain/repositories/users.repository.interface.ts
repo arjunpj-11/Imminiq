@@ -14,3 +14,31 @@ export interface UsersRepositoryContract
     UserStreakRepositoryContract,
     UserTrackerRepositoryContract,
     UserRelationshipRepositoryContract {}
+
+export type {
+  FindRecentUserActivityInput,
+  FindUserActivityFeedInput,
+  UserActivityListResult,
+} from './user-activity.repository.interface'
+
+export type {
+  EarnedUserBadgeListResult,
+  FindEarnedUserBadgesPaginatedInput,
+  UserBadgeShowcaseResult,
+} from './user-badge.repository.interface'
+
+export type {
+  EnsureUserProfileInput,
+  UpdateUserProfileInput,
+} from './user-profile.repository.interface'
+
+export type { GetRelationshipStateInput } from './user-relationship.repository.interface'
+
+export type { FindUserStreakHistoryByYearInput } from './user-streak.repository.interface'
+
+export type {
+  FindPublishedTrackersInput,
+  PublishedTrackerListResult,
+} from './user-tracker.repository.interface'
+
+export type { UpdateUserFullNameInput } from './user.repository.interface'

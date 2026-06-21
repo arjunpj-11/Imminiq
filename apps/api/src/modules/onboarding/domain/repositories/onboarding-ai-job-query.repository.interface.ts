@@ -1,14 +1,18 @@
 import type { AIGenerationJobEntity } from '../entities/ai-generation-job.entity'
 import type { AIGenerationStepEntity } from '../entities/ai-generation-step.entity'
 
+export type FindActiveEvaluationJobForRoadmapInput = {
+  userId: string
+  sourceRoadmapJobId: string
+}
+
 export interface OnboardingAIJobQueryRepositoryContract {
   findActiveRoadmapJobForUser(
-    userId: string,
+    userId: string
   ): Promise<AIGenerationJobEntity | null>
 
   findActiveEvaluationJobForRoadmap(
-    userId: string,
-    sourceRoadmapJobId: string,
+    input: FindActiveEvaluationJobForRoadmapInput
   ): Promise<AIGenerationJobEntity | null>
 
   getJobById(jobId: string): Promise<AIGenerationJobEntity | null>

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
+import type { PaginationQuery } from '../application/dtos/users.dto'
 import {
   USERS_DEFAULT_LIMIT,
   USERS_MAX_LIMIT,
@@ -7,7 +8,6 @@ import {
   USERS_MAX_SEARCH_LENGTH,
   USERS_MIN_STREAK_YEAR,
 } from '../domain/constants/users.constants'
-import type { PaginationQuery } from '../application/dtos/users.dto'
 import type { ProfileSort } from '../domain/value-objects/profile-sort.vo'
 import { usersService, type UsersService } from '../users.service'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
@@ -24,11 +24,9 @@ export class UsersController {
     try {
       const result = await this.service.getMe(getAuthUser(req).userId)
 
-      return res
-        .status(200)
-        .json(new ApiResponse('Current user profile fetched', result))
+      res.json(new ApiResponse('Current user profile fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -36,48 +34,44 @@ export class UsersController {
     try {
       const result = await this.service.updateMe(
         getAuthUser(req).userId,
-        req.body,
+        req.body
       )
 
-      return res
-        .status(200)
-        .json(new ApiResponse('Profile updated successfully', result))
+      res.json(new ApiResponse('Profile updated successfully', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
   getUserByUsername = async (
     req: Request<UsernameParams>,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.getUserByUsername(req.params.username)
 
-      return res.status(200).json(new ApiResponse('User fetched', result))
+      res.json(new ApiResponse('User fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
   getPublicProfile = async (
     req: Request<UsernameParams>,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.getPublicProfilePage(
         req.params.username,
         undefined,
-        this.buildTrackerPaginationQuery(req),
+        this.buildTrackerPaginationQuery(req)
       )
 
-      return res
-        .status(200)
-        .json(new ApiResponse('Public profile fetched', result))
+      res.json(new ApiResponse('Public profile fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -85,17 +79,13 @@ export class UsersController {
     try {
       const result = await this.service.getMyStats(getAuthUser(req).userId)
 
-      return res.status(200).json(new ApiResponse('Stats fetched', result))
+      res.json(new ApiResponse('Stats fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
-  getMyActivity = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
+  getMyActivity = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this.service.getMyActivity(
         getAuthUser(req).userId,
@@ -104,22 +94,20 @@ export class UsersController {
           req.query.limit,
           USERS_DEFAULT_LIMIT,
           1,
-          USERS_MAX_LIMIT,
-        ),
+          USERS_MAX_LIMIT
+        )
       )
 
-      return res
-        .status(200)
-        .json(new ApiResponse('Activity feed fetched', result))
+      res.json(new ApiResponse('Activity feed fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
   getMyRecentActivity = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.getMyRecentActivity(
@@ -128,15 +116,13 @@ export class UsersController {
           req.query.limit,
           USERS_DEFAULT_LIMIT,
           1,
-          USERS_MAX_LIMIT,
-        ),
+          USERS_MAX_LIMIT
+        )
       )
 
-      return res
-        .status(200)
-        .json(new ApiResponse('Recent activity fetched', result))
+      res.json(new ApiResponse('Recent activity fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -149,37 +135,35 @@ export class UsersController {
               req.query.year,
               currentYear,
               USERS_MIN_STREAK_YEAR,
-              currentYear + 1,
+              currentYear + 1
             )
           : undefined
 
       const result = await this.service.getMyStreak(
         getAuthUser(req).userId,
-        year,
+        year
       )
 
-      return res.status(200).json(new ApiResponse('Streak fetched', result))
+      res.json(new ApiResponse('Streak fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
   getMyPublishedTrackers = async (
     req: Request,
     res: Response,
-    next: NextFunction,
+    next: NextFunction
   ) => {
     try {
       const result = await this.service.getMyPublishedTrackers(
         getAuthUser(req).userId,
-        this.buildTrackerPaginationQuery(req),
+        this.buildTrackerPaginationQuery(req)
       )
 
-      return res
-        .status(200)
-        .json(new ApiResponse('Published trackers fetched', result))
+      res.json(new ApiResponse('Published trackers fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
 
@@ -192,32 +176,35 @@ export class UsersController {
           req.query.limit,
           USERS_DEFAULT_LIMIT,
           1,
-          USERS_MAX_LIMIT,
-        ),
+          USERS_MAX_LIMIT
+        )
       )
 
-      return res.status(200).json(new ApiResponse('Badges fetched', result))
+      res.json(new ApiResponse('Badges fetched', result))
     } catch (error) {
-      return next(error)
+      next(error)
     }
   }
-
 
   private clampInteger(
     value: unknown,
     fallback: number,
     minimum: number,
-    maximum: number,
+    maximum: number
   ): number {
-    const parsed = typeof value === 'string' ? Number(value) : Number(value)
+    const parsed = Number(value)
 
-    if (!Number.isInteger(parsed)) return fallback
+    if (!Number.isInteger(parsed)) {
+      return fallback
+    }
 
     return Math.min(Math.max(parsed, minimum), maximum)
   }
 
   private normalizeSearch(value: unknown): string | undefined {
-    if (typeof value !== 'string') return undefined
+    if (typeof value !== 'string') {
+      return undefined
+    }
 
     const trimmed = value.trim().slice(0, USERS_MAX_SEARCH_LENGTH)
 
@@ -249,7 +236,7 @@ export class UsersController {
         req.query.limit,
         USERS_DEFAULT_LIMIT,
         1,
-        USERS_MAX_LIMIT,
+        USERS_MAX_LIMIT
       ),
       ...(search ? { search } : {}),
       ...(status ? { status } : {}),
