@@ -11,7 +11,7 @@ type ClearLessonChatHistoryResultDto = ReturnType<
 export class ClearLessonChatHistoryUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -19,10 +19,10 @@ export class ClearLessonChatHistoryUseCase {
     subtopicId: string
     userId: string
   }): Promise<ClearLessonChatHistoryResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')

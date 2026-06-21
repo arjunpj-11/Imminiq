@@ -1,5 +1,5 @@
 import Cerebras from '@cerebras/cerebras_cloud_sdk'
-import { env } from '../../config/env'
+import { env } from '../../../config/env'
 
 const cerebras = new Cerebras({
   apiKey: env.CEREBRAS_API_KEY,

@@ -23,10 +23,10 @@ export class RemoveAvatarUseCase {
     try {
       await Promise.all([
         this.uploadsRepository.clearAvatarUrl(context.userId),
-        this.uploadsRepository.softDeleteLatestProfileUpload(
-          context.userId,
-          'avatar',
-        ),
+        this.uploadsRepository.softDeleteLatestProfileUpload({
+          userId: context.userId,
+          kind: 'avatar',
+        }),
       ])
 
       return this.uploadsMapper.toAvatarRemovedResult()

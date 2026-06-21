@@ -19,10 +19,11 @@ export class UpdateGesturesUseCase {
     userId: string,
     payload: UpdateGesturesPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateGestures(
+    const settings = await this.settingsRepository.updateGestures({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

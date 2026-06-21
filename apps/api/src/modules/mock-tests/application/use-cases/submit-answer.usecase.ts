@@ -1,11 +1,11 @@
-import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
 import type { MockTestAIEvaluationRepositoryContract } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
 import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
 import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
 import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
 import type { SubmitAnswerPayload } from '../dtos/mock-tests.dto'
-import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
 
 type SubmitAnswerRepository =
   MockTestAttemptRepositoryContract &
@@ -18,7 +18,7 @@ export class SubmitAnswerUseCase {
     private readonly repo: SubmitAnswerRepository,
     private readonly aiService: MockTestAIServiceContract,
     private readonly scoringService: MockTestScoringServiceContract,
-  ) { }
+  ) {}
 
   async execute(
     attemptId: string,
@@ -49,17 +49,20 @@ export class SubmitAnswerUseCase {
       throw MockTestsApplicationError.useCodingSubmitEndpoint()
     }
 
-    const existing = await this.repo.findAnswerByQuestion(
+    const existing = await this.repo.findAnswerByQuestion({
       attemptId,
-      payload.questionId,
-    )
+      questionId: payload.questionId,
+    })
 
     let isCorrect: boolean | undefined
     let pointsEarned: number | undefined
 
     if (question.type === 'mcq') {
       isCorrect = question.correctAnswer
-        ? this.scoringService.isMCQCorrect(payload.answer, question.correctAnswer)
+        ? this.scoringService.isMCQCorrect(
+            payload.answer,
+            question.correctAnswer,
+          )
         : false
 
       pointsEarned = isCorrect ? question.points : 0
@@ -67,18 +70,17 @@ export class SubmitAnswerUseCase {
 
     let savedAnswer = existing
       ? await this.repo.updateAnswer(existing._id, {
-        answer: payload.answer,
-        isCorrect,
-        pointsEarned,
-        submittedAt: new Date(),
-      })
+          answer: payload.answer,
+          isCorrect,
+          pointsEarned,
+        })
       : await this.repo.saveAnswer({
-        attemptId,
-        questionId: payload.questionId,
-        answer: payload.answer,
-        isCorrect,
-        pointsEarned,
-      })
+          attemptId,
+          questionId: payload.questionId,
+          answer: payload.answer,
+          isCorrect,
+          pointsEarned,
+        })
 
     if (!savedAnswer) {
       throw MockTestsApplicationError.answerSaveFailed()
@@ -98,7 +100,7 @@ export class SubmitAnswerUseCase {
           maxPoints: question.points,
         })
 
-        const aiEval = await this.repo.createAIEvaluation({
+        await this.repo.createAIEvaluation({
           attemptId,
           questionId: payload.questionId,
           answerId: savedAnswer._id,
@@ -110,7 +112,6 @@ export class SubmitAnswerUseCase {
         const evaluatedAnswer = await this.repo.updateAnswer(savedAnswer._id, {
           isCorrect: evaluation.isCorrect,
           pointsEarned: evaluation.score,
-          aiEvaluationId: aiEval._id,
         })
 
         if (evaluatedAnswer) {

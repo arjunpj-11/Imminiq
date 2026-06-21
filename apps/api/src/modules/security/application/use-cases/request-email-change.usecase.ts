@@ -55,10 +55,13 @@ export class RequestEmailChangeUseCase {
       this.emailChangeTokenService.generate()
 
     const updatedUser =
-      await this.securityUserRepository.savePendingEmailChange(userId, {
-        pendingEmail: normalizedEmail,
-        tokenHash,
-        expiresAt,
+      await this.securityUserRepository.savePendingEmailChange({
+        userId,
+        data: {
+          pendingEmail: normalizedEmail,
+          tokenHash,
+          expiresAt,
+        },
       })
 
     if (!updatedUser) {

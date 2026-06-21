@@ -18,10 +18,9 @@ export class GetMeUseCase {
       throw UsersApplicationError.userNotFound()
     }
 
-    const profile = await this.usersRepository.ensureForUser(
-      user.id,
-      user.fullName,
-    )
+    const profile = await this.usersRepository.ensureForUser({
+      userId: user.id,
+    })
 
     return {
       user: this.usersMapper.toUserView(user),

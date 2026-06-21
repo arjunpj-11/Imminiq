@@ -5,8 +5,8 @@ import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-
 import type { TwoFactorSetupResponseDto } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
-type SetupTwoFactorRepository = SecurityUserRepositoryContract &
-  SecurityTwoFactorRepositoryContract
+type SetupTwoFactorRepository =
+  SecurityUserRepositoryContract & SecurityTwoFactorRepositoryContract
 
 export class SetupTwoFactorUseCase {
   constructor(
@@ -29,21 +29,24 @@ export class SetupTwoFactorUseCase {
     }
 
     const accountLabel = user.email?.trim().toLowerCase() || user.username
+
     const setup = await this.twoFactorGateway.createSetup({
       issuer: TWO_FACTOR_ISSUER,
       accountLabel,
     })
+
     const encryptedSecret = this.twoFactorGateway.encryptSecret(setup.secret)
 
-    const setupRecord = await this.securityRepository.savePendingTwoFactorSetup(
-      userId,
-      {
-        encryptedSecret,
-        issuer: TWO_FACTOR_ISSUER,
-        accountLabel,
-        qrCodeUri: setup.qrCodeUri,
-      },
-    )
+    const setupRecord =
+      await this.securityRepository.savePendingTwoFactorSetup({
+        userId,
+        data: {
+          encryptedSecret,
+          issuer: TWO_FACTOR_ISSUER,
+          accountLabel,
+          qrCodeUri: setup.qrCodeUri,
+        },
+      })
 
     if (!setupRecord) {
       throw SecurityApplicationError.twoFactorSetupFailed()

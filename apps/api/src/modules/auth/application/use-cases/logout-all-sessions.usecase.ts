@@ -6,6 +6,6 @@ export class LogoutAllSessionsUseCase {
   ) {}
 
   async execute(userId: string): Promise<void> {
-    await this.authRepository.revokeAllUserTokens(userId)
+    await this.authRepository.revokeAllUserSessions(userId)
   }
 }

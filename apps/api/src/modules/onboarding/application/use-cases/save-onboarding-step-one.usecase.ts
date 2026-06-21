@@ -15,11 +15,11 @@ export class SaveOnboardingStepOneUseCase {
     userId: string,
     payload: SaveOnboardingStepOnePayload,
   ): Promise<OnboardingResponseRecord | null> {
-    const response = await this.onboardingRepository.saveStep1(
+    const response = await this.onboardingRepository.saveStep1({
       userId,
-      payload.topic,
-      payload.goal,
-    )
+      topic: payload.topic,
+      goal: payload.goal,
+    })
 
     return this.onboardingMapper.toResponseDto(response)
   }

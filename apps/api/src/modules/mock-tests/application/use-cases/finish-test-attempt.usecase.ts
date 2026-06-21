@@ -1,11 +1,11 @@
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
 import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
-import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
+import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
 
 type FinishTestAttemptRepository =
   MockTestRepositoryContract &
@@ -15,11 +15,15 @@ type FinishTestAttemptRepository =
   MockTestReportRepositoryContract &
   MockTestAnalyticsRepositoryContract
 
+type QuestionScoreLike = {
+  points?: number
+}
+
 export class FinishTestAttemptUseCase {
   constructor(
     private readonly repo: FinishTestAttemptRepository,
     private readonly scoringService: MockTestScoringServiceContract,
-  ) { }
+  ) {}
 
   async execute(attemptId: string, userId: string) {
     const attempt = await this.repo.findAttemptById(attemptId)
@@ -58,6 +62,8 @@ export class FinishTestAttemptUseCase {
       test.passingScore,
     )
 
+    const maxScore = this.calculateMaxScore(questions)
+
     const { strongTopics, weakTopics } =
       this.scoringService.identifyWeakAndStrongTopics(questions, answers)
 
@@ -70,33 +76,40 @@ export class FinishTestAttemptUseCase {
     const updatedAttempt = await this.repo.updateAttempt(attemptId, {
       status: 'completed',
       completedAt: now,
-      timeTakenSeconds,
+      timeSpentSeconds: timeTakenSeconds,
       score: scoreResult.earnedPoints,
-      scorePercentage: scoreResult.scorePercentage,
-      passed: scoreResult.passed,
+      percentage: scoreResult.scorePercentage,
     })
 
     const existingReport = await this.repo.findReportByAttempt(attemptId)
-    const report = existingReport ||
-      await this.repo.createReport({
+
+    const report =
+      existingReport ||
+      (await this.repo.createReport({
         attemptId,
         userId,
         testId: attempt.testId,
         score: scoreResult.earnedPoints,
-        scorePercentage: scoreResult.scorePercentage,
+        maxScore,
+        percentage: scoreResult.scorePercentage,
         passed: scoreResult.passed,
-        timeTakenSeconds,
         totalQuestions: questions.length,
         correctAnswers: scoreResult.correctCount,
-        incorrectAnswers: scoreResult.incorrectCount,
-        skippedAnswers: scoreResult.skippedCount,
-        strongTopics,
         weakTopics,
+        strongTopics,
         recommendations,
-      })
+      }))
 
     await this.repo.updateAnalyticsSnapshot(attempt.testId)
 
-    return { attempt: updatedAttempt, report, scoreResult }
+    return {
+      attempt: updatedAttempt,
+      report,
+      scoreResult,
+    }
+  }
+
+  private calculateMaxScore(questions: QuestionScoreLike[]): number {
+    return questions.reduce((total, question) => total + (question.points ?? 1), 0)
   }
 }

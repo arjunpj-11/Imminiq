@@ -10,16 +10,16 @@ type UpdateSubtopicProgressResultDto = ReturnType<
 export class UpdateSubtopicProgressUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(
-    input: UpdateSubtopicProgressInput
+    input: UpdateSubtopicProgressInput,
   ): Promise<UpdateSubtopicProgressResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
@@ -73,10 +73,10 @@ export class UpdateSubtopicProgressUseCase {
     }
 
     const updatedProgress =
-      await this.trackerRepository.recomputeTrackerProgress(
-        input.trackerId,
-        input.userId
-      )
+      await this.trackerRepository.recomputeTrackerProgress({
+        trackerId: input.trackerId,
+        userId: input.userId,
+      })
 
     return this.trackerMapper.toSubtopicProgressResultDto({
       subtopic,

@@ -8,7 +8,10 @@ export class GetMyRecentActivityUseCase {
   ) {}
 
   async execute(userId: string, limit = 10) {
-    const items = await this.usersRepository.findRecentActivity(userId, limit)
+    const items = await this.usersRepository.findRecentActivity({
+      userId,
+      limit,
+    })
 
     return {
       items: items.map((item) => this.usersMapper.toActivityView(item)),

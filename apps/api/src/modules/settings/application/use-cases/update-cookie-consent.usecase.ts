@@ -16,10 +16,11 @@ export class UpdateCookieConsentUseCase {
     userId: string,
     cookieConsent: boolean,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateCookieConsent(
+    const settings = await this.settingsRepository.updateCookieConsent({
       userId,
       cookieConsent,
-    )
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

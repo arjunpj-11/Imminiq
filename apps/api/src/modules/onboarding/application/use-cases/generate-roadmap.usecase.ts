@@ -42,24 +42,30 @@ export class GenerateRoadmapUseCase {
       throw OnboardingApplicationError.roadmapGenerationQuotaExceeded()
     }
 
-    await this.onboardingRepository.saveStep1(
+    await this.onboardingRepository.saveStep1({
       userId,
-      payload.topic,
-      payload.goal,
-    )
-
-    await this.onboardingRepository.saveStep2(userId, payload.level)
-
-    const aiJob = await this.onboardingRepository.createAIJob(userId, {
       topic: payload.topic,
-      ...(payload.goal ? { goal: payload.goal } : {}),
+      goal: payload.goal,
+    })
+
+    await this.onboardingRepository.saveStep2({
+      userId,
       level: payload.level,
     })
 
-    await this.onboardingRepository.createAIJobSteps(
-      aiJob.id,
-      ROADMAP_GENERATION_STEPS,
-    )
+    const aiJob = await this.onboardingRepository.createAIJob({
+      userId,
+      inputData: {
+        topic: payload.topic,
+        ...(payload.goal ? { goal: payload.goal } : {}),
+        level: payload.level,
+      },
+    })
+
+    await this.onboardingRepository.createAIJobSteps({
+      jobId: aiJob.id,
+      stepLabels: ROADMAP_GENERATION_STEPS,
+    })
 
     try {
       await this.aiJobQueueGateway.enqueueRoadmapGeneration({

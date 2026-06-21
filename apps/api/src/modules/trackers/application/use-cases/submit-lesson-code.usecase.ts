@@ -10,11 +10,7 @@ const getDocumentId = (document: unknown) => {
     return doc._id
   }
 
-  if (
-    doc._id &&
-    typeof doc._id === 'object' &&
-    'toString' in doc._id
-  ) {
+  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
     return doc._id.toString()
   }
 
@@ -43,16 +39,16 @@ export class SubmitLessonCodeUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
     private readonly codeExecutionService: CodeExecutionServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(
-    input: SubmitLessonCodeInput
+    input: SubmitLessonCodeInput,
   ): Promise<SubmitLessonCodeResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
@@ -66,7 +62,7 @@ export class SubmitLessonCodeUseCase {
 
     if (!lesson) {
       throw TrackerApplicationError.lessonNotGenerated(
-        'Generate the lesson before submitting code'
+        'Generate the lesson before submitting code',
       )
     }
 

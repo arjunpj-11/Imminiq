@@ -1,3 +1,5 @@
+import { createHash } from 'crypto'
+
 import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
 
 export class LogoutUserUseCase {
@@ -6,6 +8,12 @@ export class LogoutUserUseCase {
   ) {}
 
   async execute(refreshToken: string): Promise<void> {
-    await this.authRepository.revokeRefreshToken(refreshToken)
+    const refreshTokenHash = this.hashRefreshToken(refreshToken)
+
+    await this.authRepository.revokeSessionByRefreshTokenHash(refreshTokenHash)
+  }
+
+  private hashRefreshToken(refreshToken: string): string {
+    return createHash('sha256').update(refreshToken).digest('hex')
   }
 }

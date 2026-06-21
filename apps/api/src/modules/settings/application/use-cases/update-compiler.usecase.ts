@@ -19,10 +19,11 @@ export class UpdateCompilerUseCase {
     userId: string,
     payload: UpdateCompilerPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateCompiler(
+    const settings = await this.settingsRepository.updateCompiler({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

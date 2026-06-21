@@ -7,8 +7,8 @@ import type {
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
-type ChangeSecurityPasswordRepository = SecurityUserRepositoryContract &
-  SecuritySessionRepositoryContract
+type ChangeSecurityPasswordRepository =
+  SecurityUserRepositoryContract & SecuritySessionRepositoryContract
 
 export class ChangeSecurityPasswordUseCase {
   constructor(
@@ -40,10 +40,11 @@ export class ChangeSecurityPasswordUseCase {
     }
 
     const passwordHash = await this.passwordHasher.hash(payload.newPassword)
-    const updatedUser = await this.securityRepository.updatePasswordHash(
+
+    const updatedUser = await this.securityRepository.updatePasswordHash({
       userId,
       passwordHash,
-    )
+    })
 
     if (!updatedUser) {
       throw SecurityApplicationError.passwordChangeFailed()

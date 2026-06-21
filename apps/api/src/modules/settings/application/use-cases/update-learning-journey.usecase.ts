@@ -19,10 +19,11 @@ export class UpdateLearningJourneyUseCase {
     userId: string,
     payload: UpdateLearningJourneyPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateLearningJourney(
+    const settings = await this.settingsRepository.updateLearningJourney({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

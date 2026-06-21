@@ -9,7 +9,11 @@ export class GetMyBadgesUseCase {
 
   async execute(userId: string, page: number, limit: number) {
     const { items, total } =
-      await this.usersRepository.findEarnedBadgesPaginated(userId, page, limit)
+      await this.usersRepository.findEarnedBadgesPaginated({
+        userId,
+        page,
+        limit,
+      })
 
     return {
       items: items.map((item) =>

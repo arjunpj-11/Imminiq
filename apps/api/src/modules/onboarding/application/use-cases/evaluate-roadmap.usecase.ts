@@ -56,10 +56,10 @@ export class EvaluateRoadmapUseCase {
     }
 
     const activeEvaluationJob =
-      await this.onboardingRepository.findActiveEvaluationJobForRoadmap(
+      await this.onboardingRepository.findActiveEvaluationJobForRoadmap({
         userId,
-        roadmapJobId,
-      )
+        sourceRoadmapJobId: roadmapJobId,
+      })
 
     if (activeEvaluationJob) {
       throw OnboardingApplicationError.evaluationJobAlreadyActive()
@@ -75,15 +75,18 @@ export class EvaluateRoadmapUseCase {
     }
 
     const evaluationJob =
-      await this.onboardingRepository.createEvaluationAIJob(userId, {
-        sourceRoadmapJobId: roadmapJobId,
-        trackerId,
+      await this.onboardingRepository.createEvaluationAIJob({
+        userId,
+        inputData: {
+          sourceRoadmapJobId: roadmapJobId,
+          trackerId,
+        },
       })
 
-    await this.onboardingRepository.createAIJobSteps(
-      evaluationJob.id,
-      ROADMAP_EVALUATION_STEPS,
-    )
+    await this.onboardingRepository.createAIJobSteps({
+      jobId: evaluationJob.id,
+      stepLabels: ROADMAP_EVALUATION_STEPS,
+    })
 
     try {
       await this.aiJobQueueGateway.enqueueRoadmapEvaluation({

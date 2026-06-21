@@ -13,7 +13,7 @@ export class ClearLessonQuestionSolutionDoubtsUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
     private readonly questionHasher: QuestionHasherServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -22,10 +22,10 @@ export class ClearLessonQuestionSolutionDoubtsUseCase {
     userId: string
     question: string
   }): Promise<ClearLessonQuestionSolutionDoubtsResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')

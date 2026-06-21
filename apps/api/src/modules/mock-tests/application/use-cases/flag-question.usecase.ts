@@ -7,7 +7,7 @@ type FlagQuestionRepository =
   MockTestAnswerRepositoryContract
 
 export class FlagQuestionUseCase {
-  constructor(private readonly repo: FlagQuestionRepository) { }
+  constructor(private readonly repo: FlagQuestionRepository) {}
 
   async execute(attemptId: string, userId: string, questionId: string) {
     const attempt = await this.repo.findAttemptById(attemptId)
@@ -25,11 +25,19 @@ export class FlagQuestionUseCase {
     }
 
     if (attempt.flaggedQuestions.includes(questionId)) {
-      await this.repo.unflagQuestion(attemptId, questionId)
+      await this.repo.unflagQuestion({
+        attemptId,
+        questionId,
+      })
+
       return { flagged: false }
     }
 
-    await this.repo.flagQuestion(attemptId, questionId)
+    await this.repo.flagQuestion({
+      attemptId,
+      questionId,
+    })
+
     return { flagged: true }
   }
 }

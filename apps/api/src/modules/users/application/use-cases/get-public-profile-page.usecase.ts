@@ -37,7 +37,9 @@ export class GetPublicProfilePageUseCase {
     }
 
     const [profile, settings] = await Promise.all([
-      this.usersRepository.ensureForUser(user.id, user.fullName),
+      this.usersRepository.ensureForUser({
+        userId: user.id,
+      }),
       this.usersRepository.findPrivacySettings(user.id),
     ])
 
@@ -45,27 +47,48 @@ export class GetPublicProfilePageUseCase {
       throw UsersApplicationError.publicProfileNotAvailable()
     }
 
-    const [stats, streak, badges, publishedTrackers, recentActivity, relationship] =
-      await Promise.all([
-        settings?.showStats === false
-          ? Promise.resolve(null)
-          : this.usersProfileDataService.getStats(user.id, user, profile),
-        settings?.showStats === false
-          ? Promise.resolve(null)
-          : this.usersProfileDataService.getStreakSummary(user.id),
-        this.usersProfileDataService.getBadgeShowcase(user.id),
-        settings?.showTrackers === false
-          ? Promise.resolve({ items: [], total: 0 })
-          : this.usersRepository.findPublishedTrackers(user.id, query, false),
-        settings?.showActivity === false
-          ? Promise.resolve(null)
-          : this.usersRepository
-              .findRecentActivity(user.id, 10)
-              .then((items) =>
-                items.map((item) => this.usersMapper.toActivityView(item)),
-              ),
-        this.usersRepository.getRelationshipState(viewerUserId, user.id),
-      ])
+    const [
+      stats,
+      streak,
+      badges,
+      publishedTrackers,
+      recentActivity,
+      relationship,
+    ] = await Promise.all([
+      settings?.showStats === false
+        ? Promise.resolve(null)
+        : this.usersProfileDataService.getStats(user.id, user, profile),
+
+      settings?.showStats === false
+        ? Promise.resolve(null)
+        : this.usersProfileDataService.getStreakSummary(user.id),
+
+      this.usersProfileDataService.getBadgeShowcase(user.id),
+
+      settings?.showTrackers === false
+        ? Promise.resolve({ items: [], total: 0 })
+        : this.usersRepository.findPublishedTrackers({
+            ownerId: user.id,
+            query,
+            includePrivate: false,
+          }),
+
+      settings?.showActivity === false
+        ? Promise.resolve(null)
+        : this.usersRepository
+            .findRecentActivity({
+              userId: user.id,
+              limit: 10,
+            })
+            .then((items) =>
+              items.map((item) => this.usersMapper.toActivityView(item)),
+            ),
+
+      this.usersRepository.getRelationshipState({
+        viewerUserId,
+        targetUserId: user.id,
+      }),
+    ])
 
     return {
       user: this.usersMapper.toUserView(user),

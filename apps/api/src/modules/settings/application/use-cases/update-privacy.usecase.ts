@@ -19,7 +19,11 @@ export class UpdatePrivacyUseCase {
     userId: string,
     payload: UpdatePrivacyPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updatePrivacy(userId, payload)
+    const settings = await this.settingsRepository.updatePrivacy({
+      userId,
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

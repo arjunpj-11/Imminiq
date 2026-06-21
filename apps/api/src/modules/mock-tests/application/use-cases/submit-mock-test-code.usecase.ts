@@ -14,7 +14,7 @@ export class SubmitMockTestCodeUseCase {
   constructor(
     private readonly repo: SubmitMockTestCodeRepository,
     private readonly codeRunner: MockTestCodeRunnerServiceContract,
-  ) { }
+  ) {}
 
   async execute(
     attemptId: string,
@@ -59,22 +59,28 @@ export class SubmitMockTestCodeUseCase {
         ? Math.round((result.passedCount / result.totalCount) * question.points)
         : 0
 
-    const existing = await this.repo.findAnswerByQuestion(attemptId, questionId)
+    const existing = await this.repo.findAnswerByQuestion({
+      attemptId,
+      questionId,
+    })
 
     const answer = existing
       ? await this.repo.updateAnswer(existing._id, {
-        answer: payload.sourceCode,
-        isCorrect: result.passed,
-        pointsEarned,
-        submittedAt: new Date(),
-      })
+          answer: payload.sourceCode,
+          isCorrect: result.passed,
+          pointsEarned,
+        })
       : await this.repo.saveAnswer({
-        attemptId,
-        questionId,
-        answer: payload.sourceCode,
-        isCorrect: result.passed,
-        pointsEarned,
-      })
+          attemptId,
+          questionId,
+          answer: payload.sourceCode,
+          isCorrect: result.passed,
+          pointsEarned,
+        })
+
+    if (!answer) {
+      throw MockTestsApplicationError.answerSaveFailed()
+    }
 
     if (!existing) {
       await this.repo.incrementAnsweredCount(attemptId)

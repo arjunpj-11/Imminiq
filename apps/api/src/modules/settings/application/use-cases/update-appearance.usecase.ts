@@ -19,10 +19,11 @@ export class UpdateAppearanceUseCase {
     userId: string,
     payload: UpdateAppearancePayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateAppearance(
+    const settings = await this.settingsRepository.updateAppearance({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

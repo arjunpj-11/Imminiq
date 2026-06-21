@@ -1,13 +1,16 @@
+import { createHash } from 'crypto'
+
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
 import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
 import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
 import type { RetiredRefreshTokenStoreContract } from '../../domain/services/retired-refresh-token-store.interface'
 import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
 import type { RequestMeta, TokenPair } from '../dtos/auth.dto'
 import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
 
-type RefreshTokensRepository = AuthUserRepositoryContract & AuthSessionRepositoryContract
+type RefreshTokensRepository =
+  AuthUserRepositoryContract & AuthSessionRepositoryContract
 
 export class RefreshAuthTokensUseCase {
   constructor(
@@ -18,18 +21,18 @@ export class RefreshAuthTokensUseCase {
     private readonly authAccountPolicy: AuthAccountPolicyContract
   ) {}
 
-  async execute(
-    refreshToken: string,
-    meta?: RequestMeta
-  ): Promise<TokenPair> {
-    const tokenRecord = await this.authRepository.findRefreshToken(refreshToken)
+  async execute(refreshToken: string, meta?: RequestMeta): Promise<TokenPair> {
+    const refreshTokenHash = this.hashRefreshToken(refreshToken)
+
+    const tokenRecord =
+      await this.authRepository.findSessionByRefreshTokenHash(refreshTokenHash)
 
     if (!tokenRecord) {
       const retired =
         await this.retiredRefreshTokenStore.findByRawToken(refreshToken)
 
       if (retired) {
-        await this.authRepository.revokeAllUserTokens(retired.userId)
+        await this.authRepository.revokeAllUserSessions(retired.userId)
 
         await this.securityAuditLogger.record({
           userId: retired.userId,
@@ -42,7 +45,9 @@ export class RefreshAuthTokensUseCase {
           },
         })
 
-        throw AuthApplicationError.refreshTokenReuseDetected('Refresh token reuse detected. Please sign in again.')
+        throw AuthApplicationError.refreshTokenReuseDetected(
+          'Refresh token reuse detected. Please sign in again.'
+        )
       }
 
       throw AuthApplicationError.unauthorized('Invalid refresh token')
@@ -62,28 +67,35 @@ export class RefreshAuthTokensUseCase {
     )
 
     const newRefreshToken = this.authTokenService.generateRefreshToken()
+    const newRefreshTokenHash = this.hashRefreshToken(newRefreshToken)
 
-    await this.retiredRefreshTokenStore.retire({
-      refreshTokenHash: tokenRecord.refreshTokenHash!,
-      userId: tokenRecord.userId,
-      sessionId: tokenRecord.id,
-      expiresAt: tokenRecord.expiresAt,
-    })
+  await this.retiredRefreshTokenStore.retire({
+  refreshTokenHash,
+  userId: tokenRecord.userId,
+  sessionId: tokenRecord.id,
+  expiresAt: tokenRecord.expiresAt,
+})
 
     const rotatedSession =
-      await this.authRepository.rotateRefreshTokenInSameSession(
-        tokenRecord.id,
-        newRefreshToken,
-        meta
-      )
+      await this.authRepository.rotateRefreshTokenInSameSession({
+        sessionId: tokenRecord.id,
+        newRefreshTokenHash,
+        meta,
+      })
 
     if (!rotatedSession) {
-      throw AuthApplicationError.sessionRefreshFailed('Unable to refresh session')
+      throw AuthApplicationError.sessionRefreshFailed(
+        'Unable to refresh session'
+      )
     }
 
     return {
       accessToken,
       refreshToken: newRefreshToken,
     }
+  }
+
+  private hashRefreshToken(refreshToken: string): string {
+    return createHash('sha256').update(refreshToken).digest('hex')
   }
 }

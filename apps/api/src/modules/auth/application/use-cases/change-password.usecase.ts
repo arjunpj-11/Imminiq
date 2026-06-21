@@ -1,9 +1,10 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
 import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
+import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
 import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
 
-type ChangePasswordRepository = AuthUserRepositoryContract & AuthSessionRepositoryContract
+type ChangePasswordRepository =
+  AuthUserRepositoryContract & AuthSessionRepositoryContract
 
 export class ChangePasswordUseCase {
   constructor(
@@ -23,7 +24,9 @@ export class ChangePasswordUseCase {
     }
 
     if (!user.passwordHash) {
-      throw AuthApplicationError.oauthAccount('OAuth accounts cannot change password')
+      throw AuthApplicationError.oauthAccount(
+        'OAuth accounts cannot change password'
+      )
     }
 
     const valid = await this.passwordHasher.compare(
@@ -38,6 +41,6 @@ export class ChangePasswordUseCase {
     const passwordHash = await this.passwordHasher.hash(newPassword)
 
     await this.authRepository.updatePasswordHash(userId, passwordHash)
-    await this.authRepository.revokeAllUserTokens(userId)
+    await this.authRepository.revokeAllUserSessions(userId)
   }
 }

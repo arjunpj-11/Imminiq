@@ -1,8 +1,8 @@
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 type StartTestAttemptRepository =
   MockTestRepositoryContract &
@@ -13,7 +13,7 @@ export class StartTestAttemptUseCase {
   constructor(
     private readonly repo: StartTestAttemptRepository,
     private readonly mapper: MockTestsMapperContract,
-  ) { }
+  ) {}
 
   async execute(testId: string, userId: string) {
     const test = await this.repo.findTestById(testId)
@@ -26,7 +26,11 @@ export class StartTestAttemptUseCase {
       throw MockTestsApplicationError.forbidden()
     }
 
-    const existingAttempt = await this.repo.findActiveAttempt(userId, testId)
+    const existingAttempt = await this.repo.findActiveAttempt({
+      userId,
+      testId,
+    })
+
     const questions = await this.repo.findQuestionsByTest(testId)
 
     if (!questions.length) {
@@ -38,7 +42,10 @@ export class StartTestAttemptUseCase {
     )
 
     if (existingAttempt) {
-      return { attempt: existingAttempt, questions: safeQuestions }
+      return {
+        attempt: existingAttempt,
+        questions: safeQuestions,
+      }
     }
 
     const attempt = await this.repo.createAttempt({
@@ -47,6 +54,9 @@ export class StartTestAttemptUseCase {
       totalQuestions: test.questionCount,
     })
 
-    return { attempt, questions: safeQuestions }
+    return {
+      attempt,
+      questions: safeQuestions,
+    }
   }
 }

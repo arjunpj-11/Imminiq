@@ -23,14 +23,14 @@ export class RunLessonCodeUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
     private readonly codeExecutionService: CodeExecutionServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: RunLessonCodeInput): Promise<RunLessonCodeResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
@@ -44,7 +44,7 @@ export class RunLessonCodeUseCase {
 
     if (!lesson) {
       throw TrackerApplicationError.lessonNotGenerated(
-        'Generate the lesson before running code'
+        'Generate the lesson before running code',
       )
     }
 

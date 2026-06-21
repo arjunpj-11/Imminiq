@@ -28,7 +28,7 @@ export class GetTrackerLessonUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
     private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -36,10 +36,10 @@ export class GetTrackerLessonUseCase {
     subtopicId: string
     userId: string
   }): Promise<GetTrackerLessonResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')

@@ -19,10 +19,11 @@ export class UpdateQuietHoursUseCase {
     userId: string,
     payload: UpdateQuietHoursPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateQuietHours(
+    const settings = await this.settingsRepository.updateQuietHours({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

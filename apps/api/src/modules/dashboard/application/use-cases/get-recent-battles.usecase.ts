@@ -9,7 +9,10 @@ export class GetRecentBattlesUseCase {
   ) {}
 
   async execute(userId: string, limit?: number): Promise<DashboardBattleItem[]> {
-    const battles = await this.dashboardRepository.getRecentBattles(userId, limit)
+    const battles = await this.dashboardRepository.getRecentBattles({
+      userId,
+      limit,
+    })
 
     return battles.map((battle) => this.dashboardMapper.toBattleItem(battle))
   }

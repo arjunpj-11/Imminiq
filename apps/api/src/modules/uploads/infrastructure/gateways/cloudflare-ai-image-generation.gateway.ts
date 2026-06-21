@@ -1,4 +1,4 @@
-import { generateImageWithCloudflare } from '../../../../infrastructure/ai/cloudflare-image.client'
+import { generateImageWithCloudflare } from '../../../../infrastructure/ai/clients/cloudflare-image.client'
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
 import type {
   AiImageGenerationServiceContract,

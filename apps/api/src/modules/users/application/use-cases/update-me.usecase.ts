@@ -1,5 +1,6 @@
 import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
 import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import type { UserProfileUpdate } from '../../domain/value-objects/user-profile-update.vo'
 import type { UpdateMyProfileInput } from '../dtos/users.dto'
 import { UsersApplicationError } from '../errors/users-application.error'
 import type { UsersMapperContract } from '../mappers/users.mapper'
@@ -20,10 +21,18 @@ export class UpdateMeUseCase {
     }
 
     const normalizedPayload = this.normalizePayload(payload)
-    const updatedProfile = await this.usersRepository.updateByUserId(
-      user.id,
-      normalizedPayload,
-    )
+    const { fullName, ...profilePayload } = normalizedPayload
+
+    const hasProfileUpdates = Object.keys(profilePayload).length > 0
+
+    const updatedProfile = hasProfileUpdates
+      ? await this.usersRepository.updateByUserId({
+          userId: user.id,
+          payload: profilePayload as UserProfileUpdate,
+        })
+      : await this.usersRepository.ensureForUser({
+          userId: user.id,
+        })
 
     if (!updatedProfile) {
       throw UsersApplicationError.profileUpdateFailed()
@@ -31,14 +40,11 @@ export class UpdateMeUseCase {
 
     let resolvedUser = user
 
-    if (
-      normalizedPayload.fullName &&
-      normalizedPayload.fullName !== user.fullName
-    ) {
-      const updatedUser = await this.usersRepository.updateFullName(
-        user.id,
-        normalizedPayload.fullName,
-      )
+    if (fullName && fullName !== user.fullName) {
+      const updatedUser = await this.usersRepository.updateFullName({
+        userId: user.id,
+        fullName,
+      })
 
       if (!updatedUser) {
         throw UsersApplicationError.userNameUpdateFailed()
@@ -53,9 +59,7 @@ export class UpdateMeUseCase {
     }
   }
 
-  private normalizePayload(
-    payload: UpdateMyProfileInput,
-  ): UpdateMyProfileInput {
+  private normalizePayload(payload: UpdateMyProfileInput): UpdateMyProfileInput {
     return {
       ...payload,
       ...(payload.fullName !== undefined

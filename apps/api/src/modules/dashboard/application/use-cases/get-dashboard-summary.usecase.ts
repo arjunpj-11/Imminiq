@@ -36,10 +36,10 @@ export class GetDashboardSummaryUseCase {
       this.dashboardRepository.getStreakData(userId),
       this.dashboardRepository.getTrackerOverview(userId),
       this.dashboardRepository.getAggregatedStats(userId),
-      this.dashboardRepository.getRecentActivity(
+      this.dashboardRepository.getRecentActivity({
         userId,
-        DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT
-      ),
+        limit: DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT,
+      }),
       this.dashboardRepository.getUnreadNotificationCount(userId),
     ])
 

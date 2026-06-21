@@ -19,10 +19,11 @@ export class UpdateEmailDigestUseCase {
     userId: string,
     payload: UpdateEmailDigestPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateEmailDigest(
+    const settings = await this.settingsRepository.updateEmailDigest({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

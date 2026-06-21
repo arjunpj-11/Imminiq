@@ -9,7 +9,10 @@ export class GetFriendsHubUseCase {
   ) {}
 
   async execute(userId: string, limit?: number): Promise<DashboardFriendItem[]> {
-    const friends = await this.dashboardRepository.getFriendsHub(userId, limit)
+    const friends = await this.dashboardRepository.getFriendsHub({
+      userId,
+      limit,
+    })
 
     return friends.map((friend) => this.dashboardMapper.toFriendItem(friend))
   }

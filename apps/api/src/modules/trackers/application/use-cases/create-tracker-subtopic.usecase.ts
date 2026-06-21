@@ -16,10 +16,10 @@ export class CreateTrackerSubtopicUseCase {
   async execute(
     input: CreateSubtopicUseCaseInput
   ): Promise<CreateTrackerSubtopicResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
@@ -80,10 +80,10 @@ export class CreateTrackerSubtopicUseCase {
 
     await Promise.all([
       this.trackerRepository.incrementTrackerSubtopicsCount(input.trackerId),
-      this.trackerRepository.recomputeTrackerProgress(
-        input.trackerId,
-        input.userId
-      ),
+      this.trackerRepository.recomputeTrackerProgress({
+        trackerId: input.trackerId,
+        userId: input.userId,
+      }),
     ])
 
     return this.trackerMapper.toTrackerSubtopicDto(subtopic)

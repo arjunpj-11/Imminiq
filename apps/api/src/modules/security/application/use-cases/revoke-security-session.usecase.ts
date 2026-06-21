@@ -22,7 +22,10 @@ export class RevokeSecuritySessionUseCase {
     }
 
     const revokedSession =
-      await this.securitySessionRepository.revokeSessionById(userId, sessionId)
+      await this.securitySessionRepository.revokeSessionById({
+        userId,
+        sessionId,
+      })
 
     if (!revokedSession) {
       throw SecurityApplicationError.sessionNotFound()

@@ -15,11 +15,7 @@ const getDocumentId = (document: unknown) => {
     return doc._id
   }
 
-  if (
-    doc._id &&
-    typeof doc._id === 'object' &&
-    'toString' in doc._id
-  ) {
+  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
     return doc._id.toString()
   }
 
@@ -40,10 +36,10 @@ export class GenerateLessonQuestionSolutionUseCase {
     userId: string
     question: string
   }): Promise<GenerateLessonQuestionSolutionResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')

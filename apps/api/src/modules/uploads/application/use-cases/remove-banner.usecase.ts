@@ -23,10 +23,10 @@ export class RemoveBannerUseCase {
     try {
       await Promise.all([
         this.uploadsRepository.clearBannerUrl(context.userId),
-        this.uploadsRepository.softDeleteLatestProfileUpload(
-          context.userId,
-          'banner',
-        ),
+        this.uploadsRepository.softDeleteLatestProfileUpload({
+          userId: context.userId,
+          kind: 'banner',
+        }),
       ])
 
       return this.uploadsMapper.toBannerRemovedResult()

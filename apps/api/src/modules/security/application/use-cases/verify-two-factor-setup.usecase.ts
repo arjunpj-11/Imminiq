@@ -59,11 +59,12 @@ export class VerifyTwoFactorSetupUseCase {
 
     const backupCodes = this.backupCodeService.generate()
     const hashedBackupCodes = await this.backupCodeService.hash(backupCodes)
-    const activatedTwoFactor = await this.twoFactorRepository.activateTwoFactor(
-      userId,
-      hashedBackupCodes,
-    )
 
+  const activatedTwoFactor =
+  await this.twoFactorRepository.activateTwoFactor({
+    userId,
+    backupCodes: hashedBackupCodes,
+  })
     if (!activatedTwoFactor) {
       throw SecurityApplicationError.twoFactorEnableFailed()
     }

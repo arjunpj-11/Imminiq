@@ -1,8 +1,8 @@
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 type RetakeTestRepository =
   MockTestRepositoryContract &
@@ -13,7 +13,7 @@ export class RetakeTestUseCase {
   constructor(
     private readonly repo: RetakeTestRepository,
     private readonly mapper: MockTestsMapperContract,
-  ) { }
+  ) {}
 
   async execute(attemptId: string, userId: string) {
     const attempt = await this.repo.findAttemptById(attemptId)
@@ -32,7 +32,10 @@ export class RetakeTestUseCase {
       throw MockTestsApplicationError.notFound('Test not found')
     }
 
-    await this.repo.abandonActiveAttempts(userId, attempt.testId)
+    await this.repo.abandonActiveAttempts({
+      userId,
+      testId: attempt.testId,
+    })
 
     const newAttempt = await this.repo.createAttempt({
       testId: attempt.testId,
@@ -44,7 +47,9 @@ export class RetakeTestUseCase {
 
     return {
       attempt: newAttempt,
-      questions: questions.map((question) => this.mapper.sanitizeQuestionForAttempt(question)),
+      questions: questions.map((question) =>
+        this.mapper.sanitizeQuestionForAttempt(question),
+      ),
     }
   }
 }

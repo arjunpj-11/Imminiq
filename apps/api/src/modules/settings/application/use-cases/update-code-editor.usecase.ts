@@ -19,10 +19,11 @@ export class UpdateCodeEditorUseCase {
     userId: string,
     payload: UpdateCodeEditorPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateCodeEditor(
+    const settings = await this.settingsRepository.updateCodeEditor({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

@@ -3,6 +3,20 @@ import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
 
+const getDocumentId = (document: unknown) => {
+  const doc = document as { _id?: unknown }
+
+  if (typeof doc._id === 'string') {
+    return doc._id
+  }
+
+  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
+    return doc._id.toString()
+  }
+
+  return null
+}
+
 export class GenerateLessonVisualizationUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
@@ -16,10 +30,10 @@ export class GenerateLessonVisualizationUseCase {
     userId: string
     regenerate?: boolean
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
@@ -33,7 +47,7 @@ export class GenerateLessonVisualizationUseCase {
       })
 
       if (cached) {
-        return cached
+        return this.trackerMapper.toLessonVisualizationDto(cached)
       }
     }
 
@@ -44,7 +58,9 @@ export class GenerateLessonVisualizationUseCase {
     })
 
     if (!lesson) {
-      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before visualizing')
+      throw TrackerApplicationError.lessonNotGenerated(
+        'Generate the lesson before visualizing'
+      )
     }
 
     const result = await this.trackerAIService.generateLessonVisualization({
@@ -57,16 +73,17 @@ export class GenerateLessonVisualizationUseCase {
       codeExample: lesson.codeExample,
     })
 
-    await this.trackerRepository.saveLessonVisualization({
-      trackerId: input.trackerId,
-      subtopicId: input.subtopicId,
-      userId: input.userId,
-      lessonId: lesson._id?.toString?.() ?? null,
-      html: result.html,
-      visualTitle: result.visualTitle,
-      visualDescription: result.visualDescription,
-    })
+    const savedVisualization =
+      await this.trackerRepository.saveLessonVisualization({
+        trackerId: input.trackerId,
+        subtopicId: input.subtopicId,
+        userId: input.userId,
+        lessonId: getDocumentId(lesson),
+        html: result.html,
+        visualTitle: result.visualTitle,
+        visualDescription: result.visualDescription,
+      })
 
-    return this.trackerMapper.toLessonVisualizationDto(result)
+    return this.trackerMapper.toLessonVisualizationDto(savedVisualization)
   }
 }

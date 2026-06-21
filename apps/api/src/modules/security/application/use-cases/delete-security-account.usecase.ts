@@ -12,8 +12,8 @@ import type {
 import { SecurityApplicationError } from '../errors/security-application.error'
 import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
 
-type DeleteSecurityAccountRepository = SecurityUserRepositoryContract &
-  SecuritySessionRepositoryContract
+type DeleteSecurityAccountRepository =
+  SecurityUserRepositoryContract & SecuritySessionRepositoryContract
 
 export class DeleteSecurityAccountUseCase {
   constructor(
@@ -48,10 +48,11 @@ export class DeleteSecurityAccountUseCase {
       Date.now() + ACCOUNT_DELETION_RECOVERY_MS,
     )
 
-    const scheduledUser = await this.securityRepository.scheduleAccountDeletion(
-      userId,
-      scheduledDeletionAt,
-    )
+    const scheduledUser =
+      await this.securityRepository.scheduleAccountDeletion({
+        userId,
+        scheduledDeletionAt,
+      })
 
     if (!scheduledUser) {
       throw SecurityApplicationError.accountDeleteFailed()

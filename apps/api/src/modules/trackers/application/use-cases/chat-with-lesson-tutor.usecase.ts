@@ -13,7 +13,7 @@ export class ChatWithLessonTutorUseCase {
   constructor(
     private readonly trackerRepository: TrackerRepositoryContract,
     private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -25,10 +25,10 @@ export class ChatWithLessonTutorUseCase {
       content: string
     }[]
   }): Promise<ChatWithLessonTutorResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
@@ -42,7 +42,7 @@ export class ChatWithLessonTutorUseCase {
 
     if (!lesson) {
       throw TrackerApplicationError.lessonNotGenerated(
-        'Generate the lesson before chatting'
+        'Generate the lesson before chatting',
       )
     }
 

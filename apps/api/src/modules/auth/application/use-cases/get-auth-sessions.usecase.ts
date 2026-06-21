@@ -7,6 +7,6 @@ export class GetAuthSessionsUseCase {
   ) {}
 
   async execute(userId: string): Promise<AuthSessionEntity[]> {
-    return this.authRepository.findAllUserTokens(userId)
+    return this.authRepository.findAllUserSessions(userId)
   }
 }

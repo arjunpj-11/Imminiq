@@ -25,10 +25,10 @@ export class GetCodeHintUseCase {
   ) {}
 
   async execute(input: GetCodeHintInput): Promise<GetCodeHintResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')

@@ -19,10 +19,11 @@ export class UpdateAIBehaviourUseCase {
     userId: string,
     payload: UpdateAIBehaviourPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateAIBehaviour(
+    const settings = await this.settingsRepository.updateAIBehaviour({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

@@ -17,11 +17,7 @@ const getDocumentId = (document: unknown) => {
     return doc._id
   }
 
-  if (
-    doc._id &&
-    typeof doc._id === 'object' &&
-    'toString' in doc._id
-  ) {
+  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
     return doc._id.toString()
   }
 
@@ -33,7 +29,7 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     private readonly trackerRepository: TrackerRepositoryContract,
     private readonly trackerAIService: TrackerAIServiceContract,
     private readonly questionHasher: QuestionHasherServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -43,10 +39,10 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     question: string
     message: string
   }): Promise<AskLessonQuestionSolutionDoubtResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById(
-      input.trackerId,
-      input.userId
-    )
+    const tracker = await this.trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    })
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
@@ -60,7 +56,7 @@ export class AskLessonQuestionSolutionDoubtUseCase {
 
     if (!lesson) {
       throw TrackerApplicationError.lessonNotGenerated(
-        'Generate the lesson before asking solution doubt'
+        'Generate the lesson before asking solution doubt',
       )
     }
 
@@ -75,7 +71,7 @@ export class AskLessonQuestionSolutionDoubtUseCase {
 
     if (!solution) {
       throw TrackerApplicationError.solutionNotGenerated(
-        'Generate the solution before asking doubts'
+        'Generate the solution before asking doubts',
       )
     }
 
@@ -125,15 +121,14 @@ export class AskLessonQuestionSolutionDoubtUseCase {
       }
     })
 
-    const answer =
-      await this.trackerAIService.chatWithLessonQuestionSolutionDoubt({
-        lessonTitle: lesson.title,
-        lessonExplanation: lesson.explanation,
-        question: input.question,
-        solution: solutionText,
-        messages,
-      })
-
+ const answer =
+  await this.trackerAIService.chatWithLessonQuestionSolutionDoubt({
+    lessonTitle: lesson.title,
+    lessonExplanation: lesson.explanation,
+    question: input.question,
+    solution: solutionText,
+    messages,
+  })
     await this.trackerRepository.createLessonQuestionSolutionDoubt({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,

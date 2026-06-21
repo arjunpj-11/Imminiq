@@ -12,7 +12,10 @@ export class GetActivityIntensityUseCase {
     userId: string,
     months?: number
   ): Promise<DashboardActivityIntensityItem[]> {
-    const items = await this.dashboardRepository.getActivityIntensity(userId, months)
+    const items = await this.dashboardRepository.getActivityIntensity({
+      userId,
+      months,
+    })
 
     return items.map((item) => this.dashboardMapper.toActivityIntensity(item))
   }

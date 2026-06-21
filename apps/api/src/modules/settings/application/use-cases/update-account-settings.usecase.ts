@@ -19,10 +19,11 @@ export class UpdateAccountSettingsUseCase {
     userId: string,
     payload: UpdateAccountPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateAccountSettings(
+    const settings = await this.settingsRepository.updateAccountSettings({
       userId,
-      payload,
-    )
+      data: payload,
+    })
+
     return this.settingsMapper.toNullableDto(settings)
   }
 }

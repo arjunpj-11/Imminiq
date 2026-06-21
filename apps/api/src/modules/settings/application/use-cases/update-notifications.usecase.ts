@@ -25,14 +25,21 @@ export class UpdateNotificationsUseCase {
     const { types, ...rest } = payload
 
     if (Object.keys(rest).length > 0) {
-      await this.settingsRepository.updateNotifications(userId, rest)
+      await this.settingsRepository.updateNotifications({
+        userId,
+        data: rest,
+      })
     }
 
     if (types && Object.keys(types).length > 0) {
-      await this.settingsRepository.updateNotificationTypes(userId, types)
+      await this.settingsRepository.updateNotificationTypes({
+        userId,
+        types,
+      })
     }
 
     const settings = await this.settingsRepository.findOrCreate(userId)
+
     return this.settingsMapper.toDto(settings)
   }
 }

@@ -8,11 +8,11 @@ export class GetMyActivityUseCase {
   ) {}
 
   async execute(userId: string, page: number, limit: number) {
-    const { items, total } = await this.usersRepository.findActivityFeed(
+    const { items, total } = await this.usersRepository.findActivityFeed({
       userId,
       page,
       limit,
-    )
+    })
 
     return {
       items: items.map((item) => this.usersMapper.toActivityView(item)),

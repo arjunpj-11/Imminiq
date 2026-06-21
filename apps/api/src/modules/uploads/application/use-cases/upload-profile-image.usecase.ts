@@ -17,6 +17,10 @@ import type { UploadUserProfileServiceContract } from '../services/upload-user-p
 type UploadProfileImageRepository =
   ProfileImageRepositoryContract & UploadRecordRepositoryContract
 
+type StoredProfileImage = Awaited<
+  ReturnType<ProfileImageStorageServiceContract['uploadProfileImage']>
+>
+
 export class UploadProfileImageUseCase {
   constructor(
     private readonly uploadUserProfileService: UploadUserProfileServiceContract,
@@ -34,9 +38,10 @@ export class UploadProfileImageUseCase {
 
     const context =
       await this.uploadUserProfileService.getRequiredContext(input.userId)
+
     const folder = input.kind === 'avatar' ? AVATAR_FOLDER : BANNER_FOLDER
 
-    let storedImage
+    let storedImage: StoredProfileImage
 
     try {
       storedImage = await this.profileImageStorageService.uploadProfileImage(
@@ -53,23 +58,23 @@ export class UploadProfileImageUseCase {
 
     try {
       if (input.kind === 'avatar') {
-        await this.uploadsRepository.setAvatarUrl(
-          context.userId,
-          storedImage.fileUrl,
-        )
+        await this.uploadsRepository.setAvatarUrl({
+          userId: context.userId,
+          avatarUrl: storedImage.fileUrl,
+        })
       } else {
-        await this.uploadsRepository.setBannerUrl(
-          context.userId,
-          storedImage.fileUrl,
-        )
+        await this.uploadsRepository.setBannerUrl({
+          userId: context.userId,
+          bannerUrl: storedImage.fileUrl,
+        })
       }
 
-      const upload = await this.uploadsRepository.saveUploadRecord(
-        context.userId,
-        input.kind,
-        storedImage,
-        context.profileId,
-      )
+      const upload = await this.uploadsRepository.saveUploadRecord({
+        userId: context.userId,
+        kind: input.kind,
+        file: storedImage,
+        referenceId: context.profileId,
+      })
 
       return this.uploadsMapper.toUploadProfileImageResult(upload)
     } catch (error) {

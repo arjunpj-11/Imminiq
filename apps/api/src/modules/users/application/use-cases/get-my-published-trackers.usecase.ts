@@ -10,7 +10,11 @@ export class GetMyPublishedTrackersUseCase {
 
   async execute(userId: string, query: PaginationQuery) {
     const { items, total } =
-      await this.usersRepository.findPublishedTrackers(userId, query, false)
+      await this.usersRepository.findPublishedTrackers({
+        ownerId: userId,
+        query,
+        includePrivate: false,
+      })
 
     return {
       items: items.map((item) =>

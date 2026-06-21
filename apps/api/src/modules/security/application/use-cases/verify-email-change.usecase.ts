@@ -8,8 +8,8 @@ import type {
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
-type VerifyEmailChangeRepository = SecurityUserRepositoryContract &
-  SecuritySessionRepositoryContract
+type VerifyEmailChangeRepository =
+  SecurityUserRepositoryContract & SecuritySessionRepositoryContract
 
 export class VerifyEmailChangeUseCase {
   constructor(
@@ -22,6 +22,7 @@ export class VerifyEmailChangeUseCase {
     payload: VerifyEmailChangePayload,
   ): Promise<VerifyEmailChangeResponseDto> {
     const tokenHash = this.emailChangeTokenService.hash(payload.token)
+
     const user =
       await this.securityRepository.findUserByPendingEmailTokenHash(tokenHash)
 
@@ -30,26 +31,30 @@ export class VerifyEmailChangeUseCase {
     }
 
     const pendingEmail = user.pendingEmail.trim().toLowerCase()
+
     const emailAlreadyUsed =
       await this.securityRepository.emailExists(pendingEmail)
 
     if (emailAlreadyUsed && user.email?.trim().toLowerCase() !== pendingEmail) {
       await this.securityRepository.clearPendingEmailChange(user.id)
+
       throw SecurityApplicationError.emailTaken(
         'That email is no longer available',
       )
     }
 
-    const updatedUser = await this.securityRepository.confirmPendingEmailChange(
-      user.id,
-      pendingEmail,
-    )
+    const updatedUser =
+      await this.securityRepository.confirmPendingEmailChange({
+        userId: user.id,
+        pendingEmail,
+      })
 
     if (!updatedUser) {
       throw SecurityApplicationError.emailChangeVerifyFailed()
     }
 
     await this.securityRepository.revokeAllSessions(user.id)
+
     await this.securityAuditLogger.record({
       userId: user.id,
       eventType: 'EMAIL_CHANGE_VERIFIED',

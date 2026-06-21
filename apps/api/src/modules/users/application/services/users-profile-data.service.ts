@@ -67,10 +67,13 @@ export class UsersProfileDataService
   ): Promise<StreakSummaryView> {
     const year = requestedYear ?? new Date().getUTCFullYear()
 
-    const [snapshot, history] = await Promise.all([
-      this.usersRepository.findLatestSnapshot(userId),
-      this.usersRepository.findHistoryByYear(userId, year),
-    ])
+   const [snapshot, history] = await Promise.all([
+  this.usersRepository.findLatestSnapshot(userId),
+  this.usersRepository.findHistoryByYear({
+    userId,
+    year,
+  }),
+])
 
     const heatmap = history.map((day) =>
       this.usersMapper.toStreakHeatmapDay(day),
@@ -91,14 +94,16 @@ export class UsersProfileDataService
     user?: UserEntity,
     profile?: UserProfileEntity,
   ): Promise<ProfileStatsView> {
-    const resolvedUser = user ?? await this.usersRepository.findById(userId)
+    const resolvedUser =
+      user ?? (await this.usersRepository.findById(userId))
 
     if (!resolvedUser) {
       throw UsersApplicationError.userNotFound()
     }
 
     const resolvedProfile =
-      profile ?? await this.usersRepository.findByUserId(resolvedUser.id)
+      profile ??
+      (await this.usersRepository.findByUserId(resolvedUser.id))
 
     return {
       streakCount: resolvedUser.streakCount,

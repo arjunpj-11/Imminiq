@@ -1,6 +1,6 @@
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { MockTestSharingRepositoryContract } from '../../domain/repositories/mock-test-sharing.repository.interface'
+import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type ImportSharedMockTestRepository =
@@ -11,13 +11,9 @@ type ImportSharedMockTestRepository =
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
 
 export class ImportSharedMockTestUseCase {
+  constructor(private readonly repo: ImportSharedMockTestRepository) {}
 
-  constructor(private readonly repo: ImportSharedMockTestRepository) { }
-
-  async execute(input: {
-    userId: string
-    shareToken: string
-  }) {
+  async execute(input: { userId: string; shareToken: string }) {
     const shareToken = input.shareToken.trim()
 
     if (!SAFE_SHARE_TOKEN_PATTERN.test(shareToken)) {
@@ -38,10 +34,10 @@ export class ImportSharedMockTestUseCase {
       }
     }
 
-    const existingImport = await this.repo.findImportedSharedTest(
-      input.userId,
-      sourceTest._id,
-    )
+    const existingImport = await this.repo.findImportedSharedTest({
+  ownerId: input.userId,
+  sourceTestId: sourceTest._id,
+})
 
     if (existingImport) {
       return {

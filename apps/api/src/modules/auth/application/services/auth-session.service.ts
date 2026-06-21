@@ -1,3 +1,5 @@
+import { createHash } from 'crypto'
+
 import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
 import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
@@ -24,10 +26,11 @@ export class AuthSessionService implements AuthSessionServiceContract {
   ): Promise<TokenPair> {
     const accessToken = this.authTokenService.generateAccessToken(userId, role)
     const refreshToken = this.authTokenService.generateRefreshToken()
+    const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
-    await this.authSessionRepository.saveRefreshToken({
+    await this.authSessionRepository.saveSession({
       userId,
-      refreshToken,
+      refreshTokenHash,
       device: meta?.device,
       ipAddress: meta?.ipAddress,
       userAgent: meta?.userAgent,
@@ -37,5 +40,9 @@ export class AuthSessionService implements AuthSessionServiceContract {
       accessToken,
       refreshToken,
     }
+  }
+
+  private hashRefreshToken(refreshToken: string): string {
+    return createHash('sha256').update(refreshToken).digest('hex')
   }
 }
