@@ -1,0 +1,68 @@
+import {
+  COMMUNITY_DEFAULT_LIMIT,
+  COMMUNITY_DEFAULT_PAGE,
+  COMMUNITY_MAX_LIMIT,
+} from '../../domain/constants/community.constants'
+import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
+import type { CommunityVerificationDashboardView, VerificationQueuePayload } from '../dtos/community.dto'
+import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../constants/community.constants'
+import type { CommunityMapperContract } from '../mappers/community.mapper'
+
+export class GetVerificationDashboardUseCase {
+  constructor(
+    private readonly repository: CommunityRepositoryContract,
+    private readonly mapper: CommunityMapperContract,
+  ) {}
+
+  async execute(
+    payload: VerificationQueuePayload,
+  ): Promise<CommunityVerificationDashboardView> {
+    const page = this.normalizePage(payload.page)
+    const limit = this.normalizeLimit(payload.limit)
+
+    const [stats, queue, leaderboard] = await Promise.all([
+      this.repository.getVerificationStats(payload.userId),
+      this.repository.findVerificationQueue({
+        userId: payload.userId,
+        page,
+        limit,
+      }),
+      this.repository.findVerificationLeaderboard(
+        payload.userId,
+        COMMUNITY_DEFAULT_LEADERBOARD_LIMIT,
+      ),
+    ])
+
+    const queueView = this.mapper.toVerificationQueueView(queue)
+
+    return {
+      ...queueView,
+      stats: this.mapper.toVerificationStatsView(stats),
+      leaderboard: leaderboard.map((entry) =>
+        this.mapper.toLeaderboardEntryView(entry),
+      ),
+      howItWorks: [
+        'Pick a tracker from the queue',
+        'Preview the submitted changes',
+        'Vote Pass or Fail',
+        `Earn +${stats.rewardCoins} coins if in majority`,
+      ],
+    }
+  }
+
+  private normalizePage(page?: number): number {
+    if (!page || page < 1) {
+      return COMMUNITY_DEFAULT_PAGE
+    }
+
+    return Math.floor(page)
+  }
+
+  private normalizeLimit(limit?: number): number {
+    if (!limit || limit < 1) {
+      return COMMUNITY_DEFAULT_LIMIT
+    }
+
+    return Math.min(Math.floor(limit), COMMUNITY_MAX_LIMIT)
+  }
+}

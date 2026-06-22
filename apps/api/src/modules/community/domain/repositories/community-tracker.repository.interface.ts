@@ -1,0 +1,42 @@
+import type { CommunityMemberStatsEntity } from '../entities/community-member-stats.entity'
+import type { CommunityTrackerEntity } from '../entities/community-tracker.entity'
+import type { CommunitySort } from '../value-objects/community-sort.vo'
+
+export type FindCommunityTrackersQuery = {
+  userId: string
+  search?: string
+  topics?: string[]
+  minRating?: number | null
+  verifiedOnly?: boolean
+  sort?: CommunitySort
+  page: number
+  limit: number
+}
+
+export type CommunityTrackerPageResult = {
+  items: CommunityTrackerEntity[]
+  total: number
+  page: number
+  limit: number
+  totalPages: number
+}
+
+export interface CommunityTrackerRepositoryContract {
+  findPublicTrackers(
+    query: FindCommunityTrackersQuery,
+  ): Promise<CommunityTrackerPageResult>
+
+  findCommunityTrackerById(
+    trackerId: string,
+    userId: string,
+  ): Promise<CommunityTrackerEntity | null>
+
+cloneTrackerForUser(
+  trackerId: string,
+  userId: string,
+): Promise<CommunityTrackerEntity | null>
+
+  getPersonalStats(userId: string): Promise<CommunityMemberStatsEntity>
+
+  findAvailableTopics(): Promise<string[]>
+}
