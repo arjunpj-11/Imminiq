@@ -1,4 +1,9 @@
-import { CommunityMapper, type CommunityMapperContract } from './application/mappers/community.mapper'
+// apps/api/src/modules/community/community.factory.ts
+
+import {
+  CommunityMapper,
+  type CommunityMapperContract,
+} from './application/mappers/community.mapper'
 import {
   CommunityVerificationPolicyService,
   type CommunityVerificationPolicyContract,
@@ -12,6 +17,7 @@ import { GetVerificationDashboardUseCase } from './application/use-cases/get-ver
 import { GetVerificationLeaderboardUseCase } from './application/use-cases/get-verification-leaderboard.usecase'
 import { GetVerificationQueueUseCase } from './application/use-cases/get-verification-queue.usecase'
 import { GetVerificationSubmissionUseCase } from './application/use-cases/get-verification-submission.usecase'
+import { SubmitTrackerForVerificationUseCase } from './application/use-cases/submit-tracker-for-verification.usecase'
 import { VoteVerificationSubmissionUseCase } from './application/use-cases/vote-verification-submission.usecase'
 import type { CommunityCoinLedgerContract } from './domain/services/community-coin-ledger.service.interface'
 import {
@@ -25,6 +31,7 @@ export type CommunityUseCases = {
   getPersonalStats: GetCommunityPersonalStatsUseCase
   getTopics: GetCommunityTopicsUseCase
   cloneTracker: CloneCommunityTrackerUseCase
+  submitTrackerForVerification: SubmitTrackerForVerificationUseCase
   getVerificationDashboard: GetVerificationDashboardUseCase
   getVerificationQueue: GetVerificationQueueUseCase
   getVerificationLeaderboard: GetVerificationLeaderboardUseCase
@@ -58,7 +65,14 @@ export const createCommunityComposition = (): CommunityComposition => {
         mapper,
       ),
       getTopics: new GetCommunityTopicsUseCase(communityRepository),
-      cloneTracker: new CloneCommunityTrackerUseCase(communityRepository, mapper),
+      cloneTracker: new CloneCommunityTrackerUseCase(
+        communityRepository,
+        mapper,
+      ),
+      submitTrackerForVerification: new SubmitTrackerForVerificationUseCase(
+        communityRepository,
+        mapper,
+      ),
       getVerificationDashboard: new GetVerificationDashboardUseCase(
         communityRepository,
         mapper,

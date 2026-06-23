@@ -1,4 +1,3 @@
-
 import { useState, type Dispatch, type SetStateAction } from 'react'
 import { useNavigate } from 'react-router-dom'
 
@@ -15,6 +14,7 @@ import {
   useTrackerSummary,
   useTrackers,
 } from '../hooks/useTrackers'
+import { useSubmitTrackerForVerification } from '../hooks/useSubmitTrackerForVerification'
 
 import { useTrackerUiStore } from '../store/useTrackerUiStore'
 
@@ -260,6 +260,8 @@ export default function MyTrackersPage() {
   const archiveTrackerMutation = useArchiveTracker()
   const restoreTrackerMutation = useRestoreTracker()
   const publishTrackerMutation = usePublishTracker()
+  const submitTrackerForVerificationMutation =
+    useSubmitTrackerForVerification()
 
   const dashboardSummary = dashboardSummaryQuery.data
   const summary = summaryQuery.data
@@ -298,6 +300,15 @@ export default function MyTrackersPage() {
         .map((tag) => tag.trim())
         .filter(Boolean),
       allowClone: data.allowClone,
+    })
+  }
+
+  const handleSendForVerification = async (trackerId: string) => {
+    await submitTrackerForVerificationMutation.mutateAsync({
+      trackerId,
+      requiredVotes: 10,
+      durationHours: 24,
+      urgent: false,
     })
   }
 
@@ -458,6 +469,7 @@ export default function MyTrackersPage() {
                       onInfo={(trackerId) => navigate(`/trackers/${trackerId}/manage`)}
                       onArchive={(trackerId) => handleArchiveToggle(trackerId, tracker.status)}
                       onQuickRevision={(trackerId) => navigate(`/trackers/${trackerId}/revision`)}
+                      onSendForVerification={handleSendForVerification}
                     />
                   ))}
                 </section>

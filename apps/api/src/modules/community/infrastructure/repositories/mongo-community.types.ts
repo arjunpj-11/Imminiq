@@ -90,6 +90,44 @@ export type MongoTrackerSubtopicRecord = {
   updatedAt?: Date | string
 }
 
+export type MongoVerificationReviewSubtopicRecord = {
+  id: string
+  topicId: string
+  parentSubtopicId?: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+  isLocked: boolean
+  estimatedMinutes: number
+}
+
+export type MongoVerificationReviewTopicRecord = {
+  id: string
+  title: string
+  description: string
+  order: number
+  status: string
+  estimatedHours: number
+  subtopics: MongoVerificationReviewSubtopicRecord[]
+}
+
+export type MongoVerificationReviewTrackerRecord = {
+  id: string
+  title: string
+  description: string
+  category: string
+  field: string
+  goal: string
+  level: string
+  tags: string[]
+  visibility: string
+  status: string
+  topicsCount: number
+  subtopicsCount: number
+  topics: MongoVerificationReviewTopicRecord[]
+}
+
 export type MongoCommunitySubmissionRecord = {
   _id: MongoIdLike
   trackerId: MongoIdLike
@@ -108,6 +146,7 @@ export type MongoCommunitySubmissionRecord = {
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  reviewTracker?: MongoVerificationReviewTrackerRecord | null
   [key: string]: unknown
 }
 

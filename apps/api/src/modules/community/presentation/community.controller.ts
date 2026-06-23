@@ -2,7 +2,10 @@ import type { NextFunction, Request, Response } from 'express'
 
 import type { CommunitySort } from '../domain/value-objects/community-sort.vo'
 import { communityService, type CommunityService } from '../community.service'
-import type { VoteVerificationSubmissionInput } from './community.schema'
+import type {
+  SendTrackerForVerificationInput,
+  VoteVerificationSubmissionInput,
+} from './community.schema'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
@@ -77,6 +80,34 @@ export class CommunityController {
       next(error)
     }
   }
+
+  submitTrackerForVerification = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = getAuthUser(req)
+    const trackerId = this.getRequiredParam(req, 'trackerId')
+    const body = req.body as SendTrackerForVerificationInput
+
+    const submission = await this.service.submitTrackerForVerification({
+      trackerId,
+      userId: user.userId,
+      requiredVotes: body.requiredVotes,
+      durationHours: body.durationHours,
+      urgent: body.urgent,
+    })
+
+    res
+      .status(HttpStatusCode.CREATED)
+      .json(
+        new ApiResponse('Tracker sent for verification', { submission }),
+      )
+  } catch (error) {
+    next(error)
+  }
+}
 
   getVerificationDashboard = async (
     req: Request,

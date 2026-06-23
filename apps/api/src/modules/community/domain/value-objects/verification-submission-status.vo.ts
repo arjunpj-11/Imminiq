@@ -1,1 +1,6 @@
-export type VerificationSubmissionStatus = 'open' | 'closed' | 'approved' | 'rejected'
+export type VerificationSubmissionStatus =
+  | 'open'
+  | 'closed'
+  | 'approved'
+  | 'rejected'
+  | 'expired'

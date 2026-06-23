@@ -1,5 +1,6 @@
 import type {
   CommunityTrackerListPayload,
+  SubmitTrackerForVerificationPayload,
   VerificationQueuePayload,
   VoteVerificationSubmissionPayload,
 } from './application/dtos/community.dto'
@@ -36,6 +37,10 @@ export class CommunityService {
   cloneTracker(trackerId: string, userId: string) {
     return this.useCases.cloneTracker.execute(trackerId, userId)
   }
+
+  submitTrackerForVerification(payload: SubmitTrackerForVerificationPayload) {
+  return this.useCases.submitTrackerForVerification.execute(payload)
+}
 
   getVerificationDashboard(payload: VerificationQueuePayload) {
     return this.useCases.getVerificationDashboard.execute(payload)

@@ -4,6 +4,7 @@ export const COMMUNITY_ROUTE_PATHS = {
   TOPICS: '/topics',
   PERSONAL_STATS: '/stats/personal',
   CLONE_TRACKER: '/trackers/:trackerId/clone',
+  SUBMIT_TRACKER_VERIFICATION: '/trackers/:trackerId/verification',
   VERIFY_DASHBOARD: '/verify/dashboard',
   VERIFY_QUEUE: '/verify/queue',
   VERIFY_LEADERBOARD: '/verify/leaderboard',

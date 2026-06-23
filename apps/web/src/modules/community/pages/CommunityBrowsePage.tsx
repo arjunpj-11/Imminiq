@@ -87,6 +87,10 @@ export default function CommunityBrowsePage() {
     )
   }
 
+  const handleOpenTracker = (trackerId: string) => {
+  navigate(`/community/trackers/${trackerId}`)
+}
+
   const isInitialLoading = browse.isLoading && !browse.data
   const isUpdatingResults = browse.isFetching && Boolean(browse.data)
 
@@ -128,7 +132,7 @@ export default function CommunityBrowsePage() {
 
               <button
                 type="button"
-                onClick={() => navigate('/community/my-publications')}
+                onClick={() => navigate('/trackers/published')}
                 className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-5 py-2.5 text-[13px] font-bold text-[#b84c2b] transition hover:-translate-y-px hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.12)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[rgba(232,129,106,0.08)] dark:text-[#e8816a] max-[560px]:w-full max-[560px]:justify-center"
               >
                 <BookOpenIcon />
@@ -202,14 +206,13 @@ export default function CommunityBrowsePage() {
               {browse.data.trackers.length > 0 ? (
                 <div className="grid grid-cols-3 gap-4 max-[860px]:grid-cols-2 max-[540px]:grid-cols-1">
                   {browse.data.trackers.map((tracker) => (
-                    <CommunityTrackerCard
-                      key={tracker._id}
-                      tracker={tracker}
-                      cloning={
-                        activeCloneId === tracker._id && cloneTracker.isPending
-                      }
-                      onClone={handleClone}
-                    />
+                   <CommunityTrackerCard
+  key={tracker._id}
+  tracker={tracker}
+  cloning={activeCloneId === tracker._id && cloneTracker.isPending}
+  onClone={handleClone}
+  onOpen={handleOpenTracker}
+/>
                   ))}
                 </div>
               ) : (

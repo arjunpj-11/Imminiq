@@ -43,6 +43,7 @@ import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
 // ─── OTHER APP PAGES ────────────────────────────────
 import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
 import ActivityPage from './modules/activity/pages/activity'
+import CommunityPublicTrackerPage from './modules/community/pages/CommunityPublicTrackerPage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
@@ -487,6 +488,15 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+  path="/community/trackers/:trackerId"
+  element={
+    <ProtectedRoute>
+      <CommunityPublicTrackerPage />
+    </ProtectedRoute>
+  }
+/>
 
           {/* ─── ADMIN ROUTES ───────────────────────────── */}
           <Route

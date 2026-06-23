@@ -5,6 +5,7 @@ export type CommunityVerificationSubmissionStatus =
   | 'closed'
   | 'approved'
   | 'rejected'
+  | 'expired'
 
 export type CommunityVerificationConsensusChoice = 'pass' | 'fail'
 
@@ -98,7 +99,7 @@ const communityVerificationSubmissionSchema =
 
       status: {
         type: String,
-        enum: ['open', 'closed', 'approved', 'rejected'],
+        enum: ['open', 'closed', 'approved', 'rejected', 'expired'],
         default: 'open',
         index: true,
       },
@@ -137,6 +138,17 @@ communityVerificationSubmissionSchema.index({ status: 1, expiresAt: 1 })
 communityVerificationSubmissionSchema.index({ ownerId: 1, status: 1 })
 communityVerificationSubmissionSchema.index({ trackerId: 1, status: 1 })
 communityVerificationSubmissionSchema.index({ category: 1, status: 1 })
+
+communityVerificationSubmissionSchema.index(
+  { trackerId: 1, status: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      status: 'open',
+      deletedAt: null,
+    },
+  },
+)
 
 export const CommunityVerificationSubmission =
   mongoose.models.CommunityVerificationSubmission ||

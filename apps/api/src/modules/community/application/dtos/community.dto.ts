@@ -19,6 +19,14 @@ export interface VerificationQueuePayload extends CommunityPaginationQuery {
   userId: string
 }
 
+export interface SubmitTrackerForVerificationPayload {
+  trackerId: string
+  userId: string
+  requiredVotes?: number
+  durationHours?: number
+  urgent?: boolean
+}
+
 export interface CommunityTrackerView {
   _id: string
   title: string
@@ -72,6 +80,9 @@ export interface CommunityVerifyItemView {
   votedPass: boolean
   closed: boolean
   urgent: boolean
+  passVotes: number
+  failVotes: number
+  requiredVotes: number
 }
 
 export interface CommunityVerificationStatsView {
@@ -97,10 +108,49 @@ export interface CommunityVerificationQueueView {
   pagination: CommunityPaginationView
 }
 
-export interface CommunityVerificationDashboardView extends CommunityVerificationQueueView {
+export interface CommunityVerificationDashboardView
+  extends CommunityVerificationQueueView {
   stats: CommunityVerificationStatsView
   leaderboard: CommunityLeaderboardEntryView[]
   howItWorks: string[]
+}
+
+export interface CommunityVerificationReviewSubtopicView {
+  _id: string
+  topicId: string
+  parentSubtopicId?: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+  isLocked: boolean
+  estimatedMinutes: number
+}
+
+export interface CommunityVerificationReviewTopicView {
+  _id: string
+  title: string
+  description: string
+  order: number
+  status: string
+  estimatedHours: number
+  subtopics: CommunityVerificationReviewSubtopicView[]
+}
+
+export interface CommunityVerificationReviewTrackerView {
+  _id: string
+  title: string
+  description: string
+  category: string
+  field: string
+  goal: string
+  level: string
+  tags: string[]
+  visibility: string
+  status: string
+  topicsCount: number
+  subtopicsCount: number
+  topics: CommunityVerificationReviewTopicView[]
 }
 
 export interface CommunityVerificationSubmissionView extends CommunityVerifyItemView {
@@ -108,6 +158,7 @@ export interface CommunityVerificationSubmissionView extends CommunityVerifyItem
   ownerId: string
   userVote?: VerificationVoteChoice | null
   consensusChoice?: VerificationVoteChoice | null
+  reviewTracker?: CommunityVerificationReviewTrackerView | null
 }
 
 export interface VoteVerificationSubmissionPayload {

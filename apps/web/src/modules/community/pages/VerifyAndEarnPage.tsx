@@ -11,8 +11,8 @@ import VerificationLeaderboard from '../components/VerificationLeaderboard'
 import VerificationTipCard from '../components/VerificationTipCard'
 import {
   ArrowLeftIcon,
-  ArrowRightIcon,
-  CoinsIcon,
+  // ArrowRightIcon,
+  // CoinsIcon,
 } from '../components/icons/CommunityIcons'
 import {
   COMMUNITY_VERIFY_PAGE_LIMIT,
@@ -119,15 +119,15 @@ export default function VerifyAndEarnPage() {
                 value={dashboard.data.stats.coinBalance}
                 helper="Available to redeem"
                 accent={COMMUNITY_VERIFY_STAT_ACCENTS.purple}
-                action={
-                  <button
-                    type="button"
-                    onClick={() => navigate('/store')}
-                    className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-[rgba(107,70,193,0.28)] bg-[rgba(107,70,193,0.07)] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-bold uppercase tracking-[0.08em] text-[#6b46c1] transition hover:border-[rgba(107,70,193,0.45)] hover:bg-[rgba(107,70,193,0.13)] dark:border-[rgba(167,139,250,0.3)] dark:bg-[rgba(167,139,250,0.08)] dark:text-[#a78bfa] dark:hover:bg-[rgba(167,139,250,0.15)]"
-                  >
-                    <CoinsIcon /> Redeem store <ArrowRightIcon />
-                  </button>
-                }
+                // action={
+                //   <button
+                //     type="button"
+                //     onClick={() => navigate('/store')}
+                //     className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-[rgba(107,70,193,0.28)] bg-[rgba(107,70,193,0.07)] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-bold uppercase tracking-[0.08em] text-[#6b46c1] transition hover:border-[rgba(107,70,193,0.45)] hover:bg-[rgba(107,70,193,0.13)] dark:border-[rgba(167,139,250,0.3)] dark:bg-[rgba(167,139,250,0.08)] dark:text-[#a78bfa] dark:hover:bg-[rgba(167,139,250,0.15)]"
+                //   >
+                //     <CoinsIcon /> Redeem store <ArrowRightIcon />
+                //   </button>
+                // }
               />
             </div>
 

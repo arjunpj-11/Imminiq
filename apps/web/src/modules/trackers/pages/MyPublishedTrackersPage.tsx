@@ -571,13 +571,6 @@ export default function MyPublishedTrackersPage() {
                   </p>
                 </div>
 
-                <button
-                  type="button"
-                  onClick={() => navigate('/trackers')}
-                  className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-2.5 text-[13px] font-bold text-[#6b5f58] transition hover:-translate-y-px hover:border-[rgba(184,76,43,0.30)] hover:text-[#b84c2b] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:text-[#e8816a] max-[560px]:w-full max-[560px]:justify-center"
-                >
-                  ← My Trackers
-                </button>
               </section>
 
               {/* ── Summary strip (only when trackers exist) ── */}

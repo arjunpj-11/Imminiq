@@ -1,3 +1,5 @@
+// apps/api/src/modules/community/infrastructure/repositories/mongo-community.mapper.ts
+
 import { CommunityLeaderboardEntryEntity } from '../../domain/entities/community-leaderboard-entry.entity'
 import { CommunityMemberStatsEntity } from '../../domain/entities/community-member-stats.entity'
 import { CommunityReviewVoteEntity } from '../../domain/entities/community-review-vote.entity'
@@ -51,7 +53,8 @@ export class MongoCommunityMapper {
     const failVotes = this.toNumber(record.failVotes, 0)
     const requiredVotes = Math.max(this.toNumber(record.requiredVotes, 10), 1)
     const totalVotes = passVotes + failVotes
-    const progress = record.progress ??
+    const progress =
+      record.progress ??
       Math.min(Math.round((totalVotes / requiredVotes) * 100), 100)
 
     return new CommunityVerificationSubmissionEntity({
@@ -62,12 +65,16 @@ export class MongoCommunityMapper {
       category: this.toString(record.category, 'General'),
       excerpt: this.toString(record.excerpt, ''),
       progress: this.toNumber(progress, 0),
+      passVotes,
+      failVotes,
+      requiredVotes,
       status: this.toSubmissionStatus(record.status),
       urgent: Boolean(record.urgent),
       userVote,
       consensusChoice: this.toVoteChoice(record.consensusChoice),
       expiresAt: this.toDateOrNull(record.expiresAt),
       createdAt: this.toDate(record.createdAt),
+      reviewTracker: record.reviewTracker ?? null,
     })
   }
 
@@ -152,7 +159,12 @@ export class MongoCommunityMapper {
   }
 
   private toSubmissionStatus(value: unknown): VerificationSubmissionStatus {
-    if (value === 'closed' || value === 'approved' || value === 'rejected') {
+    if (
+      value === 'closed' ||
+      value === 'approved' ||
+      value === 'rejected' ||
+      value === 'expired'
+    ) {
       return value
     }
 

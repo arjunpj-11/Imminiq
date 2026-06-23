@@ -27,6 +27,14 @@ export type CommunityVerificationStats = {
   activeReviewersThisWeek: number
 }
 
+export type SubmitTrackerForVerificationInput = {
+  trackerId: string
+  userId: string
+  requiredVotes: number
+  durationHours: number
+  urgent?: boolean
+}
+
 export type CreateCommunityReviewVoteInput = {
   submissionId: string
   userId: string
@@ -36,6 +44,10 @@ export type CreateCommunityReviewVoteInput = {
 }
 
 export interface CommunityVerificationRepositoryContract {
+  submitTrackerForVerification(
+    data: SubmitTrackerForVerificationInput,
+  ): Promise<CommunityVerificationSubmissionEntity | null>
+
   getVerificationStats(userId: string): Promise<CommunityVerificationStats>
 
   findVerificationQueue(
