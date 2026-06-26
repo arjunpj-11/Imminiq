@@ -202,6 +202,7 @@ export class MongoCommunityRepository
       'COMMUNITY_VERIFICATION_SUBMIT_FAILED',
       'Failed to submit tracker for verification',
       async () => {
+
         await this.expireDueOpenSubmissions()
 
         if (
@@ -217,8 +218,8 @@ export class MongoCommunityRepository
         const tracker = await CommunityTrackerModel.findOne({
           _id: trackerObjectId,
           ownerId: userObjectId,
-          deletedAt: null,
-          status: { $ne: 'archived' },
+          ...this.publicTrackerVisibilityQuery(),
+          publishedAt: { $ne: null },
           verificationStatus: { $ne: 'verified' },
         }).lean<MongoCommunityTrackerRecord>()
 
@@ -233,6 +234,7 @@ export class MongoCommunityRepository
           }).lean<MongoCommunitySubmissionRecord>()
 
         if (existingSubmission) {
+          console.log('Existing submission found:', existingSubmission);
           return this.toSubmissionWithReview(existingSubmission, null)
         }
 
@@ -480,21 +482,7 @@ export class MongoCommunityRepository
           userId: this.toObjectId(userId),
         }).lean<MongoCommunityVoteRecord>()
 
-        const canReadFullTracker =
-          submission.ownerId.toString() === userId ||
-          this.isSubmissionOpenForReview(submission)
-
-        const reviewTracker = canReadFullTracker
-          ? await this.getVerificationReviewTracker(submission)
-          : null
-
-        return this.mapper.toSubmissionEntity(
-          {
-            ...submission,
-            reviewTracker,
-          },
-          vote?.choice ?? null,
-        )
+        return this.toSubmissionWithReview(submission, vote?.choice ?? null)
       },
     )
   }
@@ -504,7 +492,10 @@ export class MongoCommunityRepository
       'COMMUNITY_VERIFICATION_VOTE_READ_FAILED',
       'Failed to read verification vote',
       async () => {
-        if (!this.isValidObjectId(submissionId) || !this.isValidObjectId(userId)) {
+        if (
+          !this.isValidObjectId(submissionId) ||
+          !this.isValidObjectId(userId)
+        ) {
           return null
         }
 
@@ -559,7 +550,9 @@ export class MongoCommunityRepository
         )
         await this.closeSubmissionIfConsensusReached(data.submissionId)
 
-        const plainVote = this.mapper.toPlainRecord<MongoCommunityVoteRecord>(vote)
+        const plainVote = this.mapper.toPlainRecord<MongoCommunityVoteRecord>(
+          vote,
+        )
         const voteEntity = this.mapper.toVoteEntity(plainVote)
 
         if (!voteEntity) {
@@ -779,7 +772,7 @@ export class MongoCommunityRepository
     return {
       deletedAt: null,
       visibility: 'public',
-      status: 'active',
+      publishedAt: { $ne: null },
     }
   }
 
@@ -938,25 +931,6 @@ export class MongoCommunityRepository
         },
       )
     }
-  }
-
-  private isSubmissionOpenForReview(
-    submission: MongoCommunitySubmissionRecord,
-  ): boolean {
-    if (submission.status !== 'open') {
-      return false
-    }
-
-    if (!submission.expiresAt) {
-      return true
-    }
-
-    const expiresAt =
-      submission.expiresAt instanceof Date
-        ? submission.expiresAt
-        : new Date(String(submission.expiresAt))
-
-    return Number.isFinite(expiresAt.getTime()) && expiresAt.getTime() > Date.now()
   }
 
   private calculateSubmissionProgress(

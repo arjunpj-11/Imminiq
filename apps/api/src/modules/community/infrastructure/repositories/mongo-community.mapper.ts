@@ -4,7 +4,12 @@ import { CommunityLeaderboardEntryEntity } from '../../domain/entities/community
 import { CommunityMemberStatsEntity } from '../../domain/entities/community-member-stats.entity'
 import { CommunityReviewVoteEntity } from '../../domain/entities/community-review-vote.entity'
 import { CommunityTrackerEntity } from '../../domain/entities/community-tracker.entity'
-import { CommunityVerificationSubmissionEntity } from '../../domain/entities/community-verification-submission.entity'
+import {
+  CommunityVerificationSubmissionEntity,
+  type CommunityVerificationReviewSubtopic,
+  type CommunityVerificationReviewTopic,
+  type CommunityVerificationReviewTracker,
+} from '../../domain/entities/community-verification-submission.entity'
 import type { VerificationSubmissionStatus } from '../../domain/value-objects/verification-submission-status.vo'
 import type { VerificationVoteChoice } from '../../domain/value-objects/verification-vote-choice.vo'
 import type {
@@ -70,11 +75,11 @@ export class MongoCommunityMapper {
       requiredVotes,
       status: this.toSubmissionStatus(record.status),
       urgent: Boolean(record.urgent),
-      userVote,
+      userVote: this.toVoteChoice(userVote),
       consensusChoice: this.toVoteChoice(record.consensusChoice),
       expiresAt: this.toDateOrNull(record.expiresAt),
       createdAt: this.toDate(record.createdAt),
-      reviewTracker: record.reviewTracker ?? null,
+      reviewTracker: this.toReviewTracker(record.reviewTracker),
     })
   }
 
@@ -140,6 +145,89 @@ export class MongoCommunityMapper {
     }
 
     return document as T
+  }
+
+  private toReviewTracker(
+    value: unknown,
+  ): CommunityVerificationReviewTracker | null {
+    if (!value || typeof value !== 'object') {
+      return null
+    }
+
+    const record = value as Record<string, unknown>
+
+    return {
+      id: this.toString(record.id, ''),
+      title: this.toString(record.title, 'Untitled tracker'),
+      description: this.toString(record.description, ''),
+      category: this.toString(record.category, 'General'),
+      field: this.toString(record.field, ''),
+      goal: this.toString(record.goal, ''),
+      level: this.toString(record.level, 'beginner'),
+      tags: this.toStringArray(record.tags),
+      visibility: this.toString(record.visibility, 'private'),
+      status: this.toString(record.status, 'active'),
+      topicsCount: this.toNumber(record.topicsCount, 0),
+      subtopicsCount: this.toNumber(record.subtopicsCount, 0),
+      topics: this.toReviewTopics(record.topics),
+    }
+  }
+
+  private toReviewTopics(value: unknown): CommunityVerificationReviewTopic[] {
+    if (!Array.isArray(value)) {
+      return []
+    }
+
+    return value.map((item) => this.toReviewTopic(item))
+  }
+
+  private toReviewTopic(value: unknown): CommunityVerificationReviewTopic {
+    const record =
+      value && typeof value === 'object'
+        ? (value as Record<string, unknown>)
+        : {}
+
+    return {
+      id: this.toString(record.id, ''),
+      title: this.toString(record.title, 'Untitled topic'),
+      description: this.toString(record.description, ''),
+      order: this.toNumber(record.order, 0),
+      status: this.toString(record.status, 'active'),
+      estimatedHours: this.toNumber(record.estimatedHours, 0),
+      subtopics: this.toReviewSubtopics(record.subtopics),
+    }
+  }
+
+  private toReviewSubtopics(
+    value: unknown,
+  ): CommunityVerificationReviewSubtopic[] {
+    if (!Array.isArray(value)) {
+      return []
+    }
+
+    return value.map((item) => this.toReviewSubtopic(item))
+  }
+
+  private toReviewSubtopic(value: unknown): CommunityVerificationReviewSubtopic {
+    const record =
+      value && typeof value === 'object'
+        ? (value as Record<string, unknown>)
+        : {}
+
+    return {
+      id: this.toString(record.id, ''),
+      topicId: this.toString(record.topicId, ''),
+      parentSubtopicId:
+        typeof record.parentSubtopicId === 'string'
+          ? record.parentSubtopicId
+          : null,
+      title: this.toString(record.title, 'Untitled subtopic'),
+      description: this.toString(record.description, ''),
+      order: this.toNumber(record.order, 0),
+      depth: this.toNumber(record.depth, 0),
+      isLocked: Boolean(record.isLocked),
+      estimatedMinutes: this.toNumber(record.estimatedMinutes, 0),
+    }
   }
 
   private badgeForRank(rank: number): string {
@@ -217,6 +305,17 @@ export class MongoCommunityMapper {
     const trimmed = value.trim()
 
     return trimmed || fallback
+  }
+
+  private toStringArray(value: unknown): string[] {
+    if (!Array.isArray(value)) {
+      return []
+    }
+
+    return value
+      .filter((item): item is string => typeof item === 'string')
+      .map((item) => item.trim())
+      .filter(Boolean)
   }
 
   private toId(value: MongoIdLike | null | undefined): string {

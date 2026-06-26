@@ -14,6 +14,7 @@ interface VerificationVotePanelProps {
   pending?: boolean
   apiError?: string
   rewardMessage?: string
+  allTopicsChecked?: boolean
   onVote: (vote: VerificationVoteChoice, reason: string) => void
 }
 
@@ -22,13 +23,18 @@ export default function VerificationVotePanel({
   pending = false,
   apiError,
   rewardMessage,
+  allTopicsChecked = false,
   onVote,
 }: VerificationVotePanelProps) {
   const [vote, setVote] = useState<VerificationVoteChoice>('pass')
   const [reason, setReason] = useState('')
   const [reasonError, setReasonError] = useState<string | undefined>()
 
-  const disabled = submission.closed || Boolean(submission.userVote) || pending
+  const disabled =
+    submission.closed ||
+    Boolean(submission.userVote) ||
+    pending ||
+    !allTopicsChecked
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
@@ -149,10 +155,16 @@ export default function VerificationVotePanel({
             )}
           </div>
 
+          {!allTopicsChecked && (
+            <p className="mt-3 rounded-xl border border-[#e0d0c5] px-4 py-2.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#9b9a92] dark:border-white/9">
+              Review all topics above to unlock voting
+            </p>
+          )}
+
           <button
             type="submit"
             disabled={disabled}
-            className="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-[rgba(184,76,43,0.28)] bg-[rgba(184,76,43,0.08)] px-5 py-3 text-[13px] font-bold text-[#b84c2b] transition hover:-translate-y-px hover:bg-[rgba(184,76,43,0.13)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[rgba(232,129,106,0.25)] dark:text-[#e8816a]"
+            className="mt-3 inline-flex w-full items-center justify-center gap-2 rounded-xl border-[1.5px] border-[rgba(184,76,43,0.28)] bg-[rgba(184,76,43,0.08)] px-5 py-3 text-[13px] font-bold text-[#b84c2b] transition hover:-translate-y-px hover:bg-[rgba(184,76,43,0.13)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[rgba(232,129,106,0.25)] dark:text-[#e8816a]"
           >
             {pending ? 'Submitting review…' : `Submit ${vote} vote`}
           </button>

@@ -67,6 +67,9 @@ export interface CommunityVerifyItem {
   timeLeft: string
   excerpt: string
   progress: number
+  passVotes: number
+  failVotes: number
+  requiredVotes: number
   votedPass: boolean
   closed: boolean
   urgent: boolean
@@ -108,6 +111,7 @@ export interface CommunityVerificationSubmission
   ownerId: string
   userVote?: VerificationVoteChoice | null
   consensusChoice?: VerificationVoteChoice | null
+  reviewTracker?: CommunityVerificationReviewTracker | null
 }
 
 export interface VoteVerificationSubmissionPayload {
@@ -139,4 +143,163 @@ export interface CommunityBrowseQuery {
   sort?: CommunitySort
   page?: number
   limit?: number
+}
+
+export interface CommunityReviewAuthor {
+  _id: string
+  name: string
+  initials: string
+  avatarUrl?: string | null
+  role: string
+}
+
+export interface CommunityPublicTrackerSubtopic {
+  _id: string
+  topicId: string
+  parentSubtopicId?: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+  isLocked: boolean
+  estimatedMinutes: number
+}
+
+export interface CommunityPublicTrackerTopic {
+  _id: string
+  title: string
+  description: string
+  order: number
+  status: string
+  estimatedHours: number
+  subtopics: CommunityPublicTrackerSubtopic[]
+}
+
+export interface CommunityRatingDistribution {
+  1: number
+  2: number
+  3: number
+  4: number
+  5: number
+}
+
+export interface CommunityRatingSummary {
+  average: number
+  count: number
+  distribution: CommunityRatingDistribution
+}
+
+export interface CommunityTrackerReview {
+  _id: string
+  trackerId: string
+  userId: string
+  author: CommunityReviewAuthor
+  rating: number
+  comment: string
+  helpfulCount: number
+  helpfulByMe: boolean
+  isMine: boolean
+  createdAt?: string
+  updatedAt?: string
+}
+
+export interface CommunityPublicTrackerDetail {
+  _id: string
+  ownerId: string
+  title: string
+  description: string
+  category: string
+  field: string
+  goal: string
+  level: string
+  tags: string[]
+  verified: boolean
+  visibility: string
+  status: string
+  allowClone: boolean
+  inDashboard: boolean
+  clones: number
+  likes: number
+  saves: number
+  topicsCount: number
+  subtopicsCount: number
+  author: CommunityReviewAuthor
+  topics: CommunityPublicTrackerTopic[]
+  ratingSummary: CommunityRatingSummary
+  reviews: CommunityTrackerReview[]
+  myReview?: CommunityTrackerReview | null
+  likedByMe: boolean
+  createdAt?: string
+  publishedAt?: string | null
+}
+
+export interface ToggleCommunityTrackerLikePayload {
+  trackerId: string
+}
+
+export interface ToggleCommunityTrackerLikeData {
+  liked: boolean
+  likes: number
+}
+
+export interface CommunityPublicTrackerDetailData {
+  tracker: CommunityPublicTrackerDetail
+}
+
+export interface UpsertCommunityTrackerReviewPayload {
+  trackerId: string
+  rating: number
+  comment: string
+}
+
+export interface UpsertCommunityTrackerReviewData {
+  review: CommunityTrackerReview
+  ratingSummary: CommunityRatingSummary
+}
+
+export interface ToggleCommunityReviewHelpfulPayload {
+  trackerId: string
+  reviewId: string
+}
+
+export interface ToggleCommunityReviewHelpfulData {
+  review: CommunityTrackerReview
+}
+
+export interface CommunityVerificationReviewSubtopic {
+  id: string
+  topicId: string
+  parentSubtopicId?: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+  isLocked: boolean
+  estimatedMinutes: number
+}
+
+export interface CommunityVerificationReviewTopic {
+  id: string
+  title: string
+  description: string
+  order: number
+  status: string
+  estimatedHours: number
+  subtopics: CommunityVerificationReviewSubtopic[]
+}
+
+export interface CommunityVerificationReviewTracker {
+  id: string
+  title: string
+  description: string
+  category: string
+  field: string
+  goal: string
+  level: string
+  tags: string[]
+  visibility: string
+  status: string
+  topicsCount: number
+  subtopicsCount: number
+  topics: CommunityVerificationReviewTopic[]
 }

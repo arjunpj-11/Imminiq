@@ -1,3 +1,5 @@
+import { isAxiosError } from 'axios'
+
 export const getInitials = (name?: string | null) => {
   const clean = name?.trim()
 
@@ -27,9 +29,25 @@ export const formatProgress = (value: number) => {
   return `${Math.max(0, Math.min(100, Math.round(value)))}%`
 }
 
+type ApiErrorResponse = {
+  message?: string
+}
+
 export const getApiErrorMessage = (
   fallback: string,
-  message?: string,
+  errorOrMessage?: unknown,
 ) => {
-  return message?.trim() || fallback
+  if (typeof errorOrMessage === 'string') {
+    return errorOrMessage.trim() || fallback
+  }
+
+  if (isAxiosError<ApiErrorResponse>(errorOrMessage)) {
+    return errorOrMessage.response?.data?.message?.trim() || fallback
+  }
+
+  if (errorOrMessage instanceof Error) {
+    return errorOrMessage.message.trim() || fallback
+  }
+
+  return fallback
 }

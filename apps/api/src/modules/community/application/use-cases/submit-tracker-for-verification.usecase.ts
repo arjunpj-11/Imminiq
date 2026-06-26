@@ -21,6 +21,8 @@ export class SubmitTrackerForVerificationUseCase {
   async execute(
     payload: SubmitTrackerForVerificationPayload,
   ): Promise<CommunityVerificationSubmissionView> {
+
+    console.log('Executing SubmitTrackerForVerificationUseCase with payload:', payload);
     const submission = await this.repository.submitTrackerForVerification({
       trackerId: payload.trackerId,
       userId: payload.userId,
@@ -28,6 +30,8 @@ export class SubmitTrackerForVerificationUseCase {
       durationHours: this.normalizeDurationHours(payload.durationHours),
       urgent: Boolean(payload.urgent),
     })
+
+    console.log('Repository returned submission:', submission);
 
     if (!submission) {
       throw CommunityApplicationError.notFound(

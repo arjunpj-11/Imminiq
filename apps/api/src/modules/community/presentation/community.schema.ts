@@ -18,10 +18,23 @@ export const voteVerificationSubmissionSchema = z.object({
     .or(z.literal('')),
 })
 
-export type SendTrackerForVerificationInput = z.infer<
-  typeof sendTrackerForVerificationSchema
->
+export const upsertCommunityTrackerReviewSchema = z.object({
+  rating: z.number().int().min(1).max(5),
+  comment: z
+    .string()
+    .trim()
+    .min(2, 'Review comment must be at least 2 characters')
+    .max(1200, 'Review comment must be at most 1200 characters'),
+})
 
 export type VoteVerificationSubmissionInput = z.infer<
   typeof voteVerificationSubmissionSchema
+>
+
+export type UpsertCommunityTrackerReviewInput = z.infer<
+  typeof upsertCommunityTrackerReviewSchema
+>
+
+export type SendTrackerForVerificationInput = z.infer<
+  typeof sendTrackerForVerificationSchema
 >

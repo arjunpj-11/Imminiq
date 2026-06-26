@@ -91,10 +91,55 @@ export class CommunityVerificationSubmissionEntity {
     this.requiredVotes = props.requiredVotes
     this.status = props.status
     this.urgent = props.urgent
-    this.userVote = props.userVote
-    this.consensusChoice = props.consensusChoice
-    this.expiresAt = props.expiresAt
+    this.userVote = props.userVote ?? null
+    this.consensusChoice = props.consensusChoice ?? null
+    this.expiresAt = props.expiresAt ?? null
     this.createdAt = props.createdAt
     this.reviewTracker = props.reviewTracker ?? null
+  }
+
+  get votedPass(): boolean {
+    return this.userVote === 'pass'
+  }
+
+  get votedFail(): boolean {
+    return this.userVote === 'fail'
+  }
+
+  get closed(): boolean {
+    return this.status !== 'open'
+  }
+
+  get timeLeft(): string {
+    if (this.closed || !this.expiresAt) {
+      return ''
+    }
+
+    const expiresTime = new Date(this.expiresAt).getTime()
+
+    if (Number.isNaN(expiresTime)) {
+      return ''
+    }
+
+    const diffMs = expiresTime - Date.now()
+
+    if (diffMs <= 0) {
+      return ''
+    }
+
+    const totalMinutes = Math.ceil(diffMs / 60000)
+    const days = Math.floor(totalMinutes / 1440)
+    const hours = Math.floor((totalMinutes % 1440) / 60)
+    const minutes = totalMinutes % 60
+
+    if (days > 0) {
+      return `${days}d`
+    }
+
+    if (hours > 0) {
+      return `${hours}h`
+    }
+
+    return `${Math.max(minutes, 1)}m`
   }
 }

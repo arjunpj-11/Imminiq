@@ -39,8 +39,15 @@ export interface IUser extends Document {
   referredBy?: mongoose.Types.ObjectId | null
 
   coins: number
+
+  // Student/learning progression
   xp: number
   level: number
+
+  // Teacher/community contribution progression
+  teacherXp: number
+  teacherLevel: number
+
   streakCount: number
 
   isPremium: boolean
@@ -192,6 +199,8 @@ const userSchema = new Schema<IUser>(
       min: 0,
     },
 
+    // ─── STUDENT / LEARNING PROGRESSION ──────────────────
+
     xp: {
       type: Number,
       default: 0,
@@ -199,6 +208,20 @@ const userSchema = new Schema<IUser>(
     },
 
     level: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
+
+    // ─── TEACHER / CONTRIBUTION PROGRESSION ──────────────
+
+    teacherXp: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+
+    teacherLevel: {
       type: Number,
       default: 1,
       min: 1,
@@ -232,19 +255,21 @@ const userSchema = new Schema<IUser>(
   },
   {
     timestamps: true,
-  }
+  },
 )
 
-// ─── INDEXES ─────────────────────────────────────
+// ─── INDEXES ──────────────────────────────────────────────
 
 userSchema.index(
   { email: 1 },
   {
     unique: true,
     partialFilterExpression: {
-      email: { $type: 'string' },
+      email: {
+        $type: 'string',
+      },
     },
-  }
+  },
 )
 
 userSchema.index(
@@ -252,16 +277,18 @@ userSchema.index(
   {
     unique: true,
     partialFilterExpression: {
-      phone: { $type: 'string' },
+      phone: {
+        $type: 'string',
+      },
     },
-  }
+  },
 )
 
 userSchema.index(
   { username: 1 },
   {
     unique: true,
-  }
+  },
 )
 
 userSchema.index(
@@ -269,9 +296,11 @@ userSchema.index(
   {
     unique: true,
     partialFilterExpression: {
-      referralCode: { $type: 'string' },
+      referralCode: {
+        $type: 'string',
+      },
     },
-  }
+  },
 )
 
 userSchema.index(
@@ -284,18 +313,50 @@ userSchema.index(
       phoneVerified: false,
       deletedAt: null,
     },
-  }
+  },
 )
 
-userSchema.index({ role: 1, status: 1 })
-userSchema.index({ status: 1, lastActiveAt: -1 })
-userSchema.index({ status: 1, scheduledDeletionAt: 1 })
-userSchema.index({ deletedAt: 1 })
-userSchema.index({ provider: 1, providerId: 1 })
+userSchema.index({
+  role: 1,
+  status: 1,
+})
+
+userSchema.index({
+  status: 1,
+  lastActiveAt: -1,
+})
+
+userSchema.index({
+  status: 1,
+  scheduledDeletionAt: 1,
+})
+
+userSchema.index({
+  deletedAt: 1,
+})
+
+userSchema.index({
+  provider: 1,
+  providerId: 1,
+})
 
 userSchema.index({
   pendingEmailChangeTokenHash: 1,
   pendingEmailChangeExpiresAt: 1,
 })
 
-export const User = mongoose.model<IUser>('User', userSchema)
+// Student XP leaderboard
+userSchema.index({
+  level: -1,
+  xp: -1,
+})
+
+// Teacher XP leaderboard
+userSchema.index({
+  teacherLevel: -1,
+  teacherXp: -1,
+})
+
+export const User =
+  mongoose.models.User ||
+  mongoose.model<IUser>('User', userSchema)

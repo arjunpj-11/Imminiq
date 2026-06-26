@@ -7,6 +7,7 @@ import { communityController } from './community.controller'
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants'
 import {
   sendTrackerForVerificationSchema,
+  upsertCommunityTrackerReviewSchema,
   voteVerificationSubmissionSchema,
 } from './community.schema'
 
@@ -24,11 +25,25 @@ router.get(
   communityController.getPersonalStats,
 )
 
+router.get(
+  COMMUNITY_ROUTE_PATHS.TRACKER_DETAIL,
+  communityController.getPublicTrackerDetail,
+)
 router.post(COMMUNITY_ROUTE_PATHS.CLONE_TRACKER, communityController.cloneTracker)
+
 router.post(
   COMMUNITY_ROUTE_PATHS.SUBMIT_TRACKER_VERIFICATION,
   validate(sendTrackerForVerificationSchema),
   communityController.submitTrackerForVerification,
+)
+router.post(
+  COMMUNITY_ROUTE_PATHS.TRACKER_REVIEW,
+  validate(upsertCommunityTrackerReviewSchema),
+  communityController.upsertTrackerReview,
+)
+router.post(
+  COMMUNITY_ROUTE_PATHS.REVIEW_HELPFUL,
+  communityController.toggleReviewHelpful,
 )
 
 router.get(
@@ -51,6 +66,11 @@ router.post(
   COMMUNITY_ROUTE_PATHS.VERIFY_VOTE,
   validate(voteVerificationSubmissionSchema),
   communityController.voteVerificationSubmission,
+)
+
+router.post(
+  COMMUNITY_ROUTE_PATHS.TRACKER_LIKE,
+  communityController.toggleTrackerLike,
 )
 
 export default router

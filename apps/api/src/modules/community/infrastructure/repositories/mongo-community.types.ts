@@ -195,3 +195,41 @@ export type MongoUserRecord = {
   deletedAt?: Date | string | null
   [key: string]: unknown
 }
+
+export type MongoCommunityReviewTrackerSubtopic = {
+  id: string
+  topicId: string
+  parentSubtopicId?: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+  isLocked: boolean
+  estimatedMinutes: number
+}
+
+export type MongoCommunityReviewTrackerTopic = {
+  id: string
+  title: string
+  description: string
+  order: number
+  status: string
+  estimatedHours: number
+  subtopics: MongoCommunityReviewTrackerSubtopic[]
+}
+
+export type MongoCommunityReviewTracker = {
+  id: string
+  title: string
+  description: string
+  category: string
+  field: string
+  goal: string
+  level: string
+  tags: string[]
+  visibility: string
+  status: string
+  topicsCount: number
+  subtopicsCount: number
+  topics: MongoCommunityReviewTrackerTopic[]
+}

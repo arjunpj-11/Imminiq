@@ -40,13 +40,13 @@ const CROSS_SITE_COOKIE_OPTIONS: Pick<
 const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   ...CROSS_SITE_COOKIE_OPTIONS,
-  maxAge: 7 * 24 * 60 * 60 * 1000,
+  maxAge: env.REFRESH_COOKIE_MAX_AGE_MS,
 }
 
 const TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   ...CROSS_SITE_COOKIE_OPTIONS,
-  maxAge: 5 * 60 * 1000,
+  maxAge: env.TWO_FACTOR_COOKIE_MAX_AGE_MS,
 }
 
 const LEGACY_ROOT_COOKIE_OPTIONS: CookieOptions = {

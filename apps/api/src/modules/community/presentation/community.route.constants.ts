@@ -1,6 +1,9 @@
 export const COMMUNITY_ROUTE_PATHS = {
   BROWSE: '/',
   TRACKERS: '/trackers',
+  TRACKER_DETAIL: '/trackers/:trackerId',
+  TRACKER_REVIEW: '/trackers/:trackerId/reviews',
+  REVIEW_HELPFUL: '/reviews/:reviewId/helpful',
   TOPICS: '/topics',
   PERSONAL_STATS: '/stats/personal',
   CLONE_TRACKER: '/trackers/:trackerId/clone',
@@ -10,6 +13,7 @@ export const COMMUNITY_ROUTE_PATHS = {
   VERIFY_LEADERBOARD: '/verify/leaderboard',
   VERIFY_SUBMISSION: '/verify/:submissionId',
   VERIFY_VOTE: '/verify/:submissionId/vote',
+  TRACKER_LIKE: '/trackers/:trackerId/like',
 } as const
 
 export type CommunityRoutePath =

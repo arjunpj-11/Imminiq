@@ -4,6 +4,10 @@ import type {
   VerificationQueuePayload,
   VoteVerificationSubmissionPayload,
 } from './application/dtos/community.dto'
+import type {
+  ToggleCommunityReviewHelpfulPayload,
+  UpsertCommunityTrackerReviewPayload,
+} from './application/dtos/community-review.dto'
 import {
   createCommunityComposition,
   type CommunityComposition,
@@ -26,6 +30,10 @@ export class CommunityService {
     return this.useCases.getTrackers.execute(payload)
   }
 
+  getPublicTrackerDetail(trackerId: string, userId: string) {
+    return this.useCases.getPublicTrackerDetail.execute(trackerId, userId)
+  }
+
   getPersonalStats(userId: string) {
     return this.useCases.getPersonalStats.execute(userId)
   }
@@ -41,6 +49,14 @@ export class CommunityService {
   submitTrackerForVerification(payload: SubmitTrackerForVerificationPayload) {
   return this.useCases.submitTrackerForVerification.execute(payload)
 }
+
+  upsertTrackerReview(payload: UpsertCommunityTrackerReviewPayload) {
+    return this.useCases.upsertTrackerReview.execute(payload)
+  }
+
+  toggleReviewHelpful(payload: ToggleCommunityReviewHelpfulPayload) {
+    return this.useCases.toggleReviewHelpful.execute(payload)
+  }
 
   getVerificationDashboard(payload: VerificationQueuePayload) {
     return this.useCases.getVerificationDashboard.execute(payload)
@@ -61,6 +77,10 @@ export class CommunityService {
   voteVerificationSubmission(payload: VoteVerificationSubmissionPayload) {
     return this.useCases.voteVerificationSubmission.execute(payload)
   }
+
+  toggleTrackerLike(payload: { trackerId: string; userId: string }) {
+  return this.useCases.toggleTrackerLike.execute(payload)
+}
 }
 
 export const communityService = new CommunityService(createCommunityComposition())

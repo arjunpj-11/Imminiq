@@ -115,43 +115,6 @@ export interface CommunityVerificationDashboardView
   howItWorks: string[]
 }
 
-export interface CommunityVerificationReviewSubtopicView {
-  _id: string
-  topicId: string
-  parentSubtopicId?: string | null
-  title: string
-  description: string
-  order: number
-  depth: number
-  isLocked: boolean
-  estimatedMinutes: number
-}
-
-export interface CommunityVerificationReviewTopicView {
-  _id: string
-  title: string
-  description: string
-  order: number
-  status: string
-  estimatedHours: number
-  subtopics: CommunityVerificationReviewSubtopicView[]
-}
-
-export interface CommunityVerificationReviewTrackerView {
-  _id: string
-  title: string
-  description: string
-  category: string
-  field: string
-  goal: string
-  level: string
-  tags: string[]
-  visibility: string
-  status: string
-  topicsCount: number
-  subtopicsCount: number
-  topics: CommunityVerificationReviewTopicView[]
-}
 
 export interface CommunityVerificationSubmissionView extends CommunityVerifyItemView {
   trackerId: string
@@ -181,4 +144,42 @@ export interface VoteVerificationSubmissionView {
     coins: number
     balance: number
   }
+}
+
+export type CommunityVerificationReviewSubtopicView = {
+  id: string
+  topicId: string
+  parentSubtopicId?: string | null
+  title: string
+  description: string
+  order: number
+  depth: number
+  isLocked: boolean
+  estimatedMinutes: number
+}
+
+export type CommunityVerificationReviewTopicView = {
+  id: string
+  title: string
+  description: string
+  order: number
+  status: string
+  estimatedHours: number
+  subtopics: CommunityVerificationReviewSubtopicView[]
+}
+
+export type CommunityVerificationReviewTrackerView = {
+  id: string
+  title: string
+  description: string
+  category: string
+  field: string
+  goal: string
+  level: string
+  tags: string[]
+  visibility: string
+  status: string
+  topicsCount: number
+  subtopicsCount: number
+  topics: CommunityVerificationReviewTopicView[]
 }

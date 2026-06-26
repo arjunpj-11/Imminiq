@@ -3,8 +3,9 @@ import type { NextFunction, Request, Response } from 'express'
 import type { CommunitySort } from '../domain/value-objects/community-sort.vo'
 import { communityService, type CommunityService } from '../community.service'
 import type {
-  SendTrackerForVerificationInput,
+  UpsertCommunityTrackerReviewInput,
   VoteVerificationSubmissionInput,
+  SendTrackerForVerificationInput,
 } from './community.schema'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
@@ -37,6 +38,25 @@ export class CommunityController {
       })
 
       res.json(new ApiResponse('Community trackers fetched', result))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getPublicTrackerDetail = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const user = getAuthUser(req)
+      const trackerId = this.getRequiredParam(req, 'trackerId')
+      const tracker = await this.service.getPublicTrackerDetail(
+        trackerId,
+        user.userId,
+      )
+
+      res.json(new ApiResponse('Community tracker fetched', { tracker }))
     } catch (error) {
       next(error)
     }
@@ -87,6 +107,7 @@ export class CommunityController {
   next: NextFunction,
 ) => {
   try {
+    console.log('submitTrackerForVerification called with body:', req.body);
     const user = getAuthUser(req)
     const trackerId = this.getRequiredParam(req, 'trackerId')
     const body = req.body as SendTrackerForVerificationInput
@@ -99,6 +120,8 @@ export class CommunityController {
       urgent: body.urgent,
     })
 
+    console.log('submitTrackerForVerification result:', submission);
+
     res
       .status(HttpStatusCode.CREATED)
       .json(
@@ -108,6 +131,49 @@ export class CommunityController {
     next(error)
   }
 }
+
+  upsertTrackerReview = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const user = getAuthUser(req)
+      const trackerId = this.getRequiredParam(req, 'trackerId')
+      const body = req.body as UpsertCommunityTrackerReviewInput
+      const result = await this.service.upsertTrackerReview({
+        trackerId,
+        userId: user.userId,
+        rating: body.rating,
+        comment: body.comment,
+      })
+
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Review submitted', result))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  toggleReviewHelpful = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const user = getAuthUser(req)
+      const reviewId = this.getRequiredParam(req, 'reviewId')
+      const result = await this.service.toggleReviewHelpful({
+        reviewId,
+        userId: user.userId,
+      })
+
+      res.json(new ApiResponse('Review helpful state updated', result))
+    } catch (error) {
+      next(error)
+    }
+  }
 
   getVerificationDashboard = async (
     req: Request,
@@ -187,6 +253,26 @@ export class CommunityController {
       next(error)
     }
   }
+
+  toggleTrackerLike = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const user = getAuthUser(req)
+    const trackerId = this.getRequiredParam(req, 'trackerId')
+
+    const result = await this.service.toggleTrackerLike({
+      trackerId,
+      userId: user.userId,
+    })
+
+    res.json(new ApiResponse('Tracker like status updated', result))
+  } catch (error) {
+    next(error)
+  }
+}
 
   voteVerificationSubmission = async (
     req: Request,

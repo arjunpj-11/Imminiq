@@ -39,7 +39,6 @@ export class MongoSettingsRepository
       async () => {
         const settings = await UserSettings.findOne({
           userId,
-          deletedAt: null,
         }).lean<MongoUserSettingsRecord>()
 
         return this.mapper.toEntity(settings)
@@ -54,7 +53,6 @@ export class MongoSettingsRepository
       async () => {
         const existingSettings = await UserSettings.findOne({
           userId,
-          deletedAt: null,
         }).lean<MongoUserSettingsRecord>()
 
         if (existingSettings) {
@@ -89,7 +87,9 @@ export class MongoSettingsRepository
     )
   }
 
-  async updateNotificationTypes(input: UpdateSettingsNotificationTypesInput) {
+  async updateNotificationTypes(
+    input: UpdateSettingsNotificationTypesInput,
+  ) {
     return this.updateWithSet(
       input.userId,
       this.mapper.toNotificationTypesUpdate(input.types),
@@ -124,7 +124,9 @@ export class MongoSettingsRepository
     )
   }
 
-  async updateLearningJourney(input: UpdateSettingsLearningJourneyInput) {
+  async updateLearningJourney(
+    input: UpdateSettingsLearningJourneyInput,
+  ) {
     return this.updateWithSet(
       input.userId,
       this.mapper.toLearningJourneyUpdate(input.data),
@@ -159,7 +161,9 @@ export class MongoSettingsRepository
     )
   }
 
-  async updateCookieConsent(input: UpdateSettingsCookieConsentInput) {
+  async updateCookieConsent(
+    input: UpdateSettingsCookieConsentInput,
+  ) {
     return this.updateWithSet(input.userId, {
       cookieConsent: input.cookieConsent,
     })
@@ -195,7 +199,10 @@ export class MongoSettingsRepository
     )
   }
 
-  private async updateWithSet(userId: string, update: FlatSettingsUpdate) {
+  private async updateWithSet(
+    userId: string,
+    update: FlatSettingsUpdate,
+  ) {
     return this.execute(
       'SETTINGS_UPDATE_FAILED',
       'Failed to update user settings',
@@ -203,20 +210,18 @@ export class MongoSettingsRepository
         const settings = await UserSettings.findOneAndUpdate(
           {
             userId,
-            deletedAt: null,
           },
           {
             $set: update,
             $setOnInsert: {
               userId,
-              deletedAt: null,
             },
           },
           {
-            new: true,
             returnDocument: 'after',
             upsert: true,
             setDefaultsOnInsert: true,
+            runValidators: true,
           },
         ).lean<MongoUserSettingsRecord>()
 
@@ -227,4 +232,5 @@ export class MongoSettingsRepository
   }
 }
 
-export const mongoSettingsRepository = new MongoSettingsRepository()
+export const mongoSettingsRepository =
+  new MongoSettingsRepository()

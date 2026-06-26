@@ -22,7 +22,7 @@ export class GetRecommendedActionsUseCase {
           type: 'continue_tracker',
           title: `Continue "${tracker.title}"`,
           description: `You are ${Math.round(tracker.completionPercentage)}% through`,
-          link: `/trackers/${tracker.id}`,
+          link: `/trackers/${tracker.id}/roadmap`,
         })
       )
     }

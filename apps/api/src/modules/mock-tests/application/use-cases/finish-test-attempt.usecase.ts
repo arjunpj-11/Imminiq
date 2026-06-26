@@ -37,7 +37,9 @@ export class FinishTestAttemptUseCase {
     }
 
     if (attempt.status !== 'in_progress') {
-      throw MockTestsApplicationError.testNotActive('Test is already finished')
+      throw MockTestsApplicationError.testNotActive(
+        'Test is already finished',
+      )
     }
 
     const test = await this.repo.findTestById(attempt.testId)
@@ -51,54 +53,111 @@ export class FinishTestAttemptUseCase {
       this.repo.findAnswersByAttempt(attemptId),
     ])
 
-    const now = new Date()
-    const timeTakenSeconds = Math.round(
-      (now.getTime() - new Date(attempt.startedAt).getTime()) / 1000,
+    const completedAt = new Date()
+
+    const timeTakenSeconds = Math.max(
+      0,
+      Math.floor(
+        (completedAt.getTime() -
+          new Date(attempt.startedAt).getTime()) /
+          1000,
+      ),
     )
 
-    const scoreResult = this.scoringService.calculateTestScore(
-      questions,
-      answers,
-      test.passingScore,
-    )
+    const scoreResult =
+      this.scoringService.calculateTestScore(
+        questions,
+        answers,
+        test.passingScore,
+      )
 
     const maxScore = this.calculateMaxScore(questions)
+    const totalQuestions = questions.length
 
-    const { strongTopics, weakTopics } =
-      this.scoringService.identifyWeakAndStrongTopics(questions, answers)
-
-    const recommendations = this.scoringService.generateRecommendations(
-      scoreResult.scorePercentage,
-      weakTopics,
-      scoreResult.passed,
+    /*
+     * Assumes findAnswersByAttempt() returns one record only for
+     * questions that were answered.
+     */
+    const answeredQuestions = Math.min(
+      totalQuestions,
+      answers.length,
     )
 
-    const updatedAttempt = await this.repo.updateAttempt(attemptId, {
-      status: 'completed',
-      completedAt: now,
-      timeSpentSeconds: timeTakenSeconds,
-      score: scoreResult.earnedPoints,
-      percentage: scoreResult.scorePercentage,
-    })
+    const correctAnswers = Math.min(
+      answeredQuestions,
+      Math.max(0, scoreResult.correctCount),
+    )
 
-    const existingReport = await this.repo.findReportByAttempt(attemptId)
+    const incorrectAnswers = Math.max(
+      0,
+      answeredQuestions - correctAnswers,
+    )
+
+    const skippedAnswers = Math.max(
+      0,
+      totalQuestions - answeredQuestions,
+    )
+
+    const { strongTopics, weakTopics } =
+      this.scoringService.identifyWeakAndStrongTopics(
+        questions,
+        answers,
+      )
+
+    const recommendations =
+      this.scoringService.generateRecommendations(
+        scoreResult.scorePercentage,
+        weakTopics,
+        scoreResult.passed,
+      )
+
+    /*
+     * Create the report before completing the attempt.
+     *
+     * If report creation fails, the attempt remains in_progress
+     * and the user can safely retry.
+     */
+    const existingReport =
+      await this.repo.findReportByAttempt(attemptId)
 
     const report =
-      existingReport ||
+      existingReport ??
       (await this.repo.createReport({
         attemptId,
-        userId,
         testId: attempt.testId,
+        userId,
+
         score: scoreResult.earnedPoints,
         maxScore,
-        percentage: scoreResult.scorePercentage,
+        scorePercentage: scoreResult.scorePercentage,
         passed: scoreResult.passed,
-        totalQuestions: questions.length,
-        correctAnswers: scoreResult.correctCount,
+
+        totalQuestions,
+        correctAnswers,
+        incorrectAnswers,
+        skippedAnswers,
+        timeTakenSeconds,
+
         weakTopics,
         strongTopics,
         recommendations,
+
+        generatedAt: completedAt,
       }))
+
+    /*
+     * Complete the attempt only after the report exists.
+     */
+    const updatedAttempt = await this.repo.updateAttempt(
+      attemptId,
+      {
+        status: 'completed',
+        completedAt,
+        timeSpentSeconds: timeTakenSeconds,
+        score: scoreResult.earnedPoints,
+        percentage: scoreResult.scorePercentage,
+      },
+    )
 
     await this.repo.updateAnalyticsSnapshot(attempt.testId)
 
@@ -109,7 +168,13 @@ export class FinishTestAttemptUseCase {
     }
   }
 
-  private calculateMaxScore(questions: QuestionScoreLike[]): number {
-    return questions.reduce((total, question) => total + (question.points ?? 1), 0)
+  private calculateMaxScore(
+    questions: QuestionScoreLike[],
+  ): number {
+    return questions.reduce(
+      (total, question) =>
+        total + (question.points ?? 1),
+      0,
+    )
   }
 }

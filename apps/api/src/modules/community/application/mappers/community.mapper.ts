@@ -97,19 +97,21 @@ export class CommunityMapper implements CommunityMapperContract {
   toVerifyItemView(
     entity: CommunityVerificationSubmissionEntity,
   ): CommunityVerifyItemView {
-    const closed = entity.status !== 'open'
 
-    return {
-      _id: entity.id,
-      title: entity.title,
-      category: entity.category,
-      timeLeft: closed ? '' : this.formatTimeLeft(entity.expiresAt),
-      excerpt: entity.excerpt,
-      progress: entity.progress,
-      votedPass: entity.userVote === 'pass',
-      closed,
-      urgent: entity.urgent,
-    }
+   return {
+  _id: entity.id,
+  title: entity.title,
+  category: entity.category,
+  timeLeft: entity.timeLeft,
+  excerpt: entity.excerpt,
+  progress: entity.progress,
+  passVotes: entity.passVotes,
+  failVotes: entity.failVotes,
+  requiredVotes: entity.requiredVotes,
+  votedPass: entity.votedPass,
+  closed: entity.closed,
+  urgent: entity.urgent,
+}
   }
 
   toVerificationSubmissionView(
@@ -120,6 +122,8 @@ export class CommunityMapper implements CommunityMapperContract {
       trackerId: entity.trackerId,
       ownerId: entity.ownerId,
       userVote: entity.userVote ?? null,
+  failVotes: entity.failVotes,
+reviewTracker: entity.reviewTracker,
       consensusChoice: entity.consensusChoice ?? null,
     }
   }
