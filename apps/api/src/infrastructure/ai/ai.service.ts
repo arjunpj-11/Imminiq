@@ -62,6 +62,7 @@ export {
   evaluateMockTestOpenAnswerAI,
   generateMockTestPerformanceInsightsAI,
   generateMockTestQuestionsAI,
+  generateMockTestQuestionsGroqAI,
 } from './services/mock-test-ai.service'
 
 export type {

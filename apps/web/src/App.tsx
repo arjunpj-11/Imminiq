@@ -40,11 +40,10 @@ import MockTestDetailsPage from './modules/mock-tests/pages/MockTestDetailsPage'
 import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
 import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
 
-import MyCommunityPage from './modules/community/pages/CommunityBrowsePage'
-import VerifyAndEarnPage from './modules/community/pages/CommunityVerifyPage'
-import StorePage from './modules/community/pages/CommunityStorePage'
+// ─── OTHER APP PAGES ────────────────────────────────
 import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
 import ActivityPage from './modules/activity/pages/activity'
+import CommunityPublicTrackerPage from './modules/community/pages/CommunityPublicTrackerPage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
@@ -117,6 +116,19 @@ const TrackerLessonPage = lazy(
 
 const TrackerRoadmapPage = lazy(
   () => import('./modules/trackers/pages/TrackerRoadmapPage')
+)
+
+// ─── LAZY COMMUNITY PAGES ───────────────────────────
+const CommunityBrowsePage = lazy(
+  () => import('./modules/community/pages/CommunityBrowsePage')
+)
+
+const VerifyAndEarnPage = lazy(
+  () => import('./modules/community/pages/VerifyAndEarnPage')
+)
+
+const CommunityVerifySubmissionPage = lazy(
+  () => import('./modules/community/pages/CommunityVerifySubmissionPage')
 )
 
 const PUBLIC_EXACT_PATHS = new Set([
@@ -384,11 +396,52 @@ export default function App() {
             }
           />
 
-          <Route path="/community" element={<MyCommunityPage />} />
-          <Route path="/leaderboard" element={<LeaderboardPage />} />
-          <Route path="/activity" element={<ActivityPage />} />
-          <Route path="/verify-and-earn" element={<VerifyAndEarnPage />} />
-          <Route path="/store" element={<StorePage/>}/>
+          {/* ─── PROTECTED COMMUNITY ROUTES ─────────────── */}
+          <Route
+            path="/community"
+            element={
+              <ProtectedRoute>
+                <CommunityBrowsePage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/verify-and-earn"
+            element={
+              <ProtectedRoute>
+                <VerifyAndEarnPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/community/verify/:submissionId"
+            element={
+              <ProtectedRoute>
+                <CommunityVerifySubmissionPage />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* ─── PROTECTED SOCIAL ROUTES ───────────────── */}
+          <Route
+            path="/leaderboard"
+            element={
+              <ProtectedRoute>
+                <LeaderboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/activity"
+            element={
+              <ProtectedRoute>
+                <ActivityPage />
+              </ProtectedRoute>
+            }
+          />
 
           {/* ─── PROTECTED MOCK TEST ROUTES ─────────────── */}
           <Route
@@ -399,8 +452,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
-        
 
           <Route
             path="/mock-tests/:testId"
@@ -437,6 +488,15 @@ export default function App() {
               </ProtectedRoute>
             }
           />
+
+          <Route
+  path="/community/trackers/:trackerId"
+  element={
+    <ProtectedRoute>
+      <CommunityPublicTrackerPage />
+    </ProtectedRoute>
+  }
+/>
 
           {/* ─── ADMIN ROUTES ───────────────────────────── */}
           <Route

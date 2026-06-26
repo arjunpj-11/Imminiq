@@ -1,21 +1,12 @@
-// apps/api/src/infrastructure/database/models/tracker.model.ts
-
 import mongoose, { Document, Schema } from 'mongoose'
 
-export type TrackerLevel =
-  | 'beginner'
-  | 'intermediate'
-  | 'advanced'
+export type TrackerLevel = 'beginner' | 'intermediate' | 'advanced'
 
-export type TrackerVisibility =
-  | 'private'
-  | 'public'
-  | 'unlisted'
+export type TrackerVisibility = 'private' | 'public' | 'unlisted'
 
-export type TrackerStatus =
-  | 'draft'
-  | 'active'
-  | 'archived'
+export type TrackerStatus = 'draft' | 'active' | 'archived'
+
+export type TrackerVerificationStatus = 'pending' | 'verified' | 'rejected'
 
 export interface ITracker extends Document {
   ownerId: mongoose.Types.ObjectId
@@ -32,9 +23,13 @@ export interface ITracker extends Document {
 
   tags: string[]
   allowClone: boolean
+  sourceTrackerId?: mongoose.Types.ObjectId | null
 
   visibility: TrackerVisibility
   status: TrackerStatus
+
+  verificationStatus?: TrackerVerificationStatus | null
+  verifiedAt?: Date | null
 
   isAIGenerated: boolean
   aiJobId?: mongoose.Types.ObjectId
@@ -129,6 +124,13 @@ const trackerSchema = new Schema<ITracker>(
       default: true,
     },
 
+    sourceTrackerId: {
+      type: Schema.Types.ObjectId,
+      ref: 'Tracker',
+      default: null,
+      index: true,
+    },
+
     visibility: {
       type: String,
       enum: ['private', 'public', 'unlisted'],
@@ -139,6 +141,18 @@ const trackerSchema = new Schema<ITracker>(
       type: String,
       enum: ['draft', 'active', 'archived'],
       default: 'draft',
+    },
+
+    verificationStatus: {
+      type: String,
+      enum: ['pending', 'verified', 'rejected'],
+      default: null,
+      index: true,
+    },
+
+    verifiedAt: {
+      type: Date,
+      default: null,
     },
 
     isAIGenerated: {
@@ -218,7 +232,7 @@ const trackerSchema = new Schema<ITracker>(
   },
   {
     timestamps: true,
-  }
+  },
 )
 
 trackerSchema.index({ ownerId: 1, status: 1 })
@@ -228,7 +242,18 @@ trackerSchema.index({ field: 1 })
 trackerSchema.index({ category: 1 })
 trackerSchema.index({ level: 1 })
 trackerSchema.index({ tags: 1 })
+trackerSchema.index({ sourceTrackerId: 1 })
+trackerSchema.index({ verificationStatus: 1, visibility: 1 })
+trackerSchema.index(
+  { ownerId: 1, sourceTrackerId: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      sourceTrackerId: { $type: 'objectId' },
+      deletedAt: null,
+    },
+  },
+)
 
 export const Tracker =
-  mongoose.models.Tracker ||
-  mongoose.model<ITracker>('Tracker', trackerSchema)
+  mongoose.models.Tracker || mongoose.model<ITracker>('Tracker', trackerSchema)

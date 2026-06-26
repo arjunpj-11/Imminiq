@@ -22,6 +22,7 @@ import { securityRoutes } from './modules/security/presentation/security.routes'
 import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes'
 import moderationAppealRoutes from './modules/moderation-appeals/presentation/moderation-appeal.routes'
 import  mockTestsRouter  from './modules/mock-tests/presentation/mock-tests.routes'
+import communityRouter from './modules/community/presentation/community.routes'
 
 
 const app = express()
@@ -70,7 +71,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/security', securityRoutes)
 app.use('/api/mock-tests', mockTestsRouter)
-
+app.use('/api/community', communityRouter)
 app.use('/api/moderation-appeals', moderationAppealRoutes)
 
 app.use(errorHandler)

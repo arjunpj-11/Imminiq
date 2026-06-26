@@ -9,6 +9,7 @@ export class PublishTrackerUseCase {
   constructor(private readonly trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
 
   async execute(input: PublishTrackerInput) {
+  
     const tracker = await this.trackerRepository.publishOwnedTracker(input)
 
     if (!tracker) {

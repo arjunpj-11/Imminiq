@@ -75,7 +75,7 @@ const mockTestQuestionSchema = z.object({
   type: z.enum(['mcq', 'short_answer', 'coding']),
   question: z.string().trim().min(1),
   options: z.array(z.string().trim()).default([]),
-  correctAnswer: z.string().trim().min(1),
+ correctAnswer: z.string().trim().default(''),
   explanation: z.string().trim().default(''),
   difficulty: z.enum(['easy', 'medium', 'hard']),
   points: z.number().int().min(1).max(10),
@@ -167,4 +167,28 @@ export const generateMockTestPerformanceInsightsAI = async (
     response ||
     'Keep practicing to improve your performance across all topics.'
   )
+}
+
+export const generateMockTestQuestionsGroqAI = async (
+  input: GenerateMockTestQuestionsAIInput
+): Promise<GenerateMockTestQuestionsAIOutput> => {
+  const response = await groqChat(
+    [
+      {
+        role: 'user',
+        content: buildMockTestQuestionsPrompt(input),
+      },
+    ],
+    'llama-3.3-70b-versatile'
+  )
+
+  if (!response) {
+    throw new ApiError(
+      502,
+      'Mock test question generation (Groq) returned an empty response',
+      'MOCK_TEST_AI_EMPTY_GENERATION_RESPONSE'
+    )
+  }
+
+  return parseAIJson(response, generateMockTestQuestionsSchema)
 }

@@ -153,86 +153,105 @@ export class MongoTrackerRepository
     )
   }
 
-  async listOwnedTrackers(filter: TrackerListFilter) {
-    return this.execute(
-      'TRACKER_LIST_READ_FAILED',
-      'Failed to read owned trackers',
-      async () => {
-        const {
-          userId,
-          status = 'all',
-          domain = 'all',
-          sortBy = 'lastActive',
-          page,
-          limit,
-        } = filter
+ async listOwnedTrackers(filter: TrackerListFilter) {
+  return this.execute(
+    'TRACKER_LIST_READ_FAILED',
+    'Failed to read owned trackers',
+    async () => {
+      const {
+        userId,
+        status = 'all',
+        domain = 'all',
+        sortBy = 'lastActive',
+        page,
+        limit,
+      } = filter
 
-        const userObjId = this.toObjectId(userId)
-        const query: MongoQuery = {
-          ownerId: userObjId,
+      const userObjId = this.toObjectId(userId)
+
+      const query: MongoQuery = {
+        ownerId: userObjId,
+        deletedAt: null,
+      }
+
+      if (status !== 'all') {
+        query.status = status
+      }
+
+      if (domain !== 'all') {
+        query.domain = domain
+      }
+
+      const skip = (page - 1) * limit
+
+      const [trackers, total] = await Promise.all([
+        Tracker.find(this.mapper.asMongoFilter(query))
+          .sort(this.mapper.buildTrackerSort(sortBy))
+          .skip(skip)
+          .limit(limit)
+          .lean(),
+        Tracker.countDocuments(this.mapper.asMongoFilter(query)),
+      ])
+
+      const trackerIds = trackers.map((tracker) => tracker._id)
+
+      const progressList = await TrackerProgress.find(
+        this.mapper.asMongoFilter({
+          userId: userObjId,
+          trackerId: {
+            $in: trackerIds,
+          },
           deletedAt: null,
-        }
-
-        if (status !== 'all') {
-          query.status = status
-        }
-
-        if (domain !== 'all') {
-          query.domain = domain
-        }
-
-        const skip = (page - 1) * limit
-
-        const [trackers, total] = await Promise.all([
-          Tracker.find(this.mapper.asMongoFilter(query))
-            .sort(this.mapper.buildTrackerSort(sortBy))
-            .skip(skip)
-            .limit(limit)
-            .lean(),
-          Tracker.countDocuments(this.mapper.asMongoFilter(query)),
-        ])
-
-        const trackerIds = trackers.map((tracker) => tracker._id)
-
-        const progressList = await TrackerProgress.find(
-          this.mapper.asMongoFilter({
-            userId: userObjId,
-            trackerId: {
-              $in: trackerIds,
-            },
-            deletedAt: null,
-          }),
+        }),
+      )
+        .select(
+          'trackerId completedTopics totalTopics completionPercentage lastStudiedAt',
         )
-          .select('trackerId completedTopics totalTopics')
-          .lean()
+        .lean()
 
-        const progressMap = new Map(
-          progressList.map((progress) => [
-            progress.trackerId.toString(),
-            progress,
-          ]),
-        )
+      const progressMap = new Map(
+        progressList.map((progress) => [
+          progress.trackerId.toString(),
+          progress,
+        ]),
+      )
 
-        const enrichedTrackers = trackers.map((tracker) => {
-          const progress = progressMap.get(tracker._id.toString())
-
-          return {
-            ...tracker,
-            completedTopics: progress?.completedTopics ?? 0,
-            totalTopics: progress?.totalTopics ?? tracker.topicsCount ?? 0,
-          }
-        })
+      const enrichedTrackers = trackers.map((tracker) => {
+        const progress = progressMap.get(tracker._id.toString())
 
         return {
-          trackers: enrichedTrackers as TrackerRecord[],
-          total,
-          page,
-          limit,
-          totalPages: Math.ceil(total / limit),
+          ...tracker,
+
+          completedTopics: progress?.completedTopics ?? 0,
+
+          totalTopics:
+            progress?.totalTopics ??
+            tracker.topicsCount ??
+            0,
+
+          progressPercent:
+            progress?.completionPercentage ??
+            tracker.progressPercent ??
+            0,
+
+          lastActiveAt:
+            progress?.lastStudiedAt ??
+            tracker.lastActiveAt ??
+            tracker.updatedAt ??
+            tracker.createdAt,
         }
-      },
-    )
-  }
+      })
+
+      return {
+        trackers: enrichedTrackers as TrackerRecord[],
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      }
+    },
+  )
+}
 
   async createTracker(data: CreateTrackerInput) {
     return this.execute(
@@ -409,65 +428,66 @@ export class MongoTrackerRepository
     )
   }
 
-  async publishOwnedTracker(data: PublishTrackerInput) {
-    return this.execute(
-      'TRACKER_PUBLISH_FAILED',
-      'Failed to publish tracker',
-      async () => {
-        const update: MongoUpdate = {
-          visibility: 'public',
-          publishedAt: new Date(),
-        }
+ async publishOwnedTracker(data: PublishTrackerInput) {
+  return this.execute(
+    'TRACKER_PUBLISH_FAILED',
+    'Failed to publish tracker',
+    async () => {
+      const update: MongoUpdate = {
+        visibility: 'public',
+        publishedAt: new Date(),
+      }
 
-        if (typeof data.name === 'string' && data.name.trim()) {
-          update.title = data.name.trim()
-        }
+      if (typeof data.name === 'string' && data.name.trim()) {
+        update.title = data.name.trim()
+      }
 
-        if (typeof data.description === 'string') {
-          update.description = data.description.trim()
-        }
+      if (typeof data.description === 'string') {
+        update.description = data.description.trim()
+      }
 
-        if (typeof data.domain === 'string' && data.domain.trim()) {
-          update.domain = data.domain.trim()
-        }
+      // Input uses `domain`, but MongoDB tracker field is `category`
+      if (typeof data.domain === 'string' && data.domain.trim()) {
+        update.category = data.domain.trim()
+      }
 
-        if (
-          data.difficulty === 'beginner' ||
-          data.difficulty === 'intermediate' ||
-          data.difficulty === 'advanced'
-        ) {
-          update.level = data.difficulty
-        }
+      if (
+        data.difficulty === 'beginner' ||
+        data.difficulty === 'intermediate' ||
+        data.difficulty === 'advanced'
+      ) {
+        update.level = data.difficulty
+      }
 
-        if (Array.isArray(data.tags)) {
-          update.tags = data.tags
-            .map((tag) => String(tag).trim().toLowerCase())
-            .filter(Boolean)
-        }
+      if (Array.isArray(data.tags)) {
+        update.tags = data.tags
+          .map((tag) => String(tag).trim().toLowerCase())
+          .filter(Boolean)
+      }
 
-        if (typeof data.allowClone === 'boolean') {
-          update.allowClone = data.allowClone
-        }
+      if (typeof data.allowClone === 'boolean') {
+        update.allowClone = data.allowClone
+      }
 
-        const tracker = await Tracker.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            _id: this.toObjectId(data.trackerId),
-            ownerId: this.toObjectId(data.userId),
-            deletedAt: null,
-          }),
-          this.mapper.asMongoUpdate({
-            $set: update,
-          }),
-          {
-            returnDocument: 'after',
-          },
-        )
+      const tracker = await Tracker.findOneAndUpdate(
+        this.mapper.asMongoFilter({
+          _id: this.toObjectId(data.trackerId),
+          ownerId: this.toObjectId(data.userId),
+          deletedAt: null,
+        }),
+        this.mapper.asMongoUpdate({
+          $set: update,
+        }),
+        {
+          returnDocument: 'after',
+        },
+      )
 
-        return tracker as TrackerRecord | null
-      },
-      MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
-    )
-  }
+      return tracker as TrackerRecord | null
+    },
+    MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
+  )
+}
 
   async unpublishOwnedTracker(data: UnpublishOwnedTrackerInput) {
     return this.execute(

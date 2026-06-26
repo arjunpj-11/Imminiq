@@ -1,5 +1,3 @@
-// apps/web/src/modules/trackers/components/TrackerCard.tsx
-
 import { useEffect, useRef, useState } from 'react'
 import type { Tracker } from '../types/tracker.types'
 
@@ -111,6 +109,31 @@ const SpinnerIcon = () => (
   <svg className="h-3.5 w-3.5 animate-spin" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8v4a4 4 0 0 0-4 4H4z" />
+  </svg>
+)
+
+const VerifyIcon = () => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 15 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    aria-hidden="true"
+  >
+    <path
+      d="M7.5 1.5L12.5 3.5V7.1C12.5 10.25 10.55 12.55 7.5 13.5C4.45 12.55 2.5 10.25 2.5 7.1V3.5L7.5 1.5Z"
+      stroke="currentColor"
+      strokeWidth="1.25"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M5.25 7.4L6.75 8.9L9.9 5.75"
+      stroke="currentColor"
+      strokeWidth="1.35"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 )
 
@@ -421,6 +444,7 @@ type TrackerCardProps = {
   onInfo: (trackerId: string) => void
   onArchive?: (trackerId: string) => void
   onQuickRevision: (trackerId: string) => void
+  onSendForVerification: (trackerId: string) => Promise<void> | void
 }
 
 export default function TrackerCard({
@@ -431,23 +455,47 @@ export default function TrackerCard({
   onInfo,
   onArchive,
   onQuickRevision,
+  onSendForVerification,
 }: TrackerCardProps) {
   const [menuOpen, setMenuOpen] = useState(false)
   const [publishModalOpen, setPublishModalOpen] = useState(false)
   const [isPublishing, setIsPublishing] = useState(false)
   const [publishError, setPublishError] = useState<string | null>(null)
+  const [isSendingVerification, setIsSendingVerification] = useState(false)
+  const [verificationError, setVerificationError] = useState<string | null>(null)
+  const [verificationSent, setVerificationSent] = useState(false)
+  const [showPublishNudge, setShowPublishNudge] = useState(false)
 
   const menuRef = useRef<HTMLDivElement | null>(null)
+  const nudgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   const progress = Math.min(100, Math.max(0, Number(tracker.progressPercent ?? 0)))
   const tone = getTone(tracker.status)
   const isPublished = tracker.visibility === 'public' || Boolean(tracker.publishedAt)
   const isArchived = tracker.status === 'archived'
+  const verificationStatus =
+    (
+      tracker as Tracker & {
+        verificationStatus?: 'pending' | 'verified' | 'rejected' | null
+      }
+    ).verificationStatus ?? null
 
-  // ── topic counts ──────────────────────────────────────────────────────────
+  const isVerificationPending = verificationStatus === 'pending' || verificationSent
+  const isVerificationVerified = verificationStatus === 'verified'
+
+  // must be published + not archived/pending/verified
+  const canSendForVerification =
+    isPublished && !isArchived && !isVerificationPending && !isVerificationVerified
+
   const totalTopics = Number(tracker.topicsCount ?? 0)
-  const completedTopics = Number(tracker.completedTopics ?? 0)   // 👈 from TrackerProgress
+  const completedTopics = Number(tracker.completedTopics ?? 0)
   const remainingTopics = Math.max(0, totalTopics - completedTopics)
+
+  useEffect(() => {
+    return () => {
+      if (nudgeTimerRef.current) clearTimeout(nudgeTimerRef.current)
+    }
+  }, [])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -481,6 +529,51 @@ export default function TrackerCard({
     }
   }
 
+  const triggerPublishNudge = () => {
+    setShowPublishNudge(true)
+    if (nudgeTimerRef.current) clearTimeout(nudgeTimerRef.current)
+    nudgeTimerRef.current = setTimeout(() => setShowPublishNudge(false), 3500)
+  }
+
+  const handleSendForVerification = async () => {
+    if (isSendingVerification) return
+
+    if (!isPublished) {
+      triggerPublishNudge()
+      return
+    }
+
+    if (!canSendForVerification) return
+
+    try {
+      setIsSendingVerification(true)
+      setVerificationError(null)
+      await onSendForVerification(tracker._id)
+      setVerificationSent(true)
+    } catch (error) {
+      setVerificationError(
+        error instanceof Error
+          ? error.message
+          : 'Failed to send tracker for verification. Please try again.',
+      )
+    } finally {
+      setIsSendingVerification(false)
+    }
+  }
+
+  const verificationMenuLabel = isSendingVerification
+    ? 'Sending...'
+    : isVerificationVerified
+      ? 'Already verified'
+      : isVerificationPending
+        ? 'Verification pending'
+        : 'Send for verification'
+
+  // button is disabled only when action is truly unavailable (pending/verified/sending)
+  // unpublished case is handled via nudge instead of disabling
+  const verificationButtonDisabled =
+    isSendingVerification || isVerificationPending || isVerificationVerified || isArchived
+
   return (
     <>
       <article
@@ -508,6 +601,16 @@ export default function TrackerCard({
                 Archived
               </span>
             )}
+            {isVerificationPending && (
+              <span className="rounded-full border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#8a6200] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.10)] dark:text-[#f0a842]">
+                Pending Review
+              </span>
+            )}
+            {isVerificationVerified && (
+              <span className="rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+                Verified
+              </span>
+            )}
           </div>
 
           <div ref={menuRef} className="relative">
@@ -529,6 +632,24 @@ export default function TrackerCard({
                 </button>
                 <button type="button" onClick={(e) => handleMenuAction(e, () => onQuickRevision(tracker._id))} className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#1a1714] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]">
                   <QuickRevisionIcon />Quick Revision
+                </button>
+                <button
+                  type="button"
+                  disabled={verificationButtonDisabled}
+                  onClick={(e) =>
+                    handleMenuAction(e, () => {
+                      void handleSendForVerification()
+                    })
+                  }
+                  className={cn(
+                    'flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-55',
+                    canSendForVerification || (!isPublished && !isArchived)
+                      ? 'text-[#1a1714] hover:bg-[rgba(45,106,71,0.08)] hover:text-[#2d6a47] dark:text-[#f2f0eb] dark:hover:bg-[rgba(92,201,138,0.10)] dark:hover:text-[#5cc98a]'
+                      : 'text-[#9b9a92] dark:text-[#6b5f58]',
+                  )}
+                >
+                  {isSendingVerification ? <SpinnerIcon /> : <VerifyIcon />}
+                  {verificationMenuLabel}
                 </button>
                 {onArchive && (
                   <>
@@ -579,22 +700,20 @@ export default function TrackerCard({
               {totalTopics}
             </div>
           </div>
-
           <div className="text-center">
             <div className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
               Done
             </div>
             <div className="mt-1 text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-              {completedTopics}  {/* 👈 now topics not subtopics */}
+              {completedTopics}
             </div>
           </div>
-
           <div className="text-center">
             <div className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
               Left
             </div>
             <div className="mt-1 text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-              {remainingTopics}  {/* 👈 now topics not subtopics */}
+              {remainingTopics}
             </div>
           </div>
         </div>
@@ -619,6 +738,26 @@ export default function TrackerCard({
             </button>
           )}
         </div>
+
+        {/* ── Publish nudge (shown when user clicks verify on unpublished tracker) ── */}
+        {showPublishNudge && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mt-4 rounded-[10px] border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3 py-2.5 text-[11.5px] leading-relaxed text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-[#f0a842]"
+          >
+            Publish this tracker first before sending it for verification.
+          </div>
+        )}
+
+        {/* ── Verification error ── */}
+        {verificationError && (
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="mt-4 rounded-[10px] border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3 py-2 text-[11.5px] leading-relaxed text-[#b83232] dark:border-[rgba(255,120,120,0.20)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]"
+          >
+            {verificationError}
+          </div>
+        )}
       </article>
 
       {publishModalOpen && (

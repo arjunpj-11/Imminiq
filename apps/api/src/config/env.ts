@@ -76,6 +76,17 @@ const envSchema = z.object({
   .default('https://emkc.org/api/v2/piston'),
 
 PISTON_API_KEY: z.string().optional().default(''),
+ REFRESH_COOKIE_MAX_AGE_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(7 * 24 * 60 * 60 * 1000),
+
+  TWO_FACTOR_COOKIE_MAX_AGE_MS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(5 * 60 * 1000),
 })
 
 export const env = envSchema.parse(process.env)
