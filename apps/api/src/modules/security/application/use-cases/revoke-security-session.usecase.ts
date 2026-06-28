@@ -5,8 +5,8 @@ import type { CurrentSessionServiceContract } from '../services/current-session.
 
 export class RevokeSecuritySessionUseCase {
   constructor(
-    private readonly securitySessionRepository: SecuritySessionRepositoryContract,
-    private readonly currentSessionService: CurrentSessionServiceContract,
+    private readonly _securitySessionRepository: SecuritySessionRepositoryContract,
+    private readonly _currentSessionService: CurrentSessionServiceContract,
   ) {}
 
   async execute(
@@ -15,14 +15,14 @@ export class RevokeSecuritySessionUseCase {
     refreshToken?: string,
   ): Promise<RevokeSessionResponseDto> {
     const currentSessionId =
-      await this.currentSessionService.getCurrentSessionId(refreshToken)
+      await this._currentSessionService.getCurrentSessionId(refreshToken)
 
     if (currentSessionId === sessionId) {
       throw SecurityApplicationError.cannotRevokeCurrentSession()
     }
 
     const revokedSession =
-      await this.securitySessionRepository.revokeSessionById({
+      await this._securitySessionRepository.revokeSessionById({
         userId,
         sessionId,
       })

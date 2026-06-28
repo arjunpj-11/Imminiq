@@ -61,7 +61,7 @@ export class MongoMockTestsRepository
   extends MongoMockTestsBaseRepository
   implements MockTestsRepositoryContract
 {
-  constructor(private readonly mapper = new MongoMockTestsMapper()) {
+  constructor(private readonly _mapper = new MongoMockTestsMapper()) {
     super()
   }
 
@@ -81,7 +81,7 @@ export class MongoMockTestsRepository
           deletedAt: null,
         }).lean()
 
-        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
     )
   }
@@ -121,7 +121,7 @@ export class MongoMockTestsRepository
 
         return {
           tests: docs.map((doc) =>
-            this.mapper.toMockTestEntity(doc as RawMockTestDoc),
+            this._mapper.toMockTestEntity(doc as RawMockTestDoc),
           ),
           total,
         }
@@ -155,7 +155,7 @@ export class MongoMockTestsRepository
         const paginatedDocs = filteredDocs.slice(skip, skip + safeLimit)
 
         return {
-          tests: paginatedDocs.map((doc) => this.mapper.toMockTestEntity(doc)),
+          tests: paginatedDocs.map((doc) => this._mapper.toMockTestEntity(doc)),
           total: filteredDocs.length,
         }
       },
@@ -173,7 +173,7 @@ export class MongoMockTestsRepository
           deletedAt: null,
         }).lean()
 
-        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
     )
   }
@@ -198,7 +198,7 @@ export class MongoMockTestsRepository
           deletedAt: null,
         }).lean()
 
-        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
     )
   }
@@ -234,7 +234,7 @@ export class MongoMockTestsRepository
           },
         ).lean()
 
-        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
       MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
     )
@@ -273,7 +273,7 @@ export class MongoMockTestsRepository
       async () => {
         const doc = await MockTestModel.create(data)
 
-        return this.mapper.toMockTestEntity(doc.toObject() as RawMockTestDoc)
+        return this._mapper.toMockTestEntity(doc.toObject() as RawMockTestDoc)
       },
       MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
     )
@@ -299,7 +299,7 @@ export class MongoMockTestsRepository
           }).lean()
 
           return existingDoc
-            ? this.mapper.toMockTestEntity(existingDoc as RawMockTestDoc)
+            ? this._mapper.toMockTestEntity(existingDoc as RawMockTestDoc)
             : null
         }
 
@@ -314,7 +314,7 @@ export class MongoMockTestsRepository
           },
         ).lean()
 
-        return doc ? this.mapper.toMockTestEntity(doc as RawMockTestDoc) : null
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null
       },
       MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
     )
@@ -362,7 +362,7 @@ export class MongoMockTestsRepository
           .lean()
 
         return docs.map((doc) =>
-          this.mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc),
+          this._mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc),
         )
       },
     )
@@ -385,7 +385,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return doc
-          ? this.mapper.toMockTestQuestionEntity(
+          ? this._mapper.toMockTestQuestionEntity(
               doc as RawMockTestQuestionDoc,
             )
           : null
@@ -401,7 +401,7 @@ export class MongoMockTestsRepository
         const docs = await MockTestQuestionModel.insertMany(questions)
 
         return docs.map((doc) =>
-          this.mapper.toMockTestQuestionEntity(
+          this._mapper.toMockTestQuestionEntity(
             doc.toObject() as RawMockTestQuestionDoc,
           ),
         )
@@ -427,7 +427,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return doc
-          ? this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
+          ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
           : null
       },
     )
@@ -465,7 +465,7 @@ export class MongoMockTestsRepository
           .lean()
 
         return docs.map((doc) =>
-          this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc),
+          this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc),
         )
       },
     )
@@ -500,7 +500,7 @@ export class MongoMockTestsRepository
         const result: Record<string, MockTestAttemptEntity> = {}
 
         for (const doc of docs) {
-          const mapped = this.mapper.toMockTestAttemptEntity(
+          const mapped = this._mapper.toMockTestAttemptEntity(
             doc as RawMockTestAttemptDoc,
           )
 
@@ -536,7 +536,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return doc
-          ? this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
+          ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
           : null
       },
     )
@@ -555,7 +555,7 @@ export class MongoMockTestsRepository
           flaggedQuestions: [],
         })
 
-        return this.mapper.toMockTestAttemptEntity(
+        return this._mapper.toMockTestAttemptEntity(
           doc.toObject() as RawMockTestAttemptDoc,
         )
       },
@@ -583,7 +583,7 @@ export class MongoMockTestsRepository
           }).lean()
 
           return existingDoc
-            ? this.mapper.toMockTestAttemptEntity(
+            ? this._mapper.toMockTestAttemptEntity(
                 existingDoc as RawMockTestAttemptDoc,
               )
             : null
@@ -601,7 +601,7 @@ export class MongoMockTestsRepository
         ).lean()
 
         return doc
-          ? this.mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
+          ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
           : null
       },
     )
@@ -681,7 +681,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return docs.map((doc) =>
-          this.mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc),
+          this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc),
         )
       },
     )
@@ -708,7 +708,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return doc
-          ? this.mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
+          ? this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
           : null
       },
     )
@@ -721,7 +721,7 @@ export class MongoMockTestsRepository
       async () => {
         const doc = await MockTestAnswerModel.create(data)
 
-        return this.mapper.toMockTestAnswerEntity(
+        return this._mapper.toMockTestAnswerEntity(
           doc.toObject() as RawMockTestAnswerDoc,
         )
       },
@@ -749,7 +749,7 @@ export class MongoMockTestsRepository
           }).lean()
 
           return existingDoc
-            ? this.mapper.toMockTestAnswerEntity(
+            ? this._mapper.toMockTestAnswerEntity(
                 existingDoc as RawMockTestAnswerDoc,
               )
             : null
@@ -767,7 +767,7 @@ export class MongoMockTestsRepository
         ).lean()
 
         return doc
-          ? this.mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
+          ? this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
           : null
       },
     )
@@ -841,7 +841,7 @@ export class MongoMockTestsRepository
           status: 'completed',
         })
 
-        return this.mapper.toMockTestAIEvaluationEntity(
+        return this._mapper.toMockTestAIEvaluationEntity(
           doc.toObject() as RawMockTestAIEvaluationDoc,
         )
       },
@@ -866,7 +866,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return docs.map((doc) =>
-          this.mapper.toMockTestAIEvaluationEntity(
+          this._mapper.toMockTestAIEvaluationEntity(
             doc as RawMockTestAIEvaluationDoc,
           ),
         )
@@ -891,7 +891,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return doc
-          ? this.mapper.toMockTestReportEntity(doc as RawMockTestReportDoc)
+          ? this._mapper.toMockTestReportEntity(doc as RawMockTestReportDoc)
           : null
       },
     )
@@ -904,7 +904,7 @@ export class MongoMockTestsRepository
       async () => {
         const doc = await MockTestReportModel.create(data)
 
-        return this.mapper.toMockTestReportEntity(
+        return this._mapper.toMockTestReportEntity(
           doc.toObject() as RawMockTestReportDoc,
         )
       },
@@ -933,12 +933,12 @@ export class MongoMockTestsRepository
 
         return docs.map((doc) => {
           const attemptDoc = doc as RawMockTestAttemptDoc
-          const populatedTest = this.mapper.isRecord(attemptDoc.testId)
-            ? this.mapper.toMockTestEntity(attemptDoc.testId as RawMockTestDoc)
+          const populatedTest = this._mapper.isRecord(attemptDoc.testId)
+            ? this._mapper.toMockTestEntity(attemptDoc.testId as RawMockTestDoc)
             : null
 
           return {
-            ...this.mapper.toMockTestAttemptEntity(attemptDoc),
+            ...this._mapper.toMockTestAttemptEntity(attemptDoc),
             test: populatedTest,
           }
         })
@@ -1086,7 +1086,7 @@ export class MongoMockTestsRepository
           {}
 
         for (const attempt of attempts as RawMockTestAttemptDoc[]) {
-          const testDoc = this.mapper.isRecord(attempt.testId)
+          const testDoc = this._mapper.isRecord(attempt.testId)
             ? attempt.testId
             : null
 
@@ -1205,7 +1205,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return doc
-          ? this.mapper.toMockTestCreationSessionEntity(
+          ? this._mapper.toMockTestCreationSessionEntity(
               doc as RawMockTestCreationSessionDoc,
             )
           : null
@@ -1231,7 +1231,7 @@ export class MongoMockTestsRepository
         }).lean()
 
         return doc
-          ? this.mapper.toMockTestCreationSessionEntity(
+          ? this._mapper.toMockTestCreationSessionEntity(
               doc as RawMockTestCreationSessionDoc,
             )
           : null
@@ -1251,7 +1251,7 @@ export class MongoMockTestsRepository
           draftData: {},
         })
 
-        return this.mapper.toMockTestCreationSessionEntity(
+        return this._mapper.toMockTestCreationSessionEntity(
           doc.toObject() as RawMockTestCreationSessionDoc,
         )
       },
@@ -1282,7 +1282,7 @@ export class MongoMockTestsRepository
           }).lean()
 
           return existingDoc
-            ? this.mapper.toMockTestCreationSessionEntity(
+            ? this._mapper.toMockTestCreationSessionEntity(
                 existingDoc as RawMockTestCreationSessionDoc,
               )
             : null
@@ -1300,7 +1300,7 @@ export class MongoMockTestsRepository
         ).lean()
 
         return doc
-          ? this.mapper.toMockTestCreationSessionEntity(
+          ? this._mapper.toMockTestCreationSessionEntity(
               doc as RawMockTestCreationSessionDoc,
             )
           : null

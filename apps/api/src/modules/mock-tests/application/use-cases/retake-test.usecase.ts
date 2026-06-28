@@ -11,12 +11,12 @@ type RetakeTestRepository =
 
 export class RetakeTestUseCase {
   constructor(
-    private readonly repo: RetakeTestRepository,
-    private readonly mapper: MockTestsMapperContract,
+    private readonly _repo: RetakeTestRepository,
+    private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(attemptId: string, userId: string) {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -26,29 +26,29 @@ export class RetakeTestUseCase {
       throw MockTestsApplicationError.forbidden()
     }
 
-    const test = await this.repo.findTestById(attempt.testId)
+    const test = await this._repo.findTestById(attempt.testId)
 
     if (!test) {
       throw MockTestsApplicationError.notFound('Test not found')
     }
 
-    await this.repo.abandonActiveAttempts({
+    await this._repo.abandonActiveAttempts({
       userId,
       testId: attempt.testId,
     })
 
-    const newAttempt = await this.repo.createAttempt({
+    const newAttempt = await this._repo.createAttempt({
       testId: attempt.testId,
       userId,
       totalQuestions: test.questionCount,
     })
 
-    const questions = await this.repo.findQuestionsByTest(attempt.testId)
+    const questions = await this._repo.findQuestionsByTest(attempt.testId)
 
     return {
       attempt: newAttempt,
       questions: questions.map((question) =>
-        this.mapper.sanitizeQuestionForAttempt(question),
+        this._mapper.sanitizeQuestionForAttempt(question),
       ),
     }
   }

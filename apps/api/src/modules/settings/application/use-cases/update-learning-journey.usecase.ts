@@ -11,19 +11,19 @@ type UpdateLearningJourneyRepository = {
 
 export class UpdateLearningJourneyUseCase {
   constructor(
-    private readonly settingsRepository: UpdateLearningJourneyRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateLearningJourneyRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateLearningJourneyPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateLearningJourney({
+    const settings = await this._settingsRepository.updateLearningJourney({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

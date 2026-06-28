@@ -11,16 +11,16 @@ type RoadmapJobResultRepository =
 
 export class GetRoadmapJobResultUseCase {
   constructor(
-    private readonly onboardingRepository: RoadmapJobResultRepository,
-    private readonly onboardingMapper: OnboardingMapperContract,
-    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingRepository: RoadmapJobResultRepository,
+    private readonly _onboardingMapper: OnboardingMapperContract,
+    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     jobId: string,
     userId: string,
   ): Promise<RoadmapTreeResult> {
-    const job = await this.onboardingRepository.getJobById(jobId)
+    const job = await this._onboardingRepository.getJobById(jobId)
 
     if (!job) {
       throw OnboardingApplicationError.notFound('Job not found')
@@ -40,13 +40,13 @@ export class GetRoadmapJobResultUseCase {
       throw OnboardingApplicationError.jobPending('Job not completed yet')
     }
 
-    const trackerId = this.onboardingJobOutputReader.getTrackerId(job.outputData)
+    const trackerId = this._onboardingJobOutputReader.getTrackerId(job.outputData)
 
     if (!trackerId) {
       throw OnboardingApplicationError.serverError('Tracker not created')
     }
 
-    const result = await this.onboardingRepository.getRoadmapTree(trackerId)
+    const result = await this._onboardingRepository.getRoadmapTree(trackerId)
 
     if (!result.tracker) {
       throw OnboardingApplicationError.trackerNotFound(
@@ -54,6 +54,6 @@ export class GetRoadmapJobResultUseCase {
       )
     }
 
-    return this.onboardingMapper.toRoadmapTreeDto(result)
+    return this._onboardingMapper.toRoadmapTreeDto(result)
   }
 }

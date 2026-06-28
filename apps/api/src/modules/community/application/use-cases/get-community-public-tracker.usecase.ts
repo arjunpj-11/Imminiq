@@ -5,15 +5,15 @@ import type { CommunityReviewMapperContract } from '../mappers/community-review.
 
 export class GetCommunityPublicTrackerUseCase {
   constructor(
-    private readonly repository: CommunityReviewRepositoryContract,
-    private readonly mapper: CommunityReviewMapperContract,
+    private readonly _repository: CommunityReviewRepositoryContract,
+    private readonly _mapper: CommunityReviewMapperContract,
   ) {}
 
   async execute(
     trackerId: string,
     userId: string,
   ): Promise<CommunityPublicTrackerDetailView> {
-    const tracker = await this.repository.findPublicTrackerDetail(
+    const tracker = await this._repository.findPublicTrackerDetail(
       trackerId,
       userId,
     )
@@ -22,6 +22,6 @@ export class GetCommunityPublicTrackerUseCase {
       throw CommunityApplicationError.notFound('Community tracker not found')
     }
 
-    return this.mapper.toPublicTrackerDetailView(tracker)
+    return this._mapper.toPublicTrackerDetailView(tracker)
   }
 }

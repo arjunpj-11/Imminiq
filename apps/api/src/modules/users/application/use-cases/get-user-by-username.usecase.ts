@@ -4,17 +4,17 @@ import type { UsersMapperContract } from '../mappers/users.mapper'
 
 export class GetUserByUsernameUseCase {
   constructor(
-    private readonly usersRepository: UserRepositoryContract,
-    private readonly usersMapper: UsersMapperContract,
+    private readonly _usersRepository: UserRepositoryContract,
+    private readonly _usersMapper: UsersMapperContract,
   ) {}
 
   async execute(username: string) {
-    const user = await this.usersRepository.findByUsername(username)
+    const user = await this._usersRepository.findByUsername(username)
 
     if (!user) {
       throw UsersApplicationError.userNotFound()
     }
 
-    return this.usersMapper.toUserView(user)
+    return this._usersMapper.toUserView(user)
   }
 }

@@ -9,14 +9,14 @@ type CreateTrackerSubtopicResultDto = ReturnType<
 
 export class CreateTrackerSubtopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(
     input: CreateSubtopicUseCaseInput
   ): Promise<CreateTrackerSubtopicResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -25,7 +25,7 @@ export class CreateTrackerSubtopicUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const topics = await this.trackerRepository.getTopicsForTracker(
+    const topics = await this._trackerRepository.getTopicsForTracker(
       input.trackerId
     )
 
@@ -40,7 +40,7 @@ export class CreateTrackerSubtopicUseCase {
     let depth = 1
 
     if (input.parentSubtopicId) {
-      const parent = await this.trackerRepository.getSubtopicById({
+      const parent = await this._trackerRepository.getSubtopicById({
         trackerId: input.trackerId,
         subtopicId: input.parentSubtopicId,
       })
@@ -62,12 +62,12 @@ export class CreateTrackerSubtopicUseCase {
 
     const parentSubtopicId = input.parentSubtopicId || null
 
-    const lastSibling = await this.trackerRepository.findLastSiblingSubtopic({
+    const lastSibling = await this._trackerRepository.findLastSiblingSubtopic({
       topicId: input.topicId,
       parentSubtopicId,
     })
 
-    const subtopic = await this.trackerRepository.createTrackerSubtopic({
+    const subtopic = await this._trackerRepository.createTrackerSubtopic({
       trackerId: input.trackerId,
       topicId: input.topicId,
       parentSubtopicId,
@@ -79,13 +79,13 @@ export class CreateTrackerSubtopicUseCase {
     })
 
     await Promise.all([
-      this.trackerRepository.incrementTrackerSubtopicsCount(input.trackerId),
-      this.trackerRepository.recomputeTrackerProgress({
+      this._trackerRepository.incrementTrackerSubtopicsCount(input.trackerId),
+      this._trackerRepository.recomputeTrackerProgress({
         trackerId: input.trackerId,
         userId: input.userId,
       }),
     ])
 
-    return this.trackerMapper.toTrackerSubtopicDto(subtopic)
+    return this._trackerMapper.toTrackerSubtopicDto(subtopic)
   }
 }

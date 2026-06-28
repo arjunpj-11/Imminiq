@@ -3,10 +3,10 @@ import type { TrackerRepositoryContract } from '../../domain/repositories/tracke
 import { TrackerMapperContract } from '../mappers';
 
 export class RestoreTrackerUseCase {
-  constructor(private readonly trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
+  constructor(private readonly _trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
 
   async execute(input: { trackerId: string; userId: string }) {
-    const tracker = await this.trackerRepository.restoreOwnedTracker(input)
+    const tracker = await this._trackerRepository.restoreOwnedTracker(input)
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')

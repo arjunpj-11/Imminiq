@@ -11,19 +11,19 @@ type UpdateAccountSettingsRepository = {
 
 export class UpdateAccountSettingsUseCase {
   constructor(
-    private readonly settingsRepository: UpdateAccountSettingsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateAccountSettingsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateAccountPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateAccountSettings({
+    const settings = await this._settingsRepository.updateAccountSettings({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

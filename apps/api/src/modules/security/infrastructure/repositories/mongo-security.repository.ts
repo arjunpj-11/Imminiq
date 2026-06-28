@@ -26,7 +26,7 @@ export class MongoSecurityRepository
   extends MongoSecurityBaseRepository
   implements SecurityRepositoryContract
 {
-  constructor(private readonly mapper = new MongoSecurityMapper()) {
+  constructor(private readonly _mapper = new MongoSecurityMapper()) {
     super()
   }
 
@@ -42,7 +42,7 @@ export class MongoSecurityRepository
           .select('+passwordHash')
           .lean<MongoSecurityUserRecord>()
 
-        return this.mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user)
       },
     )
   }
@@ -80,7 +80,7 @@ export class MongoSecurityRepository
           .select('+passwordHash +pendingEmailChangeTokenHash')
           .lean<MongoSecurityUserRecord>()
 
-        return this.mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user)
       },
     )
   }
@@ -110,7 +110,7 @@ export class MongoSecurityRepository
           .select('+passwordHash')
           .lean<MongoSecurityUserRecord>()
 
-        return this.mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user)
       },
       MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
     )
@@ -148,7 +148,7 @@ export class MongoSecurityRepository
           .select('+passwordHash')
           .lean<MongoSecurityUserRecord>()
 
-        return this.mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user)
       },
       MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
     )
@@ -179,7 +179,7 @@ export class MongoSecurityRepository
           .select('+passwordHash')
           .lean<MongoSecurityUserRecord>()
 
-        return this.mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user)
       },
     )
   }
@@ -207,7 +207,7 @@ export class MongoSecurityRepository
           .select('+passwordHash')
           .lean<MongoSecurityUserRecord>()
 
-        return this.mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user)
       },
     )
   }
@@ -236,7 +236,7 @@ export class MongoSecurityRepository
           .select('+passwordHash')
           .lean<MongoSecurityUserRecord>()
 
-        return this.mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user)
       },
     )
   }
@@ -260,7 +260,7 @@ export class MongoSecurityRepository
           .lean<MongoSecuritySessionRecord[]>()
 
         return sessions.map((session) =>
-          this.mapper.toSecuritySessionEntity(session),
+          this._mapper.toSecuritySessionEntity(session),
         )
       },
     )
@@ -280,7 +280,7 @@ export class MongoSecurityRepository
           deletedAt: null,
         }).lean<MongoSecuritySessionRecord>()
 
-        return session ? this.mapper.toSecuritySessionEntity(session) : null
+        return session ? this._mapper.toSecuritySessionEntity(session) : null
       },
     )
   }
@@ -307,7 +307,7 @@ export class MongoSecurityRepository
           },
         ).lean<MongoSecuritySessionRecord>()
 
-        return session ? this.mapper.toSecuritySessionEntity(session) : null
+        return session ? this._mapper.toSecuritySessionEntity(session) : null
       },
     )
   }
@@ -343,7 +343,7 @@ export class MongoSecurityRepository
           deletedAt: null,
         }).lean<MongoTwoFactorRecord>()
 
-        return this.mapper.toTwoFactorEntity(twoFactor)
+        return this._mapper.toTwoFactorEntity(twoFactor)
       },
     )
   }
@@ -360,7 +360,7 @@ export class MongoSecurityRepository
           .select('+totpSecretEncrypted')
           .lean<MongoTwoFactorRecord>()
 
-        return this.mapper.toTwoFactorEntity(twoFactor)
+        return this._mapper.toTwoFactorEntity(twoFactor)
       },
     )
   }
@@ -395,7 +395,7 @@ export class MongoSecurityRepository
           .select('+totpSecretEncrypted')
           .lean<MongoTwoFactorRecord>()
 
-        return this.mapper.toTwoFactorEntity(twoFactor)
+        return this._mapper.toTwoFactorEntity(twoFactor)
       },
       MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
     )
@@ -426,7 +426,7 @@ export class MongoSecurityRepository
           .select('+totpSecretEncrypted')
           .lean<MongoTwoFactorRecord>()
 
-        return this.mapper.toTwoFactorEntity(twoFactor)
+        return this._mapper.toTwoFactorEntity(twoFactor)
       },
     )
   }
@@ -458,7 +458,7 @@ export class MongoSecurityRepository
           },
         ).lean<MongoTwoFactorRecord>()
 
-        return this.mapper.toTwoFactorEntity(twoFactor)
+        return this._mapper.toTwoFactorEntity(twoFactor)
       },
     )
   }

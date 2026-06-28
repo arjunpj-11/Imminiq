@@ -6,12 +6,12 @@ import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
 
 export class GetRecommendedActionsUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardRecommendationRepositoryContract,
-    private readonly dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: DashboardRecommendationRepositoryContract,
+    private readonly _dashboardMapper: DashboardMapperContract
   ) {}
 
   async execute(userId: string): Promise<DashboardRecommendedAction[]> {
-    const context = await this.dashboardRepository.getRecommendationContext(userId)
+    const context = await this._dashboardRepository.getRecommendationContext(userId)
     const actions: DashboardRecommendedActionEntity[] = []
 
     if (context.latestIncompleteTracker) {
@@ -55,6 +55,6 @@ export class GetRecommendedActionsUseCase {
 
     return actions
       .slice(0, DASHBOARD_MAX_RECOMMENDED_ACTIONS)
-      .map((action) => this.dashboardMapper.toRecommendedAction(action))
+      .map((action) => this._dashboardMapper.toRecommendedAction(action))
   }
 }

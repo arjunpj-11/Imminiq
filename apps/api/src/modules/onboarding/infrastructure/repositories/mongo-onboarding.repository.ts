@@ -40,7 +40,7 @@ export class MongoOnboardingRepository
   extends MongoOnboardingBaseRepository
   implements OnboardingRepositoryContract
 {
-  constructor(private readonly mapper = new MongoOnboardingMapper()) {
+  constructor(private readonly _mapper = new MongoOnboardingMapper()) {
     super()
   }
 
@@ -54,7 +54,7 @@ export class MongoOnboardingRepository
           deletedAt: null,
         }).lean<MongoOnboardingResponseRecord>()
 
-        return this.mapper.toOnboardingResponseEntity(response)
+        return this._mapper.toOnboardingResponseEntity(response)
       },
     )
   }
@@ -87,7 +87,7 @@ export class MongoOnboardingRepository
           },
         ).lean<MongoOnboardingResponseRecord>()
 
-        return this.mapper.toOnboardingResponseEntity(response)
+        return this._mapper.toOnboardingResponseEntity(response)
       },
       MongoOnboardingErrorMapper.mapDuplicateRecordError,
     )
@@ -120,7 +120,7 @@ export class MongoOnboardingRepository
           },
         ).lean<MongoOnboardingResponseRecord>()
 
-        return this.mapper.toOnboardingResponseEntity(response)
+        return this._mapper.toOnboardingResponseEntity(response)
       },
       MongoOnboardingErrorMapper.mapDuplicateRecordError,
     )
@@ -149,7 +149,7 @@ export class MongoOnboardingRepository
           },
         ).lean<MongoOnboardingResponseRecord>()
 
-        return this.mapper.toOnboardingResponseEntity(response)
+        return this._mapper.toOnboardingResponseEntity(response)
       },
     )
   }
@@ -174,7 +174,7 @@ export class MongoOnboardingRepository
           })
           .lean<MongoAIGenerationJobRecord>()
 
-        return this.mapper.toAIJobEntity(job)
+        return this._mapper.toAIJobEntity(job)
       },
     )
   }
@@ -200,7 +200,7 @@ export class MongoOnboardingRepository
           })
           .lean<MongoAIGenerationJobRecord>()
 
-        return this.mapper.toAIJobEntity(job)
+        return this._mapper.toAIJobEntity(job)
       },
     )
   }
@@ -229,8 +229,8 @@ export class MongoOnboardingRepository
           currentStep: 0,
         })
 
-        return this.mapper.toAIJobEntityOrThrow(
-          this.mapper.toPlainRecord(
+        return this._mapper.toAIJobEntityOrThrow(
+          this._mapper.toPlainRecord(
             aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>,
           ),
         )
@@ -260,8 +260,8 @@ export class MongoOnboardingRepository
           currentStep: 0,
         })
 
-        return this.mapper.toAIJobEntityOrThrow(
-          this.mapper.toPlainRecord(
+        return this._mapper.toAIJobEntityOrThrow(
+          this._mapper.toPlainRecord(
             aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>,
           ),
         )
@@ -298,7 +298,7 @@ export class MongoOnboardingRepository
           deletedAt: null,
         }).lean<MongoAIGenerationJobRecord>()
 
-        return this.mapper.toAIJobEntity(job)
+        return this._mapper.toAIJobEntity(job)
       },
     )
   }
@@ -317,7 +317,7 @@ export class MongoOnboardingRepository
           })
           .lean<MongoAIGenerationStepRecord[]>()
 
-        return steps.map((step) => this.mapper.toAIJobStepEntity(step))
+        return steps.map((step) => this._mapper.toAIJobStepEntity(step))
       },
     )
   }
@@ -351,7 +351,7 @@ export class MongoOnboardingRepository
             .lean<MongoRoadmapSubtopicRecord[]>(),
         ])
 
-        return this.mapper.toRoadmapTreeEntity({
+        return this._mapper.toRoadmapTreeEntity({
           tracker,
           topics,
           subtopics,

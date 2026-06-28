@@ -8,19 +8,19 @@ type GetAttemptQuestionsRepository =
 
 export class GetAttemptQuestionsUseCase {
   constructor(
-    private readonly repo: GetAttemptQuestionsRepository,
-    private readonly mapper: MockTestsMapperContract,
+    private readonly _repo: GetAttemptQuestionsRepository,
+    private readonly _mapper: MockTestsMapperContract,
   ) { }
 
   async execute(attemptId: string, userId: string) {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt || attempt.userId !== userId) {
       return []
     }
 
-    const questions = await this.repo.findQuestionsByTest(attempt.testId)
+    const questions = await this._repo.findQuestionsByTest(attempt.testId)
 
-    return questions.map((question) => this.mapper.sanitizeQuestionForAttempt(question))
+    return questions.map((question) => this._mapper.sanitizeQuestionForAttempt(question))
   }
 }

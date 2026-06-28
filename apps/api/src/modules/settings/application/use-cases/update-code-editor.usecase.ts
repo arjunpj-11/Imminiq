@@ -11,19 +11,19 @@ type UpdateCodeEditorRepository = {
 
 export class UpdateCodeEditorUseCase {
   constructor(
-    private readonly settingsRepository: UpdateCodeEditorRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateCodeEditorRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateCodeEditorPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateCodeEditor({
+    const settings = await this._settingsRepository.updateCodeEditor({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

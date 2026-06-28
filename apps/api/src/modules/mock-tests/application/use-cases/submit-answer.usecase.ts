@@ -15,9 +15,9 @@ type SubmitAnswerRepository =
 
 export class SubmitAnswerUseCase {
   constructor(
-    private readonly repo: SubmitAnswerRepository,
-    private readonly aiService: MockTestAIServiceContract,
-    private readonly scoringService: MockTestScoringServiceContract,
+    private readonly _repo: SubmitAnswerRepository,
+    private readonly _aiService: MockTestAIServiceContract,
+    private readonly _scoringService: MockTestScoringServiceContract,
   ) {}
 
   async execute(
@@ -25,7 +25,7 @@ export class SubmitAnswerUseCase {
     userId: string,
     payload: SubmitAnswerPayload,
   ) {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -39,7 +39,7 @@ export class SubmitAnswerUseCase {
       throw MockTestsApplicationError.testNotActive()
     }
 
-    const question = await this.repo.findQuestionById(payload.questionId)
+    const question = await this._repo.findQuestionById(payload.questionId)
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found')
@@ -49,7 +49,7 @@ export class SubmitAnswerUseCase {
       throw MockTestsApplicationError.useCodingSubmitEndpoint()
     }
 
-    const existing = await this.repo.findAnswerByQuestion({
+    const existing = await this._repo.findAnswerByQuestion({
       attemptId,
       questionId: payload.questionId,
     })
@@ -59,7 +59,7 @@ export class SubmitAnswerUseCase {
 
     if (question.type === 'mcq') {
       isCorrect = question.correctAnswer
-        ? this.scoringService.isMCQCorrect(
+        ? this._scoringService.isMCQCorrect(
             payload.answer,
             question.correctAnswer,
           )
@@ -69,12 +69,12 @@ export class SubmitAnswerUseCase {
     }
 
     let savedAnswer = existing
-      ? await this.repo.updateAnswer(existing._id, {
+      ? await this._repo.updateAnswer(existing._id, {
           answer: payload.answer,
           isCorrect,
           pointsEarned,
         })
-      : await this.repo.saveAnswer({
+      : await this._repo.saveAnswer({
           attemptId,
           questionId: payload.questionId,
           answer: payload.answer,
@@ -87,12 +87,12 @@ export class SubmitAnswerUseCase {
     }
 
     if (!existing) {
-      await this.repo.incrementAnsweredCount(attemptId)
+      await this._repo.incrementAnsweredCount(attemptId)
     }
 
     if (question.type === 'short_answer') {
       try {
-        const evaluation = await this.aiService.evaluateOpenAnswer({
+        const evaluation = await this._aiService.evaluateOpenAnswer({
           question: question.question,
           correctAnswer: question.correctAnswer,
           userAnswer: payload.answer,
@@ -100,7 +100,7 @@ export class SubmitAnswerUseCase {
           maxPoints: question.points,
         })
 
-        await this.repo.createAIEvaluation({
+        await this._repo.createAIEvaluation({
           attemptId,
           questionId: payload.questionId,
           answerId: savedAnswer._id,
@@ -109,7 +109,7 @@ export class SubmitAnswerUseCase {
           feedback: evaluation.feedback,
         })
 
-        const evaluatedAnswer = await this.repo.updateAnswer(savedAnswer._id, {
+        const evaluatedAnswer = await this._repo.updateAnswer(savedAnswer._id, {
           isCorrect: evaluation.isCorrect,
           pointsEarned: evaluation.score,
         })
@@ -118,7 +118,7 @@ export class SubmitAnswerUseCase {
           savedAnswer = evaluatedAnswer
         }
       } catch {
-        const fallbackAnswer = await this.repo.updateAnswer(savedAnswer._id, {
+        const fallbackAnswer = await this._repo.updateAnswer(savedAnswer._id, {
           isCorrect: false,
           pointsEarned: 0,
         })

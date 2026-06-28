@@ -10,11 +10,11 @@ import { securityService, type SecurityService } from '../security.service'
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
 export class SecurityController {
-  constructor(private readonly service: SecurityService) {}
+  constructor(private readonly _service: SecurityService) {}
 
   getOverview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.getOverview(
+      const result = await this._service.getOverview(
         getAuthUser(req).userId,
         this.getRawRefreshTokenFromCookie(req)
       )
@@ -31,7 +31,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.requestEmailChange(
+      const result = await this._service.requestEmailChange(
         getAuthUser(req).userId,
         req.body
       )
@@ -53,7 +53,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.verifyEmailChange(req.body)
+      const result = await this._service.verifyEmailChange(req.body)
 
       res.json(
         new ApiResponse(
@@ -68,7 +68,7 @@ export class SecurityController {
 
   changePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.changePassword(
+      const result = await this._service.changePassword(
         getAuthUser(req).userId,
         req.body
       )
@@ -86,7 +86,7 @@ export class SecurityController {
 
   getSessions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.getSessions(
+      const result = await this._service.getSessions(
         getAuthUser(req).userId,
         this.getRawRefreshTokenFromCookie(req)
       )
@@ -99,7 +99,7 @@ export class SecurityController {
 
   revokeSession = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.revokeSession(
+      const result = await this._service.revokeSession(
         getAuthUser(req).userId,
         this.getRequiredSessionId(req),
         this.getRawRefreshTokenFromCookie(req)
@@ -117,7 +117,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getTwoFactorStatus(
+      const result = await this._service.getTwoFactorStatus(
         getAuthUser(req).userId
       )
 
@@ -129,7 +129,7 @@ export class SecurityController {
 
   setupTwoFactor = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.setupTwoFactor(getAuthUser(req).userId)
+      const result = await this._service.setupTwoFactor(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Two-factor setup started', result))
     } catch (error) {
@@ -143,7 +143,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.verifyTwoFactorSetup(
+      const result = await this._service.verifyTwoFactorSetup(
         getAuthUser(req).userId,
         req.body
       )
@@ -160,7 +160,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.disableTwoFactor(
+      const result = await this._service.disableTwoFactor(
         getAuthUser(req).userId,
         req.body
       )
@@ -173,7 +173,7 @@ export class SecurityController {
 
   deleteAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.deleteAccount(
+      const result = await this._service.deleteAccount(
         getAuthUser(req).userId,
         req.body
       )

@@ -4,19 +4,19 @@ import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
 
 export class GetActivityIntensityUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardStreakRepositoryContract,
-    private readonly dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: DashboardStreakRepositoryContract,
+    private readonly _dashboardMapper: DashboardMapperContract
   ) {}
 
   async execute(
     userId: string,
     months?: number
   ): Promise<DashboardActivityIntensityItem[]> {
-    const items = await this.dashboardRepository.getActivityIntensity({
+    const items = await this._dashboardRepository.getActivityIntensity({
       userId,
       months,
     })
 
-    return items.map((item) => this.dashboardMapper.toActivityIntensity(item))
+    return items.map((item) => this._dashboardMapper.toActivityIntensity(item))
   }
 }

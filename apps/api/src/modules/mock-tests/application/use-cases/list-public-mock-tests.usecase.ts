@@ -2,7 +2,7 @@ import type { MockTestRepositoryContract } from '../../domain/repositories/mock-
 import type { DifficultyLevel } from '../dtos/mock-tests.dto'
 
 export class ListPublicMockTestsUseCase {
-  constructor(private readonly repo: MockTestRepositoryContract) { }
+  constructor(private readonly _repo: MockTestRepositoryContract) { }
 
   execute(filters: {
     difficulty?: DifficultyLevel
@@ -10,6 +10,6 @@ export class ListPublicMockTestsUseCase {
     page?: number
     limit?: number
   }) {
-    return this.repo.findPublicTests(filters)
+    return this._repo.findPublicTests(filters)
   }
 }

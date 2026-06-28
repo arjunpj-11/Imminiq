@@ -5,15 +5,15 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class GetVerificationSubmissionUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(
     submissionId: string,
     userId: string,
   ): Promise<CommunityVerificationSubmissionView> {
-    const submission = await this.repository.findVerificationSubmissionById(
+    const submission = await this._repository.findVerificationSubmissionById(
       submissionId,
       userId,
     )
@@ -22,6 +22,6 @@ export class GetVerificationSubmissionUseCase {
       throw CommunityApplicationError.notFound('Verification submission not found')
     }
 
-    return this.mapper.toVerificationSubmissionView(submission)
+    return this._mapper.toVerificationSubmissionView(submission)
   }
 }

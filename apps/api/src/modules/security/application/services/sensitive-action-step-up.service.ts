@@ -17,10 +17,10 @@ export interface SensitiveActionStepUpServiceContract {
 
 export class SensitiveActionStepUpService implements SensitiveActionStepUpServiceContract {
   constructor(
-    private readonly twoFactorRepository: SecurityTwoFactorRepositoryContract,
-    private readonly twoFactorGateway: TwoFactorGatewayContract,
-    private readonly passwordHasher: SecurityPasswordHasherServiceContract,
-    private readonly securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly _twoFactorGateway: TwoFactorGatewayContract,
+    private readonly _passwordHasher: SecurityPasswordHasherServiceContract,
+    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async assertSatisfied(input: {
@@ -28,7 +28,7 @@ export class SensitiveActionStepUpService implements SensitiveActionStepUpServic
     payload: SensitiveActionStepUpPayload
     action: SensitiveSecurityAction
   }): Promise<void> {
-    const twoFactor = await this.twoFactorRepository.findTwoFactorWithSecret(
+    const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(
       input.user.id,
     )
 
@@ -61,7 +61,7 @@ export class SensitiveActionStepUpService implements SensitiveActionStepUpServic
       throw SecurityApplicationError.stepUpPasswordUnavailable()
     }
 
-    const validPassword = await this.passwordHasher.compare(
+    const validPassword = await this._passwordHasher.compare(
       input.payload.currentPassword,
       input.user.passwordHash,
     )
@@ -70,7 +70,7 @@ export class SensitiveActionStepUpService implements SensitiveActionStepUpServic
       return
     }
 
-    await this.securityAuditLogger.record({
+    await this._securityAuditLogger.record({
       userId: input.user.id,
       eventType: 'SENSITIVE_ACTION_PASSWORD_REAUTH_FAILED',
       outcome: 'failure',
@@ -94,7 +94,7 @@ export class SensitiveActionStepUpService implements SensitiveActionStepUpServic
       throw SecurityApplicationError.twoFactorSecretMissing()
     }
 
-    const validTwoFactorCode = await this.twoFactorGateway.verifyToken({
+    const validTwoFactorCode = await this._twoFactorGateway.verifyToken({
       encryptedSecret: input.encryptedSecret,
       token: input.payload.twoFactorCode,
     })
@@ -103,7 +103,7 @@ export class SensitiveActionStepUpService implements SensitiveActionStepUpServic
       return
     }
 
-    await this.securityAuditLogger.record({
+    await this._securityAuditLogger.record({
       userId: input.userId,
       eventType: 'SENSITIVE_ACTION_TWO_FACTOR_REAUTH_FAILED',
       outcome: 'failure',

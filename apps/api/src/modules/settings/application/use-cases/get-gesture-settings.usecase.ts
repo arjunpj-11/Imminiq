@@ -8,12 +8,12 @@ type GetGestureSettingsRepository = {
 
 export class GetGestureSettingsUseCase {
   constructor(
-    private readonly settingsRepository: GetGestureSettingsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: GetGestureSettingsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<UserSettingsView['gestures']> {
-    const settings = await this.settingsRepository.findOrCreate(userId)
-    return this.settingsMapper.toDto(settings).gestures
+    const settings = await this._settingsRepository.findOrCreate(userId)
+    return this._settingsMapper.toDto(settings).gestures
   }
 }

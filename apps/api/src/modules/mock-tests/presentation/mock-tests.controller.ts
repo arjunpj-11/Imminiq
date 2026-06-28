@@ -20,12 +20,12 @@ type PublicTestsQuery = {
 }
 
 export class MockTestsController {
-  constructor(private readonly service: MockTestsService) {}
+  constructor(private readonly _service: MockTestsService) {}
 
   listTests = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this.service.listTests(
+      const data = await this._service.listTests(
         userId,
         this.parseListTestsQuery(req)
       )
@@ -42,7 +42,7 @@ export class MockTestsController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.service.listPublicTests(
+      const data = await this._service.listPublicTests(
         this.parsePublicTestsQuery(req)
       )
 
@@ -54,7 +54,7 @@ export class MockTestsController {
 
   createTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.createTest(
+      const data = await this._service.createTest(
         getAuthUser(req).userId,
         req.body
       )
@@ -69,7 +69,7 @@ export class MockTestsController {
 
   generateTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.generateTest(
+      const data = await this._service.generateTest(
         getAuthUser(req).userId,
         req.body
       )
@@ -84,7 +84,7 @@ export class MockTestsController {
 
   getTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.getTest(
+      const data = await this._service.getTest(
         this.getParam(req.params.testId, 'testId'),
         getAuthUser(req).userId
       )
@@ -97,7 +97,7 @@ export class MockTestsController {
 
   startAttempt = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.startAttempt(
+      const data = await this._service.startAttempt(
         this.getParam(req.params.testId, 'testId'),
         getAuthUser(req).userId
       )
@@ -114,7 +114,7 @@ export class MockTestsController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.service.getAttemptQuestions(
+      const data = await this._service.getAttemptQuestions(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId
       )
@@ -127,7 +127,7 @@ export class MockTestsController {
 
   submitAnswer = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.submitAnswer(
+      const data = await this._service.submitAnswer(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId,
         req.body
@@ -141,7 +141,7 @@ export class MockTestsController {
 
   flagQuestion = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.flagQuestion(
+      const data = await this._service.flagQuestion(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId,
         req.body.questionId
@@ -155,7 +155,7 @@ export class MockTestsController {
 
   finishAttempt = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.finishAttempt(
+      const data = await this._service.finishAttempt(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId
       )
@@ -172,7 +172,7 @@ export class MockTestsController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.service.getAttemptResult(
+      const data = await this._service.getAttemptResult(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId
       )
@@ -189,7 +189,7 @@ export class MockTestsController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.service.getAttemptAnalysis(
+      const data = await this._service.getAttemptAnalysis(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId
       )
@@ -202,7 +202,7 @@ export class MockTestsController {
 
   retakeTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.retakeTest(
+      const data = await this._service.retakeTest(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId
       )
@@ -215,7 +215,7 @@ export class MockTestsController {
 
   getHistory = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.getHistory(getAuthUser(req).userId)
+      const data = await this._service.getHistory(getAuthUser(req).userId)
 
       res.json(new ApiResponse('History fetched', data))
     } catch (error) {
@@ -225,7 +225,7 @@ export class MockTestsController {
 
   getAnalytics = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.getAnalytics(getAuthUser(req).userId)
+      const data = await this._service.getAnalytics(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Analytics fetched', data))
     } catch (error) {
@@ -235,7 +235,7 @@ export class MockTestsController {
 
   getAIInsights = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.getAIInsights(getAuthUser(req).userId)
+      const data = await this._service.getAIInsights(getAuthUser(req).userId)
 
       res.json(new ApiResponse('AI insights fetched', data))
     } catch (error) {
@@ -249,7 +249,7 @@ export class MockTestsController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.service.getTopicBreakdown(
+      const data = await this._service.getTopicBreakdown(
         getAuthUser(req).userId
       )
 
@@ -263,7 +263,7 @@ export class MockTestsController {
     try {
       const origin = req.get('origin') || `${req.protocol}://${req.get('host')}`
 
-      const data = await this.service.shareTest(
+      const data = await this._service.shareTest(
         getAuthUser(req).userId,
         this.getParam(req.params.testId, 'testId'),
         origin
@@ -281,7 +281,7 @@ export class MockTestsController {
     next: NextFunction
   ) => {
     try {
-      const data = await this.service.importSharedTest(
+      const data = await this._service.importSharedTest(
         getAuthUser(req).userId,
         this.getParam(req.params.shareToken, 'shareToken')
       )
@@ -296,7 +296,7 @@ export class MockTestsController {
 
   runCode = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.runCode(
+      const data = await this._service.runCode(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId,
         this.getParam(req.params.questionId, 'questionId'),
@@ -311,7 +311,7 @@ export class MockTestsController {
 
   submitCode = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.submitCode(
+      const data = await this._service.submitCode(
         this.getParam(req.params.attemptId, 'attemptId'),
         getAuthUser(req).userId,
         this.getParam(req.params.questionId, 'questionId'),

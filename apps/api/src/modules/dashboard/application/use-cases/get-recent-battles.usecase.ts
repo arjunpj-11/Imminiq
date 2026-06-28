@@ -4,16 +4,16 @@ import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
 
 export class GetRecentBattlesUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardBattleRepositoryContract,
-    private readonly dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: DashboardBattleRepositoryContract,
+    private readonly _dashboardMapper: DashboardMapperContract
   ) {}
 
   async execute(userId: string, limit?: number): Promise<DashboardBattleItem[]> {
-    const battles = await this.dashboardRepository.getRecentBattles({
+    const battles = await this._dashboardRepository.getRecentBattles({
       userId,
       limit,
     })
 
-    return battles.map((battle) => this.dashboardMapper.toBattleItem(battle))
+    return battles.map((battle) => this._dashboardMapper.toBattleItem(battle))
   }
 }

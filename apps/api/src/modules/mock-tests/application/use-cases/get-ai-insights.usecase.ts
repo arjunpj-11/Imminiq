@@ -3,18 +3,18 @@ import type { MockTestAIServiceContract } from '../../domain/services/mock-test-
 
 export class GetAIInsightsUseCase {
   constructor(
-    private readonly analyticsRepository: MockTestAnalyticsRepositoryContract,
-    private readonly aiService: MockTestAIServiceContract,
+    private readonly _analyticsRepository: MockTestAnalyticsRepositoryContract,
+    private readonly _aiService: MockTestAIServiceContract,
   ) { }
 
   async execute(userId: string): Promise<{ insight: string }> {
     const [performanceTrends, topicBreakdown] = await Promise.all([
-      this.analyticsRepository.getPerformanceTrends(userId),
-      this.analyticsRepository.getTopicBreakdown(userId),
+      this._analyticsRepository.getPerformanceTrends(userId),
+      this._analyticsRepository.getTopicBreakdown(userId),
     ])
 
     try {
-      const insight = await this.aiService.generatePerformanceInsights({
+      const insight = await this._aiService.generatePerformanceInsights({
         userId,
         performanceTrends,
         topicBreakdown,

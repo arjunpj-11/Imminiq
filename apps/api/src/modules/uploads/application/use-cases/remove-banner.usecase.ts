@@ -11,25 +11,25 @@ type RemoveBannerRepository =
 
 export class RemoveBannerUseCase {
   constructor(
-    private readonly uploadUserProfileService: UploadUserProfileServiceContract,
-    private readonly uploadsRepository: RemoveBannerRepository,
-    private readonly uploadsMapper: UploadsMapperContract,
+    private readonly _uploadUserProfileService: UploadUserProfileServiceContract,
+    private readonly _uploadsRepository: RemoveBannerRepository,
+    private readonly _uploadsMapper: UploadsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<RemoveBannerResult> {
     const context =
-      await this.uploadUserProfileService.getRequiredContext(userId)
+      await this._uploadUserProfileService.getRequiredContext(userId)
 
     try {
       await Promise.all([
-        this.uploadsRepository.clearBannerUrl(context.userId),
-        this.uploadsRepository.softDeleteLatestProfileUpload({
+        this._uploadsRepository.clearBannerUrl(context.userId),
+        this._uploadsRepository.softDeleteLatestProfileUpload({
           userId: context.userId,
           kind: 'banner',
         }),
       ])
 
-      return this.uploadsMapper.toBannerRemovedResult()
+      return this._uploadsMapper.toBannerRemovedResult()
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.profileImageUpdateFailed()

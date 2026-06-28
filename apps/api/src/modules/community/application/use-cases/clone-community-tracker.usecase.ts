@@ -6,12 +6,12 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class CloneCommunityTrackerUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(trackerId: string, userId: string) {
-    const tracker = await this.repository.cloneTrackerForUser(trackerId, userId)
+    const tracker = await this._repository.cloneTrackerForUser(trackerId, userId)
 
     if (!tracker) {
       throw CommunityApplicationError.notFound(
@@ -20,7 +20,7 @@ export class CloneCommunityTrackerUseCase {
     }
 
     return {
-      tracker: this.mapper.toTrackerView(tracker),
+      tracker: this._mapper.toTrackerView(tracker),
     }
   }
 }

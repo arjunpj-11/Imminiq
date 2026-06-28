@@ -9,14 +9,14 @@ type CreateTrackerTopicResultDto = ReturnType<
 
 export class CreateTrackerTopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(
     input: CreateTopicUseCaseInput
   ): Promise<CreateTrackerTopicResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -25,19 +25,19 @@ export class CreateTrackerTopicUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const lastTopic = await this.trackerRepository.findLastTopicForTracker(
+    const lastTopic = await this._trackerRepository.findLastTopicForTracker(
       input.trackerId
     )
 
-    const topic = await this.trackerRepository.createTrackerTopic({
+    const topic = await this._trackerRepository.createTrackerTopic({
       trackerId: input.trackerId,
       title: input.title,
       description: input.description || '',
       order: (lastTopic?.order || 0) + 1,
     })
 
-    await this.trackerRepository.incrementTrackerTopicsCount(input.trackerId)
+    await this._trackerRepository.incrementTrackerTopicsCount(input.trackerId)
 
-    return this.trackerMapper.toTrackerTopicDto(topic)
+    return this._trackerMapper.toTrackerTopicDto(topic)
   }
 }

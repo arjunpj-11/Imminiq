@@ -13,11 +13,11 @@ type JobIdParams = {
 }
 
 export class OnboardingController {
-  constructor(private readonly service: OnboardingService) {}
+  constructor(private readonly _service: OnboardingService) {}
 
   getStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const status = await this.service.getStatus(getAuthUser(req).userId)
+      const status = await this._service.getStatus(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Onboarding status', status))
     } catch (error) {
@@ -27,7 +27,7 @@ export class OnboardingController {
 
   saveStep1 = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.saveStep1(
+      const data = await this._service.saveStep1(
         getAuthUser(req).userId,
         req.body
       )
@@ -40,7 +40,7 @@ export class OnboardingController {
 
   saveStep2 = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this.service.saveStep2(
+      const data = await this._service.saveStep2(
         getAuthUser(req).userId,
         req.body
       )
@@ -57,7 +57,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.generateRoadmap(
+      const result = await this._service.generateRoadmap(
         getAuthUser(req).userId,
         req.body
       )
@@ -76,7 +76,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const status = await this.service.getJobStatus(
+      const status = await this._service.getJobStatus(
         req.params.jobId,
         getAuthUser(req).userId
       )
@@ -93,7 +93,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getJobResult(
+      const result = await this._service.getJobResult(
         req.params.jobId,
         getAuthUser(req).userId
       )
@@ -110,7 +110,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.evaluateRoadmap(
+      const result = await this._service.evaluateRoadmap(
         req.params.jobId,
         getAuthUser(req).userId
       )
@@ -129,7 +129,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getEvaluationResult(
+      const result = await this._service.getEvaluationResult(
         req.params.jobId,
         getAuthUser(req).userId
       )

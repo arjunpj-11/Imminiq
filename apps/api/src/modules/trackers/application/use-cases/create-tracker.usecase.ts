@@ -6,13 +6,13 @@ type CreateTrackerResultDto = ReturnType<TrackerMapperContract['toTrackerDto']>
 
 export class CreateTrackerUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: CreateTrackerInput): Promise<CreateTrackerResultDto> {
-    const tracker = await this.trackerRepository.createTracker(input)
+    const tracker = await this._trackerRepository.createTracker(input)
 
-    return this.trackerMapper.toTrackerDto(tracker)
+    return this._trackerMapper.toTrackerDto(tracker)
   }
 }

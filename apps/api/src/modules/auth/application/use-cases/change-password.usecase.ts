@@ -8,8 +8,8 @@ type ChangePasswordRepository =
 
 export class ChangePasswordUseCase {
   constructor(
-    private readonly authRepository: ChangePasswordRepository,
-    private readonly passwordHasher: PasswordHasherServiceContract
+    private readonly _authRepository: ChangePasswordRepository,
+    private readonly _passwordHasher: PasswordHasherServiceContract
   ) {}
 
   async execute(
@@ -17,7 +17,7 @@ export class ChangePasswordUseCase {
     currentPassword: string,
     newPassword: string
   ): Promise<void> {
-    const user = await this.authRepository.findById(userId)
+    const user = await this._authRepository.findById(userId)
 
     if (!user) {
       throw AuthApplicationError.notFound('User not found')
@@ -29,7 +29,7 @@ export class ChangePasswordUseCase {
       )
     }
 
-    const valid = await this.passwordHasher.compare(
+    const valid = await this._passwordHasher.compare(
       currentPassword,
       user.passwordHash
     )
@@ -38,9 +38,9 @@ export class ChangePasswordUseCase {
       throw AuthApplicationError.wrongPassword('Current password is incorrect')
     }
 
-    const passwordHash = await this.passwordHasher.hash(newPassword)
+    const passwordHash = await this._passwordHasher.hash(newPassword)
 
-    await this.authRepository.updatePasswordHash(userId, passwordHash)
-    await this.authRepository.revokeAllUserSessions(userId)
+    await this._authRepository.updatePasswordHash(userId, passwordHash)
+    await this._authRepository.revokeAllUserSessions(userId)
   }
 }

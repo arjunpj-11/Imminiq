@@ -24,10 +24,10 @@ const getDocumentId = (document: unknown) => {
 
 export class GenerateLessonQuestionsUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly questionHasher: QuestionHasherServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _questionHasher: QuestionHasherServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -36,7 +36,7 @@ export class GenerateLessonQuestionsUseCase {
     userId: string
     count?: number
   }): Promise<GenerateLessonQuestionsResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -45,7 +45,7 @@ export class GenerateLessonQuestionsUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const lesson = await this.trackerRepository.findLessonBySubtopicId({
+    const lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
@@ -58,31 +58,31 @@ export class GenerateLessonQuestionsUseCase {
     }
 
     const generated =
-      await this.trackerAIService.generateLessonPracticeQuestions({
+      await this._trackerAIService.generateLessonPracticeQuestions({
         lessonTitle: lesson.title,
         lessonSummary: lesson.summary,
         lessonExplanation: lesson.explanation,
         count: input.count,
       })
 
-    await this.trackerRepository.createLessonGeneratedQuestions({
+    await this._trackerRepository.createLessonGeneratedQuestions({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
       lessonId: getDocumentId(lesson),
       questions: generated.questions.map((question) => ({
         question,
-        questionHash: this.questionHasher.hash(question),
+        questionHash: this._questionHasher.hash(question),
         source: 'ai_generated',
       })),
     })
 
-    const questions = await this.trackerRepository.getLessonGeneratedQuestions({
+    const questions = await this._trackerRepository.getLessonGeneratedQuestions({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
     })
 
-    return this.trackerMapper.toLessonGeneratedQuestionsDto(questions)
+    return this._trackerMapper.toLessonGeneratedQuestionsDto(questions)
   }
 }

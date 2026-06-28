@@ -10,19 +10,19 @@ type SetupTwoFactorRepository =
 
 export class SetupTwoFactorUseCase {
   constructor(
-    private readonly securityRepository: SetupTwoFactorRepository,
-    private readonly twoFactorGateway: TwoFactorGatewayContract,
+    private readonly _securityRepository: SetupTwoFactorRepository,
+    private readonly _twoFactorGateway: TwoFactorGatewayContract,
   ) {}
 
   async execute(userId: string): Promise<TwoFactorSetupResponseDto> {
-    const user = await this.securityRepository.findUserById(userId)
+    const user = await this._securityRepository.findUserById(userId)
 
     if (!user) {
       throw SecurityApplicationError.notFound()
     }
 
     const existingTwoFactor =
-      await this.securityRepository.findTwoFactorByUserId(userId)
+      await this._securityRepository.findTwoFactorByUserId(userId)
 
     if (existingTwoFactor?.status === 'active') {
       throw SecurityApplicationError.twoFactorAlreadyEnabled()
@@ -30,15 +30,15 @@ export class SetupTwoFactorUseCase {
 
     const accountLabel = user.email?.trim().toLowerCase() || user.username
 
-    const setup = await this.twoFactorGateway.createSetup({
+    const setup = await this._twoFactorGateway.createSetup({
       issuer: TWO_FACTOR_ISSUER,
       accountLabel,
     })
 
-    const encryptedSecret = this.twoFactorGateway.encryptSecret(setup.secret)
+    const encryptedSecret = this._twoFactorGateway.encryptSecret(setup.secret)
 
     const setupRecord =
-      await this.securityRepository.savePendingTwoFactorSetup({
+      await this._securityRepository.savePendingTwoFactorSetup({
         userId,
         data: {
           encryptedSecret,

@@ -7,10 +7,10 @@ type FlagQuestionRepository =
   MockTestAnswerRepositoryContract
 
 export class FlagQuestionUseCase {
-  constructor(private readonly repo: FlagQuestionRepository) {}
+  constructor(private readonly _repo: FlagQuestionRepository) {}
 
   async execute(attemptId: string, userId: string, questionId: string) {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -25,7 +25,7 @@ export class FlagQuestionUseCase {
     }
 
     if (attempt.flaggedQuestions.includes(questionId)) {
-      await this.repo.unflagQuestion({
+      await this._repo.unflagQuestion({
         attemptId,
         questionId,
       })
@@ -33,7 +33,7 @@ export class FlagQuestionUseCase {
       return { flagged: false }
     }
 
-    await this.repo.flagQuestion({
+    await this._repo.flagQuestion({
       attemptId,
       questionId,
     })

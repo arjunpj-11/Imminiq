@@ -9,12 +9,12 @@ import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
 export class DashboardController {
-  constructor(private readonly service: DashboardService) {}
+  constructor(private readonly _service: DashboardService) {}
 
   getSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this.service.getSummary(userId)
+      const data = await this._service.getSummary(userId)
 
       res.json(new ApiResponse('Dashboard fetched', data))
     } catch (error) {
@@ -29,7 +29,7 @@ export class DashboardController {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this.service.getCurrentRoadmap(userId)
+      const data = await this._service.getCurrentRoadmap(userId)
 
       res.json(new ApiResponse('Current roadmap fetched', data))
     } catch (error) {
@@ -47,7 +47,7 @@ export class DashboardController {
       const query = res.locals
         .dashboardActivityIntensityQuery as DashboardActivityIntensityQuery
 
-      const data = await this.service.getActivityIntensity(
+      const data = await this._service.getActivityIntensity(
         userId,
         query.months
       )
@@ -68,7 +68,7 @@ export class DashboardController {
       const query = res.locals
         .dashboardRecentItemsQuery as DashboardRecentItemsQuery
 
-      const data = await this.service.getRecentBattles(userId, query.limit)
+      const data = await this._service.getRecentBattles(userId, query.limit)
 
       res.json(new ApiResponse('Recent battles fetched', data))
     } catch (error) {
@@ -82,7 +82,7 @@ export class DashboardController {
       const query = res.locals
         .dashboardRecentItemsQuery as DashboardRecentItemsQuery
 
-      const data = await this.service.getFriendsHub(userId, query.limit)
+      const data = await this._service.getFriendsHub(userId, query.limit)
 
       res.json(new ApiResponse('Friends hub fetched', data))
     } catch (error) {
@@ -97,7 +97,7 @@ export class DashboardController {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this.service.getRecommendedActions(userId)
+      const data = await this._service.getRecommendedActions(userId)
 
       res.json(new ApiResponse('Recommended actions fetched', data))
     } catch (error) {
@@ -108,7 +108,7 @@ export class DashboardController {
   getAIInsights = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this.service.getAIInsights(userId)
+      const data = await this._service.getAIInsights(userId)
 
       res.json(new ApiResponse('AI insights fetched', data))
     } catch (error) {

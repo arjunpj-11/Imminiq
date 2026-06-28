@@ -28,16 +28,16 @@ const LOGIN_SCOPE: SecurityAttemptScope = 'auth_login'
 
 export class LoginUserUseCase {
   constructor(
-    private readonly authRepository: LoginRepository,
-    private readonly authNotificationService: AuthNotificationServiceContract,
-    private readonly authRedirectService: AuthRedirectServiceContract,
-    private readonly identifierNormalizer: IdentifierNormalizerContract,
-    private readonly authAccountPolicy: AuthAccountPolicyContract,
-    private readonly authSessionService: AuthSessionServiceContract,
-    private readonly authTokenService: AuthTokenServiceContract,
-    private readonly passwordHasher: PasswordHasherServiceContract,
-    private readonly securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly authUserMapper: AuthUserMapperContract
+    private readonly _authRepository: LoginRepository,
+    private readonly _authNotificationService: AuthNotificationServiceContract,
+    private readonly _authRedirectService: AuthRedirectServiceContract,
+    private readonly _identifierNormalizer: IdentifierNormalizerContract,
+    private readonly _authAccountPolicy: AuthAccountPolicyContract,
+    private readonly _authSessionService: AuthSessionServiceContract,
+    private readonly _authTokenService: AuthTokenServiceContract,
+    private readonly _passwordHasher: PasswordHasherServiceContract,
+    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly _authUserMapper: AuthUserMapperContract
   ) {}
 
   async execute(
@@ -45,11 +45,11 @@ export class LoginUserUseCase {
     meta?: RequestMeta
   ): Promise<AuthLoginResult> {
     const parsedIdentifier =
-      this.identifierNormalizer.normalize(payload.identifier)
+      this._identifierNormalizer.normalize(payload.identifier)
 
     await this.throwIfLoginTemporarilyBlocked(parsedIdentifier.value)
 
-    const user = await this.authRepository.findByIdentifier(payload.identifier)
+    const user = await this._authRepository.findByIdentifier(payload.identifier)
 
     if (!user) {
       await this.recordLoginFailure(parsedIdentifier.value)
@@ -57,13 +57,13 @@ export class LoginUserUseCase {
       throw AuthApplicationError.invalidCredentials('Invalid credentials')
     }
 
-    this.authAccountPolicy.ensureUserCanAuthenticate(user)
+    this._authAccountPolicy.ensureUserCanAuthenticate(user)
 
     if (!user.passwordHash) {
       throw AuthApplicationError.oauthAccount('This account uses social login. Please sign in with Google or GitHub.')
     }
 
-    const valid = await this.passwordHasher.compare(
+    const valid = await this._passwordHasher.compare(
       payload.password,
       user.passwordHash
     )
@@ -74,13 +74,13 @@ export class LoginUserUseCase {
       throw AuthApplicationError.invalidCredentials('Invalid credentials')
     }
 
-    await this.securityAttemptStore.clear(
+    await this._securityAttemptStore.clear(
       LOGIN_SCOPE,
       parsedIdentifier.value
     )
 
     if (parsedIdentifier.method === 'email' && !user.emailVerified) {
-      await this.authNotificationService.sendVerificationOtp({
+      await this._authNotificationService.sendVerificationOtp({
         email: parsedIdentifier.email!,
         method: 'email',
       })
@@ -89,7 +89,7 @@ export class LoginUserUseCase {
     }
 
     if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
-      await this.authNotificationService.sendVerificationOtp({
+      await this._authNotificationService.sendVerificationOtp({
         phone: parsedIdentifier.phone!,
         method: 'phone',
       })
@@ -100,37 +100,37 @@ export class LoginUserUseCase {
     const userId = user.id
 
     const twoFactorEnabled =
-      await this.authRepository.hasActiveTwoFactor(userId)
+      await this._authRepository.hasActiveTwoFactor(userId)
 
     if (twoFactorEnabled) {
       return {
         requiresTwoFactor: true,
         challengeToken:
-          this.authTokenService.generateTwoFactorChallengeToken(userId),
+          this._authTokenService.generateTwoFactorChallengeToken(userId),
         challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
       }
     }
 
     const recoveredUser =
-      await this.authRepository.cancelScheduledDeletionIfRecoverable(userId)
+      await this._authRepository.cancelScheduledDeletionIfRecoverable(userId)
 
     const authenticatedUser = recoveredUser ?? user
 
     const redirectPath =
-      await this.authRedirectService.resolveRedirectPath(userId)
+      await this._authRedirectService.resolveRedirectPath(userId)
 
-    const tokens = await this.authSessionService.issueTokenPair(
+    const tokens = await this._authSessionService.issueTokenPair(
       userId,
       user.role,
       meta
     )
 
-    await this.authRepository.updateLastActive(userId)
+    await this._authRepository.updateLastActive(userId)
 
     return {
       requiresTwoFactor: false,
       tokens,
-      user: this.authUserMapper.toAuthUser(authenticatedUser),
+      user: this._authUserMapper.toAuthUser(authenticatedUser),
       redirectPath,
     }
   }
@@ -138,7 +138,7 @@ export class LoginUserUseCase {
   private async throwIfLoginTemporarilyBlocked(
     identifier: string
   ): Promise<void> {
-    const blocked = await this.securityAttemptStore.isBlocked(
+    const blocked = await this._securityAttemptStore.isBlocked(
       LOGIN_SCOPE,
       identifier
     )
@@ -146,7 +146,7 @@ export class LoginUserUseCase {
     if (!blocked) return
 
     const retryAfterSeconds =
-      await this.securityAttemptStore.getRetryAfterSeconds(
+      await this._securityAttemptStore.getRetryAfterSeconds(
         LOGIN_SCOPE,
         identifier
       )
@@ -159,7 +159,7 @@ export class LoginUserUseCase {
   }
 
   private async recordLoginFailure(identifier: string): Promise<void> {
-    const result = await this.securityAttemptStore.recordFailure(
+    const result = await this._securityAttemptStore.recordFailure(
       LOGIN_SCOPE,
       identifier,
       'authLogin'

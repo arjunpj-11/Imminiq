@@ -129,8 +129,8 @@ const resolveTopLevelTopicOrder = async (
 
 export class AddMissingEvaluationTopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute({
@@ -147,7 +147,7 @@ export class AddMissingEvaluationTopicUseCase {
       )
     }
 
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId,
       userId,
     })
@@ -156,7 +156,7 @@ export class AddMissingEvaluationTopicUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const evaluationJob = await this.trackerRepository.findEvaluationJobById({
+    const evaluationJob = await this._trackerRepository.findEvaluationJobById({
       evaluationJobId,
       userId,
     })
@@ -210,8 +210,8 @@ export class AddMissingEvaluationTopicUseCase {
     }
 
     const [trackerTopics, trackerSubtopics] = await Promise.all([
-      this.trackerRepository.getTopicsForTracker(trackerId),
-      this.trackerRepository.getSubtopicsForTracker(trackerId),
+      this._trackerRepository.getTopicsForTracker(trackerId),
+      this._trackerRepository.getSubtopicsForTracker(trackerId),
     ])
 
     const suggestedParentTitle = missingTopic.suggestedParentTitle
@@ -219,13 +219,13 @@ export class AddMissingEvaluationTopicUseCase {
 
     if (newTopLevelPlacement.isNewTopLevel) {
       const newTopicOrder = await resolveTopLevelTopicOrder(
-        this.trackerRepository,
+        this._trackerRepository,
         trackerId,
         trackerTopics,
         newTopLevelPlacement,
       )
 
-      const addedTopic = await this.trackerRepository.createTrackerTopic({
+      const addedTopic = await this._trackerRepository.createTrackerTopic({
         trackerId,
         title: missingTopic.title,
         description: missingTopic.description,
@@ -233,8 +233,8 @@ export class AddMissingEvaluationTopicUseCase {
       })
 
       await Promise.all([
-        this.trackerRepository.incrementTrackerTopicsCount(trackerId),
-        this.trackerRepository.markMissingEvaluationTopicAsAdded({
+        this._trackerRepository.incrementTrackerTopicsCount(trackerId),
+        this._trackerRepository.markMissingEvaluationTopicAsAdded({
           evaluationJobId,
           topicIndex: parsedTopicIndex,
           addedTopicId: addedTopic._id.toString(),
@@ -259,7 +259,7 @@ export class AddMissingEvaluationTopicUseCase {
         },
       }
 
-      return this.trackerMapper.toAddMissingEvaluationTopicDto(result)
+      return this._trackerMapper.toAddMissingEvaluationTopicDto(result)
     }
 
     const matchedSubtopicParent = findBestMatchingParent(
@@ -287,12 +287,12 @@ export class AddMissingEvaluationTopicUseCase {
 
     const depth = matchedSubtopicParent ? matchedSubtopicParent.depth + 1 : 1
 
-    const lastSibling = await this.trackerRepository.findLastSiblingSubtopic({
+    const lastSibling = await this._trackerRepository.findLastSiblingSubtopic({
       topicId,
       parentSubtopicId,
     })
 
-    const addedSubtopic = await this.trackerRepository.createTrackerSubtopic({
+    const addedSubtopic = await this._trackerRepository.createTrackerSubtopic({
       trackerId,
       topicId,
       parentSubtopicId,
@@ -303,12 +303,12 @@ export class AddMissingEvaluationTopicUseCase {
     })
 
     await Promise.all([
-      this.trackerRepository.incrementTrackerSubtopicsCount(trackerId),
-      this.trackerRepository.recomputeTrackerProgress({
+      this._trackerRepository.incrementTrackerSubtopicsCount(trackerId),
+      this._trackerRepository.recomputeTrackerProgress({
         trackerId,
         userId,
       }),
-      this.trackerRepository.markMissingEvaluationTopicAsAdded({
+      this._trackerRepository.markMissingEvaluationTopicAsAdded({
         evaluationJobId,
         topicIndex: parsedTopicIndex,
         addedSubtopicId: addedSubtopic._id.toString(),
@@ -344,6 +344,6 @@ export class AddMissingEvaluationTopicUseCase {
           },
     }
 
-    return this.trackerMapper.toAddMissingEvaluationTopicDto(result)
+    return this._trackerMapper.toAddMissingEvaluationTopicDto(result)
   }
 }

@@ -9,14 +9,14 @@ type UpdateSubtopicProgressResultDto = ReturnType<
 
 export class UpdateSubtopicProgressUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(
     input: UpdateSubtopicProgressInput,
   ): Promise<UpdateSubtopicProgressResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -25,7 +25,7 @@ export class UpdateSubtopicProgressUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const existingSubtopic = await this.trackerRepository.getSubtopicById({
+    const existingSubtopic = await this._trackerRepository.getSubtopicById({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
     })
@@ -34,12 +34,12 @@ export class UpdateSubtopicProgressUseCase {
       throw TrackerApplicationError.subtopicNotFound('Subtopic not found')
     }
 
-    await this.trackerRepository.ensureUserProgressInitialized({
+    await this._trackerRepository.ensureUserProgressInitialized({
       userId: input.userId,
       trackerId: input.trackerId,
     })
 
-    const subtopic = await this.trackerRepository.updateSubtopicProgress(input)
+    const subtopic = await this._trackerRepository.updateSubtopicProgress(input)
 
     if (!subtopic) {
       throw TrackerApplicationError.subtopicNotFound('Subtopic not found')
@@ -47,7 +47,7 @@ export class UpdateSubtopicProgressUseCase {
 
     if (input.status === 'completed') {
       if (subtopic.depth === 1) {
-        await this.trackerRepository.unlockNextSubtopic({
+        await this._trackerRepository.unlockNextSubtopic({
           trackerId: input.trackerId,
           topicId: subtopic.topicId.toString(),
           completedSubtopicOrder: subtopic.order,
@@ -57,7 +57,7 @@ export class UpdateSubtopicProgressUseCase {
       }
 
       if (subtopic.parentSubtopicId) {
-        await this.trackerRepository.checkAndCompleteParentSubtopic({
+        await this._trackerRepository.checkAndCompleteParentSubtopic({
           trackerId: input.trackerId,
           topicId: subtopic.topicId.toString(),
           parentSubtopicId: subtopic.parentSubtopicId.toString(),
@@ -65,7 +65,7 @@ export class UpdateSubtopicProgressUseCase {
         })
       }
 
-      await this.trackerRepository.checkAndCompleteTopicAndUnlockNext({
+      await this._trackerRepository.checkAndCompleteTopicAndUnlockNext({
         trackerId: input.trackerId,
         topicId: subtopic.topicId.toString(),
         userId: input.userId,
@@ -73,12 +73,12 @@ export class UpdateSubtopicProgressUseCase {
     }
 
     const updatedProgress =
-      await this.trackerRepository.recomputeTrackerProgress({
+      await this._trackerRepository.recomputeTrackerProgress({
         trackerId: input.trackerId,
         userId: input.userId,
       })
 
-    return this.trackerMapper.toSubtopicProgressResultDto({
+    return this._trackerMapper.toSubtopicProgressResultDto({
       subtopic,
       progress: updatedProgress,
     })

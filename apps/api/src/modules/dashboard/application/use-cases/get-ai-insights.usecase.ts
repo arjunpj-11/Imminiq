@@ -9,15 +9,15 @@ type DashboardInsightRepository =
 
 export class GetAIInsightsUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardInsightRepository,
-    private readonly dashboardInsightGenerator: DashboardInsightGeneratorContract
+    private readonly _dashboardRepository: DashboardInsightRepository,
+    private readonly _dashboardInsightGenerator: DashboardInsightGeneratorContract
   ) {}
 
   async execute(userId: string): Promise<DashboardAIInsightResult> {
     const [streak, trackers, stats] = await Promise.all([
-      this.dashboardRepository.getStreakData(userId),
-      this.dashboardRepository.getTrackerOverview(userId),
-      this.dashboardRepository.getAggregatedStats(userId),
+      this._dashboardRepository.getStreakData(userId),
+      this._dashboardRepository.getTrackerOverview(userId),
+      this._dashboardRepository.getAggregatedStats(userId),
     ])
 
     const userData = JSON.stringify({
@@ -32,7 +32,7 @@ export class GetAIInsightsUseCase {
     })
 
     try {
-      const insight = await this.dashboardInsightGenerator.generate(userData)
+      const insight = await this._dashboardInsightGenerator.generate(userData)
       return { insight }
     } catch {
       throw DashboardApplicationError.insightGenerationFailed()

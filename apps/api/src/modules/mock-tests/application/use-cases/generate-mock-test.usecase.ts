@@ -14,9 +14,9 @@ type GenerateMockTestRepository =
 
 export class GenerateMockTestUseCase {
   constructor(
-    private readonly repo: GenerateMockTestRepository,
-    private readonly aiService: MockTestAIServiceContract,
-    private readonly questionBankService: MockTestQuestionBankServiceContract,
+    private readonly _repo: GenerateMockTestRepository,
+    private readonly _aiService: MockTestAIServiceContract,
+    private readonly _questionBankService: MockTestQuestionBankServiceContract,
   ) { }
 
   async execute(
@@ -34,8 +34,8 @@ export class GenerateMockTestUseCase {
     let title: string
     let description: string
 
-    if (this.questionBankService.shouldUseAI()) {
-      const generated = await this.aiService.generateQuestions({
+    if (this._questionBankService.shouldUseAI()) {
+      const generated = await this._aiService.generateQuestions({
         topic,
         difficulty: payload.difficulty || 'medium',
         questionCount,
@@ -48,7 +48,7 @@ export class GenerateMockTestUseCase {
         throw MockTestsApplicationError.aiGenerationFailed()
       }
 
-      questions = await this.questionBankService.saveToQuestionBank(
+      questions = await this._questionBankService.saveToQuestionBank(
         topic,
         generated.questions,
       )
@@ -56,7 +56,7 @@ export class GenerateMockTestUseCase {
       title = generated.title || `${topic} Mock Test`
       description = generated.description || `Practice test for ${topic}`
     } else {
-      questions = await this.questionBankService.sampleFromQuestionBank(
+      questions = await this._questionBankService.sampleFromQuestionBank(
         topic,
         questionCount,
         payload.difficulty,
@@ -70,7 +70,7 @@ export class GenerateMockTestUseCase {
       description = `Practice test for ${topic}`
     }
 
-    const test = await this.repo.createTest({
+    const test = await this._repo.createTest({
       ownerId: userId,
       title,
       description,
@@ -81,10 +81,10 @@ export class GenerateMockTestUseCase {
       questionCount: questions.length,
       tags: [topic],
       trackerId: payload.trackerId,
-      isAIGenerated: this.questionBankService.shouldUseAI(),
+      isAIGenerated: this._questionBankService.shouldUseAI(),
     })
 
-    await this.repo.createQuestions(
+    await this._repo.createQuestions(
       questions.map((question, index) => ({
         testId: test._id,
         type: question.type,

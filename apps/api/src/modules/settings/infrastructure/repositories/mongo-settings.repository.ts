@@ -28,7 +28,7 @@ export class MongoSettingsRepository
   extends MongoSettingsBaseRepository
   implements SettingsRepositoryContract
 {
-  constructor(private readonly mapper = new MongoSettingsMapper()) {
+  constructor(private readonly _mapper = new MongoSettingsMapper()) {
     super()
   }
 
@@ -41,7 +41,7 @@ export class MongoSettingsRepository
           userId,
         }).lean<MongoUserSettingsRecord>()
 
-        return this.mapper.toEntity(settings)
+        return this._mapper.toEntity(settings)
       },
     )
   }
@@ -56,15 +56,15 @@ export class MongoSettingsRepository
         }).lean<MongoUserSettingsRecord>()
 
         if (existingSettings) {
-          return this.mapper.toEntityOrThrow(existingSettings)
+          return this._mapper.toEntityOrThrow(existingSettings)
         }
 
         const createdSettings = await UserSettings.create({
           userId,
         })
 
-        return this.mapper.toEntityOrThrow(
-          this.mapper.toPlainRecord<MongoUserSettingsRecord>(
+        return this._mapper.toEntityOrThrow(
+          this._mapper.toPlainRecord<MongoUserSettingsRecord>(
             createdSettings as MongooseObjectLike<MongoUserSettingsRecord>,
           ),
         )
@@ -76,14 +76,14 @@ export class MongoSettingsRepository
   async updateAppearance(input: UpdateSettingsAppearanceInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toAppearanceUpdate(input.data),
+      this._mapper.toAppearanceUpdate(input.data),
     )
   }
 
   async updateNotifications(input: UpdateSettingsNotificationsInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toNotificationsUpdate(input.data),
+      this._mapper.toNotificationsUpdate(input.data),
     )
   }
 
@@ -92,35 +92,35 @@ export class MongoSettingsRepository
   ) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toNotificationTypesUpdate(input.types),
+      this._mapper.toNotificationTypesUpdate(input.types),
     )
   }
 
   async updatePrivacy(input: UpdateSettingsPrivacyInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toPrivacyUpdate(input.data),
+      this._mapper.toPrivacyUpdate(input.data),
     )
   }
 
   async updateCodeEditor(input: UpdateSettingsCodeEditorInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toCodeEditorUpdate(input.data),
+      this._mapper.toCodeEditorUpdate(input.data),
     )
   }
 
   async updateCompiler(input: UpdateSettingsCompilerInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toCompilerUpdate(input.data),
+      this._mapper.toCompilerUpdate(input.data),
     )
   }
 
   async updateAIBehaviour(input: UpdateSettingsAIBehaviourInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toAIBehaviourUpdate(input.data),
+      this._mapper.toAIBehaviourUpdate(input.data),
     )
   }
 
@@ -129,35 +129,35 @@ export class MongoSettingsRepository
   ) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toLearningJourneyUpdate(input.data),
+      this._mapper.toLearningJourneyUpdate(input.data),
     )
   }
 
   async updateGestures(input: UpdateSettingsGesturesInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toGesturesUpdate(input.data),
+      this._mapper.toGesturesUpdate(input.data),
     )
   }
 
   async updateQuietHours(input: UpdateSettingsQuietHoursInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toQuietHoursUpdate(input.data),
+      this._mapper.toQuietHoursUpdate(input.data),
     )
   }
 
   async updateEmailDigest(input: UpdateSettingsEmailDigestInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toEmailDigestUpdate(input.data),
+      this._mapper.toEmailDigestUpdate(input.data),
     )
   }
 
   async updateAccountSettings(input: UpdateSettingsAccountInput) {
     return this.updateWithSet(
       input.userId,
-      this.mapper.toAccountSettingsUpdate(input.data),
+      this._mapper.toAccountSettingsUpdate(input.data),
     )
   }
 
@@ -189,8 +189,8 @@ export class MongoSettingsRepository
           userId,
         })
 
-        return this.mapper.toEntityOrThrow(
-          this.mapper.toPlainRecord<MongoUserSettingsRecord>(
+        return this._mapper.toEntityOrThrow(
+          this._mapper.toPlainRecord<MongoUserSettingsRecord>(
             settings as MongooseObjectLike<MongoUserSettingsRecord>,
           ),
         )
@@ -225,7 +225,7 @@ export class MongoSettingsRepository
           },
         ).lean<MongoUserSettingsRecord>()
 
-        return this.mapper.toEntity(settings)
+        return this._mapper.toEntity(settings)
       },
       MongoSettingsErrorMapper.mapDuplicateSettingsRecordError,
     )

@@ -10,8 +10,8 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class GetVerificationDashboardUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(
@@ -21,25 +21,25 @@ export class GetVerificationDashboardUseCase {
     const limit = this.normalizeLimit(payload.limit)
 
     const [stats, queue, leaderboard] = await Promise.all([
-      this.repository.getVerificationStats(payload.userId),
-      this.repository.findVerificationQueue({
+      this._repository.getVerificationStats(payload.userId),
+      this._repository.findVerificationQueue({
         userId: payload.userId,
         page,
         limit,
       }),
-      this.repository.findVerificationLeaderboard(
+      this._repository.findVerificationLeaderboard(
         payload.userId,
         COMMUNITY_DEFAULT_LEADERBOARD_LIMIT,
       ),
     ])
 
-    const queueView = this.mapper.toVerificationQueueView(queue)
+    const queueView = this._mapper.toVerificationQueueView(queue)
 
     return {
       ...queueView,
-      stats: this.mapper.toVerificationStatsView(stats),
+      stats: this._mapper.toVerificationStatsView(stats),
       leaderboard: leaderboard.map((entry) =>
-        this.mapper.toLeaderboardEntryView(entry),
+        this._mapper.toLeaderboardEntryView(entry),
       ),
       howItWorks: [
         'Pick a tracker from the queue',

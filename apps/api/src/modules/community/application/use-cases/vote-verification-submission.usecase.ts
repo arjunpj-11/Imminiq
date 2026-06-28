@@ -13,16 +13,16 @@ import type { CommunityVerificationPolicyContract } from '../policies/community-
 
 export class VoteVerificationSubmissionUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly coinLedger: CommunityCoinLedgerContract,
-    private readonly policy: CommunityVerificationPolicyContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _coinLedger: CommunityCoinLedgerContract,
+    private readonly _policy: CommunityVerificationPolicyContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(
     payload: VoteVerificationSubmissionPayload,
   ): Promise<VoteVerificationSubmissionView> {
-    const submission = await this.repository.findVerificationSubmissionById(
+    const submission = await this._repository.findVerificationSubmissionById(
       payload.submissionId,
       payload.userId,
     )
@@ -33,9 +33,9 @@ export class VoteVerificationSubmissionUseCase {
       )
     }
 
-    this.policy.ensureCanVote(submission, payload.userId)
+    this._policy.ensureCanVote(submission, payload.userId)
 
-    const existingVote = await this.repository.findVoteBySubmissionAndUser(
+    const existingVote = await this._repository.findVoteBySubmissionAndUser(
       payload.submissionId,
       payload.userId,
     )
@@ -46,7 +46,7 @@ export class VoteVerificationSubmissionUseCase {
       )
     }
 
-    const vote = await this.repository.createVerificationVote({
+    const vote = await this._repository.createVerificationVote({
       submissionId: payload.submissionId,
       userId: payload.userId,
       choice: payload.vote,
@@ -55,7 +55,7 @@ export class VoteVerificationSubmissionUseCase {
     })
 
     const updatedSubmission =
-      await this.repository.findVerificationSubmissionById(
+      await this._repository.findVerificationSubmissionById(
         payload.submissionId,
         payload.userId,
       )
@@ -66,14 +66,14 @@ export class VoteVerificationSubmissionUseCase {
       consensusChoice: updatedSubmission?.consensusChoice ?? null,
     })
 
-    const voteView = this.mapper.toVoteView(vote)
+    const voteView = this._mapper.toVoteView(vote)
 
     return {
       vote: {
         ...voteView,
         rewardCoins: rewardResult.currentUserRewardCoins,
       },
-      submission: this.mapper.toVerificationSubmissionView(
+      submission: this._mapper.toVerificationSubmissionView(
         updatedSubmission ?? submission,
       ),
       reward: {
@@ -102,7 +102,7 @@ export class VoteVerificationSubmissionUseCase {
     }
 
     const rewardableVotes =
-      await this.repository.findUnrewardedMajorityVotes(
+      await this._repository.findUnrewardedMajorityVotes(
         data.submissionId,
         data.consensusChoice,
       )
@@ -113,7 +113,7 @@ export class VoteVerificationSubmissionUseCase {
 
     for (const rewardableVote of rewardableVotes) {
       const markedRewarded =
-        await this.repository.markVerificationVoteRewarded(
+        await this._repository.markVerificationVoteRewarded(
           rewardableVote.id,
           COMMUNITY_REVIEW_REWARD_COINS,
         )
@@ -122,7 +122,7 @@ export class VoteVerificationSubmissionUseCase {
         continue
       }
 
-      const award = await this.coinLedger.awardCoins({
+      const award = await this._coinLedger.awardCoins({
         userId: rewardableVote.userId,
         sourceId: data.submissionId,
         reason: 'verification_majority_reward',

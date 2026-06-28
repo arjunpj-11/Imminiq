@@ -17,8 +17,8 @@ type DashboardSummaryRepository =
 
 export class GetDashboardSummaryUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardSummaryRepository,
-    private readonly dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: DashboardSummaryRepository,
+    private readonly _dashboardMapper: DashboardMapperContract
   ) {}
 
   async execute(userId: string): Promise<DashboardSummary> {
@@ -31,16 +31,16 @@ export class GetDashboardSummaryUseCase {
       recentActivity,
       unreadNotificationCount,
     ] = await Promise.all([
-      this.dashboardRepository.findUserById(userId),
-      this.dashboardRepository.findProfileByUserId(userId),
-      this.dashboardRepository.getStreakData(userId),
-      this.dashboardRepository.getTrackerOverview(userId),
-      this.dashboardRepository.getAggregatedStats(userId),
-      this.dashboardRepository.getRecentActivity({
+      this._dashboardRepository.findUserById(userId),
+      this._dashboardRepository.findProfileByUserId(userId),
+      this._dashboardRepository.getStreakData(userId),
+      this._dashboardRepository.getTrackerOverview(userId),
+      this._dashboardRepository.getAggregatedStats(userId),
+      this._dashboardRepository.getRecentActivity({
         userId,
         limit: DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT,
       }),
-      this.dashboardRepository.getUnreadNotificationCount(userId),
+      this._dashboardRepository.getUnreadNotificationCount(userId),
     ])
 
     if (!user) {
@@ -48,12 +48,12 @@ export class GetDashboardSummaryUseCase {
     }
 
     return {
-      user: this.dashboardMapper.toUserSummary(user, profile),
-      streak: this.dashboardMapper.toStreakSummary(streak),
-      trackers: this.dashboardMapper.toTrackerSummary(trackers),
-      stats: this.dashboardMapper.toStats(stats),
+      user: this._dashboardMapper.toUserSummary(user, profile),
+      streak: this._dashboardMapper.toStreakSummary(streak),
+      trackers: this._dashboardMapper.toTrackerSummary(trackers),
+      stats: this._dashboardMapper.toStats(stats),
       recentActivity: recentActivity.map((activity) =>
-        this.dashboardMapper.toRecentActivity(activity)
+        this._dashboardMapper.toRecentActivity(activity)
       ),
       notifications: {
         unreadCount: unreadNotificationCount,

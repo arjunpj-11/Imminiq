@@ -25,7 +25,7 @@ export class MongoUploadsRepository
   extends MongoUploadsBaseRepository
   implements UploadsRepositoryContract
 {
-  constructor(private readonly mapper = new MongoUploadsMapper()) {
+  constructor(private readonly _mapper = new MongoUploadsMapper()) {
     super()
   }
 
@@ -51,8 +51,8 @@ export class MongoUploadsRepository
             : {}),
         })
 
-        return this.mapper.toUploadEntityOrThrow(
-          this.mapper.toPlainRecord<MongoUploadRecord>(
+        return this._mapper.toUploadEntityOrThrow(
+          this._mapper.toPlainRecord<MongoUploadRecord>(
             upload as MongooseObjectLike<MongoUploadRecord>,
           ),
         )

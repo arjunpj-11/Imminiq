@@ -14,27 +14,27 @@ type RefreshTokensRepository =
 
 export class RefreshAuthTokensUseCase {
   constructor(
-    private readonly authRepository: RefreshTokensRepository,
-    private readonly authTokenService: AuthTokenServiceContract,
-    private readonly retiredRefreshTokenStore: RetiredRefreshTokenStoreContract,
-    private readonly securityAuditLogger: SecurityAuditLoggerContract,
-    private readonly authAccountPolicy: AuthAccountPolicyContract
+    private readonly _authRepository: RefreshTokensRepository,
+    private readonly _authTokenService: AuthTokenServiceContract,
+    private readonly _retiredRefreshTokenStore: RetiredRefreshTokenStoreContract,
+    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _authAccountPolicy: AuthAccountPolicyContract
   ) {}
 
   async execute(refreshToken: string, meta?: RequestMeta): Promise<TokenPair> {
     const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
     const tokenRecord =
-      await this.authRepository.findSessionByRefreshTokenHash(refreshTokenHash)
+      await this._authRepository.findSessionByRefreshTokenHash(refreshTokenHash)
 
     if (!tokenRecord) {
       const retired =
-        await this.retiredRefreshTokenStore.findByRawToken(refreshToken)
+        await this._retiredRefreshTokenStore.findByRawToken(refreshToken)
 
       if (retired) {
-        await this.authRepository.revokeAllUserSessions(retired.userId)
+        await this._authRepository.revokeAllUserSessions(retired.userId)
 
-        await this.securityAuditLogger.record({
+        await this._securityAuditLogger.record({
           userId: retired.userId,
           eventType: 'REFRESH_TOKEN_REUSE_DETECTED',
           outcome: 'detected',
@@ -53,23 +53,23 @@ export class RefreshAuthTokensUseCase {
       throw AuthApplicationError.unauthorized('Invalid refresh token')
     }
 
-    const user = await this.authRepository.findById(tokenRecord.userId)
+    const user = await this._authRepository.findById(tokenRecord.userId)
 
     if (!user) {
       throw AuthApplicationError.unauthorized('User not found')
     }
 
-    this.authAccountPolicy.ensureUserCanAuthenticate(user)
+    this._authAccountPolicy.ensureUserCanAuthenticate(user)
 
-    const accessToken = this.authTokenService.generateAccessToken(
+    const accessToken = this._authTokenService.generateAccessToken(
       user.id,
       user.role
     )
 
-    const newRefreshToken = this.authTokenService.generateRefreshToken()
+    const newRefreshToken = this._authTokenService.generateRefreshToken()
     const newRefreshTokenHash = this.hashRefreshToken(newRefreshToken)
 
-  await this.retiredRefreshTokenStore.retire({
+  await this._retiredRefreshTokenStore.retire({
   refreshTokenHash,
   userId: tokenRecord.userId,
   sessionId: tokenRecord.id,
@@ -77,7 +77,7 @@ export class RefreshAuthTokensUseCase {
 })
 
     const rotatedSession =
-      await this.authRepository.rotateRefreshTokenInSameSession({
+      await this._authRepository.rotateRefreshTokenInSameSession({
         sessionId: tokenRecord.id,
         newRefreshTokenHash,
         meta,

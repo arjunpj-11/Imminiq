@@ -49,7 +49,7 @@ export class MongoDashboardRepository
   extends MongoDashboardBaseRepository
   implements DashboardRepositoryContract
 {
-  constructor(private readonly mapper = new MongoDashboardMapper()) {
+  constructor(private readonly _mapper = new MongoDashboardMapper()) {
     super()
   }
 
@@ -65,7 +65,7 @@ export class MongoDashboardRepository
           .select('_id fullName username avatarUrl isPremium coins lastActiveAt')
           .lean<MongoUserRecord>()
 
-        return this.mapper.toDashboardUserEntity(user)
+        return this._mapper.toDashboardUserEntity(user)
       },
       MongoDashboardErrorMapper.mapMongoError,
     )
@@ -85,7 +85,7 @@ export class MongoDashboardRepository
           .select('userId avatarUrl')
           .lean<MongoUserProfileRecord>()
 
-        return this.mapper.toDashboardProfileEntity(profile)
+        return this._mapper.toDashboardProfileEntity(profile)
       },
       MongoDashboardErrorMapper.mapMongoError,
     )
@@ -104,7 +104,7 @@ export class MongoDashboardRepository
           .select('currentStreak longestStreak snapshotDate')
           .lean<MongoStreakSnapshotRecord>()
 
-        return this.mapper.toDashboardStreakEntity(streak)
+        return this._mapper.toDashboardStreakEntity(streak)
       },
       MongoDashboardErrorMapper.mapMongoError,
     )
@@ -138,19 +138,19 @@ export class MongoDashboardRepository
 
         const progressMap = new Map(
           allProgress.map((progress) => [
-            this.mapper.toId(progress.trackerId),
+            this._mapper.toId(progress.trackerId),
             progress,
           ]),
         )
 
         const trackersWithProgress = allTrackers.map((tracker) =>
-          this.mapper.toDashboardActiveTrackerEntity(
+          this._mapper.toDashboardActiveTrackerEntity(
             tracker,
-            progressMap.get(this.mapper.toId(tracker._id)),
+            progressMap.get(this._mapper.toId(tracker._id)),
           ),
         )
 
-        return this.mapper.toDashboardTrackerSummaryEntity(
+        return this._mapper.toDashboardTrackerSummaryEntity(
           trackersWithProgress,
         )
       },
@@ -196,7 +196,7 @@ export class MongoDashboardRepository
               .lean<Pick<MongoUserRecord, 'coins'>>(),
           ])
 
-        return this.mapper.toDashboardStatsEntity(
+        return this._mapper.toDashboardStatsEntity(
           progressAggregation[0],
           publishedTrackers,
           user,
@@ -228,7 +228,7 @@ export class MongoDashboardRepository
           .lean<MongoNotificationRecord[]>()
 
         return notifications.map((notification) =>
-          this.mapper.toDashboardRecentActivityEntity(notification),
+          this._mapper.toDashboardRecentActivityEntity(notification),
         )
       },
       MongoDashboardErrorMapper.mapMongoError,
@@ -274,7 +274,7 @@ export class MongoDashboardRepository
           .lean<MongoStreakHistoryRecord[]>()
 
         return streakEntries.map((entry) =>
-          this.mapper.toDashboardActivityIntensityEntity(entry),
+          this._mapper.toDashboardActivityIntensityEntity(entry),
         )
       },
       MongoDashboardErrorMapper.mapMongoError,
@@ -310,7 +310,7 @@ export class MongoDashboardRepository
         }
 
         const opponentIds = battles.map((battle) =>
-          this.mapper.getOpponentId(battle, userId),
+          this._mapper.getOpponentId(battle, userId),
         )
 
         const [opponents, opponentProfiles] = await Promise.all([
@@ -330,20 +330,20 @@ export class MongoDashboardRepository
 
         const opponentMap = new Map(
           opponents.map((opponent) => [
-            this.mapper.toId(opponent._id),
+            this._mapper.toId(opponent._id),
             opponent,
           ]),
         )
 
         const profileMap = new Map(
           opponentProfiles.map((profile) => [
-            this.mapper.toId(profile.userId),
+            this._mapper.toId(profile.userId),
             profile.avatarUrl ?? '',
           ]),
         )
 
         return battles.map((battle) =>
-          this.mapper.toDashboardBattleEntity(
+          this._mapper.toDashboardBattleEntity(
             battle,
             userId,
             opponentMap,
@@ -379,9 +379,9 @@ export class MongoDashboardRepository
         }
 
         const friendIds = friendships.map((friendship) =>
-          this.mapper.toId(friendship.userId) === userId
-            ? this.mapper.toId(friendship.friendId)
-            : this.mapper.toId(friendship.userId),
+          this._mapper.toId(friendship.userId) === userId
+            ? this._mapper.toId(friendship.friendId)
+            : this._mapper.toId(friendship.userId),
         )
 
         const [friends, friendProfiles] = await Promise.all([
@@ -401,13 +401,13 @@ export class MongoDashboardRepository
 
         const profileMap = new Map(
           friendProfiles.map((profile) => [
-            this.mapper.toId(profile.userId),
+            this._mapper.toId(profile.userId),
             profile.avatarUrl ?? '',
           ]),
         )
 
         return friends.map((friend) =>
-          this.mapper.toDashboardFriendEntity(friend, profileMap),
+          this._mapper.toDashboardFriendEntity(friend, profileMap),
         )
       },
       MongoDashboardErrorMapper.mapMongoError,
@@ -446,7 +446,7 @@ export class MongoDashboardRepository
               .lean<MongoTrackerTitleRecord>()
           : null
 
-        return this.mapper.toDashboardRecommendationContext(
+        return this._mapper.toDashboardRecommendationContext(
           totalTrackers,
           latestProgress,
           tracker,

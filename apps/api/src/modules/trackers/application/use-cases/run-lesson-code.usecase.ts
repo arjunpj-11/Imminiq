@@ -21,13 +21,13 @@ type RunLessonCodeResultDto = ReturnType<
 
 export class RunLessonCodeUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly codeExecutionService: CodeExecutionServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _codeExecutionService: CodeExecutionServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: RunLessonCodeInput): Promise<RunLessonCodeResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -36,7 +36,7 @@ export class RunLessonCodeUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const lesson = await this.trackerRepository.findLessonBySubtopicId({
+    const lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
@@ -48,13 +48,13 @@ export class RunLessonCodeUseCase {
       )
     }
 
-    const result = await this.codeExecutionService.executeCode({
+    const result = await this._codeExecutionService.executeCode({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
       language: input.language || lesson.codeExample?.language || 'javascript',
       stdin: input.stdin,
     })
 
-    return this.trackerMapper.toLessonCodeExecutionDto(result)
+    return this._trackerMapper.toLessonCodeExecutionDto(result)
   }
 }

@@ -4,8 +4,8 @@ import type { TrackerRepositoryContract } from '../../domain/repositories/tracke
 
 export class GetLessonGeneratedQuestionsUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -13,7 +13,7 @@ export class GetLessonGeneratedQuestionsUseCase {
     subtopicId: string
     userId: string
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -23,8 +23,8 @@ export class GetLessonGeneratedQuestionsUseCase {
     }
 
     const generatedQuestions =
-      await this.trackerRepository.getLessonGeneratedQuestions(input)
+      await this._trackerRepository.getLessonGeneratedQuestions(input)
 
-    return this.trackerMapper.toLessonGeneratedQuestionsDto(generatedQuestions)
+    return this._trackerMapper.toLessonGeneratedQuestionsDto(generatedQuestions)
   }
 }

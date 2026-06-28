@@ -7,24 +7,24 @@ type GetMeRepository = UserRepositoryContract & UserProfileRepositoryContract
 
 export class GetMeUseCase {
   constructor(
-    private readonly usersRepository: GetMeRepository,
-    private readonly usersMapper: UsersMapperContract,
+    private readonly _usersRepository: GetMeRepository,
+    private readonly _usersMapper: UsersMapperContract,
   ) {}
 
   async execute(userId: string) {
-    const user = await this.usersRepository.findById(userId)
+    const user = await this._usersRepository.findById(userId)
 
     if (!user) {
       throw UsersApplicationError.userNotFound()
     }
 
-    const profile = await this.usersRepository.ensureForUser({
+    const profile = await this._usersRepository.ensureForUser({
       userId: user.id,
     })
 
     return {
-      user: this.usersMapper.toUserView(user),
-      profile: this.usersMapper.toProfileView(profile),
+      user: this._usersMapper.toUserView(user),
+      profile: this._usersMapper.toProfileView(profile),
     }
   }
 }

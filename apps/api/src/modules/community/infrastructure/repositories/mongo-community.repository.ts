@@ -45,8 +45,8 @@ export class MongoCommunityRepository
   implements CommunityRepositoryContract
 {
   constructor(
-    private readonly mapper = new MongoCommunityMapper(),
-    private readonly errorMapper = new MongoCommunityErrorMapper(),
+    private readonly _mapper = new MongoCommunityMapper(),
+    private readonly _errorMapper = new MongoCommunityErrorMapper(),
   ) {
     super()
   }
@@ -71,7 +71,7 @@ export class MongoCommunityRepository
 
         const markedItems = await this.markDashboardTrackers(items, query.userId)
         const trackers = markedItems
-          .map((item) => this.mapper.toTrackerEntity(item, query.userId))
+          .map((item) => this._mapper.toTrackerEntity(item, query.userId))
           .filter((item): item is NonNullable<typeof item> => Boolean(item))
 
         return {
@@ -108,7 +108,7 @@ export class MongoCommunityRepository
           userId,
         )
 
-        return this.mapper.toTrackerEntity(markedTracker, userId)
+        return this._mapper.toTrackerEntity(markedTracker, userId)
       },
     )
   }
@@ -136,7 +136,7 @@ export class MongoCommunityRepository
         }
 
         if (source.ownerId.toString() === userId) {
-          const owned = this.mapper.toTrackerEntity(
+          const owned = this._mapper.toTrackerEntity(
             { ...source, inDashboard: true },
             userId,
           )
@@ -151,7 +151,7 @@ export class MongoCommunityRepository
         }).lean<MongoCommunityTrackerRecord>()
 
         if (existingClone) {
-          const existing = this.mapper.toTrackerEntity(
+          const existing = this._mapper.toTrackerEntity(
             { ...existingClone, inDashboard: true },
             userId,
           )
@@ -163,7 +163,7 @@ export class MongoCommunityRepository
           this.prepareCloneData(source, userId),
         )
         const plainClone =
-          this.mapper.toPlainRecord<MongoCommunityTrackerRecord>(clone)
+          this._mapper.toPlainRecord<MongoCommunityTrackerRecord>(clone)
 
         if (!plainClone) {
           throw new CommunityDomainError(
@@ -179,7 +179,7 @@ export class MongoCommunityRepository
           { $inc: { cloneCount: 1 } },
         )
 
-        const entity = this.mapper.toTrackerEntity(
+        const entity = this._mapper.toTrackerEntity(
           { ...plainClone, inDashboard: true },
           userId,
         )
@@ -193,7 +193,7 @@ export class MongoCommunityRepository
 
         return entity
       },
-      (error) => this.errorMapper.mapDuplicateClone(error),
+      (error) => this._errorMapper.mapDuplicateClone(error),
     )
   }
 
@@ -276,7 +276,7 @@ export class MongoCommunityRepository
         )
 
         const plainSubmission =
-          this.mapper.toPlainRecord<MongoCommunitySubmissionRecord>(submission)
+          this._mapper.toPlainRecord<MongoCommunitySubmissionRecord>(submission)
 
         if (!plainSubmission) {
           throw new CommunityDomainError(
@@ -337,7 +337,7 @@ export class MongoCommunityRepository
             ? ratingTotal / published.length
             : Number(profile?.ratingAverage ?? 0)
 
-        return this.mapper.toStatsEntity({
+        return this._mapper.toStatsEntity({
           publishedCount,
           clonesReceived,
           clonedByUser,
@@ -436,7 +436,7 @@ export class MongoCommunityRepository
         >(votes.map((vote) => [String(vote.submissionId), vote.choice]))
         const items = submissions
           .map((submission) =>
-            this.mapper.toSubmissionEntity(
+            this._mapper.toSubmissionEntity(
               submission,
               voteBySubmission.get(String(submission._id)) ?? null,
             ),
@@ -504,7 +504,7 @@ export class MongoCommunityRepository
           userId: this.toObjectId(userId),
         }).lean<MongoCommunityVoteRecord>()
 
-        return this.mapper.toVoteEntity(vote)
+        return this._mapper.toVoteEntity(vote)
       },
     )
   }
@@ -550,10 +550,10 @@ export class MongoCommunityRepository
         )
         await this.closeSubmissionIfConsensusReached(data.submissionId)
 
-        const plainVote = this.mapper.toPlainRecord<MongoCommunityVoteRecord>(
+        const plainVote = this._mapper.toPlainRecord<MongoCommunityVoteRecord>(
           vote,
         )
-        const voteEntity = this.mapper.toVoteEntity(plainVote)
+        const voteEntity = this._mapper.toVoteEntity(plainVote)
 
         if (!voteEntity) {
           throw new CommunityDomainError(
@@ -564,7 +564,7 @@ export class MongoCommunityRepository
 
         return voteEntity
       },
-      (error) => this.errorMapper.mapDuplicateVote(error),
+      (error) => this._errorMapper.mapDuplicateVote(error),
     )
   }
 
@@ -591,7 +591,7 @@ export class MongoCommunityRepository
         }).lean<MongoCommunityVoteRecord[]>()) as MongoCommunityVoteRecord[]
 
         return votes
-          .map((vote) => this.mapper.toVoteEntity(vote))
+          .map((vote) => this._mapper.toVoteEntity(vote))
           .filter((vote): vote is NonNullable<typeof vote> => Boolean(vote))
       },
     )
@@ -663,7 +663,7 @@ export class MongoCommunityRepository
         const userById = new Map(users.map((user) => [String(user._id), user]))
 
         return rows.map((row, index) =>
-          this.mapper.toLeaderboardEntryEntity({
+          this._mapper.toLeaderboardEntryEntity({
             userId: String(row._id),
             rank: index + 1,
             profile: profileByUserId.get(String(row._id)),
@@ -800,7 +800,7 @@ export class MongoCommunityRepository
   ) {
     const reviewTracker = await this.getVerificationReviewTracker(submission)
 
-    return this.mapper.toSubmissionEntity(
+    return this._mapper.toSubmissionEntity(
       {
         ...submission,
         reviewTracker,

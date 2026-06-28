@@ -9,12 +9,12 @@ type ShareMockTestRepository =
 
 export class ShareMockTestUseCase {
   constructor(
-    private readonly repo: ShareMockTestRepository,
-    private readonly shareTokenGenerator: ShareTokenGeneratorServiceContract,
+    private readonly _repo: ShareMockTestRepository,
+    private readonly _shareTokenGenerator: ShareTokenGeneratorServiceContract,
   ) {}
 
   async execute(input: { userId: string; testId: string; origin: string }) {
-    const test = await this.repo.findTestById(input.testId)
+    const test = await this._repo.findTestById(input.testId)
 
     if (!test || test.ownerId !== input.userId) {
       throw MockTestsApplicationError.mockTestNotFound()
@@ -27,9 +27,9 @@ export class ShareMockTestUseCase {
       }
     }
 
-    const shareToken = this.shareTokenGenerator.generate()
+    const shareToken = this._shareTokenGenerator.generate()
 
-    const updatedTest = await this.repo.enableTestSharing({
+    const updatedTest = await this._repo.enableTestSharing({
       ownerId: input.userId,
       testId: input.testId,
       shareToken,

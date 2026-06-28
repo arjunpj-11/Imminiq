@@ -11,19 +11,19 @@ type UpdateQuietHoursRepository = {
 
 export class UpdateQuietHoursUseCase {
   constructor(
-    private readonly settingsRepository: UpdateQuietHoursRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateQuietHoursRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateQuietHoursPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateQuietHours({
+    const settings = await this._settingsRepository.updateQuietHours({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

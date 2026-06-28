@@ -77,12 +77,12 @@ const buildRoadmapTree = ({
 
 export class GetTrackerRoadmapUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: { trackerId: string; userId: string }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -91,23 +91,23 @@ export class GetTrackerRoadmapUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    await this.trackerRepository.ensureUserProgressInitialized({
+    await this._trackerRepository.ensureUserProgressInitialized({
       userId: input.userId,
       trackerId: input.trackerId,
     })
 
     const [topics, subtopics] = await Promise.all([
-      this.trackerRepository.getTopicsWithUserProgress({
+      this._trackerRepository.getTopicsWithUserProgress({
         trackerId: input.trackerId,
         userId: input.userId,
       }),
-      this.trackerRepository.getSubtopicsWithUserProgress({
+      this._trackerRepository.getSubtopicsWithUserProgress({
         trackerId: input.trackerId,
         userId: input.userId,
       }),
     ])
 
-    return this.trackerMapper.toTrackerRoadmapDto({
+    return this._trackerMapper.toTrackerRoadmapDto({
       tracker,
       roadmap: buildRoadmapTree({ topics, subtopics }),
     })

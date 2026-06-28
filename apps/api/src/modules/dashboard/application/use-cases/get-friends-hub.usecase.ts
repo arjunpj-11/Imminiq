@@ -4,16 +4,16 @@ import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
 
 export class GetFriendsHubUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardFriendRepositoryContract,
-    private readonly dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: DashboardFriendRepositoryContract,
+    private readonly _dashboardMapper: DashboardMapperContract
   ) {}
 
   async execute(userId: string, limit?: number): Promise<DashboardFriendItem[]> {
-    const friends = await this.dashboardRepository.getFriendsHub({
+    const friends = await this._dashboardRepository.getFriendsHub({
       userId,
       limit,
     })
 
-    return friends.map((friend) => this.dashboardMapper.toFriendItem(friend))
+    return friends.map((friend) => this._dashboardMapper.toFriendItem(friend))
   }
 }

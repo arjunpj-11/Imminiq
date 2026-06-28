@@ -10,22 +10,22 @@ import {
 } from './moderation-appeal.factory'
 
 export class ModerationAppealService {
-  private readonly useCases: ModerationAppealComposition['useCases']
+  private readonly _useCases: ModerationAppealComposition['useCases']
 
   constructor(composition: ModerationAppealComposition) {
-    this.useCases = composition.useCases
+    this._useCases = composition.useCases
   }
 
   submitAppeal(
     payload: SubmitModerationAppealPayload
   ): Promise<SubmitModerationAppealResultDto> {
-    return this.useCases.submitModerationAppeal.execute(payload)
+    return this._useCases.submitModerationAppeal.execute(payload)
   }
 
   getActiveAppealStatus(
     payload: GetModerationAppealStatusPayload
   ): Promise<GetActiveModerationAppealStatusResultDto> {
-    return this.useCases.getActiveModerationAppealStatus.execute(payload)
+    return this._useCases.getActiveModerationAppealStatus.execute(payload)
   }
 }
 

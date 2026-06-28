@@ -23,10 +23,10 @@ type StoredProfileImage = Awaited<
 
 export class UploadProfileImageUseCase {
   constructor(
-    private readonly uploadUserProfileService: UploadUserProfileServiceContract,
-    private readonly profileImageStorageService: ProfileImageStorageServiceContract,
-    private readonly uploadsRepository: UploadProfileImageRepository,
-    private readonly uploadsMapper: UploadsMapperContract,
+    private readonly _uploadUserProfileService: UploadUserProfileServiceContract,
+    private readonly _profileImageStorageService: ProfileImageStorageServiceContract,
+    private readonly _uploadsRepository: UploadProfileImageRepository,
+    private readonly _uploadsMapper: UploadsMapperContract,
   ) {}
 
   async execute(
@@ -37,14 +37,14 @@ export class UploadProfileImageUseCase {
     }
 
     const context =
-      await this.uploadUserProfileService.getRequiredContext(input.userId)
+      await this._uploadUserProfileService.getRequiredContext(input.userId)
 
     const folder = input.kind === 'avatar' ? AVATAR_FOLDER : BANNER_FOLDER
 
     let storedImage: StoredProfileImage
 
     try {
-      storedImage = await this.profileImageStorageService.uploadProfileImage(
+      storedImage = await this._profileImageStorageService.uploadProfileImage(
         input.file,
         folder,
       )
@@ -58,25 +58,25 @@ export class UploadProfileImageUseCase {
 
     try {
       if (input.kind === 'avatar') {
-        await this.uploadsRepository.setAvatarUrl({
+        await this._uploadsRepository.setAvatarUrl({
           userId: context.userId,
           avatarUrl: storedImage.fileUrl,
         })
       } else {
-        await this.uploadsRepository.setBannerUrl({
+        await this._uploadsRepository.setBannerUrl({
           userId: context.userId,
           bannerUrl: storedImage.fileUrl,
         })
       }
 
-      const upload = await this.uploadsRepository.saveUploadRecord({
+      const upload = await this._uploadsRepository.saveUploadRecord({
         userId: context.userId,
         kind: input.kind,
         file: storedImage,
         referenceId: context.profileId,
       })
 
-      return this.uploadsMapper.toUploadProfileImageResult(upload)
+      return this._uploadsMapper.toUploadProfileImageResult(upload)
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.profileImageUpdateFailed()

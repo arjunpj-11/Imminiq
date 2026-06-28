@@ -13,25 +13,25 @@ import type { SensitiveActionStepUpServiceContract } from '../services/sensitive
 
 export class RequestEmailChangeUseCase {
   constructor(
-    private readonly securityUserRepository: SecurityUserRepositoryContract,
-    private readonly securityEmailProvider: SecurityEmailProviderContract,
-    private readonly sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
-    private readonly emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
-    private readonly emailChangeUrlService: SecurityEmailChangeUrlServiceContract,
-    private readonly securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _securityUserRepository: SecurityUserRepositoryContract,
+    private readonly _securityEmailProvider: SecurityEmailProviderContract,
+    private readonly _sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
+    private readonly _emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
+    private readonly _emailChangeUrlService: SecurityEmailChangeUrlServiceContract,
+    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async execute(
     userId: string,
     payload: ChangeEmailPayload,
   ): Promise<EmailChangeRequestResponseDto> {
-    const user = await this.securityUserRepository.findUserById(userId)
+    const user = await this._securityUserRepository.findUserById(userId)
 
     if (!user) {
       throw SecurityApplicationError.notFound()
     }
 
-    await this.sensitiveActionStepUpService.assertSatisfied({
+    await this._sensitiveActionStepUpService.assertSatisfied({
       user,
       payload,
       action: 'change_email',
@@ -47,15 +47,15 @@ export class RequestEmailChangeUseCase {
       throw SecurityApplicationError.emailUnchanged()
     }
 
-    if (await this.securityUserRepository.emailExists(normalizedEmail)) {
+    if (await this._securityUserRepository.emailExists(normalizedEmail)) {
       throw SecurityApplicationError.emailTaken()
     }
 
     const { rawToken, tokenHash, expiresAt } =
-      this.emailChangeTokenService.generate()
+      this._emailChangeTokenService.generate()
 
     const updatedUser =
-      await this.securityUserRepository.savePendingEmailChange({
+      await this._securityUserRepository.savePendingEmailChange({
         userId,
         data: {
           pendingEmail: normalizedEmail,
@@ -69,9 +69,9 @@ export class RequestEmailChangeUseCase {
     }
 
     const verificationUrl =
-      this.emailChangeUrlService.buildVerificationUrl(rawToken)
+      this._emailChangeUrlService.buildVerificationUrl(rawToken)
 
-    await this.securityEmailProvider.sendEmailChangeVerification(
+    await this._securityEmailProvider.sendEmailChangeVerification(
       normalizedEmail,
       {
         fullName: user.fullName,
@@ -82,13 +82,13 @@ export class RequestEmailChangeUseCase {
     )
 
     if (user.email) {
-      await this.securityEmailProvider.sendEmailChangeAlert(user.email, {
+      await this._securityEmailProvider.sendEmailChangeAlert(user.email, {
         fullName: user.fullName,
         requestedNewEmail: normalizedEmail,
       })
     }
 
-    await this.securityAuditLogger.record({
+    await this._securityAuditLogger.record({
       userId,
       eventType: 'EMAIL_CHANGE_REQUESTED',
       outcome: 'success',

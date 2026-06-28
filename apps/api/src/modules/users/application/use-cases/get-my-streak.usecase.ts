@@ -2,10 +2,10 @@ import type { UsersProfileDataServiceContract } from '../services/users-profile-
 
 export class GetMyStreakUseCase {
   constructor(
-    private readonly usersProfileDataService: UsersProfileDataServiceContract,
+    private readonly _usersProfileDataService: UsersProfileDataServiceContract,
   ) {}
 
   async execute(userId: string, year?: number) {
-    return this.usersProfileDataService.getStreakSummary(userId, year)
+    return this._usersProfileDataService.getStreakSummary(userId, year)
   }
 }

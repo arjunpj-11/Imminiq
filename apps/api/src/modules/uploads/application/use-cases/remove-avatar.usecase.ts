@@ -11,25 +11,25 @@ type RemoveAvatarRepository =
 
 export class RemoveAvatarUseCase {
   constructor(
-    private readonly uploadUserProfileService: UploadUserProfileServiceContract,
-    private readonly uploadsRepository: RemoveAvatarRepository,
-    private readonly uploadsMapper: UploadsMapperContract,
+    private readonly _uploadUserProfileService: UploadUserProfileServiceContract,
+    private readonly _uploadsRepository: RemoveAvatarRepository,
+    private readonly _uploadsMapper: UploadsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<RemoveAvatarResult> {
     const context =
-      await this.uploadUserProfileService.getRequiredContext(userId)
+      await this._uploadUserProfileService.getRequiredContext(userId)
 
     try {
       await Promise.all([
-        this.uploadsRepository.clearAvatarUrl(context.userId),
-        this.uploadsRepository.softDeleteLatestProfileUpload({
+        this._uploadsRepository.clearAvatarUrl(context.userId),
+        this._uploadsRepository.softDeleteLatestProfileUpload({
           userId: context.userId,
           kind: 'avatar',
         }),
       ])
 
-      return this.uploadsMapper.toAvatarRemovedResult()
+      return this._uploadsMapper.toAvatarRemovedResult()
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.profileImageUpdateFailed()

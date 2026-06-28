@@ -31,7 +31,7 @@ export class MongoAuthRepository
   extends MongoAuthBaseRepository
   implements AuthRepositoryContract
 {
-  constructor(private readonly mapper = new MongoAuthMapper()) {
+  constructor(private readonly _mapper = new MongoAuthMapper()) {
     super()
   }
 
@@ -47,7 +47,7 @@ export class MongoAuthRepository
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -64,7 +64,7 @@ export class MongoAuthRepository
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -86,7 +86,7 @@ export class MongoAuthRepository
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -103,7 +103,7 @@ export class MongoAuthRepository
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -118,7 +118,7 @@ export class MongoAuthRepository
           deletedAt: null,
         }).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -184,8 +184,8 @@ export class MongoAuthRepository
           ),
         })
 
-        return this.mapper.toAuthUserEntityOrThrow(
-          this.mapper.toPlainRecord<MongoAuthUserRecord>(user),
+        return this._mapper.toAuthUserEntityOrThrow(
+          this._mapper.toPlainRecord<MongoAuthUserRecord>(user),
         )
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
@@ -230,7 +230,7 @@ export class MongoAuthRepository
           if (updatedUser) {
             await this.ensureUserProfile(updatedUser)
 
-            return this.mapper.toAuthUserEntityOrThrow(updatedUser)
+            return this._mapper.toAuthUserEntityOrThrow(updatedUser)
           }
         }
 
@@ -247,11 +247,11 @@ export class MongoAuthRepository
           verificationExpiresAt: null,
         })
 
-        const plainUser = this.mapper.toPlainRecord<MongoAuthUserRecord>(user)
+        const plainUser = this._mapper.toPlainRecord<MongoAuthUserRecord>(user)
 
         await this.ensureUserProfile(plainUser)
 
-        return this.mapper.toAuthUserEntityOrThrow(plainUser)
+        return this._mapper.toAuthUserEntityOrThrow(plainUser)
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
     )
@@ -283,7 +283,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
     )
@@ -302,7 +302,7 @@ export class MongoAuthRepository
             deletedAt: null,
           }).lean<MongoAuthUserRecord>()
 
-          return this.mapper.toAuthUserEntity(user)
+          return this._mapper.toAuthUserEntity(user)
         }
 
         const user = await User.findOneAndUpdate(
@@ -316,7 +316,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
     )
@@ -347,7 +347,7 @@ export class MongoAuthRepository
           await this.ensureUserProfile(user)
         }
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -377,7 +377,7 @@ export class MongoAuthRepository
           await this.ensureUserProfile(user)
         }
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -402,7 +402,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -427,7 +427,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -460,7 +460,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -472,7 +472,7 @@ export class MongoAuthRepository
       async () => {
         const user = await User.findByIdAndDelete(id).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -505,7 +505,7 @@ export class MongoAuthRepository
           .select('+totpSecretEncrypted +backupCodes +backupCodes.codeHash')
           .lean<MongoTwoFactorAuthRecord>()
 
-        return this.mapper.toTwoFactorAuthEntity(twoFactor)
+        return this._mapper.toTwoFactorAuthEntity(twoFactor)
       },
     )
   }
@@ -531,7 +531,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoTwoFactorAuthRecord>()
 
-        return this.mapper.toTwoFactorAuthEntity(twoFactor)
+        return this._mapper.toTwoFactorAuthEntity(twoFactor)
       },
     )
   }
@@ -564,7 +564,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoTwoFactorAuthRecord>()
 
-        return this.mapper.toTwoFactorAuthEntity(twoFactor)
+        return this._mapper.toTwoFactorAuthEntity(twoFactor)
       },
     )
   }
@@ -585,8 +585,8 @@ export class MongoAuthRepository
           expiresAt,
         })
 
-        return this.mapper.toAuthSessionEntityOrThrow(
-          this.mapper.toPlainRecord<MongoAuthSessionRecord>(session),
+        return this._mapper.toAuthSessionEntityOrThrow(
+          this._mapper.toPlainRecord<MongoAuthSessionRecord>(session),
         )
       },
     )
@@ -606,7 +606,7 @@ export class MongoAuthRepository
           deletedAt: null,
         }).lean<MongoAuthSessionRecord>()
 
-        return this.mapper.toAuthSessionEntity(session)
+        return this._mapper.toAuthSessionEntity(session)
       },
     )
   }
@@ -641,7 +641,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoAuthSessionRecord>()
 
-        return this.mapper.toAuthSessionEntity(session)
+        return this._mapper.toAuthSessionEntity(session)
       },
     )
   }
@@ -665,7 +665,7 @@ export class MongoAuthRepository
           .lean<MongoAuthSessionRecord[]>()
 
         return sessions.map((session) =>
-          this.mapper.toAuthSessionEntityOrThrow(session),
+          this._mapper.toAuthSessionEntityOrThrow(session),
         )
       },
     )
@@ -740,7 +740,7 @@ export class MongoAuthRepository
           },
         ).lean<MongoAuthSessionRecord>()
 
-        return this.mapper.toAuthSessionEntity(session)
+        return this._mapper.toAuthSessionEntity(session)
       },
     )
   }

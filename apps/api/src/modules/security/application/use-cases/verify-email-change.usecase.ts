@@ -13,18 +13,18 @@ type VerifyEmailChangeRepository =
 
 export class VerifyEmailChangeUseCase {
   constructor(
-    private readonly securityRepository: VerifyEmailChangeRepository,
-    private readonly emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
-    private readonly securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _securityRepository: VerifyEmailChangeRepository,
+    private readonly _emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
+    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async execute(
     payload: VerifyEmailChangePayload,
   ): Promise<VerifyEmailChangeResponseDto> {
-    const tokenHash = this.emailChangeTokenService.hash(payload.token)
+    const tokenHash = this._emailChangeTokenService.hash(payload.token)
 
     const user =
-      await this.securityRepository.findUserByPendingEmailTokenHash(tokenHash)
+      await this._securityRepository.findUserByPendingEmailTokenHash(tokenHash)
 
     if (!user?.pendingEmail) {
       throw SecurityApplicationError.emailChangeLinkInvalid()
@@ -33,10 +33,10 @@ export class VerifyEmailChangeUseCase {
     const pendingEmail = user.pendingEmail.trim().toLowerCase()
 
     const emailAlreadyUsed =
-      await this.securityRepository.emailExists(pendingEmail)
+      await this._securityRepository.emailExists(pendingEmail)
 
     if (emailAlreadyUsed && user.email?.trim().toLowerCase() !== pendingEmail) {
-      await this.securityRepository.clearPendingEmailChange(user.id)
+      await this._securityRepository.clearPendingEmailChange(user.id)
 
       throw SecurityApplicationError.emailTaken(
         'That email is no longer available',
@@ -44,7 +44,7 @@ export class VerifyEmailChangeUseCase {
     }
 
     const updatedUser =
-      await this.securityRepository.confirmPendingEmailChange({
+      await this._securityRepository.confirmPendingEmailChange({
         userId: user.id,
         pendingEmail,
       })
@@ -53,9 +53,9 @@ export class VerifyEmailChangeUseCase {
       throw SecurityApplicationError.emailChangeVerifyFailed()
     }
 
-    await this.securityRepository.revokeAllSessions(user.id)
+    await this._securityRepository.revokeAllSessions(user.id)
 
-    await this.securityAuditLogger.record({
+    await this._securityAuditLogger.record({
       userId: user.id,
       eventType: 'EMAIL_CHANGE_VERIFIED',
       outcome: 'success',

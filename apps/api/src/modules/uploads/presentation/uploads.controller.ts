@@ -7,14 +7,14 @@ import type { UploadedProfileImageFile } from '../domain/value-objects/uploaded-
 import { uploadsService, type UploadsService } from '../uploads.service'
 
 export class UploadsController {
-  constructor(private readonly service: UploadsService) {}
+  constructor(private readonly _service: UploadsService) {}
 
   uploadAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
       const file = this.getUploadedFile(req)
 
-      const result = await this.service.uploadProfileImage({
+      const result = await this._service.uploadProfileImage({
         userId,
         kind: 'avatar',
         ...(file ? { file } : {}),
@@ -29,7 +29,7 @@ export class UploadsController {
   removeAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const result = await this.service.removeAvatar(userId)
+      const result = await this._service.removeAvatar(userId)
 
       res.json(new ApiResponse('Avatar removed', result))
     } catch (error) {
@@ -42,7 +42,7 @@ export class UploadsController {
       const userId = getAuthUser(req).userId
       const file = this.getUploadedFile(req)
 
-      const result = await this.service.uploadProfileImage({
+      const result = await this._service.uploadProfileImage({
         userId,
         kind: 'banner',
         ...(file ? { file } : {}),
@@ -57,7 +57,7 @@ export class UploadsController {
   removeBanner = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const result = await this.service.removeBanner(userId)
+      const result = await this._service.removeBanner(userId)
 
       res.json(new ApiResponse('Banner removed', result))
     } catch (error) {
@@ -72,7 +72,7 @@ export class UploadsController {
   ) => {
     try {
       const { prompt } = req.body as GenerateAiImagePreviewInput
-      const result = await this.service.generateAiAvatarPreview(prompt)
+      const result = await this._service.generateAiAvatarPreview(prompt)
 
       res.json(
         new ApiResponse('AI avatar preview generated successfully', result)
@@ -89,7 +89,7 @@ export class UploadsController {
   ) => {
     try {
       const { prompt } = req.body as GenerateAiImagePreviewInput
-      const result = await this.service.generateAiBannerPreview(prompt)
+      const result = await this._service.generateAiBannerPreview(prompt)
 
       res.json(
         new ApiResponse('AI banner preview generated successfully', result)

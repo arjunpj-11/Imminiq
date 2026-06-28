@@ -8,7 +8,7 @@ import {
 } from '../moderation-appeal.service'
 
 export class ModerationAppealController {
-  constructor(private readonly service: ModerationAppealService) {}
+  constructor(private readonly _service: ModerationAppealService) {}
 
   submitAppeal = async (
     req: Request,
@@ -17,7 +17,7 @@ export class ModerationAppealController {
   ) => {
     try {
       const payload = req.body
-      const result = await this.service.submitAppeal(payload)
+      const result = await this._service.submitAppeal(payload)
 
       res
         .status(HttpStatusCode.CREATED)
@@ -39,7 +39,7 @@ export class ModerationAppealController {
   ) => {
     try {
       const payload = req.body
-      const result = await this.service.getActiveAppealStatus(payload)
+      const result = await this._service.getActiveAppealStatus(payload)
 
       res.json(new ApiResponse('Active appeal fetched', result))
     } catch (error) {

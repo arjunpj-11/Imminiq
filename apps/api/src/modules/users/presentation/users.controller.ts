@@ -18,11 +18,11 @@ type UsernameParams = {
 }
 
 export class UsersController {
-  constructor(private readonly service: UsersService) {}
+  constructor(private readonly _service: UsersService) {}
 
   getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.getMe(getAuthUser(req).userId)
+      const result = await this._service.getMe(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Current user profile fetched', result))
     } catch (error) {
@@ -32,7 +32,7 @@ export class UsersController {
 
   updateMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.updateMe(
+      const result = await this._service.updateMe(
         getAuthUser(req).userId,
         req.body
       )
@@ -49,7 +49,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getUserByUsername(req.params.username)
+      const result = await this._service.getUserByUsername(req.params.username)
 
       res.json(new ApiResponse('User fetched', result))
     } catch (error) {
@@ -63,7 +63,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getPublicProfilePage(
+      const result = await this._service.getPublicProfilePage(
         req.params.username,
         undefined,
         this.buildTrackerPaginationQuery(req)
@@ -77,7 +77,7 @@ export class UsersController {
 
   getMyStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.getMyStats(getAuthUser(req).userId)
+      const result = await this._service.getMyStats(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Stats fetched', result))
     } catch (error) {
@@ -87,7 +87,7 @@ export class UsersController {
 
   getMyActivity = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.getMyActivity(
+      const result = await this._service.getMyActivity(
         getAuthUser(req).userId,
         this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
         this.clampInteger(
@@ -110,7 +110,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getMyRecentActivity(
+      const result = await this._service.getMyRecentActivity(
         getAuthUser(req).userId,
         this.clampInteger(
           req.query.limit,
@@ -139,7 +139,7 @@ export class UsersController {
             )
           : undefined
 
-      const result = await this.service.getMyStreak(
+      const result = await this._service.getMyStreak(
         getAuthUser(req).userId,
         year
       )
@@ -156,7 +156,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getMyPublishedTrackers(
+      const result = await this._service.getMyPublishedTrackers(
         getAuthUser(req).userId,
         this.buildTrackerPaginationQuery(req)
       )
@@ -169,7 +169,7 @@ export class UsersController {
 
   getMyBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.getMyBadges(
+      const result = await this._service.getMyBadges(
         getAuthUser(req).userId,
         this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
         this.clampInteger(

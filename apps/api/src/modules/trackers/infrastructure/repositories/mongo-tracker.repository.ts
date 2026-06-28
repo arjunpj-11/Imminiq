@@ -63,16 +63,16 @@ export class MongoTrackerRepository
   extends MongoTrackerBaseRepository
   implements TrackerRepositoryContract
 {
-  private readonly contentRepository: MongoTrackerContentRepository
-  private readonly progressRepository: MongoTrackerProgressRepository
-  private readonly lessonRepository: MongoTrackerLessonRepository
+  private readonly _contentRepository: MongoTrackerContentRepository
+  private readonly _progressRepository: MongoTrackerProgressRepository
+  private readonly _lessonRepository: MongoTrackerLessonRepository
 
   constructor(mapper = new MongoTrackerMapper()) {
     super(mapper)
 
-    this.contentRepository = new MongoTrackerContentRepository(mapper)
-    this.progressRepository = new MongoTrackerProgressRepository(mapper)
-    this.lessonRepository = new MongoTrackerLessonRepository(mapper)
+    this._contentRepository = new MongoTrackerContentRepository(mapper)
+    this._progressRepository = new MongoTrackerProgressRepository(mapper)
+    this._lessonRepository = new MongoTrackerLessonRepository(mapper)
   }
 
   async hasAnyTrackerForUser(userId: string) {
@@ -517,175 +517,175 @@ export class MongoTrackerRepository
   }
 
   findEvaluationJobById(data: FindEvaluationJobByIdInput) {
-    return this.contentRepository.findEvaluationJobById(data)
+    return this._contentRepository.findEvaluationJobById(data)
   }
 
   getTopicsForTracker(trackerId: string) {
-    return this.contentRepository.getTopicsForTracker(trackerId)
+    return this._contentRepository.getTopicsForTracker(trackerId)
   }
 
   getSubtopicsForTracker(trackerId: string) {
-    return this.contentRepository.getSubtopicsForTracker(trackerId)
+    return this._contentRepository.getSubtopicsForTracker(trackerId)
   }
 
   getSubtopicById(data: GetSubtopicByIdInput) {
-    return this.contentRepository.getSubtopicById(data)
+    return this._contentRepository.getSubtopicById(data)
   }
 
   findLastTopicForTracker(trackerId: string) {
-    return this.contentRepository.findLastTopicForTracker(trackerId)
+    return this._contentRepository.findLastTopicForTracker(trackerId)
   }
 
   shiftTopicOrdersFrom(data: ShiftTopicOrdersFromInput) {
-    return this.contentRepository.shiftTopicOrdersFrom(data)
+    return this._contentRepository.shiftTopicOrdersFrom(data)
   }
 
   createTrackerTopic(data: CreateTrackerTopicInput) {
-    return this.contentRepository.createTrackerTopic(data)
+    return this._contentRepository.createTrackerTopic(data)
   }
 
   findLastSiblingSubtopic(data: FindLastSiblingSubtopicInput) {
-    return this.contentRepository.findLastSiblingSubtopic(data)
+    return this._contentRepository.findLastSiblingSubtopic(data)
   }
 
   createTrackerSubtopic(data: CreateTrackerSubtopicInput) {
-    return this.contentRepository.createTrackerSubtopic(data)
+    return this._contentRepository.createTrackerSubtopic(data)
   }
 
   incrementTrackerTopicsCount(trackerId: string) {
-    return this.contentRepository.incrementTrackerTopicsCount(trackerId)
+    return this._contentRepository.incrementTrackerTopicsCount(trackerId)
   }
 
   incrementTrackerSubtopicsCount(trackerId: string) {
-    return this.contentRepository.incrementTrackerSubtopicsCount(trackerId)
+    return this._contentRepository.incrementTrackerSubtopicsCount(trackerId)
   }
 
   markMissingEvaluationTopicAsAdded(
     data: MarkMissingEvaluationTopicAsAddedInput,
   ) {
-    return this.contentRepository.markMissingEvaluationTopicAsAdded(data)
+    return this._contentRepository.markMissingEvaluationTopicAsAdded(data)
   }
 
   ensureUserProgressInitialized(data: EnsureUserProgressInitializedInput) {
-    return this.progressRepository.ensureUserProgressInitialized(data)
+    return this._progressRepository.ensureUserProgressInitialized(data)
   }
 
   getUserSubtopicsProgress(data: GetUserSubtopicsProgressInput) {
-    return this.progressRepository.getUserSubtopicsProgress(data)
+    return this._progressRepository.getUserSubtopicsProgress(data)
   }
 
   getUserTopicsProgress(data: GetUserTopicsProgressInput) {
-    return this.progressRepository.getUserTopicsProgress(data)
+    return this._progressRepository.getUserTopicsProgress(data)
   }
 
   getSubtopicsWithUserProgress(data: GetSubtopicsWithUserProgressInput) {
-    return this.progressRepository.getSubtopicsWithUserProgress(data)
+    return this._progressRepository.getSubtopicsWithUserProgress(data)
   }
 
   getTopicsWithUserProgress(data: GetTopicsWithUserProgressInput) {
-    return this.progressRepository.getTopicsWithUserProgress(data)
+    return this._progressRepository.getTopicsWithUserProgress(data)
   }
 
   updateSubtopicProgress(data: UpdateSubtopicProgressInput) {
-    return this.progressRepository.updateSubtopicProgress(data)
+    return this._progressRepository.updateSubtopicProgress(data)
   }
 
   unlockNextSubtopic(data: UnlockNextSubtopicInput) {
-    return this.progressRepository.unlockNextSubtopic(data)
+    return this._progressRepository.unlockNextSubtopic(data)
   }
 
   checkAndCompleteParentSubtopic(data: CheckAndCompleteParentSubtopicInput) {
-    return this.progressRepository.checkAndCompleteParentSubtopic(data)
+    return this._progressRepository.checkAndCompleteParentSubtopic(data)
   }
 
   checkAndCompleteTopicAndUnlockNext(
     data: CheckAndCompleteTopicAndUnlockNextInput,
   ) {
-    return this.progressRepository.checkAndCompleteTopicAndUnlockNext(data)
+    return this._progressRepository.checkAndCompleteTopicAndUnlockNext(data)
   }
 
   recomputeTrackerProgress(data: RecomputeTrackerProgressInput) {
-    return this.progressRepository.recomputeTrackerProgress(data)
+    return this._progressRepository.recomputeTrackerProgress(data)
   }
 
   findLessonBySubtopicId(data: FindLessonBySubtopicIdInput) {
-    return this.lessonRepository.findLessonBySubtopicId(data)
+    return this._lessonRepository.findLessonBySubtopicId(data)
   }
 
   createLesson(data: CreateTrackerLessonInput) {
-    return this.lessonRepository.createLesson(data)
+    return this._lessonRepository.createLesson(data)
   }
 
   getLessonChatMessages(data: GetLessonChatMessagesInput) {
-    return this.lessonRepository.getLessonChatMessages(data)
+    return this._lessonRepository.getLessonChatMessages(data)
   }
 
   createLessonChatMessage(data: CreateLessonChatMessageInput) {
-    return this.lessonRepository.createLessonChatMessage(data)
+    return this._lessonRepository.createLessonChatMessage(data)
   }
 
   clearLessonChatMessages(data: ClearLessonChatMessagesInput) {
-    return this.lessonRepository.clearLessonChatMessages(data)
+    return this._lessonRepository.clearLessonChatMessages(data)
   }
 
   getLessonAnswerAttempts(data: GetLessonAnswerAttemptsInput) {
-    return this.lessonRepository.getLessonAnswerAttempts(data)
+    return this._lessonRepository.getLessonAnswerAttempts(data)
   }
 
   createLessonAnswerAttempt(data: CreateLessonAnswerAttemptInput) {
-    return this.lessonRepository.createLessonAnswerAttempt(data)
+    return this._lessonRepository.createLessonAnswerAttempt(data)
   }
 
   getLessonCodeSubmissions(data: GetLessonCodeSubmissionsInput) {
-    return this.lessonRepository.getLessonCodeSubmissions(data)
+    return this._lessonRepository.getLessonCodeSubmissions(data)
   }
 
   createLessonCodeSubmission(data: CreateLessonCodeSubmissionInput) {
-    return this.lessonRepository.createLessonCodeSubmission(data)
+    return this._lessonRepository.createLessonCodeSubmission(data)
   }
 
   getLessonGeneratedQuestions(data: GetLessonGeneratedQuestionsInput) {
-    return this.lessonRepository.getLessonGeneratedQuestions(data)
+    return this._lessonRepository.getLessonGeneratedQuestions(data)
   }
 
   createLessonGeneratedQuestions(data: CreateLessonGeneratedQuestionsInput) {
-    return this.lessonRepository.createLessonGeneratedQuestions(data)
+    return this._lessonRepository.createLessonGeneratedQuestions(data)
   }
 
   findLessonQuestionSolution(data: FindLessonQuestionSolutionInput) {
-    return this.lessonRepository.findLessonQuestionSolution(data)
+    return this._lessonRepository.findLessonQuestionSolution(data)
   }
 
   createLessonQuestionSolution(data: CreateLessonQuestionSolutionInput) {
-    return this.lessonRepository.createLessonQuestionSolution(data)
+    return this._lessonRepository.createLessonQuestionSolution(data)
   }
 
   getLessonQuestionSolutionDoubts(data: GetLessonQuestionSolutionDoubtsInput) {
-    return this.lessonRepository.getLessonQuestionSolutionDoubts(data)
+    return this._lessonRepository.getLessonQuestionSolutionDoubts(data)
   }
 
   createLessonQuestionSolutionDoubt(
     data: CreateLessonQuestionSolutionDoubtInput,
   ) {
-    return this.lessonRepository.createLessonQuestionSolutionDoubt(data)
+    return this._lessonRepository.createLessonQuestionSolutionDoubt(data)
   }
 
   clearLessonQuestionSolutionDoubts(
     data: ClearLessonQuestionSolutionDoubtsInput,
   ) {
-    return this.lessonRepository.clearLessonQuestionSolutionDoubts(data)
+    return this._lessonRepository.clearLessonQuestionSolutionDoubts(data)
   }
 
   findGeneratedLessonBySubtopic(data: FindGeneratedLessonBySubtopicInput) {
-    return this.lessonRepository.findGeneratedLessonBySubtopic(data)
+    return this._lessonRepository.findGeneratedLessonBySubtopic(data)
   }
 
   findLessonVisualization(data: FindLessonVisualizationInput) {
-    return this.lessonRepository.findLessonVisualization(data)
+    return this._lessonRepository.findLessonVisualization(data)
   }
 
   saveLessonVisualization(data: SaveLessonVisualizationInput) {
-    return this.lessonRepository.saveLessonVisualization(data)
+    return this._lessonRepository.saveLessonVisualization(data)
   }
 }
 

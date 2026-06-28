@@ -6,15 +6,15 @@ import type { IdentifierNormalizerContract } from '../../domain/services/identif
 
 export class ResendOtpUseCase {
   constructor(
-    private readonly authRepository: AuthUserRepositoryContract,
-    private readonly authNotificationService: AuthNotificationServiceContract,
-    private readonly identifierNormalizer: IdentifierNormalizerContract
+    private readonly _authRepository: AuthUserRepositoryContract,
+    private readonly _authNotificationService: AuthNotificationServiceContract,
+    private readonly _identifierNormalizer: IdentifierNormalizerContract
   ) {}
 
   async execute(identifier: string, purpose: OtpPurpose): Promise<void> {
-    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
+    const parsedIdentifier = this._identifierNormalizer.normalize(identifier)
 
-    const user = await this.authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this._authRepository.findByIdentifier(parsedIdentifier.value)
 
     if (!user) {
       return
@@ -36,7 +36,7 @@ export class ResendOtpUseCase {
       throw AuthApplicationError.phoneAlreadyVerified('Phone is already verified')
     }
 
-    await this.authNotificationService.resendOtp({
+    await this._authNotificationService.resendOtp({
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
       purpose,

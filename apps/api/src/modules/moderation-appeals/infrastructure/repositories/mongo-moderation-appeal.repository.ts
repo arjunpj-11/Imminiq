@@ -23,7 +23,7 @@ export class MongoModerationAppealRepository
   extends MongoModerationAppealBaseRepository
   implements ModerationAppealRepositoryContract
 {
-  constructor(private readonly mapper = new MongoModerationAppealMapper()) {
+  constructor(private readonly _mapper = new MongoModerationAppealMapper()) {
     super()
   }
 
@@ -36,7 +36,7 @@ export class MongoModerationAppealRepository
       async () => {
         const user = await this.findRestrictedUserRecordByIdentifier(identifier)
 
-        return this.mapper.toRestrictedUserEntity(user)
+        return this._mapper.toRestrictedUserEntity(user)
       },
     )
   }
@@ -66,7 +66,7 @@ export class MongoModerationAppealRepository
           })
           .lean<MongoModerationAppealRecord>()
 
-        return this.mapper.toModerationAppealEntity(appeal)
+        return this._mapper.toModerationAppealEntity(appeal)
       },
     )
   }
@@ -79,7 +79,7 @@ export class MongoModerationAppealRepository
       'Failed to read latest active moderation appeal',
       async () => {
         const user = await this.findRestrictedUserRecordByIdentifier(identifier)
-        const restrictedUser = this.mapper.toRestrictedUserEntity(user)
+        const restrictedUser = this._mapper.toRestrictedUserEntity(user)
 
         if (!restrictedUser) {
           return null
@@ -97,7 +97,7 @@ export class MongoModerationAppealRepository
           })
           .lean<MongoModerationAppealRecord>()
 
-        return this.mapper.toModerationAppealEntity(appeal)
+        return this._mapper.toModerationAppealEntity(appeal)
       },
     )
   }
@@ -141,8 +141,8 @@ export class MongoModerationAppealRepository
           status: MODERATION_APPEAL_PENDING_STATUS,
         })
 
-        return this.mapper.toModerationAppealEntityOrThrow(
-          this.mapper.toPlainRecord<MongoModerationAppealRecord>(appeal),
+        return this._mapper.toModerationAppealEntityOrThrow(
+          this._mapper.toPlainRecord<MongoModerationAppealRecord>(appeal),
         )
       },
       MongoModerationAppealErrorMapper.mapDuplicateCreateError,

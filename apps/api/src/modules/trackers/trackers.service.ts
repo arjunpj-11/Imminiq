@@ -27,72 +27,72 @@ import {
 } from './tracker.factory'
 
 export class TrackerService {
-  private readonly useCases: TrackerComposition['useCases']
-  private readonly helpers: TrackerComposition['helpers']
+  private readonly _useCases: TrackerComposition['useCases']
+  private readonly _helpers: TrackerComposition['helpers']
 
   constructor(composition: TrackerComposition) {
-    this.useCases = composition.useCases
-    this.helpers = composition.helpers
+    this._useCases = composition.useCases
+    this._helpers = composition.helpers
   }
 
   hasAnyTrackerForUser(userId: string) {
-    return this.helpers.trackerRepository.hasAnyTrackerForUser(userId)
+    return this._helpers.trackerRepository.hasAnyTrackerForUser(userId)
   }
 
   getSummary(userId: string) {
-    return this.useCases.getTrackerSummary.execute(userId)
+    return this._useCases.getTrackerSummary.execute(userId)
   }
 
   listTrackers(filter: TrackerListInput) {
-    return this.useCases.listTrackers.execute(filter)
+    return this._useCases.listTrackers.execute(filter)
   }
 
   createTracker(input: CreateTrackerInput) {
-    return this.useCases.createTracker.execute(input)
+    return this._useCases.createTracker.execute(input)
   }
 
   getTrackerDetails(input: { trackerId: string; userId: string }) {
-    return this.useCases.getTrackerDetails.execute(input)
+    return this._useCases.getTrackerDetails.execute(input)
   }
 
   updateTracker(input: UpdateTrackerInput) {
-    return this.useCases.updateTracker.execute(input)
+    return this._useCases.updateTracker.execute(input)
   }
 
   deleteTracker(input: { trackerId: string; userId: string }) {
-    return this.useCases.deleteTracker.execute(input)
+    return this._useCases.deleteTracker.execute(input)
   }
 
   archiveTracker(input: { trackerId: string; userId: string }) {
-    return this.useCases.archiveTracker.execute(input)
+    return this._useCases.archiveTracker.execute(input)
   }
 
   restoreTracker(input: { trackerId: string; userId: string }) {
-    return this.useCases.restoreTracker.execute(input)
+    return this._useCases.restoreTracker.execute(input)
   }
 
   publishTracker(input: PublishTrackerInput) {
-    return this.useCases.publishTracker.execute(input)
+    return this._useCases.publishTracker.execute(input)
   }
 
   unpublishTracker(input: { trackerId: string; userId: string }) {
-    return this.useCases.unpublishTracker.execute(input)
+    return this._useCases.unpublishTracker.execute(input)
   }
 
   getRoadmap(input: { trackerId: string; userId: string }) {
-    return this.useCases.getTrackerRoadmap.execute(input)
+    return this._useCases.getTrackerRoadmap.execute(input)
   }
 
   createTopic(input: CreateTopicInput) {
-    return this.useCases.createTrackerTopic.execute(input)
+    return this._useCases.createTrackerTopic.execute(input)
   }
 
   createSubtopic(input: CreateSubtopicInput) {
-    return this.useCases.createTrackerSubtopic.execute(input)
+    return this._useCases.createTrackerSubtopic.execute(input)
   }
 
   updateSubtopicProgress(input: UpdateSubtopicProgressInput) {
-    return this.useCases.updateSubtopicProgress.execute(input)
+    return this._useCases.updateSubtopicProgress.execute(input)
   }
 
   getLesson(input: {
@@ -100,7 +100,7 @@ export class TrackerService {
     subtopicId: string
     userId: string
   }) {
-    return this.useCases.getTrackerLesson.execute(input)
+    return this._useCases.getTrackerLesson.execute(input)
   }
 
   getLessonChatHistory(input: {
@@ -108,11 +108,11 @@ export class TrackerService {
     subtopicId: string
     userId: string
   }) {
-    return this.useCases.getLessonChatHistory.execute(input)
+    return this._useCases.getLessonChatHistory.execute(input)
   }
 
   chatWithLessonTutor(input: ChatWithLessonTutorInput) {
-    return this.useCases.chatWithLessonTutor.execute(input)
+    return this._useCases.chatWithLessonTutor.execute(input)
   }
 
   getLessonGeneratedQuestions(input: {
@@ -120,33 +120,33 @@ export class TrackerService {
     subtopicId: string
     userId: string
   }) {
-    return this.useCases.getLessonGeneratedQuestions.execute(input)
+    return this._useCases.getLessonGeneratedQuestions.execute(input)
   }
 
   generateLessonQuestions(input: GenerateLessonQuestionsInput) {
-    return this.useCases.generateLessonQuestions.execute(input)
+    return this._useCases.generateLessonQuestions.execute(input)
   }
 
   getLessonQuestionSolution(input: GetLessonQuestionSolutionInput) {
-    return this.useCases.getLessonQuestionSolution.execute(input)
+    return this._useCases.getLessonQuestionSolution.execute(input)
   }
 
   generateLessonQuestionSolution(
     input: GenerateLessonQuestionSolutionInput
   ) {
-    return this.useCases.generateLessonQuestionSolution.execute(input)
+    return this._useCases.generateLessonQuestionSolution.execute(input)
   }
 
   getLessonQuestionSolutionDoubts(
     input: GetLessonQuestionSolutionDoubtsInput
   ) {
-    return this.useCases.getLessonQuestionSolutionDoubts.execute(input)
+    return this._useCases.getLessonQuestionSolutionDoubts.execute(input)
   }
 
   askLessonQuestionSolutionDoubt(
     input: AskLessonQuestionSolutionDoubtInput
   ) {
-    return this.useCases.askLessonQuestionSolutionDoubt.execute(input)
+    return this._useCases.askLessonQuestionSolutionDoubt.execute(input)
   }
 
   getLessonAnswerAttempts(input: {
@@ -154,11 +154,11 @@ export class TrackerService {
     subtopicId: string
     userId: string
   }) {
-    return this.useCases.getLessonAnswerAttempts.execute(input)
+    return this._useCases.getLessonAnswerAttempts.execute(input)
   }
 
   verifyLessonAnswer(input: VerifyLessonAnswerInput) {
-    return this.useCases.verifyLessonAnswer.execute(input)
+    return this._useCases.verifyLessonAnswer.execute(input)
   }
 
   getLessonCodeSubmissions(input: {
@@ -167,23 +167,23 @@ export class TrackerService {
     userId: string
     action?: 'run' | 'submit'
   }) {
-    return this.useCases.getLessonCodeSubmissions.execute(input)
+    return this._useCases.getLessonCodeSubmissions.execute(input)
   }
 
   runLessonCode(input: RunLessonCodeInput) {
-    return this.useCases.runLessonCode.execute(input)
+    return this._useCases.runLessonCode.execute(input)
   }
 
   submitLessonCode(input: SubmitLessonCodeInput) {
-    return this.useCases.submitLessonCode.execute(input)
+    return this._useCases.submitLessonCode.execute(input)
   }
 
   getCodeHint(input: GetCodeHintInput) {
-    return this.useCases.getCodeHint.execute(input)
+    return this._useCases.getCodeHint.execute(input)
   }
 
   getOptimizedSolution(input: GetOptimizedSolutionInput) {
-    return this.useCases.getOptimizedSolution.execute(input)
+    return this._useCases.getOptimizedSolution.execute(input)
   }
 
   clearLessonChatHistory(input: {
@@ -191,29 +191,29 @@ export class TrackerService {
     subtopicId: string
     userId: string
   }) {
-    return this.useCases.clearLessonChatHistory.execute(input)
+    return this._useCases.clearLessonChatHistory.execute(input)
   }
 
   clearLessonQuestionSolutionDoubts(
     input: ClearLessonQuestionSolutionDoubtsInput
   ) {
-    return this.useCases.clearLessonQuestionSolutionDoubts.execute(input)
+    return this._useCases.clearLessonQuestionSolutionDoubts.execute(input)
   }
 
   verifyTopic(input: VerifyTopicInput) {
-    return this.useCases.verifyTrackerTopic.execute(input)
+    return this._useCases.verifyTrackerTopic.execute(input)
   }
 
   verifySubtopic(input: VerifySubtopicInput) {
-    return this.useCases.verifyTrackerSubtopic.execute(input)
+    return this._useCases.verifyTrackerSubtopic.execute(input)
   }
 
   addMissingEvaluationTopic(input: AddMissingEvaluationTopicInput) {
-    return this.useCases.addMissingEvaluationTopic.execute(input)
+    return this._useCases.addMissingEvaluationTopic.execute(input)
   }
 
   generateLessonVisualization(input: GenerateLessonVisualizationInput) {
-    return this.useCases.generateLessonVisualization.execute(input)
+    return this._useCases.generateLessonVisualization.execute(input)
   }
 }
 

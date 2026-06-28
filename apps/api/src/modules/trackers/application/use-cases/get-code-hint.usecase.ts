@@ -19,13 +19,13 @@ type GetCodeHintResultDto = ReturnType<
 
 export class GetCodeHintUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: GetCodeHintInput): Promise<GetCodeHintResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -34,13 +34,13 @@ export class GetCodeHintUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const lesson = await this.trackerRepository.findGeneratedLessonBySubtopic({
+    const lesson = await this._trackerRepository.findGeneratedLessonBySubtopic({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
     })
 
-    const aiResult = await this.trackerAIService.generateCodeHint({
+    const aiResult = await this._trackerAIService.generateCodeHint({
       lessonTitle: lesson?.title || tracker.title || 'Coding lesson',
       practiceTitle: lesson?.practiceTask?.title || 'Coding practice',
       practiceDescription:
@@ -53,7 +53,7 @@ export class GetCodeHintUseCase {
       hintCount: input.hintCount,
     })
 
-    return this.trackerMapper.toLessonCodeHintDto({
+    return this._trackerMapper.toLessonCodeHintDto({
       mode: aiResult.mode,
       hintCount: input.hintCount + 1,
       title: aiResult.title,

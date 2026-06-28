@@ -6,16 +6,16 @@ import type { OnboardingJobOutputReaderServiceContract } from '../services/onboa
 
 export class GetRoadmapJobStatusUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingAIJobQueryRepositoryContract,
-    private readonly onboardingMapper: OnboardingMapperContract,
-    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingRepository: OnboardingAIJobQueryRepositoryContract,
+    private readonly _onboardingMapper: OnboardingMapperContract,
+    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     jobId: string,
     userId: string,
   ): Promise<GetJobStatusResult> {
-    const job = await this.onboardingRepository.getJobById(jobId)
+    const job = await this._onboardingRepository.getJobById(jobId)
 
     if (!job) {
       throw OnboardingApplicationError.notFound('Job not found')
@@ -25,11 +25,11 @@ export class GetRoadmapJobStatusUseCase {
       throw OnboardingApplicationError.forbidden()
     }
 
-    const steps = await this.onboardingRepository.getJobSteps(jobId)
-    const trackerId = this.onboardingJobOutputReader.getTrackerId(
+    const steps = await this._onboardingRepository.getJobSteps(jobId)
+    const trackerId = this._onboardingJobOutputReader.getTrackerId(
       job.outputData,
     )
 
-    return this.onboardingMapper.toJobStatusDto(job, steps, trackerId)
+    return this._onboardingMapper.toJobStatusDto(job, steps, trackerId)
   }
 }

@@ -2,10 +2,10 @@ import type { AuthSessionRepositoryContract } from '../../domain/repositories/au
 
 export class LogoutAllSessionsUseCase {
   constructor(
-    private readonly authRepository: AuthSessionRepositoryContract
+    private readonly _authRepository: AuthSessionRepositoryContract
   ) {}
 
   async execute(userId: string): Promise<void> {
-    await this.authRepository.revokeAllUserSessions(userId)
+    await this._authRepository.revokeAllUserSessions(userId)
   }
 }

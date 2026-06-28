@@ -35,20 +35,20 @@ export class UsersProfileDataService
   implements UsersProfileDataServiceContract
 {
   constructor(
-    private readonly usersRepository: UsersProfileDataRepository,
-    private readonly usersMapper: UsersMapperContract,
+    private readonly _usersRepository: UsersProfileDataRepository,
+    private readonly _usersMapper: UsersMapperContract,
   ) {}
 
   async getBadgeShowcase(userId: string): Promise<BadgeShowcaseView> {
     const { catalog, earned } =
-      await this.usersRepository.findBadgeShowcase(userId)
+      await this._usersRepository.findBadgeShowcase(userId)
 
     const earnedMap = new Map(
       earned.map((item) => [item.badge.id, item.earnedAt] as const),
     )
 
     const items = catalog.map((badge) =>
-      this.usersMapper.toBadgeShowcaseItem(
+      this._usersMapper.toBadgeShowcaseItem(
         badge,
         earnedMap.get(badge.id),
       ),
@@ -68,15 +68,15 @@ export class UsersProfileDataService
     const year = requestedYear ?? new Date().getUTCFullYear()
 
    const [snapshot, history] = await Promise.all([
-  this.usersRepository.findLatestSnapshot(userId),
-  this.usersRepository.findHistoryByYear({
+  this._usersRepository.findLatestSnapshot(userId),
+  this._usersRepository.findHistoryByYear({
     userId,
     year,
   }),
 ])
 
     const heatmap = history.map((day) =>
-      this.usersMapper.toStreakHeatmapDay(day),
+      this._usersMapper.toStreakHeatmapDay(day),
     )
 
     return {
@@ -95,7 +95,7 @@ export class UsersProfileDataService
     profile?: UserProfileEntity,
   ): Promise<ProfileStatsView> {
     const resolvedUser =
-      user ?? (await this.usersRepository.findById(userId))
+      user ?? (await this._usersRepository.findById(userId))
 
     if (!resolvedUser) {
       throw UsersApplicationError.userNotFound()
@@ -103,7 +103,7 @@ export class UsersProfileDataService
 
     const resolvedProfile =
       profile ??
-      (await this.usersRepository.findByUserId(resolvedUser.id))
+      (await this._usersRepository.findByUserId(resolvedUser.id))
 
     return {
       streakCount: resolvedUser.streakCount,

@@ -3,12 +3,12 @@ import type { TwoFactorStatusResponseDto } from '../dtos/security.dto'
 
 export class GetTwoFactorStatusUseCase {
   constructor(
-    private readonly twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
   ) {}
 
   async execute(userId: string): Promise<TwoFactorStatusResponseDto> {
     const twoFactor =
-      await this.twoFactorRepository.findTwoFactorByUserId(userId)
+      await this._twoFactorRepository.findTwoFactorByUserId(userId)
 
     if (!twoFactor) {
       return { enabled: false, status: 'not_configured' }

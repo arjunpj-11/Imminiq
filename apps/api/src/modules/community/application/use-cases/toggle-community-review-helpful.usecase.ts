@@ -8,14 +8,14 @@ import type { CommunityReviewMapperContract } from '../mappers/community-review.
 
 export class ToggleCommunityReviewHelpfulUseCase {
   constructor(
-    private readonly repository: CommunityReviewRepositoryContract,
-    private readonly mapper: CommunityReviewMapperContract,
+    private readonly _repository: CommunityReviewRepositoryContract,
+    private readonly _mapper: CommunityReviewMapperContract,
   ) {}
 
   async execute(
     payload: ToggleCommunityReviewHelpfulPayload,
   ): Promise<ToggleCommunityReviewHelpfulOutputDto> {
-    const review = await this.repository.toggleReviewHelpful(
+    const review = await this._repository.toggleReviewHelpful(
       payload.reviewId,
       payload.userId,
     )
@@ -25,7 +25,7 @@ export class ToggleCommunityReviewHelpfulUseCase {
     }
 
     return {
-      review: this.mapper.toReviewView(review),
+      review: this._mapper.toReviewView(review),
     }
   }
 }

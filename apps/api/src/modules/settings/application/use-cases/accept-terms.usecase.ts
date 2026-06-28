@@ -8,12 +8,12 @@ type AcceptTermsRepository = {
 
 export class AcceptTermsUseCase {
   constructor(
-    private readonly settingsRepository: AcceptTermsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: AcceptTermsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.acceptTerms(userId)
-    return this.settingsMapper.toNullableDto(settings)
+    const settings = await this._settingsRepository.acceptTerms(userId)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

@@ -11,12 +11,12 @@ type StartTestAttemptRepository =
 
 export class StartTestAttemptUseCase {
   constructor(
-    private readonly repo: StartTestAttemptRepository,
-    private readonly mapper: MockTestsMapperContract,
+    private readonly _repo: StartTestAttemptRepository,
+    private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(testId: string, userId: string) {
-    const test = await this.repo.findTestById(testId)
+    const test = await this._repo.findTestById(testId)
 
     if (!test) {
       throw MockTestsApplicationError.notFound('Test not found')
@@ -26,19 +26,19 @@ export class StartTestAttemptUseCase {
       throw MockTestsApplicationError.forbidden()
     }
 
-    const existingAttempt = await this.repo.findActiveAttempt({
+    const existingAttempt = await this._repo.findActiveAttempt({
       userId,
       testId,
     })
 
-    const questions = await this.repo.findQuestionsByTest(testId)
+    const questions = await this._repo.findQuestionsByTest(testId)
 
     if (!questions.length) {
       throw MockTestsApplicationError.emptyTest()
     }
 
     const safeQuestions = questions.map((question) =>
-      this.mapper.sanitizeQuestionForAttempt(question),
+      this._mapper.sanitizeQuestionForAttempt(question),
     )
 
     if (existingAttempt) {
@@ -48,7 +48,7 @@ export class StartTestAttemptUseCase {
       }
     }
 
-    const attempt = await this.repo.createAttempt({
+    const attempt = await this._repo.createAttempt({
       testId,
       userId,
       totalQuestions: test.questionCount,

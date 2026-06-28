@@ -58,7 +58,7 @@ export class MongoUsersRepository
   extends MongoUsersBaseRepository
   implements UsersRepositoryContract
 {
-  constructor(private readonly mapper = new MongoUsersMapper()) {
+  constructor(private readonly _mapper = new MongoUsersMapper()) {
     super()
   }
 
@@ -74,7 +74,7 @@ export class MongoUsersRepository
           .select(USER_SELECT)
           .lean<MongoUserRecord>()
 
-        return user ? this.mapper.toUserEntity(user) : null
+        return user ? this._mapper.toUserEntity(user) : null
       },
     )
   }
@@ -91,7 +91,7 @@ export class MongoUsersRepository
           .select(USER_SELECT)
           .lean<MongoUserRecord>()
 
-        return user ? this.mapper.toUserEntity(user) : null
+        return user ? this._mapper.toUserEntity(user) : null
       },
     )
   }
@@ -120,7 +120,7 @@ export class MongoUsersRepository
           .select(USER_SELECT)
           .lean<MongoUserRecord>()
 
-        return user ? this.mapper.toUserEntity(user) : null
+        return user ? this._mapper.toUserEntity(user) : null
       },
       MongoUsersErrorMapper.mapDuplicateUserRecordError,
     )
@@ -139,7 +139,7 @@ export class MongoUsersRepository
         }).lean<MongoProfileRecord>()
 
         return profile
-          ? this.mapper.toUserProfileEntity(profile, userId)
+          ? this._mapper.toUserProfileEntity(profile, userId)
           : null
       },
     )
@@ -157,7 +157,7 @@ export class MongoUsersRepository
           ...activeOnly,
         }).lean<MongoPrivacySettingsRecord>()
 
-        return settings ? this.mapper.toPrivacySettingsEntity(settings) : null
+        return settings ? this._mapper.toPrivacySettingsEntity(settings) : null
       },
     )
   }
@@ -177,7 +177,7 @@ export class MongoUsersRepository
         }).lean<MongoProfileRecord>()
 
         if (existing) {
-          return this.mapper.toUserProfileEntity(existing, input.userId)
+          return this._mapper.toUserProfileEntity(existing, input.userId)
         }
 
         const created = await UserProfile.create({
@@ -185,7 +185,7 @@ export class MongoUsersRepository
           fullName: input.fallbackName?.trim() ?? '',
         })
 
-        return this.mapper.toUserProfileEntity(
+        return this._mapper.toUserProfileEntity(
           created.toObject() as MongoProfileRecord,
           input.userId,
         )
@@ -213,7 +213,7 @@ export class MongoUsersRepository
             ...activeOnly,
           },
           {
-            $set: this.mapper.toProfileUpdateData(input.payload),
+            $set: this._mapper.toProfileUpdateData(input.payload),
           },
           {
             returnDocument: 'after',
@@ -222,7 +222,7 @@ export class MongoUsersRepository
         ).lean<MongoProfileRecord>()
 
         return profile
-          ? this.mapper.toUserProfileEntity(profile, input.userId)
+          ? this._mapper.toUserProfileEntity(profile, input.userId)
           : null
       },
       MongoUsersErrorMapper.mapDuplicateUserRecordError,
@@ -257,7 +257,7 @@ export class MongoUsersRepository
         ])
 
         return {
-          items: items.map((item) => this.mapper.toUserActivityEntity(item)),
+          items: items.map((item) => this._mapper.toUserActivityEntity(item)),
           total,
         }
       },
@@ -284,7 +284,7 @@ export class MongoUsersRepository
           .limit(limit)
           .lean<MongoActivityRecord[]>()
 
-        return items.map((item) => this.mapper.toUserActivityEntity(item))
+        return items.map((item) => this._mapper.toUserActivityEntity(item))
       },
     )
   }
@@ -315,10 +315,10 @@ export class MongoUsersRepository
 
         return {
           catalog: catalog.map((badge) =>
-            this.mapper.toUserBadgeEntity(badge),
+            this._mapper.toUserBadgeEntity(badge),
           ),
           earned: earned.map((item) =>
-            this.mapper.toEarnedUserBadgeEntity(item),
+            this._mapper.toEarnedUserBadgeEntity(item),
           ),
         }
       },
@@ -354,7 +354,7 @@ export class MongoUsersRepository
 
         return {
           items: items.map((item) =>
-            this.mapper.toEarnedUserBadgeEntity(item),
+            this._mapper.toEarnedUserBadgeEntity(item),
           ),
           total,
         }
@@ -378,7 +378,7 @@ export class MongoUsersRepository
           })
           .lean<MongoStreakSnapshotRecord>()
 
-        return snapshot ? this.mapper.toStreakSnapshotEntity(snapshot) : null
+        return snapshot ? this._mapper.toStreakSnapshotEntity(snapshot) : null
       },
     )
   }
@@ -406,7 +406,7 @@ export class MongoUsersRepository
           })
           .lean<MongoStreakHistoryRecord[]>()
 
-        return history.map((day) => this.mapper.toStreakDayEntity(day))
+        return history.map((day) => this._mapper.toStreakDayEntity(day))
       },
     )
   }
@@ -432,7 +432,7 @@ export class MongoUsersRepository
         }
 
         if (query.search) {
-          const safeSearch = this.mapper.escapeRegex(query.search)
+          const safeSearch = this._mapper.escapeRegex(query.search)
 
           filter.$or = [
             {
@@ -458,7 +458,7 @@ export class MongoUsersRepository
 
         const [items, total] = await Promise.all([
           Tracker.find(filter)
-            .sort(this.mapper.buildTrackerSort(query.sort))
+            .sort(this._mapper.buildTrackerSort(query.sort))
             .skip(skip)
             .limit(query.limit)
             .lean<MongoTrackerRecord[]>(),
@@ -467,7 +467,7 @@ export class MongoUsersRepository
 
         return {
           items: items.map((item) =>
-            this.mapper.toPublishedTrackerEntity(item),
+            this._mapper.toPublishedTrackerEntity(item),
           ),
           total,
         }

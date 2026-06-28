@@ -12,10 +12,10 @@ type GetAttemptAnalysisRepository =
   MockTestReportRepositoryContract
 
 export class GetAttemptAnalysisUseCase {
-  constructor(private readonly repo: GetAttemptAnalysisRepository) { }
+  constructor(private readonly _repo: GetAttemptAnalysisRepository) { }
 
   async execute(attemptId: string, userId: string): Promise<AttemptAnalysis> {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -29,15 +29,15 @@ export class GetAttemptAnalysisUseCase {
       throw MockTestsApplicationError.notCompleted()
     }
 
-    const report = await this.repo.findReportByAttempt(attemptId)
+    const report = await this._repo.findReportByAttempt(attemptId)
 
     if (!report) {
       throw MockTestsApplicationError.notFound('Report not found')
     }
 
     const [answers, questions] = await Promise.all([
-      this.repo.findAnswersByAttempt(attemptId),
-      this.repo.findQuestionsByTest(attempt.testId),
+      this._repo.findAnswersByAttempt(attemptId),
+      this._repo.findQuestionsByTest(attempt.testId),
     ])
 
     const answerMap = new Map(answers.map((answer) => [answer.questionId, answer]))

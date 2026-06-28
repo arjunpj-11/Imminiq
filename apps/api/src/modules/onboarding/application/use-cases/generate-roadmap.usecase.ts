@@ -17,9 +17,9 @@ type GenerateRoadmapRepository =
 
 export class GenerateRoadmapUseCase {
   constructor(
-    private readonly onboardingRepository: GenerateRoadmapRepository,
-    private readonly aiJobQueueGateway: AIJobQueueGatewayContract,
-    private readonly aiJobQuotaStore: AIJobQuotaStoreContract,
+    private readonly _onboardingRepository: GenerateRoadmapRepository,
+    private readonly _aiJobQueueGateway: AIJobQueueGatewayContract,
+    private readonly _aiJobQuotaStore: AIJobQuotaStoreContract,
   ) {}
 
   async execute(
@@ -27,13 +27,13 @@ export class GenerateRoadmapUseCase {
     payload: GenerateRoadmapPayload,
   ): Promise<GenerateRoadmapResult> {
     const activeRoadmapJob =
-      await this.onboardingRepository.findActiveRoadmapJobForUser(userId)
+      await this._onboardingRepository.findActiveRoadmapJobForUser(userId)
 
     if (activeRoadmapJob) {
       throw OnboardingApplicationError.roadmapJobAlreadyActive()
     }
 
-    const quota = await this.aiJobQuotaStore.consume(
+    const quota = await this._aiJobQuotaStore.consume(
       'roadmap_generation',
       userId,
     )
@@ -42,18 +42,18 @@ export class GenerateRoadmapUseCase {
       throw OnboardingApplicationError.roadmapGenerationQuotaExceeded()
     }
 
-    await this.onboardingRepository.saveStep1({
+    await this._onboardingRepository.saveStep1({
       userId,
       topic: payload.topic,
       goal: payload.goal,
     })
 
-    await this.onboardingRepository.saveStep2({
+    await this._onboardingRepository.saveStep2({
       userId,
       level: payload.level,
     })
 
-    const aiJob = await this.onboardingRepository.createAIJob({
+    const aiJob = await this._onboardingRepository.createAIJob({
       userId,
       inputData: {
         topic: payload.topic,
@@ -62,13 +62,13 @@ export class GenerateRoadmapUseCase {
       },
     })
 
-    await this.onboardingRepository.createAIJobSteps({
+    await this._onboardingRepository.createAIJobSteps({
       jobId: aiJob.id,
       stepLabels: ROADMAP_GENERATION_STEPS,
     })
 
     try {
-      await this.aiJobQueueGateway.enqueueRoadmapGeneration({
+      await this._aiJobQueueGateway.enqueueRoadmapGeneration({
         jobId: aiJob.id,
         userId,
         topic: payload.topic,
