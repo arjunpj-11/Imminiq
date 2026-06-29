@@ -20,9 +20,9 @@ vi.mock(
   })
 )
 
-import { authRepository } from '../../../src/modules/auth/auth.repository'
 import { AIGenerationJob } from '../../../src/infrastructure/database/models/ai-generation-job.model'
 import { User } from '../../../src/infrastructure/database/models/user.model'
+import { redisOtpStore } from '../../../src/modules/auth/infrastructure/stores/redis-otp.store'
 import {
   AI_JOB_QUOTA_POLICIES,
   aiJobQuotaCache,
@@ -103,11 +103,11 @@ describe('security-sensitive HTTP integration flows', () => {
       password: 'OldPassword123!',
     })
 
-    await authRepository.saveOtp({
-      email: user.email,
-      otp: '123456',
-      purpose: 'password_reset',
-    })
+  await redisOtpStore.saveOtp({
+  email: user.email,
+  otp: '123456',
+  purpose: 'password_reset',
+})
 
     const verifyResetCode = await request(app)
       .post('/api/auth/verify-reset-code')
