@@ -1,4 +1,3 @@
-import { UserSettings } from '../../../../infrastructure/database/models/user-settings.model'
 import type {
   UpdateSettingsAIBehaviourInput,
   UpdateSettingsAccountInput,
@@ -15,222 +14,98 @@ import type {
   UpdateSettingsQuietHoursInput,
 } from '../../domain/repositories/settings-command.repository.interface'
 import type { SettingsRepositoryContract } from '../../domain/repositories/settings.repository.interface'
-import { MongoSettingsBaseRepository } from './mongo-settings-base.repository'
-import { MongoSettingsErrorMapper } from './mongo-settings-error.mapper'
-import { MongoSettingsMapper } from './mongo-settings.mapper'
-import type {
-  FlatSettingsUpdate,
-  MongoUserSettingsRecord,
-  MongooseObjectLike,
-} from './mongo-settings.types'
+import { MongoSettingsUserRepository } from './internal/mongo-settings-user.repository'
+import { MongoSettingsMapper } from './shared/mongo-settings.mapper'
 
-export class MongoSettingsRepository
-  extends MongoSettingsBaseRepository
-  implements SettingsRepositoryContract
-{
-  constructor(private readonly _mapper = new MongoSettingsMapper()) {
-    super()
+type MongoSettingsRepositoryDependencies = {
+  settingsRepository: MongoSettingsUserRepository
+}
+
+export class MongoSettingsRepository implements SettingsRepositoryContract {
+  private readonly _settingsRepository: MongoSettingsUserRepository
+
+  constructor(
+    mapper: MongoSettingsMapper = new MongoSettingsMapper(),
+    dependencies: Partial<MongoSettingsRepositoryDependencies> = {},
+  ) {
+    this._settingsRepository =
+      dependencies.settingsRepository ??
+      new MongoSettingsUserRepository(mapper)
   }
 
-  async findByUserId(userId: string) {
-    return this.execute(
-      'SETTINGS_READ_FAILED',
-      'Failed to read user settings',
-      async () => {
-        const settings = await UserSettings.findOne({
-          userId,
-        }).lean<MongoUserSettingsRecord>()
-
-        return this._mapper.toEntity(settings)
-      },
-    )
+  findByUserId(userId: string) {
+    return this._settingsRepository.findByUserId(userId)
   }
 
-  async findOrCreate(userId: string) {
-    return this.execute(
-      'SETTINGS_READ_OR_CREATE_FAILED',
-      'Failed to find or create user settings',
-      async () => {
-        const existingSettings = await UserSettings.findOne({
-          userId,
-        }).lean<MongoUserSettingsRecord>()
-
-        if (existingSettings) {
-          return this._mapper.toEntityOrThrow(existingSettings)
-        }
-
-        const createdSettings = await UserSettings.create({
-          userId,
-        })
-
-        return this._mapper.toEntityOrThrow(
-          this._mapper.toPlainRecord<MongoUserSettingsRecord>(
-            createdSettings as MongooseObjectLike<MongoUserSettingsRecord>,
-          ),
-        )
-      },
-      MongoSettingsErrorMapper.mapDuplicateSettingsRecordError,
-    )
+  findOrCreate(userId: string) {
+    return this._settingsRepository.findOrCreate(userId)
   }
 
-  async updateAppearance(input: UpdateSettingsAppearanceInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toAppearanceUpdate(input.data),
-    )
+  updateAppearance(input: UpdateSettingsAppearanceInput) {
+    return this._settingsRepository.updateAppearance(input)
   }
 
-  async updateNotifications(input: UpdateSettingsNotificationsInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toNotificationsUpdate(input.data),
-    )
+  updateNotifications(input: UpdateSettingsNotificationsInput) {
+    return this._settingsRepository.updateNotifications(input)
   }
 
-  async updateNotificationTypes(
+  updateNotificationTypes(
     input: UpdateSettingsNotificationTypesInput,
   ) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toNotificationTypesUpdate(input.types),
-    )
+    return this._settingsRepository.updateNotificationTypes(input)
   }
 
-  async updatePrivacy(input: UpdateSettingsPrivacyInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toPrivacyUpdate(input.data),
-    )
+  updatePrivacy(input: UpdateSettingsPrivacyInput) {
+    return this._settingsRepository.updatePrivacy(input)
   }
 
-  async updateCodeEditor(input: UpdateSettingsCodeEditorInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toCodeEditorUpdate(input.data),
-    )
+  updateCodeEditor(input: UpdateSettingsCodeEditorInput) {
+    return this._settingsRepository.updateCodeEditor(input)
   }
 
-  async updateCompiler(input: UpdateSettingsCompilerInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toCompilerUpdate(input.data),
-    )
+  updateCompiler(input: UpdateSettingsCompilerInput) {
+    return this._settingsRepository.updateCompiler(input)
   }
 
-  async updateAIBehaviour(input: UpdateSettingsAIBehaviourInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toAIBehaviourUpdate(input.data),
-    )
+  updateAIBehaviour(input: UpdateSettingsAIBehaviourInput) {
+    return this._settingsRepository.updateAIBehaviour(input)
   }
 
-  async updateLearningJourney(
+  updateLearningJourney(
     input: UpdateSettingsLearningJourneyInput,
   ) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toLearningJourneyUpdate(input.data),
-    )
+    return this._settingsRepository.updateLearningJourney(input)
   }
 
-  async updateGestures(input: UpdateSettingsGesturesInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toGesturesUpdate(input.data),
-    )
+  updateGestures(input: UpdateSettingsGesturesInput) {
+    return this._settingsRepository.updateGestures(input)
   }
 
-  async updateQuietHours(input: UpdateSettingsQuietHoursInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toQuietHoursUpdate(input.data),
-    )
+  updateQuietHours(input: UpdateSettingsQuietHoursInput) {
+    return this._settingsRepository.updateQuietHours(input)
   }
 
-  async updateEmailDigest(input: UpdateSettingsEmailDigestInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toEmailDigestUpdate(input.data),
-    )
+  updateEmailDigest(input: UpdateSettingsEmailDigestInput) {
+    return this._settingsRepository.updateEmailDigest(input)
   }
 
-  async updateAccountSettings(input: UpdateSettingsAccountInput) {
-    return this.updateWithSet(
-      input.userId,
-      this._mapper.toAccountSettingsUpdate(input.data),
-    )
+  updateAccountSettings(input: UpdateSettingsAccountInput) {
+    return this._settingsRepository.updateAccountSettings(input)
   }
 
-  async updateCookieConsent(
+  updateCookieConsent(
     input: UpdateSettingsCookieConsentInput,
   ) {
-    return this.updateWithSet(input.userId, {
-      cookieConsent: input.cookieConsent,
-    })
+    return this._settingsRepository.updateCookieConsent(input)
   }
 
-  async acceptTerms(userId: string) {
-    return this.updateWithSet(userId, {
-      termsAccepted: true,
-      termsAcceptedAt: new Date(),
-    })
+  acceptTerms(userId: string) {
+    return this._settingsRepository.acceptTerms(userId)
   }
 
-  async resetToDefaults(userId: string) {
-    return this.execute(
-      'SETTINGS_RESET_FAILED',
-      'Failed to reset user settings',
-      async () => {
-        await UserSettings.deleteOne({
-          userId,
-        })
-
-        const settings = await UserSettings.create({
-          userId,
-        })
-
-        return this._mapper.toEntityOrThrow(
-          this._mapper.toPlainRecord<MongoUserSettingsRecord>(
-            settings as MongooseObjectLike<MongoUserSettingsRecord>,
-          ),
-        )
-      },
-      MongoSettingsErrorMapper.mapDuplicateSettingsRecordError,
-    )
-  }
-
-  private async updateWithSet(
-    userId: string,
-    update: FlatSettingsUpdate,
-  ) {
-    return this.execute(
-      'SETTINGS_UPDATE_FAILED',
-      'Failed to update user settings',
-      async () => {
-        const settings = await UserSettings.findOneAndUpdate(
-          {
-            userId,
-          },
-          {
-            $set: update,
-            $setOnInsert: {
-              userId,
-            },
-          },
-          {
-            returnDocument: 'after',
-            upsert: true,
-            setDefaultsOnInsert: true,
-            runValidators: true,
-          },
-        ).lean<MongoUserSettingsRecord>()
-
-        return this._mapper.toEntity(settings)
-      },
-      MongoSettingsErrorMapper.mapDuplicateSettingsRecordError,
-    )
+  resetToDefaults(userId: string) {
+    return this._settingsRepository.resetToDefaults(userId)
   }
 }
 
-export const mongoSettingsRepository =
-  new MongoSettingsRepository()
+export const mongoSettingsRepository = new MongoSettingsRepository()

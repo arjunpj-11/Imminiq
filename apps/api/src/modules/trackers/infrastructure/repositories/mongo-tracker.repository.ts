@@ -1,5 +1,3 @@
-import { Tracker } from '../../../../infrastructure/database/models/tracker.model'
-import { TrackerProgress } from '../../../../infrastructure/database/models/tracker-progress.model'
 import type {
   ArchiveOwnedTrackerInput,
   CheckAndCompleteParentSubtopicInput,
@@ -47,473 +45,91 @@ import type {
   CreateTrackerTopicInput,
   PublishTrackerInput,
   TrackerListFilter,
-  TrackerRecord,
   UpdateSubtopicProgressInput,
   UpdateTrackerInput,
 } from '../../domain/types/trackers.types'
-import { MongoTrackerBaseRepository } from './mongo-tracker-base.repository'
-import { MongoTrackerContentRepository } from './mongo-tracker-content.repository'
-import { MongoTrackerErrorMapper } from './mongo-tracker-error.mapper'
-import { MongoTrackerLessonRepository } from './mongo-tracker-lesson.repository'
-import { MongoTrackerMapper } from './mongo-tracker.mapper'
-import { MongoTrackerProgressRepository } from './mongo-tracker-progress.repository'
-import type { MongoQuery, MongoUpdate } from './mongo-tracker.types'
+import { MongoTrackerContentRepository } from './internal/mongo-tracker-content.repository'
+import { MongoTrackerLessonRepository } from './internal/mongo-tracker-lesson.repository'
+import { MongoTrackerManagementRepository } from './internal/mongo-tracker-management.repository'
+import { MongoTrackerProgressRepository } from './internal/mongo-tracker-progress.repository'
+import { MongoTrackerMapper } from './shared/mongo-tracker.mapper'
 
-export class MongoTrackerRepository
-  extends MongoTrackerBaseRepository
-  implements TrackerRepositoryContract
-{
+type MongoTrackerRepositoryDependencies = {
+  managementRepository: MongoTrackerManagementRepository
+  contentRepository: MongoTrackerContentRepository
+  progressRepository: MongoTrackerProgressRepository
+  lessonRepository: MongoTrackerLessonRepository
+}
+
+export class MongoTrackerRepository implements TrackerRepositoryContract {
+  private readonly _managementRepository: MongoTrackerManagementRepository
   private readonly _contentRepository: MongoTrackerContentRepository
   private readonly _progressRepository: MongoTrackerProgressRepository
   private readonly _lessonRepository: MongoTrackerLessonRepository
 
-  constructor(mapper = new MongoTrackerMapper()) {
-    super(mapper)
+  constructor(
+    mapper: MongoTrackerMapper = new MongoTrackerMapper(),
+    dependencies: Partial<MongoTrackerRepositoryDependencies> = {},
+  ) {
+    this._managementRepository =
+      dependencies.managementRepository ??
+      new MongoTrackerManagementRepository(mapper)
 
-    this._contentRepository = new MongoTrackerContentRepository(mapper)
-    this._progressRepository = new MongoTrackerProgressRepository(mapper)
-    this._lessonRepository = new MongoTrackerLessonRepository(mapper)
+    this._contentRepository =
+      dependencies.contentRepository ??
+      new MongoTrackerContentRepository(mapper)
+
+    this._progressRepository =
+      dependencies.progressRepository ??
+      new MongoTrackerProgressRepository(mapper)
+
+    this._lessonRepository =
+      dependencies.lessonRepository ??
+      new MongoTrackerLessonRepository(mapper)
   }
 
   async hasAnyTrackerForUser(userId: string) {
-    return this.execute(
-      'TRACKER_READ_FAILED',
-      'Failed to check user trackers',
-      async () => {
-        const tracker = await Tracker.exists(
-          this.mapper.asMongoFilter({
-            ownerId: this.toObjectId(userId),
-            deletedAt: null,
-          }),
-        )
-
-        return Boolean(tracker)
-      },
-    )
+    return this._managementRepository.hasAnyTrackerForUser(userId)
   }
 
   async getTrackerSummary(userId: string) {
-    return this.execute(
-      'TRACKER_SUMMARY_READ_FAILED',
-      'Failed to read tracker summary',
-      async () => {
-        const ownerId = this.toObjectId(userId)
-        const base: MongoQuery = {
-          ownerId,
-          deletedAt: null,
-        }
-
-        const [total, active, completed, published, progressAgg] =
-          await Promise.all([
-            Tracker.countDocuments(this.mapper.asMongoFilter(base)),
-            Tracker.countDocuments(
-              this.mapper.asMongoFilter({
-                ...base,
-                status: 'active',
-              }),
-            ),
-            Tracker.countDocuments(
-              this.mapper.asMongoFilter({
-                ...base,
-                status: 'completed',
-              }),
-            ),
-            Tracker.countDocuments(
-              this.mapper.asMongoFilter({
-                ...base,
-                visibility: 'public',
-                publishedAt: {
-                  $ne: null,
-                },
-              }),
-            ),
-            Tracker.aggregate<{ avg?: number }>([
-              {
-                $match: base,
-              },
-              {
-                $group: {
-                  _id: null,
-                  avg: {
-                    $avg: '$progressPercent',
-                  },
-                },
-              },
-            ]),
-          ])
-
-        return {
-          totalTrackers: total,
-          activeTrackers: active,
-          completedTrackers: completed,
-          publishedTrackers: published,
-          averageProgress: Math.round(progressAgg[0]?.avg || 0),
-        }
-      },
-    )
+    return this._managementRepository.getTrackerSummary(userId)
   }
 
- async listOwnedTrackers(filter: TrackerListFilter) {
-  return this.execute(
-    'TRACKER_LIST_READ_FAILED',
-    'Failed to read owned trackers',
-    async () => {
-      const {
-        userId,
-        status = 'all',
-        domain = 'all',
-        sortBy = 'lastActive',
-        page,
-        limit,
-      } = filter
-
-      const userObjId = this.toObjectId(userId)
-
-      const query: MongoQuery = {
-        ownerId: userObjId,
-        deletedAt: null,
-      }
-
-      if (status !== 'all') {
-        query.status = status
-      }
-
-      if (domain !== 'all') {
-        query.domain = domain
-      }
-
-      const skip = (page - 1) * limit
-
-      const [trackers, total] = await Promise.all([
-        Tracker.find(this.mapper.asMongoFilter(query))
-          .sort(this.mapper.buildTrackerSort(sortBy))
-          .skip(skip)
-          .limit(limit)
-          .lean(),
-        Tracker.countDocuments(this.mapper.asMongoFilter(query)),
-      ])
-
-      const trackerIds = trackers.map((tracker) => tracker._id)
-
-      const progressList = await TrackerProgress.find(
-        this.mapper.asMongoFilter({
-          userId: userObjId,
-          trackerId: {
-            $in: trackerIds,
-          },
-          deletedAt: null,
-        }),
-      )
-        .select(
-          'trackerId completedTopics totalTopics completionPercentage lastStudiedAt',
-        )
-        .lean()
-
-      const progressMap = new Map(
-        progressList.map((progress) => [
-          progress.trackerId.toString(),
-          progress,
-        ]),
-      )
-
-      const enrichedTrackers = trackers.map((tracker) => {
-        const progress = progressMap.get(tracker._id.toString())
-
-        return {
-          ...tracker,
-
-          completedTopics: progress?.completedTopics ?? 0,
-
-          totalTopics:
-            progress?.totalTopics ??
-            tracker.topicsCount ??
-            0,
-
-          progressPercent:
-            progress?.completionPercentage ??
-            tracker.progressPercent ??
-            0,
-
-          lastActiveAt:
-            progress?.lastStudiedAt ??
-            tracker.lastActiveAt ??
-            tracker.updatedAt ??
-            tracker.createdAt,
-        }
-      })
-
-      return {
-        trackers: enrichedTrackers as TrackerRecord[],
-        total,
-        page,
-        limit,
-        totalPages: Math.ceil(total / limit),
-      }
-    },
-  )
-}
+  async listOwnedTrackers(filter: TrackerListFilter) {
+    return this._managementRepository.listOwnedTrackers(filter)
+  }
 
   async createTracker(data: CreateTrackerInput) {
-    return this.execute(
-      'TRACKER_CREATE_FAILED',
-      'Failed to create tracker',
-      async () => {
-        const tracker = await Tracker.create(
-          this.mapper.asMongoCreatePayload({
-            ownerId: this.toObjectId(data.userId),
-            title: data.title,
-            description: data.description || '',
-            domain: data.domain || 'other',
-            goal: data.goal || '',
-            level: data.level || 'beginner',
-            status: 'active',
-            visibility: data.visibility || 'private',
-            progressPercent: 0,
-            topicsCount: 0,
-            subtopicsCount: 0,
-            completedSubtopicsCount: 0,
-            lastActiveAt: new Date(),
-            publishedAt: null,
-            completedAt: null,
-            deletedAt: null,
-          }),
-        )
-
-        return tracker as TrackerRecord
-      },
-      MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
-    )
+    return this._managementRepository.createTracker(data)
   }
 
   async updateOwnedTracker(data: UpdateTrackerInput) {
-    return this.execute(
-      'TRACKER_UPDATE_FAILED',
-      'Failed to update owned tracker',
-      async () => {
-        const update: MongoUpdate = {}
-
-        if (data.title !== undefined) {
-          update.title = data.title
-        }
-
-        if (data.description !== undefined) {
-          update.description = data.description
-        }
-
-        if (data.domain !== undefined) {
-          update.domain = data.domain
-        }
-
-        if (data.goal !== undefined) {
-          update.goal = data.goal
-        }
-
-        if (data.level !== undefined) {
-          update.level = data.level
-        }
-
-        const tracker = await Tracker.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            _id: this.toObjectId(data.trackerId),
-            ownerId: this.toObjectId(data.userId),
-            deletedAt: null,
-          }),
-          this.mapper.asMongoUpdate({
-            $set: update,
-          }),
-          {
-            returnDocument: 'after',
-          },
-        )
-
-        return tracker as TrackerRecord | null
-      },
-      MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
-    )
+    return this._managementRepository.updateOwnedTracker(data)
   }
 
   async softDeleteOwnedTracker(data: SoftDeleteOwnedTrackerInput) {
-    return this.execute(
-      'TRACKER_DELETE_FAILED',
-      'Failed to delete owned tracker',
-      async () => {
-        const tracker = await Tracker.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            _id: this.toObjectId(data.trackerId),
-            ownerId: this.toObjectId(data.userId),
-            deletedAt: null,
-          }),
-          this.mapper.asMongoUpdate({
-            $set: {
-              deletedAt: new Date(),
-            },
-          }),
-          {
-            returnDocument: 'after',
-          },
-        )
-
-        return tracker as TrackerRecord | null
-      },
-    )
+    return this._managementRepository.softDeleteOwnedTracker(data)
   }
 
   async findOwnedTrackerById(data: FindOwnedTrackerByIdInput) {
-    return this.execute(
-      'TRACKER_READ_FAILED',
-      'Failed to read owned tracker',
-      async () => {
-        const tracker = await Tracker.findOne(
-          this.mapper.asMongoFilter({
-            _id: this.toObjectId(data.trackerId),
-            ownerId: this.toObjectId(data.userId),
-            deletedAt: null,
-          }),
-        )
-
-        return tracker as TrackerRecord | null
-      },
-    )
+    return this._managementRepository.findOwnedTrackerById(data)
   }
 
   async archiveOwnedTracker(data: ArchiveOwnedTrackerInput) {
-    return this.execute(
-      'TRACKER_ARCHIVE_FAILED',
-      'Failed to archive tracker',
-      async () => {
-        const tracker = await Tracker.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            _id: this.toObjectId(data.trackerId),
-            ownerId: this.toObjectId(data.userId),
-            deletedAt: null,
-          }),
-          this.mapper.asMongoUpdate({
-            $set: {
-              status: 'archived',
-            },
-          }),
-          {
-            returnDocument: 'after',
-          },
-        )
-
-        return tracker as TrackerRecord | null
-      },
-    )
+    return this._managementRepository.archiveOwnedTracker(data)
   }
 
   async restoreOwnedTracker(data: RestoreOwnedTrackerInput) {
-    return this.execute(
-      'TRACKER_RESTORE_FAILED',
-      'Failed to restore tracker',
-      async () => {
-        const tracker = await Tracker.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            _id: this.toObjectId(data.trackerId),
-            ownerId: this.toObjectId(data.userId),
-            deletedAt: null,
-          }),
-          this.mapper.asMongoUpdate({
-            $set: {
-              status: 'active',
-            },
-          }),
-          {
-            returnDocument: 'after',
-          },
-        )
-
-        return tracker as TrackerRecord | null
-      },
-    )
+    return this._managementRepository.restoreOwnedTracker(data)
   }
 
- async publishOwnedTracker(data: PublishTrackerInput) {
-  return this.execute(
-    'TRACKER_PUBLISH_FAILED',
-    'Failed to publish tracker',
-    async () => {
-      const update: MongoUpdate = {
-        visibility: 'public',
-        publishedAt: new Date(),
-      }
-
-      if (typeof data.name === 'string' && data.name.trim()) {
-        update.title = data.name.trim()
-      }
-
-      if (typeof data.description === 'string') {
-        update.description = data.description.trim()
-      }
-
-      // Input uses `domain`, but MongoDB tracker field is `category`
-      if (typeof data.domain === 'string' && data.domain.trim()) {
-        update.category = data.domain.trim()
-      }
-
-      if (
-        data.difficulty === 'beginner' ||
-        data.difficulty === 'intermediate' ||
-        data.difficulty === 'advanced'
-      ) {
-        update.level = data.difficulty
-      }
-
-      if (Array.isArray(data.tags)) {
-        update.tags = data.tags
-          .map((tag) => String(tag).trim().toLowerCase())
-          .filter(Boolean)
-      }
-
-      if (typeof data.allowClone === 'boolean') {
-        update.allowClone = data.allowClone
-      }
-
-      const tracker = await Tracker.findOneAndUpdate(
-        this.mapper.asMongoFilter({
-          _id: this.toObjectId(data.trackerId),
-          ownerId: this.toObjectId(data.userId),
-          deletedAt: null,
-        }),
-        this.mapper.asMongoUpdate({
-          $set: update,
-        }),
-        {
-          returnDocument: 'after',
-        },
-      )
-
-      return tracker as TrackerRecord | null
-    },
-    MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
-  )
-}
+  async publishOwnedTracker(data: PublishTrackerInput) {
+    return this._managementRepository.publishOwnedTracker(data)
+  }
 
   async unpublishOwnedTracker(data: UnpublishOwnedTrackerInput) {
-    return this.execute(
-      'TRACKER_UNPUBLISH_FAILED',
-      'Failed to unpublish tracker',
-      async () => {
-        const tracker = await Tracker.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            _id: this.toObjectId(data.trackerId),
-            ownerId: this.toObjectId(data.userId),
-            deletedAt: null,
-          }),
-          this.mapper.asMongoUpdate({
-            $set: {
-              visibility: 'private',
-              publishedAt: null,
-            },
-          }),
-          {
-            returnDocument: 'after',
-          },
-        )
-
-        return tracker as TrackerRecord | null
-      },
-    )
+    return this._managementRepository.unpublishOwnedTracker(data)
   }
 
   findEvaluationJobById(data: FindEvaluationJobByIdInput) {
@@ -594,7 +210,9 @@ export class MongoTrackerRepository
     return this._progressRepository.unlockNextSubtopic(data)
   }
 
-  checkAndCompleteParentSubtopic(data: CheckAndCompleteParentSubtopicInput) {
+  checkAndCompleteParentSubtopic(
+    data: CheckAndCompleteParentSubtopicInput,
+  ) {
     return this._progressRepository.checkAndCompleteParentSubtopic(data)
   }
 
@@ -660,7 +278,9 @@ export class MongoTrackerRepository
     return this._lessonRepository.createLessonQuestionSolution(data)
   }
 
-  getLessonQuestionSolutionDoubts(data: GetLessonQuestionSolutionDoubtsInput) {
+  getLessonQuestionSolutionDoubts(
+    data: GetLessonQuestionSolutionDoubtsInput,
+  ) {
     return this._lessonRepository.getLessonQuestionSolutionDoubts(data)
   }
 
@@ -676,7 +296,9 @@ export class MongoTrackerRepository
     return this._lessonRepository.clearLessonQuestionSolutionDoubts(data)
   }
 
-  findGeneratedLessonBySubtopic(data: FindGeneratedLessonBySubtopicInput) {
+  findGeneratedLessonBySubtopic(
+    data: FindGeneratedLessonBySubtopicInput,
+  ) {
     return this._lessonRepository.findGeneratedLessonBySubtopic(data)
   }
 

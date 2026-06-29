@@ -136,7 +136,6 @@ const communityVerificationSubmissionSchema =
 
 communityVerificationSubmissionSchema.index({ status: 1, expiresAt: 1 })
 communityVerificationSubmissionSchema.index({ ownerId: 1, status: 1 })
-communityVerificationSubmissionSchema.index({ trackerId: 1, status: 1 })
 communityVerificationSubmissionSchema.index({ category: 1, status: 1 })
 
 communityVerificationSubmissionSchema.index(
