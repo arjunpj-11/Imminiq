@@ -26,9 +26,9 @@ const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
 
 export class GetTrackerLessonUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -36,7 +36,7 @@ export class GetTrackerLessonUseCase {
     subtopicId: string
     userId: string
   }): Promise<GetTrackerLessonResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -45,14 +45,14 @@ export class GetTrackerLessonUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    await this.trackerRepository.ensureUserProgressInitialized({
+    await this._trackerRepository.ensureUserProgressInitialized({
       userId: input.userId,
       trackerId: input.trackerId,
     })
 
     const [topics, subtopics] = await Promise.all([
-      this.trackerRepository.getTopicsForTracker(input.trackerId),
-      this.trackerRepository.getSubtopicsWithUserProgress({
+      this._trackerRepository.getTopicsForTracker(input.trackerId),
+      this._trackerRepository.getSubtopicsWithUserProgress({
         trackerId: input.trackerId,
         userId: input.userId,
       }),
@@ -70,14 +70,14 @@ export class GetTrackerLessonUseCase {
       return item._id.toString() === currentSubtopic.topicId.toString()
     })
 
-    let lesson = await this.trackerRepository.findLessonBySubtopicId({
+    let lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
     })
 
     if (!lesson) {
-      const generated = await this.trackerAIService.generateLesson({
+      const generated = await this._trackerAIService.generateLesson({
         trackerTitle: tracker.title || 'Tracker',
         topicTitle: topic?.title,
         subtopicTitle: currentSubtopic.title,
@@ -85,7 +85,7 @@ export class GetTrackerLessonUseCase {
         level: 'beginner',
       })
 
-      lesson = await this.trackerRepository.createLesson({
+      lesson = await this._trackerRepository.createLesson({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
@@ -145,6 +145,6 @@ export class GetTrackerLessonUseCase {
       })),
     }
 
-    return this.trackerMapper.toGeneratedLessonDto(result)
+    return this._trackerMapper.toGeneratedLessonDto(result)
   }
 }

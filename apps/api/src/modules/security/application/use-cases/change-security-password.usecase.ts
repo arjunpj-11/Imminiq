@@ -12,15 +12,15 @@ type ChangeSecurityPasswordRepository =
 
 export class ChangeSecurityPasswordUseCase {
   constructor(
-    private readonly securityRepository: ChangeSecurityPasswordRepository,
-    private readonly passwordHasher: SecurityPasswordHasherServiceContract,
+    private readonly _securityRepository: ChangeSecurityPasswordRepository,
+    private readonly _passwordHasher: SecurityPasswordHasherServiceContract,
   ) {}
 
   async execute(
     userId: string,
     payload: ChangePasswordPayload,
   ): Promise<ChangePasswordResponseDto> {
-    const user = await this.securityRepository.findUserById(userId)
+    const user = await this._securityRepository.findUserById(userId)
 
     if (!user) {
       throw SecurityApplicationError.notFound()
@@ -30,7 +30,7 @@ export class ChangeSecurityPasswordUseCase {
       throw SecurityApplicationError.passwordUnavailable()
     }
 
-    const validPassword = await this.passwordHasher.compare(
+    const validPassword = await this._passwordHasher.compare(
       payload.currentPassword,
       user.passwordHash,
     )
@@ -39,9 +39,9 @@ export class ChangeSecurityPasswordUseCase {
       throw SecurityApplicationError.wrongPassword()
     }
 
-    const passwordHash = await this.passwordHasher.hash(payload.newPassword)
+    const passwordHash = await this._passwordHasher.hash(payload.newPassword)
 
-    const updatedUser = await this.securityRepository.updatePasswordHash({
+    const updatedUser = await this._securityRepository.updatePasswordHash({
       userId,
       passwordHash,
     })
@@ -50,7 +50,7 @@ export class ChangeSecurityPasswordUseCase {
       throw SecurityApplicationError.passwordChangeFailed()
     }
 
-    await this.securityRepository.revokeAllSessions(userId)
+    await this._securityRepository.revokeAllSessions(userId)
 
     return { sessionsRevoked: true }
   }

@@ -4,8 +4,8 @@ import type { TrackerRepositoryContract } from '../../domain/repositories/tracke
 
 export class GetLessonAnswerAttemptsUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -13,7 +13,7 @@ export class GetLessonAnswerAttemptsUseCase {
     subtopicId: string
     userId: string
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -22,8 +22,8 @@ export class GetLessonAnswerAttemptsUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const attempts = await this.trackerRepository.getLessonAnswerAttempts(input)
+    const attempts = await this._trackerRepository.getLessonAnswerAttempts(input)
 
-    return this.trackerMapper.toLessonAnswerAttemptsDto(attempts)
+    return this._trackerMapper.toLessonAnswerAttemptsDto(attempts)
   }
 }

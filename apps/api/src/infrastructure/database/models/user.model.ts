@@ -60,6 +60,40 @@ export interface IUser extends Document {
   updatedAt: Date
 }
 
+/**
+ * Shared student and teacher level thresholds:
+ * Level 1: 0-499 XP
+ * Level 2: 500-1299 XP
+ * Level 3: 1300-2399 XP
+ * Level 4: 2400-3799 XP
+ *
+ * After the first 500 XP, the XP required for each next level increases
+ * by 300: 800, 1100, 1400, 1700, ...
+ */
+export function calculateProgressionLevelFromXp(xp: number): number {
+  const normalizedXp = Math.max(Math.floor(xp), 0)
+
+  let level = 1
+  let nextLevelAt = 500
+  let requiredXpIncrease = 800
+
+  while (normalizedXp >= nextLevelAt) {
+    level += 1
+    nextLevelAt += requiredXpIncrease
+    requiredXpIncrease += 300
+  }
+
+  return level
+}
+
+export function calculateStudentLevelFromXp(xp: number): number {
+  return calculateProgressionLevelFromXp(xp)
+}
+
+export function calculateTeacherLevelFromXp(teacherXp: number): number {
+  return calculateProgressionLevelFromXp(teacherXp)
+}
+
 const userSchema = new Schema<IUser>(
   {
     fullName: {
@@ -258,6 +292,18 @@ const userSchema = new Schema<IUser>(
   },
 )
 
+// Keeps derived levels synchronized when a document is created or saved.
+// Query updates such as updateOne/findOneAndUpdate do not execute this hook.
+userSchema.pre('save', function (this: IUser) {
+  if (this.isNew || this.isModified('xp')) {
+    this.level = calculateStudentLevelFromXp(this.xp)
+  }
+
+  if (this.isNew || this.isModified('teacherXp')) {
+    this.teacherLevel = calculateTeacherLevelFromXp(this.teacherXp)
+  }
+})
+
 // ─── INDEXES ──────────────────────────────────────────────
 
 userSchema.index(
@@ -345,18 +391,35 @@ userSchema.index({
   pendingEmailChangeExpiresAt: 1,
 })
 
-// Student XP leaderboard
-userSchema.index({
-  level: -1,
-  xp: -1,
-})
+// Student leaderboard: XP decides rank. Level is only a derived display value.
+userSchema.index(
+  {
+    status: 1,
+    deletedAt: 1,
+    onboardingCompleted: 1,
+    xp: -1,
+    createdAt: 1,
+    _id: 1,
+  },
+  {
+    name: 'student_leaderboard_rank',
+  },
+)
 
-// Teacher XP leaderboard
-userSchema.index({
-  teacherLevel: -1,
-  teacherXp: -1,
-})
+// Trainer leaderboard: teacher XP decides rank.
+userSchema.index(
+  {
+    status: 1,
+    deletedAt: 1,
+    onboardingCompleted: 1,
+    teacherXp: -1,
+    createdAt: 1,
+    _id: 1,
+  },
+  {
+    name: 'trainer_leaderboard_rank',
+  },
+)
 
 export const User =
-  mongoose.models.User ||
-  mongoose.model<IUser>('User', userSchema)
+  mongoose.models.User || mongoose.model<IUser>('User', userSchema)

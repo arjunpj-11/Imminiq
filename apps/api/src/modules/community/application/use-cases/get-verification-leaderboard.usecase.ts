@@ -8,15 +8,15 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class GetVerificationLeaderboardUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(userId: string, limit?: number): Promise<CommunityLeaderboardEntryView[]> {
     const safeLimit = this.normalizeLimit(limit)
-    const leaderboard = await this.repository.findVerificationLeaderboard(userId, safeLimit)
+    const leaderboard = await this._repository.findVerificationLeaderboard(userId, safeLimit)
 
-    return leaderboard.map((entry) => this.mapper.toLeaderboardEntryView(entry))
+    return leaderboard.map((entry) => this._mapper.toLeaderboardEntryView(entry))
   }
 
   private normalizeLimit(limit?: number): number {

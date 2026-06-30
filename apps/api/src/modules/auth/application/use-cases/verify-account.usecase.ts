@@ -10,20 +10,20 @@ const VERIFY_ACCOUNT_SCOPE = 'auth_verify_account_otp' as const
 
 export class VerifyAccountUseCase {
   constructor(
-    private readonly authRepository: AuthUserRepositoryContract,
-    private readonly identifierNormalizer: IdentifierNormalizerContract,
-    private readonly securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly phoneOtpProvider: PhoneOtpProviderContract,
-    private readonly phoneOtpSessionStore: PhoneOtpSessionStoreContract,
-    private readonly otpStore: OtpStoreContract
+    private readonly _authRepository: AuthUserRepositoryContract,
+    private readonly _identifierNormalizer: IdentifierNormalizerContract,
+    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly _phoneOtpProvider: PhoneOtpProviderContract,
+    private readonly _phoneOtpSessionStore: PhoneOtpSessionStoreContract,
+    private readonly _otpStore: OtpStoreContract
   ) {}
 
   async execute(identifier: string, otp: string): Promise<void> {
-    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
+    const parsedIdentifier = this._identifierNormalizer.normalize(identifier)
 
     await this.assertOtpVerificationAllowed(parsedIdentifier.value)
 
-    const user = await this.authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this._authRepository.findByIdentifier(parsedIdentifier.value)
 
     if (!user) {
       await this.recordInvalidOtpAttempt(parsedIdentifier.value)
@@ -32,7 +32,7 @@ export class VerifyAccountUseCase {
     }
 
     if (parsedIdentifier.method === 'email') {
-      const valid = await this.otpStore.verifyOtp({
+      const valid = await this._otpStore.verifyOtp({
         email: parsedIdentifier.email,
         otp,
         purpose: 'email_verification',
@@ -44,7 +44,7 @@ export class VerifyAccountUseCase {
         throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
       }
 
-      await this.securityAttemptStore.clear(
+      await this._securityAttemptStore.clear(
         VERIFY_ACCOUNT_SCOPE,
         parsedIdentifier.value
       )
@@ -53,13 +53,13 @@ export class VerifyAccountUseCase {
         throw AuthApplicationError.emailAlreadyVerified('Email is already verified')
       }
 
-      await this.authRepository.markEmailVerified(user.id)
+      await this._authRepository.markEmailVerified(user.id)
       return
     }
 
     if (parsedIdentifier.method === 'phone') {
       const verificationId =
-        await this.phoneOtpSessionStore.getVerificationId(
+        await this._phoneOtpSessionStore.getVerificationId(
           parsedIdentifier.phone!,
           'phone_verification'
         )
@@ -70,7 +70,7 @@ export class VerifyAccountUseCase {
         throw AuthApplicationError.otpSessionExpired('OTP session expired. Please request a new OTP.')
       }
 
-      const valid = await this.phoneOtpProvider.verifyOtp(verificationId, otp)
+      const valid = await this._phoneOtpProvider.verifyOtp(verificationId, otp)
 
       if (!valid) {
         await this.recordInvalidOtpAttempt(parsedIdentifier.value)
@@ -78,7 +78,7 @@ export class VerifyAccountUseCase {
         throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
       }
 
-      await this.securityAttemptStore.clear(
+      await this._securityAttemptStore.clear(
         VERIFY_ACCOUNT_SCOPE,
         parsedIdentifier.value
       )
@@ -87,9 +87,9 @@ export class VerifyAccountUseCase {
         throw AuthApplicationError.phoneAlreadyVerified('Phone is already verified')
       }
 
-      await this.authRepository.markPhoneVerified(user.id)
+      await this._authRepository.markPhoneVerified(user.id)
 
-      await this.phoneOtpSessionStore.deleteVerificationId(
+      await this._phoneOtpSessionStore.deleteVerificationId(
         parsedIdentifier.phone!,
         'phone_verification'
       )
@@ -97,7 +97,7 @@ export class VerifyAccountUseCase {
   }
 
   private async assertOtpVerificationAllowed(identifier: string): Promise<void> {
-    const blocked = await this.securityAttemptStore.isBlocked(
+    const blocked = await this._securityAttemptStore.isBlocked(
       VERIFY_ACCOUNT_SCOPE,
       identifier
     )
@@ -108,7 +108,7 @@ export class VerifyAccountUseCase {
   }
 
   private async recordInvalidOtpAttempt(identifier: string): Promise<void> {
-    const result = await this.securityAttemptStore.recordFailure(
+    const result = await this._securityAttemptStore.recordFailure(
       VERIFY_ACCOUNT_SCOPE,
       identifier,
       'otpVerification'

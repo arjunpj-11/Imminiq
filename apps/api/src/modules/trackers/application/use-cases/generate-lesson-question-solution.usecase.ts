@@ -24,10 +24,10 @@ const getDocumentId = (document: unknown) => {
 
 export class GenerateLessonQuestionSolutionUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly questionHasher: QuestionHasherServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _questionHasher: QuestionHasherServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
@@ -36,7 +36,7 @@ export class GenerateLessonQuestionSolutionUseCase {
     userId: string
     question: string
   }): Promise<GenerateLessonQuestionSolutionResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -45,7 +45,7 @@ export class GenerateLessonQuestionSolutionUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const lesson = await this.trackerRepository.findLessonBySubtopicId({
+    const lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
@@ -57,9 +57,9 @@ export class GenerateLessonQuestionSolutionUseCase {
       )
     }
 
-    const questionHash = this.questionHasher.hash(input.question)
+    const questionHash = this._questionHasher.hash(input.question)
 
-    const existing = await this.trackerRepository.findLessonQuestionSolution({
+    const existing = await this._trackerRepository.findLessonQuestionSolution({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
@@ -67,17 +67,17 @@ export class GenerateLessonQuestionSolutionUseCase {
     })
 
     if (existing) {
-      return this.trackerMapper.toLessonQuestionSolutionDto(existing)
+      return this._trackerMapper.toLessonQuestionSolutionDto(existing)
     }
 
-    const solution = await this.trackerAIService.generateLessonQuestionSolution({
+    const solution = await this._trackerAIService.generateLessonQuestionSolution({
       lessonTitle: lesson.title,
       lessonExplanation: lesson.explanation,
       question: input.question,
     })
 
     const createdSolution =
-      await this.trackerRepository.createLessonQuestionSolution({
+      await this._trackerRepository.createLessonQuestionSolution({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
@@ -87,6 +87,6 @@ export class GenerateLessonQuestionSolutionUseCase {
         solution,
       })
 
-    return this.trackerMapper.toLessonQuestionSolutionDto(createdSolution)
+    return this._trackerMapper.toLessonQuestionSolutionDto(createdSolution)
   }
 }

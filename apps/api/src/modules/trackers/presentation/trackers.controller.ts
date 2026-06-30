@@ -48,11 +48,11 @@ type MissingTopicEvaluationResult = {
 }
 
 export class TrackerController {
-  constructor(private readonly service: TrackerService) {}
+  constructor(private readonly _service: TrackerService) {}
 
   getSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.getSummary(getAuthUser(req).userId)
+      const result = await this._service.getSummary(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Tracker summary fetched successfully', result))
     } catch (error) {
@@ -64,7 +64,7 @@ export class TrackerController {
     try {
       const query = res.locals.trackerListQuery as TrackerListQuery
 
-      const result = await this.service.listTrackers({
+      const result = await this._service.listTrackers({
         userId: getAuthUser(req).userId,
         status: query.status || 'all',
         domain: query.domain || 'all',
@@ -81,7 +81,7 @@ export class TrackerController {
 
   createTracker = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this.service.createTracker({
+      const result = await this._service.createTracker({
         userId: getAuthUser(req).userId,
         ...req.body,
       })
@@ -100,7 +100,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getTrackerDetails({
+      const result = await this._service.getTrackerDetails({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       })
@@ -117,7 +117,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.updateTracker({
+      const result = await this._service.updateTracker({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
         ...req.body,
@@ -135,7 +135,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.deleteTracker({
+      const result = await this._service.deleteTracker({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       })
@@ -152,7 +152,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.archiveTracker({
+      const result = await this._service.archiveTracker({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       })
@@ -169,7 +169,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.restoreTracker({
+      const result = await this._service.restoreTracker({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       })
@@ -189,7 +189,7 @@ export class TrackerController {
       const { name, description, domain, difficulty, tags, allowClone } =
         req.body
 
-      const result = await this.service.publishTracker({
+      const result = await this._service.publishTracker({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
         name,
@@ -212,7 +212,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.unpublishTracker({
+      const result = await this._service.unpublishTracker({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       })
@@ -229,7 +229,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getRoadmap({
+      const result = await this._service.getRoadmap({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
       })
@@ -246,7 +246,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.createTopic({
+      const result = await this._service.createTopic({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
         title: req.body.title,
@@ -267,7 +267,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.createSubtopic({
+      const result = await this._service.createSubtopic({
         trackerId: req.params.trackerId,
         topicId: req.params.topicId,
         userId: getAuthUser(req).userId,
@@ -291,7 +291,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.updateSubtopicProgress({
+      const result = await this._service.updateSubtopicProgress({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -310,7 +310,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getLesson({
+      const result = await this._service.getLesson({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -328,7 +328,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getLessonChatHistory({
+      const result = await this._service.getLessonChatHistory({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -348,7 +348,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.chatWithLessonTutor({
+      const result = await this._service.chatWithLessonTutor({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -369,7 +369,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getLessonGeneratedQuestions({
+      const result = await this._service.getLessonGeneratedQuestions({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -389,7 +389,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.generateLessonQuestions({
+      const result = await this._service.generateLessonQuestions({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -410,7 +410,7 @@ export class TrackerController {
     try {
       const query = res.locals.lessonQuestionQuery as LessonQuestionQuery
 
-      const result = await this.service.getLessonQuestionSolution({
+      const result = await this._service.getLessonQuestionSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -431,7 +431,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.generateLessonQuestionSolution({
+      const result = await this._service.generateLessonQuestionSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -454,7 +454,7 @@ export class TrackerController {
     try {
       const query = res.locals.lessonQuestionQuery as LessonQuestionQuery
 
-      const result = await this.service.getLessonQuestionSolutionDoubts({
+      const result = await this._service.getLessonQuestionSolutionDoubts({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -478,7 +478,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.askLessonQuestionSolutionDoubt({
+      const result = await this._service.askLessonQuestionSolutionDoubt({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -503,7 +503,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getLessonAnswerAttempts({
+      const result = await this._service.getLessonAnswerAttempts({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -523,7 +523,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.verifyLessonAnswer({
+      const result = await this._service.verifyLessonAnswer({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -548,7 +548,7 @@ export class TrackerController {
           ? req.query.action
           : undefined
 
-      const result = await this.service.getLessonCodeSubmissions({
+      const result = await this._service.getLessonCodeSubmissions({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -569,7 +569,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.runLessonCode({
+      const result = await this._service.runLessonCode({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -591,7 +591,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = (await this.service.submitLessonCode({
+      const result = (await this._service.submitLessonCode({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -620,7 +620,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = (await this.service.getCodeHint({
+      const result = (await this._service.getCodeHint({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -649,7 +649,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.getOptimizedSolution({
+      const result = await this._service.getOptimizedSolution({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -669,7 +669,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.clearLessonChatHistory({
+      const result = await this._service.clearLessonChatHistory({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -689,7 +689,7 @@ export class TrackerController {
     try {
       const query = res.locals.lessonQuestionQuery as LessonQuestionQuery
 
-      const result = await this.service.clearLessonQuestionSolutionDoubts({
+      const result = await this._service.clearLessonQuestionSolutionDoubts({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -713,7 +713,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.verifyTopic({
+      const result = await this._service.verifyTopic({
         trackerId: req.params.trackerId,
         userId: getAuthUser(req).userId,
         trackerTitle: req.body.trackerTitle,
@@ -734,7 +734,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.verifySubtopic({
+      const result = await this._service.verifySubtopic({
         trackerId: req.params.trackerId,
         topicId: req.params.topicId,
         userId: getAuthUser(req).userId,
@@ -759,7 +759,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.addMissingEvaluationTopic({
+      const result = await this._service.addMissingEvaluationTopic({
         trackerId: req.params.trackerId,
         evaluationJobId: req.params.evaluationJobId,
         topicIndex: req.params.topicIndex,
@@ -780,7 +780,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = await this.service.generateLessonVisualization({
+      const result = await this._service.generateLessonVisualization({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,

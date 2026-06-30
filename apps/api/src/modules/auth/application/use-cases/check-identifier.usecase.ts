@@ -3,8 +3,8 @@ import type { IdentifierNormalizerContract } from '../../domain/services/identif
 
 export class CheckIdentifierUseCase {
   constructor(
-    private readonly authRepository: AuthUserRepositoryContract,
-    private readonly identifierNormalizer: IdentifierNormalizerContract
+    private readonly _authRepository: AuthUserRepositoryContract,
+    private readonly _identifierNormalizer: IdentifierNormalizerContract
   ) {}
 
   async execute(identifier: string): Promise<{
@@ -12,12 +12,12 @@ export class CheckIdentifierUseCase {
     type: 'email' | 'phone'
     needsVerification: boolean
   }> {
-    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
+    const parsedIdentifier = this._identifierNormalizer.normalize(identifier)
 
     const existingUser =
       parsedIdentifier.method === 'email'
-        ? await this.authRepository.findByEmail(parsedIdentifier.value)
-        : await this.authRepository.findByPhone(parsedIdentifier.value)
+        ? await this._authRepository.findByEmail(parsedIdentifier.value)
+        : await this._authRepository.findByPhone(parsedIdentifier.value)
 
     if (existingUser) {
       const isVerified =

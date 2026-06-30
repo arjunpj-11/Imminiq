@@ -3,10 +3,10 @@ import type { AuthSessionRepositoryContract } from '../../domain/repositories/au
 
 export class GetAuthSessionsUseCase {
   constructor(
-    private readonly authRepository: AuthSessionRepositoryContract
+    private readonly _authRepository: AuthSessionRepositoryContract
   ) {}
 
   async execute(userId: string): Promise<AuthSessionEntity[]> {
-    return this.authRepository.findAllUserSessions(userId)
+    return this._authRepository.findAllUserSessions(userId)
   }
 }

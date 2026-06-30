@@ -10,14 +10,14 @@ export class UploadUserProfileService
   implements UploadUserProfileServiceContract
 {
   constructor(
-    private readonly usersProfileService: UsersProfileServiceContract,
+    private readonly _usersProfileService: UsersProfileServiceContract,
   ) {}
 
   async getRequiredContext(
     userId: string,
   ): Promise<UploadUserProfileContext> {
     try {
-      const { user, profile } = await this.usersProfileService.getMe(userId)
+      const { user, profile } = await this._usersProfileService.getMe(userId)
 
       if (!profile._id) {
         throw UploadsApplicationError.userProfileUnavailable()

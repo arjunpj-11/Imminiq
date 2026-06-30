@@ -4,13 +4,13 @@ import type { UsersMapperContract } from '../mappers/users.mapper'
 
 export class GetMyPublishedTrackersUseCase {
   constructor(
-    private readonly usersRepository: UserTrackerRepositoryContract,
-    private readonly usersMapper: UsersMapperContract,
+    private readonly _usersRepository: UserTrackerRepositoryContract,
+    private readonly _usersMapper: UsersMapperContract,
   ) {}
 
   async execute(userId: string, query: PaginationQuery) {
     const { items, total } =
-      await this.usersRepository.findPublishedTrackers({
+      await this._usersRepository.findPublishedTrackers({
         ownerId: userId,
         query,
         includePrivate: false,
@@ -18,7 +18,7 @@ export class GetMyPublishedTrackersUseCase {
 
     return {
       items: items.map((item) =>
-        this.usersMapper.toPublishedTrackerView(item),
+        this._usersMapper.toPublishedTrackerView(item),
       ),
       pagination: {
         page: query.page,

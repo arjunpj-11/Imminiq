@@ -5,9 +5,9 @@ import type { CurrentSessionServiceContract } from '../services/current-session.
 
 export class GetSecuritySessionsUseCase {
   constructor(
-    private readonly securitySessionRepository: SecuritySessionRepositoryContract,
-    private readonly currentSessionService: CurrentSessionServiceContract,
-    private readonly securityMapper: SecurityMapperContract,
+    private readonly _securitySessionRepository: SecuritySessionRepositoryContract,
+    private readonly _currentSessionService: CurrentSessionServiceContract,
+    private readonly _securityMapper: SecurityMapperContract,
   ) {}
 
   async execute(
@@ -15,13 +15,13 @@ export class GetSecuritySessionsUseCase {
     refreshToken?: string,
   ): Promise<SessionsResponseDto> {
     const sessions =
-      await this.securitySessionRepository.findActiveSessions(userId)
+      await this._securitySessionRepository.findActiveSessions(userId)
     const currentSessionId =
-      await this.currentSessionService.getCurrentSessionId(refreshToken)
+      await this._currentSessionService.getCurrentSessionId(refreshToken)
 
     return {
       activeSessions: sessions.map((session) =>
-        this.securityMapper.toSessionDto(session, currentSessionId),
+        this._securityMapper.toSessionDto(session, currentSessionId),
       ),
     }
   }

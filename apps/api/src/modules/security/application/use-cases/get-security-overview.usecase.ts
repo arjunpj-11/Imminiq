@@ -12,26 +12,26 @@ type SecurityOverviewRepository = SecurityUserRepositoryContract &
 
 export class GetSecurityOverviewUseCase {
   constructor(
-    private readonly securityRepository: SecurityOverviewRepository,
-    private readonly currentSessionService: CurrentSessionServiceContract,
-    private readonly securityMapper: SecurityMapperContract,
+    private readonly _securityRepository: SecurityOverviewRepository,
+    private readonly _currentSessionService: CurrentSessionServiceContract,
+    private readonly _securityMapper: SecurityMapperContract,
   ) {}
 
   async execute(
     userId: string,
     refreshToken?: string,
   ): Promise<SecurityOverviewDto> {
-    const user = await this.securityRepository.findUserById(userId)
+    const user = await this._securityRepository.findUserById(userId)
 
     if (!user) {
       throw SecurityApplicationError.notFound()
     }
 
-    const sessions = await this.securityRepository.findActiveSessions(userId)
+    const sessions = await this._securityRepository.findActiveSessions(userId)
     const currentSessionId =
-      await this.currentSessionService.getCurrentSessionId(refreshToken)
+      await this._currentSessionService.getCurrentSessionId(refreshToken)
     const twoFactor =
-      await this.securityRepository.findTwoFactorByUserId(userId)
+      await this._securityRepository.findTwoFactorByUserId(userId)
 
     return {
       email: user.email ?? '',
@@ -41,7 +41,7 @@ export class GetSecurityOverviewUseCase {
       canChangePassword: user.provider === 'local',
       twoFactorEnabled: twoFactor?.status === 'active',
       activeSessions: sessions.map((session) =>
-        this.securityMapper.toSessionDto(session, currentSessionId),
+        this._securityMapper.toSessionDto(session, currentSessionId),
       ),
       passwordLastChangedAt: null,
     }

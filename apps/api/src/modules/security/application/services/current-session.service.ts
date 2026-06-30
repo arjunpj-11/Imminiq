@@ -8,7 +8,7 @@ export interface CurrentSessionServiceContract {
 
 export class CurrentSessionService implements CurrentSessionServiceContract {
   constructor(
-    private readonly securitySessionRepository: SecuritySessionRepositoryContract,
+    private readonly _securitySessionRepository: SecuritySessionRepositoryContract,
   ) {}
 
   async getCurrentSessionId(refreshToken?: string): Promise<string | null> {
@@ -19,7 +19,7 @@ export class CurrentSessionService implements CurrentSessionServiceContract {
     const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
     const currentSession =
-      await this.securitySessionRepository.findCurrentSessionByRefreshTokenHash(
+      await this._securitySessionRepository.findCurrentSessionByRefreshTokenHash(
         refreshTokenHash,
       )
 

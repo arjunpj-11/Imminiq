@@ -14,8 +14,8 @@ type UpdateNotificationsRepository = {
 
 export class UpdateNotificationsUseCase {
   constructor(
-    private readonly settingsRepository: UpdateNotificationsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateNotificationsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
@@ -25,21 +25,21 @@ export class UpdateNotificationsUseCase {
     const { types, ...rest } = payload
 
     if (Object.keys(rest).length > 0) {
-      await this.settingsRepository.updateNotifications({
+      await this._settingsRepository.updateNotifications({
         userId,
         data: rest,
       })
     }
 
     if (types && Object.keys(types).length > 0) {
-      await this.settingsRepository.updateNotificationTypes({
+      await this._settingsRepository.updateNotificationTypes({
         userId,
         types,
       })
     }
 
-    const settings = await this.settingsRepository.findOrCreate(userId)
+    const settings = await this._settingsRepository.findOrCreate(userId)
 
-    return this.settingsMapper.toDto(settings)
+    return this._settingsMapper.toDto(settings)
   }
 }

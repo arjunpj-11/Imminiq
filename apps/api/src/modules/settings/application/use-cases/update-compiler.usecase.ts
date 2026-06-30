@@ -11,19 +11,19 @@ type UpdateCompilerRepository = {
 
 export class UpdateCompilerUseCase {
   constructor(
-    private readonly settingsRepository: UpdateCompilerRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateCompilerRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateCompilerPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateCompiler({
+    const settings = await this._settingsRepository.updateCompiler({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

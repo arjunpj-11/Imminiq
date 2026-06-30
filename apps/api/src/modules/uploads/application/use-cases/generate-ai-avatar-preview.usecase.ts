@@ -12,10 +12,10 @@ import type { AiUploadPromptServiceContract } from '../services/ai-upload-prompt
 
 export class GenerateAiAvatarPreviewUseCase {
   constructor(
-    private readonly aiImageGenerationService: AiImageGenerationServiceContract,
-    private readonly aiUploadPromptService: AiUploadPromptServiceContract,
-    private readonly randomSeedService: RandomSeedServiceContract,
-    private readonly uploadsMapper: UploadsMapperContract,
+    private readonly _aiImageGenerationService: AiImageGenerationServiceContract,
+    private readonly _aiUploadPromptService: AiUploadPromptServiceContract,
+    private readonly _randomSeedService: RandomSeedServiceContract,
+    private readonly _uploadsMapper: UploadsMapperContract,
   ) {}
 
   async execute(prompt: string): Promise<AiImagePreviewResult> {
@@ -26,18 +26,18 @@ export class GenerateAiAvatarPreviewUseCase {
     }
 
     try {
-      const image = await this.aiImageGenerationService.generatePreviewImage({
-        prompt: this.aiUploadPromptService.buildPrompt(
+      const image = await this._aiImageGenerationService.generatePreviewImage({
+        prompt: this._aiUploadPromptService.buildPrompt(
           'avatar',
           cleanedPrompt,
         ),
         steps: AI_IMAGE_GENERATION_STEPS,
-        seed: this.randomSeedService.createSeed(
+        seed: this._randomSeedService.createSeed(
           AI_IMAGE_SEED_UPPER_BOUND,
         ),
       })
 
-      return this.uploadsMapper.toAiImagePreviewResult(image.dataUrl)
+      return this._uploadsMapper.toAiImagePreviewResult(image.dataUrl)
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.aiImageGenerationFailed()

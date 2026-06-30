@@ -8,12 +8,12 @@ type GetAppearanceSettingsRepository = {
 
 export class GetAppearanceSettingsUseCase {
   constructor(
-    private readonly settingsRepository: GetAppearanceSettingsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: GetAppearanceSettingsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<UserSettingsView['appearance']> {
-    const settings = await this.settingsRepository.findOrCreate(userId)
-    return this.settingsMapper.toDto(settings).appearance
+    const settings = await this._settingsRepository.findOrCreate(userId)
+    return this._settingsMapper.toDto(settings).appearance
   }
 }

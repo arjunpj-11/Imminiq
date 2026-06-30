@@ -21,12 +21,12 @@ type QuestionScoreLike = {
 
 export class FinishTestAttemptUseCase {
   constructor(
-    private readonly repo: FinishTestAttemptRepository,
-    private readonly scoringService: MockTestScoringServiceContract,
+    private readonly _repo: FinishTestAttemptRepository,
+    private readonly _scoringService: MockTestScoringServiceContract,
   ) {}
 
   async execute(attemptId: string, userId: string) {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -42,15 +42,15 @@ export class FinishTestAttemptUseCase {
       )
     }
 
-    const test = await this.repo.findTestById(attempt.testId)
+    const test = await this._repo.findTestById(attempt.testId)
 
     if (!test) {
       throw MockTestsApplicationError.notFound('Test not found')
     }
 
     const [questions, answers] = await Promise.all([
-      this.repo.findQuestionsByTest(attempt.testId),
-      this.repo.findAnswersByAttempt(attemptId),
+      this._repo.findQuestionsByTest(attempt.testId),
+      this._repo.findAnswersByAttempt(attemptId),
     ])
 
     const completedAt = new Date()
@@ -65,7 +65,7 @@ export class FinishTestAttemptUseCase {
     )
 
     const scoreResult =
-      this.scoringService.calculateTestScore(
+      this._scoringService.calculateTestScore(
         questions,
         answers,
         test.passingScore,
@@ -99,13 +99,13 @@ export class FinishTestAttemptUseCase {
     )
 
     const { strongTopics, weakTopics } =
-      this.scoringService.identifyWeakAndStrongTopics(
+      this._scoringService.identifyWeakAndStrongTopics(
         questions,
         answers,
       )
 
     const recommendations =
-      this.scoringService.generateRecommendations(
+      this._scoringService.generateRecommendations(
         scoreResult.scorePercentage,
         weakTopics,
         scoreResult.passed,
@@ -118,11 +118,11 @@ export class FinishTestAttemptUseCase {
      * and the user can safely retry.
      */
     const existingReport =
-      await this.repo.findReportByAttempt(attemptId)
+      await this._repo.findReportByAttempt(attemptId)
 
     const report =
       existingReport ??
-      (await this.repo.createReport({
+      (await this._repo.createReport({
         attemptId,
         testId: attempt.testId,
         userId,
@@ -148,7 +148,7 @@ export class FinishTestAttemptUseCase {
     /*
      * Complete the attempt only after the report exists.
      */
-    const updatedAttempt = await this.repo.updateAttempt(
+    const updatedAttempt = await this._repo.updateAttempt(
       attemptId,
       {
         status: 'completed',
@@ -159,7 +159,7 @@ export class FinishTestAttemptUseCase {
       },
     )
 
-    await this.repo.updateAnalyticsSnapshot(attempt.testId)
+    await this._repo.updateAnalyticsSnapshot(attempt.testId)
 
     return {
       attempt: updatedAttempt,

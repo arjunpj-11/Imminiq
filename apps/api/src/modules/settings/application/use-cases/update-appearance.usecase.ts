@@ -11,19 +11,19 @@ type UpdateAppearanceRepository = {
 
 export class UpdateAppearanceUseCase {
   constructor(
-    private readonly settingsRepository: UpdateAppearanceRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateAppearanceRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateAppearancePayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateAppearance({
+    const settings = await this._settingsRepository.updateAppearance({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

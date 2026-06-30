@@ -11,19 +11,19 @@ type UpdateGesturesRepository = {
 
 export class UpdateGesturesUseCase {
   constructor(
-    private readonly settingsRepository: UpdateGesturesRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateGesturesRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateGesturesPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateGestures({
+    const settings = await this._settingsRepository.updateGestures({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

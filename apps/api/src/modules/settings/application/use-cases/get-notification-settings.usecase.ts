@@ -8,12 +8,12 @@ type GetNotificationSettingsRepository = {
 
 export class GetNotificationSettingsUseCase {
   constructor(
-    private readonly settingsRepository: GetNotificationSettingsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: GetNotificationSettingsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<UserSettingsView['notifications']> {
-    const settings = await this.settingsRepository.findOrCreate(userId)
-    return this.settingsMapper.toDto(settings).notifications
+    const settings = await this._settingsRepository.findOrCreate(userId)
+    return this._settingsMapper.toDto(settings).notifications
   }
 }

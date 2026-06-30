@@ -7,18 +7,18 @@ import type { ModerationAppealMapperContract } from '../mappers/moderation-appea
 
 export class GetActiveModerationAppealStatusUseCase {
   constructor(
-    private readonly moderationAppealRepository: ModerationAppealQueryRepositoryContract,
-    private readonly moderationAppealMapper: ModerationAppealMapperContract,
+    private readonly _moderationAppealRepository: ModerationAppealQueryRepositoryContract,
+    private readonly _moderationAppealMapper: ModerationAppealMapperContract,
   ) {}
 
   async execute(
     payload: GetModerationAppealStatusPayload,
   ): Promise<GetActiveModerationAppealStatusResultDto> {
     const appeal =
-      await this.moderationAppealRepository.findLatestActiveAppealForRestrictedIdentifier(
+      await this._moderationAppealRepository.findLatestActiveAppealForRestrictedIdentifier(
         payload.identifier,
       )
 
-    return this.moderationAppealMapper.toActiveStatusResult(appeal)
+    return this._moderationAppealMapper.toActiveStatusResult(appeal)
   }
 }

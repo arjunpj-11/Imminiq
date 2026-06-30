@@ -8,12 +8,12 @@ type ResetSettingsRepository = {
 
 export class ResetSettingsToDefaultsUseCase {
   constructor(
-    private readonly settingsRepository: ResetSettingsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: ResetSettingsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<UserSettingsView> {
-    const settings = await this.settingsRepository.resetToDefaults(userId)
-    return this.settingsMapper.toDto(settings)
+    const settings = await this._settingsRepository.resetToDefaults(userId)
+    return this._settingsMapper.toDto(settings)
   }
 }

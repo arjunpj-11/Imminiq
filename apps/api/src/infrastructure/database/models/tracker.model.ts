@@ -110,7 +110,6 @@ const trackerSchema = new Schema<ITracker>(
     tags: {
       type: [String],
       default: [],
-      index: true,
       set: (tags: unknown[]) =>
         Array.isArray(tags)
           ? tags
@@ -128,7 +127,6 @@ const trackerSchema = new Schema<ITracker>(
       type: Schema.Types.ObjectId,
       ref: 'Tracker',
       default: null,
-      index: true,
     },
 
     visibility: {

@@ -1,105 +1,133 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
-vi.mock('../../src/modules/auth/auth.repository', () => ({
-  authRepository: {
-    findById: vi.fn(),
-    updatePassword: vi.fn(),
-    revokeAllUserTokens: vi.fn(),
-  },
-}))
-
-vi.mock('../../src/infrastructure/cache/password-reset-session.cache', () => ({
-  passwordResetSessionCache: {
-    consume: vi.fn(),
-  },
-}))
-
-vi.mock('../../src/infrastructure/security/security-audit-logger', () => ({
-  securityAuditLogger: {
-    record: vi.fn(),
-  },
-}))
-
-vi.mock('../../src/modules/auth/application/services/password-reset-token.service', () => ({
-  verifyPasswordResetToken: vi.fn(),
-}))
-
-import { authRepository } from '../../src/modules/auth/auth.repository'
-import { passwordResetSessionCache } from '../../src/infrastructure/cache/password-reset-session.cache'
-import { securityAuditLogger } from '../../src/infrastructure/security/security-audit-logger'
-import { verifyPasswordResetToken } from '../../src/modules/auth/application/services/password-reset-token.service'
 import { ResetPasswordUseCase } from '../../src/modules/auth/application/use-cases/reset-password.usecase'
-import { ApiError } from '../../src/shared/utils/ApiError'
+import type { AuthSessionRepositoryContract } from '../../src/modules/auth/domain/repositories/auth-session.repository.interface'
+import type { AuthUserRepositoryContract } from '../../src/modules/auth/domain/repositories/auth-user.repository.interface'
+import type { PasswordHasherServiceContract } from '../../src/modules/auth/domain/services/password-hasher.service.interface'
+import type { PasswordResetSessionStoreContract } from '../../src/modules/auth/domain/services/password-reset-session-store.interface'
+import type { PasswordResetTokenServiceContract } from '../../src/modules/auth/domain/services/password-reset-token.service.interface'
+import type { SecurityAuditLoggerContract } from '../../src/modules/auth/domain/services/security-audit-logger.interface'
 
-const mockedAuthRepository = vi.mocked(authRepository)
-const mockedResetSessionCache = vi.mocked(passwordResetSessionCache)
-const mockedSecurityAuditLogger = vi.mocked(securityAuditLogger)
-const mockedVerifyPasswordResetToken = vi.mocked(verifyPasswordResetToken)
+type ResetPasswordRepository =
+  AuthUserRepositoryContract & AuthSessionRepositoryContract
+
+const authRepository = {
+  findById: vi.fn(),
+  updatePasswordHash: vi.fn(),
+  revokeAllUserSessions: vi.fn(),
+}
+
+const passwordResetTokenService = {
+  verify: vi.fn(),
+}
+
+const passwordResetSessionStore = {
+  consume: vi.fn(),
+}
+
+const securityAuditLogger = {
+  record: vi.fn(),
+}
+
+const passwordHasher = {
+  hash: vi.fn(),
+}
+
+const createUseCase = (): ResetPasswordUseCase =>
+  new ResetPasswordUseCase(
+    authRepository as unknown as ResetPasswordRepository,
+    passwordResetTokenService as unknown as PasswordResetTokenServiceContract,
+    passwordResetSessionStore as unknown as PasswordResetSessionStoreContract,
+    securityAuditLogger as unknown as SecurityAuditLoggerContract,
+    passwordHasher as unknown as PasswordHasherServiceContract,
+  )
 
 describe('ResetPasswordUseCase one-time reset token protection', () => {
   beforeEach(() => {
-    mockedVerifyPasswordResetToken.mockReturnValue({
+    vi.clearAllMocks()
+
+    passwordResetTokenService.verify.mockReturnValue({
       userId: 'user-1',
       purpose: 'password_reset',
       jti: 'reset-jti-1',
     })
 
-    mockedAuthRepository.findById.mockResolvedValue({
-      _id: {
-        toString: () => 'user-1',
-      },
-    } as never)
+    passwordResetSessionStore.consume.mockResolvedValue('user-1')
 
-    mockedAuthRepository.updatePassword.mockResolvedValue(undefined as never)
-    mockedAuthRepository.revokeAllUserTokens.mockResolvedValue(undefined as never)
-    mockedSecurityAuditLogger.record.mockResolvedValue(undefined)
+    authRepository.findById.mockResolvedValue({
+      id: 'user-1',
+    })
+
+    passwordHasher.hash.mockResolvedValue('hashed-new-password')
+
+    authRepository.updatePasswordHash.mockResolvedValue(undefined)
+
+    authRepository.revokeAllUserSessions.mockResolvedValue(undefined)
+
+    securityAuditLogger.record.mockResolvedValue(undefined)
   })
 
   it('allows a reset token once when the reset session is consumed successfully', async () => {
-    mockedResetSessionCache.consume.mockResolvedValue('user-1')
-
-    const useCase = new ResetPasswordUseCase()
+    const useCase = createUseCase()
 
     await expect(
-      useCase.execute('reset-token', 'NewSecurePassword123!')
+      useCase.execute('reset-token', 'NewSecurePassword123!'),
     ).resolves.toBeUndefined()
 
-    expect(mockedResetSessionCache.consume).toHaveBeenCalledWith('reset-jti-1')
-    expect(mockedAuthRepository.updatePassword).toHaveBeenCalledWith(
+    expect(passwordResetTokenService.verify).toHaveBeenCalledWith(
+      'reset-token',
+    )
+
+    expect(passwordResetSessionStore.consume).toHaveBeenCalledWith(
+      'reset-jti-1',
+    )
+
+    expect(authRepository.findById).toHaveBeenCalledWith('user-1')
+
+    expect(passwordHasher.hash).toHaveBeenCalledWith(
+      'NewSecurePassword123!',
+    )
+
+    expect(authRepository.updatePasswordHash).toHaveBeenCalledWith(
       'user-1',
-      'NewSecurePassword123!'
+      'hashed-new-password',
     )
-    expect(mockedAuthRepository.revokeAllUserTokens).toHaveBeenCalledWith(
-      'user-1'
+
+    expect(authRepository.revokeAllUserSessions).toHaveBeenCalledWith(
+      'user-1',
     )
-    expect(mockedSecurityAuditLogger.record).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: 'user-1',
-        eventType: 'PASSWORD_RESET_COMPLETED',
-        outcome: 'success',
-      })
-    )
+
+    expect(securityAuditLogger.record).toHaveBeenCalledWith({
+      userId: 'user-1',
+      eventType: 'PASSWORD_RESET_COMPLETED',
+      outcome: 'success',
+    })
   })
 
   it('rejects a reset token replay after the Redis reset session is gone', async () => {
-    mockedResetSessionCache.consume.mockResolvedValue(null)
+    passwordResetSessionStore.consume.mockResolvedValue(null)
 
-    const useCase = new ResetPasswordUseCase()
+    const useCase = createUseCase()
 
     await expect(
-      useCase.execute('reset-token', 'NewSecurePassword123!')
+      useCase.execute('reset-token', 'NewSecurePassword123!'),
     ).rejects.toMatchObject({
-      statusCode: 400,
       code: 'INVALID_RESET_TOKEN',
-    } satisfies Partial<ApiError>)
+    })
 
-    expect(mockedAuthRepository.updatePassword).not.toHaveBeenCalled()
-    expect(mockedSecurityAuditLogger.record).toHaveBeenCalledWith(
-      expect.objectContaining({
-        userId: 'user-1',
-        eventType: 'PASSWORD_RESET_TOKEN_REPLAY_OR_EXPIRED',
-        outcome: 'detected',
-      })
+    expect(passwordResetSessionStore.consume).toHaveBeenCalledWith(
+      'reset-jti-1',
     )
+
+    expect(securityAuditLogger.record).toHaveBeenCalledWith({
+      userId: 'user-1',
+      eventType: 'PASSWORD_RESET_TOKEN_REPLAY_OR_EXPIRED',
+      outcome: 'detected',
+    })
+
+    expect(authRepository.findById).not.toHaveBeenCalled()
+    expect(passwordHasher.hash).not.toHaveBeenCalled()
+    expect(authRepository.updatePasswordHash).not.toHaveBeenCalled()
+    expect(authRepository.revokeAllUserSessions).not.toHaveBeenCalled()
   })
 })

@@ -14,37 +14,37 @@ type SubmitModerationAppealRepository =
 
 export class SubmitModerationAppealUseCase {
   constructor(
-    private readonly moderationAppealRepository: SubmitModerationAppealRepository,
-    private readonly moderationAppealCaseIdService: ModerationAppealCaseIdServiceContract,
-    private readonly moderationAppealSubmissionPolicy: ModerationAppealSubmissionPolicyContract,
-    private readonly moderationAppealMapper: ModerationAppealMapperContract,
+    private readonly _moderationAppealRepository: SubmitModerationAppealRepository,
+    private readonly _moderationAppealCaseIdService: ModerationAppealCaseIdServiceContract,
+    private readonly _moderationAppealSubmissionPolicy: ModerationAppealSubmissionPolicyContract,
+    private readonly _moderationAppealMapper: ModerationAppealMapperContract,
   ) {}
 
   async execute(
     payload: SubmitModerationAppealPayload,
   ): Promise<SubmitModerationAppealResultDto> {
     const user =
-      await this.moderationAppealRepository.findRestrictedUserByIdentifier(
+      await this._moderationAppealRepository.findRestrictedUserByIdentifier(
         payload.identifier,
       )
 
-    this.moderationAppealSubmissionPolicy.ensureRestrictedUserExists(user)
+    this._moderationAppealSubmissionPolicy.ensureRestrictedUserExists(user)
 
     const existingAppeal =
-      await this.moderationAppealRepository.findActiveAppealForUser(user.id)
+      await this._moderationAppealRepository.findActiveAppealForUser(user.id)
 
-    this.moderationAppealSubmissionPolicy.ensureNoActiveAppeal(existingAppeal)
+    this._moderationAppealSubmissionPolicy.ensureNoActiveAppeal(existingAppeal)
 
     const caseId =
-      await this.moderationAppealCaseIdService.generateUniqueCaseId()
+      await this._moderationAppealCaseIdService.generateUniqueCaseId()
 
-    const appeal = await this.moderationAppealRepository.createAppeal({
+    const appeal = await this._moderationAppealRepository.createAppeal({
       userId: user.id,
       caseId,
       identifier: payload.identifier,
       appealReason: payload.appealReason,
     })
 
-    return this.moderationAppealMapper.toSubmitResult(appeal)
+    return this._moderationAppealMapper.toSubmitResult(appeal)
   }
 }

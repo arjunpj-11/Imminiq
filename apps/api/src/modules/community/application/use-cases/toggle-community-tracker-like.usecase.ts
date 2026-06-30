@@ -8,11 +8,11 @@ export type ToggleCommunityTrackerLikeInput = {
 
 export class ToggleCommunityTrackerLikeUseCase {
   constructor(
-    private readonly communityReviewRepository: CommunityReviewRepositoryContract,
+    private readonly _communityReviewRepository: CommunityReviewRepositoryContract,
   ) {}
 
   async execute(input: ToggleCommunityTrackerLikeInput) {
-    const result = await this.communityReviewRepository.toggleTrackerLike(
+    const result = await this._communityReviewRepository.toggleTrackerLike(
       input.trackerId,
       input.userId,
     )

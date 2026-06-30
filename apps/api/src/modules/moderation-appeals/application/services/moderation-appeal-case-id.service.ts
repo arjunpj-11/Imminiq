@@ -13,8 +13,8 @@ export class ModerationAppealCaseIdService
   implements ModerationAppealCaseIdServiceContract
 {
   constructor(
-    private readonly moderationAppealRepository: ModerationAppealQueryRepositoryContract,
-    private readonly caseIdGenerator: ModerationAppealCaseIdGeneratorContract,
+    private readonly _moderationAppealRepository: ModerationAppealQueryRepositoryContract,
+    private readonly _caseIdGenerator: ModerationAppealCaseIdGeneratorContract,
   ) {}
 
   async generateUniqueCaseId(): Promise<string> {
@@ -23,8 +23,8 @@ export class ModerationAppealCaseIdService
       attempt < MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS;
       attempt += 1
     ) {
-      const caseId = this.caseIdGenerator.generate()
-      const exists = await this.moderationAppealRepository.caseIdExists(caseId)
+      const caseId = this._caseIdGenerator.generate()
+      const exists = await this._moderationAppealRepository.caseIdExists(caseId)
 
       if (!exists) {
         return caseId

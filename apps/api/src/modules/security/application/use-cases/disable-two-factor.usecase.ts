@@ -10,9 +10,9 @@ import { SecurityApplicationError } from '../errors/security-application.error'
 
 export class DisableTwoFactorUseCase {
   constructor(
-    private readonly twoFactorRepository: SecurityTwoFactorRepositoryContract,
-    private readonly twoFactorGateway: TwoFactorGatewayContract,
-    private readonly securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly _twoFactorGateway: TwoFactorGatewayContract,
+    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
   ) {}
 
   async execute(
@@ -22,7 +22,7 @@ export class DisableTwoFactorUseCase {
     await this.assertDisableVerificationAllowed(userId)
 
     const twoFactor =
-      await this.twoFactorRepository.findTwoFactorWithSecret(userId)
+      await this._twoFactorRepository.findTwoFactorWithSecret(userId)
 
     if (!twoFactor || twoFactor.status !== 'active') {
       throw SecurityApplicationError.twoFactorNotEnabled()
@@ -32,7 +32,7 @@ export class DisableTwoFactorUseCase {
       throw SecurityApplicationError.twoFactorSecretMissing()
     }
 
-    const valid = await this.twoFactorGateway.verifyToken({
+    const valid = await this._twoFactorGateway.verifyToken({
       encryptedSecret: twoFactor.totpSecretEncrypted,
       token: payload.token,
     })
@@ -42,13 +42,13 @@ export class DisableTwoFactorUseCase {
       throw SecurityApplicationError.invalidTwoFactorCode()
     }
 
-    await this.securityAttemptStore.clear(
+    await this._securityAttemptStore.clear(
       TWO_FACTOR_DISABLE_ATTEMPT_SCOPE,
       userId,
     )
 
     const disabledTwoFactor =
-      await this.twoFactorRepository.disableTwoFactor(userId)
+      await this._twoFactorRepository.disableTwoFactor(userId)
 
     if (!disabledTwoFactor) {
       throw SecurityApplicationError.twoFactorDisableFailed()
@@ -60,7 +60,7 @@ export class DisableTwoFactorUseCase {
   private async assertDisableVerificationAllowed(
     userId: string,
   ): Promise<void> {
-    const blocked = await this.securityAttemptStore.isBlocked(
+    const blocked = await this._securityAttemptStore.isBlocked(
       TWO_FACTOR_DISABLE_ATTEMPT_SCOPE,
       userId,
     )
@@ -71,7 +71,7 @@ export class DisableTwoFactorUseCase {
   }
 
   private async recordInvalidDisableCode(userId: string): Promise<void> {
-    const result = await this.securityAttemptStore.recordFailure(
+    const result = await this._securityAttemptStore.recordFailure(
       TWO_FACTOR_DISABLE_ATTEMPT_SCOPE,
       userId,
       'twoFactorVerification',

@@ -9,7 +9,7 @@ type CreateMockTestRepository =
   MockTestQuestionRepositoryContract
 
 export class CreateMockTestUseCase {
-  constructor(private readonly repo: CreateMockTestRepository) { }
+  constructor(private readonly _repo: CreateMockTestRepository) { }
 
   async execute(
     userId: string,
@@ -25,7 +25,7 @@ export class CreateMockTestUseCase {
       )
     }
 
-    const test = await this.repo.createTest({
+    const test = await this._repo.createTest({
       ownerId: userId,
       title: payload.title,
       description: payload.description || '',
@@ -39,7 +39,7 @@ export class CreateMockTestUseCase {
       isAIGenerated: false,
     })
 
-    await this.repo.createQuestions(
+    await this._repo.createQuestions(
       payload.questions.map((question, index) => ({
         testId: test._id,
         type: question.type,

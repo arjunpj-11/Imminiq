@@ -11,19 +11,19 @@ type UpdateEmailDigestRepository = {
 
 export class UpdateEmailDigestUseCase {
   constructor(
-    private readonly settingsRepository: UpdateEmailDigestRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateEmailDigestRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: UpdateEmailDigestPayload,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateEmailDigest({
+    const settings = await this._settingsRepository.updateEmailDigest({
       userId,
       data: payload,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

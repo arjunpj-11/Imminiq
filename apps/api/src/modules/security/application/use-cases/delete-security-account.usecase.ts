@@ -17,9 +17,9 @@ type DeleteSecurityAccountRepository =
 
 export class DeleteSecurityAccountUseCase {
   constructor(
-    private readonly securityRepository: DeleteSecurityAccountRepository,
-    private readonly sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
-    private readonly securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _securityRepository: DeleteSecurityAccountRepository,
+    private readonly _sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
+    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async execute(
@@ -30,26 +30,26 @@ export class DeleteSecurityAccountUseCase {
       throw SecurityApplicationError.invalidDeleteConfirmation()
     }
 
-    const user = await this.securityRepository.findUserById(userId)
+    const user = await this._securityRepository.findUserById(userId)
 
     if (!user) {
       throw SecurityApplicationError.notFound()
     }
 
-    await this.sensitiveActionStepUpService.assertSatisfied({
+    await this._sensitiveActionStepUpService.assertSatisfied({
       user,
       payload,
       action: 'delete_account',
     })
 
-    await this.securityRepository.revokeAllSessions(userId)
+    await this._securityRepository.revokeAllSessions(userId)
 
     const scheduledDeletionAt = new Date(
       Date.now() + ACCOUNT_DELETION_RECOVERY_MS,
     )
 
     const scheduledUser =
-      await this.securityRepository.scheduleAccountDeletion({
+      await this._securityRepository.scheduleAccountDeletion({
         userId,
         scheduledDeletionAt,
       })
@@ -58,7 +58,7 @@ export class DeleteSecurityAccountUseCase {
       throw SecurityApplicationError.accountDeleteFailed()
     }
 
-    await this.securityAuditLogger.record({
+    await this._securityAuditLogger.record({
       userId,
       eventType: 'ACCOUNT_DELETION_SCHEDULED',
       outcome: 'success',

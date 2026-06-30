@@ -19,9 +19,9 @@ const getDocumentId = (document: unknown) => {
 
 export class GenerateLessonVisualizationUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
@@ -30,7 +30,7 @@ export class GenerateLessonVisualizationUseCase {
     userId: string
     regenerate?: boolean
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -40,18 +40,18 @@ export class GenerateLessonVisualizationUseCase {
     }
 
     if (!input.regenerate) {
-      const cached = await this.trackerRepository.findLessonVisualization({
+      const cached = await this._trackerRepository.findLessonVisualization({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
       })
 
       if (cached) {
-        return this.trackerMapper.toLessonVisualizationDto(cached)
+        return this._trackerMapper.toLessonVisualizationDto(cached)
       }
     }
 
-    const lesson = await this.trackerRepository.findLessonBySubtopicId({
+    const lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
@@ -63,7 +63,7 @@ export class GenerateLessonVisualizationUseCase {
       )
     }
 
-    const result = await this.trackerAIService.generateLessonVisualization({
+    const result = await this._trackerAIService.generateLessonVisualization({
       title: lesson.title,
       summary: lesson.summary,
       explanation: lesson.explanation,
@@ -74,7 +74,7 @@ export class GenerateLessonVisualizationUseCase {
     })
 
     const savedVisualization =
-      await this.trackerRepository.saveLessonVisualization({
+      await this._trackerRepository.saveLessonVisualization({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
@@ -84,6 +84,6 @@ export class GenerateLessonVisualizationUseCase {
         visualDescription: result.visualDescription,
       })
 
-    return this.trackerMapper.toLessonVisualizationDto(savedVisualization)
+    return this._trackerMapper.toLessonVisualizationDto(savedVisualization)
   }
 }

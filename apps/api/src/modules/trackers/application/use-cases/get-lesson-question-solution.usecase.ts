@@ -5,9 +5,9 @@ import type { QuestionHasherServiceContract } from '../../domain/services/questi
 
 export class GetLessonQuestionSolutionUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly questionHasher: QuestionHasherServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _questionHasher: QuestionHasherServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -16,7 +16,7 @@ export class GetLessonQuestionSolutionUseCase {
     userId: string
     question: string
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -25,13 +25,13 @@ export class GetLessonQuestionSolutionUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const solution = await this.trackerRepository.findLessonQuestionSolution({
+    const solution = await this._trackerRepository.findLessonQuestionSolution({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      questionHash: this.questionHasher.hash(input.question),
+      questionHash: this._questionHasher.hash(input.question),
     })
 
-    return this.trackerMapper.toLessonQuestionSolutionDto(solution)
+    return this._trackerMapper.toLessonQuestionSolutionDto(solution)
   }
 }

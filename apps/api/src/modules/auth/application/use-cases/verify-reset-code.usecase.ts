@@ -11,21 +11,21 @@ const VERIFY_RESET_SCOPE = 'auth_verify_reset_otp' as const
 
 export class VerifyResetCodeUseCase {
   constructor(
-    private readonly authRepository: AuthUserRepositoryContract,
-    private readonly identifierNormalizer: IdentifierNormalizerContract,
-    private readonly securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly phoneOtpProvider: PhoneOtpProviderContract,
-    private readonly phoneOtpSessionStore: PhoneOtpSessionStoreContract,
-    private readonly passwordResetTokenService: PasswordResetTokenServiceContract,
-    private readonly otpStore: OtpStoreContract
+    private readonly _authRepository: AuthUserRepositoryContract,
+    private readonly _identifierNormalizer: IdentifierNormalizerContract,
+    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly _phoneOtpProvider: PhoneOtpProviderContract,
+    private readonly _phoneOtpSessionStore: PhoneOtpSessionStoreContract,
+    private readonly _passwordResetTokenService: PasswordResetTokenServiceContract,
+    private readonly _otpStore: OtpStoreContract
   ) {}
 
   async execute(identifier: string, otp: string): Promise<{ resetToken: string }> {
-    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
+    const parsedIdentifier = this._identifierNormalizer.normalize(identifier)
 
     await this.assertResetOtpAllowed(parsedIdentifier.value)
 
-    const user = await this.authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this._authRepository.findByIdentifier(parsedIdentifier.value)
 
     if (!user) {
       await this.recordInvalidResetOtp(parsedIdentifier.value)
@@ -34,7 +34,7 @@ export class VerifyResetCodeUseCase {
     }
 
     if (parsedIdentifier.email) {
-      const valid = await this.otpStore.verifyOtp({
+      const valid = await this._otpStore.verifyOtp({
         email: parsedIdentifier.email,
         otp,
         purpose: 'password_reset',
@@ -49,7 +49,7 @@ export class VerifyResetCodeUseCase {
 
     if (parsedIdentifier.phone) {
       const verificationId =
-        await this.phoneOtpSessionStore.getVerificationId(
+        await this._phoneOtpSessionStore.getVerificationId(
           parsedIdentifier.phone,
           'password_reset'
         )
@@ -60,7 +60,7 @@ export class VerifyResetCodeUseCase {
         throw AuthApplicationError.otpSessionExpired('OTP session expired. Please request a new OTP.')
       }
 
-      const valid = await this.phoneOtpProvider.verifyOtp(verificationId, otp)
+      const valid = await this._phoneOtpProvider.verifyOtp(verificationId, otp)
 
       if (!valid) {
         await this.recordInvalidResetOtp(parsedIdentifier.value)
@@ -68,24 +68,24 @@ export class VerifyResetCodeUseCase {
         throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
       }
 
-      await this.phoneOtpSessionStore.deleteVerificationId(
+      await this._phoneOtpSessionStore.deleteVerificationId(
         parsedIdentifier.phone,
         'password_reset'
       )
     }
 
-    await this.securityAttemptStore.clear(
+    await this._securityAttemptStore.clear(
       VERIFY_RESET_SCOPE,
       parsedIdentifier.value
     )
 
     return {
-      resetToken: await this.passwordResetTokenService.generate(user.id),
+      resetToken: await this._passwordResetTokenService.generate(user.id),
     }
   }
 
   private async assertResetOtpAllowed(identifier: string): Promise<void> {
-    const blocked = await this.securityAttemptStore.isBlocked(
+    const blocked = await this._securityAttemptStore.isBlocked(
       VERIFY_RESET_SCOPE,
       identifier
     )
@@ -96,7 +96,7 @@ export class VerifyResetCodeUseCase {
   }
 
   private async recordInvalidResetOtp(identifier: string): Promise<void> {
-    const result = await this.securityAttemptStore.recordFailure(
+    const result = await this._securityAttemptStore.recordFailure(
       VERIFY_RESET_SCOPE,
       identifier,
       'otpVerification'

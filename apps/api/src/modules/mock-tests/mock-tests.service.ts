@@ -12,14 +12,14 @@ import {
 } from './mock-tests.factory'
 
 export class MockTestsService {
-  private readonly useCases: MockTestsComposition['useCases']
+  private readonly _useCases: MockTestsComposition['useCases']
 
   constructor(composition: MockTestsComposition) {
-    this.useCases = composition.useCases
+    this._useCases = composition.useCases
   }
 
   listTests(userId: string, options?: { page?: number; limit?: number }) {
-    return this.useCases.listMockTests.execute(userId, options)
+    return this._useCases.listMockTests.execute(userId, options)
   }
 
   listPublicTests(filters: {
@@ -28,35 +28,35 @@ export class MockTestsService {
     page?: number
     limit?: number
   }) {
-    return this.useCases.listPublicMockTests.execute(filters)
+    return this._useCases.listPublicMockTests.execute(filters)
   }
 
   createTest(userId: string, payload: CreateMockTestPayload) {
-    return this.useCases.createMockTest.execute(userId, payload)
+    return this._useCases.createMockTest.execute(userId, payload)
   }
 
   generateTest(userId: string, payload: GenerateMockTestPayload) {
-    return this.useCases.generateMockTest.execute(userId, payload)
+    return this._useCases.generateMockTest.execute(userId, payload)
   }
 
   shareTest(userId: string, testId: string, origin: string) {
-    return this.useCases.shareMockTest.execute({ userId, testId, origin })
+    return this._useCases.shareMockTest.execute({ userId, testId, origin })
   }
 
   importSharedTest(userId: string, shareToken: string) {
-    return this.useCases.importSharedMockTest.execute({ userId, shareToken })
+    return this._useCases.importSharedMockTest.execute({ userId, shareToken })
   }
 
   getTest(testId: string, userId: string) {
-    return this.useCases.getMockTestDetails.execute(testId, userId)
+    return this._useCases.getMockTestDetails.execute(testId, userId)
   }
 
   startAttempt(testId: string, userId: string) {
-    return this.useCases.startTestAttempt.execute(testId, userId)
+    return this._useCases.startTestAttempt.execute(testId, userId)
   }
 
   getAttemptQuestions(attemptId: string, userId: string) {
-    return this.useCases.getAttemptQuestions.execute(attemptId, userId)
+    return this._useCases.getAttemptQuestions.execute(attemptId, userId)
   }
 
   submitAnswer(
@@ -64,43 +64,43 @@ export class MockTestsService {
     userId: string,
     payload: SubmitAnswerPayload
   ) {
-    return this.useCases.submitAnswer.execute(attemptId, userId, payload)
+    return this._useCases.submitAnswer.execute(attemptId, userId, payload)
   }
 
   flagQuestion(attemptId: string, userId: string, questionId: string) {
-    return this.useCases.flagQuestion.execute(attemptId, userId, questionId)
+    return this._useCases.flagQuestion.execute(attemptId, userId, questionId)
   }
 
   finishAttempt(attemptId: string, userId: string) {
-    return this.useCases.finishTestAttempt.execute(attemptId, userId)
+    return this._useCases.finishTestAttempt.execute(attemptId, userId)
   }
 
   getAttemptResult(attemptId: string, userId: string) {
-    return this.useCases.getAttemptResult.execute(attemptId, userId)
+    return this._useCases.getAttemptResult.execute(attemptId, userId)
   }
 
   getAttemptAnalysis(attemptId: string, userId: string) {
-    return this.useCases.getAttemptAnalysis.execute(attemptId, userId)
+    return this._useCases.getAttemptAnalysis.execute(attemptId, userId)
   }
 
   retakeTest(attemptId: string, userId: string) {
-    return this.useCases.retakeTest.execute(attemptId, userId)
+    return this._useCases.retakeTest.execute(attemptId, userId)
   }
 
   getHistory(userId: string) {
-    return this.useCases.getHistory.execute(userId)
+    return this._useCases.getHistory.execute(userId)
   }
 
   getAnalytics(userId: string) {
-    return this.useCases.getAnalytics.execute(userId)
+    return this._useCases.getAnalytics.execute(userId)
   }
 
   getAIInsights(userId: string) {
-    return this.useCases.getAIInsights.execute(userId)
+    return this._useCases.getAIInsights.execute(userId)
   }
 
   getTopicBreakdown(userId: string) {
-    return this.useCases.getTopicBreakdown.execute(userId)
+    return this._useCases.getTopicBreakdown.execute(userId)
   }
 
   runCode(
@@ -109,7 +109,7 @@ export class MockTestsService {
     questionId: string,
     payload: RunMockTestCodePayload
   ) {
-    return this.useCases.runMockTestCode.execute(
+    return this._useCases.runMockTestCode.execute(
       attemptId,
       userId,
       questionId,
@@ -123,7 +123,7 @@ export class MockTestsService {
     questionId: string,
     payload: SubmitMockTestCodePayload
   ) {
-    return this.useCases.submitMockTestCode.execute(
+    return this._useCases.submitMockTestCode.execute(
       attemptId,
       userId,
       questionId,

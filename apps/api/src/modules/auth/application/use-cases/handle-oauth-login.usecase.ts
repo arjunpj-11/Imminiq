@@ -13,12 +13,12 @@ type OAuthLoginRepository = AuthUserRepositoryContract & AuthTwoFactorRepository
 
 export class HandleOAuthLoginUseCase {
   constructor(
-    private readonly authRepository: OAuthLoginRepository,
-    private readonly authRedirectService: AuthRedirectServiceContract,
-    private readonly authTokenService: AuthTokenServiceContract,
-    private readonly authAccountPolicy: AuthAccountPolicyContract,
-    private readonly authSessionService: AuthSessionServiceContract,
-    private readonly authUserMapper: AuthUserMapperContract
+    private readonly _authRepository: OAuthLoginRepository,
+    private readonly _authRedirectService: AuthRedirectServiceContract,
+    private readonly _authTokenService: AuthTokenServiceContract,
+    private readonly _authAccountPolicy: AuthAccountPolicyContract,
+    private readonly _authSessionService: AuthSessionServiceContract,
+    private readonly _authUserMapper: AuthUserMapperContract
   ) {}
 
   async execute(
@@ -27,45 +27,45 @@ export class HandleOAuthLoginUseCase {
   ): Promise<AuthLoginResult> {
     const userId = this.resolveOAuthUserId(user)
 
-    const dbUser = await this.authRepository.findById(userId)
+    const dbUser = await this._authRepository.findById(userId)
 
     if (!dbUser) {
       throw AuthApplicationError.notFound('User not found')
     }
 
-    this.authAccountPolicy.ensureUserCanAuthenticate(dbUser)
+    this._authAccountPolicy.ensureUserCanAuthenticate(dbUser)
 
     const twoFactorEnabled =
-      await this.authRepository.hasActiveTwoFactor(userId)
+      await this._authRepository.hasActiveTwoFactor(userId)
 
     if (twoFactorEnabled) {
       return {
         requiresTwoFactor: true,
-        challengeToken: this.authTokenService.generateTwoFactorChallengeToken(userId),
+        challengeToken: this._authTokenService.generateTwoFactorChallengeToken(userId),
         challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
       }
     }
 
     const recoveredUser =
-      await this.authRepository.cancelScheduledDeletionIfRecoverable(userId)
+      await this._authRepository.cancelScheduledDeletionIfRecoverable(userId)
 
     const authenticatedUser = recoveredUser ?? dbUser
 
     const redirectPath =
-      await this.authRedirectService.resolveRedirectPath(userId)
+      await this._authRedirectService.resolveRedirectPath(userId)
 
-    const tokens = await this.authSessionService.issueTokenPair(
+    const tokens = await this._authSessionService.issueTokenPair(
       userId,
       authenticatedUser.role,
       meta
     )
 
-    await this.authRepository.updateLastActive(userId)
+    await this._authRepository.updateLastActive(userId)
 
     return {
       requiresTwoFactor: false,
       tokens,
-      user: this.authUserMapper.toAuthUser(authenticatedUser),
+      user: this._authUserMapper.toAuthUser(authenticatedUser),
       redirectPath,
     }
   }

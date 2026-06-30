@@ -6,20 +6,20 @@ const DEFAULT_AI_INSIGHTS = 'Keep practicing to improve your performance.'
 
 export class GetAnalyticsUseCase {
   constructor(
-    private readonly repo: MockTestAnalyticsRepositoryContract,
-    private readonly aiService: MockTestAIServiceContract,
+    private readonly _repo: MockTestAnalyticsRepositoryContract,
+    private readonly _aiService: MockTestAIServiceContract,
   ) {}
 
   async execute(userId: string): Promise<TestAnalytics> {
     const [trends, topicBreakdown] = await Promise.all([
-      this.repo.getPerformanceTrends(userId),
-      this.repo.getTopicBreakdown(userId),
+      this._repo.getPerformanceTrends(userId),
+      this._repo.getTopicBreakdown(userId),
     ])
 
     let aiInsights: string
 
     try {
-      aiInsights = await this.aiService.generatePerformanceInsights({
+      aiInsights = await this._aiService.generatePerformanceInsights({
         userId,
         performanceTrends: trends,
         topicBreakdown,

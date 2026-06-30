@@ -4,13 +4,13 @@ import type { AuthSessionRepositoryContract } from '../../domain/repositories/au
 
 export class LogoutUserUseCase {
   constructor(
-    private readonly authRepository: AuthSessionRepositoryContract
+    private readonly _authRepository: AuthSessionRepositoryContract
   ) {}
 
   async execute(refreshToken: string): Promise<void> {
     const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
-    await this.authRepository.revokeSessionByRefreshTokenHash(refreshTokenHash)
+    await this._authRepository.revokeSessionByRefreshTokenHash(refreshTokenHash)
   }
 
   private hashRefreshToken(refreshToken: string): string {

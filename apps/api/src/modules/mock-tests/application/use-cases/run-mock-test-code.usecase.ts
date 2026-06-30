@@ -10,8 +10,8 @@ type RunMockTestCodeRepository =
 
 export class RunMockTestCodeUseCase {
   constructor(
-    private readonly repo: RunMockTestCodeRepository,
-    private readonly codeRunner: MockTestCodeRunnerServiceContract,
+    private readonly _repo: RunMockTestCodeRepository,
+    private readonly _codeRunner: MockTestCodeRunnerServiceContract,
   ) { }
 
   async execute(
@@ -20,7 +20,7 @@ export class RunMockTestCodeUseCase {
     questionId: string,
     payload: RunMockTestCodePayload,
   ) {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -34,7 +34,7 @@ export class RunMockTestCodeUseCase {
       throw MockTestsApplicationError.testNotActive()
     }
 
-    const question = await this.repo.findQuestionById(questionId)
+    const question = await this._repo.findQuestionById(questionId)
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found')
@@ -44,7 +44,7 @@ export class RunMockTestCodeUseCase {
       throw MockTestsApplicationError.notCodingQuestion()
     }
 
-    return this.codeRunner.run({
+    return this._codeRunner.run({
       sourceCode: payload.sourceCode,
       coding: question.coding,
       mode: 'run',

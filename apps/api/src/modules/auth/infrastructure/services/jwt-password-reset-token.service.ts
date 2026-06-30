@@ -12,7 +12,7 @@ import { redisPasswordResetSessionStore } from '../stores/redis-password-reset-s
 export class JwtPasswordResetTokenService
   implements PasswordResetTokenServiceContract {
   constructor(
-    private readonly passwordResetSessionStore: PasswordResetSessionStoreContract
+    private readonly _passwordResetSessionStore: PasswordResetSessionStoreContract
   ) {}
 
   async generate(userId: string): Promise<string> {
@@ -32,7 +32,7 @@ export class JwtPasswordResetTokenService
       resetTokenOptions
     )
 
-    await this.passwordResetSessionStore.save(
+    await this._passwordResetSessionStore.save(
       jti,
       userId,
       PASSWORD_RESET_TOKEN_EXPIRES_SECONDS

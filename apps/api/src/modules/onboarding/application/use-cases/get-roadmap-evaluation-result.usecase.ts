@@ -5,15 +5,15 @@ import type { OnboardingJobOutputReaderServiceContract } from '../services/onboa
 
 export class GetRoadmapEvaluationResultUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingAIJobQueryRepositoryContract,
-    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingRepository: OnboardingAIJobQueryRepositoryContract,
+    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     jobId: string,
     userId: string,
   ): Promise<GetEvaluationResult> {
-    const job = await this.onboardingRepository.getJobById(jobId)
+    const job = await this._onboardingRepository.getJobById(jobId)
 
     if (!job) {
       throw OnboardingApplicationError.notFound('Evaluation job not found')
@@ -35,7 +35,7 @@ export class GetRoadmapEvaluationResultUseCase {
       )
     }
 
-    const evaluation = this.onboardingJobOutputReader.getEvaluation(
+    const evaluation = this._onboardingJobOutputReader.getEvaluation(
       job.outputData,
     )
 
@@ -45,7 +45,7 @@ export class GetRoadmapEvaluationResultUseCase {
 
     return {
       jobId: job.id,
-      trackerId: this.onboardingJobOutputReader.getTrackerId(job.outputData),
+      trackerId: this._onboardingJobOutputReader.getTrackerId(job.outputData),
       evaluation,
     }
   }

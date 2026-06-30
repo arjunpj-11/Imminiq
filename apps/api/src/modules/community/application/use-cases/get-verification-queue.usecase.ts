@@ -9,20 +9,20 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class GetVerificationQueueUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(payload: VerificationQueuePayload): Promise<CommunityVerificationQueueView> {
     const page = this.normalizePage(payload.page)
     const limit = this.normalizeLimit(payload.limit)
-    const queue = await this.repository.findVerificationQueue({
+    const queue = await this._repository.findVerificationQueue({
       userId: payload.userId,
       page,
       limit,
     })
 
-    return this.mapper.toVerificationQueueView(queue)
+    return this._mapper.toVerificationQueueView(queue)
   }
 
   private normalizePage(page?: number): number {

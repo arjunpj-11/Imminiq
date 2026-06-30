@@ -6,20 +6,20 @@ type ArchiveTrackerResultDto = ReturnType<TrackerMapperContract['toTrackerDto']>
 
 export class ArchiveTrackerUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
   async execute(input: {
     trackerId: string
     userId: string
   }): Promise<ArchiveTrackerResultDto> {
-    const tracker = await this.trackerRepository.archiveOwnedTracker(input)
+    const tracker = await this._trackerRepository.archiveOwnedTracker(input)
 
     if (!tracker) {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerMapper.toTrackerDto(tracker)
+    return this._trackerMapper.toTrackerDto(tracker)
   }
 }

@@ -11,9 +11,9 @@ type ChatWithLessonTutorResultDto = ReturnType<
 
 export class ChatWithLessonTutorUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -25,7 +25,7 @@ export class ChatWithLessonTutorUseCase {
       content: string
     }[]
   }): Promise<ChatWithLessonTutorResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -34,7 +34,7 @@ export class ChatWithLessonTutorUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const lesson = await this.trackerRepository.findLessonBySubtopicId({
+    const lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
@@ -56,7 +56,7 @@ export class ChatWithLessonTutorUseCase {
         : lesson._id?.toString?.() ?? null
 
     if (latestUserMessage?.content?.trim()) {
-      await this.trackerRepository.createLessonChatMessage({
+      await this._trackerRepository.createLessonChatMessage({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
@@ -67,14 +67,14 @@ export class ChatWithLessonTutorUseCase {
       })
     }
 
-    const answer = await this.trackerAIService.chatWithLessonTutor({
+    const answer = await this._trackerAIService.chatWithLessonTutor({
       lessonTitle: lesson.title,
       lessonContent: `${lesson.summary}\n\n${lesson.explanation}\n\n${lesson.insight}`,
       messages: input.messages,
     })
 
     if (answer?.trim()) {
-      await this.trackerRepository.createLessonChatMessage({
+      await this._trackerRepository.createLessonChatMessage({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
@@ -85,7 +85,7 @@ export class ChatWithLessonTutorUseCase {
       })
     }
 
-    return this.trackerMapper.toLessonTutorChatResponseDto({
+    return this._trackerMapper.toLessonTutorChatResponseDto({
       answer,
     })
   }

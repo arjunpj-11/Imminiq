@@ -8,12 +8,12 @@ type GetAllSettingsRepository = {
 
 export class GetAllSettingsUseCase {
   constructor(
-    private readonly settingsRepository: GetAllSettingsRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: GetAllSettingsRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<UserSettingsView> {
-    const settings = await this.settingsRepository.findOrCreate(userId)
-    return this.settingsMapper.toDto(settings)
+    const settings = await this._settingsRepository.findOrCreate(userId)
+    return this._settingsMapper.toDto(settings)
   }
 }

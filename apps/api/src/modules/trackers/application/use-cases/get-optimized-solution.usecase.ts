@@ -13,13 +13,13 @@ type GetOptimizedSolutionInput = {
 
 export class GetOptimizedSolutionUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: GetOptimizedSolutionInput) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -28,14 +28,14 @@ export class GetOptimizedSolutionUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const lesson = await this.trackerRepository.findGeneratedLessonBySubtopic({
+    const lesson = await this._trackerRepository.findGeneratedLessonBySubtopic({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
     })
 
     const optimizedSolution =
-      await this.trackerAIService.generateOptimizedCodeSolution({
+      await this._trackerAIService.generateOptimizedCodeSolution({
         lessonTitle: lesson?.title || tracker.title || 'Coding lesson',
         practiceTitle: lesson?.practiceTask?.title || 'Coding practice',
         practiceDescription:
@@ -45,6 +45,6 @@ export class GetOptimizedSolutionUseCase {
         language: input.language || lesson?.codeExample?.language || 'javascript',
       })
 
-    return this.trackerMapper.toLessonOptimizedSolutionDto(optimizedSolution)
+    return this._trackerMapper.toLessonOptimizedSolutionDto(optimizedSolution)
   }
 }

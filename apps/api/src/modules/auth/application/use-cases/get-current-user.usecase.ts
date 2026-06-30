@@ -6,20 +6,20 @@ import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.
 
 export class GetCurrentUserUseCase {
   constructor(
-    private readonly authRepository: AuthUserRepositoryContract,
-    private readonly authAccountPolicy: AuthAccountPolicyContract,
-    private readonly authUserMapper: AuthUserMapperContract
+    private readonly _authRepository: AuthUserRepositoryContract,
+    private readonly _authAccountPolicy: AuthAccountPolicyContract,
+    private readonly _authUserMapper: AuthUserMapperContract
   ) {}
 
   async execute(userId: string): Promise<AuthUser> {
-    const user = await this.authRepository.findById(userId)
+    const user = await this._authRepository.findById(userId)
 
     if (!user) {
       throw AuthApplicationError.notFound('User not found')
     }
 
-    this.authAccountPolicy.ensureUserCanAuthenticate(user)
+    this._authAccountPolicy.ensureUserCanAuthenticate(user)
 
-    return this.authUserMapper.toAuthUser(user)
+    return this._authUserMapper.toAuthUser(user)
   }
 }

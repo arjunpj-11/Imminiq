@@ -8,14 +8,14 @@ import type { CommunityReviewMapperContract } from '../mappers/community-review.
 
 export class UpsertCommunityTrackerReviewUseCase {
   constructor(
-    private readonly repository: CommunityReviewRepositoryContract,
-    private readonly mapper: CommunityReviewMapperContract,
+    private readonly _repository: CommunityReviewRepositoryContract,
+    private readonly _mapper: CommunityReviewMapperContract,
   ) {}
 
   async execute(
     payload: UpsertCommunityTrackerReviewPayload,
   ): Promise<UpsertCommunityTrackerReviewOutputDto> {
-    const review = await this.repository.upsertTrackerReview({
+    const review = await this._repository.upsertTrackerReview({
       trackerId: payload.trackerId,
       userId: payload.userId,
       rating: this.normalizeRating(payload.rating),
@@ -28,7 +28,7 @@ export class UpsertCommunityTrackerReviewUseCase {
       )
     }
 
-    const tracker = await this.repository.findPublicTrackerDetail(
+    const tracker = await this._repository.findPublicTrackerDetail(
       payload.trackerId,
       payload.userId,
     )
@@ -38,8 +38,8 @@ export class UpsertCommunityTrackerReviewUseCase {
     }
 
     return {
-      review: this.mapper.toReviewView(review),
-      ratingSummary: this.mapper.toPublicTrackerDetailView(tracker).ratingSummary,
+      review: this._mapper.toReviewView(review),
+      ratingSummary: this._mapper.toPublicTrackerDetailView(tracker).ratingSummary,
     }
   }
 

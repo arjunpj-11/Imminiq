@@ -4,16 +4,16 @@ import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
 
 export class GetCurrentRoadmapUseCase {
   constructor(
-    private readonly dashboardRepository: DashboardTrackerRepositoryContract,
-    private readonly dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: DashboardTrackerRepositoryContract,
+    private readonly _dashboardMapper: DashboardMapperContract
   ) {}
 
   async execute(userId: string): Promise<DashboardActiveTracker | null> {
-    const trackerSummary = await this.dashboardRepository.getTrackerOverview(userId)
+    const trackerSummary = await this._dashboardRepository.getTrackerOverview(userId)
     const currentTracker = trackerSummary.activeTrackers[0]
 
     return currentTracker
-      ? this.dashboardMapper.toActiveTracker(currentTracker)
+      ? this._dashboardMapper.toActiveTracker(currentTracker)
       : null
   }
 }

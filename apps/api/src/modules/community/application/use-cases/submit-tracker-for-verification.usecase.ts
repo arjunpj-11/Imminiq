@@ -14,8 +14,8 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class SubmitTrackerForVerificationUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(
@@ -23,7 +23,7 @@ export class SubmitTrackerForVerificationUseCase {
   ): Promise<CommunityVerificationSubmissionView> {
 
     console.log('Executing SubmitTrackerForVerificationUseCase with payload:', payload);
-    const submission = await this.repository.submitTrackerForVerification({
+    const submission = await this._repository.submitTrackerForVerification({
       trackerId: payload.trackerId,
       userId: payload.userId,
       requiredVotes: this.normalizeRequiredVotes(payload.requiredVotes),
@@ -39,7 +39,7 @@ export class SubmitTrackerForVerificationUseCase {
       )
     }
 
-    return this.mapper.toVerificationSubmissionView(submission)
+    return this._mapper.toVerificationSubmissionView(submission)
   }
 
   private normalizeRequiredVotes(value?: number): number {

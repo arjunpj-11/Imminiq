@@ -11,7 +11,7 @@ type ImportSharedMockTestRepository =
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
 
 export class ImportSharedMockTestUseCase {
-  constructor(private readonly repo: ImportSharedMockTestRepository) {}
+  constructor(private readonly _repo: ImportSharedMockTestRepository) {}
 
   async execute(input: { userId: string; shareToken: string }) {
     const shareToken = input.shareToken.trim()
@@ -20,7 +20,7 @@ export class ImportSharedMockTestUseCase {
       throw MockTestsApplicationError.invalidShareLink()
     }
 
-    const sourceTest = await this.repo.findSharedTestByToken(shareToken)
+    const sourceTest = await this._repo.findSharedTestByToken(shareToken)
 
     if (!sourceTest || !sourceTest.isShareEnabled) {
       throw MockTestsApplicationError.sharedTestNotFound()
@@ -34,7 +34,7 @@ export class ImportSharedMockTestUseCase {
       }
     }
 
-    const existingImport = await this.repo.findImportedSharedTest({
+    const existingImport = await this._repo.findImportedSharedTest({
   ownerId: input.userId,
   sourceTestId: sourceTest._id,
 })
@@ -47,13 +47,13 @@ export class ImportSharedMockTestUseCase {
       }
     }
 
-    const sourceQuestions = await this.repo.findQuestionsByTest(sourceTest._id)
+    const sourceQuestions = await this._repo.findQuestionsByTest(sourceTest._id)
 
     if (!sourceQuestions.length) {
       throw MockTestsApplicationError.sharedTestEmpty()
     }
 
-    const importedTest = await this.repo.createTest({
+    const importedTest = await this._repo.createTest({
       ownerId: input.userId,
       sourceTestId: sourceTest._id,
       title: sourceTest.title,
@@ -67,7 +67,7 @@ export class ImportSharedMockTestUseCase {
       isAIGenerated: sourceTest.isAIGenerated,
     })
 
-    await this.repo.createQuestions(
+    await this._repo.createQuestions(
       sourceQuestions.map((question) => ({
         testId: importedTest._id,
         type: question.type,
@@ -82,7 +82,7 @@ export class ImportSharedMockTestUseCase {
       })),
     )
 
-    await this.repo.incrementCloneCount(sourceTest._id)
+    await this._repo.incrementCloneCount(sourceTest._id)
 
     return {
       test: importedTest,

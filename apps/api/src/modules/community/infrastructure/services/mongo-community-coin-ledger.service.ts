@@ -3,8 +3,8 @@ import type {
   AwardCommunityCoinsResult,
   CommunityCoinLedgerContract,
 } from '../../domain/services/community-coin-ledger.service.interface'
-import { CommunityUserModel } from '../repositories/mongo-community.models'
-import type { MongoUserRecord } from '../repositories/mongo-community.types'
+import { CommunityUserModel } from '../repositories/shared/mongo-community.models'
+import type { MongoUserRecord } from '../repositories/shared/mongo-community.types'
 
 export class MongoCommunityCoinLedgerService
   implements CommunityCoinLedgerContract

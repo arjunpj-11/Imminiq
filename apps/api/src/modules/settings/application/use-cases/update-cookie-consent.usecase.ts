@@ -8,19 +8,19 @@ type UpdateCookieConsentRepository = {
 
 export class UpdateCookieConsentUseCase {
   constructor(
-    private readonly settingsRepository: UpdateCookieConsentRepository,
-    private readonly settingsMapper: SettingsMapperContract,
+    private readonly _settingsRepository: UpdateCookieConsentRepository,
+    private readonly _settingsMapper: SettingsMapperContract,
   ) {}
 
   async execute(
     userId: string,
     cookieConsent: boolean,
   ): Promise<UserSettingsView | null> {
-    const settings = await this.settingsRepository.updateCookieConsent({
+    const settings = await this._settingsRepository.updateCookieConsent({
       userId,
       cookieConsent,
     })
 
-    return this.settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings)
   }
 }

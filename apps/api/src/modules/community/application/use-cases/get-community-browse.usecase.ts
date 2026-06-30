@@ -9,8 +9,8 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class GetCommunityBrowseUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(payload: CommunityTrackerListPayload): Promise<CommunityBrowseView> {
@@ -18,7 +18,7 @@ export class GetCommunityBrowseUseCase {
     const limit = this.normalizeLimit(payload.limit)
 
     const [trackers, stats, topics, verifyStats] = await Promise.all([
-      this.repository.findPublicTrackers({
+      this._repository.findPublicTrackers({
         userId: payload.userId,
         search: payload.search,
         topics: payload.topics,
@@ -28,16 +28,16 @@ export class GetCommunityBrowseUseCase {
         page,
         limit,
       }),
-      this.repository.getPersonalStats(payload.userId),
-      this.repository.findAvailableTopics(),
-      this.repository.getVerificationStats(payload.userId),
+      this._repository.getPersonalStats(payload.userId),
+      this._repository.findAvailableTopics(),
+      this._repository.getVerificationStats(payload.userId),
     ])
 
-    const trackerList = this.mapper.toTrackerListView(trackers)
+    const trackerList = this._mapper.toTrackerListView(trackers)
 
     return {
       ...trackerList,
-      stats: this.mapper.toStatCards(stats),
+      stats: this._mapper.toStatCards(stats),
       topics,
       verifyBanner: {
         queueCount: verifyStats.queueCount,

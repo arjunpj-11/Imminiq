@@ -20,8 +20,8 @@ type ListMockTestsRepository =
 
 export class ListMockTestsUseCase {
   constructor(
-    private readonly repo: ListMockTestsRepository,
-    private readonly mapper: MockTestsMapperContract,
+    private readonly _repo: ListMockTestsRepository,
+    private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(userId: string, options: ListMockTestsOptions = {}) {
@@ -29,15 +29,15 @@ export class ListMockTestsUseCase {
     const limit = this.sanitizeLimit(options.limit)
 
     const [{ tests, total }, summary] = await Promise.all([
-      this.repo.findTestsByOwner({
+      this._repo.findTestsByOwner({
         ownerId: userId,
         page,
         limit,
       }),
-      this.repo.getUserSummary(userId),
+      this._repo.getUserSummary(userId),
     ])
 
-    const latestAttemptMap = await this.repo.findLatestAttemptsForTests({
+    const latestAttemptMap = await this._repo.findLatestAttemptsForTests({
       userId,
       testIds: tests.map((test) => test._id),
     })
@@ -47,7 +47,7 @@ export class ListMockTestsUseCase {
     return {
       summary,
       tests: tests.map((test) =>
-        this.mapper.toListItem(test, latestAttemptMap[test._id] || null),
+        this._mapper.toListItem(test, latestAttemptMap[test._id] || null),
       ),
       pagination: {
         page,

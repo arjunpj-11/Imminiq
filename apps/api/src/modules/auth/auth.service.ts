@@ -20,30 +20,30 @@ import {
 } from './auth.factory'
 
 export class AuthService {
-  private readonly useCases: AuthComposition['useCases']
-  private readonly helpers: AuthComposition['helpers']
+  private readonly _useCases: AuthComposition['useCases']
+  private readonly _helpers: AuthComposition['helpers']
 
   constructor(composition: AuthComposition) {
-    this.useCases = composition.useCases
-    this.helpers = composition.helpers
+    this._useCases = composition.useCases
+    this._helpers = composition.helpers
   }
 
   register(payload: RegisterPayload) {
-    return this.useCases.registerUser.execute(payload)
+    return this._useCases.registerUser.execute(payload)
   }
 
   login(
     payload: LoginPayload,
     meta?: RequestMeta
   ): Promise<AuthLoginResult> {
-    return this.useCases.loginUser.execute(payload, meta)
+    return this._useCases.loginUser.execute(payload, meta)
   }
 
   handleOAuthLogin(
     user: OAuthLoginUser,
     meta?: RequestMeta
   ): Promise<AuthLoginResult> {
-    return this.useCases.handleOAuthLogin.execute(user, meta)
+    return this._useCases.handleOAuthLogin.execute(user, meta)
   }
 
   verifyTwoFactorLogin(
@@ -51,7 +51,7 @@ export class AuthService {
     payload: TwoFactorLoginVerifyPayload,
     meta?: RequestMeta
   ): Promise<AuthLoginSuccessResult> {
-    return this.useCases.verifyTwoFactorLogin.execute(
+    return this._useCases.verifyTwoFactorLogin.execute(
       challengeToken,
       payload,
       meta
@@ -59,42 +59,42 @@ export class AuthService {
   }
 
   logout(refreshToken: string) {
-    return this.useCases.logoutUser.execute(refreshToken)
+    return this._useCases.logoutUser.execute(refreshToken)
   }
 
   logoutAll(userId: string) {
-    return this.useCases.logoutAllSessions.execute(userId)
+    return this._useCases.logoutAllSessions.execute(userId)
   }
 
   refreshTokens(
     refreshToken: string,
     meta?: RequestMeta
   ): Promise<TokenPair> {
-    return this.useCases.refreshAuthTokens.execute(refreshToken, meta)
+    return this._useCases.refreshAuthTokens.execute(refreshToken, meta)
   }
 
   getMe(userId: string): Promise<AuthUser> {
-    return this.useCases.getCurrentUser.execute(userId)
+    return this._useCases.getCurrentUser.execute(userId)
   }
 
   verifyAccount(identifier: string, otp: string) {
-    return this.useCases.verifyAccount.execute(identifier, otp)
+    return this._useCases.verifyAccount.execute(identifier, otp)
   }
 
   resendOtp(identifier: string, purpose: OtpPurpose) {
-    return this.useCases.resendOtp.execute(identifier, purpose)
+    return this._useCases.resendOtp.execute(identifier, purpose)
   }
 
   forgotPassword(identifier: string) {
-    return this.useCases.forgotPassword.execute(identifier)
+    return this._useCases.forgotPassword.execute(identifier)
   }
 
   verifyResetCode(identifier: string, otp: string) {
-    return this.useCases.verifyResetCode.execute(identifier, otp)
+    return this._useCases.verifyResetCode.execute(identifier, otp)
   }
 
   resetPassword(resetToken: string, newPassword: string) {
-    return this.useCases.resetPassword.execute(resetToken, newPassword)
+    return this._useCases.resetPassword.execute(resetToken, newPassword)
   }
 
   changePassword(
@@ -102,7 +102,7 @@ export class AuthService {
     currentPassword: string,
     newPassword: string
   ) {
-    return this.useCases.changePassword.execute(
+    return this._useCases.changePassword.execute(
       userId,
       currentPassword,
       newPassword
@@ -110,19 +110,19 @@ export class AuthService {
   }
 
   checkIdentifier(identifier: string) {
-    return this.useCases.checkIdentifier.execute(identifier)
+    return this._useCases.checkIdentifier.execute(identifier)
   }
 
   checkUsername(username: string) {
-    return this.useCases.checkUsername.execute(username)
+    return this._useCases.checkUsername.execute(username)
   }
 
   getSessions(userId: string) {
-    return this.useCases.getAuthSessions.execute(userId)
+    return this._useCases.getAuthSessions.execute(userId)
   }
 
   revokeSession(userId: string, sessionId: string) {
-    return this.useCases.revokeAuthSession.execute(userId, sessionId)
+    return this._useCases.revokeAuthSession.execute(userId, sessionId)
   }
 
   generateTokenPair(
@@ -130,34 +130,34 @@ export class AuthService {
     role: AuthRole,
     meta?: RequestMeta
   ): Promise<TokenPair> {
-    return this.helpers.authSessionService.issueTokenPair(userId, role, meta)
+    return this._helpers.authSessionService.issueTokenPair(userId, role, meta)
   }
 
   generateTwoFactorChallengeToken(userId: string): string {
-    return this.helpers.authTokenService.generateTwoFactorChallengeToken(userId)
+    return this._helpers.authTokenService.generateTwoFactorChallengeToken(userId)
   }
 
   generateOtp(): string {
-    return this.helpers.otpGenerator.generate()
+    return this._helpers.otpGenerator.generate()
   }
 
   generateRegistrationUsername(data: {
     email?: string
     fullName: string
   }) {
-    return this.helpers.usernameGenerator.generateRegistrationUsername(data)
+    return this._helpers.usernameGenerator.generateRegistrationUsername(data)
   }
 
   generateUsername(fullName: string) {
-    return this.helpers.usernameGenerator.generateUsername(fullName)
+    return this._helpers.usernameGenerator.generateUsername(fullName)
   }
 
   generateUniqueUsernameFromSource(source: string) {
-    return this.helpers.usernameGenerator.generateUniqueUsernameFromSource(source)
+    return this._helpers.usernameGenerator.generateUniqueUsernameFromSource(source)
   }
 
   formatter(user: AuthUserMapperInput) {
-    return this.helpers.authUserMapper.toAuthUser(user)
+    return this._helpers.authUserMapper.toAuthUser(user)
   }
 }
 

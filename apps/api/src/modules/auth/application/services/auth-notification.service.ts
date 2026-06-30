@@ -25,12 +25,12 @@ export type { AuthNotificationServiceContract }
 export class AuthNotificationService
   implements AuthNotificationServiceContract {
   constructor(
-    private readonly otpStore: OtpStoreContract,
-    private readonly otpGenerator: OtpGeneratorContract,
-    private readonly identifierNormalizer: IdentifierNormalizerContract,
-    private readonly phoneOtpProvider: PhoneOtpProviderContract,
-    private readonly phoneOtpSessionStore: PhoneOtpSessionStoreContract,
-    private readonly otpEmailProvider: OtpEmailProviderContract
+    private readonly _otpStore: OtpStoreContract,
+    private readonly _otpGenerator: OtpGeneratorContract,
+    private readonly _identifierNormalizer: IdentifierNormalizerContract,
+    private readonly _phoneOtpProvider: PhoneOtpProviderContract,
+    private readonly _phoneOtpSessionStore: PhoneOtpSessionStoreContract,
+    private readonly _otpEmailProvider: OtpEmailProviderContract
   ) {}
 
   async sendVerificationOtp(data: {
@@ -39,7 +39,7 @@ export class AuthNotificationService
     method: VerificationMethod
   }): Promise<void> {
     const purpose =
-      this.identifierNormalizer.getVerificationPurpose(data.method)
+      this._identifierNormalizer.getVerificationPurpose(data.method)
 
     if (data.email) {
       await this.sendEmailOtp({
@@ -109,16 +109,16 @@ export class AuthNotificationService
     purpose: OtpPurpose
     templateType: 'verify_account' | 'reset_password'
   }): Promise<void> {
-    const otp = this.otpGenerator.generate()
+    const otp = this._otpGenerator.generate()
 
     try {
-      await this.otpStore.saveOtp({
+      await this._otpStore.saveOtp({
         email: data.email,
         otp,
         purpose: data.purpose,
       })
 
-      await this.otpEmailProvider.sendOtp({
+      await this._otpEmailProvider.sendOtp({
         email: data.email,
         otp,
         purpose: data.purpose,
@@ -138,9 +138,9 @@ export class AuthNotificationService
     purpose: PhoneOtpPurpose
   ): Promise<void> {
     try {
-      const { verificationId } = await this.phoneOtpProvider.sendOtp(phone)
+      const { verificationId } = await this._phoneOtpProvider.sendOtp(phone)
 
-      await this.phoneOtpSessionStore.saveVerificationId(
+      await this._phoneOtpSessionStore.saveVerificationId(
         phone,
         purpose,
         verificationId

@@ -13,8 +13,8 @@ export interface UsernameGeneratorServiceContract {
 
 export class UsernameGeneratorService implements UsernameGeneratorServiceContract {
   constructor(
-    private readonly authRepository: AuthUserRepositoryContract,
-    private readonly randomNumberGenerator: RandomNumberGeneratorContract
+    private readonly _authRepository: AuthUserRepositoryContract,
+    private readonly _randomNumberGenerator: RandomNumberGeneratorContract
   ) {}
 
   async generateRegistrationUsername(data: {
@@ -48,12 +48,12 @@ export class UsernameGeneratorService implements UsernameGeneratorServiceContrac
         ? sanitizedBase
         : `${sanitizedBase}user`.slice(0, 24)
 
-    if (!(await this.authRepository.usernameExists(base))) {
+    if (!(await this._authRepository.usernameExists(base))) {
       return base
     }
 
     for (let attempt = 0; attempt < 60; attempt += 1) {
-      const suffix = this.randomNumberGenerator
+      const suffix = this._randomNumberGenerator
         .integer(10, 100000)
         .toString()
       const separator = attempt % 2 === 0 ? '_' : ''
@@ -61,7 +61,7 @@ export class UsernameGeneratorService implements UsernameGeneratorServiceContrac
       const candidateBase = base.slice(0, Math.max(3, maxBaseLength))
       const candidate = `${candidateBase}${separator}${suffix}`
 
-      if (!(await this.authRepository.usernameExists(candidate))) {
+      if (!(await this._authRepository.usernameExists(candidate))) {
         return candidate
       }
     }

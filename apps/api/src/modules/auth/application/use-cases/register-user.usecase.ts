@@ -10,12 +10,12 @@ import type { UsernameGeneratorServiceContract } from '../services/username-gene
 
 export class RegisterUserUseCase {
   constructor(
-    private readonly authRepository: AuthUserRepositoryContract,
-    private readonly authNotificationService: AuthNotificationServiceContract,
-    private readonly identifierNormalizer: IdentifierNormalizerContract,
-    private readonly usernameGenerator: UsernameGeneratorServiceContract,
-    private readonly passwordHasher: PasswordHasherServiceContract,
-    private readonly authUserMapper: AuthUserMapperContract
+    private readonly _authRepository: AuthUserRepositoryContract,
+    private readonly _authNotificationService: AuthNotificationServiceContract,
+    private readonly _identifierNormalizer: IdentifierNormalizerContract,
+    private readonly _usernameGenerator: UsernameGeneratorServiceContract,
+    private readonly _passwordHasher: PasswordHasherServiceContract,
+    private readonly _authUserMapper: AuthUserMapperContract
   ) {}
 
   async execute(payload: RegisterPayload): Promise<{
@@ -25,22 +25,22 @@ export class RegisterUserUseCase {
   }> {
     const { fullName, identifier, password } = payload
 
-    const parsedIdentifier = this.identifierNormalizer.normalize(identifier)
+    const parsedIdentifier = this._identifierNormalizer.normalize(identifier)
 
     if (parsedIdentifier.email) {
-      const existingUser = await this.authRepository.findByEmail(
+      const existingUser = await this._authRepository.findByEmail(
         parsedIdentifier.email
       )
 
       if (existingUser) {
         if (!existingUser.emailVerified) {
-          await this.authNotificationService.sendVerificationOtp({
+          await this._authNotificationService.sendVerificationOtp({
             email: parsedIdentifier.email,
             method: 'email',
           })
 
           return {
-            user: this.authUserMapper.toAuthUser(existingUser),
+            user: this._authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -51,19 +51,19 @@ export class RegisterUserUseCase {
     }
 
     if (parsedIdentifier.phone) {
-      const existingUser = await this.authRepository.findByPhone(
+      const existingUser = await this._authRepository.findByPhone(
         parsedIdentifier.phone
       )
 
       if (existingUser) {
         if (!existingUser.phoneVerified) {
-          await this.authNotificationService.sendVerificationOtp({
+          await this._authNotificationService.sendVerificationOtp({
             phone: parsedIdentifier.phone,
             method: 'phone',
           })
 
           return {
-            user: this.authUserMapper.toAuthUser(existingUser),
+            user: this._authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -73,14 +73,14 @@ export class RegisterUserUseCase {
       }
     }
 
-    const username = await this.usernameGenerator.generateRegistrationUsername({
+    const username = await this._usernameGenerator.generateRegistrationUsername({
       email: parsedIdentifier.email,
       fullName,
     })
 
-    const passwordHash = await this.passwordHasher.hash(password)
+    const passwordHash = await this._passwordHasher.hash(password)
 
-    const user = await this.authRepository.createUser({
+    const user = await this._authRepository.createUser({
       fullName,
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
@@ -88,14 +88,14 @@ export class RegisterUserUseCase {
       passwordHash,
     })
 
-    await this.authNotificationService.sendVerificationOtp({
+    await this._authNotificationService.sendVerificationOtp({
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
       method: parsedIdentifier.method,
     })
 
     return {
-      user: this.authUserMapper.toAuthUser(user),
+      user: this._authUserMapper.toAuthUser(user),
       verificationTarget: parsedIdentifier.value,
       verificationMethod: parsedIdentifier.method,
     }

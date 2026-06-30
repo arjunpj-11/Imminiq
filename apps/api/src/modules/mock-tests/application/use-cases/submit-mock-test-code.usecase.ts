@@ -12,8 +12,8 @@ type SubmitMockTestCodeRepository =
 
 export class SubmitMockTestCodeUseCase {
   constructor(
-    private readonly repo: SubmitMockTestCodeRepository,
-    private readonly codeRunner: MockTestCodeRunnerServiceContract,
+    private readonly _repo: SubmitMockTestCodeRepository,
+    private readonly _codeRunner: MockTestCodeRunnerServiceContract,
   ) {}
 
   async execute(
@@ -22,7 +22,7 @@ export class SubmitMockTestCodeUseCase {
     questionId: string,
     payload: SubmitMockTestCodePayload,
   ) {
-    const attempt = await this.repo.findAttemptById(attemptId)
+    const attempt = await this._repo.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -36,7 +36,7 @@ export class SubmitMockTestCodeUseCase {
       throw MockTestsApplicationError.testNotActive()
     }
 
-    const question = await this.repo.findQuestionById(questionId)
+    const question = await this._repo.findQuestionById(questionId)
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found')
@@ -46,7 +46,7 @@ export class SubmitMockTestCodeUseCase {
       throw MockTestsApplicationError.notCodingQuestion()
     }
 
-    const result = await this.codeRunner.run({
+    const result = await this._codeRunner.run({
       sourceCode: payload.sourceCode,
       coding: question.coding,
       mode: 'submit',
@@ -59,18 +59,18 @@ export class SubmitMockTestCodeUseCase {
         ? Math.round((result.passedCount / result.totalCount) * question.points)
         : 0
 
-    const existing = await this.repo.findAnswerByQuestion({
+    const existing = await this._repo.findAnswerByQuestion({
       attemptId,
       questionId,
     })
 
     const answer = existing
-      ? await this.repo.updateAnswer(existing._id, {
+      ? await this._repo.updateAnswer(existing._id, {
           answer: payload.sourceCode,
           isCorrect: result.passed,
           pointsEarned,
         })
-      : await this.repo.saveAnswer({
+      : await this._repo.saveAnswer({
           attemptId,
           questionId,
           answer: payload.sourceCode,
@@ -83,7 +83,7 @@ export class SubmitMockTestCodeUseCase {
     }
 
     if (!existing) {
-      await this.repo.incrementAnsweredCount(attemptId)
+      await this._repo.incrementAnsweredCount(attemptId)
     }
 
     return {

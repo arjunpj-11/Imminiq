@@ -1,0 +1,128 @@
+import { useMemo } from 'react'
+
+import { useActivityFeed } from '../hooks/useActivityFeed'
+import type {
+  ActivityFeedFilter,
+  ActivityPageResponse,
+} from '../types/activity.types'
+import { mergeActivityFeedPages } from '../utils/activity-formatters'
+import ActivityFeed from './ActivityFeed'
+import ActivityFilterTabs from './ActivityFilterTabs'
+import ActivityHeader from './ActivityHeader'
+import ActivityHeatmap from './ActivityHeatmap'
+import ActivitySidebar from './ActivitySidebar'
+import ActivityStatsGrid from './ActivityStatsGrid'
+
+interface ActivityDashboardProps {
+  activity: ActivityPageResponse
+  filter: ActivityFeedFilter
+  year: number
+  utcOffsetMinutes: number
+  isPageFetching: boolean
+  onFilterChange: (filter: ActivityFeedFilter) => void
+  onYearChange: (year: number) => void
+}
+
+export default function ActivityDashboard({
+  activity,
+  filter,
+  year,
+  utcOffsetMinutes,
+  isPageFetching,
+  onFilterChange,
+  onYearChange,
+}: ActivityDashboardProps) {
+  const generatedAtMs = Date.parse(activity.generatedAt)
+
+  /**
+   * React components must remain pure during rendering.
+   *
+   * Do not use Date.now() here because it produces a different value
+   * between renders and triggers the react-hooks/purity rule.
+   *
+   * A value of 0 tells TanStack Query that the initial data is old,
+   * allowing it to refetch when generatedAt is invalid.
+   */
+  const initialDataUpdatedAt = Number.isNaN(generatedAtMs)
+    ? 0
+    : generatedAtMs
+
+  const feedQuery = useActivityFeed({
+    filter,
+    limit: activity.feed.pagination.limit,
+    utcOffsetMinutes,
+    initialFeed: activity.feed,
+    initialDataUpdatedAt,
+  })
+
+  const feedGroups = useMemo(
+    () =>
+      mergeActivityFeedPages(
+        feedQuery.data?.pages ?? [activity.feed],
+      ),
+    [activity.feed, feedQuery.data?.pages],
+  )
+
+  const isUpdating =
+    (isPageFetching || feedQuery.isFetching) &&
+    !feedQuery.isFetchingNextPage
+
+  return (
+    <>
+      <ActivityHeader
+        currentStreak={activity.streak.currentStreak}
+      />
+
+      <ActivityStatsGrid stats={activity.stats} />
+
+      <ActivityHeatmap
+        streak={activity.streak}
+        year={year}
+        accountCreatedAt={activity.user.accountCreatedAt}
+        isFetching={isPageFetching}
+        onYearChange={onYearChange}
+      />
+
+      <div className="flex items-start gap-5 max-[860px]:flex-col">
+        <div className="flex min-w-0 flex-1 flex-col gap-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <ActivityFilterTabs
+              activeFilter={filter}
+              disabled={isPageFetching}
+              onChange={onFilterChange}
+            />
+
+            {isUpdating && (
+              <div
+                className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]"
+                role="status"
+                aria-live="polite"
+              >
+                Updating activity…
+              </div>
+            )}
+          </div>
+
+          <ActivityFeed
+            groups={feedGroups}
+            hasMore={Boolean(feedQuery.hasNextPage)}
+            isFetchingNextPage={
+              feedQuery.isFetchingNextPage
+            }
+            isFetchNextPageError={
+              feedQuery.isFetchNextPageError
+            }
+            onLoadMore={() => {
+              void feedQuery.fetchNextPage()
+            }}
+          />
+        </div>
+
+        <ActivitySidebar
+          weekly={activity.weekly}
+          personalBests={activity.personalBests}
+        />
+      </div>
+    </>
+  )
+}

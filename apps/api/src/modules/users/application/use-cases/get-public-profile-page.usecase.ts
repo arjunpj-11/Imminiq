@@ -20,9 +20,9 @@ type PublicProfileRepository =
 
 export class GetPublicProfilePageUseCase {
   constructor(
-    private readonly usersRepository: PublicProfileRepository,
-    private readonly usersMapper: UsersMapperContract,
-    private readonly usersProfileDataService: UsersProfileDataServiceContract,
+    private readonly _usersRepository: PublicProfileRepository,
+    private readonly _usersMapper: UsersMapperContract,
+    private readonly _usersProfileDataService: UsersProfileDataServiceContract,
   ) {}
 
   async execute(
@@ -30,17 +30,17 @@ export class GetPublicProfilePageUseCase {
     viewerUserId: string | undefined,
     query: PaginationQuery,
   ): Promise<PublicProfilePageView> {
-    const user = await this.usersRepository.findByUsername(username)
+    const user = await this._usersRepository.findByUsername(username)
 
     if (!user) {
       throw UsersApplicationError.userNotFound()
     }
 
     const [profile, settings] = await Promise.all([
-      this.usersRepository.ensureForUser({
+      this._usersRepository.ensureForUser({
         userId: user.id,
       }),
-      this.usersRepository.findPrivacySettings(user.id),
+      this._usersRepository.findPrivacySettings(user.id),
     ])
 
     if (!profile.publicProfileEnabled || settings?.showProfile === false) {
@@ -57,17 +57,17 @@ export class GetPublicProfilePageUseCase {
     ] = await Promise.all([
       settings?.showStats === false
         ? Promise.resolve(null)
-        : this.usersProfileDataService.getStats(user.id, user, profile),
+        : this._usersProfileDataService.getStats(user.id, user, profile),
 
       settings?.showStats === false
         ? Promise.resolve(null)
-        : this.usersProfileDataService.getStreakSummary(user.id),
+        : this._usersProfileDataService.getStreakSummary(user.id),
 
-      this.usersProfileDataService.getBadgeShowcase(user.id),
+      this._usersProfileDataService.getBadgeShowcase(user.id),
 
       settings?.showTrackers === false
         ? Promise.resolve({ items: [], total: 0 })
-        : this.usersRepository.findPublishedTrackers({
+        : this._usersRepository.findPublishedTrackers({
             ownerId: user.id,
             query,
             includePrivate: false,
@@ -75,30 +75,30 @@ export class GetPublicProfilePageUseCase {
 
       settings?.showActivity === false
         ? Promise.resolve(null)
-        : this.usersRepository
+        : this._usersRepository
             .findRecentActivity({
               userId: user.id,
               limit: 10,
             })
             .then((items) =>
-              items.map((item) => this.usersMapper.toActivityView(item)),
+              items.map((item) => this._usersMapper.toActivityView(item)),
             ),
 
-      this.usersRepository.getRelationshipState({
+      this._usersRepository.getRelationshipState({
         viewerUserId,
         targetUserId: user.id,
       }),
     ])
 
     return {
-      user: this.usersMapper.toUserView(user),
-      profile: this.usersMapper.toProfileView(profile),
+      user: this._usersMapper.toUserView(user),
+      profile: this._usersMapper.toProfileView(profile),
       stats,
       streak,
       badges,
       publishedTrackers: {
         items: publishedTrackers.items.map((item) =>
-          this.usersMapper.toPublishedTrackerView(item),
+          this._usersMapper.toPublishedTrackerView(item),
         ),
         pagination: {
           page: query.page,

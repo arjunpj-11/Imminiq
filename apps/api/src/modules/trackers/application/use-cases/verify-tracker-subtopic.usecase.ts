@@ -29,15 +29,15 @@ type VerifyTrackerSubtopicResultDto = ReturnType<
 
 export class VerifyTrackerSubtopicUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerAIService: TrackerAIServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(
     input: VerifyTrackerSubtopicInput,
   ): Promise<VerifyTrackerSubtopicResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -46,7 +46,7 @@ export class VerifyTrackerSubtopicUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const result = await this.trackerAIService.verifyTrackerSubtopic({
+    const result = await this._trackerAIService.verifyTrackerSubtopic({
       trackerTitle: input.trackerTitle || tracker.title || '',
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,
@@ -56,6 +56,6 @@ export class VerifyTrackerSubtopicUseCase {
       existingSubtopics: input.existingSubtopics,
     })
 
-    return this.trackerMapper.toTrackerAIValidationDto(result)
+    return this._trackerMapper.toTrackerAIValidationDto(result)
   }
 }

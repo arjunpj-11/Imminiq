@@ -1,0 +1,20 @@
+import {
+  LEADERBOARD_REWARDS,
+  LEADERBOARD_SCORING_RULES,
+} from '../constants/leaderboard.constants'
+import type { LeaderboardRewardsResponse } from '../dtos/leaderboard.dto'
+
+export class GetLeaderboardRewardsUseCase {
+  execute(): LeaderboardRewardsResponse {
+    return {
+      students: {
+        scoringRules: LEADERBOARD_SCORING_RULES.students,
+        reward: LEADERBOARD_REWARDS.students,
+      },
+      trainers: {
+        scoringRules: LEADERBOARD_SCORING_RULES.trainers,
+        reward: LEADERBOARD_REWARDS.trainers,
+      },
+    }
+  }
+}

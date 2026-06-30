@@ -7,19 +7,19 @@ import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
 
 export class SaveOnboardingStepTwoUseCase {
   constructor(
-    private readonly onboardingRepository: OnboardingResponseCommandRepositoryContract,
-    private readonly onboardingMapper: OnboardingMapperContract,
+    private readonly _onboardingRepository: OnboardingResponseCommandRepositoryContract,
+    private readonly _onboardingMapper: OnboardingMapperContract,
   ) {}
 
   async execute(
     userId: string,
     payload: SaveOnboardingStepTwoPayload,
   ): Promise<OnboardingResponseRecord | null> {
-    const response = await this.onboardingRepository.saveStep2({
+    const response = await this._onboardingRepository.saveStep2({
       userId,
       level: payload.level,
     })
 
-    return this.onboardingMapper.toResponseDto(response)
+    return this._onboardingMapper.toResponseDto(response)
   }
 }

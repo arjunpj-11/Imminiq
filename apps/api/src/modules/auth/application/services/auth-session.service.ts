@@ -15,8 +15,8 @@ export interface AuthSessionServiceContract {
 
 export class AuthSessionService implements AuthSessionServiceContract {
   constructor(
-    private readonly authSessionRepository: AuthSessionRepositoryContract,
-    private readonly authTokenService: AuthTokenServiceContract
+    private readonly _authSessionRepository: AuthSessionRepositoryContract,
+    private readonly _authTokenService: AuthTokenServiceContract
   ) {}
 
   async issueTokenPair(
@@ -24,11 +24,11 @@ export class AuthSessionService implements AuthSessionServiceContract {
     role: AuthRole,
     meta?: RequestMeta
   ): Promise<TokenPair> {
-    const accessToken = this.authTokenService.generateAccessToken(userId, role)
-    const refreshToken = this.authTokenService.generateRefreshToken()
+    const accessToken = this._authTokenService.generateAccessToken(userId, role)
+    const refreshToken = this._authTokenService.generateRefreshToken()
     const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
-    await this.authSessionRepository.saveSession({
+    await this._authSessionRepository.saveSession({
       userId,
       refreshTokenHash,
       device: meta?.device,

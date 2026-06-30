@@ -11,32 +11,32 @@ import {
 } from './uploads.factory'
 
 export class UploadsService {
-  private readonly useCases: UploadsComposition['useCases']
+  private readonly _useCases: UploadsComposition['useCases']
 
   constructor(composition: UploadsComposition) {
-    this.useCases = composition.useCases
+    this._useCases = composition.useCases
   }
 
   uploadProfileImage(
     input: UploadProfileImageInput
   ): Promise<UploadProfileImageResult> {
-    return this.useCases.uploadProfileImage.execute(input)
+    return this._useCases.uploadProfileImage.execute(input)
   }
 
   removeAvatar(userId: string): Promise<RemoveAvatarResult> {
-    return this.useCases.removeAvatar.execute(userId)
+    return this._useCases.removeAvatar.execute(userId)
   }
 
   removeBanner(userId: string): Promise<RemoveBannerResult> {
-    return this.useCases.removeBanner.execute(userId)
+    return this._useCases.removeBanner.execute(userId)
   }
 
   generateAiAvatarPreview(prompt: string): Promise<AiImagePreviewResult> {
-    return this.useCases.generateAiAvatarPreview.execute(prompt)
+    return this._useCases.generateAiAvatarPreview.execute(prompt)
   }
 
   generateAiBannerPreview(prompt: string): Promise<AiImagePreviewResult> {
-    return this.useCases.generateAiBannerPreview.execute(prompt)
+    return this._useCases.generateAiBannerPreview.execute(prompt)
   }
 }
 

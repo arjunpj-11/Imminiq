@@ -13,17 +13,17 @@ type EvaluateRoadmapRepository =
 
 export class EvaluateRoadmapUseCase {
   constructor(
-    private readonly onboardingRepository: EvaluateRoadmapRepository,
-    private readonly aiJobQueueGateway: AIJobQueueGatewayContract,
-    private readonly aiJobQuotaStore: AIJobQuotaStoreContract,
-    private readonly onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingRepository: EvaluateRoadmapRepository,
+    private readonly _aiJobQueueGateway: AIJobQueueGatewayContract,
+    private readonly _aiJobQuotaStore: AIJobQuotaStoreContract,
+    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
   ) {}
 
   async execute(
     roadmapJobId: string,
     userId: string,
   ): Promise<GenerateRoadmapResult> {
-    const roadmapJob = await this.onboardingRepository.getJobById(roadmapJobId)
+    const roadmapJob = await this._onboardingRepository.getJobById(roadmapJobId)
 
     if (!roadmapJob) {
       throw OnboardingApplicationError.notFound('Roadmap job not found')
@@ -45,7 +45,7 @@ export class EvaluateRoadmapUseCase {
       )
     }
 
-    const trackerId = this.onboardingJobOutputReader.getTrackerId(
+    const trackerId = this._onboardingJobOutputReader.getTrackerId(
       roadmapJob.outputData,
     )
 
@@ -56,7 +56,7 @@ export class EvaluateRoadmapUseCase {
     }
 
     const activeEvaluationJob =
-      await this.onboardingRepository.findActiveEvaluationJobForRoadmap({
+      await this._onboardingRepository.findActiveEvaluationJobForRoadmap({
         userId,
         sourceRoadmapJobId: roadmapJobId,
       })
@@ -65,7 +65,7 @@ export class EvaluateRoadmapUseCase {
       throw OnboardingApplicationError.evaluationJobAlreadyActive()
     }
 
-    const quota = await this.aiJobQuotaStore.consume(
+    const quota = await this._aiJobQuotaStore.consume(
       'roadmap_evaluation',
       userId,
     )
@@ -75,7 +75,7 @@ export class EvaluateRoadmapUseCase {
     }
 
     const evaluationJob =
-      await this.onboardingRepository.createEvaluationAIJob({
+      await this._onboardingRepository.createEvaluationAIJob({
         userId,
         inputData: {
           sourceRoadmapJobId: roadmapJobId,
@@ -83,13 +83,13 @@ export class EvaluateRoadmapUseCase {
         },
       })
 
-    await this.onboardingRepository.createAIJobSteps({
+    await this._onboardingRepository.createAIJobSteps({
       jobId: evaluationJob.id,
       stepLabels: ROADMAP_EVALUATION_STEPS,
     })
 
     try {
-      await this.aiJobQueueGateway.enqueueRoadmapEvaluation({
+      await this._aiJobQueueGateway.enqueueRoadmapEvaluation({
         jobId: evaluationJob.id,
         userId,
         trackerId,

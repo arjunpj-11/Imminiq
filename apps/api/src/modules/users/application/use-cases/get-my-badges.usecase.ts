@@ -3,13 +3,13 @@ import type { UsersMapperContract } from '../mappers/users.mapper'
 
 export class GetMyBadgesUseCase {
   constructor(
-    private readonly usersRepository: UserBadgeRepositoryContract,
-    private readonly usersMapper: UsersMapperContract,
+    private readonly _usersRepository: UserBadgeRepositoryContract,
+    private readonly _usersMapper: UsersMapperContract,
   ) {}
 
   async execute(userId: string, page: number, limit: number) {
     const { items, total } =
-      await this.usersRepository.findEarnedBadgesPaginated({
+      await this._usersRepository.findEarnedBadgesPaginated({
         userId,
         page,
         limit,
@@ -17,7 +17,7 @@ export class GetMyBadgesUseCase {
 
     return {
       items: items.map((item) =>
-        this.usersMapper.toEarnedBadgeView(item),
+        this._usersMapper.toEarnedBadgeView(item),
       ),
       pagination: {
         page,

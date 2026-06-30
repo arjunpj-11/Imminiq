@@ -13,12 +13,12 @@ import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 
 export class CommunityController {
-  constructor(private readonly service: CommunityService) {}
+  constructor(private readonly _service: CommunityService) {}
 
   getBrowse = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = getAuthUser(req)
-      const result = await this.service.getBrowse({
+      const result = await this._service.getBrowse({
         userId: user.userId,
         ...this.getTrackerQuery(req),
       })
@@ -32,7 +32,7 @@ export class CommunityController {
   getTrackers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = getAuthUser(req)
-      const result = await this.service.getTrackers({
+      const result = await this._service.getTrackers({
         userId: user.userId,
         ...this.getTrackerQuery(req),
       })
@@ -51,7 +51,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const trackerId = this.getRequiredParam(req, 'trackerId')
-      const tracker = await this.service.getPublicTrackerDetail(
+      const tracker = await this._service.getPublicTrackerDetail(
         trackerId,
         user.userId,
       )
@@ -64,7 +64,7 @@ export class CommunityController {
 
   getTopics = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const topics = await this.service.getTopics()
+      const topics = await this._service.getTopics()
 
       res.json(new ApiResponse('Community topics fetched', { topics }))
     } catch (error) {
@@ -79,7 +79,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const stats = await this.service.getPersonalStats(user.userId)
+      const stats = await this._service.getPersonalStats(user.userId)
 
       res.json(new ApiResponse('Community stats fetched', { stats }))
     } catch (error) {
@@ -91,7 +91,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const trackerId = this.getRequiredParam(req, 'trackerId')
-      const tracker = await this.service.cloneTracker(trackerId, user.userId)
+      const tracker = await this._service.cloneTracker(trackerId, user.userId)
 
       res
         .status(HttpStatusCode.CREATED)
@@ -112,7 +112,7 @@ export class CommunityController {
     const trackerId = this.getRequiredParam(req, 'trackerId')
     const body = req.body as SendTrackerForVerificationInput
 
-    const submission = await this.service.submitTrackerForVerification({
+    const submission = await this._service.submitTrackerForVerification({
       trackerId,
       userId: user.userId,
       requiredVotes: body.requiredVotes,
@@ -141,7 +141,7 @@ export class CommunityController {
       const user = getAuthUser(req)
       const trackerId = this.getRequiredParam(req, 'trackerId')
       const body = req.body as UpsertCommunityTrackerReviewInput
-      const result = await this.service.upsertTrackerReview({
+      const result = await this._service.upsertTrackerReview({
         trackerId,
         userId: user.userId,
         rating: body.rating,
@@ -164,7 +164,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const reviewId = this.getRequiredParam(req, 'reviewId')
-      const result = await this.service.toggleReviewHelpful({
+      const result = await this._service.toggleReviewHelpful({
         reviewId,
         userId: user.userId,
       })
@@ -182,7 +182,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const result = await this.service.getVerificationDashboard({
+      const result = await this._service.getVerificationDashboard({
         userId: user.userId,
         page: this.getNumberQuery(req, 'page'),
         limit: this.getNumberQuery(req, 'limit'),
@@ -201,7 +201,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const result = await this.service.getVerificationQueue({
+      const result = await this._service.getVerificationQueue({
         userId: user.userId,
         page: this.getNumberQuery(req, 'page'),
         limit: this.getNumberQuery(req, 'limit'),
@@ -220,7 +220,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const leaderboard = await this.service.getVerificationLeaderboard(
+      const leaderboard = await this._service.getVerificationLeaderboard(
         user.userId,
         this.getNumberQuery(req, 'limit'),
       )
@@ -241,7 +241,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const submissionId = this.getRequiredParam(req, 'submissionId')
-      const submission = await this.service.getVerificationSubmission(
+      const submission = await this._service.getVerificationSubmission(
         submissionId,
         user.userId,
       )
@@ -263,7 +263,7 @@ export class CommunityController {
     const user = getAuthUser(req)
     const trackerId = this.getRequiredParam(req, 'trackerId')
 
-    const result = await this.service.toggleTrackerLike({
+    const result = await this._service.toggleTrackerLike({
       trackerId,
       userId: user.userId,
     })
@@ -283,7 +283,7 @@ export class CommunityController {
       const user = getAuthUser(req)
       const submissionId = this.getRequiredParam(req, 'submissionId')
       const body = req.body as VoteVerificationSubmissionInput
-      const result = await this.service.voteVerificationSubmission({
+      const result = await this._service.voteVerificationSubmission({
         submissionId,
         userId: user.userId,
         vote: body.vote,

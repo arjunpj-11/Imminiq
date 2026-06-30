@@ -11,9 +11,9 @@ type ClearLessonQuestionSolutionDoubtsResultDto = ReturnType<
 
 export class ClearLessonQuestionSolutionDoubtsUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly questionHasher: QuestionHasherServiceContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _questionHasher: QuestionHasherServiceContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -22,7 +22,7 @@ export class ClearLessonQuestionSolutionDoubtsUseCase {
     userId: string
     question: string
   }): Promise<ClearLessonQuestionSolutionDoubtsResultDto> {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -32,13 +32,13 @@ export class ClearLessonQuestionSolutionDoubtsUseCase {
     }
 
     const result =
-      await this.trackerRepository.clearLessonQuestionSolutionDoubts({
+      await this._trackerRepository.clearLessonQuestionSolutionDoubts({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
-        questionHash: this.questionHasher.hash(input.question),
+        questionHash: this._questionHasher.hash(input.question),
       })
 
-    return this.trackerMapper.toClearLessonHistoryResultDto(result)
+    return this._trackerMapper.toClearLessonHistoryResultDto(result)
   }
 }

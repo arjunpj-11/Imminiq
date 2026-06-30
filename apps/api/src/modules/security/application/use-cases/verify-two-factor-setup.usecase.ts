@@ -11,10 +11,10 @@ import { SecurityApplicationError } from '../errors/security-application.error'
 
 export class VerifyTwoFactorSetupUseCase {
   constructor(
-    private readonly twoFactorRepository: SecurityTwoFactorRepositoryContract,
-    private readonly twoFactorGateway: TwoFactorGatewayContract,
-    private readonly securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly backupCodeService: TwoFactorBackupCodeServiceContract,
+    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly _twoFactorGateway: TwoFactorGatewayContract,
+    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly _backupCodeService: TwoFactorBackupCodeServiceContract,
   ) {}
 
   async execute(
@@ -24,7 +24,7 @@ export class VerifyTwoFactorSetupUseCase {
     await this.assertSetupVerificationAllowed(userId)
 
     const twoFactor =
-      await this.twoFactorRepository.findTwoFactorWithSecret(userId)
+      await this._twoFactorRepository.findTwoFactorWithSecret(userId)
 
     if (!twoFactor) {
       throw SecurityApplicationError.twoFactorSetupNotFound()
@@ -42,7 +42,7 @@ export class VerifyTwoFactorSetupUseCase {
       throw SecurityApplicationError.twoFactorSecretMissing()
     }
 
-    const valid = await this.twoFactorGateway.verifyToken({
+    const valid = await this._twoFactorGateway.verifyToken({
       encryptedSecret: twoFactor.totpSecretEncrypted,
       token: payload.token,
     })
@@ -52,16 +52,16 @@ export class VerifyTwoFactorSetupUseCase {
       throw SecurityApplicationError.invalidTwoFactorCode()
     }
 
-    await this.securityAttemptStore.clear(
+    await this._securityAttemptStore.clear(
       TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
       userId,
     )
 
-    const backupCodes = this.backupCodeService.generate()
-    const hashedBackupCodes = await this.backupCodeService.hash(backupCodes)
+    const backupCodes = this._backupCodeService.generate()
+    const hashedBackupCodes = await this._backupCodeService.hash(backupCodes)
 
   const activatedTwoFactor =
-  await this.twoFactorRepository.activateTwoFactor({
+  await this._twoFactorRepository.activateTwoFactor({
     userId,
     backupCodes: hashedBackupCodes,
   })
@@ -73,7 +73,7 @@ export class VerifyTwoFactorSetupUseCase {
   }
 
   private async assertSetupVerificationAllowed(userId: string): Promise<void> {
-    const blocked = await this.securityAttemptStore.isBlocked(
+    const blocked = await this._securityAttemptStore.isBlocked(
       TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
       userId,
     )
@@ -84,7 +84,7 @@ export class VerifyTwoFactorSetupUseCase {
   }
 
   private async recordInvalidSetupCode(userId: string): Promise<void> {
-    const result = await this.securityAttemptStore.recordFailure(
+    const result = await this._securityAttemptStore.recordFailure(
       TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
       userId,
       'twoFactorVerification',

@@ -4,8 +4,8 @@ import type { TrackerRepositoryContract } from '../../domain/repositories/tracke
 
 export class GetLessonChatHistoryUseCase {
   constructor(
-    private readonly trackerRepository: TrackerRepositoryContract,
-    private readonly trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: TrackerRepositoryContract,
+    private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
   async execute(input: {
@@ -13,7 +13,7 @@ export class GetLessonChatHistoryUseCase {
     subtopicId: string
     userId: string
   }) {
-    const tracker = await this.trackerRepository.findOwnedTrackerById({
+    const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
     })
@@ -22,11 +22,11 @@ export class GetLessonChatHistoryUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const chatMessages = await this.trackerRepository.getLessonChatMessages({
+    const chatMessages = await this._trackerRepository.getLessonChatMessages({
       ...input,
       scope: 'lesson_doubt_chat',
     })
 
-    return this.trackerMapper.toLessonChatHistoryDto(chatMessages)
+    return this._trackerMapper.toLessonChatHistoryDto(chatMessages)
   }
 }

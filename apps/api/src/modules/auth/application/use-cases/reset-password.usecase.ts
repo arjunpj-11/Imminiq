@@ -11,21 +11,21 @@ type ResetPasswordRepository =
 
 export class ResetPasswordUseCase {
   constructor(
-    private readonly authRepository: ResetPasswordRepository,
-    private readonly passwordResetTokenService: PasswordResetTokenServiceContract,
-    private readonly passwordResetSessionStore: PasswordResetSessionStoreContract,
-    private readonly securityAuditLogger: SecurityAuditLoggerContract,
-    private readonly passwordHasher: PasswordHasherServiceContract
+    private readonly _authRepository: ResetPasswordRepository,
+    private readonly _passwordResetTokenService: PasswordResetTokenServiceContract,
+    private readonly _passwordResetSessionStore: PasswordResetSessionStoreContract,
+    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _passwordHasher: PasswordHasherServiceContract
   ) {}
 
   async execute(resetToken: string, newPassword: string): Promise<void> {
-    const decoded = this.passwordResetTokenService.verify(resetToken)
+    const decoded = this._passwordResetTokenService.verify(resetToken)
 
     const resetSessionUserId =
-      await this.passwordResetSessionStore.consume(decoded.jti)
+      await this._passwordResetSessionStore.consume(decoded.jti)
 
     if (resetSessionUserId !== decoded.userId) {
-      await this.securityAuditLogger.record({
+      await this._securityAuditLogger.record({
         userId: decoded.userId,
         eventType: 'PASSWORD_RESET_TOKEN_REPLAY_OR_EXPIRED',
         outcome: 'detected',
@@ -36,7 +36,7 @@ export class ResetPasswordUseCase {
       )
     }
 
-    const user = await this.authRepository.findById(decoded.userId)
+    const user = await this._authRepository.findById(decoded.userId)
 
     if (!user) {
       throw AuthApplicationError.invalidResetToken(
@@ -44,12 +44,12 @@ export class ResetPasswordUseCase {
       )
     }
 
-    const passwordHash = await this.passwordHasher.hash(newPassword)
+    const passwordHash = await this._passwordHasher.hash(newPassword)
 
-    await this.authRepository.updatePasswordHash(user.id, passwordHash)
-    await this.authRepository.revokeAllUserSessions(user.id)
+    await this._authRepository.updatePasswordHash(user.id, passwordHash)
+    await this._authRepository.revokeAllUserSessions(user.id)
 
-    await this.securityAuditLogger.record({
+    await this._securityAuditLogger.record({
       userId: user.id,
       eventType: 'PASSWORD_RESET_COMPLETED',
       outcome: 'success',

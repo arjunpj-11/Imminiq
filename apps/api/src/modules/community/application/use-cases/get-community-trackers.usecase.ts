@@ -9,15 +9,15 @@ import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class GetCommunityTrackersUseCase {
   constructor(
-    private readonly repository: CommunityRepositoryContract,
-    private readonly mapper: CommunityMapperContract,
+    private readonly _repository: CommunityRepositoryContract,
+    private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(payload: CommunityTrackerListPayload): Promise<CommunityTrackerListView> {
     const page = this.normalizePage(payload.page)
     const limit = this.normalizeLimit(payload.limit)
 
-    const result = await this.repository.findPublicTrackers({
+    const result = await this._repository.findPublicTrackers({
       userId: payload.userId,
       search: payload.search,
       topics: payload.topics,
@@ -28,7 +28,7 @@ export class GetCommunityTrackersUseCase {
       limit,
     })
 
-    return this.mapper.toTrackerListView(result)
+    return this._mapper.toTrackerListView(result)
   }
 
   private normalizePage(page?: number): number {
