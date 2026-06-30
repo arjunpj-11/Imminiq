@@ -41,8 +41,9 @@ import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
 import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
 
 // ─── OTHER APP PAGES ────────────────────────────────
-import LeaderboardPage from './modules/leaderBoard/pages/leaderBoard'
-import ActivityPage from './modules/activity/pages/activity'
+import LeaderboardPage from './modules/leaderboard/pages/LeaderboardPage'
+import LeaderboardRewardsPage from './modules/leaderboard/pages/LeaderboardRewardsPage'
+import ActivityPage from './modules/activity/pages/ActivityPage'
 import CommunityPublicTrackerPage from './modules/community/pages/CommunityPublicTrackerPage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
@@ -425,14 +426,11 @@ export default function App() {
           />
 
           {/* ─── PROTECTED SOCIAL ROUTES ───────────────── */}
-          <Route
-            path="/leaderboard"
-            element={
-              <ProtectedRoute>
-                <LeaderboardPage />
-              </ProtectedRoute>
-            }
-          />
+        <Route path="/leaderboard" element={<LeaderboardPage />} />
+<Route
+  path="/leaderboard/rewards"
+  element={<LeaderboardRewardsPage />}
+/>
 
           <Route
             path="/activity"
@@ -497,6 +495,7 @@ export default function App() {
     </ProtectedRoute>
   }
 />
+
 
           {/* ─── ADMIN ROUTES ───────────────────────────── */}
           <Route

@@ -1,5 +1,6 @@
-import { Types } from "mongoose";
+import mongoose, { Types } from "mongoose";
 
+import { LeaderboardXpEvent } from "../../../../../infrastructure/database/models/leaderboard-xp-event.model";
 import { StreakHistory } from "../../../../../infrastructure/database/models/streak-history.model";
 import { StreakSnapshot } from "../../../../../infrastructure/database/models/streak-snapshot.model";
 import { Tracker } from "../../../../../infrastructure/database/models/tracker.model";
@@ -30,8 +31,8 @@ import type {
   UserTopicProgressRecord,
 } from "../../../domain/types/trackers.types";
 import { MongoTrackerBaseRepository } from "../shared/mongo-tracker-base.repository";
-import { MongoTrackerMapper } from "../shared/mongo-tracker.mapper";
 import { MongoTrackerErrorMapper } from "../shared/mongo-tracker-error.mapper";
+import { MongoTrackerMapper } from "../shared/mongo-tracker.mapper";
 import type {
   MongoSubtopicContentRecord,
   MongoSubtopicProgressRecord,
@@ -42,19 +43,19 @@ import type {
 const SUBTOPIC_COMPLETION_XP = 30;
 const TOPIC_COMPLETION_XP = 50;
 
-// XP needed for each next level grows by 300:
-// level 2: 500 total XP
-// level 3: 1,300 total XP (500 + 800)
-// level 4: 2,400 total XP (500 + 800 + 1,100)
-const FIRST_LEVEL_UP_XP = 500;
-const LEVEL_XP_REQUIREMENT_INCREMENT = 300;
-const LEVEL_CURVE_A = LEVEL_XP_REQUIREMENT_INCREMENT / 2;
-const LEVEL_CURVE_B = FIRST_LEVEL_UP_XP - LEVEL_CURVE_A;
+type AwardTrackerXpInput = {
+  userObjId: Types.ObjectId;
+  xpAmount: number;
+  source: string;
+  sourceEntityId: string;
+  idempotencyKey: string;
+};
 
 export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
   constructor(protected readonly mapper = new MongoTrackerMapper()) {
     super();
   }
+
   async ensureUserProgressInitialized(
     data: EnsureUserProgressInitializedInput,
   ) {
@@ -76,6 +77,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               order: 1,
             })
             .lean(),
+
           TrackerSubtopic.find(
             this.mapper.asMongoFilter({
               trackerId: trackerObjId,
@@ -214,7 +216,9 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
     );
   }
 
-  async getSubtopicsWithUserProgress(data: GetSubtopicsWithUserProgressInput) {
+  async getSubtopicsWithUserProgress(
+    data: GetSubtopicsWithUserProgressInput,
+  ) {
     return this.execute(
       "TRACKER_SUBTOPIC_PROGRESS_READ_FAILED",
       "Failed to read subtopics with user progress",
@@ -234,6 +238,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               order: 1,
             })
             .lean<MongoSubtopicContentRecord[]>(),
+
           UserSubtopicProgress.find(
             this.mapper.asMongoFilter({
               userId: userObjId,
@@ -278,6 +283,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               order: 1,
             })
             .lean<MongoTopicContentRecord[]>(),
+
           UserTopicProgress.find(
             this.mapper.asMongoFilter({
               userId: userObjId,
@@ -378,7 +384,18 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           previousProgress?.status !== "completed";
 
         if (completedSubtopicNow) {
-          await this.awardXp(userObjId, SUBTOPIC_COMPLETION_XP);
+          await this.awardXp({
+            userObjId,
+            xpAmount: SUBTOPIC_COMPLETION_XP,
+            source: "tracker_subtopic_completed",
+            sourceEntityId: subtopicObjId.toString(),
+            idempotencyKey: [
+              "tracker-subtopic-completed",
+              userObjId.toString(),
+              trackerObjId.toString(),
+              subtopicObjId.toString(),
+            ].join(":"),
+          });
         }
 
         const [
@@ -393,6 +410,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               deletedAt: null,
             }),
           ),
+
           UserSubtopicProgress.countDocuments(
             this.mapper.asMongoFilter({
               userId: userObjId,
@@ -400,12 +418,14 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               status: "completed",
             }),
           ),
+
           TrackerTopic.countDocuments(
             this.mapper.asMongoFilter({
               trackerId: trackerObjId,
               deletedAt: null,
             }),
           ),
+
           UserTopicProgress.countDocuments(
             this.mapper.asMongoFilter({
               userId: userObjId,
@@ -451,7 +471,9 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               },
             }),
           ),
+
           activateDraftTrackerPromise,
+
           TrackerProgress.findOneAndUpdate(
             this.mapper.asMongoFilter({
               userId: userObjId,
@@ -486,6 +508,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               setDefaultsOnInsert: true,
             },
           ),
+
           this.updateUserStreakAfterTrackerActivity({
             userObjId,
             trackerObjId,
@@ -493,7 +516,10 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           }),
         ]);
 
-        return this.mapper.toSubtopicWithProgress(subtopic, userProgress);
+        return this.mapper.toSubtopicWithProgress(
+          subtopic,
+          userProgress,
+        );
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
@@ -568,7 +594,9 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
         const userObjId = this.mapper.toObjectId(data.userId);
         const trackerObjId = this.mapper.toObjectId(data.trackerId);
         const topicObjId = this.mapper.toObjectId(data.topicId);
-        const parentObjId = this.mapper.toObjectId(data.parentSubtopicId);
+        const parentObjId = this.mapper.toObjectId(
+          data.parentSubtopicId,
+        );
 
         const allChildren = await TrackerSubtopic.find(
           this.mapper.asMongoFilter({
@@ -585,16 +613,17 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
 
         const childIds = allChildren.map((child) => child._id);
 
-        const completedCount = await UserSubtopicProgress.countDocuments(
-          this.mapper.asMongoFilter({
-            userId: userObjId,
-            trackerId: trackerObjId,
-            subtopicId: {
-              $in: childIds,
-            },
-            status: "completed",
-          }),
-        );
+        const completedCount =
+          await UserSubtopicProgress.countDocuments(
+            this.mapper.asMongoFilter({
+              userId: userObjId,
+              trackerId: trackerObjId,
+              subtopicId: {
+                $in: childIds,
+              },
+              status: "completed",
+            }),
+          );
 
         const progressPercent = Math.round(
           (completedCount / allChildren.length) * 100,
@@ -631,33 +660,34 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           return null;
         }
 
-        const updatedParent = await UserSubtopicProgress.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            userId: userObjId,
-            trackerId: trackerObjId,
-            subtopicId: parentObjId,
-          }),
-          this.mapper.asMongoUpdate({
-            $setOnInsert: {
+        const updatedParent =
+          await UserSubtopicProgress.findOneAndUpdate(
+            this.mapper.asMongoFilter({
               userId: userObjId,
               trackerId: trackerObjId,
-              topicId: topicObjId,
               subtopicId: parentObjId,
+            }),
+            this.mapper.asMongoUpdate({
+              $setOnInsert: {
+                userId: userObjId,
+                trackerId: trackerObjId,
+                topicId: topicObjId,
+                subtopicId: parentObjId,
+              },
+              $set: {
+                status: "completed",
+                progressPercent: 100,
+                completedAt: new Date(),
+                isUnlocked: true,
+              },
+            }),
+            {
+              returnDocument: "after",
+              upsert: true,
+              runValidators: true,
+              setDefaultsOnInsert: true,
             },
-            $set: {
-              status: "completed",
-              progressPercent: 100,
-              completedAt: new Date(),
-              isUnlocked: true,
-            },
-          }),
-          {
-            returnDocument: "after",
-            upsert: true,
-            runValidators: true,
-            setDefaultsOnInsert: true,
-          },
-        );
+          );
 
         const parentContent = await TrackerSubtopic.findOne(
           this.mapper.asMongoFilter({
@@ -674,7 +704,8 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           this.mapper.asMongoFilter({
             trackerId: trackerObjId,
             topicId: topicObjId,
-            parentSubtopicId: parentContent.parentSubtopicId ?? null,
+            parentSubtopicId:
+              parentContent.parentSubtopicId ?? null,
             order: {
               $gt: parentContent.order,
             },
@@ -743,21 +774,26 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           return null;
         }
 
-        const subtopicIds = allSubtopics.map((subtopic) => subtopic._id);
+        const subtopicIds = allSubtopics.map(
+          (subtopic) => subtopic._id,
+        );
         const total = allSubtopics.length;
 
-        const completedCount = await UserSubtopicProgress.countDocuments(
-          this.mapper.asMongoFilter({
-            userId: userObjId,
-            trackerId: trackerObjId,
-            subtopicId: {
-              $in: subtopicIds,
-            },
-            status: "completed",
-          }),
-        );
+        const completedCount =
+          await UserSubtopicProgress.countDocuments(
+            this.mapper.asMongoFilter({
+              userId: userObjId,
+              trackerId: trackerObjId,
+              subtopicId: {
+                $in: subtopicIds,
+              },
+              status: "completed",
+            }),
+          );
 
-        const progressPercent = Math.round((completedCount / total) * 100);
+        const progressPercent = Math.round(
+          (completedCount / total) * 100,
+        );
 
         if (completedCount < total) {
           await UserTopicProgress.findOneAndUpdate(
@@ -794,30 +830,28 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           topicId: topicObjId,
         });
 
-        // Only the request that changes the topic from a non-completed state
-        // to completed receives the XP reward. Repeated requests will not
-        // reward XP again.
-        let completedTopic = await UserTopicProgress.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            userId: userObjId,
-            trackerId: trackerObjId,
-            topicId: topicObjId,
-            status: {
-              $ne: "completed",
+        let completedTopic =
+          await UserTopicProgress.findOneAndUpdate(
+            this.mapper.asMongoFilter({
+              userId: userObjId,
+              trackerId: trackerObjId,
+              topicId: topicObjId,
+              status: {
+                $ne: "completed",
+              },
+            }),
+            this.mapper.asMongoUpdate({
+              $set: {
+                status: "completed",
+                progressPercent: 100,
+                completedAt: new Date(),
+              },
+            }),
+            {
+              returnDocument: "after",
+              runValidators: true,
             },
-          }),
-          this.mapper.asMongoUpdate({
-            $set: {
-              status: "completed",
-              progressPercent: 100,
-              completedAt: new Date(),
-            },
-          }),
-          {
-            returnDocument: "after",
-            runValidators: true,
-          },
-        ).lean<MongoTopicProgressRecord>();
+          ).lean<MongoTopicProgressRecord>();
 
         let completedNow = Boolean(completedTopic);
 
@@ -828,34 +862,44 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
             ).lean<MongoTopicProgressRecord>();
         }
 
-        // Defensive fallback for old trackers where topic progress was not
-        // initialized. Normal flows should already have this document.
         if (!completedTopic) {
-          completedTopic = await UserTopicProgress.findOneAndUpdate(
-            topicProgressFilter,
-            this.mapper.asMongoUpdate({
-              $setOnInsert: {
-                userId: userObjId,
-                trackerId: trackerObjId,
-                topicId: topicObjId,
-                status: "completed",
-                progressPercent: 100,
-                completedAt: new Date(),
+          completedTopic =
+            await UserTopicProgress.findOneAndUpdate(
+              topicProgressFilter,
+              this.mapper.asMongoUpdate({
+                $setOnInsert: {
+                  userId: userObjId,
+                  trackerId: trackerObjId,
+                  topicId: topicObjId,
+                  status: "completed",
+                  progressPercent: 100,
+                  completedAt: new Date(),
+                },
+              }),
+              {
+                returnDocument: "after",
+                upsert: true,
+                runValidators: true,
+                setDefaultsOnInsert: true,
               },
-            }),
-            {
-              returnDocument: "after",
-              upsert: true,
-              runValidators: true,
-              setDefaultsOnInsert: true,
-            },
-          ).lean<MongoTopicProgressRecord>();
+            ).lean<MongoTopicProgressRecord>();
 
           completedNow = Boolean(completedTopic);
         }
 
         if (completedNow) {
-          await this.awardXp(userObjId, TOPIC_COMPLETION_XP);
+          await this.awardXp({
+            userObjId,
+            xpAmount: TOPIC_COMPLETION_XP,
+            source: "tracker_topic_completed",
+            sourceEntityId: topicObjId.toString(),
+            idempotencyKey: [
+              "tracker-topic-completed",
+              userObjId.toString(),
+              trackerObjId.toString(),
+              topicObjId.toString(),
+            ].join(":"),
+          });
         }
 
         const currentTopic = await TrackerTopic.findOne(
@@ -979,6 +1023,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               deletedAt: null,
             }),
           ),
+
           UserSubtopicProgress.countDocuments(
             this.mapper.asMongoFilter({
               userId: userObjId,
@@ -986,12 +1031,14 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               status: "completed",
             }),
           ),
+
           TrackerTopic.countDocuments(
             this.mapper.asMongoFilter({
               trackerId: trackerObjId,
               deletedAt: null,
             }),
           ),
+
           UserTopicProgress.countDocuments(
             this.mapper.asMongoFilter({
               userId: userObjId,
@@ -1006,7 +1053,9 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
             ? 0
             : Math.min(
                 100,
-                Math.round((completedSubtopics / totalSubtopics) * 100),
+                Math.round(
+                  (completedSubtopics / totalSubtopics) * 100,
+                ),
               );
 
         await Tracker.findOneAndUpdate(
@@ -1049,7 +1098,8 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               completedTopics,
               completionPercentage,
               lastStudiedAt: now,
-              completedAt: completionPercentage === 100 ? now : null,
+              completedAt:
+                completionPercentage === 100 ? now : null,
               status:
                 completionPercentage === 100
                   ? "completed"
@@ -1071,69 +1121,81 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
     );
   }
 
-  private async awardXp(
-    userObjId: Types.ObjectId,
-    xpAmount: number,
-  ): Promise<void> {
-    const updatedUser = await User.findOneAndUpdate(
-      {
-        _id: userObjId,
-        deletedAt: null,
-      },
-      [
-        {
-          $set: {
-            xp: {
-              $add: [
-                {
-                  $ifNull: ["$xp", 0],
-                },
-                xpAmount,
-              ],
-            },
-          },
-        },
-        {
-          $set: {
-            level: {
-              $add: [
-                {
-                  $floor: {
-                    $divide: [
-                      {
-                        $subtract: [
-                          {
-                            $sqrt: {
-                              $add: [
-                                LEVEL_CURVE_B * LEVEL_CURVE_B,
-                                {
-                                  $multiply: [4 * LEVEL_CURVE_A, "$xp"],
-                                },
-                              ],
-                            },
-                          },
-                          LEVEL_CURVE_B,
-                        ],
-                      },
-                      2 * LEVEL_CURVE_A,
-                    ],
-                  },
-                },
-                1,
-              ],
-            },
-          },
-        },
-      ],
-      {
-        returnDocument: "after",
-        updatePipeline: true,
-      },
-    );
+  private async awardXp({
+    userObjId,
+    xpAmount,
+    source,
+    sourceEntityId,
+    idempotencyKey,
+  }: AwardTrackerXpInput): Promise<void> {
+    const session = await mongoose.startSession();
 
-    if (!updatedUser) {
-      throw new Error("User not found while awarding XP");
+    try {
+      await session.withTransaction(async () => {
+        const eventWriteResult =
+          await LeaderboardXpEvent.updateOne(
+            {
+              idempotencyKey,
+            },
+            {
+              $setOnInsert: {
+                userId: userObjId,
+                section: "students",
+                amount: xpAmount,
+                source,
+                idempotencyKey,
+                sourceEntityId,
+                occurredAt: new Date(),
+              },
+            },
+            {
+              upsert: true,
+              runValidators: true,
+              session,
+            },
+          );
+
+        // The event already exists, meaning this completion was
+        // previously rewarded. Do not increase the user's XP again.
+        if (eventWriteResult.upsertedCount !== 1) {
+          return;
+        }
+
+        const user = await User.findOne({
+          _id: userObjId,
+          deletedAt: null,
+        }).session(session);
+
+        if (!user) {
+          throw new Error("User not found while awarding XP");
+        }
+
+        user.xp += xpAmount;
+
+        // This executes the User model pre-save hook, which
+        // recalculates the student's level from their new XP.
+        await user.save({ session });
+      });
+    } catch (error) {
+      // Two completion requests may happen at the same time.
+      // The unique idempotency key ensures only one earns XP.
+      if (this.isDuplicateKeyError(error)) {
+        return;
+      }
+
+      throw error;
+    } finally {
+      await session.endSession();
     }
+  }
+
+  private isDuplicateKeyError(error: unknown): boolean {
+    return (
+      typeof error === "object" &&
+      error !== null &&
+      "code" in error &&
+      (error as { code?: unknown }).code === 11000
+    );
   }
 
   private async updateUserStreakAfterTrackerActivity({
@@ -1146,9 +1208,13 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
     subtopicObjId: Types.ObjectId;
   }): Promise<void> {
     const todayStart = this.mapper.getUtcDayStart();
-    const yesterdayStart = this.mapper.getPreviousUtcDayStart(todayStart);
+    const yesterdayStart =
+      this.mapper.getPreviousUtcDayStart(todayStart);
     const heatmapKey = todayStart.toISOString().slice(0, 10);
-    const source = `tracker:${trackerObjId.toString()}:subtopic:${subtopicObjId.toString()}`;
+
+    const source =
+      `tracker:${trackerObjId.toString()}` +
+      `:subtopic:${subtopicObjId.toString()}`;
 
     const existingToday = await StreakHistory.findOne(
       this.mapper.asMongoFilter({
@@ -1207,7 +1273,8 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
     ).lean();
 
     const activityCount = todayHistory?.activityCount ?? 1;
-    const intensityLevel = this.mapper.getIntensityLevel(activityCount);
+    const intensityLevel =
+      this.mapper.getIntensityLevel(activityCount);
 
     await StreakHistory.findOneAndUpdate(
       this.mapper.asMongoFilter({
@@ -1234,6 +1301,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
             },
           }),
         ),
+
         StreakHistory.countDocuments(
           this.mapper.asMongoFilter({
             userId: userObjId,
@@ -1241,6 +1309,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
             isFrozen: true,
           }),
         ),
+
         StreakSnapshot.findOne(
           this.mapper.asMongoFilter({
             userId: userObjId,
@@ -1254,6 +1323,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
       ]);
 
     const currentStreak = streakDay;
+
     const longestStreak = Math.max(
       latestSnapshot?.longestStreak ?? 0,
       currentStreak,

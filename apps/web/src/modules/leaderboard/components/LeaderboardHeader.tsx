@@ -1,0 +1,39 @@
+import {
+  formatRank,
+  formatRankTrendHint,
+} from '../utils/leaderboard-formatters'
+import { LiveDotIcon } from './icons/LeaderboardIcons'
+
+interface LeaderboardHeaderProps {
+  globalRank: number | null
+  globalRankTrend: number
+}
+
+export default function LeaderboardHeader({
+  globalRank,
+  globalRankTrend,
+}: LeaderboardHeaderProps) {
+  return (
+    <section className="flex flex-wrap items-start justify-between gap-5">
+      <div>
+        <div className="mb-3 inline-flex items-center gap-2 rounded-full border border-[rgba(184,76,43,0.15)] bg-[rgba(184,76,43,0.07)] px-3 py-[5px]">
+          <LiveDotIcon />
+          <span className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.13em] text-[#b84c2b] dark:text-[#e8816a]">Compete</span>
+        </div>
+        <h1 className="font-['Playfair_Display',serif] text-[clamp(28px,3.5vw,40px)] font-black leading-[1.08] tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+          Arena <span className="text-[#b84c2b] dark:text-[#e8816a]">Leaderboard</span>
+        </h1>
+        <p className="mt-2.5 max-w-[420px] text-[13px] italic leading-[1.6] text-[#7a6e66] dark:text-[#9b9a92]">
+          Track top learners, weekly streaks, and progress across the Imminiq community.
+        </p>
+      </div>
+
+      <div className="group relative w-[260px] max-[560px]:w-full overflow-hidden rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.20)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1c1a18] dark:hover:border-white/20">
+        <div className="absolute inset-x-0 top-0 h-[2.5px] bg-[linear-gradient(90deg,transparent,#b84c2b,transparent)] dark:bg-[linear-gradient(90deg,transparent,#e8816a,transparent)]" />
+        <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">Global rank</div>
+        <div className="mt-4 font-['Playfair_Display',serif] text-[34px] font-black leading-none tracking-[-1.5px] text-[#1a1714] dark:text-[#f2f0eb]">{formatRank(globalRank)}</div>
+        <p className="mt-3 text-[12px] leading-normal text-[#6b5f58] dark:text-[#6b6560]">{globalRank === null ? 'Earn XP to enter the leaderboard' : formatRankTrendHint(globalRankTrend)}</p>
+      </div>
+    </section>
+  )
+}

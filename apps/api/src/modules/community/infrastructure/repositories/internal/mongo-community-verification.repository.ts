@@ -1,4 +1,11 @@
-import { COMMUNITY_REVIEW_REWARD_COINS } from '../../../domain/constants/community.constants'
+import mongoose from 'mongoose'
+
+import { LeaderboardXpEvent } from '../../../../../infrastructure/database/models/leaderboard-xp-event.model'
+import {
+  COMMUNITY_REVIEW_REWARD_COINS,
+  COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
+  COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
+} from '../../../domain/constants/community.constants'
 import { CommunityDomainError } from '../../../domain/errors/community-domain.error'
 import type {
   CreateCommunityReviewVoteInput,
@@ -34,6 +41,21 @@ import type {
 } from '../shared/mongo-community.types'
 
 type SubmissionQuery = Record<string, unknown>
+
+type TeacherXpActivity = {
+  source: 'verification_submission' | 'verification_majority_win'
+  sourceEntityId: string
+  idempotencyKey: string
+}
+
+type MongoTeacherXpEventRecord = {
+  userId: mongoose.Types.ObjectId
+  section: 'trainers'
+  amount: number
+  source: string
+  sourceEntityId?: string
+  idempotencyKey: string
+}
 
 export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepository {
   constructor(
@@ -152,14 +174,31 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
             CommunityVerificationSubmissionModel.countDocuments(
               this.openSubmissionQuery(),
             ),
-            CommunityReviewVoteModel.countDocuments({ userId: userObjectId }),
+            CommunityReviewVoteModel.countDocuments({
+              userId: userObjectId,
+            }),
             CommunityReviewVoteModel.aggregate<{ total: number }>([
-              { $match: { userId: userObjectId } },
-              { $group: { _id: null, total: { $sum: '$rewardCoins' } } },
+              {
+                $match: {
+                  userId: userObjectId,
+                },
+              },
+              {
+                $group: {
+                  _id: null,
+                  total: {
+                    $sum: '$rewardCoins',
+                  },
+                },
+              },
             ]),
-            CommunityUserModel.findById(userObjectId).lean<MongoUserRecord>(),
+            CommunityUserModel.findById(
+              userObjectId,
+            ).lean<MongoUserRecord>(),
             CommunityReviewVoteModel.distinct('userId', {
-              createdAt: { $gte: weekAgo },
+              createdAt: {
+                $gte: weekAgo,
+              },
             }),
           ])
 
@@ -188,7 +227,11 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
 
         const [submissions, total] = (await Promise.all([
           CommunityVerificationSubmissionModel.find(filters)
-            .sort({ urgent: -1, expiresAt: 1, createdAt: -1 })
+            .sort({
+              urgent: -1,
+              expiresAt: 1,
+              createdAt: -1,
+            })
             .skip(skip)
             .limit(query.limit)
             .lean<MongoCommunitySubmissionRecord[]>(),
@@ -198,14 +241,24 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         const submissionIds = submissions.map((submission) =>
           MongoCommunityObjectId.toExistingObjectId(submission._id),
         )
+
         const votes = (await CommunityReviewVoteModel.find({
-          submissionId: { $in: submissionIds },
+          submissionId: {
+            $in: submissionIds,
+          },
           userId: MongoCommunityObjectId.toObjectId(query.userId),
         }).lean<MongoCommunityVoteRecord[]>()) as MongoCommunityVoteRecord[]
+
         const voteBySubmission = new Map<
           string,
           VerificationVoteChoice | undefined
-        >(votes.map((vote) => [String(vote.submissionId), vote.choice]))
+        >(
+          votes.map((vote) => [
+            String(vote.submissionId),
+            vote.choice,
+          ]),
+        )
+
         const items = submissions
           .map((submission) =>
             this._mapper.toSubmissionEntity(
@@ -213,7 +266,10 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
               voteBySubmission.get(String(submission._id)) ?? null,
             ),
           )
-          .filter((item): item is NonNullable<typeof item> => Boolean(item))
+          .filter(
+            (item): item is NonNullable<typeof item> =>
+              Boolean(item),
+          )
 
         return {
           items,
@@ -229,7 +285,10 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
     )
   }
 
-  async findVerificationSubmissionById(submissionId: string, userId: string) {
+  async findVerificationSubmissionById(
+    submissionId: string,
+    userId: string,
+  ) {
     return this.execute(
       'COMMUNITY_VERIFICATION_SUBMISSION_READ_FAILED',
       'Failed to read verification submission',
@@ -243,10 +302,11 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           return null
         }
 
-        const submission = await CommunityVerificationSubmissionModel.findOne({
-          _id: MongoCommunityObjectId.toObjectId(submissionId),
-          deletedAt: null,
-        }).lean<MongoCommunitySubmissionRecord>()
+        const submission =
+          await CommunityVerificationSubmissionModel.findOne({
+            _id: MongoCommunityObjectId.toObjectId(submissionId),
+            deletedAt: null,
+          }).lean<MongoCommunitySubmissionRecord>()
 
         if (!submission) {
           return null
@@ -257,12 +317,18 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           userId: MongoCommunityObjectId.toObjectId(userId),
         }).lean<MongoCommunityVoteRecord>()
 
-        return this.toSubmissionWithReview(submission, vote?.choice ?? null)
+        return this.toSubmissionWithReview(
+          submission,
+          vote?.choice ?? null,
+        )
       },
     )
   }
 
-  async findVoteBySubmissionAndUser(submissionId: string, userId: string) {
+  async findVoteBySubmissionAndUser(
+    submissionId: string,
+    userId: string,
+  ) {
     return this.execute(
       'COMMUNITY_VERIFICATION_VOTE_READ_FAILED',
       'Failed to read verification vote',
@@ -275,7 +341,8 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         }
 
         const vote = await CommunityReviewVoteModel.findOne({
-          submissionId: MongoCommunityObjectId.toObjectId(submissionId),
+          submissionId:
+            MongoCommunityObjectId.toObjectId(submissionId),
           userId: MongoCommunityObjectId.toObjectId(userId),
         }).lean<MongoCommunityVoteRecord>()
 
@@ -284,23 +351,25 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
     )
   }
 
-  async createVerificationVote(data: CreateCommunityReviewVoteInput) {
+  async createVerificationVote(
+    data: CreateCommunityReviewVoteInput,
+  ) {
     return this.execute(
       'COMMUNITY_VERIFICATION_VOTE_CREATE_FAILED',
       'Failed to create verification vote',
       async () => {
         await this.expireDueOpenSubmissions()
 
-        const submissionId = MongoCommunityObjectId.toObjectId(
-          data.submissionId,
-        )
-        const userId = MongoCommunityObjectId.toObjectId(data.userId)
-        const rewardCoins = data.rewardCoins ?? 0
+        const submissionId =
+          MongoCommunityObjectId.toObjectId(data.submissionId)
+        const userId =
+          MongoCommunityObjectId.toObjectId(data.userId)
 
-        const submission = await CommunityVerificationSubmissionModel.findOne({
-          _id: submissionId,
-          ...this.openSubmissionQuery(),
-        }).lean<MongoCommunitySubmissionRecord>()
+        const submission =
+          await CommunityVerificationSubmissionModel.findOne({
+            _id: submissionId,
+            ...this.openSubmissionQuery(),
+          }).lean<MongoCommunitySubmissionRecord>()
 
         if (!submission) {
           throw new CommunityDomainError(
@@ -314,22 +383,60 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           userId,
           choice: data.choice,
           reason: data.reason ?? null,
-          rewardCoins,
+          rewardCoins: 0,
         })
 
+        /*
+         * Awards the normal teacher XP for submitting a vote.
+         *
+         * addTeacherXp() now:
+         * 1. creates a trainers leaderboard XP event;
+         * 2. increments User.teacherXp;
+         * 3. updates User.teacherLevel;
+         * 4. prevents duplicate XP when retried.
+         */
+        await this.addTeacherXp(
+          userId,
+          COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
+          {
+            source: 'verification_submission',
+            sourceEntityId: data.submissionId,
+            idempotencyKey:
+              `verification:${data.submissionId}:submitted:${data.userId}`,
+          },
+        )
+
         const update = {
-          $inc: data.choice === 'pass' ? { passVotes: 1 } : { failVotes: 1 },
+          $inc:
+            data.choice === 'pass'
+              ? {
+                  passVotes: 1,
+                }
+              : {
+                  failVotes: 1,
+                },
         }
 
         await CommunityVerificationSubmissionModel.updateOne(
-          { _id: submissionId, status: 'open', deletedAt: null },
+          {
+            _id: submissionId,
+            status: 'open',
+            deletedAt: null,
+          },
           update,
         )
-        await this.closeSubmissionIfConsensusReached(data.submissionId)
+
+        await this.closeSubmissionIfConsensusReached(
+          data.submissionId,
+        )
 
         const plainVote =
-          this._mapper.toPlainRecord<MongoCommunityVoteRecord>(vote)
-        const voteEntity = this._mapper.toVoteEntity(plainVote)
+          this._mapper.toPlainRecord<MongoCommunityVoteRecord>(
+            vote,
+          )
+
+        const voteEntity =
+          this._mapper.toVoteEntity(plainVote)
 
         if (!voteEntity) {
           throw new CommunityDomainError(
@@ -340,7 +447,8 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
 
         return voteEntity
       },
-      (error) => this._errorMapper.mapDuplicateVote(error),
+      (error) =>
+        this._errorMapper.mapDuplicateVote(error),
     )
   }
 
@@ -357,18 +465,32 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         }
 
         const votes = (await CommunityReviewVoteModel.find({
-          submissionId: MongoCommunityObjectId.toObjectId(submissionId),
+          submissionId:
+            MongoCommunityObjectId.toObjectId(submissionId),
           choice,
           $or: [
-            { rewardCoins: 0 },
-            { rewardCoins: { $exists: false } },
-            { rewardCoins: null },
+            {
+              rewardCoins: 0,
+            },
+            {
+              rewardCoins: {
+                $exists: false,
+              },
+            },
+            {
+              rewardCoins: null,
+            },
           ],
         }).lean<MongoCommunityVoteRecord[]>()) as MongoCommunityVoteRecord[]
 
         return votes
-          .map((vote) => this._mapper.toVoteEntity(vote))
-          .filter((vote): vote is NonNullable<typeof vote> => Boolean(vote))
+          .map((vote) =>
+            this._mapper.toVoteEntity(vote),
+          )
+          .filter(
+            (vote): vote is NonNullable<typeof vote> =>
+              Boolean(vote),
+          )
       },
     )
   }
@@ -385,26 +507,72 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           return false
         }
 
-        const result = await CommunityReviewVoteModel.updateOne(
+        const rewardedVote =
+          await CommunityReviewVoteModel.findOneAndUpdate(
+            {
+              _id: MongoCommunityObjectId.toObjectId(voteId),
+              $or: [
+                {
+                  rewardCoins: 0,
+                },
+                {
+                  rewardCoins: {
+                    $exists: false,
+                  },
+                },
+                {
+                  rewardCoins: null,
+                },
+              ],
+            },
+            {
+              $set: {
+                rewardCoins,
+              },
+            },
+            {
+              new: true,
+            },
+          ).lean<MongoCommunityVoteRecord>()
+
+        if (!rewardedVote) {
+          return false
+        }
+
+        const rewardedUserId =
+          MongoCommunityObjectId.toExistingObjectId(
+            rewardedVote.userId,
+          )
+
+        const rewardedSubmissionId =
+          String(rewardedVote.submissionId)
+
+        /*
+         * Awards the additional majority winner teacher XP.
+         *
+         * This creates a second trainers leaderboard event with
+         * a different idempotency key from the normal vote XP.
+         */
+        await this.addTeacherXp(
+          rewardedUserId,
+          COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
           {
-            _id: MongoCommunityObjectId.toObjectId(voteId),
-            $or: [
-              { rewardCoins: 0 },
-              { rewardCoins: { $exists: false } },
-              { rewardCoins: null },
-            ],
-          },
-          {
-            $set: { rewardCoins },
+            source: 'verification_majority_win',
+            sourceEntityId: rewardedSubmissionId,
+            idempotencyKey:
+              `verification:${rewardedSubmissionId}:majority-win:${rewardedUserId.toString()}`,
           },
         )
 
-        return Number(result.modifiedCount ?? 0) > 0
+        return true
       },
     )
   }
 
-  async findVerificationLeaderboard(userId: string, limit: number) {
+  async findVerificationLeaderboard(
+    userId: string,
+    limit: number,
+  ) {
     return this.execute(
       'COMMUNITY_LEADERBOARD_READ_FAILED',
       'Failed to read community leaderboard',
@@ -415,61 +583,106 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
               {
                 $group: {
                   _id: '$userId',
-                  totalEarned: { $sum: '$rewardCoins' },
-                  reviewed: { $sum: 1 },
+                  totalEarned: {
+                    $sum: '$rewardCoins',
+                  },
+                  reviewed: {
+                    $sum: 1,
+                  },
                 },
               },
-              { $sort: { totalEarned: -1, reviewed: -1 } },
-              { $limit: limit },
+              {
+                $sort: {
+                  totalEarned: -1,
+                  reviewed: -1,
+                },
+              },
+              {
+                $limit: limit,
+              },
             ],
           )) as MongoCommunityLeaderboardAggregate[]
 
         const userIds = rows.map((row) =>
           MongoCommunityObjectId.toExistingObjectId(row._id),
         )
+
         const [profiles, users] = (await Promise.all([
           CommunityUserProfileModel.find({
-            userId: { $in: userIds },
+            userId: {
+              $in: userIds,
+            },
             deletedAt: null,
           }).lean<MongoUserProfileRecord[]>(),
           CommunityUserModel.find({
-            _id: { $in: userIds },
+            _id: {
+              $in: userIds,
+            },
             deletedAt: null,
           }).lean<MongoUserRecord[]>(),
-        ])) as [MongoUserProfileRecord[], MongoUserRecord[]]
+        ])) as [
+          MongoUserProfileRecord[],
+          MongoUserRecord[],
+        ]
+
         const profileByUserId = new Map(
-          profiles.map((profile) => [String(profile.userId), profile]),
+          profiles.map((profile) => [
+            String(profile.userId),
+            profile,
+          ]),
         )
-        const userById = new Map(users.map((user) => [String(user._id), user]))
+
+        const userById = new Map(
+          users.map((user) => [
+            String(user._id),
+            user,
+          ]),
+        )
 
         return rows.map((row, index) =>
           this._mapper.toLeaderboardEntryEntity({
             userId: String(row._id),
             rank: index + 1,
-            profile: profileByUserId.get(String(row._id)),
+            profile:
+              profileByUserId.get(String(row._id)),
             user: userById.get(String(row._id)),
             earnedCoins: row.totalEarned,
-            isCurrentUser: String(row._id) === userId,
+            isCurrentUser:
+              String(row._id) === userId,
           }),
         )
       },
     )
   }
 
-  private openSubmissionQuery(excludeOwnerId?: string): SubmissionQuery {
+  private openSubmissionQuery(
+    excludeOwnerId?: string,
+  ): SubmissionQuery {
     const query: SubmissionQuery = {
       deletedAt: null,
       status: 'open',
       $or: [
-        { expiresAt: { $exists: false } },
-        { expiresAt: null },
-        { expiresAt: { $gt: new Date() } },
+        {
+          expiresAt: {
+            $exists: false,
+          },
+        },
+        {
+          expiresAt: null,
+        },
+        {
+          expiresAt: {
+            $gt: new Date(),
+          },
+        },
       ],
     }
 
     if (excludeOwnerId) {
       query.ownerId = {
-        $ne: MongoCommunityObjectId.toObjectId(excludeOwnerId),
+        $ne: MongoCommunityObjectId.toObjectId(
+          excludeOwnerId,
+        ),
       }
     }
 
@@ -480,7 +693,10 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
     submission: MongoCommunitySubmissionRecord,
     userVote: VerificationVoteChoice | null,
   ) {
-    const reviewTracker = await this.getVerificationReviewTracker(submission)
+    const reviewTracker =
+      await this.getVerificationReviewTracker(
+        submission,
+      )
 
     return this._mapper.toSubmissionEntity(
       {
@@ -494,42 +710,54 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
   private async getVerificationReviewTracker(
     submission: MongoCommunitySubmissionRecord,
   ): Promise<MongoVerificationReviewTrackerRecord | null> {
-    const trackerId = MongoCommunityObjectId.toExistingObjectId(
-      submission.trackerId,
-    )
+    const trackerId =
+      MongoCommunityObjectId.toExistingObjectId(
+        submission.trackerId,
+      )
 
-    const [tracker, topics, subtopics] = (await Promise.all([
-      CommunityTrackerModel.findOne({
-        _id: trackerId,
-        deletedAt: null,
-      }).lean<MongoCommunityTrackerRecord>(),
-      CommunityTrackerTopicModel.find({
-        trackerId,
-        deletedAt: null,
-      })
-        .sort({ order: 1 })
-        .lean<MongoTrackerTopicRecord[]>(),
-      CommunityTrackerSubtopicModel.find({
-        trackerId,
-        deletedAt: null,
-      })
-        .sort({ depth: 1, order: 1 })
-        .lean<MongoTrackerSubtopicRecord[]>(),
-    ])) as [
-      MongoCommunityTrackerRecord | null,
-      MongoTrackerTopicRecord[],
-      MongoTrackerSubtopicRecord[],
-    ]
+    const [tracker, topics, subtopics] =
+      (await Promise.all([
+        CommunityTrackerModel.findOne({
+          _id: trackerId,
+          deletedAt: null,
+        }).lean<MongoCommunityTrackerRecord>(),
+        CommunityTrackerTopicModel.find({
+          trackerId,
+          deletedAt: null,
+        })
+          .sort({
+            order: 1,
+          })
+          .lean<MongoTrackerTopicRecord[]>(),
+        CommunityTrackerSubtopicModel.find({
+          trackerId,
+          deletedAt: null,
+        })
+          .sort({
+            depth: 1,
+            order: 1,
+          })
+          .lean<MongoTrackerSubtopicRecord[]>(),
+      ])) as [
+        MongoCommunityTrackerRecord | null,
+        MongoTrackerTopicRecord[],
+        MongoTrackerSubtopicRecord[],
+      ]
 
     if (!tracker) {
       return null
     }
 
-    const subtopicsByTopicId = new Map<string, MongoTrackerSubtopicRecord[]>()
+    const subtopicsByTopicId =
+      new Map<
+        string,
+        MongoTrackerSubtopicRecord[]
+      >()
 
     for (const subtopic of subtopics) {
       const topicId = String(subtopic.topicId)
-      const items = subtopicsByTopicId.get(topicId) ?? []
+      const items =
+        subtopicsByTopicId.get(topicId) ?? []
 
       items.push(subtopic)
       subtopicsByTopicId.set(topicId, items)
@@ -546,46 +774,61 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
       tags: tracker.tags ?? [],
       visibility: tracker.visibility ?? 'private',
       status: tracker.status ?? 'active',
-      topicsCount: tracker.topicsCount ?? topics.length,
-      subtopicsCount: tracker.subtopicsCount ?? subtopics.length,
+      topicsCount:
+        tracker.topicsCount ?? topics.length,
+      subtopicsCount:
+        tracker.subtopicsCount ?? subtopics.length,
       topics: topics.map((topic) => ({
         id: String(topic._id),
         title: topic.title,
         description: topic.description ?? '',
         order: topic.order,
         status: topic.status ?? 'active',
-        estimatedHours: topic.estimatedHours ?? 0,
-        subtopics: (subtopicsByTopicId.get(String(topic._id)) ?? []).map(
-          (subtopic) => ({
+        estimatedHours:
+          topic.estimatedHours ?? 0,
+        subtopics:
+          (
+            subtopicsByTopicId.get(
+              String(topic._id),
+            ) ?? []
+          ).map((subtopic) => ({
             id: String(subtopic._id),
             topicId: String(subtopic.topicId),
-            parentSubtopicId: subtopic.parentSubtopicId
-              ? String(subtopic.parentSubtopicId)
-              : null,
+            parentSubtopicId:
+              subtopic.parentSubtopicId
+                ? String(
+                    subtopic.parentSubtopicId,
+                  )
+                : null,
             title: subtopic.title,
-            description: subtopic.description ?? '',
+            description:
+              subtopic.description ?? '',
             order: subtopic.order,
             depth: subtopic.depth,
-            isLocked: Boolean(subtopic.isLocked),
-            estimatedMinutes: subtopic.estimatedMinutes ?? 0,
-          }),
-        ),
+            isLocked: Boolean(
+              subtopic.isLocked,
+            ),
+            estimatedMinutes:
+              subtopic.estimatedMinutes ?? 0,
+          })),
       })),
     }
   }
 
   private async expireDueOpenSubmissions(): Promise<void> {
     const now = new Date()
-    const submissions = (await CommunityVerificationSubmissionModel.find({
-      status: 'open',
-      deletedAt: null,
-      expiresAt: {
-        $ne: null,
-        $lte: now,
-      },
-    }).lean<
-      MongoCommunitySubmissionRecord[]
-    >()) as MongoCommunitySubmissionRecord[]
+
+    const submissions =
+      (await CommunityVerificationSubmissionModel.find({
+        status: 'open',
+        deletedAt: null,
+        expiresAt: {
+          $ne: null,
+          $lte: now,
+        },
+      }).lean<
+        MongoCommunitySubmissionRecord[]
+      >()) as MongoCommunitySubmissionRecord[]
 
     for (const submission of submissions) {
       await CommunityVerificationSubmissionModel.updateOne(
@@ -597,7 +840,10 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         {
           $set: {
             status: 'expired',
-            progress: this.calculateSubmissionProgress(submission),
+            progress:
+              this.calculateSubmissionProgress(
+                submission,
+              ),
             consensusChoice: null,
           },
         },
@@ -622,52 +868,273 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
   private calculateSubmissionProgress(
     submission: MongoCommunitySubmissionRecord,
   ): number {
-    const passVotes = Number(submission.passVotes ?? 0)
-    const failVotes = Number(submission.failVotes ?? 0)
-    const requiredVotes = Math.max(Number(submission.requiredVotes ?? 10), 1)
+    const passVotes =
+      Number(submission.passVotes ?? 0)
+    const failVotes =
+      Number(submission.failVotes ?? 0)
+    const requiredVotes = Math.max(
+      Number(submission.requiredVotes ?? 10),
+      1,
+    )
     const totalVotes = passVotes + failVotes
 
-    return Math.min(Math.round((totalVotes / requiredVotes) * 100), 100)
+    return Math.min(
+      Math.round(
+        (totalVotes / requiredVotes) * 100,
+      ),
+      100,
+    )
   }
 
   private createExcerpt(value: string): string {
     return value.trim().slice(0, 280)
   }
 
-  private async closeSubmissionIfConsensusReached(
-    submissionId: string,
+  /**
+   * Adds teacher XP and records the weekly trainer leaderboard
+   * event in one MongoDB transaction.
+   *
+   * The idempotency key ensures that retrying the same logical
+   * reward does not add teacher XP more than once.
+   */
+  private async addTeacherXp(
+    userId: mongoose.Types.ObjectId,
+    amount: number,
+    activity: TeacherXpActivity,
   ): Promise<void> {
-    const submission = await CommunityVerificationSubmissionModel.findById(
-      MongoCommunityObjectId.toObjectId(submissionId),
-    ).lean<MongoCommunitySubmissionRecord>()
-
-    if (!submission || submission.status !== 'open') {
+    if (amount <= 0) {
       return
     }
 
-    const passVotes = Number(submission.passVotes ?? 0)
-    const failVotes = Number(submission.failVotes ?? 0)
-    const requiredVotes = Math.max(Number(submission.requiredVotes ?? 10), 1)
+    const session = await mongoose.startSession()
+
+    try {
+      await session.withTransaction(async () => {
+        /*
+         * Create the weekly leaderboard event first.
+         *
+         * The event is counted by:
+         * GET /leaderboard?section=trainers&scope=weekly
+         */
+        const eventWriteResult =
+          await LeaderboardXpEvent.updateOne(
+            {
+              idempotencyKey:
+                activity.idempotencyKey,
+            },
+            {
+              $setOnInsert: {
+                userId,
+                section: 'trainers',
+                amount,
+                source: activity.source,
+                sourceEntityId:
+                  activity.sourceEntityId,
+                idempotencyKey:
+                  activity.idempotencyKey,
+                occurredAt: new Date(),
+              },
+            },
+            {
+              upsert: true,
+              runValidators: true,
+              session,
+            },
+          )
+
+        const eventCreated =
+          eventWriteResult.upsertedCount === 1 ||
+          Boolean(eventWriteResult.upsertedId)
+
+        /*
+         * An event with this idempotency key already exists.
+         * Verify that it represents the exact same reward.
+         */
+        if (!eventCreated) {
+          const existingEvent =
+            await LeaderboardXpEvent.findOne({
+              idempotencyKey:
+                activity.idempotencyKey,
+            })
+              .session(session)
+              .select({
+                userId: 1,
+                section: 1,
+                amount: 1,
+                source: 1,
+                sourceEntityId: 1,
+                idempotencyKey: 1,
+              })
+              .lean<MongoTeacherXpEventRecord>()
+
+          const isSameEvent = Boolean(
+            existingEvent &&
+              existingEvent.userId.toString() ===
+                userId.toString() &&
+              existingEvent.section ===
+                'trainers' &&
+              existingEvent.amount === amount &&
+              existingEvent.source ===
+                activity.source &&
+              existingEvent.sourceEntityId ===
+                activity.sourceEntityId,
+          )
+
+          if (!isSameEvent) {
+            throw new CommunityDomainError(
+              'COMMUNITY_TEACHER_XP_EVENT_CONFLICT',
+              'Teacher XP event idempotency key is already in use',
+            )
+          }
+
+          /*
+           * The same event was already processed, so teacher XP
+           * must not be incremented again.
+           */
+          return
+        }
+
+        const updatedUser =
+          await CommunityUserModel.findOneAndUpdate(
+            {
+              _id: userId,
+              deletedAt: null,
+            },
+            {
+              $inc: {
+                teacherXp: amount,
+              },
+            },
+            {
+              new: true,
+              session,
+            },
+          )
+            .select({
+              teacherXp: 1,
+            })
+            .lean<{
+              teacherXp?: number
+            }>()
+
+        if (!updatedUser) {
+          throw new CommunityDomainError(
+            'COMMUNITY_REVIEWER_NOT_FOUND',
+            'Reviewer user was not found',
+          )
+        }
+
+        const teacherLevel =
+          this.calculateTeacherLevel(
+            Number(
+              updatedUser.teacherXp ?? 0,
+            ),
+          )
+
+        await CommunityUserModel.updateOne(
+          {
+            _id: userId,
+            deletedAt: null,
+          },
+          {
+            $max: {
+              teacherLevel,
+            },
+          },
+          {
+            session,
+          },
+        )
+      })
+    } finally {
+      await session.endSession()
+    }
+  }
+
+  private calculateTeacherLevel(
+    teacherXp: number,
+  ): number {
+    const normalizedXp = Math.max(
+      Math.floor(teacherXp),
+      0,
+    )
+
+    let level = 1
+    let nextLevelAt = 500
+    let requiredXpIncrease = 800
+
+    while (normalizedXp >= nextLevelAt) {
+      level += 1
+      nextLevelAt += requiredXpIncrease
+      requiredXpIncrease += 300
+    }
+
+    return level
+  }
+
+  private async closeSubmissionIfConsensusReached(
+    submissionId: string,
+  ): Promise<void> {
+    const submission =
+      await CommunityVerificationSubmissionModel.findById(
+        MongoCommunityObjectId.toObjectId(
+          submissionId,
+        ),
+      ).lean<MongoCommunitySubmissionRecord>()
+
+    if (
+      !submission ||
+      submission.status !== 'open'
+    ) {
+      return
+    }
+
+    const passVotes =
+      Number(submission.passVotes ?? 0)
+    const failVotes =
+      Number(submission.failVotes ?? 0)
+    const requiredVotes = Math.max(
+      Number(submission.requiredVotes ?? 10),
+      1,
+    )
     const totalVotes = passVotes + failVotes
+
     const progress = Math.min(
-      Math.round((totalVotes / requiredVotes) * 100),
+      Math.round(
+        (totalVotes / requiredVotes) * 100,
+      ),
       100,
     )
 
     if (totalVotes < requiredVotes) {
       await CommunityVerificationSubmissionModel.updateOne(
-        { _id: submission._id },
-        { $set: { progress } },
+        {
+          _id: submission._id,
+        },
+        {
+          $set: {
+            progress,
+          },
+        },
       )
+
       return
     }
 
     const consensusChoice: VerificationVoteChoice =
-      passVotes >= failVotes ? 'pass' : 'fail'
-    const status = consensusChoice === 'pass' ? 'approved' : 'rejected'
+      passVotes >= failVotes
+        ? 'pass'
+        : 'fail'
+
+    const status =
+      consensusChoice === 'pass'
+        ? 'approved'
+        : 'rejected'
 
     await CommunityVerificationSubmissionModel.updateOne(
-      { _id: submission._id },
+      {
+        _id: submission._id,
+      },
       {
         $set: {
           status,
@@ -678,12 +1145,19 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
     )
 
     await CommunityTrackerModel.updateOne(
-      { _id: submission.trackerId },
+      {
+        _id: submission.trackerId,
+      },
       {
         $set: {
           verificationStatus:
-            consensusChoice === 'pass' ? 'verified' : 'rejected',
-          verifiedAt: consensusChoice === 'pass' ? new Date() : null,
+            consensusChoice === 'pass'
+              ? 'verified'
+              : 'rejected',
+          verifiedAt:
+            consensusChoice === 'pass'
+              ? new Date()
+              : null,
         },
       },
     )

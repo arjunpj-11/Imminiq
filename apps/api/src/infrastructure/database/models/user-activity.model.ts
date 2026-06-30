@@ -94,7 +94,11 @@ const activityDetailsSchema = new Schema(
 
     difficulty: {
       type: String,
-      enum: ['beginner', 'intermediate', 'advanced'],
+      enum: [
+        'beginner',
+        'intermediate',
+        'advanced',
+      ],
       default: undefined,
     },
   },
@@ -109,7 +113,6 @@ const userActivitySchema = new Schema(
       type: Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      index: true,
     },
 
     category: {
@@ -157,7 +160,7 @@ const userActivitySchema = new Schema(
     },
 
     /**
-     * Prevents duplicate activities and duplicate XP rewards.
+     * Prevents duplicated activities and duplicated rewards.
      *
      * Examples:
      * subtopic-completed:<trackerId>:<subtopicId>
@@ -221,7 +224,6 @@ const userActivitySchema = new Schema(
     deletedAt: {
       type: Date,
       default: null,
-      index: true,
     },
   },
   {
@@ -230,7 +232,6 @@ const userActivitySchema = new Schema(
   },
 )
 
-// One activity event should only exist once for one user.
 userActivitySchema.index(
   {
     userId: 1,
@@ -238,51 +239,79 @@ userActivitySchema.index(
   },
   {
     unique: true,
+    name: 'user_activity_event_key_unique',
   },
 )
 
-// Main activity feed.
-userActivitySchema.index({
-  userId: 1,
-  deletedAt: 1,
-  occurredAt: -1,
-})
+userActivitySchema.index(
+  {
+    userId: 1,
+    deletedAt: 1,
+    occurredAt: -1,
+    _id: -1,
+  },
+  {
+    name: 'user_activity_feed',
+  },
+)
 
-// Feed category filters.
-userActivitySchema.index({
-  userId: 1,
-  category: 1,
-  deletedAt: 1,
-  occurredAt: -1,
-})
+userActivitySchema.index(
+  {
+    userId: 1,
+    category: 1,
+    deletedAt: 1,
+    occurredAt: -1,
+    _id: -1,
+  },
+  {
+    name: 'user_activity_category_feed',
+  },
+)
 
-// Statistics for completed subtopics, tests and other activity types.
-userActivitySchema.index({
-  userId: 1,
-  type: 1,
-  deletedAt: 1,
-  occurredAt: -1,
-})
+userActivitySchema.index(
+  {
+    userId: 1,
+    type: 1,
+    deletedAt: 1,
+    occurredAt: -1,
+  },
+  {
+    name: 'user_activity_type_statistics',
+  },
+)
 
-// Weekly and monthly XP statistics.
-userActivitySchema.index({
-  userId: 1,
-  xpBucket: 1,
-  deletedAt: 1,
-  occurredAt: -1,
-})
+userActivitySchema.index(
+  {
+    userId: 1,
+    xpBucket: 1,
+    deletedAt: 1,
+    occurredAt: -1,
+  },
+  {
+    name: 'user_activity_xp_statistics',
+  },
+)
 
-// Source lookups.
-userActivitySchema.index({
-  trackerId: 1,
-  topicId: 1,
-  subtopicId: 1,
-})
+userActivitySchema.index(
+  {
+    trackerId: 1,
+    topicId: 1,
+    subtopicId: 1,
+  },
+  {
+    name: 'user_activity_tracker_sources',
+  },
+)
 
-userActivitySchema.index({
-  mockTestId: 1,
-  attemptId: 1,
-})
+userActivitySchema.index(
+  {
+    mockTestId: 1,
+    attemptId: 1,
+  },
+  {
+    name: 'user_activity_mock_test_sources',
+  },
+)
 
 export type UserActivityDocument =
   InferSchemaType<typeof userActivitySchema>

@@ -1,0 +1,66 @@
+import type { NextFunction, Request, Response } from 'express'
+
+import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
+import { ApiError } from '../../../shared/utils/ApiError'
+import { ApiResponse } from '../../../shared/utils/ApiResponse'
+import { getAuthUser } from '../../../shared/utils/getAuthUser'
+import {
+  leaderboardService,
+  type LeaderboardService,
+} from '../leaderboard.service'
+import { leaderboardQuerySchema } from './leaderboard.schema'
+
+export class LeaderboardController {
+  constructor(private readonly _service: LeaderboardService) {}
+
+  getLeaderboard = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const parsedQuery = leaderboardQuerySchema.safeParse(req.query)
+
+      if (!parsedQuery.success) {
+        throw new ApiError(
+          HttpStatusCode.BAD_REQUEST,
+          parsedQuery.error.issues[0]?.message ??
+            'Leaderboard query is invalid',
+          'VALIDATION_ERROR',
+        )
+      }
+
+      const user = getAuthUser(req)
+      const leaderboard = await this._service.getLeaderboard(
+        user.userId,
+        parsedQuery.data,
+      )
+
+      res.json(
+        new ApiResponse('Leaderboard fetched', leaderboard),
+      )
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getRewards = async (
+    _req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const rewards = this._service.getRewards()
+
+      res.json(
+        new ApiResponse('Leaderboard rewards fetched', rewards),
+      )
+    } catch (error) {
+      next(error)
+    }
+  }
+}
+
+export const leaderboardController = new LeaderboardController(
+  leaderboardService,
+)

@@ -23,6 +23,8 @@ import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes'
 import moderationAppealRoutes from './modules/moderation-appeals/presentation/moderation-appeal.routes'
 import  mockTestsRouter  from './modules/mock-tests/presentation/mock-tests.routes'
 import communityRouter from './modules/community/presentation/community.routes'
+import leaderBoardRouter from './modules/leaderboard/presentation/leaderboard.routes'
+import activityRouter from './modules/activity/activity.routes'
 
 
 const app = express()
@@ -73,6 +75,8 @@ app.use('/api/security', securityRoutes)
 app.use('/api/mock-tests', mockTestsRouter)
 app.use('/api/community', communityRouter)
 app.use('/api/moderation-appeals', moderationAppealRoutes)
+app.use('/api/leaderboard',leaderBoardRouter)
+app.use('/api/activity',activityRouter)
 
 app.use(errorHandler)
 
