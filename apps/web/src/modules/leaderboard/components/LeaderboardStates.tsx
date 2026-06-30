@@ -48,7 +48,7 @@ export const LeaderboardErrorState = ({
   message,
   onRetry,
 }: LeaderboardErrorStateProps) => (
-  <div className="flex min-h-[420px] items-center justify-center px-4" role="alert">
+  <div className="flex min-h-105 items-center justify-center px-4" role="alert">
     <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.2)] bg-[#fdf8f5] p-8 text-center dark:bg-[#1e1c19]">
       <h1 className="font-['Playfair_Display',serif] text-[22px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">Leaderboard unavailable</h1>
       <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">{message || 'Something went wrong loading the leaderboard data. Try again.'}</p>

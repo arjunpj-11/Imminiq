@@ -1,5 +1,8 @@
-import mongoose from 'mongoose'
+import mongoose, { type ClientSession } from 'mongoose'
 
+import { LeaderboardXpEvent } from '../../../../../infrastructure/database/models/leaderboard-xp-event.model'
+import { StreakHistory } from '../../../../../infrastructure/database/models/streak-history.model'
+import { StreakSnapshot } from '../../../../../infrastructure/database/models/streak-snapshot.model'
 import { UserActivity } from '../../../../../infrastructure/database/models/user-activity.model'
 import { User } from '../../../../../infrastructure/database/models/user.model'
 import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
@@ -9,10 +12,14 @@ import type {
   RecordUserActivityResult,
 } from '../../../domain/repositories/activity-command.repository.interface'
 import type { ActivityProgressionChange } from '../../../domain/types/activity.types'
+import type { ActivityHeatmapIntensity } from '../../../domain/value-objects/activity-heatmap-intensity.vo'
 import { MongoActivityBaseRepository } from '../shared/mongo-activity-base.repository'
 import { MongoActivityErrorMapper } from '../shared/mongo-activity-error.mapper'
+import { MongoActivityFilterBuilder } from '../shared/mongo-activity-filter.builder'
 import { MongoActivityMapper } from '../shared/mongo-activity.mapper'
 import type { MongoUserActivityRecord } from '../shared/mongo-activity.types'
+
+const DAY_IN_MS = 86_400_000
 
 export class MongoActivityCommandRepository
   extends MongoActivityBaseRepository
@@ -51,9 +58,19 @@ export class MongoActivityCommandRepository
             if (existing) {
               this.ensureSameEvent(existing, input)
 
+              const activity =
+                this._mapper.toEntityOrThrow(existing)
+
+              await this.ensureLeaderboardXpEvent(
+                {
+                  activityId: activity.id,
+                  input,
+                },
+                session,
+              )
+
               result = {
-                activity:
-                  this._mapper.toEntityOrThrow(existing),
+                activity,
                 created: false,
               }
 
@@ -109,15 +126,11 @@ export class MongoActivityCommandRepository
             }
 
             if (
-              input.xpAwarded > 0 ||
-              input.coinsAwarded > 0
+              !user.lastActiveAt ||
+              input.occurredAt.getTime() >
+                user.lastActiveAt.getTime()
             ) {
-              /*
-               * User.save() intentionally runs the User model's
-               * progression middleware so level and teacherLevel
-               * stay synchronized with XP.
-               */
-              await user.save({ session })
+              user.lastActiveAt = input.occurredAt
             }
 
             const [createdDocument] =
@@ -193,6 +206,60 @@ export class MongoActivityCommandRepository
                 >(createdDocument),
               )
 
+            const streakDay =
+              await this.recordStreakActivity(
+                {
+                  userId,
+                  activityDateKey:
+                    input.activityDateKey,
+                  activityType: input.type,
+                  activityDayRange:
+                    input.activityDayRange,
+                  previousDayRange:
+                    input.previousDayRange,
+                  fallbackCurrentStreak:
+                    Math.max(
+                      0,
+                      user.streakCount ?? 0,
+                    ),
+                },
+                session,
+              )
+
+            const latestHistory =
+              await StreakHistory.findOne({
+                userId,
+                deletedAt: null,
+              })
+                .sort({ date: -1 })
+                .session(session)
+
+            if (
+              latestHistory &&
+              this.toDateKey(latestHistory.date) ===
+                input.activityDateKey
+            ) {
+              user.streakCount = Math.max(
+                0,
+                streakDay,
+              )
+            }
+
+            /*
+             * save() intentionally executes the User model's XP
+             * progression middleware, keeping both level fields
+             * synchronized with xp and teacherXp.
+             */
+            await user.save({ session })
+
+            await this.ensureLeaderboardXpEvent(
+              {
+                activityId: activity.id,
+                input,
+              },
+              session,
+            )
+
             const progression:
               ActivityProgressionChange = {
               previousLearningXp:
@@ -251,7 +318,7 @@ export class MongoActivityCommandRepository
           /*
            * A concurrent request may win the unique event-key
            * insert. Its transaction succeeds and this transaction
-           * is rolled back, including its User XP/coin changes.
+           * is rolled back, including all reward/streak changes.
            */
           const existing =
             await UserActivity.findOne({
@@ -265,9 +332,33 @@ export class MongoActivityCommandRepository
 
           this.ensureSameEvent(existing, input)
 
+          const activity =
+            this._mapper.toEntityOrThrow(existing)
+
+          if (
+            input.xpAwarded > 0 &&
+            input.xpBucket !== 'none'
+          ) {
+            await LeaderboardXpEvent.updateOne(
+              {
+                idempotencyKey:
+                  `activity-xp:${activity.id}`,
+              },
+              {
+                $setOnInsert:
+                  this.leaderboardXpEventInsert(
+                    activity.id,
+                    input,
+                  ),
+              },
+              {
+                upsert: true,
+              },
+            )
+          }
+
           return {
-            activity:
-              this._mapper.toEntityOrThrow(existing),
+            activity,
             created: false,
           }
         } finally {
@@ -275,6 +366,357 @@ export class MongoActivityCommandRepository
         }
       },
     )
+  }
+
+  private async recordStreakActivity(
+    input: {
+      userId: mongoose.Types.ObjectId
+      activityDateKey: string
+      activityType: string
+      activityDayRange: {
+        start: Date
+        end: Date
+      }
+      previousDayRange: {
+        start: Date
+        end: Date
+      }
+      fallbackCurrentStreak: number
+    },
+    session: ClientSession,
+  ): Promise<number> {
+    const historyDate = this.dateKeyToDate(
+      input.activityDateKey,
+    )
+
+    let history = await StreakHistory.findOne({
+      userId: input.userId,
+      date: historyDate,
+    }).session(session)
+
+    let isNewActiveDay = false
+
+    if (!history || history.deletedAt) {
+      const previousDate = new Date(
+        historyDate.getTime() - DAY_IN_MS,
+      )
+
+      const previousHistory =
+        await StreakHistory.findOne({
+          userId: input.userId,
+          date: previousDate,
+          deletedAt: null,
+        }).session(session)
+
+      const currentDayActivities =
+        await UserActivity.find({
+          ...MongoActivityFilterBuilder.activeByUser(
+            input.userId,
+          ),
+          occurredAt:
+            MongoActivityFilterBuilder.dateRange(
+              input.activityDayRange,
+            ),
+        })
+          .select({ _id: 1 })
+          .limit(2)
+          .session(session)
+          .lean<Array<{ _id: unknown }>>()
+
+      const hadLegacyCurrentDayActivity =
+        currentDayActivities.length > 1
+
+      let previousStreakDay = previousHistory
+        ? Math.max(1, previousHistory.streakDay ?? 1)
+        : 0
+
+      if (!previousHistory) {
+        const legacyPreviousDayActivity =
+          await UserActivity.exists({
+            ...MongoActivityFilterBuilder.activeByUser(
+              input.userId,
+            ),
+            occurredAt:
+              MongoActivityFilterBuilder.dateRange(
+                input.previousDayRange,
+              ),
+          }).session(session)
+
+        if (legacyPreviousDayActivity) {
+          previousStreakDay = Math.max(
+            1,
+            input.fallbackCurrentStreak,
+          )
+        }
+      }
+
+      const streakDay =
+        hadLegacyCurrentDayActivity &&
+        input.fallbackCurrentStreak > 0
+          ? input.fallbackCurrentStreak
+          : previousStreakDay > 0
+            ? previousStreakDay + 1
+            : 1
+
+      if (history) {
+        history.activityCount = 1
+        history.intensityLevel = 'low'
+        history.sources = [input.activityType]
+        history.streakDay = streakDay
+        history.isFrozen = false
+        history.freezeUsedId = null
+        history.deletedAt = null
+        await history.save({ session })
+      } else {
+        const [createdHistory] =
+          await StreakHistory.create(
+            [
+              {
+                userId: input.userId,
+                date: historyDate,
+                activityCount: 1,
+                intensityLevel: 'low',
+                sources: [input.activityType],
+                streakDay,
+                isFrozen: false,
+                freezeUsedId: null,
+                deletedAt: null,
+              },
+            ],
+            { session },
+          )
+
+        if (!createdHistory) {
+          throw new ActivityDomainError(
+            'ACTIVITY_STREAK_HISTORY_CREATE_FAILED',
+            'Failed to create streak history',
+          )
+        }
+
+        history = createdHistory
+      }
+
+      isNewActiveDay = true
+    } else {
+      history.activityCount =
+        Math.max(0, history.activityCount ?? 0) + 1
+      history.intensityLevel =
+        this.heatmapIntensity(history.activityCount)
+      history.sources = [
+        ...new Set([
+          ...(history.sources ?? []),
+          input.activityType,
+        ]),
+      ]
+      await history.save({ session })
+    }
+
+    const streakDay = Math.max(
+      1,
+      history.streakDay ?? 1,
+    )
+
+    await this.upsertStreakSnapshot(
+      {
+        userId: input.userId,
+        snapshotDate: historyDate,
+        activityDateKey: input.activityDateKey,
+        activityCount: Math.max(
+          0,
+          history.activityCount ?? 0,
+        ),
+        intensityLevel: history.intensityLevel,
+        isFrozen: history.isFrozen ?? false,
+        streakDay,
+        isNewActiveDay,
+        fallbackLongestStreak:
+          input.fallbackCurrentStreak,
+      },
+      session,
+    )
+
+    return streakDay
+  }
+
+  private async upsertStreakSnapshot(
+    input: {
+      userId: mongoose.Types.ObjectId
+      snapshotDate: Date
+      activityDateKey: string
+      activityCount: number
+      intensityLevel: ActivityHeatmapIntensity
+      isFrozen: boolean
+      streakDay: number
+      isNewActiveDay: boolean
+      fallbackLongestStreak: number
+    },
+    session: ClientSession,
+  ): Promise<void> {
+    const snapshot = await StreakSnapshot.findOne({
+      userId: input.userId,
+      snapshotDate: input.snapshotDate,
+    }).session(session)
+
+    const previousSnapshot = snapshot
+      ? null
+      : await StreakSnapshot.findOne({
+          userId: input.userId,
+          snapshotDate: {
+            $lt: input.snapshotDate,
+          },
+          deletedAt: null,
+        })
+          .sort({ snapshotDate: -1 })
+          .session(session)
+
+    const previousLongest = Math.max(
+      0,
+      snapshot?.longestStreak ??
+        previousSnapshot?.longestStreak ??
+        0,
+      input.fallbackLongestStreak,
+    )
+
+    const previousTotalActiveDays = Math.max(
+      0,
+      snapshot?.totalActiveDays ??
+        previousSnapshot?.totalActiveDays ??
+        0,
+    )
+
+    const previousTotalFreezeUsed = Math.max(
+      0,
+      snapshot?.totalFreezeUsed ??
+        previousSnapshot?.totalFreezeUsed ??
+        0,
+    )
+
+    const snapshotWasActive = Boolean(
+      snapshot && !snapshot.deletedAt,
+    )
+
+    const snapshotValues = {
+      currentStreak: input.streakDay,
+      longestStreak: Math.max(
+        previousLongest,
+        input.streakDay,
+      ),
+      totalActiveDays:
+        previousTotalActiveDays +
+        (!snapshotWasActive &&
+        input.isNewActiveDay
+          ? 1
+          : 0),
+      totalFreezeUsed: previousTotalFreezeUsed,
+      heatmapData: {
+        [input.activityDateKey]: {
+          activityCount: input.activityCount,
+          intensityLevel: input.intensityLevel,
+          isFrozen: input.isFrozen,
+        },
+      },
+      deletedAt: null,
+    }
+
+    if (snapshot) {
+      snapshot.set(snapshotValues)
+      await snapshot.save({ session })
+      return
+    }
+
+    const [createdSnapshot] =
+      await StreakSnapshot.create(
+        [
+          {
+            userId: input.userId,
+            snapshotDate: input.snapshotDate,
+            ...snapshotValues,
+          },
+        ],
+        { session },
+      )
+
+    if (!createdSnapshot) {
+      throw new ActivityDomainError(
+        'ACTIVITY_STREAK_SNAPSHOT_CREATE_FAILED',
+        'Failed to create streak snapshot',
+      )
+    }
+  }
+
+  private async ensureLeaderboardXpEvent(
+    input: {
+      activityId: string
+      input: RecordUserActivityInput
+    },
+    session: ClientSession,
+  ): Promise<void> {
+    if (
+      input.input.xpAwarded <= 0 ||
+      input.input.xpBucket === 'none'
+    ) {
+      return
+    }
+
+    await LeaderboardXpEvent.updateOne(
+      {
+        idempotencyKey:
+          `activity-xp:${input.activityId}`,
+      },
+      {
+        $setOnInsert:
+          this.leaderboardXpEventInsert(
+            input.activityId,
+            input.input,
+          ),
+      },
+      {
+        upsert: true,
+        session,
+      },
+    )
+  }
+
+  private leaderboardXpEventInsert(
+    activityId: string,
+    input: RecordUserActivityInput,
+  ) {
+    return {
+      userId: this.toObjectId(input.userId),
+      section:
+        input.xpBucket === 'learning'
+          ? 'students'
+          : 'trainers',
+      amount: input.xpAwarded,
+      source: input.type,
+      idempotencyKey: `activity-xp:${activityId}`,
+      sourceEntityId: activityId,
+      occurredAt: input.occurredAt,
+      metadata: {
+        activityEventKey: input.eventKey,
+        activityType: input.type,
+        activityCategory: input.category,
+        xpBucket: input.xpBucket,
+      },
+    }
+  }
+
+  private heatmapIntensity(
+    activityCount: number,
+  ): ActivityHeatmapIntensity {
+    if (activityCount <= 0) {
+      return 'none'
+    }
+
+    if (activityCount <= 2) {
+      return 'low'
+    }
+
+    if (activityCount <= 4) {
+      return 'medium'
+    }
+
+    return 'high'
   }
 
   private ensureSameEvent(
@@ -347,6 +789,33 @@ export class MongoActivityCommandRepository
     }
 
     return this.toObjectId(value)
+  }
+
+  private dateKeyToDate(dateKey: string): Date {
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dateKey)) {
+      throw new ActivityDomainError(
+        'INVALID_ACTIVITY_DATE_KEY',
+        'Activity date key is invalid',
+      )
+    }
+
+    const date = new Date(`${dateKey}T00:00:00.000Z`)
+
+    if (
+      Number.isNaN(date.getTime()) ||
+      this.toDateKey(date) !== dateKey
+    ) {
+      throw new ActivityDomainError(
+        'INVALID_ACTIVITY_DATE_KEY',
+        'Activity date key is invalid',
+      )
+    }
+
+    return date
+  }
+
+  private toDateKey(date: Date): string {
+    return date.toISOString().slice(0, 10)
   }
 
   private toObjectId(

@@ -1,10 +1,10 @@
 import { useMemo } from 'react'
 
+import { useActivityFeed } from '../hooks/useActivityFeed'
 import type {
   ActivityFeedFilter,
   ActivityPageResponse,
 } from '../types/activity.types'
-import { useActivityFeed } from '../hooks/useActivityFeed'
 import { mergeActivityFeedPages } from '../utils/activity-formatters'
 import ActivityFeed from './ActivityFeed'
 import ActivityFilterTabs from './ActivityFilterTabs'
@@ -34,24 +34,44 @@ export default function ActivityDashboard({
 }: ActivityDashboardProps) {
   const generatedAtMs = Date.parse(activity.generatedAt)
 
+  /**
+   * React components must remain pure during rendering.
+   *
+   * Do not use Date.now() here because it produces a different value
+   * between renders and triggers the react-hooks/purity rule.
+   *
+   * A value of 0 tells TanStack Query that the initial data is old,
+   * allowing it to refetch when generatedAt is invalid.
+   */
+  const initialDataUpdatedAt = Number.isNaN(generatedAtMs)
+    ? 0
+    : generatedAtMs
+
   const feedQuery = useActivityFeed({
     filter,
     limit: activity.feed.pagination.limit,
     utcOffsetMinutes,
     initialFeed: activity.feed,
-    initialDataUpdatedAt: Number.isNaN(generatedAtMs)
-      ? Date.now()
-      : generatedAtMs,
+    initialDataUpdatedAt,
   })
 
   const feedGroups = useMemo(
-    () => mergeActivityFeedPages(feedQuery.data?.pages ?? [activity.feed]),
+    () =>
+      mergeActivityFeedPages(
+        feedQuery.data?.pages ?? [activity.feed],
+      ),
     [activity.feed, feedQuery.data?.pages],
   )
 
+  const isUpdating =
+    (isPageFetching || feedQuery.isFetching) &&
+    !feedQuery.isFetchingNextPage
+
   return (
     <>
-      <ActivityHeader currentStreak={activity.streak.currentStreak} />
+      <ActivityHeader
+        currentStreak={activity.streak.currentStreak}
+      />
 
       <ActivityStatsGrid stats={activity.stats} />
 
@@ -72,31 +92,35 @@ export default function ActivityDashboard({
               onChange={onFilterChange}
             />
 
-            {(isPageFetching || feedQuery.isFetching) &&
-              !feedQuery.isFetchingNextPage && (
-                <div
-                  className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]"
-                  role="status"
-                  aria-live="polite"
-                >
-                  Updating activity…
-                </div>
-              )}
+            {isUpdating && (
+              <div
+                className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]"
+                role="status"
+                aria-live="polite"
+              >
+                Updating activity…
+              </div>
+            )}
           </div>
 
           <ActivityFeed
             groups={feedGroups}
             hasMore={Boolean(feedQuery.hasNextPage)}
-            isFetchingNextPage={feedQuery.isFetchingNextPage}
-            isFetchNextPageError={feedQuery.isFetchNextPageError}
-            onLoadMore={() => void feedQuery.fetchNextPage()}
+            isFetchingNextPage={
+              feedQuery.isFetchingNextPage
+            }
+            isFetchNextPageError={
+              feedQuery.isFetchNextPageError
+            }
+            onLoadMore={() => {
+              void feedQuery.fetchNextPage()
+            }}
           />
         </div>
 
         <ActivitySidebar
           weekly={activity.weekly}
           personalBests={activity.personalBests}
-          dailyGoal={activity.dailyGoal}
         />
       </div>
     </>

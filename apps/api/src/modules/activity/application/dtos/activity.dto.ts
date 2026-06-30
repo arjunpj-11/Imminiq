@@ -138,6 +138,8 @@ export type ActivityPageResponse = {
   streak: {
     currentStreak: number
     longestStreak: number
+    totalActiveDays: number
+    totalFreezeUsed: number
     heatmap: ActivityHeatmapItemView[]
   }
 

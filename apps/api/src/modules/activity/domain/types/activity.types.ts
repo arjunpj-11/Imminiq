@@ -1,4 +1,5 @@
 import type { ActivityCategory } from '../value-objects/activity-category.vo'
+import type { ActivityHeatmapIntensity } from '../value-objects/activity-heatmap-intensity.vo'
 import type { ActivityType } from '../value-objects/activity-type.vo'
 
 export type ActivityTimeRange = {
@@ -16,6 +17,7 @@ export type ActivityUserSummaryRecord = {
   learningXp: number
   teacherXp: number
   coins: number
+  streakCount: number
 }
 
 export type ActivityStatisticsRecord = {
@@ -30,6 +32,23 @@ export type ActivityDayAggregateRecord = {
   activityCount: number
   xp: number
   sessions: number
+}
+
+export type ActivityStreakDayRecord = {
+  date: string
+  activityCount: number
+  intensityLevel: ActivityHeatmapIntensity
+  isFrozen: boolean
+  streakDay: number
+}
+
+export type ActivityStreakAnalyticsRecord = {
+  currentStreak: number
+  longestStreak: number
+  totalActiveDays: number
+  totalFreezeUsed: number
+  latestActivityDate: string | null
+  days: ActivityStreakDayRecord[]
 }
 
 export type ActivityWeeklyBreakdownRecord = {
@@ -54,9 +73,7 @@ export type ActivityDailyGoalState = {
 export type ActivityAnalyticsRecord = {
   user: ActivityUserSummaryRecord | null
   statistics: ActivityStatisticsRecord
-
-  yearDays: ActivityDayAggregateRecord[]
-  activeDateKeys: string[]
+  streak: ActivityStreakAnalyticsRecord
 
   currentWeekDays: ActivityDayAggregateRecord[]
   previousWeekXp: number

@@ -13,7 +13,7 @@ export default function LeaderboardMyRankBar({
 }) {
   return (
     <section className="flex items-center gap-4 rounded-2xl border-[1.5px] border-[rgba(184,76,43,0.2)] bg-[#fdf8f5] px-5 py-4 dark:border-[rgba(232,129,106,0.2)] dark:bg-[#1e1c19]" aria-label="Your leaderboard rank">
-      <div className="w-[52px] shrink-0">
+      <div className="w-13 shrink-0">
         <div className="mb-0.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]">Rank</div>
         <div className="font-['Playfair_Display',serif] text-[28px] font-black leading-none text-[#b84c2b] tabular-nums dark:text-[#e8816a]">{entry.rank}</div>
       </div>

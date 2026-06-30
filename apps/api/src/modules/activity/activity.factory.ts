@@ -6,7 +6,6 @@ import { ActivityDateRangeService } from './application/services/activity-date-r
 import { GetActivityFeedUseCase } from './application/use-cases/get-activity-feed.usecase'
 import { GetActivityPageUseCase } from './application/use-cases/get-activity-page.usecase'
 import { RecordUserActivityUseCase } from './application/use-cases/record-user-activity.usecase'
-import { leaderboardActivityGateway } from './infrastructure/gateways/leaderboard-activity.gateway'
 import { mongoActivityRepository } from './infrastructure/repositories/mongo-activity.repository'
 
 export type ActivityUseCases = {
@@ -55,7 +54,6 @@ export const createActivityComposition =
         recordActivity:
           new RecordUserActivityUseCase(
             activityRepository,
-            leaderboardActivityGateway,
             eventPolicy,
             mapper,
             dateRangeService,

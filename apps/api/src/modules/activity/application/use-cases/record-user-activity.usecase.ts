@@ -4,7 +4,6 @@ import {
 import { ActivityDomainError } from '../../domain/errors/activity-domain.error'
 import type { ActivityCommandRepositoryContract } from '../../domain/repositories/activity-command.repository.interface'
 import type { ActivityQueryRepositoryContract } from '../../domain/repositories/activity-query.repository.interface'
-import type { ActivityLeaderboardRecorderContract } from '../../domain/services/activity-leaderboard-recorder.service.interface'
 import type {
   RecordUserActivityPayload,
   RecordUserActivityResponse,
@@ -14,6 +13,8 @@ import { ActivityMapper } from '../mappers/activity.mapper'
 import { ActivityEventPolicy } from '../policies/activity-event.policy'
 import { ActivityDateRangeService } from '../services/activity-date-range.service'
 
+const DAY_IN_MS = 86_400_000
+
 type RecordActivityRepository =
   ActivityCommandRepositoryContract &
     ActivityQueryRepositoryContract
@@ -21,7 +22,6 @@ type RecordActivityRepository =
 export class RecordUserActivityUseCase {
   constructor(
     private readonly _activityRepository: RecordActivityRepository,
-    private readonly _leaderboardRecorder: ActivityLeaderboardRecorderContract,
     private readonly _eventPolicy: ActivityEventPolicy,
     private readonly _mapper: ActivityMapper,
     private readonly _dateRangeService: ActivityDateRangeService,
@@ -35,6 +35,12 @@ export class RecordUserActivityUseCase {
     const occurredAt = payload.occurredAt ?? new Date()
     const utcOffsetMinutes =
       payload.utcOffsetMinutes ?? 0
+    const context =
+      this._dateRangeService.createContext(
+        occurredAt,
+        undefined,
+        utcOffsetMinutes,
+      )
 
     try {
       const primaryResult =
@@ -52,6 +58,14 @@ export class RecordUserActivityUseCase {
           coinsAwarded: payload.coinsAwarded ?? 0,
 
           eventKey: payload.eventKey.trim(),
+          activityDateKey: context.todayKey,
+          activityDayRange: context.todayRange,
+          previousDayRange: {
+            start: new Date(
+              context.todayRange.start.getTime() - DAY_IN_MS,
+            ),
+            end: context.todayRange.start,
+          },
 
           ...(payload.trackerId !== undefined
             ? { trackerId: payload.trackerId }
@@ -76,14 +90,19 @@ export class RecordUserActivityUseCase {
           occurredAt,
         })
 
-      await this.syncLeaderboard(primaryResult.activity)
-
       const dailyGoalActivity =
         await this.tryAwardDailyGoal({
           userId: payload.userId,
           primaryType: payload.type,
           occurredAt,
-          utcOffsetMinutes,
+          activityDateKey: context.todayKey,
+          todayRange: context.todayRange,
+          previousDayRange: {
+            start: new Date(
+              context.todayRange.start.getTime() - DAY_IN_MS,
+            ),
+            end: context.todayRange.start,
+          },
         })
 
       return {
@@ -119,7 +138,15 @@ export class RecordUserActivityUseCase {
     userId: string
     primaryType: RecordUserActivityPayload['type']
     occurredAt: Date
-    utcOffsetMinutes: number
+    activityDateKey: string
+    todayRange: {
+      start: Date
+      end: Date
+    }
+    previousDayRange: {
+      start: Date
+      end: Date
+    }
   }) {
     if (
       input.primaryType !== 'subtopic_completed' &&
@@ -128,17 +155,10 @@ export class RecordUserActivityUseCase {
       return null
     }
 
-    const context =
-      this._dateRangeService.createContext(
-        input.occurredAt,
-        undefined,
-        input.utcOffsetMinutes,
-      )
-
     const state =
       await this._activityRepository.findDailyGoalState({
         userId: input.userId,
-        todayRange: context.todayRange,
+        todayRange: input.todayRange,
       })
 
     if (
@@ -148,57 +168,30 @@ export class RecordUserActivityUseCase {
       return null
     }
 
-    const result =
-      await this._activityRepository.recordActivityAndApplyReward({
-        userId: input.userId,
+    return this._activityRepository.recordActivityAndApplyReward({
+      userId: input.userId,
 
-        category: 'streak',
-        type: 'daily_goal_completed',
+      category: 'streak',
+      type: 'daily_goal_completed',
 
-        title: 'Daily goal completed',
-        subtitle:
-          'Completed one subtopic and one mock test today',
+      title: 'Daily goal completed',
+      subtitle:
+        'Completed one subtopic and one mock test today',
 
-        xpAwarded: ACTIVITY_DAILY_GOAL_REWARD_XP,
-        xpBucket: 'learning',
-        coinsAwarded: 0,
+      xpAwarded: ACTIVITY_DAILY_GOAL_REWARD_XP,
+      xpBucket: 'learning',
+      coinsAwarded: 0,
 
-        eventKey: `daily-goal-completed:${context.todayKey}`,
+      eventKey: `daily-goal-completed:${input.activityDateKey}`,
+      activityDateKey: input.activityDateKey,
+      activityDayRange: input.todayRange,
+      previousDayRange: input.previousDayRange,
 
-        details: {
-          milestoneValue: 2,
-        },
+      details: {
+        milestoneValue: 2,
+      },
 
-        occurredAt: input.occurredAt,
-      })
-
-    await this.syncLeaderboard(result.activity)
-
-    return result
-  }
-
-  private async syncLeaderboard(
-    activity: Awaited<
-      ReturnType<
-        ActivityCommandRepositoryContract['recordActivityAndApplyReward']
-      >
-    >['activity'],
-  ): Promise<void> {
-    if (
-      activity.xpAwarded <= 0 ||
-      activity.xpBucket === 'none'
-    ) {
-      return
-    }
-
-    await this._leaderboardRecorder.recordXp({
-      userId: activity.userId,
-      activityId: activity.id,
-      eventKey: activity.eventKey,
-      type: activity.type,
-      bucket: activity.xpBucket,
-      amount: activity.xpAwarded,
-      occurredAt: activity.occurredAt,
+      occurredAt: input.occurredAt,
     })
   }
 }

@@ -18,13 +18,13 @@ const TrackBadge = ({ track }: { track: string }) => (
 
 function TableHeader({ section }: { section: LeaderboardSection }) {
   return (
-    <div className="flex items-center gap-4 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.02)] px-5 py-[9px] dark:border-white/8 dark:bg-white/[0.02]">
+    <div className="flex items-center gap-4 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.02)] px-5 py-2.25 dark:border-white/8 dark:bg-white/2">
       <span className="w-9 shrink-0 text-center font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">#</span>
-      <span className="w-[38px] shrink-0" />
+      <span className="w-9.5 shrink-0" />
       <span className="flex-1 font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">
         {LEADERBOARD_SECTION_LABELS[section].singular}
       </span>
-      <span className="hidden w-[68px] shrink-0 text-right font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] min-[480px]:block dark:text-[#6b6460]">Score</span>
+      <span className="hidden w-17 shrink-0 text-right font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] min-[480px]:block dark:text-[#6b6460]">Score</span>
       <span className="hidden w-14 shrink-0 text-right font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] min-[560px]:block dark:text-[#6b6460]">Streak</span>
       <span className="w-10 shrink-0 text-right font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#b0a097] dark:text-[#6b6460]">Δ</span>
     </div>
@@ -44,10 +44,10 @@ function LeaderRow({ entry }: { entry: LeaderboardEntry }) {
   return (
     <div
       className={cn(
-        'flex items-center gap-4 border-b border-[#ece3db] px-5 py-[11px] last:border-b-0 dark:border-white/6',
+        'flex items-center gap-4 border-b border-[#ece3db] px-5 py-2.75 last:border-b-0 dark:border-white/6',
         entry.isMe
           ? 'bg-[rgba(184,76,43,0.032)] dark:bg-[rgba(232,129,106,0.045)]'
-          : 'transition-colors duration-100 hover:bg-[rgba(26,23,20,0.015)] dark:hover:bg-white/[0.015]',
+          : 'transition-colors duration-100 hover:bg-[rgba(26,23,20,0.015)] dark:hover:bg-white/1.5',
       )}
     >
       <span className={cn("w-9 shrink-0 text-center font-['DM_Mono',monospace] text-[12.5px] font-bold tabular-nums", entry.isMe ? 'text-[#b84c2b] dark:text-[#e8816a]' : 'text-[#c4b8b0] dark:text-[#5a5550]')}>
@@ -74,7 +74,7 @@ function LeaderRow({ entry }: { entry: LeaderboardEntry }) {
         <div className="mt-px text-[11px] text-[#b0a097] dark:text-[#6b6460]">{entry.handle}</div>
       </div>
 
-      <div className="hidden w-[68px] shrink-0 text-right min-[480px]:block">
+      <div className="hidden w-17 shrink-0 text-right min-[480px]:block">
         <div className="font-['DM_Mono',monospace] text-[13px] font-bold text-[#1a1714] tabular-nums dark:text-[#f2f0eb]">{formatNumber(entry.xp)}</div>
         <div className="mt-px text-[9px] uppercase tracking-wider text-[#b0a097] dark:text-[#6b6460]">XP</div>
       </div>

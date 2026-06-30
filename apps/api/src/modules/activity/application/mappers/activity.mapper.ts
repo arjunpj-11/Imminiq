@@ -98,12 +98,6 @@ export class ActivityMapper {
       throw new Error('Activity user mapping requires a user')
     }
 
-    const streak = analyticsService.calculateStreak(
-      analytics.activeDateKeys,
-      context.todayKey,
-      context.yesterdayKey,
-    )
-
     const currentWeekByDate = new Map(
       analytics.currentWeekDays.map((day) => [
         day.date,
@@ -163,17 +157,20 @@ export class ActivityMapper {
       },
 
       streak: {
-        currentStreak: streak.currentStreak,
-        longestStreak: streak.longestStreak,
+        currentStreak:
+          analytics.streak.currentStreak,
+        longestStreak:
+          analytics.streak.longestStreak,
+        totalActiveDays:
+          analytics.streak.totalActiveDays,
+        totalFreezeUsed:
+          analytics.streak.totalFreezeUsed,
 
-        heatmap: analytics.yearDays.map((day) => ({
+        heatmap: analytics.streak.days.map((day) => ({
           date: day.date,
-          intensityLevel:
-            analyticsService.heatmapIntensity(
-              day.activityCount,
-            ),
+          intensityLevel: day.intensityLevel,
           activityCount: day.activityCount,
-          isFrozen: false,
+          isFrozen: day.isFrozen,
         })),
       },
 
@@ -207,7 +204,8 @@ export class ActivityMapper {
       personalBests: {
         bestDayXp:
           analytics.personalBests.bestDayXp,
-        longestStreak: streak.longestStreak,
+        longestStreak:
+          analytics.streak.longestStreak,
         bestWeekSessions:
           analytics.personalBests.bestWeekSessions,
         bestTestScore:

@@ -61,6 +61,7 @@ export type MongoActivityUserRecord = {
   xp?: number
   teacherXp?: number
   coins?: number
+  streakCount?: number
   createdAt: Date
 }
 

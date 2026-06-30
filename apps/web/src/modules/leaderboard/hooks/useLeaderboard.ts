@@ -1,4 +1,4 @@
-import { useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 
 import api from '../../../lib/axios'
@@ -47,4 +47,5 @@ export const useLeaderboard = (input: LeaderboardQueryInput) =>
     },
     staleTime: LEADERBOARD_STALE_TIME_MS,
     retry: 1,
+    placeholderData: keepPreviousData,
   })

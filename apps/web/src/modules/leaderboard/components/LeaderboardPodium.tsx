@@ -65,7 +65,7 @@ function PodiumCard({ entry }: { entry: LeaderboardTopThreeEntry }) {
       <div className="absolute inset-x-0 top-0 hidden h-[2.5px] dark:block" style={{ background: token.darkStrip }} />
 
       <div className="relative mb-3 mt-2">
-        <div className="rounded-full p-[3px]" style={{ background: `linear-gradient(135deg, ${token.ring}80, ${token.ring}20)` }}>
+        <div className="rounded-full p-0.75" style={{ background: `linear-gradient(135deg, ${token.ring}80, ${token.ring}20)` }}>
           <div className="rounded-full bg-[#fdf8f5] p-0.5 dark:bg-[#1e1c19]">
             <LeaderboardAvatar
               initials={entry.initials}

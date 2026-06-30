@@ -33,10 +33,13 @@ export class GetActivityPageUseCase {
     const [analytics, feed] = await Promise.all([
       this._activityRepository.findActivityAnalytics({
         userId,
+        year: context.year,
         yearRange: context.yearRange,
         currentWeekRange: context.currentWeekRange,
         previousWeekRange: context.previousWeekRange,
         todayRange: context.todayRange,
+        todayKey: context.todayKey,
+        yesterdayKey: context.yesterdayKey,
         timezone: context.timezone,
       }),
 

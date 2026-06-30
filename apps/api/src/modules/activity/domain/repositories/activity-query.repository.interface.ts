@@ -20,10 +20,13 @@ export type FindActivityFeedResult = {
 
 export type FindActivityAnalyticsInput = {
   userId: string
+  year: number
   yearRange: ActivityTimeRange
   currentWeekRange: ActivityTimeRange
   previousWeekRange: ActivityTimeRange
   todayRange: ActivityTimeRange
+  todayKey: string
+  yesterdayKey: string
   timezone: string
 }
 

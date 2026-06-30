@@ -3,15 +3,12 @@ import type { ReactNode } from 'react'
 import type { ActivityPageResponse } from '../types/activity.types'
 import {
   formatNumber,
-  formatPercent,
   formatSignedPercent,
 } from '../utils/activity-formatters'
 import { cn } from '../utils/activity-ui'
 import {
   ActivityIcon,
-  CheckIcon,
   SparklesIcon,
-  StarIcon,
   TrendDownIcon,
   TrendUpIcon,
   TrophyIcon,
@@ -196,27 +193,6 @@ const WeeklyXpCard = ({ weekly }: WeeklyXpCardProps) => {
           ? `${formatNumber(weekly.xpToTarget)} XP to ${formatNumber(weekly.targetXp)} XP target`
           : 'Weekly target completed'}
       </div>
-
-      <SidebarValueRow
-        label="Tracker XP"
-        value={`${formatNumber(weekly.breakdown.trackerXp)} XP`}
-      />
-      <SidebarValueRow
-        label="Test XP"
-        value={`${formatNumber(weekly.breakdown.testXp)} XP`}
-      />
-      <SidebarValueRow
-        label="Community XP"
-        value={`${formatNumber(weekly.breakdown.communityXp)} XP`}
-      />
-      <SidebarValueRow
-        label="Streak XP"
-        value={`${formatNumber(weekly.breakdown.streakXp)} XP`}
-      />
-      <SidebarValueRow
-        label="Milestone XP"
-        value={`${formatNumber(weekly.breakdown.milestoneXp)} XP`}
-      />
     </SidebarCard>
   )
 }
@@ -246,94 +222,27 @@ const PersonalBestsCard = ({
       label="Longest streak"
       value={`${formatNumber(personalBests.longestStreak)} days`}
     />
-    <SidebarValueRow
-      label="Sessions / week"
-      value={formatNumber(personalBests.bestWeekSessions)}
-    />
-    <SidebarValueRow
-      label="Best test score"
-      value={formatPercent(personalBests.bestTestScore)}
-    />
   </SidebarCard>
 )
 
-interface DailyGoalCardProps {
-  dailyGoal: ActivityPageResponse['dailyGoal']
-}
-
-const DailyGoalCard = ({ dailyGoal }: DailyGoalCardProps) => (
-  <div className="rounded-2xl bg-[#b84c2b] p-5">
-    <div className="mb-2.5 flex items-center gap-2">
-      <span className="text-[rgba(255,255,255,0.75)]">
-        <StarIcon size={13} />
-      </span>
-      <span className="font-['Playfair_Display',serif] text-[14.5px] font-extrabold text-white">
-        Daily Goal
-      </span>
-    </div>
-
-    <p className="mb-3 text-[11.5px] leading-[1.6] text-[rgba(255,255,255,0.8)]">
-      Finish today&apos;s tasks to earn your daily bonus of{' '}
-      {formatNumber(dailyGoal.rewardXp)} XP.
-    </p>
-
-    <div className="mb-4 space-y-2">
-      {dailyGoal.tasks.map((task) => (
-        <div
-          key={task.key}
-          className="flex items-center gap-2 text-[11px] text-white/85"
-        >
-          <span
-            className={cn(
-              'flex h-4 w-4 shrink-0 items-center justify-center rounded-full border',
-              task.completed
-                ? 'border-white bg-white text-[#b84c2b]'
-                : 'border-white/35 text-transparent',
-            )}
-          >
-            <CheckIcon size={10} />
-          </span>
-          <span className={task.completed ? 'line-through opacity-75' : ''}>
-            {task.label}
-          </span>
-        </div>
-      ))}
-    </div>
-
-    <div className="mb-3 h-1 overflow-hidden rounded-full bg-white/20">
-      <div
-        className="h-full rounded-full bg-white transition-[width] duration-500"
-        style={{
-          width: `${Math.min(100, Math.max(0, dailyGoal.progressPercent))}%`,
-        }}
-      />
-    </div>
-
-    <div className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-wider text-white/70">
-      {dailyGoal.completed
-        ? 'Goal complete · bonus awarded'
-        : `${dailyGoal.completedTasks} / ${dailyGoal.totalTasks} tasks done`}
-    </div>
-  </div>
-)
 
 interface ActivitySidebarProps {
   weekly: ActivityPageResponse['weekly']
   personalBests: ActivityPageResponse['personalBests']
-  dailyGoal: ActivityPageResponse['dailyGoal']
+  
 }
 
 export default function ActivitySidebar({
   weekly,
   personalBests,
-  dailyGoal,
+  
 }: ActivitySidebarProps) {
   return (
     <aside className="flex w-62 shrink-0 flex-col gap-3 max-[860px]:w-full">
       <WeeklyChart weekly={weekly} />
       <WeeklyXpCard weekly={weekly} />
       <PersonalBestsCard personalBests={personalBests} />
-      <DailyGoalCard dailyGoal={dailyGoal} />
+     
     </aside>
   )
 }

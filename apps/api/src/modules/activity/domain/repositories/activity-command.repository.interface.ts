@@ -2,7 +2,10 @@ import type {
   ActivityDetails,
   UserActivityEntity,
 } from '../entities/user-activity.entity'
-import type { ActivityProgressionChange } from '../types/activity.types'
+import type {
+  ActivityProgressionChange,
+  ActivityTimeRange,
+} from '../types/activity.types'
 import type { ActivityCategory } from '../value-objects/activity-category.vo'
 import type { ActivityType } from '../value-objects/activity-type.vo'
 import type { ActivityXpBucket } from '../value-objects/activity-xp-bucket.vo'
@@ -21,6 +24,9 @@ export type RecordUserActivityInput = {
   coinsAwarded: number
 
   eventKey: string
+  activityDateKey: string
+  activityDayRange: ActivityTimeRange
+  previousDayRange: ActivityTimeRange
 
   trackerId?: string
   topicId?: string

@@ -62,7 +62,7 @@ export default function ActivityAppShell({
     <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <NoiseOverlay />
 
-      <div className="relative z-[1] flex min-h-screen w-full overflow-x-clip">
+      <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
         <Sidebar
           mobileOpen={sidebarOpen}
           collapsed={sidebarCollapsed}
