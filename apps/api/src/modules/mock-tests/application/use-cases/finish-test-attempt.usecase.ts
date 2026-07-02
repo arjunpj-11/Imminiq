@@ -4,16 +4,19 @@ import type { MockTestAttemptRepositoryContract } from '../../domain/repositorie
 import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
 import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { MockTestActivityServiceContract } from '../../domain/services/mock-test-activity.service.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
 
+const MOCK_TEST_COMPLETION_XP = 50
+
 type FinishTestAttemptRepository =
   MockTestRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAttemptRepositoryContract &
-  MockTestAnswerRepositoryContract &
-  MockTestReportRepositoryContract &
-  MockTestAnalyticsRepositoryContract
+    MockTestQuestionRepositoryContract &
+    MockTestAttemptRepositoryContract &
+    MockTestAnswerRepositoryContract &
+    MockTestReportRepositoryContract &
+    MockTestAnalyticsRepositoryContract
 
 type QuestionScoreLike = {
   points?: number
@@ -21,62 +24,113 @@ type QuestionScoreLike = {
 
 export class FinishTestAttemptUseCase {
   constructor(
-    private readonly _repo: FinishTestAttemptRepository,
-    private readonly _scoringService: MockTestScoringServiceContract,
+    private readonly _repo:
+      FinishTestAttemptRepository,
+
+    private readonly _scoringService:
+      MockTestScoringServiceContract,
+
+    private readonly _activityService:
+      MockTestActivityServiceContract,
   ) {}
 
-  async execute(attemptId: string, userId: string) {
-    const attempt = await this._repo.findAttemptById(attemptId)
+  async execute(
+    attemptId: string,
+    userId: string,
+  ) {
+    const attempt =
+      await this._repo.findAttemptById(
+        attemptId,
+      )
 
     if (!attempt) {
-      throw MockTestsApplicationError.notFound('Attempt not found')
+      throw MockTestsApplicationError.notFound(
+        'Attempt not found',
+      )
     }
 
     if (attempt.userId !== userId) {
       throw MockTestsApplicationError.forbidden()
     }
 
-    if (attempt.status !== 'in_progress') {
+    /*
+     * A completed attempt is allowed here so that the request
+     * can recover when:
+     *
+     * 1. the report and attempt were saved successfully
+     * 2. activity recording failed afterward
+     * 3. the client retries the finish request
+     *
+     * The activity event key uses attemptId, so retrying cannot
+     * duplicate XP, leaderboard records, or streak activity.
+     */
+    if (
+      attempt.status !== 'in_progress' &&
+      attempt.status !== 'completed'
+    ) {
       throw MockTestsApplicationError.testNotActive(
-        'Test is already finished',
+        'Test attempt is not active',
       )
     }
 
-    const test = await this._repo.findTestById(attempt.testId)
+    const test =
+      await this._repo.findTestById(
+        attempt.testId,
+      )
 
     if (!test) {
-      throw MockTestsApplicationError.notFound('Test not found')
+      throw MockTestsApplicationError.notFound(
+        'Test not found',
+      )
     }
 
-    const [questions, answers] = await Promise.all([
-      this._repo.findQuestionsByTest(attempt.testId),
-      this._repo.findAnswersByAttempt(attemptId),
-    ])
+    const [questions, answers] =
+      await Promise.all([
+        this._repo.findQuestionsByTest(
+          attempt.testId,
+        ),
 
-    const completedAt = new Date()
+        this._repo.findAnswersByAttempt(
+          attemptId,
+        ),
+      ])
 
-    const timeTakenSeconds = Math.max(
-      0,
-      Math.floor(
-        (completedAt.getTime() -
-          new Date(attempt.startedAt).getTime()) /
-          1000,
-      ),
-    )
+    const completedAt =
+      attempt.completedAt ?? new Date()
 
-    const scoreResult =
-      this._scoringService.calculateTestScore(
-        questions,
-        answers,
-        test.passingScore,
+    const calculatedTimeTakenSeconds =
+      Math.max(
+        0,
+        Math.floor(
+          (completedAt.getTime() -
+            new Date(
+              attempt.startedAt,
+            ).getTime()) /
+            1000,
+        ),
       )
 
-    const maxScore = this.calculateMaxScore(questions)
-    const totalQuestions = questions.length
+    const timeTakenSeconds =
+      attempt.timeTakenSeconds ??
+      calculatedTimeTakenSeconds
+
+    const scoreResult =
+      this._scoringService
+        .calculateTestScore(
+          questions,
+          answers,
+          test.passingScore,
+        )
+
+    const maxScore =
+      this.calculateMaxScore(questions)
+
+    const totalQuestions =
+      questions.length
 
     /*
-     * Assumes findAnswersByAttempt() returns one record only for
-     * questions that were answered.
+     * findAnswersByAttempt() should return one answer for each
+     * answered question.
      */
     const answeredQuestions = Math.min(
       totalQuestions,
@@ -85,40 +139,53 @@ export class FinishTestAttemptUseCase {
 
     const correctAnswers = Math.min(
       answeredQuestions,
-      Math.max(0, scoreResult.correctCount),
+      Math.max(
+        0,
+        scoreResult.correctCount,
+      ),
     )
 
     const incorrectAnswers = Math.max(
       0,
-      answeredQuestions - correctAnswers,
+      answeredQuestions -
+        correctAnswers,
     )
 
     const skippedAnswers = Math.max(
       0,
-      totalQuestions - answeredQuestions,
+      totalQuestions -
+        answeredQuestions,
     )
 
-    const { strongTopics, weakTopics } =
-      this._scoringService.identifyWeakAndStrongTopics(
-        questions,
-        answers,
-      )
+    const {
+      strongTopics,
+      weakTopics,
+    } =
+      this._scoringService
+        .identifyWeakAndStrongTopics(
+          questions,
+          answers,
+        )
 
     const recommendations =
-      this._scoringService.generateRecommendations(
-        scoreResult.scorePercentage,
-        weakTopics,
-        scoreResult.passed,
-      )
+      this._scoringService
+        .generateRecommendations(
+          scoreResult.scorePercentage,
+          weakTopics,
+          scoreResult.passed,
+        )
 
     /*
-     * Create the report before completing the attempt.
+     * Reuse the existing report during a retry.
      *
-     * If report creation fails, the attempt remains in_progress
-     * and the user can safely retry.
+     * If report creation previously succeeded but attempt or
+     * activity updating failed, a duplicate report will not be
+     * created.
      */
     const existingReport =
-      await this._repo.findReportByAttempt(attemptId)
+      await this._repo.findReportByAttempt(
+        attemptId,
+      )
 
     const report =
       existingReport ??
@@ -127,10 +194,16 @@ export class FinishTestAttemptUseCase {
         testId: attempt.testId,
         userId,
 
-        score: scoreResult.earnedPoints,
+        score:
+          scoreResult.earnedPoints,
+
         maxScore,
-        scorePercentage: scoreResult.scorePercentage,
-        passed: scoreResult.passed,
+
+        scorePercentage:
+          scoreResult.scorePercentage,
+
+        passed:
+          scoreResult.passed,
 
         totalQuestions,
         correctAnswers,
@@ -145,24 +218,104 @@ export class FinishTestAttemptUseCase {
         generatedAt: completedAt,
       }))
 
+    let completedAttempt = attempt
+
     /*
-     * Complete the attempt only after the report exists.
+     * Do not rewrite an attempt that is already completed.
+     * That state can occur when only the activity call failed
+     * in a previous request.
      */
-    const updatedAttempt = await this._repo.updateAttempt(
-      attemptId,
-      {
-        status: 'completed',
-        completedAt,
-        timeSpentSeconds: timeTakenSeconds,
-        score: scoreResult.earnedPoints,
-        percentage: scoreResult.scorePercentage,
-      },
+    if (attempt.status === 'in_progress') {
+      const updatedAttempt =
+        await this._repo.updateAttempt(
+          attemptId,
+          {
+            status: 'completed',
+            completedAt,
+
+            timeSpentSeconds:
+              report.timeTakenSeconds,
+
+            score: report.score,
+            maxScore,
+
+            percentage:
+              report.scorePercentage,
+
+            passed: report.passed,
+
+            answeredCount:
+              Math.max(
+                0,
+                report.totalQuestions -
+                  report.skippedAnswers,
+              ),
+
+            correctCount:
+              report.correctAnswers,
+          },
+        )
+
+      if (!updatedAttempt) {
+        throw MockTestsApplicationError.notFound(
+          'Attempt could not be completed',
+        )
+      }
+
+      completedAttempt = updatedAttempt
+    }
+
+    await this._repo.updateAnalyticsSnapshot(
+      attempt.testId,
     )
 
-    await this._repo.updateAnalyticsSnapshot(attempt.testId)
+    /*
+     * The activity module handles:
+     *
+     * - User.xp
+     * - User.level
+     * - LeaderboardXpEvent
+     * - StreakHistory
+     * - StreakSnapshot
+     * - UserActivity
+     * - daily-goal reward checking
+     */
+    await this._activityService
+      .recordMockTestCompleted({
+        userId,
+        mockTestId: test._id,
+        attemptId: attempt._id,
+
+        ...(test.trackerId
+          ? {
+              trackerId: test.trackerId,
+            }
+          : {}),
+
+        testTitle: test.title,
+        difficulty: test.difficulty,
+
+        scorePercentage:
+          report.scorePercentage,
+
+        totalQuestions:
+          report.totalQuestions,
+
+        correctAnswers:
+          report.correctAnswers,
+
+        durationSeconds:
+          report.timeTakenSeconds,
+
+        passed:
+          report.passed,
+
+        xpAwarded:
+          MOCK_TEST_COMPLETION_XP,
+      })
 
     return {
-      attempt: updatedAttempt,
+      attempt: completedAttempt,
       report,
       scoreResult,
     }
@@ -173,7 +326,8 @@ export class FinishTestAttemptUseCase {
   ): number {
     return questions.reduce(
       (total, question) =>
-        total + (question.points ?? 1),
+        total +
+        (question.points ?? 1),
       0,
     )
   }

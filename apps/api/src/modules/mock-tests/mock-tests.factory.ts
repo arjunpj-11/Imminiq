@@ -33,6 +33,7 @@ import type { MockTestCodeRunnerServiceContract } from './domain/services/mock-t
 import type { MockTestQuestionBankServiceContract } from './domain/services/mock-test-question-bank.service.interface'
 import type { ShareTokenGeneratorServiceContract } from './domain/services/share-token-generator.service.interface'
 
+import { activityMockTestGateway } from './infrastructure/gateways/activity-mock-test.gateway'
 import { mongoMockTestsRepository } from './infrastructure/repositories/mongo-mock-tests.repository'
 import { cryptoShareTokenGeneratorService } from './infrastructure/services/crypto-share-token-generator.service'
 import { geminiGroqMockTestAIService } from './infrastructure/services/gemini-groq-mock-test-ai.service'
@@ -65,11 +66,21 @@ export type MockTestsUseCases = {
 
 export type MockTestsServiceHelpers = {
   mockTestsMapper: MockTestsMapperContract
-  mockTestScoringService: MockTestScoringServiceContract
-  mockTestAIService: MockTestAIServiceContract
-  mockTestQuestionBankService: MockTestQuestionBankServiceContract
-  mockTestCodeRunnerService: MockTestCodeRunnerServiceContract
-  shareTokenGenerator: ShareTokenGeneratorServiceContract
+
+  mockTestScoringService:
+    MockTestScoringServiceContract
+
+  mockTestAIService:
+    MockTestAIServiceContract
+
+  mockTestQuestionBankService:
+    MockTestQuestionBankServiceContract
+
+  mockTestCodeRunnerService:
+    MockTestCodeRunnerServiceContract
+
+  shareTokenGenerator:
+    ShareTokenGeneratorServiceContract
 }
 
 export type MockTestsComposition = {
@@ -77,124 +88,164 @@ export type MockTestsComposition = {
   helpers: MockTestsServiceHelpers
 }
 
-export const createMockTestsComposition = (): MockTestsComposition => {
-  const mockTestsRepository = mongoMockTestsRepository
-  const mockTestAIService = geminiGroqMockTestAIService
-  const mockTestQuestionBankService = mongoQuestionBankService
-  const mockTestCodeRunnerService = pistonMockTestCodeRunnerService
-  const mockTestsMapper = new MockTestsMapper()
-  const mockTestScoringService = new MockTestScoringService()
-  const shareTokenGenerator = cryptoShareTokenGeneratorService
+export const createMockTestsComposition =
+  (): MockTestsComposition => {
+    const mockTestsRepository =
+      mongoMockTestsRepository
 
-  return {
-    useCases: {
-      listMockTests: new ListMockTestsUseCase(
-        mockTestsRepository,
-        mockTestsMapper
-      ),
+    const mockTestActivityService =
+      activityMockTestGateway
 
-      listPublicMockTests: new ListPublicMockTestsUseCase(
-        mockTestsRepository
-      ),
+    const mockTestAIService =
+      geminiGroqMockTestAIService
 
-      getMockTestDetails: new GetMockTestDetailsUseCase(
-        mockTestsRepository,
-        mockTestsMapper
-      ),
+    const mockTestQuestionBankService =
+      mongoQuestionBankService
 
-      createMockTest: new CreateMockTestUseCase(
-        mockTestsRepository
-      ),
+    const mockTestCodeRunnerService =
+      pistonMockTestCodeRunnerService
 
-      generateMockTest: new GenerateMockTestUseCase(
-        mockTestsRepository,
+    const mockTestsMapper =
+      new MockTestsMapper()
+
+    const mockTestScoringService =
+      new MockTestScoringService()
+
+    const shareTokenGenerator =
+      cryptoShareTokenGeneratorService
+
+    return {
+      useCases: {
+        listMockTests:
+          new ListMockTestsUseCase(
+            mockTestsRepository,
+            mockTestsMapper,
+          ),
+
+        listPublicMockTests:
+          new ListPublicMockTestsUseCase(
+            mockTestsRepository,
+          ),
+
+        getMockTestDetails:
+          new GetMockTestDetailsUseCase(
+            mockTestsRepository,
+            mockTestsMapper,
+          ),
+
+        createMockTest:
+          new CreateMockTestUseCase(
+            mockTestsRepository,
+          ),
+
+        generateMockTest:
+          new GenerateMockTestUseCase(
+            mockTestsRepository,
+            mockTestAIService,
+            mockTestQuestionBankService,
+            mockTestActivityService,
+          ),
+
+        startTestAttempt:
+          new StartTestAttemptUseCase(
+            mockTestsRepository,
+            mockTestsMapper,
+          ),
+
+        getAttemptQuestions:
+          new GetAttemptQuestionsUseCase(
+            mockTestsRepository,
+            mockTestsMapper,
+          ),
+
+        submitAnswer:
+          new SubmitAnswerUseCase(
+            mockTestsRepository,
+            mockTestAIService,
+            mockTestScoringService,
+          ),
+
+        flagQuestion:
+          new FlagQuestionUseCase(
+            mockTestsRepository,
+          ),
+
+        finishTestAttempt:
+          new FinishTestAttemptUseCase(
+            mockTestsRepository,
+            mockTestScoringService,
+            mockTestActivityService,
+          ),
+
+        getAttemptResult:
+          new GetAttemptResultUseCase(
+            mockTestsRepository,
+          ),
+
+        getAttemptAnalysis:
+          new GetAttemptAnalysisUseCase(
+            mockTestsRepository,
+          ),
+
+        retakeTest:
+          new RetakeTestUseCase(
+            mockTestsRepository,
+            mockTestsMapper,
+          ),
+
+        getAnalytics:
+          new GetAnalyticsUseCase(
+            mockTestsRepository,
+            mockTestAIService,
+          ),
+
+        getAIInsights:
+          new GetAIInsightsUseCase(
+            mockTestsRepository,
+            mockTestAIService,
+          ),
+
+        getHistory:
+          new GetHistoryUseCase(
+            mockTestsRepository,
+          ),
+
+        getTopicBreakdown:
+          new GetTopicBreakdownUseCase(
+            mockTestsRepository,
+          ),
+
+        shareMockTest:
+          new ShareMockTestUseCase(
+            mockTestsRepository,
+            shareTokenGenerator,
+          ),
+
+        importSharedMockTest:
+          new ImportSharedMockTestUseCase(
+            mockTestsRepository,
+          ),
+
+        runMockTestCode:
+          new RunMockTestCodeUseCase(
+            mockTestsRepository,
+            mockTestCodeRunnerService,
+          ),
+
+        submitMockTestCode:
+          new SubmitMockTestCodeUseCase(
+            mockTestsRepository,
+            mockTestCodeRunnerService,
+          ),
+      },
+
+      helpers: {
+        mockTestsMapper,
+        mockTestScoringService,
         mockTestAIService,
-        mockTestQuestionBankService
-      ),
-
-      startTestAttempt: new StartTestAttemptUseCase(
-        mockTestsRepository,
-        mockTestsMapper
-      ),
-
-      getAttemptQuestions: new GetAttemptQuestionsUseCase(
-        mockTestsRepository,
-        mockTestsMapper
-      ),
-
-      submitAnswer: new SubmitAnswerUseCase(
-        mockTestsRepository,
-        mockTestAIService,
-        mockTestScoringService
-      ),
-
-      flagQuestion: new FlagQuestionUseCase(
-        mockTestsRepository
-      ),
-
-      finishTestAttempt: new FinishTestAttemptUseCase(
-        mockTestsRepository,
-        mockTestScoringService
-      ),
-
-      getAttemptResult: new GetAttemptResultUseCase(
-        mockTestsRepository
-      ),
-
-      getAttemptAnalysis: new GetAttemptAnalysisUseCase(
-        mockTestsRepository
-      ),
-
-      retakeTest: new RetakeTestUseCase(
-        mockTestsRepository,
-        mockTestsMapper
-      ),
-
-      getAnalytics: new GetAnalyticsUseCase(
-        mockTestsRepository,
-        mockTestAIService
-      ),
-
-      getAIInsights: new GetAIInsightsUseCase(
-        mockTestsRepository,
-        mockTestAIService
-      ),
-
-      getHistory: new GetHistoryUseCase(
-        mockTestsRepository
-      ),
-
-      getTopicBreakdown: new GetTopicBreakdownUseCase(
-        mockTestsRepository
-      ),
-
-      shareMockTest: new ShareMockTestUseCase(
-        mockTestsRepository,
-        shareTokenGenerator
-      ),
-
-      importSharedMockTest: new ImportSharedMockTestUseCase(
-        mockTestsRepository
-      ),
-
-      runMockTestCode: new RunMockTestCodeUseCase(
-        mockTestsRepository,
-        mockTestCodeRunnerService
-      ),
-
-      submitMockTestCode: new SubmitMockTestCodeUseCase(
-        mockTestsRepository,
-        mockTestCodeRunnerService
-      ),
-    },
-
-    helpers: {
-      mockTestsMapper,
-      mockTestScoringService,
-      mockTestAIService,
-      mockTestQuestionBankService,
-      mockTestCodeRunnerService,
-      shareTokenGenerator,
-    },
+        mockTestQuestionBankService,
+        mockTestCodeRunnerService,
+        shareTokenGenerator,
+      },
+    }
   }
-}

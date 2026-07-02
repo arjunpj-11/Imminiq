@@ -81,6 +81,7 @@ export default function ActivityPage() {
             year={year}
             utcOffsetMinutes={utcOffsetMinutes}
             isPageFetching={activityQuery.isFetching}
+            isPageDataStale={activityQuery.isPlaceholderData}
             onFilterChange={(nextFilter) =>
               updateSearchParams(year, nextFilter)
             }

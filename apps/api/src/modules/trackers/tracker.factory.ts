@@ -38,50 +38,90 @@ import { VerifyLessonAnswerUseCase } from './application/use-cases/verify-lesson
 import { VerifyTrackerSubtopicUseCase } from './application/use-cases/verify-tracker-subtopic.usecase'
 import { VerifyTrackerTopicUseCase } from './application/use-cases/verify-tracker-topic.usecase'
 import type { TrackerRepositoryContract } from './domain/repositories/tracker.repository.interface'
+import { activityTrackerGateway } from './infrastructure/gateways/activity-tracker.gateway'
 import { aiTrackerGateway } from './infrastructure/gateways/ai-tracker.gateway'
 import { pistonCodeExecutionGateway } from './infrastructure/gateways/piston-code-execution.gateway'
 import { mongoTrackerRepository } from './infrastructure/repositories/mongo-tracker.repository'
 import { cryptoQuestionHasherService } from './infrastructure/services/crypto-question-hasher.service'
 
-export type TrackerListInput = Parameters<ListTrackersUseCase['execute']>[0]
-export type CreateTrackerInput = Parameters<CreateTrackerUseCase['execute']>[0]
-export type UpdateTrackerInput = Parameters<UpdateTrackerUseCase['execute']>[0]
+export type TrackerListInput =
+  Parameters<ListTrackersUseCase['execute']>[0]
+
+export type CreateTrackerInput =
+  Parameters<CreateTrackerUseCase['execute']>[0]
+
+export type UpdateTrackerInput =
+  Parameters<UpdateTrackerUseCase['execute']>[0]
+
 export type CreateTopicInput =
   Parameters<CreateTrackerTopicUseCase['execute']>[0]
+
 export type CreateSubtopicInput =
   Parameters<CreateTrackerSubtopicUseCase['execute']>[0]
+
 export type UpdateSubtopicProgressInput =
   Parameters<UpdateSubtopicProgressUseCase['execute']>[0]
+
 export type ChatWithLessonTutorInput =
   Parameters<ChatWithLessonTutorUseCase['execute']>[0]
+
 export type GenerateLessonQuestionsInput =
   Parameters<GenerateLessonQuestionsUseCase['execute']>[0]
+
 export type GetLessonQuestionSolutionInput =
   Parameters<GetLessonQuestionSolutionUseCase['execute']>[0]
+
 export type GenerateLessonQuestionSolutionInput =
-  Parameters<GenerateLessonQuestionSolutionUseCase['execute']>[0]
+  Parameters<
+    GenerateLessonQuestionSolutionUseCase['execute']
+  >[0]
+
 export type GetLessonQuestionSolutionDoubtsInput =
-  Parameters<GetLessonQuestionSolutionDoubtsUseCase['execute']>[0]
+  Parameters<
+    GetLessonQuestionSolutionDoubtsUseCase['execute']
+  >[0]
+
 export type AskLessonQuestionSolutionDoubtInput =
-  Parameters<AskLessonQuestionSolutionDoubtUseCase['execute']>[0]
+  Parameters<
+    AskLessonQuestionSolutionDoubtUseCase['execute']
+  >[0]
+
 export type VerifyLessonAnswerInput =
   Parameters<VerifyLessonAnswerUseCase['execute']>[0]
-export type RunLessonCodeInput = Parameters<RunLessonCodeUseCase['execute']>[0]
+
+export type RunLessonCodeInput =
+  Parameters<RunLessonCodeUseCase['execute']>[0]
+
 export type SubmitLessonCodeInput =
   Parameters<SubmitLessonCodeUseCase['execute']>[0]
-export type GetCodeHintInput = Parameters<GetCodeHintUseCase['execute']>[0]
+
+export type GetCodeHintInput =
+  Parameters<GetCodeHintUseCase['execute']>[0]
+
 export type GetOptimizedSolutionInput =
   Parameters<GetOptimizedSolutionUseCase['execute']>[0]
+
 export type ClearLessonQuestionSolutionDoubtsInput =
-  Parameters<ClearLessonQuestionSolutionDoubtsUseCase['execute']>[0]
+  Parameters<
+    ClearLessonQuestionSolutionDoubtsUseCase['execute']
+  >[0]
+
 export type VerifyTopicInput =
   Parameters<VerifyTrackerTopicUseCase['execute']>[0]
+
 export type VerifySubtopicInput =
   Parameters<VerifyTrackerSubtopicUseCase['execute']>[0]
+
 export type AddMissingEvaluationTopicInput =
-  Parameters<AddMissingEvaluationTopicUseCase['execute']>[0]
+  Parameters<
+    AddMissingEvaluationTopicUseCase['execute']
+  >[0]
+
 export type GenerateLessonVisualizationInput =
-  Parameters<GenerateLessonVisualizationUseCase['execute']>[0]
+  Parameters<
+    GenerateLessonVisualizationUseCase['execute']
+  >[0]
+
 export type PublishTrackerInput =
   Parameters<PublishTrackerUseCase['execute']>[0]
 
@@ -104,9 +144,16 @@ export type TrackerUseCases = {
   getTrackerLesson: GetTrackerLessonUseCase
   chatWithLessonTutor: ChatWithLessonTutorUseCase
   generateLessonQuestions: GenerateLessonQuestionsUseCase
-  generateLessonQuestionSolution: GenerateLessonQuestionSolutionUseCase
-  askLessonQuestionSolutionDoubt: AskLessonQuestionSolutionDoubtUseCase
-  generateLessonVisualization: GenerateLessonVisualizationUseCase
+
+  generateLessonQuestionSolution:
+    GenerateLessonQuestionSolutionUseCase
+
+  askLessonQuestionSolutionDoubt:
+    AskLessonQuestionSolutionDoubtUseCase
+
+  generateLessonVisualization:
+    GenerateLessonVisualizationUseCase
+
   getCodeHint: GetCodeHintUseCase
   getOptimizedSolution: GetOptimizedSolutionUseCase
   verifyLessonAnswer: VerifyLessonAnswerUseCase
@@ -117,11 +164,21 @@ export type TrackerUseCases = {
   getLessonChatHistory: GetLessonChatHistoryUseCase
   getLessonAnswerAttempts: GetLessonAnswerAttemptsUseCase
   getLessonCodeSubmissions: GetLessonCodeSubmissionsUseCase
-  getLessonGeneratedQuestions: GetLessonGeneratedQuestionsUseCase
-  getLessonQuestionSolution: GetLessonQuestionSolutionUseCase
-  getLessonQuestionSolutionDoubts: GetLessonQuestionSolutionDoubtsUseCase
-  clearLessonChatHistory: ClearLessonChatHistoryUseCase
-  clearLessonQuestionSolutionDoubts: ClearLessonQuestionSolutionDoubtsUseCase
+
+  getLessonGeneratedQuestions:
+    GetLessonGeneratedQuestionsUseCase
+
+  getLessonQuestionSolution:
+    GetLessonQuestionSolutionUseCase
+
+  getLessonQuestionSolutionDoubts:
+    GetLessonQuestionSolutionDoubtsUseCase
+
+  clearLessonChatHistory:
+    ClearLessonChatHistoryUseCase
+
+  clearLessonQuestionSolutionDoubts:
+    ClearLessonQuestionSolutionDoubtsUseCase
 }
 
 export type TrackerServiceHelpers = {
@@ -133,221 +190,267 @@ export type TrackerComposition = {
   helpers: TrackerServiceHelpers
 }
 
-export const createTrackerComposition = (): TrackerComposition => {
-  const trackerRepository = mongoTrackerRepository
-  const trackerAIService = aiTrackerGateway
-  const trackerCodeExecutionService = pistonCodeExecutionGateway
-  const trackerQuestionHasherService = cryptoQuestionHasherService
-  const trackerMapper = new TrackerMapper()
+export const createTrackerComposition =
+  (): TrackerComposition => {
+    const trackerRepository =
+      mongoTrackerRepository
 
-  return {
-    useCases: {
-      getTrackerSummary: new GetTrackerSummaryUseCase(
+    const trackerActivityService =
+      activityTrackerGateway
+
+    const trackerAIService =
+      aiTrackerGateway
+
+    const trackerCodeExecutionService =
+      pistonCodeExecutionGateway
+
+    const trackerQuestionHasherService =
+      cryptoQuestionHasherService
+
+    const trackerMapper =
+      new TrackerMapper()
+
+    return {
+      useCases: {
+        getTrackerSummary:
+          new GetTrackerSummaryUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        listTrackers:
+          new ListTrackersUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        createTracker:
+          new CreateTrackerUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        getTrackerDetails:
+          new GetTrackerDetailsUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        updateTracker:
+          new UpdateTrackerUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        deleteTracker:
+          new DeleteTrackerUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        archiveTracker:
+          new ArchiveTrackerUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        restoreTracker:
+          new RestoreTrackerUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        publishTracker:
+          new PublishTrackerUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        unpublishTracker:
+          new UnpublishTrackerUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        getTrackerRoadmap:
+          new GetTrackerRoadmapUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        createTrackerTopic:
+          new CreateTrackerTopicUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        createTrackerSubtopic:
+          new CreateTrackerSubtopicUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        updateSubtopicProgress:
+          new UpdateSubtopicProgressUseCase(
+            trackerRepository,
+            trackerActivityService,
+            trackerMapper,
+          ),
+
+        addMissingEvaluationTopic:
+          new AddMissingEvaluationTopicUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        getTrackerLesson:
+          new GetTrackerLessonUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        chatWithLessonTutor:
+          new ChatWithLessonTutorUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        generateLessonQuestions:
+          new GenerateLessonQuestionsUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerQuestionHasherService,
+            trackerMapper,
+          ),
+
+        generateLessonQuestionSolution:
+          new GenerateLessonQuestionSolutionUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerQuestionHasherService,
+            trackerMapper,
+          ),
+
+        askLessonQuestionSolutionDoubt:
+          new AskLessonQuestionSolutionDoubtUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerQuestionHasherService,
+            trackerMapper,
+          ),
+
+        generateLessonVisualization:
+          new GenerateLessonVisualizationUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        getCodeHint:
+          new GetCodeHintUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        getOptimizedSolution:
+          new GetOptimizedSolutionUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        verifyLessonAnswer:
+          new VerifyLessonAnswerUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        verifyTrackerTopic:
+          new VerifyTrackerTopicUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        verifyTrackerSubtopic:
+          new VerifyTrackerSubtopicUseCase(
+            trackerRepository,
+            trackerAIService,
+            trackerMapper,
+          ),
+
+        runLessonCode:
+          new RunLessonCodeUseCase(
+            trackerRepository,
+            trackerCodeExecutionService,
+            trackerMapper,
+          ),
+
+        submitLessonCode:
+          new SubmitLessonCodeUseCase(
+            trackerRepository,
+            trackerCodeExecutionService,
+            trackerMapper,
+          ),
+
+        getLessonChatHistory:
+          new GetLessonChatHistoryUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        getLessonAnswerAttempts:
+          new GetLessonAnswerAttemptsUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        getLessonCodeSubmissions:
+          new GetLessonCodeSubmissionsUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        getLessonGeneratedQuestions:
+          new GetLessonGeneratedQuestionsUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        getLessonQuestionSolution:
+          new GetLessonQuestionSolutionUseCase(
+            trackerRepository,
+            trackerQuestionHasherService,
+            trackerMapper,
+          ),
+
+        getLessonQuestionSolutionDoubts:
+          new GetLessonQuestionSolutionDoubtsUseCase(
+            trackerRepository,
+            trackerQuestionHasherService,
+            trackerMapper,
+          ),
+
+        clearLessonChatHistory:
+          new ClearLessonChatHistoryUseCase(
+            trackerRepository,
+            trackerMapper,
+          ),
+
+        clearLessonQuestionSolutionDoubts:
+          new ClearLessonQuestionSolutionDoubtsUseCase(
+            trackerRepository,
+            trackerQuestionHasherService,
+            trackerMapper,
+          ),
+      },
+
+      helpers: {
         trackerRepository,
-        trackerMapper
-      ),
-
-      listTrackers: new ListTrackersUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      createTracker: new CreateTrackerUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      getTrackerDetails: new GetTrackerDetailsUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      updateTracker: new UpdateTrackerUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      deleteTracker: new DeleteTrackerUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      archiveTracker: new ArchiveTrackerUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      restoreTracker: new RestoreTrackerUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      publishTracker: new PublishTrackerUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      unpublishTracker: new UnpublishTrackerUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      getTrackerRoadmap: new GetTrackerRoadmapUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      createTrackerTopic: new CreateTrackerTopicUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      createTrackerSubtopic: new CreateTrackerSubtopicUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      updateSubtopicProgress: new UpdateSubtopicProgressUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      addMissingEvaluationTopic: new AddMissingEvaluationTopicUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      getTrackerLesson: new GetTrackerLessonUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      chatWithLessonTutor: new ChatWithLessonTutorUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      generateLessonQuestions: new GenerateLessonQuestionsUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerQuestionHasherService,
-        trackerMapper
-      ),
-
-      generateLessonQuestionSolution:
-        new GenerateLessonQuestionSolutionUseCase(
-          trackerRepository,
-          trackerAIService,
-          trackerQuestionHasherService,
-          trackerMapper
-        ),
-
-      askLessonQuestionSolutionDoubt:
-        new AskLessonQuestionSolutionDoubtUseCase(
-          trackerRepository,
-          trackerAIService,
-          trackerQuestionHasherService,
-          trackerMapper
-        ),
-
-      generateLessonVisualization: new GenerateLessonVisualizationUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      getCodeHint: new GetCodeHintUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      getOptimizedSolution: new GetOptimizedSolutionUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      verifyLessonAnswer: new VerifyLessonAnswerUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      verifyTrackerTopic: new VerifyTrackerTopicUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      verifyTrackerSubtopic: new VerifyTrackerSubtopicUseCase(
-        trackerRepository,
-        trackerAIService,
-        trackerMapper
-      ),
-
-      runLessonCode: new RunLessonCodeUseCase(
-        trackerRepository,
-        trackerCodeExecutionService,
-        trackerMapper
-      ),
-
-      submitLessonCode: new SubmitLessonCodeUseCase(
-        trackerRepository,
-        trackerCodeExecutionService,
-        trackerMapper
-      ),
-
-      getLessonChatHistory: new GetLessonChatHistoryUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      getLessonAnswerAttempts: new GetLessonAnswerAttemptsUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      getLessonCodeSubmissions: new GetLessonCodeSubmissionsUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      getLessonGeneratedQuestions: new GetLessonGeneratedQuestionsUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      getLessonQuestionSolution: new GetLessonQuestionSolutionUseCase(
-        trackerRepository,
-        trackerQuestionHasherService,
-        trackerMapper
-      ),
-
-      getLessonQuestionSolutionDoubts:
-        new GetLessonQuestionSolutionDoubtsUseCase(
-          trackerRepository,
-          trackerQuestionHasherService,
-          trackerMapper
-        ),
-
-      clearLessonChatHistory: new ClearLessonChatHistoryUseCase(
-        trackerRepository,
-        trackerMapper
-      ),
-
-      clearLessonQuestionSolutionDoubts:
-        new ClearLessonQuestionSolutionDoubtsUseCase(
-          trackerRepository,
-          trackerQuestionHasherService,
-          trackerMapper
-        ),
-    },
-
-    helpers: {
-      trackerRepository,
-    },
+      },
+    }
   }
-}

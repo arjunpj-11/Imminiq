@@ -26,6 +26,7 @@ import { ToggleCommunityTrackerLikeUseCase } from './application/use-cases/toggl
 import { UpsertCommunityTrackerReviewUseCase } from './application/use-cases/upsert-community-tracker-review.usecase'
 import { VoteVerificationSubmissionUseCase } from './application/use-cases/vote-verification-submission.usecase'
 import type { CommunityCoinLedgerContract } from './domain/services/community-coin-ledger.service.interface'
+import { activityCommunityGateway } from './infrastructure/gateways/activity-community.gateway'
 import {
   mongoCommunityCoinLedgerService,
   mongoCommunityRepository,
@@ -46,14 +47,22 @@ export type CommunityUseCases = {
   getVerificationQueue: GetVerificationQueueUseCase
   getVerificationLeaderboard: GetVerificationLeaderboardUseCase
   getVerificationSubmission: GetVerificationSubmissionUseCase
-   submitTrackerForVerification: SubmitTrackerForVerificationUseCase
-  voteVerificationSubmission: VoteVerificationSubmissionUseCase
+  submitTrackerForVerification:
+    SubmitTrackerForVerificationUseCase
+  voteVerificationSubmission:
+    VoteVerificationSubmissionUseCase
 }
 
 export type CommunityServiceHelpers = {
   mapper: CommunityMapperContract
   reviewMapper: CommunityReviewMapperContract
-  verificationPolicy: CommunityVerificationPolicyContract
+  verificationPolicy:
+    CommunityVerificationPolicyContract
+
+  /*
+   * Kept for public-composition compatibility.
+   * Verification rewards no longer use this helper directly.
+   */
   coinLedger: CommunityCoinLedgerContract
 }
 
@@ -62,74 +71,128 @@ export type CommunityComposition = {
   helpers: CommunityServiceHelpers
 }
 
-export const createCommunityComposition = (): CommunityComposition => {
-  const communityRepository = mongoCommunityRepository
-  const communityReviewRepository = mongoCommunityReviewRepository
-  const coinLedger = mongoCommunityCoinLedgerService
-  const mapper = new CommunityMapper()
-  const reviewMapper = new CommunityReviewMapper()
-  const verificationPolicy = new CommunityVerificationPolicyService()
+export const createCommunityComposition =
+  (): CommunityComposition => {
+    const communityRepository =
+      mongoCommunityRepository
 
-  return {
-    useCases: {
-      getBrowse: new GetCommunityBrowseUseCase(communityRepository, mapper),
-      getTrackers: new GetCommunityTrackersUseCase(communityRepository, mapper),
-      getPublicTrackerDetail: new GetCommunityPublicTrackerUseCase(
-        communityReviewRepository,
+    const communityReviewRepository =
+      mongoCommunityReviewRepository
+
+    const communityActivityService =
+      activityCommunityGateway
+
+    const coinLedger =
+      mongoCommunityCoinLedgerService
+
+    const mapper =
+      new CommunityMapper()
+
+    const reviewMapper =
+      new CommunityReviewMapper()
+
+    const verificationPolicy =
+      new CommunityVerificationPolicyService()
+
+    return {
+      useCases: {
+        getBrowse:
+          new GetCommunityBrowseUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        getTrackers:
+          new GetCommunityTrackersUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        getPublicTrackerDetail:
+          new GetCommunityPublicTrackerUseCase(
+            communityReviewRepository,
+            reviewMapper,
+          ),
+
+        getPersonalStats:
+          new GetCommunityPersonalStatsUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        getTopics:
+          new GetCommunityTopicsUseCase(
+            communityRepository,
+          ),
+
+        cloneTracker:
+          new CloneCommunityTrackerUseCase(
+            communityRepository,
+            communityActivityService,
+            mapper,
+          ),
+
+        submitTrackerForVerification:
+          new SubmitTrackerForVerificationUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        upsertTrackerReview:
+          new UpsertCommunityTrackerReviewUseCase(
+            communityReviewRepository,
+            reviewMapper,
+          ),
+
+        toggleReviewHelpful:
+          new ToggleCommunityReviewHelpfulUseCase(
+            communityReviewRepository,
+            reviewMapper,
+          ),
+
+        toggleTrackerLike:
+          new ToggleCommunityTrackerLikeUseCase(
+            communityReviewRepository,
+          ),
+
+        getVerificationDashboard:
+          new GetVerificationDashboardUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        getVerificationQueue:
+          new GetVerificationQueueUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        getVerificationLeaderboard:
+          new GetVerificationLeaderboardUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        getVerificationSubmission:
+          new GetVerificationSubmissionUseCase(
+            communityRepository,
+            mapper,
+          ),
+
+        voteVerificationSubmission:
+          new VoteVerificationSubmissionUseCase(
+            communityRepository,
+            verificationPolicy,
+            communityActivityService,
+            mapper,
+          ),
+      },
+
+      helpers: {
+        mapper,
         reviewMapper,
-      ),
-      getPersonalStats: new GetCommunityPersonalStatsUseCase(
-        communityRepository,
-        mapper,
-      ),
-      getTopics: new GetCommunityTopicsUseCase(communityRepository),
-      cloneTracker: new CloneCommunityTrackerUseCase(
-        communityRepository,
-        mapper,
-      ),
-       submitTrackerForVerification: new SubmitTrackerForVerificationUseCase(
-        communityRepository,
-        mapper,
-      ),
-      upsertTrackerReview: new UpsertCommunityTrackerReviewUseCase(
-        communityReviewRepository,
-        reviewMapper,
-      ),
-      toggleReviewHelpful: new ToggleCommunityReviewHelpfulUseCase(
-        communityReviewRepository,
-        reviewMapper,
-      ),
-      toggleTrackerLike: new ToggleCommunityTrackerLikeUseCase(
-        communityReviewRepository,
-      ),
-      getVerificationDashboard: new GetVerificationDashboardUseCase(
-        communityRepository,
-        mapper,
-      ),
-      getVerificationQueue: new GetVerificationQueueUseCase(
-        communityRepository,
-        mapper,
-      ),
-      getVerificationLeaderboard: new GetVerificationLeaderboardUseCase(
-        communityRepository,
-        mapper,
-      ),
-      getVerificationSubmission: new GetVerificationSubmissionUseCase(
-        communityRepository,
-        mapper,
-      ),
-      voteVerificationSubmission: new VoteVerificationSubmissionUseCase(
-        communityRepository,
-        coinLedger,
         verificationPolicy,
-        mapper,
-      ),
-    },
-    helpers: {
-      mapper,
-      reviewMapper,
-      verificationPolicy,
-      coinLedger,
-    },
+        coinLedger,
+      },
+    }
   }
-}

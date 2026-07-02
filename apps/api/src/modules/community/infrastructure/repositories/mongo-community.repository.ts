@@ -19,132 +19,215 @@ type MongoCommunityRepositoryDependencies = {
   reviewRepository: MongoCommunityReviewRepository
 }
 
-export class MongoCommunityRepository implements CommunityRepositoryContract {
-  private readonly _trackerRepository: MongoCommunityTrackerRepository
-  private readonly _verificationRepository: MongoCommunityVerificationRepository
-  private readonly _reviewRepository: MongoCommunityReviewRepository
+export class MongoCommunityRepository
+  implements CommunityRepositoryContract
+{
+  private readonly _trackerRepository:
+    MongoCommunityTrackerRepository
+
+  private readonly _verificationRepository:
+    MongoCommunityVerificationRepository
+
+  private readonly _reviewRepository:
+    MongoCommunityReviewRepository
 
   constructor(
-    mapper: MongoCommunityMapper = new MongoCommunityMapper(),
-    errorMapper: MongoCommunityErrorMapper = new MongoCommunityErrorMapper(),
-    dependencies: Partial<MongoCommunityRepositoryDependencies> = {},
+    mapper: MongoCommunityMapper =
+      new MongoCommunityMapper(),
+
+    errorMapper: MongoCommunityErrorMapper =
+      new MongoCommunityErrorMapper(),
+
+    dependencies:
+      Partial<MongoCommunityRepositoryDependencies> = {},
   ) {
     this._trackerRepository =
       dependencies.trackerRepository ??
-      new MongoCommunityTrackerRepository(mapper, errorMapper)
+      new MongoCommunityTrackerRepository(
+        mapper,
+        errorMapper,
+      )
 
     this._verificationRepository =
       dependencies.verificationRepository ??
-      new MongoCommunityVerificationRepository(mapper, errorMapper)
+      new MongoCommunityVerificationRepository(
+        mapper,
+        errorMapper,
+      )
 
     this._reviewRepository =
       dependencies.reviewRepository ??
       new MongoCommunityReviewRepository(mapper)
   }
 
-  async findPublicTrackers(query: FindCommunityTrackersQuery) {
-    return this._trackerRepository.findPublicTrackers(query)
+  async findPublicTrackers(
+    query: FindCommunityTrackersQuery,
+  ) {
+    return this._trackerRepository
+      .findPublicTrackers(query)
   }
 
-  async findCommunityTrackerById(trackerId: string, userId: string) {
-    return this._trackerRepository.findCommunityTrackerById(trackerId, userId)
+  async findCommunityTrackerById(
+    trackerId: string,
+    userId: string,
+  ) {
+    return this._trackerRepository
+      .findCommunityTrackerById(
+        trackerId,
+        userId,
+      )
   }
 
-  async cloneTrackerForUser(trackerId: string, userId: string) {
-    return this._trackerRepository.cloneTrackerForUser(trackerId, userId)
+  async cloneTrackerForUser(
+    trackerId: string,
+    userId: string,
+  ) {
+    return this._trackerRepository
+      .cloneTrackerForUser(
+        trackerId,
+        userId,
+      )
   }
 
   async submitTrackerForVerification(
     data: SubmitTrackerForVerificationInput,
   ) {
-    return this._verificationRepository.submitTrackerForVerification(data)
+    return this._verificationRepository
+      .submitTrackerForVerification(data)
   }
 
   async getPersonalStats(userId: string) {
-    return this._trackerRepository.getPersonalStats(userId)
+    return this._trackerRepository
+      .getPersonalStats(userId)
   }
 
   async findAvailableTopics() {
-    return this._trackerRepository.findAvailableTopics()
+    return this._trackerRepository
+      .findAvailableTopics()
   }
 
   async getVerificationStats(userId: string) {
-    return this._verificationRepository.getVerificationStats(userId)
+    return this._verificationRepository
+      .getVerificationStats(userId)
   }
 
-  async findVerificationQueue(query: FindVerificationQueueQuery) {
-    return this._verificationRepository.findVerificationQueue(query)
+  async getUserCoinBalance(userId: string) {
+    return this._verificationRepository
+      .getUserCoinBalance(userId)
+  }
+
+  async findVerificationQueue(
+    query: FindVerificationQueueQuery,
+  ) {
+    return this._verificationRepository
+      .findVerificationQueue(query)
   }
 
   async findVerificationSubmissionById(
     submissionId: string,
     userId: string,
   ) {
-    return this._verificationRepository.findVerificationSubmissionById(
-      submissionId,
-      userId,
-    )
+    return this._verificationRepository
+      .findVerificationSubmissionById(
+        submissionId,
+        userId,
+      )
   }
 
   async findVoteBySubmissionAndUser(
     submissionId: string,
     userId: string,
   ) {
-    return this._verificationRepository.findVoteBySubmissionAndUser(
-      submissionId,
-      userId,
-    )
+    return this._verificationRepository
+      .findVoteBySubmissionAndUser(
+        submissionId,
+        userId,
+      )
   }
 
-  async createVerificationVote(data: CreateCommunityReviewVoteInput) {
-    return this._verificationRepository.createVerificationVote(data)
+  async createVerificationVote(
+    data: CreateCommunityReviewVoteInput,
+  ) {
+    return this._verificationRepository
+      .createVerificationVote(data)
   }
 
   async findUnrewardedMajorityVotes(
     submissionId: string,
     choice: VerificationVoteChoice,
   ) {
-    return this._verificationRepository.findUnrewardedMajorityVotes(
-      submissionId,
-      choice,
-    )
+    return this._verificationRepository
+      .findUnrewardedMajorityVotes(
+        submissionId,
+        choice,
+      )
   }
 
   async markVerificationVoteRewarded(
     voteId: string,
     rewardCoins: number,
   ): Promise<boolean> {
-    return this._verificationRepository.markVerificationVoteRewarded(
-      voteId,
-      rewardCoins,
-    )
+    return this._verificationRepository
+      .markVerificationVoteRewarded(
+        voteId,
+        rewardCoins,
+      )
   }
 
-  async findVerificationLeaderboard(userId: string, limit: number) {
-    return this._verificationRepository.findVerificationLeaderboard(
-      userId,
-      limit,
-    )
+  async findVerificationLeaderboard(
+    userId: string,
+    limit: number,
+  ) {
+    return this._verificationRepository
+      .findVerificationLeaderboard(
+        userId,
+        limit,
+      )
   }
 
-  async findPublicTrackerDetail(trackerId: string, userId: string) {
-    return this._reviewRepository.findPublicTrackerDetail(trackerId, userId)
+  async findPublicTrackerDetail(
+    trackerId: string,
+    userId: string,
+  ) {
+    return this._reviewRepository
+      .findPublicTrackerDetail(
+        trackerId,
+        userId,
+      )
   }
 
-  async upsertTrackerReview(input: UpsertCommunityTrackerReviewInput) {
-    return this._reviewRepository.upsertTrackerReview(input)
+  async upsertTrackerReview(
+    input: UpsertCommunityTrackerReviewInput,
+  ) {
+    return this._reviewRepository
+      .upsertTrackerReview(input)
   }
 
-  async toggleReviewHelpful(reviewId: string, userId: string) {
-    return this._reviewRepository.toggleReviewHelpful(reviewId, userId)
+  async toggleReviewHelpful(
+    reviewId: string,
+    userId: string,
+  ) {
+    return this._reviewRepository
+      .toggleReviewHelpful(
+        reviewId,
+        userId,
+      )
   }
 
-  async toggleTrackerLike(trackerId: string, userId: string) {
-    return this._reviewRepository.toggleTrackerLike(trackerId, userId)
+  async toggleTrackerLike(
+    trackerId: string,
+    userId: string,
+  ) {
+    return this._reviewRepository
+      .toggleTrackerLike(
+        trackerId,
+        userId,
+      )
   }
 }
 
-export const mongoCommunityRepository = new MongoCommunityRepository()
+export const mongoCommunityRepository =
+  new MongoCommunityRepository()
 
 export {
   MongoCommunityReviewRepository,

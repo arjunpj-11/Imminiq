@@ -19,6 +19,14 @@ interface ActivityDashboardProps {
   year: number
   utcOffsetMinutes: number
   isPageFetching: boolean
+  /**
+   * True while `activity` is still showing the PREVIOUS filter/year's
+   * data (TanStack Query's `keepPreviousData` placeholder) because the
+   * page query for the current filter/year hasn't resolved yet. When
+   * true, `activity.feed` does not belong to `filter` and must not be
+   * fed into useActivityFeed as initial data.
+   */
+  isPageDataStale: boolean
   onFilterChange: (filter: ActivityFeedFilter) => void
   onYearChange: (year: number) => void
 }
@@ -29,6 +37,7 @@ export default function ActivityDashboard({
   year,
   utcOffsetMinutes,
   isPageFetching,
+  isPageDataStale,
   onFilterChange,
   onYearChange,
 }: ActivityDashboardProps) {
@@ -51,8 +60,12 @@ export default function ActivityDashboard({
     filter,
     limit: activity.feed.pagination.limit,
     utcOffsetMinutes,
-    initialFeed: activity.feed,
-    initialDataUpdatedAt,
+    // Only hand the feed query a starting point when we're sure it
+    // actually belongs to `filter` — see isPageDataStale above. This is
+    // the fix for filter switches silently showing stale/wrong data.
+    ...(isPageDataStale
+      ? {}
+      : { initialFeed: activity.feed, initialDataUpdatedAt }),
   })
 
   const feedGroups = useMemo(
@@ -92,15 +105,14 @@ export default function ActivityDashboard({
               onChange={onFilterChange}
             />
 
-            {isUpdating && (
-              <div
-                className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]"
-                role="status"
-                aria-live="polite"
-              >
-                Updating activity…
-              </div>
-            )}
+            <div
+              className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b0a097] opacity-0 transition-opacity duration-200 data-[visible=true]:opacity-100 dark:text-[#6b6460]"
+              data-visible={isUpdating}
+              role="status"
+              aria-live="polite"
+            >
+              Updating activity…
+            </div>
           </div>
 
           <ActivityFeed

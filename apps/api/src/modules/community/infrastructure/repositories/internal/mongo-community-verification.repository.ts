@@ -1,10 +1,5 @@
-import mongoose from 'mongoose'
-
-import { LeaderboardXpEvent } from '../../../../../infrastructure/database/models/leaderboard-xp-event.model'
 import {
   COMMUNITY_REVIEW_REWARD_COINS,
-  COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
-  COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
 } from '../../../domain/constants/community.constants'
 import { CommunityDomainError } from '../../../domain/errors/community-domain.error'
 import type {
@@ -42,20 +37,6 @@ import type {
 
 type SubmissionQuery = Record<string, unknown>
 
-type TeacherXpActivity = {
-  source: 'verification_submission' | 'verification_majority_win'
-  sourceEntityId: string
-  idempotencyKey: string
-}
-
-type MongoTeacherXpEventRecord = {
-  userId: mongoose.Types.ObjectId
-  section: 'trainers'
-  amount: number
-  source: string
-  sourceEntityId?: string
-  idempotencyKey: string
-}
 
 export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepository {
   constructor(
@@ -211,6 +192,30 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           rewardCoins: COMMUNITY_REVIEW_REWARD_COINS,
           activeReviewersThisWeek: activeReviewers.length,
         }
+      },
+    )
+  }
+
+
+  async getUserCoinBalance(userId: string): Promise<number> {
+    return this.execute(
+      'COMMUNITY_COIN_BALANCE_READ_FAILED',
+      'Failed to read community coin balance',
+      async () => {
+        if (!MongoCommunityObjectId.isValid(userId)) {
+          return 0
+        }
+
+        const user = await CommunityUserModel.findOne({
+          _id: MongoCommunityObjectId.toObjectId(userId),
+          deletedAt: null,
+        })
+          .select({
+            coins: 1,
+          })
+          .lean<MongoUserRecord>()
+
+        return Math.max(0, Number(user?.coins ?? 0))
       },
     )
   }
@@ -386,25 +391,6 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           rewardCoins: 0,
         })
 
-        /*
-         * Awards the normal teacher XP for submitting a vote.
-         *
-         * addTeacherXp() now:
-         * 1. creates a trainers leaderboard XP event;
-         * 2. increments User.teacherXp;
-         * 3. updates User.teacherLevel;
-         * 4. prevents duplicate XP when retried.
-         */
-        await this.addTeacherXp(
-          userId,
-          COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
-          {
-            source: 'verification_submission',
-            sourceEntityId: data.submissionId,
-            idempotencyKey:
-              `verification:${data.submissionId}:submitted:${data.userId}`,
-          },
-        )
 
         const update = {
           $inc:
@@ -539,30 +525,6 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           return false
         }
 
-        const rewardedUserId =
-          MongoCommunityObjectId.toExistingObjectId(
-            rewardedVote.userId,
-          )
-
-        const rewardedSubmissionId =
-          String(rewardedVote.submissionId)
-
-        /*
-         * Awards the additional majority winner teacher XP.
-         *
-         * This creates a second trainers leaderboard event with
-         * a different idempotency key from the normal vote XP.
-         */
-        await this.addTeacherXp(
-          rewardedUserId,
-          COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
-          {
-            source: 'verification_majority_win',
-            sourceEntityId: rewardedSubmissionId,
-            idempotencyKey:
-              `verification:${rewardedSubmissionId}:majority-win:${rewardedUserId.toString()}`,
-          },
-        )
 
         return true
       },
@@ -888,188 +850,6 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
 
   private createExcerpt(value: string): string {
     return value.trim().slice(0, 280)
-  }
-
-  /**
-   * Adds teacher XP and records the weekly trainer leaderboard
-   * event in one MongoDB transaction.
-   *
-   * The idempotency key ensures that retrying the same logical
-   * reward does not add teacher XP more than once.
-   */
-  private async addTeacherXp(
-    userId: mongoose.Types.ObjectId,
-    amount: number,
-    activity: TeacherXpActivity,
-  ): Promise<void> {
-    if (amount <= 0) {
-      return
-    }
-
-    const session = await mongoose.startSession()
-
-    try {
-      await session.withTransaction(async () => {
-        /*
-         * Create the weekly leaderboard event first.
-         *
-         * The event is counted by:
-         * GET /leaderboard?section=trainers&scope=weekly
-         */
-        const eventWriteResult =
-          await LeaderboardXpEvent.updateOne(
-            {
-              idempotencyKey:
-                activity.idempotencyKey,
-            },
-            {
-              $setOnInsert: {
-                userId,
-                section: 'trainers',
-                amount,
-                source: activity.source,
-                sourceEntityId:
-                  activity.sourceEntityId,
-                idempotencyKey:
-                  activity.idempotencyKey,
-                occurredAt: new Date(),
-              },
-            },
-            {
-              upsert: true,
-              runValidators: true,
-              session,
-            },
-          )
-
-        const eventCreated =
-          eventWriteResult.upsertedCount === 1 ||
-          Boolean(eventWriteResult.upsertedId)
-
-        /*
-         * An event with this idempotency key already exists.
-         * Verify that it represents the exact same reward.
-         */
-        if (!eventCreated) {
-          const existingEvent =
-            await LeaderboardXpEvent.findOne({
-              idempotencyKey:
-                activity.idempotencyKey,
-            })
-              .session(session)
-              .select({
-                userId: 1,
-                section: 1,
-                amount: 1,
-                source: 1,
-                sourceEntityId: 1,
-                idempotencyKey: 1,
-              })
-              .lean<MongoTeacherXpEventRecord>()
-
-          const isSameEvent = Boolean(
-            existingEvent &&
-              existingEvent.userId.toString() ===
-                userId.toString() &&
-              existingEvent.section ===
-                'trainers' &&
-              existingEvent.amount === amount &&
-              existingEvent.source ===
-                activity.source &&
-              existingEvent.sourceEntityId ===
-                activity.sourceEntityId,
-          )
-
-          if (!isSameEvent) {
-            throw new CommunityDomainError(
-              'COMMUNITY_TEACHER_XP_EVENT_CONFLICT',
-              'Teacher XP event idempotency key is already in use',
-            )
-          }
-
-          /*
-           * The same event was already processed, so teacher XP
-           * must not be incremented again.
-           */
-          return
-        }
-
-        const updatedUser =
-          await CommunityUserModel.findOneAndUpdate(
-            {
-              _id: userId,
-              deletedAt: null,
-            },
-            {
-              $inc: {
-                teacherXp: amount,
-              },
-            },
-            {
-              new: true,
-              session,
-            },
-          )
-            .select({
-              teacherXp: 1,
-            })
-            .lean<{
-              teacherXp?: number
-            }>()
-
-        if (!updatedUser) {
-          throw new CommunityDomainError(
-            'COMMUNITY_REVIEWER_NOT_FOUND',
-            'Reviewer user was not found',
-          )
-        }
-
-        const teacherLevel =
-          this.calculateTeacherLevel(
-            Number(
-              updatedUser.teacherXp ?? 0,
-            ),
-          )
-
-        await CommunityUserModel.updateOne(
-          {
-            _id: userId,
-            deletedAt: null,
-          },
-          {
-            $max: {
-              teacherLevel,
-            },
-          },
-          {
-            session,
-          },
-        )
-      })
-    } finally {
-      await session.endSession()
-    }
-  }
-
-  private calculateTeacherLevel(
-    teacherXp: number,
-  ): number {
-    const normalizedXp = Math.max(
-      Math.floor(teacherXp),
-      0,
-    )
-
-    let level = 1
-    let nextLevelAt = 500
-    let requiredXpIncrease = 800
-
-    while (normalizedXp >= nextLevelAt) {
-      level += 1
-      nextLevelAt += requiredXpIncrease
-      requiredXpIncrease += 300
-    }
-
-    return level
   }
 
   private async closeSubmissionIfConsensusReached(
