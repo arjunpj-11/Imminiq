@@ -41,10 +41,12 @@ import MockTestResultPage from './modules/mock-tests/pages/MockTestResultPage'
 import MockTestsPage from './modules/mock-tests/pages/MockTestsPage'
 
 // ─── OTHER APP PAGES ────────────────────────────────
-import LeaderboardPage from './modules/leaderboard/pages/LeaderboardPage'
-import LeaderboardRewardsPage from './modules/leaderboard/pages/LeaderboardRewardsPage'
 import ActivityPage from './modules/activity/pages/ActivityPage'
 import CommunityPublicTrackerPage from './modules/community/pages/CommunityPublicTrackerPage'
+import FriendsPage from './modules/friends/pages/FriendsPage'
+import FriendsSearchPage from './modules/friends/pages/FriendsSearchPage'
+import LeaderboardPage from './modules/leaderboard/pages/LeaderboardPage'
+import LeaderboardRewardsPage from './modules/leaderboard/pages/LeaderboardRewardsPage'
 
 // ─── LAZY LEGAL PAGES ───────────────────────────────
 const PrivacyPage = lazy(() => import('./modules/legal/pages/PrivacyPage'))
@@ -55,83 +57,84 @@ const LandingPage = lazy(() => import('./modules/landing/pages/LandingPage'))
 
 // ─── LAZY ONBOARDING PAGES ──────────────────────────
 const OnboardingGeneratingPage = lazy(
-  () => import('./modules/onboarding/pages/OnboardingGeneratingPage')
+  () => import('./modules/onboarding/pages/OnboardingGeneratingPage'),
 )
 
 const OnboardingRoadmapEvaluationLoadingPage = lazy(
   () =>
     import(
       './modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage'
-    )
+    ),
 )
 
 const OnboardingRoadmapEvaluationScorePage = lazy(
   () =>
-    import('./modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage')
+    import('./modules/onboarding/pages/OnboardingRoadmapEvaluationScorePage'),
 )
 
 const OnboardingRoadmapReadyPage = lazy(
-  () => import('./modules/onboarding/pages/OnboardingRoadmapReadyPage')
+  () => import('./modules/onboarding/pages/OnboardingRoadmapReadyPage'),
 )
 
 const OnboardingStepOnePage = lazy(
-  () => import('./modules/onboarding/pages/OnboardingStepOnePage')
+  () => import('./modules/onboarding/pages/OnboardingStepOnePage'),
 )
 
 const OnboardingStepTwoPage = lazy(
-  () => import('./modules/onboarding/pages/OnboardingStepTwoPage')
+  () => import('./modules/onboarding/pages/OnboardingStepTwoPage'),
 )
 
 // ─── LAZY MAIN APP PAGES ────────────────────────────
 const DashboardPage = lazy(
-  () => import('./modules/dashboard/pages/DashboardPage')
+  () => import('./modules/dashboard/pages/DashboardPage'),
 )
 
 const ProfilePage = lazy(() => import('./modules/users/pages/ProfilePage'))
 
 // ─── LAZY SETTINGS PAGES ────────────────────────────
 const AccountSecuritySettingsPage = lazy(
-  () => import('./modules/settings/pages/AccountSecuritySettingsPage')
+  () => import('./modules/settings/pages/AccountSecuritySettingsPage'),
 )
 
 const NotificationSettingsPage = lazy(
-  () => import('./modules/settings/pages/NotificationSettingsPage')
+  () => import('./modules/settings/pages/NotificationSettingsPage'),
 )
 
 const PreferencesSettingsPage = lazy(
-  () => import('./modules/settings/pages/PreferencesSettingsPage')
+  () => import('./modules/settings/pages/PreferencesSettingsPage'),
 )
 
 const PrivacySettingsPage = lazy(
-  () => import('./modules/settings/pages/PrivacySettingsPage')
+  () => import('./modules/settings/pages/PrivacySettingsPage'),
 )
 
 // ─── LAZY TRACKER PAGES ─────────────────────────────
 const MyTrackersPage = lazy(
-  () => import('./modules/trackers/pages/MyTrackersPage')
+  () => import('./modules/trackers/pages/MyTrackersPage'),
 )
 
 const TrackerLessonPage = lazy(
-  () => import('./modules/trackers/pages/TrackerLessonPage')
+  () => import('./modules/trackers/pages/TrackerLessonPage'),
 )
 
 const TrackerRoadmapPage = lazy(
-  () => import('./modules/trackers/pages/TrackerRoadmapPage')
+  () => import('./modules/trackers/pages/TrackerRoadmapPage'),
 )
 
 // ─── LAZY COMMUNITY PAGES ───────────────────────────
 const CommunityBrowsePage = lazy(
-  () => import('./modules/community/pages/CommunityBrowsePage')
+  () => import('./modules/community/pages/CommunityBrowsePage'),
 )
 
 const VerifyAndEarnPage = lazy(
-  () => import('./modules/community/pages/VerifyAndEarnPage')
+  () => import('./modules/community/pages/VerifyAndEarnPage'),
 )
 
 const CommunityVerifySubmissionPage = lazy(
-  () => import('./modules/community/pages/CommunityVerifySubmissionPage')
+  () => import('./modules/community/pages/CommunityVerifySubmissionPage'),
 )
 
+// Routes that do not require an authenticated session.
 const PUBLIC_EXACT_PATHS = new Set([
   '/',
   '/register',
@@ -153,7 +156,7 @@ const isPublicRoute = (pathname: string) => {
   }
 
   // Public user profile route: /profile/:username
-  // But /profile itself is protected.
+  // The current user's /profile route remains protected.
   if (pathname.startsWith('/profile/') && pathname !== '/profile') {
     return true
   }
@@ -203,9 +206,21 @@ export default function App() {
           {/* ─── PUBLIC AUTH ROUTES ─────────────────────── */}
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/login" element={<LoginPage />} />
-          <Route path="/forgot-password" element={<ForgotPasswordPage />} />
-          <Route path="/verify-account" element={<VerifyAccountPage />} />
-          <Route path="/reset-password" element={<ResetPasswordPage />} />
+
+          <Route
+            path="/forgot-password"
+            element={<ForgotPasswordPage />}
+          />
+
+          <Route
+            path="/verify-account"
+            element={<VerifyAccountPage />}
+          />
+
+          <Route
+            path="/reset-password"
+            element={<ResetPasswordPage />}
+          />
 
           <Route
             path="/verify-email-change"
@@ -229,7 +244,10 @@ export default function App() {
           <Route path="/" element={<LandingPage />} />
 
           {/* ─── PUBLIC PROFILE ROUTE ───────────────────── */}
-          <Route path="/profile/:username" element={<ProfilePage />} />
+          <Route
+            path="/profile/:username"
+            element={<ProfilePage />}
+          />
 
           {/* ─── PROTECTED ONBOARDING ROUTES ────────────── */}
           <Route
@@ -305,7 +323,7 @@ export default function App() {
             }
           />
 
-          {/* ─── PROTECTED SETTINGS ROUTES ─────────────── */}
+          {/* ─── PROTECTED SETTINGS ROUTES ──────────────── */}
           <Route
             path="/settings/security"
             element={
@@ -408,6 +426,15 @@ export default function App() {
           />
 
           <Route
+            path="/community/trackers/:trackerId"
+            element={
+              <ProtectedRoute>
+                <CommunityPublicTrackerPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
             path="/verify-and-earn"
             element={
               <ProtectedRoute>
@@ -425,18 +452,48 @@ export default function App() {
             }
           />
 
-          {/* ─── PROTECTED SOCIAL ROUTES ───────────────── */}
-        <Route path="/leaderboard" element={<LeaderboardPage />} />
-<Route
-  path="/leaderboard/rewards"
-  element={<LeaderboardRewardsPage />}
-/>
+          {/* ─── PROTECTED SOCIAL ROUTES ────────────────── */}
+          <Route
+            path="/leaderboard"
+            element={
+              <ProtectedRoute>
+                <LeaderboardPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/leaderboard/rewards"
+            element={
+              <ProtectedRoute>
+                <LeaderboardRewardsPage />
+              </ProtectedRoute>
+            }
+          />
 
           <Route
             path="/activity"
             element={
               <ProtectedRoute>
                 <ActivityPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/friends"
+            element={
+              <ProtectedRoute>
+                <FriendsPage />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/friends/search"
+            element={
+              <ProtectedRoute>
+                <FriendsSearchPage />
               </ProtectedRoute>
             }
           />
@@ -486,16 +543,6 @@ export default function App() {
               </ProtectedRoute>
             }
           />
-
-          <Route
-  path="/community/trackers/:trackerId"
-  element={
-    <ProtectedRoute>
-      <CommunityPublicTrackerPage />
-    </ProtectedRoute>
-  }
-/>
-
 
           {/* ─── ADMIN ROUTES ───────────────────────────── */}
           <Route
