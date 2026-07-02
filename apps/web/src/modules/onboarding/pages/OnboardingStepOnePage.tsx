@@ -4,9 +4,13 @@ import { useMemo, useState } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
-import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne'
 import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
-import { goalChips, roadmapPreviewMap, topicChips } from '../constants/onboarding.constants'
+import {
+  goalChips,
+  roadmapPreviewMap,
+  topicChips,
+} from '../constants/onboarding.constants'
+import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne'
 import type { PendingAction } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
 
@@ -113,6 +117,25 @@ const LockIcon = () => {
   )
 }
 
+const ArrowLeftIcon = () => {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  )
+}
+
 const ArrowRightIcon = () => {
   return (
     <svg
@@ -145,45 +168,46 @@ export default function OnboardingStepOnePage() {
     (error ? 'Failed to save onboarding details. Please try again.' : '')
 
   const [topic, setTopic] = useState(() => {
-  return (
-    sessionStorage.getItem('imminiq_draft_topic') ||
-    sessionStorage.getItem('imminiq_topic') ||
-    ''
+    return (
+      sessionStorage.getItem('imminiq_draft_topic') ||
+      sessionStorage.getItem('imminiq_topic') ||
+      ''
+    )
+  })
+
+  const [goal, setGoal] = useState(() => {
+    return (
+      sessionStorage.getItem('imminiq_draft_goal') ||
+      sessionStorage.getItem('imminiq_goal') ||
+      ''
+    )
+  })
+
+  const [selectedTopicChip, setSelectedTopicChip] = useState<string | null>(
+    () => {
+      const savedTopic =
+        sessionStorage.getItem('imminiq_draft_topic') ||
+        sessionStorage.getItem('imminiq_topic') ||
+        ''
+
+      return topicChips.find((chip) => chip === savedTopic) || null
+    }
   )
-})
 
-const [goal, setGoal] = useState(() => {
-  return (
-    sessionStorage.getItem('imminiq_draft_goal') ||
-    sessionStorage.getItem('imminiq_goal') ||
-    ''
+  const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(
+    () => {
+      const savedGoal =
+        sessionStorage.getItem('imminiq_draft_goal') ||
+        sessionStorage.getItem('imminiq_goal') ||
+        ''
+
+      return goalChips.find((chip) => chip === savedGoal) || null
+    }
   )
-})
 
-const [selectedTopicChip, setSelectedTopicChip] = useState<string | null>(() => {
-  const savedTopic =
-    sessionStorage.getItem('imminiq_draft_topic') ||
-    sessionStorage.getItem('imminiq_topic') ||
-    ''
-
-  return topicChips.find((chip) => chip === savedTopic) || null
-})
-
-const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
-  const savedGoal =
-    sessionStorage.getItem('imminiq_draft_goal') ||
-    sessionStorage.getItem('imminiq_goal') ||
-    ''
-
-  return goalChips.find((chip) => chip === savedGoal) || null
-})
   const [topicError, setTopicError] = useState('')
   const [toast, setToast] = useState('')
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
-
-
-
-  
 
   const previewItems = useMemo(() => {
     const trimmedTopic = topic.trim().toLowerCase()
@@ -202,6 +226,17 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
       ? roadmapPreviewMap[matchedKey]
       : roadmapPreviewMap.default
   }, [topic])
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+      return
+    }
+
+    navigate('/', {
+      replace: true,
+    })
+  }
 
   const showToast = (message: string) => {
     setToast(message)
@@ -364,15 +399,40 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
   return (
     <div className="flex min-h-screen flex-col bg-[#f5ede4] pb-24 font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-transparent bg-[#f5ede4]/95 px-5 py-4 backdrop-blur-xl dark:bg-[#141412]/95 sm:px-8 md:px-12">
-        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
-          <LogoIcon className="h-8.5 w-8.5 rounded-[9px]" />
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleBack}
+            aria-label="Go back to previous page"
+            title="Go back"
+            className={cn(
+              'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px]',
+              'border border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58]',
+              'transition hover:-translate-x-0.5 hover:border-[#e8816a]',
+              'hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b]',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b84c2b]/30',
+              'dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#9b9a92]',
+              'dark:hover:border-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.09)]',
+              'dark:hover:text-[#e8816a] dark:focus-visible:ring-[#e8816a]/30'
+            )}
+          >
+            <ArrowLeftIcon />
+          </button>
 
-          <span className="text-[20px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
-            immin
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-          </span>
-        </Link>
+          <Link
+            to="/"
+            aria-label="Go to home page"
+            className="inline-flex items-center gap-2.5 leading-none"
+          >
+            <LogoIcon className="h-8.5 w-8.5 rounded-[9px]" />
+
+            <span className="hidden text-[20px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb] sm:inline">
+              immin
+              <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
+              <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
+            </span>
+          </Link>
+        </div>
 
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3" aria-label="Step 1 of 2">
@@ -385,8 +445,6 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
               <span className="h-1.5 w-1.5 rounded-full bg-[#e0d0c5] dark:bg-white/15" />
             </div>
           </div>
-
-          
         </div>
       </header>
 
@@ -478,7 +536,11 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Popular topics">
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Popular topics"
+          >
             {topicChips.map((chip) => {
               const selected = selectedTopicChip === chip
 
@@ -573,7 +635,10 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
 
           <div className="flex flex-col gap-2">
             {previewItems.map(([title, description], index) => (
-              <div key={`${title}-${index}`} className="flex items-center gap-2.5">
+              <div
+                key={`${title}-${index}`}
+                className="flex items-center gap-2.5"
+              >
                 <div className="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] font-mono text-[9px] font-medium text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
                   {index + 1}
                 </div>
@@ -606,7 +671,9 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             disabled={isPending}
             className="hidden rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-medium text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)] dark:hover:text-[#e8816a] sm:inline-flex"
           >
-            {isPending && pendingAction === 'draft' ? 'Saving...' : 'Save Draft'}
+            {isPending && pendingAction === 'draft'
+              ? 'Saving...'
+              : 'Save Draft'}
           </button>
 
           <button
@@ -615,9 +682,13 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             disabled={isPending}
             className="inline-flex items-center gap-2 rounded-[11px] bg-[#b84c2b] px-5.5 py-3 text-sm font-bold text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
           >
-            {isPending && pendingAction === 'continue' ? 'Saving...' : 'Continue'}
+            {isPending && pendingAction === 'continue'
+              ? 'Saving...'
+              : 'Continue'}
 
-            {!(isPending && pendingAction === 'continue') && <ArrowRightIcon />}
+            {!(isPending && pendingAction === 'continue') && (
+              <ArrowRightIcon />
+            )}
           </button>
         </div>
       </div>
