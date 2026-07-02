@@ -2,7 +2,7 @@
 
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { useAuthStore } from '../../modules/auth/store/useAuthStore'
+import { useAuthStore } from '../../store/useAuthStore'
 
 type AuthSyncPayload = {
   type?: 'EMAIL_CHANGED_LOGOUT'
@@ -11,7 +11,7 @@ type AuthSyncPayload = {
 
 export const useAuthSync = () => {
   const navigate = useNavigate()
-  const clearUser = useAuthStore((state) => state.clearUser)
+  const clearAuth = useAuthStore((state) => state.clearAuth)
 
   useEffect(() => {
     const handleStorage = (event: StorageEvent) => {
@@ -23,7 +23,7 @@ export const useAuthSync = () => {
         const payload = JSON.parse(event.newValue) as AuthSyncPayload
 
         if (payload.type === 'EMAIL_CHANGED_LOGOUT') {
-          clearUser()
+          clearAuth()
           navigate('/login', { replace: true })
         }
       } catch {
@@ -36,5 +36,5 @@ export const useAuthSync = () => {
     return () => {
       window.removeEventListener('storage', handleStorage)
     }
-  }, [clearUser, navigate])
+  }, [clearAuth, navigate])
 }

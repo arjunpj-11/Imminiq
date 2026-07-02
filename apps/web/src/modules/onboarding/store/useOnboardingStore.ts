@@ -1,21 +1,80 @@
 import { create } from 'zustand'
+import { createJSONStorage, persist } from 'zustand/middleware'
+
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
+import { safeSessionStateStorage, safeSessionStorage } from '../../../lib/storage/safe-storage'
+import type { Level } from '../types/onboarding.types'
+
+interface OnboardingStepOneDraft {
+  goal: string
+  topic: string
+}
+
+interface OnboardingStepTwoDraft {
+  level: Level
+  hoursPerDay: number
+}
 
 interface OnboardingStore {
   currentStep: 1 | 2
-  step1Data: { goal: string; topic: string } | null
-  step2Data: { level: string; hoursPerDay: number } | null
+  step1Data: OnboardingStepOneDraft | null
+  step2Data: OnboardingStepTwoDraft | null
   setStep: (step: 1 | 2) => void
-  saveStep1: (data: { goal: string; topic: string }) => void
-  saveStep2: (data: { level: string; hoursPerDay: number }) => void
+  saveStep1: (data: OnboardingStepOneDraft) => void
+  saveStep2: (data: Partial<OnboardingStepTwoDraft> & Pick<OnboardingStepTwoDraft, 'level'>) => void
   reset: () => void
 }
 
-export const useOnboardingStore = create<OnboardingStore>((set) => ({
-  currentStep: 1,
-  step1Data: null,
-  step2Data: null,
-  setStep: (step) => set({ currentStep: step }),
-  saveStep1: (data) => set({ step1Data: data }),
-  saveStep2: (data) => set({ step2Data: data }),
-  reset: () => set({ currentStep: 1, step1Data: null, step2Data: null }),
-}))
+const readLegacyStepOne = (): OnboardingStepOneDraft | null => {
+  const topic =
+    safeSessionStorage.get('imminiq_topic') ||
+    safeSessionStorage.get('imminiq_draft_topic') ||
+    ''
+  const goal =
+    safeSessionStorage.get('imminiq_goal') ||
+    safeSessionStorage.get('imminiq_draft_goal') ||
+    ''
+
+  return topic || goal ? { topic, goal } : null
+}
+
+const readLegacyLevel = (): Level => {
+  const value = safeSessionStorage.get('imminiq_level')
+  return value === 'beginner' || value === 'advanced' ? value : 'intermediate'
+}
+
+export const useOnboardingStore = create<OnboardingStore>()(
+  persist(
+    (set) => ({
+      currentStep: 1,
+      step1Data: readLegacyStepOne(),
+      step2Data: { level: readLegacyLevel(), hoursPerDay: 1 },
+      setStep: (currentStep) => set({ currentStep }),
+      saveStep1: (step1Data) => set({ step1Data, currentStep: 2 }),
+      saveStep2: (data) =>
+        set((state) => ({
+          step2Data: {
+            level: data.level,
+            hoursPerDay: data.hoursPerDay ?? state.step2Data?.hoursPerDay ?? 1,
+          },
+        })),
+      reset: () =>
+        set({
+          currentStep: 1,
+          step1Data: null,
+          step2Data: { level: 'intermediate', hoursPerDay: 1 },
+        }),
+    }),
+    {
+      name: STORAGE_KEYS.onboardingDraft,
+      storage: createJSONStorage(() => safeSessionStateStorage),
+      partialize: ({ currentStep, step1Data, step2Data }) => ({
+        currentStep,
+        step1Data,
+        step2Data,
+      }),
+    },
+  ),
+)
+
+export const getOnboardingSnapshot = () => useOnboardingStore.getState()

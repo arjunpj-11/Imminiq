@@ -4,6 +4,8 @@ import { Link, useLocation, useNavigate } from 'react-router-dom'
 import axios from 'axios'
 
 import api from '../../../lib/axios'
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
+import { safeSessionStorage } from '../../../lib/storage/safe-storage'
 import { OTP_LENGTH, OTP_RESEND_WAIT_SECONDS, TOTAL_OTP_SECONDS } from '../constants/auth.constants'
 import type { VerifyPurpose, VerifyState } from '../types/auth.types'
 import { maskIdentifier, formatTime } from '../utils/auth-formatters'
@@ -23,19 +25,19 @@ export default function VerifyAccountPage() {
   const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''))
   const [error, setError] = useState('')
   const [secondsLeft, setSecondsLeft] = useState<number>(() => {
-    const stored = sessionStorage.getItem('otp_expiry')
+    const stored = safeSessionStorage.get(STORAGE_KEYS.otpExpiry)
     if (!stored) {
       const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000
-      sessionStorage.setItem('otp_expiry', String(expiry))
+      safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry))
       return TOTAL_OTP_SECONDS
     }
     return Math.max(0, Math.round((Number(stored) - Date.now()) / 1000))
   })
   const [resendLeft, setResendLeft] = useState<number>(() => {
-    const stored = sessionStorage.getItem('otp_resend_expiry')
+    const stored = safeSessionStorage.get(STORAGE_KEYS.otpResendExpiry)
     if (!stored) {
       const expiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000
-      sessionStorage.setItem('otp_resend_expiry', String(expiry))
+      safeSessionStorage.set(STORAGE_KEYS.otpResendExpiry, String(expiry))
       return OTP_RESEND_WAIT_SECONDS
     }
     return Math.max(0, Math.round((Number(stored) - Date.now()) / 1000))
@@ -52,8 +54,8 @@ export default function VerifyAccountPage() {
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      const expiry = Number(sessionStorage.getItem('otp_expiry') || 0)
-      const resendExpiry = Number(sessionStorage.getItem('otp_resend_expiry') || 0)
+      const expiry = Number(safeSessionStorage.get(STORAGE_KEYS.otpExpiry) || 0)
+      const resendExpiry = Number(safeSessionStorage.get(STORAGE_KEYS.otpResendExpiry) || 0)
       setSecondsLeft(Math.max(0, Math.round((expiry - Date.now()) / 1000)))
       setResendLeft(Math.max(0, Math.round((resendExpiry - Date.now()) / 1000)))
     }, 1000)
@@ -158,8 +160,8 @@ export default function VerifyAccountPage() {
       }
 
       setIsSuccess(true)
-      sessionStorage.removeItem('otp_expiry')
-      sessionStorage.removeItem('otp_resend_expiry')
+      safeSessionStorage.remove(STORAGE_KEYS.otpExpiry)
+      safeSessionStorage.remove(STORAGE_KEYS.otpResendExpiry)
 
       window.setTimeout(() => {
         if (isPasswordReset) {
@@ -190,8 +192,8 @@ export default function VerifyAccountPage() {
       await api.post('/auth/resend-otp', { identifier, method, purpose })
       const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000
       const resendExpiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000
-      sessionStorage.setItem('otp_expiry', String(expiry))
-      sessionStorage.setItem('otp_resend_expiry', String(resendExpiry))
+      safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry))
+      safeSessionStorage.set(STORAGE_KEYS.otpResendExpiry, String(resendExpiry))
       setSecondsLeft(TOTAL_OTP_SECONDS)
       setResendLeft(OTP_RESEND_WAIT_SECONDS)
       setDigits(Array(OTP_LENGTH).fill(''))

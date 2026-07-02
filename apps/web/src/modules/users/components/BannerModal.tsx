@@ -1,8 +1,9 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import type React from 'react'
 import { useGenerateAiBannerPreview } from '../hooks/useGenerateAiBannerPreview'
 import { cn, themedScrollbar } from '../utils/profile-ui.utils'
-import { bannerDataUrlToPng, loadImage, svgBannerDataUrl } from '../utils/profile-image.utils'
+import { bannerDataUrlToPng, svgBannerDataUrl } from '../utils/profile-image.utils'
+import { useImageCropControls } from '../hooks/useImageCropControls'
 
 /* ─── Cover Banner Modal ─── */
 interface BannerModalProps {
@@ -69,13 +70,24 @@ export default function BannerModal({ open, onClose, onApply, onToast }: BannerM
   const selectedBannerDataUrl = customSelected
     ? customBannerDataUrl
     : selectedPreset;
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [scale, setScale] = useState(1);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0, ox: 0, oy: 0 });
-  const previewRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement | null>(null);
+  const {
+    imageSrc,
+    scale,
+    setScale,
+    offset,
+    dragging,
+    previewRef,
+    setImageSource,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleWheel,
+    renderToDataUrl,
+  } = useImageCropControls({
+    initialScale: 1,
+    minScale: 1,
+    maxScale: 4,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -98,17 +110,10 @@ export default function BannerModal({ open, onClose, onApply, onToast }: BannerM
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : null;
       if (!result) return;
-      setImageSrc(result);
+      setImageSource(result);
       setActiveImageSource("upload");
-      setOffset({ x: 0, y: 0 });
-      setScale(1);
       setCustomSelected(false);
       setTab("upload");
-      const img = new Image();
-      img.src = result;
-      img.onload = () => {
-        imageRef.current = img;
-      };
     };
     reader.readAsDataURL(file);
     event.target.value = "";
@@ -134,58 +139,14 @@ export default function BannerModal({ open, onClose, onApply, onToast }: BannerM
         return;
       }
 
-      setImageSrc(generatedImageUrl);
+      setImageSource(generatedImageUrl);
       setActiveImageSource("ai");
-      setOffset({ x: 0, y: 0 });
-      setScale(1);
       setCustomSelected(false);
-
-      const image = new Image();
-      image.src = generatedImageUrl;
-      image.onload = () => {
-        imageRef.current = image;
-      };
 
       onToast("AI banner generated. Adjust the crop and apply it.");
     } catch {
       onToast("Unable to generate AI banner. Please try again.");
     }
-  };
-
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!imageSrc) return;
-    setDragging(true);
-    setDragStart({
-      x: event.clientX,
-      y: event.clientY,
-      ox: offset.x,
-      oy: offset.y,
-    });
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragging) return;
-    setOffset({
-      x: dragStart.ox + (event.clientX - dragStart.x),
-      y: dragStart.oy + (event.clientY - dragStart.y),
-    });
-  };
-
-  const handlePointerUp = () => setDragging(false);
-
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    if (!imageSrc) return;
-    event.preventDefault();
-    setScale((current) =>
-      Math.min(
-        4,
-        Math.max(
-          1,
-          Number((current + (event.deltaY < 0 ? 0.08 : -0.08)).toFixed(2)),
-        ),
-      ),
-    );
   };
 
   const applyUploadedBanner = async () => {
@@ -198,30 +159,10 @@ export default function BannerModal({ open, onClose, onApply, onToast }: BannerM
       return;
     }
 
-    const image = imageRef.current ?? (await loadImage(imageSrc));
-    const width = 1600;
-    const height = 400;
-    const canvas = document.createElement("canvas");
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const preview = previewRef.current.getBoundingClientRect();
-    const fitScale = Math.max(
-      width / image.naturalWidth,
-      height / image.naturalHeight,
-    );
-    const renderScale = fitScale * scale;
-    const drawWidth = image.naturalWidth * renderScale;
-    const drawHeight = image.naturalHeight * renderScale;
-    const ratioX = width / Math.max(preview.width, 1);
-    const ratioY = height / Math.max(preview.height, 1);
-    const drawX = (width - drawWidth) / 2 + offset.x * ratioX;
-    const drawY = (height - drawHeight) / 2 + offset.y * ratioY;
-
-    ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-    await onApply(canvas.toDataURL("image/png"));
+    const dataUrl = await renderToDataUrl({ width: 1600, height: 400 });
+    if (dataUrl) {
+      await onApply(dataUrl);
+    }
   };
 
   return (

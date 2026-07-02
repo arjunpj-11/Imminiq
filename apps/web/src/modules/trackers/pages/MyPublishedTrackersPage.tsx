@@ -1,25 +1,13 @@
+import { cn } from '../../../lib/cn'
+
 // apps/web/src/modules/trackers/pages/MyPublishedTrackersPage.tsx
 
-import { useState, type Dispatch, type SetStateAction } from 'react'
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import Sidebar from '../../../components/layout/Sidebar'
-import TopBar from '../../../components/layout/TopBar'
-import AppFooter from '../../../components/layout/Footer'
-import BottomNav from '../../../components/layout/BottomNav'
-
-import { useDashboardSummary } from '../../dashboard/hooks/useDashboardSummary'
+import { AppShellBoundary } from '../../../components/layout/AppShell'
 import { useTrackers, useUnpublishTracker } from '../hooks/useTrackers'
 import type { Tracker } from '../types/tracker.types'
-
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
-
-const getInitials = (name: string) =>
-  name.split(' ').map((w) => w[0]).join('').slice(0, 2).toUpperCase()
-
-const formatLevelLabel = (isPremium: boolean) =>
-  isPremium ? 'Imminiq Pro' : 'Free Scholar'
 
 const formatDate = (value: string | null | undefined) => {
   if (!value) return '—'
@@ -390,39 +378,22 @@ function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublish
 
 // ─── Skeleton page ─────────────────────────────────────────────────────────────
 
-function PageSkeleton({
-  sidebarOpen, sidebarCollapsed, setSidebarOpen, setSidebarCollapsed,
-}: {
-  sidebarOpen: boolean
-  sidebarCollapsed: boolean
-  setSidebarOpen: (v: boolean) => void
-  setSidebarCollapsed: Dispatch<SetStateAction<boolean>>
-}) {
+function PageSkeleton() {
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
-        <Sidebar
-          mobileOpen={sidebarOpen}
-          collapsed={sidebarCollapsed}
-          onCloseMobile={() => setSidebarOpen(false)}
-          onToggleCollapsed={() => setSidebarCollapsed((v) => { const next = !v; localStorage.setItem('imminiq_sb', next ? 'closed' : 'open'); return next })}
-        />
-        <main className={cn('flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300', sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56')}>
-          <TopBar onMenuClick={() => setSidebarOpen(true)} streakDays={0} userName="Loading" userInitials="IM" userLevel="Loading" isGuest={false} />
-          <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full flex-col gap-6 pb-24 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))]">
-            <div className="animate-pulse">
-              <SkeletonBlock className="mb-3 h-5 w-28 rounded-full" />
-              <SkeletonBlock className="h-9 w-72 rounded-2xl" />
-              <SkeletonBlock className="mt-3 h-4 w-96" />
-            </div>
-            <div className="grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1">
-              {Array.from({ length: 6 }).map((_, i) => <PublishedCardSkeleton key={i} />)}
-            </div>
-          </div>
-        </main>
+    <AppShellBoundary>
+      <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full flex-col gap-6 pb-24 max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))]">
+        <div className="animate-pulse">
+          <SkeletonBlock className="mb-3 h-5 w-28 rounded-full" />
+          <SkeletonBlock className="h-9 w-72 rounded-2xl" />
+          <SkeletonBlock className="mt-3 h-4 w-96" />
+        </div>
+        <div className="grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1">
+          {Array.from({ length: 6 }).map((_, index) => (
+            <PublishedCardSkeleton key={index} />
+          ))}
+        </div>
       </div>
-      <BottomNav />
-    </div>
+    </AppShellBoundary>
   )
 }
 
@@ -447,26 +418,18 @@ function SummaryStrip({ count }: { count: number }) {
 
 export default function MyPublishedTrackersPage() {
   const navigate = useNavigate()
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () => typeof window !== 'undefined' && localStorage.getItem('imminiq_sb') === 'closed'
-  )
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null)
   const [confirmTracker, setConfirmTracker] = useState<Tracker | null>(null)
 
-  const dashboardSummaryQuery = useDashboardSummary()
   const trackersQuery = useTrackers({ status: 'all', domain: 'all', sortBy: 'lastActive', page: 1, limit: 50 })
   const unpublishMutation = useUnpublishTracker()
 
-  const dashboardSummary = dashboardSummaryQuery.data
   const allTrackers = trackersQuery.data?.trackers ?? []
   const publishedTrackers = allTrackers.filter(
     (t) => t.visibility === 'public' || Boolean(t.publishedAt)
   )
 
-  const isLoading =
-    (dashboardSummaryQuery.isLoading && !dashboardSummary) ||
-    (trackersQuery.isLoading && !trackersQuery.data)
+  const isLoading = trackersQuery.isLoading && !trackersQuery.data
 
   const handleRequestUnpublish = (tracker: Tracker) => {
     setConfirmTracker(tracker)
@@ -488,29 +451,11 @@ export default function MyPublishedTrackersPage() {
   }
 
   if (isLoading) {
-    return (
-      <PageSkeleton
-        sidebarOpen={sidebarOpen}
-        sidebarCollapsed={sidebarCollapsed}
-        setSidebarOpen={setSidebarOpen}
-        setSidebarCollapsed={setSidebarCollapsed}
-      />
-    )
+    return <PageSkeleton />
   }
 
-  const userInitials = getInitials(dashboardSummary?.user.fullName ?? 'User')
-
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      {/* Noise texture */}
-      <div
-        className="pointer-events-none fixed inset-0 z-0 opacity-[0.025] dark:opacity-[0.04]"
-        style={{
-          backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=\'0 0 200 200\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cfilter id=\'n\'%3E%3CfeTurbulence type=\'fractalNoise\' baseFrequency=\'0.9\' numOctaves=\'4\' stitchTiles=\'stitch\'/%3E%3C/filter%3E%3Crect width=\'100%25\' height=\'100%25\' filter=\'url(%23n)\' opacity=\'1\'/%3E%3C/svg%3E")',
-          backgroundSize: '180px',
-        }}
-      />
-
+    <AppShellBoundary>
       {/* ── Unpublish confirmation modal ── */}
       <UnpublishConfirmModal
         tracker={confirmTracker}
@@ -519,107 +464,71 @@ export default function MyPublishedTrackersPage() {
         onCancel={handleCancelUnpublish}
       />
 
-      <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
-        <Sidebar
-          mobileOpen={sidebarOpen}
-          collapsed={sidebarCollapsed}
-          onCloseMobile={() => setSidebarOpen(false)}
-          onToggleCollapsed={() =>
-            setSidebarCollapsed((v) => {
-              const next = !v
-              localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
-              return next
-            })
-          }
-        />
+      <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
 
-        <main className={cn(
-          'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300',
-          sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56',
-        )}>
-          <TopBar
-            onMenuClick={() => setSidebarOpen(true)}
-            streakDays={dashboardSummary?.streak.current ?? 0}
-            userName={dashboardSummary?.user.fullName ?? ''}
-            userInitials={userInitials}
-            userAvatarUrl={dashboardSummary?.user.avatarUrl || undefined}
-            userLevel={formatLevelLabel(dashboardSummary?.user.isPremium ?? false)}
-            isGuest={false}
-          />
-
-          <div className="flex min-w-0 flex-1 flex-col">
-            <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-
-              {/* ── Page header ── */}
-              <section className="flex flex-wrap items-start justify-between gap-4">
-                <div>
-                  <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
-                    Published Trackers
-                  </div>
-
-                  <h1 className="font-['Playfair_Display',serif] text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-[#1a1714] dark:text-[#f2f0eb]">
-                    Your{' '}
-                    <span className="text-[#2d6a47] dark:text-[#5cc98a]">public</span>{' '}
-                    roadmaps
-                  </h1>
-
-                  <p className="mt-2 max-w-lg text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
-                    {publishedTrackers.length > 0
-                      ? `${publishedTrackers.length} tracker${publishedTrackers.length === 1 ? '' : 's'} shared with the community. Manage visibility, copy links, and track engagement.`
-                      : 'Share your learning roadmaps with the community and help others grow.'}
-                  </p>
-                </div>
-
-              </section>
-
-              {/* ── Summary strip (only when trackers exist) ── */}
-              <SummaryStrip count={publishedTrackers.length} />
-
-              {/* ── Grid or empty state ── */}
-              {publishedTrackers.length > 0 ? (
-                <section className="grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1">
-                  {publishedTrackers.map((tracker) => (
-                    <PublishedTrackerCard
-                      key={tracker._id}
-                      tracker={tracker}
-                      onView={(id) => navigate(`/trackers/${id}/preview`)}
-                      onRequestUnpublish={handleRequestUnpublish}
-                      isUnpublishing={unpublishingId === tracker._id}
-                    />
-                  ))}
-                </section>
-              ) : (
-                <section className="rounded-[22px] border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-10 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-6">
-                  <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
-                    <GlobeIcon />
-                  </div>
-
-                  <h2 className="font-['Playfair_Display',serif] text-2xl font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
-                    Nothing published yet
-                  </h2>
-
-                  <p className="mx-auto mt-2 max-w-md text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
-                    Go to your trackers, open the options menu on any tracker and hit Publish to share it with the community.
-                  </p>
-
-                  <button
-                    type="button"
-                    onClick={() => navigate('/trackers')}
-                    className="mt-5 inline-flex items-center gap-2 rounded-[10px] bg-[#2d6a47] px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#245638] dark:bg-[#5cc98a] dark:text-[#141412]"
-                  >
-                    Go to My Trackers
-                  </button>
-                </section>
-              )}
+        {/* ── Page header ── */}
+        <section className="flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
+              Published Trackers
             </div>
 
-            <AppFooter />
-          </div>
-        </main>
-      </div>
+            <h1 className="font-['Playfair_Display',serif] text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-[#1a1714] dark:text-[#f2f0eb]">
+              Your{' '}
+              <span className="text-[#2d6a47] dark:text-[#5cc98a]">public</span>{' '}
+              roadmaps
+            </h1>
 
-      <BottomNav />
-    </div>
+            <p className="mt-2 max-w-lg text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
+              {publishedTrackers.length > 0
+                ? `${publishedTrackers.length} tracker${publishedTrackers.length === 1 ? '' : 's'} shared with the community. Manage visibility, copy links, and track engagement.`
+                : 'Share your learning roadmaps with the community and help others grow.'}
+            </p>
+          </div>
+
+        </section>
+
+        {/* ── Summary strip (only when trackers exist) ── */}
+        <SummaryStrip count={publishedTrackers.length} />
+
+        {/* ── Grid or empty state ── */}
+        {publishedTrackers.length > 0 ? (
+          <section className="grid grid-cols-3 gap-4 max-[1100px]:grid-cols-2 max-[700px]:grid-cols-1">
+            {publishedTrackers.map((tracker) => (
+              <PublishedTrackerCard
+                key={tracker._id}
+                tracker={tracker}
+                onView={(id) => navigate(`/trackers/${id}/preview`)}
+                onRequestUnpublish={handleRequestUnpublish}
+                isUnpublishing={unpublishingId === tracker._id}
+              />
+            ))}
+          </section>
+        ) : (
+          <section className="rounded-[22px] border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-10 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-6">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+              <GlobeIcon />
+            </div>
+
+            <h2 className="font-['Playfair_Display',serif] text-2xl font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+              Nothing published yet
+            </h2>
+
+            <p className="mx-auto mt-2 max-w-md text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+              Go to your trackers, open the options menu on any tracker and hit Publish to share it with the community.
+            </p>
+
+            <button
+              type="button"
+              onClick={() => navigate('/trackers')}
+              className="mt-5 inline-flex items-center gap-2 rounded-[10px] bg-[#2d6a47] px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#245638] dark:bg-[#5cc98a] dark:text-[#141412]"
+            >
+              Go to My Trackers
+            </button>
+          </section>
+        )}
+      </div>
+    </AppShellBoundary>
   )
 }

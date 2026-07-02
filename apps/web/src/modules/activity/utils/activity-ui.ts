@@ -1,8 +1,7 @@
-import type { ActivityHeatmapIntensity } from '../types/activity.types'
+import { cn } from '../../../lib/cn'
+export { cn }
 
-export const cn = (
-  ...classes: Array<string | false | null | undefined>
-) => classes.filter(Boolean).join(' ')
+import type { ActivityHeatmapIntensity } from '../types/activity.types'
 
 export const ACTIVITY_STAT_ACCENTS = [
   { light: '#b84c2b', dark: '#e8816a' },

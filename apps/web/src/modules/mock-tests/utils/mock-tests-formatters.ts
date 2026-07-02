@@ -1,6 +1,8 @@
+import { cn } from '../../../lib/cn'
+export { cn }
+
 import type { DifficultyLevel, MockTestListItem } from '../types/mock-tests.types'
 
-export const cn = (...classes: Array<string | false | null | undefined>) => classes.filter(Boolean).join(' ')
 export const formatDate = (value?: string) => value ? new Intl.DateTimeFormat('en-IN', { day: '2-digit', month: 'short', year: 'numeric' }).format(new Date(value)) : '—'
 export const formatDuration = (seconds?: number) => {
   if (!seconds) return '—'

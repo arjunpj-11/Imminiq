@@ -1,6 +1,5 @@
-export const cn = (...classes: Array<string | false | null | undefined>) => {
-  return classes.filter(Boolean).join(' ')
-}
+import { cn } from '../../../lib/cn'
+export { cn }
 
 export const authLabelClass =
   "font-mono text-[9.5px] font-medium uppercase tracking-[0.1em] text-[#1a1714] dark:text-[#f2f0eb]"

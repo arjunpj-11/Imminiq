@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import type React from 'react'
 import { cn } from '../utils/profile-ui.utils'
-import { loadImage } from '../utils/profile-image.utils'
+import { useImageCropControls } from '../hooks/useImageCropControls'
 
 /* ─── Avatar Crop Modal ─── */
 interface AvatarCropModalProps {
@@ -21,13 +21,24 @@ export default function AvatarCropModal({
   onApply,
   onToast,
 }: AvatarCropModalProps) {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [scale, setScale] = useState(AVATAR_INITIAL_ZOOM);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0, ox: 0, oy: 0 });
-  const previewRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement | null>(null);
+  const {
+    imageSrc,
+    scale,
+    setScale,
+    offset,
+    dragging,
+    previewRef,
+    setImageSource,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleWheel,
+    renderToDataUrl,
+  } = useImageCropControls({
+    initialScale: AVATAR_INITIAL_ZOOM,
+    minScale: AVATAR_MIN_ZOOM,
+    maxScale: AVATAR_MAX_ZOOM,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -50,53 +61,10 @@ export default function AvatarCropModal({
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : null;
       if (!result) return;
-      setImageSrc(result);
-      setScale(AVATAR_INITIAL_ZOOM);
-      setOffset({ x: 0, y: 0 });
-      const img = new Image();
-      img.src = result;
-      img.onload = () => {
-        imageRef.current = img;
-      };
+      setImageSource(result);
     };
     reader.readAsDataURL(file);
     event.target.value = "";
-  };
-
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!imageSrc) return;
-    setDragging(true);
-    setDragStart({
-      x: event.clientX,
-      y: event.clientY,
-      ox: offset.x,
-      oy: offset.y,
-    });
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragging) return;
-    setOffset({
-      x: dragStart.ox + (event.clientX - dragStart.x),
-      y: dragStart.oy + (event.clientY - dragStart.y),
-    });
-  };
-
-  const handlePointerUp = () => setDragging(false);
-
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    if (!imageSrc) return;
-    event.preventDefault();
-    setScale((current) =>
-      Math.min(
-        AVATAR_MAX_ZOOM,
-        Math.max(
-          AVATAR_MIN_ZOOM,
-          Number((current + (event.deltaY < 0 ? 0.08 : -0.08)).toFixed(2)),
-        ),
-      ),
-    );
   };
 
   const applyAvatar = async () => {
@@ -105,29 +73,10 @@ export default function AvatarCropModal({
       return;
     }
 
-    const image = imageRef.current ?? (await loadImage(imageSrc));
-    const size = 640;
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const preview = previewRef.current.getBoundingClientRect();
-    const fitScale = Math.max(
-      size / image.naturalWidth,
-      size / image.naturalHeight,
-    );
-    const renderScale = fitScale * scale;
-    const drawWidth = image.naturalWidth * renderScale;
-    const drawHeight = image.naturalHeight * renderScale;
-    const ratioX = size / Math.max(preview.width, 1);
-    const ratioY = size / Math.max(preview.height, 1);
-    const drawX = (size - drawWidth) / 2 + offset.x * ratioX;
-    const drawY = (size - drawHeight) / 2 + offset.y * ratioY;
-
-    ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-    await onApply(canvas.toDataURL("image/png"));
+    const dataUrl = await renderToDataUrl({ width: 640, height: 640 });
+    if (dataUrl) {
+      await onApply(dataUrl);
+    }
   };
 
   return (

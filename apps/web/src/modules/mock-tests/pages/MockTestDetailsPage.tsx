@@ -2,119 +2,34 @@
 // MockTestDetailsPage.tsx — aligned with Trackers design
 // ============================================================
 
-import { useState, type ReactNode } from 'react'
+import type { ReactNode } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import Sidebar from '../../../components/layout/Sidebar'
-import TopBar from '../../../components/layout/TopBar'
-import AppFooter from '../../../components/layout/Footer'
-import BottomNav from '../../../components/layout/BottomNav'
+import { AppShellBoundary } from '../../../components/layout/AppShell'
 
 import {
   useMockTestDetails,
   useStartMockTestAttempt,
 } from '../hooks/useMockTests'
 
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
-
-const NoiseOverlay = () => (
-  <div
-    className="pointer-events-none fixed inset-0 z-0 opacity-[0.025] dark:opacity-[0.04]"
-    style={{
-      backgroundImage:
-        "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-      backgroundSize: '180px',
-    }}
-  />
-)
-
-function PageShell({
-  sidebarOpen,
-  setSidebarOpen,
-  sidebarCollapsed,
-  setSidebarCollapsed,
-  children,
-}: {
-  sidebarOpen: boolean
-  setSidebarOpen: (value: boolean) => void
-  sidebarCollapsed: boolean
-  setSidebarCollapsed: (fn: (current: boolean) => boolean) => void
-  children: ReactNode
-}) {
+function PageShell({ children }: { children: ReactNode }) {
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <NoiseOverlay />
-
-      <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
-        <Sidebar
-          mobileOpen={sidebarOpen}
-          collapsed={sidebarCollapsed}
-          onCloseMobile={() => setSidebarOpen(false)}
-          onToggleCollapsed={() =>
-            setSidebarCollapsed((current) => {
-              const next = !current
-
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
-              }
-
-              return next
-            })
-          }
-        />
-
-        <main
-          className={cn(
-            'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300',
-            sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56'
-          )}
-        >
-          <TopBar
-            onMenuClick={() => setSidebarOpen(true)}
-            streakDays={0}
-            userName="Achu"
-            userInitials="AC"
-            userLevel="Free Scholar"
-            isGuest={false}
-          />
-
-          <div className="flex min-w-0 flex-1 flex-col">
-            <div className="mx-auto mt-5.5 flex w-[min(860px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-              {children}
-            </div>
-
-            <AppFooter />
-          </div>
-        </main>
+    <AppShellBoundary>
+      <div className="mx-auto mt-5.5 flex w-[min(860px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+        {children}
       </div>
-
-      <BottomNav />
-    </div>
+    </AppShellBoundary>
   )
 }
+
 
 export default function MockTestDetailsPage() {
   const { testId = '' } = useParams()
   const navigate = useNavigate()
 
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      localStorage.getItem('imminiq_sb') === 'closed'
-  )
-
   const detailsQuery = useMockTestDetails(testId)
   const startMutation = useStartMockTestAttempt()
   const data = detailsQuery.data
-
-  const shellProps = {
-    sidebarOpen,
-    setSidebarOpen,
-    sidebarCollapsed,
-    setSidebarCollapsed,
-  }
 
   const start = async () => {
     if (!testId) return
@@ -129,7 +44,7 @@ export default function MockTestDetailsPage() {
 
   if (detailsQuery.isLoading) {
     return (
-      <PageShell {...shellProps}>
+      <PageShell>
         <div className="h-72 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]" />
 
         <div className="space-y-3">
@@ -146,7 +61,7 @@ export default function MockTestDetailsPage() {
 
   if (detailsQuery.isError) {
     return (
-      <PageShell {...shellProps}>
+      <PageShell>
         <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-600 dark:text-red-300">
           Failed to load mock test.
         </div>
@@ -156,7 +71,7 @@ export default function MockTestDetailsPage() {
 
   if (!data) {
     return (
-      <PageShell {...shellProps}>
+      <PageShell>
         <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18] dark:text-[#9b9a92]">
           Test not found.
         </div>
@@ -167,7 +82,7 @@ export default function MockTestDetailsPage() {
   const isContinuing = data.latestAttempt?.status === 'in_progress'
 
   return (
-    <PageShell {...shellProps}>
+    <PageShell>
       {/* ── hero card ── */}
       <section
         className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-7 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"

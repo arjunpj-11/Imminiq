@@ -1,11 +1,11 @@
+import { cn } from '../../lib/cn'
+
 import { useState, useEffect, useRef } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import api from '../../lib/axios'
-import { useAuthStore } from '../../modules/auth/store/useAuthStore'
-
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
+import { useAuthStore } from '../../store/useAuthStore'
+import ImminiqLogo from '../ui/ImminiqLogo'
 
 interface TopBarProps {
   /**
@@ -24,39 +24,6 @@ interface TopBarProps {
   messageCount?: number
   friendRequestCount?: number
 }
-
-const LogoIcon = () => (
-  <svg
-    width="30"
-    height="30"
-    viewBox="0 0 100 100"
-    xmlns="http://www.w3.org/2000/svg"
-    className="shrink-0 rounded-[9px]"
-    aria-hidden="true"
-  >
-    <rect x="10" y="10" width="80" height="80" rx="18" fill="#050505" />
-    <g transform="translate(-5,1)">
-      <rect x="31" y="35" width="9" height="34" rx="4.5" fill="#fff8ed" />
-      <circle cx="35.5" cy="28.5" r="5.3" fill="#f15a35" />
-      <path
-        d="M64 32.8C73.8 34.7 79.5 42.2 79.5 51.5 79.5 61.8 71.2 68 60.2 68c-7 0-12-2.5-15.1-7.2"
-        fill="none"
-        stroke="#fff8ed"
-        strokeWidth="9"
-        strokeLinecap="round"
-      />
-      <line
-        x1="63.8"
-        y1="55.5"
-        x2="75.8"
-        y2="67.5"
-        stroke="#f15a35"
-        strokeWidth="9"
-        strokeLinecap="round"
-      />
-    </g>
-  </svg>
-)
 
 const BellIcon = () => (
   <svg
@@ -171,7 +138,7 @@ export default function TopBar({
         aria-label={isGuest ? 'Go to Imminiq home' : 'Go to Imminiq dashboard'}
         className="flex min-w-0 items-center gap-2.5 rounded-[10px] no-underline transition hover:opacity-90"
       >
-        <LogoIcon />
+        <ImminiqLogo size={30} className="rounded-[9px]" decorative />
 
         <span className="truncate font-['Playfair_Display',serif] text-[20px] font-extrabold leading-none tracking-[-0.45px] text-[#b84c2b] dark:text-[#e8816a] max-[420px]:text-[18px]">
           Imminiq

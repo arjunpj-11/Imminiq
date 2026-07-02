@@ -2,14 +2,15 @@
 
 import { useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useSaveOnboardingStepTwo } from '../hooks/useSaveOnboardingStepTwo'
 
 import { useGenerateRoadmap } from '../hooks/useGenerateRoadmap'
-import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
+import OnboardingBrandLink from '../components/OnboardingBrandLink'
 import { levelOptions } from '../constants/onboarding.constants'
 import type { Level } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
+import { useOnboardingStore } from '../store/useOnboardingStore'
 import { getInitialLevel } from '../utils/onboarding-storage'
 
 const EditIcon = () => {
@@ -198,6 +199,8 @@ const RoadmapIllustration = () => {
 
 export default function OnboardingStepTwoPage() {
   const navigate = useNavigate()
+  const stepOneDraft = useOnboardingStore((state) => state.step1Data)
+  const saveOnboardingStepTwoDraft = useOnboardingStore((state) => state.saveStep2)
   const firstLevelCardRef = useRef<HTMLButtonElement | null>(null)
 
   const {
@@ -223,21 +226,8 @@ export default function OnboardingStepTwoPage() {
 
   const isSubmitting = isSavingStepTwo || isGeneratingRoadmap
 
-  const [topic] = useState(() => {
-    return (
-      sessionStorage.getItem('imminiq_topic') ||
-      sessionStorage.getItem('imminiq_draft_topic') ||
-      'MERN Stack Interviews'
-    )
-  })
-
-  const [goal] = useState(() => {
-    return (
-      sessionStorage.getItem('imminiq_goal') ||
-      sessionStorage.getItem('imminiq_draft_goal') ||
-      'Crack product company roles'
-    )
-  })
+  const topic = stepOneDraft?.topic || 'MERN Stack Interviews'
+  const goal = stepOneDraft?.goal || 'Crack product company roles'
 
   const [selectedLevel, setSelectedLevel] = useState<Level>(() => {
     return getInitialLevel()
@@ -305,7 +295,7 @@ export default function OnboardingStepTwoPage() {
 
     clearMutationError()
 
-    sessionStorage.setItem('imminiq_level', selectedLevel)
+    saveOnboardingStepTwoDraft({ level: selectedLevel })
 
     saveStepTwo(
       {
@@ -407,15 +397,10 @@ export default function OnboardingStepTwoPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#f5ede4] pb-24 font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-transparent bg-[#f5ede4]/95 px-5 py-4 backdrop-blur-xl dark:bg-[#141412]/95 sm:px-8 md:px-12">
-        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
-          <LogoIcon className="h-8.5 w-8.5 rounded-[9px]" />
-
-          <span className="text-[20px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
-            immin
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-          </span>
-        </Link>
+        <OnboardingBrandLink
+          logoClassName="h-8.5 w-8.5 rounded-[9px]"
+          wordmarkClassName="text-[20px]"
+        />
 
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3" aria-label="Step 2 of 2">

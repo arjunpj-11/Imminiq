@@ -2,15 +2,16 @@
 
 import { useMemo, useState } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
-import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
+import OnboardingBrandLink from '../components/OnboardingBrandLink'
 import {
   goalChips,
   roadmapPreviewMap,
   topicChips,
 } from '../constants/onboarding.constants'
 import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne'
+import { useOnboardingStore } from '../store/useOnboardingStore'
 import type { PendingAction } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
 
@@ -155,6 +156,8 @@ const ArrowRightIcon = () => {
 
 export default function OnboardingStepOnePage() {
   const navigate = useNavigate()
+  const savedStepOne = useOnboardingStore((state) => state.step1Data)
+  const saveOnboardingDraft = useOnboardingStore((state) => state.saveStep1)
 
   const {
     mutate: saveStepOne,
@@ -167,42 +170,16 @@ export default function OnboardingStepOnePage() {
     error?.response?.data?.message ||
     (error ? 'Failed to save onboarding details. Please try again.' : '')
 
-  const [topic, setTopic] = useState(() => {
-    return (
-      sessionStorage.getItem('imminiq_draft_topic') ||
-      sessionStorage.getItem('imminiq_topic') ||
-      ''
-    )
-  })
+  const [topic, setTopic] = useState(() => savedStepOne?.topic ?? '')
 
-  const [goal, setGoal] = useState(() => {
-    return (
-      sessionStorage.getItem('imminiq_draft_goal') ||
-      sessionStorage.getItem('imminiq_goal') ||
-      ''
-    )
-  })
+  const [goal, setGoal] = useState(() => savedStepOne?.goal ?? '')
 
   const [selectedTopicChip, setSelectedTopicChip] = useState<string | null>(
-    () => {
-      const savedTopic =
-        sessionStorage.getItem('imminiq_draft_topic') ||
-        sessionStorage.getItem('imminiq_topic') ||
-        ''
-
-      return topicChips.find((chip) => chip === savedTopic) || null
-    }
+    () => topicChips.find((chip) => chip === savedStepOne?.topic) || null,
   )
 
   const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(
-    () => {
-      const savedGoal =
-        sessionStorage.getItem('imminiq_draft_goal') ||
-        sessionStorage.getItem('imminiq_goal') ||
-        ''
-
-      return goalChips.find((chip) => chip === savedGoal) || null
-    }
+    () => goalChips.find((chip) => chip === savedStepOne?.goal) || null,
   )
 
   const [topicError, setTopicError] = useState('')
@@ -323,8 +300,7 @@ export default function OnboardingStepOnePage() {
 
     setPendingAction('draft')
 
-    sessionStorage.setItem('imminiq_draft_topic', topic.trim())
-    sessionStorage.setItem('imminiq_draft_goal', goal.trim())
+    saveOnboardingDraft({ topic: topic.trim(), goal: goal.trim() })
 
     saveStepOne(
       {
@@ -347,8 +323,7 @@ export default function OnboardingStepOnePage() {
 
     setPendingAction('continue')
 
-    sessionStorage.setItem('imminiq_topic', topic.trim())
-    sessionStorage.setItem('imminiq_goal', goal.trim())
+    saveOnboardingDraft({ topic: topic.trim(), goal: goal.trim() })
 
     saveStepOne(
       {
@@ -419,19 +394,11 @@ export default function OnboardingStepOnePage() {
             <ArrowLeftIcon />
           </button>
 
-          <Link
-            to="/"
-            aria-label="Go to home page"
-            className="inline-flex items-center gap-2.5 leading-none"
-          >
-            <LogoIcon className="h-8.5 w-8.5 rounded-[9px]" />
-
-            <span className="hidden text-[20px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb] sm:inline">
-              immin
-              <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-              <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-            </span>
-          </Link>
+          <OnboardingBrandLink
+            logoClassName="h-8.5 w-8.5 rounded-[9px]"
+            wordmarkClassName="text-[20px]"
+            hideWordmarkOnMobile
+          />
         </div>
 
         <div className="flex items-center gap-3 sm:gap-4">

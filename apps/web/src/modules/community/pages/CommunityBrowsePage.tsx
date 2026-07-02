@@ -8,7 +8,7 @@ import CommunityFilters from '../components/CommunityFilters'
 import CommunityLayout from '../components/CommunityLayout'
 import CommunityPageSkeleton from '../components/CommunityPageSkeleton'
 import CommunityPagination from '../components/CommunityPagination'
-import CommunityStatCard from '../components/CommunityStatCard'
+import StatCard from '../../../components/data-display/StatCard'
 import CommunityTrackerCard from '../components/CommunityTrackerCard'
 import VerifyEarnBanner from '../components/VerifyEarnBanner'
 import { BookOpenIcon } from '../components/icons/CommunityIcons'
@@ -18,8 +18,8 @@ import {
 } from '../constants/community.constants'
 import { useCloneCommunityTracker } from '../hooks/useCloneCommunityTracker'
 import { useCommunityBrowse } from '../hooks/useCommunityBrowse'
-import { useDebouncedValue } from '../hooks/useDebouncedValue'
-import { useCommunityStore } from '../store/useCommunityStore'
+import { useDebouncedValue } from '../../../hooks/useDebouncedValue'
+import { useCommunitySearchState } from '../hooks/useCommunitySearchState'
 import { getApiErrorMessage } from '../utils/community-formatters'
 import { communityPageClass, cn } from '../utils/community-ui'
 import { validateSearch } from '../utils/community-validation'
@@ -28,20 +28,21 @@ export default function CommunityBrowsePage() {
   const navigate = useNavigate()
   const [activeCloneId, setActiveCloneId] = useState<string | null>(null)
 
-  const search = useCommunityStore((state) => state.search)
-  const selectedTopics = useCommunityStore((state) => state.selectedTopics)
-  const minRating = useCommunityStore((state) => state.minRating)
-  const verifiedOnly = useCommunityStore((state) => state.verifiedOnly)
-  const sort = useCommunityStore((state) => state.sort)
-  const page = useCommunityStore((state) => state.page)
-
-  const setSearch = useCommunityStore((state) => state.setSearch)
-  const setSelectedTopics = useCommunityStore((state) => state.setSelectedTopics)
-  const setMinRating = useCommunityStore((state) => state.setMinRating)
-  const setVerifiedOnly = useCommunityStore((state) => state.setVerifiedOnly)
-  const setSort = useCommunityStore((state) => state.setSort)
-  const setPage = useCommunityStore((state) => state.setPage)
-  const clearFilters = useCommunityStore((state) => state.clearFilters)
+  const {
+    search,
+    selectedTopics,
+    minRating,
+    verifiedOnly,
+    sort,
+    page,
+    setSearch,
+    setSelectedTopics,
+    setMinRating,
+    setVerifiedOnly,
+    setSort,
+    setPage,
+    clearFilters,
+  } = useCommunitySearchState()
 
   const debouncedSearch = useDebouncedValue(search, 400)
   const searchError = validateSearch(search)
@@ -88,8 +89,8 @@ export default function CommunityBrowsePage() {
   }
 
   const handleOpenTracker = (trackerId: string) => {
-  navigate(`/community/trackers/${trackerId}`)
-}
+    navigate(`/community/trackers/${trackerId}`)
+  }
 
   const isInitialLoading = browse.isLoading && !browse.data
   const isUpdatingResults = browse.isFetching && Boolean(browse.data)
@@ -154,7 +155,7 @@ export default function CommunityBrowsePage() {
 
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
               {browse.data.stats.map((card, index) => (
-                <CommunityStatCard
+                <StatCard
                   key={card.label}
                   {...card}
                   accent={
@@ -206,13 +207,15 @@ export default function CommunityBrowsePage() {
               {browse.data.trackers.length > 0 ? (
                 <div className="grid grid-cols-3 gap-4 max-[860px]:grid-cols-2 max-[540px]:grid-cols-1">
                   {browse.data.trackers.map((tracker) => (
-                   <CommunityTrackerCard
-  key={tracker._id}
-  tracker={tracker}
-  cloning={activeCloneId === tracker._id && cloneTracker.isPending}
-  onClone={handleClone}
-  onOpen={handleOpenTracker}
-/>
+                    <CommunityTrackerCard
+                      key={tracker._id}
+                      tracker={tracker}
+                      cloning={
+                        activeCloneId === tracker._id && cloneTracker.isPending
+                      }
+                      onClone={handleClone}
+                      onOpen={handleOpenTracker}
+                    />
                   ))}
                 </div>
               ) : (

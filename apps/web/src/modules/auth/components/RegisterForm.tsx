@@ -1,9 +1,12 @@
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
+import { safeSessionStorage } from '../../../lib/storage/safe-storage'
 import { useState } from 'react'
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react'
 import { Link } from 'react-router-dom'
 
 import { useRegister } from '../hooks/useRegister'
 import AuthLayout from './AuthLayout'
+import AuthIdentifierField from './AuthIdentifierField'
 import AuthSocialButtons from './AuthSocialButtons'
 import { ApiErrorBanner, FieldError } from './AuthError'
 import { EyeIcon } from './icons/AuthIcons'
@@ -142,8 +145,8 @@ export default function RegisterForm() {
 
     if (Object.keys(newErrors).length > 0) return
 
-    sessionStorage.removeItem('otp_expiry')
-    sessionStorage.removeItem('otp_resend_expiry')
+    safeSessionStorage.remove(STORAGE_KEYS.otpExpiry)
+    safeSessionStorage.remove(STORAGE_KEYS.otpResendExpiry)
 
     register({
       fullName: form.fullName.trim(),
@@ -171,19 +174,13 @@ export default function RegisterForm() {
           <FieldError message={errors.fullName} />
         </label>
 
-        <label className="block">
-          <span className={authLabelClass}>Email or phone</span>
-          <input
-            className={authInputClass(errors.identifier, touched.identifier && !errors.identifier)}
-            name="identifier"
-            value={form.identifier}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="you@example.com"
-            autoComplete="username"
-          />
-          <FieldError message={errors.identifier} />
-        </label>
+        <AuthIdentifierField
+          value={form.identifier}
+          error={errors.identifier}
+          valid={Boolean(touched.identifier && !errors.identifier)}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
 
         <label className="block">
           <span className={authLabelClass}>Password</span>

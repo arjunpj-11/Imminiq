@@ -1,48 +1,25 @@
 // apps/web/src/modules/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage.tsx
 
-import { useEffect, useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo } from 'react'
+import { useNavigate, useParams } from 'react-router-dom'
+import { useOnboardingStore } from '../store/useOnboardingStore'
 
 import {
   useRoadmapEvaluationJobStatus,
   type EvaluationJobStatus,
 } from '../hooks/useRoadmapEvaluationJobStatus'
-import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
+import OnboardingBrandLink from '../components/OnboardingBrandLink'
+import {
+  OnboardingActivityChips,
+  OnboardingProgressStatusCard,
+  OnboardingWorkflowFooter,
+} from '../components/OnboardingWorkflowStatus'
 import { evaluationSteps } from '../constants/onboarding.constants'
 import type { ActivityChip, JobTerminalState, ProgressStepState } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
+import { clampProgress, normalizeProgressStepIndex } from '../utils/onboarding-progress'
 
 const activityProgressMap = [0, 1, 2, 3, 3]
-
-const fallbackPhaseByProgress = (progress: number) => {
-  if (progress >= 100) return 4
-  if (progress >= 80) return 4
-  if (progress >= 60) return 3
-  if (progress >= 35) return 2
-  if (progress >= 15) return 1
-  return 0
-}
-
-const normalizeStepIndex = (
-  rawStep: number | undefined,
-  completedSteps: number | undefined,
-  progress: number
-) => {
-  if (typeof completedSteps === 'number') {
-    if (completedSteps >= 5) return 4
-    if (completedSteps >= 0 && completedSteps <= 4) return completedSteps
-  }
-
-  if (typeof rawStep === 'number') {
-    if (rawStep >= 1 && rawStep <= 5) return rawStep - 1
-    if (rawStep >= 0 && rawStep <= 4) return rawStep
-  }
-
-  return fallbackPhaseByProgress(progress)
-}
-
-const clampProgress = (value: number) =>
-  Math.min(100, Math.max(0, Math.round(value)))
 
 const stepProgressFloors = [15, 35, 55, 75, 90]
 
@@ -81,7 +58,7 @@ const normalizeEvalStatus = (
       )
     : undefined
 
- const activeStepIndex = normalizeStepIndex(
+ const activeStepIndex = normalizeProgressStepIndex(
   status.currentStepNumber,
   completedSteps,
   rawProgress ?? 0
@@ -232,16 +209,11 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
   const navigate = useNavigate()
   const { jobId } = useParams<{ jobId: string }>()
 
-  const [roadmapTopic] = useState(() =>
-    sessionStorage.getItem('imminiq_topic') ||
-    sessionStorage.getItem('imminiq_draft_topic') ||
-    'MERN stack interviews'
+  const roadmapTopic = useOnboardingStore(
+    (state) => state.step1Data?.topic || 'MERN stack interviews',
   )
-
-  const [roadmapGoal] = useState(() =>
-    sessionStorage.getItem('imminiq_goal') ||
-    sessionStorage.getItem('imminiq_draft_goal') ||
-    'Crack top company interviews'
+  const roadmapGoal = useOnboardingStore(
+    (state) => state.step1Data?.goal || 'Crack top company interviews',
   )
 
   const { data, isLoading, error } = useRoadmapEvaluationJobStatus(jobId)
@@ -280,14 +252,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
     <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       {/* ── Header ── */}
       <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/92 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/94 sm:px-8 md:px-12">
-        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
-          <LogoIcon className="h-8 w-8 rounded-lg" />
-          <span className="text-[19px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
-            immin
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-          </span>
-        </Link>
+        <OnboardingBrandLink />
 
         <div className="flex items-center gap-3">
           <span className="hidden rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a] sm:inline-flex">
@@ -407,87 +372,21 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           </article>
         </section>
 
-        {/* Progress log section */}
-        <section
-          className="w-full rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6"
-          aria-live="polite"
-          aria-atomic="true"
-        >
-          <p className="mb-4 min-h-12 text-[16px] font-semibold leading-normal text-[#1a1714] dark:text-[#f2f0eb]">
-            {evalStatus.logMessage}
-          </p>
+        <OnboardingProgressStatusCard
+          logMessage={evalStatus.logMessage}
+          engineLabel={evalStatus.engineLabel}
+          nextLabel={evalStatus.nextLabel}
+          progress={evalStatus.progress}
+          stepsLabel={evalStatus.stepsLabel}
+          progressAriaLabel="Evaluation progress"
+        />
 
-          <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
-              {evalStatus.engineLabel}
-            </span>
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.13em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
-              {evalStatus.nextLabel}
-            </span>
-          </div>
-
-          <div
-            className="relative mb-2 h-1.25 w-full overflow-hidden rounded-full bg-[#1a1714]/8 dark:bg-[#f2f0eb]/10"
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={100}
-            aria-valuenow={evalStatus.progress}
-            aria-label="Evaluation progress"
-          >
-            <div
-              className="relative h-full overflow-hidden rounded-full bg-[#b84c2b] transition-[width] duration-1000 ease-out dark:bg-[#e8816a]"
-              style={{ width: `${evalStatus.progress}%` }}
-            >
-              <span className="absolute inset-y-0 left-0 w-[60%] animate-[roadmapShimmer_1.6s_ease-in-out_infinite] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)]" />
-            </div>
-          </div>
-
-          <div className="flex items-center justify-between">
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[#6b5f58]/45 dark:text-[#9b9a92]/45">
-              {evalStatus.progress}% complete
-            </span>
-            <span className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
-              {evalStatus.stepsLabel}
-            </span>
-          </div>
-        </section>
-
-        {/* Activity chips */}
-        <section
-          className="flex w-full flex-wrap justify-center gap-2.25"
-          role="list"
-          aria-label="Current evaluation activities"
-        >
-          {activityChips.map((chip, index) => {
-            const active =
-              evalStatus.terminalState !== 'completed' &&
-              index === evalStatus.activeActivityIndex
-
-            return (
-              <div
-                key={chip.label}
-                role="listitem"
-                className={cn(
-                  'inline-flex items-center gap-1.75 whitespace-nowrap rounded-full border-[1.5px] px-4 py-2.25 text-[12.5px] font-medium shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] transition',
-                  'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58]',
-                  'dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#9b9a92]',
-                  active &&
-                    'border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] font-semibold text-[#1a1714] dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#f2f0eb]'
-                )}
-              >
-                <span
-                  className={cn(
-                    'shrink-0 opacity-60 transition',
-                    active && 'text-[#b84c2b] opacity-100 dark:text-[#e8816a]'
-                  )}
-                >
-                  {chip.icon}
-                </span>
-                {chip.label}
-              </div>
-            )
-          })}
-        </section>
+        <OnboardingActivityChips
+          chips={activityChips}
+          activeActivityIndex={evalStatus.activeActivityIndex}
+          completed={evalStatus.terminalState === 'completed'}
+          ariaLabel="Current evaluation activities"
+        />
 
         {/* Failed state CTA */}
         {evalStatus.terminalState === 'failed' && (
@@ -501,35 +400,8 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
         )}
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="flex w-full flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[#f5ede4] px-5 py-5 dark:border-white/15 dark:bg-[#141412] sm:px-8 md:px-12">
-        <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
-          © 2026 Imminiq. Scholarly rigor meets digital intelligence.
-        </span>
+      <OnboardingWorkflowFooter />
 
-        <div className="flex items-center gap-4">
-          <Link
-            to="/privacy"
-            className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
-          >
-            Privacy
-          </Link>
-
-          <Link
-            to="/terms"
-            className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
-          >
-            Terms
-          </Link>
-        </div>
-      </footer>
-
-      <style>{`
-        @keyframes roadmapShimmer {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(400%); }
-        }
-      `}</style>
     </div>
   )
 }

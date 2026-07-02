@@ -1,7 +1,8 @@
+import { cn } from '../../lib/cn'
+
 import { Link, NavLink, useLocation } from 'react-router-dom'
 
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
+import ImminiqLogo from '../ui/ImminiqLogo'
 
 interface SidebarProps {
   mobileOpen: boolean
@@ -9,38 +10,6 @@ interface SidebarProps {
   onCloseMobile: () => void
   onToggleCollapsed: () => void
 }
-
-const LogoIcon = () => (
-  <svg
-    width="34"
-    height="34"
-    viewBox="0 0 100 100"
-    xmlns="http://www.w3.org/2000/svg"
-    className="shrink-0 rounded-[10px]"
-  >
-    <rect x="10" y="10" width="80" height="80" rx="18" fill="#050505" />
-    <g transform="translate(-5,1)">
-      <rect x="31" y="35" width="9" height="34" rx="4.5" fill="#fff8ed" />
-      <circle cx="35.5" cy="28.5" r="5.3" fill="#f15a35" />
-      <path
-        d="M64 32.8C73.8 34.7 79.5 42.2 79.5 51.5 79.5 61.8 71.2 68 60.2 68c-7 0-12-2.5-15.1-7.2"
-        fill="none"
-        stroke="#fff8ed"
-        strokeWidth="9"
-        strokeLinecap="round"
-      />
-      <line
-        x1="63.8"
-        y1="55.5"
-        x2="75.8"
-        y2="67.5"
-        stroke="#f15a35"
-        strokeWidth="9"
-        strokeLinecap="round"
-      />
-    </g>
-  </svg>
-)
 
 const navItems = [
   {
@@ -222,7 +191,7 @@ export default function Sidebar({
           onClick={onCloseMobile}
           className="flex items-center gap-2.5 border-b border-[#e0d0c5] px-5 pb-3.5 pt-4.5 no-underline dark:border-white/9"
         >
-          <LogoIcon />
+          <ImminiqLogo size={34} className="rounded-[10px]" decorative />
 
           <span className="font-['Playfair_Display',serif] text-[22px] font-extrabold leading-none tracking-[-0.5px] text-[#b84c2b] dark:text-[#e8816a]">
             Imminiq

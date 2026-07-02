@@ -1,34 +1,19 @@
-const BLOCKED_APPEAL_IDENTIFIER_KEY = 'blocked_appeal_identifier'
+import { STORAGE_KEYS } from './storage/storage-keys'
+import { safeSessionStorage } from './storage/safe-storage'
 
-export const getBlockedAppealIdentifier = () => {
-  if (typeof window === 'undefined') {
-    return ''
-  }
-
-  return sessionStorage.getItem(BLOCKED_APPEAL_IDENTIFIER_KEY) || ''
-}
+export const getBlockedAppealIdentifier = () =>
+  safeSessionStorage.get(STORAGE_KEYS.blockedAppealIdentifier) || ''
 
 export const saveBlockedAppealIdentifier = (identifier: string) => {
-  if (typeof window === 'undefined') {
-    return
-  }
-
   const normalizedIdentifier = identifier.trim()
+  if (!normalizedIdentifier) return
 
-  if (!normalizedIdentifier) {
-    return
-  }
-
-  sessionStorage.setItem(
-    BLOCKED_APPEAL_IDENTIFIER_KEY,
-    normalizedIdentifier
+  safeSessionStorage.set(
+    STORAGE_KEYS.blockedAppealIdentifier,
+    normalizedIdentifier,
   )
 }
 
 export const clearBlockedAppealIdentifier = () => {
-  if (typeof window === 'undefined') {
-    return
-  }
-
-  sessionStorage.removeItem(BLOCKED_APPEAL_IDENTIFIER_KEY)
+  safeSessionStorage.remove(STORAGE_KEYS.blockedAppealIdentifier)
 }

@@ -1,2 +1,2 @@
-export const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
+import { cn } from '../../../lib/cn'
+export { cn }

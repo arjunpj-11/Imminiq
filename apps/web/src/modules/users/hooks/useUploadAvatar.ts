@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
-import { useAuthStore } from '../../auth/store/useAuthStore'
+import { useAuthStore } from '../../../store/useAuthStore'
 import type {
   ApiErrorResponse,
   ApiResponse,

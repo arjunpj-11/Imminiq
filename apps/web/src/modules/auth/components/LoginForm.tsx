@@ -5,6 +5,7 @@ import axios from 'axios'
 
 import { useLogin } from '../hooks/useLogin'
 import AuthLayout from './AuthLayout'
+import AuthIdentifierField from './AuthIdentifierField'
 import AuthSocialButtons from './AuthSocialButtons'
 import { ApiErrorBanner, FieldError } from './AuthError'
 import { EyeIcon } from './icons/AuthIcons'
@@ -115,19 +116,13 @@ export default function LoginForm() {
       <ApiErrorBanner message={apiError} warning={tooManyAttempts} />
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        <label className="block">
-          <span className={authLabelClass}>Email or phone</span>
-          <input
-            className={authInputClass(errors.identifier, touched.identifier && !errors.identifier)}
-            name="identifier"
-            value={form.identifier}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="you@example.com"
-            autoComplete="username"
-          />
-          <FieldError message={errors.identifier} />
-        </label>
+        <AuthIdentifierField
+          value={form.identifier}
+          error={errors.identifier}
+          valid={Boolean(touched.identifier && !errors.identifier)}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
 
         <label className="block">
           <div className="mb-1.5 flex items-center justify-between">

@@ -1,3 +1,5 @@
+import { safeLocalStorage } from '../lib/storage/safe-storage'
+import { STORAGE_KEYS } from '../lib/storage/storage-keys'
 import { create } from 'zustand'
 
 type Theme = 'light' | 'dark'
@@ -55,8 +57,6 @@ interface ThemeStore {
   initTheme: () => void
 }
 
-const THEME_STORAGE_KEY = 'theme_mode'
-
 const isThemeMode = (value: string | null): value is ThemeMode => {
   return value === 'light' || value === 'dark' || value === 'system'
 }
@@ -82,11 +82,11 @@ const applyTheme = (theme: Theme) => {
 }
 
 export const hasSavedLocalThemeMode = () => {
-  return isThemeMode(localStorage.getItem(THEME_STORAGE_KEY))
+  return isThemeMode(safeLocalStorage.get(STORAGE_KEYS.themeMode))
 }
 
 const getSavedThemeMode = (): ThemeMode => {
-  const savedMode = localStorage.getItem(THEME_STORAGE_KEY)
+  const savedMode = safeLocalStorage.get(STORAGE_KEYS.themeMode)
 
   if (isThemeMode(savedMode)) {
     return savedMode
@@ -105,7 +105,7 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     const theme = resolveTheme(mode)
 
     applyTheme(theme)
-    localStorage.setItem(THEME_STORAGE_KEY, mode)
+    safeLocalStorage.set(STORAGE_KEYS.themeMode, mode)
 
     set({
       mode,
@@ -123,7 +123,7 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     const theme = resolveTheme(mode)
 
     applyTheme(theme)
-    localStorage.setItem(THEME_STORAGE_KEY, mode)
+    safeLocalStorage.set(STORAGE_KEYS.themeMode, mode)
 
     set({
       mode,
@@ -169,7 +169,7 @@ export const useThemeStore = create<ThemeStore>((set, get) => ({
     const nextTheme = resolveTheme(nextMode)
 
     applyTheme(nextTheme)
-    localStorage.setItem(THEME_STORAGE_KEY, nextMode)
+    safeLocalStorage.set(STORAGE_KEYS.themeMode, nextMode)
 
     set({
       mode: nextMode,

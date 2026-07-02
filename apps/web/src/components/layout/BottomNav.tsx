@@ -1,7 +1,6 @@
-import { NavLink } from 'react-router-dom'
+import { cn } from '../../lib/cn'
 
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
+import { NavLink } from 'react-router-dom'
 
 interface BottomNavProps {
   /**

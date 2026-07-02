@@ -1,0 +1,14 @@
+export const STORAGE_KEYS = {
+  auth: 'auth',
+  themeMode: 'theme_mode',
+  appShell: 'imminiq_app_shell',
+  legacySidebar: 'imminiq_sb',
+  onboardingDraft: 'imminiq_onboarding_draft',
+  lastOnlinePath: 'last_online_path_before_offline',
+  dashboardInsightDismissed: 'imminiq_dashboard_insight_dismissed',
+  pendingEmailChangeTimer: 'imminiq_pending_email_change_timer',
+  blockedAppealIdentifier: 'blocked_appeal_identifier',
+  authSync: 'imminiq-auth-sync',
+  otpExpiry: 'otp_expiry',
+  otpResendExpiry: 'otp_resend_expiry',
+} as const

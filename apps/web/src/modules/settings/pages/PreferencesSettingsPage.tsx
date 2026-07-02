@@ -6,9 +6,8 @@ import {
   PillButton,
   SaveBar,
   SelectField,
-  UnsavedChangesDialog,
   SettingsCard,
-  SettingsToast,
+  SettingsPageFeedback,
   ToggleRow,
 } from '../components/SettingsUi'
 import { useSettingsToast } from '../hooks/useSettingsToast'
@@ -701,20 +700,15 @@ function PreferencesSettingsForm({
         />
       </div>
 
-      <UnsavedChangesDialog
-        open={unsavedChangesGuard.isBlocked}
+      <SettingsPageFeedback
+        isBlocked={unsavedChangesGuard.isBlocked}
         isSaving={unsavedChangesGuard.isSavingChanges}
         onStay={unsavedChangesGuard.stayOnPage}
         onDiscard={unsavedChangesGuard.discardAndLeave}
         onSaveChanges={() =>
           void unsavedChangesGuard.saveChangesAndLeave(handleSave)
         }
-      />
-
-      <SettingsToast
-        visible={toast.visible}
-        message={toast.message}
-        tone={toast.tone}
+        toast={toast}
       />
     </SettingsShell>
   )

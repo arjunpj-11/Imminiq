@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 
-import { useVerifyEmailChange } from '../../settings/hooks/useSecuritySettings'
+import { useVerifyEmailChange } from '../../settings'
 import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.types'
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
+import { safeLocalStorage } from '../../../lib/storage/safe-storage'
 
 export default function VerifyEmailChangePage() {
   const navigate = useNavigate()
@@ -29,8 +31,8 @@ export default function VerifyEmailChangePage() {
       try {
         await verifyEmailChange.mutateAsync(token)
 
-        localStorage.setItem(
-          'imminiq-auth-sync',
+        safeLocalStorage.set(
+          STORAGE_KEYS.authSync,
           JSON.stringify({
             type: 'EMAIL_CHANGED_LOGOUT',
             timestamp: Date.now(),

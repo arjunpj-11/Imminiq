@@ -1,6 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../../../lib/axios'
-import { useSettingsStore } from '../store/useSettingsStore'
 import type {
   ApiEnvelope,
   GestureSettings,
@@ -30,30 +29,27 @@ const useSettingsMutation = <TPayload,>(
   request: (payload: TPayload) => Promise<UserSettings>
 ) => {
   const queryClient = useQueryClient()
-  const setSettings = useSettingsStore((state) => state.setSettings)
-
   return useMutation({
     mutationFn: request,
     onSuccess: async (settings) => {
-      setSettings(settings)
-      await queryClient.invalidateQueries({ queryKey: SETTINGS_KEY })
+      queryClient.setQueryData(SETTINGS_KEY, settings)
+      await queryClient.invalidateQueries({
+        queryKey: SETTINGS_KEY,
+        exact: false,
+        refetchType: 'active',
+      })
     },
   })
 }
 
 export const useSettings = () => {
-  const setSettings = useSettingsStore((state) => state.setSettings)
-
   return useQuery({
     queryKey: SETTINGS_KEY,
     queryFn: async () => {
       const response =
         await api.get<ApiEnvelope<UserSettings>>('/settings')
 
-      const settings = unwrap(response)
-      setSettings(settings)
-
-      return settings
+      return unwrap(response)
     },
   })
 }
@@ -218,8 +214,6 @@ export const useUpdateGestures = () =>
 
 export const useResetSettings = () => {
   const queryClient = useQueryClient()
-  const setSettings = useSettingsStore((state) => state.setSettings)
-
   return useMutation({
     mutationFn: async () => {
       const response =
@@ -229,8 +223,12 @@ export const useResetSettings = () => {
     },
 
     onSuccess: async (settings) => {
-      setSettings(settings)
-      await queryClient.invalidateQueries({ queryKey: SETTINGS_KEY })
+      queryClient.setQueryData(SETTINGS_KEY, settings)
+      await queryClient.invalidateQueries({
+        queryKey: SETTINGS_KEY,
+        exact: false,
+        refetchType: 'active',
+      })
     },
   })
 }

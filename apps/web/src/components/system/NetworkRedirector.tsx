@@ -1,7 +1,8 @@
 import { useEffect, useRef } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-const LAST_ONLINE_PATH_KEY = 'last_online_path_before_offline'
+import { safeSessionStorage } from '../../lib/storage/safe-storage'
+import { STORAGE_KEYS } from '../../lib/storage/storage-keys'
 
 export default function NetworkRedirector() {
   const navigate = useNavigate()
@@ -31,10 +32,7 @@ export default function NetworkRedirector() {
         return
       }
 
-      sessionStorage.setItem(
-        LAST_ONLINE_PATH_KEY,
-        currentPath
-      )
+      safeSessionStorage.set(STORAGE_KEYS.lastOnlinePath, currentPath)
 
       navigate('/offline', {
         replace: true,

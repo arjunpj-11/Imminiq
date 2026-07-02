@@ -4,7 +4,7 @@ import CommunityErrorState from '../components/CommunityErrorState'
 import CommunityLayout from '../components/CommunityLayout'
 import CommunityPageSkeleton from '../components/CommunityPageSkeleton'
 import CommunityPagination from '../components/CommunityPagination'
-import CommunityStatCard from '../components/CommunityStatCard'
+import StatCard from '../../../components/data-display/StatCard'
 import VerificationCard from '../components/VerificationCard'
 import VerificationHowItWorks from '../components/VerificationHowItWorks'
 import VerificationLeaderboard from '../components/VerificationLeaderboard'
@@ -19,14 +19,13 @@ import {
   COMMUNITY_VERIFY_STAT_ACCENTS,
 } from '../constants/community.constants'
 import { useVerificationDashboard } from '../hooks/useVerificationDashboard'
-import { useCommunityStore } from '../store/useCommunityStore'
+import { useCommunityVerifyPage } from '../hooks/useCommunitySearchState'
 import { getApiErrorMessage } from '../utils/community-formatters'
 import { communityPageClass } from '../utils/community-ui'
 
 export default function VerifyAndEarnPage() {
   const navigate = useNavigate()
-  const verifyPage = useCommunityStore((state) => state.verifyPage)
-  const setVerifyPage = useCommunityStore((state) => state.setVerifyPage)
+  const { page: verifyPage, setPage: setVerifyPage } = useCommunityVerifyPage()
   const dashboard = useVerificationDashboard({
     page: verifyPage,
     limit: COMMUNITY_VERIFY_PAGE_LIMIT,
@@ -96,25 +95,25 @@ export default function VerifyAndEarnPage() {
             </section>
 
             <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
-              <CommunityStatCard
+              <StatCard
                 label="Awaiting"
                 value={dashboard.data.stats.awaiting}
                 helper="Submissions to review"
                 accent={COMMUNITY_VERIFY_STAT_ACCENTS.amber}
               />
-              <CommunityStatCard
+              <StatCard
                 label="Reviewed"
                 value={dashboard.data.stats.reviewed}
                 helper="Verified by you total"
                 accent={COMMUNITY_VERIFY_STAT_ACCENTS.green}
               />
-              <CommunityStatCard
+              <StatCard
                 label="Total earned"
                 value={dashboard.data.stats.totalEarned}
                 helper="Coins from reviews"
                 accent={COMMUNITY_VERIFY_STAT_ACCENTS.rust}
               />
-              <CommunityStatCard
+              <StatCard
                 label="Coin balance"
                 value={dashboard.data.stats.coinBalance}
                 helper="Available to redeem"

@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react'
-import { Link, useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 
 import {
   useRoadmapJobResult,
@@ -7,7 +7,7 @@ import {
   type RoadmapTopic,
 } from '../hooks/useRoadmapJobResult'
 import { useRunRoadmapEvaluation } from '../hooks/useRunRoadmapEvaluation'
-import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
+import OnboardingBrandLink from '../components/OnboardingBrandLink'
 import type { Section } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
 import { capitalize } from '../utils/onboarding-formatters'
@@ -285,14 +285,7 @@ export default function OnboardingRoadmapReadyPage() {
     return (
       <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
-          <Link to="/" className="inline-flex items-center gap-2.5">
-            <LogoIcon className="h-8 w-8 rounded-lg" />
-            <span className="text-[19px] font-bold tracking-[-0.5px]">
-              immin
-              <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-              <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-            </span>
-          </Link>
+          <OnboardingBrandLink />
 
           
         </header>
@@ -308,14 +301,7 @@ export default function OnboardingRoadmapReadyPage() {
     return (
       <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
-          <Link to="/" className="inline-flex items-center gap-2.5">
-            <LogoIcon className="h-8 w-8 rounded-lg" />
-            <span className="text-[19px] font-bold tracking-[-0.5px]">
-              immin
-              <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-              <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-            </span>
-          </Link>
+          <OnboardingBrandLink />
 
           
         </header>
@@ -330,15 +316,7 @@ export default function OnboardingRoadmapReadyPage() {
   return (
     <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 sm:px-8 md:px-12">
-        <Link to="/" className="inline-flex items-center gap-2.5">
-          <LogoIcon className="h-8 w-8 rounded-lg" />
-
-          <span className="text-[19px] font-bold leading-none tracking-[-0.5px]">
-            immin
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-          </span>
-        </Link>
+        <OnboardingBrandLink />
 
         
       </header>

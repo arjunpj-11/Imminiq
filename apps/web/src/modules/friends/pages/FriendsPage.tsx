@@ -21,7 +21,7 @@ import {
 } from "../constants/friends.constants";
 import { useAcceptFriendRequest } from "../hooks/useAcceptFriendRequest";
 import { useCancelFriendRequest } from "../hooks/useCancelFriendRequest";
-import { useDebouncedValue } from "../hooks/useDebouncedValue";
+import { useDebouncedValue } from '../../../hooks/useDebouncedValue'
 import { useDeclineFriendRequest } from "../hooks/useDeclineFriendRequest";
 import { useFriends } from "../hooks/useFriends";
 import { useReceivedFriendRequests } from "../hooks/useReceivedFriendRequests";

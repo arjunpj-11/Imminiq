@@ -3,7 +3,7 @@ import type {
   AxiosError,
   InternalAxiosRequestConfig,
 } from 'axios'
-import { useAuthStore } from '../modules/auth/store/useAuthStore'
+import { useAuthStore } from '../store/useAuthStore'
 import { saveBlockedAppealIdentifier } from './blockedAppealSession'
 
 interface RefreshTokenResponse {
