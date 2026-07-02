@@ -60,8 +60,13 @@ export type {
   EnsureUserProgressInitializedInput,
   GetUserSubtopicsProgressInput,
   GetUserTopicsProgressInput,
+  ParentSubtopicCompletionResult,
   RecomputeTrackerProgressInput,
+  TopicCompletionResult,
+  TrackerProgressUpdateResult,
   UnlockNextSubtopicInput,
+  UnlockNextSubtopicResult,
+  UpdateSubtopicProgressResult,
 } from './tracker-progress.repository.interface'
 
 export type {

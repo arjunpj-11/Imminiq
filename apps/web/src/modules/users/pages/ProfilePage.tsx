@@ -1,7 +1,6 @@
 import {
   useEffect,
   useMemo,
-  useRef,
   useState,
   type Dispatch,
   type SetStateAction,
@@ -18,21 +17,15 @@ import HeapTile from '../../../components/layout/HeapTile'
 import { useProfile } from '../hooks/useProfile'
 import { useUpdateProfile } from '../hooks/useUpdateProfile'
 import { useProfileStats } from '../hooks/useProfileStats'
-import { useProfileBadges } from '../hooks/useProfileBadges'
 import { usePublishedTrackers } from '../hooks/usePublishedTrackers'
 import { useUploadAvatar } from '../hooks/useUploadAvatar'
 import { useUploadBanner } from '../hooks/useUploadBanner'
 import { useStreak } from '../../../hooks/progress/useStreak'
-import { useRecentActivity } from '../../../hooks/activity/useRecentActivity'
 import { usePublicProfile } from '../hooks/public/usePublicProfile'
 import { useSendFriendRequest } from '../../../hooks/friends/useSendFriendRequest'
 import { useAuthStore } from '../../auth/store/useAuthStore'
 import { useProfileStore } from '../store/useProfileStore'
-import type {
-  ActivityFeedItem,
-  ProfileBadge,
-  PublishedTracker,
-} from '../types/profile.types'
+import type { PublishedTracker } from '../types/profile.types'
 
 import AvatarCropModal from '../components/AvatarCropModal'
 import BannerModal from '../components/BannerModal'
@@ -40,24 +33,10 @@ import EditProfilePanel from '../components/EditProfilePanel'
 import ProfileToast from '../components/ProfileToast'
 import StatCard from '../components/StatCard'
 import TrackerCard from '../components/TrackerCard'
-import {
-  badgeColorByType,
-  badgeEmojiByType,
-  badgeTierByType,
-  badgeToneClasses,
-} from '../constants/profile-badges.constants'
-import {
-  dotClasses,
-  iconBoxClasses,
-  trackerThumbClasses,
-} from '../constants/profile-style.constants'
+import { trackerThumbClasses } from '../constants/profile-style.constants'
 import { useProfileToast } from '../hooks/useProfileToast'
 import { useSubmitRateLimit } from '../hooks/useSubmitRateLimit'
-import type {
-  ActivityVisualViewModel,
-  ProfileBadgeViewModel,
-  ProfileData,
-} from '../types/profile.types'
+import type { ProfileData } from '../types/profile.types'
 import {
   dataUrlToFile,
   formatLocation,
@@ -68,7 +47,6 @@ import { fallbackCopyText } from '../utils/profile-clipboard'
 import {
   formatCompactNumber,
   formatProfileLevel,
-  formatRelativeTime,
 } from '../utils/profile-formatters'
 import { cn } from '../utils/profile-ui.utils'
 
@@ -250,57 +228,36 @@ function ProfilePageSkeleton({
                   ))}
                 </div>
 
-                <div className="grid grid-cols-[1fr_320px] gap-4 max-[860px]:grid-cols-1">
-                  <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
-                    <SkeletonBlock className="h-7 w-44 rounded-2xl" />
-                    <div className="mt-5 space-y-3">
-                      <SkeletonBlock className="h-4 w-full" />
-                      <SkeletonBlock className="h-4 w-11/12" />
-                      <SkeletonBlock className="h-4 w-3/4" />
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {Array.from({ length: 6 }).map((_, index) => (
-                        <SkeletonBlock
-                          key={index}
-                          className="h-8 w-24 rounded-lg"
-                        />
-                      ))}
-                    </div>
-
-                    <div className="mt-6 space-y-2">
-                      <SkeletonBlock className="h-3 w-24" />
-                      <SkeletonBlock className="h-4 w-56" />
-                      <SkeletonBlock className="h-4 w-48" />
-                    </div>
-
-                    <div className="mt-6 flex flex-wrap gap-2">
-                      {Array.from({ length: 3 }).map((_, index) => (
-                        <SkeletonBlock
-                          key={index}
-                          className="h-8 w-24 rounded-lg"
-                        />
-                      ))}
-                    </div>
+                <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+                  <SkeletonBlock className="h-7 w-44 rounded-2xl" />
+                  <div className="mt-5 space-y-3">
+                    <SkeletonBlock className="h-4 w-full" />
+                    <SkeletonBlock className="h-4 w-11/12" />
+                    <SkeletonBlock className="h-4 w-3/4" />
                   </div>
 
-                  <div className="rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5.5 shadow-[0_14px_42px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19]">
-                    <div className="mb-4 flex items-center justify-between gap-3">
-                      <div>
-                        <SkeletonBlock className="h-6 w-24 rounded-2xl" />
-                        <SkeletonBlock className="mt-2 h-3 w-36" />
-                      </div>
-                      <SkeletonBlock className="h-14 w-20 rounded-[13px]" />
-                    </div>
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {Array.from({ length: 6 }).map((_, index) => (
+                      <SkeletonBlock
+                        key={index}
+                        className="h-8 w-24 rounded-lg"
+                      />
+                    ))}
+                  </div>
 
-                    <div className="grid grid-cols-3 gap-2.5 max-[420px]:grid-cols-2">
-                      {Array.from({ length: 6 }).map((_, index) => (
-                        <div
-                          key={index}
-                          className="aspect-square min-h-22 animate-pulse rounded-[18px] bg-[#e8d8cf] dark:bg-white/10"
-                        />
-                      ))}
-                    </div>
+                  <div className="mt-6 space-y-2">
+                    <SkeletonBlock className="h-3 w-24" />
+                    <SkeletonBlock className="h-4 w-56" />
+                    <SkeletonBlock className="h-4 w-48" />
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {Array.from({ length: 3 }).map((_, index) => (
+                      <SkeletonBlock
+                        key={index}
+                        className="h-8 w-24 rounded-lg"
+                      />
+                    ))}
                   </div>
                 </div>
 
@@ -312,7 +269,6 @@ function ProfilePageSkeleton({
                 <div>
                   <div className="mb-3.5 flex items-center justify-between">
                     <SkeletonBlock className="h-7 w-52 rounded-2xl" />
-                    <SkeletonBlock className="h-4 w-20" />
                   </div>
 
                   <div className="grid grid-cols-3 gap-3.5 max-[860px]:grid-cols-2 max-[640px]:grid-cols-1">
@@ -325,31 +281,6 @@ function ProfilePageSkeleton({
                         <SkeletonBlock className="mt-4 h-5 w-3/4 rounded-xl" />
                         <SkeletonBlock className="mt-3 h-4 w-full" />
                         <SkeletonBlock className="mt-2 h-4 w-2/3" />
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-0">
-                  <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/9" />
-                  <span className="whitespace-nowrap rounded-full border border-[#e0d0c5] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-45 dark:border-white/9 dark:text-[#9b9a92]">
-                    Recent activity
-                  </span>
-                  <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/9" />
-                </div>
-
-                <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]">
-                  <SkeletonBlock className="h-6 w-44 rounded-2xl" />
-
-                  <div className="mt-5 space-y-4">
-                    {Array.from({ length: 5 }).map((_, index) => (
-                      <div key={index} className="flex items-center gap-3.5">
-                        <SkeletonBlock className="h-3 w-3 shrink-0" />
-                        <div className="flex-1">
-                          <SkeletonBlock className="h-4 w-full" />
-                          <SkeletonBlock className="mt-2 h-3 w-32" />
-                        </div>
-                        <SkeletonBlock className="h-8 w-8 rounded-[9px]" />
                       </div>
                     ))}
                   </div>
@@ -403,11 +334,6 @@ export default function ProfilePage() {
     (state) => state.closeAvatarCropModal,
   )
 
-  const selectedBadgeId = useProfileStore((state) => state.selectedBadgeId)
-  const setSelectedBadgeId = useProfileStore(
-    (state) => state.setSelectedBadgeId,
-  )
-
   const selectedHeatmapYear = useProfileStore(
     (state) => state.selectedHeatmapYear,
   )
@@ -425,17 +351,13 @@ export default function ProfilePage() {
 
   const submitRateLimit = useSubmitRateLimit(1800)
 
-  const badgesCardRef = useRef<HTMLDivElement>(null)
-
   const profileQuery = useProfile({ enabled: isOwnView })
   const statsQuery = useProfileStats({ enabled: isOwnView })
-  const badgesQuery = useProfileBadges(1, 12, { enabled: isOwnView })
   const trackersQuery = usePublishedTrackers(
     { page: 1, limit: 3 },
     { enabled: isOwnView },
   )
   const streakQuery = useStreak(selectedHeatmapYear, { enabled: isOwnView })
-  const activityQuery = useRecentActivity(5, { enabled: isOwnView })
 
   const publicProfileQuery = usePublicProfile(
     username ?? '',
@@ -504,14 +426,6 @@ export default function ProfilePage() {
     ? publicProfileQuery.data?.publishedTrackers
     : trackersQuery.data
 
-  const activeActivityItems = isPublicView
-    ? (publicProfileQuery.data?.recentActivity ?? [])
-    : (activityQuery.data?.items ?? [])
-
-  const activeBadgeItems = isPublicView
-    ? (publicProfileQuery.data?.badges?.items ?? [])
-    : (badgesQuery.data?.items ?? [])
-
   const updateProfileMutation = useUpdateProfile()
   const uploadAvatarMutation = useUploadAvatar()
   const uploadBannerMutation = useUploadBanner()
@@ -568,26 +482,6 @@ export default function ProfilePage() {
     closeEditPanel,
     editOpen,
   ])
-
-  useEffect(() => {
-    if (!selectedBadgeId) return
-
-    const handleOutsideBadgePopup = (event: MouseEvent | TouchEvent) => {
-      const target = event.target as Node
-
-      if (badgesCardRef.current && !badgesCardRef.current.contains(target)) {
-        setSelectedBadgeId(null)
-      }
-    }
-
-    document.addEventListener('mousedown', handleOutsideBadgePopup)
-    document.addEventListener('touchstart', handleOutsideBadgePopup)
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideBadgePopup)
-      document.removeEventListener('touchstart', handleOutsideBadgePopup)
-    }
-  }, [selectedBadgeId, setSelectedBadgeId])
 
   useEffect(() => {
     localStorage.setItem('imminiq_sb', sidebarCollapsed ? 'closed' : 'open')
@@ -697,114 +591,6 @@ export default function ProfilePage() {
       clones: formatCompactNumber(tracker.cloneCount),
       thumbClass: trackerThumbClasses[index % trackerThumbClasses.length],
       slug: tracker.slug,
-    }),
-  )
-
-  const activityVisual = (item: ActivityFeedItem): ActivityVisualViewModel => {
-    if (item.module.includes('tracker')) {
-      return {
-        dot: 'rust',
-        iconColor: 'rust',
-        icon: (
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z" />
-            <polyline points="14 2 14 8 20 8" />
-          </svg>
-        ),
-      }
-    }
-
-    if (item.module.includes('streak') || item.action.includes('streak')) {
-      return {
-        dot: 'amber',
-        iconColor: 'amber',
-        icon: (
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="currentColor"
-            stroke="none"
-          >
-            <path d="M13.5.67s.74 2.65.74 4.8c0 2.06-1.35 3.73-3.41 3.73-2.07 0-3.63-1.67-3.63-3.73l.03-.36C5.21 7.51 4 10.62 4 14c0 4.42 3.58 8 8 8s8-3.58 8-8C20 8.61 17.41 3.8 13.5.67z" />
-          </svg>
-        ),
-      }
-    }
-
-    if (item.module.includes('social') || item.module.includes('friend')) {
-      return {
-        dot: 'blue',
-        iconColor: 'blue',
-        icon: (
-          <svg
-            width="14"
-            height="14"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2"
-          >
-            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
-            <circle cx="9" cy="7" r="4" />
-            <path d="M23 21v-2a4 4 0 00-3-3.87" />
-            <path d="M16 3.13a4 4 0 010 7.75" />
-          </svg>
-        ),
-      }
-    }
-
-    return {
-      dot: 'green',
-      iconColor: 'green',
-      icon: (
-        <svg
-          width="14"
-          height="14"
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2"
-        >
-          <polyline points="9 11 12 14 22 4" />
-          <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
-        </svg>
-      ),
-    }
-  }
-
-  const activityFeed: Array<
-    ActivityVisualViewModel & {
-      text: string
-      time: string
-    }
-  > = activeActivityItems.map((item: ActivityFeedItem) => {
-    const visual = activityVisual(item)
-
-    return {
-      ...visual,
-      text: item.description,
-      time: formatRelativeTime(item.createdAt),
-    }
-  })
-
-  const badges: ProfileBadgeViewModel[] = activeBadgeItems.map(
-    (badge: ProfileBadge): ProfileBadgeViewModel => ({
-      id: badge._id,
-      emoji: badgeEmojiByType[badge.badgeType] ?? '🏅',
-      name: badge.name,
-      desc: badge.description,
-      color: badgeColorByType[badge.badgeType] ?? 'blue',
-      earned: true,
-      tier: badgeTierByType[badge.badgeType] ?? 'Badge',
-      iconUrl: badge.iconUrl,
     }),
   )
 
@@ -1098,9 +884,26 @@ export default function ProfilePage() {
                     </div>
 
                     <div className="pt-2 max-[640px]:pt-0 min-w-0 flex-1">
-                      <h1 className="font-['Playfair_Display',serif] text-[clamp(22px,3.5vw,32px)] font-extrabold tracking-[-0.6px] text-[#1a1714] dark:text-[#f2f0eb] leading-[1.15] wrap-break-word">
-                        {profile.name}
-                      </h1>
+                      <div className="flex flex-wrap items-center gap-2.5">
+                        <h1 className="font-['Playfair_Display',serif] text-[clamp(22px,3.5vw,32px)] font-extrabold tracking-[-0.6px] text-[#1a1714] dark:text-[#f2f0eb] leading-[1.15] wrap-break-word">
+                          {profile.name}
+                        </h1>
+
+                        <span className="inline-flex items-center gap-1.25 rounded-full border border-[rgba(59,108,183,0.22)] bg-[rgba(59,108,183,0.09)] px-2.5 py-1 font-['DM_Mono',monospace] text-[10px] font-semibold tracking-[0.06em] text-[#3b6cb7] shadow-[inset_0_1px_0_rgba(255,255,255,0.5)] dark:border-[rgba(107,159,232,0.26)] dark:bg-[rgba(107,159,232,0.12)] dark:text-[#6b9fe8]">
+                          <svg
+                            width="11"
+                            height="11"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2.5"
+                          >
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                            <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                          </svg>
+                          {profileLevelLabel}
+                        </span>
+                      </div>
 
                       {profile.username && (
                         <div className="mt-1 font-['DM_Mono',monospace] text-[11px] tracking-[0.08em] text-[#b84c2b] dark:text-[#e8816a] wrap-break-word">
@@ -1317,7 +1120,7 @@ export default function ProfilePage() {
 
               <div className="flex flex-col gap-6 py-6 max-[640px]:py-5 max-[900px]:pb-[calc(80px+env(safe-area-inset-bottom,0))]">
                 <div className="grid grid-cols-4 max-[860px]:grid-cols-2 max-[420px]:grid-cols-1 gap-2.5 animate-[fadeUp_0.38s_ease_0.1s_both]">
-                  <StatCard accent="rust" label="Current Streak">
+                  <StatCard accent="rust" label="">
                     <div className="font-['Playfair_Display',serif] text-[clamp(28px,4vw,36px)] font-extrabold text-[#b84c2b] dark:text-[#e8816a] tracking-[-2px] leading-none">
                       {activeStreak?.currentStreak ??
                         activeStats?.streakCount ??
@@ -1344,7 +1147,7 @@ export default function ProfilePage() {
                     </div>
                   </StatCard>
 
-                  <StatCard accent="green" label="Student Level">
+                  <StatCard accent="green" label="">
                     <div className="flex items-baseline gap-2">
                       <div className="font-['Playfair_Display',serif] text-[clamp(28px,4vw,36px)] font-extrabold text-[#4caf7d] dark:text-[#5cc98a] tracking-[-2px] leading-none">
                         {activeStats?.studentLevel ?? 0}
@@ -1363,7 +1166,7 @@ export default function ProfilePage() {
                     </div>
                   </StatCard>
 
-                  <StatCard accent="amber" label="Coins Balance">
+                  <StatCard accent="amber" label="">
                     <div className="flex items-baseline gap-2">
                       <div className="font-['Playfair_Display',serif] text-[clamp(28px,4vw,36px)] font-extrabold text-[#c98000] dark:text-[#f0a842] tracking-[-2px] leading-none">
                         {formatCompactNumber(activeStats?.coins ?? 0)}
@@ -1377,7 +1180,7 @@ export default function ProfilePage() {
                     </div>
                   </StatCard>
 
-                  <StatCard accent="blue" label="Impact">
+                  <StatCard accent="blue" label="">
                     <div className="grid grid-cols-2 gap-2 mt-1">
                       {[
                         {
@@ -1423,314 +1226,129 @@ export default function ProfilePage() {
                   </StatCard>
                 </div>
 
-                <div className="grid grid-cols-[1fr_320px] max-[860px]:grid-cols-1 gap-4 animate-[fadeUp_0.38s_ease_0.18s_both]">
-                  <div className="bg-[#fdf8f5] dark:bg-[#1e1c19] border-[1.5px] border-[#e0d0c5] dark:border-white/9 rounded-[18px] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)]">
-                    <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb] tracking-[-0.4px] mb-3">
-                      About {profile.name.split(' ')[0]}
-                    </h2>
-                    <p className="text-[13.5px] text-[#6b5f58] dark:text-[#9b9a92] leading-[1.65] mb-5">
-                      {profile.bio}
-                    </p>
-                    <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.16em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-50 mb-2">
-                      Skills
-                    </div>
-                    <div className="flex gap-1.5 flex-wrap mb-5">
-                      {profile.skills.map((s) => (
-                        <span
-                          key={s}
-                          className="px-3 py-1.25 rounded-[7px] bg-[rgba(26,23,20,0.09)] dark:bg-[rgba(242,240,235,0.09)] text-[12px] font-medium text-[#1a1714] dark:text-[#f2f0eb] border border-[#e0d0c5] dark:border-white/9"
-                        >
-                          {s}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.16em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-50 mb-2">
-                      Intentions
-                    </div>
-                    <div className="flex flex-col gap-1.75 mb-5">
-                      {['Open to Collaboration', 'Mentoring Beginners'].map(
-                        (intention) => (
-                          <div
-                            key={intention}
-                            className="flex items-center gap-2 text-[13px] text-[#6b5f58] dark:text-[#9b9a92]"
-                          >
-                            <svg
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="#4caf7d"
-                              strokeWidth="2.5"
-                            >
-                              <polyline points="20 6 9 17 4 12" />
-                            </svg>
-                            {intention}
-                          </div>
-                        ),
-                      )}
-                    </div>
-                    <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.16em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-50 mb-2">
-                      Links
-                    </div>
-                    <div className="flex gap-2 flex-wrap">
-                      {[
-                        {
-                          label: 'GitHub',
-                          url: profile.githubUrl,
-                          icon: (
-                            <svg
-                              width="13"
-                              height="13"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
-                            </svg>
-                          ),
-                        },
-                        {
-                          label: 'LinkedIn',
-                          url: profile.linkedinUrl,
-                          icon: (
-                            <svg
-                              width="13"
-                              height="13"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" />
-                              <rect x="2" y="9" width="4" height="12" />
-                              <circle cx="4" cy="4" r="2" />
-                            </svg>
-                          ),
-                        },
-                        {
-                          label: 'Portfolio',
-                          url: profile.portfolioUrl,
-                          icon: (
-                            <svg
-                              width="13"
-                              height="13"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                            >
-                              <circle cx="12" cy="12" r="10" />
-                              <line x1="2" y1="12" x2="22" y2="12" />
-                              <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
-                            </svg>
-                          ),
-                        },
-                      ].map((link) => (
-                        <a
-                          key={link.label}
-                          href={link.url || '#'}
-                          target={link.url ? '_blank' : undefined}
-                          rel={link.url ? 'noreferrer' : undefined}
-                          onClick={(event) => {
-                            if (link.url) return
-
-                            event.preventDefault()
-                            showToast(`${link.label} link has not been added yet.`)
-                          }}
-                          className={cn(
-                            'inline-flex items-center gap-1.5 px-3.5 py-1.75 rounded-lg border-[1.5px] border-[#e0d0c5] dark:border-white/9 text-[12px] font-medium text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] hover:bg-[rgba(184,76,43,0.08)] transition',
-                            !link.url && 'opacity-55',
-                          )}
-                        >
-                          {link.icon}
-                          {link.label}
-                        </a>
-                      ))}
-                    </div>
+                <div className="bg-[#fdf8f5] dark:bg-[#1e1c19] border-[1.5px] border-[#e0d0c5] dark:border-white/9 rounded-[18px] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] animate-[fadeUp_0.38s_ease_0.18s_both]">
+                  <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb] tracking-[-0.4px] mb-3">
+                    About {profile.name.split(' ')[0]}
+                  </h2>
+                  <p className="text-[13.5px] text-[#6b5f58] dark:text-[#9b9a92] leading-[1.65] mb-5">
+                    {profile.bio}
+                  </p>
+                  <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.16em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-50 mb-2">
+                    Skills
                   </div>
+                  <div className="flex gap-1.5 flex-wrap mb-5">
+                    {profile.skills.map((s) => (
+                      <span
+                        key={s}
+                        className="px-3 py-1.25 rounded-[7px] bg-[rgba(26,23,20,0.09)] dark:bg-[rgba(242,240,235,0.09)] text-[12px] font-medium text-[#1a1714] dark:text-[#f2f0eb] border border-[#e0d0c5] dark:border-white/9"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                  <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.16em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-50 mb-2">
+                    Intentions
+                  </div>
+                  <div className="flex flex-col gap-1.75 mb-5">
+                    {['Open to Collaboration', 'Mentoring Beginners'].map(
+                      (intention) => (
+                        <div
+                          key={intention}
+                          className="flex items-center gap-2 text-[13px] text-[#6b5f58] dark:text-[#9b9a92]"
+                        >
+                          <svg
+                            width="14"
+                            height="14"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="#4caf7d"
+                            strokeWidth="2.5"
+                          >
+                            <polyline points="20 6 9 17 4 12" />
+                          </svg>
+                          {intention}
+                        </div>
+                      ),
+                    )}
+                  </div>
+                  <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.16em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-50 mb-2">
+                    Links
+                  </div>
+                  <div className="flex gap-2 flex-wrap">
+                    {[
+                      {
+                        label: 'GitHub',
+                        url: profile.githubUrl,
+                        icon: (
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 00-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0020 4.77 5.07 5.07 0 0019.91 1S18.73.65 16 2.48a13.38 13.38 0 00-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 005 4.77a5.44 5.44 0 00-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 009 18.13V22" />
+                          </svg>
+                        ),
+                      },
+                      {
+                        label: 'LinkedIn',
+                        url: profile.linkedinUrl,
+                        icon: (
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <path d="M16 8a6 6 0 016 6v7h-4v-7a2 2 0 00-2-2 2 2 0 00-2 2v7h-4v-7a6 6 0 016-6z" />
+                            <rect x="2" y="9" width="4" height="12" />
+                            <circle cx="4" cy="4" r="2" />
+                          </svg>
+                        ),
+                      },
+                      {
+                        label: 'Portfolio',
+                        url: profile.portfolioUrl,
+                        icon: (
+                          <svg
+                            width="13"
+                            height="13"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                          >
+                            <circle cx="12" cy="12" r="10" />
+                            <line x1="2" y1="12" x2="22" y2="12" />
+                            <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
+                          </svg>
+                        ),
+                      },
+                    ].map((link) => (
+                      <a
+                        key={link.label}
+                        href={link.url || '#'}
+                        target={link.url ? '_blank' : undefined}
+                        rel={link.url ? 'noreferrer' : undefined}
+                        onClick={(event) => {
+                          if (link.url) return
 
-                  <div
-                    ref={badgesCardRef}
-                    className="relative min-w-0 overflow-visible rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5.5 shadow-[0_14px_42px_rgba(26,23,20,0.10),0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] dark:shadow-[0_18px_52px_rgba(0,0,0,0.36)]"
-                  >
-                    <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-[20px]">
-                      <div className="absolute -right-10 -top-12 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.16),transparent_68%)] blur-2xl dark:bg-[radial-gradient(circle,rgba(232,129,106,0.20),transparent_68%)]" />
-                      <div className="absolute -bottom-16 -left-10 h-40 w-40 rounded-full bg-[radial-gradient(circle,rgba(59,108,183,0.13),transparent_68%)] blur-2xl dark:bg-[radial-gradient(circle,rgba(107,159,232,0.18),transparent_68%)]" />
-                      <div className="absolute inset-0 rounded-[20px] bg-[linear-gradient(135deg,rgba(255,255,255,0.48),transparent_40%,rgba(184,76,43,0.03))] dark:bg-[linear-gradient(135deg,rgba(255,255,255,0.04),transparent_40%,rgba(232,129,106,0.04))]" />
-                    </div>
-
-                    <div className="relative z-1 mb-4 flex items-center justify-between gap-3">
-                      <div>
-                        <span className="block font-['Playfair_Display',serif] text-[19px] font-extrabold tracking-[-0.35px] text-[#1a1714] dark:text-[#f2f0eb]">
-                          Badges
-                        </span>
-                        <span className="mt-1 block font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92]">
-                          Tap a badge for details
-                        </span>
-                      </div>
-                      <div className="flex min-w-19.5 flex-col items-end rounded-[13px] border border-[#e0d0c5] bg-white/72 px-3 py-2 text-right dark:border-white/9 dark:bg-white/4">
-                        <span className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]">
-                          Earned
-                        </span>
-                        <span className="font-['Playfair_Display',serif] text-[19px] font-extrabold leading-none text-[#b84c2b] dark:text-[#e8816a]">
-                          {badges.length}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="relative z-1 grid grid-cols-3 gap-2.5 max-[420px]:grid-cols-2">
-                      {badges.map((badge, i) => {
-                        const tone = badgeToneClasses[badge.color]
-                        const selected = selectedBadgeId === badge.id
-                        const popupPlacement =
-                          i >= 3
-                            ? 'bottom-[calc(100%+11px)]'
-                            : 'top-[calc(100%+11px)]'
-
-                        return (
-                          <div key={badge.id} className="relative">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setSelectedBadgeId(selected ? null : badge.id)
-                              }
-                              className={cn(
-                                'group relative flex aspect-square min-h-22 w-full items-center justify-center overflow-hidden rounded-[18px] border transition-all duration-300 focus-visible:outline-none focus-visible:ring-[3px] focus-visible:ring-[rgba(184,76,43,0.18)] dark:focus-visible:ring-[rgba(232,129,106,0.22)]',
-                                tone.tile,
-                                badge.earned
-                                  ? 'hover:-translate-y-0.75 hover:shadow-[0_14px_30px_rgba(26,23,20,0.14)] dark:hover:shadow-[0_18px_34px_rgba(0,0,0,0.40)]'
-                                  : 'grayscale opacity-65 hover:opacity-85',
-                                selected &&
-                                  '-translate-y-0.5 ring-[3px] ring-[rgba(184,76,43,0.20)] dark:ring-[rgba(232,129,106,0.26)]',
-                                'animate-[badgePop_0.4s_cubic-bezier(0.34,1.2,0.64,1)_both]',
-                              )}
-                              style={{ animationDelay: `${0.05 + i * 0.05}s` }}
-                              aria-pressed={selected}
-                              aria-label={`${badge.name} badge`}
-                              title={badge.name}
-                            >
-                              <div
-                                className={cn(
-                                  'pointer-events-none absolute -right-5 -top-5 h-24 w-24 rounded-full blur-xl transition-opacity duration-300 group-hover:opacity-100',
-                                  tone.aura,
-                                  badge.earned ? 'opacity-70' : 'opacity-30',
-                                )}
-                              />
-                              <div className="pointer-events-none absolute inset-x-3 top-0 h-px bg-linear-to-r from-transparent via-white/75 to-transparent opacity-70 dark:via-white/20" />
-                              <div
-                                className={cn(
-                                  'relative z-1 flex h-14.5 w-14.5 items-center justify-center rounded-full border text-[28px] shadow-[inset_0_1px_0_rgba(255,255,255,0.60),0_10px_24px_rgba(26,23,20,0.12)] dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.08),0_12px_26px_rgba(0,0,0,0.30)]',
-                                  tone.icon,
-                                )}
-                              >
-                                {badge.iconUrl ? (
-                                  <img
-                                    src={badge.iconUrl}
-                                    alt=""
-                                    className="h-7 w-7 object-contain"
-                                  />
-                                ) : (
-                                  badge.emoji
-                                )}
-                              </div>
-                              {badge.earned ? (
-                                <span
-                                  className={cn(
-                                    'absolute bottom-3 right-3 z-2 h-2.25 w-2.25 rounded-full',
-                                    tone.dot,
-                                  )}
-                                />
-                              ) : (
-                                <span className="absolute bottom-2.5 right-2.5 z-2 flex h-5.5 w-5.5 items-center justify-center rounded-full border border-[#e0d0c5] bg-white/80 text-[#6b5f58] dark:border-white/9 dark:bg-white/5 dark:text-[#9b9a92]">
-                                  <svg
-                                    width="11"
-                                    height="11"
-                                    viewBox="0 0 24 24"
-                                    fill="none"
-                                    stroke="currentColor"
-                                    strokeWidth="2.2"
-                                  >
-                                    <rect
-                                      x="3"
-                                      y="11"
-                                      width="18"
-                                      height="11"
-                                      rx="2"
-                                    />
-                                    <path d="M7 11V7a5 5 0 0110 0v4" />
-                                  </svg>
-                                </span>
-                              )}
-                            </button>
-
-                            {selected && (
-                              <div
-                                role="dialog"
-                                aria-label={`${badge.name} details`}
-                                className={cn(
-                                  'absolute left-1/2 z-35 w-55 -translate-x-1/2 rounded-2xl border border-[#e0d0c5] bg-[#fffaf5]/98 p-3.5 shadow-[0_22px_60px_rgba(26,23,20,0.20)] backdrop-blur-xl animate-[fadeUp_0.22s_ease_both] dark:border-white/12 dark:bg-[#23201d]/98 dark:shadow-[0_26px_70px_rgba(0,0,0,0.52)] max-[420px]:w-49.5',
-                                  popupPlacement,
-                                )}
-                              >
-                                <div className="flex items-start justify-between gap-2.5">
-                                  <div className="flex min-w-0 items-center gap-2.5">
-                                    <div
-                                      className={cn(
-                                        'flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border text-[20px]',
-                                        tone.icon,
-                                      )}
-                                    >
-                                      {badge.iconUrl ? (
-                                        <img
-                                          src={badge.iconUrl}
-                                          alt=""
-                                          className="h-7 w-7 object-contain"
-                                        />
-                                      ) : (
-                                        badge.emoji
-                                      )}
-                                    </div>
-                                    <div className="min-w-0">
-                                      <div className="truncate font-['Playfair_Display',serif] text-[14.5px] font-extrabold tracking-[-0.2px] text-[#1a1714] dark:text-[#f2f0eb]">
-                                        {badge.name}
-                                      </div>
-                                      <div className="mt-0.5 font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.13em] text-[#6b5f58] opacity-65 dark:text-[#9b9a92]">
-                                        {badge.earned ? 'Unlocked' : 'Locked'}
-                                      </div>
-                                    </div>
-                                  </div>
-
-                                  <button
-                                    type="button"
-                                    onClick={() => setSelectedBadgeId(null)}
-                                    aria-label="Close badge details"
-                                    className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full border border-[#e0d0c5] bg-white/80 text-[13px] leading-none text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/10 dark:bg-white/5 dark:text-[#9b9a92]"
-                                  >
-                                    ×
-                                  </button>
-                                </div>
-
-                                <div className="mt-2.5 flex items-center justify-between gap-2">
-                                  <span
-                                    className={cn(
-                                      'inline-flex rounded-full border px-2 py-1 font-["DM_Mono",monospace] text-[7px] font-medium uppercase tracking-[0.12em]',
-                                      tone.chip,
-                                    )}
-                                  >
-                                    {badge.tier}
-                                  </span>
-                                </div>
-
-                                <p className="mt-2.5 text-[11.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
-                                  {badge.desc}
-                                </p>
-                              </div>
-                            )}
-                          </div>
-                        )
-                      })}
-                    </div>
+                          event.preventDefault()
+                          showToast(`${link.label} link has not been added yet.`)
+                        }}
+                        className={cn(
+                          'inline-flex items-center gap-1.5 px-3.5 py-1.75 rounded-lg border-[1.5px] border-[#e0d0c5] dark:border-white/9 text-[12px] font-medium text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] hover:bg-[rgba(184,76,43,0.08)] transition',
+                          !link.url && 'opacity-55',
+                        )}
+                      >
+                        {link.icon}
+                        {link.label}
+                      </a>
+                    ))}
                   </div>
                 </div>
 
@@ -1759,13 +1377,6 @@ export default function ProfilePage() {
                     <h2 className="font-['Playfair_Display',serif] text-[clamp(20px,3vw,24px)] font-extrabold text-[#1a1714] dark:text-[#f2f0eb] tracking-[-0.4px]">
                       Published Trackers
                     </h2>
-                    <button
-                      type="button"
-                      onClick={() => navigate('/community')}
-                      className="font-['DM_Mono',monospace] text-[10px] tracking-widest uppercase text-[#b84c2b] dark:text-[#e8816a] hover:opacity-70 transition"
-                    >
-                      View All →
-                    </button>
                   </div>
                   <div className="grid grid-cols-3 max-[860px]:grid-cols-2 max-[640px]:grid-cols-1 gap-3.5 animate-[fadeUp_0.38s_ease_0.36s_both]">
                     {trackers.map((t) => (
@@ -1776,60 +1387,6 @@ export default function ProfilePage() {
                         onClick={() => showToast(`Opening ${t.title}…`)}
                       />
                     ))}
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-0 animate-[fadeUp_0.38s_ease_0.4s_both]">
-                  <div className="flex-1 h-px bg-[#e0d0c5] dark:bg-white/9" />
-                  <span className="font-['DM_Mono',monospace] text-[8px] tracking-[0.18em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-45 px-3 py-1 border border-[#e0d0c5] dark:border-white/9 rounded-full whitespace-nowrap">
-                    Recent activity
-                  </span>
-                  <div className="flex-1 h-px bg-[#e0d0c5] dark:bg-white/9" />
-                </div>
-
-                <div className="bg-[#fdf8f5] dark:bg-[#1e1c19] border-[1.5px] border-[#e0d0c5] dark:border-white/9 rounded-[18px] overflow-hidden shadow-[0_2px_16px_rgba(26,23,20,0.06)] animate-[fadeUp_0.38s_ease_0.44s_both]">
-                  <div className="p-5 max-[640px]:p-4.5">
-                    <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb] tracking-[-0.3px] mb-4.5">
-                      Recent Activity
-                    </h2>
-                    <div className="flex flex-col">
-                      {activityFeed.map((item, i) => (
-                        <div
-                          key={i}
-                          className={cn(
-                            'flex items-start gap-3.5 py-3.5',
-                            i < activityFeed.length - 1
-                              ? 'border-b border-[#e0d0c5] dark:border-white/9'
-                              : '',
-                          )}
-                        >
-                          <div className="flex flex-col items-center shrink-0">
-                            <div
-                              className={cn(
-                                'w-2.5 h-2.5 rounded-full mt-1 shrink-0',
-                                dotClasses[item.dot],
-                              )}
-                            />
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <div className="text-[13.5px] font-medium text-[#1a1714] dark:text-[#f2f0eb] leading-[1.4]">
-                              {item.text}
-                            </div>
-                            <div className="font-['DM_Mono',monospace] text-[8.5px] tracking-[0.08em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-50 mt-0.75">
-                              {item.time}
-                            </div>
-                          </div>
-                          <div
-                            className={cn(
-                              'w-8 h-8 rounded-[9px] border flex items-center justify-center shrink-0',
-                              iconBoxClasses[item.iconColor],
-                            )}
-                          >
-                            {item.icon}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
                   </div>
                 </div>
               </div>

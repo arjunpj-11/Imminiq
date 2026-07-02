@@ -298,15 +298,14 @@ export default function ActivityHeatmap({
         </span>
       </div>
 
-      {isFetching && (
-        <div
-          className="mt-3 text-[12px] font-medium text-[#6b5f58] dark:text-[#9b9a92]"
-          role="status"
-          aria-live="polite"
-        >
-          Updating learning activity…
-        </div>
-      )}
+      <div
+        className="mt-3 min-h-4.5 text-[12px] font-medium text-[#6b5f58] opacity-0 transition-opacity duration-200 data-[visible=true]:opacity-100 dark:text-[#9b9a92]"
+        data-visible={isFetching}
+        role="status"
+        aria-live="polite"
+      >
+        Updating learning activity…
+      </div>
     </section>
   )
 }

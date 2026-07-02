@@ -1,8 +1,10 @@
-// apps/api/src/modules/community/application/use-cases/vote-verification-submission.usecase.ts
-
-import { COMMUNITY_REVIEW_REWARD_COINS } from '../../domain/constants/community.constants'
+import {
+  COMMUNITY_REVIEW_REWARD_COINS,
+  COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
+  COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
+} from '../../domain/constants/community.constants'
 import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityCoinLedgerContract } from '../../domain/services/community-coin-ledger.service.interface'
+import type { CommunityActivityServiceContract } from '../../domain/services/community-activity.service.interface'
 import type {
   VoteVerificationSubmissionPayload,
   VoteVerificationSubmissionView,
@@ -14,18 +16,21 @@ import type { CommunityVerificationPolicyContract } from '../policies/community-
 export class VoteVerificationSubmissionUseCase {
   constructor(
     private readonly _repository: CommunityRepositoryContract,
-    private readonly _coinLedger: CommunityCoinLedgerContract,
-    private readonly _policy: CommunityVerificationPolicyContract,
+    private readonly _policy:
+      CommunityVerificationPolicyContract,
+    private readonly _activityService:
+      CommunityActivityServiceContract,
     private readonly _mapper: CommunityMapperContract,
   ) {}
 
   async execute(
     payload: VoteVerificationSubmissionPayload,
   ): Promise<VoteVerificationSubmissionView> {
-    const submission = await this._repository.findVerificationSubmissionById(
-      payload.submissionId,
-      payload.userId,
-    )
+    const submission =
+      await this._repository.findVerificationSubmissionById(
+        payload.submissionId,
+        payload.userId,
+      )
 
     if (!submission) {
       throw CommunityApplicationError.notFound(
@@ -33,26 +38,59 @@ export class VoteVerificationSubmissionUseCase {
       )
     }
 
-    this._policy.ensureCanVote(submission, payload.userId)
-
-    const existingVote = await this._repository.findVoteBySubmissionAndUser(
-      payload.submissionId,
-      payload.userId,
-    )
-
-    if (existingVote) {
-      throw CommunityApplicationError.conflict(
-        'You have already reviewed this submission',
+    let vote =
+      await this._repository.findVoteBySubmissionAndUser(
+        payload.submissionId,
+        payload.userId,
       )
+
+    if (vote) {
+      /*
+       * Reusing the same vote makes this operation recoverable
+       * when the vote was stored but activity recording failed.
+       */
+      if (vote.choice !== payload.vote) {
+        throw CommunityApplicationError.conflict(
+          'You have already reviewed this submission with a different vote',
+        )
+      }
+    } else {
+      this._policy.ensureCanVote(
+        submission,
+        payload.userId,
+      )
+
+      vote =
+        await this._repository.createVerificationVote({
+          submissionId: payload.submissionId,
+          userId: payload.userId,
+          choice: payload.vote,
+          reason: payload.reason,
+          rewardCoins: 0,
+        })
     }
 
-    const vote = await this._repository.createVerificationVote({
-      submissionId: payload.submissionId,
-      userId: payload.userId,
-      choice: payload.vote,
-      reason: payload.reason,
-      rewardCoins: 0,
-    })
+    /*
+     * The vote ID is the idempotency source. Retrying this use
+     * case cannot award the normal teacher XP twice.
+     */
+    await this._activityService
+      .recordVerificationVoteSubmitted({
+        userId: vote.userId,
+        ownerId: submission.ownerId,
+        trackerId: submission.trackerId,
+        submissionId: submission.id,
+        voteId: vote.id,
+        trackerTitle: submission.title,
+        xpAwarded:
+          COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
+
+        ...(vote.createdAt
+          ? {
+              occurredAt: vote.createdAt,
+            }
+          : {}),
+      })
 
     const updatedSubmission =
       await this._repository.findVerificationSubmissionById(
@@ -60,26 +98,54 @@ export class VoteVerificationSubmissionUseCase {
         payload.userId,
       )
 
-    const rewardResult = await this.awardConsensusRewards({
-      submissionId: payload.submissionId,
-      currentUserId: payload.userId,
-      consensusChoice: updatedSubmission?.consensusChoice ?? null,
-    })
+    if (!updatedSubmission) {
+      throw CommunityApplicationError.notFound(
+        'Verification submission not found after voting',
+      )
+    }
 
-    const voteView = this._mapper.toVoteView(vote)
+    if (
+      updatedSubmission.consensusChoice === 'pass'
+    ) {
+      await this._activityService.recordTrackerVerified({
+        ownerId: updatedSubmission.ownerId,
+        trackerId: updatedSubmission.trackerId,
+        submissionId: updatedSubmission.id,
+        trackerTitle: updatedSubmission.title,
+      })
+    }
+
+    const rewardResult =
+      await this.awardConsensusRewards({
+        submissionId: updatedSubmission.id,
+        currentUserId: payload.userId,
+        consensusChoice:
+          updatedSubmission.consensusChoice ?? null,
+        trackerId: updatedSubmission.trackerId,
+        ownerId: updatedSubmission.ownerId,
+        trackerTitle: updatedSubmission.title,
+      })
+
+    const voteView =
+      this._mapper.toVoteView(vote)
 
     return {
       vote: {
         ...voteView,
-        rewardCoins: rewardResult.currentUserRewardCoins,
+        rewardCoins:
+          rewardResult.currentUserRewardCoins,
       },
-      submission: this._mapper.toVerificationSubmissionView(
-        updatedSubmission ?? submission,
-      ),
+      submission:
+        this._mapper.toVerificationSubmissionView(
+          updatedSubmission,
+        ),
       reward: {
-        awarded: rewardResult.currentUserAwarded,
-        coins: rewardResult.currentUserRewardCoins,
-        balance: rewardResult.currentUserBalance,
+        awarded:
+          rewardResult.currentUserAwarded,
+        coins:
+          rewardResult.currentUserRewardCoins,
+        balance:
+          rewardResult.currentUserBalance,
       },
     }
   }
@@ -88,58 +154,74 @@ export class VoteVerificationSubmissionUseCase {
     submissionId: string
     currentUserId: string
     consensusChoice: 'pass' | 'fail' | null
+    trackerId: string
+    ownerId: string
+    trackerTitle: string
   }): Promise<{
     currentUserAwarded: boolean
     currentUserRewardCoins: number
     currentUserBalance: number
   }> {
-    if (!data.consensusChoice) {
-      return {
-        currentUserAwarded: false,
-        currentUserRewardCoins: 0,
-        currentUserBalance: 0,
+    if (data.consensusChoice) {
+      const rewardableVotes =
+        await this._repository
+          .findUnrewardedMajorityVotes(
+            data.submissionId,
+            data.consensusChoice,
+          )
+
+      for (const rewardableVote of rewardableVotes) {
+        /*
+         * Award through the activity module first.
+         *
+         * If marking the vote fails afterward, retrying is safe:
+         * the activity event key is based on voteId and cannot
+         * add XP or coins twice.
+         */
+        await this._activityService
+          .recordVerificationMajorityWon({
+            userId: rewardableVote.userId,
+            ownerId: data.ownerId,
+            trackerId: data.trackerId,
+            submissionId: data.submissionId,
+            voteId: rewardableVote.id,
+            trackerTitle: data.trackerTitle,
+            xpAwarded:
+              COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
+            coinsAwarded:
+              COMMUNITY_REVIEW_REWARD_COINS,
+          })
+
+        await this._repository
+          .markVerificationVoteRewarded(
+            rewardableVote.id,
+            COMMUNITY_REVIEW_REWARD_COINS,
+          )
       }
     }
 
-    const rewardableVotes =
-      await this._repository.findUnrewardedMajorityVotes(
-        data.submissionId,
-        data.consensusChoice,
+    const [currentUserVote, currentUserBalance] =
+      await Promise.all([
+        this._repository
+          .findVoteBySubmissionAndUser(
+            data.submissionId,
+            data.currentUserId,
+          ),
+
+        this._repository.getUserCoinBalance(
+          data.currentUserId,
+        ),
+      ])
+
+    const currentUserRewardCoins =
+      Math.max(
+        0,
+        Number(currentUserVote?.rewardCoins ?? 0),
       )
 
-    let currentUserAwarded = false
-    let currentUserRewardCoins = 0
-    let currentUserBalance = 0
-
-    for (const rewardableVote of rewardableVotes) {
-      const markedRewarded =
-        await this._repository.markVerificationVoteRewarded(
-          rewardableVote.id,
-          COMMUNITY_REVIEW_REWARD_COINS,
-        )
-
-      if (!markedRewarded) {
-        continue
-      }
-
-      const award = await this._coinLedger.awardCoins({
-        userId: rewardableVote.userId,
-        sourceId: data.submissionId,
-        reason: 'verification_majority_reward',
-        amount: COMMUNITY_REVIEW_REWARD_COINS,
-      })
-
-      if (rewardableVote.userId === data.currentUserId) {
-        currentUserAwarded = award.awarded
-        currentUserRewardCoins = award.awarded
-          ? COMMUNITY_REVIEW_REWARD_COINS
-          : 0
-        currentUserBalance = award.balance
-      }
-    }
-
     return {
-      currentUserAwarded,
+      currentUserAwarded:
+        currentUserRewardCoins > 0,
       currentUserRewardCoins,
       currentUserBalance,
     }

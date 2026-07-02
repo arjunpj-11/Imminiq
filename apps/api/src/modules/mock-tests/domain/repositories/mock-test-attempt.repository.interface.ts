@@ -24,14 +24,19 @@ export type FindActiveMockTestAttemptInput = {
 
 export type UpdateMockTestAttemptInput = {
   status?: AttemptStatus
+
   score?: number
   maxScore?: number
   percentage?: number
+  passed?: boolean
+
   answeredCount?: number
   correctCount?: number
+
   startedAt?: Date
   completedAt?: Date
   abandonedAt?: Date
+
   timeSpentSeconds?: number
 }
 
@@ -41,32 +46,36 @@ export type AbandonActiveMockTestAttemptsInput = {
 }
 
 export interface MockTestAttemptRepositoryContract {
-  findAttemptById(attemptId: string): Promise<MockTestAttemptEntity | null>
+  findAttemptById(
+    attemptId: string,
+  ): Promise<MockTestAttemptEntity | null>
 
   findAttemptsByUser(
-    input: FindMockTestAttemptsByUserInput
+    input: FindMockTestAttemptsByUserInput,
   ): Promise<MockTestAttemptEntity[]>
 
   findLatestAttemptsForTests(
-    input: FindLatestMockTestAttemptsInput
+    input: FindLatestMockTestAttemptsInput,
   ): Promise<Record<string, MockTestAttemptEntity>>
 
   findActiveAttempt(
-    input: FindActiveMockTestAttemptInput
+    input: FindActiveMockTestAttemptInput,
   ): Promise<MockTestAttemptEntity | null>
 
   createAttempt(
-    data: CreateMockTestAttemptInput
+    data: CreateMockTestAttemptInput,
   ): Promise<MockTestAttemptEntity>
 
   updateAttempt(
     attemptId: string,
-    data: UpdateMockTestAttemptInput
+    data: UpdateMockTestAttemptInput,
   ): Promise<MockTestAttemptEntity | null>
 
-  incrementAnsweredCount(attemptId: string): Promise<void>
+  incrementAnsweredCount(
+    attemptId: string,
+  ): Promise<void>
 
   abandonActiveAttempts(
-    input: AbandonActiveMockTestAttemptsInput
+    input: AbandonActiveMockTestAttemptsInput,
   ): Promise<void>
 }

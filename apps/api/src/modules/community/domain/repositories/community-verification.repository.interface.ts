@@ -48,7 +48,13 @@ export interface CommunityVerificationRepositoryContract {
     data: SubmitTrackerForVerificationInput,
   ): Promise<CommunityVerificationSubmissionEntity | null>
 
-  getVerificationStats(userId: string): Promise<CommunityVerificationStats>
+  getVerificationStats(
+    userId: string,
+  ): Promise<CommunityVerificationStats>
+
+  getUserCoinBalance(
+    userId: string,
+  ): Promise<number>
 
   findVerificationQueue(
     query: FindVerificationQueueQuery,
