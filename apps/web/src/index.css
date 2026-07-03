@@ -2,27 +2,420 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* ─── Global Imminiq Scrollbar ───────────────────────────── */
+:root {
+  color-scheme: light;
 
-html,
-body,
-#root {
-  background-color: #f5ede4;
-}
+  /* Typography */
+  --font-ui:
+    "Geist Sans", "Inter", "SF Pro Display", "SF Pro Text", -apple-system,
+    BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono:
+    "Geist Mono", "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  --font-editorial: "Playfair Display", Georgia, serif;
 
-html.dark,
-html.dark body,
-html.dark #root {
-  background-color: #141412;
-}
+  /* Brand */
+  --brand-50: #fff6f1;
+  --brand-100: #fce8df;
+  --brand-200: #f6c9b8;
+  --brand-500: #b84c2b;
+  --brand-600: #963d22;
+  --brand-700: #79311c;
+  --brand-contrast: #ffffff;
 
-html {
-  scrollbar-width: thin;
-  scrollbar-color: rgba(184, 76, 43, 0.42) transparent;
+  /* Surfaces */
+  --surface-canvas: #f5ede4;
+  --surface-card: #fdf8f5;
+  --surface-elevated: #ffffff;
+  --surface-muted: #efe4da;
+  --surface-sunken: #eadccf;
+  --surface-overlay: rgba(26, 23, 20, 0.58);
+
+  /* Text */
+  --text-primary: #1a1714;
+  --text-secondary: #6b5f58;
+  --text-muted: #8d7f76;
+  --text-inverse: #fdf8f5;
+
+  /* Borders */
+  --border-subtle: #e0d0c5;
+  --border-strong: #cdb8aa;
+  --focus-ring: rgba(184, 76, 43, 0.28);
+
+  /* Semantic */
+  --success: #2d6a47;
+  --warning: #c98000;
+  --danger: #c43c3c;
+  --info: #3b6cb7;
+
+  /* Geometry */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-pill: 999px;
+
+  /* Elevation */
+  --shadow-1: 0 2px 12px rgba(26, 23, 20, 0.055);
+  --shadow-2: 0 12px 36px rgba(26, 23, 20, 0.11);
+  --shadow-3: 0 24px 72px rgba(26, 23, 20, 0.2);
+  --shadow-focus: 0 0 0 3px var(--focus-ring);
+
+  /* Layout and motion */
+  --content-max: 1180px;
+  --topbar-height: 60px;
+  --motion-fast: 140ms;
+  --motion-normal: 210ms;
+  --motion-slow: 320ms;
+  --ease-standard: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 html.dark {
-  scrollbar-color: rgba(232, 129, 106, 0.5) transparent;
+  color-scheme: dark;
+
+  --brand-50: #261a16;
+  --brand-100: #352019;
+  --brand-200: #613326;
+  --brand-500: #e8816a;
+  --brand-600: #d4705a;
+  --brand-700: #ba5d4a;
+  --brand-contrast: #141412;
+
+  --surface-canvas: #141412;
+  --surface-card: #1c1a18;
+  --surface-elevated: #24211e;
+  --surface-muted: #2a2723;
+  --surface-sunken: #11110f;
+  --surface-overlay: rgba(0, 0, 0, 0.72);
+
+  --text-primary: #f2f0eb;
+  --text-secondary: #aaa59d;
+  --text-muted: #817c75;
+  --text-inverse: #141412;
+
+  --border-subtle: rgba(255, 255, 255, 0.09);
+  --border-strong: rgba(255, 255, 255, 0.16);
+  --focus-ring: rgba(232, 129, 106, 0.3);
+
+  --success: #52c58c;
+  --warning: #f0a842;
+  --danger: #e26767;
+  --info: #6aa9ff;
+
+  --shadow-1: 0 2px 14px rgba(0, 0, 0, 0.14);
+  --shadow-2: 0 16px 44px rgba(0, 0, 0, 0.3);
+  --shadow-3: 0 28px 80px rgba(0, 0, 0, 0.48);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  min-width: 320px;
+  background: var(--surface-canvas);
+  font-family: var(--font-ui);
+  font-synthesis: none;
+  scrollbar-gutter: stable;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  scrollbar-width: thin;
+  scrollbar-color:
+    color-mix(in srgb, var(--brand-500) 42%, transparent) transparent;
+}
+
+body,
+#root {
+  min-height: 100vh;
+  margin: 0;
+  background: var(--surface-canvas);
+  color: var(--text-primary);
+}
+
+body {
+  overflow-x: hidden;
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button,
+a,
+input,
+textarea,
+select,
+[tabindex]:not([tabindex="-1"]) {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled),
+a[href],
+label[for],
+select:not(:disabled) {
+  cursor: pointer;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--brand-500) 24%, transparent);
+  color: var(--text-primary);
+}
+
+:focus-visible {
+  outline: 2px solid var(--brand-500);
+  outline-offset: 3px;
+}
+
+/*
+ * Search inputs use a custom clear button and component-level focus style.
+ * Remove the browser's built-in clear icon and global extra outline.
+ */
+input[type="search"] {
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="search"]::-webkit-search-cancel-button,
+input[type="search"]::-webkit-search-decoration,
+input[type="search"]::-webkit-search-results-button,
+input[type="search"]::-webkit-search-results-decoration {
+  display: none;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="search"]:focus,
+input[type="search"]:focus-visible {
+  outline: none;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+img {
+  height: auto;
+}
+
+/* Typography utilities used across old and new feature modules. */
+.font-ui {
+  font-family: var(--font-ui);
+}
+
+.font-mono,
+.font-metric {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.font-editorial {
+  font-family: var(--font-editorial);
+}
+
+.type-display-xl {
+  font-family: var(--font-ui);
+  font-size: clamp(2.25rem, 6vw, 4.75rem);
+  font-weight: 760;
+  line-height: 0.98;
+  letter-spacing: -0.055em;
+}
+
+.type-heading-xl {
+  font-family: var(--font-ui);
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-weight: 730;
+  line-height: 1.08;
+  letter-spacing: -0.038em;
+}
+
+.type-heading-lg {
+  font-family: var(--font-ui);
+  font-size: 1.125rem;
+  font-weight: 680;
+  line-height: 1.35;
+  letter-spacing: -0.018em;
+}
+
+.type-heading-md {
+  font-family: var(--font-ui);
+  font-size: 0.925rem;
+  font-weight: 660;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+}
+
+.type-body-md {
+  font-size: 0.875rem;
+  line-height: 1.65;
+}
+
+.type-body-sm {
+  font-size: 0.78rem;
+  line-height: 1.55;
+}
+
+.type-label-sm {
+  font-family: var(--font-mono);
+  font-size: 0.67rem;
+  font-weight: 650;
+  line-height: 1.4;
+  letter-spacing: 0.075em;
+  text-transform: uppercase;
+}
+
+.type-metric-xl {
+  font-family: var(--font-mono);
+  font-size: clamp(1.85rem, 4vw, 2.35rem);
+  font-weight: 720;
+  line-height: 1;
+  letter-spacing: -0.055em;
+  font-variant-numeric: tabular-nums;
+}
+
+/* Shared interaction and surface language. */
+.surface-flat {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-md);
+  background: var(--surface-card);
+}
+
+.surface-elevated {
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--surface-elevated);
+  box-shadow: var(--shadow-1);
+}
+
+.surface-spotlight {
+  border: 1px solid
+    color-mix(in srgb, var(--brand-500) 22%, var(--border-subtle));
+  border-radius: var(--radius-lg);
+  background:
+    radial-gradient(
+      circle at 100% 0%,
+      color-mix(in srgb, var(--brand-500) 13%, transparent),
+      transparent 42%
+    ),
+    var(--surface-card);
+  box-shadow: var(--shadow-1);
+}
+
+.interactive-lift {
+  transition:
+    transform var(--motion-fast) var(--ease-standard),
+    border-color var(--motion-fast) ease,
+    box-shadow var(--motion-fast) ease,
+    background-color var(--motion-fast) ease;
+}
+
+.interactive-lift:hover {
+  transform: translateY(-1px);
+}
+
+.skip-link {
+  position: fixed;
+  left: 1rem;
+  top: 0.75rem;
+  z-index: 9999;
+  transform: translateY(-180%);
+  border-radius: var(--radius-md);
+  background: var(--brand-500);
+  color: var(--brand-contrast);
+  padding: 0.7rem 1rem;
+  font-size: 0.8rem;
+  font-weight: 700;
+  box-shadow: var(--shadow-2);
+  transition: transform var(--motion-fast) ease;
+}
+
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+.route-enter {
+  animation: route-enter var(--motion-normal) var(--ease-standard) both;
+}
+
+.modal-backdrop-enter {
+  animation: fade-in var(--motion-fast) ease both;
+}
+
+.modal-panel-enter {
+  animation: modal-enter var(--motion-normal) var(--ease-standard) both;
+}
+
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+
+.shimmer::after {
+  position: absolute;
+  inset: 0;
+  content: "";
+  transform: translateX(-100%);
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.38),
+    transparent
+  );
+  animation: shimmer 1.45s ease-in-out infinite;
+}
+
+.dark .shimmer::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
+  );
+}
+
+@keyframes route-enter {
+  from {
+    opacity: 0;
+    transform: translateY(7px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes modal-enter {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.985);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes shimmer {
+  100% {
+    transform: translateX(100%);
+  }
 }
 
 /* Chrome, Edge, Safari */
@@ -33,27 +426,43 @@ html.dark {
 }
 
 ::-webkit-scrollbar-track,
-::-webkit-scrollbar-track-piece {
+::-webkit-scrollbar-track-piece,
+::-webkit-scrollbar-corner {
   background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  border-radius: 999px;
-  background: rgba(184, 76, 43, 0.42);
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: rgba(232, 129, 106, 0.5);
+  border-radius: var(--radius-pill);
+  background: color-mix(in srgb, var(--brand-500) 42%, transparent);
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(184, 76, 43, 0.62);
+  background: color-mix(in srgb, var(--brand-500) 64%, transparent);
 }
 
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: rgba(232, 129, 106, 0.7);
+@media (max-width: 640px) {
+  :root {
+    --topbar-height: 56px;
+  }
+
+  html {
+    scrollbar-gutter: auto;
+  }
 }
 
-::-webkit-scrollbar-corner {
-  background: transparent;
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Browser-native rendering optimization for long card feeds. */
+.render-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: auto 220px;
 }

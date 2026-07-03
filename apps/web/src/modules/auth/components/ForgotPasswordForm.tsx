@@ -1,11 +1,13 @@
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
+import { safeSessionStorage } from '../../../lib/storage/safe-storage'
 import { useState } from 'react'
 import type { ChangeEvent, FocusEvent, FormEvent } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 
 import { useForgotPassword } from '../hooks/useForgotPassword'
 import AuthLayout from './AuthLayout'
-import { ApiErrorBanner, FieldError } from './AuthError'
-import { authInputClass, authLabelClass } from '../utils/auth-ui'
+import AuthIdentifierField from './AuthIdentifierField'
+import { ApiErrorBanner } from './AuthError'
 import { validateIdentifier } from '../utils/auth-validation'
 
 interface FormState {
@@ -51,8 +53,8 @@ export default function ForgotPasswordForm() {
 
     const trimmedIdentifier = form.identifier.trim()
 
-    sessionStorage.removeItem('otp_expiry')
-    sessionStorage.removeItem('otp_resend_expiry')
+    safeSessionStorage.remove(STORAGE_KEYS.otpExpiry)
+    safeSessionStorage.remove(STORAGE_KEYS.otpResendExpiry)
 
     forgotPassword(
       { identifier: trimmedIdentifier },
@@ -81,28 +83,22 @@ export default function ForgotPasswordForm() {
       <ApiErrorBanner message={apiError} />
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        <label className="block">
-          <span className={authLabelClass}>Email or phone</span>
-          <input
-            className={authInputClass(errors.identifier, touched.identifier && !errors.identifier)}
-            name="identifier"
-            value={form.identifier}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="you@example.com"
-            autoComplete="username"
-          />
-          <FieldError message={errors.identifier} />
-        </label>
+        <AuthIdentifierField
+          value={form.identifier}
+          error={errors.identifier}
+          valid={Boolean(touched.identifier && !errors.identifier)}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
 
-        <button className="relative mt-1 w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]" type="submit" disabled={isPending}>
+        <button className="relative mt-1 w-full overflow-hidden rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)" type="submit" disabled={isPending}>
           {isPending ? 'Sending code…' : 'Send reset code'}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
         Remembered it?{' '}
-        <Link to="/login" className="font-semibold text-[#b84c2b] hover:opacity-70 dark:text-[#e8816a]">
+        <Link to="/login" className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)">
           Back to login
         </Link>
       </p>

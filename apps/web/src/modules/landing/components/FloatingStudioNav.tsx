@@ -1,40 +1,7 @@
 import { Link } from 'react-router-dom'
 
-const LogoIcon = () => (
-  <svg
-    width="34"
-    height="34"
-    viewBox="0 0 100 100"
-    xmlns="http://www.w3.org/2000/svg"
-    className="shrink-0 rounded-[10px]"
-  >
-    <rect x="10" y="10" width="80" height="80" rx="18" fill="#050505" />
-
-    <g transform="translate(-5,1)">
-      <rect x="31" y="35" width="9" height="34" rx="4.5" fill="#fff8ed" />
-
-      <circle cx="35.5" cy="28.5" r="5.3" fill="#f15a35" />
-
-      <path
-        d="M64 32.8C73.8 34.7 79.5 42.2 79.5 51.5 79.5 61.8 71.2 68 60.2 68c-7 0-12-2.5-15.1-7.2"
-        fill="none"
-        stroke="#fff8ed"
-        strokeWidth="9"
-        strokeLinecap="round"
-      />
-
-      <line
-        x1="63.8"
-        y1="55.5"
-        x2="75.8"
-        y2="67.5"
-        stroke="#f15a35"
-        strokeWidth="9"
-        strokeLinecap="round"
-      />
-    </g>
-  </svg>
-)
+import ImminiqLogo from '../../../components/ui/ImminiqLogo'
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark'
 
 export default function FloatingStudioNav() {
   return (
@@ -45,11 +12,12 @@ export default function FloatingStudioNav() {
           className="flex min-w-0 items-center gap-3 no-underline"
           aria-label="Imminiq home"
         >
-          <LogoIcon />
+          <ImminiqLogo size={34} className="rounded-[10px]" decorative />
 
-          <span className="truncate text-[14px] font-extrabold tracking-[-0.02em] text-[#1a1714] dark:text-[#141412]">
-            Imminiq
-          </span>
+          <ImminiqWordmark
+            className="truncate text-[14px] font-extrabold tracking-[-0.02em]"
+            prefixClassName="text-[#1a1714] dark:text-[#141412]"
+          />
         </Link>
 
         <div className="flex shrink-0 items-center gap-2">

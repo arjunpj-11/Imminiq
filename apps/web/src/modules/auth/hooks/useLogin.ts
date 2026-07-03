@@ -2,7 +2,7 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
-import { useAuthStore } from '../store/useAuthStore'
+import { useAuthStore, type AuthUser } from '../store/useAuthStore'
 import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
@@ -14,28 +14,13 @@ interface LoginPayload {
   rememberMe?: boolean
 }
 
-interface User {
-  _id: string
-  fullName?: string
-  username: string
-  email?: string
-  phone?: string
-  role: string
-  status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
-  isPremium?: boolean
-  avatarUrl?: string
-  emailVerified?: boolean
-  phoneVerified?: boolean
-  onboardingCompleted?: boolean
-}
-
 type LoginRedirectPath =
   | '/dashboard'
   | '/onboarding/step-1'
 
 interface StandardLoginData {
   accessToken?: string
-  user?: User
+  user?: AuthUser
   redirectPath?: LoginRedirectPath
   requiresTwoFactor?: false
 }

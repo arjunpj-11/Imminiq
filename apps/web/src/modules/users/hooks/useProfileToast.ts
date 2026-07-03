@@ -1,44 +1,49 @@
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useRef } from 'react'
+
+import { toast as globalToast } from '../../../lib/toast'
 import type { ToastTone } from '../types/profile.types'
 
-export const useProfileToast = () => {
-  const [message, setMessage] = useState('')
-  const [visible, setVisible] = useState(false)
-  const [tone, setTone] = useState<ToastTone>('info')
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null)
+const toneFor = (tone: ToastTone) =>
+  tone === 'loading' ? 'info' : tone
 
-  const clearToastTimer = useCallback(() => {
-    if (timer.current) {
-      clearTimeout(timer.current)
-      timer.current = null
+/** Root-toast adapter retained behind the existing profile hook API. */
+export const useProfileToast = () => {
+  const activeToastId = useRef<number | null>(null)
+
+  const show = useCallback(
+    (message: string, tone: ToastTone = 'info', duration = 2400) => {
+      const input = {
+        title: message,
+        tone: toneFor(tone),
+        duration: tone === 'loading' ? 0 : duration,
+      } as const
+
+      if (activeToastId.current !== null) {
+        globalToast.update(activeToastId.current, input)
+      } else {
+        activeToastId.current = globalToast.show(input)
+      }
+
+      if (tone !== 'loading') activeToastId.current = null
+    },
+    [],
+  )
+
+  const showLoading = useCallback((message: string) => show(message, 'loading', 0), [show])
+
+  const hide = useCallback(() => {
+    if (activeToastId.current !== null) {
+      globalToast.dismiss(activeToastId.current)
+      activeToastId.current = null
     }
   }, [])
 
-  const show = useCallback(
-    (msg: string, nextTone: ToastTone = 'info', duration = 2400) => {
-      clearToastTimer()
-      setMessage(msg)
-      setTone(nextTone)
-      setVisible(true)
-
-      if (nextTone !== 'loading') {
-        timer.current = setTimeout(() => setVisible(false), duration)
-      }
-    },
-    [clearToastTimer]
-  )
-
-  const showLoading = useCallback(
-    (msg: string) => {
-      show(msg, 'loading', 0)
-    },
-    [show]
-  )
-
-  const hide = useCallback(() => {
-    clearToastTimer()
-    setVisible(false)
-  }, [clearToastTimer])
-
-  return { message, visible, tone, show, showLoading, hide }
+  return {
+    message: '',
+    visible: false,
+    tone: 'info' as ToastTone,
+    show,
+    showLoading,
+    hide,
+  }
 }

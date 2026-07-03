@@ -5,7 +5,7 @@ import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
 } from '../../lib/blockedAppealSession'
-import { useAuthStore } from '../../modules/auth/store/useAuthStore'
+import { useAuthStore, type AuthUser } from '../../store/useAuthStore'
 
 interface RefreshTokenResponse {
   success: boolean
@@ -13,21 +13,6 @@ interface RefreshTokenResponse {
   data?: {
     accessToken?: string
   }
-}
-
-interface AuthUser {
-  _id: string
-  fullName?: string
-  username: string
-  email?: string
-  phone?: string
-  role: string
-  status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
-  isPremium?: boolean
-  avatarUrl?: string
-  emailVerified?: boolean
-  phoneVerified?: boolean
-  onboardingCompleted?: boolean
 }
 
 interface MeResponse {

@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import {
   BodyP,
@@ -17,6 +16,7 @@ import {
 } from '../components/LegalShared'
 
 import { cn, scrollbarClass } from '../utils/legal-ui'
+import { useLegalDocumentNavigation } from '../hooks/useLegalDocumentNavigation'
 
 const TOC = [
   { id: 's1', num: '01', label: 'Acceptance of Terms' },
@@ -38,111 +38,26 @@ const TOC = [
 ]
 
 export default function TermsPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const {
+    activeId,
+    readPct,
+    scrollAreaRef,
+    handleBack,
+    handleTocClick,
+  } = useLegalDocumentNavigation()
 
-  const scrollAreaRef = useRef<HTMLElement | null>(null)
-
-  const [activeId, setActiveId] = useState('s1')
-  const [readPct, setReadPct] = useState(0)
-
-  const handleBack = () => {
-    const from = (location.state as { from?: string } | null)?.from
-
-    if (from) {
-      navigate(from, { replace: true })
-      return
-    }
-
-    navigate('/register', { replace: true })
-  }
-
-  const handleTocClick = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault()
-
-    const scrollArea = scrollAreaRef.current
-    const section = document.getElementById(id)
-
-    if (!scrollArea || !section) return
-
-    const scrollAreaRect = scrollArea.getBoundingClientRect()
-    const sectionRect = section.getBoundingClientRect()
-
-    const top = sectionRect.top - scrollAreaRect.top + scrollArea.scrollTop - 24
-
-    scrollArea.scrollTo({
-      top,
-      behavior: 'smooth',
-    })
-
-    window.history.replaceState(null, '', window.location.pathname)
-    setActiveId(id)
-  }
-
-  useEffect(() => {
-    const scrollArea = scrollAreaRef.current
-
-    if (!scrollArea) return
-
-    const onScroll = () => {
-      const scrollHeight = scrollArea.scrollHeight - scrollArea.clientHeight
-
-      if (scrollHeight <= 0) {
-        setReadPct(0)
-        return
-      }
-
-      const pct = (scrollArea.scrollTop / scrollHeight) * 100
-      setReadPct(Math.min(Math.max(pct, 0), 100))
-    }
-
-    onScroll()
-
-    scrollArea.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-
-    return () => {
-      scrollArea.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
-  }, [])
-
-  useEffect(() => {
-    const scrollArea = scrollAreaRef.current
-
-    if (!scrollArea) return
-
-    const sections = scrollArea.querySelectorAll('.pp-section[id]')
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveId(entry.target.id)
-        })
-      },
-      {
-        root: scrollArea,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0,
-      }
-    )
-
-    sections.forEach((section) => observer.observe(section))
-
-    return () => observer.disconnect()
-  }, [])
 
   return (
-    <div className="h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif] dark:bg-[#141412] dark:text-[#f2f0eb]">
+    <div className="h-screen overflow-hidden bg-(--surface-canvas) text-(--text-primary) font-[DM_Sans,sans-serif] dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       <div
         aria-hidden="true"
-        className="fixed left-0 top-0 z-100 h-0.5 bg-linear-to-r from-[#b84c2b] to-[#e8816a] transition-[width] duration-100"
+        className="fixed left-0 top-0 z-100 h-0.5 bg-linear-to-r from-(--brand-500) to-(--brand-500) transition-[width] duration-100"
         style={{ width: `${readPct}%` }}
       />
 
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <nav
-          className="z-50 flex shrink-0 items-center justify-between gap-4 border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 lg:px-12 xl:px-16"
+          className="z-50 flex shrink-0 items-center justify-between gap-4 border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 lg:px-12 xl:px-16"
           aria-label="Site navigation"
         >
           <div className="flex min-w-0 items-center gap-4">
@@ -153,19 +68,19 @@ export default function TermsPage() {
             >
               <LogoIcon className="h-8.5 w-8.5" />
 
-              <span className="text-xl font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+              <span className="text-xl font-bold leading-none tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)">
                 immin
-                <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-                <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
+                <span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
+                <span className="text-(--brand-500) dark:text-(--brand-500)">.</span>
               </span>
             </Link>
 
             <div
-              className="hidden h-4.5 w-px bg-[#e0d0c5] dark:bg-white/15 sm:block"
+              className="hidden h-4.5 w-px bg-(--border-subtle) dark:bg-white/15 sm:block"
               aria-hidden="true"
             />
 
-            <span className="hidden truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92] sm:block">
+            <span className="hidden truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary) sm:block">
               Terms of Service
             </span>
           </div>
@@ -176,7 +91,7 @@ export default function TermsPage() {
             <button
               type="button"
               onClick={handleBack}
-              className="group inline-flex items-center gap-1.5 bg-transparent px-1 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+              className="group inline-flex items-center gap-1.5 bg-transparent px-1 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
             >
               <IconArrowLeft className="transition group-hover:-translate-x-0.5" />
               Back
@@ -192,7 +107,7 @@ export default function TermsPage() {
             )}
             aria-label="Table of contents"
           >
-            <div className="mb-3 px-3 font-mono text-[9px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">
+            <div className="mb-3 px-3 font-mono text-[9px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
               Contents
             </div>
 
@@ -203,16 +118,16 @@ export default function TermsPage() {
                     href={`#${item.id}`}
                     onClick={(e) => handleTocClick(e, item.id)}
                     className={cn(
-                      'flex items-center gap-2 rounded-lg px-3 py-2 text-[12.5px] leading-snug text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.06)] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[#e8816a]',
+                      'flex items-center gap-2 rounded-lg px-3 py-2 text-[12.5px] leading-snug text-(--text-secondary) transition hover:bg-[rgba(184,76,43,0.06)] hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-(--brand-500)',
                       activeId === item.id &&
-                        'bg-[rgba(184,76,43,0.06)] font-medium text-[#b84c2b] dark:bg-[rgba(232,129,106,0.08)] dark:text-[#e8816a]'
+                        'bg-[rgba(184,76,43,0.06)] font-medium text-(--brand-500) dark:bg-[rgba(232,129,106,0.08)] dark:text-(--brand-500)'
                     )}
                   >
                     <span
                       className={cn(
-                        'min-w-4 shrink-0 font-mono text-[9px] text-[#e0d0c5] transition dark:text-white/20',
+                        'min-w-4 shrink-0 font-mono text-[9px] text-(--border-subtle) transition dark:text-white/20',
                         activeId === item.id &&
-                          'text-[#e8816a] dark:text-[#f5a090]'
+                          'text-(--brand-500) dark:text-[#f5a090]'
                       )}
                     >
                       {item.num}
@@ -223,9 +138,9 @@ export default function TermsPage() {
               ))}
             </ul>
 
-            <div className="mx-3 my-3 h-px bg-[#e0d0c5] dark:bg-white/15" />
+            <div className="mx-3 my-3 h-px bg-(--border-subtle) dark:bg-white/15" />
 
-            <div className="px-3 font-mono text-[9px] tracking-[0.06em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+            <div className="px-3 font-mono text-[9px] tracking-[0.06em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
               Version 6.6.2 · May 2026
             </div>
           </aside>
@@ -239,16 +154,16 @@ export default function TermsPage() {
             aria-label="Terms of Service content"
           >
             <div className="pp-section mb-9">
-              <div className="mb-4.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-                <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+              <div className="mb-4.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
+                <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
                 Legal Agreement
               </div>
 
-              <h1 className="mb-3.5 font-serif text-[clamp(30px,5vw,48px)] font-extrabold leading-[1.08] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
+              <h1 className="mb-3.5 font-serif text-[clamp(30px,5vw,48px)] font-extrabold leading-[1.08] tracking-[-1px] text-(--text-primary) dark:text-(--text-primary)">
                 Terms of Service
               </h1>
 
-              <p className="mb-5 max-w-160 text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mb-5 max-w-160 text-[15px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                 These terms govern your access to and use of Imminiq — our
                 AI-powered personalized learning platform. Please read them
                 carefully before creating an account.
@@ -262,9 +177,9 @@ export default function TermsPage() {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#6b5f58] dark:text-[#9b9a92]"
+                    className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-(--text-secondary) dark:text-(--text-secondary)"
                   >
-                    <span className="text-[#b84c2b] opacity-70 dark:text-[#e8816a]">
+                    <span className="text-(--brand-500) opacity-70 dark:text-(--brand-500)">
                       <IconShield className="h-3 w-3" />
                     </span>
                     {item}
@@ -278,7 +193,7 @@ export default function TermsPage() {
               role="note"
               aria-label="Important notice"
             >
-              <div className="mt-0.5 shrink-0 text-[#f0a500] dark:text-[#f0a842]">
+              <div className="mt-0.5 shrink-0 text-[#f0a500] dark:text-(--warning)">
                 <svg
                   width="18"
                   height="18"
@@ -296,10 +211,10 @@ export default function TermsPage() {
               </div>
 
               <div>
-                <strong className="mb-1.5 block text-[13.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="mb-1.5 block text-[13.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                   Important — Please Read Before Using Imminiq
                 </strong>
-                <p className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
                   By registering an account or using any part of this platform,
                   you agree to be bound by these Terms. If you do not agree, you
                   must not access or use Imminiq. These Terms apply to all users
@@ -322,7 +237,7 @@ export default function TermsPage() {
                 otherwise accessing the Platform, you acknowledge that you have
                 read, understood, and agreed to these Terms and our{' '}
                 <Link
-                  className="font-medium text-[#b84c2b] underline underline-offset-4 hover:text-[#963d22] dark:text-[#e8816a] dark:hover:text-[#f5a090]"
+                  className="font-medium text-(--brand-500) underline underline-offset-4 hover:text-[#963d22] dark:text-(--brand-500) dark:hover:text-[#f5a090]"
                   to="/privacy"
                 >
                   Scholarly Privacy Policy
@@ -380,23 +295,23 @@ export default function TermsPage() {
               />
 
               <div className="grid grid-cols-1 gap-3.5 sm:grid-cols-2">
-                <div className="rounded-[10px] border border-[#e0d0c5] bg-white p-4 dark:border-white/15 dark:bg-[#252320]">
-                  <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
-                    <IconShield className="text-[#b84c2b] dark:text-[#e8816a]" />
+                <div className="rounded-md border border-(--border-subtle) bg-white p-4 dark:border-white/15 dark:bg-(--surface-elevated)">
+                  <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
+                    <IconShield className="text-(--brand-500) dark:text-(--brand-500)" />
                     Two-Factor Authentication
                   </strong>
-                  <p className="m-0 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <p className="m-0 text-[12.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                     We strongly recommend enabling TOTP-based 2FA from your
                     account settings for additional security.
                   </p>
                 </div>
 
-                <div className="rounded-[10px] border border-[#e0d0c5] bg-white p-4 dark:border-white/15 dark:bg-[#252320]">
-                  <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
-                    <IconDoc className="text-[#b84c2b] dark:text-[#e8816a]" />
+                <div className="rounded-md border border-(--border-subtle) bg-white p-4 dark:border-white/15 dark:bg-(--surface-elevated)">
+                  <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
+                    <IconDoc className="text-(--brand-500) dark:text-(--brand-500)" />
                     One Account Per Person
                   </strong>
-                  <p className="m-0 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <p className="m-0 text-[12.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                     Each individual may only maintain one active Imminiq account.
                     Creating multiple accounts to bypass restrictions is
                     prohibited.
@@ -719,17 +634,17 @@ export default function TermsPage() {
                 Terms, please reach out through one of the following channels:
               </BodyP>
 
-              <div className="rounded-[13px] border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
+              <div className="rounded-md border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
                 <div className="mb-4 flex items-start gap-4">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
                     <IconMail />
                   </div>
 
                   <div>
-                    <strong className="mb-1 block text-[13.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <strong className="mb-1 block text-[13.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                       Legal Enquiries
                     </strong>
-                    <p className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
                       For Terms of Service questions, legal notices, and
                       compliance requests:{' '}
                       <EmailLink>legal@imminiq.com</EmailLink>
@@ -737,16 +652,16 @@ export default function TermsPage() {
                   </div>
                 </div>
 
-                <div className="flex items-start gap-4 border-t border-[#e0d0c5] pt-4 dark:border-white/15">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+                <div className="flex items-start gap-4 border-t border-(--border-subtle) pt-4 dark:border-white/15">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
                     <IconShield />
                   </div>
 
                   <div>
-                    <strong className="mb-1 block text-[13.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <strong className="mb-1 block text-[13.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                       Account & Security
                     </strong>
-                    <p className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
                       For account access, security concerns, and suspension
                       appeals: <EmailLink>support@imminiq.com</EmailLink>
                     </p>
@@ -755,48 +670,48 @@ export default function TermsPage() {
               </div>
             </Section>
 
-            <div className="mt-15 rounded-[20px] border border-[#e0d0c5] bg-[#fdf8f5] px-6 py-12 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-8">
-              <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-[14px] border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)] dark:text-[#5cc98a]">
+            <div className="mt-15 rounded-xl border border-(--border-subtle) bg-(--surface-card) px-6 py-12 text-center shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)] sm:px-8">
+              <div className="mx-auto mb-4 flex h-13 w-13 items-center justify-center rounded-md border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)] dark:text-(--success)">
                 <IconCheck className="h-6 w-6" />
               </div>
 
-              <h3 className="mb-2.5 font-serif text-[22px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+              <h3 className="mb-2.5 font-serif text-[22px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                 Ready to start learning?
               </h3>
 
-              <p className="mx-auto mb-6 max-w-140 text-sm leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mx-auto mb-6 max-w-140 text-sm leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                 By creating your account, you confirm you have read and agree to
                 these Terms and our Scholarly Privacy Policy.
               </p>
 
               <Link
                 to="/register"
-                className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-6 py-3 text-sm font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+                className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-6 py-3 text-sm font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
               >
                 Create Account
                 <IconArrowRight />
               </Link>
             </div>
 
-            <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] pt-5 text-xs text-[#6b5f58] dark:border-white/15 dark:text-[#9b9a92]">
+            <footer className="mt-10 flex flex-wrap items-center justify-between gap-3 border-t border-(--border-subtle) pt-5 text-xs text-(--text-secondary) dark:border-white/15 dark:text-(--text-secondary)">
               <span>© 2026 Imminiq. Crafted for the intentional learner.</span>
 
               <div className="flex flex-wrap gap-x-4 gap-y-2">
                 <Link
                   to="/privacy"
-                  className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+                  className="transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
                 >
                   Scholarly Privacy Policy
                 </Link>
                 <Link
                   to="/terms"
-                  className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+                  className="transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
                 >
                   Terms of Service
                 </Link>
                 <a
                   href="mailto:legal@imminiq.com"
-                  className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+                  className="transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
                 >
                   Legal Contact
                 </a>

@@ -10,12 +10,12 @@ export default function VerificationLeaderboard({
   entries,
 }: VerificationLeaderboardProps) {
   return (
-    <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]">
+    <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
       <div className="mb-4 flex items-center gap-2">
         <span className="text-[#c49a2c]">
           <TrophyIcon />
         </span>
-        <span className="font-['Playfair_Display',serif] text-[14px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+        <span className="font-ui text-[14px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
           Top verifiers
         </span>
       </div>
@@ -38,14 +38,14 @@ export default function VerificationLeaderboard({
                 className={cn(
                   'min-w-0 flex-1 truncate text-[12.5px]',
                   isMe
-                    ? 'font-bold text-[#b84c2b] dark:text-[#e8816a]'
-                    : 'text-[#1a1714] dark:text-[#f2f0eb]',
+                    ? 'font-bold text-(--brand-500) dark:text-(--brand-500)'
+                    : 'text-(--text-primary) dark:text-(--text-primary)',
                 )}
               >
                 {name}
                 {isMe ? ' (you)' : ''}
               </span>
-              <span className="shrink-0 font-['DM_Mono',monospace] text-[11px] text-[#9b9a92]">
+              <span className="shrink-0 font-mono text-[11px] text-[#9b9a92]">
                 {earned}
               </span>
             </div>

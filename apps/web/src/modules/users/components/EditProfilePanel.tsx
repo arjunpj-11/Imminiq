@@ -152,9 +152,9 @@ export default function EditProfilePanel({
   }, [open, countryCode, stateCode]);
 
   const inputCls =
-    'w-full px-[13px] py-2.5 border-[1.5px] border-[#e0d0c5] dark:border-white/[0.09] rounded-[9px] bg-white dark:bg-[#252320] text-[#1a1714] dark:text-[#f2f0eb] text-[13.5px] font-["DM_Sans",sans-serif] outline-none transition focus:border-[#b84c2b] dark:focus:border-[#e8816a] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]';
+    'w-full px-[13px] py-2.5 border-[1.5px] border-[var(--border-subtle)] dark:border-white/[0.09] rounded-[var(--radius-sm)] bg-white dark:bg-[var(--surface-elevated)] text-[var(--text-primary)] dark:text-[var(--text-primary)] text-[13.5px] font-ui outline-none transition focus:border-[var(--brand-500)] dark:focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]';
   const labelCls =
-    'font-["DM_Mono",monospace] text-[8px] tracking-[0.13em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-70 mb-[5px] block';
+    'font-mono text-[8px] tracking-[0.13em] uppercase text-[var(--text-secondary)] dark:text-[var(--text-secondary)] opacity-70 mb-[5px] block';
 
   const handleSkillKeydown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" || e.key === ",") {
@@ -232,20 +232,20 @@ export default function EditProfilePanel({
       />
       <div
         className={cn(
-          "fixed top-0 right-0 bottom-0 z-101 w-[min(520px,100vw)] bg-[#fdf8f5] dark:bg-[#1e1c19] border-l border-[#e0d0c5] dark:border-white/9 shadow-[-8px_0_48px_rgba(26,23,20,0.14)] flex flex-col overflow-hidden transition-transform duration-360 ease-in-out",
+          "fixed top-0 right-0 bottom-0 z-101 w-[min(520px,100vw)] bg-[var(--surface-card)] dark:bg-[var(--surface-card)] border-l border-[var(--border-subtle)] dark:border-[var(--border-subtle)] shadow-[-8px_0_48px_rgba(26,23,20,0.14)] flex flex-col overflow-hidden transition-transform duration-360 ease-in-out",
           open ? "translate-x-0" : "translate-x-full",
         )}
       >
         {/* Head */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5.5 py-4.5 border-b border-[#e0d0c5] dark:border-white/9 bg-[#fdf8f5] dark:bg-[#1e1c19]">
-          <span className="font-['Playfair_Display',serif] text-[20px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb] tracking-[-0.4px]">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5.5 py-4.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] bg-[var(--surface-card)] dark:bg-[var(--surface-card)]">
+          <span className="font-ui text-[20px] font-extrabold text-[var(--text-primary)] dark:text-[var(--text-primary)] tracking-[-0.4px]">
             Edit Profile
           </span>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-8.5 h-8.5 rounded-[9px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 flex items-center justify-center text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] hover:bg-[rgba(184,76,43,0.08)] transition"
+            className="w-8.5 h-8.5 rounded-[var(--radius-sm)] border-[1.5px] border-[var(--border-subtle)] dark:border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] dark:text-[var(--text-secondary)] hover:border-[var(--brand-500)] hover:text-[var(--brand-500)] hover:bg-[rgba(184,76,43,0.08)] transition"
           >
             <svg
               width="14"
@@ -270,7 +270,7 @@ export default function EditProfilePanel({
         >
           {/* Basic Info */}
           <div>
-            <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.18em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-55 pb-2.5 border-b border-[#e0d0c5] dark:border-white/9 mb-3.5">
+            <div className="font-mono text-[8px] tracking-[0.18em] uppercase text-[var(--text-secondary)] dark:text-[var(--text-secondary)] opacity-55 pb-2.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] mb-3.5">
               Basic Information
             </div>
             <div className="grid grid-cols-2 gap-3.25">
@@ -310,7 +310,7 @@ export default function EditProfilePanel({
 
           {/* Location */}
           <div>
-            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/9 dark:text-[#9b9a92]">
+            <div className="mb-3.5 border-b border-[var(--border-subtle)] pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--text-secondary)] opacity-55 dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]">
               Location
             </div>
             <div className="grid grid-cols-2 gap-3.25 max-[640px]:grid-cols-1">
@@ -386,7 +386,7 @@ export default function EditProfilePanel({
               </div>
             </div>
             {locationError && (
-              <p className="mt-2 text-[11px] font-medium text-[#b84c2b] dark:text-[#e8816a]">
+              <p className="mt-2 text-[11px] font-medium text-[var(--brand-500)] dark:text-[var(--brand-500)]">
                 {locationError}
               </p>
             )}
@@ -394,23 +394,23 @@ export default function EditProfilePanel({
 
           {/* Skills */}
           <div>
-            <div className="font-['DM_Mono',monospace] text-[8px] tracking-[0.18em] uppercase text-[#6b5f58] dark:text-[#9b9a92] opacity-55 pb-2.5 border-b border-[#e0d0c5] dark:border-white/9 mb-3.5">
+            <div className="font-mono text-[8px] tracking-[0.18em] uppercase text-[var(--text-secondary)] dark:text-[var(--text-secondary)] opacity-55 pb-2.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] mb-3.5">
               Skills
             </div>
             <div
-              className="min-h-11.5 flex flex-wrap gap-1.5 items-center px-2.5 py-2 border-[1.5px] border-[#e0d0c5] dark:border-white/9 rounded-[9px] bg-white dark:bg-[#252320] cursor-text focus-within:border-[#b84c2b] dark:focus-within:border-[#e8816a] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] transition"
+              className="min-h-11.5 flex flex-wrap gap-1.5 items-center px-2.5 py-2 border-[1.5px] border-[var(--border-subtle)] dark:border-[var(--border-subtle)] rounded-[var(--radius-sm)] bg-white dark:bg-[var(--surface-elevated)] cursor-text focus-within:border-[var(--brand-500)] dark:focus-within:border-[var(--brand-500)] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] transition"
               onClick={() => document.getElementById("skill-input")?.focus()}
             >
               {skills.map((s, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.25 px-2.5 py-0.75 rounded-full bg-[rgba(184,76,43,0.07)] dark:bg-[rgba(232,129,106,0.09)] border border-[rgba(184,76,43,0.18)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-medium text-[#1a1714] dark:text-[#f2f0eb] whitespace-nowrap"
+                  className="inline-flex items-center gap-1.25 px-2.5 py-0.75 rounded-full bg-[rgba(184,76,43,0.07)] dark:bg-[rgba(232,129,106,0.09)] border border-[rgba(184,76,43,0.18)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-medium text-[var(--text-primary)] dark:text-[var(--text-primary)] whitespace-nowrap"
                 >
                   {s}
                   <button
                     type="button"
                     onClick={() => setSkills(skills.filter((_, j) => j !== i))}
-                    className="text-[#6b5f58] dark:text-[#9b9a92] hover:text-[#b84c2b] transition text-[14px] leading-none"
+                    className="text-[var(--text-secondary)] dark:text-[var(--text-secondary)] hover:text-[var(--brand-500)] transition text-[14px] leading-none"
                   >
                     ×
                   </button>
@@ -418,21 +418,21 @@ export default function EditProfilePanel({
               ))}
               <input
                 id="skill-input"
-                className="border-none bg-transparent outline-none text-[12.5px] font-['DM_Sans',sans-serif] text-[#1a1714] dark:text-[#f2f0eb] min-w-22.5 flex-1 placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]"
+                className="border-none bg-transparent outline-none text-[12.5px] font-ui text-[var(--text-primary)] dark:text-[var(--text-primary)] min-w-22.5 flex-1 placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]"
                 placeholder="+ Add skill"
                 value={skillInput}
                 onChange={(e) => setSkillInput(e.target.value)}
                 onKeyDown={handleSkillKeydown}
               />
             </div>
-            <p className="mt-1.5 text-[11px] text-[#6b5f58] dark:text-[#9b9a92] opacity-60">
+            <p className="mt-1.5 text-[11px] text-[var(--text-secondary)] dark:text-[var(--text-secondary)] opacity-60">
               Press Enter or comma to add
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/9 dark:text-[#9b9a92]">
+            <div className="mb-3.5 border-b border-[var(--border-subtle)] pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--text-secondary)] opacity-55 dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]">
               Links
             </div>
             <div className="flex flex-col gap-2.5">
@@ -458,7 +458,7 @@ export default function EditProfilePanel({
               ].map((item) => (
                 <label
                   key={item.icon}
-                  className="flex items-center gap-2.5 rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-3 py-2.5 text-[#6b5f58] transition focus-within:border-[#b84c2b] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#9b9a92] dark:focus-within:border-[#e8816a]"
+                  className="flex items-center gap-2.5 rounded-[var(--radius-sm)] border-[1.5px] border-[var(--border-subtle)] bg-white px-3 py-2.5 text-[var(--text-secondary)] transition focus-within:border-[var(--brand-500)] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-elevated)] dark:text-[var(--text-secondary)] dark:focus-within:border-[var(--brand-500)]"
                 >
                   {item.icon === "github" ? (
                     <svg
@@ -498,7 +498,7 @@ export default function EditProfilePanel({
                     value={item.value}
                     onChange={(event) => item.setter(event.target.value)}
                     placeholder={item.placeholder}
-                    className="min-w-0 flex-1 border-none bg-transparent text-[13px] text-[#1a1714] outline-none placeholder:text-[#9f8f86] dark:text-[#f2f0eb] dark:placeholder:text-[#7a756e]"
+                    className="min-w-0 flex-1 border-none bg-transparent text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[#9f8f86] dark:text-[var(--text-primary)] dark:placeholder:text-[#7a756e]"
                   />
                 </label>
               ))}
@@ -507,7 +507,7 @@ export default function EditProfilePanel({
 
           {/* Open To */}
           <div>
-            <div className="mb-3.5 border-b border-[#e0d0c5] pb-2.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-[#6b5f58] opacity-55 dark:border-white/9 dark:text-[#9b9a92]">
+            <div className="mb-3.5 border-b border-[var(--border-subtle)] pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--text-secondary)] opacity-55 dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]">
               Open To
             </div>
             <div className="flex flex-wrap gap-2">
@@ -528,8 +528,8 @@ export default function EditProfilePanel({
                     className={cn(
                       "rounded-full border-[1.5px] px-3.5 py-2 text-[12px] font-semibold transition",
                       active
-                        ? "border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.26)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]"
-                        : "border-[#e0d0c5] bg-transparent text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]",
+                        ? "border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] text-[var(--brand-500)] dark:border-[rgba(232,129,106,0.26)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[var(--brand-500)]"
+                        : "border-[var(--border-subtle)] bg-transparent text-[var(--text-secondary)] hover:border-[var(--brand-500)] hover:text-[var(--brand-500)] dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]",
                     )}
                   >
                     {label}
@@ -541,11 +541,11 @@ export default function EditProfilePanel({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2.5 px-5.5 py-4 border-t border-[#e0d0c5] dark:border-white/9 bg-[#fdf8f5] dark:bg-[#1e1c19]">
+        <div className="flex items-center justify-end gap-2.5 px-5.5 py-4 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)] bg-[var(--surface-card)] dark:bg-[var(--surface-card)]">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/9 text-[13px] font-semibold text-[#6b5f58] dark:text-[#9b9a92] hover:border-[#e8816a] hover:text-[#b84c2b] transition"
+            className="px-5 py-2.5 rounded-[var(--radius-md)] border-[1.5px] border-[var(--border-subtle)] dark:border-[var(--border-subtle)] text-[13px] font-semibold text-[var(--text-secondary)] dark:text-[var(--text-secondary)] hover:border-[var(--brand-500)] hover:text-[var(--brand-500)] transition"
           >
             Cancel
           </button>
@@ -553,7 +553,7 @@ export default function EditProfilePanel({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="px-5.5 py-2.5 rounded-[10px] bg-[#b84c2b] dark:bg-[#e8816a] text-[#fdf8f5] dark:text-[#141412] text-[13px] font-bold transition hover:-translate-y-px hover:bg-[#963d22] dark:hover:bg-[#d4705a] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            className="px-5.5 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-500)] dark:bg-[var(--brand-500)] text-[#fdf8f5] dark:text-[#141412] text-[13px] font-bold transition hover:-translate-y-px hover:bg-[var(--brand-600)] dark:hover:bg-[var(--brand-600)] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </button>

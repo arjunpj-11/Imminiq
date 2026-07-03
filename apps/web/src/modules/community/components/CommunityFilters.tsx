@@ -101,7 +101,7 @@ export default function CommunityFilters({
             value={search}
             onChange={(event) => onSearchChange(event.target.value)}
             placeholder="Search trackers…"
-            className="w-full rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] py-2.25 pl-9 pr-4 text-[13px] text-[#1a1714] outline-none placeholder:text-[#9b9a92] focus:border-[rgba(184,76,43,0.3)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]"
+            className="w-full rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) py-2.25 pl-9 pr-4 text-[13px] text-(--text-primary) outline-none placeholder:text-[#9b9a92] focus:border-[rgba(184,76,43,0.3)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)"
           />
         </div>
 
@@ -112,8 +112,8 @@ export default function CommunityFilters({
             className={cn(
               'inline-flex min-w-40 items-center justify-between gap-2 rounded-xl border-[1.5px] px-4 py-2.25 text-[13px] font-medium transition',
               selectedTopics.length > 0
-                ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.35)] dark:text-[#e8816a]'
-                : 'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] hover:border-[rgba(184,76,43,0.22)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]',
+                ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-(--brand-500) dark:border-[rgba(232,129,106,0.35)] dark:text-(--brand-500)'
+                : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-[rgba(184,76,43,0.22)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)',
             )}
           >
             {selectedTopics.length > 0
@@ -123,14 +123,14 @@ export default function CommunityFilters({
           </button>
 
           {topicDropdownOpen && (
-            <div className="absolute left-0 top-[calc(100%+8px)] z-20 w-64 overflow-hidden rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_16px_44px_rgba(26,23,20,0.14)] dark:border-white/10 dark:bg-[#1e1c19]">
+            <div className="absolute left-0 top-[calc(100%+8px)] z-20 w-64 overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_16px_44px_rgba(26,23,20,0.14)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
               <div className="border-b border-[#e8ddd6] p-3 dark:border-white/8">
                 <input
                   type="text"
                   value={topicSearch}
                   onChange={(event) => setTopicSearch(event.target.value)}
                   placeholder="Find topic…"
-                  className="w-full rounded-lg border border-[#e0d0c5] bg-white px-3 py-2 text-[12px] outline-none placeholder:text-[#9b9a92] focus:border-[rgba(184,76,43,0.3)] dark:border-white/9 dark:bg-[#141412] dark:text-[#f2f0eb]"
+                  className="w-full rounded-lg border border-(--border-subtle) bg-white px-3 py-2 text-[12px] outline-none placeholder:text-[#9b9a92] focus:border-[rgba(184,76,43,0.3)] dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary)"
                 />
               </div>
 
@@ -147,8 +147,8 @@ export default function CommunityFilters({
                         className={cn(
                           'flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[12.5px] transition',
                           selected
-                            ? 'bg-[rgba(184,76,43,0.09)] font-bold text-[#b84c2b] dark:text-[#e8816a]'
-                            : 'text-[#6b5f58] hover:bg-[rgba(26,23,20,0.04)] dark:text-[#9b9a92] dark:hover:bg-white/6',
+                            ? 'bg-[rgba(184,76,43,0.09)] font-bold text-(--brand-500) dark:text-(--brand-500)'
+                            : 'text-(--text-secondary) hover:bg-[rgba(26,23,20,0.04)] dark:text-(--text-secondary) dark:hover:bg-white/6',
                         )}
                       >
                         {topic}
@@ -169,7 +169,7 @@ export default function CommunityFilters({
         <select
           value={sort}
           onChange={(event) => onSortChange(event.target.value as CommunitySort)}
-          className="rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-2.25 text-[13px] text-[#6b5f58] outline-none focus:border-[rgba(184,76,43,0.3)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]"
+          className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.25 text-[13px] text-(--text-secondary) outline-none focus:border-[rgba(184,76,43,0.3)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)"
         >
           {COMMUNITY_SORT_OPTIONS.map((option) => (
             <option key={option.value} value={option.value}>
@@ -184,14 +184,14 @@ export default function CommunityFilters({
           className={cn(
             'inline-flex items-center gap-2 rounded-xl border-[1.5px] px-4 py-2.25 text-[13px] font-medium transition',
             filterPanelOpen || activeFilterCount > 0
-              ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.35)] dark:text-[#e8816a]'
-              : 'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] hover:border-[rgba(184,76,43,0.22)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]',
+              ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-(--brand-500) dark:border-[rgba(232,129,106,0.35)] dark:text-(--brand-500)'
+              : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-[rgba(184,76,43,0.22)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)',
           )}
         >
           <FilterIcon />
           Filters
           {activeFilterCount > 0 && (
-            <span className="inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-[#b84c2b] px-1 font-['DM_Mono',monospace] text-[9px] font-bold text-white dark:bg-[#e8816a] dark:text-[#1a1714]">
+            <span className="inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-(--brand-500) px-1 font-mono text-[9px] font-bold text-white dark:bg-(--brand-500) dark:text-(--text-primary)">
               {activeFilterCount}
             </span>
           )}
@@ -199,13 +199,13 @@ export default function CommunityFilters({
 
         {isAnyFilterActive && (
           <div className="ml-auto flex items-center gap-3">
-            <span className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#9b9a92]">
+            <span className="font-mono text-[10px] uppercase tracking-widest text-[#9b9a92]">
               {resultCount} result{resultCount !== 1 ? 's' : ''}
             </span>
             <button
               type="button"
               onClick={onClearAll}
-              className="text-[12px] text-[#9b9a92] underline underline-offset-2 transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+              className="text-[12px] text-[#9b9a92] underline underline-offset-2 transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
             >
               Clear all
             </button>
@@ -218,7 +218,7 @@ export default function CommunityFilters({
           {selectedTopics.map((topic) => (
             <span
               key={topic}
-              className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[11px] text-[#b84c2b] dark:border-[rgba(232,129,106,0.25)] dark:text-[#e8816a]"
+              className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[11px] text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)"
             >
               {topic}
               <button
@@ -237,10 +237,10 @@ export default function CommunityFilters({
       )}
 
       {filterPanelOpen && (
-        <div className="rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
+        <div className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-4 dark:border-(--border-subtle) dark:bg-(--surface-card)">
           <div className="flex flex-wrap gap-x-8 gap-y-4">
             <div>
-              <p className="mb-2.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#9b9a92]">
+              <p className="mb-2.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#9b9a92]">
                 Min rating
               </p>
               <div className="flex flex-wrap gap-2">
@@ -253,7 +253,7 @@ export default function CommunityFilters({
                       'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.25 text-[12px] font-medium transition',
                       minRating === option.value
                         ? 'border-[rgba(196,154,44,0.4)] bg-[rgba(196,154,44,0.12)] text-[#c49a2c]'
-                        : 'border-[#e0d0c5] bg-white text-[#6b5f58] hover:border-[rgba(184,76,43,0.2)] dark:border-white/9 dark:bg-transparent dark:text-[#9b9a92]',
+                        : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)',
                     )}
                   >
                     {option.value !== null && (
@@ -270,7 +270,7 @@ export default function CommunityFilters({
             <div className="hidden w-px self-stretch bg-[#e8ddd6] dark:bg-white/8 sm:block" />
 
             <div>
-              <p className="mb-2.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#9b9a92]">
+              <p className="mb-2.5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#9b9a92]">
                 Status
               </p>
               <div className="flex gap-2">
@@ -280,8 +280,8 @@ export default function CommunityFilters({
                   className={cn(
                     'rounded-full border px-3 py-1.25 text-[12px] font-medium transition',
                     !verifiedOnly
-                      ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-[#b84c2b] dark:text-[#e8816a]'
-                      : 'border-[#e0d0c5] bg-white text-[#6b5f58] hover:border-[rgba(184,76,43,0.2)] dark:border-white/9 dark:bg-transparent dark:text-[#9b9a92]',
+                      ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-(--brand-500) dark:text-(--brand-500)'
+                      : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)',
                   )}
                 >
                   All
@@ -292,8 +292,8 @@ export default function CommunityFilters({
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.25 text-[12px] font-medium transition',
                     verifiedOnly
-                      ? 'border-[rgba(45,106,71,0.35)] bg-[rgba(45,106,71,0.09)] text-[#2d6a47] dark:text-[#5cc98a]'
-                      : 'border-[#e0d0c5] bg-white text-[#6b5f58] hover:border-[rgba(184,76,43,0.2)] dark:border-white/9 dark:bg-transparent dark:text-[#9b9a92]',
+                      ? 'border-[rgba(45,106,71,0.35)] bg-[rgba(45,106,71,0.09)] text-(--success) dark:text-(--success)'
+                      : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)',
                   )}
                 >
                   <VerifiedIcon /> Verified only
@@ -308,7 +308,7 @@ export default function CommunityFilters({
                   onMinRatingChange(null)
                   onVerifiedOnlyChange(false)
                 }}
-                className="text-[12px] text-[#9b9a92] underline underline-offset-2 transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+                className="text-[12px] text-[#9b9a92] underline underline-offset-2 transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
               >
                 Clear filters
               </button>

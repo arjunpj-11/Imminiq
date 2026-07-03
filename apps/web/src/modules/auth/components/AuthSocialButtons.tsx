@@ -2,7 +2,7 @@ export default function AuthSocialButtons() {
   return (
     <div className="grid grid-cols-2 gap-2.5">
       <button
-        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-white px-2 py-2.75 text-[13px] font-medium text-[#1a1714] transition hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb]"
+        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) bg-white px-2 py-2.75 text-[13px] font-medium text-(--text-primary) transition hover:-translate-y-px hover:border-(--brand-500) hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary)"
         type="button"
         aria-label="Continue with Google"
         onClick={() => {
@@ -19,7 +19,7 @@ export default function AuthSocialButtons() {
       </button>
 
       <button
-        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-white px-2 py-2.75 text-[13px] font-medium text-[#1a1714] transition hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb]"
+        className="flex min-w-0 items-center justify-center gap-2 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) bg-white px-2 py-2.75 text-[13px] font-medium text-(--text-primary) transition hover:-translate-y-px hover:border-(--brand-500) hover:shadow-[0_2px_10px_rgba(184,76,43,0.08)] active:translate-y-0 dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary)"
         type="button"
         aria-label="Continue with GitHub"
         onClick={() => {

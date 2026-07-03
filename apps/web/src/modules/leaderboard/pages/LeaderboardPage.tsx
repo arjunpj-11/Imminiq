@@ -81,7 +81,7 @@ export default function LeaderboardPage() {
             />
 
             {leaderboardQuery.isFetching && (
-              <div className="-mb-5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]" role="status" aria-live="polite">
+              <div className="-mb-5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]" role="status" aria-live="polite">
                 Updating leaderboard…
               </div>
             )}

@@ -49,6 +49,7 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
               text="IMMINIQ"
               delay={skipIntro ? 0 : 320}
               skip={skipIntro}
+              accentFromIndex={5}
               onDone={skipIntro ? undefined : onDone0}
             />
           </h1>

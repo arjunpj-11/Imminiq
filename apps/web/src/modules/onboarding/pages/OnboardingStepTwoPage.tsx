@@ -2,14 +2,15 @@
 
 import { useMemo, useRef, useState } from 'react'
 import type { KeyboardEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { useSaveOnboardingStepTwo } from '../hooks/useSaveOnboardingStepTwo'
 
 import { useGenerateRoadmap } from '../hooks/useGenerateRoadmap'
-import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
+import OnboardingBrandLink from '../components/OnboardingBrandLink'
 import { levelOptions } from '../constants/onboarding.constants'
 import type { Level } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
+import { useOnboardingStore } from '../store/useOnboardingStore'
 import { getInitialLevel } from '../utils/onboarding-storage'
 
 const EditIcon = () => {
@@ -85,7 +86,7 @@ const ArrowLeftIcon = () => {
 const StatueIllustration = () => {
   return (
     <svg
-      className="pointer-events-none absolute -right-5 top-5 hidden w-55 select-none text-[#1a1714]/[0.07] dark:text-[#f2f0eb]/4 md:block"
+      className="pointer-events-none absolute -right-5 top-5 hidden w-55 select-none text-(--text-primary)/[0.07] dark:text-(--text-primary)/4 md:block"
       viewBox="0 0 200 280"
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
@@ -198,6 +199,8 @@ const RoadmapIllustration = () => {
 
 export default function OnboardingStepTwoPage() {
   const navigate = useNavigate()
+  const stepOneDraft = useOnboardingStore((state) => state.step1Data)
+  const saveOnboardingStepTwoDraft = useOnboardingStore((state) => state.saveStep2)
   const firstLevelCardRef = useRef<HTMLButtonElement | null>(null)
 
   const {
@@ -223,21 +226,8 @@ export default function OnboardingStepTwoPage() {
 
   const isSubmitting = isSavingStepTwo || isGeneratingRoadmap
 
-  const [topic] = useState(() => {
-    return (
-      sessionStorage.getItem('imminiq_topic') ||
-      sessionStorage.getItem('imminiq_draft_topic') ||
-      'MERN Stack Interviews'
-    )
-  })
-
-  const [goal] = useState(() => {
-    return (
-      sessionStorage.getItem('imminiq_goal') ||
-      sessionStorage.getItem('imminiq_draft_goal') ||
-      'Crack product company roles'
-    )
-  })
+  const topic = stepOneDraft?.topic || 'MERN Stack Interviews'
+  const goal = stepOneDraft?.goal || 'Crack product company roles'
 
   const [selectedLevel, setSelectedLevel] = useState<Level>(() => {
     return getInitialLevel()
@@ -305,7 +295,7 @@ export default function OnboardingStepTwoPage() {
 
     clearMutationError()
 
-    sessionStorage.setItem('imminiq_level', selectedLevel)
+    saveOnboardingStepTwoDraft({ level: selectedLevel })
 
     saveStepTwo(
       {
@@ -378,22 +368,22 @@ export default function OnboardingStepTwoPage() {
   const levelCardClass = (selected: boolean) =>
     cn(
       'group relative flex w-full items-start gap-4 overflow-hidden rounded-[16px] border-[1.5px] px-5 py-5 text-left transition',
-      'border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
-      'hover:-translate-y-px hover:border-[#e8816a] hover:shadow-[0_8px_28px_rgba(184,76,43,0.09)]',
+      'border-[var(--border-subtle)] bg-[var(--surface-card)] shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
+      'hover:-translate-y-px hover:border-[var(--brand-500)] hover:shadow-[0_8px_28px_rgba(184,76,43,0.09)]',
       'disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0',
-      'dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.05)]',
+      'dark:border-white/15 dark:bg-[var(--surface-card)] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.05)]',
       'dark:hover:border-[#f5a090]',
       selected &&
-        'border-[#b84c2b] bg-[rgba(184,76,43,0.06)] shadow-[0_6px_28px_rgba(184,76,43,0.18)] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.08)] dark:shadow-[0_8px_36px_rgba(232,129,106,0.22)]'
+        'border-[var(--brand-500)] bg-[rgba(184,76,43,0.06)] shadow-[0_6px_28px_rgba(184,76,43,0.18)] dark:border-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.08)] dark:shadow-[0_8px_36px_rgba(232,129,106,0.22)]'
     )
 
   const levelBadgeClass = (level: Level) =>
     cn(
       'inline-flex items-center rounded px-2 py-0.75 font-mono text-[8.5px] font-medium uppercase tracking-[0.1em]',
       level === 'beginner' &&
-        'bg-[rgba(76,175,125,0.10)] text-[#2d8a5e] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]',
+        'bg-[rgba(76,175,125,0.10)] text-[#2d8a5e] dark:bg-[rgba(92,201,138,0.12)] dark:text-[var(--success)]',
       level === 'intermediate' &&
-        'bg-[rgba(232,129,106,0.14)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.16)] dark:text-[#e8816a]',
+        'bg-[rgba(232,129,106,0.14)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.16)] dark:text-[var(--brand-500)]',
       level === 'advanced' &&
         'bg-[rgba(90,100,200,0.10)] text-[#4a56b5] dark:bg-[rgba(140,148,240,0.14)] dark:text-[#8c94f0]'
     )
@@ -405,31 +395,26 @@ export default function OnboardingStepTwoPage() {
       : 'Generate my roadmap'
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f5ede4] pb-24 font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-transparent bg-[#f5ede4]/95 px-5 py-4 backdrop-blur-xl dark:bg-[#141412]/95 sm:px-8 md:px-12">
-        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
-          <LogoIcon className="h-8.5 w-8.5 rounded-[9px]" />
-
-          <span className="text-[20px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
-            immin
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-          </span>
-        </Link>
+    <div className="flex min-h-screen flex-col bg-(--surface-canvas) pb-24 font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
+      <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-transparent bg-(--surface-canvas)/95 px-5 py-4 backdrop-blur-xl dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
+        <OnboardingBrandLink
+          logoClassName="h-8.5 w-8.5 rounded-[var(--radius-sm)]"
+          wordmarkClassName="text-[20px]"
+        />
 
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3" aria-label="Step 2 of 2">
-            <span className="hidden font-mono text-[9.5px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92] sm:inline">
+            <span className="hidden font-mono text-[9.5px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary) sm:inline">
               Step 2 of 2
             </span>
 
-            <span className="hidden h-3.5 w-px bg-[#e0d0c5] dark:bg-white/15 sm:block" />
+            <span className="hidden h-3.5 w-px bg-(--border-subtle) dark:bg-white/15 sm:block" />
 
             <button
               type="button"
               onClick={handleBack}
               disabled={isSubmitting}
-              className="hidden max-w-45 truncate font-mono text-[9px] tracking-[0.06em] text-[#6b5f58]/70 transition hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#9b9a92]/70 dark:hover:text-[#e8816a] md:block"
+              className="hidden max-w-45 truncate font-mono text-[9px] tracking-[0.06em] text-(--text-secondary)/70 transition hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-60 dark:text-(--text-secondary)/70 dark:hover:text-(--brand-500) md:block"
             >
               Previous: {topic || 'Goal Selection'}
             </button>
@@ -447,7 +432,7 @@ export default function OnboardingStepTwoPage() {
         aria-valuemax={100}
         aria-label="Step 2 of 2 complete"
       >
-        <div className="h-full w-full rounded-r-sm bg-[#b84c2b] dark:bg-[#e8816a]" />
+        <div className="h-full w-full rounded-r-sm bg-(--brand-500) dark:bg-(--brand-500)" />
       </div>
 
       <main className="relative mx-auto flex w-full max-w-185 flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-10 md:py-13">
@@ -458,26 +443,26 @@ export default function OnboardingStepTwoPage() {
           onClick={handleBack}
           disabled={isSubmitting}
           aria-label="Edit topic and goal"
-          className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-[rgba(26,23,20,0.12)] bg-[rgba(26,23,20,0.05)] px-4 py-2 font-mono text-[9.5px] uppercase tracking-[0.12em] text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/15 dark:bg-white/6 dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)]"
+          className="mb-6 inline-flex max-w-full items-center gap-2 rounded-full border border-[rgba(26,23,20,0.12)] bg-[rgba(26,23,20,0.05)] px-4 py-2 font-mono text-[9.5px] uppercase tracking-[0.12em] text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] disabled:cursor-not-allowed disabled:opacity-70 dark:border-white/15 dark:bg-white/6 dark:text-(--text-secondary) dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)]"
         >
           <span className="truncate">{contextText}</span>
-          <span className="shrink-0 text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
+          <span className="shrink-0 text-(--text-secondary)/70 dark:text-(--text-secondary)/70">
             <EditIcon />
           </span>
         </button>
 
-        <h1 className="mb-3 max-w-155 text-center font-serif text-[clamp(26px,5.5vw,42px)] font-extrabold leading-[1.1] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
+        <h1 className="mb-3 max-w-155 text-center font-serif text-[clamp(26px,5.5vw,42px)] font-extrabold leading-[1.1] tracking-[-1px] text-(--text-primary) dark:text-(--text-primary)">
           How would you describe your current level?
         </h1>
 
-        <p className="mb-9 max-w-125 text-center text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mb-9 max-w-125 text-center text-sm leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
           Select the stage that best represents your familiarity with the
           subject matter to customise your learning path.
         </p>
 
         {apiError && (
           <div
-            className="mb-5 flex w-full items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+            className="mb-5 flex w-full items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-(--danger) bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-(--danger) dark:border-l-(--danger) dark:bg-[rgba(255,107,95,0.10)] dark:text-(--danger)"
             role="alert"
           >
             <AlertIcon className="mt-0.5 h-3.5 w-3.5" />
@@ -512,13 +497,13 @@ export default function OnboardingStepTwoPage() {
                   className={cn(
                     'mt-0.5 flex h-5 w-5 shrink-0 items-center justify-center rounded-full border-2 transition',
                     selected
-                      ? 'border-[#b84c2b] bg-[#b84c2b] dark:border-[#e8816a] dark:bg-[#e8816a]'
-                      : 'border-[#e0d0c5] bg-transparent dark:border-white/15'
+                      ? 'border-(--brand-500) bg-(--brand-500) dark:border-(--brand-500) dark:bg-(--brand-500)'
+                      : 'border-(--border-subtle) bg-transparent dark:border-white/15'
                   )}
                 >
                   <span
                     className={cn(
-                      'h-2 w-2 rounded-full bg-white transition dark:bg-[#141412]',
+                      'h-2 w-2 rounded-full bg-white transition dark:bg-(--surface-canvas)',
                       selected
                         ? 'scale-100 opacity-100'
                         : 'scale-0 opacity-0'
@@ -532,12 +517,12 @@ export default function OnboardingStepTwoPage() {
                       {option.badge}
                     </span>
 
-                    <span className="font-serif text-[20px] font-bold leading-none tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+                    <span className="font-serif text-[20px] font-bold leading-none tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
                       {option.title}
                     </span>
                   </span>
 
-                  <span className="block text-[13.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <span className="block text-[13.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                     {option.description}
                   </span>
                 </span>
@@ -548,7 +533,7 @@ export default function OnboardingStepTwoPage() {
 
         {levelError && (
           <div
-            className="mb-8 mt-1 flex w-full items-center gap-1.5 text-[11.5px] text-[#d94535] dark:text-[#ff6b5f]"
+            className="mb-8 mt-1 flex w-full items-center gap-1.5 text-[11.5px] text-(--danger) dark:text-(--danger)"
             role="alert"
             aria-live="polite"
           >
@@ -562,20 +547,20 @@ export default function OnboardingStepTwoPage() {
         <section
           className={cn(
             'mb-8 flex w-full items-start gap-3.5 rounded-2xl border-[1.5px] px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] transition',
-            'border-[#e0d0c5] bg-[#fdf8f5] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.05)]',
+            'border-(--border-subtle) bg-(--surface-card) dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.05)]',
             summaryHighlight &&
-              'border-[#e8816a] dark:border-[#f5a090]'
+              'border-(--brand-500) dark:border-[#f5a090]'
           )}
           role="status"
           aria-live="polite"
         >
-          <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-[10px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+          <div className="flex h-9.5 w-9.5 shrink-0 items-center justify-center rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
             <SparkIcon className="animate-spin [animation-duration:6s]" />
           </div>
 
-          <p className="text-[13.5px] leading-[1.65] text-[#1a1714] dark:text-[#f2f0eb]">
+          <p className="text-[13.5px] leading-[1.65] text-(--text-primary) dark:text-(--text-primary)">
             “Based on your answers, your roadmap will be calibrated for your{' '}
-            <strong className="font-semibold capitalize text-[#b84c2b] dark:text-[#e8816a]">
+            <strong className="font-semibold capitalize text-(--brand-500) dark:text-(--brand-500)">
               {selectedLevel}
             </strong>{' '}
             level, with a personalized learning path shaped around your goal and
@@ -584,22 +569,22 @@ export default function OnboardingStepTwoPage() {
         </section>
 
         <section className="mb-2 flex w-full gap-3.5" aria-hidden="true">
-          <div className="flex min-h-30 flex-1 items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
+          <div className="flex min-h-30 flex-1 items-center justify-center overflow-hidden rounded-md border border-(--border-subtle) bg-(--surface-card) text-(--text-primary)/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:text-(--text-primary)/35">
             <WorkspaceIllustration />
           </div>
 
-          <div className="flex min-h-30 w-[38%] items-center justify-center overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]/35">
+          <div className="flex min-h-30 w-[38%] items-center justify-center overflow-hidden rounded-md border border-(--border-subtle) bg-(--surface-card) text-(--text-primary)/35 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:text-(--text-primary)/35">
             <RoadmapIllustration />
           </div>
         </section>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[#f5ede4]/94 px-4 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/94 sm:px-8 md:px-12">
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between gap-3 border-t border-(--border-subtle) bg-(--surface-canvas)/94 px-4 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/94 sm:px-8 md:px-12">
         <button
           type="button"
           onClick={handleBack}
           disabled={isSubmitting}
-          className="inline-flex items-center gap-1.75 py-2 text-[13px] font-medium text-[#6b5f58] transition hover:text-[#1a1714] disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#9b9a92] dark:hover:text-[#f2f0eb]"
+          className="inline-flex items-center gap-1.75 py-2 text-[13px] font-medium text-(--text-secondary) transition hover:text-(--text-primary) disabled:cursor-not-allowed disabled:opacity-60 dark:text-(--text-secondary) dark:hover:text-[#f2f0eb]"
         >
           <ArrowLeftIcon />
           Back
@@ -607,11 +592,11 @@ export default function OnboardingStepTwoPage() {
 
         <div className="flex shrink-0 items-center gap-3.5">
           <div className="hidden flex-col items-end gap-0.5 md:flex" aria-hidden="true">
-            <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
+            <span className="font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/70 dark:text-(--text-secondary)/70">
               Final Step
             </span>
 
-            <span className="font-mono text-[10px] italic tracking-[0.06em] text-[#6b5f58] dark:text-[#9b9a92]">
+            <span className="font-mono text-[10px] italic tracking-[0.06em] text-(--text-secondary) dark:text-(--text-secondary)">
               Generate Strategy
             </span>
           </div>
@@ -620,7 +605,7 @@ export default function OnboardingStepTwoPage() {
             type="button"
             onClick={handleGenerate}
             disabled={isSubmitting}
-            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-[#b84c2b] px-5.5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="group relative inline-flex items-center gap-2 overflow-hidden rounded-xl bg-(--brand-500) px-5.5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             <span className="pointer-events-none absolute -left-full top-0 h-full w-[55%] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.14),transparent)] transition-[left] duration-700 group-hover:left-[160%]" />
 

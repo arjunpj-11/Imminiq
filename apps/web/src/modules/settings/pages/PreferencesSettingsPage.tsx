@@ -6,9 +6,8 @@ import {
   PillButton,
   SaveBar,
   SelectField,
-  UnsavedChangesDialog,
   SettingsCard,
-  SettingsToast,
+  SettingsPageFeedback,
   ToggleRow,
 } from '../components/SettingsUi'
 import { useSettingsToast } from '../hooks/useSettingsToast'
@@ -83,7 +82,7 @@ export default function PreferencesSettingsPage() {
         title="Preferences"
         subtitle="Customise the way Imminiq looks, behaves and supports your learning flow."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 text-[14px] font-semibold text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)">
           Unable to load preferences.
         </div>
       </SettingsShell>
@@ -252,7 +251,7 @@ function PreferencesSettingsForm({
         </SettingsCard>
 
         {/* ─── GESTURES — COMING SOON ─────────────────────────────── */}
-        <div className="relative overflow-hidden rounded-[18px]">
+        <div className="relative overflow-hidden rounded-lg">
           <div className="pointer-events-none select-none blur-[3px] opacity-65">
             <SettingsCard
               title="Gesture Controls"
@@ -277,7 +276,7 @@ function PreferencesSettingsForm({
                   max={100}
                   value={form.gestures.sensitivity}
                   readOnly
-                  className="w-full accent-[#b84c2b] dark:accent-[#e8816a]"
+                  className="w-full accent-(--brand-500) dark:accent-(--brand-500)"
                 />
               </div>
 
@@ -293,12 +292,12 @@ function PreferencesSettingsForm({
                       className={`rounded-2xl border-[1.5px] p-4 text-center transition ${
                         active
                           ? 'border-[rgba(184,76,43,0.26)] bg-[rgba(184,76,43,0.10)] dark:border-[rgba(232,129,106,0.28)] dark:bg-[rgba(232,129,106,0.12)]'
-                          : 'border-[#e0d0c5] dark:border-white/9'
+                          : 'border-(--border-subtle) dark:border-(--border-subtle)'
                       }`}
                     >
                       <div className="text-[24px]">{item.icon}</div>
 
-                      <div className="mt-2 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                      <div className="mt-2 text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                         {item.label}
                       </div>
                     </button>
@@ -328,27 +327,27 @@ function PreferencesSettingsForm({
             </SettingsCard>
           </div>
 
-          <div className="absolute inset-0 z-10 flex items-center justify-center bg-[#fdf8f5]/55 px-4 backdrop-blur-[2px] dark:bg-[#141412]/60">
-            <div className="w-full max-w-107.5 rounded-[22px] border-[1.5px] border-[rgba(184,76,43,0.24)] bg-[#fdf8f5]/95 p-6 text-center shadow-[0_18px_60px_rgba(26,23,20,0.14)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[#1e1c19]/95 dark:shadow-[0_22px_70px_rgba(0,0,0,0.40)]">
-              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-[18px] bg-[rgba(184,76,43,0.10)] text-[28px] dark:bg-[rgba(232,129,106,0.12)]">
+          <div className="absolute inset-0 z-10 flex items-center justify-center bg-(--surface-card)/55 px-4 backdrop-blur-[2px] dark:bg-(--surface-canvas)/60">
+            <div className="w-full max-w-107.5 rounded-xl border-[1.5px] border-[rgba(184,76,43,0.24)] bg-(--surface-card)/95 p-6 text-center shadow-[0_18px_60px_rgba(26,23,20,0.14)] dark:border-[rgba(232,129,106,0.25)] dark:bg-(--surface-card)/95 dark:shadow-[0_22px_70px_rgba(0,0,0,0.40)]">
+              <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-lg bg-[rgba(184,76,43,0.10)] text-[28px] dark:bg-[rgba(232,129,106,0.12)]">
                 🖐
               </div>
 
-              <p className="mt-4 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
+              <p className="mt-4 font-mono text-[10px] font-bold uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">
                 Coming Soon
               </p>
 
-              <h3 className="mt-2 font-['Playfair_Display',serif] text-[24px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+              <h3 className="mt-2 font-ui text-[24px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
                 Hand Gesture Scrolling
               </h3>
 
-              <p className="mt-3 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mt-3 text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                 Gesture-based scrolling and navigation are planned for a future
                 Imminiq update. This feature will become available in a later
                 release.
               </p>
 
-              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-4 py-2 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.12em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.18)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+              <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.18)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                 Experimental Feature
               </div>
             </div>
@@ -451,7 +450,7 @@ function PreferencesSettingsForm({
             ))}
           </div>
 
-          <div className="mb-5 overflow-hidden rounded-2xl bg-[#1a1714] p-4 font-['DM_Mono',monospace] text-[12px] leading-[1.8] text-[#f2f0eb]">
+          <div className="mb-5 overflow-hidden rounded-2xl bg-[#1a1714] p-4 font-mono text-[12px] leading-[1.8] text-[#f2f0eb]">
             <div>1&nbsp;&nbsp;class Polymath {'{'}</div>
             <div>2&nbsp;&nbsp;&nbsp;&nbsp;constructor(subject) {'{'}</div>
             <div>
@@ -701,20 +700,15 @@ function PreferencesSettingsForm({
         />
       </div>
 
-      <UnsavedChangesDialog
-        open={unsavedChangesGuard.isBlocked}
+      <SettingsPageFeedback
+        isBlocked={unsavedChangesGuard.isBlocked}
         isSaving={unsavedChangesGuard.isSavingChanges}
         onStay={unsavedChangesGuard.stayOnPage}
         onDiscard={unsavedChangesGuard.discardAndLeave}
         onSaveChanges={() =>
           void unsavedChangesGuard.saveChangesAndLeave(handleSave)
         }
-      />
-
-      <SettingsToast
-        visible={toast.visible}
-        message={toast.message}
-        tone={toast.tone}
+        toast={toast}
       />
     </SettingsShell>
   )

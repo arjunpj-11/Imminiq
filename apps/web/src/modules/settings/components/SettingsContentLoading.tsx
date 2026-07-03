@@ -11,7 +11,7 @@ export default function SettingsContentLoading({
 }: SettingsContentLoadingProps) {
   return (
     <div
-      className="relative min-h-105 w-full overflow-hidden rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-6 text-[#1a1714] shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb] dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
+      className="relative min-h-105 w-full overflow-hidden rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-6 text-(--text-primary) shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary) dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"
       role="status"
       aria-live="polite"
       aria-label={title}
@@ -47,7 +47,7 @@ export default function SettingsContentLoading({
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="rounded-3xl border-[1.5px] border-[#e0d0c5] bg-white/45 p-5 shadow-[0_10px_28px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-white/[0.035]"
+              className="rounded-3xl border-[1.5px] border-(--border-subtle) bg-white/45 p-5 shadow-[0_10px_28px_rgba(26,23,20,0.06)] dark:border-(--border-subtle) dark:bg-white/[0.035]"
             >
               <div className="mb-5 flex items-center gap-3">
                 <div className="h-11 w-11 animate-pulse rounded-2xl bg-[#e8d8cf] dark:bg-white/10" />

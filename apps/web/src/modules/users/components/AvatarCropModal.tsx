@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect } from 'react'
 import type React from 'react'
 import { cn } from '../utils/profile-ui.utils'
-import { loadImage } from '../utils/profile-image.utils'
+import { useImageCropControls } from '../hooks/useImageCropControls'
 
 /* ─── Avatar Crop Modal ─── */
 interface AvatarCropModalProps {
@@ -21,13 +21,24 @@ export default function AvatarCropModal({
   onApply,
   onToast,
 }: AvatarCropModalProps) {
-  const [imageSrc, setImageSrc] = useState<string | null>(null);
-  const [scale, setScale] = useState(AVATAR_INITIAL_ZOOM);
-  const [offset, setOffset] = useState({ x: 0, y: 0 });
-  const [dragging, setDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0, ox: 0, oy: 0 });
-  const previewRef = useRef<HTMLDivElement>(null);
-  const imageRef = useRef<HTMLImageElement | null>(null);
+  const {
+    imageSrc,
+    scale,
+    setScale,
+    dragging,
+    previewRef,
+    previewImageStyle,
+    setImageSource,
+    handlePointerDown,
+    handlePointerMove,
+    handlePointerUp,
+    handleWheel,
+    renderToDataUrl,
+  } = useImageCropControls({
+    initialScale: AVATAR_INITIAL_ZOOM,
+    minScale: AVATAR_MIN_ZOOM,
+    maxScale: AVATAR_MAX_ZOOM,
+  });
 
   useEffect(() => {
     if (!open) return;
@@ -50,53 +61,10 @@ export default function AvatarCropModal({
     reader.onload = () => {
       const result = typeof reader.result === "string" ? reader.result : null;
       if (!result) return;
-      setImageSrc(result);
-      setScale(AVATAR_INITIAL_ZOOM);
-      setOffset({ x: 0, y: 0 });
-      const img = new Image();
-      img.src = result;
-      img.onload = () => {
-        imageRef.current = img;
-      };
+      setImageSource(result);
     };
     reader.readAsDataURL(file);
     event.target.value = "";
-  };
-
-  const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!imageSrc) return;
-    setDragging(true);
-    setDragStart({
-      x: event.clientX,
-      y: event.clientY,
-      ox: offset.x,
-      oy: offset.y,
-    });
-    event.currentTarget.setPointerCapture(event.pointerId);
-  };
-
-  const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
-    if (!dragging) return;
-    setOffset({
-      x: dragStart.ox + (event.clientX - dragStart.x),
-      y: dragStart.oy + (event.clientY - dragStart.y),
-    });
-  };
-
-  const handlePointerUp = () => setDragging(false);
-
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    if (!imageSrc) return;
-    event.preventDefault();
-    setScale((current) =>
-      Math.min(
-        AVATAR_MAX_ZOOM,
-        Math.max(
-          AVATAR_MIN_ZOOM,
-          Number((current + (event.deltaY < 0 ? 0.08 : -0.08)).toFixed(2)),
-        ),
-      ),
-    );
   };
 
   const applyAvatar = async () => {
@@ -105,29 +73,10 @@ export default function AvatarCropModal({
       return;
     }
 
-    const image = imageRef.current ?? (await loadImage(imageSrc));
-    const size = 640;
-    const canvas = document.createElement("canvas");
-    canvas.width = size;
-    canvas.height = size;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
-
-    const preview = previewRef.current.getBoundingClientRect();
-    const fitScale = Math.max(
-      size / image.naturalWidth,
-      size / image.naturalHeight,
-    );
-    const renderScale = fitScale * scale;
-    const drawWidth = image.naturalWidth * renderScale;
-    const drawHeight = image.naturalHeight * renderScale;
-    const ratioX = size / Math.max(preview.width, 1);
-    const ratioY = size / Math.max(preview.height, 1);
-    const drawX = (size - drawWidth) / 2 + offset.x * ratioX;
-    const drawY = (size - drawHeight) / 2 + offset.y * ratioY;
-
-    ctx.drawImage(image, drawX, drawY, drawWidth, drawHeight);
-    await onApply(canvas.toDataURL("image/png"));
+    const dataUrl = await renderToDataUrl({ width: 640, height: 640 });
+    if (dataUrl) {
+      await onApply(dataUrl);
+    }
   };
 
   return (
@@ -140,20 +89,20 @@ export default function AvatarCropModal({
           : "pointer-events-none opacity-0",
       )}
     >
-      <div className="w-[min(620px,100%)] overflow-hidden rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_20px_70px_rgba(0,0,0,0.32)] dark:border-white/9 dark:bg-[#1e1c19]">
-        <div className="flex items-center justify-between border-b border-[#e0d0c5] px-6 py-5 dark:border-white/9">
+      <div className="w-[min(620px,100%)] overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_20px_70px_rgba(0,0,0,0.32)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
+        <div className="flex items-center justify-between border-b border-(--border-subtle) px-6 py-5 dark:border-(--border-subtle)">
           <div>
-            <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
+            <h2 className="font-ui text-[22px] font-extrabold tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
               Crop Profile Photo
             </h2>
-            <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
               Upload, drag to reposition, and zoom before saving.
             </p>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="flex h-9 w-9 items-center justify-center rounded-[10px] border-[1.5px] border-[#e0d0c5] text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]"
+            className="flex h-9 w-9 items-center justify-center rounded-md border-[1.5px] border-(--border-subtle) text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary)"
           >
             <svg
               width="15"
@@ -170,7 +119,7 @@ export default function AvatarCropModal({
         </div>
 
         <div className="flex flex-col gap-5 p-6">
-          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-[18px] border-[1.5px] border-dashed border-[#e0d0c5] bg-white/65 px-6 py-6 text-center transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.04)] dark:border-white/12 dark:bg-[#252320]/55">
+          <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] border-dashed border-(--border-subtle) bg-white/65 px-6 py-6 text-center transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.04)] dark:border-white/12 dark:bg-(--surface-elevated)/55">
             <svg
               width="24"
               height="24"
@@ -178,15 +127,15 @@ export default function AvatarCropModal({
               fill="none"
               stroke="currentColor"
               strokeWidth="1.8"
-              className="text-[#b84c2b] dark:text-[#e8816a]"
+              className="text-(--brand-500) dark:text-(--brand-500)"
             >
               <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
               <circle cx="12" cy="13" r="4" />
             </svg>
-            <span className="text-[14px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+            <span className="text-[14px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
               Upload profile image
             </span>
-            <span className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+            <span className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
               PNG or JPG, up to 5MB.
             </span>
             <input
@@ -206,7 +155,7 @@ export default function AvatarCropModal({
               onPointerCancel={handlePointerUp}
               onWheel={handleWheel}
               className={cn(
-                "relative h-80 w-[320px] touch-none overflow-hidden rounded-full border-[3px] border-[#b84c2b] bg-[#0e0c0a] shadow-[0_14px_34px_rgba(0,0,0,0.20)] dark:border-[#e8816a] max-[420px]:h-65 max-[420px]:w-65",
+                "relative h-80 w-[320px] touch-none overflow-hidden rounded-full border-[3px] border-(--brand-500) bg-[#0e0c0a] shadow-[0_14px_34px_rgba(0,0,0,0.20)] dark:border-(--brand-500) max-[420px]:h-65 max-[420px]:w-65",
                 dragging && "cursor-grabbing",
               )}
             >
@@ -214,13 +163,8 @@ export default function AvatarCropModal({
                 <img
                   src={imageSrc}
                   alt="Avatar crop preview"
-                  className="pointer-events-none absolute left-1/2 top-1/2 max-w-none select-none"
-                  style={{
-                    width: "100%",
-                    height: "100%",
-                    objectFit: "cover",
-                    transform: `translate(calc(-50% + ${offset.x}px), calc(-50% + ${offset.y}px)) scale(${scale})`,
-                  }}
+                  className="select-none"
+                  style={previewImageStyle}
                 />
               ) : (
                 <div className="flex h-full w-full items-center justify-center text-center text-[13px] font-medium text-white/70">
@@ -232,7 +176,7 @@ export default function AvatarCropModal({
           </div>
 
           <div className="flex items-center gap-3">
-            <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+            <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
               Zoom
             </span>
             <input
@@ -242,26 +186,26 @@ export default function AvatarCropModal({
               step="0.01"
               value={scale}
               onChange={(event) => setScale(Number(event.target.value))}
-              className="w-full accent-[#b84c2b] dark:accent-[#e8816a]"
+              className="w-full accent-(--brand-500) dark:accent-(--brand-500)"
             />
-            <span className="w-12 text-right font-['DM_Mono',monospace] text-[10px] text-[#b84c2b] dark:text-[#e8816a]">
+            <span className="w-12 text-right font-mono text-[10px] text-(--brand-500) dark:text-(--brand-500)">
               {Math.round(scale * 100)}%
             </span>
           </div>
         </div>
 
-        <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-[#e0d0c5] px-6 py-4 dark:border-white/9">
+        <div className="flex flex-wrap items-center justify-end gap-2.5 border-t border-(--border-subtle) px-6 py-4 dark:border-(--border-subtle)">
           <button
             type="button"
             onClick={onClose}
-            className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-5 py-2.5 text-[13px] font-semibold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]"
+            className="rounded-md border-[1.5px] border-(--border-subtle) px-5 py-2.5 text-[13px] font-semibold text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary)"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={applyAvatar}
-            className="rounded-[10px] bg-[#b84c2b] px-5.5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="rounded-md bg-(--brand-500) px-5.5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             Save Photo
           </button>

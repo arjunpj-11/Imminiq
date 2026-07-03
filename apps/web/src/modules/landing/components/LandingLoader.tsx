@@ -106,6 +106,7 @@ export default function LandingLoader({
   useEffect(() => { onGoneRef.current = onGone }, [onGone])
 
   const cssInjectedRef = useRef(false)
+  const phaseRef = useRef<LoaderPhase>('idle')
 
   useEffect(() => {
     if (!cssInjectedRef.current) {
@@ -114,34 +115,44 @@ export default function LandingLoader({
     }
 
     const timers: ReturnType<typeof setTimeout>[] = []
-    const t = (fn: () => void, ms: number) => { timers.push(setTimeout(fn, ms)) }
+    const t = (fn: () => void, ms: number) => {
+      timers.push(setTimeout(fn, ms))
+    }
+    const setLoaderPhase = (nextPhase: LoaderPhase) => {
+      phaseRef.current = nextPhase
+      setPhase(nextPhase)
+    }
     const cleanup = () => timers.forEach(clearTimeout)
 
     const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduced) {
-      setTimeout(() => {
+      t(() => {
         onDoneRef.current?.()
         onGoneRef.current?.()
-        setPhase('done')
+        setLoaderPhase('done')
       }, 0)
       return cleanup
     }
 
-    t(() => setPhase('frame'),   600)
-    t(() => setPhase('drawing'), 1000)
-    t(() => setPhase('burst'),   3800)
-    t(() => setPhase('naming'),  3900)
-    t(() => { onDoneRef.current?.() },                   7500)
-    t(() => setPhase('leaving'),                         7700)
-    t(() => { onGoneRef.current?.(); setPhase('done') }, 7700 + EXIT_MS)
+    t(() => setLoaderPhase('frame'), 600)
+    t(() => setLoaderPhase('drawing'), 1000)
+    t(() => setLoaderPhase('burst'), 3800)
+    t(() => setLoaderPhase('naming'), 3900)
+    t(() => {
+      onDoneRef.current?.()
+    }, 7500)
+    t(() => setLoaderPhase('leaving'), 7700)
+    t(() => {
+      onGoneRef.current?.()
+      setLoaderPhase('done')
+    }, 7700 + EXIT_MS)
 
-    // safety net: tab hidden → timers may fire late; force finish on return
-    const phaseRef = { current: phase }
+    // Safety net: hidden tabs may throttle timers, so finish on return.
     const onVisible = () => {
       if (document.visibilityState === 'visible' && phaseRef.current === 'naming') {
         onDoneRef.current?.()
         onGoneRef.current?.()
-        setPhase('done')
+        setLoaderPhase('done')
       }
     }
     document.addEventListener('visibilitychange', onVisible)
@@ -150,7 +161,7 @@ export default function LandingLoader({
       cleanup()
       document.removeEventListener('visibilitychange', onVisible)
     }
-  }, []) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [])
 
   const isDark = useIsDark()
 

@@ -90,7 +90,7 @@ function SubmissionModal({
     >
       {/* Modal panel */}
       <div
-        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-[20px] border border-white/10 bg-[#111] shadow-2xl"
+        className="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-xl border border-white/10 bg-[#111] shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal header */}
@@ -98,7 +98,7 @@ function SubmissionModal({
           <div className="flex flex-wrap items-center gap-2">
             <span
               className={cn(
-                "rounded-full px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em]",
+                "rounded-full px-2.5 py-1 font-mono text-[8px] font-bold uppercase tracking-[0.08em]",
                 item.isCorrect
                   ? 'border border-[#2e5a39] bg-[#1a3d24] text-[#4caf50]'
                   : 'border border-[#ffbd2e]/40 bg-[#3a2b12] text-[#ffbd2e]'
@@ -107,12 +107,12 @@ function SubmissionModal({
               {item.isCorrect ? 'Submit Passed' : 'Submit Failed'}
             </span>
 
-            <span className="rounded-full border border-white/10 bg-[#1e1e1e] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#888]">
+            <span className="rounded-full border border-white/10 bg-[#1e1e1e] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-[#888]">
               {item.language}
             </span>
 
             {item.time && (
-              <span className="rounded-full border border-white/10 bg-[#1e1e1e] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#888]">
+              <span className="rounded-full border border-white/10 bg-[#1e1e1e] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-[#888]">
                 {item.time}s
               </span>
             )}
@@ -129,7 +129,7 @@ function SubmissionModal({
                 onRestore(item)
                 onClose()
               }}
-              className="rounded-md border border-[#e8816a]/40 bg-[#b84c2b]/20 px-3 py-1.5 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em] text-[#e8816a] transition hover:bg-[#b84c2b] hover:text-white"
+              className="rounded-md border border-(--brand-500)/40 bg-(--brand-500)/20 px-3 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.08em] text-(--brand-500) transition hover:bg-(--brand-500) hover:text-white"
             >
               Restore
             </button>
@@ -137,7 +137,7 @@ function SubmissionModal({
             <button
               type="button"
               onClick={onClose}
-              className="rounded-md border border-white/10 bg-[#1e1e1e] px-3 py-1.5 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em] text-[#888] transition hover:bg-[#2a2a2a] hover:text-[#d4d4d4]"
+              className="rounded-md border border-white/10 bg-[#1e1e1e] px-3 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.08em] text-[#888] transition hover:bg-[#2a2a2a] hover:text-[#d4d4d4]"
             >
               ✕ Close
             </button>
@@ -148,28 +148,28 @@ function SubmissionModal({
         <div className="p-5 space-y-4">
           <div className="grid gap-4 lg:grid-cols-2">
             <div>
-              <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#777]">
+              <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#777]">
                 Code
               </div>
 
-              <pre className="max-h-72 overflow-y-auto rounded-[10px] border border-white/10 bg-[#0a0a0a] p-3 font-['DM_Mono',monospace] text-[11.5px] leading-[1.7] text-[#d4d4d4]">
+              <pre className="max-h-72 overflow-y-auto rounded-md border border-white/10 bg-[#0a0a0a] p-3 font-mono text-[11.5px] leading-[1.7] text-[#d4d4d4]">
                 {item.sourceCode}
               </pre>
             </div>
 
             <div>
-              <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#777]">
+              <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#777]">
                 Output
               </div>
 
-              <pre className="max-h-72 overflow-y-auto rounded-[10px] border border-white/10 bg-[#0a0a0a] p-3 font-['DM_Mono',monospace] text-[11.5px] leading-[1.7] text-[#aaa]">
+              <pre className="max-h-72 overflow-y-auto rounded-md border border-white/10 bg-[#0a0a0a] p-3 font-mono text-[11.5px] leading-[1.7] text-[#aaa]">
                 {historyOutput}
               </pre>
             </div>
           </div>
 
-          <div className="rounded-[10px] border border-white/10 bg-[#161616] p-3">
-            <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#777]">
+          <div className="rounded-md border border-white/10 bg-[#161616] p-3">
+            <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#777]">
               Submit Feedback
             </div>
 
@@ -181,7 +181,7 @@ function SubmissionModal({
             </p>
 
             {item.expectedOutput && (
-              <pre className="mt-3 whitespace-pre-wrap rounded-lg border border-white/10 bg-[#0a0a0a] p-3 font-['DM_Mono',monospace] text-[11.5px] leading-[1.6] text-[#aaa]">
+              <pre className="mt-3 whitespace-pre-wrap rounded-lg border border-white/10 bg-[#0a0a0a] p-3 font-mono text-[11.5px] leading-[1.6] text-[#aaa]">
                 Expected:
                 {'\n'}
                 {item.expectedOutput}
@@ -461,14 +461,14 @@ export default function CompilerCard({
       >
         <section
           className={cn(
-            'overflow-hidden rounded-[20px] border border-white/10 bg-[#1e1e1e] shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:bg-[#111]',
+            'overflow-hidden rounded-xl border border-white/10 bg-[#1e1e1e] shadow-(--shadow-2) dark:bg-[#111]',
             isMaximized && 'mx-auto max-w-6xl'
           )}
         >
           {/* *** CHANGED: maximize button in the top-right of the card header */}
           <div className="border-b border-white/10 bg-[#161616] px-5 py-4 dark:bg-[#0a0a0a]">
-            <div className="mb-4 rounded-[14px] border border-white/10 bg-[#111] p-4">
-              <div className="mb-2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#4caf50]">
+            <div className="mb-4 rounded-md border border-white/10 bg-[#111] p-4">
+              <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[#4caf50]">
                 Coding Challenge
               </div>
 
@@ -482,12 +482,12 @@ export default function CompilerCard({
               </MathText>
 
               {expectedOutput && (
-                <div className="mt-4 rounded-[10px] border border-white/10 bg-[#0a0a0a] p-3">
-                  <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#888]">
+                <div className="mt-4 rounded-md border border-white/10 bg-[#0a0a0a] p-3">
+                  <div className="mb-1 font-mono text-[8px] uppercase tracking-widest text-[#888]">
                     Expected Output
                   </div>
 
-                  <pre className="whitespace-pre-wrap font-['DM_Mono',monospace] text-[12px] text-[#d4d4d4]">
+                  <pre className="whitespace-pre-wrap font-mono text-[12px] text-[#d4d4d4]">
                     {expectedOutput}
                   </pre>
                 </div>
@@ -502,11 +502,11 @@ export default function CompilerCard({
               </div>
 
               <div className="flex min-w-0 flex-wrap items-center justify-center gap-3">
-                <div className="flex items-center gap-1.5 font-['DM_Mono',monospace] text-[12px] text-[#888]">
+                <div className="flex items-center gap-1.5 font-mono text-[12px] text-[#888]">
                   📄 {displayFileName}
                 </div>
 
-                <label className="flex items-center gap-2 rounded-md border border-white/10 bg-[#111] px-2.5 py-1.5 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.08em] text-[#888]">
+                <label className="flex items-center gap-2 rounded-md border border-white/10 bg-[#111] px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#888]">
                   Language
                   <select
                     value={selectedLanguage.value}
@@ -540,7 +540,7 @@ export default function CompilerCard({
                   type="button"
                   disabled={submitCodeMutation.isPending}
                   onClick={submitCode}
-                  className="inline-flex items-center gap-1.5 rounded-md border border-[#e8816a]/40 bg-[#b84c2b] px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-50"
+                  className="inline-flex items-center gap-1.5 rounded-md border border-(--brand-500)/40 bg-(--brand-500) px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-50"
                 >
                   ✓ {submitCodeMutation.isPending ? 'Submitting' : 'Submit'}
                 </button>
@@ -558,7 +558,7 @@ export default function CompilerCard({
             </div>
           </div>
 
-          <div className="flex min-h-60 bg-[#1e1e1e] py-4 font-['DM_Mono',monospace] text-[14px] text-[#d4d4d4] dark:bg-[#111]">
+          <div className="flex min-h-60 bg-[#1e1e1e] py-4 font-mono text-[14px] text-[#d4d4d4] dark:bg-[#111]">
             <div className="select-none px-4 text-right leading-[1.6] text-[#555]">
               {Array.from({ length: lineCount }).map((_, index) => (
                 <div key={index}>{index + 1}</div>
@@ -569,13 +569,13 @@ export default function CompilerCard({
               value={code}
               onChange={(event) => setCode(event.target.value)}
               spellCheck={false}
-              className="min-h-56 flex-1 resize-none bg-transparent pr-4 font-['DM_Mono',monospace] text-[14px] leading-[1.6] text-[#d4d4d4] outline-none"
+              className="min-h-56 flex-1 resize-none bg-transparent pr-4 font-mono text-[14px] leading-[1.6] text-[#d4d4d4] outline-none"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-5 border-t border-white/10 bg-[#161616] p-5 dark:bg-[#0a0a0a] max-[640px]:grid-cols-1">
             <div>
-              <label className="mb-2 block font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#888]">
+              <label className="mb-2 block font-mono text-[10px] font-bold uppercase tracking-widest text-[#888]">
                 Input
               </label>
 
@@ -583,17 +583,17 @@ export default function CompilerCard({
                 value={stdin}
                 onChange={(event) => setStdin(event.target.value)}
                 placeholder="Optional stdin..."
-                className="min-h-28 w-full resize-none rounded-lg border border-white/10 bg-[#111] p-3 font-['DM_Mono',monospace] text-[12px] text-[#aaa] outline-none focus:border-[#e8816a]"
+                className="min-h-28 w-full resize-none rounded-lg border border-white/10 bg-[#111] p-3 font-mono text-[12px] text-[#aaa] outline-none focus:border-(--brand-500)"
               />
             </div>
 
             <div>
-              <div className="mb-3 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#888]">
+              <div className="mb-3 flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#888]">
                 <span className="h-1.5 w-1.5 rounded-full bg-[#27c93f]" />
                 Output
               </div>
 
-              <pre className="max-h-44 overflow-y-auto whitespace-pre-wrap font-['DM_Mono',monospace] text-[12.5px] leading-[1.8] text-[#aaa]">
+              <pre className="max-h-44 overflow-y-auto whitespace-pre-wrap font-mono text-[12.5px] leading-[1.8] text-[#aaa]">
                 {output}
               </pre>
             </div>
@@ -603,7 +603,7 @@ export default function CompilerCard({
             <div className="border-t border-white/10 bg-[#111] p-5">
               <div
                 className={cn(
-                  'rounded-[14px] border p-4',
+                  'rounded-md border p-4',
                   submitResult.isCorrect
                     ? 'border-[#2e5a39] bg-[#1a3d24]/70'
                     : 'border-[#ffbd2e]/30 bg-[#2d2614]'
@@ -627,7 +627,7 @@ export default function CompilerCard({
                     type="button"
                     onClick={getHint}
                     disabled={hintMutation.isPending}
-                    className="mt-4 rounded-[10px] border border-[#ffbd2e]/40 bg-[#3a2b12] px-3 py-2 text-[11px] font-bold text-[#ffbd2e] transition hover:bg-[#4a3616] disabled:cursor-wait disabled:opacity-60"
+                    className="mt-4 rounded-md border border-[#ffbd2e]/40 bg-[#3a2b12] px-3 py-2 text-[11px] font-bold text-[#ffbd2e] transition hover:bg-[#4a3616] disabled:cursor-wait disabled:opacity-60"
                   >
                     {hintMutation.isPending
                       ? 'Thinking...'
@@ -642,7 +642,7 @@ export default function CompilerCard({
                     type="button"
                     onClick={compareOptimized}
                     disabled={optimizedMutation.isPending}
-                    className="mt-4 rounded-[10px] border border-[#2e5a39] bg-[#1a3d24] px-3 py-2 text-[11px] font-bold text-[#4caf50] transition hover:bg-[#235230] disabled:cursor-wait disabled:opacity-60"
+                    className="mt-4 rounded-md border border-[#2e5a39] bg-[#1a3d24] px-3 py-2 text-[11px] font-bold text-[#4caf50] transition hover:bg-[#235230] disabled:cursor-wait disabled:opacity-60"
                   >
                     {optimizedMutation.isPending
                       ? 'Comparing...'
@@ -658,7 +658,7 @@ export default function CompilerCard({
                       key={`${item.mode}-${index}`}
                       className="rounded-xl border border-white/10 bg-[#161616] p-4"
                     >
-                      <div className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#ffbd2e]">
+                      <div className="font-mono text-[8px] uppercase tracking-[0.12em] text-[#ffbd2e]">
                         {item.mode === 'issue'
                           ? 'Issue Revealed'
                           : `Hint ${index + 1}`}
@@ -677,7 +677,7 @@ export default function CompilerCard({
               )}
 
               {optimizedSolution && (
-                <div className="mt-4 rounded-[14px] border border-[#2e5a39] bg-[#101a13] p-4">
+                <div className="mt-4 rounded-md border border-[#2e5a39] bg-[#101a13] p-4">
                   <h4 className="text-[14px] font-bold text-[#4caf50]">
                     Optimized Solution
                   </h4>
@@ -694,7 +694,7 @@ export default function CompilerCard({
                     </ul>
                   )}
 
-                  <pre className="mt-4 max-h-72 overflow-y-auto rounded-[10px] border border-white/10 bg-[#0a0a0a] p-4 font-['DM_Mono',monospace] text-[12.5px] leading-[1.7] text-[#d4d4d4]">
+                  <pre className="mt-4 max-h-72 overflow-y-auto rounded-md border border-white/10 bg-[#0a0a0a] p-4 font-mono text-[12.5px] leading-[1.7] text-[#d4d4d4]">
                     {optimizedSolution.optimizedCode}
                   </pre>
                 </div>
@@ -706,7 +706,7 @@ export default function CompilerCard({
           <div className="border-t border-white/10 bg-[#161616] p-5 dark:bg-[#0a0a0a]">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
               <div>
-                <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#e8816a]">
+                <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
                   Previous Code Activity
                 </div>
 
@@ -720,7 +720,7 @@ export default function CompilerCard({
                 </p>
               </div>
 
-              <span className="rounded-full border border-white/10 bg-[#111] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-bold uppercase tracking-[0.08em] text-[#888]">
+              <span className="rounded-full border border-white/10 bg-[#111] px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.08em] text-[#888]">
                 Submits {submitCount}
               </span>
             </div>
@@ -740,13 +740,13 @@ export default function CompilerCard({
                   <div
                     key={item._id}
                     onClick={() => setExpandedSubmission(item)}
-                    className="group flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-[10px] border border-white/8 bg-[#111] px-4 py-3 transition hover:border-white/15 hover:bg-[#1a1a1a]"
+                    className="group flex cursor-pointer flex-wrap items-center justify-between gap-3 rounded-md border border-white/8 bg-[#111] px-4 py-3 transition hover:border-white/15 hover:bg-[#1a1a1a]"
                   >
                     {/* Left: status + language */}
                     <div className="flex flex-wrap items-center gap-2">
                       <span
                         className={cn(
-                          "rounded-full px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em]",
+                          "rounded-full px-2.5 py-1 font-mono text-[8px] font-bold uppercase tracking-[0.08em]",
                           item.isCorrect
                             ? 'border border-[#2e5a39] bg-[#1a3d24] text-[#4caf50]'
                             : 'border border-[#ffbd2e]/40 bg-[#3a2b12] text-[#ffbd2e]'
@@ -755,12 +755,12 @@ export default function CompilerCard({
                         {item.isCorrect ? 'Submit Passed' : 'Submit Failed'}
                       </span>
 
-                      <span className="rounded-full border border-white/10 bg-[#161616] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#888]">
+                      <span className="rounded-full border border-white/10 bg-[#161616] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-[#888]">
                         {item.language}
                       </span>
 
                       {item.time && (
-                        <span className="rounded-full border border-white/10 bg-[#161616] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#888]">
+                        <span className="rounded-full border border-white/10 bg-[#161616] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-[#888]">
                           {item.time}s
                         </span>
                       )}
@@ -779,7 +779,7 @@ export default function CompilerCard({
                           e.stopPropagation()
                           restoreSubmission(item)
                         }}
-                        className="rounded-md border border-[#e8816a]/40 bg-[#b84c2b]/20 px-2.5 py-1.5 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em] text-[#e8816a] transition hover:bg-[#b84c2b] hover:text-white"
+                        className="rounded-md border border-(--brand-500)/40 bg-(--brand-500)/20 px-2.5 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.08em] text-(--brand-500) transition hover:bg-(--brand-500) hover:text-white"
                       >
                         Restore
                       </button>

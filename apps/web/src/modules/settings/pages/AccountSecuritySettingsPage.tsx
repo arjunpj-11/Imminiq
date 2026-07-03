@@ -1,6 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import type { AxiosError } from 'axios'
 
 import SettingsShell from '../components/SettingsShell'
 import SettingsContentLoading from '../components/SettingsContentLoading'
@@ -11,6 +10,13 @@ import {
   TextField,
 } from '../components/SettingsUi'
 import { useSettingsToast } from '../hooks/useSettingsToast'
+import { usePendingEmailChangeTimer } from '../hooks/usePendingEmailChangeTimer'
+import {
+  DeleteAccountDialog,
+  DisableTwoFactorDialog,
+  InlineSecurityError,
+  TwoFactorSetupDialog,
+} from '../components/security/SecurityDialogs'
 
 import {
   useChangeEmail,
@@ -29,114 +35,13 @@ import type {
   TwoFactorSetupResponse,
 } from '../types/settings.types'
 
-import { useAuthStore } from '../../auth/store/useAuthStore'
-
-type ApiErrorResponse = {
-  message?: string
-  error?: {
-    message?: string
-  }
-  errors?: Array<{
-    message?: string
-  }>
-}
-
-type PendingEmailTimer = {
-  email: string
-  expiresAt: number
-}
-
-const EMAIL_CHANGE_EXPIRY_MINUTES = 10
-const EMAIL_CHANGE_EXPIRY_MS =
-  EMAIL_CHANGE_EXPIRY_MINUTES * 60 * 1000
-
-const PENDING_EMAIL_TIMER_STORAGE_KEY =
-  'imminiq_pending_email_change_timer'
-
-const getApiErrorMessage = (
-  error: unknown,
-  fallbackMessage: string
-): string => {
-  const axiosError = error as AxiosError<ApiErrorResponse>
-
-  return (
-    axiosError.response?.data?.message ??
-    axiosError.response?.data?.error?.message ??
-    axiosError.response?.data?.errors?.[0]?.message ??
-    fallbackMessage
-  )
-}
-
-const normalizeEmail = (email?: string | null) => {
-  return email?.trim().toLowerCase() ?? ''
-}
-
-const getSecondsRemaining = (expiresAt: number) => {
-  return Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000))
-}
-
-const formatCountdown = (seconds: number) => {
-  const minutes = Math.floor(seconds / 60)
-  const remainingSeconds = seconds % 60
-
-  return `${String(minutes).padStart(2, '0')}:${String(
-    remainingSeconds
-  ).padStart(2, '0')}`
-}
-
-const readPendingEmailTimer = (): PendingEmailTimer | null => {
-  try {
-    const raw = localStorage.getItem(PENDING_EMAIL_TIMER_STORAGE_KEY)
-
-    if (!raw) {
-      return null
-    }
-
-    const parsed = JSON.parse(raw) as PendingEmailTimer
-
-    if (
-      !parsed ||
-      typeof parsed.email !== 'string' ||
-      typeof parsed.expiresAt !== 'number'
-    ) {
-      return null
-    }
-
-    return parsed
-  } catch {
-    return null
-  }
-}
-
-const savePendingEmailTimer = (timer: PendingEmailTimer) => {
-  localStorage.setItem(
-    PENDING_EMAIL_TIMER_STORAGE_KEY,
-    JSON.stringify(timer)
-  )
-}
-
-function passwordScore(password: string) {
-  let score = 0
-
-  if (password.length >= 8) score += 30
-  if (password.length >= 12) score += 20
-  if (/[A-Z]/.test(password)) score += 15
-  if (/[0-9]/.test(password)) score += 15
-  if (/[^A-Za-z0-9]/.test(password)) score += 20
-
-  return Math.min(100, score)
-}
-
-const InlineError = ({ message }: { message: string }) => {
-  return (
-    <div
-      role="alert"
-      className="rounded-xl border border-[rgba(196,60,60,0.24)] bg-[rgba(196,60,60,0.08)] px-3.5 py-2.5 text-[12.5px] font-semibold leading-[1.55] text-[#c43c3c] dark:text-[#e05252]"
-    >
-      {message}
-    </div>
-  )
-}
+import { useAuthStore } from '../../../store/useAuthStore'
+import {
+  formatCountdown,
+  getApiErrorMessage,
+  getPasswordScore,
+  normalizeEmail,
+} from '../utils/security-settings.utils'
 
 export default function AccountSecuritySettingsPage() {
   const navigate = useNavigate()
@@ -160,17 +65,11 @@ export default function AccountSecuritySettingsPage() {
   const [currentPassword, setCurrentPassword] = useState('')
   const [newPassword, setNewPassword] = useState('')
 
-  const [pendingEmailTimer, setPendingEmailTimer] =
-    useState<PendingEmailTimer | null>(() => readPendingEmailTimer())
-
-  const [pendingEmailSecondsLeft, setPendingEmailSecondsLeft] =
-    useState<number>(() => {
-      const savedTimer = readPendingEmailTimer()
-
-      return savedTimer
-        ? getSecondsRemaining(savedTimer.expiresAt)
-        : 0
-    })
+  const {
+    timer: pendingEmailTimer,
+    secondsLeft: pendingEmailSecondsLeft,
+    start: startPendingEmailTimer,
+  } = usePendingEmailChangeTimer()
 
   const [twoFactorSetupOpen, setTwoFactorSetupOpen] = useState(false)
   const [twoFactorSetupData, setTwoFactorSetupData] =
@@ -189,7 +88,7 @@ export default function AccountSecuritySettingsPage() {
   const [deleteTwoFactorCode, setDeleteTwoFactorCode] = useState('')
   const [deleteAccountError, setDeleteAccountError] = useState('')
 
-  const score = useMemo(() => passwordScore(newPassword), [newPassword])
+  const score = useMemo(() => getPasswordScore(newPassword), [newPassword])
 
   const scoreLabel =
     score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak'
@@ -237,29 +136,7 @@ export default function AccountSecuritySettingsPage() {
     (!stepUpRequiresPassword || !!deleteCurrentPassword) &&
     (!stepUpRequiresTwoFactor || deleteTwoFactorCode.length === 6)
 
-  useEffect(() => {
-    if (!pendingEmailTimer) {
-      return
-    }
 
-    const updateCountdown = () => {
-      const remaining = getSecondsRemaining(
-        pendingEmailTimer.expiresAt
-      )
-
-      setPendingEmailSecondsLeft(remaining)
-    }
-
-    updateCountdown()
-
-    const intervalId = window.setInterval(() => {
-      updateCountdown()
-    }, 1000)
-
-    return () => {
-      window.clearInterval(intervalId)
-    }
-  }, [pendingEmailTimer])
 
   if (securityQuery.isLoading) {
     return (
@@ -292,16 +169,7 @@ export default function AccountSecuritySettingsPage() {
 
       const result = await changeEmail.mutateAsync(payload)
 
-      const timer: PendingEmailTimer = {
-        email: normalizeEmail(result.pendingEmail),
-        expiresAt: Date.now() + EMAIL_CHANGE_EXPIRY_MS,
-      }
-
-      savePendingEmailTimer(timer)
-      setPendingEmailTimer(timer)
-      setPendingEmailSecondsLeft(
-        getSecondsRemaining(timer.expiresAt)
-      )
+      startPendingEmailTimer(result.pendingEmail)
 
       setNewEmail('')
       setEmailChangePassword('')
@@ -495,39 +363,39 @@ export default function AccountSecuritySettingsPage() {
             description="Your primary scholarly identifier."
             icon="✉️"
           >
-            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[14px] bg-[#f9f3ef] px-4 py-3 dark:bg-[#1a1816]">
+            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md bg-[#f9f3ef] px-4 py-3 dark:bg-(--surface-card)">
               <strong className="text-[14px]">
                 {security?.email ?? 'Email not loaded'}
               </strong>
 
               {security?.emailVerified ? (
-                <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2.5 py-1 text-[11px] font-bold text-[#2d6a47] dark:text-[#5cc98a]">
+                <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2.5 py-1 text-[11px] font-bold text-(--success) dark:text-(--success)">
                   Verified
                 </span>
               ) : (
-                <span className="rounded-full bg-[rgba(196,60,60,0.10)] px-2.5 py-1 text-[11px] font-bold text-[#c43c3c] dark:text-[#e05252]">
+                <span className="rounded-full bg-[rgba(196,60,60,0.10)] px-2.5 py-1 text-[11px] font-bold text-(--danger) dark:text-(--danger)">
                   Unverified
                 </span>
               )}
             </div>
 
             {showPendingEmailNotice && security?.pendingEmail && (
-              <div className="mb-4 rounded-[14px] border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.08)] px-4 py-3">
+              <div className="mb-4 rounded-md border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.08)] px-4 py-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
                     Pending Email Change
                   </div>
 
                   {showPendingEmailTimer && (
-                    <div className="rounded-full border border-[rgba(184,76,43,0.22)] bg-white/70 px-2.5 py-1 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.08em] text-[#b84c2b] dark:bg-[#1a1816]/80 dark:text-[#e8816a]">
+                    <div className="rounded-full border border-[rgba(184,76,43,0.22)] bg-white/70 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-(--brand-500) dark:bg-(--surface-card)/80 dark:text-(--brand-500)">
                       Link expires in {formatCountdown(pendingEmailSecondsLeft)}
                     </div>
                   )}
                 </div>
 
-                <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                   A verification link was sent to{' '}
-                  <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                  <strong className="text-(--text-primary) dark:text-(--text-primary)">
                     {security.pendingEmail}
                   </strong>
                   . Your current email will remain active until that link is
@@ -537,7 +405,7 @@ export default function AccountSecuritySettingsPage() {
             )}
 
             {sensitiveActionUnavailableForSocialAccount && (
-              <div className="mb-4 rounded-[14px] border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+              <div className="mb-4 rounded-md border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
                 This {providerLabel} account has no local password. Enable
                 two-factor authentication first to securely change your email.
               </div>
@@ -581,7 +449,7 @@ export default function AccountSecuritySettingsPage() {
               )}
 
               {emailChangeError && (
-                <InlineError message={emailChangeError} />
+                <InlineSecurityError message={emailChangeError} />
               )}
 
               <div>
@@ -594,7 +462,7 @@ export default function AccountSecuritySettingsPage() {
                     sensitiveActionUnavailableForSocialAccount ||
                     changeEmail.isPending
                   }
-                  className="h-11.5 rounded-[11px] bg-[#b84c2b] px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
+                  className="h-11.5 rounded-md bg-(--brand-500) px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412]"
                 >
                   {changeEmail.isPending ? 'Sending...' : 'Send Verify Link'}
                 </button>
@@ -628,23 +496,23 @@ export default function AccountSecuritySettingsPage() {
                   />
                 </div>
 
-                <div className="mt-5 rounded-2xl bg-[#f9f3ef] p-4 dark:bg-[#1a1816]">
+                <div className="mt-5 rounded-2xl bg-[#f9f3ef] p-4 dark:bg-(--surface-card)">
                   <div className="mb-2 flex items-center justify-between">
                     <MonoLabel>Password Strength</MonoLabel>
 
-                    <span className="text-[12px] font-bold text-[#b84c2b] dark:text-[#e8816a]">
+                    <span className="text-[12px] font-bold text-(--brand-500) dark:text-(--brand-500)">
                       {scoreLabel} · {score}%
                     </span>
                   </div>
 
                   <div className="h-2 overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
                     <div
-                      className="h-full rounded-full bg-[#b84c2b] transition-all dark:bg-[#e8816a]"
+                      className="h-full rounded-full bg-(--brand-500) transition-all dark:bg-(--brand-500)"
                       style={{ width: `${score}%` }}
                     />
                   </div>
 
-                  <div className="mt-4 grid gap-2 text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <div className="mt-4 grid gap-2 text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
                     <div>• At least 8 characters</div>
                     <div>• Includes a number or symbol</div>
                     <div>• Uses uppercase letters for stronger protection</div>
@@ -659,7 +527,7 @@ export default function AccountSecuritySettingsPage() {
                     !newPassword ||
                     changePassword.isPending
                   }
-                  className="mt-4 rounded-[11px] bg-[#b84c2b] px-5 py-3 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
+                  className="mt-4 rounded-md bg-(--brand-500) px-5 py-3 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412]"
                 >
                   {changePassword.isPending
                     ? 'Updating...'
@@ -668,15 +536,15 @@ export default function AccountSecuritySettingsPage() {
               </>
             ) : (
               <div className="rounded-2xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] p-5">
-                <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#3b6cb7] dark:text-[#6b9fe8]">
+                <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-(--info) dark:text-(--info)">
                   Password Managed Externally
                 </div>
 
-                <h3 className="mt-2 text-[16px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                <h3 className="mt-2 text-[16px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   Password managed by {providerLabel}
                 </h3>
 
-                <p className="mt-2 max-w-2xl text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-2 max-w-2xl text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                   This account signs in using {providerLabel} OAuth, so there is
                   no separate Imminiq password to change here.
                 </p>
@@ -692,7 +560,7 @@ export default function AccountSecuritySettingsPage() {
           >
             <div className="space-y-3">
               {(security?.activeSessions ?? []).length === 0 && (
-                <div className="rounded-[14px] border border-dashed border-[#e0d0c5] p-4 text-[13px] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">
+                <div className="rounded-md border border-dashed border-(--border-subtle) p-4 text-[13px] text-(--text-secondary) dark:border-(--border-subtle) dark:text-(--text-secondary)">
                   No active sessions found.
                 </div>
               )}
@@ -700,20 +568,20 @@ export default function AccountSecuritySettingsPage() {
               {(security?.activeSessions ?? []).map((session) => (
                 <div
                   key={session.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-[1.5px] border-[#e0d0c5] p-4 dark:border-white/9"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-[1.5px] border-(--border-subtle) p-4 dark:border-(--border-subtle)"
                 >
                   <div>
                     <div className="flex items-center gap-2 text-[14px] font-bold">
                       {session.deviceName}
 
                       {session.current && (
-                        <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-[#2d6a47] dark:text-[#5cc98a]">
+                        <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-(--success) dark:text-(--success)">
                           Current
                         </span>
                       )}
                     </div>
 
-                    <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
                       {session.location} · {session.client} ·{' '}
                       {session.lastActive}
                     </p>
@@ -724,7 +592,7 @@ export default function AccountSecuritySettingsPage() {
                       type="button"
                       onClick={() => handleTerminateSession(session.id)}
                       disabled={terminateSession.isPending}
-                      className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92]"
+                      className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-60 dark:border-(--border-subtle) dark:text-(--text-secondary)"
                     >
                       Terminate
                     </button>
@@ -746,7 +614,7 @@ export default function AccountSecuritySettingsPage() {
                   {security?.twoFactorEnabled ? '2FA Enabled' : '2FA Disabled'}
                 </div>
 
-                <p className="mt-1 max-w-2xl text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-1 max-w-2xl text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
                   Secure your Imminiq archive with a verification step beyond
                   your password.
                 </p>
@@ -759,7 +627,7 @@ export default function AccountSecuritySettingsPage() {
                     setDisableTwoFactorOpen(true)
                     setDisableTwoFactorError('')
                   }}
-                  className="rounded-[11px] border-[1.5px] border-[rgba(196,60,60,0.30)] bg-[rgba(196,60,60,0.08)] px-5 py-3 text-[13px] font-bold text-[#c43c3c] transition hover:bg-[rgba(196,60,60,0.12)] dark:text-[#e05252]"
+                  className="rounded-md border-[1.5px] border-[rgba(196,60,60,0.30)] bg-[rgba(196,60,60,0.08)] px-5 py-3 text-[13px] font-bold text-(--danger) transition hover:bg-[rgba(196,60,60,0.12)] dark:text-(--danger)"
                 >
                   Disable 2FA
                 </button>
@@ -768,7 +636,7 @@ export default function AccountSecuritySettingsPage() {
                   type="button"
                   onClick={handleStartTwoFactorSetup}
                   disabled={setupTwoFactor.isPending}
-                  className="rounded-[11px] bg-[#2d6a47] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#5cc98a] dark:text-[#141412]"
+                  className="rounded-md bg-(--success) px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--success) dark:text-[#141412]"
                 >
                   {setupTwoFactor.isPending ? 'Preparing...' : 'Enable 2FA'}
                 </button>
@@ -777,12 +645,12 @@ export default function AccountSecuritySettingsPage() {
           </SettingsCard>
 
           {/* ─── DANGER ZONE ─────────────────────────────── */}
-          <div className="rounded-[18px] border-[1.5px] border-[rgba(196,60,60,0.22)] bg-[rgba(196,60,60,0.08)] p-5">
-            <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold text-[#c43c3c] dark:text-[#e05252]">
+          <div className="rounded-lg border-[1.5px] border-[rgba(196,60,60,0.22)] bg-[rgba(196,60,60,0.08)] p-5">
+            <h2 className="font-ui text-[20px] font-extrabold text-(--danger) dark:text-(--danger)">
               Danger Zone
             </h2>
 
-            <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
               Deleting your account starts a <strong>30-day recovery period</strong>.
               Your active sessions will be signed out immediately, and the
               account will be scheduled for deletion. Signing in again within
@@ -790,7 +658,7 @@ export default function AccountSecuritySettingsPage() {
             </p>
 
             {sensitiveActionUnavailableForSocialAccount && (
-              <p className="mt-3 rounded-xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-3 py-2 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mt-3 rounded-xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-3 py-2 text-[12.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                 Enable two-factor authentication first before deleting this
                 {` ${providerLabel}`} account.
               </p>
@@ -803,7 +671,7 @@ export default function AccountSecuritySettingsPage() {
                 setDeleteAccountError('')
               }}
               disabled={sensitiveActionUnavailableForSocialAccount}
-              className="mt-4 rounded-[11px] bg-[#c43c3c] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 rounded-md bg-(--danger) px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
             >
               Delete My Archive
             </button>
@@ -832,7 +700,7 @@ export default function AccountSecuritySettingsPage() {
                   <strong>{security.pendingEmail}</strong>
 
                   {showPendingEmailTimer && (
-                    <p className="mt-1 font-['DM_Mono',monospace] text-[11px] font-bold text-[#b84c2b] dark:text-[#e8816a]">
+                    <p className="mt-1 font-mono text-[11px] font-bold text-(--brand-500) dark:text-(--brand-500)">
                       Expires in {formatCountdown(pendingEmailSecondsLeft)}
                     </p>
                   )}
@@ -855,270 +723,63 @@ export default function AccountSecuritySettingsPage() {
         </aside>
       </div>
 
-      {/* ─── 2FA SETUP MODAL ─────────────────────────── */}
-      {twoFactorSetupOpen && twoFactorSetupData && (
-        <div className="fixed inset-0 z-160 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="max-h-[92vh] w-full max-w-160 overflow-y-auto rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/9 dark:bg-[#1e1c19]">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
-                  Two-Factor Setup
-                </p>
+      <TwoFactorSetupDialog
+        open={twoFactorSetupOpen}
+        data={twoFactorSetupData}
+        backupCodes={backupCodes}
+        token={twoFactorVerifyToken}
+        error={twoFactorVerifyError}
+        isVerifying={verifyTwoFactorSetup.isPending}
+        onTokenChange={(value) => {
+          setTwoFactorVerifyToken(value)
+          setTwoFactorVerifyError('')
+        }}
+        onVerify={handleVerifyTwoFactorSetup}
+        onClose={handleCloseTwoFactorSetup}
+      />
 
-                <h2 className="mt-2 font-['Playfair_Display',serif] text-[26px] font-extrabold">
-                  Scan this QR code
-                </h2>
-              </div>
+      <DisableTwoFactorDialog
+        open={disableTwoFactorOpen}
+        token={disableTwoFactorToken}
+        error={disableTwoFactorError}
+        isPending={disableTwoFactor.isPending}
+        onTokenChange={(value) => {
+          setDisableTwoFactorToken(value)
+          setDisableTwoFactorError('')
+        }}
+        onConfirm={handleDisableTwoFactor}
+        onClose={() => {
+          setDisableTwoFactorOpen(false)
+          setDisableTwoFactorToken('')
+          setDisableTwoFactorError('')
+        }}
+      />
 
-              <button
-                type="button"
-                onClick={handleCloseTwoFactorSetup}
-                className="rounded-full border border-[#e0d0c5] px-3 py-1.5 text-[13px] font-bold dark:border-white/9"
-              >
-                ✕
-              </button>
-            </div>
-
-            {backupCodes.length === 0 ? (
-              <>
-                <div className="mt-6 grid gap-6 md:grid-cols-[220px_1fr]">
-                  <div className="rounded-[18px] bg-white p-4 dark:bg-white">
-                    <img
-                      src={twoFactorSetupData.qrCodeDataUrl}
-                      alt="Two-factor authentication QR code"
-                      className="h-full w-full"
-                    />
-                  </div>
-
-                  <div>
-                    <p className="text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-                      Open Google Authenticator, Microsoft Authenticator, Authy,
-                      or another TOTP app and scan this QR code.
-                    </p>
-
-                    <div className="mt-4 rounded-[14px] bg-[#f9f3ef] p-4 dark:bg-[#1a1816]">
-                      <MonoLabel>Manual Setup Key</MonoLabel>
-
-                      <div className="mt-2 break-all font-['DM_Mono',monospace] text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                        {twoFactorSetupData.manualEntryKey}
-                      </div>
-                    </div>
-
-                    <div className="mt-4">
-                      <TextField
-                        label="6-Digit Authenticator Code"
-                        value={twoFactorVerifyToken}
-                        onChange={(value) => {
-                          setTwoFactorVerifyToken(value)
-                          setTwoFactorVerifyError('')
-                        }}
-                        placeholder="123456"
-                      />
-                    </div>
-
-                    {twoFactorVerifyError && (
-                      <div className="mt-3">
-                        <InlineError message={twoFactorVerifyError} />
-                      </div>
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={handleVerifyTwoFactorSetup}
-                      disabled={
-                        twoFactorVerifyToken.length !== 6 ||
-                        verifyTwoFactorSetup.isPending
-                      }
-                      className="mt-4 rounded-[11px] bg-[#2d6a47] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#5cc98a] dark:text-[#141412]"
-                    >
-                      {verifyTwoFactorSetup.isPending
-                        ? 'Verifying...'
-                        : 'Verify and Enable 2FA'}
-                    </button>
-                  </div>
-                </div>
-              </>
-            ) : (
-              <div className="mt-6">
-                <div className="rounded-2xl border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] p-4">
-                  <h3 className="text-[16px] font-bold text-[#2d6a47] dark:text-[#5cc98a]">
-                    2FA is enabled
-                  </h3>
-
-                  <p className="mt-2 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-                    Save these backup codes somewhere safe. Each code can be
-                    used once if you lose access to your authenticator app.
-                  </p>
-                </div>
-
-                <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                  {backupCodes.map((code) => (
-                    <div
-                      key={code}
-                      className="rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fffaf6] px-4 py-3 font-['DM_Mono',monospace] text-[14px] font-bold text-[#1a1714] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb]"
-                    >
-                      {code}
-                    </div>
-                  ))}
-                </div>
-
-                <button
-                  type="button"
-                  onClick={handleCloseTwoFactorSetup}
-                  className="mt-6 rounded-[11px] bg-[#b84c2b] px-5 py-3 text-[13px] font-bold text-white dark:bg-[#e8816a] dark:text-[#141412]"
-                >
-                  I Saved My Backup Codes
-                </button>
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ─── DISABLE 2FA MODAL ───────────────────────── */}
-      {disableTwoFactorOpen && (
-        <div className="fixed inset-0 z-160 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-120 rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/9 dark:bg-[#1e1c19]">
-            <h2 className="font-['Playfair_Display',serif] text-[24px] font-extrabold">
-              Disable Two-Factor Authentication
-            </h2>
-
-            <p className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
-              Enter a current 6-digit authenticator code to disable 2FA.
-            </p>
-
-            <div className="mt-4">
-              <TextField
-                label="Authenticator Code"
-                value={disableTwoFactorToken}
-                onChange={(value) => {
-                  setDisableTwoFactorToken(value)
-                  setDisableTwoFactorError('')
-                }}
-                placeholder="123456"
-              />
-            </div>
-
-            {disableTwoFactorError && (
-              <div className="mt-3">
-                <InlineError message={disableTwoFactorError} />
-              </div>
-            )}
-
-            <div className="mt-5 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={() => {
-                  setDisableTwoFactorOpen(false)
-                  setDisableTwoFactorToken('')
-                  setDisableTwoFactorError('')
-                }}
-                className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/9"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                disabled={
-                  disableTwoFactorToken.length !== 6 ||
-                  disableTwoFactor.isPending
-                }
-                onClick={handleDisableTwoFactor}
-                className="rounded-[10px] bg-[#c43c3c] px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {disableTwoFactor.isPending ? 'Disabling...' : 'Disable 2FA'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* ─── DELETE ACCOUNT MODAL ─────────────────────── */}
-      {deleteModalOpen && (
-        <div className="fixed inset-0 z-140 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm">
-          <div className="w-full max-w-120 rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-2xl dark:border-white/9 dark:bg-[#1e1c19]">
-            <h2 className="font-['Playfair_Display',serif] text-[24px] font-extrabold text-[#c43c3c] dark:text-[#e05252]">
-              Schedule Account Deletion
-            </h2>
-
-            <p className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
-              Type <strong>DELETE</strong> to continue. Your account will be
-              scheduled for deletion after <strong>30 days</strong>. Signing in
-              again during that 30-day recovery window automatically cancels
-              the deletion request.
-            </p>
-
-            <div className="mt-4 space-y-4">
-              <TextField
-                label="Confirmation"
-                value={deleteConfirmation}
-                onChange={(value) => {
-                  setDeleteConfirmation(value)
-                  setDeleteAccountError('')
-                }}
-                placeholder="DELETE"
-              />
-
-              {stepUpRequiresPassword && (
-                <TextField
-                  label="Current Password"
-                  value={deleteCurrentPassword}
-                  onChange={(value) => {
-                    setDeleteCurrentPassword(value)
-                    setDeleteAccountError('')
-                  }}
-                  type="password"
-                  placeholder="Re-enter your password"
-                />
-              )}
-
-              {stepUpRequiresTwoFactor && (
-                <TextField
-                  label="Two-Factor Code"
-                  value={deleteTwoFactorCode}
-                  onChange={(value) => {
-                    setDeleteTwoFactorCode(value)
-                    setDeleteAccountError('')
-                  }}
-                  placeholder="123456"
-                />
-              )}
-            </div>
-
-            {deleteAccountError && (
-              <div className="mt-3">
-                <InlineError message={deleteAccountError} />
-              </div>
-            )}
-
-            <div className="mt-5 flex justify-end gap-2">
-              <button
-                type="button"
-                onClick={resetDeleteModal}
-                className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold dark:border-white/9"
-              >
-                Cancel
-              </button>
-
-              <button
-                type="button"
-                disabled={
-                  deleteConfirmation !== 'DELETE' ||
-                  !deleteStepUpReady ||
-                  deleteAccount.isPending
-                }
-                onClick={handleDeleteAccount}
-                className="rounded-[10px] bg-[#c43c3c] px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
-              >
-                {deleteAccount.isPending
-                  ? 'Scheduling...'
-                  : 'Schedule Deletion'}
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <DeleteAccountDialog
+        open={deleteModalOpen}
+        confirmation={deleteConfirmation}
+        currentPassword={deleteCurrentPassword}
+        twoFactorCode={deleteTwoFactorCode}
+        requirePassword={stepUpRequiresPassword}
+        requireTwoFactor={stepUpRequiresTwoFactor}
+        error={deleteAccountError}
+        isPending={deleteAccount.isPending}
+        canSubmit={deleteConfirmation === 'DELETE' && deleteStepUpReady}
+        onConfirmationChange={(value) => {
+          setDeleteConfirmation(value)
+          setDeleteAccountError('')
+        }}
+        onCurrentPasswordChange={(value) => {
+          setDeleteCurrentPassword(value)
+          setDeleteAccountError('')
+        }}
+        onTwoFactorCodeChange={(value) => {
+          setDeleteTwoFactorCode(value)
+          setDeleteAccountError('')
+        }}
+        onConfirm={handleDeleteAccount}
+        onClose={resetDeleteModal}
+      />
 
       <SettingsToast
         visible={toast.visible}

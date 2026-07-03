@@ -2,11 +2,16 @@
 
 import { useMemo, useState } from 'react'
 import type { ChangeEvent, KeyboardEvent } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 
+import OnboardingBrandLink from '../components/OnboardingBrandLink'
+import {
+  goalChips,
+  roadmapPreviewMap,
+  topicChips,
+} from '../constants/onboarding.constants'
 import { useSaveOnboardingStepOne } from '../hooks/useSaveOnboardingStepOne'
-import { OnboardingLogoIcon as LogoIcon } from '../components/OnboardingLogoIcon'
-import { goalChips, roadmapPreviewMap, topicChips } from '../constants/onboarding.constants'
+import { useOnboardingStore } from '../store/useOnboardingStore'
 import type { PendingAction } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
 
@@ -113,6 +118,25 @@ const LockIcon = () => {
   )
 }
 
+const ArrowLeftIcon = () => {
+  return (
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <line x1="19" y1="12" x2="5" y2="12" />
+      <polyline points="12 19 5 12 12 5" />
+    </svg>
+  )
+}
+
 const ArrowRightIcon = () => {
   return (
     <svg
@@ -132,6 +156,8 @@ const ArrowRightIcon = () => {
 
 export default function OnboardingStepOnePage() {
   const navigate = useNavigate()
+  const savedStepOne = useOnboardingStore((state) => state.step1Data)
+  const saveOnboardingDraft = useOnboardingStore((state) => state.saveStep1)
 
   const {
     mutate: saveStepOne,
@@ -144,46 +170,21 @@ export default function OnboardingStepOnePage() {
     error?.response?.data?.message ||
     (error ? 'Failed to save onboarding details. Please try again.' : '')
 
-  const [topic, setTopic] = useState(() => {
-  return (
-    sessionStorage.getItem('imminiq_draft_topic') ||
-    sessionStorage.getItem('imminiq_topic') ||
-    ''
+  const [topic, setTopic] = useState(() => savedStepOne?.topic ?? '')
+
+  const [goal, setGoal] = useState(() => savedStepOne?.goal ?? '')
+
+  const [selectedTopicChip, setSelectedTopicChip] = useState<string | null>(
+    () => topicChips.find((chip) => chip === savedStepOne?.topic) || null,
   )
-})
 
-const [goal, setGoal] = useState(() => {
-  return (
-    sessionStorage.getItem('imminiq_draft_goal') ||
-    sessionStorage.getItem('imminiq_goal') ||
-    ''
+  const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(
+    () => goalChips.find((chip) => chip === savedStepOne?.goal) || null,
   )
-})
 
-const [selectedTopicChip, setSelectedTopicChip] = useState<string | null>(() => {
-  const savedTopic =
-    sessionStorage.getItem('imminiq_draft_topic') ||
-    sessionStorage.getItem('imminiq_topic') ||
-    ''
-
-  return topicChips.find((chip) => chip === savedTopic) || null
-})
-
-const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
-  const savedGoal =
-    sessionStorage.getItem('imminiq_draft_goal') ||
-    sessionStorage.getItem('imminiq_goal') ||
-    ''
-
-  return goalChips.find((chip) => chip === savedGoal) || null
-})
   const [topicError, setTopicError] = useState('')
   const [toast, setToast] = useState('')
   const [pendingAction, setPendingAction] = useState<PendingAction>(null)
-
-
-
-  
 
   const previewItems = useMemo(() => {
     const trimmedTopic = topic.trim().toLowerCase()
@@ -202,6 +203,17 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
       ? roadmapPreviewMap[matchedKey]
       : roadmapPreviewMap.default
   }, [topic])
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      navigate(-1)
+      return
+    }
+
+    navigate('/', {
+      replace: true,
+    })
+  }
 
   const showToast = (message: string) => {
     setToast(message)
@@ -288,8 +300,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
 
     setPendingAction('draft')
 
-    sessionStorage.setItem('imminiq_draft_topic', topic.trim())
-    sessionStorage.setItem('imminiq_draft_goal', goal.trim())
+    saveOnboardingDraft({ topic: topic.trim(), goal: goal.trim() })
 
     saveStepOne(
       {
@@ -312,8 +323,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
 
     setPendingAction('continue')
 
-    sessionStorage.setItem('imminiq_topic', topic.trim())
-    sessionStorage.setItem('imminiq_goal', goal.trim())
+    saveOnboardingDraft({ topic: topic.trim(), goal: goal.trim() })
 
     saveStepOne(
       {
@@ -344,49 +354,64 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
 
   const charCountClass =
     goalLength > 380
-      ? 'text-[#d94535] opacity-100 dark:text-[#ff6b5f]'
+      ? 'text-[var(--danger)] opacity-100 dark:text-[var(--danger)]'
       : goalLength > 320
-        ? 'text-[#f0a500] opacity-100 dark:text-[#f0a842]'
-        : 'text-[#6b5f58]/60 dark:text-[#9b9a92]/60'
+        ? 'text-[#f0a500] opacity-100 dark:text-[var(--warning)]'
+        : 'text-[var(--text-secondary)]/60 dark:text-[var(--text-secondary)]/60'
 
   const chipClass = (selected: boolean) =>
     cn(
       'inline-flex items-center gap-1.5 rounded-full border-[1.5px] px-3.5 py-1.75 text-[12.5px] font-medium transition',
-      'border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714]',
-      'hover:-translate-y-px hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.07)] hover:text-[#b84c2b]',
+      'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)]',
+      'hover:-translate-y-px hover:border-[var(--brand-500)] hover:bg-[rgba(184,76,43,0.07)] hover:text-[var(--brand-500)]',
       'hover:shadow-[0_3px_12px_rgba(184,76,43,0.09)]',
-      'dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#f2f0eb]',
-      'dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[#e8816a]',
+      'dark:border-white/15 dark:bg-[var(--surface-card)] dark:text-[var(--text-primary)]',
+      'dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[var(--brand-500)]',
       selected &&
-        'border-[#b84c2b] bg-[rgba(184,76,43,0.12)] text-[#b84c2b] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.15)] dark:text-[#e8816a]'
+        'border-[var(--brand-500)] bg-[rgba(184,76,43,0.12)] text-[var(--brand-500)] dark:border-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.15)] dark:text-[var(--brand-500)]'
     )
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f5ede4] pb-24 font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-transparent bg-[#f5ede4]/95 px-5 py-4 backdrop-blur-xl dark:bg-[#141412]/95 sm:px-8 md:px-12">
-        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
-          <LogoIcon className="h-8.5 w-8.5 rounded-[9px]" />
+    <div className="flex min-h-screen flex-col bg-(--surface-canvas) pb-24 font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
+      <header className="sticky top-0 z-20 flex shrink-0 items-center justify-between border-b border-transparent bg-(--surface-canvas)/95 px-5 py-4 backdrop-blur-xl dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleBack}
+            aria-label="Go back to previous page"
+            title="Go back"
+            className={cn(
+              'inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-md',
+              'border border-(--border-subtle) bg-(--surface-card) text-(--text-secondary)',
+              'transition hover:-translate-x-0.5 hover:border-(--brand-500)',
+              'hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500)',
+              'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/30',
+              'dark:border-white/15 dark:bg-(--surface-card) dark:text-(--text-secondary)',
+              'dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.09)]',
+              'dark:hover:text-(--brand-500) dark:focus-visible:ring-(--brand-500)/30'
+            )}
+          >
+            <ArrowLeftIcon />
+          </button>
 
-          <span className="text-[20px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
-            immin
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-            <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
-          </span>
-        </Link>
+          <OnboardingBrandLink
+            logoClassName="h-8.5 w-8.5 rounded-[var(--radius-sm)]"
+            wordmarkClassName="text-[20px]"
+            hideWordmarkOnMobile
+          />
+        </div>
 
         <div className="flex items-center gap-3 sm:gap-4">
           <div className="flex items-center gap-3" aria-label="Step 1 of 2">
-            <span className="hidden font-mono text-[9.5px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92] sm:inline">
+            <span className="hidden font-mono text-[9.5px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary) sm:inline">
               Step 1 of 2
             </span>
 
             <div className="flex items-center gap-1.25" aria-hidden="true">
-              <span className="h-1.75 w-1.75 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-              <span className="h-1.5 w-1.5 rounded-full bg-[#e0d0c5] dark:bg-white/15" />
+              <span className="h-1.75 w-1.75 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
+              <span className="h-1.5 w-1.5 rounded-full bg-(--border-subtle) dark:bg-white/15" />
             </div>
           </div>
-
-          
         </div>
       </header>
 
@@ -398,30 +423,30 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
         aria-valuemax={100}
         aria-label="Step 1 of 2"
       >
-        <div className="h-full w-1/2 rounded-r-sm bg-[#b84c2b] dark:bg-[#e8816a]" />
+        <div className="h-full w-1/2 rounded-r-sm bg-(--brand-500) dark:bg-(--brand-500)" />
       </div>
 
       <main
         className="mx-auto flex w-full max-w-175 flex-1 flex-col items-center px-4 py-8 sm:px-6 sm:py-10 md:py-13"
         onKeyDown={handleMainKeyDown}
       >
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.25 font-mono text-[9.5px] font-medium uppercase tracking-widest text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-          <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.25 font-mono text-[9.5px] font-medium uppercase tracking-widest text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
+          <span className="h-1.25 w-1.25 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
           Let&apos;s build your roadmap
         </div>
 
-        <h1 className="mb-2.5 text-center font-serif text-[clamp(26px,6vw,44px)] font-extrabold leading-[1.1] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
+        <h1 className="mb-2.5 text-center font-serif text-[clamp(26px,6vw,44px)] font-extrabold leading-[1.1] tracking-[-1px] text-(--text-primary) dark:text-(--text-primary)">
           What are you preparing for?
         </h1>
 
-        <p className="mb-8 max-w-105 text-center text-sm leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mb-8 max-w-105 text-center text-sm leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
           Tell us anything — exam, skill, role, or subject. We&apos;ll craft a
           roadmap built for you.
         </p>
 
         {apiError && (
           <div
-            className="mb-5 flex w-full items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+            className="mb-5 flex w-full items-start gap-2.5 rounded-xl border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-(--danger) bg-[rgba(217,69,53,0.07)] px-3.5 py-3 text-[13px] leading-normal text-(--danger) dark:border-l-(--danger) dark:bg-[rgba(255,107,95,0.10)] dark:text-(--danger)"
             role="alert"
           >
             <AlertIcon className="mt-0.5 h-3.5 w-3.5" />
@@ -443,15 +468,15 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
               autoComplete="off"
               aria-label="What are you preparing for?"
               className={cn(
-                'w-full rounded-[14px] border-[1.5px] bg-white py-3.5 pl-10.5 pr-11 text-[14.5px] text-[#1a1714] outline-none transition',
+                'w-full rounded-md border-[1.5px] bg-white py-3.5 pl-10.5 pr-11 text-[14.5px] text-(--text-primary) outline-none transition',
                 'placeholder:text-[#9f8f86]',
                 'shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
-                'focus:border-[#b84c2b] focus:shadow-[0_0_0_4px_rgba(184,76,43,0.12),0_6px_32px_rgba(26,23,20,0.07)]',
-                'dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb] dark:placeholder:text-[#aaa59d]',
-                'dark:focus:border-[#e8816a] dark:focus:shadow-[0_0_0_4px_rgba(232,129,106,0.20),0_18px_60px_rgba(0,0,0,0.45)]',
-                topic.trim() && 'border-[#b84c2b] dark:border-[#e8816a]',
+                'focus:border-(--brand-500) focus:shadow-[0_0_0_4px_rgba(184,76,43,0.12),0_6px_32px_rgba(26,23,20,0.07)]',
+                'dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary) dark:placeholder:text-[#aaa59d]',
+                'dark:focus:border-(--brand-500) dark:focus:shadow-[0_0_0_4px_rgba(232,129,106,0.20),0_18px_60px_rgba(0,0,0,0.45)]',
+                topic.trim() && 'border-(--brand-500) dark:border-(--brand-500)',
                 topicError &&
-                  'border-[#d94535] bg-[rgba(217,69,53,0.07)] shadow-[0_0_0_3px_rgba(217,69,53,0.08)] dark:border-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)]'
+                  'border-(--danger) bg-[rgba(217,69,53,0.07)] shadow-[0_0_0_3px_rgba(217,69,53,0.08)] dark:border-(--danger) dark:bg-[rgba(255,107,95,0.10)]'
               )}
             />
 
@@ -460,7 +485,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
                 type="button"
                 onClick={handleClearTopic}
                 aria-label="Clear topic"
-                className="absolute right-3 top-1/2 flex h-5.5 w-5.5 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-[#6b5f58] transition hover:bg-[#b84c2b] hover:text-white dark:bg-[rgba(232,129,106,0.09)] dark:text-[#9b9a92] dark:hover:bg-[#e8816a] dark:hover:text-[#141412]"
+                className="absolute right-3 top-1/2 flex h-5.5 w-5.5 -translate-y-1/2 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-(--text-secondary) transition hover:bg-(--brand-500) hover:text-white dark:bg-[rgba(232,129,106,0.09)] dark:text-(--text-secondary) dark:hover:bg-(--brand-500) dark:hover:text-[#141412]"
               >
                 <CloseIcon />
               </button>
@@ -469,7 +494,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
 
           {topicError && (
             <div
-              className="mb-3 flex items-center gap-1.5 text-[11.5px] text-[#d94535] dark:text-[#ff6b5f]"
+              className="mb-3 flex items-center gap-1.5 text-[11.5px] text-(--danger) dark:text-(--danger)"
               role="alert"
               aria-live="polite"
             >
@@ -478,7 +503,11 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             </div>
           )}
 
-          <div className="flex flex-wrap gap-2" role="group" aria-label="Popular topics">
+          <div
+            className="flex flex-wrap gap-2"
+            role="group"
+            aria-label="Popular topics"
+          >
             {topicChips.map((chip) => {
               const selected = selectedTopicChip === chip
 
@@ -490,7 +519,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
                   className={chipClass(selected)}
                 >
                   {selected && (
-                    <span className="flex h-3.25 w-3.25 shrink-0 items-center justify-center rounded-full bg-[#b84c2b] text-white dark:bg-[#e8816a] dark:text-[#141412]">
+                    <span className="flex h-3.25 w-3.25 shrink-0 items-center justify-center rounded-full bg-(--brand-500) text-white dark:bg-(--brand-500) dark:text-[#141412]">
                       <CheckIcon />
                     </span>
                   )}
@@ -503,7 +532,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
         </section>
 
         <section className="mb-7 w-full">
-          <div className="mb-2.5 flex items-center gap-1.75 font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="mb-2.5 flex items-center gap-1.75 font-mono text-[9.5px] font-medium uppercase tracking-[0.12em] text-(--brand-500) dark:text-(--brand-500)">
             <FlagIcon />
             Your Ultimate Goal
           </div>
@@ -515,13 +544,13 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             maxLength={400}
             aria-label="Describe your ultimate goal"
             className={cn(
-              'min-h-27.5 w-full resize-y rounded-[14px] border-[1.5px] bg-white p-3.5 text-sm leading-[1.6] text-[#1a1714] outline-none transition',
+              'min-h-27.5 w-full resize-y rounded-md border-[1.5px] bg-white p-3.5 text-sm leading-[1.6] text-(--text-primary) outline-none transition',
               'placeholder:text-[#9f8f86]',
               'shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)]',
-              'focus:border-[#b84c2b] focus:shadow-[0_0_0_4px_rgba(184,76,43,0.12),0_6px_32px_rgba(26,23,20,0.07)]',
-              'dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb] dark:placeholder:text-[#aaa59d]',
-              'dark:focus:border-[#e8816a] dark:focus:shadow-[0_0_0_4px_rgba(232,129,106,0.20),0_18px_60px_rgba(0,0,0,0.45)]',
-              goal.trim() && 'border-[#b84c2b] dark:border-[#e8816a]'
+              'focus:border-(--brand-500) focus:shadow-[0_0_0_4px_rgba(184,76,43,0.12),0_6px_32px_rgba(26,23,20,0.07)]',
+              'dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary) dark:placeholder:text-[#aaa59d]',
+              'dark:focus:border-(--brand-500) dark:focus:shadow-[0_0_0_4px_rgba(232,129,106,0.20),0_18px_60px_rgba(0,0,0,0.45)]',
+              goal.trim() && 'border-(--brand-500) dark:border-(--brand-500)'
             )}
           />
 
@@ -550,7 +579,7 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
                   className={chipClass(selected)}
                 >
                   {selected && (
-                    <span className="flex h-3.25 w-3.25 shrink-0 items-center justify-center rounded-full bg-[#b84c2b] text-white dark:bg-[#e8816a] dark:text-[#141412]">
+                    <span className="flex h-3.25 w-3.25 shrink-0 items-center justify-center rounded-full bg-(--brand-500) text-white dark:bg-(--brand-500) dark:text-[#141412]">
                       <CheckIcon />
                     </span>
                   )}
@@ -562,24 +591,27 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
           </div>
         </section>
 
-        <section className="w-full rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
+        <section className="w-full rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-4.5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
           <div className="mb-3.5 flex items-center gap-2">
-            <span className="h-1.75 w-1.75 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+            <span className="h-1.75 w-1.75 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
 
-            <span className="font-mono text-[9px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">
+            <span className="font-mono text-[9px] uppercase tracking-widest text-(--text-secondary) dark:text-(--text-secondary)">
               AI Roadmap Preview
             </span>
           </div>
 
           <div className="flex flex-col gap-2">
             {previewItems.map(([title, description], index) => (
-              <div key={`${title}-${index}`} className="flex items-center gap-2.5">
-                <div className="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] font-mono text-[9px] font-medium text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+              <div
+                key={`${title}-${index}`}
+                className="flex items-center gap-2.5"
+              >
+                <div className="flex h-5.5 w-5.5 shrink-0 items-center justify-center rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] font-mono text-[9px] font-medium text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
                   {index + 1}
                 </div>
 
-                <p className="text-[12.5px] leading-[1.4] text-[#6b5f58] dark:text-[#9b9a92]">
-                  <strong className="font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                <p className="text-[12.5px] leading-[1.4] text-(--text-secondary) dark:text-(--text-secondary)">
+                  <strong className="font-semibold text-(--text-primary) dark:text-(--text-primary)">
                     {title}
                   </strong>{' '}
                   — {description}
@@ -590,8 +622,8 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
         </section>
       </main>
 
-      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[#f5ede4]/92 px-4 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/92 sm:px-8 md:px-12">
-        <div className="flex min-w-0 flex-1 items-center gap-1.75 text-[11.5px] text-[#6b5f58]/80 dark:text-[#9b9a92]/80">
+      <div className="fixed bottom-0 left-0 right-0 z-30 flex items-center justify-between gap-3 border-t border-(--border-subtle) bg-(--surface-canvas)/92 px-4 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/92 sm:px-8 md:px-12">
+        <div className="flex min-w-0 flex-1 items-center gap-1.75 text-[11.5px] text-(--text-secondary)/80 dark:text-(--text-secondary)/80">
           <LockIcon />
 
           <span className="hidden truncate sm:inline">
@@ -604,20 +636,26 @@ const [selectedGoalChip, setSelectedGoalChip] = useState<string | null>(() => {
             type="button"
             onClick={handleSaveDraft}
             disabled={isPending}
-            className="hidden rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-medium text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:text-[#9b9a92] dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)] dark:hover:text-[#e8816a] sm:inline-flex"
+            className="hidden rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[13px] font-medium text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/15 dark:text-(--text-secondary) dark:hover:border-[#f5a090] dark:hover:bg-[rgba(232,129,106,0.09)] dark:hover:text-(--brand-500) sm:inline-flex"
           >
-            {isPending && pendingAction === 'draft' ? 'Saving...' : 'Save Draft'}
+            {isPending && pendingAction === 'draft'
+              ? 'Saving...'
+              : 'Save Draft'}
           </button>
 
           <button
             type="button"
             onClick={handleContinue}
             disabled={isPending}
-            className="inline-flex items-center gap-2 rounded-[11px] bg-[#b84c2b] px-5.5 py-3 text-sm font-bold text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5.5 py-3 text-sm font-bold text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
-            {isPending && pendingAction === 'continue' ? 'Saving...' : 'Continue'}
+            {isPending && pendingAction === 'continue'
+              ? 'Saving...'
+              : 'Continue'}
 
-            {!(isPending && pendingAction === 'continue') && <ArrowRightIcon />}
+            {!(isPending && pendingAction === 'continue') && (
+              <ArrowRightIcon />
+            )}
           </button>
         </div>
       </div>

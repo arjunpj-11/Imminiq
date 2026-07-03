@@ -1,5 +1,4 @@
-import { useEffect, useRef, useState, type MouseEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
+import { Link } from 'react-router-dom'
 
 import {
   BodyP,
@@ -17,6 +16,7 @@ import {
 } from '../components/LegalShared'
 
 import { cn, scrollbarClass } from '../utils/legal-ui'
+import { useLegalDocumentNavigation } from '../hooks/useLegalDocumentNavigation'
 
 const TOC = [
   { id: 's1', num: '01', label: 'Introduction' },
@@ -37,114 +37,29 @@ const TOC = [
 ]
 
 export default function PrivacyPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
+  const {
+    activeId,
+    readPct,
+    scrollAreaRef,
+    handleBack,
+    handleTocClick,
+  } = useLegalDocumentNavigation()
 
-  const scrollAreaRef = useRef<HTMLElement | null>(null)
-
-  const [activeId, setActiveId] = useState('s1')
-  const [readPct, setReadPct] = useState(0)
-
-  const handleBack = () => {
-    const from = (location.state as { from?: string } | null)?.from
-
-    if (from) {
-      navigate(from, { replace: true })
-      return
-    }
-
-    navigate('/register', { replace: true })
-  }
-
-  const handleTocClick = (e: MouseEvent<HTMLAnchorElement>, id: string) => {
-    e.preventDefault()
-
-    const scrollArea = scrollAreaRef.current
-    const section = document.getElementById(id)
-
-    if (!scrollArea || !section) return
-
-    const scrollAreaRect = scrollArea.getBoundingClientRect()
-    const sectionRect = section.getBoundingClientRect()
-
-    const top = sectionRect.top - scrollAreaRect.top + scrollArea.scrollTop - 24
-
-    scrollArea.scrollTo({
-      top,
-      behavior: 'smooth',
-    })
-
-    window.history.replaceState(null, '', window.location.pathname)
-    setActiveId(id)
-  }
-
-  useEffect(() => {
-    const scrollArea = scrollAreaRef.current
-
-    if (!scrollArea) return
-
-    const onScroll = () => {
-      const scrollHeight = scrollArea.scrollHeight - scrollArea.clientHeight
-
-      if (scrollHeight <= 0) {
-        setReadPct(0)
-        return
-      }
-
-      const pct = (scrollArea.scrollTop / scrollHeight) * 100
-      setReadPct(Math.min(Math.max(pct, 0), 100))
-    }
-
-    onScroll()
-
-    scrollArea.addEventListener('scroll', onScroll, { passive: true })
-    window.addEventListener('resize', onScroll)
-
-    return () => {
-      scrollArea.removeEventListener('scroll', onScroll)
-      window.removeEventListener('resize', onScroll)
-    }
-  }, [])
-
-  useEffect(() => {
-    const scrollArea = scrollAreaRef.current
-
-    if (!scrollArea) return
-
-    const sections = scrollArea.querySelectorAll('.pp-section[id]')
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) setActiveId(entry.target.id)
-        })
-      },
-      {
-        root: scrollArea,
-        rootMargin: '-20% 0px -70% 0px',
-        threshold: 0,
-      }
-    )
-
-    sections.forEach((section) => observer.observe(section))
-
-    return () => observer.disconnect()
-  }, [])
 
   return (
     <div
       id="privacy-page"
-      className="h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] font-[DM_Sans,sans-serif] dark:bg-[#141412] dark:text-[#f2f0eb]"
+      className="h-screen overflow-hidden bg-(--surface-canvas) text-(--text-primary) font-[DM_Sans,sans-serif] dark:bg-(--surface-canvas) dark:text-(--text-primary)"
     >
       <div
         aria-hidden="true"
-        className="fixed left-0 top-0 z-100 h-0.5 bg-linear-to-r from-[#b84c2b] to-[#e8816a] transition-[width] duration-100"
+        className="fixed left-0 top-0 z-100 h-0.5 bg-linear-to-r from-(--brand-500) to-(--brand-500) transition-[width] duration-100"
         style={{ width: `${readPct}%` }}
       />
 
       <div className="flex h-full min-h-0 flex-col overflow-hidden">
         <nav
-          className="z-50 flex shrink-0 items-center justify-between gap-4 border-b border-[#e0d0c5] bg-[#f5ede4]/95 px-5 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/95 lg:px-12 xl:px-16"
+          className="z-50 flex shrink-0 items-center justify-between gap-4 border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 py-3.5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 lg:px-12 xl:px-16"
           aria-label="Site navigation"
         >
           <div className="flex min-w-0 items-center gap-4">
@@ -155,19 +70,19 @@ export default function PrivacyPage() {
             >
               <LogoIcon className="h-8.5 w-8.5" />
 
-              <span className="text-xl font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+              <span className="text-xl font-bold leading-none tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)">
                 immin
-                <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-                <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
+                <span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
+                <span className="text-(--brand-500) dark:text-(--brand-500)">.</span>
               </span>
             </Link>
 
             <div
-              className="hidden h-4.5 w-px bg-[#e0d0c5] dark:bg-white/15 sm:block"
+              className="hidden h-4.5 w-px bg-(--border-subtle) dark:bg-white/15 sm:block"
               aria-hidden="true"
             />
 
-            <span className="hidden truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92] sm:block">
+            <span className="hidden truncate font-mono text-[9.5px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary) sm:block">
               Scholarly Privacy Policy
             </span>
           </div>
@@ -178,7 +93,7 @@ export default function PrivacyPage() {
             <button
               type="button"
               onClick={handleBack}
-              className="group inline-flex items-center gap-1.5 bg-transparent px-1 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+              className="group inline-flex items-center gap-1.5 bg-transparent px-1 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
             >
               <IconArrowLeft className="transition group-hover:-translate-x-0.5" />
               Back
@@ -194,7 +109,7 @@ export default function PrivacyPage() {
             )}
             aria-label="Table of contents"
           >
-            <div className="mb-3 px-3 font-mono text-[9px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">
+            <div className="mb-3 px-3 font-mono text-[9px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
               Contents
             </div>
 
@@ -205,16 +120,16 @@ export default function PrivacyPage() {
                     href={`#${item.id}`}
                     onClick={(e) => handleTocClick(e, item.id)}
                     className={cn(
-                      'flex items-center gap-2 rounded-lg px-3 py-2 text-[12.5px] leading-snug text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.06)] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[#e8816a]',
+                      'flex items-center gap-2 rounded-lg px-3 py-2 text-[12.5px] leading-snug text-(--text-secondary) transition hover:bg-[rgba(184,76,43,0.06)] hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-(--brand-500)',
                       activeId === item.id &&
-                        'bg-[rgba(184,76,43,0.06)] font-medium text-[#b84c2b] dark:bg-[rgba(232,129,106,0.08)] dark:text-[#e8816a]'
+                        'bg-[rgba(184,76,43,0.06)] font-medium text-(--brand-500) dark:bg-[rgba(232,129,106,0.08)] dark:text-(--brand-500)'
                     )}
                   >
                     <span
                       className={cn(
-                        'min-w-4 shrink-0 font-mono text-[9px] text-[#e0d0c5] transition dark:text-white/20',
+                        'min-w-4 shrink-0 font-mono text-[9px] text-(--border-subtle) transition dark:text-white/20',
                         activeId === item.id &&
-                          'text-[#e8816a] dark:text-[#f5a090]'
+                          'text-(--brand-500) dark:text-[#f5a090]'
                       )}
                     >
                       {item.num}
@@ -225,9 +140,9 @@ export default function PrivacyPage() {
               ))}
             </ul>
 
-            <div className="mx-3 my-3 h-px bg-[#e0d0c5] dark:bg-white/15" />
+            <div className="mx-3 my-3 h-px bg-(--border-subtle) dark:bg-white/15" />
 
-            <div className="px-3 font-mono text-[9px] tracking-[0.06em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+            <div className="px-3 font-mono text-[9px] tracking-[0.06em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
               Version 6.6.2 · May 2026
             </div>
           </aside>
@@ -241,16 +156,16 @@ export default function PrivacyPage() {
             aria-label="Privacy policy content"
           >
             <div className="pp-section mb-12 border-b border-[rgba(184,76,43,0.10)] pb-9 dark:border-[rgba(232,129,106,0.12)]">
-              <div className="mb-4.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
-                <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+              <div className="mb-4.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 font-mono text-[9.5px] font-medium uppercase tracking-[0.07em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
+                <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
                 Privacy First
               </div>
 
-              <h1 className="mb-3.5 font-serif text-[clamp(30px,5vw,48px)] font-extrabold leading-[1.08] tracking-[-1px] text-[#1a1714] dark:text-[#f2f0eb]">
+              <h1 className="mb-3.5 font-serif text-[clamp(30px,5vw,48px)] font-extrabold leading-[1.08] tracking-[-1px] text-(--text-primary) dark:text-(--text-primary)">
                 Scholarly Privacy Policy
               </h1>
 
-              <p className="mb-5 max-w-150 text-[15px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mb-5 max-w-150 text-[15px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                 We believe your learning data is yours. This policy explains what
                 we collect, why we collect it, who sees it, and the controls you
                 have over it — written in plain language.
@@ -264,9 +179,9 @@ export default function PrivacyPage() {
                 ].map((item) => (
                   <div
                     key={item}
-                    className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-[#6b5f58] dark:text-[#9b9a92]"
+                    className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-(--text-secondary) dark:text-(--text-secondary)"
                   >
-                    <span className="text-[#b84c2b] opacity-70 dark:text-[#e8816a]">
+                    <span className="text-(--brand-500) opacity-70 dark:text-(--brand-500)">
                       <IconShield className="h-3 w-3" />
                     </span>
                     {item}
@@ -296,7 +211,7 @@ export default function PrivacyPage() {
                 <div
                   key={item.title}
                   className={cn(
-                    'flex items-start gap-3 rounded-[11px] border p-4',
+                    'flex items-start gap-3 rounded-md border p-4',
                     item.variant === 'green' &&
                       'border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)]',
                     item.variant === 'amber' &&
@@ -309,21 +224,21 @@ export default function PrivacyPage() {
                     className={cn(
                       'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg',
                       item.variant === 'green' &&
-                        'bg-[rgba(76,175,125,0.12)] text-[#4caf7d] dark:bg-[rgba(92,201,138,0.12)] dark:text-[#5cc98a]',
+                        'bg-[rgba(76,175,125,0.12)] text-(--success) dark:bg-[rgba(92,201,138,0.12)] dark:text-(--success)',
                       item.variant === 'amber' &&
-                        'bg-[rgba(240,165,0,0.12)] text-[#f0a500] dark:bg-[rgba(240,168,66,0.12)] dark:text-[#f0a842]',
+                        'bg-[rgba(240,165,0,0.12)] text-[#f0a500] dark:bg-[rgba(240,168,66,0.12)] dark:text-(--warning)',
                       item.variant === 'rust' &&
-                        'bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]'
+                        'bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)'
                     )}
                   >
                     <IconCheck className="h-4 w-4" />
                   </div>
 
                   <div>
-                    <strong className="mb-0.5 block text-[12.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <strong className="mb-0.5 block text-[12.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                       {item.title}
                     </strong>
-                    <span className="text-xs leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
+                    <span className="text-xs leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
                       {item.desc}
                     </span>
                   </div>
@@ -352,14 +267,14 @@ export default function PrivacyPage() {
                 operate the service.
               </BodyP>
 
-              <div className="overflow-x-auto rounded-xl border border-[#e0d0c5] dark:border-white/15">
+              <div className="overflow-x-auto rounded-xl border border-(--border-subtle) dark:border-white/15">
                 <table className="w-full border-collapse text-[13px]">
                   <thead>
                     <tr className="bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.09)]">
                       {['Category', 'Examples', 'Purpose'].map((heading) => (
                         <th
                           key={heading}
-                          className="whitespace-nowrap border-b border-[#e0d0c5] px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-[#b84c2b] dark:border-white/15 dark:text-[#e8816a]"
+                          className="whitespace-nowrap border-b border-(--border-subtle) px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) dark:border-white/15 dark:text-(--brand-500)"
                         >
                           {heading}
                         </th>
@@ -394,13 +309,13 @@ export default function PrivacyPage() {
                         key={category}
                         className="even:bg-[rgba(26,23,20,0.025)] dark:even:bg-white/3"
                       >
-                        <td className="border-b border-[#e0d0c5] px-4 py-3 align-top font-semibold text-[#1a1714] dark:border-white/15 dark:text-[#f2f0eb]">
+                        <td className="border-b border-(--border-subtle) px-4 py-3 align-top font-semibold text-(--text-primary) dark:border-white/15 dark:text-(--text-primary)">
                           {category}
                         </td>
-                        <td className="border-b border-[#e0d0c5] px-4 py-3 align-top leading-normal text-[#6b5f58] dark:border-white/15 dark:text-[#9b9a92]">
+                        <td className="border-b border-(--border-subtle) px-4 py-3 align-top leading-normal text-(--text-secondary) dark:border-white/15 dark:text-(--text-secondary)">
                           {examples}
                         </td>
-                        <td className="border-b border-[#e0d0c5] px-4 py-3 align-top leading-normal text-[#6b5f58] dark:border-white/15 dark:text-[#9b9a92]">
+                        <td className="border-b border-(--border-subtle) px-4 py-3 align-top leading-normal text-(--text-secondary) dark:border-white/15 dark:text-(--text-secondary)">
                           {purpose}
                         </td>
                       </tr>
@@ -454,9 +369,9 @@ export default function PrivacyPage() {
                 ].map((item) => (
                   <span
                     key={item}
-                    className="inline-flex items-center gap-1.5 rounded-full border border-[#e0d0c5] bg-white px-3 py-1.5 text-xs font-medium text-[#1a1714] dark:border-white/15 dark:bg-[#252320] dark:text-[#f2f0eb]"
+                    className="inline-flex items-center gap-1.5 rounded-full border border-(--border-subtle) bg-white px-3 py-1.5 text-xs font-medium text-(--text-primary) dark:border-white/15 dark:bg-(--surface-elevated) dark:text-(--text-primary)"
                   >
-                    <IconDoc className="text-[#b84c2b] opacity-70 dark:text-[#e8816a]" />
+                    <IconDoc className="text-(--brand-500) opacity-70 dark:text-(--brand-500)" />
                     {item}
                   </span>
                 ))}
@@ -485,7 +400,7 @@ export default function PrivacyPage() {
                 cross-site tracking cookies.
               </BodyP>
 
-              <div className="overflow-x-auto rounded-xl border border-[#e0d0c5] dark:border-white/15">
+              <div className="overflow-x-auto rounded-xl border border-(--border-subtle) dark:border-white/15">
                 <table className="w-full border-collapse text-[13px]">
                   <thead>
                     <tr className="bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.09)]">
@@ -493,7 +408,7 @@ export default function PrivacyPage() {
                         (heading) => (
                           <th
                             key={heading}
-                            className="whitespace-nowrap border-b border-[#e0d0c5] px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-[#b84c2b] dark:border-white/15 dark:text-[#e8816a]"
+                            className="whitespace-nowrap border-b border-(--border-subtle) px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) dark:border-white/15 dark:text-(--brand-500)"
                           >
                             {heading}
                           </th>
@@ -537,16 +452,16 @@ export default function PrivacyPage() {
                         key={type}
                         className="even:bg-[rgba(26,23,20,0.025)] dark:even:bg-white/3"
                       >
-                        <td className="border-b border-[#e0d0c5] px-4 py-3 align-top font-semibold text-[#1a1714] dark:border-white/15 dark:text-[#f2f0eb]">
+                        <td className="border-b border-(--border-subtle) px-4 py-3 align-top font-semibold text-(--text-primary) dark:border-white/15 dark:text-(--text-primary)">
                           {type}
                         </td>
-                        <td className="border-b border-[#e0d0c5] px-4 py-3 align-top text-[#6b5f58] dark:border-white/15 dark:text-[#9b9a92]">
+                        <td className="border-b border-(--border-subtle) px-4 py-3 align-top text-(--text-secondary) dark:border-white/15 dark:text-(--text-secondary)">
                           {purpose}
                         </td>
-                        <td className="border-b border-[#e0d0c5] px-4 py-3 align-top text-[#6b5f58] dark:border-white/15 dark:text-[#9b9a92]">
+                        <td className="border-b border-(--border-subtle) px-4 py-3 align-top text-(--text-secondary) dark:border-white/15 dark:text-(--text-secondary)">
                           {duration}
                         </td>
-                        <td className="border-b border-[#e0d0c5] px-4 py-3 align-top dark:border-white/15">
+                        <td className="border-b border-(--border-subtle) px-4 py-3 align-top dark:border-white/15">
                           <Tag variant={variant as 'rust' | 'amber'}>
                             {required}
                           </Tag>
@@ -603,13 +518,13 @@ export default function PrivacyPage() {
                 ].map(([title, desc]) => (
                   <div
                     key={title}
-                    className="rounded-[10px] border border-[#e0d0c5] bg-white p-4 dark:border-white/15 dark:bg-[#252320]"
+                    className="rounded-md border border-(--border-subtle) bg-white p-4 dark:border-white/15 dark:bg-(--surface-elevated)"
                   >
-                    <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
-                      <IconShield className="text-[#b84c2b] dark:text-[#e8816a]" />
+                    <strong className="mb-1.5 flex items-center gap-2 text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
+                      <IconShield className="text-(--brand-500) dark:text-(--brand-500)" />
                       {title}
                     </strong>
-                    <p className="m-0 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="m-0 text-[12.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                       {desc}
                     </p>
                   </div>
@@ -703,12 +618,12 @@ export default function PrivacyPage() {
                 account deletion help, contact the Imminiq privacy team.
               </BodyP>
 
-              <div className="rounded-[13px] border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
-                <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.12em] text-[#b84c2b] dark:text-[#e8816a]">
+              <div className="rounded-md border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
+                <div className="mb-2 font-mono text-[9px] uppercase tracking-[0.12em] text-(--brand-500) dark:text-(--brand-500)">
                   Privacy Contact
                 </div>
 
-                <p className="mb-4 text-sm leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mb-4 text-sm leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                   Email us at <EmailLink>privacy@imminiq.com</EmailLink>. For
                   urgent security concerns, include “Security” in the subject
                   line.
@@ -717,7 +632,7 @@ export default function PrivacyPage() {
                 <div className="flex flex-wrap gap-3">
                   <a
                     href="mailto:privacy@imminiq.com"
-                    className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-3 text-sm font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+                    className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 text-sm font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
                   >
                     Contact Privacy Team
                     <IconArrowRight />
@@ -726,7 +641,7 @@ export default function PrivacyPage() {
                   <button
                     type="button"
                     onClick={handleBack}
-                    className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-[rgba(184,76,43,0.16)] bg-transparent px-5 py-3 text-sm font-semibold text-[#b84c2b] transition hover:-translate-y-px hover:border-[#b84c2b] hover:bg-[rgba(184,76,43,0.05)] dark:border-[rgba(232,129,106,0.22)] dark:text-[#e8816a] dark:hover:border-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.07)]"
+                    className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(184,76,43,0.16)] bg-transparent px-5 py-3 text-sm font-semibold text-(--brand-500) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.05)] dark:border-[rgba(232,129,106,0.22)] dark:text-(--brand-500) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.07)]"
                   >
                     Back to Register
                   </button>

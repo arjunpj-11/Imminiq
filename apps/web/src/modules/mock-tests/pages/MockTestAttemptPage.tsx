@@ -1,15 +1,17 @@
+import { cn } from '../../../lib/cn'
+
 import {
   type ChangeEvent,
   useCallback,
-  useEffect,
   useMemo,
   useState,
 } from 'react'
 import { useLocation, useNavigate, useParams } from 'react-router-dom'
 
-import Sidebar from '../../../components/layout/Sidebar'
-import TopBar from '../../../components/layout/TopBar'
-import BottomNav from '../../../components/layout/BottomNav'
+import { AppShellBoundary } from '../../../components/layout/AppShell'
+import { CheckCircleIcon, HintIcon } from '../components/MockTestAttemptIcons'
+import { MockTestAttemptFooter, MockTestAttemptHeader } from '../components/MockTestAttemptChrome'
+import { useCountdown } from '../hooks/useCountdown'
 
 import {
   useFinishMockTestAttempt,
@@ -19,6 +21,15 @@ import {
   useSubmitMockTestCode,
 } from '../hooks/useMockTests'
 
+import {
+  buildCompilerOutput,
+  COMPILER_LANGUAGES,
+  findCompilerLanguage,
+  formatJsonValue,
+  getStarterCode,
+  type Confidence,
+} from '../utils/mock-test-attempt.utils'
+
 import type {
   MockTestCodeRunResponse,
   MockTestCodingLanguage,
@@ -26,188 +37,10 @@ import type {
   StartAttemptResponse,
 } from '../types/mock-tests.types'
 
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
-
-type Confidence = 'low' | 'medium' | 'high' | null
-
-type CompilerLanguageOption = {
-  label: string
-  value: MockTestCodingLanguage
-  fileName: string
-  languageId: number
-}
-
-const COMPILER_LANGUAGES: CompilerLanguageOption[] = [
-  {
-    label: 'JavaScript',
-    value: 'javascript',
-    fileName: 'main.js',
-    languageId: 63,
-  },
-  {
-    label: 'TypeScript',
-    value: 'typescript',
-    fileName: 'main.ts',
-    languageId: 74,
-  },
-  {
-    label: 'Python',
-    value: 'python',
-    fileName: 'main.py',
-    languageId: 71,
-  },
-  {
-    label: 'Java',
-    value: 'java',
-    fileName: 'Main.java',
-    languageId: 62,
-  },
-  {
-    label: 'C++',
-    value: 'cpp',
-    fileName: 'main.cpp',
-    languageId: 54,
-  },
-  {
-    label: 'C',
-    value: 'c',
-    fileName: 'main.c',
-    languageId: 50,
-  },
-]
-
-const findCompilerLanguage = (
-  language?: string | null
-): CompilerLanguageOption => {
-  return (
-    COMPILER_LANGUAGES.find((item) => item.value === language) ||
-    COMPILER_LANGUAGES[0]
-  )
-}
-
-const formatJsonValue = (value: unknown) => {
-  if (typeof value === 'string') return value
-
-  try {
-    return JSON.stringify(value, null, 2)
-  } catch {
-    return String(value)
-  }
-}
-
-const getStarterCode = (
-  question: PublicMockTestQuestion | undefined,
-  language: MockTestCodingLanguage
-) => {
-  if (!question?.coding) return ''
-
-  return (
-    question.coding.templates?.[language] ||
-    question.coding.starterCode ||
-    ''
-  )
-}
-
-const buildCompilerOutput = (data?: MockTestCodeRunResponse | null) => {
-  if (!data) return '> Ready to run your code'
-
-  return [
-    data.stdout ? `STDOUT:\n${data.stdout}` : '',
-    data.stderr ? `STDERR:\n${data.stderr}` : '',
-    data.compileOutput ? `COMPILE OUTPUT:\n${data.compileOutput}` : '',
-    data.message ? `MESSAGE:\n${data.message}` : '',
-    data.status?.description ? `STATUS: ${data.status.description}` : '',
-    `TEST CASES: ${data.passedCount}/${data.totalCount} passed`,
-  ]
-    .filter(Boolean)
-    .join('\n\n')
-}
-
-const NoiseOverlay = () => (
-  <div
-    className="pointer-events-none fixed inset-0 z-0 opacity-[0.025] dark:opacity-[0.04]"
-    style={{
-      backgroundImage:
-        "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-      backgroundSize: '180px',
-    }}
-  />
-)
-
-function useCountdown(initialSeconds: number) {
-  const [secs, setSecs] = useState(initialSeconds)
-
-  useEffect(() => {
-    const id = setInterval(() => setSecs((s) => Math.max(0, s - 1)), 1000)
-
-    return () => clearInterval(id)
-  }, [])
-
-  const h = String(Math.floor(secs / 3600)).padStart(2, '0')
-  const m = String(Math.floor((secs % 3600) / 60)).padStart(2, '0')
-  const s = String(secs % 60).padStart(2, '0')
-
-  return `${h}:${m}:${s}`
-}
-
-const FlagIcon = () => (
-  <svg
-    width="13"
-    height="13"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    aria-hidden="true"
-  >
-    <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
-    <line x1="4" y1="22" x2="4" y2="15" />
-  </svg>
-)
-
-const CheckCircleIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    className="text-[#b84c2b] dark:text-[#e8816a]"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    aria-hidden="true"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M9 12l2 2 4-4" />
-  </svg>
-)
-
-const HintIcon = () => (
-  <svg
-    width="13"
-    height="13"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    aria-hidden="true"
-  >
-    <circle cx="12" cy="12" r="10" />
-    <path d="M12 8v4m0 4h.01" />
-  </svg>
-)
-
 export default function MockTestAttemptPage() {
   const { attemptId = '' } = useParams()
   const navigate = useNavigate()
   const location = useLocation()
-
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      localStorage.getItem('imminiq_sb') === 'closed'
-  )
 
   const initial = location.state as StartAttemptResponse | undefined
   const shouldFetch = !initial?.questions?.length && Boolean(attemptId)
@@ -448,641 +281,492 @@ export default function MockTestAttemptPage() {
   const isRunningCode = runCodeMutation.isPending
   const isSubmittingCode = submitCodeMutation.isPending
 
-  const qNumCls = (i: number) => {
-    if (i === currentIndex) {
-      return 'border-[#b84c2b] bg-[#b84c2b] font-bold text-white dark:border-[#e8816a] dark:bg-[#e8816a]'
-    }
 
-    const q = questions[i]
-
-    if (q && answers[q._id]) {
-      return 'border-[#2d6a47] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[#6fcb8a] dark:bg-transparent dark:text-[#6fcb8a]'
-    }
-
-    if (flagged.has(i)) {
-      return 'border-[#c98000] bg-[rgba(201,128,0,0.08)] text-[#c98000] dark:border-[#f0c060] dark:bg-transparent dark:text-[#f0c060]'
-    }
-
-    if (visited.has(i)) {
-      return 'border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714] dark:border-white/16 dark:bg-[#252320] dark:text-[#f2f0eb]'
-    }
-
-    return 'border-[#e0d0c5] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]'
-  }
 
   return (
-    <div className="relative h-screen overflow-hidden bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <NoiseOverlay />
-
-      <div className="relative z-10 flex h-full w-full">
-        <Sidebar
-          mobileOpen={sidebarOpen}
-          collapsed={sidebarCollapsed}
-          onCloseMobile={() => setSidebarOpen(false)}
-          onToggleCollapsed={() =>
-            setSidebarCollapsed((current) => {
-              const next = !current
-
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
-              }
-
-              return next
-            })
-          }
+    <AppShellBoundary showSidebar={false} withTopBar={false} withFooter={false} withBottomNav={false} className="bg-(--surface-sunken)">
+      <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
+        <MockTestAttemptHeader
+          timerDisplay={timerDisplay}
+          currentIndex={currentIndex}
+          totalQuestions={totalQuestions}
+          questions={questions}
+          answers={answers}
+          flagged={flagged}
+          visited={visited}
+          isFinishing={isFinishing}
+          canFinish={Boolean(attemptId)}
+          onToggleFlag={toggleFlag}
+          onFinish={finish}
+          onGoTo={goTo}
         />
 
-        <main
-          className={cn(
-            'flex h-full min-w-0 flex-1 flex-col overflow-hidden transition-[margin] duration-300',
-            sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56'
-          )}
-        >
-          <TopBar
-            onMenuClick={() => setSidebarOpen(true)}
-            streakDays={0}
-            userName="Achu"
-            userInitials="AC"
-            userLevel="Free Scholar"
-            isGuest={false}
-          />
-
-          <div className="w-full shrink-0 border-b border-[#e0d0c5] bg-[#f5ede4] dark:border-white/8 dark:bg-[#141412]">
-            <div className="mx-auto w-[min(1060px,calc(100%-48px))] max-[640px]:w-[calc(100%-20px)]">
-              <div className="flex flex-col gap-3 py-4 sm:flex-row sm:items-center sm:justify-between">
-                <div className="flex flex-wrap items-center gap-3">
-                  <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 dark:border-white/10 dark:bg-white/5">
-                    <span className="h-1.5 w-1.5 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-
-                    <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#9b9a92]">
-                      Attempt
-                    </span>
-                  </div>
-
-                  <h1 className="font-['Playfair_Display',serif] text-[22px] font-black leading-tight text-[#1a1714] dark:text-[#f2f0eb]">
-                    Mock test{' '}
-                    <span className="text-[#b84c2b] dark:text-[#e8816a]">
-                      in progress
-                    </span>
-                  </h1>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2">
-                  <div className="rounded-lg border border-[#e0d0c5] bg-[#fdf8f5] px-3.5 py-1.5 font-['DM_Mono',monospace] text-[14px] tracking-[0.12em] text-[#1a1714] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/16 dark:bg-transparent dark:text-[#f2f0eb] dark:shadow-none">
-                    {timerDisplay}
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={toggleFlag}
-                    className={cn(
-                      'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition',
-                      flagged.has(currentIndex)
-                        ? 'border-[#c98000] bg-[rgba(201,128,0,0.08)] text-[#c98000] dark:border-[#f0c060] dark:bg-transparent dark:text-[#f0c060]'
-                        : 'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/16 dark:bg-transparent dark:text-[#9b9a92] dark:hover:border-[#e8816a] dark:hover:text-[#e8816a]'
-                    )}
-                  >
-                    <FlagIcon />
-                    Flag
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={finish}
-                    disabled={isFinishing || !attemptId}
-                    className="rounded-xl bg-[#b84c2b] px-4 py-1.5 font-['Playfair_Display',serif] text-[13px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d]"
-                  >
-                    {isFinishing ? 'Finishing…' : 'Finish test'}
-                  </button>
-                </div>
-              </div>
-
-              <div className="flex flex-wrap gap-1.5 pb-4">
-                {Array.from({ length: totalQuestions }).map((_, i) => (
-                  <button
+        <div className="min-h-0 flex-1 overflow-y-auto">
+          <div className="mx-auto w-[min(1060px,calc(100%-48px))] py-5 max-[640px]:w-[calc(100%-20px)]">
+            {isLoading ? (
+              <div className="space-y-3">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <div
                     key={i}
-                    type="button"
-                    onClick={() => goTo(i)}
-                    className={cn(
-                      'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border font-["DM_Mono",monospace] text-[11px] transition hover:-translate-y-px',
-                      qNumCls(i)
-                    )}
-                  >
-                    {i + 1}
-                  </button>
+                    className="h-48 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
+                  />
                 ))}
               </div>
-            </div>
-          </div>
-
-          <div className="min-h-0 flex-1 overflow-y-auto">
-            <div className="mx-auto w-[min(1060px,calc(100%-48px))] py-5 max-[640px]:w-[calc(100%-20px)]">
-              {isLoading ? (
-                <div className="space-y-3">
-                  {Array.from({ length: 3 }).map((_, i) => (
-                    <div
-                      key={i}
-                      className="h-48 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
-                    />
-                  ))}
-                </div>
-              ) : questionsQuery.isError ? (
-                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-600 dark:text-red-300">
-                  Failed to load attempt questions.
-                </div>
-              ) : !question ? (
-                <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18] dark:text-[#9b9a92]">
-                  No questions found for this attempt.
-                </div>
-              ) : (
-                <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_380px]">
-                  <div className="space-y-5">
-                    <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-                      <div className="mb-3 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
-                        Question {currentIndex + 1} of {totalQuestions}
-                        {question.type &&
-                          ` · ${question.type.replace('_', ' ')}`}
-                        {question.points && ` · ${question.points} pts`}
-                      </div>
-
-                      <h2 className="font-['Playfair_Display',serif] text-[26px] font-black leading-snug text-[#1a1714] max-[640px]:text-[22px] dark:text-[#f2f0eb]">
-                        {question.question}
-                      </h2>
-
-                      {isCoding && question.coding && (
-                        <div className="mt-5 rounded-[14px] border border-[#e0d0c5] bg-[#f5ede4] p-5 dark:border-white/9 dark:bg-[#252320]">
-                          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                            <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
-                              Sample test cases
-                            </p>
-
-                            <span className="rounded-full border border-[#e0d0c5] bg-[#fdf8f5] px-2.5 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.08em] text-[#6b5f58] dark:border-white/10 dark:bg-[#141412] dark:text-[#9b9a92]">
-                              {question.coding.functionName}
-                            </span>
-                          </div>
-
-                          <div className="space-y-3">
-                            {question.coding.testCases
-                              .filter((testCase) => !testCase.isHidden)
-                              .slice(0, 2)
-                              .map((testCase, index) => (
-                                <div
-                                  key={index}
-                                  className="rounded-xl border border-[#e0d0c5] bg-[#fdf8f5] p-3 font-['DM_Mono',monospace] text-[12px] leading-relaxed dark:border-white/9 dark:bg-[#141412]"
-                                >
-                                  <div className="text-[#6b5f58] dark:text-[#9b9a92]">
-                                    <span className="font-semibold text-[#b84c2b] dark:text-[#e8816a]">
-                                      Input:
-                                    </span>{' '}
-                                    {formatJsonValue(testCase.input)}
-                                  </div>
-
-                                  <div className="mt-1 text-[#6b5f58] dark:text-[#9b9a92]">
-                                    <span className="font-semibold text-[#b84c2b] dark:text-[#e8816a]">
-                                      Expected:
-                                    </span>{' '}
-                                    {formatJsonValue(testCase.expectedOutput)}
-                                  </div>
-
-                                  {testCase.explanation && (
-                                    <div className="mt-1 text-[#6b5f58] dark:text-[#9b9a92]">
-                                      {testCase.explanation}
-                                    </div>
-                                  )}
-                                </div>
-                              ))}
-                          </div>
-                        </div>
-                      )}
-
-                      {!isMCQ && !isCoding && (
-                        <>
-                          <textarea
-                            value={answers[question._id] || ''}
-                            onChange={(event) =>
-                              setAnswers((prev) => ({
-                                ...prev,
-                                [question._id]: event.target.value,
-                              }))
-                            }
-                            rows={8}
-                            className="mt-5 w-full resize-y rounded-xl border border-[#e0d0c5] bg-[#f5ede4] p-4 font-['DM_Mono',monospace] text-sm text-[#1a1714] outline-none transition placeholder:text-[#9b8f87] focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:placeholder:text-[#6b6560] dark:focus:border-[#e8816a]"
-                            placeholder="Type your answer…"
-                          />
-
-                          <button
-                            type="button"
-                            onClick={submitAnswer}
-                            disabled={
-                              !answers[question._id]?.trim() || isSubmitting
-                            }
-                            className="mt-4 rounded-[10px] border border-[#e0d0c5] bg-[#f5ede4] px-5 py-2.5 text-sm font-bold text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/8 dark:text-[#f2f0eb] dark:hover:bg-white/12"
-                          >
-                            {isSubmitting ? 'Saving…' : 'Save answer'}
-                          </button>
-                        </>
-                      )}
+            ) : questionsQuery.isError ? (
+              <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-600 dark:text-red-300">
+                Failed to load attempt questions.
+              </div>
+            ) : !question ? (
+              <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 text-(--text-secondary) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
+                No questions found for this attempt.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_380px]">
+                <div className="space-y-5">
+                  <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                    <div className="mb-3 font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
+                      Question {currentIndex + 1} of {totalQuestions}
+                      {question.type &&
+                        ` · ${question.type.replace('_', ' ')}`}
+                      {question.points && ` · ${question.points} pts`}
                     </div>
 
+                    <h2 className="font-ui text-[26px] font-black leading-snug text-(--text-primary) max-[640px]:text-[22px] dark:text-(--text-primary)">
+                      {question.question}
+                    </h2>
+
                     {isCoding && question.coding && (
-                      <section
-                        className={cn(
-                          'overflow-hidden rounded-2xl border border-white/10 bg-[#1e1e1e] shadow-[0_2px_16px_rgba(26,23,20,0.08)]',
-                          compilerExpanded &&
-                            'fixed inset-4 z-50 overflow-y-auto bg-[#111]'
-                        )}
-                      >
-                        <div className="border-b border-white/10 bg-[#161616] px-5 py-4">
-                          <div className="mb-4 flex items-center justify-between gap-3">
-                            <div className="flex gap-1.5">
-                              <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
-                              <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
-                              <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
-                            </div>
+                      <div className="mt-5 rounded-md border border-(--border-subtle) bg-(--surface-canvas) p-5 dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
+                        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
+                            Sample test cases
+                          </p>
 
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setCompilerExpanded((value) => !value)
-                              }
-                              className="rounded-md border border-white/10 bg-[#1e1e1e] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-wider text-[#888] transition hover:bg-[#2a2a2a] hover:text-[#d4d4d4]"
-                            >
-                              {compilerExpanded ? '⊡ Minimize' : '⛶ Maximize'}
-                            </button>
-                          </div>
-
-                          <div className="flex flex-wrap items-center justify-between gap-3">
-                            <div>
-                              <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#e8816a]">
-                                Mock Test Compiler
-                              </div>
-
-                              <div className="mt-1 flex flex-wrap items-center gap-2 font-['DM_Mono',monospace] text-[11px] text-[#888]">
-                                <span>📄 {selectedLanguage.fileName}</span>
-                                <span>·</span>
-                                <span>{selectedLanguage.label}</span>
-                              </div>
-                            </div>
-
-                            <label className="flex items-center gap-2 rounded-md border border-white/10 bg-[#111] px-2.5 py-1.5 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.08em] text-[#888]">
-                              Language
-                              <select
-                                value={selectedLanguage.value}
-                                onChange={handleLanguageChange}
-                                className="cursor-pointer bg-transparent text-[11px] font-bold normal-case tracking-normal text-[#d4d4d4] outline-none"
-                              >
-                                {COMPILER_LANGUAGES.map((item) => (
-                                  <option
-                                    key={item.value}
-                                    value={item.value}
-                                    className="bg-[#111] text-[#d4d4d4]"
-                                  >
-                                    {item.label}
-                                  </option>
-                                ))}
-                              </select>
-                            </label>
-                          </div>
+                          <span className="rounded-full border border-(--border-subtle) bg-(--surface-card) px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.08em] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-secondary)">
+                            {question.coding.functionName}
+                          </span>
                         </div>
 
-                        <div className="flex min-h-80 bg-[#111] py-4 font-['DM_Mono',monospace] text-[14px] text-[#d4d4d4]">
-                          <div className="select-none px-4 text-right leading-[1.6] text-[#555]">
-                            {Array.from({ length: lineCount }).map(
-                              (_, index) => (
-                                <div key={index}>{index + 1}</div>
-                              )
-                            )}
-                          </div>
-
-                          <textarea
-                            value={currentCode}
-                            onChange={(event) =>
-                              handleCodeChange(event.target.value)
-                            }
-                            spellCheck={false}
-                            className="min-h-80 flex-1 resize-none bg-transparent pr-4 font-['DM_Mono',monospace] text-[14px] leading-[1.6] text-[#d4d4d4] outline-none"
-                          />
-                        </div>
-
-                        <div className="grid grid-cols-2 gap-5 border-t border-white/10 bg-[#161616] p-5 max-[760px]:grid-cols-1">
-                          <div>
-                            <div className="mb-3 flex flex-wrap gap-2">
-                              <button
-                                type="button"
-                                disabled={isRunningCode || !currentCode.trim()}
-                                onClick={runCode}
-                                className="inline-flex items-center gap-1.5 rounded-md border border-[#2e5a39] bg-[#1a3d24] px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#4caf50] transition hover:bg-[#235230] hover:text-[#66bb6a] disabled:cursor-wait disabled:opacity-50"
-                              >
-                                ▶ {isRunningCode ? 'Running' : 'Run Code'}
-                              </button>
-
-                              <button
-                                type="button"
-                                disabled={
-                                  isSubmittingCode || !currentCode.trim()
-                                }
-                                onClick={submitCode}
-                                className="inline-flex items-center gap-1.5 rounded-md border border-[#e8816a]/40 bg-[#b84c2b] px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-50"
-                              >
-                                ✓{' '}
-                                {isSubmittingCode
-                                  ? 'Submitting'
-                                  : 'Submit Code'}
-                              </button>
-                            </div>
-
-                            {currentCodeFeedback && (
+                        <div className="space-y-3">
+                          {question.coding.testCases
+                            .filter((testCase) => !testCase.isHidden)
+                            .slice(0, 2)
+                            .map((testCase, index) => (
                               <div
-                                className={cn(
-                                  'rounded-xl border p-4 text-[12px] leading-relaxed',
-                                  currentCodeResult?.passed
-                                    ? 'border-[#2e5a39] bg-[#1a3d24]/70 text-[#9be3a6]'
-                                    : 'border-[#ffbd2e]/30 bg-[#2d2614] text-[#ffdf8a]'
-                                )}
+                                key={index}
+                                className="rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3 font-mono text-[12px] leading-relaxed dark:border-(--border-subtle) dark:bg-(--surface-canvas)"
                               >
-                                {currentCodeFeedback}
-                              </div>
-                            )}
+                                <div className="text-(--text-secondary) dark:text-(--text-secondary)">
+                                  <span className="font-semibold text-(--brand-500) dark:text-(--brand-500)">
+                                    Input:
+                                  </span>{' '}
+                                  {formatJsonValue(testCase.input)}
+                                </div>
 
-                            <pre className="mt-4 max-h-52 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-[#0a0a0a] p-4 font-['DM_Mono',monospace] text-[12px] leading-[1.8] text-[#aaa]">
-                              {buildCompilerOutput(currentCodeResult)}
-                            </pre>
-                          </div>
+                                <div className="mt-1 text-(--text-secondary) dark:text-(--text-secondary)">
+                                  <span className="font-semibold text-(--brand-500) dark:text-(--brand-500)">
+                                    Expected:
+                                  </span>{' '}
+                                  {formatJsonValue(testCase.expectedOutput)}
+                                </div>
 
-                          <div>
-                            <div className="mb-3 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#888]">
-                              <span className="h-1.5 w-1.5 rounded-full bg-[#27c93f]" />
-                              Test case results
-                            </div>
-
-                            {!currentCodeResult ? (
-                              <div className="rounded-xl border border-dashed border-white/10 bg-[#111] p-5 text-center text-[12px] text-[#888]">
-                                Run or submit your code to see test case
-                                results.
-                              </div>
-                            ) : (
-                              <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                                {currentCodeResult.testCases.map(
-                                  (testCase) => (
-                                    <div
-                                      key={testCase.index}
-                                      className={cn(
-                                        'rounded-xl border p-3 font-["DM_Mono",monospace] text-[11.5px]',
-                                        testCase.passed
-                                          ? 'border-[#2e5a39] bg-[#101a13]'
-                                          : 'border-[#ffbd2e]/30 bg-[#2d2614]'
-                                      )}
-                                    >
-                                      <div className="mb-2 flex items-center justify-between gap-2">
-                                        <span
-                                          className={cn(
-                                            'rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]',
-                                            testCase.passed
-                                              ? 'bg-[#1a3d24] text-[#4caf50]'
-                                              : 'bg-[#3a2b12] text-[#ffbd2e]'
-                                          )}
-                                        >
-                                          {testCase.passed
-                                            ? 'Passed'
-                                            : 'Failed'}
-                                        </span>
-
-                                        <span className="text-[#777]">
-                                          Case {testCase.index + 1}
-                                          {testCase.isHidden
-                                            ? ' · hidden'
-                                            : ''}
-                                        </span>
-                                      </div>
-
-                                      {!testCase.isHidden && (
-                                        <>
-                                          <div className="text-[#aaa]">
-                                            Input:{' '}
-                                            {formatJsonValue(testCase.input)}
-                                          </div>
-
-                                          <div className="mt-1 text-[#aaa]">
-                                            Expected:{' '}
-                                            {formatJsonValue(
-                                              testCase.expectedOutput
-                                            )}
-                                          </div>
-                                        </>
-                                      )}
-
-                                      <div className="mt-1 text-[#aaa]">
-                                        Actual:{' '}
-                                        {formatJsonValue(
-                                          testCase.actualOutput
-                                        )}
-                                      </div>
-
-                                      {testCase.error && (
-                                        <div className="mt-2 text-[#ff9b8a]">
-                                          Error: {testCase.error}
-                                        </div>
-                                      )}
-                                    </div>
-                                  )
+                                {testCase.explanation && (
+                                  <div className="mt-1 text-(--text-secondary) dark:text-(--text-secondary)">
+                                    {testCase.explanation}
+                                  </div>
                                 )}
                               </div>
-                            )}
-                          </div>
+                            ))}
                         </div>
-                      </section>
+                      </div>
                     )}
-                  </div>
 
-                  <div className="space-y-4">
-                    {isMCQ && (
-                      <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-                        <p className="mb-3 flex items-center gap-2 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
-                          <svg
-                            width="14"
-                            height="14"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="2"
-                            aria-hidden="true"
-                          >
-                            <rect x="3" y="3" width="18" height="18" rx="3" />
-                            <line x1="8" y1="12" x2="16" y2="12" />
-                            <line x1="12" y1="8" x2="12" y2="16" />
-                          </svg>
-                          {question.type.replace('_', ' ')} ·{' '}
-                          {question.points} pts
-                        </p>
-
-                        <div className="flex flex-col gap-2">
-                          {question.options!.map((option, i) => {
-                            const selected = answers[question._id] === option
-
-                            return (
-                              <button
-                                key={option}
-                                type="button"
-                                onClick={() =>
-                                  setAnswers((prev) => ({
-                                    ...prev,
-                                    [question._id]: option,
-                                  }))
-                                }
-                                className={cn(
-                                  'flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition hover:-translate-y-px',
-                                  selected
-                                    ? 'border-[#b84c2b] bg-[rgba(184,76,43,0.08)] dark:border-[#e8816a] dark:bg-[#e8816a]/8'
-                                    : 'border-[#e0d0c5] bg-[#f5ede4] hover:border-[#e8816a] dark:border-white/9 dark:bg-[#141412] dark:hover:border-white/20'
-                                )}
-                              >
-                                <span
-                                  className={cn(
-                                    'flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-[7px] border font-["DM_Mono",monospace] text-[11px] transition',
-                                    selected
-                                      ? 'border-[#b84c2b] bg-[#b84c2b] text-white dark:border-[#e8816a] dark:bg-[#e8816a]'
-                                      : 'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] dark:border-white/16 dark:bg-[#1c1a18] dark:text-[#9b9a92]'
-                                  )}
-                                >
-                                  {['A', 'B', 'C', 'D'][i]}
-                                </span>
-
-                                <span className="text-[13px] text-[#1a1714] dark:text-[#f2f0eb]">
-                                  {option}
-                                </span>
-
-                                {selected && (
-                                  <span className="ml-auto">
-                                    <CheckCircleIcon />
-                                  </span>
-                                )}
-                              </button>
-                            )
-                          })}
-                        </div>
+                    {!isMCQ && !isCoding && (
+                      <>
+                        <textarea
+                          value={answers[question._id] || ''}
+                          onChange={(event) =>
+                            setAnswers((prev) => ({
+                              ...prev,
+                              [question._id]: event.target.value,
+                            }))
+                          }
+                          rows={8}
+                          className="mt-5 w-full resize-y rounded-xl border border-(--border-subtle) bg-(--surface-canvas) p-4 font-mono text-sm text-(--text-primary) outline-none transition placeholder:text-[#9b8f87] focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:placeholder:text-[#6b6560] dark:focus:border-(--brand-500)"
+                          placeholder="Type your answer…"
+                        />
 
                         <button
                           type="button"
                           onClick={submitAnswer}
-                          disabled={!answers[question._id] || isSubmitting}
-                          className="mt-4 rounded-[10px] border border-[#e0d0c5] bg-[#f5ede4] px-5 py-2.5 text-sm font-bold text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/8 dark:text-[#f2f0eb] dark:hover:bg-white/12"
+                          disabled={
+                            !answers[question._id]?.trim() || isSubmitting
+                          }
+                          className="mt-4 rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-5 py-2.5 text-sm font-bold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:bg-white/8 dark:text-(--text-primary) dark:hover:bg-white/12"
                         >
                           {isSubmitting ? 'Saving…' : 'Save answer'}
                         </button>
-                      </div>
+                      </>
                     )}
+                  </div>
 
-                    <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-                      <p className="mb-3 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
-                        Self-Confidence Level
+                  {isCoding && question.coding && (
+                    <section
+                      className={cn(
+                        'overflow-hidden rounded-2xl border border-white/10 bg-[#1e1e1e] shadow-[0_2px_16px_rgba(26,23,20,0.08)]',
+                        compilerExpanded &&
+                          'fixed inset-4 z-50 overflow-y-auto bg-[#111]'
+                      )}
+                    >
+                      <div className="border-b border-white/10 bg-[#161616] px-5 py-4">
+                        <div className="mb-4 flex items-center justify-between gap-3">
+                          <div className="flex gap-1.5">
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#ff5f56]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#ffbd2e]" />
+                            <span className="h-2.5 w-2.5 rounded-full bg-[#27c93f]" />
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() =>
+                              setCompilerExpanded((value) => !value)
+                            }
+                            className="rounded-md border border-white/10 bg-[#1e1e1e] px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#888] transition hover:bg-[#2a2a2a] hover:text-[#d4d4d4]"
+                          >
+                            {compilerExpanded ? '⊡ Minimize' : '⛶ Maximize'}
+                          </button>
+                        </div>
+
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                          <div>
+                            <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
+                              Mock Test Compiler
+                            </div>
+
+                            <div className="mt-1 flex flex-wrap items-center gap-2 font-mono text-[11px] text-[#888]">
+                              <span>📄 {selectedLanguage.fileName}</span>
+                              <span>·</span>
+                              <span>{selectedLanguage.label}</span>
+                            </div>
+                          </div>
+
+                          <label className="flex items-center gap-2 rounded-md border border-white/10 bg-[#111] px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#888]">
+                            Language
+                            <select
+                              value={selectedLanguage.value}
+                              onChange={handleLanguageChange}
+                              className="cursor-pointer bg-transparent text-[11px] font-bold normal-case tracking-normal text-[#d4d4d4] outline-none"
+                            >
+                              {COMPILER_LANGUAGES.map((item) => (
+                                <option
+                                  key={item.value}
+                                  value={item.value}
+                                  className="bg-[#111] text-[#d4d4d4]"
+                                >
+                                  {item.label}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                        </div>
+                      </div>
+
+                      <div className="flex min-h-80 bg-[#111] py-4 font-mono text-[14px] text-[#d4d4d4]">
+                        <div className="select-none px-4 text-right leading-[1.6] text-[#555]">
+                          {Array.from({ length: lineCount }).map(
+                            (_, index) => (
+                              <div key={index}>{index + 1}</div>
+                            )
+                          )}
+                        </div>
+
+                        <textarea
+                          value={currentCode}
+                          onChange={(event) =>
+                            handleCodeChange(event.target.value)
+                          }
+                          spellCheck={false}
+                          className="min-h-80 flex-1 resize-none bg-transparent pr-4 font-mono text-[14px] leading-[1.6] text-[#d4d4d4] outline-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-5 border-t border-white/10 bg-[#161616] p-5 max-[760px]:grid-cols-1">
+                        <div>
+                          <div className="mb-3 flex flex-wrap gap-2">
+                            <button
+                              type="button"
+                              disabled={isRunningCode || !currentCode.trim()}
+                              onClick={runCode}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-[#2e5a39] bg-[#1a3d24] px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-[#4caf50] transition hover:bg-[#235230] hover:text-[#66bb6a] disabled:cursor-wait disabled:opacity-50"
+                            >
+                              ▶ {isRunningCode ? 'Running' : 'Run Code'}
+                            </button>
+
+                            <button
+                              type="button"
+                              disabled={
+                                isSubmittingCode || !currentCode.trim()
+                              }
+                              onClick={submitCode}
+                              className="inline-flex items-center gap-1.5 rounded-md border border-(--brand-500)/40 bg-(--brand-500) px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-50"
+                            >
+                              ✓{' '}
+                              {isSubmittingCode
+                                ? 'Submitting'
+                                : 'Submit Code'}
+                            </button>
+                          </div>
+
+                          {currentCodeFeedback && (
+                            <div
+                              className={cn(
+                                'rounded-xl border p-4 text-[12px] leading-relaxed',
+                                currentCodeResult?.passed
+                                  ? 'border-[#2e5a39] bg-[#1a3d24]/70 text-[#9be3a6]'
+                                  : 'border-[#ffbd2e]/30 bg-[#2d2614] text-[#ffdf8a]'
+                              )}
+                            >
+                              {currentCodeFeedback}
+                            </div>
+                          )}
+
+                          <pre className="mt-4 max-h-52 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-[#0a0a0a] p-4 font-mono text-[12px] leading-[1.8] text-[#aaa]">
+                            {buildCompilerOutput(currentCodeResult)}
+                          </pre>
+                        </div>
+
+                        <div>
+                          <div className="mb-3 flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#888]">
+                            <span className="h-1.5 w-1.5 rounded-full bg-[#27c93f]" />
+                            Test case results
+                          </div>
+
+                          {!currentCodeResult ? (
+                            <div className="rounded-xl border border-dashed border-white/10 bg-[#111] p-5 text-center text-[12px] text-[#888]">
+                              Run or submit your code to see test case
+                              results.
+                            </div>
+                          ) : (
+                            <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
+                              {currentCodeResult.testCases.map(
+                                (testCase) => (
+                                  <div
+                                    key={testCase.index}
+                                    className={cn(
+                                      'rounded-xl border p-3 font-mono text-[11.5px]',
+                                      testCase.passed
+                                        ? 'border-[#2e5a39] bg-[#101a13]'
+                                        : 'border-[#ffbd2e]/30 bg-[#2d2614]'
+                                    )}
+                                  >
+                                    <div className="mb-2 flex items-center justify-between gap-2">
+                                      <span
+                                        className={cn(
+                                          'rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]',
+                                          testCase.passed
+                                            ? 'bg-[#1a3d24] text-[#4caf50]'
+                                            : 'bg-[#3a2b12] text-[#ffbd2e]'
+                                        )}
+                                      >
+                                        {testCase.passed
+                                          ? 'Passed'
+                                          : 'Failed'}
+                                      </span>
+
+                                      <span className="text-[#777]">
+                                        Case {testCase.index + 1}
+                                        {testCase.isHidden
+                                          ? ' · hidden'
+                                          : ''}
+                                      </span>
+                                    </div>
+
+                                    {!testCase.isHidden && (
+                                      <>
+                                        <div className="text-[#aaa]">
+                                          Input:{' '}
+                                          {formatJsonValue(testCase.input)}
+                                        </div>
+
+                                        <div className="mt-1 text-[#aaa]">
+                                          Expected:{' '}
+                                          {formatJsonValue(
+                                            testCase.expectedOutput
+                                          )}
+                                        </div>
+                                      </>
+                                    )}
+
+                                    <div className="mt-1 text-[#aaa]">
+                                      Actual:{' '}
+                                      {formatJsonValue(
+                                        testCase.actualOutput
+                                      )}
+                                    </div>
+
+                                    {testCase.error && (
+                                      <div className="mt-2 text-[#ff9b8a]">
+                                        Error: {testCase.error}
+                                      </div>
+                                    )}
+                                  </div>
+                                )
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </section>
+                  )}
+                </div>
+
+                <div className="space-y-4">
+                  {isMCQ && (
+                    <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                      <p className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
+                        <svg
+                          width="14"
+                          height="14"
+                          viewBox="0 0 24 24"
+                          fill="none"
+                          stroke="currentColor"
+                          strokeWidth="2"
+                          aria-hidden="true"
+                        >
+                          <rect x="3" y="3" width="18" height="18" rx="3" />
+                          <line x1="8" y1="12" x2="16" y2="12" />
+                          <line x1="12" y1="8" x2="12" y2="16" />
+                        </svg>
+                        {question.type.replace('_', ' ')} ·{' '}
+                        {question.points} pts
                       </p>
 
-                      <div className="flex gap-1.5">
-                        {(['low', 'medium', 'high'] as const).map((level) => {
-                          const active = confidence[currentIndex] === level
-
-                          const activeColor =
-                            level === 'high'
-                              ? 'border-[#2d6a47] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[#6fcb8a] dark:bg-[#6fcb8a]/8 dark:text-[#6fcb8a]'
-                              : level === 'medium'
-                                ? 'border-[#c98000] bg-[rgba(201,128,0,0.08)] text-[#c98000] dark:border-[#f0c060] dark:bg-[#f0c060]/8 dark:text-[#f0c060]'
-                                : 'border-[#b84c2b] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a] dark:bg-[#e8816a]/8 dark:text-[#e8816a]'
+                      <div className="flex flex-col gap-2">
+                        {question.options!.map((option, i) => {
+                          const selected = answers[question._id] === option
 
                           return (
                             <button
-                              key={level}
+                              key={option}
                               type="button"
                               onClick={() =>
-                                setConfidence((prev) => ({
+                                setAnswers((prev) => ({
                                   ...prev,
-                                  [currentIndex]: level,
+                                  [question._id]: option,
                                 }))
                               }
                               className={cn(
-                                'flex-1 rounded-[9px] border py-2 font-["DM_Sans",sans-serif] text-[11px] font-bold uppercase tracking-[0.06em] transition',
-                                active
-                                  ? activeColor
-                                  : 'border-[#e0d0c5] bg-[#f5ede4] text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:bg-[#141412] dark:text-[#9b9a92] dark:hover:border-white/20 dark:hover:text-[#f2f0eb]'
+                                'flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition hover:-translate-y-px',
+                                selected
+                                  ? 'border-(--brand-500) bg-[rgba(184,76,43,0.08)] dark:border-(--brand-500) dark:bg-(--brand-500)/8'
+                                  : 'border-(--border-subtle) bg-(--surface-canvas) hover:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:hover:border-white/20'
                               )}
                             >
-                              {level}
+                              <span
+                                className={cn(
+                                  'flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-[7px] border font-mono text-[11px] transition',
+                                  selected
+                                    ? 'border-(--brand-500) bg-(--brand-500) text-white dark:border-(--brand-500) dark:bg-(--brand-500)'
+                                    : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) dark:border-white/16 dark:bg-(--surface-card) dark:text-(--text-secondary)'
+                                )}
+                              >
+                                {['A', 'B', 'C', 'D'][i]}
+                              </span>
+
+                              <span className="text-[13px] text-(--text-primary) dark:text-(--text-primary)">
+                                {option}
+                              </span>
+
+                              {selected && (
+                                <span className="ml-auto">
+                                  <CheckCircleIcon />
+                                </span>
+                              )}
                             </button>
                           )
                         })}
                       </div>
+
+                      <button
+                        type="button"
+                        onClick={submitAnswer}
+                        disabled={!answers[question._id] || isSubmitting}
+                        className="mt-4 rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-5 py-2.5 text-sm font-bold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:bg-white/8 dark:text-(--text-primary) dark:hover:bg-white/12"
+                      >
+                        {isSubmitting ? 'Saving…' : 'Save answer'}
+                      </button>
                     </div>
+                  )}
 
-                    <div
-                      className="rounded-2xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.05)] p-5 dark:border-[#e8816a]/20 dark:bg-[#e8816a]/5"
-                      style={{ borderLeft: '3px solid #b84c2b' }}
-                    >
-                      <p className="mb-2 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">
-                        <HintIcon />
-                        Hint
-                      </p>
+                  <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                    <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
+                      Self-Confidence Level
+                    </p>
 
-                      <p className="text-[12.5px] italic leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]">
-                        {isCoding
-                          ? 'Run checks visible test cases. Submit checks all visible and hidden test cases.'
-                          : 'Think about the most efficient approach before selecting your answer.'}
-                      </p>
+                    <div className="flex gap-1.5">
+                      {(['low', 'medium', 'high'] as const).map((level) => {
+                        const active = confidence[currentIndex] === level
+
+                        const activeColor =
+                          level === 'high'
+                            ? 'border-[var(--success)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[#6fcb8a] dark:bg-[#6fcb8a]/8 dark:text-[#6fcb8a]'
+                            : level === 'medium'
+                              ? 'border-[var(--warning)] bg-[rgba(201,128,0,0.08)] text-[var(--warning)] dark:border-[#f0c060] dark:bg-[#f0c060]/8 dark:text-[#f0c060]'
+                              : 'border-[var(--brand-500)] bg-[rgba(184,76,43,0.08)] text-[var(--brand-500)] dark:border-[var(--brand-500)] dark:bg-[var(--brand-500)]/8 dark:text-[var(--brand-500)]'
+
+                        return (
+                          <button
+                            key={level}
+                            type="button"
+                            onClick={() =>
+                              setConfidence((prev) => ({
+                                ...prev,
+                                [currentIndex]: level,
+                              }))
+                            }
+                            className={cn(
+                              'flex-1 rounded-sm border py-2 font-ui text-[11px] font-bold uppercase tracking-[0.06em] transition',
+                              active
+                                ? activeColor
+                                : 'border-(--border-subtle) bg-(--surface-canvas) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]'
+                            )}
+                          >
+                            {level}
+                          </button>
+                        )
+                      })}
                     </div>
                   </div>
-                </div>
-              )}
-            </div>
-          </div>
 
-          <div className="shrink-0 border-t border-[#e0d0c5] bg-[#f5ede4] dark:border-white/8 dark:bg-[#141412]">
-            <div className="mx-auto flex w-[min(1060px,calc(100%-48px))] items-center justify-between gap-3 py-4 max-[640px]:w-[calc(100%-20px)]">
-              <button
-                type="button"
-                onClick={() => goTo(currentIndex - 1)}
-                disabled={currentIndex === 0}
-                className="flex items-center gap-2 rounded-[10px] border border-[#e0d0c5] bg-[#fdf8f5] px-5 py-2.5 text-[13px] font-semibold text-[#1a1714] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/16 dark:bg-transparent dark:text-[#f2f0eb] dark:hover:border-[#e8816a] dark:hover:text-[#e8816a]"
-              >
-                ← Previous
-              </button>
+                  <div
+                    className="rounded-2xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.05)] p-5 dark:border-(--brand-500)/20 dark:bg-(--brand-500)/5"
+                    style={{ borderLeft: '3px solid var(--brand-500)' }}
+                  >
+                    <p className="mb-2 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
+                      <HintIcon />
+                      Hint
+                    </p>
 
-              <div className="flex flex-col items-center gap-1.5">
-                <span className="font-['DM_Sans',sans-serif] text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
-                  Question {currentIndex + 1} of {totalQuestions}
-                </span>
-
-                <div className="flex gap-1">
-                  {Array.from({ length: totalQuestions }).map((_, i) => {
-                    const q = questions[i]
-                    const done = (q && answers[q._id]) || i === currentIndex
-
-                    return (
-                      <div
-                        key={i}
-                        className={cn(
-                          'h-1.5 w-1.5 rounded-full transition',
-                          done
-                            ? 'bg-[#b84c2b] dark:bg-[#e8816a]'
-                            : 'bg-[#d8c8bc] dark:bg-white/16'
-                        )}
-                      />
-                    )
-                  })}
+                    <p className="text-[12.5px] italic leading-relaxed text-(--text-secondary) dark:text-(--text-secondary)">
+                      {isCoding
+                        ? 'Run checks visible test cases. Submit checks all visible and hidden test cases.'
+                        : 'Think about the most efficient approach before selecting your answer.'}
+                    </p>
+                  </div>
                 </div>
               </div>
-
-              <button
-                type="button"
-                onClick={() => goTo(currentIndex + 1)}
-                disabled={currentIndex === totalQuestions - 1}
-                className="flex items-center gap-2 rounded-[14px] bg-[#b84c2b] px-5 py-2.5 font-['Playfair_Display',serif] text-[14px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d]"
-              >
-                Next question →
-              </button>
-            </div>
+            )}
           </div>
-        </main>
-      </div>
+        </div>
 
-      <BottomNav />
-    </div>
+        <MockTestAttemptFooter
+          currentIndex={currentIndex}
+          totalQuestions={totalQuestions}
+          questions={questions}
+          answers={answers}
+          onGoTo={goTo}
+        />
+      </div>
+    </AppShellBoundary>
   )
 }

@@ -21,7 +21,7 @@ const podiumTokens = {
   2: {
     border: 'border-[rgba(155,154,146,0.40)] dark:border-[rgba(200,200,195,0.25)]',
     shadow: 'shadow-[0_6px_28px_rgba(155,154,146,0.12)]',
-    background: 'bg-[#fdf8f5] dark:bg-[#1e1c19]',
+    background: 'bg-[var(--surface-card)] dark:bg-[var(--surface-card)]',
     lightStrip: 'linear-gradient(90deg, transparent, #9b9a92, transparent)',
     darkStrip: 'linear-gradient(90deg, transparent, #c8c8c3, transparent)',
     ring: '#9b9a92',
@@ -34,7 +34,7 @@ const podiumTokens = {
   3: {
     border: 'border-[rgba(184,115,51,0.38)] dark:border-[rgba(210,145,80,0.28)]',
     shadow: 'shadow-[0_6px_24px_rgba(184,115,51,0.10)]',
-    background: 'bg-[#fdf8f5] dark:bg-[#1e1c19]',
+    background: 'bg-[var(--surface-card)] dark:bg-[var(--surface-card)]',
     lightStrip: 'linear-gradient(90deg, transparent, #b87333, transparent)',
     darkStrip: 'linear-gradient(90deg, transparent, #d29150, transparent)',
     ring: '#b87333',
@@ -55,7 +55,7 @@ function PodiumCard({ entry }: { entry: LeaderboardTopThreeEntry }) {
   return (
     <article
       className={cn(
-        'group relative flex flex-col items-center overflow-hidden rounded-[20px] border-[1.5px] px-5 pb-6 pt-6 transition-all duration-200',
+        'group relative flex flex-col items-center overflow-hidden rounded-xl border-[1.5px] px-5 pb-6 pt-6 transition-all duration-200',
         token.background,
         token.border,
         token.shadow,
@@ -66,7 +66,7 @@ function PodiumCard({ entry }: { entry: LeaderboardTopThreeEntry }) {
 
       <div className="relative mb-3 mt-2">
         <div className="rounded-full p-0.75" style={{ background: `linear-gradient(135deg, ${token.ring}80, ${token.ring}20)` }}>
-          <div className="rounded-full bg-[#fdf8f5] p-0.5 dark:bg-[#1e1c19]">
+          <div className="rounded-full bg-(--surface-card) p-0.5 dark:bg-(--surface-card)">
             <LeaderboardAvatar
               initials={entry.initials}
               color={entry.avatarColor}
@@ -81,19 +81,19 @@ function PodiumCard({ entry }: { entry: LeaderboardTopThreeEntry }) {
         </div>
       </div>
 
-      <h3 className={cn("mt-1 text-center font-['Playfair_Display',serif] font-black leading-[1.2] text-[#1a1714] dark:text-[#f2f0eb]", isChampion ? 'text-[19px]' : 'text-[14.5px]')}>
+      <h3 className={cn("mt-1 text-center font-ui font-black leading-[1.2] text-(--text-primary) dark:text-(--text-primary)", isChampion ? 'text-[19px]' : 'text-[14.5px]')}>
         {entry.name}
       </h3>
 
-      <span className="mt-1.5 font-['DM_Mono',monospace] text-[12px] font-bold tabular-nums dark:hidden" style={{ color: token.lightXp }}>
+      <span className="mt-1.5 font-mono text-[12px] font-bold tabular-nums dark:hidden" style={{ color: token.lightXp }}>
         {formatNumber(entry.xp)} XP
       </span>
-      <span className="mt-1.5 hidden font-['DM_Mono',monospace] text-[12px] font-bold tabular-nums dark:inline" style={{ color: token.darkXp }}>
+      <span className="mt-1.5 hidden font-mono text-[12px] font-bold tabular-nums dark:inline" style={{ color: token.darkXp }}>
         {formatNumber(entry.xp)} XP
       </span>
 
       <div
-        className="mt-3 flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-['DM_Mono',monospace] text-[9.5px] font-bold uppercase tracking-[0.06em]"
+        className="mt-3 flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.06em]"
         style={{ color: token.streakText, background: token.streakBackground, borderColor: token.streakBorder }}
       >
         <FireIcon size={11} />

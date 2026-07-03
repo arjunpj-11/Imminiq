@@ -1,4 +1,4 @@
-import { cn } from '../utils/leaderboard-ui'
+import UserAvatar from '../../../components/data-display/UserAvatar'
 
 interface LeaderboardAvatarProps {
   initials: string
@@ -22,27 +22,15 @@ export default function LeaderboardAvatar({
   name,
   size = 'md',
 }: LeaderboardAvatarProps) {
-  if (avatarUrl) {
-    return (
-      <img
-        src={avatarUrl}
-        alt={`${name}'s avatar`}
-        className={cn('shrink-0 rounded-full object-cover', sizes[size])}
-        loading="lazy"
-      />
-    )
-  }
-
   return (
-    <div
-      aria-label={`${name}'s initials`}
-      className={cn(
-        "flex shrink-0 items-center justify-center rounded-full font-['DM_Mono',monospace] font-bold tracking-tight text-white",
-        sizes[size],
-      )}
-      style={{ background: color }}
-    >
-      {initials}
-    </div>
+    <UserAvatar
+      name={name}
+      src={avatarUrl}
+      initials={initials}
+      sizeClassName={sizes[size]}
+      fallbackClassName="bg-none font-mono tracking-tight text-white"
+      fallbackStyle={{ background: color }}
+      imageLoading="lazy"
+    />
   )
 }

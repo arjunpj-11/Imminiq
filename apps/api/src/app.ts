@@ -25,6 +25,7 @@ import  mockTestsRouter  from './modules/mock-tests/presentation/mock-tests.rout
 import communityRouter from './modules/community/presentation/community.routes'
 import leaderBoardRouter from './modules/leaderboard/presentation/leaderboard.routes'
 import activityRouter from './modules/activity/activity.routes'
+import { friendsRoutes } from './modules/friends/presentation/friends.routes'
 
 
 const app = express()
@@ -77,6 +78,7 @@ app.use('/api/community', communityRouter)
 app.use('/api/moderation-appeals', moderationAppealRoutes)
 app.use('/api/leaderboard',leaderBoardRouter)
 app.use('/api/activity',activityRouter)
+app.use('/api/friends', friendsRoutes)
 
 app.use(errorHandler)
 

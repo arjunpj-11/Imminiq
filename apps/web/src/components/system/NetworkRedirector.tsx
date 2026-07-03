@@ -1,52 +1,35 @@
 import { useEffect, useRef } from 'react'
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
-const LAST_ONLINE_PATH_KEY = 'last_online_path_before_offline'
+import { safeSessionStorage } from '../../lib/storage/safe-storage'
+import { STORAGE_KEYS } from '../../lib/storage/storage-keys'
 
+/**
+ * Keeps the last usable route so the offline page can return users to their
+ * work, while OnlineStatus provides a non-disruptive connection banner.
+ */
 export default function NetworkRedirector() {
-  const navigate = useNavigate()
   const location = useLocation()
-
   const currentPathRef = useRef(
-    `${location.pathname}${location.search}${location.hash}`
+    `${location.pathname}${location.search}${location.hash}`,
   )
 
-  /**
-   * Always keep the latest route stored,
-   * without triggering offline redirect checks on every navigation.
-   */
   useEffect(() => {
     currentPathRef.current =
       `${location.pathname}${location.search}${location.hash}`
-  }, [location.pathname, location.search, location.hash])
+  }, [location.hash, location.pathname, location.search])
 
-  /**
-   * Only redirect when the browser fires a real "offline" event.
-   */
   useEffect(() => {
     const handleOffline = () => {
       const currentPath = currentPathRef.current
-
-      if (currentPath.startsWith('/offline')) {
-        return
+      if (!currentPath.startsWith('/offline')) {
+        safeSessionStorage.set(STORAGE_KEYS.lastOnlinePath, currentPath)
       }
-
-      sessionStorage.setItem(
-        LAST_ONLINE_PATH_KEY,
-        currentPath
-      )
-
-      navigate('/offline', {
-        replace: true,
-      })
     }
 
     window.addEventListener('offline', handleOffline)
-
-    return () => {
-      window.removeEventListener('offline', handleOffline)
-    }
-  }, [navigate])
+    return () => window.removeEventListener('offline', handleOffline)
+  }, [])
 
   return null
 }

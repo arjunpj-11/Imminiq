@@ -5,6 +5,7 @@ import axios from 'axios'
 
 import { useLogin } from '../hooks/useLogin'
 import AuthLayout from './AuthLayout'
+import AuthIdentifierField from './AuthIdentifierField'
 import AuthSocialButtons from './AuthSocialButtons'
 import { ApiErrorBanner, FieldError } from './AuthError'
 import { EyeIcon } from './icons/AuthIcons'
@@ -115,24 +116,18 @@ export default function LoginForm() {
       <ApiErrorBanner message={apiError} warning={tooManyAttempts} />
 
       <form onSubmit={handleSubmit} noValidate className="space-y-4">
-        <label className="block">
-          <span className={authLabelClass}>Email or phone</span>
-          <input
-            className={authInputClass(errors.identifier, touched.identifier && !errors.identifier)}
-            name="identifier"
-            value={form.identifier}
-            onChange={handleChange}
-            onBlur={handleBlur}
-            placeholder="you@example.com"
-            autoComplete="username"
-          />
-          <FieldError message={errors.identifier} />
-        </label>
+        <AuthIdentifierField
+          value={form.identifier}
+          error={errors.identifier}
+          valid={Boolean(touched.identifier && !errors.identifier)}
+          onChange={handleChange}
+          onBlur={handleBlur}
+        />
 
         <label className="block">
           <div className="mb-1.5 flex items-center justify-between">
             <span className={authLabelClass}>Password</span>
-            <Link to="/forgot-password" className="font-mono text-[9.5px] uppercase tracking-widest text-[#b84c2b] hover:opacity-70 dark:text-[#e8816a]">
+            <Link to="/forgot-password" className="font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)">
               Forgot?
             </Link>
           </div>
@@ -149,7 +144,7 @@ export default function LoginForm() {
             />
             <button
               type="button"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#6b5f58] transition hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               onClick={() => setShowPw((value) => !value)}
               aria-label={showPw ? 'Hide password' : 'Show password'}
             >
@@ -159,19 +154,19 @@ export default function LoginForm() {
           <FieldError message={errors.password} />
         </label>
 
-        <label className="flex items-center gap-2 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+        <label className="flex items-center gap-2 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
           <input
             type="checkbox"
             name="rememberMe"
             checked={form.rememberMe}
             onChange={handleChange}
-            className="accent-[#b84c2b] dark:accent-[#e8816a]"
+            className="accent-(--brand-500) dark:accent-(--brand-500)"
           />
           Remember this device
         </label>
 
         <button
-          className="relative mt-1 w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+          className="relative mt-1 w-full overflow-hidden rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none disabled:cursor-not-allowed disabled:opacity-70 disabled:hover:translate-y-0 disabled:hover:shadow-none dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           type="submit"
           disabled={isPending}
         >
@@ -180,18 +175,18 @@ export default function LoginForm() {
       </form>
 
       <div className="my-5 flex items-center gap-3">
-        <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/15" />
-        <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]">
+        <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />
+        <span className="font-mono text-[9px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
           Or continue with
         </span>
-        <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/15" />
+        <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/15" />
       </div>
 
       <AuthSocialButtons />
 
-      <p className="mt-6 text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
         New to Imminiq?{' '}
-        <Link to="/register" className="font-semibold text-[#b84c2b] hover:opacity-70 dark:text-[#e8816a]">
+        <Link to="/register" className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)">
           Create account
         </Link>
       </p>

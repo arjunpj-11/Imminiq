@@ -63,33 +63,33 @@ export default function LeaderboardControls({
               aria-pressed={isActive}
               disabled={disabled}
               className={cn(
-                'group relative flex items-center gap-3 rounded-[14px] border-[1.5px] px-4 py-3 text-left transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60',
+                'group relative flex items-center gap-3 rounded-md border-[1.5px] px-4 py-3 text-left transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-60',
                 isActive
                   ? 'border-[rgba(184,76,43,0.45)] bg-[rgba(184,76,43,0.05)] dark:border-[rgba(232,129,106,0.35)] dark:bg-[rgba(232,129,106,0.06)]'
-                  : 'border-[#e0d0c5] bg-[#fdf8f5] hover:border-[rgba(184,76,43,0.22)] hover:bg-[rgba(184,76,43,0.02)] dark:border-white/9 dark:bg-[#1e1c19] dark:hover:border-white/20',
+                  : 'border-(--border-subtle) bg-(--surface-card) hover:border-[rgba(184,76,43,0.22)] hover:bg-[rgba(184,76,43,0.02)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-white/20',
               )}
             >
               {isActive && (
                 <>
-                  <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-[13px] dark:hidden" style={{ background: 'linear-gradient(90deg, transparent, #b84c2b, transparent)' }} />
-                  <div className="absolute inset-x-0 top-0 hidden h-0.5 rounded-t-[13px] dark:block" style={{ background: 'linear-gradient(90deg, transparent, #e8816a, transparent)' }} />
+                  <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-[13px] dark:hidden" style={{ background: 'linear-gradient(90deg, transparent, var(--brand-500), transparent)' }} />
+                  <div className="absolute inset-x-0 top-0 hidden h-0.5 rounded-t-[13px] dark:block" style={{ background: 'linear-gradient(90deg, transparent, var(--brand-500), transparent)' }} />
                 </>
               )}
 
-              <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] transition-colors duration-200', isActive ? 'bg-[rgba(184,76,43,0.10)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]' : 'bg-[rgba(26,23,20,0.05)] text-[#9b8a82] dark:bg-white/6 dark:text-[#6b6460]')}>
+              <div className={cn('flex h-9 w-9 shrink-0 items-center justify-center rounded-md transition-colors duration-200', isActive ? 'bg-[rgba(184,76,43,0.10)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.12)] dark:text-(--brand-500)' : 'bg-[rgba(26,23,20,0.05)] text-[#9b8a82] dark:bg-white/6 dark:text-[#6b6460]')}>
                 {sectionIcons[section]}
               </div>
 
               <div>
-                <div className={cn('text-[13px] font-semibold leading-tight transition-colors duration-200', isActive ? 'text-[#b84c2b] dark:text-[#e8816a]' : 'text-[#2a2420] dark:text-[#dedad5]')}>
+                <div className={cn('text-[13px] font-semibold leading-tight transition-colors duration-200', isActive ? 'text-(--brand-500) dark:text-(--brand-500)' : 'text-[#2a2420] dark:text-[#dedad5]')}>
                   {LEADERBOARD_SECTION_LABELS[section].label}
                 </div>
-                <div className="mt-0.5 font-['DM_Mono',monospace] text-[10px] text-[#b0a097] dark:text-[#6b6460]">
+                <div className="mt-0.5 font-mono text-[10px] text-[#b0a097] dark:text-[#6b6460]">
                   {formatNumber(counts[section])} active
                 </div>
               </div>
 
-              {isActive && <div className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />}
+              {isActive && <div className="ml-auto h-1.5 w-1.5 shrink-0 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />}
             </button>
           )
         })}
@@ -107,10 +107,10 @@ export default function LeaderboardControls({
               aria-pressed={isActive}
               disabled={disabled}
               className={cn(
-                "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.07em] transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60",
+                "inline-flex items-center gap-1.5 rounded-full border px-3.5 py-1.5 font-mono text-[10px] font-bold uppercase tracking-[0.07em] transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60",
                 isActive
-                  ? 'border-[#b84c2b] bg-[#b84c2b] text-white dark:border-[#e8816a] dark:bg-[#e8816a] dark:text-[#141412]'
-                  : 'border-[#e0d0c5] bg-[#fdf8f5] text-[#9b8a82] hover:border-[rgba(184,76,43,0.25)] hover:text-[#b84c2b] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#6b6460] dark:hover:text-[#e8816a]',
+                  ? 'border-(--brand-500) bg-(--brand-500) text-white dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412]'
+                  : 'border-(--border-subtle) bg-(--surface-card) text-[#9b8a82] hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-[#6b6460] dark:hover:text-(--brand-500)',
               )}
             >
               {scopeIcons[scope]}

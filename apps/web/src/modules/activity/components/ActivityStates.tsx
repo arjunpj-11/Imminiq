@@ -30,7 +30,7 @@ export const ActivityContentSkeleton = () => (
         <SkeletonBlock className="h-10 w-72 rounded-2xl" />
         <SkeletonBlock className="h-4 w-full max-w-96" />
       </div>
-      <SkeletonBlock className="h-24 w-64 rounded-[18px]" />
+      <SkeletonBlock className="h-24 w-64 rounded-lg" />
     </div>
 
     <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
@@ -39,12 +39,12 @@ export const ActivityContentSkeleton = () => (
       ))}
     </div>
 
-    <SkeletonBlock className="h-52 rounded-[18px]" />
+    <SkeletonBlock className="h-52 rounded-lg" />
 
     <div className="flex items-start gap-5 max-[860px]:flex-col">
       <div className="min-w-0 flex-1 space-y-4">
         <SkeletonBlock className="h-10 w-80 rounded-xl" />
-        <div className="overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] dark:border-white/9 dark:bg-[#1e1c19]">
+        <div className="overflow-hidden rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-card)">
           {Array.from({ length: 6 }, (_, index) => (
             <FeedRowSkeleton key={index} />
           ))}
@@ -69,21 +69,21 @@ export const ActivityErrorState = ({
   onRetry,
 }: ActivityErrorStateProps) => (
   <div
-    className="flex min-h-[420px] items-center justify-center px-4"
+    className="flex min-h-105 items-center justify-center px-4"
     role="alert"
   >
-    <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.2)] bg-[#fdf8f5] p-8 text-center dark:bg-[#1e1c19]">
-      <h1 className="font-['Playfair_Display',serif] text-[22px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+    <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.2)] bg-(--surface-card) p-8 text-center dark:bg-(--surface-card)">
+      <h1 className="font-ui text-[22px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
         Activity unavailable
       </h1>
-      <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
         {message ||
           'Something went wrong loading your activity. Try again.'}
       </p>
       <button
         type="button"
         onClick={onRetry}
-        className="mx-auto mt-5 inline-flex items-center gap-2 rounded-lg bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#a64225] dark:bg-[#e8816a] dark:text-[#141412]"
+        className="mx-auto mt-5 inline-flex items-center gap-2 rounded-lg bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#a64225] dark:bg-(--brand-500) dark:text-[#141412]"
       >
         <RefreshIcon /> Try again
       </button>

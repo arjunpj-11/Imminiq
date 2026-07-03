@@ -148,18 +148,18 @@ export default function ActivityHeatmap({
   }, [activity, months])
 
   return (
-    <section className="rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-4.5">
+    <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-4.5">
       <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold tracking-[-0.35px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h2 className="font-ui text-[20px] font-extrabold tracking-[-0.35px] text-(--text-primary) dark:text-(--text-primary)">
             Activity Intensity
           </h2>
-          <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
             Your learning activity across the last {months} months.
           </p>
         </div>
 
-        <div className="flex overflow-hidden rounded-[10px] border-[1.5px] border-[#e0d0c5] dark:border-white/9">
+        <div className="flex overflow-hidden rounded-md border-[1.5px] border-(--border-subtle) dark:border-(--border-subtle)">
           {[6, 12].map((value) => (
             <button
               key={value}
@@ -167,10 +167,10 @@ export default function ActivityHeatmap({
               disabled={isLoading}
               onClick={() => onMonthsChange(value as 6 | 12)}
               className={cn(
-                'px-3.5 py-2 font-[DM_Mono] text-[9px] uppercase tracking-[0.12em] transition disabled:cursor-not-allowed disabled:opacity-65',
+                'px-3.5 py-2 font-mono text-[9px] uppercase tracking-[0.12em] transition disabled:cursor-not-allowed disabled:opacity-65',
                 months === value
-                  ? 'bg-[#b84c2b] text-[#fdf8f5] dark:bg-[#e8816a] dark:text-[#141412]'
-                  : 'bg-transparent text-[#6b5f58] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]'
+                  ? 'bg-(--brand-500) text-[#fdf8f5] dark:bg-(--brand-500) dark:text-[#141412]'
+                  : 'bg-transparent text-(--text-secondary) hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
               )}
             >
               {value}M
@@ -189,7 +189,7 @@ export default function ActivityHeatmap({
                 {monthLabels.map((item) => (
                   <span
                     key={`${item.label}-${item.left}`}
-                    className="absolute top-0 whitespace-nowrap font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#6b5f58] opacity-65 dark:text-[#9b9a92]"
+                    className="absolute top-0 whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.08em] text-(--text-secondary) opacity-65 dark:text-(--text-secondary)"
                     style={{ left: `${item.left}px` }}
                   >
                     {item.label}
@@ -202,7 +202,7 @@ export default function ActivityHeatmap({
                   (day) => (
                     <span
                       key={day}
-                      className="h-2.75 font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] leading-2.75 text-[#6b5f58] opacity-58 dark:text-[#9b9a92]"
+                      className="h-2.75 font-mono text-[7px] uppercase tracking-[0.08em] leading-2.75 text-(--text-secondary) opacity-58 dark:text-(--text-secondary)"
                     >
                       {day}
                     </span>
@@ -244,7 +244,7 @@ export default function ActivityHeatmap({
                             cell.intensity === 3 &&
                               'bg-[rgba(184,76,43,0.65)] dark:bg-[rgba(232,129,106,0.68)]',
                             cell.intensity >= 4 &&
-                              'bg-[#b84c2b] dark:bg-[#e8816a]'
+                              'bg-(--brand-500) dark:bg-(--brand-500)'
                           )}
                         />
                       )
@@ -257,19 +257,19 @@ export default function ActivityHeatmap({
 
           <div className="mt-4 flex flex-wrap gap-6">
             <div>
-              <div className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+              <div className="font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
                 Active Days
               </div>
-              <div className="mt-1 text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+              <div className="mt-1 text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                 {activeDays}
               </div>
             </div>
 
             <div>
-              <div className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+              <div className="font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
                 Total Activities
               </div>
-              <div className="mt-1 text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+              <div className="mt-1 text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                 {totalActivities}
               </div>
             </div>

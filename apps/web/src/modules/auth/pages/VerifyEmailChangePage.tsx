@@ -2,8 +2,10 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 
-import { useVerifyEmailChange } from '../../settings/hooks/useSecuritySettings'
+import { useVerifyEmailChange } from '../../settings'
 import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.types'
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
+import { safeLocalStorage } from '../../../lib/storage/safe-storage'
 
 export default function VerifyEmailChangePage() {
   const navigate = useNavigate()
@@ -29,8 +31,8 @@ export default function VerifyEmailChangePage() {
       try {
         await verifyEmailChange.mutateAsync(token)
 
-        localStorage.setItem(
-          'imminiq-auth-sync',
+        safeLocalStorage.set(
+          STORAGE_KEYS.authSync,
           JSON.stringify({
             type: 'EMAIL_CHANGED_LOGOUT',
             timestamp: Date.now(),
@@ -71,21 +73,21 @@ export default function VerifyEmailChangePage() {
           : errorMessage
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5ede4] px-4 py-10 font-['DM_Sans',sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-(--surface-canvas) px-4 py-10 font-ui text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       <div className="pointer-events-none absolute -left-30 -top-30 h-85 w-85 rounded-full bg-[rgba(184,76,43,0.12)] blur-3xl dark:bg-[rgba(232,129,106,0.10)]" />
       <div className="pointer-events-none absolute -bottom-35 -right-30 h-90 w-90 rounded-full bg-[rgba(59,108,183,0.10)] blur-3xl dark:bg-[rgba(107,159,232,0.08)]" />
 
-      <div className="relative w-full max-w-140 overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-white/9 dark:bg-[#1e1c19]">
-        <div className="h-1.25 bg-[#b84c2b] dark:bg-[#e8816a]" />
+      <div className="relative w-full max-w-140 overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
+        <div className="h-1.25 bg-(--brand-500) dark:bg-(--brand-500)" />
 
         <div className="px-6 py-8 text-center sm:px-10 sm:py-10">
           <div className="mb-7">
-            <div className="text-[30px] font-black tracking-[-0.8px] text-[#1a1714] dark:text-[#f2f0eb]">
-              immin<span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
+            <div className="text-[30px] font-black tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
+              immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
             </div>
           </div>
 
-          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+          <div className="mx-auto mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
             {status === 'loading' ? (
               <span className="h-6 w-6 animate-spin rounded-full border-2 border-current border-t-transparent" />
             ) : status === 'success' ? (
@@ -95,7 +97,7 @@ export default function VerifyEmailChangePage() {
             )}
           </div>
 
-          <div className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
             Security Verification
           </div>
 
@@ -103,7 +105,7 @@ export default function VerifyEmailChangePage() {
             {title}
           </h1>
 
-          <p className="mx-auto mt-3 max-w-100 text-[13.5px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mx-auto mt-3 max-w-100 text-[13.5px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
             {description}
           </p>
 
@@ -111,7 +113,7 @@ export default function VerifyEmailChangePage() {
             <button
               type="button"
               onClick={() => navigate('/login', { replace: true })}
-              className="mt-7 rounded-[11px] bg-[#b84c2b] px-6 py-3 text-[14px] font-bold text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+              className="mt-7 rounded-md bg-(--brand-500) px-6 py-3 text-[14px] font-bold text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
             >
               Go to login
             </button>

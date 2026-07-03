@@ -106,7 +106,7 @@ export default function ActivityDashboard({
             />
 
             <div
-              className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.12em] text-[#b0a097] opacity-0 transition-opacity duration-200 data-[visible=true]:opacity-100 dark:text-[#6b6460]"
+              className="font-mono text-[9px] uppercase tracking-[0.12em] text-[#b0a097] opacity-0 transition-opacity duration-200 data-[visible=true]:opacity-100 dark:text-[#6b6460]"
               data-visible={isUpdating}
               role="status"
               aria-live="polite"

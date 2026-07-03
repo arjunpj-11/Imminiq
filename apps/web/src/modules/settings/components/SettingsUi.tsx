@@ -1,10 +1,13 @@
 import type { ReactNode } from 'react'
+
+import FormField from '../../../components/forms/FormField'
+import Input from '../../../components/forms/Input'
+import Select from '../../../components/forms/Select'
+import SectionCard from '../../../components/layout/SectionCard'
+import Modal from '../../../components/overlays/Modal'
+import Button from '../../../components/ui/Button'
+import { cn } from '../../../lib/cn'
 import type { ToastTone } from '../types/settings-ui.types'
-
-import {
-  cn,
-} from '../utils/settingsUi.utils'
-
 
 export function SettingsCard({
   title,
@@ -20,12 +23,7 @@ export function SettingsCard({
   className?: string
 }) {
   return (
-    <section
-      className={cn(
-        'rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]',
-        className
-      )}
-    >
+    <SectionCard className={className}>
       <div className="mb-4 flex items-start gap-3">
         {icon && (
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-[rgba(184,76,43,0.09)] text-[18px] dark:bg-[rgba(232,129,106,0.12)]">
@@ -34,12 +32,11 @@ export function SettingsCard({
         )}
 
         <div>
-          <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold tracking-[-0.35px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h2 className="font-ui text-[20px] font-extrabold tracking-[-0.35px] text-(--text-primary) dark:text-(--text-primary)">
             {title}
           </h2>
-
           {description && (
-            <p className="mt-1 max-w-3xl text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-1 max-w-3xl text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
               {description}
             </p>
           )}
@@ -47,13 +44,13 @@ export function SettingsCard({
       </div>
 
       {children}
-    </section>
+    </SectionCard>
   )
 }
 
 export function MonoLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-2 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
+    <div className="mb-2 font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
       {children}
     </div>
   )
@@ -75,22 +72,20 @@ export function ToggleRow({
   disabled?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between gap-5 border-t border-[#e0d0c5] py-4 first:border-t-0 dark:border-white/9">
+    <div className="flex items-center justify-between gap-5 border-t border-(--border-subtle) py-4 first:border-t-0 dark:border-(--border-subtle)">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="text-[14px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+          <div className="text-[14px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
             {title}
           </div>
-
           {code && (
-            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-['DM_Mono',monospace] text-[9px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
+            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-mono text-[9px] text-(--brand-500) dark:bg-[rgba(232,129,106,0.12)] dark:text-(--brand-500)">
               {code}
             </span>
           )}
         </div>
-
         {description && (
-          <p className="mt-1 text-[12.5px] leading-[1.55] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mt-1 text-[12.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
             {description}
           </p>
         )}
@@ -101,18 +96,19 @@ export function ToggleRow({
         disabled={disabled}
         onClick={() => onChange(!checked)}
         className={cn(
-          'relative h-7 w-12 shrink-0 rounded-full transition',
+          'relative h-7 w-12 shrink-0 rounded-full transition focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[rgba(184,76,43,0.2)]',
           checked
-            ? 'bg-[#b84c2b] dark:bg-[#e8816a]'
+            ? 'bg-(--brand-500) dark:bg-(--brand-500)'
             : 'bg-[#d5c8be] dark:bg-[#3a3530]',
-          disabled && 'cursor-not-allowed opacity-50'
+          disabled && 'cursor-not-allowed opacity-50',
         )}
         aria-pressed={checked}
+        aria-label={`${checked ? 'Disable' : 'Enable'} ${title}`}
       >
         <span
           className={cn(
             'absolute top-1 h-5 w-5 rounded-full bg-white shadow transition',
-            checked ? 'left-6' : 'left-1'
+            checked ? 'left-6' : 'left-1',
           )}
         />
       </button>
@@ -132,21 +128,18 @@ export function SelectField({
   options: Array<{ label: string; value: string }>
 }) {
   return (
-    <label className="block">
-      <MonoLabel>{label}</MonoLabel>
-
-      <select
+    <FormField label={label}>
+      <Select
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] font-medium text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
       >
         {options.map((option) => (
           <option key={option.value} value={option.value}>
             {option.label}
           </option>
         ))}
-      </select>
-    </label>
+      </Select>
+    </FormField>
   )
 }
 
@@ -164,17 +157,14 @@ export function TextField({
   placeholder?: string
 }) {
   return (
-    <label className="block">
-      <MonoLabel>{label}</MonoLabel>
-
-      <input
+    <FormField label={label}>
+      <Input
         type={type}
         value={value}
         placeholder={placeholder}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] font-medium text-[#1a1714] outline-none transition placeholder:text-[#9f8f86] focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:placeholder:text-[#7a756e] dark:focus:border-[#e8816a]"
       />
-    </label>
+    </FormField>
   )
 }
 
@@ -188,18 +178,15 @@ export function PillButton({
   onClick: () => void
 }) {
   return (
-    <button
-      type="button"
+    <Button
+      variant={active ? 'primary' : 'secondary'}
+      size="sm"
       onClick={onClick}
-      className={cn(
-        'rounded-full border-[1.5px] px-4 py-2 text-[12.5px] font-semibold transition',
-        active
-          ? 'border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.10)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.28)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]'
-          : 'border-[#e0d0c5] text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]'
-      )}
+      className="rounded-full px-4 text-[12.5px]"
+      aria-pressed={active}
     >
       {children}
-    </button>
+    </Button>
   )
 }
 
@@ -217,8 +204,8 @@ export function SaveBar({
   saveLabel?: string
 }) {
   return (
-    <div className="sticky bottom-24 z-30 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5]/95 px-5 py-4 shadow-[0_-8px_28px_rgba(26,23,20,0.08)] backdrop-blur min-[901px]:bottom-0 dark:border-white/9 dark:bg-[#1e1c19]/95">
-      <p className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+    <div className="sticky bottom-24 z-30 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card)/95 px-5 py-4 shadow-[0_-8px_28px_rgba(26,23,20,0.08)] backdrop-blur min-[901px]:bottom-0 dark:border-(--border-subtle) dark:bg-(--surface-card)/95">
+      <p className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
         {isDirty
           ? 'You have unsaved changes. Save before leaving this page.'
           : 'Changes are saved to your Imminiq settings profile.'}
@@ -226,23 +213,18 @@ export function SaveBar({
 
       <div className="flex items-center gap-2">
         {onReset && (
-          <button
-            type="button"
-            onClick={onReset}
-            className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]"
-          >
+          <Button variant="secondary" onClick={onReset}>
             Reset
-          </button>
+          </Button>
         )}
-
-        <button
-          type="button"
-          disabled={isSaving || !isDirty}
+        <Button
+          loading={Boolean(isSaving)}
+          loadingText="Saving..."
+          disabled={!isDirty}
           onClick={onSave}
-          className="rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
         >
-          {isSaving ? 'Saving...' : saveLabel}
-        </button>
+          {saveLabel}
+        </Button>
       </div>
     </div>
   )
@@ -259,19 +241,21 @@ export function SettingsToast({
 }) {
   return (
     <div
+      role="status"
+      aria-live="polite"
       className={cn(
-        'fixed bottom-28 right-4 z-130 rounded-[14px] border px-4 py-3 text-[13px] font-semibold shadow-[0_16px_50px_rgba(0,0,0,0.22)] transition duration-300 sm:right-6 min-[901px]:bottom-6',
+        'fixed bottom-28 right-4 z-130 rounded-md border px-4 py-3 text-[13px] font-semibold shadow-[0_16px_50px_rgba(0,0,0,0.22)] transition duration-300 sm:right-6 min-[901px]:bottom-6',
         visible
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-4 opacity-0',
         tone === 'success' &&
-          'border-[rgba(45,106,71,0.22)] bg-[#edf8f2] text-[#2d6a47] dark:bg-[#18251e] dark:text-[#5cc98a]',
+          'border-[rgba(45,106,71,0.22)] bg-[#edf8f2] text-(--success) dark:bg-[#18251e] dark:text-(--success)',
         tone === 'error' &&
-          'border-[rgba(196,60,60,0.22)] bg-[#fff0f0] text-[#c43c3c] dark:bg-[#2b1818] dark:text-[#e05252]',
+          'border-[rgba(196,60,60,0.22)] bg-[#fff0f0] text-(--danger) dark:bg-[#2b1818] dark:text-(--danger)',
         tone === 'loading' &&
-          'border-[rgba(59,108,183,0.22)] bg-[#eef5ff] text-[#3b6cb7] dark:bg-[#162131] dark:text-[#6b9fe8]',
+          'border-[rgba(59,108,183,0.22)] bg-[#eef5ff] text-(--info) dark:bg-[#162131] dark:text-(--info)',
         tone === 'info' &&
-          'border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]'
+          'border-(--border-subtle) bg-(--surface-card) text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)',
       )}
     >
       {message}
@@ -292,67 +276,91 @@ export function UnsavedChangesDialog({
   onDiscard: () => void
   onSaveChanges: () => void
 }) {
-  if (!open) {
-    return null
-  }
-
   return (
-    <div
-      className="fixed inset-0 z-160 flex items-center justify-center bg-black/60 p-4 backdrop-blur-sm"
+    <Modal
+      open={open}
+      onClose={onStay}
       role="alertdialog"
-      aria-modal="true"
-      aria-labelledby="settings-unsaved-title"
-      aria-describedby="settings-unsaved-description"
+      titleId="settings-unsaved-title"
+      descriptionId="settings-unsaved-description"
+      preventClose={isSaving}
+      contentClassName="max-w-md p-6"
+      overlayClassName="z-160 bg-black/60"
     >
-      <div className="w-full max-w-md rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#1a1714] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
-        <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
-          Unsaved Changes
-        </p>
+      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">
+        Unsaved Changes
+      </p>
+      <h2
+        id="settings-unsaved-title"
+        className="mt-2 font-ui text-[25px] font-extrabold tracking-[-0.5px]"
+      >
+        Save changes before leaving?
+      </h2>
+      <p
+        id="settings-unsaved-description"
+        className="mt-3 text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)"
+      >
+        You changed settings on this page. You can save them now, discard them
+        and leave, or stay on this page.
+      </p>
 
-        <h2
-          id="settings-unsaved-title"
-          className="mt-2 font-['Playfair_Display',serif] text-[25px] font-extrabold tracking-[-0.5px]"
+      <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
+        <Button
+          variant="outline-danger"
+          disabled={isSaving}
+          onClick={onDiscard}
         >
-          Save changes before leaving?
-        </h2>
-
-        <p
-          id="settings-unsaved-description"
-          className="mt-3 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]"
+          Discard and Leave
+        </Button>
+        <Button variant="secondary" disabled={isSaving} onClick={onStay}>
+          Stay
+        </Button>
+        <Button
+          loading={isSaving}
+          loadingText="Saving..."
+          onClick={onSaveChanges}
         >
-          You changed settings on this page. You can save them now,
-          discard them and leave, or stay on this page.
-        </p>
-
-        <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={onDiscard}
-            className="rounded-xl border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-bold text-[#6b5f58] transition hover:border-[#c43c3c] hover:text-[#c43c3c] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92]"
-          >
-            Discard and Leave
-          </button>
-
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={onStay}
-            className="rounded-xl border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92]"
-          >
-            Stay
-          </button>
-
-          <button
-            type="button"
-            disabled={isSaving}
-            onClick={onSaveChanges}
-            className="rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
-          >
-            {isSaving ? 'Saving...' : 'Save Changes'}
-          </button>
-        </div>
+          Save Changes
+        </Button>
       </div>
-    </div>
+    </Modal>
+  )
+}
+
+export function SettingsPageFeedback({
+  isBlocked,
+  isSaving,
+  onStay,
+  onDiscard,
+  onSaveChanges,
+  toast,
+}: {
+  isBlocked: boolean
+  isSaving: boolean
+  onStay: () => void
+  onDiscard: () => void
+  onSaveChanges: () => void
+  toast: {
+    visible: boolean
+    message: string
+    tone: ToastTone
+  }
+}) {
+  return (
+    <>
+      <UnsavedChangesDialog
+        open={isBlocked}
+        isSaving={isSaving}
+        onStay={onStay}
+        onDiscard={onDiscard}
+        onSaveChanges={onSaveChanges}
+      />
+
+      <SettingsToast
+        visible={toast.visible}
+        message={toast.message}
+        tone={toast.tone}
+      />
+    </>
   )
 }

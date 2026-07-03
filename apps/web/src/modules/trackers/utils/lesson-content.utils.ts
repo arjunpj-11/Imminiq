@@ -10,22 +10,22 @@ export const formatMathTextToHtml = (value: string) => {
   html = html.replace(
     /\$\$([\s\S]*?)\$\$/g,
     (_match, equation: string) =>
-      `<div class="my-4 overflow-x-auto rounded-xl border border-[#e0d0c5] bg-[#fffaf6] px-4 py-3 text-center font-['DM_Mono',monospace] text-[15px] text-[#1a1714] dark:border-white/9 dark:bg-[#141412] dark:text-[#f2f0eb]">${equation.trim()}</div>`
+      `<div class="my-4 overflow-x-auto rounded-xl border border-(--border-subtle) bg-[#fffaf6] px-4 py-3 text-center font-mono text-[15px] text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary)">${equation.trim()}</div>`
   )
   html = html.replace(
     /\\\[([\s\S]*?)\\\]/g,
     (_match, equation: string) =>
-      `<div class="my-4 overflow-x-auto rounded-xl border border-[#e0d0c5] bg-[#fffaf6] px-4 py-3 text-center font-['DM_Mono',monospace] text-[15px] text-[#1a1714] dark:border-white/9 dark:bg-[#141412] dark:text-[#f2f0eb]">${equation.trim()}</div>`
+      `<div class="my-4 overflow-x-auto rounded-xl border border-(--border-subtle) bg-[#fffaf6] px-4 py-3 text-center font-mono text-[15px] text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary)">${equation.trim()}</div>`
   )
   html = html.replace(
     /\\\((.*?)\\\)/g,
     (_match, equation: string) =>
-      `<span class="mx-1 rounded-md bg-[rgba(184,76,43,0.08)] px-1.5 py-0.5 font-['DM_Mono',monospace] text-[0.95em] text-[#8a3d24] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#f5a090]">${equation.trim()}</span>`
+      `<span class="mx-1 rounded-md bg-[rgba(184,76,43,0.08)] px-1.5 py-0.5 font-mono text-[0.95em] text-[#8a3d24] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#f5a090]">${equation.trim()}</span>`
   )
   html = html.replace(
     /\\frac\{([^{}]+)\}\{([^{}]+)\}/g,
     (_match, numerator: string, denominator: string) =>
-      `<span class="inline-flex translate-y-[0.25em] flex-col items-center justify-center px-1 font-['DM_Mono',monospace] leading-none"><span class="border-b border-current px-1 pb-0.5 text-[0.82em]">${numerator}</span><span class="px-1 pt-0.5 text-[0.82em]">${denominator}</span></span>`
+      `<span class="inline-flex translate-y-[0.25em] flex-col items-center justify-center px-1 font-mono leading-none"><span class="border-b border-current px-1 pb-0.5 text-[0.82em]">${numerator}</span><span class="px-1 pt-0.5 text-[0.82em]">${denominator}</span></span>`
   )
   html = html.replace(/\^\{([^{}]+)\}/g, (_match, power: string) => `<sup>${power}</sup>`)
   html = html.replace(/_\{([^{}]+)\}/g, (_match, sub: string) => `<sub>${sub}</sub>`)

@@ -1,263 +1,197 @@
+import { cn } from '../../../lib/cn'
+
 // ============================================================
 // MockTestAnalysisPage.tsx — aligned with Trackers design
 // ============================================================
 
-import { useState } from 'react'
 import { useParams } from 'react-router-dom'
 
-import Sidebar from '../../../components/layout/Sidebar'
-import TopBar from '../../../components/layout/TopBar'
-import AppFooter from '../../../components/layout/Footer'
-import BottomNav from '../../../components/layout/BottomNav'
+import { AppShellBoundary } from '../../../components/layout/AppShell'
 
 import { useMockTestAttemptAnalysis } from '../hooks/useMockTests'
-
-const cn = (...classes: Array<string | false | null | undefined>) =>
-  classes.filter(Boolean).join(' ')
-
-const NoiseOverlay = () => (
-  <div
-    className="pointer-events-none fixed inset-0 z-0 opacity-[0.025] dark:opacity-[0.04]"
-    style={{
-      backgroundImage:
-        "url(\"data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E\")",
-      backgroundSize: '180px',
-    }}
-  />
-)
 
 export default function MockTestAnalysisPage() {
   const { attemptId = '' } = useParams()
 
-  const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(
-    () =>
-      typeof window !== 'undefined' &&
-      localStorage.getItem('imminiq_sb') === 'closed'
-  )
-
   const query = useMockTestAttemptAnalysis(attemptId)
   const data = query.data
 
-  const summaryAccent = data?.passed ? '#2d6a47' : '#b84c2b'
+  const summaryAccent = data?.passed ? 'var(--success)' : 'var(--brand-500)'
 
   return (
-    <div className="relative min-h-screen overflow-x-clip bg-[#f5ede4] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
-      <NoiseOverlay />
+    <AppShellBoundary>
+      <div className="mx-auto mt-5.5 flex w-[min(860px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
+        {/* ── page header ── */}
+        <div>
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 dark:border-(--border-subtle) dark:bg-white/5">
+            <span className="h-1.5 w-1.5 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
 
-      <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
-        <Sidebar
-          mobileOpen={sidebarOpen}
-          collapsed={sidebarCollapsed}
-          onCloseMobile={() => setSidebarOpen(false)}
-          onToggleCollapsed={() =>
-            setSidebarCollapsed((current) => {
-              const next = !current
+            <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--text-secondary)">
+              Mock test
+            </span>
+          </div>
 
-              if (typeof window !== 'undefined') {
-                localStorage.setItem('imminiq_sb', next ? 'closed' : 'open')
-              }
+          <h1 className="mt-3 font-ui text-[38px] font-black leading-tight text-(--text-primary) dark:text-(--text-primary)">
+            Attempt{' '}
+            <span className="text-(--brand-500) dark:text-(--brand-500)">
+              analysis
+            </span>
+          </h1>
+        </div>
 
-              return next
-            })
-          }
-        />
+        {/* ── loading ── */}
+        {query.isLoading ? (
+          <div className="space-y-4">
+            <div className="h-52 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)" />
+            <div className="h-36 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)" />
+            <div className="h-36 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)" />
+          </div>
+        ) : query.isError ? (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-600 dark:text-red-300">
+            Failed to load attempt analysis.
+          </div>
+        ) : data ? (
+          <>
+            {/* ── summary card ── */}
+            <section
+              className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
+              style={{
+                borderTop: `2.5px solid ${summaryAccent}`,
+              }}
+            >
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+                <div>
+                  <div className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
+                    Final score
+                  </div>
 
-        <main
-          className={cn(
-            'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300',
-            sidebarCollapsed ? 'min-[901px]:ml-0' : 'min-[901px]:ml-56'
-          )}
-        >
-          <TopBar
-            onMenuClick={() => setSidebarOpen(true)}
-            streakDays={0}
-            userName="Achu"
-            userInitials="AC"
-            userLevel="Free Scholar"
-            isGuest={false}
-          />
-
-          <div className="flex min-w-0 flex-1 flex-col">
-            <div className="mx-auto mt-5.5 flex w-[min(860px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
-              {/* ── page header ── */}
-              <div>
-                <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 dark:border-white/10 dark:bg-white/5">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-
-                  <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#9b9a92]">
-                    Mock test
-                  </span>
+                  <div className="mt-2 font-ui text-[54px] font-black leading-none text-(--text-primary) dark:text-(--text-primary)">
+                    {data.scorePercentage}%
+                  </div>
                 </div>
 
-                <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#1a1714] dark:text-[#f2f0eb]">
-                  Attempt{' '}
-                  <span className="text-[#b84c2b] dark:text-[#e8816a]">
-                    analysis
-                  </span>
-                </h1>
+                <div
+                  className={cn(
+                    'w-fit rounded-full px-4 py-2 font-mono text-[11px] font-bold uppercase tracking-widest',
+                    data.passed
+                      ? 'border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-(--success) dark:border-(--success)/30 dark:bg-(--success)/10 dark:text-(--success)'
+                      : 'border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-(--brand-500)/30 dark:bg-(--brand-500)/10 dark:text-(--brand-500)'
+                  )}
+                >
+                  {data.passed ? 'Passed' : 'Needs practice'}
+                </div>
               </div>
 
-              {/* ── loading ── */}
-              {query.isLoading ? (
-                <div className="space-y-4">
-                  <div className="h-52 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]" />
-                  <div className="h-36 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]" />
-                  <div className="h-36 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]" />
-                </div>
-              ) : query.isError ? (
-                <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-6 text-red-600 dark:text-red-300">
-                  Failed to load attempt analysis.
-                </div>
-              ) : data ? (
-                <>
-                  {/* ── summary card ── */}
-                  <section
-                    className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
-                    style={{
-                      borderTop: `2.5px solid ${summaryAccent}`,
-                    }}
-                  >
-                    <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-                      <div>
-                        <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
-                          Final score
-                        </div>
+              {data.recommendations.length > 0 && (
+                <div className="mt-5 border-t border-(--border-subtle) pt-5 dark:border-white/8">
+                  <div className="mb-3 font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
+                    Recommendations
+                  </div>
 
-                        <div className="mt-2 font-['Playfair_Display',serif] text-[54px] font-black leading-none text-[#1a1714] dark:text-[#f2f0eb]">
-                          {data.scorePercentage}%
-                        </div>
-                      </div>
-
-                      <div
-                        className={cn(
-                          'w-fit rounded-full px-4 py-2 font-["DM_Mono",monospace] text-[11px] font-bold uppercase tracking-widest',
-                          data.passed
-                            ? 'border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-[#2d6a47] dark:border-[#3dbf82]/30 dark:bg-[#3dbf82]/10 dark:text-[#3dbf82]'
-                            : 'border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]'
-                        )}
+                  <ul className="space-y-2">
+                    {data.recommendations.map((rec) => (
+                      <li
+                        key={rec}
+                        className="flex items-start gap-2 text-[13px] leading-6 text-(--text-secondary) dark:text-(--text-secondary)"
                       >
-                        {data.passed ? 'Passed' : 'Needs practice'}
-                      </div>
-                    </div>
-
-                    {data.recommendations.length > 0 && (
-                      <div className="mt-5 border-t border-[#e0d0c5] pt-5 dark:border-white/8">
-                        <div className="mb-3 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
-                          Recommendations
-                        </div>
-
-                        <ul className="space-y-2">
-                          {data.recommendations.map((rec) => (
-                            <li
-                              key={rec}
-                              className="flex items-start gap-2 text-[13px] leading-6 text-[#6b5f58] dark:text-[#9b9a92]"
-                            >
-                              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-                              {rec}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    )}
-
-                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                      <div className="rounded-xl border border-[#e0d0c5] bg-[#f5ede4] p-4 dark:border-white/8 dark:bg-[#141412]">
-                        <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
-                          Strong areas
-                        </div>
-
-                        <p className="mt-2 text-[13px] font-bold text-[#2d6a47] dark:text-[#3dbf82]">
-                          {data.strongTopics.length
-                            ? data.strongTopics.join(', ')
-                            : 'Not enough data'}
-                        </p>
-                      </div>
-
-                      <div className="rounded-xl border border-[#e0d0c5] bg-[#f5ede4] p-4 dark:border-white/8 dark:bg-[#141412]">
-                        <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
-                          Weak areas
-                        </div>
-
-                        <p className="mt-2 text-[13px] font-bold text-[#b84c2b] dark:text-[#e8816a]">
-                          {data.weakTopics.length
-                            ? data.weakTopics.join(', ')
-                            : 'No weak area found'}
-                        </p>
-                      </div>
-                    </div>
-                  </section>
-
-                  {/* ── question breakdown ── */}
-                  <section className="space-y-3">
-                    {data.questionBreakdown.map((item, index) => (
-                      <article
-                        key={item.questionId}
-                        className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1c1a18] dark:hover:border-white/20"
-                      >
-                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                          <div>
-                            <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
-                              Question {index + 1}
-                            </div>
-
-                            <h3 className="mt-2 font-['Playfair_Display',serif] text-[16px] font-black leading-snug text-[#1a1714] dark:text-[#f2f0eb]">
-                              {item.question}
-                            </h3>
-                          </div>
-
-                          <div
-                            className={cn(
-                              'shrink-0 rounded-full px-3 py-1 font-["DM_Mono",monospace] text-[10px] font-bold uppercase tracking-widest',
-                              item.isCorrect
-                                ? 'border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-[#2d6a47] dark:border-[#3dbf82]/30 dark:bg-[#3dbf82]/10 dark:text-[#3dbf82]'
-                                : 'border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]'
-                            )}
-                          >
-                            {item.pointsEarned}/{item.maxPoints} pts
-                          </div>
-                        </div>
-
-                        <div className="mt-4 space-y-2 text-[13px]">
-                          <p className="text-[#6b5f58] dark:text-[#6b6560]">
-                            <span className="font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                              Your answer:
-                            </span>{' '}
-                            {item.yourAnswer || 'Skipped'}
-                          </p>
-
-                          {item.correctAnswer && (
-                            <p className="text-[#6b5f58] dark:text-[#6b6560]">
-                              <span className="font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                                Correct answer:
-                              </span>{' '}
-                              {item.correctAnswer}
-                            </p>
-                          )}
-
-                          {item.explanation && (
-                            <p className="rounded-xl border border-[#e0d0c5] bg-[#f5ede4] p-4 leading-6 text-[#6b5f58] dark:border-white/8 dark:bg-[#141412] dark:text-[#9b9a92]">
-                              {item.explanation}
-                            </p>
-                          )}
-                        </div>
-                      </article>
+                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
+                        {rec}
+                      </li>
                     ))}
-                  </section>
-                </>
-              ) : (
-                <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18] dark:text-[#9b9a92]">
-                  No analysis found.
+                  </ul>
                 </div>
               )}
-            </div>
 
-            <AppFooter />
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) p-4 dark:border-white/8 dark:bg-(--surface-canvas)">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
+                    Strong areas
+                  </div>
+
+                  <p className="mt-2 text-[13px] font-bold text-(--success) dark:text-(--success)">
+                    {data.strongTopics.length
+                      ? data.strongTopics.join(', ')
+                      : 'Not enough data'}
+                  </p>
+                </div>
+
+                <div className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) p-4 dark:border-white/8 dark:bg-(--surface-canvas)">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
+                    Weak areas
+                  </div>
+
+                  <p className="mt-2 text-[13px] font-bold text-(--brand-500) dark:text-(--brand-500)">
+                    {data.weakTopics.length
+                      ? data.weakTopics.join(', ')
+                      : 'No weak area found'}
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            {/* ── question breakdown ── */}
+            <section className="space-y-3">
+              {data.questionBreakdown.map((item, index) => (
+                <article
+                  key={item.questionId}
+                  className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-white/20"
+                >
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <div className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
+                        Question {index + 1}
+                      </div>
+
+                      <h3 className="mt-2 font-ui text-[16px] font-black leading-snug text-(--text-primary) dark:text-(--text-primary)">
+                        {item.question}
+                      </h3>
+                    </div>
+
+                    <div
+                      className={cn(
+                        'shrink-0 rounded-full px-3 py-1 font-mono text-[10px] font-bold uppercase tracking-widest',
+                        item.isCorrect
+                          ? 'border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-(--success) dark:border-(--success)/30 dark:bg-(--success)/10 dark:text-(--success)'
+                          : 'border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-(--brand-500)/30 dark:bg-(--brand-500)/10 dark:text-(--brand-500)'
+                      )}
+                    >
+                      {item.pointsEarned}/{item.maxPoints} pts
+                    </div>
+                  </div>
+
+                  <div className="mt-4 space-y-2 text-[13px]">
+                    <p className="text-(--text-secondary) dark:text-[#6b6560]">
+                      <span className="font-bold text-(--text-primary) dark:text-(--text-primary)">
+                        Your answer:
+                      </span>{' '}
+                      {item.yourAnswer || 'Skipped'}
+                    </p>
+
+                    {item.correctAnswer && (
+                      <p className="text-(--text-secondary) dark:text-[#6b6560]">
+                        <span className="font-bold text-(--text-primary) dark:text-(--text-primary)">
+                          Correct answer:
+                        </span>{' '}
+                        {item.correctAnswer}
+                      </p>
+                    )}
+
+                    {item.explanation && (
+                      <p className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) p-4 leading-6 text-(--text-secondary) dark:border-white/8 dark:bg-(--surface-canvas) dark:text-(--text-secondary)">
+                        {item.explanation}
+                      </p>
+                    )}
+                  </div>
+                </article>
+              ))}
+            </section>
+          </>
+        ) : (
+          <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 text-(--text-secondary) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
+            No analysis found.
           </div>
-        </main>
+        )}
       </div>
-
-      <BottomNav />
-    </div>
+    </AppShellBoundary>
   )
 }

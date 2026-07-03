@@ -132,13 +132,13 @@ export default function ActivityHeatmap({
   )
 
   return (
-    <section className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-white/9 dark:bg-[#1e1c19] dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-4">
+    <section className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-4">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3.5">
         <div className="flex items-center gap-2">
-          <span className="text-[#b84c2b] dark:text-[#e8816a]">
+          <span className="text-(--brand-500) dark:text-(--brand-500)">
             <CalendarIcon size={16} />
           </span>
-          <h2 className="font-['Playfair_Display',serif] text-[18px] font-extrabold tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h2 className="font-ui text-[18px] font-extrabold tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
             Learning Streak
           </h2>
         </div>
@@ -146,19 +146,19 @@ export default function ActivityHeatmap({
         <div className="flex flex-wrap items-start justify-end gap-4 max-[640px]:w-full max-[640px]:justify-between">
           <div className="flex flex-wrap gap-4">
             <div className="flex flex-col items-end gap-px max-[640px]:items-start">
-              <span className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+              <span className="font-mono text-[7.5px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
                 Current
               </span>
-              <span className="font-['Playfair_Display',serif] text-[16px] font-extrabold leading-none text-[#b84c2b] dark:text-[#e8816a]">
+              <span className="font-ui text-[16px] font-extrabold leading-none text-(--brand-500) dark:text-(--brand-500)">
                 🔥 {streak.currentStreak} days
               </span>
             </div>
 
             <div className="flex flex-col items-end gap-px max-[640px]:items-start">
-              <span className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+              <span className="font-mono text-[7.5px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
                 Personal Best
               </span>
-              <span className="font-['Playfair_Display',serif] text-[16px] font-extrabold leading-none text-[#c98000] dark:text-[#f0a842]">
+              <span className="font-ui text-[16px] font-extrabold leading-none text-(--warning) dark:text-(--warning)">
                 ⭐ {streak.longestStreak} days
               </span>
             </div>
@@ -167,7 +167,7 @@ export default function ActivityHeatmap({
           <div className="flex min-w-27 flex-col gap-1">
             <label
               htmlFor="activity-heatmap-year"
-              className="text-right font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92] max-[640px]:text-left"
+              className="text-right font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary) max-[640px]:text-left"
             >
               Year
             </label>
@@ -177,7 +177,7 @@ export default function ActivityHeatmap({
               onChange={(event: ChangeEvent<HTMLSelectElement>) =>
                 onYearChange(Number(event.target.value))
               }
-              className="appearance-none rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-2.5 py-2 pr-7 font-['DM_Sans',sans-serif] text-[12.5px] font-semibold text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+              className="appearance-none rounded-sm border-[1.5px] border-(--border-subtle) bg-white px-2.5 py-2 pr-7 font-ui text-[12.5px] font-semibold text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
             >
               {years.map((availableYear) => (
                 <option key={availableYear} value={availableYear}>
@@ -209,7 +209,7 @@ export default function ActivityHeatmap({
             {months.map((month) => (
               <span
                 key={`${month.label}-${month.weekIndex}`}
-                className="absolute top-0 -translate-x-px whitespace-nowrap font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#6b5f58] opacity-65 dark:text-[#9b9a92]"
+                className="absolute top-0 -translate-x-px whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.08em] text-(--text-secondary) opacity-65 dark:text-(--text-secondary)"
                 style={{ left: month.weekIndex * 14 }}
               >
                 {month.label}
@@ -226,7 +226,7 @@ export default function ActivityHeatmap({
               (weekday, index) => (
                 <span
                   key={`${weekday}-${index}`}
-                  className="h-2.75 font-['DM_Mono',monospace] text-[7px] uppercase leading-2.75 tracking-[0.08em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]"
+                  className="h-2.75 font-mono text-[7px] uppercase leading-2.75 tracking-[0.08em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)"
                 >
                   {weekday}
                 </span>
@@ -279,7 +279,7 @@ export default function ActivityHeatmap({
       </div>
 
       <div className="mt-2.5 flex flex-wrap items-center justify-end gap-1.5">
-        <span className="font-['DM_Mono',monospace] text-[8px] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+        <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
           Less active
         </span>
         {(
@@ -293,13 +293,13 @@ export default function ActivityHeatmap({
             )}
           />
         ))}
-        <span className="font-['DM_Mono',monospace] text-[8px] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+        <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
           More active
         </span>
       </div>
 
       <div
-        className="mt-3 min-h-4.5 text-[12px] font-medium text-[#6b5f58] opacity-0 transition-opacity duration-200 data-[visible=true]:opacity-100 dark:text-[#9b9a92]"
+        className="mt-3 min-h-4.5 text-[12px] font-medium text-(--text-secondary) opacity-0 transition-opacity duration-200 data-[visible=true]:opacity-100 dark:text-(--text-secondary)"
         data-visible={isFetching}
         role="status"
         aria-live="polite"
