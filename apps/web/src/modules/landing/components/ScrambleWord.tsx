@@ -10,12 +10,16 @@ export default function ScrambleWord({
   delay = 0,
   skip = false,
   className = '',
+  accentFromIndex,
+  accentClassName = 'text-[#b84c2b] dark:text-[#e8816a]',
   onDone,
 }: {
   text: string
   delay?: number
   skip?: boolean       // if true, instantly show final text with no animation
   className?: string
+  accentFromIndex?: number
+  accentClassName?: string
   onDone?: () => void
 }) {
   const refs = useRef<Array<HTMLSpanElement | null>>([])
@@ -87,6 +91,7 @@ export default function ScrambleWord({
           key={`${char}-${index}`}
           ref={(node) => { refs.current[index] = node }}
           aria-hidden="true"
+          className={accentFromIndex !== undefined && index >= accentFromIndex ? accentClassName : undefined}
           style={{ display: 'inline-block', transition: 'color 0.15s' }}
         >
           {char === ' ' ? '\u00A0' : ''}

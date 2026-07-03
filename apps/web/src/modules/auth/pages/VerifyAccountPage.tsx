@@ -211,42 +211,42 @@ export default function VerifyAccountPage() {
 
   const otpInputClass = (digit: string) =>
     cn(
-      'h-12 w-10 rounded-[10px] border-[1.5px] bg-white text-center font-mono text-[20px] font-bold text-[#1a1714] outline-none transition dark:bg-[#252320] dark:text-[#f2f0eb] sm:h-13 sm:w-11',
+      'h-12 w-10 rounded-[var(--radius-md)] border-[1.5px] bg-white text-center font-mono text-[20px] font-bold text-[var(--text-primary)] outline-none transition dark:bg-[var(--surface-elevated)] dark:text-[var(--text-primary)] sm:h-13 sm:w-11',
       digit
-        ? 'border-[#4caf7d] shadow-[0_0_0_3px_rgba(76,175,125,0.08)] dark:border-[#5cc98a]'
-        : 'border-[#e0d0c5] focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.10)] dark:border-white/15 dark:focus:border-[#e8816a]'
+        ? 'border-[var(--success)] shadow-[0_0_0_3px_rgba(76,175,125,0.08)] dark:border-[var(--success)]'
+        : 'border-[var(--border-subtle)] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.10)] dark:border-white/15 dark:focus:border-[var(--brand-500)]'
     )
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-[#f5ede4] px-4 py-10 font-['DM_Sans',sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-(--surface-canvas) px-4 py-10 font-ui text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       <div className="pointer-events-none absolute -left-30 -top-30 h-85 w-85 rounded-full bg-[rgba(184,76,43,0.12)] blur-3xl dark:bg-[rgba(232,129,106,0.10)]" />
       <div className="pointer-events-none absolute -bottom-35 -right-30 h-90 w-90 rounded-full bg-[rgba(59,108,183,0.10)] blur-3xl dark:bg-[rgba(107,159,232,0.08)]" />
 
-      <div className="relative w-full max-w-115 overflow-hidden rounded-[28px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-white/9 dark:bg-[#1e1c19]">
-        <div className="h-1.25 bg-[#b84c2b] dark:bg-[#e8816a]" />
+      <div className="relative w-full max-w-115 overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
+        <div className="h-1.25 bg-(--brand-500) dark:bg-(--brand-500)" />
         <main className="px-5 py-8 text-center sm:px-8">
           <Link to="/" className="mb-6 inline-flex items-center justify-center gap-2">
             <LogoIcon className="h-10 w-10" />
             <span className="text-[24px] font-black tracking-[-0.8px]">
-              immin<span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
+              immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
             </span>
           </Link>
 
-          <div className="relative mx-auto mb-5 h-2 overflow-hidden rounded-full bg-[#e0d0c5] dark:bg-white/10">
-            <div className="h-full rounded-full bg-[#b84c2b] transition-all dark:bg-[#e8816a]" style={{ width: `${progressPercent}%` }} />
+          <div className="relative mx-auto mb-5 h-2 overflow-hidden rounded-full bg-(--border-subtle) dark:bg-white/10">
+            <div className="h-full rounded-full bg-(--brand-500) transition-all dark:bg-(--brand-500)" style={{ width: `${progressPercent}%` }} />
           </div>
 
-          <div className="relative mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">
+          <div className="relative mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
             {isPasswordReset ? 'Password Recovery' : 'Account Verification'}
           </div>
 
-          <h1 className="relative mb-2 font-serif text-[clamp(22px,5vw,30px)] font-bold leading-[1.1] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h1 className="relative mb-2 font-serif text-[clamp(22px,5vw,30px)] font-bold leading-[1.1] text-(--text-primary) dark:text-(--text-primary)">
             {isPasswordReset ? 'Verify reset code' : 'Verify your account'}
           </h1>
 
-          <p className="relative mx-auto mb-6.5 max-w-75 text-[13.5px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="relative mx-auto mb-6.5 max-w-75 text-[13.5px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
             We sent a 6-digit code to<br />
-            <span className="break-all font-mono text-[11.5px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">{destinationText}</span>.
+            <span className="break-all font-mono text-[11.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">{destinationText}</span>.
             <br />
             {isPasswordReset ? 'Enter it below to reset your password.' : 'Enter it below to continue.'}
           </p>
@@ -254,7 +254,7 @@ export default function VerifyAccountPage() {
           <div className="relative mb-1.5 flex flex-nowrap justify-center gap-1.75" role="group" aria-label="6-digit verification code">
             {digits.map((digit, index) => (
               <div className="flex items-center gap-1.75" key={index}>
-                {index === 3 && <span className="h-1.25 w-1.25 rounded-full bg-[#e0d0c5] dark:bg-white/15" aria-hidden="true" />}
+                {index === 3 && <span className="h-1.25 w-1.25 rounded-full bg-(--border-subtle) dark:bg-white/15" aria-hidden="true" />}
                 <input
                   ref={(element) => {
                     inputRefs.current[index] = element
@@ -280,17 +280,17 @@ export default function VerifyAccountPage() {
           </div>
 
           {error ? (
-            <div className="mt-2.5 flex min-h-5 items-center justify-center gap-1.5 text-xs text-[#d94535] dark:text-[#ff6b5f]" role="alert" aria-live="polite">
+            <div className="mt-2.5 flex min-h-5 items-center justify-center gap-1.5 text-xs text-(--danger) dark:text-(--danger)" role="alert" aria-live="polite">
               <span>{error}</span>
             </div>
           ) : (
-            <div className="mt-2.5 min-h-5 font-mono text-[10px] uppercase tracking-widest text-[#6b5f58] dark:text-[#9b9a92]">
+            <div className="mt-2.5 min-h-5 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:text-(--text-secondary)">
               Code expires in {formatTime(secondsLeft)}
             </div>
           )}
 
           {isSuccess && (
-            <div className="mt-4 rounded-xl border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.08)] px-3 py-2 text-[12px] font-semibold text-[#2d6a47] dark:text-[#5cc98a]">
+            <div className="mt-4 rounded-xl border border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.08)] px-3 py-2 text-[12px] font-semibold text-(--success) dark:text-(--success)">
               Verified. Redirecting...
             </div>
           )}
@@ -299,7 +299,7 @@ export default function VerifyAccountPage() {
             type="button"
             onClick={handleVerify}
             disabled={isVerifying || otp.length < OTP_LENGTH}
-            className="mt-6 w-full rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="mt-6 w-full rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             {isVerifying ? 'Verifying...' : isPasswordReset ? 'Verify reset code' : 'Verify account'}
           </button>
@@ -312,8 +312,8 @@ export default function VerifyAccountPage() {
               className={cn(
                 'font-mono text-[10px] uppercase tracking-widest transition',
                 canResend
-                  ? 'text-[#b84c2b] hover:text-[#963d22] dark:text-[#e8816a] dark:hover:text-[#f5a090]'
-                  : 'cursor-not-allowed text-[#6b5f58]/70 dark:text-[#9b9a92]/70'
+                  ? 'text-(--brand-500) hover:text-[#963d22] dark:text-(--brand-500) dark:hover:text-[#f5a090]'
+                  : 'cursor-not-allowed text-(--text-secondary)/70 dark:text-(--text-secondary)/70'
               )}
             >
               {isResending ? 'Sending...' : canResend ? 'Resend code' : `Resend in ${resendLeft}s`}

@@ -14,7 +14,7 @@ export const SkeletonBlock = ({ className }: { className?: string }) => (
 )
 
 export const StatCardSkeleton = () => (
-  <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
+  <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
     <SkeletonBlock className="h-2.5 w-20" />
     <SkeletonBlock className="mt-5 h-9 w-24 rounded-2xl" />
     <SkeletonBlock className="mt-4 h-2.5 w-32" />
@@ -22,7 +22,7 @@ export const StatCardSkeleton = () => (
 )
 
 export const TestRowSkeleton = () => (
-  <div className="flex animate-pulse items-center gap-4 rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
+  <div className="flex animate-pulse items-center gap-4 rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
     <div className="h-12 w-12 shrink-0 rounded-full bg-[#e8d9cf] dark:bg-white/8" />
 
     <div className="min-w-0 flex-1 space-y-2">
@@ -31,8 +31,8 @@ export const TestRowSkeleton = () => (
     </div>
 
     <div className="hidden gap-2 sm:flex">
-      <div className="h-8 w-20 rounded-[10px] bg-[#e8d9cf] dark:bg-white/8" />
-      <div className="h-8 w-16 rounded-[10px] bg-[#e8d9cf] dark:bg-white/8" />
+      <div className="h-8 w-20 rounded-md bg-[#e8d9cf] dark:bg-white/8" />
+      <div className="h-8 w-16 rounded-md bg-[#e8d9cf] dark:bg-white/8" />
     </div>
   </div>
 )

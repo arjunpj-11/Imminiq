@@ -9,18 +9,20 @@ import {
   BackIcon,
   ChevronIcon,
   CopyIcon,
-  getTotalSubtopics,
   HeartIcon,
   MessageIcon,
   RatingBar,
   RatingStars,
-  ratingLabel,
   ReviewCard,
   StarIcon,
   StatPill,
   TopicIcon,
   VerifiedIcon,
 } from '../components/CommunityPublicTrackerUi'
+import {
+  getTotalSubtopics,
+  ratingLabel,
+} from '../utils/community-tracker.utils'
 import { CheckIcon } from '../components/icons/CommunityIcons'
 import { useCloneCommunityTracker } from '../hooks/useCloneCommunityTracker'
 import { useCommunityPublicTracker } from '../hooks/useCommunityPublicTracker'
@@ -186,49 +188,49 @@ function CommunityPublicTrackerLoaded({
         <button
           type="button"
           onClick={() => navigate('/community')}
-          className="inline-flex w-fit items-center gap-2 rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-2.5 text-[12px] font-bold text-[#6b5f58] transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-[#b84c2b] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+          className="inline-flex w-fit items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
         >
           <BackIcon />
           Back to community
         </button>
 
-        <section className="overflow-hidden rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_18px_rgba(26,23,20,0.07)] dark:border-white/9 dark:bg-[#1e1c19]">
+        <section className="overflow-hidden rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_2px_18px_rgba(26,23,20,0.07)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
           <div className="relative border-b border-[#e8ddd6] px-6 py-7 dark:border-white/8 sm:px-8 sm:py-8">
             <div className="pointer-events-none absolute inset-0 opacity-[0.04] dark:opacity-[0.06]">
-              <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-[#b84c2b]" />
-              <div className="absolute -bottom-22.5 -left-17.5 h-52 w-52 rounded-full bg-[#4caf7d]" />
+              <div className="absolute -right-20 -top-20 h-60 w-60 rounded-full bg-(--brand-500)" />
+              <div className="absolute -bottom-22.5 -left-17.5 h-52 w-52 rounded-full bg-(--success)" />
             </div>
 
             <div className="relative z-1 grid gap-6 lg:grid-cols-[1fr_300px]">
               <div>
                 <div className="mb-3 flex flex-wrap items-center gap-2">
-                  <span className="inline-flex items-center rounded-full border border-[#e0d0c5] bg-white/65 px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#9b9a92] dark:border-white/9 dark:bg-white/4">
+                  <span className="inline-flex items-center rounded-full border border-(--border-subtle) bg-white/65 px-3 py-1 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92] dark:border-(--border-subtle) dark:bg-white/4">
                     Public Tracker
                   </span>
 
                   {tracker.verified && (
-                    <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#2d6a47] dark:text-[#5cc98a]">
+                    <span className="inline-flex items-center gap-1 rounded-full border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-mono text-[8px] uppercase tracking-widest text-(--success) dark:text-(--success)">
                       <VerifiedIcon />
                       Verified
                     </span>
                   )}
 
-                  <span className="inline-flex items-center rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.07)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:text-[#e8816a]">
+                  <span className="inline-flex items-center rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.07)] px-3 py-1 font-mono text-[8px] uppercase tracking-widest text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:text-(--brand-500)">
                     {tracker.level}
                   </span>
                 </div>
 
-                <h1 className="max-w-3xl font-['Playfair_Display',serif] text-[clamp(26px,3.5vw,44px)] font-extrabold leading-[1.08] tracking-[-0.8px] text-[#1a1714] dark:text-[#f2f0eb]">
+                <h1 className="max-w-3xl font-ui text-[clamp(26px,3.5vw,44px)] font-extrabold leading-[1.08] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
                   {tracker.title}
                 </h1>
 
-                <p className="mt-4 max-w-2xl text-[13.5px] leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-4 max-w-2xl text-[13.5px] leading-[1.75] text-(--text-secondary) dark:text-(--text-secondary)">
                   {tracker.description || tracker.goal}
                 </p>
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   {tracker.tags.map((tag) => (
-                    <span key={tag} className="rounded-full border border-[#e0d0c5] bg-white/65 px-3 py-1 text-[11px] font-semibold text-[#6b5f58] dark:border-white/9 dark:bg-white/4 dark:text-[#9b9a92]">
+                    <span key={tag} className="rounded-full border border-(--border-subtle) bg-white/65 px-3 py-1 text-[11px] font-semibold text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary)">
                       #{tag}
                     </span>
                   ))}
@@ -240,10 +242,10 @@ function CommunityPublicTrackerLoaded({
                     disabled={toggleLike.isPending}
                     onClick={handleLike}
                     className={cn(
-                      'inline-flex items-center gap-2 rounded-[11px] border-[1.5px] px-4 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-60',
+                      'inline-flex items-center gap-2 rounded-md border-[1.5px] px-4 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-60',
                       tracker.likedByMe
-                        ? 'border-[rgba(184,76,43,0.28)] bg-[rgba(184,76,43,0.10)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.25)] dark:text-[#e8816a]'
-                        : 'border-[#e0d0c5] bg-white/60 text-[#6b5f58] hover:border-[rgba(184,76,43,0.25)] hover:text-[#b84c2b] dark:border-white/9 dark:bg-white/4 dark:text-[#9b9a92] dark:hover:text-[#e8816a]',
+                        ? 'border-[rgba(184,76,43,0.28)] bg-[rgba(184,76,43,0.10)] text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)'
+                        : 'border-(--border-subtle) bg-white/60 text-(--text-secondary) hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)',
                     )}
                   >
                     <HeartIcon filled={tracker.likedByMe} />
@@ -258,7 +260,7 @@ function CommunityPublicTrackerLoaded({
                     type="button"
                     onClick={handleClone}
                     disabled={isCloned || cloneTracker.isPending}
-                    className="inline-flex items-center gap-2 rounded-[11px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+                    className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
                   >
                     <CopyIcon />
                     {cloneTracker.isPending
@@ -270,7 +272,7 @@ function CommunityPublicTrackerLoaded({
                 </div>
 
                 {toggleLike.isError && (
-                  <p className="mt-3 text-[12px] font-medium text-[#b84c2b] dark:text-[#e8816a]">
+                  <p className="mt-3 text-[12px] font-medium text-(--brand-500) dark:text-(--brand-500)">
                     {getApiErrorMessage(
                       'Unable to update like. Please try again.',
                       toggleLike.error,
@@ -279,7 +281,7 @@ function CommunityPublicTrackerLoaded({
                 )}
 
                 {cloneTracker.isError && (
-                  <p className="mt-3 text-[12px] font-medium text-[#b84c2b] dark:text-[#e8816a]">
+                  <p className="mt-3 text-[12px] font-medium text-(--brand-500) dark:text-(--brand-500)">
                     {getApiErrorMessage(
                       'Unable to clone tracker. Please try again.',
                       cloneTracker.error,
@@ -288,14 +290,14 @@ function CommunityPublicTrackerLoaded({
                 )}
               </div>
 
-              <aside className="rounded-[18px] border border-[#e8ddd6] bg-white/60 p-4 dark:border-white/8 dark:bg-white/4">
+              <aside className="rounded-lg border border-[#e8ddd6] bg-white/60 p-4 dark:border-white/8 dark:bg-white/4">
                 <div className="mb-4 flex items-center gap-3">
                   <Avatar initials={tracker.author.initials} size="lg" accent />
                   <div>
-                    <p className="text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <p className="text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                       {tracker.author.name}
                     </p>
-                    <p className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#9b9a92]">
+                    <p className="font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
                       {tracker.author.role}
                     </p>
                   </div>
@@ -308,11 +310,11 @@ function CommunityPublicTrackerLoaded({
                   <StatPill icon={<MessageIcon />} label="Reviews" value={ratingSummary.count.toString()} />
                 </div>
 
-                <div className="mt-3 rounded-xl border border-[#e8ddd6] bg-[#fdf8f5]/70 px-3.5 py-3 dark:border-white/8 dark:bg-[#1e1c19]/70">
-                  <p className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#9b9a92]">
+                <div className="mt-3 rounded-xl border border-[#e8ddd6] bg-(--surface-card)/70 px-3.5 py-3 dark:border-white/8 dark:bg-(--surface-card)/70">
+                  <p className="font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
                     Tracker ID
                   </p>
-                  <p className="mt-0.5 break-all text-[10.5px] font-semibold text-[#6b5f58] dark:text-[#9b9a92]">
+                  <p className="mt-0.5 break-all text-[10.5px] font-semibold text-(--text-secondary) dark:text-(--text-secondary)">
                     {tracker._id}
                   </p>
                 </div>
@@ -328,13 +330,13 @@ function CommunityPublicTrackerLoaded({
         </section>
 
         <section className="grid gap-5 lg:grid-cols-[1fr_320px]">
-          <div className="rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] sm:p-6">
+          <div className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) sm:p-6">
             <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
               <div>
-                <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                   Roadmap Preview
                 </p>
-                <h2 className="mt-1 font-['Playfair_Display',serif] text-[24px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+                <h2 className="mt-1 font-ui text-[24px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
                   Topics & subtopics
                 </h2>
               </div>
@@ -353,14 +355,14 @@ function CommunityPublicTrackerLoaded({
                       className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left transition hover:bg-[rgba(184,76,43,0.04)] dark:hover:bg-[rgba(232,129,106,0.05)]"
                     >
                       <div className="flex gap-3">
-                        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[rgba(184,76,43,0.09)] font-['DM_Mono',monospace] text-[10px] font-bold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                        <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-xl bg-[rgba(184,76,43,0.09)] font-mono text-[10px] font-bold text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                           {String(index + 1).padStart(2, '0')}
                         </span>
                         <div>
-                          <h3 className="text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                          <h3 className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                             {topic.title}
                           </h3>
-                          <p className="mt-0.5 text-[11.5px] leading-[1.55] text-[#6b5f58] dark:text-[#9b9a92]">
+                          <p className="mt-0.5 text-[11.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
                             {topic.description}
                           </p>
                         </div>
@@ -374,12 +376,12 @@ function CommunityPublicTrackerLoaded({
                       <div className="border-t border-[#e8ddd6] px-4 py-3.5 dark:border-white/8">
                         <div className="space-y-2">
                           {topic.subtopics.map((subtopic) => (
-                            <div key={subtopic._id} className="rounded-xl border border-[#e8ddd6] bg-[#fdf8f5]/70 px-4 py-3 dark:border-white/8 dark:bg-[#1e1c19]/70">
+                            <div key={subtopic._id} className="rounded-xl border border-[#e8ddd6] bg-(--surface-card)/70 px-4 py-3 dark:border-white/8 dark:bg-(--surface-card)/70">
                               <div>
-                                <h4 className="text-[12.5px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                                <h4 className="text-[12.5px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                                   {subtopic.title}
                                 </h4>
-                                <p className="mt-0.5 text-[11px] leading-[1.55] text-[#6b5f58] dark:text-[#9b9a92]">
+                                <p className="mt-0.5 text-[11px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
                                   {subtopic.description}
                                 </p>
                               </div>
@@ -395,38 +397,38 @@ function CommunityPublicTrackerLoaded({
           </div>
 
           <aside className="flex flex-col gap-4">
-            <section className="rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
-              <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+            <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+              <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                 Goal
               </p>
-              <p className="mt-2 text-[13px] leading-[1.72] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mt-2 text-[13px] leading-[1.72] text-(--text-secondary) dark:text-(--text-secondary)">
                 {tracker.goal}
               </p>
             </section>
 
-            <section className="rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
-              <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+            <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+              <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                 Community notes
               </p>
-              <ul className="mt-3 space-y-2 text-[12px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+              <ul className="mt-3 space-y-2 text-[12px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
                 <li>• Verified trackers are reviewed by community members.</li>
                 <li>• Clone creates your own editable copy.</li>
                 <li>• Reviews help improve roadmap quality.</li>
               </ul>
             </section>
 
-            <section className="rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
-              <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+            <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+              <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                 Field
               </p>
-              <p className="mt-2 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+              <p className="mt-2 text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                 {tracker.field}
               </p>
               <div className="mt-3 border-t border-[#e8ddd6] pt-3 dark:border-white/8">
-                <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                   Category
                 </p>
-                <p className="mt-1 text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                <p className="mt-1 text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                   {tracker.category}
                 </p>
               </div>
@@ -434,31 +436,31 @@ function CommunityPublicTrackerLoaded({
           </aside>
         </section>
 
-        <section className="rounded-[22px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+        <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
           <div className="flex flex-wrap items-end justify-between gap-3 border-b border-[#e8ddd6] px-5 py-5 dark:border-white/8 sm:px-6">
             <div>
-              <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+              <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                 Community feedback
               </p>
-              <h2 className="mt-0.5 font-['Playfair_Display',serif] text-[24px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+              <h2 className="mt-0.5 font-ui text-[24px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
                 Ratings &amp; Reviews
               </h2>
             </div>
             <div className="flex items-center gap-2">
-              <span className="rounded-full border border-[#e0d0c5] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#9b9a92] dark:border-white/9">
+              <span className="rounded-full border border-(--border-subtle) px-3 py-1 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92] dark:border-(--border-subtle)">
                 {liveTotal} learners
               </span>
-              <div className="flex overflow-hidden rounded-[10px] border border-[#e0d0c5] dark:border-white/9">
+              <div className="flex overflow-hidden rounded-md border border-(--border-subtle) dark:border-(--border-subtle)">
                 {(['top', 'new'] as const).map((option) => (
                   <button
                     key={option}
                     type="button"
                     onClick={() => setSortBy(option)}
                     className={cn(
-                      'px-3 py-1.5 font-["DM_Mono",monospace] text-[8px] uppercase tracking-widest transition',
+                      'px-3 py-1.5 font-mono text-[8px] uppercase tracking-widest transition',
                       sortBy === option
-                        ? 'bg-[#b84c2b] text-white dark:bg-[#e8816a] dark:text-[#141412]'
-                        : 'text-[#9b9a92] hover:text-[#6b5f58] dark:hover:text-[#c8c5be]',
+                        ? 'bg-(--brand-500) text-white dark:bg-(--brand-500) dark:text-[#141412]'
+                        : 'text-[#9b9a92] hover:text-(--text-secondary) dark:hover:text-[#c8c5be]',
                     )}
                   >
                     {option}
@@ -470,14 +472,14 @@ function CommunityPublicTrackerLoaded({
 
           <div className="p-5 sm:p-6">
             <div className="mb-6 grid gap-4 lg:grid-cols-[280px_1fr]">
-              <div className="flex flex-col justify-center rounded-[18px] border border-[#e8ddd6] bg-white/55 p-5 dark:border-white/8 dark:bg-white/3">
+              <div className="flex flex-col justify-center rounded-lg border border-[#e8ddd6] bg-white/55 p-5 dark:border-white/8 dark:bg-white/3">
                 <div className="mb-3 flex items-end gap-3">
-                  <p className="font-['Playfair_Display',serif] text-[64px] font-extrabold leading-none tracking-[-2px] text-[#1a1714] dark:text-[#f2f0eb]">
+                  <p className="font-ui text-[64px] font-extrabold leading-none tracking-[-2px] text-(--text-primary) dark:text-(--text-primary)">
                     {ratingSummary.average.toFixed(1)}
                   </p>
                   <div className="mb-1.5">
                     <RatingStars value={ratingSummary.average} size="md" />
-                    <p className="mt-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#9b9a92]">
+                    <p className="mt-1 font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
                       out of 5
                     </p>
                   </div>
@@ -499,11 +501,11 @@ function CommunityPublicTrackerLoaded({
                 </div>
               </div>
 
-              <div className="rounded-[18px] border border-[#e8ddd6] bg-white/55 p-5 dark:border-white/8 dark:bg-white/3">
-                <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+              <div className="rounded-lg border border-[#e8ddd6] bg-white/55 p-5 dark:border-white/8 dark:bg-white/3">
+                <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                   Your review
                 </p>
-                <h3 className="mt-0.5 font-['Playfair_Display',serif] text-[18px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+                <h3 className="mt-0.5 font-ui text-[18px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
                   {tracker.myReview ? 'Update your review' : 'Rate this tracker'}
                 </h3>
 
@@ -516,7 +518,7 @@ function CommunityPublicTrackerLoaded({
                     onChange={setMyRating}
                   />
                   {myRating > 0 ? (
-                    <span className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+                    <span className="font-mono text-[10px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
                       {ratingLabel[myRating]}
                     </span>
                   ) : (
@@ -530,7 +532,7 @@ function CommunityPublicTrackerLoaded({
                   onChange={(event) => setReviewText(event.target.value)}
                   rows={4}
                   placeholder="Write your review about this tracker..."
-                  className="mt-3 w-full resize-none rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3 text-[13px] leading-[1.6] text-[#1a1714] outline-none transition placeholder:text-[#9b9a92] focus:border-[#b84c2b] focus:ring-2 focus:ring-[rgba(184,76,43,0.10)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+                  className="mt-3 w-full resize-none rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3 text-[13px] leading-[1.6] text-(--text-primary) outline-none transition placeholder:text-[#9b9a92] focus:border-(--brand-500) focus:ring-2 focus:ring-[rgba(184,76,43,0.10)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
                 />
 
                 <div className="mt-3 flex items-center justify-between gap-3">
@@ -552,7 +554,7 @@ function CommunityPublicTrackerLoaded({
                     type="button"
                     disabled={myRating === 0 || !reviewText.trim() || upsertReview.isPending}
                     onClick={handleSubmitReview}
-                    className="shrink-0 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+                    className="shrink-0 rounded-md bg-(--brand-500) px-5 py-2.5 text-[12px] font-bold text-white transition hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-40 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
                   >
                     {upsertReview.isPending
                       ? 'Submitting...'
@@ -576,11 +578,11 @@ function CommunityPublicTrackerLoaded({
                 ))}
               </div>
             ) : (
-              <div className="rounded-[18px] border border-dashed border-[#e0d0c5] px-5 py-8 text-center dark:border-white/10">
-                <p className="font-['Playfair_Display',serif] text-[20px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+              <div className="rounded-lg border border-dashed border-(--border-subtle) px-5 py-8 text-center dark:border-(--border-subtle)">
+                <p className="font-ui text-[20px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
                   No reviews yet
                 </p>
-                <p className="mt-2 text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-2 text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
                   Be the first learner to rate and review this tracker.
                 </p>
               </div>

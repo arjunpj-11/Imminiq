@@ -11,12 +11,21 @@ export interface PendingEmailTimer {
 
 const EMAIL_CHANGE_EXPIRY_MS = 10 * 60 * 1000
 
-const getSecondsRemaining = (expiresAt: number) =>
-  Math.max(0, Math.ceil((expiresAt - Date.now()) / 1000))
+const getSecondsRemaining = (
+  expiresAt: number,
+  currentTime = Date.now(),
+): number => {
+  return Math.max(0, Math.ceil((expiresAt - currentTime) / 1000))
+}
 
 const readPendingEmailTimer = (): PendingEmailTimer | null => {
-  const raw = safeLocalStorage.get(STORAGE_KEYS.pendingEmailChangeTimer)
-  if (!raw) return null
+  const raw = safeLocalStorage.get(
+    STORAGE_KEYS.pendingEmailChangeTimer,
+  )
+
+  if (!raw) {
+    return null
+  }
 
   try {
     const parsed = JSON.parse(raw) as PendingEmailTimer
@@ -38,38 +47,47 @@ export function usePendingEmailChangeTimer() {
   const [timer, setTimer] = useState<PendingEmailTimer | null>(
     readPendingEmailTimer,
   )
-  const [secondsLeft, setSecondsLeft] = useState(() =>
-    timer ? getSecondsRemaining(timer.expiresAt) : 0,
-  )
+
+  const [currentTime, setCurrentTime] = useState(() => Date.now())
+
+  const secondsLeft = timer
+    ? getSecondsRemaining(timer.expiresAt, currentTime)
+    : 0
 
   useEffect(() => {
     if (!timer) {
-      setSecondsLeft(0)
-      return
+      return undefined
     }
 
-    const updateCountdown = () => {
-      setSecondsLeft(getSecondsRemaining(timer.expiresAt))
-    }
+    const intervalId = window.setInterval(() => {
+      setCurrentTime(Date.now())
+    }, 1000)
 
-    updateCountdown()
-    const intervalId = window.setInterval(updateCountdown, 1000)
-    return () => window.clearInterval(intervalId)
+    return () => {
+      window.clearInterval(intervalId)
+    }
   }, [timer])
 
   const start = useCallback((email: string) => {
+    const now = Date.now()
+
     const nextTimer: PendingEmailTimer = {
       email: normalizeEmail(email),
-      expiresAt: Date.now() + EMAIL_CHANGE_EXPIRY_MS,
+      expiresAt: now + EMAIL_CHANGE_EXPIRY_MS,
     }
 
     safeLocalStorage.set(
       STORAGE_KEYS.pendingEmailChangeTimer,
       JSON.stringify(nextTimer),
     )
+
     setTimer(nextTimer)
-    setSecondsLeft(getSecondsRemaining(nextTimer.expiresAt))
+    setCurrentTime(now)
   }, [])
 
-  return { timer, secondsLeft, start }
+  return {
+    timer,
+    secondsLeft,
+    start,
+  }
 }

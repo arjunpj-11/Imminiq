@@ -27,7 +27,7 @@ const intensityClass: Record<HeatmapIntensity, string> = {
   low: "bg-[rgba(184,76,43,0.18)] dark:bg-[rgba(232,129,106,0.22)]",
   medium:
     "bg-[rgba(184,76,43,0.38)] dark:bg-[rgba(232,129,106,0.42)]",
-  high: "bg-[#b84c2b] dark:bg-[#e8816a]",
+  high: "bg-[var(--brand-500)] dark:bg-[var(--brand-500)]",
 };
 
 const toDateKey = (value: Date) => value.toISOString().slice(0, 10);
@@ -145,7 +145,7 @@ export default function HeapTile({
   );
 
   return (
-    <section className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5.5 shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-white/9 dark:bg-[#1e1c19] dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-4.5">
+    <section className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5.5 shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-4.5">
       <div className="mb-4 flex flex-wrap items-start justify-between gap-3.5">
         <div className="flex items-center gap-2">
           <svg
@@ -155,14 +155,14 @@ export default function HeapTile({
             fill="none"
             stroke="currentColor"
             strokeWidth="2"
-            className="text-[#b84c2b] dark:text-[#e8816a]"
+            className="text-(--brand-500) dark:text-(--brand-500)"
           >
             <rect x="3" y="4" width="18" height="18" rx="2" />
             <line x1="16" y1="2" x2="16" y2="6" />
             <line x1="8" y1="2" x2="8" y2="6" />
             <line x1="3" y1="10" x2="21" y2="10" />
           </svg>
-          <h2 className="font-['Playfair_Display',serif] text-[18px] font-extrabold tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h2 className="font-ui text-[18px] font-extrabold tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
             Learning Streak
           </h2>
         </div>
@@ -170,32 +170,32 @@ export default function HeapTile({
         <div className="flex flex-wrap items-start justify-end gap-4 max-[640px]:w-full max-[640px]:justify-between">
           <div className="flex flex-wrap gap-4">
             <div className="flex flex-col items-end gap-px max-[640px]:items-start">
-              <span className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+              <span className="font-mono text-[7.5px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
                 Current
               </span>
-              <span className="font-['Playfair_Display',serif] text-[16px] font-extrabold leading-none text-[#b84c2b] dark:text-[#e8816a]">
+              <span className="font-ui text-[16px] font-extrabold leading-none text-(--brand-500) dark:text-(--brand-500)">
                 🔥 {streak?.currentStreak ?? 0} days
               </span>
             </div>
             <div className="flex flex-col items-end gap-px max-[640px]:items-start">
-              <span className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+              <span className="font-mono text-[7.5px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
                 Personal Best
               </span>
-              <span className="font-['Playfair_Display',serif] text-[16px] font-extrabold leading-none text-[#c98000] dark:text-[#f0a842]">
+              <span className="font-ui text-[16px] font-extrabold leading-none text-(--warning) dark:text-(--warning)">
                 ⭐ {streak?.longestStreak ?? 0} days
               </span>
             </div>
           </div>
 
           <div className="flex min-w-27 flex-col gap-1.25">
-            <label className="text-right font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92] max-[640px]:text-left">
+            <label className="text-right font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary) max-[640px]:text-left">
               Year
             </label>
             <select
               value={year}
               onChange={(event) => onYearChange(Number(event.target.value))}
               aria-label="Select learning activity year"
-              className="min-w-27 appearance-none rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-2.75 py-2 pr-8 font-['DM_Sans',sans-serif] text-[12.5px] font-semibold text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+              className="min-w-27 appearance-none rounded-sm border-[1.5px] border-(--border-subtle) bg-white px-2.75 py-2 pr-8 font-ui text-[12.5px] font-semibold text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
             >
               {years.map((value) => (
                 <option key={value} value={value}>
@@ -227,7 +227,7 @@ export default function HeapTile({
             {months.map((month) => (
               <span
                 key={`${month.label}-${month.weekIndex}`}
-                className="absolute top-0 -translate-x-px whitespace-nowrap font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#6b5f58] opacity-65 dark:text-[#9b9a92]"
+                className="absolute top-0 -translate-x-px whitespace-nowrap font-mono text-[8px] uppercase tracking-[0.08em] text-(--text-secondary) opacity-65 dark:text-(--text-secondary)"
                 style={{ left: month.weekIndex * 14 }}
               >
                 {month.label}
@@ -243,7 +243,7 @@ export default function HeapTile({
             {["", "Mon", "", "Wed", "", "Fri", ""].map((weekday, index) => (
               <span
                 key={`${weekday}-${index}`}
-                className="h-2.75 font-['DM_Mono',monospace] text-[7px] uppercase leading-2.75 tracking-[0.08em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]"
+                className="h-2.75 font-mono text-[7px] uppercase leading-2.75 tracking-[0.08em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)"
               >
                 {weekday}
               </span>
@@ -286,7 +286,7 @@ export default function HeapTile({
       </div>
 
       <div className="mt-2.5 flex flex-wrap items-center justify-end gap-1.5">
-        <span className="font-['DM_Mono',monospace] text-[8px] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+        <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
           Less active
         </span>
         {(["none", "low", "medium", "high"] as HeatmapIntensity[]).map(
@@ -297,13 +297,13 @@ export default function HeapTile({
             />
           ),
         )}
-        <span className="font-['DM_Mono',monospace] text-[8px] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+        <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
           More active
         </span>
       </div>
 
       {isLoading && (
-        <div className="mt-3 text-[12px] font-medium text-[#6b5f58] dark:text-[#9b9a92]">
+        <div className="mt-3 text-[12px] font-medium text-(--text-secondary) dark:text-(--text-secondary)">
           Loading learning activity…
         </div>
       )}

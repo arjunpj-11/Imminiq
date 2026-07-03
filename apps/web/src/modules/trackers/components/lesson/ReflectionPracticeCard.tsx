@@ -19,7 +19,8 @@ import type {
 import { cn } from '../../utils/tracker-ui'
 import MathText from './MathText'
 import ConfirmDialog from '../ConfirmDialog'
-import { MicButton, useVoiceInput } from './VoiceInputButton'
+import { MicButton} from './VoiceInputButton'
+import {useVoiceInput} from '../../hooks/useVoiceInput'
 import {
   formatDateTime,
   formatVerdict,
@@ -260,29 +261,29 @@ export default function ReflectionPracticeCard({
     : ''
 
   const renderPreviousAttempts = () => (
-    <div className="mt-5 rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
+    <div className="mt-5 rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-4 dark:border-(--border-subtle) dark:bg-(--surface-card)">
       <div className="mb-3 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h4 className="text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+          <h4 className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
             Previous Responses
           </h4>
 
-          <p className="mt-1 text-[11.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mt-1 text-[11.5px] text-(--text-secondary) dark:text-(--text-secondary)">
             Only submitted answers are saved. Draft typing is not stored.
           </p>
         </div>
 
-        <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+        <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
           {selectedQuestionAttempts.length} Attempts
         </span>
       </div>
 
       {answerAttemptsQuery.isLoading ? (
-        <div className="rounded-xl border border-dashed border-[#e0d0c5] bg-white/60 px-4 py-5 text-center text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-white/5 dark:text-[#9b9a92]">
+        <div className="rounded-xl border border-dashed border-(--border-subtle) bg-white/60 px-4 py-5 text-center text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
           Loading previous responses...
         </div>
       ) : selectedQuestionAttempts.length === 0 ? (
-        <div className="rounded-xl border border-dashed border-[#e0d0c5] bg-white/60 px-4 py-5 text-center text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-white/5 dark:text-[#9b9a92]">
+        <div className="rounded-xl border border-dashed border-(--border-subtle) bg-white/60 px-4 py-5 text-center text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
           No previous responses for this question yet.
         </div>
       ) : (
@@ -294,60 +295,60 @@ export default function ReflectionPracticeCard({
             return (
               <article
                 key={attempt._id}
-                className="rounded-2xl border border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320]"
+                className="rounded-2xl border border-(--border-subtle) bg-white p-4 dark:border-(--border-subtle) dark:bg-(--surface-elevated)"
               >
                 <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="rounded-full bg-[#1a1714] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-white dark:bg-[#f2f0eb] dark:text-[#141412]">
+                    <span className="rounded-full bg-[#1a1714] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-white dark:bg-[#f2f0eb] dark:text-[#141412]">
                       Attempt {attempt.attemptNumber}
                     </span>
 
                     <span
                       className={cn(
-                        'rounded-full border px-2.5 py-1 font-[\'DM_Mono\',monospace] text-[8px] uppercase tracking-[0.08em]',
+                        'rounded-full border px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em]',
                         attempt.isCorrect
                           ? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400'
-                          : 'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
+                          : 'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)'
                       )}
                     >
                       Score {attempt.score}/100
                     </span>
                   </div>
 
-                  <span className="text-[10.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <span className="text-[10.5px] text-(--text-secondary) dark:text-(--text-secondary)">
                     {formatDateTime(attempt.createdAt)}
                   </span>
                 </div>
 
                 <div>
-                  <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
                     Your Answer
                   </div>
 
-                  <MathText className="text-[12.5px] leading-[1.65] text-[#1a1714] dark:text-[#f2f0eb]">
+                  <MathText className="text-[12.5px] leading-[1.65] text-(--text-primary) dark:text-(--text-primary)">
                     {attempt.answer}
                   </MathText>
                 </div>
 
                 {feedback && (
-                  <div className="mt-3 rounded-xl border border-[#e0d0c5] bg-[#fdf8f5] p-3 dark:border-white/9 dark:bg-[#1e1c19]">
-                    <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <div className="mt-3 rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3 dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                    <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
                       Feedback
                     </div>
 
-                    <MathText className="text-[12.5px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                    <MathText className="text-[12.5px] leading-[1.65] text-(--text-secondary) dark:text-[#d8d6cf]">
                       {feedback}
                     </MathText>
                   </div>
                 )}
 
                 {correctedAnswer && (
-                  <div className="mt-3 rounded-xl border border-[#e0d0c5] bg-[#fdf8f5] p-3 dark:border-white/9 dark:bg-[#1e1c19]">
-                    <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <div className="mt-3 rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3 dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                    <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
                       Corrected Answer
                     </div>
 
-                    <MathText className="text-[12.5px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                    <MathText className="text-[12.5px] leading-[1.65] text-(--text-secondary) dark:text-[#d8d6cf]">
                       {correctedAnswer}
                     </MathText>
                   </div>
@@ -362,18 +363,18 @@ export default function ReflectionPracticeCard({
 
   return (
     <>
-      <section className="rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+      <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
         <div className="mb-5 flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
+            <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
               Practice Questions
             </div>
 
-            <h2 className="mt-1 font-['Playfair_Display',serif] text-[24px] font-extrabold">
+            <h2 className="mt-1 font-ui text-[24px] font-extrabold">
               Type your answer and verify it
             </h2>
 
-            <p className="mt-2 max-w-2xl text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-2 max-w-2xl text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
               Select a question, type your answer, and let Scribe AI correct
               and improve it. Your submitted attempts are saved as history.
             </p>
@@ -383,7 +384,7 @@ export default function ReflectionPracticeCard({
             type="button"
             onClick={generateMoreQuestions}
             disabled={generateQuestionMutation.isPending}
-            className="rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             {generateQuestionMutation.isPending
               ? 'Generating...'
@@ -392,25 +393,25 @@ export default function ReflectionPracticeCard({
         </div>
 
         <div className="grid items-stretch gap-4 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)]">
-          <div className="flex h-full min-h-140 flex-col overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320] lg:h-205">
+          <div className="flex h-full min-h-140 flex-col overflow-hidden rounded-lg border-[1.5px] border-(--border-subtle) bg-white p-4 dark:border-(--border-subtle) dark:bg-(--surface-elevated) lg:h-205">
             <div className="mb-3 flex shrink-0 items-center justify-between gap-3">
               <div>
-                <h3 className="text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                <h3 className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   Question Set
                 </h3>
 
-                <p className="mt-1 text-[11.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-1 text-[11.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
                   Click a question card to select it.
                 </p>
               </div>
 
-              <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+              <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                 {questions.length} Questions
               </span>
             </div>
 
             {generatedQuestionsQuery.isLoading ? (
-              <div className="mb-3 rounded-xl border border-dashed border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3 text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]">
+              <div className="mb-3 rounded-xl border border-dashed border-(--border-subtle) bg-(--surface-card) px-4 py-3 text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
                 Loading saved generated questions...
               </div>
             ) : null}
@@ -428,34 +429,34 @@ export default function ReflectionPracticeCard({
                     key={`${question}-${index}`}
                     onClick={() => handleSelectQuestion(question)}
                     className={cn(
-                      'cursor-pointer rounded-2xl border-[1.5px] p-4 transition hover:-translate-y-0.5 hover:border-[#e8816a]',
+                      'cursor-pointer rounded-2xl border-[1.5px] p-4 transition hover:-translate-y-0.5 hover:border-(--brand-500)',
                       active
-                        ? 'border-[#e8816a] bg-[rgba(184,76,43,0.06)] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.08)]'
-                        : 'border-[#e0d0c5] bg-[#fdf8f5] dark:border-white/9 dark:bg-[#1e1c19]'
+                        ? 'border-(--brand-500) bg-[rgba(184,76,43,0.06)] dark:border-(--brand-500) dark:bg-[rgba(232,129,106,0.08)]'
+                        : 'border-(--border-subtle) bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-card)'
                     )}
                   >
                     <div className="mb-2 flex items-center justify-between gap-3">
-                      <div className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
+                      <div className="font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
                         Question {index + 1}
                       </div>
 
                       <div className="flex items-center gap-2">
                         {attemptCount > 0 && (
-                          <span className="rounded-full border border-[#e0d0c5] px-2 py-0.5 font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">
+                          <span className="rounded-full border border-(--border-subtle) px-2 py-0.5 font-mono text-[7px] uppercase tracking-[0.08em] text-(--text-secondary) dark:border-(--border-subtle) dark:text-(--text-secondary)">
                             {attemptCount} Try
                             {attemptCount > 1 ? 's' : ''}
                           </span>
                         )}
 
                         {active && (
-                          <span className="rounded-full bg-[#b84c2b] px-2 py-0.5 font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.08em] text-white dark:bg-[#e8816a] dark:text-[#141412]">
+                          <span className="rounded-full bg-(--brand-500) px-2 py-0.5 font-mono text-[7px] uppercase tracking-[0.08em] text-white dark:bg-(--brand-500) dark:text-[#141412]">
                             Selected
                           </span>
                         )}
                       </div>
                     </div>
 
-                    <MathText className="text-[13.5px] leading-[1.6] text-[#1a1714] dark:text-[#f2f0eb]">
+                    <MathText className="text-[13.5px] leading-[1.6] text-(--text-primary) dark:text-(--text-primary)">
                       {question}
                     </MathText>
                   </article>
@@ -464,12 +465,12 @@ export default function ReflectionPracticeCard({
             </div>
           </div>
 
-          <div className="flex h-full min-h-140 flex-col overflow-hidden rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320] lg:h-205">
-            <div className="mb-3 shrink-0 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="flex h-full min-h-140 flex-col overflow-hidden rounded-lg border-[1.5px] border-(--border-subtle) bg-white p-4 dark:border-(--border-subtle) dark:bg-(--surface-elevated) lg:h-205">
+            <div className="mb-3 shrink-0 font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
               Your Answer
             </div>
 
-            <MathText className="mb-4 shrink-0 rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] p-4 text-[13px] leading-[1.6] text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+            <MathText className="mb-4 shrink-0 rounded-md border border-(--border-subtle) bg-(--surface-card) p-4 text-[13px] leading-[1.6] text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)">
               {selectedQuestion}
             </MathText>
 
@@ -482,7 +483,7 @@ export default function ReflectionPracticeCard({
                     ? 'Listening... speak your answer'
                     : 'Type your answer here...'
                 }
-                className="min-h-44 w-full resize-none rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 pr-16 text-[13px] leading-[1.6] text-[#1a1714] outline-none transition focus:border-[#e8816a] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]"
+                className="min-h-44 w-full resize-none rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-4 pr-16 text-[13px] leading-[1.6] text-(--text-primary) outline-none transition focus:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)"
               />
 
               <div className="absolute bottom-3 right-3">
@@ -500,7 +501,7 @@ export default function ReflectionPracticeCard({
                 type="button"
                 onClick={verifyAnswer}
                 disabled={verifyAnswerMutation.isPending || !answer.trim()}
-                className="rounded-[10px] bg-[#b84c2b] px-3 py-2 text-[11px] font-bold text-[#fdf8f5] transition hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+                className="rounded-md bg-(--brand-500) px-3 py-2 text-[11px] font-bold text-[#fdf8f5] transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
               >
                 {verifyAnswerMutation.isPending
                   ? 'Checking...'
@@ -513,7 +514,7 @@ export default function ReflectionPracticeCard({
                 disabled={
                   generateSolutionMutation.isPending || !selectedQuestion
                 }
-                className="rounded-[10px] border border-[#e0d0c5] px-3 py-2 text-[11px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-wait disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+                className="rounded-md border border-(--border-subtle) px-3 py-2 text-[11px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500) disabled:cursor-wait disabled:opacity-60 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               >
                 {generateSolutionMutation.isPending
                   ? 'Opening...'
@@ -523,33 +524,33 @@ export default function ReflectionPracticeCard({
 
             <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
               {verification ? (
-                <div className="rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-4 dark:border-white/9 dark:bg-[#1e1c19]">
+                <div className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-4 dark:border-(--border-subtle) dark:bg-(--surface-card)">
                   <div className="flex flex-wrap items-center justify-between gap-3">
-                    <h4 className="text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <h4 className="text-[15px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                       {verdictLabel}
                     </h4>
 
-                    <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                    <span className="rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                       Score {verification.score}/100
                     </span>
                   </div>
 
-                  <MathText className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                  <MathText className="mt-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-[#d8d6cf]">
                     {verification.feedback}
                   </MathText>
 
-                  <div className="mt-4 rounded-xl border border-[#e0d0c5] bg-white p-4 dark:border-white/9 dark:bg-[#252320]">
-                    <h5 className="mb-2 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                  <div className="mt-4 rounded-xl border border-(--border-subtle) bg-white p-4 dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
+                    <h5 className="mb-2 text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                       Corrected Answer
                     </h5>
 
-                    <MathText className="text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#d8d6cf]">
+                    <MathText className="text-[13px] leading-[1.65] text-(--text-secondary) dark:text-[#d8d6cf]">
                       {verification.correctedAnswer}
                     </MathText>
                   </div>
 
                   {verification.keyPoints.length > 0 && (
-                    <ul className="mt-4 list-disc space-y-1 pl-5 text-[13px] text-[#6b5f58] dark:text-[#d8d6cf]">
+                    <ul className="mt-4 list-disc space-y-1 pl-5 text-[13px] text-(--text-secondary) dark:text-[#d8d6cf]">
                       {verification.keyPoints.map((point) => (
                         <li key={point}>{point}</li>
                       ))}
@@ -557,17 +558,17 @@ export default function ReflectionPracticeCard({
                   )}
                 </div>
               ) : (
-                <div className="flex min-h-56 items-center justify-center rounded-2xl border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-6 text-center dark:border-white/9 dark:bg-[#1e1c19]">
+                <div className="flex min-h-56 items-center justify-center rounded-2xl border-[1.5px] border-dashed border-(--border-subtle) bg-(--surface-card) p-6 text-center dark:border-(--border-subtle) dark:bg-(--surface-card)">
                   <div>
-                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                    <div className="mx-auto mb-3 flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                       ✍️
                     </div>
 
-                    <p className="text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <p className="text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                       Your AI feedback will appear here
                     </p>
 
-                    <p className="mt-1 max-w-sm text-[12px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="mt-1 max-w-sm text-[12px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                       Type your answer above and click verify to get score,
                       correction, and key points.
                     </p>
@@ -600,14 +601,14 @@ export default function ReflectionPracticeCard({
           aria-modal="true"
           aria-label="Generated solution"
         >
-          <div className="relative flex h-[min(820px,94vh)] w-[min(980px,96vw)] flex-col rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#1e1c19]">
-            <div className="flex items-center justify-between gap-4 border-b border-[#e0d0c5] px-6 py-4 dark:border-white/9 max-[640px]:px-4">
+          <div className="relative flex h-[min(820px,94vh)] w-[min(980px,96vw)] flex-col rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-3) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+            <div className="flex items-center justify-between gap-4 border-b border-(--border-subtle) px-6 py-4 dark:border-(--border-subtle) max-[640px]:px-4">
               <div>
-                <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
+                <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
                   Generated Solution
                 </div>
 
-                <MathText className="mt-1 line-clamp-2 text-[18px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                <MathText className="mt-1 line-clamp-2 text-[18px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   {activeSolutionQuestion}
                 </MathText>
               </div>
@@ -615,7 +616,7 @@ export default function ReflectionPracticeCard({
               <button
                 type="button"
                 onClick={() => setSolutionOpen(false)}
-                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e0d0c5] text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+                className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
                 aria-label="Close solution"
               >
                 ✕
@@ -623,27 +624,27 @@ export default function ReflectionPracticeCard({
             </div>
 
             <div className="min-h-0 flex-1 overflow-y-auto px-6 py-5 max-[640px]:px-4">
-              <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-5 dark:border-white/9 dark:bg-[#252320]">
-                <h4 className="mb-3 text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+              <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-white p-5 dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
+                <h4 className="mb-3 text-[15px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   Solution
                 </h4>
 
                 {(generateSolutionMutation.isPending ||
                   selectedSolutionQuery.isLoading) &&
                 !activeSolution ? (
-                  <p className="text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <p className="text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                     Loading a saved solution or generating a new one...
                   </p>
                 ) : (
-                  <MathText className="text-[13.5px] leading-[1.75] text-[#6b5f58] dark:text-[#d8d6cf]">
+                  <MathText className="text-[13.5px] leading-[1.75] text-(--text-secondary) dark:text-[#d8d6cf]">
                     {activeSolution || 'No solution generated yet.'}
                   </MathText>
                 )}
               </div>
 
-              <div className="mt-5 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-white p-5 dark:border-white/9 dark:bg-[#252320]">
+              <div className="mt-5 rounded-lg border-[1.5px] border-(--border-subtle) bg-white p-5 dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-3">
-                  <h4 className="text-[15px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                  <h4 className="text-[15px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                     Ask doubt about this solution
                   </h4>
 
@@ -656,7 +657,7 @@ export default function ReflectionPracticeCard({
                       !solutionDoubtsQuery.data ||
                       solutionDoubtsQuery.data.length === 0
                     }
-                    className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em] text-[#6b5f58] transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-red-400"
+                    className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.08em] text-(--text-secondary) transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-red-400"
                   >
                     {clearSolutionDoubtsMutation.isPending
                       ? 'Clearing'
@@ -664,13 +665,13 @@ export default function ReflectionPracticeCard({
                   </button>
                 </div>
 
-                <p className="mb-3 text-[12px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mb-3 text-[12px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                   These doubts are saved separately for this exact question
                   solution.
                 </p>
 
                 {solutionDoubtsQuery.isLoading ? (
-                  <div className="mb-4 rounded-xl border border-dashed border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3 text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]">
+                  <div className="mb-4 rounded-xl border border-dashed border-(--border-subtle) bg-(--surface-card) px-4 py-3 text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
                     Loading saved solution doubts...
                   </div>
                 ) : solutionDoubtsQuery.data &&
@@ -688,7 +689,7 @@ export default function ReflectionPracticeCard({
                           )}
                         >
                           {!isUser && (
-                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-[#b84c2b] dark:bg-white/9 dark:text-[#e8816a]">
+                            <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-(--brand-500) dark:bg-white/9 dark:text-(--brand-500)">
                               🤖
                             </div>
                           )}
@@ -697,8 +698,8 @@ export default function ReflectionPracticeCard({
                             className={cn(
                               'max-w-[82%] px-4 py-3 text-[13px] leading-normal',
                               isUser
-                                ? 'rounded-[16px_16px_4px_16px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
-                                : 'rounded-[16px_16px_16px_4px] bg-[rgba(26,23,20,0.09)] text-[#1a1714] dark:bg-white/9 dark:text-[#f2f0eb]'
+                                ? 'rounded-[16px_16px_4px_16px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)'
+                                : 'rounded-[16px_16px_16px_4px] bg-[rgba(26,23,20,0.09)] text-(--text-primary) dark:bg-white/9 dark:text-(--text-primary)'
                             )}
                           >
                             <MathText>{item.content}</MathText>
@@ -708,7 +709,7 @@ export default function ReflectionPracticeCard({
                     })}
                   </div>
                 ) : (
-                  <div className="mb-4 rounded-xl border border-dashed border-[#e0d0c5] bg-[#fdf8f5] px-4 py-4 text-center text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92]">
+                  <div className="mb-4 rounded-xl border border-dashed border-(--border-subtle) bg-(--surface-card) px-4 py-4 text-center text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
                     No doubts asked for this solution yet.
                   </div>
                 )}
@@ -729,7 +730,7 @@ export default function ReflectionPracticeCard({
                         ? 'Listening... speak your doubt'
                         : 'Example: I did not understand the second point...'
                     }
-                    className="min-h-28 w-full resize-none rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3 pr-16 text-[13px] text-[#1a1714] outline-none transition focus:border-[#e8816a] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]"
+                    className="min-h-28 w-full resize-none rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-3 pr-16 text-[13px] text-(--text-primary) outline-none transition focus:border-(--brand-500) disabled:cursor-not-allowed disabled:opacity-60 dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)"
                   />
 
                   <div className="absolute bottom-3 right-3">
@@ -751,7 +752,7 @@ export default function ReflectionPracticeCard({
                     !doubt.trim() ||
                     !activeSolution
                   }
-                  className="mt-3 rounded-xl bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+                  className="mt-3 rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
                 >
                   {doubtMutation.isPending ? 'Answering...' : 'Ask Doubt'}
                 </button>

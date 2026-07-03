@@ -43,8 +43,8 @@ const AdvancedIcon = () => (
 )
 
 const LEVEL_CONFIG: Record<string, { icon: ReactElement; color: string; bg: string; darkColor: string; darkBg: string }> = {
-  beginner:     { icon: <BeginnerIcon />,     color: '#2d6a47', bg: 'rgba(45,106,71,0.08)',   darkColor: '#5cc98a', darkBg: 'rgba(92,201,138,0.10)' },
-  intermediate: { icon: <IntermediateIcon />, color: '#b84c2b', bg: 'rgba(184,76,43,0.08)',  darkColor: '#e8816a', darkBg: 'rgba(232,129,106,0.10)' },
+  beginner:     { icon: <BeginnerIcon />,     color: 'var(--success)', bg: 'rgba(45,106,71,0.08)',   darkColor: 'var(--success)', darkBg: 'rgba(92,201,138,0.10)' },
+  intermediate: { icon: <IntermediateIcon />, color: 'var(--brand-500)', bg: 'rgba(184,76,43,0.08)',  darkColor: 'var(--brand-500)', darkBg: 'rgba(232,129,106,0.10)' },
   advanced:     { icon: <AdvancedIcon />,     color: '#7c5a1e', bg: 'rgba(124,90,30,0.08)',  darkColor: '#d4a84b', darkBg: 'rgba(212,168,75,0.10)' },
 }
 
@@ -65,7 +65,7 @@ export default function CurrentRoadmapCard({
   const milestones = getMilestones(progress)
 
   return (
-    <div className="relative overflow-hidden self-start rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-4">
+    <div className="relative overflow-hidden self-start rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-4">
 
       {/* Subtle radial glow top-right */}
       <div
@@ -79,16 +79,16 @@ export default function CurrentRoadmapCard({
           {/* ── Header row ── */}
           <div className="relative flex flex-wrap items-start justify-between gap-4">
             <div className="min-w-0 flex-1">
-              <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92]">
+              <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
                 Current Roadmap
               </div>
-              <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold leading-tight tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
+              <h2 className="font-ui text-[22px] font-extrabold leading-tight tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
                 {currentRoadmap.title}
               </h2>
               <div className="mt-2 flex flex-wrap items-center gap-2">
                 {/* Level badge */}
                 <span
-                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.08em]"
+                  className="inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[10px] uppercase tracking-[0.08em]"
                   style={{
                     color: levelCfg.color,
                     background: levelCfg.bg,
@@ -98,7 +98,7 @@ export default function CurrentRoadmapCard({
                   {levelCfg.icon}
                   {currentRoadmap.level}
                 </span>
-                <span className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
                   Last studied {formatRelativeTime(currentRoadmap.lastStudiedAt)}
                 </span>
               </div>
@@ -107,7 +107,7 @@ export default function CurrentRoadmapCard({
             <button
               type="button"
               onClick={() => onNavigate(`/trackers/${currentRoadmap._id}/roadmap`)}
-              className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+              className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
             >
               Continue →
             </button>
@@ -119,10 +119,10 @@ export default function CurrentRoadmapCard({
           {/* ── Progress section ── */}
           <div>
             <div className="mb-2 flex items-center justify-between">
-              <span className="text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+              <span className="text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                 Completion Progress
               </span>
-              <span className="font-['DM_Mono',monospace] text-[13px] font-bold tracking-[0.04em] text-[#b84c2b] dark:text-[#e8816a]">
+              <span className="font-mono text-[13px] font-bold tracking-[0.04em] text-(--brand-500) dark:text-(--brand-500)">
                 {Math.round(progress)}%
               </span>
             </div>
@@ -131,7 +131,7 @@ export default function CurrentRoadmapCard({
             <div className="relative">
               <div className="h-2.5 overflow-hidden rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8">
                 <div
-                  className="h-full rounded-full bg-linear-to-r from-[#e8816a] to-[#b84c2b] transition-all duration-700 dark:from-[#f5a090] dark:to-[#e8816a]"
+                  className="h-full rounded-full bg-linear-to-r from-(--brand-500) to-(--brand-500) transition-all duration-700 dark:from-[#f5a090] dark:to-(--brand-500)"
                   style={{ width: `${Math.min(progress, 100)}%` }}
                 />
               </div>
@@ -160,10 +160,10 @@ export default function CurrentRoadmapCard({
               {milestones.map((m) => (
                 <span
                   key={m.value}
-                  className={`absolute font-['DM_Mono',monospace] text-[9px] transition-colors duration-500 ${
+                  className={`absolute font-mono text-[9px] transition-colors duration-500 ${
                     m.reached
-                      ? 'text-[#b84c2b] dark:text-[#e8816a]'
-                      : 'text-[#6b5f58]/40 dark:text-[#9b9a92]/40'
+                      ? 'text-(--brand-500) dark:text-(--brand-500)'
+                      : 'text-(--text-secondary)/40 dark:text-(--text-secondary)/40'
                   }`}
                   style={{ left: `${m.value}%`, transform: 'translateX(-50%)' }}
                 >
@@ -182,15 +182,15 @@ export default function CurrentRoadmapCard({
             ].map(({ label, value, sub }) => (
               <div
                 key={label}
-                className="rounded-xl border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-3 py-2.5 dark:border-white/8 dark:bg-white/3"
+                className="rounded-xl border border-(--border-subtle) bg-[rgba(26,23,20,0.02)] px-3 py-2.5 dark:border-white/8 dark:bg-white/3"
               >
-                <div className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+                <div className="font-mono text-[8px] uppercase tracking-widest text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
                   {label}
                 </div>
-                <div className="mt-0.5 font-['Playfair_Display',serif] text-[18px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                <div className="mt-0.5 font-ui text-[18px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   {value}
                 </div>
-                <div className="text-[10px] text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
+                <div className="text-[10px] text-(--text-secondary)/50 dark:text-(--text-secondary)/50">
                   {sub}
                 </div>
               </div>
@@ -199,13 +199,13 @@ export default function CurrentRoadmapCard({
         </>
       ) : (
         <>
-          <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92]">
+          <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
             Current Roadmap
           </div>
-          <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h2 className="font-ui text-[22px] font-extrabold tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
             No active roadmap
           </h2>
-          <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
             Create a tracker to start your personalized learning path.
           </p>
           <div className="mt-4">
@@ -217,7 +217,7 @@ export default function CurrentRoadmapCard({
           <button
             type="button"
             onClick={() => onNavigate('/onboarding/step-1')}
-            className="mt-4 inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412]"
+            className="mt-4 inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412]"
           >
             Create Tracker
           </button>

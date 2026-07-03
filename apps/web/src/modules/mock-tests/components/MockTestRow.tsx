@@ -44,35 +44,35 @@ export function MockTestRow({
   const score = getTestScore(test)
 
   return (
-    <div className="group flex flex-col gap-4 rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] sm:flex-row sm:items-center dark:border-white/10 dark:bg-[#1c1a18] dark:hover:border-white/20">
-      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a]/20 dark:bg-[#e8816a]/10 dark:text-[#e8816a]">
+    <div className="render-lazy group flex flex-col gap-4 rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) sm:flex-row sm:items-center dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-white/20">
+      <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-(--brand-500)/20 dark:bg-(--brand-500)/10 dark:text-(--brand-500)">
         <ClipboardIcon />
       </div>
 
       <div className="min-w-0 flex-1">
         <div className="flex flex-wrap items-center gap-2">
-          <h3 className="truncate font-['Playfair_Display',serif] text-[17px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+          <h3 className="truncate font-ui text-[17px] font-black text-(--text-primary) dark:text-(--text-primary)">
             {test.title}
           </h3>
 
-          <span className="rounded-full border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] px-2.5 py-0.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]">
+          <span className="rounded-full border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:border-(--brand-500)/30 dark:bg-(--brand-500)/10 dark:text-(--brand-500)">
             {difficultyBadge(test.difficulty)}
           </span>
 
           {test.sourceTestId ? (
-            <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-0.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-blue-700 dark:text-blue-300">
+            <span className="rounded-full border border-blue-500/20 bg-blue-500/10 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-blue-700 dark:text-blue-300">
               Shared
             </span>
           ) : null}
 
           {isHighScore(score) && (
-            <span className="rounded-full border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] px-2.5 py-0.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#2d6a47] dark:border-[#3dbf82]/30 dark:bg-[#3dbf82]/10 dark:text-[#3dbf82]">
+            <span className="rounded-full border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-(--success) dark:border-(--success)/30 dark:bg-(--success)/10 dark:text-(--success)">
               High score
             </span>
           )}
         </div>
 
-        <p className="mt-1.5 line-clamp-1 text-[12.5px] text-[#6b5f58] dark:text-[#6b6560]">
+        <p className="mt-1.5 line-clamp-1 text-[12.5px] text-(--text-secondary) dark:text-[#6b6560]">
           {test.description || 'No description added'} · {test.questionCount}{' '}
           questions · {test.timeLimitMinutes} min · {formatDate(test.createdAt)}
         </p>
@@ -80,11 +80,11 @@ export function MockTestRow({
 
       <div className="flex flex-wrap items-center justify-between gap-3 sm:justify-end">
         <div className="text-right">
-          <div className="font-['Playfair_Display',serif] text-[22px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+          <div className="font-ui text-[22px] font-black text-(--text-primary) dark:text-(--text-primary)">
             {score}%
           </div>
 
-          <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#6b5f58] dark:text-[#6b6560]">
+          <div className="font-mono text-[9px] uppercase tracking-widest text-(--text-secondary) dark:text-[#6b6560]">
             Score
           </div>
         </div>
@@ -92,7 +92,7 @@ export function MockTestRow({
         <button
           type="button"
           onClick={onOpen}
-          className="rounded-[10px] border border-[#e0d0c5] bg-white/35 px-3 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/10 dark:bg-transparent dark:text-[#9b9a92] dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
+          className="rounded-md border border-(--border-subtle) bg-white/35 px-3 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
         >
           Details
         </button>
@@ -100,7 +100,7 @@ export function MockTestRow({
         <button
           type="button"
           onClick={onShare}
-          className="inline-flex items-center gap-2 rounded-[10px] border border-[#e0d0c5] bg-white/35 px-3 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/10 dark:bg-transparent dark:text-[#9b9a92] dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
+          className="inline-flex items-center gap-2 rounded-md border border-(--border-subtle) bg-white/35 px-3 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
         >
           <ShareIcon />
           Share
@@ -109,7 +109,7 @@ export function MockTestRow({
         <button
           type="button"
           onClick={onStart}
-          className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-4 py-2 text-[12px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d]"
+          className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-4 py-2 text-[12px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
         >
           {getProgressLabel(test)} <ArrowRightIcon />
         </button>

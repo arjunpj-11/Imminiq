@@ -236,11 +236,11 @@ export const flattenSubtopics = (
 
 export const getVerificationMessageClass = (status: AiVerificationStatus) =>
   cn(
-    'rounded-[11px] border px-3 py-2 text-[12.5px] font-semibold leading-relaxed',
+    'rounded-[var(--radius-md)] border px-3 py-2 text-[12.5px] font-semibold leading-relaxed',
     status === 'approved' &&
-      'border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.25)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]',
+      'border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[rgba(92,201,138,0.25)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[var(--success)]',
     status === 'rejected' &&
       'border-red-300 bg-red-50 text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300',
     status === 'checking' &&
-      'border-[#e0d0c5] bg-[#f5ede4] text-[#6b5f58] dark:border-white/15 dark:bg-[#141412] dark:text-[#9b9a92]',
+      'border-[var(--border-subtle)] bg-[var(--surface-canvas)] text-[var(--text-secondary)] dark:border-white/15 dark:bg-[var(--surface-canvas)] dark:text-[var(--text-secondary)]',
   )

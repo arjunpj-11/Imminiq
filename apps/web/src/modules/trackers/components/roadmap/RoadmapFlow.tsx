@@ -275,10 +275,10 @@ export function RoadmapFlowNode({
         disabled={locked}
         onClick={onClick}
         className={cn(
-          'group relative w-[min(420px,90%)] overflow-hidden rounded-[18px] border-[1.5px] bg-[#fdf8f5] p-4.5 text-left shadow-[0_4px_24px_rgba(26,23,20,0.08),0_1px_4px_rgba(26,23,20,0.05)] transition dark:bg-[#1e1c19] dark:shadow-[0_4px_24px_rgba(0,0,0,0.30),0_1px_4px_rgba(0,0,0,0.20)]',
-          locked && 'cursor-not-allowed border-[#e0d0c5] opacity-70 dark:border-white/9',
-          !locked && 'cursor-pointer border-[#e0d0c5] hover:-translate-y-1 hover:border-[rgba(184,76,43,0.22)] hover:shadow-[0_8px_40px_rgba(184,76,43,0.18)] dark:border-white/9 dark:hover:border-[rgba(232,129,106,0.24)]',
-          active && 'border-[#e8816a] shadow-[0_8px_40px_rgba(184,76,43,0.18)] dark:border-[#e8816a]',
+          'group relative w-[min(420px,90%)] overflow-hidden rounded-lg border-[1.5px] bg-(--surface-card) p-4.5 text-left shadow-[0_4px_24px_rgba(26,23,20,0.08),0_1px_4px_rgba(26,23,20,0.05)] transition dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.30),0_1px_4px_rgba(0,0,0,0.20)]',
+          locked && 'cursor-not-allowed border-(--border-subtle) opacity-70 dark:border-(--border-subtle)',
+          !locked && 'cursor-pointer border-(--border-subtle) hover:-translate-y-1 hover:border-[rgba(184,76,43,0.22)] hover:shadow-[0_8px_40px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:hover:border-[rgba(232,129,106,0.24)]',
+          active && 'border-(--brand-500) shadow-[0_8px_40px_rgba(184,76,43,0.18)] dark:border-(--brand-500)',
           completed && 'border-[rgba(45,106,71,0.20)] dark:border-[rgba(92,201,138,0.22)]'
         )}
       >
@@ -287,34 +287,34 @@ export function RoadmapFlowNode({
             className={cn(
               'absolute left-0 right-0 top-0 h-0.75',
               completed
-                ? 'bg-linear-to-r from-[#70d49a] to-[#4caf7d]'
-                : 'bg-linear-to-r from-[#e8816a] to-[#b84c2b]'
+                ? 'bg-linear-to-r from-[#70d49a] to-(--success)'
+                : 'bg-linear-to-r from-(--brand-500) to-(--brand-500)'
             )}
           />
         )}
 
-        <div className="pointer-events-none absolute inset-0 rounded-[18px] bg-linear-to-br from-white/50 to-transparent dark:from-white/3" />
+        <div className="pointer-events-none absolute inset-0 rounded-lg bg-linear-to-br from-white/50 to-transparent dark:from-white/3" />
 
         <div className="relative flex items-center gap-4">
-          <div className="relative flex h-13 w-13 shrink-0 items-center justify-center overflow-hidden rounded-[14px] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+          <div className="relative flex h-13 w-13 shrink-0 items-center justify-center overflow-hidden rounded-md bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
             {getNodeIcon(node.title, index)}
             {locked && (
-              <div className="absolute bottom-0.75 right-0.75 flex h-5 w-5 items-center justify-center rounded-md border border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] dark:border-white/9 dark:bg-[#252320] dark:text-[#9b9a92]">
+              <div className="absolute bottom-0.75 right-0.75 flex h-5 w-5 items-center justify-center rounded-md border border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:text-(--text-secondary)">
                 <LockIcon />
               </div>
             )}
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="mb-1 font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92]">
+            <div className="mb-1 font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
               {node.nodeType === 'topic' ? `Topic ${node.order}` : `Level ${node.order}`}
             </div>
 
-            <h3 className="font-['Playfair_Display',serif] text-[18px] font-extrabold tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+            <h3 className="font-ui text-[18px] font-extrabold tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
               {node.title}
             </h3>
 
-            <p className="mt-1 line-clamp-2 text-[12px] leading-[1.45] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-1 line-clamp-2 text-[12px] leading-[1.45] text-(--text-secondary) dark:text-(--text-secondary)">
               {node.description ||
                 (hasChildren
                   ? 'Open this node to go deeper.'
@@ -324,11 +324,11 @@ export function RoadmapFlowNode({
             <div className="mt-3 flex flex-wrap items-center gap-2">
               <span
                 className={cn(
-                  'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-["DM_Mono",monospace] text-[8px] uppercase tracking-[0.08em]',
-                  locked && 'border-[#e0d0c5] bg-[rgba(26,23,20,0.04)] text-[#6b5f58] dark:border-white/9 dark:bg-white/6 dark:text-[#9b9a92]',
-                  active && 'border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]',
-                  completed && 'border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]',
-                  state === 'available' && 'border-[#e0d0c5] bg-transparent text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]'
+                  'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 font-mono text-[8px] uppercase tracking-[0.08em]',
+                  locked && 'border-(--border-subtle) bg-[rgba(26,23,20,0.04)] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/6 dark:text-(--text-secondary)',
+                  active && 'border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)',
+                  completed && 'border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)',
+                  state === 'available' && 'border-(--border-subtle) bg-transparent text-(--text-secondary) dark:border-(--border-subtle) dark:text-(--text-secondary)'
                 )}
               >
                 {locked ? 'Locked' : completed ? 'Completed' : active ? 'In Progress' : hasChildren ? 'Open' : 'Lesson'}
@@ -340,12 +340,12 @@ export function RoadmapFlowNode({
                     <div
                       className={cn(
                         'h-full rounded-full bg-linear-to-r',
-                        completed ? 'from-[#70d49a] to-[#4caf7d]' : 'from-[#e8816a] to-[#b84c2b]'
+                        completed ? 'from-[#70d49a] to-(--success)' : 'from-(--brand-500) to-(--brand-500)'
                       )}
                       style={{ width: `${completed ? 100 : progress}%` }}
                     />
                   </div>
-                  <span className="font-['DM_Mono',monospace] text-[8px] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <span className="font-mono text-[8px] text-(--text-secondary) dark:text-(--text-secondary)">
                     {completed ? 100 : progress}%
                   </span>
                 </>
@@ -358,8 +358,8 @@ export function RoadmapFlowNode({
               className={cn(
                 'flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-white transition group-hover:translate-x-0.5',
                 completed
-                  ? 'bg-[#4caf7d]'
-                  : 'bg-[#b84c2b] dark:bg-[#e8816a] dark:text-[#141412]'
+                  ? 'bg-(--success)'
+                  : 'bg-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412]'
               )}
             >
               {hasChildren ? <ChevronRightIcon /> : <ArrowRightIcon />}

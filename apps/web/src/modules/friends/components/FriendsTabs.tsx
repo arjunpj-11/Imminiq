@@ -20,7 +20,7 @@ export default function FriendsTabs({
       value={activeTab}
       onValueChange={onChange}
       ariaLabel="Friends sections"
-      className="flex w-full gap-2 rounded-[14px] border-[#e8ddd6] bg-white/45 p-1.5 dark:border-white/8 dark:bg-white/3"
+      className="flex w-full gap-2 rounded-md border-[#e8ddd6] bg-white/45 p-1.5 dark:border-white/8 dark:bg-white/3"
       itemClassName="min-w-0 flex-1"
       items={[
         {

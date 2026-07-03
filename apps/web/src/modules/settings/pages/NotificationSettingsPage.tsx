@@ -160,7 +160,7 @@ export default function NotificationSettingsPage() {
         title="Notification Settings"
         subtitle="Choose what you're notified about and how."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 text-[14px] font-semibold text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)">
           Unable to load notification settings.
         </div>
       </SettingsShell>
@@ -303,11 +303,11 @@ function NotificationSettingsForm({
             description="Globally pause or enable all alert types."
             icon="🔔"
           >
-            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[15px] bg-[#f9f3ef] p-4 dark:bg-[#1a1816]">
+            <div className="mb-4 flex flex-wrap items-center justify-between gap-3 rounded-[15px] bg-[#f9f3ef] p-4 dark:bg-(--surface-card)">
               <div>
                 <MonoLabel>Global Notification State</MonoLabel>
 
-                <div className="text-[18px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                <div className="text-[18px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   {masterLabel}
                 </div>
               </div>
@@ -388,7 +388,7 @@ function NotificationSettingsForm({
               />
             ))}
 
-            <div className="mt-2 rounded-[14px] border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[12.5px] text-[#3b6cb7] dark:text-[#6b9fe8]">
+            <div className="mt-2 rounded-md border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[12.5px] text-(--info) dark:text-(--info)">
               Critical security alerts may still be delivered when required.
             </div>
           </SettingsCard>
@@ -494,7 +494,7 @@ function NotificationSettingsForm({
                       quietHoursStart: event.target.value,
                     }))
                   }
-                  className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+                  className="w-full rounded-md border-[1.5px] border-(--border-subtle) bg-white px-3.5 py-3 text-[13px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
                 />
               </label>
 
@@ -510,7 +510,7 @@ function NotificationSettingsForm({
                       quietHoursEnd: event.target.value,
                     }))
                   }
-                  className="w-full rounded-[11px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-3 text-[13px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+                  className="w-full rounded-md border-[1.5px] border-(--border-subtle) bg-white px-3.5 py-3 text-[13px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
                 />
               </label>
             </div>
@@ -554,41 +554,41 @@ function NotificationSettingsForm({
           <SettingsCard title="Delivery Summary" icon="📬">
             <div className="space-y-3 text-[13px]">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Master State
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.globalEnabled ? 'Enabled' : 'Disabled'}
                 </strong>
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Email Channel
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.globalEmail ? 'On' : 'Off'}
                 </strong>
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   In-App Channel
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.globalPush ? 'On' : 'Off'}
                 </strong>
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Digest
                 </span>
 
-                <strong className="capitalize text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="capitalize text-(--text-primary) dark:text-(--text-primary)">
                   {form.emailDigest.frequency}
                 </strong>
               </div>
@@ -598,31 +598,31 @@ function NotificationSettingsForm({
           <SettingsCard title="Quiet Window" icon="🌘">
             <div className="space-y-3 text-[13px]">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Status
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.quietHoursEnabled ? 'Active' : 'Inactive'}
                 </strong>
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   From
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.quietHoursStart || '--:--'}
                 </strong>
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   To
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.quietHoursEnd || '--:--'}
                 </strong>
               </div>

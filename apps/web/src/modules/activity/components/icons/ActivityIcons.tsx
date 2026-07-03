@@ -419,6 +419,6 @@ export const LiveDotIcon = () => (
     viewBox="0 0 7 7"
     aria-hidden="true"
   >
-    <circle cx="3.5" cy="3.5" r="3.5" fill="#4caf7d" />
+    <circle cx="3.5" cy="3.5" r="3.5" fill="var(--success)" />
   </svg>
 )

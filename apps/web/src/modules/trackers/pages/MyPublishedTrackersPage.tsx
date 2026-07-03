@@ -25,12 +25,12 @@ const domainLabel = (value: string | undefined) => {
 
 const levelColors: Record<string, { text: string; bg: string; border: string }> = {
   beginner: {
-    text: 'text-[#2d6a47] dark:text-[#5cc98a]',
+    text: 'text-[var(--success)] dark:text-[var(--success)]',
     bg: 'bg-[rgba(45,106,71,0.08)] dark:bg-[rgba(92,201,138,0.10)]',
     border: 'border-[rgba(45,106,71,0.20)] dark:border-[rgba(92,201,138,0.22)]',
   },
   intermediate: {
-    text: 'text-[#b84c2b] dark:text-[#e8816a]',
+    text: 'text-[var(--brand-500)] dark:text-[var(--brand-500)]',
     bg: 'bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.10)]',
     border: 'border-[rgba(184,76,43,0.16)] dark:border-[rgba(232,129,106,0.22)]',
   },
@@ -110,7 +110,7 @@ const SkeletonBlock = ({ className }: { className?: string }) => (
 )
 
 const PublishedCardSkeleton = () => (
-  <div className="animate-pulse rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]">
+  <div className="animate-pulse rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
     <div className="mb-4 flex items-start justify-between gap-3">
       <div className="flex gap-2">
         <SkeletonBlock className="h-5 w-20 rounded-full" />
@@ -122,7 +122,7 @@ const PublishedCardSkeleton = () => (
     <SkeletonBlock className="mb-1 h-4 w-full rounded" />
     <SkeletonBlock className="mb-4 h-4 w-4/5 rounded" />
     <div className="mb-4 h-1.5 rounded-full bg-[#e8ddd6] dark:bg-white/10" />
-    <div className="grid grid-cols-3 gap-2 border-y border-[#e0d0c5] py-3 dark:border-white/9">
+    <div className="grid grid-cols-3 gap-2 border-y border-(--border-subtle) py-3 dark:border-(--border-subtle)">
       {Array.from({ length: 3 }).map((_, i) => (
         <div key={i} className="flex flex-col items-center gap-1">
           <SkeletonBlock className="h-2 w-10 rounded-full" />
@@ -131,9 +131,9 @@ const PublishedCardSkeleton = () => (
       ))}
     </div>
     <div className="mt-4 flex gap-2">
-      <SkeletonBlock className="h-8 w-22.5 rounded-[9px]" />
-      <SkeletonBlock className="h-8 w-22.5 rounded-[9px]" />
-      <SkeletonBlock className="ml-auto h-8 w-22.5 rounded-[9px]" />
+      <SkeletonBlock className="h-8 w-22.5 rounded-sm" />
+      <SkeletonBlock className="h-8 w-22.5 rounded-sm" />
+      <SkeletonBlock className="ml-auto h-8 w-22.5 rounded-sm" />
     </div>
   </div>
 )
@@ -158,29 +158,29 @@ function UnpublishConfirmModal({ tracker, isUnpublishing, onConfirm, onCancel }:
       onClick={(e) => { if (e.target === e.currentTarget) onCancel() }}
     >
       {/* Panel */}
-      <div className="w-full max-w-100 overflow-hidden rounded-[22px] border-[1.5px] border-[rgba(200,50,50,0.18)] bg-[#fdf8f5] shadow-[0_24px_64px_rgba(20,18,16,0.28)] dark:border-[rgba(255,120,120,0.14)] dark:bg-[#1e1c19]">
+      <div className="w-full max-w-100 overflow-hidden rounded-xl border-[1.5px] border-[rgba(200,50,50,0.18)] bg-(--surface-card) shadow-[0_24px_64px_rgba(20,18,16,0.28)] dark:border-[rgba(255,120,120,0.14)] dark:bg-(--surface-card)">
 
         {/* Red accent top bar */}
         <div className="h-0.5 w-full bg-linear-to-r from-[#c83232] to-[#e05555]" />
 
         <div className="p-6">
           {/* Warning icon */}
-          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-[14px] border-[1.5px] border-[rgba(200,50,50,0.20)] bg-[rgba(200,50,50,0.08)] text-[#b83232] dark:border-[rgba(255,120,120,0.18)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]">
+          <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-md border-[1.5px] border-[rgba(200,50,50,0.20)] bg-[rgba(200,50,50,0.08)] text-[#b83232] dark:border-[rgba(255,120,120,0.18)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]">
             <WarningIcon />
           </div>
 
           {/* Title */}
-          <h2 className="font-['Playfair_Display',serif] text-[19px] font-extrabold leading-[1.2] tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h2 className="font-ui text-[19px] font-extrabold leading-[1.2] tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
             Unpublish this tracker?
           </h2>
 
           {/* Tracker name */}
-          <p className="mt-1 text-[12.5px] font-semibold text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mt-1 text-[12.5px] font-semibold text-(--text-secondary) dark:text-(--text-secondary)">
             "{tracker.title}"
           </p>
 
           {/* Warning message */}
-          <p className="mt-3 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mt-3 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
             This will remove it from the community. The following will be{' '}
             <span className="font-bold text-[#b83232] dark:text-[#ff8c8c]">permanently lost</span>{' '}
             and cannot be recovered:
@@ -188,32 +188,32 @@ function UnpublishConfirmModal({ tracker, isUnpublishing, onConfirm, onCancel }:
 
           {/* Loss list */}
           <ul className="mt-3 space-y-2">
-            <li className="flex items-center gap-2.5 rounded-[10px] border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
+            <li className="flex items-center gap-2.5 rounded-md border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
               <span className="text-[#b83232] dark:text-[#ff8c8c]"><HeartIcon /></span>
               <span className="text-[12.5px] font-medium text-[#4a3f3a] dark:text-[#c8c4bc]">All likes from the community</span>
             </li>
-            <li className="flex items-center gap-2.5 rounded-[10px] border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
+            <li className="flex items-center gap-2.5 rounded-md border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
               <span className="text-[#b83232] dark:text-[#ff8c8c]"><CommentIcon /></span>
               <span className="text-[12.5px] font-medium text-[#4a3f3a] dark:text-[#c8c4bc]">All comments & replies</span>
             </li>
-            <li className="flex items-center gap-2.5 rounded-[10px] border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
+            <li className="flex items-center gap-2.5 rounded-md border-[1.5px] border-[rgba(200,50,50,0.12)] bg-[rgba(200,50,50,0.05)] px-3 py-2 dark:border-[rgba(255,120,120,0.10)] dark:bg-[rgba(255,120,120,0.05)]">
               <span className="text-[#b83232] dark:text-[#ff8c8c]"><GlobeSmallIcon /></span>
               <span className="text-[12.5px] font-medium text-[#4a3f3a] dark:text-[#c8c4bc]">Public share link & visibility</span>
             </li>
           </ul>
 
-          <p className="mt-3 text-[11.5px] italic leading-normal text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
+          <p className="mt-3 text-[11.5px] italic leading-normal text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
             Your tracker itself and your personal progress are safe — only the community data is lost.
           </p>
         </div>
 
         {/* Actions */}
-        <div className="flex gap-2.5 border-t border-[#e0d0c5] px-6 py-4 dark:border-white/9">
+        <div className="flex gap-2.5 border-t border-(--border-subtle) px-6 py-4 dark:border-(--border-subtle)">
           <button
             type="button"
             onClick={onCancel}
             disabled={isUnpublishing}
-            className="flex-1 rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-bold text-[#6b5f58] transition hover:border-[rgba(26,23,20,0.25)] hover:text-[#1a1714] disabled:opacity-50 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#f2f0eb]"
+            className="flex-1 rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:border-[rgba(26,23,20,0.25)] hover:text-(--text-primary) disabled:opacity-50 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-[#f2f0eb]"
           >
             Keep it public
           </button>
@@ -221,7 +221,7 @@ function UnpublishConfirmModal({ tracker, isUnpublishing, onConfirm, onCancel }:
             type="button"
             onClick={onConfirm}
             disabled={isUnpublishing}
-            className="flex-1 rounded-[10px] bg-[#b83232] px-4 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#9a2828] hover:shadow-[0_6px_20px_rgba(184,50,50,0.28)] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#c84444] dark:hover:bg-[#b03030]"
+            className="flex-1 rounded-md bg-[#b83232] px-4 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#9a2828] hover:shadow-[0_6px_20px_rgba(184,50,50,0.28)] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#c84444] dark:hover:bg-[#b03030]"
           >
             {isUnpublishing ? 'Unpublishing…' : 'Yes, unpublish'}
           </button>
@@ -267,29 +267,29 @@ function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublish
   }
 
   return (
-    <article className="group relative flex flex-col overflow-hidden rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(45,106,71,0.30)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/9 dark:bg-[#1e1c19] dark:hover:border-[rgba(92,201,138,0.20)]">
+    <article className="group relative flex flex-col overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[rgba(45,106,71,0.30)] hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-[rgba(92,201,138,0.20)]">
 
       {/* Green accent bar */}
-      <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-b-[20px] bg-linear-to-r from-[#70d49a] to-[#4caf7d]" />
+      <div className="absolute bottom-0 left-0 right-0 h-0.5 rounded-b-[20px] bg-linear-to-r from-[#70d49a] to-(--success)" />
 
       {/* ── Header: badges + clone count ── */}
       <div className="mb-4 flex items-start justify-between gap-2">
         {/* Left: badges */}
         <div className="flex min-w-0 flex-wrap items-center gap-1.5">
-          <span className="shrink-0 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-2.5 py-0.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+          <span className="shrink-0 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-2.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
             ● Public
           </span>
-          <span className={cn('shrink-0 rounded-full border px-2.5 py-0.5 font-["DM_Mono",monospace] text-[8px] uppercase tracking-[0.12em]', levelCfg.text, levelCfg.bg, levelCfg.border)}>
+          <span className={cn('shrink-0 rounded-full border px-2.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.12em]', levelCfg.text, levelCfg.bg, levelCfg.border)}>
             {tracker.level ?? 'beginner'}
           </span>
-          <span className="shrink-0 rounded-full border border-[#e0d0c5] bg-[rgba(26,23,20,0.03)] px-2.5 py-0.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">
+          <span className="shrink-0 rounded-full border border-(--border-subtle) bg-[rgba(26,23,20,0.03)] px-2.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) dark:border-(--border-subtle) dark:text-(--text-secondary)">
             {domainLabel(tracker.domain)}
           </span>
         </div>
 
         {/* Right: star count */}
-        <div className="flex shrink-0 items-center gap-1 rounded-lg border border-[#e0d0c5] bg-[rgba(26,23,20,0.02)] px-2.5 py-1 dark:border-white/9 dark:bg-white/3">
-          <span className="text-[#b84c2b] dark:text-[#e8816a]">
+        <div className="flex shrink-0 items-center gap-1 rounded-lg border border-(--border-subtle) bg-[rgba(26,23,20,0.02)] px-2.5 py-1 dark:border-(--border-subtle) dark:bg-white/3">
+          <span className="text-(--brand-500) dark:text-(--brand-500)">
             <StarIcon />
           </span>
         </div>
@@ -297,10 +297,10 @@ function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublish
 
       {/* ── Title & description ── */}
       <div className="flex-1">
-        <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold leading-[1.2] tracking-[-0.4px] text-[#1a1714] transition group-hover:text-[#2d6a47] dark:text-[#f2f0eb] dark:group-hover:text-[#5cc98a]">
+        <h2 className="font-ui text-[20px] font-extrabold leading-[1.2] tracking-[-0.4px] text-(--text-primary) transition group-hover:text-(--success) dark:text-(--text-primary) dark:group-hover:text-(--success)">
           {tracker.title}
         </h2>
-        <p className="mt-1.5 line-clamp-2 min-h-[2.8em] text-[12.5px] leading-[1.55] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mt-1.5 line-clamp-2 min-h-[2.8em] text-[12.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
           {tracker.description ?? tracker.goal ?? 'Personalized learning tracker'}
         </p>
       </div>
@@ -308,34 +308,34 @@ function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublish
       {/* ── Progress bar ── */}
       <div className="mt-4">
         <div className="mb-1.5 flex items-center justify-between">
-          <span className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92]">
+          <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
             Your progress
           </span>
-          <span className="font-['DM_Mono',monospace] text-[10px] tracking-[0.04em] text-[#2d6a47] dark:text-[#5cc98a]">
+          <span className="font-mono text-[10px] tracking-[0.04em] text-(--success) dark:text-(--success)">
             {progress}%
           </span>
         </div>
         <div className="h-1.5 overflow-hidden rounded-full bg-[rgba(26,23,20,0.08)] dark:bg-white/8">
           <div
-            className="h-full rounded-full bg-linear-to-r from-[#70d49a] to-[#4caf7d] transition-all duration-700"
+            className="h-full rounded-full bg-linear-to-r from-[#70d49a] to-(--success) transition-all duration-700"
             style={{ width: `${progress}%` }}
           />
         </div>
       </div>
 
       {/* ── Mini stats ── */}
-      <div className="mt-4 grid grid-cols-3 divide-x divide-[#e0d0c5] border-y border-[#e0d0c5] py-2.5 dark:divide-white/9 dark:border-white/9">
+      <div className="mt-4 grid grid-cols-3 divide-x divide-(--border-subtle) border-y border-(--border-subtle) py-2.5 dark:divide-white/9 dark:border-(--border-subtle)">
         <div className="text-center">
-          <div className="font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">Topics</div>
-          <div className="mt-0.5 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">{totalTopics}</div>
+          <div className="font-mono text-[7px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">Topics</div>
+          <div className="mt-0.5 text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">{totalTopics}</div>
         </div>
         <div className="text-center">
-          <div className="font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">Done</div>
-          <div className="mt-0.5 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">{completedTopics}</div>
+          <div className="font-mono text-[7px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">Done</div>
+          <div className="mt-0.5 text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">{completedTopics}</div>
         </div>
         <div className="text-center">
-          <div className="font-['DM_Mono',monospace] text-[7px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">Published</div>
-          <div className="mt-0.5 text-[11px] font-semibold text-[#6b5f58] dark:text-[#9b9a92]">{formatDate(tracker.publishedAt)}</div>
+          <div className="font-mono text-[7px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">Published</div>
+          <div className="mt-0.5 text-[11px] font-semibold text-(--text-secondary) dark:text-(--text-secondary)">{formatDate(tracker.publishedAt)}</div>
         </div>
       </div>
 
@@ -346,7 +346,7 @@ function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublish
           <button
             type="button"
             onClick={(e) => { e.stopPropagation(); onView(tracker._id) }}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-[9px] bg-[#b84c2b] px-3.5 py-2 text-[12px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_20px_rgba(184,76,43,0.24)] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-sm bg-(--brand-500) px-3.5 py-2 text-[12px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_20px_rgba(184,76,43,0.24)] dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             <EyeIcon />
             View Page
@@ -355,7 +355,7 @@ function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublish
           <button
             type="button"
             onClick={handleCopyLink}
-            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-[9px] border-[1.5px] border-[#e0d0c5] px-3.5 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[rgba(184,76,43,0.30)] hover:bg-[rgba(184,76,43,0.06)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+            className="inline-flex flex-1 items-center justify-center gap-1.5 rounded-sm border-[1.5px] border-(--border-subtle) px-3.5 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.30)] hover:bg-[rgba(184,76,43,0.06)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
           >
             {copied ? <><CheckIcon />Copied!</> : <><CopyIcon />Copy Link</>}
           </button>
@@ -366,7 +366,7 @@ function PublishedTrackerCard({ tracker, onView, onRequestUnpublish, isUnpublish
           type="button"
           disabled={isUnpublishing}
           onClick={(e) => { e.stopPropagation(); onRequestUnpublish(tracker) }}
-          className="inline-flex w-full items-center justify-center gap-1.5 rounded-[9px] border-[1.5px] border-[rgba(200,50,50,0.20)] px-3.5 py-2 text-[12px] font-bold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[rgba(255,120,120,0.18)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
+          className="inline-flex w-full items-center justify-center gap-1.5 rounded-sm border-[1.5px] border-[rgba(200,50,50,0.20)] px-3.5 py-2 text-[12px] font-bold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-[rgba(255,120,120,0.18)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
         >
           <UnpublishIcon />
           {isUnpublishing ? 'Unpublishing…' : 'Unpublish'}
@@ -402,11 +402,11 @@ function PageSkeleton() {
 function SummaryStrip({ count }: { count: number }) {
   if (count === 0) return null
   return (
-    <div className="flex items-center gap-3 rounded-[14px] border-[1.5px] border-[rgba(45,106,71,0.16)] bg-[rgba(45,106,71,0.05)] px-4 py-3 dark:border-[rgba(92,201,138,0.15)] dark:bg-[rgba(92,201,138,0.06)]">
-      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] bg-[rgba(45,106,71,0.12)] text-[#2d6a47] dark:bg-[rgba(92,201,138,0.14)] dark:text-[#5cc98a]">
+    <div className="flex items-center gap-3 rounded-md border-[1.5px] border-[rgba(45,106,71,0.16)] bg-[rgba(45,106,71,0.05)] px-4 py-3 dark:border-[rgba(92,201,138,0.15)] dark:bg-[rgba(92,201,138,0.06)]">
+      <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-[rgba(45,106,71,0.12)] text-(--success) dark:bg-[rgba(92,201,138,0.14)] dark:text-(--success)">
         <GlobeIcon />
       </div>
-      <p className="text-[12.5px] leading-normal text-[#2d6a47] dark:text-[#5cc98a]">
+      <p className="text-[12.5px] leading-normal text-(--success) dark:text-(--success)">
         <span className="font-bold">{count}</span> tracker{count === 1 ? '' : 's'} currently{' '}
         <span className="font-bold">live</span> in the community.
       </p>
@@ -469,18 +469,18 @@ export default function MyPublishedTrackersPage() {
         {/* ── Page header ── */}
         <section className="flex flex-wrap items-start justify-between gap-4">
           <div>
-            <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
+            <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
+              <span className="h-1.5 w-1.5 rounded-full bg-(--success) dark:bg-(--success)" />
               Published Trackers
             </div>
 
-            <h1 className="font-['Playfair_Display',serif] text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-[#1a1714] dark:text-[#f2f0eb]">
+            <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
               Your{' '}
-              <span className="text-[#2d6a47] dark:text-[#5cc98a]">public</span>{' '}
+              <span className="text-(--success) dark:text-(--success)">public</span>{' '}
               roadmaps
             </h1>
 
-            <p className="mt-2 max-w-lg text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
+            <p className="mt-2 max-w-lg text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
               {publishedTrackers.length > 0
                 ? `${publishedTrackers.length} tracker${publishedTrackers.length === 1 ? '' : 's'} shared with the community. Manage visibility, copy links, and track engagement.`
                 : 'Share your learning roadmaps with the community and help others grow.'}
@@ -506,23 +506,23 @@ export default function MyPublishedTrackersPage() {
             ))}
           </section>
         ) : (
-          <section className="rounded-[22px] border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-10 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-6">
-            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+          <section className="rounded-xl border-[1.5px] border-dashed border-(--border-subtle) bg-(--surface-card) p-10 text-center shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-6">
+            <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
               <GlobeIcon />
             </div>
 
-            <h2 className="font-['Playfair_Display',serif] text-2xl font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+            <h2 className="font-ui text-2xl font-extrabold text-(--text-primary) dark:text-(--text-primary)">
               Nothing published yet
             </h2>
 
-            <p className="mx-auto mt-2 max-w-md text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mx-auto mt-2 max-w-md text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
               Go to your trackers, open the options menu on any tracker and hit Publish to share it with the community.
             </p>
 
             <button
               type="button"
               onClick={() => navigate('/trackers')}
-              className="mt-5 inline-flex items-center gap-2 rounded-[10px] bg-[#2d6a47] px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#245638] dark:bg-[#5cc98a] dark:text-[#141412]"
+              className="mt-5 inline-flex items-center gap-2 rounded-md bg-(--success) px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#245638] dark:bg-(--success) dark:text-[#141412]"
             >
               Go to My Trackers
             </button>

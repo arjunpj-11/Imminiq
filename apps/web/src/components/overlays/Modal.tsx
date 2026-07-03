@@ -1,6 +1,6 @@
 import {
   useEffect,
-  useId,
+  useRef,
   type MouseEvent,
   type ReactNode,
 } from 'react'
@@ -15,6 +15,7 @@ interface ModalProps {
   children: ReactNode
   titleId?: string
   descriptionId?: string
+  ariaLabel?: string
   role?: 'dialog' | 'alertdialog'
   closeOnBackdrop?: boolean
   closeOnEscape?: boolean
@@ -23,7 +24,17 @@ interface ModalProps {
   portal?: boolean
   overlayClassName?: string
   contentClassName?: string
+  initialFocusRef?: React.RefObject<HTMLElement | null>
 }
+
+const focusableSelector = [
+  'a[href]',
+  'button:not([disabled])',
+  'textarea:not([disabled])',
+  'input:not([disabled])',
+  'select:not([disabled])',
+  '[tabindex]:not([tabindex="-1"])',
+].join(',')
 
 export default function Modal({
   open,
@@ -31,6 +42,7 @@ export default function Modal({
   children,
   titleId,
   descriptionId,
+  ariaLabel = 'Dialog',
   role = 'dialog',
   closeOnBackdrop = true,
   closeOnEscape = true,
@@ -39,31 +51,79 @@ export default function Modal({
   portal = true,
   overlayClassName,
   contentClassName,
+  initialFocusRef,
 }: ModalProps) {
-  const generatedId = useId()
-  const resolvedTitleId = titleId ?? `modal-title-${generatedId}`
+  const panelRef = useRef<HTMLElement>(null)
+  const previousFocusRef = useRef<HTMLElement | null>(null)
 
   useEffect(() => {
-    if (!open || !closeOnEscape) return
+    if (!open || !canUseDOM()) return
 
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape' && !preventClose) {
+    previousFocusRef.current = document.activeElement as HTMLElement | null
+    const frame = window.requestAnimationFrame(() => {
+      const preferred = initialFocusRef?.current
+      const firstFocusable = panelRef.current?.querySelector<HTMLElement>(focusableSelector)
+      ;(preferred ?? firstFocusable ?? panelRef.current)?.focus()
+    })
+
+    return () => {
+      window.cancelAnimationFrame(frame)
+      previousFocusRef.current?.focus()
+    }
+  }, [initialFocusRef, open])
+
+  useEffect(() => {
+    if (!open) return
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape' && closeOnEscape && !preventClose) {
+        event.preventDefault()
         onClose()
+        return
+      }
+
+      if (event.key !== 'Tab' || !panelRef.current) return
+
+      const focusable = Array.from(
+        panelRef.current.querySelectorAll<HTMLElement>(focusableSelector),
+      ).filter((element) => !element.hasAttribute('disabled'))
+
+      if (focusable.length === 0) {
+        event.preventDefault()
+        panelRef.current.focus()
+        return
+      }
+
+      const first = focusable[0]
+      const last = focusable[focusable.length - 1]
+      const active = document.activeElement
+
+      if (event.shiftKey && active === first) {
+        event.preventDefault()
+        last.focus()
+      } else if (!event.shiftKey && active === last) {
+        event.preventDefault()
+        first.focus()
       }
     }
 
-    window.addEventListener('keydown', handleEscape)
-    return () => window.removeEventListener('keydown', handleEscape)
+    document.addEventListener('keydown', handleKeyDown)
+    return () => document.removeEventListener('keydown', handleKeyDown)
   }, [closeOnEscape, onClose, open, preventClose])
 
   useEffect(() => {
     if (!open || !lockBodyScroll || !canUseDOM()) return
 
     const previousOverflow = document.body.style.overflow
+    const previousPaddingRight = document.body.style.paddingRight
+    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
+
     document.body.style.overflow = 'hidden'
+    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`
 
     return () => {
       document.body.style.overflow = previousOverflow
+      document.body.style.paddingRight = previousPaddingRight
     }
   }, [lockBodyScroll, open])
 
@@ -82,18 +142,21 @@ export default function Modal({
   const content = (
     <div
       className={cn(
-        'fixed inset-0 z-150 flex items-center justify-center bg-black/50 p-4 backdrop-blur-sm',
+        'modal-backdrop-enter fixed inset-0 z-150 flex items-center justify-center bg-(--surface-overlay) p-4 backdrop-blur-sm',
         overlayClassName,
       )}
       onMouseDown={handleBackdropMouseDown}
     >
       <section
+        ref={panelRef}
+        tabIndex={-1}
         role={role}
         aria-modal="true"
-        aria-labelledby={resolvedTitleId}
+        aria-label={titleId ? undefined : ariaLabel}
+        aria-labelledby={titleId}
         aria-describedby={descriptionId}
         className={cn(
-          'relative w-full max-w-md overflow-hidden rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 text-[#1a1714] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#1e1c19] dark:text-[#f2f0eb]',
+          'modal-panel-enter relative w-full max-w-md overflow-hidden rounded-xl border border-(--border-subtle) bg-(--surface-elevated) p-5 text-(--text-primary) shadow-(--shadow-3) outline-none',
           contentClassName,
         )}
         onMouseDown={(event) => event.stopPropagation()}

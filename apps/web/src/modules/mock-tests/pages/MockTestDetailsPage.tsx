@@ -45,13 +45,13 @@ export default function MockTestDetailsPage() {
   if (detailsQuery.isLoading) {
     return (
       <PageShell>
-        <div className="h-72 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]" />
+        <div className="h-72 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)" />
 
         <div className="space-y-3">
           {Array.from({ length: 4 }).map((_, index) => (
             <div
               key={index}
-              className="h-24 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
+              className="h-24 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
             />
           ))}
         </div>
@@ -72,7 +72,7 @@ export default function MockTestDetailsPage() {
   if (!data) {
     return (
       <PageShell>
-        <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18] dark:text-[#9b9a92]">
+        <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 text-(--text-secondary) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
           Test not found.
         </div>
       </PageShell>
@@ -85,38 +85,38 @@ export default function MockTestDetailsPage() {
     <PageShell>
       {/* ── hero card ── */}
       <section
-        className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-7 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
-        style={{ borderTop: '2.5px solid #b84c2b' }}
+        className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-7 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
+        style={{ borderTop: '2.5px solid var(--brand-500)' }}
       >
-        <div className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">
+        <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
           {data.test.difficulty} · {data.test.questionCount} questions ·{' '}
           {data.test.timeLimitMinutes} min
         </div>
 
-        <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#1a1714] dark:text-[#f2f0eb]">
+        <h1 className="mt-3 font-ui text-[38px] font-black leading-tight text-(--text-primary) dark:text-(--text-primary)">
           {data.test.title}
         </h1>
 
         {data.test.description && (
-          <p className="mt-3 text-[14px] leading-7 text-[#6b5f58] dark:text-[#6b6560]">
+          <p className="mt-3 text-[14px] leading-7 text-(--text-secondary) dark:text-[#6b6560]">
             {data.test.description}
           </p>
         )}
 
         {/* tags */}
         <div className="mt-5 flex flex-wrap gap-2">
-          <span className="rounded-full border border-[#e0d0c5] bg-[#f5ede4] px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#6b5f58] dark:border-white/10 dark:bg-white/5 dark:text-[#9b9a92]">
+          <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
             {data.test.visibility}
           </span>
 
-          <span className="rounded-full border border-[#e0d0c5] bg-[#f5ede4] px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#6b5f58] dark:border-white/10 dark:bg-white/5 dark:text-[#9b9a92]">
+          <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
             {data.test.isAIGenerated ? 'AI generated' : 'Manual'}
           </span>
 
           {data.test.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full border border-[#e0d0c5] bg-[#f5ede4] px-3 py-1 font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#6b5f58] dark:border-white/10 dark:bg-white/5 dark:text-[#9b9a92]"
+              className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)"
             >
               {tag}
             </span>
@@ -127,7 +127,7 @@ export default function MockTestDetailsPage() {
           type="button"
           onClick={start}
           disabled={startMutation.isPending}
-          className="mt-6 rounded-[14px] bg-[#b84c2b] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d]"
+          className="mt-6 rounded-md bg-(--brand-500) px-5 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
         >
           {startMutation.isPending
             ? 'Preparing...'
@@ -142,14 +142,14 @@ export default function MockTestDetailsPage() {
         {data.questions.map((question, index) => (
           <article
             key={question._id}
-            className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1c1a18] dark:hover:border-white/20"
+            className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-white/20"
           >
-            <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
+            <div className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
               Question {index + 1} · {question.type.replace('_', ' ')} ·{' '}
               {question.points} pts
             </div>
 
-            <h3 className="mt-2 font-['Playfair_Display',serif] text-[16px] font-black leading-snug text-[#1a1714] dark:text-[#f2f0eb]">
+            <h3 className="mt-2 font-ui text-[16px] font-black leading-snug text-(--text-primary) dark:text-(--text-primary)">
               {question.question}
             </h3>
 
@@ -158,7 +158,7 @@ export default function MockTestDetailsPage() {
                 {question.options.map((option) => (
                   <div
                     key={option}
-                    className="rounded-[10px] border border-[#e0d0c5] bg-[#f5ede4] px-3 py-2 text-[13px] text-[#6b5f58] dark:border-white/8 dark:bg-[#141412] dark:text-[#9b9a92]"
+                    className="rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-3 py-2 text-[13px] text-(--text-secondary) dark:border-white/8 dark:bg-(--surface-canvas) dark:text-(--text-secondary)"
                   >
                     {option}
                   </div>

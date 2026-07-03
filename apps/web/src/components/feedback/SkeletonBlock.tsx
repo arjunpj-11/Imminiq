@@ -9,7 +9,7 @@ export default function SkeletonBlock({ className }: SkeletonBlockProps) {
     <div
       aria-hidden="true"
       className={cn(
-        'animate-pulse rounded-lg bg-[#e8d8cf] dark:bg-white/10',
+        'shimmer rounded-sm bg-(--surface-muted)',
         className,
       )}
     />

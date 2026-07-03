@@ -21,10 +21,10 @@ export default function ProfileAboutCard({
 
   return (
     <SectionCard className="p-6 animate-[fadeUp_0.38s_ease_0.18s_both]">
-      <h2 className="mb-3 font-['Playfair_Display',serif] text-[22px] font-extrabold tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
+      <h2 className="mb-3 font-ui text-[22px] font-extrabold tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
         About {profile.name.split(' ')[0]}
       </h2>
-      <p className="mb-5 text-[13.5px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p className="mb-5 text-[13.5px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
         {profile.bio}
       </p>
 
@@ -33,7 +33,7 @@ export default function ProfileAboutCard({
         {profile.skills.map((skill) => (
           <span
             key={skill}
-            className="rounded-[7px] border border-[#e0d0c5] bg-[rgba(26,23,20,0.09)] px-3 py-1.25 text-[12px] font-medium text-[#1a1714] dark:border-white/9 dark:bg-[rgba(242,240,235,0.09)] dark:text-[#f2f0eb]"
+            className="rounded-[7px] border border-(--border-subtle) bg-[rgba(26,23,20,0.09)] px-3 py-1.25 text-[12px] font-medium text-(--text-primary) dark:border-(--border-subtle) dark:bg-[rgba(242,240,235,0.09)] dark:text-(--text-primary)"
           >
             {skill}
           </span>
@@ -45,7 +45,7 @@ export default function ProfileAboutCard({
         {intentions.map((intention) => (
           <div
             key={intention}
-            className="flex items-center gap-2 text-[13px] text-[#6b5f58] dark:text-[#9b9a92]"
+            className="flex items-center gap-2 text-[13px] text-(--text-secondary) dark:text-(--text-secondary)"
           >
             <CheckIcon />
             {intention}
@@ -67,7 +67,7 @@ export default function ProfileAboutCard({
               onMissingLink(link.label)
             }}
             className={cn(
-              'inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-[#e0d0c5] px-3.5 py-1.75 text-[12px] font-medium text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]',
+              'inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-(--border-subtle) px-3.5 py-1.75 text-[12px] font-medium text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary)',
               !link.url && 'opacity-55',
             )}
           >
@@ -82,7 +82,7 @@ export default function ProfileAboutCard({
 
 function ProfileSectionLabel({ children }: { children: React.ReactNode }) {
   return (
-    <div className="mb-2 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.16em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+    <div className="mb-2 font-mono text-[8px] uppercase tracking-[0.16em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
       {children}
     </div>
   )
@@ -90,7 +90,7 @@ function ProfileSectionLabel({ children }: { children: React.ReactNode }) {
 
 function CheckIcon() {
   return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#4caf7d" strokeWidth="2.5" aria-hidden="true">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" strokeWidth="2.5" aria-hidden="true">
       <polyline points="20 6 9 17 4 12" />
     </svg>
   )

@@ -35,7 +35,7 @@ export default function FriendsSearchInput({
       onSubmit={handleSubmit}
       className="flex flex-col gap-2.5 sm:flex-row sm:items-center"
     >
-      <label className="flex flex-1 items-center gap-2.5 rounded-[13px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3 transition focus-within:border-[#b84c2b] focus-within:ring-2 focus-within:ring-[rgba(184,76,43,0.10)] dark:border-white/9 dark:bg-[#1e1c19] dark:focus-within:border-[#e8816a]">
+      <label className="flex flex-1 items-center gap-2.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3 transition focus-within:border-(--brand-500) focus-within:ring-2 focus-within:ring-[rgba(184,76,43,0.10)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:focus-within:border-(--brand-500)">
         <span className="text-[#9b9a92]">
           <SearchIcon />
         </span>
@@ -48,14 +48,14 @@ export default function FriendsSearchInput({
           placeholder={placeholder}
           autoFocus={autoFocus}
           aria-label={ariaLabel}
-          className="w-full bg-transparent text-[13.5px] text-[#1a1714] outline-none placeholder:text-[#9b9a92] dark:text-[#f2f0eb]"
+          className="w-full bg-transparent text-[13.5px] text-(--text-primary) outline-none placeholder:text-[#9b9a92] dark:text-(--text-primary)"
         />
         {value && onClear && (
           <button
             type="button"
             onClick={onClear}
             aria-label="Clear search"
-            className="text-[#9b9a92] transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+            className="text-[#9b9a92] transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
           >
             <CloseIcon />
           </button>
@@ -66,7 +66,7 @@ export default function FriendsSearchInput({
         <button
           type="submit"
           disabled={submitDisabled}
-          className="shrink-0 rounded-[13px] bg-[#b84c2b] px-5 py-3 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#963d22] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b84c2b]/30 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+          className="shrink-0 rounded-md bg-(--brand-500) px-5 py-3 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/30 disabled:cursor-not-allowed disabled:opacity-40 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
         >
           {submitLabel}
         </button>

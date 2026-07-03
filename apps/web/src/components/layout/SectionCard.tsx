@@ -5,16 +5,31 @@ import { cn } from '../../lib/cn'
 interface SectionCardProps {
   children: ReactNode
   className?: string
+  variant?: 'flat' | 'elevated' | 'spotlight'
+  padding?: 'none' | 'sm' | 'md' | 'lg'
 }
 
-export default function SectionCard({ children, className }: SectionCardProps) {
+const variantClasses = {
+  flat: 'surface-flat',
+  elevated: 'surface-elevated',
+  spotlight: 'surface-spotlight',
+} as const
+
+const paddingClasses = {
+  none: '',
+  sm: 'p-3.5',
+  md: 'p-5 max-[640px]:p-4',
+  lg: 'p-6 max-[640px]:p-4.5',
+} as const
+
+export default function SectionCard({
+  children,
+  className,
+  variant = 'elevated',
+  padding = 'md',
+}: SectionCardProps) {
   return (
-    <section
-      className={cn(
-        'rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]',
-        className,
-      )}
-    >
+    <section className={cn(variantClasses[variant], paddingClasses[padding], className)}>
       {children}
     </section>
   )

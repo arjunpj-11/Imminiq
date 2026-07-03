@@ -6,7 +6,7 @@ export function InlineSecurityError({ message }: { message: string }) {
   return (
     <div
       role="alert"
-      className="rounded-xl border border-[rgba(196,60,60,0.24)] bg-[rgba(196,60,60,0.08)] px-3.5 py-2.5 text-[12.5px] font-semibold leading-[1.55] text-[#c43c3c] dark:text-[#e05252]"
+      className="rounded-xl border border-[rgba(196,60,60,0.24)] bg-[rgba(196,60,60,0.08)] px-3.5 py-2.5 text-[12.5px] font-semibold leading-[1.55] text-(--danger) dark:text-(--danger)"
     >
       {message}
     </div>
@@ -49,10 +49,10 @@ export function TwoFactorSetupDialog({
     >
       <div className="flex items-start justify-between gap-4">
         <div>
-          <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
+          <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">
             Two-Factor Setup
           </p>
-          <h2 id="two-factor-setup-title" className="mt-2 font-['Playfair_Display',serif] text-[26px] font-extrabold">
+          <h2 id="two-factor-setup-title" className="mt-2 font-ui text-[26px] font-extrabold">
             {backupCodes.length === 0 ? 'Scan this QR code' : 'Save your backup codes'}
           </h2>
         </div>
@@ -62,7 +62,7 @@ export function TwoFactorSetupDialog({
           onClick={onClose}
           disabled={isVerifying}
           aria-label="Close two-factor setup"
-          className="rounded-full border border-[#e0d0c5] px-3 py-1.5 text-[13px] font-bold disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/9"
+          className="rounded-full border border-(--border-subtle) px-3 py-1.5 text-[13px] font-bold disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle)"
         >
           ✕
         </button>
@@ -70,22 +70,22 @@ export function TwoFactorSetupDialog({
 
       {backupCodes.length === 0 ? (
         <div className="mt-6 grid gap-6 md:grid-cols-[220px_1fr]">
-          <div className="rounded-[18px] bg-white p-4">
+          <div className="self-start rounded-lg bg-white p-4">
             <img
               src={data.qrCodeDataUrl}
               alt="Two-factor authentication QR code"
-              className="h-full w-full"
+              className="block h-auto w-full"
             />
           </div>
 
           <div>
-            <p className="text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
               Open Google Authenticator, Microsoft Authenticator, Authy, or another TOTP app and scan this QR code.
             </p>
 
-            <div className="mt-4 rounded-[14px] bg-[#f9f3ef] p-4 dark:bg-[#1a1816]">
+            <div className="mt-4 rounded-md bg-[#f9f3ef] p-4 dark:bg-(--surface-card)">
               <MonoLabel>Manual Setup Key</MonoLabel>
-              <div className="mt-2 break-all font-['DM_Mono',monospace] text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+              <div className="mt-2 break-all font-mono text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                 {data.manualEntryKey}
               </div>
             </div>
@@ -109,7 +109,7 @@ export function TwoFactorSetupDialog({
               type="button"
               onClick={onVerify}
               disabled={token.length !== 6 || isVerifying}
-              className="mt-4 rounded-[11px] bg-[#2d6a47] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#5cc98a] dark:text-[#141412]"
+              className="mt-4 rounded-md bg-(--success) px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--success) dark:text-[#141412]"
             >
               {isVerifying ? 'Verifying...' : 'Verify and Enable 2FA'}
             </button>
@@ -118,8 +118,8 @@ export function TwoFactorSetupDialog({
       ) : (
         <div className="mt-6">
           <div className="rounded-2xl border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] p-4">
-            <h3 className="text-[16px] font-bold text-[#2d6a47] dark:text-[#5cc98a]">2FA is enabled</h3>
-            <p className="mt-2 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+            <h3 className="text-[16px] font-bold text-(--success) dark:text-(--success)">2FA is enabled</h3>
+            <p className="mt-2 text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
               Save these backup codes somewhere safe. Each code can be used once if you lose access to your authenticator app.
             </p>
           </div>
@@ -128,7 +128,7 @@ export function TwoFactorSetupDialog({
             {backupCodes.map((code) => (
               <div
                 key={code}
-                className="rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fffaf6] px-4 py-3 font-['DM_Mono',monospace] text-[14px] font-bold text-[#1a1714] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb]"
+                className="rounded-xl border-[1.5px] border-(--border-subtle) bg-[#fffaf6] px-4 py-3 font-mono text-[14px] font-bold text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:text-(--text-primary)"
               >
                 {code}
               </div>
@@ -138,7 +138,7 @@ export function TwoFactorSetupDialog({
           <button
             type="button"
             onClick={onClose}
-            className="mt-6 rounded-[11px] bg-[#b84c2b] px-5 py-3 text-[13px] font-bold text-white dark:bg-[#e8816a] dark:text-[#141412]"
+            className="mt-6 rounded-md bg-(--brand-500) px-5 py-3 text-[13px] font-bold text-white dark:bg-(--brand-500) dark:text-[#141412]"
           >
             I Saved My Backup Codes
           </button>
@@ -178,10 +178,10 @@ export function DisableTwoFactorDialog({
       contentClassName="max-w-120 p-6"
       overlayClassName="z-160"
     >
-      <h2 id="disable-two-factor-title" className="font-['Playfair_Display',serif] text-[24px] font-extrabold">
+      <h2 id="disable-two-factor-title" className="font-ui text-[24px] font-extrabold">
         Disable Two-Factor Authentication
       </h2>
-      <p id="disable-two-factor-description" className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p id="disable-two-factor-description" className="mt-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
         Enter a current 6-digit authenticator code to disable 2FA.
       </p>
 
@@ -196,7 +196,7 @@ export function DisableTwoFactorDialog({
           type="button"
           onClick={onClose}
           disabled={isPending}
-          className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold disabled:opacity-50 dark:border-white/9"
+          className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[13px] font-semibold disabled:opacity-50 dark:border-(--border-subtle)"
         >
           Cancel
         </button>
@@ -204,7 +204,7 @@ export function DisableTwoFactorDialog({
           type="button"
           disabled={token.length !== 6 || isPending}
           onClick={onConfirm}
-          className="rounded-[10px] bg-[#c43c3c] px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-(--danger) px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? 'Disabling...' : 'Disable 2FA'}
         </button>
@@ -257,10 +257,10 @@ export function DeleteAccountDialog({
       contentClassName="max-w-120 p-6"
       overlayClassName="z-160"
     >
-      <h2 id="delete-account-title" className="font-['Playfair_Display',serif] text-[24px] font-extrabold text-[#c43c3c] dark:text-[#e05252]">
+      <h2 id="delete-account-title" className="font-ui text-[24px] font-extrabold text-(--danger) dark:text-(--danger)">
         Schedule Account Deletion
       </h2>
-      <p id="delete-account-description" className="mt-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p id="delete-account-description" className="mt-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
         Type <strong>DELETE</strong> to continue. Your account will be scheduled for deletion after <strong>30 days</strong>. Signing in again during that recovery window automatically cancels the request.
       </p>
 
@@ -281,7 +281,7 @@ export function DeleteAccountDialog({
           type="button"
           onClick={onClose}
           disabled={isPending}
-          className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold disabled:opacity-50 dark:border-white/9"
+          className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[13px] font-semibold disabled:opacity-50 dark:border-(--border-subtle)"
         >
           Cancel
         </button>
@@ -289,7 +289,7 @@ export function DeleteAccountDialog({
           type="button"
           disabled={!canSubmit || isPending}
           onClick={onConfirm}
-          className="rounded-[10px] bg-[#c43c3c] px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
+          className="rounded-md bg-(--danger) px-4 py-2.5 text-[13px] font-bold text-white disabled:cursor-not-allowed disabled:opacity-60"
         >
           {isPending ? 'Scheduling...' : 'Schedule Deletion'}
         </button>

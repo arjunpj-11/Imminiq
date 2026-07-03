@@ -10,14 +10,14 @@ export function MockTestFilters() {
   return (
     <FilterBar
       surface
-      className="flex-col shadow-[0_2px_16px_rgba(26,23,20,0.06)] lg:flex-row lg:justify-between"
+      className="flex-col shadow-(--shadow-1) lg:flex-row lg:justify-between"
     >
       <PillTabs
         value={filter}
         onValueChange={setFilter}
         ariaLabel="Mock test status"
         className="border-0 bg-transparent p-0 dark:bg-transparent"
-        itemClassName="rounded-full font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.08em]"
+        itemClassName="rounded-full font-mono text-[10px] font-bold uppercase tracking-[0.08em]"
         items={MOCK_TEST_FILTERS.map((item) => ({
           value: item,
           label: item,
@@ -30,7 +30,7 @@ export function MockTestFilters() {
         onClear={() => setSearch('')}
         placeholder="Search mock tests..."
         containerClassName="w-full flex-none lg:w-72"
-        className="bg-[#f5ede4] py-2.5 dark:bg-[#141412]"
+        className="bg-(--surface-canvas) py-2.5 dark:bg-(--surface-canvas)"
       />
     </FilterBar>
   )

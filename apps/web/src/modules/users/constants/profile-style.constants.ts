@@ -1,15 +1,15 @@
 export const dotClasses: Record<string, string> = {
-  rust: 'bg-[#b84c2b]',
-  green: 'bg-[#4caf7d]',
-  amber: 'bg-[#c98000]',
-  blue: 'bg-[#3b6cb7]',
+  rust: 'bg-[var(--brand-500)]',
+  green: 'bg-[var(--success)]',
+  amber: 'bg-[var(--warning)]',
+  blue: 'bg-[var(--info)]',
 }
 
 export const iconBoxClasses: Record<string, string> = {
-  rust: 'bg-[rgba(184,76,43,0.08)] border-[rgba(184,76,43,0.16)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.09)] dark:border-[rgba(232,129,106,0.22)] dark:text-[#e8816a]',
-  green: 'bg-[rgba(45,106,71,0.08)] border-[rgba(45,106,71,0.20)] text-[#4caf7d] dark:bg-[rgba(92,201,138,0.10)] dark:border-[rgba(92,201,138,0.22)] dark:text-[#5cc98a]',
-  amber: 'bg-[rgba(138,98,0,0.08)] border-[rgba(138,98,0,0.20)] text-[#c98000] dark:bg-[rgba(240,168,66,0.10)] dark:border-[rgba(240,168,66,0.24)] dark:text-[#f0a842]',
-  blue: 'bg-[rgba(59,108,183,0.08)] border-[rgba(59,108,183,0.20)] text-[#3b6cb7] dark:bg-[rgba(107,159,232,0.10)] dark:border-[rgba(107,159,232,0.22)] dark:text-[#6b9fe8]',
+  rust: 'bg-[rgba(184,76,43,0.08)] border-[rgba(184,76,43,0.16)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.09)] dark:border-[rgba(232,129,106,0.22)] dark:text-[var(--brand-500)]',
+  green: 'bg-[rgba(45,106,71,0.08)] border-[rgba(45,106,71,0.20)] text-[var(--success)] dark:bg-[rgba(92,201,138,0.10)] dark:border-[rgba(92,201,138,0.22)] dark:text-[var(--success)]',
+  amber: 'bg-[rgba(138,98,0,0.08)] border-[rgba(138,98,0,0.20)] text-[var(--warning)] dark:bg-[rgba(240,168,66,0.10)] dark:border-[rgba(240,168,66,0.24)] dark:text-[var(--warning)]',
+  blue: 'bg-[rgba(59,108,183,0.08)] border-[rgba(59,108,183,0.20)] text-[var(--info)] dark:bg-[rgba(107,159,232,0.10)] dark:border-[rgba(107,159,232,0.22)] dark:text-[var(--info)]',
 }
 
 export const trackerThumbClasses = [

@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom'
 
 import ImminiqLogo from '../../../components/ui/ImminiqLogo'
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark'
 
 export default function FloatingStudioNav() {
   return (
@@ -13,9 +14,10 @@ export default function FloatingStudioNav() {
         >
           <ImminiqLogo size={34} className="rounded-[10px]" decorative />
 
-          <span className="truncate text-[14px] font-extrabold tracking-[-0.02em] text-[#1a1714] dark:text-[#141412]">
-            Imminiq
-          </span>
+          <ImminiqWordmark
+            className="truncate text-[14px] font-extrabold tracking-[-0.02em]"
+            prefixClassName="text-[#1a1714] dark:text-[#141412]"
+          />
         </Link>
 
         <div className="flex shrink-0 items-center gap-2">

@@ -59,16 +59,16 @@ function ProfileAvatar({
         disabled={!isOwnView}
         aria-label={isOwnView ? 'Change profile avatar' : `${profile.name} profile avatar`}
         className={cn(
-          'group relative flex h-25 w-25 items-center justify-center overflow-hidden rounded-full border-4 border-[#fdf8f5] bg-linear-to-br from-[#b84c2b] via-[#e8816a] to-[#c98000] shadow-[0_4px_24px_rgba(26,23,20,0.18),0_0_0_1px_rgba(26,23,20,0.06)] transition-shadow dark:border-[#1e1c19] max-[640px]:h-23 max-[640px]:w-23',
+          'group relative flex h-25 w-25 items-center justify-center overflow-hidden rounded-full border-4 border-[#fdf8f5] bg-linear-to-br from-(--brand-500) via-(--brand-500) to-(--warning) shadow-[0_4px_24px_rgba(26,23,20,0.18),0_0_0_1px_rgba(26,23,20,0.06)] transition-shadow dark:border-[#1e1c19] max-[640px]:h-23 max-[640px]:w-23',
           isOwnView
-            ? 'cursor-pointer hover:shadow-[0_6px_32px_rgba(26,23,20,0.22),0_0_0_2px_#e8816a]'
+            ? 'cursor-pointer hover:shadow-[0_6px_32px_rgba(26,23,20,0.22),0_0_0_2px_var(--brand-500)]'
             : 'cursor-default',
         )}
       >
         {profile.avatarUrl ? (
           <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span className="font-['Playfair_Display',serif] text-[26px] font-bold text-white/90">
+          <span className="font-ui text-[26px] font-bold text-white/90">
             {initials}
           </span>
         )}
@@ -76,14 +76,14 @@ function ProfileAvatar({
         {isOwnView && (
           <span className="absolute inset-0 flex flex-col items-center justify-center gap-0.75 rounded-full bg-[rgba(0,0,0,0.52)] opacity-0 backdrop-blur-[2px] transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             <CameraIcon />
-            <span className="font-['DM_Mono',monospace] text-[9px] font-bold uppercase leading-none tracking-[0.12em] text-white">
+            <span className="font-mono text-[9px] font-bold uppercase leading-none tracking-[0.12em] text-white">
               Change
             </span>
           </span>
         )}
       </button>
 
-      <div className="absolute bottom-0.75 left-1/2 z-3 -translate-x-1/2 whitespace-nowrap rounded-sm bg-[#b84c2b] px-1.75 py-0.5 font-['DM_Mono',monospace] text-[8px] font-medium tracking-[0.12em] text-white dark:bg-[#e8816a] dark:text-[#141412]">
+      <div className="absolute bottom-0.75 left-1/2 z-3 -translate-x-1/2 whitespace-nowrap rounded-sm bg-(--brand-500) px-1.75 py-0.5 font-mono text-[8px] font-medium tracking-[0.12em] text-white dark:bg-(--brand-500) dark:text-[#141412]">
         PRO
       </div>
     </div>
@@ -118,10 +118,10 @@ function ProfileActions({
             onClick={onSendFriendRequest}
             disabled={isSendingFriendRequest || friendRequestSent}
             className={cn(
-              'inline-flex items-center gap-1.75 whitespace-nowrap rounded-[10px] px-5.5 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-70 max-[640px]:flex-[1_1_150px] max-[640px]:justify-center',
+              'inline-flex items-center gap-1.75 whitespace-nowrap rounded-md px-5.5 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-70 max-[640px]:flex-[1_1_150px] max-[640px]:justify-center',
               friendRequestSent
-                ? 'border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]'
-                : 'bg-[#b84c2b] text-[#fdf8f5] hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]',
+                ? 'border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)'
+                : 'bg-(--brand-500) text-[#fdf8f5] hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)',
             )}
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
@@ -138,7 +138,7 @@ function ProfileActions({
           <button
             type="button"
             onClick={onMessage}
-            className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] px-5.5 py-2.5 text-[13px] font-semibold text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#f2f0eb] max-[640px]:flex-[1_1_150px] max-[640px]:justify-center"
+            className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) px-5.5 py-2.5 text-[13px] font-semibold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-primary) max-[640px]:flex-[1_1_150px] max-[640px]:justify-center"
           >
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
@@ -150,7 +150,7 @@ function ProfileActions({
         <button
           type="button"
           onClick={onEdit}
-          className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-[10px] border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-4.5 py-2.5 text-[13px] font-semibold text-[#b84c2b] transition hover:-translate-y-px hover:border-[#b84c2b] hover:bg-[#b84c2b] hover:text-[#fdf8f5] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a] max-[640px]:flex-[1_1_150px] max-[640px]:justify-center"
+          className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-4.5 py-2.5 text-[13px] font-semibold text-(--brand-500) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-(--brand-500) hover:text-[#fdf8f5] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500) max-[640px]:flex-[1_1_150px] max-[640px]:justify-center"
         >
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
@@ -163,7 +163,7 @@ function ProfileActions({
       <button
         type="button"
         onClick={onCopyProfileLink}
-        className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4.5 py-2.5 text-[13px] font-semibold text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#f2f0eb] max-[640px]:flex-[1_1_170px] max-[640px]:justify-center"
+        className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) px-4.5 py-2.5 text-[13px] font-semibold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-primary) max-[640px]:flex-[1_1_170px] max-[640px]:justify-center"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
           <rect x="9" y="9" width="13" height="13" rx="2" />
@@ -179,22 +179,22 @@ function ProfileChips({ stats, streak }: Pick<ProfileHeaderProps, 'stats' | 'str
   const chips = [
     {
       className:
-        'bg-[rgba(184,76,43,0.08)] border-[rgba(184,76,43,0.16)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:border-[rgba(232,129,106,0.22)] dark:text-[#e8816a]',
+        'bg-[rgba(184,76,43,0.08)] border-[rgba(184,76,43,0.16)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.10)] dark:border-[rgba(232,129,106,0.22)] dark:text-[var(--brand-500)]',
       label: `${streak?.currentStreak ?? stats?.streakCount ?? 0} Day Streak`,
     },
     {
       className:
-        'bg-[rgba(138,98,0,0.08)] border-[rgba(138,98,0,0.20)] text-[#8a6200] dark:bg-[rgba(240,168,66,0.10)] dark:border-[rgba(240,168,66,0.24)] dark:text-[#f0a842]',
+        'bg-[rgba(138,98,0,0.08)] border-[rgba(138,98,0,0.20)] text-[#8a6200] dark:bg-[rgba(240,168,66,0.10)] dark:border-[rgba(240,168,66,0.24)] dark:text-[var(--warning)]',
       label: `${formatCompactNumber(stats?.xp ?? 0)} XP`,
     },
     {
       className:
-        'bg-[rgba(59,108,183,0.08)] border-[rgba(59,108,183,0.20)] text-[#3b6cb7] dark:bg-[rgba(107,159,232,0.10)] dark:border-[rgba(107,159,232,0.22)] dark:text-[#6b9fe8]',
+        'bg-[rgba(59,108,183,0.08)] border-[rgba(59,108,183,0.20)] text-[var(--info)] dark:bg-[rgba(107,159,232,0.10)] dark:border-[rgba(107,159,232,0.22)] dark:text-[var(--info)]',
       label: `Student Level ${stats?.studentLevel ?? 0}`,
     },
     {
       className:
-        'bg-[rgba(45,106,71,0.08)] border-[rgba(45,106,71,0.20)] text-[#2d6a47] dark:bg-[rgba(92,201,138,0.10)] dark:border-[rgba(92,201,138,0.22)] dark:text-[#5cc98a]',
+        'bg-[rgba(45,106,71,0.08)] border-[rgba(45,106,71,0.20)] text-[var(--success)] dark:bg-[rgba(92,201,138,0.10)] dark:border-[rgba(92,201,138,0.22)] dark:text-[var(--success)]',
       label: `Rating ${Number(stats?.ratingAverage ?? 0).toFixed(1)}`,
     },
   ]
@@ -205,7 +205,7 @@ function ProfileChips({ stats, streak }: Pick<ProfileHeaderProps, 'stats' | 'str
         <span
           key={chip.label}
           className={cn(
-            'inline-flex items-center rounded-full border px-3 py-1.25 font-["DM_Mono",monospace] text-[9px] uppercase tracking-widest whitespace-nowrap',
+            'inline-flex items-center rounded-full border px-3 py-1.25 font-mono text-[9px] uppercase tracking-widest whitespace-nowrap',
             chip.className,
           )}
         >
@@ -262,7 +262,7 @@ export default function ProfileHeader({
             <button
               type="button"
               onClick={onChangeBanner}
-              className="pointer-events-auto inline-flex translate-y-1 items-center gap-1.5 rounded-[9px] border border-white/22 bg-black/62 px-3.5 py-2 text-[12px] font-semibold text-white opacity-0 backdrop-blur-md transition-all duration-220 hover:border-white/40 hover:bg-black/82 group-hover/banner:translate-y-0 group-hover/banner:opacity-100 max-[900px]:translate-y-0 max-[900px]:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100"
+              className="pointer-events-auto inline-flex translate-y-1 items-center gap-1.5 rounded-sm border border-white/22 bg-black/62 px-3.5 py-2 text-[12px] font-semibold text-white opacity-0 backdrop-blur-md transition-all duration-220 hover:border-white/40 hover:bg-black/82 group-hover/banner:translate-y-0 group-hover/banner:opacity-100 max-[900px]:translate-y-0 max-[900px]:opacity-100 [@media(hover:none)]:translate-y-0 [@media(hover:none)]:opacity-100"
             >
               <BannerIcon />
               Change Banner
@@ -271,28 +271,28 @@ export default function ProfileHeader({
         )}
       </div>
 
-      <div className="animate-[fadeUp_0.38s_ease_0.05s_both] border-x border-b border-[#e0d0c5] bg-[#fdf8f5] px-7 pb-5.5 dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:px-4">
+      <div className="animate-[fadeUp_0.38s_ease_0.05s_both] border-x border-b border-(--border-subtle) bg-(--surface-card) px-7 pb-5.5 dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:px-4">
         <div className="mb-4 flex flex-wrap items-start justify-between gap-4">
           <div className="flex min-w-0 flex-1 items-start gap-4 max-[640px]:flex-col max-[640px]:gap-3">
             <ProfileAvatar profile={profile} isOwnView={isOwnView} onChange={onChangeAvatar} />
 
             <div className="min-w-0 flex-1 pt-2 max-[640px]:pt-0">
               <div className="flex flex-wrap items-center gap-2.5">
-                <h1 className="wrap-break-word font-['Playfair_Display',serif] text-[clamp(22px,3.5vw,32px)] font-extrabold leading-[1.15] tracking-[-0.6px] text-[#1a1714] dark:text-[#f2f0eb]">
+                <h1 className="wrap-break-word font-ui text-[clamp(22px,3.5vw,32px)] font-extrabold leading-[1.15] tracking-[-0.6px] text-(--text-primary) dark:text-(--text-primary)">
                   {profile.name}
                 </h1>
-                <span className="inline-flex items-center rounded-full border border-[rgba(59,108,183,0.22)] bg-[rgba(59,108,183,0.09)] px-2.5 py-1 font-['DM_Mono',monospace] text-[10px] font-semibold tracking-[0.06em] text-[#3b6cb7] dark:border-[rgba(107,159,232,0.26)] dark:bg-[rgba(107,159,232,0.12)] dark:text-[#6b9fe8]">
+                <span className="inline-flex items-center rounded-full border border-[rgba(59,108,183,0.22)] bg-[rgba(59,108,183,0.09)] px-2.5 py-1 font-mono text-[10px] font-semibold tracking-[0.06em] text-(--info) dark:border-[rgba(107,159,232,0.26)] dark:bg-[rgba(107,159,232,0.12)] dark:text-(--info)">
                   {levelLabel}
                 </span>
               </div>
 
               {profile.username && (
-                <div className="wrap-break-word mt-1 font-['DM_Mono',monospace] text-[11px] tracking-[0.08em] text-[#b84c2b] dark:text-[#e8816a]">
+                <div className="wrap-break-word mt-1 font-mono text-[11px] tracking-[0.08em] text-(--brand-500) dark:text-(--brand-500)">
                   @{profile.username}
                 </div>
               )}
 
-              <div className="mt-1.25 flex flex-wrap items-center gap-1.5 text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+              <div className="mt-1.25 flex flex-wrap items-center gap-1.5 text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
                 {profile.profession && <span>{profile.profession}</span>}
                 {profile.profession && location && <span className="opacity-40">·</span>}
                 {location && <span>{location}</span>}

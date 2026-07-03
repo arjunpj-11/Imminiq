@@ -284,8 +284,8 @@ export default function MockTestAttemptPage() {
 
 
   return (
-    <AppShellBoundary withFooter={false} withBottomNav={false}>
-      <div className="flex h-[calc(100vh-88px)] min-h-0 flex-col overflow-hidden">
+    <AppShellBoundary showSidebar={false} withTopBar={false} withFooter={false} withBottomNav={false} className="bg-(--surface-sunken)">
+      <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
         <MockTestAttemptHeader
           timerDisplay={timerDisplay}
           currentIndex={currentIndex}
@@ -308,7 +308,7 @@ export default function MockTestAttemptPage() {
                 {Array.from({ length: 3 }).map((_, i) => (
                   <div
                     key={i}
-                    className="h-48 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
+                    className="h-48 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
                   />
                 ))}
               </div>
@@ -317,32 +317,32 @@ export default function MockTestAttemptPage() {
                 Failed to load attempt questions.
               </div>
             ) : !question ? (
-              <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18] dark:text-[#9b9a92]">
+              <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 text-(--text-secondary) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
                 No questions found for this attempt.
               </div>
             ) : (
               <div className="grid grid-cols-1 gap-5 xl:grid-cols-[1fr_380px]">
                 <div className="space-y-5">
-                  <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-                    <div className="mb-3 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                    <div className="mb-3 font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
                       Question {currentIndex + 1} of {totalQuestions}
                       {question.type &&
                         ` · ${question.type.replace('_', ' ')}`}
                       {question.points && ` · ${question.points} pts`}
                     </div>
 
-                    <h2 className="font-['Playfair_Display',serif] text-[26px] font-black leading-snug text-[#1a1714] max-[640px]:text-[22px] dark:text-[#f2f0eb]">
+                    <h2 className="font-ui text-[26px] font-black leading-snug text-(--text-primary) max-[640px]:text-[22px] dark:text-(--text-primary)">
                       {question.question}
                     </h2>
 
                     {isCoding && question.coding && (
-                      <div className="mt-5 rounded-[14px] border border-[#e0d0c5] bg-[#f5ede4] p-5 dark:border-white/9 dark:bg-[#252320]">
+                      <div className="mt-5 rounded-md border border-(--border-subtle) bg-(--surface-canvas) p-5 dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
                         <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-                          <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
+                          <p className="font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
                             Sample test cases
                           </p>
 
-                          <span className="rounded-full border border-[#e0d0c5] bg-[#fdf8f5] px-2.5 py-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.08em] text-[#6b5f58] dark:border-white/10 dark:bg-[#141412] dark:text-[#9b9a92]">
+                          <span className="rounded-full border border-(--border-subtle) bg-(--surface-card) px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.08em] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-secondary)">
                             {question.coding.functionName}
                           </span>
                         </div>
@@ -354,24 +354,24 @@ export default function MockTestAttemptPage() {
                             .map((testCase, index) => (
                               <div
                                 key={index}
-                                className="rounded-xl border border-[#e0d0c5] bg-[#fdf8f5] p-3 font-['DM_Mono',monospace] text-[12px] leading-relaxed dark:border-white/9 dark:bg-[#141412]"
+                                className="rounded-xl border border-(--border-subtle) bg-(--surface-card) p-3 font-mono text-[12px] leading-relaxed dark:border-(--border-subtle) dark:bg-(--surface-canvas)"
                               >
-                                <div className="text-[#6b5f58] dark:text-[#9b9a92]">
-                                  <span className="font-semibold text-[#b84c2b] dark:text-[#e8816a]">
+                                <div className="text-(--text-secondary) dark:text-(--text-secondary)">
+                                  <span className="font-semibold text-(--brand-500) dark:text-(--brand-500)">
                                     Input:
                                   </span>{' '}
                                   {formatJsonValue(testCase.input)}
                                 </div>
 
-                                <div className="mt-1 text-[#6b5f58] dark:text-[#9b9a92]">
-                                  <span className="font-semibold text-[#b84c2b] dark:text-[#e8816a]">
+                                <div className="mt-1 text-(--text-secondary) dark:text-(--text-secondary)">
+                                  <span className="font-semibold text-(--brand-500) dark:text-(--brand-500)">
                                     Expected:
                                   </span>{' '}
                                   {formatJsonValue(testCase.expectedOutput)}
                                 </div>
 
                                 {testCase.explanation && (
-                                  <div className="mt-1 text-[#6b5f58] dark:text-[#9b9a92]">
+                                  <div className="mt-1 text-(--text-secondary) dark:text-(--text-secondary)">
                                     {testCase.explanation}
                                   </div>
                                 )}
@@ -392,7 +392,7 @@ export default function MockTestAttemptPage() {
                             }))
                           }
                           rows={8}
-                          className="mt-5 w-full resize-y rounded-xl border border-[#e0d0c5] bg-[#f5ede4] p-4 font-['DM_Mono',monospace] text-sm text-[#1a1714] outline-none transition placeholder:text-[#9b8f87] focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:placeholder:text-[#6b6560] dark:focus:border-[#e8816a]"
+                          className="mt-5 w-full resize-y rounded-xl border border-(--border-subtle) bg-(--surface-canvas) p-4 font-mono text-sm text-(--text-primary) outline-none transition placeholder:text-[#9b8f87] focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:placeholder:text-[#6b6560] dark:focus:border-(--brand-500)"
                           placeholder="Type your answer…"
                         />
 
@@ -402,7 +402,7 @@ export default function MockTestAttemptPage() {
                           disabled={
                             !answers[question._id]?.trim() || isSubmitting
                           }
-                          className="mt-4 rounded-[10px] border border-[#e0d0c5] bg-[#f5ede4] px-5 py-2.5 text-sm font-bold text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/8 dark:text-[#f2f0eb] dark:hover:bg-white/12"
+                          className="mt-4 rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-5 py-2.5 text-sm font-bold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:bg-white/8 dark:text-(--text-primary) dark:hover:bg-white/12"
                         >
                           {isSubmitting ? 'Saving…' : 'Save answer'}
                         </button>
@@ -431,7 +431,7 @@ export default function MockTestAttemptPage() {
                             onClick={() =>
                               setCompilerExpanded((value) => !value)
                             }
-                            className="rounded-md border border-white/10 bg-[#1e1e1e] px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-wider text-[#888] transition hover:bg-[#2a2a2a] hover:text-[#d4d4d4]"
+                            className="rounded-md border border-white/10 bg-[#1e1e1e] px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#888] transition hover:bg-[#2a2a2a] hover:text-[#d4d4d4]"
                           >
                             {compilerExpanded ? '⊡ Minimize' : '⛶ Maximize'}
                           </button>
@@ -439,18 +439,18 @@ export default function MockTestAttemptPage() {
 
                         <div className="flex flex-wrap items-center justify-between gap-3">
                           <div>
-                            <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#e8816a]">
+                            <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
                               Mock Test Compiler
                             </div>
 
-                            <div className="mt-1 flex flex-wrap items-center gap-2 font-['DM_Mono',monospace] text-[11px] text-[#888]">
+                            <div className="mt-1 flex flex-wrap items-center gap-2 font-mono text-[11px] text-[#888]">
                               <span>📄 {selectedLanguage.fileName}</span>
                               <span>·</span>
                               <span>{selectedLanguage.label}</span>
                             </div>
                           </div>
 
-                          <label className="flex items-center gap-2 rounded-md border border-white/10 bg-[#111] px-2.5 py-1.5 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.08em] text-[#888]">
+                          <label className="flex items-center gap-2 rounded-md border border-white/10 bg-[#111] px-2.5 py-1.5 font-mono text-[10px] uppercase tracking-[0.08em] text-[#888]">
                             Language
                             <select
                               value={selectedLanguage.value}
@@ -471,7 +471,7 @@ export default function MockTestAttemptPage() {
                         </div>
                       </div>
 
-                      <div className="flex min-h-80 bg-[#111] py-4 font-['DM_Mono',monospace] text-[14px] text-[#d4d4d4]">
+                      <div className="flex min-h-80 bg-[#111] py-4 font-mono text-[14px] text-[#d4d4d4]">
                         <div className="select-none px-4 text-right leading-[1.6] text-[#555]">
                           {Array.from({ length: lineCount }).map(
                             (_, index) => (
@@ -486,7 +486,7 @@ export default function MockTestAttemptPage() {
                             handleCodeChange(event.target.value)
                           }
                           spellCheck={false}
-                          className="min-h-80 flex-1 resize-none bg-transparent pr-4 font-['DM_Mono',monospace] text-[14px] leading-[1.6] text-[#d4d4d4] outline-none"
+                          className="min-h-80 flex-1 resize-none bg-transparent pr-4 font-mono text-[14px] leading-[1.6] text-[#d4d4d4] outline-none"
                         />
                       </div>
 
@@ -508,7 +508,7 @@ export default function MockTestAttemptPage() {
                                 isSubmittingCode || !currentCode.trim()
                               }
                               onClick={submitCode}
-                              className="inline-flex items-center gap-1.5 rounded-md border border-[#e8816a]/40 bg-[#b84c2b] px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-[#963d22] disabled:cursor-wait disabled:opacity-50"
+                              className="inline-flex items-center gap-1.5 rounded-md border border-(--brand-500)/40 bg-(--brand-500) px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-50"
                             >
                               ✓{' '}
                               {isSubmittingCode
@@ -530,13 +530,13 @@ export default function MockTestAttemptPage() {
                             </div>
                           )}
 
-                          <pre className="mt-4 max-h-52 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-[#0a0a0a] p-4 font-['DM_Mono',monospace] text-[12px] leading-[1.8] text-[#aaa]">
+                          <pre className="mt-4 max-h-52 overflow-y-auto whitespace-pre-wrap rounded-xl border border-white/10 bg-[#0a0a0a] p-4 font-mono text-[12px] leading-[1.8] text-[#aaa]">
                             {buildCompilerOutput(currentCodeResult)}
                           </pre>
                         </div>
 
                         <div>
-                          <div className="mb-3 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#888]">
+                          <div className="mb-3 flex items-center gap-1.5 font-mono text-[10px] font-bold uppercase tracking-widest text-[#888]">
                             <span className="h-1.5 w-1.5 rounded-full bg-[#27c93f]" />
                             Test case results
                           </div>
@@ -553,7 +553,7 @@ export default function MockTestAttemptPage() {
                                   <div
                                     key={testCase.index}
                                     className={cn(
-                                      'rounded-xl border p-3 font-["DM_Mono",monospace] text-[11.5px]',
+                                      'rounded-xl border p-3 font-mono text-[11.5px]',
                                       testCase.passed
                                         ? 'border-[#2e5a39] bg-[#101a13]'
                                         : 'border-[#ffbd2e]/30 bg-[#2d2614]'
@@ -622,8 +622,8 @@ export default function MockTestAttemptPage() {
 
                 <div className="space-y-4">
                   {isMCQ && (
-                    <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-                      <p className="mb-3 flex items-center gap-2 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                      <p className="mb-3 flex items-center gap-2 font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
                         <svg
                           width="14"
                           height="14"
@@ -658,22 +658,22 @@ export default function MockTestAttemptPage() {
                               className={cn(
                                 'flex w-full cursor-pointer items-center gap-3 rounded-xl border p-3 text-left transition hover:-translate-y-px',
                                 selected
-                                  ? 'border-[#b84c2b] bg-[rgba(184,76,43,0.08)] dark:border-[#e8816a] dark:bg-[#e8816a]/8'
-                                  : 'border-[#e0d0c5] bg-[#f5ede4] hover:border-[#e8816a] dark:border-white/9 dark:bg-[#141412] dark:hover:border-white/20'
+                                  ? 'border-(--brand-500) bg-[rgba(184,76,43,0.08)] dark:border-(--brand-500) dark:bg-(--brand-500)/8'
+                                  : 'border-(--border-subtle) bg-(--surface-canvas) hover:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:hover:border-white/20'
                               )}
                             >
                               <span
                                 className={cn(
-                                  'flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-[7px] border font-["DM_Mono",monospace] text-[11px] transition',
+                                  'flex h-6.5 w-6.5 shrink-0 items-center justify-center rounded-[7px] border font-mono text-[11px] transition',
                                   selected
-                                    ? 'border-[#b84c2b] bg-[#b84c2b] text-white dark:border-[#e8816a] dark:bg-[#e8816a]'
-                                    : 'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] dark:border-white/16 dark:bg-[#1c1a18] dark:text-[#9b9a92]'
+                                    ? 'border-(--brand-500) bg-(--brand-500) text-white dark:border-(--brand-500) dark:bg-(--brand-500)'
+                                    : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) dark:border-white/16 dark:bg-(--surface-card) dark:text-(--text-secondary)'
                                 )}
                               >
                                 {['A', 'B', 'C', 'D'][i]}
                               </span>
 
-                              <span className="text-[13px] text-[#1a1714] dark:text-[#f2f0eb]">
+                              <span className="text-[13px] text-(--text-primary) dark:text-(--text-primary)">
                                 {option}
                               </span>
 
@@ -691,15 +691,15 @@ export default function MockTestAttemptPage() {
                         type="button"
                         onClick={submitAnswer}
                         disabled={!answers[question._id] || isSubmitting}
-                        className="mt-4 rounded-[10px] border border-[#e0d0c5] bg-[#f5ede4] px-5 py-2.5 text-sm font-bold text-[#1a1714] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-white/8 dark:text-[#f2f0eb] dark:hover:bg-white/12"
+                        className="mt-4 rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-5 py-2.5 text-sm font-bold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:bg-white/8 dark:text-(--text-primary) dark:hover:bg-white/12"
                       >
                         {isSubmitting ? 'Saving…' : 'Save answer'}
                       </button>
                     </div>
                   )}
 
-                  <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-                    <p className="mb-3 font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                    <p className="mb-3 font-mono text-[10px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-(--text-secondary)">
                       Self-Confidence Level
                     </p>
 
@@ -709,10 +709,10 @@ export default function MockTestAttemptPage() {
 
                         const activeColor =
                           level === 'high'
-                            ? 'border-[#2d6a47] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[#6fcb8a] dark:bg-[#6fcb8a]/8 dark:text-[#6fcb8a]'
+                            ? 'border-[var(--success)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[#6fcb8a] dark:bg-[#6fcb8a]/8 dark:text-[#6fcb8a]'
                             : level === 'medium'
-                              ? 'border-[#c98000] bg-[rgba(201,128,0,0.08)] text-[#c98000] dark:border-[#f0c060] dark:bg-[#f0c060]/8 dark:text-[#f0c060]'
-                              : 'border-[#b84c2b] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a] dark:bg-[#e8816a]/8 dark:text-[#e8816a]'
+                              ? 'border-[var(--warning)] bg-[rgba(201,128,0,0.08)] text-[var(--warning)] dark:border-[#f0c060] dark:bg-[#f0c060]/8 dark:text-[#f0c060]'
+                              : 'border-[var(--brand-500)] bg-[rgba(184,76,43,0.08)] text-[var(--brand-500)] dark:border-[var(--brand-500)] dark:bg-[var(--brand-500)]/8 dark:text-[var(--brand-500)]'
 
                         return (
                           <button
@@ -725,10 +725,10 @@ export default function MockTestAttemptPage() {
                               }))
                             }
                             className={cn(
-                              'flex-1 rounded-[9px] border py-2 font-["DM_Sans",sans-serif] text-[11px] font-bold uppercase tracking-[0.06em] transition',
+                              'flex-1 rounded-sm border py-2 font-ui text-[11px] font-bold uppercase tracking-[0.06em] transition',
                               active
                                 ? activeColor
-                                : 'border-[#e0d0c5] bg-[#f5ede4] text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:bg-[#141412] dark:text-[#9b9a92] dark:hover:border-white/20 dark:hover:text-[#f2f0eb]'
+                                : 'border-(--border-subtle) bg-(--surface-canvas) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]'
                             )}
                           >
                             {level}
@@ -739,15 +739,15 @@ export default function MockTestAttemptPage() {
                   </div>
 
                   <div
-                    className="rounded-2xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.05)] p-5 dark:border-[#e8816a]/20 dark:bg-[#e8816a]/5"
-                    style={{ borderLeft: '3px solid #b84c2b' }}
+                    className="rounded-2xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.05)] p-5 dark:border-(--brand-500)/20 dark:bg-(--brand-500)/5"
+                    style={{ borderLeft: '3px solid var(--brand-500)' }}
                   >
-                    <p className="mb-2 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">
+                    <p className="mb-2 flex items-center gap-1.5 font-mono text-[9px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
                       <HintIcon />
                       Hint
                     </p>
 
-                    <p className="text-[12.5px] italic leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="text-[12.5px] italic leading-relaxed text-(--text-secondary) dark:text-(--text-secondary)">
                       {isCoding
                         ? 'Run checks visible test cases. Submit checks all visible and hidden test cases.'
                         : 'Think about the most efficient approach before selecting your answer.'}

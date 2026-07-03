@@ -171,20 +171,20 @@ export default function MockTestsPage() {
       <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-              <span className="h-1.25 w-1.25 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
+            <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+              <span className="h-1.25 w-1.25 rounded-full bg-(--success) dark:bg-(--success)" />
               My Mock Tests
             </div>
 
-            <h1 className="mt-3 font-['Playfair_Display',serif] text-[38px] font-black leading-tight text-[#1a1714] dark:text-[#f2f0eb]">
+            <h1 className="mt-3 font-ui text-[38px] font-black leading-tight text-(--text-primary) dark:text-(--text-primary)">
               Practice{' '}
-              <span className="text-[#b84c2b] dark:text-[#e8816a]">
+              <span className="text-(--brand-500) dark:text-(--brand-500)">
                 under pressure
               </span>
             </h1>
 
 
-      <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
+      <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
               Generate AI mock tests, attempt timed questions, review
               results, and track weak areas.
             </p>
@@ -195,7 +195,7 @@ export default function MockTestsPage() {
             <button
               type="button"
               onClick={() => setGenerateModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-[14px] bg-[#b84c2b] px-5 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] max-[520px]:w-full dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d] dark:hover:shadow-[0_8px_24px_rgba(232,129,106,0.3)]"
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] max-[520px]:w-full dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d] dark:hover:shadow-[0_8px_24px_rgba(232,129,106,0.3)]"
             >
               <SparklesSmall />
               Generate test
@@ -227,12 +227,12 @@ export default function MockTestsPage() {
 
         <div className="grid grid-cols-1 gap-4 xl:grid-cols-2">
           {/* ── Share token card ── */}
-          <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-            <div className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+            <div className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:text-(--brand-500)">
               Share token
             </div>
 
-            <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
               Click Share on any test to generate a token.
             </p>
 
@@ -246,21 +246,21 @@ export default function MockTestsPage() {
               className="mt-3 flex flex-col gap-2 sm:flex-row sm:items-center"
               style={{ visibility: shareToken ? 'visible' : 'hidden' }}
             >
-              <div className="min-w-0 flex-1 select-all rounded-xl border border-[#e0d0c5] bg-white/40 px-3 py-2 font-['DM_Mono',monospace] text-[11px] text-[#1a1714] dark:border-white/10 dark:bg-black/10 dark:text-[#f2f0eb]">
+              <div className="min-w-0 flex-1 select-all rounded-xl border border-(--border-subtle) bg-white/40 px-3 py-2 font-mono text-[11px] text-(--text-primary) dark:border-(--border-subtle) dark:bg-black/10 dark:text-(--text-primary)">
                 {shareToken || '\u00A0'}
               </div>
 
               <button
                 type="button"
                 onClick={copyShareToken}
-                className="rounded-xl bg-[#b84c2b] px-4 py-2 text-[12px] font-bold text-white transition hover:bg-[#963d22] dark:bg-[#e8816a] dark:hover:bg-[#d9522d]"
+                className="rounded-xl bg-(--brand-500) px-4 py-2 text-[12px] font-bold text-white transition hover:bg-(--brand-600) dark:bg-(--brand-500) dark:hover:bg-[#d9522d]"
               >
                 Copy
               </button>
             </div>
 
             <p
-              className="mt-2 text-[12px] font-bold text-[#b84c2b] dark:text-[#e8816a]"
+              className="mt-2 text-[12px] font-bold text-(--brand-500) dark:text-(--brand-500)"
               style={{ visibility: shareMessage ? 'visible' : 'hidden' }}
             >
               {shareMessage || '\u00A0'}
@@ -268,12 +268,12 @@ export default function MockTestsPage() {
           </div>
 
           {/* ── Import shared test card ── */}
-          <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-            <div className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+            <div className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:text-(--brand-500)">
               Import shared test
             </div>
 
-            <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
               Paste a token from another account to add that mock test to
               your list.
             </p>
@@ -283,21 +283,21 @@ export default function MockTestsPage() {
                 value={importToken}
                 onChange={(event) => setImportToken(event.target.value)}
                 placeholder="Paste share token"
-                className="min-w-0 flex-1 rounded-xl border border-[#e0d0c5] bg-white/40 px-3 py-2 text-[12px] font-semibold text-[#1a1714] outline-none transition placeholder:text-[#9b8f86] focus:border-[#e8816a] dark:border-white/10 dark:bg-black/10 dark:text-[#f2f0eb] dark:placeholder:text-[#6b6560]"
+                className="min-w-0 flex-1 rounded-xl border border-(--border-subtle) bg-white/40 px-3 py-2 text-[12px] font-semibold text-(--text-primary) outline-none transition placeholder:text-[#9b8f86] focus:border-(--brand-500) dark:border-(--border-subtle) dark:bg-black/10 dark:text-(--text-primary) dark:placeholder:text-[#6b6560]"
               />
 
               <button
                 type="button"
                 disabled={importMutation.isPending}
                 onClick={importSharedTest}
-                className="rounded-xl bg-[#b84c2b] px-4 py-2 text-[12px] font-bold text-white transition hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:hover:bg-[#d9522d]"
+                className="rounded-xl bg-(--brand-500) px-4 py-2 text-[12px] font-bold text-white transition hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:hover:bg-[#d9522d]"
               >
                 {importMutation.isPending ? 'Importing...' : 'Import'}
               </button>
             </div>
 
             {importMessage ? (
-              <p className="mt-2 text-[12px] font-bold text-[#b84c2b] dark:text-[#e8816a]">
+              <p className="mt-2 text-[12px] font-bold text-(--brand-500) dark:text-(--brand-500)">
                 {importMessage}
               </p>
             ) : null}
@@ -307,13 +307,13 @@ export default function MockTestsPage() {
 
         <div className="grid grid-cols-1 gap-6 xl:grid-cols-[1fr_360px]">
           <section className="space-y-4">
-            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
+            <div className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
               <div>
-                <h2 className="font-['Playfair_Display',serif] text-[18px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+                <h2 className="font-ui text-[18px] font-black text-(--text-primary) dark:text-(--text-primary)">
                   All mock tests
                 </h2>
 
-                <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#6b6560]">
+                <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-[#6b6560]">
                   {testsQuery.isLoading
                     ? 'Loading your tests...'
                     : totalItems
@@ -323,7 +323,7 @@ export default function MockTestsPage() {
               </div>
 
               {testsQuery.isFetching && !testsQuery.isLoading ? (
-                <span className="rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-widest text-[#b84c2b] dark:border-[#e8816a]/25 dark:bg-[#e8816a]/10 dark:text-[#e8816a]">
+                <span className="rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-widest text-(--brand-500) dark:border-(--brand-500)/25 dark:bg-(--brand-500)/10 dark:text-(--brand-500)">
                   Updating
                 </span>
               ) : null}
@@ -363,7 +363,7 @@ export default function MockTestsPage() {
                   onPageChange={goToPage}
                   disabled={testsQuery.isFetching}
                   previousLabel="Prev"
-                  className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-4 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
+                  className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
                 />
               </>
             ) : (
@@ -375,21 +375,21 @@ export default function MockTestsPage() {
           </section>
 
           <aside className="space-y-4">
-            <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
-              <div className="mb-2 flex items-center gap-1.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#6b5f58] dark:text-[#9b9a92]">
-                <span className="text-[#b84c2b] dark:text-[#e8816a]">
+            <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+              <div className="mb-2 flex items-center gap-1.5 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--text-secondary) dark:text-(--text-secondary)">
+                <span className="text-(--brand-500) dark:text-(--brand-500)">
                   <TrophyIcon />
                 </span>
                 AI insights
               </div>
 
-              <h3 className="font-['Playfair_Display',serif] text-[17px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+              <h3 className="font-ui text-[17px] font-black text-(--text-primary) dark:text-(--text-primary)">
                 {weakestTopic
                   ? `Focus: ${weakestTopic.topic}`
                   : 'Keep building consistency'}
               </h3>
 
-              <p className="mt-3 text-[12.5px] leading-6 text-[#6b5f58] dark:text-[#6b6560]">
+              <p className="mt-3 text-[12.5px] leading-6 text-(--text-secondary) dark:text-[#6b6560]">
                 {aiInsightsQuery.isLoading || topicBreakdownQuery.isLoading
                   ? 'Preparing your test insights...'
                   : aiInsight}
@@ -398,7 +398,7 @@ export default function MockTestsPage() {
               <button
                 type="button"
                 onClick={() => setGenerateModalOpen(true)}
-                className="mt-4 w-full rounded-xl border border-[rgba(184,76,43,0.25)] bg-[rgba(184,76,43,0.08)] py-2.5 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-widest text-[#b84c2b] transition hover:bg-[rgba(184,76,43,0.14)] dark:border-[#e8816a]/25 dark:bg-[#e8816a]/8 dark:text-[#e8816a] dark:hover:bg-[#e8816a]/15"
+                className="mt-4 w-full rounded-xl border border-[rgba(184,76,43,0.25)] bg-[rgba(184,76,43,0.08)] py-2.5 font-mono text-[10px] font-bold uppercase tracking-widest text-(--brand-500) transition hover:bg-[rgba(184,76,43,0.14)] dark:border-(--brand-500)/25 dark:bg-(--brand-500)/8 dark:text-(--brand-500) dark:hover:bg-(--brand-500)/15"
               >
                 ✦ Generate a test now
               </button>

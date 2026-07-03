@@ -12,13 +12,13 @@ export default function TrackerFilterBar({
   onStatusChange,
 }: TrackerFilterBarProps) {
   return (
-    <section className="overflow-x-auto rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+    <section className="overflow-x-auto rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-3 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
       <PillTabs
         value={status}
         onValueChange={onStatusChange}
         ariaLabel="Tracker status"
         className="min-w-max border-0 bg-transparent p-0 dark:bg-transparent"
-        itemClassName="whitespace-nowrap font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em]"
+        itemClassName="whitespace-nowrap font-mono text-[8.5px] uppercase tracking-[0.12em]"
         items={trackerFilterStatusOptions.map((item) => ({
           value: item.value,
           label: item.label,

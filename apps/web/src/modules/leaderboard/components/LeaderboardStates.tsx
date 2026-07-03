@@ -25,15 +25,15 @@ export const LeaderboardContentSkeleton = () => (
         <SkeletonBlock className="h-10 w-72 rounded-2xl" />
         <SkeletonBlock className="h-4 w-full max-w-96" />
       </div>
-      <SkeletonBlock className="h-28 w-64 rounded-[18px]" />
+      <SkeletonBlock className="h-28 w-64 rounded-lg" />
     </div>
 
     <div className="flex gap-2.5">
-      <SkeletonBlock className="h-16 w-44 rounded-[14px]" />
-      <SkeletonBlock className="h-16 w-44 rounded-[14px]" />
+      <SkeletonBlock className="h-16 w-44 rounded-md" />
+      <SkeletonBlock className="h-16 w-44 rounded-md" />
     </div>
 
-    <div className="rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] dark:border-white/9 dark:bg-[#1e1c19]">
+    <div className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-card)">
       {Array.from({ length: 7 }, (_, index) => <RowSkeleton key={index} />)}
     </div>
   </div>
@@ -49,10 +49,10 @@ export const LeaderboardErrorState = ({
   onRetry,
 }: LeaderboardErrorStateProps) => (
   <div className="flex min-h-105 items-center justify-center px-4" role="alert">
-    <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.2)] bg-[#fdf8f5] p-8 text-center dark:bg-[#1e1c19]">
-      <h1 className="font-['Playfair_Display',serif] text-[22px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">Leaderboard unavailable</h1>
-      <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">{message || 'Something went wrong loading the leaderboard data. Try again.'}</p>
-      <button type="button" onClick={onRetry} className="mx-auto mt-5 inline-flex items-center gap-2 rounded-lg bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#a64225] dark:bg-[#e8816a] dark:text-[#141412]">
+    <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.2)] bg-(--surface-card) p-8 text-center dark:bg-(--surface-card)">
+      <h1 className="font-ui text-[22px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">Leaderboard unavailable</h1>
+      <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">{message || 'Something went wrong loading the leaderboard data. Try again.'}</p>
+      <button type="button" onClick={onRetry} className="mx-auto mt-5 inline-flex items-center gap-2 rounded-lg bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#a64225] dark:bg-(--brand-500) dark:text-[#141412]">
         <RefreshIcon /> Try again
       </button>
     </div>

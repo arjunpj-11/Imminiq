@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom'
 import { cn } from '../../lib/cn'
 import AppNoiseOverlay from '../layout/AppNoiseOverlay'
 import ImminiqLogo from '../ui/ImminiqLogo'
+import ImminiqWordmark from '../ui/ImminiqWordmark'
 
 interface SystemPageNoiseProps {
   className?: string
@@ -51,11 +52,12 @@ export function SystemBrandLink({ to, className }: SystemBrandLinkProps) {
       to={to}
       aria-label="Go to Imminiq"
     >
-      <ImminiqLogo size={30} className="rounded-[9px]" decorative />
+      <ImminiqLogo size={30} className="rounded-sm" decorative />
 
-      <span className="font-serif text-[22px] font-extrabold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
-        immin<span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-      </span>
+      <ImminiqWordmark
+        lowercase
+        className="font-serif text-[22px] font-extrabold leading-none tracking-[-0.5px]"
+      />
     </Link>
   )
 }
@@ -75,10 +77,8 @@ export function SystemPageFooter({
   onUnavailableLink,
 }: SystemPageFooterProps) {
   return (
-    <footer className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[rgba(245,237,228,0.92)] px-4 py-4.5 shadow-[0_-1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-white/10 dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_-1px_0_rgba(30,28,25,0.6)]">
-      <div className="font-serif text-base font-extrabold text-[#b84c2b] dark:text-[#e8816a]">
-        Imminiq
-      </div>
+    <footer className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-t border-(--border-subtle) bg-[rgba(245,237,228,0.92)] px-4 py-4.5 shadow-[0_-1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-(--border-subtle) dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_-1px_0_rgba(30,28,25,0.6)]">
+      <ImminiqWordmark className="font-serif text-base font-extrabold" />
 
       <div className="flex flex-wrap gap-5">
         {systemFooterLinks.map(([label, message]) => (
@@ -86,14 +86,14 @@ export function SystemPageFooter({
             key={label}
             type="button"
             onClick={() => onUnavailableLink(message)}
-            className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
+            className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--text-secondary)/50 transition hover:text-(--brand-500) hover:opacity-100 dark:text-(--text-secondary)/50 dark:hover:text-(--brand-500)"
           >
             {label}
           </button>
         ))}
       </div>
 
-      <div className="font-mono text-[8.5px] tracking-[0.06em] text-[#6b5f58]/40 dark:text-[#9b9a92]/40">
+      <div className="font-mono text-[8.5px] tracking-[0.06em] text-(--text-secondary)/40 dark:text-(--text-secondary)/40">
         © 2026 Imminiq. Scholarly Rigor, Digital Craft.
       </div>
     </footer>
@@ -120,13 +120,13 @@ export function SystemPageHeader({
   actionsClassName,
 }: SystemPageHeaderProps) {
   return (
-    <header className="sticky top-0 z-20 flex h-13.5 items-center justify-between border-b border-[#e0d0c5] bg-[rgba(245,237,228,0.92)] px-4 shadow-[0_1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-white/10 dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_1px_0_rgba(30,28,25,0.6)]">
+    <header className="sticky top-0 z-20 flex h-13.5 items-center justify-between border-b border-(--border-subtle) bg-[rgba(245,237,228,0.92)] px-4 shadow-[0_1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-(--border-subtle) dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_1px_0_rgba(30,28,25,0.6)]">
       <SystemBrandLink to={brandTo} />
 
       <div className={cn('flex items-center gap-2', actionsClassName)}>
         <button
           type="button"
-          className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] sm:block dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.1)] dark:hover:text-[#e8816a]"
+          className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) transition hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) sm:block dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.1)] dark:hover:text-(--brand-500)"
           onClick={() => onUnavailableLink(helpMessage)}
         >
           Help
@@ -134,7 +134,7 @@ export function SystemPageHeader({
 
         <button
           type="button"
-          className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] md:block dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.1)] dark:hover:text-[#e8816a]"
+          className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) transition hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) md:block dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.1)] dark:hover:text-(--brand-500)"
           onClick={() =>
             onUnavailableLink('Community guidelines page can be linked later.')
           }
@@ -144,7 +144,7 @@ export function SystemPageHeader({
 
         <Link
           to={actionTo}
-          className="inline-flex items-center gap-1.5 rounded-[9px] bg-[#1a1714] px-4 py-2 text-xs font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:opacity-85 dark:bg-[#f2f0eb] dark:text-[#141412]"
+          className="inline-flex items-center gap-1.5 rounded-sm bg-[#1a1714] px-4 py-2 text-xs font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:opacity-85 dark:bg-[#f2f0eb] dark:text-[#141412]"
         >
           {actionIcon}
           {actionLabel}

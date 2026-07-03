@@ -15,14 +15,14 @@ export default function FriendsCard({
   const onlineCount = friends.filter((friend) => friend.isOnline).length
 
   return (
-    <section className="flex flex-col gap-4 rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
+    <section className="flex flex-col gap-4 rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="font-['Playfair_Display',serif] text-[18px] font-extrabold tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+        <h2 className="font-ui text-[18px] font-extrabold tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
           Friends Hub
         </h2>
 
-        <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-2.5 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-widest text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
-          <span className="h-1.25 w-1.25 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
+        <span className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-2.5 py-1 font-mono text-[8.5px] uppercase tracking-widest text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
+          <span className="h-1.25 w-1.25 rounded-full bg-(--success) dark:bg-(--success)" />
           {onlineCount} online
         </span>
       </div>
@@ -37,9 +37,9 @@ export default function FriendsCard({
           {friends.map((friend) => (
             <div
               key={friend._id}
-              className="flex items-center gap-2.5 rounded-[10px] px-2.5 py-2.25 transition hover:bg-[rgba(184,76,43,0.04)] dark:hover:bg-[rgba(232,129,106,0.05)]"
+              className="flex items-center gap-2.5 rounded-md px-2.5 py-2.25 transition hover:bg-[rgba(184,76,43,0.04)] dark:hover:bg-[rgba(232,129,106,0.05)]"
             >
-              <div className="relative flex h-8.5 w-8.5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-[#b84c2b] to-[#e8816a] text-[11px] font-bold text-white">
+              <div className="relative flex h-8.5 w-8.5 shrink-0 items-center justify-center overflow-hidden rounded-full bg-linear-to-br from-(--brand-500) to-(--brand-500) text-[11px] font-bold text-white">
                 {friend.avatarUrl ? (
                   <img
                     src={friend.avatarUrl}
@@ -54,17 +54,17 @@ export default function FriendsCard({
                   className={cn(
                     'absolute bottom-px right-px h-2 w-2 rounded-full border-2 border-[#fdf8f5] dark:border-[#1e1c19]',
                     friend.isOnline
-                      ? 'bg-[#4caf7d]'
+                      ? 'bg-(--success)'
                       : 'bg-[#6b5f58]/50 dark:bg-[#9b9a92]/50'
                   )}
                 />
               </div>
 
               <div className="min-w-0 flex-1">
-                <div className="truncate text-[13px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+                <div className="truncate text-[13px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
                   {friend.fullName}
                 </div>
-                <div className="truncate text-[11px] text-[#6b5f58] dark:text-[#9b9a92]">
+                <div className="truncate text-[11px] text-(--text-secondary) dark:text-(--text-secondary)">
                   @{friend.username} ·{' '}
                   {friend.isOnline
                     ? 'Online now'
@@ -79,7 +79,7 @@ export default function FriendsCard({
       <button
         type="button"
         onClick={onOpenCommunity}
-        className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[13px] font-semibold text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+        className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[13px] font-semibold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
       >
         View Friends
       </button>

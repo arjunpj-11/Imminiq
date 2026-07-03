@@ -17,14 +17,14 @@ export default function MockTestResultPage() {
   const data = resultQuery.data
   const report = data?.report
 
-  const resultAccent = report?.passed ? '#2d6a47' : '#b84c2b'
+  const resultAccent = report?.passed ? 'var(--success)' : 'var(--brand-500)'
 
   return (
     <AppShellBoundary>
       <div className="flex flex-1 flex-col items-center justify-center px-6 py-10 max-[640px]:px-4">
         <div className="w-full max-w-215">
           {resultQuery.isLoading && (
-            <div className="h-72 animate-pulse rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]" />
+            <div className="h-72 animate-pulse rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)" />
           )}
 
           {resultQuery.isError && (
@@ -34,39 +34,39 @@ export default function MockTestResultPage() {
           )}
 
           {!resultQuery.isLoading && !resultQuery.isError && !data && (
-            <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18] dark:text-[#9b9a92]">
+            <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 text-(--text-secondary) shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
               Result not found.
             </div>
           )}
 
           {report && (
             <section
-              className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-10 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]"
+              className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-10 text-center shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
               style={{ borderTop: `2.5px solid ${resultAccent}` }}
             >
-              <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 dark:border-white/10 dark:bg-white/5">
+              <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1.5 dark:border-(--border-subtle) dark:bg-white/5">
                 <span
                   className="h-1.5 w-1.5 rounded-full"
                   style={{
-                    background: report.passed ? '#2d6a47' : '#b84c2b',
+                    background: report.passed ? 'var(--success)' : 'var(--brand-500)',
                   }}
                 />
 
-                <span className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="font-mono text-[9px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
                   Result
                 </span>
               </div>
 
-              <div className="mt-5 font-['Playfair_Display',serif] text-[72px] font-black leading-none text-[#1a1714] dark:text-[#f2f0eb]">
+              <div className="mt-5 font-ui text-[72px] font-black leading-none text-(--text-primary) dark:text-(--text-primary)">
                 {report.scorePercentage}%
               </div>
 
               <div
                 className={cn(
-                  'mx-auto mt-4 w-fit rounded-full px-4 py-2 font-["DM_Mono",monospace] text-[10px] font-bold uppercase tracking-widest',
+                  'mx-auto mt-4 w-fit rounded-full px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-widest',
                   report.passed
-                    ? 'border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-[#2d6a47] dark:border-[#3dbf82]/30 dark:bg-[#3dbf82]/10 dark:text-[#3dbf82]'
-                    : 'border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a]/30 dark:bg-[#e8816a]/10 dark:text-[#e8816a]'
+                    ? 'border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-(--success) dark:border-(--success)/30 dark:bg-(--success)/10 dark:text-(--success)'
+                    : 'border border-[rgba(184,76,43,0.24)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-(--brand-500)/30 dark:bg-(--brand-500)/10 dark:text-(--brand-500)'
                 )}
               >
                 {report.passed ? 'Passed' : 'Needs practice'}
@@ -84,13 +84,13 @@ export default function MockTestResultPage() {
                 ].map(({ label, value }) => (
                   <div
                     key={label}
-                    className="rounded-xl border border-[#e0d0c5] bg-[#f5ede4] p-4 dark:border-white/8 dark:bg-[#141412]"
+                    className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) p-4 dark:border-white/8 dark:bg-(--surface-canvas)"
                   >
-                    <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <div className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
                       {label}
                     </div>
 
-                    <div className="mt-2 font-['Playfair_Display',serif] text-[24px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+                    <div className="mt-2 font-ui text-[24px] font-black text-(--text-primary) dark:text-(--text-primary)">
                       {value}
                     </div>
                   </div>
@@ -102,7 +102,7 @@ export default function MockTestResultPage() {
                 onClick={() =>
                   navigate(`/mock-tests/attempts/${attemptId}/analysis`)
                 }
-                className="mt-7 rounded-[14px] bg-[#b84c2b] px-6 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:shadow-none dark:hover:bg-[#d9522d]"
+                className="mt-7 rounded-md bg-(--brand-500) px-6 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
               >
                 View analysis
               </button>

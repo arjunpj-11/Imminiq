@@ -250,28 +250,28 @@ export function GenerateMockTestModal({
       aria-label="Generate AI mock test"
     >
       <div
-        className="relative flex max-h-[calc(100dvh-32px)] w-full max-w-170 flex-col rounded-[28px] border border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_40px_100px_rgba(26,23,20,0.28),0_0_0_1px_rgba(255,255,255,0.35)] dark:border-white/10 dark:bg-[#1c1a18] dark:shadow-[0_40px_100px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.04)]"
+        className="relative flex max-h-[calc(100dvh-32px)] w-full max-w-170 flex-col rounded-xl border border-(--border-subtle) bg-(--surface-card) shadow-[0_40px_100px_rgba(26,23,20,0.28),0_0_0_1px_rgba(255,255,255,0.35)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:shadow-[0_40px_100px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.04)]"
         style={{
           animation: 'modalIn 0.24s cubic-bezier(0.22,1,0.36,1)',
         }}
       >
-        <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-[28px] bg-linear-to-r from-transparent via-[#b84c2b] to-transparent opacity-80 dark:via-[#e8816a]" />
-        <div className="pointer-events-none absolute inset-x-0 top-0 h-45 rounded-t-[28px] bg-linear-to-b from-[rgba(184,76,43,0.05)] to-transparent dark:from-[#e8816a]/4" />
+        <div className="absolute inset-x-0 top-0 h-0.5 rounded-t-[28px] bg-linear-to-r from-transparent via-(--brand-500) to-transparent opacity-80 dark:via-(--brand-500)" />
+        <div className="pointer-events-none absolute inset-x-0 top-0 h-45 rounded-t-[28px] bg-linear-to-b from-[rgba(184,76,43,0.05)] to-transparent dark:from-(--brand-500)/4" />
 
         <div className="relative shrink-0 px-7 pb-5 pt-7">
           <div className="flex items-start justify-between gap-4">
             <div>
               <div className="mb-1 flex items-center gap-2.5">
-                <span className="text-[#b84c2b] dark:text-[#e8816a]">
+                <span className="text-(--brand-500) dark:text-(--brand-500)">
                   <SparklesIcon />
                 </span>
 
-                <h2 className="font-['Playfair_Display',serif] text-[22px] font-black leading-none text-[#1a1714] dark:text-[#f2f0eb]">
+                <h2 className="font-ui text-[22px] font-black leading-none text-(--text-primary) dark:text-(--text-primary)">
                   Generate AI mock test
                 </h2>
               </div>
 
-              <p className="pl-7.5 font-['DM_Mono',monospace] text-[10px] tracking-[0.06em] text-[#6b5f58] dark:text-[#4a4843]">
+              <p className="pl-7.5 font-mono text-[10px] tracking-[0.06em] text-(--text-secondary) dark:text-[#4a4843]">
                 Powered by your roadmap & AI
               </p>
             </div>
@@ -280,23 +280,23 @@ export function GenerateMockTestModal({
               type="button"
               onClick={onClose}
               aria-label="Close"
-              className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-[#e0d0c5] bg-white/45 text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/10 dark:bg-white/5 dark:text-[#6b6560] dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-[#f2f0eb]"
+              className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) bg-white/45 text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/5 dark:text-[#6b6560] dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-[#f2f0eb]"
             >
               <CloseIcon />
             </button>
           </div>
 
-          <div className="mt-5 grid grid-cols-2 gap-1.5 rounded-2xl border border-[#e0d0c5] bg-[#f5ede4] p-1.5 dark:border-white/8 dark:bg-[#141412]">
+          <div className="mt-5 grid grid-cols-2 gap-1.5 rounded-2xl border border-(--border-subtle) bg-(--surface-canvas) p-1.5 dark:border-white/8 dark:bg-(--surface-canvas)">
             {(['manual', 'tracker'] as TopicSource[]).map((source) => (
               <button
                 key={source}
                 type="button"
                 onClick={() => setTopicSource(source)}
                 className={cn(
-                  "rounded-xl py-2.5 font-['DM_Mono',monospace] text-[11px] font-bold uppercase tracking-widest transition-all duration-200",
+                  "rounded-xl py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest transition-all duration-200",
                   topicSource === source
-                    ? 'bg-[#b84c2b] text-white shadow-[0_2px_16px_rgba(184,76,43,0.25)] dark:bg-[#e8816a] dark:shadow-[0_2px_16px_rgba(232,129,106,0.35)]'
-                    : 'text-[#6b5f58] hover:text-[#b84c2b] dark:text-[#6b6560] dark:hover:text-[#9b9a92]'
+                    ? 'bg-(--brand-500) text-white shadow-[0_2px_16px_rgba(184,76,43,0.25)] dark:bg-(--brand-500) dark:shadow-[0_2px_16px_rgba(232,129,106,0.35)]'
+                    : 'text-(--text-secondary) hover:text-(--brand-500) dark:text-[#6b6560] dark:hover:text-[#9b9a92]'
                 )}
               >
                 {source === 'manual' ? '✦ Enter manually' : '⊞ From tracker'}
@@ -309,7 +309,7 @@ export function GenerateMockTestModal({
           <div className="space-y-5 pb-2">
             {topicSource === 'manual' && (
               <div>
-                <p className="mb-2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#6b6560]">
+                <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-[#6b6560]">
                   Topic
                 </p>
 
@@ -320,7 +320,7 @@ export function GenerateMockTestModal({
                     updateGenerateDraft({ topic: event.target.value })
                   }
                   placeholder="e.g. Recursion, Australian Visa 189…"
-                  className="w-full rounded-[14px] border border-[#e0d0c5] bg-[#f5ede4] px-4 py-3.5 text-[14px] text-[#1a1714] outline-none transition placeholder:text-[#9b8f87] focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:placeholder:text-[#3a3834] dark:focus:border-[#e8816a] dark:focus:bg-[#161410]"
+                  className="w-full rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition placeholder:text-[#9b8f87] focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:placeholder:text-[#3a3834] dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
                 />
               </div>
             )}
@@ -328,14 +328,14 @@ export function GenerateMockTestModal({
             {topicSource === 'tracker' && (
               <div className="space-y-4">
                 <div>
-                  <p className="mb-2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#6b6560]">
+                  <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-[#6b6560]">
                     Tracker
                   </p>
 
                   {trackersQuery.isLoading ? (
-                    <div className="h-12.5 animate-pulse rounded-[14px] bg-[#f5ede4] dark:bg-white/5" />
+                    <div className="h-12.5 animate-pulse rounded-md bg-(--surface-canvas) dark:bg-white/5" />
                   ) : trackers.length === 0 ? (
-                    <div className="rounded-[14px] border border-dashed border-[#e0d0c5] px-4 py-3 text-[12px] text-[#6b5f58] dark:border-white/10 dark:text-[#6b6560]">
+                    <div className="rounded-md border border-dashed border-(--border-subtle) px-4 py-3 text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:text-[#6b6560]">
                       No trackers found — create one first.
                     </div>
                   ) : (
@@ -344,7 +344,7 @@ export function GenerateMockTestModal({
                       onChange={(event) =>
                         setManualSelectedTrackerId(event.target.value)
                       }
-                      className="w-full appearance-none rounded-[14px] border border-[#e0d0c5] bg-[#f5ede4] px-4 py-3.5 text-[14px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:focus:border-[#e8816a] dark:focus:bg-[#161410]"
+                      className="w-full appearance-none rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
                       style={{
                         backgroundImage: CHEVRON_STYLE,
                         backgroundRepeat: 'no-repeat',
@@ -363,20 +363,20 @@ export function GenerateMockTestModal({
                 {selectedTrackerId && (
                   <div>
                     <div className="mb-2.5 flex items-center justify-between">
-                      <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#6b6560]">
+                      <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-[#6b6560]">
                         Topics &amp; subtopics
                       </p>
 
                       {totalSelected > 0 && (
                         <div className="flex items-center gap-2.5">
-                          <span className="font-['DM_Mono',monospace] text-[9px] text-[#b84c2b] dark:text-[#e8816a]">
+                          <span className="font-mono text-[9px] text-(--brand-500) dark:text-(--brand-500)">
                             {totalSelected} selected
                           </span>
 
                           <button
                             type="button"
                             onClick={clearSelectedNodes}
-                            className="font-['DM_Mono',monospace] text-[9px] text-[#6b5f58] underline transition hover:text-[#b84c2b] dark:text-[#6b6560] dark:hover:text-[#9b9a92]"
+                            className="font-mono text-[9px] text-(--text-secondary) underline transition hover:text-(--brand-500) dark:text-[#6b6560] dark:hover:text-[#9b9a92]"
                           >
                             clear all
                           </button>
@@ -389,16 +389,16 @@ export function GenerateMockTestModal({
                         {[1, 2, 3].map((item) => (
                           <div
                             key={item}
-                            className="h-14.5 animate-pulse rounded-[14px] bg-[#f5ede4] dark:bg-white/5"
+                            className="h-14.5 animate-pulse rounded-md bg-(--surface-canvas) dark:bg-white/5"
                           />
                         ))}
                       </div>
                     ) : roadmapQuery.isError ? (
-                      <div className="rounded-[14px] border border-red-500/20 bg-red-500/8 px-4 py-3 text-[12px] text-red-500 dark:text-red-400">
+                      <div className="rounded-md border border-red-500/20 bg-red-500/8 px-4 py-3 text-[12px] text-red-500 dark:text-red-400">
                         Failed to load roadmap. Try again.
                       </div>
                     ) : groups.length === 0 ? (
-                      <div className="rounded-[14px] border border-dashed border-[#e0d0c5] px-4 py-5 text-center text-[12px] text-[#6b5f58] dark:border-white/10 dark:text-[#6b6560]">
+                      <div className="rounded-md border border-dashed border-(--border-subtle) px-4 py-5 text-center text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:text-[#6b6560]">
                         This tracker has no topics yet.
                       </div>
                     ) : (
@@ -433,7 +433,7 @@ export function GenerateMockTestModal({
 
             <div className="grid grid-cols-2 gap-4 max-[520px]:grid-cols-1">
               <div>
-                <p className="mb-2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#6b6560]">
+                <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-[#6b6560]">
                   Difficulty
                 </p>
 
@@ -445,7 +445,7 @@ export function GenerateMockTestModal({
                         .value as typeof generateDraft.difficulty,
                     })
                   }
-                  className="w-full appearance-none rounded-[14px] border border-[#e0d0c5] bg-[#f5ede4] px-4 py-3.5 text-[14px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:focus:border-[#e8816a] dark:focus:bg-[#161410]"
+                  className="w-full appearance-none rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
                   style={{
                     backgroundImage: CHEVRON_STYLE,
                     backgroundRepeat: 'no-repeat',
@@ -461,7 +461,7 @@ export function GenerateMockTestModal({
               </div>
 
               <div>
-                <p className="mb-2 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#6b6560]">
+                <p className="mb-2 font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-[#6b6560]">
                   Questions
                 </p>
 
@@ -475,13 +475,13 @@ export function GenerateMockTestModal({
                       questionCount: Number(event.target.value),
                     })
                   }
-                  className="w-full rounded-[14px] border border-[#e0d0c5] bg-[#f5ede4] px-4 py-3.5 text-[14px] text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:focus:border-[#e8816a] dark:focus:bg-[#161410]"
+                  className="w-full rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
                 />
               </div>
             </div>
 
             <div>
-              <p className="mb-3 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] dark:text-[#6b6560]">
+              <p className="mb-3 font-mono text-[9px] uppercase tracking-[0.14em] text-(--text-secondary) dark:text-[#6b6560]">
                 Question types
               </p>
 
@@ -492,10 +492,10 @@ export function GenerateMockTestModal({
                     type="button"
                     onClick={() => toggleType(type)}
                     className={cn(
-                      "rounded-full border px-4 py-2 font-['DM_Mono',monospace] text-[10px] font-bold capitalize tracking-[0.08em] transition-all duration-150 hover:-translate-y-px active:scale-95",
+                      "rounded-full border px-4 py-2 font-mono text-[10px] font-bold capitalize tracking-[0.08em] transition-all duration-150 hover:-translate-y-px active:scale-95",
                       generateDraft.questionTypes.includes(type)
-                        ? 'border-[#b84c2b] bg-[rgba(184,76,43,0.10)] text-[#b84c2b] shadow-[0_0_0_1px_rgba(184,76,43,0.12)] dark:border-[#e8816a] dark:bg-[#e8816a]/15 dark:text-[#e8816a] dark:shadow-[0_0_0_1px_rgba(232,129,106,0.15)]'
-                        : 'border-[#e0d0c5] bg-white/35 text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/10 dark:bg-white/2 dark:text-[#6b6560] dark:hover:border-white/20 dark:hover:text-[#9b9a92]'
+                        ? 'border-(--brand-500) bg-[rgba(184,76,43,0.10)] text-(--brand-500) shadow-[0_0_0_1px_rgba(184,76,43,0.12)] dark:border-(--brand-500) dark:bg-(--brand-500)/15 dark:text-(--brand-500) dark:shadow-[0_0_0_1px_rgba(232,129,106,0.15)]'
+                        : 'border-(--border-subtle) bg-white/35 text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/2 dark:text-[#6b6560] dark:hover:border-white/20 dark:hover:text-[#9b9a92]'
                     )}
                   >
                     {type.replace('_', ' ')}
@@ -507,17 +507,17 @@ export function GenerateMockTestModal({
         </div>
 
         <div className="relative shrink-0 px-7 pb-7 pt-4">
-          <div className="mb-5 h-px bg-linear-to-r from-transparent via-[#e0d0c5] to-transparent dark:via-white/8" />
+          <div className="mb-5 h-px bg-linear-to-r from-transparent via-(--border-subtle) to-transparent dark:via-white/8" />
 
           <button
             type="button"
             onClick={handleSubmit}
             disabled={generateMutation.isPending || !canSubmit}
             className={cn(
-              "relative w-full overflow-hidden rounded-2xl py-4 font-['Playfair_Display',serif] text-[17px] font-black text-white transition-all duration-200",
+              "relative w-full overflow-hidden rounded-2xl py-4 font-ui text-[17px] font-black text-white transition-all duration-200",
               canSubmit && !generateMutation.isPending
-                ? 'bg-[#b84c2b] hover:-translate-y-0.5 hover:bg-[#963d22] hover:shadow-[0_12px_32px_rgba(184,76,43,0.30)] dark:bg-[#e8816a] dark:hover:bg-[#d9522d] dark:hover:shadow-[0_12px_32px_rgba(232,129,106,0.4)]'
-                : 'cursor-not-allowed bg-[#b84c2b]/35 dark:bg-[#e8816a]/35'
+                ? 'bg-(--brand-500) hover:-translate-y-0.5 hover:bg-(--brand-600) hover:shadow-[0_12px_32px_rgba(184,76,43,0.30)] dark:bg-(--brand-500) dark:hover:bg-[#d9522d] dark:hover:shadow-[0_12px_32px_rgba(232,129,106,0.4)]'
+                : 'cursor-not-allowed bg-(--brand-500)/35 dark:bg-(--brand-500)/35'
             )}
           >
             {canSubmit && !generateMutation.isPending && (
@@ -535,7 +535,7 @@ export function GenerateMockTestModal({
           </button>
 
           {generateMutation.error && (
-            <p className="mt-3 text-center text-[11.5px] text-[#b84c2b] dark:text-[#e8816a]">
+            <p className="mt-3 text-center text-[11.5px] text-(--brand-500) dark:text-(--brand-500)">
               {(generateMutation.error as Error).message}
             </p>
           )}

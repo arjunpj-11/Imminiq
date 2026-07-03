@@ -45,7 +45,7 @@ export default function PrivacySettingsPage() {
         title="Privacy"
         subtitle="Control what others can see across your Imminiq presence."
       >
-        <div className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-6 text-[14px] font-semibold text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]">
+        <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 text-[14px] font-semibold text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)">
           Unable to load privacy settings.
         </div>
       </SettingsShell>
@@ -219,7 +219,7 @@ function PrivacySettingsForm({
             className="bg-[linear-gradient(135deg,rgba(184,76,43,0.10),rgba(59,108,183,0.06))] dark:bg-[linear-gradient(135deg,rgba(232,129,106,0.11),rgba(107,159,232,0.06))]"
           >
             <div className="flex flex-wrap gap-2">
-              <span className="rounded-full bg-[rgba(184,76,43,0.10)] px-3 py-1 text-[11px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
+              <span className="rounded-full bg-[rgba(184,76,43,0.10)] px-3 py-1 text-[11px] font-semibold text-(--brand-500) dark:bg-[rgba(232,129,106,0.12)] dark:text-(--brand-500)">
                 {form.profileVisibility === 'private'
                   ? 'Private Profile'
                   : form.profileVisibility === 'friends'
@@ -227,13 +227,13 @@ function PrivacySettingsForm({
                     : 'Public Visibility'}
               </span>
 
-              <span className="rounded-full bg-[rgba(59,108,183,0.10)] px-3 py-1 text-[11px] font-semibold text-[#3b6cb7] dark:text-[#6b9fe8]">
+              <span className="rounded-full bg-[rgba(59,108,183,0.10)] px-3 py-1 text-[11px] font-semibold text-(--info) dark:text-(--info)">
                 {form.allowTrackerCloning
                   ? 'Tracker Cloning Allowed'
                   : 'Tracker Cloning Blocked'}
               </span>
 
-              <span className="rounded-full bg-[rgba(45,106,71,0.10)] px-3 py-1 text-[11px] font-semibold text-[#2d6a47] dark:text-[#5cc98a]">
+              <span className="rounded-full bg-[rgba(45,106,71,0.10)] px-3 py-1 text-[11px] font-semibold text-(--success) dark:text-(--success)">
                 Privacy Score {privacyScore}
               </span>
             </div>
@@ -491,12 +491,12 @@ function PrivacySettingsForm({
         {/* ─── RIGHT SIDE SUMMARY ───────────────────── */}
         <aside className="space-y-5">
           <SettingsCard title="Privacy Score" icon="📊">
-            <div className="rounded-[18px] bg-[#f9f3ef] p-5 text-center dark:bg-[#1a1816]">
-              <div className="text-[44px] font-black tracking-[-1px] text-[#b84c2b] dark:text-[#e8816a]">
+            <div className="rounded-lg bg-[#f9f3ef] p-5 text-center dark:bg-(--surface-card)">
+              <div className="text-[44px] font-black tracking-[-1px] text-(--brand-500) dark:text-(--brand-500)">
                 {privacyScore}
               </div>
 
-              <div className="mt-1 font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.15em] text-[#6b5f58] dark:text-[#9b9a92]">
+              <div className="mt-1 font-mono text-[9px] uppercase tracking-[0.15em] text-(--text-secondary) dark:text-(--text-secondary)">
                 {scoreLabel}
               </div>
             </div>
@@ -504,7 +504,7 @@ function PrivacySettingsForm({
             <button
               type="button"
               onClick={makeProfilePrivate}
-              className="mt-4 w-full rounded-[11px] border-[1.5px] border-[rgba(196,60,60,0.22)] bg-[rgba(196,60,60,0.08)] px-4 py-3 text-[13px] font-bold text-[#c43c3c] transition hover:bg-[rgba(196,60,60,0.12)] dark:text-[#e05252]"
+              className="mt-4 w-full rounded-md border-[1.5px] border-[rgba(196,60,60,0.22)] bg-[rgba(196,60,60,0.08)] px-4 py-3 text-[13px] font-bold text-(--danger) transition hover:bg-[rgba(196,60,60,0.12)] dark:text-(--danger)"
             >
               Make Profile Private
             </button>
@@ -513,51 +513,51 @@ function PrivacySettingsForm({
           <SettingsCard title="Visibility Summary" icon="🧭">
             <div className="space-y-3 text-[13px]">
               <div className="flex justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Profile
                 </span>
 
-                <strong className="capitalize text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="capitalize text-(--text-primary) dark:text-(--text-primary)">
                   {form.profileVisibility}
                 </strong>
               </div>
 
               <div className="flex justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Discoverable
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.showProfile ? 'Yes' : 'No'}
                 </strong>
               </div>
 
               <div className="flex justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Tracker Cloning
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.allowTrackerCloning ? 'Allowed' : 'Blocked'}
                 </strong>
               </div>
 
               <div className="flex justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Messages
                 </span>
 
-                <strong className="capitalize text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="capitalize text-(--text-primary) dark:text-(--text-primary)">
                   {form.messagePermission}
                 </strong>
               </div>
 
               <div className="flex justify-between gap-3">
-                <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
                   Challenge Invites
                 </span>
 
-                <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.allowChallenges ? 'Allowed' : 'Blocked'}
                 </strong>
               </div>

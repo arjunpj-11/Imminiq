@@ -22,19 +22,19 @@ export function OnboardingProgressStatusCard({
 }: OnboardingProgressStatusCardProps) {
   return (
     <section
-      className="w-full rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6"
+      className="w-full rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6"
       aria-live="polite"
       aria-atomic="true"
     >
-      <p className="mb-4 min-h-12 text-[16px] font-semibold leading-normal text-[#1a1714] dark:text-[#f2f0eb]">
+      <p className="mb-4 min-h-12 text-[16px] font-semibold leading-normal text-(--text-primary) dark:text-(--text-primary)">
         {logMessage}
       </p>
 
       <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
-        <span className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+        <span className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
           {engineLabel}
         </span>
-        <span className="font-mono text-[8.5px] uppercase tracking-[0.13em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+        <span className="font-mono text-[8.5px] uppercase tracking-[0.13em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
           {nextLabel}
         </span>
       </div>
@@ -48,7 +48,7 @@ export function OnboardingProgressStatusCard({
         aria-label={progressAriaLabel}
       >
         <div
-          className="relative h-full overflow-hidden rounded-full bg-[#b84c2b] transition-[width] duration-1000 ease-out dark:bg-[#e8816a]"
+          className="relative h-full overflow-hidden rounded-full bg-(--brand-500) transition-[width] duration-1000 ease-out dark:bg-(--brand-500)"
           style={{ width: `${progress}%` }}
         >
           <span className="absolute inset-y-0 left-0 w-[60%] animate-[roadmapShimmer_1.6s_ease-in-out_infinite] bg-[linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent)]" />
@@ -56,10 +56,10 @@ export function OnboardingProgressStatusCard({
       </div>
 
       <div className="flex items-center justify-between">
-        <span className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-[#6b5f58]/45 dark:text-[#9b9a92]/45">
+        <span className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-(--text-secondary)/45 dark:text-(--text-secondary)/45">
           {progress}% complete
         </span>
-        <span className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-[#6b5f58]/60 dark:text-[#9b9a92]/60">
+        <span className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--text-secondary)/60 dark:text-(--text-secondary)/60">
           {stepsLabel}
         </span>
       </div>
@@ -102,16 +102,16 @@ export function OnboardingActivityChips({
             role="listitem"
             className={cn(
               'inline-flex items-center gap-1.75 whitespace-nowrap rounded-full border-[1.5px] px-4 py-2.25 text-[12.5px] font-medium shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] transition',
-              'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58]',
-              'dark:border-white/15 dark:bg-[#1e1c19] dark:text-[#9b9a92]',
+              'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary)',
+              'dark:border-white/15 dark:bg-(--surface-card) dark:text-(--text-secondary)',
               active &&
-                'border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] font-semibold text-[#1a1714] dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#f2f0eb]',
+                'border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] font-semibold text-(--text-primary) dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--text-primary)',
             )}
           >
             <span
               className={cn(
                 'shrink-0 opacity-60 transition',
-                active && 'text-[#b84c2b] opacity-100 dark:text-[#e8816a]',
+                active && 'text-(--brand-500) opacity-100 dark:text-(--brand-500)',
               )}
             >
               {chip.icon}
@@ -126,21 +126,21 @@ export function OnboardingActivityChips({
 
 export function OnboardingWorkflowFooter() {
   return (
-    <footer className="flex w-full flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[#f5ede4] px-5 py-5 dark:border-white/15 dark:bg-[#141412] sm:px-8 md:px-12">
-      <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
+    <footer className="flex w-full flex-wrap items-center justify-between gap-3 border-t border-(--border-subtle) bg-(--surface-canvas) px-5 py-5 dark:border-white/15 dark:bg-(--surface-canvas) sm:px-8 md:px-12">
+      <span className="font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/50 dark:text-(--text-secondary)/50">
         © 2026 Imminiq. Scholarly rigor meets digital intelligence.
       </span>
 
       <div className="flex items-center gap-4">
         <Link
           to="/privacy"
-          className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
+          className="font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/50 transition hover:text-(--brand-500) hover:opacity-100 dark:text-(--text-secondary)/50 dark:hover:text-(--brand-500)"
         >
           Privacy
         </Link>
         <Link
           to="/terms"
-          className="font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/50 transition hover:text-[#b84c2b] hover:opacity-100 dark:text-[#9b9a92]/50 dark:hover:text-[#e8816a]"
+          className="font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/50 transition hover:text-(--brand-500) hover:opacity-100 dark:text-(--text-secondary)/50 dark:hover:text-(--brand-500)"
         >
           Terms
         </Link>

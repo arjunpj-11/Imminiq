@@ -46,9 +46,9 @@ const domainLabel = (value: string | undefined) => {
 const getTone = (status: Tracker['status']) => {
   if (status === 'completed') {
     return {
-      bar: 'from-[#70d49a] to-[#4caf7d]',
+      bar: 'from-[#70d49a] to-[var(--success)]',
       badge:
-        'border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]',
+        'border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[var(--success)]',
     }
   }
 
@@ -56,22 +56,22 @@ const getTone = (status: Tracker['status']) => {
     return {
       bar: 'from-[#9b9a92] to-[#6b5f58]',
       badge:
-        'border-[#e0d0c5] bg-[rgba(26,23,20,0.05)] text-[#6b5f58] dark:border-white/9 dark:bg-white/6 dark:text-[#9b9a92]',
+        'border-[var(--border-subtle)] bg-[rgba(26,23,20,0.05)] text-[var(--text-secondary)] dark:border-[var(--border-subtle)] dark:bg-white/6 dark:text-[var(--text-secondary)]',
     }
   }
 
   if (status === 'stalled') {
     return {
-      bar: 'from-[#e8c060] to-[#c98000]',
+      bar: 'from-[#e8c060] to-[var(--warning)]',
       badge:
-        'border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] text-[#8a6200] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.10)] dark:text-[#f0a842]',
+        'border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] text-[#8a6200] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.10)] dark:text-[var(--warning)]',
     }
   }
 
   return {
-    bar: 'from-[#e8816a] to-[#b84c2b]',
+    bar: 'from-[var(--brand-500)] to-[var(--brand-500)]',
     badge:
-      'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]',
+      'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[var(--brand-500)] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[var(--brand-500)]',
   }
 }
 
@@ -282,33 +282,33 @@ export default function TrackerCard({
         tabIndex={0}
         onClick={() => onOpenStudy(tracker._id)}
         onKeyDown={(event) => { if (event.key === 'Enter') onOpenStudy(tracker._id) }}
-        className="group relative min-h-72 cursor-pointer overflow-visible rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-1 hover:border-[rgba(184,76,43,0.22)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] focus:outline-none focus:ring-3 focus:ring-[rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#1e1c19] dark:hover:border-[rgba(232,129,106,0.24)]"
+        className="render-lazy group relative min-h-72 cursor-pointer overflow-visible rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition hover:-translate-y-1 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) focus:outline-none focus:ring-3 focus:ring-[rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-[rgba(232,129,106,0.24)]"
       >
         <div className={cn('absolute bottom-0 left-0 right-0 h-0.75 rounded-b-[20px] bg-linear-to-r', tone.bar)} />
 
         {/* ── Header ── */}
         <div className="mb-5 flex items-start justify-between gap-3">
           <div className="flex flex-wrap items-center gap-2">
-            <span className={cn('rounded-full border px-3 py-1 font-["DM_Mono",monospace] text-[8px] uppercase tracking-[0.12em]', tone.badge)}>
+            <span className={cn('rounded-full border px-3 py-1 font-mono text-[8px] uppercase tracking-[0.12em]', tone.badge)}>
               {domainLabel(tracker.domain)}
             </span>
             {isPublished && (
-              <span className="rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+              <span className="rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
                 Published
               </span>
             )}
             {isArchived && (
-              <span className="rounded-full border border-[#e0d0c5] bg-[rgba(26,23,20,0.05)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#6b5f58] dark:border-white/9 dark:bg-white/6 dark:text-[#9b9a92]">
+              <span className="rounded-full border border-(--border-subtle) bg-[rgba(26,23,20,0.05)] px-3 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/6 dark:text-(--text-secondary)">
                 Archived
               </span>
             )}
             {isVerificationPending && (
-              <span className="rounded-full border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#8a6200] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.10)] dark:text-[#f0a842]">
+              <span className="rounded-full border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#8a6200] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.10)] dark:text-(--warning)">
                 Pending Review
               </span>
             )}
             {isVerificationVerified && (
-              <span className="rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.12em] text-[#2d6a47] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[#5cc98a]">
+              <span className="rounded-full border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] px-3 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)">
                 Verified
               </span>
             )}
@@ -319,7 +319,7 @@ export default function TrackerCard({
               type="button"
               aria-label="Tracker actions"
               onClick={(event) => { event.stopPropagation(); setMenuOpen((v) => !v) }}
-              className="flex h-8 w-8 items-center justify-center rounded-[10px] text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
+              className="flex h-8 w-8 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
                 <circle cx="5" cy="12" r="2" /><circle cx="12" cy="12" r="2" /><circle cx="19" cy="12" r="2" />
@@ -327,11 +327,11 @@ export default function TrackerCard({
             </button>
 
             {menuOpen && (
-              <div className="absolute right-0 top-10 z-30 w-52 overflow-hidden rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_16px_56px_rgba(26,23,20,0.18)] dark:border-white/9 dark:bg-[#1e1c19]">
-                <button type="button" onClick={(e) => handleMenuAction(e, () => onInfo(tracker._id))} className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#1a1714] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]">
+              <div className="absolute right-0 top-10 z-30 w-52 overflow-hidden rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_16px_56px_rgba(26,23,20,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                <button type="button" onClick={(e) => handleMenuAction(e, () => onInfo(tracker._id))} className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-(--text-primary) transition hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:text-(--text-primary) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)">
                   <InfoIcon />Info / Manage
                 </button>
-                <button type="button" onClick={(e) => handleMenuAction(e, () => onQuickRevision(tracker._id))} className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#1a1714] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]">
+                <button type="button" onClick={(e) => handleMenuAction(e, () => onQuickRevision(tracker._id))} className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-(--text-primary) transition hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:text-(--text-primary) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)">
                   <QuickRevisionIcon />Quick Revision
                 </button>
                 <button
@@ -345,8 +345,8 @@ export default function TrackerCard({
                   className={cn(
                     'flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-55',
                     canSendForVerification || (!isPublished && !isArchived)
-                      ? 'text-[#1a1714] hover:bg-[rgba(45,106,71,0.08)] hover:text-[#2d6a47] dark:text-[#f2f0eb] dark:hover:bg-[rgba(92,201,138,0.10)] dark:hover:text-[#5cc98a]'
-                      : 'text-[#9b9a92] dark:text-[#6b5f58]',
+                      ? 'text-(--text-primary) hover:bg-[rgba(45,106,71,0.08)] hover:text-(--success) dark:text-(--text-primary) dark:hover:bg-[rgba(92,201,138,0.10)] dark:hover:text-(--success)'
+                      : 'text-[#9b9a92] dark:text-(--text-secondary)',
                   )}
                 >
                   {isSendingVerification ? <SpinnerIcon /> : <VerifyIcon />}
@@ -354,8 +354,8 @@ export default function TrackerCard({
                 </button>
                 {onArchive && (
                   <>
-                    <div className="h-px bg-[#e0d0c5] dark:bg-white/9" />
-                    <button type="button" onClick={(e) => handleMenuAction(e, () => onArchive(tracker._id))} className={cn('flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold transition', isArchived ? 'text-[#2d6a47] hover:bg-[rgba(45,106,71,0.08)] dark:text-[#5cc98a] dark:hover:bg-[rgba(92,201,138,0.10)]' : 'text-[#b83232] hover:bg-[rgba(200,50,50,0.08)]')}>
+                    <div className="h-px bg-(--border-subtle) dark:bg-white/9" />
+                    <button type="button" onClick={(e) => handleMenuAction(e, () => onArchive(tracker._id))} className={cn('flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold transition', isArchived ? 'text-(--success) hover:bg-[rgba(45,106,71,0.08)] dark:text-(--success) dark:hover:bg-[rgba(92,201,138,0.10)]' : 'text-[#b83232] hover:bg-[rgba(200,50,50,0.08)]')}>
                       <ArchiveIcon />{isArchived ? 'Unarchive' : 'Archive'}
                     </button>
                   </>
@@ -366,20 +366,20 @@ export default function TrackerCard({
         </div>
 
         {/* ── Title & description ── */}
-        <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold leading-[1.15] tracking-[-0.45px] text-[#1a1714] transition group-hover:text-[#b84c2b] dark:text-[#f2f0eb] dark:group-hover:text-[#e8816a]">
+        <h2 className="font-ui text-[22px] font-extrabold leading-[1.15] tracking-[-0.45px] text-(--text-primary) transition group-hover:text-(--brand-500) dark:text-(--text-primary) dark:group-hover:text-(--brand-500)">
           {tracker.title}
         </h2>
-        <p className="mt-2 line-clamp-2 min-h-10 text-[12.5px] leading-[1.55] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mt-2 line-clamp-2 min-h-10 text-[12.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
           {tracker.description ?? tracker.goal ?? 'Personalized learning tracker'}
         </p>
 
         {/* ── Progress bar ── */}
         <div className="mt-6">
           <div className="mb-2 flex items-center justify-between">
-            <span className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-60 dark:text-[#9b9a92]">
+            <span className="font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)">
               Progress
             </span>
-            <span className="font-['DM_Mono',monospace] text-[10px] tracking-[0.06em] text-[#b84c2b] dark:text-[#e8816a]">
+            <span className="font-mono text-[10px] tracking-[0.06em] text-(--brand-500) dark:text-(--brand-500)">
               {progress}%
             </span>
           </div>
@@ -392,28 +392,28 @@ export default function TrackerCard({
         </div>
 
         {/* ── Topic stats ── */}
-        <div className="mt-5 grid grid-cols-3 divide-x divide-[#e0d0c5] border-y border-[#e0d0c5] py-3 dark:divide-white/9 dark:border-white/9">
+        <div className="mt-5 grid grid-cols-3 divide-x divide-(--border-subtle) border-y border-(--border-subtle) py-3 dark:divide-white/9 dark:border-(--border-subtle)">
           <div className="text-center">
-            <div className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+            <div className="font-mono text-[7.5px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
               Topics
             </div>
-            <div className="mt-1 text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+            <div className="mt-1 text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
               {totalTopics}
             </div>
           </div>
           <div className="text-center">
-            <div className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+            <div className="font-mono text-[7.5px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
               Done
             </div>
-            <div className="mt-1 text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+            <div className="mt-1 text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
               {completedTopics}
             </div>
           </div>
           <div className="text-center">
-            <div className="font-['DM_Mono',monospace] text-[7.5px] uppercase tracking-[0.12em] text-[#6b5f58] opacity-50 dark:text-[#9b9a92]">
+            <div className="font-mono text-[7.5px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
               Left
             </div>
-            <div className="mt-1 text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+            <div className="mt-1 text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
               {remainingTopics}
             </div>
           </div>
@@ -421,7 +421,7 @@ export default function TrackerCard({
 
         {/* ── Footer ── */}
         <div className="mt-4 flex flex-wrap items-center justify-between gap-2">
-          <span className="font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.08em] text-[#6b5f58] opacity-55 dark:text-[#9b9a92]">
+          <span className="font-mono text-[8px] uppercase tracking-[0.08em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
             {isArchived
               ? 'Archived'
               : tracker.status === 'completed'
@@ -430,11 +430,11 @@ export default function TrackerCard({
           </span>
 
           {isPublished ? (
-            <button type="button" onClick={(e) => { e.stopPropagation(); onViewPublished(tracker._id) }} className="rounded-[9px] border-[1.5px] border-[#e0d0c5] px-3.5 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]">
+            <button type="button" onClick={(e) => { e.stopPropagation(); onViewPublished(tracker._id) }} className="rounded-sm border-[1.5px] border-(--border-subtle) px-3.5 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)">
               View Published
             </button>
           ) : (
-            <button type="button" onClick={(e) => { e.stopPropagation(); setPublishError(null); setPublishModalOpen(true) }} className="rounded-[9px] border-[1.5px] border-[#e0d0c5] px-3.5 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]">
+            <button type="button" onClick={(e) => { e.stopPropagation(); setPublishError(null); setPublishModalOpen(true) }} className="rounded-sm border-[1.5px] border-(--border-subtle) px-3.5 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)">
               Publish
             </button>
           )}
@@ -444,7 +444,7 @@ export default function TrackerCard({
         {showPublishNudge && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="mt-4 rounded-[10px] border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3 py-2.5 text-[11.5px] leading-relaxed text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-[#f0a842]"
+            className="mt-4 rounded-md border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3 py-2.5 text-[11.5px] leading-relaxed text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-(--warning)"
           >
             Publish this tracker first before sending it for verification.
           </div>
@@ -454,7 +454,7 @@ export default function TrackerCard({
         {verificationError && (
           <div
             onClick={(e) => e.stopPropagation()}
-            className="mt-4 rounded-[10px] border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3 py-2 text-[11.5px] leading-relaxed text-[#b83232] dark:border-[rgba(255,120,120,0.20)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]"
+            className="mt-4 rounded-md border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3 py-2 text-[11.5px] leading-relaxed text-[#b83232] dark:border-[rgba(255,120,120,0.20)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]"
           >
             {verificationError}
           </div>

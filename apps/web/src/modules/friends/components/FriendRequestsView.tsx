@@ -42,7 +42,7 @@ export default function FriendRequestsView({
   return (
     <div className="flex flex-col gap-7">
       <section>
-        <p className="mb-3 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#9b9a92]">
+        <p className="mb-3 font-mono text-[9px] uppercase tracking-widest text-[#9b9a92]">
           Received · {receivedTotal}
         </p>
         {received.length > 0 ? (
@@ -76,7 +76,7 @@ export default function FriendRequestsView({
       </section>
 
       <section>
-        <p className="mb-3 font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#9b9a92]">
+        <p className="mb-3 font-mono text-[9px] uppercase tracking-widest text-[#9b9a92]">
           Sent · {sentTotal}
         </p>
         {sent.length > 0 ? (

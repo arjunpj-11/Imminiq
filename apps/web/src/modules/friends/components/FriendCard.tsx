@@ -15,7 +15,7 @@ export default function FriendCard({
   onRemove,
 }: FriendCardProps) {
   return (
-    <article className="flex min-w-0 items-center gap-3.5 rounded-[18px] border border-[#e8ddd6] bg-white/55 p-4 transition hover:border-[rgba(184,76,43,0.24)] hover:bg-white/75 dark:border-white/8 dark:bg-white/3 dark:hover:border-white/15 dark:hover:bg-white/5">
+    <article className="render-lazy flex min-w-0 items-center gap-3.5 rounded-lg border border-[#e8ddd6] bg-white/55 p-4 transition hover:border-[rgba(184,76,43,0.24)] hover:bg-white/75 dark:border-white/8 dark:bg-white/3 dark:hover:border-white/15 dark:hover:bg-white/5">
       <FriendsAvatar
         fullName={friend.fullName}
         {...(friend.avatarUrl !== undefined
@@ -24,16 +24,16 @@ export default function FriendCard({
       />
 
       <div className="min-w-0 flex-1">
-        <p className="truncate text-[13.5px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+        <p className="truncate text-[13.5px] font-bold text-(--text-primary) dark:text-(--text-primary)">
           {friend.fullName}
         </p>
         <p className="truncate text-[11.5px] text-[#9b9a92]">{friend.handle}</p>
         <div className="mt-1.5 flex flex-wrap items-center gap-2">
-          <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+          <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-mono text-[8px] uppercase tracking-widest text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
             {friend.levelLabel}
           </span>
           {friend.mutualCount > 0 && (
-            <span className="font-['DM_Mono',monospace] text-[9.5px] text-[#9b9a92]">
+            <span className="font-mono text-[9.5px] text-[#9b9a92]">
               {formatMutualFriends(friend.mutualCount)}
             </span>
           )}
@@ -46,7 +46,7 @@ export default function FriendCard({
         disabled={removing}
         aria-label={`Remove ${friend.fullName} from friends`}
         title="Remove friend"
-        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] border-[1.5px] border-[#e0d0c5] text-[#9b9a92] transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/9 dark:hover:text-[#e8816a]"
+        className="flex h-9 w-9 shrink-0 items-center justify-center rounded-md border-[1.5px] border-(--border-subtle) text-[#9b9a92] transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:hover:text-(--brand-500)"
       >
         {removing ? <SpinnerIcon className="animate-spin" /> : <MoreIcon />}
       </button>

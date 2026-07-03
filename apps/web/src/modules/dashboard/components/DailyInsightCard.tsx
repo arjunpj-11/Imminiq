@@ -8,11 +8,11 @@ export default function DailyInsightCard({
   onDismiss,
 }: DailyInsightCardProps) {
   return (
-    <section className="relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl bg-linear-to-br from-[#b84c2b] to-[#963d22] px-5.5 py-4 shadow-[0_8px_32px_rgba(184,76,43,0.28)]">
+    <section className="relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl bg-linear-to-br from-(--brand-500) to-[#963d22] px-5.5 py-4 shadow-[0_8px_32px_rgba(184,76,43,0.28)]">
       <div className="relative z-1 text-[26px]">💡</div>
 
       <div className="relative z-1 min-w-0 flex-1">
-        <div className="mb-1 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.18em] text-white/65">
+        <div className="mb-1 font-mono text-[8px] uppercase tracking-[0.18em] text-white/65">
           AI Daily Insight
         </div>
 

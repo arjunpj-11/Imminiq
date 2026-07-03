@@ -5,10 +5,10 @@ import StatGrid from '../../../components/data-display/StatGrid'
 import type { MockTestSummary } from '../types/mock-tests.types'
 
 const ACCENTS: StatAccent[] = [
-  { light: '#b84c2b', dark: '#e8816a' },
-  { light: '#3b6cb7', dark: '#4a9eff' },
-  { light: '#2d6a47', dark: '#3dbf82' },
-  { light: '#c98000', dark: '#f0a832' },
+  { light: 'var(--brand-500)', dark: 'var(--brand-500)' },
+  { light: 'var(--info)', dark: 'var(--info)' },
+  { light: 'var(--success)', dark: 'var(--success)' },
+  { light: 'var(--warning)', dark: 'var(--warning)' },
 ]
 
 export function MockTestStatsGrid({ summary }: { summary: MockTestSummary }) {

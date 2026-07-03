@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react'
+import { useId, type ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
@@ -9,6 +9,7 @@ interface FormFieldProps {
   children: ReactNode
   className?: string
   labelClassName?: string
+  required?: boolean
 }
 
 export default function FormField({
@@ -18,26 +19,34 @@ export default function FormField({
   children,
   className,
   labelClassName,
+  required = false,
 }: FormFieldProps) {
+  const messageId = useId()
+
   return (
     <label className={cn('block', className)}>
       {label && (
         <span
           className={cn(
-            "mb-2 block font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]",
+            'mb-2 flex items-center gap-1 text-[12px] font-[650] text-(--text-primary)',
             labelClassName,
           )}
         >
           {label}
+          {required && (
+            <span className="text-(--danger)" aria-hidden="true">*</span>
+          )}
         </span>
       )}
       {children}
       {error ? (
-        <span className="mt-1.5 block text-[11px] text-[#d94535] dark:text-[#ff6b5f]">
+        <span id={messageId} role="alert" className="mt-1.5 block text-[11px] leading-4 text-(--danger)">
           {error}
         </span>
       ) : hint ? (
-        <span className="mt-1.5 block text-[11px] text-[#9b9a92]">{hint}</span>
+        <span id={messageId} className="mt-1.5 block text-[11px] leading-4 text-(--text-muted)">
+          {hint}
+        </span>
       ) : null}
     </label>
   )

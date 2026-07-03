@@ -54,7 +54,7 @@ export function TopicGroup({
   onSelectAll,
   onDeselectAll,
 }: TopicGroupProps) {
-  const [open, setOpen] = useState(true)
+  const [open, setOpen] = useState(false)
   const selectedCount = nodes.filter((node) => selectedIds.has(node._id)).length
   const allSelected = selectedCount === nodes.length
 
@@ -79,22 +79,22 @@ export function TopicGroup({
   }
 
   return (
-    <div className="overflow-hidden rounded-[14px] border border-[#e0d0c5] bg-[#fdf8f5] transition-all duration-200 dark:border-white/8 dark:bg-[#141412]">
+    <div className="overflow-hidden rounded-md border border-(--border-subtle) bg-(--surface-card) transition-all duration-200 dark:border-white/8 dark:bg-(--surface-canvas)">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
         className="flex w-full items-center justify-between gap-3 px-4 py-3 text-left transition hover:bg-[rgba(184,76,43,0.04)] dark:hover:bg-white/2.5"
       >
         <div className="flex min-w-0 items-center gap-2.5">
-          <span className="h-2 w-2 shrink-0 rounded-full bg-[#b84c2b] shadow-[0_0_6px_rgba(184,76,43,0.35)] dark:bg-[#e8816a] dark:shadow-[0_0_6px_rgba(232,129,106,0.5)]" />
-          <span className="truncate font-['Playfair_Display',serif] text-[13.5px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+          <span className="h-2 w-2 shrink-0 rounded-full bg-(--brand-500) shadow-[0_0_6px_rgba(184,76,43,0.35)] dark:bg-(--brand-500) dark:shadow-[0_0_6px_rgba(232,129,106,0.5)]" />
+          <span className="truncate font-ui text-[13.5px] font-black text-(--text-primary) dark:text-(--text-primary)">
             {topicTitle}
           </span>
         </div>
 
         <div className="flex shrink-0 items-center gap-2.5">
           {selectedCount > 0 && (
-            <span className="rounded-full bg-[rgba(184,76,43,0.10)] px-2 py-0.5 font-['DM_Mono',monospace] text-[9px] font-bold text-[#b84c2b] dark:bg-[#e8816a]/20 dark:text-[#e8816a]">
+            <span className="rounded-full bg-[rgba(184,76,43,0.10)] px-2 py-0.5 font-mono text-[9px] font-bold text-(--brand-500) dark:bg-(--brand-500)/20 dark:text-(--brand-500)">
               {selectedCount}/{nodes.length}
             </span>
           )}
@@ -104,19 +104,19 @@ export function TopicGroup({
             tabIndex={0}
             onClick={handleSelectToggleClick}
             onKeyDown={handleSelectToggleKeyDown}
-            className="font-['DM_Mono',monospace] text-[9px] text-[#6b5f58] underline transition hover:text-[#b84c2b] dark:text-[#6b6560] dark:hover:text-[#9b9a92]"
+            className="font-mono text-[9px] text-(--text-secondary) underline transition hover:text-(--brand-500) dark:text-[#6b6560] dark:hover:text-[#9b9a92]"
           >
             {allSelected ? 'none' : 'all'}
           </span>
 
-          <span className="text-[#6b5f58] dark:text-[#6b6560]">
+          <span className="text-(--text-secondary) dark:text-[#6b6560]">
             <ChevronDown open={open} />
           </span>
         </div>
       </button>
 
       {open && (
-        <div className="border-t border-[#e0d0c5] px-4 pb-4 pt-3 dark:border-white/5">
+        <div className="border-t border-(--border-subtle) px-4 pb-4 pt-3 dark:border-white/5">
           <div className="flex flex-wrap gap-1.5">
             {nodes.map((node) => {
               const isSelected = selectedIds.has(node._id)
@@ -128,11 +128,11 @@ export function TopicGroup({
                   type="button"
                   onClick={() => onToggle(node._id, node.title)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-['DM_Mono',monospace] text-[10px] font-bold tracking-[0.04em] transition-all duration-150 hover:-translate-y-px active:scale-95",
+                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.04em] transition-all duration-150 hover:-translate-y-px active:scale-95",
                     node.depth > 0 && 'opacity-85',
                     isSelected
-                      ? 'border-[#b84c2b] bg-[rgba(184,76,43,0.10)] text-[#b84c2b] shadow-[0_0_0_1px_rgba(184,76,43,0.12)] dark:border-[#e8816a] dark:bg-[#e8816a]/15 dark:text-[#e8816a] dark:shadow-[0_0_0_1px_rgba(232,129,106,0.15)]'
-                      : 'border-[#e0d0c5] bg-white/35 text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/10 dark:bg-white/2 dark:text-[#6b6560] dark:hover:border-white/20 dark:hover:text-[#9b9a92]'
+                      ? 'border-(--brand-500) bg-[rgba(184,76,43,0.10)] text-(--brand-500) shadow-[0_0_0_1px_rgba(184,76,43,0.12)] dark:border-(--brand-500) dark:bg-(--brand-500)/15 dark:text-(--brand-500) dark:shadow-[0_0_0_1px_rgba(232,129,106,0.15)]'
+                      : 'border-(--border-subtle) bg-white/35 text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/2 dark:text-[#6b6560] dark:hover:border-white/20 dark:hover:text-[#9b9a92]'
                   )}
                 >
                   {isSelected && <CheckIcon />}
@@ -186,34 +186,34 @@ export function SelectionPreview({
   if (selectedNodes.size === 0) return null
 
   return (
-    <div className="overflow-hidden rounded-xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.06)] dark:border-[#e8816a]/20 dark:bg-[#e8816a]/5">
+    <div className="overflow-hidden rounded-xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.06)] dark:border-(--brand-500)/20 dark:bg-(--brand-500)/5">
       <button
         type="button"
         onClick={() => setExpanded((value) => !value)}
         className="flex w-full items-center justify-between px-3.5 py-2.5 text-left"
       >
         <div className="flex items-center gap-2">
-          <span className="h-1.5 w-1.5 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
-          <span className="font-['DM_Mono',monospace] text-[9px] font-bold uppercase tracking-widest text-[#b84c2b] dark:text-[#e8816a]">
+          <span className="h-1.5 w-1.5 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
+          <span className="font-mono text-[9px] font-bold uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">
             {selectedNodes.size} subtopics across {byTopic.length} topic
             {byTopic.length !== 1 ? 's' : ''}
           </span>
         </div>
 
-        <span className="text-[#6b5f58] dark:text-[#9b9a92]">
+        <span className="text-(--text-secondary) dark:text-(--text-secondary)">
           <ChevronDown open={expanded} />
         </span>
       </button>
 
       {expanded && (
-        <div className="space-y-2 border-t border-[rgba(184,76,43,0.12)] px-3.5 pb-3 pt-2 dark:border-[#e8816a]/10">
-          <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#6b5f58] dark:text-[#6b6560]">
+        <div className="space-y-2 border-t border-[rgba(184,76,43,0.12)] px-3.5 pb-3 pt-2 dark:border-(--brand-500)/10">
+          <p className="font-mono text-[9px] uppercase tracking-widest text-(--text-secondary) dark:text-[#6b6560]">
             {trackerTitle}
           </p>
 
           {byTopic.map(({ topicTitle, subtopics }) => (
             <div key={topicTitle}>
-              <p className="mb-1 font-['DM_Mono',monospace] text-[10px] font-bold text-[#1a1714] dark:text-[#9b9a92]">
+              <p className="mb-1 font-mono text-[10px] font-bold text-(--text-primary) dark:text-(--text-secondary)">
                 └ {topicTitle}
               </p>
 
@@ -221,7 +221,7 @@ export function SelectionPreview({
                 {subtopics.map((subtopic) => (
                   <span
                     key={subtopic}
-                    className="rounded-full border border-[rgba(184,76,43,0.30)] px-2 py-0.5 font-['DM_Mono',monospace] text-[9px] text-[#b84c2b] dark:border-[#e8816a]/30 dark:text-[#e8816a]"
+                    className="rounded-full border border-[rgba(184,76,43,0.30)] px-2 py-0.5 font-mono text-[9px] text-(--brand-500) dark:border-(--brand-500)/30 dark:text-(--brand-500)"
                   >
                     {subtopic}
                   </span>

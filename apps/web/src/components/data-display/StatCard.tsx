@@ -8,11 +8,11 @@ export interface StatAccent {
   dark: string
 }
 
-const toneAccents: Record<StatTone, StatAccent> = {
-  rust: { light: '#b84c2b', dark: '#e8816a' },
-  green: { light: '#2d6a47', dark: '#3dbf82' },
-  amber: { light: '#c98000', dark: '#f0a832' },
-  blue: { light: '#3b6cb7', dark: '#4a9eff' },
+const toneColors: Record<StatTone, string> = {
+  rust: 'var(--brand-500)',
+  green: 'var(--success)',
+  amber: 'var(--warning)',
+  blue: 'var(--info)',
 }
 
 interface StatCardProps {
@@ -26,6 +26,8 @@ interface StatCardProps {
   accent?: StatAccent
   className?: string
   valueClassName?: string
+  variant?: 'flat' | 'elevated' | 'spotlight'
+  trend?: ReactNode
 }
 
 export default function StatCard({
@@ -39,37 +41,34 @@ export default function StatCard({
   accent,
   className,
   valueClassName,
+  variant = 'flat',
+  trend,
 }: StatCardProps) {
-  const selectedAccent = accent ?? toneAccents[tone]
+  const color = accent?.light ?? toneColors[tone]
 
   return (
     <div
       className={cn(
-        'group relative flex min-w-0 flex-col overflow-hidden rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.20)] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1c1a18] dark:hover:border-white/20',
+        'relative flex min-w-0 flex-col overflow-hidden p-4.5',
+        variant === 'flat' && 'surface-flat',
+        variant === 'elevated' && 'surface-elevated',
+        variant === 'spotlight' && 'surface-spotlight',
         className,
       )}
     >
-      <div
-        className="absolute inset-x-0 top-0 h-[2.5px] dark:hidden"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${selectedAccent.light}, transparent)`,
-        }}
-      />
-      <div
-        className="absolute inset-x-0 top-0 hidden h-[2.5px] dark:block"
-        style={{
-          background: `linear-gradient(90deg, transparent, ${selectedAccent.dark}, transparent)`,
-        }}
-      />
-
-      <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
-        {label}
+      <div className="flex items-start justify-between gap-3">
+        <div className="type-label-sm text-(--text-muted)">{label}</div>
+        {trend && (
+          <div className="font-mono text-[10px] font-semibold" style={{ color }}>
+            {trend}
+          </div>
+        )}
       </div>
 
       {value !== undefined && (
         <div
           className={cn(
-            "mt-4 font-['Playfair_Display',serif] text-[30px] font-black leading-none tracking-[-1.5px] text-[#1a1714] dark:text-[#f2f0eb] sm:text-[34px]",
+            'type-metric-xl mt-3 text-(--text-primary)',
             valueClassName,
           )}
         >
@@ -80,13 +79,19 @@ export default function StatCard({
       {children}
 
       {helper && (
-        <div className="mt-3 flex-1 text-[12px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
+        <div className="type-body-sm mt-2.5 flex-1 text-(--text-secondary)">
           {helper}
         </div>
       )}
 
-      {footer && <div className="mt-2">{footer}</div>}
+      {footer && <div className="mt-2.5">{footer}</div>}
       {action && <div className="mt-3">{action}</div>}
+
+      <span
+        aria-hidden="true"
+        className="absolute bottom-0 left-4 right-4 h-px opacity-55"
+        style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
+      />
     </div>
   )
 }

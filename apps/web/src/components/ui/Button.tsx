@@ -13,21 +13,21 @@ export type ButtonSize = 'sm' | 'md' | 'lg'
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'border-transparent bg-[#b84c2b] text-white hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]',
+    'border-transparent bg-[var(--brand-500)] text-[var(--brand-contrast)] shadow-[0_5px_16px_color-mix(in_srgb,var(--brand-500)_18%,transparent)] hover:bg-[var(--brand-600)] hover:shadow-[0_8px_22px_color-mix(in_srgb,var(--brand-500)_24%,transparent)]',
   secondary:
-    'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.06)] hover:text-[#b84c2b] dark:border-white/10 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:text-[#e8816a]',
+    'border-[var(--border-subtle)] bg-[var(--surface-elevated)] text-[var(--text-primary)] shadow-[var(--shadow-1)] hover:border-[color-mix(in_srgb,var(--brand-500)_30%,var(--border-subtle))] hover:bg-[var(--surface-card)] hover:text-[var(--brand-500)]',
   ghost:
-    'border-transparent bg-transparent text-[#6b5f58] hover:bg-[rgba(184,76,43,0.07)] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:text-[#e8816a]',
+    'border-transparent bg-transparent text-[var(--text-secondary)] hover:bg-[color-mix(in_srgb,var(--brand-500)_8%,transparent)] hover:text-[var(--brand-500)]',
   danger:
-    'border-transparent bg-[#d94535] text-white hover:bg-[#b9362b] dark:bg-[#e05252] dark:hover:bg-[#c94545]',
+    'border-transparent bg-[var(--danger)] text-white shadow-[0_5px_16px_color-mix(in_srgb,var(--danger)_18%,transparent)] hover:brightness-90',
   'outline-danger':
-    'border-red-400/50 bg-transparent text-red-600 hover:bg-red-500/10 dark:border-red-400/40 dark:text-red-400',
+    'border-[color-mix(in_srgb,var(--danger)_40%,transparent)] bg-transparent text-[var(--danger)] hover:bg-[color-mix(in_srgb,var(--danger)_9%,transparent)]',
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
-  sm: 'min-h-8 rounded-lg px-3 py-1.5 text-[11px]',
-  md: 'min-h-10 rounded-[10px] px-4 py-2.5 text-[12px]',
-  lg: 'min-h-11 rounded-xl px-5 py-3 text-[13px]',
+  sm: 'min-h-8 rounded-[var(--radius-sm)] px-3 py-1.5 text-[11px]',
+  md: 'min-h-10 rounded-[var(--radius-md)] px-4 py-2.5 text-[12px]',
+  lg: 'min-h-12 rounded-[var(--radius-md)] px-5 py-3 text-[13px]',
 }
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
@@ -66,7 +66,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       disabled={isDisabled}
       aria-busy={loading || undefined}
       className={cn(
-        'inline-flex items-center justify-center gap-2 border font-bold transition duration-150 focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[rgba(184,76,43,0.22)] disabled:cursor-not-allowed disabled:opacity-55',
+        'font-ui interactive-lift inline-flex items-center justify-center gap-2 border font-[680] tracking-[-0.005em] focus-visible:outline-none disabled:pointer-events-none disabled:opacity-55',
         variantClasses[variant],
         sizeClasses[size],
         fullWidth && 'w-full',
@@ -82,7 +82,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
       ) : (
         leftIcon
       )}
-      {loading && loadingText !== undefined ? loadingText : children}
+      <span>{loading && loadingText !== undefined ? loadingText : children}</span>
       {!loading && rightIcon}
     </button>
   )

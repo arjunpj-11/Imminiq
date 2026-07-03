@@ -363,39 +363,39 @@ export default function AccountSecuritySettingsPage() {
             description="Your primary scholarly identifier."
             icon="✉️"
           >
-            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-[14px] bg-[#f9f3ef] px-4 py-3 dark:bg-[#1a1816]">
+            <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md bg-[#f9f3ef] px-4 py-3 dark:bg-(--surface-card)">
               <strong className="text-[14px]">
                 {security?.email ?? 'Email not loaded'}
               </strong>
 
               {security?.emailVerified ? (
-                <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2.5 py-1 text-[11px] font-bold text-[#2d6a47] dark:text-[#5cc98a]">
+                <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2.5 py-1 text-[11px] font-bold text-(--success) dark:text-(--success)">
                   Verified
                 </span>
               ) : (
-                <span className="rounded-full bg-[rgba(196,60,60,0.10)] px-2.5 py-1 text-[11px] font-bold text-[#c43c3c] dark:text-[#e05252]">
+                <span className="rounded-full bg-[rgba(196,60,60,0.10)] px-2.5 py-1 text-[11px] font-bold text-(--danger) dark:text-(--danger)">
                   Unverified
                 </span>
               )}
             </div>
 
             {showPendingEmailNotice && security?.pendingEmail && (
-              <div className="mb-4 rounded-[14px] border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.08)] px-4 py-3">
+              <div className="mb-4 rounded-md border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.08)] px-4 py-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">
+                  <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
                     Pending Email Change
                   </div>
 
                   {showPendingEmailTimer && (
-                    <div className="rounded-full border border-[rgba(184,76,43,0.22)] bg-white/70 px-2.5 py-1 font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.08em] text-[#b84c2b] dark:bg-[#1a1816]/80 dark:text-[#e8816a]">
+                    <div className="rounded-full border border-[rgba(184,76,43,0.22)] bg-white/70 px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-(--brand-500) dark:bg-(--surface-card)/80 dark:text-(--brand-500)">
                       Link expires in {formatCountdown(pendingEmailSecondsLeft)}
                     </div>
                   )}
                 </div>
 
-                <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                   A verification link was sent to{' '}
-                  <strong className="text-[#1a1714] dark:text-[#f2f0eb]">
+                  <strong className="text-(--text-primary) dark:text-(--text-primary)">
                     {security.pendingEmail}
                   </strong>
                   . Your current email will remain active until that link is
@@ -405,7 +405,7 @@ export default function AccountSecuritySettingsPage() {
             )}
 
             {sensitiveActionUnavailableForSocialAccount && (
-              <div className="mb-4 rounded-[14px] border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[13px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+              <div className="mb-4 rounded-md border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
                 This {providerLabel} account has no local password. Enable
                 two-factor authentication first to securely change your email.
               </div>
@@ -462,7 +462,7 @@ export default function AccountSecuritySettingsPage() {
                     sensitiveActionUnavailableForSocialAccount ||
                     changeEmail.isPending
                   }
-                  className="h-11.5 rounded-[11px] bg-[#b84c2b] px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
+                  className="h-11.5 rounded-md bg-(--brand-500) px-5 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412]"
                 >
                   {changeEmail.isPending ? 'Sending...' : 'Send Verify Link'}
                 </button>
@@ -496,23 +496,23 @@ export default function AccountSecuritySettingsPage() {
                   />
                 </div>
 
-                <div className="mt-5 rounded-2xl bg-[#f9f3ef] p-4 dark:bg-[#1a1816]">
+                <div className="mt-5 rounded-2xl bg-[#f9f3ef] p-4 dark:bg-(--surface-card)">
                   <div className="mb-2 flex items-center justify-between">
                     <MonoLabel>Password Strength</MonoLabel>
 
-                    <span className="text-[12px] font-bold text-[#b84c2b] dark:text-[#e8816a]">
+                    <span className="text-[12px] font-bold text-(--brand-500) dark:text-(--brand-500)">
                       {scoreLabel} · {score}%
                     </span>
                   </div>
 
                   <div className="h-2 overflow-hidden rounded-full bg-black/10 dark:bg-white/10">
                     <div
-                      className="h-full rounded-full bg-[#b84c2b] transition-all dark:bg-[#e8816a]"
+                      className="h-full rounded-full bg-(--brand-500) transition-all dark:bg-(--brand-500)"
                       style={{ width: `${score}%` }}
                     />
                   </div>
 
-                  <div className="mt-4 grid gap-2 text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+                  <div className="mt-4 grid gap-2 text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
                     <div>• At least 8 characters</div>
                     <div>• Includes a number or symbol</div>
                     <div>• Uses uppercase letters for stronger protection</div>
@@ -527,7 +527,7 @@ export default function AccountSecuritySettingsPage() {
                     !newPassword ||
                     changePassword.isPending
                   }
-                  className="mt-4 rounded-[11px] bg-[#b84c2b] px-5 py-3 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]"
+                  className="mt-4 rounded-md bg-(--brand-500) px-5 py-3 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412]"
                 >
                   {changePassword.isPending
                     ? 'Updating...'
@@ -536,15 +536,15 @@ export default function AccountSecuritySettingsPage() {
               </>
             ) : (
               <div className="rounded-2xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] p-5">
-                <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.16em] text-[#3b6cb7] dark:text-[#6b9fe8]">
+                <div className="font-mono text-[9px] uppercase tracking-[0.16em] text-(--info) dark:text-(--info)">
                   Password Managed Externally
                 </div>
 
-                <h3 className="mt-2 text-[16px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                <h3 className="mt-2 text-[16px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   Password managed by {providerLabel}
                 </h3>
 
-                <p className="mt-2 max-w-2xl text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-2 max-w-2xl text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
                   This account signs in using {providerLabel} OAuth, so there is
                   no separate Imminiq password to change here.
                 </p>
@@ -560,7 +560,7 @@ export default function AccountSecuritySettingsPage() {
           >
             <div className="space-y-3">
               {(security?.activeSessions ?? []).length === 0 && (
-                <div className="rounded-[14px] border border-dashed border-[#e0d0c5] p-4 text-[13px] text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">
+                <div className="rounded-md border border-dashed border-(--border-subtle) p-4 text-[13px] text-(--text-secondary) dark:border-(--border-subtle) dark:text-(--text-secondary)">
                   No active sessions found.
                 </div>
               )}
@@ -568,20 +568,20 @@ export default function AccountSecuritySettingsPage() {
               {(security?.activeSessions ?? []).map((session) => (
                 <div
                   key={session.id}
-                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-[1.5px] border-[#e0d0c5] p-4 dark:border-white/9"
+                  className="flex flex-wrap items-center justify-between gap-3 rounded-2xl border-[1.5px] border-(--border-subtle) p-4 dark:border-(--border-subtle)"
                 >
                   <div>
                     <div className="flex items-center gap-2 text-[14px] font-bold">
                       {session.deviceName}
 
                       {session.current && (
-                        <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-[#2d6a47] dark:text-[#5cc98a]">
+                        <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-(--success) dark:text-(--success)">
                           Current
                         </span>
                       )}
                     </div>
 
-                    <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
                       {session.location} · {session.client} ·{' '}
                       {session.lastActive}
                     </p>
@@ -592,7 +592,7 @@ export default function AccountSecuritySettingsPage() {
                       type="button"
                       onClick={() => handleTerminateSession(session.id)}
                       disabled={terminateSession.isPending}
-                      className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2 text-[12px] font-bold text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:text-[#9b9a92]"
+                      className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-60 dark:border-(--border-subtle) dark:text-(--text-secondary)"
                     >
                       Terminate
                     </button>
@@ -614,7 +614,7 @@ export default function AccountSecuritySettingsPage() {
                   {security?.twoFactorEnabled ? '2FA Enabled' : '2FA Disabled'}
                 </div>
 
-                <p className="mt-1 max-w-2xl text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+                <p className="mt-1 max-w-2xl text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
                   Secure your Imminiq archive with a verification step beyond
                   your password.
                 </p>
@@ -627,7 +627,7 @@ export default function AccountSecuritySettingsPage() {
                     setDisableTwoFactorOpen(true)
                     setDisableTwoFactorError('')
                   }}
-                  className="rounded-[11px] border-[1.5px] border-[rgba(196,60,60,0.30)] bg-[rgba(196,60,60,0.08)] px-5 py-3 text-[13px] font-bold text-[#c43c3c] transition hover:bg-[rgba(196,60,60,0.12)] dark:text-[#e05252]"
+                  className="rounded-md border-[1.5px] border-[rgba(196,60,60,0.30)] bg-[rgba(196,60,60,0.08)] px-5 py-3 text-[13px] font-bold text-(--danger) transition hover:bg-[rgba(196,60,60,0.12)] dark:text-(--danger)"
                 >
                   Disable 2FA
                 </button>
@@ -636,7 +636,7 @@ export default function AccountSecuritySettingsPage() {
                   type="button"
                   onClick={handleStartTwoFactorSetup}
                   disabled={setupTwoFactor.isPending}
-                  className="rounded-[11px] bg-[#2d6a47] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#5cc98a] dark:text-[#141412]"
+                  className="rounded-md bg-(--success) px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--success) dark:text-[#141412]"
                 >
                   {setupTwoFactor.isPending ? 'Preparing...' : 'Enable 2FA'}
                 </button>
@@ -645,12 +645,12 @@ export default function AccountSecuritySettingsPage() {
           </SettingsCard>
 
           {/* ─── DANGER ZONE ─────────────────────────────── */}
-          <div className="rounded-[18px] border-[1.5px] border-[rgba(196,60,60,0.22)] bg-[rgba(196,60,60,0.08)] p-5">
-            <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold text-[#c43c3c] dark:text-[#e05252]">
+          <div className="rounded-lg border-[1.5px] border-[rgba(196,60,60,0.22)] bg-[rgba(196,60,60,0.08)] p-5">
+            <h2 className="font-ui text-[20px] font-extrabold text-(--danger) dark:text-(--danger)">
               Danger Zone
             </h2>
 
-            <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
               Deleting your account starts a <strong>30-day recovery period</strong>.
               Your active sessions will be signed out immediately, and the
               account will be scheduled for deletion. Signing in again within
@@ -658,7 +658,7 @@ export default function AccountSecuritySettingsPage() {
             </p>
 
             {sensitiveActionUnavailableForSocialAccount && (
-              <p className="mt-3 rounded-xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-3 py-2 text-[12.5px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+              <p className="mt-3 rounded-xl border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-3 py-2 text-[12.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                 Enable two-factor authentication first before deleting this
                 {` ${providerLabel}`} account.
               </p>
@@ -671,7 +671,7 @@ export default function AccountSecuritySettingsPage() {
                 setDeleteAccountError('')
               }}
               disabled={sensitiveActionUnavailableForSocialAccount}
-              className="mt-4 rounded-[11px] bg-[#c43c3c] px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
+              className="mt-4 rounded-md bg-(--danger) px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
             >
               Delete My Archive
             </button>
@@ -700,7 +700,7 @@ export default function AccountSecuritySettingsPage() {
                   <strong>{security.pendingEmail}</strong>
 
                   {showPendingEmailTimer && (
-                    <p className="mt-1 font-['DM_Mono',monospace] text-[11px] font-bold text-[#b84c2b] dark:text-[#e8816a]">
+                    <p className="mt-1 font-mono text-[11px] font-bold text-(--brand-500) dark:text-(--brand-500)">
                       Expires in {formatCountdown(pendingEmailSecondsLeft)}
                     </p>
                   )}

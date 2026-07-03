@@ -32,11 +32,11 @@ export function SettingsCard({
         )}
 
         <div>
-          <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold tracking-[-0.35px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h2 className="font-ui text-[20px] font-extrabold tracking-[-0.35px] text-(--text-primary) dark:text-(--text-primary)">
             {title}
           </h2>
           {description && (
-            <p className="mt-1 max-w-3xl text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-1 max-w-3xl text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
               {description}
             </p>
           )}
@@ -50,7 +50,7 @@ export function SettingsCard({
 
 export function MonoLabel({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-2 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
+    <div className="mb-2 font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
       {children}
     </div>
   )
@@ -72,20 +72,20 @@ export function ToggleRow({
   disabled?: boolean
 }) {
   return (
-    <div className="flex items-center justify-between gap-5 border-t border-[#e0d0c5] py-4 first:border-t-0 dark:border-white/9">
+    <div className="flex items-center justify-between gap-5 border-t border-(--border-subtle) py-4 first:border-t-0 dark:border-(--border-subtle)">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <div className="text-[14px] font-semibold text-[#1a1714] dark:text-[#f2f0eb]">
+          <div className="text-[14px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
             {title}
           </div>
           {code && (
-            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-['DM_Mono',monospace] text-[9px] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
+            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-mono text-[9px] text-(--brand-500) dark:bg-[rgba(232,129,106,0.12)] dark:text-(--brand-500)">
               {code}
             </span>
           )}
         </div>
         {description && (
-          <p className="mt-1 text-[12.5px] leading-[1.55] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mt-1 text-[12.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
             {description}
           </p>
         )}
@@ -98,7 +98,7 @@ export function ToggleRow({
         className={cn(
           'relative h-7 w-12 shrink-0 rounded-full transition focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[rgba(184,76,43,0.2)]',
           checked
-            ? 'bg-[#b84c2b] dark:bg-[#e8816a]'
+            ? 'bg-(--brand-500) dark:bg-(--brand-500)'
             : 'bg-[#d5c8be] dark:bg-[#3a3530]',
           disabled && 'cursor-not-allowed opacity-50',
         )}
@@ -204,8 +204,8 @@ export function SaveBar({
   saveLabel?: string
 }) {
   return (
-    <div className="sticky bottom-24 z-30 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5]/95 px-5 py-4 shadow-[0_-8px_28px_rgba(26,23,20,0.08)] backdrop-blur min-[901px]:bottom-0 dark:border-white/9 dark:bg-[#1e1c19]/95">
-      <p className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+    <div className="sticky bottom-24 z-30 mt-6 flex flex-wrap items-center justify-between gap-3 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card)/95 px-5 py-4 shadow-[0_-8px_28px_rgba(26,23,20,0.08)] backdrop-blur min-[901px]:bottom-0 dark:border-(--border-subtle) dark:bg-(--surface-card)/95">
+      <p className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
         {isDirty
           ? 'You have unsaved changes. Save before leaving this page.'
           : 'Changes are saved to your Imminiq settings profile.'}
@@ -244,18 +244,18 @@ export function SettingsToast({
       role="status"
       aria-live="polite"
       className={cn(
-        'fixed bottom-28 right-4 z-130 rounded-[14px] border px-4 py-3 text-[13px] font-semibold shadow-[0_16px_50px_rgba(0,0,0,0.22)] transition duration-300 sm:right-6 min-[901px]:bottom-6',
+        'fixed bottom-28 right-4 z-130 rounded-md border px-4 py-3 text-[13px] font-semibold shadow-[0_16px_50px_rgba(0,0,0,0.22)] transition duration-300 sm:right-6 min-[901px]:bottom-6',
         visible
           ? 'translate-y-0 opacity-100'
           : 'pointer-events-none translate-y-4 opacity-0',
         tone === 'success' &&
-          'border-[rgba(45,106,71,0.22)] bg-[#edf8f2] text-[#2d6a47] dark:bg-[#18251e] dark:text-[#5cc98a]',
+          'border-[rgba(45,106,71,0.22)] bg-[#edf8f2] text-(--success) dark:bg-[#18251e] dark:text-(--success)',
         tone === 'error' &&
-          'border-[rgba(196,60,60,0.22)] bg-[#fff0f0] text-[#c43c3c] dark:bg-[#2b1818] dark:text-[#e05252]',
+          'border-[rgba(196,60,60,0.22)] bg-[#fff0f0] text-(--danger) dark:bg-[#2b1818] dark:text-(--danger)',
         tone === 'loading' &&
-          'border-[rgba(59,108,183,0.22)] bg-[#eef5ff] text-[#3b6cb7] dark:bg-[#162131] dark:text-[#6b9fe8]',
+          'border-[rgba(59,108,183,0.22)] bg-[#eef5ff] text-(--info) dark:bg-[#162131] dark:text-(--info)',
         tone === 'info' &&
-          'border-[#e0d0c5] bg-[#fdf8f5] text-[#1a1714] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#f2f0eb]',
+          'border-(--border-subtle) bg-(--surface-card) text-(--text-primary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary)',
       )}
     >
       {message}
@@ -287,18 +287,18 @@ export function UnsavedChangesDialog({
       contentClassName="max-w-md p-6"
       overlayClassName="z-160 bg-black/60"
     >
-      <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
+      <p className="font-mono text-[9px] uppercase tracking-[0.18em] text-(--brand-500) dark:text-(--brand-500)">
         Unsaved Changes
       </p>
       <h2
         id="settings-unsaved-title"
-        className="mt-2 font-['Playfair_Display',serif] text-[25px] font-extrabold tracking-[-0.5px]"
+        className="mt-2 font-ui text-[25px] font-extrabold tracking-[-0.5px]"
       >
         Save changes before leaving?
       </h2>
       <p
         id="settings-unsaved-description"
-        className="mt-3 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]"
+        className="mt-3 text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)"
       >
         You changed settings on this page. You can save them now, discard them
         and leave, or stay on this page.

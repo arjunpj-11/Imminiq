@@ -5,11 +5,20 @@ import { cn } from '../../lib/cn'
 interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string
   size?: 'sm' | 'md' | 'lg'
+  variant?: 'surface' | 'ghost'
 }
 
 const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
   function IconButton(
-    { label, size = 'md', className, type = 'button', children, ...props },
+    {
+      label,
+      size = 'md',
+      variant = 'surface',
+      className,
+      type = 'button',
+      children,
+      ...props
+    },
     ref,
   ) {
     return (
@@ -19,10 +28,13 @@ const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
         aria-label={label}
         title={label}
         className={cn(
-          'inline-flex shrink-0 items-center justify-center rounded-full border border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] transition hover:border-[#e8816a] hover:text-[#b84c2b] focus-visible:outline-none focus-visible:ring-3 focus-visible:ring-[rgba(184,76,43,0.2)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/10 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:text-[#e8816a]',
+          'interactive-lift inline-flex shrink-0 items-center justify-center rounded-md text-(--text-secondary) focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50',
+          variant === 'surface'
+            ? 'border border-(--border-subtle) bg-(--surface-elevated) shadow-(--shadow-1) hover:border-[color-mix(in_srgb,var(--brand-500)_32%,var(--border-subtle))] hover:text-(--brand-500)'
+            : 'border border-transparent bg-transparent hover:bg-(--surface-muted) hover:text-(--text-primary)',
           size === 'sm' && 'h-8 w-8',
           size === 'md' && 'h-10 w-10',
-          size === 'lg' && 'h-11 w-11',
+          size === 'lg' && 'h-12 w-12',
           className,
         )}
         {...props}

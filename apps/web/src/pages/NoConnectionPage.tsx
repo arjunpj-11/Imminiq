@@ -3,6 +3,7 @@ import { STORAGE_KEYS } from '../lib/storage/storage-keys'
 import { cn } from '../lib/cn'
 import { SystemPageNoise, SystemToast } from '../components/system/SystemPageChrome'
 import ImminiqLogo from '../components/ui/ImminiqLogo'
+import ImminiqWordmark from '../components/ui/ImminiqWordmark'
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
@@ -229,34 +230,34 @@ export default function NoConnectionPage() {
   }, [handleReconnectSuccess])
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] transition-colors dark:bg-[#141412] dark:text-[#f2f0eb]">
+    <div className="relative min-h-screen overflow-x-hidden bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) transition-colors dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       <SystemPageNoise />
       <SystemToast message={toast} visible={isToastVisible} />
 
       {/* Top Bar */}
-      <header className="sticky top-0 z-20 flex h-13.5 items-center justify-between border-b border-[#e0d0c5] bg-[rgba(245,237,228,0.92)] px-4 shadow-[0_1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-white/10 dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_1px_0_rgba(30,28,25,0.6)]">
+      <header className="sticky top-0 z-20 flex h-13.5 items-center justify-between border-b border-(--border-subtle) bg-[rgba(245,237,228,0.92)] px-4 shadow-[0_1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-(--border-subtle) dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_1px_0_rgba(30,28,25,0.6)]">
         <div className="flex items-center gap-2.5">
-          <ImminiqLogo size={30} className="rounded-[9px]" decorative />
+          <ImminiqLogo size={30} className="rounded-sm" decorative />
 
-          <span className="font-serif text-[22px] font-extrabold leading-none tracking-[-0.5px] text-[#1a1714]/45 dark:text-[#f2f0eb]/45">
-            immin
-            <span className="text-[#b84c2b]/70 dark:text-[#e8816a]/70">
-              iq
-            </span>
-          </span>
+          <ImminiqWordmark
+            lowercase
+            className="font-serif text-[22px] font-extrabold leading-none tracking-[-0.5px]"
+            prefixClassName="opacity-45"
+            accentClassName="opacity-70"
+          />
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-[#6b5f58]/50 sm:block dark:text-[#9b9a92]/50">
+          <span className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary)/50 sm:block dark:text-(--text-secondary)/50">
             Help
           </span>
 
-          <span className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-[#6b5f58]/50 md:block dark:text-[#9b9a92]/50">
+          <span className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary)/50 md:block dark:text-(--text-secondary)/50">
             Community Guidelines
           </span>
 
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(138,98,0,0.18)] bg-[rgba(138,98,0,0.07)] px-3 py-1.5 font-mono text-[8.5px] uppercase tracking-[0.12em] text-[#c98000] dark:border-[rgba(240,168,66,0.18)] dark:bg-[rgba(240,168,66,0.07)] dark:text-[#f0a842]">
-            <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-[#c98000] dark:bg-[#f0a842]" />
+          <div className="inline-flex items-center gap-1.5 rounded-full border border-[rgba(138,98,0,0.18)] bg-[rgba(138,98,0,0.07)] px-3 py-1.5 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--warning) dark:border-[rgba(240,168,66,0.18)] dark:bg-[rgba(240,168,66,0.07)] dark:text-(--warning)">
+            <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-(--warning) dark:bg-(--warning)" />
             No connection
           </div>
 
@@ -267,32 +268,32 @@ export default function NoConnectionPage() {
       <div className="relative z-10 flex min-h-[calc(100vh-54px)] flex-col">
         <main className="relative flex flex-1 flex-col items-center justify-center overflow-hidden px-4 py-12 sm:px-8 lg:px-12">
           {/* Background Blobs */}
-          <div className="pointer-events-none absolute left-[-5%] top-[5%] h-75 w-75 rounded-full bg-[#c98000]/10 blur-3xl dark:bg-[#f0a842]/5" />
-          <div className="pointer-events-none absolute bottom-[10%] right-[-4%] h-55 w-55 rounded-full bg-[#b84c2b]/10 blur-3xl dark:bg-[#e8816a]/5" />
-          <div className="pointer-events-none absolute left-[42%] top-[55%] h-40 w-40 rounded-full bg-[#3b6cb7]/10 blur-3xl dark:bg-[#6b9fe8]/5" />
+          <div className="pointer-events-none absolute left-[-5%] top-[5%] h-75 w-75 rounded-full bg-(--warning)/10 blur-3xl dark:bg-(--warning)/5" />
+          <div className="pointer-events-none absolute bottom-[10%] right-[-4%] h-55 w-55 rounded-full bg-(--brand-500)/10 blur-3xl dark:bg-(--brand-500)/5" />
+          <div className="pointer-events-none absolute left-[42%] top-[55%] h-40 w-40 rounded-full bg-(--info)/10 blur-3xl dark:bg-(--info)/5" />
 
           {/* Wifi Illustration */}
           <div className="relative mb-7 flex h-22.5 w-27.5 items-end justify-center">
             <div className="absolute bottom-0 left-1/2 h-20.5 w-20.5 -translate-x-1/2 rounded-full border-[3px] border-[#1a1714]/15 dark:border-[#f2f0eb]/15" />
             <div className="absolute bottom-0 left-1/2 h-13 w-13 -translate-x-1/2 rounded-full border-[3px] border-[#1a1714]/15 dark:border-[#f2f0eb]/15" />
             <div className="absolute bottom-0 left-1/2 h-6 w-6 -translate-x-1/2 rounded-full border-[3px] border-[#1a1714]/15 dark:border-[#f2f0eb]/15" />
-            <div className="absolute bottom-0 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-[#c98000] dark:bg-[#f0a842]" />
+            <div className="absolute bottom-0 left-1/2 h-2 w-2 -translate-x-1/2 rounded-full bg-(--warning) dark:bg-(--warning)" />
             <div className="absolute inset-0 flex items-center justify-center">
-              <span className="h-0.75 w-24 rotate-[-42deg] -translate-y-2 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+              <span className="h-0.75 w-24 rotate-[-42deg] -translate-y-2 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
             </div>
           </div>
 
           {/* Badge */}
-          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(138,98,0,0.18)] bg-[rgba(138,98,0,0.07)] px-3.5 py-1.5 font-mono text-[8.5px] uppercase tracking-[0.18em] text-[#c98000] dark:border-[rgba(240,168,66,0.18)] dark:bg-[rgba(240,168,66,0.07)] dark:text-[#f0a842]">
-            <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-[#c98000] dark:bg-[#f0a842]" />
+          <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(138,98,0,0.18)] bg-[rgba(138,98,0,0.07)] px-3.5 py-1.5 font-mono text-[8.5px] uppercase tracking-[0.18em] text-(--warning) dark:border-[rgba(240,168,66,0.18)] dark:bg-[rgba(240,168,66,0.07)] dark:text-(--warning)">
+            <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-(--warning) dark:bg-(--warning)" />
             Offline
           </div>
 
-          <h1 className="mb-3 text-center font-serif text-[clamp(24px,4vw,34px)] font-extrabold leading-[1.2] tracking-[-0.6px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h1 className="mb-3 text-center font-serif text-[clamp(24px,4vw,34px)] font-extrabold leading-[1.2] tracking-[-0.6px] text-(--text-primary) dark:text-(--text-primary)">
             You appear to be offline
           </h1>
 
-          <p className="mx-auto mb-8 max-w-95 text-center text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="mx-auto mb-8 max-w-95 text-center text-sm leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
             Imminiq can&apos;t reach its servers. Check your Wi-Fi or mobile data,
             then try reconnecting.
           </p>
@@ -308,8 +309,8 @@ export default function NoConnectionPage() {
                   className={cn(
                     'w-2.5 rounded-t-[3px] transition-all duration-300',
                     isAlive
-                      ? 'bg-[#c98000] opacity-100 dark:bg-[#f0a842]'
-                      : 'bg-[#b84c2b]/35 dark:bg-[#e8816a]/35'
+                      ? 'bg-(--warning) opacity-100 dark:bg-(--warning)'
+                      : 'bg-(--brand-500)/35 dark:bg-(--brand-500)/35'
                   )}
                   style={{ height: `${height}%` }}
                 />
@@ -323,7 +324,7 @@ export default function NoConnectionPage() {
             onClick={handleRetry}
             disabled={isRetrying || hasRedirectStarted}
             className={cn(
-              'mb-9 inline-flex items-center gap-2 rounded-xl bg-[#b84c2b] px-8 py-3.25 text-sm font-bold text-[#fdf8f5] transition hover:-translate-y-0.5 hover:bg-[#963d22] hover:shadow-[0_8px_28px_rgba(184,76,43,0.28)] disabled:cursor-wait disabled:opacity-80 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]',
+              'mb-9 inline-flex items-center gap-2 rounded-xl bg-(--brand-500) px-8 py-3.25 text-sm font-bold text-[#fdf8f5] transition hover:-translate-y-0.5 hover:bg-(--brand-600) hover:shadow-[0_8px_28px_rgba(184,76,43,0.28)] disabled:cursor-wait disabled:opacity-80 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)',
               isRetrying && 'animate-pulse'
             )}
           >
@@ -335,28 +336,28 @@ export default function NoConnectionPage() {
                 : 'Try reconnecting'}
           </button>
 
-          <div className="mb-7 h-px w-full max-w-120 bg-[#e0d0c5]/60 dark:bg-white/10" />
+          <div className="mb-7 h-px w-full max-w-120 bg-(--border-subtle)/60 dark:bg-white/10" />
 
           {/* Status Cards */}
           <div className="mb-7 grid w-full max-w-120 grid-cols-1 gap-2.5 sm:grid-cols-2">
-            <div className="relative overflow-hidden rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3.5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1e1c19]">
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-[linear-gradient(90deg,rgba(184,76,43,0.3),#b84c2b)] dark:bg-[linear-gradient(90deg,rgba(232,129,106,0.3),#e8816a)]" />
-              <div className="mb-1.5 font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58]/55 dark:text-[#9b9a92]/55">
+            <div className="relative overflow-hidden rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3.5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-[linear-gradient(90deg,rgba(184,76,43,0.3),var(--brand-500))] dark:bg-[linear-gradient(90deg,rgba(232,129,106,0.3),var(--brand-500))]" />
+              <div className="mb-1.5 font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary)/55 dark:text-(--text-secondary)/55">
                 Internet
               </div>
-              <div className="flex items-center gap-1.5 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                <span className="h-1.75 w-1.75 rounded-full bg-[#b84c2b]/70 dark:bg-[#e8816a]/70" />
+              <div className="flex items-center gap-1.5 text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">
+                <span className="h-1.75 w-1.75 rounded-full bg-(--brand-500)/70 dark:bg-(--brand-500)/70" />
                 Disconnected
               </div>
             </div>
 
-            <div className="relative overflow-hidden rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3.5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1e1c19]">
-              <div className="absolute inset-x-0 top-0 h-0.5 bg-[linear-gradient(90deg,rgba(138,98,0,0.08),#c98000)] dark:bg-[linear-gradient(90deg,rgba(240,168,66,0.10),#f0a842)]" />
-              <div className="mb-1.5 font-mono text-[7.5px] uppercase tracking-[0.14em] text-[#6b5f58]/55 dark:text-[#9b9a92]/55">
+            <div className="relative overflow-hidden rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3.5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+              <div className="absolute inset-x-0 top-0 h-0.5 bg-[linear-gradient(90deg,rgba(138,98,0,0.08),var(--warning))] dark:bg-[linear-gradient(90deg,rgba(240,168,66,0.10),var(--warning))]" />
+              <div className="mb-1.5 font-mono text-[7.5px] uppercase tracking-[0.14em] text-(--text-secondary)/55 dark:text-(--text-secondary)/55">
                 Imminiq Servers
               </div>
-              <div className="flex items-center gap-1.5 text-[13px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
-                <span className="h-1.75 w-1.75 animate-pulse rounded-full bg-[#c98000] dark:bg-[#f0a842]" />
+              <div className="flex items-center gap-1.5 text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">
+                <span className="h-1.75 w-1.75 animate-pulse rounded-full bg-(--warning) dark:bg-(--warning)" />
                 Waiting for connection…
               </div>
             </div>
@@ -364,7 +365,7 @@ export default function NoConnectionPage() {
 
           {/* Helpful Tips */}
           <div className="w-full max-w-120">
-            <p className="mb-3 text-center font-mono text-[8px] uppercase tracking-[0.18em] text-[#6b5f58]/50 dark:text-[#9b9a92]/50">
+            <p className="mb-3 text-center font-mono text-[8px] uppercase tracking-[0.18em] text-(--text-secondary)/50 dark:text-(--text-secondary)/50">
               Try this
             </p>
 
@@ -388,18 +389,18 @@ export default function NoConnectionPage() {
               ].map((tip) => (
                 <div
                   key={tip.title}
-                  className="flex items-start gap-2.5 rounded-xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-3.5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1e1c19]"
+                  className="flex items-start gap-2.5 rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-3.5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)"
                 >
-                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+                  <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-lg bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                     {tip.icon}
                   </div>
 
                   <div className="min-w-0 flex-1">
-                    <div className="mb-0.5 text-xs font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                    <div className="mb-0.5 text-xs font-bold text-(--text-primary) dark:text-(--text-primary)">
                       {tip.title}
                     </div>
 
-                    <p className="text-[11px] leading-[1.45] text-[#6b5f58] dark:text-[#9b9a92]">
+                    <p className="text-[11px] leading-[1.45] text-(--text-secondary) dark:text-(--text-secondary)">
                       {tip.description}
                     </p>
                   </div>
@@ -410,12 +411,12 @@ export default function NoConnectionPage() {
 
           {/* Error Row */}
           <div className="mt-7 flex flex-wrap items-center justify-center gap-3">
-            <span className="inline-flex items-center gap-1.25 rounded-full border border-[#e0d0c5] px-3 py-1.25 font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/55 dark:border-white/10 dark:text-[#9b9a92]/55">
+            <span className="inline-flex items-center gap-1.25 rounded-full border border-(--border-subtle) px-3 py-1.25 font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/55 dark:border-(--border-subtle) dark:text-(--text-secondary)/55">
               <XCircleIcon />
               ERR_INTERNET_DISCONNECTED
             </span>
 
-            <span className="inline-flex items-center gap-1.25 rounded-full border border-[#e0d0c5] px-3 py-1.25 font-mono text-[8.5px] uppercase tracking-widest text-[#6b5f58]/55 dark:border-white/10 dark:text-[#9b9a92]/55">
+            <span className="inline-flex items-center gap-1.25 rounded-full border border-(--border-subtle) px-3 py-1.25 font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/55 dark:border-(--border-subtle) dark:text-(--text-secondary)/55">
               <ClockIcon />
               Since {disconnectedSince}
             </span>
@@ -423,10 +424,8 @@ export default function NoConnectionPage() {
         </main>
 
         {/* Footer */}
-        <footer className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-t border-[#e0d0c5] bg-[rgba(245,237,228,0.92)] px-4 py-4.5 shadow-[0_-1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-white/10 dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_-1px_0_rgba(30,28,25,0.6)]">
-          <div className="font-serif text-base font-extrabold text-[#b84c2b] dark:text-[#e8816a]">
-            Imminiq
-          </div>
+        <footer className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-t border-(--border-subtle) bg-[rgba(245,237,228,0.92)] px-4 py-4.5 shadow-[0_-1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-(--border-subtle) dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_-1px_0_rgba(30,28,25,0.6)]">
+          <ImminiqWordmark className="font-serif text-base font-extrabold" />
 
           <div className="flex flex-wrap gap-5">
             {[
@@ -437,14 +436,14 @@ export default function NoConnectionPage() {
             ].map((item) => (
               <span
                 key={item}
-                className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-[#6b5f58]/40 dark:text-[#9b9a92]/40"
+                className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--text-secondary)/40 dark:text-(--text-secondary)/40"
               >
                 {item}
               </span>
             ))}
           </div>
 
-          <div className="font-mono text-[8.5px] tracking-[0.06em] text-[#6b5f58]/40 dark:text-[#9b9a92]/40">
+          <div className="font-mono text-[8.5px] tracking-[0.06em] text-(--text-secondary)/40 dark:text-(--text-secondary)/40">
             © 2026 Imminiq. Scholarly Rigor, Digital Craft.
           </div>
         </footer>

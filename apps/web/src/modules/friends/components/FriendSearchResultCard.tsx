@@ -24,7 +24,7 @@ export default function FriendSearchResultCard({
   const relationship = user.relationship;
 
   return (
-    <article className="flex flex-col gap-4 rounded-[18px] border border-[#e8ddd6] bg-white/55 p-4 transition hover:border-[rgba(184,76,43,0.24)] hover:bg-white/75 min-[520px]:flex-row min-[520px]:items-center dark:border-white/8 dark:bg-white/3 dark:hover:border-white/15 dark:hover:bg-white/5">
+    <article className="flex flex-col gap-4 rounded-lg border border-[#e8ddd6] bg-white/55 p-4 transition hover:border-[rgba(184,76,43,0.24)] hover:bg-white/75 min-[520px]:flex-row min-[520px]:items-center dark:border-white/8 dark:bg-white/3 dark:hover:border-white/15 dark:hover:bg-white/5">
       <div className="flex min-w-0 flex-1 items-center gap-3.5">
         <FriendsAvatar
           fullName={user.fullName}
@@ -34,16 +34,16 @@ export default function FriendSearchResultCard({
         />
 
         <div className="min-w-0 flex-1">
-          <p className="truncate text-[13.5px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+          <p className="truncate text-[13.5px] font-bold text-(--text-primary) dark:text-(--text-primary)">
             {user.fullName}
           </p>
           <p className="truncate text-[11.5px] text-[#9b9a92]">{user.handle}</p>
           <div className="mt-1.5 flex flex-wrap items-center gap-2">
-            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-widest text-[#b84c2b] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+            <span className="rounded-full bg-[rgba(184,76,43,0.08)] px-2 py-0.5 font-mono text-[8px] uppercase tracking-widest text-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
               {user.levelLabel}
             </span>
             {user.mutualCount > 0 && (
-              <span className="font-['DM_Mono',monospace] text-[9.5px] text-[#9b9a92]">
+              <span className="font-mono text-[9.5px] text-[#9b9a92]">
                 {formatMutualFriends(user.mutualCount)}
               </span>
             )}
@@ -52,7 +52,7 @@ export default function FriendSearchResultCard({
       </div>
 
       {relationship.status === "friends" ? (
-        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.08)] px-3.5 py-2 text-[11.5px] font-bold text-[#2d6a47] dark:text-[#5cc98a]">
+        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border-[1.5px] border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.08)] px-3.5 py-2 text-[11.5px] font-bold text-(--success) dark:text-(--success)">
           <CheckIcon />
           Friends
         </span>
@@ -61,13 +61,13 @@ export default function FriendSearchResultCard({
         <button
           type="button"
           onClick={onOpenRequests}
-          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] px-3.5 py-2 text-[11.5px] font-bold text-[#6b5f58] transition hover:border-[rgba(184,76,43,0.25)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) px-3.5 py-2 text-[11.5px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
         >
           <ClockIcon />
           Review invite
         </button>
       ) : relationship.status === "pending" ? (
-        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] px-3.5 py-2 text-[11.5px] font-bold text-[#9b9a92] dark:border-white/9">
+        <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) px-3.5 py-2 text-[11.5px] font-bold text-[#9b9a92] dark:border-(--border-subtle)">
           <ClockIcon />
           Pending
         </span>
@@ -76,7 +76,7 @@ export default function FriendSearchResultCard({
           type="button"
           onClick={() => onSendRequest(user)}
           disabled={sending}
-          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-[10px] bg-[#b84c2b] px-3.5 py-2 text-[11.5px] font-bold text-white transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-55 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+          className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-(--brand-500) px-3.5 py-2 text-[11.5px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-55 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
         >
           {sending ? (
             <SpinnerIcon className="animate-spin" />

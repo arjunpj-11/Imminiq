@@ -24,7 +24,7 @@ export default function PublishedTrackersSection({
   return (
     <section>
       <div className="mb-3.5 flex items-center justify-between animate-[fadeUp_0.38s_ease_0.32s_both]">
-        <h2 className="font-['Playfair_Display',serif] text-[clamp(20px,3vw,24px)] font-extrabold tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
+        <h2 className="font-ui text-[clamp(20px,3vw,24px)] font-extrabold tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
           Published Trackers
         </h2>
       </div>

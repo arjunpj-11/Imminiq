@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 
+import Modal from '../../../components/overlays/Modal'
 import { cn } from '../../../lib/cn'
 import type { Tracker } from '../types/tracker.types'
 
@@ -62,7 +63,7 @@ function ToggleSwitch({ checked, disabled = false, onChange, id }: ToggleSwitchP
         opacity: disabled ? 0.6 : 1,
         outline: 'none',
         transition: 'background-color 0.2s ease',
-        backgroundColor: checked ? '#b84c2b' : 'rgba(26,23,20,0.15)',
+        backgroundColor: checked ? 'var(--brand-500)' : 'rgba(26,23,20,0.15)',
         boxShadow: checked ? '0 0 0 3px rgba(184,76,43,0.18)' : '0 0 0 0px transparent',
         position: 'relative',
       }}
@@ -85,10 +86,10 @@ function ToggleSwitch({ checked, disabled = false, onChange, id }: ToggleSwitchP
 }
 
 const fieldLabel =
-  'mb-1.5 block font-["DM_Mono",monospace] text-[9.5px] uppercase tracking-[0.13em] text-[#6b5f58] dark:text-[#9b9a92]'
+  'mb-1.5 block font-mono text-[9.5px] uppercase tracking-[0.13em] text-[var(--text-secondary)] dark:text-[var(--text-secondary)]'
 
 const fieldInput =
-  'w-full rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-2.5 text-[13px] text-[#1a1714] placeholder:text-[#c0b8b0] transition-all duration-150 focus:border-[#b84c2b] focus:outline-none focus:ring-2 focus:ring-[rgba(184,76,43,0.14)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-white/9 dark:bg-[#26231f] dark:text-[#f2f0eb] dark:placeholder:text-[#504840] dark:focus:border-[#e8816a] dark:focus:ring-[rgba(232,129,106,0.16)]'
+  'w-full rounded-[var(--radius-md)] border-[1.5px] border-[var(--border-subtle)] bg-white px-3.5 py-2.5 text-[13px] text-[var(--text-primary)] placeholder:text-[#c0b8b0] transition-all duration-150 focus:border-[var(--brand-500)] focus:outline-none focus:ring-2 focus:ring-[rgba(184,76,43,0.14)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[var(--border-subtle)] dark:bg-[#26231f] dark:text-[var(--text-primary)] dark:placeholder:text-[#504840] dark:focus:border-[var(--brand-500)] dark:focus:ring-[rgba(232,129,106,0.16)]'
 
 const DIFFICULTIES = [
   { value: 'beginner', label: 'Beginner' },
@@ -114,8 +115,8 @@ function DifficultyPicker({ value, disabled = false, onChange }: DifficultyPicke
           className={cn(
             'flex-1 rounded-lg border-[1.5px] py-2 text-[11px] font-semibold transition-all duration-150 disabled:cursor-not-allowed disabled:opacity-60',
             value === d.value
-              ? 'border-[#b84c2b] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[#e8816a] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
-              : 'border-[#e0d0c5] bg-transparent text-[#6b5f58] hover:border-[rgba(184,76,43,0.30)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:border-[rgba(232,129,106,0.30)] dark:hover:text-[#e8816a]',
+              ? 'border-(--brand-500) bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-(--brand-500) dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)'
+              : 'border-(--border-subtle) bg-transparent text-(--text-secondary) hover:border-[rgba(184,76,43,0.30)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:border-[rgba(232,129,106,0.30)] dark:hover:text-(--brand-500)',
           )}
         >
           {d.label}
@@ -134,16 +135,6 @@ export default function PublishTrackerModal({ tracker, isPublishing, publishErro
     tags: '',
     allowClone: true,
   })
-
-  const overlayRef = useRef<HTMLDivElement>(null)
-
-  useEffect(() => {
-    const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && !isPublishing) onClose()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [isPublishing, onClose])
 
   const setField =
     (field: keyof PublishFormData) =>
@@ -165,50 +156,48 @@ export default function PublishTrackerModal({ tracker, isPublishing, publishErro
   }
 
   return (
-    <div
-      ref={overlayRef}
-      onClick={(e) => { if (e.target === overlayRef.current && !isPublishing) onClose() }}
-      className="fixed inset-0 z-50 flex items-end justify-center bg-black/50 p-0 sm:items-center sm:p-4"
+    <Modal
+      open
+      onClose={onClose}
+      titleId="publish-modal-title"
+      descriptionId="publish-modal-description"
+      ariaLabel="Publish tracker"
+      preventClose={isPublishing}
+      overlayClassName="items-end p-0 sm:items-center sm:p-4"
+      contentClassName="flex max-h-[calc(100dvh-0.75rem)] w-full !max-w-[500px] flex-col overflow-hidden rounded-t-3xl border-t border-x border-[var(--border-subtle)] bg-[var(--surface-card)] p-0 shadow-[0_-8px_48px_rgba(26,23,20,0.18)] sm:max-h-[calc(100dvh-2rem)] sm:rounded-[var(--radius-xl)] sm:border-[1.5px] sm:shadow-[0_24px_72px_rgba(26,23,20,0.24)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-card)]"
     >
-      <div
-        role="dialog"
-        aria-modal="true"
-        aria-labelledby="publish-modal-title"
-        onClick={(e) => e.stopPropagation()}
-        className="w-full max-h-[92dvh] overflow-y-auto rounded-t-3xl border-t border-x border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_-8px_48px_rgba(26,23,20,0.18)] sm:max-h-none sm:max-w-125 sm:rounded-[22px] sm:border-[1.5px] sm:shadow-[0_24px_72px_rgba(26,23,20,0.24)] dark:border-white/9 dark:bg-[#1e1c19]"
-      >
-        <div className="flex justify-center pt-3 pb-1 sm:hidden">
-          <div className="h-1 w-10 rounded-full bg-[#e0d0c5] dark:bg-white/15" />
-        </div>
+      <div className="flex shrink-0 justify-center pb-1 pt-3 sm:hidden">
+        <div className="h-1 w-10 rounded-full bg-(--border-subtle) dark:bg-white/15" />
+      </div>
 
-        <div className="px-6 pb-6 pt-4 sm:p-7">
+      <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-4 sm:p-7">
           <div className="mb-6 flex items-start justify-between gap-3">
             <div>
-              <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-0.5 font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.14em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
+              <div className="mb-1 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-0.5 font-mono text-[8px] uppercase tracking-[0.14em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                 <svg width="6" height="6" viewBox="0 0 6 6" fill="currentColor" aria-hidden="true"><circle cx="3" cy="3" r="3" /></svg>
                 Publishing
               </div>
-              <h2 id="publish-modal-title" className="font-['Playfair_Display',serif] text-[22px] font-extrabold leading-[1.15] tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
+              <h2 id="publish-modal-title" className="font-ui text-[22px] font-extrabold leading-[1.15] tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
                 Share your tracker
               </h2>
-              <p className="mt-1 text-[12px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
+              <p id="publish-modal-description" className="mt-1 text-[12px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
                 Fill in the details so others can discover and learn from your roadmap.
               </p>
             </div>
-            <button type="button" disabled={isPublishing} onClick={onClose} aria-label="Close publish modal" className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-[10px] text-[#6b5f58] transition hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]">
+            <button type="button" disabled={isPublishing} onClick={onClose} aria-label="Close publish modal" className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-md text-(--text-secondary) transition hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)">
               <CloseIcon />
             </button>
           </div>
 
           <div className="mb-1 flex items-center gap-2">
-            <span className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">01</span>
-            <span className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">Basic info</span>
-            <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/9" />
+            <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">01</span>
+            <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">Basic info</span>
+            <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/9" />
           </div>
 
           <div className="mb-4 mt-3 space-y-4">
             <div>
-              <label htmlFor="publish-name" className={fieldLabel}>Tracker name <span className="text-[#b84c2b]">*</span></label>
+              <label htmlFor="publish-name" className={fieldLabel}>Tracker name <span className="text-(--brand-500)">*</span></label>
               <input id="publish-name" type="text" value={form.name} disabled={isPublishing} onChange={setField('name')} placeholder="e.g. DSA Mastery — Striver Sheet" required className={fieldInput} />
             </div>
             <div>
@@ -218,14 +207,14 @@ export default function PublishTrackerModal({ tracker, isPublishing, publishErro
           </div>
 
           <div className="mb-1 flex items-center gap-2">
-            <span className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">02</span>
-            <span className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">Categorise</span>
-            <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/9" />
+            <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">02</span>
+            <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">Categorise</span>
+            <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/9" />
           </div>
 
           <div className="mb-4 mt-3 space-y-4">
             <div>
-              <label htmlFor="publish-domain" className={fieldLabel}>Domain <span className="text-[#b84c2b]">*</span></label>
+              <label htmlFor="publish-domain" className={fieldLabel}>Domain <span className="text-(--brand-500)">*</span></label>
               <div className="relative">
                 <select id="publish-domain" value={form.domain} disabled={isPublishing} onChange={setField('domain')} className={cn(fieldInput, 'appearance-none pr-9')}>
                   <option value="">Select a domain</option>
@@ -238,7 +227,7 @@ export default function PublishTrackerModal({ tracker, isPublishing, publishErro
                   <option value="language">Language</option>
                   <option value="other">Other</option>
                 </select>
-                <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[#6b5f58] dark:text-[#9b9a92]" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
+                <svg className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) dark:text-(--text-secondary)" width="14" height="14" viewBox="0 0 14 14" fill="none" aria-hidden="true">
                   <path d="M3 5L7 9L11 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                 </svg>
               </div>
@@ -256,41 +245,41 @@ export default function PublishTrackerModal({ tracker, isPublishing, publishErro
           </div>
 
           <div className="mb-1 flex items-center gap-2">
-            <span className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">03</span>
-            <span className="font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.16em] text-[#6b5f58] dark:text-[#9b9a92]">Visibility</span>
-            <div className="h-px flex-1 bg-[#e0d0c5] dark:bg-white/9" />
+            <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">03</span>
+            <span className="font-mono text-[8.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">Visibility</span>
+            <div className="h-px flex-1 bg-(--border-subtle) dark:bg-white/9" />
           </div>
 
-          <div className="mt-3 mb-4 rounded-[14px] border-[1.5px] border-[#e0d0c5] bg-white/60 p-4 dark:border-white/9 dark:bg-white/3">
+          <div className="mt-3 mb-4 rounded-md border-[1.5px] border-(--border-subtle) bg-white/60 p-4 dark:border-(--border-subtle) dark:bg-white/3">
             <div className="flex items-center justify-between gap-4">
               <div className="min-w-0">
-                <p className="text-[13px] font-semibold leading-tight text-[#1a1714] dark:text-[#f2f0eb]">Allow others to clone</p>
-                <p className="mt-1 text-[11.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">Learners can copy this tracker to their own account and customise it.</p>
+                <p className="text-[13px] font-semibold leading-tight text-(--text-primary) dark:text-(--text-primary)">Allow others to clone</p>
+                <p className="mt-1 text-[11.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">Learners can copy this tracker to their own account and customise it.</p>
               </div>
               <ToggleSwitch checked={form.allowClone} disabled={isPublishing} onChange={(v) => setForm((prev) => ({ ...prev, allowClone: v }))} />
             </div>
             {!form.allowClone && (
-              <p className="mt-3 rounded-lg border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.06)] px-3 py-2 text-[11px] leading-normal text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-[#f0a842]">
+              <p className="mt-3 rounded-lg border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.06)] px-3 py-2 text-[11px] leading-normal text-[#8a6200] dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.06)] dark:text-(--warning)">
                 Your tracker will be public but read-only — learners can view it but not clone it.
               </p>
             )}
           </div>
 
           {publishError && (
-            <div className="mb-4 rounded-[10px] border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#b83232] dark:border-[rgba(255,120,120,0.20)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]">
+            <div className="mb-4 rounded-md border border-[rgba(200,50,50,0.22)] bg-[rgba(200,50,50,0.08)] px-3.5 py-2.5 text-[12px] leading-relaxed text-[#b83232] dark:border-[rgba(255,120,120,0.20)] dark:bg-[rgba(255,120,120,0.08)] dark:text-[#ff8c8c]">
               {publishError}
             </div>
           )}
 
-          <div className="flex items-center justify-between gap-3 border-t border-[#e0d0c5] pt-5 dark:border-white/9">
-            <p className="text-[11px] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]">
-              <span className="text-[#b84c2b]">*</span> required fields
+          <div className="flex items-center justify-between gap-3 border-t border-(--border-subtle) pt-5 dark:border-(--border-subtle)">
+            <p className="text-[11px] text-(--text-secondary) opacity-70 dark:text-(--text-secondary)">
+              <span className="text-(--brand-500)">*</span> required fields
             </p>
             <div className="flex items-center gap-2.5">
-              <button type="button" disabled={isPublishing} onClick={onClose} className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-4 py-2.5 text-[12.5px] font-semibold text-[#6b5f58] transition hover:bg-[rgba(26,23,20,0.05)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/9 dark:text-[#9b9a92] dark:hover:bg-white/5">
+              <button type="button" disabled={isPublishing} onClick={onClose} className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[12.5px] font-semibold text-(--text-secondary) transition hover:bg-[rgba(26,23,20,0.05)] disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:bg-white/5">
                 Cancel
               </button>
-              <button type="button" disabled={!isValid || isPublishing} onClick={handleSubmit} className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[12.5px] font-bold text-white transition hover:bg-[#9a3e23] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]">
+              <button type="button" disabled={!isValid || isPublishing} onClick={handleSubmit} className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[12.5px] font-bold text-white transition hover:bg-[#9a3e23] hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] disabled:cursor-not-allowed disabled:opacity-40 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)">
                 {isPublishing ? (
                   <><SpinnerIcon />Publishing...</>
                 ) : (
@@ -305,9 +294,8 @@ export default function PublishTrackerModal({ tracker, isPublishing, publishErro
               </button>
             </div>
           </div>
-        </div>
       </div>
-    </div>
+    </Modal>
   )
 }
 

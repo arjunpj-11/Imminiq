@@ -13,10 +13,10 @@ type DashboardStatsGridProps = {
 }
 
 const ACCENTS: StatAccent[] = [
-  { light: '#b84c2b', dark: '#e8816a' },
-  { light: '#2d6a47', dark: '#3dbf82' },
-  { light: '#c98000', dark: '#f0a832' },
-  { light: '#3b6cb7', dark: '#4a9eff' },
+  { light: 'var(--brand-500)', dark: 'var(--brand-500)' },
+  { light: 'var(--success)', dark: 'var(--success)' },
+  { light: 'var(--warning)', dark: 'var(--warning)' },
+  { light: 'var(--info)', dark: 'var(--info)' },
 ]
 
 export default function DashboardStatsGrid({ summary }: DashboardStatsGridProps) {

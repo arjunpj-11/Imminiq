@@ -111,7 +111,7 @@ export const IconMail = ({ className = '' }: { className?: string }) => (
 )
 
 export const BodyP = ({ children }: { children: ReactNode }) => (
-  <p className="text-sm leading-[1.75] text-[#6b5f58] dark:text-[#9b9a92]">
+  <p className="text-sm leading-[1.75] text-(--text-secondary) dark:text-(--text-secondary)">
     {children}
   </p>
 )
@@ -119,7 +119,7 @@ export const BodyP = ({ children }: { children: ReactNode }) => (
 export const EmailLink = ({ children }: { children: ReactNode }) => (
   <a
     href={`mailto:${children}`}
-    className="font-medium text-[#b84c2b] underline underline-offset-4 hover:text-[#963d22] dark:text-[#e8816a] dark:hover:text-[#f5a090]"
+    className="font-medium text-(--brand-500) underline underline-offset-4 hover:text-[#963d22] dark:text-(--brand-500) dark:hover:text-[#f5a090]"
   >
     {children}
   </a>
@@ -134,11 +134,11 @@ export const Tag = ({
 }) => {
   const styles = {
     green:
-      'border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] text-[#4caf7d] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)] dark:text-[#5cc98a]',
+      'border-[rgba(76,175,125,0.20)] bg-[rgba(76,175,125,0.07)] text-[var(--success)] dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.08)] dark:text-[var(--success)]',
     amber:
-      'border-[rgba(240,165,0,0.22)] bg-[rgba(240,165,0,0.07)] text-[#f0a500] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.08)] dark:text-[#f0a842]',
+      'border-[rgba(240,165,0,0.22)] bg-[rgba(240,165,0,0.07)] text-[#f0a500] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.08)] dark:text-[var(--warning)]',
     rust:
-      'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]',
+      'border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[var(--brand-500)] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[var(--brand-500)]',
   }
 
   return (
@@ -165,10 +165,10 @@ export const TermsList = ({
       {items.map((item, index) => (
         <li
           key={index}
-          className="flex items-start gap-2.5 text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]"
+          className="flex items-start gap-2.5 text-sm leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)"
         >
           {variant === 'check' ? (
-            <span className="mt-1 text-[#4caf7d] dark:text-[#5cc98a]">
+            <span className="mt-1 text-(--success) dark:text-(--success)">
               <IconCheck />
             </span>
           ) : (
@@ -176,8 +176,8 @@ export const TermsList = ({
               className={cn(
                 'mt-2.5 h-1.25 w-1.25 shrink-0 rounded-full opacity-70',
                 variant === 'cross'
-                  ? 'bg-[#d94535] dark:bg-[#ff6b5f]'
-                  : 'bg-[#b84c2b] dark:bg-[#e8816a]'
+                  ? 'bg-(--danger) dark:bg-(--danger)'
+                  : 'bg-(--brand-500) dark:bg-(--brand-500)'
               )}
             />
           )}
@@ -208,9 +208,9 @@ export const HighlightCard = ({
   }
 
   const labelStyles = {
-    rust: 'text-[#b84c2b] dark:text-[#e8816a]',
-    green: 'text-[#4caf7d] dark:text-[#5cc98a]',
-    amber: 'text-[#f0a500] dark:text-[#f0a842]',
+    rust: 'text-[var(--brand-500)] dark:text-[var(--brand-500)]',
+    green: 'text-[var(--success)] dark:text-[var(--success)]',
+    amber: 'text-[#f0a500] dark:text-[var(--warning)]',
   }
 
   return (
@@ -224,7 +224,7 @@ export const HighlightCard = ({
         {label}
       </div>
 
-      <p className="m-0 text-[13.5px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p className="m-0 text-[13.5px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
         {children}
       </p>
     </div>
@@ -249,13 +249,13 @@ export const Section = ({
       aria-labelledby={`title-${id}`}
     >
       <div className="mb-5 flex items-start gap-3.5 border-b border-[rgba(184,76,43,0.10)] pb-3.5 dark:border-[rgba(232,129,106,0.12)]">
-        <span className="mt-1 shrink-0 rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[10px] tracking-[0.08em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a]">
+        <span className="mt-1 shrink-0 rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-2.5 py-1 font-mono text-[10px] tracking-[0.08em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500)">
           {num}
         </span>
 
         <h2
           id={`title-${id}`}
-          className="font-serif text-[clamp(18px,3vw,24px)] font-bold leading-tight text-[#1a1714] dark:text-[#f2f0eb]"
+          className="font-serif text-[clamp(18px,3vw,24px)] font-bold leading-tight text-(--text-primary) dark:text-(--text-primary)"
         >
           {title}
         </h2>

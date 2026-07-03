@@ -174,7 +174,7 @@ export default function LessonChatCard({
       )}
     >
       {chatHistoryQuery.isLoading && localMessages.length === 0 && (
-        <div className="rounded-2xl border border-[#e0d0c5] bg-white/60 px-4 py-3 text-[12px] text-[#6b5f58] dark:border-white/9 dark:bg-white/5 dark:text-[#9b9a92]">
+        <div className="rounded-2xl border border-(--border-subtle) bg-white/60 px-4 py-3 text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
           Loading previous chat...
         </div>
       )}
@@ -191,7 +191,7 @@ export default function LessonChatCard({
             )}
           >
             {!isUser && (
-              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-[#b84c2b] dark:bg-white/9 dark:text-[#e8816a]">
+              <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-(--brand-500) dark:bg-white/9 dark:text-(--brand-500)">
                 🤖
               </div>
             )}
@@ -203,8 +203,8 @@ export default function LessonChatCard({
                   ? 'max-w-[78%] text-[14px]'
                   : 'max-w-[85%] text-[13px]',
                 isUser
-                  ? 'rounded-[16px_16px_4px_16px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]'
-                  : 'rounded-[16px_16px_16px_4px] bg-[rgba(26,23,20,0.09)] text-[#1a1714] dark:bg-white/9 dark:text-[#f2f0eb]'
+                  ? 'rounded-[16px_16px_4px_16px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)'
+                  : 'rounded-[16px_16px_16px_4px] bg-[rgba(26,23,20,0.09)] text-(--text-primary) dark:bg-white/9 dark:text-(--text-primary)'
               )}
             >
               <MathText>{item.content}</MathText>
@@ -214,7 +214,7 @@ export default function LessonChatCard({
       })}
 
       {isSending && (
-        <div className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+        <div className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
           Scribe AI is thinking...
         </div>
       )}
@@ -235,7 +235,7 @@ export default function LessonChatCard({
           setMessage('Explain this lesson in simple words')
         }
         disabled={isChatBusy}
-        className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-semibold uppercase tracking-[0.08em] text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+        className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
       >
         Explain simply
       </button>
@@ -244,7 +244,7 @@ export default function LessonChatCard({
         type="button"
         onClick={() => setMessage('Give me a practical example')}
         disabled={isChatBusy}
-        className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[9px] font-semibold uppercase tracking-[0.08em] text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] disabled:cursor-not-allowed disabled:opacity-50 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+        className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
       >
         Show examples
       </button>
@@ -252,7 +252,7 @@ export default function LessonChatCard({
   )
 
   const renderChatInput = () => (
-    <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-[#e0d0c5] bg-white px-3 py-1.5 transition focus-within:border-[#e8816a] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320]">
+    <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-(--border-subtle) bg-white px-3 py-1.5 transition focus-within:border-(--brand-500) focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
       <input
         value={message}
         onChange={(event) => setMessage(event.target.value)}
@@ -269,7 +269,7 @@ export default function LessonChatCard({
         placeholder={
           voice.isListening ? 'Listening...' : 'Send a message...'
         }
-        className="min-w-0 flex-1 bg-transparent py-1.5 text-[13px] text-[#1a1714] outline-none placeholder:text-[#6b5f58]/60 disabled:cursor-not-allowed disabled:opacity-60 dark:text-[#f2f0eb] dark:placeholder:text-[#9b9a92]/60"
+        className="min-w-0 flex-1 bg-transparent py-1.5 text-[13px] text-(--text-primary) outline-none placeholder:text-(--text-secondary)/60 disabled:cursor-not-allowed disabled:opacity-60 dark:text-(--text-primary) dark:placeholder:text-[#9b9a92]/60"
       />
 
       <MicButton
@@ -283,7 +283,7 @@ export default function LessonChatCard({
         type="button"
         onClick={sendMessage}
         disabled={isChatBusy}
-        className="flex h-8 w-8 items-center justify-center text-[#b84c2b] transition hover:translate-x-0.5 hover:scale-110 disabled:cursor-wait disabled:opacity-50 dark:text-[#e8816a]"
+        className="flex h-8 w-8 items-center justify-center text-(--brand-500) transition hover:translate-x-0.5 hover:scale-110 disabled:cursor-wait disabled:opacity-50 dark:text-(--brand-500)"
       >
         ➤
       </button>
@@ -292,9 +292,9 @@ export default function LessonChatCard({
 
   return (
     <>
-      <section className="rounded-[20px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
-        <div className="mb-5 flex items-center justify-between border-b border-[#e0d0c5] pb-3.5 dark:border-white/9">
-          <h3 className="text-[14px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+      <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+        <div className="mb-5 flex items-center justify-between border-b border-(--border-subtle) pb-3.5 dark:border-(--border-subtle)">
+          <h3 className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
             Ask about {lessonTitle}
           </h3>
 
@@ -303,7 +303,7 @@ export default function LessonChatCard({
               type="button"
               onClick={clearChatHistory}
               disabled={!hasSavedMessages || isChatBusy}
-              className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em] text-[#6b5f58] transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-red-400"
+              className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.08em] text-(--text-secondary) transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-red-400"
             >
               {clearChatMutation.isPending ? 'Clearing' : 'Clear'}
             </button>
@@ -311,7 +311,7 @@ export default function LessonChatCard({
             <button
               type="button"
               onClick={() => setZoomOpen(true)}
-              className="flex h-8 w-8 items-center justify-center rounded-full border border-[#e0d0c5] text-[13px] text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+              className="flex h-8 w-8 items-center justify-center rounded-full border border-(--border-subtle) text-[13px] text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               aria-label="Open chat in large view"
               title="Open large chat"
             >
@@ -348,14 +348,14 @@ export default function LessonChatCard({
           aria-modal="true"
           aria-label="Large lesson chat"
         >
-          <div className="relative flex h-[min(760px,92vh)] w-[min(920px,96vw)] flex-col rounded-3xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] shadow-[0_24px_80px_rgba(0,0,0,0.28)] dark:border-white/10 dark:bg-[#1e1c19]">
-            <div className="flex items-center justify-between gap-4 border-b border-[#e0d0c5] px-6 py-4 dark:border-white/9 max-[640px]:px-4">
+          <div className="relative flex h-[min(760px,92vh)] w-[min(920px,96vw)] flex-col rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-3) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+            <div className="flex items-center justify-between gap-4 border-b border-(--border-subtle) px-6 py-4 dark:border-(--border-subtle) max-[640px]:px-4">
               <div>
-                <div className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-[0.14em] text-[#b84c2b] dark:text-[#e8816a]">
+                <div className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500) dark:text-(--brand-500)">
                   Scribe AI Chat
                 </div>
 
-                <h3 className="mt-1 line-clamp-1 text-[18px] font-bold text-[#1a1714] dark:text-[#f2f0eb]">
+                <h3 className="mt-1 line-clamp-1 text-[18px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                   {lessonTitle}
                 </h3>
               </div>
@@ -365,7 +365,7 @@ export default function LessonChatCard({
                   type="button"
                   onClick={clearChatHistory}
                   disabled={!hasSavedMessages || isChatBusy}
-                  className="rounded-full border border-[#e0d0c5] px-3 py-1.5 font-['DM_Mono',monospace] text-[8px] font-bold uppercase tracking-[0.08em] text-[#6b5f58] transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-red-400"
+                  className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.08em] text-(--text-secondary) transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-red-400"
                 >
                   {clearChatMutation.isPending ? 'Clearing' : 'Clear'}
                 </button>
@@ -373,7 +373,7 @@ export default function LessonChatCard({
                 <button
                   type="button"
                   onClick={() => setZoomOpen(false)}
-                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-[#e0d0c5] text-[#6b5f58] transition hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]"
+                  className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-(--border-subtle) text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
                   aria-label="Close large chat"
                 >
                   ✕
@@ -385,7 +385,7 @@ export default function LessonChatCard({
               {renderMessages(true)}
             </div>
 
-            <div className="border-t border-[#e0d0c5] px-6 py-4 dark:border-white/9 max-[640px]:px-4">
+            <div className="border-t border-(--border-subtle) px-6 py-4 dark:border-(--border-subtle) max-[640px]:px-4">
               <div className="mb-3">{renderQuickActions()}</div>
               {renderChatInput()}
             </div>

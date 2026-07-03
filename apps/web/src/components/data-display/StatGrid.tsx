@@ -5,16 +5,22 @@ import { cn } from '../../lib/cn'
 interface StatGridProps {
   children: ReactNode
   className?: string
+  columns?: 2 | 3 | 4
 }
 
-export default function StatGrid({ children, className }: StatGridProps) {
+const columnClasses = {
+  2: 'sm:grid-cols-2',
+  3: 'sm:grid-cols-2 xl:grid-cols-3',
+  4: 'sm:grid-cols-2 xl:grid-cols-4',
+} as const
+
+export default function StatGrid({
+  children,
+  className,
+  columns = 4,
+}: StatGridProps) {
   return (
-    <section
-      className={cn(
-        'grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4',
-        className,
-      )}
-    >
+    <section className={cn('grid grid-cols-1 gap-3', columnClasses[columns], className)}>
       {children}
     </section>
   )

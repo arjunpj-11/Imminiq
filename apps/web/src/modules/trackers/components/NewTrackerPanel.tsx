@@ -5,8 +5,8 @@ import { cn, themedScrollbar, trackerDomainOptions } from '../utils/tracker-ui'
 
 interface NewTrackerPanelProps { open: boolean; onClose: () => void }
 
-const inputCls = "w-full rounded-[9px] border-[1.5px] border-[#e0d0c5] bg-white px-3.5 py-2.5 text-[13.5px] text-[#1a1714] outline-none transition placeholder:text-[#9f8f86] focus:border-[#b84c2b] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-white/9 dark:bg-[#252320] dark:text-[#f2f0eb] dark:placeholder:text-[#7a756e] dark:focus:border-[#e8816a]"
-const labelCls = "mb-1.5 block font-['DM_Mono',monospace] text-[8px] uppercase tracking-[0.13em] text-[#6b5f58] opacity-70 dark:text-[#9b9a92]"
+const inputCls = "w-full rounded-[var(--radius-sm)] border-[1.5px] border-[var(--border-subtle)] bg-white px-3.5 py-2.5 text-[13.5px] text-[var(--text-primary)] outline-none transition placeholder:text-[#9f8f86] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-elevated)] dark:text-[var(--text-primary)] dark:placeholder:text-[#7a756e] dark:focus:border-[var(--brand-500)]"
+const labelCls = "mb-1.5 block font-mono text-[8px] uppercase tracking-[0.13em] text-[var(--text-secondary)] opacity-70 dark:text-[var(--text-secondary)]"
 
 export default function NewTrackerPanel({ open, onClose }: NewTrackerPanelProps) {
   const createTrackerMutation = useCreateTracker()
@@ -34,13 +34,13 @@ export default function NewTrackerPanel({ open, onClose }: NewTrackerPanelProps)
   return (
     <>
       <div onClick={onClose} className={cn('fixed inset-0 z-100 bg-[rgba(26,23,20,0.55)] backdrop-blur transition dark:bg-black/70', open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0')} />
-      <aside className={cn('fixed bottom-0 right-0 top-0 z-101 flex w-[min(520px,100vw)] flex-col overflow-hidden border-l border-[#e0d0c5] bg-[#fdf8f5] shadow-[-8px_0_48px_rgba(26,23,20,0.14)] transition-transform duration-300 dark:border-white/9 dark:bg-[#1e1c19]', open ? 'translate-x-0' : 'translate-x-full')}>
-        <div className="flex items-center justify-between border-b border-[#e0d0c5] px-5 py-4 dark:border-white/9">
+      <aside className={cn('fixed bottom-0 right-0 top-0 z-101 flex w-[min(520px,100vw)] flex-col overflow-hidden border-l border-(--border-subtle) bg-(--surface-card) shadow-[-8px_0_48px_rgba(26,23,20,0.14)] transition-transform duration-300 dark:border-(--border-subtle) dark:bg-(--surface-card)', open ? 'translate-x-0' : 'translate-x-full')}>
+        <div className="flex items-center justify-between border-b border-(--border-subtle) px-5 py-4 dark:border-(--border-subtle)">
           <div>
-            <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold tracking-[-0.4px]">Create Tracker</h2>
-            <p className="mt-1 text-[12.5px] text-[#6b5f58] dark:text-[#9b9a92]">Start a focused roadmap and track every lesson.</p>
+            <h2 className="font-ui text-[22px] font-extrabold tracking-[-0.4px]">Create Tracker</h2>
+            <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">Start a focused roadmap and track every lesson.</p>
           </div>
-          <button onClick={onClose} className="h-9 w-9 rounded-[10px] border-[1.5px] border-[#e0d0c5] text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92]">×</button>
+          <button onClick={onClose} className="h-9 w-9 rounded-md border-[1.5px] border-(--border-subtle) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary)">×</button>
         </div>
         <div className={cn('flex-1 overflow-y-auto p-5', themedScrollbar)}>
           <div className="space-y-4">
@@ -53,9 +53,9 @@ export default function NewTrackerPanel({ open, onClose }: NewTrackerPanelProps)
             </div>
           </div>
         </div>
-        <div className="flex justify-end gap-2 border-t border-[#e0d0c5] p-4 dark:border-white/9">
-          <button onClick={onClose} className="rounded-[10px] border-[1.5px] border-[#e0d0c5] px-5 py-2.5 text-[13px] font-semibold text-[#6b5f58] dark:border-white/9 dark:text-[#9b9a92]">Cancel</button>
-          <button onClick={handleCreate} disabled={createTrackerMutation.isPending} className="rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] disabled:opacity-60 dark:bg-[#e8816a] dark:text-[#141412]">{createTrackerMutation.isPending ? 'Creating...' : 'Create Tracker'}</button>
+        <div className="flex justify-end gap-2 border-t border-(--border-subtle) p-4 dark:border-(--border-subtle)">
+          <button onClick={onClose} className="rounded-md border-[1.5px] border-(--border-subtle) px-5 py-2.5 text-[13px] font-semibold text-(--text-secondary) dark:border-(--border-subtle) dark:text-(--text-secondary)">Cancel</button>
+          <button onClick={handleCreate} disabled={createTrackerMutation.isPending} className="rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412]">{createTrackerMutation.isPending ? 'Creating...' : 'Create Tracker'}</button>
         </div>
       </aside>
     </>

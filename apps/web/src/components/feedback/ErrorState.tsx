@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react'
 
+import Button from '../ui/Button'
 import EmptyState from './EmptyState'
 
 interface ErrorStateProps {
@@ -15,21 +16,14 @@ export default function ErrorState({
   onRetry,
   action,
 }: ErrorStateProps) {
-  const retryAction = onRetry ? (
-    <button
-      type="button"
-      onClick={onRetry}
-      className="rounded-[10px] bg-[#b84c2b] px-4 py-2.5 text-[12px] font-bold text-white transition hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412]"
-    >
-      Try again
-    </button>
-  ) : null
-
   return (
     <EmptyState
       title={title}
       description={description}
-      action={action ?? retryAction}
+      action={
+        action ??
+        (onRetry ? <Button onClick={onRetry}>Try again</Button> : undefined)
+      }
     />
   )
 }

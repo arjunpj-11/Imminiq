@@ -344,11 +344,11 @@ export default function ProfilePage() {
         isGuest={isPublicView && !isAuthenticated}
       >
         <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
-          <div className="max-w-105 rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-6 py-5 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19]">
-            <div className="font-['Playfair_Display',serif] text-[20px] font-extrabold">
+          <div className="max-w-105 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-6 py-5 text-center shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
+            <div className="font-ui text-[20px] font-extrabold">
               Profile unavailable
             </div>
-            <p className="mt-2 text-[13px] leading-[1.55] text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mt-2 text-[13px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
               {isPublicView
                 ? 'This public profile is unavailable or could not be loaded right now.'
                 : 'We could not load your profile right now. Refresh the page after the backend is running.'}

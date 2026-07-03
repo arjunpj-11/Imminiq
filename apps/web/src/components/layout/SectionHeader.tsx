@@ -13,17 +13,15 @@ export default function SectionHeader({
 }: SectionHeaderProps) {
   return (
     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
-      <div>
-        <h2 className="font-['Playfair_Display',serif] text-[22px] font-extrabold tracking-[-0.4px] text-[#1a1714] dark:text-[#f2f0eb]">
-          {title}
-        </h2>
+      <div className="min-w-0">
+        <h2 className="type-heading-lg text-(--text-primary)">{title}</h2>
         {description && (
-          <p className="mt-1 text-[13px] leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="type-body-sm mt-1 max-w-2xl text-(--text-secondary)">
             {description}
           </p>
         )}
       </div>
-      {action}
+      {action && <div className="shrink-0">{action}</div>}
     </div>
   )
 }

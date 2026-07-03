@@ -51,7 +51,7 @@ export const getPasswordStrength = (password: string) => {
     label: labels[level],
     textClass:
       level >= 3
-        ? 'text-[#4caf7d] dark:text-[#5cc98a]'
-        : 'text-[#b84c2b] dark:text-[#e8816a]',
+        ? 'text-[var(--success)] dark:text-[var(--success)]'
+        : 'text-[var(--brand-500)] dark:text-[var(--brand-500)]',
   }
 }

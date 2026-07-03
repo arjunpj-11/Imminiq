@@ -10,7 +10,7 @@ const SkeletonBlock = ({ className }: { className?: string }) => (
 )
 
 const TrackerCardSkeleton = () => (
-  <div className="animate-pulse rounded-[18px] border-[1.5px] border-[#e0d0c5] border-l-[3px] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]">
+  <div className="animate-pulse rounded-lg border-[1.5px] border-(--border-subtle) border-l-[3px] bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
     <div className="mb-3 flex gap-2">
       <div className="h-5 w-16 rounded-full bg-[#e8ddd6] dark:bg-white/10" />
       <div className="h-5 w-16 rounded-full bg-[#e8ddd6] dark:bg-white/10" />
@@ -39,7 +39,7 @@ export default function CommunityPageSkeleton({
             <SkeletonBlock className="h-9 w-[min(480px,100%)] rounded-2xl" />
             <SkeletonBlock className="h-4 w-[min(560px,100%)]" />
           </div>
-          <SkeletonBlock className="h-10 w-36 rounded-[10px]" />
+          <SkeletonBlock className="h-10 w-36 rounded-md" />
         </section>
 
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">

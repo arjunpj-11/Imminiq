@@ -39,7 +39,7 @@ const CompassIcon = () => (
 )
 
 const TrackerCardSkeleton = () => (
-  <div className="animate-pulse rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]">
+  <div className="animate-pulse rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
     <div className="mb-3 flex items-start justify-between gap-3">
       <div className="h-5 w-3/5 rounded-lg bg-[#e8ddd6] dark:bg-white/10" />
       <div className="h-5 w-12 rounded-full bg-[#e8ddd6] dark:bg-white/10" />
@@ -47,9 +47,9 @@ const TrackerCardSkeleton = () => (
     <div className="mb-4 h-3.5 w-4/5 rounded bg-[#e8ddd6] dark:bg-white/10" />
     <div className="mb-4 h-2 w-full rounded-full bg-[#e8ddd6] dark:bg-white/10" />
     <div className="flex gap-2">
-      <div className="h-8 flex-1 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
-      <div className="h-8 w-8 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
-      <div className="h-8 w-8 rounded-[9px] bg-[#e8ddd6] dark:bg-white/10" />
+      <div className="h-8 flex-1 rounded-sm bg-[#e8ddd6] dark:bg-white/10" />
+      <div className="h-8 w-8 rounded-sm bg-[#e8ddd6] dark:bg-white/10" />
+      <div className="h-8 w-8 rounded-sm bg-[#e8ddd6] dark:bg-white/10" />
     </div>
   </div>
 )
@@ -72,17 +72,17 @@ function MyTrackersPageSkeleton() {
           <SkeletonBlock className="mt-3 h-4 w-[min(620px,100%)]" />
         </div>
         <div className="flex items-center gap-2 max-[560px]:w-full">
-          <SkeletonBlock className="h-10 w-32 rounded-[10px] max-[560px]:flex-1" />
-          <SkeletonBlock className="h-10 w-40 rounded-[10px] max-[560px]:flex-1" />
+          <SkeletonBlock className="h-10 w-32 rounded-md max-[560px]:flex-1" />
+          <SkeletonBlock className="h-10 w-40 rounded-md max-[560px]:flex-1" />
         </div>
       </section>
 
       <section className="grid grid-cols-4 gap-3 max-[860px]:grid-cols-2 max-[440px]:grid-cols-1">
         {Array.from({ length: 4 }).map((_, index) => (
-          <SkeletonBlock key={index} className="h-32 rounded-[18px]" />
+          <SkeletonBlock key={index} className="h-32 rounded-lg" />
         ))}
       </section>
-      <SkeletonBlock className="h-20 rounded-[18px]" />
+      <SkeletonBlock className="h-20 rounded-lg" />
       <TrackerGridSkeleton />
       <span className="sr-only">Loading tracker content</span>
     </TrackerShell>
@@ -117,9 +117,9 @@ export default function MyTrackersPage() {
   if (summaryQuery.isError || trackersQuery.isError || !summary) {
     return (
       <TrackerShell>
-        <div className="mx-auto max-w-md rounded-2xl border border-[rgba(200,50,50,0.22)] bg-[#fdf8f5] p-6 text-center shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:bg-[#1e1c19]">
-          <h1 className="font-['Playfair_Display',serif] text-[22px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">Trackers unavailable</h1>
-          <p className="mt-2 text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">Something went wrong while fetching your tracker data.</p>
+        <div className="mx-auto max-w-md rounded-2xl border border-[rgba(200,50,50,0.22)] bg-(--surface-card) p-6 text-center shadow-(--shadow-2) dark:bg-(--surface-card)">
+          <h1 className="font-ui text-[22px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">Trackers unavailable</h1>
+          <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">Something went wrong while fetching your tracker data.</p>
         </div>
       </TrackerShell>
     )
@@ -155,23 +155,23 @@ export default function MyTrackersPage() {
     <TrackerShell>
       <section className="flex flex-wrap items-start justify-between gap-4">
         <div>
-          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-            <span className="h-1.25 w-1.25 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
+          <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+            <span className="h-1.25 w-1.25 rounded-full bg-(--success) dark:bg-(--success)" />
             My Trackers
           </div>
-          <h1 className="font-['Playfair_Display',serif] text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-[#1a1714] dark:text-[#f2f0eb]">
-            Build your <span className="text-[#b84c2b] dark:text-[#e8816a]">zero-to-hero</span> learning path
+          <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
+            Build your <span className="text-(--brand-500) dark:text-(--brand-500)">zero-to-hero</span> learning path
           </h1>
-          <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
+          <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
             Manage your roadmaps, continue lessons, and improve your learning path step by step.
           </p>
         </div>
 
         <div className="flex items-center gap-2 max-[560px]:w-full max-[560px]:flex-col">
-          <button type="button" onClick={() => navigate('/trackers/published')} className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.06)] px-4 py-2.5 text-[13px] font-bold text-[#2d6a47] transition hover:-translate-y-px dark:text-[#5cc98a] max-[560px]:w-full max-[560px]:justify-center">
+          <button type="button" onClick={() => navigate('/trackers/published')} className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.06)] px-4 py-2.5 text-[13px] font-bold text-(--success) transition hover:-translate-y-px dark:text-(--success) max-[560px]:w-full max-[560px]:justify-center">
             <GlobeIcon /> Published
           </button>
-          <button type="button" onClick={() => navigate('/onboarding/step-1')} className="inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] max-[560px]:w-full max-[560px]:justify-center">
+          <button type="button" onClick={() => navigate('/onboarding/step-1')} className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] max-[560px]:w-full max-[560px]:justify-center">
             <PlusIcon /> Create Tracker
           </button>
         </div>
@@ -205,11 +205,11 @@ export default function MyTrackersPage() {
           ))}
         </section>
       ) : (
-        <section className="rounded-[22px] border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] p-10 text-center shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/9 dark:bg-[#1e1c19] max-[640px]:p-6">
-          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-[#b84c2b] dark:text-[#e8816a]"><CompassIcon /></div>
-          <h2 className="font-['Playfair_Display',serif] text-2xl font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">No trackers yet</h2>
-          <p className="mx-auto mt-2 max-w-md text-[13px] leading-[1.6] text-[#6b5f58] dark:text-[#9b9a92]">Generate your first zero-to-hero roadmap from onboarding to start learning.</p>
-          <button type="button" onClick={() => navigate('/onboarding/step-1')} className="mt-5 inline-flex items-center gap-2 rounded-[10px] bg-[#b84c2b] px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] dark:bg-[#e8816a] dark:text-[#141412]"><PlusIcon /> Create Tracker</button>
+        <section className="rounded-xl border-[1.5px] border-dashed border-(--border-subtle) bg-(--surface-card) p-10 text-center shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-6">
+          <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-2xl border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:text-(--brand-500)"><CompassIcon /></div>
+          <h2 className="font-ui text-2xl font-extrabold text-(--text-primary) dark:text-(--text-primary)">No trackers yet</h2>
+          <p className="mx-auto mt-2 max-w-md text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">Generate your first zero-to-hero roadmap from onboarding to start learning.</p>
+          <button type="button" onClick={() => navigate('/onboarding/step-1')} className="mt-5 inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] dark:bg-(--brand-500) dark:text-[#141412]"><PlusIcon /> Create Tracker</button>
         </section>
       )}
     </TrackerShell>

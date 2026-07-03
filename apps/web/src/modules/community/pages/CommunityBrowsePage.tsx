@@ -116,17 +116,17 @@ export default function CommunityBrowsePage() {
           <>
             <section className="flex flex-wrap items-start justify-between gap-4">
               <div>
-                <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.12em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-                  <span className="h-1.5 w-1.5 rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]" />
+                <div className="mb-2.5 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+                  <span className="h-1.5 w-1.5 rounded-full bg-(--success) dark:bg-(--success)" />
                   Community
                 </div>
-                <h1 className="font-['Playfair_Display',serif] text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-[#1a1714] dark:text-[#f2f0eb]">
+                <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
                   Exchange your{' '}
-                  <span className="text-[#b84c2b] dark:text-[#e8816a]">
+                  <span className="text-(--brand-500) dark:text-(--brand-500)">
                     knowledge
                   </span>
                 </h1>
-                <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-[#6b5f58] opacity-80 dark:text-[#9b9a92]">
+                <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
                   Join the collective effort to curate the finest academic paths.
                 </p>
               </div>
@@ -134,18 +134,18 @@ export default function CommunityBrowsePage() {
               <button
                 type="button"
                 onClick={() => navigate('/trackers/published')}
-                className="inline-flex items-center gap-2 rounded-[10px] border-[1.5px] border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-5 py-2.5 text-[13px] font-bold text-[#b84c2b] transition hover:-translate-y-px hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.12)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[rgba(232,129,106,0.08)] dark:text-[#e8816a] max-[560px]:w-full max-[560px]:justify-center"
+                className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-5 py-2.5 text-[13px] font-bold text-(--brand-500) transition hover:-translate-y-px hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.12)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[rgba(232,129,106,0.08)] dark:text-(--brand-500) max-[560px]:w-full max-[560px]:justify-center"
               >
                 <BookOpenIcon />
                 My publications
-                <span className="ml-0.5 inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-[#b84c2b] px-1 font-['DM_Mono',monospace] text-[9px] font-bold text-white dark:bg-[#e8816a] dark:text-[#1a1714]">
+                <span className="ml-0.5 inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-(--brand-500) px-1 font-mono text-[9px] font-bold text-white dark:bg-(--brand-500) dark:text-(--text-primary)">
                   {browse.data.stats[0]?.value ?? '0'}
                 </span>
               </button>
             </section>
 
             {cloneTracker.isError && (
-              <div className="rounded-xl border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-4 py-3 text-[12px] leading-normal text-[#b84c2b] dark:border-[rgba(232,129,106,0.25)] dark:text-[#e8816a]">
+              <div className="rounded-xl border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-4 py-3 text-[12px] leading-normal text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)">
                 {getApiErrorMessage(
                   'Unable to clone tracker. Please try again.',
                   cloneTracker.error?.response?.data?.message,
@@ -188,11 +188,11 @@ export default function CommunityBrowsePage() {
 
             <div className="min-h-5">
               {searchError ? (
-                <p className="text-[12px] font-medium text-[#b84c2b] dark:text-[#e8816a]">
+                <p className="text-[12px] font-medium text-(--brand-500) dark:text-(--brand-500)">
                   {searchError}
                 </p>
               ) : isUpdatingResults ? (
-                <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-widest text-[#9b9a92]">
+                <p className="font-mono text-[10px] uppercase tracking-widest text-[#9b9a92]">
                   Updating results…
                 </p>
               ) : null}
@@ -219,11 +219,11 @@ export default function CommunityBrowsePage() {
                   ))}
                 </div>
               ) : (
-                <div className="rounded-[18px] border-[1.5px] border-dashed border-[#e0d0c5] bg-[#fdf8f5] px-6 py-10 text-center dark:border-white/10 dark:bg-[#1e1c19]">
-                  <h2 className="font-['Playfair_Display',serif] text-[20px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+                <div className="rounded-lg border-[1.5px] border-dashed border-(--border-subtle) bg-(--surface-card) px-6 py-10 text-center dark:border-(--border-subtle) dark:bg-(--surface-card)">
+                  <h2 className="font-ui text-[20px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
                     No trackers found
                   </h2>
-                  <p className="mt-2 text-[13px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
+                  <p className="mt-2 text-[13px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
                     Try clearing filters or searching another topic.
                   </p>
                 </div>

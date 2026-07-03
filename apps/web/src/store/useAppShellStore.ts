@@ -7,10 +7,14 @@ import { safeLocalStateStorage, safeLocalStorage } from '../lib/storage/safe-sto
 interface AppShellStore {
   mobileSidebarOpen: boolean
   sidebarCollapsed: boolean
+  commandPaletteOpen: boolean
   openMobileSidebar: () => void
   closeMobileSidebar: () => void
   toggleSidebarCollapsed: () => void
   setSidebarCollapsed: (collapsed: boolean) => void
+  openCommandPalette: () => void
+  closeCommandPalette: () => void
+  toggleCommandPalette: () => void
 }
 
 const legacySidebarCollapsed =
@@ -21,6 +25,7 @@ export const useAppShellStore = create<AppShellStore>()(
     (set) => ({
       mobileSidebarOpen: false,
       sidebarCollapsed: legacySidebarCollapsed,
+      commandPaletteOpen: false,
       openMobileSidebar: () => set({ mobileSidebarOpen: true }),
       closeMobileSidebar: () => set({ mobileSidebarOpen: false }),
       toggleSidebarCollapsed: () =>
@@ -32,6 +37,10 @@ export const useAppShellStore = create<AppShellStore>()(
           )
           return { sidebarCollapsed: next }
         }),
+      openCommandPalette: () => set({ commandPaletteOpen: true }),
+      closeCommandPalette: () => set({ commandPaletteOpen: false }),
+      toggleCommandPalette: () =>
+        set((state) => ({ commandPaletteOpen: !state.commandPaletteOpen })),
       setSidebarCollapsed: (sidebarCollapsed) => {
         safeLocalStorage.set(
           STORAGE_KEYS.legacySidebar,

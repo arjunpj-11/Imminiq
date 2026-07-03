@@ -1,7 +1,5 @@
 import { cn } from '../../utils/tracker-ui'
 
-export { useVoiceInput } from '../../hooks/useVoiceInput'
-
 // ─── SVG icons ───────────────────────────────────────────────────────────────
 
 function MicIcon({ className }: { className?: string }) {
@@ -67,6 +65,15 @@ function StopIcon({ className }: { className?: string }) {
   )
 }
 
+// ─── Types ───────────────────────────────────────────────────────────────────
+
+interface MicButtonProps {
+  isListening: boolean
+  isSupported: boolean
+  onToggle: () => void
+  size?: 'sm' | 'md'
+}
+
 // ─── Mic button ──────────────────────────────────────────────────────────────
 
 export function MicButton({
@@ -74,13 +81,10 @@ export function MicButton({
   isSupported,
   onToggle,
   size = 'md',
-}: {
-  isListening: boolean
-  isSupported: boolean
-  onToggle: () => void
-  size?: 'sm' | 'md'
-}) {
-  if (!isSupported) return null
+}: MicButtonProps) {
+  if (!isSupported) {
+    return null
+  }
 
   return (
     <button
@@ -90,19 +94,26 @@ export function MicButton({
       aria-label={
         isListening ? 'Stop voice input' : 'Start voice input'
       }
+      aria-pressed={isListening}
       className={cn(
         'relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border transition',
         size === 'sm' ? 'h-9 w-9' : 'h-10 w-10',
         isListening
           ? 'border-red-400 bg-red-500/10 text-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.10)] dark:border-red-400/60 dark:text-red-400'
-          : 'border-[#e0d0c5] text-[#6b5f58] hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:text-[#9b9a92] dark:hover:text-[#e8816a]'
+          : 'border-(--border-subtle) text-(--text-secondary) hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)',
       )}
     >
       {isListening && (
         <>
-          <span className="absolute inset-0 animate-ping rounded-full bg-red-500/10" />
+          <span
+            aria-hidden="true"
+            className="absolute inset-0 animate-ping rounded-full bg-red-500/10"
+          />
 
-          <span className="absolute bottom-1.5 left-1/2 flex h-4 -translate-x-1/2 items-end gap-0.5">
+          <span
+            aria-hidden="true"
+            className="absolute bottom-1.5 left-1/2 flex h-4 -translate-x-1/2 items-end gap-0.5"
+          >
             <span className="h-1.5 w-0.75 animate-[voiceWave_0.55s_ease-in-out_infinite] rounded-full bg-current opacity-70" />
             <span className="h-3 w-0.75 animate-[voiceWave_0.7s_ease-in-out_infinite] rounded-full bg-current opacity-90" />
             <span className="h-2 w-0.75 animate-[voiceWave_0.6s_ease-in-out_infinite] rounded-full bg-current opacity-80" />
@@ -115,6 +126,7 @@ export function MicButton({
                 0%, 100% {
                   transform: scaleY(0.45);
                 }
+
                 50% {
                   transform: scaleY(1.35);
                 }

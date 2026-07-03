@@ -151,7 +151,7 @@ export default function NotFoundPage() {
   }
 
   return (
-    <div className="relative min-h-screen overflow-x-hidden bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] transition-colors dark:bg-[#141412] dark:text-[#f2f0eb]">
+    <div className="relative min-h-screen overflow-x-hidden bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) transition-colors dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       <SystemPageNoise />
       <SystemToast message={toast} visible={isToastVisible} />
 
@@ -169,38 +169,38 @@ export default function NotFoundPage() {
         aria-label="404 error"
       >
         {/* Background Blur Shapes */}
-        <div className="pointer-events-none absolute left-[-8%] top-[8%] h-80 w-80 rounded-full bg-[#b84c2b]/12 blur-3xl dark:bg-[#e8816a]/7" />
-        <div className="pointer-events-none absolute bottom-[12%] right-[-6%] h-60 w-60 rounded-full bg-[#3b6cb7]/12 blur-3xl dark:bg-[#6b9fe8]/7" />
-        <div className="pointer-events-none absolute left-[38%] top-[55%] h-40 w-40 rounded-full bg-[#c98000]/12 blur-3xl dark:bg-[#f0a842]/7" />
+        <div className="pointer-events-none absolute left-[-8%] top-[8%] h-80 w-80 rounded-full bg-(--brand-500)/12 blur-3xl dark:bg-(--brand-500)/7" />
+        <div className="pointer-events-none absolute bottom-[12%] right-[-6%] h-60 w-60 rounded-full bg-(--info)/12 blur-3xl dark:bg-(--info)/7" />
+        <div className="pointer-events-none absolute left-[38%] top-[55%] h-40 w-40 rounded-full bg-(--warning)/12 blur-3xl dark:bg-(--warning)/7" />
 
         {/* Compass */}
-        <div className="pointer-events-none absolute right-[18%] top-[38%] hidden animate-[floatY_5s_ease-in-out_infinite] text-[#b84c2b]/20 md:block dark:text-[#e8816a]/18">
+        <div className="pointer-events-none absolute right-[18%] top-[38%] hidden animate-[floatY_5s_ease-in-out_infinite] text-(--brand-500)/20 md:block dark:text-(--brand-500)/18">
           <CompassIcon className="h-24 w-24" />
         </div>
 
         {/* Big 404 */}
         <div className="relative mb-2 select-none">
-          <span className="absolute inset-0 translate-x-1 translate-y-1 font-serif text-[clamp(120px,20vw,200px)] font-extrabold leading-none tracking-[-8px] text-[#b84c2b]/7 dark:text-[#e8816a]/7">
+          <span className="absolute inset-0 translate-x-1 translate-y-1 font-serif text-[clamp(120px,20vw,200px)] font-extrabold leading-none tracking-[-8px] text-(--brand-500)/7 dark:text-(--brand-500)/7">
             404
           </span>
 
-          <h1 className="relative font-serif text-[clamp(120px,20vw,200px)] font-extrabold leading-none tracking-[-8px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h1 className="relative font-serif text-[clamp(120px,20vw,200px)] font-extrabold leading-none tracking-[-8px] text-(--text-primary) dark:text-(--text-primary)">
             404
           </h1>
         </div>
 
         {/* Badge */}
-        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3.5 py-1.5 font-mono text-[8.5px] uppercase tracking-[0.18em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-[#e8816a]">
-          <span className="h-1.25 w-1.25 rounded-full bg-[#b84c2b] dark:bg-[#e8816a]" />
+        <div className="mb-4 inline-flex items-center gap-1.5 rounded-full border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-3.5 py-1.5 font-mono text-[8.5px] uppercase tracking-[0.18em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
+          <span className="h-1.25 w-1.25 rounded-full bg-(--brand-500) dark:bg-(--brand-500)" />
           Page not found
         </div>
 
         {/* Heading */}
-        <h2 className="mb-3 text-center font-serif text-[clamp(22px,3.5vw,32px)] font-extrabold leading-[1.2] tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+        <h2 className="mb-3 text-center font-serif text-[clamp(22px,3.5vw,32px)] font-extrabold leading-[1.2] tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)">
           Looks like this page took a wrong turn
         </h2>
 
-        <p className="mx-auto mb-8 max-w-100 text-center text-sm leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+        <p className="mx-auto mb-8 max-w-100 text-center text-sm leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
           The page you are looking for does not exist, may have been moved, or
           the URL might contain a typo. Let’s get you back on track.
         </p>
@@ -209,7 +209,7 @@ export default function NotFoundPage() {
         <div className="flex flex-wrap justify-center gap-2">
           <Link
             to="/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-[10px] border-[1.5px] border-[#b84c2b] bg-[#b84c2b] px-4 py-2 text-[12.5px] font-semibold text-[#fdf8f5] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[#963d22] hover:bg-[#963d22] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-[#e8816a] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:border-[#d4705a] dark:hover:bg-[#d4705a]"
+            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--brand-500) bg-(--brand-500) px-4 py-2 text-[12.5px] font-semibold text-[#fdf8f5] shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[#963d22] hover:bg-(--brand-600) hover:shadow-(--shadow-2) dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:border-[#d4705a] dark:hover:bg-(--brand-600)"
           >
             <DashboardIcon />
             Dashboard
@@ -217,7 +217,7 @@ export default function NotFoundPage() {
 
           <Link
             to="/community"
-            className="inline-flex items-center gap-1.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-2 text-[12.5px] font-semibold text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:border-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
+            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
           >
             <CommunityIcon />
             Community
@@ -226,7 +226,7 @@ export default function NotFoundPage() {
           <button
             type="button"
             onClick={() => showToast('Roadmaps page can be linked later.')}
-            className="inline-flex items-center gap-1.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-2 text-[12.5px] font-semibold text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:border-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
+            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
           >
             <RoadmapIcon />
             Roadmaps
@@ -235,7 +235,7 @@ export default function NotFoundPage() {
           <button
             type="button"
             onClick={() => showToast('Mock tests page can be linked later.')}
-            className="inline-flex items-center gap-1.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-2 text-[12.5px] font-semibold text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:border-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
+            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
           >
             <MockTestIcon />
             Mock Tests
@@ -244,7 +244,7 @@ export default function NotFoundPage() {
           <button
             type="button"
             onClick={() => showToast('Leaderboard page can be linked later.')}
-            className="inline-flex items-center gap-1.5 rounded-[10px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-4 py-2 text-[12.5px] font-semibold text-[#6b5f58] shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-0.5 hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] hover:shadow-[0_10px_40px_rgba(26,23,20,0.10)] dark:border-white/10 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:border-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-[#e8816a]"
+            className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
           >
             <LeaderboardIcon />
             Leaderboard

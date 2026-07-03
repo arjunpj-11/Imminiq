@@ -57,7 +57,7 @@ export default function ConfirmDialog({
               'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-[18px]',
               isDanger
                 ? 'border-red-400/40 bg-red-500/10 text-red-500 dark:border-red-400/30 dark:text-red-400'
-                : 'border-[#e0d0c5] bg-white/70 text-[#b84c2b] dark:border-white/9 dark:bg-white/5 dark:text-[#e8816a]',
+                : 'border-(--border-subtle) bg-white/70 text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--brand-500)',
             )}
           >
             {icon ?? (isDanger ? '!' : '?')}
@@ -65,14 +65,14 @@ export default function ConfirmDialog({
           <div className="min-w-0">
             <h2
               id={titleId}
-              className="text-[16px] font-bold leading-tight text-[#1a1714] dark:text-[#f2f0eb]"
+              className="text-[16px] font-bold leading-tight text-(--text-primary) dark:text-(--text-primary)"
             >
               {title}
             </h2>
             {description && (
               <div
                 id={descriptionId}
-                className="mt-1.5 text-[13px] leading-relaxed text-[#6b5f58] dark:text-[#9b9a92]"
+                className="mt-1.5 text-[13px] leading-relaxed text-(--text-secondary) dark:text-(--text-secondary)"
               >
                 {description}
               </div>

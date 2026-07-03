@@ -94,7 +94,7 @@ export const MedalIcon = ({ rank }: { rank: 1 | 2 | 3 }) => {
   return (
     <svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true">
       <circle cx="11" cy="11" r="10" fill={color.fill} stroke={color.ring} strokeWidth="1.5" />
-      <text x="11" y="15" textAnchor="middle" fontSize="10" fontWeight="700" fill={color.text} fontFamily="DM Mono, monospace">
+      <text x="11" y="15" textAnchor="middle" fontSize="10" fontWeight="700" fill={color.text} fontFamily="var(--font-mono)">
         {rank}
       </text>
     </svg>
@@ -103,7 +103,7 @@ export const MedalIcon = ({ rank }: { rank: 1 | 2 | 3 }) => {
 
 export const LiveDotIcon = () => (
   <svg width="7" height="7" viewBox="0 0 7 7" aria-hidden="true">
-    <circle cx="3.5" cy="3.5" r="3.5" fill="#4caf7d" />
+    <circle cx="3.5" cy="3.5" r="3.5" fill="var(--success)" />
   </svg>
 )
 

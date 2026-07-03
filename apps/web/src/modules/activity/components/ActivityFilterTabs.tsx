@@ -38,7 +38,7 @@ export default function ActivityFilterTabs({
       onValueChange={onChange}
       ariaLabel="Activity filter"
       className="w-fit rounded-xl p-0.75"
-      itemClassName="font-['DM_Mono',monospace] text-[10px] font-bold uppercase tracking-[0.06em]"
+      itemClassName="font-mono text-[10px] font-bold uppercase tracking-[0.06em]"
       items={ACTIVITY_FILTER_OPTIONS.map((option) => ({
         value: option.value,
         label: option.label,

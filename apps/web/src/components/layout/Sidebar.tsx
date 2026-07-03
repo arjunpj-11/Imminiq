@@ -2,7 +2,9 @@ import { cn } from '../../lib/cn'
 
 import { Link, NavLink, useLocation } from 'react-router-dom'
 
+import { prefetchRoute } from '../../lib/route-prefetch'
 import ImminiqLogo from '../ui/ImminiqLogo'
+import ImminiqWordmark from '../ui/ImminiqWordmark'
 
 interface SidebarProps {
   mobileOpen: boolean
@@ -156,10 +158,10 @@ export default function Sidebar({
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      "mb-px flex items-center justify-between rounded-[9px] px-2.5 py-[9px] font-['DM_Sans',sans-serif] text-[13px] font-medium tracking-normal no-underline transition",
+      "mb-px flex items-center justify-between rounded-[var(--radius-sm)] px-2.5 py-[9px] font-ui text-[13px] font-medium tracking-normal no-underline transition",
       isActive
-        ? 'bg-[rgba(184,76,43,0.10)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]'
-        : 'text-[#6b5f58] hover:bg-[rgba(184,76,43,0.06)] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[#e8816a]'
+        ? 'bg-[rgba(184,76,43,0.10)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[var(--brand-500)]'
+        : 'text-[var(--text-secondary)] hover:bg-[rgba(184,76,43,0.06)] hover:text-[var(--brand-500)] dark:text-[var(--text-secondary)] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[var(--brand-500)]'
     )
 
   return (
@@ -177,7 +179,7 @@ export default function Sidebar({
 
       <aside
         className={cn(
-          "fixed bottom-0 left-0 top-0 z-30 flex w-56 flex-col border-r border-[#e0d0c5] bg-[#fdf8f5] font-['DM_Sans',sans-serif] tracking-normal shadow-[0_16px_56px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out dark:border-white/9 dark:bg-[#1a1816] min-[901px]:shadow-none",
+          "fixed bottom-0 left-0 top-0 z-30 flex w-56 flex-col border-r border-(--border-subtle) bg-(--surface-card) font-ui tracking-normal shadow-[0_16px_56px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out dark:border-(--border-subtle) dark:bg-(--surface-card) min-[901px]:shadow-none",
           mobileOpen
             ? 'max-[900px]:translate-x-0'
             : 'max-[900px]:-translate-x-full',
@@ -189,17 +191,15 @@ export default function Sidebar({
         <Link
           to="/dashboard"
           onClick={onCloseMobile}
-          className="flex items-center gap-2.5 border-b border-[#e0d0c5] px-5 pb-3.5 pt-4.5 no-underline dark:border-white/9"
+          className="flex items-center gap-2.5 border-b border-(--border-subtle) px-5 pb-3.5 pt-4.5 no-underline dark:border-(--border-subtle)"
         >
-          <ImminiqLogo size={34} className="rounded-[10px]" decorative />
+          <ImminiqLogo size={34} className="rounded-md" decorative />
 
-          <span className="font-['Playfair_Display',serif] text-[22px] font-extrabold leading-none tracking-[-0.5px] text-[#b84c2b] dark:text-[#e8816a]">
-            Imminiq
-          </span>
+          <ImminiqWordmark className="font-ui text-[22px] font-extrabold leading-none tracking-[-0.5px]" />
         </Link>
 
         <nav className="flex-1 overflow-y-auto px-2.5 py-3.5">
-          <div className="px-2.5 pb-1.25 pt-2.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
+          <div className="px-2.5 pb-1.25 pt-2.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
             Main
           </div>
 
@@ -208,6 +208,8 @@ export default function Sidebar({
               key={item.label}
               to={item.to}
               onClick={onCloseMobile}
+              onMouseEnter={() => prefetchRoute(item.to)}
+              onFocus={() => prefetchRoute(item.to)}
               className={navLinkClass}
             >
               {({ isActive }) => (
@@ -220,10 +222,10 @@ export default function Sidebar({
                   {'kbd' in item && item.kbd ? (
                     <span
                       className={cn(
-                        "rounded px-1.25 py-0.5 font-['DM_Mono',monospace] text-[9px]",
+                        "rounded px-1.25 py-0.5 font-mono text-[9px]",
                         isActive
-                          ? 'bg-[rgba(184,76,43,0.14)] text-[#b84c2b] dark:bg-[rgba(232,129,106,0.16)] dark:text-[#e8816a]'
-                          : 'bg-[rgba(26,23,20,0.09)] text-[#6b5f58] opacity-60 dark:bg-[rgba(242,240,235,0.09)] dark:text-[#9b9a92]'
+                          ? 'bg-[rgba(184,76,43,0.14)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.16)] dark:text-(--brand-500)'
+                          : 'bg-[rgba(26,23,20,0.09)] text-(--text-secondary) opacity-60 dark:bg-[rgba(242,240,235,0.09)] dark:text-(--text-secondary)'
                       )}
                     >
                     </span>
@@ -233,7 +235,7 @@ export default function Sidebar({
             </NavLink>
           ))}
 
-          <div className="px-2.5 pb-1.25 pt-4.5 font-['DM_Mono',monospace] text-[8.5px] uppercase tracking-[0.15em] text-[#6b5f58] opacity-45 dark:text-[#9b9a92]">
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
             Personal
           </div>
 
@@ -250,6 +252,8 @@ export default function Sidebar({
                 key={item.label}
                 to={target}
                 onClick={onCloseMobile}
+                onMouseEnter={() => prefetchRoute(target)}
+                onFocus={() => prefetchRoute(target)}
                 className={({ isActive }) =>
                   navLinkClass({
                     isActive: isSettingsItem ? isInsideSettings : isActive,
@@ -265,14 +269,14 @@ export default function Sidebar({
           })}
         </nav>
 
-        <div className="relative mx-2.5 mb-4 overflow-hidden rounded-[14px] border border-[rgba(184,76,43,0.14)] bg-[rgba(184,76,43,0.07)] p-3.5 dark:border-[rgba(232,129,106,0.16)] dark:bg-[rgba(232,129,106,0.07)]">
-          <span className="pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full bg-[#b84c2b] opacity-[0.06] dark:bg-[#e8816a]" />
+        <div className="relative mx-2.5 mb-4 overflow-hidden rounded-md border border-[rgba(184,76,43,0.14)] bg-[rgba(184,76,43,0.07)] p-3.5 dark:border-[rgba(232,129,106,0.16)] dark:bg-[rgba(232,129,106,0.07)]">
+          <span className="pointer-events-none absolute -right-5 -top-5 h-20 w-20 rounded-full bg-(--brand-500) opacity-[0.06] dark:bg-(--brand-500)" />
 
-          <div className="relative z-1 mb-0.75 text-[12px] font-bold tracking-normal text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="relative z-1 mb-0.75 text-[12px] font-bold tracking-normal text-(--brand-500) dark:text-(--brand-500)">
             Upgrade to Pro
           </div>
 
-          <p className="relative z-1 mb-2.5 text-[11px] leading-[1.45] tracking-normal text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="relative z-1 mb-2.5 text-[11px] leading-[1.45] tracking-normal text-(--text-secondary) dark:text-(--text-secondary)">
             Unlock advanced insights, AI evaluations, and unlimited tracker
             sharing.
           </p>
@@ -280,7 +284,7 @@ export default function Sidebar({
           <Link
             to="/pricing"
             onClick={onCloseMobile}
-            className="relative z-1 block w-full rounded-lg border-none bg-[#b84c2b] p-2.25 text-center font-['DM_Sans',sans-serif] text-[12px] font-bold tracking-normal text-[#fdf8f5] no-underline transition hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="relative z-1 block w-full rounded-lg border-none bg-(--brand-500) p-2.25 text-center font-ui text-[12px] font-bold tracking-normal text-[#fdf8f5] no-underline transition hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             Upgrade
           </Link>
@@ -292,7 +296,7 @@ export default function Sidebar({
         aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
         onClick={onToggleCollapsed}
         className={cn(
-          'fixed top-1/2 z-31 hidden h-16 w-7 -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 border-[#e0d0c5] bg-[#fdf8f5] text-[#b84c2b] shadow-[3px_0_16px_rgba(26,23,20,0.10)] transition-[left,width,background] duration-300 hover:w-8.5 hover:bg-[rgba(184,76,43,0.08)] dark:border-white/9 dark:bg-[#1a1816] dark:text-[#e8816a] dark:hover:bg-[rgba(232,129,106,0.10)] min-[901px]:flex',
+          'fixed top-1/2 z-31 hidden h-16 w-7 -translate-y-1/2 items-center justify-center rounded-r-xl border border-l-0 border-(--border-subtle) bg-(--surface-card) text-(--brand-500) shadow-[3px_0_16px_rgba(26,23,20,0.10)] transition-[left,width,background] duration-300 hover:w-8.5 hover:bg-[rgba(184,76,43,0.08)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] min-[901px]:flex',
           collapsed ? 'left-0' : 'left-56'
         )}
       >

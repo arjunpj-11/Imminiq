@@ -18,7 +18,7 @@ export default function FilterBar({
       className={cn(
         'flex min-w-0 flex-wrap items-center gap-3',
         surface &&
-          'rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-3 dark:border-white/9 dark:bg-[#1e1c19]',
+          'rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-3 dark:border-(--border-subtle) dark:bg-(--surface-card)',
         className,
       )}
     >

@@ -20,10 +20,10 @@ export default function RecommendedActions({
           type="button"
           onClick={() => onNavigate(action.link)}
           className={cn(
-            'inline-flex items-center gap-2 rounded-[10px] border-[1.5px] px-4.5 py-2.5 text-[12.5px] font-semibold shadow-[0_2px_16px_rgba(26,23,20,0.06)] transition hover:-translate-y-px',
+            'inline-flex items-center gap-2 rounded-md border-[1.5px] px-4.5 py-2.5 text-[12.5px] font-semibold shadow-(--shadow-1) transition hover:-translate-y-px',
             index === 0
-              ? 'border-[#b84c2b] bg-[#b84c2b] text-[#fdf8f5] hover:bg-[#963d22] dark:border-[#e8816a] dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]'
-              : 'border-[#e0d0c5] bg-[#fdf8f5] text-[#6b5f58] hover:border-[#e8816a] hover:bg-[rgba(184,76,43,0.08)] hover:text-[#b84c2b] dark:border-white/9 dark:bg-[#1e1c19] dark:text-[#9b9a92] dark:hover:text-[#e8816a]'
+              ? 'border-(--brand-500) bg-(--brand-500) text-[#fdf8f5] hover:bg-(--brand-600) dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)'
+              : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
           )}
         >
           {action.title}

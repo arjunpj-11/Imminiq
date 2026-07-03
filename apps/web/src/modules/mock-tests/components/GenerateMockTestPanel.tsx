@@ -35,14 +35,14 @@ export function GenerateMockTestPanel() {
   }
 
   return (
-    <div className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06)] dark:border-white/10 dark:bg-[#1c1a18]">
+    <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
       {/* header */}
       <div className="mb-4 flex items-center gap-2">
-        <span className="text-[#b84c2b] dark:text-[#e8816a]">
+        <span className="text-(--brand-500) dark:text-(--brand-500)">
           <SparklesIcon />
         </span>
 
-        <h3 className="font-['Playfair_Display',serif] text-[17px] font-black text-[#1a1714] dark:text-[#f2f0eb]">
+        <h3 className="font-ui text-[17px] font-black text-(--text-primary) dark:text-(--text-primary)">
           Generate AI mock test
         </h3>
       </div>
@@ -53,7 +53,7 @@ export function GenerateMockTestPanel() {
           value={generateDraft.topic}
           onChange={(e) => updateGenerateDraft({ topic: e.target.value })}
           placeholder="Topic, e.g. Recursion"
-          className="w-full rounded-xl border border-[#e0d0c5] bg-[#f5ede4] px-4 py-3 text-sm text-[#1a1714] outline-none transition placeholder:text-[#9b8f87] focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:placeholder:text-[#6b6560] dark:focus:border-[#e8816a]"
+          className="w-full rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3 text-sm text-(--text-primary) outline-none transition placeholder:text-[#9b8f87] focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:placeholder:text-[#6b6560] dark:focus:border-(--brand-500)"
         />
 
         {/* difficulty + count row */}
@@ -65,7 +65,7 @@ export function GenerateMockTestPanel() {
                 difficulty: e.target.value as typeof generateDraft.difficulty,
               })
             }
-            className="rounded-xl border border-[#e0d0c5] bg-[#f5ede4] px-3 py-3 text-sm text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+            className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-3 py-3 text-sm text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
           >
             {DIFFICULTY_OPTIONS.map((item) => (
               <option key={item} value={item}>
@@ -82,7 +82,7 @@ export function GenerateMockTestPanel() {
             onChange={(e) =>
               updateGenerateDraft({ questionCount: Number(e.target.value) })
             }
-            className="rounded-xl border border-[#e0d0c5] bg-[#f5ede4] px-3 py-3 text-sm text-[#1a1714] outline-none transition focus:border-[#b84c2b] focus:bg-[#fdf8f5] dark:border-white/10 dark:bg-[#141412] dark:text-[#f2f0eb] dark:focus:border-[#e8816a]"
+            className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-3 py-3 text-sm text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
           />
         </div>
 
@@ -97,10 +97,10 @@ export function GenerateMockTestPanel() {
                 type="button"
                 onClick={() => toggleType(type)}
                 className={cn(
-                  'rounded-full border px-3 py-1.5 font-["DM_Mono",monospace] text-[10px] font-bold capitalize tracking-[0.08em] transition hover:-translate-y-px',
+                  'rounded-full border px-3 py-1.5 font-mono text-[10px] font-bold capitalize tracking-[0.08em] transition hover:-translate-y-px',
                   isSelected
-                    ? 'border-[#b84c2b] bg-[#b84c2b] text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] dark:border-[#e8816a] dark:bg-[#e8816a] dark:text-white'
-                    : 'border-[#e0d0c5] bg-white/35 text-[#6b5f58] hover:border-[#e8816a] hover:text-[#b84c2b] dark:border-white/10 dark:bg-transparent dark:text-[#9b9a92] dark:hover:border-white/20 dark:hover:text-[#f2f0eb]'
+                    ? 'border-(--brand-500) bg-(--brand-500) text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-white'
+                    : 'border-(--border-subtle) bg-white/35 text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]'
                 )}
               >
                 {type.replace('_', ' ')}
@@ -114,13 +114,13 @@ export function GenerateMockTestPanel() {
           type="button"
           onClick={submit}
           disabled={generateMutation.isPending || !generateDraft.topic.trim()}
-          className="w-full rounded-xl bg-[#b84c2b] px-4 py-3 font-['Playfair_Display',serif] text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-60 dark:bg-[#e8816a] dark:hover:bg-[#d9522d]"
+          className="w-full rounded-xl bg-(--brand-500) px-4 py-3 font-ui text-[15px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:hover:bg-[#d9522d]"
         >
           {generateMutation.isPending ? 'Generating...' : 'Generate test'}
         </button>
 
         {generateMutation.error && (
-          <p className="text-xs text-[#b84c2b] dark:text-[#e8816a]">
+          <p className="text-xs text-(--brand-500) dark:text-(--brand-500)">
             {generateMutation.error.message}
           </p>
         )}

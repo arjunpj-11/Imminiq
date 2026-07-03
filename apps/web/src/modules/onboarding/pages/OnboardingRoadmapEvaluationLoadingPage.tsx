@@ -183,7 +183,7 @@ const activityChips: ActivityChip[] = [
 const StatusDot = ({ state }: { state: ProgressStepState }) => {
   if (state === 'done') {
     return (
-      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#4caf7d] dark:bg-[#5cc98a]">
+      <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-(--success) dark:bg-(--success)">
         <CheckIcon />
       </span>
     )
@@ -191,9 +191,9 @@ const StatusDot = ({ state }: { state: ProgressStepState }) => {
 
   if (state === 'active') {
     return (
-      <span className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#b84c2b] dark:bg-[#e8816a]">
-        <span className="absolute -inset-1 animate-spin rounded-full border-2 border-transparent border-t-[#e8816a] dark:border-t-[#f5a090]" />
-        <span className="h-2 w-2 animate-pulse rounded-full bg-[#fff8ed] dark:bg-[#141412]" />
+      <span className="relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-(--brand-500) dark:bg-(--brand-500)">
+        <span className="absolute -inset-1 animate-spin rounded-full border-2 border-transparent border-t-(--brand-500) dark:border-t-[#f5a090]" />
+        <span className="h-2 w-2 animate-pulse rounded-full bg-[#fff8ed] dark:bg-(--surface-canvas)" />
       </span>
     )
   }
@@ -249,13 +249,13 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
   }, [evalStatus.activeStepIndex, evalStatus.terminalState])
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f5ede4] font-[DM_Sans,sans-serif] text-[#1a1714] dark:bg-[#141412] dark:text-[#f2f0eb]">
+    <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       {/* ── Header ── */}
-      <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-[#e0d0c5] bg-[#f5ede4]/92 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-[#141412]/94 sm:px-8 md:px-12">
+      <header className="sticky top-0 z-20 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/92 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/94 sm:px-8 md:px-12">
         <OnboardingBrandLink />
 
         <div className="flex items-center gap-3">
-          <span className="hidden rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-[#b84c2b] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-[#e8816a] sm:inline-flex">
+          <span className="hidden rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500) sm:inline-flex">
             AI Roadmap Evaluation
           </span>
           
@@ -266,15 +266,15 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
       <main className="mx-auto flex w-full max-w-260 flex-1 flex-col items-center gap-8 px-4 py-10 sm:px-6 md:px-8 md:py-12">
         {/* Hero */}
         <section className="flex flex-col items-center text-center">
-          <div className="mb-3 font-mono text-[9.5px] uppercase tracking-[0.16em] text-[#b84c2b] dark:text-[#e8816a]">
+          <div className="mb-3 font-mono text-[9.5px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">
             AI Roadmap Evaluation
           </div>
 
-          <h1 className="mb-4 max-w-155 font-serif text-[clamp(32px,6vw,54px)] font-extrabold leading-[1.08] tracking-[-1.5px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <h1 className="mb-4 max-w-155 font-serif text-[clamp(32px,6vw,54px)] font-extrabold leading-[1.08] tracking-[-1.5px] text-(--text-primary) dark:text-(--text-primary)">
             Scoring your learning roadmap
           </h1>
 
-          <p className="max-w-127.5 text-[15px] leading-[1.65] text-[#6b5f58] dark:text-[#9b9a92]">
+          <p className="max-w-127.5 text-[15px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
             Gemini is analysing completeness, depth, interview-readiness, and
             identifying gaps and opportunities in your roadmap.
           </p>
@@ -283,7 +283,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
         {/* Error banner */}
         {(statusError || isLoading === false && !data) && statusError && (
           <div
-            className="flex w-full items-start gap-2.5 rounded-[14px] border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-[#d94535] bg-[rgba(217,69,53,0.07)] px-4 py-3.5 text-[13px] leading-normal text-[#d94535] dark:border-l-[#ff6b5f] dark:bg-[rgba(255,107,95,0.10)] dark:text-[#ff6b5f]"
+            className="flex w-full items-start gap-2.5 rounded-md border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-(--danger) bg-[rgba(217,69,53,0.07)] px-4 py-3.5 text-[13px] leading-normal text-(--danger) dark:border-l-(--danger) dark:bg-[rgba(255,107,95,0.10)] dark:text-(--danger)"
             role="alert"
           >
             <span className="mt-0.5">
@@ -296,30 +296,30 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
         {/* Two-col cards */}
         <section className="grid w-full grid-cols-1 gap-4 md:grid-cols-2">
           {/* Roadmap context card */}
-          <article className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-6 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6">
-            <h2 className="mb-1 font-serif text-[19px] font-bold tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <article className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-6 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6">
+            <h2 className="mb-1 font-serif text-[19px] font-bold tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
               Roadmap being evaluated
             </h2>
 
-            <p className="mb-5 text-[12.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mb-5 text-[12.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
               Gemini is scoring this roadmap against your learning goals.
             </p>
 
             <div className="flex flex-col">
-              <div className="flex items-center justify-between gap-3 border-b border-[#e0d0c5] py-3 dark:border-white/15">
-                <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.13em] text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
+              <div className="flex items-center justify-between gap-3 border-b border-(--border-subtle) py-3 dark:border-white/15">
+                <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary)/70 dark:text-(--text-secondary)/70">
                   Field
                 </span>
-                <span className="max-w-[70%] truncate rounded-md bg-[rgba(184,76,43,0.10)] px-2.75 py-1 text-[12px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
+                <span className="max-w-[70%] truncate rounded-md bg-[rgba(184,76,43,0.10)] px-2.75 py-1 text-[12px] font-semibold text-(--brand-500) dark:bg-[rgba(232,129,106,0.12)] dark:text-(--brand-500)">
                   {roadmapTopic}
                 </span>
               </div>
 
               <div className="flex items-center justify-between gap-3 py-3">
-                <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.13em] text-[#6b5f58]/70 dark:text-[#9b9a92]/70">
+                <span className="shrink-0 font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary)/70 dark:text-(--text-secondary)/70">
                   Goal
                 </span>
-                <span className="max-w-[70%] truncate rounded-md bg-[rgba(184,76,43,0.10)] px-2.75 py-1 text-[12px] font-semibold text-[#b84c2b] dark:bg-[rgba(232,129,106,0.12)] dark:text-[#e8816a]">
+                <span className="max-w-[70%] truncate rounded-md bg-[rgba(184,76,43,0.10)] px-2.75 py-1 text-[12px] font-semibold text-(--brand-500) dark:bg-[rgba(232,129,106,0.12)] dark:text-(--brand-500)">
                   {roadmapGoal}
                 </span>
               </div>
@@ -327,12 +327,12 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           </article>
 
           {/* Evaluation steps card */}
-          <article className="rounded-[18px] border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] px-5 py-6 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-[#1e1c19] dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6">
-            <h2 className="mb-1 font-serif text-[19px] font-bold tracking-[-0.3px] text-[#1a1714] dark:text-[#f2f0eb]">
+          <article className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-6 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6">
+            <h2 className="mb-1 font-serif text-[19px] font-bold tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">
               Evaluation progress
             </h2>
 
-            <p className="mb-4 text-[12.5px] leading-normal text-[#6b5f58] dark:text-[#9b9a92]">
+            <p className="mb-4 text-[12.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
               Each stage analyses a different dimension of your roadmap quality.
             </p>
 
@@ -359,8 +359,8 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
 
                     <span
                       className={cn(
-                        'text-sm font-medium leading-none text-[#1a1714] dark:text-[#f2f0eb]',
-                        isPending && 'text-[#6b5f58] dark:text-[#9b9a92]'
+                        'text-sm font-medium leading-none text-(--text-primary) dark:text-(--text-primary)',
+                        isPending && 'text-(--text-secondary) dark:text-(--text-secondary)'
                       )}
                     >
                       {isActive ? step.activeLabel || step.label : step.label}
@@ -393,7 +393,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="rounded-xl bg-[#b84c2b] px-5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-[#963d22] hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]"
+            className="rounded-xl bg-(--brand-500) px-5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             Return to roadmap
           </button>

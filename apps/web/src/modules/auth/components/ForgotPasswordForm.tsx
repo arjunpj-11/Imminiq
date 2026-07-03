@@ -91,14 +91,14 @@ export default function ForgotPasswordForm() {
           onBlur={handleBlur}
         />
 
-        <button className="relative mt-1 w-full overflow-hidden rounded-[11px] bg-[#b84c2b] p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-[#963d22] disabled:cursor-not-allowed disabled:opacity-70 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a]" type="submit" disabled={isPending}>
+        <button className="relative mt-1 w-full overflow-hidden rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-70 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)" type="submit" disabled={isPending}>
           {isPending ? 'Sending code…' : 'Send reset code'}
         </button>
       </form>
 
-      <p className="mt-6 text-center text-[13px] text-[#6b5f58] dark:text-[#9b9a92]">
+      <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
         Remembered it?{' '}
-        <Link to="/login" className="font-semibold text-[#b84c2b] hover:opacity-70 dark:text-[#e8816a]">
+        <Link to="/login" className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)">
           Back to login
         </Link>
       </p>

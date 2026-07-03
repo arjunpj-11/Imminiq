@@ -29,14 +29,14 @@ export default function OnboardingBrandLink({
 
       <span
         className={cn(
-          'text-[19px] font-bold leading-none tracking-[-0.5px] text-[#1a1714] dark:text-[#f2f0eb]',
+          'text-[19px] font-bold leading-none tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)',
           hideWordmarkOnMobile && 'hidden sm:inline',
           wordmarkClassName,
         )}
       >
         immin
-        <span className="text-[#b84c2b] dark:text-[#e8816a]">iq</span>
-        <span className="text-[#b84c2b] dark:text-[#e8816a]">.</span>
+        <span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
+        <span className="text-(--brand-500) dark:text-(--brand-500)">.</span>
       </span>
     </Link>
   )

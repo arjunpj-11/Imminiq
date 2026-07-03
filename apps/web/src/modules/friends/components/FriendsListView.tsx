@@ -38,7 +38,7 @@ export default function FriendsListView({
 
   return (
     <section className="space-y-4" aria-label="Friends list">
-      <p className="font-['DM_Mono',monospace] text-[9px] uppercase tracking-widest text-[#9b9a92]">
+      <p className="font-mono text-[9px] uppercase tracking-widest text-[#9b9a92]">
         Showing {friends.length} of {total}
       </p>
       <div className="grid gap-3 sm:grid-cols-2">

@@ -16,7 +16,7 @@ export default function CommunityPagination({
       totalPages={pagination.totalPages}
       totalItems={pagination.total}
       onPageChange={onPageChange}
-      className="rounded-2xl border border-[#e0d0c5] bg-[#fdf8f5] px-4 py-3 dark:border-white/9 dark:bg-[#1e1c19]"
+      className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) px-4 py-3 dark:border-(--border-subtle) dark:bg-(--surface-card)"
     />
   )
 }

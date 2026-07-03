@@ -28,7 +28,7 @@ export default function LeaderboardAvatar({
       src={avatarUrl}
       initials={initials}
       sizeClassName={sizes[size]}
-      fallbackClassName="bg-none font-['DM_Mono',monospace] tracking-tight text-white"
+      fallbackClassName="bg-none font-mono tracking-tight text-white"
       fallbackStyle={{ background: color }}
       imageLoading="lazy"
     />

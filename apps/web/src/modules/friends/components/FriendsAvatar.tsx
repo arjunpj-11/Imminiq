@@ -18,8 +18,8 @@ export default function FriendsAvatar({
       sizeClassName={
         size === 'sm' ? 'h-9 w-9 text-[10px]' : 'h-11 w-11 text-[12px]'
       }
-      className="ring-1 ring-[#e0d0c5] dark:ring-white/10"
-      fallbackClassName="font-['DM_Mono',monospace]"
+      className="ring-1 ring-(--border-subtle) dark:ring-white/10"
+      fallbackClassName="font-mono"
       imageLoading="lazy"
     />
   )

@@ -23,7 +23,7 @@ const SidebarCard = ({
 }) => (
   <div
     className={cn(
-      'rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-5 dark:border-white/9 dark:bg-[#1e1c19]',
+      'rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)',
       className,
     )}
   >
@@ -40,7 +40,7 @@ const SidebarCardHeader = ({
 }) => (
   <div className="mb-4 flex items-center gap-2">
     {icon}
-    <span className="font-['Playfair_Display',serif] text-[14.5px] font-extrabold text-[#1a1714] dark:text-[#f2f0eb]">
+    <span className="font-ui text-[14.5px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
       {title}
     </span>
   </div>
@@ -54,10 +54,10 @@ const SidebarValueRow = ({
   value: string
 }) => (
   <div className="flex items-center justify-between border-b border-[#ece3db] py-2.25 last:border-b-0 dark:border-white/[0.07]">
-    <span className="text-[12px] text-[#6b5f58] dark:text-[#9b9a92]">
+    <span className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
       {label}
     </span>
-    <span className="font-['DM_Mono',monospace] text-[12px] font-bold text-[#1a1714] tabular-nums dark:text-[#f2f0eb]">
+    <span className="font-mono text-[12px] font-bold text-(--text-primary) tabular-nums dark:text-(--text-primary)">
       {value}
     </span>
   </div>
@@ -80,7 +80,7 @@ const WeeklyChart = ({ weekly }: WeeklyChartProps) => {
     <SidebarCard>
       <SidebarCardHeader
         icon={
-          <span className="text-[#b84c2b] dark:text-[#e8816a]">
+          <span className="text-(--brand-500) dark:text-(--brand-500)">
             <ActivityIcon size={14} />
           </span>
         }
@@ -104,7 +104,7 @@ const WeeklyChart = ({ weekly }: WeeklyChartProps) => {
                   height: `${heightPercent}%`,
                   minHeight: day.xp > 0 ? 4 : 0,
                   background: isToday
-                    ? '#b84c2b'
+                    ? 'var(--brand-500)'
                     : day.xp > 0
                       ? 'rgba(184,76,43,0.28)'
                       : 'rgba(26,23,20,0.06)',
@@ -123,9 +123,9 @@ const WeeklyChart = ({ weekly }: WeeklyChartProps) => {
             <div key={day.date} className="flex-1 text-center">
               <span
                 className={cn(
-                  "font-['DM_Mono',monospace] text-[8px] uppercase tracking-wide",
+                  "font-mono text-[8px] uppercase tracking-wide",
                   isToday
-                    ? 'font-bold text-[#b84c2b] dark:text-[#e8816a]'
+                    ? 'font-bold text-(--brand-500) dark:text-(--brand-500)'
                     : 'text-[#b0a097] dark:text-[#6b6460]',
                 )}
               >
@@ -151,7 +151,7 @@ const WeeklyXpCard = ({ weekly }: WeeklyXpCardProps) => {
     <SidebarCard>
       <SidebarCardHeader
         icon={
-          <span className="text-[#b84c2b] dark:text-[#e8816a]">
+          <span className="text-(--brand-500) dark:text-(--brand-500)">
             <SparklesIcon size={14} />
           </span>
         }
@@ -159,18 +159,18 @@ const WeeklyXpCard = ({ weekly }: WeeklyXpCardProps) => {
       />
 
       <div className="mb-3 flex items-end gap-2">
-        <span className="font-['Playfair_Display',serif] text-[32px] font-black leading-none text-[#1a1714] tabular-nums dark:text-[#f2f0eb]">
+        <span className="font-ui text-[32px] font-black leading-none text-(--text-primary) tabular-nums dark:text-(--text-primary)">
           {formatNumber(weekly.currentXp)}
         </span>
 
         <span
           className={cn(
-            "mb-1 inline-flex items-center gap-1 font-['DM_Mono',monospace] text-[10px] font-bold",
-            growthIsPositive && 'text-[#2d6a47] dark:text-[#5cc98a]',
-            growthIsNegative && 'text-[#b84c2b] dark:text-[#e8816a]',
+            "mb-1 inline-flex items-center gap-1 font-mono text-[10px] font-bold",
+            growthIsPositive && 'text-(--success) dark:text-(--success)',
+            growthIsNegative && 'text-(--brand-500) dark:text-(--brand-500)',
             !growthIsPositive &&
               !growthIsNegative &&
-              'text-[#8a7d75] dark:text-[#9b9a92]',
+              'text-[#8a7d75] dark:text-(--text-secondary)',
           )}
         >
           {growthIsPositive && <TrendUpIcon size={10} />}
@@ -181,7 +181,7 @@ const WeeklyXpCard = ({ weekly }: WeeklyXpCardProps) => {
 
       <div className="mb-3 h-0.75 overflow-hidden rounded-full bg-[rgba(26,23,20,0.07)] dark:bg-white/8">
         <div
-          className="h-full rounded-full bg-[#b84c2b] transition-[width] duration-500 dark:bg-[#e8816a]"
+          className="h-full rounded-full bg-(--brand-500) transition-[width] duration-500 dark:bg-(--brand-500)"
           style={{
             width: `${Math.min(100, Math.max(0, weekly.progressPercent))}%`,
           }}

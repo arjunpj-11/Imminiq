@@ -27,7 +27,7 @@ export default function NavPillTabs({
     <nav
       aria-label={ariaLabel}
       className={cn(
-        'flex max-w-full flex-wrap gap-1 rounded-2xl border-[1.5px] border-[#e0d0c5] bg-[#fdf8f5] p-2 dark:border-white/9 dark:bg-[#1e1c19]',
+        'flex max-w-full flex-wrap gap-1 rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-2 dark:border-(--border-subtle) dark:bg-(--surface-card)',
         className,
       )}
     >
@@ -38,10 +38,10 @@ export default function NavPillTabs({
           end={item.end}
           className={({ isActive }) =>
             cn(
-              'inline-flex items-center gap-2 rounded-[11px] px-4 py-2.5 text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(184,76,43,0.22)]',
+              'inline-flex items-center gap-2 rounded-md px-4 py-2.5 text-[13px] font-semibold transition focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[rgba(184,76,43,0.22)]',
               isActive
-                ? 'bg-[#b84c2b] text-[#fdf8f5] dark:bg-[#e8816a] dark:text-[#141412]'
-                : 'text-[#6b5f58] hover:bg-[rgba(184,76,43,0.07)] hover:text-[#b84c2b] dark:text-[#9b9a92] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[#e8816a]',
+                ? 'bg-(--brand-500) text-[#fdf8f5] dark:bg-(--brand-500) dark:text-[#141412]'
+                : 'text-(--text-secondary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-(--brand-500)',
               itemClassName,
             )
           }

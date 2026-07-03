@@ -1,4 +1,4 @@
-import { useEffect, useState, type CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react'
 
 import { cn } from '../../lib/cn'
 
@@ -44,16 +44,18 @@ export default function UserAvatar({
   imageClassName,
   fallbackClassName,
   fallbackStyle,
-  imageLoading,
+  imageLoading = size === 'xl' ? 'eager' : 'lazy',
   roundedClassName = 'rounded-full',
 }: UserAvatarProps) {
   const [failedSource, setFailedSource] = useState<string | null>(null)
 
-  useEffect(() => {
-    if (src !== failedSource) setFailedSource(null)
-  }, [failedSource, src])
-
   const showImage = Boolean(src) && failedSource !== src
+
+  const handleImageError = () => {
+    if (src) {
+      setFailedSource(src)
+    }
+  }
 
   return (
     <span
@@ -62,7 +64,7 @@ export default function UserAvatar({
         roundedClassName,
         sizeClassName || sizeClasses[size],
         !showImage &&
-          'bg-linear-to-br from-[#b84c2b] to-[#e8816a] text-white',
+          'bg-linear-to-br from-(--brand-500) to-[#e9a08e] text-white',
         !showImage && fallbackClassName,
         className,
       )}
@@ -75,7 +77,9 @@ export default function UserAvatar({
           alt={`${name}'s avatar`}
           className={cn('h-full w-full object-cover', imageClassName)}
           loading={imageLoading}
-          onError={() => setFailedSource(src ?? null)}
+          decoding="async"
+          draggable={false}
+          onError={handleImageError}
         />
       ) : (
         initials || initialsFor(name)

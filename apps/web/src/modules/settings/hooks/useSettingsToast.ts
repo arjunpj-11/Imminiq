@@ -1,46 +1,51 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef } from 'react'
+
+import { toast as globalToast } from '../../../lib/toast'
 import type { ToastTone } from '../types/settings-ui.types'
 
-export const useSettingsToast = () => {
-  const [message, setMessage] = useState('')
-  const [tone, setTone] = useState<ToastTone>('info')
-  const [visible, setVisible] = useState(false)
-  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+const toneFor = (tone: ToastTone) =>
+  tone === 'loading' ? 'info' : tone
 
-  const clearTimer = useCallback(() => {
-    if (timerRef.current) {
-      clearTimeout(timerRef.current)
-      timerRef.current = null
-    }
-  }, [])
+/**
+ * Compatibility adapter for existing settings pages. Visual rendering is now
+ * handled by the root ToastProvider, so settings no longer creates a separate
+ * fixed toast layer.
+ */
+export const useSettingsToast = () => {
+  const activeToastId = useRef<number | null>(null)
 
   const showToast = useCallback(
-    (nextMessage: string, nextTone: ToastTone = 'info') => {
-      clearTimer()
-      setMessage(nextMessage)
-      setTone(nextTone)
-      setVisible(true)
+    (message: string, tone: ToastTone = 'info') => {
+      const input = {
+        title: message,
+        tone: toneFor(tone),
+        duration: tone === 'loading' ? 0 : undefined,
+      } as const
 
-      if (nextTone !== 'loading') {
-        timerRef.current = setTimeout(() => {
-          setVisible(false)
-        }, 2400)
+      if (activeToastId.current !== null) {
+        globalToast.update(activeToastId.current, input)
+      } else {
+        activeToastId.current = globalToast.show(input)
+      }
+
+      if (tone !== 'loading') {
+        activeToastId.current = null
       }
     },
-    [clearTimer]
+    [],
   )
 
   const hideToast = useCallback(() => {
-    clearTimer()
-    setVisible(false)
-  }, [clearTimer])
-
-  useEffect(() => clearTimer, [clearTimer])
+    if (activeToastId.current !== null) {
+      globalToast.dismiss(activeToastId.current)
+      activeToastId.current = null
+    }
+  }, [])
 
   return {
-    message,
-    tone,
-    visible,
+    message: '',
+    tone: 'info' as ToastTone,
+    visible: false,
     showToast,
     hideToast,
   }

@@ -203,7 +203,7 @@ export default function FriendsPage() {
           <button
             type="button"
             onClick={() => navigate("/friends/search")}
-            className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-[13px] bg-[#b84c2b] px-5 py-3 text-[12px] font-bold text-white transition hover:-translate-y-px hover:bg-[#963d22] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#b84c2b]/30 dark:bg-[#e8816a] dark:text-[#141412] dark:hover:bg-[#d4705a] ${activeTab === "requests" ? "sm:ml-auto" : ""}`}
+            className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/30 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600) ${activeTab === "requests" ? "sm:ml-auto" : ""}`}
           >
             <UserPlusIcon />
             Find friends

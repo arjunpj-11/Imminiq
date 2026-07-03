@@ -24,15 +24,15 @@ export const COMMUNITY_RATING_OPTIONS: Array<{
 ]
 
 export const COMMUNITY_STAT_ACCENTS = [
-  { light: '#b84c2b', dark: '#e8816a' },
-  { light: '#3b6cb7', dark: '#4a9eff' },
-  { light: '#2d6a47', dark: '#3dbf82' },
-  { light: '#c98000', dark: '#f0a832' },
+  { light: 'var(--brand-500)', dark: 'var(--brand-500)' },
+  { light: 'var(--info)', dark: 'var(--info)' },
+  { light: 'var(--success)', dark: 'var(--success)' },
+  { light: 'var(--warning)', dark: 'var(--warning)' },
 ]
 
 export const COMMUNITY_VERIFY_STAT_ACCENTS = {
-  amber: { light: '#c98000', dark: '#f0a832' },
-  green: { light: '#2d6a47', dark: '#3dbf82' },
-  rust: { light: '#b84c2b', dark: '#e8816a' },
+  amber: { light: 'var(--warning)', dark: 'var(--warning)' },
+  green: { light: 'var(--success)', dark: 'var(--success)' },
+  rust: { light: 'var(--brand-500)', dark: 'var(--brand-500)' },
   purple: { light: '#6b46c1', dark: '#a78bfa' },
 } as const
