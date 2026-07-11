@@ -16,7 +16,8 @@ export class ModerationAppealController {
     next: NextFunction
   ) => {
     try {
-      const payload = req.body
+      const authorization = res.locals.appealAuthorization as { userId: string; identifier: string }
+      const payload = { ...req.body, ...authorization }
       const result = await this._service.submitAppeal(payload)
 
       res
@@ -38,7 +39,8 @@ export class ModerationAppealController {
     next: NextFunction
   ) => {
     try {
-      const payload = req.body
+      const authorization = res.locals.appealAuthorization as { userId: string; identifier: string }
+      const payload = { ...req.body, ...authorization }
       const result = await this._service.getActiveAppealStatus(payload)
 
       res.json(new ApiResponse('Active appeal fetched', result))

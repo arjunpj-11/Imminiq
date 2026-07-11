@@ -9,6 +9,7 @@ type HttpOperationalError = Error & {
   statusCode: number
   code: string
   errors?: ErrorDetails
+  data?: Record<string, unknown>
 }
 
 const formatZodErrors = (
@@ -53,6 +54,7 @@ const buildErrorResponse = (
     message: err.message,
     code: err.code,
     ...(err.errors ? { errors: err.errors } : {}),
+    ...(err.data ? { data: err.data } : {}),
   }
 }
 

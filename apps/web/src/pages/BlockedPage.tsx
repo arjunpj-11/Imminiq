@@ -363,7 +363,6 @@ export default function BlockedPage() {
 
     submitAppeal(
       {
-        identifier,
         appealReason,
       },
       {

@@ -30,6 +30,10 @@ export class SubmitModerationAppealUseCase {
 
     this._moderationAppealSubmissionPolicy.ensureRestrictedUserExists(user)
 
+    if (user.id !== payload.userId) {
+      throw new Error('Appeal authorization does not match account')
+    }
+
     const existingAppeal =
       await this._moderationAppealRepository.findActiveAppealForUser(user.id)
 

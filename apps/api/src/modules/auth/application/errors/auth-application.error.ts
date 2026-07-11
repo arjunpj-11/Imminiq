@@ -44,6 +44,7 @@ export type AuthApplicationErrorCode =
 
 export class AuthApplicationError extends AuthDomainError {
   readonly statusCode: number
+  data?: Record<string, unknown>
 
   private constructor(
     statusCode: number,
@@ -53,6 +54,11 @@ export class AuthApplicationError extends AuthDomainError {
     super(code, message)
     this.name = 'AuthApplicationError'
     this.statusCode = statusCode
+  }
+
+  withData(data: Record<string, unknown>): this {
+    this.data = data
+    return this
   }
 
   static accountBlocked(message = 'Account blocked'): AuthApplicationError {

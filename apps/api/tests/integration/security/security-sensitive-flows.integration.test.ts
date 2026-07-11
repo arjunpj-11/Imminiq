@@ -11,9 +11,9 @@ import {
 import type { Express } from 'express'
 
 vi.mock(
-  '../../../src/modules/security/infrastructure/gateways/security-email.gateway',
+  '../../../src/modules/security/infrastructure/providers/shared-security-email.provider',
   () => ({
-    securityEmailGateway: {
+    sharedSecurityEmailProvider: {
       sendEmailChangeVerification: vi.fn().mockResolvedValue(undefined),
       sendEmailChangeAlert: vi.fn().mockResolvedValue(undefined),
     },

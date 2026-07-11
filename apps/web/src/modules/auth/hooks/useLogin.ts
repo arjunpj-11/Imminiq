@@ -6,6 +6,7 @@ import { useAuthStore, type AuthUser } from '../store/useAuthStore'
 import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
+  saveBlockedAppealToken,
 } from '../../../lib/blockedAppealSession'
 
 interface LoginPayload {
@@ -44,6 +45,7 @@ interface ApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
+  data?: { appealToken?: string }
 }
 
 const isTwoFactorRequired = (
@@ -128,8 +130,13 @@ export const useLogin = () => {
       const errorCode = error.response?.data?.code
 
       if (isRestrictedAccountCode(errorCode)) {
+        const appealToken = error.response?.data?.data?.appealToken
+
+        if (!appealToken) return
+
         clearAuth()
         saveBlockedAppealIdentifier(payload.identifier)
+        saveBlockedAppealToken(appealToken)
 
         navigate('/blocked', {
           replace: true,

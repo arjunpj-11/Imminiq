@@ -19,6 +19,7 @@ import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.
 import type { AuthSessionServiceContract } from '../services/auth-session.service'
 import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
 import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
+import { createModerationAppealToken } from '../../../../shared/security/moderation-appeal-token.util'
 
 type LoginRepository =
   AuthUserRepositoryContract &
@@ -57,8 +58,6 @@ export class LoginUserUseCase {
       throw AuthApplicationError.invalidCredentials('Invalid credentials')
     }
 
-    this._authAccountPolicy.ensureUserCanAuthenticate(user)
-
     if (!user.passwordHash) {
       throw AuthApplicationError.oauthAccount('This account uses social login. Please sign in with Google or GitHub.')
     }
@@ -72,6 +71,21 @@ export class LoginUserUseCase {
       await this.recordLoginFailure(parsedIdentifier.value)
 
       throw AuthApplicationError.invalidCredentials('Invalid credentials')
+    }
+
+    try {
+      this._authAccountPolicy.ensureUserCanAuthenticate(user)
+    } catch (error) {
+      if (error instanceof AuthApplicationError) {
+        throw error.withData({
+          appealToken: createModerationAppealToken(
+            user.id,
+            parsedIdentifier.value,
+          ),
+        })
+      }
+
+      throw error
     }
 
     await this._securityAttemptStore.clear(

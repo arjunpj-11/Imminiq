@@ -8,6 +8,7 @@ export const STORAGE_KEYS = {
   dashboardInsightDismissed: 'imminiq_dashboard_insight_dismissed',
   pendingEmailChangeTimer: 'imminiq_pending_email_change_timer',
   blockedAppealIdentifier: 'blocked_appeal_identifier',
+  blockedAppealToken: 'blocked_appeal_token',
   authSync: 'imminiq-auth-sync',
   otpExpiry: 'otp_expiry',
   otpResendExpiry: 'otp_resend_expiry',
