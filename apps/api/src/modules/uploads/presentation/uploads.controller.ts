@@ -4,17 +4,17 @@ import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import type { GenerateAiImagePreviewInput } from '../application/dtos/uploads.dto'
 import type { UploadedProfileImageFile } from '../domain/value-objects/uploaded-profile-image-file.vo'
-import { uploadsService, type UploadsService } from '../uploads.service'
+import { createUploadsComposition, type UploadsComposition } from '../uploads.factory'
 
 export class UploadsController {
-  constructor(private readonly _service: UploadsService) {}
+  constructor(private readonly _useCases: UploadsComposition['useCases']) {}
 
   uploadAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
       const file = this.getUploadedFile(req)
 
-      const result = await this._service.uploadProfileImage({
+      const result = await this._useCases.uploadProfileImage.execute({
         userId,
         kind: 'avatar',
         ...(file ? { file } : {}),
@@ -29,7 +29,7 @@ export class UploadsController {
   removeAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const result = await this._service.removeAvatar(userId)
+      const result = await this._useCases.removeAvatar.execute(userId)
 
       res.json(new ApiResponse('Avatar removed', result))
     } catch (error) {
@@ -42,7 +42,7 @@ export class UploadsController {
       const userId = getAuthUser(req).userId
       const file = this.getUploadedFile(req)
 
-      const result = await this._service.uploadProfileImage({
+      const result = await this._useCases.uploadProfileImage.execute({
         userId,
         kind: 'banner',
         ...(file ? { file } : {}),
@@ -57,7 +57,7 @@ export class UploadsController {
   removeBanner = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const result = await this._service.removeBanner(userId)
+      const result = await this._useCases.removeBanner.execute(userId)
 
       res.json(new ApiResponse('Banner removed', result))
     } catch (error) {
@@ -72,7 +72,7 @@ export class UploadsController {
   ) => {
     try {
       const { prompt } = req.body as GenerateAiImagePreviewInput
-      const result = await this._service.generateAiAvatarPreview(prompt)
+      const result = await this._useCases.generateAiAvatarPreview.execute(prompt)
 
       res.json(
         new ApiResponse('AI avatar preview generated successfully', result)
@@ -89,7 +89,7 @@ export class UploadsController {
   ) => {
     try {
       const { prompt } = req.body as GenerateAiImagePreviewInput
-      const result = await this._service.generateAiBannerPreview(prompt)
+      const result = await this._useCases.generateAiBannerPreview.execute(prompt)
 
       res.json(
         new ApiResponse('AI banner preview generated successfully', result)
@@ -113,4 +113,4 @@ export class UploadsController {
   }
 }
 
-export const uploadsController = new UploadsController(uploadsService)
+export const uploadsController = new UploadsController(createUploadsComposition().useCases)

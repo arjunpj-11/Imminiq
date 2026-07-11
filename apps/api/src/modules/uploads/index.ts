@@ -1,6 +1,3 @@
-export { uploadsService } from './uploads.service'
-export type { UploadsService } from './uploads.service'
-
 export type {
   AiImagePreviewResult,
   GenerateAiImagePreviewInput,

@@ -1,6 +1,3 @@
-export { moderationAppealService } from './moderation-appeal.service'
-export type { ModerationAppealService } from './moderation-appeal.service'
-
 export type {
   GetActiveModerationAppealStatusResultDto,
   GetModerationAppealStatusPayload,

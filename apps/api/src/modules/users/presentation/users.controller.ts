@@ -9,7 +9,7 @@ import {
   USERS_MIN_STREAK_YEAR,
 } from '../domain/constants/users.constants'
 import type { ProfileSort } from '../domain/value-objects/profile-sort.vo'
-import { usersService, type UsersService } from '../users.service'
+import { createUsersComposition, type UsersComposition } from '../users.factory'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
@@ -18,11 +18,11 @@ type UsernameParams = {
 }
 
 export class UsersController {
-  constructor(private readonly _service: UsersService) {}
+  constructor(private readonly _useCases: UsersComposition['useCases']) {}
 
   getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.getMe(getAuthUser(req).userId)
+      const result = await this._useCases.getMe.execute(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Current user profile fetched', result))
     } catch (error) {
@@ -32,7 +32,7 @@ export class UsersController {
 
   updateMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.updateMe(
+      const result = await this._useCases.updateMe.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -49,7 +49,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.getUserByUsername(req.params.username)
+      const result = await this._useCases.getUserByUsername.execute(req.params.username)
 
       res.json(new ApiResponse('User fetched', result))
     } catch (error) {
@@ -63,7 +63,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.getPublicProfilePage(
+      const result = await this._useCases.getPublicProfilePage.execute(
         req.params.username,
         undefined,
         this.buildTrackerPaginationQuery(req)
@@ -77,7 +77,7 @@ export class UsersController {
 
   getMyStats = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.getMyStats(getAuthUser(req).userId)
+      const result = await this._useCases.getMyStats.execute(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Stats fetched', result))
     } catch (error) {
@@ -87,7 +87,7 @@ export class UsersController {
 
   getMyActivity = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.getMyActivity(
+      const result = await this._useCases.getMyActivity.execute(
         getAuthUser(req).userId,
         this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
         this.clampInteger(
@@ -110,7 +110,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.getMyRecentActivity(
+      const result = await this._useCases.getMyRecentActivity.execute(
         getAuthUser(req).userId,
         this.clampInteger(
           req.query.limit,
@@ -139,7 +139,7 @@ export class UsersController {
             )
           : undefined
 
-      const result = await this._service.getMyStreak(
+      const result = await this._useCases.getMyStreak.execute(
         getAuthUser(req).userId,
         year
       )
@@ -156,7 +156,7 @@ export class UsersController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.getMyPublishedTrackers(
+      const result = await this._useCases.getMyPublishedTrackers.execute(
         getAuthUser(req).userId,
         this.buildTrackerPaginationQuery(req)
       )
@@ -169,7 +169,7 @@ export class UsersController {
 
   getMyBadges = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.getMyBadges(
+      const result = await this._useCases.getMyBadges.execute(
         getAuthUser(req).userId,
         this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
         this.clampInteger(
@@ -245,4 +245,4 @@ export class UsersController {
   }
 }
 
-export const usersController = new UsersController(usersService)
+export const usersController = new UsersController(createUsersComposition().useCases)

@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 
 import type { CommunitySort } from '../domain/value-objects/community-sort.vo'
-import { communityService, type CommunityService } from '../community.service'
+import { createCommunityComposition, type CommunityComposition } from '../community.factory'
 import type {
   UpsertCommunityTrackerReviewInput,
   VoteVerificationSubmissionInput,
@@ -13,12 +13,12 @@ import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 
 export class CommunityController {
-  constructor(private readonly _service: CommunityService) {}
+  constructor(private readonly _useCases: CommunityComposition['useCases']) {}
 
   getBrowse = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = getAuthUser(req)
-      const result = await this._service.getBrowse({
+      const result = await this._useCases.getBrowse.execute({
         userId: user.userId,
         ...this.getTrackerQuery(req),
       })
@@ -32,7 +32,7 @@ export class CommunityController {
   getTrackers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const user = getAuthUser(req)
-      const result = await this._service.getTrackers({
+      const result = await this._useCases.getTrackers.execute({
         userId: user.userId,
         ...this.getTrackerQuery(req),
       })
@@ -51,7 +51,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const trackerId = this.getRequiredParam(req, 'trackerId')
-      const tracker = await this._service.getPublicTrackerDetail(
+      const tracker = await this._useCases.getPublicTrackerDetail.execute(
         trackerId,
         user.userId,
       )
@@ -64,7 +64,7 @@ export class CommunityController {
 
   getTopics = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const topics = await this._service.getTopics()
+      const topics = await this._useCases.getTopics.execute()
 
       res.json(new ApiResponse('Community topics fetched', { topics }))
     } catch (error) {
@@ -79,7 +79,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const stats = await this._service.getPersonalStats(user.userId)
+      const stats = await this._useCases.getPersonalStats.execute(user.userId)
 
       res.json(new ApiResponse('Community stats fetched', { stats }))
     } catch (error) {
@@ -91,7 +91,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const trackerId = this.getRequiredParam(req, 'trackerId')
-      const tracker = await this._service.cloneTracker(trackerId, user.userId)
+      const tracker = await this._useCases.cloneTracker.execute(trackerId, user.userId)
 
       res
         .status(HttpStatusCode.CREATED)
@@ -112,7 +112,7 @@ export class CommunityController {
     const trackerId = this.getRequiredParam(req, 'trackerId')
     const body = req.body as SendTrackerForVerificationInput
 
-    const submission = await this._service.submitTrackerForVerification({
+    const submission = await this._useCases.submitTrackerForVerification.execute({
       trackerId,
       userId: user.userId,
       requiredVotes: body.requiredVotes,
@@ -141,7 +141,7 @@ export class CommunityController {
       const user = getAuthUser(req)
       const trackerId = this.getRequiredParam(req, 'trackerId')
       const body = req.body as UpsertCommunityTrackerReviewInput
-      const result = await this._service.upsertTrackerReview({
+      const result = await this._useCases.upsertTrackerReview.execute({
         trackerId,
         userId: user.userId,
         rating: body.rating,
@@ -164,7 +164,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const reviewId = this.getRequiredParam(req, 'reviewId')
-      const result = await this._service.toggleReviewHelpful({
+      const result = await this._useCases.toggleReviewHelpful.execute({
         reviewId,
         userId: user.userId,
       })
@@ -182,7 +182,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const result = await this._service.getVerificationDashboard({
+      const result = await this._useCases.getVerificationDashboard.execute({
         userId: user.userId,
         page: this.getNumberQuery(req, 'page'),
         limit: this.getNumberQuery(req, 'limit'),
@@ -201,7 +201,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const result = await this._service.getVerificationQueue({
+      const result = await this._useCases.getVerificationQueue.execute({
         userId: user.userId,
         page: this.getNumberQuery(req, 'page'),
         limit: this.getNumberQuery(req, 'limit'),
@@ -220,7 +220,7 @@ export class CommunityController {
   ) => {
     try {
       const user = getAuthUser(req)
-      const leaderboard = await this._service.getVerificationLeaderboard(
+      const leaderboard = await this._useCases.getVerificationLeaderboard.execute(
         user.userId,
         this.getNumberQuery(req, 'limit'),
       )
@@ -241,7 +241,7 @@ export class CommunityController {
     try {
       const user = getAuthUser(req)
       const submissionId = this.getRequiredParam(req, 'submissionId')
-      const submission = await this._service.getVerificationSubmission(
+      const submission = await this._useCases.getVerificationSubmission.execute(
         submissionId,
         user.userId,
       )
@@ -263,7 +263,7 @@ export class CommunityController {
     const user = getAuthUser(req)
     const trackerId = this.getRequiredParam(req, 'trackerId')
 
-    const result = await this._service.toggleTrackerLike({
+    const result = await this._useCases.toggleTrackerLike.execute({
       trackerId,
       userId: user.userId,
     })
@@ -283,7 +283,7 @@ export class CommunityController {
       const user = getAuthUser(req)
       const submissionId = this.getRequiredParam(req, 'submissionId')
       const body = req.body as VoteVerificationSubmissionInput
-      const result = await this._service.voteVerificationSubmission({
+      const result = await this._useCases.voteVerificationSubmission.execute({
         submissionId,
         userId: user.userId,
         vote: body.vote,
@@ -397,4 +397,4 @@ export class CommunityController {
   }
 }
 
-export const communityController = new CommunityController(communityService)
+export const communityController = new CommunityController(createCommunityComposition().useCases)

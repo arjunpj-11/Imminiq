@@ -8,10 +8,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import {
-  activityService,
-  type ActivityService,
-} from '../activity.service'
+import { createActivityComposition, type ActivityComposition } from '../activity.factory'
 import {
   activityFeedQuerySchema,
   activityPageQuerySchema,
@@ -19,7 +16,7 @@ import {
 
 export class ActivityController {
   constructor(
-    private readonly _service: ActivityService,
+    private readonly _useCases: ActivityComposition['useCases'],
   ) {}
 
   getPage = async (
@@ -43,7 +40,7 @@ export class ActivityController {
       const user = getAuthUser(req)
 
       const activity =
-        await this._service.getActivityPage(
+        await this._useCases.getPage.execute(
           user.userId,
           parsedQuery.data,
         )
@@ -80,7 +77,7 @@ export class ActivityController {
       const user = getAuthUser(req)
 
       const feed =
-        await this._service.getActivityFeed(
+        await this._useCases.getFeed.execute(
           user.userId,
           parsedQuery.data,
         )
@@ -98,4 +95,4 @@ export class ActivityController {
 }
 
 export const activityController =
-  new ActivityController(activityService)
+  new ActivityController(createActivityComposition().useCases)

@@ -18,8 +18,8 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { authService, type AuthService } from '../auth.service'
-import type { OAuthLoginUser } from '../auth.service'
+import { createAuthComposition, type AuthComposition } from '../auth.factory'
+import type { OAuthLoginUser } from '../application/dtos/auth.dto'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 const TWO_FACTOR_CHALLENGE_COOKIE_NAME = 'twoFactorChallengeToken'
@@ -60,11 +60,11 @@ const LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
 }
 
 export class AuthController {
-  constructor(private readonly _service: AuthService) {}
+  constructor(private readonly _useCases: AuthComposition['useCases']) {}
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.register(req.body)
+      const result = await this._useCases.registerUser.execute(req.body)
 
       res
         .status(HttpStatusCode.CREATED)
@@ -81,7 +81,7 @@ export class AuthController {
 
   login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.login(
+      const result = await this._useCases.loginUser.execute(
         req.body,
         this.getRequestMeta(req)
       )
@@ -134,7 +134,7 @@ export class AuthController {
         'TWO_FACTOR_CHALLENGE_INVALID'
       )
 
-      const result = await this._service.verifyTwoFactorLogin(
+      const result = await this._useCases.verifyTwoFactorLogin.execute(
         challengeToken,
         req.body,
         this.getRequestMeta(req)
@@ -177,7 +177,7 @@ export class AuthController {
         try {
           const refreshToken = decryptAuthCookieToken(encryptedRefreshToken)
 
-          await this._service.logout(refreshToken)
+          await this._useCases.logoutUser.execute(refreshToken)
         } catch {
           // Invalid or stale encrypted cookies should still be cleared.
         }
@@ -193,7 +193,7 @@ export class AuthController {
 
   logoutAll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this._service.logoutAll(getAuthUser(req).userId)
+      await this._useCases.logoutAllSessions.execute(getAuthUser(req).userId)
 
       this.clearAuthCookies(res)
 
@@ -214,7 +214,7 @@ export class AuthController {
         'INVALID_REFRESH_COOKIE'
       )
 
-      const tokens = await this._service.refreshTokens(
+      const tokens = await this._useCases.refreshAuthTokens.execute(
         refreshToken,
         this.getRequestMeta(req)
       )
@@ -239,7 +239,7 @@ export class AuthController {
 
   getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const user = await this._service.getMe(getAuthUser(req).userId)
+      const user = await this._useCases.getCurrentUser.execute(getAuthUser(req).userId)
 
       res.json(new ApiResponse('User fetched', { user }))
     } catch (error) {
@@ -251,7 +251,7 @@ export class AuthController {
     try {
       const { identifier, otp } = req.body
 
-      await this._service.verifyAccount(identifier, otp)
+      await this._useCases.verifyAccount.execute(identifier, otp)
 
       res.json(new ApiResponse('Account verified successfully'))
     } catch (error) {
@@ -263,7 +263,7 @@ export class AuthController {
     try {
       const { identifier, purpose } = req.body
 
-      await this._service.resendOtp(identifier, purpose)
+      await this._useCases.resendOtp.execute(identifier, purpose)
 
       res.json(new ApiResponse('OTP sent successfully'))
     } catch (error) {
@@ -273,7 +273,7 @@ export class AuthController {
 
   forgotPassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this._service.forgotPassword(req.body.identifier)
+      await this._useCases.forgotPassword.execute(req.body.identifier)
 
       res.json(
         new ApiResponse('If this account exists, a reset code has been sent')
@@ -291,7 +291,7 @@ export class AuthController {
     try {
       const { identifier, otp } = req.body
 
-      const result = await this._service.verifyResetCode(identifier, otp)
+      const result = await this._useCases.verifyResetCode.execute(identifier, otp)
 
       res.json(new ApiResponse('Code verified', result))
     } catch (error) {
@@ -307,7 +307,7 @@ export class AuthController {
     try {
       const { resetToken, newPassword } = req.body
 
-      await this._service.resetPassword(resetToken, newPassword)
+      await this._useCases.resetPassword.execute(resetToken, newPassword)
 
       res.json(new ApiResponse('Password reset successfully'))
     } catch (error) {
@@ -323,7 +323,7 @@ export class AuthController {
     try {
       const { currentPassword, newPassword } = req.body
 
-      await this._service.changePassword(
+      await this._useCases.changePassword.execute(
         getAuthUser(req).userId,
         currentPassword,
         newPassword
@@ -341,7 +341,7 @@ export class AuthController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.checkIdentifier(req.body.identifier)
+      const result = await this._useCases.checkIdentifier.execute(req.body.identifier)
 
       res.json(new ApiResponse('Identifier checked', result))
     } catch (error) {
@@ -355,7 +355,7 @@ export class AuthController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.checkUsername(req.body.username)
+      const result = await this._useCases.checkUsername.execute(req.body.username)
 
       res.json(new ApiResponse('Username checked', result))
     } catch (error) {
@@ -365,7 +365,7 @@ export class AuthController {
 
   getSessions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const sessions = await this._service.getSessions(getAuthUser(req).userId)
+      const sessions = await this._useCases.getAuthSessions.execute(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Sessions fetched', { sessions }))
     } catch (error) {
@@ -390,7 +390,7 @@ export class AuthController {
         )
       }
 
-      await this._service.revokeSession(user.userId, sessionId)
+      await this._useCases.revokeAuthSession.execute(user.userId, sessionId)
 
       res.json(new ApiResponse('Session revoked'))
     } catch (error) {
@@ -408,7 +408,7 @@ export class AuthController {
         )
       }
 
-      const result = await this._service.handleOAuthLogin(
+      const result = await this._useCases.handleOAuthLogin.execute(
         req.user as unknown as OAuthLoginUser,
         this.getRequestMeta(req)
       )
@@ -551,4 +551,4 @@ export class AuthController {
   }
 }
 
-export const authController = new AuthController(authService)
+export const authController = new AuthController(createAuthComposition().useCases)

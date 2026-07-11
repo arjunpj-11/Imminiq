@@ -1,6 +1,3 @@
-export { communityService } from './community.service'
-export type { CommunityService } from './community.service'
-
 export type {
   CommunityBrowseView,
   CommunityLeaderboardEntryView,

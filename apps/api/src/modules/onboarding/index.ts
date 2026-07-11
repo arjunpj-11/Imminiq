@@ -1,6 +1,3 @@
-export { onboardingService } from './onboarding.service'
-export type { OnboardingService } from './onboarding.service'
-
 export type {
   GenerateRoadmapPayload,
   GenerateRoadmapResult,

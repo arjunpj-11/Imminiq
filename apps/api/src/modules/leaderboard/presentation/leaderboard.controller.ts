@@ -4,14 +4,11 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import {
-  leaderboardService,
-  type LeaderboardService,
-} from '../leaderboard.service'
+import { createLeaderboardComposition, type LeaderboardComposition } from '../leaderboard.factory'
 import { leaderboardQuerySchema } from './leaderboard.schema'
 
 export class LeaderboardController {
-  constructor(private readonly _service: LeaderboardService) {}
+  constructor(private readonly _useCases: LeaderboardComposition['useCases']) {}
 
   getLeaderboard = async (
     req: Request,
@@ -31,7 +28,7 @@ export class LeaderboardController {
       }
 
       const user = getAuthUser(req)
-      const leaderboard = await this._service.getLeaderboard(
+      const leaderboard = await this._useCases.getLeaderboard.execute(
         user.userId,
         parsedQuery.data,
       )
@@ -50,7 +47,7 @@ export class LeaderboardController {
     next: NextFunction,
   ) => {
     try {
-      const rewards = this._service.getRewards()
+      const rewards = this._useCases.getRewards.execute()
 
       res.json(
         new ApiResponse('Leaderboard rewards fetched', rewards),
@@ -61,6 +58,4 @@ export class LeaderboardController {
   }
 }
 
-export const leaderboardController = new LeaderboardController(
-  leaderboardService,
-)
+export const leaderboardController = new LeaderboardController(createLeaderboardComposition().useCases)

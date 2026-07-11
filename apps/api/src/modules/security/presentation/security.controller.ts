@@ -5,16 +5,16 @@ import { decryptAuthCookieToken } from '../../../shared/security/auth-cookie-tok
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { securityService, type SecurityService } from '../security.service'
+import { createSecurityComposition, type SecurityComposition } from '../security.factory'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
 export class SecurityController {
-  constructor(private readonly _service: SecurityService) {}
+  constructor(private readonly _useCases: SecurityComposition['useCases']) {}
 
   getOverview = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.getOverview(
+      const result = await this._useCases.getSecurityOverview.execute(
         getAuthUser(req).userId,
         this.getRawRefreshTokenFromCookie(req)
       )
@@ -31,7 +31,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.requestEmailChange(
+      const result = await this._useCases.requestEmailChange.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -53,7 +53,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.verifyEmailChange(req.body)
+      const result = await this._useCases.verifyEmailChange.execute(req.body)
 
       res.json(
         new ApiResponse(
@@ -68,7 +68,7 @@ export class SecurityController {
 
   changePassword = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.changePassword(
+      const result = await this._useCases.changeSecurityPassword.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -86,7 +86,7 @@ export class SecurityController {
 
   getSessions = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.getSessions(
+      const result = await this._useCases.getSecuritySessions.execute(
         getAuthUser(req).userId,
         this.getRawRefreshTokenFromCookie(req)
       )
@@ -99,7 +99,7 @@ export class SecurityController {
 
   revokeSession = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.revokeSession(
+      const result = await this._useCases.revokeSecuritySession.execute(
         getAuthUser(req).userId,
         this.getRequiredSessionId(req),
         this.getRawRefreshTokenFromCookie(req)
@@ -117,7 +117,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.getTwoFactorStatus(
+      const result = await this._useCases.getTwoFactorStatus.execute(
         getAuthUser(req).userId
       )
 
@@ -129,7 +129,7 @@ export class SecurityController {
 
   setupTwoFactor = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.setupTwoFactor(getAuthUser(req).userId)
+      const result = await this._useCases.setupTwoFactor.execute(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Two-factor setup started', result))
     } catch (error) {
@@ -143,7 +143,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.verifyTwoFactorSetup(
+      const result = await this._useCases.verifyTwoFactorSetup.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -160,7 +160,7 @@ export class SecurityController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.disableTwoFactor(
+      const result = await this._useCases.disableTwoFactor.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -173,7 +173,7 @@ export class SecurityController {
 
   deleteAccount = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const result = await this._service.deleteAccount(
+      const result = await this._useCases.deleteSecurityAccount.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -215,4 +215,4 @@ export class SecurityController {
   }
 }
 
-export const securityController = new SecurityController(securityService)
+export const securityController = new SecurityController(createSecurityComposition().useCases)

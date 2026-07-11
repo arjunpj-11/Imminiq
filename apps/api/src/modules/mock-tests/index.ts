@@ -1,6 +1,3 @@
-export { mockTestsService } from './mock-tests.service'
-export type { MockTestsService } from './mock-tests.service'
-
 export type {
   AttemptAnalysis,
   CreateMockTestPayload,

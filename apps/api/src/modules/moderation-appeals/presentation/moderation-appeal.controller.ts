@@ -2,13 +2,10 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import {
-  moderationAppealService,
-  type ModerationAppealService,
-} from '../moderation-appeal.service'
+import { createModerationAppealComposition, type ModerationAppealComposition } from '../moderation-appeal.factory'
 
 export class ModerationAppealController {
-  constructor(private readonly _service: ModerationAppealService) {}
+  constructor(private readonly _useCases: ModerationAppealComposition['useCases']) {}
 
   submitAppeal = async (
     req: Request,
@@ -18,7 +15,7 @@ export class ModerationAppealController {
     try {
       const authorization = res.locals.appealAuthorization as { userId: string; identifier: string }
       const payload = { ...req.body, ...authorization }
-      const result = await this._service.submitAppeal(payload)
+      const result = await this._useCases.submitModerationAppeal.execute(payload)
 
       res
         .status(HttpStatusCode.CREATED)
@@ -41,7 +38,7 @@ export class ModerationAppealController {
     try {
       const authorization = res.locals.appealAuthorization as { userId: string; identifier: string }
       const payload = { ...req.body, ...authorization }
-      const result = await this._service.getActiveAppealStatus(payload)
+      const result = await this._useCases.getActiveModerationAppealStatus.execute(payload)
 
       res.json(new ApiResponse('Active appeal fetched', result))
     } catch (error) {
@@ -50,6 +47,4 @@ export class ModerationAppealController {
   }
 }
 
-export const moderationAppealController = new ModerationAppealController(
-  moderationAppealService
-)
+export const moderationAppealController = new ModerationAppealController(createModerationAppealComposition().useCases)
