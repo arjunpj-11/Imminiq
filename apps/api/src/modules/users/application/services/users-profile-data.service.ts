@@ -11,6 +11,7 @@ import type {
 } from '../dtos/users.dto'
 import { UsersApplicationError } from '../errors/users-application.error'
 import type { UsersMapperContract } from '../mappers/users.mapper'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 type UsersProfileDataRepository =
   UserRepositoryContract &
@@ -37,6 +38,7 @@ export class UsersProfileDataService
   constructor(
     private readonly _usersRepository: UsersProfileDataRepository,
     private readonly _usersMapper: UsersMapperContract,
+    private readonly _clock: ClockContract,
   ) {}
 
   async getBadgeShowcase(userId: string): Promise<BadgeShowcaseView> {
@@ -65,7 +67,7 @@ export class UsersProfileDataService
     userId: string,
     requestedYear?: number,
   ): Promise<StreakSummaryView> {
-    const year = requestedYear ?? new Date().getUTCFullYear()
+    const year = requestedYear ?? this._clock.now().getUTCFullYear()
 
    const [snapshot, history] = await Promise.all([
   this._usersRepository.findLatestSnapshot(userId),

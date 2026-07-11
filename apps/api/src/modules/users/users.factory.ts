@@ -15,6 +15,7 @@ import { GetPublicProfilePageUseCase } from './application/use-cases/get-public-
 import { GetUserByUsernameUseCase } from './application/use-cases/get-user-by-username.usecase'
 import { UpdateMeUseCase } from './application/use-cases/update-me.usecase'
 import { mongoUsersRepository } from './infrastructure/repositories/mongo-users.repository'
+import { systemClock } from '../../infrastructure/time/system-clock'
 
 export type UsersUseCases = {
   getMe: GetMeUseCase
@@ -39,7 +40,8 @@ export const createUsersComposition = (): UsersComposition => {
 
   const usersProfileDataService = new UsersProfileDataService(
     usersRepository,
-    usersMapper
+    usersMapper,
+    systemClock,
   )
 
   return {

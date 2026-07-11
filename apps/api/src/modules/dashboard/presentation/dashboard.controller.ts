@@ -4,7 +4,7 @@ import type {
   DashboardActivityIntensityQuery,
   DashboardRecentItemsQuery,
 } from '../application/dtos/dashboard.dto'
-import { createDashboardComposition, type DashboardComposition } from '../dashboard.factory'
+import type { DashboardComposition } from '../dashboard.factory'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
@@ -116,5 +116,3 @@ export class DashboardController {
     }
   }
 }
-
-export const dashboardController = new DashboardController(createDashboardComposition().useCases)

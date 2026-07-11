@@ -4,7 +4,7 @@ import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import type { GenerateAiImagePreviewInput } from '../application/dtos/uploads.dto'
 import type { UploadedProfileImageFile } from '../domain/value-objects/uploaded-profile-image-file.vo'
-import { createUploadsComposition, type UploadsComposition } from '../uploads.factory'
+import type { UploadsComposition } from '../uploads.factory'
 
 export class UploadsController {
   constructor(private readonly _useCases: UploadsComposition['useCases']) {}
@@ -112,5 +112,3 @@ export class UploadsController {
     }
   }
 }
-
-export const uploadsController = new UploadsController(createUploadsComposition().useCases)

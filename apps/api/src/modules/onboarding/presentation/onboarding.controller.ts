@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { createOnboardingComposition, type OnboardingComposition } from '../onboarding.factory'
+import type { OnboardingComposition } from '../onboarding.factory'
 
 type JobIdParams = {
   jobId: string
@@ -137,5 +137,3 @@ export class OnboardingController {
     }
   }
 }
-
-export const onboardingController = new OnboardingController(createOnboardingComposition().useCases)

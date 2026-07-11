@@ -8,7 +8,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { createActivityComposition, type ActivityComposition } from '../activity.factory'
+import type { ActivityComposition } from '../activity.factory'
 import {
   activityFeedQuerySchema,
   activityPageQuerySchema,
@@ -93,6 +93,3 @@ export class ActivityController {
     }
   }
 }
-
-export const activityController =
-  new ActivityController(createActivityComposition().useCases)

@@ -32,6 +32,7 @@ import type { MockTestAIServiceContract } from './domain/services/mock-test-ai.s
 import type { MockTestCodeRunnerServiceContract } from './domain/services/mock-test-code-runner.service.interface'
 import type { MockTestQuestionBankServiceContract } from './domain/services/mock-test-question-bank.service.interface'
 import type { ShareTokenGeneratorServiceContract } from './domain/services/share-token-generator.service.interface'
+import { systemClock } from '../../infrastructure/time/system-clock'
 
 import { activityMockTestGateway } from './infrastructure/gateways/activity-mock-test.gateway'
 import { mongoMockTestsRepository } from './infrastructure/repositories/mongo-mock-tests.repository'
@@ -180,6 +181,7 @@ export const createMockTestsComposition =
             mockTestScoringService,
             mockTestActivityService,
             mockTestsMapper,
+            systemClock,
           ),
 
         getAttemptResult:

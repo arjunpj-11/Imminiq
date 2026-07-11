@@ -9,13 +9,13 @@ import type {
 } from '../dtos/activity.dto'
 import { ACTIVITY_FEED_ICON_BY_CATEGORY } from '../constants/activity.constants'
 import type { ActivityDateContext } from '../services/activity-date-range.service'
-import type { ActivityDateRangeService } from '../services/activity-date-range.service'
-import type { ActivityAnalyticsService } from '../services/activity-analytics.service'
+import type { ActivityDateRangeServiceContract } from '../services/activity-date-range.service'
+import type { ActivityAnalyticsServiceContract } from '../services/activity-analytics.service'
 
 export class ActivityMapper {
   toEventView(
     activity: UserActivityEntity,
-    dateRangeService: ActivityDateRangeService,
+    dateRangeService: ActivityDateRangeServiceContract,
     utcOffsetMinutes: number,
   ): ActivityEventView {
     return {
@@ -56,7 +56,7 @@ export class ActivityMapper {
   toGroupedFeed(
     activities: UserActivityEntity[],
     context: ActivityDateContext,
-    dateRangeService: ActivityDateRangeService,
+    dateRangeService: ActivityDateRangeServiceContract,
   ): ActivityFeedGroupView[] {
     const groups = new Map<string, ActivityEventView[]>()
 
@@ -83,8 +83,8 @@ export class ActivityMapper {
     analytics: ActivityAnalyticsRecord
     context: ActivityDateContext
     feed: ActivityPageResponse['feed']
-    analyticsService: ActivityAnalyticsService
-    dateRangeService: ActivityDateRangeService
+    analyticsService: ActivityAnalyticsServiceContract
+    dateRangeService: ActivityDateRangeServiceContract
   }): ActivityPageResponse {
     const {
       analytics,
@@ -235,3 +235,8 @@ export class ActivityMapper {
     }
   }
 }
+
+export type ActivityMapperContract = Pick<
+  ActivityMapper,
+  'toEventView' | 'toGroupedFeed' | 'toPageResponse'
+>

@@ -9,9 +9,10 @@ import type {
   RecordUserActivityResponse,
 } from '../dtos/activity.dto'
 import { ActivityApplicationError } from '../errors/activity-application.error'
-import { ActivityMapper } from '../mappers/activity.mapper'
+import type { ActivityMapperContract } from '../mappers/activity.mapper'
 import { ActivityEventPolicy } from '../policies/activity-event.policy'
-import { ActivityDateRangeService } from '../services/activity-date-range.service'
+import type { ActivityDateRangeServiceContract } from '../services/activity-date-range.service'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 const DAY_IN_MS = 86_400_000
 
@@ -23,8 +24,9 @@ export class RecordUserActivityUseCase {
   constructor(
     private readonly _activityRepository: RecordActivityRepository,
     private readonly _eventPolicy: ActivityEventPolicy,
-    private readonly _mapper: ActivityMapper,
-    private readonly _dateRangeService: ActivityDateRangeService,
+    private readonly _mapper: ActivityMapperContract,
+    private readonly _dateRangeService: ActivityDateRangeServiceContract,
+    private readonly _clock: ClockContract,
   ) {}
 
   async execute(
@@ -32,7 +34,7 @@ export class RecordUserActivityUseCase {
   ): Promise<RecordUserActivityResponse> {
     this._eventPolicy.ensureValid(payload)
 
-    const occurredAt = payload.occurredAt ?? new Date()
+    const occurredAt = payload.occurredAt ?? this._clock.now()
     const utcOffsetMinutes =
       payload.utcOffsetMinutes ?? 0
     const context =

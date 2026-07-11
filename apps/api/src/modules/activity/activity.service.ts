@@ -45,6 +45,11 @@ export class ActivityService {
   }
 }
 
+export type ActivityRecorderContract = Pick<
+  ActivityService,
+  'recordActivity'
+>
+
 export const activityService =
   new ActivityService(
     createActivityComposition(),

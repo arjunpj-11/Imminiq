@@ -3,13 +3,15 @@ import { Router } from 'express'
 import { validate } from '../../../shared/middlewares/validate'
 import { authenticateModerationAppeal } from '../../../shared/middlewares/moderation-appeal-auth.middleware'
 import { moderationAppealIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { moderationAppealController } from './moderation-appeal.controller'
+import { ModerationAppealController } from './moderation-appeal.controller'
+import { createModerationAppealComposition } from '../moderation-appeal.factory'
 import { MODERATION_APPEAL_ROUTE_PATHS } from './moderation-appeal.route.constants'
 import {
   getModerationAppealStatusSchema,
   submitModerationAppealSchema,
 } from './moderation-appeal.schema'
 
+const moderationAppealController = new ModerationAppealController(createModerationAppealComposition().useCases)
 const router = Router()
 router.use(moderationAppealIpLimiter, authenticateModerationAppeal)
 

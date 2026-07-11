@@ -3,7 +3,8 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { settingsController } from './settings.controller'
+import { SettingsController } from './settings.controller'
+import { createSettingsComposition } from '../settings.factory'
 import { SETTINGS_ROUTE_PATHS } from './settings.route.constants'
 import {
   updateAccountSettingsSchema,
@@ -20,6 +21,7 @@ import {
   updateQuietHoursSchema,
 } from './settings.schema'
 
+const settingsController = new SettingsController(createSettingsComposition().useCases)
 const router = Router()
 
 router.use(authenticatedApiIpLimiter, authenticate)

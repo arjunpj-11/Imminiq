@@ -2,10 +2,12 @@ import { LeaderboardDomainError } from '../../domain/errors/leaderboard-domain.e
 import type { LeaderboardActivityRepositoryContract } from '../../domain/repositories/leaderboard-activity.repository.interface'
 import type { RecordLeaderboardXpPayload } from '../dtos/leaderboard.dto'
 import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 export class RecordLeaderboardXpUseCase {
   constructor(
     private readonly _leaderboardRepository: LeaderboardActivityRepositoryContract,
+    private readonly _clock: ClockContract,
   ) {}
 
   async execute(payload: RecordLeaderboardXpPayload) {
@@ -30,7 +32,7 @@ export class RecordLeaderboardXpUseCase {
         amount: payload.amount,
         source: payload.source,
         idempotencyKey,
-        occurredAt: payload.occurredAt ?? new Date(),
+        occurredAt: payload.occurredAt ?? this._clock.now(),
         ...(payload.sourceEntityId !== undefined
           ? { sourceEntityId: payload.sourceEntityId }
           : {}),

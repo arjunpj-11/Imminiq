@@ -44,6 +44,11 @@ export class LeaderboardService {
   }
 }
 
+export type LeaderboardXpRecorderContract = Pick<
+  LeaderboardService,
+  'recordXpActivity'
+>
+
 export const leaderboardService = new LeaderboardService(
   createLeaderboardComposition(),
 )

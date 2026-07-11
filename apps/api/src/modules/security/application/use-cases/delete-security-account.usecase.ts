@@ -11,6 +11,7 @@ import type {
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 type DeleteSecurityAccountRepository =
   SecurityUserRepositoryContract & SecuritySessionRepositoryContract
@@ -20,6 +21,7 @@ export class DeleteSecurityAccountUseCase {
     private readonly _securityRepository: DeleteSecurityAccountRepository,
     private readonly _sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
     private readonly _securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _clock: ClockContract,
   ) {}
 
   async execute(
@@ -45,7 +47,7 @@ export class DeleteSecurityAccountUseCase {
     await this._securityRepository.revokeAllSessions(userId)
 
     const scheduledDeletionAt = new Date(
-      Date.now() + ACCOUNT_DELETION_RECOVERY_MS,
+      this._clock.now().getTime() + ACCOUNT_DELETION_RECOVERY_MS,
     )
 
     const scheduledUser =

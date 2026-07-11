@@ -6,7 +6,8 @@ import {
   securityTwoFactorIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { securityController } from './security.controller'
+import { SecurityController } from './security.controller'
+import { createSecurityComposition } from '../security.factory'
 import { SECURITY_ROUTE_PATHS } from './security.route.constants'
 import {
   changeEmailSchema,
@@ -17,6 +18,7 @@ import {
   verifyTwoFactorSetupSchema,
 } from './security.schema'
 
+const securityController = new SecurityController(createSecurityComposition().useCases)
 const router = Router()
 
 // ─── PUBLIC ──────────────────────────────────────────────────

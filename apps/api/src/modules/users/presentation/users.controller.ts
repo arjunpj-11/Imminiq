@@ -9,7 +9,7 @@ import {
   USERS_MIN_STREAK_YEAR,
 } from '../domain/constants/users.constants'
 import type { ProfileSort } from '../domain/value-objects/profile-sort.vo'
-import { createUsersComposition, type UsersComposition } from '../users.factory'
+import type { UsersComposition } from '../users.factory'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
@@ -244,5 +244,3 @@ export class UsersController {
     }
   }
 }
-
-export const usersController = new UsersController(createUsersComposition().useCases)

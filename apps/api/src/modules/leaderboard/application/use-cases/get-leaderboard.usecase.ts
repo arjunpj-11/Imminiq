@@ -19,12 +19,14 @@ import type {
 import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
 import type { LeaderboardMapperContract } from '../mappers/leaderboard.mapper'
 import type { LeaderboardDateRangeServiceContract } from '../services/leaderboard-date-range.service'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 export class GetLeaderboardUseCase {
   constructor(
     private readonly _leaderboardRepository: LeaderboardQueryRepositoryContract,
     private readonly _leaderboardMapper: LeaderboardMapperContract,
     private readonly _dateRangeService: LeaderboardDateRangeServiceContract,
+    private readonly _clock: ClockContract,
   ) {}
 
   async execute(
@@ -43,7 +45,8 @@ export class GetLeaderboardUseCase {
       )
     }
 
-    const periods = this._dateRangeService.getPeriods()
+    const now = this._clock.now()
+    const periods = this._dateRangeService.getPeriods(now)
 
     const result = await this._leaderboardRepository.findLeaderboard({
       viewerUserId,
@@ -85,7 +88,7 @@ export class GetLeaderboardUseCase {
     return {
       section: payload.section,
       scope: payload.scope,
-      generatedAt: new Date().toISOString(),
+      generatedAt: now.toISOString(),
       counts: {
         students: result.activeStudentCount,
         trainers: result.activeTrainerCount,

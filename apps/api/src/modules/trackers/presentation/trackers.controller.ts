@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { createTrackerComposition, type TrackerComposition } from '../tracker.factory'
+import type { TrackerComposition } from '../tracker.factory'
 
 type TrackerParams = {
   trackerId: string
@@ -795,5 +795,3 @@ export class TrackerController {
     }
   }
 }
-
-export const trackerController = new TrackerController(createTrackerComposition().useCases)

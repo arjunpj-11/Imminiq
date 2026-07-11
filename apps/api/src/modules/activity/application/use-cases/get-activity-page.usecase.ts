@@ -4,24 +4,26 @@ import type {
   GetActivityPagePayload,
 } from '../dtos/activity.dto'
 import { ActivityApplicationError } from '../errors/activity-application.error'
-import { ActivityMapper } from '../mappers/activity.mapper'
-import { ActivityAnalyticsService } from '../services/activity-analytics.service'
-import { ActivityDateRangeService } from '../services/activity-date-range.service'
+import type { ActivityMapperContract } from '../mappers/activity.mapper'
+import type { ActivityAnalyticsServiceContract } from '../services/activity-analytics.service'
+import type { ActivityDateRangeServiceContract } from '../services/activity-date-range.service'
 import { GetActivityFeedUseCase } from './get-activity-feed.usecase'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 export class GetActivityPageUseCase {
   constructor(
     private readonly _activityRepository: ActivityQueryRepositoryContract,
     private readonly _feedUseCase: GetActivityFeedUseCase,
-    private readonly _mapper: ActivityMapper,
-    private readonly _analyticsService: ActivityAnalyticsService,
-    private readonly _dateRangeService: ActivityDateRangeService,
+    private readonly _mapper: ActivityMapperContract,
+    private readonly _analyticsService: ActivityAnalyticsServiceContract,
+    private readonly _dateRangeService: ActivityDateRangeServiceContract,
+    private readonly _clock: ClockContract,
   ) {}
 
   async execute(
     userId: string,
     payload: GetActivityPagePayload,
-    now = new Date(),
+    now = this._clock.now(),
   ): Promise<ActivityPageResponse> {
     const context =
       this._dateRangeService.createContext(

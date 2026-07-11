@@ -18,7 +18,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { createAuthComposition, type AuthComposition } from '../auth.factory'
+import type { AuthComposition } from '../auth.factory'
 import type { OAuthLoginUser } from '../application/dtos/auth.dto'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
@@ -550,5 +550,3 @@ export class AuthController {
     }
   }
 }
-
-export const authController = new AuthController(createAuthComposition().useCases)

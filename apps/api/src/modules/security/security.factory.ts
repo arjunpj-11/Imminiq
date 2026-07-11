@@ -25,6 +25,7 @@ import { clientSecurityEmailChangeUrlService } from './infrastructure/services/c
 import { cryptoSecurityEmailChangeTokenService } from './infrastructure/services/crypto-security-email-change-token.service'
 import { cryptoTwoFactorBackupCodeService } from './infrastructure/services/crypto-two-factor-backup-code.service'
 import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store'
+import { systemClock } from '../../infrastructure/time/system-clock'
 
 export type SecurityUseCases = {
   getSecurityOverview: GetSecurityOverviewUseCase
@@ -136,7 +137,8 @@ export const createSecurityComposition = (): SecurityComposition => {
       deleteSecurityAccount: new DeleteSecurityAccountUseCase(
         securityRepository,
         sensitiveActionStepUpService,
-        securityAuditLoggerService
+        securityAuditLoggerService,
+        systemClock,
       ),
     },
 

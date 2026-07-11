@@ -1,7 +1,8 @@
 import { Router } from 'express'
 import passport from 'passport'
 
-import { authController } from './auth.controller'
+import { AuthController } from './auth.controller'
+import { createAuthComposition } from '../auth.factory'
 import { AUTH_ROUTE_PATHS } from './auth.route.constants'
 import { validate } from '../../../shared/middlewares/validate'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
@@ -38,6 +39,7 @@ import {
   checkUsernameSchema,
 } from './auth.schema'
 
+const authController = new AuthController(createAuthComposition().useCases)
 const router = Router()
 
 // ─── PUBLIC ROUTES ───────────────────────────────

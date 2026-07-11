@@ -8,6 +8,7 @@ import type { MockTestActivityServiceContract } from '../../domain/services/mock
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
 import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 const MOCK_TEST_COMPLETION_XP = 50
 
@@ -36,6 +37,9 @@ export class FinishTestAttemptUseCase {
 
     private readonly _mapper:
       MockTestsMapperContract,
+
+    private readonly _clock:
+      ClockContract,
   ) {}
 
   async execute(
@@ -100,7 +104,7 @@ export class FinishTestAttemptUseCase {
       ])
 
     const completedAt =
-      attempt.completedAt ?? new Date()
+      attempt.completedAt ?? this._clock.now()
 
     const calculatedTimeTakenSeconds =
       Math.max(

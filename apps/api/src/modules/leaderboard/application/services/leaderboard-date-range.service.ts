@@ -8,14 +8,14 @@ export type LeaderboardPeriods = {
 }
 
 export interface LeaderboardDateRangeServiceContract {
-  getPeriods(now?: Date): LeaderboardPeriods
+  getPeriods(now: Date): LeaderboardPeriods
   toSnapshotKey(date: Date): string
 }
 
 export class LeaderboardDateRangeService
   implements LeaderboardDateRangeServiceContract
 {
-  getPeriods(now = new Date()): LeaderboardPeriods {
+  getPeriods(now: Date): LeaderboardPeriods {
     const currentStart = this.startOfUtcWeek(now)
     const previousStart = new Date(currentStart)
     previousStart.setUTCDate(previousStart.getUTCDate() - 7)

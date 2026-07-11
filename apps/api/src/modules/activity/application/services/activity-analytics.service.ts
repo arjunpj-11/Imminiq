@@ -165,3 +165,13 @@ export class ActivityAnalyticsService {
     return Date.parse(`${dateKey}T00:00:00.000Z`)
   }
 }
+
+export type ActivityAnalyticsServiceContract = Pick<
+  ActivityAnalyticsService,
+  | 'calculateStreak'
+  | 'heatmapIntensity'
+  | 'growthPercent'
+  | 'weeklyProgress'
+  | 'dailyGoal'
+  | 'sumXp'
+>

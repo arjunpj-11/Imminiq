@@ -2,10 +2,12 @@ import { Router } from "express";
 
 import { authenticate } from "../../../shared/middlewares/auth.middleware";
 import { authenticatedApiIpLimiter } from "../../../shared/middlewares/security-rate-limit.middleware";
-import { friendsController } from "./friends.controller";
+import { FriendsController } from './friends.controller'
+import { createFriendsComposition } from '../friends.factory'
 import { FRIENDS_ROUTE_PATHS } from "./friends.route.constants";
 
-const router = Router();
+const friendsController = new FriendsController(createFriendsComposition().useCases)
+const router = Router()
 
 router.get(
   FRIENDS_ROUTE_PATHS.ROOT,

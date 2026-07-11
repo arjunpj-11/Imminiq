@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 
 import type { DifficultyLevel } from '../application/dtos/mock-tests.dto'
-import { createMockTestsComposition, type MockTestsComposition } from '../mock-tests.factory'
+import type { MockTestsComposition } from '../mock-tests.factory'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
@@ -398,5 +398,3 @@ export class MockTestsController {
     }
   }
 }
-
-export const mockTestsController = new MockTestsController(createMockTestsComposition().useCases)

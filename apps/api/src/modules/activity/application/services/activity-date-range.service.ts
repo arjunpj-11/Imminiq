@@ -205,3 +205,8 @@ export class ActivityDateRangeService {
     ).padStart(2, '0')}`
   }
 }
+
+export type ActivityDateRangeServiceContract = Pick<
+  ActivityDateRangeService,
+  'createContext' | 'toLocalDateKey' | 'weekdayLabel' | 'groupLabel'
+>

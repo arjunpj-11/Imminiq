@@ -1,4 +1,5 @@
 import { activityService } from '../../../activity'
+import type { ActivityRecorderContract } from '../../../activity/activity.service'
 import type {
   CommunityActivityServiceContract,
   RecordCommunityTrackerClonedActivityInput,
@@ -32,6 +33,9 @@ const normalizeReward = (value: number): number => {
 export class ActivityCommunityGateway
   implements CommunityActivityServiceContract
 {
+  constructor(
+    private readonly _activityRecorder: ActivityRecorderContract,
+  ) {}
   async recordTrackerCloned(
     input: RecordCommunityTrackerClonedActivityInput,
   ): Promise<void> {
@@ -41,7 +45,7 @@ export class ActivityCommunityGateway
       150,
     )
 
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'community',
@@ -87,7 +91,7 @@ export class ActivityCommunityGateway
       input.xpAwarded,
     )
 
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'community',
@@ -136,7 +140,7 @@ export class ActivityCommunityGateway
       input.coinsAwarded,
     )
 
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'community',
@@ -173,7 +177,7 @@ export class ActivityCommunityGateway
       150,
     )
 
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.ownerId,
 
       category: 'community',
@@ -201,4 +205,4 @@ export class ActivityCommunityGateway
 }
 
 export const activityCommunityGateway =
-  new ActivityCommunityGateway()
+  new ActivityCommunityGateway(activityService)

@@ -2,13 +2,15 @@ import { Router, type RequestHandler } from 'express'
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { dashboardController } from './dashboard.controller'
+import { DashboardController } from './dashboard.controller'
+import { createDashboardComposition } from '../dashboard.factory'
 import { DASHBOARD_ROUTE_PATHS } from './dashboard.route.constants'
 import {
   dashboardActivityIntensityQuerySchema,
   dashboardRecentItemsQuerySchema,
 } from './dashboard.schema'
 
+const dashboardController = new DashboardController(createDashboardComposition().useCases)
 const router = Router()
 
 const validateActivityIntensityQuery: RequestHandler = (req, res, next) => {

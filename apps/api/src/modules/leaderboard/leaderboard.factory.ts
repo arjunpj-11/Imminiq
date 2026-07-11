@@ -6,6 +6,7 @@ import { GetLeaderboardUseCase } from './application/use-cases/get-leaderboard.u
 import { RecordLeaderboardXpUseCase } from './application/use-cases/record-leaderboard-xp.usecase'
 import { ReplaceLeaderboardFriendsUseCase } from './application/use-cases/replace-leaderboard-friends.usecase'
 import { mongoLeaderboardRepository } from './infrastructure/repositories/mongo-leaderboard.repository'
+import { systemClock } from '../../infrastructure/time/system-clock'
 
 export type LeaderboardUseCases = {
   getLeaderboard: GetLeaderboardUseCase
@@ -30,10 +31,12 @@ export const createLeaderboardComposition = (): LeaderboardComposition => {
         leaderboardRepository,
         leaderboardMapper,
         dateRangeService,
+        systemClock,
       ),
       getRewards: new GetLeaderboardRewardsUseCase(),
       recordXp: new RecordLeaderboardXpUseCase(
         leaderboardRepository,
+        systemClock,
       ),
       replaceFriends: new ReplaceLeaderboardFriendsUseCase(
         leaderboardRepository,
@@ -41,6 +44,7 @@ export const createLeaderboardComposition = (): LeaderboardComposition => {
       captureSnapshot: new CaptureLeaderboardSnapshotUseCase(
         leaderboardRepository,
         dateRangeService,
+        systemClock,
       ),
     },
   }

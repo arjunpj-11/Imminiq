@@ -5,7 +5,8 @@ import type { ZodTypeAny } from 'zod'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { trackerController } from './trackers.controller'
+import { TrackerController } from './trackers.controller'
+import { createTrackerComposition } from '../tracker.factory'
 import { TRACKER_ROUTE_PATHS } from './trackers.route.constants'
 import {
   trackerListQuerySchema,
@@ -27,6 +28,7 @@ import {
   verifySubtopicSchema,
 } from './trackers.schema'
 
+const trackerController = new TrackerController(createTrackerComposition().useCases)
 const router = Router()
 
 const validateQuery =

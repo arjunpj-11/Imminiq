@@ -9,22 +9,24 @@ import type {
   ActivityFeedResponse,
   GetActivityFeedPayload,
 } from '../dtos/activity.dto'
-import { ActivityCursorService } from '../services/activity-cursor.service'
-import { ActivityDateRangeService } from '../services/activity-date-range.service'
-import { ActivityMapper } from '../mappers/activity.mapper'
+import type { ActivityCursorServiceContract } from '../services/activity-cursor.service'
+import type { ActivityDateRangeServiceContract } from '../services/activity-date-range.service'
+import type { ActivityMapperContract } from '../mappers/activity.mapper'
+import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 export class GetActivityFeedUseCase {
   constructor(
     private readonly _activityRepository: ActivityQueryRepositoryContract,
-    private readonly _mapper: ActivityMapper,
-    private readonly _dateRangeService: ActivityDateRangeService,
-    private readonly _cursorService: ActivityCursorService,
+    private readonly _mapper: ActivityMapperContract,
+    private readonly _dateRangeService: ActivityDateRangeServiceContract,
+    private readonly _cursorService: ActivityCursorServiceContract,
+    private readonly _clock: ClockContract,
   ) {}
 
   async execute(
     userId: string,
     payload: GetActivityFeedPayload,
-    now = new Date(),
+    now = this._clock.now(),
   ): Promise<ActivityFeedResponse> {
     const filter = payload.filter ?? 'all'
     const limit = this.normalizeLimit(payload.limit)
