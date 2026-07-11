@@ -41,6 +41,7 @@ import { securityAuditLogger } from './infrastructure/loggers/security-audit.log
 import { messageCentralPhoneOtpProvider } from './infrastructure/providers/message-central-phone-otp.provider'
 import { nodemailerOtpEmailProvider } from './infrastructure/providers/nodemailer-otp-email.provider'
 import { redisOtpStore } from './infrastructure/stores/redis-otp.store'
+import { redisPendingRegistrationStore } from './infrastructure/stores/redis-pending-registration.store'
 import { redisPasswordResetSessionStore } from './infrastructure/stores/redis-password-reset-session.store'
 import { redisPhoneOtpSessionStore } from './infrastructure/stores/redis-phone-otp-session.store'
 import { redisRetiredRefreshTokenStore } from './infrastructure/stores/redis-retired-refresh-token.store'
@@ -109,6 +110,7 @@ export const createAuthComposition = (): AuthComposition => {
   const phoneOtpProvider = messageCentralPhoneOtpProvider
   const retiredRefreshTokenStore = redisRetiredRefreshTokenStore
   const otpStore = redisOtpStore
+  const pendingRegistrationStore = redisPendingRegistrationStore
   const auditLogger = securityAuditLogger
   const twoFactorCodeVerifier = otplibTwoFactorCodeVerifier
 
@@ -134,9 +136,8 @@ export const createAuthComposition = (): AuthComposition => {
         authRepository,
         authNotification,
         identifierNormalizer,
-        usernameGenerator,
         passwordHasher,
-        authUserMapper
+        pendingRegistrationStore
       ),
 
       loginUser: new LoginUserUseCase(
@@ -198,13 +199,16 @@ export const createAuthComposition = (): AuthComposition => {
         securityAttemptStore,
         phoneOtpProvider,
         phoneOtpSessionStore,
-        otpStore
+        otpStore,
+        pendingRegistrationStore,
+        usernameGenerator
       ),
 
       resendOtp: new ResendOtpUseCase(
         authRepository,
         authNotification,
-        identifierNormalizer
+        identifierNormalizer,
+        pendingRegistrationStore
       ),
 
       forgotPassword: new ForgotPasswordUseCase(
@@ -238,7 +242,8 @@ export const createAuthComposition = (): AuthComposition => {
 
       checkIdentifier: new CheckIdentifierUseCase(
         authRepository,
-        identifierNormalizer
+        identifierNormalizer,
+        pendingRegistrationStore
       ),
 
       checkUsername: new CheckUsernameUseCase(authRepository),

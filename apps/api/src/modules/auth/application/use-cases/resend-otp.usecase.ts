@@ -3,12 +3,15 @@ import type { IAuthUserRepository } from '../../domain/repositories/auth-user.re
 import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
+import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
+import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
 
 export class ResendOtpUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _authNotification: IAuthNotification,
-    private readonly _identifierNormalizer: IIdentifierNormalizer
+    private readonly _identifierNormalizer: IIdentifierNormalizer,
+    private readonly _pendingRegistrationStore: IPendingRegistrationStore
   ) {}
 
   async execute(identifier: string, purpose: OtpPurpose): Promise<void> {
@@ -16,14 +19,33 @@ export class ResendOtpUseCase {
 
     const user = await this._authRepository.findByIdentifier(parsedIdentifier.value)
 
-    if (!user) {
+    const pendingRegistration = user
+      ? null
+      : await this._pendingRegistrationStore.get(parsedIdentifier.value)
+
+    const isPendingAccountVerification =
+      Boolean(pendingRegistration) &&
+      ((parsedIdentifier.method === 'email' &&
+        purpose === 'email_verification') ||
+        (parsedIdentifier.method === 'phone' &&
+          purpose === 'phone_verification'))
+
+    if (!user && !isPendingAccountVerification) {
       return
+    }
+
+    if (pendingRegistration) {
+      await this._pendingRegistrationStore.save(
+        parsedIdentifier.value,
+        pendingRegistration,
+        PENDING_REGISTRATION_EXPIRES_SECONDS
+      )
     }
 
     if (
       purpose === 'email_verification' &&
       parsedIdentifier.method === 'email' &&
-      user.emailVerified
+      user?.emailVerified
     ) {
       throw AuthApplicationError.emailAlreadyVerified('Email is already verified')
     }
@@ -31,7 +53,7 @@ export class ResendOtpUseCase {
     if (
       purpose === 'phone_verification' &&
       parsedIdentifier.method === 'phone' &&
-      user.phoneVerified
+      user?.phoneVerified
     ) {
       throw AuthApplicationError.phoneAlreadyVerified('Phone is already verified')
     }

@@ -170,11 +170,14 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           username: MongoAuthNormalizer.username(data.username),
           passwordHash: data.passwordHash,
           provider: 'local',
-          emailVerified: false,
-          phoneVerified: false,
-          verificationExpiresAt: new Date(
-            Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000,
-          ),
+          emailVerified: data.emailVerified ?? false,
+          phoneVerified: data.phoneVerified ?? false,
+          verificationExpiresAt:
+            data.emailVerified || data.phoneVerified
+              ? null
+              : new Date(
+                  Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000,
+                ),
         })
 
         return this._mapper.toAuthUserEntityOrThrow(

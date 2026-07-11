@@ -84,7 +84,6 @@ export interface IRegisterResponseDTO {
   success: boolean
   message: string
   data: {
-    user: IAuthUserDTO
     verificationTarget: string
     verificationMethod: VerificationMethod
   }

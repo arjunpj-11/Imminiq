@@ -7,6 +7,8 @@ export type CreateAuthUserInput = {
   phone?: string
   username: string
   passwordHash: string
+  emailVerified?: boolean
+  phoneVerified?: boolean
 }
 
 export type CreateOAuthUserInput = {

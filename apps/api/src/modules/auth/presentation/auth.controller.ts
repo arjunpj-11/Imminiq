@@ -67,10 +67,10 @@ export class AuthController {
       const result = await this._useCases.registerUser.execute(req.body)
 
       res
-        .status(HttpStatusCode.CREATED)
+        .status(HttpStatusCode.ACCEPTED)
         .json(
           new ApiResponse(
-            'Account created. Please verify your account.',
+            'Registration started. Please verify your account.',
             result
           )
         )

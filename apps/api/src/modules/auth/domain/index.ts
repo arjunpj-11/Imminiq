@@ -21,6 +21,10 @@ export type { IOtpStore } from './services/otp-store.interface'
 export type { IPasswordHasher } from './services/password-hasher.interface'
 export type { IPasswordResetSessionStore } from './services/password-reset-session-store.interface'
 export type { IPasswordResetToken } from './services/password-reset-token.interface'
+export type {
+  IPendingRegistrationStore,
+  PendingRegistration,
+} from './services/pending-registration-store.interface'
 export type { IPhoneOtpProvider } from './services/phone-otp-provider.interface'
 export type { IPhoneOtpSessionStore } from './services/phone-otp-session-store.interface'
 export type { IRandomNumberGenerator } from './services/random-number-generator.interface'

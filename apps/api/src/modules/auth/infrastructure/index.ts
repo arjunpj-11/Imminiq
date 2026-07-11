@@ -46,6 +46,10 @@ export {
   redisOtpStore,
 } from './stores/redis-otp.store'
 export {
+  RedisPendingRegistrationStore,
+  redisPendingRegistrationStore,
+} from './stores/redis-pending-registration.store'
+export {
   RedisPasswordResetSessionStore,
   redisPasswordResetSessionStore,
 } from './stores/redis-password-reset-session.store'

@@ -2,24 +2,22 @@ import { AuthApplicationError } from '../errors/auth-application.error'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
 import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
+import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
-import type { IRegisterPayloadDTO, IAuthUserDTO } from '../dtos/auth.dto'
-import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
+import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
+import type { IRegisterPayloadDTO } from '../dtos/auth.dto'
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
-import type { IUsernameGenerator } from '../services/username-generator.service'
 
 export class RegisterUserUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _authNotification: IAuthNotification,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
-    private readonly _usernameGenerator: IUsernameGenerator,
     private readonly _passwordHasher: IPasswordHasher,
-    private readonly _authUserMapper: IAuthUserMapper
+    private readonly _pendingRegistrationStore: IPendingRegistrationStore
   ) {}
 
   async execute(payload: IRegisterPayloadDTO): Promise<{
-    user: IAuthUserDTO
     verificationTarget: string
     verificationMethod: VerificationMethod
   }> {
@@ -40,7 +38,6 @@ export class RegisterUserUseCase {
           })
 
           return {
-            user: this._authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -63,7 +60,6 @@ export class RegisterUserUseCase {
           })
 
           return {
-            user: this._authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -73,29 +69,31 @@ export class RegisterUserUseCase {
       }
     }
 
-    const username = await this._usernameGenerator.generateRegistrationUsername({
-      email: parsedIdentifier.email,
-      fullName,
-    })
-
     const passwordHash = await this._passwordHasher.hash(password)
 
-    const user = await this._authRepository.createUser({
-      fullName,
-      email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
-      username,
-      passwordHash,
-    })
+    await this._pendingRegistrationStore.save(
+      parsedIdentifier.value,
+      {
+        fullName,
+        email: parsedIdentifier.email,
+        phone: parsedIdentifier.phone,
+        passwordHash,
+      },
+      PENDING_REGISTRATION_EXPIRES_SECONDS
+    )
 
-    await this._authNotification.sendVerificationOtp({
-      email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
-      method: parsedIdentifier.method,
-    })
+    try {
+      await this._authNotification.sendVerificationOtp({
+        email: parsedIdentifier.email,
+        phone: parsedIdentifier.phone,
+        method: parsedIdentifier.method,
+      })
+    } catch (error) {
+      await this._pendingRegistrationStore.delete(parsedIdentifier.value)
+      throw error
+    }
 
     return {
-      user: this._authUserMapper.toAuthUser(user),
       verificationTarget: parsedIdentifier.value,
       verificationMethod: parsedIdentifier.method,
     }
