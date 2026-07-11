@@ -8,7 +8,7 @@ export type SetProfileBannerUrlInput = {
   bannerUrl: string
 }
 
-export interface ProfileImageRepositoryContract {
+export interface IProfileImageRepository {
   setAvatarUrl(input: SetProfileAvatarUrlInput): Promise<boolean>
 
   clearAvatarUrl(userId: string): Promise<boolean>

@@ -1,5 +1,5 @@
 import StatCard, {
-  type StatAccent,
+  type IStatAccent,
 } from '../../../components/data-display/StatCard'
 import StatGrid from '../../../components/data-display/StatGrid'
 import { formatCompactNumber } from '../utils/dashboard-formatters'
@@ -12,7 +12,7 @@ type DashboardStatsGridProps = {
   }
 }
 
-const ACCENTS: StatAccent[] = [
+const ACCENTS: IStatAccent[] = [
   { light: 'var(--brand-500)', dark: 'var(--brand-500)' },
   { light: 'var(--success)', dark: 'var(--success)' },
   { light: 'var(--warning)', dark: 'var(--warning)' },

@@ -4,10 +4,10 @@ import {
   MODERATION_APPEAL_CASE_ID_MIN_RANDOM,
   MODERATION_APPEAL_CASE_ID_PREFIX,
 } from '../../domain/constants/moderation-appeal.constants'
-import type { ModerationAppealCaseIdGeneratorContract } from '../../domain/services/case-id-generator.interface'
+import type { IModerationAppealCaseIdGenerator } from '../../domain/services/case-id-generator.interface'
 
 export class CryptoModerationAppealCaseIdGenerator
-  implements ModerationAppealCaseIdGeneratorContract
+  implements IModerationAppealCaseIdGenerator
 {
   generate(): string {
     const randomPart = randomInt(

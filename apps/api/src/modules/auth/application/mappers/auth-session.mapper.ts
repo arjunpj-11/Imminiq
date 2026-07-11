@@ -1,12 +1,12 @@
 import type { AuthSessionEntity } from '../../domain/entities/auth-session.entity'
-import type { AuthSessionDto } from '../dtos/auth.dto'
+import type { IAuthSessionDTO } from '../dtos/auth.dto'
 
-export interface AuthSessionMapperContract {
-  toDto(session: AuthSessionEntity): AuthSessionDto
+export interface IAuthSessionMapper {
+  toDto(session: AuthSessionEntity): IAuthSessionDTO
 }
 
-export class AuthSessionMapper implements AuthSessionMapperContract {
-  toDto(session: AuthSessionEntity): AuthSessionDto {
+export class AuthSessionMapper implements IAuthSessionMapper {
+  toDto(session: AuthSessionEntity): IAuthSessionDTO {
     return {
       id: session.id,
       expiresAt: session.expiresAt.toISOString(),

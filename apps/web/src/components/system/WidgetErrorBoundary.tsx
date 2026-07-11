@@ -2,22 +2,22 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 
 import Button from '../ui/Button'
 
-interface WidgetErrorBoundaryProps {
+interface IWidgetErrorBoundaryProps {
   children: ReactNode
   title?: string
 }
 
-interface WidgetErrorBoundaryState {
+interface IWidgetErrorBoundaryState {
   failed: boolean
 }
 
 export default class WidgetErrorBoundary extends Component<
-  WidgetErrorBoundaryProps,
-  WidgetErrorBoundaryState
+  IWidgetErrorBoundaryProps,
+  IWidgetErrorBoundaryState
 > {
-  state: WidgetErrorBoundaryState = { failed: false }
+  state: IWidgetErrorBoundaryState = { failed: false }
 
-  static getDerivedStateFromError(): WidgetErrorBoundaryState {
+  static getDerivedStateFromError(): IWidgetErrorBoundaryState {
     return { failed: true }
   }
 

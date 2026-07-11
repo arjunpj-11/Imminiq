@@ -2,7 +2,7 @@
 
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface TrackerProgressDocument extends Document {
+export interface ITrackerProgressDocument extends Document {
   userId: mongoose.Types.ObjectId
   trackerId: mongoose.Types.ObjectId
   totalTopics: number
@@ -17,7 +17,7 @@ export interface TrackerProgressDocument extends Document {
   updatedAt: Date
 }
 
-const trackerProgressSchema = new Schema<TrackerProgressDocument>(
+const trackerProgressSchema = new Schema<ITrackerProgressDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -74,7 +74,7 @@ trackerProgressSchema.index(
 )
 trackerProgressSchema.index({ userId: 1, lastStudiedAt: -1 })
 
-export const TrackerProgress = mongoose.model<TrackerProgressDocument>(
+export const TrackerProgress = mongoose.model<ITrackerProgressDocument>(
   'TrackerProgress',
   trackerProgressSchema
 )

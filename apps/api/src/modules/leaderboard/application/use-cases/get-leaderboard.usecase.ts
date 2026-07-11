@@ -6,33 +6,33 @@ import {
   LEADERBOARD_TARGET_RANK,
   LEADERBOARD_WEEKLY_TIER_XP,
 } from '../../domain/constants/leaderboard.constants'
-import type { LeaderboardQueryRepositoryContract } from '../../domain/repositories/leaderboard-query.repository.interface'
+import type { ILeaderboardQueryRepository } from '../../domain/repositories/leaderboard-query.repository.interface'
 import {
   LEADERBOARD_REWARDS,
   LEADERBOARD_SCORING_RULES,
 } from '../constants/leaderboard.constants'
 import type {
-  GetLeaderboardPayload,
-  LeaderboardCurrentUserView,
-  LeaderboardResponse,
+  GetLeaderboardPayloadDTO,
+  LeaderboardCurrentUserViewDTO,
+  LeaderboardResponseDTO,
 } from '../dtos/leaderboard.dto'
 import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
-import type { LeaderboardMapperContract } from '../mappers/leaderboard.mapper'
-import type { LeaderboardDateRangeContract } from '../services/leaderboard-date-range.service'
-import type { ClockContract } from '../../../../shared/time/clock.interface'
+import type { ILeaderboardMapper } from '../mappers/leaderboard.mapper'
+import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class GetLeaderboardUseCase {
   constructor(
-    private readonly _leaderboardRepository: LeaderboardQueryRepositoryContract,
-    private readonly _leaderboardMapper: LeaderboardMapperContract,
-    private readonly _dateRange: LeaderboardDateRangeContract,
-    private readonly _clock: ClockContract,
+    private readonly _leaderboardRepository: ILeaderboardQueryRepository,
+    private readonly _leaderboardMapper: ILeaderboardMapper,
+    private readonly _dateRange: ILeaderboardDateRange,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
     viewerUserId: string,
-    payload: GetLeaderboardPayload,
-  ): Promise<LeaderboardResponse> {
+    payload: GetLeaderboardPayloadDTO,
+  ): Promise<LeaderboardResponseDTO> {
     const limit = payload.limit ?? LEADERBOARD_DEFAULT_LIMIT
 
     if (
@@ -130,10 +130,10 @@ export class GetLeaderboardUseCase {
   }
 
   private toCurrentUserView(
-    entry: Parameters<LeaderboardMapperContract['toEntryView']>[0],
+    entry: Parameters<ILeaderboardMapper['toEntryView']>[0],
     viewerUserId: string,
     targetRankScore: number | null,
-  ): LeaderboardCurrentUserView {
+  ): LeaderboardCurrentUserViewDTO {
     const view = this._leaderboardMapper.toEntryView(entry, viewerUserId)
 
     return {

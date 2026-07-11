@@ -8,7 +8,7 @@ export type UpsertCommunityTrackerReviewInput = {
   comment: string
 }
 
-export interface CommunityReviewRepositoryContract {
+export interface ICommunityReviewRepository {
   findPublicTrackerDetail(
     trackerId: string,
     userId: string,

@@ -1,6 +1,6 @@
 import type { AuthRole } from './auth-role.vo'
 
-export interface JwtPayload {
+export interface IJwtPayload {
   userId: string
   role: AuthRole
   type: 'access'

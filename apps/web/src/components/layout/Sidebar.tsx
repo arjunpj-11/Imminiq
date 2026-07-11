@@ -6,7 +6,7 @@ import { prefetchRoute } from '../../lib/route-prefetch'
 import ImminiqLogo from '../ui/ImminiqLogo'
 import ImminiqWordmark from '../ui/ImminiqWordmark'
 
-interface SidebarProps {
+interface ISidebarProps {
   mobileOpen: boolean
   collapsed: boolean
   onCloseMobile: () => void
@@ -147,7 +147,7 @@ export default function Sidebar({
   collapsed,
   onCloseMobile,
   onToggleCollapsed,
-}: SidebarProps) {
+}: ISidebarProps) {
   const location = useLocation()
 
   const isInsideSettings =

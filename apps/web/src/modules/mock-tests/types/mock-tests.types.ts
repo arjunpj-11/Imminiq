@@ -22,24 +22,24 @@ export type MockTestCodingValueType =
   | 'number[][]'
   | 'string[][]'
 
-export interface MockTestCodingTestCase {
+export interface IMockTestCodingTestCase {
   input: unknown[]
   expectedOutput: unknown
   isHidden: boolean
   explanation?: string
 }
 
-export interface MockTestCodingDetails {
+export interface IMockTestCodingDetails {
   functionName: string
   language: MockTestCodingLanguage
   inputTypes: MockTestCodingValueType[]
   outputType: MockTestCodingValueType
   starterCode: string
   templates?: Partial<Record<MockTestCodingLanguage, string>>
-  testCases: MockTestCodingTestCase[]
+  testCases: IMockTestCodingTestCase[]
 }
 
-export interface MockTest {
+export interface IMockTest {
   _id: string
   ownerId: string
   trackerId?: string
@@ -62,7 +62,7 @@ export interface MockTest {
   updatedAt: string
 }
 
-export interface MockTestQuestion {
+export interface IMockTestQuestion {
   _id: string
   testId: string
   type: QuestionType
@@ -73,10 +73,10 @@ export interface MockTestQuestion {
   difficulty: DifficultyLevel
   order: number
   points: number
-  coding?: MockTestCodingDetails
+  coding?: IMockTestCodingDetails
 }
 
-export interface PublicMockTestQuestion {
+export interface IPublicMockTestQuestion {
   _id: string
   type: QuestionType
   question: string
@@ -84,21 +84,21 @@ export interface PublicMockTestQuestion {
   difficulty: DifficultyLevel
   order: number
   points: number
-  coding?: MockTestCodingDetails
+  coding?: IMockTestCodingDetails
 }
 
-export interface MockTestShareResponse {
+export interface IMockTestShareResponse {
   shareToken: string
   shareUrl: string
 }
 
-export interface ImportSharedMockTestResponse {
-  test: MockTest
+export interface IImportSharedMockTestResponse {
+  test: IMockTest
   imported: boolean
   alreadyImported: boolean
 }
 
-export interface MockTestAttempt {
+export interface IMockTestAttempt {
   _id: string
   testId: string
   userId: string
@@ -115,7 +115,7 @@ export interface MockTestAttempt {
   createdAt: string
 }
 
-export interface MockTestAnswer {
+export interface IMockTestAnswer {
   _id: string
   attemptId: string
   questionId: string
@@ -126,7 +126,7 @@ export interface MockTestAnswer {
   submittedAt: string
 }
 
-export interface MockTestAIEvaluation {
+export interface IMockTestAIEvaluation {
   _id: string
   attemptId: string
   questionId: string
@@ -138,7 +138,7 @@ export interface MockTestAIEvaluation {
   createdAt: string
 }
 
-export interface MockTestReport {
+export interface IMockTestReport {
   _id: string
   attemptId: string
   userId: string
@@ -157,11 +157,11 @@ export interface MockTestReport {
   createdAt: string
 }
 
-export interface MockTestListItem extends MockTest {
-  latestAttempt?: MockTestAttempt | null
+export interface IMockTestListItem extends IMockTest {
+  latestAttempt?: IMockTestAttempt | null
 }
 
-export interface MockTestSummary {
+export interface IMockTestSummary {
   totalTests: number
   completedAttempts: number
   averageScore: number
@@ -170,7 +170,7 @@ export interface MockTestSummary {
   passedAttempts: number
 }
 
-export interface MockTestPagination {
+export interface IMockTestPagination {
   page: number
   limit: number
   totalItems: number
@@ -179,35 +179,35 @@ export interface MockTestPagination {
   hasPreviousPage: boolean
 }
 
-export interface ListMockTestsResponse {
-  summary: MockTestSummary
-  tests: MockTestListItem[]
-  pagination?: MockTestPagination
+export interface IListMockTestsResponse {
+  summary: IMockTestSummary
+  tests: IMockTestListItem[]
+  pagination?: IMockTestPagination
 }
 
-export interface MockTestDetailsResponse {
-  test: MockTest
-  questions: PublicMockTestQuestion[]
-  latestAttempt?: MockTestAttempt | null
+export interface IMockTestDetailsResponse {
+  test: IMockTest
+  questions: IPublicMockTestQuestion[]
+  latestAttempt?: IMockTestAttempt | null
 }
 
-export interface StartAttemptResponse {
-  attempt: MockTestAttempt
-  questions: PublicMockTestQuestion[]
+export interface IStartAttemptResponse {
+  attempt: IMockTestAttempt
+  questions: IPublicMockTestQuestion[]
 }
 
-export interface AttemptResultResponse {
-  attempt: MockTestAttempt
-  report: MockTestReport | null
+export interface IAttemptResultResponse {
+  attempt: IMockTestAttempt
+  report: IMockTestReport | null
   answers: Array<
-    MockTestAnswer & {
-      question?: MockTestQuestion
-      aiEvaluation?: MockTestAIEvaluation
+    IMockTestAnswer & {
+      question?: IMockTestQuestion
+      aiEvaluation?: IMockTestAIEvaluation
     }
   >
 }
 
-export interface AttemptAnalysis {
+export interface IAttemptAnalysis {
   score: number
   scorePercentage: number
   passed: boolean
@@ -226,7 +226,7 @@ export interface AttemptAnalysis {
   }[]
 }
 
-export interface TestAnalytics {
+export interface ITestAnalytics {
   trends: {
     date: string
     averageScore: number
@@ -240,7 +240,7 @@ export interface TestAnalytics {
   aiInsights: string
 }
 
-export interface CreateMockTestPayload {
+export interface ICreateMockTestPayload {
   title: string
   description?: string
   difficulty?: DifficultyLevel
@@ -257,11 +257,11 @@ export interface CreateMockTestPayload {
     explanation?: string
     difficulty?: DifficultyLevel
     points?: number
-    coding?: MockTestCodingDetails
+    coding?: IMockTestCodingDetails
   }[]
 }
 
-export interface GenerateMockTestPayload {
+export interface IGenerateMockTestPayload {
   topic: string
   difficulty?: DifficultyLevel
   questionCount?: number
@@ -273,24 +273,24 @@ export interface GenerateMockTestPayload {
   visibility?: TestVisibility
 }
 
-export interface SubmitAnswerPayload {
+export interface ISubmitAnswerPayload {
   questionId: string
   answer: string
 }
 
-export interface RunMockTestCodePayload {
+export interface IRunMockTestCodePayload {
   sourceCode: string
   language: MockTestCodingLanguage
   languageId: number
 }
 
-export interface SubmitMockTestCodePayload {
+export interface ISubmitMockTestCodePayload {
   sourceCode: string
   language: MockTestCodingLanguage
   languageId: number
 }
 
-export interface MockTestCodeCaseResult {
+export interface IMockTestCodeCaseResult {
   index: number
   input: unknown[]
   expectedOutput: unknown
@@ -301,11 +301,11 @@ export interface MockTestCodeCaseResult {
   explanation?: string
 }
 
-export interface MockTestCodeRunResponse {
+export interface IMockTestCodeRunResponse {
   passed: boolean
   passedCount: number
   totalCount: number
-  testCases: MockTestCodeCaseResult[]
+  testCases: IMockTestCodeCaseResult[]
   stdout: string
   stderr: string
   compileOutput: string
@@ -316,15 +316,15 @@ export interface MockTestCodeRunResponse {
   }
 }
 
-export interface MockTestCodeSubmitResponse extends MockTestCodeRunResponse {
-  answer: MockTestAnswer | null
+export interface IMockTestCodeSubmitResponse extends IMockTestCodeRunResponse {
+  answer: IMockTestAnswer | null
   isCorrect: boolean
   pointsEarned: number
   maxPoints: number
   feedback: string
 }
 
-export interface ApiResponse<T> {
+export interface IApiResponse<T> {
   statusCode?: number
   message: string
   data: T

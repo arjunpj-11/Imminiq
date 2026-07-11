@@ -1,3 +1,3 @@
-export interface OtpGeneratorContract {
+export interface IOtpGenerator {
   generate(): string
 }

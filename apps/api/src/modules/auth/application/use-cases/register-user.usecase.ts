@@ -1,25 +1,25 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthNotificationContract } from '../../domain/services/auth-notification.interface'
-import type { PasswordHasherContract } from '../../domain/services/password-hasher.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
-import type { RegisterPayload, AuthUser } from '../dtos/auth.dto'
-import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
-import type { UsernameGeneratorContract } from '../services/username-generator.service'
+import type { IRegisterPayloadDTO, IAuthUserDTO } from '../dtos/auth.dto'
+import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
+import type { IUsernameGenerator } from '../services/username-generator.service'
 
 export class RegisterUserUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _authNotification: AuthNotificationContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract,
-    private readonly _usernameGenerator: UsernameGeneratorContract,
-    private readonly _passwordHasher: PasswordHasherContract,
-    private readonly _authUserMapper: AuthUserMapperContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authNotification: IAuthNotification,
+    private readonly _identifierNormalizer: IIdentifierNormalizer,
+    private readonly _usernameGenerator: IUsernameGenerator,
+    private readonly _passwordHasher: IPasswordHasher,
+    private readonly _authUserMapper: IAuthUserMapper
   ) {}
 
-  async execute(payload: RegisterPayload): Promise<{
-    user: AuthUser
+  async execute(payload: IRegisterPayloadDTO): Promise<{
+    user: IAuthUserDTO
     verificationTarget: string
     verificationMethod: VerificationMethod
   }> {

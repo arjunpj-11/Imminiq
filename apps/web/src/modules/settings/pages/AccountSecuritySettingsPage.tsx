@@ -30,9 +30,9 @@ import {
 } from '../hooks/useSecuritySettings'
 
 import type {
-  ChangeEmailPayload,
-  DeleteAccountPayload,
-  TwoFactorSetupResponse,
+  IChangeEmailPayload,
+  IDeleteAccountPayload,
+  ITwoFactorSetupResponse,
 } from '../types/settings.types'
 
 import { useAuthStore } from '../../../store/useAuthStore'
@@ -73,7 +73,7 @@ export default function AccountSecuritySettingsPage() {
 
   const [twoFactorSetupOpen, setTwoFactorSetupOpen] = useState(false)
   const [twoFactorSetupData, setTwoFactorSetupData] =
-    useState<TwoFactorSetupResponse | null>(null)
+    useState<ITwoFactorSetupResponse | null>(null)
   const [twoFactorVerifyToken, setTwoFactorVerifyToken] = useState('')
   const [twoFactorVerifyError, setTwoFactorVerifyError] = useState('')
   const [backupCodes, setBackupCodes] = useState<string[]>([])
@@ -157,7 +157,7 @@ export default function AccountSecuritySettingsPage() {
     try {
       setEmailChangeError('')
 
-      const payload: ChangeEmailPayload = {
+      const payload: IChangeEmailPayload = {
         newEmail,
         ...(stepUpRequiresPassword
           ? { currentPassword: emailChangePassword }
@@ -321,7 +321,7 @@ export default function AccountSecuritySettingsPage() {
     try {
       setDeleteAccountError('')
 
-      const payload: DeleteAccountPayload = {
+      const payload: IDeleteAccountPayload = {
         confirmation: 'DELETE',
         ...(stepUpRequiresPassword
           ? { currentPassword: deleteCurrentPassword }

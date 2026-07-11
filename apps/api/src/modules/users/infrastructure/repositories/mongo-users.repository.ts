@@ -17,7 +17,7 @@ import type {
   GetRelationshipStateInput,
   UpdateUserFullNameInput,
   UpdateUserProfileInput,
-  UsersRepositoryContract,
+  IUsersRepository,
 } from '../../domain/repositories/users.repository.interface'
 import type { RelationshipState } from '../../domain/value-objects/relationship-state.vo'
 import type { UserIdInput } from '../../domain/value-objects/user-id.vo'
@@ -40,7 +40,7 @@ type MongoUsersRepositoryDependencies = {
   relationshipRepository: MongoUsersRelationshipRepository
 }
 
-export class MongoUsersRepository implements UsersRepositoryContract {
+export class MongoUsersRepository implements IUsersRepository {
   private readonly _userRepository: MongoUsersUserRepository
   private readonly _profileRepository: MongoUsersProfileRepository
   private readonly _activityRepository: MongoUsersActivityRepository

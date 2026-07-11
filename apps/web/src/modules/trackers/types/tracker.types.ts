@@ -47,13 +47,13 @@ export type LessonType =
   | 'system_design'
   | 'theory'
 
-export interface ApiResponse<T> {
+export interface IApiResponse<T> {
   success: boolean
   message: string
   data: T
 }
 
-export interface Tracker {
+export interface ITracker {
   _id: string
   title: string
   description?: string
@@ -74,7 +74,7 @@ export interface Tracker {
   updatedAt?: string
 }
 
-export interface TrackerSummary {
+export interface ITrackerSummary {
   totalTrackers: number
   activeTrackers: number
   completedTrackers: number
@@ -82,15 +82,15 @@ export interface TrackerSummary {
   averageProgress: number
 }
 
-export interface TrackerListResponse {
-  trackers: Tracker[]
+export interface ITrackerListResponse {
+  trackers: ITracker[]
   total: number
   page: number
   limit: number
   totalPages: number
 }
 
-export interface TrackerListQuery {
+export interface ITrackerListQuery {
   status?: TrackerStatusFilter
   domain?: TrackerDomainFilter
   sortBy?: TrackerSortBy
@@ -98,7 +98,7 @@ export interface TrackerListQuery {
   limit?: number
 }
 
-export interface CreateTrackerPayload {
+export interface ICreateTrackerPayload {
   title: string
   description?: string
   domain?: TrackerDomain
@@ -107,12 +107,12 @@ export interface CreateTrackerPayload {
   visibility?: TrackerVisibility
 }
 
-export interface UpdateTrackerPayload
-  extends Partial<CreateTrackerPayload> {
+export interface IUpdateTrackerPayload
+  extends Partial<ICreateTrackerPayload> {
   trackerId: string
 }
 
-export interface RoadmapSubtopic {
+export interface IRoadmapSubtopic {
   _id: string
   title: string
   description?: string
@@ -123,10 +123,10 @@ export interface RoadmapSubtopic {
   estimatedMinutes?: number
   progressPercent?: number
   completedAt?: string | null
-  children?: RoadmapSubtopic[]
+  children?: IRoadmapSubtopic[]
 }
 
-export interface RoadmapTopic {
+export interface IRoadmapTopic {
   _id: string
   title: string
   description?: string
@@ -134,21 +134,21 @@ export interface RoadmapTopic {
   status: LessonStatus
   progressPercent?: number
   estimatedHours?: number
-  subtopics: RoadmapSubtopic[]
+  subtopics: IRoadmapSubtopic[]
 }
 
-export interface TrackerRoadmapResponse {
-  tracker: Tracker
-  roadmap: RoadmapTopic[]
+export interface ITrackerRoadmapResponse {
+  tracker: ITracker
+  roadmap: IRoadmapTopic[]
 }
 
-export interface CreateTopicPayload {
+export interface ICreateTopicPayload {
   trackerId: string
   title: string
   description?: string
 }
 
-export interface CreateSubtopicPayload {
+export interface ICreateSubtopicPayload {
   trackerId: string
   topicId: string
   title: string
@@ -157,14 +157,14 @@ export interface CreateSubtopicPayload {
   estimatedMinutes?: number
 }
 
-export interface UpdateSubtopicProgressPayload {
+export interface IUpdateSubtopicProgressPayload {
   trackerId: string
   subtopicId: string
   status: 'in_progress' | 'completed'
   
 }
 
-export interface LessonListItem {
+export interface ILessonListItem {
   _id: string
   title: string
   status: LessonStatus
@@ -172,7 +172,7 @@ export interface LessonListItem {
   estimatedMinutes?: number
 }
 
-export interface TrackerLessonNode {
+export interface ITrackerLessonNode {
   _id: string
   trackerId: string
   topicId: string
@@ -187,7 +187,7 @@ export interface TrackerLessonNode {
   topicTitle?: string
 }
 
-export interface GeneratedLesson {
+export interface IGeneratedLesson {
   _id: string
   trackerId: string
   subtopicId: string
@@ -215,18 +215,18 @@ export interface GeneratedLesson {
   estimatedMinutes: number
 }
 
-export interface LessonNavigationItem {
+export interface ILessonNavigationItem {
   _id: string
   title: string
 }
 
-export interface TrackerLessonResponse {
-  tracker: Tracker
-  lessonNode: TrackerLessonNode
-  generatedLesson: GeneratedLesson
-  previousLesson: LessonNavigationItem | null
-  nextLesson: LessonNavigationItem | null
-  lessonRoadmap: LessonListItem[]
+export interface ITrackerLessonResponse {
+  tracker: ITracker
+  lessonNode: ITrackerLessonNode
+  generatedLesson: IGeneratedLesson
+  previousLesson: ILessonNavigationItem | null
+  nextLesson: ILessonNavigationItem | null
+  lessonRoadmap: ILessonListItem[]
 }
 
 export type LessonChatMessage = {
@@ -240,7 +240,7 @@ export type LessonChatPayload = {
   messages: LessonChatMessage[]
 }
 
-export type LessonChatResponse = ApiResponse<{
+export type LessonChatResponse = IApiResponse<{
   answer: string
 }>
 
@@ -253,7 +253,7 @@ export type RunLessonCodePayload = {
   stdin?: string
 }
 
-export type RunLessonCodeResponse = ApiResponse<{
+export type RunLessonCodeResponse = IApiResponse<{
   stdout: string
   stderr: string
   compileOutput: string
@@ -292,7 +292,7 @@ export type AddedTopic = {
 }
 
 export type AddMissingEvaluationTopicResponse =
-  ApiResponse<{
+  IApiResponse<{
     trackerId: string
     evaluationJobId: string
     missingTopicIndex: number
@@ -314,7 +314,7 @@ export type AddMissingEvaluationTopicResponse =
   stdin?: string
 }
 
-export type SubmitLessonCodeResponse = ApiResponse<{
+export type SubmitLessonCodeResponse = IApiResponse<{
   isCorrect: boolean
   expectedOutput: string
   actualOutput: string
@@ -342,7 +342,7 @@ export type GetCodeHintPayload = {
   hintCount: number
 }
 
-export type GetCodeHintResponse = ApiResponse<{
+export type GetCodeHintResponse = IApiResponse<{
   mode: 'hint' | 'issue'
   hintCount: number
   title: string
@@ -356,7 +356,7 @@ export type GetOptimizedSolutionPayload = {
   language?: string
 }
 
-export type GetOptimizedSolutionResponse = ApiResponse<{
+export type GetOptimizedSolutionResponse = IApiResponse<{
   optimizedCode: string
   explanation: string
   improvements: string[]
@@ -369,7 +369,7 @@ export type VerifyLessonAnswerPayload = {
   answer: string
 }
 
-export type VerifyLessonAnswerResponse = ApiResponse<{
+export type VerifyLessonAnswerResponse = IApiResponse<{
   verdict: 'correct' | 'partially_correct' | 'incorrect'
   score: number
   feedback: string
@@ -494,7 +494,7 @@ export type GenerateLessonQuestionsPayload = {
 }
 
 export type GenerateLessonQuestionsResponse =
-  ApiResponse<LessonGeneratedQuestion[]>
+  IApiResponse<LessonGeneratedQuestion[]>
 
 export type GenerateLessonQuestionSolutionPayload = {
   trackerId: string
@@ -503,7 +503,7 @@ export type GenerateLessonQuestionSolutionPayload = {
 }
 
 export type GenerateLessonQuestionSolutionResponse =
-  ApiResponse<LessonQuestionSolution>
+  IApiResponse<LessonQuestionSolution>
 
 export type AskLessonQuestionSolutionDoubtPayload = {
   trackerId: string
@@ -512,13 +512,13 @@ export type AskLessonQuestionSolutionDoubtPayload = {
   message: string
 }
 
-export type AskLessonQuestionSolutionDoubtResponse = ApiResponse<{
+export type AskLessonQuestionSolutionDoubtResponse = IApiResponse<{
   answer: string
 }>
 
 
  
-export type GenerateLessonVisualizationResponse = ApiResponse<{
+export type GenerateLessonVisualizationResponse = IApiResponse<{
   html: string
   visualTitle: string
   visualDescription: string

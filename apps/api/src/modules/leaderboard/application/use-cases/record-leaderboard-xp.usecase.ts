@@ -1,16 +1,16 @@
 import { LeaderboardDomainError } from '../../domain/errors/leaderboard-domain.error'
-import type { LeaderboardActivityRepositoryContract } from '../../domain/repositories/leaderboard-activity.repository.interface'
-import type { RecordLeaderboardXpPayload } from '../dtos/leaderboard.dto'
+import type { ILeaderboardActivityRepository } from '../../domain/repositories/leaderboard-activity.repository.interface'
+import type { RecordLeaderboardXpPayloadDTO } from '../dtos/leaderboard.dto'
 import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
-import type { ClockContract } from '../../../../shared/time/clock.interface'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class RecordLeaderboardXpUseCase {
   constructor(
-    private readonly _leaderboardRepository: LeaderboardActivityRepositoryContract,
-    private readonly _clock: ClockContract,
+    private readonly _leaderboardRepository: ILeaderboardActivityRepository,
+    private readonly _clock: IClock,
   ) {}
 
-  async execute(payload: RecordLeaderboardXpPayload) {
+  async execute(payload: RecordLeaderboardXpPayloadDTO) {
     if (!Number.isInteger(payload.amount) || payload.amount === 0) {
       throw LeaderboardApplicationError.invalidXpActivity(
         'XP activity amount must be a non-zero integer',

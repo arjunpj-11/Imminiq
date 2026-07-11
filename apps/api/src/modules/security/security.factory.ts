@@ -1,6 +1,6 @@
 import {
   SecurityMapper,
-  type SecurityMapperContract,
+  type ISecurityMapper,
 } from './application/mappers/security.mapper'
 import { CurrentSessionResolver } from './application/services/current-session.service'
 import { SensitiveActionAuthorizer } from './application/services/sensitive-action-step-up.service'
@@ -42,7 +42,7 @@ export type SecurityUseCases = {
 }
 
 export type SecurityServiceHelpers = {
-  securityMapper: SecurityMapperContract
+  securityMapper: ISecurityMapper
 }
 
 export type SecurityComposition = {

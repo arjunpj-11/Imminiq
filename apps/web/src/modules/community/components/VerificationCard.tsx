@@ -1,10 +1,10 @@
-import type { CommunityVerifyItem } from '../types/community.types'
+import type { ICommunityVerifyItem } from '../types/community.types'
 import { formatProgress } from '../utils/community-formatters'
 import { cn } from '../utils/community-ui'
 import { CheckIcon, ClockIcon, DotsIcon } from './icons/CommunityIcons'
 
-interface VerificationCardProps {
-  item: CommunityVerifyItem
+interface IVerificationCardProps {
+  item: ICommunityVerifyItem
   onPreview: (submissionId: string) => void
 }
 
@@ -23,7 +23,7 @@ const ProgressBar = ({ value, urgent }: { value: number; urgent?: boolean }) => 
 export default function VerificationCard({
   item,
   onPreview,
-}: VerificationCardProps) {
+}: IVerificationCardProps) {
   return (
     <div
       className={cn(

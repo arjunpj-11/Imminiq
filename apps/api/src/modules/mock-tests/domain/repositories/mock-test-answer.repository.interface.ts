@@ -24,7 +24,7 @@ export type MockTestQuestionFlagInput = {
   questionId: string
 }
 
-export interface MockTestAnswerRepositoryContract {
+export interface IMockTestAnswerRepository {
   findAnswersByAttempt(attemptId: string): Promise<MockTestAnswerEntity[]>
 
   findAnswerByQuestion(

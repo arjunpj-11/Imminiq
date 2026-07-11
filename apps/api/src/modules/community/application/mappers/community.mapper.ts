@@ -6,31 +6,31 @@ import type { CommunityVerificationSubmissionEntity } from '../../domain/entitie
 import type { CommunityTrackerPageResult } from '../../domain/repositories/community-tracker.repository.interface'
 import type { VerificationQueueResult } from '../../domain/repositories/community-verification.repository.interface'
 import type {
-  CommunityLeaderboardEntryView,
-  CommunityPaginationView,
-  CommunityStatCardView,
-  CommunityTrackerListView,
-  CommunityTrackerView,
-  CommunityVerificationQueueView,
-  CommunityVerificationSubmissionView,
-  CommunityVerificationStatsView,
-  CommunityVerifyItemView,
+  ICommunityLeaderboardEntryViewDTO,
+  ICommunityPaginationViewDTO,
+  ICommunityStatCardViewDTO,
+  ICommunityTrackerListViewDTO,
+  ICommunityTrackerViewDTO,
+  ICommunityVerificationQueueViewDTO,
+  ICommunityVerificationSubmissionViewDTO,
+  ICommunityVerificationStatsViewDTO,
+  ICommunityVerifyItemViewDTO,
 } from '../dtos/community.dto'
 
-export interface CommunityMapperContract {
-  toTrackerView(entity: CommunityTrackerEntity): CommunityTrackerView
-  toTrackerListView(page: CommunityTrackerPageResult): CommunityTrackerListView
-  toStatCards(entity: CommunityMemberStatsEntity): CommunityStatCardView[]
+export interface ICommunityMapper {
+  toTrackerView(entity: CommunityTrackerEntity): ICommunityTrackerViewDTO
+  toTrackerListView(page: CommunityTrackerPageResult): ICommunityTrackerListViewDTO
+  toStatCards(entity: CommunityMemberStatsEntity): ICommunityStatCardViewDTO[]
   toVerifyItemView(
     entity: CommunityVerificationSubmissionEntity,
-  ): CommunityVerifyItemView
+  ): ICommunityVerifyItemViewDTO
   toVerificationSubmissionView(
     entity: CommunityVerificationSubmissionEntity,
-  ): CommunityVerificationSubmissionView
-  toVerificationQueueView(page: VerificationQueueResult): CommunityVerificationQueueView
+  ): ICommunityVerificationSubmissionViewDTO
+  toVerificationQueueView(page: VerificationQueueResult): ICommunityVerificationQueueViewDTO
   toLeaderboardEntryView(
     entity: CommunityLeaderboardEntryEntity,
-  ): CommunityLeaderboardEntryView
+  ): ICommunityLeaderboardEntryViewDTO
   toVoteView(entity: CommunityReviewVoteEntity): {
     _id: string
     submissionId: string
@@ -45,11 +45,11 @@ export interface CommunityMapperContract {
     queueCount: number
     rewardCoins: number
     activeReviewersThisWeek: number
-  }): CommunityVerificationStatsView
+  }): ICommunityVerificationStatsViewDTO
 }
 
-export class CommunityMapper implements CommunityMapperContract {
-  toTrackerView(entity: CommunityTrackerEntity): CommunityTrackerView {
+export class CommunityMapper implements ICommunityMapper {
+  toTrackerView(entity: CommunityTrackerEntity): ICommunityTrackerViewDTO {
     return {
       _id: entity.id,
       title: entity.title,
@@ -62,14 +62,14 @@ export class CommunityMapper implements CommunityMapperContract {
     }
   }
 
-  toTrackerListView(page: CommunityTrackerPageResult): CommunityTrackerListView {
+  toTrackerListView(page: CommunityTrackerPageResult): ICommunityTrackerListViewDTO {
     return {
       trackers: page.items.map((item) => this.toTrackerView(item)),
       pagination: this.toPaginationView(page),
     }
   }
 
-  toStatCards(entity: CommunityMemberStatsEntity): CommunityStatCardView[] {
+  toStatCards(entity: CommunityMemberStatsEntity): ICommunityStatCardViewDTO[] {
     return [
       {
         label: 'Your published',
@@ -96,7 +96,7 @@ export class CommunityMapper implements CommunityMapperContract {
 
   toVerifyItemView(
     entity: CommunityVerificationSubmissionEntity,
-  ): CommunityVerifyItemView {
+  ): ICommunityVerifyItemViewDTO {
 
    return {
   _id: entity.id,
@@ -116,7 +116,7 @@ export class CommunityMapper implements CommunityMapperContract {
 
   toVerificationSubmissionView(
     entity: CommunityVerificationSubmissionEntity,
-  ): CommunityVerificationSubmissionView {
+  ): ICommunityVerificationSubmissionViewDTO {
     return {
       ...this.toVerifyItemView(entity),
       trackerId: entity.trackerId,
@@ -128,7 +128,7 @@ reviewTracker: entity.reviewTracker,
     }
   }
 
-  toVerificationQueueView(page: VerificationQueueResult): CommunityVerificationQueueView {
+  toVerificationQueueView(page: VerificationQueueResult): ICommunityVerificationQueueViewDTO {
     return {
       items: page.items.map((item) => this.toVerifyItemView(item)),
       pagination: this.toPaginationView(page),
@@ -137,7 +137,7 @@ reviewTracker: entity.reviewTracker,
 
   toLeaderboardEntryView(
     entity: CommunityLeaderboardEntryEntity,
-  ): CommunityLeaderboardEntryView {
+  ): ICommunityLeaderboardEntryViewDTO {
     return {
       rank: entity.rank,
       name: entity.name,
@@ -164,7 +164,7 @@ reviewTracker: entity.reviewTracker,
     queueCount: number
     rewardCoins: number
     activeReviewersThisWeek: number
-  }): CommunityVerificationStatsView {
+  }): ICommunityVerificationStatsViewDTO {
     return {
       awaiting: this.formatCompactNumber(input.awaiting),
       reviewed: this.formatCompactNumber(input.reviewed),
@@ -181,7 +181,7 @@ reviewTracker: entity.reviewTracker,
     limit: number
     total: number
     totalPages: number
-  }): CommunityPaginationView {
+  }): ICommunityPaginationViewDTO {
     return {
       page: page.page,
       limit: page.limit,

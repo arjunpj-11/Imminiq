@@ -20,8 +20,8 @@ import {
 } from '../hooks/useSettings'
 import type {
   DigestFrequencyType,
-  NotificationSettings,
-  NotificationTypeSettings,
+  INotificationSettings,
+  INotificationTypeSettings,
   QuietHoursDayType,
 } from '../types/settings.types'
 
@@ -102,7 +102,7 @@ const notificationItems = [
     desc: 'When you miss a chat voice or video call.',
   },
 ] as const satisfies ReadonlyArray<{
-  key: keyof NotificationTypeSettings
+  key: keyof INotificationTypeSettings
   title: string
   desc: string
 }>
@@ -118,7 +118,7 @@ const dayOptions: QuietHoursDayType[] = [
 
 const buildAllNotificationTypes = (
   enabled: boolean
-): NotificationTypeSettings => ({
+): INotificationTypeSettings => ({
   friendRequests: enabled,
   challenges: enabled,
   battleResults: enabled,
@@ -178,7 +178,7 @@ export default function NotificationSettingsPage() {
 function NotificationSettingsForm({
   initialForm,
 }: {
-  initialForm: NotificationSettings
+  initialForm: INotificationSettings
 }) {
   const updateNotifications = useUpdateNotifications()
   const updateQuietHours = useUpdateQuietHours()
@@ -186,7 +186,7 @@ function NotificationSettingsForm({
   const resetSettings = useResetSettings()
   const toast = useSettingsToast()
 
-  const [form, setForm] = useState<NotificationSettings>(initialForm)
+  const [form, setForm] = useState<INotificationSettings>(initialForm)
   const [savedForm, setSavedForm] = useState(initialForm)
 
   const isDirty = useMemo(
@@ -256,7 +256,7 @@ function NotificationSettingsForm({
   }
 
   const toggleNotificationType = (
-    key: keyof NotificationTypeSettings,
+    key: keyof INotificationTypeSettings,
     value: boolean
   ) => {
     setForm((current) => ({

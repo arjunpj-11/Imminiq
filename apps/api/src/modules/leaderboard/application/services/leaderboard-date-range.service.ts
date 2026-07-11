@@ -7,13 +7,13 @@ export type LeaderboardPeriods = {
   snapshotKey: string
 }
 
-export interface LeaderboardDateRangeContract {
+export interface ILeaderboardDateRange {
   getPeriods(now: Date): LeaderboardPeriods
   toSnapshotKey(date: Date): string
 }
 
 export class LeaderboardDateRange
-  implements LeaderboardDateRangeContract
+  implements ILeaderboardDateRange
 {
   getPeriods(now: Date): LeaderboardPeriods {
     const currentStart = this.startOfUtcWeek(now)

@@ -1,15 +1,15 @@
-import type { FriendUser } from "../types/friends.types";
+import type { IFriendUser } from "../types/friends.types";
 import FriendSearchResultCard from "./FriendSearchResultCard";
 import { FriendsEmptyState, FriendsLoadMoreButton } from "./FriendsStates";
 
-interface FriendSearchResultsProps {
+interface IFriendSearchResultsProps {
   query: string;
-  users: FriendUser[];
+  users: IFriendUser[];
   total: number;
   hasMore: boolean;
   loadingMore: boolean;
   sendingUserId?: string;
-  onSendRequest: (user: FriendUser) => void;
+  onSendRequest: (user: IFriendUser) => void;
   onOpenRequests: () => void;
   onLoadMore: () => void;
 }
@@ -24,7 +24,7 @@ export default function FriendSearchResults({
   onSendRequest,
   onOpenRequests,
   onLoadMore,
-}: FriendSearchResultsProps) {
+}: IFriendSearchResultsProps) {
   if (!query) {
     return (
       <FriendsEmptyState

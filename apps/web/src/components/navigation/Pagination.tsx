@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface PaginationProps {
+interface IPaginationProps {
   page: number
   totalPages: number
   onPageChange: (page: number) => void
@@ -68,7 +68,7 @@ export default function Pagination({
   maxVisiblePages = 5,
   previousLabel = 'Previous',
   nextLabel = 'Next',
-}: PaginationProps) {
+}: IPaginationProps) {
   if (totalPages <= 1) {
     return null
   }
@@ -150,7 +150,7 @@ export default function Pagination({
   )
 }
 
-interface PaginationButtonProps
+interface IPaginationButtonProps
   extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   active?: boolean
   square?: boolean
@@ -163,7 +163,7 @@ function PaginationButton({
   children,
   type = 'button',
   ...props
-}: PaginationButtonProps) {
+}: IPaginationButtonProps) {
   return (
     <button
       type={type}

@@ -1,8 +1,8 @@
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 
 export class CheckUsernameUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract
+    private readonly _authRepository: IAuthUserRepository
   ) {}
 
   async execute(username: string): Promise<{ available: boolean }> {

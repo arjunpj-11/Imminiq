@@ -1,5 +1,5 @@
 import { cn } from '../../../lib/cn'
-import type { Tracker } from '../types/tracker.types'
+import type { ITracker } from '../types/tracker.types'
 
 type RawRoadmapNode = Record<string, unknown>
 
@@ -25,7 +25,7 @@ export type RoadmapTopicNode = {
 }
 
 export type TrackerRoadmapLike = {
-  tracker?: Tracker
+  tracker?: ITracker
   topics?: unknown[]
   topicTree?: unknown[]
   roadmapTopics?: unknown[]
@@ -37,7 +37,7 @@ export type TrackerRoadmapLike = {
         roadmapTopics?: unknown[]
       }
   data?: {
-    tracker?: Tracker
+    tracker?: ITracker
     topics?: unknown[]
     topicTree?: unknown[]
     roadmapTopics?: unknown[]
@@ -223,7 +223,7 @@ export const extractRoadmapTopics = (
 
 export const extractRoadmapTracker = (
   roadmapData?: TrackerRoadmapLike,
-): Tracker | undefined => roadmapData?.tracker || roadmapData?.data?.tracker
+): ITracker | undefined => roadmapData?.tracker || roadmapData?.data?.tracker
 
 export const flattenSubtopics = (
   nodes: RoadmapSubtopicNode[],

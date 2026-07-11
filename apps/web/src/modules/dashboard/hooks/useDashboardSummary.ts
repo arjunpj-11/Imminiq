@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  DashboardSummary,
+  IApiResponse,
+  IDashboardSummary,
 } from '../types/dashboard.types'
 
 export const useDashboardSummary = () => {
@@ -13,7 +13,7 @@ export const useDashboardSummary = () => {
     refetchOnWindowFocus: true,
     queryFn: async () => {
       const response =
-        await api.get<ApiResponse<DashboardSummary>>(
+        await api.get<IApiResponse<IDashboardSummary>>(
           '/dashboard/summary'
         )
 

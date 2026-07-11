@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 import type { OnboardingLevel } from '../hooks/useSaveOnboardingStepTwo'
-import type { RoadmapSubtopic } from '../hooks/useRoadmapJobResult'
+import type { IRoadmapSubtopic } from '../hooks/useRoadmapJobResult'
 
 export type PreviewItem = [string, string]
 
@@ -18,14 +18,14 @@ export type LevelOption = {
 export type Section = {
   id: string
   title: string
-  items: RoadmapSubtopic[]
+  items: IRoadmapSubtopic[]
 }
 
 export type JobTerminalState = 'completed' | 'failed' | null
 
 export type ProgressStepState = 'done' | 'active' | 'pending'
 
-export interface JobStatusApiData {
+export interface IJobStatusApiData {
   jobId?: string
   status?: string
   state?: string
@@ -47,7 +47,7 @@ export interface JobStatusApiData {
   nextStep?: string
 }
 
-export interface NormalizedJobStatus {
+export interface INormalizedJobStatus {
   progress: number
   activeStepIndex: number
   terminalState: JobTerminalState

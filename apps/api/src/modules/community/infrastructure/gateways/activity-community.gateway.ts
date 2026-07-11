@@ -1,7 +1,7 @@
 import { activityService } from '../../../activity'
 import type { ActivityRecorderContract } from '../../../activity/activity.service'
 import type {
-  CommunityActivityRecorderContract,
+  ICommunityActivityRecorder,
   RecordCommunityTrackerClonedActivityInput,
   RecordCommunityTrackerVerifiedActivityInput,
   RecordCommunityVerificationMajorityActivityInput,
@@ -31,7 +31,7 @@ const normalizeReward = (value: number): number => {
 }
 
 export class ActivityCommunityGateway
-  implements CommunityActivityRecorderContract
+  implements ICommunityActivityRecorder
 {
   constructor(
     private readonly _activityRecorder: ActivityRecorderContract,

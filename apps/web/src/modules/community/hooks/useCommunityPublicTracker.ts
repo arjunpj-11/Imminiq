@@ -3,10 +3,10 @@ import type { AxiosError } from 'axios'
 
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  CommunityPublicTrackerDetail,
-  CommunityPublicTrackerDetailData,
+  IApiErrorResponse,
+  IApiResponse,
+  ICommunityPublicTrackerDetail,
+  ICommunityPublicTrackerDetailData,
 } from '../types/community.types'
 
 export const communityPublicTrackerKeys = {
@@ -17,8 +17,8 @@ export const communityPublicTrackerKeys = {
 
 const fetchCommunityPublicTracker = async (
   trackerId: string,
-): Promise<CommunityPublicTrackerDetail> => {
-  const response = await api.get<ApiResponse<CommunityPublicTrackerDetailData>>(
+): Promise<ICommunityPublicTrackerDetail> => {
+  const response = await api.get<IApiResponse<ICommunityPublicTrackerDetailData>>(
     `/community/trackers/${trackerId}`,
   )
 
@@ -32,7 +32,7 @@ const fetchCommunityPublicTracker = async (
 }
 
 export const useCommunityPublicTracker = (trackerId?: string) => {
-  return useQuery<CommunityPublicTrackerDetail, AxiosError<ApiErrorResponse>>({
+  return useQuery<ICommunityPublicTrackerDetail, AxiosError<IApiErrorResponse>>({
     queryKey: communityPublicTrackerKeys.detail(trackerId ?? ''),
     queryFn: () => fetchCommunityPublicTracker(trackerId ?? ''),
     enabled: Boolean(trackerId),

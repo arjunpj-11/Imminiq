@@ -1,20 +1,20 @@
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestSharingRepositoryContract } from '../../domain/repositories/mock-test-sharing.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type ImportSharedMockTestRepository =
-  MockTestRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestSharingRepositoryContract
+  IMockTestRepository &
+  IMockTestQuestionRepository &
+  IMockTestSharingRepository
 
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
 
 export class ImportSharedMockTestUseCase {
   constructor(
     private readonly _repository: ImportSharedMockTestRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(input: { userId: string; shareToken: string }) {

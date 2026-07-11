@@ -1,6 +1,6 @@
 import type { RoadmapLevel } from '../value-objects/roadmap-level.vo'
 
-export interface GenerateRoadmapQueuePayload {
+export interface IGenerateRoadmapQueuePayload {
   jobId: string
   userId: string
   topic: string
@@ -8,19 +8,19 @@ export interface GenerateRoadmapQueuePayload {
   level: RoadmapLevel
 }
 
-export interface EvaluateRoadmapQueuePayload {
+export interface IEvaluateRoadmapQueuePayload {
   jobId: string
   userId: string
   trackerId: string
   sourceRoadmapJobId: string
 }
 
-export interface AIJobQueueGatewayContract {
+export interface IAIJobQueueGateway {
   enqueueRoadmapGeneration(
-    payload: GenerateRoadmapQueuePayload,
+    payload: IGenerateRoadmapQueuePayload,
   ): Promise<void>
 
   enqueueRoadmapEvaluation(
-    payload: EvaluateRoadmapQueuePayload,
+    payload: IEvaluateRoadmapQueuePayload,
   ): Promise<void>
 }

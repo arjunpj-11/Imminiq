@@ -7,11 +7,11 @@ export type OnboardingLevel =
   | 'intermediate'
   | 'advanced'
 
-interface SaveOnboardingStepTwoPayload {
+interface ISaveOnboardingStepTwoPayload {
   level: OnboardingLevel
 }
 
-interface SaveOnboardingStepTwoResponse {
+interface ISaveOnboardingStepTwoResponse {
   success: boolean
   message: string
   data?: {
@@ -22,20 +22,20 @@ interface SaveOnboardingStepTwoResponse {
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
 
 export const useSaveOnboardingStepTwo = () => {
   return useMutation<
-    SaveOnboardingStepTwoResponse,
-    AxiosError<ApiErrorResponse>,
-    SaveOnboardingStepTwoPayload
+    ISaveOnboardingStepTwoResponse,
+    AxiosError<IApiErrorResponse>,
+    ISaveOnboardingStepTwoPayload
   >({
     mutationFn: async (payload) => {
       const response =
-        await api.post<SaveOnboardingStepTwoResponse>(
+        await api.post<ISaveOnboardingStepTwoResponse>(
           '/onboarding/step-2',
           payload
         )

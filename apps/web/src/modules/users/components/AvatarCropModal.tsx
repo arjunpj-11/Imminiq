@@ -4,7 +4,7 @@ import { cn } from '../utils/profile-ui.utils'
 import { useImageCropControls } from '../hooks/useImageCropControls'
 
 /* ─── Avatar Crop Modal ─── */
-interface AvatarCropModalProps {
+interface IAvatarCropModalProps {
   open: boolean;
   onClose: () => void;
   onApply: (dataUrl: string) => void | Promise<void>;
@@ -20,7 +20,7 @@ export default function AvatarCropModal({
   onClose,
   onApply,
   onToast,
-}: AvatarCropModalProps) {
+}: IAvatarCropModalProps) {
   const {
     imageSrc,
     scale,

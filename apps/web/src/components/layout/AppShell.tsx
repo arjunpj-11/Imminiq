@@ -13,15 +13,15 @@ import { useAuthStore } from '../../store/useAuthStore'
 import AppNoiseOverlay from './AppNoiseOverlay'
 import {
   AppShellContext,
-  type AppShellContextValue,
-  type AppShellViewer,
+  type IAppShellContextValue,
+  type IAppShellViewer,
 } from './AppShellContext'
 import BottomNav from './BottomNav'
 import AppFooter from './Footer'
 import Sidebar from './Sidebar'
 import TopBar from './TopBar'
 
-export type { AppShellViewer } from './AppShellContext'
+export type { IAppShellViewer } from './AppShellContext'
 
 const getInitials = (name: string) =>
   name
@@ -33,9 +33,9 @@ const getInitials = (name: string) =>
     .join('')
     .toUpperCase() || 'IM'
 
-interface AppShellProps {
+interface IAppShellProps {
   children: ReactNode
-  viewer?: AppShellViewer
+  viewer?: IAppShellViewer
   showSidebar?: boolean
   isGuest?: boolean
   withTopBar?: boolean
@@ -53,7 +53,7 @@ export function AppShell({
   withFooter = true,
   withBottomNav = true,
   className,
-}: AppShellProps) {
+}: IAppShellProps) {
   const authUser = useAuthStore((state) => state.user)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
 
@@ -61,7 +61,7 @@ export function AppShell({
     enabled: !isGuest && isAuthenticated,
   })
 
-  const [pageViewer, setPageViewer] = useState<AppShellViewer | null>(
+  const [pageViewer, setPageViewer] = useState<IAppShellViewer | null>(
     initialViewer ?? null,
   )
 
@@ -85,7 +85,7 @@ export function AppShell({
     (state) => state.toggleSidebarCollapsed,
   )
 
-  const contextValue = useMemo<AppShellContextValue>(
+  const contextValue = useMemo<IAppShellContextValue>(
     () => ({
       setViewer: setPageViewer,
     }),
@@ -205,7 +205,7 @@ export function AppShellBoundary({
   children,
   viewer,
   ...standaloneProps
-}: AppShellProps) {
+}: IAppShellProps) {
   const shell = useContext(AppShellContext)
 
   const viewerName = viewer?.name
@@ -219,7 +219,7 @@ export function AppShellBoundary({
   const viewerFriendRequestCount = viewer?.friendRequestCount
   const hasViewer = viewer !== undefined
 
-  const stableViewer = useMemo<AppShellViewer | null>(() => {
+  const stableViewer = useMemo<IAppShellViewer | null>(() => {
     if (!hasViewer) {
       return null
     }

@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import Modal from '../../../components/overlays/Modal'
 import { cn } from '../../../lib/cn'
-import type { Tracker } from '../types/tracker.types'
+import type { ITracker } from '../types/tracker.types'
 
 const CloseIcon = () => (
   <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
@@ -27,7 +27,7 @@ export type PublishFormData = {
 }
 
 type PublishModalProps = {
-  tracker: Tracker
+  tracker: ITracker
   isPublishing: boolean
   publishError: string | null
   onClose: () => void

@@ -3,24 +3,24 @@ import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
 import { getBlockedAppealToken } from '../../lib/blockedAppealSession'
 
-export interface SubmitModerationAppealPayload {
+export interface ISubmitModerationAppealPayload {
   appealReason: string
 }
 
-export interface ModerationAppealStatus {
+export interface IModerationAppealStatus {
   caseId: string
   status: 'pending' | 'under_review' | 'approved' | 'rejected'
   submittedAt: string
   appealReason?: string
 }
 
-export interface SubmitModerationAppealResponse {
+export interface ISubmitModerationAppealResponse {
   success: boolean
   message: string
-  data?: ModerationAppealStatus
+  data?: IModerationAppealStatus
 }
 
-export interface ModerationAppealApiErrorResponse {
+export interface IModerationAppealApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
@@ -28,13 +28,13 @@ export interface ModerationAppealApiErrorResponse {
 
 export const useSubmitModerationAppeal = () => {
   return useMutation<
-    SubmitModerationAppealResponse,
-    AxiosError<ModerationAppealApiErrorResponse>,
-    SubmitModerationAppealPayload
+    ISubmitModerationAppealResponse,
+    AxiosError<IModerationAppealApiErrorResponse>,
+    ISubmitModerationAppealPayload
   >({
     mutationFn: async (payload) => {
       const response =
-        await api.post<SubmitModerationAppealResponse>(
+        await api.post<ISubmitModerationAppealResponse>(
           '/moderation-appeals',
           payload,
           { headers: { Authorization: `Bearer ${getBlockedAppealToken()}` } },

@@ -1,6 +1,6 @@
 import type {
-  PaginationQuery,
-  UpdateMyProfileInput,
+  IPaginationQueryDTO,
+  UpdateMyProfileInputDTO,
 } from './application/dtos/users.dto'
 import {
   createUsersComposition,
@@ -18,7 +18,7 @@ export class UsersService {
     return this._useCases.getMe.execute(userId)
   }
 
-  updateMe(userId: string, payload: UpdateMyProfileInput) {
+  updateMe(userId: string, payload: UpdateMyProfileInputDTO) {
     return this._useCases.updateMe.execute(userId, payload)
   }
 
@@ -42,7 +42,7 @@ export class UsersService {
     return this._useCases.getMyStreak.execute(userId, year)
   }
 
-  getMyPublishedTrackers(userId: string, query: PaginationQuery) {
+  getMyPublishedTrackers(userId: string, query: IPaginationQueryDTO) {
     return this._useCases.getMyPublishedTrackers.execute(userId, query)
   }
 
@@ -53,7 +53,7 @@ export class UsersService {
   getPublicProfilePage(
     username: string,
     viewerUserId: string | undefined,
-    query: PaginationQuery
+    query: IPaginationQueryDTO
   ) {
     return this._useCases.getPublicProfilePage.execute(
       username,

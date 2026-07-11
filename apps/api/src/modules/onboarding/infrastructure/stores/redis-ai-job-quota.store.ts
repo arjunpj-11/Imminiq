@@ -4,16 +4,16 @@ import {
 } from '../../../../infrastructure/cache/ai-job-quota.cache'
 import { OnboardingDomainError } from '../../domain/errors/onboarding-domain.error'
 import type {
-  AIJobQuotaConsumeResult,
-  AIJobQuotaStoreContract,
+  IAIJobQuotaConsumeResult,
+  IAIJobQuotaStore,
   OnboardingAIJobQuotaPurpose,
 } from '../../domain/services/ai-job-quota-store.interface'
 
-export class RedisAIJobQuotaStore implements AIJobQuotaStoreContract {
+export class RedisAIJobQuotaStore implements IAIJobQuotaStore {
   async consume(
     purpose: OnboardingAIJobQuotaPurpose,
     userId: string,
-  ): Promise<AIJobQuotaConsumeResult> {
+  ): Promise<IAIJobQuotaConsumeResult> {
     try {
       return await aiJobQuotaCache.consume(
         purpose,

@@ -1,18 +1,18 @@
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityVerificationSubmissionView } from '../dtos/community.dto'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityVerificationSubmissionViewDTO } from '../dtos/community.dto'
 import { CommunityApplicationError } from '../errors/community-application.error'
-import type { CommunityMapperContract } from '../mappers/community.mapper'
+import type { ICommunityMapper } from '../mappers/community.mapper'
 
 export class GetVerificationSubmissionUseCase {
   constructor(
-    private readonly _repository: CommunityRepositoryContract,
-    private readonly _mapper: CommunityMapperContract,
+    private readonly _repository: ICommunityRepository,
+    private readonly _mapper: ICommunityMapper,
   ) {}
 
   async execute(
     submissionId: string,
     userId: string,
-  ): Promise<CommunityVerificationSubmissionView> {
+  ): Promise<ICommunityVerificationSubmissionViewDTO> {
     const submission = await this._repository.findVerificationSubmissionById(
       submissionId,
       userId,

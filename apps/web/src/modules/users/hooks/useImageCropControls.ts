@@ -13,43 +13,43 @@ import type {
 
 import { loadImage } from '../utils/profile-image.utils'
 
-interface UseImageCropControlsOptions {
+interface IUseImageCropControlsOptions {
   initialScale: number
   minScale: number
   maxScale: number
   wheelStep?: number
 }
 
-interface RenderImageOptions {
+interface IRenderImageOptions {
   width: number
   height: number
   mimeType?: string
   quality?: number
 }
 
-interface Size {
+interface ISize {
   width: number
   height: number
 }
 
-interface Offset {
+interface IOffset {
   x: number
   y: number
 }
 
-interface DragStart {
+interface IDragStart {
   x: number
   y: number
   offsetX: number
   offsetY: number
 }
 
-const EMPTY_SIZE: Size = {
+const EMPTY_SIZE: ISize = {
   width: 0,
   height: 0,
 }
 
-const EMPTY_OFFSET: Offset = {
+const EMPTY_OFFSET: IOffset = {
   x: 0,
   y: 0,
 }
@@ -63,10 +63,10 @@ function clamp(
 }
 
 function getRenderedImageSize(
-  imageSize: Size,
-  previewSize: Size,
+  imageSize: ISize,
+  previewSize: ISize,
   scale: number,
-): Size {
+): ISize {
   if (
     imageSize.width <= 0 ||
     imageSize.height <= 0 ||
@@ -88,11 +88,11 @@ function getRenderedImageSize(
 }
 
 function clampOffset(
-  requestedOffset: Offset,
-  imageSize: Size,
-  previewSize: Size,
+  requestedOffset: IOffset,
+  imageSize: ISize,
+  previewSize: ISize,
   scale: number,
-): Offset {
+): IOffset {
   const renderedImageSize = getRenderedImageSize(
     imageSize,
     previewSize,
@@ -127,25 +127,25 @@ export function useImageCropControls({
   minScale,
   maxScale,
   wheelStep = 0.08,
-}: UseImageCropControlsOptions) {
+}: IUseImageCropControlsOptions) {
   const [imageSrc, setImageSrc] = useState<string | null>(null)
-  const [imageSize, setImageSize] = useState<Size>(EMPTY_SIZE)
+  const [imageSize, setImageSize] = useState<ISize>(EMPTY_SIZE)
   const [previewSize, setPreviewSize] =
-    useState<Size>(EMPTY_SIZE)
+    useState<ISize>(EMPTY_SIZE)
 
   const [scaleState, setScaleState] = useState(() =>
     clamp(initialScale, minScale, maxScale),
   )
 
   const [rawOffset, setRawOffset] =
-    useState<Offset>(EMPTY_OFFSET)
+    useState<IOffset>(EMPTY_OFFSET)
 
   const [dragging, setDragging] = useState(false)
 
   const previewRef = useRef<HTMLDivElement>(null)
   const imageRef = useRef<HTMLImageElement | null>(null)
 
-  const dragStartRef = useRef<DragStart>({
+  const dragStartRef = useRef<IDragStart>({
     x: 0,
     y: 0,
     offsetX: 0,
@@ -159,7 +159,7 @@ export function useImageCropControls({
       return
     }
 
-    const nextSize: Size = {
+    const nextSize: ISize = {
       width: preview.clientWidth,
       height: preview.clientHeight,
     }
@@ -322,7 +322,7 @@ export function useImageCropControls({
 
       const dragStart = dragStartRef.current
 
-      const requestedOffset: Offset = {
+      const requestedOffset: IOffset = {
         x:
           dragStart.offsetX +
           (event.clientX - dragStart.x),
@@ -450,7 +450,7 @@ export function useImageCropControls({
       height,
       mimeType = 'image/png',
       quality,
-    }: RenderImageOptions): Promise<string | null> => {
+    }: IRenderImageOptions): Promise<string | null> => {
       const preview = previewRef.current
 
       if (!imageSrc || !preview) {
@@ -460,7 +460,7 @@ export function useImageCropControls({
       const image =
         imageRef.current ?? (await loadImage(imageSrc))
 
-      const measuredPreviewSize: Size = {
+      const measuredPreviewSize: ISize = {
         width: preview.clientWidth,
         height: preview.clientHeight,
       }
@@ -485,12 +485,12 @@ export function useImageCropControls({
         return null
       }
 
-      const sourceSize: Size = {
+      const sourceSize: ISize = {
         width: image.naturalWidth,
         height: image.naturalHeight,
       }
 
-      const outputSize: Size = {
+      const outputSize: ISize = {
         width,
         height,
       }
@@ -501,7 +501,7 @@ export function useImageCropControls({
         scaleState,
       )
 
-      const outputOffset: Offset = {
+      const outputOffset: IOffset = {
         x:
           offset.x *
           (width / measuredPreviewSize.width),

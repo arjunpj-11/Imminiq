@@ -1,6 +1,6 @@
 import type { OtpPurpose } from '../value-objects/otp-purpose.vo'
 
-export interface OtpStoreContract {
+export interface IOtpStore {
   saveOtp(data: {
     email?: string
     phone?: string

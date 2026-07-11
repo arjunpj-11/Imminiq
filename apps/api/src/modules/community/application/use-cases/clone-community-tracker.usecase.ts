@@ -1,16 +1,16 @@
 // apps/api/src/modules/community/application/use-cases/
 // clone-community-tracker.usecase.ts
 
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityActivityRecorderContract } from '../../domain/services/community-activity.interface'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface'
 import { CommunityApplicationError } from '../errors/community-application.error'
-import type { CommunityMapperContract } from '../mappers/community.mapper'
+import type { ICommunityMapper } from '../mappers/community.mapper'
 
 export class CloneCommunityTrackerUseCase {
   constructor(
-    private readonly _repository: CommunityRepositoryContract,
-    private readonly _activityRecorder: CommunityActivityRecorderContract,
-    private readonly _mapper: CommunityMapperContract,
+    private readonly _repository: ICommunityRepository,
+    private readonly _activityRecorder: ICommunityActivityRecorder,
+    private readonly _mapper: ICommunityMapper,
   ) {}
 
   async execute(

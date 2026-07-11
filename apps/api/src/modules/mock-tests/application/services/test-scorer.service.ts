@@ -1,7 +1,7 @@
 import type { MockTestAnswerEntity } from '../../domain/entities/mock-test-answer.entity'
 import type { MockTestQuestionEntity } from '../../domain/entities/mock-test-question.entity'
 
-export interface ScoreResult {
+export interface IScoreResult {
   totalPoints: number
   earnedPoints: number
   scorePercentage: number
@@ -11,19 +11,19 @@ export interface ScoreResult {
   passed: boolean
 }
 
-export interface MockTestScorerContract {
-  calculateTestScore(questions: MockTestQuestionEntity[], answers: MockTestAnswerEntity[], passingScore: number): ScoreResult
+export interface IMockTestScorer {
+  calculateTestScore(questions: MockTestQuestionEntity[], answers: MockTestAnswerEntity[], passingScore: number): IScoreResult
   isMCQCorrect(userAnswer: string, correctAnswer: string): boolean
   identifyWeakAndStrongTopics(questions: MockTestQuestionEntity[], answers: MockTestAnswerEntity[]): { strongTopics: string[]; weakTopics: string[] }
   generateRecommendations(scorePercentage: number, weakTopics: string[], passed: boolean): string[]
 }
 
-export class MockTestScorer implements MockTestScorerContract {
+export class MockTestScorer implements IMockTestScorer {
   calculateTestScore(
     questions: MockTestQuestionEntity[],
     answers: MockTestAnswerEntity[],
     passingScore: number,
-  ): ScoreResult {
+  ): IScoreResult {
     const answerMap = new Map(answers.map((answer) => [answer.questionId, answer]))
     let totalPoints = 0
     let earnedPoints = 0

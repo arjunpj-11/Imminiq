@@ -3,7 +3,7 @@ import type {
   SetProfileAvatarUrlInput,
   SetProfileBannerUrlInput,
   SoftDeleteLatestProfileUploadInput,
-  UploadsRepositoryContract,
+  IUploadsRepository,
 } from '../../domain/repositories/uploads.repository.interface'
 import { MongoUploadsProfileRepository } from './internal/mongo-uploads-profile.repository'
 import { MongoUploadsRecordRepository } from './internal/mongo-uploads-record.repository'
@@ -14,7 +14,7 @@ type MongoUploadsRepositoryDependencies = {
   profileRepository: MongoUploadsProfileRepository
 }
 
-export class MongoUploadsRepository implements UploadsRepositoryContract {
+export class MongoUploadsRepository implements IUploadsRepository {
   private readonly _recordRepository: MongoUploadsRecordRepository
   private readonly _profileRepository: MongoUploadsProfileRepository
 

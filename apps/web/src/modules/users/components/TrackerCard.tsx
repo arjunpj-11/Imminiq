@@ -1,7 +1,7 @@
 import { cn } from '../utils/profile-ui.utils'
 
 /* ─── Tracker Card ─── */
-interface TrackerCardProps {
+interface ITrackerCardProps {
   title: string;
   desc: string;
   rating: number;
@@ -19,7 +19,7 @@ export default function TrackerCard({
   thumbClass,
   onClone,
   onClick,
-}: TrackerCardProps) {
+}: ITrackerCardProps) {
   return (
     <div
       className="bg-(--surface-card) dark:bg-(--surface-card) border-[1.5px] border-(--border-subtle) dark:border-(--border-subtle) rounded-2xl overflow-hidden shadow-(--shadow-1) cursor-pointer transition hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) hover:-translate-y-0.75 duration-200"

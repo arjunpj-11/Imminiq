@@ -13,7 +13,7 @@ export type FindPublishedTrackersInput = {
   includePrivate?: boolean
 }
 
-export interface UserTrackerRepositoryContract {
+export interface IUserTrackerRepository {
   findPublishedTrackers(
     input: FindPublishedTrackersInput
   ): Promise<PublishedTrackerListResult>

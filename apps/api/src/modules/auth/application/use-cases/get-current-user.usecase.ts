@@ -1,17 +1,17 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthUser } from '../dtos/auth.dto'
-import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
-import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthUserDTO } from '../dtos/auth.dto'
+import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
+import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
 
 export class GetCurrentUserUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _authAccountPolicy: AuthAccountPolicyContract,
-    private readonly _authUserMapper: AuthUserMapperContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authAccountPolicy: IAuthAccountPolicy,
+    private readonly _authUserMapper: IAuthUserMapper
   ) {}
 
-  async execute(userId: string): Promise<AuthUser> {
+  async execute(userId: string): Promise<IAuthUserDTO> {
     const user = await this._authRepository.findById(userId)
 
     if (!user) {

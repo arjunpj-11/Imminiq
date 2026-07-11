@@ -1,25 +1,25 @@
-import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import type { OnboardingRoadmapRepositoryContract } from '../../domain/repositories/onboarding-roadmap.repository.interface'
-import type { RoadmapTreeResult } from '../dtos/onboarding.dto'
+import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { IOnboardingRoadmapRepository } from '../../domain/repositories/onboarding-roadmap.repository.interface'
+import type { IRoadmapTreeResultDTO } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
-import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
-import type { OnboardingJobOutputReaderContract } from '../services/onboarding-job-output-reader.service'
+import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
+import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
 type RoadmapJobResultRepository =
-  OnboardingAIJobQueryRepositoryContract &
-  OnboardingRoadmapRepositoryContract
+  IOnboardingAIJobQueryRepository &
+  IOnboardingRoadmapRepository
 
 export class GetRoadmapJobResultUseCase {
   constructor(
     private readonly _onboardingRepository: RoadmapJobResultRepository,
-    private readonly _onboardingMapper: OnboardingMapperContract,
-    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderContract,
+    private readonly _onboardingMapper: IOnboardingMapper,
+    private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader,
   ) {}
 
   async execute(
     jobId: string,
     userId: string,
-  ): Promise<RoadmapTreeResult> {
+  ): Promise<IRoadmapTreeResultDTO> {
     const job = await this._onboardingRepository.getJobById(jobId)
 
     if (!job) {

@@ -1,23 +1,23 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { PasswordResetTokenContract } from '../../domain/services/password-reset-token.interface'
-import type { PhoneOtpProviderContract } from '../../domain/services/phone-otp-provider.interface'
-import type { PhoneOtpSessionStoreContract } from '../../domain/services/phone-otp-session-store.interface'
-import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
-import type { OtpStoreContract } from '../../domain/services/otp-store.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface'
+import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
+import type { IPhoneOtpSessionStore } from '../../domain/services/phone-otp-session-store.interface'
+import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
+import type { IOtpStore } from '../../domain/services/otp-store.interface'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 
 const VERIFY_RESET_SCOPE = 'auth_verify_reset_otp' as const
 
 export class VerifyResetCodeUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract,
-    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly _phoneOtpProvider: PhoneOtpProviderContract,
-    private readonly _phoneOtpSessionStore: PhoneOtpSessionStoreContract,
-    private readonly _passwordResetToken: PasswordResetTokenContract,
-    private readonly _otpStore: OtpStoreContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _identifierNormalizer: IIdentifierNormalizer,
+    private readonly _securityAttemptStore: ISecurityAttemptStore,
+    private readonly _phoneOtpProvider: IPhoneOtpProvider,
+    private readonly _phoneOtpSessionStore: IPhoneOtpSessionStore,
+    private readonly _passwordResetToken: IPasswordResetToken,
+    private readonly _otpStore: IOtpStore
   ) {}
 
   async execute(identifier: string, otp: string): Promise<{ resetToken: string }> {

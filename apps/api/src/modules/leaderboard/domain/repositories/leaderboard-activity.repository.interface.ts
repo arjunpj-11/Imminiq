@@ -34,7 +34,7 @@ export type CaptureLeaderboardSnapshotResult = {
   capturedUsers: number
 }
 
-export interface LeaderboardActivityRepositoryContract {
+export interface ILeaderboardActivityRepository {
   recordXpActivity(
     input: RecordLeaderboardXpActivityInput,
   ): Promise<RecordLeaderboardXpActivityResult>

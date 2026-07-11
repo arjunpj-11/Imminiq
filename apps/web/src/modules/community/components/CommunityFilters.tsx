@@ -15,7 +15,7 @@ import {
   XSmallIcon,
 } from './icons/CommunityIcons'
 
-interface CommunityFiltersProps {
+interface ICommunityFiltersProps {
   search: string
   topics: string[]
   selectedTopics: string[]
@@ -45,7 +45,7 @@ export default function CommunityFilters({
   onVerifiedOnlyChange,
   onSortChange,
   onClearAll,
-}: CommunityFiltersProps) {
+}: ICommunityFiltersProps) {
   const [topicSearch, setTopicSearch] = useState('')
   const [topicDropdownOpen, setTopicDropdownOpen] = useState(false)
   const [filterPanelOpen, setFilterPanelOpen] = useState(false)

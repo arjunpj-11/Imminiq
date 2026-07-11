@@ -30,6 +30,6 @@ export type LeaderboardQueryResult = {
   previousWeeklyScore: number
 }
 
-export interface LeaderboardQueryRepositoryContract {
+export interface ILeaderboardQueryRepository {
   findLeaderboard(input: FindLeaderboardInput): Promise<LeaderboardQueryResult>
 }

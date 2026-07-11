@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import type { ActivityChip } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
 
-interface OnboardingProgressStatusCardProps {
+interface IOnboardingProgressStatusCardProps {
   logMessage: string
   engineLabel: string
   nextLabel: string
@@ -19,7 +19,7 @@ export function OnboardingProgressStatusCard({
   progress,
   stepsLabel,
   progressAriaLabel,
-}: OnboardingProgressStatusCardProps) {
+}: IOnboardingProgressStatusCardProps) {
   return (
     <section
       className="w-full rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-5 shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_56px_rgba(0,0,0,0.4),0_0_32px_rgba(232,129,106,0.05)] sm:px-6"
@@ -74,7 +74,7 @@ export function OnboardingProgressStatusCard({
   )
 }
 
-interface OnboardingActivityChipsProps {
+interface IOnboardingActivityChipsProps {
   chips: ActivityChip[]
   activeActivityIndex: number
   completed: boolean
@@ -86,7 +86,7 @@ export function OnboardingActivityChips({
   activeActivityIndex,
   completed,
   ariaLabel,
-}: OnboardingActivityChipsProps) {
+}: IOnboardingActivityChipsProps) {
   return (
     <section
       className="flex w-full flex-wrap justify-center gap-2.25"

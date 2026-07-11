@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { GenerateAIImagePreviewInput } from '../application/dtos/uploads.dto'
+import type { IGenerateAIImagePreviewInputDTO } from '../application/dtos/uploads.dto'
 import type { UploadedProfileImageFile } from '../domain/value-objects/uploaded-profile-image-file.vo'
 import type { UploadsComposition } from '../uploads.factory'
 
@@ -71,7 +71,7 @@ export class UploadsController {
     next: NextFunction
   ) => {
     try {
-      const { prompt } = req.body as GenerateAIImagePreviewInput
+      const { prompt } = req.body as IGenerateAIImagePreviewInputDTO
       const result = await this._useCases.generateAIAvatarPreview.execute(prompt)
 
       res.json(
@@ -88,7 +88,7 @@ export class UploadsController {
     next: NextFunction
   ) => {
     try {
-      const { prompt } = req.body as GenerateAIImagePreviewInput
+      const { prompt } = req.body as IGenerateAIImagePreviewInputDTO
       const result = await this._useCases.generateAIBannerPreview.execute(prompt)
 
       res.json(

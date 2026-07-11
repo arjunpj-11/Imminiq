@@ -2,7 +2,7 @@ import { cn } from '../../../../lib/cn'
 import type { RoadmapSubtopicNode } from '../../utils/tracker-roadmap-normalizers'
 import { getChildren } from '../../utils/tracker-roadmap-normalizers'
 
-interface SubtopicTreeNodeProps {
+interface ISubtopicTreeNodeProps {
   subtopic: RoadmapSubtopicNode
   index: number
   depth?: number
@@ -12,7 +12,7 @@ export default function SubtopicTreeNode({
   subtopic,
   index,
   depth = 0,
-}: SubtopicTreeNodeProps) {
+}: ISubtopicTreeNodeProps) {
   const children = getChildren(subtopic)
 
   return (

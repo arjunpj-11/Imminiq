@@ -6,11 +6,11 @@ import {
 import type {
   SecurityAttemptPolicyName,
   SecurityAttemptScope,
-  SecurityAttemptStoreContract,
+  ISecurityAttemptStore,
 } from '../../domain/services/security-attempt-store.interface'
 
 export class RedisSecurityAttemptStore
-  implements SecurityAttemptStoreContract {
+  implements ISecurityAttemptStore {
   async isBlocked(
     scope: SecurityAttemptScope,
     identifier: string

@@ -1,7 +1,7 @@
 import CommunityLayout from './CommunityLayout'
 import { communityPageClass } from '../utils/community-ui'
 
-interface CommunityPageSkeletonProps {
+interface ICommunityPageSkeletonProps {
   variant?: 'browse' | 'verify' | 'detail'
 }
 
@@ -27,7 +27,7 @@ const TrackerCardSkeleton = () => (
 
 export default function CommunityPageSkeleton({
   variant = 'browse',
-}: CommunityPageSkeletonProps) {
+}: ICommunityPageSkeletonProps) {
   const cardCount = variant === 'verify' ? 4 : 6
 
   return (

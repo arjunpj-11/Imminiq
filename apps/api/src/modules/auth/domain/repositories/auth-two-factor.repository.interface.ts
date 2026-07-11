@@ -1,6 +1,6 @@
 import type { TwoFactorAuthEntity } from '../entities/two-factor-auth.entity'
 
-export interface AuthTwoFactorRepositoryContract {
+export interface IAuthTwoFactorRepository {
   hasActiveTwoFactor(userId: string): Promise<boolean>
 
   findActiveTwoFactorForLogin(

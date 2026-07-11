@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface SectionCardProps {
+interface ISectionCardProps {
   children: ReactNode
   className?: string
   variant?: 'flat' | 'elevated' | 'spotlight'
@@ -27,7 +27,7 @@ export default function SectionCard({
   className,
   variant = 'elevated',
   padding = 'md',
-}: SectionCardProps) {
+}: ISectionCardProps) {
   return (
     <section className={cn(variantClasses[variant], paddingClasses[padding], className)}>
       {children}

@@ -10,6 +10,6 @@ export type AwardCommunityCoinsResult = {
   balance: number
 }
 
-export interface CommunityCoinLedgerContract {
+export interface ICommunityCoinLedger {
   awardCoins(data: AwardCommunityCoinsInput): Promise<AwardCommunityCoinsResult>
 }

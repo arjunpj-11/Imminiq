@@ -7,21 +7,21 @@ import {
   LEADERBOARD_STALE_TIME_MS,
 } from '../constants/leaderboard.constants'
 import type {
-  LeaderboardApiErrorResponse,
-  LeaderboardApiResponse,
-  LeaderboardRewardsResponse,
+  ILeaderboardApiErrorResponse,
+  ILeaderboardApiResponse,
+  ILeaderboardRewardsResponse,
 } from '../types/leaderboard.types'
 import { leaderboardQueryKeys } from './useLeaderboard'
 
 export const useLeaderboardRewards = () =>
   useQuery<
-    LeaderboardRewardsResponse,
-    AxiosError<LeaderboardApiErrorResponse>
+    ILeaderboardRewardsResponse,
+    AxiosError<ILeaderboardApiErrorResponse>
   >({
     queryKey: leaderboardQueryKeys.rewards(),
     queryFn: async () => {
       const response = await api.get<
-        LeaderboardApiResponse<LeaderboardRewardsResponse>
+        ILeaderboardApiResponse<ILeaderboardRewardsResponse>
       >(LEADERBOARD_ENDPOINTS.rewards)
 
       return response.data.data

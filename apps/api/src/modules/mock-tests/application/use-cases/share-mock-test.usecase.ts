@@ -1,16 +1,16 @@
-import type { MockTestSharingRepositoryContract } from '../../domain/repositories/mock-test-sharing.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { ShareTokenGeneratorContract } from '../../domain/services/share-token-generator.interface'
+import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
+import type { IShareTokenGenerator } from '../../domain/services/share-token-generator.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type ShareMockTestRepository =
-  MockTestRepositoryContract &
-  MockTestSharingRepositoryContract
+  IMockTestRepository &
+  IMockTestSharingRepository
 
 export class ShareMockTestUseCase {
   constructor(
     private readonly _repository: ShareMockTestRepository,
-    private readonly _shareTokenGenerator: ShareTokenGeneratorContract,
+    private readonly _shareTokenGenerator: IShareTokenGenerator,
   ) {}
 
   async execute(input: { userId: string; testId: string; origin: string }) {

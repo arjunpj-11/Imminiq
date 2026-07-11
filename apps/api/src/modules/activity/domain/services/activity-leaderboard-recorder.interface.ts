@@ -11,7 +11,7 @@ export type RecordActivityLeaderboardXpInput = {
   occurredAt: Date
 }
 
-export interface ActivityLeaderboardRecorderContract {
+export interface IActivityLeaderboardRecorder {
   recordXp(
     input: RecordActivityLeaderboardXpInput,
   ): Promise<void>

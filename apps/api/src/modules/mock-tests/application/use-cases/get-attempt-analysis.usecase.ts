@@ -1,20 +1,20 @@
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
-import type { AttemptAnalysis } from '../dtos/mock-tests.dto'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface'
+import type { IAttemptAnalysisDTO } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type GetAttemptAnalysisRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestAnswerRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestReportRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestAnswerRepository &
+  IMockTestQuestionRepository &
+  IMockTestReportRepository
 
 export class GetAttemptAnalysisUseCase {
   constructor(private readonly _repository: GetAttemptAnalysisRepository) { }
 
-  async execute(attemptId: string, userId: string): Promise<AttemptAnalysis> {
+  async execute(attemptId: string, userId: string): Promise<IAttemptAnalysisDTO> {
     const attempt = await this._repository.findAttemptById(attemptId)
 
     if (!attempt) {

@@ -5,7 +5,7 @@ export type UpdateUserFullNameInput = {
   fullName: string
 }
 
-export interface UserRepositoryContract {
+export interface IUserRepository {
   findById(userId: string): Promise<UserEntity | null>
 
   findByUsername(username: string): Promise<UserEntity | null>

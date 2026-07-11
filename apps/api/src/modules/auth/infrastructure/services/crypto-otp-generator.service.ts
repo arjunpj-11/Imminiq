@@ -1,8 +1,8 @@
 import crypto from 'crypto'
 
-import type { OtpGeneratorContract } from '../../domain/services/otp-generator.interface'
+import type { IOtpGenerator } from '../../domain/services/otp-generator.interface'
 
-export class CryptoOtpGenerator implements OtpGeneratorContract {
+export class CryptoOtpGenerator implements IOtpGenerator {
   generate(): string {
     return crypto.randomInt(100000, 1000000).toString()
   }

@@ -17,7 +17,7 @@ import {
   saveBlockedAppealIdentifier,
 } from '../lib/blockedAppealSession'
 
-interface AppealFormState {
+interface IAppealFormState {
   identifier: string
   appealReason: string
   agreed: boolean
@@ -269,7 +269,7 @@ export default function BlockedPage() {
     getBlockedAppealIdentifier
   )
 
-  const [form, setForm] = useState<AppealFormState>({
+  const [form, setForm] = useState<IAppealFormState>({
     identifier: getBlockedAppealIdentifier(),
     appealReason: '',
     agreed: false,

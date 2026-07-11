@@ -1,28 +1,28 @@
 import type {
-  AddMissingEvaluationTopicDto,
-  ClearLessonHistoryResultDto,
+  AddMissingEvaluationTopicDTO,
+  ClearLessonHistoryResultDTO,
 
-  LessonAnswerAttemptsDto,
-  LessonAnswerVerificationDto,
-  LessonChatHistoryDto,
-  LessonCodeExecutionDto,
-  LessonCodeHintDto,
-  LessonCodeSubmissionsDto,
-  LessonGeneratedQuestionsDto,
-  LessonOptimizedSolutionDto,
-  LessonQuestionSolutionDoubtAnswerDto,
-  LessonQuestionSolutionDoubtsDto,
-  LessonQuestionSolutionDto,
-  LessonTutorChatResponseDto,
-  LessonVisualizationDto,
-  TrackerAIValidationDto,
-  TrackerDetailsDto,
-  TrackerDto,
-  TrackerListDto,
-  TrackerSubtopicDto,
-  TrackerSummaryDto,
-  TrackerTopicDto,
-  UpdateSubtopicProgressResultDto,
+  LessonAnswerAttemptsDTO,
+  LessonAnswerVerificationDTO,
+  LessonChatHistoryDTO,
+  LessonCodeExecutionDTO,
+  LessonCodeHintDTO,
+  LessonCodeSubmissionsDTO,
+  LessonGeneratedQuestionsDTO,
+  LessonOptimizedSolutionDTO,
+  LessonQuestionSolutionDoubtAnswerDTO,
+  LessonQuestionSolutionDoubtsDTO,
+  LessonQuestionSolutionDTO,
+  LessonTutorChatResponseDTO,
+  LessonVisualizationDTO,
+  TrackerAIValidationDTO,
+  TrackerDetailsDTO,
+  TrackerDTO,
+  TrackerListDTO,
+  TrackerSubtopicDTO,
+  TrackerSummaryDTO,
+  TrackerTopicDTO,
+  UpdateSubtopicProgressResultDTO,
 } from '../dtos/tracker.dto'
 import type {
   AddMissingEvaluationTopicResult,
@@ -37,53 +37,53 @@ import type {
 } from '../../domain/types/trackers.types'
 
 
-export interface TrackerMapperContract {
-  toTrackerDto(tracker: TrackerRecord): TrackerDto
-  toTrackerDetailsDto(tracker: TrackerRecord): TrackerDetailsDto
-  toTrackerSummaryDto(summary: TrackerSummaryRecord | TrackerSummaryResult): TrackerSummaryDto
-  toTrackerListDto(result: TrackerListResult): TrackerListDto
+export interface ITrackerMapper {
+  toTrackerDto(tracker: TrackerRecord): TrackerDTO
+  toTrackerDetailsDto(tracker: TrackerRecord): TrackerDetailsDTO
+  toTrackerSummaryDto(summary: TrackerSummaryRecord | TrackerSummaryResult): TrackerSummaryDTO
+  toTrackerListDto(result: TrackerListResult): TrackerListDTO
   toTrackerRoadmapDto<T>(roadmap: T): T
-  toTrackerTopicDto(topic: CreatedTrackerTopicRecord): TrackerTopicDto
-  toTrackerSubtopicDto(subtopic: CreatedTrackerSubtopicRecord): TrackerSubtopicDto
+  toTrackerTopicDto(topic: CreatedTrackerTopicRecord): TrackerTopicDTO
+  toTrackerSubtopicDto(subtopic: CreatedTrackerSubtopicRecord): TrackerSubtopicDTO
   toSubtopicProgressResultDto(result: {
     subtopic: SubtopicWithProgressRecord
     progress: TrackerProgressRecord | null
-  }): UpdateSubtopicProgressResultDto
+  }): UpdateSubtopicProgressResultDTO
   toGeneratedLessonDto<T>(lesson: T): T
-  toLessonChatHistoryDto(history: unknown[]): LessonChatHistoryDto
-  toLessonTutorChatResponseDto(response: { answer: string }): LessonTutorChatResponseDto
-  toLessonGeneratedQuestionsDto(result: unknown): LessonGeneratedQuestionsDto
-  toLessonQuestionSolutionDto(result: unknown): LessonQuestionSolutionDto
-  toLessonQuestionSolutionDoubtsDto(result: unknown[]): LessonQuestionSolutionDoubtsDto
-  toLessonQuestionSolutionDoubtAnswerDto(result: unknown): LessonQuestionSolutionDoubtAnswerDto
-  toLessonAnswerAttemptsDto(result: unknown[]): LessonAnswerAttemptsDto
-  toLessonAnswerVerificationDto(result: unknown): LessonAnswerVerificationDto
-  toLessonCodeSubmissionsDto(result: unknown[]): LessonCodeSubmissionsDto
-  toLessonCodeExecutionDto(result: unknown): LessonCodeExecutionDto
-  toLessonCodeHintDto(result: unknown): LessonCodeHintDto
-  toLessonOptimizedSolutionDto(result: unknown): LessonOptimizedSolutionDto
-  toLessonVisualizationDto(result: unknown): LessonVisualizationDto
-  toTrackerAIValidationDto(result: unknown): TrackerAIValidationDto
-  toAddMissingEvaluationTopicDto(result: AddMissingEvaluationTopicResult): AddMissingEvaluationTopicDto
-  toClearLessonHistoryResultDto(result: unknown): ClearLessonHistoryResultDto
+  toLessonChatHistoryDto(history: unknown[]): LessonChatHistoryDTO
+  toLessonTutorChatResponseDto(response: { answer: string }): LessonTutorChatResponseDTO
+  toLessonGeneratedQuestionsDto(result: unknown): LessonGeneratedQuestionsDTO
+  toLessonQuestionSolutionDto(result: unknown): LessonQuestionSolutionDTO
+  toLessonQuestionSolutionDoubtsDto(result: unknown[]): LessonQuestionSolutionDoubtsDTO
+  toLessonQuestionSolutionDoubtAnswerDto(result: unknown): LessonQuestionSolutionDoubtAnswerDTO
+  toLessonAnswerAttemptsDto(result: unknown[]): LessonAnswerAttemptsDTO
+  toLessonAnswerVerificationDto(result: unknown): LessonAnswerVerificationDTO
+  toLessonCodeSubmissionsDto(result: unknown[]): LessonCodeSubmissionsDTO
+  toLessonCodeExecutionDto(result: unknown): LessonCodeExecutionDTO
+  toLessonCodeHintDto(result: unknown): LessonCodeHintDTO
+  toLessonOptimizedSolutionDto(result: unknown): LessonOptimizedSolutionDTO
+  toLessonVisualizationDto(result: unknown): LessonVisualizationDTO
+  toTrackerAIValidationDto(result: unknown): TrackerAIValidationDTO
+  toAddMissingEvaluationTopicDto(result: AddMissingEvaluationTopicResult): AddMissingEvaluationTopicDTO
+  toClearLessonHistoryResultDto(result: unknown): ClearLessonHistoryResultDTO
 }
 
-export class TrackerMapper implements TrackerMapperContract {
-  toTrackerDto(tracker: TrackerRecord): TrackerDto {
+export class TrackerMapper implements ITrackerMapper {
+  toTrackerDto(tracker: TrackerRecord): TrackerDTO {
     return tracker
   }
 
-  toTrackerDetailsDto(tracker: TrackerRecord): TrackerDetailsDto {
+  toTrackerDetailsDto(tracker: TrackerRecord): TrackerDetailsDTO {
     return tracker
   }
 
   toTrackerSummaryDto(
     summary: TrackerSummaryRecord | TrackerSummaryResult
-  ): TrackerSummaryDto {
+  ): TrackerSummaryDTO {
     return summary
   }
 
-  toTrackerListDto(result: TrackerListResult): TrackerListDto {
+  toTrackerListDto(result: TrackerListResult): TrackerListDTO {
     return result
   }
 
@@ -91,18 +91,18 @@ export class TrackerMapper implements TrackerMapperContract {
     return roadmap
   }
 
-  toTrackerTopicDto(topic: CreatedTrackerTopicRecord): TrackerTopicDto {
+  toTrackerTopicDto(topic: CreatedTrackerTopicRecord): TrackerTopicDTO {
     return topic
   }
 
-  toTrackerSubtopicDto(subtopic: CreatedTrackerSubtopicRecord): TrackerSubtopicDto {
+  toTrackerSubtopicDto(subtopic: CreatedTrackerSubtopicRecord): TrackerSubtopicDTO {
     return subtopic
   }
 
   toSubtopicProgressResultDto(result: {
     subtopic: SubtopicWithProgressRecord
     progress: TrackerProgressRecord | null
-  }): UpdateSubtopicProgressResultDto {
+  }): UpdateSubtopicProgressResultDTO {
     return result
   }
 
@@ -110,71 +110,71 @@ export class TrackerMapper implements TrackerMapperContract {
     return lesson
   }
 
-  toLessonChatHistoryDto(history: unknown[]): LessonChatHistoryDto {
+  toLessonChatHistoryDto(history: unknown[]): LessonChatHistoryDTO {
     return history
   }
 
-  toLessonTutorChatResponseDto(response: { answer: string }): LessonTutorChatResponseDto {
+  toLessonTutorChatResponseDto(response: { answer: string }): LessonTutorChatResponseDTO {
     return response
   }
 
-  toLessonGeneratedQuestionsDto(result: unknown): LessonGeneratedQuestionsDto {
+  toLessonGeneratedQuestionsDto(result: unknown): LessonGeneratedQuestionsDTO {
     return result
   }
 
-  toLessonQuestionSolutionDto(result: unknown): LessonQuestionSolutionDto {
+  toLessonQuestionSolutionDto(result: unknown): LessonQuestionSolutionDTO {
     return result
   }
 
-  toLessonQuestionSolutionDoubtsDto(result: unknown[]): LessonQuestionSolutionDoubtsDto {
+  toLessonQuestionSolutionDoubtsDto(result: unknown[]): LessonQuestionSolutionDoubtsDTO {
     return result
   }
 
   toLessonQuestionSolutionDoubtAnswerDto(
     result: unknown
-  ): LessonQuestionSolutionDoubtAnswerDto {
+  ): LessonQuestionSolutionDoubtAnswerDTO {
     return result
   }
 
-  toLessonAnswerAttemptsDto(result: unknown[]): LessonAnswerAttemptsDto {
+  toLessonAnswerAttemptsDto(result: unknown[]): LessonAnswerAttemptsDTO {
     return result
   }
 
-  toLessonAnswerVerificationDto(result: unknown): LessonAnswerVerificationDto {
+  toLessonAnswerVerificationDto(result: unknown): LessonAnswerVerificationDTO {
     return result
   }
 
-  toLessonCodeSubmissionsDto(result: unknown[]): LessonCodeSubmissionsDto {
+  toLessonCodeSubmissionsDto(result: unknown[]): LessonCodeSubmissionsDTO {
     return result
   }
 
-  toLessonCodeExecutionDto(result: unknown): LessonCodeExecutionDto {
+  toLessonCodeExecutionDto(result: unknown): LessonCodeExecutionDTO {
     return result
   }
 
-  toLessonCodeHintDto(result: unknown): LessonCodeHintDto {
+  toLessonCodeHintDto(result: unknown): LessonCodeHintDTO {
     return result
   }
 
-  toLessonOptimizedSolutionDto(result: unknown): LessonOptimizedSolutionDto {
+  toLessonOptimizedSolutionDto(result: unknown): LessonOptimizedSolutionDTO {
     return result
   }
 
-  toLessonVisualizationDto(result: unknown): LessonVisualizationDto {
+  toLessonVisualizationDto(result: unknown): LessonVisualizationDTO {
     return result
   }
 
-  toTrackerAIValidationDto(result: unknown): TrackerAIValidationDto {
+  toTrackerAIValidationDto(result: unknown): TrackerAIValidationDTO {
     return result
   }
 
   toAddMissingEvaluationTopicDto(
     result: AddMissingEvaluationTopicResult
-  ): AddMissingEvaluationTopicDto {
+  ): AddMissingEvaluationTopicDTO {
     return result
   }
 
-  toClearLessonHistoryResultDto(result: unknown): ClearLessonHistoryResultDto {
-    return result as ClearLessonHistoryResultDto
+  toClearLessonHistoryResultDto(result: unknown): ClearLessonHistoryResultDTO {
+    return result as ClearLessonHistoryResultDTO
   }
 }

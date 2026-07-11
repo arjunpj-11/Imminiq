@@ -1,6 +1,6 @@
 import { useState, type ReactNode } from 'react'
 
-import type { CommunityTrackerReview } from '../types/community.types'
+import type { ICommunityTrackerReview } from '../types/community.types'
 import { cn } from '../utils/community-ui'
 
 export const BackIcon = () => (
@@ -214,7 +214,7 @@ const starSizePx: Record<StarSize, number> = {
   lg: 22,
 }
 
-interface RatingStarsProps {
+interface IRatingStarsProps {
   value: number
   size?: StarSize
   interactive?: boolean
@@ -228,7 +228,7 @@ export function RatingStars({
   interactive = false,
   disabled = false,
   onChange,
-}: RatingStarsProps) {
+}: IRatingStarsProps) {
   const [hovered, setHovered] = useState(0)
 
   const px = starSizePx[size]
@@ -344,7 +344,7 @@ export function RatingStars({
   )
 }
 
-interface AvatarProps {
+interface IAvatarProps {
   initials: string
   size?: 'sm' | 'md' | 'lg'
   accent?: boolean
@@ -354,7 +354,7 @@ export const Avatar = ({
   initials,
   size = 'md',
   accent = false,
-}: AvatarProps) => {
+}: IAvatarProps) => {
   const sizeClass = {
     sm: 'h-7 w-7 text-[10px]',
     md: 'h-9 w-9 text-[11px]',
@@ -376,13 +376,13 @@ export const Avatar = ({
   )
 }
 
-interface StatPillProps {
+interface IStatPillProps {
   icon: ReactNode
   label: string
   value: string
 }
 
-export const StatPill = ({ icon, label, value }: StatPillProps) => (
+export const StatPill = ({ icon, label, value }: IStatPillProps) => (
   <div className="rounded-md border border-[#e8ddd6] bg-white/55 px-4 py-3 dark:border-white/8 dark:bg-white/3">
     <div className="mb-1 flex items-center gap-1.5 text-(--brand-500) dark:text-(--brand-500)">
       {icon}
@@ -398,13 +398,13 @@ export const StatPill = ({ icon, label, value }: StatPillProps) => (
   </div>
 )
 
-interface RatingBarProps {
+interface IRatingBarProps {
   star: number
   count: number
   total: number
 }
 
-export const RatingBar = ({ star, count, total }: RatingBarProps) => {
+export const RatingBar = ({ star, count, total }: IRatingBarProps) => {
   const percentage = total > 0 ? Math.round((count / total) * 100) : 0
 
   return (
@@ -429,8 +429,8 @@ export const RatingBar = ({ star, count, total }: RatingBarProps) => {
   )
 }
 
-interface ReviewCardProps {
-  review: CommunityTrackerReview
+interface IReviewCardProps {
+  review: ICommunityTrackerReview
   helpfulLoading: boolean
   onHelpful: () => void
 }
@@ -439,7 +439,7 @@ export const ReviewCard = ({
   review,
   helpfulLoading,
   onHelpful,
-}: ReviewCardProps) => (
+}: IReviewCardProps) => (
   <article className="rounded-lg border border-[#e8ddd6] bg-white/50 p-4 dark:border-white/8 dark:bg-white/3 sm:p-5">
     <div className="flex gap-3">
       <Avatar initials={review.author.initials} size="md" />

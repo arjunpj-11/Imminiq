@@ -1,9 +1,9 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import { TrackerMapperContract } from '../mappers';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import { ITrackerMapper } from '../mappers';
 
 export class UnpublishTrackerUseCase {
-  constructor(private readonly _trackerRepository: TrackerRepositoryContract,private readonly _trackerMapper: TrackerMapperContract) {}
+  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: { trackerId: string; userId: string }) {
     const tracker = await this._trackerRepository.unpublishOwnedTracker(input)

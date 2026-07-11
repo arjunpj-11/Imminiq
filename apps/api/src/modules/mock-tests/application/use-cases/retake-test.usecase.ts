@@ -1,18 +1,18 @@
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type RetakeTestRepository =
-  MockTestRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAttemptRepositoryContract
+  IMockTestRepository &
+  IMockTestQuestionRepository &
+  IMockTestAttemptRepository
 
 export class RetakeTestUseCase {
   constructor(
     private readonly _repository: RetakeTestRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(attemptId: string, userId: string) {

@@ -1,15 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { ResetPasswordUseCase } from '../../src/modules/auth/application/use-cases/reset-password.usecase'
-import type { AuthSessionRepositoryContract } from '../../src/modules/auth/domain/repositories/auth-session.repository.interface'
-import type { AuthUserRepositoryContract } from '../../src/modules/auth/domain/repositories/auth-user.repository.interface'
+import type { IAuthSessionRepository } from '../../src/modules/auth/domain/repositories/auth-session.repository.interface'
+import type { IAuthUserRepository } from '../../src/modules/auth/domain/repositories/auth-user.repository.interface'
 import type { PasswordHasherServiceContract } from '../../src/modules/auth/domain/services/password-hasher.service.interface'
-import type { PasswordResetSessionStoreContract } from '../../src/modules/auth/domain/services/password-reset-session-store.interface'
+import type { IPasswordResetSessionStore } from '../../src/modules/auth/domain/services/password-reset-session-store.interface'
 import type { PasswordResetTokenServiceContract } from '../../src/modules/auth/domain/services/password-reset-token.service.interface'
-import type { SecurityAuditLoggerContract } from '../../src/modules/auth/domain/services/security-audit-logger.interface'
+import type { ISecurityAuditLogger } from '../../src/modules/auth/domain/services/security-audit-logger.interface'
 
 type ResetPasswordRepository =
-  AuthUserRepositoryContract & AuthSessionRepositoryContract
+  IAuthUserRepository & IAuthSessionRepository
 
 const authRepository = {
   findById: vi.fn(),
@@ -37,8 +37,8 @@ const createUseCase = (): ResetPasswordUseCase =>
   new ResetPasswordUseCase(
     authRepository as unknown as ResetPasswordRepository,
     passwordResetTokenService as unknown as PasswordResetTokenServiceContract,
-    passwordResetSessionStore as unknown as PasswordResetSessionStoreContract,
-    securityAuditLogger as unknown as SecurityAuditLoggerContract,
+    passwordResetSessionStore as unknown as IPasswordResetSessionStore,
+    securityAuditLogger as unknown as ISecurityAuditLogger,
     passwordHasher as unknown as PasswordHasherServiceContract,
   )
 

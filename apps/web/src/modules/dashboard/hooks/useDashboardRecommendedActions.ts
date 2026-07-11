@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  DashboardRecommendedAction,
+  IApiResponse,
+  IDashboardRecommendedAction,
 } from '../types/dashboard.types'
 
 export const useDashboardRecommendedActions = () => {
@@ -12,7 +12,7 @@ export const useDashboardRecommendedActions = () => {
     queryKey: ['dashboard', 'recommended-actions'],
     queryFn: async () => {
       const response =
-        await api.get<ApiResponse<DashboardRecommendedAction[]>>(
+        await api.get<IApiResponse<IDashboardRecommendedAction[]>>(
           '/dashboard/recommended-actions'
         )
 

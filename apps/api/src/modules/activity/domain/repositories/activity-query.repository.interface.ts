@@ -35,7 +35,7 @@ export type FindDailyGoalStateInput = {
   todayRange: ActivityTimeRange
 }
 
-export interface ActivityQueryRepositoryContract {
+export interface IActivityQueryRepository {
   findActivityFeed(
     input: FindActivityFeedInput,
   ): Promise<FindActivityFeedResult>

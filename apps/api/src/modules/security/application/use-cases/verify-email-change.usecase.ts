@@ -1,26 +1,26 @@
-import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
-import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
-import type { SecurityEmailChangeTokenContract } from '../../domain/services/security-email-change-token.interface'
+import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
+import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
+import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface'
 import type {
-  VerifyEmailChangePayload,
-  VerifyEmailChangeResponseDto,
+  IVerifyEmailChangePayloadDTO,
+  IVerifyEmailChangeResponseDTO,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
 type VerifyEmailChangeRepository =
-  SecurityUserRepositoryContract & SecuritySessionRepositoryContract
+  ISecurityUserRepository & ISecuritySessionRepository
 
 export class VerifyEmailChangeUseCase {
   constructor(
     private readonly _securityRepository: VerifyEmailChangeRepository,
-    private readonly _emailChangeToken: SecurityEmailChangeTokenContract,
-    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _emailChangeToken: ISecurityEmailChangeToken,
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
   ) {}
 
   async execute(
-    payload: VerifyEmailChangePayload,
-  ): Promise<VerifyEmailChangeResponseDto> {
+    payload: IVerifyEmailChangePayloadDTO,
+  ): Promise<IVerifyEmailChangeResponseDTO> {
     const tokenHash = this._emailChangeToken.hash(payload.token)
 
     const user =

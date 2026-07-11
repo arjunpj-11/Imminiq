@@ -1,24 +1,24 @@
-import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { MockTestActivityRecorderContract } from '../../domain/services/mock-test-activity.interface'
+import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestActivityRecorder } from '../../domain/services/mock-test-activity.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestScorerContract } from '../services/test-scorer.service'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
-import type { ClockContract } from '../../../../shared/time/clock.interface'
+import type { IMockTestScorer } from '../services/test-scorer.service'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 const MOCK_TEST_COMPLETION_XP = 50
 
 type FinishTestAttemptRepository =
-  MockTestRepositoryContract &
-    MockTestQuestionRepositoryContract &
-    MockTestAttemptRepositoryContract &
-    MockTestAnswerRepositoryContract &
-    MockTestReportRepositoryContract &
-    MockTestAnalyticsRepositoryContract
+  IMockTestRepository &
+    IMockTestQuestionRepository &
+    IMockTestAttemptRepository &
+    IMockTestAnswerRepository &
+    IMockTestReportRepository &
+    IMockTestAnalyticsRepository
 
 type QuestionScoreLike = {
   points?: number
@@ -30,16 +30,16 @@ export class FinishTestAttemptUseCase {
       FinishTestAttemptRepository,
 
     private readonly _scorer:
-      MockTestScorerContract,
+      IMockTestScorer,
 
     private readonly _activityRecorder:
-      MockTestActivityRecorderContract,
+      IMockTestActivityRecorder,
 
     private readonly _mapper:
-      MockTestsMapperContract,
+      IMockTestsMapper,
 
     private readonly _clock:
-      ClockContract,
+      IClock,
   ) {}
 
   async execute(

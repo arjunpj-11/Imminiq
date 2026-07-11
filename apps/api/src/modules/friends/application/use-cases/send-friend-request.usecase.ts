@@ -1,24 +1,24 @@
 import { FriendsDomainError } from "../../domain/errors/friends-domain.error";
-import type { FriendCommandRepositoryContract } from "../../domain/repositories/friend-command.repository.interface";
+import type { IFriendCommandRepository } from "../../domain/repositories/friend-command.repository.interface";
 import type {
-  SendFriendRequestPayload,
-  SendFriendRequestView,
+  SendFriendRequestPayloadDTO,
+  SendFriendRequestViewDTO,
 } from "../dtos/friends.dto";
 import { FriendsApplicationError } from "../errors/friends-application.error";
-import type { FriendsMapperContract } from "../mappers/friends.mapper";
-import type { FriendRelationshipPolicyContract } from "../policies/friend-relationship.policy";
+import type { IFriendsMapper } from "../mappers/friends.mapper";
+import type { IFriendRelationshipPolicy } from "../policies/friend-relationship.policy";
 
 export class SendFriendRequestUseCase {
   constructor(
-    private readonly _friendCommandRepository: FriendCommandRepositoryContract,
-    private readonly _friendRelationshipPolicy: FriendRelationshipPolicyContract,
-    private readonly _friendsMapper: FriendsMapperContract,
+    private readonly _friendCommandRepository: IFriendCommandRepository,
+    private readonly _friendRelationshipPolicy: IFriendRelationshipPolicy,
+    private readonly _friendsMapper: IFriendsMapper,
   ) {}
 
   async execute(
     senderUserId: string,
-    payload: SendFriendRequestPayload,
-  ): Promise<SendFriendRequestView> {
+    payload: SendFriendRequestPayloadDTO,
+  ): Promise<SendFriendRequestViewDTO> {
     this._friendRelationshipPolicy.ensureDifferentUsers(
       senderUserId,
       payload.receiverUserId,

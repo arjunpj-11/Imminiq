@@ -1,14 +1,14 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthNotificationContract } from '../../domain/services/auth-notification.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 
 export class ResendOtpUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _authNotification: AuthNotificationContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authNotification: IAuthNotification,
+    private readonly _identifierNormalizer: IIdentifierNormalizer
   ) {}
 
   async execute(identifier: string, purpose: OtpPurpose): Promise<void> {

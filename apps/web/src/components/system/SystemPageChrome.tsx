@@ -6,15 +6,15 @@ import AppNoiseOverlay from '../layout/AppNoiseOverlay'
 import ImminiqLogo from '../ui/ImminiqLogo'
 import ImminiqWordmark from '../ui/ImminiqWordmark'
 
-interface SystemPageNoiseProps {
+interface ISystemPageNoiseProps {
   className?: string
 }
 
-export function SystemPageNoise({ className }: SystemPageNoiseProps) {
+export function SystemPageNoise({ className }: ISystemPageNoiseProps) {
   return <AppNoiseOverlay className={cn('opacity-[0.025]', className)} />
 }
 
-interface SystemToastProps {
+interface ISystemToastProps {
   message: ReactNode
   visible: boolean
   className?: string
@@ -24,7 +24,7 @@ export function SystemToast({
   message,
   visible,
   className,
-}: SystemToastProps) {
+}: ISystemToastProps) {
   return (
     <div
       className={cn(
@@ -40,12 +40,12 @@ export function SystemToast({
   )
 }
 
-interface SystemBrandLinkProps {
+interface ISystemBrandLinkProps {
   to: string
   className?: string
 }
 
-export function SystemBrandLink({ to, className }: SystemBrandLinkProps) {
+export function SystemBrandLink({ to, className }: ISystemBrandLinkProps) {
   return (
     <Link
       className={cn('flex items-center gap-2.5 no-underline', className)}
@@ -62,7 +62,7 @@ export function SystemBrandLink({ to, className }: SystemBrandLinkProps) {
   )
 }
 
-interface SystemPageFooterProps {
+interface ISystemPageFooterProps {
   onUnavailableLink: (message: string) => void
 }
 
@@ -75,7 +75,7 @@ const systemFooterLinks = [
 
 export function SystemPageFooter({
   onUnavailableLink,
-}: SystemPageFooterProps) {
+}: ISystemPageFooterProps) {
   return (
     <footer className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-t border-(--border-subtle) bg-[rgba(245,237,228,0.92)] px-4 py-4.5 shadow-[0_-1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-(--border-subtle) dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_-1px_0_rgba(30,28,25,0.6)]">
       <ImminiqWordmark className="font-serif text-base font-extrabold" />
@@ -100,7 +100,7 @@ export function SystemPageFooter({
   )
 }
 
-interface SystemPageHeaderProps {
+interface ISystemPageHeaderProps {
   brandTo: string
   actionTo: string
   actionLabel: string
@@ -118,7 +118,7 @@ export function SystemPageHeader({
   onUnavailableLink,
   helpMessage = 'Help page can be linked later.',
   actionsClassName,
-}: SystemPageHeaderProps) {
+}: ISystemPageHeaderProps) {
   return (
     <header className="sticky top-0 z-20 flex h-13.5 items-center justify-between border-b border-(--border-subtle) bg-[rgba(245,237,228,0.92)] px-4 shadow-[0_1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-(--border-subtle) dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_1px_0_rgba(30,28,25,0.6)]">
       <SystemBrandLink to={brandTo} />

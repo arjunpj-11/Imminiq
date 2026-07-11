@@ -1,9 +1,9 @@
-export interface BackupCodeNormalizerContract {
+export interface IBackupCodeNormalizer {
   normalize(code: string): string
 }
 
 export class BackupCodeNormalizer
-  implements BackupCodeNormalizerContract {
+  implements IBackupCodeNormalizer {
   normalize(code: string): string {
     const compact = code
       .trim()

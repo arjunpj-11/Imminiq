@@ -2,29 +2,29 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  StreakSummary,
+  IApiErrorResponse,
+  IApiResponse,
+  IStreakSummary,
 } from '../../modules/users/types/profile.types'
 import { streakQueryKeys } from './streak.query-keys'
 
-interface UseStreakOptions {
+interface IUseStreakOptions {
   enabled?: boolean
 }
 
 export const useStreak = (
   year?: number,
-  options: UseStreakOptions = {}
+  options: IUseStreakOptions = {}
 ) => {
   return useQuery<
-    ApiResponse<StreakSummary>,
-    AxiosError<ApiErrorResponse>,
-    StreakSummary
+    IApiResponse<IStreakSummary>,
+    AxiosError<IApiErrorResponse>,
+    IStreakSummary
   >({
     queryKey: streakQueryKeys.me(year),
     enabled: options.enabled ?? true,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<StreakSummary>>(
+      const response = await api.get<IApiResponse<IStreakSummary>>(
         '/users/me/streak',
         {
           params: year ? { year } : undefined,

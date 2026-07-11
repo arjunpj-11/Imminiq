@@ -9,7 +9,7 @@ export type CreateMockTestAIEvaluationInput = {
   feedback: string
 }
 
-export interface MockTestAIEvaluationRepositoryContract {
+export interface IMockTestAIEvaluationRepository {
   createAIEvaluation(
     data: CreateMockTestAIEvaluationInput
   ): Promise<MockTestAIEvaluationEntity>

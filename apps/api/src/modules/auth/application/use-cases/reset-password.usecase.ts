@@ -1,21 +1,21 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { PasswordHasherContract } from '../../domain/services/password-hasher.interface'
-import type { PasswordResetSessionStoreContract } from '../../domain/services/password-reset-session-store.interface'
-import type { PasswordResetTokenContract } from '../../domain/services/password-reset-token.interface'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
+import type { IPasswordResetSessionStore } from '../../domain/services/password-reset-session-store.interface'
+import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 
 type ResetPasswordRepository =
-  AuthUserRepositoryContract & AuthSessionRepositoryContract
+  IAuthUserRepository & IAuthSessionRepository
 
 export class ResetPasswordUseCase {
   constructor(
     private readonly _authRepository: ResetPasswordRepository,
-    private readonly _passwordResetToken: PasswordResetTokenContract,
-    private readonly _passwordResetSessionStore: PasswordResetSessionStoreContract,
-    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
-    private readonly _passwordHasher: PasswordHasherContract
+    private readonly _passwordResetToken: IPasswordResetToken,
+    private readonly _passwordResetSessionStore: IPasswordResetSessionStore,
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _passwordHasher: IPasswordHasher
   ) {}
 
   async execute(resetToken: string, newPassword: string): Promise<void> {

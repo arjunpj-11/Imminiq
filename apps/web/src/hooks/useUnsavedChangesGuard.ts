@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 
-interface UseUnsavedChangesGuardOptions {
+interface IUseUnsavedChangesGuardOptions {
   when: boolean
   onDiscard?: () => void
 }
@@ -14,7 +14,7 @@ const currentPath = () =>
 export function useUnsavedChangesGuard({
   when,
   onDiscard,
-}: UseUnsavedChangesGuardOptions) {
+}: IUseUnsavedChangesGuardOptions) {
   const navigate = useNavigate()
   const location = useLocation()
   const [isBlocked, setIsBlocked] = useState(false)

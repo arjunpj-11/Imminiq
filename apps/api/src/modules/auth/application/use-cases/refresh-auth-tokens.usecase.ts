@@ -1,27 +1,27 @@
 import { createHash } from 'crypto'
 
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthTokenContract } from '../../domain/services/auth-token.interface'
-import type { RetiredRefreshTokenStoreContract } from '../../domain/services/retired-refresh-token-store.interface'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
-import type { RequestMeta, TokenPair } from '../dtos/auth.dto'
-import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
+import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthToken } from '../../domain/services/auth-token.interface'
+import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-refresh-token-store.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
+import type { RequestMetaDTO, ITokenPairDTO } from '../dtos/auth.dto'
+import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
 
 type RefreshTokensRepository =
-  AuthUserRepositoryContract & AuthSessionRepositoryContract
+  IAuthUserRepository & IAuthSessionRepository
 
 export class RefreshAuthTokensUseCase {
   constructor(
     private readonly _authRepository: RefreshTokensRepository,
-    private readonly _authToken: AuthTokenContract,
-    private readonly _retiredRefreshTokenStore: RetiredRefreshTokenStoreContract,
-    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
-    private readonly _authAccountPolicy: AuthAccountPolicyContract
+    private readonly _authToken: IAuthToken,
+    private readonly _retiredRefreshTokenStore: IRetiredRefreshTokenStore,
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _authAccountPolicy: IAuthAccountPolicy
   ) {}
 
-  async execute(refreshToken: string, meta?: RequestMeta): Promise<TokenPair> {
+  async execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO> {
     const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
     const tokenRecord =

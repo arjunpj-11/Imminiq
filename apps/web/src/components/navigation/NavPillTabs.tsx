@@ -3,15 +3,15 @@ import { NavLink } from 'react-router-dom'
 
 import { cn } from '../../lib/cn'
 
-export interface NavPillTabItem {
+export interface INavPillTabItem {
   to: string
   label: ReactNode
   icon?: ReactNode
   end?: boolean
 }
 
-interface NavPillTabsProps {
-  items: readonly NavPillTabItem[]
+interface INavPillTabsProps {
+  items: readonly INavPillTabItem[]
   className?: string
   itemClassName?: string
   ariaLabel?: string
@@ -22,7 +22,7 @@ export default function NavPillTabs({
   className,
   itemClassName,
   ariaLabel = 'Page sections',
-}: NavPillTabsProps) {
+}: INavPillTabsProps) {
   return (
     <nav
       aria-label={ariaLabel}

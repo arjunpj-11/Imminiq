@@ -2,7 +2,7 @@ import type { HTMLAttributes } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface ImminiqWordmarkProps extends HTMLAttributes<HTMLSpanElement> {
+interface IImminiqWordmarkProps extends HTMLAttributes<HTMLSpanElement> {
   lowercase?: boolean
   trailingDot?: boolean
   prefixClassName?: string
@@ -16,7 +16,7 @@ export default function ImminiqWordmark({
   prefixClassName,
   accentClassName,
   ...props
-}: ImminiqWordmarkProps) {
+}: IImminiqWordmarkProps) {
   return (
     <span className={cn('inline-flex items-baseline', className)} {...props}>
       <span

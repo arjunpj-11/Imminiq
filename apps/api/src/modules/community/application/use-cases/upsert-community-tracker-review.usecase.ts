@@ -1,20 +1,20 @@
-import type { CommunityReviewRepositoryContract } from '../../domain/repositories/community-review.repository.interface'
+import type { ICommunityReviewRepository } from '../../domain/repositories/community-review.repository.interface'
 import type {
-  UpsertCommunityTrackerReviewOutputDto,
-  UpsertCommunityTrackerReviewPayload,
+  UpsertCommunityTrackerReviewOutputDTO,
+  UpsertCommunityTrackerReviewPayloadDTO,
 } from '../dtos/community-review.dto'
 import { CommunityApplicationError } from '../errors/community-application.error'
-import type { CommunityReviewMapperContract } from '../mappers/community-review.mapper'
+import type { ICommunityReviewMapper } from '../mappers/community-review.mapper'
 
 export class UpsertCommunityTrackerReviewUseCase {
   constructor(
-    private readonly _repository: CommunityReviewRepositoryContract,
-    private readonly _mapper: CommunityReviewMapperContract,
+    private readonly _repository: ICommunityReviewRepository,
+    private readonly _mapper: ICommunityReviewMapper,
   ) {}
 
   async execute(
-    payload: UpsertCommunityTrackerReviewPayload,
-  ): Promise<UpsertCommunityTrackerReviewOutputDto> {
+    payload: UpsertCommunityTrackerReviewPayloadDTO,
+  ): Promise<UpsertCommunityTrackerReviewOutputDTO> {
     const review = await this._repository.upsertTrackerReview({
       trackerId: payload.trackerId,
       userId: payload.userId,

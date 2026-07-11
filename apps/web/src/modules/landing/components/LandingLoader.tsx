@@ -204,9 +204,9 @@ export default function LandingLoader({
 
 // ── draw steps ────────────────────────────────────────────────────────────────
 type DrawAction = 'ibar' | 'dot' | 'arc' | 'slash' | 'move'
-interface DrawStep { x: number; y: number; action: DrawAction; delay: number }
+interface IDrawStep { x: number; y: number; action: DrawAction; delay: number }
 
-const DRAW_STEPS: DrawStep[] = [
+const DRAW_STEPS: IDrawStep[] = [
   { x: 28,   y: 60,   action: 'move',  delay: 0   },
   { x: 28,   y: 69,   action: 'ibar',  delay: 320 },
   { x: 28,   y: 26,   action: 'move',  delay: 260 },

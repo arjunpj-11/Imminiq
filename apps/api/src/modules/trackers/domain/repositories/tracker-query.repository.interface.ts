@@ -43,7 +43,7 @@ export type FindGeneratedLessonBySubtopicInput = {
   userId: string
 }
 
-export interface TrackerQueryRepositoryContract {
+export interface ITrackerQueryRepository {
   hasAnyTrackerForUser(userId: string): Promise<boolean>
 
   getTrackerSummary(userId: string): Promise<TrackerSummaryRecord>

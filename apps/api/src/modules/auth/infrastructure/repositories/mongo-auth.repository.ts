@@ -2,7 +2,7 @@ import type {
   RotateAuthSessionInput,
   SaveAuthSessionInput,
 } from '../../domain/repositories/auth-session.repository.interface'
-import type { AuthRepositoryContract } from '../../domain/repositories/auth.repository.interface'
+import type { IAuthRepository } from '../../domain/repositories/auth.repository.interface'
 import type {
   CreateAuthUserInput,
   CreateOAuthUserInput,
@@ -29,7 +29,7 @@ type MongoAuthRepositoryDependencies = {
   twoFactorRepository: MongoAuthTwoFactorRepository
 }
 
-export class MongoAuthRepository implements AuthRepositoryContract {
+export class MongoAuthRepository implements IAuthRepository {
   private readonly _userRepository: MongoAuthUserRepository
   private readonly _sessionRepository: MongoAuthSessionRepository
   private readonly _twoFactorRepository: MongoAuthTwoFactorRepository

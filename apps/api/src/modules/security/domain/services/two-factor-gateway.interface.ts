@@ -4,7 +4,7 @@ export type TwoFactorProvisioning = {
   qrCodeDataUrl: string
 }
 
-export interface TwoFactorGatewayContract {
+export interface ITwoFactorGateway {
   createSetup(data: {
     issuer: string
     accountLabel: string

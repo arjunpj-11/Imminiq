@@ -2,16 +2,16 @@ export { leaderboardService } from './leaderboard.service'
 export type { LeaderboardService } from './leaderboard.service'
 
 export type {
-  CaptureLeaderboardSnapshotResultView,
-  GetLeaderboardPayload,
-  LeaderboardCurrentUserView,
-  LeaderboardEntryView,
-  LeaderboardResponse,
-  LeaderboardRewardsResponse,
-  LeaderboardTopThreeView,
-  LeaderboardWeeklySummaryView,
-  RecordLeaderboardXpPayload,
-  ReplaceLeaderboardFriendsPayload,
+  CaptureLeaderboardSnapshotResultViewDTO,
+  GetLeaderboardPayloadDTO,
+  LeaderboardCurrentUserViewDTO,
+  LeaderboardEntryViewDTO,
+  LeaderboardResponseDTO,
+  LeaderboardRewardsResponseDTO,
+  LeaderboardTopThreeViewDTO,
+  LeaderboardWeeklySummaryViewDTO,
+  RecordLeaderboardXpPayloadDTO,
+  ReplaceLeaderboardFriendsPayloadDTO,
 } from './application/dtos/leaderboard.dto'
 
 export type {

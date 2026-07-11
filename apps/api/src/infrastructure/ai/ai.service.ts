@@ -55,7 +55,7 @@ export type {
   TrackerTopicVerificationResult,
   TrackerSubtopicVerificationResult,
   LessonVisualizationResult,
-  VisualizationInput,
+  IVisualizationInput,
 } from './ai.schemas'
 
 export {

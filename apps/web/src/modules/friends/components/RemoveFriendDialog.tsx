@@ -1,9 +1,9 @@
 import ConfirmDialog from '../../../components/overlays/ConfirmDialog'
-import type { FriendUser } from '../types/friends.types'
+import type { IFriendUser } from '../types/friends.types'
 import FriendsAvatar from './FriendsAvatar'
 
-interface RemoveFriendDialogProps {
-  friend: FriendUser | null
+interface IRemoveFriendDialogProps {
+  friend: IFriendUser | null
   removing: boolean
   onCancel: () => void
   onConfirm: () => void
@@ -14,7 +14,7 @@ export default function RemoveFriendDialog({
   removing,
   onCancel,
   onConfirm,
-}: RemoveFriendDialogProps) {
+}: IRemoveFriendDialogProps) {
   if (!friend) return null
 
   return (

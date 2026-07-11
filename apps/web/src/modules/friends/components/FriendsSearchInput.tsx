@@ -2,7 +2,7 @@ import type { ChangeEvent, FormEvent } from "react";
 
 import { CloseIcon, SearchIcon } from "./icons/FriendsIcons";
 
-interface FriendsSearchInputProps {
+interface IFriendsSearchInputProps {
   value: string;
   placeholder: string;
   ariaLabel: string;
@@ -24,7 +24,7 @@ export default function FriendsSearchInput({
   submitLabel = "Search",
   submitDisabled = false,
   autoFocus = false,
-}: FriendsSearchInputProps) {
+}: IFriendsSearchInputProps) {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     onSubmit?.();

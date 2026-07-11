@@ -1,14 +1,14 @@
-import type { DashboardFriendRepositoryContract } from '../../domain/repositories/dashboard-friend.repository.interface'
-import type { DashboardFriendItem } from '../dtos/dashboard.dto'
-import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
+import type { IDashboardFriendRepository } from '../../domain/repositories/dashboard-friend.repository.interface'
+import type { IDashboardFriendItemDTO } from '../dtos/dashboard.dto'
+import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
 export class GetFriendsHubUseCase {
   constructor(
-    private readonly _dashboardRepository: DashboardFriendRepositoryContract,
-    private readonly _dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: IDashboardFriendRepository,
+    private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string, limit?: number): Promise<DashboardFriendItem[]> {
+  async execute(userId: string, limit?: number): Promise<IDashboardFriendItemDTO[]> {
     const friends = await this._dashboardRepository.getFriendsHub({
       userId,
       limit,

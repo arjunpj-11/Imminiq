@@ -2,7 +2,7 @@ import type { ModerationAppealEntity } from '../../domain/entities/moderation-ap
 import type { RestrictedModerationUserEntity } from '../../domain/entities/restricted-moderation-user.entity'
 import { ModerationAppealApplicationError } from '../errors/moderation-appeal-application.error'
 
-export interface ModerationAppealSubmissionPolicyContract {
+export interface IModerationAppealSubmissionPolicy {
   ensureRestrictedUserExists(
     user: RestrictedModerationUserEntity | null,
   ): asserts user is RestrictedModerationUserEntity
@@ -10,7 +10,7 @@ export interface ModerationAppealSubmissionPolicyContract {
 }
 
 export class ModerationAppealSubmissionPolicy
-  implements ModerationAppealSubmissionPolicyContract
+  implements IModerationAppealSubmissionPolicy
 {
   ensureRestrictedUserExists(
     user: RestrictedModerationUserEntity | null,

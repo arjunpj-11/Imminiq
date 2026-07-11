@@ -29,7 +29,7 @@ import { useCommunityPublicTracker } from '../hooks/useCommunityPublicTracker'
 import { useToggleCommunityReviewHelpful } from '../hooks/useToggleCommunityReviewHelpful'
 import { useToggleCommunityTrackerLike } from '../hooks/useToggleCommunityTrackerLike'
 import { useUpsertCommunityTrackerReview } from '../hooks/useUpsertCommunityTrackerReview'
-import type { CommunityPublicTrackerDetail } from '../types/community.types'
+import type { ICommunityPublicTrackerDetail } from '../types/community.types'
 import { getApiErrorMessage } from '../utils/community-formatters'
 import { cn, communityPageClass } from '../utils/community-ui'
 
@@ -68,7 +68,7 @@ export default function CommunityPublicTrackerPage() {
 function CommunityPublicTrackerLoaded({
   tracker,
 }: {
-  tracker: CommunityPublicTrackerDetail
+  tracker: ICommunityPublicTrackerDetail
 }) {
   const navigate = useNavigate()
 

@@ -1,24 +1,24 @@
 import { TWO_FACTOR_DISABLE_ATTEMPT_SCOPE } from '../../domain/constants/security.constants'
-import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
-import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
-import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
+import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
+import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
 import type {
-  DisableTwoFactorPayload,
-  DisableTwoFactorResponseDto,
+  IDisableTwoFactorPayloadDTO,
+  IDisableTwoFactorResponseDTO,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
 export class DisableTwoFactorUseCase {
   constructor(
-    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
-    private readonly _twoFactorGateway: TwoFactorGatewayContract,
-    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
+    private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
+    private readonly _twoFactorGateway: ITwoFactorGateway,
+    private readonly _securityAttemptStore: ISecurityAttemptStore,
   ) {}
 
   async execute(
     userId: string,
-    payload: DisableTwoFactorPayload,
-  ): Promise<DisableTwoFactorResponseDto> {
+    payload: IDisableTwoFactorPayloadDTO,
+  ): Promise<IDisableTwoFactorResponseDTO> {
     await this.assertDisableVerificationAllowed(userId)
 
     const twoFactor =

@@ -7,12 +7,12 @@ import {
 } from '../../../../infrastructure/security/two-factor-secret.crypto'
 import { SecurityDomainError } from '../../domain/errors/security-domain.error'
 import type {
-  TwoFactorGatewayContract,
+  ITwoFactorGateway,
   TwoFactorProvisioning,
 } from '../../domain/services/two-factor-gateway.interface'
 
 export class OtplibTwoFactorGateway
-  implements TwoFactorGatewayContract
+  implements ITwoFactorGateway
 {
   async createSetup(data: {
     issuer: string

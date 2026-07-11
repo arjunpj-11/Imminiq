@@ -7,10 +7,10 @@ export * from "./entities/friend-user.entity";
 
 export * from "./errors/friends-domain.error";
 
-export type { FriendCommandRepositoryContract } from "./repositories/friend-command.repository.interface";
-export type { FriendQueryRepositoryContract } from "./repositories/friend-query.repository.interface";
-export type { FriendRequestRepositoryContract } from "./repositories/friend-request.repository.interface";
-export type { FriendsRepositoryContract } from "./repositories/friends.repository.interface";
+export type { IFriendCommandRepository } from "./repositories/friend-command.repository.interface";
+export type { IFriendQueryRepository } from "./repositories/friend-query.repository.interface";
+export type { IFriendRequestRepository } from "./repositories/friend-request.repository.interface";
+export type { IFriendsRepository } from "./repositories/friends.repository.interface";
 
 export * from "./types/friends.types";
 

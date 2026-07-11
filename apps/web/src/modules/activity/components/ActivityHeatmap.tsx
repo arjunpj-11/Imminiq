@@ -7,7 +7,7 @@ import {
 
 import type {
   ActivityHeatmapIntensity,
-  ActivityPageResponse,
+  IActivityPageResponse,
 } from '../types/activity.types'
 import {
   buildActivityYearOptions,
@@ -18,7 +18,7 @@ import {
 } from '../utils/activity-ui'
 import { CalendarIcon } from './icons/ActivityIcons'
 
-interface HeatmapCell {
+interface IHeatmapCell {
   date: Date
   inside: boolean
   intensityLevel: ActivityHeatmapIntensity
@@ -31,7 +31,7 @@ const toDateKey = (value: Date): string =>
 
 const buildHeatmap = (
   year: number,
-  streak: ActivityPageResponse['streak'],
+  streak: IActivityPageResponse['streak'],
 ) => {
   const first = new Date(Date.UTC(year, 0, 1))
   const last = new Date(Date.UTC(year, 11, 31))
@@ -46,11 +46,11 @@ const buildHeatmap = (
     streak.heatmap.map((item) => [item.date, item]),
   )
 
-  const weeks: HeatmapCell[][] = []
+  const weeks: IHeatmapCell[][] = []
   const cursor = new Date(start)
 
   while (cursor <= end) {
-    const week: HeatmapCell[] = []
+    const week: IHeatmapCell[] = []
 
     for (let day = 0; day < 7; day += 1) {
       const date = new Date(cursor)
@@ -92,8 +92,8 @@ const buildHeatmap = (
   }
 }
 
-interface ActivityHeatmapProps {
-  streak: ActivityPageResponse['streak']
+interface IActivityHeatmapProps {
+  streak: IActivityPageResponse['streak']
   year: number
   accountCreatedAt: string
   isFetching?: boolean
@@ -106,7 +106,7 @@ export default function ActivityHeatmap({
   accountCreatedAt,
   isFetching = false,
   onYearChange,
-}: ActivityHeatmapProps) {
+}: IActivityHeatmapProps) {
   const currentYear = new Date().getFullYear()
   const scrollRef = useRef<HTMLDivElement>(null)
   const years = useMemo(

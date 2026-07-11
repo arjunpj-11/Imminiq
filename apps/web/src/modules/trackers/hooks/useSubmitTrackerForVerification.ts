@@ -4,9 +4,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  Tracker,
-  TrackerListResponse,
+  IApiResponse,
+  ITracker,
+  ITrackerListResponse,
 } from '../types/tracker.types'
 import { trackerKeys } from './useTrackers'
 
@@ -37,16 +37,16 @@ export type SubmitTrackerForVerificationResponse = {
   submission: TrackerVerificationSubmission
 }
 
-type TrackerWithVerificationStatus = Tracker & {
+type TrackerWithVerificationStatus = ITracker & {
   verificationStatus?: 'pending' | 'verified' | 'rejected' | null
 }
 
-type TrackerListWithVerificationStatus = TrackerListResponse & {
+type TrackerListWithVerificationStatus = ITrackerListResponse & {
   trackers: TrackerWithVerificationStatus[]
 }
 
 const markTrackerVerificationPending = (
-  tracker: Tracker,
+  tracker: ITracker,
   trackerId: string,
 ): TrackerWithVerificationStatus => {
   if (tracker._id !== trackerId) {
@@ -63,7 +63,7 @@ export const useSubmitTrackerForVerification = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<SubmitTrackerForVerificationResponse>,
+    IApiResponse<SubmitTrackerForVerificationResponse>,
     Error,
     SubmitTrackerForVerificationPayload
   >({
@@ -74,7 +74,7 @@ export const useSubmitTrackerForVerification = () => {
       urgent = false,
     }) => {
       const response = await api.post<
-        ApiResponse<SubmitTrackerForVerificationResponse>
+        IApiResponse<SubmitTrackerForVerificationResponse>
       >(`/community/trackers/${trackerId}/verification`, {
         requiredVotes,
         durationHours,

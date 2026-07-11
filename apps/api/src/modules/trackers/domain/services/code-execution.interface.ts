@@ -1,4 +1,4 @@
-export interface CodeExecutorContract {
+export interface ICodeExecutor {
   executeCode(input: {
     sourceCode: string
     languageId?: number

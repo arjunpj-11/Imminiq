@@ -1,7 +1,7 @@
 import { sendMail } from '../../../../infrastructure/email/email.client'
 import { otpEmailTemplate } from '../../../../shared/email/email.templates'
 import { AuthDomainError } from '../../domain/errors/auth-domain.error'
-import type { OtpEmailProviderContract } from '../../domain/services/otp-email-provider.interface'
+import type { IOtpEmailProvider } from '../../domain/services/otp-email-provider.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 
 const OTP_EMAIL_SUBJECTS: Record<OtpPurpose, string> = {
@@ -10,7 +10,7 @@ const OTP_EMAIL_SUBJECTS: Record<OtpPurpose, string> = {
   password_reset: 'Reset your Imminiq password',
 }
 
-export class NodemailerOtpEmailProvider implements OtpEmailProviderContract {
+export class NodemailerOtpEmailProvider implements IOtpEmailProvider {
   async sendOtp(data: {
     email: string
     otp: string

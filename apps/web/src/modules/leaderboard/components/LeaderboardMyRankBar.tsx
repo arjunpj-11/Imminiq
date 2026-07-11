@@ -1,4 +1,4 @@
-import type { LeaderboardCurrentUser } from '../types/leaderboard.types'
+import type { ILeaderboardCurrentUser } from '../types/leaderboard.types'
 import {
   formatNumber,
   formatTargetRankMessage,
@@ -9,7 +9,7 @@ import LeaderboardTrendBadge from './LeaderboardTrendBadge'
 export default function LeaderboardMyRankBar({
   entry,
 }: {
-  entry: LeaderboardCurrentUser
+  entry: ILeaderboardCurrentUser
 }) {
   return (
     <section className="flex items-center gap-4 rounded-2xl border-[1.5px] border-[rgba(184,76,43,0.2)] bg-(--surface-card) px-5 py-4 dark:border-[rgba(232,129,106,0.2)] dark:bg-(--surface-card)" aria-label="Your leaderboard rank">

@@ -1,4 +1,4 @@
-import type { FriendRequest } from "../types/friends.types";
+import type { IFriendRequest } from "../types/friends.types";
 import {
   formatMutualFriends,
   formatRequestTime,
@@ -6,14 +6,14 @@ import {
 import FriendsAvatar from "./FriendsAvatar";
 import { CheckIcon, CloseIcon, SpinnerIcon } from "./icons/FriendsIcons";
 
-interface FriendRequestCardProps {
-  request: FriendRequest;
+interface IFriendRequestCardProps {
+  request: IFriendRequest;
   accepting?: boolean;
   declining?: boolean;
   cancelling?: boolean;
-  onAccept?: (request: FriendRequest) => void;
-  onDecline?: (request: FriendRequest) => void;
-  onCancel?: (request: FriendRequest) => void;
+  onAccept?: (request: IFriendRequest) => void;
+  onDecline?: (request: IFriendRequest) => void;
+  onCancel?: (request: IFriendRequest) => void;
 }
 
 export default function FriendRequestCard({
@@ -24,7 +24,7 @@ export default function FriendRequestCard({
   onAccept,
   onDecline,
   onCancel,
-}: FriendRequestCardProps) {
+}: IFriendRequestCardProps) {
   const busy = accepting || declining || cancelling;
 
   return (

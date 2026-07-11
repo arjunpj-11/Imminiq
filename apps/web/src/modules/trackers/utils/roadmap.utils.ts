@@ -1,5 +1,5 @@
 import { safeSessionStorage } from '../../../lib/storage/safe-storage'
-import type { RoadmapSubtopic, RoadmapTopic } from '../types/tracker.types'
+import type { IRoadmapSubtopic, IRoadmapTopic } from '../types/tracker.types'
 import { getRoadmapStackStorageKey } from './lesson-formatters'
 import type { BreadcrumbItem, RoadmapNode } from './roadmap.types'
 
@@ -31,7 +31,7 @@ export const getInitials = (name: string) =>
 export const formatLevelLabel = (isPremium: boolean) =>
   isPremium ? 'Imminiq Pro' : 'Free Scholar'
 
-const mapSubtopicToNode = (subtopic: RoadmapSubtopic): RoadmapNode => ({
+const mapSubtopicToNode = (subtopic: IRoadmapSubtopic): RoadmapNode => ({
   _id: subtopic._id,
   title: subtopic.title,
   description: subtopic.description,
@@ -44,7 +44,7 @@ const mapSubtopicToNode = (subtopic: RoadmapSubtopic): RoadmapNode => ({
   children: (subtopic.children || []).map(mapSubtopicToNode),
 })
 
-export const mapTopicToNode = (topic: RoadmapTopic): RoadmapNode => ({
+export const mapTopicToNode = (topic: IRoadmapTopic): RoadmapNode => ({
   _id: topic._id,
   title: topic.title,
   description: topic.description,

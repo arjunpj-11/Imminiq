@@ -3,19 +3,19 @@ import type { AxiosError } from 'axios'
 
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  CommunityVerificationSubmission,
+  IApiErrorResponse,
+  IApiResponse,
+  ICommunityVerificationSubmission,
 } from '../types/community.types'
 
-interface VerificationSubmissionData {
-  submission: CommunityVerificationSubmission
+interface IVerificationSubmissionData {
+  submission: ICommunityVerificationSubmission
 }
 
 const fetchVerificationSubmission = async (
   submissionId: string,
-): Promise<VerificationSubmissionData> => {
-  const response = await api.get<ApiResponse<VerificationSubmissionData>>(
+): Promise<IVerificationSubmissionData> => {
+  const response = await api.get<IApiResponse<IVerificationSubmissionData>>(
     `/community/verify/${submissionId}`,
   )
 
@@ -27,7 +27,7 @@ const fetchVerificationSubmission = async (
 }
 
 export const useVerificationSubmission = (submissionId?: string) => {
-  return useQuery<VerificationSubmissionData, AxiosError<ApiErrorResponse>>({
+  return useQuery<IVerificationSubmissionData, AxiosError<IApiErrorResponse>>({
     queryKey: ['community', 'verify', 'submission', submissionId],
     queryFn: () => fetchVerificationSubmission(submissionId || ''),
     enabled: Boolean(submissionId),

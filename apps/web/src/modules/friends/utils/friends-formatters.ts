@@ -1,9 +1,9 @@
 import axios from "axios";
 
 import type {
-  FriendRequest,
-  FriendUser,
-  FriendsApiErrorResponse,
+  IFriendRequest,
+  IFriendUser,
+  IFriendsApiErrorResponse,
   FriendsTab,
 } from "../types/friends.types";
 
@@ -60,9 +60,9 @@ export const normalizeSearchQuery = (value: string): string =>
   value.trim().slice(0, 80);
 
 export const mergeFriendUserPages = (
-  pages: Array<{ items: FriendUser[] }>,
-): FriendUser[] => {
-  const users = new Map<string, FriendUser>();
+  pages: Array<{ items: IFriendUser[] }>,
+): IFriendUser[] => {
+  const users = new Map<string, IFriendUser>();
 
   for (const page of pages) {
     for (const user of page.items) {
@@ -74,9 +74,9 @@ export const mergeFriendUserPages = (
 };
 
 export const mergeFriendRequestPages = (
-  pages: Array<{ items: FriendRequest[] }>,
-): FriendRequest[] => {
-  const requests = new Map<string, FriendRequest>();
+  pages: Array<{ items: IFriendRequest[] }>,
+): IFriendRequest[] => {
+  const requests = new Map<string, IFriendRequest>();
 
   for (const page of pages) {
     for (const request of page.items) {
@@ -91,7 +91,7 @@ export const getFriendsApiErrorMessage = (
   error: unknown,
   fallback: string,
 ): string => {
-  if (!axios.isAxiosError<FriendsApiErrorResponse>(error)) {
+  if (!axios.isAxiosError<IFriendsApiErrorResponse>(error)) {
     return fallback;
   }
 

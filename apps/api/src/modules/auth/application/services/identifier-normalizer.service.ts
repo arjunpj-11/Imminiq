@@ -1,11 +1,11 @@
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 import type { ParsedIdentifier } from '../../domain/value-objects/parsed-identifier.vo'
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
 
-export type { IdentifierNormalizerContract }
+export type { IIdentifierNormalizer }
 
-export class IdentifierNormalizer implements IdentifierNormalizerContract {
+export class IdentifierNormalizer implements IIdentifierNormalizer {
   isEmailIdentifier(identifier: string): boolean {
     return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(identifier.trim())
   }

@@ -1,3 +1,3 @@
-export interface RandomSeedGeneratorContract {
+export interface IRandomSeedGenerator {
   createSeed(upperBound: number): number
 }

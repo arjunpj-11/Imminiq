@@ -1,14 +1,14 @@
 import {
   ModerationAppealMapper,
-  type ModerationAppealMapperContract,
+  type IModerationAppealMapper,
 } from './application/mappers/moderation-appeal.mapper'
 import {
   ModerationAppealSubmissionPolicy,
-  type ModerationAppealSubmissionPolicyContract,
+  type IModerationAppealSubmissionPolicy,
 } from './application/policies/moderation-appeal-submission-policy.policy'
 import {
   ModerationAppealCaseIdAllocator,
-  type ModerationAppealCaseIdAllocatorContract,
+  type IModerationAppealCaseIdAllocator,
 } from './application/services/moderation-appeal-case-id.service'
 import { GetActiveModerationAppealStatusUseCase } from './application/use-cases/get-active-moderation-appeal-status.usecase'
 import { SubmitModerationAppealUseCase } from './application/use-cases/submit-moderation-appeal.usecase'
@@ -21,9 +21,9 @@ export type ModerationAppealUseCases = {
 }
 
 export type ModerationAppealServiceHelpers = {
-  moderationAppealMapper: ModerationAppealMapperContract
-  moderationAppealSubmissionPolicy: ModerationAppealSubmissionPolicyContract
-  caseIdAllocator: ModerationAppealCaseIdAllocatorContract
+  moderationAppealMapper: IModerationAppealMapper
+  moderationAppealSubmissionPolicy: IModerationAppealSubmissionPolicy
+  caseIdAllocator: IModerationAppealCaseIdAllocator
 }
 
 export type ModerationAppealComposition = {

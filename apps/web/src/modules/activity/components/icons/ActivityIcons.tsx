@@ -1,4 +1,4 @@
-interface ActivityIconProps {
+interface IActivityIconProps {
   size?: number
   className?: string
 }
@@ -6,7 +6,7 @@ interface ActivityIconProps {
 export const FireIcon = ({
   size = 14,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -32,7 +32,7 @@ export const FireIcon = ({
 export const TrendUpIcon = ({
   size = 12,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -61,7 +61,7 @@ export const TrendUpIcon = ({
 export const TrendDownIcon = ({
   size = 12,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -90,7 +90,7 @@ export const TrendDownIcon = ({
 export const SparklesIcon = ({
   size = 14,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -119,7 +119,7 @@ export const SparklesIcon = ({
 export const TrophyIcon = ({
   size = 14,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -151,7 +151,7 @@ export const TrophyIcon = ({
 export const GraduationCapIcon = ({
   size = 15,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -180,7 +180,7 @@ export const GraduationCapIcon = ({
 export const ClipboardCheckIcon = ({
   size = 15,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -211,7 +211,7 @@ export const ClipboardCheckIcon = ({
 export const UsersIcon = ({
   size = 15,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -245,7 +245,7 @@ export const UsersIcon = ({
 export const StarIcon = ({
   size = 13,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -261,7 +261,7 @@ export const StarIcon = ({
 export const ActivityIcon = ({
   size = 15,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -283,7 +283,7 @@ export const ActivityIcon = ({
 export const CalendarIcon = ({
   size = 16,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -313,7 +313,7 @@ export const CalendarIcon = ({
 export const LightningIcon = ({
   size = 13,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -332,7 +332,7 @@ export const LightningIcon = ({
 export const CoinsIcon = ({
   size = 13,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -365,7 +365,7 @@ export const CoinsIcon = ({
 export const CheckIcon = ({
   size = 13,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -387,7 +387,7 @@ export const CheckIcon = ({
 export const RefreshIcon = ({
   size = 14,
   className = '',
-}: ActivityIconProps) => (
+}: IActivityIconProps) => (
   <svg
     width={size}
     height={size}

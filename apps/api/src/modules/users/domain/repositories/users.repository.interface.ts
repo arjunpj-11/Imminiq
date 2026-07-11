@@ -1,19 +1,19 @@
-import type { UserActivityRepositoryContract } from './user-activity.repository.interface'
-import type { UserBadgeRepositoryContract } from './user-badge.repository.interface'
-import type { UserProfileRepositoryContract } from './user-profile.repository.interface'
-import type { UserRelationshipRepositoryContract } from './user-relationship.repository.interface'
-import type { UserStreakRepositoryContract } from './user-streak.repository.interface'
-import type { UserTrackerRepositoryContract } from './user-tracker.repository.interface'
-import type { UserRepositoryContract } from './user.repository.interface'
+import type { IUserActivityRepository } from './user-activity.repository.interface'
+import type { IUserBadgeRepository } from './user-badge.repository.interface'
+import type { IUserProfileRepository } from './user-profile.repository.interface'
+import type { IUserRelationshipRepository } from './user-relationship.repository.interface'
+import type { IUserStreakRepository } from './user-streak.repository.interface'
+import type { IUserTrackerRepository } from './user-tracker.repository.interface'
+import type { IUserRepository } from './user.repository.interface'
 
-export interface UsersRepositoryContract
-  extends UserRepositoryContract,
-    UserProfileRepositoryContract,
-    UserActivityRepositoryContract,
-    UserBadgeRepositoryContract,
-    UserStreakRepositoryContract,
-    UserTrackerRepositoryContract,
-    UserRelationshipRepositoryContract {}
+export interface IUsersRepository
+  extends IUserRepository,
+    IUserProfileRepository,
+    IUserActivityRepository,
+    IUserBadgeRepository,
+    IUserStreakRepository,
+    IUserTrackerRepository,
+    IUserRelationshipRepository {}
 
 export type {
   FindRecentUserActivityInput,

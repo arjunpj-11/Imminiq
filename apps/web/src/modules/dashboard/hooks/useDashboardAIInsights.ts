@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  DashboardAIInsight,
+  IApiResponse,
+  IDashboardAIInsight,
 } from '../types/dashboard.types'
 
 export const useDashboardAIInsights = () => {
@@ -12,7 +12,7 @@ export const useDashboardAIInsights = () => {
     queryKey: ['dashboard', 'ai-insights'],
     queryFn: async () => {
       const response =
-        await api.get<ApiResponse<DashboardAIInsight>>(
+        await api.get<IApiResponse<IDashboardAIInsight>>(
           '/dashboard/ai-insights'
         )
 

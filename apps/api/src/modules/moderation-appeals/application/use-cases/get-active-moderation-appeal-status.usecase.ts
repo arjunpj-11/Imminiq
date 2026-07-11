@@ -1,19 +1,19 @@
-import type { ModerationAppealQueryRepositoryContract } from '../../domain/repositories/moderation-appeal-query.repository.interface'
+import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface'
 import type {
-  GetActiveModerationAppealStatusResultDto,
-  GetModerationAppealStatusPayload,
+  IGetActiveModerationAppealStatusResultDTO,
+  IGetModerationAppealStatusPayloadDTO,
 } from '../dtos/moderation-appeal.dto'
-import type { ModerationAppealMapperContract } from '../mappers/moderation-appeal.mapper'
+import type { IModerationAppealMapper } from '../mappers/moderation-appeal.mapper'
 
 export class GetActiveModerationAppealStatusUseCase {
   constructor(
-    private readonly _moderationAppealRepository: ModerationAppealQueryRepositoryContract,
-    private readonly _moderationAppealMapper: ModerationAppealMapperContract,
+    private readonly _moderationAppealRepository: IModerationAppealQueryRepository,
+    private readonly _moderationAppealMapper: IModerationAppealMapper,
   ) {}
 
   async execute(
-    payload: GetModerationAppealStatusPayload,
-  ): Promise<GetActiveModerationAppealStatusResultDto> {
+    payload: IGetModerationAppealStatusPayloadDTO,
+  ): Promise<IGetActiveModerationAppealStatusResultDTO> {
     const appeal =
       await this._moderationAppealRepository.findActiveAppealForUser(payload.userId)
 

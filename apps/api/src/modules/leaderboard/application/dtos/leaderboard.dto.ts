@@ -4,13 +4,13 @@ import type {
   LeaderboardXpActivitySource,
 } from '../../domain/types/leaderboard.types'
 
-export type GetLeaderboardPayload = {
+export type GetLeaderboardPayloadDTO = {
   section: LeaderboardSection
   scope: LeaderboardScope
   limit?: number
 }
 
-export type RecordLeaderboardXpPayload = {
+export type RecordLeaderboardXpPayloadDTO = {
   userId: string
   section: LeaderboardSection
   amount: number
@@ -21,12 +21,12 @@ export type RecordLeaderboardXpPayload = {
   metadata?: Record<string, unknown>
 }
 
-export type ReplaceLeaderboardFriendsPayload = {
+export type ReplaceLeaderboardFriendsPayloadDTO = {
   userId: string
   friendUserIds: string[]
 }
 
-export type LeaderboardEntryView = {
+export type LeaderboardEntryViewDTO = {
   userId: string
   rank: number
   name: string
@@ -43,18 +43,18 @@ export type LeaderboardEntryView = {
   isMe: boolean
 }
 
-export type LeaderboardTopThreeView = LeaderboardEntryView & {
+export type LeaderboardTopThreeViewDTO = LeaderboardEntryViewDTO & {
   rank: 1 | 2 | 3
   streakDays: number
   isChampion: boolean
 }
 
-export type LeaderboardCurrentUserView = LeaderboardEntryView & {
+export type LeaderboardCurrentUserViewDTO = LeaderboardEntryViewDTO & {
   xpToTargetRank: number | null
   targetRank: number
 }
 
-export type LeaderboardWeeklySummaryView = {
+export type LeaderboardWeeklySummaryViewDTO = {
   currentXp: number
   previousXp: number
   growthPercent: number
@@ -63,7 +63,7 @@ export type LeaderboardWeeklySummaryView = {
   progressPercent: number
 }
 
-export type LeaderboardResponse = {
+export type LeaderboardResponseDTO = {
   section: LeaderboardSection
   scope: LeaderboardScope
   generatedAt: string
@@ -75,11 +75,11 @@ export type LeaderboardResponse = {
     globalRank: number | null
     globalRankTrend: number
   }
-  topThree: LeaderboardTopThreeView[]
-  entries: LeaderboardEntryView[]
-  currentUser: LeaderboardCurrentUserView | null
-  streakChampions: LeaderboardEntryView[]
-  weekly: LeaderboardWeeklySummaryView
+  topThree: LeaderboardTopThreeViewDTO[]
+  entries: LeaderboardEntryViewDTO[]
+  currentUser: LeaderboardCurrentUserViewDTO | null
+  streakChampions: LeaderboardEntryViewDTO[]
+  weekly: LeaderboardWeeklySummaryViewDTO
   scoringRules: Array<{
     label: string
     xpLabel: string
@@ -99,18 +99,18 @@ export type LeaderboardResponse = {
   }
 }
 
-export type LeaderboardRewardsResponse = {
+export type LeaderboardRewardsResponseDTO = {
   students: {
-    scoringRules: LeaderboardResponse['scoringRules']
-    reward: LeaderboardResponse['reward']
+    scoringRules: LeaderboardResponseDTO['scoringRules']
+    reward: LeaderboardResponseDTO['reward']
   }
   trainers: {
-    scoringRules: LeaderboardResponse['scoringRules']
-    reward: LeaderboardResponse['reward']
+    scoringRules: LeaderboardResponseDTO['scoringRules']
+    reward: LeaderboardResponseDTO['reward']
   }
 }
 
-export type CaptureLeaderboardSnapshotResultView = {
+export type CaptureLeaderboardSnapshotResultViewDTO = {
   snapshotKey: string
   capturedAt: string
   students: number

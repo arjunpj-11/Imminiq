@@ -4,10 +4,10 @@ import type { AxiosError } from "axios";
 import api from "../../../lib/axios";
 import { FRIENDS_ENDPOINTS } from "../constants/friends.constants";
 import type {
-  AcceptFriendRequestResponse,
-  FriendRequestActionInput,
-  FriendsApiErrorResponse,
-  FriendsApiResponse,
+  IAcceptFriendRequestResponse,
+  IFriendRequestActionInput,
+  IFriendsApiErrorResponse,
+  IFriendsApiResponse,
 } from "../types/friends.types";
 import { friendsQueryKeys } from "./friends-query-keys";
 
@@ -15,13 +15,13 @@ export const useAcceptFriendRequest = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
-    AcceptFriendRequestResponse,
-    AxiosError<FriendsApiErrorResponse>,
-    FriendRequestActionInput
+    IAcceptFriendRequestResponse,
+    AxiosError<IFriendsApiErrorResponse>,
+    IFriendRequestActionInput
   >({
     mutationFn: async ({ requestId }) => {
       const response = await api.post<
-        FriendsApiResponse<AcceptFriendRequestResponse>
+        IFriendsApiResponse<IAcceptFriendRequestResponse>
       >(FRIENDS_ENDPOINTS.acceptRequest(requestId));
 
       return response.data.data;

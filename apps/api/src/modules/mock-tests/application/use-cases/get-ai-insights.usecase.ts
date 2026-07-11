@@ -1,10 +1,10 @@
-import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
-import type { MockTestAIGatewayContract } from '../../domain/services/mock-test-ai.interface'
+import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
+import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
 
 export class GetAIInsightsUseCase {
   constructor(
-    private readonly _analyticsRepository: MockTestAnalyticsRepositoryContract,
-    private readonly _aiGateway: MockTestAIGatewayContract,
+    private readonly _analyticsRepository: IMockTestAnalyticsRepository,
+    private readonly _aiGateway: IMockTestAIGateway,
   ) { }
 
   async execute(userId: string): Promise<{ insight: string }> {

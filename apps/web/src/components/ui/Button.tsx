@@ -30,7 +30,7 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: 'min-h-12 rounded-[var(--radius-md)] px-5 py-3 text-[13px]',
 }
 
-export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant
   size?: ButtonSize
   loading?: boolean
@@ -40,7 +40,7 @@ export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   fullWidth?: boolean
 }
 
-const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+const Button = forwardRef<HTMLButtonElement, IButtonProps>(function Button(
   {
     variant = 'primary',
     size = 'md',

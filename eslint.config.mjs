@@ -44,6 +44,46 @@ export default tseslint.config(
           caughtErrorsIgnorePattern: '^_',
         },
       ],
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+          filter: {
+            regex: '^(Window|User|Request)$',
+            match: false,
+          },
+          custom: {
+            regex: '^I[A-Z]',
+            match: true,
+          },
+        },
+      ],
+    },
+  },
+
+  {
+    files: ['apps/api/src/**/application/dtos/**/*.ts', 'apps/api/src/**/*.dto.ts'],
+    rules: {
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+          custom: {
+            regex: '^I[A-Z].*DTO$',
+            match: true,
+          },
+        },
+        {
+          selector: ['typeAlias', 'class'],
+          format: ['PascalCase'],
+          custom: {
+            regex: 'DTO$',
+            match: true,
+          },
+        },
+      ],
     },
   },
 
@@ -89,6 +129,21 @@ export default tseslint.config(
           argsIgnorePattern: '^_',
           varsIgnorePattern: '^_',
           caughtErrorsIgnorePattern: '^_',
+        },
+      ],
+      '@typescript-eslint/naming-convention': [
+        'error',
+        {
+          selector: 'interface',
+          format: ['PascalCase'],
+          filter: {
+            regex: '^Window$',
+            match: false,
+          },
+          custom: {
+            regex: '^I[A-Z]',
+            match: true,
+          },
         },
       ],
     },

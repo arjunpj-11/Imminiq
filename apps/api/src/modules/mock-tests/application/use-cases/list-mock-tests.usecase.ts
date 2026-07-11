@@ -1,12 +1,12 @@
-import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import {
   DEFAULT_MOCK_TEST_LIST_LIMIT,
   DEFAULT_MOCK_TEST_PAGE,
   MAX_MOCK_TEST_LIST_LIMIT,
 } from '../../domain/constants/mock-tests.constants'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type ListMockTestsOptions = {
   page?: number
@@ -14,14 +14,14 @@ type ListMockTestsOptions = {
 }
 
 type ListMockTestsRepository =
-  MockTestRepositoryContract &
-  MockTestAttemptRepositoryContract &
-  MockTestAnalyticsRepositoryContract
+  IMockTestRepository &
+  IMockTestAttemptRepository &
+  IMockTestAnalyticsRepository
 
 export class ListMockTestsUseCase {
   constructor(
     private readonly _repository: ListMockTestsRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(userId: string, options: ListMockTestsOptions = {}) {

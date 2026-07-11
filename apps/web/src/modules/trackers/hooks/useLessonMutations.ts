@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
+  IApiResponse,
   AskLessonQuestionSolutionDoubtPayload,
   AskLessonQuestionSolutionDoubtResponse,
   GenerateLessonQuestionSolutionPayload,
@@ -295,7 +295,7 @@ export const useClearLessonChatHistory = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<unknown>,
+    IApiResponse<unknown>,
     Error,
     {
       trackerId: string
@@ -303,7 +303,7 @@ export const useClearLessonChatHistory = () => {
     }
   >({
     mutationFn: async ({ trackerId, subtopicId }) => {
-      const response = await api.delete<ApiResponse<unknown>>(
+      const response = await api.delete<IApiResponse<unknown>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/chat`
       )
 
@@ -325,7 +325,7 @@ export const useClearLessonQuestionSolutionDoubts = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<unknown>,
+    IApiResponse<unknown>,
     Error,
     {
       trackerId: string
@@ -334,7 +334,7 @@ export const useClearLessonQuestionSolutionDoubts = () => {
     }
   >({
     mutationFn: async ({ trackerId, subtopicId, question }) => {
-      const response = await api.delete<ApiResponse<unknown>>(
+      const response = await api.delete<IApiResponse<unknown>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
         {
           params: {

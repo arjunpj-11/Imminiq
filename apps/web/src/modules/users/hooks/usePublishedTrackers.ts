@@ -2,14 +2,14 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  PaginatedResult,
-  PublishedTracker,
+  IApiErrorResponse,
+  IApiResponse,
+  IPaginatedResult,
+  IPublishedTracker,
 } from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
-export interface PublishedTrackerQuery {
+export interface IPublishedTrackerQuery {
   page?: number
   limit?: number
   search?: string
@@ -17,13 +17,13 @@ export interface PublishedTrackerQuery {
   sort?: 'createdAt' | 'publishedAt' | 'ratingAverage' | 'cloneCount'
 }
 
-interface UsePublishedTrackersOptions {
+interface IUsePublishedTrackersOptions {
   enabled?: boolean
 }
 
 export const usePublishedTrackers = (
-  params: PublishedTrackerQuery = { page: 1, limit: 6 },
-  options: UsePublishedTrackersOptions = {}
+  params: IPublishedTrackerQuery = { page: 1, limit: 6 },
+  options: IUsePublishedTrackersOptions = {}
 ) => {
   const normalizedParams = {
     page: params.page ?? 1,
@@ -34,15 +34,15 @@ export const usePublishedTrackers = (
   }
 
   return useQuery<
-    ApiResponse<PaginatedResult<PublishedTracker>>,
-    AxiosError<ApiErrorResponse>,
-    PaginatedResult<PublishedTracker>
+    IApiResponse<IPaginatedResult<IPublishedTracker>>,
+    AxiosError<IApiErrorResponse>,
+    IPaginatedResult<IPublishedTracker>
   >({
     queryKey: profileQueryKeys.trackers(normalizedParams),
     enabled: options.enabled ?? true,
     queryFn: async () => {
       const response = await api.get<
-        ApiResponse<PaginatedResult<PublishedTracker>>
+        IApiResponse<IPaginatedResult<IPublishedTracker>>
       >('/users/me/published-trackers', {
         params: normalizedParams,
       })

@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-export interface PillTabItem<T extends string> {
+export interface IPillTabItem<T extends string> {
   value: T
   label: ReactNode
   icon?: ReactNode
@@ -10,9 +10,9 @@ export interface PillTabItem<T extends string> {
   disabled?: boolean
 }
 
-interface PillTabsProps<T extends string> {
+interface IPillTabsProps<T extends string> {
   value: T
-  items: Array<PillTabItem<T>>
+  items: Array<IPillTabItem<T>>
   onValueChange: (value: T) => void
   className?: string
   itemClassName?: string
@@ -26,7 +26,7 @@ export default function PillTabs<T extends string>({
   className,
   itemClassName,
   ariaLabel = 'Tabs',
-}: PillTabsProps<T>) {
+}: IPillTabsProps<T>) {
   return (
     <div
       role="tablist"

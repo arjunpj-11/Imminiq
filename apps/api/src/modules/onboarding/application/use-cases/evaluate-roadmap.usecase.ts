@@ -1,28 +1,28 @@
 import { ROADMAP_EVALUATION_STEPS } from '../constants/onboarding.constants'
-import type { OnboardingAIJobCommandRepositoryContract } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
-import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import type { AIJobQueueGatewayContract } from '../../domain/services/ai-job-queue.interface'
-import type { AIJobQuotaStoreContract } from '../../domain/services/ai-job-quota-store.interface'
-import type { GenerateRoadmapResult } from '../dtos/onboarding.dto'
+import type { IOnboardingAIJobCommandRepository } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
+import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { IAIJobQueueGateway } from '../../domain/services/ai-job-queue.interface'
+import type { IAIJobQuotaStore } from '../../domain/services/ai-job-quota-store.interface'
+import type { IGenerateRoadmapResultDTO } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
-import type { OnboardingJobOutputReaderContract } from '../services/onboarding-job-output-reader.service'
+import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
 type EvaluateRoadmapRepository =
-  OnboardingAIJobQueryRepositoryContract &
-  OnboardingAIJobCommandRepositoryContract
+  IOnboardingAIJobQueryRepository &
+  IOnboardingAIJobCommandRepository
 
 export class EvaluateRoadmapUseCase {
   constructor(
     private readonly _onboardingRepository: EvaluateRoadmapRepository,
-    private readonly _aiJobQueueGateway: AIJobQueueGatewayContract,
-    private readonly _aiJobQuotaStore: AIJobQuotaStoreContract,
-    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderContract,
+    private readonly _aiJobQueueGateway: IAIJobQueueGateway,
+    private readonly _aiJobQuotaStore: IAIJobQuotaStore,
+    private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader,
   ) {}
 
   async execute(
     roadmapJobId: string,
     userId: string,
-  ): Promise<GenerateRoadmapResult> {
+  ): Promise<IGenerateRoadmapResultDTO> {
     const roadmapJob = await this._onboardingRepository.getJobById(roadmapJobId)
 
     if (!roadmapJob) {

@@ -12,7 +12,7 @@ export type SaveOnboardingStep2Input = {
   level: RoadmapLevel
 }
 
-export interface OnboardingResponseCommandRepositoryContract {
+export interface IOnboardingResponseCommandRepository {
   saveStep1(
     data: SaveOnboardingStep1Input
   ): Promise<OnboardingResponseEntity | null>

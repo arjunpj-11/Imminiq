@@ -7,7 +7,7 @@ import { UserActivity } from '../../../../../infrastructure/database/models/user
 import { User } from '../../../../../infrastructure/database/models/user.model'
 import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
 import type {
-  ActivityCommandRepositoryContract,
+  IActivityCommandRepository,
   RecordUserActivityInput,
   RecordUserActivityResult,
 } from '../../../domain/repositories/activity-command.repository.interface'
@@ -23,7 +23,7 @@ const DAY_IN_MS = 86_400_000
 
 export class MongoActivityCommandRepository
   extends MongoActivityBaseRepository
-  implements ActivityCommandRepositoryContract
+  implements IActivityCommandRepository
 {
   constructor(
     private readonly _mapper = new MongoActivityMapper(),

@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface AuthTokenDocument extends Document {
+export interface IAuthTokenDocument extends Document {
   _id: mongoose.Types.ObjectId
 
   userId: mongoose.Types.ObjectId
@@ -19,7 +19,7 @@ export interface AuthTokenDocument extends Document {
   updatedAt: Date
 }
 
-const authTokenSchema = new Schema<AuthTokenDocument>(
+const authTokenSchema = new Schema<IAuthTokenDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -76,7 +76,7 @@ authTokenSchema.index({ userId: 1, expiresAt: 1 })
 authTokenSchema.index({ userId: 1, revokedAt: 1 })
 authTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 })
 
-export const AuthToken = mongoose.model<AuthTokenDocument>(
+export const AuthToken = mongoose.model<IAuthTokenDocument>(
   'AuthToken',
   authTokenSchema
 )

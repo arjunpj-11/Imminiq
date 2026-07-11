@@ -3,7 +3,7 @@ import type {
   SecurityAuditOutcome,
 } from '../value-objects/security-audit.vo'
 
-export interface SecurityAuditLoggerContract {
+export interface ISecurityAuditLogger {
   record(data: {
     userId: string
     eventType: SecurityAuditEventType

@@ -17,7 +17,7 @@ export type MissingTopicPriority =
   | 'medium'
   | 'optional'
 
-export interface RoadmapEvaluationMissingTopicDocument {
+export interface IRoadmapEvaluationMissingTopicDocument {
   title: string
   priority: MissingTopicPriority
   description: string
@@ -25,7 +25,7 @@ export interface RoadmapEvaluationMissingTopicDocument {
   readinessImpact: number
 }
 
-export interface RoadmapEvaluationDocument extends Document {
+export interface IRoadmapEvaluationDocument extends Document {
   trackerId: mongoose.Types.ObjectId
   userId: mongoose.Types.ObjectId
   aiJobId?: mongoose.Types.ObjectId
@@ -38,7 +38,7 @@ export interface RoadmapEvaluationDocument extends Document {
   sequencingScore: number
   timeFitScore: number
 
-  missingTopics: RoadmapEvaluationMissingTopicDocument[]
+  missingTopics: IRoadmapEvaluationMissingTopicDocument[]
   duplicateTopics: string[]
 
   strengths: string[]
@@ -55,7 +55,7 @@ export interface RoadmapEvaluationDocument extends Document {
   updatedAt: Date
 }
 
-const missingTopicSchema = new Schema<RoadmapEvaluationMissingTopicDocument>(
+const missingTopicSchema = new Schema<IRoadmapEvaluationMissingTopicDocument>(
   {
     title: {
       type: String,
@@ -93,7 +93,7 @@ const missingTopicSchema = new Schema<RoadmapEvaluationMissingTopicDocument>(
   }
 )
 
-const roadmapEvaluationSchema = new Schema<RoadmapEvaluationDocument>(
+const roadmapEvaluationSchema = new Schema<IRoadmapEvaluationDocument>(
   {
     trackerId: {
       type: Schema.Types.ObjectId,
@@ -209,7 +209,7 @@ roadmapEvaluationSchema.index({ trackerId: 1, status: 1 })
 roadmapEvaluationSchema.index({ aiJobId: 1 })
 
 export const RoadmapEvaluation =
-  mongoose.model<RoadmapEvaluationDocument>(
+  mongoose.model<IRoadmapEvaluationDocument>(
     'RoadmapEvaluation',
     roadmapEvaluationSchema
   )

@@ -17,7 +17,7 @@ export type RotateAuthSessionInput = {
   meta?: AuthSessionMetaInput
 }
 
-export interface AuthSessionRepositoryContract {
+export interface IAuthSessionRepository {
   saveSession(data: SaveAuthSessionInput): Promise<AuthSessionEntity>
 
   findSessionByRefreshTokenHash(

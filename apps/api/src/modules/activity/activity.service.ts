@@ -1,7 +1,7 @@
 import type {
-  GetActivityFeedPayload,
-  GetActivityPagePayload,
-  RecordUserActivityPayload,
+  GetActivityFeedPayloadDTO,
+  GetActivityPagePayloadDTO,
+  RecordUserActivityPayloadDTO,
 } from './application/dtos/activity.dto'
 import {
   createActivityComposition,
@@ -18,7 +18,7 @@ export class ActivityService {
 
   getActivityPage(
     userId: string,
-    payload: GetActivityPagePayload,
+    payload: GetActivityPagePayloadDTO,
   ) {
     return this._useCases.getPage.execute(
       userId,
@@ -28,7 +28,7 @@ export class ActivityService {
 
   getActivityFeed(
     userId: string,
-    payload: GetActivityFeedPayload,
+    payload: GetActivityFeedPayloadDTO,
   ) {
     return this._useCases.getFeed.execute(
       userId,
@@ -37,7 +37,7 @@ export class ActivityService {
   }
 
   recordActivity(
-    payload: RecordUserActivityPayload,
+    payload: RecordUserActivityPayloadDTO,
   ) {
     return this._useCases.recordActivity.execute(
       payload,

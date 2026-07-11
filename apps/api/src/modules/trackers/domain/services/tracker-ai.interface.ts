@@ -5,7 +5,7 @@ export type LessonVisualizationCodeExample = {
   language?: string
 }
 
-export interface TrackerAIGatewayContract {
+export interface ITrackerAIGateway {
   generateLesson(input: {
     trackerTitle: string
     topicTitle?: string

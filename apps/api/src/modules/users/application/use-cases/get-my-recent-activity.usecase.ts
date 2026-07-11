@@ -1,10 +1,10 @@
-import type { UserActivityRepositoryContract } from '../../domain/repositories/user-activity.repository.interface'
-import type { UsersMapperContract } from '../mappers/users.mapper'
+import type { IUserActivityRepository } from '../../domain/repositories/user-activity.repository.interface'
+import type { IUsersMapper } from '../mappers/users.mapper'
 
 export class GetMyRecentActivityUseCase {
   constructor(
-    private readonly _usersRepository: UserActivityRepositoryContract,
-    private readonly _usersMapper: UsersMapperContract,
+    private readonly _usersRepository: IUserActivityRepository,
+    private readonly _usersMapper: IUsersMapper,
   ) {}
 
   async execute(userId: string, limit = 10) {

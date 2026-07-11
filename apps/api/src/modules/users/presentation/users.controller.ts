@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { PaginationQuery } from '../application/dtos/users.dto'
+import type { IPaginationQueryDTO } from '../application/dtos/users.dto'
 import {
   USERS_DEFAULT_LIMIT,
   USERS_MAX_LIMIT,
@@ -211,7 +211,7 @@ export class UsersController {
     return trimmed || undefined
   }
 
-  private normalizeStatus(value: unknown): PaginationQuery['status'] {
+  private normalizeStatus(value: unknown): IPaginationQueryDTO['status'] {
     return value === 'active' || value === 'draft' || value === 'archived'
       ? value
       : undefined
@@ -226,7 +226,7 @@ export class UsersController {
       : 'publishedAt'
   }
 
-  private buildTrackerPaginationQuery(req: Request): PaginationQuery {
+  private buildTrackerPaginationQuery(req: Request): IPaginationQueryDTO {
     const search = this.normalizeSearch(req.query.search)
     const status = this.normalizeStatus(req.query.status)
 

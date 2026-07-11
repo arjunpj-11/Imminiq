@@ -12,7 +12,7 @@ import type {
   SaveOnboardingStep1Input,
   SaveOnboardingStep2Input,
 } from '../../domain/repositories/onboarding-response-command.repository.interface'
-import type { OnboardingRepositoryContract } from '../../domain/repositories/onboarding.repository.interface'
+import type { IOnboardingRepository } from '../../domain/repositories/onboarding.repository.interface'
 import { MongoOnboardingAIJobRepository } from './internal/mongo-onboarding-ai-job.repository'
 import { MongoOnboardingResponseRepository } from './internal/mongo-onboarding-response.repository'
 import { MongoOnboardingRoadmapRepository } from './internal/mongo-onboarding-roadmap.repository'
@@ -25,7 +25,7 @@ type MongoOnboardingRepositoryDependencies = {
 }
 
 export class MongoOnboardingRepository
-  implements OnboardingRepositoryContract
+  implements IOnboardingRepository
 {
   private readonly _responseRepository: MongoOnboardingResponseRepository
   private readonly _aiJobRepository: MongoOnboardingAIJobRepository

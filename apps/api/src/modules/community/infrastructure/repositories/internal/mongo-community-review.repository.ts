@@ -4,7 +4,7 @@ import type {
   CommunityRatingSummaryEntity,
 } from '../../../domain/entities/community-public-tracker-detail.entity'
 import type {
-  CommunityReviewRepositoryContract,
+  ICommunityReviewRepository,
   UpsertCommunityTrackerReviewInput,
 } from '../../../domain/repositories/community-review.repository.interface'
 import { MongoCommunityBaseRepository } from '../shared/mongo-community-base.repository'
@@ -34,7 +34,7 @@ import type {
 
 export class MongoCommunityReviewRepository
   extends MongoCommunityBaseRepository
-  implements CommunityReviewRepositoryContract
+  implements ICommunityReviewRepository
 {
   constructor(private readonly _mapper = new MongoCommunityMapper()) {
     super()

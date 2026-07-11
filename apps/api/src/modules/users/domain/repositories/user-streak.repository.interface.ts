@@ -7,7 +7,7 @@ export type FindUserStreakHistoryByYearInput = {
   year: number
 }
 
-export interface UserStreakRepositoryContract {
+export interface IUserStreakRepository {
   findLatestSnapshot(
     userId: UserIdInput
   ): Promise<UserStreakSnapshotEntity | null>

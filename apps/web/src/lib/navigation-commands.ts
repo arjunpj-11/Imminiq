@@ -1,6 +1,6 @@
 export type NavigationShortcut = readonly [prefix: string, destination: string]
 
-export interface NavigationCommandDefinition {
+export interface INavigationCommandDefinition {
   id: string
   label: string
   description: string
@@ -9,7 +9,7 @@ export interface NavigationCommandDefinition {
   shortcut?: NavigationShortcut
 }
 
-export const NAVIGATION_COMMANDS: readonly NavigationCommandDefinition[] = [
+export const NAVIGATION_COMMANDS: readonly INavigationCommandDefinition[] = [
   {
     id: 'dashboard',
     label: 'Dashboard',
@@ -182,7 +182,7 @@ const isOneEditAway = (left: string, right: string) => {
   return edits + Number(leftIndex < left.length || rightIndex < right.length) <= 1
 }
 
-interface SearchableCommand {
+interface ISearchableCommand {
   label: string
   description: string
   keywords: readonly string[]
@@ -204,7 +204,7 @@ const tokenScore = (queryToken: string, candidateToken: string) => {
  * when it should be excluded. Matching is token-aware, typo-tolerant and also
  * understands compact shortcut queries such as "gd".
  */
-export const scoreCommandSearch = (command: SearchableCommand, rawQuery: string) => {
+export const scoreCommandSearch = (command: ISearchableCommand, rawQuery: string) => {
   const query = normalizeSearchText(rawQuery)
   if (!query) return 0
 

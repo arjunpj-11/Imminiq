@@ -1,6 +1,6 @@
 import type { AxiosError } from 'axios'
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   message?: string
   error?: { message?: string }
   errors?: Array<{ message?: string }>
@@ -10,7 +10,7 @@ export const getApiErrorMessage = (
   error: unknown,
   fallbackMessage: string,
 ): string => {
-  const axiosError = error as AxiosError<ApiErrorResponse>
+  const axiosError = error as AxiosError<IApiErrorResponse>
 
   return (
     axiosError.response?.data?.message ??

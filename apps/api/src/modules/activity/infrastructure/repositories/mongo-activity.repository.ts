@@ -2,7 +2,7 @@ import type {
   RecordUserActivityInput,
 } from '../../domain/repositories/activity-command.repository.interface'
 import type {
-  ActivityRepositoryContract,
+  IActivityRepository,
 } from '../../domain/repositories/activity.repository.interface'
 import type {
   FindActivityAnalyticsInput,
@@ -13,7 +13,7 @@ import { MongoActivityCommandRepository } from './internal/mongo-activity-comman
 import { MongoActivityQueryRepository } from './internal/mongo-activity-query.repository'
 
 export class MongoActivityRepository
-  implements ActivityRepositoryContract
+  implements IActivityRepository
 {
   constructor(
     private readonly _queryRepository =

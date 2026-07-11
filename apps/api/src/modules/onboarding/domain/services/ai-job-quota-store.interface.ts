@@ -2,14 +2,14 @@ export type OnboardingAIJobQuotaPurpose =
   | 'roadmap_generation'
   | 'roadmap_evaluation'
 
-export interface AIJobQuotaConsumeResult {
+export interface IAIJobQuotaConsumeResult {
   allowed: boolean
   retryAfterSeconds?: number
 }
 
-export interface AIJobQuotaStoreContract {
+export interface IAIJobQuotaStore {
   consume(
     purpose: OnboardingAIJobQuotaPurpose,
     userId: string,
-  ): Promise<AIJobQuotaConsumeResult>
+  ): Promise<IAIJobQuotaConsumeResult>
 }

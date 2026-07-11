@@ -1,10 +1,10 @@
 import {
   MockTestsMapper,
-  type MockTestsMapperContract,
+  type IMockTestsMapper,
 } from './application/mappers/mock-tests.mapper'
 import {
   MockTestScorer,
-  type MockTestScorerContract,
+  type IMockTestScorer,
 } from './application/services/test-scorer.service'
 import { CreateMockTestUseCase } from './application/use-cases/create-mock-test.usecase'
 import { FinishTestAttemptUseCase } from './application/use-cases/finish-test-attempt.usecase'
@@ -28,10 +28,10 @@ import { StartTestAttemptUseCase } from './application/use-cases/start-test-atte
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.usecase'
 import { SubmitMockTestCodeUseCase } from './application/use-cases/submit-mock-test-code.usecase'
 
-import type { MockTestAIGatewayContract } from './domain/services/mock-test-ai.interface'
-import type { MockTestCodeRunnerContract } from './domain/services/mock-test-code-runner.interface'
-import type { MockTestQuestionBankContract } from './domain/services/mock-test-question-bank.interface'
-import type { ShareTokenGeneratorContract } from './domain/services/share-token-generator.interface'
+import type { IMockTestAIGateway } from './domain/services/mock-test-ai.interface'
+import type { IMockTestCodeRunner } from './domain/services/mock-test-code-runner.interface'
+import type { IMockTestQuestionBank } from './domain/services/mock-test-question-bank.interface'
+import type { IShareTokenGenerator } from './domain/services/share-token-generator.interface'
 import { systemClock } from '../../infrastructure/time/system-clock'
 
 import { activityMockTestGateway } from './infrastructure/gateways/activity-mock-test.gateway'
@@ -66,22 +66,22 @@ export type MockTestsUseCases = {
 }
 
 export type MockTestsServiceHelpers = {
-  mockTestsMapper: MockTestsMapperContract
+  mockTestsMapper: IMockTestsMapper
 
   mockTestScorer:
-    MockTestScorerContract
+    IMockTestScorer
 
   mockTestAIGateway:
-    MockTestAIGatewayContract
+    IMockTestAIGateway
 
   mockTestQuestionBank:
-    MockTestQuestionBankContract
+    IMockTestQuestionBank
 
   mockTestCodeRunner:
-    MockTestCodeRunnerContract
+    IMockTestCodeRunner
 
   shareTokenGenerator:
-    ShareTokenGeneratorContract
+    IShareTokenGenerator
 }
 
 export type MockTestsComposition = {

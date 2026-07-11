@@ -1,6 +1,6 @@
-import type { ClockContract } from '../../shared/time/clock.interface'
+import type { IClock } from '../../shared/time/clock.interface'
 
-export class SystemClock implements ClockContract {
+export class SystemClock implements IClock {
   now(): Date {
     return new Date()
   }

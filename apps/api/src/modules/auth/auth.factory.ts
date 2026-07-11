@@ -1,12 +1,12 @@
-import { AuthUserMapper, type AuthUserMapperContract } from './application/mappers/auth-user.mapper'
+import { AuthUserMapper, type IAuthUserMapper } from './application/mappers/auth-user.mapper'
 import { AuthSessionMapper } from './application/mappers/auth-session.mapper'
 import { AuthAccountPolicy } from './application/policies/auth-account-policy.policy'
 import { AuthNotificationCoordinator } from './application/services/auth-notification.service'
 import { AuthRedirectResolver } from './application/services/auth-redirect.service'
-import { AuthSessionIssuer, type AuthSessionIssuerContract } from './application/services/auth-session.service'
+import { AuthSessionIssuer, type IAuthSessionIssuer } from './application/services/auth-session.service'
 import { BackupCodeNormalizer } from './application/services/backup-code-normalizer.service'
 import { IdentifierNormalizer } from './application/services/identifier-normalizer.service'
-import { UsernameGenerator, type UsernameGeneratorContract } from './application/services/username-generator.service'
+import { UsernameGenerator, type IUsernameGenerator } from './application/services/username-generator.service'
 
 import { ChangePasswordUseCase } from './application/use-cases/change-password.usecase'
 import { CheckIdentifierUseCase } from './application/use-cases/check-identifier.usecase'
@@ -27,8 +27,8 @@ import { VerifyAccountUseCase } from './application/use-cases/verify-account.use
 import { VerifyResetCodeUseCase } from './application/use-cases/verify-reset-code.usecase'
 import { VerifyTwoFactorLoginUseCase } from './application/use-cases/verify-two-factor-login.usecase'
 
-import type { AuthTokenContract } from './domain/services/auth-token.interface'
-import type { OtpGeneratorContract } from './domain/services/otp-generator.interface'
+import type { IAuthToken } from './domain/services/auth-token.interface'
+import type { IOtpGenerator } from './domain/services/otp-generator.interface'
 
 import { mongoAuthRepository } from './infrastructure/repositories/mongo-auth.repository'
 import { bcryptPasswordHasher } from './infrastructure/services/bcrypt-password-hasher.service'
@@ -68,15 +68,15 @@ export type AuthUseCases = {
 }
 
 export type AuthServiceHelpers = {
-  authUserMapper: AuthUserMapperContract
-  authToken: AuthTokenContract
-  otpGenerator: OtpGeneratorContract
-  usernameGenerator: UsernameGeneratorContract
-  authSessionIssuer: AuthSessionIssuerContract
+  authUserMapper: IAuthUserMapper
+  authToken: IAuthToken
+  otpGenerator: IOtpGenerator
+  usernameGenerator: IUsernameGenerator
+  authSessionIssuer: IAuthSessionIssuer
 }
 
 export type AuthUserMapperInput = Parameters<
-  AuthUserMapperContract['toAuthUser']
+  IAuthUserMapper['toAuthUser']
 >[0]
 
 export type AuthComposition = {

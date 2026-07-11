@@ -1,8 +1,8 @@
 import { Link } from 'react-router-dom'
-import type { RoadmapSubtopic, RoadmapTopic } from '../types/tracker.types'
+import type { IRoadmapSubtopic, IRoadmapTopic } from '../types/tracker.types'
 import { cn, formatMinutes } from '../utils/tracker-ui'
 
-interface RoadmapTreeProps { trackerId: string; roadmap: RoadmapTopic[] }
+interface IRoadmapTreeProps { trackerId: string; roadmap: IRoadmapTopic[] }
 
 const statusTone = {
   completed: 'border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[rgba(92,201,138,0.24)] dark:bg-[rgba(92,201,138,0.10)] dark:text-[var(--success)]',
@@ -11,7 +11,7 @@ const statusTone = {
   locked: 'border-[var(--border-subtle)] bg-[rgba(26,23,20,0.04)] text-[var(--text-secondary)] dark:border-[var(--border-subtle)] dark:bg-white/[0.04] dark:text-[var(--text-secondary)]',
 }
 
-function SubtopicNode({ trackerId, item, index }: { trackerId: string; item: RoadmapSubtopic; index: number }) {
+function SubtopicNode({ trackerId, item, index }: { trackerId: string; item: IRoadmapSubtopic; index: number }) {
   const locked = item.isLocked || item.status === 'locked'
   const content = (
     <div className={cn('rounded-lg border-[1.5px] p-4 shadow-(--shadow-1) transition', locked ? 'border-(--border-subtle) bg-[rgba(26,23,20,0.035)] opacity-75 dark:border-(--border-subtle) dark:bg-white/[0.035]' : 'border-(--border-subtle) bg-(--surface-card) hover:-translate-y-1 hover:border-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card)')}>
@@ -42,7 +42,7 @@ function SubtopicNode({ trackerId, item, index }: { trackerId: string; item: Roa
   )
 }
 
-export default function RoadmapTree({ trackerId, roadmap }: RoadmapTreeProps) {
+export default function RoadmapTree({ trackerId, roadmap }: IRoadmapTreeProps) {
   return (
     <div className="space-y-5">
       {roadmap.map((topic) => (

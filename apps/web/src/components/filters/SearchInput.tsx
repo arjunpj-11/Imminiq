@@ -3,7 +3,7 @@ import type { InputHTMLAttributes, ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import Input from '../forms/Input'
 
-interface SearchInputProps
+interface ISearchInputProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
   icon?: ReactNode
   onClear?: () => void
@@ -17,7 +17,7 @@ export default function SearchInput({
   className,
   value,
   ...props
-}: SearchInputProps) {
+}: ISearchInputProps) {
   const hasIcon = icon !== null && icon !== undefined
   const hasValue = typeof value === 'string' && value.length > 0
 

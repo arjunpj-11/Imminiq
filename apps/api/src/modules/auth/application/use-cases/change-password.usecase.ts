@@ -1,15 +1,15 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { PasswordHasherContract } from '../../domain/services/password-hasher.interface'
+import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
 
 type ChangePasswordRepository =
-  AuthUserRepositoryContract & AuthSessionRepositoryContract
+  IAuthUserRepository & IAuthSessionRepository
 
 export class ChangePasswordUseCase {
   constructor(
     private readonly _authRepository: ChangePasswordRepository,
-    private readonly _passwordHasher: PasswordHasherContract
+    private readonly _passwordHasher: IPasswordHasher
   ) {}
 
   async execute(

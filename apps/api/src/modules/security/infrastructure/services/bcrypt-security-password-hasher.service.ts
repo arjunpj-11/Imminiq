@@ -2,9 +2,9 @@ import bcrypt from 'bcryptjs'
 
 import { BCRYPT_ROUNDS } from '../../../../config/constants'
 import { SecurityDomainError } from '../../domain/errors/security-domain.error'
-import type { SecurityPasswordHasherContract } from '../../domain/services/security-password-hasher.interface'
+import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface'
 
-export class BcryptSecurityPasswordHasher implements SecurityPasswordHasherContract {
+export class BcryptSecurityPasswordHasher implements ISecurityPasswordHasher {
   async hash(value: string): Promise<string> {
     try {
       return await bcrypt.hash(value, BCRYPT_ROUNDS)

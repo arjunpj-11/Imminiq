@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  DashboardActivityIntensityItem,
+  IApiResponse,
+  IDashboardActivityIntensityItem,
 } from '../types/dashboard.types'
 
 export const useDashboardActivityIntensity = (
@@ -14,7 +14,7 @@ export const useDashboardActivityIntensity = (
     queryKey: ['dashboard', 'activity-intensity', months],
     queryFn: async () => {
       const response =
-        await api.get<ApiResponse<DashboardActivityIntensityItem[]>>(
+        await api.get<IApiResponse<IDashboardActivityIntensityItem[]>>(
           '/dashboard/activity-intensity',
           {
             params: { months },

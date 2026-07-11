@@ -7,7 +7,7 @@ import { LessonQuestionSolutionDoubt } from "../../../../../infrastructure/datab
 import { LessonVisualization } from "../../../../../infrastructure/database/models/lesson-visualization.model";
 import { Tracker } from "../../../../../infrastructure/database/models/tracker.model";
 import { TrackerLesson } from "../../../../../infrastructure/database/models/tracker-lesson.model";
-import type { TrackerRepositoryContract } from "../../../domain/repositories/tracker.repository.interface";
+import type { ITrackerRepository } from "../../../domain/repositories/tracker.repository.interface";
 import type { GeneratedTrackerLessonRecord } from "../../../domain/types/trackers.types";
 import { MongoTrackerBaseRepository } from "../shared/mongo-tracker-base.repository";
 import { MongoTrackerMapper } from "../shared/mongo-tracker.mapper";
@@ -25,7 +25,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     trackerId,
     subtopicId,
     userId,
-  }: Parameters<TrackerRepositoryContract["findLessonBySubtopicId"]>[0]) {
+  }: Parameters<ITrackerRepository["findLessonBySubtopicId"]>[0]) {
     return this.execute(
       "LESSON_READ_FAILED",
       "Failed to read lesson by subtopic",
@@ -45,7 +45,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
   }
 
   async createLesson(
-    data: Parameters<TrackerRepositoryContract["createLesson"]>[0],
+    data: Parameters<ITrackerRepository["createLesson"]>[0],
   ) {
     return this.execute(
       "LESSON_CREATE_FAILED",
@@ -83,7 +83,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     userId,
     scope = "lesson_doubt_chat",
     questionId = null,
-  }: Parameters<TrackerRepositoryContract["getLessonChatMessages"]>[0]) {
+  }: Parameters<ITrackerRepository["getLessonChatMessages"]>[0]) {
     return this.execute(
       "LESSON_CHAT_READ_FAILED",
       "Failed to read lesson chat messages",
@@ -112,7 +112,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     questionId = null,
     role,
     content,
-  }: Parameters<TrackerRepositoryContract["createLessonChatMessage"]>[0]) {
+  }: Parameters<ITrackerRepository["createLessonChatMessage"]>[0]) {
     return this.execute(
       "LESSON_CHAT_CREATE_FAILED",
       "Failed to create lesson chat message",
@@ -138,7 +138,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     trackerId,
     subtopicId,
     userId,
-  }: Parameters<TrackerRepositoryContract["clearLessonChatMessages"]>[0]) {
+  }: Parameters<ITrackerRepository["clearLessonChatMessages"]>[0]) {
     return this.execute(
       "LESSON_CHAT_CLEAR_FAILED",
       "Failed to clear lesson chat messages",
@@ -164,7 +164,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     subtopicId,
     userId,
     questionId = null,
-  }: Parameters<TrackerRepositoryContract["getLessonAnswerAttempts"]>[0]) {
+  }: Parameters<ITrackerRepository["getLessonAnswerAttempts"]>[0]) {
     return this.execute(
       "LESSON_ANSWER_ATTEMPT_READ_FAILED",
       "Failed to read lesson answer attempts",
@@ -194,7 +194,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     feedback,
     isCorrect,
     score,
-  }: Parameters<TrackerRepositoryContract["createLessonAnswerAttempt"]>[0]) {
+  }: Parameters<ITrackerRepository["createLessonAnswerAttempt"]>[0]) {
     return this.execute(
       "LESSON_ANSWER_ATTEMPT_CREATE_FAILED",
       "Failed to create lesson answer attempt",
@@ -235,7 +235,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     subtopicId,
     userId,
     action,
-  }: Parameters<TrackerRepositoryContract["getLessonCodeSubmissions"]>[0]) {
+  }: Parameters<ITrackerRepository["getLessonCodeSubmissions"]>[0]) {
     return this.execute(
       "LESSON_CODE_SUBMISSION_READ_FAILED",
       "Failed to read lesson code submissions",
@@ -281,7 +281,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     expectedOutput,
     actualOutput,
     feedback,
-  }: Parameters<TrackerRepositoryContract["createLessonCodeSubmission"]>[0]) {
+  }: Parameters<ITrackerRepository["createLessonCodeSubmission"]>[0]) {
     return this.execute(
       "LESSON_CODE_SUBMISSION_CREATE_FAILED",
       "Failed to create lesson code submission",
@@ -320,7 +320,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     trackerId,
     subtopicId,
     userId,
-  }: Parameters<TrackerRepositoryContract["getLessonGeneratedQuestions"]>[0]) {
+  }: Parameters<ITrackerRepository["getLessonGeneratedQuestions"]>[0]) {
     return this.execute(
       "LESSON_GENERATED_QUESTION_READ_FAILED",
       "Failed to read lesson generated questions",
@@ -345,7 +345,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     lessonId,
     questions,
   }: Parameters<
-    TrackerRepositoryContract["createLessonGeneratedQuestions"]
+    ITrackerRepository["createLessonGeneratedQuestions"]
   >[0]) {
     return this.execute(
       "LESSON_GENERATED_QUESTION_CREATE_FAILED",
@@ -391,7 +391,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     subtopicId,
     userId,
     questionHash,
-  }: Parameters<TrackerRepositoryContract["findLessonQuestionSolution"]>[0]) {
+  }: Parameters<ITrackerRepository["findLessonQuestionSolution"]>[0]) {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_READ_FAILED",
       "Failed to read lesson question solution",
@@ -416,7 +416,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     question,
     questionHash,
     solution,
-  }: Parameters<TrackerRepositoryContract["createLessonQuestionSolution"]>[0]) {
+  }: Parameters<ITrackerRepository["createLessonQuestionSolution"]>[0]) {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_CREATE_FAILED",
       "Failed to create lesson question solution",
@@ -456,7 +456,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     userId,
     questionHash,
   }: Parameters<
-    TrackerRepositoryContract["getLessonQuestionSolutionDoubts"]
+    ITrackerRepository["getLessonQuestionSolutionDoubts"]
   >[0]) {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_DOUBT_READ_FAILED",
@@ -487,7 +487,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     role,
     content,
   }: Parameters<
-    TrackerRepositoryContract["createLessonQuestionSolutionDoubt"]
+    ITrackerRepository["createLessonQuestionSolutionDoubt"]
   >[0]) {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_DOUBT_CREATE_FAILED",
@@ -517,7 +517,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     userId,
     questionHash,
   }: Parameters<
-    TrackerRepositoryContract["clearLessonQuestionSolutionDoubts"]
+    ITrackerRepository["clearLessonQuestionSolutionDoubts"]
   >[0]) {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_DOUBT_CLEAR_FAILED",
@@ -545,7 +545,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     subtopicId,
     userId,
   }: Parameters<
-    TrackerRepositoryContract["findGeneratedLessonBySubtopic"]
+    ITrackerRepository["findGeneratedLessonBySubtopic"]
   >[0]) {
     return this.execute(
       "LESSON_READ_FAILED",
@@ -581,7 +581,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     trackerId,
     subtopicId,
     userId,
-  }: Parameters<TrackerRepositoryContract["findLessonVisualization"]>[0]) {
+  }: Parameters<ITrackerRepository["findLessonVisualization"]>[0]) {
     return this.execute(
       "LESSON_VISUALIZATION_READ_FAILED",
       "Failed to read lesson visualization",
@@ -608,7 +608,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     html,
     visualTitle,
     visualDescription,
-  }: Parameters<TrackerRepositoryContract["saveLessonVisualization"]>[0]) {
+  }: Parameters<ITrackerRepository["saveLessonVisualization"]>[0]) {
     return this.execute(
       "LESSON_VISUALIZATION_SAVE_FAILED",
       "Failed to save lesson visualization",

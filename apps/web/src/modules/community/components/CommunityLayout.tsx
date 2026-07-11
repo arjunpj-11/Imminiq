@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { AppShellBoundary } from '../../../components/layout/AppShell'
 
-interface CommunityLayoutProps {
+interface ICommunityLayoutProps {
   children: ReactNode
   loadingLabel?: string
 }
@@ -10,7 +10,7 @@ interface CommunityLayoutProps {
 export default function CommunityLayout({
   children,
   loadingLabel,
-}: CommunityLayoutProps) {
+}: ICommunityLayoutProps) {
   return (
     <AppShellBoundary>
       <div

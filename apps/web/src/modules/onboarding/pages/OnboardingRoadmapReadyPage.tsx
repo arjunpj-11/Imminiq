@@ -3,8 +3,8 @@ import { useNavigate, useParams } from 'react-router-dom'
 
 import {
   useRoadmapJobResult,
-  type RoadmapSubtopic,
-  type RoadmapTopic,
+  type IRoadmapSubtopic,
+  type IRoadmapTopic,
 } from '../hooks/useRoadmapJobResult'
 import { useRunRoadmapEvaluation } from '../hooks/useRunRoadmapEvaluation'
 import OnboardingBrandLink from '../components/OnboardingBrandLink'
@@ -63,17 +63,17 @@ const DashboardIcon = () => {
   )
 }
 
-const getChildren = (node?: RoadmapSubtopic) => {
+const getChildren = (node?: IRoadmapSubtopic) => {
   return node?.children || node?.subtopics || []
 }
 
-const countNestedSubtopics = (nodes: RoadmapSubtopic[] = []): number => {
+const countNestedSubtopics = (nodes: IRoadmapSubtopic[] = []): number => {
   return nodes.reduce((total, node) => {
     return total + 1 + countNestedSubtopics(getChildren(node))
   }, 0)
 }
 
-const buildSections = (topic?: RoadmapTopic): Section[] => {
+const buildSections = (topic?: IRoadmapTopic): Section[] => {
   if (!topic) return []
 
   const directChildren = topic.children || topic.subtopics || []
@@ -109,14 +109,14 @@ const buildSections = (topic?: RoadmapTopic): Section[] => {
   return sections
 }
 
-const flattenSectionCount = (topic?: RoadmapTopic) => {
+const flattenSectionCount = (topic?: IRoadmapTopic) => {
   return countNestedSubtopics(topic?.children || topic?.subtopics || [])
 }
 
 const SectionDifficultyBadge = ({
   item,
 }: {
-  item: RoadmapSubtopic
+  item: IRoadmapSubtopic
 }) => {
   const difficulty = item.difficulty || item.level
 

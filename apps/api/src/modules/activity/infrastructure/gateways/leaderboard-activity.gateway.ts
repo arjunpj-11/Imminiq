@@ -1,12 +1,12 @@
 import { leaderboardService } from '../../../leaderboard/leaderboard.service'
 import type { LeaderboardXpRecorderContract } from '../../../leaderboard/leaderboard.service'
 import type {
-  ActivityLeaderboardRecorderContract,
+  IActivityLeaderboardRecorder,
   RecordActivityLeaderboardXpInput,
 } from '../../domain/services/activity-leaderboard-recorder.interface'
 
 export class LeaderboardActivityGateway
-  implements ActivityLeaderboardRecorderContract
+  implements IActivityLeaderboardRecorder
 {
   constructor(
     private readonly _leaderboardRecorder: LeaderboardXpRecorderContract,

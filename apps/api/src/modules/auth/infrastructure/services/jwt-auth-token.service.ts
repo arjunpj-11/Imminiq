@@ -3,15 +3,15 @@ import jwt, { SignOptions } from 'jsonwebtoken'
 
 import { env } from '../../../../config/env'
 import { AuthDomainError } from '../../domain/errors/auth-domain.error'
-import type { AuthTokenContract } from '../../domain/services/auth-token.interface'
+import type { IAuthToken } from '../../domain/services/auth-token.interface'
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
 import type {
-  JwtPayload,
+  IJwtPayload,
   TwoFactorChallengeTokenPayload,
 } from '../../domain/value-objects/token-payload.vo'
 import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/constants/auth.constants'
 
-export class JwtAuthToken implements AuthTokenContract {
+export class JwtAuthToken implements IAuthToken {
   generateAccessToken(userId: string, role: AuthRole): string {
     const accessTokenOptions: SignOptions = {
       expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
@@ -25,7 +25,7 @@ export class JwtAuthToken implements AuthTokenContract {
         userId,
         role,
         type: 'access',
-      } as JwtPayload,
+      } as IJwtPayload,
       env.JWT_SECRET,
       accessTokenOptions
     )

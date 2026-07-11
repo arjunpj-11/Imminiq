@@ -1,12 +1,12 @@
 import type { CommunityVerificationSubmissionEntity } from '../../domain/entities/community-verification-submission.entity'
 import { CommunityApplicationError } from '../errors/community-application.error'
 
-export interface CommunityVerificationPolicyContract {
+export interface ICommunityVerificationPolicy {
   ensureCanVote(submission: CommunityVerificationSubmissionEntity, userId: string): void
 }
 
 export class CommunityVerificationPolicy
-  implements CommunityVerificationPolicyContract
+  implements ICommunityVerificationPolicy
 {
   ensureCanVote(submission: CommunityVerificationSubmissionEntity, userId: string): void {
     if (submission.ownerId === userId) {

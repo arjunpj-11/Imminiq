@@ -36,7 +36,7 @@ export type RecordCommunityTrackerVerifiedActivityInput = {
   trackerTitle: string
 }
 
-export interface CommunityActivityRecorderContract {
+export interface ICommunityActivityRecorder {
   recordTrackerCloned(
     input: RecordCommunityTrackerClonedActivityInput,
   ): Promise<void>

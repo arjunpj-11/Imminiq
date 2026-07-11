@@ -4,11 +4,11 @@ import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import { useAuthStore } from '../store/useAuthStore'
 
-interface VerifyTwoFactorLoginPayload {
+interface IVerifyTwoFactorLoginPayload {
   code: string
 }
 
-interface User {
+interface IUser {
   _id: string
   fullName?: string
   username: string
@@ -26,17 +26,17 @@ type LoginRedirectPath =
   | '/dashboard'
   | '/onboarding/step-1'
 
-interface VerifyTwoFactorLoginResponse {
+interface IVerifyTwoFactorLoginResponse {
   success: boolean
   message: string
   data?: {
     accessToken?: string
-    user?: User
+    user?: IUser
     redirectPath?: LoginRedirectPath
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
@@ -50,13 +50,13 @@ export const useVerifyTwoFactorLogin = () => {
   )
 
   return useMutation<
-    VerifyTwoFactorLoginResponse,
-    AxiosError<ApiErrorResponse>,
-    VerifyTwoFactorLoginPayload
+    IVerifyTwoFactorLoginResponse,
+    AxiosError<IApiErrorResponse>,
+    IVerifyTwoFactorLoginPayload
   >({
     mutationFn: async (payload) => {
       const response =
-        await api.post<VerifyTwoFactorLoginResponse>(
+        await api.post<IVerifyTwoFactorLoginResponse>(
           '/auth/2fa/verify-login',
           payload
         )

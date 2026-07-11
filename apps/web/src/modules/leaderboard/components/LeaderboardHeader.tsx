@@ -4,7 +4,7 @@ import {
 } from '../utils/leaderboard-formatters'
 import { LiveDotIcon } from './icons/LeaderboardIcons'
 
-interface LeaderboardHeaderProps {
+interface ILeaderboardHeaderProps {
   globalRank: number | null
   globalRankTrend: number
 }
@@ -12,7 +12,7 @@ interface LeaderboardHeaderProps {
 export default function LeaderboardHeader({
   globalRank,
   globalRankTrend,
-}: LeaderboardHeaderProps) {
+}: ILeaderboardHeaderProps) {
   return (
     <section className="flex flex-wrap items-start justify-between gap-5">
       <div>

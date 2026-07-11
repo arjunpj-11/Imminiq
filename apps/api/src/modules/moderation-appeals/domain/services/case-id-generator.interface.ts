@@ -1,3 +1,3 @@
-export interface ModerationAppealCaseIdGeneratorContract {
+export interface IModerationAppealCaseIdGenerator {
   generate(): string
 }

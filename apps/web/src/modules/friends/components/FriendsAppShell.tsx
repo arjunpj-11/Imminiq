@@ -2,10 +2,10 @@ import type { ReactNode } from 'react'
 
 import { AppShellBoundary } from '../../../components/layout/AppShell'
 
-interface FriendsAppShellProps {
+interface IFriendsAppShellProps {
   children: ReactNode
 }
 
-export default function FriendsAppShell({ children }: FriendsAppShellProps) {
+export default function FriendsAppShell({ children }: IFriendsAppShellProps) {
   return <AppShellBoundary>{children}</AppShellBoundary>
 }

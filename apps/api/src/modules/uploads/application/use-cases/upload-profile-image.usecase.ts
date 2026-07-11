@@ -3,35 +3,35 @@ import {
   BANNER_FOLDER,
 } from '../../domain/constants/uploads.constants'
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
-import type { ProfileImageRepositoryContract } from '../../domain/repositories/profile-image.repository.interface'
-import type { UploadRecordRepositoryContract } from '../../domain/repositories/upload-record.repository.interface'
-import type { ProfileImageStorageContract } from '../../domain/services/profile-image-storage.interface'
+import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface'
+import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
+import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface'
 import type {
-  UploadProfileImageInput,
-  UploadProfileImageResult,
+  IUploadProfileImageInputDTO,
+  IUploadProfileImageResultDTO,
 } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { UploadsMapperContract } from '../mappers/uploads.mapper'
-import type { UploadUserProfileReaderContract } from '../services/upload-user-profile.service'
+import type { IUploadsMapper } from '../mappers/uploads.mapper'
+import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
 
 type UploadProfileImageRepository =
-  ProfileImageRepositoryContract & UploadRecordRepositoryContract
+  IProfileImageRepository & IUploadRecordRepository
 
 type StoredProfileImage = Awaited<
-  ReturnType<ProfileImageStorageContract['uploadProfileImage']>
+  ReturnType<IProfileImageStorage['uploadProfileImage']>
 >
 
 export class UploadProfileImageUseCase {
   constructor(
-    private readonly _userProfileReader: UploadUserProfileReaderContract,
-    private readonly _profileImageStorage: ProfileImageStorageContract,
+    private readonly _userProfileReader: IUploadUserProfileReader,
+    private readonly _profileImageStorage: IProfileImageStorage,
     private readonly _uploadsRepository: UploadProfileImageRepository,
-    private readonly _uploadsMapper: UploadsMapperContract,
+    private readonly _uploadsMapper: IUploadsMapper,
   ) {}
 
   async execute(
-    input: UploadProfileImageInput,
-  ): Promise<UploadProfileImageResult> {
+    input: IUploadProfileImageInputDTO,
+  ): Promise<IUploadProfileImageResultDTO> {
     if (!input.file) {
       throw UploadsApplicationError.imageFileRequired()
     }

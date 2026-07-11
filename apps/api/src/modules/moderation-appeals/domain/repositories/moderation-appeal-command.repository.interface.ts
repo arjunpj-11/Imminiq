@@ -7,7 +7,7 @@ export type CreateModerationAppealInput = {
   appealReason: string
 }
 
-export interface ModerationAppealCommandRepositoryContract {
+export interface IModerationAppealCommandRepository {
   createAppeal(
     data: CreateModerationAppealInput
   ): Promise<ModerationAppealEntity>

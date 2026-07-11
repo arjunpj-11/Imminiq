@@ -15,41 +15,41 @@ import type {
 } from '../../domain/types/trackers.types'
 import type { GeneratedLessonData } from '../../domain/types/lesson-practice.types'
 
-export type TrackerListQueryDto = TrackerListFilter
-export type TrackerDto = TrackerRecord
-export type TrackerSummaryDto = TrackerSummaryRecord | TrackerSummaryResult
-export type TrackerListDto = TrackerListResult
-export type TrackerDetailsDto = TrackerRecord
-export type TrackerRoadmapDto = RoadmapTopicNode[]
-export type TrackerTopicDto = CreatedTrackerTopicRecord
-export type TrackerSubtopicDto = CreatedTrackerSubtopicRecord
-export type GeneratedTrackerLessonDto = GeneratedTrackerLessonRecord | GeneratedLessonData
-export type LessonChatHistoryDto = unknown[]
-export type LessonAnswerAttemptsDto = unknown[]
-export type LessonCodeSubmissionsDto = unknown[]
-export type LessonGeneratedQuestionsDto = unknown
-export type LessonQuestionSolutionDto = unknown
-export type LessonQuestionSolutionDoubtsDto = unknown[]
-export type LessonQuestionSolutionDoubtAnswerDto = unknown
-export type LessonAnswerVerificationDto = unknown
-export type LessonCodeExecutionDto = unknown
-export type LessonCodeHintDto = unknown
-export type LessonOptimizedSolutionDto = unknown
-export type LessonVisualizationDto = unknown
-export type TrackerAIValidationDto = unknown
-export type AddMissingEvaluationTopicDto = AddMissingEvaluationTopicResult
-export type RunLessonCodeDto = RunLessonCodeInput
+export type TrackerListQueryDTO = TrackerListFilter
+export type TrackerDTO = TrackerRecord
+export type TrackerSummaryDTO = TrackerSummaryRecord | TrackerSummaryResult
+export type TrackerListDTO = TrackerListResult
+export type TrackerDetailsDTO = TrackerRecord
+export type TrackerRoadmapDTO = RoadmapTopicNode[]
+export type TrackerTopicDTO = CreatedTrackerTopicRecord
+export type TrackerSubtopicDTO = CreatedTrackerSubtopicRecord
+export type GeneratedTrackerLessonDTO = GeneratedTrackerLessonRecord | GeneratedLessonData
+export type LessonChatHistoryDTO = unknown[]
+export type LessonAnswerAttemptsDTO = unknown[]
+export type LessonCodeSubmissionsDTO = unknown[]
+export type LessonGeneratedQuestionsDTO = unknown
+export type LessonQuestionSolutionDTO = unknown
+export type LessonQuestionSolutionDoubtsDTO = unknown[]
+export type LessonQuestionSolutionDoubtAnswerDTO = unknown
+export type LessonAnswerVerificationDTO = unknown
+export type LessonCodeExecutionDTO = unknown
+export type LessonCodeHintDTO = unknown
+export type LessonOptimizedSolutionDTO = unknown
+export type LessonVisualizationDTO = unknown
+export type TrackerAIValidationDTO = unknown
+export type AddMissingEvaluationTopicDTO = AddMissingEvaluationTopicResult
+export type RunLessonCodeDTO = RunLessonCodeInput
 
-export type UpdateSubtopicProgressResultDto = {
+export type UpdateSubtopicProgressResultDTO = {
   subtopic: SubtopicWithProgressRecord
   progress: TrackerProgressRecord | null
 }
 
-export type LessonTutorChatResponseDto = {
+export type LessonTutorChatResponseDTO = {
   answer: string
 }
 
-export type ClearLessonHistoryResultDto = {
+export type ClearLessonHistoryResultDTO = {
   success?: boolean
   cleared?: boolean
   deletedCount?: number

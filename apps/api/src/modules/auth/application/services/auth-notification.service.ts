@@ -1,15 +1,15 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type {
-  AuthNotificationContract,
+  IAuthNotification,
 } from '../../domain/services/auth-notification.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
-import type { OtpEmailProviderContract } from '../../domain/services/otp-email-provider.interface'
-import type { OtpGeneratorContract } from '../../domain/services/otp-generator.interface'
-import type { OtpStoreContract } from '../../domain/services/otp-store.interface'
-import type { PhoneOtpProviderContract } from '../../domain/services/phone-otp-provider.interface'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
+import type { IOtpEmailProvider } from '../../domain/services/otp-email-provider.interface'
+import type { IOtpGenerator } from '../../domain/services/otp-generator.interface'
+import type { IOtpStore } from '../../domain/services/otp-store.interface'
+import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
 import type {
   PhoneOtpPurpose,
-  PhoneOtpSessionStoreContract,
+  IPhoneOtpSessionStore,
 } from '../../domain/services/phone-otp-session-store.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
@@ -20,17 +20,17 @@ const isPhoneOtpPurpose = (
   return purpose === 'phone_verification' || purpose === 'password_reset'
 }
 
-export type { AuthNotificationContract }
+export type { IAuthNotification }
 
 export class AuthNotificationCoordinator
-  implements AuthNotificationContract {
+  implements IAuthNotification {
   constructor(
-    private readonly _otpStore: OtpStoreContract,
-    private readonly _otpGenerator: OtpGeneratorContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract,
-    private readonly _phoneOtpProvider: PhoneOtpProviderContract,
-    private readonly _phoneOtpSessionStore: PhoneOtpSessionStoreContract,
-    private readonly _otpEmailProvider: OtpEmailProviderContract
+    private readonly _otpStore: IOtpStore,
+    private readonly _otpGenerator: IOtpGenerator,
+    private readonly _identifierNormalizer: IIdentifierNormalizer,
+    private readonly _phoneOtpProvider: IPhoneOtpProvider,
+    private readonly _phoneOtpSessionStore: IPhoneOtpSessionStore,
+    private readonly _otpEmailProvider: IOtpEmailProvider
   ) {}
 
   async sendVerificationOtp(data: {

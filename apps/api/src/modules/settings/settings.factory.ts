@@ -1,6 +1,6 @@
 import {
   SettingsMapper,
-  type SettingsMapperContract,
+  type ISettingsMapper,
 } from './application/mappers/settings.mapper'
 import { AcceptTermsUseCase } from './application/use-cases/accept-terms.usecase'
 import { GetAllSettingsUseCase } from './application/use-cases/get-all-settings.usecase'
@@ -46,7 +46,7 @@ export type SettingsUseCases = {
 }
 
 export type SettingsServiceHelpers = {
-  settingsMapper: SettingsMapperContract
+  settingsMapper: ISettingsMapper
 }
 
 export type SettingsComposition = {

@@ -1,26 +1,26 @@
-import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
-import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
-import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
-import type { SecurityOverviewDto } from '../dtos/security.dto'
+import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
+import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
+import type { ISecurityOverviewDTO } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
-import type { SecurityMapperContract } from '../mappers/security.mapper'
-import type { CurrentSessionResolverContract } from '../services/current-session.service'
+import type { ISecurityMapper } from '../mappers/security.mapper'
+import type { ICurrentSessionResolver } from '../services/current-session.service'
 
-type SecurityOverviewRepository = SecurityUserRepositoryContract &
-  SecuritySessionRepositoryContract &
-  SecurityTwoFactorRepositoryContract
+type SecurityOverviewRepository = ISecurityUserRepository &
+  ISecuritySessionRepository &
+  ISecurityTwoFactorRepository
 
 export class GetSecurityOverviewUseCase {
   constructor(
     private readonly _securityRepository: SecurityOverviewRepository,
-    private readonly _currentSessionResolver: CurrentSessionResolverContract,
-    private readonly _securityMapper: SecurityMapperContract,
+    private readonly _currentSessionResolver: ICurrentSessionResolver,
+    private readonly _securityMapper: ISecurityMapper,
   ) {}
 
   async execute(
     userId: string,
     refreshToken?: string,
-  ): Promise<SecurityOverviewDto> {
+  ): Promise<ISecurityOverviewDTO> {
     const user = await this._securityRepository.findUserById(userId)
 
     if (!user) {

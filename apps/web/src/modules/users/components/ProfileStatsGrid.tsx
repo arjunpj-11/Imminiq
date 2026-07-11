@@ -1,17 +1,17 @@
 import StatCard from '../../../components/data-display/StatCard'
 import { cn } from '../../../lib/cn'
-import type { ProfileStats, StreakSummary } from '../types/profile.types'
+import type { IProfileStats, IStreakSummary } from '../types/profile.types'
 import { formatCompactNumber } from '../utils/profile-formatters'
 
-interface ProfileStatsGridProps {
-  stats?: ProfileStats | null
-  streak?: StreakSummary | null
+interface IProfileStatsGridProps {
+  stats?: IProfileStats | null
+  streak?: IStreakSummary | null
 }
 
 export default function ProfileStatsGrid({
   stats,
   streak,
-}: ProfileStatsGridProps) {
+}: IProfileStatsGridProps) {
   return (
     <div className="grid grid-cols-4 gap-2.5 animate-[fadeUp_0.38s_ease_0.1s_both] max-[860px]:grid-cols-2 max-[420px]:grid-cols-1">
       <StatCard tone="rust" label="">

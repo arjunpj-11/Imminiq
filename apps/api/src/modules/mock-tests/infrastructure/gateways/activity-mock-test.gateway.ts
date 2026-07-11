@@ -1,7 +1,7 @@
 import { activityService } from '../../../activity'
 import type { ActivityRecorderContract } from '../../../activity/activity.service'
 import type {
-  MockTestActivityRecorderContract,
+  IMockTestActivityRecorder,
   RecordMockTestCompletedActivityInput,
   RecordMockTestGeneratedActivityInput,
 } from '../../domain/services/mock-test-activity.interface'
@@ -80,7 +80,7 @@ const toDifficultyLabel = (
 }
 
 export class ActivityMockTestGateway
-  implements MockTestActivityRecorderContract
+  implements IMockTestActivityRecorder
 {
   constructor(
     private readonly _activityRecorder: ActivityRecorderContract,

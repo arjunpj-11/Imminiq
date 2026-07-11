@@ -4,26 +4,26 @@ import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import { COMMUNITY_VERIFY_PAGE_LIMIT } from '../constants/community.constants'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  CommunityVerificationDashboardData,
+  IApiErrorResponse,
+  IApiResponse,
+  ICommunityVerificationDashboardData,
 } from '../types/community.types'
 
-interface VerificationDashboardQuery {
+interface IVerificationDashboardQuery {
   page?: number
   limit?: number
 }
 
 const fetchVerificationDashboard = async (
-  query: VerificationDashboardQuery,
-): Promise<CommunityVerificationDashboardData> => {
+  query: IVerificationDashboardQuery,
+): Promise<ICommunityVerificationDashboardData> => {
   const params = new URLSearchParams()
 
   params.set('page', String(query.page ?? 1))
   params.set('limit', String(query.limit ?? COMMUNITY_VERIFY_PAGE_LIMIT))
 
   const response = await api.get<
-    ApiResponse<CommunityVerificationDashboardData>
+    IApiResponse<ICommunityVerificationDashboardData>
   >(`/community/verify/dashboard?${params.toString()}`)
 
   if (!response.data.data) {
@@ -34,11 +34,11 @@ const fetchVerificationDashboard = async (
 }
 
 export const useVerificationDashboard = (
-  query: VerificationDashboardQuery,
+  query: IVerificationDashboardQuery,
 ) => {
   return useQuery<
-    CommunityVerificationDashboardData,
-    AxiosError<ApiErrorResponse>
+    ICommunityVerificationDashboardData,
+    AxiosError<IApiErrorResponse>
   >({
     queryKey: ['community', 'verify', 'dashboard', query],
     queryFn: () => fetchVerificationDashboard(query),

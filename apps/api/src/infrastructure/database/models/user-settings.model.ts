@@ -9,7 +9,7 @@ export type QuietHoursDay =
   | 'Sat'
   | 'Sun'
 
-export interface UserSettingsDocument extends Document {
+export interface IUserSettingsDocument extends Document {
   userId: mongoose.Types.ObjectId
 
   // Account
@@ -155,7 +155,7 @@ const notificationDays = [
   'Sun',
 ] as const
 
-const userSettingsSchema = new Schema<UserSettingsDocument>(
+const userSettingsSchema = new Schema<IUserSettingsDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -606,4 +606,4 @@ const userSettingsSchema = new Schema<UserSettingsDocument>(
 
 export const UserSettings =
   mongoose.models.UserSettings ||
-  mongoose.model<UserSettingsDocument>('UserSettings', userSettingsSchema)
+  mongoose.model<IUserSettingsDocument>('UserSettings', userSettingsSchema)

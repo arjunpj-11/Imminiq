@@ -7,7 +7,7 @@ import { bannerDataUrlToPng, svgBannerDataUrl } from '../utils/profile-image.uti
 import { useImageCropControls } from '../hooks/useImageCropControls'
 
 /* ─── Cover Banner Modal ─── */
-interface BannerModalProps {
+interface IBannerModalProps {
   open: boolean;
   onClose: () => void;
   onApply: (dataUrl: string) => void | Promise<void>;
@@ -45,7 +45,7 @@ const defaultCustomBannerColors = {
   end: "var(--brand-500)",
 };
 
-export default function BannerModal({ open, onClose, onApply, onToast }: BannerModalProps) {
+export default function BannerModal({ open, onClose, onApply, onToast }: IBannerModalProps) {
   const generateAiBannerPreviewMutation = useGenerateAiBannerPreview();
   const [tab, setTab] = useState<BannerTab>("defaults");
   const [aiPrompt, setAiPrompt] = useState("");

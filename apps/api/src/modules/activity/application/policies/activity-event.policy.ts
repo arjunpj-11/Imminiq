@@ -1,4 +1,4 @@
-import type { RecordUserActivityPayload } from '../dtos/activity.dto'
+import type { RecordUserActivityPayloadDTO } from '../dtos/activity.dto'
 import { ActivityApplicationError } from '../errors/activity-application.error'
 import type { ActivityCategory } from '../../domain/value-objects/activity-category.vo'
 import type { ActivityType } from '../../domain/value-objects/activity-type.vo'
@@ -33,7 +33,7 @@ const ALLOWED_TYPES_BY_CATEGORY: Record<
 }
 
 export class ActivityEventPolicy {
-  ensureValid(payload: RecordUserActivityPayload): void {
+  ensureValid(payload: RecordUserActivityPayloadDTO): void {
     const title = payload.title.trim()
     const eventKey = payload.eventKey.trim()
     const subtitle = payload.subtitle?.trim() ?? ''
@@ -98,7 +98,7 @@ export class ActivityEventPolicy {
   }
 
   private ensureValidDetails(
-    payload: RecordUserActivityPayload,
+    payload: RecordUserActivityPayloadDTO,
   ): void {
     const details = payload.details
 

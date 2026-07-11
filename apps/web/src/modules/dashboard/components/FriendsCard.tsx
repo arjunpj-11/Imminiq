@@ -1,10 +1,10 @@
-import type { DashboardFriend } from '../types/dashboard.types'
+import type { IDashboardFriend } from '../types/dashboard.types'
 import { cn } from '../utils/cn'
 import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters'
 import EmptyCard from './EmptyCard'
 
 type FriendsCardProps = {
-  friends: DashboardFriend[]
+  friends: IDashboardFriend[]
   onOpenCommunity: () => void
 }
 

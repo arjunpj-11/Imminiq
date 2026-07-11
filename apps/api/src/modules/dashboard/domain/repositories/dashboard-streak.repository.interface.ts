@@ -6,7 +6,7 @@ export type GetActivityIntensityInput = {
   months?: number
 }
 
-export interface DashboardStreakRepositoryContract {
+export interface IDashboardStreakRepository {
   getStreakData(userId: string): Promise<DashboardStreakEntity>
 
   getActivityIntensity(

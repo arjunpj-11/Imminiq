@@ -1,10 +1,10 @@
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type FlagQuestionRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestAnswerRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestAnswerRepository
 
 export class FlagQuestionUseCase {
   constructor(private readonly _repository: FlagQuestionRepository) {}

@@ -2,7 +2,7 @@ import type { ModerationAppealEntity } from '../../domain/entities/moderation-ap
 import type { RestrictedModerationUserEntity } from '../../domain/entities/restricted-moderation-user.entity'
 import type {
   CreateModerationAppealInput,
-  ModerationAppealRepositoryContract,
+  IModerationAppealRepository,
 } from '../../domain/repositories/moderation-appeal.repository.interface'
 import { MongoModerationAppealCaseRepository } from './internal/mongo-moderation-appeal-case.repository'
 import { MongoModerationAppealRestrictedUserReader } from './internal/mongo-moderation-appeal-restricted-user.reader'
@@ -16,7 +16,7 @@ type MongoModerationAppealRepositoryDependencies = {
 }
 
 export class MongoModerationAppealRepository
-  implements ModerationAppealRepositoryContract
+  implements IModerationAppealRepository
 {
   private readonly _userRepository: MongoModerationAppealUserRepository
   private readonly _caseRepository: MongoModerationAppealCaseRepository

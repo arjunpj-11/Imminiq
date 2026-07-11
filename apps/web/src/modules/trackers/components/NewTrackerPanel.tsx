@@ -3,12 +3,12 @@ import type { TrackerDomain, TrackerLevel } from '../types/tracker.types'
 import { useCreateTracker } from '../hooks/useTrackers'
 import { cn, themedScrollbar, trackerDomainOptions } from '../utils/tracker-ui'
 
-interface NewTrackerPanelProps { open: boolean; onClose: () => void }
+interface INewTrackerPanelProps { open: boolean; onClose: () => void }
 
 const inputCls = "w-full rounded-[var(--radius-sm)] border-[1.5px] border-[var(--border-subtle)] bg-white px-3.5 py-2.5 text-[13.5px] text-[var(--text-primary)] outline-none transition placeholder:text-[#9f8f86] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-elevated)] dark:text-[var(--text-primary)] dark:placeholder:text-[#7a756e] dark:focus:border-[var(--brand-500)]"
 const labelCls = "mb-1.5 block font-mono text-[8px] uppercase tracking-[0.13em] text-[var(--text-secondary)] opacity-70 dark:text-[var(--text-secondary)]"
 
-export default function NewTrackerPanel({ open, onClose }: NewTrackerPanelProps) {
+export default function NewTrackerPanel({ open, onClose }: INewTrackerPanelProps) {
   const createTrackerMutation = useCreateTracker()
   const [title, setTitle] = useState('')
   const [description, setDescription] = useState('')

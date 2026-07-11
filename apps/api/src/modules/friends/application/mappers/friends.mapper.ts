@@ -2,21 +2,21 @@ import type { FriendRequestEntity } from "../../domain/entities/friend-request.e
 import type { FriendRequestSummaryEntity } from "../../domain/entities/friend-request-summary.entity";
 import type { FriendUserEntity } from "../../domain/entities/friend-user.entity";
 import type {
-  FriendRequestView,
-  FriendRelationshipView,
-  FriendUserView,
-  FriendUsersPageView,
-  PaginationView,
+  FriendRequestViewDTO,
+  FriendRelationshipViewDTO,
+  FriendUserViewDTO,
+  FriendUsersPageViewDTO,
+  PaginationViewDTO,
 } from "../dtos/friends.dto";
 import type { PaginatedResult } from "../../domain/types/friends.types";
 
-export interface FriendsMapperContract {
-  toFriendUserView(user: FriendUserEntity): FriendUserView;
-  toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestView;
+export interface IFriendsMapper {
+  toFriendUserView(user: FriendUserEntity): FriendUserViewDTO;
+  toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestViewDTO;
   toFriendUsersPageView(
     page: PaginatedResult<FriendUserEntity>,
-  ): FriendUsersPageView;
-  toPaginationView<T>(page: PaginatedResult<T>): PaginationView;
+  ): FriendUsersPageViewDTO;
+  toPaginationView<T>(page: PaginatedResult<T>): PaginationViewDTO;
   toRequestActionView(request: FriendRequestEntity): {
     id: string;
     receiverUserId: string;
@@ -26,8 +26,8 @@ export interface FriendsMapperContract {
   };
 }
 
-export class FriendsMapper implements FriendsMapperContract {
-  toFriendUserView(user: FriendUserEntity): FriendUserView {
+export class FriendsMapper implements IFriendsMapper {
+  toFriendUserView(user: FriendUserEntity): FriendUserViewDTO {
     return {
       id: user.id,
       fullName: user.fullName,
@@ -44,7 +44,7 @@ export class FriendsMapper implements FriendsMapperContract {
     };
   }
 
-  toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestView {
+  toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestViewDTO {
     return {
       id: summary.request.id,
       direction: summary.direction,
@@ -58,14 +58,14 @@ export class FriendsMapper implements FriendsMapperContract {
 
   toFriendUsersPageView(
     page: PaginatedResult<FriendUserEntity>,
-  ): FriendUsersPageView {
+  ): FriendUsersPageViewDTO {
     return {
       items: page.items.map((item) => this.toFriendUserView(item)),
       pagination: this.toPaginationView(page),
     };
   }
 
-  toPaginationView<T>(page: PaginatedResult<T>): PaginationView {
+  toPaginationView<T>(page: PaginatedResult<T>): PaginationViewDTO {
     return {
       page: page.page,
       limit: page.limit,
@@ -86,7 +86,7 @@ export class FriendsMapper implements FriendsMapperContract {
 
   private toRelationshipView(
     status: FriendUserEntity["relationshipStatus"],
-  ): FriendRelationshipView {
+  ): FriendRelationshipViewDTO {
     if (status === "friends") {
       return { status: "friends" };
     }

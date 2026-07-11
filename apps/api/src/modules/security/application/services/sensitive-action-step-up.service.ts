@@ -1,31 +1,31 @@
 import type { SecurityUserEntity } from '../../domain/entities/security-user.entity'
-import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
-import type { SecurityPasswordHasherContract } from '../../domain/services/security-password-hasher.interface'
-import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
+import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
+import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface'
+import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
 import type { SensitiveSecurityAction } from '../../domain/value-objects/sensitive-security-action.vo'
-import type { SensitiveActionStepUpPayload } from '../dtos/security.dto'
+import type { ISensitiveActionStepUpPayloadDTO } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
-export interface SensitiveActionAuthorizerContract {
+export interface ISensitiveActionAuthorizer {
   assertSatisfied(input: {
     user: SecurityUserEntity
-    payload: SensitiveActionStepUpPayload
+    payload: ISensitiveActionStepUpPayloadDTO
     action: SensitiveSecurityAction
   }): Promise<void>
 }
 
-export class SensitiveActionAuthorizer implements SensitiveActionAuthorizerContract {
+export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
   constructor(
-    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
-    private readonly _twoFactorGateway: TwoFactorGatewayContract,
-    private readonly _passwordHasher: SecurityPasswordHasherContract,
-    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
+    private readonly _twoFactorGateway: ITwoFactorGateway,
+    private readonly _passwordHasher: ISecurityPasswordHasher,
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
   ) {}
 
   async assertSatisfied(input: {
     user: SecurityUserEntity
-    payload: SensitiveActionStepUpPayload
+    payload: ISensitiveActionStepUpPayloadDTO
     action: SensitiveSecurityAction
   }): Promise<void> {
     const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(
@@ -50,7 +50,7 @@ export class SensitiveActionAuthorizer implements SensitiveActionAuthorizerContr
 
   private async assertPasswordStepSatisfied(input: {
     user: SecurityUserEntity
-    payload: SensitiveActionStepUpPayload
+    payload: ISensitiveActionStepUpPayloadDTO
     action: SensitiveSecurityAction
   }): Promise<void> {
     if (!input.payload.currentPassword) {
@@ -83,7 +83,7 @@ export class SensitiveActionAuthorizer implements SensitiveActionAuthorizerContr
   private async assertTwoFactorStepSatisfied(input: {
     userId: string
     encryptedSecret: string | null
-    payload: SensitiveActionStepUpPayload
+    payload: ISensitiveActionStepUpPayloadDTO
     action: SensitiveSecurityAction
   }): Promise<void> {
     if (!input.payload.twoFactorCode) {

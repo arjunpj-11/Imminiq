@@ -1,4 +1,4 @@
-export type CommunityReviewAuthorView = {
+export type CommunityReviewAuthorViewDTO = {
   _id: string
   name: string
   initials: string
@@ -6,11 +6,11 @@ export type CommunityReviewAuthorView = {
   role: string
 }
 
-export type CommunityTrackerReviewView = {
+export type CommunityTrackerReviewViewDTO = {
   _id: string
   trackerId: string
   userId: string
-  author: CommunityReviewAuthorView
+  author: CommunityReviewAuthorViewDTO
   rating: number
   comment: string
   helpfulCount: number
@@ -20,7 +20,7 @@ export type CommunityTrackerReviewView = {
   updatedAt?: string
 }
 
-export type CommunityPublicTrackerSubtopicView = {
+export type CommunityPublicTrackerSubtopicViewDTO = {
   _id: string
   topicId: string
   parentSubtopicId?: string | null
@@ -32,17 +32,17 @@ export type CommunityPublicTrackerSubtopicView = {
   estimatedMinutes: number
 }
 
-export type CommunityPublicTrackerTopicView = {
+export type CommunityPublicTrackerTopicViewDTO = {
   _id: string
   title: string
   description: string
   order: number
   status: string
   estimatedHours: number
-  subtopics: CommunityPublicTrackerSubtopicView[]
+  subtopics: CommunityPublicTrackerSubtopicViewDTO[]
 }
 
-export type CommunityRatingDistributionView = {
+export type CommunityRatingDistributionViewDTO = {
   1: number
   2: number
   3: number
@@ -50,13 +50,13 @@ export type CommunityRatingDistributionView = {
   5: number
 }
 
-export type CommunityRatingSummaryView = {
+export type CommunityRatingSummaryViewDTO = {
   average: number
   count: number
-  distribution: CommunityRatingDistributionView
+  distribution: CommunityRatingDistributionViewDTO
 }
 
-export type CommunityPublicTrackerDetailView = {
+export type CommunityPublicTrackerDetailViewDTO = {
   _id: string
   ownerId: string
   title: string
@@ -77,47 +77,47 @@ export type CommunityPublicTrackerDetailView = {
   saves: number
   topicsCount: number
   subtopicsCount: number
-  author: CommunityReviewAuthorView
-  topics: CommunityPublicTrackerTopicView[]
-  ratingSummary: CommunityRatingSummaryView
-  reviews: CommunityTrackerReviewView[]
-  myReview?: CommunityTrackerReviewView | null
+  author: CommunityReviewAuthorViewDTO
+  topics: CommunityPublicTrackerTopicViewDTO[]
+  ratingSummary: CommunityRatingSummaryViewDTO
+  reviews: CommunityTrackerReviewViewDTO[]
+  myReview?: CommunityTrackerReviewViewDTO | null
   createdAt?: string
   publishedAt: string | null
 }
 
-export type UpsertCommunityTrackerReviewInputDto = {
+export type UpsertCommunityTrackerReviewInputDTO = {
   rating: number
   comment: string
 }
 
-export type UpsertCommunityTrackerReviewPayload = {
+export type UpsertCommunityTrackerReviewPayloadDTO = {
   trackerId: string
   userId: string
   rating: number
   comment: string
 }
 
-export type ToggleCommunityReviewHelpfulPayload = {
+export type ToggleCommunityReviewHelpfulPayloadDTO = {
   reviewId: string
   userId: string
 }
 
-export type ToggleCommunityTrackerLikePayload = {
+export type ToggleCommunityTrackerLikePayloadDTO = {
   trackerId: string
   userId: string
 }
 
-export type UpsertCommunityTrackerReviewOutputDto = {
-  review: CommunityTrackerReviewView
-  ratingSummary: CommunityRatingSummaryView
+export type UpsertCommunityTrackerReviewOutputDTO = {
+  review: CommunityTrackerReviewViewDTO
+  ratingSummary: CommunityRatingSummaryViewDTO
 }
 
-export type ToggleCommunityReviewHelpfulOutputDto = {
-  review: CommunityTrackerReviewView
+export type ToggleCommunityReviewHelpfulOutputDTO = {
+  review: CommunityTrackerReviewViewDTO
 }
 
-export type ToggleCommunityTrackerLikeOutputDto = {
+export type ToggleCommunityTrackerLikeOutputDTO = {
   liked: boolean
   likes: number
 }

@@ -1,10 +1,10 @@
-export interface EmailChangeTokenResult {
+export interface IEmailChangeTokenResult {
   rawToken: string
   tokenHash: string
   expiresAt: Date
 }
 
-export interface SecurityEmailChangeTokenContract {
-  generate(): EmailChangeTokenResult
+export interface ISecurityEmailChangeToken {
+  generate(): IEmailChangeTokenResult
   hash(rawToken: string): string
 }

@@ -67,7 +67,7 @@ function StopIcon({ className }: { className?: string }) {
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-interface MicButtonProps {
+interface IMicButtonProps {
   isListening: boolean
   isSupported: boolean
   onToggle: () => void
@@ -81,7 +81,7 @@ export function MicButton({
   isSupported,
   onToggle,
   size = 'md',
-}: MicButtonProps) {
+}: IMicButtonProps) {
   if (!isSupported) {
     return null
   }

@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 type BannerModalTab = 'defaults' | 'upload' | 'ai'
 
-interface ProfileUIState {
+interface IProfileUIState {
   editPanelOpen: boolean
   bannerModalOpen: boolean
   avatarCropModalOpen: boolean
@@ -28,7 +28,7 @@ interface ProfileUIState {
 
 const currentYear = new Date().getFullYear()
 
-export const useProfileStore = create<ProfileUIState>((set) => ({
+export const useProfileStore = create<IProfileUIState>((set) => ({
   editPanelOpen: false,
   bannerModalOpen: false,
   avatarCropModalOpen: false,

@@ -29,7 +29,7 @@ export type MockTestCodeRunResult = {
   }
 }
 
-export interface MockTestCodeRunnerContract {
+export interface IMockTestCodeRunner {
   run(input: {
     sourceCode: string
     coding: MockTestCodingDetails

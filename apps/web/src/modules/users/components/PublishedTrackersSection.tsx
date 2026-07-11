@@ -1,7 +1,7 @@
 import EmptyState from '../../../components/feedback/EmptyState'
 import TrackerCard from './TrackerCard'
 
-export interface PublishedTrackerCardViewModel {
+export interface IPublishedTrackerCardViewModel {
   title: string
   desc: string
   rating: number
@@ -10,17 +10,17 @@ export interface PublishedTrackerCardViewModel {
   slug: string
 }
 
-interface PublishedTrackersSectionProps {
-  trackers: PublishedTrackerCardViewModel[]
-  onClone: (tracker: PublishedTrackerCardViewModel) => void
-  onOpen: (tracker: PublishedTrackerCardViewModel) => void
+interface IPublishedTrackersSectionProps {
+  trackers: IPublishedTrackerCardViewModel[]
+  onClone: (tracker: IPublishedTrackerCardViewModel) => void
+  onOpen: (tracker: IPublishedTrackerCardViewModel) => void
 }
 
 export default function PublishedTrackersSection({
   trackers,
   onClone,
   onOpen,
-}: PublishedTrackersSectionProps) {
+}: IPublishedTrackersSectionProps) {
   return (
     <section>
       <div className="mb-3.5 flex items-center justify-between animate-[fadeUp_0.38s_ease_0.32s_both]">

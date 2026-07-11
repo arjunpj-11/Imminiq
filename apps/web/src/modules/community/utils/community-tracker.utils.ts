@@ -1,4 +1,4 @@
-import type { CommunityPublicTrackerDetail } from '../types/community.types'
+import type { ICommunityPublicTrackerDetail } from '../types/community.types'
 
 export const ratingLabel: Readonly<Record<number, string>> = {
   1: 'Poor',
@@ -9,7 +9,7 @@ export const ratingLabel: Readonly<Record<number, string>> = {
 }
 
 export const getTotalSubtopics = (
-  tracker: CommunityPublicTrackerDetail,
+  tracker: ICommunityPublicTrackerDetail,
 ): number => {
   if (tracker.subtopicsCount > 0) {
     return tracker.subtopicsCount

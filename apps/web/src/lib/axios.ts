@@ -6,7 +6,7 @@ import type {
 import { useAuthStore } from '../store/useAuthStore'
 import { saveBlockedAppealIdentifier } from './blockedAppealSession'
 
-interface RefreshTokenResponse {
+interface IRefreshTokenResponse {
   success: boolean
   message: string
   data?: {
@@ -14,13 +14,13 @@ interface RefreshTokenResponse {
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
 }
 
-interface RetryableRequestConfig extends InternalAxiosRequestConfig {
+interface IRetryableRequestConfig extends InternalAxiosRequestConfig {
   _retry?: boolean
 }
 
@@ -108,9 +108,9 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
 
-  async (error: AxiosError<ApiErrorResponse>) => {
+  async (error: AxiosError<IApiErrorResponse>) => {
     const originalRequest =
-      error.config as RetryableRequestConfig | undefined
+      error.config as IRetryableRequestConfig | undefined
 
     if (!originalRequest) {
       return Promise.reject(error)
@@ -176,7 +176,7 @@ api.interceptors.response.use(
     try {
       const csrfToken = getCsrfToken()
 
-      const refreshResponse = await axios.post<RefreshTokenResponse>(
+      const refreshResponse = await axios.post<IRefreshTokenResponse>(
         `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
         {},
         {
@@ -206,7 +206,7 @@ api.interceptors.response.use(
       return api(originalRequest)
     } catch (refreshError) {
       const axiosRefreshError =
-        refreshError as AxiosError<ApiErrorResponse>
+        refreshError as AxiosError<IApiErrorResponse>
 
       const refreshStatus = axiosRefreshError.response?.status
       const refreshErrorCode =

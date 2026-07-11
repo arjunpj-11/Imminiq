@@ -4,7 +4,7 @@ import { Navigate, Outlet } from 'react-router-dom'
 import AuthLoadingScreen from '../components/ui/AuthLoadingScreen'
 import { useAuthStore } from '../store/useAuthStore'
 
-interface ProtectedRouteProps {
+interface IProtectedRouteProps {
   children?: ReactNode
 }
 
@@ -14,7 +14,7 @@ const isRestrictedStatus = (status?: string) =>
   status === 'deactivated' ||
   status === 'paused'
 
-export function ProtectedRoute({ children }: ProtectedRouteProps) {
+export function ProtectedRoute({ children }: IProtectedRouteProps) {
   const user = useAuthStore((state) => state.user)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
   const authReady = useAuthStore((state) => state.authReady)

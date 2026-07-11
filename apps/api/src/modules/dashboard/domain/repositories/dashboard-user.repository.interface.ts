@@ -1,5 +1,5 @@
 import type { DashboardUserEntity } from '../entities/dashboard-user.entity'
 
-export interface DashboardUserRepositoryContract {
+export interface IDashboardUserRepository {
   findUserById(userId: string): Promise<DashboardUserEntity | null>
 }

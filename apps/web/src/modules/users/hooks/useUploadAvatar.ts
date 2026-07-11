@@ -3,9 +3,9 @@ import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import { useAuthStore } from '../../../store/useAuthStore'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  ProfileImageUploadResponse,
+  IApiErrorResponse,
+  IApiResponse,
+  IProfileImageUploadResponse,
 } from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
@@ -15,8 +15,8 @@ export const useUploadAvatar = () => {
   const setUser = useAuthStore((state) => state.setUser)
 
   return useMutation<
-    ApiResponse<ProfileImageUploadResponse>,
-    AxiosError<ApiErrorResponse>,
+    IApiResponse<IProfileImageUploadResponse>,
+    AxiosError<IApiErrorResponse>,
     File
   >({
     mutationFn: async (file) => {
@@ -24,7 +24,7 @@ export const useUploadAvatar = () => {
       formData.append('file', file)
 
       const response = await api.post<
-        ApiResponse<ProfileImageUploadResponse>
+        IApiResponse<IProfileImageUploadResponse>
       >('/uploads/avatar', formData)
 
       return response.data

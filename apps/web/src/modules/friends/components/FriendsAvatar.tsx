@@ -1,6 +1,6 @@
 import UserAvatar from '../../../components/data-display/UserAvatar'
 
-interface FriendsAvatarProps {
+interface IFriendsAvatarProps {
   fullName: string
   avatarUrl?: string | null
   size?: 'sm' | 'md'
@@ -10,7 +10,7 @@ export default function FriendsAvatar({
   fullName,
   avatarUrl,
   size = 'md',
-}: FriendsAvatarProps) {
+}: IFriendsAvatarProps) {
   return (
     <UserAvatar
       name={fullName}

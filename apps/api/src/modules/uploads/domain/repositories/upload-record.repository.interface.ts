@@ -14,7 +14,7 @@ export type SoftDeleteLatestProfileUploadInput = {
   kind: ProfileUploadKind
 }
 
-export interface UploadRecordRepositoryContract {
+export interface IUploadRecordRepository {
   saveUploadRecord(
     input: SaveUploadRecordInput
   ): Promise<UploadedProfileImageEntity>

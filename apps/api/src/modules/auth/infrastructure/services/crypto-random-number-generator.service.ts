@@ -1,9 +1,9 @@
 import crypto from 'crypto'
 
-import type { RandomNumberGeneratorContract } from '../../domain/services/random-number-generator.interface'
+import type { IRandomNumberGenerator } from '../../domain/services/random-number-generator.interface'
 
 export class CryptoRandomNumberGenerator
-  implements RandomNumberGeneratorContract {
+  implements IRandomNumberGenerator {
   integer(minInclusive: number, maxExclusive: number): number {
     return crypto.randomInt(minInclusive, maxExclusive)
   }

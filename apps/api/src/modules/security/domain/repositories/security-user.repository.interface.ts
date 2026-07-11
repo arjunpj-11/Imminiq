@@ -26,7 +26,7 @@ export type ScheduleAccountDeletionInput = {
   scheduledDeletionAt: Date
 }
 
-export interface SecurityUserRepositoryContract {
+export interface ISecurityUserRepository {
   findUserById(userId: string): Promise<SecurityUserEntity | null>
 
   emailExists(email: string): Promise<boolean>

@@ -6,7 +6,7 @@ import Modal from './Modal'
 
 export type ConfirmDialogVariant = 'default' | 'danger'
 
-interface ConfirmDialogProps {
+interface IConfirmDialogProps {
   open: boolean
   title: ReactNode
   description?: ReactNode
@@ -34,7 +34,7 @@ export default function ConfirmDialog({
   onConfirm,
   onClose,
   contentClassName,
-}: ConfirmDialogProps) {
+}: IConfirmDialogProps) {
   const id = useId()
   const titleId = `confirm-title-${id}`
   const descriptionId = description ? `confirm-description-${id}` : undefined

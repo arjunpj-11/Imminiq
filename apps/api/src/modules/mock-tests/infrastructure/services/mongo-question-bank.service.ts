@@ -2,7 +2,7 @@ import { QuestionBankCounterModel } from '../../../../infrastructure/database/mo
 import { QuestionBankModel } from '../../../../infrastructure/database/models/question-bank.model'
 import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
 import type {
-  MockTestQuestionBankContract,
+  IMockTestQuestionBank,
   QuestionBankItem,
 } from '../../domain/services/mock-test-question-bank.interface'
 import type { DifficultyLevel } from '../../domain/value-objects/difficulty-level.vo'
@@ -10,7 +10,7 @@ import type { DifficultyLevel } from '../../domain/value-objects/difficulty-leve
 const USE_AI_GENERATION = true
 
 export class MongoQuestionBank
-  implements MockTestQuestionBankContract {
+  implements IMockTestQuestionBank {
   shouldUseAI(): boolean {
     return USE_AI_GENERATION
   }

@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 
-export interface RoadmapSubtopic {
+export interface IRoadmapSubtopic {
   _id?: string
   title: string
   description?: string
@@ -12,22 +12,22 @@ export interface RoadmapSubtopic {
   locked?: boolean
   difficulty?: 'beginner' | 'intermediate' | 'advanced'
   level?: 'beginner' | 'intermediate' | 'advanced'
-  children?: RoadmapSubtopic[]
-  subtopics?: RoadmapSubtopic[]
+  children?: IRoadmapSubtopic[]
+  subtopics?: IRoadmapSubtopic[]
 }
 
-export interface RoadmapTopic {
+export interface IRoadmapTopic {
   _id: string
   title: string
   description?: string
   order?: number
   status?: string
   subtopicsCount?: number
-  children?: RoadmapSubtopic[]
-  subtopics?: RoadmapSubtopic[]
+  children?: IRoadmapSubtopic[]
+  subtopics?: IRoadmapSubtopic[]
 }
 
-export interface RoadmapTracker {
+export interface IRoadmapTracker {
   _id: string
   title: string
   description?: string
@@ -40,36 +40,36 @@ export interface RoadmapTracker {
   subtopicsCount?: number
   progressPercent?: number
   createdAt?: string
-  topics?: RoadmapTopic[]
+  topics?: IRoadmapTopic[]
 }
 
-interface RoadmapJobResultData {
+interface IRoadmapJobResultData {
   jobId?: string
   status?: string
-  tracker?: RoadmapTracker
-  topics?: RoadmapTopic[]
+  tracker?: IRoadmapTracker
+  topics?: IRoadmapTopic[]
 }
 
-interface RoadmapJobResultResponse {
+interface IRoadmapJobResultResponse {
   success: boolean
   message: string
-  data?: RoadmapJobResultData
+  data?: IRoadmapJobResultData
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
 
 export const useRoadmapJobResult = (jobId?: string) => {
   return useQuery<
-    RoadmapJobResultResponse,
-    AxiosError<ApiErrorResponse>
+    IRoadmapJobResultResponse,
+    AxiosError<IApiErrorResponse>
   >({
     queryKey: ['roadmap-job-result', jobId],
 
     queryFn: async () => {
-      const response = await api.get<RoadmapJobResultResponse>(
+      const response = await api.get<IRoadmapJobResultResponse>(
         `/onboarding/jobs/${jobId}/result`
       )
 

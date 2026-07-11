@@ -1,8 +1,8 @@
 import { passwordResetSessionCache } from '../../../../infrastructure/cache/password-reset-session.cache'
-import type { PasswordResetSessionStoreContract } from '../../domain/services/password-reset-session-store.interface'
+import type { IPasswordResetSessionStore } from '../../domain/services/password-reset-session-store.interface'
 
 export class RedisPasswordResetSessionStore
-  implements PasswordResetSessionStoreContract {
+  implements IPasswordResetSessionStore {
   async save(jti: string, userId: string, ttlSeconds: number): Promise<void> {
     await passwordResetSessionCache.save(jti, userId, ttlSeconds)
   }

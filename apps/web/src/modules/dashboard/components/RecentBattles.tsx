@@ -1,10 +1,10 @@
-import type { DashboardRecentBattle } from '../types/dashboard.types'
+import type { IDashboardRecentBattle } from '../types/dashboard.types'
 import { cn } from '../utils/cn'
 import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters'
 import EmptyCard from './EmptyCard'
 
 type RecentBattlesProps = {
-  battles: DashboardRecentBattle[]
+  battles: IDashboardRecentBattle[]
 }
 
 export default function RecentBattles({ battles }: RecentBattlesProps) {

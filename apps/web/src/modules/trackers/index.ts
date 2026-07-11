@@ -5,7 +5,7 @@ export {
 } from './hooks/useTrackers'
 
 export type {
-  RoadmapSubtopic,
-  RoadmapTopic,
-  Tracker,
+  IRoadmapSubtopic,
+  IRoadmapTopic,
+  ITracker,
 } from './types/tracker.types'

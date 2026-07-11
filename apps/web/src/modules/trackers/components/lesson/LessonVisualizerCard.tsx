@@ -6,7 +6,7 @@ import { cn } from '../../utils/tracker-ui'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
-interface Props {
+interface IProps {
   trackerId: string
   subtopicId: string
   lessonTitle: string
@@ -245,7 +245,7 @@ export default function LessonVisualizerCard({
   trackerId,
   subtopicId,
   lessonTitle,
-}: Props) {
+}: IProps) {
   const visualizeMutation = useGenerateLessonVisualization()
 
   const [generatedHtml, setGeneratedHtml] = useState<string | null>(null)

@@ -1,15 +1,15 @@
-export interface GeneratePreviewImageInput {
+export interface IGeneratePreviewImageInput {
   prompt: string
   steps: number
   seed: number
 }
 
-export interface GeneratedPreviewImage {
+export interface IGeneratedPreviewImage {
   dataUrl: string
 }
 
-export interface AIImageGeneratorContract {
+export interface IAIImageGenerator {
   generatePreviewImage(
-    input: GeneratePreviewImageInput,
-  ): Promise<GeneratedPreviewImage>
+    input: IGeneratePreviewImageInput,
+  ): Promise<IGeneratedPreviewImage>
 }

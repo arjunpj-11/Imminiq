@@ -3,17 +3,17 @@ import {
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_MAX_LIMIT,
 } from '../../domain/constants/community.constants'
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityBrowseView, CommunityTrackerListPayload } from '../dtos/community.dto'
-import type { CommunityMapperContract } from '../mappers/community.mapper'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityBrowseViewDTO, ICommunityTrackerListPayloadDTO } from '../dtos/community.dto'
+import type { ICommunityMapper } from '../mappers/community.mapper'
 
 export class GetCommunityBrowseUseCase {
   constructor(
-    private readonly _repository: CommunityRepositoryContract,
-    private readonly _mapper: CommunityMapperContract,
+    private readonly _repository: ICommunityRepository,
+    private readonly _mapper: ICommunityMapper,
   ) {}
 
-  async execute(payload: CommunityTrackerListPayload): Promise<CommunityBrowseView> {
+  async execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityBrowseViewDTO> {
     const page = this.normalizePage(payload.page)
     const limit = this.normalizeLimit(payload.limit)
 

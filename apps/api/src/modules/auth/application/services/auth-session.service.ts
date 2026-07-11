@@ -1,29 +1,29 @@
 import { createHash } from 'crypto'
 
-import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
-import type { AuthTokenContract } from '../../domain/services/auth-token.interface'
+import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
+import type { IAuthToken } from '../../domain/services/auth-token.interface'
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
-import type { RequestMeta, TokenPair } from '../dtos/auth.dto'
+import type { RequestMetaDTO, ITokenPairDTO } from '../dtos/auth.dto'
 
-export interface AuthSessionIssuerContract {
+export interface IAuthSessionIssuer {
   issueTokenPair(
     userId: string,
     role: AuthRole,
-    meta?: RequestMeta
-  ): Promise<TokenPair>
+    meta?: RequestMetaDTO
+  ): Promise<ITokenPairDTO>
 }
 
-export class AuthSessionIssuer implements AuthSessionIssuerContract {
+export class AuthSessionIssuer implements IAuthSessionIssuer {
   constructor(
-    private readonly _authSessionRepository: AuthSessionRepositoryContract,
-    private readonly _authToken: AuthTokenContract
+    private readonly _authSessionRepository: IAuthSessionRepository,
+    private readonly _authToken: IAuthToken
   ) {}
 
   async issueTokenPair(
     userId: string,
     role: AuthRole,
-    meta?: RequestMeta
-  ): Promise<TokenPair> {
+    meta?: RequestMetaDTO
+  ): Promise<ITokenPairDTO> {
     const accessToken = this._authToken.generateAccessToken(userId, role)
     const refreshToken = this._authToken.generateRefreshToken()
     const refreshTokenHash = this.hashRefreshToken(refreshToken)

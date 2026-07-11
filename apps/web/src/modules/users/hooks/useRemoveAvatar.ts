@@ -3,9 +3,9 @@ import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import { useAuthStore } from '../../../store/useAuthStore'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  RemoveAvatarResponse,
+  IApiErrorResponse,
+  IApiResponse,
+  IRemoveAvatarResponse,
 } from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
@@ -15,12 +15,12 @@ export const useRemoveAvatar = () => {
   const setUser = useAuthStore((state) => state.setUser)
 
   return useMutation<
-    ApiResponse<RemoveAvatarResponse>,
-    AxiosError<ApiErrorResponse>,
+    IApiResponse<IRemoveAvatarResponse>,
+    AxiosError<IApiErrorResponse>,
     void
   >({
     mutationFn: async () => {
-      const response = await api.delete<ApiResponse<RemoveAvatarResponse>>(
+      const response = await api.delete<IApiResponse<IRemoveAvatarResponse>>(
         '/uploads/avatar'
       )
 

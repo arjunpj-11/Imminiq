@@ -1,11 +1,11 @@
 import { securityAuditLogger as sharedSecurityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 
 type SecurityAuditLoggerInput = Parameters<
   typeof sharedSecurityAuditLogger.record
 >[0]
 
-export class SecurityAuditLogger implements SecurityAuditLoggerContract {
+export class SecurityAuditLogger implements ISecurityAuditLogger {
   async record(data: {
     userId?: string
     eventType: SecurityAuditLoggerInput['eventType']

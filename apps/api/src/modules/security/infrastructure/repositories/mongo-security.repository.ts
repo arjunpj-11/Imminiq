@@ -1,5 +1,5 @@
 import type { RevokeSecuritySessionInput } from '../../domain/repositories/security-session.repository.interface'
-import type { SecurityRepositoryContract } from '../../domain/repositories/security.repository.interface'
+import type { ISecurityRepository } from '../../domain/repositories/security.repository.interface'
 import type {
   ActivateTwoFactorInput,
   SavePendingTwoFactorSetupInput,
@@ -21,7 +21,7 @@ type MongoSecurityRepositoryDependencies = {
   twoFactorRepository: MongoSecurityTwoFactorRepository
 }
 
-export class MongoSecurityRepository implements SecurityRepositoryContract {
+export class MongoSecurityRepository implements ISecurityRepository {
   private readonly _userRepository: MongoSecurityUserRepository
   private readonly _sessionRepository: MongoSecuritySessionRepository
   private readonly _twoFactorRepository: MongoSecurityTwoFactorRepository

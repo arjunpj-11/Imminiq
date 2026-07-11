@@ -4,15 +4,15 @@ import jwt, { SignOptions } from 'jsonwebtoken'
 import { env } from '../../../../config/env'
 import { AuthDomainError } from '../../domain/errors/auth-domain.error'
 import { PASSWORD_RESET_TOKEN_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
-import type { PasswordResetSessionStoreContract } from '../../domain/services/password-reset-session-store.interface'
-import type { PasswordResetTokenContract } from '../../domain/services/password-reset-token.interface'
+import type { IPasswordResetSessionStore } from '../../domain/services/password-reset-session-store.interface'
+import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface'
 import type { ResetTokenPayload } from '../../domain/value-objects/token-payload.vo'
 import { redisPasswordResetSessionStore } from '../stores/redis-password-reset-session.store'
 
 export class JwtPasswordResetToken
-  implements PasswordResetTokenContract {
+  implements IPasswordResetToken {
   constructor(
-    private readonly _passwordResetSessionStore: PasswordResetSessionStoreContract
+    private readonly _passwordResetSessionStore: IPasswordResetSessionStore
   ) {}
 
   async generate(userId: string): Promise<string> {

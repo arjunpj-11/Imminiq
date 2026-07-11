@@ -1,5 +1,5 @@
 import { CommunityApplicationError } from '../errors/community-application.error'
-import type { CommunityReviewRepositoryContract } from '../../domain/repositories/community-review.repository.interface'
+import type { ICommunityReviewRepository } from '../../domain/repositories/community-review.repository.interface'
 
 export type ToggleCommunityTrackerLikeInput = {
   trackerId: string
@@ -8,7 +8,7 @@ export type ToggleCommunityTrackerLikeInput = {
 
 export class ToggleCommunityTrackerLikeUseCase {
   constructor(
-    private readonly _communityReviewRepository: CommunityReviewRepositoryContract,
+    private readonly _communityReviewRepository: ICommunityReviewRepository,
   ) {}
 
   async execute(input: ToggleCommunityTrackerLikeInput) {

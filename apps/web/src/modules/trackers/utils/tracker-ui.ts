@@ -1,7 +1,7 @@
 import { cn } from '../../../lib/cn'
 export { cn }
 
-import type { Tracker, TrackerDomain, TrackerStatus } from '../types/tracker.types'
+import type { ITracker, TrackerDomain, TrackerStatus } from '../types/tracker.types'
 
 export const themedScrollbar =
   '[scrollbar-width:thin] [scrollbar-color:rgba(184,76,43,0.28)_transparent] dark:[scrollbar-color:rgba(232,129,106,0.34)_transparent] [&::-webkit-scrollbar]:h-[6px] [&::-webkit-scrollbar]:w-[6px] [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full [&::-webkit-scrollbar-thumb]:bg-[rgba(184,76,43,0.28)] dark:[&::-webkit-scrollbar-thumb]:bg-[rgba(232,129,106,0.34)]'
@@ -41,7 +41,7 @@ export const formatMinutes = (minutes?: number) => {
   return rest ? `${hours}h ${rest}m` : `${hours}h`
 }
 
-export const getTrackerInitials = (tracker: Pick<Tracker, 'title'>) => {
+export const getTrackerInitials = (tracker: Pick<ITracker, 'title'>) => {
   return (
     tracker.title
       .split(' ')

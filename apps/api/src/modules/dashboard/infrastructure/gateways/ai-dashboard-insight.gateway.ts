@@ -1,9 +1,9 @@
 import { generateDashboardInsights } from '../../../../infrastructure/ai/ai.service'
 import { DashboardDomainError } from '../../domain/errors/dashboard-domain.error'
-import type { DashboardInsightGeneratorContract } from '../../domain/services/dashboard-insight-generator.interface'
+import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
 
 export class AIDashboardInsightGenerator
-  implements DashboardInsightGeneratorContract {
+  implements IDashboardInsightGenerator {
   async generate(userData: string): Promise<string> {
     try {
       const insight = await generateDashboardInsights(userData)

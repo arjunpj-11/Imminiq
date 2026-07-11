@@ -1,9 +1,9 @@
 import bcrypt from 'bcryptjs'
 
 import { BCRYPT_ROUNDS } from '../../../../config/constants'
-import type { PasswordHasherContract } from '../../domain/services/password-hasher.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
 
-export class BcryptPasswordHasher implements PasswordHasherContract {
+export class BcryptPasswordHasher implements IPasswordHasher {
   async hash(value: string): Promise<string> {
     return bcrypt.hash(value, BCRYPT_ROUNDS)
   }

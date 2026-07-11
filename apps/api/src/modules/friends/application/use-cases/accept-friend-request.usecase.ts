@@ -1,23 +1,23 @@
-import type { FriendCommandRepositoryContract } from "../../domain/repositories/friend-command.repository.interface";
-import type { FriendQueryRepositoryContract } from "../../domain/repositories/friend-query.repository.interface";
+import type { IFriendCommandRepository } from "../../domain/repositories/friend-command.repository.interface";
+import type { IFriendQueryRepository } from "../../domain/repositories/friend-query.repository.interface";
 import type {
-  AcceptFriendRequestView,
-  FriendRequestActionPayload,
+  AcceptFriendRequestViewDTO,
+  FriendRequestActionPayloadDTO,
 } from "../dtos/friends.dto";
 import { FriendsApplicationError } from "../errors/friends-application.error";
-import type { FriendsMapperContract } from "../mappers/friends.mapper";
+import type { IFriendsMapper } from "../mappers/friends.mapper";
 
 export class AcceptFriendRequestUseCase {
   constructor(
-    private readonly _friendCommandRepository: FriendCommandRepositoryContract,
-    private readonly _friendQueryRepository: FriendQueryRepositoryContract,
-    private readonly _friendsMapper: FriendsMapperContract,
+    private readonly _friendCommandRepository: IFriendCommandRepository,
+    private readonly _friendQueryRepository: IFriendQueryRepository,
+    private readonly _friendsMapper: IFriendsMapper,
   ) {}
 
   async execute(
     receiverUserId: string,
-    payload: FriendRequestActionPayload,
-  ): Promise<AcceptFriendRequestView> {
+    payload: FriendRequestActionPayloadDTO,
+  ): Promise<AcceptFriendRequestViewDTO> {
     const result = await this._friendCommandRepository.acceptFriendRequest({
       requestId: payload.requestId,
       actorUserId: receiverUserId,

@@ -1,24 +1,24 @@
-import type { SettingsCommandRepositoryContract } from '../../domain/repositories/settings-command.repository.interface'
+import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface'
 import type {
-  UpdateCompilerPayload,
-  UserSettingsView,
+  IUpdateCompilerPayloadDTO,
+  UserSettingsViewDTO,
 } from '../dtos/settings.dto'
-import type { SettingsMapperContract } from '../mappers/settings.mapper'
+import type { ISettingsMapper } from '../mappers/settings.mapper'
 
 type UpdateCompilerRepository = {
-  updateCompiler: SettingsCommandRepositoryContract['updateCompiler']
+  updateCompiler: ISettingsCommandRepository['updateCompiler']
 }
 
 export class UpdateCompilerUseCase {
   constructor(
     private readonly _settingsRepository: UpdateCompilerRepository,
-    private readonly _settingsMapper: SettingsMapperContract,
+    private readonly _settingsMapper: ISettingsMapper,
   ) {}
 
   async execute(
     userId: string,
-    payload: UpdateCompilerPayload,
-  ): Promise<UserSettingsView | null> {
+    payload: IUpdateCompilerPayloadDTO,
+  ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateCompiler({
       userId,
       data: payload,

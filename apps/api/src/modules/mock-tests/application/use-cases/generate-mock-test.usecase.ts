@@ -1,21 +1,21 @@
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestActivityRecorderContract } from '../../domain/services/mock-test-activity.interface'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
-import type { MockTestAIGatewayContract } from '../../domain/services/mock-test-ai.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestActivityRecorder } from '../../domain/services/mock-test-activity.interface'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
 import type {
-  MockTestQuestionBankContract,
+  IMockTestQuestionBank,
   QuestionBankItem,
 } from '../../domain/services/mock-test-question-bank.interface'
 import type {
-  GenerateMockTestPayload,
-  MockTest,
+  IGenerateMockTestPayloadDTO,
+  IMockTestDTO,
 } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type GenerateMockTestRepository =
-  MockTestRepositoryContract &
-    MockTestQuestionRepositoryContract
+  IMockTestRepository &
+    IMockTestQuestionRepository
 
 export class GenerateMockTestUseCase {
   constructor(
@@ -23,20 +23,20 @@ export class GenerateMockTestUseCase {
       GenerateMockTestRepository,
 
     private readonly _aiGateway:
-      MockTestAIGatewayContract,
+      IMockTestAIGateway,
 
     private readonly _questionBank:
-      MockTestQuestionBankContract,
+      IMockTestQuestionBank,
 
     private readonly _activityRecorder:
-      MockTestActivityRecorderContract,
-    private readonly _mapper: MockTestsMapperContract,
+      IMockTestActivityRecorder,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(
     userId: string,
-    payload: GenerateMockTestPayload,
-  ): Promise<MockTest> {
+    payload: IGenerateMockTestPayloadDTO,
+  ): Promise<IMockTestDTO> {
     const topic = payload.topic?.trim()
 
     if (!topic || topic.length < 2) {

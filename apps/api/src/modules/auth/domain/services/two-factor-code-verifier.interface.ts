@@ -1,4 +1,4 @@
-export interface TwoFactorCodeVerifierContract {
+export interface ITwoFactorCodeVerifier {
   verifyTotp(data: {
     encryptedSecret: string
     token: string

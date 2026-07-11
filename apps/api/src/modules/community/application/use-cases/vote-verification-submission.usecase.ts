@@ -3,29 +3,29 @@ import {
   COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
   COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
 } from '../../domain/constants/community.constants'
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityActivityRecorderContract } from '../../domain/services/community-activity.interface'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface'
 import type {
-  VoteVerificationSubmissionPayload,
-  VoteVerificationSubmissionView,
+  IVoteVerificationSubmissionPayloadDTO,
+  IVoteVerificationSubmissionViewDTO,
 } from '../dtos/community.dto'
 import { CommunityApplicationError } from '../errors/community-application.error'
-import type { CommunityMapperContract } from '../mappers/community.mapper'
-import type { CommunityVerificationPolicyContract } from '../policies/community-verification.policy'
+import type { ICommunityMapper } from '../mappers/community.mapper'
+import type { ICommunityVerificationPolicy } from '../policies/community-verification.policy'
 
 export class VoteVerificationSubmissionUseCase {
   constructor(
-    private readonly _repository: CommunityRepositoryContract,
+    private readonly _repository: ICommunityRepository,
     private readonly _policy:
-      CommunityVerificationPolicyContract,
+      ICommunityVerificationPolicy,
     private readonly _activityRecorder:
-      CommunityActivityRecorderContract,
-    private readonly _mapper: CommunityMapperContract,
+      ICommunityActivityRecorder,
+    private readonly _mapper: ICommunityMapper,
   ) {}
 
   async execute(
-    payload: VoteVerificationSubmissionPayload,
-  ): Promise<VoteVerificationSubmissionView> {
+    payload: IVoteVerificationSubmissionPayloadDTO,
+  ): Promise<IVoteVerificationSubmissionViewDTO> {
     const submission =
       await this._repository.findVerificationSubmissionById(
         payload.submissionId,

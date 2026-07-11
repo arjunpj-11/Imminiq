@@ -1,29 +1,29 @@
 import type { ModerationAppealStatus } from '../../domain/value-objects/moderation-appeal-status.vo'
 
-export interface SubmitModerationAppealPayload {
+export interface ISubmitModerationAppealPayloadDTO {
   userId: string
   identifier: string
   appealReason: string
 }
 
-export interface GetModerationAppealStatusPayload {
+export interface IGetModerationAppealStatusPayloadDTO {
   userId: string
   identifier: string
 }
 
-export interface ModerationAppealStatusDto {
+export interface IModerationAppealStatusDTO {
   caseId: string
   status: ModerationAppealStatus
   submittedAt: Date
 }
 
-export interface SubmitModerationAppealResultDto {
+export interface ISubmitModerationAppealResultDTO {
   caseId: string
   status: ModerationAppealStatus
   submittedAt: Date
 }
 
-export interface GetActiveModerationAppealStatusResultDto {
+export interface IGetActiveModerationAppealStatusResultDTO {
   exists: boolean
-  appeal: ModerationAppealStatusDto | null
+  appeal: IModerationAppealStatusDTO | null
 }

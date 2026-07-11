@@ -81,7 +81,7 @@ export type TrackerProgressUpdateResult = {
   wasNewlyCompleted: boolean
 }
 
-export interface TrackerProgressRepositoryContract {
+export interface ITrackerProgressRepository {
   ensureUserProgressInitialized(
     data: EnsureUserProgressInitializedInput,
   ): Promise<void>

@@ -1,31 +1,31 @@
-import type { MockTestAIEvaluationRepositoryContract } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestAIGatewayContract } from '../../domain/services/mock-test-ai.interface'
-import type { SubmitAnswerPayload } from '../dtos/mock-tests.dto'
+import type { IMockTestAIEvaluationRepository } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
+import type { ISubmitAnswerPayloadDTO } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestScorerContract } from '../services/test-scorer.service'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestScorer } from '../services/test-scorer.service'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type SubmitAnswerRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAnswerRepositoryContract &
-  MockTestAIEvaluationRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestQuestionRepository &
+  IMockTestAnswerRepository &
+  IMockTestAIEvaluationRepository
 
 export class SubmitAnswerUseCase {
   constructor(
     private readonly _repository: SubmitAnswerRepository,
-    private readonly _aiGateway: MockTestAIGatewayContract,
-    private readonly _scorer: MockTestScorerContract,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _aiGateway: IMockTestAIGateway,
+    private readonly _scorer: IMockTestScorer,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(
     attemptId: string,
     userId: string,
-    payload: SubmitAnswerPayload,
+    payload: ISubmitAnswerPayloadDTO,
   ) {
     const attempt = await this._repository.findAttemptById(attemptId)
 

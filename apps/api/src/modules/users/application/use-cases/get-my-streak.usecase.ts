@@ -1,8 +1,8 @@
-import type { UsersProfileDataReaderContract } from '../services/users-profile-data.service'
+import type { IUsersProfileDataReader } from '../services/users-profile-data.service'
 
 export class GetMyStreakUseCase {
   constructor(
-    private readonly _profileDataReader: UsersProfileDataReaderContract,
+    private readonly _profileDataReader: IUsersProfileDataReader,
   ) {}
 
   async execute(userId: string, year?: number) {

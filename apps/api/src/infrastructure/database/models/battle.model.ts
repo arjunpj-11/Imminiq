@@ -7,7 +7,7 @@ export type BattleStatus =
   | 'live'
   | 'completed'
 
-export interface BattleDocument extends Document {
+export interface IBattleDocument extends Document {
   challengeId: mongoose.Types.ObjectId
   playerOneId: mongoose.Types.ObjectId
   playerTwoId: mongoose.Types.ObjectId
@@ -20,7 +20,7 @@ export interface BattleDocument extends Document {
   updatedAt: Date
 }
 
-const battleSchema = new Schema<BattleDocument>(
+const battleSchema = new Schema<IBattleDocument>(
   {
     challengeId: {
       type: Schema.Types.ObjectId,
@@ -84,7 +84,7 @@ battleSchema.index({
   status: 1,
 })
 
-export const Battle = mongoose.model<BattleDocument>(
+export const Battle = mongoose.model<IBattleDocument>(
   'Battle',
   battleSchema
 )

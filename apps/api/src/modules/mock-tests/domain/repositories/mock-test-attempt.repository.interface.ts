@@ -45,7 +45,7 @@ export type AbandonActiveMockTestAttemptsInput = {
   testId: string
 }
 
-export interface MockTestAttemptRepositoryContract {
+export interface IMockTestAttemptRepository {
   findAttemptById(
     attemptId: string,
   ): Promise<MockTestAttemptEntity | null>

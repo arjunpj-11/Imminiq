@@ -1,3 +1,3 @@
-export interface QuestionHasherContract {
+export interface IQuestionHasher {
   hash(question: string): string
 }

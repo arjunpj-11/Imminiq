@@ -37,7 +37,7 @@ import { UpdateTrackerUseCase } from './application/use-cases/update-tracker.use
 import { VerifyLessonAnswerUseCase } from './application/use-cases/verify-lesson-answer.usecase'
 import { VerifyTrackerSubtopicUseCase } from './application/use-cases/verify-tracker-subtopic.usecase'
 import { VerifyTrackerTopicUseCase } from './application/use-cases/verify-tracker-topic.usecase'
-import type { TrackerRepositoryContract } from './domain/repositories/tracker.repository.interface'
+import type { ITrackerRepository } from './domain/repositories/tracker.repository.interface'
 import { activityTrackerGateway } from './infrastructure/gateways/activity-tracker.gateway'
 import { aiTrackerGateway } from './infrastructure/gateways/ai-tracker.gateway'
 import { pistonCodeExecutionGateway } from './infrastructure/gateways/piston-code-execution.gateway'
@@ -182,7 +182,7 @@ export type TrackerUseCases = {
 }
 
 export type TrackerServiceHelpers = {
-  trackerRepository: TrackerRepositoryContract
+  trackerRepository: ITrackerRepository
 }
 
 export type TrackerComposition = {

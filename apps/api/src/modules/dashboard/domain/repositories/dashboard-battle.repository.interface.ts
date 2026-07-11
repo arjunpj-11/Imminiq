@@ -5,7 +5,7 @@ export type GetRecentBattlesInput = {
   limit?: number
 }
 
-export interface DashboardBattleRepositoryContract {
+export interface IDashboardBattleRepository {
   getRecentBattles(
     input: GetRecentBattlesInput
   ): Promise<DashboardBattleEntity[]>

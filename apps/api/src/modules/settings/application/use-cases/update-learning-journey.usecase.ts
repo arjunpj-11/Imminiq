@@ -1,24 +1,24 @@
-import type { SettingsCommandRepositoryContract } from '../../domain/repositories/settings-command.repository.interface'
+import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface'
 import type {
-  UpdateLearningJourneyPayload,
-  UserSettingsView,
+  IUpdateLearningJourneyPayloadDTO,
+  UserSettingsViewDTO,
 } from '../dtos/settings.dto'
-import type { SettingsMapperContract } from '../mappers/settings.mapper'
+import type { ISettingsMapper } from '../mappers/settings.mapper'
 
 type UpdateLearningJourneyRepository = {
-  updateLearningJourney: SettingsCommandRepositoryContract['updateLearningJourney']
+  updateLearningJourney: ISettingsCommandRepository['updateLearningJourney']
 }
 
 export class UpdateLearningJourneyUseCase {
   constructor(
     private readonly _settingsRepository: UpdateLearningJourneyRepository,
-    private readonly _settingsMapper: SettingsMapperContract,
+    private readonly _settingsMapper: ISettingsMapper,
   ) {}
 
   async execute(
     userId: string,
-    payload: UpdateLearningJourneyPayload,
-  ): Promise<UserSettingsView | null> {
+    payload: IUpdateLearningJourneyPayloadDTO,
+  ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateLearningJourney({
       userId,
       data: payload,

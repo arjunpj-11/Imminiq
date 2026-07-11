@@ -1,8 +1,8 @@
-interface AppNoiseOverlayProps {
+interface IAppNoiseOverlayProps {
   className?: string
 }
 
-export default function AppNoiseOverlay({ className = '' }: AppNoiseOverlayProps) {
+export default function AppNoiseOverlay({ className = '' }: IAppNoiseOverlayProps) {
   return (
     <div
       aria-hidden="true"

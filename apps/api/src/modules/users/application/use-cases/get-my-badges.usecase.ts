@@ -1,10 +1,10 @@
-import type { UserBadgeRepositoryContract } from '../../domain/repositories/user-badge.repository.interface'
-import type { UsersMapperContract } from '../mappers/users.mapper'
+import type { IUserBadgeRepository } from '../../domain/repositories/user-badge.repository.interface'
+import type { IUsersMapper } from '../mappers/users.mapper'
 
 export class GetMyBadgesUseCase {
   constructor(
-    private readonly _usersRepository: UserBadgeRepositoryContract,
-    private readonly _usersMapper: UsersMapperContract,
+    private readonly _usersRepository: IUserBadgeRepository,
+    private readonly _usersMapper: IUsersMapper,
   ) {}
 
   async execute(userId: string, page: number, limit: number) {

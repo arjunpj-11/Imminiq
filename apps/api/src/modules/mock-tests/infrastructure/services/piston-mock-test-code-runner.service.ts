@@ -5,7 +5,7 @@ import type { MockTestCodingDetails, MockTestCodingTestCase } from '../../domain
 import type {
   MockTestCodeRunMode,
   MockTestCodeRunResult,
-  MockTestCodeRunnerContract,
+  IMockTestCodeRunner,
   MockTestCodeTestCaseResult,
 } from '../../domain/services/mock-test-code-runner.interface'
 
@@ -647,9 +647,9 @@ const runMockTestCodingQuestion = async ({
 
 
 export class PistonMockTestCodeRunner
-  implements MockTestCodeRunnerContract {
+  implements IMockTestCodeRunner {
   async run(
-    input: Parameters<MockTestCodeRunnerContract['run']>[0],
+    input: Parameters<IMockTestCodeRunner['run']>[0],
   ): Promise<MockTestCodeRunResult> {
     try {
       return await runMockTestCodingQuestion(input)

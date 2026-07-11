@@ -3,22 +3,22 @@ import {
   AI_IMAGE_SEED_UPPER_BOUND,
 } from '../../domain/constants/uploads.constants'
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
-import type { AIImageGeneratorContract } from '../../domain/services/ai-image-generation.interface'
-import type { RandomSeedGeneratorContract } from '../../domain/services/random-seed.interface'
-import type { AIImagePreviewResult } from '../dtos/uploads.dto'
+import type { IAIImageGenerator } from '../../domain/services/ai-image-generation.interface'
+import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface'
+import type { IAIImagePreviewResultDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { UploadsMapperContract } from '../mappers/uploads.mapper'
-import type { AIUploadPromptBuilderContract } from '../services/ai-upload-prompt.service'
+import type { IUploadsMapper } from '../mappers/uploads.mapper'
+import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service'
 
 export class GenerateAIAvatarPreviewUseCase {
   constructor(
-    private readonly _aiImageGenerator: AIImageGeneratorContract,
-    private readonly _aiUploadPromptBuilder: AIUploadPromptBuilderContract,
-    private readonly _randomSeedGenerator: RandomSeedGeneratorContract,
-    private readonly _uploadsMapper: UploadsMapperContract,
+    private readonly _aiImageGenerator: IAIImageGenerator,
+    private readonly _aiUploadPromptBuilder: IAIUploadPromptBuilder,
+    private readonly _randomSeedGenerator: IRandomSeedGenerator,
+    private readonly _uploadsMapper: IUploadsMapper,
   ) {}
 
-  async execute(prompt: string): Promise<AIImagePreviewResult> {
+  async execute(prompt: string): Promise<IAIImagePreviewResultDTO> {
     const cleanedPrompt = prompt.trim()
 
     if (!cleanedPrompt) {

@@ -1,10 +1,10 @@
-import type { FriendRequest } from "../types/friends.types";
+import type { IFriendRequest } from "../types/friends.types";
 import FriendRequestCard from "./FriendRequestCard";
 import { FriendsEmptyState, FriendsLoadMoreButton } from "./FriendsStates";
 
-interface FriendRequestsViewProps {
-  received: FriendRequest[];
-  sent: FriendRequest[];
+interface IFriendRequestsViewProps {
+  received: IFriendRequest[];
+  sent: IFriendRequest[];
   receivedTotal: number;
   sentTotal: number;
   receivedHasMore: boolean;
@@ -14,9 +14,9 @@ interface FriendRequestsViewProps {
   acceptingRequestId?: string;
   decliningRequestId?: string;
   cancellingRequestId?: string;
-  onAccept: (request: FriendRequest) => void;
-  onDecline: (request: FriendRequest) => void;
-  onCancel: (request: FriendRequest) => void;
+  onAccept: (request: IFriendRequest) => void;
+  onDecline: (request: IFriendRequest) => void;
+  onCancel: (request: IFriendRequest) => void;
   onLoadMoreReceived: () => void;
   onLoadMoreSent: () => void;
 }
@@ -38,7 +38,7 @@ export default function FriendRequestsView({
   onCancel,
   onLoadMoreReceived,
   onLoadMoreSent,
-}: FriendRequestsViewProps) {
+}: IFriendRequestsViewProps) {
   return (
     <div className="flex flex-col gap-7">
       <section>

@@ -1,13 +1,13 @@
 // apps/api/src/modules/trackers/application/use-cases/ask-lesson-question-solution-doubt.usecase.ts
 
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
-import type { QuestionHasherContract } from '../../domain/services/question-hasher.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
+import type { IQuestionHasher } from '../../domain/services/question-hasher.interface'
 
-type AskLessonQuestionSolutionDoubtResultDto = ReturnType<
-  TrackerMapperContract['toLessonQuestionSolutionDoubtAnswerDto']
+type AskLessonQuestionSolutionDoubtResultDTO = ReturnType<
+  ITrackerMapper['toLessonQuestionSolutionDoubtAnswerDto']
 >
 
 const getDocumentId = (document: unknown) => {
@@ -26,10 +26,10 @@ const getDocumentId = (document: unknown) => {
 
 export class AskLessonQuestionSolutionDoubtUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIGateway: TrackerAIGatewayContract,
-    private readonly _questionHasher: QuestionHasherContract,
-    private readonly _trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _questionHasher: IQuestionHasher,
+    private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
   async execute(input: {
@@ -38,7 +38,7 @@ export class AskLessonQuestionSolutionDoubtUseCase {
     userId: string
     question: string
     message: string
-  }): Promise<AskLessonQuestionSolutionDoubtResultDto> {
+  }): Promise<AskLessonQuestionSolutionDoubtResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

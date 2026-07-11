@@ -8,7 +8,7 @@ export type AIGenerationStepStatus =
   | 'completed'
   | 'failed'
 
-export interface AIGenerationStepDocument extends Document {
+export interface IAIGenerationStepDocument extends Document {
   jobId: mongoose.Types.ObjectId
 
   stepNumber: number
@@ -22,7 +22,7 @@ export interface AIGenerationStepDocument extends Document {
   updatedAt: Date
 }
 
-const aiGenerationStepSchema = new Schema<AIGenerationStepDocument>(
+const aiGenerationStepSchema = new Schema<IAIGenerationStepDocument>(
   {
     jobId: {
       type: Schema.Types.ObjectId,
@@ -69,7 +69,7 @@ aiGenerationStepSchema.index(
 aiGenerationStepSchema.index({ jobId: 1, status: 1 })
 
 export const AIGenerationStep =
-  mongoose.model<AIGenerationStepDocument>(
+  mongoose.model<IAIGenerationStepDocument>(
     'AIGenerationStep',
     aiGenerationStepSchema
   )

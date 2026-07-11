@@ -59,7 +59,7 @@ export const ActivityContentSkeleton = () => (
   </div>
 )
 
-interface ActivityErrorStateProps {
+interface IActivityErrorStateProps {
   message?: string
   onRetry: () => void
 }
@@ -67,7 +67,7 @@ interface ActivityErrorStateProps {
 export const ActivityErrorState = ({
   message,
   onRetry,
-}: ActivityErrorStateProps) => (
+}: IActivityErrorStateProps) => (
   <div
     className="flex min-h-105 items-center justify-center px-4"
     role="alert"

@@ -1,9 +1,9 @@
-import type { ProfileImageRepositoryContract } from './profile-image.repository.interface'
-import type { UploadRecordRepositoryContract } from './upload-record.repository.interface'
+import type { IProfileImageRepository } from './profile-image.repository.interface'
+import type { IUploadRecordRepository } from './upload-record.repository.interface'
 
-export interface UploadsRepositoryContract
-  extends ProfileImageRepositoryContract,
-    UploadRecordRepositoryContract {}
+export interface IUploadsRepository
+  extends IProfileImageRepository,
+    IUploadRecordRepository {}
 
 export type {
   SetProfileAvatarUrlInput,

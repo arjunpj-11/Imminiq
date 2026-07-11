@@ -1,5 +1,5 @@
 import type { LoginRedirectPath } from '../value-objects/login-redirect-path.vo'
 
-export interface AuthRedirectResolverContract {
+export interface IAuthRedirectResolver {
   resolveRedirectPath(userId: string): Promise<LoginRedirectPath>
 }

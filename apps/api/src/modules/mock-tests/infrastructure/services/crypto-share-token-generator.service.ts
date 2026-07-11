@@ -1,9 +1,9 @@
 import { randomBytes } from 'crypto'
 import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
-import type { ShareTokenGeneratorContract } from '../../domain/services/share-token-generator.interface'
+import type { IShareTokenGenerator } from '../../domain/services/share-token-generator.interface'
 
 export class CryptoShareTokenGenerator
-  implements ShareTokenGeneratorContract {
+  implements IShareTokenGenerator {
   generate(): string {
     try {
       return randomBytes(24).toString('base64url')

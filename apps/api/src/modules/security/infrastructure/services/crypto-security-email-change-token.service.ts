@@ -3,12 +3,12 @@ import { createHash, randomBytes } from 'crypto'
 import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/constants/security.constants'
 import { SecurityDomainError } from '../../domain/errors/security-domain.error'
 import type {
-  EmailChangeTokenResult,
-  SecurityEmailChangeTokenContract,
+  IEmailChangeTokenResult,
+  ISecurityEmailChangeToken,
 } from '../../domain/services/security-email-change-token.interface'
 
-export class CryptoSecurityEmailChangeToken implements SecurityEmailChangeTokenContract {
-  generate(): EmailChangeTokenResult {
+export class CryptoSecurityEmailChangeToken implements ISecurityEmailChangeToken {
+  generate(): IEmailChangeTokenResult {
     try {
       const rawToken = randomBytes(32).toString('hex')
 

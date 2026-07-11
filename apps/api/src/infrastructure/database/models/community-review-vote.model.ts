@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose'
 
 export type CommunityReviewVoteChoice = 'pass' | 'fail'
 
-export interface CommunityReviewVoteDocument extends Document {
+export interface ICommunityReviewVoteDocument extends Document {
   submissionId: mongoose.Types.ObjectId
   userId: mongoose.Types.ObjectId
   choice: CommunityReviewVoteChoice
@@ -12,7 +12,7 @@ export interface CommunityReviewVoteDocument extends Document {
   updatedAt: Date
 }
 
-const communityReviewVoteSchema = new Schema<CommunityReviewVoteDocument>(
+const communityReviewVoteSchema = new Schema<ICommunityReviewVoteDocument>(
   {
     submissionId: {
       type: Schema.Types.ObjectId,
@@ -62,7 +62,7 @@ communityReviewVoteSchema.index({ rewardCoins: -1 })
 
 export const CommunityReviewVote =
   mongoose.models.CommunityReviewVote ||
-  mongoose.model<CommunityReviewVoteDocument>(
+  mongoose.model<ICommunityReviewVoteDocument>(
     'CommunityReviewVote',
     communityReviewVoteSchema,
   )

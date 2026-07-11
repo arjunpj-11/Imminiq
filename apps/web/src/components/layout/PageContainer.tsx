@@ -2,7 +2,7 @@ import type { ElementType, ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface PageContainerProps {
+interface IPageContainerProps {
   children: ReactNode
   className?: string
   as?: ElementType
@@ -14,7 +14,7 @@ export default function PageContainer({
   className,
   as: Component = 'div',
   density = 'comfortable',
-}: PageContainerProps) {
+}: IPageContainerProps) {
   return (
     <Component
       className={cn(

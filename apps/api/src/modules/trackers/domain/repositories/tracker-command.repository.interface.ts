@@ -18,7 +18,7 @@ export type RestoreOwnedTrackerInput = TrackerOwnerInput
 
 export type UnpublishOwnedTrackerInput = TrackerOwnerInput
 
-export interface TrackerCommandRepositoryContract {
+export interface ITrackerCommandRepository {
   createTracker(data: CreateTrackerInput): Promise<TrackerRecord>
 
   updateOwnedTracker(data: UpdateTrackerInput): Promise<TrackerRecord | null>

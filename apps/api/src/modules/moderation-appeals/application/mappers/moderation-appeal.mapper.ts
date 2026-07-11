@@ -1,26 +1,26 @@
 import type { ModerationAppealEntity } from '../../domain/entities/moderation-appeal.entity'
 import type {
-  GetActiveModerationAppealStatusResultDto,
-  ModerationAppealStatusDto,
-  SubmitModerationAppealResultDto,
+  IGetActiveModerationAppealStatusResultDTO,
+  IModerationAppealStatusDTO,
+  ISubmitModerationAppealResultDTO,
 } from '../dtos/moderation-appeal.dto'
 
-export interface ModerationAppealMapperContract {
+export interface IModerationAppealMapper {
   toSubmitResult(
     appeal: ModerationAppealEntity,
-  ): SubmitModerationAppealResultDto
+  ): ISubmitModerationAppealResultDTO
 
-  toStatusDto(appeal: ModerationAppealEntity): ModerationAppealStatusDto
+  toStatusDto(appeal: ModerationAppealEntity): IModerationAppealStatusDTO
 
   toActiveStatusResult(
     appeal: ModerationAppealEntity | null,
-  ): GetActiveModerationAppealStatusResultDto
+  ): IGetActiveModerationAppealStatusResultDTO
 }
 
-export class ModerationAppealMapper implements ModerationAppealMapperContract {
+export class ModerationAppealMapper implements IModerationAppealMapper {
   toSubmitResult(
     appeal: ModerationAppealEntity,
-  ): SubmitModerationAppealResultDto {
+  ): ISubmitModerationAppealResultDTO {
     return {
       caseId: appeal.caseId,
       status: appeal.status,
@@ -28,7 +28,7 @@ export class ModerationAppealMapper implements ModerationAppealMapperContract {
     }
   }
 
-  toStatusDto(appeal: ModerationAppealEntity): ModerationAppealStatusDto {
+  toStatusDto(appeal: ModerationAppealEntity): IModerationAppealStatusDTO {
     return {
       caseId: appeal.caseId,
       status: appeal.status,
@@ -38,7 +38,7 @@ export class ModerationAppealMapper implements ModerationAppealMapperContract {
 
   toActiveStatusResult(
     appeal: ModerationAppealEntity | null,
-  ): GetActiveModerationAppealStatusResultDto {
+  ): IGetActiveModerationAppealStatusResultDTO {
     if (!appeal) {
       return {
         exists: false,

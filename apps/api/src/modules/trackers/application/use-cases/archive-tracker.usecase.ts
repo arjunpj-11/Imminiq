@@ -1,19 +1,19 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 
-type ArchiveTrackerResultDto = ReturnType<TrackerMapperContract['toTrackerDto']>
+type ArchiveTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>
 
 export class ArchiveTrackerUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(input: {
     trackerId: string
     userId: string
-  }): Promise<ArchiveTrackerResultDto> {
+  }): Promise<ArchiveTrackerResultDTO> {
     const tracker = await this._trackerRepository.archiveOwnedTracker(input)
 
     if (!tracker) {

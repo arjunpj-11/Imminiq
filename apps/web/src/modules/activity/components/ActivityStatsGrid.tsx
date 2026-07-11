@@ -1,14 +1,14 @@
 import StatCard from '../../../components/data-display/StatCard'
 import StatGrid from '../../../components/data-display/StatGrid'
-import type { ActivityPageResponse } from '../types/activity.types'
+import type { IActivityPageResponse } from '../types/activity.types'
 import { formatCompactNumber } from '../utils/activity-formatters'
 import { ACTIVITY_STAT_ACCENTS } from '../utils/activity-ui'
 
-interface ActivityStatsGridProps {
-  stats: ActivityPageResponse['stats']
+interface IActivityStatsGridProps {
+  stats: IActivityPageResponse['stats']
 }
 
-export default function ActivityStatsGrid({ stats }: ActivityStatsGridProps) {
+export default function ActivityStatsGrid({ stats }: IActivityStatsGridProps) {
   const cards = [
     {
       label: 'Total XP',

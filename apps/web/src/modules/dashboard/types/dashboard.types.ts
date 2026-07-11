@@ -1,6 +1,6 @@
 // apps/web/src/types/dashboard.types.ts
 
-export interface DashboardUser {
+export interface IDashboardUser {
   _id: string
   fullName: string
   username: string
@@ -9,13 +9,13 @@ export interface DashboardUser {
   coinBalance: number
 }
 
-export interface DashboardStreak {
+export interface IDashboardStreak {
   current: number
   longest: number
   lastActiveAt: string | null
 }
 
-export interface DashboardActiveTracker {
+export interface IDashboardActiveTracker {
   _id: string
   title: string
   level: string
@@ -23,42 +23,42 @@ export interface DashboardActiveTracker {
   lastStudiedAt: string | null
 }
 
-export interface DashboardTrackers {
+export interface IDashboardTrackers {
   total: number
   active: number
   completed: number
-  activeTrackers: DashboardActiveTracker[]
+  activeTrackers: IDashboardActiveTracker[]
 }
 
-export interface DashboardStats {
+export interface IDashboardStats {
   totalSubtopicsCompleted: number
  
   totalPoints: number
   publishedTrackers: number
 }
 
-export interface DashboardRecentActivity {
+export interface IDashboardRecentActivity {
   type: string
   description: string
   createdAt: string
 }
 
-export interface DashboardNotifications {
+export interface IDashboardNotifications {
   unreadCount: number
   hasUnread: boolean
 }
 
-export interface DashboardSummary {
-  user: DashboardUser
-  streak: DashboardStreak
-  trackers: DashboardTrackers
-  stats: DashboardStats
-  recentActivity: DashboardRecentActivity[]
-  notifications: DashboardNotifications
+export interface IDashboardSummary {
+  user: IDashboardUser
+  streak: IDashboardStreak
+  trackers: IDashboardTrackers
+  stats: IDashboardStats
+  recentActivity: IDashboardRecentActivity[]
+  notifications: IDashboardNotifications
   isPremium: boolean
 }
 
-export interface DashboardCurrentRoadmap {
+export interface IDashboardCurrentRoadmap {
   _id: string
   title: string
   level: string
@@ -69,13 +69,13 @@ export interface DashboardCurrentRoadmap {
   remainingTopics?: number | null 
 }
 
-export interface DashboardActivityIntensityItem {
+export interface IDashboardActivityIntensityItem {
   date: string
   count: number
   activityCount: number
 }
 
-export interface DashboardFriend {
+export interface IDashboardFriend {
   _id: string
   fullName: string
   username: string
@@ -84,14 +84,14 @@ export interface DashboardFriend {
   isOnline: boolean
 }
 
-export interface DashboardRecommendedAction {
+export interface IDashboardRecommendedAction {
   type: string
   title: string
   description: string
   link: string
 }
 
-export interface DashboardRecentBattle {
+export interface IDashboardRecentBattle {
   _id: string
   opponent: {
     _id: string
@@ -104,11 +104,11 @@ export interface DashboardRecentBattle {
   completedAt: string
 }
 
-export interface DashboardAIInsight {
+export interface IDashboardAIInsight {
   insight: string
 }
 
-export interface ApiResponse<T> {
+export interface IApiResponse<T> {
   success?: boolean
   message: string
   data: T

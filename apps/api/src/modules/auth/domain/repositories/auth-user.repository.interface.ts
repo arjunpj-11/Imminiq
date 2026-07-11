@@ -39,7 +39,7 @@ export type UpdateAuthUserInput = {
   scheduledDeletionAt?: Date | null
 }
 
-export interface AuthUserRepositoryContract {
+export interface IAuthUserRepository {
   findByEmail(email: string): Promise<AuthUserEntity | null>
   findByPhone(phone: string): Promise<AuthUserEntity | null>
   findByIdentifier(identifier: string): Promise<AuthUserEntity | null>

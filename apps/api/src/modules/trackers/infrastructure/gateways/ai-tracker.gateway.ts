@@ -12,108 +12,108 @@ import {
   verifyTrackerTopic,
 } from '../../../../infrastructure/ai/ai.service'
 import { TrackerDomainError } from '../../domain/errors/tracker-domain.error'
-import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 
-type GatewayReturn<T extends keyof TrackerAIGatewayContract> = Awaited<
-  ReturnType<TrackerAIGatewayContract[T]>
+type GatewayReturn<T extends keyof ITrackerAIGateway> = Awaited<
+  ReturnType<ITrackerAIGateway[T]>
 >
 
-export class AITrackerGateway implements TrackerAIGatewayContract {
+export class AITrackerGateway implements ITrackerAIGateway {
   generateLesson(
-    input: Parameters<TrackerAIGatewayContract['generateLesson']>[0],
-  ): ReturnType<TrackerAIGatewayContract['generateLesson']> {
+    input: Parameters<ITrackerAIGateway['generateLesson']>[0],
+  ): ReturnType<ITrackerAIGateway['generateLesson']> {
     return this.runGateway<GatewayReturn<'generateLesson'>>(
-      () => generateLesson(input) as ReturnType<TrackerAIGatewayContract['generateLesson']>,
+      () => generateLesson(input) as ReturnType<ITrackerAIGateway['generateLesson']>,
       'LESSON_GENERATION_FAILED',
     )
   }
 
   chatWithLessonTutor(
-    input: Parameters<TrackerAIGatewayContract['chatWithLessonTutor']>[0],
-  ): ReturnType<TrackerAIGatewayContract['chatWithLessonTutor']> {
+    input: Parameters<ITrackerAIGateway['chatWithLessonTutor']>[0],
+  ): ReturnType<ITrackerAIGateway['chatWithLessonTutor']> {
     return this.runGateway<GatewayReturn<'chatWithLessonTutor'>>(
-      () => chatWithLessonTutor(input) as ReturnType<TrackerAIGatewayContract['chatWithLessonTutor']>,
+      () => chatWithLessonTutor(input) as ReturnType<ITrackerAIGateway['chatWithLessonTutor']>,
       'LESSON_CHAT_FAILED',
     )
   }
 
   generateLessonPracticeQuestions(
-    input: Parameters<TrackerAIGatewayContract['generateLessonPracticeQuestions']>[0],
-  ): ReturnType<TrackerAIGatewayContract['generateLessonPracticeQuestions']> {
+    input: Parameters<ITrackerAIGateway['generateLessonPracticeQuestions']>[0],
+  ): ReturnType<ITrackerAIGateway['generateLessonPracticeQuestions']> {
     return this.runGateway<GatewayReturn<'generateLessonPracticeQuestions'>>(
-      () => generateLessonPracticeQuestions(input) as ReturnType<TrackerAIGatewayContract['generateLessonPracticeQuestions']>,
+      () => generateLessonPracticeQuestions(input) as ReturnType<ITrackerAIGateway['generateLessonPracticeQuestions']>,
       'LESSON_QUESTIONS_GENERATION_FAILED',
     )
   }
 
   generateLessonQuestionSolution(
-    input: Parameters<TrackerAIGatewayContract['generateLessonQuestionSolution']>[0],
-  ): ReturnType<TrackerAIGatewayContract['generateLessonQuestionSolution']> {
+    input: Parameters<ITrackerAIGateway['generateLessonQuestionSolution']>[0],
+  ): ReturnType<ITrackerAIGateway['generateLessonQuestionSolution']> {
     return this.runGateway<GatewayReturn<'generateLessonQuestionSolution'>>(
-      () => generateLessonQuestionSolution(input) as ReturnType<TrackerAIGatewayContract['generateLessonQuestionSolution']>,
+      () => generateLessonQuestionSolution(input) as ReturnType<ITrackerAIGateway['generateLessonQuestionSolution']>,
       'QUESTION_SOLUTION_GENERATION_FAILED',
     )
   }
 
   chatWithLessonQuestionSolutionDoubt(
-    input: Parameters<TrackerAIGatewayContract['chatWithLessonQuestionSolutionDoubt']>[0],
-  ): ReturnType<TrackerAIGatewayContract['chatWithLessonQuestionSolutionDoubt']> {
+    input: Parameters<ITrackerAIGateway['chatWithLessonQuestionSolutionDoubt']>[0],
+  ): ReturnType<ITrackerAIGateway['chatWithLessonQuestionSolutionDoubt']> {
     return this.runGateway<GatewayReturn<'chatWithLessonQuestionSolutionDoubt'>>(
-      () => chatWithLessonQuestionSolutionDoubt(input) as ReturnType<TrackerAIGatewayContract['chatWithLessonQuestionSolutionDoubt']>,
+      () => chatWithLessonQuestionSolutionDoubt(input) as ReturnType<ITrackerAIGateway['chatWithLessonQuestionSolutionDoubt']>,
       'QUESTION_SOLUTION_CHAT_FAILED',
     )
   }
 
   generateLessonVisualization(
-    input: Parameters<TrackerAIGatewayContract['generateLessonVisualization']>[0],
-  ): ReturnType<TrackerAIGatewayContract['generateLessonVisualization']> {
+    input: Parameters<ITrackerAIGateway['generateLessonVisualization']>[0],
+  ): ReturnType<ITrackerAIGateway['generateLessonVisualization']> {
     return this.runGateway<GatewayReturn<'generateLessonVisualization'>>(
-      () => generateLessonVisualization(input) as ReturnType<TrackerAIGatewayContract['generateLessonVisualization']>,
+      () => generateLessonVisualization(input) as ReturnType<ITrackerAIGateway['generateLessonVisualization']>,
       'LESSON_VISUALIZATION_GENERATION_FAILED',
     )
   }
 
   generateCodeHint(
-    input: Parameters<TrackerAIGatewayContract['generateCodeHint']>[0],
-  ): ReturnType<TrackerAIGatewayContract['generateCodeHint']> {
+    input: Parameters<ITrackerAIGateway['generateCodeHint']>[0],
+  ): ReturnType<ITrackerAIGateway['generateCodeHint']> {
     return this.runGateway<GatewayReturn<'generateCodeHint'>>(
-      () => generateCodeHint(input) as ReturnType<TrackerAIGatewayContract['generateCodeHint']>,
+      () => generateCodeHint(input) as ReturnType<ITrackerAIGateway['generateCodeHint']>,
       'CODE_HINT_GENERATION_FAILED',
     )
   }
 
   generateOptimizedCodeSolution(
-    input: Parameters<TrackerAIGatewayContract['generateOptimizedCodeSolution']>[0],
-  ): ReturnType<TrackerAIGatewayContract['generateOptimizedCodeSolution']> {
+    input: Parameters<ITrackerAIGateway['generateOptimizedCodeSolution']>[0],
+  ): ReturnType<ITrackerAIGateway['generateOptimizedCodeSolution']> {
     return this.runGateway<GatewayReturn<'generateOptimizedCodeSolution'>>(
-      () => generateOptimizedCodeSolution(input) as ReturnType<TrackerAIGatewayContract['generateOptimizedCodeSolution']>,
+      () => generateOptimizedCodeSolution(input) as ReturnType<ITrackerAIGateway['generateOptimizedCodeSolution']>,
       'OPTIMIZED_CODE_GENERATION_FAILED',
     )
   }
 
   verifyNonCodingAnswer(
-    input: Parameters<TrackerAIGatewayContract['verifyNonCodingAnswer']>[0],
-  ): ReturnType<TrackerAIGatewayContract['verifyNonCodingAnswer']> {
+    input: Parameters<ITrackerAIGateway['verifyNonCodingAnswer']>[0],
+  ): ReturnType<ITrackerAIGateway['verifyNonCodingAnswer']> {
     return this.runGateway<GatewayReturn<'verifyNonCodingAnswer'>>(
-      () => verifyNonCodingAnswer(input) as ReturnType<TrackerAIGatewayContract['verifyNonCodingAnswer']>,
+      () => verifyNonCodingAnswer(input) as ReturnType<ITrackerAIGateway['verifyNonCodingAnswer']>,
       'LESSON_ANSWER_VERIFICATION_FAILED',
     )
   }
 
   verifyTrackerTopic(
-    input: Parameters<TrackerAIGatewayContract['verifyTrackerTopic']>[0],
-  ): ReturnType<TrackerAIGatewayContract['verifyTrackerTopic']> {
+    input: Parameters<ITrackerAIGateway['verifyTrackerTopic']>[0],
+  ): ReturnType<ITrackerAIGateway['verifyTrackerTopic']> {
     return this.runGateway<GatewayReturn<'verifyTrackerTopic'>>(
-      () => verifyTrackerTopic(input) as ReturnType<TrackerAIGatewayContract['verifyTrackerTopic']>,
+      () => verifyTrackerTopic(input) as ReturnType<ITrackerAIGateway['verifyTrackerTopic']>,
       'TOPIC_VERIFICATION_FAILED',
     )
   }
 
   verifyTrackerSubtopic(
-    input: Parameters<TrackerAIGatewayContract['verifyTrackerSubtopic']>[0],
-  ): ReturnType<TrackerAIGatewayContract['verifyTrackerSubtopic']> {
+    input: Parameters<ITrackerAIGateway['verifyTrackerSubtopic']>[0],
+  ): ReturnType<ITrackerAIGateway['verifyTrackerSubtopic']> {
     return this.runGateway<GatewayReturn<'verifyTrackerSubtopic'>>(
-      () => verifyTrackerSubtopic(input) as ReturnType<TrackerAIGatewayContract['verifyTrackerSubtopic']>,
+      () => verifyTrackerSubtopic(input) as ReturnType<ITrackerAIGateway['verifyTrackerSubtopic']>,
       'SUBTOPIC_VERIFICATION_FAILED',
     )
   }

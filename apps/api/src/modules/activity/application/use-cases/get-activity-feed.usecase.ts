@@ -3,31 +3,31 @@ import {
   ACTIVITY_MAX_FEED_LIMIT,
   ACTIVITY_MIN_FEED_LIMIT,
 } from '../../domain/constants/activity.constants'
-import type { ActivityQueryRepositoryContract } from '../../domain/repositories/activity-query.repository.interface'
+import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
 import { activityCategoriesForFilter } from '../../domain/value-objects/activity-category.vo'
 import type {
-  ActivityFeedResponse,
-  GetActivityFeedPayload,
+  ActivityFeedResponseDTO,
+  GetActivityFeedPayloadDTO,
 } from '../dtos/activity.dto'
 import type { ActivityCursorCodecContract } from '../services/activity-cursor.service'
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import type { ActivityMapperContract } from '../mappers/activity.mapper'
-import type { ClockContract } from '../../../../shared/time/clock.interface'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class GetActivityFeedUseCase {
   constructor(
-    private readonly _activityRepository: ActivityQueryRepositoryContract,
+    private readonly _activityRepository: IActivityQueryRepository,
     private readonly _mapper: ActivityMapperContract,
     private readonly _dateRange: ActivityDateRangeContract,
     private readonly _cursorCodec: ActivityCursorCodecContract,
-    private readonly _clock: ClockContract,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
     userId: string,
-    payload: GetActivityFeedPayload,
+    payload: GetActivityFeedPayloadDTO,
     now = this._clock.now(),
-  ): Promise<ActivityFeedResponse> {
+  ): Promise<ActivityFeedResponseDTO> {
     const filter = payload.filter ?? 'all'
     const limit = this.normalizeLimit(payload.limit)
     const cursor = this._cursorCodec.decode(payload.cursor)

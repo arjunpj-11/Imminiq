@@ -1,4 +1,4 @@
-import type { FriendUser } from "../types/friends.types";
+import type { IFriendUser } from "../types/friends.types";
 import { formatMutualFriends } from "../utils/friends-formatters";
 import FriendsAvatar from "./FriendsAvatar";
 import {
@@ -8,10 +8,10 @@ import {
   UserPlusIcon,
 } from "./icons/FriendsIcons";
 
-interface FriendSearchResultCardProps {
-  user: FriendUser;
+interface IFriendSearchResultCardProps {
+  user: IFriendUser;
   sending: boolean;
-  onSendRequest: (user: FriendUser) => void;
+  onSendRequest: (user: IFriendUser) => void;
   onOpenRequests: () => void;
 }
 
@@ -20,7 +20,7 @@ export default function FriendSearchResultCard({
   sending,
   onSendRequest,
   onOpenRequests,
-}: FriendSearchResultCardProps) {
+}: IFriendSearchResultCardProps) {
   const relationship = user.relationship;
 
   return (

@@ -3,23 +3,23 @@ import type { AxiosError } from 'axios'
 
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  CommunityTracker,
+  IApiErrorResponse,
+  IApiResponse,
+  ICommunityTracker,
 } from '../types/community.types'
 
-interface CloneCommunityTrackerPayload {
+interface ICloneCommunityTrackerPayload {
   trackerId: string
 }
 
-interface CloneCommunityTrackerData {
-  tracker: CommunityTracker
+interface ICloneCommunityTrackerData {
+  tracker: ICommunityTracker
 }
 
 const cloneCommunityTracker = async (
-  payload: CloneCommunityTrackerPayload,
-): Promise<CloneCommunityTrackerData> => {
-  const response = await api.post<ApiResponse<CloneCommunityTrackerData>>(
+  payload: ICloneCommunityTrackerPayload,
+): Promise<ICloneCommunityTrackerData> => {
+  const response = await api.post<IApiResponse<ICloneCommunityTrackerData>>(
     `/community/trackers/${payload.trackerId}/clone`,
   )
 
@@ -34,9 +34,9 @@ export const useCloneCommunityTracker = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    CloneCommunityTrackerData,
-    AxiosError<ApiErrorResponse>,
-    CloneCommunityTrackerPayload
+    ICloneCommunityTrackerData,
+    AxiosError<IApiErrorResponse>,
+    ICloneCommunityTrackerPayload
   >({
     mutationFn: cloneCommunityTracker,
     onSuccess: () => {

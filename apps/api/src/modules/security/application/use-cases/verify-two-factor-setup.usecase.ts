@@ -1,26 +1,26 @@
 import { TWO_FACTOR_SETUP_ATTEMPT_SCOPE } from '../../domain/constants/security.constants'
-import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
-import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
-import type { TwoFactorBackupCodeManagerContract } from '../../domain/services/two-factor-backup-code.interface'
-import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
+import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
+import type { ITwoFactorBackupCodeManager } from '../../domain/services/two-factor-backup-code.interface'
+import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
 import type {
-  TwoFactorVerifyResponseDto,
-  VerifyTwoFactorSetupPayload,
+  ITwoFactorVerifyResponseDTO,
+  IVerifyTwoFactorSetupPayloadDTO,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
 export class VerifyTwoFactorSetupUseCase {
   constructor(
-    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
-    private readonly _twoFactorGateway: TwoFactorGatewayContract,
-    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly _backupCodeManager: TwoFactorBackupCodeManagerContract,
+    private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
+    private readonly _twoFactorGateway: ITwoFactorGateway,
+    private readonly _securityAttemptStore: ISecurityAttemptStore,
+    private readonly _backupCodeManager: ITwoFactorBackupCodeManager,
   ) {}
 
   async execute(
     userId: string,
-    payload: VerifyTwoFactorSetupPayload,
-  ): Promise<TwoFactorVerifyResponseDto> {
+    payload: IVerifyTwoFactorSetupPayloadDTO,
+  ): Promise<ITwoFactorVerifyResponseDTO> {
     await this.assertSetupVerificationAllowed(userId)
 
     const twoFactor =

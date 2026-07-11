@@ -1,4 +1,4 @@
-export interface SecurityAuditLoggerContract {
+export interface ISecurityAuditLogger {
   record(data: {
     userId?: string
     eventType: string

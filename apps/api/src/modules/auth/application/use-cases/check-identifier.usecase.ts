@@ -1,10 +1,10 @@
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 
 export class CheckIdentifierUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _identifierNormalizer: IIdentifierNormalizer
   ) {}
 
   async execute(identifier: string): Promise<{

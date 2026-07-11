@@ -1,13 +1,13 @@
 import type {
   AwardCommunityCoinsInput,
   AwardCommunityCoinsResult,
-  CommunityCoinLedgerContract,
+  ICommunityCoinLedger,
 } from '../../domain/services/community-coin-ledger.interface'
 import { CommunityUserModel } from '../repositories/shared/mongo-community.models'
 import type { MongoUserRecord } from '../repositories/shared/mongo-community.types'
 
 export class MongoCommunityCoinLedger
-  implements CommunityCoinLedgerContract
+  implements ICommunityCoinLedger
 {
   async awardCoins(
     data: AwardCommunityCoinsInput,

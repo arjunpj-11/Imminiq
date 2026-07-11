@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import Button from '../ui/Button'
 import EmptyState from './EmptyState'
 
-interface ErrorStateProps {
+interface IErrorStateProps {
   title?: ReactNode
   description?: ReactNode
   onRetry?: () => void
@@ -15,7 +15,7 @@ export default function ErrorState({
   description = 'The content could not be loaded. Please try again.',
   onRetry,
   action,
-}: ErrorStateProps) {
+}: IErrorStateProps) {
   return (
     <EmptyState
       title={title}

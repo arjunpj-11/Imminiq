@@ -1,13 +1,13 @@
 // apps/api/src/modules/trackers/application/use-cases/get-tracker-lesson.usecase.ts
 
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
 
-type GetTrackerLessonResultDto = ReturnType<
-  TrackerMapperContract['toGeneratedLessonDto']
+type GetTrackerLessonResultDTO = ReturnType<
+  ITrackerMapper['toGeneratedLessonDto']
 >
 
 const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
@@ -26,16 +26,16 @@ const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
 
 export class GetTrackerLessonUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIGateway: TrackerAIGatewayContract,
-    private readonly _trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
   async execute(input: {
     trackerId: string
     subtopicId: string
     userId: string
-  }): Promise<GetTrackerLessonResultDto> {
+  }): Promise<GetTrackerLessonResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

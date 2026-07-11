@@ -1,20 +1,20 @@
 import {
   MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS,
 } from '../constants/moderation-appeal.constants'
-import type { ModerationAppealQueryRepositoryContract } from '../../domain/repositories/moderation-appeal-query.repository.interface'
-import type { ModerationAppealCaseIdGeneratorContract } from '../../domain/services/case-id-generator.interface'
+import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface'
+import type { IModerationAppealCaseIdGenerator } from '../../domain/services/case-id-generator.interface'
 import { ModerationAppealApplicationError } from '../errors/moderation-appeal-application.error'
 
-export interface ModerationAppealCaseIdAllocatorContract {
+export interface IModerationAppealCaseIdAllocator {
   generateUniqueCaseId(): Promise<string>
 }
 
 export class ModerationAppealCaseIdAllocator
-  implements ModerationAppealCaseIdAllocatorContract
+  implements IModerationAppealCaseIdAllocator
 {
   constructor(
-    private readonly _moderationAppealRepository: ModerationAppealQueryRepositoryContract,
-    private readonly _caseIdGenerator: ModerationAppealCaseIdGeneratorContract,
+    private readonly _moderationAppealRepository: IModerationAppealQueryRepository,
+    private readonly _caseIdGenerator: IModerationAppealCaseIdGenerator,
   ) {}
 
   async generateUniqueCaseId(): Promise<string> {

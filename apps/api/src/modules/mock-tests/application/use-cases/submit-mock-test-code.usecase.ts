@@ -1,26 +1,26 @@
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestCodeRunnerContract } from '../../domain/services/mock-test-code-runner.interface'
-import type { SubmitMockTestCodePayload } from '../dtos/mock-tests.dto'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface'
+import type { SubmitMockTestCodePayloadDTO } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type SubmitMockTestCodeRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAnswerRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestQuestionRepository &
+  IMockTestAnswerRepository
 
 export class SubmitMockTestCodeUseCase {
   constructor(
     private readonly _repository: SubmitMockTestCodeRepository,
-    private readonly _codeRunner: MockTestCodeRunnerContract,
+    private readonly _codeRunner: IMockTestCodeRunner,
   ) {}
 
   async execute(
     attemptId: string,
     userId: string,
     questionId: string,
-    payload: SubmitMockTestCodePayload,
+    payload: SubmitMockTestCodePayloadDTO,
   ) {
     const attempt = await this._repository.findAttemptById(attemptId)
 

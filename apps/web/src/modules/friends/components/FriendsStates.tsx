@@ -1,11 +1,11 @@
 import { AlertIcon, SpinnerIcon } from "./icons/FriendsIcons";
 
-interface EmptyStateProps {
+interface IEmptyStateProps {
   title: string;
   message: string;
 }
 
-export const FriendsEmptyState = ({ title, message }: EmptyStateProps) => (
+export const FriendsEmptyState = ({ title, message }: IEmptyStateProps) => (
   <div className="rounded-lg border border-dashed border-(--border-subtle) px-5 py-10 text-center dark:border-(--border-subtle)">
     <p className="font-ui text-[19px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
       {title}
@@ -16,7 +16,7 @@ export const FriendsEmptyState = ({ title, message }: EmptyStateProps) => (
   </div>
 );
 
-interface ErrorStateProps {
+interface IErrorStateProps {
   message?: string | undefined;
   onRetry?: () => void;
 }
@@ -24,7 +24,7 @@ interface ErrorStateProps {
 export const FriendsErrorState = ({
   message = "We could not load your friends right now.",
   onRetry,
-}: ErrorStateProps) => (
+}: IErrorStateProps) => (
   <div
     role="alert"
     className="rounded-lg border border-[rgba(217,69,53,0.22)] bg-[rgba(217,69,53,0.06)] px-5 py-8 text-center dark:border-[rgba(255,107,95,0.2)] dark:bg-[rgba(255,107,95,0.06)]"

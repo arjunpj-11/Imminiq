@@ -1,21 +1,21 @@
-import type { FriendCommandRepositoryContract } from "../../domain/repositories/friend-command.repository.interface";
+import type { IFriendCommandRepository } from "../../domain/repositories/friend-command.repository.interface";
 import type {
-  FriendActionView,
-  RemoveFriendPayload,
+  FriendActionViewDTO,
+  RemoveFriendPayloadDTO,
 } from "../dtos/friends.dto";
 import { FriendsApplicationError } from "../errors/friends-application.error";
-import type { FriendRelationshipPolicyContract } from "../policies/friend-relationship.policy";
+import type { IFriendRelationshipPolicy } from "../policies/friend-relationship.policy";
 
 export class RemoveFriendUseCase {
   constructor(
-    private readonly _friendCommandRepository: FriendCommandRepositoryContract,
-    private readonly _friendRelationshipPolicy: FriendRelationshipPolicyContract,
+    private readonly _friendCommandRepository: IFriendCommandRepository,
+    private readonly _friendRelationshipPolicy: IFriendRelationshipPolicy,
   ) {}
 
   async execute(
     userId: string,
-    payload: RemoveFriendPayload,
-  ): Promise<FriendActionView> {
+    payload: RemoveFriendPayloadDTO,
+  ): Promise<FriendActionViewDTO> {
     this._friendRelationshipPolicy.ensureDifferentUsers(
       userId,
       payload.friendUserId,

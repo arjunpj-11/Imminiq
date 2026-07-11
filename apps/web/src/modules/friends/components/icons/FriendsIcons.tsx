@@ -1,9 +1,9 @@
-interface IconProps {
+interface IIconProps {
   size?: number;
   className?: string;
 }
 
-export const BackIcon = ({ size = 15, className = "" }: IconProps) => (
+export const BackIcon = ({ size = 15, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -22,7 +22,7 @@ export const BackIcon = ({ size = 15, className = "" }: IconProps) => (
   </svg>
 );
 
-export const SearchIcon = ({ size = 15, className = "" }: IconProps) => (
+export const SearchIcon = ({ size = 15, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -41,7 +41,7 @@ export const SearchIcon = ({ size = 15, className = "" }: IconProps) => (
   </svg>
 );
 
-export const UserPlusIcon = ({ size = 14, className = "" }: IconProps) => (
+export const UserPlusIcon = ({ size = 14, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -67,7 +67,7 @@ export const UserPlusIcon = ({ size = 14, className = "" }: IconProps) => (
   </svg>
 );
 
-export const ClockIcon = ({ size = 14, className = "" }: IconProps) => (
+export const ClockIcon = ({ size = 14, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -87,7 +87,7 @@ export const ClockIcon = ({ size = 14, className = "" }: IconProps) => (
   </svg>
 );
 
-export const CheckIcon = ({ size = 14, className = "" }: IconProps) => (
+export const CheckIcon = ({ size = 14, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -106,7 +106,7 @@ export const CheckIcon = ({ size = 14, className = "" }: IconProps) => (
   </svg>
 );
 
-export const CloseIcon = ({ size = 14, className = "" }: IconProps) => (
+export const CloseIcon = ({ size = 14, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -124,7 +124,7 @@ export const CloseIcon = ({ size = 14, className = "" }: IconProps) => (
   </svg>
 );
 
-export const FriendsIcon = ({ size = 15, className = "" }: IconProps) => (
+export const FriendsIcon = ({ size = 15, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -149,7 +149,7 @@ export const FriendsIcon = ({ size = 15, className = "" }: IconProps) => (
   </svg>
 );
 
-export const MoreIcon = ({ size = 16, className = "" }: IconProps) => (
+export const MoreIcon = ({ size = 16, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -164,7 +164,7 @@ export const MoreIcon = ({ size = 16, className = "" }: IconProps) => (
   </svg>
 );
 
-export const AlertIcon = ({ size = 16, className = "" }: IconProps) => (
+export const AlertIcon = ({ size = 16, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -189,7 +189,7 @@ export const AlertIcon = ({ size = 16, className = "" }: IconProps) => (
   </svg>
 );
 
-export const SpinnerIcon = ({ size = 16, className = "" }: IconProps) => (
+export const SpinnerIcon = ({ size = 16, className = "" }: IIconProps) => (
   <svg
     width={size}
     height={size}

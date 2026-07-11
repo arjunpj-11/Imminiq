@@ -1,24 +1,24 @@
-import type { SettingsCommandRepositoryContract } from '../../domain/repositories/settings-command.repository.interface'
+import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface'
 import type {
-  UpdateEmailDigestPayload,
-  UserSettingsView,
+  IUpdateEmailDigestPayloadDTO,
+  UserSettingsViewDTO,
 } from '../dtos/settings.dto'
-import type { SettingsMapperContract } from '../mappers/settings.mapper'
+import type { ISettingsMapper } from '../mappers/settings.mapper'
 
 type UpdateEmailDigestRepository = {
-  updateEmailDigest: SettingsCommandRepositoryContract['updateEmailDigest']
+  updateEmailDigest: ISettingsCommandRepository['updateEmailDigest']
 }
 
 export class UpdateEmailDigestUseCase {
   constructor(
     private readonly _settingsRepository: UpdateEmailDigestRepository,
-    private readonly _settingsMapper: SettingsMapperContract,
+    private readonly _settingsMapper: ISettingsMapper,
   ) {}
 
   async execute(
     userId: string,
-    payload: UpdateEmailDigestPayload,
-  ): Promise<UserSettingsView | null> {
+    payload: IUpdateEmailDigestPayloadDTO,
+  ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateEmailDigest({
       userId,
       data: payload,

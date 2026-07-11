@@ -19,7 +19,7 @@ import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import type { AuthComposition } from '../auth.factory'
-import type { OAuthLoginUser } from '../application/dtos/auth.dto'
+import type { OAuthLoginUserDTO } from '../application/dtos/auth.dto'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 const TWO_FACTOR_CHALLENGE_COOKIE_NAME = 'twoFactorChallengeToken'
@@ -409,7 +409,7 @@ export class AuthController {
       }
 
       const result = await this._useCases.handleOAuthLogin.execute(
-        req.user as unknown as OAuthLoginUser,
+        req.user as unknown as OAuthLoginUserDTO,
         this.getRequestMeta(req)
       )
 

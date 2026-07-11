@@ -1,12 +1,12 @@
-import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
-import type { TwoFactorStatusResponseDto } from '../dtos/security.dto'
+import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
+import type { ITwoFactorStatusResponseDTO } from '../dtos/security.dto'
 
 export class GetTwoFactorStatusUseCase {
   constructor(
-    private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
+    private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
   ) {}
 
-  async execute(userId: string): Promise<TwoFactorStatusResponseDto> {
+  async execute(userId: string): Promise<ITwoFactorStatusResponseDTO> {
     const twoFactor =
       await this._twoFactorRepository.findTwoFactorByUserId(userId)
 

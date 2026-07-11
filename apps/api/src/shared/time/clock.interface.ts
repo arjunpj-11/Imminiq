@@ -1,3 +1,3 @@
-export interface ClockContract {
+export interface IClock {
   now(): Date
 }

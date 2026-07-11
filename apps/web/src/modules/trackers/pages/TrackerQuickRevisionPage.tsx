@@ -7,7 +7,7 @@ import { AppShellBoundary } from '../../../components/layout/AppShell'
 import { useTrackerRoadmap, useTrackerLesson } from '../hooks/useTrackers'
 
 import MathText from '../components/lesson/MathText'
-import type { RoadmapSubtopic, RoadmapTopic } from '../types/tracker.types'
+import type { IRoadmapSubtopic, IRoadmapTopic } from '../types/tracker.types'
 import { cn } from '../utils/tracker-ui'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -28,7 +28,7 @@ type FlatNode = {
 
 // ─── Mappers ──────────────────────────────────────────────────────────────────
 
-const mapSubtopicToNode = (s: RoadmapSubtopic, depth: number): FlatNode => ({
+const mapSubtopicToNode = (s: IRoadmapSubtopic, depth: number): FlatNode => ({
   _id: s._id,
   title: s.title,
   description: s.description,
@@ -41,7 +41,7 @@ const mapSubtopicToNode = (s: RoadmapSubtopic, depth: number): FlatNode => ({
   children: (s.children || []).map((c) => mapSubtopicToNode(c, depth + 1)),
 })
 
-const mapTopicToNode = (t: RoadmapTopic): FlatNode => ({
+const mapTopicToNode = (t: IRoadmapTopic): FlatNode => ({
   _id: t._id,
   title: t.title,
   description: t.description,

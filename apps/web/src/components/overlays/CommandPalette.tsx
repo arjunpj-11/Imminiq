@@ -19,17 +19,17 @@ import {
 import { useThemeStore } from '../../store/useThemeStore'
 import Modal from './Modal'
 
-interface CommandPaletteProps {
+interface ICommandPaletteProps {
   open: boolean
   onClose: () => void
 }
 
-interface CommandPaletteContentProps {
+interface ICommandPaletteContentProps {
   inputRef: RefObject<HTMLInputElement | null>
   onClose: () => void
 }
 
-interface Command {
+interface ICommand {
   id: string
   label: string
   description: string
@@ -40,7 +40,7 @@ interface Command {
   run: () => void
 }
 
-const GROUP_ORDER: Record<Command['group'], number> = {
+const GROUP_ORDER: Record<ICommand['group'], number> = {
   Navigate: 0,
   Actions: 1,
 }
@@ -63,7 +63,7 @@ const SearchIcon = () => (
 export default function CommandPalette({
   open,
   onClose,
-}: CommandPaletteProps) {
+}: ICommandPaletteProps) {
   const inputRef = useRef<HTMLInputElement>(null)
 
   return (
@@ -88,7 +88,7 @@ export default function CommandPalette({
 function CommandPaletteContent({
   inputRef,
   onClose,
-}: CommandPaletteContentProps) {
+}: ICommandPaletteContentProps) {
   const navigate = useNavigate()
   const toggleTheme = useThemeStore((state) => state.toggleTheme)
 
@@ -104,7 +104,7 @@ function CommandPaletteContent({
     [navigate, onClose],
   )
 
-  const commands = useMemo<Command[]>(
+  const commands = useMemo<ICommand[]>(
     () => [
       ...NAVIGATION_COMMANDS.map((command) => ({
         ...command,
@@ -239,7 +239,7 @@ function CommandPaletteContent({
     }
   }
 
-  let renderedGroup: Command['group'] | null = null
+  let renderedGroup: ICommand['group'] | null = null
 
   return (
     <div onKeyDown={handleKeyDown}>

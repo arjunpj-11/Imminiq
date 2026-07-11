@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { AppShellBoundary } from '../../../components/layout/AppShell'
 
-interface ActivityAppShellProps {
+interface IActivityAppShellProps {
   children: ReactNode
   viewer?: {
     name: string
@@ -15,7 +15,7 @@ interface ActivityAppShellProps {
 export default function ActivityAppShell({
   children,
   viewer,
-}: ActivityAppShellProps) {
+}: IActivityAppShellProps) {
   return (
     <AppShellBoundary
       viewer={

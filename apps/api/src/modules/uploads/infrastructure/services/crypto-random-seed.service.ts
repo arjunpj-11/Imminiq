@@ -1,9 +1,9 @@
 import { randomInt } from 'node:crypto'
 
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
-import type { RandomSeedGeneratorContract } from '../../domain/services/random-seed.interface'
+import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface'
 
-export class CryptoRandomSeedGenerator implements RandomSeedGeneratorContract {
+export class CryptoRandomSeedGenerator implements IRandomSeedGenerator {
   createSeed(upperBound: number): number {
     if (!Number.isInteger(upperBound) || upperBound <= 0) {
       throw new UploadsDomainError(

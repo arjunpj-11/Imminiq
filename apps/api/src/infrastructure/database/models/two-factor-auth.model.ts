@@ -1,11 +1,11 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-interface BackupCodeDocument {
+interface IBackupCodeDocument {
   codeHash: string
   usedAt?: Date | null
 }
 
-export interface TwoFactorAuthDocument extends Document {
+export interface ITwoFactorAuthDocument extends Document {
   _id: mongoose.Types.ObjectId
 
   userId: mongoose.Types.ObjectId
@@ -17,7 +17,7 @@ export interface TwoFactorAuthDocument extends Document {
   totpAccountLabel: string
   qrCodeUri?: string | null
 
-  backupCodes: BackupCodeDocument[]
+  backupCodes: IBackupCodeDocument[]
   backupCodesUsed: number
   backupCodesRegeneratedAt?: Date | null
 
@@ -30,7 +30,7 @@ export interface TwoFactorAuthDocument extends Document {
   updatedAt: Date
 }
 
-const backupCodeSchema = new Schema<BackupCodeDocument>(
+const backupCodeSchema = new Schema<IBackupCodeDocument>(
   {
     codeHash: {
       type: String,
@@ -46,7 +46,7 @@ const backupCodeSchema = new Schema<BackupCodeDocument>(
   { _id: false }
 )
 
-const twoFactorAuthSchema = new Schema<TwoFactorAuthDocument>(
+const twoFactorAuthSchema = new Schema<ITwoFactorAuthDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -132,7 +132,7 @@ twoFactorAuthSchema.index({ userId: 1, status: 1 })
 twoFactorAuthSchema.index({ status: 1, deletedAt: 1 })
 twoFactorAuthSchema.index({ enabledAt: -1 })
 
-export const TwoFactorAuth = mongoose.model<TwoFactorAuthDocument>(
+export const TwoFactorAuth = mongoose.model<ITwoFactorAuthDocument>(
   'TwoFactorAuth',
   twoFactorAuthSchema
 )

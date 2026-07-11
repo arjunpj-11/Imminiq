@@ -1,7 +1,7 @@
 import type {
-  GetLeaderboardPayload,
-  RecordLeaderboardXpPayload,
-  ReplaceLeaderboardFriendsPayload,
+  GetLeaderboardPayloadDTO,
+  RecordLeaderboardXpPayloadDTO,
+  ReplaceLeaderboardFriendsPayloadDTO,
 } from './application/dtos/leaderboard.dto'
 import {
   createLeaderboardComposition,
@@ -17,7 +17,7 @@ export class LeaderboardService {
 
   getLeaderboard(
     viewerUserId: string,
-    payload: GetLeaderboardPayload,
+    payload: GetLeaderboardPayloadDTO,
   ) {
     return this._useCases.getLeaderboard.execute(
       viewerUserId,
@@ -29,12 +29,12 @@ export class LeaderboardService {
     return this._useCases.getRewards.execute()
   }
 
-  recordXpActivity(payload: RecordLeaderboardXpPayload) {
+  recordXpActivity(payload: RecordLeaderboardXpPayloadDTO) {
     return this._useCases.recordXp.execute(payload)
   }
 
   replaceFriendUserIds(
-    payload: ReplaceLeaderboardFriendsPayload,
+    payload: ReplaceLeaderboardFriendsPayloadDTO,
   ) {
     return this._useCases.replaceFriends.execute(payload)
   }

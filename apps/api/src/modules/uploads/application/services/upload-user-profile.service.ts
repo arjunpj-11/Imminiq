@@ -1,21 +1,21 @@
-import type { UsersProfileReaderContract } from '../../domain/services/users-profile.interface'
-import type { UploadUserProfileContext } from '../dtos/uploads.dto'
+import type { IUsersProfileReader } from '../../domain/services/users-profile.interface'
+import type { IUploadUserProfileContextDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
 
-export interface UploadUserProfileReaderContract {
-  getRequiredContext(userId: string): Promise<UploadUserProfileContext>
+export interface IUploadUserProfileReader {
+  getRequiredContext(userId: string): Promise<IUploadUserProfileContextDTO>
 }
 
 export class UploadUserProfileReader
-  implements UploadUserProfileReaderContract
+  implements IUploadUserProfileReader
 {
   constructor(
-    private readonly _usersProfileReader: UsersProfileReaderContract,
+    private readonly _usersProfileReader: IUsersProfileReader,
   ) {}
 
   async getRequiredContext(
     userId: string,
-  ): Promise<UploadUserProfileContext> {
+  ): Promise<IUploadUserProfileContextDTO> {
     try {
       const { user, profile } = await this._usersProfileReader.getMe(userId)
 

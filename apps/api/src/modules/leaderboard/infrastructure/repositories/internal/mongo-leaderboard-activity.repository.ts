@@ -8,7 +8,7 @@ import { LeaderboardDomainError } from '../../../domain/errors/leaderboard-domai
 import type {
   CaptureLeaderboardSnapshotInput,
   CaptureLeaderboardSnapshotResult,
-  LeaderboardActivityRepositoryContract,
+  ILeaderboardActivityRepository,
   RecordLeaderboardXpActivityInput,
   RecordLeaderboardXpActivityResult,
   ReplaceLeaderboardFriendsInput,
@@ -25,7 +25,7 @@ const SNAPSHOT_WRITE_BATCH_SIZE = 1000
 
 export class MongoLeaderboardActivityRepository
   extends MongoLeaderboardBaseRepository
-  implements LeaderboardActivityRepositoryContract
+  implements ILeaderboardActivityRepository
 {
   async recordXpActivity(
     input: RecordLeaderboardXpActivityInput,

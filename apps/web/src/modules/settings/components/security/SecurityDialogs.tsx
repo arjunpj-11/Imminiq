@@ -1,5 +1,5 @@
 import Modal from '../../../../components/overlays/Modal'
-import type { TwoFactorSetupResponse } from '../../types/settings.types'
+import type { ITwoFactorSetupResponse } from '../../types/settings.types'
 import { MonoLabel, TextField } from '../SettingsUi'
 
 export function InlineSecurityError({ message }: { message: string }) {
@@ -13,9 +13,9 @@ export function InlineSecurityError({ message }: { message: string }) {
   )
 }
 
-interface TwoFactorSetupDialogProps {
+interface ITwoFactorSetupDialogProps {
   open: boolean
-  data: TwoFactorSetupResponse | null
+  data: ITwoFactorSetupResponse | null
   backupCodes: string[]
   token: string
   error: string
@@ -35,7 +35,7 @@ export function TwoFactorSetupDialog({
   onTokenChange,
   onVerify,
   onClose,
-}: TwoFactorSetupDialogProps) {
+}: ITwoFactorSetupDialogProps) {
   if (!data) return null
 
   return (
@@ -148,7 +148,7 @@ export function TwoFactorSetupDialog({
   )
 }
 
-interface DisableTwoFactorDialogProps {
+interface IDisableTwoFactorDialogProps {
   open: boolean
   token: string
   error: string
@@ -166,7 +166,7 @@ export function DisableTwoFactorDialog({
   onTokenChange,
   onConfirm,
   onClose,
-}: DisableTwoFactorDialogProps) {
+}: IDisableTwoFactorDialogProps) {
   return (
     <Modal
       open={open}
@@ -213,7 +213,7 @@ export function DisableTwoFactorDialog({
   )
 }
 
-interface DeleteAccountDialogProps {
+interface IDeleteAccountDialogProps {
   open: boolean
   confirmation: string
   currentPassword: string
@@ -245,7 +245,7 @@ export function DeleteAccountDialog({
   onTwoFactorCodeChange,
   onConfirm,
   onClose,
-}: DeleteAccountDialogProps) {
+}: IDeleteAccountDialogProps) {
   return (
     <Modal
       open={open}

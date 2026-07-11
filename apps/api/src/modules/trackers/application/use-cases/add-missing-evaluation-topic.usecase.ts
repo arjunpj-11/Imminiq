@@ -1,9 +1,9 @@
 // apps/api/src/modules/trackers/application/use-cases/add-missing-evaluation-topic.usecase.ts
 
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
 
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
   AddMissingEvaluationTopicInput,
   AddMissingEvaluationTopicResult,
@@ -11,8 +11,8 @@ import type {
   TrackerTopicRecord,
 } from '../../domain/types/trackers.types'
 
-type AddMissingEvaluationTopicDto = ReturnType<
-  TrackerMapperContract['toAddMissingEvaluationTopicDto']
+type AddMissingEvaluationTopicDTO = ReturnType<
+  ITrackerMapper['toAddMissingEvaluationTopicDto']
 >
 
 const normalizeTitle = (value: string) => {
@@ -96,7 +96,7 @@ const parseNewTopLevelPlacement = (
 }
 
 const resolveTopLevelTopicOrder = async (
-  trackerRepository: TrackerRepositoryContract,
+  trackerRepository: ITrackerRepository,
   trackerId: string,
   trackerTopics: TrackerTopicRecord[],
   placement: NewTopLevelPlacement,
@@ -129,8 +129,8 @@ const resolveTopLevelTopicOrder = async (
 
 export class AddMissingEvaluationTopicUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
   async execute({
@@ -138,7 +138,7 @@ export class AddMissingEvaluationTopicUseCase {
     evaluationJobId,
     topicIndex,
     userId,
-  }: AddMissingEvaluationTopicInput): Promise<AddMissingEvaluationTopicDto> {
+  }: AddMissingEvaluationTopicInput): Promise<AddMissingEvaluationTopicDTO> {
     const parsedTopicIndex = Number(topicIndex)
 
     if (!Number.isInteger(parsedTopicIndex) || parsedTopicIndex < 0) {

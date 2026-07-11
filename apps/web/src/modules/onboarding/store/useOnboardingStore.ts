@@ -5,27 +5,27 @@ import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
 import { safeSessionStateStorage, safeSessionStorage } from '../../../lib/storage/safe-storage'
 import type { Level } from '../types/onboarding.types'
 
-interface OnboardingStepOneDraft {
+interface IOnboardingStepOneDraft {
   goal: string
   topic: string
 }
 
-interface OnboardingStepTwoDraft {
+interface IOnboardingStepTwoDraft {
   level: Level
   hoursPerDay: number
 }
 
-interface OnboardingStore {
+interface IOnboardingStore {
   currentStep: 1 | 2
-  step1Data: OnboardingStepOneDraft | null
-  step2Data: OnboardingStepTwoDraft | null
+  step1Data: IOnboardingStepOneDraft | null
+  step2Data: IOnboardingStepTwoDraft | null
   setStep: (step: 1 | 2) => void
-  saveStep1: (data: OnboardingStepOneDraft) => void
-  saveStep2: (data: Partial<OnboardingStepTwoDraft> & Pick<OnboardingStepTwoDraft, 'level'>) => void
+  saveStep1: (data: IOnboardingStepOneDraft) => void
+  saveStep2: (data: Partial<IOnboardingStepTwoDraft> & Pick<IOnboardingStepTwoDraft, 'level'>) => void
   reset: () => void
 }
 
-const readLegacyStepOne = (): OnboardingStepOneDraft | null => {
+const readLegacyStepOne = (): IOnboardingStepOneDraft | null => {
   const topic =
     safeSessionStorage.get('imminiq_topic') ||
     safeSessionStorage.get('imminiq_draft_topic') ||
@@ -43,7 +43,7 @@ const readLegacyLevel = (): Level => {
   return value === 'beginner' || value === 'advanced' ? value : 'intermediate'
 }
 
-export const useOnboardingStore = create<OnboardingStore>()(
+export const useOnboardingStore = create<IOnboardingStore>()(
   persist(
     (set) => ({
       currentStep: 1,

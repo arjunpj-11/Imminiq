@@ -3,14 +3,14 @@ import type { MockTestPerformanceTrend, MockTestTopicBreakdown } from '../value-
 import type { MockTestCodingDetails } from '../value-objects/mock-test-coding.vo'
 import type { QuestionType } from '../value-objects/question-type.vo'
 
-export interface GenerateQuestionsInput {
+export interface IGenerateQuestionsInput {
   topic: string
   difficulty: DifficultyLevel
   questionCount: number
   questionTypes: QuestionType[]
 }
 
-export interface EvaluateAnswerInput {
+export interface IEvaluateAnswerInput {
   question: string
   correctAnswer?: string
   userAnswer: string
@@ -18,13 +18,13 @@ export interface EvaluateAnswerInput {
   maxPoints: number
 }
 
-export interface EvaluateAnswerOutput {
+export interface IEvaluateAnswerOutput {
   score: number
   feedback: string
   isCorrect: boolean
 }
 
-export interface GenerateInsightsInput {
+export interface IGenerateInsightsInput {
   userId: string
   performanceTrends: MockTestPerformanceTrend[]
   topicBreakdown: MockTestTopicBreakdown[]
@@ -41,12 +41,12 @@ export type GeneratedMockTestQuestion = {
   coding?: MockTestCodingDetails
 }
 
-export interface MockTestAIGatewayContract {
-  generateQuestions(input: GenerateQuestionsInput): Promise<{
+export interface IMockTestAIGateway {
+  generateQuestions(input: IGenerateQuestionsInput): Promise<{
     title: string
     description: string
     questions: GeneratedMockTestQuestion[]
   }>
-  evaluateOpenAnswer(input: EvaluateAnswerInput): Promise<EvaluateAnswerOutput>
-  generatePerformanceInsights(input: GenerateInsightsInput): Promise<string>
+  evaluateOpenAnswer(input: IEvaluateAnswerInput): Promise<IEvaluateAnswerOutput>
+  generatePerformanceInsights(input: IGenerateInsightsInput): Promise<string>
 }

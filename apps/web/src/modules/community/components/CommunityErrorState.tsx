@@ -1,4 +1,4 @@
-interface CommunityErrorStateProps {
+interface ICommunityErrorStateProps {
   title: string
   message: string
   actionLabel?: string
@@ -10,7 +10,7 @@ export default function CommunityErrorState({
   message,
   actionLabel,
   onAction,
-}: CommunityErrorStateProps) {
+}: ICommunityErrorStateProps) {
   return (
     <div className="flex min-h-[calc(100vh-180px)] items-center justify-center px-4">
       <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.22)] bg-(--surface-card) p-6 text-center shadow-[0_12px_40px_rgba(26,23,20,0.08)] dark:bg-(--surface-card)">

@@ -1,11 +1,11 @@
 import type { UserActivityEntity } from '../../domain/entities/user-activity.entity'
 import type { ActivityAnalyticsRecord } from '../../domain/types/activity.types'
 import type {
-  ActivityEventIcon,
-  ActivityEventView,
-  ActivityFeedGroupView,
-  ActivityPageResponse,
-  ActivityWeekDayView,
+  ActivityEventIconDTO,
+  ActivityEventViewDTO,
+  ActivityFeedGroupViewDTO,
+  ActivityPageResponseDTO,
+  ActivityWeekDayViewDTO,
 } from '../dtos/activity.dto'
 import { ACTIVITY_FEED_ICON_BY_CATEGORY } from '../constants/activity.constants'
 import type { ActivityDateContext } from '../services/activity-date-range.service'
@@ -17,7 +17,7 @@ export class ActivityMapper {
     activity: UserActivityEntity,
     dateRange: ActivityDateRangeContract,
     utcOffsetMinutes: number,
-  ): ActivityEventView {
+  ): ActivityEventViewDTO {
     return {
       id: activity.id,
       category: activity.category,
@@ -25,7 +25,7 @@ export class ActivityMapper {
       icon:
         ACTIVITY_FEED_ICON_BY_CATEGORY[
           activity.category
-        ] as ActivityEventIcon,
+        ] as ActivityEventIconDTO,
 
       title: activity.title,
       subtitle: activity.subtitle,
@@ -57,8 +57,8 @@ export class ActivityMapper {
     activities: UserActivityEntity[],
     context: ActivityDateContext,
     dateRange: ActivityDateRangeContract,
-  ): ActivityFeedGroupView[] {
-    const groups = new Map<string, ActivityEventView[]>()
+  ): ActivityFeedGroupViewDTO[] {
+    const groups = new Map<string, ActivityEventViewDTO[]>()
 
     for (const activity of activities) {
       const event = this.toEventView(
@@ -82,10 +82,10 @@ export class ActivityMapper {
   toPageResponse(input: {
     analytics: ActivityAnalyticsRecord
     context: ActivityDateContext
-    feed: ActivityPageResponse['feed']
+    feed: ActivityPageResponseDTO['feed']
     analyticsCalculator: ActivityAnalyticsContract
     dateRange: ActivityDateRangeContract
-  }): ActivityPageResponse {
+  }): ActivityPageResponseDTO {
     const {
       analyticsCalculator,
       context,
@@ -105,7 +105,7 @@ export class ActivityMapper {
       ]),
     )
 
-    const weekDays: ActivityWeekDayView[] =
+    const weekDays: ActivityWeekDayViewDTO[] =
       context.currentWeekDateKeys.map((date) => {
         const aggregate = currentWeekByDate.get(date)
 

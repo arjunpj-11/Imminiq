@@ -45,7 +45,7 @@ export type RecordUserActivityResult = {
   progression?: ActivityProgressionChange
 }
 
-export interface ActivityCommandRepositoryContract {
+export interface IActivityCommandRepository {
   recordActivityAndApplyReward(
     input: RecordUserActivityInput,
   ): Promise<RecordUserActivityResult>

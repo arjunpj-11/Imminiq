@@ -5,9 +5,9 @@ import type { RelationshipState } from '../../domain/value-objects/relationship-
 import type { StreakIntensity } from '../../domain/value-objects/streak-intensity.vo'
 import type { UserProfileUpdate } from '../../domain/value-objects/user-profile-update.vo'
 
-export type UpdateMyProfileInput = UserProfileUpdate
+export type UpdateMyProfileInputDTO = UserProfileUpdate
 
-export interface PaginationQuery {
+export interface IPaginationQueryDTO {
   page: number
   limit: number
   search?: string
@@ -15,7 +15,7 @@ export interface PaginationQuery {
   sort?: ProfileSort
 }
 
-export interface CurrentUserView {
+export interface ICurrentUserViewDTO {
   _id: string
   fullName: string
   username: string
@@ -36,7 +36,7 @@ export interface CurrentUserView {
   updatedAt?: Date
 }
 
-export interface EditableProfileView {
+export interface IEditableProfileViewDTO {
   _id?: string
   userId: string
   fullName: string
@@ -57,7 +57,7 @@ export interface EditableProfileView {
   likeCount: number
 }
 
-export interface StreakHeatmapDay {
+export interface IStreakHeatmapDayDTO {
   date: string
   activityCount: number
   intensityLevel: StreakIntensity
@@ -65,16 +65,16 @@ export interface StreakHeatmapDay {
   isFrozen: boolean
 }
 
-export interface StreakSummaryView {
+export interface IStreakSummaryViewDTO {
   currentStreak: number
   longestStreak: number
   totalActiveDays: number
   totalFreezeUsed: number
   lastActiveDate: string | null
-  heatmap: StreakHeatmapDay[]
+  heatmap: IStreakHeatmapDayDTO[]
 }
 
-export interface BadgeShowcaseItem {
+export interface IBadgeShowcaseItemDTO {
   _id: string
   name: string
   description: string
@@ -85,13 +85,13 @@ export interface BadgeShowcaseItem {
   criteria: Record<string, unknown>
 }
 
-export interface BadgeShowcaseView {
+export interface IBadgeShowcaseViewDTO {
   earnedCount: number
   totalCount: number
-  items: BadgeShowcaseItem[]
+  items: IBadgeShowcaseItemDTO[]
 }
 
-export interface EarnedBadgeView {
+export interface IEarnedBadgeViewDTO {
   _id: string
   name: string
   description: string
@@ -101,7 +101,7 @@ export interface EarnedBadgeView {
   earnedAt?: Date | string | null
 }
 
-export interface PublishedTrackerView {
+export interface IPublishedTrackerViewDTO {
   _id: string
   title: string
   slug: string
@@ -124,7 +124,7 @@ export interface PublishedTrackerView {
   createdAt?: Date
 }
 
-export interface ActivityFeedItemView {
+export interface IActivityFeedItemViewDTO {
   _id: string
   action: string
   module: string
@@ -133,7 +133,7 @@ export interface ActivityFeedItemView {
   createdAt: Date
 }
 
-export interface ProfileStatsView {
+export interface IProfileStatsViewDTO {
   streakCount: number
   studentLevel: number
   xp: number
@@ -144,23 +144,23 @@ export interface ProfileStatsView {
   likeCount: number
 }
 
-export interface PaginationView {
+export interface IPaginationViewDTO {
   page: number
   limit: number
   total: number
   totalPages: number
 }
 
-export interface PublicProfilePageView {
-  user: CurrentUserView
-  profile: EditableProfileView
-  stats: ProfileStatsView | null
-  streak: StreakSummaryView | null
-  badges: BadgeShowcaseView
+export interface IPublicProfilePageViewDTO {
+  user: ICurrentUserViewDTO
+  profile: IEditableProfileViewDTO
+  stats: IProfileStatsViewDTO | null
+  streak: IStreakSummaryViewDTO | null
+  badges: IBadgeShowcaseViewDTO
   publishedTrackers: {
-    items: PublishedTrackerView[]
-    pagination: PaginationView
+    items: IPublishedTrackerViewDTO[]
+    pagination: IPaginationViewDTO
   }
-  recentActivity: ActivityFeedItemView[] | null
+  recentActivity: IActivityFeedItemViewDTO[] | null
   relationship: RelationshipState
 }

@@ -1,9 +1,9 @@
-import type { FriendCommandRepositoryContract } from "./friend-command.repository.interface";
-import type { FriendQueryRepositoryContract } from "./friend-query.repository.interface";
-import type { FriendRequestRepositoryContract } from "./friend-request.repository.interface";
+import type { IFriendCommandRepository } from "./friend-command.repository.interface";
+import type { IFriendQueryRepository } from "./friend-query.repository.interface";
+import type { IFriendRequestRepository } from "./friend-request.repository.interface";
 
-export interface FriendsRepositoryContract
+export interface IFriendsRepository
   extends
-    FriendQueryRepositoryContract,
-    FriendRequestRepositoryContract,
-    FriendCommandRepositoryContract {}
+    IFriendQueryRepository,
+    IFriendRequestRepository,
+    IFriendCommandRepository {}

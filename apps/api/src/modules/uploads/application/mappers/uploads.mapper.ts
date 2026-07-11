@@ -1,24 +1,24 @@
 import type { UploadedProfileImageEntity } from '../../domain/entities/uploaded-profile-image.entity'
 import type {
-  AIImagePreviewResult,
-  RemoveAvatarResult,
-  RemoveBannerResult,
-  UploadProfileImageResult,
+  IAIImagePreviewResultDTO,
+  IRemoveAvatarResultDTO,
+  IRemoveBannerResultDTO,
+  IUploadProfileImageResultDTO,
 } from '../dtos/uploads.dto'
 
-export interface UploadsMapperContract {
+export interface IUploadsMapper {
   toUploadProfileImageResult(
     upload: UploadedProfileImageEntity,
-  ): UploadProfileImageResult
-  toAvatarRemovedResult(): RemoveAvatarResult
-  toBannerRemovedResult(): RemoveBannerResult
-  toAIImagePreviewResult(imageUrl: string): AIImagePreviewResult
+  ): IUploadProfileImageResultDTO
+  toAvatarRemovedResult(): IRemoveAvatarResultDTO
+  toBannerRemovedResult(): IRemoveBannerResultDTO
+  toAIImagePreviewResult(imageUrl: string): IAIImagePreviewResultDTO
 }
 
-export class UploadsMapper implements UploadsMapperContract {
+export class UploadsMapper implements IUploadsMapper {
   toUploadProfileImageResult(
     upload: UploadedProfileImageEntity,
-  ): UploadProfileImageResult {
+  ): IUploadProfileImageResultDTO {
     return {
       uploadId: upload.id,
       fileUrl: upload.fileUrl,
@@ -26,20 +26,20 @@ export class UploadsMapper implements UploadsMapperContract {
     }
   }
 
-  toAvatarRemovedResult(): RemoveAvatarResult {
+  toAvatarRemovedResult(): IRemoveAvatarResultDTO {
     return {
       avatarRemoved: true,
       defaultAvatarApplied: true,
     }
   }
 
-  toBannerRemovedResult(): RemoveBannerResult {
+  toBannerRemovedResult(): IRemoveBannerResultDTO {
     return {
       bannerRemoved: true,
     }
   }
 
-  toAIImagePreviewResult(imageUrl: string): AIImagePreviewResult {
+  toAIImagePreviewResult(imageUrl: string): IAIImagePreviewResultDTO {
     return { imageUrl }
   }
 }

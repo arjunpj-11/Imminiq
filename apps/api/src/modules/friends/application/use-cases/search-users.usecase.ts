@@ -1,14 +1,14 @@
-import type { FriendQueryRepositoryContract } from "../../domain/repositories/friend-query.repository.interface";
-import type { SearchUsersPayload } from "../dtos/friends.dto";
-import type { FriendsMapperContract } from "../mappers/friends.mapper";
+import type { IFriendQueryRepository } from "../../domain/repositories/friend-query.repository.interface";
+import type { SearchUsersPayloadDTO } from "../dtos/friends.dto";
+import type { IFriendsMapper } from "../mappers/friends.mapper";
 
 export class SearchUsersUseCase {
   constructor(
-    private readonly _friendQueryRepository: FriendQueryRepositoryContract,
-    private readonly _friendsMapper: FriendsMapperContract,
+    private readonly _friendQueryRepository: IFriendQueryRepository,
+    private readonly _friendsMapper: IFriendsMapper,
   ) {}
 
-  async execute(viewerUserId: string, payload: SearchUsersPayload) {
+  async execute(viewerUserId: string, payload: SearchUsersPayloadDTO) {
     const page = await this._friendQueryRepository.searchUsers({
       viewerUserId,
       query: payload.query,

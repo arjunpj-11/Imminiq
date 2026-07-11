@@ -3,13 +3,13 @@ import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import type { OnboardingLevel } from './useSaveOnboardingStepTwo'
 
-interface GenerateRoadmapPayload {
+interface IGenerateRoadmapPayload {
   topic: string
   goal?: string
   level: OnboardingLevel
 }
 
-interface GenerateRoadmapResponse {
+interface IGenerateRoadmapResponse {
   success: boolean
   message: string
   data?: {
@@ -17,19 +17,19 @@ interface GenerateRoadmapResponse {
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
 
 export const useGenerateRoadmap = () => {
   return useMutation<
-    GenerateRoadmapResponse,
-    AxiosError<ApiErrorResponse>,
-    GenerateRoadmapPayload
+    IGenerateRoadmapResponse,
+    AxiosError<IApiErrorResponse>,
+    IGenerateRoadmapPayload
   >({
     mutationFn: async (payload) => {
-      const response = await api.post<GenerateRoadmapResponse>(
+      const response = await api.post<IGenerateRoadmapResponse>(
         '/onboarding/generate-roadmap',
         payload
       )

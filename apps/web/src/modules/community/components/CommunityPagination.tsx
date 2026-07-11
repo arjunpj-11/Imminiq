@@ -1,7 +1,7 @@
 import Pagination from '../../../components/navigation/Pagination'
-import type { CommunityPagination as CommunityPaginationType } from '../types/community.types'
+import type { ICommunityPagination as CommunityPaginationType } from '../types/community.types'
 
-interface CommunityPaginationProps {
+interface ICommunityPaginationProps {
   pagination: CommunityPaginationType
   onPageChange: (page: number) => void
 }
@@ -9,7 +9,7 @@ interface CommunityPaginationProps {
 export default function CommunityPagination({
   pagination,
   onPageChange,
-}: CommunityPaginationProps) {
+}: ICommunityPaginationProps) {
   return (
     <Pagination
       page={pagination.page}

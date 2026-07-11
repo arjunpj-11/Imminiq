@@ -31,10 +31,10 @@ import {
 } from '../utils/mock-test-attempt.utils'
 
 import type {
-  MockTestCodeRunResponse,
+  IMockTestCodeRunResponse,
   MockTestCodingLanguage,
-  PublicMockTestQuestion,
-  StartAttemptResponse,
+  IPublicMockTestQuestion,
+  IStartAttemptResponse,
 } from '../types/mock-tests.types'
 
 export default function MockTestAttemptPage() {
@@ -42,16 +42,16 @@ export default function MockTestAttemptPage() {
   const navigate = useNavigate()
   const location = useLocation()
 
-  const initial = location.state as StartAttemptResponse | undefined
+  const initial = location.state as IStartAttemptResponse | undefined
   const shouldFetch = !initial?.questions?.length && Boolean(attemptId)
   const questionsQuery = useMockTestAttemptQuestions(
     shouldFetch ? attemptId : undefined
   )
 
-  const questions = useMemo<PublicMockTestQuestion[]>(() => {
+  const questions = useMemo<IPublicMockTestQuestion[]>(() => {
     if (initial?.questions?.length) return initial.questions
 
-    return (questionsQuery.data || []) as PublicMockTestQuestion[]
+    return (questionsQuery.data || []) as IPublicMockTestQuestion[]
   }, [initial?.questions, questionsQuery.data])
 
   const [currentIndex, setCurrentIndex] = useState(0)
@@ -67,7 +67,7 @@ export default function MockTestAttemptPage() {
     {}
   )
   const [codeResultByQuestion, setCodeResultByQuestion] = useState<
-    Record<string, MockTestCodeRunResponse | null>
+    Record<string, IMockTestCodeRunResponse | null>
   >({})
   const [codeFeedbackByQuestion, setCodeFeedbackByQuestion] = useState<
     Record<string, string>

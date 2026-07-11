@@ -3,18 +3,18 @@ import type { AxiosError } from 'axios'
 
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  CommunityPublicTrackerDetail,
-  ToggleCommunityReviewHelpfulData,
-  ToggleCommunityReviewHelpfulPayload,
+  IApiErrorResponse,
+  IApiResponse,
+  ICommunityPublicTrackerDetail,
+  IToggleCommunityReviewHelpfulData,
+  IToggleCommunityReviewHelpfulPayload,
 } from '../types/community.types'
 import { communityPublicTrackerKeys } from './useCommunityPublicTracker'
 
 const toggleCommunityReviewHelpful = async ({
   reviewId,
-}: ToggleCommunityReviewHelpfulPayload): Promise<ToggleCommunityReviewHelpfulData> => {
-  const response = await api.post<ApiResponse<ToggleCommunityReviewHelpfulData>>(
+}: IToggleCommunityReviewHelpfulPayload): Promise<IToggleCommunityReviewHelpfulData> => {
+  const response = await api.post<IApiResponse<IToggleCommunityReviewHelpfulData>>(
     `/community/reviews/${reviewId}/helpful`,
   )
 
@@ -29,13 +29,13 @@ export const useToggleCommunityReviewHelpful = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ToggleCommunityReviewHelpfulData,
-    AxiosError<ApiErrorResponse>,
-    ToggleCommunityReviewHelpfulPayload
+    IToggleCommunityReviewHelpfulData,
+    AxiosError<IApiErrorResponse>,
+    IToggleCommunityReviewHelpfulPayload
   >({
     mutationFn: toggleCommunityReviewHelpful,
     onSuccess: (data, variables) => {
-      queryClient.setQueryData<CommunityPublicTrackerDetail>(
+      queryClient.setQueryData<ICommunityPublicTrackerDetail>(
         communityPublicTrackerKeys.detail(variables.trackerId),
         (oldData) => {
           if (!oldData) {

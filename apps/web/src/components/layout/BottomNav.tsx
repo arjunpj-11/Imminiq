@@ -3,7 +3,7 @@ import { NavLink } from 'react-router-dom'
 import { cn } from '../../lib/cn'
 import { prefetchRoute } from '../../lib/route-prefetch'
 
-interface BottomNavProps {
+interface IBottomNavProps {
   activeTab?: 'home' | 'trackers' | 'tests' | 'ranks' | 'community' | 'profile'
 }
 
@@ -15,7 +15,7 @@ const tabs = [
   { key: 'community', label: 'Community', to: '/community', icon: <><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></> },
 ] as const
 
-export default function BottomNav({ activeTab: _activeTab }: BottomNavProps) {
+export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
   return (
     <nav
       aria-label="Primary mobile navigation"

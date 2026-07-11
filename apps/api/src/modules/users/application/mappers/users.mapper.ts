@@ -6,32 +6,32 @@ import type { UserProfileEntity } from '../../domain/entities/user-profile.entit
 import type { UserStreakDayEntity } from '../../domain/entities/user-streak-day.entity'
 import type { UserEntity } from '../../domain/entities/user.entity'
 import type {
-  ActivityFeedItemView,
-  BadgeShowcaseItem,
-  CurrentUserView,
-  EarnedBadgeView,
-  EditableProfileView,
-  PublishedTrackerView,
-  StreakHeatmapDay,
+  IActivityFeedItemViewDTO,
+  IBadgeShowcaseItemDTO,
+  ICurrentUserViewDTO,
+  IEarnedBadgeViewDTO,
+  IEditableProfileViewDTO,
+  IPublishedTrackerViewDTO,
+  IStreakHeatmapDayDTO,
 } from '../dtos/users.dto'
 
-export interface UsersMapperContract {
-  toUserView(user: UserEntity): CurrentUserView
-  toProfileView(profile: UserProfileEntity): EditableProfileView
-  toActivityView(activity: UserActivityEntity): ActivityFeedItemView
+export interface IUsersMapper {
+  toUserView(user: UserEntity): ICurrentUserViewDTO
+  toProfileView(profile: UserProfileEntity): IEditableProfileViewDTO
+  toActivityView(activity: UserActivityEntity): IActivityFeedItemViewDTO
   toBadgeShowcaseItem(
     badge: UserBadgeEntity,
     earnedAt?: Date | string | null,
-  ): BadgeShowcaseItem
-  toEarnedBadgeView(earnedBadge: EarnedUserBadgeEntity): EarnedBadgeView
+  ): IBadgeShowcaseItemDTO
+  toEarnedBadgeView(earnedBadge: EarnedUserBadgeEntity): IEarnedBadgeViewDTO
   toPublishedTrackerView(
     tracker: PublishedTrackerEntity,
-  ): PublishedTrackerView
-  toStreakHeatmapDay(day: UserStreakDayEntity): StreakHeatmapDay
+  ): IPublishedTrackerViewDTO
+  toStreakHeatmapDay(day: UserStreakDayEntity): IStreakHeatmapDayDTO
 }
 
-export class UsersMapper implements UsersMapperContract {
-  toUserView(user: UserEntity): CurrentUserView {
+export class UsersMapper implements IUsersMapper {
+  toUserView(user: UserEntity): ICurrentUserViewDTO {
     return {
       _id: user.id,
       fullName: user.fullName,
@@ -54,7 +54,7 @@ export class UsersMapper implements UsersMapperContract {
     }
   }
 
-  toProfileView(profile: UserProfileEntity): EditableProfileView {
+  toProfileView(profile: UserProfileEntity): IEditableProfileViewDTO {
     return {
       ...(profile.id ? { _id: profile.id } : {}),
       userId: profile.userId,
@@ -77,7 +77,7 @@ export class UsersMapper implements UsersMapperContract {
     }
   }
 
-  toActivityView(activity: UserActivityEntity): ActivityFeedItemView {
+  toActivityView(activity: UserActivityEntity): IActivityFeedItemViewDTO {
     const description = activity.metadata.description
 
     return {
@@ -96,7 +96,7 @@ export class UsersMapper implements UsersMapperContract {
   toBadgeShowcaseItem(
     badge: UserBadgeEntity,
     earnedAt?: Date | string | null,
-  ): BadgeShowcaseItem {
+  ): IBadgeShowcaseItemDTO {
     return {
       _id: badge.id,
       name: badge.name,
@@ -109,7 +109,7 @@ export class UsersMapper implements UsersMapperContract {
     }
   }
 
-  toEarnedBadgeView(earnedBadge: EarnedUserBadgeEntity): EarnedBadgeView {
+  toEarnedBadgeView(earnedBadge: EarnedUserBadgeEntity): IEarnedBadgeViewDTO {
     return {
       _id: earnedBadge.badge.id,
       name: earnedBadge.badge.name,
@@ -125,7 +125,7 @@ export class UsersMapper implements UsersMapperContract {
 
   toPublishedTrackerView(
     tracker: PublishedTrackerEntity,
-  ): PublishedTrackerView {
+  ): IPublishedTrackerViewDTO {
     return {
       _id: tracker.id,
       title: tracker.title,
@@ -154,7 +154,7 @@ export class UsersMapper implements UsersMapperContract {
     }
   }
 
-  toStreakHeatmapDay(day: UserStreakDayEntity): StreakHeatmapDay {
+  toStreakHeatmapDay(day: UserStreakDayEntity): IStreakHeatmapDayDTO {
     return {
       date: this.formatDate(day.date) ?? '',
       activityCount: day.activityCount,

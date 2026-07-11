@@ -5,6 +5,6 @@ export type GetFriendsHubInput = {
   limit?: number
 }
 
-export interface DashboardFriendRepositoryContract {
+export interface IDashboardFriendRepository {
   getFriendsHub(input: GetFriendsHubInput): Promise<DashboardFriendEntity[]>
 }

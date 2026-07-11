@@ -1,30 +1,30 @@
-import type { ActivityQueryRepositoryContract } from '../../domain/repositories/activity-query.repository.interface'
+import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
 import type {
-  ActivityPageResponse,
-  GetActivityPagePayload,
+  ActivityPageResponseDTO,
+  GetActivityPagePayloadDTO,
 } from '../dtos/activity.dto'
 import { ActivityApplicationError } from '../errors/activity-application.error'
 import type { ActivityMapperContract } from '../mappers/activity.mapper'
 import type { ActivityAnalyticsContract } from '../services/activity-analytics.service'
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import { GetActivityFeedUseCase } from './get-activity-feed.usecase'
-import type { ClockContract } from '../../../../shared/time/clock.interface'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class GetActivityPageUseCase {
   constructor(
-    private readonly _activityRepository: ActivityQueryRepositoryContract,
+    private readonly _activityRepository: IActivityQueryRepository,
     private readonly _feedUseCase: GetActivityFeedUseCase,
     private readonly _mapper: ActivityMapperContract,
     private readonly _analyticsCalculator: ActivityAnalyticsContract,
     private readonly _dateRange: ActivityDateRangeContract,
-    private readonly _clock: ClockContract,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
     userId: string,
-    payload: GetActivityPagePayload,
+    payload: GetActivityPagePayloadDTO,
     now = this._clock.now(),
-  ): Promise<ActivityPageResponse> {
+  ): Promise<ActivityPageResponseDTO> {
     const context =
       this._dateRange.createContext(
         now,

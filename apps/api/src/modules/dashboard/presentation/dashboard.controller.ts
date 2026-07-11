@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express'
 
 import type {
-  DashboardActivityIntensityQuery,
-  DashboardRecentItemsQuery,
+  IDashboardActivityIntensityQueryDTO,
+  IDashboardRecentItemsQueryDTO,
 } from '../application/dtos/dashboard.dto'
 import type { DashboardComposition } from '../dashboard.factory'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
@@ -45,7 +45,7 @@ export class DashboardController {
     try {
       const userId = getAuthUser(req).userId
       const query = res.locals
-        .dashboardActivityIntensityQuery as DashboardActivityIntensityQuery
+        .dashboardActivityIntensityQuery as IDashboardActivityIntensityQueryDTO
 
       const data = await this._useCases.getActivityIntensity.execute(
         userId,
@@ -66,7 +66,7 @@ export class DashboardController {
     try {
       const userId = getAuthUser(req).userId
       const query = res.locals
-        .dashboardRecentItemsQuery as DashboardRecentItemsQuery
+        .dashboardRecentItemsQuery as IDashboardRecentItemsQueryDTO
 
       const data = await this._useCases.getRecentBattles.execute(userId, query.limit)
 
@@ -80,7 +80,7 @@ export class DashboardController {
     try {
       const userId = getAuthUser(req).userId
       const query = res.locals
-        .dashboardRecentItemsQuery as DashboardRecentItemsQuery
+        .dashboardRecentItemsQuery as IDashboardRecentItemsQueryDTO
 
       const data = await this._useCases.getFriendsHub.execute(userId, query.limit)
 

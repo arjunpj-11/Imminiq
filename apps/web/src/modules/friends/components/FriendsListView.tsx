@@ -1,15 +1,15 @@
-import type { FriendUser } from "../types/friends.types";
+import type { IFriendUser } from "../types/friends.types";
 import FriendCard from "./FriendCard";
 import { FriendsEmptyState, FriendsLoadMoreButton } from "./FriendsStates";
 
-interface FriendsListViewProps {
-  friends: FriendUser[];
+interface IFriendsListViewProps {
+  friends: IFriendUser[];
   search: string;
   total: number;
   hasMore: boolean;
   loadingMore: boolean;
   removingFriendId?: string;
-  onRemove: (friend: FriendUser) => void;
+  onRemove: (friend: IFriendUser) => void;
   onLoadMore: () => void;
 }
 
@@ -22,7 +22,7 @@ export default function FriendsListView({
   removingFriendId,
   onRemove,
   onLoadMore,
-}: FriendsListViewProps) {
+}: IFriendsListViewProps) {
   if (friends.length === 0) {
     return (
       <FriendsEmptyState
