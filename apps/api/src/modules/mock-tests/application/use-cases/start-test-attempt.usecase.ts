@@ -37,15 +37,8 @@ export class StartTestAttemptUseCase {
       throw MockTestsApplicationError.emptyTest()
     }
 
-    const safeQuestions = questions.map((question) =>
-      this._mapper.sanitizeQuestionForAttempt(question),
-    )
-
     if (existingAttempt) {
-      return {
-        attempt: existingAttempt,
-        questions: safeQuestions,
-      }
+      return this._mapper.toAttemptSessionDto(existingAttempt, questions)
     }
 
     const attempt = await this._repo.createAttempt({
@@ -54,9 +47,6 @@ export class StartTestAttemptUseCase {
       totalQuestions: test.questionCount,
     })
 
-    return {
-      attempt,
-      questions: safeQuestions,
-    }
+    return this._mapper.toAttemptSessionDto(attempt, questions)
   }
 }

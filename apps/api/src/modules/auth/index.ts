@@ -1,5 +1,6 @@
 export type {
   AuthLoginResult,
+  AuthSessionDto,
   AuthLoginSuccessResult,
   AuthUser,
   LoginPayload,

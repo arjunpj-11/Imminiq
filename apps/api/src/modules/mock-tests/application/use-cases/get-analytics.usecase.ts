@@ -1,6 +1,7 @@
 import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
 import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
 import type { TestAnalytics } from '../dtos/mock-tests.dto'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 const DEFAULT_AI_INSIGHTS = 'Keep practicing to improve your performance.'
 
@@ -8,6 +9,7 @@ export class GetAnalyticsUseCase {
   constructor(
     private readonly _repo: MockTestAnalyticsRepositoryContract,
     private readonly _aiService: MockTestAIServiceContract,
+    private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<TestAnalytics> {
@@ -28,6 +30,11 @@ export class GetAnalyticsUseCase {
       aiInsights = DEFAULT_AI_INSIGHTS
     }
 
-    return { trends, topicBreakdown, aiInsights }
+    return {
+      trends: trends.map((trend) => this._mapper.toPerformanceTrendDto(trend)),
+      topicBreakdown: topicBreakdown.map((item) =>
+        this._mapper.toTopicBreakdownDto(item)),
+      aiInsights,
+    }
   }
 }

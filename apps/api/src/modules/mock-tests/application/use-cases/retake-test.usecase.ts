@@ -45,11 +45,6 @@ export class RetakeTestUseCase {
 
     const questions = await this._repo.findQuestionsByTest(attempt.testId)
 
-    return {
-      attempt: newAttempt,
-      questions: questions.map((question) =>
-        this._mapper.sanitizeQuestionForAttempt(question),
-      ),
-    }
+    return this._mapper.toAttemptSessionDto(newAttempt, questions)
   }
 }

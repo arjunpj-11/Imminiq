@@ -58,6 +58,8 @@ export type PublicMockTestQuestion = Omit<
   'correctAnswer' | 'explanation'
 >
 
+export type PublicMockTest = Omit<MockTest, 'shareToken'>
+
 export interface MockTestAttempt {
   _id: string
   testId: string
@@ -214,4 +216,49 @@ export interface AttemptAnalysis {
     pointsEarned: number
     maxPoints: number
   }[]
+}
+
+export interface MockTestListDto {
+  tests: MockTest[]
+  total: number
+}
+
+export interface PublicMockTestListDto {
+  tests: PublicMockTest[]
+  total: number
+}
+
+export interface MockTestDetailsDto {
+  test: MockTest | PublicMockTest
+  questions: MockTestQuestion[] | PublicMockTestQuestion[]
+  latestAttempt: MockTestAttempt | null
+}
+
+export interface MockTestAttemptSessionDto {
+  attempt: MockTestAttempt
+  questions: PublicMockTestQuestion[]
+}
+
+export interface FinishMockTestAttemptDto {
+  attempt: MockTestAttempt
+  report: MockTestReport
+  scoreResult: {
+    totalPoints: number
+    earnedPoints: number
+    scorePercentage: number
+    correctCount: number
+    incorrectCount: number
+    skippedCount: number
+    passed: boolean
+  }
+}
+
+export interface ImportSharedMockTestDto {
+  test: MockTest
+  imported: boolean
+  alreadyImported: boolean
+}
+
+export interface MockTestAttemptHistoryDto extends MockTestAttempt {
+  test: MockTest | null
 }

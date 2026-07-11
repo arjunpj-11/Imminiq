@@ -4,6 +4,7 @@ import type { MockTestAttemptRepositoryContract } from '../../domain/repositorie
 import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 type GetAttemptResultRepository =
   MockTestAttemptRepositoryContract &
@@ -13,7 +14,10 @@ type GetAttemptResultRepository =
   MockTestReportRepositoryContract
 
 export class GetAttemptResultUseCase {
-  constructor(private readonly _repo: GetAttemptResultRepository) { }
+  constructor(
+    private readonly _repo: GetAttemptResultRepository,
+    private readonly _mapper: MockTestsMapperContract,
+  ) { }
 
   async execute(attemptId: string, userId: string) {
     const attempt = await this._repo.findAttemptById(attemptId)
@@ -42,7 +46,7 @@ export class GetAttemptResultUseCase {
       aiEvaluations.map((evaluation) => [evaluation.answerId, evaluation]),
     )
 
-    return {
+    return this._mapper.toAttemptResult({
       attempt,
       report,
       answers: answers.map((answer) => ({
@@ -50,6 +54,6 @@ export class GetAttemptResultUseCase {
         question: questionMap.get(answer.questionId),
         aiEvaluation: aiEvalMap.get(answer._id),
       })),
-    }
+    })
   }
 }

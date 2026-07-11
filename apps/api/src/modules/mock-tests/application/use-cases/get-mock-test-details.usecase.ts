@@ -36,14 +36,11 @@ export class GetMockTestDetailsUseCase {
 
     const ownsTest = test.ownerId === userId
 
-    return {
+    return this._mapper.toDetailsDto({
       test,
-      questions: ownsTest
-        ? questions
-        : questions.map((question) =>
-            this._mapper.sanitizeQuestionForAttempt(question),
-          ),
+      questions,
       latestAttempt: attempts[0] || null,
-    }
+      includeAnswers: ownsTest,
+    })
   }
 }

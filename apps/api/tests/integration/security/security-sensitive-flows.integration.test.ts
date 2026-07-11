@@ -54,6 +54,27 @@ describe('security-sensitive HTTP integration flows', () => {
     await runtime.stop()
   })
 
+  it('maps auth sessions to safe DTOs without token hashes', async () => {
+    const user = await createVerifiedLocalUser()
+    const authenticated = await loginFixtureUser(app, user)
+
+    const response = await request(app)
+      .get('/api/auth/sessions')
+      .set('Authorization', `Bearer ${authenticated.accessToken}`)
+
+    expect(response.status).toBe(200)
+    expect(response.body?.data?.sessions).toHaveLength(1)
+    expect(response.body.data.sessions[0]).toMatchObject({
+      id: expect.any(String),
+      expiresAt: expect.any(String),
+      revokedAt: null,
+      createdAt: expect.any(String),
+    })
+    expect(response.body.data.sessions[0]).not.toHaveProperty('refreshTokenHash')
+    expect(response.body.data.sessions[0]).not.toHaveProperty('userId')
+    expect(response.body.data.sessions[0]).not.toHaveProperty('deletedAt')
+  })
+
   it('rotates refresh tokens and detects reuse of the retired refresh cookie', async () => {
     const user = await createVerifiedLocalUser()
     const authenticated = await loginFixtureUser(app, user)

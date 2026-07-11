@@ -3,13 +3,17 @@ import type { MockTestQuestionRepositoryContract } from '../../domain/repositori
 import type { CreateMockTestPayload, MockTest } from '../dtos/mock-tests.dto'
 import { MAX_MANUAL_QUESTIONS } from '../../domain/constants/mock-tests.constants'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 type CreateMockTestRepository =
   MockTestRepositoryContract &
   MockTestQuestionRepositoryContract
 
 export class CreateMockTestUseCase {
-  constructor(private readonly _repo: CreateMockTestRepository) { }
+  constructor(
+    private readonly _repo: CreateMockTestRepository,
+    private readonly _mapper: MockTestsMapperContract,
+  ) { }
 
   async execute(
     userId: string,
@@ -60,6 +64,6 @@ export class CreateMockTestUseCase {
       })),
     )
 
-    return test
+    return this._mapper.toMockTest(test)
   }
 }
