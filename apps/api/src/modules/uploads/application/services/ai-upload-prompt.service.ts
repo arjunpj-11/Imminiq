@@ -1,10 +1,10 @@
 import type { ProfileUploadKind } from '../../domain/value-objects/profile-upload-kind.vo'
 
-export interface AiUploadPromptServiceContract {
+export interface AIUploadPromptBuilderContract {
   buildPrompt(kind: ProfileUploadKind, prompt: string): string
 }
 
-export class AiUploadPromptService implements AiUploadPromptServiceContract {
+export class AIUploadPromptBuilder implements AIUploadPromptBuilderContract {
   buildPrompt(kind: ProfileUploadKind, prompt: string): string {
     return kind === 'avatar'
       ? this.buildAvatarPrompt(prompt)

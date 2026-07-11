@@ -19,7 +19,7 @@ type UsersProfileDataRepository =
   UserBadgeRepositoryContract &
   UserStreakRepositoryContract
 
-export interface UsersProfileDataServiceContract {
+export interface UsersProfileDataReaderContract {
   getBadgeShowcase(userId: string): Promise<BadgeShowcaseView>
   getStreakSummary(
     userId: string,
@@ -32,8 +32,8 @@ export interface UsersProfileDataServiceContract {
   ): Promise<ProfileStatsView>
 }
 
-export class UsersProfileDataService
-  implements UsersProfileDataServiceContract
+export class UsersProfileDataReader
+  implements UsersProfileDataReaderContract
 {
   constructor(
     private readonly _usersRepository: UsersProfileDataRepository,

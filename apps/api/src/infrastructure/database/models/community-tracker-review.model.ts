@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface ICommunityTrackerReview extends Document {
+export interface CommunityTrackerReviewSchemaFields extends Document {
   trackerId: mongoose.Types.ObjectId
   userId: mongoose.Types.ObjectId
   rating: number
@@ -12,7 +12,7 @@ export interface ICommunityTrackerReview extends Document {
   updatedAt: Date
 }
 
-const communityTrackerReviewSchema = new Schema<ICommunityTrackerReview>(
+const communityTrackerReviewSchema = new Schema<CommunityTrackerReviewSchemaFields>(
   {
     trackerId: {
       type: Schema.Types.ObjectId,
@@ -74,7 +74,7 @@ communityTrackerReviewSchema.index(
 )
 
 type CommunityTrackerReviewDocument =
-  mongoose.HydratedDocument<ICommunityTrackerReview>
+  mongoose.HydratedDocument<CommunityTrackerReviewSchemaFields>
 
 communityTrackerReviewSchema.pre('save', function (
   this: CommunityTrackerReviewDocument,
@@ -86,7 +86,7 @@ communityTrackerReviewSchema.pre('save', function (
 
 export const CommunityTrackerReview =
   mongoose.models.CommunityTrackerReview ||
-  mongoose.model<ICommunityTrackerReview>(
+  mongoose.model<CommunityTrackerReviewSchemaFields>(
     'CommunityTrackerReview',
     communityTrackerReviewSchema,
   )

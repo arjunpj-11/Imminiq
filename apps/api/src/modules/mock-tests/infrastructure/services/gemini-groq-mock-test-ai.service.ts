@@ -10,8 +10,8 @@ import type {
   EvaluateAnswerOutput,
   GenerateInsightsInput,
   GenerateQuestionsInput,
-  MockTestAIServiceContract,
-} from '../../domain/services/mock-test-ai.service.interface'
+  MockTestAIGatewayContract,
+} from '../../domain/services/mock-test-ai.interface'
 
 function isServiceUnavailable(error: unknown): boolean {
   return (
@@ -22,10 +22,10 @@ function isServiceUnavailable(error: unknown): boolean {
   )
 }
 
-type GenerateQuestionsOutput = Awaited<ReturnType<MockTestAIServiceContract['generateQuestions']>>
+type GenerateQuestionsOutput = Awaited<ReturnType<MockTestAIGatewayContract['generateQuestions']>>
 
-export class GeminiGroqMockTestAIService
-  implements MockTestAIServiceContract
+export class GeminiGroqMockTestAIGateway
+  implements MockTestAIGatewayContract
 {
   async generateQuestions(
     input: GenerateQuestionsInput
@@ -102,4 +102,4 @@ export class GeminiGroqMockTestAIService
   }
 }
 
-export const geminiGroqMockTestAIService = new GeminiGroqMockTestAIService()
+export const geminiGroqMockTestAIGateway = new GeminiGroqMockTestAIGateway()

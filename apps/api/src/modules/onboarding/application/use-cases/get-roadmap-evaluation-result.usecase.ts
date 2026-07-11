@@ -1,12 +1,12 @@
 import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
 import type { GetEvaluationResult } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
-import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
+import type { OnboardingJobOutputReaderContract } from '../services/onboarding-job-output-reader.service'
 
 export class GetRoadmapEvaluationResultUseCase {
   constructor(
     private readonly _onboardingRepository: OnboardingAIJobQueryRepositoryContract,
-    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderContract,
   ) {}
 
   async execute(

@@ -1,11 +1,11 @@
 import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { AuthNotificationContract } from '../../domain/services/auth-notification.interface'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
 
 export class ForgotPasswordUseCase {
   constructor(
     private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _authNotificationService: AuthNotificationServiceContract,
+    private readonly _authNotification: AuthNotificationContract,
     private readonly _identifierNormalizer: IdentifierNormalizerContract
   ) {}
 
@@ -16,7 +16,7 @@ export class ForgotPasswordUseCase {
 
     if (!user) return
 
-    await this._authNotificationService.sendPasswordResetOtp({
+    await this._authNotification.sendPasswordResetOtp({
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
     })

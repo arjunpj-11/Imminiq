@@ -1,5 +1,5 @@
 import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
 
 export class CheckIdentifierUseCase {
   constructor(

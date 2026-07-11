@@ -15,7 +15,7 @@ export type QuestionBankItem = {
   coding?: MockTestCodingDetails
 }
 
-export interface MockTestQuestionBankServiceContract {
+export interface MockTestQuestionBankContract {
   shouldUseAI(): boolean
   saveToQuestionBank(topic: string, questions: Omit<QuestionBankItem, 'bankId' | 'topic'>[]): Promise<QuestionBankItem[]>
   sampleFromQuestionBank(topic: string, count: number, difficulty?: DifficultyLevel): Promise<QuestionBankItem[]>

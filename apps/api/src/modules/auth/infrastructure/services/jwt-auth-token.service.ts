@@ -3,7 +3,7 @@ import jwt, { SignOptions } from 'jsonwebtoken'
 
 import { env } from '../../../../config/env'
 import { AuthDomainError } from '../../domain/errors/auth-domain.error'
-import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
+import type { AuthTokenContract } from '../../domain/services/auth-token.interface'
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
 import type {
   JwtPayload,
@@ -11,7 +11,7 @@ import type {
 } from '../../domain/value-objects/token-payload.vo'
 import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/constants/auth.constants'
 
-export class JwtAuthTokenService implements AuthTokenServiceContract {
+export class JwtAuthToken implements AuthTokenContract {
   generateAccessToken(userId: string, role: AuthRole): string {
     const accessTokenOptions: SignOptions = {
       expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
@@ -86,4 +86,4 @@ export class JwtAuthTokenService implements AuthTokenServiceContract {
   }
 }
 
-export const jwtAuthTokenService = new JwtAuthTokenService()
+export const jwtAuthToken = new JwtAuthToken()

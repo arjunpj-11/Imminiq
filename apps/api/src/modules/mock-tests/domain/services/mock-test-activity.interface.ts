@@ -31,7 +31,7 @@ export type RecordMockTestCompletedActivityInput = {
   utcOffsetMinutes?: number
 }
 
-export interface MockTestActivityServiceContract {
+export interface MockTestActivityRecorderContract {
   recordMockTestGenerated(
     input: RecordMockTestGeneratedActivityInput,
   ): Promise<void>

@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
+import type { CodeExecutorContract } from '../../domain/services/code-execution.interface'
 
 const getDocumentId = (document: unknown) => {
   const doc = document as { _id?: unknown }
@@ -38,7 +38,7 @@ const normalizeOutput = (value: string) => {
 export class SubmitLessonCodeUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _codeExecutionService: CodeExecutionServiceContract,
+    private readonly _codeExecutor: CodeExecutorContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
@@ -69,7 +69,7 @@ export class SubmitLessonCodeUseCase {
     const language =
       input.language || lesson.codeExample?.language || 'javascript'
 
-    const result = await this._codeExecutionService.executeCode({
+    const result = await this._codeExecutor.executeCode({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
       language,

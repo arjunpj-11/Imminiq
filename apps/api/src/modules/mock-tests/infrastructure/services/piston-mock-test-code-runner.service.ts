@@ -5,9 +5,9 @@ import type { MockTestCodingDetails, MockTestCodingTestCase } from '../../domain
 import type {
   MockTestCodeRunMode,
   MockTestCodeRunResult,
-  MockTestCodeRunnerServiceContract,
+  MockTestCodeRunnerContract,
   MockTestCodeTestCaseResult,
-} from '../../domain/services/mock-test-code-runner.service.interface'
+} from '../../domain/services/mock-test-code-runner.interface'
 
 type CodeRunMode = MockTestCodeRunMode
 type TestCaseResult = MockTestCodeTestCaseResult
@@ -646,10 +646,10 @@ const runMockTestCodingQuestion = async ({
 }
 
 
-export class PistonMockTestCodeRunnerService
-  implements MockTestCodeRunnerServiceContract {
+export class PistonMockTestCodeRunner
+  implements MockTestCodeRunnerContract {
   async run(
-    input: Parameters<MockTestCodeRunnerServiceContract['run']>[0],
+    input: Parameters<MockTestCodeRunnerContract['run']>[0],
   ): Promise<MockTestCodeRunResult> {
     try {
       return await runMockTestCodingQuestion(input)
@@ -666,5 +666,5 @@ export class PistonMockTestCodeRunnerService
   }
 }
 
-export const pistonMockTestCodeRunnerService =
-  new PistonMockTestCodeRunnerService()
+export const pistonMockTestCodeRunner =
+  new PistonMockTestCodeRunner()

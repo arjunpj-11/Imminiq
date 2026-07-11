@@ -1,6 +1,6 @@
 import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
 import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
-import type { SecurityPasswordHasherServiceContract } from '../../domain/services/security-password-hasher.service.interface'
+import type { SecurityPasswordHasherContract } from '../../domain/services/security-password-hasher.interface'
 import type {
   ChangePasswordPayload,
   ChangePasswordResponseDto,
@@ -13,7 +13,7 @@ type ChangeSecurityPasswordRepository =
 export class ChangeSecurityPasswordUseCase {
   constructor(
     private readonly _securityRepository: ChangeSecurityPasswordRepository,
-    private readonly _passwordHasher: SecurityPasswordHasherServiceContract,
+    private readonly _passwordHasher: SecurityPasswordHasherContract,
   ) {}
 
   async execute(

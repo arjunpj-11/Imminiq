@@ -1,7 +1,7 @@
 import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
 import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
 import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
-import type { SecurityEmailChangeTokenServiceContract } from '../../domain/services/security-email-change-token.service.interface'
+import type { SecurityEmailChangeTokenContract } from '../../domain/services/security-email-change-token.interface'
 import type {
   VerifyEmailChangePayload,
   VerifyEmailChangeResponseDto,
@@ -14,14 +14,14 @@ type VerifyEmailChangeRepository =
 export class VerifyEmailChangeUseCase {
   constructor(
     private readonly _securityRepository: VerifyEmailChangeRepository,
-    private readonly _emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
+    private readonly _emailChangeToken: SecurityEmailChangeTokenContract,
     private readonly _securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
   async execute(
     payload: VerifyEmailChangePayload,
   ): Promise<VerifyEmailChangeResponseDto> {
-    const tokenHash = this._emailChangeTokenService.hash(payload.token)
+    const tokenHash = this._emailChangeToken.hash(payload.token)
 
     const user =
       await this._securityRepository.findUserByPendingEmailTokenHash(tokenHash)

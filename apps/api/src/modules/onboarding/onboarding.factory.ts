@@ -3,8 +3,8 @@ import {
   type OnboardingMapperContract,
 } from './application/mappers/onboarding.mapper'
 import {
-  OnboardingJobOutputReaderService,
-  type OnboardingJobOutputReaderServiceContract,
+  OnboardingJobOutputReader,
+  type OnboardingJobOutputReaderContract,
 } from './application/services/onboarding-job-output-reader.service'
 import { EvaluateRoadmapUseCase } from './application/use-cases/evaluate-roadmap.usecase'
 import { GenerateRoadmapUseCase } from './application/use-cases/generate-roadmap.usecase'
@@ -35,7 +35,7 @@ export type OnboardingServiceHelpers = {
   onboardingAIJobQueueGateway: AIJobQueueGatewayContract
   onboardingAIJobQuotaStore: AIJobQuotaStoreContract
   onboardingMapper: OnboardingMapperContract
-  onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract
+  onboardingJobOutputReader: OnboardingJobOutputReaderContract
 }
 
 export type OnboardingComposition = {
@@ -48,7 +48,7 @@ export const createOnboardingComposition = (): OnboardingComposition => {
   const onboardingAIJobQueueGateway = bullMqAIJobQueueGateway
   const onboardingAIJobQuotaStore = redisAIJobQuotaStore
   const onboardingMapper = new OnboardingMapper()
-  const onboardingJobOutputReader = new OnboardingJobOutputReaderService()
+  const onboardingJobOutputReader = new OnboardingJobOutputReader()
 
   return {
     useCases: {

@@ -1,11 +1,11 @@
 import { createHash } from 'crypto'
 
 import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
-import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
+import type { AuthTokenContract } from '../../domain/services/auth-token.interface'
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
 import type { RequestMeta, TokenPair } from '../dtos/auth.dto'
 
-export interface AuthSessionServiceContract {
+export interface AuthSessionIssuerContract {
   issueTokenPair(
     userId: string,
     role: AuthRole,
@@ -13,10 +13,10 @@ export interface AuthSessionServiceContract {
   ): Promise<TokenPair>
 }
 
-export class AuthSessionService implements AuthSessionServiceContract {
+export class AuthSessionIssuer implements AuthSessionIssuerContract {
   constructor(
     private readonly _authSessionRepository: AuthSessionRepositoryContract,
-    private readonly _authTokenService: AuthTokenServiceContract
+    private readonly _authToken: AuthTokenContract
   ) {}
 
   async issueTokenPair(
@@ -24,8 +24,8 @@ export class AuthSessionService implements AuthSessionServiceContract {
     role: AuthRole,
     meta?: RequestMeta
   ): Promise<TokenPair> {
-    const accessToken = this._authTokenService.generateAccessToken(userId, role)
-    const refreshToken = this._authTokenService.generateRefreshToken()
+    const accessToken = this._authToken.generateAccessToken(userId, role)
+    const refreshToken = this._authToken.generateRefreshToken()
     const refreshTokenHash = this.hashRefreshToken(refreshToken)
 
     await this._authSessionRepository.saveSession({

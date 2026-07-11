@@ -10,7 +10,7 @@ import type { ActivityHeatmapIntensity } from '../../domain/value-objects/activi
 
 const DAY_IN_MS = 86_400_000
 
-export class ActivityAnalyticsService {
+export class ActivityAnalytics {
   calculateStreak(
     activeDateKeys: string[],
     todayKey: string,
@@ -166,8 +166,8 @@ export class ActivityAnalyticsService {
   }
 }
 
-export type ActivityAnalyticsServiceContract = Pick<
-  ActivityAnalyticsService,
+export type ActivityAnalyticsContract = Pick<
+  ActivityAnalytics,
   | 'calculateStreak'
   | 'heatmapIntensity'
   | 'growthPercent'

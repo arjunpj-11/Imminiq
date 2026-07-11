@@ -9,7 +9,7 @@ import type {
 } from '../dtos/users.dto'
 import { UsersApplicationError } from '../errors/users-application.error'
 import type { UsersMapperContract } from '../mappers/users.mapper'
-import type { UsersProfileDataServiceContract } from '../services/users-profile-data.service'
+import type { UsersProfileDataReaderContract } from '../services/users-profile-data.service'
 
 type PublicProfileRepository =
   UserRepositoryContract &
@@ -22,7 +22,7 @@ export class GetPublicProfilePageUseCase {
   constructor(
     private readonly _usersRepository: PublicProfileRepository,
     private readonly _usersMapper: UsersMapperContract,
-    private readonly _usersProfileDataService: UsersProfileDataServiceContract,
+    private readonly _profileDataReader: UsersProfileDataReaderContract,
   ) {}
 
   async execute(
@@ -57,13 +57,13 @@ export class GetPublicProfilePageUseCase {
     ] = await Promise.all([
       settings?.showStats === false
         ? Promise.resolve(null)
-        : this._usersProfileDataService.getStats(user.id, user, profile),
+        : this._profileDataReader.getStats(user.id, user, profile),
 
       settings?.showStats === false
         ? Promise.resolve(null)
-        : this._usersProfileDataService.getStreakSummary(user.id),
+        : this._profileDataReader.getStreakSummary(user.id),
 
-      this._usersProfileDataService.getBadgeShowcase(user.id),
+      this._profileDataReader.getBadgeShowcase(user.id),
 
       settings?.showTrackers === false
         ? Promise.resolve({ items: [], total: 0 })

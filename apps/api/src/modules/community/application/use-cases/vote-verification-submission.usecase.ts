@@ -4,7 +4,7 @@ import {
   COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
 } from '../../domain/constants/community.constants'
 import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityActivityServiceContract } from '../../domain/services/community-activity.service.interface'
+import type { CommunityActivityRecorderContract } from '../../domain/services/community-activity.interface'
 import type {
   VoteVerificationSubmissionPayload,
   VoteVerificationSubmissionView,
@@ -18,8 +18,8 @@ export class VoteVerificationSubmissionUseCase {
     private readonly _repository: CommunityRepositoryContract,
     private readonly _policy:
       CommunityVerificationPolicyContract,
-    private readonly _activityService:
-      CommunityActivityServiceContract,
+    private readonly _activityRecorder:
+      CommunityActivityRecorderContract,
     private readonly _mapper: CommunityMapperContract,
   ) {}
 
@@ -74,7 +74,7 @@ export class VoteVerificationSubmissionUseCase {
      * The vote ID is the idempotency source. Retrying this use
      * case cannot award the normal teacher XP twice.
      */
-    await this._activityService
+    await this._activityRecorder
       .recordVerificationVoteSubmitted({
         userId: vote.userId,
         ownerId: submission.ownerId,
@@ -107,7 +107,7 @@ export class VoteVerificationSubmissionUseCase {
     if (
       updatedSubmission.consensusChoice === 'pass'
     ) {
-      await this._activityService.recordTrackerVerified({
+      await this._activityRecorder.recordTrackerVerified({
         ownerId: updatedSubmission.ownerId,
         trackerId: updatedSubmission.trackerId,
         submissionId: updatedSubmission.id,
@@ -178,7 +178,7 @@ export class VoteVerificationSubmissionUseCase {
          * the activity event key is based on voteId and cannot
          * add XP or coins twice.
          */
-        await this._activityService
+        await this._activityRecorder
           .recordVerificationMajorityWon({
             userId: rewardableVote.userId,
             ownerId: data.ownerId,

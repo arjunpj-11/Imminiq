@@ -1,23 +1,23 @@
 import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/constants/security.constants'
 import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
 import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
-import type { SecurityEmailChangeTokenServiceContract } from '../../domain/services/security-email-change-token.service.interface'
-import type { SecurityEmailChangeUrlServiceContract } from '../../domain/services/security-email-change-url.service.interface'
+import type { SecurityEmailChangeTokenContract } from '../../domain/services/security-email-change-token.interface'
+import type { SecurityEmailChangeUrlBuilderContract } from '../../domain/services/security-email-change-url.interface'
 import type { SecurityEmailProviderContract } from '../../domain/services/security-email-provider.interface'
 import type {
   ChangeEmailPayload,
   EmailChangeRequestResponseDto,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
-import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
+import type { SensitiveActionAuthorizerContract } from '../services/sensitive-action-step-up.service'
 
 export class RequestEmailChangeUseCase {
   constructor(
     private readonly _securityUserRepository: SecurityUserRepositoryContract,
     private readonly _securityEmailProvider: SecurityEmailProviderContract,
-    private readonly _sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
-    private readonly _emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
-    private readonly _emailChangeUrlService: SecurityEmailChangeUrlServiceContract,
+    private readonly _sensitiveActionAuthorizer: SensitiveActionAuthorizerContract,
+    private readonly _emailChangeToken: SecurityEmailChangeTokenContract,
+    private readonly _emailChangeUrlBuilder: SecurityEmailChangeUrlBuilderContract,
     private readonly _securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 
@@ -31,7 +31,7 @@ export class RequestEmailChangeUseCase {
       throw SecurityApplicationError.notFound()
     }
 
-    await this._sensitiveActionStepUpService.assertSatisfied({
+    await this._sensitiveActionAuthorizer.assertSatisfied({
       user,
       payload,
       action: 'change_email',
@@ -52,7 +52,7 @@ export class RequestEmailChangeUseCase {
     }
 
     const { rawToken, tokenHash, expiresAt } =
-      this._emailChangeTokenService.generate()
+      this._emailChangeToken.generate()
 
     const updatedUser =
       await this._securityUserRepository.savePendingEmailChange({
@@ -69,7 +69,7 @@ export class RequestEmailChangeUseCase {
     }
 
     const verificationUrl =
-      this._emailChangeUrlService.buildVerificationUrl(rawToken)
+      this._emailChangeUrlBuilder.buildVerificationUrl(rawToken)
 
     await this._securityEmailProvider.sendEmailChangeVerification(
       normalizedEmail,

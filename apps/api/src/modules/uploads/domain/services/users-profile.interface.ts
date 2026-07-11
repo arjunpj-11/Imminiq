@@ -6,6 +6,6 @@ export interface UsersProfileContext {
   profile: UserProfileUploadEntity
 }
 
-export interface UsersProfileServiceContract {
+export interface UsersProfileReaderContract {
   getMe(userId: string): Promise<UsersProfileContext>
 }

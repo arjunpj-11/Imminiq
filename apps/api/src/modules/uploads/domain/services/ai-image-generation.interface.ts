@@ -8,7 +8,7 @@ export interface GeneratedPreviewImage {
   dataUrl: string
 }
 
-export interface AiImageGenerationServiceContract {
+export interface AIImageGeneratorContract {
   generatePreviewImage(
     input: GeneratePreviewImageInput,
   ): Promise<GeneratedPreviewImage>

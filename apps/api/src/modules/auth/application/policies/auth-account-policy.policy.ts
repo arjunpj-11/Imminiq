@@ -5,7 +5,7 @@ export interface AuthAccountPolicyContract {
   ensureUserCanAuthenticate(user: AuthUserEntity): void
 }
 
-export class AuthAccountPolicyService implements AuthAccountPolicyContract {
+export class AuthAccountPolicy implements AuthAccountPolicyContract {
   ensureUserCanAuthenticate(user: AuthUserEntity): void {
     if (user.status === 'blocked' || user.status === 'banned') {
       throw AuthApplicationError.accountBlocked('Account blocked')

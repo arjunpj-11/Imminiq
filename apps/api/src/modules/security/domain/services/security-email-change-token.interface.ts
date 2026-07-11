@@ -4,7 +4,7 @@ export interface EmailChangeTokenResult {
   expiresAt: Date
 }
 
-export interface SecurityEmailChangeTokenServiceContract {
+export interface SecurityEmailChangeTokenContract {
   generate(): EmailChangeTokenResult
   hash(rawToken: string): string
 }

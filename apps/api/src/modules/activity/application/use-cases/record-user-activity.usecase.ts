@@ -11,7 +11,7 @@ import type {
 import { ActivityApplicationError } from '../errors/activity-application.error'
 import type { ActivityMapperContract } from '../mappers/activity.mapper'
 import { ActivityEventPolicy } from '../policies/activity-event.policy'
-import type { ActivityDateRangeServiceContract } from '../services/activity-date-range.service'
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 const DAY_IN_MS = 86_400_000
@@ -25,7 +25,7 @@ export class RecordUserActivityUseCase {
     private readonly _activityRepository: RecordActivityRepository,
     private readonly _eventPolicy: ActivityEventPolicy,
     private readonly _mapper: ActivityMapperContract,
-    private readonly _dateRangeService: ActivityDateRangeServiceContract,
+    private readonly _dateRange: ActivityDateRangeContract,
     private readonly _clock: ClockContract,
   ) {}
 
@@ -38,7 +38,7 @@ export class RecordUserActivityUseCase {
     const utcOffsetMinutes =
       payload.utcOffsetMinutes ?? 0
     const context =
-      this._dateRangeService.createContext(
+      this._dateRange.createContext(
         occurredAt,
         undefined,
         utcOffsetMinutes,
@@ -110,7 +110,7 @@ export class RecordUserActivityUseCase {
       return {
         activity: this._mapper.toEventView(
           primaryResult.activity,
-          this._dateRangeService,
+          this._dateRange,
           utcOffsetMinutes,
         ),
         created: primaryResult.created,

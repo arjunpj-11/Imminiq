@@ -4,7 +4,7 @@ import type { PhoneOtpProviderContract } from '../../domain/services/phone-otp-p
 import type { PhoneOtpSessionStoreContract } from '../../domain/services/phone-otp-session-store.interface'
 import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
 import type { OtpStoreContract } from '../../domain/services/otp-store.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
 
 const VERIFY_ACCOUNT_SCOPE = 'auth_verify_account_otp' as const
 

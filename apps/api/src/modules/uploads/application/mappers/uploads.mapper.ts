@@ -1,6 +1,6 @@
 import type { UploadedProfileImageEntity } from '../../domain/entities/uploaded-profile-image.entity'
 import type {
-  AiImagePreviewResult,
+  AIImagePreviewResult,
   RemoveAvatarResult,
   RemoveBannerResult,
   UploadProfileImageResult,
@@ -12,7 +12,7 @@ export interface UploadsMapperContract {
   ): UploadProfileImageResult
   toAvatarRemovedResult(): RemoveAvatarResult
   toBannerRemovedResult(): RemoveBannerResult
-  toAiImagePreviewResult(imageUrl: string): AiImagePreviewResult
+  toAIImagePreviewResult(imageUrl: string): AIImagePreviewResult
 }
 
 export class UploadsMapper implements UploadsMapperContract {
@@ -39,7 +39,7 @@ export class UploadsMapper implements UploadsMapperContract {
     }
   }
 
-  toAiImagePreviewResult(imageUrl: string): AiImagePreviewResult {
+  toAIImagePreviewResult(imageUrl: string): AIImagePreviewResult {
     return { imageUrl }
   }
 }

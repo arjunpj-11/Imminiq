@@ -2,14 +2,14 @@
 // clone-community-tracker.usecase.ts
 
 import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityActivityServiceContract } from '../../domain/services/community-activity.service.interface'
+import type { CommunityActivityRecorderContract } from '../../domain/services/community-activity.interface'
 import { CommunityApplicationError } from '../errors/community-application.error'
 import type { CommunityMapperContract } from '../mappers/community.mapper'
 
 export class CloneCommunityTrackerUseCase {
   constructor(
     private readonly _repository: CommunityRepositoryContract,
-    private readonly _activityService: CommunityActivityServiceContract,
+    private readonly _activityRecorder: CommunityActivityRecorderContract,
     private readonly _mapper: CommunityMapperContract,
   ) {}
 
@@ -52,7 +52,7 @@ export class CloneCommunityTrackerUseCase {
       clonedTracker.id !== sourceTracker.id
 
     if (isActualClone) {
-      await this._activityService.recordTrackerCloned({
+      await this._activityRecorder.recordTrackerCloned({
         userId,
         sourceUserId: sourceTracker.ownerId,
         sourceTrackerId: sourceTracker.id,

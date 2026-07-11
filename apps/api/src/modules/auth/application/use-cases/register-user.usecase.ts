@@ -1,20 +1,20 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
-import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
+import type { AuthNotificationContract } from '../../domain/services/auth-notification.interface'
+import type { PasswordHasherContract } from '../../domain/services/password-hasher.interface'
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
 import type { RegisterPayload, AuthUser } from '../dtos/auth.dto'
 import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
-import type { UsernameGeneratorServiceContract } from '../services/username-generator.service'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
+import type { UsernameGeneratorContract } from '../services/username-generator.service'
 
 export class RegisterUserUseCase {
   constructor(
     private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _authNotificationService: AuthNotificationServiceContract,
+    private readonly _authNotification: AuthNotificationContract,
     private readonly _identifierNormalizer: IdentifierNormalizerContract,
-    private readonly _usernameGenerator: UsernameGeneratorServiceContract,
-    private readonly _passwordHasher: PasswordHasherServiceContract,
+    private readonly _usernameGenerator: UsernameGeneratorContract,
+    private readonly _passwordHasher: PasswordHasherContract,
     private readonly _authUserMapper: AuthUserMapperContract
   ) {}
 
@@ -34,7 +34,7 @@ export class RegisterUserUseCase {
 
       if (existingUser) {
         if (!existingUser.emailVerified) {
-          await this._authNotificationService.sendVerificationOtp({
+          await this._authNotification.sendVerificationOtp({
             email: parsedIdentifier.email,
             method: 'email',
           })
@@ -57,7 +57,7 @@ export class RegisterUserUseCase {
 
       if (existingUser) {
         if (!existingUser.phoneVerified) {
-          await this._authNotificationService.sendVerificationOtp({
+          await this._authNotification.sendVerificationOtp({
             phone: parsedIdentifier.phone,
             method: 'phone',
           })
@@ -88,7 +88,7 @@ export class RegisterUserUseCase {
       passwordHash,
     })
 
-    await this._authNotificationService.sendVerificationOtp({
+    await this._authNotification.sendVerificationOtp({
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
       method: parsedIdentifier.method,

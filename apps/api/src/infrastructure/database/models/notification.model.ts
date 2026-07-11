@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
-export interface INotification extends Document {
+export interface NotificationDocument extends Document {
   userId: mongoose.Types.ObjectId;
   type: string;
   message: string;
@@ -11,7 +11,7 @@ export interface INotification extends Document {
   updatedAt: Date;
 }
 
-const notificationSchema = new Schema<INotification>(
+const notificationSchema = new Schema<NotificationDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -65,6 +65,6 @@ notificationSchema.index({
   createdAt: -1,
 });
 
-export const Notification: mongoose.Model<INotification> =
-  (mongoose.models.Notification as mongoose.Model<INotification> | undefined) ??
-  mongoose.model<INotification>("Notification", notificationSchema);
+export const Notification: mongoose.Model<NotificationDocument> =
+  (mongoose.models.Notification as mongoose.Model<NotificationDocument> | undefined) ??
+  mongoose.model<NotificationDocument>("Notification", notificationSchema);

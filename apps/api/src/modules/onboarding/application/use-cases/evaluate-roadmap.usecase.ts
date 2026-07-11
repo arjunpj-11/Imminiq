@@ -5,7 +5,7 @@ import type { AIJobQueueGatewayContract } from '../../domain/services/ai-job-que
 import type { AIJobQuotaStoreContract } from '../../domain/services/ai-job-quota-store.interface'
 import type { GenerateRoadmapResult } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
-import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
+import type { OnboardingJobOutputReaderContract } from '../services/onboarding-job-output-reader.service'
 
 type EvaluateRoadmapRepository =
   OnboardingAIJobQueryRepositoryContract &
@@ -16,7 +16,7 @@ export class EvaluateRoadmapUseCase {
     private readonly _onboardingRepository: EvaluateRoadmapRepository,
     private readonly _aiJobQueueGateway: AIJobQueueGatewayContract,
     private readonly _aiJobQuotaStore: AIJobQuotaStoreContract,
-    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderContract,
   ) {}
 
   async execute(

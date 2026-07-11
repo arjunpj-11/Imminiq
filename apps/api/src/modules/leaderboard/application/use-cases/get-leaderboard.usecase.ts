@@ -18,14 +18,14 @@ import type {
 } from '../dtos/leaderboard.dto'
 import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
 import type { LeaderboardMapperContract } from '../mappers/leaderboard.mapper'
-import type { LeaderboardDateRangeServiceContract } from '../services/leaderboard-date-range.service'
+import type { LeaderboardDateRangeContract } from '../services/leaderboard-date-range.service'
 import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 export class GetLeaderboardUseCase {
   constructor(
     private readonly _leaderboardRepository: LeaderboardQueryRepositoryContract,
     private readonly _leaderboardMapper: LeaderboardMapperContract,
-    private readonly _dateRangeService: LeaderboardDateRangeServiceContract,
+    private readonly _dateRange: LeaderboardDateRangeContract,
     private readonly _clock: ClockContract,
   ) {}
 
@@ -46,7 +46,7 @@ export class GetLeaderboardUseCase {
     }
 
     const now = this._clock.now()
-    const periods = this._dateRangeService.getPeriods(now)
+    const periods = this._dateRange.getPeriods(now)
 
     const result = await this._leaderboardRepository.findLeaderboard({
       viewerUserId,

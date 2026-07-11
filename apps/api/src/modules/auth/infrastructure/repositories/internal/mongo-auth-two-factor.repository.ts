@@ -4,7 +4,7 @@ import { MongoAuthMapper } from '../shared/mongo-auth.mapper'
 import type { MongoTwoFactorAuthRecord } from '../shared/mongo-auth.types'
 
 export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
-  constructor(private readonly mapper = new MongoAuthMapper()) {
+  constructor(private readonly _mapper = new MongoAuthMapper()) {
     super()
   }
 
@@ -36,7 +36,7 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
           .select('+totpSecretEncrypted +backupCodes +backupCodes.codeHash')
           .lean<MongoTwoFactorAuthRecord>()
 
-        return this.mapper.toTwoFactorAuthEntity(twoFactor)
+        return this._mapper.toTwoFactorAuthEntity(twoFactor)
       },
     )
   }
@@ -62,7 +62,7 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoTwoFactorAuthRecord>()
 
-        return this.mapper.toTwoFactorAuthEntity(twoFactor)
+        return this._mapper.toTwoFactorAuthEntity(twoFactor)
       },
     )
   }
@@ -95,7 +95,7 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoTwoFactorAuthRecord>()
 
-        return this.mapper.toTwoFactorAuthEntity(twoFactor)
+        return this._mapper.toTwoFactorAuthEntity(twoFactor)
       },
     )
   }

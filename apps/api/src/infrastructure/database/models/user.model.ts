@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface IUser extends Document {
+export interface UserDocument extends Document {
   _id: mongoose.Types.ObjectId
 
   fullName: string
@@ -94,7 +94,7 @@ export function calculateTeacherLevelFromXp(teacherXp: number): number {
   return calculateProgressionLevelFromXp(teacherXp)
 }
 
-const userSchema = new Schema<IUser>(
+const userSchema = new Schema<UserDocument>(
   {
     fullName: {
       type: String,
@@ -294,7 +294,7 @@ const userSchema = new Schema<IUser>(
 
 // Keeps derived levels synchronized when a document is created or saved.
 // Query updates such as updateOne/findOneAndUpdate do not execute this hook.
-userSchema.pre('save', function (this: IUser) {
+userSchema.pre('save', function (this: UserDocument) {
   if (this.isNew || this.isModified('xp')) {
     this.level = calculateStudentLevelFromXp(this.xp)
   }
@@ -422,4 +422,4 @@ userSchema.index(
 )
 
 export const User =
-  mongoose.models.User || mongoose.model<IUser>('User', userSchema)
+  mongoose.models.User || mongoose.model<UserDocument>('User', userSchema)

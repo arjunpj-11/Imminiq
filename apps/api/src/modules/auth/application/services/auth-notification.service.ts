@@ -1,10 +1,10 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type {
-  AuthNotificationServiceContract,
-} from '../../domain/services/auth-notification.service.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+  AuthNotificationContract,
+} from '../../domain/services/auth-notification.interface'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
 import type { OtpEmailProviderContract } from '../../domain/services/otp-email-provider.interface'
-import type { OtpGeneratorContract } from '../../domain/services/otp-generator.service.interface'
+import type { OtpGeneratorContract } from '../../domain/services/otp-generator.interface'
 import type { OtpStoreContract } from '../../domain/services/otp-store.interface'
 import type { PhoneOtpProviderContract } from '../../domain/services/phone-otp-provider.interface'
 import type {
@@ -20,10 +20,10 @@ const isPhoneOtpPurpose = (
   return purpose === 'phone_verification' || purpose === 'password_reset'
 }
 
-export type { AuthNotificationServiceContract }
+export type { AuthNotificationContract }
 
-export class AuthNotificationService
-  implements AuthNotificationServiceContract {
+export class AuthNotificationCoordinator
+  implements AuthNotificationContract {
   constructor(
     private readonly _otpStore: OtpStoreContract,
     private readonly _otpGenerator: OtpGeneratorContract,

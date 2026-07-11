@@ -2,11 +2,11 @@ import { createHash } from 'crypto'
 
 import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
 
-export interface CurrentSessionServiceContract {
+export interface CurrentSessionResolverContract {
   getCurrentSessionId(refreshToken?: string): Promise<string | null>
 }
 
-export class CurrentSessionService implements CurrentSessionServiceContract {
+export class CurrentSessionResolver implements CurrentSessionResolverContract {
   constructor(
     private readonly _securitySessionRepository: SecuritySessionRepositoryContract,
   ) {}

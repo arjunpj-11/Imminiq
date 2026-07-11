@@ -22,11 +22,11 @@ export interface RemoveBannerResult {
   bannerRemoved: true
 }
 
-export interface AiImagePreviewResult {
+export interface AIImagePreviewResult {
   imageUrl: string
 }
 
-export interface GenerateAiImagePreviewInput {
+export interface GenerateAIImagePreviewInput {
   prompt: string
 }
 

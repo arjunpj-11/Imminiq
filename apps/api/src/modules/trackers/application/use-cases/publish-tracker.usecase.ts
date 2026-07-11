@@ -6,7 +6,7 @@ import type { PublishTrackerInput } from '../../domain/types/trackers.types'
 import { TrackerMapperContract } from '../mappers'
 
 export class PublishTrackerUseCase {
-  constructor(private readonly _trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
+  constructor(private readonly _trackerRepository: TrackerRepositoryContract,private readonly _trackerMapper: TrackerMapperContract) {}
 
   async execute(input: PublishTrackerInput) {
   
@@ -16,6 +16,6 @@ export class PublishTrackerUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerMapper.toTrackerDto(tracker)
+    return this._trackerMapper.toTrackerDto(tracker)
   }
 }

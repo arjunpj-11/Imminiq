@@ -3,7 +3,7 @@ import { createHash } from 'crypto'
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
 import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
+import type { AuthTokenContract } from '../../domain/services/auth-token.interface'
 import type { RetiredRefreshTokenStoreContract } from '../../domain/services/retired-refresh-token-store.interface'
 import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
 import type { RequestMeta, TokenPair } from '../dtos/auth.dto'
@@ -15,7 +15,7 @@ type RefreshTokensRepository =
 export class RefreshAuthTokensUseCase {
   constructor(
     private readonly _authRepository: RefreshTokensRepository,
-    private readonly _authTokenService: AuthTokenServiceContract,
+    private readonly _authToken: AuthTokenContract,
     private readonly _retiredRefreshTokenStore: RetiredRefreshTokenStoreContract,
     private readonly _securityAuditLogger: SecurityAuditLoggerContract,
     private readonly _authAccountPolicy: AuthAccountPolicyContract
@@ -61,12 +61,12 @@ export class RefreshAuthTokensUseCase {
 
     this._authAccountPolicy.ensureUserCanAuthenticate(user)
 
-    const accessToken = this._authTokenService.generateAccessToken(
+    const accessToken = this._authToken.generateAccessToken(
       user.id,
       user.role
     )
 
-    const newRefreshToken = this._authTokenService.generateRefreshToken()
+    const newRefreshToken = this._authToken.generateRefreshToken()
     const newRefreshTokenHash = this.hashRefreshToken(newRefreshToken)
 
   await this._retiredRefreshTokenStore.retire({

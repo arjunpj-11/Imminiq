@@ -21,8 +21,8 @@ import {
 
 export class MongoAuthUserRepository extends MongoAuthBaseRepository {
   constructor(
-    private readonly mapper = new MongoAuthMapper(),
-    private readonly profileProvisioner: MongoAuthProfileProvisioner =
+    private readonly _mapper = new MongoAuthMapper(),
+    private readonly _profileProvisioner: MongoAuthProfileProvisioner =
       mongoAuthProfileProvisioner,
   ) {
     super()
@@ -40,7 +40,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -57,7 +57,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -79,7 +79,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -96,7 +96,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           .select('+passwordHash')
           .lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -111,7 +111,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           deletedAt: null,
         }).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -177,8 +177,8 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           ),
         })
 
-        return this.mapper.toAuthUserEntityOrThrow(
-          this.mapper.toPlainRecord<MongoAuthUserRecord>(user),
+        return this._mapper.toAuthUserEntityOrThrow(
+          this._mapper.toPlainRecord<MongoAuthUserRecord>(user),
         )
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
@@ -221,9 +221,9 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
             .lean<MongoAuthUserRecord>()
 
           if (updatedUser) {
-            await this.profileProvisioner.ensureProfile(updatedUser)
+            await this._profileProvisioner.ensureProfile(updatedUser)
 
-            return this.mapper.toAuthUserEntityOrThrow(updatedUser)
+            return this._mapper.toAuthUserEntityOrThrow(updatedUser)
           }
         }
 
@@ -240,11 +240,11 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           verificationExpiresAt: null,
         })
 
-        const plainUser = this.mapper.toPlainRecord<MongoAuthUserRecord>(user)
+        const plainUser = this._mapper.toPlainRecord<MongoAuthUserRecord>(user)
 
-        await this.profileProvisioner.ensureProfile(plainUser)
+        await this._profileProvisioner.ensureProfile(plainUser)
 
-        return this.mapper.toAuthUserEntityOrThrow(plainUser)
+        return this._mapper.toAuthUserEntityOrThrow(plainUser)
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
     )
@@ -276,7 +276,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
     )
@@ -295,7 +295,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
             deletedAt: null,
           }).lean<MongoAuthUserRecord>()
 
-          return this.mapper.toAuthUserEntity(user)
+          return this._mapper.toAuthUserEntity(user)
         }
 
         const user = await User.findOneAndUpdate(
@@ -309,7 +309,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
       MongoAuthErrorMapper.mapDuplicateUserError,
     )
@@ -337,10 +337,10 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
         ).lean<MongoAuthUserRecord>()
 
         if (user) {
-          await this.profileProvisioner.ensureProfile(user)
+          await this._profileProvisioner.ensureProfile(user)
         }
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -367,10 +367,10 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
         ).lean<MongoAuthUserRecord>()
 
         if (user) {
-          await this.profileProvisioner.ensureProfile(user)
+          await this._profileProvisioner.ensureProfile(user)
         }
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -395,7 +395,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -420,7 +420,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -453,7 +453,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }
@@ -465,7 +465,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
       async () => {
         const user = await User.findByIdAndDelete(id).lean<MongoAuthUserRecord>()
 
-        return this.mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user)
       },
     )
   }

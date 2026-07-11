@@ -3,7 +3,7 @@ import type {
   TwoFactorChallengeTokenPayload,
 } from '../value-objects/token-payload.vo'
 
-export interface AuthTokenServiceContract {
+export interface AuthTokenContract {
   generateAccessToken(userId: string, role: AuthRole): string
   generateRefreshToken(): string
   generateTwoFactorChallengeToken(userId: string): string

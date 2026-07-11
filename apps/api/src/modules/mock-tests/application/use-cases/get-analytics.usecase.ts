@@ -1,5 +1,5 @@
 import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
-import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
+import type { MockTestAIGatewayContract } from '../../domain/services/mock-test-ai.interface'
 import type { TestAnalytics } from '../dtos/mock-tests.dto'
 import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
@@ -7,21 +7,21 @@ const DEFAULT_AI_INSIGHTS = 'Keep practicing to improve your performance.'
 
 export class GetAnalyticsUseCase {
   constructor(
-    private readonly _repo: MockTestAnalyticsRepositoryContract,
-    private readonly _aiService: MockTestAIServiceContract,
+    private readonly _repository: MockTestAnalyticsRepositoryContract,
+    private readonly _aiGateway: MockTestAIGatewayContract,
     private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<TestAnalytics> {
     const [trends, topicBreakdown] = await Promise.all([
-      this._repo.getPerformanceTrends(userId),
-      this._repo.getTopicBreakdown(userId),
+      this._repository.getPerformanceTrends(userId),
+      this._repository.getTopicBreakdown(userId),
     ])
 
     let aiInsights: string
 
     try {
-      aiInsights = await this._aiService.generatePerformanceInsights({
+      aiInsights = await this._aiGateway.generatePerformanceInsights({
         userId,
         performanceTrends: trends,
         topicBreakdown,

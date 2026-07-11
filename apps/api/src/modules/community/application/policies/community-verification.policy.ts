@@ -5,7 +5,7 @@ export interface CommunityVerificationPolicyContract {
   ensureCanVote(submission: CommunityVerificationSubmissionEntity, userId: string): void
 }
 
-export class CommunityVerificationPolicyService
+export class CommunityVerificationPolicy
   implements CommunityVerificationPolicyContract
 {
   ensureCanVote(submission: CommunityVerificationSubmissionEntity, userId: string): void {

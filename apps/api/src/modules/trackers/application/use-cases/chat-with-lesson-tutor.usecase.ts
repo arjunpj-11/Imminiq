@@ -3,7 +3,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
 
 type ChatWithLessonTutorResultDto = ReturnType<
   TrackerMapperContract['toLessonTutorChatResponseDto']
@@ -12,7 +12,7 @@ type ChatWithLessonTutorResultDto = ReturnType<
 export class ChatWithLessonTutorUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerAIGateway: TrackerAIGatewayContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
@@ -67,7 +67,7 @@ export class ChatWithLessonTutorUseCase {
       })
     }
 
-    const answer = await this._trackerAIService.chatWithLessonTutor({
+    const answer = await this._trackerAIGateway.chatWithLessonTutor({
       lessonTitle: lesson.title,
       lessonContent: `${lesson.summary}\n\n${lesson.explanation}\n\n${lesson.insight}`,
       messages: input.messages,

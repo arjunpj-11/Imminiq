@@ -10,7 +10,7 @@ import type {
   DeleteAccountResponseDto,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
-import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
+import type { SensitiveActionAuthorizerContract } from '../services/sensitive-action-step-up.service'
 import type { ClockContract } from '../../../../shared/time/clock.interface'
 
 type DeleteSecurityAccountRepository =
@@ -19,7 +19,7 @@ type DeleteSecurityAccountRepository =
 export class DeleteSecurityAccountUseCase {
   constructor(
     private readonly _securityRepository: DeleteSecurityAccountRepository,
-    private readonly _sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
+    private readonly _sensitiveActionAuthorizer: SensitiveActionAuthorizerContract,
     private readonly _securityAuditLogger: SecurityAuditLoggerContract,
     private readonly _clock: ClockContract,
   ) {}
@@ -38,7 +38,7 @@ export class DeleteSecurityAccountUseCase {
       throw SecurityApplicationError.notFound()
     }
 
-    await this._sensitiveActionStepUpService.assertSatisfied({
+    await this._sensitiveActionAuthorizer.assertSatisfied({
       user,
       payload,
       action: 'delete_account',

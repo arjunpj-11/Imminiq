@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
 
 type GetCodeHintInput = {
   trackerId: string
@@ -20,7 +20,7 @@ type GetCodeHintResultDto = ReturnType<
 export class GetCodeHintUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerAIGateway: TrackerAIGatewayContract,
     private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
@@ -40,7 +40,7 @@ export class GetCodeHintUseCase {
       userId: input.userId,
     })
 
-    const aiResult = await this._trackerAIService.generateCodeHint({
+    const aiResult = await this._trackerAIGateway.generateCodeHint({
       lessonTitle: lesson?.title || tracker.title || 'Coding lesson',
       practiceTitle: lesson?.practiceTask?.title || 'Coding practice',
       practiceDescription:

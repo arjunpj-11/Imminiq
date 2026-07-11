@@ -9,7 +9,7 @@ export interface ModerationAppealSubmissionPolicyContract {
   ensureNoActiveAppeal(appeal: ModerationAppealEntity | null): void
 }
 
-export class ModerationAppealSubmissionPolicyService
+export class ModerationAppealSubmissionPolicy
   implements ModerationAppealSubmissionPolicyContract
 {
   ensureRestrictedUserExists(

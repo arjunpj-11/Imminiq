@@ -6,7 +6,7 @@ import type {
 } from '../dtos/moderation-appeal.dto'
 import type { ModerationAppealMapperContract } from '../mappers/moderation-appeal.mapper'
 import type { ModerationAppealSubmissionPolicyContract } from '../policies/moderation-appeal-submission-policy.policy'
-import type { ModerationAppealCaseIdServiceContract } from '../services/moderation-appeal-case-id.service'
+import type { ModerationAppealCaseIdAllocatorContract } from '../services/moderation-appeal-case-id.service'
 
 type SubmitModerationAppealRepository =
   ModerationAppealQueryRepositoryContract &
@@ -15,7 +15,7 @@ type SubmitModerationAppealRepository =
 export class SubmitModerationAppealUseCase {
   constructor(
     private readonly _moderationAppealRepository: SubmitModerationAppealRepository,
-    private readonly _moderationAppealCaseIdService: ModerationAppealCaseIdServiceContract,
+    private readonly _caseIdAllocator: ModerationAppealCaseIdAllocatorContract,
     private readonly _moderationAppealSubmissionPolicy: ModerationAppealSubmissionPolicyContract,
     private readonly _moderationAppealMapper: ModerationAppealMapperContract,
   ) {}
@@ -40,7 +40,7 @@ export class SubmitModerationAppealUseCase {
     this._moderationAppealSubmissionPolicy.ensureNoActiveAppeal(existingAppeal)
 
     const caseId =
-      await this._moderationAppealCaseIdService.generateUniqueCaseId()
+      await this._caseIdAllocator.generateUniqueCaseId()
 
     const appeal = await this._moderationAppealRepository.createAppeal({
       userId: user.id,

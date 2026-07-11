@@ -11,14 +11,14 @@ export interface ScoreResult {
   passed: boolean
 }
 
-export interface MockTestScoringServiceContract {
+export interface MockTestScorerContract {
   calculateTestScore(questions: MockTestQuestionEntity[], answers: MockTestAnswerEntity[], passingScore: number): ScoreResult
   isMCQCorrect(userAnswer: string, correctAnswer: string): boolean
   identifyWeakAndStrongTopics(questions: MockTestQuestionEntity[], answers: MockTestAnswerEntity[]): { strongTopics: string[]; weakTopics: string[] }
   generateRecommendations(scorePercentage: number, weakTopics: string[], passed: boolean): string[]
 }
 
-export class MockTestScoringService implements MockTestScoringServiceContract {
+export class MockTestScorer implements MockTestScorerContract {
   calculateTestScore(
     questions: MockTestQuestionEntity[],
     answers: MockTestAnswerEntity[],

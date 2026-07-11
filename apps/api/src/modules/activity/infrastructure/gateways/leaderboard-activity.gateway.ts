@@ -3,7 +3,7 @@ import type { LeaderboardXpRecorderContract } from '../../../leaderboard/leaderb
 import type {
   ActivityLeaderboardRecorderContract,
   RecordActivityLeaderboardXpInput,
-} from '../../domain/services/activity-leaderboard-recorder.service.interface'
+} from '../../domain/services/activity-leaderboard-recorder.interface'
 
 export class LeaderboardActivityGateway
   implements ActivityLeaderboardRecorderContract

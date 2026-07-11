@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
 
 type ExistingSubtopic = {
   id: string
@@ -30,7 +30,7 @@ type VerifyTrackerSubtopicResultDto = ReturnType<
 export class VerifyTrackerSubtopicUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerAIGateway: TrackerAIGatewayContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
@@ -46,7 +46,7 @@ export class VerifyTrackerSubtopicUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const result = await this._trackerAIService.verifyTrackerSubtopic({
+    const result = await this._trackerAIGateway.verifyTrackerSubtopic({
       trackerTitle: input.trackerTitle || tracker.title || '',
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,

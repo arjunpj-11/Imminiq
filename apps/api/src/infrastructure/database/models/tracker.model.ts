@@ -8,7 +8,7 @@ export type TrackerStatus = 'draft' | 'active' | 'archived'
 
 export type TrackerVerificationStatus = 'pending' | 'verified' | 'rejected'
 
-export interface ITracker extends Document {
+export interface TrackerDocument extends Document {
   ownerId: mongoose.Types.ObjectId
 
   title: string
@@ -55,7 +55,7 @@ export interface ITracker extends Document {
   updatedAt: Date
 }
 
-const trackerSchema = new Schema<ITracker>(
+const trackerSchema = new Schema<TrackerDocument>(
   {
     ownerId: {
       type: Schema.Types.ObjectId,
@@ -254,4 +254,4 @@ trackerSchema.index(
 )
 
 export const Tracker =
-  mongoose.models.Tracker || mongoose.model<ITracker>('Tracker', trackerSchema)
+  mongoose.models.Tracker || mongoose.model<TrackerDocument>('Tracker', trackerSchema)

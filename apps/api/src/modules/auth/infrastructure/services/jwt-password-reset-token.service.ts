@@ -5,12 +5,12 @@ import { env } from '../../../../config/env'
 import { AuthDomainError } from '../../domain/errors/auth-domain.error'
 import { PASSWORD_RESET_TOKEN_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
 import type { PasswordResetSessionStoreContract } from '../../domain/services/password-reset-session-store.interface'
-import type { PasswordResetTokenServiceContract } from '../../domain/services/password-reset-token.service.interface'
+import type { PasswordResetTokenContract } from '../../domain/services/password-reset-token.interface'
 import type { ResetTokenPayload } from '../../domain/value-objects/token-payload.vo'
 import { redisPasswordResetSessionStore } from '../stores/redis-password-reset-session.store'
 
-export class JwtPasswordResetTokenService
-  implements PasswordResetTokenServiceContract {
+export class JwtPasswordResetToken
+  implements PasswordResetTokenContract {
   constructor(
     private readonly _passwordResetSessionStore: PasswordResetSessionStoreContract
   ) {}
@@ -71,5 +71,5 @@ export class JwtPasswordResetTokenService
   }
 }
 
-export const jwtPasswordResetTokenService =
-  new JwtPasswordResetTokenService(redisPasswordResetSessionStore)
+export const jwtPasswordResetToken =
+  new JwtPasswordResetToken(redisPasswordResetSessionStore)

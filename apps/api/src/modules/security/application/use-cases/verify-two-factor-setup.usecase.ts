@@ -1,7 +1,7 @@
 import { TWO_FACTOR_SETUP_ATTEMPT_SCOPE } from '../../domain/constants/security.constants'
 import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
 import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
-import type { TwoFactorBackupCodeServiceContract } from '../../domain/services/two-factor-backup-code.service.interface'
+import type { TwoFactorBackupCodeManagerContract } from '../../domain/services/two-factor-backup-code.interface'
 import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
 import type {
   TwoFactorVerifyResponseDto,
@@ -14,7 +14,7 @@ export class VerifyTwoFactorSetupUseCase {
     private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
     private readonly _twoFactorGateway: TwoFactorGatewayContract,
     private readonly _securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly _backupCodeService: TwoFactorBackupCodeServiceContract,
+    private readonly _backupCodeManager: TwoFactorBackupCodeManagerContract,
   ) {}
 
   async execute(
@@ -57,8 +57,8 @@ export class VerifyTwoFactorSetupUseCase {
       userId,
     )
 
-    const backupCodes = this._backupCodeService.generate()
-    const hashedBackupCodes = await this._backupCodeService.hash(backupCodes)
+    const backupCodes = this._backupCodeManager.generate()
+    const hashedBackupCodes = await this._backupCodeManager.hash(backupCodes)
 
   const activatedTwoFactor =
   await this._twoFactorRepository.activateTwoFactor({

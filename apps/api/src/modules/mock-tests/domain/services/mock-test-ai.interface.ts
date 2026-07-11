@@ -41,7 +41,7 @@ export type GeneratedMockTestQuestion = {
   coding?: MockTestCodingDetails
 }
 
-export interface MockTestAIServiceContract {
+export interface MockTestAIGatewayContract {
   generateQuestions(input: GenerateQuestionsInput): Promise<{
     title: string
     description: string

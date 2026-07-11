@@ -4,7 +4,7 @@ import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 export class ListPublicMockTestsUseCase {
   constructor(
-    private readonly _repo: MockTestRepositoryContract,
+    private readonly _repository: MockTestRepositoryContract,
     private readonly _mapper: MockTestsMapperContract,
   ) { }
 
@@ -14,7 +14,7 @@ export class ListPublicMockTestsUseCase {
     page?: number
     limit?: number
   }) {
-    return this._repo.findPublicTests(filters).then((result) =>
+    return this._repository.findPublicTests(filters).then((result) =>
       this._mapper.toPublicListDto(result))
   }
 }

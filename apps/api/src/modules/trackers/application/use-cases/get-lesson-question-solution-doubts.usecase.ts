@@ -1,12 +1,12 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+import type { QuestionHasherContract } from '../../domain/services/question-hasher.interface'
 
 export class GetLessonQuestionSolutionDoubtsUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _questionHasher: QuestionHasherServiceContract,
+    private readonly _questionHasher: QuestionHasherContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 

@@ -1,11 +1,11 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { PasswordResetTokenServiceContract } from '../../domain/services/password-reset-token.service.interface'
+import type { PasswordResetTokenContract } from '../../domain/services/password-reset-token.interface'
 import type { PhoneOtpProviderContract } from '../../domain/services/phone-otp-provider.interface'
 import type { PhoneOtpSessionStoreContract } from '../../domain/services/phone-otp-session-store.interface'
 import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
 import type { OtpStoreContract } from '../../domain/services/otp-store.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
 
 const VERIFY_RESET_SCOPE = 'auth_verify_reset_otp' as const
 
@@ -16,7 +16,7 @@ export class VerifyResetCodeUseCase {
     private readonly _securityAttemptStore: SecurityAttemptStoreContract,
     private readonly _phoneOtpProvider: PhoneOtpProviderContract,
     private readonly _phoneOtpSessionStore: PhoneOtpSessionStoreContract,
-    private readonly _passwordResetTokenService: PasswordResetTokenServiceContract,
+    private readonly _passwordResetToken: PasswordResetTokenContract,
     private readonly _otpStore: OtpStoreContract
   ) {}
 
@@ -80,7 +80,7 @@ export class VerifyResetCodeUseCase {
     )
 
     return {
-      resetToken: await this._passwordResetTokenService.generate(user.id),
+      resetToken: await this._passwordResetToken.generate(user.id),
     }
   }
 

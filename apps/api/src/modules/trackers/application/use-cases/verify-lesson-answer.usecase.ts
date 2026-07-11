@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
 
 const getDocumentId = (document: unknown) => {
   const doc = document as { _id?: unknown }
@@ -38,7 +38,7 @@ const getIsCorrectFromResult = (result: {
 export class VerifyLessonAnswerUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerAIGateway: TrackerAIGatewayContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
@@ -72,7 +72,7 @@ export class VerifyLessonAnswerUseCase {
         }
       | undefined
 
-    const result = await this._trackerAIService.verifyNonCodingAnswer({
+    const result = await this._trackerAIGateway.verifyNonCodingAnswer({
       lessonTitle: lesson.title || tracker.title || 'Lesson practice',
       lessonExplanation:
         lesson.explanation ||

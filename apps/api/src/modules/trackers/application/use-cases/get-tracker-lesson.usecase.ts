@@ -3,7 +3,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
 import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
 
 type GetTrackerLessonResultDto = ReturnType<
@@ -27,7 +27,7 @@ const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
 export class GetTrackerLessonUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
+    private readonly _trackerAIGateway: TrackerAIGatewayContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
@@ -77,7 +77,7 @@ export class GetTrackerLessonUseCase {
     })
 
     if (!lesson) {
-      const generated = await this._trackerAIService.generateLesson({
+      const generated = await this._trackerAIGateway.generateLesson({
         trackerTitle: tracker.title || 'Tracker',
         topicTitle: topic?.title,
         subtopicTitle: currentSubtopic.title,

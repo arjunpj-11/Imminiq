@@ -1,13 +1,13 @@
 import type { SecurityUserEntity } from '../../domain/entities/security-user.entity'
 import type { SecurityTwoFactorRepositoryContract } from '../../domain/repositories/security-two-factor.repository.interface'
 import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
-import type { SecurityPasswordHasherServiceContract } from '../../domain/services/security-password-hasher.service.interface'
+import type { SecurityPasswordHasherContract } from '../../domain/services/security-password-hasher.interface'
 import type { TwoFactorGatewayContract } from '../../domain/services/two-factor-gateway.interface'
 import type { SensitiveSecurityAction } from '../../domain/value-objects/sensitive-security-action.vo'
 import type { SensitiveActionStepUpPayload } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
-export interface SensitiveActionStepUpServiceContract {
+export interface SensitiveActionAuthorizerContract {
   assertSatisfied(input: {
     user: SecurityUserEntity
     payload: SensitiveActionStepUpPayload
@@ -15,11 +15,11 @@ export interface SensitiveActionStepUpServiceContract {
   }): Promise<void>
 }
 
-export class SensitiveActionStepUpService implements SensitiveActionStepUpServiceContract {
+export class SensitiveActionAuthorizer implements SensitiveActionAuthorizerContract {
   constructor(
     private readonly _twoFactorRepository: SecurityTwoFactorRepositoryContract,
     private readonly _twoFactorGateway: TwoFactorGatewayContract,
-    private readonly _passwordHasher: SecurityPasswordHasherServiceContract,
+    private readonly _passwordHasher: SecurityPasswordHasherContract,
     private readonly _securityAuditLogger: SecurityAuditLoggerContract,
   ) {}
 

@@ -1,7 +1,7 @@
 import type { OtpPurpose } from '../value-objects/otp-purpose.vo'
 import type { VerificationMethod } from '../value-objects/verification-method.vo'
 
-export interface AuthNotificationServiceContract {
+export interface AuthNotificationContract {
   sendVerificationOtp(data: {
     email?: string
     phone?: string

@@ -3,18 +3,18 @@ export {
   mongoMockTestsRepository,
 } from './repositories/mongo-mock-tests.repository'
 export {
-  CryptoShareTokenGeneratorService,
-  cryptoShareTokenGeneratorService,
+  CryptoShareTokenGenerator,
+  cryptoShareTokenGenerator,
 } from './services/crypto-share-token-generator.service'
 export {
-  GeminiGroqMockTestAIService,
-  geminiGroqMockTestAIService,
+  GeminiGroqMockTestAIGateway,
+  geminiGroqMockTestAIGateway,
 } from './services/gemini-groq-mock-test-ai.service'
 export {
-  MongoQuestionBankService,
-  mongoQuestionBankService,
+  MongoQuestionBank,
+  mongoQuestionBank,
 } from './services/mongo-question-bank.service'
 export {
-  PistonMockTestCodeRunnerService,
-  pistonMockTestCodeRunnerService,
+  PistonMockTestCodeRunner,
+  pistonMockTestCodeRunner,
 } from './services/piston-mock-test-code-runner.service'

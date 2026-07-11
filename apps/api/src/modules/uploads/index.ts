@@ -1,6 +1,6 @@
 export type {
-  AiImagePreviewResult,
-  GenerateAiImagePreviewInput,
+  AIImagePreviewResult,
+  GenerateAIImagePreviewInput,
   RemoveAvatarResult,
   RemoveBannerResult,
   UploadProfileImageInput,

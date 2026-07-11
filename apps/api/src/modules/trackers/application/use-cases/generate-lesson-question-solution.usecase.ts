@@ -1,8 +1,8 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
-import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+import type { TrackerAIGatewayContract } from '../../domain/services/tracker-ai.interface'
+import type { QuestionHasherContract } from '../../domain/services/question-hasher.interface'
 
 type GenerateLessonQuestionSolutionResultDto = ReturnType<
   TrackerMapperContract['toLessonQuestionSolutionDto']
@@ -25,8 +25,8 @@ const getDocumentId = (document: unknown) => {
 export class GenerateLessonQuestionSolutionUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
-    private readonly _questionHasher: QuestionHasherServiceContract,
+    private readonly _trackerAIGateway: TrackerAIGatewayContract,
+    private readonly _questionHasher: QuestionHasherContract,
     private readonly _trackerMapper: TrackerMapperContract
   ) {}
 
@@ -70,7 +70,7 @@ export class GenerateLessonQuestionSolutionUseCase {
       return this._trackerMapper.toLessonQuestionSolutionDto(existing)
     }
 
-    const solution = await this._trackerAIService.generateLessonQuestionSolution({
+    const solution = await this._trackerAIGateway.generateLessonQuestionSolution({
       lessonTitle: lesson.title,
       lessonExplanation: lesson.explanation,
       question: input.question,

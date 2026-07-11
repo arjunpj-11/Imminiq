@@ -4,11 +4,11 @@ import type {
   RecordTrackerCompletedActivityInput,
   RecordTrackerSubtopicCompletedActivityInput,
   RecordTrackerTopicCompletedActivityInput,
-  TrackerActivityServiceContract,
-} from '../../domain/services/tracker-activity.service.interface'
+  TrackerActivityRecorderContract,
+} from '../../domain/services/tracker-activity.interface'
 
 export class ActivityTrackerGateway
-  implements TrackerActivityServiceContract
+  implements TrackerActivityRecorderContract
 {
   constructor(
     private readonly _activityRecorder: ActivityRecorderContract,

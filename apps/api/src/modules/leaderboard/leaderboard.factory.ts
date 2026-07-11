@@ -1,5 +1,5 @@
 import { LeaderboardMapper } from './application/mappers/leaderboard.mapper'
-import { LeaderboardDateRangeService } from './application/services/leaderboard-date-range.service'
+import { LeaderboardDateRange } from './application/services/leaderboard-date-range.service'
 import { CaptureLeaderboardSnapshotUseCase } from './application/use-cases/capture-leaderboard-snapshot.usecase'
 import { GetLeaderboardRewardsUseCase } from './application/use-cases/get-leaderboard-rewards.usecase'
 import { GetLeaderboardUseCase } from './application/use-cases/get-leaderboard.usecase'
@@ -23,14 +23,14 @@ export type LeaderboardComposition = {
 export const createLeaderboardComposition = (): LeaderboardComposition => {
   const leaderboardRepository = mongoLeaderboardRepository
   const leaderboardMapper = new LeaderboardMapper()
-  const dateRangeService = new LeaderboardDateRangeService()
+  const dateRange = new LeaderboardDateRange()
 
   return {
     useCases: {
       getLeaderboard: new GetLeaderboardUseCase(
         leaderboardRepository,
         leaderboardMapper,
-        dateRangeService,
+        dateRange,
         systemClock,
       ),
       getRewards: new GetLeaderboardRewardsUseCase(),
@@ -43,7 +43,7 @@ export const createLeaderboardComposition = (): LeaderboardComposition => {
       ),
       captureSnapshot: new CaptureLeaderboardSnapshotUseCase(
         leaderboardRepository,
-        dateRangeService,
+        dateRange,
         systemClock,
       ),
     },

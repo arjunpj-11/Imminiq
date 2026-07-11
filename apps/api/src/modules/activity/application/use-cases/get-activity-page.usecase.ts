@@ -5,8 +5,8 @@ import type {
 } from '../dtos/activity.dto'
 import { ActivityApplicationError } from '../errors/activity-application.error'
 import type { ActivityMapperContract } from '../mappers/activity.mapper'
-import type { ActivityAnalyticsServiceContract } from '../services/activity-analytics.service'
-import type { ActivityDateRangeServiceContract } from '../services/activity-date-range.service'
+import type { ActivityAnalyticsContract } from '../services/activity-analytics.service'
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import { GetActivityFeedUseCase } from './get-activity-feed.usecase'
 import type { ClockContract } from '../../../../shared/time/clock.interface'
 
@@ -15,8 +15,8 @@ export class GetActivityPageUseCase {
     private readonly _activityRepository: ActivityQueryRepositoryContract,
     private readonly _feedUseCase: GetActivityFeedUseCase,
     private readonly _mapper: ActivityMapperContract,
-    private readonly _analyticsService: ActivityAnalyticsServiceContract,
-    private readonly _dateRangeService: ActivityDateRangeServiceContract,
+    private readonly _analyticsCalculator: ActivityAnalyticsContract,
+    private readonly _dateRange: ActivityDateRangeContract,
     private readonly _clock: ClockContract,
   ) {}
 
@@ -26,7 +26,7 @@ export class GetActivityPageUseCase {
     now = this._clock.now(),
   ): Promise<ActivityPageResponse> {
     const context =
-      this._dateRangeService.createContext(
+      this._dateRange.createContext(
         now,
         payload.year,
         payload.utcOffsetMinutes ?? 0,
@@ -79,8 +79,8 @@ export class GetActivityPageUseCase {
       analytics,
       context,
       feed,
-      analyticsService: this._analyticsService,
-      dateRangeService: this._dateRangeService,
+      analyticsCalculator: this._analyticsCalculator,
+      dateRange: this._dateRange,
     })
   }
 }

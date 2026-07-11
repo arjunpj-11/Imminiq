@@ -11,12 +11,12 @@ type GetMockTestDetailsRepository =
 
 export class GetMockTestDetailsUseCase {
   constructor(
-    private readonly _repo: GetMockTestDetailsRepository,
+    private readonly _repository: GetMockTestDetailsRepository,
     private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(testId: string, userId: string) {
-    const test = await this._repo.findTestById(testId)
+    const test = await this._repository.findTestById(testId)
 
     if (!test) {
       throw MockTestsApplicationError.notFound('Test not found')
@@ -27,8 +27,8 @@ export class GetMockTestDetailsUseCase {
     }
 
     const [questions, attempts] = await Promise.all([
-      this._repo.findQuestionsByTest(testId),
-      this._repo.findAttemptsByUser({
+      this._repository.findQuestionsByTest(testId),
+      this._repository.findAttemptsByUser({
         userId,
         testId,
       }),

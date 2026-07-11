@@ -1,12 +1,12 @@
 import { AuthUserMapper, type AuthUserMapperContract } from './application/mappers/auth-user.mapper'
 import { AuthSessionMapper } from './application/mappers/auth-session.mapper'
-import { AuthAccountPolicyService } from './application/policies/auth-account-policy.policy'
-import { AuthNotificationService } from './application/services/auth-notification.service'
-import { AuthRedirectService } from './application/services/auth-redirect.service'
-import { AuthSessionService, type AuthSessionServiceContract } from './application/services/auth-session.service'
-import { BackupCodeNormalizerService } from './application/services/backup-code-normalizer.service'
-import { IdentifierNormalizerService } from './application/services/identifier-normalizer.service'
-import { UsernameGeneratorService, type UsernameGeneratorServiceContract } from './application/services/username-generator.service'
+import { AuthAccountPolicy } from './application/policies/auth-account-policy.policy'
+import { AuthNotificationCoordinator } from './application/services/auth-notification.service'
+import { AuthRedirectResolver } from './application/services/auth-redirect.service'
+import { AuthSessionIssuer, type AuthSessionIssuerContract } from './application/services/auth-session.service'
+import { BackupCodeNormalizer } from './application/services/backup-code-normalizer.service'
+import { IdentifierNormalizer } from './application/services/identifier-normalizer.service'
+import { UsernameGenerator, type UsernameGeneratorContract } from './application/services/username-generator.service'
 
 import { ChangePasswordUseCase } from './application/use-cases/change-password.usecase'
 import { CheckIdentifierUseCase } from './application/use-cases/check-identifier.usecase'
@@ -27,16 +27,16 @@ import { VerifyAccountUseCase } from './application/use-cases/verify-account.use
 import { VerifyResetCodeUseCase } from './application/use-cases/verify-reset-code.usecase'
 import { VerifyTwoFactorLoginUseCase } from './application/use-cases/verify-two-factor-login.usecase'
 
-import type { AuthTokenServiceContract } from './domain/services/auth-token.service.interface'
-import type { OtpGeneratorContract } from './domain/services/otp-generator.service.interface'
+import type { AuthTokenContract } from './domain/services/auth-token.interface'
+import type { OtpGeneratorContract } from './domain/services/otp-generator.interface'
 
 import { mongoAuthRepository } from './infrastructure/repositories/mongo-auth.repository'
-import { bcryptPasswordHasherService } from './infrastructure/services/bcrypt-password-hasher.service'
-import { cryptoOtpGeneratorService } from './infrastructure/services/crypto-otp-generator.service'
-import { cryptoRandomNumberGeneratorService } from './infrastructure/services/crypto-random-number-generator.service'
-import { jwtAuthTokenService } from './infrastructure/services/jwt-auth-token.service'
-import { jwtPasswordResetTokenService } from './infrastructure/services/jwt-password-reset-token.service'
-import { otplibTwoFactorCodeVerifierService } from './infrastructure/services/otplib-two-factor-code-verifier.service'
+import { bcryptPasswordHasher } from './infrastructure/services/bcrypt-password-hasher.service'
+import { cryptoOtpGenerator } from './infrastructure/services/crypto-otp-generator.service'
+import { cryptoRandomNumberGenerator } from './infrastructure/services/crypto-random-number-generator.service'
+import { jwtAuthToken } from './infrastructure/services/jwt-auth-token.service'
+import { jwtPasswordResetToken } from './infrastructure/services/jwt-password-reset-token.service'
+import { otplibTwoFactorCodeVerifier } from './infrastructure/services/otplib-two-factor-code-verifier.service'
 import { securityAuditLogger } from './infrastructure/loggers/security-audit.logger'
 import { messageCentralPhoneOtpProvider } from './infrastructure/providers/message-central-phone-otp.provider'
 import { nodemailerOtpEmailProvider } from './infrastructure/providers/nodemailer-otp-email.provider'
@@ -69,10 +69,10 @@ export type AuthUseCases = {
 
 export type AuthServiceHelpers = {
   authUserMapper: AuthUserMapperContract
-  authTokenService: AuthTokenServiceContract
+  authToken: AuthTokenContract
   otpGenerator: OtpGeneratorContract
-  usernameGenerator: UsernameGeneratorServiceContract
-  authSessionService: AuthSessionServiceContract
+  usernameGenerator: UsernameGeneratorContract
+  authSessionIssuer: AuthSessionIssuerContract
 }
 
 export type AuthUserMapperInput = Parameters<
@@ -89,32 +89,32 @@ export const createAuthComposition = (): AuthComposition => {
 
   const authUserMapper = new AuthUserMapper()
   const authSessionMapper = new AuthSessionMapper()
-  const identifierNormalizer = new IdentifierNormalizerService()
-  const otpGenerator = cryptoOtpGeneratorService
+  const identifierNormalizer = new IdentifierNormalizer()
+  const otpGenerator = cryptoOtpGenerator
 
-  const usernameGenerator = new UsernameGeneratorService(
+  const usernameGenerator = new UsernameGenerator(
     authRepository,
-    cryptoRandomNumberGeneratorService
+    cryptoRandomNumberGenerator
   )
 
-  const authAccountPolicy = new AuthAccountPolicyService()
-  const backupCodeNormalizer = new BackupCodeNormalizerService()
+  const authAccountPolicy = new AuthAccountPolicy()
+  const backupCodeNormalizer = new BackupCodeNormalizer()
 
-  const passwordHasher = bcryptPasswordHasherService
-  const authTokenService = jwtAuthTokenService
+  const passwordHasher = bcryptPasswordHasher
+  const authToken = jwtAuthToken
   const passwordResetSessionStore = redisPasswordResetSessionStore
-  const passwordResetTokenService = jwtPasswordResetTokenService
+  const passwordResetToken = jwtPasswordResetToken
   const securityAttemptStore = redisSecurityAttemptStore
   const phoneOtpSessionStore = redisPhoneOtpSessionStore
   const phoneOtpProvider = messageCentralPhoneOtpProvider
   const retiredRefreshTokenStore = redisRetiredRefreshTokenStore
   const otpStore = redisOtpStore
-  const securityAuditLoggerService = securityAuditLogger
-  const twoFactorCodeVerifier = otplibTwoFactorCodeVerifierService
+  const auditLogger = securityAuditLogger
+  const twoFactorCodeVerifier = otplibTwoFactorCodeVerifier
 
-  const authRedirectService = new AuthRedirectService()
+  const authRedirectResolver = new AuthRedirectResolver()
 
-  const authNotificationService = new AuthNotificationService(
+  const authNotification = new AuthNotificationCoordinator(
     otpStore,
     otpGenerator,
     identifierNormalizer,
@@ -123,16 +123,16 @@ export const createAuthComposition = (): AuthComposition => {
     nodemailerOtpEmailProvider
   )
 
-  const authSessionService = new AuthSessionService(
+  const authSessionIssuer = new AuthSessionIssuer(
     authRepository,
-    authTokenService
+    authToken
   )
 
   return {
     useCases: {
       registerUser: new RegisterUserUseCase(
         authRepository,
-        authNotificationService,
+        authNotification,
         identifierNormalizer,
         usernameGenerator,
         passwordHasher,
@@ -141,12 +141,12 @@ export const createAuthComposition = (): AuthComposition => {
 
       loginUser: new LoginUserUseCase(
         authRepository,
-        authNotificationService,
-        authRedirectService,
+        authNotification,
+        authRedirectResolver,
         identifierNormalizer,
         authAccountPolicy,
-        authSessionService,
-        authTokenService,
+        authSessionIssuer,
+        authToken,
         passwordHasher,
         securityAttemptStore,
         authUserMapper
@@ -154,19 +154,19 @@ export const createAuthComposition = (): AuthComposition => {
 
       handleOAuthLogin: new HandleOAuthLoginUseCase(
         authRepository,
-        authRedirectService,
-        authTokenService,
+        authRedirectResolver,
+        authToken,
         authAccountPolicy,
-        authSessionService,
+        authSessionIssuer,
         authUserMapper
       ),
 
       verifyTwoFactorLogin: new VerifyTwoFactorLoginUseCase(
         authRepository,
-        authRedirectService,
-        authTokenService,
+        authRedirectResolver,
+        authToken,
         authAccountPolicy,
-        authSessionService,
+        authSessionIssuer,
         securityAttemptStore,
         twoFactorCodeVerifier,
         backupCodeNormalizer,
@@ -180,9 +180,9 @@ export const createAuthComposition = (): AuthComposition => {
 
       refreshAuthTokens: new RefreshAuthTokensUseCase(
         authRepository,
-        authTokenService,
+        authToken,
         retiredRefreshTokenStore,
-        securityAuditLoggerService,
+        auditLogger,
         authAccountPolicy
       ),
 
@@ -203,13 +203,13 @@ export const createAuthComposition = (): AuthComposition => {
 
       resendOtp: new ResendOtpUseCase(
         authRepository,
-        authNotificationService,
+        authNotification,
         identifierNormalizer
       ),
 
       forgotPassword: new ForgotPasswordUseCase(
         authRepository,
-        authNotificationService,
+        authNotification,
         identifierNormalizer
       ),
 
@@ -219,15 +219,15 @@ export const createAuthComposition = (): AuthComposition => {
         securityAttemptStore,
         phoneOtpProvider,
         phoneOtpSessionStore,
-        passwordResetTokenService,
+        passwordResetToken,
         otpStore
       ),
 
       resetPassword: new ResetPasswordUseCase(
         authRepository,
-        passwordResetTokenService,
+        passwordResetToken,
         passwordResetSessionStore,
-        securityAuditLoggerService,
+        auditLogger,
         passwordHasher
       ),
 
@@ -253,10 +253,10 @@ export const createAuthComposition = (): AuthComposition => {
 
     helpers: {
       authUserMapper,
-      authTokenService,
+      authToken,
       otpGenerator,
       usernameGenerator,
-      authSessionService,
+      authSessionIssuer,
     },
   }
 }

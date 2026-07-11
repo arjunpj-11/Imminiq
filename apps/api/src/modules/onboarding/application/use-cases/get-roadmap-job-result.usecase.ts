@@ -3,7 +3,7 @@ import type { OnboardingRoadmapRepositoryContract } from '../../domain/repositor
 import type { RoadmapTreeResult } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
 import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
-import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
+import type { OnboardingJobOutputReaderContract } from '../services/onboarding-job-output-reader.service'
 
 type RoadmapJobResultRepository =
   OnboardingAIJobQueryRepositoryContract &
@@ -13,7 +13,7 @@ export class GetRoadmapJobResultUseCase {
   constructor(
     private readonly _onboardingRepository: RoadmapJobResultRepository,
     private readonly _onboardingMapper: OnboardingMapperContract,
-    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderContract,
   ) {}
 
   async execute(

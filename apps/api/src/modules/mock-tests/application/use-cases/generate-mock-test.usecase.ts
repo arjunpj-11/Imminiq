@@ -1,12 +1,12 @@
 import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestActivityServiceContract } from '../../domain/services/mock-test-activity.service.interface'
+import type { MockTestActivityRecorderContract } from '../../domain/services/mock-test-activity.interface'
 import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
-import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
+import type { MockTestAIGatewayContract } from '../../domain/services/mock-test-ai.interface'
 import type {
-  MockTestQuestionBankServiceContract,
+  MockTestQuestionBankContract,
   QuestionBankItem,
-} from '../../domain/services/mock-test-question-bank.service.interface'
+} from '../../domain/services/mock-test-question-bank.interface'
 import type {
   GenerateMockTestPayload,
   MockTest,
@@ -19,17 +19,17 @@ type GenerateMockTestRepository =
 
 export class GenerateMockTestUseCase {
   constructor(
-    private readonly _repo:
+    private readonly _repository:
       GenerateMockTestRepository,
 
-    private readonly _aiService:
-      MockTestAIServiceContract,
+    private readonly _aiGateway:
+      MockTestAIGatewayContract,
 
-    private readonly _questionBankService:
-      MockTestQuestionBankServiceContract,
+    private readonly _questionBank:
+      MockTestQuestionBankContract,
 
-    private readonly _activityService:
-      MockTestActivityServiceContract,
+    private readonly _activityRecorder:
+      MockTestActivityRecorderContract,
     private readonly _mapper: MockTestsMapperContract,
   ) {}
 
@@ -52,7 +52,7 @@ export class GenerateMockTestUseCase {
       payload.questionCount || 10
 
     const isAIGenerated =
-      this._questionBankService.shouldUseAI()
+      this._questionBank.shouldUseAI()
 
     let questions: QuestionBankItem[]
     let title: string
@@ -60,7 +60,7 @@ export class GenerateMockTestUseCase {
 
     if (isAIGenerated) {
       const generated =
-        await this._aiService.generateQuestions({
+        await this._aiGateway.generateQuestions({
           topic,
           difficulty,
           questionCount,
@@ -77,7 +77,7 @@ export class GenerateMockTestUseCase {
       }
 
       questions =
-        await this._questionBankService
+        await this._questionBank
           .saveToQuestionBank(
             topic,
             generated.questions,
@@ -92,7 +92,7 @@ export class GenerateMockTestUseCase {
         `Practice test for ${topic}`
     } else {
       questions =
-        await this._questionBankService
+        await this._questionBank
           .sampleFromQuestionBank(
             topic,
             questionCount,
@@ -109,7 +109,7 @@ export class GenerateMockTestUseCase {
         `Practice test for ${topic}`
     }
 
-    const test = await this._repo.createTest({
+    const test = await this._repository.createTest({
       ownerId: userId,
       title,
       description,
@@ -130,7 +130,7 @@ export class GenerateMockTestUseCase {
       isAIGenerated,
     })
 
-    await this._repo.createQuestions(
+    await this._repository.createQuestions(
       questions.map((question, index) => ({
         testId: test._id,
         type: question.type,
@@ -159,7 +159,7 @@ export class GenerateMockTestUseCase {
      * The event key is based on the created test ID, so the
      * same test cannot produce duplicate activity.
      */
-    await this._activityService
+    await this._activityRecorder
       .recordMockTestGenerated({
         userId,
         mockTestId: test._id,

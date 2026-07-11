@@ -11,7 +11,7 @@ type CreateMockTestRepository =
 
 export class CreateMockTestUseCase {
   constructor(
-    private readonly _repo: CreateMockTestRepository,
+    private readonly _repository: CreateMockTestRepository,
     private readonly _mapper: MockTestsMapperContract,
   ) { }
 
@@ -29,7 +29,7 @@ export class CreateMockTestUseCase {
       )
     }
 
-    const test = await this._repo.createTest({
+    const test = await this._repository.createTest({
       ownerId: userId,
       title: payload.title,
       description: payload.description || '',
@@ -43,7 +43,7 @@ export class CreateMockTestUseCase {
       isAIGenerated: false,
     })
 
-    await this._repo.createQuestions(
+    await this._repository.createQuestions(
       payload.questions.map((question, index) => ({
         testId: test._id,
         type: question.type,

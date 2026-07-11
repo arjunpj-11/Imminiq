@@ -4,9 +4,9 @@ import bcrypt from 'bcryptjs'
 import { BCRYPT_ROUNDS } from '../../../../config/constants'
 import { TWO_FACTOR_BACKUP_CODE_COUNT } from '../../domain/constants/security.constants'
 import { SecurityDomainError } from '../../domain/errors/security-domain.error'
-import type { TwoFactorBackupCodeServiceContract } from '../../domain/services/two-factor-backup-code.service.interface'
+import type { TwoFactorBackupCodeManagerContract } from '../../domain/services/two-factor-backup-code.interface'
 
-export class CryptoTwoFactorBackupCodeService implements TwoFactorBackupCodeServiceContract {
+export class CryptoTwoFactorBackupCodeManager implements TwoFactorBackupCodeManagerContract {
   generate(): string[] {
     try {
       return Array.from({ length: TWO_FACTOR_BACKUP_CODE_COUNT }, () =>
@@ -41,5 +41,5 @@ export class CryptoTwoFactorBackupCodeService implements TwoFactorBackupCodeServ
   }
 }
 
-export const cryptoTwoFactorBackupCodeService =
-  new CryptoTwoFactorBackupCodeService()
+export const cryptoTwoFactorBackupCodeManager =
+  new CryptoTwoFactorBackupCodeManager()

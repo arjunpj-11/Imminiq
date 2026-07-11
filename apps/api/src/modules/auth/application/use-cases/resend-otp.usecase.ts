@@ -1,13 +1,13 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
+import type { AuthNotificationContract } from '../../domain/services/auth-notification.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.interface'
 
 export class ResendOtpUseCase {
   constructor(
     private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _authNotificationService: AuthNotificationServiceContract,
+    private readonly _authNotification: AuthNotificationContract,
     private readonly _identifierNormalizer: IdentifierNormalizerContract
   ) {}
 
@@ -36,7 +36,7 @@ export class ResendOtpUseCase {
       throw AuthApplicationError.phoneAlreadyVerified('Phone is already verified')
     }
 
-    await this._authNotificationService.resendOtp({
+    await this._authNotification.resendOtp({
       email: parsedIdentifier.email,
       phone: parsedIdentifier.phone,
       purpose,

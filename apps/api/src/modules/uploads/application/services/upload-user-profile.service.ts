@@ -1,23 +1,23 @@
-import type { UsersProfileServiceContract } from '../../domain/services/users-profile.service.interface'
+import type { UsersProfileReaderContract } from '../../domain/services/users-profile.interface'
 import type { UploadUserProfileContext } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
 
-export interface UploadUserProfileServiceContract {
+export interface UploadUserProfileReaderContract {
   getRequiredContext(userId: string): Promise<UploadUserProfileContext>
 }
 
-export class UploadUserProfileService
-  implements UploadUserProfileServiceContract
+export class UploadUserProfileReader
+  implements UploadUserProfileReaderContract
 {
   constructor(
-    private readonly _usersProfileService: UsersProfileServiceContract,
+    private readonly _usersProfileReader: UsersProfileReaderContract,
   ) {}
 
   async getRequiredContext(
     userId: string,
   ): Promise<UploadUserProfileContext> {
     try {
-      const { user, profile } = await this._usersProfileService.getMe(userId)
+      const { user, profile } = await this._usersProfileReader.getMe(userId)
 
       if (!profile._id) {
         throw UploadsApplicationError.userProfileUnavailable()

@@ -3,22 +3,22 @@ import {
   AI_IMAGE_SEED_UPPER_BOUND,
 } from '../../domain/constants/uploads.constants'
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
-import type { AiImageGenerationServiceContract } from '../../domain/services/ai-image-generation.service.interface'
-import type { RandomSeedServiceContract } from '../../domain/services/random-seed.service.interface'
-import type { AiImagePreviewResult } from '../dtos/uploads.dto'
+import type { AIImageGeneratorContract } from '../../domain/services/ai-image-generation.interface'
+import type { RandomSeedGeneratorContract } from '../../domain/services/random-seed.interface'
+import type { AIImagePreviewResult } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
 import type { UploadsMapperContract } from '../mappers/uploads.mapper'
-import type { AiUploadPromptServiceContract } from '../services/ai-upload-prompt.service'
+import type { AIUploadPromptBuilderContract } from '../services/ai-upload-prompt.service'
 
-export class GenerateAiAvatarPreviewUseCase {
+export class GenerateAIAvatarPreviewUseCase {
   constructor(
-    private readonly _aiImageGenerationService: AiImageGenerationServiceContract,
-    private readonly _aiUploadPromptService: AiUploadPromptServiceContract,
-    private readonly _randomSeedService: RandomSeedServiceContract,
+    private readonly _aiImageGenerator: AIImageGeneratorContract,
+    private readonly _aiUploadPromptBuilder: AIUploadPromptBuilderContract,
+    private readonly _randomSeedGenerator: RandomSeedGeneratorContract,
     private readonly _uploadsMapper: UploadsMapperContract,
   ) {}
 
-  async execute(prompt: string): Promise<AiImagePreviewResult> {
+  async execute(prompt: string): Promise<AIImagePreviewResult> {
     const cleanedPrompt = prompt.trim()
 
     if (!cleanedPrompt) {
@@ -26,18 +26,18 @@ export class GenerateAiAvatarPreviewUseCase {
     }
 
     try {
-      const image = await this._aiImageGenerationService.generatePreviewImage({
-        prompt: this._aiUploadPromptService.buildPrompt(
+      const image = await this._aiImageGenerator.generatePreviewImage({
+        prompt: this._aiUploadPromptBuilder.buildPrompt(
           'avatar',
           cleanedPrompt,
         ),
         steps: AI_IMAGE_GENERATION_STEPS,
-        seed: this._randomSeedService.createSeed(
+        seed: this._randomSeedGenerator.createSeed(
           AI_IMAGE_SEED_UPPER_BOUND,
         ),
       })
 
-      return this._uploadsMapper.toAiImagePreviewResult(image.dataUrl)
+      return this._uploadsMapper.toAIImagePreviewResult(image.dataUrl)
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.aiImageGenerationFailed()

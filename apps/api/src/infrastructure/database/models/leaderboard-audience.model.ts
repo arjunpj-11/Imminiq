@@ -1,13 +1,13 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface ILeaderboardAudience extends Document {
+export interface LeaderboardAudienceDocument extends Document {
   userId: mongoose.Types.ObjectId
   friendUserIds: mongoose.Types.ObjectId[]
   createdAt: Date
   updatedAt: Date
 }
 
-const leaderboardAudienceSchema = new Schema<ILeaderboardAudience>(
+const leaderboardAudienceSchema = new Schema<LeaderboardAudienceDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -36,7 +36,7 @@ leaderboardAudienceSchema.index(
 
 export const LeaderboardAudience =
   mongoose.models.LeaderboardAudience ||
-  mongoose.model<ILeaderboardAudience>(
+  mongoose.model<LeaderboardAudienceDocument>(
     'LeaderboardAudience',
     leaderboardAudienceSchema,
   )

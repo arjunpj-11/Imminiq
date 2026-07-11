@@ -2,15 +2,15 @@ import { QuestionBankCounterModel } from '../../../../infrastructure/database/mo
 import { QuestionBankModel } from '../../../../infrastructure/database/models/question-bank.model'
 import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
 import type {
-  MockTestQuestionBankServiceContract,
+  MockTestQuestionBankContract,
   QuestionBankItem,
-} from '../../domain/services/mock-test-question-bank.service.interface'
+} from '../../domain/services/mock-test-question-bank.interface'
 import type { DifficultyLevel } from '../../domain/value-objects/difficulty-level.vo'
 
 const USE_AI_GENERATION = true
 
-export class MongoQuestionBankService
-  implements MockTestQuestionBankServiceContract {
+export class MongoQuestionBank
+  implements MockTestQuestionBankContract {
   shouldUseAI(): boolean {
     return USE_AI_GENERATION
   }
@@ -86,4 +86,4 @@ export class MongoQuestionBankService
   }
 }
 
-export const mongoQuestionBankService = new MongoQuestionBankService()
+export const mongoQuestionBank = new MongoQuestionBank()

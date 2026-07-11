@@ -4,9 +4,9 @@ import type { MockTestAttemptRepositoryContract } from '../../domain/repositorie
 import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
 import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { MockTestActivityServiceContract } from '../../domain/services/mock-test-activity.service.interface'
+import type { MockTestActivityRecorderContract } from '../../domain/services/mock-test-activity.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
+import type { MockTestScorerContract } from '../services/test-scorer.service'
 import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 import type { ClockContract } from '../../../../shared/time/clock.interface'
 
@@ -26,14 +26,14 @@ type QuestionScoreLike = {
 
 export class FinishTestAttemptUseCase {
   constructor(
-    private readonly _repo:
+    private readonly _repository:
       FinishTestAttemptRepository,
 
-    private readonly _scoringService:
-      MockTestScoringServiceContract,
+    private readonly _scorer:
+      MockTestScorerContract,
 
-    private readonly _activityService:
-      MockTestActivityServiceContract,
+    private readonly _activityRecorder:
+      MockTestActivityRecorderContract,
 
     private readonly _mapper:
       MockTestsMapperContract,
@@ -47,7 +47,7 @@ export class FinishTestAttemptUseCase {
     userId: string,
   ) {
     const attempt =
-      await this._repo.findAttemptById(
+      await this._repository.findAttemptById(
         attemptId,
       )
 
@@ -82,7 +82,7 @@ export class FinishTestAttemptUseCase {
     }
 
     const test =
-      await this._repo.findTestById(
+      await this._repository.findTestById(
         attempt.testId,
       )
 
@@ -94,11 +94,11 @@ export class FinishTestAttemptUseCase {
 
     const [questions, answers] =
       await Promise.all([
-        this._repo.findQuestionsByTest(
+        this._repository.findQuestionsByTest(
           attempt.testId,
         ),
 
-        this._repo.findAnswersByAttempt(
+        this._repository.findAnswersByAttempt(
           attemptId,
         ),
       ])
@@ -123,7 +123,7 @@ export class FinishTestAttemptUseCase {
       calculatedTimeTakenSeconds
 
     const scoreResult =
-      this._scoringService
+      this._scorer
         .calculateTestScore(
           questions,
           answers,
@@ -169,14 +169,14 @@ export class FinishTestAttemptUseCase {
       strongTopics,
       weakTopics,
     } =
-      this._scoringService
+      this._scorer
         .identifyWeakAndStrongTopics(
           questions,
           answers,
         )
 
     const recommendations =
-      this._scoringService
+      this._scorer
         .generateRecommendations(
           scoreResult.scorePercentage,
           weakTopics,
@@ -191,13 +191,13 @@ export class FinishTestAttemptUseCase {
      * created.
      */
     const existingReport =
-      await this._repo.findReportByAttempt(
+      await this._repository.findReportByAttempt(
         attemptId,
       )
 
     const report =
       existingReport ??
-      (await this._repo.createReport({
+      (await this._repository.createReport({
         attemptId,
         testId: attempt.testId,
         userId,
@@ -235,7 +235,7 @@ export class FinishTestAttemptUseCase {
      */
     if (attempt.status === 'in_progress') {
       const updatedAttempt =
-        await this._repo.updateAttempt(
+        await this._repository.updateAttempt(
           attemptId,
           {
             status: 'completed',
@@ -273,7 +273,7 @@ export class FinishTestAttemptUseCase {
       completedAttempt = updatedAttempt
     }
 
-    await this._repo.updateAnalyticsSnapshot(
+    await this._repository.updateAnalyticsSnapshot(
       attempt.testId,
     )
 
@@ -288,7 +288,7 @@ export class FinishTestAttemptUseCase {
      * - UserActivity
      * - daily-goal reward checking
      */
-    await this._activityService
+    await this._activityRecorder
       .recordMockTestCompleted({
         userId,
         mockTestId: test._id,

@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerActivityServiceContract } from '../../domain/services/tracker-activity.service.interface'
+import type { TrackerActivityRecorderContract } from '../../domain/services/tracker-activity.interface'
 import type { UpdateSubtopicProgressInput } from '../../domain/types/trackers.types'
 
 const SUBTOPIC_COMPLETION_XP = 30
@@ -44,8 +44,8 @@ const getSafeTitle = (
 export class UpdateSubtopicProgressUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerActivityService:
-      TrackerActivityServiceContract,
+    private readonly _trackerActivityRecorder:
+      TrackerActivityRecorderContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
@@ -162,7 +162,7 @@ export class UpdateSubtopicProgressUseCase {
      * an earlier activity call failed.
      */
     if (subtopicResult.isCompleted) {
-      await this._trackerActivityService
+      await this._trackerActivityRecorder
         .recordSubtopicCompleted({
           userId: input.userId,
           trackerId: input.trackerId,
@@ -188,7 +188,7 @@ export class UpdateSubtopicProgressUseCase {
         'Untitled topic',
       )
 
-      await this._trackerActivityService.recordTopicCompleted({
+      await this._trackerActivityRecorder.recordTopicCompleted({
         userId: input.userId,
         trackerId: input.trackerId,
         topicId: topicResult.topicId,
@@ -207,7 +207,7 @@ export class UpdateSubtopicProgressUseCase {
     }
 
     if (trackerProgressResult.isCompleted) {
-      await this._trackerActivityService.recordTrackerCompleted({
+      await this._trackerActivityRecorder.recordTrackerCompleted({
         userId: input.userId,
         trackerId: input.trackerId,
 

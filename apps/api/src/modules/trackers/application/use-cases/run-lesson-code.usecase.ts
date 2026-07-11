@@ -3,7 +3,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { TrackerMapperContract } from '../mappers/tracker.mapper'
 import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
+import type { CodeExecutorContract } from '../../domain/services/code-execution.interface'
 
 type RunLessonCodeInput = {
   trackerId: string
@@ -22,7 +22,7 @@ type RunLessonCodeResultDto = ReturnType<
 export class RunLessonCodeUseCase {
   constructor(
     private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _codeExecutionService: CodeExecutionServiceContract,
+    private readonly _codeExecutor: CodeExecutorContract,
     private readonly _trackerMapper: TrackerMapperContract,
   ) {}
 
@@ -48,7 +48,7 @@ export class RunLessonCodeUseCase {
       )
     }
 
-    const result = await this._codeExecutionService.executeCode({
+    const result = await this._codeExecutor.executeCode({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
       language: input.language || lesson.codeExample?.language || 'javascript',

@@ -8,7 +8,7 @@ export type SubtopicProgressStatus =
   | 'in_progress'
   | 'completed'
 
-export interface IUserSubtopicProgress extends Document {
+export interface UserSubtopicProgressDocument extends Document {
   userId: mongoose.Types.ObjectId
   trackerId: mongoose.Types.ObjectId
   topicId: mongoose.Types.ObjectId
@@ -21,7 +21,7 @@ export interface IUserSubtopicProgress extends Document {
   updatedAt: Date
 }
 
-const userSubtopicProgressSchema = new Schema<IUserSubtopicProgress>(
+const userSubtopicProgressSchema = new Schema<UserSubtopicProgressDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -75,7 +75,7 @@ userSubtopicProgressSchema.index(
 userSubtopicProgressSchema.index({ userId: 1, trackerId: 1 })
 userSubtopicProgressSchema.index({ userId: 1, trackerId: 1, status: 1 })
 
-export const UserSubtopicProgress = mongoose.model<IUserSubtopicProgress>(
+export const UserSubtopicProgress = mongoose.model<UserSubtopicProgressDocument>(
   'UserSubtopicProgress',
   userSubtopicProgressSchema
 )

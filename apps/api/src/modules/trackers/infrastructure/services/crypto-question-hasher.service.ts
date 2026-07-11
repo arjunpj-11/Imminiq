@@ -1,8 +1,8 @@
 import { createHash } from 'crypto'
 
-import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+import type { QuestionHasherContract } from '../../domain/services/question-hasher.interface'
 
-export class CryptoQuestionHasherService implements QuestionHasherServiceContract {
+export class CryptoQuestionHasher implements QuestionHasherContract {
   hash(question: string): string {
     return createHash('sha256')
       .update(question.trim().toLowerCase())
@@ -10,4 +10,4 @@ export class CryptoQuestionHasherService implements QuestionHasherServiceContrac
   }
 }
 
-export const cryptoQuestionHasherService = new CryptoQuestionHasherService()
+export const cryptoQuestionHasher = new CryptoQuestionHasher()

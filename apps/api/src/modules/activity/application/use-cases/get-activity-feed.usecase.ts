@@ -9,8 +9,8 @@ import type {
   ActivityFeedResponse,
   GetActivityFeedPayload,
 } from '../dtos/activity.dto'
-import type { ActivityCursorServiceContract } from '../services/activity-cursor.service'
-import type { ActivityDateRangeServiceContract } from '../services/activity-date-range.service'
+import type { ActivityCursorCodecContract } from '../services/activity-cursor.service'
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import type { ActivityMapperContract } from '../mappers/activity.mapper'
 import type { ClockContract } from '../../../../shared/time/clock.interface'
 
@@ -18,8 +18,8 @@ export class GetActivityFeedUseCase {
   constructor(
     private readonly _activityRepository: ActivityQueryRepositoryContract,
     private readonly _mapper: ActivityMapperContract,
-    private readonly _dateRangeService: ActivityDateRangeServiceContract,
-    private readonly _cursorService: ActivityCursorServiceContract,
+    private readonly _dateRange: ActivityDateRangeContract,
+    private readonly _cursorCodec: ActivityCursorCodecContract,
     private readonly _clock: ClockContract,
   ) {}
 
@@ -30,11 +30,11 @@ export class GetActivityFeedUseCase {
   ): Promise<ActivityFeedResponse> {
     const filter = payload.filter ?? 'all'
     const limit = this.normalizeLimit(payload.limit)
-    const cursor = this._cursorService.decode(payload.cursor)
+    const cursor = this._cursorCodec.decode(payload.cursor)
     const categories = activityCategoriesForFilter(filter)
 
     const context =
-      this._dateRangeService.createContext(
+      this._dateRange.createContext(
         now,
         undefined,
         payload.utcOffsetMinutes ?? 0,
@@ -67,7 +67,7 @@ export class GetActivityFeedUseCase {
       groups: this._mapper.toGroupedFeed(
         result.activities,
         context,
-        this._dateRangeService,
+        this._dateRange,
       ),
 
       pagination: {
@@ -77,7 +77,7 @@ export class GetActivityFeedUseCase {
 
         nextCursor:
           result.hasMore && lastActivity
-            ? this._cursorService.encode({
+            ? this._cursorCodec.encode({
                 occurredAt: lastActivity.occurredAt,
                 id: lastActivity.id,
               })

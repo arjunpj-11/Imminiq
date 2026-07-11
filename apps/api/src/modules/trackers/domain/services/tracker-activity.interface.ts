@@ -33,7 +33,7 @@ export type RecordTrackerCompletedActivityInput = {
   utcOffsetMinutes?: number
 }
 
-export interface TrackerActivityServiceContract {
+export interface TrackerActivityRecorderContract {
   recordSubtopicCompleted(
     input: RecordTrackerSubtopicCompletedActivityInput,
   ): Promise<void>

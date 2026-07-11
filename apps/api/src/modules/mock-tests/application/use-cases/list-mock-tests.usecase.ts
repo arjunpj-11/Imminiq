@@ -20,7 +20,7 @@ type ListMockTestsRepository =
 
 export class ListMockTestsUseCase {
   constructor(
-    private readonly _repo: ListMockTestsRepository,
+    private readonly _repository: ListMockTestsRepository,
     private readonly _mapper: MockTestsMapperContract,
   ) {}
 
@@ -29,15 +29,15 @@ export class ListMockTestsUseCase {
     const limit = this.sanitizeLimit(options.limit)
 
     const [{ tests, total }, summary] = await Promise.all([
-      this._repo.findTestsByOwner({
+      this._repository.findTestsByOwner({
         ownerId: userId,
         page,
         limit,
       }),
-      this._repo.getUserSummary(userId),
+      this._repository.getUserSummary(userId),
     ])
 
-    const latestAttemptMap = await this._repo.findLatestAttemptsForTests({
+    const latestAttemptMap = await this._repository.findLatestAttemptsForTests({
       userId,
       testIds: tests.map((test) => test._id),
     })

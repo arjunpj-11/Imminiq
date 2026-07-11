@@ -2,7 +2,7 @@
 
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface IOnboardingResponse extends Document {
+export interface OnboardingResponseDocument extends Document {
   userId: mongoose.Types.ObjectId
 
   preparingFor: string
@@ -22,7 +22,7 @@ export interface IOnboardingResponse extends Document {
   updatedAt: Date
 }
 
-const onboardingResponseSchema = new Schema<IOnboardingResponse>(
+const onboardingResponseSchema = new Schema<OnboardingResponseDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -82,7 +82,7 @@ const onboardingResponseSchema = new Schema<IOnboardingResponse>(
 onboardingResponseSchema.index({ userId: 1, isCompleted: 1 })
 
 export const OnboardingResponse =
-  mongoose.model<IOnboardingResponse>(
+  mongoose.model<OnboardingResponseDocument>(
     'OnboardingResponse',
     onboardingResponseSchema
   )

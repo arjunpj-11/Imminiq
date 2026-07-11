@@ -1,4 +1,4 @@
-export interface CodeExecutionServiceContract {
+export interface CodeExecutorContract {
   executeCode(input: {
     sourceCode: string
     languageId?: number

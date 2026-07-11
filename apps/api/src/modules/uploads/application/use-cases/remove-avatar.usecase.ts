@@ -4,21 +4,21 @@ import type { UploadRecordRepositoryContract } from '../../domain/repositories/u
 import type { RemoveAvatarResult } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
 import type { UploadsMapperContract } from '../mappers/uploads.mapper'
-import type { UploadUserProfileServiceContract } from '../services/upload-user-profile.service'
+import type { UploadUserProfileReaderContract } from '../services/upload-user-profile.service'
 
 type RemoveAvatarRepository =
   ProfileImageRepositoryContract & UploadRecordRepositoryContract
 
 export class RemoveAvatarUseCase {
   constructor(
-    private readonly _uploadUserProfileService: UploadUserProfileServiceContract,
+    private readonly _userProfileReader: UploadUserProfileReaderContract,
     private readonly _uploadsRepository: RemoveAvatarRepository,
     private readonly _uploadsMapper: UploadsMapperContract,
   ) {}
 
   async execute(userId: string): Promise<RemoveAvatarResult> {
     const context =
-      await this._uploadUserProfileService.getRequiredContext(userId)
+      await this._userProfileReader.getRequiredContext(userId)
 
     try {
       await Promise.all([

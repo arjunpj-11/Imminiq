@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface ILeaderboardRankSnapshot extends Document {
+export interface LeaderboardRankSnapshotDocument extends Document {
   snapshotKey: string
   capturedAt: Date
   section: 'students' | 'trainers'
@@ -14,7 +14,7 @@ export interface ILeaderboardRankSnapshot extends Document {
 }
 
 const leaderboardRankSnapshotSchema =
-  new Schema<ILeaderboardRankSnapshot>(
+  new Schema<LeaderboardRankSnapshotDocument>(
     {
       snapshotKey: {
         type: String,
@@ -86,7 +86,7 @@ leaderboardRankSnapshotSchema.index({
 
 export const LeaderboardRankSnapshot =
   mongoose.models.LeaderboardRankSnapshot ||
-  mongoose.model<ILeaderboardRankSnapshot>(
+  mongoose.model<LeaderboardRankSnapshotDocument>(
     'LeaderboardRankSnapshot',
     leaderboardRankSnapshotSchema,
   )
