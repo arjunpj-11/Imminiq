@@ -1,14 +1,11 @@
 import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
+import { getBlockedAppealToken } from '../../lib/blockedAppealSession'
 import type {
   ModerationAppealApiErrorResponse,
   ModerationAppealStatus,
 } from './useSubmitModerationAppeal'
-
-export interface GetModerationAppealStatusPayload {
-  identifier: string
-}
 
 export interface GetModerationAppealStatusResponse {
   success: boolean
@@ -28,15 +25,14 @@ export const useGetModerationAppealStatus = (
   >({
     queryKey: ['moderation-appeal-status', identifier],
 
-    enabled: Boolean(identifier.trim()),
+    enabled: Boolean(identifier.trim() && getBlockedAppealToken()),
 
     queryFn: async () => {
       const response =
         await api.post<GetModerationAppealStatusResponse>(
           '/moderation-appeals/status',
-          {
-            identifier: identifier.trim(),
-          } satisfies GetModerationAppealStatusPayload
+          {},
+          { headers: { Authorization: `Bearer ${getBlockedAppealToken()}` } },
         )
 
       return response.data

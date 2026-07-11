@@ -1,4 +1,5 @@
 import { AuthUserMapper, type AuthUserMapperContract } from './application/mappers/auth-user.mapper'
+import { AuthSessionMapper } from './application/mappers/auth-session.mapper'
 import { AuthAccountPolicyService } from './application/policies/auth-account-policy.policy'
 import { AuthNotificationService } from './application/services/auth-notification.service'
 import { AuthRedirectService } from './application/services/auth-redirect.service'
@@ -87,6 +88,7 @@ export const createAuthComposition = (): AuthComposition => {
   const authRepository = mongoAuthRepository
 
   const authUserMapper = new AuthUserMapper()
+  const authSessionMapper = new AuthSessionMapper()
   const identifierNormalizer = new IdentifierNormalizerService()
   const otpGenerator = cryptoOtpGeneratorService
 
@@ -241,7 +243,10 @@ export const createAuthComposition = (): AuthComposition => {
 
       checkUsername: new CheckUsernameUseCase(authRepository),
 
-      getAuthSessions: new GetAuthSessionsUseCase(authRepository),
+      getAuthSessions: new GetAuthSessionsUseCase(
+        authRepository,
+        authSessionMapper,
+      ),
 
       revokeAuthSession: new RevokeAuthSessionUseCase(authRepository),
     },

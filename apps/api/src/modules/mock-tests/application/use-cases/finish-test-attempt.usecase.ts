@@ -7,6 +7,7 @@ import type { MockTestRepositoryContract } from '../../domain/repositories/mock-
 import type { MockTestActivityServiceContract } from '../../domain/services/mock-test-activity.service.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 const MOCK_TEST_COMPLETION_XP = 50
 
@@ -32,6 +33,9 @@ export class FinishTestAttemptUseCase {
 
     private readonly _activityService:
       MockTestActivityServiceContract,
+
+    private readonly _mapper:
+      MockTestsMapperContract,
   ) {}
 
   async execute(
@@ -314,11 +318,11 @@ export class FinishTestAttemptUseCase {
           MOCK_TEST_COMPLETION_XP,
       })
 
-    return {
+    return this._mapper.toFinishAttemptDto({
       attempt: completedAttempt,
       report,
       scoreResult,
-    }
+    })
   }
 
   private calculateMaxScore(

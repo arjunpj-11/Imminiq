@@ -8,7 +8,7 @@ type UserRole = 'user' | 'admin' | 'moderator' | 'superadmin'
 type AuthTokenPayload = {
   userId: string
   role: UserRole
-  type?: 'access' | 'refresh'
+  type: 'access'
 }
 
 const isUserRole = (role: unknown): role is UserRole => {
@@ -30,9 +30,17 @@ export const authenticate = (
   }
 
   try {
-    const decoded = jwt.verify(token, env.JWT_SECRET) as Partial<AuthTokenPayload>
+    const decoded = jwt.verify(token, env.JWT_SECRET, {
+      algorithms: ['HS256'],
+      issuer: 'imminiq-api',
+      audience: 'imminiq-web',
+    }) as Partial<AuthTokenPayload>
 
-    if (!decoded.userId || !isUserRole(decoded.role)) {
+    if (
+      !decoded.userId ||
+      !isUserRole(decoded.role) ||
+      decoded.type !== 'access'
+    ) {
       throw new ApiError(401, 'Invalid token payload', 'UNAUTHORIZED')
     }
 

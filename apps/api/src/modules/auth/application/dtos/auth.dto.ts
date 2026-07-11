@@ -38,6 +38,16 @@ export interface AuthUser {
   onboardingCompleted: boolean
 }
 
+export interface AuthSessionDto {
+  id: string
+  expiresAt: string
+  revokedAt: string | null
+  device?: string
+  ipAddress?: string
+  userAgent?: string
+  createdAt: string | null
+}
+
 export interface AuthLoginSuccessResult {
   requiresTwoFactor: false
   tokens: TokenPair

@@ -1,6 +1,3 @@
-export { trackerService } from './trackers.service'
-export type { TrackerService } from './trackers.service'
-
 export type {
   AddMissingEvaluationTopicDto,
   ClearLessonHistoryResultDto,

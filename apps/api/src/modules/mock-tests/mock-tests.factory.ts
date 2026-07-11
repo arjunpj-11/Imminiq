@@ -125,6 +125,7 @@ export const createMockTestsComposition =
         listPublicMockTests:
           new ListPublicMockTestsUseCase(
             mockTestsRepository,
+            mockTestsMapper,
           ),
 
         getMockTestDetails:
@@ -136,6 +137,7 @@ export const createMockTestsComposition =
         createMockTest:
           new CreateMockTestUseCase(
             mockTestsRepository,
+            mockTestsMapper,
           ),
 
         generateMockTest:
@@ -144,6 +146,7 @@ export const createMockTestsComposition =
             mockTestAIService,
             mockTestQuestionBankService,
             mockTestActivityService,
+            mockTestsMapper,
           ),
 
         startTestAttempt:
@@ -163,6 +166,7 @@ export const createMockTestsComposition =
             mockTestsRepository,
             mockTestAIService,
             mockTestScoringService,
+            mockTestsMapper,
           ),
 
         flagQuestion:
@@ -175,11 +179,13 @@ export const createMockTestsComposition =
             mockTestsRepository,
             mockTestScoringService,
             mockTestActivityService,
+            mockTestsMapper,
           ),
 
         getAttemptResult:
           new GetAttemptResultUseCase(
             mockTestsRepository,
+            mockTestsMapper,
           ),
 
         getAttemptAnalysis:
@@ -197,6 +203,7 @@ export const createMockTestsComposition =
           new GetAnalyticsUseCase(
             mockTestsRepository,
             mockTestAIService,
+            mockTestsMapper,
           ),
 
         getAIInsights:
@@ -208,11 +215,13 @@ export const createMockTestsComposition =
         getHistory:
           new GetHistoryUseCase(
             mockTestsRepository,
+            mockTestsMapper,
           ),
 
         getTopicBreakdown:
           new GetTopicBreakdownUseCase(
             mockTestsRepository,
+            mockTestsMapper,
           ),
 
         shareMockTest:
@@ -224,6 +233,7 @@ export const createMockTestsComposition =
         importSharedMockTest:
           new ImportSharedMockTestUseCase(
             mockTestsRepository,
+            mockTestsMapper,
           ),
 
         runMockTestCode:

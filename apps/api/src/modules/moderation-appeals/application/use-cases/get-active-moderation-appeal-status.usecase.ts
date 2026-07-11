@@ -15,9 +15,7 @@ export class GetActiveModerationAppealStatusUseCase {
     payload: GetModerationAppealStatusPayload,
   ): Promise<GetActiveModerationAppealStatusResultDto> {
     const appeal =
-      await this._moderationAppealRepository.findLatestActiveAppealForRestrictedIdentifier(
-        payload.identifier,
-      )
+      await this._moderationAppealRepository.findActiveAppealForUser(payload.userId)
 
     return this._moderationAppealMapper.toActiveStatusResult(appeal)
   }

@@ -1,9 +1,9 @@
 import { useMutation } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
+import { getBlockedAppealToken } from '../../lib/blockedAppealSession'
 
 export interface SubmitModerationAppealPayload {
-  identifier: string
   appealReason: string
 }
 
@@ -36,7 +36,8 @@ export const useSubmitModerationAppeal = () => {
       const response =
         await api.post<SubmitModerationAppealResponse>(
           '/moderation-appeals',
-          payload
+          payload,
+          { headers: { Authorization: `Bearer ${getBlockedAppealToken()}` } },
         )
 
       return response.data

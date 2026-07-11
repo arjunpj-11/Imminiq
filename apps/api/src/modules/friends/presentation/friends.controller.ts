@@ -5,7 +5,7 @@ import { FRIENDS_RESPONSE_MESSAGES } from "../application/constants/friends.cons
 import { ApiError } from "../../../shared/utils/ApiError";
 import { ApiResponse } from "../../../shared/utils/ApiResponse";
 import { getAuthUser } from "../../../shared/utils/getAuthUser";
-import { friendsService, type FriendsService } from "../friends.service";
+import { createFriendsComposition, type FriendsComposition } from "../friends.factory";
 import {
   friendParamsSchema,
   friendRequestParamsSchema,
@@ -16,7 +16,7 @@ import {
 } from "./friends.schema";
 
 export class FriendsController {
-  constructor(private readonly _service: FriendsService) {}
+  constructor(private readonly _useCases: FriendsComposition['useCases']) {}
 
   listFriends = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -25,7 +25,7 @@ export class FriendsController {
         "Friends query is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.listFriends(user.userId, {
+      const result = await this._useCases.listFriends.execute(user.userId, {
         page: query.page,
         limit: query.limit,
         ...(query.q !== undefined ? { search: query.q } : {}),
@@ -44,7 +44,7 @@ export class FriendsController {
         "People search query is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.searchUsers(user.userId, {
+      const result = await this._useCases.searchUsers.execute(user.userId, {
         query: query.q,
         page: query.page,
         limit: query.limit,
@@ -63,7 +63,7 @@ export class FriendsController {
         "Friend request query is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.listFriendRequests(user.userId, query);
+      const result = await this._useCases.listFriendRequests.execute(user.userId, query);
 
       res.json(
         new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUESTS_LISTED, result),
@@ -80,7 +80,7 @@ export class FriendsController {
         "Friend invite is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.sendFriendRequest(user.userId, {
+      const result = await this._useCases.sendFriendRequest.execute(user.userId, {
         receiverUserId: body.receiverUserId,
         ...(body.message !== undefined ? { message: body.message } : {}),
       });
@@ -107,7 +107,7 @@ export class FriendsController {
         "Friend request identifier is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.acceptFriendRequest(
+      const result = await this._useCases.acceptFriendRequest.execute(
         user.userId,
         params,
       );
@@ -127,7 +127,7 @@ export class FriendsController {
         "Friend request identifier is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.declineFriendRequest(
+      const result = await this._useCases.declineFriendRequest.execute(
         user.userId,
         params,
       );
@@ -147,7 +147,7 @@ export class FriendsController {
         "Friend request identifier is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.cancelFriendRequest(
+      const result = await this._useCases.cancelFriendRequest.execute(
         user.userId,
         params,
       );
@@ -167,7 +167,7 @@ export class FriendsController {
         "Friend identifier is invalid",
       );
       const user = getAuthUser(req);
-      const result = await this._service.removeFriend(user.userId, params);
+      const result = await this._useCases.removeFriend.execute(user.userId, params);
 
       res.json(
         new ApiResponse(FRIENDS_RESPONSE_MESSAGES.FRIEND_REMOVED, result),
@@ -200,4 +200,4 @@ export class FriendsController {
   }
 }
 
-export const friendsController = new FriendsController(friendsService);
+export const friendsController = new FriendsController(createFriendsComposition().useCases);

@@ -215,6 +215,7 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
           {
             $set: {
               status: 'deactivated',
+              deletionRequestedAt: new Date(),
               scheduledDeletionAt: input.scheduledDeletionAt,
               deactivatedAt: new Date(),
             },

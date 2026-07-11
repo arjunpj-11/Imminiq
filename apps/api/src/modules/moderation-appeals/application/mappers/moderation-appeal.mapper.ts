@@ -33,7 +33,6 @@ export class ModerationAppealMapper implements ModerationAppealMapperContract {
       caseId: appeal.caseId,
       status: appeal.status,
       submittedAt: appeal.createdAt,
-      appealReason: appeal.appealReason,
     }
   }
 

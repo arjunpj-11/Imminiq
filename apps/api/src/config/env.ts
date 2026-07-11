@@ -9,8 +9,8 @@ const envSchema = z.object({
   MONGO_URI: z.string(),
   REDIS_URL: z.string(),
 
-  JWT_SECRET: z.string(),
-  JWT_REFRESH_SECRET: z.string(),
+  JWT_SECRET: z.string().min(32, 'JWT_SECRET must be at least 32 characters'),
+  JWT_REFRESH_SECRET: z.string().min(32, 'JWT_REFRESH_SECRET must be at least 32 characters'),
   JWT_EXPIRES_IN: z.string().default('15m'),
   JWT_REFRESH_EXPIRES_IN: z.string().default('7d'),
 
@@ -87,6 +87,9 @@ PISTON_API_KEY: z.string().optional().default(''),
     .int()
     .positive()
     .default(5 * 60 * 1000),
-})
+}).refine(
+  (value) => value.JWT_SECRET !== value.JWT_REFRESH_SECRET,
+  { message: 'JWT secrets must be different', path: ['JWT_REFRESH_SECRET'] },
+)
 
 export const env = envSchema.parse(process.env)

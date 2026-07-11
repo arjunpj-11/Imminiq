@@ -15,6 +15,9 @@ export class JwtAuthTokenService implements AuthTokenServiceContract {
   generateAccessToken(userId: string, role: AuthRole): string {
     const accessTokenOptions: SignOptions = {
       expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
+      algorithm: 'HS256',
+      issuer: 'imminiq-api',
+      audience: 'imminiq-web',
     }
 
     return jwt.sign(
@@ -35,6 +38,9 @@ export class JwtAuthTokenService implements AuthTokenServiceContract {
   generateTwoFactorChallengeToken(userId: string): string {
     const challengeOptions: SignOptions = {
       expiresIn: `${TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES}m`,
+      algorithm: 'HS256',
+      issuer: 'imminiq-api',
+      audience: 'imminiq-web',
     }
 
     return jwt.sign(
@@ -55,7 +61,12 @@ export class JwtAuthTokenService implements AuthTokenServiceContract {
     try {
       decoded = jwt.verify(
         challengeToken,
-        env.JWT_SECRET
+        env.JWT_SECRET,
+        {
+          algorithms: ['HS256'],
+          issuer: 'imminiq-api',
+          audience: 'imminiq-web',
+        }
       ) as TwoFactorChallengeTokenPayload
     } catch {
       throw new AuthDomainError(

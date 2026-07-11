@@ -1,6 +1,7 @@
 import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { MockTestActivityServiceContract } from '../../domain/services/mock-test-activity.service.interface'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
 import type {
   MockTestQuestionBankServiceContract,
@@ -29,6 +30,7 @@ export class GenerateMockTestUseCase {
 
     private readonly _activityService:
       MockTestActivityServiceContract,
+    private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(
@@ -173,6 +175,6 @@ export class GenerateMockTestUseCase {
         totalQuestions: test.questionCount,
       })
 
-    return test
+    return this._mapper.toMockTest(test)
   }
 }

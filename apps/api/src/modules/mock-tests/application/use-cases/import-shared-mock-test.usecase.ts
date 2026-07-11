@@ -2,6 +2,7 @@ import type { MockTestQuestionRepositoryContract } from '../../domain/repositori
 import type { MockTestSharingRepositoryContract } from '../../domain/repositories/mock-test-sharing.repository.interface'
 import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 type ImportSharedMockTestRepository =
   MockTestRepositoryContract &
@@ -11,7 +12,10 @@ type ImportSharedMockTestRepository =
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
 
 export class ImportSharedMockTestUseCase {
-  constructor(private readonly _repo: ImportSharedMockTestRepository) {}
+  constructor(
+    private readonly _repo: ImportSharedMockTestRepository,
+    private readonly _mapper: MockTestsMapperContract,
+  ) {}
 
   async execute(input: { userId: string; shareToken: string }) {
     const shareToken = input.shareToken.trim()
@@ -27,11 +31,11 @@ export class ImportSharedMockTestUseCase {
     }
 
     if (sourceTest.ownerId === input.userId) {
-      return {
+      return this._mapper.toImportSharedDto({
         test: sourceTest,
         imported: false,
         alreadyImported: true,
-      }
+      })
     }
 
     const existingImport = await this._repo.findImportedSharedTest({
@@ -40,11 +44,11 @@ export class ImportSharedMockTestUseCase {
 })
 
     if (existingImport) {
-      return {
+      return this._mapper.toImportSharedDto({
         test: existingImport,
         imported: false,
         alreadyImported: true,
-      }
+      })
     }
 
     const sourceQuestions = await this._repo.findQuestionsByTest(sourceTest._id)
@@ -84,10 +88,10 @@ export class ImportSharedMockTestUseCase {
 
     await this._repo.incrementCloneCount(sourceTest._id)
 
-    return {
+    return this._mapper.toImportSharedDto({
       test: importedTest,
       imported: true,
       alreadyImported: false,
-    }
+    })
   }
 }

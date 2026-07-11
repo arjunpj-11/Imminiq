@@ -24,7 +24,7 @@ import moderationAppealRoutes from './modules/moderation-appeals/presentation/mo
 import  mockTestsRouter  from './modules/mock-tests/presentation/mock-tests.routes'
 import communityRouter from './modules/community/presentation/community.routes'
 import leaderBoardRouter from './modules/leaderboard/presentation/leaderboard.routes'
-import activityRouter from './modules/activity/activity.routes'
+import activityRouter from './modules/activity/presentation/activity.routes'
 import { friendsRoutes } from './modules/friends/presentation/friends.routes'
 
 

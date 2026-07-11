@@ -4,17 +4,17 @@ import type {
   DashboardActivityIntensityQuery,
   DashboardRecentItemsQuery,
 } from '../application/dtos/dashboard.dto'
-import { dashboardService, type DashboardService } from '../dashboard.service'
+import { createDashboardComposition, type DashboardComposition } from '../dashboard.factory'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
 export class DashboardController {
-  constructor(private readonly _service: DashboardService) {}
+  constructor(private readonly _useCases: DashboardComposition['useCases']) {}
 
   getSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this._service.getSummary(userId)
+      const data = await this._useCases.getDashboardSummary.execute(userId)
 
       res.json(new ApiResponse('Dashboard fetched', data))
     } catch (error) {
@@ -29,7 +29,7 @@ export class DashboardController {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this._service.getCurrentRoadmap(userId)
+      const data = await this._useCases.getCurrentRoadmap.execute(userId)
 
       res.json(new ApiResponse('Current roadmap fetched', data))
     } catch (error) {
@@ -47,7 +47,7 @@ export class DashboardController {
       const query = res.locals
         .dashboardActivityIntensityQuery as DashboardActivityIntensityQuery
 
-      const data = await this._service.getActivityIntensity(
+      const data = await this._useCases.getActivityIntensity.execute(
         userId,
         query.months
       )
@@ -68,7 +68,7 @@ export class DashboardController {
       const query = res.locals
         .dashboardRecentItemsQuery as DashboardRecentItemsQuery
 
-      const data = await this._service.getRecentBattles(userId, query.limit)
+      const data = await this._useCases.getRecentBattles.execute(userId, query.limit)
 
       res.json(new ApiResponse('Recent battles fetched', data))
     } catch (error) {
@@ -82,7 +82,7 @@ export class DashboardController {
       const query = res.locals
         .dashboardRecentItemsQuery as DashboardRecentItemsQuery
 
-      const data = await this._service.getFriendsHub(userId, query.limit)
+      const data = await this._useCases.getFriendsHub.execute(userId, query.limit)
 
       res.json(new ApiResponse('Friends hub fetched', data))
     } catch (error) {
@@ -97,7 +97,7 @@ export class DashboardController {
   ) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this._service.getRecommendedActions(userId)
+      const data = await this._useCases.getRecommendedActions.execute(userId)
 
       res.json(new ApiResponse('Recommended actions fetched', data))
     } catch (error) {
@@ -108,7 +108,7 @@ export class DashboardController {
   getAIInsights = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId
-      const data = await this._service.getAIInsights(userId)
+      const data = await this._useCases.getAIInsights.execute(userId)
 
       res.json(new ApiResponse('AI insights fetched', data))
     } catch (error) {
@@ -117,4 +117,4 @@ export class DashboardController {
   }
 }
 
-export const dashboardController = new DashboardController(dashboardService)
+export const dashboardController = new DashboardController(createDashboardComposition().useCases)

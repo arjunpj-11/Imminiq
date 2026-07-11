@@ -1,6 +1,3 @@
-export { securityService } from './security.service'
-export type { SecurityService } from './security.service'
-
 export type {
   ChangeEmailPayload,
   ChangePasswordPayload,

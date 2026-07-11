@@ -1,6 +1,3 @@
-export { friendsService } from "./friends.service";
-export type { FriendsService } from "./friends.service";
-
 export type {
   AcceptFriendRequestView,
   FriendActionView,

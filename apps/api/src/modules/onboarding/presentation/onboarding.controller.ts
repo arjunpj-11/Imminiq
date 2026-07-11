@@ -3,21 +3,18 @@ import type { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import {
-  onboardingService,
-  type OnboardingService,
-} from '../onboarding.service'
+import { createOnboardingComposition, type OnboardingComposition } from '../onboarding.factory'
 
 type JobIdParams = {
   jobId: string
 }
 
 export class OnboardingController {
-  constructor(private readonly _service: OnboardingService) {}
+  constructor(private readonly _useCases: OnboardingComposition['useCases']) {}
 
   getStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const status = await this._service.getStatus(getAuthUser(req).userId)
+      const status = await this._useCases.getOnboardingStatus.execute(getAuthUser(req).userId)
 
       res.json(new ApiResponse('Onboarding status', status))
     } catch (error) {
@@ -27,7 +24,7 @@ export class OnboardingController {
 
   saveStep1 = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this._service.saveStep1(
+      const data = await this._useCases.saveOnboardingStepOne.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -40,7 +37,7 @@ export class OnboardingController {
 
   saveStep2 = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const data = await this._service.saveStep2(
+      const data = await this._useCases.saveOnboardingStepTwo.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -57,7 +54,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.generateRoadmap(
+      const result = await this._useCases.generateRoadmap.execute(
         getAuthUser(req).userId,
         req.body
       )
@@ -76,7 +73,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const status = await this._service.getJobStatus(
+      const status = await this._useCases.getRoadmapJobStatus.execute(
         req.params.jobId,
         getAuthUser(req).userId
       )
@@ -93,7 +90,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.getJobResult(
+      const result = await this._useCases.getRoadmapJobResult.execute(
         req.params.jobId,
         getAuthUser(req).userId
       )
@@ -110,7 +107,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.evaluateRoadmap(
+      const result = await this._useCases.evaluateRoadmap.execute(
         req.params.jobId,
         getAuthUser(req).userId
       )
@@ -129,7 +126,7 @@ export class OnboardingController {
     next: NextFunction
   ) => {
     try {
-      const result = await this._service.getEvaluationResult(
+      const result = await this._useCases.getRoadmapEvaluationResult.execute(
         req.params.jobId,
         getAuthUser(req).userId
       )
@@ -141,4 +138,4 @@ export class OnboardingController {
   }
 }
 
-export const onboardingController = new OnboardingController(onboardingService)
+export const onboardingController = new OnboardingController(createOnboardingComposition().useCases)

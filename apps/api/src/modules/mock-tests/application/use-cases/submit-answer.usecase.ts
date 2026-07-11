@@ -6,6 +6,7 @@ import type { MockTestAIServiceContract } from '../../domain/services/mock-test-
 import type { SubmitAnswerPayload } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
+import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
 
 type SubmitAnswerRepository =
   MockTestAttemptRepositoryContract &
@@ -18,6 +19,7 @@ export class SubmitAnswerUseCase {
     private readonly _repo: SubmitAnswerRepository,
     private readonly _aiService: MockTestAIServiceContract,
     private readonly _scoringService: MockTestScoringServiceContract,
+    private readonly _mapper: MockTestsMapperContract,
   ) {}
 
   async execute(
@@ -129,6 +131,6 @@ export class SubmitAnswerUseCase {
       }
     }
 
-    return savedAnswer
+    return this._mapper.toAnswer(savedAnswer)
   }
 }

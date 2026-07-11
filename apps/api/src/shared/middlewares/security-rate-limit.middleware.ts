@@ -121,3 +121,10 @@ export const profileImageUploadIpLimiter = createSensitiveLimiter({
   message: 'Too many profile image upload attempts. Please try again later.',
   code: 'PROFILE_IMAGE_UPLOAD_RATE_LIMITED',
 })
+
+export const moderationAppealIpLimiter = createSensitiveLimiter({
+  windowMs: 15 * 60 * 1000,
+  limit: 20,
+  message: 'Too many moderation appeal requests. Please try again later.',
+  code: 'MODERATION_APPEAL_RATE_LIMITED',
+})
