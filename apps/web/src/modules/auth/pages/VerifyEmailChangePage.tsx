@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useNavigate, useSearchParams } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 
-import { useVerifyEmailChange } from '../../settings'
+import { useVerifyEmailChange } from '../hooks/useVerifyEmailChange'
 import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.types'
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
 import { safeLocalStorage } from '../../../lib/storage/safe-storage'

@@ -24,6 +24,7 @@ import { VerifyTwoFactorLoginUseCase } from './application/use-cases/verify-two-
 
 import type { IAuthToken } from './domain/services/auth-token.interface'
 import type { IOtpGenerator } from './domain/services/otp-generator.interface'
+import type { IAuthRepository } from './domain/repositories/auth.repository.interface'
 
 import { mongoAuthRepository } from './infrastructure/repositories/mongo-auth.repository'
 import { bcryptPasswordHasher } from './infrastructure/services/bcrypt-password-hasher.service'
@@ -50,6 +51,7 @@ export type AuthServiceHelpers = {
   otpGenerator: IOtpGenerator
   usernameGenerator: IUsernameGenerator
   authSessionIssuer: IAuthSessionIssuer
+  authRepository: IAuthRepository
 }
 
 export type AuthUserMapperInput = Parameters<
@@ -217,6 +219,7 @@ export const createAuthComposition = (): AuthComposition => {
       otpGenerator,
       usernameGenerator,
       authSessionIssuer,
+      authRepository,
     },
   }
 }

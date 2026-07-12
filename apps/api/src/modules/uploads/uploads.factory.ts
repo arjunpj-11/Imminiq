@@ -17,14 +17,16 @@ import { cloudflareAIImageGenerationGateway } from './infrastructure/gateways/cl
 import { cloudinaryProfileImageStorageGateway } from './infrastructure/gateways/cloudinary-profile-image-storage.gateway'
 import { mongoUploadsRepository } from './infrastructure/repositories/mongo-uploads.repository'
 import { cryptoRandomSeedGenerator } from './infrastructure/services/crypto-random-seed.service'
-import { usersProfileReader } from '../users'
+import type { IGetMeUseCase } from '../users'
 
 
 export type UploadsComposition = {
   useCases: UploadsUseCases
 }
 
-export const createUploadsComposition = (): UploadsComposition => {
+export const createUploadsComposition = (
+  usersProfileReader: IGetMeUseCase,
+): UploadsComposition => {
   const uploadsRepository = mongoUploadsRepository
   const profileImageStorage = cloudinaryProfileImageStorageGateway
   const aiImageGenerator = cloudflareAIImageGenerationGateway

@@ -4,7 +4,7 @@ import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate, validateIdentifierParam, validateQuery } from '../../../shared/middlewares/validate'
 import { CommunityController } from './community.controller'
-import { createCommunityComposition } from '../community.factory'
+import type { CommunityUseCases } from '../application/contracts/community-use-cases.contract'
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants'
 import {
   sendTrackerForVerificationSchema,
@@ -14,7 +14,8 @@ import {
   communityPaginationQuerySchema,
 } from './community.schema'
 
-const communityController = new CommunityController(createCommunityComposition().useCases)
+export const createCommunityRoutes = (useCases: CommunityUseCases) => {
+const communityController = new CommunityController(useCases)
 const router = Router()
 router.param('trackerId', validateIdentifierParam)
 router.param('reviewId', validateIdentifierParam)
@@ -66,5 +67,5 @@ router.post(
   communityController.toggleTrackerLike,
 )
 
-export default router
-export { router as communityRoutes }
+return router
+}

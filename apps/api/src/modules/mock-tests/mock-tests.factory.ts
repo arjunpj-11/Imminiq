@@ -34,7 +34,8 @@ import type { IMockTestQuestionBank } from './domain/services/mock-test-question
 import type { IShareTokenGenerator } from './domain/services/share-token-generator.interface'
 import { systemClock } from '../../infrastructure/time/system-clock'
 
-import { activityMockTestGateway } from './infrastructure/gateways/activity-mock-test.gateway'
+import { ActivityMockTestGateway } from './infrastructure/gateways/activity-mock-test.gateway'
+import type { IRecordUserActivityUseCase } from '../activity'
 import { mongoMockTestsRepository } from './infrastructure/repositories/mongo-mock-tests.repository'
 import { cryptoShareTokenGenerator } from './infrastructure/services/crypto-share-token-generator.service'
 import { geminiGroqMockTestAIGateway } from './infrastructure/services/gemini-groq-mock-test-ai.service'
@@ -67,12 +68,12 @@ export type MockTestsComposition = {
 }
 
 export const createMockTestsComposition =
-  (): MockTestsComposition => {
+  (activityRecorder: IRecordUserActivityUseCase): MockTestsComposition => {
     const mockTestsRepository =
       mongoMockTestsRepository
 
     const mockTestActivityRecorder =
-      activityMockTestGateway
+      new ActivityMockTestGateway(activityRecorder)
 
     const mockTestAIGateway =
       geminiGroqMockTestAIGateway

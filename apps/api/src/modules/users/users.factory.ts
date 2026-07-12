@@ -80,6 +80,3 @@ export const createUsersComposition = (): UsersComposition => {
     },
   }
 }
-
-export const usersComposition = createUsersComposition()
-export const usersProfileReader = usersComposition.useCases.getMe

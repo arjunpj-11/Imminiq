@@ -12,14 +12,15 @@ import {
 } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { UploadsController } from './uploads.controller'
-import { createUploadsComposition } from '../uploads.factory'
+import type { UploadsUseCases } from '../application/contracts/uploads-use-cases.contract'
 import { UPLOAD_ROUTE_PATHS } from './uploads.route.constants'
 import {
   generateAIAvatarPreviewSchema,
   generateAIBannerPreviewSchema,
 } from './uploads.schema'
 
-const uploadsController = new UploadsController(createUploadsComposition().useCases)
+export const createUploadsRoutes = (useCases: UploadsUseCases) => {
+const uploadsController = new UploadsController(useCases)
 const router = Router()
 
 // ─── PROTECTED ───────────────────────────────────────────────
@@ -64,5 +65,5 @@ router.post(
   uploadsController.generateAIBannerPreview
 )
 
-export default router
-export { router as uploadsRoutes }
+return router
+}

@@ -2,7 +2,7 @@ import { Router } from 'express'
 import passport from 'passport'
 
 import { AuthController } from './auth.controller'
-import { createAuthComposition } from '../auth.factory'
+import type { AuthUseCases } from '../application/contracts/auth-use-cases.contract'
 import { AUTH_ROUTE_PATHS } from './auth.route.constants'
 import { validate } from '../../../shared/middlewares/validate'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
@@ -35,7 +35,8 @@ import {
   sendOtpSchema,
 } from './auth.schema'
 
-const authController = new AuthController(createAuthComposition().useCases)
+export const createAuthRoutes = (useCases: AuthUseCases) => {
+const authController = new AuthController(useCases)
 const router = Router()
 
 // ─── PUBLIC ROUTES ───────────────────────────────
@@ -167,5 +168,5 @@ router.get(
   authController.oauthCallback
 )
 
-export default router
-export { router as authRoutes }
+return router
+}

@@ -23,7 +23,8 @@ import { UpsertCommunityTrackerReviewUseCase } from './application/use-cases/ups
 import { VoteVerificationSubmissionUseCase } from './application/use-cases/vote-verification-submission.usecase'
 import type { ICommunityCoinLedger } from './domain/services/community-coin-ledger.interface'
 import { systemClock } from '../../infrastructure/time/system-clock'
-import { activityCommunityGateway } from './infrastructure/gateways/activity-community.gateway'
+import { ActivityCommunityGateway } from './infrastructure/gateways/activity-community.gateway'
+import type { IRecordUserActivityUseCase } from '../activity'
 import {
   mongoCommunityCoinLedger,
   mongoCommunityRepository,
@@ -50,7 +51,7 @@ export type CommunityComposition = {
 }
 
 export const createCommunityComposition =
-  (): CommunityComposition => {
+  (activityRecorder: IRecordUserActivityUseCase): CommunityComposition => {
     const communityRepository =
       mongoCommunityRepository
 
@@ -58,7 +59,7 @@ export const createCommunityComposition =
       mongoCommunityReviewRepository
 
     const communityActivityRecorder =
-      activityCommunityGateway
+      new ActivityCommunityGateway(activityRecorder)
 
     const coinLedger =
       mongoCommunityCoinLedger
