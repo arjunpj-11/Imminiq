@@ -3,14 +3,14 @@
 import { useMemo, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import CommunityErrorState from '../components/CommunityErrorState'
-import CommunityFilters from '../components/CommunityFilters'
-import CommunityLayout from '../components/CommunityLayout'
-import CommunityPageSkeleton from '../components/CommunityPageSkeleton'
-import CommunityPagination from '../components/CommunityPagination'
+import CommunityErrorState from '../components/shared/CommunityErrorState'
+import CommunityFilters from '../components/browse/CommunityFilters'
+import CommunityLayout from '../components/shared/CommunityLayout'
+import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
+import CommunityPagination from '../components/shared/CommunityPagination'
 import StatCard from '../../../components/data-display/StatCard'
-import CommunityTrackerCard from '../components/CommunityTrackerCard'
-import VerifyEarnBanner from '../components/VerifyEarnBanner'
+import CommunityTrackerCard from '../components/browse/CommunityTrackerCard'
+import VerifyEarnBanner from '../components/verification/VerifyEarnBanner'
 import { BookOpenIcon } from '../components/icons/CommunityIcons'
 import {
   COMMUNITY_PAGE_LIMIT,

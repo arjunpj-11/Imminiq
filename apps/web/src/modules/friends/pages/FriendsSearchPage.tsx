@@ -1,16 +1,16 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import FriendSearchResults from "../components/FriendSearchResults";
-import FriendsAppShell from "../components/FriendsAppShell";
-import FriendsHeader from "../components/FriendsHeader";
-import FriendsSearchInput from "../components/FriendsSearchInput";
+import FriendSearchResults from "../components/search/FriendSearchResults";
+import FriendsAppShell from "../components/shared/FriendsAppShell";
+import FriendsHeader from "../components/shared/FriendsHeader";
+import FriendsSearchInput from "../components/search/FriendsSearchInput";
 import {
   FriendsActionError,
   FriendsEmptyState,
   FriendsErrorState,
   FriendsListSkeleton,
-} from "../components/FriendsStates";
+} from "../components/shared/FriendsStates";
 import { BackIcon } from "../components/icons/FriendsIcons";
 import {
   FRIENDS_DEFAULT_PAGE_SIZE,

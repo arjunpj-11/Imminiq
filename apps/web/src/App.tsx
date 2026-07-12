@@ -8,7 +8,7 @@ import OnlineStatus from './components/system/OnlineStatus'
 import RouteExperience from './components/system/RouteExperience'
 import ToastProvider from './components/system/ToastProvider'
 import AppRoutes from './routes/AppRoutes'
-import AuthSessionBridge from './routes/AuthSessionBridge'
+import AuthSessionBridge from './routes/session/AuthSessionBridge'
 import { useAuthStore } from './store/useAuthStore'
 import { useThemeStore } from './store/useThemeStore'
 

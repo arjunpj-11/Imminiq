@@ -1,10 +1,10 @@
 import { useMemo, useState } from 'react'
 import type React from 'react'
 import Modal from '../../../components/overlays/Modal'
-import { useGenerateAiBannerPreview } from '../hooks/useGenerateAiBannerPreview'
+import { useGenerateAiBannerPreview } from '../hooks/mutations/useGenerateAiBannerPreview'
 import { cn, themedScrollbar } from '../utils/profile-ui.utils'
 import { bannerDataUrlToPng, svgBannerDataUrl } from '../utils/profile-image.utils'
-import { useImageCropControls } from '../hooks/useImageCropControls'
+import { useImageCropControls } from '../hooks/ui/useImageCropControls'
 
 /* ─── Cover Banner Modal ─── */
 interface IBannerModalProps {

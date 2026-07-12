@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import type React from 'react'
 import { cn } from '../utils/profile-ui.utils'
-import { useImageCropControls } from '../hooks/useImageCropControls'
+import { useImageCropControls } from '../hooks/ui/useImageCropControls'
 
 /* ─── Avatar Crop Modal ─── */
 interface IAvatarCropModalProps {
