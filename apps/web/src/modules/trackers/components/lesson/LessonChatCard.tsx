@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { getUserFacingError } from '../../../../lib/user-facing-error'
 
 import {
   useChatWithLessonTutor,
@@ -119,7 +120,7 @@ export default function LessonChatCard({
           setLocalMessages([
             {
               role: 'assistant',
-              content: `I could not answer right now. ${error.message}`,
+              content: getUserFacingError(error, 'I could not answer right now. Please try again.'),
             },
           ])
         },

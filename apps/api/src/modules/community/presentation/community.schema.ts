@@ -2,6 +2,26 @@ import { z } from 'zod'
 
 const voteChoiceSchema = z.enum(['pass', 'fail'])
 
+const paginationQueryFields = {
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional(),
+}
+
+export const communityTrackerQuerySchema = z.object({
+  search: z.string().trim().max(120).optional(),
+  topics: z.union([z.string().max(500), z.array(z.string().max(120)).max(20)]).optional(),
+  minRating: z.coerce.number().min(0).max(5).optional(),
+  verifiedOnly: z.enum(['true', 'false']).optional(),
+  sort: z.enum(['top-rated', 'most-cloned', 'newest']).optional(),
+  ...paginationQueryFields,
+})
+
+export const communityPaginationQuerySchema = z.object(paginationQueryFields)
+
+export const communityLeaderboardQuerySchema = z.object({
+  limit: z.coerce.number().int().min(1).max(100).optional(),
+})
+
 export const sendTrackerForVerificationSchema = z.object({
   requiredVotes: z.number().int().min(1).max(50).optional(),
   durationHours: z.number().int().min(1).max(168).optional(),

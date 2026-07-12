@@ -107,7 +107,6 @@ export class CommunityController {
   next: NextFunction,
 ) => {
   try {
-    console.log('submitTrackerForVerification called with body:', req.body);
     const user = getAuthUser(req)
     const trackerId = this.getRequiredParam(req, 'trackerId')
     const body = req.body as SendTrackerForVerificationInput
@@ -119,8 +118,6 @@ export class CommunityController {
       durationHours: body.durationHours,
       urgent: body.urgent,
     })
-
-    console.log('submitTrackerForVerification result:', submission);
 
     res
       .status(HttpStatusCode.CREATED)

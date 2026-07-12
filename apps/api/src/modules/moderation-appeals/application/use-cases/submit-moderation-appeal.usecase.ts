@@ -7,6 +7,7 @@ import type {
 import type { IModerationAppealMapper } from '../mappers/moderation-appeal.mapper'
 import type { IModerationAppealSubmissionPolicy } from '../policies/moderation-appeal-submission-policy.policy'
 import type { IModerationAppealCaseIdAllocator } from '../services/moderation-appeal-case-id.service'
+import { ModerationAppealApplicationError } from '../errors/moderation-appeal-application.error'
 
 type SubmitModerationAppealRepository =
   IModerationAppealQueryRepository &
@@ -31,7 +32,7 @@ export class SubmitModerationAppealUseCase {
     this._moderationAppealSubmissionPolicy.ensureRestrictedUserExists(user)
 
     if (user.id !== payload.userId) {
-      throw new Error('Appeal authorization does not match account')
+      throw ModerationAppealApplicationError.authorizationMismatch()
     }
 
     const existingAppeal =

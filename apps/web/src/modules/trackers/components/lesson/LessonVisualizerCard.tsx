@@ -1,6 +1,7 @@
 // apps/web/src/modules/trackers/components/lesson/LessonVisualizerCard.tsx
 
 import { useEffect, useRef, useState } from 'react'
+import { getUserFacingError } from '../../../../lib/user-facing-error'
 import { useGenerateLessonVisualization } from '../../hooks/useTrackers'
 import { cn } from '../../utils/tracker-ui'
 
@@ -274,7 +275,7 @@ export default function LessonVisualizerCard({
           setModalOpen(true)
         },
         onError: (err) => {
-          setError(err.message || 'Failed to generate visualization.')
+          setError(getUserFacingError(err, 'Failed to generate visualization.'))
         },
       }
     )
@@ -299,7 +300,7 @@ export default function LessonVisualizerCard({
           setModalOpen(true)
         },
         onError: (err) => {
-          setError(err.message || 'Failed to generate visualization.')
+          setError(getUserFacingError(err, 'Failed to generate visualization.'))
         },
       }
     )

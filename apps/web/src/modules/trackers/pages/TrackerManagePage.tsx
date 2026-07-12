@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 
 import { cn } from '../../../lib/cn'
+import { getUserFacingError } from '../../../lib/user-facing-error'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import { AppShellBoundary } from '../../../components/layout/AppShell'
@@ -215,7 +216,7 @@ export default function TrackerManagePage() {
       setStatusMessage('Tracker name updated.')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to update tracker.'
+        getUserFacingError(error, 'Unable to update tracker.')
       )
     } finally {
       trackerSaving.current = false
@@ -266,9 +267,7 @@ export default function TrackerManagePage() {
       setTopicVerification({
         status: 'rejected',
         message:
-          error instanceof Error
-            ? error.message
-            : 'AI verification failed. Please try again.',
+          getUserFacingError(error, 'AI verification failed. Please try again.'),
       })
     }
   }
@@ -332,9 +331,7 @@ export default function TrackerManagePage() {
       setSubtopicVerification({
         status: 'rejected',
         message:
-          error instanceof Error
-            ? error.message
-            : 'AI verification failed. Please try again.',
+          getUserFacingError(error, 'AI verification failed. Please try again.'),
       })
     }
   }
@@ -369,7 +366,7 @@ export default function TrackerManagePage() {
       setStatusMessage('Topic added.')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to add topic.'
+        getUserFacingError(error, 'Unable to add topic.')
       )
     } finally {
       topicCreating.current = false
@@ -410,7 +407,7 @@ export default function TrackerManagePage() {
       setStatusMessage('Subtopic added.')
     } catch (error) {
       setErrorMessage(
-        error instanceof Error ? error.message : 'Unable to add subtopic.'
+        getUserFacingError(error, 'Unable to add subtopic.')
       )
     } finally {
       subtopicCreating.current = false

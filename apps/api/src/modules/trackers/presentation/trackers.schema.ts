@@ -81,6 +81,15 @@ export const createTrackerSchema = z.object({
 
 export const updateTrackerSchema = createTrackerSchema.partial()
 
+export const publishTrackerSchema = z.object({
+  name: optionalTrimmedStringSchema(120, 'Published name is too long'),
+  description: descriptionSchema,
+  domain: trackerDomainSchema.optional(),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).optional(),
+  tags: z.array(z.string().trim().min(1).max(40)).max(10).optional(),
+  allowClone: z.boolean().optional(),
+})
+
 export const createTopicSchema = z.object({
   title: titleSchema,
   description: descriptionSchema,

@@ -1,4 +1,5 @@
 import { cn } from '../../../lib/cn'
+import { getUserFacingError } from '../../../lib/user-facing-error'
 
 import { useEffect, useRef, useState } from 'react'
 import type { ITracker } from '../types/tracker.types'
@@ -223,7 +224,7 @@ export default function TrackerCard({
       setPublishModalOpen(false)
     } catch (error) {
       setPublishError(
-        error instanceof Error ? error.message : 'Failed to publish tracker. Please try again.'
+        getUserFacingError(error, 'Failed to publish tracker. Please try again.')
       )
     } finally {
       setIsPublishing(false)
@@ -253,9 +254,7 @@ export default function TrackerCard({
       setVerificationSent(true)
     } catch (error) {
       setVerificationError(
-        error instanceof Error
-          ? error.message
-          : 'Failed to send tracker for verification. Please try again.',
+        getUserFacingError(error, 'Failed to send tracker for verification. Please try again.'),
       )
     } finally {
       setIsSendingVerification(false)

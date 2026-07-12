@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
+import { getUserFacingError } from '../../../../lib/user-facing-error'
 
 import {
   useAskLessonQuestionSolutionDoubt,
@@ -185,7 +186,7 @@ export default function ReflectionPracticeCard({
         },
 
         onError: (error) => {
-          setSolution(`Could not generate solution. ${error.message}`)
+          setSolution(getUserFacingError(error, 'Could not generate the solution. Please try again.'))
         },
       }
     )

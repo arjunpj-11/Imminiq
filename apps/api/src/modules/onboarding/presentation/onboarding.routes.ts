@@ -2,7 +2,7 @@ import { Router } from 'express'
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { validate } from '../../../shared/middlewares/validate'
+import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate'
 import { OnboardingController } from './onboarding.controller'
 import { createOnboardingComposition } from '../onboarding.factory'
 import { ONBOARDING_ROUTE_PATHS } from './onboarding.route.constants'
@@ -14,6 +14,7 @@ import {
 
 const onboardingController = new OnboardingController(createOnboardingComposition().useCases)
 const router = Router()
+router.param('jobId', validateIdentifierParam)
 
 // ─── PROTECTED ────────────────────────────────────────────────
 

@@ -51,7 +51,7 @@ const buildErrorResponse = (
 ) => {
   return {
     success: false,
-    message: err.message,
+    message: err.statusCode >= 500 ? 'Internal server error' : err.message,
     code: err.code,
     ...(err.errors ? { errors: err.errors } : {}),
     ...(err.data ? { data: err.data } : {}),
@@ -76,7 +76,7 @@ export const errorHandler = (
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({
       success: false,
-      message: err.message,
+      message: err.statusCode >= 500 ? 'Internal server error' : err.message,
       code: err.code,
       ...('errors' in err && err.errors
         ? { errors: err.errors as ErrorDetails }

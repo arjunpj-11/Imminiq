@@ -2,6 +2,16 @@ import { z } from 'zod'
 
 const objectIdSchema = z.string().trim().min(1, 'Id is required')
 
+export const mockTestListQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).optional(),
+  limit: z.coerce.number().int().min(1).max(50).optional(),
+})
+
+export const publicMockTestListQuerySchema = mockTestListQuerySchema.extend({
+  difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
+  tags: z.union([z.string().max(500), z.array(z.string().max(40)).max(20)]).optional(),
+})
+
 const codingLanguageSchema = z.enum([
   'javascript',
   'typescript',
@@ -123,7 +133,7 @@ export const submitAnswerSchema = z.object({
 export const runMockTestCodeSchema = z.object({
   sourceCode: z.string().min(1, 'Source code is required'),
   language: codingLanguageSchema.optional(),
-  languageId: z.number().optional(),
+  languageId: z.coerce.number().int().positive().max(1000).optional(),
 })
 
 export const submitMockTestCodeSchema = runMockTestCodeSchema

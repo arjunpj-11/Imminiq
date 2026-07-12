@@ -1,4 +1,5 @@
 import { cn } from '../../../lib/cn'
+import { getUserFacingError } from '../../../lib/user-facing-error'
 
 import {
   type ChangeEvent,
@@ -167,7 +168,7 @@ export default function MockTestAttemptPage() {
         onError: (error) => {
           setCodeFeedbackByQuestion((prev) => ({
             ...prev,
-            [question._id]: error.message,
+            [question._id]: getUserFacingError(error, 'Unable to run this code. Please try again.'),
           }))
         },
       }
@@ -212,7 +213,7 @@ export default function MockTestAttemptPage() {
         onError: (error) => {
           setCodeFeedbackByQuestion((prev) => ({
             ...prev,
-            [question._id]: error.message,
+            [question._id]: getUserFacingError(error, 'Unable to submit this code. Please try again.'),
           }))
         },
       }

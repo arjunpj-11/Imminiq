@@ -7,6 +7,7 @@ import type {
   ActivityPageResponseDTO,
   ActivityWeekDayViewDTO,
 } from '../dtos/activity.dto'
+import { ActivityApplicationError } from '../errors/activity-application.error'
 import { ACTIVITY_FEED_ICON_BY_CATEGORY } from '../constants/activity.constants'
 import type { ActivityDateContext } from '../services/activity-date-range.service'
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
@@ -95,7 +96,7 @@ export class ActivityMapper {
     } = input
 
     if (!analytics.user) {
-      throw new Error('Activity user mapping requires a user')
+      throw ActivityApplicationError.userNotFound()
     }
 
     const currentWeekByDate = new Map(
