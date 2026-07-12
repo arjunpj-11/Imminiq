@@ -1,5 +1,5 @@
-import { activityService } from '../../../activity'
-import type { ActivityRecorderContract } from '../../../activity/activity.service'
+import { activityRecorder } from '../../../activity'
+import type { IRecordUserActivityUseCase } from '../../../activity'
 import type {
   ICommunityActivityRecorder,
   RecordCommunityTrackerClonedActivityInput,
@@ -34,7 +34,7 @@ export class ActivityCommunityGateway
   implements ICommunityActivityRecorder
 {
   constructor(
-    private readonly _activityRecorder: ActivityRecorderContract,
+    private readonly _activityRecorder: IRecordUserActivityUseCase,
   ) {}
   async recordTrackerCloned(
     input: RecordCommunityTrackerClonedActivityInput,
@@ -45,7 +45,7 @@ export class ActivityCommunityGateway
       150,
     )
 
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'community',
@@ -91,7 +91,7 @@ export class ActivityCommunityGateway
       input.xpAwarded,
     )
 
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'community',
@@ -140,7 +140,7 @@ export class ActivityCommunityGateway
       input.coinsAwarded,
     )
 
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'community',
@@ -177,7 +177,7 @@ export class ActivityCommunityGateway
       150,
     )
 
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.ownerId,
 
       category: 'community',
@@ -205,4 +205,4 @@ export class ActivityCommunityGateway
 }
 
 export const activityCommunityGateway =
-  new ActivityCommunityGateway(activityService)
+  new ActivityCommunityGateway(activityRecorder)

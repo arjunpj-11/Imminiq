@@ -3,11 +3,11 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate, validateUsernameParam } from '../../../shared/middlewares/validate'
 import { UsersController } from './users.controller'
-import { createUsersComposition } from '../users.factory'
+import { usersComposition } from '../users.factory'
 import { USER_ROUTE_PATHS } from './users.route.constants'
 import { updateMyProfileSchema } from './users.schema'
 
-const usersController = new UsersController(createUsersComposition().useCases)
+const usersController = new UsersController(usersComposition.useCases)
 const router = Router()
 router.param('username', validateUsernameParam)
 

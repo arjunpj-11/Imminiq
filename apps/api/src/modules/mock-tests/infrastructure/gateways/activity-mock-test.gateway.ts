@@ -1,5 +1,5 @@
-import { activityService } from '../../../activity'
-import type { ActivityRecorderContract } from '../../../activity/activity.service'
+import { activityRecorder } from '../../../activity'
+import type { IRecordUserActivityUseCase } from '../../../activity'
 import type {
   IMockTestActivityRecorder,
   RecordMockTestCompletedActivityInput,
@@ -83,7 +83,7 @@ export class ActivityMockTestGateway
   implements IMockTestActivityRecorder
 {
   constructor(
-    private readonly _activityRecorder: ActivityRecorderContract,
+    private readonly _activityRecorder: IRecordUserActivityUseCase,
   ) {}
   async recordMockTestGenerated(
     input: RecordMockTestGeneratedActivityInput,
@@ -112,7 +112,7 @@ export class ActivityMockTestGateway
       300,
     )
 
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'mock_test',
@@ -205,7 +205,7 @@ export class ActivityMockTestGateway
       300,
     )
 
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'mock_test',
@@ -263,4 +263,4 @@ export class ActivityMockTestGateway
 }
 
 export const activityMockTestGateway =
-  new ActivityMockTestGateway(activityService)
+  new ActivityMockTestGateway(activityRecorder)

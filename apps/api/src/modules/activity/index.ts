@@ -1,7 +1,5 @@
-export {
-  activityService,
-  ActivityService,
-} from './activity.service'
+export { activityRecorder } from './activity.factory'
+export type { IRecordUserActivityUseCase } from './application/use-cases/record-user-activity.usecase'
 
 export type {
   ActivityEventViewDTO,

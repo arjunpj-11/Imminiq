@@ -1,5 +1,5 @@
-import { activityService } from '../../../activity'
-import type { ActivityRecorderContract } from '../../../activity/activity.service'
+import { activityRecorder } from '../../../activity'
+import type { IRecordUserActivityUseCase } from '../../../activity'
 import type {
   RecordTrackerCompletedActivityInput,
   RecordTrackerSubtopicCompletedActivityInput,
@@ -11,12 +11,12 @@ export class ActivityTrackerGateway
   implements ITrackerActivityRecorder
 {
   constructor(
-    private readonly _activityRecorder: ActivityRecorderContract,
+    private readonly _activityRecorder: IRecordUserActivityUseCase,
   ) {}
   async recordSubtopicCompleted(
     input: RecordTrackerSubtopicCompletedActivityInput,
   ): Promise<void> {
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'tracker',
@@ -54,7 +54,7 @@ export class ActivityTrackerGateway
   async recordTopicCompleted(
     input: RecordTrackerTopicCompletedActivityInput,
   ): Promise<void> {
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'tracker',
@@ -91,7 +91,7 @@ export class ActivityTrackerGateway
   async recordTrackerCompleted(
     input: RecordTrackerCompletedActivityInput,
   ): Promise<void> {
-    await this._activityRecorder.recordActivity({
+    await this._activityRecorder.execute({
       userId: input.userId,
 
       category: 'tracker',
@@ -125,4 +125,4 @@ export class ActivityTrackerGateway
 }
 
 export const activityTrackerGateway =
-  new ActivityTrackerGateway(activityService)
+  new ActivityTrackerGateway(activityRecorder)

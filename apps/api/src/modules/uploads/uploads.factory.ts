@@ -17,7 +17,7 @@ import { cloudflareAIImageGenerationGateway } from './infrastructure/gateways/cl
 import { cloudinaryProfileImageStorageGateway } from './infrastructure/gateways/cloudinary-profile-image-storage.gateway'
 import { mongoUploadsRepository } from './infrastructure/repositories/mongo-uploads.repository'
 import { cryptoRandomSeedGenerator } from './infrastructure/services/crypto-random-seed.service'
-import { usersService } from '../users'
+import { usersProfileReader } from '../users'
 
 
 export type UploadsComposition = {
@@ -31,7 +31,7 @@ export const createUploadsComposition = (): UploadsComposition => {
   const randomSeedGenerator = cryptoRandomSeedGenerator
   const uploadsMapper = new UploadsMapper()
   const aiUploadPromptBuilder = new AIUploadPromptBuilder()
-  const userProfileReader = new UploadUserProfileReader(usersService)
+  const userProfileReader = new UploadUserProfileReader(usersProfileReader)
 
   return {
     useCases: {

@@ -16,6 +16,9 @@ const controllerContractFiles = sourceFiles.filter((path) =>
   path.endsWith('-use-cases.contract.ts'),
 )
 const factoryFiles = sourceFiles.filter((path) => path.endsWith('.factory.ts'))
+const rootModuleServiceFiles = sourceFiles.filter((path) =>
+  /[/\\]modules[/\\][^/\\]+[/\\][^/\\]+\.service\.ts$/.test(path),
+)
 
 describe('use-case input ports', () => {
   it('requires every concrete use case to implement an exported interface', () => {
@@ -45,5 +48,9 @@ describe('use-case input ports', () => {
       const source = readFileSync(path, 'utf8')
       expect(source, path).not.toMatch(/export type \w+UseCases\s*=\s*\{/)
     }
+  })
+
+  it('prevents root module service facades from wrapping use cases', () => {
+    expect(rootModuleServiceFiles).toEqual([])
   })
 })
