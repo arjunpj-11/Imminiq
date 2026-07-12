@@ -7,7 +7,11 @@ import type { IUsersMapper } from '../mappers/users.mapper'
 
 type UpdateMeRepository = IUserRepository & IUserProfileRepository
 
-export class UpdateMeUseCase {
+export interface IUpdateMeUseCase {
+  execute(userId: string, payload: UpdateMyProfileInputDTO): Promise<{ user: import("../dtos/users.dto").ICurrentUserViewDTO; profile: import("../dtos/users.dto").IEditableProfileViewDTO; }>
+}
+
+export class UpdateMeUseCase implements IUpdateMeUseCase {
   constructor(
     private readonly _usersRepository: UpdateMeRepository,
     private readonly _usersMapper: IUsersMapper,

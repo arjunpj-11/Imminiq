@@ -5,7 +5,11 @@ import type {
 } from '../dtos/onboarding.dto'
 import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
 
-export class SaveOnboardingStepTwoUseCase {
+export interface ISaveOnboardingStepTwoUseCase {
+  execute(userId: string, payload: ISaveOnboardingStepTwoPayloadDTO): Promise<IOnboardingResponseRecordDTO | null>
+}
+
+export class SaveOnboardingStepTwoUseCase implements ISaveOnboardingStepTwoUseCase {
   constructor(
     private readonly _onboardingRepository: IOnboardingResponseCommandRepository,
     private readonly _onboardingMapper: IOnboardingMapper,

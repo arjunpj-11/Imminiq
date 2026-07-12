@@ -1,3 +1,4 @@
+import type { CommunityUseCases } from './application/contracts/community-use-cases.contract'
 import {
   CommunityMapper,
   type ICommunityMapper,
@@ -26,6 +27,7 @@ import { ToggleCommunityTrackerLikeUseCase } from './application/use-cases/toggl
 import { UpsertCommunityTrackerReviewUseCase } from './application/use-cases/upsert-community-tracker-review.usecase'
 import { VoteVerificationSubmissionUseCase } from './application/use-cases/vote-verification-submission.usecase'
 import type { ICommunityCoinLedger } from './domain/services/community-coin-ledger.interface'
+import { systemClock } from '../../infrastructure/time/system-clock'
 import { activityCommunityGateway } from './infrastructure/gateways/activity-community.gateway'
 import {
   mongoCommunityCoinLedger,
@@ -33,25 +35,6 @@ import {
   mongoCommunityReviewRepository,
 } from './infrastructure'
 
-export type CommunityUseCases = {
-  getBrowse: GetCommunityBrowseUseCase
-  getTrackers: GetCommunityTrackersUseCase
-  getPublicTrackerDetail: GetCommunityPublicTrackerUseCase
-  getPersonalStats: GetCommunityPersonalStatsUseCase
-  getTopics: GetCommunityTopicsUseCase
-  cloneTracker: CloneCommunityTrackerUseCase
-  upsertTrackerReview: UpsertCommunityTrackerReviewUseCase
-  toggleReviewHelpful: ToggleCommunityReviewHelpfulUseCase
-  toggleTrackerLike: ToggleCommunityTrackerLikeUseCase
-  getVerificationDashboard: GetVerificationDashboardUseCase
-  getVerificationQueue: GetVerificationQueueUseCase
-  getVerificationLeaderboard: GetVerificationLeaderboardUseCase
-  getVerificationSubmission: GetVerificationSubmissionUseCase
-  submitTrackerForVerification:
-    SubmitTrackerForVerificationUseCase
-  voteVerificationSubmission:
-    VoteVerificationSubmissionUseCase
-}
 
 export type CommunityServiceHelpers = {
   mapper: ICommunityMapper
@@ -86,13 +69,13 @@ export const createCommunityComposition =
       mongoCommunityCoinLedger
 
     const mapper =
-      new CommunityMapper()
+      new CommunityMapper(systemClock)
 
     const reviewMapper =
       new CommunityReviewMapper()
 
     const verificationPolicy =
-      new CommunityVerificationPolicy()
+      new CommunityVerificationPolicy(systemClock)
 
     return {
       useCases: {

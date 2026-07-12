@@ -1,7 +1,11 @@
 import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
 import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
-export class GetTopicBreakdownUseCase {
+export interface IGetTopicBreakdownUseCase {
+  execute(userId: string): Promise<{ topic: string; averageScore: number; totalAttempts: number; }[]>
+}
+
+export class GetTopicBreakdownUseCase implements IGetTopicBreakdownUseCase {
   constructor(
     private readonly _repository: IMockTestAnalyticsRepository,
     private readonly _mapper: IMockTestsMapper,

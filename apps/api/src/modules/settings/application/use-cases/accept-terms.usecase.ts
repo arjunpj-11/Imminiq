@@ -6,7 +6,11 @@ type AcceptTermsRepository = {
   acceptTerms: ISettingsCommandRepository['acceptTerms']
 }
 
-export class AcceptTermsUseCase {
+export interface IAcceptTermsUseCase {
+  execute(userId: string): Promise<UserSettingsViewDTO | null>
+}
+
+export class AcceptTermsUseCase implements IAcceptTermsUseCase {
   constructor(
     private readonly _settingsRepository: AcceptTermsRepository,
     private readonly _settingsMapper: ISettingsMapper,

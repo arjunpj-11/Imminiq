@@ -9,7 +9,11 @@ type UpdateAIBehaviourRepository = {
   updateAIBehaviour: ISettingsCommandRepository['updateAIBehaviour']
 }
 
-export class UpdateAIBehaviourUseCase {
+export interface IUpdateAIBehaviourUseCase {
+  execute(userId: string, payload: IUpdateAIBehaviourPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateAIBehaviourUseCase implements IUpdateAIBehaviourUseCase {
   constructor(
     private readonly _settingsRepository: UpdateAIBehaviourRepository,
     private readonly _settingsMapper: ISettingsMapper,

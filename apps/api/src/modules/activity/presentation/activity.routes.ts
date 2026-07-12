@@ -3,10 +3,10 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { ActivityController } from './activity.controller'
-import { createActivityComposition } from '../activity.factory'
+import { activityComposition } from '../activity.factory'
 import { ACTIVITY_ROUTE_PATHS } from './activity.route.constants'
 
-const activityController = new ActivityController(createActivityComposition().useCases)
+const activityController = new ActivityController(activityComposition.useCases)
 const router = Router()
 
 router.get(

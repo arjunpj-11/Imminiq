@@ -9,7 +9,11 @@ type UpdateEmailDigestRepository = {
   updateEmailDigest: ISettingsCommandRepository['updateEmailDigest']
 }
 
-export class UpdateEmailDigestUseCase {
+export interface IUpdateEmailDigestUseCase {
+  execute(userId: string, payload: IUpdateEmailDigestPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateEmailDigestUseCase implements IUpdateEmailDigestUseCase {
   constructor(
     private readonly _settingsRepository: UpdateEmailDigestRepository,
     private readonly _settingsMapper: ISettingsMapper,

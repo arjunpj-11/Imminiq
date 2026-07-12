@@ -6,7 +6,11 @@ type GetAppearanceSettingsRepository = {
   findOrCreate: ISettingsQueryRepository['findOrCreate']
 }
 
-export class GetAppearanceSettingsUseCase {
+export interface IGetAppearanceSettingsUseCase {
+  execute(userId: string): Promise<UserSettingsViewDTO['appearance']>
+}
+
+export class GetAppearanceSettingsUseCase implements IGetAppearanceSettingsUseCase {
   constructor(
     private readonly _settingsRepository: GetAppearanceSettingsRepository,
     private readonly _settingsMapper: ISettingsMapper,

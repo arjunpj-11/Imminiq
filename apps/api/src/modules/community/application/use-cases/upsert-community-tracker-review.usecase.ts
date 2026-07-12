@@ -6,7 +6,11 @@ import type {
 import { CommunityApplicationError } from '../errors/community-application.error'
 import type { ICommunityReviewMapper } from '../mappers/community-review.mapper'
 
-export class UpsertCommunityTrackerReviewUseCase {
+export interface IUpsertCommunityTrackerReviewUseCase {
+  execute(payload: UpsertCommunityTrackerReviewPayloadDTO): Promise<UpsertCommunityTrackerReviewOutputDTO>
+}
+
+export class UpsertCommunityTrackerReviewUseCase implements IUpsertCommunityTrackerReviewUseCase {
   constructor(
     private readonly _repository: ICommunityReviewRepository,
     private readonly _mapper: ICommunityReviewMapper,

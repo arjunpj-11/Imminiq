@@ -4,7 +4,11 @@ import type { CreateTrackerInput } from '../../domain/types/trackers.types'
 
 type CreateTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>
 
-export class CreateTrackerUseCase {
+export interface ICreateTrackerUseCase {
+  execute(input: CreateTrackerInput): Promise<CreateTrackerResultDTO>
+}
+
+export class CreateTrackerUseCase implements ICreateTrackerUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper

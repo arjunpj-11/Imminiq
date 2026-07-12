@@ -9,7 +9,7 @@ import {
   USERS_MIN_STREAK_YEAR,
 } from '../domain/constants/users.constants'
 import type { ProfileSort } from '../domain/value-objects/profile-sort.vo'
-import type { UsersComposition } from '../users.factory'
+import type { UsersUseCases } from '../application/contracts/users-use-cases.contract'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
@@ -18,7 +18,7 @@ type UsernameParams = {
 }
 
 export class UsersController {
-  constructor(private readonly _useCases: UsersComposition['useCases']) {}
+  constructor(private readonly _useCases: UsersUseCases) {}
 
   getMe = async (req: Request, res: Response, next: NextFunction) => {
     try {

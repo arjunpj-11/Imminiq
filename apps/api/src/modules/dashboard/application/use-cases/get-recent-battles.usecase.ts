@@ -2,7 +2,11 @@ import type { IDashboardBattleRepository } from '../../domain/repositories/dashb
 import type { IDashboardBattleItemDTO } from '../dtos/dashboard.dto'
 import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
-export class GetRecentBattlesUseCase {
+export interface IGetRecentBattlesUseCase {
+  execute(userId: string, limit?: number): Promise<IDashboardBattleItemDTO[]>
+}
+
+export class GetRecentBattlesUseCase implements IGetRecentBattlesUseCase {
   constructor(
     private readonly _dashboardRepository: IDashboardBattleRepository,
     private readonly _dashboardMapper: IDashboardMapper

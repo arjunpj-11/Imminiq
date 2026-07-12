@@ -1,3 +1,4 @@
+import type { ModerationAppealUseCases } from './application/contracts/moderation-appeal-use-cases.contract'
 import {
   ModerationAppealMapper,
   type IModerationAppealMapper,
@@ -15,10 +16,6 @@ import { SubmitModerationAppealUseCase } from './application/use-cases/submit-mo
 import { mongoModerationAppealRepository } from './infrastructure/repositories/mongo-moderation-appeal.repository'
 import { cryptoModerationAppealCaseIdGenerator } from './infrastructure/services/crypto-moderation-appeal-case-id-generator.service'
 
-export type ModerationAppealUseCases = {
-  submitModerationAppeal: SubmitModerationAppealUseCase
-  getActiveModerationAppealStatus: GetActiveModerationAppealStatusUseCase
-}
 
 export type ModerationAppealServiceHelpers = {
   moderationAppealMapper: IModerationAppealMapper

@@ -9,7 +9,11 @@ type UpdateAccountSettingsRepository = {
   updateAccountSettings: ISettingsCommandRepository['updateAccountSettings']
 }
 
-export class UpdateAccountSettingsUseCase {
+export interface IUpdateAccountSettingsUseCase {
+  execute(userId: string, payload: IUpdateAccountPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateAccountSettingsUseCase implements IUpdateAccountSettingsUseCase {
   constructor(
     private readonly _settingsRepository: UpdateAccountSettingsRepository,
     private readonly _settingsMapper: ISettingsMapper,

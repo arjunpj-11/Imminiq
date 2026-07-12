@@ -12,7 +12,11 @@ type UpdateNotificationsRepository = {
   updateNotificationTypes: ISettingsCommandRepository['updateNotificationTypes']
 }
 
-export class UpdateNotificationsUseCase {
+export interface IUpdateNotificationsUseCase {
+  execute(userId: string, payload: IUpdateNotificationsPayloadDTO): Promise<UserSettingsViewDTO>
+}
+
+export class UpdateNotificationsUseCase implements IUpdateNotificationsUseCase {
   constructor(
     private readonly _settingsRepository: UpdateNotificationsRepository,
     private readonly _settingsMapper: ISettingsMapper,

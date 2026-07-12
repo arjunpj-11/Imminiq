@@ -7,7 +7,11 @@ import { DashboardApplicationError } from '../errors/dashboard-application.error
 type DashboardInsightRepository =
   IDashboardStreakRepository & IDashboardTrackerRepository
 
-export class GetAIInsightsUseCase {
+export interface IGetAIInsightsUseCase {
+  execute(userId: string): Promise<IDashboardAIInsightResultDTO>
+}
+
+export class GetAIInsightsUseCase implements IGetAIInsightsUseCase {
   constructor(
     private readonly _dashboardRepository: DashboardInsightRepository,
     private readonly _dashboardInsightGenerator: IDashboardInsightGenerator

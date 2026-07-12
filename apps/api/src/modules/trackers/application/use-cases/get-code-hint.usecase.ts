@@ -17,7 +17,11 @@ type GetCodeHintResultDTO = ReturnType<
   ITrackerMapper['toLessonCodeHintDto']
 >
 
-export class GetCodeHintUseCase {
+export interface IGetCodeHintUseCase {
+  execute(input: GetCodeHintInput): Promise<GetCodeHintResultDTO>
+}
+
+export class GetCodeHintUseCase implements IGetCodeHintUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
-import CommunityErrorState from '../components/CommunityErrorState'
-import CommunityLayout from '../components/CommunityLayout'
-import CommunityPageSkeleton from '../components/CommunityPageSkeleton'
+import CommunityErrorState from '../components/shared/CommunityErrorState'
+import CommunityLayout from '../components/shared/CommunityLayout'
+import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
 import {
   Avatar,
   BackIcon,
@@ -18,7 +18,7 @@ import {
   StatPill,
   TopicIcon,
   VerifiedIcon,
-} from '../components/CommunityPublicTrackerUi'
+} from '../components/public-tracker/CommunityPublicTrackerUi'
 import {
   getTotalSubtopics,
   ratingLabel,

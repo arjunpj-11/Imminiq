@@ -1,7 +1,11 @@
 import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
 import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
-export class GetHistoryUseCase {
+export interface IGetHistoryUseCase {
+  execute(userId: string): Promise<import("..").IMockTestAttemptHistoryDTO[]>
+}
+
+export class GetHistoryUseCase implements IGetHistoryUseCase {
   constructor(
     private readonly _repository: IMockTestAnalyticsRepository,
     private readonly _mapper: IMockTestsMapper,

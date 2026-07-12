@@ -1,6 +1,10 @@
 import type { IUsersProfileDataReader } from '../services/users-profile-data.service'
 
-export class GetMyStatsUseCase {
+export interface IGetMyStatsUseCase {
+  execute(userId: string): Promise<import("..").IProfileStatsViewDTO>
+}
+
+export class GetMyStatsUseCase implements IGetMyStatsUseCase {
   constructor(
     private readonly _profileDataReader: IUsersProfileDataReader,
   ) {}

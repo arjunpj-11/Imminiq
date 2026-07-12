@@ -9,7 +9,11 @@ type UpdateCodeEditorRepository = {
   updateCodeEditor: ISettingsCommandRepository['updateCodeEditor']
 }
 
-export class UpdateCodeEditorUseCase {
+export interface IUpdateCodeEditorUseCase {
+  execute(userId: string, payload: IUpdateCodeEditorPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateCodeEditorUseCase implements IUpdateCodeEditorUseCase {
   constructor(
     private readonly _settingsRepository: UpdateCodeEditorRepository,
     private readonly _settingsMapper: ISettingsMapper,

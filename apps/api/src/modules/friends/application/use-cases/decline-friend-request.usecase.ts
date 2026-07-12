@@ -5,7 +5,11 @@ import type {
 } from "../dtos/friends.dto";
 import { FriendsApplicationError } from "../errors/friends-application.error";
 
-export class DeclineFriendRequestUseCase {
+export interface IDeclineFriendRequestUseCase {
+  execute(receiverUserId: string, payload: FriendRequestActionPayloadDTO): Promise<FriendActionViewDTO>
+}
+
+export class DeclineFriendRequestUseCase implements IDeclineFriendRequestUseCase {
   constructor(
     private readonly _friendCommandRepository: IFriendCommandRepository,
   ) {}

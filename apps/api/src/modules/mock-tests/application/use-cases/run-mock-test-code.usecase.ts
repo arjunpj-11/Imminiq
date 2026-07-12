@@ -8,7 +8,11 @@ type RunMockTestCodeRepository =
   IMockTestAttemptRepository &
   IMockTestQuestionRepository
 
-export class RunMockTestCodeUseCase {
+export interface IRunMockTestCodeUseCase {
+  execute(attemptId: string, userId: string, questionId: string, payload: IRunMockTestCodePayloadDTO): Promise<import("../../domain/services/mock-test-code-runner.interface").MockTestCodeRunResult>
+}
+
+export class RunMockTestCodeUseCase implements IRunMockTestCodeUseCase {
   constructor(
     private readonly _repository: RunMockTestCodeRepository,
     private readonly _codeRunner: IMockTestCodeRunner,

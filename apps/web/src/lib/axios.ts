@@ -5,6 +5,7 @@ import type {
 } from 'axios'
 import { useAuthStore } from '../store/useAuthStore'
 import { saveBlockedAppealIdentifier } from './blockedAppealSession'
+import { getUserFacingError } from './user-facing-error'
 
 interface IRefreshTokenResponse {
   success: boolean
@@ -109,6 +110,13 @@ api.interceptors.response.use(
   (response) => response,
 
   async (error: AxiosError<IApiErrorResponse>) => {
+    if (error.response?.data) {
+      error.response.data = {
+        ...error.response.data,
+        message: getUserFacingError(error),
+      }
+    }
+
     const originalRequest =
       error.config as IRetryableRequestConfig | undefined
 

@@ -10,7 +10,11 @@ import { UploadsApplicationError } from '../errors/uploads-application.error'
 import type { IUploadsMapper } from '../mappers/uploads.mapper'
 import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service'
 
-export class GenerateAIBannerPreviewUseCase {
+export interface IGenerateAIBannerPreviewUseCase {
+  execute(prompt: string): Promise<IAIImagePreviewResultDTO>
+}
+
+export class GenerateAIBannerPreviewUseCase implements IGenerateAIBannerPreviewUseCase {
   constructor(
     private readonly _aiImageGenerator: IAIImageGenerator,
     private readonly _aiUploadPromptBuilder: IAIUploadPromptBuilder,

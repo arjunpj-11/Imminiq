@@ -2,7 +2,11 @@ import { createHash } from 'crypto'
 
 import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 
-export class LogoutUserUseCase {
+export interface ILogoutUserUseCase {
+  execute(refreshToken: string): Promise<void>
+}
+
+export class LogoutUserUseCase implements ILogoutUserUseCase {
   constructor(
     private readonly _authRepository: IAuthSessionRepository
   ) {}

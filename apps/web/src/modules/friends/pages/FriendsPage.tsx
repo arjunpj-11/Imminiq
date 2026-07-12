@@ -1,19 +1,19 @@
 import { useMemo, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 
-import FriendRequestsView from "../components/FriendRequestsView";
-import FriendsAppShell from "../components/FriendsAppShell";
-import FriendsHeader from "../components/FriendsHeader";
-import FriendsListView from "../components/FriendsListView";
-import FriendsSearchInput from "../components/FriendsSearchInput";
+import FriendRequestsView from "../components/requests/FriendRequestsView";
+import FriendsAppShell from "../components/shared/FriendsAppShell";
+import FriendsHeader from "../components/shared/FriendsHeader";
+import FriendsListView from "../components/list/FriendsListView";
+import FriendsSearchInput from "../components/search/FriendsSearchInput";
 import {
   FriendsActionError,
   FriendsErrorState,
   FriendsListSkeleton,
   FriendsRequestsSkeleton,
-} from "../components/FriendsStates";
-import FriendsTabs from "../components/FriendsTabs";
-import RemoveFriendDialog from "../components/RemoveFriendDialog";
+} from "../components/shared/FriendsStates";
+import FriendsTabs from "../components/shared/FriendsTabs";
+import RemoveFriendDialog from "../components/list/RemoveFriendDialog";
 import { UserPlusIcon } from "../components/icons/FriendsIcons";
 import {
   FRIENDS_DEFAULT_PAGE_SIZE,

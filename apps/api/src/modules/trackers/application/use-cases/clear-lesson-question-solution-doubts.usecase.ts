@@ -9,7 +9,16 @@ type ClearLessonQuestionSolutionDoubtsResultDTO = ReturnType<
   ITrackerMapper['toClearLessonHistoryResultDto']
 >
 
-export class ClearLessonQuestionSolutionDoubtsUseCase {
+export interface IClearLessonQuestionSolutionDoubtsUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    question: string
+  }): Promise<ClearLessonQuestionSolutionDoubtsResultDTO>
+}
+
+export class ClearLessonQuestionSolutionDoubtsUseCase implements IClearLessonQuestionSolutionDoubtsUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _questionHasher: IQuestionHasher,

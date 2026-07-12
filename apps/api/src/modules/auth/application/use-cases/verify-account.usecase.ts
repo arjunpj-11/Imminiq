@@ -14,7 +14,11 @@ import type { VerificationMethod } from '../../domain/value-objects/verification
 
 const VERIFY_ACCOUNT_SCOPE = 'auth_verify_account_otp' as const
 
-export class VerifyAccountUseCase {
+export interface IVerifyAccountUseCase {
+  execute(identifier: string, otp: string): Promise<void>
+}
+
+export class VerifyAccountUseCase implements IVerifyAccountUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _identifierNormalizer: IIdentifierNormalizer,

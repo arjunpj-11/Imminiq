@@ -1,3 +1,4 @@
+import type { OnboardingUseCases } from './application/contracts/onboarding-use-cases.contract'
 import {
   OnboardingMapper,
   type IOnboardingMapper,
@@ -20,16 +21,6 @@ import { bullMqAIJobQueueGateway } from './infrastructure/gateways/bullmq-ai-job
 import { mongoOnboardingRepository } from './infrastructure/repositories/mongo-onboarding.repository'
 import { redisAIJobQuotaStore } from './infrastructure/stores/redis-ai-job-quota.store'
 
-export type OnboardingUseCases = {
-  getOnboardingStatus: GetOnboardingStatusUseCase
-  saveOnboardingStepOne: SaveOnboardingStepOneUseCase
-  saveOnboardingStepTwo: SaveOnboardingStepTwoUseCase
-  generateRoadmap: GenerateRoadmapUseCase
-  getRoadmapJobStatus: GetRoadmapJobStatusUseCase
-  getRoadmapJobResult: GetRoadmapJobResultUseCase
-  evaluateRoadmap: EvaluateRoadmapUseCase
-  getRoadmapEvaluationResult: GetRoadmapEvaluationResultUseCase
-}
 
 export type OnboardingServiceHelpers = {
   onboardingAIJobQueueGateway: IAIJobQueueGateway

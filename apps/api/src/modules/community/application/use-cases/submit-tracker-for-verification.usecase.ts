@@ -12,7 +12,11 @@ import type {
 import { CommunityApplicationError } from '../errors/community-application.error'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
-export class SubmitTrackerForVerificationUseCase {
+export interface ISubmitTrackerForVerificationUseCase {
+  execute(payload: ISubmitTrackerForVerificationPayloadDTO): Promise<ICommunityVerificationSubmissionViewDTO>
+}
+
+export class SubmitTrackerForVerificationUseCase implements ISubmitTrackerForVerificationUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _mapper: ICommunityMapper,

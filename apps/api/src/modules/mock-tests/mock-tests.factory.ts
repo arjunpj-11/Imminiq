@@ -1,3 +1,4 @@
+import type { MockTestsUseCases } from './application/contracts/mock-tests-use-cases.contract'
 import {
   MockTestsMapper,
   type IMockTestsMapper,
@@ -41,29 +42,6 @@ import { geminiGroqMockTestAIGateway } from './infrastructure/services/gemini-gr
 import { mongoQuestionBank } from './infrastructure/services/mongo-question-bank.service'
 import { pistonMockTestCodeRunner } from './infrastructure/services/piston-mock-test-code-runner.service'
 
-export type MockTestsUseCases = {
-  listMockTests: ListMockTestsUseCase
-  listPublicMockTests: ListPublicMockTestsUseCase
-  getMockTestDetails: GetMockTestDetailsUseCase
-  createMockTest: CreateMockTestUseCase
-  generateMockTest: GenerateMockTestUseCase
-  startTestAttempt: StartTestAttemptUseCase
-  getAttemptQuestions: GetAttemptQuestionsUseCase
-  submitAnswer: SubmitAnswerUseCase
-  flagQuestion: FlagQuestionUseCase
-  finishTestAttempt: FinishTestAttemptUseCase
-  getAttemptResult: GetAttemptResultUseCase
-  getAttemptAnalysis: GetAttemptAnalysisUseCase
-  retakeTest: RetakeTestUseCase
-  getAnalytics: GetAnalyticsUseCase
-  getAIInsights: GetAIInsightsUseCase
-  getHistory: GetHistoryUseCase
-  getTopicBreakdown: GetTopicBreakdownUseCase
-  shareMockTest: ShareMockTestUseCase
-  importSharedMockTest: ImportSharedMockTestUseCase
-  runMockTestCode: RunMockTestCodeUseCase
-  submitMockTestCode: SubmitMockTestCodeUseCase
-}
 
 export type MockTestsServiceHelpers = {
   mockTestsMapper: IMockTestsMapper

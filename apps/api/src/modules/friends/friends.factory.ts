@@ -1,3 +1,4 @@
+import type { FriendsUseCases } from './application/contracts/friends-use-cases.contract'
 import { FriendsMapper } from "./application/mappers/friends.mapper";
 import { FriendRelationshipPolicy } from "./application/policies/friend-relationship.policy";
 import { AcceptFriendRequestUseCase } from "./application/use-cases/accept-friend-request.usecase";
@@ -10,16 +11,7 @@ import { SearchUsersUseCase } from "./application/use-cases/search-users.usecase
 import { SendFriendRequestUseCase } from "./application/use-cases/send-friend-request.usecase";
 import { mongoFriendsRepository } from "./infrastructure/repositories/mongo-friends.repository";
 
-export type FriendsUseCases = {
-  searchUsers: SearchUsersUseCase;
-  listFriends: ListFriendsUseCase;
-  listFriendRequests: ListFriendRequestsUseCase;
-  sendFriendRequest: SendFriendRequestUseCase;
-  acceptFriendRequest: AcceptFriendRequestUseCase;
-  declineFriendRequest: DeclineFriendRequestUseCase;
-  cancelFriendRequest: CancelFriendRequestUseCase;
-  removeFriend: RemoveFriendUseCase;
-};
+;
 
 export type FriendsComposition = {
   useCases: FriendsUseCases;

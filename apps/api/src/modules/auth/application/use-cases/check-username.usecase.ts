@@ -1,6 +1,10 @@
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 
-export class CheckUsernameUseCase {
+export interface ICheckUsernameUseCase {
+  execute(username: string): Promise<{ available: boolean }>
+}
+
+export class CheckUsernameUseCase implements ICheckUsernameUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository
   ) {}

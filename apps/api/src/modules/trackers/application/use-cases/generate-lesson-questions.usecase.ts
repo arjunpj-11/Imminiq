@@ -22,7 +22,16 @@ const getDocumentId = (document: unknown) => {
   return null
 }
 
-export class GenerateLessonQuestionsUseCase {
+export interface IGenerateLessonQuestionsUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    count?: number
+  }): Promise<GenerateLessonQuestionsResultDTO>
+}
+
+export class GenerateLessonQuestionsUseCase implements IGenerateLessonQuestionsUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

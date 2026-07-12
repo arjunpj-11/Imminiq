@@ -9,7 +9,11 @@ type CreateMockTestRepository =
   IMockTestRepository &
   IMockTestQuestionRepository
 
-export class CreateMockTestUseCase {
+export interface ICreateMockTestUseCase {
+  execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO>
+}
+
+export class CreateMockTestUseCase implements ICreateMockTestUseCase {
   constructor(
     private readonly _repository: CreateMockTestRepository,
     private readonly _mapper: IMockTestsMapper,

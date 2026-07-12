@@ -35,7 +35,11 @@ const getIsCorrectFromResult = (result: {
   return result.verdict === 'correct'
 }
 
-export class VerifyLessonAnswerUseCase {
+export interface IVerifyLessonAnswerUseCase {
+  execute(input: VerifyLessonAnswerInput): Promise<VerifyLessonAnswerResultDTO>
+}
+
+export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

@@ -4,7 +4,11 @@ import {
 } from '../constants/leaderboard.constants'
 import type { LeaderboardRewardsResponseDTO } from '../dtos/leaderboard.dto'
 
-export class GetLeaderboardRewardsUseCase {
+export interface IGetLeaderboardRewardsUseCase {
+  execute(): LeaderboardRewardsResponseDTO
+}
+
+export class GetLeaderboardRewardsUseCase implements IGetLeaderboardRewardsUseCase {
   execute(): LeaderboardRewardsResponseDTO {
     return {
       students: {

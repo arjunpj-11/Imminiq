@@ -3,7 +3,11 @@ import type { ICommunityVerificationSubmissionViewDTO } from '../dtos/community.
 import { CommunityApplicationError } from '../errors/community-application.error'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
-export class GetVerificationSubmissionUseCase {
+export interface IGetVerificationSubmissionUseCase {
+  execute(submissionId: string, userId: string): Promise<ICommunityVerificationSubmissionViewDTO>
+}
+
+export class GetVerificationSubmissionUseCase implements IGetVerificationSubmissionUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _mapper: ICommunityMapper,

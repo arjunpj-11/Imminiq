@@ -1,7 +1,11 @@
 import type { IUserBadgeRepository } from '../../domain/repositories/user-badge.repository.interface'
 import type { IUsersMapper } from '../mappers/users.mapper'
 
-export class GetMyBadgesUseCase {
+export interface IGetMyBadgesUseCase {
+  execute(userId: string, page: number, limit: number): Promise<{ items: import("..").IEarnedBadgeViewDTO[]; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>
+}
+
+export class GetMyBadgesUseCase implements IGetMyBadgesUseCase {
   constructor(
     private readonly _usersRepository: IUserBadgeRepository,
     private readonly _usersMapper: IUsersMapper,

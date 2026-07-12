@@ -1,7 +1,11 @@
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
 import type { ITwoFactorStatusResponseDTO } from '../dtos/security.dto'
 
-export class GetTwoFactorStatusUseCase {
+export interface IGetTwoFactorStatusUseCase {
+  execute(userId: string): Promise<ITwoFactorStatusResponseDTO>
+}
+
+export class GetTwoFactorStatusUseCase implements IGetTwoFactorStatusUseCase {
   constructor(
     private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
   ) {}

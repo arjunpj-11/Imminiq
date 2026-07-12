@@ -6,7 +6,11 @@ import type { ICommunityActivityRecorder } from '../../domain/services/community
 import { CommunityApplicationError } from '../errors/community-application.error'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
-export class CloneCommunityTrackerUseCase {
+export interface ICloneCommunityTrackerUseCase {
+  execute(trackerId: string, userId: string): Promise<{ tracker: import("..").ICommunityTrackerViewDTO; }>
+}
+
+export class CloneCommunityTrackerUseCase implements ICloneCommunityTrackerUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _activityRecorder: ICommunityActivityRecorder,

@@ -2,7 +2,16 @@ import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { ITrackerMapper } from '../mappers/tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 
-export class GetLessonCodeSubmissionsUseCase {
+export interface IGetLessonCodeSubmissionsUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    action?: 'run' | 'submit'
+  }): Promise<import("..").LessonCodeSubmissionsDTO>
+}
+
+export class GetLessonCodeSubmissionsUseCase implements IGetLessonCodeSubmissionsUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper,

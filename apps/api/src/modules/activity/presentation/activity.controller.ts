@@ -8,7 +8,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { ActivityComposition } from '../activity.factory'
+import type { ActivityUseCases } from '../application/contracts/activity-use-cases.contract'
 import {
   activityFeedQuerySchema,
   activityPageQuerySchema,
@@ -16,7 +16,7 @@ import {
 
 export class ActivityController {
   constructor(
-    private readonly _useCases: ActivityComposition['useCases'],
+    private readonly _useCases: ActivityUseCases,
   ) {}
 
   getPage = async (

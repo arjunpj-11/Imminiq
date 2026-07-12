@@ -1,4 +1,5 @@
 import { type ChangeEvent, useMemo, useState } from 'react'
+import { getUserFacingError } from '../../../../lib/user-facing-error'
 
 import {
   useGetCodeHint,
@@ -308,7 +309,7 @@ export default function CompilerCard({
       {
         onSuccess: (response) =>
           setOutput(buildOutput(response.data) || '> Code executed'),
-        onError: (error) => setOutput(`> Error: ${error.message}`),
+        onError: (error) => setOutput(`> ${getUserFacingError(error, 'Code execution failed. Please try again.')}`),
       }
     )
   }
@@ -334,7 +335,7 @@ export default function CompilerCard({
             setHintCount(0)
           }
         },
-        onError: (error) => setOutput(`> Submit Error: ${error.message}`),
+        onError: (error) => setOutput(`> ${getUserFacingError(error, 'Code submission failed. Please try again.')}`),
       }
     )
   }

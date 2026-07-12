@@ -11,6 +11,7 @@ import { useMockTestsStore } from '../store/mockTests.store'
 import { cn } from '../utils/mock-tests-formatters'
 import { SparklesIcon } from './MockTestIcons'
 import type { QuestionType } from '../types/mock-tests.types'
+import { getUserFacingError } from '../../../lib/user-facing-error'
 
 export function GenerateMockTestPanel() {
   const { generateDraft, updateGenerateDraft, resetGenerateDraft } =
@@ -121,7 +122,7 @@ export function GenerateMockTestPanel() {
 
         {generateMutation.error && (
           <p className="text-xs text-(--brand-500) dark:text-(--brand-500)">
-            {generateMutation.error.message}
+            {getUserFacingError(generateMutation.error, 'Unable to generate the mock test. Please try again.')}
           </p>
         )}
       </div>

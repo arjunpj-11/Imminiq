@@ -21,7 +21,11 @@ type StoredProfileImage = Awaited<
   ReturnType<IProfileImageStorage['uploadProfileImage']>
 >
 
-export class UploadProfileImageUseCase {
+export interface IUploadProfileImageUseCase {
+  execute(input: IUploadProfileImageInputDTO): Promise<IUploadProfileImageResultDTO>
+}
+
+export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
   constructor(
     private readonly _userProfileReader: IUploadUserProfileReader,
     private readonly _profileImageStorage: IProfileImageStorage,

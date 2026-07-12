@@ -5,7 +5,7 @@ import { FRIENDS_RESPONSE_MESSAGES } from "../application/constants/friends.cons
 import { ApiError } from "../../../shared/utils/ApiError";
 import { ApiResponse } from "../../../shared/utils/ApiResponse";
 import { getAuthUser } from "../../../shared/utils/getAuthUser";
-import type { FriendsComposition } from "../friends.factory";
+import type { FriendsUseCases } from "../application/contracts/friends-use-cases.contract";
 import {
   friendParamsSchema,
   friendRequestParamsSchema,
@@ -16,7 +16,7 @@ import {
 } from "./friends.schema";
 
 export class FriendsController {
-  constructor(private readonly _useCases: FriendsComposition['useCases']) {}
+  constructor(private readonly _useCases: FriendsUseCases) {}
 
   listFriends = async (req: Request, res: Response, next: NextFunction) => {
     try {

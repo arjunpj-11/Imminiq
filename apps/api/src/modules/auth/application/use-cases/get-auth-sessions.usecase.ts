@@ -2,7 +2,11 @@ import type { IAuthSessionRepository } from '../../domain/repositories/auth-sess
 import type { IAuthSessionDTO } from '../dtos/auth.dto'
 import type { IAuthSessionMapper } from '../mappers/auth-session.mapper'
 
-export class GetAuthSessionsUseCase {
+export interface IGetAuthSessionsUseCase {
+  execute(userId: string): Promise<IAuthSessionDTO[]>
+}
+
+export class GetAuthSessionsUseCase implements IGetAuthSessionsUseCase {
   constructor(
     private readonly _authRepository: IAuthSessionRepository,
     private readonly _authSessionMapper: IAuthSessionMapper,

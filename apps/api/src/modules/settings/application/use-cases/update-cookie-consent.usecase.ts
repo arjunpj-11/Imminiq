@@ -6,7 +6,11 @@ type UpdateCookieConsentRepository = {
   updateCookieConsent: ISettingsCommandRepository['updateCookieConsent']
 }
 
-export class UpdateCookieConsentUseCase {
+export interface IUpdateCookieConsentUseCase {
+  execute(userId: string, cookieConsent: boolean): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateCookieConsentUseCase implements IUpdateCookieConsentUseCase {
   constructor(
     private readonly _settingsRepository: UpdateCookieConsentRepository,
     private readonly _settingsMapper: ISettingsMapper,

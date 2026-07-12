@@ -11,7 +11,11 @@ type ImportSharedMockTestRepository =
 
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
 
-export class ImportSharedMockTestUseCase {
+export interface IImportSharedMockTestUseCase {
+  execute(input: { userId: string; shareToken: string }): Promise<import("..").IImportSharedMockTestDTO>
+}
+
+export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase {
   constructor(
     private readonly _repository: ImportSharedMockTestRepository,
     private readonly _mapper: IMockTestsMapper,

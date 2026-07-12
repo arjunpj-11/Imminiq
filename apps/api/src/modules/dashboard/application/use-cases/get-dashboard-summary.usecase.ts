@@ -15,7 +15,11 @@ type DashboardSummaryRepository =
   IDashboardTrackerRepository &
   IDashboardNotificationRepository
 
-export class GetDashboardSummaryUseCase {
+export interface IGetDashboardSummaryUseCase {
+  execute(userId: string): Promise<IDashboardSummaryDTO>
+}
+
+export class GetDashboardSummaryUseCase implements IGetDashboardSummaryUseCase {
   constructor(
     private readonly _dashboardRepository: DashboardSummaryRepository,
     private readonly _dashboardMapper: IDashboardMapper

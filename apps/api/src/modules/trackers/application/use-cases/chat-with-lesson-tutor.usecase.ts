@@ -9,7 +9,19 @@ type ChatWithLessonTutorResultDTO = ReturnType<
   ITrackerMapper['toLessonTutorChatResponseDto']
 >
 
-export class ChatWithLessonTutorUseCase {
+export interface IChatWithLessonTutorUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    messages: {
+      role: 'user' | 'assistant'
+      content: string
+    }[]
+  }): Promise<ChatWithLessonTutorResultDTO>
+}
+
+export class ChatWithLessonTutorUseCase implements IChatWithLessonTutorUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,
@@ -50,10 +62,7 @@ export class ChatWithLessonTutorUseCase {
       .reverse()
       .find((message) => message.role === 'user')
 
-    const lessonId =
-      typeof lesson._id === 'string'
-        ? lesson._id
-        : lesson._id?.toString?.() ?? null
+    const lessonId = lesson._id
 
     if (latestUserMessage?.content?.trim()) {
       await this._trackerRepository.createLessonChatMessage({

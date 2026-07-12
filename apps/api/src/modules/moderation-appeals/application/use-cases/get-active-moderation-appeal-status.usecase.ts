@@ -5,7 +5,11 @@ import type {
 } from '../dtos/moderation-appeal.dto'
 import type { IModerationAppealMapper } from '../mappers/moderation-appeal.mapper'
 
-export class GetActiveModerationAppealStatusUseCase {
+export interface IGetActiveModerationAppealStatusUseCase {
+  execute(payload: IGetModerationAppealStatusPayloadDTO): Promise<IGetActiveModerationAppealStatusResultDTO>
+}
+
+export class GetActiveModerationAppealStatusUseCase implements IGetActiveModerationAppealStatusUseCase {
   constructor(
     private readonly _moderationAppealRepository: IModerationAppealQueryRepository,
     private readonly _moderationAppealMapper: IModerationAppealMapper,

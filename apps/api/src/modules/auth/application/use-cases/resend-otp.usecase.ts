@@ -6,7 +6,11 @@ import type { IIdentifierNormalizer } from '../../domain/services/identifier-nor
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
 import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
 
-export class ResendOtpUseCase {
+export interface IResendOtpUseCase {
+  execute(identifier: string, purpose: OtpPurpose): Promise<void>
+}
+
+export class ResendOtpUseCase implements IResendOtpUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _authNotification: IAuthNotification,

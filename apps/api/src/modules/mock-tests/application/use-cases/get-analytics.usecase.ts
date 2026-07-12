@@ -5,7 +5,11 @@ import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 const DEFAULT_AI_INSIGHTS = 'Keep practicing to improve your performance.'
 
-export class GetAnalyticsUseCase {
+export interface IGetAnalyticsUseCase {
+  execute(userId: string): Promise<ITestAnalyticsDTO>
+}
+
+export class GetAnalyticsUseCase implements IGetAnalyticsUseCase {
   constructor(
     private readonly _repository: IMockTestAnalyticsRepository,
     private readonly _aiGateway: IMockTestAIGateway,

@@ -24,7 +24,15 @@ const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
   })
 }
 
-export class GetTrackerLessonUseCase {
+export interface IGetTrackerLessonUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+  }): Promise<GetTrackerLessonResultDTO>
+}
+
+export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

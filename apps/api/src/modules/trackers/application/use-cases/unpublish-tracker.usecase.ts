@@ -2,7 +2,11 @@ import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import { ITrackerMapper } from '../mappers';
 
-export class UnpublishTrackerUseCase {
+export interface IUnpublishTrackerUseCase {
+  execute(input: { trackerId: string; userId: string }): Promise<import("../../domain").TrackerRecord>
+}
+
+export class UnpublishTrackerUseCase implements IUnpublishTrackerUseCase {
   constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: { trackerId: string; userId: string }) {

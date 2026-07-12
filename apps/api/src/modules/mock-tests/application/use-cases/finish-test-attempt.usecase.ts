@@ -24,7 +24,11 @@ type QuestionScoreLike = {
   points?: number
 }
 
-export class FinishTestAttemptUseCase {
+export interface IFinishTestAttemptUseCase {
+  execute(attemptId: string, userId: string): Promise<import("..").IFinishMockTestAttemptDTO>
+}
+
+export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
   constructor(
     private readonly _repository:
       FinishTestAttemptRepository,

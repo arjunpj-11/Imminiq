@@ -15,7 +15,11 @@ type GenerateRoadmapRepository =
   IOnboardingAIJobCommandRepository &
   IOnboardingResponseCommandRepository
 
-export class GenerateRoadmapUseCase {
+export interface IGenerateRoadmapUseCase {
+  execute(userId: string, payload: IGenerateRoadmapPayloadDTO): Promise<IGenerateRoadmapResultDTO>
+}
+
+export class GenerateRoadmapUseCase implements IGenerateRoadmapUseCase {
   constructor(
     private readonly _onboardingRepository: GenerateRoadmapRepository,
     private readonly _aiJobQueueGateway: IAIJobQueueGateway,

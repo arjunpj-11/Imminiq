@@ -1,14 +1,14 @@
 import { useNavigate } from 'react-router-dom'
 
-import CommunityErrorState from '../components/CommunityErrorState'
-import CommunityLayout from '../components/CommunityLayout'
-import CommunityPageSkeleton from '../components/CommunityPageSkeleton'
-import CommunityPagination from '../components/CommunityPagination'
+import CommunityErrorState from '../components/shared/CommunityErrorState'
+import CommunityLayout from '../components/shared/CommunityLayout'
+import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
+import CommunityPagination from '../components/shared/CommunityPagination'
 import StatCard from '../../../components/data-display/StatCard'
-import VerificationCard from '../components/VerificationCard'
-import VerificationHowItWorks from '../components/VerificationHowItWorks'
-import VerificationLeaderboard from '../components/VerificationLeaderboard'
-import VerificationTipCard from '../components/VerificationTipCard'
+import VerificationCard from '../components/verification/VerificationCard'
+import VerificationHowItWorks from '../components/verification/VerificationHowItWorks'
+import VerificationLeaderboard from '../components/verification/VerificationLeaderboard'
+import VerificationTipCard from '../components/verification/VerificationTipCard'
 import {
   ArrowLeftIcon,
   // ArrowRightIcon,

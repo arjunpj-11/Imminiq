@@ -2,7 +2,15 @@ import { TrackerApplicationError } from '../errors/tracker-application.error'
 import type { ITrackerMapper } from '../mappers/tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 
-export class GetLessonGeneratedQuestionsUseCase {
+export interface IGetLessonGeneratedQuestionsUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+  }): Promise<unknown>
+}
+
+export class GetLessonGeneratedQuestionsUseCase implements IGetLessonGeneratedQuestionsUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper,

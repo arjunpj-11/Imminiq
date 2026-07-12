@@ -4,7 +4,11 @@ import type { RecordLeaderboardXpPayloadDTO } from '../dtos/leaderboard.dto'
 import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
-export class RecordLeaderboardXpUseCase {
+export interface IRecordLeaderboardXpUseCase {
+  execute(payload: RecordLeaderboardXpPayloadDTO): Promise<import("../../domain/repositories/leaderboard-activity.repository.interface").RecordLeaderboardXpActivityResult>
+}
+
+export class RecordLeaderboardXpUseCase implements IRecordLeaderboardXpUseCase {
   constructor(
     private readonly _leaderboardRepository: ILeaderboardActivityRepository,
     private readonly _clock: IClock,

@@ -2,7 +2,11 @@ import type { IDashboardFriendRepository } from '../../domain/repositories/dashb
 import type { IDashboardFriendItemDTO } from '../dtos/dashboard.dto'
 import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
-export class GetFriendsHubUseCase {
+export interface IGetFriendsHubUseCase {
+  execute(userId: string, limit?: number): Promise<IDashboardFriendItemDTO[]>
+}
+
+export class GetFriendsHubUseCase implements IGetFriendsHubUseCase {
   constructor(
     private readonly _dashboardRepository: IDashboardFriendRepository,
     private readonly _dashboardMapper: IDashboardMapper

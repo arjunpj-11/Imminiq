@@ -9,7 +9,11 @@ type UpdateGesturesRepository = {
   updateGestures: ISettingsCommandRepository['updateGestures']
 }
 
-export class UpdateGesturesUseCase {
+export interface IUpdateGesturesUseCase {
+  execute(userId: string, payload: IUpdateGesturesPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateGesturesUseCase implements IUpdateGesturesUseCase {
   constructor(
     private readonly _settingsRepository: UpdateGesturesRepository,
     private readonly _settingsMapper: ISettingsMapper,

@@ -4,7 +4,11 @@ import type { IAuthUserDTO } from '../dtos/auth.dto'
 import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
 import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
 
-export class GetCurrentUserUseCase {
+export interface IGetCurrentUserUseCase {
+  execute(userId: string): Promise<IAuthUserDTO>
+}
+
+export class GetCurrentUserUseCase implements IGetCurrentUserUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _authAccountPolicy: IAuthAccountPolicy,

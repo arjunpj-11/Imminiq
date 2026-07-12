@@ -1,6 +1,10 @@
 import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 
-export class RevokeAuthSessionUseCase {
+export interface IRevokeAuthSessionUseCase {
+  execute(userId: string, sessionId: string): Promise<void>
+}
+
+export class RevokeAuthSessionUseCase implements IRevokeAuthSessionUseCase {
   constructor(
     private readonly _authRepository: IAuthSessionRepository
   ) {}

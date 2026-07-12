@@ -2,7 +2,15 @@ import type { IAuthUserRepository } from '../../domain/repositories/auth-user.re
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
 
-export class CheckIdentifierUseCase {
+export interface ICheckIdentifierUseCase {
+  execute(identifier: string): Promise<{
+    available: boolean
+    type: 'email' | 'phone'
+    needsVerification: boolean
+  }>
+}
+
+export class CheckIdentifierUseCase implements ICheckIdentifierUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _identifierNormalizer: IIdentifierNormalizer,

@@ -11,7 +11,11 @@ import type { IAuthSessionIssuer } from '../services/auth-session.service'
 
 type OAuthLoginRepository = IAuthUserRepository & IAuthTwoFactorRepository
 
-export class HandleOAuthLoginUseCase {
+export interface IHandleOAuthLoginUseCase {
+  execute(user: OAuthLoginUserDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO>
+}
+
+export class HandleOAuthLoginUseCase implements IHandleOAuthLoginUseCase {
   constructor(
     private readonly _authRepository: OAuthLoginRepository,
     private readonly _authRedirectResolver: IAuthRedirectResolver,

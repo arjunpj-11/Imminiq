@@ -75,7 +75,11 @@ const buildRoadmapTree = ({
     })
 }
 
-export class GetTrackerRoadmapUseCase {
+export interface IGetTrackerRoadmapUseCase {
+  execute(input: { trackerId: string; userId: string }): Promise<{ tracker: import("../../domain/value-objects/tracker-record.vo").TrackerRecord; roadmap: RoadmapTopicNode[]; }>
+}
+
+export class GetTrackerRoadmapUseCase implements IGetTrackerRoadmapUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper,

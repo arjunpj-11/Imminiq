@@ -9,7 +9,11 @@ type UpdatePrivacyRepository = {
   updatePrivacy: ISettingsCommandRepository['updatePrivacy']
 }
 
-export class UpdatePrivacyUseCase {
+export interface IUpdatePrivacyUseCase {
+  execute(userId: string, payload: IUpdatePrivacyPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdatePrivacyUseCase implements IUpdatePrivacyUseCase {
   constructor(
     private readonly _settingsRepository: UpdatePrivacyRepository,
     private readonly _settingsMapper: ISettingsMapper,

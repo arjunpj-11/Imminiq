@@ -18,7 +18,11 @@ type PublicProfileRepository =
   IUserActivityRepository &
   IUserRelationshipRepository
 
-export class GetPublicProfilePageUseCase {
+export interface IGetPublicProfilePageUseCase {
+  execute(username: string, viewerUserId: string | undefined, query: IPaginationQueryDTO): Promise<IPublicProfilePageViewDTO>
+}
+
+export class GetPublicProfilePageUseCase implements IGetPublicProfilePageUseCase {
   constructor(
     private readonly _usersRepository: PublicProfileRepository,
     private readonly _usersMapper: IUsersMapper,

@@ -18,7 +18,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { AuthComposition } from '../auth.factory'
+import type { AuthUseCases } from '../application/contracts/auth-use-cases.contract'
 import type { OAuthLoginUserDTO } from '../application/dtos/auth.dto'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
@@ -60,7 +60,7 @@ const LEGACY_ROOT_TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
 }
 
 export class AuthController {
-  constructor(private readonly _useCases: AuthComposition['useCases']) {}
+  constructor(private readonly _useCases: AuthUseCases) {}
 
   register = async (req: Request, res: Response, next: NextFunction) => {
     try {

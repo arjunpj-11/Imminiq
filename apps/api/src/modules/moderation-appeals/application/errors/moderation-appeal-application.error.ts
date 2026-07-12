@@ -4,6 +4,7 @@ export type ModerationAppealApplicationErrorCode =
   | 'ACTIVE_APPEAL_ALREADY_EXISTS'
   | 'APPEAL_CASE_ID_GENERATION_FAILED'
   | 'RESTRICTED_ACCOUNT_NOT_FOUND'
+  | 'APPEAL_AUTHORIZATION_MISMATCH'
 
 export class ModerationAppealApplicationError extends ModerationAppealDomainError {
   readonly statusCode: number
@@ -39,6 +40,14 @@ export class ModerationAppealApplicationError extends ModerationAppealDomainErro
       404,
       'RESTRICTED_ACCOUNT_NOT_FOUND',
       'No restricted account was found for this email or phone number.',
+    )
+  }
+
+  static authorizationMismatch(): ModerationAppealApplicationError {
+    return new ModerationAppealApplicationError(
+      403,
+      'APPEAL_AUTHORIZATION_MISMATCH',
+      'Appeal authorization does not match this account. Please sign in again.',
     )
   }
 }

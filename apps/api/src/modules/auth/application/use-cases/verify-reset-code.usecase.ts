@@ -9,7 +9,11 @@ import type { IIdentifierNormalizer } from '../../domain/services/identifier-nor
 
 const VERIFY_RESET_SCOPE = 'auth_verify_reset_otp' as const
 
-export class VerifyResetCodeUseCase {
+export interface IVerifyResetCodeUseCase {
+  execute(identifier: string, otp: string): Promise<{ resetToken: string }>
+}
+
+export class VerifyResetCodeUseCase implements IVerifyResetCodeUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _identifierNormalizer: IIdentifierNormalizer,

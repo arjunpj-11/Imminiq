@@ -1,4 +1,4 @@
-import type { IUsersProfileReader } from '../../domain/services/users-profile.interface'
+import type { IGetMeUseCase } from '../../../users'
 import type { IUploadUserProfileContextDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
 
@@ -10,14 +10,14 @@ export class UploadUserProfileReader
   implements IUploadUserProfileReader
 {
   constructor(
-    private readonly _usersProfileReader: IUsersProfileReader,
+    private readonly _usersProfileReader: IGetMeUseCase,
   ) {}
 
   async getRequiredContext(
     userId: string,
   ): Promise<IUploadUserProfileContextDTO> {
     try {
-      const { user, profile } = await this._usersProfileReader.getMe(userId)
+      const { user, profile } = await this._usersProfileReader.execute(userId)
 
       if (!profile._id) {
         throw UploadsApplicationError.userProfileUnavailable()

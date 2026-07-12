@@ -21,7 +21,11 @@ import type { ILeaderboardMapper } from '../mappers/leaderboard.mapper'
 import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
-export class GetLeaderboardUseCase {
+export interface IGetLeaderboardUseCase {
+  execute(viewerUserId: string, payload: GetLeaderboardPayloadDTO): Promise<LeaderboardResponseDTO>
+}
+
+export class GetLeaderboardUseCase implements IGetLeaderboardUseCase {
   constructor(
     private readonly _leaderboardRepository: ILeaderboardQueryRepository,
     private readonly _leaderboardMapper: ILeaderboardMapper,

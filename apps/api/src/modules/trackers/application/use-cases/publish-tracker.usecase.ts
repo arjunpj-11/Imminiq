@@ -5,7 +5,11 @@ import type { ITrackerRepository } from '../../domain/repositories/tracker.repos
 import type { PublishTrackerInput } from '../../domain/types/trackers.types'
 import { ITrackerMapper } from '../mappers'
 
-export class PublishTrackerUseCase {
+export interface IPublishTrackerUseCase {
+  execute(input: PublishTrackerInput): Promise<import("../../domain/value-objects/tracker-record.vo").TrackerRecord>
+}
+
+export class PublishTrackerUseCase implements IPublishTrackerUseCase {
   constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: PublishTrackerInput) {

@@ -6,7 +6,11 @@ type ResetSettingsRepository = {
   resetToDefaults: ISettingsCommandRepository['resetToDefaults']
 }
 
-export class ResetSettingsToDefaultsUseCase {
+export interface IResetSettingsToDefaultsUseCase {
+  execute(userId: string): Promise<UserSettingsViewDTO>
+}
+
+export class ResetSettingsToDefaultsUseCase implements IResetSettingsToDefaultsUseCase {
   constructor(
     private readonly _settingsRepository: ResetSettingsRepository,
     private readonly _settingsMapper: ISettingsMapper,

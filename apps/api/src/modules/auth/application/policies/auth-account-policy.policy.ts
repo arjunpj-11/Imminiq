@@ -1,11 +1,14 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type { AuthUserEntity } from '../../domain/entities/auth-user.entity'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export interface IAuthAccountPolicy {
   ensureUserCanAuthenticate(user: AuthUserEntity): void
 }
 
 export class AuthAccountPolicy implements IAuthAccountPolicy {
+  constructor(private readonly clock: IClock) {}
+
   ensureUserCanAuthenticate(user: AuthUserEntity): void {
     if (user.status === 'blocked' || user.status === 'banned') {
       throw AuthApplicationError.accountBlocked('Account blocked')
@@ -34,6 +37,6 @@ export class AuthAccountPolicy implements IAuthAccountPolicy {
     ).getTime()
 
     return Number.isFinite(scheduledDeletionTime) &&
-      scheduledDeletionTime > Date.now()
+      scheduledDeletionTime > this.clock.now().getTime()
   }
 }

@@ -19,7 +19,11 @@ type RunLessonCodeResultDTO = ReturnType<
   ITrackerMapper['toLessonCodeExecutionDto']
 >
 
-export class RunLessonCodeUseCase {
+export interface IRunLessonCodeUseCase {
+  execute(input: RunLessonCodeInput): Promise<RunLessonCodeResultDTO>
+}
+
+export class RunLessonCodeUseCase implements IRunLessonCodeUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _codeExecutor: ICodeExecutor,

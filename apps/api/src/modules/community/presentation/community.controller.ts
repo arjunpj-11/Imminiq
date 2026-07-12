@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 
 import type { CommunitySort } from '../domain/value-objects/community-sort.vo'
-import type { CommunityComposition } from '../community.factory'
+import type { CommunityUseCases } from '../application/contracts/community-use-cases.contract'
 import type {
   UpsertCommunityTrackerReviewInput,
   VoteVerificationSubmissionInput,
@@ -13,7 +13,7 @@ import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 
 export class CommunityController {
-  constructor(private readonly _useCases: CommunityComposition['useCases']) {}
+  constructor(private readonly _useCases: CommunityUseCases) {}
 
   getBrowse = async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -107,7 +107,6 @@ export class CommunityController {
   next: NextFunction,
 ) => {
   try {
-    console.log('submitTrackerForVerification called with body:', req.body);
     const user = getAuthUser(req)
     const trackerId = this.getRequiredParam(req, 'trackerId')
     const body = req.body as SendTrackerForVerificationInput
@@ -119,8 +118,6 @@ export class CommunityController {
       durationHours: body.durationHours,
       urgent: body.urgent,
     })
-
-    console.log('submitTrackerForVerification result:', submission);
 
     res
       .status(HttpStatusCode.CREATED)

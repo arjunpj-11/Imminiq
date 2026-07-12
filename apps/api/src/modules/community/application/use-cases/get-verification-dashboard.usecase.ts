@@ -8,7 +8,11 @@ import type { ICommunityVerificationDashboardViewDTO, IVerificationQueuePayloadD
 import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../constants/community.constants'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
-export class GetVerificationDashboardUseCase {
+export interface IGetVerificationDashboardUseCase {
+  execute(payload: IVerificationQueuePayloadDTO): Promise<ICommunityVerificationDashboardViewDTO>
+}
+
+export class GetVerificationDashboardUseCase implements IGetVerificationDashboardUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _mapper: ICommunityMapper,

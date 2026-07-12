@@ -9,7 +9,11 @@ type UpdateCompilerRepository = {
   updateCompiler: ISettingsCommandRepository['updateCompiler']
 }
 
-export class UpdateCompilerUseCase {
+export interface IUpdateCompilerUseCase {
+  execute(userId: string, payload: IUpdateCompilerPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateCompilerUseCase implements IUpdateCompilerUseCase {
   constructor(
     private readonly _settingsRepository: UpdateCompilerRepository,
     private readonly _settingsMapper: ISettingsMapper,

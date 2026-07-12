@@ -3,7 +3,11 @@ import type { IRevokeSessionResponseDTO } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 import type { ICurrentSessionResolver } from '../services/current-session.service'
 
-export class RevokeSecuritySessionUseCase {
+export interface IRevokeSecuritySessionUseCase {
+  execute(userId: string, sessionId: string, refreshToken?: string): Promise<IRevokeSessionResponseDTO>
+}
+
+export class RevokeSecuritySessionUseCase implements IRevokeSecuritySessionUseCase {
   constructor(
     private readonly _securitySessionRepository: ISecuritySessionRepository,
     private readonly _currentSessionResolver: ICurrentSessionResolver,

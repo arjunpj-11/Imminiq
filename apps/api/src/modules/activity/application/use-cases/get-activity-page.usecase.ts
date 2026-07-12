@@ -10,7 +10,11 @@ import type { ActivityDateRangeContract } from '../services/activity-date-range.
 import { GetActivityFeedUseCase } from './get-activity-feed.usecase'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
-export class GetActivityPageUseCase {
+export interface IGetActivityPageUseCase {
+  execute(userId: string, payload: GetActivityPagePayloadDTO, now?: Date): Promise<ActivityPageResponseDTO>
+}
+
+export class GetActivityPageUseCase implements IGetActivityPageUseCase {
   constructor(
     private readonly _activityRepository: IActivityQueryRepository,
     private readonly _feedUseCase: GetActivityFeedUseCase,

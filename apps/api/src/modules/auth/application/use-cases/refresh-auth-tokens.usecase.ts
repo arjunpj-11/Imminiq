@@ -12,7 +12,11 @@ import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
 type RefreshTokensRepository =
   IAuthUserRepository & IAuthSessionRepository
 
-export class RefreshAuthTokensUseCase {
+export interface IRefreshAuthTokensUseCase {
+  execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO>
+}
+
+export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
   constructor(
     private readonly _authRepository: RefreshTokensRepository,
     private readonly _authToken: IAuthToken,

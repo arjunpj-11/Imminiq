@@ -9,7 +9,11 @@ type GetMockTestDetailsRepository =
   IMockTestQuestionRepository &
   IMockTestAttemptRepository
 
-export class GetMockTestDetailsUseCase {
+export interface IGetMockTestDetailsUseCase {
+  execute(testId: string, userId: string): Promise<import("..").IMockTestDetailsDTO>
+}
+
+export class GetMockTestDetailsUseCase implements IGetMockTestDetailsUseCase {
   constructor(
     private readonly _repository: GetMockTestDetailsRepository,
     private readonly _mapper: IMockTestsMapper,

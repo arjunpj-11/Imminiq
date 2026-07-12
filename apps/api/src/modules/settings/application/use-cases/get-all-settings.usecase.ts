@@ -6,7 +6,11 @@ type GetAllSettingsRepository = {
   findOrCreate: ISettingsQueryRepository['findOrCreate']
 }
 
-export class GetAllSettingsUseCase {
+export interface IGetAllSettingsUseCase {
+  execute(userId: string): Promise<UserSettingsViewDTO>
+}
+
+export class GetAllSettingsUseCase implements IGetAllSettingsUseCase {
   constructor(
     private readonly _settingsRepository: GetAllSettingsRepository,
     private readonly _settingsMapper: ISettingsMapper,

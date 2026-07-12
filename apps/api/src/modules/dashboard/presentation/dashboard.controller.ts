@@ -4,12 +4,12 @@ import type {
   IDashboardActivityIntensityQueryDTO,
   IDashboardRecentItemsQueryDTO,
 } from '../application/dtos/dashboard.dto'
-import type { DashboardComposition } from '../dashboard.factory'
+import type { DashboardUseCases } from '../application/contracts/dashboard-use-cases.contract'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
 export class DashboardController {
-  constructor(private readonly _useCases: DashboardComposition['useCases']) {}
+  constructor(private readonly _useCases: DashboardUseCases) {}
 
   getSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {

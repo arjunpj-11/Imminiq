@@ -3,7 +3,11 @@ import type { IGetEvaluationResultDTO } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
-export class GetRoadmapEvaluationResultUseCase {
+export interface IGetRoadmapEvaluationResultUseCase {
+  execute(jobId: string, userId: string): Promise<IGetEvaluationResultDTO>
+}
+
+export class GetRoadmapEvaluationResultUseCase implements IGetRoadmapEvaluationResultUseCase {
   constructor(
     private readonly _onboardingRepository: IOnboardingAIJobQueryRepository,
     private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader,

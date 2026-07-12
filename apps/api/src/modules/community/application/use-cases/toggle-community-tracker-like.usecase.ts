@@ -6,7 +6,11 @@ export type ToggleCommunityTrackerLikeInput = {
   userId: string
 }
 
-export class ToggleCommunityTrackerLikeUseCase {
+export interface IToggleCommunityTrackerLikeUseCase {
+  execute(input: ToggleCommunityTrackerLikeInput): Promise<{ liked: boolean; likes: number; }>
+}
+
+export class ToggleCommunityTrackerLikeUseCase implements IToggleCommunityTrackerLikeUseCase {
   constructor(
     private readonly _communityReviewRepository: ICommunityReviewRepository,
   ) {}

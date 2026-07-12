@@ -22,7 +22,11 @@ type VerifyTrackerTopicResultDTO = ReturnType<
   ITrackerMapper['toTrackerAIValidationDto']
 >
 
-export class VerifyTrackerTopicUseCase {
+export interface IVerifyTrackerTopicUseCase {
+  execute(input: VerifyTrackerTopicInput): Promise<VerifyTrackerTopicResultDTO>
+}
+
+export class VerifyTrackerTopicUseCase implements IVerifyTrackerTopicUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

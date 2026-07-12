@@ -9,7 +9,11 @@ import type { IUploadUserProfileReader } from '../services/upload-user-profile.s
 type RemoveBannerRepository =
   IProfileImageRepository & IUploadRecordRepository
 
-export class RemoveBannerUseCase {
+export interface IRemoveBannerUseCase {
+  execute(userId: string): Promise<IRemoveBannerResultDTO>
+}
+
+export class RemoveBannerUseCase implements IRemoveBannerUseCase {
   constructor(
     private readonly _userProfileReader: IUploadUserProfileReader,
     private readonly _uploadsRepository: RemoveBannerRepository,

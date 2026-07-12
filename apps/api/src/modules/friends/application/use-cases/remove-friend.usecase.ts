@@ -6,7 +6,11 @@ import type {
 import { FriendsApplicationError } from "../errors/friends-application.error";
 import type { IFriendRelationshipPolicy } from "../policies/friend-relationship.policy";
 
-export class RemoveFriendUseCase {
+export interface IRemoveFriendUseCase {
+  execute(userId: string, payload: RemoveFriendPayloadDTO): Promise<FriendActionViewDTO>
+}
+
+export class RemoveFriendUseCase implements IRemoveFriendUseCase {
   constructor(
     private readonly _friendCommandRepository: IFriendCommandRepository,
     private readonly _friendRelationshipPolicy: IFriendRelationshipPolicy,

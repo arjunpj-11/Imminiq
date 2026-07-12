@@ -190,7 +190,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           }),
         ).lean();
 
-        return docs as UserSubtopicProgressRecord[];
+        return this.mapper.toDomainRecord<UserSubtopicProgressRecord[]>(docs);
       },
     );
   }
@@ -211,7 +211,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           }),
         ).lean();
 
-        return docs as UserTopicProgressRecord[];
+        return this.mapper.toDomainRecord<UserTopicProgressRecord[]>(docs);
       },
     );
   }
@@ -1360,8 +1360,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           );
 
         return {
-          progress:
-            progress as TrackerProgressRecord | null,
+          progress: this.mapper.toDomainRecord<TrackerProgressRecord | null>(progress),
 
           isCompleted,
           wasNewlyCompleted,

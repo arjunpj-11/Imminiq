@@ -1,3 +1,4 @@
+import type { UsersUseCases } from './application/contracts/users-use-cases.contract'
 import {
   UsersMapper,
 } from './application/mappers/users.mapper'
@@ -17,18 +18,6 @@ import { UpdateMeUseCase } from './application/use-cases/update-me.usecase'
 import { mongoUsersRepository } from './infrastructure/repositories/mongo-users.repository'
 import { systemClock } from '../../infrastructure/time/system-clock'
 
-export type UsersUseCases = {
-  getMe: GetMeUseCase
-  updateMe: UpdateMeUseCase
-  getUserByUsername: GetUserByUsernameUseCase
-  getMyStats: GetMyStatsUseCase
-  getMyActivity: GetMyActivityUseCase
-  getMyRecentActivity: GetMyRecentActivityUseCase
-  getMyStreak: GetMyStreakUseCase
-  getMyPublishedTrackers: GetMyPublishedTrackersUseCase
-  getMyBadges: GetMyBadgesUseCase
-  getPublicProfilePage: GetPublicProfilePageUseCase
-}
 
 export type UsersComposition = {
   useCases: UsersUseCases
@@ -97,3 +86,6 @@ export const createUsersComposition = (): UsersComposition => {
     },
   }
 }
+
+export const usersComposition = createUsersComposition()
+export const usersProfileReader = usersComposition.useCases.getMe

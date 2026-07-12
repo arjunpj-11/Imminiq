@@ -1,5 +1,5 @@
-export { leaderboardService } from './leaderboard.service'
-export type { LeaderboardService } from './leaderboard.service'
+export { leaderboardComposition } from './leaderboard.factory'
+export type { LeaderboardComposition } from './leaderboard.factory'
 
 export type {
   CaptureLeaderboardSnapshotResultViewDTO,

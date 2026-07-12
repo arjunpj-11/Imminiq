@@ -7,7 +7,11 @@ import type { ICommunityRepository } from '../../domain/repositories/community.r
 import type { ICommunityVerificationQueueViewDTO, IVerificationQueuePayloadDTO } from '../dtos/community.dto'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
-export class GetVerificationQueueUseCase {
+export interface IGetVerificationQueueUseCase {
+  execute(payload: IVerificationQueuePayloadDTO): Promise<ICommunityVerificationQueueViewDTO>
+}
+
+export class GetVerificationQueueUseCase implements IGetVerificationQueueUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _mapper: ICommunityMapper,

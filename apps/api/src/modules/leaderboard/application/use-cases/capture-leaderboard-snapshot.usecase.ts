@@ -3,7 +3,11 @@ import type { CaptureLeaderboardSnapshotResultViewDTO } from '../dtos/leaderboar
 import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
-export class CaptureLeaderboardSnapshotUseCase {
+export interface ICaptureLeaderboardSnapshotUseCase {
+  execute(capturedAt?: Date): Promise<CaptureLeaderboardSnapshotResultViewDTO>
+}
+
+export class CaptureLeaderboardSnapshotUseCase implements ICaptureLeaderboardSnapshotUseCase {
   constructor(
     private readonly _leaderboardRepository: ILeaderboardActivityRepository,
     private readonly _dateRange: ILeaderboardDateRange,

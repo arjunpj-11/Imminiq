@@ -6,7 +6,11 @@ type GetGestureSettingsRepository = {
   findOrCreate: ISettingsQueryRepository['findOrCreate']
 }
 
-export class GetGestureSettingsUseCase {
+export interface IGetGestureSettingsUseCase {
+  execute(userId: string): Promise<UserSettingsViewDTO['gestures']>
+}
+
+export class GetGestureSettingsUseCase implements IGetGestureSettingsUseCase {
   constructor(
     private readonly _settingsRepository: GetGestureSettingsRepository,
     private readonly _settingsMapper: ISettingsMapper,

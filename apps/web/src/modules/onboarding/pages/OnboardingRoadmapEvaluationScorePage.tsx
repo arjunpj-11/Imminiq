@@ -8,6 +8,7 @@ import type { MissingRoadmapTopic } from '../hooks/useRoadmapEvaluationResult'
 import { useAddMissingEvaluationTopic } from '../../trackers'
 import OnboardingBrandLink from '../components/OnboardingBrandLink'
 import { cn } from '../utils/cn'
+import { getUserFacingError } from '../../../lib/user-facing-error'
 
 const PlusIcon = () => {
   return (
@@ -201,7 +202,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
 
               {addMissingTopic.error && (
                 <div className="mt-5 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">
-                  {addMissingTopic.error.message}
+                  {getUserFacingError(addMissingTopic.error, 'Unable to add this topic. Please try again.')}
                 </div>
               )}
 

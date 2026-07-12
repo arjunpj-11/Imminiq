@@ -127,7 +127,16 @@ const resolveTopLevelTopicOrder = async (
   return (lastTopic?.order || 0) + 1
 }
 
-export class AddMissingEvaluationTopicUseCase {
+export interface IAddMissingEvaluationTopicUseCase {
+  execute({
+    trackerId,
+    evaluationJobId,
+    topicIndex,
+    userId,
+  }: AddMissingEvaluationTopicInput): Promise<AddMissingEvaluationTopicDTO>
+}
+
+export class AddMissingEvaluationTopicUseCase implements IAddMissingEvaluationTopicUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper,
