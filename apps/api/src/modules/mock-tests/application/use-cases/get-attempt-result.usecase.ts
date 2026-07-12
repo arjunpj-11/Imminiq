@@ -13,7 +13,11 @@ type GetAttemptResultRepository =
   IMockTestAIEvaluationRepository &
   IMockTestReportRepository
 
-export class GetAttemptResultUseCase {
+export interface IGetAttemptResultUseCase {
+  execute(attemptId: string, userId: string): Promise<import("..").ITestAttemptResultDTO>
+}
+
+export class GetAttemptResultUseCase implements IGetAttemptResultUseCase {
   constructor(
     private readonly _repository: GetAttemptResultRepository,
     private readonly _mapper: IMockTestsMapper,

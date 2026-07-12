@@ -8,7 +8,15 @@ type ClearLessonChatHistoryResultDTO = ReturnType<
   ITrackerMapper['toClearLessonHistoryResultDto']
 >
 
-export class ClearLessonChatHistoryUseCase {
+export interface IClearLessonChatHistoryUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+  }): Promise<ClearLessonChatHistoryResultDTO>
+}
+
+export class ClearLessonChatHistoryUseCase implements IClearLessonChatHistoryUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper,

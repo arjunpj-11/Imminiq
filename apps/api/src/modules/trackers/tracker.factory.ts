@@ -1,3 +1,4 @@
+import type { TrackerUseCases } from './application/contracts/tracker-use-cases.contract'
 import {
   TrackerMapper,
 } from './application/mappers/tracker.mapper'
@@ -125,61 +126,6 @@ export type GenerateLessonVisualizationInput =
 export type PublishTrackerInput =
   Parameters<PublishTrackerUseCase['execute']>[0]
 
-export type TrackerUseCases = {
-  getTrackerSummary: GetTrackerSummaryUseCase
-  listTrackers: ListTrackersUseCase
-  createTracker: CreateTrackerUseCase
-  getTrackerDetails: GetTrackerDetailsUseCase
-  updateTracker: UpdateTrackerUseCase
-  deleteTracker: DeleteTrackerUseCase
-  archiveTracker: ArchiveTrackerUseCase
-  restoreTracker: RestoreTrackerUseCase
-  publishTracker: PublishTrackerUseCase
-  unpublishTracker: UnpublishTrackerUseCase
-  getTrackerRoadmap: GetTrackerRoadmapUseCase
-  createTrackerTopic: CreateTrackerTopicUseCase
-  createTrackerSubtopic: CreateTrackerSubtopicUseCase
-  updateSubtopicProgress: UpdateSubtopicProgressUseCase
-  addMissingEvaluationTopic: AddMissingEvaluationTopicUseCase
-  getTrackerLesson: GetTrackerLessonUseCase
-  chatWithLessonTutor: ChatWithLessonTutorUseCase
-  generateLessonQuestions: GenerateLessonQuestionsUseCase
-
-  generateLessonQuestionSolution:
-    GenerateLessonQuestionSolutionUseCase
-
-  askLessonQuestionSolutionDoubt:
-    AskLessonQuestionSolutionDoubtUseCase
-
-  generateLessonVisualization:
-    GenerateLessonVisualizationUseCase
-
-  getCodeHint: GetCodeHintUseCase
-  getOptimizedSolution: GetOptimizedSolutionUseCase
-  verifyLessonAnswer: VerifyLessonAnswerUseCase
-  verifyTrackerTopic: VerifyTrackerTopicUseCase
-  verifyTrackerSubtopic: VerifyTrackerSubtopicUseCase
-  runLessonCode: RunLessonCodeUseCase
-  submitLessonCode: SubmitLessonCodeUseCase
-  getLessonChatHistory: GetLessonChatHistoryUseCase
-  getLessonAnswerAttempts: GetLessonAnswerAttemptsUseCase
-  getLessonCodeSubmissions: GetLessonCodeSubmissionsUseCase
-
-  getLessonGeneratedQuestions:
-    GetLessonGeneratedQuestionsUseCase
-
-  getLessonQuestionSolution:
-    GetLessonQuestionSolutionUseCase
-
-  getLessonQuestionSolutionDoubts:
-    GetLessonQuestionSolutionDoubtsUseCase
-
-  clearLessonChatHistory:
-    ClearLessonChatHistoryUseCase
-
-  clearLessonQuestionSolutionDoubts:
-    ClearLessonQuestionSolutionDoubtsUseCase
-}
 
 export type TrackerServiceHelpers = {
   trackerRepository: ITrackerRepository

@@ -8,7 +8,11 @@ import type {
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
-export class DisableTwoFactorUseCase {
+export interface IDisableTwoFactorUseCase {
+  execute(userId: string, payload: IDisableTwoFactorPayloadDTO): Promise<IDisableTwoFactorResponseDTO>
+}
+
+export class DisableTwoFactorUseCase implements IDisableTwoFactorUseCase {
   constructor(
     private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
     private readonly _twoFactorGateway: ITwoFactorGateway,

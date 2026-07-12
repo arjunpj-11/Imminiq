@@ -1,3 +1,4 @@
+import type { ActivityUseCases } from './application/contracts/activity-use-cases.contract'
 import { ActivityMapper } from './application/mappers/activity.mapper'
 import { ActivityEventPolicy } from './application/policies/activity-event.policy'
 import { ActivityAnalytics } from './application/services/activity-analytics.service'
@@ -9,11 +10,6 @@ import { RecordUserActivityUseCase } from './application/use-cases/record-user-a
 import { mongoActivityRepository } from './infrastructure/repositories/mongo-activity.repository'
 import { systemClock } from '../../infrastructure/time/system-clock'
 
-export type ActivityUseCases = {
-  getPage: GetActivityPageUseCase
-  getFeed: GetActivityFeedUseCase
-  recordActivity: RecordUserActivityUseCase
-}
 
 export type ActivityComposition = {
   useCases: ActivityUseCases

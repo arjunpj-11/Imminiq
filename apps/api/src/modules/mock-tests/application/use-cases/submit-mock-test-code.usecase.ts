@@ -10,7 +10,11 @@ type SubmitMockTestCodeRepository =
   IMockTestQuestionRepository &
   IMockTestAnswerRepository
 
-export class SubmitMockTestCodeUseCase {
+export interface ISubmitMockTestCodeUseCase {
+  execute(attemptId: string, userId: string, questionId: string, payload: SubmitMockTestCodePayloadDTO): Promise<{ answer: import("../../domain").MockTestAnswerEntity; isCorrect: boolean; pointsEarned: number; maxPoints: number; passedCount: number; totalCount: number; testCases: import("../../domain/services/mock-test-code-runner.interface").MockTestCodeTestCaseResult[]; stdout: string; stderr: string; compileOutput: string; message: string; status: { id: number; description: string; }; feedback: string; }>
+}
+
+export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {
   constructor(
     private readonly _repository: SubmitMockTestCodeRepository,
     private readonly _codeRunner: IMockTestCodeRunner,

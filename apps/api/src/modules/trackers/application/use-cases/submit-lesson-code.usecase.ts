@@ -35,7 +35,11 @@ const normalizeOutput = (value: string) => {
   return value.replace(/\r\n/g, '\n').trim()
 }
 
-export class SubmitLessonCodeUseCase {
+export interface ISubmitLessonCodeUseCase {
+  execute(input: SubmitLessonCodeInput): Promise<SubmitLessonCodeResultDTO>
+}
+
+export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _codeExecutor: ICodeExecutor,

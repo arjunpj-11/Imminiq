@@ -10,7 +10,11 @@ import { SecurityApplicationError } from '../errors/security-application.error'
 type ChangeSecurityPasswordRepository =
   ISecurityUserRepository & ISecuritySessionRepository
 
-export class ChangeSecurityPasswordUseCase {
+export interface IChangeSecurityPasswordUseCase {
+  execute(userId: string, payload: IChangePasswordPayloadDTO): Promise<IChangePasswordResponseDTO>
+}
+
+export class ChangeSecurityPasswordUseCase implements IChangeSecurityPasswordUseCase {
   constructor(
     private readonly _securityRepository: ChangeSecurityPasswordRepository,
     private readonly _passwordHasher: ISecurityPasswordHasher,

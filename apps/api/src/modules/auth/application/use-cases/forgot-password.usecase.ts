@@ -2,7 +2,11 @@ import type { IAuthUserRepository } from '../../domain/repositories/auth-user.re
 import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 
-export class ForgotPasswordUseCase {
+export interface IForgotPasswordUseCase {
+  execute(identifier: string): Promise<void>
+}
+
+export class ForgotPasswordUseCase implements IForgotPasswordUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _authNotification: IAuthNotification,

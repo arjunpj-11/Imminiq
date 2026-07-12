@@ -11,7 +11,11 @@ type GetOptimizedSolutionInput = {
   language?: string
 }
 
-export class GetOptimizedSolutionUseCase {
+export interface IGetOptimizedSolutionUseCase {
+  execute(input: GetOptimizedSolutionInput): Promise<unknown>
+}
+
+export class GetOptimizedSolutionUseCase implements IGetOptimizedSolutionUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

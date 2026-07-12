@@ -1,3 +1,4 @@
+import type { AuthUseCases } from './application/contracts/auth-use-cases.contract'
 import { AuthUserMapper, type IAuthUserMapper } from './application/mappers/auth-user.mapper'
 import { systemClock } from '../../infrastructure/time/system-clock'
 import { AuthSessionMapper } from './application/mappers/auth-session.mapper'
@@ -49,26 +50,6 @@ import { redisPhoneOtpSessionStore } from './infrastructure/stores/redis-phone-o
 import { redisRetiredRefreshTokenStore } from './infrastructure/stores/redis-retired-refresh-token.store'
 import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store'
 
-export type AuthUseCases = {
-  registerUser: RegisterUserUseCase
-  loginUser: LoginUserUseCase
-  handleOAuthLogin: HandleOAuthLoginUseCase
-  verifyTwoFactorLogin: VerifyTwoFactorLoginUseCase
-  logoutUser: LogoutUserUseCase
-  logoutAllSessions: LogoutAllSessionsUseCase
-  refreshAuthTokens: RefreshAuthTokensUseCase
-  getCurrentUser: GetCurrentUserUseCase
-  verifyAccount: VerifyAccountUseCase
-  resendOtp: ResendOtpUseCase
-  forgotPassword: ForgotPasswordUseCase
-  verifyResetCode: VerifyResetCodeUseCase
-  resetPassword: ResetPasswordUseCase
-  changePassword: ChangePasswordUseCase
-  checkIdentifier: CheckIdentifierUseCase
-  checkUsername: CheckUsernameUseCase
-  getAuthSessions: GetAuthSessionsUseCase
-  revokeAuthSession: RevokeAuthSessionUseCase
-}
 
 export type AuthServiceHelpers = {
   authUserMapper: IAuthUserMapper

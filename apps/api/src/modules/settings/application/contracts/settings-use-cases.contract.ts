@@ -1,22 +1,22 @@
 import type * as Application from '../index'
 export type SettingsUseCases = {
-  getAllSettings: Application.GetAllSettingsUseCase
-  getAppearanceSettings: Application.GetAppearanceSettingsUseCase
-  getNotificationSettings: Application.GetNotificationSettingsUseCase
-  getPrivacySettings: Application.GetPrivacySettingsUseCase
-  getGestureSettings: Application.GetGestureSettingsUseCase
-  updateAccountSettings: Application.UpdateAccountSettingsUseCase
-  updateAppearance: Application.UpdateAppearanceUseCase
-  updateNotifications: Application.UpdateNotificationsUseCase
-  updateQuietHours: Application.UpdateQuietHoursUseCase
-  updateEmailDigest: Application.UpdateEmailDigestUseCase
-  updatePrivacy: Application.UpdatePrivacyUseCase
-  updateCodeEditor: Application.UpdateCodeEditorUseCase
-  updateCompiler: Application.UpdateCompilerUseCase
-  updateAIBehaviour: Application.UpdateAIBehaviourUseCase
-  updateLearningJourney: Application.UpdateLearningJourneyUseCase
-  updateGestures: Application.UpdateGesturesUseCase
-  updateCookieConsent: Application.UpdateCookieConsentUseCase
-  acceptTerms: Application.AcceptTermsUseCase
-  resetSettingsToDefaults: Application.ResetSettingsToDefaultsUseCase
+  getAllSettings: Application.IGetAllSettingsUseCase
+  getAppearanceSettings: Application.IGetAppearanceSettingsUseCase
+  getNotificationSettings: Application.IGetNotificationSettingsUseCase
+  getPrivacySettings: Application.IGetPrivacySettingsUseCase
+  getGestureSettings: Application.IGetGestureSettingsUseCase
+  updateAccountSettings: Application.IUpdateAccountSettingsUseCase
+  updateAppearance: Application.IUpdateAppearanceUseCase
+  updateNotifications: Application.IUpdateNotificationsUseCase
+  updateQuietHours: Application.IUpdateQuietHoursUseCase
+  updateEmailDigest: Application.IUpdateEmailDigestUseCase
+  updatePrivacy: Application.IUpdatePrivacyUseCase
+  updateCodeEditor: Application.IUpdateCodeEditorUseCase
+  updateCompiler: Application.IUpdateCompilerUseCase
+  updateAIBehaviour: Application.IUpdateAIBehaviourUseCase
+  updateLearningJourney: Application.IUpdateLearningJourneyUseCase
+  updateGestures: Application.IUpdateGesturesUseCase
+  updateCookieConsent: Application.IUpdateCookieConsentUseCase
+  acceptTerms: Application.IAcceptTermsUseCase
+  resetSettingsToDefaults: Application.IResetSettingsToDefaultsUseCase
 }

@@ -1,7 +1,11 @@
 import type { ILeaderboardActivityRepository } from '../../domain/repositories/leaderboard-activity.repository.interface'
 import type { ReplaceLeaderboardFriendsPayloadDTO } from '../dtos/leaderboard.dto'
 
-export class ReplaceLeaderboardFriendsUseCase {
+export interface IReplaceLeaderboardFriendsUseCase {
+  execute(payload: ReplaceLeaderboardFriendsPayloadDTO): Promise<void>
+}
+
+export class ReplaceLeaderboardFriendsUseCase implements IReplaceLeaderboardFriendsUseCase {
   constructor(
     private readonly _leaderboardRepository: ILeaderboardActivityRepository,
   ) {}

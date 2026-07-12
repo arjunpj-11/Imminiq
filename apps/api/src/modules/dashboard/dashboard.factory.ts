@@ -1,3 +1,4 @@
+import type { DashboardUseCases } from './application/contracts/dashboard-use-cases.contract'
 import {
   DashboardMapper,
   type IDashboardMapper,
@@ -13,15 +14,6 @@ import type { IDashboardInsightGenerator } from './domain/services/dashboard-ins
 import { aiDashboardInsightGenerator } from './infrastructure/gateways/ai-dashboard-insight.gateway'
 import { mongoDashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository'
 
-export type DashboardUseCases = {
-  getDashboardSummary: GetDashboardSummaryUseCase
-  getCurrentRoadmap: GetCurrentRoadmapUseCase
-  getActivityIntensity: GetActivityIntensityUseCase
-  getRecentBattles: GetRecentBattlesUseCase
-  getFriendsHub: GetFriendsHubUseCase
-  getRecommendedActions: GetRecommendedActionsUseCase
-  getAIInsights: GetAIInsightsUseCase
-}
 
 export type DashboardServiceHelpers = {
   dashboardMapper: IDashboardMapper

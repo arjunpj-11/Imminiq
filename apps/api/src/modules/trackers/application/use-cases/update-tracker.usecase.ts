@@ -3,7 +3,11 @@ import type { ITrackerRepository } from '../../domain/repositories/tracker.repos
 import type { UpdateTrackerInput } from '../../domain/types/trackers.types'
 import { ITrackerMapper } from '../mappers'
 
-export class UpdateTrackerUseCase {
+export interface IUpdateTrackerUseCase {
+  execute(input: UpdateTrackerInput): Promise<import("../../domain/value-objects/tracker-record.vo").TrackerRecord>
+}
+
+export class UpdateTrackerUseCase implements IUpdateTrackerUseCase {
   constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: UpdateTrackerInput) {

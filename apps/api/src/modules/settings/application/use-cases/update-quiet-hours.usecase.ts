@@ -9,7 +9,11 @@ type UpdateQuietHoursRepository = {
   updateQuietHours: ISettingsCommandRepository['updateQuietHours']
 }
 
-export class UpdateQuietHoursUseCase {
+export interface IUpdateQuietHoursUseCase {
+  execute(userId: string, payload: IUpdateQuietHoursPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateQuietHoursUseCase implements IUpdateQuietHoursUseCase {
   constructor(
     private readonly _settingsRepository: UpdateQuietHoursRepository,
     private readonly _settingsMapper: ISettingsMapper,

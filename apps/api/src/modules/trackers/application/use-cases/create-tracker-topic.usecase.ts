@@ -7,7 +7,11 @@ type CreateTrackerTopicResultDTO = ReturnType<
   ITrackerMapper['toTrackerTopicDto']
 >
 
-export class CreateTrackerTopicUseCase {
+export interface ICreateTrackerTopicUseCase {
+  execute(input: CreateTopicUseCaseInput): Promise<CreateTrackerTopicResultDTO>
+}
+
+export class CreateTrackerTopicUseCase implements ICreateTrackerTopicUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper

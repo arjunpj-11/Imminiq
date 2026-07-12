@@ -7,7 +7,11 @@ import type {
 import { FriendsApplicationError } from "../errors/friends-application.error";
 import type { IFriendsMapper } from "../mappers/friends.mapper";
 
-export class AcceptFriendRequestUseCase {
+export interface IAcceptFriendRequestUseCase {
+  execute(receiverUserId: string, payload: FriendRequestActionPayloadDTO): Promise<AcceptFriendRequestViewDTO>
+}
+
+export class AcceptFriendRequestUseCase implements IAcceptFriendRequestUseCase {
   constructor(
     private readonly _friendCommandRepository: IFriendCommandRepository,
     private readonly _friendQueryRepository: IFriendQueryRepository,

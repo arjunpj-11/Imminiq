@@ -13,7 +13,11 @@ import { CommunityApplicationError } from '../errors/community-application.error
 import type { ICommunityMapper } from '../mappers/community.mapper'
 import type { ICommunityVerificationPolicy } from '../policies/community-verification.policy'
 
-export class VoteVerificationSubmissionUseCase {
+export interface IVoteVerificationSubmissionUseCase {
+  execute(payload: IVoteVerificationSubmissionPayloadDTO): Promise<IVoteVerificationSubmissionViewDTO>
+}
+
+export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmissionUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _policy:

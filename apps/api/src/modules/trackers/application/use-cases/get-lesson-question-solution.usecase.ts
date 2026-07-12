@@ -3,7 +3,16 @@ import type { ITrackerMapper } from '../mappers/tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface'
 
-export class GetLessonQuestionSolutionUseCase {
+export interface IGetLessonQuestionSolutionUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    question: string
+  }): Promise<unknown>
+}
+
+export class GetLessonQuestionSolutionUseCase implements IGetLessonQuestionSolutionUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _questionHasher: IQuestionHasher,

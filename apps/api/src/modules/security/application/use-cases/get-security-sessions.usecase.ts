@@ -3,7 +3,11 @@ import type { ISessionsResponseDTO } from '../dtos/security.dto'
 import type { ISecurityMapper } from '../mappers/security.mapper'
 import type { ICurrentSessionResolver } from '../services/current-session.service'
 
-export class GetSecuritySessionsUseCase {
+export interface IGetSecuritySessionsUseCase {
+  execute(userId: string, refreshToken?: string): Promise<ISessionsResponseDTO>
+}
+
+export class GetSecuritySessionsUseCase implements IGetSecuritySessionsUseCase {
   constructor(
     private readonly _securitySessionRepository: ISecuritySessionRepository,
     private readonly _currentSessionResolver: ICurrentSessionResolver,

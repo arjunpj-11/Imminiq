@@ -1,14 +1,14 @@
 import type * as Application from '../index'
 export type SecurityUseCases = {
-  getSecurityOverview: Application.GetSecurityOverviewUseCase
-  requestEmailChange: Application.RequestEmailChangeUseCase
-  verifyEmailChange: Application.VerifyEmailChangeUseCase
-  changeSecurityPassword: Application.ChangeSecurityPasswordUseCase
-  getSecuritySessions: Application.GetSecuritySessionsUseCase
-  revokeSecuritySession: Application.RevokeSecuritySessionUseCase
-  getTwoFactorStatus: Application.GetTwoFactorStatusUseCase
-  setupTwoFactor: Application.SetupTwoFactorUseCase
-  verifyTwoFactorSetup: Application.VerifyTwoFactorSetupUseCase
-  disableTwoFactor: Application.DisableTwoFactorUseCase
-  deleteSecurityAccount: Application.DeleteSecurityAccountUseCase
+  getSecurityOverview: Application.IGetSecurityOverviewUseCase
+  requestEmailChange: Application.IRequestEmailChangeUseCase
+  verifyEmailChange: Application.IVerifyEmailChangeUseCase
+  changeSecurityPassword: Application.IChangeSecurityPasswordUseCase
+  getSecuritySessions: Application.IGetSecuritySessionsUseCase
+  revokeSecuritySession: Application.IRevokeSecuritySessionUseCase
+  getTwoFactorStatus: Application.IGetTwoFactorStatusUseCase
+  setupTwoFactor: Application.ISetupTwoFactorUseCase
+  verifyTwoFactorSetup: Application.IVerifyTwoFactorSetupUseCase
+  disableTwoFactor: Application.IDisableTwoFactorUseCase
+  deleteSecurityAccount: Application.IDeleteSecurityAccountUseCase
 }

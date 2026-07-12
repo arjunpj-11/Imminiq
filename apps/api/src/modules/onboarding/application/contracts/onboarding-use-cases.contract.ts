@@ -1,11 +1,11 @@
 import type * as Application from '../index'
 export type OnboardingUseCases = {
-  getOnboardingStatus: Application.GetOnboardingStatusUseCase
-  saveOnboardingStepOne: Application.SaveOnboardingStepOneUseCase
-  saveOnboardingStepTwo: Application.SaveOnboardingStepTwoUseCase
-  generateRoadmap: Application.GenerateRoadmapUseCase
-  getRoadmapJobStatus: Application.GetRoadmapJobStatusUseCase
-  getRoadmapJobResult: Application.GetRoadmapJobResultUseCase
-  evaluateRoadmap: Application.EvaluateRoadmapUseCase
-  getRoadmapEvaluationResult: Application.GetRoadmapEvaluationResultUseCase
+  getOnboardingStatus: Application.IGetOnboardingStatusUseCase
+  saveOnboardingStepOne: Application.ISaveOnboardingStepOneUseCase
+  saveOnboardingStepTwo: Application.ISaveOnboardingStepTwoUseCase
+  generateRoadmap: Application.IGenerateRoadmapUseCase
+  getRoadmapJobStatus: Application.IGetRoadmapJobStatusUseCase
+  getRoadmapJobResult: Application.IGetRoadmapJobResultUseCase
+  evaluateRoadmap: Application.IEvaluateRoadmapUseCase
+  getRoadmapEvaluationResult: Application.IGetRoadmapEvaluationResultUseCase
 }

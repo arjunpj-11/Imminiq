@@ -1,3 +1,4 @@
+import type { SecurityUseCases } from './application/contracts/security-use-cases.contract'
 import {
   SecurityMapper,
   type ISecurityMapper,
@@ -27,19 +28,6 @@ import { cryptoTwoFactorBackupCodeManager } from './infrastructure/services/cryp
 import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store'
 import { systemClock } from '../../infrastructure/time/system-clock'
 
-export type SecurityUseCases = {
-  getSecurityOverview: GetSecurityOverviewUseCase
-  requestEmailChange: RequestEmailChangeUseCase
-  verifyEmailChange: VerifyEmailChangeUseCase
-  changeSecurityPassword: ChangeSecurityPasswordUseCase
-  getSecuritySessions: GetSecuritySessionsUseCase
-  revokeSecuritySession: RevokeSecuritySessionUseCase
-  getTwoFactorStatus: GetTwoFactorStatusUseCase
-  setupTwoFactor: SetupTwoFactorUseCase
-  verifyTwoFactorSetup: VerifyTwoFactorSetupUseCase
-  disableTwoFactor: DisableTwoFactorUseCase
-  deleteSecurityAccount: DeleteSecurityAccountUseCase
-}
 
 export type SecurityServiceHelpers = {
   securityMapper: ISecurityMapper

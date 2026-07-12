@@ -10,7 +10,11 @@ type SecurityOverviewRepository = ISecurityUserRepository &
   ISecuritySessionRepository &
   ISecurityTwoFactorRepository
 
-export class GetSecurityOverviewUseCase {
+export interface IGetSecurityOverviewUseCase {
+  execute(userId: string, refreshToken?: string): Promise<ISecurityOverviewDTO>
+}
+
+export class GetSecurityOverviewUseCase implements IGetSecurityOverviewUseCase {
   constructor(
     private readonly _securityRepository: SecurityOverviewRepository,
     private readonly _currentSessionResolver: ICurrentSessionResolver,

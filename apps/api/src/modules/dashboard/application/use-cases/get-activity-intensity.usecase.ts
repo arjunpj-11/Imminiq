@@ -2,7 +2,11 @@ import type { IDashboardStreakRepository } from '../../domain/repositories/dashb
 import type { IDashboardActivityIntensityItemDTO } from '../dtos/dashboard.dto'
 import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
-export class GetActivityIntensityUseCase {
+export interface IGetActivityIntensityUseCase {
+  execute(userId: string, months?: number): Promise<IDashboardActivityIntensityItemDTO[]>
+}
+
+export class GetActivityIntensityUseCase implements IGetActivityIntensityUseCase {
   constructor(
     private readonly _dashboardRepository: IDashboardStreakRepository,
     private readonly _dashboardMapper: IDashboardMapper

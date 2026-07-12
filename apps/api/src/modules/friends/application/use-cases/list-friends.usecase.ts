@@ -2,7 +2,11 @@ import type { IFriendQueryRepository } from "../../domain/repositories/friend-qu
 import type { ListFriendsPayloadDTO } from "../dtos/friends.dto";
 import type { IFriendsMapper } from "../mappers/friends.mapper";
 
-export class ListFriendsUseCase {
+export interface IListFriendsUseCase {
+  execute(viewerUserId: string, payload: ListFriendsPayloadDTO): Promise<import("../dtos/friends.dto").FriendUsersPageViewDTO>
+}
+
+export class ListFriendsUseCase implements IListFriendsUseCase {
   constructor(
     private readonly _friendQueryRepository: IFriendQueryRepository,
     private readonly _friendsMapper: IFriendsMapper,

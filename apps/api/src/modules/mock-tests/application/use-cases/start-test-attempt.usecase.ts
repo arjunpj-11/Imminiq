@@ -9,7 +9,11 @@ type StartTestAttemptRepository =
   IMockTestQuestionRepository &
   IMockTestAttemptRepository
 
-export class StartTestAttemptUseCase {
+export interface IStartTestAttemptUseCase {
+  execute(testId: string, userId: string): Promise<import("..").IMockTestAttemptSessionDTO>
+}
+
+export class StartTestAttemptUseCase implements IStartTestAttemptUseCase {
   constructor(
     private readonly _repository: StartTestAttemptRepository,
     private readonly _mapper: IMockTestsMapper,

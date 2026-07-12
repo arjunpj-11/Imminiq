@@ -20,7 +20,11 @@ type RecordActivityRepository =
   IActivityCommandRepository &
     IActivityQueryRepository
 
-export class RecordUserActivityUseCase {
+export interface IRecordUserActivityUseCase {
+  execute(payload: RecordUserActivityPayloadDTO): Promise<RecordUserActivityResponseDTO>
+}
+
+export class RecordUserActivityUseCase implements IRecordUserActivityUseCase {
   constructor(
     private readonly _activityRepository: RecordActivityRepository,
     private readonly _eventPolicy: ActivityEventPolicy,

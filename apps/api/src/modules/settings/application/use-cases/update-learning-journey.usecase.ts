@@ -9,7 +9,11 @@ type UpdateLearningJourneyRepository = {
   updateLearningJourney: ISettingsCommandRepository['updateLearningJourney']
 }
 
-export class UpdateLearningJourneyUseCase {
+export interface IUpdateLearningJourneyUseCase {
+  execute(userId: string, payload: IUpdateLearningJourneyPayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateLearningJourneyUseCase implements IUpdateLearningJourneyUseCase {
   constructor(
     private readonly _settingsRepository: UpdateLearningJourneyRepository,
     private readonly _settingsMapper: ISettingsMapper,

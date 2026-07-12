@@ -11,7 +11,11 @@ import { SecurityApplicationError } from '../errors/security-application.error'
 type VerifyEmailChangeRepository =
   ISecurityUserRepository & ISecuritySessionRepository
 
-export class VerifyEmailChangeUseCase {
+export interface IVerifyEmailChangeUseCase {
+  execute(payload: IVerifyEmailChangePayloadDTO): Promise<IVerifyEmailChangeResponseDTO>
+}
+
+export class VerifyEmailChangeUseCase implements IVerifyEmailChangeUseCase {
   constructor(
     private readonly _securityRepository: VerifyEmailChangeRepository,
     private readonly _emailChangeToken: ISecurityEmailChangeToken,

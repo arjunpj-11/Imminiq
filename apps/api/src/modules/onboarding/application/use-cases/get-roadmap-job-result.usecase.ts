@@ -9,7 +9,11 @@ type RoadmapJobResultRepository =
   IOnboardingAIJobQueryRepository &
   IOnboardingRoadmapRepository
 
-export class GetRoadmapJobResultUseCase {
+export interface IGetRoadmapJobResultUseCase {
+  execute(jobId: string, userId: string): Promise<IRoadmapTreeResultDTO>
+}
+
+export class GetRoadmapJobResultUseCase implements IGetRoadmapJobResultUseCase {
   constructor(
     private readonly _onboardingRepository: RoadmapJobResultRepository,
     private readonly _onboardingMapper: IOnboardingMapper,

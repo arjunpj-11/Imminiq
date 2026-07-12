@@ -9,7 +9,11 @@ type RetakeTestRepository =
   IMockTestQuestionRepository &
   IMockTestAttemptRepository
 
-export class RetakeTestUseCase {
+export interface IRetakeTestUseCase {
+  execute(attemptId: string, userId: string): Promise<import("..").IMockTestAttemptSessionDTO>
+}
+
+export class RetakeTestUseCase implements IRetakeTestUseCase {
   constructor(
     private readonly _repository: RetakeTestRepository,
     private readonly _mapper: IMockTestsMapper,

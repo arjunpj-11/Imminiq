@@ -16,7 +16,11 @@ import type { IClock } from '../../../../shared/time/clock.interface'
 type DeleteSecurityAccountRepository =
   ISecurityUserRepository & ISecuritySessionRepository
 
-export class DeleteSecurityAccountUseCase {
+export interface IDeleteSecurityAccountUseCase {
+  execute(userId: string, payload: IDeleteAccountPayloadDTO): Promise<IDeleteAccountResponseDTO>
+}
+
+export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCase {
   constructor(
     private readonly _securityRepository: DeleteSecurityAccountRepository,
     private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,

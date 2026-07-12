@@ -24,7 +24,17 @@ const getDocumentId = (document: unknown) => {
   return null
 }
 
-export class AskLessonQuestionSolutionDoubtUseCase {
+export interface IAskLessonQuestionSolutionDoubtUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    question: string
+    message: string
+  }): Promise<AskLessonQuestionSolutionDoubtResultDTO>
+}
+
+export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestionSolutionDoubtUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

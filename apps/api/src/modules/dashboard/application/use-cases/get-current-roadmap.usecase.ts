@@ -2,7 +2,11 @@ import type { IDashboardTrackerRepository } from '../../domain/repositories/dash
 import type { IDashboardActiveTrackerDTO } from '../dtos/dashboard.dto'
 import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
-export class GetCurrentRoadmapUseCase {
+export interface IGetCurrentRoadmapUseCase {
+  execute(userId: string): Promise<IDashboardActiveTrackerDTO | null>
+}
+
+export class GetCurrentRoadmapUseCase implements IGetCurrentRoadmapUseCase {
   constructor(
     private readonly _dashboardRepository: IDashboardTrackerRepository,
     private readonly _dashboardMapper: IDashboardMapper

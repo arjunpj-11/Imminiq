@@ -1,3 +1,4 @@
+import type { LeaderboardUseCases } from './application/contracts/leaderboard-use-cases.contract'
 import { LeaderboardMapper } from './application/mappers/leaderboard.mapper'
 import { LeaderboardDateRange } from './application/services/leaderboard-date-range.service'
 import { CaptureLeaderboardSnapshotUseCase } from './application/use-cases/capture-leaderboard-snapshot.usecase'
@@ -8,13 +9,6 @@ import { ReplaceLeaderboardFriendsUseCase } from './application/use-cases/replac
 import { mongoLeaderboardRepository } from './infrastructure/repositories/mongo-leaderboard.repository'
 import { systemClock } from '../../infrastructure/time/system-clock'
 
-export type LeaderboardUseCases = {
-  getLeaderboard: GetLeaderboardUseCase
-  getRewards: GetLeaderboardRewardsUseCase
-  recordXp: RecordLeaderboardXpUseCase
-  replaceFriends: ReplaceLeaderboardFriendsUseCase
-  captureSnapshot: CaptureLeaderboardSnapshotUseCase
-}
 
 export type LeaderboardComposition = {
   useCases: LeaderboardUseCases

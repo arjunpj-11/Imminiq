@@ -6,7 +6,11 @@ type FlagQuestionRepository =
   IMockTestAttemptRepository &
   IMockTestAnswerRepository
 
-export class FlagQuestionUseCase {
+export interface IFlagQuestionUseCase {
+  execute(attemptId: string, userId: string, questionId: string): Promise<{ flagged: boolean; }>
+}
+
+export class FlagQuestionUseCase implements IFlagQuestionUseCase {
   constructor(private readonly _repository: FlagQuestionRepository) {}
 
   async execute(attemptId: string, userId: string, questionId: string) {

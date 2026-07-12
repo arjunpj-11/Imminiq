@@ -2,7 +2,11 @@ import type { IOnboardingResponseQueryRepository } from '../../domain/repositori
 import type { IOnboardingStatusResultDTO } from '../dtos/onboarding.dto'
 import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
 
-export class GetOnboardingStatusUseCase {
+export interface IGetOnboardingStatusUseCase {
+  execute(userId: string): Promise<IOnboardingStatusResultDTO>
+}
+
+export class GetOnboardingStatusUseCase implements IGetOnboardingStatusUseCase {
   constructor(
     private readonly _onboardingRepository: IOnboardingResponseQueryRepository,
     private readonly _onboardingMapper: IOnboardingMapper,

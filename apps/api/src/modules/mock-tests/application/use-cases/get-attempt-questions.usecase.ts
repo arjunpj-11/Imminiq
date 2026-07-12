@@ -6,7 +6,11 @@ type GetAttemptQuestionsRepository =
   IMockTestAttemptRepository &
   IMockTestQuestionRepository
 
-export class GetAttemptQuestionsUseCase {
+export interface IGetAttemptQuestionsUseCase {
+  execute(attemptId: string, userId: string): Promise<import("..").PublicMockTestQuestionDTO[]>
+}
+
+export class GetAttemptQuestionsUseCase implements IGetAttemptQuestionsUseCase {
   constructor(
     private readonly _repository: GetAttemptQuestionsRepository,
     private readonly _mapper: IMockTestsMapper,

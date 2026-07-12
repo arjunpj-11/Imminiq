@@ -11,7 +11,11 @@ import type {
 import { SecurityApplicationError } from '../errors/security-application.error'
 import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service'
 
-export class RequestEmailChangeUseCase {
+export interface IRequestEmailChangeUseCase {
+  execute(userId: string, payload: IChangeEmailPayloadDTO): Promise<IEmailChangeRequestResponseDTO>
+}
+
+export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
   constructor(
     private readonly _securityUserRepository: ISecurityUserRepository,
     private readonly _securityEmailProvider: ISecurityEmailProvider,

@@ -8,7 +8,11 @@ import { FriendsApplicationError } from "../errors/friends-application.error";
 import type { IFriendsMapper } from "../mappers/friends.mapper";
 import type { IFriendRelationshipPolicy } from "../policies/friend-relationship.policy";
 
-export class SendFriendRequestUseCase {
+export interface ISendFriendRequestUseCase {
+  execute(senderUserId: string, payload: SendFriendRequestPayloadDTO): Promise<SendFriendRequestViewDTO>
+}
+
+export class SendFriendRequestUseCase implements ISendFriendRequestUseCase {
   constructor(
     private readonly _friendCommandRepository: IFriendCommandRepository,
     private readonly _friendRelationshipPolicy: IFriendRelationshipPolicy,

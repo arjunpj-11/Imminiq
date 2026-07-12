@@ -6,7 +6,11 @@ import type {
 import { CommunityApplicationError } from '../errors/community-application.error'
 import type { ICommunityReviewMapper } from '../mappers/community-review.mapper'
 
-export class ToggleCommunityReviewHelpfulUseCase {
+export interface IToggleCommunityReviewHelpfulUseCase {
+  execute(payload: ToggleCommunityReviewHelpfulPayloadDTO): Promise<ToggleCommunityReviewHelpfulOutputDTO>
+}
+
+export class ToggleCommunityReviewHelpfulUseCase implements IToggleCommunityReviewHelpfulUseCase {
   constructor(
     private readonly _repository: ICommunityReviewRepository,
     private readonly _mapper: ICommunityReviewMapper,

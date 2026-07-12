@@ -1,3 +1,4 @@
+import type { CommunityUseCases } from './application/contracts/community-use-cases.contract'
 import {
   CommunityMapper,
   type ICommunityMapper,
@@ -34,25 +35,6 @@ import {
   mongoCommunityReviewRepository,
 } from './infrastructure'
 
-export type CommunityUseCases = {
-  getBrowse: GetCommunityBrowseUseCase
-  getTrackers: GetCommunityTrackersUseCase
-  getPublicTrackerDetail: GetCommunityPublicTrackerUseCase
-  getPersonalStats: GetCommunityPersonalStatsUseCase
-  getTopics: GetCommunityTopicsUseCase
-  cloneTracker: CloneCommunityTrackerUseCase
-  upsertTrackerReview: UpsertCommunityTrackerReviewUseCase
-  toggleReviewHelpful: ToggleCommunityReviewHelpfulUseCase
-  toggleTrackerLike: ToggleCommunityTrackerLikeUseCase
-  getVerificationDashboard: GetVerificationDashboardUseCase
-  getVerificationQueue: GetVerificationQueueUseCase
-  getVerificationLeaderboard: GetVerificationLeaderboardUseCase
-  getVerificationSubmission: GetVerificationSubmissionUseCase
-  submitTrackerForVerification:
-    SubmitTrackerForVerificationUseCase
-  voteVerificationSubmission:
-    VoteVerificationSubmissionUseCase
-}
 
 export type CommunityServiceHelpers = {
   mapper: ICommunityMapper

@@ -8,7 +8,11 @@ import { SecurityApplicationError } from '../errors/security-application.error'
 type SetupTwoFactorRepository =
   ISecurityUserRepository & ISecurityTwoFactorRepository
 
-export class SetupTwoFactorUseCase {
+export interface ISetupTwoFactorUseCase {
+  execute(userId: string): Promise<ITwoFactorSetupResponseDTO>
+}
+
+export class SetupTwoFactorUseCase implements ISetupTwoFactorUseCase {
   constructor(
     private readonly _securityRepository: SetupTwoFactorRepository,
     private readonly _twoFactorGateway: ITwoFactorGateway,

@@ -1,7 +1,11 @@
 import type { IUserActivityRepository } from '../../domain/repositories/user-activity.repository.interface'
 import type { IUsersMapper } from '../mappers/users.mapper'
 
-export class GetMyActivityUseCase {
+export interface IGetMyActivityUseCase {
+  execute(userId: string, page: number, limit: number): Promise<{ items: import("..").IActivityFeedItemViewDTO[]; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>
+}
+
+export class GetMyActivityUseCase implements IGetMyActivityUseCase {
   constructor(
     private readonly _usersRepository: IUserActivityRepository,
     private readonly _usersMapper: IUsersMapper,

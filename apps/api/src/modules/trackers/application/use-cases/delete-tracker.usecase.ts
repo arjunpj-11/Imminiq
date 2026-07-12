@@ -4,7 +4,14 @@ import type { ITrackerRepository } from '../../domain/repositories/tracker.repos
 
 type DeleteTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>
 
-export class DeleteTrackerUseCase {
+export interface IDeleteTrackerUseCase {
+  execute(input: {
+    trackerId: string
+    userId: string
+  }): Promise<DeleteTrackerResultDTO>
+}
+
+export class DeleteTrackerUseCase implements IDeleteTrackerUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper

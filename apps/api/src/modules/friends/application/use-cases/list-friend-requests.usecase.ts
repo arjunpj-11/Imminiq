@@ -5,7 +5,11 @@ import type {
 } from "../dtos/friends.dto";
 import type { IFriendsMapper } from "../mappers/friends.mapper";
 
-export class ListFriendRequestsUseCase {
+export interface IListFriendRequestsUseCase {
+  execute(viewerUserId: string, payload: ListFriendRequestsPayloadDTO): Promise<FriendRequestsPageViewDTO>
+}
+
+export class ListFriendRequestsUseCase implements IListFriendRequestsUseCase {
   constructor(
     private readonly _friendRequestRepository: IFriendRequestRepository,
     private readonly _friendsMapper: IFriendsMapper,

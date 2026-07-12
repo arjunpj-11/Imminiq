@@ -4,7 +4,11 @@ import { OnboardingApplicationError } from '../errors/onboarding-application.err
 import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
-export class GetRoadmapJobStatusUseCase {
+export interface IGetRoadmapJobStatusUseCase {
+  execute(jobId: string, userId: string): Promise<IGetJobStatusResultDTO>
+}
+
+export class GetRoadmapJobStatusUseCase implements IGetRoadmapJobStatusUseCase {
   constructor(
     private readonly _onboardingRepository: IOnboardingAIJobQueryRepository,
     private readonly _onboardingMapper: IOnboardingMapper,

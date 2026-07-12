@@ -1,7 +1,11 @@
 import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
 import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
 
-export class GetAIInsightsUseCase {
+export interface IGetAIInsightsUseCase {
+  execute(userId: string): Promise<{ insight: string }>
+}
+
+export class GetAIInsightsUseCase implements IGetAIInsightsUseCase {
   constructor(
     private readonly _analyticsRepository: IMockTestAnalyticsRepository,
     private readonly _aiGateway: IMockTestAIGateway,

@@ -6,7 +6,11 @@ import type { IPasswordHasher } from '../../domain/services/password-hasher.inte
 type ChangePasswordRepository =
   IAuthUserRepository & IAuthSessionRepository
 
-export class ChangePasswordUseCase {
+export interface IChangePasswordUseCase {
+  execute(userId: string, currentPassword: string, newPassword: string): Promise<void>
+}
+
+export class ChangePasswordUseCase implements IChangePasswordUseCase {
   constructor(
     private readonly _authRepository: ChangePasswordRepository,
     private readonly _passwordHasher: IPasswordHasher

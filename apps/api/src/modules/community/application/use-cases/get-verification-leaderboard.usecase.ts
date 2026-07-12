@@ -6,7 +6,11 @@ import {
 } from '../constants/community.constants'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
-export class GetVerificationLeaderboardUseCase {
+export interface IGetVerificationLeaderboardUseCase {
+  execute(userId: string, limit?: number): Promise<ICommunityLeaderboardEntryViewDTO[]>
+}
+
+export class GetVerificationLeaderboardUseCase implements IGetVerificationLeaderboardUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _mapper: ICommunityMapper,

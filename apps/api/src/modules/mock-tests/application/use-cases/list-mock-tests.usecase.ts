@@ -18,7 +18,11 @@ type ListMockTestsRepository =
   IMockTestAttemptRepository &
   IMockTestAnalyticsRepository
 
-export class ListMockTestsUseCase {
+export interface IListMockTestsUseCase {
+  execute(userId: string, options?: ListMockTestsOptions): Promise<{ summary: import("../../domain").MockTestSummary; tests: (import("..").IMockTestDTO & { latestAttempt: import("..").IMockTestAttemptDTO | null; })[]; pagination: { page: number; limit: number; totalItems: number; totalPages: number; hasNextPage: boolean; hasPreviousPage: boolean; }; }>
+}
+
+export class ListMockTestsUseCase implements IListMockTestsUseCase {
   constructor(
     private readonly _repository: ListMockTestsRepository,
     private readonly _mapper: IMockTestsMapper,

@@ -17,7 +17,16 @@ const getDocumentId = (document: unknown) => {
   return null
 }
 
-export class GenerateLessonVisualizationUseCase {
+export interface IGenerateLessonVisualizationUseCase {
+  execute(input: {
+    trackerId: string
+    subtopicId: string
+    userId: string
+    regenerate?: boolean
+  }): Promise<unknown>
+}
+
+export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisualizationUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerAIGateway: ITrackerAIGateway,

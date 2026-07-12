@@ -6,7 +6,11 @@ type GetPrivacySettingsRepository = {
   findOrCreate: ISettingsQueryRepository['findOrCreate']
 }
 
-export class GetPrivacySettingsUseCase {
+export interface IGetPrivacySettingsUseCase {
+  execute(userId: string): Promise<UserSettingsViewDTO['privacy']>
+}
+
+export class GetPrivacySettingsUseCase implements IGetPrivacySettingsUseCase {
   constructor(
     private readonly _settingsRepository: GetPrivacySettingsRepository,
     private readonly _settingsMapper: ISettingsMapper,

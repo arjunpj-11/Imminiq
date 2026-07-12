@@ -5,7 +5,11 @@ import type { IUsersMapper } from '../mappers/users.mapper'
 
 type GetMeRepository = IUserRepository & IUserProfileRepository
 
-export class GetMeUseCase {
+export interface IGetMeUseCase {
+  execute(userId: string): Promise<{ user: import("..").ICurrentUserViewDTO; profile: import("..").IEditableProfileViewDTO; }>
+}
+
+export class GetMeUseCase implements IGetMeUseCase {
   constructor(
     private readonly _usersRepository: GetMeRepository,
     private readonly _usersMapper: IUsersMapper,

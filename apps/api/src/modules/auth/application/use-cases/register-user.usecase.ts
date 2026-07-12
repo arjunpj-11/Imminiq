@@ -8,7 +8,14 @@ import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/constants/aut
 import type { IRegisterPayloadDTO } from '../dtos/auth.dto'
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 
-export class RegisterUserUseCase {
+export interface IRegisterUserUseCase {
+  execute(payload: IRegisterPayloadDTO): Promise<{
+    verificationTarget: string
+    verificationMethod: VerificationMethod
+  }>
+}
+
+export class RegisterUserUseCase implements IRegisterUserUseCase {
   constructor(
     private readonly _authRepository: IAuthUserRepository,
     private readonly _authNotification: IAuthNotification,

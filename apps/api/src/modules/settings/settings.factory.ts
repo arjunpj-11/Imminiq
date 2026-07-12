@@ -1,3 +1,4 @@
+import type { SettingsUseCases } from './application/contracts/settings-use-cases.contract'
 import {
   SettingsMapper,
   type ISettingsMapper,
@@ -23,27 +24,6 @@ import { UpdatePrivacyUseCase } from './application/use-cases/update-privacy.use
 import { UpdateQuietHoursUseCase } from './application/use-cases/update-quiet-hours.usecase'
 import { mongoSettingsRepository } from './infrastructure/repositories/mongo-settings.repository'
 
-export type SettingsUseCases = {
-  getAllSettings: GetAllSettingsUseCase
-  getAppearanceSettings: GetAppearanceSettingsUseCase
-  getNotificationSettings: GetNotificationSettingsUseCase
-  getPrivacySettings: GetPrivacySettingsUseCase
-  getGestureSettings: GetGestureSettingsUseCase
-  updateAccountSettings: UpdateAccountSettingsUseCase
-  updateAppearance: UpdateAppearanceUseCase
-  updateNotifications: UpdateNotificationsUseCase
-  updateQuietHours: UpdateQuietHoursUseCase
-  updateEmailDigest: UpdateEmailDigestUseCase
-  updatePrivacy: UpdatePrivacyUseCase
-  updateCodeEditor: UpdateCodeEditorUseCase
-  updateCompiler: UpdateCompilerUseCase
-  updateAIBehaviour: UpdateAIBehaviourUseCase
-  updateLearningJourney: UpdateLearningJourneyUseCase
-  updateGestures: UpdateGesturesUseCase
-  updateCookieConsent: UpdateCookieConsentUseCase
-  acceptTerms: AcceptTermsUseCase
-  resetSettingsToDefaults: ResetSettingsToDefaultsUseCase
-}
 
 export type SettingsServiceHelpers = {
   settingsMapper: ISettingsMapper

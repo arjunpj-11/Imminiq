@@ -9,7 +9,11 @@ import type {
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
-export class VerifyTwoFactorSetupUseCase {
+export interface IVerifyTwoFactorSetupUseCase {
+  execute(userId: string, payload: IVerifyTwoFactorSetupPayloadDTO): Promise<ITwoFactorVerifyResponseDTO>
+}
+
+export class VerifyTwoFactorSetupUseCase implements IVerifyTwoFactorSetupUseCase {
   constructor(
     private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
     private readonly _twoFactorGateway: ITwoFactorGateway,

@@ -1,6 +1,10 @@
 import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 
-export class LogoutAllSessionsUseCase {
+export interface ILogoutAllSessionsUseCase {
+  execute(userId: string): Promise<void>
+}
+
+export class LogoutAllSessionsUseCase implements ILogoutAllSessionsUseCase {
   constructor(
     private readonly _authRepository: IAuthSessionRepository
   ) {}

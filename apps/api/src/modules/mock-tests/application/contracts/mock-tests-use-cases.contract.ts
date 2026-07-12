@@ -1,24 +1,24 @@
 import type * as Application from '../index'
 export type MockTestsUseCases = {
-  listMockTests: Application.ListMockTestsUseCase
-  listPublicMockTests: Application.ListPublicMockTestsUseCase
-  getMockTestDetails: Application.GetMockTestDetailsUseCase
-  createMockTest: Application.CreateMockTestUseCase
-  generateMockTest: Application.GenerateMockTestUseCase
-  startTestAttempt: Application.StartTestAttemptUseCase
-  getAttemptQuestions: Application.GetAttemptQuestionsUseCase
-  submitAnswer: Application.SubmitAnswerUseCase
-  flagQuestion: Application.FlagQuestionUseCase
-  finishTestAttempt: Application.FinishTestAttemptUseCase
-  getAttemptResult: Application.GetAttemptResultUseCase
-  getAttemptAnalysis: Application.GetAttemptAnalysisUseCase
-  retakeTest: Application.RetakeTestUseCase
-  getAnalytics: Application.GetAnalyticsUseCase
-  getAIInsights: Application.GetAIInsightsUseCase
-  getHistory: Application.GetHistoryUseCase
-  getTopicBreakdown: Application.GetTopicBreakdownUseCase
-  shareMockTest: Application.ShareMockTestUseCase
+  listMockTests: Application.IListMockTestsUseCase
+  listPublicMockTests: Application.IListPublicMockTestsUseCase
+  getMockTestDetails: Application.IGetMockTestDetailsUseCase
+  createMockTest: Application.ICreateMockTestUseCase
+  generateMockTest: Application.IGenerateMockTestUseCase
+  startTestAttempt: Application.IStartTestAttemptUseCase
+  getAttemptQuestions: Application.IGetAttemptQuestionsUseCase
+  submitAnswer: Application.ISubmitAnswerUseCase
+  flagQuestion: Application.IFlagQuestionUseCase
+  finishTestAttempt: Application.IFinishTestAttemptUseCase
+  getAttemptResult: Application.IGetAttemptResultUseCase
+  getAttemptAnalysis: Application.IGetAttemptAnalysisUseCase
+  retakeTest: Application.IRetakeTestUseCase
+  getAnalytics: Application.IGetAnalyticsUseCase
+  getAIInsights: Application.IGetAIInsightsUseCase
+  getHistory: Application.IGetHistoryUseCase
+  getTopicBreakdown: Application.IGetTopicBreakdownUseCase
+  shareMockTest: Application.IShareMockTestUseCase
   importSharedMockTest: Application.ImportSharedMockTestUseCase
-  runMockTestCode: Application.RunMockTestCodeUseCase
-  submitMockTestCode: Application.SubmitMockTestCodeUseCase
+  runMockTestCode: Application.IRunMockTestCodeUseCase
+  submitMockTestCode: Application.ISubmitMockTestCodeUseCase
 }

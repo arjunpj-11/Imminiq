@@ -7,7 +7,11 @@ import type { ICommunityRepository } from '../../domain/repositories/community.r
 import type { ICommunityTrackerListPayloadDTO, ICommunityTrackerListViewDTO } from '../dtos/community.dto'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
-export class GetCommunityTrackersUseCase {
+export interface IGetCommunityTrackersUseCase {
+  execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityTrackerListViewDTO>
+}
+
+export class GetCommunityTrackersUseCase implements IGetCommunityTrackersUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
     private readonly _mapper: ICommunityMapper,

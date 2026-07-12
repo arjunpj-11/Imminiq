@@ -41,7 +41,11 @@ const getSafeTitle = (
   return normalizedValue || fallback
 }
 
-export class UpdateSubtopicProgressUseCase {
+export interface IUpdateSubtopicProgressUseCase {
+  execute(input: UpdateSubtopicProgressInput): Promise<UpdateSubtopicProgressResultDTO>
+}
+
+export class UpdateSubtopicProgressUseCase implements IUpdateSubtopicProgressUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerActivityRecorder:

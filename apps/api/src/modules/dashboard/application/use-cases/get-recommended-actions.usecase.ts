@@ -4,7 +4,11 @@ import { DASHBOARD_MAX_RECOMMENDED_ACTIONS } from '../constants/dashboard.consta
 import type { IDashboardRecommendedActionDTO } from '../dtos/dashboard.dto'
 import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
-export class GetRecommendedActionsUseCase {
+export interface IGetRecommendedActionsUseCase {
+  execute(userId: string): Promise<IDashboardRecommendedActionDTO[]>
+}
+
+export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCase {
   constructor(
     private readonly _dashboardRepository: IDashboardRecommendationRepository,
     private readonly _dashboardMapper: IDashboardMapper

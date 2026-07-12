@@ -1,3 +1,4 @@
+import type { UploadsUseCases } from './application/contracts/uploads-use-cases.contract'
 import {
   UploadsMapper,
 } from './application/mappers/uploads.mapper'
@@ -18,13 +19,6 @@ import { mongoUploadsRepository } from './infrastructure/repositories/mongo-uplo
 import { cryptoRandomSeedGenerator } from './infrastructure/services/crypto-random-seed.service'
 import { usersService } from '../users'
 
-export type UploadsUseCases = {
-  uploadProfileImage: UploadProfileImageUseCase
-  removeAvatar: RemoveAvatarUseCase
-  removeBanner: RemoveBannerUseCase
-  generateAIAvatarPreview: GenerateAIAvatarPreviewUseCase
-  generateAIBannerPreview: GenerateAIBannerPreviewUseCase
-}
 
 export type UploadsComposition = {
   useCases: UploadsUseCases

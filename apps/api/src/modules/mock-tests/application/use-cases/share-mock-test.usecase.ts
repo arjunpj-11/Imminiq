@@ -7,7 +7,11 @@ type ShareMockTestRepository =
   IMockTestRepository &
   IMockTestSharingRepository
 
-export class ShareMockTestUseCase {
+export interface IShareMockTestUseCase {
+  execute(input: { userId: string; testId: string; origin: string }): Promise<{ shareToken: string; shareUrl: string; }>
+}
+
+export class ShareMockTestUseCase implements IShareMockTestUseCase {
   constructor(
     private readonly _repository: ShareMockTestRepository,
     private readonly _shareTokenGenerator: IShareTokenGenerator,

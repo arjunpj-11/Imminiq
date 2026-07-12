@@ -9,7 +9,11 @@ import type { ISecurityAuditLogger } from '../../domain/services/security-audit-
 type ResetPasswordRepository =
   IAuthUserRepository & IAuthSessionRepository
 
-export class ResetPasswordUseCase {
+export interface IResetPasswordUseCase {
+  execute(resetToken: string, newPassword: string): Promise<void>
+}
+
+export class ResetPasswordUseCase implements IResetPasswordUseCase {
   constructor(
     private readonly _authRepository: ResetPasswordRepository,
     private readonly _passwordResetToken: IPasswordResetToken,

@@ -27,7 +27,11 @@ type LoginRepository =
 
 const LOGIN_SCOPE: SecurityAttemptScope = 'auth_login'
 
-export class LoginUserUseCase {
+export interface ILoginUserUseCase {
+  execute(payload: ILoginPayloadDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO>
+}
+
+export class LoginUserUseCase implements ILoginUserUseCase {
   constructor(
     private readonly _authRepository: LoginRepository,
     private readonly _authNotification: IAuthNotification,

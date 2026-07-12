@@ -30,7 +30,11 @@ type BackupCodeRecord = {
 
 const TWO_FACTOR_LOGIN_SCOPE: SecurityAttemptScope = 'auth_two_factor_login'
 
-export class VerifyTwoFactorLoginUseCase {
+export interface IVerifyTwoFactorLoginUseCase {
+  execute(challengeToken: string, payload: ITwoFactorLoginVerifyPayloadDTO, meta?: RequestMetaDTO): Promise<IAuthLoginSuccessResultDTO>
+}
+
+export class VerifyTwoFactorLoginUseCase implements IVerifyTwoFactorLoginUseCase {
   constructor(
     private readonly _authRepository: TwoFactorLoginRepository,
     private readonly _authRedirectResolver: IAuthRedirectResolver,

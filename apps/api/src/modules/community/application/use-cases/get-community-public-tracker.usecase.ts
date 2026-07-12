@@ -3,7 +3,11 @@ import type { CommunityPublicTrackerDetailViewDTO } from '../dtos/community-revi
 import { CommunityApplicationError } from '../errors/community-application.error'
 import type { ICommunityReviewMapper } from '../mappers/community-review.mapper'
 
-export class GetCommunityPublicTrackerUseCase {
+export interface IGetCommunityPublicTrackerUseCase {
+  execute(trackerId: string, userId: string): Promise<CommunityPublicTrackerDetailViewDTO>
+}
+
+export class GetCommunityPublicTrackerUseCase implements IGetCommunityPublicTrackerUseCase {
   constructor(
     private readonly _repository: ICommunityReviewRepository,
     private readonly _mapper: ICommunityReviewMapper,

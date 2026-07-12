@@ -14,7 +14,11 @@ type SubmitAnswerRepository =
   IMockTestAnswerRepository &
   IMockTestAIEvaluationRepository
 
-export class SubmitAnswerUseCase {
+export interface ISubmitAnswerUseCase {
+  execute(attemptId: string, userId: string, payload: ISubmitAnswerPayloadDTO): Promise<import("../dtos/mock-tests.dto").IMockTestAnswerDTO>
+}
+
+export class SubmitAnswerUseCase implements ISubmitAnswerUseCase {
   constructor(
     private readonly _repository: SubmitAnswerRepository,
     private readonly _aiGateway: IMockTestAIGateway,

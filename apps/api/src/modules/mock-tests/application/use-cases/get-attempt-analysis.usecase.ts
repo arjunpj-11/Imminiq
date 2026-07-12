@@ -11,7 +11,11 @@ type GetAttemptAnalysisRepository =
   IMockTestQuestionRepository &
   IMockTestReportRepository
 
-export class GetAttemptAnalysisUseCase {
+export interface IGetAttemptAnalysisUseCase {
+  execute(attemptId: string, userId: string): Promise<IAttemptAnalysisDTO>
+}
+
+export class GetAttemptAnalysisUseCase implements IGetAttemptAnalysisUseCase {
   constructor(private readonly _repository: GetAttemptAnalysisRepository) { }
 
   async execute(attemptId: string, userId: string): Promise<IAttemptAnalysisDTO> {

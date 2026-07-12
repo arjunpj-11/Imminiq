@@ -9,7 +9,11 @@ import type { IUploadUserProfileReader } from '../services/upload-user-profile.s
 type RemoveAvatarRepository =
   IProfileImageRepository & IUploadRecordRepository
 
-export class RemoveAvatarUseCase {
+export interface IRemoveAvatarUseCase {
+  execute(userId: string): Promise<IRemoveAvatarResultDTO>
+}
+
+export class RemoveAvatarUseCase implements IRemoveAvatarUseCase {
   constructor(
     private readonly _userProfileReader: IUploadUserProfileReader,
     private readonly _uploadsRepository: RemoveAvatarRepository,

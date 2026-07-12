@@ -11,7 +11,11 @@ type EvaluateRoadmapRepository =
   IOnboardingAIJobQueryRepository &
   IOnboardingAIJobCommandRepository
 
-export class EvaluateRoadmapUseCase {
+export interface IEvaluateRoadmapUseCase {
+  execute(roadmapJobId: string, userId: string): Promise<IGenerateRoadmapResultDTO>
+}
+
+export class EvaluateRoadmapUseCase implements IEvaluateRoadmapUseCase {
   constructor(
     private readonly _onboardingRepository: EvaluateRoadmapRepository,
     private readonly _aiJobQueueGateway: IAIJobQueueGateway,

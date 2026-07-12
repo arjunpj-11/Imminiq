@@ -4,7 +4,14 @@ import type { ITrackerRepository } from '../../domain/repositories/tracker.repos
 
 type ArchiveTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>
 
-export class ArchiveTrackerUseCase {
+export interface IArchiveTrackerUseCase {
+  execute(input: {
+    trackerId: string
+    userId: string
+  }): Promise<ArchiveTrackerResultDTO>
+}
+
+export class ArchiveTrackerUseCase implements IArchiveTrackerUseCase {
   constructor(
     private readonly _trackerRepository: ITrackerRepository,
     private readonly _trackerMapper: ITrackerMapper

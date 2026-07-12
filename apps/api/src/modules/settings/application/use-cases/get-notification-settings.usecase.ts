@@ -6,7 +6,11 @@ type GetNotificationSettingsRepository = {
   findOrCreate: ISettingsQueryRepository['findOrCreate']
 }
 
-export class GetNotificationSettingsUseCase {
+export interface IGetNotificationSettingsUseCase {
+  execute(userId: string): Promise<UserSettingsViewDTO['notifications']>
+}
+
+export class GetNotificationSettingsUseCase implements IGetNotificationSettingsUseCase {
   constructor(
     private readonly _settingsRepository: GetNotificationSettingsRepository,
     private readonly _settingsMapper: ISettingsMapper,

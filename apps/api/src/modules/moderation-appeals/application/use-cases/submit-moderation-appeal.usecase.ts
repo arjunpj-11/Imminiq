@@ -13,7 +13,11 @@ type SubmitModerationAppealRepository =
   IModerationAppealQueryRepository &
   IModerationAppealCommandRepository
 
-export class SubmitModerationAppealUseCase {
+export interface ISubmitModerationAppealUseCase {
+  execute(payload: ISubmitModerationAppealPayloadDTO): Promise<ISubmitModerationAppealResultDTO>
+}
+
+export class SubmitModerationAppealUseCase implements ISubmitModerationAppealUseCase {
   constructor(
     private readonly _moderationAppealRepository: SubmitModerationAppealRepository,
     private readonly _caseIdAllocator: IModerationAppealCaseIdAllocator,

@@ -9,7 +9,11 @@ type UpdateAppearanceRepository = {
   updateAppearance: ISettingsCommandRepository['updateAppearance']
 }
 
-export class UpdateAppearanceUseCase {
+export interface IUpdateAppearanceUseCase {
+  execute(userId: string, payload: IUpdateAppearancePayloadDTO): Promise<UserSettingsViewDTO | null>
+}
+
+export class UpdateAppearanceUseCase implements IUpdateAppearanceUseCase {
   constructor(
     private readonly _settingsRepository: UpdateAppearanceRepository,
     private readonly _settingsMapper: ISettingsMapper,
