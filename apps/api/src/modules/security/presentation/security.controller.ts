@@ -84,19 +84,6 @@ export class SecurityController {
     }
   }
 
-  getSessions = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await this._useCases.getSecuritySessions.execute(
-        getAuthUser(req).userId,
-        this.getRawRefreshTokenFromCookie(req)
-      )
-
-      res.json(new ApiResponse('Security sessions fetched', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
   revokeSession = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const result = await this._useCases.revokeSecuritySession.execute(
@@ -106,22 +93,6 @@ export class SecurityController {
       )
 
       res.json(new ApiResponse('Session revoked', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  getTwoFactorStatus = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const result = await this._useCases.getTwoFactorStatus.execute(
-        getAuthUser(req).userId
-      )
-
-      res.json(new ApiResponse('Two-factor status fetched', result))
     } catch (error) {
       next(error)
     }

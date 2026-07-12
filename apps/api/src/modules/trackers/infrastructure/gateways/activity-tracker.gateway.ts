@@ -1,4 +1,3 @@
-import { activityRecorder } from '../../../activity'
 import type { IRecordUserActivityUseCase } from '../../../activity'
 import type {
   RecordTrackerCompletedActivityInput,
@@ -123,6 +122,3 @@ export class ActivityTrackerGateway
     })
   }
 }
-
-export const activityTrackerGateway =
-  new ActivityTrackerGateway(activityRecorder)

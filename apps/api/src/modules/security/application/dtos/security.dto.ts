@@ -1,5 +1,4 @@
-import type { AuthProvider } from '../../domain/value-objects/auth-provider.vo'
-import type { TwoFactorStatus } from '../../domain/value-objects/two-factor-status.vo'
+import type { AuthProvider } from '../../domain/types/security.types'
 
 export interface ISensitiveActionStepUpPayloadDTO {
   currentPassword?: string
@@ -63,11 +62,6 @@ export interface ITwoFactorVerifyResponseDTO {
   backupCodes: string[]
 }
 
-export interface ITwoFactorStatusResponseDTO {
-  enabled: boolean
-  status: TwoFactorStatus
-}
-
 export interface IEmailChangeRequestResponseDTO {
   pendingEmail: string
   verificationSent: boolean
@@ -83,10 +77,6 @@ export interface IVerifyEmailChangeResponseDTO {
 
 export interface IChangePasswordResponseDTO {
   sessionsRevoked: true
-}
-
-export interface ISessionsResponseDTO {
-  activeSessions: ISecuritySessionDTO[]
 }
 
 export interface IRevokeSessionResponseDTO {

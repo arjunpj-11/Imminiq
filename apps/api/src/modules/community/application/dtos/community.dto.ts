@@ -1,5 +1,7 @@
-import type { CommunitySort } from '../../domain/value-objects/community-sort.vo'
-import type { VerificationVoteChoice } from '../../domain/value-objects/verification-vote-choice.vo'
+import type {
+  CommunitySort,
+  VerificationVoteChoice,
+} from '../../domain/types/community.types'
 
 export interface ICommunityPaginationQueryDTO {
   page?: number

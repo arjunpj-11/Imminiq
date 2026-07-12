@@ -3,11 +3,12 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate, validateUsernameParam } from '../../../shared/middlewares/validate'
 import { UsersController } from './users.controller'
-import { usersComposition } from '../users.factory'
+import type { UsersUseCases } from '../application/contracts/users-use-cases.contract'
 import { USER_ROUTE_PATHS } from './users.route.constants'
 import { updateMyProfileSchema } from './users.schema'
 
-const usersController = new UsersController(usersComposition.useCases)
+export const createUsersRoutes = (useCases: UsersUseCases) => {
+const usersController = new UsersController(useCases)
 const router = Router()
 router.param('username', validateUsernameParam)
 
@@ -39,11 +40,6 @@ router.get(
 )
 
 router.get(
-  USER_ROUTE_PATHS.MY_ACTIVITY,
-  usersController.getMyActivity
-)
-
-router.get(
   USER_ROUTE_PATHS.MY_RECENT_ACTIVITY,
   usersController.getMyRecentActivity
 )
@@ -63,5 +59,5 @@ router.get(
   usersController.getMyBadges
 )
 
-export default router
-export { router as usersRoutes }
+return router
+}

@@ -260,34 +260,6 @@ export class SettingsController {
     }
   }
 
-  updateCookieConsent = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { cookieConsent } = req.body
-      const data = await this._useCases.updateCookieConsent.execute(
-        getAuthUser(req).userId,
-        cookieConsent
-      )
-
-      res.json(new ApiResponse('Cookie consent updated', data))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  acceptTerms = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.acceptTerms.execute(getAuthUser(req).userId)
-
-      res.json(new ApiResponse('Terms accepted', data))
-    } catch (error) {
-      next(error)
-    }
-  }
-
   resetToDefaults = async (
     req: Request,
     res: Response,

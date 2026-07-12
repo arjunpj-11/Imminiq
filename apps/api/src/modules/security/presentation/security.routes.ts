@@ -52,19 +52,9 @@ router.patch(
   securityController.changePassword
 )
 
-router.get(
-  SECURITY_ROUTE_PATHS.SESSIONS,
-  securityController.getSessions
-)
-
 router.delete(
   SECURITY_ROUTE_PATHS.SESSION_BY_ID,
   securityController.revokeSession
-)
-
-router.get(
-  SECURITY_ROUTE_PATHS.TWO_FACTOR_STATUS,
-  securityController.getTwoFactorStatus
 )
 
 router.post(

@@ -150,10 +150,6 @@ export const updateAccountSettingsSchema = z.object({
   dateFormat: optionalTrimmedStringSchema(40, 'Date format is too long'),
 })
 
-export const updateCookieConsentSchema = z.object({
-  cookieConsent: z.boolean(),
-})
-
 export type UpdateAppearanceInput = z.infer<typeof updateAppearanceSchema>
 
 export type UpdateNotificationsInput = z.infer<
@@ -182,8 +178,4 @@ export type UpdateEmailDigestInput = z.infer<typeof updateEmailDigestSchema>
 
 export type UpdateAccountSettingsInput = z.infer<
   typeof updateAccountSettingsSchema
->
-
-export type UpdateCookieConsentInput = z.infer<
-  typeof updateCookieConsentSchema
 >

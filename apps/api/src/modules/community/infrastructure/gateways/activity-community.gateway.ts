@@ -1,4 +1,3 @@
-import { activityRecorder } from '../../../activity'
 import type { IRecordUserActivityUseCase } from '../../../activity'
 import type {
   ICommunityActivityRecorder,
@@ -203,6 +202,3 @@ export class ActivityCommunityGateway
     })
   }
 }
-
-export const activityCommunityGateway =
-  new ActivityCommunityGateway(activityRecorder)

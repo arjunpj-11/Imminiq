@@ -16,8 +16,10 @@ import {
   type CommunityVerificationReviewTopic,
   type CommunityVerificationReviewTracker,
 } from '../../../domain/entities/community-verification-submission.entity'
-import type { VerificationSubmissionStatus } from '../../../domain/value-objects/verification-submission-status.vo'
-import type { VerificationVoteChoice } from '../../../domain/value-objects/verification-vote-choice.vo'
+import type {
+  VerificationSubmissionStatus,
+  VerificationVoteChoice,
+} from '../../../domain/types/community.types'
 import type {
   MongoAuthorLookup,
   MongoCommunitySubmissionRecord,

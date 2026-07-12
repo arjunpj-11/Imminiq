@@ -6,7 +6,7 @@ import {
 } from "../../../domain/entities/friend-request-summary.entity";
 import { FriendUserEntity } from "../../../domain/entities/friend-user.entity";
 import { FriendsDomainError } from "../../../domain/errors/friends-domain.error";
-import type { FriendRelationshipStatus } from "../../../domain/value-objects/friend-relationship-status.vo";
+import type { FriendRelationshipStatus } from "../../../domain/types/friends.types";
 import type {
   MongoFriendRecord,
   MongoFriendRequestRecord,

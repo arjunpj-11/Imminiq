@@ -20,11 +20,6 @@ router.param('jobId', validateIdentifierParam)
 
 router.use(authenticatedApiIpLimiter, authenticate)
 
-router.get(
-  ONBOARDING_ROUTE_PATHS.STATUS,
-  onboardingController.getStatus
-)
-
 router.post(
   ONBOARDING_ROUTE_PATHS.STEP_1,
   validate(step1Schema),

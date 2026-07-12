@@ -5,7 +5,6 @@ import type {
   UpdateSettingsAppearanceInput,
   UpdateSettingsCodeEditorInput,
   UpdateSettingsCompilerInput,
-  UpdateSettingsCookieConsentInput,
   UpdateSettingsEmailDigestInput,
   UpdateSettingsGesturesInput,
   UpdateSettingsLearningJourneyInput,
@@ -24,7 +23,7 @@ import type {
   MongooseObjectLike,
 } from '../shared/mongo-settings.types'
 
-export class MongoSettingsUserRepository
+export class MongoSettingsRepository
   extends MongoSettingsBaseRepository
   implements ISettingsRepository
 {
@@ -161,21 +160,6 @@ export class MongoSettingsUserRepository
     )
   }
 
-  async updateCookieConsent(
-    input: UpdateSettingsCookieConsentInput,
-  ) {
-    return this.updateWithSet(input.userId, {
-      cookieConsent: input.cookieConsent,
-    })
-  }
-
-  async acceptTerms(userId: string) {
-    return this.updateWithSet(userId, {
-      termsAccepted: true,
-      termsAcceptedAt: new Date(),
-    })
-  }
-
   async resetToDefaults(userId: string) {
     return this.execute(
       'SETTINGS_RESET_FAILED',
@@ -232,5 +216,5 @@ export class MongoSettingsUserRepository
   }
 }
 
-export const mongoSettingsUserRepository =
-  new MongoSettingsUserRepository()
+export const mongoSettingsRepository =
+  new MongoSettingsRepository()

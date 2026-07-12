@@ -2,6 +2,12 @@ import type { FriendRequestEntity } from "../entities/friend-request.entity";
 import type { FriendRequestSummaryEntity } from "../entities/friend-request-summary.entity";
 import type { FriendUserEntity } from "../entities/friend-user.entity";
 
+export type FriendRelationshipStatus =
+  "none" | "pending_sent" | "pending_received" | "friends";
+export type FriendRequestStatus =
+  "pending" | "accepted" | "rejected" | "cancelled";
+export type FriendshipStatus = "active" | "blocked";
+
 export type PaginationInput = {
   page: number;
   limit: number;

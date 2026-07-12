@@ -1,5 +1,7 @@
-import type { UploadedProfileImageFile } from '../../domain/value-objects/uploaded-profile-image-file.vo'
-import type { ProfileUploadKind } from '../../domain/value-objects/profile-upload-kind.vo'
+import type {
+  ProfileUploadKind,
+  UploadedProfileImageFile,
+} from '../../domain/types/uploads.types'
 
 export interface IUploadProfileImageInputDTO {
   userId: string

@@ -1,5 +1,11 @@
-export type { ProfileImageFolder } from '../value-objects/profile-image-folder.vo'
-export type { ProfileUploadKind } from '../value-objects/profile-upload-kind.vo'
-export type { UploadedProfileImageFile } from '../value-objects/uploaded-profile-image-file.vo'
-export type { UploadModule } from '../value-objects/upload-module.vo'
-export type { UploadReferenceType } from '../value-objects/upload-reference-type.vo'
+export type ProfileImageFolder = 'imminiq/avatars' | 'imminiq/banners'
+export type ProfileUploadKind = 'avatar' | 'banner'
+export type UploadModule = 'profile'
+export type UploadReferenceType = 'user_profile'
+
+export type UploadedProfileImageFile = {
+  originalname: string
+  mimetype: string
+  size: number
+  buffer: Uint8Array
+}

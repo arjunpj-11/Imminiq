@@ -189,7 +189,7 @@ export default function VerifyAccountPage() {
     try {
       setIsResending(true)
       clearError()
-      await api.post('/auth/resend-otp', { identifier, method, purpose })
+      await api.post('/auth/send-otp', { identifier, method, purpose })
       const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000
       const resendExpiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000
       safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry))

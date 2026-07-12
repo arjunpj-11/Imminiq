@@ -1,4 +1,4 @@
-import type { FriendshipStatus } from "../value-objects/friendship-status.vo";
+import type { FriendshipStatus } from "../types/friends.types";
 
 export type FriendEntityProps = {
   id: string;

@@ -9,8 +9,6 @@ import { ChangeSecurityPasswordUseCase } from './application/use-cases/change-se
 import { DeleteSecurityAccountUseCase } from './application/use-cases/delete-security-account.usecase'
 import { DisableTwoFactorUseCase } from './application/use-cases/disable-two-factor.usecase'
 import { GetSecurityOverviewUseCase } from './application/use-cases/get-security-overview.usecase'
-import { GetSecuritySessionsUseCase } from './application/use-cases/get-security-sessions.usecase'
-import { GetTwoFactorStatusUseCase } from './application/use-cases/get-two-factor-status.usecase'
 import { RequestEmailChangeUseCase } from './application/use-cases/request-email-change.usecase'
 import { RevokeSecuritySessionUseCase } from './application/use-cases/revoke-security-session.usecase'
 import { SetupTwoFactorUseCase } from './application/use-cases/setup-two-factor.usecase'
@@ -89,19 +87,9 @@ export const createSecurityComposition = (): SecurityComposition => {
         securityPasswordHasher
       ),
 
-      getSecuritySessions: new GetSecuritySessionsUseCase(
-        securityRepository,
-        currentSessionResolver,
-        securityMapper
-      ),
-
       revokeSecuritySession: new RevokeSecuritySessionUseCase(
         securityRepository,
         currentSessionResolver
-      ),
-
-      getTwoFactorStatus: new GetTwoFactorStatusUseCase(
-        securityRepository
       ),
 
       setupTwoFactor: new SetupTwoFactorUseCase(

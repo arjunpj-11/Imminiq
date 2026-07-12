@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { CommunitySort } from '../domain/value-objects/community-sort.vo'
+import type { CommunitySort } from '../domain/types/community.types'
 import type { CommunityUseCases } from '../application/contracts/community-use-cases.contract'
 import type {
   UpsertCommunityTrackerReviewInput,
@@ -29,20 +29,6 @@ export class CommunityController {
     }
   }
 
-  getTrackers = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const user = getAuthUser(req)
-      const result = await this._useCases.getTrackers.execute({
-        userId: user.userId,
-        ...this.getTrackerQuery(req),
-      })
-
-      res.json(new ApiResponse('Community trackers fetched', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
   getPublicTrackerDetail = async (
     req: Request,
     res: Response,
@@ -57,31 +43,6 @@ export class CommunityController {
       )
 
       res.json(new ApiResponse('Community tracker fetched', { tracker }))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  getTopics = async (_req: Request, res: Response, next: NextFunction) => {
-    try {
-      const topics = await this._useCases.getTopics.execute()
-
-      res.json(new ApiResponse('Community topics fetched', { topics }))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  getPersonalStats = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const user = getAuthUser(req)
-      const stats = await this._useCases.getPersonalStats.execute(user.userId)
-
-      res.json(new ApiResponse('Community stats fetched', { stats }))
     } catch (error) {
       next(error)
     }
@@ -186,45 +147,6 @@ export class CommunityController {
       })
 
       res.json(new ApiResponse('Verification dashboard fetched', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  getVerificationQueue = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const user = getAuthUser(req)
-      const result = await this._useCases.getVerificationQueue.execute({
-        userId: user.userId,
-        page: this.getNumberQuery(req, 'page'),
-        limit: this.getNumberQuery(req, 'limit'),
-      })
-
-      res.json(new ApiResponse('Verification queue fetched', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  getVerificationLeaderboard = async (
-    req: Request,
-    res: Response,
-    next: NextFunction,
-  ) => {
-    try {
-      const user = getAuthUser(req)
-      const leaderboard = await this._useCases.getVerificationLeaderboard.execute(
-        user.userId,
-        this.getNumberQuery(req, 'limit'),
-      )
-
-      res.json(
-        new ApiResponse('Verification leaderboard fetched', { leaderboard }),
-      )
     } catch (error) {
       next(error)
     }

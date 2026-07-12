@@ -1,7 +1,6 @@
 import type { AuthUseCases } from './application/contracts/auth-use-cases.contract'
 import { AuthUserMapper, type IAuthUserMapper } from './application/mappers/auth-user.mapper'
 import { systemClock } from '../../infrastructure/time/system-clock'
-import { AuthSessionMapper } from './application/mappers/auth-session.mapper'
 import { AuthAccountPolicy } from './application/policies/auth-account-policy.policy'
 import { AuthNotificationCoordinator } from './application/services/auth-notification.service'
 import { AuthRedirectResolver } from './application/services/auth-redirect.service'
@@ -10,27 +9,22 @@ import { BackupCodeNormalizer } from './application/services/backup-code-normali
 import { IdentifierNormalizer } from './application/services/identifier-normalizer.service'
 import { UsernameGenerator, type IUsernameGenerator } from './application/services/username-generator.service'
 
-import { ChangePasswordUseCase } from './application/use-cases/change-password.usecase'
-import { CheckIdentifierUseCase } from './application/use-cases/check-identifier.usecase'
-import { CheckUsernameUseCase } from './application/use-cases/check-username.usecase'
 import { ForgotPasswordUseCase } from './application/use-cases/forgot-password.usecase'
-import { GetAuthSessionsUseCase } from './application/use-cases/get-auth-sessions.usecase'
 import { GetCurrentUserUseCase } from './application/use-cases/get-current-user.usecase'
 import { HandleOAuthLoginUseCase } from './application/use-cases/handle-oauth-login.usecase'
 import { LoginUserUseCase } from './application/use-cases/login-user.usecase'
-import { LogoutAllSessionsUseCase } from './application/use-cases/logout-all-sessions.usecase'
 import { LogoutUserUseCase } from './application/use-cases/logout-user.usecase'
 import { RefreshAuthTokensUseCase } from './application/use-cases/refresh-auth-tokens.usecase'
 import { RegisterUserUseCase } from './application/use-cases/register-user.usecase'
 import { ResendOtpUseCase } from './application/use-cases/resend-otp.usecase'
 import { ResetPasswordUseCase } from './application/use-cases/reset-password.usecase'
-import { RevokeAuthSessionUseCase } from './application/use-cases/revoke-auth-session.usecase'
 import { VerifyAccountUseCase } from './application/use-cases/verify-account.usecase'
 import { VerifyResetCodeUseCase } from './application/use-cases/verify-reset-code.usecase'
 import { VerifyTwoFactorLoginUseCase } from './application/use-cases/verify-two-factor-login.usecase'
 
 import type { IAuthToken } from './domain/services/auth-token.interface'
 import type { IOtpGenerator } from './domain/services/otp-generator.interface'
+import type { IAuthRepository } from './domain/repositories/auth.repository.interface'
 
 import { mongoAuthRepository } from './infrastructure/repositories/mongo-auth.repository'
 import { bcryptPasswordHasher } from './infrastructure/services/bcrypt-password-hasher.service'
@@ -57,6 +51,7 @@ export type AuthServiceHelpers = {
   otpGenerator: IOtpGenerator
   usernameGenerator: IUsernameGenerator
   authSessionIssuer: IAuthSessionIssuer
+  authRepository: IAuthRepository
 }
 
 export type AuthUserMapperInput = Parameters<
@@ -72,7 +67,6 @@ export const createAuthComposition = (): AuthComposition => {
   const authRepository = mongoAuthRepository
 
   const authUserMapper = new AuthUserMapper()
-  const authSessionMapper = new AuthSessionMapper()
   const identifierNormalizer = new IdentifierNormalizer()
   const otpGenerator = cryptoOtpGenerator
 
@@ -161,8 +155,6 @@ export const createAuthComposition = (): AuthComposition => {
 
       logoutUser: new LogoutUserUseCase(authRepository),
 
-      logoutAllSessions: new LogoutAllSessionsUseCase(authRepository),
-
       refreshAuthTokens: new RefreshAuthTokensUseCase(
         authRepository,
         authToken,
@@ -219,25 +211,6 @@ export const createAuthComposition = (): AuthComposition => {
         passwordHasher
       ),
 
-      changePassword: new ChangePasswordUseCase(
-        authRepository,
-        passwordHasher
-      ),
-
-      checkIdentifier: new CheckIdentifierUseCase(
-        authRepository,
-        identifierNormalizer,
-        pendingRegistrationStore
-      ),
-
-      checkUsername: new CheckUsernameUseCase(authRepository),
-
-      getAuthSessions: new GetAuthSessionsUseCase(
-        authRepository,
-        authSessionMapper,
-      ),
-
-      revokeAuthSession: new RevokeAuthSessionUseCase(authRepository),
     },
 
     helpers: {
@@ -246,6 +219,7 @@ export const createAuthComposition = (): AuthComposition => {
       otpGenerator,
       usernameGenerator,
       authSessionIssuer,
+      authRepository,
     },
   }
 }

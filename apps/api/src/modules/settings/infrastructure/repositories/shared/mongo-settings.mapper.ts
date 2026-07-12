@@ -17,7 +17,7 @@ import type {
 import type {
   NotificationTypeSettings,
   UserSettingsData,
-} from '../../../domain/value-objects/user-settings-data.vo'
+} from '../../../domain/types/settings.types'
 import type {
   FlatSettingsUpdate,
   MongoIdLike,

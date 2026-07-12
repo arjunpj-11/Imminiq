@@ -3,7 +3,6 @@ export const USER_ROUTE_PATHS = {
 
   ME: '/me',
   MY_STATS: '/me/stats',
-  MY_ACTIVITY: '/me/activity',
   MY_RECENT_ACTIVITY: '/me/recent-activity',
   MY_STREAK: '/me/streak',
   MY_PUBLISHED_TRACKERS: '/me/published-trackers',

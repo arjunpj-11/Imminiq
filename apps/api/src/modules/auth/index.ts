@@ -19,3 +19,5 @@ export type {
   UserStatus,
   VerificationMethod,
 } from './domain/types/auth.types'
+
+export type { IAuthRepository } from './domain/repositories/auth.repository.interface'

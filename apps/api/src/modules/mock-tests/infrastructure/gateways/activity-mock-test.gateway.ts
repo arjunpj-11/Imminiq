@@ -1,4 +1,3 @@
-import { activityRecorder } from '../../../activity'
 import type { IRecordUserActivityUseCase } from '../../../activity'
 import type {
   IMockTestActivityRecorder,
@@ -261,6 +260,3 @@ export class ActivityMockTestGateway
     })
   }
 }
-
-export const activityMockTestGateway =
-  new ActivityMockTestGateway(activityRecorder)

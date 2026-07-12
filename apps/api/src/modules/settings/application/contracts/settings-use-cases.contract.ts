@@ -16,7 +16,5 @@ export type SettingsUseCases = {
   updateAIBehaviour: Application.IUpdateAIBehaviourUseCase
   updateLearningJourney: Application.IUpdateLearningJourneyUseCase
   updateGestures: Application.IUpdateGesturesUseCase
-  updateCookieConsent: Application.IUpdateCookieConsentUseCase
-  acceptTerms: Application.IAcceptTermsUseCase
   resetSettingsToDefaults: Application.IResetSettingsToDefaultsUseCase
 }

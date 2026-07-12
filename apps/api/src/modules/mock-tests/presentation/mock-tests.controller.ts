@@ -1,6 +1,5 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { DifficultyLevel } from '../application/dtos/mock-tests.dto'
 import type { MockTestsUseCases } from '../application/contracts/mock-tests-use-cases.contract'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
@@ -8,13 +7,6 @@ import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
 type ListTestsQuery = {
-  page?: number
-  limit?: number
-}
-
-type PublicTestsQuery = {
-  difficulty?: DifficultyLevel
-  tags?: string[]
   page?: number
   limit?: number
 }
@@ -31,22 +23,6 @@ export class MockTestsController {
       )
 
       res.json(new ApiResponse('Tests fetched', data))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  listPublicTests = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const data = await this._useCases.listPublicMockTests.execute(
-        this.parsePublicTestsQuery(req)
-      )
-
-      res.json(new ApiResponse('Public tests fetched', data))
     } catch (error) {
       next(error)
     }
@@ -362,21 +338,6 @@ export class MockTestsController {
     return Number.isFinite(parsed) ? parsed : undefined
   }
 
-  private parseTagsQuery(value: unknown): string[] | undefined {
-    if (!value) {
-      return undefined
-    }
-
-    const values = Array.isArray(value) ? value : String(value).split(',')
-
-    const tags = values
-      .filter((item): item is string => typeof item === 'string')
-      .map((tag) => tag.trim())
-      .filter(Boolean)
-
-    return tags.length ? tags : undefined
-  }
-
   private parseListTestsQuery(req: Request): ListTestsQuery {
     return {
       page: this.parseNumberQuery(req.query.page),
@@ -384,17 +345,4 @@ export class MockTestsController {
     }
   }
 
-  private parsePublicTestsQuery(req: Request): PublicTestsQuery {
-    const difficulty = this.parseStringQuery(req.query.difficulty)
-
-    return {
-      difficulty:
-        difficulty === 'easy' || difficulty === 'medium' || difficulty === 'hard'
-          ? difficulty
-          : undefined,
-      tags: this.parseTagsQuery(req.query.tags),
-      page: this.parseNumberQuery(req.query.page),
-      limit: this.parseNumberQuery(req.query.limit),
-    }
-  }
 }

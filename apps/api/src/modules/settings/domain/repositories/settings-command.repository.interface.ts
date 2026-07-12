@@ -1,11 +1,13 @@
 import type { UserSettingsEntity } from '../entities/user-settings.entity'
-import type { AIResponseStyleType } from '../value-objects/ai-response-style-type.vo'
-import type { DigestFrequencyType } from '../value-objects/digest-frequency-type.vo'
-import type { MessagePermissionType } from '../value-objects/message-permission-type.vo'
-import type { ProfileVisibilityType } from '../value-objects/profile-visibility-type.vo'
-import type { QuietHoursDayType } from '../value-objects/quiet-hours-day-type.vo'
-import type { ThemeType } from '../value-objects/theme-type.vo'
-import type { NotificationTypeSettings } from '../value-objects/user-settings-data.vo'
+import type {
+  AIResponseStyleType,
+  DigestFrequencyType,
+  MessagePermissionType,
+  ProfileVisibilityType,
+  QuietHoursDayType,
+  ThemeType,
+} from '../types/settings.types'
+import type { NotificationTypeSettings } from '../types/settings.types'
 
 export type SettingsAppearanceUpdateInput = {
   theme?: ThemeType
@@ -165,11 +167,6 @@ export type UpdateSettingsAccountInput = {
   data: SettingsAccountUpdateInput
 }
 
-export type UpdateSettingsCookieConsentInput = {
-  userId: string
-  cookieConsent: boolean
-}
-
 export interface ISettingsCommandRepository {
   updateAppearance(
     input: UpdateSettingsAppearanceInput
@@ -218,12 +215,6 @@ export interface ISettingsCommandRepository {
   updateAccountSettings(
     input: UpdateSettingsAccountInput
   ): Promise<UserSettingsEntity | null>
-
-  updateCookieConsent(
-    input: UpdateSettingsCookieConsentInput
-  ): Promise<UserSettingsEntity | null>
-
-  acceptTerms(userId: string): Promise<UserSettingsEntity | null>
 
   resetToDefaults(userId: string): Promise<UserSettingsEntity>
 }

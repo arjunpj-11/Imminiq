@@ -1,7 +1,9 @@
 import type { Types } from 'mongoose'
 
-import type { VerificationSubmissionStatus } from '../../../domain/value-objects/verification-submission-status.vo'
-import type { VerificationVoteChoice } from '../../../domain/value-objects/verification-vote-choice.vo'
+import type {
+  VerificationSubmissionStatus,
+  VerificationVoteChoice,
+} from '../../../domain/types/community.types'
 
 export type MongoIdLike = string | Types.ObjectId
 

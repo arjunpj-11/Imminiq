@@ -1,13 +1,15 @@
-import type { AIResponseStyleType } from '../../domain/value-objects/ai-response-style-type.vo'
-import type { DigestFrequencyType } from '../../domain/value-objects/digest-frequency-type.vo'
-import type { MessagePermissionType } from '../../domain/value-objects/message-permission-type.vo'
-import type { ProfileVisibilityType } from '../../domain/value-objects/profile-visibility-type.vo'
-import type { QuietHoursDayType } from '../../domain/value-objects/quiet-hours-day-type.vo'
-import type { ThemeType } from '../../domain/value-objects/theme-type.vo'
+import type {
+  AIResponseStyleType,
+  DigestFrequencyType,
+  MessagePermissionType,
+  ProfileVisibilityType,
+  QuietHoursDayType,
+  ThemeType,
+} from '../../domain/types/settings.types'
 import type {
   NotificationTypeSettings,
   UserSettingsData,
-} from '../../domain/value-objects/user-settings-data.vo'
+} from '../../domain/types/settings.types'
 
 export interface IUpdateAppearancePayloadDTO {
   theme?: ThemeType

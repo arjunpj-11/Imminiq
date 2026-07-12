@@ -12,16 +12,6 @@ type JobIdParams = {
 export class OnboardingController {
   constructor(private readonly _useCases: OnboardingUseCases) {}
 
-  getStatus = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const status = await this._useCases.getOnboardingStatus.execute(getAuthUser(req).userId)
-
-      res.json(new ApiResponse('Onboarding status', status))
-    } catch (error) {
-      next(error)
-    }
-  }
-
   saveStep1 = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this._useCases.saveOnboardingStepOne.execute(

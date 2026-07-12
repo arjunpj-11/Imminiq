@@ -85,25 +85,6 @@ export class UsersController {
     }
   }
 
-  getMyActivity = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const result = await this._useCases.getMyActivity.execute(
-        getAuthUser(req).userId,
-        this.clampInteger(req.query.page, 1, 1, USERS_MAX_PAGE),
-        this.clampInteger(
-          req.query.limit,
-          USERS_DEFAULT_LIMIT,
-          1,
-          USERS_MAX_LIMIT
-        )
-      )
-
-      res.json(new ApiResponse('Activity feed fetched', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
   getMyRecentActivity = async (
     req: Request,
     res: Response,

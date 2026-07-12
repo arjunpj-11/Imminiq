@@ -1,7 +1,7 @@
 import type { CommunityLeaderboardEntryEntity } from '../entities/community-leaderboard-entry.entity'
 import type { CommunityReviewVoteEntity } from '../entities/community-review-vote.entity'
 import type { CommunityVerificationSubmissionEntity } from '../entities/community-verification-submission.entity'
-import type { VerificationVoteChoice } from '../value-objects/verification-vote-choice.vo'
+import type { VerificationVoteChoice } from '../types/community.types'
 
 export type FindVerificationQueueQuery = {
   userId: string

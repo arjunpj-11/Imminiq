@@ -10,7 +10,7 @@ import type {
   ListFriendsInput,
   SearchFriendUsersInput,
 } from "../../../domain/types/friends.types";
-import type { FriendRelationshipStatus } from "../../../domain/value-objects/friend-relationship-status.vo";
+import type { FriendRelationshipStatus } from "../../../domain/types/friends.types";
 import { MongoFriendsBaseRepository } from "../shared/mongo-friends-base.repository";
 import { MongoFriendsMapper } from "../shared/mongo-friends.mapper";
 import { MongoFriendsNormalizer } from "../shared/mongo-friends-normalizer";

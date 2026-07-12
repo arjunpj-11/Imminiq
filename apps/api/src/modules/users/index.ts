@@ -1,4 +1,3 @@
-export { usersProfileReader } from './users.factory'
 export type { IGetMeUseCase } from './application/use-cases/get-me.usecase'
 
 export type {

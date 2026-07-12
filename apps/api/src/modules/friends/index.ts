@@ -12,4 +12,4 @@ export type {
   SendFriendRequestViewDTO,
 } from "./application/dtos/friends.dto";
 
-export type { FriendRelationshipStatus } from "./domain/value-objects/friend-relationship-status.vo";
+export type { FriendRelationshipStatus } from "./domain/types/friends.types";

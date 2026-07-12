@@ -3,8 +3,8 @@
   "private": true,
   "packageManager": "npm@10.9.0",
   "workspaces": [
-    "apps/*",
-    "packages/*"
+    "apps/api",
+    "apps/web"
   ],
   "scripts": {
     "piston:up": "docker compose up -d piston",

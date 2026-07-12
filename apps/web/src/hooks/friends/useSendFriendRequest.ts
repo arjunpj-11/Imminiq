@@ -29,7 +29,7 @@ export const useSendFriendRequest = () => {
     mutationFn: async (payload) => {
       const response =
         await api.post<ISendFriendRequestResponse>(
-          '/friends/request',
+          '/friends/requests',
           payload,
         )
 

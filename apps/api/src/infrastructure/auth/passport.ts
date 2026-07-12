@@ -6,7 +6,7 @@ import {
 } from 'passport-github2'
 import type { VerifyCallback } from 'passport-oauth2'
 import { env } from '../../config/env'
-import { mongoAuthRepository as authRepository } from '../../modules/auth/infrastructure/repositories/mongo-auth.repository'
+import type { IAuthRepository } from '../../modules/auth'
 
 const normalizeUsernameBase = (value: string) => {
   return (
@@ -17,7 +17,10 @@ const normalizeUsernameBase = (value: string) => {
   )
 }
 
-const generateUniqueUsername = async (baseValue: string) => {
+const generateUniqueUsername = async (
+  authRepository: IAuthRepository,
+  baseValue: string,
+) => {
   const base = normalizeUsernameBase(baseValue)
 
   let username = base
@@ -31,7 +34,7 @@ const generateUniqueUsername = async (baseValue: string) => {
   return username
 }
 
-export const initPassport = () => {
+export const initPassport = (authRepository: IAuthRepository) => {
   passport.use(
     'google',
     new GoogleStrategy(
@@ -56,6 +59,7 @@ export const initPassport = () => {
 
           if (!user) {
             const username = await generateUniqueUsername(
+              authRepository,
               profile.displayName || email.split('@')[0]
             )
 
@@ -108,6 +112,7 @@ export const initPassport = () => {
 
           if (!user) {
             const username = await generateUniqueUsername(
+              authRepository,
               profile.username || profile.displayName || email.split('@')[0]
             )
 

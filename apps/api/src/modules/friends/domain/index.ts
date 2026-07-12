@@ -14,6 +14,8 @@ export type { IFriendsRepository } from "./repositories/friends.repository.inter
 
 export * from "./types/friends.types";
 
-export type { FriendRelationshipStatus } from "./value-objects/friend-relationship-status.vo";
-export type { FriendRequestStatus } from "./value-objects/friend-request-status.vo";
-export type { FriendshipStatus } from "./value-objects/friendship-status.vo";
+export type {
+  FriendRelationshipStatus,
+  FriendRequestStatus,
+  FriendshipStatus,
+} from "./types/friends.types";

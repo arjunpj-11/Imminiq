@@ -6,10 +6,8 @@ export const SECURITY_ROUTE_PATHS = {
   CHANGE_EMAIL: '/change-email',
   CHANGE_PASSWORD: '/change-password',
 
-  SESSIONS: '/sessions',
   SESSION_BY_ID: '/sessions/:sessionId',
 
-  TWO_FACTOR_STATUS: '/2fa/status',
   TWO_FACTOR_SETUP: '/2fa/setup',
   TWO_FACTOR_VERIFY: '/2fa/verify',
   TWO_FACTOR_DISABLE: '/2fa/disable',

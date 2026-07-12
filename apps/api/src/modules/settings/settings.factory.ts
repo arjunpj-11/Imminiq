@@ -3,7 +3,6 @@ import {
   SettingsMapper,
   type ISettingsMapper,
 } from './application/mappers/settings.mapper'
-import { AcceptTermsUseCase } from './application/use-cases/accept-terms.usecase'
 import { GetAllSettingsUseCase } from './application/use-cases/get-all-settings.usecase'
 import { GetAppearanceSettingsUseCase } from './application/use-cases/get-appearance-settings.usecase'
 import { GetGestureSettingsUseCase } from './application/use-cases/get-gesture-settings.usecase'
@@ -15,14 +14,13 @@ import { UpdateAIBehaviourUseCase } from './application/use-cases/update-ai-beha
 import { UpdateAppearanceUseCase } from './application/use-cases/update-appearance.usecase'
 import { UpdateCodeEditorUseCase } from './application/use-cases/update-code-editor.usecase'
 import { UpdateCompilerUseCase } from './application/use-cases/update-compiler.usecase'
-import { UpdateCookieConsentUseCase } from './application/use-cases/update-cookie-consent.usecase'
 import { UpdateEmailDigestUseCase } from './application/use-cases/update-email-digest.usecase'
 import { UpdateGesturesUseCase } from './application/use-cases/update-gestures.usecase'
 import { UpdateLearningJourneyUseCase } from './application/use-cases/update-learning-journey.usecase'
 import { UpdateNotificationsUseCase } from './application/use-cases/update-notifications.usecase'
 import { UpdatePrivacyUseCase } from './application/use-cases/update-privacy.usecase'
 import { UpdateQuietHoursUseCase } from './application/use-cases/update-quiet-hours.usecase'
-import { mongoSettingsRepository } from './infrastructure/repositories/mongo-settings.repository'
+import { mongoSettingsRepository } from './infrastructure/repositories/internal/mongo-settings-user.repository'
 
 
 export type SettingsServiceHelpers = {
@@ -116,16 +114,6 @@ export const createSettingsComposition = (): SettingsComposition => {
       ),
 
       updateGestures: new UpdateGesturesUseCase(
-        settingsRepository,
-        settingsMapper
-      ),
-
-      updateCookieConsent: new UpdateCookieConsentUseCase(
-        settingsRepository,
-        settingsMapper
-      ),
-
-      acceptTerms: new AcceptTermsUseCase(
         settingsRepository,
         settingsMapper
       ),

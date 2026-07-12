@@ -1,6 +1,4 @@
 export const ONBOARDING_ROUTE_PATHS = {
-  STATUS: '/status',
-
   STEP_1: '/step-1',
   STEP_2: '/step-2',
 

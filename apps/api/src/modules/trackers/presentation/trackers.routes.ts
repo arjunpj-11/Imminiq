@@ -6,7 +6,7 @@ import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate'
 import { TrackerController } from './trackers.controller'
-import { createTrackerComposition } from '../tracker.factory'
+import type { TrackerUseCases } from '../application/contracts/tracker-use-cases.contract'
 import { TRACKER_ROUTE_PATHS } from './trackers.route.constants'
 import {
   trackerListQuerySchema,
@@ -29,7 +29,8 @@ import {
   verifySubtopicSchema,
 } from './trackers.schema'
 
-const trackerController = new TrackerController(createTrackerComposition().useCases)
+export const createTrackerRoutes = (useCases: TrackerUseCases) => {
+const trackerController = new TrackerController(useCases)
 const router = Router()
 router.param('trackerId', validateIdentifierParam)
 router.param('topicId', validateIdentifierParam)
@@ -260,5 +261,5 @@ router.post(
   trackerController.getOptimizedSolution
 )
 
-export default router
-export { router as trackerRoutes }
+return router
+}

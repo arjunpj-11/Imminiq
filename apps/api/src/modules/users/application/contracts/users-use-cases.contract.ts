@@ -4,7 +4,6 @@ export type UsersUseCases = {
   updateMe: Application.IUpdateMeUseCase
   getUserByUsername: Application.IGetUserByUsernameUseCase
   getMyStats: Application.IGetMyStatsUseCase
-  getMyActivity: Application.IGetMyActivityUseCase
   getMyRecentActivity: Application.IGetMyRecentActivityUseCase
   getMyStreak: Application.IGetMyStreakUseCase
   getMyPublishedTrackers: Application.IGetMyPublishedTrackersUseCase

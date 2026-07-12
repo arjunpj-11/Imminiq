@@ -7,7 +7,7 @@ import type {
   FindVerificationQueueQuery,
   SubmitTrackerForVerificationInput,
 } from '../../../domain/repositories/community-verification.repository.interface'
-import type { VerificationVoteChoice } from '../../../domain/value-objects/verification-vote-choice.vo'
+import type { VerificationVoteChoice } from '../../../domain/types/community.types'
 import { MongoCommunityBaseRepository } from '../shared/mongo-community-base.repository'
 import { MongoCommunityErrorMapper } from '../shared/mongo-community-error.mapper'
 import { MongoCommunityMapper } from '../shared/mongo-community.mapper'

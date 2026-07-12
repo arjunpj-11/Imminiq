@@ -22,13 +22,6 @@ type EmailChangeRequestResponse = {
   expiresInMinutes: number
 }
 
-type VerifyEmailChangeResponse = {
-  email: string
-  emailVerified: boolean
-  verified: boolean
-  sessionsRevoked: boolean
-}
-
 const unwrap = <T,>(response: { data: IApiEnvelope<T> }) => {
   return response.data.data
 }
@@ -66,21 +59,6 @@ export const useChangeEmail = () => {
     },
   })
 }
-
-// ─── VERIFY EMAIL CHANGE TOKEN ─────────────────────
-
-export const useVerifyEmailChange = () =>
-  useMutation({
-    mutationFn: async (token: string) => {
-      const response = await api.post<
-        IApiEnvelope<VerifyEmailChangeResponse>
-      >('/security/verify-email-change', {
-        token,
-      })
-
-      return unwrap(response)
-    },
-  })
 
 // ─── CHANGE PASSWORD ───────────────────────────────
 

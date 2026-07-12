@@ -4,7 +4,7 @@ import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate, validateIdentifierParam, validateQuery } from '../../../shared/middlewares/validate'
 import { MockTestsController } from './mock-tests.controller'
-import { createMockTestsComposition } from '../mock-tests.factory'
+import type { MockTestsUseCases } from '../application/contracts/mock-tests-use-cases.contract'
 import { MOCK_TEST_ROUTE_PATHS } from './mock-tests.route.constants'
 import {
   createMockTestSchema,
@@ -14,10 +14,10 @@ import {
   submitAnswerSchema,
   submitMockTestCodeSchema,
   mockTestListQuerySchema,
-  publicMockTestListQuerySchema,
 } from './mock-tests.schema'
 
-const mockTestsController = new MockTestsController(createMockTestsComposition().useCases)
+export const createMockTestsRoutes = (useCases: MockTestsUseCases) => {
+const mockTestsController = new MockTestsController(useCases)
 const router = Router()
 router.param('attemptId', validateIdentifierParam)
 router.param('questionId', validateIdentifierParam)
@@ -46,12 +46,6 @@ router.post(
   mockTestsController.generateTest
 )
 
-router.get(
-  MOCK_TEST_ROUTE_PATHS.PUBLIC,
-  validateQuery(publicMockTestListQuerySchema),
-  mockTestsController.listPublicTests
-)
-
 router.post(
   MOCK_TEST_ROUTE_PATHS.IMPORT_SHARED,
   mockTestsController.importSharedTest
@@ -72,11 +66,6 @@ router.post(
 router.get(
   MOCK_TEST_ROUTE_PATHS.HISTORY,
   mockTestsController.getHistory
-)
-
-router.get(
-  MOCK_TEST_ROUTE_PATHS.ANALYTICS,
-  mockTestsController.getAnalytics
 )
 
 router.get(
@@ -146,5 +135,5 @@ router.post(
   mockTestsController.startAttempt
 )
 
-export default router
-export { router as mockTestsRoutes }
+return router
+}

@@ -7,7 +7,6 @@ import type { IAIImageGenerator } from '../../domain/services/ai-image-generatio
 import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface'
 import type { IAIImagePreviewResultDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { IUploadsMapper } from '../mappers/uploads.mapper'
 import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service'
 
 export interface IGenerateAIBannerPreviewUseCase {
@@ -19,7 +18,6 @@ export class GenerateAIBannerPreviewUseCase implements IGenerateAIBannerPreviewU
     private readonly _aiImageGenerator: IAIImageGenerator,
     private readonly _aiUploadPromptBuilder: IAIUploadPromptBuilder,
     private readonly _randomSeedGenerator: IRandomSeedGenerator,
-    private readonly _uploadsMapper: IUploadsMapper,
   ) {}
 
   async execute(prompt: string): Promise<IAIImagePreviewResultDTO> {
@@ -41,7 +39,7 @@ export class GenerateAIBannerPreviewUseCase implements IGenerateAIBannerPreviewU
         ),
       })
 
-      return this._uploadsMapper.toAIImagePreviewResult(image.dataUrl)
+      return { imageUrl: image.dataUrl }
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.aiImageGenerationFailed()

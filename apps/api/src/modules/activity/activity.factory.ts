@@ -61,6 +61,3 @@ export const createActivityComposition =
       },
     }
   }
-
-export const activityComposition = createActivityComposition()
-export const activityRecorder = activityComposition.useCases.recordActivity

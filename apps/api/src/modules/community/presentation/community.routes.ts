@@ -4,7 +4,7 @@ import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate, validateIdentifierParam, validateQuery } from '../../../shared/middlewares/validate'
 import { CommunityController } from './community.controller'
-import { createCommunityComposition } from '../community.factory'
+import type { CommunityUseCases } from '../application/contracts/community-use-cases.contract'
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants'
 import {
   sendTrackerForVerificationSchema,
@@ -12,10 +12,10 @@ import {
   voteVerificationSubmissionSchema,
   communityTrackerQuerySchema,
   communityPaginationQuerySchema,
-  communityLeaderboardQuerySchema,
 } from './community.schema'
 
-const communityController = new CommunityController(createCommunityComposition().useCases)
+export const createCommunityRoutes = (useCases: CommunityUseCases) => {
+const communityController = new CommunityController(useCases)
 const router = Router()
 router.param('trackerId', validateIdentifierParam)
 router.param('reviewId', validateIdentifierParam)
@@ -26,13 +26,6 @@ router.param('submissionId', validateIdentifierParam)
 router.use(authenticatedApiIpLimiter, authenticate)
 
 router.get(COMMUNITY_ROUTE_PATHS.BROWSE, validateQuery(communityTrackerQuerySchema), communityController.getBrowse)
-router.get(COMMUNITY_ROUTE_PATHS.TRACKERS, validateQuery(communityTrackerQuerySchema), communityController.getTrackers)
-router.get(COMMUNITY_ROUTE_PATHS.TOPICS, communityController.getTopics)
-router.get(
-  COMMUNITY_ROUTE_PATHS.PERSONAL_STATS,
-  communityController.getPersonalStats,
-)
-
 router.get(
   COMMUNITY_ROUTE_PATHS.TRACKER_DETAIL,
   communityController.getPublicTrackerDetail,
@@ -60,16 +53,6 @@ router.get(
   communityController.getVerificationDashboard,
 )
 router.get(
-  COMMUNITY_ROUTE_PATHS.VERIFY_QUEUE,
-  validateQuery(communityPaginationQuerySchema),
-  communityController.getVerificationQueue,
-)
-router.get(
-  COMMUNITY_ROUTE_PATHS.VERIFY_LEADERBOARD,
-  validateQuery(communityLeaderboardQuerySchema),
-  communityController.getVerificationLeaderboard,
-)
-router.get(
   COMMUNITY_ROUTE_PATHS.VERIFY_SUBMISSION,
   communityController.getVerificationSubmission,
 )
@@ -84,5 +67,5 @@ router.post(
   communityController.toggleTrackerLike,
 )
 
-export default router
-export { router as communityRoutes }
+return router
+}
