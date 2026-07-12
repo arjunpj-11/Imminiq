@@ -1,4 +1,4 @@
-import type { ProfileUploadKind } from '../../domain/value-objects/profile-upload-kind.vo'
+import type { ProfileUploadKind } from '../../domain/types/uploads.types'
 
 export interface IAIUploadPromptBuilder {
   buildPrompt(kind: ProfileUploadKind, prompt: string): string

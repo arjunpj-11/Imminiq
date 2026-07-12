@@ -1,4 +1,4 @@
-import type { FriendRequestStatus } from "../value-objects/friend-request-status.vo";
+import type { FriendRequestStatus } from "../types/friends.types";
 
 export type FriendRequestEntityProps = {
   id: string;

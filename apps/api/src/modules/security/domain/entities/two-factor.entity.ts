@@ -1,4 +1,4 @@
-import type { TwoFactorStatus } from '../value-objects/two-factor-status.vo'
+import type { TwoFactorStatus } from '../types/security.types'
 
 export type TwoFactorEntityProps = {
   id?: string | null

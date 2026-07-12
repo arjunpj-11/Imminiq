@@ -1,7 +1,7 @@
 import type {
   SecurityAttemptPolicyName,
   SecurityAttemptScope,
-} from '../value-objects/security-attempt-scope.vo'
+} from '../types/security.types'
 
 export interface ISecurityAttemptStore {
   isBlocked(scope: SecurityAttemptScope, identifier: string): Promise<boolean>

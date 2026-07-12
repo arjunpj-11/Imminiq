@@ -4,8 +4,10 @@ import { cloudinary } from '../../../../infrastructure/storage/cloudinary.client
 import { StoredProfileImageEntity } from '../../domain/entities/stored-profile-image.entity'
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
 import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface'
-import type { ProfileImageFolder } from '../../domain/value-objects/profile-image-folder.vo'
-import type { UploadedProfileImageFile } from '../../domain/value-objects/uploaded-profile-image-file.vo'
+import type {
+  ProfileImageFolder,
+  UploadedProfileImageFile,
+} from '../../domain/types/uploads.types'
 
 export class CloudinaryProfileImageStorageGateway
   implements IProfileImageStorage

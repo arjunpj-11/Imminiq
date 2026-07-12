@@ -1,5 +1,7 @@
-import type { AuthProvider } from '../../../domain/value-objects/auth-provider.vo'
-import type { TwoFactorStatus } from '../../../domain/value-objects/two-factor-status.vo'
+import type {
+  AuthProvider,
+  TwoFactorStatus,
+} from '../../../domain/types/security.types'
 
 export type MongoIdLike = {
   toString(): string

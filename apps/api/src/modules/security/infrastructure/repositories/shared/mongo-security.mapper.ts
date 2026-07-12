@@ -1,8 +1,10 @@
 import { SecuritySessionEntity } from '../../../domain/entities/security-session.entity'
 import { SecurityUserEntity } from '../../../domain/entities/security-user.entity'
 import { TwoFactorEntity } from '../../../domain/entities/two-factor.entity'
-import type { AuthProvider } from '../../../domain/value-objects/auth-provider.vo'
-import type { TwoFactorStatus } from '../../../domain/value-objects/two-factor-status.vo'
+import type {
+  AuthProvider,
+  TwoFactorStatus,
+} from '../../../domain/types/security.types'
 import type {
   MongoIdLike,
   MongoSecuritySessionRecord,

@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import type { IGenerateAIImagePreviewInputDTO } from '../application/dtos/uploads.dto'
-import type { UploadedProfileImageFile } from '../domain/value-objects/uploaded-profile-image-file.vo'
+import type { UploadedProfileImageFile } from '../domain/types/uploads.types'
 import type { UploadsUseCases } from '../application/contracts/uploads-use-cases.contract'
 
 export class UploadsController {

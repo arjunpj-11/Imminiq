@@ -1,4 +1,4 @@
-import type { AuthProvider } from '../../domain/value-objects/auth-provider.vo'
+import type { AuthProvider } from '../../domain/types/security.types'
 
 export interface ISensitiveActionStepUpPayloadDTO {
   currentPassword?: string

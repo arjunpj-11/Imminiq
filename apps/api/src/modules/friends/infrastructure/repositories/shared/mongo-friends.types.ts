@@ -1,5 +1,7 @@
-import type { FriendRequestStatus } from "../../../domain/value-objects/friend-request-status.vo";
-import type { FriendshipStatus } from "../../../domain/value-objects/friendship-status.vo";
+import type {
+  FriendRequestStatus,
+  FriendshipStatus,
+} from "../../../domain/types/friends.types";
 
 export type MongoIdLike = {
   toString(): string;

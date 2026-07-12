@@ -7,7 +7,7 @@ import type { ISecurityAttemptStore } from '../../domain/services/security-attem
 import type {
   SecurityAttemptPolicyName,
   SecurityAttemptScope,
-} from '../../domain/value-objects/security-attempt-scope.vo'
+} from '../../domain/types/security.types'
 
 export class RedisSecurityAttemptStore implements ISecurityAttemptStore {
   async isBlocked(

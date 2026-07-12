@@ -1,5 +1,7 @@
-import type { VerificationSubmissionStatus } from '../value-objects/verification-submission-status.vo'
-import type { VerificationVoteChoice } from '../value-objects/verification-vote-choice.vo'
+import type {
+  VerificationSubmissionStatus,
+  VerificationVoteChoice,
+} from '../types/community.types'
 
 export type CommunityVerificationReviewSubtopic = {
   id: string

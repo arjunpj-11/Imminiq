@@ -1,4 +1,4 @@
-import type { ProfileUploadKind } from '../value-objects/profile-upload-kind.vo'
+import type { ProfileUploadKind } from '../types/uploads.types'
 
 export type UploadedProfileImageEntityProps = {
   id: string

@@ -1,4 +1,4 @@
-import type { TwoFactorBackupCodeRecord } from '../value-objects/two-factor-backup-code.vo'
+import type { TwoFactorBackupCodeRecord } from '../types/security.types'
 
 export interface ITwoFactorBackupCodeManager {
   generate(): string[]
