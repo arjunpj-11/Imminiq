@@ -87,6 +87,63 @@ export default tseslint.config(
     },
   },
 
+  // Clean Architecture dependency rule: dependencies may only point inward.
+  {
+    files: ['apps/api/src/modules/*/domain/**/*.ts'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        paths: [
+          { name: 'express', message: 'Domain code cannot depend on HTTP frameworks.' },
+          { name: 'mongoose', message: 'Map persistence values in infrastructure adapters.' },
+          { name: 'ioredis', message: 'Depend on a domain port instead.' },
+          { name: 'bullmq', message: 'Depend on a domain port instead.' },
+          { name: 'jsonwebtoken', message: 'Depend on a domain token port instead.' },
+          { name: 'zod', message: 'Validation schemas belong at the presentation boundary.' },
+        ],
+        patterns: [
+          { group: ['**/application/**', '**/presentation/**', '**/infrastructure/**', '**/*.factory'], message: 'Domain dependencies must point inward only.' },
+        ],
+      }],
+    },
+  },
+  {
+    files: ['apps/api/src/modules/*/application/**/*.ts'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        paths: [
+          { name: 'express', message: 'HTTP types belong in presentation.' },
+          { name: 'mongoose', message: 'Map persistence values in infrastructure adapters.' },
+          { name: 'ioredis', message: 'Depend on an inward-facing port.' },
+          { name: 'bullmq', message: 'Depend on an inward-facing port.' },
+          { name: 'jsonwebtoken', message: 'Depend on an inward-facing token port.' },
+        ],
+        patterns: [
+          { group: ['**/presentation/**', '**/infrastructure/**', '**/*.factory', '**/config/**', '**/middlewares/**'], message: 'Application dependencies must not point to outer layers.' },
+        ],
+      }],
+    },
+  },
+  {
+    files: ['apps/api/src/modules/*/presentation/**/*.ts'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [
+          { group: ['**/infrastructure/**'], message: 'Presentation must not depend directly on infrastructure.' },
+        ],
+      }],
+    },
+  },
+  {
+    files: ['apps/api/src/modules/*/presentation/**/*.controller.ts'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [
+          { group: ['**/infrastructure/**', '**/*.factory'], message: 'Controllers must depend on application contracts, not composition or infrastructure.' },
+        ],
+      }],
+    },
+  },
+
   /**
    * Test files are intentionally outside the main API tsconfig project.
    * Disable ESLint project-service typing here so CI can lint test files

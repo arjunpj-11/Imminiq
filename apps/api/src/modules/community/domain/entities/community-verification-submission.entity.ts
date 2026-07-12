@@ -110,7 +110,7 @@ export class CommunityVerificationSubmissionEntity {
     return this.status !== 'open'
   }
 
-  get timeLeft(): string {
+  timeLeftAt(now: Date): string {
     if (this.closed || !this.expiresAt) {
       return ''
     }
@@ -121,7 +121,7 @@ export class CommunityVerificationSubmissionEntity {
       return ''
     }
 
-    const diffMs = expiresTime - Date.now()
+    const diffMs = expiresTime - now.getTime()
 
     if (diffMs <= 0) {
       return ''

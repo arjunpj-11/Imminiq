@@ -3,14 +3,14 @@ import type { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { OnboardingComposition } from '../onboarding.factory'
+import type { OnboardingUseCases } from '../application/contracts/onboarding-use-cases.contract'
 
 type JobIdParams = {
   jobId: string
 }
 
 export class OnboardingController {
-  constructor(private readonly _useCases: OnboardingComposition['useCases']) {}
+  constructor(private readonly _useCases: OnboardingUseCases) {}
 
   getStatus = async (req: Request, res: Response, next: NextFunction) => {
     try {

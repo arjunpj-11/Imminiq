@@ -4,10 +4,10 @@ import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 import type { IGenerateAIImagePreviewInputDTO } from '../application/dtos/uploads.dto'
 import type { UploadedProfileImageFile } from '../domain/value-objects/uploaded-profile-image-file.vo'
-import type { UploadsComposition } from '../uploads.factory'
+import type { UploadsUseCases } from '../application/contracts/uploads-use-cases.contract'
 
 export class UploadsController {
-  constructor(private readonly _useCases: UploadsComposition['useCases']) {}
+  constructor(private readonly _useCases: UploadsUseCases) {}
 
   uploadAvatar = async (req: Request, res: Response, next: NextFunction) => {
     try {

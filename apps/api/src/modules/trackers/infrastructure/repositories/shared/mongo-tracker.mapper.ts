@@ -18,6 +18,40 @@ import type {
 } from "./mongo-tracker.types";
 
 export class MongoTrackerMapper {
+  toDomainRecord<T>(value: unknown): T {
+    return this.normalizePersistenceValue(value) as T
+  }
+
+  private normalizePersistenceValue(value: unknown): unknown {
+    if (value instanceof Types.ObjectId) {
+      return value.toHexString()
+    }
+
+    if (value instanceof Date || value === null || value === undefined) {
+      return value
+    }
+
+    if (Array.isArray(value)) {
+      return value.map((item) => this.normalizePersistenceValue(item))
+    }
+
+    if (typeof value === 'object') {
+      const document = value as { toObject?: () => unknown }
+      const plainValue = typeof document.toObject === 'function'
+        ? document.toObject()
+        : value
+
+      return Object.fromEntries(
+        Object.entries(plainValue as Record<string, unknown>).map(([key, item]) => [
+          key,
+          this.normalizePersistenceValue(item),
+        ]),
+      )
+    }
+
+    return value
+  }
+
   toObjectId(value: string): Types.ObjectId {
     if (!Types.ObjectId.isValid(value)) {
       throw new TrackerDomainError(
@@ -77,22 +111,22 @@ export class MongoTrackerMapper {
     const defaultStatus = subtopic.isLocked ? "locked" : "available";
 
     return {
-      _id: subtopic._id,
-      trackerId: subtopic.trackerId,
-      topicId: subtopic.topicId,
-      parentSubtopicId: subtopic.parentSubtopicId ?? null,
+      _id: subtopic._id.toHexString(),
+      trackerId: subtopic.trackerId.toHexString(),
+      topicId: subtopic.topicId.toHexString(),
+      parentSubtopicId: subtopic.parentSubtopicId?.toHexString() ?? null,
       title: subtopic.title,
       description: subtopic.description,
       order: subtopic.order,
       depth: subtopic.depth,
-      isLocked: subtopic.isLocked,
+      isLocked: Boolean(subtopic.isLocked),
       estimatedMinutes: subtopic.estimatedMinutes || 0,
       status: (progress?.status ??
         defaultStatus) as SubtopicWithProgressRecord["status"],
       isUnlocked: progress ? Boolean(progress.isUnlocked) : !subtopic.isLocked,
       progressPercent: progress?.progressPercent ?? 0,
       completedAt: progress?.completedAt ?? null,
-    } as SubtopicWithProgressRecord;
+    };
   }
 
   toTopicWithProgress(
@@ -101,6 +135,7 @@ export class MongoTrackerMapper {
   ): TopicWithProgressRecord {
     return {
       ...topic,
+      _id: topic._id.toHexString(),
       status: progress?.status ?? "active",
       progressPercent: progress?.progressPercent ?? 0,
     } as TopicWithProgressRecord;

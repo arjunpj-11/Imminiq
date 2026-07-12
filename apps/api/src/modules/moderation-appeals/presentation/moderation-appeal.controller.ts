@@ -2,10 +2,10 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import type { ModerationAppealComposition } from '../moderation-appeal.factory'
+import type { ModerationAppealUseCases } from '../application/contracts/moderation-appeal-use-cases.contract'
 
 export class ModerationAppealController {
-  constructor(private readonly _useCases: ModerationAppealComposition['useCases']) {}
+  constructor(private readonly _useCases: ModerationAppealUseCases) {}
 
   submitAppeal = async (
     req: Request,

@@ -1,0 +1,39 @@
+import type * as Application from '../index'
+export type TrackerUseCases = {
+  getTrackerSummary: Application.GetTrackerSummaryUseCase
+  listTrackers: Application.ListTrackersUseCase
+  createTracker: Application.CreateTrackerUseCase
+  getTrackerDetails: Application.GetTrackerDetailsUseCase
+  updateTracker: Application.UpdateTrackerUseCase
+  deleteTracker: Application.DeleteTrackerUseCase
+  archiveTracker: Application.ArchiveTrackerUseCase
+  restoreTracker: Application.RestoreTrackerUseCase
+  publishTracker: Application.PublishTrackerUseCase
+  unpublishTracker: Application.UnpublishTrackerUseCase
+  getTrackerRoadmap: Application.GetTrackerRoadmapUseCase
+  createTrackerTopic: Application.CreateTrackerTopicUseCase
+  createTrackerSubtopic: Application.CreateTrackerSubtopicUseCase
+  updateSubtopicProgress: Application.UpdateSubtopicProgressUseCase
+  addMissingEvaluationTopic: Application.AddMissingEvaluationTopicUseCase
+  getTrackerLesson: Application.GetTrackerLessonUseCase
+  chatWithLessonTutor: Application.ChatWithLessonTutorUseCase
+  generateLessonQuestions: Application.GenerateLessonQuestionsUseCase
+  generateLessonQuestionSolution: Application.GenerateLessonQuestionSolutionUseCase
+  askLessonQuestionSolutionDoubt: Application.AskLessonQuestionSolutionDoubtUseCase
+  generateLessonVisualization: Application.GenerateLessonVisualizationUseCase
+  getCodeHint: Application.GetCodeHintUseCase
+  getOptimizedSolution: Application.GetOptimizedSolutionUseCase
+  verifyLessonAnswer: Application.VerifyLessonAnswerUseCase
+  verifyTrackerTopic: Application.VerifyTrackerTopicUseCase
+  verifyTrackerSubtopic: Application.VerifyTrackerSubtopicUseCase
+  runLessonCode: Application.RunLessonCodeUseCase
+  submitLessonCode: Application.SubmitLessonCodeUseCase
+  getLessonChatHistory: Application.GetLessonChatHistoryUseCase
+  getLessonAnswerAttempts: Application.GetLessonAnswerAttemptsUseCase
+  getLessonCodeSubmissions: Application.GetLessonCodeSubmissionsUseCase
+  getLessonGeneratedQuestions: Application.GetLessonGeneratedQuestionsUseCase
+  getLessonQuestionSolution: Application.GetLessonQuestionSolutionUseCase
+  getLessonQuestionSolutionDoubts: Application.GetLessonQuestionSolutionDoubtsUseCase
+  clearLessonChatHistory: Application.ClearLessonChatHistoryUseCase
+  clearLessonQuestionSolutionDoubts: Application.ClearLessonQuestionSolutionDoubtsUseCase
+}

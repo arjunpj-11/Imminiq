@@ -19,7 +19,7 @@ import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
 import type { IAuthSessionIssuer } from '../services/auth-session.service'
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 import type { IAuthToken } from '../../domain/services/auth-token.interface'
-import { createModerationAppealToken } from '../../../../shared/security/moderation-appeal-token.util'
+import type { IModerationAppealToken } from '../../domain/services/moderation-appeal-token.interface'
 
 type LoginRepository =
   IAuthUserRepository &
@@ -38,7 +38,8 @@ export class LoginUserUseCase {
     private readonly _authToken: IAuthToken,
     private readonly _passwordHasher: IPasswordHasher,
     private readonly _securityAttemptStore: ISecurityAttemptStore,
-    private readonly _authUserMapper: IAuthUserMapper
+    private readonly _authUserMapper: IAuthUserMapper,
+    private readonly _moderationAppealToken: IModerationAppealToken,
   ) {}
 
   async execute(
@@ -78,7 +79,7 @@ export class LoginUserUseCase {
     } catch (error) {
       if (error instanceof AuthApplicationError) {
         throw error.withData({
-          appealToken: createModerationAppealToken(
+          appealToken: this._moderationAppealToken.create(
             user.id,
             parsedIdentifier.value,
           ),

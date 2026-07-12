@@ -5,12 +5,12 @@ import { decryptAuthCookieToken } from '../../../shared/security/auth-cookie-tok
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { SecurityComposition } from '../security.factory'
+import type { SecurityUseCases } from '../application/contracts/security-use-cases.contract'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
 export class SecurityController {
-  constructor(private readonly _useCases: SecurityComposition['useCases']) {}
+  constructor(private readonly _useCases: SecurityUseCases) {}
 
   getOverview = async (req: Request, res: Response, next: NextFunction) => {
     try {

@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 
 import type { DifficultyLevel } from '../application/dtos/mock-tests.dto'
-import type { MockTestsComposition } from '../mock-tests.factory'
+import type { MockTestsUseCases } from '../application/contracts/mock-tests-use-cases.contract'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
@@ -20,7 +20,7 @@ type PublicTestsQuery = {
 }
 
 export class MockTestsController {
-  constructor(private readonly _useCases: MockTestsComposition['useCases']) {}
+  constructor(private readonly _useCases: MockTestsUseCases) {}
 
   listTests = async (req: Request, res: Response, next: NextFunction) => {
     try {

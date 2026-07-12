@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { TrackerComposition } from '../tracker.factory'
+import type { TrackerUseCases } from '../application/contracts/tracker-use-cases.contract'
 
 type TrackerParams = {
   trackerId: string
@@ -26,7 +26,7 @@ type AddMissingTopicParams = {
 }
 
 type TrackerListQuery = Omit<
-  Parameters<TrackerComposition['useCases']['listTrackers']['execute']>[0],
+  Parameters<TrackerUseCases['listTrackers']['execute']>[0],
   'userId'
 >
 
@@ -48,7 +48,7 @@ type MissingTopicEvaluationResult = {
 }
 
 export class TrackerController {
-  constructor(private readonly _useCases: TrackerComposition['useCases']) {}
+  constructor(private readonly _useCases: TrackerUseCases) {}
 
   getSummary = async (req: Request, res: Response, next: NextFunction) => {
     try {

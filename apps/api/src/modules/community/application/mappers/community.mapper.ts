@@ -16,6 +16,7 @@ import type {
   ICommunityVerificationStatsViewDTO,
   ICommunityVerifyItemViewDTO,
 } from '../dtos/community.dto'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export interface ICommunityMapper {
   toTrackerView(entity: CommunityTrackerEntity): ICommunityTrackerViewDTO
@@ -49,6 +50,8 @@ export interface ICommunityMapper {
 }
 
 export class CommunityMapper implements ICommunityMapper {
+  constructor(private readonly clock: IClock) {}
+
   toTrackerView(entity: CommunityTrackerEntity): ICommunityTrackerViewDTO {
     return {
       _id: entity.id,
@@ -102,7 +105,7 @@ export class CommunityMapper implements ICommunityMapper {
   _id: entity.id,
   title: entity.title,
   category: entity.category,
-  timeLeft: entity.timeLeft,
+  timeLeft: entity.timeLeftAt(this.clock.now()),
   excerpt: entity.excerpt,
   progress: entity.progress,
   passVotes: entity.passVotes,
@@ -200,23 +203,4 @@ reviewTracker: entity.reviewTracker,
     return String(value)
   }
 
-  private formatTimeLeft(expiresAt?: Date | null): string {
-    if (!expiresAt) {
-      return ''
-    }
-
-    const diffMs = expiresAt.getTime() - Date.now()
-
-    if (diffMs <= 0) {
-      return ''
-    }
-
-    const hours = Math.ceil(diffMs / (1000 * 60 * 60))
-
-    if (hours >= 24) {
-      return `${Math.ceil(hours / 24)}d`
-    }
-
-    return `${hours}h`
-  }
 }

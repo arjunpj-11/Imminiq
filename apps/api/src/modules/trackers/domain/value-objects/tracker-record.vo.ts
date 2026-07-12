@@ -17,7 +17,11 @@ import type { TrackerSortBy } from './tracker-sort.vo'
 import type { TrackerStatus } from './tracker-status.vo'
 import type { TrackerVisibility } from './tracker-visibility.vo'
 
-export type ObjectIdLike = { toString(): string }
+/**
+ * Persistence-neutral identifier used at the domain boundary.
+ * Infrastructure adapters must convert database-native identifiers to strings.
+ */
+export type ObjectIdLike = string
 
 export type TrackerListFilter = {
   userId: string

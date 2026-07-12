@@ -2,10 +2,10 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { SettingsComposition } from '../settings.factory'
+import type { SettingsUseCases } from '../application/contracts/settings-use-cases.contract'
 
 export class SettingsController {
-  constructor(private readonly _useCases: SettingsComposition['useCases']) {}
+  constructor(private readonly _useCases: SettingsUseCases) {}
 
   getAllSettings = async (req: Request, res: Response, next: NextFunction) => {
     try {

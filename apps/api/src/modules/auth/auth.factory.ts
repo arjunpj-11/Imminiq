@@ -1,4 +1,5 @@
 import { AuthUserMapper, type IAuthUserMapper } from './application/mappers/auth-user.mapper'
+import { systemClock } from '../../infrastructure/time/system-clock'
 import { AuthSessionMapper } from './application/mappers/auth-session.mapper'
 import { AuthAccountPolicy } from './application/policies/auth-account-policy.policy'
 import { AuthNotificationCoordinator } from './application/services/auth-notification.service'
@@ -36,6 +37,7 @@ import { cryptoOtpGenerator } from './infrastructure/services/crypto-otp-generat
 import { cryptoRandomNumberGenerator } from './infrastructure/services/crypto-random-number-generator.service'
 import { jwtAuthToken } from './infrastructure/services/jwt-auth-token.service'
 import { jwtPasswordResetToken } from './infrastructure/services/jwt-password-reset-token.service'
+import { jwtModerationAppealToken } from './infrastructure/services/jwt-moderation-appeal-token.service'
 import { otplibTwoFactorCodeVerifier } from './infrastructure/services/otplib-two-factor-code-verifier.service'
 import { securityAuditLogger } from './infrastructure/loggers/security-audit.logger'
 import { messageCentralPhoneOtpProvider } from './infrastructure/providers/message-central-phone-otp.provider'
@@ -98,7 +100,7 @@ export const createAuthComposition = (): AuthComposition => {
     cryptoRandomNumberGenerator
   )
 
-  const authAccountPolicy = new AuthAccountPolicy()
+  const authAccountPolicy = new AuthAccountPolicy(systemClock)
   const backupCodeNormalizer = new BackupCodeNormalizer()
 
   const passwordHasher = bcryptPasswordHasher
@@ -150,7 +152,8 @@ export const createAuthComposition = (): AuthComposition => {
         authToken,
         passwordHasher,
         securityAttemptStore,
-        authUserMapper
+        authUserMapper,
+        jwtModerationAppealToken,
       ),
 
       handleOAuthLogin: new HandleOAuthLoginUseCase(

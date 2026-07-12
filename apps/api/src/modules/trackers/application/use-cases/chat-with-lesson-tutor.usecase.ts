@@ -50,10 +50,7 @@ export class ChatWithLessonTutorUseCase {
       .reverse()
       .find((message) => message.role === 'user')
 
-    const lessonId =
-      typeof lesson._id === 'string'
-        ? lesson._id
-        : lesson._id?.toString?.() ?? null
+    const lessonId = lesson._id
 
     if (latestUserMessage?.content?.trim()) {
       await this._trackerRepository.createLessonChatMessage({

@@ -26,6 +26,7 @@ import { ToggleCommunityTrackerLikeUseCase } from './application/use-cases/toggl
 import { UpsertCommunityTrackerReviewUseCase } from './application/use-cases/upsert-community-tracker-review.usecase'
 import { VoteVerificationSubmissionUseCase } from './application/use-cases/vote-verification-submission.usecase'
 import type { ICommunityCoinLedger } from './domain/services/community-coin-ledger.interface'
+import { systemClock } from '../../infrastructure/time/system-clock'
 import { activityCommunityGateway } from './infrastructure/gateways/activity-community.gateway'
 import {
   mongoCommunityCoinLedger,
@@ -86,13 +87,13 @@ export const createCommunityComposition =
       mongoCommunityCoinLedger
 
     const mapper =
-      new CommunityMapper()
+      new CommunityMapper(systemClock)
 
     const reviewMapper =
       new CommunityReviewMapper()
 
     const verificationPolicy =
-      new CommunityVerificationPolicy()
+      new CommunityVerificationPolicy(systemClock)
 
     return {
       useCases: {

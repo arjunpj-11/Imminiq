@@ -62,7 +62,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
           order: 1,
         });
 
-        return topics as TrackerTopicRecord[];
+        return this.mapper.toDomainRecord<TrackerTopicRecord[]>(topics);
       },
     );
   }
@@ -82,7 +82,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
           order: 1,
         });
 
-        return subtopics as TrackerSubtopicRecord[];
+        return this.mapper.toDomainRecord<TrackerSubtopicRecord[]>(subtopics);
       },
     );
   }
@@ -162,7 +162,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
           }),
         );
 
-        return topic as CreatedTrackerTopicRecord;
+        return this.mapper.toDomainRecord<CreatedTrackerTopicRecord>(topic);
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
@@ -212,7 +212,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
           }),
         );
 
-        return subtopic as CreatedTrackerSubtopicRecord;
+        return this.mapper.toDomainRecord<CreatedTrackerSubtopicRecord>(subtopic);
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
