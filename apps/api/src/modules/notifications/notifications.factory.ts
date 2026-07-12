@@ -1,10 +1,13 @@
-import { ListNotificationsUseCase, MarkAllNotificationsReadUseCase, MarkNotificationReadUseCase } from './application/notification.use-cases'
-import { mongoNotificationRepository } from './infrastructure/repositories/mongo-notification.repository'
+import { CreateNotificationUseCase, ListNotificationsUseCase, MarkAllNotificationsReadUseCase, MarkNotificationReadUseCase, NotificationsMapper, type NotificationsUseCases } from './application'
+import { mongoNotificationsRepository } from './infrastructure'
 
-export const createNotificationsComposition = () => ({
-  useCases: {
-    list: new ListNotificationsUseCase(mongoNotificationRepository),
-    markRead: new MarkNotificationReadUseCase(mongoNotificationRepository),
-    markAllRead: new MarkAllNotificationsReadUseCase(mongoNotificationRepository),
-  },
-})
+export type NotificationsComposition = { useCases: NotificationsUseCases; helpers: { notificationsMapper: NotificationsMapper } }
+export const createNotificationsComposition = (): NotificationsComposition => {
+  const notificationsMapper = new NotificationsMapper()
+  return { useCases: {
+    listNotifications: new ListNotificationsUseCase(mongoNotificationsRepository, notificationsMapper),
+    createNotification: new CreateNotificationUseCase(mongoNotificationsRepository),
+    markNotificationRead: new MarkNotificationReadUseCase(mongoNotificationsRepository),
+    markAllNotificationsRead: new MarkAllNotificationsReadUseCase(mongoNotificationsRepository),
+  }, helpers: { notificationsMapper } }
+}

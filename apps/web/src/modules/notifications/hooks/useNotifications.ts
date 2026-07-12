@@ -1,29 +1,14 @@
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query'
 import api from '../../../lib/axios'
+import { NOTIFICATION_PAGE_LIMIT, NOTIFICATION_REFETCH_INTERVAL_MS } from '../constants/notification.constants'
 import type { INotificationList } from '../types/notification.types'
+import { notificationKeys } from './notification-query-keys'
 
 interface ApiResponse<T> { data: T }
-export const notificationKeys = { all: ['notifications'] as const }
-
-export const useNotifications = (enabled = true) => useQuery({
-  queryKey: notificationKeys.all,
-  queryFn: async () => (await api.get<ApiResponse<INotificationList>>('/notifications')).data.data,
-  refetchInterval: 15_000,
+export const useNotifications = (page = 1, enabled = true) => useQuery({
+  queryKey: notificationKeys.list(page, NOTIFICATION_PAGE_LIMIT),
+  queryFn: async () => (await api.get<ApiResponse<INotificationList>>('/notifications', { params: { page, limit: NOTIFICATION_PAGE_LIMIT } })).data.data,
+  placeholderData: keepPreviousData,
+  refetchInterval: NOTIFICATION_REFETCH_INTERVAL_MS,
   enabled,
 })
-
-export const useMarkNotificationRead = () => {
-  const client = useQueryClient()
-  return useMutation({
-    mutationFn: (id: string) => api.patch(`/notifications/${id}/read`),
-    onSuccess: () => client.invalidateQueries({ queryKey: notificationKeys.all }),
-  })
-}
-
-export const useMarkAllNotificationsRead = () => {
-  const client = useQueryClient()
-  return useMutation({
-    mutationFn: () => api.patch('/notifications/read-all'),
-    onSuccess: () => client.invalidateQueries({ queryKey: notificationKeys.all }),
-  })
-}

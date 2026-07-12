@@ -61,7 +61,7 @@ export function AppShell({
   const streakQuery = useStreak(undefined, {
     enabled: !isGuest && isAuthenticated,
   })
-  const notificationsQuery = useNotifications(!isGuest && isAuthenticated)
+  const notificationsQuery = useNotifications(1, !isGuest && isAuthenticated)
 
   const [pageViewer, setPageViewer] = useState<IAppShellViewer | null>(
     initialViewer ?? null,

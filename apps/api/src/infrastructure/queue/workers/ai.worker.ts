@@ -8,9 +8,9 @@ import { AIGenerationStep } from '../../database/models/ai-generation-step.model
 import { Tracker } from '../../database/models/tracker.model'
 import { TrackerTopic } from '../../database/models/tracker-topic.model'
 import { TrackerSubtopic } from '../../database/models/tracker-subtopic.model'
-import { Notification } from '../../database/models/notification.model'
 import { createActivityComposition } from '../../../modules/activity/activity.factory'
 import { createMockTestsComposition } from '../../../modules/mock-tests/mock-tests.factory'
+import { createNotificationsComposition } from '../../../modules/notifications/notifications.factory'
 
 import {
   generateRoadmapStructure,
@@ -508,7 +508,7 @@ const processRoadmapGeneration = async (
 
   await completeStep(jobId, 5)
 
-  await Notification.create({
+  await createNotificationsComposition().useCases.createNotification.execute({
     userId,
     type: 'tracker_generation_completed',
     message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
@@ -659,7 +659,7 @@ export const aiWorker = new Worker(
         await AIGenerationJob.findByIdAndUpdate(jobId, {
           status: 'completed', currentStep: 1, completedAt: new Date(), outputData: { testId: test._id },
         })
-        await Notification.create({
+        await createNotificationsComposition().useCases.createNotification.execute({
           userId,
           type: 'mock_test_generation_completed',
           message: `Your mock test “${test.title}” is ready. Go and check it out.`,
@@ -699,8 +699,8 @@ export const aiWorker = new Worker(
 
       const failedJob = await AIGenerationJob.findById(jobId).lean()
       if (failedJob?.jobType === 'mock_test') {
-        await Notification.create({
-          userId: failedJob.userId,
+        await createNotificationsComposition().useCases.createNotification.execute({
+          userId: failedJob.userId.toString(),
           type: 'mock_test_generation_failed',
           message: 'We could not generate your mock test. Please try again.',
           deepLink: '/mock-tests',

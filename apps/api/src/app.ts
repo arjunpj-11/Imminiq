@@ -33,7 +33,7 @@ import leaderBoardRouter from './modules/leaderboard/presentation/leaderboard.ro
 import { createActivityComposition } from './modules/activity/activity.factory'
 import { createActivityRoutes } from './modules/activity/presentation/activity.routes'
 import { friendsRoutes } from './modules/friends/presentation/friends.routes'
-import { createNotificationsRoutes } from './modules/notifications'
+import { createNotificationsComposition, createNotificationsRoutes } from './modules/notifications'
 import mongoose from 'mongoose'
 import { redis } from './config/redis'
 
@@ -131,7 +131,7 @@ app.use('/api/moderation-appeals', moderationAppealRoutes)
 app.use('/api/leaderboard',leaderBoardRouter)
 app.use('/api/activity',activityRouter)
 app.use('/api/friends', friendsRoutes)
-app.use('/api/notifications', createNotificationsRoutes())
+app.use('/api/notifications', createNotificationsRoutes(createNotificationsComposition().useCases))
 
 app.use(errorHandler)
 

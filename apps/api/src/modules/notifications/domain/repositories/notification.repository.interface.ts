@@ -1,7 +1,4 @@
-import type { NotificationEntity } from '../notification.types'
+import type { INotificationCommandRepository } from './notification-command.repository.interface'
+import type { INotificationQueryRepository } from './notification-query.repository.interface'
 
-export interface INotificationRepository {
-  list(userId: string, page: number, limit: number): Promise<{ notifications: NotificationEntity[]; total: number; unreadCount: number }>
-  markRead(userId: string, notificationId: string): Promise<boolean>
-  markAllRead(userId: string): Promise<number>
-}
+export interface INotificationRepository extends INotificationQueryRepository, INotificationCommandRepository {}

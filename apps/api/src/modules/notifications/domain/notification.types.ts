@@ -1,9 +1,4 @@
-export interface NotificationEntity {
-  _id: string
-  type: string
-  message: string
-  isRead: boolean
-  deepLink?: string
-  metadata?: Record<string, unknown>
-  createdAt: Date
-}
+import type { NOTIFICATION_TYPES } from './notification.constants'
+
+export type NotificationType = (typeof NOTIFICATION_TYPES)[number] | string
+export type NotificationMetadata = Record<string, unknown>

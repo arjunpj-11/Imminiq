@@ -1,2 +1,5 @@
-export { createNotificationsComposition } from './notifications.factory'
-export { createNotificationsRoutes } from './presentation/notifications.routes'
+export * from './domain'
+export * from './application'
+export * from './infrastructure'
+export * from './presentation'
+export * from './notifications.factory'

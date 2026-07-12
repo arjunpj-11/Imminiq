@@ -1,5 +1,5 @@
 export interface INotification {
-  _id: string
+  id: string
   type: string
   message: string
   isRead: boolean
@@ -10,6 +10,6 @@ export interface INotification {
 
 export interface INotificationList {
   notifications: INotification[]
-  total: number
+  pagination: { page: number; limit: number; totalItems: number; totalPages: number; hasNextPage: boolean; hasPreviousPage: boolean }
   unreadCount: number
 }
