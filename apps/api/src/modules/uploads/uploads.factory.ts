@@ -46,28 +46,24 @@ export const createUploadsComposition = (
 
       removeAvatar: new RemoveAvatarUseCase(
         userProfileReader,
-        uploadsRepository,
-        uploadsMapper
+        uploadsRepository
       ),
 
       removeBanner: new RemoveBannerUseCase(
         userProfileReader,
-        uploadsRepository,
-        uploadsMapper
+        uploadsRepository
       ),
 
       generateAIAvatarPreview: new GenerateAIAvatarPreviewUseCase(
         aiImageGenerator,
         aiUploadPromptBuilder,
-        randomSeedGenerator,
-        uploadsMapper
+        randomSeedGenerator
       ),
 
       generateAIBannerPreview: new GenerateAIBannerPreviewUseCase(
         aiImageGenerator,
         aiUploadPromptBuilder,
-        randomSeedGenerator,
-        uploadsMapper
+        randomSeedGenerator
       ),
     },
   }

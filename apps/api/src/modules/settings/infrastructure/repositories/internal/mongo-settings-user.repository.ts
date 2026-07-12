@@ -23,7 +23,7 @@ import type {
   MongooseObjectLike,
 } from '../shared/mongo-settings.types'
 
-export class MongoSettingsUserRepository
+export class MongoSettingsRepository
   extends MongoSettingsBaseRepository
   implements ISettingsRepository
 {
@@ -216,5 +216,5 @@ export class MongoSettingsUserRepository
   }
 }
 
-export const mongoSettingsUserRepository =
-  new MongoSettingsUserRepository()
+export const mongoSettingsRepository =
+  new MongoSettingsRepository()

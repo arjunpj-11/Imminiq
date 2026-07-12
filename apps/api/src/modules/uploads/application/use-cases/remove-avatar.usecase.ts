@@ -3,7 +3,6 @@ import type { IProfileImageRepository } from '../../domain/repositories/profile-
 import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
 import type { IRemoveAvatarResultDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { IUploadsMapper } from '../mappers/uploads.mapper'
 import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
 
 type RemoveAvatarRepository =
@@ -17,7 +16,6 @@ export class RemoveAvatarUseCase implements IRemoveAvatarUseCase {
   constructor(
     private readonly _userProfileReader: IUploadUserProfileReader,
     private readonly _uploadsRepository: RemoveAvatarRepository,
-    private readonly _uploadsMapper: IUploadsMapper,
   ) {}
 
   async execute(userId: string): Promise<IRemoveAvatarResultDTO> {
@@ -33,7 +31,10 @@ export class RemoveAvatarUseCase implements IRemoveAvatarUseCase {
         }),
       ])
 
-      return this._uploadsMapper.toAvatarRemovedResult()
+      return {
+        avatarRemoved: true,
+        defaultAvatarApplied: true,
+      }
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.profileImageUpdateFailed()

@@ -5,7 +5,7 @@ import {
 } from '../../domain/constants/community.constants'
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
 import type { ICommunityVerificationDashboardViewDTO, IVerificationQueuePayloadDTO } from '../dtos/community.dto'
-import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../constants/community.constants'
+import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../../domain/constants/community.constants'
 import type { ICommunityMapper } from '../mappers/community.mapper'
 
 export interface IGetVerificationDashboardUseCase {

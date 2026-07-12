@@ -3,7 +3,6 @@ import type { IProfileImageRepository } from '../../domain/repositories/profile-
 import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
 import type { IRemoveBannerResultDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { IUploadsMapper } from '../mappers/uploads.mapper'
 import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
 
 type RemoveBannerRepository =
@@ -17,7 +16,6 @@ export class RemoveBannerUseCase implements IRemoveBannerUseCase {
   constructor(
     private readonly _userProfileReader: IUploadUserProfileReader,
     private readonly _uploadsRepository: RemoveBannerRepository,
-    private readonly _uploadsMapper: IUploadsMapper,
   ) {}
 
   async execute(userId: string): Promise<IRemoveBannerResultDTO> {
@@ -33,7 +31,7 @@ export class RemoveBannerUseCase implements IRemoveBannerUseCase {
         }),
       ])
 
-      return this._uploadsMapper.toBannerRemovedResult()
+      return { bannerRemoved: true }
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.profileImageUpdateFailed()

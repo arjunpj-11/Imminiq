@@ -20,7 +20,7 @@ import { UpdateLearningJourneyUseCase } from './application/use-cases/update-lea
 import { UpdateNotificationsUseCase } from './application/use-cases/update-notifications.usecase'
 import { UpdatePrivacyUseCase } from './application/use-cases/update-privacy.usecase'
 import { UpdateQuietHoursUseCase } from './application/use-cases/update-quiet-hours.usecase'
-import { mongoSettingsRepository } from './infrastructure/repositories/mongo-settings.repository'
+import { mongoSettingsRepository } from './infrastructure/repositories/internal/mongo-settings-user.repository'
 
 
 export type SettingsServiceHelpers = {
