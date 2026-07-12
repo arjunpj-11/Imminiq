@@ -38,9 +38,13 @@ const shutdown = async (signal: string) => {
 
   try {
     await closeSocket()
-    await new Promise<void>((resolve, reject) => {
-      httpServer.close((error) => error ? reject(error) : resolve())
-    })
+    // Socket.IO closes the HTTP server it is attached to. Only close it here
+    // when it is still listening (for example, if Socket.IO was not active).
+    if (httpServer.listening) {
+      await new Promise<void>((resolve, reject) => {
+        httpServer.close((error) => error ? reject(error) : resolve())
+      })
+    }
     await aiWorker.close()
     await redis.quit()
     await disconnectDB()
