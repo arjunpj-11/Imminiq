@@ -183,31 +183,55 @@ Development happens on feature branches or `sub-main`, then merges into `main` a
 
 ## Getting Started
 
+### Prerequisites
+
+- Node.js and npm (the repository uses npm `10.9.0`)
+- Docker with Docker Compose for the local Piston service
+- MongoDB and Redis instances, either local or hosted
+
+### Installation
+
 ```bash
-# Install dependencies
+# Install dependencies for every workspace
 npm install
 
-# Run all packages in dev mode
+# Create local environment files
+cp apps/api/.env.example apps/api/.env
+cp apps/web/.env.example apps/web/.env.development
+
+# Start the API, web app, and Piston
 npm run dev
-
-# Build all packages
-npm run build
-
-# Lint
-npm run lint
-
-# Run tests
-npm run test
 ```
 
-**Start local supporting services:**
+Fill in the required values in the copied environment files before starting the application. The API and web app templates document the variables each workspace expects.
 
-```bash
-# Start Piston (code execution engine)
-npm run piston:up
+### Useful Commands
+
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start all workspaces in development mode and launch Piston |
+| `npm run dev:web` | Start only the frontend |
+| `npm run dev:api` | Start the API and Piston |
+| `npm run build` | Build all workspaces |
+| `npm run lint` | Lint all workspaces |
+| `npm run test` | Run all test suites |
+| `npm run check` | Run linting, tests, and production builds |
+| `npm run piston:up` | Start the local Piston service |
+| `npm run piston:down` | Stop the local Piston service |
+
+> Redis and Piston must be available when running features that depend on sessions, queues, real-time updates, or code execution.
+
+### Workspace Layout
+
+```text
+Imminiq/
+├── apps/
+│   ├── api/       # Express API, workers, and backend modules
+│   └── web/       # React and Vite frontend
+├── docs/          # Deployment and operations documentation
+├── scripts/       # Repository automation and smoke tests
+└── docker-compose.yml
 ```
-
-> Imminiq requires Redis and Piston running locally during development.
 
 ---
 
