@@ -35,8 +35,6 @@ const COOKIE_INDEPENDENT_AUTH_PATHS = new Set([
   '/api/auth/forgot-password',
   '/api/auth/verify-reset-code',
   '/api/auth/reset-password',
-  '/api/auth/check-identifier',
-  '/api/auth/check-username',
 ])
 
 const isProduction = env.NODE_ENV === 'production'

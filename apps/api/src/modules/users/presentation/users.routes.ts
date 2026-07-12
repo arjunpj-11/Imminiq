@@ -39,11 +39,6 @@ router.get(
 )
 
 router.get(
-  USER_ROUTE_PATHS.MY_ACTIVITY,
-  usersController.getMyActivity
-)
-
-router.get(
   USER_ROUTE_PATHS.MY_RECENT_ACTIVITY,
   usersController.getMyRecentActivity
 )

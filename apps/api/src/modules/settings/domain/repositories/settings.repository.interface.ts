@@ -25,7 +25,6 @@ export type {
   UpdateSettingsAppearanceInput,
   UpdateSettingsCodeEditorInput,
   UpdateSettingsCompilerInput,
-  UpdateSettingsCookieConsentInput,
   UpdateSettingsEmailDigestInput,
   UpdateSettingsGesturesInput,
   UpdateSettingsLearningJourneyInput,

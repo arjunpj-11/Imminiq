@@ -1,7 +1,6 @@
 import type * as Application from '../index'
 export type MockTestsUseCases = {
   listMockTests: Application.IListMockTestsUseCase
-  listPublicMockTests: Application.IListPublicMockTestsUseCase
   getMockTestDetails: Application.IGetMockTestDetailsUseCase
   createMockTest: Application.ICreateMockTestUseCase
   generateMockTest: Application.IGenerateMockTestUseCase

@@ -7,11 +7,6 @@ export const mockTestListQuerySchema = z.object({
   limit: z.coerce.number().int().min(1).max(50).optional(),
 })
 
-export const publicMockTestListQuerySchema = mockTestListQuerySchema.extend({
-  difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
-  tags: z.union([z.string().max(500), z.array(z.string().max(40)).max(20)]).optional(),
-})
-
 const codingLanguageSchema = z.enum([
   'javascript',
   'typescript',

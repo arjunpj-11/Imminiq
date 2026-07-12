@@ -2,7 +2,6 @@ export const MOCK_TEST_ROUTE_PATHS = {
   ROOT: '/',
 
   GENERATE: '/generate',
-  PUBLIC: '/public',
   IMPORT_SHARED: '/shared/:shareToken/import',
 
   RUN_CODE: '/attempts/:attemptId/questions/:questionId/run-code',
@@ -10,7 +9,6 @@ export const MOCK_TEST_ROUTE_PATHS = {
 
   HISTORY: '/history',
 
-  ANALYTICS: '/analytics',
   ANALYTICS_TRENDS: '/analytics/trends',
   ANALYTICS_AI_INSIGHTS: '/analytics/ai-insights',
   ANALYTICS_TOPIC_BREAKDOWN: '/analytics/topic-breakdown',

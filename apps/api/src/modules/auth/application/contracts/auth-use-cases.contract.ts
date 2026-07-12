@@ -5,7 +5,6 @@ export type AuthUseCases = {
   handleOAuthLogin: Application.IHandleOAuthLoginUseCase
   verifyTwoFactorLogin: Application.IVerifyTwoFactorLoginUseCase
   logoutUser: Application.ILogoutUserUseCase
-  logoutAllSessions: Application.ILogoutAllSessionsUseCase
   refreshAuthTokens: Application.IRefreshAuthTokensUseCase
   getCurrentUser: Application.IGetCurrentUserUseCase
   verifyAccount: Application.IVerifyAccountUseCase
@@ -13,9 +12,4 @@ export type AuthUseCases = {
   forgotPassword: Application.IForgotPasswordUseCase
   verifyResetCode: Application.IVerifyResetCodeUseCase
   resetPassword: Application.IResetPasswordUseCase
-  changePassword: Application.IChangePasswordUseCase
-  checkIdentifier: Application.ICheckIdentifierUseCase
-  checkUsername: Application.ICheckUsernameUseCase
-  getAuthSessions: Application.IGetAuthSessionsUseCase
-  revokeAuthSession: Application.IRevokeAuthSessionUseCase
 }

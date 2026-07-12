@@ -13,13 +13,8 @@ import {
 } from './application/policies/community-verification.policy'
 import { CloneCommunityTrackerUseCase } from './application/use-cases/clone-community-tracker.usecase'
 import { GetCommunityBrowseUseCase } from './application/use-cases/get-community-browse.usecase'
-import { GetCommunityPersonalStatsUseCase } from './application/use-cases/get-community-personal-stats.usecase'
 import { GetCommunityPublicTrackerUseCase } from './application/use-cases/get-community-public-tracker.usecase'
-import { GetCommunityTopicsUseCase } from './application/use-cases/get-community-topics.usecase'
-import { GetCommunityTrackersUseCase } from './application/use-cases/get-community-trackers.usecase'
 import { GetVerificationDashboardUseCase } from './application/use-cases/get-verification-dashboard.usecase'
-import { GetVerificationLeaderboardUseCase } from './application/use-cases/get-verification-leaderboard.usecase'
-import { GetVerificationQueueUseCase } from './application/use-cases/get-verification-queue.usecase'
 import { GetVerificationSubmissionUseCase } from './application/use-cases/get-verification-submission.usecase'
 import { SubmitTrackerForVerificationUseCase } from './application/use-cases/submit-tracker-for-verification.usecase'
 import { ToggleCommunityReviewHelpfulUseCase } from './application/use-cases/toggle-community-review-helpful.usecase'
@@ -85,27 +80,10 @@ export const createCommunityComposition =
             mapper,
           ),
 
-        getTrackers:
-          new GetCommunityTrackersUseCase(
-            communityRepository,
-            mapper,
-          ),
-
         getPublicTrackerDetail:
           new GetCommunityPublicTrackerUseCase(
             communityReviewRepository,
             reviewMapper,
-          ),
-
-        getPersonalStats:
-          new GetCommunityPersonalStatsUseCase(
-            communityRepository,
-            mapper,
-          ),
-
-        getTopics:
-          new GetCommunityTopicsUseCase(
-            communityRepository,
           ),
 
         cloneTracker:
@@ -140,18 +118,6 @@ export const createCommunityComposition =
 
         getVerificationDashboard:
           new GetVerificationDashboardUseCase(
-            communityRepository,
-            mapper,
-          ),
-
-        getVerificationQueue:
-          new GetVerificationQueueUseCase(
-            communityRepository,
-            mapper,
-          ),
-
-        getVerificationLeaderboard:
-          new GetVerificationLeaderboardUseCase(
             communityRepository,
             mapper,
           ),

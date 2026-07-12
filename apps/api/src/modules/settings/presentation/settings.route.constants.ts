@@ -16,9 +16,6 @@ export const SETTINGS_ROUTE_PATHS = {
   AI_BEHAVIOR: '/ai-behavior',
   LEARNING_JOURNEY: '/learning-journey',
 
-  PREFERENCES: '/preferences',
-
-  ACCEPT_TERMS: '/accept-terms',
   RESET: '/reset',
 } as const
 

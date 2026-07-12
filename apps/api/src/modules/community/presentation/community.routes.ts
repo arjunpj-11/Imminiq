@@ -12,7 +12,6 @@ import {
   voteVerificationSubmissionSchema,
   communityTrackerQuerySchema,
   communityPaginationQuerySchema,
-  communityLeaderboardQuerySchema,
 } from './community.schema'
 
 const communityController = new CommunityController(createCommunityComposition().useCases)
@@ -26,13 +25,6 @@ router.param('submissionId', validateIdentifierParam)
 router.use(authenticatedApiIpLimiter, authenticate)
 
 router.get(COMMUNITY_ROUTE_PATHS.BROWSE, validateQuery(communityTrackerQuerySchema), communityController.getBrowse)
-router.get(COMMUNITY_ROUTE_PATHS.TRACKERS, validateQuery(communityTrackerQuerySchema), communityController.getTrackers)
-router.get(COMMUNITY_ROUTE_PATHS.TOPICS, communityController.getTopics)
-router.get(
-  COMMUNITY_ROUTE_PATHS.PERSONAL_STATS,
-  communityController.getPersonalStats,
-)
-
 router.get(
   COMMUNITY_ROUTE_PATHS.TRACKER_DETAIL,
   communityController.getPublicTrackerDetail,
@@ -58,16 +50,6 @@ router.get(
   COMMUNITY_ROUTE_PATHS.VERIFY_DASHBOARD,
   validateQuery(communityPaginationQuerySchema),
   communityController.getVerificationDashboard,
-)
-router.get(
-  COMMUNITY_ROUTE_PATHS.VERIFY_QUEUE,
-  validateQuery(communityPaginationQuerySchema),
-  communityController.getVerificationQueue,
-)
-router.get(
-  COMMUNITY_ROUTE_PATHS.VERIFY_LEADERBOARD,
-  validateQuery(communityLeaderboardQuerySchema),
-  communityController.getVerificationLeaderboard,
 )
 router.get(
   COMMUNITY_ROUTE_PATHS.VERIFY_SUBMISSION,

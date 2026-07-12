@@ -73,11 +73,6 @@ export const resetPasswordSchema = z.object({
   newPassword: passwordSchema,
 })
 
-export const changePasswordSchema = z.object({
-  currentPassword: z.string().min(1, 'Current password is required'),
-  newPassword: passwordSchema,
-})
-
 export const verifyOtpSchema = z.object({
   identifier: identifierSchema,
   otp: otpSchema,
@@ -90,22 +85,6 @@ export const sendOtpSchema = z.object({
     'phone_verification',
     'password_reset',
   ]),
-})
-
-export const checkIdentifierSchema = z.object({
-  identifier: identifierSchema,
-})
-
-export const checkUsernameSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(3, 'Username must be at least 3 characters')
-    .max(30, 'Username is too long')
-    .regex(
-      /^[a-zA-Z0-9_]+$/,
-      'Username can only contain letters, numbers, underscore'
-    ),
 })
 
 export type RegisterInput = z.infer<typeof registerSchema>
@@ -122,12 +101,6 @@ export type VerifyResetCodeInput = z.infer<typeof verifyResetCodeSchema>
 
 export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>
 
-export type ChangePasswordInput = z.infer<typeof changePasswordSchema>
-
 export type VerifyOtpInput = z.infer<typeof verifyOtpSchema>
 
 export type SendOtpInput = z.infer<typeof sendOtpSchema>
-
-export type CheckIdentifierInput = z.infer<typeof checkIdentifierSchema>
-
-export type CheckUsernameInput = z.infer<typeof checkUsernameSchema>

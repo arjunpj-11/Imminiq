@@ -191,18 +191,6 @@ export class AuthController {
     }
   }
 
-  logoutAll = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await this._useCases.logoutAllSessions.execute(getAuthUser(req).userId)
-
-      this.clearAuthCookies(res)
-
-      res.json(new ApiResponse('Logged out from all devices'))
-    } catch (error) {
-      next(error)
-    }
-  }
-
   refreshToken = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refreshToken = this.decryptRequiredCookie(
@@ -310,89 +298,6 @@ export class AuthController {
       await this._useCases.resetPassword.execute(resetToken, newPassword)
 
       res.json(new ApiResponse('Password reset successfully'))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  changePassword = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const { currentPassword, newPassword } = req.body
-
-      await this._useCases.changePassword.execute(
-        getAuthUser(req).userId,
-        currentPassword,
-        newPassword
-      )
-
-      res.json(new ApiResponse('Password changed successfully'))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  checkIdentifier = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const result = await this._useCases.checkIdentifier.execute(req.body.identifier)
-
-      res.json(new ApiResponse('Identifier checked', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  checkUsername = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const result = await this._useCases.checkUsername.execute(req.body.username)
-
-      res.json(new ApiResponse('Username checked', result))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  getSessions = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const sessions = await this._useCases.getAuthSessions.execute(getAuthUser(req).userId)
-
-      res.json(new ApiResponse('Sessions fetched', { sessions }))
-    } catch (error) {
-      next(error)
-    }
-  }
-
-  revokeSession = async (
-    req: Request,
-    res: Response,
-    next: NextFunction
-  ) => {
-    try {
-      const user = getAuthUser(req)
-      const { sessionId } = req.params
-
-      if (!sessionId || Array.isArray(sessionId)) {
-        throw new ApiError(
-          HttpStatusCode.BAD_REQUEST,
-          'Session ID is required',
-          'SESSION_ID_REQUIRED'
-        )
-      }
-
-      await this._useCases.revokeAuthSession.execute(user.userId, sessionId)
-
-      res.json(new ApiResponse('Session revoked'))
     } catch (error) {
       next(error)
     }

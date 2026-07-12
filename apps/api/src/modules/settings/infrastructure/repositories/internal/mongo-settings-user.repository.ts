@@ -5,7 +5,6 @@ import type {
   UpdateSettingsAppearanceInput,
   UpdateSettingsCodeEditorInput,
   UpdateSettingsCompilerInput,
-  UpdateSettingsCookieConsentInput,
   UpdateSettingsEmailDigestInput,
   UpdateSettingsGesturesInput,
   UpdateSettingsLearningJourneyInput,
@@ -159,21 +158,6 @@ export class MongoSettingsUserRepository
       input.userId,
       this._mapper.toAccountSettingsUpdate(input.data),
     )
-  }
-
-  async updateCookieConsent(
-    input: UpdateSettingsCookieConsentInput,
-  ) {
-    return this.updateWithSet(input.userId, {
-      cookieConsent: input.cookieConsent,
-    })
-  }
-
-  async acceptTerms(userId: string) {
-    return this.updateWithSet(userId, {
-      termsAccepted: true,
-      termsAcceptedAt: new Date(),
-    })
   }
 
   async resetToDefaults(userId: string) {

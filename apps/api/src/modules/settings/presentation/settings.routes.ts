@@ -12,7 +12,6 @@ import {
   updateAppearanceSchema,
   updateCodeEditorSchema,
   updateCompilerSchema,
-  updateCookieConsentSchema,
   updateEmailDigestSchema,
   updateGesturesSchema,
   updateLearningJourneySchema,
@@ -121,18 +120,7 @@ router.patch(
   settingsController.updateGestures
 )
 
-router.patch(
-  SETTINGS_ROUTE_PATHS.PREFERENCES,
-  validate(updateCookieConsentSchema),
-  settingsController.updateCookieConsent
-)
-
 // ─── ACCOUNT AGREEMENTS / RESET ──────────────────────────────
-
-router.post(
-  SETTINGS_ROUTE_PATHS.ACCEPT_TERMS,
-  settingsController.acceptTerms
-)
 
 router.post(
   SETTINGS_ROUTE_PATHS.RESET,

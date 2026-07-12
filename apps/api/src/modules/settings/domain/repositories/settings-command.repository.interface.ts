@@ -165,11 +165,6 @@ export type UpdateSettingsAccountInput = {
   data: SettingsAccountUpdateInput
 }
 
-export type UpdateSettingsCookieConsentInput = {
-  userId: string
-  cookieConsent: boolean
-}
-
 export interface ISettingsCommandRepository {
   updateAppearance(
     input: UpdateSettingsAppearanceInput
@@ -218,12 +213,6 @@ export interface ISettingsCommandRepository {
   updateAccountSettings(
     input: UpdateSettingsAccountInput
   ): Promise<UserSettingsEntity | null>
-
-  updateCookieConsent(
-    input: UpdateSettingsCookieConsentInput
-  ): Promise<UserSettingsEntity | null>
-
-  acceptTerms(userId: string): Promise<UserSettingsEntity | null>
 
   resetToDefaults(userId: string): Promise<UserSettingsEntity>
 }

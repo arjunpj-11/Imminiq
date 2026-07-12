@@ -14,7 +14,6 @@ import {
   submitAnswerSchema,
   submitMockTestCodeSchema,
   mockTestListQuerySchema,
-  publicMockTestListQuerySchema,
 } from './mock-tests.schema'
 
 const mockTestsController = new MockTestsController(createMockTestsComposition().useCases)
@@ -46,12 +45,6 @@ router.post(
   mockTestsController.generateTest
 )
 
-router.get(
-  MOCK_TEST_ROUTE_PATHS.PUBLIC,
-  validateQuery(publicMockTestListQuerySchema),
-  mockTestsController.listPublicTests
-)
-
 router.post(
   MOCK_TEST_ROUTE_PATHS.IMPORT_SHARED,
   mockTestsController.importSharedTest
@@ -72,11 +65,6 @@ router.post(
 router.get(
   MOCK_TEST_ROUTE_PATHS.HISTORY,
   mockTestsController.getHistory
-)
-
-router.get(
-  MOCK_TEST_ROUTE_PATHS.ANALYTICS,
-  mockTestsController.getAnalytics
 )
 
 router.get(

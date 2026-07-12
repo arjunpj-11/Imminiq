@@ -21,7 +21,6 @@ import { GetMockTestDetailsUseCase } from './application/use-cases/get-mock-test
 import { GetTopicBreakdownUseCase } from './application/use-cases/get-topic-breakdown.usecase'
 import { ImportSharedMockTestUseCase } from './application/use-cases/import-shared-mock-test.usecase'
 import { ListMockTestsUseCase } from './application/use-cases/list-mock-tests.usecase'
-import { ListPublicMockTestsUseCase } from './application/use-cases/list-public-mock-tests.usecase'
 import { RetakeTestUseCase } from './application/use-cases/retake-test.usecase'
 import { RunMockTestCodeUseCase } from './application/use-cases/run-mock-test-code.usecase'
 import { ShareMockTestUseCase } from './application/use-cases/share-mock-test.usecase'
@@ -97,12 +96,6 @@ export const createMockTestsComposition =
       useCases: {
         listMockTests:
           new ListMockTestsUseCase(
-            mockTestsRepository,
-            mockTestsMapper,
-          ),
-
-        listPublicMockTests:
-          new ListPublicMockTestsUseCase(
             mockTestsRepository,
             mockTestsMapper,
           ),

@@ -4,7 +4,7 @@ import passport from 'passport'
 import { AuthController } from './auth.controller'
 import { createAuthComposition } from '../auth.factory'
 import { AUTH_ROUTE_PATHS } from './auth.route.constants'
-import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate'
+import { validate } from '../../../shared/middlewares/validate'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import {
   issueOAuthState,
@@ -18,7 +18,6 @@ import {
   forgotPasswordIpLimiter,
   loginIpLimiter,
   oauthFlowIpLimiter,
-  publicAccountLookupIpLimiter,
   registerIpLimiter,
   resetPasswordIpLimiter,
   twoFactorLoginIpLimiter,
@@ -32,16 +31,12 @@ import {
   forgotPasswordSchema,
   verifyResetCodeSchema,
   resetPasswordSchema,
-  changePasswordSchema,
   verifyOtpSchema,
   sendOtpSchema,
-  checkIdentifierSchema,
-  checkUsernameSchema,
 } from './auth.schema'
 
 const authController = new AuthController(createAuthComposition().useCases)
 const router = Router()
-router.param('sessionId', validateIdentifierParam)
 
 // ─── PUBLIC ROUTES ───────────────────────────────
 
@@ -113,20 +108,6 @@ router.post(
   authController.resetPassword
 )
 
-router.post(
-  AUTH_ROUTE_PATHS.CHECK_IDENTIFIER,
-  publicAccountLookupIpLimiter,
-  validate(checkIdentifierSchema),
-  authController.checkIdentifier
-)
-
-router.post(
-  AUTH_ROUTE_PATHS.CHECK_USERNAME,
-  publicAccountLookupIpLimiter,
-  validate(checkUsernameSchema),
-  authController.checkUsername
-)
-
 // ─── PROTECTED ROUTES ────────────────────────────
 
 router.get(
@@ -134,35 +115,6 @@ router.get(
   authenticatedApiIpLimiter,
   authenticate,
   authController.getMe
-)
-
-router.post(
-  AUTH_ROUTE_PATHS.CHANGE_PASSWORD,
-  authenticatedApiIpLimiter,
-  authenticate,
-  validate(changePasswordSchema),
-  authController.changePassword
-)
-
-router.get(
-  AUTH_ROUTE_PATHS.SESSIONS,
-  authenticatedApiIpLimiter,
-  authenticate,
-  authController.getSessions
-)
-
-router.delete(
-  AUTH_ROUTE_PATHS.SESSION_BY_ID,
-  authenticatedApiIpLimiter,
-  authenticate,
-  authController.revokeSession
-)
-
-router.delete(
-  AUTH_ROUTE_PATHS.SESSIONS,
-  authenticatedApiIpLimiter,
-  authenticate,
-  authController.logoutAll
 )
 
 // ─── OAUTH ROUTES ────────────────────────────────

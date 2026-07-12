@@ -18,10 +18,6 @@ export const communityTrackerQuerySchema = z.object({
 
 export const communityPaginationQuerySchema = z.object(paginationQueryFields)
 
-export const communityLeaderboardQuerySchema = z.object({
-  limit: z.coerce.number().int().min(1).max(100).optional(),
-})
-
 export const sendTrackerForVerificationSchema = z.object({
   requiredVotes: z.number().int().min(1).max(50).optional(),
   durationHours: z.number().int().min(1).max(168).optional(),

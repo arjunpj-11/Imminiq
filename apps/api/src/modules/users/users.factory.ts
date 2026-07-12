@@ -6,7 +6,6 @@ import {
   UsersProfileDataReader,
 } from './application/services/users-profile-data.service'
 import { GetMeUseCase } from './application/use-cases/get-me.usecase'
-import { GetMyActivityUseCase } from './application/use-cases/get-my-activity.usecase'
 import { GetMyBadgesUseCase } from './application/use-cases/get-my-badges.usecase'
 import { GetMyPublishedTrackersUseCase } from './application/use-cases/get-my-published-trackers.usecase'
 import { GetMyRecentActivityUseCase } from './application/use-cases/get-my-recent-activity.usecase'
@@ -52,11 +51,6 @@ export const createUsersComposition = (): UsersComposition => {
 
       getMyStats: new GetMyStatsUseCase(
         profileDataReader
-      ),
-
-      getMyActivity: new GetMyActivityUseCase(
-        usersRepository,
-        usersMapper
       ),
 
       getMyRecentActivity: new GetMyRecentActivityUseCase(

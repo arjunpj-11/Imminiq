@@ -4,7 +4,6 @@ import type {
   UpdateSettingsAppearanceInput,
   UpdateSettingsCodeEditorInput,
   UpdateSettingsCompilerInput,
-  UpdateSettingsCookieConsentInput,
   UpdateSettingsEmailDigestInput,
   UpdateSettingsGesturesInput,
   UpdateSettingsLearningJourneyInput,
@@ -91,16 +90,6 @@ export class MongoSettingsRepository implements ISettingsRepository {
 
   updateAccountSettings(input: UpdateSettingsAccountInput) {
     return this._settingsRepository.updateAccountSettings(input)
-  }
-
-  updateCookieConsent(
-    input: UpdateSettingsCookieConsentInput,
-  ) {
-    return this._settingsRepository.updateCookieConsent(input)
-  }
-
-  acceptTerms(userId: string) {
-    return this._settingsRepository.acceptTerms(userId)
   }
 
   resetToDefaults(userId: string) {

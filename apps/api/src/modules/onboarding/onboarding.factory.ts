@@ -9,7 +9,6 @@ import {
 } from './application/services/onboarding-job-output-reader.service'
 import { EvaluateRoadmapUseCase } from './application/use-cases/evaluate-roadmap.usecase'
 import { GenerateRoadmapUseCase } from './application/use-cases/generate-roadmap.usecase'
-import { GetOnboardingStatusUseCase } from './application/use-cases/get-onboarding-status.usecase'
 import { GetRoadmapEvaluationResultUseCase } from './application/use-cases/get-roadmap-evaluation-result.usecase'
 import { GetRoadmapJobResultUseCase } from './application/use-cases/get-roadmap-job-result.usecase'
 import { GetRoadmapJobStatusUseCase } from './application/use-cases/get-roadmap-job-status.usecase'
@@ -43,11 +42,6 @@ export const createOnboardingComposition = (): OnboardingComposition => {
 
   return {
     useCases: {
-      getOnboardingStatus: new GetOnboardingStatusUseCase(
-        onboardingRepository,
-        onboardingMapper
-      ),
-
       saveOnboardingStepOne: new SaveOnboardingStepOneUseCase(
         onboardingRepository,
         onboardingMapper

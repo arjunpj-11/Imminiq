@@ -13,14 +13,7 @@ export const AUTH_ROUTE_PATHS = {
   VERIFY_RESET_CODE: '/verify-reset-code',
   RESET_PASSWORD: '/reset-password',
 
-  CHECK_IDENTIFIER: '/check-identifier',
-  CHECK_USERNAME: '/check-username',
-
   ME: '/me',
-  CHANGE_PASSWORD: '/change-password',
-
-  SESSIONS: '/sessions',
-  SESSION_BY_ID: '/sessions/:sessionId',
 
   OAUTH_GOOGLE: '/oauth/google',
   OAUTH_GOOGLE_CALLBACK: '/oauth/google/callback',
