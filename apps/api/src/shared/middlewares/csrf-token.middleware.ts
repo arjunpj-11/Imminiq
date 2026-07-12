@@ -25,6 +25,20 @@ const UNSAFE_METHODS = new Set([
   'DELETE',
 ])
 
+// These auth flows do not use cookies as their authority. A stale auth cookie
+// must not turn a logged-out flow into a CSRF-protected request.
+const COOKIE_INDEPENDENT_AUTH_PATHS = new Set([
+  '/api/auth/register',
+  '/api/auth/login',
+  '/api/auth/verify-account',
+  '/api/auth/send-otp',
+  '/api/auth/forgot-password',
+  '/api/auth/verify-reset-code',
+  '/api/auth/reset-password',
+  '/api/auth/check-identifier',
+  '/api/auth/check-username',
+])
+
 const isProduction = env.NODE_ENV === 'production'
 
 export const CSRF_COOKIE_OPTIONS = {
@@ -115,6 +129,11 @@ export const validateCsrfToken = (
   next: NextFunction
 ): void => {
   if (!UNSAFE_METHODS.has(req.method.toUpperCase())) {
+    next()
+    return
+  }
+
+  if (COOKIE_INDEPENDENT_AUTH_PATHS.has(req.path)) {
     next()
     return
   }
