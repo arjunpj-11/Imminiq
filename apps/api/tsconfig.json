@@ -4,14 +4,12 @@
     "rootDir": "./src",
     "ignoreDeprecations": "6.0",
 
-    "baseUrl": "./src",
     "paths": {
-      "@/*": ["*"]
+      "@/*": ["./src/*"]
     },
 
     "module": "CommonJS",
     "target": "ES2022",
-    "moduleResolution": "Node",
     "esModuleInterop": true,
     "strict": true,
     "skipLibCheck": true,
