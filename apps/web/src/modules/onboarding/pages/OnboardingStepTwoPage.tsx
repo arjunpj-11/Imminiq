@@ -236,6 +236,7 @@ export default function OnboardingStepTwoPage() {
   const [levelError, setLevelError] = useState('')
   const [summaryHighlight, setSummaryHighlight] = useState(false)
   const [toast, setToast] = useState('')
+  const [runInBackground, setRunInBackground] = useState(false)
 
   const contextText = useMemo(() => {
     return [topic, goal].filter(Boolean).join(' · ')
@@ -320,9 +321,12 @@ export default function OnboardingStepTwoPage() {
                   return
                 }
 
-                navigate(`/onboarding/generating/${jobId}`, {
-                  replace: true,
-                })
+                if (runInBackground) {
+                  showToast('Tracker generation is running in the background. We will notify you when it is ready.')
+                  navigate('/dashboard', { replace: true })
+                } else {
+                  navigate(`/onboarding/generating/${jobId}`, { replace: true })
+                }
               },
             }
           )
@@ -591,6 +595,16 @@ export default function OnboardingStepTwoPage() {
         </button>
 
         <div className="flex shrink-0 items-center gap-3.5">
+          <label className="hidden cursor-pointer items-center gap-2 text-xs text-(--text-secondary) sm:flex">
+            <input
+              type="checkbox"
+              checked={runInBackground}
+              onChange={(event) => setRunInBackground(event.target.checked)}
+              disabled={isSubmitting}
+              className="accent-(--brand-500)"
+            />
+            Run in background
+          </label>
           <div className="hidden flex-col items-end gap-0.5 md:flex" aria-hidden="true">
             <span className="font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/70 dark:text-(--text-secondary)/70">
               Final Step

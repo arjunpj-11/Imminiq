@@ -16,6 +16,10 @@ export const NotificationSettingsPage = lazy(
   () => import('../../modules/settings/pages/NotificationSettingsPage'),
 )
 
+export const NotificationsPage = lazy(
+  () => import('../../modules/notifications/pages/NotificationsPage'),
+)
+
 export const PreferencesSettingsPage = lazy(
   () => import('../../modules/settings/pages/PreferencesSettingsPage'),
 )

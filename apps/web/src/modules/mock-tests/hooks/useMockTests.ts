@@ -16,6 +16,7 @@ import type {
   IImportSharedMockTestResponse,
   IListMockTestsResponse,
   IMockTest,
+  IMockTestGenerationJob,
   IMockTestAnswer,
   IMockTestCodeRunResponse,
   IMockTestCodeSubmitResponse,
@@ -141,9 +142,9 @@ export const useCreateMockTest = () => {
 export const useGenerateMockTest = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<IApiResponse<IMockTest>, Error, IGenerateMockTestPayload>({
+  return useMutation<IApiResponse<IMockTest | IMockTestGenerationJob>, Error, IGenerateMockTestPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<IApiResponse<IMockTest>>(
+      const response = await api.post<IApiResponse<IMockTest | IMockTestGenerationJob>>(
         '/mock-tests/generate',
         payload
       )

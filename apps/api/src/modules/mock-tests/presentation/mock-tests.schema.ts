@@ -118,6 +118,7 @@ export const generateMockTestSchema = z.object({
   timeLimitMinutes: z.number().min(5).max(180).optional(),
   passingScore: z.number().min(1).max(100).optional(),
   visibility: z.enum(['private', 'public']).optional(),
+  runInBackground: z.boolean().optional(),
 })
 
 export const submitAnswerSchema = z.object({

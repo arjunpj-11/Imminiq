@@ -160,6 +160,12 @@ export interface IGenerateMockTestPayloadDTO {
   timeLimitMinutes?: number
   passingScore?: number
   visibility?: TestVisibility
+  runInBackground?: boolean
+}
+
+export interface IMockTestGenerationJobDTO {
+  jobId: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
 }
 
 export interface ISubmitAnswerPayloadDTO {

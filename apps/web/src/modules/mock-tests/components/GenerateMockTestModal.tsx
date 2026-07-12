@@ -55,6 +55,7 @@ export function GenerateMockTestModal({
   type TopicSource = 'manual' | 'tracker'
 
   const [topicSource, setTopicSource] = useState<TopicSource>('manual')
+  const [runInBackground, setRunInBackground] = useState(false)
   const [manualSelectedTrackerId, setManualSelectedTrackerId] =
     useState<string>('')
   const [selectedNodesByTracker, setSelectedNodesByTracker] = useState<
@@ -216,13 +217,14 @@ export function GenerateMockTestModal({
     const response = await generateMutation.mutateAsync({
       ...generateDraft,
       topic: topicValue,
+      runInBackground,
     })
 
     resetGenerateDraft()
     clearSelectedNodes()
     onClose()
 
-    const testId = response?.data?._id
+    const testId = '_id' in response.data ? response.data._id : undefined
 
     if (testId) {
       navigate(`/mock-tests/${testId}`)
@@ -509,6 +511,19 @@ export function GenerateMockTestModal({
         <div className="relative shrink-0 px-7 pb-7 pt-4">
           <div className="mb-5 h-px bg-linear-to-r from-transparent via-(--border-subtle) to-transparent dark:via-white/8" />
 
+          <label className="mb-4 flex cursor-pointer items-start gap-3 rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3">
+            <input
+              type="checkbox"
+              checked={runInBackground}
+              onChange={(event) => setRunInBackground(event.target.checked)}
+              className="mt-0.5 accent-(--brand-500)"
+            />
+            <span>
+              <span className="block text-sm font-bold text-(--text-primary)">Run in background</span>
+              <span className="block text-[11px] text-(--text-secondary)">Keep using Imminiq. We’ll notify you when the test is ready.</span>
+            </span>
+          </label>
+
           <button
             type="button"
             onClick={handleSubmit}
@@ -527,7 +542,7 @@ export function GenerateMockTestModal({
             {generateMutation.isPending ? (
               <span className="flex items-center justify-center gap-2.5">
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
-                Generating…
+                {runInBackground ? 'Starting…' : 'Generating…'}
               </span>
             ) : (
               'Generate test →'

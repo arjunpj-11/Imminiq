@@ -4,6 +4,11 @@ export type TestVisibility = 'private' | 'public'
 export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned'
 export type EvaluationStatus = 'pending' | 'completed' | 'failed'
 
+export interface IMockTestGenerationJob {
+  jobId: string
+  status: 'pending' | 'processing' | 'completed' | 'failed'
+}
+
 export type MockTestCodingLanguage =
   | 'javascript'
   | 'typescript'
@@ -271,6 +276,7 @@ export interface IGenerateMockTestPayload {
   timeLimitMinutes?: number
   passingScore?: number
   visibility?: TestVisibility
+  runInBackground?: boolean
 }
 
 export interface ISubmitAnswerPayload {

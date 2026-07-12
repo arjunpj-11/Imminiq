@@ -8,6 +8,9 @@ import { AIGenerationStep } from '../../database/models/ai-generation-step.model
 import { Tracker } from '../../database/models/tracker.model'
 import { TrackerTopic } from '../../database/models/tracker-topic.model'
 import { TrackerSubtopic } from '../../database/models/tracker-subtopic.model'
+import { Notification } from '../../database/models/notification.model'
+import { createActivityComposition } from '../../../modules/activity/activity.factory'
+import { createMockTestsComposition } from '../../../modules/mock-tests/mock-tests.factory'
 
 import {
   generateRoadmapStructure,
@@ -504,6 +507,14 @@ const processRoadmapGeneration = async (
   )
 
   await completeStep(jobId, 5)
+
+  await Notification.create({
+    userId,
+    type: 'tracker_generation_completed',
+    message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
+    deepLink: `/trackers/${trackerId.toString()}/roadmap`,
+    metadata: { jobId, trackerId: trackerId.toString() },
+  })
 }
 
 // ============================================================
@@ -634,6 +645,29 @@ export const aiWorker = new Worker(
 
         return
       }
+
+      if (job.name === 'generate-mock-test') {
+        const { userId, payload } = job.data as {
+          jobId: string
+          userId: string
+          payload: Parameters<ReturnType<typeof createMockTestsComposition>['useCases']['generateMockTest']['execute']>[1]
+        }
+        await AIGenerationJob.findByIdAndUpdate(jobId, { status: 'processing', currentStep: 1, startedAt: new Date() })
+        const activity = createActivityComposition()
+        const mockTests = createMockTestsComposition(activity.useCases.recordActivity)
+        const test = await mockTests.useCases.generateMockTest.execute(userId, payload)
+        await AIGenerationJob.findByIdAndUpdate(jobId, {
+          status: 'completed', currentStep: 1, completedAt: new Date(), outputData: { testId: test._id },
+        })
+        await Notification.create({
+          userId,
+          type: 'mock_test_generation_completed',
+          message: `Your mock test “${test.title}” is ready. Go and check it out.`,
+          deepLink: `/mock-tests/${test._id}`,
+          metadata: { jobId, testId: test._id },
+        })
+        return
+      }
     } catch (error) {
      if (isGeminiTemporaryError(error)) {
         console.warn(
@@ -662,6 +696,17 @@ export const aiWorker = new Worker(
           completedAt: new Date(),
         }
       )
+
+      const failedJob = await AIGenerationJob.findById(jobId).lean()
+      if (failedJob?.jobType === 'mock_test') {
+        await Notification.create({
+          userId: failedJob.userId,
+          type: 'mock_test_generation_failed',
+          message: 'We could not generate your mock test. Please try again.',
+          deepLink: '/mock-tests',
+          metadata: { jobId },
+        })
+      }
 
       throw error
     }

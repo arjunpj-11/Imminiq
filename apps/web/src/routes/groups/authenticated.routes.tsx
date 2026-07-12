@@ -18,6 +18,7 @@ import {
   MyPublishedTrackersPage,
   MyTrackersPage,
   NotificationSettingsPage,
+  NotificationsPage,
   PreferencesSettingsPage,
   PrivacySettingsPage,
   ProfilePage,
@@ -43,6 +44,10 @@ export const authenticatedRoutes: RouteObject[] = [
   {
     path: '/settings/notifications',
     element: <NotificationSettingsPage />,
+  },
+  {
+    path: '/notifications',
+    element: <NotificationsPage />,
   },
   {
     path: '/settings/preferences',
