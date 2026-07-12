@@ -1,9 +1,10 @@
 import { activityService } from '../../../activity'
+import type { ActivityRecorderContract } from '../../../activity/activity.service'
 import type {
-  MockTestActivityServiceContract,
+  IMockTestActivityRecorder,
   RecordMockTestCompletedActivityInput,
   RecordMockTestGeneratedActivityInput,
-} from '../../domain/services/mock-test-activity.service.interface'
+} from '../../domain/services/mock-test-activity.interface'
 
 type ActivityDifficulty =
   | 'beginner'
@@ -79,8 +80,11 @@ const toDifficultyLabel = (
 }
 
 export class ActivityMockTestGateway
-  implements MockTestActivityServiceContract
+  implements IMockTestActivityRecorder
 {
+  constructor(
+    private readonly _activityRecorder: ActivityRecorderContract,
+  ) {}
   async recordMockTestGenerated(
     input: RecordMockTestGeneratedActivityInput,
   ): Promise<void> {
@@ -108,7 +112,7 @@ export class ActivityMockTestGateway
       300,
     )
 
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'mock_test',
@@ -201,7 +205,7 @@ export class ActivityMockTestGateway
       300,
     )
 
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'mock_test',
@@ -259,4 +263,4 @@ export class ActivityMockTestGateway
 }
 
 export const activityMockTestGateway =
-  new ActivityMockTestGateway()
+  new ActivityMockTestGateway(activityService)

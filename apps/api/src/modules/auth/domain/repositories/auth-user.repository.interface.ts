@@ -7,6 +7,8 @@ export type CreateAuthUserInput = {
   phone?: string
   username: string
   passwordHash: string
+  emailVerified?: boolean
+  phoneVerified?: boolean
 }
 
 export type CreateOAuthUserInput = {
@@ -39,7 +41,7 @@ export type UpdateAuthUserInput = {
   scheduledDeletionAt?: Date | null
 }
 
-export interface AuthUserRepositoryContract {
+export interface IAuthUserRepository {
   findByEmail(email: string): Promise<AuthUserEntity | null>
   findByPhone(phone: string): Promise<AuthUserEntity | null>
   findByIdentifier(identifier: string): Promise<AuthUserEntity | null>

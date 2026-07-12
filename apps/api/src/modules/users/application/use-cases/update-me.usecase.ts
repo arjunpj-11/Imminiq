@@ -1,19 +1,19 @@
-import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
-import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface'
+import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
 import type { UserProfileUpdate } from '../../domain/value-objects/user-profile-update.vo'
-import type { UpdateMyProfileInput } from '../dtos/users.dto'
+import type { UpdateMyProfileInputDTO } from '../dtos/users.dto'
 import { UsersApplicationError } from '../errors/users-application.error'
-import type { UsersMapperContract } from '../mappers/users.mapper'
+import type { IUsersMapper } from '../mappers/users.mapper'
 
-type UpdateMeRepository = UserRepositoryContract & UserProfileRepositoryContract
+type UpdateMeRepository = IUserRepository & IUserProfileRepository
 
 export class UpdateMeUseCase {
   constructor(
     private readonly _usersRepository: UpdateMeRepository,
-    private readonly _usersMapper: UsersMapperContract,
+    private readonly _usersMapper: IUsersMapper,
   ) {}
 
-  async execute(userId: string, payload: UpdateMyProfileInput) {
+  async execute(userId: string, payload: UpdateMyProfileInputDTO) {
     const user = await this._usersRepository.findById(userId)
 
     if (!user) {
@@ -59,7 +59,7 @@ export class UpdateMeUseCase {
     }
   }
 
-  private normalizePayload(payload: UpdateMyProfileInput): UpdateMyProfileInput {
+  private normalizePayload(payload: UpdateMyProfileInputDTO): UpdateMyProfileInputDTO {
     return {
       ...payload,
       ...(payload.fullName !== undefined

@@ -3,7 +3,7 @@ import { useMemo } from 'react'
 import { useActivityFeed } from '../hooks/useActivityFeed'
 import type {
   ActivityFeedFilter,
-  ActivityPageResponse,
+  IActivityPageResponse,
 } from '../types/activity.types'
 import { mergeActivityFeedPages } from '../utils/activity-formatters'
 import ActivityFeed from './ActivityFeed'
@@ -13,8 +13,8 @@ import ActivityHeatmap from './ActivityHeatmap'
 import ActivitySidebar from './ActivitySidebar'
 import ActivityStatsGrid from './ActivityStatsGrid'
 
-interface ActivityDashboardProps {
-  activity: ActivityPageResponse
+interface IActivityDashboardProps {
+  activity: IActivityPageResponse
   filter: ActivityFeedFilter
   year: number
   utcOffsetMinutes: number
@@ -40,7 +40,7 @@ export default function ActivityDashboard({
   isPageDataStale,
   onFilterChange,
   onYearChange,
-}: ActivityDashboardProps) {
+}: IActivityDashboardProps) {
   const generatedAtMs = Date.parse(activity.generatedAt)
 
   /**

@@ -1,6 +1,6 @@
 import { env } from '../../../config/env'
 
-interface CloudflareImageResponse {
+interface ICloudflareImageResponse {
   success: boolean
   result?: {
     image?: string
@@ -12,7 +12,7 @@ interface CloudflareImageResponse {
   messages?: string[]
 }
 
-interface GenerateCloudflareImageParams {
+interface IGenerateCloudflareImageParams {
   prompt: string
   steps?: number
   seed?: number
@@ -22,7 +22,7 @@ export const generateImageWithCloudflare = async ({
   prompt,
   steps = 4,
   seed,
-}: GenerateCloudflareImageParams) => {
+}: IGenerateCloudflareImageParams) => {
   const endpoint = `https://api.cloudflare.com/client/v4/accounts/${env.CLOUDFLARE_ACCOUNT_ID}/ai/run/${env.CLOUDFLARE_IMAGE_MODEL}`
 
   const payload: Record<string, string | number> = {
@@ -43,7 +43,7 @@ export const generateImageWithCloudflare = async ({
     body: JSON.stringify(payload),
   })
 
-  const data = (await response.json()) as CloudflareImageResponse
+  const data = (await response.json()) as ICloudflareImageResponse
 
   if (!response.ok || !data.success) {
     const cloudflareMessage =

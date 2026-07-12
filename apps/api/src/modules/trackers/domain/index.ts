@@ -21,9 +21,9 @@ export * from './repositories/tracker-command.repository.interface'
 export * from './repositories/tracker-content.repository.interface'
 export * from './repositories/tracker-progress.repository.interface'
 export * from './repositories/tracker-lesson.repository.interface'
-export * from './services/tracker-ai.service.interface'
-export * from './services/code-execution.service.interface'
-export * from './services/question-hasher.service.interface'
+export * from './services/tracker-ai.interface'
+export * from './services/code-execution.interface'
+export * from './services/question-hasher.interface'
 
 export type {
   ObjectIdLike,

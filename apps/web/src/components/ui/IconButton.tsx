@@ -2,13 +2,13 @@ import { forwardRef, type ButtonHTMLAttributes } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface IconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
+interface IIconButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   label: string
   size?: 'sm' | 'md' | 'lg'
   variant?: 'surface' | 'ghost'
 }
 
-const IconButton = forwardRef<HTMLButtonElement, IconButtonProps>(
+const IconButton = forwardRef<HTMLButtonElement, IIconButtonProps>(
   function IconButton(
     {
       label,

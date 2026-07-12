@@ -1,35 +1,35 @@
-import type { UserActivityRepositoryContract } from '../../domain/repositories/user-activity.repository.interface'
-import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
-import type { UserRelationshipRepositoryContract } from '../../domain/repositories/user-relationship.repository.interface'
-import type { UserTrackerRepositoryContract } from '../../domain/repositories/user-tracker.repository.interface'
-import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import type { IUserActivityRepository } from '../../domain/repositories/user-activity.repository.interface'
+import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface'
+import type { IUserRelationshipRepository } from '../../domain/repositories/user-relationship.repository.interface'
+import type { IUserTrackerRepository } from '../../domain/repositories/user-tracker.repository.interface'
+import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
 import type {
-  PaginationQuery,
-  PublicProfilePageView,
+  IPaginationQueryDTO,
+  IPublicProfilePageViewDTO,
 } from '../dtos/users.dto'
 import { UsersApplicationError } from '../errors/users-application.error'
-import type { UsersMapperContract } from '../mappers/users.mapper'
-import type { UsersProfileDataServiceContract } from '../services/users-profile-data.service'
+import type { IUsersMapper } from '../mappers/users.mapper'
+import type { IUsersProfileDataReader } from '../services/users-profile-data.service'
 
 type PublicProfileRepository =
-  UserRepositoryContract &
-  UserProfileRepositoryContract &
-  UserTrackerRepositoryContract &
-  UserActivityRepositoryContract &
-  UserRelationshipRepositoryContract
+  IUserRepository &
+  IUserProfileRepository &
+  IUserTrackerRepository &
+  IUserActivityRepository &
+  IUserRelationshipRepository
 
 export class GetPublicProfilePageUseCase {
   constructor(
     private readonly _usersRepository: PublicProfileRepository,
-    private readonly _usersMapper: UsersMapperContract,
-    private readonly _usersProfileDataService: UsersProfileDataServiceContract,
+    private readonly _usersMapper: IUsersMapper,
+    private readonly _profileDataReader: IUsersProfileDataReader,
   ) {}
 
   async execute(
     username: string,
     viewerUserId: string | undefined,
-    query: PaginationQuery,
-  ): Promise<PublicProfilePageView> {
+    query: IPaginationQueryDTO,
+  ): Promise<IPublicProfilePageViewDTO> {
     const user = await this._usersRepository.findByUsername(username)
 
     if (!user) {
@@ -57,13 +57,13 @@ export class GetPublicProfilePageUseCase {
     ] = await Promise.all([
       settings?.showStats === false
         ? Promise.resolve(null)
-        : this._usersProfileDataService.getStats(user.id, user, profile),
+        : this._profileDataReader.getStats(user.id, user, profile),
 
       settings?.showStats === false
         ? Promise.resolve(null)
-        : this._usersProfileDataService.getStreakSummary(user.id),
+        : this._profileDataReader.getStreakSummary(user.id),
 
-      this._usersProfileDataService.getBadgeShowcase(user.id),
+      this._profileDataReader.getBadgeShowcase(user.id),
 
       settings?.showTrackers === false
         ? Promise.resolve({ items: [], total: 0 })

@@ -1,4 +1,4 @@
-interface PageLoadingScreenProps {
+interface IPageLoadingScreenProps {
   eyebrow?: string;
   title?: string;
   description?: string;
@@ -8,7 +8,7 @@ export default function PageLoadingScreen({
   eyebrow = "Loading",
   title = "Preparing your page",
   description = "Please wait while Imminiq gets everything ready.",
-}: PageLoadingScreenProps) {
+}: IPageLoadingScreenProps) {
   return (
     <div
       className="relative flex min-h-screen items-center justify-center overflow-hidden bg-(--surface-canvas) px-4 font-ui text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)"

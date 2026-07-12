@@ -3,18 +3,18 @@ import { cn } from '../../lib/cn'
 import { useEffect, useMemo, useRef } from "react";
 import type {
   HeatmapIntensity,
-  StreakSummary,
+  IStreakSummary,
 } from "../../modules/users/types/profile.types";
 
-interface HeapTileProps {
-  streak?: StreakSummary;
+interface IHeapTileProps {
+  streak?: IStreakSummary;
   year: number;
   onYearChange: (year: number) => void;
   isLoading?: boolean;
   accountCreatedAt?: string | Date | null;
 }
 
-interface HeatmapCell {
+interface IHeatmapCell {
   date: Date;
   inside: boolean;
   intensityLevel: HeatmapIntensity;
@@ -50,7 +50,7 @@ function resolveAccountStartYear(accountCreatedAt?: string | Date | null) {
   return Math.min(Math.max(createdYear, 2000), currentYear);
 }
 
-function buildHeatmap(year: number, streak?: StreakSummary) {
+function buildHeatmap(year: number, streak?: IStreakSummary) {
   const first = new Date(Date.UTC(year, 0, 1));
   const last = new Date(Date.UTC(year, 11, 31));
 
@@ -64,11 +64,11 @@ function buildHeatmap(year: number, streak?: StreakSummary) {
     (streak?.heatmap ?? []).map((item) => [item.date, item]),
   );
 
-  const weeks: HeatmapCell[][] = [];
+  const weeks: IHeatmapCell[][] = [];
   const cursor = new Date(start);
 
   while (cursor <= end) {
-    const week: HeatmapCell[] = [];
+    const week: IHeatmapCell[] = [];
 
     for (let day = 0; day < 7; day += 1) {
       const date = new Date(cursor);
@@ -113,7 +113,7 @@ export default function HeapTile({
   onYearChange,
   isLoading = false,
   accountCreatedAt,
-}: HeapTileProps) {
+}: IHeapTileProps) {
   const currentYear = new Date().getFullYear();
   const accountStartYear = resolveAccountStartYear(accountCreatedAt);
   const scrollRef = useRef<HTMLDivElement>(null);

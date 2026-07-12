@@ -7,7 +7,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { AppShellBoundary } from '../../../components/layout/AppShell'
 import { useTrackers, useUnpublishTracker } from '../hooks/useTrackers'
-import type { Tracker } from '../types/tracker.types'
+import type { ITracker } from '../types/tracker.types'
 
 const formatDate = (value: string | null | undefined) => {
   if (!value) return '—'
@@ -141,7 +141,7 @@ const PublishedCardSkeleton = () => (
 // ─── Unpublish Confirmation Modal ──────────────────────────────────────────────
 
 type UnpublishConfirmModalProps = {
-  tracker: Tracker | null
+  tracker: ITracker | null
   isUnpublishing: boolean
   onConfirm: () => void
   onCancel: () => void
@@ -243,9 +243,9 @@ const GlobeSmallIcon = () => (
 // ─── Published Tracker Card ────────────────────────────────────────────────────
 
 type PublishedTrackerCardProps = {
-  tracker: Tracker
+  tracker: ITracker
   onView: (trackerId: string) => void
-  onRequestUnpublish: (tracker: Tracker) => void
+  onRequestUnpublish: (tracker: ITracker) => void
   isUnpublishing: boolean
 }
 
@@ -419,7 +419,7 @@ function SummaryStrip({ count }: { count: number }) {
 export default function MyPublishedTrackersPage() {
   const navigate = useNavigate()
   const [unpublishingId, setUnpublishingId] = useState<string | null>(null)
-  const [confirmTracker, setConfirmTracker] = useState<Tracker | null>(null)
+  const [confirmTracker, setConfirmTracker] = useState<ITracker | null>(null)
 
   const trackersQuery = useTrackers({ status: 'all', domain: 'all', sortBy: 'lastActive', page: 1, limit: 50 })
   const unpublishMutation = useUnpublishTracker()
@@ -431,7 +431,7 @@ export default function MyPublishedTrackersPage() {
 
   const isLoading = trackersQuery.isLoading && !trackersQuery.data
 
-  const handleRequestUnpublish = (tracker: Tracker) => {
+  const handleRequestUnpublish = (tracker: ITracker) => {
     setConfirmTracker(tracker)
   }
 

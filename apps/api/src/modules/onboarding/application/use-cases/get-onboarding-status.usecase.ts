@@ -1,14 +1,14 @@
-import type { OnboardingResponseQueryRepositoryContract } from '../../domain/repositories/onboarding-response-query.repository.interface'
-import type { OnboardingStatusResult } from '../dtos/onboarding.dto'
-import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
+import type { IOnboardingResponseQueryRepository } from '../../domain/repositories/onboarding-response-query.repository.interface'
+import type { IOnboardingStatusResultDTO } from '../dtos/onboarding.dto'
+import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
 
 export class GetOnboardingStatusUseCase {
   constructor(
-    private readonly _onboardingRepository: OnboardingResponseQueryRepositoryContract,
-    private readonly _onboardingMapper: OnboardingMapperContract,
+    private readonly _onboardingRepository: IOnboardingResponseQueryRepository,
+    private readonly _onboardingMapper: IOnboardingMapper,
   ) {}
 
-  async execute(userId: string): Promise<OnboardingStatusResult> {
+  async execute(userId: string): Promise<IOnboardingStatusResultDTO> {
     const response = await this._onboardingRepository.getStatus(userId)
 
     return this._onboardingMapper.toStatusDto(response)

@@ -2,7 +2,7 @@
 
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface ITrackerSubtopic extends Document {
+export interface ITrackerSubtopicDocument extends Document {
   trackerId: mongoose.Types.ObjectId
   topicId: mongoose.Types.ObjectId
   parentSubtopicId?: mongoose.Types.ObjectId | null
@@ -17,7 +17,7 @@ export interface ITrackerSubtopic extends Document {
   updatedAt: Date
 }
 
-const trackerSubtopicSchema = new Schema<ITrackerSubtopic>(
+const trackerSubtopicSchema = new Schema<ITrackerSubtopicDocument>(
   {
     trackerId: {
       type: Schema.Types.ObjectId,
@@ -75,7 +75,7 @@ const trackerSubtopicSchema = new Schema<ITrackerSubtopic>(
 trackerSubtopicSchema.index({ trackerId: 1, topicId: 1, order: 1 })
 trackerSubtopicSchema.index({ trackerId: 1, topicId: 1, depth: 1 })
 
-export const TrackerSubtopic = mongoose.model<ITrackerSubtopic>(
+export const TrackerSubtopic = mongoose.model<ITrackerSubtopicDocument>(
   'TrackerSubtopic',
   trackerSubtopicSchema
 )

@@ -16,7 +16,7 @@ import { usePublicProfile } from '../hooks/public/usePublicProfile'
 import { useSendFriendRequest } from '../../../hooks/friends/useSendFriendRequest'
 import { useAuthStore } from '../../../store/useAuthStore'
 import { useProfileStore } from '../store/useProfileStore'
-import type { PublishedTracker } from '../types/profile.types'
+import type { IPublishedTracker } from '../types/profile.types'
 
 import AvatarCropModal from '../components/AvatarCropModal'
 import BannerModal from '../components/BannerModal'
@@ -25,7 +25,7 @@ import ProfileToast from '../components/ProfileToast'
 import { trackerThumbClasses } from '../constants/profile-style.constants'
 import { useProfileToast } from '../hooks/useProfileToast'
 import { useSubmitRateLimit } from '../hooks/useSubmitRateLimit'
-import type { ProfileData } from '../types/profile.types'
+import type { IProfileData } from '../types/profile.types'
 import {
   dataUrlToFile,
   formatLocation,
@@ -44,7 +44,7 @@ import ProfileDocumentStyles from '../components/ProfileDocumentStyles'
 import ProfileStatsGrid from '../components/ProfileStatsGrid'
 import ProfileAboutCard from '../components/ProfileAboutCard'
 import PublishedTrackersSection, {
-  type PublishedTrackerCardViewModel,
+  type IPublishedTrackerCardViewModel,
 } from '../components/PublishedTrackersSection'
 
 /* ─── Main ProfilePage ─── */
@@ -172,7 +172,7 @@ export default function ProfilePage() {
   const sendFriendRequestMutation = useSendFriendRequest()
   const [friendRequestSent, setFriendRequestSent] = useState(false)
 
-  const profile = useMemo<ProfileData | null>(() => {
+  const profile = useMemo<IProfileData | null>(() => {
     if (!activeProfileData) return null
 
     const parsedLocation = parseLocation(activeProfileData.profile.location)
@@ -275,7 +275,7 @@ export default function ProfilePage() {
     navigate('/chats')
   }
 
-  const handleSave = async (data: Partial<ProfileData>) => {
+  const handleSave = async (data: Partial<IProfileData>) => {
     if (!isOwnView) return
 
     if (!submitRateLimit.canStart('profile-save')) {
@@ -312,8 +312,8 @@ export default function ProfilePage() {
     }
   }
 
-  const trackers: PublishedTrackerCardViewModel[] = (activeTrackerData?.items ?? []).map(
-    (tracker: PublishedTracker, index: number) => ({
+  const trackers: IPublishedTrackerCardViewModel[] = (activeTrackerData?.items ?? []).map(
+    (tracker: IPublishedTracker, index: number) => ({
       title: tracker.title,
       desc: tracker.description || 'Published tracker',
       rating: Number(tracker.ratingAverage ?? 0),

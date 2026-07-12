@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface IModerationAppeal extends Document {
+export interface IModerationAppealDocument extends Document {
   _id: mongoose.Types.ObjectId
 
   userId: mongoose.Types.ObjectId
@@ -21,7 +21,7 @@ export interface IModerationAppeal extends Document {
   updatedAt: Date
 }
 
-const moderationAppealSchema = new Schema<IModerationAppeal>(
+const moderationAppealSchema = new Schema<IModerationAppealDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -112,7 +112,7 @@ moderationAppealSchema.index({
   deletedAt: 1,
 })
 
-export const ModerationAppeal = mongoose.model<IModerationAppeal>(
+export const ModerationAppeal = mongoose.model<IModerationAppealDocument>(
   'ModerationAppeal',
   moderationAppealSchema
 )

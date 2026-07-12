@@ -2,33 +2,33 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
 import type {
-  ActivityFeedItem,
-  ApiErrorResponse,
-  ApiResponse,
+  IActivityFeedItem,
+  IApiErrorResponse,
+  IApiResponse,
 } from '../../modules/users/types/profile.types'
 import { activityQueryKeys } from './activity.query-keys'
 
-interface RecentActivityResponse {
-  items: ActivityFeedItem[]
+interface IRecentActivityResponse {
+  items: IActivityFeedItem[]
 }
 
-interface UseRecentActivityOptions {
+interface IUseRecentActivityOptions {
   enabled?: boolean
 }
 
 export const useRecentActivity = (
   limit = 10,
-  options: UseRecentActivityOptions = {}
+  options: IUseRecentActivityOptions = {}
 ) => {
   return useQuery<
-    ApiResponse<RecentActivityResponse>,
-    AxiosError<ApiErrorResponse>,
-    RecentActivityResponse
+    IApiResponse<IRecentActivityResponse>,
+    AxiosError<IApiErrorResponse>,
+    IRecentActivityResponse
   >({
     queryKey: activityQueryKeys.recent(limit),
     enabled: options.enabled ?? true,
     queryFn: async () => {
-      const response = await api.get<ApiResponse<RecentActivityResponse>>(
+      const response = await api.get<IApiResponse<IRecentActivityResponse>>(
         '/users/me/recent-activity',
         {
           params: { limit },

@@ -21,7 +21,7 @@ export type CommunityTrackerPageResult = {
   totalPages: number
 }
 
-export interface CommunityTrackerRepositoryContract {
+export interface ICommunityTrackerRepository {
   findPublicTrackers(
     query: FindCommunityTrackersQuery,
   ): Promise<CommunityTrackerPageResult>

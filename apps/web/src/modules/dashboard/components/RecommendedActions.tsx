@@ -1,8 +1,8 @@
-import type { DashboardRecommendedAction } from '../types/dashboard.types'
+import type { IDashboardRecommendedAction } from '../types/dashboard.types'
 import { cn } from '../utils/cn'
 
 type RecommendedActionsProps = {
-  actions: DashboardRecommendedAction[]
+  actions: IDashboardRecommendedAction[]
   onNavigate: (link: string) => void
 }
 

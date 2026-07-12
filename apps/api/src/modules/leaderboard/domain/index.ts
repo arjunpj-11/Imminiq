@@ -5,7 +5,7 @@ export * from './errors/leaderboard-domain.error'
 export type {
   CaptureLeaderboardSnapshotInput,
   CaptureLeaderboardSnapshotResult,
-  LeaderboardActivityRepositoryContract,
+  ILeaderboardActivityRepository,
   RecordLeaderboardXpActivityInput,
   RecordLeaderboardXpActivityResult,
   ReplaceLeaderboardFriendsInput,
@@ -13,11 +13,11 @@ export type {
 
 export type {
   FindLeaderboardInput,
-  LeaderboardQueryRepositoryContract,
+  ILeaderboardQueryRepository,
   LeaderboardQueryResult,
 } from './repositories/leaderboard-query.repository.interface'
 
-export type { LeaderboardRepositoryContract } from './repositories/leaderboard.repository.interface'
+export type { ILeaderboardRepository } from './repositories/leaderboard.repository.interface'
 
 export * from './types/leaderboard.types'
 export type { LeaderboardScope } from './value-objects/leaderboard-scope.vo'

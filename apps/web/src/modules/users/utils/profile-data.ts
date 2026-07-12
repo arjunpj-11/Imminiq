@@ -1,9 +1,9 @@
 import type {
-  GetMyProfileResponse,
-  UpdateProfilePayload,
+  IGetMyProfileResponse,
+  IUpdateProfilePayload,
 } from '../types/profile.types'
 
-export interface ProfilePageViewModel {
+export interface IProfilePageViewModel {
   name: string
   username: string
   profession: string
@@ -20,7 +20,7 @@ export interface ProfilePageViewModel {
   portfolioUrl: string
 }
 
-export interface ProfileEditDraft {
+export interface IProfileEditDraft {
   name: string
   profession: string
   bio: string
@@ -75,8 +75,8 @@ export const formatLocation = (input: {
 }
 
 export const buildProfileViewModel = (
-  data: GetMyProfileResponse
-): ProfilePageViewModel => {
+  data: IGetMyProfileResponse
+): IProfilePageViewModel => {
   const location = parseLocation(data.profile.location)
 
   return {
@@ -98,8 +98,8 @@ export const buildProfileViewModel = (
 }
 
 export const mapProfileEditDraftToPayload = (
-  draft: ProfileEditDraft
-): UpdateProfilePayload => {
+  draft: IProfileEditDraft
+): IUpdateProfilePayload => {
   return {
     fullName: draft.name.trim(),
     headline: draft.profession.trim(),

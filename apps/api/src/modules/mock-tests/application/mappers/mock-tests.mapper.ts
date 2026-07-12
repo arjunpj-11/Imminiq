@@ -6,24 +6,24 @@ import type { MockTestQuestionEntity } from '../../domain/entities/mock-test-que
 import type { MockTestReportEntity } from '../../domain/entities/mock-test-report.entity'
 import { MockTestEntity } from '../../domain/entities/mock-test.entity'
 import type {
-  FinishMockTestAttemptDto,
-  ImportSharedMockTestDto,
-  MockTest,
-  MockTestAIEvaluation,
-  MockTestAnswer,
-  MockTestAttempt,
-  MockTestCreationSession,
-  MockTestQuestion,
-  MockTestReport,
-  MockTestAttemptHistoryDto,
-  MockTestAttemptSessionDto,
-  MockTestDetailsDto,
-  MockTestListDto,
-  PublicMockTest,
-  PublicMockTestListDto,
-  PublicMockTestQuestion,
-  TestAnalytics,
-  TestAttemptResult,
+  IFinishMockTestAttemptDTO,
+  IImportSharedMockTestDTO,
+  IMockTestDTO,
+  IMockTestAIEvaluationDTO,
+  IMockTestAnswerDTO,
+  IMockTestAttemptDTO,
+  IMockTestCreationSessionDTO,
+  IMockTestQuestionDTO,
+  IMockTestReportDTO,
+  IMockTestAttemptHistoryDTO,
+  IMockTestAttemptSessionDTO,
+  IMockTestDetailsDTO,
+  IMockTestListDTO,
+  PublicMockTestDTO,
+  IPublicMockTestListDTO,
+  PublicMockTestQuestionDTO,
+  ITestAnalyticsDTO,
+  ITestAttemptResultDTO,
 } from '../dtos/mock-tests.dto'
 import type { MockTestListResult } from '../../domain/repositories/mock-test.repository.interface'
 import type {
@@ -31,18 +31,18 @@ import type {
   MockTestPerformanceTrend,
   MockTestTopicBreakdown,
 } from '../../domain/value-objects/mock-test-analytics.vo'
-import type { ScoreResult } from '../services/test-scorer.service'
+import type { IScoreResult } from '../services/test-scorer.service'
 
-export interface MockTestsMapperContract {
-  toMockTest(test: MockTestEntity): MockTest
-  toPublicMockTest(test: MockTestEntity): PublicMockTest
-  toQuestion(question: MockTestQuestionEntity): MockTestQuestion
-  toAttempt(attempt: MockTestAttemptEntity): MockTestAttempt
-  toAnswer(answer: MockTestAnswerEntity): MockTestAnswer
-  toAIEvaluation(evaluation: MockTestAIEvaluationEntity): MockTestAIEvaluation
-  toReport(report: MockTestReportEntity): MockTestReport
-  sanitizeQuestionForAttempt(question: MockTestQuestionEntity): PublicMockTestQuestion
-  toListItem(test: MockTestEntity, latestAttempt?: MockTestAttemptEntity | null): MockTest & { latestAttempt: MockTestAttempt | null }
+export interface IMockTestsMapper {
+  toMockTest(test: MockTestEntity): IMockTestDTO
+  toPublicMockTest(test: MockTestEntity): PublicMockTestDTO
+  toQuestion(question: MockTestQuestionEntity): IMockTestQuestionDTO
+  toAttempt(attempt: MockTestAttemptEntity): IMockTestAttemptDTO
+  toAnswer(answer: MockTestAnswerEntity): IMockTestAnswerDTO
+  toAIEvaluation(evaluation: MockTestAIEvaluationEntity): IMockTestAIEvaluationDTO
+  toReport(report: MockTestReportEntity): IMockTestReportDTO
+  sanitizeQuestionForAttempt(question: MockTestQuestionEntity): PublicMockTestQuestionDTO
+  toListItem(test: MockTestEntity, latestAttempt?: MockTestAttemptEntity | null): IMockTestDTO & { latestAttempt: IMockTestAttemptDTO | null }
   toAttemptResult(input: {
     attempt: MockTestAttemptEntity
     report: MockTestReportEntity | null
@@ -50,41 +50,41 @@ export interface MockTestsMapperContract {
       question?: MockTestQuestionEntity
       aiEvaluation?: MockTestAIEvaluationEntity
     })[]
-  }): TestAttemptResult
-  toCreationSessionDto(session: MockTestCreationSessionEntity): MockTestCreationSession
-  toListDto(result: MockTestListResult): MockTestListDto
-  toPublicListDto(result: MockTestListResult): PublicMockTestListDto
+  }): ITestAttemptResultDTO
+  toCreationSessionDto(session: MockTestCreationSessionEntity): IMockTestCreationSessionDTO
+  toListDto(result: MockTestListResult): IMockTestListDTO
+  toPublicListDto(result: MockTestListResult): IPublicMockTestListDTO
   toDetailsDto(input: {
     test: MockTestEntity
     questions: MockTestQuestionEntity[]
     latestAttempt: MockTestAttemptEntity | null
     includeAnswers: boolean
-  }): MockTestDetailsDto
+  }): IMockTestDetailsDTO
   toAttemptSessionDto(
     attempt: MockTestAttemptEntity,
     questions: MockTestQuestionEntity[],
-  ): MockTestAttemptSessionDto
+  ): IMockTestAttemptSessionDTO
   toFinishAttemptDto(input: {
     attempt: MockTestAttemptEntity
     report: MockTestReportEntity
-    scoreResult: ScoreResult
-  }): FinishMockTestAttemptDto
+    scoreResult: IScoreResult
+  }): IFinishMockTestAttemptDTO
   toImportSharedDto(input: {
     test: MockTestEntity
     imported: boolean
     alreadyImported: boolean
-  }): ImportSharedMockTestDto
-  toAttemptHistoryDto(item: MockTestAttemptHistoryItem): MockTestAttemptHistoryDto
+  }): IImportSharedMockTestDTO
+  toAttemptHistoryDto(item: MockTestAttemptHistoryItem): IMockTestAttemptHistoryDTO
   toPerformanceTrendDto(
     trend: MockTestPerformanceTrend,
-  ): TestAnalytics['trends'][number]
+  ): ITestAnalyticsDTO['trends'][number]
   toTopicBreakdownDto(
     item: MockTestTopicBreakdown,
-  ): TestAnalytics['topicBreakdown'][number]
+  ): ITestAnalyticsDTO['topicBreakdown'][number]
 }
 
-export class MockTestsMapper implements MockTestsMapperContract {
-  toMockTest(test: MockTestEntity): MockTest {
+export class MockTestsMapper implements IMockTestsMapper {
+  toMockTest(test: MockTestEntity): IMockTestDTO {
     return {
       _id: test._id,
       ownerId: test.ownerId,
@@ -109,12 +109,12 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  toPublicMockTest(test: MockTestEntity): PublicMockTest {
+  toPublicMockTest(test: MockTestEntity): PublicMockTestDTO {
     const { shareToken: _shareToken, ...safeTest } = this.toMockTest(test)
     return safeTest
   }
 
-  toQuestion(question: MockTestQuestionEntity): MockTestQuestion {
+  toQuestion(question: MockTestQuestionEntity): IMockTestQuestionDTO {
     return {
       _id: question._id,
       testId: question.testId,
@@ -130,7 +130,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  toAttempt(attempt: MockTestAttemptEntity): MockTestAttempt {
+  toAttempt(attempt: MockTestAttemptEntity): IMockTestAttemptDTO {
     return {
       _id: attempt._id,
       testId: attempt.testId,
@@ -149,7 +149,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  toAnswer(answer: MockTestAnswerEntity): MockTestAnswer {
+  toAnswer(answer: MockTestAnswerEntity): IMockTestAnswerDTO {
     return {
       _id: answer._id,
       attemptId: answer.attemptId,
@@ -162,7 +162,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  toAIEvaluation(evaluation: MockTestAIEvaluationEntity): MockTestAIEvaluation {
+  toAIEvaluation(evaluation: MockTestAIEvaluationEntity): IMockTestAIEvaluationDTO {
     return {
       _id: evaluation._id,
       attemptId: evaluation.attemptId,
@@ -176,7 +176,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  toReport(report: MockTestReportEntity): MockTestReport {
+  toReport(report: MockTestReportEntity): IMockTestReportDTO {
     return {
       _id: report._id,
       attemptId: report.attemptId,
@@ -197,7 +197,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  sanitizeQuestionForAttempt(question: MockTestQuestionEntity): PublicMockTestQuestion {
+  sanitizeQuestionForAttempt(question: MockTestQuestionEntity): PublicMockTestQuestionDTO {
     return {
       _id: question._id,
       testId: question.testId,
@@ -221,7 +221,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
   toListItem(
     test: MockTestEntity,
     latestAttempt?: MockTestAttemptEntity | null,
-  ): MockTest & { latestAttempt: MockTestAttempt | null } {
+  ): IMockTestDTO & { latestAttempt: IMockTestAttemptDTO | null } {
     return {
       ...this.toMockTest(test),
       latestAttempt: latestAttempt ? this.toAttempt(latestAttempt) : null,
@@ -235,7 +235,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
       question?: MockTestQuestionEntity
       aiEvaluation?: MockTestAIEvaluationEntity
     })[]
-  }): TestAttemptResult {
+  }): ITestAttemptResultDTO {
     return {
       attempt: this.toAttempt(input.attempt),
       report: input.report ? this.toReport(input.report) : null,
@@ -249,7 +249,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  toCreationSessionDto(session: MockTestCreationSessionEntity): MockTestCreationSession {
+  toCreationSessionDto(session: MockTestCreationSessionEntity): IMockTestCreationSessionDTO {
     return {
       _id: session._id,
       userId: session.userId,
@@ -261,14 +261,14 @@ export class MockTestsMapper implements MockTestsMapperContract {
     }
   }
 
-  toListDto(result: MockTestListResult): MockTestListDto {
+  toListDto(result: MockTestListResult): IMockTestListDTO {
     return {
       tests: result.tests.map((test) => this.toMockTest(test)),
       total: result.total,
     }
   }
 
-  toPublicListDto(result: MockTestListResult): PublicMockTestListDto {
+  toPublicListDto(result: MockTestListResult): IPublicMockTestListDTO {
     return {
       tests: result.tests.map((test) => this.toPublicMockTest(test)),
       total: result.total,
@@ -280,7 +280,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     questions: MockTestQuestionEntity[]
     latestAttempt: MockTestAttemptEntity | null
     includeAnswers: boolean
-  }): MockTestDetailsDto {
+  }): IMockTestDetailsDTO {
     return {
       test: input.includeAnswers
         ? this.toMockTest(input.test)
@@ -297,7 +297,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
   toAttemptSessionDto(
     attempt: MockTestAttemptEntity,
     questions: MockTestQuestionEntity[],
-  ): MockTestAttemptSessionDto {
+  ): IMockTestAttemptSessionDTO {
     return {
       attempt: this.toAttempt(attempt),
       questions: questions.map((question) =>
@@ -308,8 +308,8 @@ export class MockTestsMapper implements MockTestsMapperContract {
   toFinishAttemptDto(input: {
     attempt: MockTestAttemptEntity
     report: MockTestReportEntity
-    scoreResult: ScoreResult
-  }): FinishMockTestAttemptDto {
+    scoreResult: IScoreResult
+  }): IFinishMockTestAttemptDTO {
     return {
       attempt: this.toAttempt(input.attempt),
       report: this.toReport(input.report),
@@ -321,7 +321,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
     test: MockTestEntity
     imported: boolean
     alreadyImported: boolean
-  }): ImportSharedMockTestDto {
+  }): IImportSharedMockTestDTO {
     return {
       test: this.toMockTest(input.test),
       imported: input.imported,
@@ -331,7 +331,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
 
   toAttemptHistoryDto(
     item: MockTestAttemptHistoryItem,
-  ): MockTestAttemptHistoryDto {
+  ): IMockTestAttemptHistoryDTO {
     return {
       ...this.toAttempt(new MockTestAttemptEntity(item)),
       test: item.test
@@ -342,7 +342,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
 
   toPerformanceTrendDto(
     trend: MockTestPerformanceTrend,
-  ): TestAnalytics['trends'][number] {
+  ): ITestAnalyticsDTO['trends'][number] {
     return {
       date: trend.date,
       averageScore: trend.averageScore,
@@ -352,7 +352,7 @@ export class MockTestsMapper implements MockTestsMapperContract {
 
   toTopicBreakdownDto(
     item: MockTestTopicBreakdown,
-  ): TestAnalytics['topicBreakdown'][number] {
+  ): ITestAnalyticsDTO['topicBreakdown'][number] {
     return {
       topic: item.topic,
       averageScore: item.averageScore,

@@ -212,7 +212,7 @@ export type SaveLessonVisualizationInput = {
   visualDescription: string
 }
 
-export interface TrackerLessonRepositoryContract {
+export interface ITrackerLessonRepository {
   createLesson(
     data: CreateTrackerLessonInput
   ): Promise<GeneratedTrackerLessonRecord>

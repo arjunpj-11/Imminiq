@@ -1,24 +1,24 @@
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { CreateMockTestPayload, MockTest } from '../dtos/mock-tests.dto'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { ICreateMockTestPayloadDTO, IMockTestDTO } from '../dtos/mock-tests.dto'
 import { MAX_MANUAL_QUESTIONS } from '../../domain/constants/mock-tests.constants'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type CreateMockTestRepository =
-  MockTestRepositoryContract &
-  MockTestQuestionRepositoryContract
+  IMockTestRepository &
+  IMockTestQuestionRepository
 
 export class CreateMockTestUseCase {
   constructor(
-    private readonly _repo: CreateMockTestRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _repository: CreateMockTestRepository,
+    private readonly _mapper: IMockTestsMapper,
   ) { }
 
   async execute(
     userId: string,
-    payload: CreateMockTestPayload,
-  ): Promise<MockTest> {
+    payload: ICreateMockTestPayloadDTO,
+  ): Promise<IMockTestDTO> {
     if (!payload.questions?.length) {
       throw MockTestsApplicationError.validation('At least one question is required')
     }
@@ -29,7 +29,7 @@ export class CreateMockTestUseCase {
       )
     }
 
-    const test = await this._repo.createTest({
+    const test = await this._repository.createTest({
       ownerId: userId,
       title: payload.title,
       description: payload.description || '',
@@ -43,7 +43,7 @@ export class CreateMockTestUseCase {
       isAIGenerated: false,
     })
 
-    await this._repo.createQuestions(
+    await this._repository.createQuestions(
       payload.questions.map((question, index) => ({
         testId: test._id,
         type: question.type,

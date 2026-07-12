@@ -1,27 +1,27 @@
 import { aiQueue } from '../../../../infrastructure/queue/queues'
 import { OnboardingDomainError } from '../../domain/errors/onboarding-domain.error'
 import type {
-  AIJobQueueGatewayContract,
-  EvaluateRoadmapQueuePayload,
-  GenerateRoadmapQueuePayload,
+  IAIJobQueueGateway,
+  IEvaluateRoadmapQueuePayload,
+  IGenerateRoadmapQueuePayload,
 } from '../../domain/services/ai-job-queue.interface'
 
-export class BullMqAIJobQueueGateway implements AIJobQueueGatewayContract {
+export class BullMqAIJobQueueGateway implements IAIJobQueueGateway {
   async enqueueRoadmapGeneration(
-    payload: GenerateRoadmapQueuePayload,
+    payload: IGenerateRoadmapQueuePayload,
   ): Promise<void> {
     await this.enqueue('generate-roadmap', payload)
   }
 
   async enqueueRoadmapEvaluation(
-    payload: EvaluateRoadmapQueuePayload,
+    payload: IEvaluateRoadmapQueuePayload,
   ): Promise<void> {
     await this.enqueue('evaluate-roadmap', payload)
   }
 
   private async enqueue(
     jobName: string,
-    payload: GenerateRoadmapQueuePayload | EvaluateRoadmapQueuePayload,
+    payload: IGenerateRoadmapQueuePayload | IEvaluateRoadmapQueuePayload,
   ): Promise<void> {
     try {
       await aiQueue.add(jobName, payload, this.getQueueOptions())

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-interface SectionHeaderProps {
+interface ISectionHeaderProps {
   title: ReactNode
   description?: ReactNode
   action?: ReactNode
@@ -10,7 +10,7 @@ export default function SectionHeader({
   title,
   description,
   action,
-}: SectionHeaderProps) {
+}: ISectionHeaderProps) {
   return (
     <div className="mb-4 flex flex-wrap items-start justify-between gap-3">
       <div className="min-w-0">

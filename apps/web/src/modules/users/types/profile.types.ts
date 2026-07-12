@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-export interface ProfileData {
+export interface IProfileData {
   name: string
   username: string
   profession: string
@@ -27,7 +27,7 @@ export type SubmitActionKey =
 
 export type BadgeColor = 'fire' | 'green' | 'amber' | 'blue' | 'locked'
 
-export interface ProfileBadgeViewModel {
+export interface IProfileBadgeViewModel {
   id: string
   emoji: string
   name: string
@@ -38,19 +38,19 @@ export interface ProfileBadgeViewModel {
   iconUrl?: string
 }
 
-export interface ActivityVisualViewModel {
+export interface IActivityVisualViewModel {
   dot: string
   iconColor: string
   icon: ReactNode
 }
 
-export interface ApiResponse<T> {
+export interface IApiResponse<T> {
   success: boolean
   message: string
   data: T
 }
 
-export interface ApiErrorResponse {
+export interface IApiErrorResponse {
   success?: boolean
   message?: string
   errors?: Array<{
@@ -59,7 +59,7 @@ export interface ApiErrorResponse {
   }>
 }
 
-export interface ProfileUser {
+export interface IProfileUser {
   _id: string
   fullName: string
   username: string
@@ -80,7 +80,7 @@ export interface ProfileUser {
   updatedAt?: string
 }
 
-export interface EditableUserProfile {
+export interface IEditableUserProfile {
   _id?: string
   userId: string
   fullName: string
@@ -101,12 +101,12 @@ export interface EditableUserProfile {
   likeCount: number
 }
 
-export interface GetMyProfileResponse {
-  user: ProfileUser
-  profile: EditableUserProfile
+export interface IGetMyProfileResponse {
+  user: IProfileUser
+  profile: IEditableUserProfile
 }
 
-export interface UpdateProfilePayload {
+export interface IUpdateProfilePayload {
   fullName?: string
   headline?: string
   bio?: string
@@ -120,7 +120,7 @@ export interface UpdateProfilePayload {
   publicProfileEnabled?: boolean
 }
 
-export interface ProfileStats {
+export interface IProfileStats {
   streakCount: number
   studentLevel: number
   xp: number
@@ -133,7 +133,7 @@ export interface ProfileStats {
 
 export type HeatmapIntensity = 'none' | 'low' | 'medium' | 'high'
 
-export interface StreakHeatmapDay {
+export interface IStreakHeatmapDay {
   date: string
   activityCount: number
   intensityLevel: HeatmapIntensity
@@ -141,16 +141,16 @@ export interface StreakHeatmapDay {
   isFrozen: boolean
 }
 
-export interface StreakSummary {
+export interface IStreakSummary {
   currentStreak: number
   longestStreak: number
   totalActiveDays: number
   totalFreezeUsed: number
   lastActiveDate: string | null
-  heatmap: StreakHeatmapDay[]
+  heatmap: IStreakHeatmapDay[]
 }
 
-export interface ProfileBadge {
+export interface IProfileBadge {
   _id: string
   name: string
   description: string
@@ -161,7 +161,7 @@ export interface ProfileBadge {
   earned?: boolean
 }
 
-export interface PaginatedResult<T> {
+export interface IPaginatedResult<T> {
   items: T[]
   pagination: {
     page: number
@@ -171,7 +171,7 @@ export interface PaginatedResult<T> {
   }
 }
 
-export interface PublishedTracker {
+export interface IPublishedTracker {
   _id: string
   title: string
   slug: string
@@ -194,7 +194,7 @@ export interface PublishedTracker {
   createdAt?: string
 }
 
-export interface ActivityFeedItem {
+export interface IActivityFeedItem {
   _id: string
   action: string
   module: string
@@ -210,32 +210,32 @@ export type ProfileRelationshipState =
   | 'request_sent'
   | 'request_received'
 
-export interface PublicProfilePageData {
-  user: ProfileUser
-  profile: EditableUserProfile
-  stats: ProfileStats | null
-  streak: StreakSummary | null
+export interface IPublicProfilePageData {
+  user: IProfileUser
+  profile: IEditableUserProfile
+  stats: IProfileStats | null
+  streak: IStreakSummary | null
   badges: {
     earnedCount: number
     totalCount: number
-    items: ProfileBadge[]
+    items: IProfileBadge[]
   }
-  publishedTrackers: PaginatedResult<PublishedTracker>
-  recentActivity: ActivityFeedItem[] | null
+  publishedTrackers: IPaginatedResult<IPublishedTracker>
+  recentActivity: IActivityFeedItem[] | null
   relationship: ProfileRelationshipState
 }
 
-export interface ProfileImageUploadResponse {
+export interface IProfileImageUploadResponse {
   uploadId: string
   fileUrl: string
   kind: 'avatar' | 'banner'
 }
 
-export interface RemoveAvatarResponse {
+export interface IRemoveAvatarResponse {
   avatarRemoved: boolean
   defaultAvatarApplied: boolean
 }
 
-export interface RemoveBannerResponse {
+export interface IRemoveBannerResponse {
   bannerRemoved: boolean
 }

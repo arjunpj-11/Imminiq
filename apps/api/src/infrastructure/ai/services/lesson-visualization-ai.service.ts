@@ -3,7 +3,7 @@ import { ApiError } from '../../../shared/utils/ApiError'
 import { heavyAIChatWithFallback } from '../ai-fallback.helper'
 import type {
   LessonVisualizationResult,
-  VisualizationInput,
+  IVisualizationInput,
 } from '../ai.schemas'
 import { cerebrasRoadmapStructureChat } from '../clients/cerebras.client'
 import {
@@ -16,7 +16,7 @@ import {
 // ============================================================
 
 export const generateLessonVisualization = async (
-  lesson: VisualizationInput
+  lesson: IVisualizationInput
 ): Promise<LessonVisualizationResult> => {
   const rawText = await heavyAIChatWithFallback(
     buildVisualizationPrompt(lesson),

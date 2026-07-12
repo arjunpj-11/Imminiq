@@ -7,14 +7,14 @@ import {
   ACTIVITY_STALE_TIME_MS,
 } from '../constants/activity.constants'
 import type {
-  ActivityApiErrorResponse,
-  ActivityApiResponse,
-  ActivityFeedQueryInput,
-  ActivityFeedResponse,
+  IActivityApiErrorResponse,
+  IActivityApiResponse,
+  IActivityFeedQueryInput,
+  IActivityFeedResponse,
 } from '../types/activity.types'
 import { activityQueryKeys } from './activity-query-keys'
 
-interface UseActivityFeedOptions extends ActivityFeedQueryInput {
+interface IUseActivityFeedOptions extends IActivityFeedQueryInput {
   /**
    * Only pass this when it is known to belong to the SAME filter/year
    * this hook is being called with (i.e. the parent page query is not
@@ -24,7 +24,7 @@ interface UseActivityFeedOptions extends ActivityFeedQueryInput {
    * the real fetch — that was the cause of the "filter doesn't update"
    * bug. When in doubt, omit it.
    */
-  initialFeed?: ActivityFeedResponse
+  initialFeed?: IActivityFeedResponse
   initialDataUpdatedAt?: number
 }
 
@@ -32,10 +32,10 @@ export const useActivityFeed = ({
   initialFeed,
   initialDataUpdatedAt,
   ...input
-}: UseActivityFeedOptions) =>
+}: IUseActivityFeedOptions) =>
   useInfiniteQuery<
-    ActivityFeedResponse,
-    AxiosError<ActivityApiErrorResponse>
+    IActivityFeedResponse,
+    AxiosError<IActivityApiErrorResponse>
   >({
     queryKey: activityQueryKeys.feed(input),
     queryFn: async ({ pageParam }) => {
@@ -43,7 +43,7 @@ export const useActivityFeed = ({
         typeof pageParam === 'string' ? pageParam : undefined
 
       const response = await api.get<
-        ActivityApiResponse<ActivityFeedResponse>
+        IActivityApiResponse<IActivityFeedResponse>
       >(ACTIVITY_ENDPOINTS.feed, {
         params: {
           filter: input.filter,

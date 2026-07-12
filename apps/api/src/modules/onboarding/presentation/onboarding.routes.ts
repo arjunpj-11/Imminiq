@@ -3,7 +3,8 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { onboardingController } from './onboarding.controller'
+import { OnboardingController } from './onboarding.controller'
+import { createOnboardingComposition } from '../onboarding.factory'
 import { ONBOARDING_ROUTE_PATHS } from './onboarding.route.constants'
 import {
   generateRoadmapSchema,
@@ -11,6 +12,7 @@ import {
   step2Schema,
 } from './onboarding.schema'
 
+const onboardingController = new OnboardingController(createOnboardingComposition().useCases)
 const router = Router()
 
 // ─── PROTECTED ────────────────────────────────────────────────

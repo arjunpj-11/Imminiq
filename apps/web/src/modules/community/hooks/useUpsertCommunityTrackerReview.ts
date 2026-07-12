@@ -3,11 +3,11 @@ import type { AxiosError } from 'axios'
 
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  CommunityPublicTrackerDetail,
-  UpsertCommunityTrackerReviewData,
-  UpsertCommunityTrackerReviewPayload,
+  IApiErrorResponse,
+  IApiResponse,
+  ICommunityPublicTrackerDetail,
+  IUpsertCommunityTrackerReviewData,
+  IUpsertCommunityTrackerReviewPayload,
 } from '../types/community.types'
 import { communityPublicTrackerKeys } from './useCommunityPublicTracker'
 
@@ -15,9 +15,9 @@ const upsertCommunityTrackerReview = async ({
   trackerId,
   rating,
   comment,
-}: UpsertCommunityTrackerReviewPayload): Promise<UpsertCommunityTrackerReviewData> => {
+}: IUpsertCommunityTrackerReviewPayload): Promise<IUpsertCommunityTrackerReviewData> => {
   const response = await api.post<
-    ApiResponse<UpsertCommunityTrackerReviewData>
+    IApiResponse<IUpsertCommunityTrackerReviewData>
   >(`/community/trackers/${trackerId}/reviews`, {
     rating,
     comment,
@@ -34,13 +34,13 @@ export const useUpsertCommunityTrackerReview = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    UpsertCommunityTrackerReviewData,
-    AxiosError<ApiErrorResponse>,
-    UpsertCommunityTrackerReviewPayload
+    IUpsertCommunityTrackerReviewData,
+    AxiosError<IApiErrorResponse>,
+    IUpsertCommunityTrackerReviewPayload
   >({
     mutationFn: upsertCommunityTrackerReview,
     onSuccess: (data, variables) => {
-      queryClient.setQueryData<CommunityPublicTrackerDetail>(
+      queryClient.setQueryData<ICommunityPublicTrackerDetail>(
         communityPublicTrackerKeys.detail(variables.trackerId),
         (oldData) => {
           if (!oldData) {

@@ -170,7 +170,7 @@ export type UpdateSettingsCookieConsentInput = {
   cookieConsent: boolean
 }
 
-export interface SettingsCommandRepositoryContract {
+export interface ISettingsCommandRepository {
   updateAppearance(
     input: UpdateSettingsAppearanceInput
   ): Promise<UserSettingsEntity | null>

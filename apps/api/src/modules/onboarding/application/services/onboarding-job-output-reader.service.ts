@@ -1,4 +1,4 @@
-export interface OnboardingJobOutputReaderServiceContract {
+export interface IOnboardingJobOutputReader {
   getTrackerId(
     outputData: Record<string, unknown> | undefined,
   ): string | null
@@ -8,8 +8,8 @@ export interface OnboardingJobOutputReaderServiceContract {
   ): Record<string, unknown> | null
 }
 
-export class OnboardingJobOutputReaderService
-  implements OnboardingJobOutputReaderServiceContract
+export class OnboardingJobOutputReader
+  implements IOnboardingJobOutputReader
 {
   getTrackerId(
     outputData: Record<string, unknown> | undefined,

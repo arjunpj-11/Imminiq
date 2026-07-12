@@ -1,45 +1,47 @@
 import type { UserProfileEntity } from '../../domain/entities/user-profile.entity'
 import type { UserEntity } from '../../domain/entities/user.entity'
-import type { UserBadgeRepositoryContract } from '../../domain/repositories/user-badge.repository.interface'
-import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
-import type { UserStreakRepositoryContract } from '../../domain/repositories/user-streak.repository.interface'
-import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import type { IUserBadgeRepository } from '../../domain/repositories/user-badge.repository.interface'
+import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface'
+import type { IUserStreakRepository } from '../../domain/repositories/user-streak.repository.interface'
+import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
 import type {
-  BadgeShowcaseView,
-  ProfileStatsView,
-  StreakSummaryView,
+  IBadgeShowcaseViewDTO,
+  IProfileStatsViewDTO,
+  IStreakSummaryViewDTO,
 } from '../dtos/users.dto'
 import { UsersApplicationError } from '../errors/users-application.error'
-import type { UsersMapperContract } from '../mappers/users.mapper'
+import type { IUsersMapper } from '../mappers/users.mapper'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 type UsersProfileDataRepository =
-  UserRepositoryContract &
-  UserProfileRepositoryContract &
-  UserBadgeRepositoryContract &
-  UserStreakRepositoryContract
+  IUserRepository &
+  IUserProfileRepository &
+  IUserBadgeRepository &
+  IUserStreakRepository
 
-export interface UsersProfileDataServiceContract {
-  getBadgeShowcase(userId: string): Promise<BadgeShowcaseView>
+export interface IUsersProfileDataReader {
+  getBadgeShowcase(userId: string): Promise<IBadgeShowcaseViewDTO>
   getStreakSummary(
     userId: string,
     requestedYear?: number,
-  ): Promise<StreakSummaryView>
+  ): Promise<IStreakSummaryViewDTO>
   getStats(
     userId: string,
     user?: UserEntity,
     profile?: UserProfileEntity,
-  ): Promise<ProfileStatsView>
+  ): Promise<IProfileStatsViewDTO>
 }
 
-export class UsersProfileDataService
-  implements UsersProfileDataServiceContract
+export class UsersProfileDataReader
+  implements IUsersProfileDataReader
 {
   constructor(
     private readonly _usersRepository: UsersProfileDataRepository,
-    private readonly _usersMapper: UsersMapperContract,
+    private readonly _usersMapper: IUsersMapper,
+    private readonly _clock: IClock,
   ) {}
 
-  async getBadgeShowcase(userId: string): Promise<BadgeShowcaseView> {
+  async getBadgeShowcase(userId: string): Promise<IBadgeShowcaseViewDTO> {
     const { catalog, earned } =
       await this._usersRepository.findBadgeShowcase(userId)
 
@@ -64,8 +66,8 @@ export class UsersProfileDataService
   async getStreakSummary(
     userId: string,
     requestedYear?: number,
-  ): Promise<StreakSummaryView> {
-    const year = requestedYear ?? new Date().getUTCFullYear()
+  ): Promise<IStreakSummaryViewDTO> {
+    const year = requestedYear ?? this._clock.now().getUTCFullYear()
 
    const [snapshot, history] = await Promise.all([
   this._usersRepository.findLatestSnapshot(userId),
@@ -93,7 +95,7 @@ export class UsersProfileDataService
     userId: string,
     user?: UserEntity,
     profile?: UserProfileEntity,
-  ): Promise<ProfileStatsView> {
+  ): Promise<IProfileStatsViewDTO> {
     const resolvedUser =
       user ?? (await this._usersRepository.findById(userId))
 

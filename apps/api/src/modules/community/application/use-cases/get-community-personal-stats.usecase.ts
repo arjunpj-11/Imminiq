@@ -1,14 +1,14 @@
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityStatCardView } from '../dtos/community.dto'
-import type { CommunityMapperContract } from '../mappers/community.mapper'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityStatCardViewDTO } from '../dtos/community.dto'
+import type { ICommunityMapper } from '../mappers/community.mapper'
 
 export class GetCommunityPersonalStatsUseCase {
   constructor(
-    private readonly _repository: CommunityRepositoryContract,
-    private readonly _mapper: CommunityMapperContract,
+    private readonly _repository: ICommunityRepository,
+    private readonly _mapper: ICommunityMapper,
   ) {}
 
-  async execute(userId: string): Promise<CommunityStatCardView[]> {
+  async execute(userId: string): Promise<ICommunityStatCardViewDTO[]> {
     const stats = await this._repository.getPersonalStats(userId)
 
     return this._mapper.toStatCards(stats)

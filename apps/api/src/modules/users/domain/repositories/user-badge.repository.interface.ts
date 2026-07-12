@@ -18,7 +18,7 @@ export type FindEarnedUserBadgesPaginatedInput = {
   limit?: number
 }
 
-export interface UserBadgeRepositoryContract {
+export interface IUserBadgeRepository {
   findBadgeShowcase(userId: UserIdInput): Promise<UserBadgeShowcaseResult>
 
   findEarnedBadgesPaginated(

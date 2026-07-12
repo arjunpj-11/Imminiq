@@ -54,7 +54,7 @@ export type MockTestListResult = {
   total: number
 }
 
-export interface MockTestRepositoryContract {
+export interface IMockTestRepository {
   findTestById(testId: string): Promise<MockTestEntity | null>
 
   findTestsByOwner(

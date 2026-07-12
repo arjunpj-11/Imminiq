@@ -1,6 +1,6 @@
 import UserAvatar from '../../../components/data-display/UserAvatar'
 
-interface LeaderboardAvatarProps {
+interface ILeaderboardAvatarProps {
   initials: string
   color: string
   avatarUrl?: string | null | undefined
@@ -21,7 +21,7 @@ export default function LeaderboardAvatar({
   avatarUrl,
   name,
   size = 'md',
-}: LeaderboardAvatarProps) {
+}: ILeaderboardAvatarProps) {
   return (
     <UserAvatar
       name={name}

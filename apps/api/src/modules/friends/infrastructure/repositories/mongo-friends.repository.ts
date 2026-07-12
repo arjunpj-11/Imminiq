@@ -1,7 +1,7 @@
-import type { FriendCommandRepositoryContract } from "../../domain/repositories/friend-command.repository.interface";
-import type { FriendQueryRepositoryContract } from "../../domain/repositories/friend-query.repository.interface";
-import type { FriendRequestRepositoryContract } from "../../domain/repositories/friend-request.repository.interface";
-import type { FriendsRepositoryContract } from "../../domain/repositories/friends.repository.interface";
+import type { IFriendCommandRepository } from "../../domain/repositories/friend-command.repository.interface";
+import type { IFriendQueryRepository } from "../../domain/repositories/friend-query.repository.interface";
+import type { IFriendRequestRepository } from "../../domain/repositories/friend-request.repository.interface";
+import type { IFriendsRepository } from "../../domain/repositories/friends.repository.interface";
 import type {
   FriendRequestActionCommandInput,
   ListFriendRequestsInput,
@@ -25,15 +25,15 @@ import {
 import { MongoFriendsMapper } from "./shared/mongo-friends.mapper";
 
 type MongoFriendsRepositoryDependencies = {
-  queryRepository: FriendQueryRepositoryContract;
-  requestRepository: FriendRequestRepositoryContract;
-  commandRepository: FriendCommandRepositoryContract;
+  queryRepository: IFriendQueryRepository;
+  requestRepository: IFriendRequestRepository;
+  commandRepository: IFriendCommandRepository;
 };
 
-export class MongoFriendsRepository implements FriendsRepositoryContract {
-  private readonly _queryRepository: FriendQueryRepositoryContract;
-  private readonly _requestRepository: FriendRequestRepositoryContract;
-  private readonly _commandRepository: FriendCommandRepositoryContract;
+export class MongoFriendsRepository implements IFriendsRepository {
+  private readonly _queryRepository: IFriendQueryRepository;
+  private readonly _requestRepository: IFriendRequestRepository;
+  private readonly _commandRepository: IFriendCommandRepository;
 
   constructor(
     mapper?: MongoFriendsMapper,

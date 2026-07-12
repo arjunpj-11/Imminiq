@@ -1,21 +1,21 @@
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
-import type { AttemptAnalysis } from '../dtos/mock-tests.dto'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface'
+import type { IAttemptAnalysisDTO } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type GetAttemptAnalysisRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestAnswerRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestReportRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestAnswerRepository &
+  IMockTestQuestionRepository &
+  IMockTestReportRepository
 
 export class GetAttemptAnalysisUseCase {
-  constructor(private readonly _repo: GetAttemptAnalysisRepository) { }
+  constructor(private readonly _repository: GetAttemptAnalysisRepository) { }
 
-  async execute(attemptId: string, userId: string): Promise<AttemptAnalysis> {
-    const attempt = await this._repo.findAttemptById(attemptId)
+  async execute(attemptId: string, userId: string): Promise<IAttemptAnalysisDTO> {
+    const attempt = await this._repository.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -29,15 +29,15 @@ export class GetAttemptAnalysisUseCase {
       throw MockTestsApplicationError.notCompleted()
     }
 
-    const report = await this._repo.findReportByAttempt(attemptId)
+    const report = await this._repository.findReportByAttempt(attemptId)
 
     if (!report) {
       throw MockTestsApplicationError.notFound('Report not found')
     }
 
     const [answers, questions] = await Promise.all([
-      this._repo.findAnswersByAttempt(attemptId),
-      this._repo.findQuestionsByTest(attempt.testId),
+      this._repository.findAnswersByAttempt(attemptId),
+      this._repository.findQuestionsByTest(attempt.testId),
     ])
 
     const answerMap = new Map(answers.map((answer) => [answer.questionId, answer]))

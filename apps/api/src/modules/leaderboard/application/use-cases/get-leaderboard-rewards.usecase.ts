@@ -2,10 +2,10 @@ import {
   LEADERBOARD_REWARDS,
   LEADERBOARD_SCORING_RULES,
 } from '../constants/leaderboard.constants'
-import type { LeaderboardRewardsResponse } from '../dtos/leaderboard.dto'
+import type { LeaderboardRewardsResponseDTO } from '../dtos/leaderboard.dto'
 
 export class GetLeaderboardRewardsUseCase {
-  execute(): LeaderboardRewardsResponse {
+  execute(): LeaderboardRewardsResponseDTO {
     return {
       students: {
         scoringRules: LEADERBOARD_SCORING_RULES.students,

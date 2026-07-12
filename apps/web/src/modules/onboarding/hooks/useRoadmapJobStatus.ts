@@ -9,7 +9,7 @@ export type RoadmapJobTerminalStatus =
   | 'done'
   | 'error'
 
-export interface RoadmapJobStatusData {
+export interface IRoadmapJobStatusData {
   jobId?: string
   status?: string
   state?: string
@@ -35,18 +35,18 @@ export interface RoadmapJobStatusData {
   nextStep?: string
 }
 
-interface RoadmapJobStatusResponse {
+interface IRoadmapJobStatusResponse {
   success: boolean
   message: string
-  data?: RoadmapJobStatusData
+  data?: IRoadmapJobStatusData
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
 
-const isTerminalJob = (data?: RoadmapJobStatusData) => {
+const isTerminalJob = (data?: IRoadmapJobStatusData) => {
   const status = (data?.status || data?.state || '').toLowerCase()
 
   return [
@@ -60,13 +60,13 @@ const isTerminalJob = (data?: RoadmapJobStatusData) => {
 
 export const useRoadmapJobStatus = (jobId?: string) => {
   return useQuery<
-    RoadmapJobStatusResponse,
-    AxiosError<ApiErrorResponse>
+    IRoadmapJobStatusResponse,
+    AxiosError<IApiErrorResponse>
   >({
     queryKey: ['roadmap-job-status', jobId],
 
     queryFn: async () => {
-      const response = await api.get<RoadmapJobStatusResponse>(
+      const response = await api.get<IRoadmapJobStatusResponse>(
         `/onboarding/jobs/${jobId}/status`
       )
 

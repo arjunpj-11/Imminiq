@@ -1,11 +1,11 @@
-import type { ProfileData, ProfileStats, StreakSummary } from '../types/profile.types'
+import type { IProfileData, IProfileStats, IStreakSummary } from '../types/profile.types'
 import { formatCompactNumber } from '../utils/profile-formatters'
 import { cn } from '../../../lib/cn'
 
-interface ProfileHeaderProps {
-  profile: ProfileData
-  stats?: ProfileStats | null
-  streak?: StreakSummary | null
+interface IProfileHeaderProps {
+  profile: IProfileData
+  stats?: IProfileStats | null
+  streak?: IStreakSummary | null
   levelLabel: string
   location: string
   isOwnView: boolean
@@ -43,7 +43,7 @@ function ProfileAvatar({
   profile,
   isOwnView,
   onChange,
-}: Pick<ProfileHeaderProps, 'profile' | 'isOwnView'> & { onChange: () => void }) {
+}: Pick<IProfileHeaderProps, 'profile' | 'isOwnView'> & { onChange: () => void }) {
   const initials = profile.name
     .split(' ')
     .map((word) => word[0])
@@ -99,7 +99,7 @@ function ProfileActions({
   onEdit,
   onCopyProfileLink,
 }: Omit<
-  ProfileHeaderProps,
+  IProfileHeaderProps,
   | 'profile'
   | 'stats'
   | 'streak'
@@ -175,7 +175,7 @@ function ProfileActions({
   )
 }
 
-function ProfileChips({ stats, streak }: Pick<ProfileHeaderProps, 'stats' | 'streak'>) {
+function ProfileChips({ stats, streak }: Pick<IProfileHeaderProps, 'stats' | 'streak'>) {
   const chips = [
     {
       className:
@@ -232,7 +232,7 @@ export default function ProfileHeader({
   onSendFriendRequest,
   onMessage,
   onCopyProfileLink,
-}: ProfileHeaderProps) {
+}: IProfileHeaderProps) {
   return (
     <>
       <div

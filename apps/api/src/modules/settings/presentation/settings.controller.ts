@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { createSettingsComposition, type SettingsComposition } from '../settings.factory'
+import type { SettingsComposition } from '../settings.factory'
 
 export class SettingsController {
   constructor(private readonly _useCases: SettingsComposition['useCases']) {}
@@ -302,5 +302,3 @@ export class SettingsController {
     }
   }
 }
-
-export const settingsController = new SettingsController(createSettingsComposition().useCases)

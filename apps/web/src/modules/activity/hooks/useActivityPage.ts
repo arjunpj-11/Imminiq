@@ -7,22 +7,22 @@ import {
   ACTIVITY_STALE_TIME_MS,
 } from '../constants/activity.constants'
 import type {
-  ActivityApiErrorResponse,
-  ActivityApiResponse,
-  ActivityPageQueryInput,
-  ActivityPageResponse,
+  IActivityApiErrorResponse,
+  IActivityApiResponse,
+  IActivityPageQueryInput,
+  IActivityPageResponse,
 } from '../types/activity.types'
 import { activityQueryKeys } from './activity-query-keys'
 
-export const useActivityPage = (input: ActivityPageQueryInput) =>
+export const useActivityPage = (input: IActivityPageQueryInput) =>
   useQuery<
-    ActivityPageResponse,
-    AxiosError<ActivityApiErrorResponse>
+    IActivityPageResponse,
+    AxiosError<IActivityApiErrorResponse>
   >({
     queryKey: activityQueryKeys.page(input),
     queryFn: async () => {
       const response = await api.get<
-        ActivityApiResponse<ActivityPageResponse>
+        IActivityApiResponse<IActivityPageResponse>
       >(ACTIVITY_ENDPOINTS.page, {
         params: {
           year: input.year,

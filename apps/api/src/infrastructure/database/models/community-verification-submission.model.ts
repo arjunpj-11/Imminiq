@@ -9,7 +9,7 @@ export type CommunityVerificationSubmissionStatus =
 
 export type CommunityVerificationConsensusChoice = 'pass' | 'fail'
 
-export interface ICommunityVerificationSubmission extends Document {
+export interface ICommunityVerificationSubmissionDocument extends Document {
   trackerId: mongoose.Types.ObjectId
   ownerId: mongoose.Types.ObjectId
 
@@ -34,7 +34,7 @@ export interface ICommunityVerificationSubmission extends Document {
 }
 
 const communityVerificationSubmissionSchema =
-  new Schema<ICommunityVerificationSubmission>(
+  new Schema<ICommunityVerificationSubmissionDocument>(
     {
       trackerId: {
         type: Schema.Types.ObjectId,
@@ -151,7 +151,7 @@ communityVerificationSubmissionSchema.index(
 
 export const CommunityVerificationSubmission =
   mongoose.models.CommunityVerificationSubmission ||
-  mongoose.model<ICommunityVerificationSubmission>(
+  mongoose.model<ICommunityVerificationSubmissionDocument>(
     'CommunityVerificationSubmission',
     communityVerificationSubmissionSchema,
   )

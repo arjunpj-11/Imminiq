@@ -1,7 +1,7 @@
 export type LeaderboardSection = 'students' | 'trainers'
 export type LeaderboardScope = 'global' | 'friends' | 'weekly'
 
-export interface LeaderboardEntry {
+export interface ILeaderboardEntry {
   userId: string
   rank: number
   name: string
@@ -18,18 +18,18 @@ export interface LeaderboardEntry {
   isMe: boolean
 }
 
-export interface LeaderboardTopThreeEntry extends LeaderboardEntry {
+export interface ILeaderboardTopThreeEntry extends ILeaderboardEntry {
   rank: 1 | 2 | 3
   streakDays: number
   isChampion: boolean
 }
 
-export interface LeaderboardCurrentUser extends LeaderboardEntry {
+export interface ILeaderboardCurrentUser extends ILeaderboardEntry {
   xpToTargetRank: number | null
   targetRank: number
 }
 
-export interface LeaderboardWeeklySummary {
+export interface ILeaderboardWeeklySummary {
   currentXp: number
   previousXp: number
   growthPercent: number
@@ -38,13 +38,13 @@ export interface LeaderboardWeeklySummary {
   progressPercent: number
 }
 
-export interface LeaderboardScoringRule {
+export interface ILeaderboardScoringRule {
   label: string
   xpLabel: string
   source: string
 }
 
-export interface LeaderboardReward {
+export interface ILeaderboardReward {
   title: string
   description: string
   targetRank: number
@@ -52,7 +52,7 @@ export interface LeaderboardReward {
   coins: number
 }
 
-export interface LeaderboardResponse {
+export interface ILeaderboardResponse {
   section: LeaderboardSection
   scope: LeaderboardScope
   generatedAt: string
@@ -64,13 +64,13 @@ export interface LeaderboardResponse {
     globalRank: number | null
     globalRankTrend: number
   }
-  topThree: LeaderboardTopThreeEntry[]
-  entries: LeaderboardEntry[]
-  currentUser: LeaderboardCurrentUser | null
-  streakChampions: LeaderboardEntry[]
-  weekly: LeaderboardWeeklySummary
-  scoringRules: LeaderboardScoringRule[]
-  reward: LeaderboardReward
+  topThree: ILeaderboardTopThreeEntry[]
+  entries: ILeaderboardEntry[]
+  currentUser: ILeaderboardCurrentUser | null
+  streakChampions: ILeaderboardEntry[]
+  weekly: ILeaderboardWeeklySummary
+  scoringRules: ILeaderboardScoringRule[]
+  reward: ILeaderboardReward
   pagination: {
     limit: number
     returned: number
@@ -78,30 +78,30 @@ export interface LeaderboardResponse {
   }
 }
 
-export interface LeaderboardRewardsResponse {
+export interface ILeaderboardRewardsResponse {
   students: {
-    scoringRules: LeaderboardScoringRule[]
-    reward: LeaderboardReward
+    scoringRules: ILeaderboardScoringRule[]
+    reward: ILeaderboardReward
   }
   trainers: {
-    scoringRules: LeaderboardScoringRule[]
-    reward: LeaderboardReward
+    scoringRules: ILeaderboardScoringRule[]
+    reward: ILeaderboardReward
   }
 }
 
-export interface LeaderboardApiResponse<T> {
+export interface ILeaderboardApiResponse<T> {
   success: boolean
   message: string
   data: T
 }
 
-export interface LeaderboardApiErrorResponse {
+export interface ILeaderboardApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
 }
 
-export interface LeaderboardQueryInput {
+export interface ILeaderboardQueryInput {
   section: LeaderboardSection
   scope: LeaderboardScope
   limit?: number

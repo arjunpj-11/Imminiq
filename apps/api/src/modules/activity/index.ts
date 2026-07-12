@@ -4,13 +4,13 @@ export {
 } from './activity.service'
 
 export type {
-  ActivityEventView,
-  ActivityFeedResponse,
-  ActivityPageResponse,
-  GetActivityFeedPayload,
-  GetActivityPagePayload,
-  RecordUserActivityPayload,
-  RecordUserActivityResponse,
+  ActivityEventViewDTO,
+  ActivityFeedResponseDTO,
+  ActivityPageResponseDTO,
+  GetActivityFeedPayloadDTO,
+  GetActivityPagePayloadDTO,
+  RecordUserActivityPayloadDTO,
+  RecordUserActivityResponseDTO,
 } from './application/dtos/activity.dto'
 
 export type {

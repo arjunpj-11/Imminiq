@@ -1,25 +1,25 @@
-import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
-import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
-import type { SecurityPasswordHasherServiceContract } from '../../domain/services/security-password-hasher.service.interface'
+import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
+import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
+import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface'
 import type {
-  ChangePasswordPayload,
-  ChangePasswordResponseDto,
+  IChangePasswordPayloadDTO,
+  IChangePasswordResponseDTO,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
 
 type ChangeSecurityPasswordRepository =
-  SecurityUserRepositoryContract & SecuritySessionRepositoryContract
+  ISecurityUserRepository & ISecuritySessionRepository
 
 export class ChangeSecurityPasswordUseCase {
   constructor(
     private readonly _securityRepository: ChangeSecurityPasswordRepository,
-    private readonly _passwordHasher: SecurityPasswordHasherServiceContract,
+    private readonly _passwordHasher: ISecurityPasswordHasher,
   ) {}
 
   async execute(
     userId: string,
-    payload: ChangePasswordPayload,
-  ): Promise<ChangePasswordResponseDto> {
+    payload: IChangePasswordPayloadDTO,
+  ): Promise<IChangePasswordResponseDTO> {
     const user = await this._securityRepository.findUserById(userId)
 
     if (!user) {

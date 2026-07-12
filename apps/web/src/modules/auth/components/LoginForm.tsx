@@ -12,19 +12,19 @@ import { EyeIcon } from './icons/AuthIcons'
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui'
 import { validateIdentifier } from '../utils/auth-validation'
 
-interface FormState {
+interface IFormState {
   identifier: string
   password: string
   rememberMe: boolean
 }
 
-interface FormErrors {
+interface IFormErrors {
   identifier?: string
   password?: string
 }
 
 const validateField = (
-  name: keyof FormState,
+  name: keyof IFormState,
   value: string | boolean
 ): string | undefined => {
   switch (name) {
@@ -49,18 +49,18 @@ export default function LoginForm() {
     ? error.response?.status === 429
     : false
 
-  const [form, setForm] = useState<FormState>({
+  const [form, setForm] = useState<IFormState>({
     identifier: '',
     password: '',
     rememberMe: false,
   })
-  const [errors, setErrors] = useState<FormErrors>({})
+  const [errors, setErrors] = useState<IFormErrors>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showPw, setShowPw] = useState(false)
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target
-    const fieldName = name as keyof FormState
+    const fieldName = name as keyof IFormState
     const fieldValue = type === 'checkbox' ? checked : value
 
     setForm((current) => ({ ...current, [fieldName]: fieldValue }))
@@ -75,7 +75,7 @@ export default function LoginForm() {
 
   const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target
-    const fieldName = name as keyof FormState
+    const fieldName = name as keyof IFormState
     const fieldValue = type === 'checkbox' ? checked : value
 
     setTouched((current) => ({ ...current, [fieldName]: true }))
@@ -88,7 +88,7 @@ export default function LoginForm() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const newErrors: FormErrors = {}
+    const newErrors: IFormErrors = {}
 
     ;(['identifier', 'password'] as const).forEach((field) => {
       const message = validateField(field, form[field])

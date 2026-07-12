@@ -4,7 +4,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { createLeaderboardComposition, type LeaderboardComposition } from '../leaderboard.factory'
+import type { LeaderboardComposition } from '../leaderboard.factory'
 import { leaderboardQuerySchema } from './leaderboard.schema'
 
 export class LeaderboardController {
@@ -57,5 +57,3 @@ export class LeaderboardController {
     }
   }
 }
-
-export const leaderboardController = new LeaderboardController(createLeaderboardComposition().useCases)

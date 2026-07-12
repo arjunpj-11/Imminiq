@@ -1,16 +1,16 @@
 import { DashboardRecommendedActionEntity } from '../../domain/entities/dashboard-recommended-action.entity'
-import type { DashboardRecommendationRepositoryContract } from '../../domain/repositories/dashboard-recommendation.repository.interface'
+import type { IDashboardRecommendationRepository } from '../../domain/repositories/dashboard-recommendation.repository.interface'
 import { DASHBOARD_MAX_RECOMMENDED_ACTIONS } from '../constants/dashboard.constants'
-import type { DashboardRecommendedAction } from '../dtos/dashboard.dto'
-import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
+import type { IDashboardRecommendedActionDTO } from '../dtos/dashboard.dto'
+import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
 export class GetRecommendedActionsUseCase {
   constructor(
-    private readonly _dashboardRepository: DashboardRecommendationRepositoryContract,
-    private readonly _dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: IDashboardRecommendationRepository,
+    private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string): Promise<DashboardRecommendedAction[]> {
+  async execute(userId: string): Promise<IDashboardRecommendedActionDTO[]> {
     const context = await this._dashboardRepository.getRecommendationContext(userId)
     const actions: DashboardRecommendedActionEntity[] = []
 

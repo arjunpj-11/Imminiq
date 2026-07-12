@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface FilterBarProps {
+interface IFilterBarProps {
   children: ReactNode
   className?: string
   surface?: boolean
@@ -12,7 +12,7 @@ export default function FilterBar({
   children,
   className,
   surface = false,
-}: FilterBarProps) {
+}: IFilterBarProps) {
   return (
     <div
       className={cn(

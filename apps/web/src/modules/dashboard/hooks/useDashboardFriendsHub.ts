@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  DashboardFriend,
+  IApiResponse,
+  IDashboardFriend,
 } from '../types/dashboard.types'
 
 export const useDashboardFriendsHub = (limit = 4) => {
@@ -12,7 +12,7 @@ export const useDashboardFriendsHub = (limit = 4) => {
     queryKey: ['dashboard', 'friends-hub', limit],
     queryFn: async () => {
       const response =
-        await api.get<ApiResponse<DashboardFriend[]>>(
+        await api.get<IApiResponse<IDashboardFriend[]>>(
           '/dashboard/friends-hub',
           {
             params: { limit },

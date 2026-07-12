@@ -1,10 +1,10 @@
-import type { VisualizationInput } from '../ai.schemas'
+import type { IVisualizationInput } from '../ai.schemas'
 
 export const LESSON_VISUALIZATION_SYSTEM_PROMPT =
   'You are an expert educational visualization engineer. Return only a complete self-contained HTML file starting with <!DOCTYPE html>. No markdown, no explanation, no code fences.'
 
 export const buildVisualizationPrompt = (
-  lesson: VisualizationInput
+  lesson: IVisualizationInput
 ): string => {
   const truncatedExplanation = lesson.explanation.slice(0, 2000)
   const codeSnippet = lesson.codeExample?.code

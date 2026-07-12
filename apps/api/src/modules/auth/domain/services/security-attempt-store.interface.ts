@@ -9,7 +9,7 @@ export type SecurityAttemptPolicyName =
   | 'otpVerification'
   | 'twoFactorVerification'
 
-export interface SecurityAttemptStoreContract {
+export interface ISecurityAttemptStore {
   isBlocked(
     scope: SecurityAttemptScope,
     identifier: string

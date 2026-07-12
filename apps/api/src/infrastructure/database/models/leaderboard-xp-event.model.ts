@@ -1,6 +1,6 @@
 import mongoose, { Document, Schema } from 'mongoose'
 
-export interface ILeaderboardXpEvent extends Document {
+export interface ILeaderboardXpEventDocument extends Document {
   userId: mongoose.Types.ObjectId
   section: 'students' | 'trainers'
   amount: number
@@ -13,7 +13,7 @@ export interface ILeaderboardXpEvent extends Document {
   updatedAt: Date
 }
 
-const leaderboardXpEventSchema = new Schema<ILeaderboardXpEvent>(
+const leaderboardXpEventSchema = new Schema<ILeaderboardXpEventDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -89,7 +89,7 @@ leaderboardXpEventSchema.index({
 
 export const LeaderboardXpEvent =
   mongoose.models.LeaderboardXpEvent ||
-  mongoose.model<ILeaderboardXpEvent>(
+  mongoose.model<ILeaderboardXpEventDocument>(
     'LeaderboardXpEvent',
     leaderboardXpEventSchema,
   )

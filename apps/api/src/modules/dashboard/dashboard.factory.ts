@@ -1,6 +1,6 @@
 import {
   DashboardMapper,
-  type DashboardMapperContract,
+  type IDashboardMapper,
 } from './application/mappers/dashboard.mapper'
 import { GetActivityIntensityUseCase } from './application/use-cases/get-activity-intensity.usecase'
 import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase'
@@ -9,7 +9,7 @@ import { GetDashboardSummaryUseCase } from './application/use-cases/get-dashboar
 import { GetFriendsHubUseCase } from './application/use-cases/get-friends-hub.usecase'
 import { GetRecentBattlesUseCase } from './application/use-cases/get-recent-battles.usecase'
 import { GetRecommendedActionsUseCase } from './application/use-cases/get-recommended-actions.usecase'
-import type { DashboardInsightGeneratorContract } from './domain/services/dashboard-insight-generator.interface'
+import type { IDashboardInsightGenerator } from './domain/services/dashboard-insight-generator.interface'
 import { aiDashboardInsightGenerator } from './infrastructure/gateways/ai-dashboard-insight.gateway'
 import { mongoDashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository'
 
@@ -24,8 +24,8 @@ export type DashboardUseCases = {
 }
 
 export type DashboardServiceHelpers = {
-  dashboardMapper: DashboardMapperContract
-  dashboardInsightGenerator: DashboardInsightGeneratorContract
+  dashboardMapper: IDashboardMapper
+  dashboardInsightGenerator: IDashboardInsightGenerator
 }
 
 export type DashboardComposition = {

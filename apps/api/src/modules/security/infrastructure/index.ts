@@ -3,20 +3,20 @@ export {
   mongoSecurityRepository,
 } from './repositories/mongo-security.repository'
 export {
-  BcryptSecurityPasswordHasherService,
-  bcryptSecurityPasswordHasherService,
+  BcryptSecurityPasswordHasher,
+  bcryptSecurityPasswordHasher,
 } from './services/bcrypt-security-password-hasher.service'
 export {
-  CryptoSecurityEmailChangeTokenService,
-  cryptoSecurityEmailChangeTokenService,
+  CryptoSecurityEmailChangeToken,
+  cryptoSecurityEmailChangeToken,
 } from './services/crypto-security-email-change-token.service'
 export {
-  ClientSecurityEmailChangeUrlService,
-  clientSecurityEmailChangeUrlService,
+  ClientSecurityEmailChangeUrlBuilder,
+  clientSecurityEmailChangeUrlBuilder,
 } from './services/client-security-email-change-url.service'
 export {
-  CryptoTwoFactorBackupCodeService,
-  cryptoTwoFactorBackupCodeService,
+  CryptoTwoFactorBackupCodeManager,
+  cryptoTwoFactorBackupCodeManager,
 } from './services/crypto-two-factor-backup-code.service'
 export {
   OtplibTwoFactorGateway,

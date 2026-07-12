@@ -44,7 +44,7 @@ export type LessonVisualizationResult = {
   visualDescription: string
 }
 
-export interface VisualizationInput {
+export interface IVisualizationInput {
   title: string
   summary: string
   explanation: string

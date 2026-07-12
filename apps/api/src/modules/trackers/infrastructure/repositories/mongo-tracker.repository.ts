@@ -35,7 +35,7 @@ import type {
   SaveLessonVisualizationInput,
   ShiftTopicOrdersFromInput,
   SoftDeleteOwnedTrackerInput,
-  TrackerRepositoryContract,
+  ITrackerRepository,
   UnpublishOwnedTrackerInput,
   UnlockNextSubtopicInput,
 } from '../../domain/repositories/tracker.repository.interface'
@@ -61,7 +61,7 @@ type MongoTrackerRepositoryDependencies = {
   lessonRepository: MongoTrackerLessonRepository
 }
 
-export class MongoTrackerRepository implements TrackerRepositoryContract {
+export class MongoTrackerRepository implements ITrackerRepository {
   private readonly _managementRepository: MongoTrackerManagementRepository
   private readonly _contentRepository: MongoTrackerContentRepository
   private readonly _progressRepository: MongoTrackerProgressRepository

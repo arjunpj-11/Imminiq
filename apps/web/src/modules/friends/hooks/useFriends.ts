@@ -7,19 +7,19 @@ import {
   FRIENDS_STALE_TIME_MS,
 } from "../constants/friends.constants";
 import type {
-  FriendUsersPage,
-  FriendsApiErrorResponse,
-  FriendsApiResponse,
-  FriendsListQueryInput,
+  IFriendUsersPage,
+  IFriendsApiErrorResponse,
+  IFriendsApiResponse,
+  IFriendsListQueryInput,
 } from "../types/friends.types";
 import { friendsQueryKeys } from "./friends-query-keys";
 
-export const useFriends = (input: FriendsListQueryInput) =>
-  useInfiniteQuery<FriendUsersPage, AxiosError<FriendsApiErrorResponse>>({
+export const useFriends = (input: IFriendsListQueryInput) =>
+  useInfiniteQuery<IFriendUsersPage, AxiosError<IFriendsApiErrorResponse>>({
     queryKey: friendsQueryKeys.list(input),
     queryFn: async ({ pageParam }) => {
       const page = typeof pageParam === "number" ? pageParam : 1;
-      const response = await api.get<FriendsApiResponse<FriendUsersPage>>(
+      const response = await api.get<IFriendsApiResponse<IFriendUsersPage>>(
         FRIENDS_ENDPOINTS.root,
         {
           params: {

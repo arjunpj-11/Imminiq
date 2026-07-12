@@ -1,25 +1,23 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
-import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
+import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
-import type { RegisterPayload, AuthUser } from '../dtos/auth.dto'
-import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
-import type { UsernameGeneratorServiceContract } from '../services/username-generator.service'
+import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
+import type { IRegisterPayloadDTO } from '../dtos/auth.dto'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 
 export class RegisterUserUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _authNotificationService: AuthNotificationServiceContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract,
-    private readonly _usernameGenerator: UsernameGeneratorServiceContract,
-    private readonly _passwordHasher: PasswordHasherServiceContract,
-    private readonly _authUserMapper: AuthUserMapperContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _authNotification: IAuthNotification,
+    private readonly _identifierNormalizer: IIdentifierNormalizer,
+    private readonly _passwordHasher: IPasswordHasher,
+    private readonly _pendingRegistrationStore: IPendingRegistrationStore
   ) {}
 
-  async execute(payload: RegisterPayload): Promise<{
-    user: AuthUser
+  async execute(payload: IRegisterPayloadDTO): Promise<{
     verificationTarget: string
     verificationMethod: VerificationMethod
   }> {
@@ -34,13 +32,12 @@ export class RegisterUserUseCase {
 
       if (existingUser) {
         if (!existingUser.emailVerified) {
-          await this._authNotificationService.sendVerificationOtp({
+          await this._authNotification.sendVerificationOtp({
             email: parsedIdentifier.email,
             method: 'email',
           })
 
           return {
-            user: this._authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -57,13 +54,12 @@ export class RegisterUserUseCase {
 
       if (existingUser) {
         if (!existingUser.phoneVerified) {
-          await this._authNotificationService.sendVerificationOtp({
+          await this._authNotification.sendVerificationOtp({
             phone: parsedIdentifier.phone,
             method: 'phone',
           })
 
           return {
-            user: this._authUserMapper.toAuthUser(existingUser),
             verificationTarget: parsedIdentifier.value,
             verificationMethod: parsedIdentifier.method,
           }
@@ -73,29 +69,31 @@ export class RegisterUserUseCase {
       }
     }
 
-    const username = await this._usernameGenerator.generateRegistrationUsername({
-      email: parsedIdentifier.email,
-      fullName,
-    })
-
     const passwordHash = await this._passwordHasher.hash(password)
 
-    const user = await this._authRepository.createUser({
-      fullName,
-      email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
-      username,
-      passwordHash,
-    })
+    await this._pendingRegistrationStore.save(
+      parsedIdentifier.value,
+      {
+        fullName,
+        email: parsedIdentifier.email,
+        phone: parsedIdentifier.phone,
+        passwordHash,
+      },
+      PENDING_REGISTRATION_EXPIRES_SECONDS
+    )
 
-    await this._authNotificationService.sendVerificationOtp({
-      email: parsedIdentifier.email,
-      phone: parsedIdentifier.phone,
-      method: parsedIdentifier.method,
-    })
+    try {
+      await this._authNotification.sendVerificationOtp({
+        email: parsedIdentifier.email,
+        phone: parsedIdentifier.phone,
+        method: parsedIdentifier.method,
+      })
+    } catch (error) {
+      await this._pendingRegistrationStore.delete(parsedIdentifier.value)
+      throw error
+    }
 
     return {
-      user: this._authUserMapper.toAuthUser(user),
       verificationTarget: parsedIdentifier.value,
       verificationMethod: parsedIdentifier.method,
     }

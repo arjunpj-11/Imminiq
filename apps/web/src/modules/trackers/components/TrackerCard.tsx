@@ -1,7 +1,7 @@
 import { cn } from '../../../lib/cn'
 
 import { useEffect, useRef, useState } from 'react'
-import type { Tracker } from '../types/tracker.types'
+import type { ITracker } from '../types/tracker.types'
 import PublishTrackerModal, { type PublishFormData } from './PublishTrackerModal'
 
 export type { PublishFormData } from './PublishTrackerModal'
@@ -43,7 +43,7 @@ const domainLabel = (value: string | undefined) => {
     .replace(/\b\w/g, (letter) => letter.toUpperCase())
 }
 
-const getTone = (status: Tracker['status']) => {
+const getTone = (status: ITracker['status']) => {
   if (status === 'completed') {
     return {
       bar: 'from-[#70d49a] to-[var(--success)]',
@@ -138,7 +138,7 @@ const VerifyIcon = () => (
 // ─── Tracker Card ──────────────────────────────────────────────────────────────
 
 type TrackerCardProps = {
-  tracker: Tracker
+  tracker: ITracker
   onOpenStudy: (trackerId: string) => void
   onPublish: (trackerId: string, data: PublishFormData) => Promise<void> | void
   onViewPublished: (trackerId: string) => void
@@ -176,7 +176,7 @@ export default function TrackerCard({
   const isArchived = tracker.status === 'archived'
   const verificationStatus =
     (
-      tracker as Tracker & {
+      tracker as ITracker & {
         verificationStatus?: 'pending' | 'verified' | 'rejected' | null
       }
     ).verificationStatus ?? null

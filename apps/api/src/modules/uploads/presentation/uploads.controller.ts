@@ -2,9 +2,9 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { GenerateAiImagePreviewInput } from '../application/dtos/uploads.dto'
+import type { IGenerateAIImagePreviewInputDTO } from '../application/dtos/uploads.dto'
 import type { UploadedProfileImageFile } from '../domain/value-objects/uploaded-profile-image-file.vo'
-import { createUploadsComposition, type UploadsComposition } from '../uploads.factory'
+import type { UploadsComposition } from '../uploads.factory'
 
 export class UploadsController {
   constructor(private readonly _useCases: UploadsComposition['useCases']) {}
@@ -65,14 +65,14 @@ export class UploadsController {
     }
   }
 
-  generateAiAvatarPreview = async (
+  generateAIAvatarPreview = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { prompt } = req.body as GenerateAiImagePreviewInput
-      const result = await this._useCases.generateAiAvatarPreview.execute(prompt)
+      const { prompt } = req.body as IGenerateAIImagePreviewInputDTO
+      const result = await this._useCases.generateAIAvatarPreview.execute(prompt)
 
       res.json(
         new ApiResponse('AI avatar preview generated successfully', result)
@@ -82,14 +82,14 @@ export class UploadsController {
     }
   }
 
-  generateAiBannerPreview = async (
+  generateAIBannerPreview = async (
     req: Request,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      const { prompt } = req.body as GenerateAiImagePreviewInput
-      const result = await this._useCases.generateAiBannerPreview.execute(prompt)
+      const { prompt } = req.body as IGenerateAIImagePreviewInputDTO
+      const result = await this._useCases.generateAIBannerPreview.execute(prompt)
 
       res.json(
         new ApiResponse('AI banner preview generated successfully', result)
@@ -112,5 +112,3 @@ export class UploadsController {
     }
   }
 }
-
-export const uploadsController = new UploadsController(createUploadsComposition().useCases)

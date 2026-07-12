@@ -1,22 +1,22 @@
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type RetakeTestRepository =
-  MockTestRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAttemptRepositoryContract
+  IMockTestRepository &
+  IMockTestQuestionRepository &
+  IMockTestAttemptRepository
 
 export class RetakeTestUseCase {
   constructor(
-    private readonly _repo: RetakeTestRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _repository: RetakeTestRepository,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(attemptId: string, userId: string) {
-    const attempt = await this._repo.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -26,24 +26,24 @@ export class RetakeTestUseCase {
       throw MockTestsApplicationError.forbidden()
     }
 
-    const test = await this._repo.findTestById(attempt.testId)
+    const test = await this._repository.findTestById(attempt.testId)
 
     if (!test) {
       throw MockTestsApplicationError.notFound('Test not found')
     }
 
-    await this._repo.abandonActiveAttempts({
+    await this._repository.abandonActiveAttempts({
       userId,
       testId: attempt.testId,
     })
 
-    const newAttempt = await this._repo.createAttempt({
+    const newAttempt = await this._repository.createAttempt({
       testId: attempt.testId,
       userId,
       totalQuestions: test.questionCount,
     })
 
-    const questions = await this._repo.findQuestionsByTest(attempt.testId)
+    const questions = await this._repository.findQuestionsByTest(attempt.testId)
 
     return this._mapper.toAttemptSessionDto(newAttempt, questions)
   }

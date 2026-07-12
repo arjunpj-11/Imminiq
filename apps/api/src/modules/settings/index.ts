@@ -1,16 +1,16 @@
 export type {
-  UpdateAccountPayload,
-  UpdateAIBehaviourPayload,
-  UpdateAppearancePayload,
-  UpdateCodeEditorPayload,
-  UpdateCompilerPayload,
-  UpdateEmailDigestPayload,
-  UpdateGesturesPayload,
-  UpdateLearningJourneyPayload,
-  UpdateNotificationsPayload,
-  UpdatePrivacyPayload,
-  UpdateQuietHoursPayload,
-  UserSettingsView,
+  IUpdateAccountPayloadDTO,
+  IUpdateAIBehaviourPayloadDTO,
+  IUpdateAppearancePayloadDTO,
+  IUpdateCodeEditorPayloadDTO,
+  IUpdateCompilerPayloadDTO,
+  IUpdateEmailDigestPayloadDTO,
+  IUpdateGesturesPayloadDTO,
+  IUpdateLearningJourneyPayloadDTO,
+  IUpdateNotificationsPayloadDTO,
+  IUpdatePrivacyPayloadDTO,
+  IUpdateQuietHoursPayloadDTO,
+  UserSettingsViewDTO,
 } from './application/dtos/settings.dto'
 
 export type {

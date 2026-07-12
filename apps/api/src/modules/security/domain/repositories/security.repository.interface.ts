@@ -1,11 +1,11 @@
-import type { SecuritySessionRepositoryContract } from './security-session.repository.interface'
-import type { SecurityTwoFactorRepositoryContract } from './security-two-factor.repository.interface'
-import type { SecurityUserRepositoryContract } from './security-user.repository.interface'
+import type { ISecuritySessionRepository } from './security-session.repository.interface'
+import type { ISecurityTwoFactorRepository } from './security-two-factor.repository.interface'
+import type { ISecurityUserRepository } from './security-user.repository.interface'
 
-export interface SecurityRepositoryContract
-  extends SecurityUserRepositoryContract,
-    SecuritySessionRepositoryContract,
-    SecurityTwoFactorRepositoryContract {}
+export interface ISecurityRepository
+  extends ISecurityUserRepository,
+    ISecuritySessionRepository,
+    ISecurityTwoFactorRepository {}
 
 export type { RevokeSecuritySessionInput } from './security-session.repository.interface'
 

@@ -6,31 +6,33 @@ import {
   LEADERBOARD_TARGET_RANK,
   LEADERBOARD_WEEKLY_TIER_XP,
 } from '../../domain/constants/leaderboard.constants'
-import type { LeaderboardQueryRepositoryContract } from '../../domain/repositories/leaderboard-query.repository.interface'
+import type { ILeaderboardQueryRepository } from '../../domain/repositories/leaderboard-query.repository.interface'
 import {
   LEADERBOARD_REWARDS,
   LEADERBOARD_SCORING_RULES,
 } from '../constants/leaderboard.constants'
 import type {
-  GetLeaderboardPayload,
-  LeaderboardCurrentUserView,
-  LeaderboardResponse,
+  GetLeaderboardPayloadDTO,
+  LeaderboardCurrentUserViewDTO,
+  LeaderboardResponseDTO,
 } from '../dtos/leaderboard.dto'
 import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
-import type { LeaderboardMapperContract } from '../mappers/leaderboard.mapper'
-import type { LeaderboardDateRangeServiceContract } from '../services/leaderboard-date-range.service'
+import type { ILeaderboardMapper } from '../mappers/leaderboard.mapper'
+import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class GetLeaderboardUseCase {
   constructor(
-    private readonly _leaderboardRepository: LeaderboardQueryRepositoryContract,
-    private readonly _leaderboardMapper: LeaderboardMapperContract,
-    private readonly _dateRangeService: LeaderboardDateRangeServiceContract,
+    private readonly _leaderboardRepository: ILeaderboardQueryRepository,
+    private readonly _leaderboardMapper: ILeaderboardMapper,
+    private readonly _dateRange: ILeaderboardDateRange,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
     viewerUserId: string,
-    payload: GetLeaderboardPayload,
-  ): Promise<LeaderboardResponse> {
+    payload: GetLeaderboardPayloadDTO,
+  ): Promise<LeaderboardResponseDTO> {
     const limit = payload.limit ?? LEADERBOARD_DEFAULT_LIMIT
 
     if (
@@ -43,7 +45,8 @@ export class GetLeaderboardUseCase {
       )
     }
 
-    const periods = this._dateRangeService.getPeriods()
+    const now = this._clock.now()
+    const periods = this._dateRange.getPeriods(now)
 
     const result = await this._leaderboardRepository.findLeaderboard({
       viewerUserId,
@@ -85,7 +88,7 @@ export class GetLeaderboardUseCase {
     return {
       section: payload.section,
       scope: payload.scope,
-      generatedAt: new Date().toISOString(),
+      generatedAt: now.toISOString(),
       counts: {
         students: result.activeStudentCount,
         trainers: result.activeTrainerCount,
@@ -127,10 +130,10 @@ export class GetLeaderboardUseCase {
   }
 
   private toCurrentUserView(
-    entry: Parameters<LeaderboardMapperContract['toEntryView']>[0],
+    entry: Parameters<ILeaderboardMapper['toEntryView']>[0],
     viewerUserId: string,
     targetRankScore: number | null,
-  ): LeaderboardCurrentUserView {
+  ): LeaderboardCurrentUserViewDTO {
     const view = this._leaderboardMapper.toEntryView(entry, viewerUserId)
 
     return {

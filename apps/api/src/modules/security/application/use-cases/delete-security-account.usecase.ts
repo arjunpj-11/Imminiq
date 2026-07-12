@@ -2,30 +2,32 @@ import {
   ACCOUNT_DELETION_RECOVERY_DAYS,
   ACCOUNT_DELETION_RECOVERY_MS,
 } from '../../domain/constants/security.constants'
-import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
-import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
+import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 import type {
-  DeleteAccountPayload,
-  DeleteAccountResponseDto,
+  IDeleteAccountPayloadDTO,
+  IDeleteAccountResponseDTO,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
-import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
+import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 type DeleteSecurityAccountRepository =
-  SecurityUserRepositoryContract & SecuritySessionRepositoryContract
+  ISecurityUserRepository & ISecuritySessionRepository
 
 export class DeleteSecurityAccountUseCase {
   constructor(
     private readonly _securityRepository: DeleteSecurityAccountRepository,
-    private readonly _sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
-    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
     userId: string,
-    payload: DeleteAccountPayload,
-  ): Promise<DeleteAccountResponseDto> {
+    payload: IDeleteAccountPayloadDTO,
+  ): Promise<IDeleteAccountResponseDTO> {
     if (payload.confirmation !== 'DELETE') {
       throw SecurityApplicationError.invalidDeleteConfirmation()
     }
@@ -36,7 +38,7 @@ export class DeleteSecurityAccountUseCase {
       throw SecurityApplicationError.notFound()
     }
 
-    await this._sensitiveActionStepUpService.assertSatisfied({
+    await this._sensitiveActionAuthorizer.assertSatisfied({
       user,
       payload,
       action: 'delete_account',
@@ -45,7 +47,7 @@ export class DeleteSecurityAccountUseCase {
     await this._securityRepository.revokeAllSessions(userId)
 
     const scheduledDeletionAt = new Date(
-      Date.now() + ACCOUNT_DELETION_RECOVERY_MS,
+      this._clock.now().getTime() + ACCOUNT_DELETION_RECOVERY_MS,
     )
 
     const scheduledUser =

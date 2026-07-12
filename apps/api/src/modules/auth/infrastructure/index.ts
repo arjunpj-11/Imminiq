@@ -4,28 +4,28 @@ export {
 } from './repositories/mongo-auth.repository'
 
 export {
-  BcryptPasswordHasherService,
-  bcryptPasswordHasherService,
+  BcryptPasswordHasher,
+  bcryptPasswordHasher,
 } from './services/bcrypt-password-hasher.service'
 export {
-  CryptoOtpGeneratorService,
-  cryptoOtpGeneratorService,
+  CryptoOtpGenerator,
+  cryptoOtpGenerator,
 } from './services/crypto-otp-generator.service'
 export {
-  CryptoRandomNumberGeneratorService,
-  cryptoRandomNumberGeneratorService,
+  CryptoRandomNumberGenerator,
+  cryptoRandomNumberGenerator,
 } from './services/crypto-random-number-generator.service'
 export {
-  JwtAuthTokenService,
-  jwtAuthTokenService,
+  JwtAuthToken,
+  jwtAuthToken,
 } from './services/jwt-auth-token.service'
 export {
-  JwtPasswordResetTokenService,
-  jwtPasswordResetTokenService,
+  JwtPasswordResetToken,
+  jwtPasswordResetToken,
 } from './services/jwt-password-reset-token.service'
 export {
-  OtplibTwoFactorCodeVerifierService,
-  otplibTwoFactorCodeVerifierService,
+  OtplibTwoFactorCodeVerifier,
+  otplibTwoFactorCodeVerifier,
 } from './services/otplib-two-factor-code-verifier.service'
 export {
   SecurityAuditLogger,
@@ -45,6 +45,10 @@ export {
   RedisOtpStore,
   redisOtpStore,
 } from './stores/redis-otp.store'
+export {
+  RedisPendingRegistrationStore,
+  redisPendingRegistrationStore,
+} from './stores/redis-pending-registration.store'
 export {
   RedisPasswordResetSessionStore,
   redisPasswordResetSessionStore,

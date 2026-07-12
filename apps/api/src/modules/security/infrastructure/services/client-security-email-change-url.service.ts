@@ -1,11 +1,11 @@
 import { env } from '../../../../config/env'
-import type { SecurityEmailChangeUrlServiceContract } from '../../domain/services/security-email-change-url.service.interface'
+import type { ISecurityEmailChangeUrlBuilder } from '../../domain/services/security-email-change-url.interface'
 
-export class ClientSecurityEmailChangeUrlService implements SecurityEmailChangeUrlServiceContract {
+export class ClientSecurityEmailChangeUrlBuilder implements ISecurityEmailChangeUrlBuilder {
   buildVerificationUrl(rawToken: string): string {
     return `${env.CLIENT_URL}/verify-email-change?token=${rawToken}`
   }
 }
 
-export const clientSecurityEmailChangeUrlService =
-  new ClientSecurityEmailChangeUrlService()
+export const clientSecurityEmailChangeUrlBuilder =
+  new ClientSecurityEmailChangeUrlBuilder()

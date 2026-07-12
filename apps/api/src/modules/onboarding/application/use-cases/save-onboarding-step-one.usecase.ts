@@ -1,20 +1,20 @@
-import type { OnboardingResponseCommandRepositoryContract } from '../../domain/repositories/onboarding-response-command.repository.interface'
+import type { IOnboardingResponseCommandRepository } from '../../domain/repositories/onboarding-response-command.repository.interface'
 import type {
-  OnboardingResponseRecord,
-  SaveOnboardingStepOnePayload,
+  IOnboardingResponseRecordDTO,
+  ISaveOnboardingStepOnePayloadDTO,
 } from '../dtos/onboarding.dto'
-import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
+import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
 
 export class SaveOnboardingStepOneUseCase {
   constructor(
-    private readonly _onboardingRepository: OnboardingResponseCommandRepositoryContract,
-    private readonly _onboardingMapper: OnboardingMapperContract,
+    private readonly _onboardingRepository: IOnboardingResponseCommandRepository,
+    private readonly _onboardingMapper: IOnboardingMapper,
   ) {}
 
   async execute(
     userId: string,
-    payload: SaveOnboardingStepOnePayload,
-  ): Promise<OnboardingResponseRecord | null> {
+    payload: ISaveOnboardingStepOnePayloadDTO,
+  ): Promise<IOnboardingResponseRecordDTO | null> {
     const response = await this._onboardingRepository.saveStep1({
       userId,
       topic: payload.topic,

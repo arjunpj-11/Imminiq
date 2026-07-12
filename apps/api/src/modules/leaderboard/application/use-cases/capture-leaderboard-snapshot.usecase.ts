@@ -1,17 +1,19 @@
-import type { LeaderboardActivityRepositoryContract } from '../../domain/repositories/leaderboard-activity.repository.interface'
-import type { CaptureLeaderboardSnapshotResultView } from '../dtos/leaderboard.dto'
-import type { LeaderboardDateRangeServiceContract } from '../services/leaderboard-date-range.service'
+import type { ILeaderboardActivityRepository } from '../../domain/repositories/leaderboard-activity.repository.interface'
+import type { CaptureLeaderboardSnapshotResultViewDTO } from '../dtos/leaderboard.dto'
+import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class CaptureLeaderboardSnapshotUseCase {
   constructor(
-    private readonly _leaderboardRepository: LeaderboardActivityRepositoryContract,
-    private readonly _dateRangeService: LeaderboardDateRangeServiceContract,
+    private readonly _leaderboardRepository: ILeaderboardActivityRepository,
+    private readonly _dateRange: ILeaderboardDateRange,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
-    capturedAt = new Date(),
-  ): Promise<CaptureLeaderboardSnapshotResultView> {
-    const snapshotKey = this._dateRangeService.toSnapshotKey(capturedAt)
+    capturedAt = this._clock.now(),
+  ): Promise<CaptureLeaderboardSnapshotResultViewDTO> {
+    const snapshotKey = this._dateRange.toSnapshotKey(capturedAt)
 
     const [students, trainers] = await Promise.all([
       this._leaderboardRepository.captureRankSnapshot({

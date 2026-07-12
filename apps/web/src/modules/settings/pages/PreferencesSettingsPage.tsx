@@ -22,7 +22,7 @@ import {
   useUpdateGestures,
   useUpdateLearningJourney,
 } from '../hooks/useSettings'
-import type { UserSettings } from '../types/settings.types'
+import type { IUserSettings } from '../types/settings.types'
 import { useThemeStore } from '../../../store/useThemeStore'
 
 type GestureToggleKey =
@@ -100,7 +100,7 @@ export default function PreferencesSettingsPage() {
 function PreferencesSettingsForm({
   initialForm,
 }: {
-  initialForm: UserSettings
+  initialForm: IUserSettings
 }) {
   const updateAppearance = useUpdateAppearance()
   const updateGestures = useUpdateGestures()
@@ -122,7 +122,7 @@ function PreferencesSettingsForm({
     (state) => state.clearThemePreview
   )
 
-  const initialFormWithLocalTheme = useMemo<UserSettings>(
+  const initialFormWithLocalTheme = useMemo<IUserSettings>(
     () => ({
       ...initialForm,
       appearance: {
@@ -133,11 +133,11 @@ function PreferencesSettingsForm({
     [initialForm, themeMode]
   )
 
-  const [form, setForm] = useState<UserSettings>(
+  const [form, setForm] = useState<IUserSettings>(
     initialFormWithLocalTheme
   )
 
-  const [savedForm, setSavedForm] = useState<UserSettings>(
+  const [savedForm, setSavedForm] = useState<IUserSettings>(
     initialFormWithLocalTheme
   )
 

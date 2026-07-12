@@ -3,22 +3,22 @@ import { Component, type ErrorInfo, type ReactNode } from 'react'
 import Button from '../ui/Button'
 import ImminiqLogo from '../ui/ImminiqLogo'
 
-interface AppErrorBoundaryProps {
+interface IAppErrorBoundaryProps {
   children: ReactNode
   resetKey?: string
 }
 
-interface AppErrorBoundaryState {
+interface IAppErrorBoundaryState {
   error: Error | null
 }
 
 export default class AppErrorBoundary extends Component<
-  AppErrorBoundaryProps,
-  AppErrorBoundaryState
+  IAppErrorBoundaryProps,
+  IAppErrorBoundaryState
 > {
-  state: AppErrorBoundaryState = { error: null }
+  state: IAppErrorBoundaryState = { error: null }
 
-  static getDerivedStateFromError(error: Error): AppErrorBoundaryState {
+  static getDerivedStateFromError(error: Error): IAppErrorBoundaryState {
     return { error }
   }
 
@@ -26,7 +26,7 @@ export default class AppErrorBoundary extends Component<
     console.error('Imminiq render error', error, info)
   }
 
-  componentDidUpdate(previousProps: AppErrorBoundaryProps) {
+  componentDidUpdate(previousProps: IAppErrorBoundaryProps) {
     if (
       this.state.error &&
       previousProps.resetKey !== this.props.resetKey

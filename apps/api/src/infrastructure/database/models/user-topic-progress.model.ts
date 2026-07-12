@@ -4,7 +4,7 @@ import mongoose, { Document, Schema } from 'mongoose'
 
 export type TopicProgressStatus = 'locked' | 'active' | 'completed'
 
-export interface IUserTopicProgress extends Document {
+export interface IUserTopicProgressDocument extends Document {
   userId: mongoose.Types.ObjectId
   trackerId: mongoose.Types.ObjectId
   topicId: mongoose.Types.ObjectId
@@ -15,7 +15,7 @@ export interface IUserTopicProgress extends Document {
   updatedAt: Date
 }
 
-const userTopicProgressSchema = new Schema<IUserTopicProgress>(
+const userTopicProgressSchema = new Schema<IUserTopicProgressDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -59,7 +59,7 @@ userTopicProgressSchema.index(
 userTopicProgressSchema.index({ userId: 1, trackerId: 1 })
 userTopicProgressSchema.index({ userId: 1, trackerId: 1, status: 1 })
 
-export const UserTopicProgress = mongoose.model<IUserTopicProgress>(
+export const UserTopicProgress = mongoose.model<IUserTopicProgressDocument>(
   'UserTopicProgress',
   userTopicProgressSchema
 )

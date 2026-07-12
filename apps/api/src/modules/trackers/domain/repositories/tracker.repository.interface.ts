@@ -1,15 +1,15 @@
-import type { TrackerCommandRepositoryContract } from './tracker-command.repository.interface'
-import type { TrackerContentRepositoryContract } from './tracker-content.repository.interface'
-import type { TrackerLessonRepositoryContract } from './tracker-lesson.repository.interface'
-import type { TrackerProgressRepositoryContract } from './tracker-progress.repository.interface'
-import type { TrackerQueryRepositoryContract } from './tracker-query.repository.interface'
+import type { ITrackerCommandRepository } from './tracker-command.repository.interface'
+import type { ITrackerContentRepository } from './tracker-content.repository.interface'
+import type { ITrackerLessonRepository } from './tracker-lesson.repository.interface'
+import type { ITrackerProgressRepository } from './tracker-progress.repository.interface'
+import type { ITrackerQueryRepository } from './tracker-query.repository.interface'
 
-export interface TrackerRepositoryContract
-  extends TrackerQueryRepositoryContract,
-    TrackerCommandRepositoryContract,
-    TrackerContentRepositoryContract,
-    TrackerProgressRepositoryContract,
-    TrackerLessonRepositoryContract {}
+export interface ITrackerRepository
+  extends ITrackerQueryRepository,
+    ITrackerCommandRepository,
+    ITrackerContentRepository,
+    ITrackerProgressRepository,
+    ITrackerLessonRepository {}
 
 export type {
   ArchiveOwnedTrackerInput,

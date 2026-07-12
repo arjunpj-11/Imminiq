@@ -1,7 +1,7 @@
 import { LEADERBOARD_SECTION_LABELS } from '../constants/leaderboard.constants'
 import type {
-  LeaderboardCurrentUser,
-  LeaderboardEntry,
+  ILeaderboardCurrentUser,
+  ILeaderboardEntry,
   LeaderboardSection,
 } from '../types/leaderboard.types'
 import { formatNumber } from '../utils/leaderboard-formatters'
@@ -40,7 +40,7 @@ function SectionDivider({ label }: { label: string }) {
   )
 }
 
-function LeaderRow({ entry }: { entry: LeaderboardEntry }) {
+function LeaderRow({ entry }: { entry: ILeaderboardEntry }) {
   return (
     <div
       className={cn(
@@ -90,17 +90,17 @@ function LeaderRow({ entry }: { entry: LeaderboardEntry }) {
   )
 }
 
-interface LeaderboardTableProps {
+interface ILeaderboardTableProps {
   section: LeaderboardSection
-  entries: LeaderboardEntry[]
-  currentUser: LeaderboardCurrentUser | null
+  entries: ILeaderboardEntry[]
+  currentUser: ILeaderboardCurrentUser | null
 }
 
 export default function LeaderboardTable({
   section,
   entries,
   currentUser,
-}: LeaderboardTableProps) {
+}: ILeaderboardTableProps) {
   return (
     <section className="overflow-hidden rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-card)" aria-label={`${LEADERBOARD_SECTION_LABELS[section].label} rankings`}>
       <TableHeader section={section} />

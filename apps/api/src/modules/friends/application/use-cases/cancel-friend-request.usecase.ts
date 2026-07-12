@@ -1,19 +1,19 @@
-import type { FriendCommandRepositoryContract } from "../../domain/repositories/friend-command.repository.interface";
+import type { IFriendCommandRepository } from "../../domain/repositories/friend-command.repository.interface";
 import type {
-  FriendActionView,
-  FriendRequestActionPayload,
+  FriendActionViewDTO,
+  FriendRequestActionPayloadDTO,
 } from "../dtos/friends.dto";
 import { FriendsApplicationError } from "../errors/friends-application.error";
 
 export class CancelFriendRequestUseCase {
   constructor(
-    private readonly _friendCommandRepository: FriendCommandRepositoryContract,
+    private readonly _friendCommandRepository: IFriendCommandRepository,
   ) {}
 
   async execute(
     senderUserId: string,
-    payload: FriendRequestActionPayload,
-  ): Promise<FriendActionView> {
+    payload: FriendRequestActionPayloadDTO,
+  ): Promise<FriendActionViewDTO> {
     const result = await this._friendCommandRepository.cancelFriendRequest({
       requestId: payload.requestId,
       actorUserId: senderUserId,

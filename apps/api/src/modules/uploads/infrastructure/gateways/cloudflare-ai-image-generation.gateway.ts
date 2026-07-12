@@ -1,17 +1,17 @@
 import { generateImageWithCloudflare } from '../../../../infrastructure/ai/clients/cloudflare-image.client'
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
 import type {
-  AiImageGenerationServiceContract,
-  GeneratedPreviewImage,
-  GeneratePreviewImageInput,
-} from '../../domain/services/ai-image-generation.service.interface'
+  IAIImageGenerator,
+  IGeneratedPreviewImage,
+  IGeneratePreviewImageInput,
+} from '../../domain/services/ai-image-generation.interface'
 
-export class CloudflareAiImageGenerationGateway
-  implements AiImageGenerationServiceContract
+export class CloudflareAIImageGenerationGateway
+  implements IAIImageGenerator
 {
   async generatePreviewImage(
-    input: GeneratePreviewImageInput,
-  ): Promise<GeneratedPreviewImage> {
+    input: IGeneratePreviewImageInput,
+  ): Promise<IGeneratedPreviewImage> {
     try {
       return await generateImageWithCloudflare(input)
     } catch {
@@ -23,5 +23,5 @@ export class CloudflareAiImageGenerationGateway
   }
 }
 
-export const cloudflareAiImageGenerationGateway =
-  new CloudflareAiImageGenerationGateway()
+export const cloudflareAIImageGenerationGateway =
+  new CloudflareAIImageGenerationGateway()

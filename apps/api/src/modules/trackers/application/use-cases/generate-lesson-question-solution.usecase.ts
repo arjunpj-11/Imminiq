@@ -1,11 +1,11 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
-import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
+import type { IQuestionHasher } from '../../domain/services/question-hasher.interface'
 
-type GenerateLessonQuestionSolutionResultDto = ReturnType<
-  TrackerMapperContract['toLessonQuestionSolutionDto']
+type GenerateLessonQuestionSolutionResultDTO = ReturnType<
+  ITrackerMapper['toLessonQuestionSolutionDto']
 >
 
 const getDocumentId = (document: unknown) => {
@@ -24,10 +24,10 @@ const getDocumentId = (document: unknown) => {
 
 export class GenerateLessonQuestionSolutionUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
-    private readonly _questionHasher: QuestionHasherServiceContract,
-    private readonly _trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _questionHasher: IQuestionHasher,
+    private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(input: {
@@ -35,7 +35,7 @@ export class GenerateLessonQuestionSolutionUseCase {
     subtopicId: string
     userId: string
     question: string
-  }): Promise<GenerateLessonQuestionSolutionResultDto> {
+  }): Promise<GenerateLessonQuestionSolutionResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
@@ -70,7 +70,7 @@ export class GenerateLessonQuestionSolutionUseCase {
       return this._trackerMapper.toLessonQuestionSolutionDto(existing)
     }
 
-    const solution = await this._trackerAIService.generateLessonQuestionSolution({
+    const solution = await this._trackerAIGateway.generateLessonQuestionSolution({
       lessonTitle: lesson.title,
       lessonExplanation: lesson.explanation,
       question: input.question,

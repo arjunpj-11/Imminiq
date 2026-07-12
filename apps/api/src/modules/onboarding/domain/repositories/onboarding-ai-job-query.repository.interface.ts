@@ -6,7 +6,7 @@ export type FindActiveEvaluationJobForRoadmapInput = {
   sourceRoadmapJobId: string
 }
 
-export interface OnboardingAIJobQueryRepositoryContract {
+export interface IOnboardingAIJobQueryRepository {
   findActiveRoadmapJobForUser(
     userId: string
   ): Promise<AIGenerationJobEntity | null>

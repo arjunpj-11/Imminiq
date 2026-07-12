@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react'
 
-import type { ActivityPageResponse } from '../types/activity.types'
+import type { IActivityPageResponse } from '../types/activity.types'
 import {
   formatNumber,
   formatSignedPercent,
@@ -63,11 +63,11 @@ const SidebarValueRow = ({
   </div>
 )
 
-interface WeeklyChartProps {
-  weekly: ActivityPageResponse['weekly']
+interface IWeeklyChartProps {
+  weekly: IActivityPageResponse['weekly']
 }
 
-const WeeklyChart = ({ weekly }: WeeklyChartProps) => {
+const WeeklyChart = ({ weekly }: IWeeklyChartProps) => {
   const maxXp = Math.max(...weekly.days.map((day) => day.xp), 1)
   const now = new Date()
   const todayKey = [
@@ -139,11 +139,11 @@ const WeeklyChart = ({ weekly }: WeeklyChartProps) => {
   )
 }
 
-interface WeeklyXpCardProps {
-  weekly: ActivityPageResponse['weekly']
+interface IWeeklyXpCardProps {
+  weekly: IActivityPageResponse['weekly']
 }
 
-const WeeklyXpCard = ({ weekly }: WeeklyXpCardProps) => {
+const WeeklyXpCard = ({ weekly }: IWeeklyXpCardProps) => {
   const growthIsPositive = weekly.growthPercent > 0
   const growthIsNegative = weekly.growthPercent < 0
 
@@ -197,13 +197,13 @@ const WeeklyXpCard = ({ weekly }: WeeklyXpCardProps) => {
   )
 }
 
-interface PersonalBestsCardProps {
-  personalBests: ActivityPageResponse['personalBests']
+interface IPersonalBestsCardProps {
+  personalBests: IActivityPageResponse['personalBests']
 }
 
 const PersonalBestsCard = ({
   personalBests,
-}: PersonalBestsCardProps) => (
+}: IPersonalBestsCardProps) => (
   <SidebarCard>
     <SidebarCardHeader
       icon={
@@ -226,9 +226,9 @@ const PersonalBestsCard = ({
 )
 
 
-interface ActivitySidebarProps {
-  weekly: ActivityPageResponse['weekly']
-  personalBests: ActivityPageResponse['personalBests']
+interface IActivitySidebarProps {
+  weekly: IActivityPageResponse['weekly']
+  personalBests: IActivityPageResponse['personalBests']
   
 }
 
@@ -236,7 +236,7 @@ export default function ActivitySidebar({
   weekly,
   personalBests,
   
-}: ActivitySidebarProps) {
+}: IActivitySidebarProps) {
   return (
     <aside className="flex w-62 shrink-0 flex-col gap-3 max-[860px]:w-full">
       <WeeklyChart weekly={weekly} />

@@ -1,14 +1,14 @@
-import type { UserProfileRepositoryContract } from '../../domain/repositories/user-profile.repository.interface'
-import type { UserRepositoryContract } from '../../domain/repositories/user.repository.interface'
+import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface'
+import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
 import { UsersApplicationError } from '../errors/users-application.error'
-import type { UsersMapperContract } from '../mappers/users.mapper'
+import type { IUsersMapper } from '../mappers/users.mapper'
 
-type GetMeRepository = UserRepositoryContract & UserProfileRepositoryContract
+type GetMeRepository = IUserRepository & IUserProfileRepository
 
 export class GetMeUseCase {
   constructor(
     private readonly _usersRepository: GetMeRepository,
-    private readonly _usersMapper: UsersMapperContract,
+    private readonly _usersMapper: IUsersMapper,
   ) {}
 
   async execute(userId: string) {

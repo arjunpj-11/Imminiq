@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 
 type ExistingSubtopic = {
   id: string
@@ -23,20 +23,20 @@ type VerifyTrackerSubtopicInput = {
   existingSubtopics: ExistingSubtopic[]
 }
 
-type VerifyTrackerSubtopicResultDto = ReturnType<
-  TrackerMapperContract['toTrackerAIValidationDto']
+type VerifyTrackerSubtopicResultDTO = ReturnType<
+  ITrackerMapper['toTrackerAIValidationDto']
 >
 
 export class VerifyTrackerSubtopicUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
-    private readonly _trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
   async execute(
     input: VerifyTrackerSubtopicInput,
-  ): Promise<VerifyTrackerSubtopicResultDto> {
+  ): Promise<VerifyTrackerSubtopicResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
@@ -46,7 +46,7 @@ export class VerifyTrackerSubtopicUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    const result = await this._trackerAIService.verifyTrackerSubtopic({
+    const result = await this._trackerAIGateway.verifyTrackerSubtopic({
       trackerTitle: input.trackerTitle || tracker.title || '',
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,

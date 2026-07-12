@@ -4,12 +4,12 @@ import { useMutation } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 
-export interface SaveOnboardingStepOnePayload {
+export interface ISaveOnboardingStepOnePayload {
   topic: string
   goal?: string
 }
 
-export interface SaveOnboardingStepOneResponse {
+export interface ISaveOnboardingStepOneResponse {
   success?: boolean
   message: string
   data?: {
@@ -24,15 +24,15 @@ export interface SaveOnboardingStepOneResponse {
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
 
 const saveOnboardingStepOne = async (
-  payload: SaveOnboardingStepOnePayload
-): Promise<SaveOnboardingStepOneResponse> => {
-  const response = await api.post<SaveOnboardingStepOneResponse>(
+  payload: ISaveOnboardingStepOnePayload
+): Promise<ISaveOnboardingStepOneResponse> => {
+  const response = await api.post<ISaveOnboardingStepOneResponse>(
     '/onboarding/step-1',
     payload
   )
@@ -42,9 +42,9 @@ const saveOnboardingStepOne = async (
 
 export const useSaveOnboardingStepOne = () => {
   return useMutation<
-    SaveOnboardingStepOneResponse,
-    AxiosError<ApiErrorResponse>,
-    SaveOnboardingStepOnePayload
+    ISaveOnboardingStepOneResponse,
+    AxiosError<IApiErrorResponse>,
+    ISaveOnboardingStepOnePayload
   >({
     mutationFn: saveOnboardingStepOne,
   })

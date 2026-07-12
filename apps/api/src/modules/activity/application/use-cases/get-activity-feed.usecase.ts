@@ -3,36 +3,38 @@ import {
   ACTIVITY_MAX_FEED_LIMIT,
   ACTIVITY_MIN_FEED_LIMIT,
 } from '../../domain/constants/activity.constants'
-import type { ActivityQueryRepositoryContract } from '../../domain/repositories/activity-query.repository.interface'
+import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
 import { activityCategoriesForFilter } from '../../domain/value-objects/activity-category.vo'
 import type {
-  ActivityFeedResponse,
-  GetActivityFeedPayload,
+  ActivityFeedResponseDTO,
+  GetActivityFeedPayloadDTO,
 } from '../dtos/activity.dto'
-import { ActivityCursorService } from '../services/activity-cursor.service'
-import { ActivityDateRangeService } from '../services/activity-date-range.service'
-import { ActivityMapper } from '../mappers/activity.mapper'
+import type { ActivityCursorCodecContract } from '../services/activity-cursor.service'
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
+import type { ActivityMapperContract } from '../mappers/activity.mapper'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class GetActivityFeedUseCase {
   constructor(
-    private readonly _activityRepository: ActivityQueryRepositoryContract,
-    private readonly _mapper: ActivityMapper,
-    private readonly _dateRangeService: ActivityDateRangeService,
-    private readonly _cursorService: ActivityCursorService,
+    private readonly _activityRepository: IActivityQueryRepository,
+    private readonly _mapper: ActivityMapperContract,
+    private readonly _dateRange: ActivityDateRangeContract,
+    private readonly _cursorCodec: ActivityCursorCodecContract,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
     userId: string,
-    payload: GetActivityFeedPayload,
-    now = new Date(),
-  ): Promise<ActivityFeedResponse> {
+    payload: GetActivityFeedPayloadDTO,
+    now = this._clock.now(),
+  ): Promise<ActivityFeedResponseDTO> {
     const filter = payload.filter ?? 'all'
     const limit = this.normalizeLimit(payload.limit)
-    const cursor = this._cursorService.decode(payload.cursor)
+    const cursor = this._cursorCodec.decode(payload.cursor)
     const categories = activityCategoriesForFilter(filter)
 
     const context =
-      this._dateRangeService.createContext(
+      this._dateRange.createContext(
         now,
         undefined,
         payload.utcOffsetMinutes ?? 0,
@@ -65,7 +67,7 @@ export class GetActivityFeedUseCase {
       groups: this._mapper.toGroupedFeed(
         result.activities,
         context,
-        this._dateRangeService,
+        this._dateRange,
       ),
 
       pagination: {
@@ -75,7 +77,7 @@ export class GetActivityFeedUseCase {
 
         nextCursor:
           result.hasMore && lastActivity
-            ? this._cursorService.encode({
+            ? this._cursorCodec.encode({
                 occurredAt: lastActivity.occurredAt,
                 id: lastActivity.id,
               })

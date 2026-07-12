@@ -13,7 +13,7 @@ import type {
   UpdateSettingsPrivacyInput,
   UpdateSettingsQuietHoursInput,
 } from '../../domain/repositories/settings-command.repository.interface'
-import type { SettingsRepositoryContract } from '../../domain/repositories/settings.repository.interface'
+import type { ISettingsRepository } from '../../domain/repositories/settings.repository.interface'
 import { MongoSettingsUserRepository } from './internal/mongo-settings-user.repository'
 import { MongoSettingsMapper } from './shared/mongo-settings.mapper'
 
@@ -21,7 +21,7 @@ type MongoSettingsRepositoryDependencies = {
   settingsRepository: MongoSettingsUserRepository
 }
 
-export class MongoSettingsRepository implements SettingsRepositoryContract {
+export class MongoSettingsRepository implements ISettingsRepository {
   private readonly _settingsRepository: MongoSettingsUserRepository
 
   constructor(

@@ -6,12 +6,12 @@ import {
 } from '../../../../infrastructure/ai/ai.service'
 import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
 import type {
-  EvaluateAnswerInput,
-  EvaluateAnswerOutput,
-  GenerateInsightsInput,
-  GenerateQuestionsInput,
-  MockTestAIServiceContract,
-} from '../../domain/services/mock-test-ai.service.interface'
+  IEvaluateAnswerInput,
+  IEvaluateAnswerOutput,
+  IGenerateInsightsInput,
+  IGenerateQuestionsInput,
+  IMockTestAIGateway,
+} from '../../domain/services/mock-test-ai.interface'
 
 function isServiceUnavailable(error: unknown): boolean {
   return (
@@ -22,13 +22,13 @@ function isServiceUnavailable(error: unknown): boolean {
   )
 }
 
-type GenerateQuestionsOutput = Awaited<ReturnType<MockTestAIServiceContract['generateQuestions']>>
+type GenerateQuestionsOutput = Awaited<ReturnType<IMockTestAIGateway['generateQuestions']>>
 
-export class GeminiGroqMockTestAIService
-  implements MockTestAIServiceContract
+export class GeminiGroqMockTestAIGateway
+  implements IMockTestAIGateway
 {
   async generateQuestions(
-    input: GenerateQuestionsInput
+    input: IGenerateQuestionsInput
   ): Promise<GenerateQuestionsOutput> {
     try {
       const result = await generateMockTestQuestionsAI({
@@ -65,8 +65,8 @@ export class GeminiGroqMockTestAIService
   }
 
   async evaluateOpenAnswer(
-    input: EvaluateAnswerInput
-  ): Promise<EvaluateAnswerOutput> {
+    input: IEvaluateAnswerInput
+  ): Promise<IEvaluateAnswerOutput> {
     try {
       const result = await evaluateMockTestOpenAnswerAI({
         question: input.question,
@@ -74,7 +74,7 @@ export class GeminiGroqMockTestAIService
         userAnswer: input.userAnswer,
         maxPoints: input.maxPoints,
       })
-      return result as EvaluateAnswerOutput
+      return result as IEvaluateAnswerOutput
     } catch (error) {
       console.error('[GeminiGroq] evaluateOpenAnswer failed:', error)
       throw new MockTestsDomainError(
@@ -85,7 +85,7 @@ export class GeminiGroqMockTestAIService
   }
 
   async generatePerformanceInsights(
-    input: GenerateInsightsInput
+    input: IGenerateInsightsInput
   ): Promise<string> {
     try {
       return await generateMockTestPerformanceInsightsAI({
@@ -102,4 +102,4 @@ export class GeminiGroqMockTestAIService
   }
 }
 
-export const geminiGroqMockTestAIService = new GeminiGroqMockTestAIService()
+export const geminiGroqMockTestAIGateway = new GeminiGroqMockTestAIGateway()

@@ -1,17 +1,17 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiEnvelope,
-  ChangeEmailPayload,
-  ChangePasswordPayload,
-  DeleteAccountPayload,
-  DisableTwoFactorPayload,
-  DisableTwoFactorResponse,
-  SecurityOverview,
-  TwoFactorSetupResponse,
-  VerifyTwoFactorSetupPayload,
-  VerifyTwoFactorSetupResponse,
-  DeleteAccountResponse,
+  IApiEnvelope,
+  IChangeEmailPayload,
+  IChangePasswordPayload,
+  IDeleteAccountPayload,
+  IDisableTwoFactorPayload,
+  IDisableTwoFactorResponse,
+  ISecurityOverview,
+  ITwoFactorSetupResponse,
+  IVerifyTwoFactorSetupPayload,
+  IVerifyTwoFactorSetupResponse,
+  IDeleteAccountResponse,
 } from '../types/settings.types'
 
 const SECURITY_KEY = ['security', 'overview'] as const
@@ -29,7 +29,7 @@ type VerifyEmailChangeResponse = {
   sessionsRevoked: boolean
 }
 
-const unwrap = <T,>(response: { data: ApiEnvelope<T> }) => {
+const unwrap = <T,>(response: { data: IApiEnvelope<T> }) => {
   return response.data.data
 }
 
@@ -40,7 +40,7 @@ export const useSecurityOverview = () =>
     queryKey: SECURITY_KEY,
     queryFn: async () => {
       const response =
-        await api.get<ApiEnvelope<SecurityOverview>>('/security/overview')
+        await api.get<IApiEnvelope<ISecurityOverview>>('/security/overview')
 
       return unwrap(response)
     },
@@ -53,9 +53,9 @@ export const useChangeEmail = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: ChangeEmailPayload) => {
+    mutationFn: async (payload: IChangeEmailPayload) => {
       const response = await api.patch<
-        ApiEnvelope<EmailChangeRequestResponse>
+        IApiEnvelope<EmailChangeRequestResponse>
       >('/security/change-email', payload)
 
       return unwrap(response)
@@ -73,7 +73,7 @@ export const useVerifyEmailChange = () =>
   useMutation({
     mutationFn: async (token: string) => {
       const response = await api.post<
-        ApiEnvelope<VerifyEmailChangeResponse>
+        IApiEnvelope<VerifyEmailChangeResponse>
       >('/security/verify-email-change', {
         token,
       })
@@ -86,9 +86,9 @@ export const useVerifyEmailChange = () =>
 
 export const useChangePassword = () =>
   useMutation({
-    mutationFn: async (payload: ChangePasswordPayload) => {
+    mutationFn: async (payload: IChangePasswordPayload) => {
       const response = await api.patch<
-        ApiEnvelope<{ sessionsRevoked: boolean }>
+        IApiEnvelope<{ sessionsRevoked: boolean }>
       >('/security/change-password', payload)
 
       return unwrap(response)
@@ -103,7 +103,7 @@ export const useTerminateSession = () => {
   return useMutation({
     mutationFn: async (sessionId: string) => {
       const response = await api.delete<
-        ApiEnvelope<{
+        IApiEnvelope<{
           revoked: boolean
           sessionId: string
         }>
@@ -124,7 +124,7 @@ export const useSetupTwoFactor = () =>
   useMutation({
     mutationFn: async () => {
       const response = await api.post<
-        ApiEnvelope<TwoFactorSetupResponse>
+        IApiEnvelope<ITwoFactorSetupResponse>
       >('/security/2fa/setup')
 
       return unwrap(response)
@@ -137,9 +137,9 @@ export const useVerifyTwoFactorSetup = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: VerifyTwoFactorSetupPayload) => {
+    mutationFn: async (payload: IVerifyTwoFactorSetupPayload) => {
       const response = await api.post<
-        ApiEnvelope<VerifyTwoFactorSetupResponse>
+        IApiEnvelope<IVerifyTwoFactorSetupResponse>
       >('/security/2fa/verify', payload)
 
       return unwrap(response)
@@ -157,9 +157,9 @@ export const useDisableTwoFactor = () => {
   const queryClient = useQueryClient()
 
   return useMutation({
-    mutationFn: async (payload: DisableTwoFactorPayload) => {
+    mutationFn: async (payload: IDisableTwoFactorPayload) => {
       const response = await api.post<
-        ApiEnvelope<DisableTwoFactorResponse>
+        IApiEnvelope<IDisableTwoFactorResponse>
       >('/security/2fa/disable', payload)
 
       return unwrap(response)
@@ -176,10 +176,10 @@ export const useDisableTwoFactor = () => {
 export const useDeleteAccount = () =>
   useMutation({
     mutationFn: async (
-      payload: DeleteAccountPayload
-    ): Promise<DeleteAccountResponse> => {
+      payload: IDeleteAccountPayload
+    ): Promise<IDeleteAccountResponse> => {
       const response = await api.delete<
-        ApiEnvelope<DeleteAccountResponse>
+        IApiEnvelope<IDeleteAccountResponse>
       >('/security/delete-account', {
         data: payload,
       })

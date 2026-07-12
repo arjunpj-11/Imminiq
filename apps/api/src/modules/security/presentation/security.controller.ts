@@ -5,7 +5,7 @@ import { decryptAuthCookieToken } from '../../../shared/security/auth-cookie-tok
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { createSecurityComposition, type SecurityComposition } from '../security.factory'
+import type { SecurityComposition } from '../security.factory'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 
@@ -214,5 +214,3 @@ export class SecurityController {
     return sessionId
   }
 }
-
-export const securityController = new SecurityController(createSecurityComposition().useCases)

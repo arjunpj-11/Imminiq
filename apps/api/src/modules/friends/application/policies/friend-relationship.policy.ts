@@ -1,10 +1,10 @@
 import { FriendsApplicationError } from "../errors/friends-application.error";
 
-export interface FriendRelationshipPolicyContract {
+export interface IFriendRelationshipPolicy {
   ensureDifferentUsers(actorUserId: string, targetUserId: string): void;
 }
 
-export class FriendRelationshipPolicy implements FriendRelationshipPolicyContract {
+export class FriendRelationshipPolicy implements IFriendRelationshipPolicy {
   ensureDifferentUsers(actorUserId: string, targetUserId: string): void {
     if (actorUserId === targetUserId) {
       throw FriendsApplicationError.cannotFriendSelf();

@@ -8,25 +8,25 @@ import {
 import api from '../../../lib/axios'
 
 import type {
-  ApiResponse,
-  AttemptAnalysis,
-  AttemptResultResponse,
-  CreateMockTestPayload,
-  GenerateMockTestPayload,
-  ImportSharedMockTestResponse,
-  ListMockTestsResponse,
-  MockTest,
-  MockTestAnswer,
-  MockTestCodeRunResponse,
-  MockTestCodeSubmitResponse,
-  MockTestDetailsResponse,
-  MockTestQuestion,
-  MockTestShareResponse,
-  RunMockTestCodePayload,
-  StartAttemptResponse,
-  SubmitAnswerPayload,
-  SubmitMockTestCodePayload,
-  TestAnalytics,
+  IApiResponse,
+  IAttemptAnalysis,
+  IAttemptResultResponse,
+  ICreateMockTestPayload,
+  IGenerateMockTestPayload,
+  IImportSharedMockTestResponse,
+  IListMockTestsResponse,
+  IMockTest,
+  IMockTestAnswer,
+  IMockTestCodeRunResponse,
+  IMockTestCodeSubmitResponse,
+  IMockTestDetailsResponse,
+  IMockTestQuestion,
+  IMockTestShareResponse,
+  IRunMockTestCodePayload,
+  IStartAttemptResponse,
+  ISubmitAnswerPayload,
+  ISubmitMockTestCodePayload,
+  ITestAnalytics,
 } from '../types/mock-tests.types'
 
 export const mockTestKeys = {
@@ -73,7 +73,7 @@ export const mockTestKeys = {
     [...mockTestKeys.attempt(attemptId), 'analysis'] as const,
 }
 
-const unwrap = <T>(response: ApiResponse<T>) => {
+const unwrap = <T>(response: IApiResponse<T>) => {
   return response.data
 }
 
@@ -84,7 +84,7 @@ export const useMockTests = (page = 1, limit = 6) => {
     queryKey: mockTestKeys.list(page, limit),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<ListMockTestsResponse>>(
+      const response = await api.get<IApiResponse<IListMockTestsResponse>>(
         '/mock-tests',
         {
           params: {
@@ -108,7 +108,7 @@ export const useMockTestDetails = (testId?: string) => {
     enabled: Boolean(testId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<MockTestDetailsResponse>>(
+      const response = await api.get<IApiResponse<IMockTestDetailsResponse>>(
         `/mock-tests/${testId}`
       )
 
@@ -120,9 +120,9 @@ export const useMockTestDetails = (testId?: string) => {
 export const useCreateMockTest = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<MockTest>, Error, CreateMockTestPayload>({
+  return useMutation<IApiResponse<IMockTest>, Error, ICreateMockTestPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<ApiResponse<MockTest>>(
+      const response = await api.post<IApiResponse<IMockTest>>(
         '/mock-tests',
         payload
       )
@@ -141,9 +141,9 @@ export const useCreateMockTest = () => {
 export const useGenerateMockTest = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<MockTest>, Error, GenerateMockTestPayload>({
+  return useMutation<IApiResponse<IMockTest>, Error, IGenerateMockTestPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<ApiResponse<MockTest>>(
+      const response = await api.post<IApiResponse<IMockTest>>(
         '/mock-tests/generate',
         payload
       )
@@ -160,9 +160,9 @@ export const useGenerateMockTest = () => {
 }
 
 export const useShareMockTest = () => {
-  return useMutation<ApiResponse<MockTestShareResponse>, Error, string>({
+  return useMutation<IApiResponse<IMockTestShareResponse>, Error, string>({
     mutationFn: async (testId) => {
-      const response = await api.post<ApiResponse<MockTestShareResponse>>(
+      const response = await api.post<IApiResponse<IMockTestShareResponse>>(
         `/mock-tests/${testId}/share`
       )
 
@@ -174,10 +174,10 @@ export const useShareMockTest = () => {
 export const useImportSharedMockTest = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<ImportSharedMockTestResponse>, Error, string>({
+  return useMutation<IApiResponse<IImportSharedMockTestResponse>, Error, string>({
     mutationFn: async (shareToken) => {
       const response = await api.post<
-        ApiResponse<ImportSharedMockTestResponse>
+        IApiResponse<IImportSharedMockTestResponse>
       >(`/mock-tests/shared/${shareToken}/import`)
 
       return response.data
@@ -196,9 +196,9 @@ export const useImportSharedMockTest = () => {
 export const useStartMockTestAttempt = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<StartAttemptResponse>, Error, string>({
+  return useMutation<IApiResponse<IStartAttemptResponse>, Error, string>({
     mutationFn: async (testId) => {
-      const response = await api.post<ApiResponse<StartAttemptResponse>>(
+      const response = await api.post<IApiResponse<IStartAttemptResponse>>(
         `/mock-tests/${testId}/start`
       )
 
@@ -223,7 +223,7 @@ export const useMockTestAttemptQuestions = (attemptId?: string) => {
     enabled: Boolean(attemptId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<MockTestQuestion[]>>(
+      const response = await api.get<IApiResponse<IMockTestQuestion[]>>(
         `/mock-tests/attempts/${attemptId}/questions`
       )
 
@@ -236,15 +236,15 @@ export const useSubmitMockTestAnswer = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<MockTestAnswer>,
+    IApiResponse<IMockTestAnswer>,
     Error,
     {
       attemptId: string
-      payload: SubmitAnswerPayload
+      payload: ISubmitAnswerPayload
     }
   >({
     mutationFn: async ({ attemptId, payload }) => {
-      const response = await api.post<ApiResponse<MockTestAnswer>>(
+      const response = await api.post<IApiResponse<IMockTestAnswer>>(
         `/mock-tests/attempts/${attemptId}/answers`,
         payload
       )
@@ -268,7 +268,7 @@ export const useFlagMockTestQuestion = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<{ flagged: boolean }>,
+    IApiResponse<{ flagged: boolean }>,
     Error,
     {
       attemptId: string
@@ -276,7 +276,7 @@ export const useFlagMockTestQuestion = () => {
     }
   >({
     mutationFn: async ({ attemptId, questionId }) => {
-      const response = await api.post<ApiResponse<{ flagged: boolean }>>(
+      const response = await api.post<IApiResponse<{ flagged: boolean }>>(
         `/mock-tests/attempts/${attemptId}/flag`,
         {
           questionId,
@@ -302,14 +302,14 @@ export const useFinishMockTestAttempt = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<unknown>,
+    IApiResponse<unknown>,
     Error,
     {
       attemptId: string
     }
   >({
     mutationFn: async ({ attemptId }) => {
-      const response = await api.post<ApiResponse<unknown>>(
+      const response = await api.post<IApiResponse<unknown>>(
         `/mock-tests/attempts/${attemptId}/finish`
       )
 
@@ -342,16 +342,16 @@ export const useFinishMockTestAttempt = () => {
 
 export const useRunMockTestCode = () => {
   return useMutation<
-    ApiResponse<MockTestCodeRunResponse>,
+    IApiResponse<IMockTestCodeRunResponse>,
     Error,
     {
       attemptId: string
       questionId: string
-      payload: RunMockTestCodePayload
+      payload: IRunMockTestCodePayload
     }
   >({
     mutationFn: async ({ attemptId, questionId, payload }) => {
-      const response = await api.post<ApiResponse<MockTestCodeRunResponse>>(
+      const response = await api.post<IApiResponse<IMockTestCodeRunResponse>>(
         `/mock-tests/attempts/${attemptId}/questions/${questionId}/run-code`,
         payload
       )
@@ -365,16 +365,16 @@ export const useSubmitMockTestCode = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<MockTestCodeSubmitResponse>,
+    IApiResponse<IMockTestCodeSubmitResponse>,
     Error,
     {
       attemptId: string
       questionId: string
-      payload: SubmitMockTestCodePayload
+      payload: ISubmitMockTestCodePayload
     }
   >({
     mutationFn: async ({ attemptId, questionId, payload }) => {
-      const response = await api.post<ApiResponse<MockTestCodeSubmitResponse>>(
+      const response = await api.post<IApiResponse<IMockTestCodeSubmitResponse>>(
         `/mock-tests/attempts/${attemptId}/questions/${questionId}/submit-code`,
         payload
       )
@@ -404,7 +404,7 @@ export const useMockTestAttemptResult = (attemptId?: string) => {
     enabled: Boolean(attemptId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<AttemptResultResponse>>(
+      const response = await api.get<IApiResponse<IAttemptResultResponse>>(
         `/mock-tests/attempts/${attemptId}/result`
       )
 
@@ -419,7 +419,7 @@ export const useMockTestAttemptAnalysis = (attemptId?: string) => {
     enabled: Boolean(attemptId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<AttemptAnalysis>>(
+      const response = await api.get<IApiResponse<IAttemptAnalysis>>(
         `/mock-tests/attempts/${attemptId}/analysis`
       )
 
@@ -431,9 +431,9 @@ export const useMockTestAttemptAnalysis = (attemptId?: string) => {
 export const useRetakeMockTest = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<StartAttemptResponse>, Error, string>({
+  return useMutation<IApiResponse<IStartAttemptResponse>, Error, string>({
     mutationFn: async (attemptId) => {
-      const response = await api.post<ApiResponse<StartAttemptResponse>>(
+      const response = await api.post<IApiResponse<IStartAttemptResponse>>(
         `/mock-tests/attempts/${attemptId}/retake`
       )
 
@@ -459,7 +459,7 @@ export const useMockTestHistory = () => {
     queryKey: mockTestKeys.history(),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<unknown>>(
+      const response = await api.get<IApiResponse<unknown>>(
         '/mock-tests/history'
       )
 
@@ -475,7 +475,7 @@ export const useMockTestAnalytics = () => {
     queryKey: mockTestKeys.analytics(),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<TestAnalytics>>(
+      const response = await api.get<IApiResponse<ITestAnalytics>>(
         '/mock-tests/analytics/trends'
       )
 
@@ -491,7 +491,7 @@ export const useMockTestAIInsights = () => {
     queryKey: mockTestKeys.aiInsights(),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<{ insight: string }>>(
+      const response = await api.get<IApiResponse<{ insight: string }>>(
         '/mock-tests/analytics/ai-insights'
       )
 
@@ -508,7 +508,7 @@ export const useMockTestTopicBreakdown = () => {
 
     queryFn: async () => {
       const response = await api.get<
-        ApiResponse<
+        IApiResponse<
           {
             topic: string
             averageScore: number

@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 
 import type { CommunitySort } from '../domain/value-objects/community-sort.vo'
-import { createCommunityComposition, type CommunityComposition } from '../community.factory'
+import type { CommunityComposition } from '../community.factory'
 import type {
   UpsertCommunityTrackerReviewInput,
   VoteVerificationSubmissionInput,
@@ -396,5 +396,3 @@ export class CommunityController {
     return undefined
   }
 }
-
-export const communityController = new CommunityController(createCommunityComposition().useCases)

@@ -1,10 +1,10 @@
 import { createHash } from 'crypto'
 
-import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
+import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 
 export class LogoutUserUseCase {
   constructor(
-    private readonly _authRepository: AuthSessionRepositoryContract
+    private readonly _authRepository: IAuthSessionRepository
   ) {}
 
   async execute(refreshToken: string): Promise<void> {

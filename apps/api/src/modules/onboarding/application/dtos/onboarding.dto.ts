@@ -3,22 +3,22 @@ import type { AIGenerationJobType } from '../../domain/value-objects/ai-generati
 import type { AIGenerationStepStatus } from '../../domain/value-objects/ai-generation-step-status.vo'
 import type { RoadmapLevel } from '../../domain/value-objects/roadmap-level.vo'
 
-export interface SaveOnboardingStepOnePayload {
+export interface ISaveOnboardingStepOnePayloadDTO {
   topic: string
   goal?: string
 }
 
-export interface SaveOnboardingStepTwoPayload {
+export interface ISaveOnboardingStepTwoPayloadDTO {
   level: RoadmapLevel
 }
 
-export interface GenerateRoadmapPayload {
+export interface IGenerateRoadmapPayloadDTO {
   topic: string
   goal?: string
   level: RoadmapLevel
 }
 
-export interface OnboardingResponseRecord {
+export interface IOnboardingResponseRecordDTO {
   _id?: string
   userId?: string
   isCompleted?: boolean
@@ -31,19 +31,19 @@ export interface OnboardingResponseRecord {
   [key: string]: unknown
 }
 
-export interface OnboardingStatusResult {
+export interface IOnboardingStatusResultDTO {
   isCompleted: boolean
   step1Completed: boolean
   step2Completed: boolean
   completedStep: number
-  data: OnboardingResponseRecord | null
+  data: IOnboardingResponseRecordDTO | null
 }
 
-export interface GenerateRoadmapResult {
+export interface IGenerateRoadmapResultDTO {
   jobId: string
 }
 
-export interface AIGenerationStepResult {
+export interface IAIGenerationStepResultDTO {
   stepNumber: number
   stepLabel: string
   status: AIGenerationStepStatus
@@ -51,7 +51,7 @@ export interface AIGenerationStepResult {
   completedAt: Date | null
 }
 
-export interface GetJobStatusResult {
+export interface IGetJobStatusResultDTO {
   jobId: string
   jobType: AIGenerationJobType
   status: AIGenerationJobStatus
@@ -59,47 +59,47 @@ export interface GetJobStatusResult {
   currentStep: string
   completedSteps: number
   totalSteps: number
-  steps: AIGenerationStepResult[]
+  steps: IAIGenerationStepResultDTO[]
   trackerId: string | null
   errorMessage: string | null
 }
 
-export interface TrackerRecord {
+export interface ITrackerRecordDTO {
   _id: string
   [key: string]: unknown
 }
 
-export interface SubtopicTreeNode {
+export interface ISubtopicTreeNodeDTO {
   _id: string
   title: string
   description: string
   order: number
   depth: number
-  children: SubtopicTreeNode[]
+  children: ISubtopicTreeNodeDTO[]
 }
 
-export interface RoadmapTopicTreeNode {
+export interface IRoadmapTopicTreeNodeDTO {
   _id: string
   title: string
   description: string
   order: number
-  children: SubtopicTreeNode[]
+  children: ISubtopicTreeNodeDTO[]
 }
 
-export interface RoadmapTreeResult {
-  tracker: TrackerRecord | null
-  topics: RoadmapTopicTreeNode[]
+export interface IRoadmapTreeResultDTO {
+  tracker: ITrackerRecordDTO | null
+  topics: IRoadmapTopicTreeNodeDTO[]
 }
 
-export interface GetEvaluationResult {
+export interface IGetEvaluationResultDTO {
   jobId: string
   trackerId: string | null
   evaluation: Record<string, unknown>
 }
 
-export type OnboardingResponseDto = OnboardingResponseRecord
-export type OnboardingStatusDto = OnboardingStatusResult
-export type GenerateRoadmapDto = GenerateRoadmapResult
-export type RoadmapJobStatusDto = GetJobStatusResult
-export type RoadmapTreeDto = RoadmapTreeResult
-export type RoadmapEvaluationDto = GetEvaluationResult
+export type OnboardingResponseDTO = IOnboardingResponseRecordDTO
+export type OnboardingStatusDTO = IOnboardingStatusResultDTO
+export type GenerateRoadmapDTO = IGenerateRoadmapResultDTO
+export type RoadmapJobStatusDTO = IGetJobStatusResultDTO
+export type RoadmapTreeDTO = IRoadmapTreeResultDTO
+export type RoadmapEvaluationDTO = IGetEvaluationResultDTO

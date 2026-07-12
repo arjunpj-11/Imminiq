@@ -1,4 +1,4 @@
-import type { LeaderboardTopThreeEntry } from '../types/leaderboard.types'
+import type { ILeaderboardTopThreeEntry } from '../types/leaderboard.types'
 import { formatNumber } from '../utils/leaderboard-formatters'
 import { cn } from '../utils/leaderboard-ui'
 import LeaderboardAvatar from './LeaderboardAvatar'
@@ -48,7 +48,7 @@ const podiumTokens = {
 
 const podiumOrder: ReadonlyArray<1 | 2 | 3> = [2, 1, 3]
 
-function PodiumCard({ entry }: { entry: LeaderboardTopThreeEntry }) {
+function PodiumCard({ entry }: { entry: ILeaderboardTopThreeEntry }) {
   const token = podiumTokens[entry.rank]
   const isChampion = entry.rank === 1
 
@@ -103,10 +103,10 @@ function PodiumCard({ entry }: { entry: LeaderboardTopThreeEntry }) {
   )
 }
 
-export default function LeaderboardPodium({ entries }: { entries: LeaderboardTopThreeEntry[] }) {
+export default function LeaderboardPodium({ entries }: { entries: ILeaderboardTopThreeEntry[] }) {
   const orderedEntries = podiumOrder
     .map((rank) => entries.find((entry) => entry.rank === rank))
-    .filter((entry): entry is LeaderboardTopThreeEntry => Boolean(entry))
+    .filter((entry): entry is ILeaderboardTopThreeEntry => Boolean(entry))
 
   if (orderedEntries.length === 0) return null
 

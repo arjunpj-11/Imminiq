@@ -12,7 +12,7 @@ import {
   useVerifyLessonAnswer,
 } from '../../hooks/useTrackers'
 import type {
-  GeneratedLesson,
+  IGeneratedLesson,
   VerifyLessonAnswerResponse,
 } from '../../types/tracker.types'
 
@@ -36,7 +36,7 @@ export default function ReflectionPracticeCard({
   trackerId,
   subtopicId,
 }: {
-  lesson: GeneratedLesson
+  lesson: IGeneratedLesson
   trackerId: string
   subtopicId: string
 }) {

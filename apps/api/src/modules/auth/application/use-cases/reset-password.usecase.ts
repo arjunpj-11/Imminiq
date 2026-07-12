@@ -1,25 +1,25 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthSessionRepositoryContract } from '../../domain/repositories/auth-session.repository.interface'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
-import type { PasswordResetSessionStoreContract } from '../../domain/services/password-reset-session-store.interface'
-import type { PasswordResetTokenServiceContract } from '../../domain/services/password-reset-token.service.interface'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
+import type { IPasswordResetSessionStore } from '../../domain/services/password-reset-session-store.interface'
+import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 
 type ResetPasswordRepository =
-  AuthUserRepositoryContract & AuthSessionRepositoryContract
+  IAuthUserRepository & IAuthSessionRepository
 
 export class ResetPasswordUseCase {
   constructor(
     private readonly _authRepository: ResetPasswordRepository,
-    private readonly _passwordResetTokenService: PasswordResetTokenServiceContract,
-    private readonly _passwordResetSessionStore: PasswordResetSessionStoreContract,
-    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
-    private readonly _passwordHasher: PasswordHasherServiceContract
+    private readonly _passwordResetToken: IPasswordResetToken,
+    private readonly _passwordResetSessionStore: IPasswordResetSessionStore,
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _passwordHasher: IPasswordHasher
   ) {}
 
   async execute(resetToken: string, newPassword: string): Promise<void> {
-    const decoded = this._passwordResetTokenService.verify(resetToken)
+    const decoded = this._passwordResetToken.verify(resetToken)
 
     const resetSessionUserId =
       await this._passwordResetSessionStore.consume(decoded.jti)

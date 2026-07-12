@@ -1,11 +1,11 @@
 import { cn } from '../../../lib/cn'
-import type { PublicMockTestQuestion } from '../types/mock-tests.types'
+import type { IPublicMockTestQuestion } from '../types/mock-tests.types'
 import { FlagIcon } from './MockTestAttemptIcons'
 
-interface AttemptNavigationState {
+interface IAttemptNavigationState {
   currentIndex: number
   totalQuestions: number
-  questions: PublicMockTestQuestion[]
+  questions: IPublicMockTestQuestion[]
   answers: Record<string, string>
   flagged: Set<number>
   visited: Set<number>
@@ -14,7 +14,7 @@ interface AttemptNavigationState {
 
 function getQuestionNumberClass(
   index: number,
-  { currentIndex, questions, answers, flagged, visited }: Omit<AttemptNavigationState, 'totalQuestions' | 'onGoTo'>,
+  { currentIndex, questions, answers, flagged, visited }: Omit<IAttemptNavigationState, 'totalQuestions' | 'onGoTo'>,
 ) {
   if (index === currentIndex) {
     return 'border-[var(--brand-500)] bg-[var(--brand-500)] font-bold text-white dark:border-[var(--brand-500)] dark:bg-[var(--brand-500)]'
@@ -37,7 +37,7 @@ function getQuestionNumberClass(
   return 'border-[var(--border-subtle)] text-[var(--text-secondary)] dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]'
 }
 
-interface MockTestAttemptHeaderProps extends AttemptNavigationState {
+interface IMockTestAttemptHeaderProps extends IAttemptNavigationState {
   timerDisplay: string
   isFinishing: boolean
   canFinish: boolean
@@ -58,7 +58,7 @@ export function MockTestAttemptHeader({
   onToggleFlag,
   onFinish,
   onGoTo,
-}: MockTestAttemptHeaderProps) {
+}: IMockTestAttemptHeaderProps) {
   const navigationState = { currentIndex, questions, answers, flagged, visited }
 
   return (
@@ -130,10 +130,10 @@ export function MockTestAttemptHeader({
   )
 }
 
-interface MockTestAttemptFooterProps {
+interface IMockTestAttemptFooterProps {
   currentIndex: number
   totalQuestions: number
-  questions: PublicMockTestQuestion[]
+  questions: IPublicMockTestQuestion[]
   answers: Record<string, string>
   onGoTo: (index: number) => void
 }
@@ -144,7 +144,7 @@ export function MockTestAttemptFooter({
   questions,
   answers,
   onGoTo,
-}: MockTestAttemptFooterProps) {
+}: IMockTestAttemptFooterProps) {
   return (
     <div className="relative z-20 shrink-0 border-t border-(--border-subtle) bg-[color-mix(in_srgb,var(--surface-canvas)_96%,transparent)] pb-[env(safe-area-inset-bottom,0px)] shadow-[0_-8px_28px_rgba(26,23,20,0.06)] backdrop-blur-xl dark:border-white/8 dark:bg-[color-mix(in_srgb,var(--surface-canvas)_96%,transparent)] dark:shadow-[0_-8px_28px_rgba(0,0,0,0.22)]">
       <div className="mx-auto flex w-[min(1060px,calc(100%-48px))] items-center justify-between gap-3 py-4 max-[640px]:w-[calc(100%-20px)]">

@@ -2,15 +2,15 @@ import type { ModerationAppealEntity } from '../../domain/entities/moderation-ap
 import type { RestrictedModerationUserEntity } from '../../domain/entities/restricted-moderation-user.entity'
 import { ModerationAppealApplicationError } from '../errors/moderation-appeal-application.error'
 
-export interface ModerationAppealSubmissionPolicyContract {
+export interface IModerationAppealSubmissionPolicy {
   ensureRestrictedUserExists(
     user: RestrictedModerationUserEntity | null,
   ): asserts user is RestrictedModerationUserEntity
   ensureNoActiveAppeal(appeal: ModerationAppealEntity | null): void
 }
 
-export class ModerationAppealSubmissionPolicyService
-  implements ModerationAppealSubmissionPolicyContract
+export class ModerationAppealSubmissionPolicy
+  implements IModerationAppealSubmissionPolicy
 {
   ensureRestrictedUserExists(
     user: RestrictedModerationUserEntity | null,

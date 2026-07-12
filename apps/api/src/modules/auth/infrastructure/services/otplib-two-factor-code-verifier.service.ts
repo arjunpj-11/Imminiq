@@ -1,10 +1,10 @@
 import { verify } from 'otplib'
 
 import { decryptTotpSecret } from '../../../../infrastructure/security/two-factor-secret.crypto'
-import type { TwoFactorCodeVerifierContract } from '../../domain/services/two-factor-code-verifier.interface'
+import type { ITwoFactorCodeVerifier } from '../../domain/services/two-factor-code-verifier.interface'
 
-export class OtplibTwoFactorCodeVerifierService
-  implements TwoFactorCodeVerifierContract {
+export class OtplibTwoFactorCodeVerifier
+  implements ITwoFactorCodeVerifier {
   async verifyTotp(data: {
     encryptedSecret: string
     token: string
@@ -20,5 +20,5 @@ export class OtplibTwoFactorCodeVerifierService
   }
 }
 
-export const otplibTwoFactorCodeVerifierService =
-  new OtplibTwoFactorCodeVerifierService()
+export const otplibTwoFactorCodeVerifier =
+  new OtplibTwoFactorCodeVerifier()

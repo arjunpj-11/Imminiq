@@ -4,12 +4,12 @@ import type {
   ReplaceLeaderboardFriendsInput,
 } from '../../domain/repositories/leaderboard-activity.repository.interface'
 import type { FindLeaderboardInput } from '../../domain/repositories/leaderboard-query.repository.interface'
-import type { LeaderboardRepositoryContract } from '../../domain/repositories/leaderboard.repository.interface'
+import type { ILeaderboardRepository } from '../../domain/repositories/leaderboard.repository.interface'
 import { MongoLeaderboardActivityRepository } from './internal/mongo-leaderboard-activity.repository'
 import { MongoLeaderboardQueryRepository } from './internal/mongo-leaderboard-query.repository'
 
 export class MongoLeaderboardRepository
-  implements LeaderboardRepositoryContract
+  implements ILeaderboardRepository
 {
   constructor(
     private readonly _queryRepository =

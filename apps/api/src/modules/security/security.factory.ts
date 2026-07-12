@@ -1,9 +1,9 @@
 import {
   SecurityMapper,
-  type SecurityMapperContract,
+  type ISecurityMapper,
 } from './application/mappers/security.mapper'
-import { CurrentSessionService } from './application/services/current-session.service'
-import { SensitiveActionStepUpService } from './application/services/sensitive-action-step-up.service'
+import { CurrentSessionResolver } from './application/services/current-session.service'
+import { SensitiveActionAuthorizer } from './application/services/sensitive-action-step-up.service'
 import { ChangeSecurityPasswordUseCase } from './application/use-cases/change-security-password.usecase'
 import { DeleteSecurityAccountUseCase } from './application/use-cases/delete-security-account.usecase'
 import { DisableTwoFactorUseCase } from './application/use-cases/disable-two-factor.usecase'
@@ -20,11 +20,12 @@ import { otplibTwoFactorGateway } from './infrastructure/gateways/otplib-two-fac
 import { securityAuditLogger } from './infrastructure/loggers/security-audit.logger'
 import { sharedSecurityEmailProvider } from './infrastructure/providers/shared-security-email.provider'
 import { mongoSecurityRepository } from './infrastructure/repositories/mongo-security.repository'
-import { bcryptSecurityPasswordHasherService } from './infrastructure/services/bcrypt-security-password-hasher.service'
-import { clientSecurityEmailChangeUrlService } from './infrastructure/services/client-security-email-change-url.service'
-import { cryptoSecurityEmailChangeTokenService } from './infrastructure/services/crypto-security-email-change-token.service'
-import { cryptoTwoFactorBackupCodeService } from './infrastructure/services/crypto-two-factor-backup-code.service'
+import { bcryptSecurityPasswordHasher } from './infrastructure/services/bcrypt-security-password-hasher.service'
+import { clientSecurityEmailChangeUrlBuilder } from './infrastructure/services/client-security-email-change-url.service'
+import { cryptoSecurityEmailChangeToken } from './infrastructure/services/crypto-security-email-change-token.service'
+import { cryptoTwoFactorBackupCodeManager } from './infrastructure/services/crypto-two-factor-backup-code.service'
 import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store'
+import { systemClock } from '../../infrastructure/time/system-clock'
 
 export type SecurityUseCases = {
   getSecurityOverview: GetSecurityOverviewUseCase
@@ -41,7 +42,7 @@ export type SecurityUseCases = {
 }
 
 export type SecurityServiceHelpers = {
-  securityMapper: SecurityMapperContract
+  securityMapper: ISecurityMapper
 }
 
 export type SecurityComposition = {
@@ -52,47 +53,47 @@ export type SecurityComposition = {
 export const createSecurityComposition = (): SecurityComposition => {
   const securityRepository = mongoSecurityRepository
   const securityEmailProvider = sharedSecurityEmailProvider
-  const securityPasswordHasher = bcryptSecurityPasswordHasherService
+  const securityPasswordHasher = bcryptSecurityPasswordHasher
   const twoFactorGateway = otplibTwoFactorGateway
   const securityAttemptStore = redisSecurityAttemptStore
-  const securityAuditLoggerService = securityAuditLogger
-  const emailChangeTokenService = cryptoSecurityEmailChangeTokenService
-  const emailChangeUrlService = clientSecurityEmailChangeUrlService
-  const twoFactorBackupCodeService = cryptoTwoFactorBackupCodeService
+  const auditLogger = securityAuditLogger
+  const emailChangeToken = cryptoSecurityEmailChangeToken
+  const emailChangeUrlBuilder = clientSecurityEmailChangeUrlBuilder
+  const backupCodeManager = cryptoTwoFactorBackupCodeManager
   const securityMapper = new SecurityMapper()
 
-  const currentSessionService = new CurrentSessionService(
+  const currentSessionResolver = new CurrentSessionResolver(
     securityRepository
   )
 
-  const sensitiveActionStepUpService = new SensitiveActionStepUpService(
+  const sensitiveActionAuthorizer = new SensitiveActionAuthorizer(
     securityRepository,
     twoFactorGateway,
     securityPasswordHasher,
-    securityAuditLoggerService
+    auditLogger
   )
 
   return {
     useCases: {
       getSecurityOverview: new GetSecurityOverviewUseCase(
         securityRepository,
-        currentSessionService,
+        currentSessionResolver,
         securityMapper
       ),
 
       requestEmailChange: new RequestEmailChangeUseCase(
         securityRepository,
         securityEmailProvider,
-        sensitiveActionStepUpService,
-        emailChangeTokenService,
-        emailChangeUrlService,
-        securityAuditLoggerService
+        sensitiveActionAuthorizer,
+        emailChangeToken,
+        emailChangeUrlBuilder,
+        auditLogger
       ),
 
       verifyEmailChange: new VerifyEmailChangeUseCase(
         securityRepository,
-        emailChangeTokenService,
-        securityAuditLoggerService
+        emailChangeToken,
+        auditLogger
       ),
 
       changeSecurityPassword: new ChangeSecurityPasswordUseCase(
@@ -102,13 +103,13 @@ export const createSecurityComposition = (): SecurityComposition => {
 
       getSecuritySessions: new GetSecuritySessionsUseCase(
         securityRepository,
-        currentSessionService,
+        currentSessionResolver,
         securityMapper
       ),
 
       revokeSecuritySession: new RevokeSecuritySessionUseCase(
         securityRepository,
-        currentSessionService
+        currentSessionResolver
       ),
 
       getTwoFactorStatus: new GetTwoFactorStatusUseCase(
@@ -124,7 +125,7 @@ export const createSecurityComposition = (): SecurityComposition => {
         securityRepository,
         twoFactorGateway,
         securityAttemptStore,
-        twoFactorBackupCodeService
+        backupCodeManager
       ),
 
       disableTwoFactor: new DisableTwoFactorUseCase(
@@ -135,8 +136,9 @@ export const createSecurityComposition = (): SecurityComposition => {
 
       deleteSecurityAccount: new DeleteSecurityAccountUseCase(
         securityRepository,
-        sensitiveActionStepUpService,
-        securityAuditLoggerService
+        sensitiveActionAuthorizer,
+        auditLogger,
+        systemClock,
       ),
     },
 

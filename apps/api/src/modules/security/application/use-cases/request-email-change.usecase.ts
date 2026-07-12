@@ -1,37 +1,37 @@
 import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/constants/security.constants'
-import type { SecurityUserRepositoryContract } from '../../domain/repositories/security-user.repository.interface'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
-import type { SecurityEmailChangeTokenServiceContract } from '../../domain/services/security-email-change-token.service.interface'
-import type { SecurityEmailChangeUrlServiceContract } from '../../domain/services/security-email-change-url.service.interface'
-import type { SecurityEmailProviderContract } from '../../domain/services/security-email-provider.interface'
+import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
+import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface'
+import type { ISecurityEmailChangeUrlBuilder } from '../../domain/services/security-email-change-url.interface'
+import type { ISecurityEmailProvider } from '../../domain/services/security-email-provider.interface'
 import type {
-  ChangeEmailPayload,
-  EmailChangeRequestResponseDto,
+  IChangeEmailPayloadDTO,
+  IEmailChangeRequestResponseDTO,
 } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
-import type { SensitiveActionStepUpServiceContract } from '../services/sensitive-action-step-up.service'
+import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service'
 
 export class RequestEmailChangeUseCase {
   constructor(
-    private readonly _securityUserRepository: SecurityUserRepositoryContract,
-    private readonly _securityEmailProvider: SecurityEmailProviderContract,
-    private readonly _sensitiveActionStepUpService: SensitiveActionStepUpServiceContract,
-    private readonly _emailChangeTokenService: SecurityEmailChangeTokenServiceContract,
-    private readonly _emailChangeUrlService: SecurityEmailChangeUrlServiceContract,
-    private readonly _securityAuditLogger: SecurityAuditLoggerContract,
+    private readonly _securityUserRepository: ISecurityUserRepository,
+    private readonly _securityEmailProvider: ISecurityEmailProvider,
+    private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
+    private readonly _emailChangeToken: ISecurityEmailChangeToken,
+    private readonly _emailChangeUrlBuilder: ISecurityEmailChangeUrlBuilder,
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
   ) {}
 
   async execute(
     userId: string,
-    payload: ChangeEmailPayload,
-  ): Promise<EmailChangeRequestResponseDto> {
+    payload: IChangeEmailPayloadDTO,
+  ): Promise<IEmailChangeRequestResponseDTO> {
     const user = await this._securityUserRepository.findUserById(userId)
 
     if (!user) {
       throw SecurityApplicationError.notFound()
     }
 
-    await this._sensitiveActionStepUpService.assertSatisfied({
+    await this._sensitiveActionAuthorizer.assertSatisfied({
       user,
       payload,
       action: 'change_email',
@@ -52,7 +52,7 @@ export class RequestEmailChangeUseCase {
     }
 
     const { rawToken, tokenHash, expiresAt } =
-      this._emailChangeTokenService.generate()
+      this._emailChangeToken.generate()
 
     const updatedUser =
       await this._securityUserRepository.savePendingEmailChange({
@@ -69,7 +69,7 @@ export class RequestEmailChangeUseCase {
     }
 
     const verificationUrl =
-      this._emailChangeUrlService.buildVerificationUrl(rawToken)
+      this._emailChangeUrlBuilder.buildVerificationUrl(rawToken)
 
     await this._securityEmailProvider.sendEmailChangeVerification(
       normalizedEmail,

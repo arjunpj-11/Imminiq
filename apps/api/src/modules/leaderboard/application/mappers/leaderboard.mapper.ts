@@ -1,7 +1,7 @@
 import type { LeaderboardEntryEntity } from '../../domain/entities/leaderboard-entry.entity'
 import type {
-  LeaderboardEntryView,
-  LeaderboardTopThreeView,
+  LeaderboardEntryViewDTO,
+  LeaderboardTopThreeViewDTO,
 } from '../dtos/leaderboard.dto'
 
 const AVATAR_COLORS = [
@@ -17,23 +17,23 @@ const AVATAR_COLORS = [
   '#6b5a2d',
 ] as const
 
-export interface LeaderboardMapperContract {
+export interface ILeaderboardMapper {
   toEntryView(
     entry: LeaderboardEntryEntity,
     viewerUserId: string,
-  ): LeaderboardEntryView
+  ): LeaderboardEntryViewDTO
 
   toTopThreeView(
     entry: LeaderboardEntryEntity,
     viewerUserId: string,
-  ): LeaderboardTopThreeView
+  ): LeaderboardTopThreeViewDTO
 }
 
-export class LeaderboardMapper implements LeaderboardMapperContract {
+export class LeaderboardMapper implements ILeaderboardMapper {
   toEntryView(
     entry: LeaderboardEntryEntity,
     viewerUserId: string,
-  ): LeaderboardEntryView {
+  ): LeaderboardEntryViewDTO {
     return {
       userId: entry.userId,
       rank: entry.rank,
@@ -58,7 +58,7 @@ export class LeaderboardMapper implements LeaderboardMapperContract {
   toTopThreeView(
     entry: LeaderboardEntryEntity,
     viewerUserId: string,
-  ): LeaderboardTopThreeView {
+  ): LeaderboardTopThreeViewDTO {
     const view = this.toEntryView(entry, viewerUserId)
 
     return {

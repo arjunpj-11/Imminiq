@@ -1,28 +1,28 @@
-import type { ModerationAppealCommandRepositoryContract } from '../../domain/repositories/moderation-appeal-command.repository.interface'
-import type { ModerationAppealQueryRepositoryContract } from '../../domain/repositories/moderation-appeal-query.repository.interface'
+import type { IModerationAppealCommandRepository } from '../../domain/repositories/moderation-appeal-command.repository.interface'
+import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface'
 import type {
-  SubmitModerationAppealPayload,
-  SubmitModerationAppealResultDto,
+  ISubmitModerationAppealPayloadDTO,
+  ISubmitModerationAppealResultDTO,
 } from '../dtos/moderation-appeal.dto'
-import type { ModerationAppealMapperContract } from '../mappers/moderation-appeal.mapper'
-import type { ModerationAppealSubmissionPolicyContract } from '../policies/moderation-appeal-submission-policy.policy'
-import type { ModerationAppealCaseIdServiceContract } from '../services/moderation-appeal-case-id.service'
+import type { IModerationAppealMapper } from '../mappers/moderation-appeal.mapper'
+import type { IModerationAppealSubmissionPolicy } from '../policies/moderation-appeal-submission-policy.policy'
+import type { IModerationAppealCaseIdAllocator } from '../services/moderation-appeal-case-id.service'
 
 type SubmitModerationAppealRepository =
-  ModerationAppealQueryRepositoryContract &
-  ModerationAppealCommandRepositoryContract
+  IModerationAppealQueryRepository &
+  IModerationAppealCommandRepository
 
 export class SubmitModerationAppealUseCase {
   constructor(
     private readonly _moderationAppealRepository: SubmitModerationAppealRepository,
-    private readonly _moderationAppealCaseIdService: ModerationAppealCaseIdServiceContract,
-    private readonly _moderationAppealSubmissionPolicy: ModerationAppealSubmissionPolicyContract,
-    private readonly _moderationAppealMapper: ModerationAppealMapperContract,
+    private readonly _caseIdAllocator: IModerationAppealCaseIdAllocator,
+    private readonly _moderationAppealSubmissionPolicy: IModerationAppealSubmissionPolicy,
+    private readonly _moderationAppealMapper: IModerationAppealMapper,
   ) {}
 
   async execute(
-    payload: SubmitModerationAppealPayload,
-  ): Promise<SubmitModerationAppealResultDto> {
+    payload: ISubmitModerationAppealPayloadDTO,
+  ): Promise<ISubmitModerationAppealResultDTO> {
     const user =
       await this._moderationAppealRepository.findRestrictedUserByIdentifier(
         payload.identifier,
@@ -40,7 +40,7 @@ export class SubmitModerationAppealUseCase {
     this._moderationAppealSubmissionPolicy.ensureNoActiveAppeal(existingAppeal)
 
     const caseId =
-      await this._moderationAppealCaseIdService.generateUniqueCaseId()
+      await this._caseIdAllocator.generateUniqueCaseId()
 
     const appeal = await this._moderationAppealRepository.createAppeal({
       userId: user.id,

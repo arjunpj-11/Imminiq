@@ -1,19 +1,19 @@
-import type { DashboardStreakRepositoryContract } from '../../domain/repositories/dashboard-streak.repository.interface'
-import type { DashboardTrackerRepositoryContract } from '../../domain/repositories/dashboard-tracker.repository.interface'
-import type { DashboardInsightGeneratorContract } from '../../domain/services/dashboard-insight-generator.interface'
-import type { DashboardAIInsightResult } from '../dtos/dashboard.dto'
+import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface'
+import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface'
+import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
+import type { IDashboardAIInsightResultDTO } from '../dtos/dashboard.dto'
 import { DashboardApplicationError } from '../errors/dashboard-application.error'
 
 type DashboardInsightRepository =
-  DashboardStreakRepositoryContract & DashboardTrackerRepositoryContract
+  IDashboardStreakRepository & IDashboardTrackerRepository
 
 export class GetAIInsightsUseCase {
   constructor(
     private readonly _dashboardRepository: DashboardInsightRepository,
-    private readonly _dashboardInsightGenerator: DashboardInsightGeneratorContract
+    private readonly _dashboardInsightGenerator: IDashboardInsightGenerator
   ) {}
 
-  async execute(userId: string): Promise<DashboardAIInsightResult> {
+  async execute(userId: string): Promise<IDashboardAIInsightResultDTO> {
     const [streak, trackers, stats] = await Promise.all([
       this._dashboardRepository.getStreakData(userId),
       this._dashboardRepository.getTrackerOverview(userId),

@@ -5,7 +5,7 @@ import { create } from 'zustand'
 type Theme = 'light' | 'dark'
 export type ThemeMode = 'system' | 'light' | 'dark'
 
-interface ThemeStore {
+interface IThemeStore {
   /**
    * Permanently saved theme mode.
    * This should match the last saved preference.
@@ -95,7 +95,7 @@ const getSavedThemeMode = (): ThemeMode => {
   return 'system'
 }
 
-export const useThemeStore = create<ThemeStore>((set, get) => ({
+export const useThemeStore = create<IThemeStore>((set, get) => ({
   mode: 'system',
   theme: 'light',
   previewMode: null,

@@ -2,20 +2,20 @@ export type CommunitySort = 'top-rated' | 'most-cloned' | 'newest'
 
 export type VerificationVoteChoice = 'pass' | 'fail'
 
-export interface ApiResponse<TData> {
+export interface IApiResponse<TData> {
   success: boolean
   message: string
   data?: TData | null
   meta?: object
 }
 
-export interface ApiErrorResponse {
+export interface IApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
 }
 
-export interface CommunityPagination {
+export interface ICommunityPagination {
   page: number
   limit: number
   total: number
@@ -24,7 +24,7 @@ export interface CommunityPagination {
   hasPreviousPage: boolean
 }
 
-export interface CommunityTracker {
+export interface ICommunityTracker {
   _id: string
   title: string
   description: string
@@ -35,32 +35,32 @@ export interface CommunityTracker {
   topic: string
 }
 
-export interface CommunityStatCard {
+export interface ICommunityStatCard {
   label: string
   value: string
   helper: string
 }
 
-export interface CommunityVerifyBanner {
+export interface ICommunityVerifyBanner {
   queueCount: number
   rewardCoins: number
   activeReviewersThisWeek: number
 }
 
-export interface CommunityBrowseData {
-  trackers: CommunityTracker[]
-  pagination: CommunityPagination
-  stats: CommunityStatCard[]
+export interface ICommunityBrowseData {
+  trackers: ICommunityTracker[]
+  pagination: ICommunityPagination
+  stats: ICommunityStatCard[]
   topics: string[]
-  verifyBanner: CommunityVerifyBanner
+  verifyBanner: ICommunityVerifyBanner
 }
 
-export interface CommunityTrackerListData {
-  trackers: CommunityTracker[]
-  pagination: CommunityPagination
+export interface ICommunityTrackerListData {
+  trackers: ICommunityTracker[]
+  pagination: ICommunityPagination
 }
 
-export interface CommunityVerifyItem {
+export interface ICommunityVerifyItem {
   _id: string
   title: string
   category: string
@@ -75,7 +75,7 @@ export interface CommunityVerifyItem {
   urgent: boolean
 }
 
-export interface CommunityVerificationStats {
+export interface ICommunityVerificationStats {
   awaiting: string
   reviewed: string
   totalEarned: string
@@ -85,7 +85,7 @@ export interface CommunityVerificationStats {
   activeReviewersThisWeek: number
 }
 
-export interface CommunityLeaderboardEntry {
+export interface ICommunityLeaderboardEntry {
   rank: number
   name: string
   earned: string
@@ -93,41 +93,41 @@ export interface CommunityLeaderboardEntry {
   isMe?: boolean
 }
 
-export interface CommunityVerificationQueueData {
-  items: CommunityVerifyItem[]
-  pagination: CommunityPagination
+export interface ICommunityVerificationQueueData {
+  items: ICommunityVerifyItem[]
+  pagination: ICommunityPagination
 }
 
-export interface CommunityVerificationDashboardData
-  extends CommunityVerificationQueueData {
-  stats: CommunityVerificationStats
-  leaderboard: CommunityLeaderboardEntry[]
+export interface ICommunityVerificationDashboardData
+  extends ICommunityVerificationQueueData {
+  stats: ICommunityVerificationStats
+  leaderboard: ICommunityLeaderboardEntry[]
   howItWorks: string[]
 }
 
-export interface CommunityVerificationSubmission
-  extends CommunityVerifyItem {
+export interface ICommunityVerificationSubmission
+  extends ICommunityVerifyItem {
   trackerId: string
   ownerId: string
   userVote?: VerificationVoteChoice | null
   consensusChoice?: VerificationVoteChoice | null
-  reviewTracker?: CommunityVerificationReviewTracker | null
+  reviewTracker?: ICommunityVerificationReviewTracker | null
 }
 
-export interface VoteVerificationSubmissionPayload {
+export interface IVoteVerificationSubmissionPayload {
   submissionId: string
   vote: VerificationVoteChoice
   reason?: string | null
 }
 
-export interface VoteVerificationSubmissionData {
+export interface IVoteVerificationSubmissionData {
   vote: {
     _id: string
     submissionId: string
     choice: VerificationVoteChoice
     rewardCoins: number
   }
-  submission: CommunityVerificationSubmission
+  submission: ICommunityVerificationSubmission
   reward: {
     awarded: boolean
     coins: number
@@ -135,7 +135,7 @@ export interface VoteVerificationSubmissionData {
   }
 }
 
-export interface CommunityBrowseQuery {
+export interface ICommunityBrowseQuery {
   search?: string
   topics?: string[]
   minRating?: number | null
@@ -145,7 +145,7 @@ export interface CommunityBrowseQuery {
   limit?: number
 }
 
-export interface CommunityReviewAuthor {
+export interface ICommunityReviewAuthor {
   _id: string
   name: string
   initials: string
@@ -153,7 +153,7 @@ export interface CommunityReviewAuthor {
   role: string
 }
 
-export interface CommunityPublicTrackerSubtopic {
+export interface ICommunityPublicTrackerSubtopic {
   _id: string
   topicId: string
   parentSubtopicId?: string | null
@@ -165,17 +165,17 @@ export interface CommunityPublicTrackerSubtopic {
   estimatedMinutes: number
 }
 
-export interface CommunityPublicTrackerTopic {
+export interface ICommunityPublicTrackerTopic {
   _id: string
   title: string
   description: string
   order: number
   status: string
   estimatedHours: number
-  subtopics: CommunityPublicTrackerSubtopic[]
+  subtopics: ICommunityPublicTrackerSubtopic[]
 }
 
-export interface CommunityRatingDistribution {
+export interface ICommunityRatingDistribution {
   1: number
   2: number
   3: number
@@ -183,17 +183,17 @@ export interface CommunityRatingDistribution {
   5: number
 }
 
-export interface CommunityRatingSummary {
+export interface ICommunityRatingSummary {
   average: number
   count: number
-  distribution: CommunityRatingDistribution
+  distribution: ICommunityRatingDistribution
 }
 
-export interface CommunityTrackerReview {
+export interface ICommunityTrackerReview {
   _id: string
   trackerId: string
   userId: string
-  author: CommunityReviewAuthor
+  author: ICommunityReviewAuthor
   rating: number
   comment: string
   helpfulCount: number
@@ -203,7 +203,7 @@ export interface CommunityTrackerReview {
   updatedAt?: string
 }
 
-export interface CommunityPublicTrackerDetail {
+export interface ICommunityPublicTrackerDetail {
   _id: string
   ownerId: string
   title: string
@@ -223,50 +223,50 @@ export interface CommunityPublicTrackerDetail {
   saves: number
   topicsCount: number
   subtopicsCount: number
-  author: CommunityReviewAuthor
-  topics: CommunityPublicTrackerTopic[]
-  ratingSummary: CommunityRatingSummary
-  reviews: CommunityTrackerReview[]
-  myReview?: CommunityTrackerReview | null
+  author: ICommunityReviewAuthor
+  topics: ICommunityPublicTrackerTopic[]
+  ratingSummary: ICommunityRatingSummary
+  reviews: ICommunityTrackerReview[]
+  myReview?: ICommunityTrackerReview | null
   likedByMe: boolean
   createdAt?: string
   publishedAt?: string | null
 }
 
-export interface ToggleCommunityTrackerLikePayload {
+export interface IToggleCommunityTrackerLikePayload {
   trackerId: string
 }
 
-export interface ToggleCommunityTrackerLikeData {
+export interface IToggleCommunityTrackerLikeData {
   liked: boolean
   likes: number
 }
 
-export interface CommunityPublicTrackerDetailData {
-  tracker: CommunityPublicTrackerDetail
+export interface ICommunityPublicTrackerDetailData {
+  tracker: ICommunityPublicTrackerDetail
 }
 
-export interface UpsertCommunityTrackerReviewPayload {
+export interface IUpsertCommunityTrackerReviewPayload {
   trackerId: string
   rating: number
   comment: string
 }
 
-export interface UpsertCommunityTrackerReviewData {
-  review: CommunityTrackerReview
-  ratingSummary: CommunityRatingSummary
+export interface IUpsertCommunityTrackerReviewData {
+  review: ICommunityTrackerReview
+  ratingSummary: ICommunityRatingSummary
 }
 
-export interface ToggleCommunityReviewHelpfulPayload {
+export interface IToggleCommunityReviewHelpfulPayload {
   trackerId: string
   reviewId: string
 }
 
-export interface ToggleCommunityReviewHelpfulData {
-  review: CommunityTrackerReview
+export interface IToggleCommunityReviewHelpfulData {
+  review: ICommunityTrackerReview
 }
 
-export interface CommunityVerificationReviewSubtopic {
+export interface ICommunityVerificationReviewSubtopic {
   id: string
   topicId: string
   parentSubtopicId?: string | null
@@ -278,17 +278,17 @@ export interface CommunityVerificationReviewSubtopic {
   estimatedMinutes: number
 }
 
-export interface CommunityVerificationReviewTopic {
+export interface ICommunityVerificationReviewTopic {
   id: string
   title: string
   description: string
   order: number
   status: string
   estimatedHours: number
-  subtopics: CommunityVerificationReviewSubtopic[]
+  subtopics: ICommunityVerificationReviewSubtopic[]
 }
 
-export interface CommunityVerificationReviewTracker {
+export interface ICommunityVerificationReviewTracker {
   id: string
   title: string
   description: string
@@ -301,5 +301,5 @@ export interface CommunityVerificationReviewTracker {
   status: string
   topicsCount: number
   subtopicsCount: number
-  topics: CommunityVerificationReviewTopic[]
+  topics: ICommunityVerificationReviewTopic[]
 }

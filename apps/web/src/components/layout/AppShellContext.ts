@@ -1,6 +1,6 @@
 import { createContext } from 'react'
 
-export interface AppShellViewer {
+export interface IAppShellViewer {
   name?: string
   initials?: string
   avatarUrl?: string | null
@@ -12,9 +12,9 @@ export interface AppShellViewer {
   friendRequestCount?: number
 }
 
-export interface AppShellContextValue {
-  setViewer: (viewer: AppShellViewer | null) => void
+export interface IAppShellContextValue {
+  setViewer: (viewer: IAppShellViewer | null) => void
 }
 
 export const AppShellContext =
-  createContext<AppShellContextValue | null>(null)
+  createContext<IAppShellContextValue | null>(null)

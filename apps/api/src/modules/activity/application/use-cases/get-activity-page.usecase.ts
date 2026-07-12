@@ -1,30 +1,32 @@
-import type { ActivityQueryRepositoryContract } from '../../domain/repositories/activity-query.repository.interface'
+import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
 import type {
-  ActivityPageResponse,
-  GetActivityPagePayload,
+  ActivityPageResponseDTO,
+  GetActivityPagePayloadDTO,
 } from '../dtos/activity.dto'
 import { ActivityApplicationError } from '../errors/activity-application.error'
-import { ActivityMapper } from '../mappers/activity.mapper'
-import { ActivityAnalyticsService } from '../services/activity-analytics.service'
-import { ActivityDateRangeService } from '../services/activity-date-range.service'
+import type { ActivityMapperContract } from '../mappers/activity.mapper'
+import type { ActivityAnalyticsContract } from '../services/activity-analytics.service'
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import { GetActivityFeedUseCase } from './get-activity-feed.usecase'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 export class GetActivityPageUseCase {
   constructor(
-    private readonly _activityRepository: ActivityQueryRepositoryContract,
+    private readonly _activityRepository: IActivityQueryRepository,
     private readonly _feedUseCase: GetActivityFeedUseCase,
-    private readonly _mapper: ActivityMapper,
-    private readonly _analyticsService: ActivityAnalyticsService,
-    private readonly _dateRangeService: ActivityDateRangeService,
+    private readonly _mapper: ActivityMapperContract,
+    private readonly _analyticsCalculator: ActivityAnalyticsContract,
+    private readonly _dateRange: ActivityDateRangeContract,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
     userId: string,
-    payload: GetActivityPagePayload,
-    now = new Date(),
-  ): Promise<ActivityPageResponse> {
+    payload: GetActivityPagePayloadDTO,
+    now = this._clock.now(),
+  ): Promise<ActivityPageResponseDTO> {
     const context =
-      this._dateRangeService.createContext(
+      this._dateRange.createContext(
         now,
         payload.year,
         payload.utcOffsetMinutes ?? 0,
@@ -77,8 +79,8 @@ export class GetActivityPageUseCase {
       analytics,
       context,
       feed,
-      analyticsService: this._analyticsService,
-      dateRangeService: this._dateRangeService,
+      analyticsCalculator: this._analyticsCalculator,
+      dateRange: this._dateRange,
     })
   }
 }

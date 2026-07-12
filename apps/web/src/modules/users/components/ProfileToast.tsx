@@ -1,13 +1,13 @@
 import type { ToastTone } from '../types/profile.types'
 import { cn } from '../utils/profile-ui.utils'
 
-interface ProfileToastProps {
+interface IProfileToastProps {
   message: string
   visible: boolean
   tone: ToastTone
 }
 
-export default function ProfileToast({ message, visible, tone }: ProfileToastProps) {
+export default function ProfileToast({ message, visible, tone }: IProfileToastProps) {
   return (
     <div
       role="status"

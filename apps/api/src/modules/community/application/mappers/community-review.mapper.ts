@@ -1,19 +1,19 @@
 import type { CommunityPublicTrackerDetailEntity } from '../../domain/entities/community-public-tracker-detail.entity'
 import type { CommunityTrackerReviewEntity } from '../../domain/entities/community-tracker-review.entity'
 import type {
-  CommunityPublicTrackerDetailView,
-  CommunityTrackerReviewView,
+  CommunityPublicTrackerDetailViewDTO,
+  CommunityTrackerReviewViewDTO,
 } from '../dtos/community-review.dto'
 
-export interface CommunityReviewMapperContract {
-  toReviewView(entity: CommunityTrackerReviewEntity): CommunityTrackerReviewView
+export interface ICommunityReviewMapper {
+  toReviewView(entity: CommunityTrackerReviewEntity): CommunityTrackerReviewViewDTO
   toPublicTrackerDetailView(
     entity: CommunityPublicTrackerDetailEntity,
-  ): CommunityPublicTrackerDetailView
+  ): CommunityPublicTrackerDetailViewDTO
 }
 
-export class CommunityReviewMapper implements CommunityReviewMapperContract {
-  toReviewView(entity: CommunityTrackerReviewEntity): CommunityTrackerReviewView {
+export class CommunityReviewMapper implements ICommunityReviewMapper {
+  toReviewView(entity: CommunityTrackerReviewEntity): CommunityTrackerReviewViewDTO {
     return {
       _id: entity.id,
       trackerId: entity.trackerId,
@@ -37,7 +37,7 @@ export class CommunityReviewMapper implements CommunityReviewMapperContract {
 
   toPublicTrackerDetailView(
     entity: CommunityPublicTrackerDetailEntity,
-  ): CommunityPublicTrackerDetailView {
+  ): CommunityPublicTrackerDetailViewDTO {
     return {
       _id: entity.id,
       ownerId: entity.ownerId,

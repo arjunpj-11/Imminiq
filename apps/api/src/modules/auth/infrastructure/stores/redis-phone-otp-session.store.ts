@@ -2,11 +2,11 @@ import { phoneOtpSessionCache } from '../../../../infrastructure/cache/phone-otp
 
 import type {
   PhoneOtpPurpose,
-  PhoneOtpSessionStoreContract,
+  IPhoneOtpSessionStore,
 } from '../../domain/services/phone-otp-session-store.interface'
 
 export class RedisPhoneOtpSessionStore
-  implements PhoneOtpSessionStoreContract {
+  implements IPhoneOtpSessionStore {
   async saveVerificationId(
     phone: string,
     purpose: PhoneOtpPurpose,

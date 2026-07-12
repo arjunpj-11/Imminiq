@@ -1,28 +1,28 @@
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestCodeRunnerServiceContract } from '../../domain/services/mock-test-code-runner.service.interface'
-import type { SubmitMockTestCodePayload } from '../dtos/mock-tests.dto'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface'
+import type { SubmitMockTestCodePayloadDTO } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type SubmitMockTestCodeRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAnswerRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestQuestionRepository &
+  IMockTestAnswerRepository
 
 export class SubmitMockTestCodeUseCase {
   constructor(
-    private readonly _repo: SubmitMockTestCodeRepository,
-    private readonly _codeRunner: MockTestCodeRunnerServiceContract,
+    private readonly _repository: SubmitMockTestCodeRepository,
+    private readonly _codeRunner: IMockTestCodeRunner,
   ) {}
 
   async execute(
     attemptId: string,
     userId: string,
     questionId: string,
-    payload: SubmitMockTestCodePayload,
+    payload: SubmitMockTestCodePayloadDTO,
   ) {
-    const attempt = await this._repo.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -36,7 +36,7 @@ export class SubmitMockTestCodeUseCase {
       throw MockTestsApplicationError.testNotActive()
     }
 
-    const question = await this._repo.findQuestionById(questionId)
+    const question = await this._repository.findQuestionById(questionId)
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found')
@@ -59,18 +59,18 @@ export class SubmitMockTestCodeUseCase {
         ? Math.round((result.passedCount / result.totalCount) * question.points)
         : 0
 
-    const existing = await this._repo.findAnswerByQuestion({
+    const existing = await this._repository.findAnswerByQuestion({
       attemptId,
       questionId,
     })
 
     const answer = existing
-      ? await this._repo.updateAnswer(existing._id, {
+      ? await this._repository.updateAnswer(existing._id, {
           answer: payload.sourceCode,
           isCorrect: result.passed,
           pointsEarned,
         })
-      : await this._repo.saveAnswer({
+      : await this._repository.saveAnswer({
           attemptId,
           questionId,
           answer: payload.sourceCode,
@@ -83,7 +83,7 @@ export class SubmitMockTestCodeUseCase {
     }
 
     if (!existing) {
-      await this._repo.incrementAnsweredCount(attemptId)
+      await this._repository.incrementAnsweredCount(attemptId)
     }
 
     return {

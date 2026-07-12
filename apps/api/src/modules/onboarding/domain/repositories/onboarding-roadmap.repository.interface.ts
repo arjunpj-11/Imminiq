@@ -1,5 +1,5 @@
 import type { RoadmapTreeEntity } from '../entities/roadmap-tree.entity'
 
-export interface OnboardingRoadmapRepositoryContract {
+export interface IOnboardingRoadmapRepository {
   getRoadmapTree(trackerId: string): Promise<RoadmapTreeEntity>
 }

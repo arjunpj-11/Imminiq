@@ -13,11 +13,11 @@ export type QuietHoursDayType =
   | 'Sat'
   | 'Sun'
 
-export interface AppearanceSettings {
+export interface IAppearanceSettings {
   theme: ThemeType
 }
 
-export interface NotificationTypeSettings {
+export interface INotificationTypeSettings {
   friendRequests: boolean
   challenges: boolean
   battleResults: boolean
@@ -35,28 +35,28 @@ export interface NotificationTypeSettings {
   callMissed: boolean
 }
 
-export interface EmailDigestSettings {
+export interface IEmailDigestSettings {
   enabled: boolean
   frequency: DigestFrequencyType
   includeActivity: boolean
   includeRecommendations: boolean
 }
 
-export interface NotificationSettings {
+export interface INotificationSettings {
   globalEnabled: boolean
   globalEmail: boolean
   globalPush: boolean
   marketing: boolean
   weeklyReport: boolean
-  types: NotificationTypeSettings
-  emailDigest: EmailDigestSettings
+  types: INotificationTypeSettings
+  emailDigest: IEmailDigestSettings
   quietHoursEnabled: boolean
   quietHoursStart: string
   quietHoursEnd: string
   quietHoursDays?: QuietHoursDayType[]
 }
 
-export interface PrivacySettings {
+export interface IPrivacySettings {
   profileVisibility: ProfileVisibilityType
 
   showProfile: boolean
@@ -77,7 +77,7 @@ export interface PrivacySettings {
   showTrackerProgress: boolean
 }
 
-export interface CodeEditorSettings {
+export interface ICodeEditorSettings {
   theme: string
   fontSize: number
   tabSize: number
@@ -87,20 +87,20 @@ export interface CodeEditorSettings {
   minimap: boolean
 }
 
-export interface CompilerSettings {
+export interface ICompilerSettings {
   defaultLanguage: string
   defaultRuntime: string
   autoSwitchLanguage: boolean
 }
 
-export interface AIBehaviourSettings {
+export interface IAIBehaviourSettings {
   responseStyle: AIResponseStyleType
   autoGenerateLessons: boolean
   showAIInsights: boolean
   dailyQuotaAlert: boolean
 }
 
-export interface LearningJourneySettings {
+export interface ILearningJourneySettings {
   dailyGoalMinutes: number
   reminderEnabled: boolean
   reminderTime: string
@@ -108,7 +108,7 @@ export interface LearningJourneySettings {
   showEstimatedTime: boolean
 }
 
-export interface GestureSettings {
+export interface IGestureSettings {
   enabled: boolean
   sensitivity: number
   swipeToNext: boolean
@@ -120,25 +120,25 @@ export interface GestureSettings {
   scrollGesture: boolean
 }
 
-export interface AccountSettings {
+export interface IAccountSettings {
   language: string
   timezone: string
   dateFormat: string
 }
 
-export interface UserSettings {
+export interface IUserSettings {
   _id: string
   userId: string
 
-  account: AccountSettings
-  appearance: AppearanceSettings
-  notifications: NotificationSettings
-  privacy: PrivacySettings
-  codeEditor: CodeEditorSettings
-  compiler: CompilerSettings
-  aiBehaviour: AIBehaviourSettings
-  learningJourney: LearningJourneySettings
-  gestures: GestureSettings
+  account: IAccountSettings
+  appearance: IAppearanceSettings
+  notifications: INotificationSettings
+  privacy: IPrivacySettings
+  codeEditor: ICodeEditorSettings
+  compiler: ICompilerSettings
+  aiBehaviour: IAIBehaviourSettings
+  learningJourney: ILearningJourneySettings
+  gestures: IGestureSettings
 
   cookieConsent: boolean
   termsAccepted: boolean
@@ -148,40 +148,40 @@ export interface UserSettings {
   updatedAt: string
 }
 
-export interface ApiEnvelope<T> {
+export interface IApiEnvelope<T> {
   success?: boolean
   message: string
   data: T
 }
 
-export interface UpdateAppearancePayload {
+export interface IUpdateAppearancePayload {
   theme?: ThemeType
 }
 
-export interface UpdateNotificationsPayload {
+export interface IUpdateNotificationsPayload {
   globalEnabled?: boolean
   globalEmail?: boolean
   globalPush?: boolean
   marketing?: boolean
   weeklyReport?: boolean
-  types?: NotificationTypeSettings
+  types?: INotificationTypeSettings
 }
 
-export interface UpdateQuietHoursPayload {
+export interface IUpdateQuietHoursPayload {
   quietHoursEnabled: boolean
   quietHoursStart?: string
   quietHoursEnd?: string
   quietHoursDays?: QuietHoursDayType[]
 }
 
-export interface UpdateEmailDigestPayload {
+export interface IUpdateEmailDigestPayload {
   enabled?: boolean
   frequency?: DigestFrequencyType
   includeActivity?: boolean
   includeRecommendations?: boolean
 }
 
-export interface UpdatePrivacyPayload {
+export interface IUpdatePrivacyPayload {
   profileVisibility?: ProfileVisibilityType
 
   showProfile?: boolean
@@ -202,7 +202,7 @@ export interface UpdatePrivacyPayload {
   showTrackerProgress?: boolean
 }
 
-export interface UpdateCodeEditorPayload {
+export interface IUpdateCodeEditorPayload {
   theme?: string
   fontSize?: number
   tabSize?: number
@@ -212,20 +212,20 @@ export interface UpdateCodeEditorPayload {
   minimap?: boolean
 }
 
-export interface UpdateCompilerPayload {
+export interface IUpdateCompilerPayload {
   defaultLanguage?: string
   defaultRuntime?: string
   autoSwitchLanguage?: boolean
 }
 
-export interface UpdateAIBehaviourPayload {
+export interface IUpdateAIBehaviourPayload {
   responseStyle?: AIResponseStyleType
   autoGenerateLessons?: boolean
   showAIInsights?: boolean
   dailyQuotaAlert?: boolean
 }
 
-export interface UpdateLearningJourneyPayload {
+export interface IUpdateLearningJourneyPayload {
   dailyGoalMinutes?: number
   reminderEnabled?: boolean
   reminderTime?: string
@@ -233,7 +233,7 @@ export interface UpdateLearningJourneyPayload {
   showEstimatedTime?: boolean
 }
 
-export interface UpdateGesturesPayload {
+export interface IUpdateGesturesPayload {
   enabled?: boolean
   sensitivity?: number
   swipeToNext?: boolean
@@ -245,7 +245,7 @@ export interface UpdateGesturesPayload {
   scrollGesture?: boolean
 }
 
-export interface UpdateAccountSettingsPayload {
+export interface IUpdateAccountSettingsPayload {
   language?: string
   timezone?: string
   dateFormat?: string
@@ -253,7 +253,7 @@ export interface UpdateAccountSettingsPayload {
 
 /* ─── Account Security ─── */
 
-export interface SecuritySession {
+export interface ISecuritySession {
   id: string
   deviceName: string
   location: string
@@ -262,7 +262,7 @@ export interface SecuritySession {
   current?: boolean
 }
 
-export interface SecurityOverview {
+export interface ISecurityOverview {
   email: string
   emailVerified: boolean
   pendingEmail: string | null
@@ -271,55 +271,55 @@ export interface SecurityOverview {
   canChangePassword: boolean
 
   twoFactorEnabled: boolean
-  activeSessions: SecuritySession[]
+  activeSessions: ISecuritySession[]
   passwordLastChangedAt: string | null
 }
 
-export interface SensitiveActionStepUpPayload {
+export interface ISensitiveActionStepUpPayload {
   currentPassword?: string
   twoFactorCode?: string
 }
 
-export interface ChangeEmailPayload extends SensitiveActionStepUpPayload {
+export interface IChangeEmailPayload extends ISensitiveActionStepUpPayload {
   newEmail: string
 }
 
-export interface ChangePasswordPayload {
+export interface IChangePasswordPayload {
   currentPassword: string
   newPassword: string
 }
 
-export interface DeleteAccountPayload extends SensitiveActionStepUpPayload {
+export interface IDeleteAccountPayload extends ISensitiveActionStepUpPayload {
   confirmation: 'DELETE'
 }
 
- export interface DeleteAccountResponse {
+ export interface IDeleteAccountResponse {
   deleted: true
   deletionScheduled: true
   scheduledDeletionAt: string
   recoveryWindowDays: number
 }
 
-export interface TwoFactorSetupResponse {
+export interface ITwoFactorSetupResponse {
   qrCodeDataUrl: string
   manualEntryKey: string
   issuer: string
   accountLabel: string
 }
 
-export interface VerifyTwoFactorSetupPayload {
+export interface IVerifyTwoFactorSetupPayload {
   token: string
 }
 
-export interface VerifyTwoFactorSetupResponse {
+export interface IVerifyTwoFactorSetupResponse {
   enabled: boolean
   backupCodes: string[]
 }
 
-export interface DisableTwoFactorPayload {
+export interface IDisableTwoFactorPayload {
   token: string
 }
 
-export interface DisableTwoFactorResponse {
+export interface IDisableTwoFactorResponse {
   disabled: boolean
 }

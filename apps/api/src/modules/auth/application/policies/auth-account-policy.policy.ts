@@ -1,11 +1,11 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
 import type { AuthUserEntity } from '../../domain/entities/auth-user.entity'
 
-export interface AuthAccountPolicyContract {
+export interface IAuthAccountPolicy {
   ensureUserCanAuthenticate(user: AuthUserEntity): void
 }
 
-export class AuthAccountPolicyService implements AuthAccountPolicyContract {
+export class AuthAccountPolicy implements IAuthAccountPolicy {
   ensureUserCanAuthenticate(user: AuthUserEntity): void {
     if (user.status === 'blocked' || user.status === 'banned') {
       throw AuthApplicationError.accountBlocked('Account blocked')

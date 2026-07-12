@@ -3,7 +3,7 @@ import type {
   ListFriendRequestsInput,
 } from "../types/friends.types";
 
-export interface FriendRequestRepositoryContract {
+export interface IFriendRequestRepository {
   listReceivedRequests(
     input: ListFriendRequestsInput,
   ): Promise<FriendRequestsPage>;

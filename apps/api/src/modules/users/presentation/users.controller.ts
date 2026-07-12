@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { PaginationQuery } from '../application/dtos/users.dto'
+import type { IPaginationQueryDTO } from '../application/dtos/users.dto'
 import {
   USERS_DEFAULT_LIMIT,
   USERS_MAX_LIMIT,
@@ -9,7 +9,7 @@ import {
   USERS_MIN_STREAK_YEAR,
 } from '../domain/constants/users.constants'
 import type { ProfileSort } from '../domain/value-objects/profile-sort.vo'
-import { createUsersComposition, type UsersComposition } from '../users.factory'
+import type { UsersComposition } from '../users.factory'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 
@@ -211,7 +211,7 @@ export class UsersController {
     return trimmed || undefined
   }
 
-  private normalizeStatus(value: unknown): PaginationQuery['status'] {
+  private normalizeStatus(value: unknown): IPaginationQueryDTO['status'] {
     return value === 'active' || value === 'draft' || value === 'archived'
       ? value
       : undefined
@@ -226,7 +226,7 @@ export class UsersController {
       : 'publishedAt'
   }
 
-  private buildTrackerPaginationQuery(req: Request): PaginationQuery {
+  private buildTrackerPaginationQuery(req: Request): IPaginationQueryDTO {
     const search = this.normalizeSearch(req.query.search)
     const status = this.normalizeStatus(req.query.status)
 
@@ -244,5 +244,3 @@ export class UsersController {
     }
   }
 }
-
-export const usersController = new UsersController(createUsersComposition().useCases)

@@ -10,7 +10,7 @@ import type { MongoAuthSessionRecord } from '../shared/mongo-auth.types'
 const REFRESH_TOKEN_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000
 
 export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
-  constructor(private readonly mapper = new MongoAuthMapper()) {
+  constructor(private readonly _mapper = new MongoAuthMapper()) {
     super()
   }
 
@@ -30,8 +30,8 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           expiresAt,
         })
 
-        return this.mapper.toAuthSessionEntityOrThrow(
-          this.mapper.toPlainRecord<MongoAuthSessionRecord>(session),
+        return this._mapper.toAuthSessionEntityOrThrow(
+          this._mapper.toPlainRecord<MongoAuthSessionRecord>(session),
         )
       },
     )
@@ -51,7 +51,7 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           deletedAt: null,
         }).lean<MongoAuthSessionRecord>()
 
-        return this.mapper.toAuthSessionEntity(session)
+        return this._mapper.toAuthSessionEntity(session)
       },
     )
   }
@@ -86,7 +86,7 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoAuthSessionRecord>()
 
-        return this.mapper.toAuthSessionEntity(session)
+        return this._mapper.toAuthSessionEntity(session)
       },
     )
   }
@@ -110,7 +110,7 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           .lean<MongoAuthSessionRecord[]>()
 
         return sessions.map((session) =>
-          this.mapper.toAuthSessionEntityOrThrow(session),
+          this._mapper.toAuthSessionEntityOrThrow(session),
         )
       },
     )
@@ -185,7 +185,7 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           },
         ).lean<MongoAuthSessionRecord>()
 
-        return this.mapper.toAuthSessionEntity(session)
+        return this._mapper.toAuthSessionEntity(session)
       },
     )
   }

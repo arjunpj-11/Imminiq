@@ -1,11 +1,11 @@
 import { retiredRefreshTokenCache } from '../../../../infrastructure/cache/retired-refresh-token.cache'
 import type {
   RetiredRefreshTokenRecord,
-  RetiredRefreshTokenStoreContract,
+  IRetiredRefreshTokenStore,
 } from '../../domain/services/retired-refresh-token-store.interface'
 
 export class RedisRetiredRefreshTokenStore
-  implements RetiredRefreshTokenStoreContract {
+  implements IRetiredRefreshTokenStore {
   async findByRawToken(
     refreshToken: string
   ): Promise<RetiredRefreshTokenRecord | null> {

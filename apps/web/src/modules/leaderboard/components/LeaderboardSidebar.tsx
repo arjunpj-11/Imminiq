@@ -3,10 +3,10 @@ import { useNavigate } from 'react-router-dom'
 
 import { LEADERBOARD_ROUTES } from '../constants/leaderboard.constants'
 import type {
-  LeaderboardEntry,
-  LeaderboardReward,
-  LeaderboardScoringRule,
-  LeaderboardWeeklySummary,
+  ILeaderboardEntry,
+  ILeaderboardReward,
+  ILeaderboardScoringRule,
+  ILeaderboardWeeklySummary,
 } from '../types/leaderboard.types'
 
 import LeaderboardAvatar from './LeaderboardAvatar'
@@ -37,18 +37,18 @@ const SidebarCardHeader = ({
   </div>
 )
 
-interface LeaderboardSidebarProps {
-  weekly: LeaderboardWeeklySummary
-  scoringRules: LeaderboardScoringRule[]
-  streakChampions: LeaderboardEntry[]
-  reward: LeaderboardReward
+interface ILeaderboardSidebarProps {
+  weekly: ILeaderboardWeeklySummary
+  scoringRules: ILeaderboardScoringRule[]
+  streakChampions: ILeaderboardEntry[]
+  reward: ILeaderboardReward
 }
 
 export default function LeaderboardSidebar({
   scoringRules,
   streakChampions,
   reward,
-}: LeaderboardSidebarProps) {
+}: ILeaderboardSidebarProps) {
   const navigate = useNavigate()
  
 

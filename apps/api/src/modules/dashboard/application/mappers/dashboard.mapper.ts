@@ -10,40 +10,40 @@ import type { DashboardStreakEntity } from '../../domain/entities/dashboard-stre
 import type { DashboardTrackerSummaryEntity } from '../../domain/entities/dashboard-tracker-summary.entity'
 import type { DashboardUserEntity } from '../../domain/entities/dashboard-user.entity'
 import type {
-  DashboardActivityIntensityItem,
-  DashboardActiveTracker,
-  DashboardBattleItem,
-  DashboardFriendItem,
-  DashboardRecentActivity,
-  DashboardRecommendedAction,
-  DashboardStats,
-  DashboardStreakSummary,
-  DashboardTrackerSummary,
-  DashboardUserSummary,
+  IDashboardActivityIntensityItemDTO,
+  IDashboardActiveTrackerDTO,
+  IDashboardBattleItemDTO,
+  IDashboardFriendItemDTO,
+  IDashboardRecentActivityDTO,
+  IDashboardRecommendedActionDTO,
+  IDashboardStatsDTO,
+  IDashboardStreakSummaryDTO,
+  IDashboardTrackerSummaryDTO,
+  IDashboardUserSummaryDTO,
 } from '../dtos/dashboard.dto'
 
-export interface DashboardMapperContract {
+export interface IDashboardMapper {
   toUserSummary(
     user: DashboardUserEntity,
     profile?: DashboardProfileEntity | null
-  ): DashboardUserSummary
+  ): IDashboardUserSummaryDTO
 
-  toStreakSummary(streak: DashboardStreakEntity): DashboardStreakSummary
-  toActiveTracker(tracker: DashboardActiveTrackerEntity): DashboardActiveTracker
-  toTrackerSummary(summary: DashboardTrackerSummaryEntity): DashboardTrackerSummary
-  toStats(stats: DashboardStatsEntity): DashboardStats
-  toRecentActivity(activity: DashboardRecentActivityEntity): DashboardRecentActivity
-  toActivityIntensity(item: DashboardActivityIntensityEntity): DashboardActivityIntensityItem
-  toFriendItem(friend: DashboardFriendEntity): DashboardFriendItem
-  toBattleItem(battle: DashboardBattleEntity): DashboardBattleItem
-  toRecommendedAction(action: DashboardRecommendedActionEntity): DashboardRecommendedAction
+  toStreakSummary(streak: DashboardStreakEntity): IDashboardStreakSummaryDTO
+  toActiveTracker(tracker: DashboardActiveTrackerEntity): IDashboardActiveTrackerDTO
+  toTrackerSummary(summary: DashboardTrackerSummaryEntity): IDashboardTrackerSummaryDTO
+  toStats(stats: DashboardStatsEntity): IDashboardStatsDTO
+  toRecentActivity(activity: DashboardRecentActivityEntity): IDashboardRecentActivityDTO
+  toActivityIntensity(item: DashboardActivityIntensityEntity): IDashboardActivityIntensityItemDTO
+  toFriendItem(friend: DashboardFriendEntity): IDashboardFriendItemDTO
+  toBattleItem(battle: DashboardBattleEntity): IDashboardBattleItemDTO
+  toRecommendedAction(action: DashboardRecommendedActionEntity): IDashboardRecommendedActionDTO
 }
 
-export class DashboardMapper implements DashboardMapperContract {
+export class DashboardMapper implements IDashboardMapper {
   toUserSummary(
     user: DashboardUserEntity,
     profile?: DashboardProfileEntity | null
-  ): DashboardUserSummary {
+  ): IDashboardUserSummaryDTO {
     return {
       _id: user.id,
       fullName: user.fullName,
@@ -54,7 +54,7 @@ export class DashboardMapper implements DashboardMapperContract {
     }
   }
 
-  toStreakSummary(streak: DashboardStreakEntity): DashboardStreakSummary {
+  toStreakSummary(streak: DashboardStreakEntity): IDashboardStreakSummaryDTO {
     return {
       current: streak.current,
       longest: streak.longest,
@@ -62,7 +62,7 @@ export class DashboardMapper implements DashboardMapperContract {
     }
   }
 
-  toActiveTracker(tracker: DashboardActiveTrackerEntity): DashboardActiveTracker {
+  toActiveTracker(tracker: DashboardActiveTrackerEntity): IDashboardActiveTrackerDTO {
     return {
       _id: tracker.id,
       title: tracker.title,
@@ -75,7 +75,7 @@ export class DashboardMapper implements DashboardMapperContract {
     }
   }
 
-  toTrackerSummary(summary: DashboardTrackerSummaryEntity): DashboardTrackerSummary {
+  toTrackerSummary(summary: DashboardTrackerSummaryEntity): IDashboardTrackerSummaryDTO {
     return {
       total: summary.total,
       active: summary.active,
@@ -86,7 +86,7 @@ export class DashboardMapper implements DashboardMapperContract {
     }
   }
 
-  toStats(stats: DashboardStatsEntity): DashboardStats {
+  toStats(stats: DashboardStatsEntity): IDashboardStatsDTO {
     return {
       totalSubtopicsCompleted: stats.totalSubtopicsCompleted,
       totalPoints: stats.totalPoints,
@@ -94,7 +94,7 @@ export class DashboardMapper implements DashboardMapperContract {
     }
   }
 
-  toRecentActivity(activity: DashboardRecentActivityEntity): DashboardRecentActivity {
+  toRecentActivity(activity: DashboardRecentActivityEntity): IDashboardRecentActivityDTO {
     return {
       type: activity.type,
       description: activity.description,
@@ -104,7 +104,7 @@ export class DashboardMapper implements DashboardMapperContract {
 
   toActivityIntensity(
     item: DashboardActivityIntensityEntity
-  ): DashboardActivityIntensityItem {
+  ): IDashboardActivityIntensityItemDTO {
     return {
       date: item.date,
       activityCount: item.activityCount,
@@ -112,7 +112,7 @@ export class DashboardMapper implements DashboardMapperContract {
     }
   }
 
-  toFriendItem(friend: DashboardFriendEntity): DashboardFriendItem {
+  toFriendItem(friend: DashboardFriendEntity): IDashboardFriendItemDTO {
     return {
       _id: friend.id,
       fullName: friend.fullName,
@@ -123,7 +123,7 @@ export class DashboardMapper implements DashboardMapperContract {
     }
   }
 
-  toBattleItem(battle: DashboardBattleEntity): DashboardBattleItem {
+  toBattleItem(battle: DashboardBattleEntity): IDashboardBattleItemDTO {
     return {
       _id: battle.id,
       opponent: battle.opponent
@@ -146,7 +146,7 @@ export class DashboardMapper implements DashboardMapperContract {
 
   toRecommendedAction(
     action: DashboardRecommendedActionEntity
-  ): DashboardRecommendedAction {
+  ): IDashboardRecommendedActionDTO {
     return {
       type: action.type,
       title: action.title,

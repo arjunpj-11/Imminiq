@@ -3,13 +3,13 @@ import {
   securityAttemptCache,
 } from '../../../../infrastructure/cache/security-attempt.cache'
 import { SecurityDomainError } from '../../domain/errors/security-domain.error'
-import type { SecurityAttemptStoreContract } from '../../domain/services/security-attempt-store.interface'
+import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
 import type {
   SecurityAttemptPolicyName,
   SecurityAttemptScope,
 } from '../../domain/value-objects/security-attempt-scope.vo'
 
-export class RedisSecurityAttemptStore implements SecurityAttemptStoreContract {
+export class RedisSecurityAttemptStore implements ISecurityAttemptStore {
   async isBlocked(
     scope: SecurityAttemptScope,
     identifier: string,

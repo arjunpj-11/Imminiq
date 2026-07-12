@@ -10,11 +10,11 @@ import AuthIdentifierField from './AuthIdentifierField'
 import { ApiErrorBanner } from './AuthError'
 import { validateIdentifier } from '../utils/auth-validation'
 
-interface FormState {
+interface IFormState {
   identifier: string
 }
 
-interface FormErrors {
+interface IFormErrors {
   identifier?: string
 }
 
@@ -23,8 +23,8 @@ export default function ForgotPasswordForm() {
   const { mutate: forgotPassword, isPending, error } = useForgotPassword()
   const apiError = error?.response?.data?.message || (error ? 'Failed to send reset code. Please try again.' : '')
 
-  const [form, setForm] = useState<FormState>({ identifier: '' })
-  const [errors, setErrors] = useState<FormErrors>({})
+  const [form, setForm] = useState<IFormState>({ identifier: '' })
+  const [errors, setErrors] = useState<IFormErrors>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {

@@ -44,7 +44,7 @@ export type ActivityDifficulty =
   | 'intermediate'
   | 'advanced'
 
-export interface ActivityDetails {
+export interface IActivityDetails {
   scorePercentage?: number
   totalQuestions?: number
   correctAnswers?: number
@@ -57,7 +57,7 @@ export interface ActivityDetails {
   difficulty?: ActivityDifficulty
 }
 
-export interface ActivityEventReferences {
+export interface IActivityEventReferences {
   trackerId: string | null
   topicId: string | null
   subtopicId: string | null
@@ -66,7 +66,7 @@ export interface ActivityEventReferences {
   sourceUserId: string | null
 }
 
-export interface ActivityEvent {
+export interface IActivityEvent {
   id: string
   category: ActivityCategory
   type: ActivityType
@@ -78,19 +78,19 @@ export interface ActivityEvent {
   coins: number
   occurredAt: string
   date: string
-  details: ActivityDetails
-  references: ActivityEventReferences
+  details: IActivityDetails
+  references: IActivityEventReferences
 }
 
-export interface ActivityFeedGroup {
+export interface IActivityFeedGroup {
   date: string
   label: string
-  events: ActivityEvent[]
+  events: IActivityEvent[]
 }
 
-export interface ActivityFeedResponse {
+export interface IActivityFeedResponse {
   filter: ActivityFeedFilter
-  groups: ActivityFeedGroup[]
+  groups: IActivityFeedGroup[]
   pagination: {
     limit: number
     returned: number
@@ -99,21 +99,21 @@ export interface ActivityFeedResponse {
   }
 }
 
-export interface ActivityHeatmapItem {
+export interface IActivityHeatmapItem {
   date: string
   intensityLevel: ActivityHeatmapIntensity
   activityCount: number
   isFrozen: boolean
 }
 
-export interface ActivityWeekDay {
+export interface IActivityWeekDay {
   date: string
   label: string
   xp: number
   sessions: number
 }
 
-export interface ActivityPageResponse {
+export interface IActivityPageResponse {
   generatedAt: string
 
   user: {
@@ -138,11 +138,11 @@ export interface ActivityPageResponse {
   streak: {
     currentStreak: number
     longestStreak: number
-    heatmap: ActivityHeatmapItem[]
+    heatmap: IActivityHeatmapItem[]
   }
 
   weekly: {
-    days: ActivityWeekDay[]
+    days: IActivityWeekDay[]
     currentXp: number
     previousXp: number
     growthPercent: number
@@ -178,29 +178,29 @@ export interface ActivityPageResponse {
     progressPercent: number
   }
 
-  feed: ActivityFeedResponse
+  feed: IActivityFeedResponse
 }
 
-export interface ActivityApiResponse<T> {
+export interface IActivityApiResponse<T> {
   success: boolean
   message: string
   data: T
 }
 
-export interface ActivityApiErrorResponse {
+export interface IActivityApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
 }
 
-export interface ActivityPageQueryInput {
+export interface IActivityPageQueryInput {
   year: number
   filter: ActivityFeedFilter
   limit: number
   utcOffsetMinutes: number
 }
 
-export interface ActivityFeedQueryInput {
+export interface IActivityFeedQueryInput {
   filter: ActivityFeedFilter
   limit: number
   utcOffsetMinutes: number

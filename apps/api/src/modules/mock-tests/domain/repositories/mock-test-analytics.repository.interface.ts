@@ -5,7 +5,7 @@ import type {
   MockTestTopicBreakdown,
 } from '../value-objects/mock-test-analytics.vo'
 
-export interface MockTestAnalyticsRepositoryContract {
+export interface IMockTestAnalyticsRepository {
   getAttemptHistory(userId: string): Promise<MockTestAttemptHistoryItem[]>
 
   getUserSummary(userId: string): Promise<MockTestSummary>

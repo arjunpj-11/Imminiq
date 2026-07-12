@@ -1,10 +1,10 @@
-import type { LessonCodeSubmissionAction, TrackerListQuery } from '../types/tracker.types'
+import type { LessonCodeSubmissionAction, ITrackerListQuery } from '../types/tracker.types'
 
 export const trackerKeys = {
   all: ['trackers'] as const,
   summary: () => [...trackerKeys.all, 'summary'] as const,
   lists: () => [...trackerKeys.all, 'list'] as const,
-  list: (query: TrackerListQuery) => [...trackerKeys.lists(), query] as const,
+  list: (query: ITrackerListQuery) => [...trackerKeys.lists(), query] as const,
   details: () => [...trackerKeys.all, 'detail'] as const,
   detail: (trackerId: string) => [...trackerKeys.details(), trackerId] as const,
   roadmap: (trackerId: string) => [...trackerKeys.detail(trackerId), 'roadmap'] as const,

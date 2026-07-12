@@ -3,6 +3,6 @@ export { useActivityPage } from './hooks/useActivityPage'
 export { useActivityFeed } from './hooks/useActivityFeed'
 export type {
   ActivityFeedFilter,
-  ActivityFeedResponse,
-  ActivityPageResponse,
+  IActivityFeedResponse,
+  IActivityPageResponse,
 } from './types/activity.types'

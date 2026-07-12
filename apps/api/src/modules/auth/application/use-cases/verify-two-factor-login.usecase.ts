@@ -1,27 +1,27 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthTwoFactorRepositoryContract } from '../../domain/repositories/auth-two-factor.repository.interface'
-import type { AuthRedirectServiceContract } from '../../domain/services/auth-redirect.service.interface'
-import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
-import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface'
+import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface'
+import type { IAuthToken } from '../../domain/services/auth-token.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
 import type {
   SecurityAttemptScope,
-  SecurityAttemptStoreContract,
+  ISecurityAttemptStore,
 } from '../../domain/services/security-attempt-store.interface'
-import type { TwoFactorCodeVerifierContract } from '../../domain/services/two-factor-code-verifier.interface'
+import type { ITwoFactorCodeVerifier } from '../../domain/services/two-factor-code-verifier.interface'
 import type {
-  AuthLoginSuccessResult,
-  RequestMeta,
-  TwoFactorLoginVerifyPayload,
+  IAuthLoginSuccessResultDTO,
+  RequestMetaDTO,
+  ITwoFactorLoginVerifyPayloadDTO,
 } from '../dtos/auth.dto'
-import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
-import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
-import type { AuthSessionServiceContract } from '../services/auth-session.service'
-import type { BackupCodeNormalizerServiceContract } from '../services/backup-code-normalizer.service'
+import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
+import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
+import type { IAuthSessionIssuer } from '../services/auth-session.service'
+import type { IBackupCodeNormalizer } from '../services/backup-code-normalizer.service'
 
 type TwoFactorLoginRepository =
-  AuthUserRepositoryContract &
-  AuthTwoFactorRepositoryContract
+  IAuthUserRepository &
+  IAuthTwoFactorRepository
 
 type BackupCodeRecord = {
   usedAt?: Date | null
@@ -33,24 +33,24 @@ const TWO_FACTOR_LOGIN_SCOPE: SecurityAttemptScope = 'auth_two_factor_login'
 export class VerifyTwoFactorLoginUseCase {
   constructor(
     private readonly _authRepository: TwoFactorLoginRepository,
-    private readonly _authRedirectService: AuthRedirectServiceContract,
-    private readonly _authTokenService: AuthTokenServiceContract,
-    private readonly _authAccountPolicy: AuthAccountPolicyContract,
-    private readonly _authSessionService: AuthSessionServiceContract,
-    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly _twoFactorCodeVerifier: TwoFactorCodeVerifierContract,
-    private readonly _backupCodeNormalizer: BackupCodeNormalizerServiceContract,
-    private readonly _passwordHasher: PasswordHasherServiceContract,
-    private readonly _authUserMapper: AuthUserMapperContract
+    private readonly _authRedirectResolver: IAuthRedirectResolver,
+    private readonly _authToken: IAuthToken,
+    private readonly _authAccountPolicy: IAuthAccountPolicy,
+    private readonly _authSessionIssuer: IAuthSessionIssuer,
+    private readonly _securityAttemptStore: ISecurityAttemptStore,
+    private readonly _twoFactorCodeVerifier: ITwoFactorCodeVerifier,
+    private readonly _backupCodeNormalizer: IBackupCodeNormalizer,
+    private readonly _passwordHasher: IPasswordHasher,
+    private readonly _authUserMapper: IAuthUserMapper
   ) {}
 
   async execute(
     challengeToken: string,
-    payload: TwoFactorLoginVerifyPayload,
-    meta?: RequestMeta
-  ): Promise<AuthLoginSuccessResult> {
+    payload: ITwoFactorLoginVerifyPayloadDTO,
+    meta?: RequestMetaDTO
+  ): Promise<IAuthLoginSuccessResultDTO> {
     const decoded =
-      this._authTokenService.verifyTwoFactorChallengeToken(challengeToken)
+      this._authToken.verifyTwoFactorChallengeToken(challengeToken)
 
     await this.assertTwoFactorLoginAllowed(decoded.userId)
 
@@ -112,9 +112,9 @@ export class VerifyTwoFactorLoginUseCase {
     const authenticatedUser = recoveredUser ?? user
 
     const redirectPath =
-      await this._authRedirectService.resolveRedirectPath(userId)
+      await this._authRedirectResolver.resolveRedirectPath(userId)
 
-    const tokens = await this._authSessionService.issueTokenPair(
+    const tokens = await this._authSessionIssuer.issueTokenPair(
       userId,
       user.role,
       meta

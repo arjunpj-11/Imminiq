@@ -1,24 +1,24 @@
-import type { SettingsCommandRepositoryContract } from '../../domain/repositories/settings-command.repository.interface'
+import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface'
 import type {
-  UpdateAccountPayload,
-  UserSettingsView,
+  IUpdateAccountPayloadDTO,
+  UserSettingsViewDTO,
 } from '../dtos/settings.dto'
-import type { SettingsMapperContract } from '../mappers/settings.mapper'
+import type { ISettingsMapper } from '../mappers/settings.mapper'
 
 type UpdateAccountSettingsRepository = {
-  updateAccountSettings: SettingsCommandRepositoryContract['updateAccountSettings']
+  updateAccountSettings: ISettingsCommandRepository['updateAccountSettings']
 }
 
 export class UpdateAccountSettingsUseCase {
   constructor(
     private readonly _settingsRepository: UpdateAccountSettingsRepository,
-    private readonly _settingsMapper: SettingsMapperContract,
+    private readonly _settingsMapper: ISettingsMapper,
   ) {}
 
   async execute(
     userId: string,
-    payload: UpdateAccountPayload,
-  ): Promise<UserSettingsView | null> {
+    payload: IUpdateAccountPayloadDTO,
+  ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateAccountSettings({
       userId,
       data: payload,

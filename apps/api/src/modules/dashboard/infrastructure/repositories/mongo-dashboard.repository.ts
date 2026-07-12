@@ -10,7 +10,7 @@ import type { DashboardUserEntity } from '../../domain/entities/dashboard-user.e
 import type { GetRecentBattlesInput } from '../../domain/repositories/dashboard-battle.repository.interface'
 import type { GetFriendsHubInput } from '../../domain/repositories/dashboard-friend.repository.interface'
 import type { GetRecentActivityInput } from '../../domain/repositories/dashboard-notification.repository.interface'
-import type { DashboardRepositoryContract } from '../../domain/repositories/dashboard.repository.interface'
+import type { IDashboardRepository } from '../../domain/repositories/dashboard.repository.interface'
 import type { GetActivityIntensityInput } from '../../domain/repositories/dashboard-streak.repository.interface'
 import type { DashboardRecommendationContext } from '../../domain/value-objects/dashboard-recommendation-context.vo'
 import { MongoDashboardBattleRepository } from './internal/mongo-dashboard-battle.repository'
@@ -30,7 +30,7 @@ type MongoDashboardRepositoryDependencies = {
   friendRepository: MongoDashboardFriendRepository
 }
 
-export class MongoDashboardRepository implements DashboardRepositoryContract {
+export class MongoDashboardRepository implements IDashboardRepository {
   private readonly _userRepository: MongoDashboardUserRepository
   private readonly _streakRepository: MongoDashboardStreakRepository
   private readonly _trackerRepository: MongoDashboardTrackerRepository

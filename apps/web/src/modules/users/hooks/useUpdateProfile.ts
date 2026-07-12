@@ -2,10 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  GetMyProfileResponse,
-  UpdateProfilePayload,
+  IApiErrorResponse,
+  IApiResponse,
+  IGetMyProfileResponse,
+  IUpdateProfilePayload,
 } from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
@@ -13,12 +13,12 @@ export const useUpdateProfile = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<GetMyProfileResponse>,
-    AxiosError<ApiErrorResponse>,
-    UpdateProfilePayload
+    IApiResponse<IGetMyProfileResponse>,
+    AxiosError<IApiErrorResponse>,
+    IUpdateProfilePayload
   >({
     mutationFn: async (payload) => {
-      const response = await api.patch<ApiResponse<GetMyProfileResponse>>(
+      const response = await api.patch<IApiResponse<IGetMyProfileResponse>>(
         '/users/me',
         payload
       )

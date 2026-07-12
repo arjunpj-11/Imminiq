@@ -1,12 +1,16 @@
 import { leaderboardService } from '../../../leaderboard/leaderboard.service'
+import type { LeaderboardXpRecorderContract } from '../../../leaderboard/leaderboard.service'
 import type {
-  ActivityLeaderboardRecorderContract,
+  IActivityLeaderboardRecorder,
   RecordActivityLeaderboardXpInput,
-} from '../../domain/services/activity-leaderboard-recorder.service.interface'
+} from '../../domain/services/activity-leaderboard-recorder.interface'
 
 export class LeaderboardActivityGateway
-  implements ActivityLeaderboardRecorderContract
+  implements IActivityLeaderboardRecorder
 {
+  constructor(
+    private readonly _leaderboardRecorder: LeaderboardXpRecorderContract,
+  ) {}
   async recordXp(
     input: RecordActivityLeaderboardXpInput,
   ): Promise<void> {
@@ -17,7 +21,7 @@ export class LeaderboardActivityGateway
       return
     }
 
-    await leaderboardService.recordXpActivity({
+    await this._leaderboardRecorder.recordXpActivity({
       userId: input.userId,
 
       section:
@@ -48,4 +52,4 @@ export class LeaderboardActivityGateway
 }
 
 export const leaderboardActivityGateway =
-  new LeaderboardActivityGateway()
+  new LeaderboardActivityGateway(leaderboardService)

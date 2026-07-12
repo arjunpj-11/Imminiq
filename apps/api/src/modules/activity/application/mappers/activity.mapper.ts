@@ -1,23 +1,23 @@
 import type { UserActivityEntity } from '../../domain/entities/user-activity.entity'
 import type { ActivityAnalyticsRecord } from '../../domain/types/activity.types'
 import type {
-  ActivityEventIcon,
-  ActivityEventView,
-  ActivityFeedGroupView,
-  ActivityPageResponse,
-  ActivityWeekDayView,
+  ActivityEventIconDTO,
+  ActivityEventViewDTO,
+  ActivityFeedGroupViewDTO,
+  ActivityPageResponseDTO,
+  ActivityWeekDayViewDTO,
 } from '../dtos/activity.dto'
 import { ACTIVITY_FEED_ICON_BY_CATEGORY } from '../constants/activity.constants'
 import type { ActivityDateContext } from '../services/activity-date-range.service'
-import type { ActivityDateRangeService } from '../services/activity-date-range.service'
-import type { ActivityAnalyticsService } from '../services/activity-analytics.service'
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
+import type { ActivityAnalyticsContract } from '../services/activity-analytics.service'
 
 export class ActivityMapper {
   toEventView(
     activity: UserActivityEntity,
-    dateRangeService: ActivityDateRangeService,
+    dateRange: ActivityDateRangeContract,
     utcOffsetMinutes: number,
-  ): ActivityEventView {
+  ): ActivityEventViewDTO {
     return {
       id: activity.id,
       category: activity.category,
@@ -25,7 +25,7 @@ export class ActivityMapper {
       icon:
         ACTIVITY_FEED_ICON_BY_CATEGORY[
           activity.category
-        ] as ActivityEventIcon,
+        ] as ActivityEventIconDTO,
 
       title: activity.title,
       subtitle: activity.subtitle,
@@ -35,7 +35,7 @@ export class ActivityMapper {
       coins: activity.coinsAwarded,
 
       occurredAt: activity.occurredAt.toISOString(),
-      date: dateRangeService.toLocalDateKey(
+      date: dateRange.toLocalDateKey(
         activity.occurredAt,
         utcOffsetMinutes,
       ),
@@ -56,14 +56,14 @@ export class ActivityMapper {
   toGroupedFeed(
     activities: UserActivityEntity[],
     context: ActivityDateContext,
-    dateRangeService: ActivityDateRangeService,
-  ): ActivityFeedGroupView[] {
-    const groups = new Map<string, ActivityEventView[]>()
+    dateRange: ActivityDateRangeContract,
+  ): ActivityFeedGroupViewDTO[] {
+    const groups = new Map<string, ActivityEventViewDTO[]>()
 
     for (const activity of activities) {
       const event = this.toEventView(
         activity,
-        dateRangeService,
+        dateRange,
         context.utcOffsetMinutes,
       )
 
@@ -74,7 +74,7 @@ export class ActivityMapper {
 
     return [...groups.entries()].map(([date, events]) => ({
       date,
-      label: dateRangeService.groupLabel(date, context),
+      label: dateRange.groupLabel(date, context),
       events,
     }))
   }
@@ -82,16 +82,16 @@ export class ActivityMapper {
   toPageResponse(input: {
     analytics: ActivityAnalyticsRecord
     context: ActivityDateContext
-    feed: ActivityPageResponse['feed']
-    analyticsService: ActivityAnalyticsService
-    dateRangeService: ActivityDateRangeService
-  }): ActivityPageResponse {
+    feed: ActivityPageResponseDTO['feed']
+    analyticsCalculator: ActivityAnalyticsContract
+    dateRange: ActivityDateRangeContract
+  }): ActivityPageResponseDTO {
     const {
-      analytics,
+      analyticsCalculator,
       context,
       feed,
-      analyticsService,
-      dateRangeService,
+      analytics,
+      dateRange,
     } = input
 
     if (!analytics.user) {
@@ -105,27 +105,27 @@ export class ActivityMapper {
       ]),
     )
 
-    const weekDays: ActivityWeekDayView[] =
+    const weekDays: ActivityWeekDayViewDTO[] =
       context.currentWeekDateKeys.map((date) => {
         const aggregate = currentWeekByDate.get(date)
 
         return {
           date,
-          label: dateRangeService.weekdayLabel(date),
+          label: dateRange.weekdayLabel(date),
           xp: aggregate?.xp ?? 0,
           sessions: aggregate?.sessions ?? 0,
         }
       })
 
-    const currentXp = analyticsService.sumXp(
+    const currentXp = analyticsCalculator.sumXp(
       analytics.currentWeekDays,
     )
 
     const progress =
-      analyticsService.weeklyProgress(currentXp)
+      analyticsCalculator.weeklyProgress(currentXp)
 
     const dailyGoal =
-      analyticsService.dailyGoal(analytics.dailyGoal)
+      analyticsCalculator.dailyGoal(analytics.dailyGoal)
 
     return {
       generatedAt: context.now.toISOString(),
@@ -180,7 +180,7 @@ export class ActivityMapper {
         previousXp: analytics.previousWeekXp,
 
         growthPercent:
-          analyticsService.growthPercent(
+          analyticsCalculator.growthPercent(
             currentXp,
             analytics.previousWeekXp,
           ),
@@ -235,3 +235,8 @@ export class ActivityMapper {
     }
   }
 }
+
+export type ActivityMapperContract = Pick<
+  ActivityMapper,
+  'toEventView' | 'toGroupedFeed' | 'toPageResponse'
+>

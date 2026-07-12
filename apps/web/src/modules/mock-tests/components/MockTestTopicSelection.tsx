@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react'
 
 import { cn } from '../utils/mock-tests-formatters'
-import type { FlatNode } from '../utils/mock-test-topic-selection'
+import type { IFlatNode } from '../utils/mock-test-topic-selection'
 
 const ChevronDown = ({ open }: { open: boolean }) => (
   <svg
@@ -37,13 +37,13 @@ const CheckIcon = () => (
   </svg>
 )
 
-export interface TopicGroupProps {
+export interface ITopicGroupProps {
   topicTitle: string
-  nodes: FlatNode[]
+  nodes: IFlatNode[]
   selectedIds: Set<string>
   onToggle: (id: string, title: string) => void
-  onSelectAll: (nodes: FlatNode[]) => void
-  onDeselectAll: (nodes: FlatNode[]) => void
+  onSelectAll: (nodes: IFlatNode[]) => void
+  onDeselectAll: (nodes: IFlatNode[]) => void
 }
 
 export function TopicGroup({
@@ -53,7 +53,7 @@ export function TopicGroup({
   onToggle,
   onSelectAll,
   onDeselectAll,
-}: TopicGroupProps) {
+}: ITopicGroupProps) {
   const [open, setOpen] = useState(false)
   const selectedCount = nodes.filter((node) => selectedIds.has(node._id)).length
   const allSelected = selectedCount === nodes.length
@@ -150,9 +150,9 @@ export function TopicGroup({
   )
 }
 
-export interface SelectionPreviewProps {
+export interface ISelectionPreviewProps {
   selectedNodes: Map<string, string>
-  flatNodes: FlatNode[]
+  flatNodes: IFlatNode[]
   trackerTitle: string
 }
 
@@ -160,7 +160,7 @@ export function SelectionPreview({
   selectedNodes,
   flatNodes,
   trackerTitle,
-}: SelectionPreviewProps) {
+}: ISelectionPreviewProps) {
   const [expanded, setExpanded] = useState(false)
 
   const byTopic = useMemo(() => {

@@ -11,13 +11,15 @@ import {
   profileImageUploadIpLimiter,
 } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { uploadsController } from './uploads.controller'
+import { UploadsController } from './uploads.controller'
+import { createUploadsComposition } from '../uploads.factory'
 import { UPLOAD_ROUTE_PATHS } from './uploads.route.constants'
 import {
-  generateAiAvatarPreviewSchema,
-  generateAiBannerPreviewSchema,
+  generateAIAvatarPreviewSchema,
+  generateAIBannerPreviewSchema,
 } from './uploads.schema'
 
+const uploadsController = new UploadsController(createUploadsComposition().useCases)
 const router = Router()
 
 // ─── PROTECTED ───────────────────────────────────────────────
@@ -39,8 +41,8 @@ router.delete(
 
 router.post(
   UPLOAD_ROUTE_PATHS.AVATAR_AI_PREVIEW,
-  validate(generateAiAvatarPreviewSchema),
-  uploadsController.generateAiAvatarPreview
+  validate(generateAIAvatarPreviewSchema),
+  uploadsController.generateAIAvatarPreview
 )
 
 router.post(
@@ -58,8 +60,8 @@ router.delete(
 
 router.post(
   UPLOAD_ROUTE_PATHS.BANNER_AI_PREVIEW,
-  validate(generateAiBannerPreviewSchema),
-  uploadsController.generateAiBannerPreview
+  validate(generateAIBannerPreviewSchema),
+  uploadsController.generateAIBannerPreview
 )
 
 export default router

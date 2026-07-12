@@ -3,8 +3,8 @@
 import { useQuery } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  DashboardRecentBattle,
+  IApiResponse,
+  IDashboardRecentBattle,
 } from '../types/dashboard.types'
 
 export const useDashboardRecentBattles = (limit = 3) => {
@@ -12,7 +12,7 @@ export const useDashboardRecentBattles = (limit = 3) => {
     queryKey: ['dashboard', 'recent-battles', limit],
     queryFn: async () => {
       const response =
-        await api.get<ApiResponse<DashboardRecentBattle[]>>(
+        await api.get<IApiResponse<IDashboardRecentBattle[]>>(
           '/dashboard/recent-battles',
           {
             params: { limit },

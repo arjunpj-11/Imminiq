@@ -1,14 +1,14 @@
 import { Link } from 'react-router-dom'
-import type { TrackerLessonResponse } from '../types/tracker.types'
+import type { ITrackerLessonResponse } from '../types/tracker.types'
 import { cn, formatMinutes } from '../utils/tracker-ui'
 
-interface LessonLayoutProps {
-  data: TrackerLessonResponse
+interface ILessonLayoutProps {
+  data: ITrackerLessonResponse
   onComplete: () => void
   isCompleting?: boolean
 }
 
-export default function LessonLayout({ data, onComplete, isCompleting }: LessonLayoutProps) {
+export default function LessonLayout({ data, onComplete, isCompleting }: ILessonLayoutProps) {
   const { tracker, lessonNode: lesson, generatedLesson, previousLesson, nextLesson, lessonRoadmap } = data
 
   return (

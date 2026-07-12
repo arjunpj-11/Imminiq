@@ -1,26 +1,26 @@
-import type { MockTestAIEvaluationRepositoryContract } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestAIEvaluationRepository } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestReportRepositoryContract } from '../../domain/repositories/mock-test-report.repository.interface'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type GetAttemptResultRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestAnswerRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAIEvaluationRepositoryContract &
-  MockTestReportRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestAnswerRepository &
+  IMockTestQuestionRepository &
+  IMockTestAIEvaluationRepository &
+  IMockTestReportRepository
 
 export class GetAttemptResultUseCase {
   constructor(
-    private readonly _repo: GetAttemptResultRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _repository: GetAttemptResultRepository,
+    private readonly _mapper: IMockTestsMapper,
   ) { }
 
   async execute(attemptId: string, userId: string) {
-    const attempt = await this._repo.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -35,10 +35,10 @@ export class GetAttemptResultUseCase {
     }
 
     const [report, answers, questions, aiEvaluations] = await Promise.all([
-      this._repo.findReportByAttempt(attemptId),
-      this._repo.findAnswersByAttempt(attemptId),
-      this._repo.findQuestionsByTest(attempt.testId),
-      this._repo.findAIEvaluationsByAttempt(attemptId),
+      this._repository.findReportByAttempt(attemptId),
+      this._repository.findAnswersByAttempt(attemptId),
+      this._repository.findQuestionsByTest(attempt.testId),
+      this._repository.findAIEvaluationsByAttempt(attemptId),
     ])
 
     const questionMap = new Map(questions.map((question) => [question._id, question]))

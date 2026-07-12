@@ -1,6 +1,6 @@
-import type { CommunityTrackerRepositoryContract } from './community-tracker.repository.interface'
-import type { CommunityVerificationRepositoryContract } from './community-verification.repository.interface'
+import type { ICommunityTrackerRepository } from './community-tracker.repository.interface'
+import type { ICommunityVerificationRepository } from './community-verification.repository.interface'
 
-export interface CommunityRepositoryContract
-  extends CommunityTrackerRepositoryContract,
-    CommunityVerificationRepositoryContract {}
+export interface ICommunityRepository
+  extends ICommunityTrackerRepository,
+    ICommunityVerificationRepository {}

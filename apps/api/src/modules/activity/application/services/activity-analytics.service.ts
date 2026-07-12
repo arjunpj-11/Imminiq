@@ -10,7 +10,7 @@ import type { ActivityHeatmapIntensity } from '../../domain/value-objects/activi
 
 const DAY_IN_MS = 86_400_000
 
-export class ActivityAnalyticsService {
+export class ActivityAnalytics {
   calculateStreak(
     activeDateKeys: string[],
     todayKey: string,
@@ -165,3 +165,13 @@ export class ActivityAnalyticsService {
     return Date.parse(`${dateKey}T00:00:00.000Z`)
   }
 }
+
+export type ActivityAnalyticsContract = Pick<
+  ActivityAnalytics,
+  | 'calculateStreak'
+  | 'heatmapIntensity'
+  | 'growthPercent'
+  | 'weeklyProgress'
+  | 'dailyGoal'
+  | 'sumXp'
+>

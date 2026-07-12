@@ -4,7 +4,7 @@ import { Friend } from "../../../../../infrastructure/database/models/friend.mod
 import { FriendRequest } from "../../../../../infrastructure/database/models/friend-request.model";
 import { User } from "../../../../../infrastructure/database/models/user.model";
 import { UserProfile } from "../../../../../infrastructure/database/models/user-profile.model";
-import type { FriendCommandRepositoryContract } from "../../../domain/repositories/friend-command.repository.interface";
+import type { IFriendCommandRepository } from "../../../domain/repositories/friend-command.repository.interface";
 import type {
   AcceptFriendRequestCommandResult,
   ChangeFriendRequestCommandResult,
@@ -24,7 +24,7 @@ import { MongoLeaderboardAudienceSynchronizer } from "./mongo-leaderboard-audien
 
 export class MongoFriendCommandRepository
   extends MongoFriendsBaseRepository
-  implements FriendCommandRepositoryContract
+  implements IFriendCommandRepository
 {
   constructor(
     private readonly _mapper = new MongoFriendsMapper(),

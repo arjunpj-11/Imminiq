@@ -1,17 +1,17 @@
-import type { DashboardStreakRepositoryContract } from '../../domain/repositories/dashboard-streak.repository.interface'
-import type { DashboardActivityIntensityItem } from '../dtos/dashboard.dto'
-import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
+import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface'
+import type { IDashboardActivityIntensityItemDTO } from '../dtos/dashboard.dto'
+import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
 export class GetActivityIntensityUseCase {
   constructor(
-    private readonly _dashboardRepository: DashboardStreakRepositoryContract,
-    private readonly _dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: IDashboardStreakRepository,
+    private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
   async execute(
     userId: string,
     months?: number
-  ): Promise<DashboardActivityIntensityItem[]> {
+  ): Promise<IDashboardActivityIntensityItemDTO[]> {
     const items = await this._dashboardRepository.getActivityIntensity({
       userId,
       months,

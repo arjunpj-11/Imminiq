@@ -29,7 +29,7 @@ import type {
   FindPublicMockTestsInput,
   UpdateMockTestInput,
 } from '../../domain/repositories/mock-test.repository.interface';
-import type { MockTestsRepositoryContract } from '../../domain/repositories/mock-tests.repository.interface';
+import type { IMockTestsRepository } from '../../domain/repositories/mock-tests.repository.interface';
 import { MongoMockTestsAIEvaluationRepository } from './internal/mongo-mock-tests-ai-evaluation.repository';
 import { MongoMockTestsAnalyticsRepository } from './internal/mongo-mock-tests-analytics.repository';
 import { MongoMockTestsAnswerRepository } from './internal/mongo-mock-tests-answer.repository';
@@ -53,7 +53,7 @@ type MongoMockTestsRepositoryDependencies = {
   creationSessionRepository: MongoMockTestsCreationSessionRepository;
 };
 
-export class MongoMockTestsRepository implements MockTestsRepositoryContract {
+export class MongoMockTestsRepository implements IMockTestsRepository {
   private readonly _testRepository: MongoMockTestsTestRepository;
   private readonly _sharingRepository: MongoMockTestsSharingRepository;
   private readonly _questionRepository: MongoMockTestsQuestionRepository;

@@ -3,7 +3,7 @@ import mongoose from "mongoose";
 import { Friend } from "../../../../../infrastructure/database/models/friend.model";
 import { FriendRequest } from "../../../../../infrastructure/database/models/friend-request.model";
 import { User } from "../../../../../infrastructure/database/models/user.model";
-import type { FriendRequestRepositoryContract } from "../../../domain/repositories/friend-request.repository.interface";
+import type { IFriendRequestRepository } from "../../../domain/repositories/friend-request.repository.interface";
 import type {
   FriendRequestsPage,
   ListFriendRequestsInput,
@@ -18,7 +18,7 @@ import type {
 
 export class MongoFriendRequestRepository
   extends MongoFriendsBaseRepository
-  implements FriendRequestRepositoryContract
+  implements IFriendRequestRepository
 {
   constructor(private readonly _mapper = new MongoFriendsMapper()) {
     super();

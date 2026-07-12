@@ -1,6 +1,6 @@
-import type { LeaderboardActivityRepositoryContract } from './leaderboard-activity.repository.interface'
-import type { LeaderboardQueryRepositoryContract } from './leaderboard-query.repository.interface'
+import type { ILeaderboardActivityRepository } from './leaderboard-activity.repository.interface'
+import type { ILeaderboardQueryRepository } from './leaderboard-query.repository.interface'
 
-export interface LeaderboardRepositoryContract
-  extends LeaderboardQueryRepositoryContract,
-    LeaderboardActivityRepositoryContract {}
+export interface ILeaderboardRepository
+  extends ILeaderboardQueryRepository,
+    ILeaderboardActivityRepository {}

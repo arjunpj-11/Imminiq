@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 
 const getDocumentId = (document: unknown) => {
   const doc = document as { _id?: unknown }
@@ -19,9 +19,9 @@ const getDocumentId = (document: unknown) => {
 
 export class GenerateLessonVisualizationUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
-    private readonly _trackerMapper: TrackerMapperContract
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(input: {
@@ -63,7 +63,7 @@ export class GenerateLessonVisualizationUseCase {
       )
     }
 
-    const result = await this._trackerAIService.generateLessonVisualization({
+    const result = await this._trackerAIGateway.generateLessonVisualization({
       title: lesson.title,
       summary: lesson.summary,
       explanation: lesson.explanation,

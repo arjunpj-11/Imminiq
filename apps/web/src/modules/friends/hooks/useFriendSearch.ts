@@ -8,17 +8,17 @@ import {
   FRIENDS_STALE_TIME_MS,
 } from "../constants/friends.constants";
 import type {
-  FriendSearchQueryInput,
-  FriendUsersPage,
-  FriendsApiErrorResponse,
-  FriendsApiResponse,
+  IFriendSearchQueryInput,
+  IFriendUsersPage,
+  IFriendsApiErrorResponse,
+  IFriendsApiResponse,
 } from "../types/friends.types";
 import { friendsQueryKeys } from "./friends-query-keys";
 
-export const useFriendSearch = (input: FriendSearchQueryInput) => {
+export const useFriendSearch = (input: IFriendSearchQueryInput) => {
   const normalizedQuery = input.query.trim();
 
-  return useInfiniteQuery<FriendUsersPage, AxiosError<FriendsApiErrorResponse>>(
+  return useInfiniteQuery<IFriendUsersPage, AxiosError<IFriendsApiErrorResponse>>(
     {
       queryKey: friendsQueryKeys.search({
         ...input,
@@ -26,7 +26,7 @@ export const useFriendSearch = (input: FriendSearchQueryInput) => {
       }),
       queryFn: async ({ pageParam }) => {
         const page = typeof pageParam === "number" ? pageParam : 1;
-        const response = await api.get<FriendsApiResponse<FriendUsersPage>>(
+        const response = await api.get<IFriendsApiResponse<IFriendUsersPage>>(
           FRIENDS_ENDPOINTS.search,
           {
             params: {

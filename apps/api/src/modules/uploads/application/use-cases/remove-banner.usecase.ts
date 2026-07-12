@@ -1,24 +1,24 @@
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
-import type { ProfileImageRepositoryContract } from '../../domain/repositories/profile-image.repository.interface'
-import type { UploadRecordRepositoryContract } from '../../domain/repositories/upload-record.repository.interface'
-import type { RemoveBannerResult } from '../dtos/uploads.dto'
+import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface'
+import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
+import type { IRemoveBannerResultDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { UploadsMapperContract } from '../mappers/uploads.mapper'
-import type { UploadUserProfileServiceContract } from '../services/upload-user-profile.service'
+import type { IUploadsMapper } from '../mappers/uploads.mapper'
+import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
 
 type RemoveBannerRepository =
-  ProfileImageRepositoryContract & UploadRecordRepositoryContract
+  IProfileImageRepository & IUploadRecordRepository
 
 export class RemoveBannerUseCase {
   constructor(
-    private readonly _uploadUserProfileService: UploadUserProfileServiceContract,
+    private readonly _userProfileReader: IUploadUserProfileReader,
     private readonly _uploadsRepository: RemoveBannerRepository,
-    private readonly _uploadsMapper: UploadsMapperContract,
+    private readonly _uploadsMapper: IUploadsMapper,
   ) {}
 
-  async execute(userId: string): Promise<RemoveBannerResult> {
+  async execute(userId: string): Promise<IRemoveBannerResultDTO> {
     const context =
-      await this._uploadUserProfileService.getRequiredContext(userId)
+      await this._userProfileReader.getRequiredContext(userId)
 
     try {
       await Promise.all([

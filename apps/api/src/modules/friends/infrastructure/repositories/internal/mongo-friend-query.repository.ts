@@ -4,7 +4,7 @@ import { Friend } from "../../../../../infrastructure/database/models/friend.mod
 import { FriendRequest } from "../../../../../infrastructure/database/models/friend-request.model";
 import { User } from "../../../../../infrastructure/database/models/user.model";
 import { UserProfile } from "../../../../../infrastructure/database/models/user-profile.model";
-import type { FriendQueryRepositoryContract } from "../../../domain/repositories/friend-query.repository.interface";
+import type { IFriendQueryRepository } from "../../../domain/repositories/friend-query.repository.interface";
 import type {
   FriendUsersPage,
   ListFriendsInput,
@@ -24,7 +24,7 @@ import type {
 
 export class MongoFriendQueryRepository
   extends MongoFriendsBaseRepository
-  implements FriendQueryRepositoryContract
+  implements IFriendQueryRepository
 {
   constructor(private readonly _mapper = new MongoFriendsMapper()) {
     super();

@@ -2,7 +2,7 @@ import {
   UsersMapper,
 } from './application/mappers/users.mapper'
 import {
-  UsersProfileDataService,
+  UsersProfileDataReader,
 } from './application/services/users-profile-data.service'
 import { GetMeUseCase } from './application/use-cases/get-me.usecase'
 import { GetMyActivityUseCase } from './application/use-cases/get-my-activity.usecase'
@@ -15,6 +15,7 @@ import { GetPublicProfilePageUseCase } from './application/use-cases/get-public-
 import { GetUserByUsernameUseCase } from './application/use-cases/get-user-by-username.usecase'
 import { UpdateMeUseCase } from './application/use-cases/update-me.usecase'
 import { mongoUsersRepository } from './infrastructure/repositories/mongo-users.repository'
+import { systemClock } from '../../infrastructure/time/system-clock'
 
 export type UsersUseCases = {
   getMe: GetMeUseCase
@@ -37,9 +38,10 @@ export const createUsersComposition = (): UsersComposition => {
   const usersRepository = mongoUsersRepository
   const usersMapper = new UsersMapper()
 
-  const usersProfileDataService = new UsersProfileDataService(
+  const profileDataReader = new UsersProfileDataReader(
     usersRepository,
-    usersMapper
+    usersMapper,
+    systemClock,
   )
 
   return {
@@ -60,7 +62,7 @@ export const createUsersComposition = (): UsersComposition => {
       ),
 
       getMyStats: new GetMyStatsUseCase(
-        usersProfileDataService
+        profileDataReader
       ),
 
       getMyActivity: new GetMyActivityUseCase(
@@ -74,7 +76,7 @@ export const createUsersComposition = (): UsersComposition => {
       ),
 
       getMyStreak: new GetMyStreakUseCase(
-        usersProfileDataService
+        profileDataReader
       ),
 
       getMyPublishedTrackers: new GetMyPublishedTrackersUseCase(
@@ -90,7 +92,7 @@ export const createUsersComposition = (): UsersComposition => {
       getPublicProfilePage: new GetPublicProfilePageUseCase(
         usersRepository,
         usersMapper,
-        usersProfileDataService
+        profileDataReader
       ),
     },
   }

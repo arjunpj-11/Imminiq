@@ -1,6 +1,6 @@
 export type ToastTone = 'success' | 'error' | 'warning' | 'info'
 
-export interface ToastInput {
+export interface IToastInput {
   title: string
   description?: string
   tone?: ToastTone
@@ -8,13 +8,13 @@ export interface ToastInput {
   duration?: number
 }
 
-export interface ToastRecord extends Required<Pick<ToastInput, 'title' | 'tone' | 'duration'>> {
+export interface IToastRecord extends Required<Pick<IToastInput, 'title' | 'tone' | 'duration'>> {
   id: number
   description?: string
 }
 
 type ToastEvent =
-  | { type: 'upsert'; toast: ToastRecord }
+  | { type: 'upsert'; toast: IToastRecord }
   | { type: 'dismiss'; id: number }
   | { type: 'clear' }
 
@@ -32,7 +32,7 @@ export const subscribeToToasts = (listener: ToastListener) => {
   return () => listeners.delete(listener)
 }
 
-export const showToast = (input: ToastInput) => {
+export const showToast = (input: IToastInput) => {
   const id = nextId++
   emit({
     type: 'upsert',
@@ -47,7 +47,7 @@ export const showToast = (input: ToastInput) => {
   return id
 }
 
-export const updateToast = (id: number, input: ToastInput) => {
+export const updateToast = (id: number, input: IToastInput) => {
   emit({
     type: 'upsert',
     toast: {

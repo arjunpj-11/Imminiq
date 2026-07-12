@@ -3,7 +3,7 @@ export type RetiredRefreshTokenRecord = {
   sessionId: string
 }
 
-export interface RetiredRefreshTokenStoreContract {
+export interface IRetiredRefreshTokenStore {
   findByRawToken(refreshToken: string): Promise<RetiredRefreshTokenRecord | null>
   retire(data: {
     refreshTokenHash: string

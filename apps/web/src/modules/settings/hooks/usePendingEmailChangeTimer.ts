@@ -4,7 +4,7 @@ import { safeLocalStorage } from '../../../lib/storage/safe-storage'
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
 import { normalizeEmail } from '../utils/security-settings.utils'
 
-export interface PendingEmailTimer {
+export interface IPendingEmailTimer {
   email: string
   expiresAt: number
 }
@@ -18,7 +18,7 @@ const getSecondsRemaining = (
   return Math.max(0, Math.ceil((expiresAt - currentTime) / 1000))
 }
 
-const readPendingEmailTimer = (): PendingEmailTimer | null => {
+const readPendingEmailTimer = (): IPendingEmailTimer | null => {
   const raw = safeLocalStorage.get(
     STORAGE_KEYS.pendingEmailChangeTimer,
   )
@@ -28,7 +28,7 @@ const readPendingEmailTimer = (): PendingEmailTimer | null => {
   }
 
   try {
-    const parsed = JSON.parse(raw) as PendingEmailTimer
+    const parsed = JSON.parse(raw) as IPendingEmailTimer
 
     if (
       typeof parsed?.email !== 'string' ||
@@ -44,7 +44,7 @@ const readPendingEmailTimer = (): PendingEmailTimer | null => {
 }
 
 export function usePendingEmailChangeTimer() {
-  const [timer, setTimer] = useState<PendingEmailTimer | null>(
+  const [timer, setTimer] = useState<IPendingEmailTimer | null>(
     readPendingEmailTimer,
   )
 
@@ -71,7 +71,7 @@ export function usePendingEmailChangeTimer() {
   const start = useCallback((email: string) => {
     const now = Date.now()
 
-    const nextTimer: PendingEmailTimer = {
+    const nextTimer: IPendingEmailTimer = {
       email: normalizeEmail(email),
       expiresAt: now + EMAIL_CHANGE_EXPIRY_MS,
     }

@@ -1,20 +1,20 @@
-import type { FriendRequestRepositoryContract } from "../../domain/repositories/friend-request.repository.interface";
+import type { IFriendRequestRepository } from "../../domain/repositories/friend-request.repository.interface";
 import type {
-  FriendRequestsPageView,
-  ListFriendRequestsPayload,
+  FriendRequestsPageViewDTO,
+  ListFriendRequestsPayloadDTO,
 } from "../dtos/friends.dto";
-import type { FriendsMapperContract } from "../mappers/friends.mapper";
+import type { IFriendsMapper } from "../mappers/friends.mapper";
 
 export class ListFriendRequestsUseCase {
   constructor(
-    private readonly _friendRequestRepository: FriendRequestRepositoryContract,
-    private readonly _friendsMapper: FriendsMapperContract,
+    private readonly _friendRequestRepository: IFriendRequestRepository,
+    private readonly _friendsMapper: IFriendsMapper,
   ) {}
 
   async execute(
     viewerUserId: string,
-    payload: ListFriendRequestsPayload,
-  ): Promise<FriendRequestsPageView> {
+    payload: ListFriendRequestsPayloadDTO,
+  ): Promise<FriendRequestsPageViewDTO> {
     const [received, sent] = await Promise.all([
       this._friendRequestRepository.listReceivedRequests({
         viewerUserId,

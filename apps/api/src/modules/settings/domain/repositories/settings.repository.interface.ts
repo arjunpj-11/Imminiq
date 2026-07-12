@@ -1,11 +1,11 @@
-import type { SettingsCommandRepositoryContract } from './settings-command.repository.interface'
-import type { SettingsQueryRepositoryContract } from './settings-query.repository.interface'
+import type { ISettingsCommandRepository } from './settings-command.repository.interface'
+import type { ISettingsQueryRepository } from './settings-query.repository.interface'
 
-export interface SettingsRepositoryContract
-  extends SettingsQueryRepositoryContract,
-    SettingsCommandRepositoryContract {}
+export interface ISettingsRepository
+  extends ISettingsQueryRepository,
+    ISettingsCommandRepository {}
 
-export type SettingsRepository = SettingsRepositoryContract
+export type SettingsRepository = ISettingsRepository
 
 export type {
   SettingsAIBehaviourUpdateInput,

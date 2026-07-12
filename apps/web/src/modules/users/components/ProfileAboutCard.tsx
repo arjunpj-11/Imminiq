@@ -1,9 +1,9 @@
 import SectionCard from '../../../components/layout/SectionCard'
 import { cn } from '../../../lib/cn'
-import type { ProfileData } from '../types/profile.types'
+import type { IProfileData } from '../types/profile.types'
 
-interface ProfileAboutCardProps {
-  profile: ProfileData
+interface IProfileAboutCardProps {
+  profile: IProfileData
   onMissingLink: (label: string) => void
 }
 
@@ -12,7 +12,7 @@ const intentions = ['Open to Collaboration', 'Mentoring Beginners']
 export default function ProfileAboutCard({
   profile,
   onMissingLink,
-}: ProfileAboutCardProps) {
+}: IProfileAboutCardProps) {
   const links = [
     { label: 'GitHub', url: profile.githubUrl, icon: <GitHubIcon /> },
     { label: 'LinkedIn', url: profile.linkedinUrl, icon: <LinkedInIcon /> },

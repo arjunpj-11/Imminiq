@@ -1,6 +1,6 @@
 import { cn } from '../../lib/cn'
 
-interface ImminiqLogoProps {
+interface IImminiqLogoProps {
   size?: number
   className?: string
   title?: string
@@ -12,7 +12,7 @@ export default function ImminiqLogo({
   className,
   title = 'Imminiq logo',
   decorative = false,
-}: ImminiqLogoProps) {
+}: IImminiqLogoProps) {
   return (
     <svg
       className={cn('block shrink-0 rounded-xl', className)}

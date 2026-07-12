@@ -2,12 +2,12 @@ import { useMutation } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
 
-interface SendFriendRequestPayload {
+interface ISendFriendRequestPayload {
   receiverId: string
   message?: string
 }
 
-interface SendFriendRequestResponse {
+interface ISendFriendRequestResponse {
   success: boolean
   message: string
   data?: {
@@ -15,20 +15,20 @@ interface SendFriendRequestResponse {
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
 
 export const useSendFriendRequest = () => {
   return useMutation<
-    SendFriendRequestResponse,
-    AxiosError<ApiErrorResponse>,
-    SendFriendRequestPayload
+    ISendFriendRequestResponse,
+    AxiosError<IApiErrorResponse>,
+    ISendFriendRequestPayload
   >({
     mutationFn: async (payload) => {
       const response =
-        await api.post<SendFriendRequestResponse>(
+        await api.post<ISendFriendRequestResponse>(
           '/friends/request',
           payload,
         )

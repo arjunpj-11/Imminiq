@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface PageHeaderProps {
+interface IPageHeaderProps {
   eyebrow?: string
   title: ReactNode
   description?: ReactNode
@@ -16,7 +16,7 @@ export default function PageHeader({
   description,
   actions,
   className,
-}: PageHeaderProps) {
+}: IPageHeaderProps) {
   return (
     <header
       className={cn(

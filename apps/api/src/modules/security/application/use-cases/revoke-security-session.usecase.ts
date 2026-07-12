@@ -1,21 +1,21 @@
-import type { SecuritySessionRepositoryContract } from '../../domain/repositories/security-session.repository.interface'
-import type { RevokeSessionResponseDto } from '../dtos/security.dto'
+import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
+import type { IRevokeSessionResponseDTO } from '../dtos/security.dto'
 import { SecurityApplicationError } from '../errors/security-application.error'
-import type { CurrentSessionServiceContract } from '../services/current-session.service'
+import type { ICurrentSessionResolver } from '../services/current-session.service'
 
 export class RevokeSecuritySessionUseCase {
   constructor(
-    private readonly _securitySessionRepository: SecuritySessionRepositoryContract,
-    private readonly _currentSessionService: CurrentSessionServiceContract,
+    private readonly _securitySessionRepository: ISecuritySessionRepository,
+    private readonly _currentSessionResolver: ICurrentSessionResolver,
   ) {}
 
   async execute(
     userId: string,
     sessionId: string,
     refreshToken?: string,
-  ): Promise<RevokeSessionResponseDto> {
+  ): Promise<IRevokeSessionResponseDTO> {
     const currentSessionId =
-      await this._currentSessionService.getCurrentSessionId(refreshToken)
+      await this._currentSessionResolver.getCurrentSessionId(refreshToken)
 
     if (currentSessionId === sessionId) {
       throw SecurityApplicationError.cannotRevokeCurrentSession()

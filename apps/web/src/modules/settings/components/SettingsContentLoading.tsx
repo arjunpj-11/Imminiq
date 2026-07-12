@@ -1,4 +1,4 @@
-interface SettingsContentLoadingProps {
+interface ISettingsContentLoadingProps {
   eyebrow?: string
   title?: string
   description?: string
@@ -8,7 +8,7 @@ export default function SettingsContentLoading({
   eyebrow = 'Loading',
   title = 'Preparing settings',
   description = 'Please wait while Imminiq gets everything ready.',
-}: SettingsContentLoadingProps) {
+}: ISettingsContentLoadingProps) {
   return (
     <div
       className="relative min-h-105 w-full overflow-hidden rounded-3xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-6 text-(--text-primary) shadow-[0_14px_48px_rgba(26,23,20,0.08)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-primary) dark:shadow-[0_18px_60px_rgba(0,0,0,0.28)]"

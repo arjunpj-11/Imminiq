@@ -13,7 +13,7 @@ export type UpdateUserProfileInput = {
   payload: UserProfileUpdate
 }
 
-export interface UserProfileRepositoryContract {
+export interface IUserProfileRepository {
   findByUserId(userId: UserIdInput): Promise<UserProfileEntity | null>
 
   findPrivacySettings(

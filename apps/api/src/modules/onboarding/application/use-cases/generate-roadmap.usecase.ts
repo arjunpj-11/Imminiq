@@ -1,31 +1,31 @@
 import { ROADMAP_GENERATION_STEPS } from '../constants/onboarding.constants'
-import type { OnboardingAIJobCommandRepositoryContract } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
-import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import type { OnboardingResponseCommandRepositoryContract } from '../../domain/repositories/onboarding-response-command.repository.interface'
-import type { AIJobQueueGatewayContract } from '../../domain/services/ai-job-queue.interface'
-import type { AIJobQuotaStoreContract } from '../../domain/services/ai-job-quota-store.interface'
+import type { IOnboardingAIJobCommandRepository } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
+import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { IOnboardingResponseCommandRepository } from '../../domain/repositories/onboarding-response-command.repository.interface'
+import type { IAIJobQueueGateway } from '../../domain/services/ai-job-queue.interface'
+import type { IAIJobQuotaStore } from '../../domain/services/ai-job-quota-store.interface'
 import type {
-  GenerateRoadmapPayload,
-  GenerateRoadmapResult,
+  IGenerateRoadmapPayloadDTO,
+  IGenerateRoadmapResultDTO,
 } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
 
 type GenerateRoadmapRepository =
-  OnboardingAIJobQueryRepositoryContract &
-  OnboardingAIJobCommandRepositoryContract &
-  OnboardingResponseCommandRepositoryContract
+  IOnboardingAIJobQueryRepository &
+  IOnboardingAIJobCommandRepository &
+  IOnboardingResponseCommandRepository
 
 export class GenerateRoadmapUseCase {
   constructor(
     private readonly _onboardingRepository: GenerateRoadmapRepository,
-    private readonly _aiJobQueueGateway: AIJobQueueGatewayContract,
-    private readonly _aiJobQuotaStore: AIJobQuotaStoreContract,
+    private readonly _aiJobQueueGateway: IAIJobQueueGateway,
+    private readonly _aiJobQuotaStore: IAIJobQuotaStore,
   ) {}
 
   async execute(
     userId: string,
-    payload: GenerateRoadmapPayload,
-  ): Promise<GenerateRoadmapResult> {
+    payload: IGenerateRoadmapPayloadDTO,
+  ): Promise<IGenerateRoadmapResultDTO> {
     const activeRoadmapJob =
       await this._onboardingRepository.findActiveRoadmapJobForUser(userId)
 

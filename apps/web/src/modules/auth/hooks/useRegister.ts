@@ -3,13 +3,13 @@ import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 
-interface RegisterPayload {
+interface IRegisterPayload {
   fullName: string
   identifier: string // email or phone number
   password: string
 }
 
-interface RegisterResponse {
+interface IRegisterResponse {
   success: boolean
   message: string
   data?: {
@@ -21,15 +21,15 @@ interface RegisterResponse {
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
 }
 
 const registerUser = async (
-  data: RegisterPayload
-): Promise<RegisterResponse> => {
-  const response = await api.post<RegisterResponse>('/auth/register', data)
+  data: IRegisterPayload
+): Promise<IRegisterResponse> => {
+  const response = await api.post<IRegisterResponse>('/auth/register', data)
   return response.data
 }
 
@@ -37,9 +37,9 @@ export const useRegister = () => {
   const navigate = useNavigate()
 
   return useMutation<
-    RegisterResponse,
-    AxiosError<ApiErrorResponse>,
-    RegisterPayload
+    IRegisterResponse,
+    AxiosError<IApiErrorResponse>,
+    IRegisterPayload
   >({
     mutationFn: registerUser,
 

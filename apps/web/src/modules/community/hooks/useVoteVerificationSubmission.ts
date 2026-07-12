@@ -3,16 +3,16 @@ import type { AxiosError } from 'axios'
 
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  VoteVerificationSubmissionData,
-  VoteVerificationSubmissionPayload,
+  IApiErrorResponse,
+  IApiResponse,
+  IVoteVerificationSubmissionData,
+  IVoteVerificationSubmissionPayload,
 } from '../types/community.types'
 
 const voteVerificationSubmission = async (
-  payload: VoteVerificationSubmissionPayload,
-): Promise<VoteVerificationSubmissionData> => {
-  const response = await api.post<ApiResponse<VoteVerificationSubmissionData>>(
+  payload: IVoteVerificationSubmissionPayload,
+): Promise<IVoteVerificationSubmissionData> => {
+  const response = await api.post<IApiResponse<IVoteVerificationSubmissionData>>(
     `/community/verify/${payload.submissionId}/vote`,
     {
       vote: payload.vote,
@@ -31,9 +31,9 @@ export const useVoteVerificationSubmission = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    VoteVerificationSubmissionData,
-    AxiosError<ApiErrorResponse>,
-    VoteVerificationSubmissionPayload
+    IVoteVerificationSubmissionData,
+    AxiosError<IApiErrorResponse>,
+    IVoteVerificationSubmissionPayload
   >({
     mutationFn: voteVerificationSubmission,
     onSuccess: (_data, payload) => {

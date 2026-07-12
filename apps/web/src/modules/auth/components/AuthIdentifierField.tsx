@@ -3,7 +3,7 @@ import type { ChangeEventHandler, FocusEventHandler } from 'react'
 import { authInputClass, authLabelClass } from '../utils/auth-ui'
 import { FieldError } from './AuthError'
 
-interface AuthIdentifierFieldProps {
+interface IAuthIdentifierFieldProps {
   value: string
   error?: string
   valid?: boolean
@@ -17,7 +17,7 @@ export default function AuthIdentifierField({
   valid = false,
   onChange,
   onBlur,
-}: AuthIdentifierFieldProps) {
+}: IAuthIdentifierFieldProps) {
   return (
     <label className="block">
       <span className={authLabelClass}>Email or phone</span>

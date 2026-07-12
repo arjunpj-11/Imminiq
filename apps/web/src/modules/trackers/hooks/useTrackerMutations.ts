@@ -2,23 +2,23 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
-  CreateSubtopicPayload,
-  CreateTopicPayload,
-  CreateTrackerPayload,
+  IApiResponse,
+  ICreateSubtopicPayload,
+  ICreateTopicPayload,
+  ICreateTrackerPayload,
   PublishTrackerPayload,
-  Tracker,
-  UpdateSubtopicProgressPayload,
-  UpdateTrackerPayload,
+  ITracker,
+  IUpdateSubtopicProgressPayload,
+  IUpdateTrackerPayload,
 } from '../types/tracker.types'
 import { trackerKeys } from './tracker.keys'
 
 export const useCreateTracker = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<Tracker>, Error, CreateTrackerPayload>({
+  return useMutation<IApiResponse<ITracker>, Error, ICreateTrackerPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<ApiResponse<Tracker>>(
+      const response = await api.post<IApiResponse<ITracker>>(
         '/trackers',
         payload
       )
@@ -37,9 +37,9 @@ export const useCreateTracker = () => {
 export const useUpdateTracker = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<Tracker>, Error, UpdateTrackerPayload>({
+  return useMutation<IApiResponse<ITracker>, Error, IUpdateTrackerPayload>({
     mutationFn: async ({ trackerId, ...payload }) => {
-      const response = await api.patch<ApiResponse<Tracker>>(
+      const response = await api.patch<IApiResponse<ITracker>>(
         `/trackers/${trackerId}`,
         payload
       )
@@ -62,9 +62,9 @@ export const useUpdateTracker = () => {
 export const useDeleteTracker = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<Tracker>, Error, string>({
+  return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.delete<ApiResponse<Tracker>>(
+      const response = await api.delete<IApiResponse<ITracker>>(
         `/trackers/${trackerId}`
       )
 
@@ -82,9 +82,9 @@ export const useDeleteTracker = () => {
 export const useArchiveTracker = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<Tracker>, Error, string>({
+  return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<ApiResponse<Tracker>>(
+      const response = await api.post<IApiResponse<ITracker>>(
         `/trackers/${trackerId}/archive`
       )
 
@@ -102,9 +102,9 @@ export const useArchiveTracker = () => {
 export const useRestoreTracker = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<Tracker>, Error, string>({
+  return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<ApiResponse<Tracker>>(
+      const response = await api.post<IApiResponse<ITracker>>(
         `/trackers/${trackerId}/restore`
       )
 
@@ -123,12 +123,12 @@ export const usePublishTracker = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<Tracker>,
+    IApiResponse<ITracker>,
     Error,
     PublishTrackerPayload
   >({
     mutationFn: async ({ trackerId, ...payload }) => {
-      const response = await api.post<ApiResponse<Tracker>>(
+      const response = await api.post<IApiResponse<ITracker>>(
         `/trackers/${trackerId}/publish`,
         payload
       )
@@ -155,9 +155,9 @@ export const usePublishTracker = () => {
 export const useUnpublishTracker = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<Tracker>, Error, string>({
+  return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<ApiResponse<Tracker>>(
+      const response = await api.post<IApiResponse<ITracker>>(
         `/trackers/${trackerId}/unpublish`
       )
 
@@ -179,9 +179,9 @@ export const useUnpublishTracker = () => {
 export const useCreateTrackerTopic = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<unknown>, Error, CreateTopicPayload>({
+  return useMutation<IApiResponse<unknown>, Error, ICreateTopicPayload>({
     mutationFn: async ({ trackerId, ...payload }) => {
-      const response = await api.post<ApiResponse<unknown>>(
+      const response = await api.post<IApiResponse<unknown>>(
         `/trackers/${trackerId}/topics`,
         payload
       )
@@ -208,9 +208,9 @@ export const useCreateTrackerTopic = () => {
 export const useCreateTrackerSubtopic = () => {
   const queryClient = useQueryClient()
 
-  return useMutation<ApiResponse<unknown>, Error, CreateSubtopicPayload>({
+  return useMutation<IApiResponse<unknown>, Error, ICreateSubtopicPayload>({
     mutationFn: async ({ trackerId, topicId, ...payload }) => {
-      const response = await api.post<ApiResponse<unknown>>(
+      const response = await api.post<IApiResponse<unknown>>(
         `/trackers/${trackerId}/topics/${topicId}/subtopics`,
         payload
       )
@@ -238,12 +238,12 @@ export const useUpdateSubtopicProgress = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<unknown>,
+    IApiResponse<unknown>,
     Error,
-    UpdateSubtopicProgressPayload
+    IUpdateSubtopicProgressPayload
   >({
     mutationFn: async ({ trackerId, subtopicId, ...payload }) => {
-      const response = await api.patch<ApiResponse<unknown>>(
+      const response = await api.patch<IApiResponse<unknown>>(
         `/trackers/${trackerId}/subtopics/${subtopicId}/progress`,
         payload
       )

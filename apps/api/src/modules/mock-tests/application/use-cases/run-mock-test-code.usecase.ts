@@ -1,26 +1,26 @@
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestCodeRunnerServiceContract } from '../../domain/services/mock-test-code-runner.service.interface'
-import type { RunMockTestCodePayload } from '../dtos/mock-tests.dto'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface'
+import type { IRunMockTestCodePayloadDTO } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
 
 type RunMockTestCodeRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestQuestionRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestQuestionRepository
 
 export class RunMockTestCodeUseCase {
   constructor(
-    private readonly _repo: RunMockTestCodeRepository,
-    private readonly _codeRunner: MockTestCodeRunnerServiceContract,
+    private readonly _repository: RunMockTestCodeRepository,
+    private readonly _codeRunner: IMockTestCodeRunner,
   ) { }
 
   async execute(
     attemptId: string,
     userId: string,
     questionId: string,
-    payload: RunMockTestCodePayload,
+    payload: IRunMockTestCodePayloadDTO,
   ) {
-    const attempt = await this._repo.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -34,7 +34,7 @@ export class RunMockTestCodeUseCase {
       throw MockTestsApplicationError.testNotActive()
     }
 
-    const question = await this._repo.findQuestionById(questionId)
+    const question = await this._repository.findQuestionById(questionId)
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found')

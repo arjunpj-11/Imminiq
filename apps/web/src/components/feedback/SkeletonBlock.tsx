@@ -1,10 +1,10 @@
 import { cn } from '../../lib/cn'
 
-interface SkeletonBlockProps {
+interface ISkeletonBlockProps {
   className?: string
 }
 
-export default function SkeletonBlock({ className }: SkeletonBlockProps) {
+export default function SkeletonBlock({ className }: ISkeletonBlockProps) {
   return (
     <div
       aria-hidden="true"

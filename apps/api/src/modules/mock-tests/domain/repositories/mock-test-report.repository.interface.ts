@@ -22,7 +22,7 @@ export type CreateMockTestReportInput = {
   generatedAt?: Date
 }
 
-export interface MockTestReportRepositoryContract {
+export interface IMockTestReportRepository {
   findReportByAttempt(attemptId: string): Promise<MockTestReportEntity | null>
 
   createReport(data: CreateMockTestReportInput): Promise<MockTestReportEntity>

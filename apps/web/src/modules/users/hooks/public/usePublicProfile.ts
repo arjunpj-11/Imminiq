@@ -2,13 +2,13 @@ import { useQuery } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  PublicProfilePageData,
+  IApiErrorResponse,
+  IApiResponse,
+  IPublicProfilePageData,
 } from '../../types/profile.types'
 import { publicProfileQueryKeys } from './public-profile.query-keys'
 
-export interface PublicProfileQuery {
+export interface IPublicProfileQuery {
   page?: number
   limit?: number
   search?: string
@@ -16,14 +16,14 @@ export interface PublicProfileQuery {
   sort?: 'createdAt' | 'publishedAt' | 'ratingAverage' | 'cloneCount'
 }
 
-interface UsePublicProfileOptions {
+interface IUsePublicProfileOptions {
   enabled?: boolean
 }
 
 export const usePublicProfile = (
   username: string,
-  params: PublicProfileQuery = { page: 1, limit: 10 },
-  options: UsePublicProfileOptions = {}
+  params: IPublicProfileQuery = { page: 1, limit: 10 },
+  options: IUsePublicProfileOptions = {}
 ) => {
   const normalizedParams = {
     page: params.page ?? 1,
@@ -34,14 +34,14 @@ export const usePublicProfile = (
   }
 
   return useQuery<
-    ApiResponse<PublicProfilePageData>,
-    AxiosError<ApiErrorResponse>,
-    PublicProfilePageData
+    IApiResponse<IPublicProfilePageData>,
+    AxiosError<IApiErrorResponse>,
+    IPublicProfilePageData
   >({
     queryKey: publicProfileQueryKeys.detail(username, normalizedParams),
     enabled: Boolean(username) && (options.enabled ?? true),
     queryFn: async () => {
-      const response = await api.get<ApiResponse<PublicProfilePageData>>(
+      const response = await api.get<IApiResponse<IPublicProfilePageData>>(
         `/users/${username}/public-profile`,
         {
           params: normalizedParams,

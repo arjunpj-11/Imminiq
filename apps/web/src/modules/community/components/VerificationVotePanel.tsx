@@ -2,15 +2,15 @@ import { useState } from 'react'
 import type { FormEvent } from 'react'
 
 import type {
-  CommunityVerificationSubmission,
+  ICommunityVerificationSubmission,
   VerificationVoteChoice,
 } from '../types/community.types'
 import { validateVoteReason } from '../utils/community-validation'
 import { cn } from '../utils/community-ui'
 import { CheckIcon, CoinsIcon } from './icons/CommunityIcons'
 
-interface VerificationVotePanelProps {
-  submission: CommunityVerificationSubmission
+interface IVerificationVotePanelProps {
+  submission: ICommunityVerificationSubmission
   pending?: boolean
   apiError?: string
   rewardMessage?: string
@@ -25,7 +25,7 @@ export default function VerificationVotePanel({
   rewardMessage,
   allTopicsChecked = false,
   onVote,
-}: VerificationVotePanelProps) {
+}: IVerificationVotePanelProps) {
   const [vote, setVote] = useState<VerificationVoteChoice>('pass')
   const [reason, setReason] = useState('')
   const [reasonError, setReasonError] = useState<string | undefined>()

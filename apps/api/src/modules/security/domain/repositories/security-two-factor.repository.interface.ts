@@ -18,7 +18,7 @@ export type ActivateTwoFactorInput = {
   backupCodes: TwoFactorBackupCodeRecord[]
 }
 
-export interface SecurityTwoFactorRepositoryContract {
+export interface ISecurityTwoFactorRepository {
   findTwoFactorByUserId(userId: string): Promise<TwoFactorEntity | null>
 
   findTwoFactorWithSecret(userId: string): Promise<TwoFactorEntity | null>

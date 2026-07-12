@@ -1,8 +1,8 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { RandomNumberGeneratorContract } from '../../domain/services/random-number-generator.service.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IRandomNumberGenerator } from '../../domain/services/random-number-generator.interface'
 
-export interface UsernameGeneratorServiceContract {
+export interface IUsernameGenerator {
   generateRegistrationUsername(data: {
     email?: string
     fullName: string
@@ -11,10 +11,10 @@ export interface UsernameGeneratorServiceContract {
   generateUniqueUsernameFromSource(source: string): Promise<string>
 }
 
-export class UsernameGeneratorService implements UsernameGeneratorServiceContract {
+export class UsernameGenerator implements IUsernameGenerator {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _randomNumberGenerator: RandomNumberGeneratorContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _randomNumberGenerator: IRandomNumberGenerator
   ) {}
 
   async generateRegistrationUsername(data: {

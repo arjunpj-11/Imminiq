@@ -11,7 +11,7 @@ export type EnableMockTestSharingInput = {
   shareToken: string
 }
 
-export interface MockTestSharingRepositoryContract {
+export interface IMockTestSharingRepository {
   findSharedTestByToken(shareToken: string): Promise<MockTestEntity | null>
 
   findImportedSharedTest(

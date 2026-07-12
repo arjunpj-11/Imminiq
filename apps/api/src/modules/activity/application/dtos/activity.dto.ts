@@ -5,7 +5,7 @@ import type { ActivityType } from '../../domain/value-objects/activity-type.vo'
 import type { ActivityXpBucket } from '../../domain/value-objects/activity-xp-bucket.vo'
 import type { ActivityCategory } from '../../domain/value-objects/activity-category.vo'
 
-export type GetActivityPagePayload = {
+export type GetActivityPagePayloadDTO = {
   year?: number
   filter?: ActivityFeedFilter
   limit?: number
@@ -13,14 +13,14 @@ export type GetActivityPagePayload = {
   utcOffsetMinutes?: number
 }
 
-export type GetActivityFeedPayload = {
+export type GetActivityFeedPayloadDTO = {
   filter?: ActivityFeedFilter
   limit?: number
   cursor?: string
   utcOffsetMinutes?: number
 }
 
-export type RecordUserActivityPayload = {
+export type RecordUserActivityPayloadDTO = {
   userId: string
 
   category: ActivityCategory
@@ -47,18 +47,18 @@ export type RecordUserActivityPayload = {
   utcOffsetMinutes?: number
 }
 
-export type ActivityEventIcon =
+export type ActivityEventIconDTO =
   | 'tracker'
   | 'test'
   | 'community'
   | 'fire'
   | 'star'
 
-export type ActivityEventView = {
+export type ActivityEventViewDTO = {
   id: string
   category: ActivityCategory
   type: ActivityType
-  icon: ActivityEventIcon
+  icon: ActivityEventIconDTO
 
   title: string
   subtitle: string
@@ -82,15 +82,15 @@ export type ActivityEventView = {
   }
 }
 
-export type ActivityFeedGroupView = {
+export type ActivityFeedGroupViewDTO = {
   date: string
   label: string
-  events: ActivityEventView[]
+  events: ActivityEventViewDTO[]
 }
 
-export type ActivityFeedResponse = {
+export type ActivityFeedResponseDTO = {
   filter: ActivityFeedFilter
-  groups: ActivityFeedGroupView[]
+  groups: ActivityFeedGroupViewDTO[]
   pagination: {
     limit: number
     returned: number
@@ -99,21 +99,21 @@ export type ActivityFeedResponse = {
   }
 }
 
-export type ActivityHeatmapItemView = {
+export type ActivityHeatmapItemViewDTO = {
   date: string
   intensityLevel: ActivityHeatmapIntensity
   activityCount: number
   isFrozen: boolean
 }
 
-export type ActivityWeekDayView = {
+export type ActivityWeekDayViewDTO = {
   date: string
   label: string
   xp: number
   sessions: number
 }
 
-export type ActivityPageResponse = {
+export type ActivityPageResponseDTO = {
   generatedAt: string
 
   user: {
@@ -140,11 +140,11 @@ export type ActivityPageResponse = {
     longestStreak: number
     totalActiveDays: number
     totalFreezeUsed: number
-    heatmap: ActivityHeatmapItemView[]
+    heatmap: ActivityHeatmapItemViewDTO[]
   }
 
   weekly: {
-    days: ActivityWeekDayView[]
+    days: ActivityWeekDayViewDTO[]
     currentXp: number
     previousXp: number
     growthPercent: number
@@ -180,11 +180,11 @@ export type ActivityPageResponse = {
     progressPercent: number
   }
 
-  feed: ActivityFeedResponse
+  feed: ActivityFeedResponseDTO
 }
 
-export type RecordUserActivityResponse = {
-  activity: ActivityEventView
+export type RecordUserActivityResponseDTO = {
+  activity: ActivityEventViewDTO
   created: boolean
   dailyGoalAwarded: boolean
 }

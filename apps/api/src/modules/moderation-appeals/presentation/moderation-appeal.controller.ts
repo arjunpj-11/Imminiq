@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
-import { createModerationAppealComposition, type ModerationAppealComposition } from '../moderation-appeal.factory'
+import type { ModerationAppealComposition } from '../moderation-appeal.factory'
 
 export class ModerationAppealController {
   constructor(private readonly _useCases: ModerationAppealComposition['useCases']) {}
@@ -46,5 +46,3 @@ export class ModerationAppealController {
     }
   }
 }
-
-export const moderationAppealController = new ModerationAppealController(createModerationAppealComposition().useCases)

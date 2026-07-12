@@ -1,17 +1,17 @@
 import StatCard, {
-  type StatAccent,
+  type IStatAccent,
 } from '../../../components/data-display/StatCard'
 import StatGrid from '../../../components/data-display/StatGrid'
-import type { MockTestSummary } from '../types/mock-tests.types'
+import type { IMockTestSummary } from '../types/mock-tests.types'
 
-const ACCENTS: StatAccent[] = [
+const ACCENTS: IStatAccent[] = [
   { light: 'var(--brand-500)', dark: 'var(--brand-500)' },
   { light: 'var(--info)', dark: 'var(--info)' },
   { light: 'var(--success)', dark: 'var(--success)' },
   { light: 'var(--warning)', dark: 'var(--warning)' },
 ]
 
-export function MockTestStatsGrid({ summary }: { summary: MockTestSummary }) {
+export function MockTestStatsGrid({ summary }: { summary: IMockTestSummary }) {
   const cards = [
     {
       label: 'Total tests',

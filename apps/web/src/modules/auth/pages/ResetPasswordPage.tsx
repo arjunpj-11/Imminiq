@@ -10,12 +10,12 @@ import { EyeIcon } from '../components/icons/AuthIcons'
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui'
 import { getPasswordStrength, validatePassword } from '../utils/auth-validation'
 
-interface FormState {
+interface IFormState {
   newPassword: string
   confirmPassword: string
 }
 
-interface FormErrors {
+interface IFormErrors {
   newPassword?: string
   confirmPassword?: string
   api?: string
@@ -27,8 +27,8 @@ export default function ResetPasswordPage() {
   const state = location.state as { resetToken?: string } | null
   const resetToken = state?.resetToken
 
-  const [form, setForm] = useState<FormState>({ newPassword: '', confirmPassword: '' })
-  const [errors, setErrors] = useState<FormErrors>({})
+  const [form, setForm] = useState<IFormState>({ newPassword: '', confirmPassword: '' })
+  const [errors, setErrors] = useState<IFormErrors>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showNew, setShowNew] = useState(false)
   const [showConfirm, setShowConfirm] = useState(false)
@@ -75,7 +75,7 @@ export default function ResetPasswordPage() {
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const newErrors: FormErrors = {}
+    const newErrors: IFormErrors = {}
     const passwordError = validatePassword(form.newPassword, 'New password')
 
     if (passwordError) newErrors.newPassword = passwordError

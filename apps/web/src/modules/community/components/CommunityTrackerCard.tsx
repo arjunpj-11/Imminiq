@@ -1,4 +1,4 @@
-import type { CommunityTracker } from '../types/community.types'
+import type { ICommunityTracker } from '../types/community.types'
 import { cn } from '../utils/community-ui'
 import { formatCompactNumber } from '../utils/community-formatters'
 import {
@@ -9,8 +9,8 @@ import {
   VerifiedIcon,
 } from './icons/CommunityIcons'
 
-interface CommunityTrackerCardProps {
-  tracker: CommunityTracker
+interface ICommunityTrackerCardProps {
+  tracker: ICommunityTracker
   cloning?: boolean
   onClone: (trackerId: string) => void
   onOpen: (trackerId: string) => void
@@ -21,7 +21,7 @@ export default function CommunityTrackerCard({
   cloning = false,
   onClone,
   onOpen,
-}: CommunityTrackerCardProps) {
+}: ICommunityTrackerCardProps) {
   const handleOpen = () => {
     onOpen(tracker._id)
   }

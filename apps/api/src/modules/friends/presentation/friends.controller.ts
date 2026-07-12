@@ -5,7 +5,7 @@ import { FRIENDS_RESPONSE_MESSAGES } from "../application/constants/friends.cons
 import { ApiError } from "../../../shared/utils/ApiError";
 import { ApiResponse } from "../../../shared/utils/ApiResponse";
 import { getAuthUser } from "../../../shared/utils/getAuthUser";
-import { createFriendsComposition, type FriendsComposition } from "../friends.factory";
+import type { FriendsComposition } from "../friends.factory";
 import {
   friendParamsSchema,
   friendRequestParamsSchema,
@@ -199,5 +199,3 @@ export class FriendsController {
     );
   }
 }
-
-export const friendsController = new FriendsController(createFriendsComposition().useCases);

@@ -1,14 +1,14 @@
-import type { DashboardBattleRepositoryContract } from '../../domain/repositories/dashboard-battle.repository.interface'
-import type { DashboardBattleItem } from '../dtos/dashboard.dto'
-import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
+import type { IDashboardBattleRepository } from '../../domain/repositories/dashboard-battle.repository.interface'
+import type { IDashboardBattleItemDTO } from '../dtos/dashboard.dto'
+import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
 export class GetRecentBattlesUseCase {
   constructor(
-    private readonly _dashboardRepository: DashboardBattleRepositoryContract,
-    private readonly _dashboardMapper: DashboardMapperContract
+    private readonly _dashboardRepository: IDashboardBattleRepository,
+    private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string, limit?: number): Promise<DashboardBattleItem[]> {
+  async execute(userId: string, limit?: number): Promise<IDashboardBattleItemDTO[]> {
     const battles = await this._dashboardRepository.getRecentBattles({
       userId,
       limit,

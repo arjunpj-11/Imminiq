@@ -3,10 +3,10 @@ import bcrypt from 'bcryptjs'
 import { BCRYPT_ROUNDS } from '../../../../config/constants'
 import { otpCache } from '../../../../infrastructure/cache/otp.cache'
 import { AuthDomainError } from '../../domain/errors/auth-domain.error'
-import type { OtpStoreContract } from '../../domain/services/otp-store.interface'
+import type { IOtpStore } from '../../domain/services/otp-store.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 
-export class RedisOtpStore implements OtpStoreContract {
+export class RedisOtpStore implements IOtpStore {
   async saveOtp(data: {
     email?: string
     phone?: string

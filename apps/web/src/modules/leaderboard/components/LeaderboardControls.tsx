@@ -18,7 +18,7 @@ import {
   UserGroupIcon,
 } from './icons/LeaderboardIcons'
 
-interface LeaderboardControlsProps {
+interface ILeaderboardControlsProps {
   activeSection: LeaderboardSection
   activeScope: LeaderboardScope
   counts: {
@@ -48,7 +48,7 @@ export default function LeaderboardControls({
   onSectionChange,
   onScopeChange,
   disabled = false,
-}: LeaderboardControlsProps) {
+}: ILeaderboardControlsProps) {
   return (
     <div className="flex flex-col gap-3">
       <div className="flex gap-2.5 max-[400px]:flex-col" role="group" aria-label="Leaderboard section">

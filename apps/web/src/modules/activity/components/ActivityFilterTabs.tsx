@@ -8,7 +8,7 @@ import {
   UsersIcon,
 } from './icons/ActivityIcons'
 
-interface ActivityFilterTabsProps {
+interface IActivityFilterTabsProps {
   activeFilter: ActivityFeedFilter
   disabled?: boolean
   onChange: (filter: ActivityFeedFilter) => void
@@ -31,7 +31,7 @@ export default function ActivityFilterTabs({
   activeFilter,
   disabled = false,
   onChange,
-}: ActivityFilterTabsProps) {
+}: IActivityFilterTabsProps) {
   return (
     <PillTabs
       value={activeFilter}

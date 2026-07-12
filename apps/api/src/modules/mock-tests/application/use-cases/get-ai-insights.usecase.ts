@@ -1,10 +1,10 @@
-import type { MockTestAnalyticsRepositoryContract } from '../../domain/repositories/mock-test-analytics.repository.interface'
-import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
+import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
+import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
 
 export class GetAIInsightsUseCase {
   constructor(
-    private readonly _analyticsRepository: MockTestAnalyticsRepositoryContract,
-    private readonly _aiService: MockTestAIServiceContract,
+    private readonly _analyticsRepository: IMockTestAnalyticsRepository,
+    private readonly _aiGateway: IMockTestAIGateway,
   ) { }
 
   async execute(userId: string): Promise<{ insight: string }> {
@@ -14,7 +14,7 @@ export class GetAIInsightsUseCase {
     ])
 
     try {
-      const insight = await this._aiService.generatePerformanceInsights({
+      const insight = await this._aiGateway.generatePerformanceInsights({
         userId,
         performanceTrends,
         topicBreakdown,

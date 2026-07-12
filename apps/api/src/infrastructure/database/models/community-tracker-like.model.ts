@@ -1,6 +1,6 @@
 import mongoose, { Schema } from 'mongoose'
 
-export interface ICommunityTrackerLike {
+export interface ICommunityTrackerLikeDocument {
   trackerId: mongoose.Types.ObjectId
   userId: mongoose.Types.ObjectId
   deletedAt?: Date | null
@@ -8,7 +8,7 @@ export interface ICommunityTrackerLike {
   updatedAt?: Date
 }
 
-const communityTrackerLikeSchema = new Schema<ICommunityTrackerLike>(
+const communityTrackerLikeSchema = new Schema<ICommunityTrackerLikeDocument>(
   {
     trackerId: {
       type: Schema.Types.ObjectId,
@@ -49,7 +49,7 @@ communityTrackerLikeSchema.index(
 
 export const CommunityTrackerLike =
   mongoose.models.CommunityTrackerLike ||
-  mongoose.model<ICommunityTrackerLike>(
+  mongoose.model<ICommunityTrackerLikeDocument>(
     'CommunityTrackerLike',
     communityTrackerLikeSchema,
   )

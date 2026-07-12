@@ -1,50 +1,50 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthTwoFactorRepositoryContract } from '../../domain/repositories/auth-two-factor.repository.interface'
-import type { AuthNotificationServiceContract } from '../../domain/services/auth-notification.service.interface'
-import type { AuthRedirectServiceContract } from '../../domain/services/auth-redirect.service.interface'
-import type { PasswordHasherServiceContract } from '../../domain/services/password-hasher.service.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface'
+import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
+import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface'
+import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
 import type {
   SecurityAttemptScope,
-  SecurityAttemptStoreContract,
+  ISecurityAttemptStore,
 } from '../../domain/services/security-attempt-store.interface'
 import type {
-  AuthLoginResult,
-  LoginPayload,
-  RequestMeta,
+  AuthLoginResultDTO,
+  ILoginPayloadDTO,
+  RequestMetaDTO,
 } from '../dtos/auth.dto'
 import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/constants/auth.constants'
-import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
-import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
-import type { AuthSessionServiceContract } from '../services/auth-session.service'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
-import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
+import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
+import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
+import type { IAuthSessionIssuer } from '../services/auth-session.service'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
+import type { IAuthToken } from '../../domain/services/auth-token.interface'
 import { createModerationAppealToken } from '../../../../shared/security/moderation-appeal-token.util'
 
 type LoginRepository =
-  AuthUserRepositoryContract &
-  AuthTwoFactorRepositoryContract
+  IAuthUserRepository &
+  IAuthTwoFactorRepository
 
 const LOGIN_SCOPE: SecurityAttemptScope = 'auth_login'
 
 export class LoginUserUseCase {
   constructor(
     private readonly _authRepository: LoginRepository,
-    private readonly _authNotificationService: AuthNotificationServiceContract,
-    private readonly _authRedirectService: AuthRedirectServiceContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract,
-    private readonly _authAccountPolicy: AuthAccountPolicyContract,
-    private readonly _authSessionService: AuthSessionServiceContract,
-    private readonly _authTokenService: AuthTokenServiceContract,
-    private readonly _passwordHasher: PasswordHasherServiceContract,
-    private readonly _securityAttemptStore: SecurityAttemptStoreContract,
-    private readonly _authUserMapper: AuthUserMapperContract
+    private readonly _authNotification: IAuthNotification,
+    private readonly _authRedirectResolver: IAuthRedirectResolver,
+    private readonly _identifierNormalizer: IIdentifierNormalizer,
+    private readonly _authAccountPolicy: IAuthAccountPolicy,
+    private readonly _authSessionIssuer: IAuthSessionIssuer,
+    private readonly _authToken: IAuthToken,
+    private readonly _passwordHasher: IPasswordHasher,
+    private readonly _securityAttemptStore: ISecurityAttemptStore,
+    private readonly _authUserMapper: IAuthUserMapper
   ) {}
 
   async execute(
-    payload: LoginPayload,
-    meta?: RequestMeta
-  ): Promise<AuthLoginResult> {
+    payload: ILoginPayloadDTO,
+    meta?: RequestMetaDTO
+  ): Promise<AuthLoginResultDTO> {
     const parsedIdentifier =
       this._identifierNormalizer.normalize(payload.identifier)
 
@@ -94,7 +94,7 @@ export class LoginUserUseCase {
     )
 
     if (parsedIdentifier.method === 'email' && !user.emailVerified) {
-      await this._authNotificationService.sendVerificationOtp({
+      await this._authNotification.sendVerificationOtp({
         email: parsedIdentifier.email!,
         method: 'email',
       })
@@ -103,7 +103,7 @@ export class LoginUserUseCase {
     }
 
     if (parsedIdentifier.method === 'phone' && !user.phoneVerified) {
-      await this._authNotificationService.sendVerificationOtp({
+      await this._authNotification.sendVerificationOtp({
         phone: parsedIdentifier.phone!,
         method: 'phone',
       })
@@ -120,7 +120,7 @@ export class LoginUserUseCase {
       return {
         requiresTwoFactor: true,
         challengeToken:
-          this._authTokenService.generateTwoFactorChallengeToken(userId),
+          this._authToken.generateTwoFactorChallengeToken(userId),
         challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
       }
     }
@@ -131,9 +131,9 @@ export class LoginUserUseCase {
     const authenticatedUser = recoveredUser ?? user
 
     const redirectPath =
-      await this._authRedirectService.resolveRedirectPath(userId)
+      await this._authRedirectResolver.resolveRedirectPath(userId)
 
-    const tokens = await this._authSessionService.issueTokenPair(
+    const tokens = await this._authSessionIssuer.issueTokenPair(
       userId,
       user.role,
       meta

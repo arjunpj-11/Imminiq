@@ -18,7 +18,7 @@ import {
 } from "../constants/friends.constants";
 import { useFriendSearch } from "../hooks/useFriendSearch";
 import { useSendFriendRequest } from "../hooks/useSendFriendRequest";
-import type { FriendUser } from "../types/friends.types";
+import type { IFriendUser } from "../types/friends.types";
 import {
   getFriendsApiErrorMessage,
   mergeFriendUserPages,
@@ -86,7 +86,7 @@ function FriendsSearchPageContent({
     setSearchParams({}, { replace: true });
   };
 
-  const handleSendRequest = (user: FriendUser) => {
+  const handleSendRequest = (user: IFriendUser) => {
     setActionError(undefined);
 
     sendMutation.mutate(

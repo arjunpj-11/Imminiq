@@ -1,20 +1,20 @@
-import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import type { GetJobStatusResult } from '../dtos/onboarding.dto'
+import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { IGetJobStatusResultDTO } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
-import type { OnboardingMapperContract } from '../mappers/onboarding.mapper'
-import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
+import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
+import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
 export class GetRoadmapJobStatusUseCase {
   constructor(
-    private readonly _onboardingRepository: OnboardingAIJobQueryRepositoryContract,
-    private readonly _onboardingMapper: OnboardingMapperContract,
-    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingRepository: IOnboardingAIJobQueryRepository,
+    private readonly _onboardingMapper: IOnboardingMapper,
+    private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader,
   ) {}
 
   async execute(
     jobId: string,
     userId: string,
-  ): Promise<GetJobStatusResult> {
+  ): Promise<IGetJobStatusResultDTO> {
     const job = await this._onboardingRepository.getJobById(jobId)
 
     if (!job) {

@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/storage/storage-keys'
 import { safeLocalStateStorage } from '../lib/storage/safe-storage'
 
-export interface AuthUser {
+export interface IAuthUser {
   _id: string
   fullName?: string
   username: string
@@ -19,19 +19,19 @@ export interface AuthUser {
   onboardingCompleted?: boolean
 }
 
-interface AuthStore {
-  user: AuthUser | null
+interface IAuthStore {
+  user: IAuthUser | null
   accessToken: string | null
   isAuthenticated: boolean
   authReady: boolean
-  setUser: (user: AuthUser) => void
+  setUser: (user: IAuthUser) => void
   setAccessToken: (accessToken: string | null) => void
   setAuthReady: (authReady: boolean) => void
   clearUser: () => void
   clearAuth: () => void
 }
 
-export const useAuthStore = create<AuthStore>()(
+export const useAuthStore = create<IAuthStore>()(
   persist(
     (set) => ({
       user: null,

@@ -1,14 +1,14 @@
 export type {
-  AuthLoginResult,
-  AuthSessionDto,
-  AuthLoginSuccessResult,
-  AuthUser,
-  LoginPayload,
-  OAuthLoginUser,
-  RegisterPayload,
-  RequestMeta,
-  TokenPair,
-  TwoFactorLoginVerifyPayload,
+  AuthLoginResultDTO,
+  IAuthSessionDTO,
+  IAuthLoginSuccessResultDTO,
+  IAuthUserDTO,
+  ILoginPayloadDTO,
+  OAuthLoginUserDTO,
+  IRegisterPayloadDTO,
+  RequestMetaDTO,
+  ITokenPairDTO,
+  ITwoFactorLoginVerifyPayloadDTO,
 } from './application/dtos/auth.dto'
 
 export type {

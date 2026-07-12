@@ -30,7 +30,7 @@ export type MarkMissingEvaluationTopicAsAddedInput = {
   addedTopicId?: string
 }
 
-export interface TrackerContentRepositoryContract {
+export interface ITrackerContentRepository {
   findEvaluationJobById(
     data: FindEvaluationJobByIdInput
   ): Promise<EvaluationJobRecord | null>

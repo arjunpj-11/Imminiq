@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerAIServiceContract } from '../../domain/services/tracker-ai.service.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 
 const getDocumentId = (document: unknown) => {
   const doc = document as { _id?: unknown }
@@ -25,8 +25,8 @@ type VerifyLessonAnswerInput = {
   answer: string
 }
 
-type VerifyLessonAnswerResultDto = ReturnType<
-  TrackerMapperContract['toLessonAnswerVerificationDto']
+type VerifyLessonAnswerResultDTO = ReturnType<
+  ITrackerMapper['toLessonAnswerVerificationDto']
 >
 
 const getIsCorrectFromResult = (result: {
@@ -37,14 +37,14 @@ const getIsCorrectFromResult = (result: {
 
 export class VerifyLessonAnswerUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _trackerAIService: TrackerAIServiceContract,
-    private readonly _trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerAIGateway: ITrackerAIGateway,
+    private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
   async execute(
     input: VerifyLessonAnswerInput,
-  ): Promise<VerifyLessonAnswerResultDto> {
+  ): Promise<VerifyLessonAnswerResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
@@ -72,7 +72,7 @@ export class VerifyLessonAnswerUseCase {
         }
       | undefined
 
-    const result = await this._trackerAIService.verifyNonCodingAnswer({
+    const result = await this._trackerAIGateway.verifyNonCodingAnswer({
       lessonTitle: lesson.title || tracker.title || 'Lesson practice',
       lessonExplanation:
         lesson.explanation ||

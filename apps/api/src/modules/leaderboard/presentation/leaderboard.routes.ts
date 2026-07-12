@@ -2,9 +2,11 @@ import { Router } from 'express'
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
-import { leaderboardController } from './leaderboard.controller'
+import { LeaderboardController } from './leaderboard.controller'
+import { createLeaderboardComposition } from '../leaderboard.factory'
 import { LEADERBOARD_ROUTE_PATHS } from './leaderboard.route.constants'
 
+const leaderboardController = new LeaderboardController(createLeaderboardComposition().useCases)
 const router = Router()
 
 router.get(

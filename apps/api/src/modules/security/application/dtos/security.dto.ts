@@ -1,37 +1,37 @@
 import type { AuthProvider } from '../../domain/value-objects/auth-provider.vo'
 import type { TwoFactorStatus } from '../../domain/value-objects/two-factor-status.vo'
 
-export interface SensitiveActionStepUpPayload {
+export interface ISensitiveActionStepUpPayloadDTO {
   currentPassword?: string
   twoFactorCode?: string
 }
 
-export interface ChangeEmailPayload extends SensitiveActionStepUpPayload {
+export interface IChangeEmailPayloadDTO extends ISensitiveActionStepUpPayloadDTO {
   newEmail: string
 }
 
-export interface VerifyEmailChangePayload {
+export interface IVerifyEmailChangePayloadDTO {
   token: string
 }
 
-export interface ChangePasswordPayload {
+export interface IChangePasswordPayloadDTO {
   currentPassword: string
   newPassword: string
 }
 
-export interface DeleteAccountPayload extends SensitiveActionStepUpPayload {
+export interface IDeleteAccountPayloadDTO extends ISensitiveActionStepUpPayloadDTO {
   confirmation: 'DELETE'
 }
 
-export interface VerifyTwoFactorSetupPayload {
+export interface IVerifyTwoFactorSetupPayloadDTO {
   token: string
 }
 
-export interface DisableTwoFactorPayload {
+export interface IDisableTwoFactorPayloadDTO {
   token: string
 }
 
-export interface SecuritySessionDto {
+export interface ISecuritySessionDTO {
   id: string
   deviceName: string
   location: string
@@ -40,65 +40,65 @@ export interface SecuritySessionDto {
   current: boolean
 }
 
-export interface SecurityOverviewDto {
+export interface ISecurityOverviewDTO {
   email: string
   emailVerified: boolean
   pendingEmail: string | null
   authProvider: AuthProvider
   canChangePassword: boolean
   twoFactorEnabled: boolean
-  activeSessions: SecuritySessionDto[]
+  activeSessions: ISecuritySessionDTO[]
   passwordLastChangedAt: string | null
 }
 
-export interface TwoFactorSetupResponseDto {
+export interface ITwoFactorSetupResponseDTO {
   qrCodeDataUrl: string
   manualEntryKey: string
   issuer: string
   accountLabel: string
 }
 
-export interface TwoFactorVerifyResponseDto {
+export interface ITwoFactorVerifyResponseDTO {
   enabled: boolean
   backupCodes: string[]
 }
 
-export interface TwoFactorStatusResponseDto {
+export interface ITwoFactorStatusResponseDTO {
   enabled: boolean
   status: TwoFactorStatus
 }
 
-export interface EmailChangeRequestResponseDto {
+export interface IEmailChangeRequestResponseDTO {
   pendingEmail: string
   verificationSent: boolean
   expiresInMinutes: number
 }
 
-export interface VerifyEmailChangeResponseDto {
+export interface IVerifyEmailChangeResponseDTO {
   email: string
   emailVerified: boolean
   verified: true
   sessionsRevoked: true
 }
 
-export interface ChangePasswordResponseDto {
+export interface IChangePasswordResponseDTO {
   sessionsRevoked: true
 }
 
-export interface SessionsResponseDto {
-  activeSessions: SecuritySessionDto[]
+export interface ISessionsResponseDTO {
+  activeSessions: ISecuritySessionDTO[]
 }
 
-export interface RevokeSessionResponseDto {
+export interface IRevokeSessionResponseDTO {
   revoked: true
   sessionId: string
 }
 
-export interface DisableTwoFactorResponseDto {
+export interface IDisableTwoFactorResponseDTO {
   disabled: true
 }
 
-export interface DeleteAccountResponseDto {
+export interface IDeleteAccountResponseDTO {
   deleted: true
   deletionScheduled: true
   scheduledDeletionAt: string

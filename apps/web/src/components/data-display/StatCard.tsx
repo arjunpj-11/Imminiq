@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 
 export type StatTone = 'rust' | 'green' | 'amber' | 'blue'
-export interface StatAccent {
+export interface IStatAccent {
   light: string
   dark: string
 }
@@ -15,7 +15,7 @@ const toneColors: Record<StatTone, string> = {
   blue: 'var(--info)',
 }
 
-interface StatCardProps {
+interface IStatCardProps {
   label: ReactNode
   value?: ReactNode
   helper?: ReactNode
@@ -23,7 +23,7 @@ interface StatCardProps {
   action?: ReactNode
   children?: ReactNode
   tone?: StatTone
-  accent?: StatAccent
+  accent?: IStatAccent
   className?: string
   valueClassName?: string
   variant?: 'flat' | 'elevated' | 'spotlight'
@@ -43,7 +43,7 @@ export default function StatCard({
   valueClassName,
   variant = 'flat',
   trend,
-}: StatCardProps) {
+}: IStatCardProps) {
   const color = accent?.light ?? toneColors[tone]
 
   return (

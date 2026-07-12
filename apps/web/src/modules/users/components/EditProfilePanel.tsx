@@ -2,15 +2,15 @@ import { useEffect, useState } from 'react'
 import type React from 'react'
 import { getCitiesOfState, getCountries, getStatesOfCountry } from '@countrystatecity/countries-browser'
 import type { ICity, ICountry, IState } from '@countrystatecity/countries-browser'
-import type { ProfileData } from '../types/profile.types'
+import type { IProfileData } from '../types/profile.types'
 import { cn, themedScrollbar } from '../utils/profile-ui.utils'
 
 /* ─── Edit Panel ─── */
-interface EditPanelProps {
-  profile: ProfileData;
+interface IEditPanelProps {
+  profile: IProfileData;
   open: boolean;
   onClose: () => void;
-  onSave: (data: Partial<ProfileData>) => void | Promise<void>;
+  onSave: (data: Partial<IProfileData>) => void | Promise<void>;
   isSaving?: boolean;
 }
 
@@ -20,7 +20,7 @@ export default function EditProfilePanel({
   onClose,
   onSave,
   isSaving = false,
-}: EditPanelProps) {
+}: IEditPanelProps) {
   const [name, setName] = useState(profile.name);
   const [profession, setProfession] = useState(profile.profession);
   const [bio, setBio] = useState(profile.bio);

@@ -5,7 +5,7 @@ export type GetRecentActivityInput = {
   limit?: number
 }
 
-export interface DashboardNotificationRepositoryContract {
+export interface IDashboardNotificationRepository {
   getRecentActivity(
     input: GetRecentActivityInput
   ): Promise<DashboardRecentActivityEntity[]>

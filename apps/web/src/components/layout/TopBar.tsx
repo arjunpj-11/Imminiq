@@ -8,7 +8,7 @@ import { useAppShellStore } from '../../store/useAppShellStore'
 import ImminiqLogo from '../ui/ImminiqLogo'
 import ImminiqWordmark from '../ui/ImminiqWordmark'
 
-interface TopBarProps {
+interface ITopBarProps {
   onMenuClick?: () => void
   streakDays?: number
   userName?: string
@@ -90,7 +90,7 @@ export default function TopBar({
   notificationCount = 0,
   messageCount = 0,
   friendRequestCount = 0,
-}: TopBarProps) {
+}: ITopBarProps) {
   const location = useLocation()
   const navigate = useNavigate()
   const clearAuth = useAuthStore((state) => state.clearAuth)

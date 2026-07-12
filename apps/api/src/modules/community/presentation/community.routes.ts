@@ -3,7 +3,8 @@ import { Router } from 'express'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { communityController } from './community.controller'
+import { CommunityController } from './community.controller'
+import { createCommunityComposition } from '../community.factory'
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants'
 import {
   sendTrackerForVerificationSchema,
@@ -11,6 +12,7 @@ import {
   voteVerificationSubmissionSchema,
 } from './community.schema'
 
+const communityController = new CommunityController(createCommunityComposition().useCases)
 const router = Router()
 
 // ─── PROTECTED ROUTES ────────────────────────────────────────────────

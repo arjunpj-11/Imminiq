@@ -10,7 +10,7 @@ import {
 } from '../../../domain/constants/activity.constants'
 import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
 import type {
-  ActivityQueryRepositoryContract,
+  IActivityQueryRepository,
   FindActivityAnalyticsInput,
   FindActivityFeedInput,
   FindActivityFeedResult,
@@ -87,7 +87,7 @@ type StreakTotalsRecord = {
 
 export class MongoActivityQueryRepository
   extends MongoActivityBaseRepository
-  implements ActivityQueryRepositoryContract
+  implements IActivityQueryRepository
 {
   constructor(
     private readonly _mapper = new MongoActivityMapper(),

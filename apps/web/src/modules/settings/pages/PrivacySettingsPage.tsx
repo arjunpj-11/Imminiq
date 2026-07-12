@@ -18,7 +18,7 @@ import {
 } from '../hooks/useSettings'
 import type {
   MessagePermissionType,
-  PrivacySettings,
+  IPrivacySettings,
 } from '../types/settings.types'
 
 export default function PrivacySettingsPage() {
@@ -63,13 +63,13 @@ export default function PrivacySettingsPage() {
 function PrivacySettingsForm({
   initialForm,
 }: {
-  initialForm: PrivacySettings
+  initialForm: IPrivacySettings
 }) {
   const updatePrivacy = useUpdatePrivacy()
   const resetSettings = useResetSettings()
   const toast = useSettingsToast()
 
-  const [form, setForm] = useState<PrivacySettings>(initialForm)
+  const [form, setForm] = useState<IPrivacySettings>(initialForm)
   const [savedForm, setSavedForm] = useState(initialForm)
 
   const isDirty = useMemo(
@@ -186,7 +186,7 @@ function PrivacySettingsForm({
   }
 
   const selectProfileVisibility = (
-    profileVisibility: PrivacySettings['profileVisibility']
+    profileVisibility: IPrivacySettings['profileVisibility']
   ) => {
     setForm((current) => ({
       ...current,

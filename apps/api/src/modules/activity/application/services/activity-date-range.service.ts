@@ -26,7 +26,7 @@ export type ActivityDateContext = {
   currentWeekDateKeys: string[]
 }
 
-export class ActivityDateRangeService {
+export class ActivityDateRange {
   createContext(
     now: Date,
     requestedYear?: number,
@@ -205,3 +205,8 @@ export class ActivityDateRangeService {
     ).padStart(2, '0')}`
   }
 }
+
+export type ActivityDateRangeContract = Pick<
+  ActivityDateRange,
+  'createContext' | 'toLocalDateKey' | 'weekdayLabel' | 'groupLabel'
+>

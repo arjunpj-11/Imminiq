@@ -1,11 +1,11 @@
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { TrackerListFilter } from '../../domain/types/trackers.types'
-import { TrackerMapperContract } from '../mappers'
+import { ITrackerMapper } from '../mappers'
 
 export class ListTrackersUseCase {
-  constructor(private readonly _trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
+  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(filter: TrackerListFilter) {
-    return this.trackerMapper.toTrackerListDto(await this._trackerRepository.listOwnedTrackers(filter))
+    return this._trackerMapper.toTrackerListDto(await this._trackerRepository.listOwnedTrackers(filter))
   }
 }

@@ -1,12 +1,12 @@
 import { FireIcon, LiveDotIcon } from './icons/ActivityIcons'
 
-interface ActivityHeaderProps {
+interface IActivityHeaderProps {
   currentStreak: number
 }
 
 export default function ActivityHeader({
   currentStreak,
-}: ActivityHeaderProps) {
+}: IActivityHeaderProps) {
   return (
     <section className="flex flex-wrap items-start justify-between gap-5">
       <div>

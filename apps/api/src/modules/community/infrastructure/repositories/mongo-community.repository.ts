@@ -1,4 +1,4 @@
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
 import type { UpsertCommunityTrackerReviewInput } from '../../domain/repositories/community-review.repository.interface'
 import type { FindCommunityTrackersQuery } from '../../domain/repositories/community-tracker.repository.interface'
 import type {
@@ -20,7 +20,7 @@ type MongoCommunityRepositoryDependencies = {
 }
 
 export class MongoCommunityRepository
-  implements CommunityRepositoryContract
+  implements ICommunityRepository
 {
   private readonly _trackerRepository:
     MongoCommunityTrackerRepository

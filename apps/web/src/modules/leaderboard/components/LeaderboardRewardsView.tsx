@@ -1,6 +1,6 @@
 import type {
-  LeaderboardReward,
-  LeaderboardScoringRule,
+  ILeaderboardReward,
+  ILeaderboardScoringRule,
   LeaderboardSection,
 } from '../types/leaderboard.types'
 import { formatNumber } from '../utils/leaderboard-formatters'
@@ -12,17 +12,17 @@ import {
   StarIcon,
 } from './icons/LeaderboardIcons'
 
-interface RewardSectionProps {
+interface IRewardSectionProps {
   section: LeaderboardSection
-  scoringRules: LeaderboardScoringRule[]
-  reward: LeaderboardReward
+  scoringRules: ILeaderboardScoringRule[]
+  reward: ILeaderboardReward
 }
 
 export default function LeaderboardRewardsView({
   section,
   scoringRules,
   reward,
-}: RewardSectionProps) {
+}: IRewardSectionProps) {
   const isStudents = section === 'students'
 
   return (

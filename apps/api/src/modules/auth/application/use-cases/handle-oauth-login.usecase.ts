@@ -1,30 +1,30 @@
 import { AuthApplicationError } from '../errors/auth-application.error'
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { AuthTwoFactorRepositoryContract } from '../../domain/repositories/auth-two-factor.repository.interface'
-import type { AuthRedirectServiceContract } from '../../domain/services/auth-redirect.service.interface'
-import type { AuthTokenServiceContract } from '../../domain/services/auth-token.service.interface'
-import type { AuthLoginResult, OAuthLoginUser, RequestMeta } from '../dtos/auth.dto'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface'
+import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface'
+import type { IAuthToken } from '../../domain/services/auth-token.interface'
+import type { AuthLoginResultDTO, OAuthLoginUserDTO, RequestMetaDTO } from '../dtos/auth.dto'
 import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/constants/auth.constants'
-import type { AuthUserMapperContract } from '../mappers/auth-user.mapper'
-import type { AuthAccountPolicyContract } from '../policies/auth-account-policy.policy'
-import type { AuthSessionServiceContract } from '../services/auth-session.service'
+import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
+import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
+import type { IAuthSessionIssuer } from '../services/auth-session.service'
 
-type OAuthLoginRepository = AuthUserRepositoryContract & AuthTwoFactorRepositoryContract
+type OAuthLoginRepository = IAuthUserRepository & IAuthTwoFactorRepository
 
 export class HandleOAuthLoginUseCase {
   constructor(
     private readonly _authRepository: OAuthLoginRepository,
-    private readonly _authRedirectService: AuthRedirectServiceContract,
-    private readonly _authTokenService: AuthTokenServiceContract,
-    private readonly _authAccountPolicy: AuthAccountPolicyContract,
-    private readonly _authSessionService: AuthSessionServiceContract,
-    private readonly _authUserMapper: AuthUserMapperContract
+    private readonly _authRedirectResolver: IAuthRedirectResolver,
+    private readonly _authToken: IAuthToken,
+    private readonly _authAccountPolicy: IAuthAccountPolicy,
+    private readonly _authSessionIssuer: IAuthSessionIssuer,
+    private readonly _authUserMapper: IAuthUserMapper
   ) {}
 
   async execute(
-    user: OAuthLoginUser,
-    meta?: RequestMeta
-  ): Promise<AuthLoginResult> {
+    user: OAuthLoginUserDTO,
+    meta?: RequestMetaDTO
+  ): Promise<AuthLoginResultDTO> {
     const userId = this.resolveOAuthUserId(user)
 
     const dbUser = await this._authRepository.findById(userId)
@@ -41,7 +41,7 @@ export class HandleOAuthLoginUseCase {
     if (twoFactorEnabled) {
       return {
         requiresTwoFactor: true,
-        challengeToken: this._authTokenService.generateTwoFactorChallengeToken(userId),
+        challengeToken: this._authToken.generateTwoFactorChallengeToken(userId),
         challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
       }
     }
@@ -52,9 +52,9 @@ export class HandleOAuthLoginUseCase {
     const authenticatedUser = recoveredUser ?? dbUser
 
     const redirectPath =
-      await this._authRedirectService.resolveRedirectPath(userId)
+      await this._authRedirectResolver.resolveRedirectPath(userId)
 
-    const tokens = await this._authSessionService.issueTokenPair(
+    const tokens = await this._authSessionIssuer.issueTokenPair(
       userId,
       authenticatedUser.role,
       meta
@@ -70,7 +70,7 @@ export class HandleOAuthLoginUseCase {
     }
   }
 
-  private resolveOAuthUserId(user: OAuthLoginUser): string {
+  private resolveOAuthUserId(user: OAuthLoginUserDTO): string {
     if (typeof user._id === 'string') {
       return user._id
     }

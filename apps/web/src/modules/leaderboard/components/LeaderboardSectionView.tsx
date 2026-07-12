@@ -1,4 +1,4 @@
-import type { LeaderboardResponse } from '../types/leaderboard.types'
+import type { ILeaderboardResponse } from '../types/leaderboard.types'
 import LeaderboardMyRankBar from './LeaderboardMyRankBar'
 import LeaderboardPodium from './LeaderboardPodium'
 import LeaderboardSidebar from './LeaderboardSidebar'
@@ -7,7 +7,7 @@ import LeaderboardTable from './LeaderboardTable'
 export default function LeaderboardSectionView({
   leaderboard,
 }: {
-  leaderboard: LeaderboardResponse
+  leaderboard: ILeaderboardResponse
 }) {
   const currentUserIsInPodium = leaderboard.currentUser
     ? leaderboard.topThree.some(

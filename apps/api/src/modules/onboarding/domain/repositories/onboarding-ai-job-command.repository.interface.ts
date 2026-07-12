@@ -27,7 +27,7 @@ export type CreateAIJobStepsInput = {
   stepLabels: readonly string[]
 }
 
-export interface OnboardingAIJobCommandRepositoryContract {
+export interface IOnboardingAIJobCommandRepository {
   createAIJob(
     data: CreateRoadmapAIJobInput
   ): Promise<AIGenerationJobEntity>

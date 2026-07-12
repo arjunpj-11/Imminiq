@@ -9,7 +9,7 @@ import { createPortal } from 'react-dom'
 import { cn } from '../../lib/cn'
 import { canUseDOM } from '../../lib/storage/safe-storage'
 
-interface ModalProps {
+interface IModalProps {
   open: boolean
   onClose: () => void
   children: ReactNode
@@ -52,7 +52,7 @@ export default function Modal({
   overlayClassName,
   contentClassName,
   initialFocusRef,
-}: ModalProps) {
+}: IModalProps) {
   const panelRef = useRef<HTMLElement>(null)
   const previousFocusRef = useRef<HTMLElement | null>(null)
 

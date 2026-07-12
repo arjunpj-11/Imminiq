@@ -1,18 +1,18 @@
-import type { OnboardingAIJobQueryRepositoryContract } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import type { GetEvaluationResult } from '../dtos/onboarding.dto'
+import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
+import type { IGetEvaluationResultDTO } from '../dtos/onboarding.dto'
 import { OnboardingApplicationError } from '../errors/onboarding-application.error'
-import type { OnboardingJobOutputReaderServiceContract } from '../services/onboarding-job-output-reader.service'
+import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
 export class GetRoadmapEvaluationResultUseCase {
   constructor(
-    private readonly _onboardingRepository: OnboardingAIJobQueryRepositoryContract,
-    private readonly _onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract,
+    private readonly _onboardingRepository: IOnboardingAIJobQueryRepository,
+    private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader,
   ) {}
 
   async execute(
     jobId: string,
     userId: string,
-  ): Promise<GetEvaluationResult> {
+  ): Promise<IGetEvaluationResultDTO> {
     const job = await this._onboardingRepository.getJobById(jobId)
 
     if (!job) {

@@ -5,7 +5,7 @@ import { cn } from '../../lib/cn'
 import { canUseDOM } from '../../lib/storage/safe-storage'
 import {
   subscribeToToasts,
-  type ToastRecord,
+  type IToastRecord,
   type ToastTone,
 } from '../../lib/toast'
 
@@ -27,7 +27,7 @@ const dotClasses: Record<ToastTone, string> = {
 }
 
 export default function ToastProvider() {
-  const [items, setItems] = useState<ToastRecord[]>([])
+  const [items, setItems] = useState<IToastRecord[]>([])
   const timers = useRef<Map<number, number>>(new Map())
 
   const remove = (id: number) => {

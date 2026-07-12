@@ -2,14 +2,14 @@ import { useMutation } from '@tanstack/react-query'
 import { useNavigate } from 'react-router-dom'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
-import { useAuthStore, type AuthUser } from '../store/useAuthStore'
+import { useAuthStore, type IAuthUser } from '../store/useAuthStore'
 import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
   saveBlockedAppealToken,
 } from '../../../lib/blockedAppealSession'
 
-interface LoginPayload {
+interface ILoginPayload {
   identifier: string
   password: string
   rememberMe?: boolean
@@ -19,29 +19,29 @@ type LoginRedirectPath =
   | '/dashboard'
   | '/onboarding/step-1'
 
-interface StandardLoginData {
+interface IStandardLoginData {
   accessToken?: string
-  user?: AuthUser
+  user?: IAuthUser
   redirectPath?: LoginRedirectPath
   requiresTwoFactor?: false
 }
 
-interface TwoFactorRequiredLoginData {
+interface ITwoFactorRequiredLoginData {
   requiresTwoFactor: true
   challengeExpiresInMinutes?: number
 }
 
 type LoginResponseData =
-  | StandardLoginData
-  | TwoFactorRequiredLoginData
+  | IStandardLoginData
+  | ITwoFactorRequiredLoginData
 
-interface LoginResponse {
+interface ILoginResponse {
   success: boolean
   message: string
   data?: LoginResponseData
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
@@ -50,7 +50,7 @@ interface ApiErrorResponse {
 
 const isTwoFactorRequired = (
   data: LoginResponseData | undefined
-): data is TwoFactorRequiredLoginData => {
+): data is ITwoFactorRequiredLoginData => {
   return !!data && data.requiresTwoFactor === true
 }
 
@@ -73,12 +73,12 @@ export const useLogin = () => {
   const clearAuth = useAuthStore((state) => state.clearAuth)
 
   return useMutation<
-    LoginResponse,
-    AxiosError<ApiErrorResponse>,
-    LoginPayload
+    ILoginResponse,
+    AxiosError<IApiErrorResponse>,
+    ILoginPayload
   >({
     mutationFn: async (payload) => {
-      const response = await api.post<LoginResponse>(
+      const response = await api.post<ILoginResponse>(
         '/auth/login',
         payload
       )

@@ -5,7 +5,7 @@ export type { LoginRedirectPath } from '../value-objects/login-redirect-path.vo'
 export type { OtpPurpose } from '../value-objects/otp-purpose.vo'
 export type { ParsedIdentifier } from '../value-objects/parsed-identifier.vo'
 export type {
-  JwtPayload,
+  IJwtPayload,
   ResetTokenPayload,
   TwoFactorChallengeTokenPayload,
 } from '../value-objects/token-payload.vo'

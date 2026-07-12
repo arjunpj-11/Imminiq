@@ -1,41 +1,41 @@
-export type FriendsPaginationPayload = {
+export type FriendsPaginationPayloadDTO = {
   page: number;
   limit: number;
 };
 
-export type SearchUsersPayload = FriendsPaginationPayload & {
+export type SearchUsersPayloadDTO = FriendsPaginationPayloadDTO & {
   query: string;
 };
 
-export type ListFriendsPayload = FriendsPaginationPayload & {
+export type ListFriendsPayloadDTO = FriendsPaginationPayloadDTO & {
   search?: string;
 };
 
-export type ListFriendRequestsPayload = {
+export type ListFriendRequestsPayloadDTO = {
   receivedPage: number;
   sentPage: number;
   limit: number;
 };
 
-export type SendFriendRequestPayload = {
+export type SendFriendRequestPayloadDTO = {
   receiverUserId: string;
   message?: string;
 };
 
-export type FriendRequestActionPayload = {
+export type FriendRequestActionPayloadDTO = {
   requestId: string;
 };
 
-export type RemoveFriendPayload = {
+export type RemoveFriendPayloadDTO = {
   friendUserId: string;
 };
 
-export type FriendRelationshipView = {
+export type FriendRelationshipViewDTO = {
   status: "none" | "pending" | "friends";
   direction?: "sent" | "received";
 };
 
-export type FriendUserView = {
+export type FriendUserViewDTO = {
   id: string;
   fullName: string;
   username: string;
@@ -45,44 +45,44 @@ export type FriendUserView = {
   level: number;
   levelLabel: string;
   mutualCount: number;
-  relationship: FriendRelationshipView;
+  relationship: FriendRelationshipViewDTO;
 };
 
-export type PaginationView = {
+export type PaginationViewDTO = {
   page: number;
   limit: number;
   total: number;
   hasMore: boolean;
 };
 
-export type FriendUsersPageView = {
-  items: FriendUserView[];
-  pagination: PaginationView;
+export type FriendUsersPageViewDTO = {
+  items: FriendUserViewDTO[];
+  pagination: PaginationViewDTO;
 };
 
-export type FriendRequestView = {
+export type FriendRequestViewDTO = {
   id: string;
   direction: "received" | "sent";
   status: "pending" | "accepted" | "rejected" | "cancelled";
   message: string;
   createdAt: Date;
   updatedAt: Date;
-  user: FriendUserView;
+  user: FriendUserViewDTO;
 };
 
-export type FriendRequestsPageView = {
+export type FriendRequestsPageViewDTO = {
   received: {
-    items: FriendRequestView[];
-    pagination: PaginationView;
+    items: FriendRequestViewDTO[];
+    pagination: PaginationViewDTO;
   };
   sent: {
-    items: FriendRequestView[];
-    pagination: PaginationView;
+    items: FriendRequestViewDTO[];
+    pagination: PaginationViewDTO;
   };
   pendingReceivedCount: number;
 };
 
-export type SendFriendRequestView = {
+export type SendFriendRequestViewDTO = {
   created: boolean;
   request: {
     id: string;
@@ -93,11 +93,11 @@ export type SendFriendRequestView = {
   };
 };
 
-export type AcceptFriendRequestView = {
+export type AcceptFriendRequestViewDTO = {
   alreadyAccepted: boolean;
-  friend: FriendUserView;
+  friend: FriendUserViewDTO;
 };
 
-export type FriendActionView = {
+export type FriendActionViewDTO = {
   success: true;
 };

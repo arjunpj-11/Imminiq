@@ -1,8 +1,8 @@
-import type { ProfileBadge } from '../types/profile.types'
+import type { IProfileBadge } from '../types/profile.types'
 import type { BadgeColor } from '../types/profile.types'
 
 /* ─── Badge item ─── */
-export const badgeEmojiByType: Record<ProfileBadge["badgeType"], string> = {
+export const badgeEmojiByType: Record<IProfileBadge["badgeType"], string> = {
   streak: "🔥",
   test: "🧠",
   tracker: "🏆",
@@ -10,7 +10,7 @@ export const badgeEmojiByType: Record<ProfileBadge["badgeType"], string> = {
   community: "🌟",
 };
 
-export const badgeColorByType: Record<ProfileBadge["badgeType"], BadgeColor> = {
+export const badgeColorByType: Record<IProfileBadge["badgeType"], BadgeColor> = {
   streak: "fire",
   test: "blue",
   tracker: "amber",
@@ -18,7 +18,7 @@ export const badgeColorByType: Record<ProfileBadge["badgeType"], BadgeColor> = {
   community: "blue",
 };
 
-export const badgeTierByType: Record<ProfileBadge["badgeType"], string> = {
+export const badgeTierByType: Record<IProfileBadge["badgeType"], string> = {
   streak: "Streak",
   test: "Assessment",
   tracker: "Creator",

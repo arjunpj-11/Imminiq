@@ -1,22 +1,22 @@
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type GetMockTestDetailsRepository =
-  MockTestRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAttemptRepositoryContract
+  IMockTestRepository &
+  IMockTestQuestionRepository &
+  IMockTestAttemptRepository
 
 export class GetMockTestDetailsUseCase {
   constructor(
-    private readonly _repo: GetMockTestDetailsRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _repository: GetMockTestDetailsRepository,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(testId: string, userId: string) {
-    const test = await this._repo.findTestById(testId)
+    const test = await this._repository.findTestById(testId)
 
     if (!test) {
       throw MockTestsApplicationError.notFound('Test not found')
@@ -27,8 +27,8 @@ export class GetMockTestDetailsUseCase {
     }
 
     const [questions, attempts] = await Promise.all([
-      this._repo.findQuestionsByTest(testId),
-      this._repo.findAttemptsByUser({
+      this._repository.findQuestionsByTest(testId),
+      this._repository.findAttemptsByUser({
         userId,
         testId,
       }),

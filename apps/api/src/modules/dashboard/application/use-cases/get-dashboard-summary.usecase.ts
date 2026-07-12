@@ -1,27 +1,27 @@
-import type { DashboardNotificationRepositoryContract } from '../../domain/repositories/dashboard-notification.repository.interface'
-import type { DashboardProfileRepositoryContract } from '../../domain/repositories/dashboard-profile.repository.interface'
-import type { DashboardStreakRepositoryContract } from '../../domain/repositories/dashboard-streak.repository.interface'
-import type { DashboardTrackerRepositoryContract } from '../../domain/repositories/dashboard-tracker.repository.interface'
-import type { DashboardUserRepositoryContract } from '../../domain/repositories/dashboard-user.repository.interface'
+import type { IDashboardNotificationRepository } from '../../domain/repositories/dashboard-notification.repository.interface'
+import type { IDashboardProfileRepository } from '../../domain/repositories/dashboard-profile.repository.interface'
+import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface'
+import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface'
+import type { IDashboardUserRepository } from '../../domain/repositories/dashboard-user.repository.interface'
 import { DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT } from '../constants/dashboard.constants'
-import type { DashboardSummary } from '../dtos/dashboard.dto'
+import type { IDashboardSummaryDTO } from '../dtos/dashboard.dto'
 import { DashboardApplicationError } from '../errors/dashboard-application.error'
-import type { DashboardMapperContract } from '../mappers/dashboard.mapper'
+import type { IDashboardMapper } from '../mappers/dashboard.mapper'
 
 type DashboardSummaryRepository =
-  DashboardUserRepositoryContract &
-  DashboardProfileRepositoryContract &
-  DashboardStreakRepositoryContract &
-  DashboardTrackerRepositoryContract &
-  DashboardNotificationRepositoryContract
+  IDashboardUserRepository &
+  IDashboardProfileRepository &
+  IDashboardStreakRepository &
+  IDashboardTrackerRepository &
+  IDashboardNotificationRepository
 
 export class GetDashboardSummaryUseCase {
   constructor(
     private readonly _dashboardRepository: DashboardSummaryRepository,
-    private readonly _dashboardMapper: DashboardMapperContract
+    private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string): Promise<DashboardSummary> {
+  async execute(userId: string): Promise<IDashboardSummaryDTO> {
     const [
       user,
       profile,

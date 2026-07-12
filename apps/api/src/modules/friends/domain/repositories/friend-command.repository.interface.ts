@@ -8,7 +8,7 @@ import type {
   SendFriendRequestCommandResult,
 } from "../types/friends.types";
 
-export interface FriendCommandRepositoryContract {
+export interface IFriendCommandRepository {
   sendFriendRequest(
     input: SendFriendRequestCommandInput,
   ): Promise<SendFriendRequestCommandResult>;

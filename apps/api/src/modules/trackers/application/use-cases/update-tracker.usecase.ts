@@ -1,10 +1,10 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { UpdateTrackerInput } from '../../domain/types/trackers.types'
-import { TrackerMapperContract } from '../mappers'
+import { ITrackerMapper } from '../mappers'
 
 export class UpdateTrackerUseCase {
-  constructor(private readonly _trackerRepository: TrackerRepositoryContract,private readonly trackerMapper: TrackerMapperContract) {}
+  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: UpdateTrackerInput) {
     const tracker = await this._trackerRepository.updateOwnedTracker(input)
@@ -13,6 +13,6 @@ export class UpdateTrackerUseCase {
       throw TrackerApplicationError.trackerNotFound('Tracker not found')
     }
 
-    return this.trackerMapper.toTrackerDto(tracker)
+    return this._trackerMapper.toTrackerDto(tracker)
   }
 }

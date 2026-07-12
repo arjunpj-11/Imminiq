@@ -2,7 +2,7 @@ import { useId, type ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface FormFieldProps {
+interface IFormFieldProps {
   label?: ReactNode
   hint?: ReactNode
   error?: ReactNode
@@ -20,7 +20,7 @@ export default function FormField({
   className,
   labelClassName,
   required = false,
-}: FormFieldProps) {
+}: IFormFieldProps) {
   const messageId = useId()
 
   return (

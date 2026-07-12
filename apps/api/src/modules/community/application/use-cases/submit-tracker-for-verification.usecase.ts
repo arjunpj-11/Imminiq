@@ -4,25 +4,24 @@ import {
   COMMUNITY_VERIFICATION_MAX_DURATION_HOURS,
   COMMUNITY_VERIFICATION_MAX_REQUIRED_VOTES,
 } from '../../domain/constants/community.constants'
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
 import type {
-  CommunityVerificationSubmissionView,
-  SubmitTrackerForVerificationPayload,
+  ICommunityVerificationSubmissionViewDTO,
+  ISubmitTrackerForVerificationPayloadDTO,
 } from '../dtos/community.dto'
 import { CommunityApplicationError } from '../errors/community-application.error'
-import type { CommunityMapperContract } from '../mappers/community.mapper'
+import type { ICommunityMapper } from '../mappers/community.mapper'
 
 export class SubmitTrackerForVerificationUseCase {
   constructor(
-    private readonly _repository: CommunityRepositoryContract,
-    private readonly _mapper: CommunityMapperContract,
+    private readonly _repository: ICommunityRepository,
+    private readonly _mapper: ICommunityMapper,
   ) {}
 
   async execute(
-    payload: SubmitTrackerForVerificationPayload,
-  ): Promise<CommunityVerificationSubmissionView> {
+    payload: ISubmitTrackerForVerificationPayloadDTO,
+  ): Promise<ICommunityVerificationSubmissionViewDTO> {
 
-    console.log('Executing SubmitTrackerForVerificationUseCase with payload:', payload);
     const submission = await this._repository.submitTrackerForVerification({
       trackerId: payload.trackerId,
       userId: payload.userId,
@@ -31,7 +30,6 @@ export class SubmitTrackerForVerificationUseCase {
       urgent: Boolean(payload.urgent),
     })
 
-    console.log('Repository returned submission:', submission);
 
     if (!submission) {
       throw CommunityApplicationError.notFound(

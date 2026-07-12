@@ -5,7 +5,7 @@ export type RevokeSecuritySessionInput = {
   sessionId: string
 }
 
-export interface SecuritySessionRepositoryContract {
+export interface ISecuritySessionRepository {
   findActiveSessions(userId: string): Promise<SecuritySessionEntity[]>
 
   findCurrentSessionByRefreshTokenHash(

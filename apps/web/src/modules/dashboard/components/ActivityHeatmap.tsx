@@ -1,11 +1,11 @@
 import { useMemo } from 'react'
 
-import type { DashboardActivityIntensityItem } from '../types/dashboard.types'
+import type { IDashboardActivityIntensityItem } from '../types/dashboard.types'
 import { themedScrollbar } from '../constants/dashboard-style'
 import { cn } from '../utils/cn'
 
 type ActivityHeatmapProps = {
-  activity: DashboardActivityIntensityItem[]
+  activity: IDashboardActivityIntensityItem[]
   months: 6 | 12
   onMonthsChange: (months: 6 | 12) => void
   isLoading?: boolean

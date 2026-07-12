@@ -11,7 +11,7 @@ import {
   OnboardingWorkflowFooter,
 } from '../components/OnboardingWorkflowStatus'
 import { generationSteps } from '../constants/onboarding.constants'
-import type { ActivityChip, JobStatusApiData, JobTerminalState, NormalizedJobStatus, ProgressStepState } from '../types/onboarding.types'
+import type { ActivityChip, IJobStatusApiData, JobTerminalState, INormalizedJobStatus, ProgressStepState } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
 import { clampProgress, normalizeProgressStepIndex } from '../utils/onboarding-progress'
 
@@ -145,7 +145,7 @@ const activityChips: ActivityChip[] = [
   },
 ]
 
-const defaultJobStatus: NormalizedJobStatus = {
+const defaultJobStatus: INormalizedJobStatus = {
   progress: 8,
   activeStepIndex: 0,
   terminalState: null,
@@ -163,8 +163,8 @@ const defaultJobStatus: NormalizedJobStatus = {
 const stepProgressFloors = [15, 35, 55, 75, 90]
 
 const normalizeJobStatus = (
-  payload: JobStatusApiData | undefined
-): NormalizedJobStatus => {
+  payload: IJobStatusApiData | undefined
+): INormalizedJobStatus => {
   if (!payload) {
     return defaultJobStatus
   }

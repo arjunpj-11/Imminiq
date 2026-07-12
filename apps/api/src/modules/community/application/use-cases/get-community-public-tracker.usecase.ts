@@ -1,18 +1,18 @@
-import type { CommunityReviewRepositoryContract } from '../../domain/repositories/community-review.repository.interface'
-import type { CommunityPublicTrackerDetailView } from '../dtos/community-review.dto'
+import type { ICommunityReviewRepository } from '../../domain/repositories/community-review.repository.interface'
+import type { CommunityPublicTrackerDetailViewDTO } from '../dtos/community-review.dto'
 import { CommunityApplicationError } from '../errors/community-application.error'
-import type { CommunityReviewMapperContract } from '../mappers/community-review.mapper'
+import type { ICommunityReviewMapper } from '../mappers/community-review.mapper'
 
 export class GetCommunityPublicTrackerUseCase {
   constructor(
-    private readonly _repository: CommunityReviewRepositoryContract,
-    private readonly _mapper: CommunityReviewMapperContract,
+    private readonly _repository: ICommunityReviewRepository,
+    private readonly _mapper: ICommunityReviewMapper,
   ) {}
 
   async execute(
     trackerId: string,
     userId: string,
-  ): Promise<CommunityPublicTrackerDetailView> {
+  ): Promise<CommunityPublicTrackerDetailViewDTO> {
     const tracker = await this._repository.findPublicTrackerDetail(
       trackerId,
       userId,

@@ -1,7 +1,7 @@
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { CodeExecutionServiceContract } from '../../domain/services/code-execution.service.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ICodeExecutor } from '../../domain/services/code-execution.interface'
 
 const getDocumentId = (document: unknown) => {
   const doc = document as { _id?: unknown }
@@ -27,8 +27,8 @@ type SubmitLessonCodeInput = {
   stdin?: string
 }
 
-type SubmitLessonCodeResultDto = ReturnType<
-  TrackerMapperContract['toLessonCodeExecutionDto']
+type SubmitLessonCodeResultDTO = ReturnType<
+  ITrackerMapper['toLessonCodeExecutionDto']
 >
 
 const normalizeOutput = (value: string) => {
@@ -37,14 +37,14 @@ const normalizeOutput = (value: string) => {
 
 export class SubmitLessonCodeUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _codeExecutionService: CodeExecutionServiceContract,
-    private readonly _trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _codeExecutor: ICodeExecutor,
+    private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
   async execute(
     input: SubmitLessonCodeInput,
-  ): Promise<SubmitLessonCodeResultDto> {
+  ): Promise<SubmitLessonCodeResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
@@ -69,7 +69,7 @@ export class SubmitLessonCodeUseCase {
     const language =
       input.language || lesson.codeExample?.language || 'javascript'
 
-    const result = await this._codeExecutionService.executeCode({
+    const result = await this._codeExecutor.executeCode({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
       language,

@@ -1,18 +1,18 @@
 import type { SecuritySessionEntity } from '../../domain/entities/security-session.entity'
-import type { SecuritySessionDto } from '../dtos/security.dto'
+import type { ISecuritySessionDTO } from '../dtos/security.dto'
 
-export interface SecurityMapperContract {
+export interface ISecurityMapper {
   toSessionDto(
     session: SecuritySessionEntity,
     currentSessionId?: string | null,
-  ): SecuritySessionDto
+  ): ISecuritySessionDTO
 }
 
-export class SecurityMapper implements SecurityMapperContract {
+export class SecurityMapper implements ISecurityMapper {
   toSessionDto(
     session: SecuritySessionEntity,
     currentSessionId?: string | null,
-  ): SecuritySessionDto {
+  ): ISecuritySessionDTO {
     return {
       id: session.id,
       deviceName: session.device ?? 'Unknown device',

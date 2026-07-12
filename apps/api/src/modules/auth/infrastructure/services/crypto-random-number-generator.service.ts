@@ -1,13 +1,13 @@
 import crypto from 'crypto'
 
-import type { RandomNumberGeneratorContract } from '../../domain/services/random-number-generator.service.interface'
+import type { IRandomNumberGenerator } from '../../domain/services/random-number-generator.interface'
 
-export class CryptoRandomNumberGeneratorService
-  implements RandomNumberGeneratorContract {
+export class CryptoRandomNumberGenerator
+  implements IRandomNumberGenerator {
   integer(minInclusive: number, maxExclusive: number): number {
     return crypto.randomInt(minInclusive, maxExclusive)
   }
 }
 
-export const cryptoRandomNumberGeneratorService =
-  new CryptoRandomNumberGeneratorService()
+export const cryptoRandomNumberGenerator =
+  new CryptoRandomNumberGenerator()

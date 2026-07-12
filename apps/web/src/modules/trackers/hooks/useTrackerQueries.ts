@@ -2,7 +2,7 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query'
 
 import api from '../../../lib/axios'
 import type {
-  ApiResponse,
+  IApiResponse,
   LessonAnswerAttempt,
   LessonCodeSubmission,
   LessonCodeSubmissionAction,
@@ -10,16 +10,16 @@ import type {
   LessonQuestionSolution,
   LessonQuestionSolutionDoubt,
   PersistedLessonChatMessage,
-  Tracker,
-  TrackerLessonResponse,
-  TrackerListQuery,
-  TrackerListResponse,
-  TrackerRoadmapResponse,
-  TrackerSummary,
+  ITracker,
+  ITrackerLessonResponse,
+  ITrackerListQuery,
+  ITrackerListResponse,
+  ITrackerRoadmapResponse,
+  ITrackerSummary,
 } from '../types/tracker.types'
 import { trackerKeys } from './tracker.keys'
 
-const unwrap = <T>(response: ApiResponse<T>) => response.data
+const unwrap = <T>(response: IApiResponse<T>) => response.data
 
 export const useTrackerSummary = () => {
   return useQuery({
@@ -27,19 +27,19 @@ export const useTrackerSummary = () => {
 
     queryFn: async () => {
       const response =
-        await api.get<ApiResponse<TrackerSummary>>('/trackers/summary')
+        await api.get<IApiResponse<ITrackerSummary>>('/trackers/summary')
 
       return unwrap(response.data)
     },
   })
 }
 
-export const useTrackers = (query: TrackerListQuery = {}) => {
+export const useTrackers = (query: ITrackerListQuery = {}) => {
   return useQuery({
     queryKey: trackerKeys.list(query),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<TrackerListResponse>>(
+      const response = await api.get<IApiResponse<ITrackerListResponse>>(
         '/trackers',
         {
           params: query,
@@ -60,7 +60,7 @@ export const useTrackerDetails = (trackerId?: string) => {
     enabled: Boolean(trackerId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<Tracker>>(
+      const response = await api.get<IApiResponse<ITracker>>(
         `/trackers/${trackerId}`
       )
 
@@ -76,7 +76,7 @@ export const useTrackerRoadmap = (trackerId?: string) => {
     refetchOnWindowFocus: true,
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<TrackerRoadmapResponse>>(
+      const response = await api.get<IApiResponse<ITrackerRoadmapResponse>>(
         `/trackers/${trackerId}/roadmap`
       )
 
@@ -91,7 +91,7 @@ export const useTrackerLesson = (trackerId?: string, subtopicId?: string) => {
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<TrackerLessonResponse>>(
+      const response = await api.get<IApiResponse<ITrackerLessonResponse>>(
         `/trackers/${trackerId}/lessons/${subtopicId}`
       )
 
@@ -109,7 +109,7 @@ export const useLessonChatHistory = (
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<PersistedLessonChatMessage[]>>(
+      const response = await api.get<IApiResponse<PersistedLessonChatMessage[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/chat`
       )
 
@@ -130,7 +130,7 @@ export const useLessonAnswerAttempts = (
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<LessonAnswerAttempt[]>>(
+      const response = await api.get<IApiResponse<LessonAnswerAttempt[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/answer/attempts`
       )
 
@@ -153,7 +153,7 @@ export const useLessonCodeSubmissions = (
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<LessonCodeSubmission[]>>(
+      const response = await api.get<IApiResponse<LessonCodeSubmission[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/code/submissions`,
         {
           params: action ? { action } : undefined,
@@ -177,7 +177,7 @@ export const useLessonGeneratedQuestions = (
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<LessonGeneratedQuestion[]>>(
+      const response = await api.get<IApiResponse<LessonGeneratedQuestion[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/questions`
       )
 
@@ -200,7 +200,7 @@ export const useLessonQuestionSolution = (
     enabled: Boolean(trackerId && subtopicId && question),
 
     queryFn: async () => {
-      const response = await api.get<ApiResponse<LessonQuestionSolution | null>>(
+      const response = await api.get<IApiResponse<LessonQuestionSolution | null>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/question-solution`,
         {
           params: {
@@ -229,7 +229,7 @@ export const useLessonQuestionSolutionDoubts = (
 
     queryFn: async () => {
       const response = await api.get<
-        ApiResponse<LessonQuestionSolutionDoubt[]>
+        IApiResponse<LessonQuestionSolutionDoubt[]>
       >(
         `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
         {

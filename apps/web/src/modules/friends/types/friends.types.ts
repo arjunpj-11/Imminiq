@@ -7,12 +7,12 @@ export type FriendRequestDirection = "received" | "sent";
 export type FriendRequestStatus =
   "pending" | "accepted" | "rejected" | "cancelled";
 
-export interface FriendRelationship {
+export interface IFriendRelationship {
   status: FriendRelationshipStatus;
   direction?: FriendRequestDirection;
 }
 
-export interface FriendUser {
+export interface IFriendUser {
   id: string;
   fullName: string;
   username: string;
@@ -22,43 +22,43 @@ export interface FriendUser {
   level: number;
   levelLabel: string;
   mutualCount: number;
-  relationship: FriendRelationship;
+  relationship: IFriendRelationship;
 }
 
-export interface FriendsPagination {
+export interface IFriendsPagination {
   page: number;
   limit: number;
   total: number;
   hasMore: boolean;
 }
 
-export interface FriendUsersPage {
-  items: FriendUser[];
-  pagination: FriendsPagination;
+export interface IFriendUsersPage {
+  items: IFriendUser[];
+  pagination: IFriendsPagination;
 }
 
-export interface FriendRequest {
+export interface IFriendRequest {
   id: string;
   direction: FriendRequestDirection;
   status: FriendRequestStatus;
   message: string;
   createdAt: string;
   updatedAt: string;
-  user: FriendUser;
+  user: IFriendUser;
 }
 
-export interface FriendRequestListPage {
-  items: FriendRequest[];
-  pagination: FriendsPagination;
+export interface IFriendRequestListPage {
+  items: IFriendRequest[];
+  pagination: IFriendsPagination;
 }
 
-export interface FriendRequestsResponse {
-  received: FriendRequestListPage;
-  sent: FriendRequestListPage;
+export interface IFriendRequestsResponse {
+  received: IFriendRequestListPage;
+  sent: IFriendRequestListPage;
   pendingReceivedCount: number;
 }
 
-export interface SendFriendRequestResponse {
+export interface ISendFriendRequestResponse {
   created: boolean;
   request: {
     id: string;
@@ -69,50 +69,50 @@ export interface SendFriendRequestResponse {
   };
 }
 
-export interface AcceptFriendRequestResponse {
+export interface IAcceptFriendRequestResponse {
   alreadyAccepted: boolean;
-  friend: FriendUser;
+  friend: IFriendUser;
 }
 
-export interface FriendActionResponse {
+export interface IFriendActionResponse {
   success: true;
 }
 
-export interface FriendsApiResponse<T> {
+export interface IFriendsApiResponse<T> {
   success: boolean;
   message: string;
   data: T;
 }
 
-export interface FriendsApiErrorResponse {
+export interface IFriendsApiErrorResponse {
   success?: boolean;
   message?: string;
   code?: string;
 }
 
-export interface FriendsListQueryInput {
+export interface IFriendsListQueryInput {
   search?: string;
   limit: number;
 }
 
-export interface FriendSearchQueryInput {
+export interface IFriendSearchQueryInput {
   query: string;
   limit: number;
 }
 
-export interface FriendRequestsQueryInput {
+export interface IFriendRequestsQueryInput {
   limit: number;
 }
 
-export interface SendFriendRequestInput {
+export interface ISendFriendRequestInput {
   receiverUserId: string;
   message?: string;
 }
 
-export interface FriendRequestActionInput {
+export interface IFriendRequestActionInput {
   requestId: string;
 }
 
-export interface RemoveFriendInput {
+export interface IRemoveFriendInput {
   friendUserId: string;
 }

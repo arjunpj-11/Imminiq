@@ -24,9 +24,9 @@ import {
   useStartMockTestAttempt,
 } from '../hooks/useMockTests'
 
-import type { MockTest } from '../types/mock-tests.types'
+import type { IMockTest } from '../types/mock-tests.types'
 
-const EMPTY_TESTS: MockTest[] = []
+const EMPTY_TESTS: IMockTest[] = []
 const TESTS_PER_PAGE = 6
 
 const SparklesSmall = () => (

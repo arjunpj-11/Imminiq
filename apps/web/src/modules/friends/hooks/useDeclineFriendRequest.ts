@@ -4,10 +4,10 @@ import type { AxiosError } from "axios";
 import api from "../../../lib/axios";
 import { FRIENDS_ENDPOINTS } from "../constants/friends.constants";
 import type {
-  FriendActionResponse,
-  FriendRequestActionInput,
-  FriendsApiErrorResponse,
-  FriendsApiResponse,
+  IFriendActionResponse,
+  IFriendRequestActionInput,
+  IFriendsApiErrorResponse,
+  IFriendsApiResponse,
 } from "../types/friends.types";
 import { friendsQueryKeys } from "./friends-query-keys";
 
@@ -15,13 +15,13 @@ export const useDeclineFriendRequest = () => {
   const queryClient = useQueryClient();
 
   return useMutation<
-    FriendActionResponse,
-    AxiosError<FriendsApiErrorResponse>,
-    FriendRequestActionInput
+    IFriendActionResponse,
+    AxiosError<IFriendsApiErrorResponse>,
+    IFriendRequestActionInput
   >({
     mutationFn: async ({ requestId }) => {
       const response = await api.patch<
-        FriendsApiResponse<FriendActionResponse>
+        IFriendsApiResponse<IFriendActionResponse>
       >(FRIENDS_ENDPOINTS.declineRequest(requestId));
 
       return response.data.data;

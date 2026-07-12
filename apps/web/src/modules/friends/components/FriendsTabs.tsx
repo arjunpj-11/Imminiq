@@ -2,7 +2,7 @@ import PillTabs from '../../../components/navigation/PillTabs'
 import type { FriendsTab } from '../types/friends.types'
 import { FriendsIcon, UserPlusIcon } from './icons/FriendsIcons'
 
-interface FriendsTabsProps {
+interface IFriendsTabsProps {
   activeTab: FriendsTab
   friendsCount: number
   pendingCount: number
@@ -14,7 +14,7 @@ export default function FriendsTabs({
   friendsCount,
   pendingCount,
   onChange,
-}: FriendsTabsProps) {
+}: IFriendsTabsProps) {
   return (
     <PillTabs
       value={activeTab}

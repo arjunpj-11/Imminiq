@@ -1,10 +1,12 @@
-import type { AuthUserRepositoryContract } from '../../domain/repositories/auth-user.repository.interface'
-import type { IdentifierNormalizerContract } from '../../domain/services/identifier-normalizer.service.interface'
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
+import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
 
 export class CheckIdentifierUseCase {
   constructor(
-    private readonly _authRepository: AuthUserRepositoryContract,
-    private readonly _identifierNormalizer: IdentifierNormalizerContract
+    private readonly _authRepository: IAuthUserRepository,
+    private readonly _identifierNormalizer: IIdentifierNormalizer,
+    private readonly _pendingRegistrationStore: IPendingRegistrationStore
   ) {}
 
   async execute(identifier: string): Promise<{
@@ -29,6 +31,17 @@ export class CheckIdentifierUseCase {
         available: !isVerified,
         type: parsedIdentifier.method,
         needsVerification: !isVerified,
+      }
+    }
+
+    const hasPendingRegistration =
+      await this._pendingRegistrationStore.exists(parsedIdentifier.value)
+
+    if (hasPendingRegistration) {
+      return {
+        available: true,
+        type: parsedIdentifier.method,
+        needsVerification: true,
       }
     }
 

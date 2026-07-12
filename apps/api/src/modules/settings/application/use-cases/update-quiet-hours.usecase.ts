@@ -1,24 +1,24 @@
-import type { SettingsCommandRepositoryContract } from '../../domain/repositories/settings-command.repository.interface'
+import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface'
 import type {
-  UpdateQuietHoursPayload,
-  UserSettingsView,
+  IUpdateQuietHoursPayloadDTO,
+  UserSettingsViewDTO,
 } from '../dtos/settings.dto'
-import type { SettingsMapperContract } from '../mappers/settings.mapper'
+import type { ISettingsMapper } from '../mappers/settings.mapper'
 
 type UpdateQuietHoursRepository = {
-  updateQuietHours: SettingsCommandRepositoryContract['updateQuietHours']
+  updateQuietHours: ISettingsCommandRepository['updateQuietHours']
 }
 
 export class UpdateQuietHoursUseCase {
   constructor(
     private readonly _settingsRepository: UpdateQuietHoursRepository,
-    private readonly _settingsMapper: SettingsMapperContract,
+    private readonly _settingsMapper: ISettingsMapper,
   ) {}
 
   async execute(
     userId: string,
-    payload: UpdateQuietHoursPayload,
-  ): Promise<UserSettingsView | null> {
+    payload: IUpdateQuietHoursPayloadDTO,
+  ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateQuietHours({
       userId,
       data: payload,

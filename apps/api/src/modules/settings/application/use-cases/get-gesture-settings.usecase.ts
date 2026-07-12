@@ -1,18 +1,18 @@
-import type { SettingsQueryRepositoryContract } from '../../domain/repositories/settings-query.repository.interface'
-import type { UserSettingsView } from '../dtos/settings.dto'
-import type { SettingsMapperContract } from '../mappers/settings.mapper'
+import type { ISettingsQueryRepository } from '../../domain/repositories/settings-query.repository.interface'
+import type { UserSettingsViewDTO } from '../dtos/settings.dto'
+import type { ISettingsMapper } from '../mappers/settings.mapper'
 
 type GetGestureSettingsRepository = {
-  findOrCreate: SettingsQueryRepositoryContract['findOrCreate']
+  findOrCreate: ISettingsQueryRepository['findOrCreate']
 }
 
 export class GetGestureSettingsUseCase {
   constructor(
     private readonly _settingsRepository: GetGestureSettingsRepository,
-    private readonly _settingsMapper: SettingsMapperContract,
+    private readonly _settingsMapper: ISettingsMapper,
   ) {}
 
-  async execute(userId: string): Promise<UserSettingsView['gestures']> {
+  async execute(userId: string): Promise<UserSettingsViewDTO['gestures']> {
     const settings = await this._settingsRepository.findOrCreate(userId)
     return this._settingsMapper.toDto(settings).gestures
   }

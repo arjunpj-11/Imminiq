@@ -2,7 +2,7 @@
 // MockTestRow.tsx — aligned with Trackers card style
 // ============================================================
 
-import type { MockTestListItem } from '../types/mock-tests.types'
+import type { IMockTestListItem } from '../types/mock-tests.types'
 import {
   difficultyBadge,
   formatDate,
@@ -36,7 +36,7 @@ export function MockTestRow({
   onShare,
   onStart,
 }: {
-  test: MockTestListItem
+  test: IMockTestListItem
   onOpen: () => void
   onShare: () => void
   onStart: () => void

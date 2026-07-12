@@ -17,7 +17,7 @@ export type FindRecentUserActivityInput = {
   limit?: number
 }
 
-export interface UserActivityRepositoryContract {
+export interface IUserActivityRepository {
   findActivityFeed(
     input: FindUserActivityFeedInput
   ): Promise<UserActivityListResult>

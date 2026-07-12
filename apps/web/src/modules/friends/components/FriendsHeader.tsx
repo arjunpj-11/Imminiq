@@ -1,4 +1,4 @@
-interface FriendsHeaderProps {
+interface IFriendsHeaderProps {
   title: string;
   description: string;
 }
@@ -6,7 +6,7 @@ interface FriendsHeaderProps {
 export default function FriendsHeader({
   title,
   description,
-}: FriendsHeaderProps) {
+}: IFriendsHeaderProps) {
   return (
     <header>
       <p className="font-mono text-[9px] uppercase tracking-widest text-(--brand-500) dark:text-(--brand-500)">

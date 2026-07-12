@@ -15,7 +15,7 @@ export type AIGenerationJobStatus =
   | 'completed'
   | 'failed'
 
-export interface IAIGenerationJob extends Document {
+export interface IAIGenerationJobDocument extends Document {
   userId: mongoose.Types.ObjectId
 
   jobType: AIGenerationJobType
@@ -43,7 +43,7 @@ export interface IAIGenerationJob extends Document {
   updatedAt: Date
 }
 
-const aiGenerationJobSchema = new Schema<IAIGenerationJob>(
+const aiGenerationJobSchema = new Schema<IAIGenerationJobDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
@@ -132,7 +132,7 @@ aiGenerationJobSchema.index({ jobType: 1, status: 1 })
 aiGenerationJobSchema.index({ createdAt: -1 })
 
 export const AIGenerationJob =
-  mongoose.model<IAIGenerationJob>(
+  mongoose.model<IAIGenerationJobDocument>(
     'AIGenerationJob',
     aiGenerationJobSchema
   )

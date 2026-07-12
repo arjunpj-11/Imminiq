@@ -2,7 +2,7 @@ import type { OtpPurpose } from '../value-objects/otp-purpose.vo'
 
 export type OtpEmailTemplateType = 'verify_account' | 'reset_password'
 
-export interface OtpEmailProviderContract {
+export interface IOtpEmailProvider {
   sendOtp(data: {
     email: string
     otp: string

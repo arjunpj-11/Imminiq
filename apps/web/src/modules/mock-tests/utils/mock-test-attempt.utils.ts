@@ -1,19 +1,19 @@
 import type {
-  MockTestCodeRunResponse,
+  IMockTestCodeRunResponse,
   MockTestCodingLanguage,
-  PublicMockTestQuestion,
+  IPublicMockTestQuestion,
 } from '../types/mock-tests.types'
 
 export type Confidence = 'low' | 'medium' | 'high' | null
 
-export interface CompilerLanguageOption {
+export interface ICompilerLanguageOption {
   label: string
   value: MockTestCodingLanguage
   fileName: string
   languageId: number
 }
 
-export const COMPILER_LANGUAGES: CompilerLanguageOption[] = [
+export const COMPILER_LANGUAGES: ICompilerLanguageOption[] = [
   { label: 'JavaScript', value: 'javascript', fileName: 'main.js', languageId: 63 },
   { label: 'TypeScript', value: 'typescript', fileName: 'main.ts', languageId: 74 },
   { label: 'Python', value: 'python', fileName: 'main.py', languageId: 71 },
@@ -24,7 +24,7 @@ export const COMPILER_LANGUAGES: CompilerLanguageOption[] = [
 
 export const findCompilerLanguage = (
   language?: string | null,
-): CompilerLanguageOption =>
+): ICompilerLanguageOption =>
   COMPILER_LANGUAGES.find((item) => item.value === language) ??
   COMPILER_LANGUAGES[0]
 
@@ -39,7 +39,7 @@ export const formatJsonValue = (value: unknown) => {
 }
 
 export const getStarterCode = (
-  question: PublicMockTestQuestion | undefined,
+  question: IPublicMockTestQuestion | undefined,
   language: MockTestCodingLanguage,
 ) => {
   if (!question?.coding) return ''
@@ -48,7 +48,7 @@ export const getStarterCode = (
 }
 
 export const buildCompilerOutput = (
-  data?: MockTestCodeRunResponse | null,
+  data?: IMockTestCodeRunResponse | null,
 ) => {
   if (!data) return '> Ready to run your code'
 

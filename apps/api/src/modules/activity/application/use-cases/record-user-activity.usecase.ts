@@ -2,41 +2,43 @@ import {
   ACTIVITY_DAILY_GOAL_REWARD_XP,
 } from '../../domain/constants/activity.constants'
 import { ActivityDomainError } from '../../domain/errors/activity-domain.error'
-import type { ActivityCommandRepositoryContract } from '../../domain/repositories/activity-command.repository.interface'
-import type { ActivityQueryRepositoryContract } from '../../domain/repositories/activity-query.repository.interface'
+import type { IActivityCommandRepository } from '../../domain/repositories/activity-command.repository.interface'
+import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
 import type {
-  RecordUserActivityPayload,
-  RecordUserActivityResponse,
+  RecordUserActivityPayloadDTO,
+  RecordUserActivityResponseDTO,
 } from '../dtos/activity.dto'
 import { ActivityApplicationError } from '../errors/activity-application.error'
-import { ActivityMapper } from '../mappers/activity.mapper'
+import type { ActivityMapperContract } from '../mappers/activity.mapper'
 import { ActivityEventPolicy } from '../policies/activity-event.policy'
-import { ActivityDateRangeService } from '../services/activity-date-range.service'
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
+import type { IClock } from '../../../../shared/time/clock.interface'
 
 const DAY_IN_MS = 86_400_000
 
 type RecordActivityRepository =
-  ActivityCommandRepositoryContract &
-    ActivityQueryRepositoryContract
+  IActivityCommandRepository &
+    IActivityQueryRepository
 
 export class RecordUserActivityUseCase {
   constructor(
     private readonly _activityRepository: RecordActivityRepository,
     private readonly _eventPolicy: ActivityEventPolicy,
-    private readonly _mapper: ActivityMapper,
-    private readonly _dateRangeService: ActivityDateRangeService,
+    private readonly _mapper: ActivityMapperContract,
+    private readonly _dateRange: ActivityDateRangeContract,
+    private readonly _clock: IClock,
   ) {}
 
   async execute(
-    payload: RecordUserActivityPayload,
-  ): Promise<RecordUserActivityResponse> {
+    payload: RecordUserActivityPayloadDTO,
+  ): Promise<RecordUserActivityResponseDTO> {
     this._eventPolicy.ensureValid(payload)
 
-    const occurredAt = payload.occurredAt ?? new Date()
+    const occurredAt = payload.occurredAt ?? this._clock.now()
     const utcOffsetMinutes =
       payload.utcOffsetMinutes ?? 0
     const context =
-      this._dateRangeService.createContext(
+      this._dateRange.createContext(
         occurredAt,
         undefined,
         utcOffsetMinutes,
@@ -108,7 +110,7 @@ export class RecordUserActivityUseCase {
       return {
         activity: this._mapper.toEventView(
           primaryResult.activity,
-          this._dateRangeService,
+          this._dateRange,
           utcOffsetMinutes,
         ),
         created: primaryResult.created,
@@ -136,7 +138,7 @@ export class RecordUserActivityUseCase {
 
   private async tryAwardDailyGoal(input: {
     userId: string
-    primaryType: RecordUserActivityPayload['type']
+    primaryType: RecordUserActivityPayloadDTO['type']
     occurredAt: Date
     activityDateKey: string
     todayRange: {

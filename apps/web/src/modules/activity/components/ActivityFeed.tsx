@@ -1,7 +1,7 @@
 import type {
-  ActivityEvent,
+  IActivityEvent,
   ActivityEventIcon,
-  ActivityFeedGroup,
+  IActivityFeedGroup,
 } from '../types/activity.types'
 import {
   formatActivityTimestamp,
@@ -19,11 +19,11 @@ import {
   UsersIcon,
 } from './icons/ActivityIcons'
 
-interface EventIconBubbleProps {
+interface IEventIconBubbleProps {
   type: ActivityEventIcon
 }
 
-const EventIconBubble = ({ type }: EventIconBubbleProps) => {
+const EventIconBubble = ({ type }: IEventIconBubbleProps) => {
   const configuration = {
     tracker: {
       background:
@@ -72,11 +72,11 @@ const EventIconBubble = ({ type }: EventIconBubbleProps) => {
   )
 }
 
-interface ActivityRowProps {
-  event: ActivityEvent
+interface IActivityRowProps {
+  event: IActivityEvent
 }
 
-const ActivityRow = ({ event }: ActivityRowProps) => (
+const ActivityRow = ({ event }: IActivityRowProps) => (
   <article className="flex items-start gap-3.5 border-b border-[#ece3db] px-5 py-3.25 transition-colors duration-100 last:border-b-0 hover:bg-[rgba(26,23,20,0.012)] dark:border-white/6 dark:hover:bg-white/[0.012]">
     <EventIconBubble type={event.icon} />
 
@@ -126,8 +126,8 @@ const DateDivider = ({ label }: { label: string }) => (
   </div>
 )
 
-interface ActivityFeedProps {
-  groups: ActivityFeedGroup[]
+interface IActivityFeedProps {
+  groups: IActivityFeedGroup[]
   hasMore: boolean
   isFetchingNextPage: boolean
   isFetchNextPageError: boolean
@@ -140,7 +140,7 @@ export default function ActivityFeed({
   isFetchingNextPage,
   isFetchNextPageError,
   onLoadMore,
-}: ActivityFeedProps) {
+}: IActivityFeedProps) {
   return (
     <div className="overflow-hidden rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-card)">
       {groups.length === 0 ? (

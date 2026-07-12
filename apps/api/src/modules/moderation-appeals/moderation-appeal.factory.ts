@@ -1,19 +1,19 @@
 import {
   ModerationAppealMapper,
-  type ModerationAppealMapperContract,
+  type IModerationAppealMapper,
 } from './application/mappers/moderation-appeal.mapper'
 import {
-  ModerationAppealSubmissionPolicyService,
-  type ModerationAppealSubmissionPolicyContract,
+  ModerationAppealSubmissionPolicy,
+  type IModerationAppealSubmissionPolicy,
 } from './application/policies/moderation-appeal-submission-policy.policy'
 import {
-  ModerationAppealCaseIdService,
-  type ModerationAppealCaseIdServiceContract,
+  ModerationAppealCaseIdAllocator,
+  type IModerationAppealCaseIdAllocator,
 } from './application/services/moderation-appeal-case-id.service'
 import { GetActiveModerationAppealStatusUseCase } from './application/use-cases/get-active-moderation-appeal-status.usecase'
 import { SubmitModerationAppealUseCase } from './application/use-cases/submit-moderation-appeal.usecase'
 import { mongoModerationAppealRepository } from './infrastructure/repositories/mongo-moderation-appeal.repository'
-import { cryptoModerationAppealCaseIdGeneratorService } from './infrastructure/services/crypto-moderation-appeal-case-id-generator.service'
+import { cryptoModerationAppealCaseIdGenerator } from './infrastructure/services/crypto-moderation-appeal-case-id-generator.service'
 
 export type ModerationAppealUseCases = {
   submitModerationAppeal: SubmitModerationAppealUseCase
@@ -21,9 +21,9 @@ export type ModerationAppealUseCases = {
 }
 
 export type ModerationAppealServiceHelpers = {
-  moderationAppealMapper: ModerationAppealMapperContract
-  moderationAppealSubmissionPolicy: ModerationAppealSubmissionPolicyContract
-  moderationAppealCaseIdService: ModerationAppealCaseIdServiceContract
+  moderationAppealMapper: IModerationAppealMapper
+  moderationAppealSubmissionPolicy: IModerationAppealSubmissionPolicy
+  caseIdAllocator: IModerationAppealCaseIdAllocator
 }
 
 export type ModerationAppealComposition = {
@@ -38,13 +38,13 @@ export const createModerationAppealComposition =
     const moderationAppealMapper = new ModerationAppealMapper()
 
     const moderationAppealSubmissionPolicy =
-      new ModerationAppealSubmissionPolicyService()
+      new ModerationAppealSubmissionPolicy()
 
     const moderationAppealCaseIdGenerator =
-      cryptoModerationAppealCaseIdGeneratorService
+      cryptoModerationAppealCaseIdGenerator
 
-    const moderationAppealCaseIdService =
-      new ModerationAppealCaseIdService(
+    const caseIdAllocator =
+      new ModerationAppealCaseIdAllocator(
         moderationAppealRepository,
         moderationAppealCaseIdGenerator
       )
@@ -53,7 +53,7 @@ export const createModerationAppealComposition =
       useCases: {
         submitModerationAppeal: new SubmitModerationAppealUseCase(
           moderationAppealRepository,
-          moderationAppealCaseIdService,
+          caseIdAllocator,
           moderationAppealSubmissionPolicy,
           moderationAppealMapper
         ),
@@ -68,7 +68,7 @@ export const createModerationAppealComposition =
       helpers: {
         moderationAppealMapper,
         moderationAppealSubmissionPolicy,
-        moderationAppealCaseIdService,
+        caseIdAllocator,
       },
     }
   }

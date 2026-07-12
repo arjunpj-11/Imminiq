@@ -18,7 +18,7 @@ import { TopicGroup, SelectionPreview } from './MockTestTopicSelection'
 import {
   buildStructuredTopicString,
   flattenRoadmap,
-  type FlatNode,
+  type IFlatNode,
 } from '../utils/mock-test-topic-selection'
 
 
@@ -36,7 +36,7 @@ const CloseIcon = () => (
 const CHEVRON_STYLE =
   "url(\"data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6.5L11 1' stroke='%236b5f58' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")"
 
-interface GenerateMockTestModalProps {
+interface IGenerateMockTestModalProps {
   open: boolean
   onClose: () => void
 }
@@ -44,7 +44,7 @@ interface GenerateMockTestModalProps {
 export function GenerateMockTestModal({
   open,
   onClose,
-}: GenerateMockTestModalProps) {
+}: IGenerateMockTestModalProps) {
   const navigate = useNavigate()
   const overlayRef = useRef<HTMLDivElement>(null)
 
@@ -99,7 +99,7 @@ export function GenerateMockTestModal({
   )
 
   const groups = useMemo(() => {
-    const map = new Map<string, { title: string; nodes: FlatNode[] }>()
+    const map = new Map<string, { title: string; nodes: IFlatNode[] }>()
 
     for (const node of flatNodes) {
       if (!map.has(node.parentTopicId)) {
@@ -158,7 +158,7 @@ export function GenerateMockTestModal({
     })
   }
 
-  const selectAllInGroup = (nodes: FlatNode[]) => {
+  const selectAllInGroup = (nodes: IFlatNode[]) => {
     updateSelectedNodes((previous) => {
       const next = new Map(previous)
 
@@ -170,7 +170,7 @@ export function GenerateMockTestModal({
     })
   }
 
-  const deselectAllInGroup = (nodes: FlatNode[]) => {
+  const deselectAllInGroup = (nodes: IFlatNode[]) => {
     updateSelectedNodes((previous) => {
       const next = new Map(previous)
 

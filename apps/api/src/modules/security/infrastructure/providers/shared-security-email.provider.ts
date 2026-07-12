@@ -7,10 +7,10 @@ import { SecurityDomainError } from '../../domain/errors/security-domain.error'
 import type {
   EmailChangeAlertTemplateInput,
   EmailChangeVerificationTemplateInput,
-  SecurityEmailProviderContract,
+  ISecurityEmailProvider,
 } from '../../domain/services/security-email-provider.interface'
 
-export class SharedSecurityEmailProvider implements SecurityEmailProviderContract {
+export class SharedSecurityEmailProvider implements ISecurityEmailProvider {
   async sendEmailChangeVerification(
     to: string,
     input: EmailChangeVerificationTemplateInput,

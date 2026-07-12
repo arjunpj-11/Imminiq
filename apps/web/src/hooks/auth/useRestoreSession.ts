@@ -5,9 +5,9 @@ import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
 } from '../../lib/blockedAppealSession'
-import { useAuthStore, type AuthUser } from '../../store/useAuthStore'
+import { useAuthStore, type IAuthUser } from '../../store/useAuthStore'
 
-interface RefreshTokenResponse {
+interface IRefreshTokenResponse {
   success: boolean
   message: string
   data?: {
@@ -15,15 +15,15 @@ interface RefreshTokenResponse {
   }
 }
 
-interface MeResponse {
+interface IMeResponse {
   success: boolean
   message: string
   data?: {
-    user?: AuthUser
+    user?: IAuthUser
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
@@ -38,7 +38,7 @@ const isRestrictedAccountCode = (code?: string) => {
   )
 }
 
-const isRestrictedStatus = (status?: AuthUser['status']) => {
+const isRestrictedStatus = (status?: IAuthUser['status']) => {
   return (
     status === 'blocked' ||
     status === 'banned' ||
@@ -61,7 +61,7 @@ export const useRestoreSession = () => {
     const restoreSession = async () => {
       try {
         const refreshResponse =
-          await api.post<RefreshTokenResponse>(
+          await api.post<IRefreshTokenResponse>(
             '/auth/refresh-token'
           )
 
@@ -75,7 +75,7 @@ export const useRestoreSession = () => {
 
         setAccessToken(accessToken)
 
-        const meResponse = await api.get<MeResponse>('/auth/me')
+        const meResponse = await api.get<IMeResponse>('/auth/me')
         const user = meResponse.data.data?.user
 
         if (!user) {
@@ -103,7 +103,7 @@ export const useRestoreSession = () => {
         clearBlockedAppealIdentifier()
         setUser(user)
       } catch (error) {
-        const axiosError = error as AxiosError<ApiErrorResponse>
+        const axiosError = error as AxiosError<IApiErrorResponse>
         const errorCode = axiosError.response?.data?.code
 
         clearAuth()

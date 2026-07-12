@@ -2,10 +2,12 @@ import { Router } from 'express'
 
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { usersController } from './users.controller'
+import { UsersController } from './users.controller'
+import { createUsersComposition } from '../users.factory'
 import { USER_ROUTE_PATHS } from './users.route.constants'
 import { updateMyProfileSchema } from './users.schema'
 
+const usersController = new UsersController(createUsersComposition().useCases)
 const router = Router()
 
 // ─── PUBLIC ──────────────────────────────────────────────────

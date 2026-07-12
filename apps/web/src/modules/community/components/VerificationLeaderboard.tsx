@@ -1,14 +1,14 @@
-import type { CommunityLeaderboardEntry } from '../types/community.types'
+import type { ICommunityLeaderboardEntry } from '../types/community.types'
 import { cn } from '../utils/community-ui'
 import { TrophyIcon } from './icons/CommunityIcons'
 
-interface VerificationLeaderboardProps {
-  entries: CommunityLeaderboardEntry[]
+interface IVerificationLeaderboardProps {
+  entries: ICommunityLeaderboardEntry[]
 }
 
 export default function VerificationLeaderboard({
   entries,
-}: VerificationLeaderboardProps) {
+}: IVerificationLeaderboardProps) {
   return (
     <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
       <div className="mb-4 flex items-center gap-2">

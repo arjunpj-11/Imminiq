@@ -2,9 +2,9 @@ import { useMutation, useQueryClient } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  RemoveBannerResponse,
+  IApiErrorResponse,
+  IApiResponse,
+  IRemoveBannerResponse,
 } from '../types/profile.types'
 import { profileQueryKeys } from './profile.query-keys'
 
@@ -12,12 +12,12 @@ export const useRemoveBanner = () => {
   const queryClient = useQueryClient()
 
   return useMutation<
-    ApiResponse<RemoveBannerResponse>,
-    AxiosError<ApiErrorResponse>,
+    IApiResponse<IRemoveBannerResponse>,
+    AxiosError<IApiErrorResponse>,
     void
   >({
     mutationFn: async () => {
-      const response = await api.delete<ApiResponse<RemoveBannerResponse>>(
+      const response = await api.delete<IApiResponse<IRemoveBannerResponse>>(
         '/uploads/banner'
       )
 

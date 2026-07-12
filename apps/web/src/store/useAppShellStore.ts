@@ -4,7 +4,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 import { STORAGE_KEYS } from '../lib/storage/storage-keys'
 import { safeLocalStateStorage, safeLocalStorage } from '../lib/storage/safe-storage'
 
-interface AppShellStore {
+interface IAppShellStore {
   mobileSidebarOpen: boolean
   sidebarCollapsed: boolean
   commandPaletteOpen: boolean
@@ -20,7 +20,7 @@ interface AppShellStore {
 const legacySidebarCollapsed =
   safeLocalStorage.get(STORAGE_KEYS.legacySidebar) === 'closed'
 
-export const useAppShellStore = create<AppShellStore>()(
+export const useAppShellStore = create<IAppShellStore>()(
   persist(
     (set) => ({
       mobileSidebarOpen: false,

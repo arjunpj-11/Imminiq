@@ -28,8 +28,8 @@ import { useReceivedFriendRequests } from "../hooks/useReceivedFriendRequests";
 import { useRemoveFriend } from "../hooks/useRemoveFriend";
 import { useSentFriendRequests } from "../hooks/useSentFriendRequests";
 import type {
-  FriendRequest,
-  FriendUser,
+  IFriendRequest,
+  IFriendUser,
   FriendsTab,
 } from "../types/friends.types";
 import {
@@ -45,7 +45,7 @@ export default function FriendsPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTab = parseFriendsTab(searchParams.get("tab"));
   const [friendSearch, setFriendSearch] = useState("");
-  const [selectedFriend, setSelectedFriend] = useState<FriendUser | null>(null);
+  const [selectedFriend, setSelectedFriend] = useState<IFriendUser | null>(null);
   const [actionError, setActionError] = useState<string>();
 
   const debouncedSearch = useDebouncedValue(
@@ -93,7 +93,7 @@ export default function FriendsPage() {
     });
   };
 
-  const handleAccept = (request: FriendRequest) => {
+  const handleAccept = (request: IFriendRequest) => {
     setActionError(undefined);
     acceptMutation.mutate(
       { requestId: request.id },
@@ -109,7 +109,7 @@ export default function FriendsPage() {
     );
   };
 
-  const handleDecline = (request: FriendRequest) => {
+  const handleDecline = (request: IFriendRequest) => {
     setActionError(undefined);
     declineMutation.mutate(
       { requestId: request.id },
@@ -125,7 +125,7 @@ export default function FriendsPage() {
     );
   };
 
-  const handleCancel = (request: FriendRequest) => {
+  const handleCancel = (request: IFriendRequest) => {
     setActionError(undefined);
     cancelMutation.mutate(
       { requestId: request.id },

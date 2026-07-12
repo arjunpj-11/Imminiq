@@ -1,6 +1,6 @@
 export {
-  CloudflareAiImageGenerationGateway,
-  cloudflareAiImageGenerationGateway,
+  CloudflareAIImageGenerationGateway,
+  cloudflareAIImageGenerationGateway,
 } from './gateways/cloudflare-ai-image-generation.gateway'
 export {
   CloudinaryProfileImageStorageGateway,
@@ -11,6 +11,6 @@ export {
   mongoUploadsRepository,
 } from './repositories/mongo-uploads.repository'
 export {
-  CryptoRandomSeedService,
-  cryptoRandomSeedService,
+  CryptoRandomSeedGenerator,
+  cryptoRandomSeedGenerator,
 } from './services/crypto-random-seed.service'

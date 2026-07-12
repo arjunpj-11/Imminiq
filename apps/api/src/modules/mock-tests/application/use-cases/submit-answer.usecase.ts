@@ -1,33 +1,33 @@
-import type { MockTestAIEvaluationRepositoryContract } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
-import type { MockTestAnswerRepositoryContract } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { MockTestAttemptRepositoryContract } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestAIServiceContract } from '../../domain/services/mock-test-ai.service.interface'
-import type { SubmitAnswerPayload } from '../dtos/mock-tests.dto'
+import type { IMockTestAIEvaluationRepository } from '../../domain/repositories/mock-test-ai-evaluation.repository.interface'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
+import type { ISubmitAnswerPayloadDTO } from '../dtos/mock-tests.dto'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestScoringServiceContract } from '../services/test-scorer.service'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestScorer } from '../services/test-scorer.service'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type SubmitAnswerRepository =
-  MockTestAttemptRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestAnswerRepositoryContract &
-  MockTestAIEvaluationRepositoryContract
+  IMockTestAttemptRepository &
+  IMockTestQuestionRepository &
+  IMockTestAnswerRepository &
+  IMockTestAIEvaluationRepository
 
 export class SubmitAnswerUseCase {
   constructor(
-    private readonly _repo: SubmitAnswerRepository,
-    private readonly _aiService: MockTestAIServiceContract,
-    private readonly _scoringService: MockTestScoringServiceContract,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _repository: SubmitAnswerRepository,
+    private readonly _aiGateway: IMockTestAIGateway,
+    private readonly _scorer: IMockTestScorer,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(
     attemptId: string,
     userId: string,
-    payload: SubmitAnswerPayload,
+    payload: ISubmitAnswerPayloadDTO,
   ) {
-    const attempt = await this._repo.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId)
 
     if (!attempt) {
       throw MockTestsApplicationError.notFound('Attempt not found')
@@ -41,7 +41,7 @@ export class SubmitAnswerUseCase {
       throw MockTestsApplicationError.testNotActive()
     }
 
-    const question = await this._repo.findQuestionById(payload.questionId)
+    const question = await this._repository.findQuestionById(payload.questionId)
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found')
@@ -51,7 +51,7 @@ export class SubmitAnswerUseCase {
       throw MockTestsApplicationError.useCodingSubmitEndpoint()
     }
 
-    const existing = await this._repo.findAnswerByQuestion({
+    const existing = await this._repository.findAnswerByQuestion({
       attemptId,
       questionId: payload.questionId,
     })
@@ -61,7 +61,7 @@ export class SubmitAnswerUseCase {
 
     if (question.type === 'mcq') {
       isCorrect = question.correctAnswer
-        ? this._scoringService.isMCQCorrect(
+        ? this._scorer.isMCQCorrect(
             payload.answer,
             question.correctAnswer,
           )
@@ -71,12 +71,12 @@ export class SubmitAnswerUseCase {
     }
 
     let savedAnswer = existing
-      ? await this._repo.updateAnswer(existing._id, {
+      ? await this._repository.updateAnswer(existing._id, {
           answer: payload.answer,
           isCorrect,
           pointsEarned,
         })
-      : await this._repo.saveAnswer({
+      : await this._repository.saveAnswer({
           attemptId,
           questionId: payload.questionId,
           answer: payload.answer,
@@ -89,12 +89,12 @@ export class SubmitAnswerUseCase {
     }
 
     if (!existing) {
-      await this._repo.incrementAnsweredCount(attemptId)
+      await this._repository.incrementAnsweredCount(attemptId)
     }
 
     if (question.type === 'short_answer') {
       try {
-        const evaluation = await this._aiService.evaluateOpenAnswer({
+        const evaluation = await this._aiGateway.evaluateOpenAnswer({
           question: question.question,
           correctAnswer: question.correctAnswer,
           userAnswer: payload.answer,
@@ -102,7 +102,7 @@ export class SubmitAnswerUseCase {
           maxPoints: question.points,
         })
 
-        await this._repo.createAIEvaluation({
+        await this._repository.createAIEvaluation({
           attemptId,
           questionId: payload.questionId,
           answerId: savedAnswer._id,
@@ -111,7 +111,7 @@ export class SubmitAnswerUseCase {
           feedback: evaluation.feedback,
         })
 
-        const evaluatedAnswer = await this._repo.updateAnswer(savedAnswer._id, {
+        const evaluatedAnswer = await this._repository.updateAnswer(savedAnswer._id, {
           isCorrect: evaluation.isCorrect,
           pointsEarned: evaluation.score,
         })
@@ -120,7 +120,7 @@ export class SubmitAnswerUseCase {
           savedAnswer = evaluatedAnswer
         }
       } catch {
-        const fallbackAnswer = await this._repo.updateAnswer(savedAnswer._id, {
+        const fallbackAnswer = await this._repository.updateAnswer(savedAnswer._id, {
           isCorrect: false,
           pointsEarned: 0,
         })

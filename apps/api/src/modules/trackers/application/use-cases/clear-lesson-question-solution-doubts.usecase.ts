@@ -1,19 +1,19 @@
 // apps/api/src/modules/trackers/application/use-cases/clear-lesson-question-solution-doubts.usecase.ts
 
 import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { TrackerMapperContract } from '../mappers/tracker.mapper'
-import type { TrackerRepositoryContract } from '../../domain/repositories/tracker.repository.interface'
-import type { QuestionHasherServiceContract } from '../../domain/services/question-hasher.service.interface'
+import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { IQuestionHasher } from '../../domain/services/question-hasher.interface'
 
-type ClearLessonQuestionSolutionDoubtsResultDto = ReturnType<
-  TrackerMapperContract['toClearLessonHistoryResultDto']
+type ClearLessonQuestionSolutionDoubtsResultDTO = ReturnType<
+  ITrackerMapper['toClearLessonHistoryResultDto']
 >
 
 export class ClearLessonQuestionSolutionDoubtsUseCase {
   constructor(
-    private readonly _trackerRepository: TrackerRepositoryContract,
-    private readonly _questionHasher: QuestionHasherServiceContract,
-    private readonly _trackerMapper: TrackerMapperContract,
+    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _questionHasher: IQuestionHasher,
+    private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
   async execute(input: {
@@ -21,7 +21,7 @@ export class ClearLessonQuestionSolutionDoubtsUseCase {
     subtopicId: string
     userId: string
     question: string
-  }): Promise<ClearLessonQuestionSolutionDoubtsResultDto> {
+  }): Promise<ClearLessonQuestionSolutionDoubtsResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

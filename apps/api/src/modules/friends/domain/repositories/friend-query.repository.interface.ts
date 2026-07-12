@@ -5,7 +5,7 @@ import type {
   SearchFriendUsersInput,
 } from "../types/friends.types";
 
-export interface FriendQueryRepositoryContract {
+export interface IFriendQueryRepository {
   searchUsers(input: SearchFriendUsersInput): Promise<FriendUsersPage>;
   listFriends(input: ListFriendsInput): Promise<FriendUsersPage>;
   findFriendUser(

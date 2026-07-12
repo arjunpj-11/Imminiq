@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface StatGridProps {
+interface IStatGridProps {
   children: ReactNode
   className?: string
   columns?: 2 | 3 | 4
@@ -18,7 +18,7 @@ export default function StatGrid({
   children,
   className,
   columns = 4,
-}: StatGridProps) {
+}: IStatGridProps) {
   return (
     <section className={cn('grid grid-cols-1 gap-3', columnClasses[columns], className)}>
       {children}

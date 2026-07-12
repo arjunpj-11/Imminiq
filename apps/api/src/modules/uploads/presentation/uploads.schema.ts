@@ -23,11 +23,11 @@ export const profileImageUploadSchema = z.object({
   altText: optionalAltTextSchema,
 })
 
-export const generateAiAvatarPreviewSchema = z.object({
+export const generateAIAvatarPreviewSchema = z.object({
   prompt: aiPromptSchema,
 })
 
-export const generateAiBannerPreviewSchema = z.object({
+export const generateAIBannerPreviewSchema = z.object({
   prompt: aiPromptSchema,
 })
 
@@ -35,10 +35,10 @@ export type ProfileImageUploadInput = z.infer<
   typeof profileImageUploadSchema
 >
 
-export type GenerateAiAvatarPreviewInput = z.infer<
-  typeof generateAiAvatarPreviewSchema
+export type GenerateAIAvatarPreviewInput = z.infer<
+  typeof generateAIAvatarPreviewSchema
 >
 
-export type GenerateAiBannerPreviewInput = z.infer<
-  typeof generateAiBannerPreviewSchema
+export type GenerateAIBannerPreviewInput = z.infer<
+  typeof generateAIBannerPreviewSchema
 >

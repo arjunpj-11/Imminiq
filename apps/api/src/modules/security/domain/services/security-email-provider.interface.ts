@@ -10,7 +10,7 @@ export type EmailChangeAlertTemplateInput = {
   requestedNewEmail: string
 }
 
-export interface SecurityEmailProviderContract {
+export interface ISecurityEmailProvider {
   sendEmailChangeVerification(
     to: string,
     input: EmailChangeVerificationTemplateInput,

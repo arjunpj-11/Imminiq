@@ -3,7 +3,8 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
-import { mockTestsController } from './mock-tests.controller'
+import { MockTestsController } from './mock-tests.controller'
+import { createMockTestsComposition } from '../mock-tests.factory'
 import { MOCK_TEST_ROUTE_PATHS } from './mock-tests.route.constants'
 import {
   createMockTestSchema,
@@ -14,6 +15,7 @@ import {
   submitMockTestCodeSchema,
 } from './mock-tests.schema'
 
+const mockTestsController = new MockTestsController(createMockTestsComposition().useCases)
 const router = Router()
 
 // ─── PROTECTED ───────────────────────────────────────────────

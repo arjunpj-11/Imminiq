@@ -1,10 +1,10 @@
 import {
   MockTestsMapper,
-  type MockTestsMapperContract,
+  type IMockTestsMapper,
 } from './application/mappers/mock-tests.mapper'
 import {
-  MockTestScoringService,
-  type MockTestScoringServiceContract,
+  MockTestScorer,
+  type IMockTestScorer,
 } from './application/services/test-scorer.service'
 import { CreateMockTestUseCase } from './application/use-cases/create-mock-test.usecase'
 import { FinishTestAttemptUseCase } from './application/use-cases/finish-test-attempt.usecase'
@@ -28,17 +28,18 @@ import { StartTestAttemptUseCase } from './application/use-cases/start-test-atte
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.usecase'
 import { SubmitMockTestCodeUseCase } from './application/use-cases/submit-mock-test-code.usecase'
 
-import type { MockTestAIServiceContract } from './domain/services/mock-test-ai.service.interface'
-import type { MockTestCodeRunnerServiceContract } from './domain/services/mock-test-code-runner.service.interface'
-import type { MockTestQuestionBankServiceContract } from './domain/services/mock-test-question-bank.service.interface'
-import type { ShareTokenGeneratorServiceContract } from './domain/services/share-token-generator.service.interface'
+import type { IMockTestAIGateway } from './domain/services/mock-test-ai.interface'
+import type { IMockTestCodeRunner } from './domain/services/mock-test-code-runner.interface'
+import type { IMockTestQuestionBank } from './domain/services/mock-test-question-bank.interface'
+import type { IShareTokenGenerator } from './domain/services/share-token-generator.interface'
+import { systemClock } from '../../infrastructure/time/system-clock'
 
 import { activityMockTestGateway } from './infrastructure/gateways/activity-mock-test.gateway'
 import { mongoMockTestsRepository } from './infrastructure/repositories/mongo-mock-tests.repository'
-import { cryptoShareTokenGeneratorService } from './infrastructure/services/crypto-share-token-generator.service'
-import { geminiGroqMockTestAIService } from './infrastructure/services/gemini-groq-mock-test-ai.service'
-import { mongoQuestionBankService } from './infrastructure/services/mongo-question-bank.service'
-import { pistonMockTestCodeRunnerService } from './infrastructure/services/piston-mock-test-code-runner.service'
+import { cryptoShareTokenGenerator } from './infrastructure/services/crypto-share-token-generator.service'
+import { geminiGroqMockTestAIGateway } from './infrastructure/services/gemini-groq-mock-test-ai.service'
+import { mongoQuestionBank } from './infrastructure/services/mongo-question-bank.service'
+import { pistonMockTestCodeRunner } from './infrastructure/services/piston-mock-test-code-runner.service'
 
 export type MockTestsUseCases = {
   listMockTests: ListMockTestsUseCase
@@ -65,22 +66,22 @@ export type MockTestsUseCases = {
 }
 
 export type MockTestsServiceHelpers = {
-  mockTestsMapper: MockTestsMapperContract
+  mockTestsMapper: IMockTestsMapper
 
-  mockTestScoringService:
-    MockTestScoringServiceContract
+  mockTestScorer:
+    IMockTestScorer
 
-  mockTestAIService:
-    MockTestAIServiceContract
+  mockTestAIGateway:
+    IMockTestAIGateway
 
-  mockTestQuestionBankService:
-    MockTestQuestionBankServiceContract
+  mockTestQuestionBank:
+    IMockTestQuestionBank
 
-  mockTestCodeRunnerService:
-    MockTestCodeRunnerServiceContract
+  mockTestCodeRunner:
+    IMockTestCodeRunner
 
   shareTokenGenerator:
-    ShareTokenGeneratorServiceContract
+    IShareTokenGenerator
 }
 
 export type MockTestsComposition = {
@@ -93,26 +94,26 @@ export const createMockTestsComposition =
     const mockTestsRepository =
       mongoMockTestsRepository
 
-    const mockTestActivityService =
+    const mockTestActivityRecorder =
       activityMockTestGateway
 
-    const mockTestAIService =
-      geminiGroqMockTestAIService
+    const mockTestAIGateway =
+      geminiGroqMockTestAIGateway
 
-    const mockTestQuestionBankService =
-      mongoQuestionBankService
+    const mockTestQuestionBank =
+      mongoQuestionBank
 
-    const mockTestCodeRunnerService =
-      pistonMockTestCodeRunnerService
+    const mockTestCodeRunner =
+      pistonMockTestCodeRunner
 
     const mockTestsMapper =
       new MockTestsMapper()
 
-    const mockTestScoringService =
-      new MockTestScoringService()
+    const mockTestScorer =
+      new MockTestScorer()
 
     const shareTokenGenerator =
-      cryptoShareTokenGeneratorService
+      cryptoShareTokenGenerator
 
     return {
       useCases: {
@@ -143,9 +144,9 @@ export const createMockTestsComposition =
         generateMockTest:
           new GenerateMockTestUseCase(
             mockTestsRepository,
-            mockTestAIService,
-            mockTestQuestionBankService,
-            mockTestActivityService,
+            mockTestAIGateway,
+            mockTestQuestionBank,
+            mockTestActivityRecorder,
             mockTestsMapper,
           ),
 
@@ -164,8 +165,8 @@ export const createMockTestsComposition =
         submitAnswer:
           new SubmitAnswerUseCase(
             mockTestsRepository,
-            mockTestAIService,
-            mockTestScoringService,
+            mockTestAIGateway,
+            mockTestScorer,
             mockTestsMapper,
           ),
 
@@ -177,9 +178,10 @@ export const createMockTestsComposition =
         finishTestAttempt:
           new FinishTestAttemptUseCase(
             mockTestsRepository,
-            mockTestScoringService,
-            mockTestActivityService,
+            mockTestScorer,
+            mockTestActivityRecorder,
             mockTestsMapper,
+            systemClock,
           ),
 
         getAttemptResult:
@@ -202,14 +204,14 @@ export const createMockTestsComposition =
         getAnalytics:
           new GetAnalyticsUseCase(
             mockTestsRepository,
-            mockTestAIService,
+            mockTestAIGateway,
             mockTestsMapper,
           ),
 
         getAIInsights:
           new GetAIInsightsUseCase(
             mockTestsRepository,
-            mockTestAIService,
+            mockTestAIGateway,
           ),
 
         getHistory:
@@ -239,22 +241,22 @@ export const createMockTestsComposition =
         runMockTestCode:
           new RunMockTestCodeUseCase(
             mockTestsRepository,
-            mockTestCodeRunnerService,
+            mockTestCodeRunner,
           ),
 
         submitMockTestCode:
           new SubmitMockTestCodeUseCase(
             mockTestsRepository,
-            mockTestCodeRunnerService,
+            mockTestCodeRunner,
           ),
       },
 
       helpers: {
         mockTestsMapper,
-        mockTestScoringService,
-        mockTestAIService,
-        mockTestQuestionBankService,
-        mockTestCodeRunnerService,
+        mockTestScorer,
+        mockTestAIGateway,
+        mockTestQuestionBank,
+        mockTestCodeRunner,
         shareTokenGenerator,
       },
     }

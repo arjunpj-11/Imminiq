@@ -2,14 +2,14 @@ import { Link } from 'react-router-dom'
 import { LogoIcon } from './icons/AuthIcons'
 import { cn } from '../utils/auth-ui'
 
-interface AuthLayoutProps {
+interface IAuthLayoutProps {
   badge: string
   title: string
   subtitle: string
   children: React.ReactNode
 }
 
-export default function AuthLayout({ badge, title, subtitle, children }: AuthLayoutProps) {
+export default function AuthLayout({ badge, title, subtitle, children }: IAuthLayoutProps) {
   return (
     <div
       id="page"

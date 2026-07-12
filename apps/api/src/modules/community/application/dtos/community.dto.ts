@@ -1,12 +1,12 @@
 import type { CommunitySort } from '../../domain/value-objects/community-sort.vo'
 import type { VerificationVoteChoice } from '../../domain/value-objects/verification-vote-choice.vo'
 
-export interface CommunityPaginationQuery {
+export interface ICommunityPaginationQueryDTO {
   page?: number
   limit?: number
 }
 
-export interface CommunityTrackerListPayload extends CommunityPaginationQuery {
+export interface ICommunityTrackerListPayloadDTO extends ICommunityPaginationQueryDTO {
   userId: string
   search?: string
   topics?: string[]
@@ -15,11 +15,11 @@ export interface CommunityTrackerListPayload extends CommunityPaginationQuery {
   sort?: CommunitySort
 }
 
-export interface VerificationQueuePayload extends CommunityPaginationQuery {
+export interface IVerificationQueuePayloadDTO extends ICommunityPaginationQueryDTO {
   userId: string
 }
 
-export interface SubmitTrackerForVerificationPayload {
+export interface ISubmitTrackerForVerificationPayloadDTO {
   trackerId: string
   userId: string
   requiredVotes?: number
@@ -27,7 +27,7 @@ export interface SubmitTrackerForVerificationPayload {
   urgent?: boolean
 }
 
-export interface CommunityTrackerView {
+export interface ICommunityTrackerViewDTO {
   _id: string
   title: string
   description: string
@@ -38,13 +38,13 @@ export interface CommunityTrackerView {
   topic: string
 }
 
-export interface CommunityStatCardView {
+export interface ICommunityStatCardViewDTO {
   label: string
   value: string
   helper: string
 }
 
-export interface CommunityPaginationView {
+export interface ICommunityPaginationViewDTO {
   page: number
   limit: number
   total: number
@@ -53,24 +53,24 @@ export interface CommunityPaginationView {
   hasPreviousPage: boolean
 }
 
-export interface CommunityTrackerListView {
-  trackers: CommunityTrackerView[]
-  pagination: CommunityPaginationView
+export interface ICommunityTrackerListViewDTO {
+  trackers: ICommunityTrackerViewDTO[]
+  pagination: ICommunityPaginationViewDTO
 }
 
-export interface CommunityBrowseView extends CommunityTrackerListView {
-  stats: CommunityStatCardView[]
+export interface ICommunityBrowseViewDTO extends ICommunityTrackerListViewDTO {
+  stats: ICommunityStatCardViewDTO[]
   topics: string[]
-  verifyBanner: CommunityVerifyBannerView
+  verifyBanner: ICommunityVerifyBannerViewDTO
 }
 
-export interface CommunityVerifyBannerView {
+export interface ICommunityVerifyBannerViewDTO {
   queueCount: number
   rewardCoins: number
   activeReviewersThisWeek: number
 }
 
-export interface CommunityVerifyItemView {
+export interface ICommunityVerifyItemViewDTO {
   _id: string
   title: string
   category: string
@@ -85,7 +85,7 @@ export interface CommunityVerifyItemView {
   requiredVotes: number
 }
 
-export interface CommunityVerificationStatsView {
+export interface ICommunityVerificationStatsViewDTO {
   awaiting: string
   reviewed: string
   totalEarned: string
@@ -95,7 +95,7 @@ export interface CommunityVerificationStatsView {
   activeReviewersThisWeek: number
 }
 
-export interface CommunityLeaderboardEntryView {
+export interface ICommunityLeaderboardEntryViewDTO {
   rank: number
   name: string
   earned: string
@@ -103,42 +103,42 @@ export interface CommunityLeaderboardEntryView {
   isMe?: boolean
 }
 
-export interface CommunityVerificationQueueView {
-  items: CommunityVerifyItemView[]
-  pagination: CommunityPaginationView
+export interface ICommunityVerificationQueueViewDTO {
+  items: ICommunityVerifyItemViewDTO[]
+  pagination: ICommunityPaginationViewDTO
 }
 
-export interface CommunityVerificationDashboardView
-  extends CommunityVerificationQueueView {
-  stats: CommunityVerificationStatsView
-  leaderboard: CommunityLeaderboardEntryView[]
+export interface ICommunityVerificationDashboardViewDTO
+  extends ICommunityVerificationQueueViewDTO {
+  stats: ICommunityVerificationStatsViewDTO
+  leaderboard: ICommunityLeaderboardEntryViewDTO[]
   howItWorks: string[]
 }
 
 
-export interface CommunityVerificationSubmissionView extends CommunityVerifyItemView {
+export interface ICommunityVerificationSubmissionViewDTO extends ICommunityVerifyItemViewDTO {
   trackerId: string
   ownerId: string
   userVote?: VerificationVoteChoice | null
   consensusChoice?: VerificationVoteChoice | null
-  reviewTracker?: CommunityVerificationReviewTrackerView | null
+  reviewTracker?: CommunityVerificationReviewTrackerViewDTO | null
 }
 
-export interface VoteVerificationSubmissionPayload {
+export interface IVoteVerificationSubmissionPayloadDTO {
   submissionId: string
   userId: string
   vote: VerificationVoteChoice
   reason?: string | null
 }
 
-export interface VoteVerificationSubmissionView {
+export interface IVoteVerificationSubmissionViewDTO {
   vote: {
     _id: string
     submissionId: string
     choice: VerificationVoteChoice
     rewardCoins: number
   }
-  submission: CommunityVerificationSubmissionView
+  submission: ICommunityVerificationSubmissionViewDTO
   reward: {
     awarded: boolean
     coins: number
@@ -146,7 +146,7 @@ export interface VoteVerificationSubmissionView {
   }
 }
 
-export type CommunityVerificationReviewSubtopicView = {
+export type CommunityVerificationReviewSubtopicViewDTO = {
   id: string
   topicId: string
   parentSubtopicId?: string | null
@@ -158,17 +158,17 @@ export type CommunityVerificationReviewSubtopicView = {
   estimatedMinutes: number
 }
 
-export type CommunityVerificationReviewTopicView = {
+export type CommunityVerificationReviewTopicViewDTO = {
   id: string
   title: string
   description: string
   order: number
   status: string
   estimatedHours: number
-  subtopics: CommunityVerificationReviewSubtopicView[]
+  subtopics: CommunityVerificationReviewSubtopicViewDTO[]
 }
 
-export type CommunityVerificationReviewTrackerView = {
+export type CommunityVerificationReviewTrackerViewDTO = {
   id: string
   title: string
   description: string
@@ -181,5 +181,5 @@ export type CommunityVerificationReviewTrackerView = {
   status: string
   topicsCount: number
   subtopicsCount: number
-  topics: CommunityVerificationReviewTopicView[]
+  topics: CommunityVerificationReviewTopicViewDTO[]
 }

@@ -1,6 +1,6 @@
-import type { RoadmapSubtopic, RoadmapTopic } from '../../trackers'
+import type { IRoadmapSubtopic, IRoadmapTopic } from '../../trackers'
 
-export interface FlatNode {
+export interface IFlatNode {
   _id: string
   title: string
   status?: string
@@ -10,11 +10,11 @@ export interface FlatNode {
 }
 
 function flattenSubtopic(
-  subtopic: RoadmapSubtopic,
+  subtopic: IRoadmapSubtopic,
   parentTopicId: string,
   parentTopicTitle: string,
   depth: number,
-  acc: FlatNode[]
+  acc: IFlatNode[]
 ): void {
   acc.push({
     _id: subtopic._id,
@@ -30,8 +30,8 @@ function flattenSubtopic(
   }
 }
 
-export function flattenRoadmap(topics: RoadmapTopic[]): FlatNode[] {
-  const acc: FlatNode[] = []
+export function flattenRoadmap(topics: IRoadmapTopic[]): IFlatNode[] {
+  const acc: IFlatNode[] = []
 
   for (const topic of topics) {
     for (const subtopic of topic.subtopics) {
@@ -44,7 +44,7 @@ export function flattenRoadmap(topics: RoadmapTopic[]): FlatNode[] {
 
 export function buildStructuredTopicString(
   selectedNodes: Map<string, string>,
-  flatNodes: FlatNode[],
+  flatNodes: IFlatNode[],
   trackerTitle: string
 ): string {
   const byTopic = new Map<string, { topicTitle: string; subtopics: string[] }>()

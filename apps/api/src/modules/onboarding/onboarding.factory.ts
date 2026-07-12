@@ -1,10 +1,10 @@
 import {
   OnboardingMapper,
-  type OnboardingMapperContract,
+  type IOnboardingMapper,
 } from './application/mappers/onboarding.mapper'
 import {
-  OnboardingJobOutputReaderService,
-  type OnboardingJobOutputReaderServiceContract,
+  OnboardingJobOutputReader,
+  type IOnboardingJobOutputReader,
 } from './application/services/onboarding-job-output-reader.service'
 import { EvaluateRoadmapUseCase } from './application/use-cases/evaluate-roadmap.usecase'
 import { GenerateRoadmapUseCase } from './application/use-cases/generate-roadmap.usecase'
@@ -14,8 +14,8 @@ import { GetRoadmapJobResultUseCase } from './application/use-cases/get-roadmap-
 import { GetRoadmapJobStatusUseCase } from './application/use-cases/get-roadmap-job-status.usecase'
 import { SaveOnboardingStepOneUseCase } from './application/use-cases/save-onboarding-step-one.usecase'
 import { SaveOnboardingStepTwoUseCase } from './application/use-cases/save-onboarding-step-two.usecase'
-import type { AIJobQueueGatewayContract } from './domain/services/ai-job-queue.interface'
-import type { AIJobQuotaStoreContract } from './domain/services/ai-job-quota-store.interface'
+import type { IAIJobQueueGateway } from './domain/services/ai-job-queue.interface'
+import type { IAIJobQuotaStore } from './domain/services/ai-job-quota-store.interface'
 import { bullMqAIJobQueueGateway } from './infrastructure/gateways/bullmq-ai-job-queue.gateway'
 import { mongoOnboardingRepository } from './infrastructure/repositories/mongo-onboarding.repository'
 import { redisAIJobQuotaStore } from './infrastructure/stores/redis-ai-job-quota.store'
@@ -32,10 +32,10 @@ export type OnboardingUseCases = {
 }
 
 export type OnboardingServiceHelpers = {
-  onboardingAIJobQueueGateway: AIJobQueueGatewayContract
-  onboardingAIJobQuotaStore: AIJobQuotaStoreContract
-  onboardingMapper: OnboardingMapperContract
-  onboardingJobOutputReader: OnboardingJobOutputReaderServiceContract
+  onboardingAIJobQueueGateway: IAIJobQueueGateway
+  onboardingAIJobQuotaStore: IAIJobQuotaStore
+  onboardingMapper: IOnboardingMapper
+  onboardingJobOutputReader: IOnboardingJobOutputReader
 }
 
 export type OnboardingComposition = {
@@ -48,7 +48,7 @@ export const createOnboardingComposition = (): OnboardingComposition => {
   const onboardingAIJobQueueGateway = bullMqAIJobQueueGateway
   const onboardingAIJobQuotaStore = redisAIJobQuotaStore
   const onboardingMapper = new OnboardingMapper()
-  const onboardingJobOutputReader = new OnboardingJobOutputReaderService()
+  const onboardingJobOutputReader = new OnboardingJobOutputReader()
 
   return {
     useCases: {

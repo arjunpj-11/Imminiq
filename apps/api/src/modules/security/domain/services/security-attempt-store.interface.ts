@@ -3,7 +3,7 @@ import type {
   SecurityAttemptScope,
 } from '../value-objects/security-attempt-scope.vo'
 
-export interface SecurityAttemptStoreContract {
+export interface ISecurityAttemptStore {
   isBlocked(scope: SecurityAttemptScope, identifier: string): Promise<boolean>
   recordFailure(
     scope: SecurityAttemptScope,

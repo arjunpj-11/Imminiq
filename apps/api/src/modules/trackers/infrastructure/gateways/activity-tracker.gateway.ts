@@ -1,18 +1,22 @@
 import { activityService } from '../../../activity'
+import type { ActivityRecorderContract } from '../../../activity/activity.service'
 import type {
   RecordTrackerCompletedActivityInput,
   RecordTrackerSubtopicCompletedActivityInput,
   RecordTrackerTopicCompletedActivityInput,
-  TrackerActivityServiceContract,
-} from '../../domain/services/tracker-activity.service.interface'
+  ITrackerActivityRecorder,
+} from '../../domain/services/tracker-activity.interface'
 
 export class ActivityTrackerGateway
-  implements TrackerActivityServiceContract
+  implements ITrackerActivityRecorder
 {
+  constructor(
+    private readonly _activityRecorder: ActivityRecorderContract,
+  ) {}
   async recordSubtopicCompleted(
     input: RecordTrackerSubtopicCompletedActivityInput,
   ): Promise<void> {
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'tracker',
@@ -50,7 +54,7 @@ export class ActivityTrackerGateway
   async recordTopicCompleted(
     input: RecordTrackerTopicCompletedActivityInput,
   ): Promise<void> {
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'tracker',
@@ -87,7 +91,7 @@ export class ActivityTrackerGateway
   async recordTrackerCompleted(
     input: RecordTrackerCompletedActivityInput,
   ): Promise<void> {
-    await activityService.recordActivity({
+    await this._activityRecorder.recordActivity({
       userId: input.userId,
 
       category: 'tracker',
@@ -121,4 +125,4 @@ export class ActivityTrackerGateway
 }
 
 export const activityTrackerGateway =
-  new ActivityTrackerGateway()
+  new ActivityTrackerGateway(activityService)

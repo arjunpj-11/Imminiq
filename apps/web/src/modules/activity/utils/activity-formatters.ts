@@ -3,8 +3,8 @@ import {
 } from '../constants/activity.constants'
 import type {
   ActivityFeedFilter,
-  ActivityFeedGroup,
-  ActivityFeedResponse,
+  IActivityFeedGroup,
+  IActivityFeedResponse,
 } from '../types/activity.types'
 
 const VALID_FILTERS = new Set<ActivityFeedFilter>([
@@ -165,10 +165,10 @@ export const formatActivityTimestamp = (
 }
 
 export const mergeActivityFeedPages = (
-  pages: ActivityFeedResponse[],
-): ActivityFeedGroup[] => {
+  pages: IActivityFeedResponse[],
+): IActivityFeedGroup[] => {
   const groupOrder: string[] = []
-  const groups = new Map<string, ActivityFeedGroup>()
+  const groups = new Map<string, IActivityFeedGroup>()
   const seenEventIds = new Set<string>()
 
   for (const page of pages) {
@@ -203,7 +203,7 @@ export const mergeActivityFeedPages = (
 
   return groupOrder
     .map((date) => groups.get(date))
-    .filter((group): group is ActivityFeedGroup => Boolean(group))
+    .filter((group): group is IActivityFeedGroup => Boolean(group))
     .filter((group) => group.events.length > 0)
 }
 

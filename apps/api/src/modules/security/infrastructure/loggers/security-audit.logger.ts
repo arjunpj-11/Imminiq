@@ -1,10 +1,10 @@
 import { securityAuditLogger as sharedSecurityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
 import { SecurityDomainError } from '../../domain/errors/security-domain.error'
-import type { SecurityAuditLoggerContract } from '../../domain/services/security-audit-logger.interface'
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 
-export class SecurityAuditLogger implements SecurityAuditLoggerContract {
+export class SecurityAuditLogger implements ISecurityAuditLogger {
   async record(
-    data: Parameters<SecurityAuditLoggerContract['record']>[0],
+    data: Parameters<ISecurityAuditLogger['record']>[0],
   ): Promise<void> {
     try {
       await sharedSecurityAuditLogger.record({

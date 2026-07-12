@@ -3,9 +3,9 @@ import {
   verifyPhoneOtp,
 } from '../../../../infrastructure/sms/message-central.client'
 import { AuthDomainError } from '../../domain/errors/auth-domain.error'
-import type { PhoneOtpProviderContract } from '../../domain/services/phone-otp-provider.interface'
+import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
 
-export class MessageCentralPhoneOtpProvider implements PhoneOtpProviderContract {
+export class MessageCentralPhoneOtpProvider implements IPhoneOtpProvider {
   async sendOtp(phone: string): Promise<{ verificationId: string }> {
     const result = await sendPhoneOtp(phone)
 

@@ -3,7 +3,7 @@ import type { ReactNode } from 'react'
 import { cn } from '../../lib/cn'
 import EmptyStateIllustration from './EmptyStateIllustration'
 
-interface EmptyStateProps {
+interface IEmptyStateProps {
   icon?: ReactNode
   title: ReactNode
   description?: ReactNode
@@ -17,7 +17,7 @@ export default function EmptyState({
   description,
   action,
   className,
-}: EmptyStateProps) {
+}: IEmptyStateProps) {
   return (
     <div
       className={cn(

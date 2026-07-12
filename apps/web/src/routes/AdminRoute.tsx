@@ -4,11 +4,11 @@ import { Navigate, Outlet } from 'react-router-dom'
 import AuthLoadingScreen from '../components/ui/AuthLoadingScreen'
 import { useAuthStore } from '../store/useAuthStore'
 
-interface AdminRouteProps {
+interface IAdminRouteProps {
   children?: ReactNode
 }
 
-export function AdminRoute({ children }: AdminRouteProps) {
+export function AdminRoute({ children }: IAdminRouteProps) {
   const user = useAuthStore((state) => state.user)
   const authReady = useAuthStore((state) => state.authReady)
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)

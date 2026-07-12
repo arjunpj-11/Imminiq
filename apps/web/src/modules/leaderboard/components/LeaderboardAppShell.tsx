@@ -2,7 +2,7 @@ import type { ReactNode } from 'react'
 
 import { AppShellBoundary } from '../../../components/layout/AppShell'
 
-interface LeaderboardAppShellProps {
+interface ILeaderboardAppShellProps {
   children: ReactNode
   viewer?: {
     name: string
@@ -16,7 +16,7 @@ interface LeaderboardAppShellProps {
 export default function LeaderboardAppShell({
   children,
   viewer,
-}: LeaderboardAppShellProps) {
+}: ILeaderboardAppShellProps) {
   return (
     <AppShellBoundary
       viewer={

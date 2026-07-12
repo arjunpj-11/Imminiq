@@ -2,7 +2,7 @@ import { create } from 'zustand'
 
 import type { DifficultyLevel, QuestionType } from '../types/mock-tests.types'
 
-export interface GenerateMockTestDraft {
+export interface IGenerateMockTestDraft {
   topic: string
   difficulty: DifficultyLevel
   questionCount: number
@@ -10,13 +10,13 @@ export interface GenerateMockTestDraft {
   questionTypes: QuestionType[]
 }
 
-interface MockTestsStore {
-  generateDraft: GenerateMockTestDraft
-  updateGenerateDraft: (patch: Partial<GenerateMockTestDraft>) => void
+interface IMockTestsStore {
+  generateDraft: IGenerateMockTestDraft
+  updateGenerateDraft: (patch: Partial<IGenerateMockTestDraft>) => void
   resetGenerateDraft: () => void
 }
 
-const defaultDraft: GenerateMockTestDraft = {
+const defaultDraft: IGenerateMockTestDraft = {
   topic: '',
   difficulty: 'medium',
   questionCount: 10,
@@ -24,7 +24,7 @@ const defaultDraft: GenerateMockTestDraft = {
   questionTypes: ['mcq'],
 }
 
-export const useMockTestsStore = create<MockTestsStore>((set) => ({
+export const useMockTestsStore = create<IMockTestsStore>((set) => ({
   generateDraft: defaultDraft,
   updateGenerateDraft: (patch) =>
     set((state) => ({

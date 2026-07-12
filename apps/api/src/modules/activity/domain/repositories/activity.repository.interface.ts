@@ -1,6 +1,6 @@
-import type { ActivityCommandRepositoryContract } from './activity-command.repository.interface'
-import type { ActivityQueryRepositoryContract } from './activity-query.repository.interface'
+import type { IActivityCommandRepository } from './activity-command.repository.interface'
+import type { IActivityQueryRepository } from './activity-query.repository.interface'
 
-export interface ActivityRepositoryContract
-  extends ActivityQueryRepositoryContract,
-    ActivityCommandRepositoryContract {}
+export interface IActivityRepository
+  extends IActivityQueryRepository,
+    IActivityCommandRepository {}

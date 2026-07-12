@@ -5,7 +5,7 @@ export type PhoneOtpPurpose = Extract<
   'phone_verification' | 'password_reset'
 >
 
-export interface PhoneOtpSessionStoreContract {
+export interface IPhoneOtpSessionStore {
   saveVerificationId(
     phone: string,
     purpose: PhoneOtpPurpose,

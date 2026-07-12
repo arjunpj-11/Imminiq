@@ -2,7 +2,7 @@ import { useState, type CSSProperties } from 'react'
 
 import { cn } from '../../lib/cn'
 
-interface UserAvatarProps {
+interface IUserAvatarProps {
   name: string
   src?: string | null
   initials?: string
@@ -46,7 +46,7 @@ export default function UserAvatar({
   fallbackStyle,
   imageLoading = size === 'xl' ? 'eager' : 'lazy',
   roundedClassName = 'rounded-full',
-}: UserAvatarProps) {
+}: IUserAvatarProps) {
   const [failedSource, setFailedSource] = useState<string | null>(null)
 
   const showImage = Boolean(src) && failedSource !== src

@@ -1,14 +1,14 @@
 import {
   CommunityMapper,
-  type CommunityMapperContract,
+  type ICommunityMapper,
 } from './application/mappers/community.mapper'
 import {
   CommunityReviewMapper,
-  type CommunityReviewMapperContract,
+  type ICommunityReviewMapper,
 } from './application/mappers/community-review.mapper'
 import {
-  CommunityVerificationPolicyService,
-  type CommunityVerificationPolicyContract,
+  CommunityVerificationPolicy,
+  type ICommunityVerificationPolicy,
 } from './application/policies/community-verification.policy'
 import { CloneCommunityTrackerUseCase } from './application/use-cases/clone-community-tracker.usecase'
 import { GetCommunityBrowseUseCase } from './application/use-cases/get-community-browse.usecase'
@@ -25,10 +25,10 @@ import { ToggleCommunityReviewHelpfulUseCase } from './application/use-cases/tog
 import { ToggleCommunityTrackerLikeUseCase } from './application/use-cases/toggle-community-tracker-like.usecase'
 import { UpsertCommunityTrackerReviewUseCase } from './application/use-cases/upsert-community-tracker-review.usecase'
 import { VoteVerificationSubmissionUseCase } from './application/use-cases/vote-verification-submission.usecase'
-import type { CommunityCoinLedgerContract } from './domain/services/community-coin-ledger.service.interface'
+import type { ICommunityCoinLedger } from './domain/services/community-coin-ledger.interface'
 import { activityCommunityGateway } from './infrastructure/gateways/activity-community.gateway'
 import {
-  mongoCommunityCoinLedgerService,
+  mongoCommunityCoinLedger,
   mongoCommunityRepository,
   mongoCommunityReviewRepository,
 } from './infrastructure'
@@ -54,16 +54,16 @@ export type CommunityUseCases = {
 }
 
 export type CommunityServiceHelpers = {
-  mapper: CommunityMapperContract
-  reviewMapper: CommunityReviewMapperContract
+  mapper: ICommunityMapper
+  reviewMapper: ICommunityReviewMapper
   verificationPolicy:
-    CommunityVerificationPolicyContract
+    ICommunityVerificationPolicy
 
   /*
    * Kept for public-composition compatibility.
    * Verification rewards no longer use this helper directly.
    */
-  coinLedger: CommunityCoinLedgerContract
+  coinLedger: ICommunityCoinLedger
 }
 
 export type CommunityComposition = {
@@ -79,11 +79,11 @@ export const createCommunityComposition =
     const communityReviewRepository =
       mongoCommunityReviewRepository
 
-    const communityActivityService =
+    const communityActivityRecorder =
       activityCommunityGateway
 
     const coinLedger =
-      mongoCommunityCoinLedgerService
+      mongoCommunityCoinLedger
 
     const mapper =
       new CommunityMapper()
@@ -92,7 +92,7 @@ export const createCommunityComposition =
       new CommunityReviewMapper()
 
     const verificationPolicy =
-      new CommunityVerificationPolicyService()
+      new CommunityVerificationPolicy()
 
     return {
       useCases: {
@@ -128,7 +128,7 @@ export const createCommunityComposition =
         cloneTracker:
           new CloneCommunityTrackerUseCase(
             communityRepository,
-            communityActivityService,
+            communityActivityRecorder,
             mapper,
           ),
 
@@ -183,7 +183,7 @@ export const createCommunityComposition =
           new VoteVerificationSubmissionUseCase(
             communityRepository,
             verificationPolicy,
-            communityActivityService,
+            communityActivityRecorder,
             mapper,
           ),
       },

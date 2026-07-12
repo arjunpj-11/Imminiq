@@ -3,20 +3,20 @@ import {
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_MAX_LIMIT,
 } from '../../domain/constants/community.constants'
-import type { CommunityRepositoryContract } from '../../domain/repositories/community.repository.interface'
-import type { CommunityVerificationDashboardView, VerificationQueuePayload } from '../dtos/community.dto'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
+import type { ICommunityVerificationDashboardViewDTO, IVerificationQueuePayloadDTO } from '../dtos/community.dto'
 import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../constants/community.constants'
-import type { CommunityMapperContract } from '../mappers/community.mapper'
+import type { ICommunityMapper } from '../mappers/community.mapper'
 
 export class GetVerificationDashboardUseCase {
   constructor(
-    private readonly _repository: CommunityRepositoryContract,
-    private readonly _mapper: CommunityMapperContract,
+    private readonly _repository: ICommunityRepository,
+    private readonly _mapper: ICommunityMapper,
   ) {}
 
   async execute(
-    payload: VerificationQueuePayload,
-  ): Promise<CommunityVerificationDashboardView> {
+    payload: IVerificationQueuePayloadDTO,
+  ): Promise<ICommunityVerificationDashboardViewDTO> {
     const page = this.normalizePage(payload.page)
     const limit = this.normalizeLimit(payload.limit)
 

@@ -6,13 +6,13 @@ import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 import { COMMUNITY_PAGE_LIMIT } from '../constants/community.constants'
 import type {
-  ApiErrorResponse,
-  ApiResponse,
-  CommunityBrowseData,
-  CommunityBrowseQuery,
+  IApiErrorResponse,
+  IApiResponse,
+  ICommunityBrowseData,
+  ICommunityBrowseQuery,
 } from '../types/community.types'
 
-const buildCommunityParams = (query: CommunityBrowseQuery) => {
+const buildCommunityParams = (query: ICommunityBrowseQuery) => {
   const params = new URLSearchParams()
 
   if (query.search?.trim()) params.set('search', query.search.trim())
@@ -30,10 +30,10 @@ const buildCommunityParams = (query: CommunityBrowseQuery) => {
 }
 
 const fetchCommunityBrowse = async (
-  query: CommunityBrowseQuery,
-): Promise<CommunityBrowseData> => {
+  query: ICommunityBrowseQuery,
+): Promise<ICommunityBrowseData> => {
   const params = buildCommunityParams(query)
-  const response = await api.get<ApiResponse<CommunityBrowseData>>(
+  const response = await api.get<IApiResponse<ICommunityBrowseData>>(
     `/community?${params.toString()}`,
   )
 
@@ -44,8 +44,8 @@ const fetchCommunityBrowse = async (
   return response.data.data
 }
 
-export const useCommunityBrowse = (query: CommunityBrowseQuery) => {
-  return useQuery<CommunityBrowseData, AxiosError<ApiErrorResponse>>({
+export const useCommunityBrowse = (query: ICommunityBrowseQuery) => {
+  return useQuery<ICommunityBrowseData, AxiosError<IApiErrorResponse>>({
     queryKey: [
       'community',
       'browse',

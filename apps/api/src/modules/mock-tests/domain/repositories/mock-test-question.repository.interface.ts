@@ -16,7 +16,7 @@ export type CreateMockTestQuestionInput = {
   coding?: MockTestCodingDetails
 }
 
-export interface MockTestQuestionRepositoryContract {
+export interface IMockTestQuestionRepository {
   findQuestionsByTest(testId: string): Promise<MockTestQuestionEntity[]>
 
   findQuestionById(questionId: string): Promise<MockTestQuestionEntity | null>

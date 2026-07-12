@@ -23,7 +23,7 @@ export type UpdateMockTestCreationSessionInput = {
   cancelledAt?: Date
 }
 
-export interface MockTestCreationSessionRepositoryContract {
+export interface IMockTestCreationSessionRepository {
   findCreationSession(
     sessionId: string
   ): Promise<MockTestCreationSessionEntity | null>

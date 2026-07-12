@@ -1,32 +1,32 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../../../lib/axios'
 import type {
-  ApiEnvelope,
-  GestureSettings,
-  NotificationSettings,
-  PrivacySettings,
-  UpdateAccountSettingsPayload,
-  UpdateAIBehaviourPayload,
-  UpdateAppearancePayload,
-  UpdateCodeEditorPayload,
-  UpdateCompilerPayload,
-  UpdateEmailDigestPayload,
-  UpdateGesturesPayload,
-  UpdateLearningJourneyPayload,
-  UpdateNotificationsPayload,
-  UpdatePrivacyPayload,
-  UpdateQuietHoursPayload,
-  UserSettings,
+  IApiEnvelope,
+  IGestureSettings,
+  INotificationSettings,
+  IPrivacySettings,
+  IUpdateAccountSettingsPayload,
+  IUpdateAIBehaviourPayload,
+  IUpdateAppearancePayload,
+  IUpdateCodeEditorPayload,
+  IUpdateCompilerPayload,
+  IUpdateEmailDigestPayload,
+  IUpdateGesturesPayload,
+  IUpdateLearningJourneyPayload,
+  IUpdateNotificationsPayload,
+  IUpdatePrivacyPayload,
+  IUpdateQuietHoursPayload,
+  IUserSettings,
 } from '../types/settings.types'
 
 const SETTINGS_KEY = ['settings'] as const
 
-const unwrap = <T,>(response: { data: ApiEnvelope<T> }) => {
+const unwrap = <T,>(response: { data: IApiEnvelope<T> }) => {
   return response.data.data
 }
 
 const useSettingsMutation = <TPayload,>(
-  request: (payload: TPayload) => Promise<UserSettings>
+  request: (payload: TPayload) => Promise<IUserSettings>
 ) => {
   const queryClient = useQueryClient()
   return useMutation({
@@ -47,7 +47,7 @@ export const useSettings = () => {
     queryKey: SETTINGS_KEY,
     queryFn: async () => {
       const response =
-        await api.get<ApiEnvelope<UserSettings>>('/settings')
+        await api.get<IApiEnvelope<IUserSettings>>('/settings')
 
       return unwrap(response)
     },
@@ -59,7 +59,7 @@ export const useAppearanceSettings = () =>
     queryKey: ['settings', 'appearance'],
     queryFn: async () => {
       const response =
-        await api.get<ApiEnvelope<UserSettings['appearance']>>(
+        await api.get<IApiEnvelope<IUserSettings['appearance']>>(
           '/settings/appearance'
         )
 
@@ -72,7 +72,7 @@ export const useNotificationSettings = () =>
     queryKey: ['settings', 'notifications'],
     queryFn: async () => {
       const response =
-        await api.get<ApiEnvelope<NotificationSettings>>(
+        await api.get<IApiEnvelope<INotificationSettings>>(
           '/settings/notifications'
         )
 
@@ -85,7 +85,7 @@ export const usePrivacySettings = () =>
     queryKey: ['settings', 'privacy'],
     queryFn: async () => {
       const response =
-        await api.get<ApiEnvelope<PrivacySettings>>('/settings/privacy')
+        await api.get<IApiEnvelope<IPrivacySettings>>('/settings/privacy')
 
       return unwrap(response)
     },
@@ -96,15 +96,15 @@ export const useGestureSettings = () =>
     queryKey: ['settings', 'gestures'],
     queryFn: async () => {
       const response =
-        await api.get<ApiEnvelope<GestureSettings>>('/settings/gestures')
+        await api.get<IApiEnvelope<IGestureSettings>>('/settings/gestures')
 
       return unwrap(response)
     },
   })
 
 export const useUpdateAccountSettings = () =>
-  useSettingsMutation<UpdateAccountSettingsPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateAccountSettingsPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/account',
       payload
     )
@@ -113,8 +113,8 @@ export const useUpdateAccountSettings = () =>
   })
 
 export const useUpdateAppearance = () =>
-  useSettingsMutation<UpdateAppearancePayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateAppearancePayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/appearance',
       payload
     )
@@ -123,8 +123,8 @@ export const useUpdateAppearance = () =>
   })
 
 export const useUpdateNotifications = () =>
-  useSettingsMutation<UpdateNotificationsPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateNotificationsPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/notifications',
       payload
     )
@@ -133,8 +133,8 @@ export const useUpdateNotifications = () =>
   })
 
 export const useUpdateQuietHours = () =>
-  useSettingsMutation<UpdateQuietHoursPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateQuietHoursPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/notifications/quiet-hours',
       payload
     )
@@ -143,8 +143,8 @@ export const useUpdateQuietHours = () =>
   })
 
 export const useUpdateEmailDigest = () =>
-  useSettingsMutation<UpdateEmailDigestPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateEmailDigestPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/notifications/email-digest',
       payload
     )
@@ -153,8 +153,8 @@ export const useUpdateEmailDigest = () =>
   })
 
 export const useUpdatePrivacy = () =>
-  useSettingsMutation<UpdatePrivacyPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdatePrivacyPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/privacy',
       payload
     )
@@ -163,8 +163,8 @@ export const useUpdatePrivacy = () =>
   })
 
 export const useUpdateCodeEditor = () =>
-  useSettingsMutation<UpdateCodeEditorPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateCodeEditorPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/code-editor',
       payload
     )
@@ -173,8 +173,8 @@ export const useUpdateCodeEditor = () =>
   })
 
 export const useUpdateCompiler = () =>
-  useSettingsMutation<UpdateCompilerPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateCompilerPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/compiler',
       payload
     )
@@ -183,8 +183,8 @@ export const useUpdateCompiler = () =>
   })
 
 export const useUpdateAIBehaviour = () =>
-  useSettingsMutation<UpdateAIBehaviourPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateAIBehaviourPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/ai-behavior',
       payload
     )
@@ -193,8 +193,8 @@ export const useUpdateAIBehaviour = () =>
   })
 
 export const useUpdateLearningJourney = () =>
-  useSettingsMutation<UpdateLearningJourneyPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateLearningJourneyPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/learning-journey',
       payload
     )
@@ -203,8 +203,8 @@ export const useUpdateLearningJourney = () =>
   })
 
 export const useUpdateGestures = () =>
-  useSettingsMutation<UpdateGesturesPayload>(async (payload) => {
-    const response = await api.patch<ApiEnvelope<UserSettings>>(
+  useSettingsMutation<IUpdateGesturesPayload>(async (payload) => {
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
       '/settings/gestures',
       payload
     )
@@ -217,7 +217,7 @@ export const useResetSettings = () => {
   return useMutation({
     mutationFn: async () => {
       const response =
-        await api.post<ApiEnvelope<UserSettings>>('/settings/reset')
+        await api.post<IApiEnvelope<IUserSettings>>('/settings/reset')
 
       return unwrap(response)
     },

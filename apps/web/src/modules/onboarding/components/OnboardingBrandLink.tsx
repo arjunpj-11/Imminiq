@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { cn } from '../../../lib/cn'
 import { OnboardingLogoIcon } from './OnboardingLogoIcon'
 
-interface OnboardingBrandLinkProps {
+interface IOnboardingBrandLinkProps {
   className?: string
   logoClassName?: string
   wordmarkClassName?: string
@@ -15,7 +15,7 @@ export default function OnboardingBrandLink({
   logoClassName,
   wordmarkClassName,
   hideWordmarkOnMobile = false,
-}: OnboardingBrandLinkProps) {
+}: IOnboardingBrandLinkProps) {
   return (
     <Link
       to="/"

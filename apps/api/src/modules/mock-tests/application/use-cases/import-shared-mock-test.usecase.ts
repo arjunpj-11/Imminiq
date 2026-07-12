@@ -1,20 +1,20 @@
-import type { MockTestQuestionRepositoryContract } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { MockTestSharingRepositoryContract } from '../../domain/repositories/mock-test-sharing.repository.interface'
-import type { MockTestRepositoryContract } from '../../domain/repositories/mock-test.repository.interface'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
+import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { MockTestsMapperContract } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
 
 type ImportSharedMockTestRepository =
-  MockTestRepositoryContract &
-  MockTestQuestionRepositoryContract &
-  MockTestSharingRepositoryContract
+  IMockTestRepository &
+  IMockTestQuestionRepository &
+  IMockTestSharingRepository
 
 const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
 
 export class ImportSharedMockTestUseCase {
   constructor(
-    private readonly _repo: ImportSharedMockTestRepository,
-    private readonly _mapper: MockTestsMapperContract,
+    private readonly _repository: ImportSharedMockTestRepository,
+    private readonly _mapper: IMockTestsMapper,
   ) {}
 
   async execute(input: { userId: string; shareToken: string }) {
@@ -24,7 +24,7 @@ export class ImportSharedMockTestUseCase {
       throw MockTestsApplicationError.invalidShareLink()
     }
 
-    const sourceTest = await this._repo.findSharedTestByToken(shareToken)
+    const sourceTest = await this._repository.findSharedTestByToken(shareToken)
 
     if (!sourceTest || !sourceTest.isShareEnabled) {
       throw MockTestsApplicationError.sharedTestNotFound()
@@ -38,7 +38,7 @@ export class ImportSharedMockTestUseCase {
       })
     }
 
-    const existingImport = await this._repo.findImportedSharedTest({
+    const existingImport = await this._repository.findImportedSharedTest({
   ownerId: input.userId,
   sourceTestId: sourceTest._id,
 })
@@ -51,13 +51,13 @@ export class ImportSharedMockTestUseCase {
       })
     }
 
-    const sourceQuestions = await this._repo.findQuestionsByTest(sourceTest._id)
+    const sourceQuestions = await this._repository.findQuestionsByTest(sourceTest._id)
 
     if (!sourceQuestions.length) {
       throw MockTestsApplicationError.sharedTestEmpty()
     }
 
-    const importedTest = await this._repo.createTest({
+    const importedTest = await this._repository.createTest({
       ownerId: input.userId,
       sourceTestId: sourceTest._id,
       title: sourceTest.title,
@@ -71,7 +71,7 @@ export class ImportSharedMockTestUseCase {
       isAIGenerated: sourceTest.isAIGenerated,
     })
 
-    await this._repo.createQuestions(
+    await this._repository.createQuestions(
       sourceQuestions.map((question) => ({
         testId: importedTest._id,
         type: question.type,
@@ -86,7 +86,7 @@ export class ImportSharedMockTestUseCase {
       })),
     )
 
-    await this._repo.incrementCloneCount(sourceTest._id)
+    await this._repository.incrementCloneCount(sourceTest._id)
 
     return this._mapper.toImportSharedDto({
       test: importedTest,

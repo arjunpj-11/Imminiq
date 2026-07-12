@@ -2,11 +2,11 @@ import { useMutation } from '@tanstack/react-query'
 import type { AxiosError } from 'axios'
 import api from '../../../lib/axios'
 
-interface GenerateAiAvatarPreviewPayload {
+interface IGenerateAiAvatarPreviewPayload {
   prompt: string
 }
 
-interface GenerateAiAvatarPreviewResponse {
+interface IGenerateAiAvatarPreviewResponse {
   success: boolean
   message: string
   data?: {
@@ -14,7 +14,7 @@ interface GenerateAiAvatarPreviewResponse {
   }
 }
 
-interface ApiErrorResponse {
+interface IApiErrorResponse {
   success?: boolean
   message?: string
   code?: string
@@ -22,13 +22,13 @@ interface ApiErrorResponse {
 
 export const useGenerateAiAvatarPreview = () => {
   return useMutation<
-    GenerateAiAvatarPreviewResponse,
-    AxiosError<ApiErrorResponse>,
-    GenerateAiAvatarPreviewPayload
+    IGenerateAiAvatarPreviewResponse,
+    AxiosError<IApiErrorResponse>,
+    IGenerateAiAvatarPreviewPayload
   >({
     mutationFn: async (payload) => {
       const response =
-        await api.post<GenerateAiAvatarPreviewResponse>(
+        await api.post<IGenerateAiAvatarPreviewResponse>(
           '/uploads/avatar/ai-preview',
           payload
         )

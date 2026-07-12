@@ -5,7 +5,7 @@ export type ActivityCursorValue = {
   id: string
 }
 
-export class ActivityCursorService {
+export class ActivityCursorCodec {
   encode(value: ActivityCursorValue): string {
     const serialized = JSON.stringify({
       occurredAt: value.occurredAt.toISOString(),
@@ -54,3 +54,8 @@ export class ActivityCursorService {
     }
   }
 }
+
+export type ActivityCursorCodecContract = Pick<
+  ActivityCursorCodec,
+  'encode' | 'decode'
+>

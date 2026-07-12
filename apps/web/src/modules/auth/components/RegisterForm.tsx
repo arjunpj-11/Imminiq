@@ -13,7 +13,7 @@ import { EyeIcon } from './icons/AuthIcons'
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui'
 import { getPasswordStrength, validateIdentifier, validatePassword } from '../utils/auth-validation'
 
-interface FormState {
+interface IFormState {
   fullName: string
   identifier: string
   password: string
@@ -21,7 +21,7 @@ interface FormState {
   terms: boolean
 }
 
-interface FormErrors {
+interface IFormErrors {
   fullName?: string
   identifier?: string
   password?: string
@@ -30,7 +30,7 @@ interface FormErrors {
 }
 
 const validateField = (
-  name: keyof FormState,
+  name: keyof IFormState,
   value: string | boolean,
   password?: string
 ): string | undefined => {
@@ -63,14 +63,14 @@ export default function RegisterForm() {
   const { mutate: register, isPending, error } = useRegister()
   const apiError = error?.response?.data?.message
 
-  const [form, setForm] = useState<FormState>({
+  const [form, setForm] = useState<IFormState>({
     fullName: '',
     identifier: '',
     password: '',
     confirmPassword: '',
     terms: false,
   })
-  const [errors, setErrors] = useState<FormErrors>({})
+  const [errors, setErrors] = useState<IFormErrors>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showPw, setShowPw] = useState(false)
   const [showCpw, setShowCpw] = useState(false)
@@ -79,7 +79,7 @@ export default function RegisterForm() {
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target
-    const fieldName = name as keyof FormState
+    const fieldName = name as keyof IFormState
     const fieldValue = type === 'checkbox' ? checked : value
 
     setForm((current) => ({ ...current, [fieldName]: fieldValue }))
@@ -105,7 +105,7 @@ export default function RegisterForm() {
 
   const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = event.target
-    const fieldName = name as keyof FormState
+    const fieldName = name as keyof IFormState
     const fieldValue = type === 'checkbox' ? checked : value
 
     setTouched((current) => ({ ...current, [fieldName]: true }))
@@ -122,14 +122,14 @@ export default function RegisterForm() {
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault()
 
-    const fields: (keyof FormState)[] = [
+    const fields: (keyof IFormState)[] = [
       'fullName',
       'identifier',
       'password',
       'confirmPassword',
       'terms',
     ]
-    const newErrors: FormErrors = {}
+    const newErrors: IFormErrors = {}
 
     fields.forEach((field) => {
       const message = validateField(

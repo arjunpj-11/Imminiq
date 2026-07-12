@@ -6,7 +6,7 @@ export type GetRelationshipStateInput = {
   targetUserId: UserIdInput
 }
 
-export interface UserRelationshipRepositoryContract {
+export interface IUserRelationshipRepository {
   getRelationshipState(
     input: GetRelationshipStateInput
   ): Promise<RelationshipState>

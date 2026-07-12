@@ -43,7 +43,7 @@ export type CreateCommunityReviewVoteInput = {
   rewardCoins?: number
 }
 
-export interface CommunityVerificationRepositoryContract {
+export interface ICommunityVerificationRepository {
   submitTrackerForVerification(
     data: SubmitTrackerForVerificationInput,
   ): Promise<CommunityVerificationSubmissionEntity | null>

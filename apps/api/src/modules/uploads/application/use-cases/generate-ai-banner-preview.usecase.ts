@@ -3,22 +3,22 @@ import {
   AI_IMAGE_SEED_UPPER_BOUND,
 } from '../../domain/constants/uploads.constants'
 import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
-import type { AiImageGenerationServiceContract } from '../../domain/services/ai-image-generation.service.interface'
-import type { RandomSeedServiceContract } from '../../domain/services/random-seed.service.interface'
-import type { AiImagePreviewResult } from '../dtos/uploads.dto'
+import type { IAIImageGenerator } from '../../domain/services/ai-image-generation.interface'
+import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface'
+import type { IAIImagePreviewResultDTO } from '../dtos/uploads.dto'
 import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { UploadsMapperContract } from '../mappers/uploads.mapper'
-import type { AiUploadPromptServiceContract } from '../services/ai-upload-prompt.service'
+import type { IUploadsMapper } from '../mappers/uploads.mapper'
+import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service'
 
-export class GenerateAiBannerPreviewUseCase {
+export class GenerateAIBannerPreviewUseCase {
   constructor(
-    private readonly _aiImageGenerationService: AiImageGenerationServiceContract,
-    private readonly _aiUploadPromptService: AiUploadPromptServiceContract,
-    private readonly _randomSeedService: RandomSeedServiceContract,
-    private readonly _uploadsMapper: UploadsMapperContract,
+    private readonly _aiImageGenerator: IAIImageGenerator,
+    private readonly _aiUploadPromptBuilder: IAIUploadPromptBuilder,
+    private readonly _randomSeedGenerator: IRandomSeedGenerator,
+    private readonly _uploadsMapper: IUploadsMapper,
   ) {}
 
-  async execute(prompt: string): Promise<AiImagePreviewResult> {
+  async execute(prompt: string): Promise<IAIImagePreviewResultDTO> {
     const cleanedPrompt = prompt.trim()
 
     if (!cleanedPrompt) {
@@ -26,18 +26,18 @@ export class GenerateAiBannerPreviewUseCase {
     }
 
     try {
-      const image = await this._aiImageGenerationService.generatePreviewImage({
-        prompt: this._aiUploadPromptService.buildPrompt(
+      const image = await this._aiImageGenerator.generatePreviewImage({
+        prompt: this._aiUploadPromptBuilder.buildPrompt(
           'banner',
           cleanedPrompt,
         ),
         steps: AI_IMAGE_GENERATION_STEPS,
-        seed: this._randomSeedService.createSeed(
+        seed: this._randomSeedGenerator.createSeed(
           AI_IMAGE_SEED_UPPER_BOUND,
         ),
       })
 
-      return this._uploadsMapper.toAiImagePreviewResult(image.dataUrl)
+      return this._uploadsMapper.toAIImagePreviewResult(image.dataUrl)
     } catch (error) {
       if (error instanceof UploadsDomainError) {
         throw UploadsApplicationError.aiImageGenerationFailed()
