@@ -1,7 +1,3 @@
-// Node 22 provides a stable, standards-compliant global fetch implementation.
-// Select it before loading Cerebras so the SDK does not initialize node-fetch v2,
-// whose legacy URL stack imports Node's deprecated built-in `punycode` module.
-import '@cerebras/cerebras_cloud_sdk/shims/web'
 import Cerebras from '@cerebras/cerebras_cloud_sdk'
 import { env } from '../../../config/env'
 
