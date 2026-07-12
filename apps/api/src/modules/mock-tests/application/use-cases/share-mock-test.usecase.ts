@@ -1,7 +1,7 @@
 import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface'
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import type { IShareTokenGenerator } from '../../domain/services/share-token-generator.interface'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
 
 type ShareMockTestRepository =
   IMockTestRepository &

@@ -1,7 +1,7 @@
 import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface'
 import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
-import type { ITestAnalyticsDTO } from '../dtos/mock-tests.dto'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { ITestAnalyticsDTO } from '../mock-tests.dto'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 const DEFAULT_AI_INSIGHTS = 'Keep practicing to improve your performance.'
 

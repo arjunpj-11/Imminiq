@@ -1,8 +1,8 @@
 import {
   LEADERBOARD_REWARDS,
   LEADERBOARD_SCORING_RULES,
-} from '../constants/leaderboard.constants'
-import type { LeaderboardRewardsResponseDTO } from '../dtos/leaderboard.dto'
+} from '../leaderboard.constants'
+import type { LeaderboardRewardsResponseDTO } from '../leaderboard.dto'
 
 export interface IGetLeaderboardRewardsUseCase {
   execute(): LeaderboardRewardsResponseDTO

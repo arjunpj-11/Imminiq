@@ -5,7 +5,7 @@ export type {
   IRemoveBannerResultDTO,
   IUploadProfileImageInputDTO,
   IUploadProfileImageResultDTO,
-} from './application/dtos/uploads.dto'
+} from './application/uploads.dto'
 
 export type {
   ProfileImageFolder,
@@ -13,4 +13,4 @@ export type {
   UploadedProfileImageFile,
   UploadModule,
   UploadReferenceType,
-} from './domain/types/uploads.types'
+} from './domain/uploads.types'

@@ -13,7 +13,7 @@ import type {
   TrackerListFilter,
   TrackerRecord,
   UpdateTrackerInput,
-} from "../../../domain/types/trackers.types";
+} from "../../../domain/trackers.types";
 import { MongoTrackerBaseRepository } from "../shared/mongo-tracker-base.repository";
 import { MongoTrackerErrorMapper } from "../shared/mongo-tracker-error.mapper";
 import { MongoTrackerMapper } from "../shared/mongo-tracker.mapper";

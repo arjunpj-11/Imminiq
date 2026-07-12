@@ -6,9 +6,9 @@ import type { IUserRepository } from '../../domain/repositories/user.repository.
 import type {
   IPaginationQueryDTO,
   IPublicProfilePageViewDTO,
-} from '../dtos/users.dto'
-import { UsersApplicationError } from '../errors/users-application.error'
-import type { IUsersMapper } from '../mappers/users.mapper'
+} from '../users.dto'
+import { UsersApplicationError } from '../users-application.error'
+import type { IUsersMapper } from '../users.mapper'
 import type { IUsersProfileDataReader } from '../services/users-profile-data.service'
 
 type PublicProfileRepository =

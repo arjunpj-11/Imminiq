@@ -1,4 +1,4 @@
-import { ROADMAP_GENERATION_STEPS } from '../constants/onboarding.constants'
+import { ROADMAP_GENERATION_STEPS } from '../onboarding.constants'
 import type { IOnboardingAIJobCommandRepository } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
 import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
 import type { IOnboardingResponseCommandRepository } from '../../domain/repositories/onboarding-response-command.repository.interface'
@@ -7,8 +7,8 @@ import type { IAIJobQuotaStore } from '../../domain/services/ai-job-quota-store.
 import type {
   IGenerateRoadmapPayloadDTO,
   IGenerateRoadmapResultDTO,
-} from '../dtos/onboarding.dto'
-import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+} from '../onboarding.dto'
+import { OnboardingApplicationError } from '../onboarding-application.error'
 
 type GenerateRoadmapRepository =
   IOnboardingAIJobQueryRepository &

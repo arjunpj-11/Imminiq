@@ -1,4 +1,4 @@
-import type { LeaderboardTimeRange } from '../../domain/types/leaderboard.types'
+import type { LeaderboardTimeRange } from '../../domain/leaderboard.types'
 
 export type LeaderboardPeriods = {
   current: LeaderboardTimeRange

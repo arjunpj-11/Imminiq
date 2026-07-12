@@ -7,7 +7,7 @@ import {
   ACTIVITY_MIN_FEED_LIMIT,
   ACTIVITY_MIN_UTC_OFFSET_MINUTES,
   ACTIVITY_MIN_YEAR,
-} from '../domain/constants/activity.constants'
+} from '../domain/activity.constants'
 import { ACTIVITY_FEED_FILTERS } from '../domain/value-objects/activity-category.vo'
 
 const currentYear = new Date().getUTCFullYear()

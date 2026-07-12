@@ -6,7 +6,7 @@ import type {
   RemoveFriendCommandResult,
   SendFriendRequestCommandInput,
   SendFriendRequestCommandResult,
-} from "../types/friends.types";
+} from "../friends.types";
 
 export interface IFriendCommandRepository {
   sendFriendRequest(

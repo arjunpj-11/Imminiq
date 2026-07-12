@@ -3,7 +3,7 @@ import type {
   FriendUsersPage,
   ListFriendsInput,
   SearchFriendUsersInput,
-} from "../types/friends.types";
+} from "../friends.types";
 
 export interface IFriendQueryRepository {
   searchUsers(input: SearchFriendUsersInput): Promise<FriendUsersPage>;

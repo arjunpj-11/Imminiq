@@ -1,4 +1,4 @@
-import { OnboardingDomainError } from '../../../domain/errors/onboarding-domain.error'
+import { OnboardingDomainError } from '../../../domain/onboarding-domain.error'
 import type { ErrorMapper } from './mongo-onboarding-error.mapper'
 
 type ErrorDetails = {

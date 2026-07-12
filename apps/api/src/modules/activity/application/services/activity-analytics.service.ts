@@ -1,11 +1,11 @@
 import {
   ACTIVITY_DAILY_GOAL_REWARD_XP,
   ACTIVITY_WEEKLY_XP_TARGET,
-} from '../../domain/constants/activity.constants'
+} from '../../domain/activity.constants'
 import type {
   ActivityDailyGoalState,
   ActivityDayAggregateRecord,
-} from '../../domain/types/activity.types'
+} from '../../domain/activity.types'
 import type { ActivityHeatmapIntensity } from '../../domain/value-objects/activity-heatmap-intensity.vo'
 
 const DAY_IN_MS = 86_400_000

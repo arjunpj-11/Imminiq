@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { MockTestsUseCases } from '../application/contracts/mock-tests-use-cases.contract'
+import type { MockTestsUseCases } from '../application/mock-tests-use-cases.contract'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'

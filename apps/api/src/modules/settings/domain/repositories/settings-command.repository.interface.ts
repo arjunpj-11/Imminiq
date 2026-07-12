@@ -6,8 +6,8 @@ import type {
   ProfileVisibilityType,
   QuietHoursDayType,
   ThemeType,
-} from '../types/settings.types'
-import type { NotificationTypeSettings } from '../types/settings.types'
+} from '../settings.types'
+import type { NotificationTypeSettings } from '../settings.types'
 
 export type SettingsAppearanceUpdateInput = {
   theme?: ThemeType

@@ -2,9 +2,9 @@ import type { IMockTestAIEvaluationRepository } from '../../domain/repositories/
 import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type GetAttemptResultRepository =
   IMockTestAttemptRepository &

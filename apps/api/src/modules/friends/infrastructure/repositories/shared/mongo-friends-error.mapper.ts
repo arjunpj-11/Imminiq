@@ -1,4 +1,4 @@
-import { FriendsDomainError } from '../../../domain/errors/friends-domain.error'
+import { FriendsDomainError } from '../../../domain/friends-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-friends.types'
 
 export type FriendsMongoErrorMapper = (

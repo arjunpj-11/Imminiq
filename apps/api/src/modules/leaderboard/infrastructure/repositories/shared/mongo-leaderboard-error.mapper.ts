@@ -1,4 +1,4 @@
-import { LeaderboardDomainError } from '../../../domain/errors/leaderboard-domain.error'
+import { LeaderboardDomainError } from '../../../domain/leaderboard-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-leaderboard.types'
 
 export type ErrorMapper = (error: unknown) => LeaderboardDomainError | null

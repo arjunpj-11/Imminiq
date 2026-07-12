@@ -1,4 +1,4 @@
-import { SecurityDomainError } from '../../../domain/errors/security-domain.error'
+import { SecurityDomainError } from '../../../domain/security-domain.error'
 import type { ErrorMapper } from './mongo-security-error.mapper'
 
 type ErrorDetails = {

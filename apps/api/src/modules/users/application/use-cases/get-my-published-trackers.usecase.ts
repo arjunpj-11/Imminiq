@@ -1,9 +1,9 @@
 import type { IUserTrackerRepository } from '../../domain/repositories/user-tracker.repository.interface'
-import type { IPaginationQueryDTO } from '../dtos/users.dto'
-import type { IUsersMapper } from '../mappers/users.mapper'
+import type { IPaginationQueryDTO } from '../users.dto'
+import type { IUsersMapper } from '../users.mapper'
 
 export interface IGetMyPublishedTrackersUseCase {
-  execute(userId: string, query: IPaginationQueryDTO): Promise<{ items: import("../dtos/users.dto").IPublishedTrackerViewDTO[]; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>
+  execute(userId: string, query: IPaginationQueryDTO): Promise<{ items: import("../users.dto").IPublishedTrackerViewDTO[]; pagination: { page: number; limit: number; total: number; totalPages: number; }; }>
 }
 
 export class GetMyPublishedTrackersUseCase implements IGetMyPublishedTrackersUseCase {

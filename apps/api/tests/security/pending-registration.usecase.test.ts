@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest'
 
-import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../src/modules/auth/domain/constants/auth.constants'
+import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../src/modules/auth/domain/auth.constants'
 import { AuthUserEntity } from '../../src/modules/auth/domain/entities/auth-user.entity'
 import type { IAuthUserRepository } from '../../src/modules/auth/domain/repositories/auth-user.repository.interface'
 import type { IAuthNotification } from '../../src/modules/auth/domain/services/auth-notification.interface'

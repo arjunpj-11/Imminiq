@@ -1,4 +1,4 @@
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface'
 import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface'
@@ -13,9 +13,9 @@ import type {
   IAuthLoginSuccessResultDTO,
   RequestMetaDTO,
   ITwoFactorLoginVerifyPayloadDTO,
-} from '../dtos/auth.dto'
-import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
-import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
+} from '../auth.dto'
+import type { IAuthUserMapper } from '../auth-user.mapper'
+import type { IAuthAccountPolicy } from '../auth-account-policy.policy'
 import type { IAuthSessionIssuer } from '../services/auth-session.service'
 import type { IBackupCodeNormalizer } from '../services/backup-code-normalizer.service'
 

@@ -5,8 +5,8 @@ import type { ISecurityEmailChangeToken } from '../../domain/services/security-e
 import type {
   IVerifyEmailChangePayloadDTO,
   IVerifyEmailChangeResponseDTO,
-} from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+} from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 
 type VerifyEmailChangeRepository =
   ISecurityUserRepository & ISecuritySessionRepository

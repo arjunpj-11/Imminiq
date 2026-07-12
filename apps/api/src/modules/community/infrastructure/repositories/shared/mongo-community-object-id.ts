@@ -1,6 +1,6 @@
 import { Types } from 'mongoose'
 
-import { CommunityDomainError } from '../../../domain/errors/community-domain.error'
+import { CommunityDomainError } from '../../../domain/community-domain.error'
 import type { MongoIdLike } from './mongo-community.types'
 
 export class MongoCommunityObjectId {

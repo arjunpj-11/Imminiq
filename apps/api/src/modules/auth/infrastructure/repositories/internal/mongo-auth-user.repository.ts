@@ -1,4 +1,4 @@
-import { OTP_EXPIRES_MINUTES } from '../../../../../config/constants'
+import { env } from '../../../../../config/env'
 import { User } from '../../../../../infrastructure/database/models/user.model'
 import type {
   CreateAuthUserInput,
@@ -176,7 +176,7 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
             data.emailVerified || data.phoneVerified
               ? null
               : new Date(
-                  Date.now() + OTP_EXPIRES_MINUTES * 60 * 1000,
+                  Date.now() + env.OTP_EXPIRES_MINUTES * 60 * 1000,
                 ),
         })
 

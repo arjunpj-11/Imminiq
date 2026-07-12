@@ -1,7 +1,7 @@
 import type {
   VerificationSubmissionStatus,
   VerificationVoteChoice,
-} from '../types/community.types'
+} from '../community.types'
 
 export type CommunityVerificationReviewSubtopic = {
   id: string

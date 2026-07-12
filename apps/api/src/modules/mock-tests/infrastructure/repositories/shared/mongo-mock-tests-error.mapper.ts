@@ -1,4 +1,4 @@
-import { MockTestsDomainError } from '../../../domain/errors/mock-tests-domain.error';
+import { MockTestsDomainError } from '../../../domain/mock-tests-domain.error';
 import type { MongoDuplicateKeyError } from './mongo-mock-tests.types';
 
 export type ErrorMapper = (error: unknown) => MockTestsDomainError | null;

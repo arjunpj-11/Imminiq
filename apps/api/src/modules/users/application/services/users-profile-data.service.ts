@@ -8,9 +8,9 @@ import type {
   IBadgeShowcaseViewDTO,
   IProfileStatsViewDTO,
   IStreakSummaryViewDTO,
-} from '../dtos/users.dto'
-import { UsersApplicationError } from '../errors/users-application.error'
-import type { IUsersMapper } from '../mappers/users.mapper'
+} from '../users.dto'
+import { UsersApplicationError } from '../users-application.error'
+import type { IUsersMapper } from '../users.mapper'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
 type UsersProfileDataRepository =

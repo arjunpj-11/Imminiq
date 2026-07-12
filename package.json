@@ -13,7 +13,10 @@
     "dev:web": "turbo run dev --filter=@imminiq/web",
     "dev:api": "npm run piston:up && turbo run dev --filter=@imminiq/api",
     "build": "turbo run build",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "test": "turbo run test",
+    "check": "npm run lint && npm run test && npm run build",
+    "smoke:production": "node scripts/smoke-production.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -1,10 +1,10 @@
 import { Types } from "mongoose";
 
-import { TrackerDomainError } from "../../../domain/errors/tracker-domain.error";
+import { TrackerDomainError } from "../../../domain/tracker-domain.error";
 import type {
   SubtopicWithProgressRecord,
   TopicWithProgressRecord,
-} from "../../../domain/types/trackers.types";
+} from "../../../domain/trackers.types";
 import type {
   MongoLessonVisualizationRecord,
   MongoQuery,

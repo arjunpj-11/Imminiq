@@ -1,5 +1,5 @@
 import { generateDashboardInsights } from '../../../../infrastructure/ai/ai.service'
-import { DashboardDomainError } from '../../domain/errors/dashboard-domain.error'
+import { DashboardDomainError } from '../../domain/dashboard-domain.error'
 import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
 
 export class AIDashboardInsightGenerator

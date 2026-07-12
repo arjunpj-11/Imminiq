@@ -6,7 +6,7 @@ import type {
   EvaluationJobRecord,
   LastSiblingSubtopicRecord,
   LastTopicRecord,
-} from '../types/trackers.types'
+} from '../trackers.types'
 
 export type FindEvaluationJobByIdInput = {
   evaluationJobId: string

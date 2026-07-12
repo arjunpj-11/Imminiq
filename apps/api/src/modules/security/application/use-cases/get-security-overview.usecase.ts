@@ -1,9 +1,9 @@
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
-import type { ISecurityOverviewDTO } from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
-import type { ISecurityMapper } from '../mappers/security.mapper'
+import type { ISecurityOverviewDTO } from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
+import type { ISecurityMapper } from '../security.mapper'
 import type { ICurrentSessionResolver } from '../services/current-session.service'
 
 type SecurityOverviewRepository = ISecurityUserRepository &

@@ -1,15 +1,15 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { IPaginationQueryDTO } from '../application/dtos/users.dto'
+import type { IPaginationQueryDTO } from '../application/users.dto'
 import {
   USERS_DEFAULT_LIMIT,
   USERS_MAX_LIMIT,
   USERS_MAX_PAGE,
   USERS_MAX_SEARCH_LENGTH,
   USERS_MIN_STREAK_YEAR,
-} from '../domain/constants/users.constants'
+} from '../domain/users.constants'
 import type { ProfileSort } from '../domain/value-objects/profile-sort.vo'
-import type { UsersUseCases } from '../application/contracts/users-use-cases.contract'
+import type { UsersUseCases } from '../application/users-use-cases.contract'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 

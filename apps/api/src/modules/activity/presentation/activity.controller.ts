@@ -8,7 +8,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { ActivityUseCases } from '../application/contracts/activity-use-cases.contract'
+import type { ActivityUseCases } from '../application/activity-use-cases.contract'
 import {
   activityFeedQuerySchema,
   activityPageQuerySchema,

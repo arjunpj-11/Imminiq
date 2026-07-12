@@ -4,7 +4,7 @@ import { LeaderboardAudience } from '../../../../../infrastructure/database/mode
 import { LeaderboardRankSnapshot } from '../../../../../infrastructure/database/models/leaderboard-rank-snapshot.model'
 import { LeaderboardXpEvent } from '../../../../../infrastructure/database/models/leaderboard-xp-event.model'
 import { User } from '../../../../../infrastructure/database/models/user.model'
-import { LeaderboardDomainError } from '../../../domain/errors/leaderboard-domain.error'
+import { LeaderboardDomainError } from '../../../domain/leaderboard-domain.error'
 import type {
   FindLeaderboardInput,
   LeaderboardQueryResult,
@@ -13,7 +13,7 @@ import type {
   LeaderboardScope,
   LeaderboardSection,
   LeaderboardTimeRange,
-} from '../../../domain/types/leaderboard.types'
+} from '../../../domain/leaderboard.types'
 import { MongoLeaderboardBaseRepository } from '../shared/mongo-leaderboard-base.repository'
 import { MongoLeaderboardFilterBuilder } from '../shared/mongo-leaderboard-filter.builder'
 import { MongoLeaderboardMapper } from '../shared/mongo-leaderboard.mapper'

@@ -3,7 +3,7 @@ import type {
   PublishTrackerInput,
   TrackerRecord,
   UpdateTrackerInput,
-} from '../types/trackers.types'
+} from '../trackers.types'
 
 export type TrackerOwnerInput = {
   trackerId: string

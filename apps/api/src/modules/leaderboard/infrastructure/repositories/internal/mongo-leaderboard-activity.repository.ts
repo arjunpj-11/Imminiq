@@ -4,7 +4,7 @@ import { LeaderboardAudience } from '../../../../../infrastructure/database/mode
 import { LeaderboardRankSnapshot } from '../../../../../infrastructure/database/models/leaderboard-rank-snapshot.model'
 import { LeaderboardXpEvent } from '../../../../../infrastructure/database/models/leaderboard-xp-event.model'
 import { User } from '../../../../../infrastructure/database/models/user.model'
-import { LeaderboardDomainError } from '../../../domain/errors/leaderboard-domain.error'
+import { LeaderboardDomainError } from '../../../domain/leaderboard-domain.error'
 import type {
   CaptureLeaderboardSnapshotInput,
   CaptureLeaderboardSnapshotResult,

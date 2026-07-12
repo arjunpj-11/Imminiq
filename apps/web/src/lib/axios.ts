@@ -6,6 +6,7 @@ import type {
 import { useAuthStore } from '../store/useAuthStore'
 import { saveBlockedAppealIdentifier } from './blockedAppealSession'
 import { getUserFacingError } from './user-facing-error'
+import { webEnvironment } from '../config/env'
 
 interface IRefreshTokenResponse {
   success: boolean
@@ -26,7 +27,7 @@ interface IRetryableRequestConfig extends InternalAxiosRequestConfig {
 }
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: webEnvironment.apiUrl,
   withCredentials: true,
 })
 
@@ -185,7 +186,7 @@ api.interceptors.response.use(
       const csrfToken = getCsrfToken()
 
       const refreshResponse = await axios.post<IRefreshTokenResponse>(
-        `${import.meta.env.VITE_API_URL}/auth/refresh-token`,
+        `${webEnvironment.apiUrl}/auth/refresh-token`,
         {},
         {
           withCredentials: true,

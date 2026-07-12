@@ -1,8 +1,8 @@
-import type { DashboardUseCases } from './application/contracts/dashboard-use-cases.contract'
+import type { DashboardUseCases } from './application/dashboard-use-cases.contract'
 import {
   DashboardMapper,
   type IDashboardMapper,
-} from './application/mappers/dashboard.mapper'
+} from './application/dashboard.mapper'
 import { GetActivityIntensityUseCase } from './application/use-cases/get-activity-intensity.usecase'
 import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase'
 import { GetCurrentRoadmapUseCase } from './application/use-cases/get-current-roadmap.usecase'

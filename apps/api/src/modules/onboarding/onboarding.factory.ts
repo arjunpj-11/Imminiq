@@ -1,8 +1,8 @@
-import type { OnboardingUseCases } from './application/contracts/onboarding-use-cases.contract'
+import type { OnboardingUseCases } from './application/onboarding-use-cases.contract'
 import {
   OnboardingMapper,
   type IOnboardingMapper,
-} from './application/mappers/onboarding.mapper'
+} from './application/onboarding.mapper'
 import {
   OnboardingJobOutputReader,
   type IOnboardingJobOutputReader,

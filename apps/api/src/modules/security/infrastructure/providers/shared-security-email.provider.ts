@@ -3,7 +3,7 @@ import {
   emailChangeAlertTemplate,
   emailChangeVerificationTemplate,
 } from '../../../../shared/email/email.templates'
-import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import { SecurityDomainError } from '../../domain/security-domain.error'
 import type {
   EmailChangeAlertTemplateInput,
   EmailChangeVerificationTemplateInput,

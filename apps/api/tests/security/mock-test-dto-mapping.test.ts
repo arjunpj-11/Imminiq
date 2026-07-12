@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { MockTestsMapper } from '../../src/modules/mock-tests/application/mappers/mock-tests.mapper'
+import { MockTestsMapper } from '../../src/modules/mock-tests/application/mock-tests.mapper'
 import { MockTestEntity } from '../../src/modules/mock-tests/domain/entities/mock-test.entity'
 
 const createTestEntity = () => new MockTestEntity({

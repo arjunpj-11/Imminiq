@@ -5,7 +5,7 @@ import {
   decryptTotpSecret,
   encryptTotpSecret,
 } from '../../../../infrastructure/security/two-factor-secret.crypto'
-import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import { SecurityDomainError } from '../../domain/security-domain.error'
 import type {
   ITwoFactorGateway,
   TwoFactorProvisioning,

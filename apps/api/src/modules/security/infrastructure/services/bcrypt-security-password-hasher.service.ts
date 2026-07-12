@@ -1,13 +1,13 @@
 import bcrypt from 'bcryptjs'
 
-import { BCRYPT_ROUNDS } from '../../../../config/constants'
-import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import { env } from '../../../../config/env'
+import { SecurityDomainError } from '../../domain/security-domain.error'
 import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface'
 
 export class BcryptSecurityPasswordHasher implements ISecurityPasswordHasher {
   async hash(value: string): Promise<string> {
     try {
-      return await bcrypt.hash(value, BCRYPT_ROUNDS)
+      return await bcrypt.hash(value, env.BCRYPT_ROUNDS)
     } catch {
       throw new SecurityDomainError(
         'PASSWORD_HASH_FAILED',

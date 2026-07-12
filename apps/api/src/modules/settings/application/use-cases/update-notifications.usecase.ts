@@ -3,8 +3,8 @@ import type { ISettingsQueryRepository } from '../../domain/repositories/setting
 import type {
   IUpdateNotificationsPayloadDTO,
   UserSettingsViewDTO,
-} from '../dtos/settings.dto'
-import type { ISettingsMapper } from '../mappers/settings.mapper'
+} from '../settings.dto'
+import type { ISettingsMapper } from '../settings.mapper'
 
 type UpdateNotificationsRepository = {
   findOrCreate: ISettingsQueryRepository['findOrCreate']

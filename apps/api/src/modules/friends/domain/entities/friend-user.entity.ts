@@ -1,4 +1,4 @@
-import type { FriendRelationshipStatus } from "../types/friends.types";
+import type { FriendRelationshipStatus } from "../friends.types";
 
 export type FriendUserEntityProps = {
   id: string;

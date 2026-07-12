@@ -1,5 +1,5 @@
 import { executeCodeWithPiston } from '../../../../infrastructure/compiler/piston.service'
-import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
+import { MockTestsDomainError } from '../../domain/mock-tests-domain.error'
 import type { MockTestCodingLanguage, MockTestCodingValueType } from '../../domain/value-objects/coding-language.vo'
 import type { MockTestCodingDetails, MockTestCodingTestCase } from '../../domain/value-objects/mock-test-coding.vo'
 import type {

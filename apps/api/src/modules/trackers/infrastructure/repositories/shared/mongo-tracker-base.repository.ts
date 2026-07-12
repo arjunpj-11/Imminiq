@@ -1,4 +1,4 @@
-import { TrackerDomainError } from "../../../domain/errors/tracker-domain.error";
+import { TrackerDomainError } from "../../../domain/tracker-domain.error";
 import type { ErrorMapper } from "./mongo-tracker-error.mapper";
 
 type ErrorDetails = {

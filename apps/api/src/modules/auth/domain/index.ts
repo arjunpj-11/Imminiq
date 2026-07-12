@@ -1,10 +1,10 @@
-export * from './constants/auth.constants'
+export * from './auth.constants'
 
 export * from './entities/auth-session.entity'
 export * from './entities/auth-user.entity'
 export * from './entities/two-factor-auth.entity'
 
-export * from './errors/auth-domain.error'
+export * from './auth-domain.error'
 
 export type { IAuthRepository } from './repositories/auth.repository.interface'
 export type { IAuthSessionRepository } from './repositories/auth-session.repository.interface'
@@ -33,7 +33,7 @@ export type { ISecurityAttemptStore } from './services/security-attempt-store.in
 export type { ISecurityAuditLogger } from './services/security-audit-logger.interface'
 export type { ITwoFactorCodeVerifier } from './services/two-factor-code-verifier.interface'
 
-export * from './types/auth.types'
+export * from './auth.types'
 export type { AuthRole } from './value-objects/auth-role.vo'
 export type { LoginRedirectPath } from './value-objects/login-redirect-path.vo'
 export type { OAuthProvider } from './value-objects/oauth-provider.vo'

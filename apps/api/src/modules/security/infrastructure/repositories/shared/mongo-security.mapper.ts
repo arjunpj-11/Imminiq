@@ -4,7 +4,7 @@ import { TwoFactorEntity } from '../../../domain/entities/two-factor.entity'
 import type {
   AuthProvider,
   TwoFactorStatus,
-} from '../../../domain/types/security.types'
+} from '../../../domain/security.types'
 import type {
   MongoIdLike,
   MongoSecuritySessionRecord,

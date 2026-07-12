@@ -1,4 +1,4 @@
-import { FriendsDomainError } from "../../../domain/errors/friends-domain.error";
+import { FriendsDomainError } from "../../../domain/friends-domain.error";
 import type { FriendsMongoErrorMapper } from "./mongo-friends-error.mapper";
 
 export abstract class MongoFriendsBaseRepository {

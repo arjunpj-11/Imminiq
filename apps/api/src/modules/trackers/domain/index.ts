@@ -13,8 +13,8 @@ export * from './value-objects/lesson-type.vo'
 export * from './value-objects/compiler-runtime.vo'
 export * from './value-objects/tracker-record.vo'
 export * from './value-objects/lesson-practice.vo'
-export * from './constants/tracker.constants'
-export * from './errors/tracker-domain.error'
+export * from './tracker.constants'
+export * from './tracker-domain.error'
 export * from './repositories/tracker.repository.interface'
 export * from './repositories/tracker-query.repository.interface'
 export * from './repositories/tracker-command.repository.interface'
@@ -64,6 +64,6 @@ export type {
   TrackerStatusFilter,
   TrackerDomainFilter,
   TrackerSummaryResult,
-} from './types/trackers.types'
+} from './trackers.types'
 
-export * from './types/lesson-practice.types'
+export * from './lesson-practice.types'

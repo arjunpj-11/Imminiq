@@ -1,5 +1,5 @@
 import { Notification } from '../../../../../infrastructure/database/models/notification.model'
-import { DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT } from '../../../domain/constants/dashboard.constants'
+import { DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT } from '../../../domain/dashboard.constants'
 import type { DashboardRecentActivityEntity } from '../../../domain/entities/dashboard-recent-activity.entity'
 import type { GetRecentActivityInput } from '../../../domain/repositories/dashboard-notification.repository.interface'
 import type { MongoNotificationRecord } from '../shared/mongo-dashboard.types'

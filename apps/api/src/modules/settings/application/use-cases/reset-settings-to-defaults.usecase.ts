@@ -1,6 +1,6 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface'
-import type { UserSettingsViewDTO } from '../dtos/settings.dto'
-import type { ISettingsMapper } from '../mappers/settings.mapper'
+import type { UserSettingsViewDTO } from '../settings.dto'
+import type { ISettingsMapper } from '../settings.mapper'
 
 type ResetSettingsRepository = {
   resetToDefaults: ISettingsCommandRepository['resetToDefaults']

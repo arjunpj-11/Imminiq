@@ -12,10 +12,10 @@ export type {
   LeaderboardWeeklySummaryViewDTO,
   RecordLeaderboardXpPayloadDTO,
   ReplaceLeaderboardFriendsPayloadDTO,
-} from './application/dtos/leaderboard.dto'
+} from './application/leaderboard.dto'
 
 export type {
   LeaderboardScope,
   LeaderboardSection,
   LeaderboardXpActivitySource,
-} from './domain/types/leaderboard.types'
+} from './domain/leaderboard.types'

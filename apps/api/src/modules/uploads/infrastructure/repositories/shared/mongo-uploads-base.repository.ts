@@ -1,4 +1,4 @@
-import { UploadsDomainError } from '../../../domain/errors/uploads-domain.error'
+import { UploadsDomainError } from '../../../domain/uploads-domain.error'
 import type { ErrorMapper } from './mongo-uploads-error.mapper'
 
 type ErrorDetails = {

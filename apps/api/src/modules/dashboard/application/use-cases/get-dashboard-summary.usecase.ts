@@ -3,10 +3,10 @@ import type { IDashboardProfileRepository } from '../../domain/repositories/dash
 import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface'
 import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface'
 import type { IDashboardUserRepository } from '../../domain/repositories/dashboard-user.repository.interface'
-import { DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT } from '../constants/dashboard.constants'
-import type { IDashboardSummaryDTO } from '../dtos/dashboard.dto'
-import { DashboardApplicationError } from '../errors/dashboard-application.error'
-import type { IDashboardMapper } from '../mappers/dashboard.mapper'
+import { DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT } from '../dashboard.constants'
+import type { IDashboardSummaryDTO } from '../dashboard.dto'
+import { DashboardApplicationError } from '../dashboard-application.error'
+import type { IDashboardMapper } from '../dashboard.mapper'
 
 type DashboardSummaryRepository =
   IDashboardUserRepository &

@@ -3,7 +3,7 @@ import { Types } from "mongoose";
 import type {
   GeneratedTrackerLessonRecord,
   TrackerListFilter,
-} from "../../../domain/types/trackers.types";
+} from "../../../domain/trackers.types";
 
 export type MongoPrimitive =
   string | number | boolean | null | Date | Types.ObjectId;

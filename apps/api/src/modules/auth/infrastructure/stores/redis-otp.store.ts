@@ -1,8 +1,8 @@
 import bcrypt from 'bcryptjs'
 
-import { BCRYPT_ROUNDS } from '../../../../config/constants'
+import { env } from '../../../../config/env'
 import { otpCache } from '../../../../infrastructure/cache/otp.cache'
-import { AuthDomainError } from '../../domain/errors/auth-domain.error'
+import { AuthDomainError } from '../../domain/auth-domain.error'
 import type { IOtpStore } from '../../domain/services/otp-store.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 
@@ -22,7 +22,7 @@ export class RedisOtpStore implements IOtpStore {
       )
     }
 
-    const otpHash = await bcrypt.hash(data.otp, BCRYPT_ROUNDS)
+    const otpHash = await bcrypt.hash(data.otp, env.BCRYPT_ROUNDS)
 
     await otpCache.save(normalizedIdentifier, data.purpose, otpHash)
 

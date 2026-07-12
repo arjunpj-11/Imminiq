@@ -1,7 +1,7 @@
 import type {
   AuthProvider,
   TwoFactorStatus,
-} from '../../../domain/types/security.types'
+} from '../../../domain/security.types'
 
 export type MongoIdLike = {
   toString(): string

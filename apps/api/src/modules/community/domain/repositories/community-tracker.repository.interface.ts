@@ -1,6 +1,6 @@
 import type { CommunityMemberStatsEntity } from '../entities/community-member-stats.entity'
 import type { CommunityTrackerEntity } from '../entities/community-tracker.entity'
-import type { CommunitySort } from '../types/community.types'
+import type { CommunitySort } from '../community.types'
 
 export type FindCommunityTrackersQuery = {
   userId: string

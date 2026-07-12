@@ -1,7 +1,7 @@
 import mongoose from 'mongoose'
 
-import { DASHBOARD_MAX_RECENT_ITEMS_LIMIT } from '../../../domain/constants/dashboard.constants'
-import { DashboardDomainError } from '../../../domain/errors/dashboard-domain.error'
+import { DASHBOARD_MAX_RECENT_ITEMS_LIMIT } from '../../../domain/dashboard.constants'
+import { DashboardDomainError } from '../../../domain/dashboard-domain.error'
 
 export class MongoDashboardQueryUtils {
   private constructor() {}

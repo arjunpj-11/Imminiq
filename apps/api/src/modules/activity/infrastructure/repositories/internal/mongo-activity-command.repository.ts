@@ -5,13 +5,13 @@ import { StreakHistory } from '../../../../../infrastructure/database/models/str
 import { StreakSnapshot } from '../../../../../infrastructure/database/models/streak-snapshot.model'
 import { UserActivity } from '../../../../../infrastructure/database/models/user-activity.model'
 import { User } from '../../../../../infrastructure/database/models/user.model'
-import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
+import { ActivityDomainError } from '../../../domain/activity-domain.error'
 import type {
   IActivityCommandRepository,
   RecordUserActivityInput,
   RecordUserActivityResult,
 } from '../../../domain/repositories/activity-command.repository.interface'
-import type { ActivityProgressionChange } from '../../../domain/types/activity.types'
+import type { ActivityProgressionChange } from '../../../domain/activity.types'
 import type { ActivityHeatmapIntensity } from '../../../domain/value-objects/activity-heatmap-intensity.vo'
 import { MongoActivityBaseRepository } from '../shared/mongo-activity-base.repository'
 import { MongoActivityErrorMapper } from '../shared/mongo-activity-error.mapper'

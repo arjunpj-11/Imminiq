@@ -1,4 +1,4 @@
-import { DashboardDomainError } from '../../../domain/errors/dashboard-domain.error'
+import { DashboardDomainError } from '../../../domain/dashboard-domain.error'
 
 export type ErrorMapper = (error: unknown) => DashboardDomainError | null
 

@@ -1,4 +1,4 @@
-import { DashboardDomainError } from '../../../domain/errors/dashboard-domain.error'
+import { DashboardDomainError } from '../../../domain/dashboard-domain.error'
 import type { ErrorMapper } from './mongo-dashboard-error.mapper'
 
 type ErrorDetails = {

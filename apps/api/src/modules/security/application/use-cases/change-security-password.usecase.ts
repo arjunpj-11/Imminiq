@@ -4,8 +4,8 @@ import type { ISecurityPasswordHasher } from '../../domain/services/security-pas
 import type {
   IChangePasswordPayloadDTO,
   IChangePasswordResponseDTO,
-} from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+} from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 
 type ChangeSecurityPasswordRepository =
   ISecurityUserRepository & ISecuritySessionRepository

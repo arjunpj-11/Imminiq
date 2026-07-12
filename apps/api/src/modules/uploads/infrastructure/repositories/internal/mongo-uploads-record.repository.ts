@@ -2,7 +2,7 @@ import { Upload } from '../../../../../infrastructure/database/models/upload.mod
 import {
   UPLOAD_MODULE,
   UPLOAD_REFERENCE_TYPE,
-} from '../../../domain/constants/uploads.constants'
+} from '../../../domain/uploads.constants'
 import type {
   SaveUploadRecordInput,
   SoftDeleteLatestProfileUploadInput,

@@ -1,17 +1,17 @@
 import {
   AVATAR_FOLDER,
   BANNER_FOLDER,
-} from '../../domain/constants/uploads.constants'
-import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
+} from '../../domain/uploads.constants'
+import { UploadsDomainError } from '../../domain/uploads-domain.error'
 import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface'
 import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
 import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface'
 import type {
   IUploadProfileImageInputDTO,
   IUploadProfileImageResultDTO,
-} from '../dtos/uploads.dto'
-import { UploadsApplicationError } from '../errors/uploads-application.error'
-import type { IUploadsMapper } from '../mappers/uploads.mapper'
+} from '../uploads.dto'
+import { UploadsApplicationError } from '../uploads-application.error'
+import type { IUploadsMapper } from '../uploads.mapper'
 import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
 
 type UploadProfileImageRepository =

@@ -1,7 +1,7 @@
-export * from './dtos/settings.dto'
-export * from './mappers/settings.mapper'
-export * from './errors/settings-application.error'
-export * from './constants/settings.constants'
+export * from './settings.dto'
+export * from './settings.mapper'
+export * from './settings-application.error'
+export * from './settings.constants'
 
 export * from './use-cases/get-all-settings.usecase'
 export * from './use-cases/get-appearance-settings.usecase'

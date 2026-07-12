@@ -1,12 +1,12 @@
-import { FriendsDomainError } from "../../domain/errors/friends-domain.error";
+import { FriendsDomainError } from "../../domain/friends-domain.error";
 import type { IFriendCommandRepository } from "../../domain/repositories/friend-command.repository.interface";
 import type {
   SendFriendRequestPayloadDTO,
   SendFriendRequestViewDTO,
-} from "../dtos/friends.dto";
-import { FriendsApplicationError } from "../errors/friends-application.error";
-import type { IFriendsMapper } from "../mappers/friends.mapper";
-import type { IFriendRelationshipPolicy } from "../policies/friend-relationship.policy";
+} from "../friends.dto";
+import { FriendsApplicationError } from "../friends-application.error";
+import type { IFriendsMapper } from "../friends.mapper";
+import type { IFriendRelationshipPolicy } from "../friend-relationship.policy";
 
 export interface ISendFriendRequestUseCase {
   execute(senderUserId: string, payload: SendFriendRequestPayloadDTO): Promise<SendFriendRequestViewDTO>

@@ -1,4 +1,4 @@
-import { CommunityApplicationError } from '../errors/community-application.error'
+import { CommunityApplicationError } from '../community-application.error'
 import type { ICommunityReviewRepository } from '../../domain/repositories/community-review.repository.interface'
 
 export type ToggleCommunityTrackerLikeInput = {

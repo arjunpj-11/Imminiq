@@ -7,7 +7,7 @@ import type { IFriendRequestRepository } from "../../../domain/repositories/frie
 import type {
   FriendRequestsPage,
   ListFriendRequestsInput,
-} from "../../../domain/types/friends.types";
+} from "../../../domain/friends.types";
 import { MongoFriendsBaseRepository } from "../shared/mongo-friends-base.repository";
 import { MongoFriendsMapper } from "../shared/mongo-friends.mapper";
 import { MongoFriendsNormalizer } from "../shared/mongo-friends-normalizer";

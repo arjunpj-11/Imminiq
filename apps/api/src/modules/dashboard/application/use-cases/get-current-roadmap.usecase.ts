@@ -1,6 +1,6 @@
 import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface'
-import type { IDashboardActiveTrackerDTO } from '../dtos/dashboard.dto'
-import type { IDashboardMapper } from '../mappers/dashboard.mapper'
+import type { IDashboardActiveTrackerDTO } from '../dashboard.dto'
+import type { IDashboardMapper } from '../dashboard.mapper'
 
 export interface IGetCurrentRoadmapUseCase {
   execute(userId: string): Promise<IDashboardActiveTrackerDTO | null>

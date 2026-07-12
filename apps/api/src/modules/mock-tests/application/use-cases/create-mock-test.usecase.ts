@@ -1,9 +1,9 @@
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { ICreateMockTestPayloadDTO, IMockTestDTO } from '../dtos/mock-tests.dto'
-import { MAX_MANUAL_QUESTIONS } from '../../domain/constants/mock-tests.constants'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { ICreateMockTestPayloadDTO, IMockTestDTO } from '../mock-tests.dto'
+import { MAX_MANUAL_QUESTIONS } from '../../domain/mock-tests.constants'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type CreateMockTestRepository =
   IMockTestRepository &

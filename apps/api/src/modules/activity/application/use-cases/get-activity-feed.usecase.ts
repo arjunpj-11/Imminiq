@@ -2,16 +2,16 @@ import {
   ACTIVITY_DEFAULT_FEED_LIMIT,
   ACTIVITY_MAX_FEED_LIMIT,
   ACTIVITY_MIN_FEED_LIMIT,
-} from '../../domain/constants/activity.constants'
+} from '../../domain/activity.constants'
 import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
 import { activityCategoriesForFilter } from '../../domain/value-objects/activity-category.vo'
 import type {
   ActivityFeedResponseDTO,
   GetActivityFeedPayloadDTO,
-} from '../dtos/activity.dto'
+} from '../activity.dto'
 import type { ActivityCursorCodecContract } from '../services/activity-cursor.service'
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
-import type { ActivityMapperContract } from '../mappers/activity.mapper'
+import type { ActivityMapperContract } from '../activity.mapper'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
 export interface IGetActivityFeedUseCase {

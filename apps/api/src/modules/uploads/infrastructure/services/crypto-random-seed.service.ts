@@ -1,6 +1,6 @@
 import { randomInt } from 'node:crypto'
 
-import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
+import { UploadsDomainError } from '../../domain/uploads-domain.error'
 import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface'
 
 export class CryptoRandomSeedGenerator implements IRandomSeedGenerator {

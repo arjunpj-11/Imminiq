@@ -1,12 +1,12 @@
-import { TWO_FACTOR_DISABLE_ATTEMPT_SCOPE } from '../../domain/constants/security.constants'
+import { TWO_FACTOR_DISABLE_ATTEMPT_SCOPE } from '../../domain/security.constants'
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
 import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
 import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
 import type {
   IDisableTwoFactorPayloadDTO,
   IDisableTwoFactorResponseDTO,
-} from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+} from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 
 export interface IDisableTwoFactorUseCase {
   execute(userId: string, payload: IDisableTwoFactorPayloadDTO): Promise<IDisableTwoFactorResponseDTO>

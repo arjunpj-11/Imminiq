@@ -1,5 +1,5 @@
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import { ITrackerMapper } from '../mappers'
+import { ITrackerMapper } from '..'
 
 export interface IGetTrackerSummaryUseCase {
   execute(userId: string): Promise<import("../../domain").TrackerSummaryRecord>

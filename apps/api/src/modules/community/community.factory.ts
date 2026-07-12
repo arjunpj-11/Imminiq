@@ -1,16 +1,16 @@
-import type { CommunityUseCases } from './application/contracts/community-use-cases.contract'
+import type { CommunityUseCases } from './application/community-use-cases.contract'
 import {
   CommunityMapper,
   type ICommunityMapper,
-} from './application/mappers/community.mapper'
+} from './application/community.mapper'
 import {
   CommunityReviewMapper,
   type ICommunityReviewMapper,
-} from './application/mappers/community-review.mapper'
+} from './application/community-review.mapper'
 import {
   CommunityVerificationPolicy,
   type ICommunityVerificationPolicy,
-} from './application/policies/community-verification.policy'
+} from './application/community-verification.policy'
 import { CloneCommunityTrackerUseCase } from './application/use-cases/clone-community-tracker.usecase'
 import { GetCommunityBrowseUseCase } from './application/use-cases/get-community-browse.usecase'
 import { GetCommunityPublicTrackerUseCase } from './application/use-cases/get-community-public-tracker.usecase'

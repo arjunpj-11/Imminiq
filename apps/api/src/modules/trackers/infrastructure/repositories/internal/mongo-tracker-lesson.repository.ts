@@ -8,7 +8,7 @@ import { LessonVisualization } from "../../../../../infrastructure/database/mode
 import { Tracker } from "../../../../../infrastructure/database/models/tracker.model";
 import { TrackerLesson } from "../../../../../infrastructure/database/models/tracker-lesson.model";
 import type { ITrackerRepository } from "../../../domain/repositories/tracker.repository.interface";
-import type { GeneratedTrackerLessonRecord } from "../../../domain/types/trackers.types";
+import type { GeneratedTrackerLessonRecord } from "../../../domain/trackers.types";
 import { MongoTrackerBaseRepository } from "../shared/mongo-tracker-base.repository";
 import { MongoTrackerMapper } from "../shared/mongo-tracker.mapper";
 import { MongoTrackerErrorMapper } from "../shared/mongo-tracker-error.mapper";

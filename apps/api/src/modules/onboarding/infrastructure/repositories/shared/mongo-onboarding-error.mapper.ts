@@ -1,4 +1,4 @@
-import { OnboardingDomainError } from '../../../domain/errors/onboarding-domain.error'
+import { OnboardingDomainError } from '../../../domain/onboarding-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-onboarding.types'
 
 export type ErrorMapper = (error: unknown) => OnboardingDomainError | null

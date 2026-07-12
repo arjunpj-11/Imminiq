@@ -1,5 +1,5 @@
 import { securityAuditLogger as sharedSecurityAuditLogger } from '../../../../infrastructure/security/security-audit-logger'
-import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import { SecurityDomainError } from '../../domain/security-domain.error'
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 
 export class SecurityAuditLogger implements ISecurityAuditLogger {

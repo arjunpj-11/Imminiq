@@ -2,7 +2,7 @@ import type { UserActivityEntity } from '../entities/user-activity.entity'
 import type {
   ActivityAnalyticsRecord,
   ActivityTimeRange,
-} from '../types/activity.types'
+} from '../activity.types'
 import type { ActivityCategory } from '../value-objects/activity-category.vo'
 
 export type FindActivityFeedInput = {

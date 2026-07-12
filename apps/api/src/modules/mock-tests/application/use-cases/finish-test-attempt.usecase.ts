@@ -5,9 +5,9 @@ import type { IMockTestQuestionRepository } from '../../domain/repositories/mock
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface'
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import type { IMockTestActivityRecorder } from '../../domain/services/mock-test-activity.interface'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
 import type { IMockTestScorer } from '../services/test-scorer.service'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
 const MOCK_TEST_COMPLETION_XP = 50

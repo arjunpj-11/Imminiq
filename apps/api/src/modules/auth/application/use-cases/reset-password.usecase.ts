@@ -1,4 +1,4 @@
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'

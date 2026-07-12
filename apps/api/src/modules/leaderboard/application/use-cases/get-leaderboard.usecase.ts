@@ -5,19 +5,19 @@ import {
   LEADERBOARD_STREAK_CHAMPION_LIMIT,
   LEADERBOARD_TARGET_RANK,
   LEADERBOARD_WEEKLY_TIER_XP,
-} from '../../domain/constants/leaderboard.constants'
+} from '../../domain/leaderboard.constants'
 import type { ILeaderboardQueryRepository } from '../../domain/repositories/leaderboard-query.repository.interface'
 import {
   LEADERBOARD_REWARDS,
   LEADERBOARD_SCORING_RULES,
-} from '../constants/leaderboard.constants'
+} from '../leaderboard.constants'
 import type {
   GetLeaderboardPayloadDTO,
   LeaderboardCurrentUserViewDTO,
   LeaderboardResponseDTO,
-} from '../dtos/leaderboard.dto'
-import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
-import type { ILeaderboardMapper } from '../mappers/leaderboard.mapper'
+} from '../leaderboard.dto'
+import { LeaderboardApplicationError } from '../leaderboard-application.error'
+import type { ILeaderboardMapper } from '../leaderboard.mapper'
 import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service'
 import type { IClock } from '../../../../shared/time/clock.interface'
 

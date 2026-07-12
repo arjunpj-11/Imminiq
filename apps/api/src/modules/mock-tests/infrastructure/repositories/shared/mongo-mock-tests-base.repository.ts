@@ -1,4 +1,4 @@
-import { MockTestsDomainError } from '../../../domain/errors/mock-tests-domain.error'
+import { MockTestsDomainError } from '../../../domain/mock-tests-domain.error'
 import type { ErrorMapper } from './mongo-mock-tests-error.mapper'
 
 type ErrorDetails = {

@@ -19,7 +19,7 @@ import {
 import type {
   VerificationSubmissionStatus,
   VerificationVoteChoice,
-} from '../../../domain/types/community.types'
+} from '../../../domain/community.types'
 import type {
   MongoAuthorLookup,
   MongoCommunitySubmissionRecord,

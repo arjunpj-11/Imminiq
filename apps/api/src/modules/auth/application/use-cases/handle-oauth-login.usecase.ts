@@ -1,12 +1,12 @@
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface'
 import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface'
 import type { IAuthToken } from '../../domain/services/auth-token.interface'
-import type { AuthLoginResultDTO, OAuthLoginUserDTO, RequestMetaDTO } from '../dtos/auth.dto'
-import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/constants/auth.constants'
-import type { IAuthUserMapper } from '../mappers/auth-user.mapper'
-import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
+import type { AuthLoginResultDTO, OAuthLoginUserDTO, RequestMetaDTO } from '../auth.dto'
+import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants'
+import type { IAuthUserMapper } from '../auth-user.mapper'
+import type { IAuthAccountPolicy } from '../auth-account-policy.policy'
 import type { IAuthSessionIssuer } from '../services/auth-session.service'
 
 type OAuthLoginRepository = IAuthUserRepository & IAuthTwoFactorRepository

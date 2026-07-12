@@ -9,7 +9,7 @@ import type {
   RemoveFriendCommandInput,
   SearchFriendUsersInput,
   SendFriendRequestCommandInput,
-} from "../../domain/types/friends.types";
+} from "../../domain/friends.types";
 import {
   MongoFriendCommandRepository,
   mongoFriendCommandRepository,

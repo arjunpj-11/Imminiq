@@ -2,9 +2,9 @@ import type { IFriendCommandRepository } from "../../domain/repositories/friend-
 import type {
   FriendActionViewDTO,
   RemoveFriendPayloadDTO,
-} from "../dtos/friends.dto";
-import { FriendsApplicationError } from "../errors/friends-application.error";
-import type { IFriendRelationshipPolicy } from "../policies/friend-relationship.policy";
+} from "../friends.dto";
+import { FriendsApplicationError } from "../friends-application.error";
+import type { IFriendRelationshipPolicy } from "../friend-relationship.policy";
 
 export interface IRemoveFriendUseCase {
   execute(userId: string, payload: RemoveFriendPayloadDTO): Promise<FriendActionViewDTO>

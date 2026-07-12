@@ -7,8 +7,8 @@ import { UserActivity } from '../../../../../infrastructure/database/models/user
 import { User } from '../../../../../infrastructure/database/models/user.model'
 import {
   ACTIVITY_SESSION_TYPES,
-} from '../../../domain/constants/activity.constants'
-import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
+} from '../../../domain/activity.constants'
+import { ActivityDomainError } from '../../../domain/activity-domain.error'
 import type {
   IActivityQueryRepository,
   FindActivityAnalyticsInput,
@@ -21,7 +21,7 @@ import type {
   ActivityDayAggregateRecord,
   ActivityStreakAnalyticsRecord,
   ActivityWeeklyBreakdownRecord,
-} from '../../../domain/types/activity.types'
+} from '../../../domain/activity.types'
 import type { ActivityCategory } from '../../../domain/value-objects/activity-category.vo'
 import type { ActivityHeatmapIntensity } from '../../../domain/value-objects/activity-heatmap-intensity.vo'
 import { MongoActivityBaseRepository } from '../shared/mongo-activity-base.repository'

@@ -1,8 +1,8 @@
-import type { SecurityUseCases } from './application/contracts/security-use-cases.contract'
+import type { SecurityUseCases } from './application/security-use-cases.contract'
 import {
   SecurityMapper,
   type ISecurityMapper,
-} from './application/mappers/security.mapper'
+} from './application/security.mapper'
 import { CurrentSessionResolver } from './application/services/current-session.service'
 import { SensitiveActionAuthorizer } from './application/services/sensitive-action-step-up.service'
 import { ChangeSecurityPasswordUseCase } from './application/use-cases/change-security-password.usecase'

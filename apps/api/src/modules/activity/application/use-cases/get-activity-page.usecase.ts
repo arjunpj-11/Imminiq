@@ -2,9 +2,9 @@ import type { IActivityQueryRepository } from '../../domain/repositories/activit
 import type {
   ActivityPageResponseDTO,
   GetActivityPagePayloadDTO,
-} from '../dtos/activity.dto'
-import { ActivityApplicationError } from '../errors/activity-application.error'
-import type { ActivityMapperContract } from '../mappers/activity.mapper'
+} from '../activity.dto'
+import { ActivityApplicationError } from '../activity-application.error'
+import type { ActivityMapperContract } from '../activity.mapper'
 import type { ActivityAnalyticsContract } from '../services/activity-analytics.service'
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import { GetActivityFeedUseCase } from './get-activity-feed.usecase'

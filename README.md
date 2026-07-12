@@ -4,9 +4,9 @@
 
 **An AI-powered learning platform — built with strict clean architecture, hardened authentication, personalized roadmaps, interactive lessons, and real-time code execution.**
 
-![Status](https://img.shields.io/badge/status-active%20development-brightgreen?style=flat-square)
+![Status](https://img.shields.io/badge/status-production%20baseline-brightgreen?style=flat-square)
 ![Started](https://img.shields.io/badge/started-May%206%2C%202026-blue?style=flat-square)
-![Tests](https://img.shields.io/badge/tests-37%20passing-success?style=flat-square)
+![Tests](https://img.shields.io/badge/tests-64%20passing-success?style=flat-square)
 ![License](https://img.shields.io/badge/license-private-lightgrey?style=flat-square)
 
 </div>
@@ -160,12 +160,14 @@ src/modules/<feature>/
 
 | Suite | Status |
 |---|---|
-| Integration tests (Vitest + Supertest + MongoDB Memory Server) | ✅ 18 / 18 |
-| Security unit / middleware tests | ✅ 19 / 19 |
+| Backend architecture, security, and integration tests | ✅ 58 / 58 |
+| Frontend production configuration tests | ✅ 6 / 6 |
 
 **Coverage includes:** auth flows, CSRF, refresh-token rotation, reuse detection, OAuth state protection, request-origin checks, password reset replay prevention, upload signature validation, and the 30-day account deletion recovery flow.
 
 **CI pipelines:** Lint · Build · Test · Dependency Review · CodeQL Security Scanning
+
+Production deployment, validation, rollback, secrets, and operations guidance is in [docs/production-deployment.md](docs/production-deployment.md).
 
 ---
 
@@ -215,10 +217,8 @@ npm run piston:up
 - Challenge module
 - Mock test module
 - Social learning and battle improvements
-- Background purge worker for expired 30-day deletion windows
 - Expanded automated test coverage
 - API, database design, and frontend flow documentation
-- Full deployment documentation (backend, frontend, Redis, MongoDB, Piston)
 
 ---
 

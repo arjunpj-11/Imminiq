@@ -5,7 +5,7 @@ import { decryptAuthCookieToken } from '../../../shared/security/auth-cookie-tok
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { SecurityUseCases } from '../application/contracts/security-use-cases.contract'
+import type { SecurityUseCases } from '../application/security-use-cases.contract'
 
 const REFRESH_COOKIE_NAME = 'refreshToken'
 

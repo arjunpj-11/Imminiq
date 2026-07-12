@@ -1,6 +1,6 @@
 import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
 
 type FlagQuestionRepository =
   IMockTestAttemptRepository &

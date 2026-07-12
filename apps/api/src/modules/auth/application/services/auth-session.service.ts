@@ -3,7 +3,7 @@ import { createHash } from 'crypto'
 import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 import type { IAuthToken } from '../../domain/services/auth-token.interface'
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
-import type { RequestMetaDTO, ITokenPairDTO } from '../dtos/auth.dto'
+import type { RequestMetaDTO, ITokenPairDTO } from '../auth.dto'
 
 export interface IAuthSessionIssuer {
   issueTokenPair(

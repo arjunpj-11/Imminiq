@@ -2,8 +2,8 @@ import type { IFriendCommandRepository } from "../../domain/repositories/friend-
 import type {
   FriendActionViewDTO,
   FriendRequestActionPayloadDTO,
-} from "../dtos/friends.dto";
-import { FriendsApplicationError } from "../errors/friends-application.error";
+} from "../friends.dto";
+import { FriendsApplicationError } from "../friends-application.error";
 
 export interface ICancelFriendRequestUseCase {
   execute(senderUserId: string, payload: FriendRequestActionPayloadDTO): Promise<FriendActionViewDTO>

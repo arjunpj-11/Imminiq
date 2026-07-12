@@ -9,7 +9,7 @@ export type {
   RequestMetaDTO,
   ITokenPairDTO,
   ITwoFactorLoginVerifyPayloadDTO,
-} from './application/dtos/auth.dto'
+} from './application/auth.dto'
 
 export type {
   AuthRole,
@@ -18,6 +18,6 @@ export type {
   OtpPurpose,
   UserStatus,
   VerificationMethod,
-} from './domain/types/auth.types'
+} from './domain/auth.types'
 
 export type { IAuthRepository } from './domain/repositories/auth.repository.interface'

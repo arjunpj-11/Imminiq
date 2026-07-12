@@ -2,8 +2,8 @@ import type { IModerationAppealQueryRepository } from '../../domain/repositories
 import type {
   IGetActiveModerationAppealStatusResultDTO,
   IGetModerationAppealStatusPayloadDTO,
-} from '../dtos/moderation-appeal.dto'
-import type { IModerationAppealMapper } from '../mappers/moderation-appeal.mapper'
+} from '../moderation-appeal.dto'
+import type { IModerationAppealMapper } from '../moderation-appeal.mapper'
 
 export interface IGetActiveModerationAppealStatusUseCase {
   execute(payload: IGetModerationAppealStatusPayloadDTO): Promise<IGetActiveModerationAppealStatusResultDTO>

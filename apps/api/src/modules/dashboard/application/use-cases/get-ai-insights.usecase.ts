@@ -1,8 +1,8 @@
 import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface'
 import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface'
 import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
-import type { IDashboardAIInsightResultDTO } from '../dtos/dashboard.dto'
-import { DashboardApplicationError } from '../errors/dashboard-application.error'
+import type { IDashboardAIInsightResultDTO } from '../dashboard.dto'
+import { DashboardApplicationError } from '../dashboard-application.error'
 
 type DashboardInsightRepository =
   IDashboardStreakRepository & IDashboardTrackerRepository

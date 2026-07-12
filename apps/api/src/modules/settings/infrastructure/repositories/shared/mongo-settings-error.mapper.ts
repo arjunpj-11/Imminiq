@@ -1,4 +1,4 @@
-import { SettingsDomainError } from '../../../domain/errors/settings-domain.error'
+import { SettingsDomainError } from '../../../domain/settings-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-settings.types'
 
 export type ErrorMapper = (error: unknown) => SettingsDomainError | null

@@ -1,4 +1,4 @@
-import { UploadsDomainError } from '../../../domain/errors/uploads-domain.error'
+import { UploadsDomainError } from '../../../domain/uploads-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-uploads.types'
 
 export type ErrorMapper = (error: unknown) => UploadsDomainError | null

@@ -1,6 +1,6 @@
 import { Types } from 'mongoose'
 
-import { UsersDomainError } from '../../../domain/errors/users-domain.error'
+import { UsersDomainError } from '../../../domain/users-domain.error'
 import type { UserIdInput } from '../../../domain/value-objects/user-id.vo'
 
 export class MongoUsersObjectId {

@@ -2,7 +2,7 @@ import {
   AI_JOB_QUOTA_POLICIES,
   aiJobQuotaCache,
 } from '../../../../infrastructure/cache/ai-job-quota.cache'
-import { OnboardingDomainError } from '../../domain/errors/onboarding-domain.error'
+import { OnboardingDomainError } from '../../domain/onboarding-domain.error'
 import type {
   IAIJobQuotaConsumeResult,
   IAIJobQuotaStore,

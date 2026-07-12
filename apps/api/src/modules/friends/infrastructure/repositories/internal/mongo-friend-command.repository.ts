@@ -13,7 +13,7 @@ import type {
   RemoveFriendCommandResult,
   SendFriendRequestCommandInput,
   SendFriendRequestCommandResult,
-} from "../../../domain/types/friends.types";
+} from "../../../domain/friends.types";
 import { MongoFriendsBaseRepository } from "../shared/mongo-friends-base.repository";
 import { MongoFriendsErrorMapper } from "../shared/mongo-friends-error.mapper";
 import { MongoFriendsMapper } from "../shared/mongo-friends.mapper";

@@ -2,14 +2,14 @@ import crypto from 'crypto'
 import jwt, { SignOptions } from 'jsonwebtoken'
 
 import { env } from '../../../../config/env'
-import { AuthDomainError } from '../../domain/errors/auth-domain.error'
+import { AuthDomainError } from '../../domain/auth-domain.error'
 import type { IAuthToken } from '../../domain/services/auth-token.interface'
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
 import type {
   IJwtPayload,
   TwoFactorChallengeTokenPayload,
 } from '../../domain/value-objects/token-payload.vo'
-import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/constants/auth.constants'
+import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants'
 
 export class JwtAuthToken implements IAuthToken {
   generateAccessToken(userId: string, role: AuthRole): string {

@@ -1,7 +1,7 @@
 import { Friend } from '../../../../../infrastructure/database/models/friend.model'
 import { User } from '../../../../../infrastructure/database/models/user.model'
 import { UserProfile } from '../../../../../infrastructure/database/models/user-profile.model'
-import { DASHBOARD_DEFAULT_FRIENDS_LIMIT } from '../../../domain/constants/dashboard.constants'
+import { DASHBOARD_DEFAULT_FRIENDS_LIMIT } from '../../../domain/dashboard.constants'
 import type { DashboardFriendEntity } from '../../../domain/entities/dashboard-friend.entity'
 import type { GetFriendsHubInput } from '../../../domain/repositories/dashboard-friend.repository.interface'
 import type {

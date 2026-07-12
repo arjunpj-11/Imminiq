@@ -1,4 +1,4 @@
-import { AuthDomainError } from '../../../domain/errors/auth-domain.error'
+import { AuthDomainError } from '../../../domain/auth-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-auth.types'
 
 export type ErrorMapper = (error: unknown) => AuthDomainError | null

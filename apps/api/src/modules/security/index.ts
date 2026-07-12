@@ -16,9 +16,9 @@ export type {
   IVerifyEmailChangePayloadDTO,
   IVerifyEmailChangeResponseDTO,
   IVerifyTwoFactorSetupPayloadDTO,
-} from './application/dtos/security.dto'
+} from './application/security.dto'
 
 export type {
   AuthProvider,
   TwoFactorStatus,
-} from './domain/types/security.types'
+} from './domain/security.types'

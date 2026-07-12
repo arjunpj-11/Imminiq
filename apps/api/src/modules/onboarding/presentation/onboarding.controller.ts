@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { OnboardingUseCases } from '../application/contracts/onboarding-use-cases.contract'
+import type { OnboardingUseCases } from '../application/onboarding-use-cases.contract'
 
 type JobIdParams = {
   jobId: string

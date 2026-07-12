@@ -1,8 +1,8 @@
-import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import { TrackerApplicationError } from '../tracker-application.error'
+import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { ITrackerActivityRecorder } from '../../domain/services/tracker-activity.interface'
-import type { UpdateSubtopicProgressInput } from '../../domain/types/trackers.types'
+import type { UpdateSubtopicProgressInput } from '../../domain/trackers.types'
 
 const SUBTOPIC_COMPLETION_XP = 30
 const TOPIC_COMPLETION_XP = 50

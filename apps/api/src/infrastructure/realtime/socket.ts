@@ -54,3 +54,8 @@ export const getIO = () => {
   if (!io) throw new Error('Socket.io not initialized')
   return io
 }
+
+export const closeSocket = async () => {
+  if (!io) return
+  await new Promise<void>((resolve) => io.close(() => resolve()))
+}

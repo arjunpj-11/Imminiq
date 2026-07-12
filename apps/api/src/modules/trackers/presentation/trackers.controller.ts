@@ -3,7 +3,7 @@ import type { NextFunction, Request, Response } from 'express'
 import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { TrackerUseCases } from '../application/contracts/tracker-use-cases.contract'
+import type { TrackerUseCases } from '../application/tracker-use-cases.contract'
 
 type TrackerParams = {
   trackerId: string

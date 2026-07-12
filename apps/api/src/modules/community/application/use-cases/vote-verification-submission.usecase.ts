@@ -2,16 +2,16 @@ import {
   COMMUNITY_REVIEW_REWARD_COINS,
   COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
   COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
-} from '../../domain/constants/community.constants'
+} from '../../domain/community.constants'
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface'
 import type {
   IVoteVerificationSubmissionPayloadDTO,
   IVoteVerificationSubmissionViewDTO,
-} from '../dtos/community.dto'
-import { CommunityApplicationError } from '../errors/community-application.error'
-import type { ICommunityMapper } from '../mappers/community.mapper'
-import type { ICommunityVerificationPolicy } from '../policies/community-verification.policy'
+} from '../community.dto'
+import { CommunityApplicationError } from '../community-application.error'
+import type { ICommunityMapper } from '../community.mapper'
+import type { ICommunityVerificationPolicy } from '../community-verification.policy'
 
 export interface IVoteVerificationSubmissionUseCase {
   execute(payload: IVoteVerificationSubmissionPayloadDTO): Promise<IVoteVerificationSubmissionViewDTO>

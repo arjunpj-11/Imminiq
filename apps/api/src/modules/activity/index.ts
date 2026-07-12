@@ -8,7 +8,7 @@ export type {
   GetActivityPagePayloadDTO,
   RecordUserActivityPayloadDTO,
   RecordUserActivityResponseDTO,
-} from './application/dtos/activity.dto'
+} from './application/activity.dto'
 
 export type {
   ActivityCategory,

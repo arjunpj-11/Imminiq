@@ -15,7 +15,7 @@ export type {
   IStreakHeatmapDayDTO,
   IStreakSummaryViewDTO,
   UpdateMyProfileInputDTO,
-} from './application/dtos/users.dto'
+} from './application/users.dto'
 
 export type {
   BadgeType,
@@ -23,4 +23,4 @@ export type {
   ProfileTrackerStatus,
   RelationshipState,
   StreakIntensity,
-} from './domain/types/users.types'
+} from './domain/users.types'

@@ -1,6 +1,6 @@
 import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import type { IGetEvaluationResultDTO } from '../dtos/onboarding.dto'
-import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+import type { IGetEvaluationResultDTO } from '../onboarding.dto'
+import { OnboardingApplicationError } from '../onboarding-application.error'
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
 export interface IGetRoadmapEvaluationResultUseCase {

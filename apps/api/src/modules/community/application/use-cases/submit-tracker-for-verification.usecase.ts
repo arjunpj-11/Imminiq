@@ -3,14 +3,14 @@ import {
   COMMUNITY_VERIFICATION_DEFAULT_REQUIRED_VOTES,
   COMMUNITY_VERIFICATION_MAX_DURATION_HOURS,
   COMMUNITY_VERIFICATION_MAX_REQUIRED_VOTES,
-} from '../../domain/constants/community.constants'
+} from '../../domain/community.constants'
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
 import type {
   ICommunityVerificationSubmissionViewDTO,
   ISubmitTrackerForVerificationPayloadDTO,
-} from '../dtos/community.dto'
-import { CommunityApplicationError } from '../errors/community-application.error'
-import type { ICommunityMapper } from '../mappers/community.mapper'
+} from '../community.dto'
+import { CommunityApplicationError } from '../community-application.error'
+import type { ICommunityMapper } from '../community.mapper'
 
 export interface ISubmitTrackerForVerificationUseCase {
   execute(payload: ISubmitTrackerForVerificationPayloadDTO): Promise<ICommunityVerificationSubmissionViewDTO>

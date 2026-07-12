@@ -1,4 +1,4 @@
-import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
+import { ActivityDomainError } from '../../../domain/activity-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-activity.types'
 
 export type ActivityMongoErrorMapper = (

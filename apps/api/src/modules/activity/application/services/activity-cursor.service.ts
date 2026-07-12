@@ -1,4 +1,4 @@
-import { ActivityApplicationError } from '../errors/activity-application.error'
+import { ActivityApplicationError } from '../activity-application.error'
 
 export type ActivityCursorValue = {
   occurredAt: Date

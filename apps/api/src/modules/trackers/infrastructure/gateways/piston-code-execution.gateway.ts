@@ -1,5 +1,5 @@
 import { executeCodeWithPiston } from '../../../../infrastructure/compiler/piston.service'
-import { TrackerDomainError } from '../../domain/errors/tracker-domain.error'
+import { TrackerDomainError } from '../../domain/tracker-domain.error'
 import type { ICodeExecutor } from '../../domain/services/code-execution.interface'
 
 export class PistonCodeExecutionGateway implements ICodeExecutor {

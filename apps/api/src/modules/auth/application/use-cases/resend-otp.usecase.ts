@@ -1,10 +1,10 @@
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
-import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
+import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/auth.constants'
 
 export interface IResendOtpUseCase {
   execute(identifier: string, purpose: OtpPurpose): Promise<void>

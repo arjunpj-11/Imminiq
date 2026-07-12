@@ -4,7 +4,7 @@ import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate, validateIdentifierParam, validateQuery } from '../../../shared/middlewares/validate'
 import { CommunityController } from './community.controller'
-import type { CommunityUseCases } from '../application/contracts/community-use-cases.contract'
+import type { CommunityUseCases } from '../application/community-use-cases.contract'
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants'
 import {
   sendTrackerForVerificationSchema,

@@ -1,7 +1,7 @@
 import { AuthSessionEntity } from '../../../domain/entities/auth-session.entity'
 import { AuthUserEntity } from '../../../domain/entities/auth-user.entity'
 import { TwoFactorAuthEntity } from '../../../domain/entities/two-factor-auth.entity'
-import { AuthDomainError } from '../../../domain/errors/auth-domain.error'
+import { AuthDomainError } from '../../../domain/auth-domain.error'
 import type {
   MongoAuthSessionRecord,
   MongoAuthUserRecord,

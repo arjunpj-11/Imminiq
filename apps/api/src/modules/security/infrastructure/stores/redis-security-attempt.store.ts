@@ -2,12 +2,12 @@ import {
   SECURITY_ATTEMPT_POLICIES,
   securityAttemptCache,
 } from '../../../../infrastructure/cache/security-attempt.cache'
-import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import { SecurityDomainError } from '../../domain/security-domain.error'
 import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
 import type {
   SecurityAttemptPolicyName,
   SecurityAttemptScope,
-} from '../../domain/types/security.types'
+} from '../../domain/security.types'
 
 export class RedisSecurityAttemptStore implements ISecurityAttemptStore {
   async isBlocked(

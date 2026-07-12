@@ -1,7 +1,7 @@
-import type { TrackerUseCases } from './application/contracts/tracker-use-cases.contract'
+import type { TrackerUseCases } from './application/tracker-use-cases.contract'
 import {
   TrackerMapper,
-} from './application/mappers/tracker.mapper'
+} from './application/tracker.mapper'
 import { AddMissingEvaluationTopicUseCase } from './application/use-cases/add-missing-evaluation-topic.usecase'
 import { ArchiveTrackerUseCase } from './application/use-cases/archive-tracker.usecase'
 import { AskLessonQuestionSolutionDoubtUseCase } from './application/use-cases/ask-lesson-question-solution-doubt.usecase'

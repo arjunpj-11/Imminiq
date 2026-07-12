@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-import { FriendsDomainError } from "../../../domain/errors/friends-domain.error";
+import { FriendsDomainError } from "../../../domain/friends-domain.error";
 
 export class MongoFriendsNormalizer {
   private constructor() {}

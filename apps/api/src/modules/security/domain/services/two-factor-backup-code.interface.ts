@@ -1,4 +1,4 @@
-import type { TwoFactorBackupCodeRecord } from '../types/security.types'
+import type { TwoFactorBackupCodeRecord } from '../security.types'
 
 export interface ITwoFactorBackupCodeManager {
   generate(): string[]

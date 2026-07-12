@@ -1,5 +1,5 @@
-import type { GeneratedLessonPracticeTask } from '../types/lesson-practice.types'
-import type { GeneratedTrackerLessonRecord } from '../types/trackers.types'
+import type { GeneratedLessonPracticeTask } from '../lesson-practice.types'
+import type { GeneratedTrackerLessonRecord } from '../trackers.types'
 
 export type TrackerLessonType =
   | 'concept'

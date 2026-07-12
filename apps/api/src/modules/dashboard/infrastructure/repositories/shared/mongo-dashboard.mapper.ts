@@ -1,7 +1,7 @@
 import {
   DASHBOARD_ACTIVE_TRACKERS_LIMIT,
   DASHBOARD_ONLINE_WINDOW_MS,
-} from '../../../domain/constants/dashboard.constants'
+} from '../../../domain/dashboard.constants'
 import { DashboardActiveTrackerEntity } from '../../../domain/entities/dashboard-active-tracker.entity'
 import { DashboardActivityIntensityEntity } from '../../../domain/entities/dashboard-activity-intensity.entity'
 import { DashboardBattleEntity } from '../../../domain/entities/dashboard-battle.entity'

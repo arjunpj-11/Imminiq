@@ -4,10 +4,10 @@ export type {
   IModerationAppealStatusDTO,
   ISubmitModerationAppealPayloadDTO,
   ISubmitModerationAppealResultDTO,
-} from './application/dtos/moderation-appeal.dto'
+} from './application/moderation-appeal.dto'
 
 export type {
   IdentifierKind,
   ModerationAppealStatus,
   RestrictedUserStatus,
-} from './domain/types/moderation-appeal.types'
+} from './domain/moderation-appeal.types'

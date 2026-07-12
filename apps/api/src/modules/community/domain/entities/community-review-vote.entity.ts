@@ -1,4 +1,4 @@
-import type { VerificationVoteChoice } from '../types/community.types'
+import type { VerificationVoteChoice } from '../community.types'
 
 export type CommunityReviewVoteEntityProps = {
   id: string

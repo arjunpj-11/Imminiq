@@ -4,7 +4,7 @@ import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate, validateIdentifierParam, validateQuery } from '../../../shared/middlewares/validate'
 import { MockTestsController } from './mock-tests.controller'
-import type { MockTestsUseCases } from '../application/contracts/mock-tests-use-cases.contract'
+import type { MockTestsUseCases } from '../application/mock-tests-use-cases.contract'
 import { MOCK_TEST_ROUTE_PATHS } from './mock-tests.route.constants'
 import {
   createMockTestSchema,

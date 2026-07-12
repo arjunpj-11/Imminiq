@@ -1,8 +1,8 @@
-import type { SettingsUseCases } from './application/contracts/settings-use-cases.contract'
+import type { SettingsUseCases } from './application/settings-use-cases.contract'
 import {
   SettingsMapper,
   type ISettingsMapper,
-} from './application/mappers/settings.mapper'
+} from './application/settings.mapper'
 import { GetAllSettingsUseCase } from './application/use-cases/get-all-settings.usecase'
 import { GetAppearanceSettingsUseCase } from './application/use-cases/get-appearance-settings.usecase'
 import { GetGestureSettingsUseCase } from './application/use-cases/get-gesture-settings.usecase'

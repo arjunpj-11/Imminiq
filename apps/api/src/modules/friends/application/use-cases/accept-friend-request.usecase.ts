@@ -3,9 +3,9 @@ import type { IFriendQueryRepository } from "../../domain/repositories/friend-qu
 import type {
   AcceptFriendRequestViewDTO,
   FriendRequestActionPayloadDTO,
-} from "../dtos/friends.dto";
-import { FriendsApplicationError } from "../errors/friends-application.error";
-import type { IFriendsMapper } from "../mappers/friends.mapper";
+} from "../friends.dto";
+import { FriendsApplicationError } from "../friends-application.error";
+import type { IFriendsMapper } from "../friends.mapper";
 
 export interface IAcceptFriendRequestUseCase {
   execute(receiverUserId: string, payload: FriendRequestActionPayloadDTO): Promise<AcceptFriendRequestViewDTO>

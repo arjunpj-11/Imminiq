@@ -1,12 +1,12 @@
-import type { ModerationAppealUseCases } from './application/contracts/moderation-appeal-use-cases.contract'
+import type { ModerationAppealUseCases } from './application/moderation-appeal-use-cases.contract'
 import {
   ModerationAppealMapper,
   type IModerationAppealMapper,
-} from './application/mappers/moderation-appeal.mapper'
+} from './application/moderation-appeal.mapper'
 import {
   ModerationAppealSubmissionPolicy,
   type IModerationAppealSubmissionPolicy,
-} from './application/policies/moderation-appeal-submission-policy.policy'
+} from './application/moderation-appeal-submission-policy.policy'
 import {
   ModerationAppealCaseIdAllocator,
   type IModerationAppealCaseIdAllocator,
