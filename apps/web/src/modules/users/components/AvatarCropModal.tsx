@@ -1,5 +1,5 @@
-import { useEffect } from 'react'
 import type React from 'react'
+import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock'
 import { cn } from '../utils/profile-ui.utils'
 import { useImageCropControls } from '../hooks/ui/useImageCropControls'
 
@@ -40,13 +40,7 @@ export default function AvatarCropModal({
     maxScale: AVATAR_MAX_ZOOM,
   });
 
-  useEffect(() => {
-    if (!open) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  useBodyScrollLock(open);
 
   const handleUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];

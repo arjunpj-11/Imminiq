@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { useNavigate } from 'react-router-dom'
+import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock'
 
 import {
   DIFFICULTY_OPTIONS,
@@ -51,6 +53,7 @@ export function GenerateMockTestModal({
   const { generateDraft, updateGenerateDraft, resetGenerateDraft } =
     useMockTestsStore()
   const generateMutation = useGenerateMockTest()
+  useBodyScrollLock(open)
 
   type TopicSource = 'manual' | 'tracker'
 
@@ -242,17 +245,18 @@ export function GenerateMockTestModal({
   const isRoadmapLoading = roadmapQuery.isLoading
   const totalSelected = selectedNodes.size
 
-  return (
+  return createPortal(
+    (
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgba(26,23,20,0.42)] px-4 py-6 backdrop-blur-[6px] dark:bg-[rgba(8,8,7,0.88)]"
+      className="fixed inset-0 z-150 grid h-dvh w-screen place-items-center overflow-hidden bg-[rgba(26,23,20,0.42)] p-4 backdrop-blur-[6px] dark:bg-[rgba(8,8,7,0.88)]"
       role="dialog"
       aria-modal="true"
       aria-label="Generate AI mock test"
     >
       <div
-        className="relative flex max-h-[calc(100dvh-32px)] w-full max-w-170 flex-col rounded-xl border border-(--border-subtle) bg-(--surface-card) shadow-[0_40px_100px_rgba(26,23,20,0.28),0_0_0_1px_rgba(255,255,255,0.35)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:shadow-[0_40px_100px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.04)]"
+        className="relative m-auto flex max-h-[calc(100dvh-2rem)] min-h-0 w-full max-w-170 flex-col overflow-hidden rounded-xl border border-(--border-subtle) bg-(--surface-card) shadow-[0_40px_100px_rgba(26,23,20,0.28),0_0_0_1px_rgba(255,255,255,0.35)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:shadow-[0_40px_100px_rgba(0,0,0,0.75),0_0_0_1px_rgba(255,255,255,0.04)]"
         style={{
           animation: 'modalIn 0.24s cubic-bezier(0.22,1,0.36,1)',
         }}
@@ -570,6 +574,8 @@ export function GenerateMockTestModal({
         }
       `}</style>
     </div>
+    ),
+    document.body,
   )
 }
 

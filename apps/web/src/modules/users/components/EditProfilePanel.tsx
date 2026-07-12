@@ -1,9 +1,11 @@
 import { useEffect, useState } from 'react'
 import type React from 'react'
+import { createPortal } from 'react-dom'
 import { getCitiesOfState, getCountries, getStatesOfCountry } from '@countrystatecity/countries-browser'
 import type { ICity, ICountry, IState } from '@countrystatecity/countries-browser'
 import type { IProfileData } from '../types/profile.types'
 import { cn, themedScrollbar } from '../utils/profile-ui.utils'
+import { useBodyScrollLock } from '../../../hooks/useBodyScrollLock'
 
 /* ─── Edit Panel ─── */
 interface IEditPanelProps {
@@ -13,6 +15,9 @@ interface IEditPanelProps {
   onSave: (data: Partial<IProfileData>) => void | Promise<void>;
   isSaving?: boolean;
 }
+
+const PROFILE_PANEL_TOP_OFFSET =
+  'var(--app-topbar-height, var(--topbar-height, 64px))';
 
 export default function EditProfilePanel({
   profile,
@@ -51,13 +56,7 @@ export default function EditProfilePanel({
     mentoring: false,
   });
 
-  useEffect(() => {
-    if (!open) return;
-    document.body.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = "";
-    };
-  }, [open]);
+  useBodyScrollLock(open);
 
   useEffect(() => {
     if (!open) return;
@@ -219,33 +218,38 @@ export default function EditProfilePanel({
     }
   };
 
-  return (
+  return createPortal(
     <>
       <div
         className={cn(
-          "fixed inset-0 z-100 bg-[rgba(26,23,20,0.55)] dark:bg-[rgba(0,0,0,0.70)] backdrop-blur transition-opacity duration-300",
+          "fixed inset-x-0 bottom-0 z-100 bg-[rgba(26,23,20,0.55)] dark:bg-[rgba(0,0,0,0.70)] backdrop-blur transition-opacity duration-300",
           open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
         )}
+        style={{ top: PROFILE_PANEL_TOP_OFFSET }}
         onClick={onClose}
       />
       <div
         className={cn(
-          "fixed top-0 right-0 bottom-0 z-101 w-[min(520px,100vw)] bg-[var(--surface-card)] dark:bg-[var(--surface-card)] border-l border-[var(--border-subtle)] dark:border-[var(--border-subtle)] shadow-[-8px_0_48px_rgba(26,23,20,0.14)] flex flex-col overflow-hidden transition-transform duration-360 ease-in-out",
+          "fixed right-0 bottom-0 z-101 flex min-h-0 min-w-0 w-full max-w-130 flex-col overflow-hidden border-l border-(--border-subtle) bg-(--surface-card) shadow-[-8px_0_48px_rgba(26,23,20,0.14)] transition-transform duration-360 ease-in-out dark:border-(--border-subtle) dark:bg-(--surface-card)",
           open ? "translate-x-0" : "translate-x-full",
         )}
+        style={{ top: PROFILE_PANEL_TOP_OFFSET }}
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="edit-profile-panel-title"
       >
         {/* Head */}
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5.5 py-4.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] bg-[var(--surface-card)] dark:bg-[var(--surface-card)]">
-          <span className="font-ui text-[20px] font-extrabold text-[var(--text-primary)] dark:text-[var(--text-primary)] tracking-[-0.4px]">
+        <div className="z-10 flex shrink-0 items-center justify-between border-b border-(--border-subtle) bg-(--surface-card) px-5.5 py-4.5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
+          <span id="edit-profile-panel-title" className="font-ui text-[20px] font-extrabold text-(--text-primary) dark:text-(--text-primary) tracking-[-0.4px]">
             Edit Profile
           </span>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close"
-            className="w-8.5 h-8.5 rounded-[var(--radius-sm)] border-[1.5px] border-[var(--border-subtle)] dark:border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] dark:text-[var(--text-secondary)] hover:border-[var(--brand-500)] hover:text-[var(--brand-500)] hover:bg-[rgba(184,76,43,0.08)] transition"
+            className="w-8.5 h-8.5 rounded-sm border-[1.5px] border-(--border-subtle) dark:border-(--border-subtle) flex items-center justify-center text-(--text-secondary) dark:text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] transition"
           >
             <svg
               width="14"
@@ -264,17 +268,17 @@ export default function EditProfilePanel({
         {/* Body */}
         <div
           className={cn(
-            "flex-1 overflow-y-auto px-5.5 py-6 flex flex-col gap-5.5",
+            "flex min-h-0 min-w-0 flex-1 flex-col gap-5.5 overflow-x-hidden overflow-y-auto overscroll-contain px-5.5 py-6",
             themedScrollbar,
           )}
         >
           {/* Basic Info */}
           <div>
-            <div className="font-mono text-[8px] tracking-[0.18em] uppercase text-[var(--text-secondary)] dark:text-[var(--text-secondary)] opacity-55 pb-2.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] mb-3.5">
+            <div className="font-mono text-[8px] tracking-[0.18em] uppercase text-(--text-secondary) dark:text-(--text-secondary) opacity-55 pb-2.5 border-b border-(--border-subtle) dark:border-(--border-subtle) mb-3.5">
               Basic Information
             </div>
-            <div className="grid grid-cols-2 gap-3.25">
-              <div className="flex flex-col">
+            <div className="grid min-w-0 grid-cols-2 gap-3.25 max-[640px]:grid-cols-1">
+              <div className="flex min-w-0 flex-col">
                 <label className={labelCls}>Full Name</label>
                 <input
                   className={inputCls}
@@ -283,7 +287,7 @@ export default function EditProfilePanel({
                   placeholder="Your name"
                 />
               </div>
-              <div className="flex flex-col">
+              <div className="flex min-w-0 flex-col">
                 <label className={labelCls}>Profession</label>
                 <input
                   className={inputCls}
@@ -292,7 +296,7 @@ export default function EditProfilePanel({
                   placeholder="Your role"
                 />
               </div>
-              <div className="col-span-2 flex flex-col">
+              <div className="col-span-2 flex min-w-0 flex-col max-[640px]:col-span-1">
                 <label className={labelCls}>Bio</label>
                 <textarea
                   className={cn(
@@ -310,7 +314,7 @@ export default function EditProfilePanel({
 
           {/* Location */}
           <div>
-            <div className="mb-3.5 border-b border-[var(--border-subtle)] pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--text-secondary)] opacity-55 dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]">
+            <div className="mb-3.5 border-b border-(--border-subtle) pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-(--text-secondary) opacity-55 dark:border-(--border-subtle) dark:text-(--text-secondary)">
               Location
             </div>
             <div className="grid grid-cols-2 gap-3.25 max-[640px]:grid-cols-1">
@@ -386,7 +390,7 @@ export default function EditProfilePanel({
               </div>
             </div>
             {locationError && (
-              <p className="mt-2 text-[11px] font-medium text-[var(--brand-500)] dark:text-[var(--brand-500)]">
+              <p className="mt-2 text-[11px] font-medium text-(--brand-500) dark:text-(--brand-500)">
                 {locationError}
               </p>
             )}
@@ -394,23 +398,23 @@ export default function EditProfilePanel({
 
           {/* Skills */}
           <div>
-            <div className="font-mono text-[8px] tracking-[0.18em] uppercase text-[var(--text-secondary)] dark:text-[var(--text-secondary)] opacity-55 pb-2.5 border-b border-[var(--border-subtle)] dark:border-[var(--border-subtle)] mb-3.5">
+            <div className="font-mono text-[8px] tracking-[0.18em] uppercase text-(--text-secondary) dark:text-(--text-secondary) opacity-55 pb-2.5 border-b border-(--border-subtle) dark:border-(--border-subtle) mb-3.5">
               Skills
             </div>
             <div
-              className="min-h-11.5 flex flex-wrap gap-1.5 items-center px-2.5 py-2 border-[1.5px] border-[var(--border-subtle)] dark:border-[var(--border-subtle)] rounded-[var(--radius-sm)] bg-white dark:bg-[var(--surface-elevated)] cursor-text focus-within:border-[var(--brand-500)] dark:focus-within:border-[var(--brand-500)] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] transition"
+              className="min-h-11.5 flex flex-wrap gap-1.5 items-center px-2.5 py-2 border-[1.5px] border-(--border-subtle) dark:border-(--border-subtle) rounded-sm bg-white dark:bg-(--surface-elevated) cursor-text focus-within:border-(--brand-500) dark:focus-within:border-(--brand-500) focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] transition"
               onClick={() => document.getElementById("skill-input")?.focus()}
             >
               {skills.map((s, i) => (
                 <span
                   key={i}
-                  className="inline-flex items-center gap-1.25 px-2.5 py-0.75 rounded-full bg-[rgba(184,76,43,0.07)] dark:bg-[rgba(232,129,106,0.09)] border border-[rgba(184,76,43,0.18)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-medium text-[var(--text-primary)] dark:text-[var(--text-primary)] whitespace-nowrap"
+                  className="inline-flex items-center gap-1.25 px-2.5 py-0.75 rounded-full bg-[rgba(184,76,43,0.07)] dark:bg-[rgba(232,129,106,0.09)] border border-[rgba(184,76,43,0.18)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-medium text-(--text-primary) dark:text-(--text-primary) whitespace-nowrap"
                 >
                   {s}
                   <button
                     type="button"
                     onClick={() => setSkills(skills.filter((_, j) => j !== i))}
-                    className="text-[var(--text-secondary)] dark:text-[var(--text-secondary)] hover:text-[var(--brand-500)] transition text-[14px] leading-none"
+                    className="text-(--text-secondary) dark:text-(--text-secondary) hover:text-(--brand-500) transition text-[14px] leading-none"
                   >
                     ×
                   </button>
@@ -418,21 +422,21 @@ export default function EditProfilePanel({
               ))}
               <input
                 id="skill-input"
-                className="border-none bg-transparent outline-none text-[12.5px] font-ui text-[var(--text-primary)] dark:text-[var(--text-primary)] min-w-22.5 flex-1 placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]"
+                className="border-none bg-transparent outline-none text-[12.5px] font-ui text-(--text-primary) dark:text-(--text-primary) min-w-22.5 flex-1 placeholder:text-[#9f8f86] dark:placeholder:text-[#7a756e]"
                 placeholder="+ Add skill"
                 value={skillInput}
                 onChange={(e) => setSkillInput(e.target.value)}
                 onKeyDown={handleSkillKeydown}
               />
             </div>
-            <p className="mt-1.5 text-[11px] text-[var(--text-secondary)] dark:text-[var(--text-secondary)] opacity-60">
+            <p className="mt-1.5 text-[11px] text-(--text-secondary) dark:text-(--text-secondary) opacity-60">
               Press Enter or comma to add
             </p>
           </div>
 
           {/* Links */}
           <div>
-            <div className="mb-3.5 border-b border-[var(--border-subtle)] pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--text-secondary)] opacity-55 dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]">
+            <div className="mb-3.5 border-b border-(--border-subtle) pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-(--text-secondary) opacity-55 dark:border-(--border-subtle) dark:text-(--text-secondary)">
               Links
             </div>
             <div className="flex flex-col gap-2.5">
@@ -458,7 +462,7 @@ export default function EditProfilePanel({
               ].map((item) => (
                 <label
                   key={item.icon}
-                  className="flex items-center gap-2.5 rounded-[var(--radius-sm)] border-[1.5px] border-[var(--border-subtle)] bg-white px-3 py-2.5 text-[var(--text-secondary)] transition focus-within:border-[var(--brand-500)] focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-[var(--border-subtle)] dark:bg-[var(--surface-elevated)] dark:text-[var(--text-secondary)] dark:focus-within:border-[var(--brand-500)]"
+                  className="flex items-center gap-2.5 rounded-sm border-[1.5px] border-(--border-subtle) bg-white px-3 py-2.5 text-(--text-secondary) transition focus-within:border-(--brand-500) focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated) dark:text-(--text-secondary) dark:focus-within:border-(--brand-500)"
                 >
                   {item.icon === "github" ? (
                     <svg
@@ -498,7 +502,7 @@ export default function EditProfilePanel({
                     value={item.value}
                     onChange={(event) => item.setter(event.target.value)}
                     placeholder={item.placeholder}
-                    className="min-w-0 flex-1 border-none bg-transparent text-[13px] text-[var(--text-primary)] outline-none placeholder:text-[#9f8f86] dark:text-[var(--text-primary)] dark:placeholder:text-[#7a756e]"
+                    className="min-w-0 flex-1 border-none bg-transparent text-[13px] text-(--text-primary) outline-none placeholder:text-[#9f8f86] dark:text-(--text-primary) dark:placeholder:text-[#7a756e]"
                   />
                 </label>
               ))}
@@ -507,7 +511,7 @@ export default function EditProfilePanel({
 
           {/* Open To */}
           <div>
-            <div className="mb-3.5 border-b border-[var(--border-subtle)] pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-[var(--text-secondary)] opacity-55 dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]">
+            <div className="mb-3.5 border-b border-(--border-subtle) pb-2.5 font-mono text-[8px] uppercase tracking-[0.18em] text-(--text-secondary) opacity-55 dark:border-(--border-subtle) dark:text-(--text-secondary)">
               Open To
             </div>
             <div className="flex flex-wrap gap-2">
@@ -528,8 +532,8 @@ export default function EditProfilePanel({
                     className={cn(
                       "rounded-full border-[1.5px] px-3.5 py-2 text-[12px] font-semibold transition",
                       active
-                        ? "border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] text-[var(--brand-500)] dark:border-[rgba(232,129,106,0.26)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[var(--brand-500)]"
-                        : "border-[var(--border-subtle)] bg-transparent text-[var(--text-secondary)] hover:border-[var(--brand-500)] hover:text-[var(--brand-500)] dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]",
+                        ? "border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] text-(--brand-500) dark:border-[rgba(232,129,106,0.26)] dark:bg-[rgba(232,129,106,0.12)] dark:text-(--brand-500)"
+                        : "border-(--border-subtle) bg-transparent text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary)",
                     )}
                   >
                     {label}
@@ -541,11 +545,11 @@ export default function EditProfilePanel({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-end gap-2.5 px-5.5 py-4 border-t border-[var(--border-subtle)] dark:border-[var(--border-subtle)] bg-[var(--surface-card)] dark:bg-[var(--surface-card)]">
+        <div className="flex shrink-0 items-center justify-end gap-2.5 border-t border-(--border-subtle) bg-(--surface-card) px-5.5 py-4 dark:border-(--border-subtle) dark:bg-(--surface-card)">
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-[var(--radius-md)] border-[1.5px] border-[var(--border-subtle)] dark:border-[var(--border-subtle)] text-[13px] font-semibold text-[var(--text-secondary)] dark:text-[var(--text-secondary)] hover:border-[var(--brand-500)] hover:text-[var(--brand-500)] transition"
+            className="px-5 py-2.5 rounded-md border-[1.5px] border-(--border-subtle) dark:border-(--border-subtle) text-[13px] font-semibold text-(--text-secondary) dark:text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) transition"
           >
             Cancel
           </button>
@@ -553,12 +557,13 @@ export default function EditProfilePanel({
             type="button"
             onClick={handleSave}
             disabled={isSaving}
-            className="px-5.5 py-2.5 rounded-[var(--radius-md)] bg-[var(--brand-500)] dark:bg-[var(--brand-500)] text-[#fdf8f5] dark:text-[#141412] text-[13px] font-bold transition hover:-translate-y-px hover:bg-[var(--brand-600)] dark:hover:bg-[var(--brand-600)] hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
+            className="px-5.5 py-2.5 rounded-md bg-(--brand-500) dark:bg-(--brand-500) text-[#fdf8f5] dark:text-[#141412] text-[13px] font-bold transition hover:-translate-y-px hover:bg-(--brand-600) dark:hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-60 disabled:hover:translate-y-0 disabled:hover:shadow-none"
           >
             {isSaving ? "Saving..." : "Save Changes"}
           </button>
         </div>
       </div>
-    </>
+    </>,
+    document.body,
   );
 }
