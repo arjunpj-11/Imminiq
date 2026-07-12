@@ -1,6 +1,6 @@
 import type { IDashboardFriendRepository } from '../../domain/repositories/dashboard-friend.repository.interface'
-import type { IDashboardFriendItemDTO } from '../dtos/dashboard.dto'
-import type { IDashboardMapper } from '../mappers/dashboard.mapper'
+import type { IDashboardFriendItemDTO } from '../dashboard.dto'
+import type { IDashboardMapper } from '../dashboard.mapper'
 
 export interface IGetFriendsHubUseCase {
   execute(userId: string, limit?: number): Promise<IDashboardFriendItemDTO[]>

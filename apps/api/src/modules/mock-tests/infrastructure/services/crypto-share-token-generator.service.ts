@@ -1,5 +1,5 @@
 import { randomBytes } from 'crypto'
-import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
+import { MockTestsDomainError } from '../../domain/mock-tests-domain.error'
 import type { IShareTokenGenerator } from '../../domain/services/share-token-generator.interface'
 
 export class CryptoShareTokenGenerator

@@ -1,4 +1,4 @@
-import { LeaderboardDomainError } from '../../../domain/errors/leaderboard-domain.error'
+import { LeaderboardDomainError } from '../../../domain/leaderboard-domain.error'
 import type { ErrorMapper } from './mongo-leaderboard-error.mapper'
 
 type ErrorDetails = {

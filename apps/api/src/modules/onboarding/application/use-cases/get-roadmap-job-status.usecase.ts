@@ -1,7 +1,7 @@
 import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import type { IGetJobStatusResultDTO } from '../dtos/onboarding.dto'
-import { OnboardingApplicationError } from '../errors/onboarding-application.error'
-import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
+import type { IGetJobStatusResultDTO } from '../onboarding.dto'
+import { OnboardingApplicationError } from '../onboarding-application.error'
+import type { IOnboardingMapper } from '../onboarding.mapper'
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
 export interface IGetRoadmapJobStatusUseCase {

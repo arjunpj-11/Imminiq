@@ -1,7 +1,7 @@
-import { LeaderboardDomainError } from '../../domain/errors/leaderboard-domain.error'
+import { LeaderboardDomainError } from '../../domain/leaderboard-domain.error'
 import type { ILeaderboardActivityRepository } from '../../domain/repositories/leaderboard-activity.repository.interface'
-import type { RecordLeaderboardXpPayloadDTO } from '../dtos/leaderboard.dto'
-import { LeaderboardApplicationError } from '../errors/leaderboard-application.error'
+import type { RecordLeaderboardXpPayloadDTO } from '../leaderboard.dto'
+import { LeaderboardApplicationError } from '../leaderboard-application.error'
 import type { IClock } from '../../../../shared/time/clock.interface'
 
 export interface IRecordLeaderboardXpUseCase {

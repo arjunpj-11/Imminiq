@@ -1,6 +1,6 @@
-import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { CreateTrackerInput } from '../../domain/types/trackers.types'
+import type { CreateTrackerInput } from '../../domain/trackers.types'
 
 type CreateTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>
 

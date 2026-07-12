@@ -1,4 +1,4 @@
-import { ModerationAppealDomainError } from '../../../domain/errors/moderation-appeal-domain.error'
+import { ModerationAppealDomainError } from '../../../domain/moderation-appeal-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-moderation-appeal.types'
 
 export type ErrorMapper = (

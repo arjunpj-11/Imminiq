@@ -1,16 +1,16 @@
 import {
   ACTIVITY_DAILY_GOAL_REWARD_XP,
-} from '../../domain/constants/activity.constants'
-import { ActivityDomainError } from '../../domain/errors/activity-domain.error'
+} from '../../domain/activity.constants'
+import { ActivityDomainError } from '../../domain/activity-domain.error'
 import type { IActivityCommandRepository } from '../../domain/repositories/activity-command.repository.interface'
 import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
 import type {
   RecordUserActivityPayloadDTO,
   RecordUserActivityResponseDTO,
-} from '../dtos/activity.dto'
-import { ActivityApplicationError } from '../errors/activity-application.error'
-import type { ActivityMapperContract } from '../mappers/activity.mapper'
-import { ActivityEventPolicy } from '../policies/activity-event.policy'
+} from '../activity.dto'
+import { ActivityApplicationError } from '../activity-application.error'
+import type { ActivityMapperContract } from '../activity.mapper'
+import { ActivityEventPolicy } from '../activity-event.policy'
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
 import type { IClock } from '../../../../shared/time/clock.interface'
 

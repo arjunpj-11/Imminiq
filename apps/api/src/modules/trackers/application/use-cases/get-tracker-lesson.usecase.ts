@@ -1,10 +1,10 @@
 // apps/api/src/modules/trackers/application/use-cases/get-tracker-lesson.usecase.ts
 
-import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import { TrackerApplicationError } from '../tracker-application.error'
+import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
-import type { SubtopicWithProgressRecord } from '../../domain/types/trackers.types'
+import type { SubtopicWithProgressRecord } from '../../domain/trackers.types'
 
 type GetTrackerLessonResultDTO = ReturnType<
   ITrackerMapper['toGeneratedLessonDto']

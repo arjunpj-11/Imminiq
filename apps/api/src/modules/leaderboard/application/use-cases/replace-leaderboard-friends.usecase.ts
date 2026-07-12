@@ -1,5 +1,5 @@
 import type { ILeaderboardActivityRepository } from '../../domain/repositories/leaderboard-activity.repository.interface'
-import type { ReplaceLeaderboardFriendsPayloadDTO } from '../dtos/leaderboard.dto'
+import type { ReplaceLeaderboardFriendsPayloadDTO } from '../leaderboard.dto'
 
 export interface IReplaceLeaderboardFriendsUseCase {
   execute(payload: ReplaceLeaderboardFriendsPayloadDTO): Promise<void>

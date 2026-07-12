@@ -1,6 +1,6 @@
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { TrackerListFilter } from '../../domain/types/trackers.types'
-import { ITrackerMapper } from '../mappers'
+import type { TrackerListFilter } from '../../domain/trackers.types'
+import { ITrackerMapper } from '..'
 
 export interface IListTrackersUseCase {
   execute(filter: TrackerListFilter): Promise<import("../../domain/value-objects/tracker-record.vo").TrackerListResult>

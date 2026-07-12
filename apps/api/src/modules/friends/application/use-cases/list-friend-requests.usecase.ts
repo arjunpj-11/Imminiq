@@ -2,8 +2,8 @@ import type { IFriendRequestRepository } from "../../domain/repositories/friend-
 import type {
   FriendRequestsPageViewDTO,
   ListFriendRequestsPayloadDTO,
-} from "../dtos/friends.dto";
-import type { IFriendsMapper } from "../mappers/friends.mapper";
+} from "../friends.dto";
+import type { IFriendsMapper } from "../friends.mapper";
 
 export interface IListFriendRequestsUseCase {
   execute(viewerUserId: string, payload: ListFriendRequestsPayloadDTO): Promise<FriendRequestsPageViewDTO>

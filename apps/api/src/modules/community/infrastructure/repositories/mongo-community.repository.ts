@@ -6,7 +6,7 @@ import type {
   FindVerificationQueueQuery,
   SubmitTrackerForVerificationInput,
 } from '../../domain/repositories/community-verification.repository.interface'
-import type { VerificationVoteChoice } from '../../domain/types/community.types'
+import type { VerificationVoteChoice } from '../../domain/community.types'
 import { MongoCommunityReviewRepository } from './internal/mongo-community-review.repository'
 import { MongoCommunityTrackerRepository } from './internal/mongo-community-tracker.repository'
 import { MongoCommunityVerificationRepository } from './internal/mongo-community-verification.repository'

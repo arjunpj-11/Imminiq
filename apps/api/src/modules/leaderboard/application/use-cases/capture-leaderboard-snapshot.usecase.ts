@@ -1,5 +1,5 @@
 import type { ILeaderboardActivityRepository } from '../../domain/repositories/leaderboard-activity.repository.interface'
-import type { CaptureLeaderboardSnapshotResultViewDTO } from '../dtos/leaderboard.dto'
+import type { CaptureLeaderboardSnapshotResultViewDTO } from '../leaderboard.dto'
 import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service'
 import type { IClock } from '../../../../shared/time/clock.interface'
 

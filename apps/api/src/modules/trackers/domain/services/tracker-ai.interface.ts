@@ -1,4 +1,4 @@
-import type { GeneratedLessonData } from '../types/lesson-practice.types'
+import type { GeneratedLessonData } from '../lesson-practice.types'
 
 export type LessonVisualizationCodeExample = {
   code?: string

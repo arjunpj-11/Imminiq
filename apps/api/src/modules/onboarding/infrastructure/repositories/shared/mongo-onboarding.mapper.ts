@@ -7,7 +7,7 @@ import {
   RoadmapTrackerEntity,
   RoadmapTreeEntity,
 } from '../../../domain/entities/roadmap-tree.entity'
-import { OnboardingDomainError } from '../../../domain/errors/onboarding-domain.error'
+import { OnboardingDomainError } from '../../../domain/onboarding-domain.error'
 import type { AIGenerationJobStatus } from '../../../domain/value-objects/ai-generation-job-status.vo'
 import type { AIGenerationJobType } from '../../../domain/value-objects/ai-generation-job-type.vo'
 import type { AIGenerationStepStatus } from '../../../domain/value-objects/ai-generation-step-status.vo'

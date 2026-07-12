@@ -1,6 +1,6 @@
-import type { FriendsUseCases } from './application/contracts/friends-use-cases.contract'
-import { FriendsMapper } from "./application/mappers/friends.mapper";
-import { FriendRelationshipPolicy } from "./application/policies/friend-relationship.policy";
+import type { FriendsUseCases } from './application/friends-use-cases.contract'
+import { FriendsMapper } from "./application/friends.mapper";
+import { FriendRelationshipPolicy } from "./application/friend-relationship.policy";
 import { AcceptFriendRequestUseCase } from "./application/use-cases/accept-friend-request.usecase";
 import { CancelFriendRequestUseCase } from "./application/use-cases/cancel-friend-request.usecase";
 import { DeclineFriendRequestUseCase } from "./application/use-cases/decline-friend-request.usecase";

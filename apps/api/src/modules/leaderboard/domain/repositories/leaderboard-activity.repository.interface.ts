@@ -1,7 +1,7 @@
 import type {
   LeaderboardSection,
   LeaderboardXpActivitySource,
-} from '../types/leaderboard.types'
+} from '../leaderboard.types'
 
 export type RecordLeaderboardXpActivityInput = {
   userId: string

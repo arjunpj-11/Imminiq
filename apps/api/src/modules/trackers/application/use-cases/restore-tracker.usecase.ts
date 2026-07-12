@@ -1,6 +1,6 @@
-import { TrackerApplicationError } from '../errors/tracker-application.error'
+import { TrackerApplicationError } from '../tracker-application.error'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import { ITrackerMapper } from '../mappers';
+import { ITrackerMapper } from '..';
 
 export interface IRestoreTrackerUseCase {
   execute(input: { trackerId: string; userId: string }): Promise<import("../../domain").TrackerRecord>

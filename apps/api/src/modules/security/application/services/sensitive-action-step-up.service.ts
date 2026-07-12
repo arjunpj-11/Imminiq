@@ -3,9 +3,9 @@ import type { ISecurityTwoFactorRepository } from '../../domain/repositories/sec
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface'
 import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
-import type { SensitiveSecurityAction } from '../../domain/types/security.types'
-import type { ISensitiveActionStepUpPayloadDTO } from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+import type { SensitiveSecurityAction } from '../../domain/security.types'
+import type { ISensitiveActionStepUpPayloadDTO } from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 
 export interface ISensitiveActionAuthorizer {
   assertSatisfied(input: {

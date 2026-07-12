@@ -3,7 +3,7 @@ import { AIGenerationStep } from '../../../../../infrastructure/database/models/
 import {
   ROADMAP_EVALUATION_TOTAL_STEPS,
   ROADMAP_GENERATION_TOTAL_STEPS,
-} from '../../../domain/constants/onboarding.constants'
+} from '../../../domain/onboarding.constants'
 import type { AIGenerationJobEntity } from '../../../domain/entities/ai-generation-job.entity'
 import type { AIGenerationStepEntity } from '../../../domain/entities/ai-generation-step.entity'
 import type {

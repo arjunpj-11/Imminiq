@@ -1,4 +1,4 @@
-import { UsersDomainError } from '../../../domain/errors/users-domain.error'
+import { UsersDomainError } from '../../../domain/users-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-users.types'
 
 export type ErrorMapper = (error: unknown) => UsersDomainError | null

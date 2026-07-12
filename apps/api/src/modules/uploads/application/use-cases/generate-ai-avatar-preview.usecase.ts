@@ -1,12 +1,12 @@
 import {
   AI_IMAGE_GENERATION_STEPS,
   AI_IMAGE_SEED_UPPER_BOUND,
-} from '../../domain/constants/uploads.constants'
-import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
+} from '../../domain/uploads.constants'
+import { UploadsDomainError } from '../../domain/uploads-domain.error'
 import type { IAIImageGenerator } from '../../domain/services/ai-image-generation.interface'
 import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface'
-import type { IAIImagePreviewResultDTO } from '../dtos/uploads.dto'
-import { UploadsApplicationError } from '../errors/uploads-application.error'
+import type { IAIImagePreviewResultDTO } from '../uploads.dto'
+import { UploadsApplicationError } from '../uploads-application.error'
 import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service'
 
 export interface IGenerateAIAvatarPreviewUseCase {

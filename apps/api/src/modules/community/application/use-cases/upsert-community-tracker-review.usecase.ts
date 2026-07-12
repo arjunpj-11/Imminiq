@@ -2,9 +2,9 @@ import type { ICommunityReviewRepository } from '../../domain/repositories/commu
 import type {
   UpsertCommunityTrackerReviewOutputDTO,
   UpsertCommunityTrackerReviewPayloadDTO,
-} from '../dtos/community-review.dto'
-import { CommunityApplicationError } from '../errors/community-application.error'
-import type { ICommunityReviewMapper } from '../mappers/community-review.mapper'
+} from '../community-review.dto'
+import { CommunityApplicationError } from '../community-application.error'
+import type { ICommunityReviewMapper } from '../community-review.mapper'
 
 export interface IUpsertCommunityTrackerReviewUseCase {
   execute(payload: UpsertCommunityTrackerReviewPayloadDTO): Promise<UpsertCommunityTrackerReviewOutputDTO>

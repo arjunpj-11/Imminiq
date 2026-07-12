@@ -1,6 +1,6 @@
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
-import { UsersApplicationError } from '../errors/users-application.error'
-import type { IUsersMapper } from '../mappers/users.mapper'
+import { UsersApplicationError } from '../users-application.error'
+import type { IUsersMapper } from '../users.mapper'
 
 export interface IGetUserByUsernameUseCase {
   execute(username: string): Promise<import("..").ICurrentUserViewDTO>

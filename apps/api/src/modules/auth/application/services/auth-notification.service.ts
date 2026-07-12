@@ -1,4 +1,4 @@
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type {
   IAuthNotification,
 } from '../../domain/services/auth-notification.interface'

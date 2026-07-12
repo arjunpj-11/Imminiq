@@ -2,12 +2,12 @@ import { Readable } from 'node:stream'
 
 import { cloudinary } from '../../../../infrastructure/storage/cloudinary.client'
 import { StoredProfileImageEntity } from '../../domain/entities/stored-profile-image.entity'
-import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
+import { UploadsDomainError } from '../../domain/uploads-domain.error'
 import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface'
 import type {
   ProfileImageFolder,
   UploadedProfileImageFile,
-} from '../../domain/types/uploads.types'
+} from '../../domain/uploads.types'
 
 export class CloudinaryProfileImageStorageGateway
   implements IProfileImageStorage

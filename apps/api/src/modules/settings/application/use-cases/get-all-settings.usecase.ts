@@ -1,6 +1,6 @@
 import type { ISettingsQueryRepository } from '../../domain/repositories/settings-query.repository.interface'
-import type { UserSettingsViewDTO } from '../dtos/settings.dto'
-import type { ISettingsMapper } from '../mappers/settings.mapper'
+import type { UserSettingsViewDTO } from '../settings.dto'
+import type { ISettingsMapper } from '../settings.mapper'
 
 type GetAllSettingsRepository = {
   findOrCreate: ISettingsQueryRepository['findOrCreate']

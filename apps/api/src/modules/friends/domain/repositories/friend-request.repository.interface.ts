@@ -1,7 +1,7 @@
 import type {
   FriendRequestsPage,
   ListFriendRequestsInput,
-} from "../types/friends.types";
+} from "../friends.types";
 
 export interface IFriendRequestRepository {
   listReceivedRequests(

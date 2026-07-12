@@ -1,8 +1,8 @@
 import { DashboardRecommendedActionEntity } from '../../domain/entities/dashboard-recommended-action.entity'
 import type { IDashboardRecommendationRepository } from '../../domain/repositories/dashboard-recommendation.repository.interface'
-import { DASHBOARD_MAX_RECOMMENDED_ACTIONS } from '../constants/dashboard.constants'
-import type { IDashboardRecommendedActionDTO } from '../dtos/dashboard.dto'
-import type { IDashboardMapper } from '../mappers/dashboard.mapper'
+import { DASHBOARD_MAX_RECOMMENDED_ACTIONS } from '../dashboard.constants'
+import type { IDashboardRecommendedActionDTO } from '../dashboard.dto'
+import type { IDashboardMapper } from '../dashboard.mapper'
 
 export interface IGetRecommendedActionsUseCase {
   execute(userId: string): Promise<IDashboardRecommendedActionDTO[]>

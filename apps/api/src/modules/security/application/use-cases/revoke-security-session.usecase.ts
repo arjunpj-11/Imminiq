@@ -1,6 +1,6 @@
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
-import type { IRevokeSessionResponseDTO } from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+import type { IRevokeSessionResponseDTO } from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 import type { ICurrentSessionResolver } from '../services/current-session.service'
 
 export interface IRevokeSecuritySessionUseCase {

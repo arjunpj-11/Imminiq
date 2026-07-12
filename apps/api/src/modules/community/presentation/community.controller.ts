@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express'
 
-import type { CommunitySort } from '../domain/types/community.types'
-import type { CommunityUseCases } from '../application/contracts/community-use-cases.contract'
+import type { CommunitySort } from '../domain/community.types'
+import type { CommunityUseCases } from '../application/community-use-cases.contract'
 import type {
   UpsertCommunityTrackerReviewInput,
   VoteVerificationSubmissionInput,

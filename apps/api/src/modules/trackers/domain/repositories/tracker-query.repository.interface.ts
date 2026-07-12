@@ -1,4 +1,4 @@
-import type { GeneratedLessonData } from '../types/lesson-practice.types'
+import type { GeneratedLessonData } from '../lesson-practice.types'
 import type {
   GeneratedTrackerLessonRecord,
   SubtopicWithProgressRecord,
@@ -9,7 +9,7 @@ import type {
   TrackerSubtopicRecord,
   TrackerSummaryRecord,
   TrackerTopicRecord,
-} from '../types/trackers.types'
+} from '../trackers.types'
 
 export type FindOwnedTrackerByIdInput = {
   trackerId: string

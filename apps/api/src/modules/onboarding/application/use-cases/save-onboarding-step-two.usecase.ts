@@ -2,8 +2,8 @@ import type { IOnboardingResponseCommandRepository } from '../../domain/reposito
 import type {
   IOnboardingResponseRecordDTO,
   ISaveOnboardingStepTwoPayloadDTO,
-} from '../dtos/onboarding.dto'
-import type { IOnboardingMapper } from '../mappers/onboarding.mapper'
+} from '../onboarding.dto'
+import type { IOnboardingMapper } from '../onboarding.mapper'
 
 export interface ISaveOnboardingStepTwoUseCase {
   execute(userId: string, payload: ISaveOnboardingStepTwoPayloadDTO): Promise<IOnboardingResponseRecordDTO | null>

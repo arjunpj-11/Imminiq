@@ -1,7 +1,7 @@
-import type { UsersUseCases } from './application/contracts/users-use-cases.contract'
+import type { UsersUseCases } from './application/users-use-cases.contract'
 import {
   UsersMapper,
-} from './application/mappers/users.mapper'
+} from './application/users.mapper'
 import {
   UsersProfileDataReader,
 } from './application/services/users-profile-data.service'

@@ -4,7 +4,7 @@ import {
   LEADERBOARD_DEFAULT_LIMIT,
   LEADERBOARD_MAX_LIMIT,
   LEADERBOARD_MIN_LIMIT,
-} from '../domain/constants/leaderboard.constants'
+} from '../domain/leaderboard.constants'
 import { LEADERBOARD_SCOPES } from '../domain/value-objects/leaderboard-scope.vo'
 import { LEADERBOARD_SECTIONS } from '../domain/value-objects/leaderboard-section.vo'
 

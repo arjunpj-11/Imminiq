@@ -1,8 +1,8 @@
-import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
+import { UploadsDomainError } from '../../domain/uploads-domain.error'
 import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface'
 import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
-import type { IRemoveAvatarResultDTO } from '../dtos/uploads.dto'
-import { UploadsApplicationError } from '../errors/uploads-application.error'
+import type { IRemoveAvatarResultDTO } from '../uploads.dto'
+import { UploadsApplicationError } from '../uploads-application.error'
 import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
 
 type RemoveAvatarRepository =

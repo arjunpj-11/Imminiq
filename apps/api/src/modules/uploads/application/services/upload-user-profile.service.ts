@@ -1,6 +1,6 @@
 import type { IGetMeUseCase } from '../../../users'
-import type { IUploadUserProfileContextDTO } from '../dtos/uploads.dto'
-import { UploadsApplicationError } from '../errors/uploads-application.error'
+import type { IUploadUserProfileContextDTO } from '../uploads.dto'
+import { UploadsApplicationError } from '../uploads-application.error'
 
 export interface IUploadUserProfileReader {
   getRequiredContext(userId: string): Promise<IUploadUserProfileContextDTO>

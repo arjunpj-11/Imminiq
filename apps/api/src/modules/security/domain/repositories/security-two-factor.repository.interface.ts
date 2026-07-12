@@ -1,5 +1,5 @@
 import type { TwoFactorEntity } from '../entities/two-factor.entity'
-import type { TwoFactorBackupCodeRecord } from '../types/security.types'
+import type { TwoFactorBackupCodeRecord } from '../security.types'
 
 export type PendingTwoFactorSetupInput = {
   encryptedSecret: string

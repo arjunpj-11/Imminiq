@@ -9,6 +9,6 @@ export type {
   ISaveOnboardingStepOnePayloadDTO,
   ISaveOnboardingStepTwoPayloadDTO,
   ISubtopicTreeNodeDTO,
-} from './application/dtos/onboarding.dto'
+} from './application/onboarding.dto'
 
-export type { RoadmapLevel } from './domain/types/onboarding.types'
+export type { RoadmapLevel } from './domain/onboarding.types'

@@ -1,6 +1,6 @@
 import { Types } from 'mongoose'
 
-import { UploadsDomainError } from '../../../domain/errors/uploads-domain.error'
+import { UploadsDomainError } from '../../../domain/uploads-domain.error'
 
 export class MongoUploadsObjectId {
   private constructor() {}

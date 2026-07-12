@@ -1,6 +1,6 @@
 import { Types } from 'mongoose'
 
-import { ModerationAppealDomainError } from '../../../domain/errors/moderation-appeal-domain.error'
+import { ModerationAppealDomainError } from '../../../domain/moderation-appeal-domain.error'
 
 export class MongoModerationAppealObjectId {
   private constructor() {}

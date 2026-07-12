@@ -1,7 +1,7 @@
 import type {
   SecurityAuditEventType,
   SecurityAuditOutcome,
-} from '../types/security.types'
+} from '../security.types'
 
 export interface ISecurityAuditLogger {
   record(data: {

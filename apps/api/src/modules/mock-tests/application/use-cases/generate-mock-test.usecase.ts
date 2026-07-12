@@ -1,7 +1,7 @@
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { IMockTestActivityRecorder } from '../../domain/services/mock-test-activity.interface'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface'
 import type {
   IMockTestQuestionBank,
@@ -10,8 +10,8 @@ import type {
 import type {
   IGenerateMockTestPayloadDTO,
   IMockTestDTO,
-} from '../dtos/mock-tests.dto'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+} from '../mock-tests.dto'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
 
 type GenerateMockTestRepository =
   IMockTestRepository &

@@ -2,7 +2,7 @@ import {
   sendPhoneOtp,
   verifyPhoneOtp,
 } from '../../../../infrastructure/sms/message-central.client'
-import { AuthDomainError } from '../../domain/errors/auth-domain.error'
+import { AuthDomainError } from '../../domain/auth-domain.error'
 import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
 
 export class MessageCentralPhoneOtpProvider implements IPhoneOtpProvider {

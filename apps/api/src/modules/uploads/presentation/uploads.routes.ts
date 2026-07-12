@@ -12,7 +12,7 @@ import {
 } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate } from '../../../shared/middlewares/validate'
 import { UploadsController } from './uploads.controller'
-import type { UploadsUseCases } from '../application/contracts/uploads-use-cases.contract'
+import type { UploadsUseCases } from '../application/uploads-use-cases.contract'
 import { UPLOAD_ROUTE_PATHS } from './uploads.route.constants'
 import {
   generateAIAvatarPreviewSchema,

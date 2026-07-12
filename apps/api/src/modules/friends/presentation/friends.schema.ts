@@ -7,7 +7,7 @@ import {
   FRIENDS_MAX_PAGE_SIZE,
   FRIENDS_SEARCH_MAX_LENGTH,
   FRIENDS_SEARCH_MIN_LENGTH,
-} from "../domain/constants/friends.constants";
+} from "../domain/friends.constants";
 
 const objectIdSchema = z
   .string()

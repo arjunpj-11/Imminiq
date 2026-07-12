@@ -1,4 +1,4 @@
-import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
+import { ActivityDomainError } from '../../../domain/activity-domain.error'
 import type { ActivityMongoErrorMapper } from './mongo-activity-error.mapper'
 
 export abstract class MongoActivityBaseRepository {

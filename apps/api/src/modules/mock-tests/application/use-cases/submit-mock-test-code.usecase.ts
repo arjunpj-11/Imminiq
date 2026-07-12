@@ -2,8 +2,8 @@ import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-t
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface'
-import type { SubmitMockTestCodePayloadDTO } from '../dtos/mock-tests.dto'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { SubmitMockTestCodePayloadDTO } from '../mock-tests.dto'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
 
 type SubmitMockTestCodeRepository =
   IMockTestAttemptRepository &

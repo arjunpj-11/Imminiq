@@ -1,4 +1,4 @@
-import { ModerationAppealDomainError } from '../../../domain/errors/moderation-appeal-domain.error'
+import { ModerationAppealDomainError } from '../../../domain/moderation-appeal-domain.error'
 import type { ErrorMapper } from './mongo-moderation-appeal-error.mapper'
 
 type ErrorDetails = {

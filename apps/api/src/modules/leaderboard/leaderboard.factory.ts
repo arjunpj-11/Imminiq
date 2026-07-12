@@ -1,5 +1,5 @@
-import type { LeaderboardUseCases } from './application/contracts/leaderboard-use-cases.contract'
-import { LeaderboardMapper } from './application/mappers/leaderboard.mapper'
+import type { LeaderboardUseCases } from './application/leaderboard-use-cases.contract'
+import { LeaderboardMapper } from './application/leaderboard.mapper'
 import { LeaderboardDateRange } from './application/services/leaderboard-date-range.service'
 import { CaptureLeaderboardSnapshotUseCase } from './application/use-cases/capture-leaderboard-snapshot.usecase'
 import { GetLeaderboardRewardsUseCase } from './application/use-cases/get-leaderboard-rewards.usecase'

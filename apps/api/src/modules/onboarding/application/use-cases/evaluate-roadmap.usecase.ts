@@ -1,10 +1,10 @@
-import { ROADMAP_EVALUATION_STEPS } from '../constants/onboarding.constants'
+import { ROADMAP_EVALUATION_STEPS } from '../onboarding.constants'
 import type { IOnboardingAIJobCommandRepository } from '../../domain/repositories/onboarding-ai-job-command.repository.interface'
 import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface'
 import type { IAIJobQueueGateway } from '../../domain/services/ai-job-queue.interface'
 import type { IAIJobQuotaStore } from '../../domain/services/ai-job-quota-store.interface'
-import type { IGenerateRoadmapResultDTO } from '../dtos/onboarding.dto'
-import { OnboardingApplicationError } from '../errors/onboarding-application.error'
+import type { IGenerateRoadmapResultDTO } from '../onboarding.dto'
+import { OnboardingApplicationError } from '../onboarding-application.error'
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service'
 
 type EvaluateRoadmapRepository =

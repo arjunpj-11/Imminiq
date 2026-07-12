@@ -3,11 +3,11 @@ import type { IModerationAppealQueryRepository } from '../../domain/repositories
 import type {
   ISubmitModerationAppealPayloadDTO,
   ISubmitModerationAppealResultDTO,
-} from '../dtos/moderation-appeal.dto'
-import type { IModerationAppealMapper } from '../mappers/moderation-appeal.mapper'
-import type { IModerationAppealSubmissionPolicy } from '../policies/moderation-appeal-submission-policy.policy'
+} from '../moderation-appeal.dto'
+import type { IModerationAppealMapper } from '../moderation-appeal.mapper'
+import type { IModerationAppealSubmissionPolicy } from '../moderation-appeal-submission-policy.policy'
 import type { IModerationAppealCaseIdAllocator } from '../services/moderation-appeal-case-id.service'
-import { ModerationAppealApplicationError } from '../errors/moderation-appeal-application.error'
+import { ModerationAppealApplicationError } from '../moderation-appeal-application.error'
 
 type SubmitModerationAppealRepository =
   IModerationAppealQueryRepository &

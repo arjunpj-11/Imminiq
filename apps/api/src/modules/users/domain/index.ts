@@ -1,4 +1,4 @@
-export * from './constants/users.constants'
+export * from './users.constants'
 export * from './entities/earned-user-badge.entity'
 export * from './entities/published-tracker.entity'
 export * from './entities/user-activity.entity'
@@ -8,7 +8,7 @@ export * from './entities/user-profile.entity'
 export * from './entities/user-streak-day.entity'
 export * from './entities/user-streak-snapshot.entity'
 export * from './entities/user.entity'
-export * from './errors/users-domain.error'
+export * from './users-domain.error'
 export * from './repositories/user-activity.repository.interface'
 export * from './repositories/user-badge.repository.interface'
 export * from './repositories/user-profile.repository.interface'
@@ -26,4 +26,4 @@ export type {
   StreakIntensity,
   UserIdInput,
   UserProfileUpdate,
-} from './types/users.types'
+} from './users.types'

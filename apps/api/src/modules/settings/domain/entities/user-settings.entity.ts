@@ -1,4 +1,4 @@
-import type { UserSettingsData } from '../types/settings.types'
+import type { UserSettingsData } from '../settings.types'
 
 export type UserSettingsEntityProps = {
   id?: string

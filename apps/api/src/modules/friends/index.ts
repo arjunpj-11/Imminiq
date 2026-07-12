@@ -10,6 +10,6 @@ export type {
   SearchUsersPayloadDTO,
   SendFriendRequestPayloadDTO,
   SendFriendRequestViewDTO,
-} from "./application/dtos/friends.dto";
+} from "./application/friends.dto";
 
-export type { FriendRelationshipStatus } from "./domain/types/friends.types";
+export type { FriendRelationshipStatus } from "./domain/friends.types";

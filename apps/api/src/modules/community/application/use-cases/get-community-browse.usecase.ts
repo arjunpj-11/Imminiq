@@ -2,10 +2,10 @@ import {
   COMMUNITY_DEFAULT_LIMIT,
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_MAX_LIMIT,
-} from '../../domain/constants/community.constants'
+} from '../../domain/community.constants'
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
-import type { ICommunityBrowseViewDTO, ICommunityTrackerListPayloadDTO } from '../dtos/community.dto'
-import type { ICommunityMapper } from '../mappers/community.mapper'
+import type { ICommunityBrowseViewDTO, ICommunityTrackerListPayloadDTO } from '../community.dto'
+import type { ICommunityMapper } from '../community.mapper'
 
 export interface IGetCommunityBrowseUseCase {
   execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityBrowseViewDTO>

@@ -5,7 +5,7 @@ import type {
 import type {
   ActivityProgressionChange,
   ActivityTimeRange,
-} from '../types/activity.types'
+} from '../activity.types'
 import type { ActivityCategory } from '../value-objects/activity-category.vo'
 import type { ActivityType } from '../value-objects/activity-type.vo'
 import type { ActivityXpBucket } from '../value-objects/activity-xp-bucket.vo'

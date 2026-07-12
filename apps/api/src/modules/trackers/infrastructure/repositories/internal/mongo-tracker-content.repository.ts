@@ -19,7 +19,7 @@ import type {
   LastTopicRecord,
   TrackerSubtopicRecord,
   TrackerTopicRecord,
-} from "../../../domain/types/trackers.types";
+} from "../../../domain/trackers.types";
 import { MongoTrackerBaseRepository } from "../shared/mongo-tracker-base.repository";
 import { MongoTrackerMapper } from "../shared/mongo-tracker.mapper";
 import { MongoTrackerErrorMapper } from "../shared/mongo-tracker-error.mapper";

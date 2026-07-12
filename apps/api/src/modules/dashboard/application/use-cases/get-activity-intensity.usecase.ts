@@ -1,6 +1,6 @@
 import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface'
-import type { IDashboardActivityIntensityItemDTO } from '../dtos/dashboard.dto'
-import type { IDashboardMapper } from '../mappers/dashboard.mapper'
+import type { IDashboardActivityIntensityItemDTO } from '../dashboard.dto'
+import type { IDashboardMapper } from '../dashboard.mapper'
 
 export interface IGetActivityIntensityUseCase {
   execute(userId: string, months?: number): Promise<IDashboardActivityIntensityItemDTO[]>

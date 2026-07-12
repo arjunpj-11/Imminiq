@@ -1,5 +1,6 @@
 import { z } from 'zod'
 import dotenv from 'dotenv'
+import { RUNTIME_DEFAULTS } from './constants'
 
 dotenv.config()
 
@@ -87,6 +88,19 @@ PISTON_API_KEY: z.string().optional().default(''),
     .int()
     .positive()
     .default(5 * 60 * 1000),
+
+  BCRYPT_ROUNDS: z.coerce
+    .number()
+    .int()
+    .min(10)
+    .max(16)
+    .default(RUNTIME_DEFAULTS.BCRYPT_ROUNDS),
+
+  OTP_EXPIRES_MINUTES: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(RUNTIME_DEFAULTS.OTP_EXPIRES_MINUTES),
 }).refine(
   (value) => value.JWT_SECRET !== value.JWT_REFRESH_SECRET,
   { message: 'JWT secrets must be different', path: ['JWT_REFRESH_SECRET'] },

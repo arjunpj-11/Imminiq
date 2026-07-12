@@ -1,4 +1,4 @@
-import { CommunityDomainError } from '../../../domain/errors/community-domain.error'
+import { CommunityDomainError } from '../../../domain/community-domain.error'
 import type { ErrorMapper } from './mongo-community-error.mapper'
 
 type ErrorDetails = {

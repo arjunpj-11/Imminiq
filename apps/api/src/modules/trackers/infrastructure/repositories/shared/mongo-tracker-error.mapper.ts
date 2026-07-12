@@ -1,4 +1,4 @@
-import { TrackerDomainError } from "../../../domain/errors/tracker-domain.error";
+import { TrackerDomainError } from "../../../domain/tracker-domain.error";
 import type { MongoDuplicateKeyError } from "./mongo-tracker.types";
 
 export type ErrorMapper = (error: unknown) => TrackerDomainError | null;

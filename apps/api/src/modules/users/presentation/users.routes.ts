@@ -3,7 +3,7 @@ import { Router } from 'express'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { validate, validateUsernameParam } from '../../../shared/middlewares/validate'
 import { UsersController } from './users.controller'
-import type { UsersUseCases } from '../application/contracts/users-use-cases.contract'
+import type { UsersUseCases } from '../application/users-use-cases.contract'
 import { USER_ROUTE_PATHS } from './users.route.constants'
 import { updateMyProfileSchema } from './users.schema'
 

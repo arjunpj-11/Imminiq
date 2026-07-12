@@ -1,6 +1,6 @@
-import { SETTINGS_NOTIFICATION_TYPE_KEYS } from '../../../domain/constants/settings.constants'
+import { SETTINGS_NOTIFICATION_TYPE_KEYS } from '../../../domain/settings.constants'
 import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity'
-import { SettingsDomainError } from '../../../domain/errors/settings-domain.error'
+import { SettingsDomainError } from '../../../domain/settings-domain.error'
 import type {
   SettingsAccountUpdateInput,
   SettingsAIBehaviourUpdateInput,
@@ -17,7 +17,7 @@ import type {
 import type {
   NotificationTypeSettings,
   UserSettingsData,
-} from '../../../domain/types/settings.types'
+} from '../../../domain/settings.types'
 import type {
   FlatSettingsUpdate,
   MongoIdLike,

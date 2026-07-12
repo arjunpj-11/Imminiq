@@ -1,7 +1,7 @@
 import { Battle } from '../../../../../infrastructure/database/models/battle.model'
 import { User } from '../../../../../infrastructure/database/models/user.model'
 import { UserProfile } from '../../../../../infrastructure/database/models/user-profile.model'
-import { DASHBOARD_DEFAULT_RECENT_BATTLES_LIMIT } from '../../../domain/constants/dashboard.constants'
+import { DASHBOARD_DEFAULT_RECENT_BATTLES_LIMIT } from '../../../domain/dashboard.constants'
 import type { DashboardBattleEntity } from '../../../domain/entities/dashboard-battle.entity'
 import type { GetRecentBattlesInput } from '../../../domain/repositories/dashboard-battle.repository.interface'
 import type {

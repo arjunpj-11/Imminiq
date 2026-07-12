@@ -2,8 +2,8 @@ import type { ISettingsCommandRepository } from '../../domain/repositories/setti
 import type {
   IUpdateCodeEditorPayloadDTO,
   UserSettingsViewDTO,
-} from '../dtos/settings.dto'
-import type { ISettingsMapper } from '../mappers/settings.mapper'
+} from '../settings.dto'
+import type { ISettingsMapper } from '../settings.mapper'
 
 type UpdateCodeEditorRepository = {
   updateCodeEditor: ISettingsCommandRepository['updateCodeEditor']

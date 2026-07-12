@@ -4,7 +4,7 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { LeaderboardUseCases } from '../application/contracts/leaderboard-use-cases.contract'
+import type { LeaderboardUseCases } from '../application/leaderboard-use-cases.contract'
 import { leaderboardQuerySchema } from './leaderboard.schema'
 
 export class LeaderboardController {

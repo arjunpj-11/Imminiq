@@ -2,9 +2,9 @@ import {
   ACTIVITY_MAX_UTC_OFFSET_MINUTES,
   ACTIVITY_MIN_UTC_OFFSET_MINUTES,
   ACTIVITY_MIN_YEAR,
-} from '../../domain/constants/activity.constants'
-import type { ActivityTimeRange } from '../../domain/types/activity.types'
-import { ActivityApplicationError } from '../errors/activity-application.error'
+} from '../../domain/activity.constants'
+import type { ActivityTimeRange } from '../../domain/activity.types'
+import { ActivityApplicationError } from '../activity-application.error'
 
 const MINUTE_IN_MS = 60_000
 const DAY_IN_MS = 86_400_000

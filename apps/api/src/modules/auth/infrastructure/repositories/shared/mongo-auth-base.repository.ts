@@ -1,4 +1,4 @@
-import { AuthDomainError } from '../../../domain/errors/auth-domain.error'
+import { AuthDomainError } from '../../../domain/auth-domain.error'
 import type { ErrorMapper } from './mongo-auth-error.mapper'
 
 type ErrorDetails = {

@@ -1,7 +1,7 @@
-import { TrackerApplicationError } from '../errors/tracker-application.error'
+import { TrackerApplicationError } from '../tracker-application.error'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { UpdateTrackerInput } from '../../domain/types/trackers.types'
-import { ITrackerMapper } from '../mappers'
+import type { UpdateTrackerInput } from '../../domain/trackers.types'
+import { ITrackerMapper } from '..'
 
 export interface IUpdateTrackerUseCase {
   execute(input: UpdateTrackerInput): Promise<import("../../domain/value-objects/tracker-record.vo").TrackerRecord>

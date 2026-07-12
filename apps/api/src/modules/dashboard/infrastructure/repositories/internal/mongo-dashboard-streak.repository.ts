@@ -1,6 +1,6 @@
 import { StreakHistory } from '../../../../../infrastructure/database/models/streak-history.model'
 import { StreakSnapshot } from '../../../../../infrastructure/database/models/streak-snapshot.model'
-import { DASHBOARD_DEFAULT_ACTIVITY_MONTHS } from '../../../domain/constants/dashboard.constants'
+import { DASHBOARD_DEFAULT_ACTIVITY_MONTHS } from '../../../domain/dashboard.constants'
 import type { DashboardActivityIntensityEntity } from '../../../domain/entities/dashboard-activity-intensity.entity'
 import type { DashboardStreakEntity } from '../../../domain/entities/dashboard-streak.entity'
 import type { GetActivityIntensityInput } from '../../../domain/repositories/dashboard-streak.repository.interface'

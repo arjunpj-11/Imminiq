@@ -1,7 +1,7 @@
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
-import type { ICommunityVerificationSubmissionViewDTO } from '../dtos/community.dto'
-import { CommunityApplicationError } from '../errors/community-application.error'
-import type { ICommunityMapper } from '../mappers/community.mapper'
+import type { ICommunityVerificationSubmissionViewDTO } from '../community.dto'
+import { CommunityApplicationError } from '../community-application.error'
+import type { ICommunityMapper } from '../community.mapper'
 
 export interface IGetVerificationSubmissionUseCase {
   execute(submissionId: string, userId: string): Promise<ICommunityVerificationSubmissionViewDTO>

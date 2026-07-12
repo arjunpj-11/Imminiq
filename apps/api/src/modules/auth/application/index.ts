@@ -1,12 +1,12 @@
-export * from './constants/auth.constants'
+export * from './auth.constants'
 
-export * from './errors/auth-application.error'
-export * from './dtos/auth.dto'
-export * from './dtos/token-payload.dto'
+export * from './auth-application.error'
+export * from './auth.dto'
+export * from './token-payload.dto'
 
-export * from './mappers/auth-user.mapper'
+export * from './auth-user.mapper'
 
-export * from './policies/auth-account-policy.policy'
+export * from './auth-account-policy.policy'
 export * from './services/auth-notification.service'
 export * from './services/auth-redirect.service'
 export * from './services/auth-session.service'

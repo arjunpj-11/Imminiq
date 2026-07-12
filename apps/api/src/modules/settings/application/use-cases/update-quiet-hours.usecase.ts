@@ -2,8 +2,8 @@ import type { ISettingsCommandRepository } from '../../domain/repositories/setti
 import type {
   IUpdateQuietHoursPayloadDTO,
   UserSettingsViewDTO,
-} from '../dtos/settings.dto'
-import type { ISettingsMapper } from '../mappers/settings.mapper'
+} from '../settings.dto'
+import type { ISettingsMapper } from '../settings.mapper'
 
 type UpdateQuietHoursRepository = {
   updateQuietHours: ISettingsCommandRepository['updateQuietHours']

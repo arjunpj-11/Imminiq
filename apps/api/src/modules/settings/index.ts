@@ -11,7 +11,7 @@ export type {
   IUpdatePrivacyPayloadDTO,
   IUpdateQuietHoursPayloadDTO,
   UserSettingsViewDTO,
-} from './application/dtos/settings.dto'
+} from './application/settings.dto'
 
 export type {
   AIResponseStyleType,
@@ -20,4 +20,4 @@ export type {
   ProfileVisibilityType,
   QuietHoursDayType,
   ThemeType,
-} from './domain/types/settings.types'
+} from './domain/settings.types'

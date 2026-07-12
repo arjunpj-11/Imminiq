@@ -1,11 +1,11 @@
 import type { NextFunction, Request, Response } from "express";
 
 import { HttpStatusCode } from "../../../shared/constants/http-status-code.enum";
-import { FRIENDS_RESPONSE_MESSAGES } from "../application/constants/friends.constants";
+import { FRIENDS_RESPONSE_MESSAGES } from "../application/friends.constants";
 import { ApiError } from "../../../shared/utils/ApiError";
 import { ApiResponse } from "../../../shared/utils/ApiResponse";
 import { getAuthUser } from "../../../shared/utils/getAuthUser";
-import type { FriendsUseCases } from "../application/contracts/friends-use-cases.contract";
+import type { FriendsUseCases } from "../application/friends-use-cases.contract";
 import {
   friendParamsSchema,
   friendRequestParamsSchema,

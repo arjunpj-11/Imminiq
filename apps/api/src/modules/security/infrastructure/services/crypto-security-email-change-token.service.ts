@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'crypto'
 
-import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/constants/security.constants'
-import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/security.constants'
+import { SecurityDomainError } from '../../domain/security-domain.error'
 import type {
   IEmailChangeTokenResult,
   ISecurityEmailChangeToken,

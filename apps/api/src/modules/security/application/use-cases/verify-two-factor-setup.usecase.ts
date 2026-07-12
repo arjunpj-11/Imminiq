@@ -1,4 +1,4 @@
-import { TWO_FACTOR_SETUP_ATTEMPT_SCOPE } from '../../domain/constants/security.constants'
+import { TWO_FACTOR_SETUP_ATTEMPT_SCOPE } from '../../domain/security.constants'
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
 import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
 import type { ITwoFactorBackupCodeManager } from '../../domain/services/two-factor-backup-code.interface'
@@ -6,8 +6,8 @@ import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway
 import type {
   ITwoFactorVerifyResponseDTO,
   IVerifyTwoFactorSetupPayloadDTO,
-} from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+} from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 
 export interface IVerifyTwoFactorSetupUseCase {
   execute(userId: string, payload: IVerifyTwoFactorSetupPayloadDTO): Promise<ITwoFactorVerifyResponseDTO>

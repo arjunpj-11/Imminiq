@@ -3,7 +3,7 @@ import type {
   LeaderboardScope,
   LeaderboardSection,
   LeaderboardTimeRange,
-} from '../types/leaderboard.types'
+} from '../leaderboard.types'
 
 export type FindLeaderboardInput = {
   viewerUserId: string

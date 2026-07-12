@@ -6,7 +6,7 @@ import { authenticate } from '../../../shared/middlewares/auth.middleware'
 import { authenticatedApiIpLimiter } from '../../../shared/middlewares/security-rate-limit.middleware'
 import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate'
 import { TrackerController } from './trackers.controller'
-import type { TrackerUseCases } from '../application/contracts/tracker-use-cases.contract'
+import type { TrackerUseCases } from '../application/tracker-use-cases.contract'
 import { TRACKER_ROUTE_PATHS } from './trackers.route.constants'
 import {
   trackerListQuerySchema,

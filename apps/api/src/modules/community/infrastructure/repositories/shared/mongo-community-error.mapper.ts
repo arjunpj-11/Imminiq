@@ -1,4 +1,4 @@
-import { CommunityDomainError } from '../../../domain/errors/community-domain.error'
+import { CommunityDomainError } from '../../../domain/community-domain.error'
 
 export type ErrorMapper = (error: unknown) => CommunityDomainError | null
 

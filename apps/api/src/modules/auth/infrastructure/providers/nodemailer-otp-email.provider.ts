@@ -1,6 +1,6 @@
 import { sendMail } from '../../../../infrastructure/email/email.client'
 import { otpEmailTemplate } from '../../../../shared/email/email.templates'
-import { AuthDomainError } from '../../domain/errors/auth-domain.error'
+import { AuthDomainError } from '../../domain/auth-domain.error'
 import type { IOtpEmailProvider } from '../../domain/services/otp-email-provider.interface'
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo'
 

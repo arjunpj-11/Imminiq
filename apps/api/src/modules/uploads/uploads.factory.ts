@@ -1,7 +1,7 @@
-import type { UploadsUseCases } from './application/contracts/uploads-use-cases.contract'
+import type { UploadsUseCases } from './application/uploads-use-cases.contract'
 import {
   UploadsMapper,
-} from './application/mappers/uploads.mapper'
+} from './application/uploads.mapper'
 import {
   AIUploadPromptBuilder,
 } from './application/services/ai-upload-prompt.service'

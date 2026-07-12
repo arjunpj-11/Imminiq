@@ -1,7 +1,7 @@
 // apps/api/src/modules/trackers/application/use-cases/clear-lesson-question-solution-doubts.usecase.ts
 
-import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import { TrackerApplicationError } from '../tracker-application.error'
+import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface'
 

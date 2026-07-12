@@ -1,11 +1,11 @@
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IAuthNotification } from '../../domain/services/auth-notification.interface'
 import type { IPasswordHasher } from '../../domain/services/password-hasher.interface'
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface'
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
-import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/constants/auth.constants'
-import type { IRegisterPayloadDTO } from '../dtos/auth.dto'
+import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/auth.constants'
+import type { IRegisterPayloadDTO } from '../auth.dto'
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
 
 export interface IRegisterUserUseCase {

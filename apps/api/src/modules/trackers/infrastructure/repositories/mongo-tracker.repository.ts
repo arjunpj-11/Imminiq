@@ -47,7 +47,7 @@ import type {
   TrackerListFilter,
   UpdateSubtopicProgressInput,
   UpdateTrackerInput,
-} from '../../domain/types/trackers.types'
+} from '../../domain/trackers.types'
 import { MongoTrackerContentRepository } from './internal/mongo-tracker-content.repository'
 import { MongoTrackerLessonRepository } from './internal/mongo-tracker-lesson.repository'
 import { MongoTrackerManagementRepository } from './internal/mongo-tracker-management.repository'

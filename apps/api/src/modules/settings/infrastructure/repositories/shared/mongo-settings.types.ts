@@ -1,4 +1,4 @@
-import type { UserSettingsData } from '../../../domain/types/settings.types'
+import type { UserSettingsData } from '../../../domain/settings.types'
 
 export type MongoIdLike = {
   toString(): string

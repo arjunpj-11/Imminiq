@@ -1,4 +1,4 @@
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
 import type { IPhoneOtpSessionStore } from '../../domain/services/phone-otp-session-store.interface'

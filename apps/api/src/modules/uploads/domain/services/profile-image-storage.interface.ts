@@ -2,7 +2,7 @@ import type { StoredProfileImageEntity } from '../entities/stored-profile-image.
 import type {
   ProfileImageFolder,
   UploadedProfileImageFile,
-} from '../types/uploads.types'
+} from '../uploads.types'
 
 export interface IProfileImageStorage {
   uploadProfileImage(

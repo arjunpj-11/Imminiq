@@ -1,6 +1,6 @@
 import { UploadedProfileImageEntity } from '../../../domain/entities/uploaded-profile-image.entity'
-import { UploadsDomainError } from '../../../domain/errors/uploads-domain.error'
-import type { ProfileUploadKind } from '../../../domain/types/uploads.types'
+import { UploadsDomainError } from '../../../domain/uploads-domain.error'
+import type { ProfileUploadKind } from '../../../domain/uploads.types'
 import type {
   MongoIdLike,
   MongoUploadRecord,

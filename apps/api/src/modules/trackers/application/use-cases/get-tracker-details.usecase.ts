@@ -1,5 +1,5 @@
-import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import { TrackerApplicationError } from '../tracker-application.error'
+import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 
 export interface IGetTrackerDetailsUseCase {

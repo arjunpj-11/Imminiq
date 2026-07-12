@@ -1,4 +1,4 @@
-import { SecurityDomainError } from '../../../domain/errors/security-domain.error'
+import { SecurityDomainError } from '../../../domain/security-domain.error'
 import type { MongoDuplicateKeyError } from './mongo-security.types'
 
 export type ErrorMapper = (error: unknown) => SecurityDomainError | null

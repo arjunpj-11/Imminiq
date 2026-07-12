@@ -2,7 +2,7 @@ import { Router } from 'express'
 import passport from 'passport'
 
 import { AuthController } from './auth.controller'
-import type { AuthUseCases } from '../application/contracts/auth-use-cases.contract'
+import type { AuthUseCases } from '../application/auth-use-cases.contract'
 import { AUTH_ROUTE_PATHS } from './auth.route.constants'
 import { validate } from '../../../shared/middlewares/validate'
 import { authenticate } from '../../../shared/middlewares/auth.middleware'

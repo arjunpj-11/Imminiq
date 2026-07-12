@@ -1,5 +1,5 @@
 import { generateImageWithCloudflare } from '../../../../infrastructure/ai/clients/cloudflare-image.client'
-import { UploadsDomainError } from '../../domain/errors/uploads-domain.error'
+import { UploadsDomainError } from '../../domain/uploads-domain.error'
 import type {
   IAIImageGenerator,
   IGeneratedPreviewImage,

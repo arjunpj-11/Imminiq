@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express'
 
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import type { SettingsUseCases } from '../application/contracts/settings-use-cases.contract'
+import type { SettingsUseCases } from '../application/settings-use-cases.contract'
 
 export class SettingsController {
   constructor(private readonly _useCases: SettingsUseCases) {}

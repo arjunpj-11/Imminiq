@@ -1,6 +1,6 @@
 import { ModerationAppealEntity } from '../../../domain/entities/moderation-appeal.entity'
 import { RestrictedModerationUserEntity } from '../../../domain/entities/restricted-moderation-user.entity'
-import { ModerationAppealDomainError } from '../../../domain/errors/moderation-appeal-domain.error'
+import { ModerationAppealDomainError } from '../../../domain/moderation-appeal-domain.error'
 import {
   ACTIVE_MODERATION_APPEAL_STATUSES,
   MODERATION_APPEAL_PENDING_STATUS,

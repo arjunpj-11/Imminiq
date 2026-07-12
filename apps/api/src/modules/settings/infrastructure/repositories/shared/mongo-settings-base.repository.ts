@@ -1,4 +1,4 @@
-import { SettingsDomainError } from '../../../domain/errors/settings-domain.error'
+import { SettingsDomainError } from '../../../domain/settings-domain.error'
 import type { ErrorMapper } from './mongo-settings-error.mapper'
 
 type RepositoryErrorDetails = Error & {

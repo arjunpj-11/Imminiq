@@ -1,13 +1,13 @@
 import { createHash } from 'crypto'
 
-import { AuthApplicationError } from '../errors/auth-application.error'
+import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
 import type { IAuthToken } from '../../domain/services/auth-token.interface'
 import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-refresh-token-store.interface'
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
-import type { RequestMetaDTO, ITokenPairDTO } from '../dtos/auth.dto'
-import type { IAuthAccountPolicy } from '../policies/auth-account-policy.policy'
+import type { RequestMetaDTO, ITokenPairDTO } from '../auth.dto'
+import type { IAuthAccountPolicy } from '../auth-account-policy.policy'
 
 type RefreshTokensRepository =
   IAuthUserRepository & IAuthSessionRepository

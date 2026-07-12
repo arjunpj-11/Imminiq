@@ -1,15 +1,15 @@
 import {
   ACCOUNT_DELETION_RECOVERY_DAYS,
   ACCOUNT_DELETION_RECOVERY_MS,
-} from '../../domain/constants/security.constants'
+} from '../../domain/security.constants'
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 import type {
   IDeleteAccountPayloadDTO,
   IDeleteAccountResponseDTO,
-} from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+} from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service'
 import type { IClock } from '../../../../shared/time/clock.interface'
 

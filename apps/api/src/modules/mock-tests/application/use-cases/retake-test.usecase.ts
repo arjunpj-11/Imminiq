@@ -1,8 +1,8 @@
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type RetakeTestRepository =
   IMockTestRepository &

@@ -4,7 +4,7 @@ import type {
   UpdateSubtopicProgressInput,
   UserSubtopicProgressRecord,
   UserTopicProgressRecord,
-} from '../types/trackers.types'
+} from '../trackers.types'
 
 export type EnsureUserProgressInitializedInput = {
   userId: string

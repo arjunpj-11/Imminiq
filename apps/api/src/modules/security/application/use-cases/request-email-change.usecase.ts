@@ -1,4 +1,4 @@
-import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/constants/security.constants'
+import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/security.constants'
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface'
@@ -7,8 +7,8 @@ import type { ISecurityEmailProvider } from '../../domain/services/security-emai
 import type {
   IChangeEmailPayloadDTO,
   IEmailChangeRequestResponseDTO,
-} from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+} from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service'
 
 export interface IRequestEmailChangeUseCase {

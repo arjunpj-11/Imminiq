@@ -2,7 +2,7 @@ import {
   UserActivityEntity,
   type ActivityDetails,
 } from '../../../domain/entities/user-activity.entity'
-import { ActivityDomainError } from '../../../domain/errors/activity-domain.error'
+import { ActivityDomainError } from '../../../domain/activity-domain.error'
 import type {
   MongoIdLike,
   MongoUserActivityRecord,

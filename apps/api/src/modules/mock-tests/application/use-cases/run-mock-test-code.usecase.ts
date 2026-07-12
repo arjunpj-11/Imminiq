@@ -1,8 +1,8 @@
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface'
-import type { IRunMockTestCodePayloadDTO } from '../dtos/mock-tests.dto'
-import { MockTestsApplicationError } from '../errors/mock-tests-application.error'
+import type { IRunMockTestCodePayloadDTO } from '../mock-tests.dto'
+import { MockTestsApplicationError } from '../mock-tests-application.error'
 
 type RunMockTestCodeRepository =
   IMockTestAttemptRepository &

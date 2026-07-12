@@ -18,10 +18,10 @@ export type {
   SubmitMockTestCodePayloadDTO,
   ITestAnalyticsDTO,
   ITestAttemptResultDTO,
-} from './application/dtos/mock-tests.dto'
+} from './application/mock-tests.dto'
 
 export type {
   DifficultyLevel,
   QuestionType,
   TestVisibility,
-} from './domain/types/mock-tests.types'
+} from './domain/mock-tests.types'

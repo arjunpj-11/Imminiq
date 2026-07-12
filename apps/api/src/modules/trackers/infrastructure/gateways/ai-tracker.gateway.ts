@@ -11,7 +11,7 @@ import {
   verifyTrackerSubtopic,
   verifyTrackerTopic,
 } from '../../../../infrastructure/ai/ai.service'
-import { TrackerDomainError } from '../../domain/errors/tracker-domain.error'
+import { TrackerDomainError } from '../../domain/tracker-domain.error'
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 
 type GatewayReturn<T extends keyof ITrackerAIGateway> = Awaited<

@@ -1,8 +1,8 @@
-import type { MockTestsUseCases } from './application/contracts/mock-tests-use-cases.contract'
+import type { MockTestsUseCases } from './application/mock-tests-use-cases.contract'
 import {
   MockTestsMapper,
   type IMockTestsMapper,
-} from './application/mappers/mock-tests.mapper'
+} from './application/mock-tests.mapper'
 import {
   MockTestScorer,
   type IMockTestScorer,

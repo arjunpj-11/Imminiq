@@ -2,11 +2,11 @@ import {
   COMMUNITY_DEFAULT_LIMIT,
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_MAX_LIMIT,
-} from '../../domain/constants/community.constants'
+} from '../../domain/community.constants'
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
-import type { ICommunityVerificationDashboardViewDTO, IVerificationQueuePayloadDTO } from '../dtos/community.dto'
-import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../../domain/constants/community.constants'
-import type { ICommunityMapper } from '../mappers/community.mapper'
+import type { ICommunityVerificationDashboardViewDTO, IVerificationQueuePayloadDTO } from '../community.dto'
+import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../../domain/community.constants'
+import type { ICommunityMapper } from '../community.mapper'
 
 export interface IGetVerificationDashboardUseCase {
   execute(payload: IVerificationQueuePayloadDTO): Promise<ICommunityVerificationDashboardViewDTO>

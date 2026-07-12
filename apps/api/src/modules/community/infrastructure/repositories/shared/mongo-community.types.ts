@@ -3,7 +3,7 @@ import type { Types } from 'mongoose'
 import type {
   VerificationSubmissionStatus,
   VerificationVoteChoice,
-} from '../../../domain/types/community.types'
+} from '../../../domain/community.types'
 
 export type MongoIdLike = string | Types.ObjectId
 

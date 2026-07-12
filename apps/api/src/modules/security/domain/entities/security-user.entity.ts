@@ -1,4 +1,4 @@
-import type { AuthProvider } from '../types/security.types'
+import type { AuthProvider } from '../security.types'
 
 export type SecurityUserEntityProps = {
   id: string

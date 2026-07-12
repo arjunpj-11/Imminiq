@@ -1,7 +1,7 @@
 import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface'
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
-import { UsersApplicationError } from '../errors/users-application.error'
-import type { IUsersMapper } from '../mappers/users.mapper'
+import { UsersApplicationError } from '../users-application.error'
+import type { IUsersMapper } from '../users.mapper'
 
 type GetMeRepository = IUserRepository & IUserProfileRepository
 

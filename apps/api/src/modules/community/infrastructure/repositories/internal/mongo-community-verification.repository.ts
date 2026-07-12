@@ -1,13 +1,13 @@
 import {
   COMMUNITY_REVIEW_REWARD_COINS,
-} from '../../../domain/constants/community.constants'
-import { CommunityDomainError } from '../../../domain/errors/community-domain.error'
+} from '../../../domain/community.constants'
+import { CommunityDomainError } from '../../../domain/community-domain.error'
 import type {
   CreateCommunityReviewVoteInput,
   FindVerificationQueueQuery,
   SubmitTrackerForVerificationInput,
 } from '../../../domain/repositories/community-verification.repository.interface'
-import type { VerificationVoteChoice } from '../../../domain/types/community.types'
+import type { VerificationVoteChoice } from '../../../domain/community.types'
 import { MongoCommunityBaseRepository } from '../shared/mongo-community-base.repository'
 import { MongoCommunityErrorMapper } from '../shared/mongo-community-error.mapper'
 import { MongoCommunityMapper } from '../shared/mongo-community.mapper'

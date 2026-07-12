@@ -1,9 +1,9 @@
 import {
   MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS,
-} from '../constants/moderation-appeal.constants'
+} from '../moderation-appeal.constants'
 import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface'
 import type { IModerationAppealCaseIdGenerator } from '../../domain/services/case-id-generator.interface'
-import { ModerationAppealApplicationError } from '../errors/moderation-appeal-application.error'
+import { ModerationAppealApplicationError } from '../moderation-appeal-application.error'
 
 export interface IModerationAppealCaseIdAllocator {
   generateUniqueCaseId(): Promise<string>

@@ -3,8 +3,8 @@ import type { NextFunction, Request, Response } from 'express'
 import type {
   IDashboardActivityIntensityQueryDTO,
   IDashboardRecentItemsQueryDTO,
-} from '../application/dtos/dashboard.dto'
-import type { DashboardUseCases } from '../application/contracts/dashboard-use-cases.contract'
+} from '../application/dashboard.dto'
+import type { DashboardUseCases } from '../application/dashboard-use-cases.contract'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
 

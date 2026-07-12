@@ -5,8 +5,8 @@ import {
   DEFAULT_MOCK_TEST_LIST_LIMIT,
   DEFAULT_MOCK_TEST_PAGE,
   MAX_MOCK_TEST_LIST_LIMIT,
-} from '../../domain/constants/mock-tests.constants'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+} from '../../domain/mock-tests.constants'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type ListMockTestsOptions = {
   page?: number

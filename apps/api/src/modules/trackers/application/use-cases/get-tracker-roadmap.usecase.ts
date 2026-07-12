@@ -1,12 +1,12 @@
-import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import { TrackerApplicationError } from '../tracker-application.error'
+import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
   RoadmapSubtopicNode,
   RoadmapTopicNode,
   SubtopicWithProgressRecord,
   TopicWithProgressRecord,
-} from '../../domain/types/trackers.types'
+} from '../../domain/trackers.types'
 
 const buildRoadmapTree = ({
   topics,

@@ -1,9 +1,9 @@
 import { randomBytes } from 'crypto'
 import bcrypt from 'bcryptjs'
 
-import { BCRYPT_ROUNDS } from '../../../../config/constants'
-import { TWO_FACTOR_BACKUP_CODE_COUNT } from '../../domain/constants/security.constants'
-import { SecurityDomainError } from '../../domain/errors/security-domain.error'
+import { env } from '../../../../config/env'
+import { TWO_FACTOR_BACKUP_CODE_COUNT } from '../../domain/security.constants'
+import { SecurityDomainError } from '../../domain/security-domain.error'
 import type { ITwoFactorBackupCodeManager } from '../../domain/services/two-factor-backup-code.interface'
 
 export class CryptoTwoFactorBackupCodeManager implements ITwoFactorBackupCodeManager {
@@ -24,7 +24,7 @@ export class CryptoTwoFactorBackupCodeManager implements ITwoFactorBackupCodeMan
     try {
       return await Promise.all(
         backupCodes.map(async (code) => ({
-          codeHash: await bcrypt.hash(code, BCRYPT_ROUNDS),
+          codeHash: await bcrypt.hash(code, env.BCRYPT_ROUNDS),
           usedAt: null,
         })),
       )

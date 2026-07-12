@@ -1,4 +1,4 @@
-import { CommunityDomainError } from '../../../domain/errors/community-domain.error'
+import { CommunityDomainError } from '../../../domain/community-domain.error'
 import type { FindCommunityTrackersQuery } from '../../../domain/repositories/community-tracker.repository.interface'
 import { MongoCommunityBaseRepository } from '../shared/mongo-community-base.repository'
 import { MongoCommunityErrorMapper } from '../shared/mongo-community-error.mapper'

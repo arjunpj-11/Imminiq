@@ -1,7 +1,7 @@
 // apps/api/src/modules/trackers/application/use-cases/add-missing-evaluation-topic.usecase.ts
 
-import { TrackerApplicationError } from '../errors/tracker-application.error'
-import type { ITrackerMapper } from '../mappers/tracker.mapper'
+import { TrackerApplicationError } from '../tracker-application.error'
+import type { ITrackerMapper } from '../tracker.mapper'
 
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
@@ -9,7 +9,7 @@ import type {
   AddMissingEvaluationTopicResult,
   EvaluationOutputData,
   TrackerTopicRecord,
-} from '../../domain/types/trackers.types'
+} from '../../domain/trackers.types'
 
 type AddMissingEvaluationTopicDTO = ReturnType<
   ITrackerMapper['toAddMissingEvaluationTopicDto']

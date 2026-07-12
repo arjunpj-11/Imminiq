@@ -1,5 +1,5 @@
 import { aiQueue } from '../../../../infrastructure/queue/queues'
-import { OnboardingDomainError } from '../../domain/errors/onboarding-domain.error'
+import { OnboardingDomainError } from '../../domain/onboarding-domain.error'
 import type {
   IAIJobQueueGateway,
   IEvaluateRoadmapQueuePayload,

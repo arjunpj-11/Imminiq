@@ -1,9 +1,9 @@
-import { TWO_FACTOR_ISSUER } from '../../domain/constants/security.constants'
+import { TWO_FACTOR_ISSUER } from '../../domain/security.constants'
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
 import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
-import type { ITwoFactorSetupResponseDTO } from '../dtos/security.dto'
-import { SecurityApplicationError } from '../errors/security-application.error'
+import type { ITwoFactorSetupResponseDTO } from '../security.dto'
+import { SecurityApplicationError } from '../security-application.error'
 
 type SetupTwoFactorRepository =
   ISecurityUserRepository & ISecurityTwoFactorRepository

@@ -1,6 +1,6 @@
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { IMockTestsMapper } from '../mappers/mock-tests.mapper'
+import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type GetAttemptQuestionsRepository =
   IMockTestAttemptRepository &

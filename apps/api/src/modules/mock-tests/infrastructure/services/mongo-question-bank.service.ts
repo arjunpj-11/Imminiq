@@ -1,6 +1,6 @@
 import { QuestionBankCounterModel } from '../../../../infrastructure/database/models/question-bank-counter.model'
 import { QuestionBankModel } from '../../../../infrastructure/database/models/question-bank.model'
-import { MockTestsDomainError } from '../../domain/errors/mock-tests-domain.error'
+import { MockTestsDomainError } from '../../domain/mock-tests-domain.error'
 import type {
   IMockTestQuestionBank,
   QuestionBankItem,
