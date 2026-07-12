@@ -1,3 +1,5 @@
+import { webEnvironment } from '../../../config/env'
+
 export default function AuthSocialButtons() {
   return (
     <div className="grid grid-cols-2 gap-2.5">
@@ -6,7 +8,7 @@ export default function AuthSocialButtons() {
         type="button"
         aria-label="Continue with Google"
         onClick={() => {
-          window.location.href = `${import.meta.env.VITE_API_URL}/auth/oauth/google`
+          window.location.href = `${webEnvironment.apiUrl}/auth/oauth/google`
         }}
       >
         <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true">
@@ -23,7 +25,7 @@ export default function AuthSocialButtons() {
         type="button"
         aria-label="Continue with GitHub"
         onClick={() => {
-          window.location.href = `${import.meta.env.VITE_API_URL}/auth/oauth/github`
+          window.location.href = `${webEnvironment.apiUrl}/auth/oauth/github`
         }}
       >
        <svg

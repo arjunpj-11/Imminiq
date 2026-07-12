@@ -1,6 +1,7 @@
 import { io } from 'socket.io-client'
+import { webEnvironment } from '../config/env'
 
-export const socket = io(import.meta.env.VITE_API_URL, {
+export const socket = io(webEnvironment.apiUrl, {
   autoConnect: false,
   withCredentials: true,
 })

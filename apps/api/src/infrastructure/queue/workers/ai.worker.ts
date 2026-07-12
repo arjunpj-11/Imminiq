@@ -579,7 +579,7 @@ const processRoadmapEvaluation = async (
 // WORKER
 // ============================================================
 
-const aiWorker = new Worker(
+export const aiWorker = new Worker(
   'ai',
   async (job) => {
     const { jobId } = job.data as {
@@ -668,6 +668,7 @@ const aiWorker = new Worker(
   },
   {
     connection: redis,
+    autorun: false,
 
     concurrency: 1,
 
@@ -678,6 +679,20 @@ const aiWorker = new Worker(
   }
 )
 
-console.log(
-  '✅ AI Worker running with roadmap generation + evaluation support'
-)
+let workerStarted = false
+
+export const startAiWorker = async () => {
+  if (workerStarted) return
+  workerStarted = true
+
+  void aiWorker.run().catch((error: unknown) => {
+    if (!aiWorker.closing) {
+      console.error('AI worker stopped unexpectedly', error)
+    }
+  })
+  await aiWorker.waitUntilReady()
+
+  console.log(
+    '✅ AI Worker running with roadmap generation + evaluation support'
+  )
+}

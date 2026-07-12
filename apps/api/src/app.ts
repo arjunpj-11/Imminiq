@@ -33,6 +33,8 @@ import leaderBoardRouter from './modules/leaderboard/presentation/leaderboard.ro
 import { createActivityComposition } from './modules/activity/activity.factory'
 import { createActivityRoutes } from './modules/activity/presentation/activity.routes'
 import { friendsRoutes } from './modules/friends/presentation/friends.routes'
+import mongoose from 'mongoose'
+import { redis } from './config/redis'
 
 
 const app = express()
@@ -94,8 +96,29 @@ app.use('/api/settings', settingsRouter)
 
 app.use('/api/dashboard', dashboardRoutes)
 
+app.get('/api/health/live', (_req, res) => {
+  res.json({ status: 'ok', uptimeSeconds: Math.floor(process.uptime()) })
+})
+
+app.get('/api/health/ready', async (_req, res) => {
+  const mongoReady = mongoose.connection.readyState === 1
+  let redisReady: boolean
+
+  try {
+    redisReady = (await redis.ping()) === 'PONG'
+  } catch {
+    redisReady = false
+  }
+
+  const ready = mongoReady && redisReady
+  res.status(ready ? 200 : 503).json({
+    status: ready ? 'ready' : 'not_ready',
+    dependencies: { mongo: mongoReady, redis: redisReady },
+  })
+})
+
 app.get('/api/health', (_req, res) => {
-  res.json({ status: 'ok' })
+  res.json({ status: 'ok', uptimeSeconds: Math.floor(process.uptime()) })
 })
 
 // module routers will be registered here later
