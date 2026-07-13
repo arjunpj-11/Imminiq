@@ -4,10 +4,10 @@ import { NOTIFICATION_PAGE_LIMIT, NOTIFICATION_REFETCH_INTERVAL_MS } from '../co
 import type { INotificationList } from '../types/notification.types'
 import { notificationKeys } from './notification-query-keys'
 
-interface ApiResponse<T> { data: T }
+interface IApiResponse<T> { data: T }
 export const useNotifications = (page = 1, enabled = true) => useQuery({
   queryKey: notificationKeys.list(page, NOTIFICATION_PAGE_LIMIT),
-  queryFn: async () => (await api.get<ApiResponse<INotificationList>>('/notifications', { params: { page, limit: NOTIFICATION_PAGE_LIMIT } })).data.data,
+  queryFn: async () => (await api.get<IApiResponse<INotificationList>>('/notifications', { params: { page, limit: NOTIFICATION_PAGE_LIMIT } })).data.data,
   placeholderData: keepPreviousData,
   refetchInterval: NOTIFICATION_REFETCH_INTERVAL_MS,
   enabled,

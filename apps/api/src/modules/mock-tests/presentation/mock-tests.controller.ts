@@ -5,8 +5,6 @@ import { HttpStatusCode } from '../../../shared/constants/http-status-code.enum'
 import { ApiError } from '../../../shared/utils/ApiError'
 import { ApiResponse } from '../../../shared/utils/ApiResponse'
 import { getAuthUser } from '../../../shared/utils/getAuthUser'
-import { AIGenerationJob } from '../../../infrastructure/database/models/ai-generation-job.model'
-import { aiQueue } from '../../../infrastructure/queue/queues'
 
 type ListTestsQuery = {
   page?: number
@@ -49,22 +47,13 @@ export class MockTestsController {
     try {
       const userId = getAuthUser(req).userId
       if (req.body.runInBackground) {
-        const job = await AIGenerationJob.create({
+        const data = await this._useCases.startMockTestGeneration.execute(
           userId,
-          jobType: 'mock_test',
-          status: 'pending',
-          inputData: req.body,
-          totalSteps: 1,
-          currentStep: 0,
-        })
-        await aiQueue.add('generate-mock-test', {
-          jobId: job._id.toString(),
-          userId,
-          payload: { ...req.body, runInBackground: undefined },
-        }, { attempts: 3, backoff: { type: 'exponential', delay: 5000 }, removeOnComplete: 100, removeOnFail: 200 })
-        res.status(HttpStatusCode.ACCEPTED).json(new ApiResponse('Mock test generation started', {
-          jobId: job._id.toString(), status: 'pending',
-        }))
+          req.body,
+        )
+        res
+          .status(HttpStatusCode.ACCEPTED)
+          .json(new ApiResponse('Mock test generation started', data))
         return
       }
       const data = await this._useCases.generateMockTest.execute(

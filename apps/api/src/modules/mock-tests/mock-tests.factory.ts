@@ -25,6 +25,7 @@ import { RetakeTestUseCase } from './application/use-cases/retake-test.usecase'
 import { RunMockTestCodeUseCase } from './application/use-cases/run-mock-test-code.usecase'
 import { ShareMockTestUseCase } from './application/use-cases/share-mock-test.usecase'
 import { StartTestAttemptUseCase } from './application/use-cases/start-test-attempt.usecase'
+import { StartMockTestGenerationUseCase } from './application/use-cases/start-mock-test-generation.usecase'
 import { SubmitAnswerUseCase } from './application/use-cases/submit-answer.usecase'
 import { SubmitMockTestCodeUseCase } from './application/use-cases/submit-mock-test-code.usecase'
 
@@ -35,6 +36,7 @@ import type { IShareTokenGenerator } from './domain/services/share-token-generat
 import { systemClock } from '../../infrastructure/time/system-clock'
 
 import { ActivityMockTestGateway } from './infrastructure/gateways/activity-mock-test.gateway'
+import { bullMqMockTestGenerationJobGateway } from './infrastructure/gateways/bullmq-mock-test-generation-job.gateway'
 import type { IRecordUserActivityUseCase } from '../activity'
 import { mongoMockTestsRepository } from './infrastructure/repositories/mongo-mock-tests.repository'
 import { cryptoShareTokenGenerator } from './infrastructure/services/crypto-share-token-generator.service'
@@ -120,6 +122,11 @@ export const createMockTestsComposition =
             mockTestQuestionBank,
             mockTestActivityRecorder,
             mockTestsMapper,
+          ),
+
+        startMockTestGeneration:
+          new StartMockTestGenerationUseCase(
+            bullMqMockTestGenerationJobGateway,
           ),
 
         startTestAttempt:

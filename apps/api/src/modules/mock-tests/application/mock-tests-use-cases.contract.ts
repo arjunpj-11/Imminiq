@@ -4,6 +4,7 @@ export type MockTestsUseCases = {
   getMockTestDetails: Application.IGetMockTestDetailsUseCase
   createMockTest: Application.ICreateMockTestUseCase
   generateMockTest: Application.IGenerateMockTestUseCase
+  startMockTestGeneration: Application.IStartMockTestGenerationUseCase
   startTestAttempt: Application.IStartTestAttemptUseCase
   getAttemptQuestions: Application.IGetAttemptQuestionsUseCase
   submitAnswer: Application.ISubmitAnswerUseCase
