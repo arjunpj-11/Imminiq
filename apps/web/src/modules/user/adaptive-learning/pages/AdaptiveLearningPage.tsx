@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell'
 import { MicButton } from '../../../../components/input/VoiceInputButton'
+import ConfirmDialog from '../../../../components/overlays/ConfirmDialog'
 import { useVoiceInput } from '../../../../hooks/useVoiceInput'
 import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph'
 import { useGenerateRoadmap } from '../../onboarding/hooks/useGenerateRoadmap'
@@ -36,6 +37,7 @@ export default function AdaptiveLearningPage() {
   const [advisorAction, setAdvisorAction] =
     useState<IAdaptiveAdvisorAction | null>(null)
   const [actionError, setActionError] = useState('')
+  const [clearDialogOpen, setClearDialogOpen] = useState(false)
   const [assessmentGenerationStarted, setAssessmentGenerationStarted] =
     useState(false)
   const voice = useVoiceInput((transcript) =>
@@ -70,6 +72,7 @@ export default function AdaptiveLearningPage() {
   const clearAdvisorConversation = async () => {
     if (voice.isListening) voice.toggle()
     await clearChat.mutateAsync()
+    setClearDialogOpen(false)
     setQuestion('')
     setAdvisorAction(null)
     setActionError('')
@@ -177,7 +180,7 @@ export default function AdaptiveLearningPage() {
               </div>
               <button
                 type="button"
-                onClick={() => void clearAdvisorConversation()}
+                onClick={() => setClearDialogOpen(true)}
                 disabled={clearChat.isPending || chat.isPending || !data?.messages.length}
                 className="shrink-0 rounded-xl border border-(--border-subtle) bg-(--surface-card) px-3.5 py-2 text-[11px] font-bold text-(--text-secondary) transition hover:border-red-300 hover:bg-red-50 hover:text-red-600 disabled:cursor-not-allowed disabled:opacity-45 dark:hover:bg-red-950/20"
               >
@@ -333,6 +336,17 @@ export default function AdaptiveLearningPage() {
         </div>
 
         {data ? <AdaptiveMasteryGraph history={data.profile.history} /> : null}
+
+        <ConfirmDialog
+          open={clearDialogOpen}
+          title="Clear this conversation?"
+          description="This will permanently remove your conversation with Immi so you can start a new one."
+          confirmText="Clear chat"
+          variant="danger"
+          isLoading={clearChat.isPending}
+          onConfirm={() => void clearAdvisorConversation()}
+          onClose={() => setClearDialogOpen(false)}
+        />
       </main>
     </AppShellBoundary>
   )

@@ -70,7 +70,7 @@ export default function LeaderboardSidebar({
         {streakChampions.length > 0 ? (
           streakChampions.map((entry) => (
             <div key={entry.userId} className="flex items-center gap-2.5 border-b border-[#ece3db] py-2.25 last:border-b-0 dark:border-white/[0.07]">
-              <LeaderboardAvatar initials={entry.initials} color={entry.avatarColor} avatarUrl={entry.avatarUrl} name={entry.name} size="sm" />
+              <LeaderboardAvatar initials={entry.initials} color={entry.avatarColor} avatarUrl={entry.avatarUrl} name={entry.name} username={entry.username} size="sm" />
               <span className="flex-1 truncate text-[12.5px] text-(--text-primary) dark:text-(--text-primary)">{entry.name}</span>
               <span className="flex items-center gap-1 font-mono text-[11px] text-[#b0a097] tabular-nums dark:text-[#6b6460]"><FireIcon size={11} /> {entry.streak}</span>
             </div>

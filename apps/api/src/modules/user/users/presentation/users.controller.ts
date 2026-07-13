@@ -65,7 +65,7 @@ export class UsersController {
     try {
       const result = await this._useCases.getPublicProfilePage.execute(
         req.params.username,
-        undefined,
+        req.user?.userId,
         this.buildTrackerPaginationQuery(req)
       )
 

@@ -3,8 +3,7 @@ import { z } from 'zod'
 import { ApiError } from '../../../shared/utils/ApiError'
 
 import { parseAIJson } from '../ai-json.parser'
-import { geminiChat } from '../clients/gemini.client'
-import { groqChat } from '../clients/groq.client'
+import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper'
 import { buildMockTestAnswerEvaluationPrompt } from '../prompts/mock-test-answer-evaluation.prompt'
 import { buildMockTestPerformanceInsightPrompt } from '../prompts/mock-test-performance-insight.prompt'
 import { buildMockTestQuestionsPrompt } from '../prompts/mock-test-questions.prompt'
@@ -105,8 +104,9 @@ export type EvaluateMockTestOpenAnswerAIOutput = z.infer<
 export const generateMockTestQuestionsAI = async (
   input: GenerateMockTestQuestionsAIInput
 ): Promise<GenerateMockTestQuestionsAIOutput> => {
-  const response = await geminiChat(
-    buildMockTestQuestionsPrompt(input)
+  const response = await groqChat(
+    [{ role: 'user', content: buildMockTestQuestionsPrompt(input) }],
+    'llama-3.3-70b-versatile'
   )
 
   if (!response) {

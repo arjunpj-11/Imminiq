@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import { MicButton } from '../../../../components/input/VoiceInputButton'
+import ConfirmDialog from '../../../../components/overlays/ConfirmDialog'
 import { useVoiceInput } from '../../../../hooks/useVoiceInput'
 import OnboardingBrandLink from '../components/OnboardingBrandLink'
 import { useGenerateRoadmap } from '../hooks/useGenerateRoadmap'
@@ -66,6 +67,7 @@ export default function OnboardingStepOnePage() {
   )
   const [answer, setAnswer] = useState('')
   const [generationError, setGenerationError] = useState('')
+  const [clearDialogOpen, setClearDialogOpen] = useState(false)
   const conversationRef = useRef<HTMLDivElement>(null)
   const intake = useTrackerIntake()
   const saveStepOne = useSaveOnboardingStepOne()
@@ -187,6 +189,7 @@ export default function OnboardingStepOnePage() {
 
   const startNewConversation = () => {
     if (voice.isListening) voice.toggle()
+    setClearDialogOpen(false)
     clearIntake()
     intake.reset()
     setMessages([INITIAL_MESSAGE])
@@ -216,7 +219,7 @@ export default function OnboardingStepOnePage() {
           {!trackerGenerationActive && !serverActiveJob.isLoading ? (
             <button
               type="button"
-              onClick={startNewConversation}
+              onClick={() => setClearDialogOpen(true)}
               disabled={
                 intake.isPending ||
                 (messages.length === 1 && !answer && !profile)
@@ -382,6 +385,16 @@ export default function OnboardingStepOnePage() {
         </section>
         )}
       </main>
+
+      <ConfirmDialog
+        open={clearDialogOpen}
+        title="Start a new tracker conversation?"
+        description="Your current answers and Immi's tracker recommendations will be cleared."
+        confirmText="Clear chat"
+        variant="danger"
+        onConfirm={startNewConversation}
+        onClose={() => setClearDialogOpen(false)}
+      />
     </div>
   )
 }

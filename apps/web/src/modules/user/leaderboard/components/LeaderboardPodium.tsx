@@ -72,6 +72,7 @@ function PodiumCard({ entry }: { entry: ILeaderboardTopThreeEntry }) {
               color={entry.avatarColor}
               avatarUrl={entry.avatarUrl}
               name={entry.name}
+              username={entry.username}
               size={isChampion ? 'xl' : 'lg'}
             />
           </div>

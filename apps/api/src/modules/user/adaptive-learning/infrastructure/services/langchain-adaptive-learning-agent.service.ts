@@ -1,8 +1,8 @@
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph'
 import { z } from 'zod'
 
-import { env } from '../../../../../config/env'
+import { economyAIStructuredWithFallback } from '../../../../../infrastructure/ai/ai-fallback.helper'
+import { parseAIJson } from '../../../../../infrastructure/ai/ai-json.parser'
 import type {
   AdaptiveAdvisorAnswer,
   AdaptiveAssessmentPlan,
@@ -21,7 +21,7 @@ const assessmentPlanSchema = z.object({
   focusAreas: z.array(z.string().min(1).max(100)).min(1).max(5),
 })
 
-const advisorResponseSchema = z.object({
+const advisorResponseSchema = z.preprocess(normalizeAdvisorResponse, z.object({
   content: z.string().min(2).max(1200),
   action: z
     .discriminatedUnion('type', [
@@ -42,7 +42,63 @@ const advisorResponseSchema = z.object({
       }),
     ])
     .nullable(),
-})
+}))
+
+function normalizeAdvisorResponse(value: unknown): unknown {
+  if (!value || typeof value !== 'object') return value
+
+  const response = value as Record<string, unknown>
+  const action = response.action
+  if (action === null || action === undefined || typeof action !== 'object') {
+    return { ...response, action: null }
+  }
+
+  const actionRecord = action as Record<string, unknown>
+  if (actionRecord.type === 'create_tracker' || actionRecord.type === 'create_mock_test') {
+    return response
+  }
+
+  const nestedTracker = actionRecord.create_tracker
+  if (nestedTracker && typeof nestedTracker === 'object') {
+    const tracker = nestedTracker as Record<string, unknown>
+    // Models sometimes wrap an existing tracker as a create action. Continuing
+    // an existing tracker must not create a duplicate.
+    if (tracker.trackerId || tracker.tracker_id || tracker.id) {
+      return { ...response, action: null }
+    }
+
+    const topic = tracker.topic ?? tracker.field ?? tracker.title
+    return {
+      ...response,
+      action: {
+        type: 'create_tracker',
+        label: tracker.label ?? (typeof topic === 'string' ? `Create ${topic}` : undefined),
+        topic,
+        goal: tracker.goal,
+        level: tracker.level,
+      },
+    }
+  }
+
+  const nestedTest = actionRecord.create_mock_test
+  if (nestedTest && typeof nestedTest === 'object') {
+    const test = nestedTest as Record<string, unknown>
+    const topic = test.topic ?? test.title
+    return {
+      ...response,
+      action: {
+        type: 'create_mock_test',
+        label: test.label ?? (typeof topic === 'string' ? `Test ${topic}` : undefined),
+        topic,
+        difficulty: test.difficulty,
+        questionCount: test.questionCount ?? test.question_count,
+        trackerId: test.trackerId ?? test.tracker_id ?? null,
+      },
+    }
+  }
+
+  return { ...response, action: null }
+}
 
 const AssessmentState = Annotation.Root({
   snapshot: Annotation<AdaptiveLearnerSnapshot>(),
@@ -54,29 +110,17 @@ const AssessmentState = Annotation.Root({
 export class LangChainAdaptiveLearningAgent
   implements IAdaptiveLearningAgent
 {
-  private readonly _model = new ChatGoogleGenerativeAI({
-    model: 'gemini-2.5-flash',
-    apiKey: env.GEMINI_API_KEY,
-    temperature: 0.2,
-    maxOutputTokens: 1600,
-  })
-
   async planAssessment(input: {
     snapshot: AdaptiveLearnerSnapshot
     profile: AdaptiveProfile
   }): Promise<AdaptiveAssessmentPlan> {
-    const structuredModel = this._model.withStructuredOutput(
-      assessmentPlanSchema,
-      { name: 'adaptive_assessment_plan' },
-    )
-
     const graph = new StateGraph(AssessmentState)
       .addNode('analyze_learner', async (state) => {
-        const proposedPlan = await structuredModel.invoke([
+        const proposedPlan = await economyAIStructuredWithFallback([
           {
             role: 'system',
             content:
-              'You are an adaptive assessment planner. Choose exactly one useful exam based only on the supplied learner data. Prefer weak areas and currently studied trackers. Predict the score realistically; do not reward or punish the learner yet.',
+              'You are an adaptive assessment planner. Choose exactly one useful exam based only on the supplied learner data. Prefer weak areas and currently studied trackers. Predict the score realistically; do not reward or punish the learner yet. Return only JSON with topic, trackerId (string or null), difficulty (easy, medium, or hard), questionCount, predictedScore, rationale, and focusAreas.',
           },
           {
             role: 'user',
@@ -85,7 +129,11 @@ export class LangChainAdaptiveLearningAgent
               learnerData: state.snapshot,
             }),
           },
-        ])
+        ], (rawResponse) => parseAIJson(
+          rawResponse,
+          assessmentPlanSchema,
+          { logErrors: false },
+        ))
         return { proposedPlan }
       })
       .addNode('calibrate_plan', (state) => {
@@ -142,32 +190,47 @@ export class LangChainAdaptiveLearningAgent
   async answer(
     input: Parameters<IAdaptiveLearningAgent['answer']>[0],
   ): Promise<AdaptiveAdvisorAnswer> {
-    const structuredModel = this._model.withStructuredOutput(
-      advisorResponseSchema,
-      { name: 'adaptive_advisor_response' },
-    )
-    const response = await structuredModel.invoke([
-      {
-        role: 'system',
-        content: [
-          'You are Immi, a concise adaptive learning advisor.',
-          'Use the learner data to recommend a concrete next step.',
-          'If you explicitly recommend creating a new tracker, include a create_tracker action with everything required to generate it immediately.',
-          'If you explicitly recommend taking a new mock test, include a create_mock_test action with everything required to generate it immediately.',
-          'Do not add an action when recommending continuing an existing tracker, opening an existing test, or when more clarification is needed.',
-          'Never claim the action has already happened. Be honest when evidence is limited.',
-        ].join(' '),
-      },
-      {
-        role: 'user',
-        content: JSON.stringify({
-          question: input.question,
-          adaptiveProfile: input.profile,
-          learnerData: input.snapshot,
-          conversation: input.history,
-        }),
-      },
-    ])
+    let response: z.infer<typeof advisorResponseSchema>
+    try {
+      response = await economyAIStructuredWithFallback([
+        {
+          role: 'system',
+          content: [
+            'You are Immi, a concise adaptive learning advisor.',
+            'Use the learner data to recommend a concrete next step.',
+            'If you explicitly recommend creating a new tracker, set action to {"type":"create_tracker","label":string,"topic":string,"goal":string,"level":"beginner"|"intermediate"|"advanced"}.',
+            'If you explicitly recommend taking a new mock test, set action to {"type":"create_mock_test","label":string,"topic":string,"difficulty":"easy"|"medium"|"hard","questionCount":number,"trackerId":string|null}.',
+            'Do not add an action when recommending continuing an existing tracker, opening an existing test, or when more clarification is needed.',
+            'Never put create_tracker or create_mock_test as a nested key. The discriminator must always be action.type.',
+            'Never claim the action has already happened. Be honest when evidence is limited.',
+            'Return only JSON with content and action. Set action to null when no creation is needed.',
+          ].join(' '),
+        },
+        {
+          role: 'user',
+          content: JSON.stringify({
+            question: input.question,
+            adaptiveProfile: input.profile,
+            learnerData: input.snapshot,
+            conversation: input.history,
+          }),
+        },
+      ], (rawResponse) => parseAIJson(
+        rawResponse,
+        advisorResponseSchema,
+        { logErrors: false },
+      ))
+    } catch (error) {
+      console.error('[AdaptiveLearning] All structured advisor responses failed:', error)
+      const tracker = [...input.snapshot.trackers].sort(
+        (a, b) => a.progressPercent - b.progressPercent,
+      )[0]
+      return {
+        content: tracker
+          ? `A good next step is to continue “${tracker.title}” and complete one focused lesson today.`
+          : 'Tell me the subject you want to improve, and I’ll recommend a focused next step.',
+      }
+    }
     const validTrackerIds = new Set(
       input.snapshot.trackers.map((tracker) => tracker.id),
     )

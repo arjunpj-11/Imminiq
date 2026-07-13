@@ -8,8 +8,10 @@ import { ApiError } from '../../shared/utils/ApiError'
 
 export const parseAIJson = <T>(
   response: string,
-  schema: z.ZodSchema<T>
+  schema: z.ZodSchema<T>,
+  options: { logErrors?: boolean } = {},
 ): T => {
+  const logErrors = options.logErrors ?? true
   const normalizedResponse = response
     .replace(/^\uFEFF/, '')
     .trim()
@@ -19,11 +21,13 @@ export const parseAIJson = <T>(
   try {
     jsonContent = extractFirstJsonValue(normalizedResponse)
   } catch (error) {
-    console.error('AI JSON extraction failed:', {
-      responseLength: normalizedResponse.length,
-      responsePreview: normalizedResponse.slice(0, 500),
-      error,
-    })
+    if (logErrors) {
+      console.error('AI JSON extraction failed:', {
+        responseLength: normalizedResponse.length,
+        responsePreview: normalizedResponse.slice(0, 500),
+        error,
+      })
+    }
 
     throw new ApiError(
       502,
@@ -37,11 +41,13 @@ export const parseAIJson = <T>(
   try {
     parsed = JSON.parse(jsonContent)
   } catch (error) {
-    console.error('AI JSON parse failed:', {
-      jsonLength: jsonContent.length,
-      errorContext: getJsonErrorContext(jsonContent, error),
-      error,
-    })
+    if (logErrors) {
+      console.error('AI JSON parse failed:', {
+        jsonLength: jsonContent.length,
+        errorContext: getJsonErrorContext(jsonContent, error),
+        error,
+      })
+    }
 
     throw new ApiError(
       502,
@@ -53,10 +59,12 @@ export const parseAIJson = <T>(
   const validationResult = schema.safeParse(parsed)
 
   if (!validationResult.success) {
-    console.error('AI JSON schema validation failed:', {
-      issues: validationResult.error.issues,
-      jsonPreview: jsonContent.slice(0, 500),
-    })
+    if (logErrors) {
+      console.error('AI JSON schema validation failed:', {
+        issues: validationResult.error.issues,
+        jsonPreview: jsonContent.slice(0, 500),
+      })
+    }
 
     throw new ApiError(
       502,

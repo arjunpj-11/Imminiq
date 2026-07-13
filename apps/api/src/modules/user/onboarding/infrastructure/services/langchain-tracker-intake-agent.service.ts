@@ -1,7 +1,7 @@
-import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { z } from 'zod'
 
-import { env } from '../../../../../config/env'
+import { economyAIStructuredWithFallback } from '../../../../../infrastructure/ai/ai-fallback.helper'
+import { parseAIJson } from '../../../../../infrastructure/ai/ai-json.parser'
 import { MockTestReportModel } from '../../../../../infrastructure/database/models/mock-test-report.model'
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model'
 import { User } from '../../../../../infrastructure/database/models/user.model'
@@ -28,17 +28,7 @@ const trackerIntakeResponseSchema = z.object({
 })
 
 export class LangChainTrackerIntakeAgent implements ITrackerIntakeAgent {
-  private readonly _model = new ChatGoogleGenerativeAI({
-    model: 'gemini-2.5-flash',
-    apiKey: env.GEMINI_API_KEY,
-    temperature: 0.25,
-    maxOutputTokens: 900,
-  })
-
   async continueIntake(userId: string, messages: TrackerIntakeMessage[]) {
-    const model = this._model.withStructuredOutput(trackerIntakeResponseSchema, {
-      name: 'tracker_intake_response',
-    })
     const userAnswerCount = messages.filter(
       (message) => message.role === 'user',
     ).length
@@ -73,7 +63,8 @@ export class LangChainTrackerIntakeAgent implements ITrackerIntakeAgent {
       })),
     }
 
-    const response = await model.invoke([
+    try {
+      const response = await economyAIStructuredWithFallback([
       {
         role: 'system',
         content: [
@@ -87,23 +78,43 @@ export class LangChainTrackerIntakeAgent implements ITrackerIntakeAgent {
           'When complete, include the full profile and use assistantMessage to briefly confirm what you understood.',
           `There have been ${userAnswerCount} user answers. If there are 6 or more, complete using the best available information instead of continuing indefinitely.`,
           `Prior learner data: ${JSON.stringify(learnerContext)}.`,
+          'Return only JSON matching this shape: {"assistantMessage": string, "isComplete": boolean, "profile"?: {"topic": string, "motivation": string, "desiredOutcome": string, "currentExperience": string, "weeklyTimeCommitment": string, "learningPreferences": string[], "constraints": string[], "inferredLevel": "beginner" | "intermediate" | "advanced"}}.',
         ].join(' '),
       },
       ...messages.map((message) => ({
         role: message.role,
         content: message.content,
       })),
-    ])
+      ], (rawResponse) => parseAIJson(
+        rawResponse,
+        trackerIntakeResponseSchema,
+        { logErrors: false },
+      ))
 
-    if (response.isComplete && !response.profile) {
+      if (response.isComplete && !response.profile) {
+        return {
+          assistantMessage:
+            'I have most of it. What exact outcome would make this roadmap successful for you?',
+          isComplete: false,
+        }
+      }
+
+      return response
+    } catch (error) {
+      console.error('[TrackerIntake] All structured AI responses failed:', error)
+      const fallbackQuestions = [
+        'What subject would you like your learning tracker to cover?',
+        'What outcome do you want to achieve with this subject?',
+        'How much experience do you already have with it?',
+        'How much time can you study each week?',
+        'How do you prefer to learn—for example, hands-on practice, visuals, or explanations?',
+        'Do you have a deadline or any other constraints?',
+      ]
       return {
-        assistantMessage:
-          'I have most of it. What exact outcome would make this roadmap successful for you?',
+        assistantMessage: fallbackQuestions[Math.min(userAnswerCount, fallbackQuestions.length - 1)],
         isComplete: false,
       }
     }
-
-    return response
   }
 }
 

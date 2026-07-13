@@ -7,7 +7,7 @@ import {
   type TrackerTopicVerificationResult,
 } from '../ai.schemas'
 import { parseAIJson } from '../ai-json.parser'
-import { groqChat } from '../clients/groq.client'
+import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper'
 import {
   buildTrackerSubtopicVerificationPrompt,
   TRACKER_SUBTOPIC_VERIFICATION_SYSTEM_PROMPT,

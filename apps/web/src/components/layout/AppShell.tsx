@@ -131,12 +131,14 @@ export function AppShell({
 
         <div className="relative z-1 flex min-h-screen w-full overflow-x-clip">
           {showSidebar && (
-            <Sidebar
-              mobileOpen={mobileSidebarOpen}
-              collapsed={sidebarCollapsed}
-              onCloseMobile={closeMobileSidebar}
-              onToggleCollapsed={toggleSidebarCollapsed}
-            />
+            <div className="hidden lg:block">
+              <Sidebar
+                mobileOpen={mobileSidebarOpen}
+                collapsed={sidebarCollapsed}
+                onCloseMobile={closeMobileSidebar}
+                onToggleCollapsed={toggleSidebarCollapsed}
+              />
+            </div>
           )}
 
           <main
@@ -145,8 +147,8 @@ export function AppShell({
             className={cn(
               'flex min-w-0 flex-1 flex-col overflow-x-clip transition-[margin] duration-300 ease-out',
               showSidebar && !sidebarCollapsed
-                ? 'min-[901px]:ml-56'
-                : 'min-[901px]:ml-0',
+                ? 'lg:ml-56'
+                : 'lg:ml-0',
             )}
           >
             {withTopBar && (

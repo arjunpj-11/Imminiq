@@ -13,7 +13,7 @@ interface ISidebarProps {
   onToggleCollapsed: () => void
 }
 
-const navItems = [
+const mainItems = [
   {
     label: 'Dashboard',
     to: '/dashboard',
@@ -66,24 +66,9 @@ const navItems = [
       </svg>
     ),
   },
-  {
-    label: 'Learning Agent',
-    to: '/learning-agent',
-    icon: (
-      <svg
-        width="15"
-        height="15"
-        viewBox="0 0 24 24"
-        fill="none"
-        stroke="currentColor"
-        strokeWidth="2"
-      >
-        <path d="M12 2l1.4 5.1L18 9l-4.6 1.9L12 16l-1.4-5.1L6 9l4.6-1.9L12 2Z" />
-        <path d="M5 15l.8 2.2L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-.8L5 15Z" />
-        <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14Z" />
-      </svg>
-    ),
-  },
+]
+
+const discoverItems = [
   {
     label: 'Community',
     to: '/community',
@@ -123,7 +108,28 @@ const navItems = [
   },
 ]
 
-const activityItems = [
+const intelligenceItems = [
+  {
+    label: 'Adaptive Learning',
+    to: '/learning-agent',
+    icon: (
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M12 2l1.4 5.1L18 9l-4.6 1.9L12 16l-1.4-5.1L6 9l4.6-1.9L12 2Z" />
+        <path d="M5 15l.8 2.2L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-.8L5 15Z" />
+        <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14Z" />
+      </svg>
+    ),
+  },
+]
+
+const personalItems = [
   {
     label: 'Activity',
     to: '/activity',
@@ -221,7 +227,7 @@ export default function Sidebar({
             Main
           </div>
 
-          {navItems.map((item) => (
+          {mainItems.map((item) => (
             <NavLink
               key={item.label}
               to={item.to}
@@ -254,10 +260,50 @@ export default function Sidebar({
           ))}
 
           <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
+            Intelligence
+          </div>
+
+          {intelligenceItems.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              onClick={onCloseMobile}
+              onMouseEnter={() => prefetchRoute(item.to)}
+              onFocus={() => prefetchRoute(item.to)}
+              className={navLinkClass}
+            >
+              <span className="flex items-center gap-2.5">
+                {item.icon}
+                {item.label}
+              </span>
+            </NavLink>
+          ))}
+
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
+            Discover
+          </div>
+
+          {discoverItems.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              onClick={onCloseMobile}
+              onMouseEnter={() => prefetchRoute(item.to)}
+              onFocus={() => prefetchRoute(item.to)}
+              className={navLinkClass}
+            >
+              <span className="flex items-center gap-2.5">
+                {item.icon}
+                {item.label}
+              </span>
+            </NavLink>
+          ))}
+
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
             Personal
           </div>
 
-          {activityItems.map((item) => {
+          {personalItems.map((item) => {
             const isSettingsItem = item.label === 'Settings'
 
             const target =

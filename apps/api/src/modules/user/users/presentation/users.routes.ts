@@ -1,6 +1,6 @@
 import { Router } from 'express'
 
-import { authenticate } from '../../../../shared/middlewares/auth.middleware'
+import { authenticate, authenticateOptional } from '../../../../shared/middlewares/auth.middleware'
 import { validate, validateUsernameParam } from '../../../../shared/middlewares/validate'
 import { UsersController } from './users.controller'
 import type { UsersUseCases } from '../application/users-use-cases.contract'
@@ -16,6 +16,7 @@ router.param('username', validateUsernameParam)
 
 router.get(
   USER_ROUTE_PATHS.PUBLIC_PROFILE,
+  authenticateOptional,
   usersController.getPublicProfile
 )
 

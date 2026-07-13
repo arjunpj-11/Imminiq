@@ -55,7 +55,7 @@ export class MongoDashboardFriendRepository extends MongoDashboardBaseRepository
             _id: { $in: friendIds },
             deletedAt: null,
           })
-            .select('_id fullName username lastActiveAt')
+            .select('_id fullName username avatarUrl lastActiveAt')
             .lean<MongoUserRecord[]>(),
           UserProfile.find({
             userId: { $in: friendIds },

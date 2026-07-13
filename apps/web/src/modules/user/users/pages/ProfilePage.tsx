@@ -13,7 +13,7 @@ import { useUploadAvatar } from '../hooks/mutations/useUploadAvatar'
 import { useUploadBanner } from '../hooks/mutations/useUploadBanner'
 import { useStreak } from '../../../../hooks/progress/useStreak'
 import { usePublicProfile } from '../hooks/public/usePublicProfile'
-import { useSendFriendRequest } from '../../../../hooks/friends/useSendFriendRequest'
+import { useSendFriendRequest } from '../../friends/hooks/useSendFriendRequest'
 import { useAuthStore } from '../../../../store/useAuthStore'
 import { useProfileStore } from '../store/useProfileStore'
 import type { IPublishedTracker } from '../types/profile.types'
@@ -48,7 +48,6 @@ import PublishedTrackersSection, {
 } from '../components/PublishedTrackersSection'
 import AdaptiveMasteryGraph from '../../adaptive-learning/components/AdaptiveMasteryGraph'
 import { useAdaptiveLearningDashboard } from '../../adaptive-learning/hooks/useAdaptiveLearning'
-import { useCloneCommunityTracker } from '../../community/hooks/useCloneCommunityTracker'
 
 /* ─── Main ProfilePage ─── */
 export default function ProfilePage() {
@@ -56,6 +55,7 @@ export default function ProfilePage() {
   const navigate = useNavigate()
   const location = useLocation()
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const authReady = useAuthStore((state) => state.authReady)
 
   const isPublicView = Boolean(username)
   const isOwnView = !isPublicView
@@ -106,7 +106,7 @@ export default function ProfilePage() {
   const publicProfileQuery = usePublicProfile(
     username ?? '',
     { page: 1, limit: 3, sort: 'publishedAt' },
-    { enabled: isPublicView },
+    { enabled: isPublicView && authReady },
   )
 
   const activeProfileData = isPublicView
@@ -174,12 +174,14 @@ export default function ProfilePage() {
   const uploadAvatarMutation = useUploadAvatar()
   const uploadBannerMutation = useUploadBanner()
   const sendFriendRequestMutation = useSendFriendRequest()
-  const cloneTrackerMutation = useCloneCommunityTracker()
-  const [relationshipOverride, setRelationshipOverride] = useState<
-    'request_sent' | null
-  >(null)
+  const [relationshipOverride, setRelationshipOverride] = useState<{
+    username: string
+    state: 'request_sent'
+  } | null>(null)
   const relationship =
-    relationshipOverride ??
+    (relationshipOverride && relationshipOverride.username === username
+      ? relationshipOverride.state
+      : null) ??
     publicProfileQuery.data?.relationship ??
     'not_connected'
 
@@ -265,10 +267,13 @@ export default function ProfilePage() {
 
     try {
       await sendFriendRequestMutation.mutateAsync({
-        receiverId,
+        receiverUserId: receiverId,
       })
 
-      setRelationshipOverride('request_sent')
+      setRelationshipOverride({
+        username: username ?? '',
+        state: 'request_sent',
+      })
       showToast('Friend request sent!', 'success')
     } catch (error: unknown) {
       const message = isAxiosError<{ message?: string }>(error)
@@ -459,18 +464,6 @@ export default function ProfilePage() {
 
             <PublishedTrackersSection
               trackers={trackers}
-              onClone={(tracker) => {
-                cloneTrackerMutation.mutate(
-                  { trackerId: tracker.id },
-                  {
-                    onSuccess: ({ tracker: clonedTracker }) => {
-                      showToast('Tracker cloned to your dashboard!', 'success')
-                      navigate(`/trackers/${clonedTracker._id}/roadmap`)
-                    },
-                    onError: () => showToast('Unable to clone this tracker.', 'error'),
-                  },
-                )
-              }}
               onOpen={(tracker) => navigate(`/community/trackers/${tracker.id}`)}
             />
           </div>

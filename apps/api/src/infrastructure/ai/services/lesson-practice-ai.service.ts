@@ -11,7 +11,7 @@ import {
   type OptimizedSolutionAIResult,
 } from '../ai.schemas'
 import { parseAIJson } from '../ai-json.parser'
-import { groqChat } from '../clients/groq.client'
+import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper'
 import {
   buildLessonAnswerVerificationPrompt,
   LESSON_ANSWER_VERIFICATION_SYSTEM_PROMPT,

@@ -207,7 +207,8 @@ export class MongoDashboardMapper {
       id: this.toId(friend._id),
       fullName: friend.fullName,
       username: friend.username,
-      avatarUrl: profileMap.get(this.toId(friend._id)) ?? '',
+      avatarUrl:
+        profileMap.get(this.toId(friend._id)) || friend.avatarUrl || '',
       lastActiveAt: friend.lastActiveAt ?? null,
       isOnline: this.isUserOnline(friend.lastActiveAt),
     })

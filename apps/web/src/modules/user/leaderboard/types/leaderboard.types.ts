@@ -5,6 +5,7 @@ export interface ILeaderboardEntry {
   userId: string
   rank: number
   name: string
+  username: string
   handle: string
   track: string
   xp: number

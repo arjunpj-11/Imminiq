@@ -4,7 +4,7 @@ import {
   type GeneratedRoadmapStructure,
   type RoadmapEvaluation,
 } from '../ai.schemas'
-import { heavyAIChatWithFallback } from '../ai-fallback.helper'
+import { trackerAIChatWithFallback } from '../ai-fallback.helper'
 import { parseAIJson } from '../ai-json.parser'
 import {
   cerebrasRoadmapEvaluationChat,
@@ -28,7 +28,7 @@ export const generateRoadmapStructure = async (
   goal: string | undefined,
   level: 'beginner' | 'intermediate' | 'advanced'
 ): Promise<GeneratedRoadmapStructure> => {
-  const response = await heavyAIChatWithFallback(
+  const response = await trackerAIChatWithFallback(
     buildRoadmapStructurePrompt({
       topic,
       goal,
@@ -47,7 +47,7 @@ export const generateRoadmapStructure = async (
 export const evaluateRoadmap = async (
   roadmap: unknown
 ): Promise<RoadmapEvaluation> => {
-  const response = await heavyAIChatWithFallback(
+  const response = await trackerAIChatWithFallback(
     buildRoadmapEvaluationPrompt(roadmap),
     ROADMAP_EVALUATION_SYSTEM_PROMPT,
     cerebrasRoadmapEvaluationChat

@@ -38,6 +38,7 @@ export class LeaderboardMapper implements ILeaderboardMapper {
       userId: entry.userId,
       rank: entry.rank,
       name: entry.fullName,
+      username: entry.username,
       handle: `@${entry.username}`,
       track:
         entry.section === 'students'

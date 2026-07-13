@@ -1,7 +1,6 @@
 import { ApiError } from '../../../shared/utils/ApiError'
 
-import { geminiChat } from '../clients/gemini.client'
-import { groqChat } from '../clients/groq.client'
+import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper'
 import {
   buildDashboardInsightPrompt,
   DASHBOARD_INSIGHT_SYSTEM_PROMPT,    
@@ -15,24 +14,33 @@ export const generateRoadmap = (
   goal: string,
   level: string
 ) =>
-  geminiChat(
-    `Generate a detailed learning roadmap for ${goal} at ${level} level`,
-    'You are an expert learning path designer.'
+  groqChat(
+    [
+      { role: 'system', content: 'You are an expert learning path designer.' },
+      { role: 'user', content: `Generate a detailed learning roadmap for ${goal} at ${level} level` },
+    ],
+    'llama-3.3-70b-versatile'
   )
 
 export const detectMissingTopics = (
   roadmap: string,
   targetRole: string
 ) =>
-  geminiChat(
-    `Compare this roadmap against ${targetRole} requirements and list missing topics: ${roadmap}`,
-    'You are a curriculum gap analyst.'
+  groqChat(
+    [
+      { role: 'system', content: 'You are a curriculum gap analyst.' },
+      { role: 'user', content: `Compare this roadmap against ${targetRole} requirements and list missing topics: ${roadmap}` },
+    ],
+    'llama-3.3-70b-versatile'
   )
 
 export const analyzeTestPerformance = (results: string) =>
-  geminiChat(
-    `Analyze this test performance and identify weak areas: ${results}`,
-    'You are a learning analytics expert.'
+  groqChat(
+    [
+      { role: 'system', content: 'You are a learning analytics expert.' },
+      { role: 'user', content: `Analyze this test performance and identify weak areas: ${results}` },
+    ],
+    'llama-3.3-70b-versatile'
   )
 
 export const generateDashboardInsights = async (

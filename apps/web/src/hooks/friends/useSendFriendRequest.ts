@@ -3,7 +3,7 @@ import type { AxiosError } from 'axios'
 import api from '../../lib/axios'
 
 interface ISendFriendRequestPayload {
-  receiverId: string
+  receiverUserId: string
   message?: string
 }
 

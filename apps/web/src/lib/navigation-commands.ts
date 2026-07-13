@@ -42,6 +42,21 @@ export const NAVIGATION_COMMANDS: readonly INavigationCommandDefinition[] = [
     shortcut: ['g', 'm'],
   },
   {
+    id: 'adaptive-learning',
+    label: 'Adaptive Learning',
+    description: 'Ask Immi what to study or prepare next',
+    path: '/learning-agent',
+    keywords: [
+      'learning agent',
+      'immi',
+      'advisor',
+      'study next',
+      'adaptive learning',
+      'learning navigator',
+    ],
+    shortcut: ['g', 'i'],
+  },
+  {
     id: 'community',
     label: 'Community',
     description: 'Explore shared trackers',

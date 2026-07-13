@@ -13,13 +13,11 @@ export interface IPublishedTrackerCardViewModel {
 
 interface IPublishedTrackersSectionProps {
   trackers: IPublishedTrackerCardViewModel[]
-  onClone: (tracker: IPublishedTrackerCardViewModel) => void
   onOpen: (tracker: IPublishedTrackerCardViewModel) => void
 }
 
 export default function PublishedTrackersSection({
   trackers,
-  onClone,
   onOpen,
 }: IPublishedTrackersSectionProps) {
   return (
@@ -36,7 +34,6 @@ export default function PublishedTrackersSection({
             <TrackerCard
               key={tracker.slug || tracker.title}
               {...tracker}
-              onClone={() => onClone(tracker)}
               onClick={() => onOpen(tracker)}
             />
           ))}

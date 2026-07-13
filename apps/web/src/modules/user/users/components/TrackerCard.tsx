@@ -7,7 +7,6 @@ interface ITrackerCardProps {
   rating: number;
   clones: string;
   thumbClass: string;
-  onClone: () => void;
   onClick: () => void;
 }
 
@@ -17,7 +16,6 @@ export default function TrackerCard({
   rating,
   clones,
   thumbClass,
-  onClone,
   onClick,
 }: ITrackerCardProps) {
   return (
@@ -61,7 +59,7 @@ export default function TrackerCard({
         <p className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary) leading-normal mb-3 min-h-9">
           {desc}
         </p>
-        <div className="flex items-center justify-between gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <div className="text-[11.5px] text-(--text-secondary) dark:text-(--text-secondary) flex items-center gap-1">
             <svg
               width="12"
@@ -76,16 +74,6 @@ export default function TrackerCard({
             </svg>
             {clones} Clones
           </div>
-          <button
-            type="button"
-            className="px-4 py-1.75 rounded-lg bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.09)] border-[1.5px] border-[rgba(184,76,43,0.16)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-semibold text-(--brand-500) dark:text-(--brand-500) transition hover:bg-(--brand-500) hover:text-[#fdf8f5] hover:border-(--brand-500) hover:-translate-y-px"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClone();
-            }}
-          >
-            Clone
-          </button>
         </div>
       </div>
     </div>

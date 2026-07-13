@@ -4,13 +4,21 @@ import { cn } from '../../lib/cn'
 import { prefetchRoute } from '../../lib/route-prefetch'
 
 interface IBottomNavProps {
-  activeTab?: 'home' | 'trackers' | 'tests' | 'ranks' | 'community' | 'profile'
+  activeTab?:
+    | 'home'
+    | 'trackers'
+    | 'tests'
+    | 'adaptive'
+    | 'ranks'
+    | 'community'
+    | 'profile'
 }
 
 const tabs = [
   { key: 'home', label: 'Home', to: '/dashboard', icon: <><rect x="3" y="3" width="7" height="7" /><rect x="14" y="3" width="7" height="7" /><rect x="3" y="14" width="7" height="7" /><rect x="14" y="14" width="7" height="7" /></> },
   { key: 'trackers', label: 'Trackers', to: '/trackers', icon: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" /> },
   { key: 'tests', label: 'Tests', to: '/mock-tests', icon: <><path d="M9 11l3 3L22 4" /><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" /></> },
+  { key: 'adaptive', label: 'Adaptive', to: '/learning-agent', icon: <><path d="M12 2l1.4 5.1L18 9l-4.6 1.9L12 16l-1.4-5.1L6 9l4.6-1.9L12 2Z" /><path d="M5 15l.8 2.2L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-.8L5 15Z" /></> },
   { key: 'ranks', label: 'Ranks', to: '/leaderboard', icon: <><line x1="18" y1="20" x2="18" y2="10" /><line x1="12" y1="20" x2="12" y2="4" /><line x1="6" y1="20" x2="6" y2="14" /></> },
   { key: 'community', label: 'Community', to: '/community', icon: <><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" /></> },
 ] as const
@@ -21,7 +29,7 @@ export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
       aria-label="Primary mobile navigation"
       className="fixed bottom-0 left-0 right-0 z-40 w-full border-t border-(--border-subtle) bg-[color-mix(in_srgb,var(--surface-elevated)_94%,transparent)] pb-[env(safe-area-inset-bottom,0px)] backdrop-blur-xl lg:hidden"
     >
-      <div className="grid h-16 w-full grid-cols-5 items-stretch">
+      <div className="grid h-16 w-full grid-cols-6 items-stretch">
         {tabs.map((tab) => (
           <NavLink
             key={tab.key}

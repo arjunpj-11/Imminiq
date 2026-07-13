@@ -5,7 +5,7 @@ import {
   type GeneratedLesson,
 } from '../ai.schemas'
 import { parseAIJson } from '../ai-json.parser'
-import { groqChat } from '../clients/groq.client'
+import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper'
 import {
   buildLessonGenerationPrompt,
   LESSON_GENERATION_SYSTEM_PROMPT,

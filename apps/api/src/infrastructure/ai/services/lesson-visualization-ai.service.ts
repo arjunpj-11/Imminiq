@@ -1,11 +1,10 @@
 import { ApiError } from '../../../shared/utils/ApiError'
 
-import { heavyAIChatWithFallback } from '../ai-fallback.helper'
+import { economyAIChatWithFallback } from '../ai-fallback.helper'
 import type {
   LessonVisualizationResult,
   IVisualizationInput,
 } from '../ai.schemas'
-import { cerebrasRoadmapStructureChat } from '../clients/cerebras.client'
 import {
   buildVisualizationPrompt,
   LESSON_VISUALIZATION_SYSTEM_PROMPT,
@@ -18,10 +17,12 @@ import {
 export const generateLessonVisualization = async (
   lesson: IVisualizationInput
 ): Promise<LessonVisualizationResult> => {
-  const rawText = await heavyAIChatWithFallback(
-    buildVisualizationPrompt(lesson),
-    LESSON_VISUALIZATION_SYSTEM_PROMPT,
-    cerebrasRoadmapStructureChat
+  const rawText = await economyAIChatWithFallback(
+    [
+      { role: 'system', content: LESSON_VISUALIZATION_SYSTEM_PROMPT },
+      { role: 'user', content: buildVisualizationPrompt(lesson) },
+    ],
+    'llama-3.3-70b-versatile'
   )
 
   if (!rawText) {

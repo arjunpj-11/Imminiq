@@ -25,6 +25,7 @@ export default function LeaderboardMyRankBar({
         color={entry.avatarColor}
         avatarUrl={entry.avatarUrl}
         name={entry.name}
+        username={entry.username}
       />
 
       <div className="min-w-0 flex-1">
