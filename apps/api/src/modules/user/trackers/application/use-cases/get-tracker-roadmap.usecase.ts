@@ -33,6 +33,7 @@ const buildRoadmapTree = ({
       status: subtopic.status || 'available',
       isLocked: Boolean(subtopic.isLocked),
       estimatedMinutes: subtopic.estimatedMinutes || 0,
+      learningVideo: subtopic.learningVideo || null,
       progressPercent: subtopic.progressPercent || 0,
       completedAt: subtopic.completedAt || null,
       children: [],

@@ -2,6 +2,7 @@ import { Types } from "mongoose";
 
 import type {
   GeneratedTrackerLessonRecord,
+  LearningVideoRecord,
   TrackerListFilter,
 } from "../../../domain/trackers.types";
 
@@ -46,6 +47,7 @@ export type MongoSubtopicContentRecord = {
   depth: number;
   isLocked?: boolean;
   estimatedMinutes?: number;
+  learningVideo?: LearningVideoRecord | null;
 };
 
 export type MongoSubtopicProgressRecord = {

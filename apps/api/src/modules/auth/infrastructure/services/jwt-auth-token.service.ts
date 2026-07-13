@@ -12,7 +12,7 @@ import type {
 import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants'
 
 export class JwtAuthToken implements IAuthToken {
-  generateAccessToken(userId: string, role: AuthRole): string {
+  generateAccessToken(userId: string, role: AuthRole, sessionId?: string): string {
     const accessTokenOptions: SignOptions = {
       expiresIn: env.JWT_EXPIRES_IN as SignOptions['expiresIn'],
       algorithm: 'HS256',
@@ -25,6 +25,7 @@ export class JwtAuthToken implements IAuthToken {
         userId,
         role,
         type: 'access',
+        ...(sessionId ? { sessionId } : {}),
       } as IJwtPayload,
       env.JWT_SECRET,
       accessTokenOptions

@@ -1,3 +1,5 @@
+import type { ILearningVideo } from '../types/tracker.types'
+
 export type RoadmapNode = {
   _id: string
   title: string
@@ -8,6 +10,7 @@ export type RoadmapNode = {
   estimatedMinutes?: number
   estimatedHours?: number
   isLocked?: boolean
+  learningVideo?: ILearningVideo | null
   children: RoadmapNode[]
   nodeType: 'topic' | 'subtopic'
 }

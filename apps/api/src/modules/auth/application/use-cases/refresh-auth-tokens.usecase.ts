@@ -67,7 +67,8 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
 
     const accessToken = this._authToken.generateAccessToken(
       user.id,
-      user.role
+      user.role,
+      tokenRecord.id,
     )
 
     const newRefreshToken = this._authToken.generateRefreshToken()

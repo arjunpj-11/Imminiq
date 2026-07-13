@@ -4,7 +4,10 @@ vi.mock('../../src/config/env', () => ({
   env: { YOUTUBE_DATA_API_KEY: 'test-youtube-key' },
 }))
 
-import { findTrackerTopicLearningVideos } from '../../src/infrastructure/youtube/youtube-learning-video.service'
+import {
+  findTrackerSubtopicLearningVideos,
+  findTrackerTopicLearningVideos,
+} from '../../src/infrastructure/youtube/youtube-learning-video.service'
 
 describe('YouTube learning video recommendations', () => {
   const fetchMock = vi.fn()
@@ -84,5 +87,45 @@ describe('YouTube learning video recommendations', () => {
     })
 
     expect(result.size).toBe(0)
+  })
+
+  it('uses the parent topic as context for a dedicated subtopic video', async () => {
+    fetchMock
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({ items: [{ id: { videoId: 'history-1' } }] }),
+      })
+      .mockResolvedValueOnce({
+        ok: true,
+        json: async () => ({
+          items: [{
+            id: 'history-1',
+            snippet: {
+              title: 'French Revolution and Nationalism Explained',
+              description: 'A complete lesson about the French Revolution.',
+              channelTitle: 'History Classroom',
+              thumbnails: { medium: { url: 'https://img.youtube.com/history-1.jpg' } },
+            },
+            contentDetails: { duration: 'PT35M' },
+            statistics: { viewCount: '80000' },
+            status: { embeddable: true, privacyStatus: 'public' },
+          }],
+        }),
+      })
+
+    const result = await findTrackerSubtopicLearningVideos({
+      trackerTitle: 'CBSE Class 10 History Exam Preparation',
+      subtopics: [{
+        key: '1:1',
+        title: 'Chapter 1: French Revolution',
+        parentTopicTitle: 'The Rise of Nationalism in Europe',
+      }],
+    })
+
+    expect(result.get('1:1')?.videoId).toBe('history-1')
+    const searchUrl = new URL(String(fetchMock.mock.calls[0][0]))
+    expect(searchUrl.searchParams.get('q')).toBe(
+      'French Revolution The Rise of Nationalism in Europe CBSE Class 10 History Exam full chapter tutorial',
+    )
   })
 })

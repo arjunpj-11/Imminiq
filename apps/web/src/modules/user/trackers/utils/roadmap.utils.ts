@@ -40,6 +40,7 @@ const mapSubtopicToNode = (subtopic: IRoadmapSubtopic): RoadmapNode => ({
   progressPercent: subtopic.progressPercent,
   estimatedMinutes: subtopic.estimatedMinutes,
   isLocked: subtopic.isLocked,
+  learningVideo: subtopic.learningVideo,
   nodeType: 'subtopic',
   children: (subtopic.children || []).map(mapSubtopicToNode),
 })
@@ -52,6 +53,7 @@ export const mapTopicToNode = (topic: IRoadmapTopic): RoadmapNode => ({
   status: topic.status,
   progressPercent: topic.progressPercent,
   estimatedHours: topic.estimatedHours,
+  learningVideo: topic.learningVideo,
   nodeType: 'topic',
   children: topic.subtopics.map(mapSubtopicToNode),
 })

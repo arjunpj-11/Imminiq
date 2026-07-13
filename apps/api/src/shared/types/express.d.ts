@@ -6,6 +6,7 @@ declare global {
       userId: string
       role: 'user' | 'admin' | 'moderator' | 'superadmin'
       type?: 'access' | 'refresh'
+      sessionId?: string
     }
 
     interface Request {

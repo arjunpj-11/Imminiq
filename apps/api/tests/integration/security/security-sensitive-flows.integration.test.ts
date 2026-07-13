@@ -61,7 +61,6 @@ describe('security-sensitive HTTP integration flows', () => {
     const response = await request(app)
       .get('/api/security/overview')
       .set('Authorization', `Bearer ${authenticated.accessToken}`)
-      .set('Cookie', authenticated.cookieHeader)
 
     expect(response.status).toBe(200)
     expect(response.body?.data?.activeSessions).toHaveLength(1)

@@ -11,7 +11,11 @@ type SecurityOverviewRepository = ISecurityUserRepository &
   ISecurityTwoFactorRepository
 
 export interface IGetSecurityOverviewUseCase {
-  execute(userId: string, refreshToken?: string): Promise<ISecurityOverviewDTO>
+  execute(
+    userId: string,
+    refreshToken?: string,
+    authenticatedSessionId?: string,
+  ): Promise<ISecurityOverviewDTO>
 }
 
 export class GetSecurityOverviewUseCase implements IGetSecurityOverviewUseCase {
@@ -24,6 +28,7 @@ export class GetSecurityOverviewUseCase implements IGetSecurityOverviewUseCase {
   async execute(
     userId: string,
     refreshToken?: string,
+    authenticatedSessionId?: string,
   ): Promise<ISecurityOverviewDTO> {
     const user = await this._securityRepository.findUserById(userId)
 
@@ -33,7 +38,10 @@ export class GetSecurityOverviewUseCase implements IGetSecurityOverviewUseCase {
 
     const sessions = await this._securityRepository.findActiveSessions(userId)
     const currentSessionId =
-      await this._currentSessionResolver.getCurrentSessionId(refreshToken)
+      await this._currentSessionResolver.getCurrentSessionId(
+        refreshToken,
+        authenticatedSessionId,
+      )
     const twoFactor =
       await this._securityRepository.findTwoFactorByUserId(userId)
 

@@ -9,6 +9,7 @@ type AuthTokenPayload = {
   userId: string
   role: UserRole
   type: 'access'
+  sessionId?: string
 }
 
 const isUserRole = (role: unknown): role is UserRole => {
@@ -48,6 +49,9 @@ export const authenticate = (
       userId: decoded.userId,
       role: decoded.role,
       type: decoded.type,
+      ...(typeof decoded.sessionId === 'string'
+        ? { sessionId: decoded.sessionId }
+        : {}),
     }
 
     next()
@@ -87,6 +91,9 @@ export const authenticateOptional = (
       userId: decoded.userId,
       role: decoded.role,
       type: decoded.type,
+      ...(typeof decoded.sessionId === 'string'
+        ? { sessionId: decoded.sessionId }
+        : {}),
     }
 
     next()

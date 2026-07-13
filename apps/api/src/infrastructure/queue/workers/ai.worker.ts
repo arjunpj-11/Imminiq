@@ -18,7 +18,11 @@ import {
   evaluateRoadmap,
   RoadmapNestedNode,
 } from '../../ai/ai.service'
-import { findTrackerTopicLearningVideos } from '../../youtube/youtube-learning-video.service'
+import {
+  findTrackerSubtopicLearningVideos,
+  findTrackerTopicLearningVideos,
+  LearningVideoRecommendation,
+} from '../../youtube/youtube-learning-video.service'
 
 // ============================================================
 // GEMINI RATE-LIMIT SETTINGS
@@ -156,6 +160,8 @@ const saveNestedSubtopics = async ({
   parentSubtopicId,
   nodes,
   depth,
+  topicOrder,
+  learningVideos,
   session,
 }: {
   trackerId: mongoose.Types.ObjectId
@@ -163,6 +169,8 @@ const saveNestedSubtopics = async ({
   parentSubtopicId: mongoose.Types.ObjectId | null
   nodes: RoadmapNestedNode[]
   depth: number
+  topicOrder: number
+  learningVideos: Map<string, LearningVideoRecommendation>
   session: mongoose.ClientSession
 }) => {
   for (const node of nodes) {
@@ -179,6 +187,10 @@ const saveNestedSubtopics = async ({
             depth,
             isLocked: true,
             estimatedMinutes: 0,
+            learningVideo:
+              depth === 1
+                ? learningVideos.get(`${topicOrder}:${node.order}`) || null
+                : null,
           },
         ],
         {
@@ -196,6 +208,8 @@ const saveNestedSubtopics = async ({
           createdSubtopic._id as mongoose.Types.ObjectId,
         nodes: node.children,
         depth: depth + 1,
+        topicOrder,
+        learningVideos,
         session,
       })
     }
@@ -363,13 +377,35 @@ const processRoadmapGeneration = async (
     level
   )
 
-  const learningVideos = await findTrackerTopicLearningVideos({
-    trackerTitle: topic,
-    topics: roadmap.topics.map((roadmapTopic) => ({
-      title: roadmapTopic.title,
-      order: roadmapTopic.order,
-    })),
+  const meaningfulSubtopics = roadmap.topics.flatMap((roadmapTopic) => {
+    const section = (roadmapTopic.children || []).find((child) =>
+      Boolean(child.children?.length) &&
+      !/^(?:quiz|practice|exercise|revision|recap|interview|common pitfalls?)/i
+        .test(child.title.trim()),
+    )
+
+    return section
+      ? [{
+          key: `${roadmapTopic.order}:${section.order}`,
+          title: section.title,
+          parentTopicTitle: roadmapTopic.title,
+        }]
+      : []
   })
+
+  const [learningVideos, subtopicLearningVideos] = await Promise.all([
+    findTrackerTopicLearningVideos({
+      trackerTitle: topic,
+      topics: roadmap.topics.map((roadmapTopic) => ({
+        title: roadmapTopic.title,
+        order: roadmapTopic.order,
+      })),
+    }),
+    findTrackerSubtopicLearningVideos({
+      trackerTitle: topic,
+      subtopics: meaningfulSubtopics,
+    }),
+  ])
 
   await completeStep(jobId, 3)
 
@@ -485,6 +521,8 @@ const processRoadmapGeneration = async (
             parentSubtopicId: null,
             nodes: topicData.children,
             depth: 1,
+            topicOrder: topicData.order,
+            learningVideos: subtopicLearningVideos,
             session,
           })
         }

@@ -576,7 +576,7 @@ export default function AccountSecuritySettingsPage() {
 
                       {session.current && (
                         <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-(--success) dark:text-(--success)">
-                          Current
+                          Current session
                         </span>
                       )}
                     </div>

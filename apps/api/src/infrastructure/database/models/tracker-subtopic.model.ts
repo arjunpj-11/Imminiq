@@ -12,6 +12,14 @@ export interface ITrackerSubtopicDocument extends Document {
   depth: number
   isLocked: boolean
   estimatedMinutes: number
+  learningVideo?: {
+    videoId: string
+    title: string
+    url: string
+    channelTitle: string
+    thumbnailUrl: string
+    durationSeconds: number
+  } | null
   deletedAt?: Date | null
   createdAt: Date
   updatedAt: Date
@@ -63,6 +71,20 @@ const trackerSubtopicSchema = new Schema<ITrackerSubtopicDocument>(
       type: Number,
       default: 0,
       min: 0,
+    },
+    learningVideo: {
+      type: new Schema(
+        {
+          videoId: { type: String, required: true, trim: true },
+          title: { type: String, required: true, trim: true },
+          url: { type: String, required: true, trim: true },
+          channelTitle: { type: String, default: '', trim: true },
+          thumbnailUrl: { type: String, default: '', trim: true },
+          durationSeconds: { type: Number, default: 0, min: 0 },
+        },
+        { _id: false },
+      ),
+      default: null,
     },
     deletedAt: {
       type: Date,

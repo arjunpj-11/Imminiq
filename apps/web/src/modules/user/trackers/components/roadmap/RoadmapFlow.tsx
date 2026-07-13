@@ -270,18 +270,19 @@ export function RoadmapFlowNode({
         index % 2 === 1 && 'justify-end'
       )}
     >
-      <button
-        type="button"
-        disabled={locked}
-        onClick={onClick}
-        className={cn(
-          'group relative w-[min(420px,90%)] overflow-hidden rounded-lg border-[1.5px] bg-(--surface-card) p-4.5 text-left shadow-[0_4px_24px_rgba(26,23,20,0.08),0_1px_4px_rgba(26,23,20,0.05)] transition dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.30),0_1px_4px_rgba(0,0,0,0.20)]',
+      <div className="w-[min(420px,90%)]">
+        <button
+          type="button"
+          disabled={locked}
+          onClick={onClick}
+          className={cn(
+          'group relative w-full overflow-hidden rounded-lg border-[1.5px] bg-(--surface-card) p-4.5 text-left shadow-[0_4px_24px_rgba(26,23,20,0.08),0_1px_4px_rgba(26,23,20,0.05)] transition dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.30),0_1px_4px_rgba(0,0,0,0.20)]',
           locked && 'cursor-not-allowed border-(--border-subtle) opacity-70 dark:border-(--border-subtle)',
           !locked && 'cursor-pointer border-(--border-subtle) hover:-translate-y-1 hover:border-[rgba(184,76,43,0.22)] hover:shadow-[0_8px_40px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:hover:border-[rgba(232,129,106,0.24)]',
           active && 'border-(--brand-500) shadow-[0_8px_40px_rgba(184,76,43,0.18)] dark:border-(--brand-500)',
           completed && 'border-[rgba(45,106,71,0.20)] dark:border-[rgba(92,201,138,0.22)]'
-        )}
-      >
+          )}
+        >
         {(active || completed) && (
           <div
             className={cn(
@@ -366,7 +367,45 @@ export function RoadmapFlowNode({
             </div>
           )}
         </div>
-      </button>
+        </button>
+
+        {node.learningVideo && (
+          <a
+            href={node.learningVideo.url}
+            target="_blank"
+            rel="noreferrer"
+            className="mt-2.5 flex w-full items-center gap-3 overflow-hidden rounded-lg border border-red-500/20 bg-(--surface-card) p-2.5 text-left shadow-sm transition hover:-translate-y-0.5 hover:border-red-500/40 hover:shadow-md dark:bg-(--surface-card)"
+            aria-label={`Watch ${node.learningVideo.title} on YouTube`}
+          >
+            <div className="relative h-14 w-24 shrink-0 overflow-hidden rounded-md bg-black/10">
+              {node.learningVideo.thumbnailUrl ? (
+                <img
+                  src={node.learningVideo.thumbnailUrl}
+                  alt=""
+                  loading="lazy"
+                  className="h-full w-full object-cover"
+                />
+              ) : null}
+              <span className="absolute inset-0 flex items-center justify-center">
+                <span className="flex h-7 w-9 items-center justify-center rounded-md bg-red-600 text-[11px] text-white shadow-sm">
+                  ▶
+                </span>
+              </span>
+            </div>
+            <span className="min-w-0 flex-1">
+              <span className="mb-0.5 block font-mono text-[8px] font-semibold uppercase tracking-[0.1em] text-red-600 dark:text-red-400">
+                Watch on YouTube
+              </span>
+              <span className="line-clamp-2 block text-[12px] font-semibold leading-snug text-(--text-primary)">
+                {node.learningVideo.title}
+              </span>
+              <span className="mt-0.5 block truncate text-[10px] text-(--text-secondary)">
+                {node.learningVideo.channelTitle}
+              </span>
+            </span>
+          </a>
+        )}
+      </div>
     </div>
   )
 }

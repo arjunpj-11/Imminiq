@@ -4,6 +4,7 @@ export interface IJwtPayload {
   userId: string
   role: AuthRole
   type: 'access'
+  sessionId?: string
 }
 
 export type ResetTokenPayload = {

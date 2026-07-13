@@ -14,9 +14,11 @@ export class SecurityController {
 
   getOverview = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const authUser = getAuthUser(req)
       const result = await this._useCases.getSecurityOverview.execute(
-        getAuthUser(req).userId,
-        this.getRawRefreshTokenFromCookie(req)
+        authUser.userId,
+        this.getRawRefreshTokenFromCookie(req),
+        authUser.sessionId,
       )
 
       res.json(new ApiResponse('Security overview fetched', result))
@@ -86,10 +88,12 @@ export class SecurityController {
 
   revokeSession = async (req: Request, res: Response, next: NextFunction) => {
     try {
+      const authUser = getAuthUser(req)
       const result = await this._useCases.revokeSecuritySession.execute(
-        getAuthUser(req).userId,
+        authUser.userId,
         this.getRequiredSessionId(req),
-        this.getRawRefreshTokenFromCookie(req)
+        this.getRawRefreshTokenFromCookie(req),
+        authUser.sessionId,
       )
 
       res.json(new ApiResponse('Session revoked', result))

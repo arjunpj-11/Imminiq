@@ -24,17 +24,21 @@ export class AuthSessionIssuer implements IAuthSessionIssuer {
     role: AuthRole,
     meta?: RequestMetaDTO
   ): Promise<ITokenPairDTO> {
-    const accessToken = this._authToken.generateAccessToken(userId, role)
     const refreshToken = this._authToken.generateRefreshToken()
     const refreshTokenHash = this._refreshTokenHasher.hash(refreshToken)
 
-    await this._authSessionRepository.saveSession({
+    const session = await this._authSessionRepository.saveSession({
       userId,
       refreshTokenHash,
       device: meta?.device,
       ipAddress: meta?.ipAddress,
       userAgent: meta?.userAgent,
     })
+    const accessToken = this._authToken.generateAccessToken(
+      userId,
+      role,
+      session.id,
+    )
 
     return {
       accessToken,

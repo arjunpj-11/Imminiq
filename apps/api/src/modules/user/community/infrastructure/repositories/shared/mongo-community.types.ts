@@ -88,6 +88,7 @@ export type MongoTrackerSubtopicRecord = {
   depth: number
   isLocked?: boolean
   estimatedMinutes?: number
+  learningVideo?: Record<string, unknown> | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string

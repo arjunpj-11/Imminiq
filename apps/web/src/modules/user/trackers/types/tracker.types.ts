@@ -112,6 +112,15 @@ export interface IUpdateTrackerPayload
   trackerId: string
 }
 
+export interface ILearningVideo {
+  videoId: string
+  title: string
+  url: string
+  channelTitle: string
+  thumbnailUrl: string
+  durationSeconds: number
+}
+
 export interface IRoadmapSubtopic {
   _id: string
   title: string
@@ -123,6 +132,7 @@ export interface IRoadmapSubtopic {
   estimatedMinutes?: number
   progressPercent?: number
   completedAt?: string | null
+  learningVideo?: ILearningVideo | null
   children?: IRoadmapSubtopic[]
 }
 
@@ -134,14 +144,7 @@ export interface IRoadmapTopic {
   status: LessonStatus
   progressPercent?: number
   estimatedHours?: number
-  learningVideo?: {
-    videoId: string
-    title: string
-    url: string
-    channelTitle: string
-    thumbnailUrl: string
-    durationSeconds: number
-  } | null
+  learningVideo?: ILearningVideo | null
   subtopics: IRoadmapSubtopic[]
 }
 

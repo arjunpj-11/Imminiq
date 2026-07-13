@@ -15,6 +15,7 @@ export type {
   GeneratedTrackerLessonRecord,
   LastSiblingSubtopicRecord,
   LastTopicRecord,
+  LearningVideoRecord,
   LessonType,
   MissingTopicSuggestion,
   ObjectIdLike,

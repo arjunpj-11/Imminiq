@@ -4,7 +4,7 @@ import type {
 } from '../value-objects/token-payload.vo'
 
 export interface IAuthToken {
-  generateAccessToken(userId: string, role: AuthRole): string
+  generateAccessToken(userId: string, role: AuthRole, sessionId?: string): string
   generateRefreshToken(): string
   generateTwoFactorChallengeToken(userId: string): string
   verifyTwoFactorChallengeToken(

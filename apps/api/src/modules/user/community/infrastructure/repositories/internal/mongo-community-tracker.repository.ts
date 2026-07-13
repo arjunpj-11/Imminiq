@@ -465,6 +465,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
         depth: subtopic.depth,
         isLocked: subtopic.depth === 1 ? false : Boolean(subtopic.isLocked),
         estimatedMinutes: subtopic.estimatedMinutes ?? 0,
+        learningVideo: subtopic.learningVideo ?? null,
         deletedAt: null,
       })
 

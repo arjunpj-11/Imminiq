@@ -210,6 +210,7 @@ export type TrackerSubtopicRecord = {
   depth: number
   isLocked: boolean  // renamed from defaultLocked
   estimatedMinutes?: number
+  learningVideo?: LearningVideoRecord | null
 }
 
 // Content merged with user progress — used in use cases and API responses
@@ -302,6 +303,7 @@ export type RoadmapSubtopicNode = {
   status: SubtopicStatus
   isLocked: boolean
   estimatedMinutes: number
+  learningVideo: LearningVideoRecord | null
   progressPercent: number
   completedAt: Date | null
   children: RoadmapSubtopicNode[]

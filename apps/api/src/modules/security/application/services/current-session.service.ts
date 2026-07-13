@@ -2,7 +2,10 @@ import type { ISecuritySessionRepository } from '../../domain/repositories/secur
 import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface'
 
 export interface ICurrentSessionResolver {
-  getCurrentSessionId(refreshToken?: string): Promise<string | null>
+  getCurrentSessionId(
+    refreshToken?: string,
+    authenticatedSessionId?: string,
+  ): Promise<string | null>
 }
 
 export class CurrentSessionResolver implements ICurrentSessionResolver {
@@ -11,7 +14,14 @@ export class CurrentSessionResolver implements ICurrentSessionResolver {
     private readonly _refreshTokenHasher: IRefreshTokenHasher,
   ) {}
 
-  async getCurrentSessionId(refreshToken?: string): Promise<string | null> {
+  async getCurrentSessionId(
+    refreshToken?: string,
+    authenticatedSessionId?: string,
+  ): Promise<string | null> {
+    if (authenticatedSessionId) {
+      return authenticatedSessionId
+    }
+
     if (!refreshToken) {
       return null
     }

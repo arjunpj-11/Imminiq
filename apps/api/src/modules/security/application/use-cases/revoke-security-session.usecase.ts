@@ -4,7 +4,12 @@ import { SecurityApplicationError } from '../security-application.error'
 import type { ICurrentSessionResolver } from '../services/current-session.service'
 
 export interface IRevokeSecuritySessionUseCase {
-  execute(userId: string, sessionId: string, refreshToken?: string): Promise<IRevokeSessionResponseDTO>
+  execute(
+    userId: string,
+    sessionId: string,
+    refreshToken?: string,
+    authenticatedSessionId?: string,
+  ): Promise<IRevokeSessionResponseDTO>
 }
 
 export class RevokeSecuritySessionUseCase implements IRevokeSecuritySessionUseCase {
@@ -17,9 +22,13 @@ export class RevokeSecuritySessionUseCase implements IRevokeSecuritySessionUseCa
     userId: string,
     sessionId: string,
     refreshToken?: string,
+    authenticatedSessionId?: string,
   ): Promise<IRevokeSessionResponseDTO> {
     const currentSessionId =
-      await this._currentSessionResolver.getCurrentSessionId(refreshToken)
+      await this._currentSessionResolver.getCurrentSessionId(
+        refreshToken,
+        authenticatedSessionId,
+      )
 
     if (currentSessionId === sessionId) {
       throw SecurityApplicationError.cannotRevokeCurrentSession()

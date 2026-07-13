@@ -47,7 +47,7 @@ const cleanTopicTitle = (value: string) => value
 
 const cleanTrackerSubject = (value: string) => value
   .replace(/\bzero\s*[-–—]?\s*to\s*[-–—]?\s*hero\b/gi, '')
-  .replace(/\b(master|mastery|complete|ultimate|roadmap|learning path|journey)\b/gi, '')
+  .replace(/\b(master|mastery|complete|ultimate|roadmap|learning path|journey|preparation)\b/gi, '')
   .replace(/\s{2,}/g, ' ')
   .trim()
 
@@ -87,13 +87,17 @@ const fetchYouTubeJson = async <T>(url: URL): Promise<T> => {
 const findTopicLearningVideo = async (
   trackerTitle: string,
   topicTitle: string,
+  contextTitle?: string,
 ): Promise<LearningVideoRecommendation | null> => {
   const cleanTopic = cleanTopicTitle(topicTitle)
   const cleanSubject = cleanTrackerSubject(trackerTitle)
+  const cleanContext = cleanTopicTitle(contextTitle || '')
   const searchUrl = new URL('https://www.googleapis.com/youtube/v3/search')
   searchUrl.search = new URLSearchParams({
     part: 'snippet',
-    q: `${cleanTopic} ${cleanSubject} full chapter tutorial`,
+    q: `${cleanTopic} ${cleanContext} ${cleanSubject} full chapter tutorial`
+      .replace(/\s{2,}/g, ' ')
+      .trim(),
     type: 'video',
     order: 'relevance',
     maxResults: '5',
@@ -181,6 +185,39 @@ export const findTrackerTopicLearningVideos = async (input: {
     } catch (error) {
       // Video enrichment is optional and must never prevent tracker creation.
       console.warn(`[YouTube] Could not enrich topic “${topic.title}”:`, error)
+    }
+  }))
+
+  return recommendations
+}
+
+export const findTrackerSubtopicLearningVideos = async (input: {
+  trackerTitle: string
+  subtopics: Array<{
+    key: string
+    title: string
+    parentTopicTitle: string
+  }>
+  maxRecommendations?: number
+}): Promise<Map<string, LearningVideoRecommendation>> => {
+  const recommendations = new Map<string, LearningVideoRecommendation>()
+  if (!env.YOUTUBE_DATA_API_KEY) return recommendations
+
+  const subtopicsToSearch = input.subtopics.slice(
+    0,
+    input.maxRecommendations ?? 8,
+  )
+
+  await Promise.all(subtopicsToSearch.map(async (subtopic) => {
+    try {
+      const video = await findTopicLearningVideo(
+        input.trackerTitle,
+        subtopic.title,
+        subtopic.parentTopicTitle,
+      )
+      if (video) recommendations.set(subtopic.key, video)
+    } catch (error) {
+      console.warn(`[YouTube] Could not enrich subtopic “${subtopic.title}”:`, error)
     }
   }))
 
