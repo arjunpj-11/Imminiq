@@ -9,6 +9,7 @@ export default defineConfig({
     clearMocks: true,
     restoreMocks: true,
     mockReset: true,
+    maxWorkers: 8,
     unstubEnvs: true,
     unstubGlobals: true,
     testTimeout: 10_000,

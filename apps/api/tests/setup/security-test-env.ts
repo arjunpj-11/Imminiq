@@ -12,7 +12,15 @@ process.env.CLIENT_URL ??= 'http://localhost:5173'
 process.env.SERVER_URL ??= 'http://localhost:5009'
 
 process.env.MONGO_URI ??= 'mongodb://127.0.0.1:27017/imminiq_security_tests'
-process.env.REDIS_URL ??= 'redis://127.0.0.1:6379/15'
+
+const redisUrl = new URL(
+  process.env.REDIS_URL ?? 'redis://127.0.0.1:6379',
+)
+const poolId = Number.parseInt(process.env.VITEST_POOL_ID ?? '1', 10)
+const redisDatabase = 16 - (Number.isInteger(poolId) ? poolId : 1)
+
+redisUrl.pathname = `/${redisDatabase}`
+process.env.REDIS_URL = redisUrl.toString()
 
 process.env.JWT_SECRET ??=
   'test-jwt-secret-test-jwt-secret-test-jwt-secret-test-jwt-secret'
