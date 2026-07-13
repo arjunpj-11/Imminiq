@@ -1,6 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import ts from 'typescript'
+import * as ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 const modulesRoot = join(process.cwd(), 'src', 'modules')
