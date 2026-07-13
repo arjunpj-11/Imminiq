@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
-import { MockTestsMapper } from '../../src/modules/mock-tests/application/mock-tests.mapper'
-import { MockTestEntity } from '../../src/modules/mock-tests/domain/entities/mock-test.entity'
+import { MockTestsMapper } from '../../src/modules/user/mock-tests/application/mock-tests.mapper'
+import { MockTestEntity } from '../../src/modules/user/mock-tests/domain/entities/mock-test.entity'
 
 const createTestEntity = () => new MockTestEntity({
   _id: 'test-1',

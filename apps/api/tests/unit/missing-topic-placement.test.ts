@@ -3,7 +3,7 @@ import { describe, expect, it } from 'vitest'
 import {
   findBestMatchingParent,
   parseNewTopLevelPlacement,
-} from '../../src/modules/trackers/application/missing-topic-placement.policy'
+} from '../../src/modules/user/trackers/application/missing-topic-placement.policy'
 
 describe('missing topic placement policy', () => {
   it('matches normalized parent titles before using a soft match', () => {

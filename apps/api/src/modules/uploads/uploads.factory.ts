@@ -17,7 +17,7 @@ import { cloudflareAIImageGenerationGateway } from './infrastructure/gateways/cl
 import { cloudinaryProfileImageStorageGateway } from './infrastructure/gateways/cloudinary-profile-image-storage.gateway'
 import { mongoUploadsRepository } from './infrastructure/repositories/mongo-uploads.repository'
 import { cryptoRandomSeedGenerator } from './infrastructure/services/crypto-random-seed.service'
-import type { IGetMeUseCase } from '../users'
+import type { IGetMeUseCase } from '../user/users'
 
 
 export type UploadsComposition = {

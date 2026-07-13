@@ -1,7 +1,7 @@
 import { Types } from 'mongoose'
 import { describe, expect, it } from 'vitest'
 
-import { MongoTrackerMapper } from '../../src/modules/trackers/infrastructure/repositories/shared/mongo-tracker.mapper'
+import { MongoTrackerMapper } from '../../src/modules/user/trackers/infrastructure/repositories/shared/mongo-tracker.mapper'
 
 describe('MongoTrackerMapper', () => {
   it('normalizes persistence identifiers before records cross the boundary', () => {

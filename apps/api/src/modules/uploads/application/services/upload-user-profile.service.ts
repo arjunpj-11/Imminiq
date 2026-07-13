@@ -1,4 +1,4 @@
-import type { IGetMeUseCase } from '../../../users'
+import type { IGetMeUseCase } from '../../../user/users'
 import type { IUploadUserProfileContextDTO } from '../uploads.dto'
 import { UploadsApplicationError } from '../uploads-application.error'
 

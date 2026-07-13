@@ -4,7 +4,7 @@ import { useEffect, useMemo, useRef } from "react";
 import type {
   HeatmapIntensity,
   IStreakSummary,
-} from "../../modules/users/types/profile.types";
+} from "../../modules/user/users/types/profile.types";
 
 interface IHeapTileProps {
   streak?: IStreakSummary;
