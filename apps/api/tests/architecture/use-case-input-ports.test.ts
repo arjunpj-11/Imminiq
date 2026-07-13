@@ -26,13 +26,30 @@ describe('use-case input ports', () => {
 
     for (const path of useCaseFiles) {
       const source = readFileSync(path, 'utf8')
-      const className = source.match(/export class (\w+UseCase)/)?.[1]
-
-      expect(className, path).toBeDefined()
-      expect(source, path).toContain(`export interface I${className}`)
-      expect(source, path).toContain(
-        `export class ${className} implements I${className}`,
+      const classDeclaration = source.match(
+        /\bexport\s+class\s+(\w+UseCase)\b([^{}]*)\{/,
       )
+      const className = classDeclaration?.[1]
+      const interfaceName = `I${className}`
+      const hasInputPort = new RegExp(
+        `\\bexport\\s+interface\\s+${interfaceName}\\b`,
+      ).test(source)
+      const implementsInputPort = new RegExp(
+        `\\bimplements\\s+${interfaceName}\\b`,
+      ).test(classDeclaration?.[2] ?? '')
+
+      expect(
+        classDeclaration,
+        `Missing exported concrete use-case class in ${path}`,
+      ).not.toBeNull()
+      expect(
+        hasInputPort,
+        `Missing exported input port ${interfaceName} in ${path}`,
+      ).toBe(true)
+      expect(
+        implementsInputPort,
+        `${className} must implement ${interfaceName} in ${path}`,
+      ).toBe(true)
     }
   })
 

@@ -7,6 +7,7 @@ import {
 import { createPortal } from 'react-dom'
 
 import { cn } from '../../lib/cn'
+import { useBodyScrollLock } from '../../hooks/useBodyScrollLock'
 import { canUseDOM } from '../../lib/storage/safe-storage'
 
 interface IModalProps {
@@ -111,21 +112,7 @@ export default function Modal({
     return () => document.removeEventListener('keydown', handleKeyDown)
   }, [closeOnEscape, onClose, open, preventClose])
 
-  useEffect(() => {
-    if (!open || !lockBodyScroll || !canUseDOM()) return
-
-    const previousOverflow = document.body.style.overflow
-    const previousPaddingRight = document.body.style.paddingRight
-    const scrollbarWidth = window.innerWidth - document.documentElement.clientWidth
-
-    document.body.style.overflow = 'hidden'
-    if (scrollbarWidth > 0) document.body.style.paddingRight = `${scrollbarWidth}px`
-
-    return () => {
-      document.body.style.overflow = previousOverflow
-      document.body.style.paddingRight = previousPaddingRight
-    }
-  }, [lockBodyScroll, open])
+  useBodyScrollLock(open && lockBodyScroll)
 
   if (!open) return null
 

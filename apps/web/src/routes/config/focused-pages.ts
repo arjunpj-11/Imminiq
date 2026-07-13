@@ -1,13 +1,13 @@
 import { lazy } from 'react'
 
 export const MockTestAttemptPage = lazy(
-  () => import('../../modules/mock-tests/pages/MockTestAttemptPage'),
+  () => import('../../modules/user/mock-tests/pages/MockTestAttemptPage'),
 )
 
 export const TrackerLessonPage = lazy(
-  () => import('../../modules/trackers/pages/TrackerLessonPage'),
+  () => import('../../modules/user/trackers/pages/TrackerLessonPage'),
 )
 
 export const TrackerQuickRevisionPage = lazy(
-  () => import('../../modules/trackers/pages/TrackerQuickRevisionPage'),
+  () => import('../../modules/user/trackers/pages/TrackerQuickRevisionPage'),
 )

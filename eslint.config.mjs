@@ -116,6 +116,8 @@ export default tseslint.config(
           { name: 'ioredis', message: 'Depend on an inward-facing port.' },
           { name: 'bullmq', message: 'Depend on an inward-facing port.' },
           { name: 'jsonwebtoken', message: 'Depend on an inward-facing token port.' },
+          { name: 'crypto', message: 'Cryptographic implementations belong in infrastructure.' },
+          { name: 'node:crypto', message: 'Cryptographic implementations belong in infrastructure.' },
         ],
         patterns: [
           { group: ['**/presentation/**', '**/infrastructure/**', '**/*.factory', '**/config/**', '**/middlewares/**'], message: 'Application dependencies must not point to outer layers.' },

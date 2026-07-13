@@ -14,25 +14,26 @@ import { initPassport } from './infrastructure/auth/passport'
 
 import { createAuthComposition } from './modules/auth/auth.factory'
 import { createAuthRoutes } from './modules/auth/presentation/auth.routes'
-import onboardingRouter from './modules/onboarding/presentation/onboarding.routes'
-import { createTrackerComposition } from './modules/trackers/tracker.factory'
-import { createTrackerRoutes } from './modules/trackers/presentation/trackers.routes'
-import { createUsersComposition } from './modules/users/users.factory'
-import { createUsersRoutes } from './modules/users/presentation/users.routes'
+import onboardingRouter from './modules/user/onboarding/presentation/onboarding.routes'
+import { createTrackerComposition } from './modules/user/trackers/tracker.factory'
+import { createTrackerRoutes } from './modules/user/trackers/presentation/trackers.routes'
+import { createUsersComposition } from './modules/user/users/users.factory'
+import { createUsersRoutes } from './modules/user/users/presentation/users.routes'
 import { createUploadsComposition } from './modules/uploads/uploads.factory'
 import { createUploadsRoutes } from './modules/uploads/presentation/uploads.routes'
-import settingsRouter from './modules/settings/presentation/settings.routes'
+import settingsRouter from './modules/user/settings/presentation/settings.routes'
 import { securityRoutes } from './modules/security/presentation/security.routes'
-import dashboardRoutes from './modules/dashboard/presentation/dashboard.routes'
-import moderationAppealRoutes from './modules/moderation-appeals/presentation/moderation-appeal.routes'
-import { createMockTestsComposition } from './modules/mock-tests/mock-tests.factory'
-import { createMockTestsRoutes } from './modules/mock-tests/presentation/mock-tests.routes'
-import { createCommunityComposition } from './modules/community/community.factory'
-import { createCommunityRoutes } from './modules/community/presentation/community.routes'
-import leaderBoardRouter from './modules/leaderboard/presentation/leaderboard.routes'
-import { createActivityComposition } from './modules/activity/activity.factory'
-import { createActivityRoutes } from './modules/activity/presentation/activity.routes'
-import { friendsRoutes } from './modules/friends/presentation/friends.routes'
+import dashboardRoutes from './modules/user/dashboard/presentation/dashboard.routes'
+import moderationAppealRoutes from './modules/user/moderation-appeals/presentation/moderation-appeal.routes'
+import { createMockTestsComposition } from './modules/user/mock-tests/mock-tests.factory'
+import { createMockTestsRoutes } from './modules/user/mock-tests/presentation/mock-tests.routes'
+import { createCommunityComposition } from './modules/user/community/community.factory'
+import { createCommunityRoutes } from './modules/user/community/presentation/community.routes'
+import leaderBoardRouter from './modules/user/leaderboard/presentation/leaderboard.routes'
+import { createActivityComposition } from './modules/user/activity/activity.factory'
+import { createActivityRoutes } from './modules/user/activity/presentation/activity.routes'
+import { friendsRoutes } from './modules/user/friends/presentation/friends.routes'
+import { createNotificationsComposition, createNotificationsRoutes } from './modules/notifications'
 import mongoose from 'mongoose'
 import { redis } from './config/redis'
 
@@ -130,6 +131,7 @@ app.use('/api/moderation-appeals', moderationAppealRoutes)
 app.use('/api/leaderboard',leaderBoardRouter)
 app.use('/api/activity',activityRouter)
 app.use('/api/friends', friendsRoutes)
+app.use('/api/notifications', createNotificationsRoutes(createNotificationsComposition().useCases))
 
 app.use(errorHandler)
 

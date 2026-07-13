@@ -1,6 +1,7 @@
 import type { AuthUseCases } from './application/auth-use-cases.contract'
 import { AuthUserMapper, type IAuthUserMapper } from './application/auth-user.mapper'
 import { systemClock } from '../../infrastructure/time/system-clock'
+import { sha256RefreshTokenHasher } from '../../infrastructure/security/sha256-refresh-token-hasher'
 import { AuthAccountPolicy } from './application/auth-account-policy.policy'
 import { AuthNotificationCoordinator } from './application/services/auth-notification.service'
 import { AuthRedirectResolver } from './application/services/auth-redirect.service'
@@ -104,7 +105,8 @@ export const createAuthComposition = (): AuthComposition => {
 
   const authSessionIssuer = new AuthSessionIssuer(
     authRepository,
-    authToken
+    authToken,
+    sha256RefreshTokenHasher,
   )
 
   return {
@@ -153,14 +155,18 @@ export const createAuthComposition = (): AuthComposition => {
         authUserMapper
       ),
 
-      logoutUser: new LogoutUserUseCase(authRepository),
+      logoutUser: new LogoutUserUseCase(
+        authRepository,
+        sha256RefreshTokenHasher,
+      ),
 
       refreshAuthTokens: new RefreshAuthTokensUseCase(
         authRepository,
         authToken,
         retiredRefreshTokenStore,
         auditLogger,
-        authAccountPolicy
+        authAccountPolicy,
+        sha256RefreshTokenHasher,
       ),
 
       getCurrentUser: new GetCurrentUserUseCase(

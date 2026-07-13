@@ -1,13 +1,13 @@
 const routeLoaders: Record<string, () => Promise<unknown>> = {
-  '/dashboard': () => import('../modules/dashboard/pages/DashboardPage'),
-  '/trackers': () => import('../modules/trackers/pages/MyTrackersPage'),
-  '/mock-tests': () => import('../modules/mock-tests/pages/MockTestsPage'),
-  '/community': () => import('../modules/community/pages/CommunityBrowsePage'),
-  '/leaderboard': () => import('../modules/leaderboard/pages/LeaderboardPage'),
-  '/activity': () => import('../modules/activity/pages/ActivityPage'),
-  '/friends': () => import('../modules/friends/pages/FriendsPage'),
-  '/profile': () => import('../modules/users/pages/ProfilePage'),
-  '/settings': () => import('../modules/settings/pages/PreferencesSettingsPage'),
+  '/dashboard': () => import('../modules/user/dashboard/pages/DashboardPage'),
+  '/trackers': () => import('../modules/user/trackers/pages/MyTrackersPage'),
+  '/mock-tests': () => import('../modules/user/mock-tests/pages/MockTestsPage'),
+  '/community': () => import('../modules/user/community/pages/CommunityBrowsePage'),
+  '/leaderboard': () => import('../modules/user/leaderboard/pages/LeaderboardPage'),
+  '/activity': () => import('../modules/user/activity/pages/ActivityPage'),
+  '/friends': () => import('../modules/user/friends/pages/FriendsPage'),
+  '/profile': () => import('../modules/user/users/pages/ProfilePage'),
+  '/settings': () => import('../modules/user/settings/pages/PreferencesSettingsPage'),
 }
 
 const prefetched = new Set<string>()

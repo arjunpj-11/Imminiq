@@ -44,5 +44,5 @@ export const VerifyEmailChangePage = lazy(
 )
 
 export const ProfilePage = lazy(
-  () => import('../../modules/users/pages/ProfilePage'),
+  () => import('../../modules/user/users/pages/ProfilePage'),
 )

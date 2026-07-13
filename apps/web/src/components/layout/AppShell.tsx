@@ -10,6 +10,7 @@ import { useStreak } from '../../hooks/progress/useStreak'
 import { cn } from '../../lib/cn'
 import { useAppShellStore } from '../../store/useAppShellStore'
 import { useAuthStore } from '../../store/useAuthStore'
+import { useNotifications } from '../../modules/notifications/hooks/useNotifications'
 import AppNoiseOverlay from './AppNoiseOverlay'
 import {
   AppShellContext,
@@ -60,6 +61,7 @@ export function AppShell({
   const streakQuery = useStreak(undefined, {
     enabled: !isGuest && isAuthenticated,
   })
+  const notificationsQuery = useNotifications(1, !isGuest && isAuthenticated)
 
   const [pageViewer, setPageViewer] = useState<IAppShellViewer | null>(
     initialViewer ?? null,
@@ -168,6 +170,7 @@ export function AppShell({
                 userLevel={userLevel}
                 isGuest={isGuest}
                 notificationCount={
+                  notificationsQuery.data?.unreadCount ??
                   pageViewer?.notificationCount ??
                   initialViewer?.notificationCount ??
                   0
