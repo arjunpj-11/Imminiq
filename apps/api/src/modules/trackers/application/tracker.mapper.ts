@@ -7,6 +7,7 @@ import type {
   LessonChatHistoryDTO,
   LessonCodeExecutionDTO,
   LessonCodeHintDTO,
+  LessonCodeSubmissionDTO,
   LessonCodeSubmissionsDTO,
   LessonGeneratedQuestionsDTO,
   LessonOptimizedSolutionDTO,
@@ -35,7 +36,7 @@ import type {
   TrackerSummaryRecord,
   TrackerSummaryResult,
 } from '../domain/trackers.types'
-
+import type { LessonMutationResult } from '../domain/repositories/tracker-lesson.repository.interface'
 
 export interface ITrackerMapper {
   toTrackerDto(tracker: TrackerRecord): TrackerDTO
@@ -50,22 +51,23 @@ export interface ITrackerMapper {
     progress: TrackerProgressRecord | null
   }): UpdateSubtopicProgressResultDTO
   toGeneratedLessonDto<T>(lesson: T): T
-  toLessonChatHistoryDto(history: unknown[]): LessonChatHistoryDTO
+  toLessonChatHistoryDto(history: LessonChatHistoryDTO): LessonChatHistoryDTO
   toLessonTutorChatResponseDto(response: { answer: string }): LessonTutorChatResponseDTO
-  toLessonGeneratedQuestionsDto(result: unknown): LessonGeneratedQuestionsDTO
-  toLessonQuestionSolutionDto(result: unknown): LessonQuestionSolutionDTO
-  toLessonQuestionSolutionDoubtsDto(result: unknown[]): LessonQuestionSolutionDoubtsDTO
-  toLessonQuestionSolutionDoubtAnswerDto(result: unknown): LessonQuestionSolutionDoubtAnswerDTO
-  toLessonAnswerAttemptsDto(result: unknown[]): LessonAnswerAttemptsDTO
-  toLessonAnswerVerificationDto(result: unknown): LessonAnswerVerificationDTO
-  toLessonCodeSubmissionsDto(result: unknown[]): LessonCodeSubmissionsDTO
-  toLessonCodeExecutionDto(result: unknown): LessonCodeExecutionDTO
-  toLessonCodeHintDto(result: unknown): LessonCodeHintDTO
-  toLessonOptimizedSolutionDto(result: unknown): LessonOptimizedSolutionDTO
-  toLessonVisualizationDto(result: unknown): LessonVisualizationDTO
-  toTrackerAIValidationDto(result: unknown): TrackerAIValidationDTO
+  toLessonGeneratedQuestionsDto(result: LessonGeneratedQuestionsDTO): LessonGeneratedQuestionsDTO
+  toLessonQuestionSolutionDto(result: LessonQuestionSolutionDTO): LessonQuestionSolutionDTO
+  toLessonQuestionSolutionDoubtsDto(result: LessonQuestionSolutionDoubtsDTO): LessonQuestionSolutionDoubtsDTO
+  toLessonQuestionSolutionDoubtAnswerDto(result: LessonQuestionSolutionDoubtAnswerDTO): LessonQuestionSolutionDoubtAnswerDTO
+  toLessonAnswerAttemptsDto(result: LessonAnswerAttemptsDTO): LessonAnswerAttemptsDTO
+  toLessonAnswerVerificationDto(result: LessonAnswerVerificationDTO): LessonAnswerVerificationDTO
+  toLessonCodeSubmissionsDto(result: LessonCodeSubmissionsDTO): LessonCodeSubmissionsDTO
+  toLessonCodeExecutionDto(result: LessonCodeExecutionDTO): LessonCodeExecutionDTO
+  toLessonCodeSubmissionDto(result: LessonCodeSubmissionDTO): LessonCodeSubmissionDTO
+  toLessonCodeHintDto(result: LessonCodeHintDTO): LessonCodeHintDTO
+  toLessonOptimizedSolutionDto(result: LessonOptimizedSolutionDTO): LessonOptimizedSolutionDTO
+  toLessonVisualizationDto(result: LessonVisualizationDTO): LessonVisualizationDTO
+  toTrackerAIValidationDto(result: TrackerAIValidationDTO): TrackerAIValidationDTO
   toAddMissingEvaluationTopicDto(result: AddMissingEvaluationTopicResult): AddMissingEvaluationTopicDTO
-  toClearLessonHistoryResultDto(result: unknown): ClearLessonHistoryResultDTO
+  toClearLessonHistoryResultDto(result: LessonMutationResult): ClearLessonHistoryResultDTO
 }
 
 export class TrackerMapper implements ITrackerMapper {
@@ -110,7 +112,7 @@ export class TrackerMapper implements ITrackerMapper {
     return lesson
   }
 
-  toLessonChatHistoryDto(history: unknown[]): LessonChatHistoryDTO {
+  toLessonChatHistoryDto(history: LessonChatHistoryDTO): LessonChatHistoryDTO {
     return history
   }
 
@@ -118,53 +120,57 @@ export class TrackerMapper implements ITrackerMapper {
     return response
   }
 
-  toLessonGeneratedQuestionsDto(result: unknown): LessonGeneratedQuestionsDTO {
+  toLessonGeneratedQuestionsDto(result: LessonGeneratedQuestionsDTO): LessonGeneratedQuestionsDTO {
     return result
   }
 
-  toLessonQuestionSolutionDto(result: unknown): LessonQuestionSolutionDTO {
+  toLessonQuestionSolutionDto(result: LessonQuestionSolutionDTO): LessonQuestionSolutionDTO {
     return result
   }
 
-  toLessonQuestionSolutionDoubtsDto(result: unknown[]): LessonQuestionSolutionDoubtsDTO {
+  toLessonQuestionSolutionDoubtsDto(result: LessonQuestionSolutionDoubtsDTO): LessonQuestionSolutionDoubtsDTO {
     return result
   }
 
   toLessonQuestionSolutionDoubtAnswerDto(
-    result: unknown
+    result: LessonQuestionSolutionDoubtAnswerDTO
   ): LessonQuestionSolutionDoubtAnswerDTO {
     return result
   }
 
-  toLessonAnswerAttemptsDto(result: unknown[]): LessonAnswerAttemptsDTO {
+  toLessonAnswerAttemptsDto(result: LessonAnswerAttemptsDTO): LessonAnswerAttemptsDTO {
     return result
   }
 
-  toLessonAnswerVerificationDto(result: unknown): LessonAnswerVerificationDTO {
+  toLessonAnswerVerificationDto(result: LessonAnswerVerificationDTO): LessonAnswerVerificationDTO {
     return result
   }
 
-  toLessonCodeSubmissionsDto(result: unknown[]): LessonCodeSubmissionsDTO {
+  toLessonCodeSubmissionsDto(result: LessonCodeSubmissionsDTO): LessonCodeSubmissionsDTO {
     return result
   }
 
-  toLessonCodeExecutionDto(result: unknown): LessonCodeExecutionDTO {
+  toLessonCodeExecutionDto(result: LessonCodeExecutionDTO): LessonCodeExecutionDTO {
     return result
   }
 
-  toLessonCodeHintDto(result: unknown): LessonCodeHintDTO {
+  toLessonCodeSubmissionDto(result: LessonCodeSubmissionDTO): LessonCodeSubmissionDTO {
     return result
   }
 
-  toLessonOptimizedSolutionDto(result: unknown): LessonOptimizedSolutionDTO {
+  toLessonCodeHintDto(result: LessonCodeHintDTO): LessonCodeHintDTO {
     return result
   }
 
-  toLessonVisualizationDto(result: unknown): LessonVisualizationDTO {
+  toLessonOptimizedSolutionDto(result: LessonOptimizedSolutionDTO): LessonOptimizedSolutionDTO {
     return result
   }
 
-  toTrackerAIValidationDto(result: unknown): TrackerAIValidationDTO {
+  toLessonVisualizationDto(result: LessonVisualizationDTO): LessonVisualizationDTO {
+    return result
+  }
+
+  toTrackerAIValidationDto(result: TrackerAIValidationDTO): TrackerAIValidationDTO {
     return result
   }
 
@@ -174,7 +180,15 @@ export class TrackerMapper implements ITrackerMapper {
     return result
   }
 
-  toClearLessonHistoryResultDto(result: unknown): ClearLessonHistoryResultDTO {
-    return result as ClearLessonHistoryResultDTO
+  toClearLessonHistoryResultDto(
+    result: LessonMutationResult,
+  ): ClearLessonHistoryResultDTO {
+    const deletedCount = result.modifiedCount ?? 0
+
+    return {
+      success: result.acknowledged ?? true,
+      cleared: deletedCount > 0,
+      deletedCount,
+    }
   }
 }

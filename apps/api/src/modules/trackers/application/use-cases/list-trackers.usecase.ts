@@ -7,7 +7,7 @@ export interface IListTrackersUseCase {
 }
 
 export class ListTrackersUseCase implements IListTrackersUseCase {
-  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'listOwnedTrackers'>,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(filter: TrackerListFilter) {
     return this._trackerMapper.toTrackerListDto(await this._trackerRepository.listOwnedTrackers(filter))

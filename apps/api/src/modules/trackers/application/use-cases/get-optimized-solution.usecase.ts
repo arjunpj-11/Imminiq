@@ -1,7 +1,10 @@
 import { TrackerApplicationError } from '../tracker-application.error'
 import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
+import type {
+  ITrackerAIGateway,
+  OptimizedCodeSolution,
+} from '../../domain/services/tracker-ai.interface'
 
 type GetOptimizedSolutionInput = {
   trackerId: string
@@ -12,17 +15,19 @@ type GetOptimizedSolutionInput = {
 }
 
 export interface IGetOptimizedSolutionUseCase {
-  execute(input: GetOptimizedSolutionInput): Promise<unknown>
+  execute(input: GetOptimizedSolutionInput): Promise<OptimizedCodeSolution>
 }
 
 export class GetOptimizedSolutionUseCase implements IGetOptimizedSolutionUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findGeneratedLessonBySubtopic' | 'findOwnedTrackerById'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
-  async execute(input: GetOptimizedSolutionInput) {
+  async execute(
+    input: GetOptimizedSolutionInput,
+  ): Promise<OptimizedCodeSolution> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,

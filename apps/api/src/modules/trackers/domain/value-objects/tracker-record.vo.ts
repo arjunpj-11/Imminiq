@@ -167,7 +167,7 @@ export type TrackerRecord = {
 export type EvaluationJobRecord = {
   _id: ObjectIdLike
   status: string
-  outputData?: unknown
+  outputData?: EvaluationOutputData
 }
 
 // ─── Topic ────────────────────────────────────────────────────────────────────

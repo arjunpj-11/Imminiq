@@ -6,7 +6,7 @@ export interface IGetTrackerSummaryUseCase {
 }
 
 export class GetTrackerSummaryUseCase implements IGetTrackerSummaryUseCase {
-  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'getTrackerSummary'>,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(userId: string) {
     return this._trackerMapper.toTrackerSummaryDto(await this._trackerRepository.getTrackerSummary(userId))

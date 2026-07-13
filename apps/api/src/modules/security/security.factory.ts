@@ -25,7 +25,7 @@ import { cryptoSecurityEmailChangeToken } from './infrastructure/services/crypto
 import { cryptoTwoFactorBackupCodeManager } from './infrastructure/services/crypto-two-factor-backup-code.service'
 import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store'
 import { systemClock } from '../../infrastructure/time/system-clock'
-
+import { sha256RefreshTokenHasher } from '../../infrastructure/security/sha256-refresh-token-hasher'
 
 export type SecurityServiceHelpers = {
   securityMapper: ISecurityMapper
@@ -49,7 +49,8 @@ export const createSecurityComposition = (): SecurityComposition => {
   const securityMapper = new SecurityMapper()
 
   const currentSessionResolver = new CurrentSessionResolver(
-    securityRepository
+    securityRepository,
+    sha256RefreshTokenHasher,
   )
 
   const sensitiveActionAuthorizer = new SensitiveActionAuthorizer(

@@ -10,20 +10,6 @@ type AskLessonQuestionSolutionDoubtResultDTO = ReturnType<
   ITrackerMapper['toLessonQuestionSolutionDoubtAnswerDto']
 >
 
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') {
-    return doc._id
-  }
-
-  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
-    return doc._id.toString()
-  }
-
-  return null
-}
-
 export interface IAskLessonQuestionSolutionDoubtUseCase {
   execute(input: {
     trackerId: string
@@ -36,7 +22,7 @@ export interface IAskLessonQuestionSolutionDoubtUseCase {
 
 export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestionSolutionDoubtUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLessonQuestionSolutionDoubt' | 'findLessonBySubtopicId' | 'findLessonQuestionSolution' | 'findOwnedTrackerById' | 'getLessonQuestionSolutionDoubts'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper,
@@ -85,19 +71,14 @@ export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestion
       )
     }
 
-    const typedSolution = solution as {
-      _id?: unknown
-      solution?: string
-    }
-
-    const solutionText = typedSolution.solution || ''
+    const solutionText = solution.solution
 
     if (!solutionText) {
       throw TrackerApplicationError.solutionEmpty('Saved solution is empty')
     }
 
-    const lessonId = getDocumentId(lesson)
-    const solutionId = getDocumentId(solution)
+    const lessonId = lesson._id.toString()
+    const solutionId = solution._id.toString()
 
     await this._trackerRepository.createLessonQuestionSolutionDoubt({
       trackerId: input.trackerId,
@@ -119,26 +100,17 @@ export class AskLessonQuestionSolutionDoubtUseCase implements IAskLessonQuestion
         questionHash,
       })
 
-    const messages = history.map((item) => {
-      const message = item as {
-        role: 'user' | 'assistant'
-        content: string
-      }
+    const messages = history.map(({ role, content }) => ({ role, content }))
 
-      return {
-        role: message.role,
-        content: message.content,
-      }
-    })
+    const answer =
+      await this._trackerAIGateway.chatWithLessonQuestionSolutionDoubt({
+        lessonTitle: lesson.title,
+        lessonExplanation: lesson.explanation,
+        question: input.question,
+        solution: solutionText,
+        messages,
+      })
 
- const answer =
-  await this._trackerAIGateway.chatWithLessonQuestionSolutionDoubt({
-    lessonTitle: lesson.title,
-    lessonExplanation: lesson.explanation,
-    question: input.question,
-    solution: solutionText,
-    messages,
-  })
     await this._trackerRepository.createLessonQuestionSolutionDoubt({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,

@@ -8,20 +8,6 @@ type GenerateLessonQuestionsResultDTO = ReturnType<
   ITrackerMapper['toLessonGeneratedQuestionsDto']
 >
 
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') {
-    return doc._id
-  }
-
-  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
-    return doc._id.toString()
-  }
-
-  return null
-}
-
 export interface IGenerateLessonQuestionsUseCase {
   execute(input: {
     trackerId: string
@@ -33,7 +19,7 @@ export interface IGenerateLessonQuestionsUseCase {
 
 export class GenerateLessonQuestionsUseCase implements IGenerateLessonQuestionsUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLessonGeneratedQuestions' | 'findLessonBySubtopicId' | 'findOwnedTrackerById' | 'getLessonGeneratedQuestions'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper,
@@ -78,7 +64,7 @@ export class GenerateLessonQuestionsUseCase implements IGenerateLessonQuestionsU
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      lessonId: getDocumentId(lesson),
+      lessonId: lesson._id.toString(),
       questions: generated.questions.map((question) => ({
         question,
         questionHash: this._questionHasher.hash(question),

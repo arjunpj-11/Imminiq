@@ -5,6 +5,33 @@ export type LessonVisualizationCodeExample = {
   language?: string
 }
 
+export type OptimizedCodeSolution = {
+  optimizedCode: string
+  explanation: string
+  improvements: string[]
+}
+
+export type AnswerVerificationResult = {
+  verdict: 'correct' | 'partially_correct' | 'incorrect'
+  score: number
+  feedback: string
+  correctedAnswer: string
+  keyPoints: string[]
+}
+
+export type TrackerValidationResult = {
+  verified: boolean
+  message: string
+  polishedTitle: string
+  polishedDescription: string
+}
+
+export type LessonCodeHintAIResult = {
+  mode: 'hint' | 'issue'
+  title: string
+  explanation: string
+}
+
 export interface ITrackerAIGateway {
   generateLesson(input: {
     trackerTitle: string
@@ -64,11 +91,7 @@ export interface ITrackerAIGateway {
     actualOutput?: string
     errorOutput?: string
     hintCount: number
-  }): Promise<{
-    mode: 'hint' | 'issue'
-    title: string
-    explanation: string
-  }>
+  }): Promise<LessonCodeHintAIResult>
 
   generateOptimizedCodeSolution(input: {
     lessonTitle: string
@@ -76,7 +99,7 @@ export interface ITrackerAIGateway {
     practiceDescription: string
     sourceCode: string
     language: string
-  }): Promise<unknown>
+  }): Promise<OptimizedCodeSolution>
 
   verifyNonCodingAnswer(input: {
     lessonTitle: string
@@ -84,18 +107,14 @@ export interface ITrackerAIGateway {
     question: string
     expectedAnswer: string
     userAnswer: string
-  }): Promise<{
-    verdict?: 'correct' | 'partially_correct' | 'incorrect'
-    score?: number
-    [key: string]: unknown
-  }>
+  }): Promise<AnswerVerificationResult>
 
   verifyTrackerTopic(input: {
     trackerTitle: string
     topicTitle: string
     topicDescription: string
     existingTopics: Array<{ id: string; title: string; description: string }>
-  }): Promise<unknown>
+  }): Promise<TrackerValidationResult>
 
   verifyTrackerSubtopic(input: {
     trackerTitle: string
@@ -110,5 +129,5 @@ export interface ITrackerAIGateway {
       description: string
       difficulty: string
     }>
-  }): Promise<unknown>
+  }): Promise<TrackerValidationResult>
 }

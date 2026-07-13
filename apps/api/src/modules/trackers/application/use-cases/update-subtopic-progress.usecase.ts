@@ -12,6 +12,18 @@ type UpdateSubtopicProgressResultDTO = ReturnType<
   ITrackerMapper['toSubtopicProgressResultDto']
 >
 
+type UpdateSubtopicProgressRepository = Pick<
+  ITrackerRepository,
+  | 'checkAndCompleteParentSubtopic'
+  | 'checkAndCompleteTopicAndUnlockNext'
+  | 'ensureUserProgressInitialized'
+  | 'findOwnedTrackerById'
+  | 'getSubtopicById'
+  | 'recomputeTrackerProgress'
+  | 'unlockNextSubtopic'
+  | 'updateSubtopicProgress'
+>
+
 type TopicCompletionResult = Awaited<
   ReturnType<
     ITrackerRepository['checkAndCompleteTopicAndUnlockNext']
@@ -47,7 +59,7 @@ export interface IUpdateSubtopicProgressUseCase {
 
 export class UpdateSubtopicProgressUseCase implements IUpdateSubtopicProgressUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: UpdateSubtopicProgressRepository,
     private readonly _trackerActivityRecorder:
       ITrackerActivityRecorder,
     private readonly _trackerMapper: ITrackerMapper,

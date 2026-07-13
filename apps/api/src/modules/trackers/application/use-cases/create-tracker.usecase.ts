@@ -10,7 +10,7 @@ export interface ICreateTrackerUseCase {
 
 export class CreateTrackerUseCase implements ICreateTrackerUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createTracker'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 

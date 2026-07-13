@@ -18,7 +18,7 @@ export interface IClearLessonChatHistoryUseCase {
 
 export class ClearLessonChatHistoryUseCase implements IClearLessonChatHistoryUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'clearLessonChatMessages' | 'findOwnedTrackerById'>,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 

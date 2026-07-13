@@ -37,7 +37,9 @@ export interface ITrackerContentRepository {
 
   findLastTopicForTracker(trackerId: string): Promise<LastTopicRecord | null>
 
-  shiftTopicOrdersFrom(data: ShiftTopicOrdersFromInput): Promise<unknown>
+  shiftTopicOrdersFrom(
+    data: ShiftTopicOrdersFromInput
+  ): Promise<void>
 
   createTrackerTopic(
     data: CreateTrackerTopicInput
@@ -51,11 +53,15 @@ export interface ITrackerContentRepository {
     data: CreateTrackerSubtopicInput
   ): Promise<CreatedTrackerSubtopicRecord>
 
-  incrementTrackerTopicsCount(trackerId: string): Promise<unknown>
+  incrementTrackerTopicsCount(
+    trackerId: string
+  ): Promise<void>
 
-  incrementTrackerSubtopicsCount(trackerId: string): Promise<unknown>
+  incrementTrackerSubtopicsCount(
+    trackerId: string
+  ): Promise<void>
 
   markMissingEvaluationTopicAsAdded(
     data: MarkMissingEvaluationTopicAsAddedInput
-  ): Promise<unknown>
+  ): Promise<void>
 }

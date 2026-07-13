@@ -7,6 +7,15 @@ import { LessonQuestionSolutionDoubt } from "../../../../../infrastructure/datab
 import { LessonVisualization } from "../../../../../infrastructure/database/models/lesson-visualization.model";
 import { Tracker } from "../../../../../infrastructure/database/models/tracker.model";
 import { TrackerLesson } from "../../../../../infrastructure/database/models/tracker-lesson.model";
+import type {
+  LessonAnswerAttemptRecord,
+  LessonChatMessageRecord,
+  LessonCodeSubmissionRecord,
+  LessonGeneratedQuestionRecord,
+  LessonQuestionSolutionDoubtRecord,
+  LessonQuestionSolutionRecord,
+  LessonVisualizationRecord,
+} from "../../../domain/repositories/tracker-lesson.repository.interface";
 import type { ITrackerRepository } from "../../../domain/repositories/tracker.repository.interface";
 import type { GeneratedTrackerLessonRecord } from "../../../domain/trackers.types";
 import { MongoTrackerBaseRepository } from "../shared/mongo-tracker-base.repository";
@@ -39,7 +48,9 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           }),
         );
 
-        return lesson as GeneratedTrackerLessonRecord | null;
+        return lesson
+          ? this.mapper.toDomainRecord<GeneratedTrackerLessonRecord>(lesson)
+          : null;
       },
     );
   }
@@ -71,7 +82,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           }),
         );
 
-        return lesson as GeneratedTrackerLessonRecord;
+        return this.mapper.toDomainRecord<GeneratedTrackerLessonRecord>(lesson);
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
@@ -87,8 +98,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_CHAT_READ_FAILED",
       "Failed to read lesson chat messages",
-      async () =>
-        LessonChatMessage.find(
+      async () => {
+        const messages = await LessonChatMessage.find(
           this.mapper.asMongoFilter({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -99,7 +110,10 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           }),
         )
           .sort({ createdAt: 1 })
-          .lean(),
+          .lean();
+
+        return this.mapper.toDomainRecord<LessonChatMessageRecord[]>(messages);
+      },
     );
   }
 
@@ -116,8 +130,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_CHAT_CREATE_FAILED",
       "Failed to create lesson chat message",
-      async () =>
-        LessonChatMessage.create(
+      async () => {
+        const message = await LessonChatMessage.create(
           this.mapper.asMongoCreatePayload({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -129,7 +143,10 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
             content,
             deletedAt: null,
           }),
-        ),
+        );
+
+        return this.mapper.toDomainRecord<LessonChatMessageRecord>(message);
+      },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
   }
@@ -168,8 +185,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_ANSWER_ATTEMPT_READ_FAILED",
       "Failed to read lesson answer attempts",
-      async () =>
-        LessonAnswerAttempt.find(
+      async () => {
+        const attempts = await LessonAnswerAttempt.find(
           this.mapper.asMongoFilter({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -179,7 +196,10 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           }),
         )
           .sort({ createdAt: -1 })
-          .lean(),
+          .lean();
+
+        return this.mapper.toDomainRecord<LessonAnswerAttemptRecord[]>(attempts);
+      },
     );
   }
 
@@ -209,7 +229,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           }),
         );
 
-        return LessonAnswerAttempt.create(
+        const attempt = await LessonAnswerAttempt.create(
           this.mapper.asMongoCreatePayload({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -225,6 +245,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
             deletedAt: null,
           }),
         );
+
+        return this.mapper.toDomainRecord<LessonAnswerAttemptRecord>(attempt);
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
@@ -251,10 +273,16 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           query.action = action;
         }
 
-        return LessonCodeSubmission.find(this.mapper.asMongoFilter(query))
+        const submissions = await LessonCodeSubmission.find(
+          this.mapper.asMongoFilter(query),
+        )
           .sort({ createdAt: -1 })
           .limit(50)
           .lean();
+
+        return this.mapper.toDomainRecord<LessonCodeSubmissionRecord[]>(
+          submissions,
+        );
       },
     );
   }
@@ -285,8 +313,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_CODE_SUBMISSION_CREATE_FAILED",
       "Failed to create lesson code submission",
-      async () =>
-        LessonCodeSubmission.create(
+      async () => {
+        const submission = await LessonCodeSubmission.create(
           this.mapper.asMongoCreatePayload({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -311,7 +339,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
             feedback,
             deletedAt: null,
           }),
-        ),
+        );
+
+        return this.mapper.toDomainRecord<LessonCodeSubmissionRecord>(
+          submission,
+        );
+      },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
   }
@@ -324,8 +357,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_GENERATED_QUESTION_READ_FAILED",
       "Failed to read lesson generated questions",
-      async () =>
-        LessonGeneratedQuestion.find(
+      async () => {
+        const questions = await LessonGeneratedQuestion.find(
           this.mapper.asMongoFilter({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -334,7 +367,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           }),
         )
           .sort({ createdAt: 1 })
-          .lean(),
+          .lean();
+
+        return this.mapper.toDomainRecord<LessonGeneratedQuestionRecord[]>(
+          questions,
+        );
+      },
     );
   }
 
@@ -352,7 +390,7 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
       "Failed to create lesson generated questions",
       async () => {
         try {
-          return await LessonGeneratedQuestion.insertMany(
+          const created = await LessonGeneratedQuestion.insertMany(
             questions.map((item) =>
               this.mapper.asMongoCreatePayload({
                 trackerId: this.mapper.toObjectId(trackerId),
@@ -369,8 +407,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
               ordered: false,
             },
           );
+
+          return this.mapper.toDomainRecord<LessonGeneratedQuestionRecord[]>(
+            created,
+          );
         } catch {
-          return LessonGeneratedQuestion.find(
+          const existing = await LessonGeneratedQuestion.find(
             this.mapper.asMongoFilter({
               trackerId: this.mapper.toObjectId(trackerId),
               subtopicId: this.mapper.toObjectId(subtopicId),
@@ -381,6 +423,10 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
               deletedAt: null,
             }),
           ).lean();
+
+          return this.mapper.toDomainRecord<LessonGeneratedQuestionRecord[]>(
+            existing,
+          );
         }
       },
     );
@@ -395,8 +441,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_READ_FAILED",
       "Failed to read lesson question solution",
-      async () =>
-        LessonQuestionSolution.findOne(
+      async () => {
+        const solution = await LessonQuestionSolution.findOne(
           this.mapper.asMongoFilter({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -404,7 +450,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
             questionHash,
             deletedAt: null,
           }),
-        ).lean(),
+        ).lean();
+
+        return solution
+          ? this.mapper.toDomainRecord<LessonQuestionSolutionRecord>(solution)
+          : null;
+      },
     );
   }
 
@@ -420,8 +471,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_CREATE_FAILED",
       "Failed to create lesson question solution",
-      async () =>
-        LessonQuestionSolution.findOneAndUpdate(
+      async () => {
+        const savedSolution = await LessonQuestionSolution.findOneAndUpdate(
           this.mapper.asMongoFilter({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -445,7 +496,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
             upsert: true,
             returnDocument: "after",
           },
-        ).lean(),
+        ).lean();
+
+        return this.mapper.toDomainRecord<LessonQuestionSolutionRecord>(
+          savedSolution,
+        );
+      },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
   }
@@ -461,8 +517,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_DOUBT_READ_FAILED",
       "Failed to read lesson question solution doubts",
-      async () =>
-        LessonQuestionSolutionDoubt.find(
+      async () => {
+        const doubts = await LessonQuestionSolutionDoubt.find(
           this.mapper.asMongoFilter({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -472,7 +528,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
           }),
         )
           .sort({ createdAt: 1 })
-          .lean(),
+          .lean();
+
+        return this.mapper.toDomainRecord<
+          LessonQuestionSolutionDoubtRecord[]
+        >(doubts);
+      },
     );
   }
 
@@ -492,8 +553,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_QUESTION_SOLUTION_DOUBT_CREATE_FAILED",
       "Failed to create lesson question solution doubt",
-      async () =>
-        LessonQuestionSolutionDoubt.create(
+      async () => {
+        const doubt = await LessonQuestionSolutionDoubt.create(
           this.mapper.asMongoCreatePayload({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -506,7 +567,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
             content,
             deletedAt: null,
           }),
-        ),
+        );
+
+        return this.mapper.toDomainRecord<LessonQuestionSolutionDoubtRecord>(
+          doubt,
+        );
+      },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
   }
@@ -612,8 +678,8 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
     return this.execute(
       "LESSON_VISUALIZATION_SAVE_FAILED",
       "Failed to save lesson visualization",
-      async () =>
-        LessonVisualization.findOneAndUpdate(
+      async () => {
+        const visualization = await LessonVisualization.findOneAndUpdate(
           this.mapper.asMongoFilter({
             trackerId: this.mapper.toObjectId(trackerId),
             subtopicId: this.mapper.toObjectId(subtopicId),
@@ -637,7 +703,12 @@ export class MongoTrackerLessonRepository extends MongoTrackerBaseRepository {
             upsert: true,
             returnDocument: "after",
           },
-        ),
+        );
+
+        return this.mapper.toDomainRecord<LessonVisualizationRecord>(
+          visualization,
+        );
+      },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError,
     );
   }

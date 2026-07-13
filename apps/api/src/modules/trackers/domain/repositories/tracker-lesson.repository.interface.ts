@@ -1,5 +1,6 @@
 import type { GeneratedLessonPracticeTask } from '../lesson-practice.types'
 import type { GeneratedTrackerLessonRecord } from '../trackers.types'
+import type { AnswerVerificationResult } from '../services/tracker-ai.interface'
 
 export type TrackerLessonType =
   | 'concept'
@@ -83,12 +84,17 @@ export type CreateLessonAnswerAttemptInput = {
   questionId?: string | null
   question: string
   answer: string
-  feedback: unknown
+  feedback: AnswerVerificationResult
   isCorrect: boolean
   score: number
 }
 
 export type LessonCodeAction = 'run' | 'submit'
+
+export type LessonExecutionStatus = {
+  id?: number
+  description?: string
+}
 
 export type GetLessonCodeSubmissionsInput = {
   trackerId: string
@@ -112,7 +118,7 @@ export type CreateLessonCodeSubmissionInput = {
   stderr?: string
   compileOutput?: string
   message?: string
-  status?: unknown
+  status?: LessonExecutionStatus | null
   time?: string | null
   memory?: number | null
   isCorrect?: boolean
@@ -202,6 +208,82 @@ export type LessonVisualizationRecord = {
   visualDescription: string
 }
 
+export type LessonRecordId = string
+
+export type LessonMutationResult = {
+  acknowledged?: boolean
+  matchedCount?: number
+  modifiedCount?: number
+}
+
+export type LessonChatMessageRecord = {
+  _id: LessonRecordId
+  role: 'user' | 'assistant'
+  content: string
+  scope: LessonChatScope
+  questionId?: string | null
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export type LessonAnswerAttemptRecord = {
+  _id: LessonRecordId
+  question: string
+  answer: string
+  feedback: AnswerVerificationResult
+  isCorrect: boolean
+  score: number
+  attemptNumber?: number
+  createdAt?: Date
+}
+
+export type LessonCodeSubmissionRecord = {
+  _id: LessonRecordId
+  action: LessonCodeAction
+  language: string
+  languageId?: number | null
+  sourceCode: string
+  stdin?: string
+  stdout?: string
+  stderr?: string
+  compileOutput?: string
+  message?: string
+  status?: LessonExecutionStatus | null
+  time?: string | null
+  memory?: number | null
+  isCorrect?: boolean
+  expectedOutput?: string
+  actualOutput?: string
+  feedback?: string
+  createdAt?: Date
+}
+
+export type LessonGeneratedQuestionRecord = {
+  _id: LessonRecordId
+  question: string
+  questionHash: string
+  source: 'base' | 'ai_generated'
+  createdAt?: Date
+}
+
+export type LessonQuestionSolutionRecord = {
+  _id: LessonRecordId
+  question: string
+  questionHash: string
+  solution: string
+  createdAt?: Date
+  updatedAt?: Date
+}
+
+export type LessonQuestionSolutionDoubtRecord = {
+  _id: LessonRecordId
+  question: string
+  questionHash: string
+  role: 'user' | 'assistant'
+  content: string
+  createdAt?: Date
+}
+
 export type SaveLessonVisualizationInput = {
   trackerId: string
   subtopicId: string
@@ -212,64 +294,87 @@ export type SaveLessonVisualizationInput = {
   visualDescription: string
 }
 
-export interface ITrackerLessonRepository {
+export interface ITrackerLessonContentRepository {
   createLesson(
     data: CreateTrackerLessonInput
   ): Promise<GeneratedTrackerLessonRecord>
+}
 
-  getLessonChatMessages(data: GetLessonChatMessagesInput): Promise<unknown[]>
+export interface ITrackerLessonChatRepository {
+  getLessonChatMessages(
+    data: GetLessonChatMessagesInput
+  ): Promise<LessonChatMessageRecord[]>
 
-  createLessonChatMessage(data: CreateLessonChatMessageInput): Promise<unknown>
+  createLessonChatMessage(
+    data: CreateLessonChatMessageInput
+  ): Promise<LessonChatMessageRecord>
 
-  getLessonAnswerAttempts(
-    data: GetLessonAnswerAttemptsInput
-  ): Promise<unknown[]>
-
-  createLessonAnswerAttempt(
-    data: CreateLessonAnswerAttemptInput
-  ): Promise<unknown>
-
-  getLessonCodeSubmissions(
-    data: GetLessonCodeSubmissionsInput
-  ): Promise<unknown[]>
-
-  createLessonCodeSubmission(
-    data: CreateLessonCodeSubmissionInput
-  ): Promise<unknown>
-
-  getLessonGeneratedQuestions(
-    data: GetLessonGeneratedQuestionsInput
-  ): Promise<unknown[]>
-
-  createLessonGeneratedQuestions(
-    data: CreateLessonGeneratedQuestionsInput
-  ): Promise<unknown[]>
-
-  findLessonQuestionSolution(
-    data: FindLessonQuestionSolutionInput
-  ): Promise<unknown | null>
-
-  createLessonQuestionSolution(
-    data: CreateLessonQuestionSolutionInput
-  ): Promise<unknown>
+  clearLessonChatMessages(
+    data: ClearLessonChatMessagesInput
+  ): Promise<LessonMutationResult>
 
   getLessonQuestionSolutionDoubts(
     data: GetLessonQuestionSolutionDoubtsInput
-  ): Promise<unknown[]>
+  ): Promise<LessonQuestionSolutionDoubtRecord[]>
 
   createLessonQuestionSolutionDoubt(
     data: CreateLessonQuestionSolutionDoubtInput
-  ): Promise<unknown>
-
-  clearLessonChatMessages(data: ClearLessonChatMessagesInput): Promise<unknown>
+  ): Promise<LessonQuestionSolutionDoubtRecord>
 
   clearLessonQuestionSolutionDoubts(
     data: ClearLessonQuestionSolutionDoubtsInput
-  ): Promise<unknown>
+  ): Promise<LessonMutationResult>
+}
 
+export interface ITrackerLessonPracticeRepository {
+  getLessonAnswerAttempts(
+    data: GetLessonAnswerAttemptsInput
+  ): Promise<LessonAnswerAttemptRecord[]>
+
+  createLessonAnswerAttempt(
+    data: CreateLessonAnswerAttemptInput
+  ): Promise<LessonAnswerAttemptRecord>
+
+  getLessonGeneratedQuestions(
+    data: GetLessonGeneratedQuestionsInput
+  ): Promise<LessonGeneratedQuestionRecord[]>
+
+  createLessonGeneratedQuestions(
+    data: CreateLessonGeneratedQuestionsInput
+  ): Promise<LessonGeneratedQuestionRecord[]>
+
+  findLessonQuestionSolution(
+    data: FindLessonQuestionSolutionInput
+  ): Promise<LessonQuestionSolutionRecord | null>
+
+  createLessonQuestionSolution(
+    data: CreateLessonQuestionSolutionInput
+  ): Promise<LessonQuestionSolutionRecord>
+}
+
+export interface ITrackerLessonCodeRepository {
+  getLessonCodeSubmissions(
+    data: GetLessonCodeSubmissionsInput
+  ): Promise<LessonCodeSubmissionRecord[]>
+
+  createLessonCodeSubmission(
+    data: CreateLessonCodeSubmissionInput
+  ): Promise<LessonCodeSubmissionRecord>
+}
+
+export interface ITrackerLessonVisualizationRepository {
   findLessonVisualization(
     data: FindLessonVisualizationInput
   ): Promise<LessonVisualizationRecord | null>
 
-  saveLessonVisualization(data: SaveLessonVisualizationInput): Promise<unknown>
+  saveLessonVisualization(
+    data: SaveLessonVisualizationInput
+  ): Promise<LessonVisualizationRecord>
 }
+
+export interface ITrackerLessonRepository
+  extends ITrackerLessonContentRepository,
+    ITrackerLessonChatRepository,
+    ITrackerLessonPracticeRepository,
+    ITrackerLessonCodeRepository,
+    ITrackerLessonVisualizationRepository {}

@@ -3,32 +3,18 @@ import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') {
-    return doc._id
-  }
-
-  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
-    return doc._id.toString()
-  }
-
-  return null
-}
-
 export interface IGenerateLessonVisualizationUseCase {
   execute(input: {
     trackerId: string
     subtopicId: string
     userId: string
     regenerate?: boolean
-  }): Promise<unknown>
+  }): Promise<ReturnType<ITrackerMapper['toLessonVisualizationDto']>>
 }
 
 export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisualizationUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findLessonBySubtopicId' | 'findLessonVisualization' | 'findOwnedTrackerById' | 'saveLessonVisualization'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
@@ -87,7 +73,7 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
-        lessonId: getDocumentId(lesson),
+        lessonId: lesson._id.toString(),
         html: result.html,
         visualTitle: result.visualTitle,
         visualDescription: result.visualDescription,

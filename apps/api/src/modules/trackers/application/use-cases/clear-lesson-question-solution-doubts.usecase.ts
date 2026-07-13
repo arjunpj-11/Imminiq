@@ -20,7 +20,7 @@ export interface IClearLessonQuestionSolutionDoubtsUseCase {
 
 export class ClearLessonQuestionSolutionDoubtsUseCase implements IClearLessonQuestionSolutionDoubtsUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'clearLessonQuestionSolutionDoubts' | 'findOwnedTrackerById'>,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}

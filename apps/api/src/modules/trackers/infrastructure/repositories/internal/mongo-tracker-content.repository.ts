@@ -43,7 +43,9 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
           }),
         );
 
-        return job as EvaluationJobRecord | null;
+        return job
+          ? this.mapper.toDomainRecord<EvaluationJobRecord>(job)
+          : null;
       },
     );
   }
@@ -125,7 +127,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
   }
 
   async shiftTopicOrdersFrom(data: ShiftTopicOrdersFromInput) {
-    return this.execute(
+    await this.execute(
       "TRACKER_TOPIC_UPDATE_FAILED",
       "Failed to shift tracker topic orders",
       async () =>
@@ -219,7 +221,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
   }
 
   async incrementTrackerTopicsCount(trackerId: string) {
-    return this.execute(
+    await this.execute(
       "TRACKER_TOPIC_COUNT_UPDATE_FAILED",
       "Failed to increment tracker topic count",
       async () =>
@@ -241,7 +243,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
   }
 
   async incrementTrackerSubtopicsCount(trackerId: string) {
-    return this.execute(
+    await this.execute(
       "TRACKER_SUBTOPIC_COUNT_UPDATE_FAILED",
       "Failed to increment tracker subtopic count",
       async () =>
@@ -265,7 +267,7 @@ export class MongoTrackerContentRepository extends MongoTrackerBaseRepository {
   async markMissingEvaluationTopicAsAdded(
     data: MarkMissingEvaluationTopicAsAddedInput,
   ) {
-    return this.execute(
+    await this.execute(
       "EVALUATION_TOPIC_UPDATE_FAILED",
       "Failed to mark missing evaluation topic as added",
       async () => {

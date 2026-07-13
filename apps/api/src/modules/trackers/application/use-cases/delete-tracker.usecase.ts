@@ -13,7 +13,7 @@ export interface IDeleteTrackerUseCase {
 
 export class DeleteTrackerUseCase implements IDeleteTrackerUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'softDeleteOwnedTracker'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 

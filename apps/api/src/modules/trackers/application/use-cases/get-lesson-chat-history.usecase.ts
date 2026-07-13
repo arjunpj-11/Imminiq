@@ -12,7 +12,7 @@ export interface IGetLessonChatHistoryUseCase {
 
 export class GetLessonChatHistoryUseCase implements IGetLessonChatHistoryUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById' | 'getLessonChatMessages'>,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 

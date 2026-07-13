@@ -23,7 +23,7 @@ export interface IGetCodeHintUseCase {
 
 export class GetCodeHintUseCase implements IGetCodeHintUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findGeneratedLessonBySubtopic' | 'findOwnedTrackerById'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper
   ) {}

@@ -23,7 +23,7 @@ export interface IChatWithLessonTutorUseCase {
 
 export class ChatWithLessonTutorUseCase implements IChatWithLessonTutorUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLessonChatMessage' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}

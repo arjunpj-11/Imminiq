@@ -81,7 +81,7 @@ export interface IGetTrackerRoadmapUseCase {
 
 export class GetTrackerRoadmapUseCase implements IGetTrackerRoadmapUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'ensureUserProgressInitialized' | 'findOwnedTrackerById' | 'getSubtopicsWithUserProgress' | 'getTopicsWithUserProgress'>,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 

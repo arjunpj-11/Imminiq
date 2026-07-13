@@ -8,7 +8,7 @@ export interface IGetTrackerDetailsUseCase {
 
 export class GetTrackerDetailsUseCase implements IGetTrackerDetailsUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById'>,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 

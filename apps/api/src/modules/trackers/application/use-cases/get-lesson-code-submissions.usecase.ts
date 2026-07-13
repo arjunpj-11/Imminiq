@@ -13,7 +13,7 @@ export interface IGetLessonCodeSubmissionsUseCase {
 
 export class GetLessonCodeSubmissionsUseCase implements IGetLessonCodeSubmissionsUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById' | 'getLessonCodeSubmissions'>,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 

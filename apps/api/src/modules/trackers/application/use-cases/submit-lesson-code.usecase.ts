@@ -3,20 +3,6 @@ import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { ICodeExecutor } from '../../domain/services/code-execution.interface'
 
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') {
-    return doc._id
-  }
-
-  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
-    return doc._id.toString()
-  }
-
-  return null
-}
-
 type SubmitLessonCodeInput = {
   trackerId: string
   subtopicId: string
@@ -28,7 +14,7 @@ type SubmitLessonCodeInput = {
 }
 
 type SubmitLessonCodeResultDTO = ReturnType<
-  ITrackerMapper['toLessonCodeExecutionDto']
+  ITrackerMapper['toLessonCodeSubmissionDto']
 >
 
 const normalizeOutput = (value: string) => {
@@ -41,7 +27,7 @@ export interface ISubmitLessonCodeUseCase {
 
 export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLessonCodeSubmission' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'>,
     private readonly _codeExecutor: ICodeExecutor,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
@@ -132,7 +118,7 @@ export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      lessonId: getDocumentId(lesson),
+      lessonId: lesson._id.toString(),
       action: 'submit',
       language,
       languageId: input.languageId,
@@ -151,6 +137,6 @@ export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
       feedback,
     })
 
-    return this._trackerMapper.toLessonCodeExecutionDto(response)
+    return this._trackerMapper.toLessonCodeSubmissionDto(response)
   }
 }

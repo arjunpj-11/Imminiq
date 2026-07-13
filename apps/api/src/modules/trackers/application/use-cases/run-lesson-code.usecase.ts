@@ -25,7 +25,7 @@ export interface IRunLessonCodeUseCase {
 
 export class RunLessonCodeUseCase implements IRunLessonCodeUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findLessonBySubtopicId' | 'findOwnedTrackerById'>,
     private readonly _codeExecutor: ICodeExecutor,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}

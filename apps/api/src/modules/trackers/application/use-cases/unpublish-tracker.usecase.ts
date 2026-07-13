@@ -7,7 +7,7 @@ export interface IUnpublishTrackerUseCase {
 }
 
 export class UnpublishTrackerUseCase implements IUnpublishTrackerUseCase {
-  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'unpublishOwnedTracker'>,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: { trackerId: string; userId: string }) {
     const tracker = await this._trackerRepository.unpublishOwnedTracker(input)

@@ -10,7 +10,7 @@ export interface IPublishTrackerUseCase {
 }
 
 export class PublishTrackerUseCase implements IPublishTrackerUseCase {
-  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'publishOwnedTracker'>,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: PublishTrackerInput) {
   

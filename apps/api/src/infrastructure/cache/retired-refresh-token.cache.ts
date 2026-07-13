@@ -1,17 +1,11 @@
-import { createHash } from 'crypto'
 import { redis } from '../../config/redis'
+import { sha256RefreshTokenHasher } from '../security/sha256-refresh-token-hasher'
 
 const RETIRED_REFRESH_PREFIX = 'retired-refresh-token'
 
 export type RetiredRefreshTokenRecord = {
   userId: string
   sessionId: string
-}
-
-const hashToken = (rawToken: string) => {
-  return createHash('sha256')
-    .update(rawToken)
-    .digest('hex')
 }
 
 const keyForHash = (refreshTokenHash: string) => {
@@ -44,7 +38,7 @@ export const retiredRefreshTokenCache = {
   async findByRawToken(
     rawRefreshToken: string
   ): Promise<RetiredRefreshTokenRecord | null> {
-    const refreshTokenHash = hashToken(rawRefreshToken)
+    const refreshTokenHash = sha256RefreshTokenHasher.hash(rawRefreshToken)
     const serialized = await redis.get(keyForHash(refreshTokenHash))
 
     if (!serialized) {

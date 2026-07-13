@@ -14,7 +14,7 @@ export interface IGetLessonQuestionSolutionDoubtsUseCase {
 
 export class GetLessonQuestionSolutionDoubtsUseCase implements IGetLessonQuestionSolutionDoubtsUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById' | 'getLessonQuestionSolutionDoubts'>,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}

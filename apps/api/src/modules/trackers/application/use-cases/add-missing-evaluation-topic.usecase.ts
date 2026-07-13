@@ -2,12 +2,16 @@
 
 import { TrackerApplicationError } from '../tracker-application.error'
 import type { ITrackerMapper } from '../tracker.mapper'
+import {
+  findBestMatchingParent,
+  parseNewTopLevelPlacement,
+  type NewTopLevelPlacement,
+} from '../missing-topic-placement.policy'
 
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type {
   AddMissingEvaluationTopicInput,
   AddMissingEvaluationTopicResult,
-  EvaluationOutputData,
   TrackerTopicRecord,
 } from '../../domain/trackers.types'
 
@@ -15,88 +19,25 @@ type AddMissingEvaluationTopicDTO = ReturnType<
   ITrackerMapper['toAddMissingEvaluationTopicDto']
 >
 
-const normalizeTitle = (value: string) => {
-  return value
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, ' ')
-    .replace(/\s+/g, ' ')
-}
-
-const findBestMatchingParent = <T extends { title: string }>(
-  items: T[],
-  suggestedParentTitle: string,
-): T | null => {
-  const target = normalizeTitle(suggestedParentTitle)
-
-  const exactMatch = items.find((item) => normalizeTitle(item.title) === target)
-
-  if (exactMatch) {
-    return exactMatch
-  }
-
-  const softMatch = items.find((item) => {
-    const normalizedItemTitle = normalizeTitle(item.title)
-
-    return (
-      normalizedItemTitle.includes(target) ||
-      target.includes(normalizedItemTitle)
-    )
-  })
-
-  return softMatch || null
-}
-
-type NewTopLevelPlacement = {
-  isNewTopLevel: boolean
-  relation?: 'before' | 'after'
-  referenceTitle?: string
-}
-
-const normalizePlacementReference = (value: string) => {
-  return value
-    .trim()
-    .replace(/^["'""'']+/, '')
-    .replace(/["'""''.)\]]+$/, '')
-    .trim()
-}
-
-const parseNewTopLevelPlacement = (
-  suggestedParentTitle: string,
-): NewTopLevelPlacement => {
-  const placement = suggestedParentTitle.trim()
-
-  if (!/^new\s+top\s+level\s+topic/i.test(placement)) {
-    return { isNewTopLevel: false }
-  }
-
-  const followMatch = placement.match(/should\s+follow\s+(.+?)(?:\)|$)/i)
-
-  if (followMatch?.[1]) {
-    return {
-      isNewTopLevel: true,
-      relation: 'after',
-      referenceTitle: normalizePlacementReference(followMatch[1]),
-    }
-  }
-
-  const precedeMatch = placement.match(
-    /should\s+(?:precede|come\s+before)\s+(.+?)(?:\)|$)/i,
-  )
-
-  if (precedeMatch?.[1]) {
-    return {
-      isNewTopLevel: true,
-      relation: 'before',
-      referenceTitle: normalizePlacementReference(precedeMatch[1]),
-    }
-  }
-
-  return { isNewTopLevel: true }
-}
+type AddMissingEvaluationTopicRepository = Pick<
+  ITrackerRepository,
+  | 'createTrackerSubtopic'
+  | 'createTrackerTopic'
+  | 'findEvaluationJobById'
+  | 'findLastSiblingSubtopic'
+  | 'findLastTopicForTracker'
+  | 'findOwnedTrackerById'
+  | 'getSubtopicsForTracker'
+  | 'getTopicsForTracker'
+  | 'incrementTrackerSubtopicsCount'
+  | 'incrementTrackerTopicsCount'
+  | 'markMissingEvaluationTopicAsAdded'
+  | 'recomputeTrackerProgress'
+  | 'shiftTopicOrdersFrom'
+>
 
 const resolveTopLevelTopicOrder = async (
-  trackerRepository: ITrackerRepository,
+  trackerRepository: AddMissingEvaluationTopicRepository,
   trackerId: string,
   trackerTopics: TrackerTopicRecord[],
   placement: NewTopLevelPlacement,
@@ -138,7 +79,7 @@ export interface IAddMissingEvaluationTopicUseCase {
 
 export class AddMissingEvaluationTopicUseCase implements IAddMissingEvaluationTopicUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: AddMissingEvaluationTopicRepository,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
@@ -182,9 +123,7 @@ export class AddMissingEvaluationTopicUseCase implements IAddMissingEvaluationTo
       )
     }
 
-    const outputData = evaluationJob.outputData as
-      | EvaluationOutputData
-      | undefined
+    const outputData = evaluationJob.outputData
 
     if (outputData?.trackerId !== trackerId) {
       throw TrackerApplicationError.trackerEvaluationMismatch(

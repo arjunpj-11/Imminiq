@@ -9,12 +9,12 @@ export interface IGetLessonQuestionSolutionUseCase {
     subtopicId: string
     userId: string
     question: string
-  }): Promise<unknown>
+  }): Promise<ReturnType<ITrackerMapper['toLessonQuestionSolutionDto']>>
 }
 
 export class GetLessonQuestionSolutionUseCase implements IGetLessonQuestionSolutionUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findLessonQuestionSolution' | 'findOwnedTrackerById'>,
     private readonly _questionHasher: IQuestionHasher,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}

@@ -13,7 +13,7 @@ export interface IArchiveTrackerUseCase {
 
 export class ArchiveTrackerUseCase implements IArchiveTrackerUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'archiveOwnedTracker'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 

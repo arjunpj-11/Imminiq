@@ -13,7 +13,7 @@ export interface ICreateTrackerSubtopicUseCase {
 
 export class CreateTrackerSubtopicUseCase implements ICreateTrackerSubtopicUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createTrackerSubtopic' | 'findLastSiblingSubtopic' | 'findOwnedTrackerById' | 'getSubtopicById' | 'getTopicsForTracker' | 'incrementTrackerSubtopicsCount' | 'recomputeTrackerProgress'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 

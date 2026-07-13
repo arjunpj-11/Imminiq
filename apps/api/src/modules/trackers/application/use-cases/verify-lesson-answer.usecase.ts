@@ -3,20 +3,6 @@ import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
 
-const getDocumentId = (document: unknown) => {
-  const doc = document as { _id?: unknown }
-
-  if (typeof doc._id === 'string') {
-    return doc._id
-  }
-
-  if (doc._id && typeof doc._id === 'object' && 'toString' in doc._id) {
-    return doc._id.toString()
-  }
-
-  return null
-}
-
 type VerifyLessonAnswerInput = {
   trackerId: string
   subtopicId: string
@@ -41,7 +27,7 @@ export interface IVerifyLessonAnswerUseCase {
 
 export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLessonAnswerAttempt' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
@@ -92,7 +78,7 @@ export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-      lessonId: getDocumentId(lesson),
+      lessonId: lesson._id.toString(),
       question: input.question,
       answer: input.answer,
       feedback: result,

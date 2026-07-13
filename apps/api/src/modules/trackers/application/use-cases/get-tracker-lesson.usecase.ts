@@ -34,7 +34,7 @@ export interface IGetTrackerLessonUseCase {
 
 export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLesson' | 'ensureUserProgressInitialized' | 'findLessonBySubtopicId' | 'findOwnedTrackerById' | 'getSubtopicsWithUserProgress' | 'getTopicsForTracker'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}

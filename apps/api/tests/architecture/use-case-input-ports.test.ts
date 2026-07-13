@@ -1,5 +1,6 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
+import ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 const modulesRoot = join(process.cwd(), 'src', 'modules')
@@ -26,13 +27,39 @@ describe('use-case input ports', () => {
 
     for (const path of useCaseFiles) {
       const source = readFileSync(path, 'utf8')
-      const className = source.match(/export class (\w+UseCase)/)?.[1]
+      const sourceFile = ts.createSourceFile(
+        path,
+        source,
+        ts.ScriptTarget.Latest,
+        true,
+      )
+      const declarations = sourceFile.statements.filter(
+        (statement) =>
+          statement.modifiers?.some(
+            (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
+          ),
+      )
+      const useCaseClass = declarations.find(
+        (statement): statement is ts.ClassDeclaration =>
+          ts.isClassDeclaration(statement) &&
+          Boolean(statement.name?.text.endsWith('UseCase')),
+      )
+      const className = useCaseClass?.name?.text
+      const interfaceName = `I${className}`
+      const hasInputPort = declarations.some(
+        (statement) =>
+          ts.isInterfaceDeclaration(statement) &&
+          statement.name.text === interfaceName,
+      )
+      const implementsInputPort = useCaseClass?.heritageClauses?.some(
+        (clause) =>
+          clause.token === ts.SyntaxKind.ImplementsKeyword &&
+          clause.types.some((type) => type.expression.getText() === interfaceName),
+      )
 
       expect(className, path).toBeDefined()
-      expect(source, path).toContain(`export interface I${className}`)
-      expect(source, path).toContain(
-        `export class ${className} implements I${className}`,
-      )
+      expect(hasInputPort, path).toBe(true)
+      expect(implementsInputPort, path).toBe(true)
     }
   })
 

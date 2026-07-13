@@ -16,9 +16,6 @@ interface IEditPanelProps {
   isSaving?: boolean;
 }
 
-const PROFILE_PANEL_TOP_OFFSET =
-  'var(--app-topbar-height, var(--topbar-height, 64px))';
-
 export default function EditProfilePanel({
   profile,
   open,
@@ -222,20 +219,18 @@ export default function EditProfilePanel({
     <>
       <div
         className={cn(
-          "fixed inset-x-0 bottom-0 z-100 bg-[rgba(26,23,20,0.55)] dark:bg-[rgba(0,0,0,0.70)] backdrop-blur transition-opacity duration-300",
+          "fixed inset-0 z-100 bg-[rgba(26,23,20,0.55)] dark:bg-[rgba(0,0,0,0.70)] backdrop-blur transition-opacity duration-300",
           open
             ? "opacity-100 pointer-events-auto"
             : "opacity-0 pointer-events-none",
         )}
-        style={{ top: PROFILE_PANEL_TOP_OFFSET }}
         onClick={onClose}
       />
       <div
         className={cn(
-          "fixed right-0 bottom-0 z-101 flex min-h-0 min-w-0 w-full max-w-130 flex-col overflow-hidden border-l border-(--border-subtle) bg-(--surface-card) shadow-[-8px_0_48px_rgba(26,23,20,0.14)] transition-transform duration-360 ease-in-out dark:border-(--border-subtle) dark:bg-(--surface-card)",
+          "fixed inset-y-0 right-0 z-101 flex min-h-0 min-w-0 w-full max-w-130 flex-col overflow-hidden border-l border-(--border-subtle) bg-(--surface-card) shadow-[-8px_0_48px_rgba(26,23,20,0.14)] transition-transform duration-360 ease-in-out dark:border-(--border-subtle) dark:bg-(--surface-card)",
           open ? "translate-x-0" : "translate-x-full",
         )}
-        style={{ top: PROFILE_PANEL_TOP_OFFSET }}
         role="dialog"
         aria-modal="true"
         aria-labelledby="edit-profile-panel-title"

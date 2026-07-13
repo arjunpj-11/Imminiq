@@ -7,12 +7,12 @@ export interface IGetLessonGeneratedQuestionsUseCase {
     trackerId: string
     subtopicId: string
     userId: string
-  }): Promise<unknown>
+  }): Promise<ReturnType<ITrackerMapper['toLessonGeneratedQuestionsDto']>>
 }
 
 export class GetLessonGeneratedQuestionsUseCase implements IGetLessonGeneratedQuestionsUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById' | 'getLessonGeneratedQuestions'>,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 

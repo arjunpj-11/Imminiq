@@ -13,7 +13,7 @@ export interface ICreateTrackerTopicUseCase {
 
 export class CreateTrackerTopicUseCase implements ICreateTrackerTopicUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'createTrackerTopic' | 'findLastTopicForTracker' | 'findOwnedTrackerById' | 'incrementTrackerTopicsCount'>,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 

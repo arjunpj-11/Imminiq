@@ -34,13 +34,6 @@ type LessonQuestionQuery = {
   question: string
 }
 
-type VerifyAnswerResult = {
-  isCorrect: boolean
-  feedback?: string
-  explanation?: string
-  expectedAnswer?: string
-}
-
 type MissingTopicEvaluationResult = {
   mode: 'issue' | 'suggestions' | 'none'
   message?: string
@@ -591,7 +584,7 @@ export class TrackerController {
     next: NextFunction
   ) => {
     try {
-      const result = (await this._useCases.submitLessonCode.execute({
+      const result = await this._useCases.submitLessonCode.execute({
         trackerId: req.params.trackerId,
         subtopicId: req.params.subtopicId,
         userId: getAuthUser(req).userId,
@@ -599,7 +592,7 @@ export class TrackerController {
         languageId: req.body.languageId ?? 63,
         language: req.body.language,
         stdin: req.body.stdin,
-      })) as VerifyAnswerResult
+      })
 
       res.json(
         new ApiResponse(

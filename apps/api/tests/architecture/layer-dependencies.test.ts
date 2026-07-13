@@ -48,6 +48,12 @@ const moduleImports = (sourcePath: string): string[] => {
     .filter((path): path is string => path !== null)
 }
 
+const importSpecifiers = (sourcePath: string): string[] => {
+  const source = readFileSync(sourcePath, 'utf8')
+  return [...source.matchAll(/(?:from\s+|import\s*\(\s*)['"]([^'"]+)['"]/g)]
+    .map((match) => match[1])
+}
+
 const portable = (path: string) => path.split(sep).join('/')
 
 describe('clean architecture boundaries', () => {
@@ -107,6 +113,89 @@ describe('clean architecture boundaries', () => {
           })
           .map((target) => `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`),
       )
+
+    expect(violations).toEqual([])
+  })
+
+  it('keeps domain and application independent of external packages', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter((path) => {
+        const portablePath = portable(path)
+        return (
+          portablePath.includes('/domain/') ||
+          portablePath.includes('/application/')
+        )
+      })
+      .flatMap((source) =>
+        importSpecifiers(source)
+          .filter(
+            (specifier) =>
+              !specifier.startsWith('.') && !specifier.startsWith('@/'),
+          )
+          .map(
+            (specifier) =>
+              `${portable(relative(sourceRoot, source))} -> ${specifier}`,
+          ),
+      )
+
+    expect(violations).toEqual([])
+  })
+
+  it('allows cross-module dependencies only through module public APIs', () => {
+    const violations = collectFiles(modulesRoot).flatMap((source) => {
+      const sourceModule = portable(relative(modulesRoot, source)).split('/')[0]
+
+      return moduleImports(source)
+        .filter((target) => {
+          if (!target.startsWith(`${modulesRoot}${sep}`)) {
+            return false
+          }
+
+          const relativeTarget = portable(relative(modulesRoot, target))
+          const [targetModule, ...targetParts] = relativeTarget.split('/')
+
+          return (
+            targetModule !== sourceModule &&
+            targetParts.length > 0 &&
+            targetParts.join('/') !== 'index'
+          )
+        })
+        .map(
+          (target) =>
+            `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`,
+        )
+    })
+
+    expect(violations).toEqual([])
+  })
+
+  it('keeps repository and use-case return contracts explicit', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter(
+        (path) =>
+          /repository.*\.ts$/.test(path) || path.endsWith('.usecase.ts'),
+      )
+      .filter((path) => /Promise<\s*unknown(?:\[\])?\s*>/.test(
+        readFileSync(path, 'utf8'),
+      ))
+      .map((path) => portable(relative(sourceRoot, path)))
+
+    expect(violations).toEqual([])
+  })
+
+  it('keeps tracker use cases dependent on narrow repository capabilities', () => {
+    const trackerUseCasesRoot = join(
+      modulesRoot,
+      'trackers',
+      'application',
+      'use-cases',
+    )
+    const violations = collectFiles(trackerUseCasesRoot)
+      .filter((path) => path.endsWith('.usecase.ts'))
+      .filter((path) => /:\s*ITrackerRepository\b/.test(
+        readFileSync(path, 'utf8'),
+      ))
+      .map((path) => portable(relative(sourceRoot, path)))
 
     expect(violations).toEqual([])
   })

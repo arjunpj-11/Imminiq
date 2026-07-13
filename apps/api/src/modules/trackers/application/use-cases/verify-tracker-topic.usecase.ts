@@ -28,7 +28,7 @@ export interface IVerifyTrackerTopicUseCase {
 
 export class VerifyTrackerTopicUseCase implements IVerifyTrackerTopicUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}

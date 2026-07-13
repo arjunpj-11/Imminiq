@@ -1,5 +1,3 @@
-import { createHash } from 'crypto'
-
 import { AuthApplicationError } from '../auth-application.error'
 import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
@@ -8,6 +6,7 @@ import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-re
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
 import type { RequestMetaDTO, ITokenPairDTO } from '../auth.dto'
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy'
+import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface'
 
 type RefreshTokensRepository =
   IAuthUserRepository & IAuthSessionRepository
@@ -22,11 +21,12 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
     private readonly _authToken: IAuthToken,
     private readonly _retiredRefreshTokenStore: IRetiredRefreshTokenStore,
     private readonly _securityAuditLogger: ISecurityAuditLogger,
-    private readonly _authAccountPolicy: IAuthAccountPolicy
+    private readonly _authAccountPolicy: IAuthAccountPolicy,
+    private readonly _refreshTokenHasher: IRefreshTokenHasher,
   ) {}
 
   async execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO> {
-    const refreshTokenHash = this.hashRefreshToken(refreshToken)
+    const refreshTokenHash = this._refreshTokenHasher.hash(refreshToken)
 
     const tokenRecord =
       await this._authRepository.findSessionByRefreshTokenHash(refreshTokenHash)
@@ -71,14 +71,14 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
     )
 
     const newRefreshToken = this._authToken.generateRefreshToken()
-    const newRefreshTokenHash = this.hashRefreshToken(newRefreshToken)
+    const newRefreshTokenHash = this._refreshTokenHasher.hash(newRefreshToken)
 
-  await this._retiredRefreshTokenStore.retire({
-  refreshTokenHash,
-  userId: tokenRecord.userId,
-  sessionId: tokenRecord.id,
-  expiresAt: tokenRecord.expiresAt,
-})
+    await this._retiredRefreshTokenStore.retire({
+      refreshTokenHash,
+      userId: tokenRecord.userId,
+      sessionId: tokenRecord.id,
+      expiresAt: tokenRecord.expiresAt,
+    })
 
     const rotatedSession =
       await this._authRepository.rotateRefreshTokenInSameSession({
@@ -97,9 +97,5 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
       accessToken,
       refreshToken: newRefreshToken,
     }
-  }
-
-  private hashRefreshToken(refreshToken: string): string {
-    return createHash('sha256').update(refreshToken).digest('hex')
   }
 }

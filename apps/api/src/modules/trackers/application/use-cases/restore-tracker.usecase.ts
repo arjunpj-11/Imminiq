@@ -7,7 +7,7 @@ export interface IRestoreTrackerUseCase {
 }
 
 export class RestoreTrackerUseCase implements IRestoreTrackerUseCase {
-  constructor(private readonly _trackerRepository: ITrackerRepository,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'restoreOwnedTracker'>,private readonly _trackerMapper: ITrackerMapper) {}
 
   async execute(input: { trackerId: string; userId: string }) {
     const tracker = await this._trackerRepository.restoreOwnedTracker(input)

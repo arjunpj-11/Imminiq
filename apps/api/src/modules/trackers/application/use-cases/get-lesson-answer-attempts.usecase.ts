@@ -12,7 +12,7 @@ export interface IGetLessonAnswerAttemptsUseCase {
 
 export class GetLessonAnswerAttemptsUseCase implements IGetLessonAnswerAttemptsUseCase {
   constructor(
-    private readonly _trackerRepository: ITrackerRepository,
+    private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById' | 'getLessonAnswerAttempts'>,
     private readonly _trackerMapper: ITrackerMapper,
   ) {}
 
