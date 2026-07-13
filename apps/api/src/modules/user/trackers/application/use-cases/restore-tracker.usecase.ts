@@ -1,15 +1,28 @@
 import { TrackerApplicationError } from '../tracker-application.error'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import { ITrackerMapper } from '..';
+import type { ITrackerMapper } from '../tracker.mapper'
+import type {
+  ITrackerCommandRepository,
+  RestoreOwnedTrackerInput,
+} from '../../domain/repositories/tracker-command.repository.interface'
+
+type RestoreTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>
 
 export interface IRestoreTrackerUseCase {
-  execute(input: { trackerId: string; userId: string }): Promise<import("../../domain").TrackerRecord>
+  execute(input: RestoreOwnedTrackerInput): Promise<RestoreTrackerResultDTO>
 }
 
 export class RestoreTrackerUseCase implements IRestoreTrackerUseCase {
-  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'restoreOwnedTracker'>,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(
+    private readonly _trackerRepository: Pick<
+      ITrackerCommandRepository,
+      'restoreOwnedTracker'
+    >,
+    private readonly _trackerMapper: ITrackerMapper
+  ) {}
 
-  async execute(input: { trackerId: string; userId: string }) {
+  async execute(
+    input: RestoreOwnedTrackerInput
+  ): Promise<RestoreTrackerResultDTO> {
     const tracker = await this._trackerRepository.restoreOwnedTracker(input)
 
     if (!tracker) {

@@ -197,6 +197,29 @@ describe('clean architecture boundaries', () => {
     expect(violations).toEqual([])
   })
 
+  it('prevents code from importing its own layer barrel', () => {
+    const violations = collectFiles(modulesRoot).flatMap((source) => {
+      const sourceLocation = moduleLocation(source)
+      if (!sourceLocation || sourceLocation.parts.length < 2) return []
+
+      return moduleImports(source)
+        .filter((target) => {
+          const targetLocation = moduleLocation(target)
+          return (
+            targetLocation?.id === sourceLocation.id &&
+            targetLocation.parts.length === 1 &&
+            targetLocation.parts[0] === sourceLocation.parts[0]
+          )
+        })
+        .map(
+          (target) =>
+            `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`,
+        )
+    })
+
+    expect(violations).toEqual([])
+  })
+
   it('keeps repository and use-case return contracts explicit', () => {
     const violations = collectFiles(modulesRoot)
       .filter(

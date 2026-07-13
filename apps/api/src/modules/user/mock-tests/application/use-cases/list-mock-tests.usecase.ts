@@ -6,6 +6,11 @@ import {
   DEFAULT_MOCK_TEST_PAGE,
   MAX_MOCK_TEST_LIST_LIMIT,
 } from '../../domain/mock-tests.constants'
+import type { MockTestSummary } from '../../domain/value-objects/mock-test-analytics.vo'
+import type {
+  IMockTestAttemptDTO,
+  IMockTestDTO,
+} from '../mock-tests.dto'
 import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type ListMockTestsOptions = {
@@ -16,10 +21,28 @@ type ListMockTestsOptions = {
 type ListMockTestsRepository =
   IMockTestRepository &
   IMockTestAttemptRepository &
-  IMockTestAnalyticsRepository
+    IMockTestAnalyticsRepository
+
+type ListMockTestsResultDTO = {
+  summary: MockTestSummary
+  tests: (IMockTestDTO & {
+    latestAttempt: IMockTestAttemptDTO | null
+  })[]
+  pagination: {
+    page: number
+    limit: number
+    totalItems: number
+    totalPages: number
+    hasNextPage: boolean
+    hasPreviousPage: boolean
+  }
+}
 
 export interface IListMockTestsUseCase {
-  execute(userId: string, options?: ListMockTestsOptions): Promise<{ summary: import("../../domain").MockTestSummary; tests: (import("..").IMockTestDTO & { latestAttempt: import("..").IMockTestAttemptDTO | null; })[]; pagination: { page: number; limit: number; totalItems: number; totalPages: number; hasNextPage: boolean; hasPreviousPage: boolean; }; }>
+  execute(
+    userId: string,
+    options?: ListMockTestsOptions,
+  ): Promise<ListMockTestsResultDTO>
 }
 
 export class ListMockTestsUseCase implements IListMockTestsUseCase {

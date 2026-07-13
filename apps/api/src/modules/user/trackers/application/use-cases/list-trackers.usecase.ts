@@ -1,15 +1,24 @@
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
+import type { ITrackerMapper } from '../tracker.mapper'
+import type { ITrackerQueryRepository } from '../../domain/repositories/tracker-query.repository.interface'
 import type { TrackerListFilter } from '../../domain/trackers.types'
-import { ITrackerMapper } from '..'
+
+type ListTrackersResultDTO = ReturnType<ITrackerMapper['toTrackerListDto']>
 
 export interface IListTrackersUseCase {
-  execute(filter: TrackerListFilter): Promise<import("../../domain/value-objects/tracker-record.vo").TrackerListResult>
+  execute(filter: TrackerListFilter): Promise<ListTrackersResultDTO>
 }
 
 export class ListTrackersUseCase implements IListTrackersUseCase {
-  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'listOwnedTrackers'>,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(
+    private readonly _trackerRepository: Pick<
+      ITrackerQueryRepository,
+      'listOwnedTrackers'
+    >,
+    private readonly _trackerMapper: ITrackerMapper
+  ) {}
 
-  async execute(filter: TrackerListFilter) {
-    return this._trackerMapper.toTrackerListDto(await this._trackerRepository.listOwnedTrackers(filter))
+  async execute(filter: TrackerListFilter): Promise<ListTrackersResultDTO> {
+    const trackers = await this._trackerRepository.listOwnedTrackers(filter)
+    return this._trackerMapper.toTrackerListDto(trackers)
   }
 }

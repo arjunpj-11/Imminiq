@@ -1,4 +1,5 @@
 import { TrackerApplicationError } from '../tracker-application.error'
+import type { LessonQuestionSolutionDoubtsDTO } from '../tracker.dto'
 import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 import type { IQuestionHasher } from '../../domain/services/question-hasher.interface'
@@ -9,7 +10,7 @@ export interface IGetLessonQuestionSolutionDoubtsUseCase {
     subtopicId: string
     userId: string
     question: string
-  }): Promise<import("..").LessonQuestionSolutionDoubtsDTO>
+  }): Promise<LessonQuestionSolutionDoubtsDTO>
 }
 
 export class GetLessonQuestionSolutionDoubtsUseCase implements IGetLessonQuestionSolutionDoubtsUseCase {

@@ -1,4 +1,5 @@
 import { TrackerApplicationError } from '../tracker-application.error'
+import type { LessonAnswerAttemptsDTO } from '../tracker.dto'
 import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 
@@ -7,7 +8,7 @@ export interface IGetLessonAnswerAttemptsUseCase {
     trackerId: string
     subtopicId: string
     userId: string
-  }): Promise<import("..").LessonAnswerAttemptsDTO>
+  }): Promise<LessonAnswerAttemptsDTO>
 }
 
 export class GetLessonAnswerAttemptsUseCase implements IGetLessonAnswerAttemptsUseCase {

@@ -1,12 +1,19 @@
 import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface'
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
 import { UsersApplicationError } from '../users-application.error'
+import type {
+  ICurrentUserViewDTO,
+  IEditableProfileViewDTO,
+} from '../users.dto'
 import type { IUsersMapper } from '../users.mapper'
 
 type GetMeRepository = IUserRepository & IUserProfileRepository
 
 export interface IGetMeUseCase {
-  execute(userId: string): Promise<{ user: import("..").ICurrentUserViewDTO; profile: import("..").IEditableProfileViewDTO; }>
+  execute(userId: string): Promise<{
+    user: ICurrentUserViewDTO
+    profile: IEditableProfileViewDTO
+  }>
 }
 
 export class GetMeUseCase implements IGetMeUseCase {

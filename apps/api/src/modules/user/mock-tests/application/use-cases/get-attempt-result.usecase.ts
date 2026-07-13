@@ -4,6 +4,7 @@ import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
 import { MockTestsApplicationError } from '../mock-tests-application.error'
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface'
+import type { ITestAttemptResultDTO } from '../mock-tests.dto'
 import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type GetAttemptResultRepository =
@@ -14,7 +15,10 @@ type GetAttemptResultRepository =
   IMockTestReportRepository
 
 export interface IGetAttemptResultUseCase {
-  execute(attemptId: string, userId: string): Promise<import("..").ITestAttemptResultDTO>
+  execute(
+    attemptId: string,
+    userId: string,
+  ): Promise<ITestAttemptResultDTO>
 }
 
 export class GetAttemptResultUseCase implements IGetAttemptResultUseCase {

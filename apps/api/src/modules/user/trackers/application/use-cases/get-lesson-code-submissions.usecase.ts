@@ -1,4 +1,5 @@
 import { TrackerApplicationError } from '../tracker-application.error'
+import type { LessonCodeSubmissionsDTO } from '../tracker.dto'
 import type { ITrackerMapper } from '../tracker.mapper'
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
 
@@ -8,7 +9,7 @@ export interface IGetLessonCodeSubmissionsUseCase {
     subtopicId: string
     userId: string
     action?: 'run' | 'submit'
-  }): Promise<import("..").LessonCodeSubmissionsDTO>
+  }): Promise<LessonCodeSubmissionsDTO>
 }
 
 export class GetLessonCodeSubmissionsUseCase implements IGetLessonCodeSubmissionsUseCase {

@@ -2,6 +2,7 @@ import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
 import { MockTestsApplicationError } from '../mock-tests-application.error'
+import type { IMockTestAttemptSessionDTO } from '../mock-tests.dto'
 import type { IMockTestsMapper } from '../mock-tests.mapper'
 
 type RetakeTestRepository =
@@ -10,7 +11,10 @@ type RetakeTestRepository =
   IMockTestAttemptRepository
 
 export interface IRetakeTestUseCase {
-  execute(attemptId: string, userId: string): Promise<import("..").IMockTestAttemptSessionDTO>
+  execute(
+    attemptId: string,
+    userId: string,
+  ): Promise<IMockTestAttemptSessionDTO>
 }
 
 export class RetakeTestUseCase implements IRetakeTestUseCase {

@@ -4,10 +4,14 @@
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface'
 import { CommunityApplicationError } from '../community-application.error'
+import type { ICommunityTrackerViewDTO } from '../community.dto'
 import type { ICommunityMapper } from '../community.mapper'
 
 export interface ICloneCommunityTrackerUseCase {
-  execute(trackerId: string, userId: string): Promise<{ tracker: import("..").ICommunityTrackerViewDTO; }>
+  execute(
+    trackerId: string,
+    userId: string,
+  ): Promise<{ tracker: ICommunityTrackerViewDTO }>
 }
 
 export class CloneCommunityTrackerUseCase implements ICloneCommunityTrackerUseCase {

@@ -153,6 +153,10 @@ export default function MyTrackersPage() {
     })
   }
 
+  const handleDelete = async (trackerId: string): Promise<void> => {
+    await deleteTrackerMutation.mutateAsync(trackerId)
+  }
+
   return (
     <TrackerShell>
       <section className="flex flex-wrap items-start justify-between gap-4">
@@ -201,7 +205,7 @@ export default function MyTrackersPage() {
               onViewPublished={(trackerId) => navigate(`/community/trackers/${trackerId}`)}
               onInfo={(trackerId) => navigate(`/trackers/${trackerId}/manage`)}
               onArchive={(trackerId) => handleArchiveToggle(trackerId, tracker.status)}
-              onDelete={(trackerId) => deleteTrackerMutation.mutateAsync(trackerId)}
+              onDelete={handleDelete}
               onQuickRevision={(trackerId) => navigate(`/trackers/${trackerId}/revision`)}
               onSendForVerification={handleSendForVerification}
             />

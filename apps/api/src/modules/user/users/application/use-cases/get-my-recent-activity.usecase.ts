@@ -1,8 +1,11 @@
 import type { IUserActivityRepository } from '../../domain/repositories/user-activity.repository.interface'
+import type { IActivityFeedItemViewDTO } from '../users.dto'
 import type { IUsersMapper } from '../users.mapper'
 
 export interface IGetMyRecentActivityUseCase {
-  execute(userId: string, limit?: number): Promise<{ items: import("..").IActivityFeedItemViewDTO[]; }>
+  execute(userId: string, limit?: number): Promise<{
+    items: IActivityFeedItemViewDTO[]
+  }>
 }
 
 export class GetMyRecentActivityUseCase implements IGetMyRecentActivityUseCase {
