@@ -1,6 +1,5 @@
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import * as ts from 'typescript'
 import { describe, expect, it } from 'vitest'
 
 const modulesRoot = join(process.cwd(), 'src', 'modules')
@@ -27,39 +26,30 @@ describe('use-case input ports', () => {
 
     for (const path of useCaseFiles) {
       const source = readFileSync(path, 'utf8')
-      const sourceFile = ts.createSourceFile(
-        path,
-        source,
-        ts.ScriptTarget.Latest,
-        true,
+      const classDeclaration = source.match(
+        /\bexport\s+class\s+(\w+UseCase)\b([^{}]*)\{/,
       )
-      const declarations = sourceFile.statements.filter(
-        (statement) =>
-          statement.modifiers?.some(
-            (modifier) => modifier.kind === ts.SyntaxKind.ExportKeyword,
-          ),
-      )
-      const useCaseClass = declarations.find(
-        (statement): statement is ts.ClassDeclaration =>
-          ts.isClassDeclaration(statement) &&
-          Boolean(statement.name?.text.endsWith('UseCase')),
-      )
-      const className = useCaseClass?.name?.text
+      const className = classDeclaration?.[1]
       const interfaceName = `I${className}`
-      const hasInputPort = declarations.some(
-        (statement) =>
-          ts.isInterfaceDeclaration(statement) &&
-          statement.name.text === interfaceName,
-      )
-      const implementsInputPort = useCaseClass?.heritageClauses?.some(
-        (clause) =>
-          clause.token === ts.SyntaxKind.ImplementsKeyword &&
-          clause.types.some((type) => type.expression.getText() === interfaceName),
-      )
+      const hasInputPort = new RegExp(
+        `\\bexport\\s+interface\\s+${interfaceName}\\b`,
+      ).test(source)
+      const implementsInputPort = new RegExp(
+        `\\bimplements\\s+${interfaceName}\\b`,
+      ).test(classDeclaration?.[2] ?? '')
 
-      expect(className, path).toBeDefined()
-      expect(hasInputPort, path).toBe(true)
-      expect(implementsInputPort, path).toBe(true)
+      expect(
+        classDeclaration,
+        `Missing exported concrete use-case class in ${path}`,
+      ).not.toBeNull()
+      expect(
+        hasInputPort,
+        `Missing exported input port ${interfaceName} in ${path}`,
+      ).toBe(true)
+      expect(
+        implementsInputPort,
+        `${className} must implement ${interfaceName} in ${path}`,
+      ).toBe(true)
     }
   })
 
