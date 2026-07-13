@@ -71,9 +71,15 @@ export const useDeleteTracker = () => {
       return response.data
     },
 
-    onSuccess: () => {
+    onSuccess: (_response, trackerId) => {
       queryClient.invalidateQueries({
         queryKey: trackerKeys.all,
+      })
+      queryClient.removeQueries({
+        queryKey: trackerKeys.detail(trackerId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: ['community'],
       })
     },
   })
@@ -274,4 +280,3 @@ export const useUpdateSubtopicProgress = () => {
     },
   })
 }
-

@@ -18,6 +18,7 @@ import {
   evaluateRoadmap,
   RoadmapNestedNode,
 } from '../../ai/ai.service'
+import { findTrackerTopicLearningVideos } from '../../youtube/youtube-learning-video.service'
 
 // ============================================================
 // GEMINI RATE-LIMIT SETTINGS
@@ -362,6 +363,14 @@ const processRoadmapGeneration = async (
     level
   )
 
+  const learningVideos = await findTrackerTopicLearningVideos({
+    trackerTitle: roadmap.title,
+    topics: roadmap.topics.map((roadmapTopic) => ({
+      title: roadmapTopic.title,
+      order: roadmapTopic.order,
+    })),
+  })
+
   await completeStep(jobId, 3)
 
   // Step 4 — Save tracker tree to MongoDB
@@ -450,6 +459,8 @@ const processRoadmapGeneration = async (
                 description:
                   topicData.description || '',
                 order: topicData.order,
+                learningVideo:
+                  learningVideos.get(topicData.order) || null,
                 status:
                   topicIndex === 0
                     ? 'active'

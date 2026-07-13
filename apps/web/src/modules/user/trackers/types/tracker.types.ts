@@ -134,6 +134,14 @@ export interface IRoadmapTopic {
   status: LessonStatus
   progressPercent?: number
   estimatedHours?: number
+  learningVideo?: {
+    videoId: string
+    title: string
+    url: string
+    channelTitle: string
+    thumbnailUrl: string
+    durationSeconds: number
+  } | null
   subtopics: IRoadmapSubtopic[]
 }
 

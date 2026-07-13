@@ -3,6 +3,7 @@ import { getUserFacingError } from '../../../../lib/user-facing-error'
 
 import { useEffect, useRef, useState } from 'react'
 import type { ITracker } from '../types/tracker.types'
+import ConfirmDialog from './ConfirmDialog'
 import PublishTrackerModal, { type PublishFormData } from './PublishTrackerModal'
 
 export type { PublishFormData } from './PublishTrackerModal'
@@ -94,6 +95,12 @@ const ArchiveIcon = () => (
   </svg>
 )
 
+const DeleteIcon = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <path d="M4 7H20M9 7V4H15V7M7 7L8 20H16L17 7M10 11V16M14 11V16" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+  </svg>
+)
+
 const QuickRevisionIcon = () => (
   <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
     <path d="M1.5 7.5a6 6 0 1 0 6-6" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round" />
@@ -145,6 +152,7 @@ type TrackerCardProps = {
   onViewPublished: (trackerId: string) => void
   onInfo: (trackerId: string) => void
   onArchive?: (trackerId: string) => void
+  onDelete: (trackerId: string) => Promise<void> | void
   onQuickRevision: (trackerId: string) => void
   onSendForVerification: (trackerId: string) => Promise<void> | void
 }
@@ -156,6 +164,7 @@ export default function TrackerCard({
   onViewPublished,
   onInfo,
   onArchive,
+  onDelete,
   onQuickRevision,
   onSendForVerification,
 }: TrackerCardProps) {
@@ -167,6 +176,9 @@ export default function TrackerCard({
   const [verificationError, setVerificationError] = useState<string | null>(null)
   const [verificationSent, setVerificationSent] = useState(false)
   const [showPublishNudge, setShowPublishNudge] = useState(false)
+  const [deleteConfirmationStep, setDeleteConfirmationStep] = useState<0 | 1 | 2>(0)
+  const [isDeleting, setIsDeleting] = useState(false)
+  const [deleteError, setDeleteError] = useState<string | null>(null)
 
   const menuRef = useRef<HTMLDivElement | null>(null)
   const nudgeTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
@@ -274,6 +286,24 @@ export default function TrackerCard({
   const verificationButtonDisabled =
     isSendingVerification || isVerificationPending || isVerificationVerified || isArchived
 
+  const handleDeleteConfirmation = async () => {
+    if (deleteConfirmationStep === 1 && isPublished) {
+      setDeleteConfirmationStep(2)
+      return
+    }
+
+    try {
+      setIsDeleting(true)
+      setDeleteError(null)
+      await onDelete(tracker._id)
+      setDeleteConfirmationStep(0)
+    } catch (error) {
+      setDeleteError(getUserFacingError(error, 'Failed to delete tracker. Please try again.'))
+    } finally {
+      setIsDeleting(false)
+    }
+  }
+
   return (
     <>
       <article
@@ -359,6 +389,17 @@ export default function TrackerCard({
                     </button>
                   </>
                 )}
+                <div className="h-px bg-(--border-subtle) dark:bg-white/9" />
+                <button
+                  type="button"
+                  onClick={(e) => handleMenuAction(e, () => {
+                    setDeleteError(null)
+                    setDeleteConfirmationStep(1)
+                  })}
+                  className="flex w-full items-center gap-2.5 px-4 py-3 text-left text-[13px] font-semibold text-[#b83232] transition hover:bg-[rgba(200,50,50,0.08)] dark:text-[#ff8c8c] dark:hover:bg-[rgba(255,120,120,0.08)]"
+                >
+                  <DeleteIcon />Delete tracker
+                </button>
               </div>
             )}
           </div>
@@ -469,6 +510,35 @@ export default function TrackerCard({
           onConfirm={handlePublish}
         />
       )}
+      <ConfirmDialog
+        open={deleteConfirmationStep > 0}
+        variant="danger"
+        title={deleteConfirmationStep === 2 ? 'Remove published tracker?' : 'Delete this tracker?'}
+        description={(
+          <div className="space-y-2">
+            <p>
+              {deleteConfirmationStep === 2
+                ? <>“{tracker.title}” is published. Deleting it will permanently remove it from your trackers and from Community.</>
+                : <>Are you sure you want to delete “{tracker.title}”? Your roadmap and learning progress will no longer be available.</>}
+            </p>
+            {deleteConfirmationStep === 2 && (
+              <p className="font-semibold text-red-600 dark:text-red-400">Community users will no longer be able to view this published tracker.</p>
+            )}
+            {deleteError && (
+              <p className="rounded-md border border-red-400/30 bg-red-500/10 px-3 py-2 text-red-600 dark:text-red-400">{deleteError}</p>
+            )}
+          </div>
+        )}
+        confirmText={deleteConfirmationStep === 1 && isPublished ? 'Continue' : deleteConfirmationStep === 2 ? 'Delete and remove' : 'Delete tracker'}
+        isLoading={isDeleting}
+        onClose={() => {
+          if (!isDeleting) {
+            setDeleteError(null)
+            setDeleteConfirmationStep(0)
+          }
+        }}
+        onConfirm={() => { void handleDeleteConfirmation() }}
+      />
     </>
   )
 }

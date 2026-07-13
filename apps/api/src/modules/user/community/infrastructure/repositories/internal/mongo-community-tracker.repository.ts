@@ -426,6 +426,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
         order: topic.order,
         status: topic.order === 1 ? 'active' : (topic.status ?? 'locked'),
         estimatedHours: topic.estimatedHours ?? 0,
+        learningVideo: topic.learningVideo ?? null,
         progressPercent: 0,
         deletedAt: null,
       })

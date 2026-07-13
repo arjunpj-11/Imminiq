@@ -179,6 +179,16 @@ export type TrackerTopicRecord = {
   description?: string
   order: number
   estimatedHours?: number
+  learningVideo?: LearningVideoRecord | null
+}
+
+export type LearningVideoRecord = {
+  videoId: string
+  title: string
+  url: string
+  channelTitle: string
+  thumbnailUrl: string
+  durationSeconds: number
 }
 
 export type TopicWithProgressRecord = TrackerTopicRecord & {
@@ -305,6 +315,7 @@ export type RoadmapTopicNode = {
   status: TopicStatus
   progressPercent: number
   estimatedHours: number
+  learningVideo: LearningVideoRecord | null
   subtopics: RoadmapSubtopicNode[]
 }
 

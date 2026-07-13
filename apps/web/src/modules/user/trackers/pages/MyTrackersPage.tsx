@@ -7,6 +7,7 @@ import TrackerShell from '../components/TrackerShell'
 import StatCard from '../../../../components/data-display/StatCard'
 import {
   useArchiveTracker,
+  useDeleteTracker,
   usePublishTracker,
   useRestoreTracker,
   useTrackerSummary,
@@ -102,6 +103,7 @@ export default function MyTrackersPage() {
   })
 
   const archiveTrackerMutation = useArchiveTracker()
+  const deleteTrackerMutation = useDeleteTracker()
   const restoreTrackerMutation = useRestoreTracker()
   const publishTrackerMutation = usePublishTracker()
   const submitTrackerForVerificationMutation = useSubmitTrackerForVerification()
@@ -199,6 +201,7 @@ export default function MyTrackersPage() {
               onViewPublished={(trackerId) => navigate(`/community/trackers/${trackerId}`)}
               onInfo={(trackerId) => navigate(`/trackers/${trackerId}/manage`)}
               onArchive={(trackerId) => handleArchiveToggle(trackerId, tracker.status)}
+              onDelete={(trackerId) => deleteTrackerMutation.mutateAsync(trackerId)}
               onQuickRevision={(trackerId) => navigate(`/trackers/${trackerId}/revision`)}
               onSendForVerification={handleSendForVerification}
             />

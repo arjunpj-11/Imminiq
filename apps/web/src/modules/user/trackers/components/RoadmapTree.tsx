@@ -52,6 +52,30 @@ export default function RoadmapTree({ trackerId, roadmap }: IRoadmapTreeProps) {
               <div className="font-mono text-[8px] uppercase tracking-[0.16em] text-(--brand-500) dark:text-(--brand-500)">Topic {topic.order}</div>
               <h3 className="mt-1 font-ui text-[24px] font-extrabold tracking-[-0.5px]">{topic.title}</h3>
               <p className="mt-1 max-w-2xl text-[13px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">{topic.description}</p>
+              {topic.learningVideo ? (
+                <a
+                  href={topic.learningVideo.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-3 flex max-w-xl items-center gap-3 rounded-lg border border-[rgba(220,38,38,0.22)] bg-[rgba(220,38,38,0.06)] p-2.5 transition hover:-translate-y-0.5 hover:border-[rgba(220,38,38,0.42)] hover:bg-[rgba(220,38,38,0.10)] dark:border-[rgba(248,113,113,0.24)] dark:bg-[rgba(248,113,113,0.08)]"
+                  aria-label={`Watch ${topic.learningVideo.title} on YouTube`}
+                >
+                  {topic.learningVideo.thumbnailUrl ? (
+                    <img
+                      src={topic.learningVideo.thumbnailUrl}
+                      alt=""
+                      className="h-14 w-24 shrink-0 rounded-md object-cover"
+                      loading="lazy"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : null}
+                  <span className="min-w-0">
+                    <span className="block font-mono text-[8px] font-bold uppercase tracking-[0.14em] text-red-600 dark:text-red-400">▶ Watch on YouTube</span>
+                    <span className="mt-1 line-clamp-2 block text-[12px] font-bold text-(--text-primary)">{topic.learningVideo.title}</span>
+                    <span className="mt-0.5 block text-[10px] text-(--text-secondary)">{topic.learningVideo.channelTitle}</span>
+                  </span>
+                </a>
+              ) : null}
             </div>
             <div className="rounded-2xl border border-(--border-subtle) bg-white/55 px-4 py-3 text-center dark:border-(--border-subtle) dark:bg-(--surface-elevated)/60">
               <div className="font-ui text-2xl font-extrabold text-(--brand-500) dark:text-(--brand-500)">{Math.round(topic.progressPercent || 0)}%</div>

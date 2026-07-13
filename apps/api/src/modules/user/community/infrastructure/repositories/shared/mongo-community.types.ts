@@ -71,6 +71,7 @@ export type MongoTrackerTopicRecord = {
   status?: string
   estimatedHours?: number
   progressPercent?: number
+  learningVideo?: Record<string, unknown> | null
   deletedAt?: Date | string | null
   createdAt?: Date | string
   updatedAt?: Date | string

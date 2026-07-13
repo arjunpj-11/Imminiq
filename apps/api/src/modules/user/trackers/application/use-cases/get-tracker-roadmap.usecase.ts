@@ -70,6 +70,7 @@ const buildRoadmapTree = ({
         status: topic.status || 'active',
         progressPercent: topic.progressPercent || 0,
         estimatedHours: topic.estimatedHours || 0,
+        learningVideo: topic.learningVideo || null,
         subtopics: attachChildren(topicChildren),
       }
     })

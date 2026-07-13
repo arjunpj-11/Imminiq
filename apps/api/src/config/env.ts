@@ -25,6 +25,7 @@ const envSchema = z.object({
   GROQ_API_KEY: z.string().min(1),
   GEMINI_API_KEY: z.string().min(1),
   CEREBRAS_API_KEY: z.string().min(1),
+  YOUTUBE_DATA_API_KEY: z.string().optional().default(''),
 
 
   RAZORPAY_KEY_ID: z.string().min(1),

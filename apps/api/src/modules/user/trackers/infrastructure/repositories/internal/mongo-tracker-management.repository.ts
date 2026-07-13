@@ -1,3 +1,4 @@
+import { CommunityVerificationSubmission } from "../../../../../../infrastructure/database/models/community-verification-submission.model";
 import { Tracker } from "../../../../../../infrastructure/database/models/tracker.model";
 import { TrackerProgress } from "../../../../../../infrastructure/database/models/tracker-progress.model";
 import type {
@@ -281,6 +282,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       "TRACKER_DELETE_FAILED",
       "Failed to delete owned tracker",
       async () => {
+        const deletedAt = new Date();
         const tracker = await Tracker.findOneAndUpdate(
           this.mapper.asMongoFilter({
             _id: this.mapper.toObjectId(data.trackerId),
@@ -289,13 +291,31 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           }),
           this.mapper.asMongoUpdate({
             $set: {
-              deletedAt: new Date(),
+              deletedAt,
+              visibility: "private",
+              publishedAt: null,
+              verificationStatus: null,
             },
           }),
           {
             returnDocument: "after",
           },
         );
+
+        if (tracker) {
+          await CommunityVerificationSubmission.updateMany(
+            {
+              trackerId: tracker._id,
+              deletedAt: null,
+            },
+            {
+              $set: {
+                status: "closed",
+                deletedAt,
+              },
+            },
+          );
+        }
 
         return tracker as TrackerRecord | null;
       },
