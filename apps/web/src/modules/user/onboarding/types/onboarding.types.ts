@@ -25,6 +25,22 @@ export type JobTerminalState = 'completed' | 'failed' | null
 
 export type ProgressStepState = 'done' | 'active' | 'pending'
 
+export interface ITrackerIntakeMessage {
+  role: 'assistant' | 'user'
+  content: string
+}
+
+export interface ITrackerIntakeProfile {
+  topic: string
+  motivation: string
+  desiredOutcome: string
+  currentExperience: string
+  weeklyTimeCommitment: string
+  learningPreferences: string[]
+  constraints: string[]
+  inferredLevel: Level
+}
+
 export interface IJobStatusApiData {
   jobId?: string
   status?: string

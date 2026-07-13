@@ -5,6 +5,7 @@ import { redis } from '../../../config/redis'
 
 import { AIGenerationJob } from '../../database/models/ai-generation-job.model'
 import { AIGenerationStep } from '../../database/models/ai-generation-step.model'
+import { AdaptiveAssessmentModel } from '../../database/models/adaptive-assessment.model'
 import { Tracker } from '../../database/models/tracker.model'
 import { TrackerTopic } from '../../database/models/tracker-topic.model'
 import { TrackerSubtopic } from '../../database/models/tracker-subtopic.model'
@@ -512,7 +513,7 @@ const processRoadmapGeneration = async (
     userId,
     type: 'tracker_generation_completed',
     message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
-    deepLink: `/trackers/${trackerId.toString()}/roadmap`,
+    deepLink: `/onboarding/roadmap-ready/${jobId}`,
     metadata: { jobId, trackerId: trackerId.toString() },
   })
 }
@@ -647,22 +648,50 @@ export const aiWorker = new Worker(
       }
 
       if (job.name === 'generate-mock-test') {
-        const { userId, payload } = job.data as {
+        const { userId, payload, adaptiveContext } = job.data as {
           jobId: string
           userId: string
           payload: Parameters<ReturnType<typeof createMockTestsComposition>['useCases']['generateMockTest']['execute']>[1]
+          adaptiveContext?: {
+            plan: {
+              topic: string
+              trackerId?: string
+              difficulty: 'easy' | 'medium' | 'hard'
+              questionCount: number
+              predictedScore: number
+              rationale: string
+              focusAreas: string[]
+            }
+            baselineMasteryScore: number
+          }
         }
         await AIGenerationJob.findByIdAndUpdate(jobId, { status: 'processing', currentStep: 1, startedAt: new Date() })
         const activity = createActivityComposition()
         const mockTests = createMockTestsComposition(activity.useCases.recordActivity)
         const test = await mockTests.useCases.generateMockTest.execute(userId, payload)
+        if (adaptiveContext) {
+          await AdaptiveAssessmentModel.create({
+            userId,
+            testId: test._id,
+            trackerId: adaptiveContext.plan.trackerId ?? null,
+            topic: adaptiveContext.plan.topic,
+            difficulty: adaptiveContext.plan.difficulty,
+            questionCount: adaptiveContext.plan.questionCount,
+            predictedScore: adaptiveContext.plan.predictedScore,
+            rationale: adaptiveContext.plan.rationale,
+            focusAreas: adaptiveContext.plan.focusAreas,
+            baselineMasteryScore: adaptiveContext.baselineMasteryScore,
+          })
+        }
         await AIGenerationJob.findByIdAndUpdate(jobId, {
           status: 'completed', currentStep: 1, completedAt: new Date(), outputData: { testId: test._id },
         })
         await createNotificationsComposition().useCases.createNotification.execute({
           userId,
           type: 'mock_test_generation_completed',
-          message: `Your mock test “${test.title}” is ready. Go and check it out.`,
+          message: adaptiveContext
+            ? `Your adaptive assessment “${test.title}” is ready.`
+            : `Your mock test “${test.title}” is ready. Go and check it out.`,
           deepLink: `/mock-tests/${test._id}`,
           metadata: { jobId, testId: test._id },
         })

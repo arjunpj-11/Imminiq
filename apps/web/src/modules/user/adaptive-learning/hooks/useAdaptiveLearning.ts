@@ -3,8 +3,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import api from '../../../../lib/axios'
 import type {
   IAdaptiveAdvisorMessage,
+  IAdaptiveAdvisorAction,
   IAdaptiveApiResponse,
-  IAdaptiveAssessment,
   IAdaptiveDashboard,
 } from '../types/adaptive-learning.types'
 
@@ -32,8 +32,8 @@ export const useGenerateAdaptiveAssessment = () => {
     mutationFn: async () => {
       const response = await api.post<
         IAdaptiveApiResponse<{
-          assessment: IAdaptiveAssessment
-          test: { testId: string; title: string }
+          jobId: string
+          status: 'pending'
         }>
       >('/adaptive-learning/assessments/generate')
       return response.data.data
@@ -50,11 +50,31 @@ export const useAdaptiveAdvisorChat = () => {
   return useMutation({
     mutationFn: async (question: string) => {
       const response = await api.post<
-        IAdaptiveApiResponse<{ message: IAdaptiveAdvisorMessage }>
+        IAdaptiveApiResponse<{
+          message: IAdaptiveAdvisorMessage
+          action?: IAdaptiveAdvisorAction
+        }>
       >('/adaptive-learning/advisor/chat', { question })
       return response.data.data
     },
     onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: adaptiveLearningKeys.all })
+    },
+  })
+}
+
+export const useClearAdaptiveAdvisorChat = () => {
+  const queryClient = useQueryClient()
+  return useMutation({
+    mutationFn: async () => {
+      await api.delete('/adaptive-learning/advisor/messages')
+    },
+    onSuccess: () => {
+      queryClient.setQueryData<IAdaptiveDashboard>(
+        adaptiveLearningKeys.dashboard(),
+        (current) =>
+          current ? { ...current, messages: [] } : current,
+      )
       queryClient.invalidateQueries({ queryKey: adaptiveLearningKeys.all })
     },
   })

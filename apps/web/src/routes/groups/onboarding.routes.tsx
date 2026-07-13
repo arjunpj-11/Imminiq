@@ -6,17 +6,12 @@ import {
   OnboardingRoadmapEvaluationScorePage,
   OnboardingRoadmapReadyPage,
   OnboardingStepOnePage,
-  OnboardingStepTwoPage,
 } from '../config/onboarding-pages'
 
 export const onboardingRoutes: RouteObject[] = [
   {
     path: '/onboarding/step-1',
     element: <OnboardingStepOnePage />,
-  },
-  {
-    path: '/onboarding/step-2',
-    element: <OnboardingStepTwoPage />,
   },
   {
     path: '/onboarding/generating/:jobId',

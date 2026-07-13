@@ -33,6 +33,18 @@ export const step1Schema = z.object({
   goal: goalSchema,
 })
 
+export const trackerIntakeSchema = z.object({
+  messages: z
+    .array(
+      z.object({
+        role: z.enum(['assistant', 'user']),
+        content: z.string().trim().min(1).max(1500),
+      }),
+    )
+    .min(2)
+    .max(16),
+})
+
 export const step2Schema = z.object({
   level: roadmapLevelSchema,
 })

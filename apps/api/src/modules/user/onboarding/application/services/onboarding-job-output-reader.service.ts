@@ -3,6 +3,10 @@ export interface IOnboardingJobOutputReader {
     outputData: Record<string, unknown> | undefined,
   ): string | null
 
+  getTestId(
+    outputData: Record<string, unknown> | undefined,
+  ): string | null
+
   getEvaluation(
     outputData: Record<string, unknown> | undefined,
   ): Record<string, unknown> | null
@@ -17,6 +21,14 @@ export class OnboardingJobOutputReader
     const trackerId = outputData?.trackerId
 
     return typeof trackerId === 'string' ? trackerId : null
+  }
+
+  getTestId(
+    outputData: Record<string, unknown> | undefined,
+  ): string | null {
+    const testId = outputData?.testId
+
+    return typeof testId === 'string' ? testId : null
   }
 
   getEvaluation(

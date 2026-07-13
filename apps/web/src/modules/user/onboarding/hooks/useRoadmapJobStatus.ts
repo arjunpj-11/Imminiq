@@ -33,6 +33,9 @@ export interface IRoadmapJobStatusData {
   engineLabel?: string
   nextLabel?: string
   nextStep?: string
+  testId?: string | null
+  trackerId?: string | null
+  errorMessage?: string | null
 }
 
 interface IRoadmapJobStatusResponse {

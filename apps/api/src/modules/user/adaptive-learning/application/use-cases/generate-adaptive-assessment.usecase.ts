@@ -30,14 +30,12 @@ export class GenerateAdaptiveAssessmentUseCase
     }
 
     const plan = await this._agent.planAssessment({ snapshot, profile })
-    const test = await this._testGenerator.generate(userId, plan)
-    const assessment = await this._repository.createAssessment({
+    const job = await this._testGenerator.generate(
       userId,
-      testId: test.testId,
       plan,
-      baselineMasteryScore: profile.masteryScore,
-    })
+      profile.masteryScore,
+    )
 
-    return this._mapper.toAssessmentGeneration({ assessment, test })
+    return this._mapper.toAssessmentGeneration(job)
   }
 }

@@ -4,4 +4,5 @@ export type AdaptiveLearningUseCases = {
   getDashboard: Application.IGetAdaptiveLearningDashboardUseCase
   generateAssessment: Application.IGenerateAdaptiveAssessmentUseCase
   chatWithAdvisor: Application.IChatWithAdaptiveAdvisorUseCase
+  clearAdvisorChat: Application.IClearAdaptiveAdvisorChatUseCase
 }

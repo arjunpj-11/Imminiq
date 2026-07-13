@@ -79,3 +79,25 @@ export type AdaptiveAdvisorMessage = {
   content: string
   createdAt: Date
 }
+
+export type AdaptiveAdvisorAction =
+  | {
+      type: 'create_tracker'
+      label: string
+      topic: string
+      goal: string
+      level: 'beginner' | 'intermediate' | 'advanced'
+    }
+  | {
+      type: 'create_mock_test'
+      label: string
+      topic: string
+      difficulty: AdaptiveDifficulty
+      questionCount: number
+      trackerId?: string
+    }
+
+export type AdaptiveAdvisorAnswer = {
+  content: string
+  action?: AdaptiveAdvisorAction
+}

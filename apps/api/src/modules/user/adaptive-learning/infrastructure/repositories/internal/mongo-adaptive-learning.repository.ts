@@ -197,6 +197,10 @@ export class MongoAdaptiveLearningRepository
     return this._mapper.toAdvisorMessage(document.toObject())
   }
 
+  async clearAdvisorMessages(userId: string): Promise<void> {
+    await AdaptiveAdvisorMessageModel.deleteMany({ userId })
+  }
+
   async recordAssessmentResult(
     input: Parameters<IAdaptiveLearningRepository['recordAssessmentResult']>[0],
   ): Promise<void> {

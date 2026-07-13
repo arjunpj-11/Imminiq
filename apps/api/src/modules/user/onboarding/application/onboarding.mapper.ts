@@ -29,6 +29,7 @@ export interface IOnboardingMapper {
     job: AIGenerationJobEntity,
     steps: AIGenerationStepEntity[],
     trackerId: string | null,
+    testId: string | null,
   ): IGetJobStatusResultDTO
 
   toRoadmapTreeDto(tree: RoadmapTreeEntity): IRoadmapTreeResultDTO
@@ -69,6 +70,7 @@ export class OnboardingMapper implements IOnboardingMapper {
     job: AIGenerationJobEntity,
     steps: AIGenerationStepEntity[],
     trackerId: string | null,
+    testId: string | null,
   ): IGetJobStatusResultDTO {
     const activeStep =
       steps.find((step) => step.status === 'active') ??
@@ -96,6 +98,7 @@ export class OnboardingMapper implements IOnboardingMapper {
         completedAt: step.completedAt,
       })),
       trackerId,
+      testId,
       errorMessage: job.errorMessage ?? null,
     }
   }

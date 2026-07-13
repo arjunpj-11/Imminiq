@@ -13,14 +13,14 @@ import { cn } from '../../utils/tracker-ui'
 import MathText from './MathText'
 import ConfirmDialog from '../ConfirmDialog'
 
-import { useVoiceInput } from '../../hooks/useVoiceInput'
+import { useVoiceInput } from '../../../../../hooks/useVoiceInput'
 
 type LocalLessonChatMessage = {
   role: 'user' | 'assistant'
   content: string
 }
 
-import { MicButton } from './VoiceInputButton'
+import { MicButton } from '../../../../../components/input/VoiceInputButton'
 
 // ─── Component ───────────────────────────────────────────────────────────────
 

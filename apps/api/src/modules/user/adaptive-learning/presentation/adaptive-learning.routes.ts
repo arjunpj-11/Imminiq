@@ -25,6 +25,10 @@ export const createAdaptiveLearningRoutes = (
     validate(adaptiveAdvisorChatSchema),
     controller.chat,
   )
+  router.delete(
+    ADAPTIVE_LEARNING_ROUTE_PATHS.ADVISOR_MESSAGES,
+    controller.clearChat,
+  )
 
   return router
 }

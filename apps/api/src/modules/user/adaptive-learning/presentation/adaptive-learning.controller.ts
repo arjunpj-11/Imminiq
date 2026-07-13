@@ -27,7 +27,7 @@ export class AdaptiveLearningController {
       const data = await this._useCases.generateAssessment.execute(
         getAuthUser(req).userId,
       )
-      res.status(201).json(new ApiResponse('Adaptive exam generated', data))
+      res.status(202).json(new ApiResponse('Adaptive exam generation started', data))
     } catch (error) {
       next(error)
     }
@@ -40,6 +40,15 @@ export class AdaptiveLearningController {
         req.body.question,
       )
       res.json(new ApiResponse('Advisor response generated', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  clearChat = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      await this._useCases.clearAdvisorChat.execute(getAuthUser(req).userId)
+      res.json(new ApiResponse('Advisor chat cleared', null))
     } catch (error) {
       next(error)
     }

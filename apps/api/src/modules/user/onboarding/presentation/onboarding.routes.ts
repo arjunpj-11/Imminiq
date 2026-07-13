@@ -10,6 +10,7 @@ import {
   generateRoadmapSchema,
   step1Schema,
   step2Schema,
+  trackerIntakeSchema,
 } from './onboarding.schema'
 
 const onboardingController = new OnboardingController(createOnboardingComposition().useCases)
@@ -19,6 +20,12 @@ router.param('jobId', validateIdentifierParam)
 // ─── PROTECTED ────────────────────────────────────────────────
 
 router.use(authenticatedApiIpLimiter, authenticate)
+
+router.post(
+  ONBOARDING_ROUTE_PATHS.TRACKER_INTAKE,
+  validate(trackerIntakeSchema),
+  onboardingController.continueTrackerIntake,
+)
 
 router.post(
   ONBOARDING_ROUTE_PATHS.STEP_1,
@@ -36,6 +43,11 @@ router.post(
   ONBOARDING_ROUTE_PATHS.GENERATE_ROADMAP,
   validate(generateRoadmapSchema),
   onboardingController.generateRoadmap
+)
+
+router.get(
+  ONBOARDING_ROUTE_PATHS.ACTIVE_ROADMAP_JOB,
+  onboardingController.getActiveRoadmapJob,
 )
 
 router.get(

@@ -257,7 +257,7 @@ const normalizeJobStatus = (
       (terminalState === 'completed'
         ? 'Ready — redirecting to dashboard'
         : terminalState === 'failed'
-          ? 'Return to Step 2 and generate again'
+          ? 'Return to the tracker conversation and generate again'
           : defaultNextLabels[activeStepIndex] || defaultJobStatus.nextLabel),
     stepsLabel: `${completedStepCount} / 5 steps complete`,
     activeActivityIndex:
@@ -293,6 +293,10 @@ const StatusDot = ({ state }: { state: ProgressStepState }) => {
 export default function OnboardingGeneratingPage() {
   const navigate = useNavigate()
   const { jobId } = useParams<{ jobId: string }>()
+  const setActiveRoadmapJobId = useOnboardingStore(
+    (state) => state.setActiveRoadmapJobId,
+  )
+  const clearIntake = useOnboardingStore((state) => state.clearIntake)
 
   const topic = useOnboardingStore(
     (state) => state.step1Data?.topic || 'MERN stack interviews',
@@ -327,6 +331,8 @@ export default function OnboardingGeneratingPage() {
     }
 
     const timer = window.setTimeout(() => {
+      clearIntake()
+      setActiveRoadmapJobId(null)
       navigate(`/onboarding/roadmap-ready/${jobId}`, {
         replace: true,
       })
@@ -335,7 +341,13 @@ export default function OnboardingGeneratingPage() {
     return () => {
       window.clearTimeout(timer)
     }
-  }, [jobStatus.terminalState, navigate, jobId])
+  }, [
+    clearIntake,
+    jobStatus.terminalState,
+    navigate,
+    jobId,
+    setActiveRoadmapJobId,
+  ])
 
   const visibleLevel = useMemo(() => capitalize(level), [level])
 
@@ -520,12 +532,35 @@ export default function OnboardingGeneratingPage() {
         {jobStatus.terminalState === 'failed' && (
           <button
             type="button"
-            onClick={() => navigate('/onboarding/step-2', { replace: true })}
+            onClick={() => navigate('/onboarding/step-1', { replace: true })}
             className="rounded-xl bg-(--brand-500) px-5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
-            Return to Step 2
+            Return to tracker conversation
           </button>
         )}
+
+        {jobStatus.terminalState === null ? (
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard', { replace: true })}
+            className="group relative flex w-full max-w-160 items-center gap-4 overflow-hidden rounded-2xl border border-[rgba(184,76,43,0.25)] bg-[linear-gradient(135deg,var(--surface-card),rgba(184,76,43,0.08))] px-5 py-4 text-left shadow-[0_10px_34px_rgba(26,23,20,0.08)] transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-[0_14px_42px_rgba(184,76,43,0.15)] dark:bg-[linear-gradient(135deg,var(--surface-card),rgba(232,129,106,0.08))]"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-lg text-white shadow-[0_6px_18px_rgba(184,76,43,0.25)]">
+              ↗
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-black text-(--text-primary)">
+                Continue in the background
+              </span>
+              <span className="mt-1 block text-[11.5px] leading-5 text-(--text-secondary)">
+                Go to your dashboard now—we’ll notify you when the tracker review is ready.
+              </span>
+            </span>
+            <span className="shrink-0 text-lg text-(--brand-500) transition group-hover:translate-x-1">
+              →
+            </span>
+          </button>
+        ) : null}
       </main>
 
       <OnboardingWorkflowFooter />

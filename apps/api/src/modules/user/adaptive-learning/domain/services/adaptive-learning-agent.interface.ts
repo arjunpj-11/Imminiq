@@ -1,5 +1,6 @@
 import type {
   AdaptiveAdvisorMessage,
+  AdaptiveAdvisorAnswer,
   AdaptiveAssessmentPlan,
   AdaptiveLearnerSnapshot,
   AdaptiveProfile,
@@ -15,5 +16,5 @@ export interface IAdaptiveLearningAgent {
     snapshot: AdaptiveLearnerSnapshot
     profile: AdaptiveProfile
     history: AdaptiveAdvisorMessage[]
-  }): Promise<string>
+  }): Promise<AdaptiveAdvisorAnswer>
 }

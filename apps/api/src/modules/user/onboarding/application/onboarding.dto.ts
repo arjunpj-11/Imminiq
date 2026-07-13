@@ -2,6 +2,7 @@ import type { AIGenerationJobStatus } from '../domain/value-objects/ai-generatio
 import type { AIGenerationJobType } from '../domain/value-objects/ai-generation-job-type.vo'
 import type { AIGenerationStepStatus } from '../domain/value-objects/ai-generation-step-status.vo'
 import type { RoadmapLevel } from '../domain/value-objects/roadmap-level.vo'
+import type { TrackerIntakeProfile } from '../domain/services/tracker-intake-agent.interface'
 
 export interface ISaveOnboardingStepOnePayloadDTO {
   topic: string
@@ -61,6 +62,7 @@ export interface IGetJobStatusResultDTO {
   totalSteps: number
   steps: IAIGenerationStepResultDTO[]
   trackerId: string | null
+  testId: string | null
   errorMessage: string | null
 }
 
@@ -103,3 +105,8 @@ export type GenerateRoadmapDTO = IGenerateRoadmapResultDTO
 export type RoadmapJobStatusDTO = IGetJobStatusResultDTO
 export type RoadmapTreeDTO = IRoadmapTreeResultDTO
 export type RoadmapEvaluationDTO = IGetEvaluationResultDTO
+export interface ITrackerIntakeResponseDTO {
+  assistantMessage: string
+  isComplete: boolean
+  profile?: TrackerIntakeProfile
+}

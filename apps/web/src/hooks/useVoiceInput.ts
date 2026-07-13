@@ -46,7 +46,7 @@ const getSpeechRecognitionConstructor = () => {
   )
 }
 
-export function useVoiceInput(onTranscript: (text: string) => void) {
+export const useVoiceInput = (onTranscript: (text: string) => void) => {
   const [isListening, setIsListening] = useState(false)
   const [isSupported] = useState(() =>
     Boolean(getSpeechRecognitionConstructor()),

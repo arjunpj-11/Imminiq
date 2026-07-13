@@ -1,10 +1,10 @@
 import { ChatGoogleGenerativeAI } from '@langchain/google-genai'
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph'
-import { createAgent, tool } from 'langchain'
 import { z } from 'zod'
 
 import { env } from '../../../../../config/env'
 import type {
+  AdaptiveAdvisorAnswer,
   AdaptiveAssessmentPlan,
   AdaptiveLearnerSnapshot,
   AdaptiveProfile,
@@ -21,28 +21,35 @@ const assessmentPlanSchema = z.object({
   focusAreas: z.array(z.string().min(1).max(100)).min(1).max(5),
 })
 
+const advisorResponseSchema = z.object({
+  content: z.string().min(2).max(1200),
+  action: z
+    .discriminatedUnion('type', [
+      z.object({
+        type: z.literal('create_tracker'),
+        label: z.string().min(2).max(80),
+        topic: z.string().min(2).max(200),
+        goal: z.string().min(2).max(400),
+        level: z.enum(['beginner', 'intermediate', 'advanced']),
+      }),
+      z.object({
+        type: z.literal('create_mock_test'),
+        label: z.string().min(2).max(80),
+        topic: z.string().min(2).max(200),
+        difficulty: z.enum(['easy', 'medium', 'hard']),
+        questionCount: z.number().int().min(5).max(20),
+        trackerId: z.string().nullable(),
+      }),
+    ])
+    .nullable(),
+})
+
 const AssessmentState = Annotation.Root({
   snapshot: Annotation<AdaptiveLearnerSnapshot>(),
   profile: Annotation<AdaptiveProfile>(),
   proposedPlan: Annotation<z.infer<typeof assessmentPlanSchema> | undefined>(),
   plan: Annotation<AdaptiveAssessmentPlan | undefined>(),
 })
-
-const contentAsText = (content: unknown): string => {
-  if (typeof content === 'string') return content
-  if (!Array.isArray(content)) return ''
-  return content
-    .map((part) => {
-      if (typeof part === 'string') return part
-      if (part && typeof part === 'object' && 'text' in part) {
-        const text = (part as { text?: unknown }).text
-        return typeof text === 'string' ? text : ''
-      }
-      return ''
-    })
-    .filter(Boolean)
-    .join('\n')
-}
 
 export class LangChainAdaptiveLearningAgent
   implements IAdaptiveLearningAgent
@@ -132,58 +139,52 @@ export class LangChainAdaptiveLearningAgent
     return this.fallbackPlan(input.snapshot)
   }
 
-  async answer(input: Parameters<IAdaptiveLearningAgent['answer']>[0]) {
-    const learnerProfileTool = tool(
-      async () =>
-        JSON.stringify({
-          adaptiveMastery: input.profile,
-          accountProgress: input.snapshot.user,
+  async answer(
+    input: Parameters<IAdaptiveLearningAgent['answer']>[0],
+  ): Promise<AdaptiveAdvisorAnswer> {
+    const structuredModel = this._model.withStructuredOutput(
+      advisorResponseSchema,
+      { name: 'adaptive_advisor_response' },
+    )
+    const response = await structuredModel.invoke([
+      {
+        role: 'system',
+        content: [
+          'You are Immi, a concise adaptive learning advisor.',
+          'Use the learner data to recommend a concrete next step.',
+          'If you explicitly recommend creating a new tracker, include a create_tracker action with everything required to generate it immediately.',
+          'If you explicitly recommend taking a new mock test, include a create_mock_test action with everything required to generate it immediately.',
+          'Do not add an action when recommending continuing an existing tracker, opening an existing test, or when more clarification is needed.',
+          'Never claim the action has already happened. Be honest when evidence is limited.',
+        ].join(' '),
+      },
+      {
+        role: 'user',
+        content: JSON.stringify({
+          question: input.question,
+          adaptiveProfile: input.profile,
+          learnerData: input.snapshot,
+          conversation: input.history,
         }),
-      {
-        name: 'get_learning_profile',
-        description: 'Read the learner mastery, XP, level, and streak.',
-        schema: z.object({}),
       },
-    )
-    const trackerTool = tool(
-      async () => JSON.stringify(input.snapshot.trackers),
-      {
-        name: 'get_current_trackers',
-        description:
-          'Read the learner trackers, goals, levels, and completion progress.',
-        schema: z.object({}),
-      },
-    )
-    const performanceTool = tool(
-      async () => JSON.stringify(input.snapshot.recentPerformance),
-      {
-        name: 'get_mock_test_performance',
-        description:
-          'Read recent mock-test scores, strong topics, and weak topics.',
-        schema: z.object({}),
-      },
+    ])
+    const validTrackerIds = new Set(
+      input.snapshot.trackers.map((tracker) => tracker.id),
     )
 
-    const agent = createAgent({
-      model: this._model,
-      tools: [learnerProfileTool, trackerTool, performanceTool],
-      systemPrompt:
-        'You are Immi, a concise adaptive learning advisor. Use tools when learner data is relevant. Recommend concrete next study steps, an existing tracker to continue, a useful mock test, or a new tracker topic. Never claim an action was created; you only advise. Be honest when evidence is limited. Do not expose private implementation details or hidden reasoning.',
-    })
+    if (!response.action) return { content: response.content }
+    if (response.action.type === 'create_tracker') {
+      return { content: response.content, action: response.action }
+    }
 
-    const result = await agent.invoke({
-      messages: [
-        ...input.history.map((message) => ({
-          role: message.role,
-          content: message.content,
-        })),
-        { role: 'user' as const, content: input.question },
-      ],
-    })
-    const lastMessage = result.messages.at(-1)
-    const answer = contentAsText(lastMessage?.content).trim()
-
-    return answer || 'I could not form a recommendation yet. Complete a lesson or mock test and ask me again.'
+    const { trackerId, ...mockTestAction } = response.action
+    return {
+      content: response.content,
+      action:
+        trackerId && validTrackerIds.has(trackerId)
+          ? { ...mockTestAction, trackerId }
+          : mockTestAction,
+    }
   }
 
   private fallbackPlan(snapshot: AdaptiveLearnerSnapshot): AdaptiveAssessmentPlan {

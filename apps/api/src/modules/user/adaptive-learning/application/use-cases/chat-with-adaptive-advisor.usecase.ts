@@ -44,9 +44,12 @@ export class ChatWithAdaptiveAdvisorUseCase
     const message = await this._repository.addAdvisorMessage({
       userId,
       role: 'assistant',
-      content: answer,
+      content: answer.content,
     })
 
-    return this._mapper.toAdvisorChat({ message })
+    return this._mapper.toAdvisorChat({
+      message,
+      ...(answer.action ? { action: answer.action } : {}),
+    })
   }
 }

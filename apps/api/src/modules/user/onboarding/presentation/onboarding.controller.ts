@@ -12,6 +12,22 @@ type JobIdParams = {
 export class OnboardingController {
   constructor(private readonly _useCases: OnboardingUseCases) {}
 
+  continueTrackerIntake = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const data = await this._useCases.continueTrackerIntake.execute(
+        getAuthUser(req).userId,
+        req.body.messages,
+      )
+      res.json(new ApiResponse('Tracker intake continued', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
   saveStep1 = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this._useCases.saveOnboardingStepOne.execute(
@@ -52,6 +68,21 @@ export class OnboardingController {
       res
         .status(HttpStatusCode.ACCEPTED)
         .json(new ApiResponse('Roadmap generation started', result))
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  getActiveRoadmapJob = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const data = await this._useCases.getActiveRoadmapJob.execute(
+        getAuthUser(req).userId,
+      )
+      res.json(new ApiResponse('Active roadmap job fetched', data))
     } catch (error) {
       next(error)
     }

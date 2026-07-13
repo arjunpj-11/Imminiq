@@ -72,9 +72,7 @@ const mockTestsComposition = createMockTestsComposition(
 )
 const mockTestsRouter = createMockTestsRoutes(mockTestsComposition.useCases)
 const adaptiveLearningRouter = createAdaptiveLearningRoutes(
-  createAdaptiveLearningComposition(
-    mockTestsComposition.useCases.generateMockTest,
-  ).useCases,
+  createAdaptiveLearningComposition().useCases,
 )
 
 const globalApiLimiter = rateLimit({

@@ -1,5 +1,6 @@
 import type {
   AdaptiveAdvisorMessage,
+  AdaptiveAdvisorAction,
   AdaptiveAssessment,
   AdaptiveProfile,
 } from '../domain/adaptive-learning.types'
@@ -19,10 +20,11 @@ export interface IAdaptiveLearningDashboardDTO {
 }
 
 export interface IAdaptiveAssessmentGenerationDTO {
-  assessment: AdaptiveAssessment
-  test: { testId: string; title: string }
+  jobId: string
+  status: 'pending'
 }
 
 export interface IAdaptiveAdvisorChatDTO {
   message: AdaptiveAdvisorMessage
+  action?: AdaptiveAdvisorAction
 }

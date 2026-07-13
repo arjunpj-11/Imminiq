@@ -38,6 +38,23 @@ export interface IAdaptiveAdvisorMessage {
   createdAt: string
 }
 
+export type IAdaptiveAdvisorAction =
+  | {
+      type: 'create_tracker'
+      label: string
+      topic: string
+      goal: string
+      level: 'beginner' | 'intermediate' | 'advanced'
+    }
+  | {
+      type: 'create_mock_test'
+      label: string
+      topic: string
+      difficulty: 'easy' | 'medium' | 'hard'
+      questionCount: number
+      trackerId?: string
+    }
+
 export interface IAdaptiveDashboard {
   profile: {
     masteryScore: number

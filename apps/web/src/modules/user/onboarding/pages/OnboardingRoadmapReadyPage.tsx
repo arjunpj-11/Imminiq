@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 import {
@@ -11,6 +11,7 @@ import OnboardingBrandLink from '../components/OnboardingBrandLink'
 import type { Section } from '../types/onboarding.types'
 import { cn } from '../utils/cn'
 import { capitalize } from '../utils/onboarding-formatters'
+import { useOnboardingStore } from '../store/useOnboardingStore'
 
 const ChevronDownIcon = () => {
   return (
@@ -178,11 +179,21 @@ const EmptyPanel = ({ message }: { message: string }) => {
 export default function OnboardingRoadmapReadyPage() {
   const { jobId } = useParams<{ jobId: string }>()
   const navigate = useNavigate()
+  const clearIntake = useOnboardingStore((state) => state.clearIntake)
+  const setActiveRoadmapJobId = useOnboardingStore(
+    (state) => state.setActiveRoadmapJobId,
+  )
 
   const { data, isLoading, error } = useRoadmapJobResult(jobId)
   const runRoadmapEvaluation = useRunRoadmapEvaluation()
 
   const tracker = data?.data?.tracker
+
+  useEffect(() => {
+    if (!tracker) return
+    clearIntake()
+    setActiveRoadmapJobId(null)
+  }, [clearIntake, setActiveRoadmapJobId, tracker])
 
   const topics = useMemo(() => {
     return data?.data?.topics || []

@@ -25,7 +25,3 @@ export const OnboardingRoadmapReadyPage = lazy(
 export const OnboardingStepOnePage = lazy(
   () => import('../../modules/user/onboarding/pages/OnboardingStepOnePage'),
 )
-
-export const OnboardingStepTwoPage = lazy(
-  () => import('../../modules/user/onboarding/pages/OnboardingStepTwoPage'),
-)

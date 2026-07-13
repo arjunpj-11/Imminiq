@@ -10,3 +10,7 @@ export {
   RedisAIJobQuotaStore,
   redisAIJobQuotaStore,
 } from './stores/redis-ai-job-quota.store'
+export {
+  LangChainTrackerIntakeAgent,
+  langChainTrackerIntakeAgent,
+} from './services/langchain-tracker-intake-agent.service'

@@ -20,8 +20,8 @@ import type {
 import { cn } from '../../utils/tracker-ui'
 import MathText from './MathText'
 import ConfirmDialog from '../ConfirmDialog'
-import { MicButton} from './VoiceInputButton'
-import {useVoiceInput} from '../../hooks/useVoiceInput'
+import { MicButton } from '../../../../../components/input/VoiceInputButton'
+import { useVoiceInput } from '../../../../../hooks/useVoiceInput'
 import {
   formatDateTime,
   formatVerdict,

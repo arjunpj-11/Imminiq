@@ -14,6 +14,7 @@ import {
   LeaderboardRewardsPage,
   MockTestAnalysisPage,
   MockTestDetailsPage,
+  MockTestGeneratingPage,
   MockTestResultPage,
   MockTestsPage,
   MyPublishedTrackersPage,
@@ -123,6 +124,10 @@ export const authenticatedRoutes: RouteObject[] = [
   {
     path: '/mock-tests',
     element: <MockTestsPage />,
+  },
+  {
+    path: '/mock-tests/generating/:jobId',
+    element: <MockTestGeneratingPage />,
   },
   {
     path: '/mock-tests/attempts/:attemptId/result',

@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 
 import {
@@ -9,11 +10,12 @@ export default function AdaptiveExamPanel() {
   const navigate = useNavigate()
   const dashboard = useAdaptiveLearningDashboard()
   const generate = useGenerateAdaptiveAssessment()
+  const [generationStarted, setGenerationStarted] = useState(false)
   const assessment = dashboard.data?.latestAssessment
 
   const generateExam = async () => {
-    const result = await generate.mutateAsync()
-    navigate(`/mock-tests/${result.test.testId}`)
+    await generate.mutateAsync()
+    setGenerationStarted(true)
   }
 
   return (
@@ -59,11 +61,15 @@ export default function AdaptiveExamPanel() {
           ) : (
             <button
               type="button"
-              disabled={generate.isPending}
+              disabled={generate.isPending || generationStarted}
               onClick={() => void generateExam()}
               className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-white disabled:opacity-60"
             >
-              {generate.isPending ? 'Agent is planning…' : 'Generate my exam'}
+              {generate.isPending
+                ? 'Starting background job…'
+                : generationStarted
+                  ? 'Generating in background'
+                  : 'Generate my exam'}
             </button>
           )}
         </div>

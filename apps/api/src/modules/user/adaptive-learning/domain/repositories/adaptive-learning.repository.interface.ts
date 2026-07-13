@@ -22,6 +22,7 @@ export interface IAdaptiveLearningRepository {
     role: 'user' | 'assistant'
     content: string
   }): Promise<AdaptiveAdvisorMessage>
+  clearAdvisorMessages(userId: string): Promise<void>
   recordAssessmentResult(input: {
     userId: string
     testId: string

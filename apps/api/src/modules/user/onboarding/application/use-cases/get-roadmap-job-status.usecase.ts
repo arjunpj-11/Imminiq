@@ -33,7 +33,13 @@ export class GetRoadmapJobStatusUseCase implements IGetRoadmapJobStatusUseCase {
     const trackerId = this._onboardingJobOutputReader.getTrackerId(
       job.outputData,
     )
+    const testId = this._onboardingJobOutputReader.getTestId(job.outputData)
 
-    return this._onboardingMapper.toJobStatusDto(job, steps, trackerId)
+    return this._onboardingMapper.toJobStatusDto(
+      job,
+      steps,
+      trackerId,
+      testId,
+    )
   }
 }
