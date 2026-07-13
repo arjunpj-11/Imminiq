@@ -15,6 +15,9 @@
   "dependencies": {
     "@cerebras/cerebras_cloud_sdk": "^1.64.1",
     "@google/generative-ai": "^0.24.1",
+    "@langchain/core": "^1.2.2",
+    "@langchain/google-genai": "^2.2.0",
+    "@langchain/langgraph": "^1.4.7",
     "bcryptjs": "^3.0.3",
     "bullmq": "^5.80.2",
     "cloudinary": "^2.10.0",
@@ -26,6 +29,7 @@
     "helmet": "^8.2.0",
     "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
+    "langchain": "^1.5.3",
     "mongoose": "^9.7.1",
     "morgan": "^1.11.0",
     "multer": "^2.2.0",

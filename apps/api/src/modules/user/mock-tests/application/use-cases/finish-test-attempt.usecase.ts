@@ -9,6 +9,7 @@ import { MockTestsApplicationError } from '../mock-tests-application.error'
 import type { IMockTestScorer } from '../services/test-scorer.service'
 import type { IMockTestsMapper } from '../mock-tests.mapper'
 import type { IClock } from '../../../../../shared/time/clock.interface'
+import type { IMockTestCompletionObserver } from '../../domain/services/mock-test-completion-observer.interface'
 
 const MOCK_TEST_COMPLETION_XP = 50
 
@@ -44,6 +45,7 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
 
     private readonly _clock:
       IClock,
+    private readonly _completionObserver?: IMockTestCompletionObserver,
   ) {}
 
   async execute(
@@ -325,6 +327,13 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
         xpAwarded:
           MOCK_TEST_COMPLETION_XP,
       })
+
+    await this._completionObserver?.onCompleted({
+      userId,
+      testId: test._id,
+      attemptId: attempt._id,
+      scorePercentage: report.scorePercentage,
+    })
 
     return this._mapper.toFinishAttemptDto({
       attempt: completedAttempt,

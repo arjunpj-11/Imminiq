@@ -25,6 +25,7 @@ import {
 } from '../hooks/useMockTests'
 
 import type { IMockTest } from '../types/mock-tests.types'
+import AdaptiveExamPanel from '../../adaptive-learning/components/AdaptiveExamPanel'
 
 const EMPTY_TESTS: IMockTest[] = []
 const TESTS_PER_PAGE = 6
@@ -202,6 +203,8 @@ export default function MockTestsPage() {
             </button>
           </div>
         </div>
+
+        <AdaptiveExamPanel />
 
          {testsQuery.isLoading ? (
           <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">

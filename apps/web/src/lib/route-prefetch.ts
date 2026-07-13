@@ -2,6 +2,7 @@ const routeLoaders: Record<string, () => Promise<unknown>> = {
   '/dashboard': () => import('../modules/user/dashboard/pages/DashboardPage'),
   '/trackers': () => import('../modules/user/trackers/pages/MyTrackersPage'),
   '/mock-tests': () => import('../modules/user/mock-tests/pages/MockTestsPage'),
+  '/learning-agent': () => import('../modules/user/adaptive-learning/pages/AdaptiveLearningPage'),
   '/community': () => import('../modules/user/community/pages/CommunityBrowsePage'),
   '/leaderboard': () => import('../modules/user/leaderboard/pages/LeaderboardPage'),
   '/activity': () => import('../modules/user/activity/pages/ActivityPage'),

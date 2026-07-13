@@ -25,3 +25,6 @@ export type {
   QuestionType,
   TestVisibility,
 } from './domain/mock-tests.types'
+
+export type { IGenerateMockTestUseCase } from './application/use-cases/generate-mock-test.usecase'
+export type { IMockTestCompletionObserver } from './domain/services/mock-test-completion-observer.interface'

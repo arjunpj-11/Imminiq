@@ -84,6 +84,10 @@ export const MockTestsPage = lazy(
   () => import('../../modules/user/mock-tests/pages/MockTestsPage'),
 )
 
+export const AdaptiveLearningPage = lazy(
+  () => import('../../modules/user/adaptive-learning/pages/AdaptiveLearningPage'),
+)
+
 export const MockTestAnalysisPage = lazy(
   () => import('../../modules/user/mock-tests/pages/MockTestAnalysisPage'),
 )

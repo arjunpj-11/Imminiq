@@ -7,6 +7,7 @@ const routeNames: Array<[RegExp, string]> = [
   [/^\/trackers\/[^/]+\/roadmap/, 'Tracker roadmap'],
   [/^\/trackers/, 'Trackers'],
   [/^\/mock-tests/, 'Mock tests'],
+  [/^\/learning-agent/, 'Learning agent'],
   [/^\/community/, 'Community'],
   [/^\/leaderboard/, 'Leaderboard'],
   [/^\/activity/, 'Activity'],

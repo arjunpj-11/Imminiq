@@ -34,6 +34,12 @@ import { createActivityComposition } from './modules/user/activity/activity.fact
 import { createActivityRoutes } from './modules/user/activity/presentation/activity.routes'
 import { friendsRoutes } from './modules/user/friends/presentation/friends.routes'
 import { createNotificationsComposition, createNotificationsRoutes } from './modules/notifications'
+import { createAdaptiveLearningComposition } from './modules/user/adaptive-learning/adaptive-learning.factory'
+import { createAdaptiveLearningRoutes } from './modules/user/adaptive-learning/presentation/adaptive-learning.routes'
+import {
+  AdaptiveAssessmentCompletionObserver,
+  mongoAdaptiveLearningRepository,
+} from './modules/user/adaptive-learning/infrastructure'
 import mongoose from 'mongoose'
 import { redis } from './config/redis'
 
@@ -57,8 +63,18 @@ const trackerRoutes = createTrackerRoutes(
 const communityRouter = createCommunityRoutes(
   createCommunityComposition(activityRecorder).useCases,
 )
-const mockTestsRouter = createMockTestsRoutes(
-  createMockTestsComposition(activityRecorder).useCases,
+const adaptiveCompletionObserver = new AdaptiveAssessmentCompletionObserver(
+  mongoAdaptiveLearningRepository,
+)
+const mockTestsComposition = createMockTestsComposition(
+  activityRecorder,
+  adaptiveCompletionObserver,
+)
+const mockTestsRouter = createMockTestsRoutes(mockTestsComposition.useCases)
+const adaptiveLearningRouter = createAdaptiveLearningRoutes(
+  createAdaptiveLearningComposition(
+    mockTestsComposition.useCases.generateMockTest,
+  ).useCases,
 )
 
 const globalApiLimiter = rateLimit({
@@ -126,6 +142,7 @@ app.get('/api/health', (_req, res) => {
 
 app.use('/api/security', securityRoutes)
 app.use('/api/mock-tests', mockTestsRouter)
+app.use('/api/adaptive-learning', adaptiveLearningRouter)
 app.use('/api/community', communityRouter)
 app.use('/api/moderation-appeals', moderationAppealRoutes)
 app.use('/api/leaderboard',leaderBoardRouter)

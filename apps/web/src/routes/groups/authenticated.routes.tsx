@@ -1,6 +1,7 @@
 import type { RouteObject } from 'react-router-dom'
 
 import {
+  AdaptiveLearningPage,
   AccountSecuritySettingsPage,
   ActivityPage,
   CommunityBrowsePage,
@@ -35,6 +36,10 @@ export const authenticatedRoutes: RouteObject[] = [
   {
     path: '/profile',
     element: <ProfilePage />,
+  },
+  {
+    path: '/learning-agent',
+    element: <AdaptiveLearningPage />,
   },
 
   {

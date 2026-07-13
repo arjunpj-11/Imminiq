@@ -46,6 +46,8 @@ import ProfileAboutCard from '../components/ProfileAboutCard'
 import PublishedTrackersSection, {
   type IPublishedTrackerCardViewModel,
 } from '../components/PublishedTrackersSection'
+import AdaptiveMasteryGraph from '../../adaptive-learning/components/AdaptiveMasteryGraph'
+import { useAdaptiveLearningDashboard } from '../../adaptive-learning/hooks/useAdaptiveLearning'
 
 /* ─── Main ProfilePage ─── */
 export default function ProfilePage() {
@@ -57,6 +59,7 @@ export default function ProfilePage() {
   const isPublicView = Boolean(username)
   const isOwnView = !isPublicView
   const showSidebar = isOwnView || isAuthenticated
+  const adaptiveDashboard = useAdaptiveLearningDashboard(isOwnView)
 
   const editOpen = useProfileStore((state) => state.editPanelOpen)
   const openEditPanel = useProfileStore((state) => state.openEditPanel)
@@ -433,6 +436,12 @@ export default function ProfilePage() {
                 accountCreatedAt={accountCreatedAt}
               />
             </div>
+
+            {isOwnView && adaptiveDashboard.data ? (
+              <AdaptiveMasteryGraph
+                history={adaptiveDashboard.data.profile.history}
+              />
+            ) : null}
 
             <PublishedTrackersSection
               trackers={trackers}

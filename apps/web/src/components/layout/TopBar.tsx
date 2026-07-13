@@ -30,6 +30,7 @@ const routeLabels: Array<[RegExp, string]> = [
   [/^\/mock-tests\/attempts\/.+\/analysis/, 'Test analysis'],
   [/^\/mock-tests\/attempts\/.+\/result/, 'Test result'],
   [/^\/mock-tests/, 'Mock tests'],
+  [/^\/learning-agent/, 'Learning agent'],
   [/^\/community/, 'Community'],
   [/^\/leaderboard/, 'Leaderboard'],
   [/^\/activity/, 'Activity'],

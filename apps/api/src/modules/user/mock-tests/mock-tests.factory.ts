@@ -43,6 +43,7 @@ import { cryptoShareTokenGenerator } from './infrastructure/services/crypto-shar
 import { geminiGroqMockTestAIGateway } from './infrastructure/services/gemini-groq-mock-test-ai.service'
 import { mongoQuestionBank } from './infrastructure/services/mongo-question-bank.service'
 import { pistonMockTestCodeRunner } from './infrastructure/services/piston-mock-test-code-runner.service'
+import type { IMockTestCompletionObserver } from './domain/services/mock-test-completion-observer.interface'
 
 
 export type MockTestsServiceHelpers = {
@@ -70,7 +71,10 @@ export type MockTestsComposition = {
 }
 
 export const createMockTestsComposition =
-  (activityRecorder: IRecordUserActivityUseCase): MockTestsComposition => {
+  (
+    activityRecorder: IRecordUserActivityUseCase,
+    completionObserver?: IMockTestCompletionObserver,
+  ): MockTestsComposition => {
     const mockTestsRepository =
       mongoMockTestsRepository
 
@@ -161,6 +165,7 @@ export const createMockTestsComposition =
             mockTestActivityRecorder,
             mockTestsMapper,
             systemClock,
+            completionObserver,
           ),
 
         getAttemptResult:
