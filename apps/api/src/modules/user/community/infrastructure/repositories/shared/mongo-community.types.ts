@@ -270,6 +270,7 @@ export type MongoRatingAggregate = {
 export type MongoAuthorLookup = {
   id: string
   name: string
+  username: string
   initials: string
   avatarUrl?: string | null
 }

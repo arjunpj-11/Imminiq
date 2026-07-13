@@ -5,11 +5,13 @@ import {
   useAdaptiveLearningDashboard,
   useGenerateAdaptiveAssessment,
 } from '../hooks/useAdaptiveLearning'
+import { useActiveMockTestGeneration } from '../../mock-tests/hooks/useMockTests'
 
 export default function AdaptiveExamPanel() {
   const navigate = useNavigate()
   const dashboard = useAdaptiveLearningDashboard()
   const generate = useGenerateAdaptiveAssessment()
+  const activeGeneration = useActiveMockTestGeneration()
   const [generationStarted, setGenerationStarted] = useState(false)
   const assessment = dashboard.data?.latestAssessment
 
@@ -61,11 +63,13 @@ export default function AdaptiveExamPanel() {
           ) : (
             <button
               type="button"
-              disabled={generate.isPending || generationStarted}
+              disabled={generate.isPending || generationStarted || Boolean(activeGeneration.data)}
               onClick={() => void generateExam()}
               className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-white disabled:opacity-60"
             >
-              {generate.isPending
+              {activeGeneration.data
+                ? 'Another test is generating'
+                : generate.isPending
                 ? 'Starting background job…'
                 : generationStarted
                   ? 'Generating in background'

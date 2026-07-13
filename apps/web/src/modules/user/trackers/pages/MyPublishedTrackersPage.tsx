@@ -499,7 +499,7 @@ export default function MyPublishedTrackersPage() {
               <PublishedTrackerCard
                 key={tracker._id}
                 tracker={tracker}
-                onView={(id) => navigate(`/trackers/${id}/preview`)}
+                onView={(id) => navigate(`/community/trackers/${id}`)}
                 onRequestUnpublish={handleRequestUnpublish}
                 isUnpublishing={unpublishingId === tracker._id}
               />

@@ -41,11 +41,13 @@ const CHEVRON_STYLE =
 interface IGenerateMockTestModalProps {
   open: boolean
   onClose: () => void
+  generationBlocked?: boolean
 }
 
 export function GenerateMockTestModal({
   open,
   onClose,
+  generationBlocked = false,
 }: IGenerateMockTestModalProps) {
   const navigate = useNavigate()
   const overlayRef = useRef<HTMLDivElement>(null)
@@ -206,7 +208,7 @@ export function GenerateMockTestModal({
       : selectedNodes.size > 0
 
   const handleSubmit = async () => {
-    if (!canSubmit || generateMutation.isPending) return
+    if (!canSubmit || generateMutation.isPending || generationBlocked) return
 
     const topicValue =
       topicSource === 'tracker'
@@ -531,19 +533,21 @@ export function GenerateMockTestModal({
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={generateMutation.isPending || !canSubmit}
+            disabled={generateMutation.isPending || !canSubmit || generationBlocked}
             className={cn(
               "relative w-full overflow-hidden rounded-2xl py-4 font-ui text-[17px] font-black text-white transition-all duration-200",
-              canSubmit && !generateMutation.isPending
+              canSubmit && !generateMutation.isPending && !generationBlocked
                 ? 'bg-(--brand-500) hover:-translate-y-0.5 hover:bg-(--brand-600) hover:shadow-[0_12px_32px_rgba(184,76,43,0.30)] dark:bg-(--brand-500) dark:hover:bg-[#d9522d] dark:hover:shadow-[0_12px_32px_rgba(232,129,106,0.4)]'
                 : 'cursor-not-allowed bg-(--brand-500)/35 dark:bg-(--brand-500)/35'
             )}
           >
-            {canSubmit && !generateMutation.isPending && (
+            {canSubmit && !generateMutation.isPending && !generationBlocked && (
               <span className="pointer-events-none absolute inset-0 -translate-x-full animate-[shimmer_2.5s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent" />
             )}
 
-            {generateMutation.isPending ? (
+            {generationBlocked ? (
+              'Another test is generating…'
+            ) : generateMutation.isPending ? (
               <span className="flex items-center justify-center gap-2.5">
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 {runInBackground ? 'Starting…' : 'Generating…'}

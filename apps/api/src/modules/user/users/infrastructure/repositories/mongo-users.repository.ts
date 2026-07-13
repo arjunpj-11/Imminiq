@@ -90,6 +90,10 @@ export class MongoUsersRepository implements IUsersRepository {
     return this._userRepository.findByUsername(username)
   }
 
+  getProgressionRanks(userId: string) {
+    return this._userRepository.getProgressionRanks(userId)
+  }
+
   updateFullName(
     input: UpdateUserFullNameInput,
   ): Promise<UserEntity | null> {
@@ -157,6 +161,10 @@ export class MongoUsersRepository implements IUsersRepository {
     input: FindPublishedTrackersInput,
   ): Promise<{ items: PublishedTrackerEntity[]; total: number }> {
     return this._trackerRepository.findPublishedTrackers(input)
+  }
+
+  getPublishedTrackerMetrics(ownerId: UserIdInput) {
+    return this._trackerRepository.getPublishedTrackerMetrics(ownerId)
   }
 
   getRelationshipState(

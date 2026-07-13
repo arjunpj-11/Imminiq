@@ -1,4 +1,4 @@
-import type { IProfileData, IProfileStats, IStreakSummary } from '../types/profile.types'
+import type { IProfileData, IProfileStats, IStreakSummary, ProfileRelationshipState } from '../types/profile.types'
 import { formatCompactNumber } from '../utils/profile-formatters'
 import { cn } from '../../../../lib/cn'
 
@@ -10,7 +10,7 @@ interface IProfileHeaderProps {
   location: string
   isOwnView: boolean
   isPublicView: boolean
-  friendRequestSent: boolean
+  relationship: ProfileRelationshipState
   isSendingFriendRequest: boolean
   onChangeBanner: () => void
   onChangeAvatar: () => void
@@ -92,7 +92,7 @@ function ProfileAvatar({
 
 function ProfileActions({
   isPublicView,
-  friendRequestSent,
+  relationship,
   isSendingFriendRequest,
   onSendFriendRequest,
   onMessage,
@@ -116,10 +116,14 @@ function ProfileActions({
           <button
             type="button"
             onClick={onSendFriendRequest}
-            disabled={isSendingFriendRequest || friendRequestSent}
+            disabled={
+              isSendingFriendRequest ||
+              relationship === 'request_sent' ||
+              relationship === 'friends'
+            }
             className={cn(
               'inline-flex items-center gap-1.75 whitespace-nowrap rounded-md px-5.5 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-70 max-[640px]:flex-[1_1_150px] max-[640px]:justify-center',
-              friendRequestSent
+              relationship === 'request_sent' || relationship === 'friends'
                 ? 'border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)'
                 : 'bg-(--brand-500) text-[#fdf8f5] hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)',
             )}
@@ -130,8 +134,12 @@ function ProfileActions({
             </svg>
             {isSendingFriendRequest
               ? 'Sending...'
-              : friendRequestSent
-                ? 'Request Sent'
+              : relationship === 'friends'
+                ? 'Friends'
+                : relationship === 'request_received'
+                  ? 'Review Request'
+                  : relationship === 'request_sent'
+                    ? 'Request Sent'
                 : 'Send Request'}
           </button>
 
@@ -194,6 +202,11 @@ function ProfileChips({ stats, streak }: Pick<IProfileHeaderProps, 'stats' | 'st
     },
     {
       className:
+        'bg-[rgba(184,76,43,0.08)] border-[rgba(184,76,43,0.20)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.10)] dark:border-[rgba(232,129,106,0.22)]',
+      label: `Teacher Level ${stats?.teacherLevel ?? 1}`,
+    },
+    {
+      className:
         'bg-[rgba(45,106,71,0.08)] border-[rgba(45,106,71,0.20)] text-[var(--success)] dark:bg-[rgba(92,201,138,0.10)] dark:border-[rgba(92,201,138,0.22)] dark:text-[var(--success)]',
       label: `Rating ${Number(stats?.ratingAverage ?? 0).toFixed(1)}`,
     },
@@ -224,7 +237,7 @@ export default function ProfileHeader({
   location,
   isOwnView,
   isPublicView,
-  friendRequestSent,
+  relationship,
   isSendingFriendRequest,
   onChangeBanner,
   onChangeAvatar,
@@ -302,7 +315,7 @@ export default function ProfileHeader({
 
           <ProfileActions
             isPublicView={isPublicView}
-            friendRequestSent={friendRequestSent}
+            relationship={relationship}
             isSendingFriendRequest={isSendingFriendRequest}
             onSendFriendRequest={onSendFriendRequest}
             onMessage={onMessage}

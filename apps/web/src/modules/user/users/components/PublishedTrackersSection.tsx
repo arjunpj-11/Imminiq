@@ -2,6 +2,7 @@ import EmptyState from '../../../../components/feedback/EmptyState'
 import TrackerCard from './TrackerCard'
 
 export interface IPublishedTrackerCardViewModel {
+  id: string
   title: string
   desc: string
   rating: number

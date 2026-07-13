@@ -136,7 +136,11 @@ export interface IActivityFeedItemViewDTO {
 export interface IProfileStatsViewDTO {
   streakCount: number
   studentLevel: number
+  studentRank: number
   xp: number
+  teacherLevel: number
+  teacherXp: number
+  teacherRank: number
   coins: number
   publishedCount: number
   cloneCount: number

@@ -124,7 +124,8 @@ export default function DashboardPage() {
 
             <FriendsCard
               friends={friends}
-              onOpenCommunity={() => navigate('/community')}
+              onOpenFriends={() => navigate('/friends')}
+              onOpenProfile={(username) => navigate(`/profile/${username}`)}
             />
           </section>
 

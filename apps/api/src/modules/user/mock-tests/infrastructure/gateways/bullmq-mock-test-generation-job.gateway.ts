@@ -6,6 +6,20 @@ import type { IMockTestGenerationJobGateway } from '../../application/services/m
 export class BullMqMockTestGenerationJobGateway
   implements IMockTestGenerationJobGateway
 {
+  async findActive(userId: string) {
+    const job = await AIGenerationJob.findOne({
+      userId,
+      jobType: 'mock_test',
+      status: { $in: ['pending', 'processing'] },
+      deletedAt: null,
+    })
+      .sort({ createdAt: -1 })
+      .select('_id status')
+      .lean<{ _id: { toString(): string }; status: 'pending' | 'processing' }>()
+
+    return job ? { jobId: job._id.toString(), status: job.status } : null
+  }
+
   async enqueue(userId: string, payload: IGenerateMockTestPayloadDTO) {
     const job = await AIGenerationJob.create({
       userId,

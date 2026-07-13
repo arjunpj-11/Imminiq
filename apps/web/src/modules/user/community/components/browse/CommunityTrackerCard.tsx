@@ -64,16 +64,12 @@ export default function CommunityTrackerCard({
             )}
           </div>
 
-          <button
-            type="button"
-            aria-label="More options"
-            onClick={(event) => {
-              event.stopPropagation()
-            }}
-            className="flex h-6 w-6 items-center justify-center rounded-full text-[#9b9a92] transition hover:bg-[rgba(26,23,20,0.06)] dark:hover:bg-white/8"
+          <span
+            aria-hidden="true"
+            className="flex h-6 w-6 items-center justify-center rounded-full text-[#9b9a92]"
           >
             <DotsIcon />
-          </button>
+          </span>
         </div>
 
         <h3 className="mb-1.5 font-ui text-[15px] font-extrabold leading-tight text-(--text-primary) transition group-hover:text-(--brand-500) dark:text-(--text-primary)">

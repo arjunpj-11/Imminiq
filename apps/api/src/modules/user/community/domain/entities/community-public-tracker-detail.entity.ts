@@ -39,6 +39,7 @@ export type CommunityRatingSummaryEntity = {
 export type CommunityPublicTrackerAuthorEntity = {
   id: string
   name: string
+  username: string
   initials: string
   avatarUrl?: string | null
   role: string

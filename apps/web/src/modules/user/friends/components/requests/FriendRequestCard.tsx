@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { IFriendRequest } from "../../types/friends.types";
 import {
   formatMutualFriends,
@@ -30,12 +31,18 @@ export default function FriendRequestCard({
   return (
     <article className="flex flex-col gap-4 rounded-lg border border-[#e8ddd6] bg-white/55 p-4 sm:flex-row sm:items-center dark:border-white/8 dark:bg-white/3">
       <div className="flex min-w-0 flex-1 items-center gap-3.5">
-        <FriendsAvatar
-          fullName={request.user.fullName}
-          {...(request.user.avatarUrl !== undefined
-            ? { avatarUrl: request.user.avatarUrl }
-            : {})}
-        />
+        <Link
+          to={`/profile/${request.user.username}`}
+          aria-label={`Open ${request.user.fullName}'s profile`}
+          className="shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)"
+        >
+          <FriendsAvatar
+            fullName={request.user.fullName}
+            {...(request.user.avatarUrl !== undefined
+              ? { avatarUrl: request.user.avatarUrl }
+              : {})}
+          />
+        </Link>
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13.5px] font-bold text-(--text-primary) dark:text-(--text-primary)">

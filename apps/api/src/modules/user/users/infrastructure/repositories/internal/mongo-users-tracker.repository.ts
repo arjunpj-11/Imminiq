@@ -74,6 +74,40 @@ export class MongoUsersTrackerRepository extends MongoUsersBaseRepository {
       },
     )
   }
+
+  async getPublishedTrackerMetrics(ownerId: FindPublishedTrackersInput['ownerId']) {
+    const metrics = await Tracker.aggregate<{
+      publishedCount: number
+      cloneCount: number
+      likeCount: number
+      ratingAverage: number
+    }>([
+      {
+        $match: {
+          ownerId: MongoUsersObjectId.from(ownerId),
+          deletedAt: null,
+          visibility: 'public',
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          publishedCount: { $sum: 1 },
+          cloneCount: { $sum: { $ifNull: ['$cloneCount', 0] } },
+          likeCount: { $sum: { $ifNull: ['$likeCount', 0] } },
+          ratingAverage: { $avg: { $ifNull: ['$ratingAverage', 0] } },
+        },
+      },
+    ])
+
+    const result = metrics[0]
+    return {
+      publishedCount: Number(result?.publishedCount ?? 0),
+      cloneCount: Number(result?.cloneCount ?? 0),
+      likeCount: Number(result?.likeCount ?? 0),
+      ratingAverage: Number(Number(result?.ratingAverage ?? 0).toFixed(2)),
+    }
+  }
 }
 
 export const mongoUsersTrackerRepository = new MongoUsersTrackerRepository()

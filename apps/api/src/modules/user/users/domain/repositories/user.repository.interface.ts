@@ -10,6 +10,11 @@ export interface IUserRepository {
 
   findByUsername(username: string): Promise<UserEntity | null>
 
+  getProgressionRanks(userId: string): Promise<{
+    studentRank: number
+    teacherRank: number
+  }>
+
   updateFullName(
     input: UpdateUserFullNameInput
   ): Promise<UserEntity | null>

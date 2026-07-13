@@ -346,12 +346,14 @@ export function RatingStars({
 
 interface IAvatarProps {
   initials: string
+  avatarUrl?: string | null
   size?: 'sm' | 'md' | 'lg'
   accent?: boolean
 }
 
 export const Avatar = ({
   initials,
+  avatarUrl,
   size = 'md',
   accent = false,
 }: IAvatarProps) => {
@@ -364,14 +366,16 @@ export const Avatar = ({
   return (
     <div
       className={cn(
-        'flex shrink-0 items-center justify-center rounded-xl font-mono font-bold',
+        'flex shrink-0 items-center justify-center overflow-hidden rounded-xl font-mono font-bold',
         sizeClass,
         accent
           ? 'bg-(--brand-500) text-white dark:bg-(--brand-500) dark:text-[#141412]'
           : 'bg-[#1a1714] text-white dark:bg-[#f2f0eb] dark:text-[#141412]',
       )}
     >
-      {initials}
+      {avatarUrl ? (
+        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
+      ) : initials}
     </div>
   )
 }

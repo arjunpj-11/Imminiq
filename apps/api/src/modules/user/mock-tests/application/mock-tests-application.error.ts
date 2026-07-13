@@ -7,6 +7,7 @@ export type MockTestsApplicationErrorCode =
   | 'FORBIDDEN'
   | 'INVALID_SHARE_LINK'
   | 'MOCK_TEST_NOT_FOUND'
+  | 'MOCK_TEST_GENERATION_ACTIVE'
   | 'NOT_CODING_QUESTION'
   | 'NOT_COMPLETED'
   | 'NOT_FOUND'
@@ -49,6 +50,14 @@ export class MockTestsApplicationError extends MockTestsDomainError {
 
   static mockTestNotFound(): MockTestsApplicationError {
     return new MockTestsApplicationError(404, 'MOCK_TEST_NOT_FOUND', 'Mock test not found')
+  }
+
+  static generationAlreadyActive(): MockTestsApplicationError {
+    return new MockTestsApplicationError(
+      409,
+      'MOCK_TEST_GENERATION_ACTIVE',
+      'Another mock test is already being generated. Wait for it to finish before creating a new one.',
+    )
   }
 
   static shareLinkFailed(): MockTestsApplicationError {

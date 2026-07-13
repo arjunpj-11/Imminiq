@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import type { IFriendUser } from "../../types/friends.types";
 import { formatMutualFriends } from "../../utils/friends-formatters";
 import FriendsAvatar from "../shared/FriendsAvatar";
@@ -26,12 +27,18 @@ export default function FriendSearchResultCard({
   return (
     <article className="flex flex-col gap-4 rounded-lg border border-[#e8ddd6] bg-white/55 p-4 transition hover:border-[rgba(184,76,43,0.24)] hover:bg-white/75 min-[520px]:flex-row min-[520px]:items-center dark:border-white/8 dark:bg-white/3 dark:hover:border-white/15 dark:hover:bg-white/5">
       <div className="flex min-w-0 flex-1 items-center gap-3.5">
-        <FriendsAvatar
-          fullName={user.fullName}
-          {...(user.avatarUrl !== undefined
-            ? { avatarUrl: user.avatarUrl }
-            : {})}
-        />
+        <Link
+          to={`/profile/${user.username}`}
+          aria-label={`Open ${user.fullName}'s profile`}
+          className="shrink-0 rounded-full transition hover:ring-2 hover:ring-(--brand-500)/30 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)"
+        >
+          <FriendsAvatar
+            fullName={user.fullName}
+            {...(user.avatarUrl !== undefined
+              ? { avatarUrl: user.avatarUrl }
+              : {})}
+          />
+        </Link>
 
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13.5px] font-bold text-(--text-primary) dark:text-(--text-primary)">

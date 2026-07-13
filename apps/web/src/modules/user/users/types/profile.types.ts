@@ -123,7 +123,11 @@ export interface IUpdateProfilePayload {
 export interface IProfileStats {
   streakCount: number
   studentLevel: number
+  studentRank: number
   xp: number
+  teacherLevel: number
+  teacherXp: number
+  teacherRank: number
   coins: number
   publishedCount: number
   cloneCount: number

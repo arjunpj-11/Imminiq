@@ -3,6 +3,7 @@ import type { UserEntity } from '../../domain/entities/user.entity'
 import type { IUserBadgeRepository } from '../../domain/repositories/user-badge.repository.interface'
 import type { IUserProfileRepository } from '../../domain/repositories/user-profile.repository.interface'
 import type { IUserStreakRepository } from '../../domain/repositories/user-streak.repository.interface'
+import type { IUserTrackerRepository } from '../../domain/repositories/user-tracker.repository.interface'
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface'
 import type {
   IBadgeShowcaseViewDTO,
@@ -17,7 +18,8 @@ type UsersProfileDataRepository =
   IUserRepository &
   IUserProfileRepository &
   IUserBadgeRepository &
-  IUserStreakRepository
+  IUserStreakRepository &
+  IUserTrackerRepository
 
 export interface IUsersProfileDataReader {
   getBadgeShowcase(userId: string): Promise<IBadgeShowcaseViewDTO>
@@ -94,7 +96,7 @@ export class UsersProfileDataReader
   async getStats(
     userId: string,
     user?: UserEntity,
-    profile?: UserProfileEntity,
+    _profile?: UserProfileEntity,
   ): Promise<IProfileStatsViewDTO> {
     const resolvedUser =
       user ?? (await this._usersRepository.findById(userId))
@@ -103,19 +105,24 @@ export class UsersProfileDataReader
       throw UsersApplicationError.userNotFound()
     }
 
-    const resolvedProfile =
-      profile ??
-      (await this._usersRepository.findByUserId(resolvedUser.id))
+    const [ranks, trackerMetrics] = await Promise.all([
+      this._usersRepository.getProgressionRanks(resolvedUser.id),
+      this._usersRepository.getPublishedTrackerMetrics(resolvedUser.id),
+    ])
 
     return {
       streakCount: resolvedUser.streakCount,
       studentLevel: resolvedUser.level,
+      studentRank: ranks.studentRank,
       xp: resolvedUser.xp,
+      teacherLevel: resolvedUser.teacherLevel,
+      teacherXp: resolvedUser.teacherXp,
+      teacherRank: ranks.teacherRank,
       coins: resolvedUser.coins,
-      publishedCount: resolvedProfile?.publishedCount ?? 0,
-      cloneCount: resolvedProfile?.cloneCount ?? 0,
-      ratingAverage: resolvedProfile?.ratingAverage ?? 0,
-      likeCount: resolvedProfile?.likeCount ?? 0,
+      publishedCount: trackerMetrics.publishedCount,
+      cloneCount: trackerMetrics.cloneCount,
+      ratingAverage: trackerMetrics.ratingAverage,
+      likeCount: trackerMetrics.likeCount,
     }
   }
 }

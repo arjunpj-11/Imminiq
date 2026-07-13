@@ -292,11 +292,24 @@ function CommunityPublicTrackerLoaded({
 
               <aside className="rounded-lg border border-[#e8ddd6] bg-white/60 p-4 dark:border-white/8 dark:bg-white/4">
                 <div className="mb-4 flex items-center gap-3">
-                  <Avatar initials={tracker.author.initials} size="lg" accent />
+                  <button
+                    type="button"
+                    disabled={!tracker.author.username}
+                    onClick={() => tracker.author.username && navigate(`/profile/${tracker.author.username}`)}
+                    aria-label={`Open ${tracker.author.name}'s profile`}
+                    className="rounded-xl transition hover:ring-2 hover:ring-(--brand-500)/30 disabled:cursor-default"
+                  >
+                    <Avatar initials={tracker.author.initials} avatarUrl={tracker.author.avatarUrl} size="lg" accent />
+                  </button>
                   <div>
-                    <p className="text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">
+                    <button
+                      type="button"
+                      disabled={!tracker.author.username}
+                      onClick={() => tracker.author.username && navigate(`/profile/${tracker.author.username}`)}
+                      className="text-left text-[13px] font-bold text-(--text-primary) transition hover:text-(--brand-500) disabled:cursor-default dark:text-(--text-primary)"
+                    >
                       {tracker.author.name}
-                    </p>
+                    </button>
                     <p className="font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
                       {tracker.author.role}
                     </p>

@@ -196,7 +196,7 @@ export default function MyTrackersPage() {
               tracker={tracker}
               onOpenStudy={(trackerId) => navigate(`/trackers/${trackerId}/roadmap`)}
               onPublish={handlePublish}
-              onViewPublished={(trackerId) => navigate(`/trackers/${trackerId}/preview`)}
+              onViewPublished={(trackerId) => navigate(`/community/trackers/${trackerId}`)}
               onInfo={(trackerId) => navigate(`/trackers/${trackerId}/manage`)}
               onArchive={(trackerId) => handleArchiveToggle(trackerId, tracker.status)}
               onQuickRevision={(trackerId) => navigate(`/trackers/${trackerId}/revision`)}

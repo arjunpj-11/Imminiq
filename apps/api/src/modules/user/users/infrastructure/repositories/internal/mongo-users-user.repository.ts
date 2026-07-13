@@ -8,7 +8,7 @@ import { MONGO_USERS_ACTIVE_FILTER } from '../shared/mongo-users-query.constants
 import type { MongoUserRecord } from '../shared/mongo-users.types'
 
 const USER_SELECT =
-  '_id fullName username email role status emailVerified phoneVerified onboardingCompleted coins xp level streakCount avatarUrl provider referralCode createdAt updatedAt lastActiveAt'
+  '_id fullName username email role status emailVerified phoneVerified onboardingCompleted coins xp level teacherXp teacherLevel streakCount avatarUrl provider referralCode createdAt updatedAt lastActiveAt'
 
 export class MongoUsersUserRepository extends MongoUsersBaseRepository {
   constructor(private readonly _mapper = new MongoUsersMapper()) {
@@ -47,6 +47,33 @@ export class MongoUsersUserRepository extends MongoUsersBaseRepository {
         return user ? this._mapper.toUserEntity(user) : null
       },
     )
+  }
+
+  async getProgressionRanks(userId: string) {
+    const user = await User.findOne({
+      _id: userId,
+      ...MONGO_USERS_ACTIVE_FILTER,
+    })
+      .select('xp teacherXp')
+      .lean<{ xp?: number; teacherXp?: number }>()
+
+    if (!user) return { studentRank: 0, teacherRank: 0 }
+
+    const [higherStudentScores, higherTeacherScores] = await Promise.all([
+      User.countDocuments({
+        ...MONGO_USERS_ACTIVE_FILTER,
+        xp: { $gt: Number(user.xp ?? 0) },
+      }),
+      User.countDocuments({
+        ...MONGO_USERS_ACTIVE_FILTER,
+        teacherXp: { $gt: Number(user.teacherXp ?? 0) },
+      }),
+    ])
+
+    return {
+      studentRank: higherStudentScores + 1,
+      teacherRank: higherTeacherScores + 1,
+    }
   }
 
   async updateFullName(

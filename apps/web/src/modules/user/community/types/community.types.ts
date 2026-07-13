@@ -148,6 +148,7 @@ export interface ICommunityBrowseQuery {
 export interface ICommunityReviewAuthor {
   _id: string
   name: string
+  username?: string
   initials: string
   avatarUrl?: string | null
   role: string

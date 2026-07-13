@@ -59,6 +59,9 @@ export const mockTestKeys = {
   topicBreakdown: () =>
     [...mockTestKeys.analytics(), 'topic-breakdown'] as const,
 
+  activeGeneration: () =>
+    [...mockTestKeys.all, 'active-generation'] as const,
+
   attempts: () => [...mockTestKeys.all, 'attempts'] as const,
 
   attempt: (attemptId: string) =>
@@ -157,6 +160,22 @@ export const useGenerateMockTest = () => {
         queryKey: mockTestKeys.all,
       })
     },
+  })
+}
+
+export const useActiveMockTestGeneration = () => {
+  return useQuery({
+    queryKey: mockTestKeys.activeGeneration(),
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<{
+        jobId: string
+        status: 'pending' | 'processing'
+      } | null>>('/mock-tests/generation/active')
+
+      return unwrap(response.data)
+    },
+    refetchInterval: 1500,
+    refetchOnWindowFocus: true,
   })
 }
 

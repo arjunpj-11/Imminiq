@@ -18,6 +18,8 @@ export type MongoUserRecord = {
   coins?: number | null
   xp?: number | null
   level?: number | null
+  teacherXp?: number | null
+  teacherLevel?: number | null
   streakCount?: number | null
   avatarUrl?: string | null
   provider?: string | null

@@ -1,6 +1,7 @@
 export type CommunityReviewAuthorViewDTO = {
   _id: string
   name: string
+  username?: string
   initials: string
   avatarUrl?: string | null
   role: string

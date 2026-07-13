@@ -38,6 +38,8 @@ export class MongoUsersMapper {
       coins: Number(user.coins ?? 0),
       xp: Number(user.xp ?? 0),
       level: Number(user.level ?? 0),
+      teacherXp: Number(user.teacherXp ?? 0),
+      teacherLevel: Number(user.teacherLevel ?? 1),
       streakCount: Number(user.streakCount ?? 0),
       avatarUrl: user.avatarUrl ?? '',
       provider: user.provider ?? 'email',

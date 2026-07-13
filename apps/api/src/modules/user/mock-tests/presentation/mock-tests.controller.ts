@@ -69,6 +69,21 @@ export class MockTestsController {
     }
   }
 
+  getActiveGeneration = async (
+    req: Request,
+    res: Response,
+    next: NextFunction,
+  ) => {
+    try {
+      const data = await this._useCases.getActiveMockTestGeneration.execute(
+        getAuthUser(req).userId,
+      )
+      res.json(new ApiResponse('Active mock-test generation fetched', data))
+    } catch (error) {
+      next(error)
+    }
+  }
+
   getTest = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this._useCases.getMockTestDetails.execute(

@@ -46,6 +46,11 @@ router.post(
   mockTestsController.generateTest
 )
 
+router.get(
+  MOCK_TEST_ROUTE_PATHS.ACTIVE_GENERATION,
+  mockTestsController.getActiveGeneration,
+)
+
 router.post(
   MOCK_TEST_ROUTE_PATHS.IMPORT_SHARED,
   mockTestsController.importSharedTest

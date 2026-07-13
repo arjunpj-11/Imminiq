@@ -192,6 +192,7 @@ export class MongoCommunityMapper {
       author: {
         id: this.toId(tracker.ownerId),
         name: author.name,
+        username: author.username,
         initials: author.initials,
         avatarUrl: author.avatarUrl ?? null,
         role: 'Community mentor',
@@ -254,6 +255,7 @@ export class MongoCommunityMapper {
     return {
       id,
       name,
+      username: this.toString(input.user?.username, ''),
       initials: this.getInitials(name),
       avatarUrl: input.profile?.avatarUrl ?? input.user?.avatarUrl ?? null,
     }

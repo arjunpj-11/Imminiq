@@ -17,4 +17,11 @@ export interface IUserTrackerRepository {
   findPublishedTrackers(
     input: FindPublishedTrackersInput
   ): Promise<PublishedTrackerListResult>
+
+  getPublishedTrackerMetrics(ownerId: UserIdInput): Promise<{
+    publishedCount: number
+    cloneCount: number
+    likeCount: number
+    ratingAverage: number
+  }>
 }

@@ -11,6 +11,8 @@ export type UserEntityProps = {
   coins: number
   xp: number
   level: number
+  teacherXp: number
+  teacherLevel: number
   streakCount: number
   avatarUrl: string
   provider: string
@@ -32,6 +34,8 @@ export class UserEntity {
   readonly coins: number
   readonly xp: number
   readonly level: number
+  readonly teacherXp: number
+  readonly teacherLevel: number
   readonly streakCount: number
   readonly avatarUrl: string
   readonly provider: string
@@ -52,6 +56,8 @@ export class UserEntity {
     this.coins = props.coins
     this.xp = props.xp
     this.level = props.level
+    this.teacherXp = props.teacherXp
+    this.teacherLevel = props.teacherLevel
     this.streakCount = props.streakCount
     this.avatarUrl = props.avatarUrl
     this.provider = props.provider

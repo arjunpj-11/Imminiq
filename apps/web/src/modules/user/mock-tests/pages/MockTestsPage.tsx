@@ -16,6 +16,7 @@ import {
 import { TrophyIcon } from '../components/MockTestIcons'
 
 import {
+  useActiveMockTestGeneration,
   useImportSharedMockTest,
   useMockTestAIInsights,
   useMockTestTopicBreakdown,
@@ -59,6 +60,8 @@ export default function MockTestsPage() {
   const [importMessage, setImportMessage] = useState('')
 
   const testsQuery = useMockTests(currentPage, TESTS_PER_PAGE)
+  const activeGenerationQuery = useActiveMockTestGeneration()
+  const generationBlocked = Boolean(activeGenerationQuery.data)
   const aiInsightsQuery = useMockTestAIInsights()
   const topicBreakdownQuery = useMockTestTopicBreakdown()
   const startMutation = useStartMockTestAttempt()
@@ -167,6 +170,7 @@ export default function MockTestsPage() {
       <GenerateMockTestModal
         open={generateModalOpen}
         onClose={() => setGenerateModalOpen(false)}
+        generationBlocked={generationBlocked}
       />
 
       <div className="mx-auto mt-5.5 flex w-[min(1180px,calc(100%-48px))] max-w-full min-w-0 flex-col gap-6 pb-[calc(80px+env(safe-area-inset-bottom,0)+16px)] max-[900px]:mt-4.5 max-[900px]:w-[min(100%,calc(100%-32px))] max-[640px]:mt-3 max-[640px]:w-[calc(100%-20px)]">
@@ -195,11 +199,14 @@ export default function MockTestsPage() {
 
             <button
               type="button"
-              onClick={() => setGenerateModalOpen(true)}
-              className="inline-flex items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] max-[520px]:w-full dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d] dark:hover:shadow-[0_8px_24px_rgba(232,129,106,0.3)]"
+              onClick={() => {
+                if (!generationBlocked) setGenerateModalOpen(true)
+              }}
+              disabled={generationBlocked || activeGenerationQuery.isLoading}
+              className="inline-flex items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] disabled:cursor-not-allowed disabled:opacity-55 disabled:hover:translate-y-0 max-[520px]:w-full dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d] dark:hover:shadow-[0_8px_24px_rgba(232,129,106,0.3)]"
             >
               <SparklesSmall />
-              Generate test
+              {generationBlocked ? 'Test generating…' : 'Generate test'}
             </button>
           </div>
         </div>

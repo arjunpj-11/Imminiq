@@ -48,6 +48,7 @@ import PublishedTrackersSection, {
 } from '../components/PublishedTrackersSection'
 import AdaptiveMasteryGraph from '../../adaptive-learning/components/AdaptiveMasteryGraph'
 import { useAdaptiveLearningDashboard } from '../../adaptive-learning/hooks/useAdaptiveLearning'
+import { useCloneCommunityTracker } from '../../community/hooks/useCloneCommunityTracker'
 
 /* ─── Main ProfilePage ─── */
 export default function ProfilePage() {
@@ -173,7 +174,14 @@ export default function ProfilePage() {
   const uploadAvatarMutation = useUploadAvatar()
   const uploadBannerMutation = useUploadBanner()
   const sendFriendRequestMutation = useSendFriendRequest()
-  const [friendRequestSent, setFriendRequestSent] = useState(false)
+  const cloneTrackerMutation = useCloneCommunityTracker()
+  const [relationshipOverride, setRelationshipOverride] = useState<
+    'request_sent' | null
+  >(null)
+  const relationship =
+    relationshipOverride ??
+    publicProfileQuery.data?.relationship ??
+    'not_connected'
 
   const profile = useMemo<IProfileData | null>(() => {
     if (!activeProfileData) return null
@@ -236,6 +244,11 @@ export default function ProfilePage() {
       return
     }
 
+    if (relationship === 'request_received') {
+      navigate('/friends?tab=requests')
+      return
+    }
+
     const receiverId = activeProfileData?.user?._id
 
     if (!receiverId) {
@@ -255,7 +268,7 @@ export default function ProfilePage() {
         receiverId,
       })
 
-      setFriendRequestSent(true)
+      setRelationshipOverride('request_sent')
       showToast('Friend request sent!', 'success')
     } catch (error: unknown) {
       const message = isAxiosError<{ message?: string }>(error)
@@ -317,6 +330,7 @@ export default function ProfilePage() {
 
   const trackers: IPublishedTrackerCardViewModel[] = (activeTrackerData?.items ?? []).map(
     (tracker: IPublishedTracker, index: number) => ({
+      id: tracker._id,
       title: tracker.title,
       desc: tracker.description || 'Published tracker',
       rating: Number(tracker.ratingAverage ?? 0),
@@ -397,7 +411,7 @@ export default function ProfilePage() {
             location={locationStr}
             isOwnView={isOwnView}
             isPublicView={isPublicView}
-            friendRequestSent={friendRequestSent}
+            relationship={relationship}
             isSendingFriendRequest={sendFriendRequestMutation.isPending}
             onChangeBanner={openBannerModal}
             onChangeAvatar={openAvatarCropModal}
@@ -445,8 +459,19 @@ export default function ProfilePage() {
 
             <PublishedTrackersSection
               trackers={trackers}
-              onClone={() => showToast('Tracker cloned!')}
-              onOpen={(tracker) => showToast(`Opening ${tracker.title}…`)}
+              onClone={(tracker) => {
+                cloneTrackerMutation.mutate(
+                  { trackerId: tracker.id },
+                  {
+                    onSuccess: ({ tracker: clonedTracker }) => {
+                      showToast('Tracker cloned to your dashboard!', 'success')
+                      navigate(`/trackers/${clonedTracker._id}/roadmap`)
+                    },
+                    onError: () => showToast('Unable to clone this tracker.', 'error'),
+                  },
+                )
+              }}
+              onOpen={(tracker) => navigate(`/community/trackers/${tracker.id}`)}
             />
           </div>
         </div>

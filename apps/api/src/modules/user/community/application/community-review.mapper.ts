@@ -62,6 +62,7 @@ export class CommunityReviewMapper implements ICommunityReviewMapper {
       author: {
         _id: entity.author.id,
         name: entity.author.name,
+        username: entity.author.username,
         initials: entity.author.initials,
         avatarUrl: entity.author.avatarUrl ?? null,
         role: entity.author.role,

@@ -13,7 +13,7 @@ export default function ProfileStatsGrid({
   streak,
 }: IProfileStatsGridProps) {
   return (
-    <div className="grid grid-cols-4 gap-2.5 animate-[fadeUp_0.38s_ease_0.1s_both] max-[860px]:grid-cols-2 max-[420px]:grid-cols-1">
+    <div className="grid grid-cols-3 gap-2.5 animate-[fadeUp_0.38s_ease_0.1s_both] max-[860px]:grid-cols-2 max-[420px]:grid-cols-1">
       <StatCard tone="rust" label="">
         <div className="font-ui text-[clamp(28px,4vw,36px)] font-extrabold leading-none tracking-[-2px] text-(--brand-500) dark:text-(--brand-500)">
           {streak?.currentStreak ?? stats?.streakCount ?? 0}{' '}
@@ -67,6 +67,46 @@ export default function ProfileStatsGrid({
         </div>
         <div className="mt-2 rounded-md border border-[rgba(138,98,0,0.18)] bg-[rgba(138,98,0,0.06)] px-2.5 py-2 text-[11px] font-medium leading-[1.35] text-(--text-secondary) dark:border-[rgba(240,168,66,0.20)] dark:bg-[rgba(240,168,66,0.08)] dark:text-(--text-secondary)">
           Reward balance available for store and powerups.
+        </div>
+      </StatCard>
+
+      <StatCard tone="rust" label="">
+        <div className="flex items-baseline gap-2">
+          <div className="font-ui text-[clamp(28px,4vw,36px)] font-extrabold leading-none tracking-[-2px] text-(--brand-500)">
+            {stats?.teacherLevel ?? 1}
+          </div>
+          <div className="font-mono text-[11px] tracking-[0.06em] text-(--brand-500)">
+            Teacher level
+          </div>
+        </div>
+        <div className="mt-2 flex items-center justify-between rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.06)] px-2.5 py-2">
+          <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-60">
+            Teaching XP
+          </span>
+          <span className="font-mono text-[10px] font-medium text-(--brand-500)">
+            {formatCompactNumber(stats?.teacherXp ?? 0)} XP
+          </span>
+        </div>
+      </StatCard>
+
+      <StatCard tone="green" label="">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="font-ui text-[clamp(26px,4vw,34px)] font-extrabold leading-none text-(--success)">
+              #{stats?.studentRank || '—'}
+            </div>
+            <div className="mt-2 font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary)">
+              Student rank
+            </div>
+          </div>
+          <div>
+            <div className="font-ui text-[clamp(26px,4vw,34px)] font-extrabold leading-none text-(--brand-500)">
+              #{stats?.teacherRank || '—'}
+            </div>
+            <div className="mt-2 font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary)">
+              Teacher rank
+            </div>
+          </div>
         </div>
       </StatCard>
 
