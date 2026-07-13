@@ -1,13 +1,11 @@
-import { User } from '../../../../../../infrastructure/database/models/user.model'
-import { RESTRICTED_USER_STATUSES } from '../../../domain/value-objects/restricted-user-status.vo'
-import { MongoModerationAppealNormalizer } from '../shared/mongo-moderation-appeal-normalizer'
-import type { MongoRestrictedUserRecord } from '../shared/mongo-moderation-appeal.types'
+import { User } from '../../../../../../infrastructure/database/models/user.model';
+import { RESTRICTED_USER_STATUSES } from '../../../domain/value-objects/restricted-user-status.vo';
+import { MongoModerationAppealNormalizer } from '../shared/mongo-moderation-appeal-normalizer';
+import type { MongoRestrictedUserRecord } from '../shared/mongo-moderation-appeal.types';
 
 export class MongoModerationAppealRestrictedUserReader {
-  async findByIdentifier(
-    identifier: string,
-  ): Promise<MongoRestrictedUserRecord | null> {
-    const normalized = MongoModerationAppealNormalizer.identifier(identifier)
+  async findByIdentifier(identifier: string): Promise<MongoRestrictedUserRecord | null> {
+    const normalized = MongoModerationAppealNormalizer.identifier(identifier);
 
     const contactQuery = normalized.isEmail
       ? {
@@ -15,7 +13,7 @@ export class MongoModerationAppealRestrictedUserReader {
         }
       : {
           phone: normalized.value,
-        }
+        };
 
     return User.findOne({
       ...contactQuery,
@@ -23,9 +21,9 @@ export class MongoModerationAppealRestrictedUserReader {
         $in: RESTRICTED_USER_STATUSES,
       },
       deletedAt: null,
-    }).lean<MongoRestrictedUserRecord>()
+    }).lean<MongoRestrictedUserRecord>();
   }
 }
 
 export const mongoModerationAppealRestrictedUserReader =
-  new MongoModerationAppealRestrictedUserReader()
+  new MongoModerationAppealRestrictedUserReader();

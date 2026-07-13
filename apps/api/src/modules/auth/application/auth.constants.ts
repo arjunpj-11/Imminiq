@@ -1,4 +1,4 @@
 export {
   PASSWORD_RESET_TOKEN_EXPIRES_SECONDS,
   TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
-} from '../domain/auth.constants'
+} from '../domain/auth.constants';

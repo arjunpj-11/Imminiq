@@ -1,13 +1,13 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import Button from '../ui/Button'
-import EmptyState from './EmptyState'
+import Button from '../ui/Button';
+import EmptyState from './EmptyState';
 
 interface IErrorStateProps {
-  title?: ReactNode
-  description?: ReactNode
-  onRetry?: () => void
-  action?: ReactNode
+  title?: ReactNode;
+  description?: ReactNode;
+  onRetry?: () => void;
+  action?: ReactNode;
 }
 
 export default function ErrorState({
@@ -20,10 +20,7 @@ export default function ErrorState({
     <EmptyState
       title={title}
       description={description}
-      action={
-        action ??
-        (onRetry ? <Button onClick={onRetry}>Try again</Button> : undefined)
-      }
+      action={action ?? (onRetry ? <Button onClick={onRetry}>Try again</Button> : undefined)}
     />
-  )
+  );
 }

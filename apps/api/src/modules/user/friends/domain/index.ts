@@ -1,21 +1,21 @@
-export * from "./friends.constants";
+export * from './friends.constants';
 
-export * from "./entities/friend.entity";
-export * from "./entities/friend-request.entity";
-export * from "./entities/friend-request-summary.entity";
-export * from "./entities/friend-user.entity";
+export * from './entities/friend.entity';
+export * from './entities/friend-request.entity';
+export * from './entities/friend-request-summary.entity';
+export * from './entities/friend-user.entity';
 
-export * from "./friends-domain.error";
+export * from './friends-domain.error';
 
-export type { IFriendCommandRepository } from "./repositories/friend-command.repository.interface";
-export type { IFriendQueryRepository } from "./repositories/friend-query.repository.interface";
-export type { IFriendRequestRepository } from "./repositories/friend-request.repository.interface";
-export type { IFriendsRepository } from "./repositories/friends.repository.interface";
+export type { IFriendCommandRepository } from './repositories/friend-command.repository.interface';
+export type { IFriendQueryRepository } from './repositories/friend-query.repository.interface';
+export type { IFriendRequestRepository } from './repositories/friend-request.repository.interface';
+export type { IFriendsRepository } from './repositories/friends.repository.interface';
 
-export * from "./friends.types";
+export * from './friends.types';
 
 export type {
   FriendRelationshipStatus,
   FriendRequestStatus,
   FriendshipStatus,
-} from "./friends.types";
+} from './friends.types';

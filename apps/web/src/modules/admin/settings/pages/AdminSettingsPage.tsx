@@ -1,7 +1,111 @@
-import { useState, type FormEvent } from 'react'
-import { AdminError, AdminLoading, AdminPageHeader, AdminPanel } from '../../../../components/admin/AdminPage'
-import { useAdminSettings, useUpdateAdminSettings } from '../hooks/useAdminSettings'
-import type { AdminSettings } from '../types/admin-settings.types'
-export default function AdminSettingsPage() { const { data, isLoading, isError } = useAdminSettings(); return <main className="mx-auto max-w-[900px] px-5 py-8 sm:px-8"><AdminPageHeader title="Console Settings" description="Global operational controls for the Imminiq administration environment." />{isLoading ? <AdminLoading /> : isError || !data ? <AdminError /> : <SettingsForm key={data.updatedAt} initial={data} />}</main> }
-function SettingsForm({ initial }: { initial: AdminSettings }) { const update = useUpdateAdminSettings(); const [form, setForm] = useState({ maintenanceMode: initial.maintenanceMode, allowBroadcasts: initial.allowBroadcasts, supportEmail: initial.supportEmail, auditRetentionDays: initial.auditRetentionDays }); const submit = (e: FormEvent) => { e.preventDefault(); update.mutate(form) }; return <AdminPanel title="Platform controls"><form onSubmit={submit} className="space-y-6 p-6"><Toggle label="Maintenance mode" description="Record whether the platform is in a planned maintenance window." checked={form.maintenanceMode} setChecked={(value) => setForm((x) => ({ ...x, maintenanceMode: value }))} /><Toggle label="Allow broadcasts" description="Permit admins to send new user notifications from Broadcast Centre." checked={form.allowBroadcasts} setChecked={(value) => setForm((x) => ({ ...x, allowBroadcasts: value }))} /><label className="admin-field"><span>Support email</span><input required type="email" value={form.supportEmail} onChange={(e) => setForm((x) => ({ ...x, supportEmail: e.target.value }))} /></label><label className="admin-field"><span>Audit retention (days)</span><input required type="number" min={30} max={3650} value={form.auditRetentionDays} onChange={(e) => setForm((x) => ({ ...x, auditRetentionDays: Number(e.target.value) }))} /></label>{update.isSuccess && <p className="text-sm text-[#52c58c]">Settings saved and added to the audit log.</p>}{update.isError && <p className="text-sm text-[#e26767]">Settings could not be saved.</p>}<button disabled={update.isPending} className="admin-primary-button">{update.isPending ? 'Saving…' : 'Save settings'}</button></form></AdminPanel> }
-function Toggle({ label, description, checked, setChecked }: { label: string; description: string; checked: boolean; setChecked: (value: boolean) => void }) { return <label className="flex cursor-pointer items-center justify-between gap-5 rounded-xl border border-white/10 bg-[#24211e] p-5"><span><span className="block font-semibold">{label}</span><span className="mt-1 block text-xs text-[#aaa59d]">{description}</span></span><input type="checkbox" checked={checked} onChange={(e) => setChecked(e.target.checked)} className="h-5 w-5 accent-[#e8816a]" /></label> }
+import { useState, type FormEvent } from 'react';
+import {
+  AdminError,
+  AdminLoading,
+  AdminPageHeader,
+  AdminPanel,
+} from '../../../../components/admin/AdminPage';
+import { useAdminSettings, useUpdateAdminSettings } from '../hooks/useAdminSettings';
+import type { AdminSettings } from '../types/admin-settings.types';
+export default function AdminSettingsPage() {
+  const { data, isLoading, isError } = useAdminSettings();
+  return (
+    <main className="mx-auto max-w-[900px] px-5 py-8 sm:px-8">
+      <AdminPageHeader
+        title="Console Settings"
+        description="Global operational controls for the Imminiq administration environment."
+      />
+      {isLoading ? (
+        <AdminLoading />
+      ) : isError || !data ? (
+        <AdminError />
+      ) : (
+        <SettingsForm key={data.updatedAt} initial={data} />
+      )}
+    </main>
+  );
+}
+function SettingsForm({ initial }: { initial: AdminSettings }) {
+  const update = useUpdateAdminSettings();
+  const [form, setForm] = useState({
+    maintenanceMode: initial.maintenanceMode,
+    allowBroadcasts: initial.allowBroadcasts,
+    supportEmail: initial.supportEmail,
+    auditRetentionDays: initial.auditRetentionDays,
+  });
+  const submit = (e: FormEvent) => {
+    e.preventDefault();
+    update.mutate(form);
+  };
+  return (
+    <AdminPanel title="Platform controls">
+      <form onSubmit={submit} className="space-y-6 p-6">
+        <Toggle
+          label="Maintenance mode"
+          description="Record whether the platform is in a planned maintenance window."
+          checked={form.maintenanceMode}
+          setChecked={(value) => setForm((x) => ({ ...x, maintenanceMode: value }))}
+        />
+        <Toggle
+          label="Allow broadcasts"
+          description="Permit admins to send new user notifications from Broadcast Centre."
+          checked={form.allowBroadcasts}
+          setChecked={(value) => setForm((x) => ({ ...x, allowBroadcasts: value }))}
+        />
+        <label className="admin-field">
+          <span>Support email</span>
+          <input
+            required
+            type="email"
+            value={form.supportEmail}
+            onChange={(e) => setForm((x) => ({ ...x, supportEmail: e.target.value }))}
+          />
+        </label>
+        <label className="admin-field">
+          <span>Audit retention (days)</span>
+          <input
+            required
+            type="number"
+            min={30}
+            max={3650}
+            value={form.auditRetentionDays}
+            onChange={(e) => setForm((x) => ({ ...x, auditRetentionDays: Number(e.target.value) }))}
+          />
+        </label>
+        {update.isSuccess && (
+          <p className="text-sm text-[#52c58c]">Settings saved and added to the audit log.</p>
+        )}
+        {update.isError && <p className="text-sm text-[#e26767]">Settings could not be saved.</p>}
+        <button disabled={update.isPending} className="admin-primary-button">
+          {update.isPending ? 'Saving…' : 'Save settings'}
+        </button>
+      </form>
+    </AdminPanel>
+  );
+}
+function Toggle({
+  label,
+  description,
+  checked,
+  setChecked,
+}: {
+  label: string;
+  description: string;
+  checked: boolean;
+  setChecked: (value: boolean) => void;
+}) {
+  return (
+    <label className="flex cursor-pointer items-center justify-between gap-5 rounded-xl border border-white/10 bg-[#24211e] p-5">
+      <span>
+        <span className="block font-semibold">{label}</span>
+        <span className="mt-1 block text-xs text-[#aaa59d]">{description}</span>
+      </span>
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => setChecked(e.target.checked)}
+        className="h-5 w-5 accent-[#e8816a]"
+      />
+    </label>
+  );
+}

@@ -1,36 +1,31 @@
-import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
-import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { ICreateMockTestPayloadDTO, IMockTestDTO } from '../mock-tests.dto'
-import { MAX_MANUAL_QUESTIONS } from '../../domain/mock-tests.constants'
-import { MockTestsApplicationError } from '../mock-tests-application.error'
-import type { IMockTestsMapper } from '../mock-tests.mapper'
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
+import type { ICreateMockTestPayloadDTO, IMockTestDTO } from '../mock-tests.dto';
+import { MAX_MANUAL_QUESTIONS } from '../../domain/mock-tests.constants';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
+import type { IMockTestsMapper } from '../mock-tests.mapper';
 
-type CreateMockTestRepository =
-  IMockTestRepository &
-  IMockTestQuestionRepository
+type CreateMockTestRepository = IMockTestRepository & IMockTestQuestionRepository;
 
 export interface ICreateMockTestUseCase {
-  execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO>
+  execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO>;
 }
 
 export class CreateMockTestUseCase implements ICreateMockTestUseCase {
   constructor(
     private readonly _repository: CreateMockTestRepository,
-    private readonly _mapper: IMockTestsMapper,
-  ) { }
+    private readonly _mapper: IMockTestsMapper
+  ) {}
 
-  async execute(
-    userId: string,
-    payload: ICreateMockTestPayloadDTO,
-  ): Promise<IMockTestDTO> {
+  async execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO> {
     if (!payload.questions?.length) {
-      throw MockTestsApplicationError.validation('At least one question is required')
+      throw MockTestsApplicationError.validation('At least one question is required');
     }
 
     if (payload.questions.length > MAX_MANUAL_QUESTIONS) {
       throw MockTestsApplicationError.validation(
-        `Maximum ${MAX_MANUAL_QUESTIONS} questions allowed`,
-      )
+        `Maximum ${MAX_MANUAL_QUESTIONS} questions allowed`
+      );
     }
 
     const test = await this._repository.createTest({
@@ -45,7 +40,7 @@ export class CreateMockTestUseCase implements ICreateMockTestUseCase {
       tags: payload.tags || [],
       trackerId: payload.trackerId,
       isAIGenerated: false,
-    })
+    });
 
     await this._repository.createQuestions(
       payload.questions.map((question, index) => ({
@@ -59,15 +54,11 @@ export class CreateMockTestUseCase implements ICreateMockTestUseCase {
         order: index + 1,
         points:
           question.points ||
-          (question.difficulty === 'hard'
-            ? 3
-            : question.difficulty === 'medium'
-              ? 2
-              : 1),
+          (question.difficulty === 'hard' ? 3 : question.difficulty === 'medium' ? 2 : 1),
         coding: question.coding,
-      })),
-    )
+      }))
+    );
 
-    return this._mapper.toMockTest(test)
+    return this._mapper.toMockTest(test);
   }
 }

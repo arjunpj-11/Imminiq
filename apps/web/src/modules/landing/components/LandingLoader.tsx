@@ -1,7 +1,7 @@
-import { useEffect, useRef, useState } from 'react'
-import { cn } from '../utils/landing-ui'
+import { useEffect, useRef, useState } from 'react';
+import { cn } from '../utils/landing-ui';
 
-const EXIT_MS = 800
+const EXIT_MS = 800;
 
 // ── Static CSS injected once into <head> — no per-render style recalculation ──
 const STATIC_CSS = `
@@ -62,113 +62,115 @@ const STATIC_CSS = `
 
   /* thinking dots */
   .im-think-dot { animation: im-think .9s ease-in-out infinite }
-`
+`;
 
 function injectCSS() {
-  if (typeof document === 'undefined') return
-  if (document.getElementById('imminiq-loader-css')) return
-  const el = document.createElement('style')
-  el.id = 'imminiq-loader-css'
-  el.textContent = STATIC_CSS
-  document.head.appendChild(el)
+  if (typeof document === 'undefined') return;
+  if (document.getElementById('imminiq-loader-css')) return;
+  const el = document.createElement('style');
+  el.id = 'imminiq-loader-css';
+  el.textContent = STATIC_CSS;
+  document.head.appendChild(el);
 }
 
 // ── theme ─────────────────────────────────────────────────────────────────────
 function useIsDark() {
   const [dark, setDark] = useState(() =>
-    typeof window !== 'undefined'
-      ? document.documentElement.classList.contains('dark')
-      : false
-  )
+    typeof window !== 'undefined' ? document.documentElement.classList.contains('dark') : false
+  );
   useEffect(() => {
     const obs = new MutationObserver(() =>
       setDark(document.documentElement.classList.contains('dark'))
-    )
-    obs.observe(document.documentElement, { attributeFilter: ['class'] })
-    return () => obs.disconnect()
-  }, [])
-  return dark
+    );
+    obs.observe(document.documentElement, { attributeFilter: ['class'] });
+    return () => obs.disconnect();
+  }, []);
+  return dark;
 }
 
-type LoaderPhase = 'idle' | 'frame' | 'drawing' | 'burst' | 'naming' | 'leaving' | 'done'
+type LoaderPhase = 'idle' | 'frame' | 'drawing' | 'burst' | 'naming' | 'leaving' | 'done';
 
 export default function LandingLoader({
   onDone,
   onGone,
 }: {
-  onDone?: () => void
-  onGone?: () => void
+  onDone?: () => void;
+  onGone?: () => void;
 }) {
-  const [phase, setPhase] = useState<LoaderPhase>('idle')
-  const onDoneRef = useRef(onDone)
-  const onGoneRef = useRef(onGone)
-  useEffect(() => { onDoneRef.current = onDone }, [onDone])
-  useEffect(() => { onGoneRef.current = onGone }, [onGone])
+  const [phase, setPhase] = useState<LoaderPhase>('idle');
+  const onDoneRef = useRef(onDone);
+  const onGoneRef = useRef(onGone);
+  useEffect(() => {
+    onDoneRef.current = onDone;
+  }, [onDone]);
+  useEffect(() => {
+    onGoneRef.current = onGone;
+  }, [onGone]);
 
-  const cssInjectedRef = useRef(false)
-  const phaseRef = useRef<LoaderPhase>('idle')
+  const cssInjectedRef = useRef(false);
+  const phaseRef = useRef<LoaderPhase>('idle');
 
   useEffect(() => {
     if (!cssInjectedRef.current) {
-      injectCSS()
-      cssInjectedRef.current = true
+      injectCSS();
+      cssInjectedRef.current = true;
     }
 
-    const timers: ReturnType<typeof setTimeout>[] = []
+    const timers: ReturnType<typeof setTimeout>[] = [];
     const t = (fn: () => void, ms: number) => {
-      timers.push(setTimeout(fn, ms))
-    }
+      timers.push(setTimeout(fn, ms));
+    };
     const setLoaderPhase = (nextPhase: LoaderPhase) => {
-      phaseRef.current = nextPhase
-      setPhase(nextPhase)
-    }
-    const cleanup = () => timers.forEach(clearTimeout)
+      phaseRef.current = nextPhase;
+      setPhase(nextPhase);
+    };
+    const cleanup = () => timers.forEach(clearTimeout);
 
-    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (reduced) {
       t(() => {
-        onDoneRef.current?.()
-        onGoneRef.current?.()
-        setLoaderPhase('done')
-      }, 0)
-      return cleanup
+        onDoneRef.current?.();
+        onGoneRef.current?.();
+        setLoaderPhase('done');
+      }, 0);
+      return cleanup;
     }
 
-    t(() => setLoaderPhase('frame'), 600)
-    t(() => setLoaderPhase('drawing'), 1000)
-    t(() => setLoaderPhase('burst'), 3800)
-    t(() => setLoaderPhase('naming'), 3900)
+    t(() => setLoaderPhase('frame'), 600);
+    t(() => setLoaderPhase('drawing'), 1000);
+    t(() => setLoaderPhase('burst'), 3800);
+    t(() => setLoaderPhase('naming'), 3900);
     t(() => {
-      onDoneRef.current?.()
-    }, 7500)
-    t(() => setLoaderPhase('leaving'), 7700)
+      onDoneRef.current?.();
+    }, 7500);
+    t(() => setLoaderPhase('leaving'), 7700);
     t(() => {
-      onGoneRef.current?.()
-      setLoaderPhase('done')
-    }, 7700 + EXIT_MS)
+      onGoneRef.current?.();
+      setLoaderPhase('done');
+    }, 7700 + EXIT_MS);
 
     // Safety net: hidden tabs may throttle timers, so finish on return.
     const onVisible = () => {
       if (document.visibilityState === 'visible' && phaseRef.current === 'naming') {
-        onDoneRef.current?.()
-        onGoneRef.current?.()
-        setLoaderPhase('done')
+        onDoneRef.current?.();
+        onGoneRef.current?.();
+        setLoaderPhase('done');
       }
-    }
-    document.addEventListener('visibilitychange', onVisible)
+    };
+    document.addEventListener('visibilitychange', onVisible);
 
     return () => {
-      cleanup()
-      document.removeEventListener('visibilitychange', onVisible)
-    }
-  }, [])
+      cleanup();
+      document.removeEventListener('visibilitychange', onVisible);
+    };
+  }, []);
 
-  const isDark = useIsDark()
+  const isDark = useIsDark();
 
-  if (phase === 'done') return null
+  if (phase === 'done') return null;
 
-  const isLeaving = phase === 'leaving'
-  const rust = isDark ? '#e8816a' : '#b84c2b'
+  const isLeaving = phase === 'leaving';
+  const rust = isDark ? '#e8816a' : '#b84c2b';
 
   return (
     <div
@@ -199,111 +201,137 @@ export default function LandingLoader({
         <WordMark phase={phase} isDark={isDark} />
       </div>
     </div>
-  )
+  );
 }
 
 // ── draw steps ────────────────────────────────────────────────────────────────
-type DrawAction = 'ibar' | 'dot' | 'arc' | 'slash' | 'move'
-interface IDrawStep { x: number; y: number; action: DrawAction; delay: number }
+type DrawAction = 'ibar' | 'dot' | 'arc' | 'slash' | 'move';
+interface IDrawStep {
+  x: number;
+  y: number;
+  action: DrawAction;
+  delay: number;
+}
 
 const DRAW_STEPS: IDrawStep[] = [
-  { x: 28,   y: 60,   action: 'move',  delay: 0   },
-  { x: 28,   y: 69,   action: 'ibar',  delay: 320 },
-  { x: 28,   y: 26,   action: 'move',  delay: 260 },
-  { x: 28,   y: 26,   action: 'dot',   delay: 180 },
-  { x: 63,   y: 33.8, action: 'move',  delay: 300 },
-  { x: 44.1, y: 61.8, action: 'arc',   delay: 700 },
-  { x: 62.8, y: 56.5, action: 'move',  delay: 260 },
+  { x: 28, y: 60, action: 'move', delay: 0 },
+  { x: 28, y: 69, action: 'ibar', delay: 320 },
+  { x: 28, y: 26, action: 'move', delay: 260 },
+  { x: 28, y: 26, action: 'dot', delay: 180 },
+  { x: 63, y: 33.8, action: 'move', delay: 300 },
+  { x: 44.1, y: 61.8, action: 'arc', delay: 700 },
+  { x: 62.8, y: 56.5, action: 'move', delay: 260 },
   { x: 74.8, y: 68.5, action: 'slash', delay: 340 },
-]
+];
 
 function LogoScene({ phase, isDark }: { phase: LoaderPhase; isDark: boolean }) {
-  const SIZE    = 96
-  const rust    = isDark ? '#e8816a' : '#b84c2b'
-  const stroke  = '#fff8ed'
+  const SIZE = 96;
+  const rust = isDark ? '#e8816a' : '#b84c2b';
+  const stroke = '#fff8ed';
 
-  const [stepIndex, setStepIndex] = useState(-1)
-  const [cursorX, setCursorX]     = useState(50)
-  const [cursorY, setCursorY]     = useState(50)
-  const [thinking, setThinking]   = useState(false)
-  const [clicking, setClicking]   = useState(false)
-  const [cursorVisible, setCursorVisible] = useState(false)
-  const [cursorFading, setCursorFading]   = useState(false)
-  const [settled, setSettled]             = useState(false)
+  const [stepIndex, setStepIndex] = useState(-1);
+  const [cursorX, setCursorX] = useState(50);
+  const [cursorY, setCursorY] = useState(50);
+  const [thinking, setThinking] = useState(false);
+  const [clicking, setClicking] = useState(false);
+  const [cursorVisible, setCursorVisible] = useState(false);
+  const [cursorFading, setCursorFading] = useState(false);
+  const [settled, setSettled] = useState(false);
 
   useEffect(() => {
-    if (phase !== 'frame') return
+    if (phase !== 'frame') return;
     const id = setTimeout(() => {
-      setThinking(true)
-      setCursorX(50); setCursorY(50)
-      setCursorVisible(true)
-    }, 0)
-    return () => clearTimeout(id)
-  }, [phase])
+      setThinking(true);
+      setCursorX(50);
+      setCursorY(50);
+      setCursorVisible(true);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [phase]);
 
   // fade cursor out when drawing is done (burst phase)
   useEffect(() => {
-    if (phase !== 'burst') return
-    const timers: ReturnType<typeof setTimeout>[] = []
-    timers.push(setTimeout(() => setCursorFading(true), 0))
-    timers.push(setTimeout(() => setCursorVisible(false), 220))
-    return () => timers.forEach(clearTimeout)
-  }, [phase])
+    if (phase !== 'burst') return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    timers.push(setTimeout(() => setCursorFading(true), 0));
+    timers.push(setTimeout(() => setCursorVisible(false), 220));
+    return () => timers.forEach(clearTimeout);
+  }, [phase]);
 
   useEffect(() => {
-    if (phase !== 'drawing') return
-    const timers: ReturnType<typeof setTimeout>[] = []
-    timers.push(setTimeout(() => setThinking(false), 0))
+    if (phase !== 'drawing') return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    timers.push(setTimeout(() => setThinking(false), 0));
 
-    let cancelled = false
-    let accumulated = 0
+    let cancelled = false;
+    let accumulated = 0;
     DRAW_STEPS.forEach((step, i) => {
-      accumulated += step.delay
-      timers.push(setTimeout(() => {
-        if (cancelled) return
-        setCursorX(step.x); setCursorY(step.y)
-        if (step.action === 'dot') {
-          setClicking(true)
-          timers.push(setTimeout(() => setClicking(false), 200))
-        }
-        setStepIndex(i)
-      }, accumulated))
-    })
-    timers.push(setTimeout(() => { if (!cancelled) setSettled(true) }, accumulated + 120))
+      accumulated += step.delay;
+      timers.push(
+        setTimeout(() => {
+          if (cancelled) return;
+          setCursorX(step.x);
+          setCursorY(step.y);
+          if (step.action === 'dot') {
+            setClicking(true);
+            timers.push(setTimeout(() => setClicking(false), 200));
+          }
+          setStepIndex(i);
+        }, accumulated)
+      );
+    });
+    timers.push(
+      setTimeout(() => {
+        if (!cancelled) setSettled(true);
+      }, accumulated + 120)
+    );
 
-    return () => { cancelled = true; timers.forEach(clearTimeout) }
-  }, [phase])
+    return () => {
+      cancelled = true;
+      timers.forEach(clearTimeout);
+    };
+  }, [phase]);
 
-  const showIbar    = stepIndex >= 1
-  const showDot     = stepIndex >= 3
-  const showArc     = stepIndex >= 5
-  const showSlash   = stepIndex >= 7
-  const frameActive = phase !== 'idle'
+  const showIbar = stepIndex >= 1;
+  const showDot = stepIndex >= 3;
+  const showArc = stepIndex >= 5;
+  const showSlash = stepIndex >= 7;
+  const frameActive = phase !== 'idle';
 
   // light mode: subtle border + inner shadow so the card reads without a muddy glow
   const cardShadow = isDark
     ? undefined
-    : '0 0 0 1px rgba(26,23,20,0.10), 0 4px 24px rgba(26,23,20,0.10)'
+    : '0 0 0 1px rgba(26,23,20,0.10), 0 4px 24px rgba(26,23,20,0.10)';
 
   return (
     <div style={{ width: SIZE, height: SIZE, position: 'relative' }}>
       {/* glow halo */}
-      <div style={{
-        position: 'absolute', inset: -12, borderRadius: 22,
-        background: rust, filter: 'blur(22px)',
-        opacity: settled ? (isDark ? 0.35 : 0.15) : 0,
-        transition: 'opacity 1.2s ease',
-        pointerEvents: 'none', zIndex: 0,
-      }} />
+      <div
+        style={{
+          position: 'absolute',
+          inset: -12,
+          borderRadius: 22,
+          background: rust,
+          filter: 'blur(22px)',
+          opacity: settled ? (isDark ? 0.35 : 0.15) : 0,
+          transition: 'opacity 1.2s ease',
+          pointerEvents: 'none',
+          zIndex: 0,
+        }}
+      />
 
       {/* light-mode card border/shadow layer — sits between glow and svg */}
       {!isDark && (
-        <div style={{
-          position: 'absolute', inset: 0,
-          borderRadius: 18,
-          boxShadow: cardShadow,
-          pointerEvents: 'none', zIndex: 2,
-        }} />
+        <div
+          style={{
+            position: 'absolute',
+            inset: 0,
+            borderRadius: 18,
+            boxShadow: cardShadow,
+            pointerEvents: 'none',
+            zIndex: 2,
+          }}
+        />
       )}
 
       <svg
@@ -318,55 +346,96 @@ function LogoScene({ phase, isDark }: { phase: LoaderPhase; isDark: boolean }) {
         {/* no <style> block here — all rules live in the static <head> injection */}
         <rect
           className={cn('im-frame', frameActive && 'im-active')}
-          x="10" y="10" width="80" height="80" rx="18" fill="#1e1c19"
+          x="10"
+          y="10"
+          width="80"
+          height="80"
+          rx="18"
+          fill="#1e1c19"
         />
         <rect
           className={cn('im-ring', frameActive && 'im-active')}
-          x="10" y="10" width="80" height="80" rx="18"
+          x="10"
+          y="10"
+          width="80"
+          height="80"
+          rx="18"
         />
         <line
           className={cn('im-ibar-s', showIbar && 'im-draw')}
-          x1="28" y1="38" x2="28" y2="69"
-          stroke={stroke} strokeWidth="9" strokeLinecap="round"
+          x1="28"
+          y1="38"
+          x2="28"
+          y2="69"
+          stroke={stroke}
+          strokeWidth="9"
+          strokeLinecap="round"
         />
         <circle
           className={cn('im-dot', showDot && 'im-draw')}
-          cx="28" cy="26" r="5.3" fill={rust}
+          cx="28"
+          cy="26"
+          r="5.3"
+          fill={rust}
         />
         <path
           className={cn('im-arc', showArc && 'im-draw')}
           d="M63 33.8 C72.8 35.7 78.5 43.2 78.5 52.5 C78.5 62.8 70.2 69 59.2 69 C52.2 69 47.2 66.5 44.1 61.8"
-          fill="none" stroke={stroke} strokeWidth="9" strokeLinecap="round"
+          fill="none"
+          stroke={stroke}
+          strokeWidth="9"
+          strokeLinecap="round"
         />
         <line
           className={cn('im-slash', showSlash && 'im-draw')}
-          x1="62.8" y1="56.5" x2="74.8" y2="68.5"
-          stroke={rust} strokeWidth="9" strokeLinecap="round"
+          x1="62.8"
+          y1="56.5"
+          x2="74.8"
+          y2="68.5"
+          stroke={rust}
+          strokeWidth="9"
+          strokeLinecap="round"
         />
       </svg>
 
       {cursorVisible && (
-        <div style={{
-          position: 'absolute',
-          left: `${cursorX}%`, top: `${cursorY}%`,
-          transform: 'translate(-2px, -2px)',
-          transition: 'left .32s cubic-bezier(.4,0,.2,1), top .32s cubic-bezier(.4,0,.2,1), opacity 200ms ease',
-          opacity: cursorFading ? 0 : 1,
-          zIndex: 10, pointerEvents: 'none',
-        }}>
+        <div
+          style={{
+            position: 'absolute',
+            left: `${cursorX}%`,
+            top: `${cursorY}%`,
+            transform: 'translate(-2px, -2px)',
+            transition:
+              'left .32s cubic-bezier(.4,0,.2,1), top .32s cubic-bezier(.4,0,.2,1), opacity 200ms ease',
+            opacity: cursorFading ? 0 : 1,
+            zIndex: 10,
+            pointerEvents: 'none',
+          }}
+        >
           <CursorSVG thinking={thinking} clicking={clicking} isDark={isDark} />
         </div>
       )}
     </div>
-  )
+  );
 }
 
-function CursorSVG({ thinking, clicking, isDark }: { thinking: boolean; clicking: boolean; isDark: boolean }) {
-  const rust = isDark ? '#e8816a' : '#b84c2b'
+function CursorSVG({
+  thinking,
+  clicking,
+  isDark,
+}: {
+  thinking: boolean;
+  clicking: boolean;
+  isDark: boolean;
+}) {
+  const rust = isDark ? '#e8816a' : '#b84c2b';
   return (
     <div style={{ position: 'relative' }}>
       <svg
-        width="20" height="24" viewBox="0 0 20 24" fill="none"
+        width="20"
+        height="24"
+        viewBox="0 0 20 24"
+        fill="none"
         xmlns="http://www.w3.org/2000/svg"
         style={{
           filter: 'drop-shadow(0 2px 6px rgba(0,0,0,.8))',
@@ -376,17 +445,32 @@ function CursorSVG({ thinking, clicking, isDark }: { thinking: boolean; clicking
       >
         <path
           d="M2 2L2 18L6.5 13.5L9.5 20L12 19L9 12.5L15 12.5L2 2Z"
-          fill="white" stroke="#222" strokeWidth="1.2" strokeLinejoin="round"
+          fill="white"
+          stroke="#222"
+          strokeWidth="1.2"
+          strokeLinejoin="round"
         />
       </svg>
       {thinking && (
-        <div style={{ position: 'absolute', top: -20, left: 18, display: 'flex', gap: 3, alignItems: 'center' }}>
-          {[0, 1, 2].map(i => (
+        <div
+          style={{
+            position: 'absolute',
+            top: -20,
+            left: 18,
+            display: 'flex',
+            gap: 3,
+            alignItems: 'center',
+          }}
+        >
+          {[0, 1, 2].map((i) => (
             <div
               key={i}
               className="im-think-dot"
               style={{
-                width: 4, height: 4, borderRadius: '50%', background: rust,
+                width: 4,
+                height: 4,
+                borderRadius: '50%',
+                background: rust,
                 animationDelay: `${i * 0.18}s`,
               }}
             />
@@ -394,143 +478,168 @@ function CursorSVG({ thinking, clicking, isDark }: { thinking: boolean; clicking
         </div>
       )}
     </div>
-  )
+  );
 }
 
 // ── WordMark ──────────────────────────────────────────────────────────────────
-const CHAR_MS = 70
+const CHAR_MS = 70;
 
 type WordState =
-  | 'idle' | 'typing-wrong' | 'flicker'
-  | 'flip-first' | 'flip-second' | 'typing-iq' | 'done'
+  'idle' | 'typing-wrong' | 'flicker' | 'flip-first' | 'flip-second' | 'typing-iq' | 'done';
 
 function WordMark({ phase, isDark }: { phase: LoaderPhase; isDark: boolean }) {
-  const rust     = isDark ? '#e8816a' : '#b84c2b'
-  const textMain = isDark ? '#f2f0eb' : '#1a1714'
+  const rust = isDark ? '#e8816a' : '#b84c2b';
+  const textMain = isDark ? '#f2f0eb' : '#1a1714';
 
-  const [wordState, setWordState] = useState<WordState>('idle')
-  const [displayed, setDisplayed] = useState('')
-  const [flicker, setFlicker]     = useState(false)
-  const [entered, setEntered]     = useState(false)
+  const [wordState, setWordState] = useState<WordState>('idle');
+  const [displayed, setDisplayed] = useState('');
+  const [flicker, setFlicker] = useState(false);
+  const [entered, setEntered] = useState(false);
 
-  const rotateTarget = wordState === 'flip-first' ? 90 : 0
-  const active = phase === 'naming' || phase === 'leaving'
+  const rotateTarget = wordState === 'flip-first' ? 90 : 0;
+  const active = phase === 'naming' || phase === 'leaving';
 
   useEffect(() => {
-    if (!active) return
-    const timers: ReturnType<typeof setTimeout>[] = []
-    const t = (fn: () => void, ms: number) => timers.push(setTimeout(fn, ms))
-    let acc = 0
+    if (!active) return;
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    const t = (fn: () => void, ms: number) => timers.push(setTimeout(fn, ms));
+    let acc = 0;
 
-    t(() => setEntered(true), 0)
-    t(() => setWordState('typing-wrong'), 10)
+    t(() => setEntered(true), 0);
+    t(() => setWordState('typing-wrong'), 10);
 
     'nimmi'.split('').forEach((_, i) => {
-      acc += CHAR_MS
-      t(() => setDisplayed('nimmi'.slice(0, i + 1)), acc)
-    })
+      acc += CHAR_MS;
+      t(() => setDisplayed('nimmi'.slice(0, i + 1)), acc);
+    });
 
-    acc += 400
-    t(() => { setWordState('flicker'); setFlicker(true) }, acc)
-    ;[60, 120, 180, 240, 300, 360].forEach((offset, i) => {
-      t(() => setFlicker(i % 2 === 0 ? false : true), acc + offset)
-    })
-    t(() => setFlicker(false), acc + 420)
+    acc += 400;
+    t(() => {
+      setWordState('flicker');
+      setFlicker(true);
+    }, acc);
+    [60, 120, 180, 240, 300, 360].forEach((offset, i) => {
+      t(() => setFlicker(i % 2 === 0 ? false : true), acc + offset);
+    });
+    t(() => setFlicker(false), acc + 420);
 
-    acc += 480
-    t(() => setWordState('flip-first'), acc)
+    acc += 480;
+    t(() => setWordState('flip-first'), acc);
 
-    acc += 220
-    t(() => setDisplayed('immin'), acc)
-    t(() => setWordState('flip-second'), acc + 10)
+    acc += 220;
+    t(() => setDisplayed('immin'), acc);
+    t(() => setWordState('flip-second'), acc + 10);
 
-    acc += 280
-    t(() => setWordState('typing-iq'), acc)
+    acc += 280;
+    t(() => setWordState('typing-iq'), acc);
     'iq'.split('').forEach((_, i) => {
-      acc += CHAR_MS
-      t(() => setDisplayed('immin' + 'iq'.slice(0, i + 1)), acc)
-    })
+      acc += CHAR_MS;
+      t(() => setDisplayed('immin' + 'iq'.slice(0, i + 1)), acc);
+    });
 
-    acc += 180
-    t(() => setWordState('done'), acc)
+    acc += 180;
+    t(() => setWordState('done'), acc);
 
-    return () => timers.forEach(clearTimeout)
-  }, [active])
+    return () => timers.forEach(clearTimeout);
+  }, [active]);
 
-  const isFinal = wordState === 'done'
-  const isWrong = wordState === 'flicker'
-  const showIq  = wordState === 'typing-iq' || isFinal
+  const isFinal = wordState === 'done';
+  const isWrong = wordState === 'flicker';
+  const showIq = wordState === 'typing-iq' || isFinal;
 
   return (
     <>
       {flicker && (
-        <div style={{
-          position: 'fixed', inset: 0,
-          background: 'rgba(220,38,38,0.08)',
-          zIndex: 99999, pointerEvents: 'none',
-          border: '2px solid rgba(220,38,38,0.45)',
-        }}>
-          <div style={{
-            position: 'absolute', top: '50%', left: '50%',
-            transform: 'translate(-50%, -50%)',
-            background: isDark ? '#1a0000' : '#fff0f0',
-            border: '1px solid #dc2626',
-            borderRadius: 8, padding: '12px 28px',
-            color: '#dc2626', fontFamily: 'monospace',
-            fontSize: 13, letterSpacing: '0.05em', whiteSpace: 'nowrap',
-          }}>
+        <div
+          style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(220,38,38,0.08)',
+            zIndex: 99999,
+            pointerEvents: 'none',
+            border: '2px solid rgba(220,38,38,0.45)',
+          }}
+        >
+          <div
+            style={{
+              position: 'absolute',
+              top: '50%',
+              left: '50%',
+              transform: 'translate(-50%, -50%)',
+              background: isDark ? '#1a0000' : '#fff0f0',
+              border: '1px solid #dc2626',
+              borderRadius: 8,
+              padding: '12px 28px',
+              color: '#dc2626',
+              fontFamily: 'monospace',
+              fontSize: 13,
+              letterSpacing: '0.05em',
+              whiteSpace: 'nowrap',
+            }}
+          >
             ✕ &nbsp; TypeError: invalid sequence "nimmi"
           </div>
         </div>
       )}
 
-      <div style={{
-        fontFamily: "'Playfair Display', serif",
-        fontSize: 'clamp(20px, 3vw, 32px)',
-        fontWeight: 700,
-        letterSpacing: '0.02em',
-        fontSynthesis: 'none',
-        textRendering: 'optimizeLegibility',
-        WebkitFontSmoothing: 'antialiased',
-        MozOsxFontSmoothing: 'grayscale',   // ← tightened from 0.06em — more considered
-        display: 'flex',
-        alignItems: 'baseline',
-        gap: 0,
-        minWidth: '7ch',
-        opacity: entered ? 1 : 0,
-        transform: entered ? 'translateY(0)' : 'translateY(8px)',
-        transition: 'opacity 0.45s ease, transform 0.45s cubic-bezier(.22,1,.36,1)',
-        perspective: '600px',
-      }}>
-        <span style={{
-          display: 'inline-block',
-          color: isWrong ? '#ef4444' : textMain,
-          transform: `rotateY(${rotateTarget}deg)`,
-          transition: 'transform 220ms cubic-bezier(.4,0,.2,1)',
-          transformOrigin: 'center center',
-        }}>
+      <div
+        style={{
+          fontFamily: "'Playfair Display', serif",
+          fontSize: 'clamp(20px, 3vw, 32px)',
+          fontWeight: 700,
+          letterSpacing: '0.02em',
+          fontSynthesis: 'none',
+          textRendering: 'optimizeLegibility',
+          WebkitFontSmoothing: 'antialiased',
+          MozOsxFontSmoothing: 'grayscale', // ← tightened from 0.06em — more considered
+          display: 'flex',
+          alignItems: 'baseline',
+          gap: 0,
+          minWidth: '7ch',
+          opacity: entered ? 1 : 0,
+          transform: entered ? 'translateY(0)' : 'translateY(8px)',
+          transition: 'opacity 0.45s ease, transform 0.45s cubic-bezier(.22,1,.36,1)',
+          perspective: '600px',
+        }}
+      >
+        <span
+          style={{
+            display: 'inline-block',
+            color: isWrong ? '#ef4444' : textMain,
+            transform: `rotateY(${rotateTarget}deg)`,
+            transition: 'transform 220ms cubic-bezier(.4,0,.2,1)',
+            transformOrigin: 'center center',
+          }}
+        >
           {displayed.slice(0, 5)}
         </span>
 
         {showIq && (
-          <span style={{
-            color: rust,
-            display: 'inline-block',
-            animation: 'im-iq-in .25s cubic-bezier(.22,1,.36,1) forwards',
-          }}>
+          <span
+            style={{
+              color: rust,
+              display: 'inline-block',
+              animation: 'im-iq-in .25s cubic-bezier(.22,1,.36,1) forwards',
+            }}
+          >
             {displayed.slice(5)}
           </span>
         )}
 
         {!isFinal && active && (
-          <span style={{
-            display: 'inline-block', width: 2, height: '0.8em',
-            background: isWrong ? '#ef4444' : textMain,
-            marginLeft: 2, borderRadius: 2,
-            animation: 'im-blink .85s step-end infinite',
-          }} />
+          <span
+            style={{
+              display: 'inline-block',
+              width: 2,
+              height: '0.8em',
+              background: isWrong ? '#ef4444' : textMain,
+              marginLeft: 2,
+              borderRadius: 2,
+              animation: 'im-blink .85s step-end infinite',
+            }}
+          />
         )}
       </div>
     </>
-  )
+  );
 }

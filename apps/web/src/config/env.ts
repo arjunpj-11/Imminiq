@@ -1,3 +1,3 @@
-import { parseWebEnvironment } from './env.parser'
+import { parseWebEnvironment } from './env.parser';
 
-export const webEnvironment = parseWebEnvironment(import.meta.env)
+export const webEnvironment = parseWebEnvironment(import.meta.env);

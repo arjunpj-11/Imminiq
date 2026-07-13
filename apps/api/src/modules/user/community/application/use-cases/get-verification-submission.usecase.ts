@@ -1,31 +1,28 @@
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
-import type { ICommunityVerificationSubmissionViewDTO } from '../community.dto'
-import { CommunityApplicationError } from '../community-application.error'
-import type { ICommunityMapper } from '../community.mapper'
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityVerificationSubmissionViewDTO } from '../community.dto';
+import { CommunityApplicationError } from '../community-application.error';
+import type { ICommunityMapper } from '../community.mapper';
 
 export interface IGetVerificationSubmissionUseCase {
-  execute(submissionId: string, userId: string): Promise<ICommunityVerificationSubmissionViewDTO>
+  execute(submissionId: string, userId: string): Promise<ICommunityVerificationSubmissionViewDTO>;
 }
 
 export class GetVerificationSubmissionUseCase implements IGetVerificationSubmissionUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
-    private readonly _mapper: ICommunityMapper,
+    private readonly _mapper: ICommunityMapper
   ) {}
 
   async execute(
     submissionId: string,
-    userId: string,
+    userId: string
   ): Promise<ICommunityVerificationSubmissionViewDTO> {
-    const submission = await this._repository.findVerificationSubmissionById(
-      submissionId,
-      userId,
-    )
+    const submission = await this._repository.findVerificationSubmissionById(submissionId, userId);
 
     if (!submission) {
-      throw CommunityApplicationError.notFound('Verification submission not found')
+      throw CommunityApplicationError.notFound('Verification submission not found');
     }
 
-    return this._mapper.toVerificationSubmissionView(submission)
+    return this._mapper.toVerificationSubmissionView(submission);
   }
 }

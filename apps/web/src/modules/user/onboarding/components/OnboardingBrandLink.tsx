@@ -1,13 +1,13 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
-import { cn } from '../../../../lib/cn'
-import { OnboardingLogoIcon } from './OnboardingLogoIcon'
+import { cn } from '../../../../lib/cn';
+import { OnboardingLogoIcon } from './OnboardingLogoIcon';
 
 interface IOnboardingBrandLinkProps {
-  className?: string
-  logoClassName?: string
-  wordmarkClassName?: string
-  hideWordmarkOnMobile?: boolean
+  className?: string;
+  logoClassName?: string;
+  wordmarkClassName?: string;
+  hideWordmarkOnMobile?: boolean;
 }
 
 export default function OnboardingBrandLink({
@@ -22,16 +22,13 @@ export default function OnboardingBrandLink({
       aria-label="Go to home page"
       className={cn('inline-flex items-center gap-2.5 leading-none', className)}
     >
-      <OnboardingLogoIcon
-        className={cn('h-8 w-8 rounded-lg', logoClassName)}
-        decorative
-      />
+      <OnboardingLogoIcon className={cn('h-8 w-8 rounded-lg', logoClassName)} decorative />
 
       <span
         className={cn(
           'text-[19px] font-bold leading-none tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)',
           hideWordmarkOnMobile && 'hidden sm:inline',
-          wordmarkClassName,
+          wordmarkClassName
         )}
       >
         immin
@@ -39,5 +36,5 @@ export default function OnboardingBrandLink({
         <span className="text-(--brand-500) dark:text-(--brand-500)">.</span>
       </span>
     </Link>
-  )
+  );
 }

@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
-import PageContainer from '../../../../components/layout/PageContainer'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import PageContainer from '../../../../components/layout/PageContainer';
 
 interface ITrackerShellProps {
-  children: ReactNode
-  className?: string
+  children: ReactNode;
+  className?: string;
 }
 
 export default function TrackerShell({ children, className }: ITrackerShellProps) {
@@ -13,5 +13,5 @@ export default function TrackerShell({ children, className }: ITrackerShellProps
     <AppShellBoundary>
       <PageContainer className={className}>{children}</PageContainer>
     </AppShellBoundary>
-  )
+  );
 }

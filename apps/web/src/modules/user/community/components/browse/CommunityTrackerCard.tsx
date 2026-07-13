@@ -1,19 +1,13 @@
-import type { ICommunityTracker } from '../../types/community.types'
-import { cn } from '../../utils/community-ui'
-import { formatCompactNumber } from '../../utils/community-formatters'
-import {
-  CheckIcon,
-  CopyIcon,
-  DotsIcon,
-  StarIcon,
-  VerifiedIcon,
-} from '../icons/CommunityIcons'
+import type { ICommunityTracker } from '../../types/community.types';
+import { cn } from '../../utils/community-ui';
+import { formatCompactNumber } from '../../utils/community-formatters';
+import { CheckIcon, CopyIcon, DotsIcon, StarIcon, VerifiedIcon } from '../icons/CommunityIcons';
 
 interface ICommunityTrackerCardProps {
-  tracker: ICommunityTracker
-  cloning?: boolean
-  onClone: (trackerId: string) => void
-  onOpen: (trackerId: string) => void
+  tracker: ICommunityTracker;
+  cloning?: boolean;
+  onClone: (trackerId: string) => void;
+  onOpen: (trackerId: string) => void;
 }
 
 export default function CommunityTrackerCard({
@@ -23,8 +17,8 @@ export default function CommunityTrackerCard({
   onOpen,
 }: ICommunityTrackerCardProps) {
   const handleOpen = () => {
-    onOpen(tracker._id)
-  }
+    onOpen(tracker._id);
+  };
 
   return (
     <article
@@ -33,7 +27,7 @@ export default function CommunityTrackerCard({
       onClick={handleOpen}
       onKeyDown={(event) => {
         if (event.key === 'Enter') {
-          handleOpen()
+          handleOpen();
         }
       }}
       className={cn(
@@ -42,7 +36,7 @@ export default function CommunityTrackerCard({
         'hover:-translate-y-0.5 hover:shadow-[0_8px_32px_rgba(26,23,20,0.10)] focus:outline-none focus:ring-3 focus:ring-[rgba(184,76,43,0.16)] dark:hover:shadow-[0_8px_32px_rgba(0,0,0,0.3)] dark:focus:ring-[rgba(232,129,106,0.18)]',
         tracker.verified
           ? 'border-l-[3px] border-l-[rgba(45,106,71,0.5)] dark:border-l-[rgba(92,201,138,0.35)]'
-          : 'border-l-[3px] border-l-[rgba(184,76,43,0.25)] dark:border-l-[rgba(232,129,106,0.18)]',
+          : 'border-l-[3px] border-l-[rgba(184,76,43,0.25)] dark:border-l-[rgba(232,129,106,0.18)]'
       )}
     >
       <div className="flex flex-1 flex-col p-5">
@@ -122,8 +116,8 @@ export default function CommunityTrackerCard({
               type="button"
               disabled={cloning}
               onClick={(event) => {
-                event.stopPropagation()
-                onClone(tracker._id)
+                event.stopPropagation();
+                onClone(tracker._id);
               }}
               className="inline-flex items-center gap-1.5 rounded-lg border-[1.5px] border-[rgba(184,76,43,0.22)] bg-transparent px-3.5 py-1.5 text-[12px] font-bold text-(--brand-500) transition hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.07)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)"
             >
@@ -133,5 +127,5 @@ export default function CommunityTrackerCard({
         </div>
       </div>
     </article>
-  )
+  );
 }

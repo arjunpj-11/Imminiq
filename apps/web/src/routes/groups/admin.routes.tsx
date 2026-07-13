@@ -1,17 +1,17 @@
-import type { RouteObject } from 'react-router-dom'
-import AdminLayout from '../../components/admin/AdminLayout'
-import AdminComingSoonPage from '../../components/admin/AdminComingSoonPage'
-import { AdminDashboardPage } from '../../modules/admin/dashboard'
-import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users'
-import { AdminTrackerDetailPage, AdminTrackersPage } from '../../modules/admin/trackers'
-import { AdminMockTestDetailPage, AdminMockTestsPage } from '../../modules/admin/mock-tests'
-import { AdminTrackerReviewsPage } from '../../modules/admin/tracker-reviews'
-import { AdminAnalyticsPage } from '../../modules/admin/analytics'
-import { AdminBroadcastPage } from '../../modules/admin/broadcast'
-import { AdminAuditLogsPage } from '../../modules/admin/audit-logs'
-import { AdminSystemHealthPage } from '../../modules/admin/system-health'
-import { AdminSupportTicketsPage } from '../../modules/admin/support-tickets'
-import { AdminSettingsPage } from '../../modules/admin/settings'
+import type { RouteObject } from 'react-router-dom';
+import AdminLayout from '../../components/admin/AdminLayout';
+import AdminComingSoonPage from '../../components/admin/AdminComingSoonPage';
+import { AdminDashboardPage } from '../../modules/admin/dashboard';
+import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
+import { AdminTrackerDetailPage, AdminTrackersPage } from '../../modules/admin/trackers';
+import { AdminMockTestDetailPage, AdminMockTestsPage } from '../../modules/admin/mock-tests';
+import { AdminTrackerReviewsPage } from '../../modules/admin/tracker-reviews';
+import { AdminAnalyticsPage } from '../../modules/admin/analytics';
+import { AdminBroadcastPage } from '../../modules/admin/broadcast';
+import { AdminAuditLogsPage } from '../../modules/admin/audit-logs';
+import { AdminSystemHealthPage } from '../../modules/admin/system-health';
+import { AdminSupportTicketsPage } from '../../modules/admin/support-tickets';
+import { AdminSettingsPage } from '../../modules/admin/settings';
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -35,4 +35,4 @@ export const adminRoutes: RouteObject[] = [
       { path: '/admin/support', element: <AdminSupportTicketsPage /> },
     ],
   },
-]
+];

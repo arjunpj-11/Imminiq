@@ -1,1 +1,1 @@
-export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned'
+export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned';

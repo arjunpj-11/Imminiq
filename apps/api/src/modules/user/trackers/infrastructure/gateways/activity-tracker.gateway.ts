@@ -1,20 +1,14 @@
-import type { IRecordUserActivityUseCase } from '../../../activity'
+import type { IRecordUserActivityUseCase } from '../../../activity';
 import type {
   RecordTrackerCompletedActivityInput,
   RecordTrackerSubtopicCompletedActivityInput,
   RecordTrackerTopicCompletedActivityInput,
   ITrackerActivityRecorder,
-} from '../../domain/services/tracker-activity.interface'
+} from '../../domain/services/tracker-activity.interface';
 
-export class ActivityTrackerGateway
-  implements ITrackerActivityRecorder
-{
-  constructor(
-    private readonly _activityRecorder: IRecordUserActivityUseCase,
-  ) {}
-  async recordSubtopicCompleted(
-    input: RecordTrackerSubtopicCompletedActivityInput,
-  ): Promise<void> {
+export class ActivityTrackerGateway implements ITrackerActivityRecorder {
+  constructor(private readonly _activityRecorder: IRecordUserActivityUseCase) {}
+  async recordSubtopicCompleted(input: RecordTrackerSubtopicCompletedActivityInput): Promise<void> {
     await this._activityRecorder.execute({
       userId: input.userId,
 
@@ -25,8 +19,7 @@ export class ActivityTrackerGateway
       subtitle: input.trackerTitle,
 
       xpAwarded: input.xpAwarded,
-      xpBucket:
-        input.xpAwarded > 0 ? 'learning' : 'none',
+      xpBucket: input.xpAwarded > 0 ? 'learning' : 'none',
       coinsAwarded: 0,
 
       eventKey: [
@@ -47,12 +40,10 @@ export class ActivityTrackerGateway
             utcOffsetMinutes: input.utcOffsetMinutes,
           }
         : {}),
-    })
+    });
   }
 
-  async recordTopicCompleted(
-    input: RecordTrackerTopicCompletedActivityInput,
-  ): Promise<void> {
+  async recordTopicCompleted(input: RecordTrackerTopicCompletedActivityInput): Promise<void> {
     await this._activityRecorder.execute({
       userId: input.userId,
 
@@ -63,16 +54,10 @@ export class ActivityTrackerGateway
       subtitle: input.trackerTitle,
 
       xpAwarded: input.xpAwarded,
-      xpBucket:
-        input.xpAwarded > 0 ? 'learning' : 'none',
+      xpBucket: input.xpAwarded > 0 ? 'learning' : 'none',
       coinsAwarded: 0,
 
-      eventKey: [
-        'tracker-topic-completed',
-        input.userId,
-        input.trackerId,
-        input.topicId,
-      ].join(':'),
+      eventKey: ['tracker-topic-completed', input.userId, input.trackerId, input.topicId].join(':'),
 
       trackerId: input.trackerId,
       topicId: input.topicId,
@@ -84,12 +69,10 @@ export class ActivityTrackerGateway
             utcOffsetMinutes: input.utcOffsetMinutes,
           }
         : {}),
-    })
+    });
   }
 
-  async recordTrackerCompleted(
-    input: RecordTrackerCompletedActivityInput,
-  ): Promise<void> {
+  async recordTrackerCompleted(input: RecordTrackerCompletedActivityInput): Promise<void> {
     await this._activityRecorder.execute({
       userId: input.userId,
 
@@ -100,15 +83,10 @@ export class ActivityTrackerGateway
       subtitle: 'Tracker completed',
 
       xpAwarded: input.xpAwarded,
-      xpBucket:
-        input.xpAwarded > 0 ? 'learning' : 'none',
+      xpBucket: input.xpAwarded > 0 ? 'learning' : 'none',
       coinsAwarded: 0,
 
-      eventKey: [
-        'tracker-completed',
-        input.userId,
-        input.trackerId,
-      ].join(':'),
+      eventKey: ['tracker-completed', input.userId, input.trackerId].join(':'),
 
       trackerId: input.trackerId,
 
@@ -119,6 +97,6 @@ export class ActivityTrackerGateway
             utcOffsetMinutes: input.utcOffsetMinutes,
           }
         : {}),
-    })
+    });
   }
 }

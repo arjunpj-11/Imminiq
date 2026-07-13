@@ -2,24 +2,24 @@ import {
   COMMUNITY_DEFAULT_LIMIT,
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_MAX_LIMIT,
-} from '../../domain/community.constants'
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
-import type { ICommunityBrowseViewDTO, ICommunityTrackerListPayloadDTO } from '../community.dto'
-import type { ICommunityMapper } from '../community.mapper'
+} from '../../domain/community.constants';
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityBrowseViewDTO, ICommunityTrackerListPayloadDTO } from '../community.dto';
+import type { ICommunityMapper } from '../community.mapper';
 
 export interface IGetCommunityBrowseUseCase {
-  execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityBrowseViewDTO>
+  execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityBrowseViewDTO>;
 }
 
 export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
-    private readonly _mapper: ICommunityMapper,
+    private readonly _mapper: ICommunityMapper
   ) {}
 
   async execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityBrowseViewDTO> {
-    const page = this.normalizePage(payload.page)
-    const limit = this.normalizeLimit(payload.limit)
+    const page = this.normalizePage(payload.page);
+    const limit = this.normalizeLimit(payload.limit);
 
     const [trackers, stats, topics, verifyStats] = await Promise.all([
       this._repository.findPublicTrackers({
@@ -35,9 +35,9 @@ export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
       this._repository.getPersonalStats(payload.userId),
       this._repository.findAvailableTopics(),
       this._repository.getVerificationStats(payload.userId),
-    ])
+    ]);
 
-    const trackerList = this._mapper.toTrackerListView(trackers)
+    const trackerList = this._mapper.toTrackerListView(trackers);
 
     return {
       ...trackerList,
@@ -48,22 +48,22 @@ export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
         rewardCoins: verifyStats.rewardCoins,
         activeReviewersThisWeek: verifyStats.activeReviewersThisWeek,
       },
-    }
+    };
   }
 
   private normalizePage(page?: number): number {
     if (!page || page < 1) {
-      return COMMUNITY_DEFAULT_PAGE
+      return COMMUNITY_DEFAULT_PAGE;
     }
 
-    return Math.floor(page)
+    return Math.floor(page);
   }
 
   private normalizeLimit(limit?: number): number {
     if (!limit || limit < 1) {
-      return COMMUNITY_DEFAULT_LIMIT
+      return COMMUNITY_DEFAULT_LIMIT;
     }
 
-    return Math.min(Math.floor(limit), COMMUNITY_MAX_LIMIT)
+    return Math.min(Math.floor(limit), COMMUNITY_MAX_LIMIT);
   }
 }

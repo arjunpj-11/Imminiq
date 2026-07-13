@@ -1,22 +1,23 @@
-import { useEffect, useRef, useState } from 'react'
-
+import { useEffect, useRef, useState } from 'react';
 
 export default function LandingFooter() {
-  const footerRef = useRef<HTMLElement | null>(null)
-  const [visible, setVisible] = useState(false)
+  const footerRef = useRef<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const footer = footerRef.current
-    if (!footer) return undefined
+    const footer = footerRef.current;
+    if (!footer) return undefined;
     const observer = new IntersectionObserver(
-      ([entry]) => { if (entry.isIntersecting) setVisible(true) },
+      ([entry]) => {
+        if (entry.isIntersecting) setVisible(true);
+      },
       { threshold: 0.2 }
-    )
-    observer.observe(footer)
-    return () => observer.disconnect()
-  }, [])
+    );
+    observer.observe(footer);
+    return () => observer.disconnect();
+  }, []);
 
-  const text = 'Imminiq · AI learning system · Early access'
+  const text = 'Imminiq · AI learning system · Early access';
 
   return (
     <footer
@@ -40,5 +41,5 @@ export default function LandingFooter() {
         ))}
       </div>
     </footer>
-  )
+  );
 }

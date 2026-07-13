@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const adaptiveAdvisorMessageSchema = new Schema(
   {
@@ -15,11 +15,11 @@ const adaptiveAdvisorMessageSchema = new Schema(
     },
     content: { type: String, required: true, maxlength: 8000 },
   },
-  { timestamps: { createdAt: true, updatedAt: false } },
-)
+  { timestamps: { createdAt: true, updatedAt: false } }
+);
 
-adaptiveAdvisorMessageSchema.index({ userId: 1, createdAt: -1 })
+adaptiveAdvisorMessageSchema.index({ userId: 1, createdAt: -1 });
 
 export const AdaptiveAdvisorMessageModel =
   mongoose.models.AdaptiveAdvisorMessage ||
-  mongoose.model('AdaptiveAdvisorMessage', adaptiveAdvisorMessageSchema)
+  mongoose.model('AdaptiveAdvisorMessage', adaptiveAdvisorMessageSchema);

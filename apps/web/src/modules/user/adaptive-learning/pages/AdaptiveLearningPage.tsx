@@ -1,113 +1,105 @@
-import { type FormEvent, useEffect, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { type FormEvent, useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
-import { MicButton } from '../../../../components/input/VoiceInputButton'
-import ConfirmDialog from '../../../../components/overlays/ConfirmDialog'
-import { useVoiceInput } from '../../../../hooks/useVoiceInput'
-import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph'
-import { useGenerateRoadmap } from '../../onboarding/hooks/useGenerateRoadmap'
-import { useOnboardingStore } from '../../onboarding/store/useOnboardingStore'
-import { useGenerateMockTest } from '../../mock-tests/hooks/useMockTests'
-import type { IAdaptiveAdvisorAction } from '../types/adaptive-learning.types'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { MicButton } from '../../../../components/input/VoiceInputButton';
+import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
+import { useVoiceInput } from '../../../../hooks/useVoiceInput';
+import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph';
+import { useGenerateRoadmap } from '../../onboarding/hooks/useGenerateRoadmap';
+import { useOnboardingStore } from '../../onboarding/store/useOnboardingStore';
+import { useGenerateMockTest } from '../../mock-tests/hooks/useMockTests';
+import type { IAdaptiveAdvisorAction } from '../types/adaptive-learning.types';
 import {
   useAdaptiveAdvisorChat,
   useClearAdaptiveAdvisorChat,
   useAdaptiveLearningDashboard,
   useGenerateAdaptiveAssessment,
-} from '../hooks/useAdaptiveLearning'
+} from '../hooks/useAdaptiveLearning';
 
 export default function AdaptiveLearningPage() {
-  const navigate = useNavigate()
-  const dashboard = useAdaptiveLearningDashboard()
-  const chat = useAdaptiveAdvisorChat()
-  const clearChat = useClearAdaptiveAdvisorChat()
-  const generate = useGenerateAdaptiveAssessment()
-  const generateRoadmap = useGenerateRoadmap()
-  const generateMockTest = useGenerateMockTest()
-  const saveStepOneDraft = useOnboardingStore((state) => state.saveStep1)
-  const saveStepTwoDraft = useOnboardingStore((state) => state.saveStep2)
-  const setActiveRoadmapJobId = useOnboardingStore(
-    (state) => state.setActiveRoadmapJobId,
-  )
-  const activeRoadmapJobId = useOnboardingStore(
-    (state) => state.activeRoadmapJobId,
-  )
-  const [question, setQuestion] = useState('')
-  const [advisorAction, setAdvisorAction] =
-    useState<IAdaptiveAdvisorAction | null>(null)
-  const [actionError, setActionError] = useState('')
-  const [clearDialogOpen, setClearDialogOpen] = useState(false)
-  const [assessmentGenerationStarted, setAssessmentGenerationStarted] =
-    useState(false)
+  const navigate = useNavigate();
+  const dashboard = useAdaptiveLearningDashboard();
+  const chat = useAdaptiveAdvisorChat();
+  const clearChat = useClearAdaptiveAdvisorChat();
+  const generate = useGenerateAdaptiveAssessment();
+  const generateRoadmap = useGenerateRoadmap();
+  const generateMockTest = useGenerateMockTest();
+  const saveStepOneDraft = useOnboardingStore((state) => state.saveStep1);
+  const saveStepTwoDraft = useOnboardingStore((state) => state.saveStep2);
+  const setActiveRoadmapJobId = useOnboardingStore((state) => state.setActiveRoadmapJobId);
+  const activeRoadmapJobId = useOnboardingStore((state) => state.activeRoadmapJobId);
+  const [question, setQuestion] = useState('');
+  const [advisorAction, setAdvisorAction] = useState<IAdaptiveAdvisorAction | null>(null);
+  const [actionError, setActionError] = useState('');
+  const [clearDialogOpen, setClearDialogOpen] = useState(false);
+  const [assessmentGenerationStarted, setAssessmentGenerationStarted] = useState(false);
   const voice = useVoiceInput((transcript) =>
-    setQuestion((current) =>
-      current.trim() ? `${current.trim()} ${transcript}` : transcript,
-    ),
-  )
-  const messagesContainer = useRef<HTMLDivElement>(null)
-  const data = dashboard.data
+    setQuestion((current) => (current.trim() ? `${current.trim()} ${transcript}` : transcript))
+  );
+  const messagesContainer = useRef<HTMLDivElement>(null);
+  const data = dashboard.data;
 
   useEffect(() => {
-    const container = messagesContainer.current
-    if (container) container.scrollTop = container.scrollHeight
-  }, [data?.messages.length, chat.isPending])
+    const container = messagesContainer.current;
+    if (container) container.scrollTop = container.scrollHeight;
+  }, [data?.messages.length, chat.isPending]);
 
   const sendQuestion = async (event: FormEvent) => {
-    event.preventDefault()
-    const value = question.trim()
-    if (!value || chat.isPending) return
-    setQuestion('')
-    setAdvisorAction(null)
-    setActionError('')
-    const result = await chat.mutateAsync(value)
-    setAdvisorAction(result.action ?? null)
-  }
+    event.preventDefault();
+    const value = question.trim();
+    if (!value || chat.isPending) return;
+    setQuestion('');
+    setAdvisorAction(null);
+    setActionError('');
+    const result = await chat.mutateAsync(value);
+    setAdvisorAction(result.action ?? null);
+  };
 
   const generateExam = async () => {
-    await generate.mutateAsync()
-    setAssessmentGenerationStarted(true)
-  }
+    await generate.mutateAsync();
+    setAssessmentGenerationStarted(true);
+  };
 
   const clearAdvisorConversation = async () => {
-    if (voice.isListening) voice.toggle()
-    await clearChat.mutateAsync()
-    setClearDialogOpen(false)
-    setQuestion('')
-    setAdvisorAction(null)
-    setActionError('')
-  }
+    if (voice.isListening) voice.toggle();
+    await clearChat.mutateAsync();
+    setClearDialogOpen(false);
+    setQuestion('');
+    setAdvisorAction(null);
+    setActionError('');
+  };
 
   const executeAdvisorAction = async () => {
     if (!advisorAction || generateRoadmap.isPending || generateMockTest.isPending) {
-      return
+      return;
     }
 
-    setActionError('')
+    setActionError('');
     try {
       if (advisorAction.type === 'create_tracker') {
         if (activeRoadmapJobId) {
           setActionError(
-            'Another tracker is already being created. Wait for it to finish before creating a new one.',
-          )
-          return
+            'Another tracker is already being created. Wait for it to finish before creating a new one.'
+          );
+          return;
         }
         const response = await generateRoadmap.mutateAsync({
           topic: advisorAction.topic,
           goal: advisorAction.goal,
           level: advisorAction.level,
-        })
-        const jobId = response.data?.jobId
-        if (!jobId) throw new Error('Tracker generation did not return a job ID.')
+        });
+        const jobId = response.data?.jobId;
+        if (!jobId) throw new Error('Tracker generation did not return a job ID.');
 
         saveStepOneDraft({
           topic: advisorAction.topic,
           goal: advisorAction.goal,
-        })
-        saveStepTwoDraft({ level: advisorAction.level })
-        setActiveRoadmapJobId(jobId)
-        navigate(`/onboarding/generating/${jobId}`)
-        return
+        });
+        saveStepTwoDraft({ level: advisorAction.level });
+        setActiveRoadmapJobId(jobId);
+        navigate(`/onboarding/generating/${jobId}`);
+        return;
       }
 
       const response = await generateMockTest.mutateAsync({
@@ -119,21 +111,19 @@ export default function AdaptiveLearningPage() {
         timeLimitMinutes: Math.max(10, advisorAction.questionCount * 2),
         visibility: 'private',
         runInBackground: true,
-      })
-      const jobId = 'jobId' in response.data ? response.data.jobId : undefined
-      if (!jobId) throw new Error('Mock-test generation did not return a job ID.')
-      navigate(`/mock-tests/generating/${jobId}`)
+      });
+      const jobId = 'jobId' in response.data ? response.data.jobId : undefined;
+      if (!jobId) throw new Error('Mock-test generation did not return a job ID.');
+      navigate(`/mock-tests/generating/${jobId}`);
     } catch (error) {
-      const apiMessage = (
-        error as { response?: { data?: { message?: string } } }
-      ).response?.data?.message
+      const apiMessage = (error as { response?: { data?: { message?: string } } }).response?.data
+        ?.message;
       setActionError(
-        apiMessage || (error instanceof Error
-          ? error.message
-          : 'Unable to start the recommended action.'),
-      )
+        apiMessage ||
+          (error instanceof Error ? error.message : 'Unable to start the recommended action.')
+      );
     }
-  }
+  };
 
   return (
     <AppShellBoundary>
@@ -147,7 +137,8 @@ export default function AdaptiveLearningPage() {
               Your learning navigator
             </h1>
             <p className="mt-2 max-w-2xl text-[13px] leading-6 text-(--text-secondary)">
-              Ask what to study next, which tracker to continue, or which mock test will expose your current weak areas.
+              Ask what to study next, which tracker to continue, or which mock test will expose your
+              current weak areas.
             </p>
           </div>
           <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) px-5 py-3 text-right shadow-(--shadow-1)">
@@ -171,9 +162,7 @@ export default function AdaptiveLearningPage() {
           <section className="flex h-[640px] min-h-[520px] max-h-[calc(100vh-120px)] flex-col overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) shadow-(--shadow-1)">
             <div className="flex items-start justify-between gap-4 border-b border-(--border-subtle) p-5">
               <div>
-                <h2 className="font-ui text-[18px] font-black text-(--text-primary)">
-                  Ask Immi
-                </h2>
+                <h2 className="font-ui text-[18px] font-black text-(--text-primary)">Ask Immi</h2>
                 <p className="mt-1 text-[12px] text-(--text-secondary)">
                   The agent can inspect your learning profile through read-only tools.
                 </p>
@@ -188,13 +177,11 @@ export default function AdaptiveLearningPage() {
               </button>
             </div>
 
-            <div
-              ref={messagesContainer}
-              className="min-h-0 flex-1 space-y-3 overflow-y-auto p-5"
-            >
+            <div ref={messagesContainer} className="min-h-0 flex-1 space-y-3 overflow-y-auto p-5">
               {!data?.messages.length ? (
                 <div className="rounded-2xl bg-[rgba(184,76,43,0.08)] p-4 text-[13px] leading-6 text-(--text-secondary)">
-                  Try: “What should I study next?”, “Which tracker should I continue?”, or “What mock test should I take today?”
+                  Try: “What should I study next?”, “Which tracker should I continue?”, or “What
+                  mock test should I take today?”
                 </div>
               ) : null}
               {data?.messages.map((message) => (
@@ -227,9 +214,7 @@ export default function AdaptiveLearningPage() {
                   <button
                     type="button"
                     onClick={() => void executeAdvisorAction()}
-                    disabled={
-                      generateRoadmap.isPending || generateMockTest.isPending
-                    }
+                    disabled={generateRoadmap.isPending || generateMockTest.isPending}
                     className="mt-3 rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-white disabled:opacity-60"
                   >
                     {generateRoadmap.isPending || generateMockTest.isPending
@@ -237,9 +222,7 @@ export default function AdaptiveLearningPage() {
                       : advisorAction.label}
                   </button>
                   {actionError ? (
-                    <p className="mt-2 text-[11px] font-semibold text-red-600">
-                      {actionError}
-                    </p>
+                    <p className="mt-2 text-[11px] font-semibold text-red-600">{actionError}</p>
                   ) : null}
                 </div>
               ) : null}
@@ -283,7 +266,8 @@ export default function AdaptiveLearningPage() {
               {data?.latestAssessment?.status === 'ready' ? (
                 <>
                   <p className="mt-2 text-[12.5px] leading-6 text-(--text-secondary)">
-                    Predicted score: {data.latestAssessment.predictedScore}% · {data.latestAssessment.difficulty}
+                    Predicted score: {data.latestAssessment.predictedScore}% ·{' '}
+                    {data.latestAssessment.difficulty}
                   </p>
                   <button
                     type="button"
@@ -349,5 +333,5 @@ export default function AdaptiveLearningPage() {
         />
       </main>
     </AppShellBoundary>
-  )
+  );
 }

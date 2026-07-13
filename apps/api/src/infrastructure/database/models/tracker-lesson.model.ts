@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const trackerLessonSchema = new Schema(
   {
@@ -49,23 +49,17 @@ const trackerLessonSchema = new Schema(
 
     lessonType: {
       type: String,
-      enum: [
-        'concept',
-        'coding',
-        'interview',
-        'system_design',
-        'theory',
-      ],
+      enum: ['concept', 'coding', 'interview', 'system_design', 'theory'],
       default: 'concept',
       index: true,
     },
 
- compilerRuntime: {
-  type: String,
-  enum: ['javascript', 'typescript', 'python', 'c++', 'c', 'java', null],
-  default: null,
-  index: true,
-},
+    compilerRuntime: {
+      type: String,
+      enum: ['javascript', 'typescript', 'python', 'c++', 'c', 'java', null],
+      default: null,
+      index: true,
+    },
 
     codeExample: {
       language: {
@@ -85,11 +79,11 @@ const trackerLessonSchema = new Schema(
     },
 
     practiceTask: {
-       title:         { type: String, default: '' },
-  description:   { type: String, default: '' },
-  starterCode:   { type: String, default: '' },
-  expectedOutput: { type: String, default: '' },  
-  expectedAnswer: { type: String, default: '' },  
+      title: { type: String, default: '' },
+      description: { type: String, default: '' },
+      starterCode: { type: String, default: '' },
+      expectedOutput: { type: String, default: '' },
+      expectedAnswer: { type: String, default: '' },
     },
 
     tags: {
@@ -117,7 +111,7 @@ const trackerLessonSchema = new Schema(
   {
     timestamps: true,
   }
-)
+);
 
 trackerLessonSchema.index(
   {
@@ -128,8 +122,7 @@ trackerLessonSchema.index(
   {
     unique: true,
   }
-)
+);
 
 export const TrackerLesson =
-  mongoose.models.TrackerLesson ||
-  mongoose.model('TrackerLesson', trackerLessonSchema)
+  mongoose.models.TrackerLesson || mongoose.model('TrackerLesson', trackerLessonSchema);

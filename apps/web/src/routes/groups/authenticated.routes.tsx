@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router-dom';
 
 import {
   AdaptiveLearningPage,
@@ -28,7 +28,7 @@ import {
   TrackerRoadmapPage,
   VerifyAndEarnPage,
   RaiseSupportTicketPage,
-} from '../config/authenticated-pages'
+} from '../config/authenticated-pages';
 
 export const authenticatedRoutes: RouteObject[] = [
   {
@@ -146,4 +146,4 @@ export const authenticatedRoutes: RouteObject[] = [
     path: '/mock-tests/:testId',
     element: <MockTestDetailsPage />,
   },
-]
+];

@@ -1,94 +1,86 @@
-import { TrackerApplicationError } from '../tracker-application.error'
-import type { ITrackerMapper } from '../tracker.mapper'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { ICodeExecutor } from '../../domain/services/code-execution.interface'
+import { TrackerApplicationError } from '../tracker-application.error';
+import type { ITrackerMapper } from '../tracker.mapper';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { ICodeExecutor } from '../../domain/services/code-execution.interface';
 
 type SubmitLessonCodeInput = {
-  trackerId: string
-  subtopicId: string
-  userId: string
-  sourceCode: string
-  languageId: number
-  language?: string
-  stdin?: string
-}
+  trackerId: string;
+  subtopicId: string;
+  userId: string;
+  sourceCode: string;
+  languageId: number;
+  language?: string;
+  stdin?: string;
+};
 
-type SubmitLessonCodeResultDTO = ReturnType<
-  ITrackerMapper['toLessonCodeSubmissionDto']
->
+type SubmitLessonCodeResultDTO = ReturnType<ITrackerMapper['toLessonCodeSubmissionDto']>;
 
 const normalizeOutput = (value: string) => {
-  return value.replace(/\r\n/g, '\n').trim()
-}
+  return value.replace(/\r\n/g, '\n').trim();
+};
 
 export interface ISubmitLessonCodeUseCase {
-  execute(input: SubmitLessonCodeInput): Promise<SubmitLessonCodeResultDTO>
+  execute(input: SubmitLessonCodeInput): Promise<SubmitLessonCodeResultDTO>;
 }
 
 export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
   constructor(
-    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLessonCodeSubmission' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'>,
+    private readonly _trackerRepository: Pick<
+      ITrackerRepository,
+      'createLessonCodeSubmission' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'
+    >,
     private readonly _codeExecutor: ICodeExecutor,
-    private readonly _trackerMapper: ITrackerMapper,
+    private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(
-    input: SubmitLessonCodeInput,
-  ): Promise<SubmitLessonCodeResultDTO> {
+  async execute(input: SubmitLessonCodeInput): Promise<SubmitLessonCodeResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
-    })
+    });
 
     if (!tracker) {
-      throw TrackerApplicationError.trackerNotFound('Tracker not found')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found');
     }
 
     const lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-    })
+    });
 
     if (!lesson) {
       throw TrackerApplicationError.lessonNotGenerated(
-        'Generate the lesson before submitting code',
-      )
+        'Generate the lesson before submitting code'
+      );
     }
 
-    const language =
-      input.language || lesson.codeExample?.language || 'javascript'
+    const language = input.language || lesson.codeExample?.language || 'javascript';
 
     const result = await this._codeExecutor.executeCode({
       sourceCode: input.sourceCode,
       languageId: input.languageId,
       language,
       stdin: input.stdin,
-    })
+    });
 
     const practiceTask = lesson.practiceTask as
       | {
-          expectedOutput?: string
+          expectedOutput?: string;
         }
-      | undefined
+      | undefined;
 
-    const expectedOutput = practiceTask?.expectedOutput || ''
+    const expectedOutput = practiceTask?.expectedOutput || '';
 
     const actualOutput =
-      result.stdout ||
-      result.stderr ||
-      result.compileOutput ||
-      result.message ||
-      ''
+      result.stdout || result.stderr || result.compileOutput || result.message || '';
 
     const hasExecutionError =
-      Boolean(result.stderr) ||
-      Boolean(result.compileOutput) ||
-      result.status.id !== 3
+      Boolean(result.stderr) || Boolean(result.compileOutput) || result.status.id !== 3;
 
     const isCorrect = expectedOutput
       ? normalizeOutput(result.stdout) === normalizeOutput(expectedOutput)
-      : !hasExecutionError
+      : !hasExecutionError;
 
     const feedback = isCorrect
       ? 'Great job! Your code produced the expected output.'
@@ -96,7 +88,7 @@ export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
         ? 'Your code has an execution or compilation error. Check the output and try again.'
         : expectedOutput
           ? 'Your code ran successfully, but the output does not match the expected output.'
-          : 'Your code ran, but it could not be marked as correct.'
+          : 'Your code ran, but it could not be marked as correct.';
 
     const response = {
       isCorrect,
@@ -112,7 +104,7 @@ export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
       feedback,
       canCompareOptimized: isCorrect,
       canAskHints: !isCorrect,
-    }
+    };
 
     await this._trackerRepository.createLessonCodeSubmission({
       trackerId: input.trackerId,
@@ -135,8 +127,8 @@ export class SubmitLessonCodeUseCase implements ISubmitLessonCodeUseCase {
       expectedOutput,
       actualOutput,
       feedback,
-    })
+    });
 
-    return this._trackerMapper.toLessonCodeSubmissionDto(response)
+    return this._trackerMapper.toLessonCodeSubmissionDto(response);
   }
 }

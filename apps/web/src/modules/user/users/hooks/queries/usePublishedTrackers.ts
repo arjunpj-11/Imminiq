@@ -1,24 +1,24 @@
-import { useQuery } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
-import api from '../../../../../lib/axios'
+import { useQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import api from '../../../../../lib/axios';
 import type {
   IApiErrorResponse,
   IApiResponse,
   IPaginatedResult,
   IPublishedTracker,
-} from '../../types/profile.types'
-import { profileQueryKeys } from '../profile.query-keys'
+} from '../../types/profile.types';
+import { profileQueryKeys } from '../profile.query-keys';
 
 export interface IPublishedTrackerQuery {
-  page?: number
-  limit?: number
-  search?: string
-  status?: 'active' | 'draft' | 'archived'
-  sort?: 'createdAt' | 'publishedAt' | 'ratingAverage' | 'cloneCount'
+  page?: number;
+  limit?: number;
+  search?: string;
+  status?: 'active' | 'draft' | 'archived';
+  sort?: 'createdAt' | 'publishedAt' | 'ratingAverage' | 'cloneCount';
 }
 
 interface IUsePublishedTrackersOptions {
-  enabled?: boolean
+  enabled?: boolean;
 }
 
 export const usePublishedTrackers = (
@@ -31,7 +31,7 @@ export const usePublishedTrackers = (
     search: params.search ?? '',
     status: params.status,
     sort: params.sort ?? 'publishedAt',
-  }
+  };
 
   return useQuery<
     IApiResponse<IPaginatedResult<IPublishedTracker>>,
@@ -41,15 +41,16 @@ export const usePublishedTrackers = (
     queryKey: profileQueryKeys.trackers(normalizedParams),
     enabled: options.enabled ?? true,
     queryFn: async () => {
-      const response = await api.get<
-        IApiResponse<IPaginatedResult<IPublishedTracker>>
-      >('/users/me/published-trackers', {
-        params: normalizedParams,
-      })
+      const response = await api.get<IApiResponse<IPaginatedResult<IPublishedTracker>>>(
+        '/users/me/published-trackers',
+        {
+          params: normalizedParams,
+        }
+      );
 
-      return response.data
+      return response.data;
     },
     select: (response) => response.data,
     staleTime: 1000 * 60 * 5,
-  })
-}
+  });
+};

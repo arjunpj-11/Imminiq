@@ -49,7 +49,7 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
             test: populatedTest,
           };
         });
-      },
+      }
     );
   }
 
@@ -105,16 +105,13 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
 
         return {
           totalTests: typedTests.length,
-          totalQuestions: typedTests.reduce(
-            (sum, test) => sum + (test.questionCount || 0),
-            0,
-          ),
+          totalQuestions: typedTests.reduce((sum, test) => sum + (test.questionCount || 0), 0),
           completedAttempts: completed?.completedAttempts || 0,
           averageScore: Math.round(completed?.averageScore || 0),
           bestScore: Math.round(completed?.bestScore || 0),
           passedAttempts: completed?.passedAttempts || 0,
         };
-      },
+      }
     );
   }
 
@@ -132,41 +129,40 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
 
-        const aggregation =
-          await MockTestAttemptModel.aggregate<PerformanceTrendAggregation>([
-            {
-              $match: {
-                userId: safeUserId,
-                status: 'completed',
-                completedAt: { $gte: thirtyDaysAgo },
-                deletedAt: null,
-              },
+        const aggregation = await MockTestAttemptModel.aggregate<PerformanceTrendAggregation>([
+          {
+            $match: {
+              userId: safeUserId,
+              status: 'completed',
+              completedAt: { $gte: thirtyDaysAgo },
+              deletedAt: null,
             },
-            {
-              $group: {
-                _id: {
-                  $dateToString: {
-                    format: '%Y-%m-%d',
-                    date: '$completedAt',
-                  },
+          },
+          {
+            $group: {
+              _id: {
+                $dateToString: {
+                  format: '%Y-%m-%d',
+                  date: '$completedAt',
                 },
-                averageScore: { $avg: '$scorePercentage' },
-                attempts: { $sum: 1 },
               },
+              averageScore: { $avg: '$scorePercentage' },
+              attempts: { $sum: 1 },
             },
-            {
-              $sort: {
-                _id: 1,
-              },
+          },
+          {
+            $sort: {
+              _id: 1,
             },
-          ]);
+          },
+        ]);
 
         return aggregation.map((item) => ({
           date: item._id,
           averageScore: Math.round(item.averageScore),
           attempts: item.attempts,
         }));
-      },
+      }
     );
   }
 
@@ -189,18 +185,13 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
           .populate('testId', 'tags')
           .lean();
 
-        const topicData: Record<string, { total: number; scoreSum: number }> =
-          {};
+        const topicData: Record<string, { total: number; scoreSum: number }> = {};
 
         for (const attempt of attempts as RawMockTestAttemptDoc[]) {
-          const testDoc = this._mapper.isRecord(attempt.testId)
-            ? attempt.testId
-            : null;
+          const testDoc = this._mapper.isRecord(attempt.testId) ? attempt.testId : null;
 
           const tags =
-            testDoc && Array.isArray(testDoc['tags'])
-              ? (testDoc['tags'] as string[])
-              : [];
+            testDoc && Array.isArray(testDoc['tags']) ? (testDoc['tags'] as string[]) : [];
 
           for (const tag of tags) {
             topicData[tag] ||= {
@@ -219,7 +210,7 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
             totalAttempts: data.total,
           }))
           .sort((first, second) => first.averageScore - second.averageScore);
-      },
+      }
     );
   }
 
@@ -234,25 +225,24 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
           return;
         }
 
-        const aggregation =
-          await MockTestAttemptModel.aggregate<AnalyticsSnapshotAggregation>([
-            {
-              $match: {
-                testId: safeTestId,
-                status: 'completed',
-                deletedAt: null,
-              },
+        const aggregation = await MockTestAttemptModel.aggregate<AnalyticsSnapshotAggregation>([
+          {
+            $match: {
+              testId: safeTestId,
+              status: 'completed',
+              deletedAt: null,
             },
-            {
-              $group: {
-                _id: null,
-                totalAttempts: { $sum: 1 },
-                averageScore: { $avg: '$scorePercentage' },
-                passCount: { $sum: { $cond: ['$passed', 1, 0] } },
-                averageTimeTaken: { $avg: '$timeTakenSeconds' },
-              },
+          },
+          {
+            $group: {
+              _id: null,
+              totalAttempts: { $sum: 1 },
+              averageScore: { $avg: '$scorePercentage' },
+              passCount: { $sum: { $cond: ['$passed', 1, 0] } },
+              averageTimeTaken: { $avg: '$timeTakenSeconds' },
             },
-          ]);
+          },
+        ]);
 
         if (!aggregation.length) {
           return;
@@ -275,7 +265,7 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
           {
             upsert: true,
             new: true,
-          },
+          }
         );
 
         await MockTestModel.findOneAndUpdate(
@@ -288,13 +278,12 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
               averageScore: Math.round(data.averageScore),
               attemptCount: data.totalAttempts,
             },
-          },
+          }
         );
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 }
 
-export const mongoMockTestsAnalyticsRepository =
-  new MongoMockTestsAnalyticsRepository();
+export const mongoMockTestsAnalyticsRepository = new MongoMockTestsAnalyticsRepository();

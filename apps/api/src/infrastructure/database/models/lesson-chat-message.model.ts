@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/lesson-chat-message.model.ts
 
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const lessonChatMessageSchema = new Schema(
   {
@@ -66,7 +66,7 @@ const lessonChatMessageSchema = new Schema(
   {
     timestamps: true,
   }
-)
+);
 
 lessonChatMessageSchema.index({
   trackerId: 1,
@@ -75,8 +75,7 @@ lessonChatMessageSchema.index({
   scope: 1,
   questionId: 1,
   createdAt: 1,
-})
+});
 
 export const LessonChatMessage =
-  mongoose.models.LessonChatMessage ||
-  mongoose.model('LessonChatMessage', lessonChatMessageSchema)
+  mongoose.models.LessonChatMessage || mongoose.model('LessonChatMessage', lessonChatMessageSchema);

@@ -1,37 +1,34 @@
-import type {
-  IGetMyProfileResponse,
-  IUpdateProfilePayload,
-} from '../types/profile.types'
+import type { IGetMyProfileResponse, IUpdateProfilePayload } from '../types/profile.types';
 
 export interface IProfilePageViewModel {
-  name: string
-  username: string
-  profession: string
-  bio: string
-  city: string
-  state: string
-  country: string
-  postal: string
-  skills: string[]
-  avatarUrl: string | null
-  bannerDataUrl: string | null
-  githubUrl: string
-  linkedinUrl: string
-  portfolioUrl: string
+  name: string;
+  username: string;
+  profession: string;
+  bio: string;
+  city: string;
+  state: string;
+  country: string;
+  postal: string;
+  skills: string[];
+  avatarUrl: string | null;
+  bannerDataUrl: string | null;
+  githubUrl: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
 }
 
 export interface IProfileEditDraft {
-  name: string
-  profession: string
-  bio: string
-  city: string
-  state: string
-  country: string
-  postal: string
-  skills: string[]
-  githubUrl: string
-  linkedinUrl: string
-  portfolioUrl: string
+  name: string;
+  profession: string;
+  bio: string;
+  city: string;
+  state: string;
+  country: string;
+  postal: string;
+  skills: string[];
+  githubUrl: string;
+  linkedinUrl: string;
+  portfolioUrl: string;
 }
 
 export const parseLocation = (location: string | undefined) => {
@@ -41,43 +38,39 @@ export const parseLocation = (location: string | undefined) => {
       state: '',
       country: '',
       postal: '',
-    }
+    };
   }
 
-  const [placePart, postalPart] = location.split(' — ')
-  const [city = '', state = '', country = ''] = placePart
-    .split(',')
-    .map((value) => value.trim())
+  const [placePart, postalPart] = location.split(' — ');
+  const [city = '', state = '', country = ''] = placePart.split(',').map((value) => value.trim());
 
   return {
     city,
     state,
     country,
     postal: postalPart?.trim() ?? '',
-  }
-}
+  };
+};
 
 export const formatLocation = (input: {
-  city?: string
-  state?: string
-  country?: string
-  postal?: string
+  city?: string;
+  state?: string;
+  country?: string;
+  postal?: string;
 }) => {
   const places = [input.city, input.state, input.country]
     .map((value) => value?.trim())
-    .filter(Boolean)
+    .filter(Boolean);
 
-  const core = places.join(', ')
-  const postal = input.postal?.trim()
+  const core = places.join(', ');
+  const postal = input.postal?.trim();
 
-  if (!core) return postal ?? ''
-  return postal ? `${core} — ${postal}` : core
-}
+  if (!core) return postal ?? '';
+  return postal ? `${core} — ${postal}` : core;
+};
 
-export const buildProfileViewModel = (
-  data: IGetMyProfileResponse
-): IProfilePageViewModel => {
-  const location = parseLocation(data.profile.location)
+export const buildProfileViewModel = (data: IGetMyProfileResponse): IProfilePageViewModel => {
+  const location = parseLocation(data.profile.location);
 
   return {
     name: data.profile.fullName || data.user.fullName || '',
@@ -94,12 +87,10 @@ export const buildProfileViewModel = (
     githubUrl: data.profile.githubUrl || '',
     linkedinUrl: data.profile.linkedinUrl || '',
     portfolioUrl: data.profile.portfolioUrl || '',
-  }
-}
+  };
+};
 
-export const mapProfileEditDraftToPayload = (
-  draft: IProfileEditDraft
-): IUpdateProfilePayload => {
+export const mapProfileEditDraftToPayload = (draft: IProfileEditDraft): IUpdateProfilePayload => {
   return {
     fullName: draft.name.trim(),
     headline: draft.profession.trim(),
@@ -114,29 +105,26 @@ export const mapProfileEditDraftToPayload = (
     githubUrl: normalizeOptionalUrl(draft.githubUrl),
     linkedinUrl: normalizeOptionalUrl(draft.linkedinUrl),
     portfolioUrl: normalizeOptionalUrl(draft.portfolioUrl),
-  }
-}
+  };
+};
 
 export const normalizeOptionalUrl = (value: string) => {
-  const clean = value.trim()
-  if (!clean) return ''
+  const clean = value.trim();
+  if (!clean) return '';
 
-  if (/^https?:\/\//i.test(clean)) return clean
-  return `https://${clean}`
-}
+  if (/^https?:\/\//i.test(clean)) return clean;
+  return `https://${clean}`;
+};
 
-export const dataUrlToFile = (
-  dataUrl: string,
-  fileName: string
-): File => {
-  const [header, content] = dataUrl.split(',')
-  const mime = header.match(/data:(.*?);base64/)?.[1] ?? 'image/png'
-  const binary = atob(content)
-  const bytes = new Uint8Array(binary.length)
+export const dataUrlToFile = (dataUrl: string, fileName: string): File => {
+  const [header, content] = dataUrl.split(',');
+  const mime = header.match(/data:(.*?);base64/)?.[1] ?? 'image/png';
+  const binary = atob(content);
+  const bytes = new Uint8Array(binary.length);
 
   for (let index = 0; index < binary.length; index += 1) {
-    bytes[index] = binary.charCodeAt(index)
+    bytes[index] = binary.charCodeAt(index);
   }
 
-  return new File([bytes], fileName, { type: mime })
-}
+  return new File([bytes], fileName, { type: mime });
+};

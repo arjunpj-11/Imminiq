@@ -6,9 +6,7 @@ const SAFE_TAG_PATTERN = /^[a-zA-Z0-9 _-]{1,40}$/;
 export class MongoMockTestsQueryUtils {
   private constructor() {}
 
-  static sanitizeDifficulty(
-    value?: DifficultyLevel,
-  ): DifficultyLevel | undefined {
+  static sanitizeDifficulty(value?: DifficultyLevel): DifficultyLevel | undefined {
     return value && ALLOWED_DIFFICULTIES.includes(value) ? value : undefined;
   }
 

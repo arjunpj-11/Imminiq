@@ -1,47 +1,45 @@
-import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import { MockTestsApplicationError } from '../mock-tests-application.error'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface';
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
 
-type FlagQuestionRepository =
-  IMockTestAttemptRepository &
-  IMockTestAnswerRepository
+type FlagQuestionRepository = IMockTestAttemptRepository & IMockTestAnswerRepository;
 
 export interface IFlagQuestionUseCase {
-  execute(attemptId: string, userId: string, questionId: string): Promise<{ flagged: boolean; }>
+  execute(attemptId: string, userId: string, questionId: string): Promise<{ flagged: boolean }>;
 }
 
 export class FlagQuestionUseCase implements IFlagQuestionUseCase {
   constructor(private readonly _repository: FlagQuestionRepository) {}
 
   async execute(attemptId: string, userId: string, questionId: string) {
-    const attempt = await this._repository.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId);
 
     if (!attempt) {
-      throw MockTestsApplicationError.notFound('Attempt not found')
+      throw MockTestsApplicationError.notFound('Attempt not found');
     }
 
     if (attempt.userId !== userId) {
-      throw MockTestsApplicationError.forbidden()
+      throw MockTestsApplicationError.forbidden();
     }
 
     if (attempt.status !== 'in_progress') {
-      throw MockTestsApplicationError.testNotActive()
+      throw MockTestsApplicationError.testNotActive();
     }
 
     if (attempt.flaggedQuestions.includes(questionId)) {
       await this._repository.unflagQuestion({
         attemptId,
         questionId,
-      })
+      });
 
-      return { flagged: false }
+      return { flagged: false };
     }
 
     await this._repository.flagQuestion({
       attemptId,
       questionId,
-    })
+    });
 
-    return { flagged: true }
+    return { flagged: true };
   }
 }

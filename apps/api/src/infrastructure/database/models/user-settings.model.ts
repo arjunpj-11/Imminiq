@@ -1,159 +1,144 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
-export type QuietHoursDay =
-  | 'Mon'
-  | 'Tue'
-  | 'Wed'
-  | 'Thu'
-  | 'Fri'
-  | 'Sat'
-  | 'Sun'
+export type QuietHoursDay = 'Mon' | 'Tue' | 'Wed' | 'Thu' | 'Fri' | 'Sat' | 'Sun';
 
 export interface IUserSettingsDocument extends Document {
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId;
 
   // Account
   account: {
-    email: string
-    phone: string
-    language: string
-    timezone: string
-    dateFormat: string
-  }
+    email: string;
+    phone: string;
+    language: string;
+    timezone: string;
+    dateFormat: string;
+  };
 
   // Appearance
   appearance: {
-    theme: 'light' | 'dark' | 'system'
-  }
+    theme: 'light' | 'dark' | 'system';
+  };
 
   // Notifications
   notifications: {
-    globalEnabled: boolean
-    globalEmail: boolean
-    globalPush: boolean
+    globalEnabled: boolean;
+    globalEmail: boolean;
+    globalPush: boolean;
 
-    marketing: boolean
-    weeklyReport: boolean
+    marketing: boolean;
+    weeklyReport: boolean;
 
-    quietHoursEnabled: boolean
-    quietHoursStart: string
-    quietHoursEnd: string
-    quietHoursDays: QuietHoursDay[]
+    quietHoursEnabled: boolean;
+    quietHoursStart: string;
+    quietHoursEnd: string;
+    quietHoursDays: QuietHoursDay[];
 
     types: {
-      friendRequests: boolean
-      challenges: boolean
-      battleResults: boolean
-      testCompletion: boolean
-      postLiked: boolean
-      postCommented: boolean
-      trackerCloned: boolean
-      streakMilestones: boolean
-      studyReminders: boolean
-      adminBroadcasts: boolean
-      accountAlerts: boolean
-      subscriptionWarnings: boolean
-      paymentConfirmations: boolean
-      contributionUpdates: boolean
-      callMissed: boolean
-    }
+      friendRequests: boolean;
+      challenges: boolean;
+      battleResults: boolean;
+      testCompletion: boolean;
+      postLiked: boolean;
+      postCommented: boolean;
+      trackerCloned: boolean;
+      streakMilestones: boolean;
+      studyReminders: boolean;
+      adminBroadcasts: boolean;
+      accountAlerts: boolean;
+      subscriptionWarnings: boolean;
+      paymentConfirmations: boolean;
+      contributionUpdates: boolean;
+      callMissed: boolean;
+    };
 
     emailDigest: {
-      enabled: boolean
-      frequency: 'daily' | 'weekly' | 'never'
-      includeActivity: boolean
-      includeRecommendations: boolean
-    }
-  }
+      enabled: boolean;
+      frequency: 'daily' | 'weekly' | 'never';
+      includeActivity: boolean;
+      includeRecommendations: boolean;
+    };
+  };
 
   // Privacy
   privacy: {
-    profileVisibility: 'public' | 'friends' | 'private'
+    profileVisibility: 'public' | 'friends' | 'private';
 
-    showProfile: boolean
-    showStreak: boolean
-    showProgress: boolean
-    showLeaderboardRank: boolean
-    showActivity: boolean
-    showOnlineStatus: boolean
-    showStats: boolean
+    showProfile: boolean;
+    showStreak: boolean;
+    showProgress: boolean;
+    showLeaderboardRank: boolean;
+    showActivity: boolean;
+    showOnlineStatus: boolean;
+    showStats: boolean;
 
-    allowFriendRequests: boolean
-    allowChallenges: boolean
-    allowMessages: boolean
-    messagePermission: 'everyone' | 'friends' | 'nobody'
+    allowFriendRequests: boolean;
+    allowChallenges: boolean;
+    allowMessages: boolean;
+    messagePermission: 'everyone' | 'friends' | 'nobody';
 
-    allowPublicTrackerView: boolean
-    allowTrackerCloning: boolean
-    showTrackerProgress: boolean
-  }
+    allowPublicTrackerView: boolean;
+    allowTrackerCloning: boolean;
+    showTrackerProgress: boolean;
+  };
 
   // Code Editor
   codeEditor: {
-    theme: string
-    fontSize: number
-    tabSize: number
-    autoIndent: boolean
-    lineNumbers: boolean
-    wordWrap: boolean
-    minimap: boolean
-  }
+    theme: string;
+    fontSize: number;
+    tabSize: number;
+    autoIndent: boolean;
+    lineNumbers: boolean;
+    wordWrap: boolean;
+    minimap: boolean;
+  };
 
   // Compiler
   compiler: {
-    defaultLanguage: string
-    defaultRuntime: string
-    autoSwitchLanguage: boolean
-  }
+    defaultLanguage: string;
+    defaultRuntime: string;
+    autoSwitchLanguage: boolean;
+  };
 
   // AI Behaviour
   aiBehaviour: {
-    responseStyle: 'concise' | 'detailed' | 'eli5'
-    autoGenerateLessons: boolean
-    showAIInsights: boolean
-    dailyQuotaAlert: boolean
-  }
+    responseStyle: 'concise' | 'detailed' | 'eli5';
+    autoGenerateLessons: boolean;
+    showAIInsights: boolean;
+    dailyQuotaAlert: boolean;
+  };
 
   // Learning Journey
   learningJourney: {
-    dailyGoalMinutes: number
-    reminderEnabled: boolean
-    reminderTime: string
-    autoPlayNextTopic: boolean
-    showEstimatedTime: boolean
-  }
+    dailyGoalMinutes: number;
+    reminderEnabled: boolean;
+    reminderTime: string;
+    autoPlayNextTopic: boolean;
+    showEstimatedTime: boolean;
+  };
 
   // Gestures
   gestures: {
-    enabled: boolean
-    sensitivity: number
-    swipeToNext: boolean
-    swipeToPrevious: boolean
-    pinchToZoom: boolean
-    backGesture: boolean
-    zoomGesture: boolean
-    annotateGesture: boolean
-    scrollGesture: boolean
-  }
+    enabled: boolean;
+    sensitivity: number;
+    swipeToNext: boolean;
+    swipeToPrevious: boolean;
+    pinchToZoom: boolean;
+    backGesture: boolean;
+    zoomGesture: boolean;
+    annotateGesture: boolean;
+    scrollGesture: boolean;
+  };
 
   // Legal
-  cookieConsent: boolean
-  termsAccepted: boolean
-  termsAcceptedAt?: Date
+  cookieConsent: boolean;
+  termsAccepted: boolean;
+  termsAcceptedAt?: Date;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
-const notificationDays = [
-  'Mon',
-  'Tue',
-  'Wed',
-  'Thu',
-  'Fri',
-  'Sat',
-  'Sun',
-] as const
+const notificationDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'] as const;
 
 const userSettingsSchema = new Schema<IUserSettingsDocument>(
   {
@@ -602,8 +587,8 @@ const userSettingsSchema = new Schema<IUserSettingsDocument>(
     timestamps: true,
     collection: 'user_settings',
   }
-)
+);
 
 export const UserSettings =
   mongoose.models.UserSettings ||
-  mongoose.model<IUserSettingsDocument>('UserSettings', userSettingsSchema)
+  mongoose.model<IUserSettingsDocument>('UserSettings', userSettingsSchema);

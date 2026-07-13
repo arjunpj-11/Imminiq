@@ -4,113 +4,107 @@ import type {
   UpdateSubtopicProgressInput,
   UserSubtopicProgressRecord,
   UserTopicProgressRecord,
-} from '../trackers.types'
+} from '../trackers.types';
 
 export type EnsureUserProgressInitializedInput = {
-  userId: string
-  trackerId: string
-}
+  userId: string;
+  trackerId: string;
+};
 
 export type GetUserSubtopicsProgressInput = {
-  userId: string
-  trackerId: string
-}
+  userId: string;
+  trackerId: string;
+};
 
 export type GetUserTopicsProgressInput = {
-  userId: string
-  trackerId: string
-}
+  userId: string;
+  trackerId: string;
+};
 
 export type UnlockNextSubtopicInput = {
-  trackerId: string
-  topicId: string
-  completedSubtopicOrder: number
-  parentSubtopicId: string | null
-  userId: string
-}
+  trackerId: string;
+  topicId: string;
+  completedSubtopicOrder: number;
+  parentSubtopicId: string | null;
+  userId: string;
+};
 
 export type CheckAndCompleteParentSubtopicInput = {
-  trackerId: string
-  topicId: string
-  parentSubtopicId: string
-  userId: string
-}
+  trackerId: string;
+  topicId: string;
+  parentSubtopicId: string;
+  userId: string;
+};
 
 export type CheckAndCompleteTopicAndUnlockNextInput = {
-  trackerId: string
-  topicId: string
-  userId: string
-}
+  trackerId: string;
+  topicId: string;
+  userId: string;
+};
 
 export type RecomputeTrackerProgressInput = {
-  trackerId: string
-  userId: string
-}
+  trackerId: string;
+  userId: string;
+};
 
 export type UpdateSubtopicProgressResult = {
-  subtopic: SubtopicWithProgressRecord
-  isCompleted: boolean
-  wasNewlyCompleted: boolean
-}
+  subtopic: SubtopicWithProgressRecord;
+  isCompleted: boolean;
+  wasNewlyCompleted: boolean;
+};
 
 export type UnlockNextSubtopicResult = {
-  unlocked: boolean
-  subtopicId: string | null
-}
+  unlocked: boolean;
+  subtopicId: string | null;
+};
 
 export type ParentSubtopicCompletionResult = {
-  subtopicId: string
-  isCompleted: boolean
-  wasNewlyCompleted: boolean
-}
+  subtopicId: string;
+  isCompleted: boolean;
+  wasNewlyCompleted: boolean;
+};
 
 export type TopicCompletionResult = {
-  topicId: string
-  topicTitle: string | null
+  topicId: string;
+  topicTitle: string | null;
 
-  isCompleted: boolean
-  wasNewlyCompleted: boolean
+  isCompleted: boolean;
+  wasNewlyCompleted: boolean;
 
-  nextTopicUnlocked: boolean
-  nextTopicId: string | null
-}
+  nextTopicUnlocked: boolean;
+  nextTopicId: string | null;
+};
 
 export type TrackerProgressUpdateResult = {
-  progress: TrackerProgressRecord | null
-  isCompleted: boolean
-  wasNewlyCompleted: boolean
-}
+  progress: TrackerProgressRecord | null;
+  isCompleted: boolean;
+  wasNewlyCompleted: boolean;
+};
 
 export interface ITrackerProgressRepository {
-  ensureUserProgressInitialized(
-    data: EnsureUserProgressInitializedInput,
-  ): Promise<void>
+  ensureUserProgressInitialized(data: EnsureUserProgressInitializedInput): Promise<void>;
 
   getUserSubtopicsProgress(
-    data: GetUserSubtopicsProgressInput,
-  ): Promise<UserSubtopicProgressRecord[]>
+    data: GetUserSubtopicsProgressInput
+  ): Promise<UserSubtopicProgressRecord[]>;
 
-  getUserTopicsProgress(
-    data: GetUserTopicsProgressInput,
-  ): Promise<UserTopicProgressRecord[]>
+  getUserTopicsProgress(data: GetUserTopicsProgressInput): Promise<UserTopicProgressRecord[]>;
 
   updateSubtopicProgress(
-    data: UpdateSubtopicProgressInput,
-  ): Promise<UpdateSubtopicProgressResult | null>
+    data: UpdateSubtopicProgressInput
+  ): Promise<UpdateSubtopicProgressResult | null>;
 
-  unlockNextSubtopic(
-    data: UnlockNextSubtopicInput,
-  ): Promise<UnlockNextSubtopicResult>
+  unlockNextSubtopic(data: UnlockNextSubtopicInput): Promise<UnlockNextSubtopicResult>;
 
   checkAndCompleteParentSubtopic(
-    data: CheckAndCompleteParentSubtopicInput,
-  ): Promise<ParentSubtopicCompletionResult>
+    data: CheckAndCompleteParentSubtopicInput
+  ): Promise<ParentSubtopicCompletionResult>;
 
   checkAndCompleteTopicAndUnlockNext(
-    data: CheckAndCompleteTopicAndUnlockNextInput,
-  ): Promise<TopicCompletionResult>
+    data: CheckAndCompleteTopicAndUnlockNextInput
+  ): Promise<TopicCompletionResult>;
 
   recomputeTrackerProgress(
-    data: RecomputeTrackerProgressInput,
-  ): Promise<TrackerProgressUpdateResult>
+    data: RecomputeTrackerProgressInput
+  ): Promise<TrackerProgressUpdateResult>;
 }

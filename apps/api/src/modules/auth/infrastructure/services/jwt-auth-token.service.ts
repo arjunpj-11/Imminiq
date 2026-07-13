@@ -1,15 +1,15 @@
-import crypto from 'crypto'
-import jwt, { SignOptions } from 'jsonwebtoken'
+import crypto from 'crypto';
+import jwt, { SignOptions } from 'jsonwebtoken';
 
-import { env } from '../../../../config/env'
-import { AuthDomainError } from '../../domain/auth-domain.error'
-import type { IAuthToken } from '../../domain/services/auth-token.interface'
-import type { AuthRole } from '../../domain/value-objects/auth-role.vo'
+import { env } from '../../../../config/env';
+import { AuthDomainError } from '../../domain/auth-domain.error';
+import type { IAuthToken } from '../../domain/services/auth-token.interface';
+import type { AuthRole } from '../../domain/value-objects/auth-role.vo';
 import type {
   IJwtPayload,
   TwoFactorChallengeTokenPayload,
-} from '../../domain/value-objects/token-payload.vo'
-import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants'
+} from '../../domain/value-objects/token-payload.vo';
+import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants';
 
 export class JwtAuthToken implements IAuthToken {
   generateAccessToken(userId: string, role: AuthRole, sessionId?: string): string {
@@ -18,7 +18,7 @@ export class JwtAuthToken implements IAuthToken {
       algorithm: 'HS256',
       issuer: 'imminiq-api',
       audience: 'imminiq-web',
-    }
+    };
 
     return jwt.sign(
       {
@@ -29,11 +29,11 @@ export class JwtAuthToken implements IAuthToken {
       } as IJwtPayload,
       env.JWT_SECRET,
       accessTokenOptions
-    )
+    );
   }
 
   generateRefreshToken(): string {
-    return crypto.randomBytes(64).toString('hex')
+    return crypto.randomBytes(64).toString('hex');
   }
 
   generateTwoFactorChallengeToken(userId: string): string {
@@ -42,7 +42,7 @@ export class JwtAuthToken implements IAuthToken {
       algorithm: 'HS256',
       issuer: 'imminiq-api',
       audience: 'imminiq-web',
-    }
+    };
 
     return jwt.sign(
       {
@@ -51,40 +51,31 @@ export class JwtAuthToken implements IAuthToken {
       },
       env.JWT_SECRET,
       challengeOptions
-    )
+    );
   }
 
-  verifyTwoFactorChallengeToken(
-    challengeToken: string
-  ): TwoFactorChallengeTokenPayload {
-    let decoded: TwoFactorChallengeTokenPayload
+  verifyTwoFactorChallengeToken(challengeToken: string): TwoFactorChallengeTokenPayload {
+    let decoded: TwoFactorChallengeTokenPayload;
 
     try {
-      decoded = jwt.verify(
-        challengeToken,
-        env.JWT_SECRET,
-        {
-          algorithms: ['HS256'],
-          issuer: 'imminiq-api',
-          audience: 'imminiq-web',
-        }
-      ) as TwoFactorChallengeTokenPayload
+      decoded = jwt.verify(challengeToken, env.JWT_SECRET, {
+        algorithms: ['HS256'],
+        issuer: 'imminiq-api',
+        audience: 'imminiq-web',
+      }) as TwoFactorChallengeTokenPayload;
     } catch {
       throw new AuthDomainError(
         'TWO_FACTOR_CHALLENGE_EXPIRED',
         'Two-factor challenge expired. Please sign in again.'
-      )
+      );
     }
 
     if (decoded.purpose !== 'two_factor_login') {
-      throw new AuthDomainError(
-        'INVALID_TWO_FACTOR_CHALLENGE',
-        'Invalid two-factor challenge'
-      )
+      throw new AuthDomainError('INVALID_TWO_FACTOR_CHALLENGE', 'Invalid two-factor challenge');
     }
 
-    return decoded
+    return decoded;
   }
 }
 
-export const jwtAuthToken = new JwtAuthToken()
+export const jwtAuthToken = new JwtAuthToken();

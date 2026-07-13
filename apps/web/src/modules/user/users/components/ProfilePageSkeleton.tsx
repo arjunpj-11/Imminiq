@@ -1,16 +1,11 @@
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
-import { cn } from '../../../../lib/cn'
-import ProfileDocumentStyles from './ProfileDocumentStyles'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { cn } from '../../../../lib/cn';
+import ProfileDocumentStyles from './ProfileDocumentStyles';
 
 function SkeletonBlock({ className }: { className?: string }) {
   return (
-    <div
-      className={cn(
-        'animate-pulse rounded-full bg-[#e8d8cf] dark:bg-white/10',
-        className,
-      )}
-    />
-  )
+    <div className={cn('animate-pulse rounded-full bg-[#e8d8cf] dark:bg-white/10', className)} />
+  );
 }
 
 export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: boolean }) {
@@ -46,10 +41,7 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
 
                     <div className="mt-4 flex flex-wrap gap-2">
                       {Array.from({ length: 4 }).map((_, index) => (
-                        <SkeletonBlock
-                          key={index}
-                          className="h-7 w-28"
-                        />
+                        <SkeletonBlock key={index} className="h-7 w-28" />
                       ))}
                     </div>
                   </div>
@@ -86,10 +78,7 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
 
                 <div className="mt-6 flex flex-wrap gap-2">
                   {Array.from({ length: 6 }).map((_, index) => (
-                    <SkeletonBlock
-                      key={index}
-                      className="h-8 w-24 rounded-lg"
-                    />
+                    <SkeletonBlock key={index} className="h-8 w-24 rounded-lg" />
                   ))}
                 </div>
 
@@ -101,10 +90,7 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
 
                 <div className="mt-6 flex flex-wrap gap-2">
                   {Array.from({ length: 3 }).map((_, index) => (
-                    <SkeletonBlock
-                      key={index}
-                      className="h-8 w-24 rounded-lg"
-                    />
+                    <SkeletonBlock key={index} className="h-8 w-24 rounded-lg" />
                   ))}
                 </div>
               </div>
@@ -140,6 +126,5 @@ export default function ProfilePageSkeleton({ showSidebar }: { showSidebar: bool
         <span className="sr-only">Loading profile content</span>
       </div>
     </AppShellBoundary>
-  )
+  );
 }
-

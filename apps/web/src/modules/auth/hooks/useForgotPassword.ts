@@ -1,35 +1,32 @@
-import { useMutation } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
-import api from '../../../lib/axios'
+import { useMutation } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import api from '../../../lib/axios';
 
 interface IForgotPasswordPayload {
-  identifier: string
+  identifier: string;
 }
 
 interface IForgotPasswordResponse {
-  success?: boolean
-  message: string
+  success?: boolean;
+  message: string;
   data?: {
-    verificationTarget?: string
-    verificationMethod?: 'email' | 'phone'
-  }
+    verificationTarget?: string;
+    verificationMethod?: 'email' | 'phone';
+  };
 }
 
 interface IApiErrorResponse {
-  success?: boolean
-  message?: string
+  success?: boolean;
+  message?: string;
 }
 
 const forgotPassword = async (
   payload: IForgotPasswordPayload
 ): Promise<IForgotPasswordResponse> => {
-  const response = await api.post<IForgotPasswordResponse>(
-    '/auth/forgot-password',
-    payload
-  )
+  const response = await api.post<IForgotPasswordResponse>('/auth/forgot-password', payload);
 
-  return response.data
-}
+  return response.data;
+};
 
 export const useForgotPassword = () => {
   return useMutation<
@@ -38,5 +35,5 @@ export const useForgotPassword = () => {
     IForgotPasswordPayload
   >({
     mutationFn: forgotPassword,
-  })
-}
+  });
+};

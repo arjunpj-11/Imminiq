@@ -1,4 +1,11 @@
-const words = ['AI ROADMAPS', 'SCRIBE AI', 'PRACTICE ARENA', 'STREAK MEMORY', 'EARLY ACCESS', 'BUILD MASTERY']
+const words = [
+  'AI ROADMAPS',
+  'SCRIBE AI',
+  'PRACTICE ARENA',
+  'STREAK MEMORY',
+  'EARLY ACCESS',
+  'BUILD MASTERY',
+];
 
 export default function LandingTicker() {
   return (
@@ -12,5 +19,5 @@ export default function LandingTicker() {
         ))}
       </div>
     </div>
-  )
+  );
 }

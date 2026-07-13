@@ -1,61 +1,42 @@
-import {
-  useEffect,
-  useMemo,
-  useRef,
-  type ChangeEvent,
-} from 'react'
+import { useEffect, useMemo, useRef, type ChangeEvent } from 'react';
 
-import type {
-  ActivityHeatmapIntensity,
-  IActivityPageResponse,
-} from '../types/activity.types'
-import {
-  buildActivityYearOptions,
-} from '../utils/activity-formatters'
-import {
-  ACTIVITY_HEATMAP_INTENSITY_CLASS,
-  cn,
-} from '../utils/activity-ui'
-import { CalendarIcon } from './icons/ActivityIcons'
+import type { ActivityHeatmapIntensity, IActivityPageResponse } from '../types/activity.types';
+import { buildActivityYearOptions } from '../utils/activity-formatters';
+import { ACTIVITY_HEATMAP_INTENSITY_CLASS, cn } from '../utils/activity-ui';
+import { CalendarIcon } from './icons/ActivityIcons';
 
 interface IHeatmapCell {
-  date: Date
-  inside: boolean
-  intensityLevel: ActivityHeatmapIntensity
-  activityCount: number
-  isFrozen: boolean
+  date: Date;
+  inside: boolean;
+  intensityLevel: ActivityHeatmapIntensity;
+  activityCount: number;
+  isFrozen: boolean;
 }
 
-const toDateKey = (value: Date): string =>
-  value.toISOString().slice(0, 10)
+const toDateKey = (value: Date): string => value.toISOString().slice(0, 10);
 
-const buildHeatmap = (
-  year: number,
-  streak: IActivityPageResponse['streak'],
-) => {
-  const first = new Date(Date.UTC(year, 0, 1))
-  const last = new Date(Date.UTC(year, 11, 31))
+const buildHeatmap = (year: number, streak: IActivityPageResponse['streak']) => {
+  const first = new Date(Date.UTC(year, 0, 1));
+  const last = new Date(Date.UTC(year, 11, 31));
 
-  const start = new Date(first)
-  start.setUTCDate(start.getUTCDate() - start.getUTCDay())
+  const start = new Date(first);
+  start.setUTCDate(start.getUTCDate() - start.getUTCDay());
 
-  const end = new Date(last)
-  end.setUTCDate(end.getUTCDate() + (6 - end.getUTCDay()))
+  const end = new Date(last);
+  end.setUTCDate(end.getUTCDate() + (6 - end.getUTCDay()));
 
-  const heatmapByDate = new Map(
-    streak.heatmap.map((item) => [item.date, item]),
-  )
+  const heatmapByDate = new Map(streak.heatmap.map((item) => [item.date, item]));
 
-  const weeks: IHeatmapCell[][] = []
-  const cursor = new Date(start)
+  const weeks: IHeatmapCell[][] = [];
+  const cursor = new Date(start);
 
   while (cursor <= end) {
-    const week: IHeatmapCell[] = []
+    const week: IHeatmapCell[] = [];
 
     for (let day = 0; day < 7; day += 1) {
-      const date = new Date(cursor)
-      const inside = date.getUTCFullYear() === year
-      const matchingItem = heatmapByDate.get(toDateKey(date))
+      const date = new Date(cursor);
+      const inside = date.getUTCFullYear() === year;
+      const matchingItem = heatmapByDate.get(toDateKey(date));
 
       week.push({
         date,
@@ -63,19 +44,17 @@ const buildHeatmap = (
         intensityLevel: matchingItem?.intensityLevel ?? 'none',
         activityCount: matchingItem?.activityCount ?? 0,
         isFrozen: Boolean(matchingItem?.isFrozen),
-      })
+      });
 
-      cursor.setUTCDate(cursor.getUTCDate() + 1)
+      cursor.setUTCDate(cursor.getUTCDate() + 1);
     }
 
-    weeks.push(week)
+    weeks.push(week);
   }
 
   const months = Array.from({ length: 12 }, (_, monthIndex) => {
-    const monthStart = new Date(Date.UTC(year, monthIndex, 1))
-    const daysFromStart = Math.round(
-      (monthStart.getTime() - start.getTime()) / 86_400_000,
-    )
+    const monthStart = new Date(Date.UTC(year, monthIndex, 1));
+    const daysFromStart = Math.round((monthStart.getTime() - start.getTime()) / 86_400_000);
 
     return {
       label: monthStart.toLocaleDateString(undefined, {
@@ -83,21 +62,21 @@ const buildHeatmap = (
         timeZone: 'UTC',
       }),
       weekIndex: Math.floor(daysFromStart / 7),
-    }
-  })
+    };
+  });
 
   return {
     weeks,
     months,
-  }
-}
+  };
+};
 
 interface IActivityHeatmapProps {
-  streak: IActivityPageResponse['streak']
-  year: number
-  accountCreatedAt: string
-  isFetching?: boolean
-  onYearChange: (year: number) => void
+  streak: IActivityPageResponse['streak'];
+  year: number;
+  accountCreatedAt: string;
+  isFetching?: boolean;
+  onYearChange: (year: number) => void;
 }
 
 export default function ActivityHeatmap({
@@ -107,29 +86,23 @@ export default function ActivityHeatmap({
   isFetching = false,
   onYearChange,
 }: IActivityHeatmapProps) {
-  const currentYear = new Date().getFullYear()
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const years = useMemo(
-    () => buildActivityYearOptions(accountCreatedAt),
-    [accountCreatedAt],
-  )
+  const currentYear = new Date().getFullYear();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const years = useMemo(() => buildActivityYearOptions(accountCreatedAt), [accountCreatedAt]);
 
   useEffect(() => {
     if (!years.includes(year)) {
-      onYearChange(years[0] ?? currentYear)
+      onYearChange(years[0] ?? currentYear);
     }
-  }, [currentYear, onYearChange, year, years])
+  }, [currentYear, onYearChange, year, years]);
 
   useEffect(() => {
     if (scrollRef.current && year === currentYear) {
-      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth
+      scrollRef.current.scrollLeft = scrollRef.current.scrollWidth;
     }
-  }, [currentYear, year])
+  }, [currentYear, year]);
 
-  const { weeks, months } = useMemo(
-    () => buildHeatmap(year, streak),
-    [streak, year],
-  )
+  const { weeks, months } = useMemo(() => buildHeatmap(year, streak), [streak, year]);
 
   return (
     <section className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-4">
@@ -202,10 +175,7 @@ export default function ActivityHeatmap({
           role="img"
           aria-label={`Learning activity calendar heatmap for ${year}`}
         >
-          <div
-            style={{ gridColumn: 2, gridRow: 1 }}
-            className="relative h-4.5 min-w-fit"
-          >
+          <div style={{ gridColumn: 2, gridRow: 1 }} className="relative h-4.5 min-w-fit">
             {months.map((month) => (
               <span
                 key={`${month.label}-${month.weekIndex}`}
@@ -222,22 +192,17 @@ export default function ActivityHeatmap({
             className="grid grid-rows-7 gap-0.75"
             aria-hidden="true"
           >
-            {['', 'Mon', '', 'Wed', '', 'Fri', ''].map(
-              (weekday, index) => (
-                <span
-                  key={`${weekday}-${index}`}
-                  className="h-2.75 font-mono text-[7px] uppercase leading-2.75 tracking-[0.08em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)"
-                >
-                  {weekday}
-                </span>
-              ),
-            )}
+            {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((weekday, index) => (
+              <span
+                key={`${weekday}-${index}`}
+                className="h-2.75 font-mono text-[7px] uppercase leading-2.75 tracking-[0.08em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)"
+              >
+                {weekday}
+              </span>
+            ))}
           </div>
 
-          <div
-            style={{ gridColumn: 2, gridRow: 2 }}
-            className="flex min-w-fit gap-0.75"
-          >
+          <div style={{ gridColumn: 2, gridRow: 2 }} className="flex min-w-fit gap-0.75">
             {weeks.map((week, weekIndex) => (
               <div
                 key={week[0]?.date.toISOString() ?? weekIndex}
@@ -249,10 +214,8 @@ export default function ActivityHeatmap({
                     className={cn(
                       'h-2.75 w-2.75 shrink-0 cursor-default rounded-xs transition-all duration-150 hover:scale-[1.12] hover:opacity-85',
                       cell.inside
-                        ? ACTIVITY_HEATMAP_INTENSITY_CLASS[
-                            cell.intensityLevel
-                          ]
-                        : 'pointer-events-none opacity-0',
+                        ? ACTIVITY_HEATMAP_INTENSITY_CLASS[cell.intensityLevel]
+                        : 'pointer-events-none opacity-0'
                     )}
                     title={
                       cell.inside
@@ -263,11 +226,7 @@ export default function ActivityHeatmap({
                             timeZone: 'UTC',
                           })} · ${cell.activityCount} activit${
                             cell.activityCount === 1 ? 'y' : 'ies'
-                          }${
-                            cell.isFrozen
-                              ? ' · Streak freeze used'
-                              : ''
-                          }`
+                          }${cell.isFrozen ? ' · Streak freeze used' : ''}`
                         : ''
                     }
                   />
@@ -282,15 +241,10 @@ export default function ActivityHeatmap({
         <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
           Less active
         </span>
-        {(
-          ['none', 'low', 'medium', 'high'] as ActivityHeatmapIntensity[]
-        ).map((level) => (
+        {(['none', 'low', 'medium', 'high'] as ActivityHeatmapIntensity[]).map((level) => (
           <div
             key={level}
-            className={cn(
-              'h-2.75 w-2.75 rounded-xs',
-              ACTIVITY_HEATMAP_INTENSITY_CLASS[level],
-            )}
+            className={cn('h-2.75 w-2.75 rounded-xs', ACTIVITY_HEATMAP_INTENSITY_CLASS[level])}
           />
         ))}
         <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
@@ -307,5 +261,5 @@ export default function ActivityHeatmap({
         Updating learning activity…
       </div>
     </section>
-  )
+  );
 }

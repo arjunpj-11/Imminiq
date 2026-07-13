@@ -1,13 +1,13 @@
-import CommunityLayout from './CommunityLayout'
-import { communityPageClass } from '../../utils/community-ui'
+import CommunityLayout from './CommunityLayout';
+import { communityPageClass } from '../../utils/community-ui';
 
 interface ICommunityPageSkeletonProps {
-  variant?: 'browse' | 'verify' | 'detail'
+  variant?: 'browse' | 'verify' | 'detail';
 }
 
 const SkeletonBlock = ({ className }: { className?: string }) => (
   <div className={`animate-pulse rounded-full bg-[#e8ddd6] dark:bg-white/10 ${className || ''}`} />
-)
+);
 
 const TrackerCardSkeleton = () => (
   <div className="animate-pulse rounded-lg border-[1.5px] border-(--border-subtle) border-l-[3px] bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -23,12 +23,10 @@ const TrackerCardSkeleton = () => (
       <div className="h-7 w-24 rounded-lg bg-[#e8ddd6] dark:bg-white/10" />
     </div>
   </div>
-)
+);
 
-export default function CommunityPageSkeleton({
-  variant = 'browse',
-}: ICommunityPageSkeletonProps) {
-  const cardCount = variant === 'verify' ? 4 : 6
+export default function CommunityPageSkeleton({ variant = 'browse' }: ICommunityPageSkeletonProps) {
+  const cardCount = variant === 'verify' ? 4 : 6;
 
   return (
     <CommunityLayout loadingLabel={`Loading community ${variant}`}>
@@ -58,5 +56,5 @@ export default function CommunityPageSkeleton({
         </div>
       </div>
     </CommunityLayout>
-  )
+  );
 }

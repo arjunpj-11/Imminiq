@@ -1,4 +1,4 @@
-import type { GeneratedLessonData } from '../lesson-practice.types'
+import type { GeneratedLessonData } from '../lesson-practice.types';
 import type {
   GeneratedTrackerLessonRecord,
   SubtopicWithProgressRecord,
@@ -9,72 +9,68 @@ import type {
   TrackerSubtopicRecord,
   TrackerSummaryRecord,
   TrackerTopicRecord,
-} from '../trackers.types'
+} from '../trackers.types';
 
 export type FindOwnedTrackerByIdInput = {
-  trackerId: string
-  userId: string
-}
+  trackerId: string;
+  userId: string;
+};
 
 export type GetTopicsWithUserProgressInput = {
-  trackerId: string
-  userId: string
-}
+  trackerId: string;
+  userId: string;
+};
 
 export type GetSubtopicsWithUserProgressInput = {
-  trackerId: string
-  userId: string
-}
+  trackerId: string;
+  userId: string;
+};
 
 export type GetSubtopicByIdInput = {
-  trackerId: string
-  subtopicId: string
-}
+  trackerId: string;
+  subtopicId: string;
+};
 
 export type FindLessonBySubtopicIdInput = {
-  trackerId: string
-  subtopicId: string
-  userId: string
-}
+  trackerId: string;
+  subtopicId: string;
+  userId: string;
+};
 
 export type FindGeneratedLessonBySubtopicInput = {
-  trackerId: string
-  subtopicId: string
-  userId: string
-}
+  trackerId: string;
+  subtopicId: string;
+  userId: string;
+};
 
 export interface ITrackerQueryRepository {
-  hasAnyTrackerForUser(userId: string): Promise<boolean>
+  hasAnyTrackerForUser(userId: string): Promise<boolean>;
 
-  getTrackerSummary(userId: string): Promise<TrackerSummaryRecord>
+  getTrackerSummary(userId: string): Promise<TrackerSummaryRecord>;
 
-  listOwnedTrackers(filter: TrackerListFilter): Promise<TrackerListResult>
+  listOwnedTrackers(filter: TrackerListFilter): Promise<TrackerListResult>;
 
-  findOwnedTrackerById(
-    data: FindOwnedTrackerByIdInput
-  ): Promise<TrackerRecord | null>
+  findOwnedTrackerById(data: FindOwnedTrackerByIdInput): Promise<TrackerRecord | null>;
 
-  getTopicsForTracker(trackerId: string): Promise<TrackerTopicRecord[]>
+  getTopicsForTracker(trackerId: string): Promise<TrackerTopicRecord[]>;
 
   getTopicsWithUserProgress(
     data: GetTopicsWithUserProgressInput
-  ): Promise<TopicWithProgressRecord[]>
+  ): Promise<TopicWithProgressRecord[]>;
 
-  getSubtopicsForTracker(trackerId: string): Promise<TrackerSubtopicRecord[]>
+  getSubtopicsForTracker(trackerId: string): Promise<TrackerSubtopicRecord[]>;
 
   getSubtopicsWithUserProgress(
     data: GetSubtopicsWithUserProgressInput
-  ): Promise<SubtopicWithProgressRecord[]>
+  ): Promise<SubtopicWithProgressRecord[]>;
 
-  getSubtopicById(
-    data: GetSubtopicByIdInput
-  ): Promise<TrackerSubtopicRecord | null>
+  getSubtopicById(data: GetSubtopicByIdInput): Promise<TrackerSubtopicRecord | null>;
 
   findLessonBySubtopicId(
     data: FindLessonBySubtopicIdInput
-  ): Promise<GeneratedTrackerLessonRecord | null>
+  ): Promise<GeneratedTrackerLessonRecord | null>;
 
   findGeneratedLessonBySubtopic(
     data: FindGeneratedLessonBySubtopicInput
-  ): Promise<GeneratedLessonData | null>
+  ): Promise<GeneratedLessonData | null>;
 }

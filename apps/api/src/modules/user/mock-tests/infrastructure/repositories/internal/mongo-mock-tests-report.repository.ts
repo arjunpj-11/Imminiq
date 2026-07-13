@@ -27,10 +27,8 @@ export class MongoMockTestsReportRepository extends MongoMockTestsBaseRepository
           deletedAt: null,
         }).lean();
 
-        return doc
-          ? this._mapper.toMockTestReportEntity(doc as RawMockTestReportDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestReportEntity(doc as RawMockTestReportDoc) : null;
+      }
     );
   }
 
@@ -41,14 +39,11 @@ export class MongoMockTestsReportRepository extends MongoMockTestsBaseRepository
       async () => {
         const doc = await MockTestReportModel.create(data);
 
-        return this._mapper.toMockTestReportEntity(
-          doc.toObject() as RawMockTestReportDoc,
-        );
+        return this._mapper.toMockTestReportEntity(doc.toObject() as RawMockTestReportDoc);
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 }
 
-export const mongoMockTestsReportRepository =
-  new MongoMockTestsReportRepository();
+export const mongoMockTestsReportRepository = new MongoMockTestsReportRepository();

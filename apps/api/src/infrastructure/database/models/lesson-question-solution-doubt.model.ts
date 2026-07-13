@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/lesson-question-solution-doubt.model.ts
 
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const lessonQuestionSolutionDoubtSchema = new Schema(
   {
@@ -73,7 +73,7 @@ const lessonQuestionSolutionDoubtSchema = new Schema(
   {
     timestamps: true,
   }
-)
+);
 
 lessonQuestionSolutionDoubtSchema.index({
   trackerId: 1,
@@ -81,16 +81,13 @@ lessonQuestionSolutionDoubtSchema.index({
   userId: 1,
   questionHash: 1,
   createdAt: 1,
-})
+});
 
 lessonQuestionSolutionDoubtSchema.index({
   solutionId: 1,
   createdAt: 1,
-})
+});
 
 export const LessonQuestionSolutionDoubt =
   mongoose.models.LessonQuestionSolutionDoubt ||
-  mongoose.model(
-    'LessonQuestionSolutionDoubt',
-    lessonQuestionSolutionDoubtSchema
-  )
+  mongoose.model('LessonQuestionSolutionDoubt', lessonQuestionSolutionDoubtSchema);

@@ -1,32 +1,28 @@
-import { cerebrasChat } from './clients/cerebras.client'
-import {
-  gemini31FlashLiteChat,
-  geminiChat,
-  geminiFlashLiteChat,
-} from './clients/gemini.client'
-import { groqChat } from './clients/groq.client'
+import { cerebrasChat } from './clients/cerebras.client';
+import { gemini31FlashLiteChat, geminiChat, geminiFlashLiteChat } from './clients/gemini.client';
+import { groqChat } from './clients/groq.client';
 
 export type AIChatMessage = {
-  role: 'user' | 'assistant' | 'system'
-  content: string
-}
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+};
 
 type AIProvider<T> = {
-  name: string
-  generate: () => Promise<T | null>
-}
+  name: string;
+  generate: () => Promise<T | null>;
+};
 
 export const shouldFallbackFromProvider = (error: unknown): boolean => {
-  if (!error || typeof error !== 'object') return false
+  if (!error || typeof error !== 'object') return false;
 
   const possibleError = error as {
-    status?: number
-    statusCode?: number
-    code?: string | number
-    message?: string
-  }
-  const status = possibleError.status ?? possibleError.statusCode
-  const message = possibleError.message?.toLowerCase() || ''
+    status?: number;
+    statusCode?: number;
+    code?: string | number;
+    message?: string;
+  };
+  const status = possibleError.status ?? possibleError.statusCode;
+  const message = possibleError.message?.toLowerCase() || '';
 
   return (
     status === 408 ||
@@ -45,62 +41,66 @@ export const shouldFallbackFromProvider = (error: unknown): boolean => {
     message.includes('timed out') ||
     message.includes('timeout') ||
     message.includes('empty response')
-  )
-}
+  );
+};
 
 const runFallbackChain = async <T>(providers: AIProvider<T>[]): Promise<T> => {
-  let lastError: unknown
+  let lastError: unknown;
 
   for (const [index, provider] of providers.entries()) {
     try {
-      const response = await provider.generate()
+      const response = await provider.generate();
       if (response === null || response === undefined) {
-        throw new Error(`${provider.name} returned an empty response`)
+        throw new Error(`${provider.name} returned an empty response`);
       }
       if (typeof response === 'string' && !response.trim()) {
-        throw new Error(`${provider.name} returned an empty response`)
+        throw new Error(`${provider.name} returned an empty response`);
       }
-      return response
+      return response;
     } catch (error) {
-      lastError = error
-      const hasFallback = index < providers.length - 1
-      if (!hasFallback || !shouldFallbackFromProvider(error)) throw error
-      console.warn(`[AI fallback] ${provider.name} is unavailable; trying ${providers[index + 1].name}.`)
+      lastError = error;
+      const hasFallback = index < providers.length - 1;
+      if (!hasFallback || !shouldFallbackFromProvider(error)) throw error;
+      console.warn(
+        `[AI fallback] ${provider.name} is unavailable; trying ${providers[index + 1].name}.`
+      );
     }
   }
 
-  throw lastError ?? new Error('No AI provider was available')
-}
+  throw lastError ?? new Error('No AI provider was available');
+};
 
 const toPrompt = (messages: AIChatMessage[]) => {
-  const system = messages
-    .filter((message) => message.role === 'system')
-    .map((message) => message.content)
-    .join('\n\n') || undefined
+  const system =
+    messages
+      .filter((message) => message.role === 'system')
+      .map((message) => message.content)
+      .join('\n\n') || undefined;
   const prompt = messages
     .filter((message) => message.role !== 'system')
     .map((message) => `${message.role === 'assistant' ? 'Assistant' : 'User'}: ${message.content}`)
-    .join('\n\n')
+    .join('\n\n');
 
-  return { prompt, system }
-}
+  return { prompt, system };
+};
 
 const getEconomyProviders = (
   messages: AIChatMessage[],
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile',
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile'
 ): AIProvider<string>[] => {
-  const alternateGroqModel = primaryGroqModel === 'llama-3.1-8b-instant'
-    ? 'llama-3.3-70b-versatile'
-    : 'llama-3.1-8b-instant'
-  const { prompt, system } = toPrompt(messages)
+  const alternateGroqModel =
+    primaryGroqModel === 'llama-3.1-8b-instant'
+      ? 'llama-3.3-70b-versatile'
+      : 'llama-3.1-8b-instant';
+  const { prompt, system } = toPrompt(messages);
 
   return [
     { name: `Groq ${primaryGroqModel}`, generate: () => groqChat(messages, primaryGroqModel) },
     { name: 'Gemini 3.1 Flash-Lite', generate: () => gemini31FlashLiteChat(prompt, system) },
     { name: `Groq ${alternateGroqModel}`, generate: () => groqChat(messages, alternateGroqModel) },
     { name: 'Cerebras Qwen 3', generate: () => cerebrasChat(prompt, system) },
-  ]
-}
+  ];
+};
 
 /**
  * For chat, lessons, tests, insights, verification, and other non-tracker work.
@@ -108,29 +108,30 @@ const getEconomyProviders = (
  */
 export const economyAIChatWithFallback = async (
   messages: AIChatMessage[],
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant'
 ): Promise<string> => {
-  return runFallbackChain(getEconomyProviders(messages, primaryGroqModel))
-}
+  return runFallbackChain(getEconomyProviders(messages, primaryGroqModel));
+};
 
 /** Validates each model response before accepting it, so invalid JSON/schema
  * output falls through to the next economical model instead of causing a 502. */
 export const economyAIStructuredWithFallback = async <T>(
   messages: AIChatMessage[],
   parseResponse: (response: string) => T,
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
-): Promise<T> => runFallbackChain(
-  getEconomyProviders(messages, primaryGroqModel).map((provider) => ({
-    name: provider.name,
-    generate: async () => {
-      const response = await provider.generate()
-      if (!response?.trim()) {
-        throw new Error(`${provider.name} returned an empty response`)
-      }
-      return parseResponse(response)
-    },
-  })),
-)
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant'
+): Promise<T> =>
+  runFallbackChain(
+    getEconomyProviders(messages, primaryGroqModel).map((provider) => ({
+      name: provider.name,
+      generate: async () => {
+        const response = await provider.generate();
+        if (!response?.trim()) {
+          throw new Error(`${provider.name} returned an empty response`);
+        }
+        return parseResponse(response);
+      },
+    }))
+  );
 
 /**
  * Reserved for creating/evaluating tracker roadmaps. It exhausts all five
@@ -139,20 +140,25 @@ export const economyAIStructuredWithFallback = async <T>(
 export const trackerAIChatWithFallback = async (
   prompt: string,
   system: string,
-  cerebrasStructuredFallback: (prompt: string, system?: string) => Promise<string>,
-): Promise<string> => runFallbackChain([
-  { name: 'Gemini 2.5 Flash', generate: () => geminiChat(prompt, system) },
-  { name: 'Gemini 2.5 Flash-Lite', generate: () => geminiFlashLiteChat(prompt, system) },
-  { name: 'Gemini 3.1 Flash-Lite', generate: () => gemini31FlashLiteChat(prompt, system) },
-  { name: 'Cerebras Qwen 3', generate: () => cerebrasStructuredFallback(prompt, system) },
-  {
-    name: 'Groq Llama 3.3 70B',
-    generate: () => groqChat([
-      { role: 'system', content: system },
-      { role: 'user', content: prompt },
-    ], 'llama-3.3-70b-versatile'),
-  },
-])
+  cerebrasStructuredFallback: (prompt: string, system?: string) => Promise<string>
+): Promise<string> =>
+  runFallbackChain([
+    { name: 'Gemini 2.5 Flash', generate: () => geminiChat(prompt, system) },
+    { name: 'Gemini 2.5 Flash-Lite', generate: () => geminiFlashLiteChat(prompt, system) },
+    { name: 'Gemini 3.1 Flash-Lite', generate: () => gemini31FlashLiteChat(prompt, system) },
+    { name: 'Cerebras Qwen 3', generate: () => cerebrasStructuredFallback(prompt, system) },
+    {
+      name: 'Groq Llama 3.3 70B',
+      generate: () =>
+        groqChat(
+          [
+            { role: 'system', content: system },
+            { role: 'user', content: prompt },
+          ],
+          'llama-3.3-70b-versatile'
+        ),
+    },
+  ]);
 
 // Backwards-compatible name for tracker-only callers.
-export const heavyAIChatWithFallback = trackerAIChatWithFallback
+export const heavyAIChatWithFallback = trackerAIChatWithFallback;

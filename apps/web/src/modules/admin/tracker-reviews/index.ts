@@ -1,1 +1,1 @@
-export { default as AdminTrackerReviewsPage } from './pages/AdminTrackerReviewsPage'
+export { default as AdminTrackerReviewsPage } from './pages/AdminTrackerReviewsPage';

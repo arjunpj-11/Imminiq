@@ -1,32 +1,32 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
-type BannerModalTab = 'defaults' | 'upload' | 'ai'
+type BannerModalTab = 'defaults' | 'upload' | 'ai';
 
 interface IProfileUIState {
-  editPanelOpen: boolean
-  bannerModalOpen: boolean
-  avatarCropModalOpen: boolean
-  bannerModalTab: BannerModalTab
-  selectedBadgeId: string | null
-  selectedHeatmapYear: number
+  editPanelOpen: boolean;
+  bannerModalOpen: boolean;
+  avatarCropModalOpen: boolean;
+  bannerModalTab: BannerModalTab;
+  selectedBadgeId: string | null;
+  selectedHeatmapYear: number;
 
-  openEditPanel: () => void
-  closeEditPanel: () => void
+  openEditPanel: () => void;
+  closeEditPanel: () => void;
 
-  openBannerModal: (tab?: BannerModalTab) => void
-  closeBannerModal: () => void
-  setBannerModalTab: (tab: BannerModalTab) => void
+  openBannerModal: (tab?: BannerModalTab) => void;
+  closeBannerModal: () => void;
+  setBannerModalTab: (tab: BannerModalTab) => void;
 
-  openAvatarCropModal: () => void
-  closeAvatarCropModal: () => void
+  openAvatarCropModal: () => void;
+  closeAvatarCropModal: () => void;
 
-  setSelectedBadgeId: (badgeId: string | null) => void
-  setSelectedHeatmapYear: (year: number) => void
+  setSelectedBadgeId: (badgeId: string | null) => void;
+  setSelectedHeatmapYear: (year: number) => void;
 
-  closeAllProfileOverlays: () => void
+  closeAllProfileOverlays: () => void;
 }
 
-const currentYear = new Date().getFullYear()
+const currentYear = new Date().getFullYear();
 
 export const useProfileStore = create<IProfileUIState>((set) => ({
   editPanelOpen: false,
@@ -39,8 +39,7 @@ export const useProfileStore = create<IProfileUIState>((set) => ({
   openEditPanel: () => set({ editPanelOpen: true }),
   closeEditPanel: () => set({ editPanelOpen: false }),
 
-  openBannerModal: (tab = 'defaults') =>
-    set({ bannerModalOpen: true, bannerModalTab: tab }),
+  openBannerModal: (tab = 'defaults') => set({ bannerModalOpen: true, bannerModalTab: tab }),
   closeBannerModal: () => set({ bannerModalOpen: false }),
   setBannerModalTab: (tab) => set({ bannerModalTab: tab }),
 
@@ -57,4 +56,4 @@ export const useProfileStore = create<IProfileUIState>((set) => ({
       avatarCropModalOpen: false,
       selectedBadgeId: null,
     }),
-}))
+}));

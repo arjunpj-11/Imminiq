@@ -1,44 +1,42 @@
-import { cn } from '../lib/cn'
+import { cn } from '../lib/cn';
 import {
   SystemPageFooter,
   SystemPageHeader,
   SystemPageNoise,
   SystemToast,
-} from '../components/system/SystemPageChrome'
+} from '../components/system/SystemPageChrome';
 
-import { useRef, useState } from 'react'
-import type { FormEvent } from 'react'
-import { Navigate } from 'react-router-dom'
-import { useSubmitModerationAppeal } from '../hooks/moderation/useSubmitModerationAppeal'
-import { useGetModerationAppealStatus } from '../hooks/moderation/useGetModerationAppealStatus'
-import { useAuthStore } from '../store/useAuthStore'
+import { useRef, useState } from 'react';
+import type { FormEvent } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useSubmitModerationAppeal } from '../hooks/moderation/useSubmitModerationAppeal';
+import { useGetModerationAppealStatus } from '../hooks/moderation/useGetModerationAppealStatus';
+import { useAuthStore } from '../store/useAuthStore';
 import {
   getBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
-} from '../lib/blockedAppealSession'
+} from '../lib/blockedAppealSession';
 
 interface IAppealFormState {
-  identifier: string
-  appealReason: string
-  agreed: boolean
+  identifier: string;
+  appealReason: string;
+  agreed: boolean;
 }
 
-const formatAppealStatus = (
-  status?: 'pending' | 'under_review' | 'approved' | 'rejected'
-) => {
+const formatAppealStatus = (status?: 'pending' | 'under_review' | 'approved' | 'rejected') => {
   switch (status) {
     case 'pending':
-      return 'Pending'
+      return 'Pending';
     case 'under_review':
-      return 'Under Review'
+      return 'Under Review';
     case 'approved':
-      return 'Approved'
+      return 'Approved';
     case 'rejected':
-      return 'Rejected'
+      return 'Rejected';
     default:
-      return 'Not Submitted'
+      return 'Not Submitted';
   }
-}
+};
 
 const ShieldIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -54,8 +52,8 @@ const ShieldIcon = ({ className = '' }: { className?: string }) => {
     >
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
     </svg>
-  )
-}
+  );
+};
 
 const FilePlusIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -74,8 +72,8 @@ const FilePlusIcon = ({ className = '' }: { className?: string }) => {
       <line x1="12" y1="18" x2="12" y2="12" />
       <line x1="9" y1="15" x2="15" y2="15" />
     </svg>
-  )
-}
+  );
+};
 
 const PhoneIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -91,8 +89,8 @@ const PhoneIcon = ({ className = '' }: { className?: string }) => {
     >
       <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81a19.79 19.79 0 01-3.07-8.68A2 2 0 012 .91h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
     </svg>
-  )
-}
+  );
+};
 
 const BookIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -109,8 +107,8 @@ const BookIcon = ({ className = '' }: { className?: string }) => {
       <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z" />
       <path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z" />
     </svg>
-  )
-}
+  );
+};
 
 const GlobeIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -128,8 +126,8 @@ const GlobeIcon = ({ className = '' }: { className?: string }) => {
       <line x1="2" y1="12" x2="22" y2="12" />
       <path d="M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z" />
     </svg>
-  )
-}
+  );
+};
 
 const CardIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -146,8 +144,8 @@ const CardIcon = ({ className = '' }: { className?: string }) => {
       <rect x="1" y="4" width="22" height="16" rx="2" />
       <line x1="1" y1="10" x2="23" y2="10" />
     </svg>
-  )
-}
+  );
+};
 
 const ChatIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -163,8 +161,8 @@ const ChatIcon = ({ className = '' }: { className?: string }) => {
     >
       <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
     </svg>
-  )
-}
+  );
+};
 
 const ArrowRightIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -181,8 +179,8 @@ const ArrowRightIcon = ({ className = '' }: { className?: string }) => {
       <line x1="5" y1="12" x2="19" y2="12" />
       <polyline points="12 5 19 12 12 19" />
     </svg>
-  )
-}
+  );
+};
 
 const CheckIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -198,8 +196,8 @@ const CheckIcon = ({ className = '' }: { className?: string }) => {
     >
       <polyline points="20 6 9 17 4 12" />
     </svg>
-  )
-}
+  );
+};
 
 const SpinnerIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -215,8 +213,8 @@ const SpinnerIcon = ({ className = '' }: { className?: string }) => {
     >
       <path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
     </svg>
-  )
-}
+  );
+};
 
 const LoginIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -234,8 +232,8 @@ const LoginIcon = ({ className = '' }: { className?: string }) => {
       <path d="M15 12H3" />
       <path d="M21 19V5a2 2 0 00-2-2h-5" />
     </svg>
-  )
-}
+  );
+};
 
 const AlertIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -253,112 +251,107 @@ const AlertIcon = ({ className = '' }: { className?: string }) => {
       <line x1="12" y1="8" x2="12" y2="12" />
       <line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
-  )
-}
+  );
+};
 
 export default function BlockedPage() {
-  const user = useAuthStore((state) => state.user)
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const user = useAuthStore((state) => state.user);
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
-  const appealSectionRef = useRef<HTMLDivElement | null>(null)
+  const appealSectionRef = useRef<HTMLDivElement | null>(null);
 
-  const [toast, setToast] = useState('')
-  const [isToastVisible, setIsToastVisible] = useState(false)
+  const [toast, setToast] = useState('');
+  const [isToastVisible, setIsToastVisible] = useState(false);
 
-  const [savedIdentifier, setSavedIdentifier] = useState(
-    getBlockedAppealIdentifier
-  )
+  const [savedIdentifier, setSavedIdentifier] = useState(getBlockedAppealIdentifier);
 
   const [form, setForm] = useState<IAppealFormState>({
     identifier: getBlockedAppealIdentifier(),
     appealReason: '',
     agreed: false,
-  })
+  });
 
   const {
     mutate: submitAppeal,
     isPending: isSubmittingAppeal,
     data: submittedAppealResponse,
     error: submitAppealError,
-  } = useSubmitModerationAppeal()
+  } = useSubmitModerationAppeal();
 
   const {
     data: fetchedAppealStatusResponse,
     isLoading: isLoadingAppealStatus,
     error: appealStatusError,
     refetch: refetchAppealStatus,
-  } = useGetModerationAppealStatus(savedIdentifier)
+  } = useGetModerationAppealStatus(savedIdentifier);
 
   const isRestrictedUser =
     user?.status === 'blocked' ||
     user?.status === 'banned' ||
     user?.status === 'deactivated' ||
-    user?.status === 'paused'
+    user?.status === 'paused';
 
   if (isAuthenticated && user && !isRestrictedUser) {
-    return <Navigate to="/dashboard" replace />
+    return <Navigate to="/dashboard" replace />;
   }
 
-  const submittedAppeal = submittedAppealResponse?.data
+  const submittedAppeal = submittedAppealResponse?.data;
 
-  const fetchedAppeal =
-    fetchedAppealStatusResponse?.data?.appeal || null
+  const fetchedAppeal = fetchedAppealStatusResponse?.data?.appeal || null;
 
-  const activeAppeal = submittedAppeal || fetchedAppeal
+  const activeAppeal = submittedAppeal || fetchedAppeal;
 
-  const hasActiveAppeal = Boolean(activeAppeal)
+  const hasActiveAppeal = Boolean(activeAppeal);
 
-  const appealStatusExists =
-    fetchedAppealStatusResponse?.data?.exists === true
+  const appealStatusExists = fetchedAppealStatusResponse?.data?.exists === true;
 
-  const displayedAppealReason =
-    activeAppeal?.appealReason || form.appealReason
+  const displayedAppealReason = activeAppeal?.appealReason || form.appealReason;
 
-  const apiError = submitAppealError?.response?.data?.message
-  const statusError = appealStatusError?.response?.data?.message
+  const apiError = submitAppealError?.response?.data?.message;
+  const statusError = appealStatusError?.response?.data?.message;
 
   const showToast = (message: string) => {
-    setToast(message)
-    setIsToastVisible(true)
+    setToast(message);
+    setIsToastVisible(true);
 
     window.setTimeout(() => {
-      setIsToastVisible(false)
-    }, 2600)
-  }
+      setIsToastVisible(false);
+    }, 2600);
+  };
 
   const scrollToAppeal = () => {
     appealSectionRef.current?.scrollIntoView({
       behavior: 'smooth',
       block: 'start',
-    })
-  }
+    });
+  };
 
   const persistAppealIdentifier = (identifier: string) => {
-    const normalizedIdentifier = identifier.trim()
+    const normalizedIdentifier = identifier.trim();
 
-    saveBlockedAppealIdentifier(normalizedIdentifier)
-    setSavedIdentifier(normalizedIdentifier)
-  }
+    saveBlockedAppealIdentifier(normalizedIdentifier);
+    setSavedIdentifier(normalizedIdentifier);
+  };
 
   const handleSubmitAppeal = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const identifier = form.identifier.trim()
-    const appealReason = form.appealReason.trim()
+    const identifier = form.identifier.trim();
+    const appealReason = form.appealReason.trim();
 
     if (!identifier) {
-      showToast('Please enter your email or phone number.')
-      return
+      showToast('Please enter your email or phone number.');
+      return;
     }
 
     if (appealReason.length < 10) {
-      showToast('Appeal reason must be at least 10 characters.')
-      return
+      showToast('Appeal reason must be at least 10 characters.');
+      return;
     }
 
     if (!form.agreed) {
-      showToast('Please confirm the appeal declaration.')
-      return
+      showToast('Please confirm the appeal declaration.');
+      return;
     }
 
     submitAppeal(
@@ -367,31 +360,31 @@ export default function BlockedPage() {
       },
       {
         onSuccess: (response) => {
-          persistAppealIdentifier(identifier)
+          persistAppealIdentifier(identifier);
 
-          const caseId = response.data?.caseId
+          const caseId = response.data?.caseId;
 
           showToast(
             caseId
               ? `Appeal submitted successfully. Case ID: ${caseId}`
               : 'Appeal submitted successfully.'
-          )
+          );
         },
 
         onError: async (error) => {
-          const errorCode = error.response?.data?.code
+          const errorCode = error.response?.data?.code;
 
           if (errorCode === 'ACTIVE_APPEAL_ALREADY_EXISTS') {
-            persistAppealIdentifier(identifier)
+            persistAppealIdentifier(identifier);
 
-            await refetchAppealStatus()
+            await refetchAppealStatus();
 
-            showToast('Your existing appeal has been restored.')
+            showToast('Your existing appeal has been restored.');
           }
         },
       }
-    )
-  }
+    );
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) transition-colors dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -432,8 +425,8 @@ export default function BlockedPage() {
               </h1>
 
               <p className="mx-auto mb-7 max-w-105 text-center text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-                To ensure the integrity of Imminiq, your account has been
-                restricted and may be reviewed by the moderation team.
+                To ensure the integrity of Imminiq, your account has been restricted and may be
+                reviewed by the moderation team.
               </p>
 
               {/* Status Table */}
@@ -507,8 +500,7 @@ export default function BlockedPage() {
                   {
                     icon: <ShieldIcon className="h-3.75 w-3.75" />,
                     title: 'Academic Integrity Concern',
-                    description:
-                      'Detected anomalies in challenges, battles, or tracked progress.',
+                    description: 'Detected anomalies in challenges, battles, or tracked progress.',
                   },
                   {
                     icon: <GlobeIcon />,
@@ -525,8 +517,7 @@ export default function BlockedPage() {
                   {
                     icon: <ChatIcon />,
                     title: 'Community Guideline Violation',
-                    description:
-                      'Reported activity in public trackers, comments, or chat spaces.',
+                    description: 'Reported activity in public trackers, comments, or chat spaces.',
                   },
                 ].map((item) => (
                   <div
@@ -562,9 +553,7 @@ export default function BlockedPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    showToast('Support contact flow can be linked later.')
-                  }
+                  onClick={() => showToast('Support contact flow can be linked later.')}
                   className="flex flex-col items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-transparent px-3 py-4 text-xs font-semibold text-(--text-secondary) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-1) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
                 >
                   <PhoneIcon />
@@ -573,9 +562,7 @@ export default function BlockedPage() {
 
                 <button
                   type="button"
-                  onClick={() =>
-                    showToast('Guidelines page can be linked later.')
-                  }
+                  onClick={() => showToast('Guidelines page can be linked later.')}
                   className="flex flex-col items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-transparent px-3 py-4 text-xs font-semibold text-(--text-secondary) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-1) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
                 >
                   <BookIcon />
@@ -592,8 +579,8 @@ export default function BlockedPage() {
                 </h2>
 
                 <p className="mb-5 text-[13px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
-                  Enter the email or phone number linked to your restricted
-                  account and explain why the moderation team should review it.
+                  Enter the email or phone number linked to your restricted account and explain why
+                  the moderation team should review it.
                 </p>
 
                 {apiError && (
@@ -623,9 +610,8 @@ export default function BlockedPage() {
                   >
                     <CheckIcon className="mt-0.5 shrink-0" />
                     <span>
-                      Appeal already submitted. Case ID:{' '}
-                      <strong>{activeAppeal.caseId}</strong>. Current status:{' '}
-                      <strong>{formatAppealStatus(activeAppeal.status)}</strong>.
+                      Appeal already submitted. Case ID: <strong>{activeAppeal.caseId}</strong>.
+                      Current status: <strong>{formatAppealStatus(activeAppeal.status)}</strong>.
                     </span>
                   </div>
                 )}
@@ -754,8 +740,7 @@ export default function BlockedPage() {
                   </div>
 
                   <p className="mb-3 text-[12.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
-                    Restrictions do not delete your stored learning data or your
-                    account history.
+                    Restrictions do not delete your stored learning data or your account history.
                   </p>
 
                   <div className="flex flex-col gap-1.5">
@@ -801,5 +786,5 @@ export default function BlockedPage() {
         <SystemPageFooter onUnavailableLink={showToast} />
       </div>
     </div>
-  )
+  );
 }

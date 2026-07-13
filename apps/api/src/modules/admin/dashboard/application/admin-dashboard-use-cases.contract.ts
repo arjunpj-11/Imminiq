@@ -1,5 +1,5 @@
-import type { IGetAdminDashboardUseCase } from './use-cases/get-admin-dashboard.usecase'
+import type { IGetAdminDashboardUseCase } from './use-cases/get-admin-dashboard.usecase';
 
 export type AdminDashboardUseCases = {
-  getOverview: IGetAdminDashboardUseCase
-}
+  getOverview: IGetAdminDashboardUseCase;
+};

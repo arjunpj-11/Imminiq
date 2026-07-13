@@ -1,11 +1,8 @@
-import { UserProfile } from '../../../../../infrastructure/database/models/user-profile.model'
-import type { MongoIdLike } from '../shared/mongo-auth.types'
+import { UserProfile } from '../../../../../infrastructure/database/models/user-profile.model';
+import type { MongoIdLike } from '../shared/mongo-auth.types';
 
 export class MongoAuthProfileProvisioner {
-  async ensureProfile(user: {
-    _id: MongoIdLike
-    fullName: string
-  }): Promise<void> {
+  async ensureProfile(user: { _id: MongoIdLike; fullName: string }): Promise<void> {
     await UserProfile.findOneAndUpdate(
       {
         userId: user._id,
@@ -21,10 +18,9 @@ export class MongoAuthProfileProvisioner {
         upsert: true,
         returnDocument: 'after',
         setDefaultsOnInsert: true,
-      },
-    )
+      }
+    );
   }
 }
 
-export const mongoAuthProfileProvisioner =
-  new MongoAuthProfileProvisioner()
+export const mongoAuthProfileProvisioner = new MongoAuthProfileProvisioner();

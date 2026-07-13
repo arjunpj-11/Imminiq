@@ -1,12 +1,12 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
-import ImminiqWordmark from '../ui/ImminiqWordmark'
+import ImminiqWordmark from '../ui/ImminiqWordmark';
 
 const footerLinks = [
   { label: 'Privacy', to: '/privacy' },
   { label: 'Terms', to: '/terms' },
   { label: 'Academic integrity', to: '/terms#academic-integrity' },
-]
+];
 
 export default function AppFooter() {
   return (
@@ -29,5 +29,5 @@ export default function AppFooter() {
         © {new Date().getFullYear()} Imminiq
       </div>
     </footer>
-  )
+  );
 }

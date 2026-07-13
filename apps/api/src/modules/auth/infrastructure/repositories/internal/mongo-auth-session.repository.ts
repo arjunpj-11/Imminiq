@@ -1,40 +1,36 @@
-import { AuthToken } from '../../../../../infrastructure/database/models/auth-token.model'
+import { AuthToken } from '../../../../../infrastructure/database/models/auth-token.model';
 import type {
   RotateAuthSessionInput,
   SaveAuthSessionInput,
-} from '../../../domain/repositories/auth-session.repository.interface'
-import { MongoAuthBaseRepository } from '../shared/mongo-auth-base.repository'
-import { MongoAuthMapper } from '../shared/mongo-auth.mapper'
-import type { MongoAuthSessionRecord } from '../shared/mongo-auth.types'
+} from '../../../domain/repositories/auth-session.repository.interface';
+import { MongoAuthBaseRepository } from '../shared/mongo-auth-base.repository';
+import { MongoAuthMapper } from '../shared/mongo-auth.mapper';
+import type { MongoAuthSessionRecord } from '../shared/mongo-auth.types';
 
-const REFRESH_TOKEN_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000
+const REFRESH_TOKEN_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000;
 
 export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
   constructor(private readonly _mapper = new MongoAuthMapper()) {
-    super()
+    super();
   }
 
   async saveSession(data: SaveAuthSessionInput) {
-    return this.execute(
-      'AUTH_SESSION_WRITE_FAILED',
-      'Failed to save auth session',
-      async () => {
-        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_MS)
+    return this.execute('AUTH_SESSION_WRITE_FAILED', 'Failed to save auth session', async () => {
+      const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_MS);
 
-        const session = await AuthToken.create({
-          userId: data.userId,
-          refreshTokenHash: data.refreshTokenHash,
-          ...(data.device ? { device: data.device } : {}),
-          ...(data.ipAddress ? { ipAddress: data.ipAddress } : {}),
-          ...(data.userAgent ? { userAgent: data.userAgent } : {}),
-          expiresAt,
-        })
+      const session = await AuthToken.create({
+        userId: data.userId,
+        refreshTokenHash: data.refreshTokenHash,
+        ...(data.device ? { device: data.device } : {}),
+        ...(data.ipAddress ? { ipAddress: data.ipAddress } : {}),
+        ...(data.userAgent ? { userAgent: data.userAgent } : {}),
+        expiresAt,
+      });
 
-        return this._mapper.toAuthSessionEntityOrThrow(
-          this._mapper.toPlainRecord<MongoAuthSessionRecord>(session),
-        )
-      },
-    )
+      return this._mapper.toAuthSessionEntityOrThrow(
+        this._mapper.toPlainRecord<MongoAuthSessionRecord>(session)
+      );
+    });
   }
 
   async findSessionByRefreshTokenHash(refreshTokenHash: string) {
@@ -49,11 +45,11 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           },
           revokedAt: null,
           deletedAt: null,
-        }).lean<MongoAuthSessionRecord>()
+        }).lean<MongoAuthSessionRecord>();
 
-        return this._mapper.toAuthSessionEntity(session)
-      },
-    )
+        return this._mapper.toAuthSessionEntity(session);
+      }
+    );
   }
 
   async rotateRefreshTokenInSameSession(data: RotateAuthSessionInput) {
@@ -61,12 +57,12 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
       'AUTH_SESSION_WRITE_FAILED',
       'Failed to rotate refresh token session',
       async () => {
-        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_MS)
+        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_MS);
         const sessionMetaUpdate = {
           ...(data.meta?.device ? { device: data.meta.device } : {}),
           ...(data.meta?.ipAddress ? { ipAddress: data.meta.ipAddress } : {}),
           ...(data.meta?.userAgent ? { userAgent: data.meta.userAgent } : {}),
-        }
+        };
 
         const session = await AuthToken.findOneAndUpdate(
           {
@@ -83,37 +79,31 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoAuthSessionRecord>()
+          }
+        ).lean<MongoAuthSessionRecord>();
 
-        return this._mapper.toAuthSessionEntity(session)
-      },
-    )
+        return this._mapper.toAuthSessionEntity(session);
+      }
+    );
   }
 
   async findAllUserSessions(userId: string) {
-    return this.execute(
-      'AUTH_SESSION_READ_FAILED',
-      'Failed to read user sessions',
-      async () => {
-        const sessions = await AuthToken.find({
-          userId,
-          expiresAt: {
-            $gt: new Date(),
-          },
-          revokedAt: null,
-          deletedAt: null,
+    return this.execute('AUTH_SESSION_READ_FAILED', 'Failed to read user sessions', async () => {
+      const sessions = await AuthToken.find({
+        userId,
+        expiresAt: {
+          $gt: new Date(),
+        },
+        revokedAt: null,
+        deletedAt: null,
+      })
+        .sort({
+          createdAt: -1,
         })
-          .sort({
-            createdAt: -1,
-          })
-          .lean<MongoAuthSessionRecord[]>()
+        .lean<MongoAuthSessionRecord[]>();
 
-        return sessions.map((session) =>
-          this._mapper.toAuthSessionEntityOrThrow(session),
-        )
-      },
-    )
+      return sessions.map((session) => this._mapper.toAuthSessionEntityOrThrow(session));
+    });
   }
 
   async revokeSessionByRefreshTokenHash(refreshTokenHash: string) {
@@ -134,12 +124,12 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoAuthSessionRecord>()
+          }
+        ).lean<MongoAuthSessionRecord>();
 
-        return Boolean(session)
-      },
-    )
+        return Boolean(session);
+      }
+    );
   }
 
   async revokeAllUserSessions(userId: string): Promise<void> {
@@ -157,38 +147,34 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
             $set: {
               revokedAt: new Date(),
             },
-          },
-        )
-      },
-    )
+          }
+        );
+      }
+    );
   }
 
   async revokeSessionById(sessionId: string, userId: string) {
-    return this.execute(
-      'AUTH_SESSION_WRITE_FAILED',
-      'Failed to revoke session',
-      async () => {
-        const session = await AuthToken.findOneAndUpdate(
-          {
-            _id: sessionId,
-            userId,
-            revokedAt: null,
-            deletedAt: null,
+    return this.execute('AUTH_SESSION_WRITE_FAILED', 'Failed to revoke session', async () => {
+      const session = await AuthToken.findOneAndUpdate(
+        {
+          _id: sessionId,
+          userId,
+          revokedAt: null,
+          deletedAt: null,
+        },
+        {
+          $set: {
+            revokedAt: new Date(),
           },
-          {
-            $set: {
-              revokedAt: new Date(),
-            },
-          },
-          {
-            returnDocument: 'after',
-          },
-        ).lean<MongoAuthSessionRecord>()
+        },
+        {
+          returnDocument: 'after',
+        }
+      ).lean<MongoAuthSessionRecord>();
 
-        return this._mapper.toAuthSessionEntity(session)
-      },
-    )
+      return this._mapper.toAuthSessionEntity(session);
+    });
   }
 }
 
-export const mongoAuthSessionRepository = new MongoAuthSessionRepository()
+export const mongoAuthSessionRepository = new MongoAuthSessionRepository();

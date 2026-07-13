@@ -1,3 +1,3 @@
 export interface IQuestionHasher {
-  hash(question: string): string
+  hash(question: string): string;
 }

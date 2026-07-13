@@ -1,17 +1,14 @@
-import FilterBar from '../../../../components/filters/FilterBar'
-import SearchInput from '../../../../components/filters/SearchInput'
-import PillTabs from '../../../../components/navigation/PillTabs'
-import { MOCK_TEST_FILTERS } from '../constants/mock-tests.constants'
-import { useMockTestSearchState } from '../hooks/useMockTestSearchState'
+import FilterBar from '../../../../components/filters/FilterBar';
+import SearchInput from '../../../../components/filters/SearchInput';
+import PillTabs from '../../../../components/navigation/PillTabs';
+import { MOCK_TEST_FILTERS } from '../constants/mock-tests.constants';
+import { useMockTestSearchState } from '../hooks/useMockTestSearchState';
 
 export function MockTestFilters() {
-  const { filter, setFilter, search, setSearch } = useMockTestSearchState()
+  const { filter, setFilter, search, setSearch } = useMockTestSearchState();
 
   return (
-    <FilterBar
-      surface
-      className="flex-col shadow-(--shadow-1) lg:flex-row lg:justify-between"
-    >
+    <FilterBar surface className="flex-col shadow-(--shadow-1) lg:flex-row lg:justify-between">
       <PillTabs
         value={filter}
         onValueChange={setFilter}
@@ -33,7 +30,7 @@ export function MockTestFilters() {
         className="bg-(--surface-canvas) py-2.5 dark:bg-(--surface-canvas)"
       />
     </FilterBar>
-  )
+  );
 }
 
-export default MockTestFilters
+export default MockTestFilters;

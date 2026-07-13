@@ -1,4 +1,4 @@
-import mongoose, { Document, Schema } from "mongoose";
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface INotificationDocument extends Document {
   userId: mongoose.Types.ObjectId;
@@ -15,7 +15,7 @@ const notificationSchema = new Schema<INotificationDocument>(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
     },
 
@@ -50,8 +50,8 @@ const notificationSchema = new Schema<INotificationDocument>(
   },
   {
     timestamps: true,
-    collection: "notifications",
-  },
+    collection: 'notifications',
+  }
 );
 
 notificationSchema.index({
@@ -67,4 +67,4 @@ notificationSchema.index({
 
 export const Notification: mongoose.Model<INotificationDocument> =
   (mongoose.models.Notification as mongoose.Model<INotificationDocument> | undefined) ??
-  mongoose.model<INotificationDocument>("Notification", notificationSchema);
+  mongoose.model<INotificationDocument>('Notification', notificationSchema);

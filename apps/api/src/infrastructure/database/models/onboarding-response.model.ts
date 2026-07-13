@@ -1,25 +1,25 @@
 // apps/api/src/infrastructure/database/models/onboarding-response.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IOnboardingResponseDocument extends Document {
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId;
 
-  preparingFor: string
-  goal: string
+  preparingFor: string;
+  goal: string;
 
-  currentLevel?: 'beginner' | 'intermediate' | 'advanced'
+  currentLevel?: 'beginner' | 'intermediate' | 'advanced';
 
-  selectedTags: string[]
-  draftData: Record<string, unknown>
+  selectedTags: string[];
+  draftData: Record<string, unknown>;
 
-  completedStep: number
-  isCompleted: boolean
+  completedStep: number;
+  isCompleted: boolean;
 
-  deletedAt?: Date | null
+  deletedAt?: Date | null;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const onboardingResponseSchema = new Schema<IOnboardingResponseDocument>(
@@ -77,12 +77,11 @@ const onboardingResponseSchema = new Schema<IOnboardingResponseDocument>(
   {
     timestamps: true,
   }
-)
+);
 
-onboardingResponseSchema.index({ userId: 1, isCompleted: 1 })
+onboardingResponseSchema.index({ userId: 1, isCompleted: 1 });
 
-export const OnboardingResponse =
-  mongoose.model<IOnboardingResponseDocument>(
-    'OnboardingResponse',
-    onboardingResponseSchema
-  )
+export const OnboardingResponse = mongoose.model<IOnboardingResponseDocument>(
+  'OnboardingResponse',
+  onboardingResponseSchema
+);

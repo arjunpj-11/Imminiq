@@ -26,7 +26,7 @@ export type {
   TrackerSummaryDTO,
   TrackerTopicDTO,
   UpdateSubtopicProgressResultDTO,
-} from './application/tracker.dto'
+} from './application/tracker.dto';
 
 export type {
   CompilerRuntime,
@@ -38,4 +38,4 @@ export type {
   TrackerSortBy,
   TrackerStatus,
   TrackerVisibility,
-} from './domain/trackers.types'
+} from './domain/trackers.types';

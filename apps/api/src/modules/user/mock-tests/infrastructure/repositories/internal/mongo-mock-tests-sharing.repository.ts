@@ -15,21 +15,15 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
   }
 
   async findSharedTestByToken(shareToken: string) {
-    return this.execute(
-      'MOCK_TEST_READ_FAILED',
-      'Failed to read shared mock test',
-      async () => {
-        const doc = await MockTestModel.findOne({
-          shareToken,
-          isShareEnabled: true,
-          deletedAt: null,
-        }).lean();
+    return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read shared mock test', async () => {
+      const doc = await MockTestModel.findOne({
+        shareToken,
+        isShareEnabled: true,
+        deletedAt: null,
+      }).lean();
 
-        return doc
-          ? this._mapper.toMockTestEntity(doc as RawMockTestDoc)
-          : null;
-      },
-    );
+      return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null;
+    });
   }
 
   async findImportedSharedTest(input: FindImportedSharedTestInput) {
@@ -40,8 +34,7 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
         const { ownerId, sourceTestId } = input;
 
         const safeOwnerId = MongoMockTestsObjectId.toObjectId(ownerId);
-        const safeSourceTestId =
-          MongoMockTestsObjectId.toObjectId(sourceTestId);
+        const safeSourceTestId = MongoMockTestsObjectId.toObjectId(sourceTestId);
 
         if (!safeOwnerId || !safeSourceTestId) {
           return null;
@@ -53,10 +46,8 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
           deletedAt: null,
         }).lean();
 
-        return doc
-          ? this._mapper.toMockTestEntity(doc as RawMockTestDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null;
+      }
     );
   }
 
@@ -88,14 +79,12 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
           },
           {
             new: true,
-          },
+          }
         ).lean();
 
-        return doc
-          ? this._mapper.toMockTestEntity(doc as RawMockTestDoc)
-          : null;
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null;
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
@@ -119,12 +108,11 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
             $inc: {
               cloneCount: 1,
             },
-          },
+          }
         );
-      },
+      }
     );
   }
 }
 
-export const mongoMockTestsSharingRepository =
-  new MongoMockTestsSharingRepository();
+export const mongoMockTestsSharingRepository = new MongoMockTestsSharingRepository();

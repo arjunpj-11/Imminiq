@@ -1,10 +1,8 @@
-import { RefreshIcon } from './icons/ActivityIcons'
+import { RefreshIcon } from './icons/ActivityIcons';
 
 const SkeletonBlock = ({ className }: { className: string }) => (
-  <div
-    className={`animate-pulse rounded-full bg-[#e8ddd6] dark:bg-white/10 ${className}`}
-  />
-)
+  <div className={`animate-pulse rounded-full bg-[#e8ddd6] dark:bg-white/10 ${className}`} />
+);
 
 const FeedRowSkeleton = () => (
   <div className="flex animate-pulse items-center gap-3.5 border-b border-[#ece3db] px-5 py-3.5 last:border-b-0 dark:border-white/6">
@@ -15,7 +13,7 @@ const FeedRowSkeleton = () => (
     </div>
     <div className="h-3 w-14 rounded bg-[#e8ddd6] dark:bg-white/10" />
   </div>
-)
+);
 
 export const ActivityContentSkeleton = () => (
   <div
@@ -57,28 +55,21 @@ export const ActivityContentSkeleton = () => (
       </div>
     </div>
   </div>
-)
+);
 
 interface IActivityErrorStateProps {
-  message?: string
-  onRetry: () => void
+  message?: string;
+  onRetry: () => void;
 }
 
-export const ActivityErrorState = ({
-  message,
-  onRetry,
-}: IActivityErrorStateProps) => (
-  <div
-    className="flex min-h-105 items-center justify-center px-4"
-    role="alert"
-  >
+export const ActivityErrorState = ({ message, onRetry }: IActivityErrorStateProps) => (
+  <div className="flex min-h-105 items-center justify-center px-4" role="alert">
     <div className="max-w-md rounded-2xl border border-[rgba(200,50,50,0.2)] bg-(--surface-card) p-8 text-center dark:bg-(--surface-card)">
       <h1 className="font-ui text-[22px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
         Activity unavailable
       </h1>
       <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-        {message ||
-          'Something went wrong loading your activity. Try again.'}
+        {message || 'Something went wrong loading your activity. Try again.'}
       </p>
       <button
         type="button"
@@ -89,4 +80,4 @@ export const ActivityErrorState = ({
       </button>
     </div>
   </div>
-)
+);

@@ -2,51 +2,47 @@ import {
   COMMUNITY_REVIEW_REWARD_COINS,
   COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
   COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
-} from '../../domain/community.constants'
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface'
-import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface'
+} from '../../domain/community.constants';
+import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface';
 import type {
   IVoteVerificationSubmissionPayloadDTO,
   IVoteVerificationSubmissionViewDTO,
-} from '../community.dto'
-import { CommunityApplicationError } from '../community-application.error'
-import type { ICommunityMapper } from '../community.mapper'
-import type { ICommunityVerificationPolicy } from '../community-verification.policy'
+} from '../community.dto';
+import { CommunityApplicationError } from '../community-application.error';
+import type { ICommunityMapper } from '../community.mapper';
+import type { ICommunityVerificationPolicy } from '../community-verification.policy';
 
 export interface IVoteVerificationSubmissionUseCase {
-  execute(payload: IVoteVerificationSubmissionPayloadDTO): Promise<IVoteVerificationSubmissionViewDTO>
+  execute(
+    payload: IVoteVerificationSubmissionPayloadDTO
+  ): Promise<IVoteVerificationSubmissionViewDTO>;
 }
 
 export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmissionUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
-    private readonly _policy:
-      ICommunityVerificationPolicy,
-    private readonly _activityRecorder:
-      ICommunityActivityRecorder,
-    private readonly _mapper: ICommunityMapper,
+    private readonly _policy: ICommunityVerificationPolicy,
+    private readonly _activityRecorder: ICommunityActivityRecorder,
+    private readonly _mapper: ICommunityMapper
   ) {}
 
   async execute(
-    payload: IVoteVerificationSubmissionPayloadDTO,
+    payload: IVoteVerificationSubmissionPayloadDTO
   ): Promise<IVoteVerificationSubmissionViewDTO> {
-    const submission =
-      await this._repository.findVerificationSubmissionById(
-        payload.submissionId,
-        payload.userId,
-      )
+    const submission = await this._repository.findVerificationSubmissionById(
+      payload.submissionId,
+      payload.userId
+    );
 
     if (!submission) {
-      throw CommunityApplicationError.notFound(
-        'Verification submission not found',
-      )
+      throw CommunityApplicationError.notFound('Verification submission not found');
     }
 
-    let vote =
-      await this._repository.findVoteBySubmissionAndUser(
-        payload.submissionId,
-        payload.userId,
-      )
+    let vote = await this._repository.findVoteBySubmissionAndUser(
+      payload.submissionId,
+      payload.userId
+    );
 
     if (vote) {
       /*
@@ -55,124 +51,101 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
        */
       if (vote.choice !== payload.vote) {
         throw CommunityApplicationError.conflict(
-          'You have already reviewed this submission with a different vote',
-        )
+          'You have already reviewed this submission with a different vote'
+        );
       }
     } else {
-      this._policy.ensureCanVote(
-        submission,
-        payload.userId,
-      )
+      this._policy.ensureCanVote(submission, payload.userId);
 
-      vote =
-        await this._repository.createVerificationVote({
-          submissionId: payload.submissionId,
-          userId: payload.userId,
-          choice: payload.vote,
-          reason: payload.reason,
-          rewardCoins: 0,
-        })
+      vote = await this._repository.createVerificationVote({
+        submissionId: payload.submissionId,
+        userId: payload.userId,
+        choice: payload.vote,
+        reason: payload.reason,
+        rewardCoins: 0,
+      });
     }
 
     /*
      * The vote ID is the idempotency source. Retrying this use
      * case cannot award the normal teacher XP twice.
      */
-    await this._activityRecorder
-      .recordVerificationVoteSubmitted({
-        userId: vote.userId,
-        ownerId: submission.ownerId,
-        trackerId: submission.trackerId,
-        submissionId: submission.id,
-        voteId: vote.id,
-        trackerTitle: submission.title,
-        xpAwarded:
-          COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
+    await this._activityRecorder.recordVerificationVoteSubmitted({
+      userId: vote.userId,
+      ownerId: submission.ownerId,
+      trackerId: submission.trackerId,
+      submissionId: submission.id,
+      voteId: vote.id,
+      trackerTitle: submission.title,
+      xpAwarded: COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
 
-        ...(vote.createdAt
-          ? {
-              occurredAt: vote.createdAt,
-            }
-          : {}),
-      })
+      ...(vote.createdAt
+        ? {
+            occurredAt: vote.createdAt,
+          }
+        : {}),
+    });
 
-    const updatedSubmission =
-      await this._repository.findVerificationSubmissionById(
-        payload.submissionId,
-        payload.userId,
-      )
+    const updatedSubmission = await this._repository.findVerificationSubmissionById(
+      payload.submissionId,
+      payload.userId
+    );
 
     if (!updatedSubmission) {
-      throw CommunityApplicationError.notFound(
-        'Verification submission not found after voting',
-      )
+      throw CommunityApplicationError.notFound('Verification submission not found after voting');
     }
 
-    if (
-      updatedSubmission.consensusChoice === 'pass'
-    ) {
+    if (updatedSubmission.consensusChoice === 'pass') {
       await this._activityRecorder.recordTrackerVerified({
         ownerId: updatedSubmission.ownerId,
         trackerId: updatedSubmission.trackerId,
         submissionId: updatedSubmission.id,
         trackerTitle: updatedSubmission.title,
-      })
+      });
     }
 
-    const rewardResult =
-      await this.awardConsensusRewards({
-        submissionId: updatedSubmission.id,
-        currentUserId: payload.userId,
-        consensusChoice:
-          updatedSubmission.consensusChoice ?? null,
-        trackerId: updatedSubmission.trackerId,
-        ownerId: updatedSubmission.ownerId,
-        trackerTitle: updatedSubmission.title,
-      })
+    const rewardResult = await this.awardConsensusRewards({
+      submissionId: updatedSubmission.id,
+      currentUserId: payload.userId,
+      consensusChoice: updatedSubmission.consensusChoice ?? null,
+      trackerId: updatedSubmission.trackerId,
+      ownerId: updatedSubmission.ownerId,
+      trackerTitle: updatedSubmission.title,
+    });
 
-    const voteView =
-      this._mapper.toVoteView(vote)
+    const voteView = this._mapper.toVoteView(vote);
 
     return {
       vote: {
         ...voteView,
-        rewardCoins:
-          rewardResult.currentUserRewardCoins,
+        rewardCoins: rewardResult.currentUserRewardCoins,
       },
-      submission:
-        this._mapper.toVerificationSubmissionView(
-          updatedSubmission,
-        ),
+      submission: this._mapper.toVerificationSubmissionView(updatedSubmission),
       reward: {
-        awarded:
-          rewardResult.currentUserAwarded,
-        coins:
-          rewardResult.currentUserRewardCoins,
-        balance:
-          rewardResult.currentUserBalance,
+        awarded: rewardResult.currentUserAwarded,
+        coins: rewardResult.currentUserRewardCoins,
+        balance: rewardResult.currentUserBalance,
       },
-    }
+    };
   }
 
   private async awardConsensusRewards(data: {
-    submissionId: string
-    currentUserId: string
-    consensusChoice: 'pass' | 'fail' | null
-    trackerId: string
-    ownerId: string
-    trackerTitle: string
+    submissionId: string;
+    currentUserId: string;
+    consensusChoice: 'pass' | 'fail' | null;
+    trackerId: string;
+    ownerId: string;
+    trackerTitle: string;
   }): Promise<{
-    currentUserAwarded: boolean
-    currentUserRewardCoins: number
-    currentUserBalance: number
+    currentUserAwarded: boolean;
+    currentUserRewardCoins: number;
+    currentUserBalance: number;
   }> {
     if (data.consensusChoice) {
-      const rewardableVotes =
-        await this._repository
-          .findUnrewardedMajorityVotes(
-            data.submissionId,
-            data.consensusChoice,
-          )
+      const rewardableVotes = await this._repository.findUnrewardedMajorityVotes(
+        data.submissionId,
+        data.consensusChoice
+      );
 
       for (const rewardableVote of rewardableVotes) {
         /*
@@ -182,52 +155,36 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
          * the activity event key is based on voteId and cannot
          * add XP or coins twice.
          */
-        await this._activityRecorder
-          .recordVerificationMajorityWon({
-            userId: rewardableVote.userId,
-            ownerId: data.ownerId,
-            trackerId: data.trackerId,
-            submissionId: data.submissionId,
-            voteId: rewardableVote.id,
-            trackerTitle: data.trackerTitle,
-            xpAwarded:
-              COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
-            coinsAwarded:
-              COMMUNITY_REVIEW_REWARD_COINS,
-          })
+        await this._activityRecorder.recordVerificationMajorityWon({
+          userId: rewardableVote.userId,
+          ownerId: data.ownerId,
+          trackerId: data.trackerId,
+          submissionId: data.submissionId,
+          voteId: rewardableVote.id,
+          trackerTitle: data.trackerTitle,
+          xpAwarded: COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
+          coinsAwarded: COMMUNITY_REVIEW_REWARD_COINS,
+        });
 
-        await this._repository
-          .markVerificationVoteRewarded(
-            rewardableVote.id,
-            COMMUNITY_REVIEW_REWARD_COINS,
-          )
+        await this._repository.markVerificationVoteRewarded(
+          rewardableVote.id,
+          COMMUNITY_REVIEW_REWARD_COINS
+        );
       }
     }
 
-    const [currentUserVote, currentUserBalance] =
-      await Promise.all([
-        this._repository
-          .findVoteBySubmissionAndUser(
-            data.submissionId,
-            data.currentUserId,
-          ),
+    const [currentUserVote, currentUserBalance] = await Promise.all([
+      this._repository.findVoteBySubmissionAndUser(data.submissionId, data.currentUserId),
 
-        this._repository.getUserCoinBalance(
-          data.currentUserId,
-        ),
-      ])
+      this._repository.getUserCoinBalance(data.currentUserId),
+    ]);
 
-    const currentUserRewardCoins =
-      Math.max(
-        0,
-        Number(currentUserVote?.rewardCoins ?? 0),
-      )
+    const currentUserRewardCoins = Math.max(0, Number(currentUserVote?.rewardCoins ?? 0));
 
     return {
-      currentUserAwarded:
-        currentUserRewardCoins > 0,
+      currentUserAwarded: currentUserRewardCoins > 0,
       currentUserRewardCoins,
       currentUserBalance,
-    }
+    };
   }
 }

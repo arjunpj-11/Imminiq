@@ -1,14 +1,11 @@
-import type { PipelineStage } from 'mongoose'
+import type { PipelineStage } from 'mongoose';
 
-import type { LeaderboardSection } from '../../../domain/value-objects/leaderboard-section.vo'
+import type { LeaderboardSection } from '../../../domain/value-objects/leaderboard-section.vo';
 
-const LEADERBOARD_RANK_SORT_KEY = '__leaderboardRankSortKey'
+const LEADERBOARD_RANK_SORT_KEY = '__leaderboardRankSortKey';
 
 export class MongoLeaderboardFilterBuilder {
-  static eligibleUser(
-    section: LeaderboardSection,
-    prefix = '',
-  ): Record<string, unknown> {
+  static eligibleUser(section: LeaderboardSection, prefix = ''): Record<string, unknown> {
     return {
       [`${prefix}status`]: 'active',
       [`${prefix}deletedAt`]: null,
@@ -22,15 +19,15 @@ export class MongoLeaderboardFilterBuilder {
             },
           }
         : {}),
-    }
+    };
   }
 
   static scoreField(section: LeaderboardSection, prefix = ''): string {
-    return `${prefix}${section === 'students' ? 'xp' : 'teacherXp'}`
+    return `${prefix}${section === 'students' ? 'xp' : 'teacherXp'}`;
   }
 
   static levelField(section: LeaderboardSection, prefix = ''): string {
-    return `${prefix}${section === 'students' ? 'level' : 'teacherLevel'}`
+    return `${prefix}${section === 'students' ? 'level' : 'teacherLevel'}`;
   }
 
   /**
@@ -44,32 +41,27 @@ export class MongoLeaderboardFilterBuilder {
    * 2. createdAt ascending,
    * 3. _id ascending.
    */
-  static totalRankingKeyStage(
-    section: LeaderboardSection,
-  ): PipelineStage.Set {
-    return this.rankingKeyStage(this.scoreField(section), 'createdAt')
+  static totalRankingKeyStage(section: LeaderboardSection): PipelineStage.Set {
+    return this.rankingKeyStage(this.scoreField(section), 'createdAt');
   }
 
   static weeklyRankingKeyStage(): PipelineStage.Set {
-    return this.rankingKeyStage('score', 'createdAt')
+    return this.rankingKeyStage('score', 'createdAt');
   }
 
   static rankingWindowSort(): Record<string, 1> {
     return {
       [LEADERBOARD_RANK_SORT_KEY]: 1,
-    }
+    };
   }
 
   static removeRankingKeyStage(): PipelineStage.Unset {
     return {
       $unset: LEADERBOARD_RANK_SORT_KEY,
-    }
+    };
   }
 
-  private static rankingKeyStage(
-    scoreField: string,
-    createdAtField: string,
-  ): PipelineStage.Set {
+  private static rankingKeyStage(scoreField: string, createdAtField: string): PipelineStage.Set {
     return {
       $set: {
         [LEADERBOARD_RANK_SORT_KEY]: {
@@ -84,6 +76,6 @@ export class MongoLeaderboardFilterBuilder {
           },
         },
       },
-    }
+    };
   }
 }

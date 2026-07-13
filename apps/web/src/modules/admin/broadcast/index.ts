@@ -1,1 +1,1 @@
-export { default as AdminBroadcastPage } from './pages/AdminBroadcastPage'
+export { default as AdminBroadcastPage } from './pages/AdminBroadcastPage';

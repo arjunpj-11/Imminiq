@@ -1,10 +1,111 @@
-import { useMemo, useState } from 'react'
-import { AdminError, AdminLoading, AdminMetricGrid, AdminPageHeader, AdminPanel } from '../../../../components/admin/AdminPage'
-import { useAdminAnalytics } from '../hooks/useAdminAnalytics'
+import { useMemo, useState } from 'react';
+import {
+  AdminError,
+  AdminLoading,
+  AdminMetricGrid,
+  AdminPageHeader,
+  AdminPanel,
+} from '../../../../components/admin/AdminPage';
+import { useAdminAnalytics } from '../hooks/useAdminAnalytics';
 
 export default function AdminAnalyticsPage() {
-  const [days, setDays] = useState(30); const { data, isLoading, isError } = useAdminAnalytics(days)
-  const activity = useMemo(() => { const values = new Map(data?.dailyActivity.map((point) => [point.date, point.value]) ?? []); return Array.from({ length: days }, (_, index) => { const date = new Date(); date.setHours(12, 0, 0, 0); date.setDate(date.getDate() - (days - index - 1)); const key = date.toISOString().slice(0, 10); return { date: key, value: values.get(key) ?? 0 } }) }, [data, days])
-  const max = Math.max(1, ...activity.map((point) => point.value))
-  return <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8"><AdminPageHeader title="Platform Analytics" description="Live adoption and engagement signals calculated from production collections." action={<select value={days} onChange={(e) => setDays(Number(e.target.value))} className="admin-select"><option value={7}>Last 7 days</option><option value={30}>Last 30 days</option><option value={90}>Last 90 days</option></select>} />{isLoading ? <AdminLoading /> : isError ? <AdminError /> : data && <><AdminMetricGrid metrics={[{ label: 'Verified users', value: data.metrics.users }, { label: `Active (${days}d)`, value: data.metrics.activeUsers, tone: 'success' }, { label: 'Trackers', value: data.metrics.trackers, tone: 'info' }, { label: 'Test attempts', value: data.metrics.attempts, tone: 'warning' }]} /><AdminPanel title="Daily platform activity"><div className="overflow-x-auto p-7"><div className="flex h-64 min-w-max items-end gap-2 border-b border-white/10 px-2">{activity.map((point) => <div key={point.date} className="group flex h-full w-7 shrink-0 flex-col justify-end"><div title={`${point.date}: ${point.value} events`} className={`w-full rounded-t transition ${point.value ? 'bg-[#e8816a] hover:bg-[#d4705a]' : 'bg-[#2a2723]'}`} style={{ height: point.value ? `${Math.max(4, (point.value / max) * 100)}%` : '2px' }} /><span className="mt-2 hidden -rotate-45 text-[8px] text-[#817c75] group-last:block">{point.date.slice(5)}</span></div>)}</div></div></AdminPanel><AdminPanel title="New users"><div className="grid gap-3 p-6 sm:grid-cols-2 lg:grid-cols-4">{data.dailyUsers.slice(-8).map((point) => <div key={point.date} className="rounded-lg bg-[#24211e] p-4"><div className="text-xs text-[#aaa59d]">{point.date}</div><div className="font-editorial mt-2 text-2xl text-[#52c58c]">+{point.value}</div></div>)}</div></AdminPanel></>}</main>
+  const [days, setDays] = useState(30);
+  const { data, isLoading, isError } = useAdminAnalytics(days);
+  const activity = useMemo(() => {
+    const values = new Map(data?.dailyActivity.map((point) => [point.date, point.value]) ?? []);
+    return Array.from({ length: days }, (_, index) => {
+      const date = new Date();
+      date.setHours(12, 0, 0, 0);
+      date.setDate(date.getDate() - (days - index - 1));
+      const key = date.toISOString().slice(0, 10);
+      return { date: key, value: values.get(key) ?? 0 };
+    });
+  }, [data, days]);
+  const max = Math.max(1, ...activity.map((point) => point.value));
+  return (
+    <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
+      <AdminPageHeader
+        title="Platform Analytics"
+        description="Live adoption and engagement signals calculated from production collections."
+        action={
+          <select
+            value={days}
+            onChange={(e) => setDays(Number(e.target.value))}
+            className="admin-select"
+          >
+            <option value={7}>Last 7 days</option>
+            <option value={30}>Last 30 days</option>
+            <option value={90}>Last 90 days</option>
+          </select>
+        }
+      />
+      {isLoading ? (
+        <AdminLoading />
+      ) : isError ? (
+        <AdminError />
+      ) : (
+        data && (
+          <>
+            <AdminMetricGrid
+              metrics={[
+                { label: 'Verified users', value: data.metrics.users },
+                {
+                  label: `Active (${days}d)`,
+                  value: data.metrics.activeUsers,
+                  tone: 'success',
+                },
+                {
+                  label: 'Trackers',
+                  value: data.metrics.trackers,
+                  tone: 'info',
+                },
+                {
+                  label: 'Test attempts',
+                  value: data.metrics.attempts,
+                  tone: 'warning',
+                },
+              ]}
+            />
+            <AdminPanel title="Daily platform activity">
+              <div className="overflow-x-auto p-7">
+                <div className="flex h-64 min-w-max items-end gap-2 border-b border-white/10 px-2">
+                  {activity.map((point) => (
+                    <div
+                      key={point.date}
+                      className="group flex h-full w-7 shrink-0 flex-col justify-end"
+                    >
+                      <div
+                        title={`${point.date}: ${point.value} events`}
+                        className={`w-full rounded-t transition ${point.value ? 'bg-[#e8816a] hover:bg-[#d4705a]' : 'bg-[#2a2723]'}`}
+                        style={{
+                          height: point.value
+                            ? `${Math.max(4, (point.value / max) * 100)}%`
+                            : '2px',
+                        }}
+                      />
+                      <span className="mt-2 hidden -rotate-45 text-[8px] text-[#817c75] group-last:block">
+                        {point.date.slice(5)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </AdminPanel>
+            <AdminPanel title="New users">
+              <div className="grid gap-3 p-6 sm:grid-cols-2 lg:grid-cols-4">
+                {data.dailyUsers.slice(-8).map((point) => (
+                  <div key={point.date} className="rounded-lg bg-[#24211e] p-4">
+                    <div className="text-xs text-[#aaa59d]">{point.date}</div>
+                    <div className="font-editorial mt-2 text-2xl text-[#52c58c]">
+                      +{point.value}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </AdminPanel>
+          </>
+        )
+      )}
+    </main>
+  );
 }

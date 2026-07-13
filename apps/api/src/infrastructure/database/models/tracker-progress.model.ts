@@ -1,20 +1,20 @@
 // apps/api/src/infrastructure/database/models/tracker-progress.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ITrackerProgressDocument extends Document {
-  userId: mongoose.Types.ObjectId
-  trackerId: mongoose.Types.ObjectId
-  totalTopics: number
-  completedTopics: number
-  totalSubtopics: number
-  completedSubtopics: number
-  completionPercentage: number
-  lastStudiedAt: Date | null
-  startedAt: Date
-  completedAt?: Date | null
-  createdAt: Date
-  updatedAt: Date
+  userId: mongoose.Types.ObjectId;
+  trackerId: mongoose.Types.ObjectId;
+  totalTopics: number;
+  completedTopics: number;
+  totalSubtopics: number;
+  completedSubtopics: number;
+  completionPercentage: number;
+  lastStudiedAt: Date | null;
+  startedAt: Date;
+  completedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const trackerProgressSchema = new Schema<ITrackerProgressDocument>(
@@ -65,16 +65,13 @@ const trackerProgressSchema = new Schema<ITrackerProgressDocument>(
     },
   },
   { timestamps: true }
-)
+);
 
 // One progress doc per user+tracker
-trackerProgressSchema.index(
-  { userId: 1, trackerId: 1 },
-  { unique: true }
-)
-trackerProgressSchema.index({ userId: 1, lastStudiedAt: -1 })
+trackerProgressSchema.index({ userId: 1, trackerId: 1 }, { unique: true });
+trackerProgressSchema.index({ userId: 1, lastStudiedAt: -1 });
 
 export const TrackerProgress = mongoose.model<ITrackerProgressDocument>(
   'TrackerProgress',
   trackerProgressSchema
-)
+);

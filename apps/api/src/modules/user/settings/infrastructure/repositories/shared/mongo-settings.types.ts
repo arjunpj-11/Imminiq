@@ -1,24 +1,24 @@
-import type { UserSettingsData } from '../../../domain/settings.types'
+import type { UserSettingsData } from '../../../domain/settings.types';
 
 export type MongoIdLike = {
-  toString(): string
-}
+  toString(): string;
+};
 
 export type MongoUserSettingsRecord = UserSettingsData & {
-  _id?: MongoIdLike | string
-  userId?: MongoIdLike | string
-}
+  _id?: MongoIdLike | string;
+  userId?: MongoIdLike | string;
+};
 
 export type MongooseObjectLike<T> = {
-  toObject(): T
-}
+  toObject(): T;
+};
 
-export type FlatSettingsUpdate = Record<string, unknown>
+export type FlatSettingsUpdate = Record<string, unknown>;
 
-export type UpdatableValue = boolean | number | string | string[] | undefined
+export type UpdatableValue = boolean | number | string | string[] | undefined;
 
 export type MongoDuplicateKeyError = {
-  code?: number
-  keyPattern?: Record<string, unknown>
-  keyValue?: Record<string, unknown>
-}
+  code?: number;
+  keyPattern?: Record<string, unknown>;
+  keyValue?: Record<string, unknown>;
+};

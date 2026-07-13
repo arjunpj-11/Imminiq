@@ -1,9 +1,7 @@
 export const ROADMAP_EVALUATION_SYSTEM_PROMPT =
-  'You are a strict roadmap evaluator. Return strict valid JSON only.'
+  'You are a strict roadmap evaluator. Return strict valid JSON only.';
 
-export const buildRoadmapEvaluationPrompt = (
-  roadmap: unknown
-): string => `
+export const buildRoadmapEvaluationPrompt = (roadmap: unknown): string => `
 You are a strict expert curriculum evaluator, interview mentor, and learning-path reviewer.
 
 Your task is to critically evaluate this AI-generated roadmap.
@@ -85,4 +83,4 @@ Final checks:
 - Each missing topic must be concrete enough to insert directly into the tracker.
 - suggestedParentTitle must match or closely reference the best existing roadmap topic or section title.
 - If the roadmap is already extremely complete, missingTopics may be an empty array.
-`
+`;

@@ -1,28 +1,19 @@
-import {
-  AVATAR_FOLDER,
-  BANNER_FOLDER,
-} from '../../domain/uploads.constants'
-import { UploadsDomainError } from '../../domain/uploads-domain.error'
-import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface'
-import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
-import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface'
-import type {
-  IUploadProfileImageInputDTO,
-  IUploadProfileImageResultDTO,
-} from '../uploads.dto'
-import { UploadsApplicationError } from '../uploads-application.error'
-import type { IUploadsMapper } from '../uploads.mapper'
-import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
+import { AVATAR_FOLDER, BANNER_FOLDER } from '../../domain/uploads.constants';
+import { UploadsDomainError } from '../../domain/uploads-domain.error';
+import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface';
+import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface';
+import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface';
+import type { IUploadProfileImageInputDTO, IUploadProfileImageResultDTO } from '../uploads.dto';
+import { UploadsApplicationError } from '../uploads-application.error';
+import type { IUploadsMapper } from '../uploads.mapper';
+import type { IUploadUserProfileReader } from '../services/upload-user-profile.service';
 
-type UploadProfileImageRepository =
-  IProfileImageRepository & IUploadRecordRepository
+type UploadProfileImageRepository = IProfileImageRepository & IUploadRecordRepository;
 
-type StoredProfileImage = Awaited<
-  ReturnType<IProfileImageStorage['uploadProfileImage']>
->
+type StoredProfileImage = Awaited<ReturnType<IProfileImageStorage['uploadProfileImage']>>;
 
 export interface IUploadProfileImageUseCase {
-  execute(input: IUploadProfileImageInputDTO): Promise<IUploadProfileImageResultDTO>
+  execute(input: IUploadProfileImageInputDTO): Promise<IUploadProfileImageResultDTO>;
 }
 
 export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
@@ -30,34 +21,28 @@ export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
     private readonly _userProfileReader: IUploadUserProfileReader,
     private readonly _profileImageStorage: IProfileImageStorage,
     private readonly _uploadsRepository: UploadProfileImageRepository,
-    private readonly _uploadsMapper: IUploadsMapper,
+    private readonly _uploadsMapper: IUploadsMapper
   ) {}
 
-  async execute(
-    input: IUploadProfileImageInputDTO,
-  ): Promise<IUploadProfileImageResultDTO> {
+  async execute(input: IUploadProfileImageInputDTO): Promise<IUploadProfileImageResultDTO> {
     if (!input.file) {
-      throw UploadsApplicationError.imageFileRequired()
+      throw UploadsApplicationError.imageFileRequired();
     }
 
-    const context =
-      await this._userProfileReader.getRequiredContext(input.userId)
+    const context = await this._userProfileReader.getRequiredContext(input.userId);
 
-    const folder = input.kind === 'avatar' ? AVATAR_FOLDER : BANNER_FOLDER
+    const folder = input.kind === 'avatar' ? AVATAR_FOLDER : BANNER_FOLDER;
 
-    let storedImage: StoredProfileImage
+    let storedImage: StoredProfileImage;
 
     try {
-      storedImage = await this._profileImageStorage.uploadProfileImage(
-        input.file,
-        folder,
-      )
+      storedImage = await this._profileImageStorage.uploadProfileImage(input.file, folder);
     } catch (error) {
       if (error instanceof UploadsDomainError) {
-        throw UploadsApplicationError.imageUploadFailed()
+        throw UploadsApplicationError.imageUploadFailed();
       }
 
-      throw error
+      throw error;
     }
 
     try {
@@ -65,12 +50,12 @@ export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
         await this._uploadsRepository.setAvatarUrl({
           userId: context.userId,
           avatarUrl: storedImage.fileUrl,
-        })
+        });
       } else {
         await this._uploadsRepository.setBannerUrl({
           userId: context.userId,
           bannerUrl: storedImage.fileUrl,
-        })
+        });
       }
 
       const upload = await this._uploadsRepository.saveUploadRecord({
@@ -78,15 +63,15 @@ export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
         kind: input.kind,
         file: storedImage,
         referenceId: context.profileId,
-      })
+      });
 
-      return this._uploadsMapper.toUploadProfileImageResult(upload)
+      return this._uploadsMapper.toUploadProfileImageResult(upload);
     } catch (error) {
       if (error instanceof UploadsDomainError) {
-        throw UploadsApplicationError.profileImageUpdateFailed()
+        throw UploadsApplicationError.profileImageUpdateFailed();
       }
 
-      throw error
+      throw error;
     }
   }
 }

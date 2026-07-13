@@ -1,6 +1,6 @@
-import { useMutation, useQueryClient } from '@tanstack/react-query'
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 
-import api from '../../../../lib/axios'
+import api from '../../../../lib/axios';
 import type {
   IApiResponse,
   AskLessonQuestionSolutionDoubtPayload,
@@ -23,11 +23,11 @@ import type {
   SubmitLessonCodeResponse,
   VerifyLessonAnswerPayload,
   VerifyLessonAnswerResponse,
-} from '../types/tracker.types'
-import { trackerKeys } from './tracker.keys'
+} from '../types/tracker.types';
+import { trackerKeys } from './tracker.keys';
 
 export const useChatWithLessonTutor = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation<LessonChatResponse, Error, LessonChatPayload>({
     mutationFn: async ({ trackerId, subtopicId, messages }) => {
@@ -36,54 +36,44 @@ export const useChatWithLessonTutor = () => {
         {
           messages,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonChat(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
+        queryKey: trackerKeys.lessonChat(variables.trackerId, variables.subtopicId),
+      });
     },
-  })
-}
+  });
+};
 
 export const useGenerateLessonQuestions = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
-  return useMutation<
-    GenerateLessonQuestionsResponse,
-    Error,
-    GenerateLessonQuestionsPayload
-  >({
+  return useMutation<GenerateLessonQuestionsResponse, Error, GenerateLessonQuestionsPayload>({
     mutationFn: async ({ trackerId, subtopicId, count }) => {
       const response = await api.post<GenerateLessonQuestionsResponse>(
         `/trackers/${trackerId}/lessons/${subtopicId}/questions/generate`,
         {
           count,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonGeneratedQuestions(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
+        queryKey: trackerKeys.lessonGeneratedQuestions(variables.trackerId, variables.subtopicId),
+      });
     },
-  })
-}
+  });
+};
 
 export const useGenerateLessonQuestionSolution = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation<
     GenerateLessonQuestionSolutionResponse,
@@ -91,15 +81,14 @@ export const useGenerateLessonQuestionSolution = () => {
     GenerateLessonQuestionSolutionPayload
   >({
     mutationFn: async ({ trackerId, subtopicId, question }) => {
-      const response =
-        await api.post<GenerateLessonQuestionSolutionResponse>(
-          `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/generate`,
-          {
-            question,
-          }
-        )
+      const response = await api.post<GenerateLessonQuestionSolutionResponse>(
+        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/generate`,
+        {
+          question,
+        }
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
@@ -109,13 +98,13 @@ export const useGenerateLessonQuestionSolution = () => {
           variables.subtopicId,
           variables.question
         ),
-      })
+      });
     },
-  })
-}
+  });
+};
 
 export const useAskLessonQuestionSolutionDoubt = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation<
     AskLessonQuestionSolutionDoubtResponse,
@@ -129,9 +118,9 @@ export const useAskLessonQuestionSolutionDoubt = () => {
           question,
           message,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
@@ -141,21 +130,14 @@ export const useAskLessonQuestionSolutionDoubt = () => {
           variables.subtopicId,
           variables.question
         ),
-      })
+      });
     },
-  })
-}
+  });
+};
 
 export const useRunLessonCode = () => {
   return useMutation<RunLessonCodeResponse, Error, RunLessonCodePayload>({
-    mutationFn: async ({
-      trackerId,
-      subtopicId,
-      sourceCode,
-      languageId,
-      language,
-      stdin,
-    }) => {
+    mutationFn: async ({ trackerId, subtopicId, sourceCode, languageId, language, stdin }) => {
       const response = await api.post<RunLessonCodeResponse>(
         `/trackers/${trackerId}/lessons/${subtopicId}/code/run`,
         {
@@ -164,25 +146,18 @@ export const useRunLessonCode = () => {
           language,
           stdin,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
-  })
-}
+  });
+};
 
 export const useSubmitLessonCode = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation<SubmitLessonCodeResponse, Error, SubmitLessonCodePayload>({
-    mutationFn: async ({
-      trackerId,
-      subtopicId,
-      sourceCode,
-      languageId,
-      language,
-      stdin,
-    }) => {
+    mutationFn: async ({ trackerId, subtopicId, sourceCode, languageId, language, stdin }) => {
       const response = await api.post<SubmitLessonCodeResponse>(
         `/trackers/${trackerId}/lessons/${subtopicId}/code/submit`,
         {
@@ -191,18 +166,15 @@ export const useSubmitLessonCode = () => {
           language,
           stdin,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonCodeSubmissions(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
+        queryKey: trackerKeys.lessonCodeSubmissions(variables.trackerId, variables.subtopicId),
+      });
 
       queryClient.invalidateQueries({
         queryKey: trackerKeys.lessonCodeSubmissions(
@@ -210,10 +182,10 @@ export const useSubmitLessonCode = () => {
           variables.subtopicId,
           'submit'
         ),
-      })
+      });
     },
-  })
-}
+  });
+};
 
 export const useGetCodeHint = () => {
   return useMutation<GetCodeHintResponse, Error, GetCodeHintPayload>({
@@ -233,19 +205,15 @@ export const useGetCodeHint = () => {
           errorOutput,
           hintCount,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
-  })
-}
+  });
+};
 
 export const useGetOptimizedSolution = () => {
-  return useMutation<
-    GetOptimizedSolutionResponse,
-    Error,
-    GetOptimizedSolutionPayload
-  >({
+  return useMutation<GetOptimizedSolutionResponse, Error, GetOptimizedSolutionPayload>({
     mutationFn: async ({ trackerId, subtopicId, sourceCode, language }) => {
       const response = await api.post<GetOptimizedSolutionResponse>(
         `/trackers/${trackerId}/lessons/${subtopicId}/code/optimized-solution`,
@@ -253,21 +221,17 @@ export const useGetOptimizedSolution = () => {
           sourceCode,
           language,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
-  })
-}
+  });
+};
 
 export const useVerifyLessonAnswer = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
-  return useMutation<
-    VerifyLessonAnswerResponse,
-    Error,
-    VerifyLessonAnswerPayload
-  >({
+  return useMutation<VerifyLessonAnswerResponse, Error, VerifyLessonAnswerPayload>({
     mutationFn: async ({ trackerId, subtopicId, question, answer }) => {
       const response = await api.post<VerifyLessonAnswerResponse>(
         `/trackers/${trackerId}/lessons/${subtopicId}/answer/verify`,
@@ -275,62 +239,56 @@ export const useVerifyLessonAnswer = () => {
           question,
           answer,
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonAnswerAttempts(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
+        queryKey: trackerKeys.lessonAnswerAttempts(variables.trackerId, variables.subtopicId),
+      });
     },
-  })
-}
+  });
+};
 
 export const useClearLessonChatHistory = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation<
     IApiResponse<unknown>,
     Error,
     {
-      trackerId: string
-      subtopicId: string
+      trackerId: string;
+      subtopicId: string;
     }
   >({
     mutationFn: async ({ trackerId, subtopicId }) => {
       const response = await api.delete<IApiResponse<unknown>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/chat`
-      )
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
       queryClient.invalidateQueries({
-        queryKey: trackerKeys.lessonChat(
-          variables.trackerId,
-          variables.subtopicId
-        ),
-      })
+        queryKey: trackerKeys.lessonChat(variables.trackerId, variables.subtopicId),
+      });
     },
-  })
-}
+  });
+};
 
 export const useClearLessonQuestionSolutionDoubts = () => {
-  const queryClient = useQueryClient()
+  const queryClient = useQueryClient();
 
   return useMutation<
     IApiResponse<unknown>,
     Error,
     {
-      trackerId: string
-      subtopicId: string
-      question: string
+      trackerId: string;
+      subtopicId: string;
+      question: string;
     }
   >({
     mutationFn: async ({ trackerId, subtopicId, question }) => {
@@ -341,9 +299,9 @@ export const useClearLessonQuestionSolutionDoubts = () => {
             question,
           },
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (_response, variables) => {
@@ -353,10 +311,10 @@ export const useClearLessonQuestionSolutionDoubts = () => {
           variables.subtopicId,
           variables.question
         ),
-      })
+      });
     },
-  })
-}
+  });
+};
 
 export const useGenerateLessonVisualization = () => {
   return useMutation<
@@ -369,12 +327,8 @@ export const useGenerateLessonVisualization = () => {
         `/trackers/${trackerId}/lessons/${subtopicId}/visualize`,
         {},
         { params: regenerate ? { regenerate: 'true' } : undefined }
-      )
-      return response.data
+      );
+      return response.data;
     },
-    
-  })
-}
- 
- 
-
+  });
+};

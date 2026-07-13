@@ -1,11 +1,9 @@
-import { AIGenerationJob } from '../../../../../infrastructure/database/models/ai-generation-job.model'
-import { aiQueue } from '../../../../../infrastructure/queue/queues'
-import type { IGenerateMockTestPayloadDTO } from '../../application/mock-tests.dto'
-import type { IMockTestGenerationJobGateway } from '../../application/services/mock-test-generation-job.interface'
+import { AIGenerationJob } from '../../../../../infrastructure/database/models/ai-generation-job.model';
+import { aiQueue } from '../../../../../infrastructure/queue/queues';
+import type { IGenerateMockTestPayloadDTO } from '../../application/mock-tests.dto';
+import type { IMockTestGenerationJobGateway } from '../../application/services/mock-test-generation-job.interface';
 
-export class BullMqMockTestGenerationJobGateway
-  implements IMockTestGenerationJobGateway
-{
+export class BullMqMockTestGenerationJobGateway implements IMockTestGenerationJobGateway {
   async findActive(userId: string) {
     const job = await AIGenerationJob.findOne({
       userId,
@@ -15,9 +13,9 @@ export class BullMqMockTestGenerationJobGateway
     })
       .sort({ createdAt: -1 })
       .select('_id status')
-      .lean<{ _id: { toString(): string }; status: 'pending' | 'processing' }>()
+      .lean<{ _id: { toString(): string }; status: 'pending' | 'processing' }>();
 
-    return job ? { jobId: job._id.toString(), status: job.status } : null
+    return job ? { jobId: job._id.toString(), status: job.status } : null;
   }
 
   async enqueue(userId: string, payload: IGenerateMockTestPayloadDTO) {
@@ -28,8 +26,8 @@ export class BullMqMockTestGenerationJobGateway
       inputData: { ...payload },
       totalSteps: 1,
       currentStep: 0,
-    })
-    const jobId = job._id.toString()
+    });
+    const jobId = job._id.toString();
 
     await aiQueue.add(
       'generate-mock-test',
@@ -39,12 +37,11 @@ export class BullMqMockTestGenerationJobGateway
         backoff: { type: 'exponential', delay: 5000 },
         removeOnComplete: 100,
         removeOnFail: 200,
-      },
-    )
+      }
+    );
 
-    return { jobId, status: 'pending' as const }
+    return { jobId, status: 'pending' as const };
   }
 }
 
-export const bullMqMockTestGenerationJobGateway =
-  new BullMqMockTestGenerationJobGateway()
+export const bullMqMockTestGenerationJobGateway = new BullMqMockTestGenerationJobGateway();

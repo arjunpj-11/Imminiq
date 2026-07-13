@@ -1,8 +1,8 @@
 export const buildMockTestQuestionsPrompt = (input: {
-  topic: string
-  difficulty: string
-  questionCount: number
-  questionTypes: string[]
+  topic: string;
+  difficulty: string;
+  questionCount: number;
+  questionTypes: string[];
 }): string => `You are an expert exam question writer and coding interview problem creator.
 
 Topic: ${input.topic}
@@ -100,4 +100,4 @@ Rules:
 - Avoid string and string[] output for C questions.
 - Prefer number, boolean, number[], and number[][] coding problems for best multi-language compatibility.
 - points: easy=1, medium=2, hard=3.
-- For non-coding questions, do not include the coding field.`
+- For non-coding questions, do not include the coding field.`;

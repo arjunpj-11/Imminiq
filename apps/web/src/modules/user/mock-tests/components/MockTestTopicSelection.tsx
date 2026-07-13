@@ -1,7 +1,7 @@
-import { useMemo, useState } from 'react'
+import { useMemo, useState } from 'react';
 
-import { cn } from '../utils/mock-tests-formatters'
-import type { IFlatNode } from '../utils/mock-test-topic-selection'
+import { cn } from '../utils/mock-tests-formatters';
+import type { IFlatNode } from '../utils/mock-test-topic-selection';
 
 const ChevronDown = ({ open }: { open: boolean }) => (
   <svg
@@ -9,10 +9,7 @@ const ChevronDown = ({ open }: { open: boolean }) => (
     height="14"
     viewBox="0 0 12 12"
     fill="none"
-    className={cn(
-      'shrink-0 transition-transform duration-200',
-      open && 'rotate-180'
-    )}
+    className={cn('shrink-0 transition-transform duration-200', open && 'rotate-180')}
     aria-hidden="true"
   >
     <path
@@ -23,7 +20,7 @@ const ChevronDown = ({ open }: { open: boolean }) => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 const CheckIcon = () => (
   <svg width="9" height="9" viewBox="0 0 9 9" fill="none" aria-hidden="true">
@@ -35,15 +32,15 @@ const CheckIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 export interface ITopicGroupProps {
-  topicTitle: string
-  nodes: IFlatNode[]
-  selectedIds: Set<string>
-  onToggle: (id: string, title: string) => void
-  onSelectAll: (nodes: IFlatNode[]) => void
-  onDeselectAll: (nodes: IFlatNode[]) => void
+  topicTitle: string;
+  nodes: IFlatNode[];
+  selectedIds: Set<string>;
+  onToggle: (id: string, title: string) => void;
+  onSelectAll: (nodes: IFlatNode[]) => void;
+  onDeselectAll: (nodes: IFlatNode[]) => void;
 }
 
 export function TopicGroup({
@@ -54,29 +51,29 @@ export function TopicGroup({
   onSelectAll,
   onDeselectAll,
 }: ITopicGroupProps) {
-  const [open, setOpen] = useState(false)
-  const selectedCount = nodes.filter((node) => selectedIds.has(node._id)).length
-  const allSelected = selectedCount === nodes.length
+  const [open, setOpen] = useState(false);
+  const selectedCount = nodes.filter((node) => selectedIds.has(node._id)).length;
+  const allSelected = selectedCount === nodes.length;
 
   const handleSelectToggleClick = (event: React.MouseEvent) => {
-    event.stopPropagation()
+    event.stopPropagation();
 
     if (allSelected) {
-      onDeselectAll(nodes)
+      onDeselectAll(nodes);
     } else {
-      onSelectAll(nodes)
+      onSelectAll(nodes);
     }
-  }
+  };
 
   const handleSelectToggleKeyDown = (event: React.KeyboardEvent) => {
-    if (event.key !== 'Enter') return
+    if (event.key !== 'Enter') return;
 
     if (allSelected) {
-      onDeselectAll(nodes)
+      onDeselectAll(nodes);
     } else {
-      onSelectAll(nodes)
+      onSelectAll(nodes);
     }
-  }
+  };
 
   return (
     <div className="overflow-hidden rounded-md border border-(--border-subtle) bg-(--surface-card) transition-all duration-200 dark:border-white/8 dark:bg-(--surface-canvas)">
@@ -119,8 +116,8 @@ export function TopicGroup({
         <div className="border-t border-(--border-subtle) px-4 pb-4 pt-3 dark:border-white/5">
           <div className="flex flex-wrap gap-1.5">
             {nodes.map((node) => {
-              const isSelected = selectedIds.has(node._id)
-              const depthPrefix = node.depth > 0 ? '↳ ' : ''
+              const isSelected = selectedIds.has(node._id);
+              const depthPrefix = node.depth > 0 ? '↳ ' : '';
 
               return (
                 <button
@@ -128,7 +125,7 @@ export function TopicGroup({
                   type="button"
                   onClick={() => onToggle(node._id, node.title)}
                   className={cn(
-                    "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.04em] transition-all duration-150 hover:-translate-y-px active:scale-95",
+                    'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[10px] font-bold tracking-[0.04em] transition-all duration-150 hover:-translate-y-px active:scale-95',
                     node.depth > 0 && 'opacity-85',
                     isSelected
                       ? 'border-(--brand-500) bg-[rgba(184,76,43,0.10)] text-(--brand-500) shadow-[0_0_0_1px_rgba(184,76,43,0.12)] dark:border-(--brand-500) dark:bg-(--brand-500)/15 dark:text-(--brand-500) dark:shadow-[0_0_0_1px_rgba(232,129,106,0.15)]'
@@ -141,19 +138,19 @@ export function TopicGroup({
                     {node.title}
                   </span>
                 </button>
-              )
+              );
             })}
           </div>
         </div>
       )}
     </div>
-  )
+  );
 }
 
 export interface ISelectionPreviewProps {
-  selectedNodes: Map<string, string>
-  flatNodes: IFlatNode[]
-  trackerTitle: string
+  selectedNodes: Map<string, string>;
+  flatNodes: IFlatNode[];
+  trackerTitle: string;
 }
 
 export function SelectionPreview({
@@ -161,29 +158,29 @@ export function SelectionPreview({
   flatNodes,
   trackerTitle,
 }: ISelectionPreviewProps) {
-  const [expanded, setExpanded] = useState(false)
+  const [expanded, setExpanded] = useState(false);
 
   const byTopic = useMemo(() => {
-    const map = new Map<string, { topicTitle: string; subtopics: string[] }>()
+    const map = new Map<string, { topicTitle: string; subtopics: string[] }>();
 
     for (const [id, title] of selectedNodes.entries()) {
-      const node = flatNodes.find((item) => item._id === id)
-      if (!node) continue
+      const node = flatNodes.find((item) => item._id === id);
+      if (!node) continue;
 
       if (!map.has(node.parentTopicId)) {
         map.set(node.parentTopicId, {
           topicTitle: node.parentTopicTitle,
           subtopics: [],
-        })
+        });
       }
 
-      map.get(node.parentTopicId)!.subtopics.push(title)
+      map.get(node.parentTopicId)!.subtopics.push(title);
     }
 
-    return Array.from(map.values())
-  }, [selectedNodes, flatNodes])
+    return Array.from(map.values());
+  }, [selectedNodes, flatNodes]);
 
-  if (selectedNodes.size === 0) return null
+  if (selectedNodes.size === 0) return null;
 
   return (
     <div className="overflow-hidden rounded-xl border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.06)] dark:border-(--brand-500)/20 dark:bg-(--brand-500)/5">
@@ -232,6 +229,5 @@ export function SelectionPreview({
         </div>
       )}
     </div>
-  )
+  );
 }
-

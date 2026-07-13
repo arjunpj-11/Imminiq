@@ -1,24 +1,18 @@
-import { Upload } from '../../../../../infrastructure/database/models/upload.model'
-import {
-  UPLOAD_MODULE,
-  UPLOAD_REFERENCE_TYPE,
-} from '../../../domain/uploads.constants'
+import { Upload } from '../../../../../infrastructure/database/models/upload.model';
+import { UPLOAD_MODULE, UPLOAD_REFERENCE_TYPE } from '../../../domain/uploads.constants';
 import type {
   SaveUploadRecordInput,
   SoftDeleteLatestProfileUploadInput,
-} from '../../../domain/repositories/uploads.repository.interface'
-import { MongoUploadsBaseRepository } from '../shared/mongo-uploads-base.repository'
-import { MongoUploadsErrorMapper } from '../shared/mongo-uploads-error.mapper'
-import { MongoUploadsObjectId } from '../shared/mongo-uploads-object-id'
-import { MongoUploadsMapper } from '../shared/mongo-uploads.mapper'
-import type {
-  MongoUploadRecord,
-  MongooseObjectLike,
-} from '../shared/mongo-uploads.types'
+} from '../../../domain/repositories/uploads.repository.interface';
+import { MongoUploadsBaseRepository } from '../shared/mongo-uploads-base.repository';
+import { MongoUploadsErrorMapper } from '../shared/mongo-uploads-error.mapper';
+import { MongoUploadsObjectId } from '../shared/mongo-uploads-object-id';
+import { MongoUploadsMapper } from '../shared/mongo-uploads.mapper';
+import type { MongoUploadRecord, MongooseObjectLike } from '../shared/mongo-uploads.types';
 
 export class MongoUploadsRecordRepository extends MongoUploadsBaseRepository {
   constructor(private readonly _mapper = new MongoUploadsMapper()) {
-    super()
+    super();
   }
 
   async saveUploadRecord(input: SaveUploadRecordInput) {
@@ -36,24 +30,20 @@ export class MongoUploadsRecordRepository extends MongoUploadsBaseRepository {
           module: UPLOAD_MODULE,
           referenceType: UPLOAD_REFERENCE_TYPE,
           referenceId: MongoUploadsObjectId.fromString(input.referenceId),
-          ...(input.file.storagePublicId
-            ? { storagePublicId: input.file.storagePublicId }
-            : {}),
-        })
+          ...(input.file.storagePublicId ? { storagePublicId: input.file.storagePublicId } : {}),
+        });
 
         return this._mapper.toUploadEntityOrThrow(
           this._mapper.toPlainRecord<MongoUploadRecord>(
-            upload as MongooseObjectLike<MongoUploadRecord>,
-          ),
-        )
+            upload as MongooseObjectLike<MongoUploadRecord>
+          )
+        );
       },
-      MongoUploadsErrorMapper.mapDuplicateUploadRecordError,
-    )
+      MongoUploadsErrorMapper.mapDuplicateUploadRecordError
+    );
   }
 
-  async softDeleteLatestProfileUpload(
-    input: SoftDeleteLatestProfileUploadInput,
-  ) {
+  async softDeleteLatestProfileUpload(input: SoftDeleteLatestProfileUploadInput) {
     return this.execute(
       'UPLOAD_DELETE_FAILED',
       'Failed to delete latest profile upload',
@@ -75,14 +65,13 @@ export class MongoUploadsRecordRepository extends MongoUploadsBaseRepository {
               createdAt: -1,
             },
             returnDocument: 'after',
-          },
-        ).lean<MongoUploadRecord>()
+          }
+        ).lean<MongoUploadRecord>();
 
-        return Boolean(upload)
-      },
-    )
+        return Boolean(upload);
+      }
+    );
   }
 }
 
-export const mongoUploadsRecordRepository =
-  new MongoUploadsRecordRepository()
+export const mongoUploadsRecordRepository = new MongoUploadsRecordRepository();

@@ -1,10 +1,10 @@
-import { Outlet, useLocation } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom';
 
-import AppErrorBoundary from '../system/AppErrorBoundary'
-import { AppShell } from './AppShell'
+import AppErrorBoundary from '../system/AppErrorBoundary';
+import { AppShell } from './AppShell';
 
 export default function AuthenticatedAppLayout() {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <AppShell>
@@ -14,5 +14,5 @@ export default function AuthenticatedAppLayout() {
         </div>
       </AppErrorBoundary>
     </AppShell>
-  )
+  );
 }

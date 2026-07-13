@@ -1,94 +1,78 @@
-import { useQuery } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
-import api from '../../../../lib/axios'
+import { useQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import api from '../../../../lib/axios';
 
-export type RoadmapJobTerminalStatus =
-  | 'completed'
-  | 'failed'
-  | 'success'
-  | 'done'
-  | 'error'
+export type RoadmapJobTerminalStatus = 'completed' | 'failed' | 'success' | 'done' | 'error';
 
 export interface IRoadmapJobStatusData {
-  jobId?: string
-  status?: string
-  state?: string
+  jobId?: string;
+  status?: string;
+  state?: string;
 
-  progress?: number
-  progressPercent?: number
-  percentage?: number
+  progress?: number;
+  progressPercent?: number;
+  percentage?: number;
 
-  currentStep?: number
-  step?: number
-  completedSteps?: number
-  completedStep?: number
-  totalSteps?: number
+  currentStep?: number;
+  step?: number;
+  completedSteps?: number;
+  completedStep?: number;
+  totalSteps?: number;
 
-  stepLabel?: string
-  currentStepLabel?: string
-  progressLabel?: string
+  stepLabel?: string;
+  currentStepLabel?: string;
+  progressLabel?: string;
 
-  message?: string
-  logMessage?: string
-  engineLabel?: string
-  nextLabel?: string
-  nextStep?: string
-  testId?: string | null
-  trackerId?: string | null
-  errorMessage?: string | null
+  message?: string;
+  logMessage?: string;
+  engineLabel?: string;
+  nextLabel?: string;
+  nextStep?: string;
+  testId?: string | null;
+  trackerId?: string | null;
+  errorMessage?: string | null;
 }
 
 interface IRoadmapJobStatusResponse {
-  success: boolean
-  message: string
-  data?: IRoadmapJobStatusData
+  success: boolean;
+  message: string;
+  data?: IRoadmapJobStatusData;
 }
 
 interface IApiErrorResponse {
-  success?: boolean
-  message?: string
+  success?: boolean;
+  message?: string;
 }
 
 const isTerminalJob = (data?: IRoadmapJobStatusData) => {
-  const status = (data?.status || data?.state || '').toLowerCase()
+  const status = (data?.status || data?.state || '').toLowerCase();
 
-  return [
-    'completed',
-    'failed',
-    'success',
-    'done',
-    'error',
-  ].includes(status)
-}
+  return ['completed', 'failed', 'success', 'done', 'error'].includes(status);
+};
 
 export const useRoadmapJobStatus = (jobId?: string) => {
-  return useQuery<
-    IRoadmapJobStatusResponse,
-    AxiosError<IApiErrorResponse>
-  >({
+  return useQuery<IRoadmapJobStatusResponse, AxiosError<IApiErrorResponse>>({
     queryKey: ['roadmap-job-status', jobId],
 
     queryFn: async () => {
-      const response = await api.get<IRoadmapJobStatusResponse>(
-        `/onboarding/jobs/${jobId}/status`
-      )
+      const response = await api.get<IRoadmapJobStatusResponse>(`/onboarding/jobs/${jobId}/status`);
 
-      return response.data
+      return response.data;
     },
 
     enabled: Boolean(jobId),
 
     refetchInterval: (query) => {
-      const response = query.state.data
+      const response = query.state.data;
 
       if (isTerminalJob(response?.data)) {
-        return false
+        return false;
       }
 
-      return 1500
+      return 1500;
     },
 
     refetchOnWindowFocus: false,
     retry: 1,
-  })
-}
+  });
+};

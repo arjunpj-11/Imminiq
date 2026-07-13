@@ -1,1 +1,1 @@
-export type StreakIntensity = 'none' | 'low' | 'medium' | 'high'
+export type StreakIntensity = 'none' | 'low' | 'medium' | 'high';

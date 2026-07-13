@@ -1,6 +1,6 @@
-export * from './leaderboard.constants'
-export * from './entities/leaderboard-entry.entity'
-export * from './leaderboard-domain.error'
+export * from './leaderboard.constants';
+export * from './entities/leaderboard-entry.entity';
+export * from './leaderboard-domain.error';
 
 export type {
   CaptureLeaderboardSnapshotInput,
@@ -9,16 +9,16 @@ export type {
   RecordLeaderboardXpActivityInput,
   RecordLeaderboardXpActivityResult,
   ReplaceLeaderboardFriendsInput,
-} from './repositories/leaderboard-activity.repository.interface'
+} from './repositories/leaderboard-activity.repository.interface';
 
 export type {
   FindLeaderboardInput,
   ILeaderboardQueryRepository,
   LeaderboardQueryResult,
-} from './repositories/leaderboard-query.repository.interface'
+} from './repositories/leaderboard-query.repository.interface';
 
-export type { ILeaderboardRepository } from './repositories/leaderboard.repository.interface'
+export type { ILeaderboardRepository } from './repositories/leaderboard.repository.interface';
 
-export * from './leaderboard.types'
-export type { LeaderboardScope } from './value-objects/leaderboard-scope.vo'
-export type { LeaderboardSection } from './value-objects/leaderboard-section.vo'
+export * from './leaderboard.types';
+export type { LeaderboardScope } from './value-objects/leaderboard-scope.vo';
+export type { LeaderboardSection } from './value-objects/leaderboard-section.vo';

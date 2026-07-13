@@ -1,11 +1,11 @@
-import { DashboardRecommendedActionEntity } from '../../domain/entities/dashboard-recommended-action.entity'
-import type { IDashboardRecommendationRepository } from '../../domain/repositories/dashboard-recommendation.repository.interface'
-import { DASHBOARD_MAX_RECOMMENDED_ACTIONS } from '../dashboard.constants'
-import type { IDashboardRecommendedActionDTO } from '../dashboard.dto'
-import type { IDashboardMapper } from '../dashboard.mapper'
+import { DashboardRecommendedActionEntity } from '../../domain/entities/dashboard-recommended-action.entity';
+import type { IDashboardRecommendationRepository } from '../../domain/repositories/dashboard-recommendation.repository.interface';
+import { DASHBOARD_MAX_RECOMMENDED_ACTIONS } from '../dashboard.constants';
+import type { IDashboardRecommendedActionDTO } from '../dashboard.dto';
+import type { IDashboardMapper } from '../dashboard.mapper';
 
 export interface IGetRecommendedActionsUseCase {
-  execute(userId: string): Promise<IDashboardRecommendedActionDTO[]>
+  execute(userId: string): Promise<IDashboardRecommendedActionDTO[]>;
 }
 
 export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCase {
@@ -15,11 +15,11 @@ export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCa
   ) {}
 
   async execute(userId: string): Promise<IDashboardRecommendedActionDTO[]> {
-    const context = await this._dashboardRepository.getRecommendationContext(userId)
-    const actions: DashboardRecommendedActionEntity[] = []
+    const context = await this._dashboardRepository.getRecommendationContext(userId);
+    const actions: DashboardRecommendedActionEntity[] = [];
 
     if (context.latestIncompleteTracker) {
-      const tracker = context.latestIncompleteTracker
+      const tracker = context.latestIncompleteTracker;
 
       actions.push(
         new DashboardRecommendedActionEntity({
@@ -28,7 +28,7 @@ export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCa
           description: `You are ${Math.round(tracker.completionPercentage)}% through`,
           link: `/trackers/${tracker.id}/roadmap`,
         })
-      )
+      );
     }
 
     if (context.totalTrackers === 0) {
@@ -39,7 +39,7 @@ export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCa
           description: 'Use AI to build a personalized learning roadmap',
           link: '/onboarding/step-1',
         })
-      )
+      );
     }
 
     actions.push(
@@ -55,10 +55,10 @@ export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCa
         description: 'Evaluate your knowledge with AI-generated questions',
         link: '/mock-tests',
       })
-    )
+    );
 
     return actions
       .slice(0, DASHBOARD_MAX_RECOMMENDED_ACTIONS)
-      .map((action) => this._dashboardMapper.toRecommendedAction(action))
+      .map((action) => this._dashboardMapper.toRecommendedAction(action));
   }
 }

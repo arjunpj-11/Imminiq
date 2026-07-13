@@ -1,11 +1,11 @@
-import { TwoFactorAuth } from '../../../../../infrastructure/database/models/two-factor-auth.model'
-import { MongoAuthBaseRepository } from '../shared/mongo-auth-base.repository'
-import { MongoAuthMapper } from '../shared/mongo-auth.mapper'
-import type { MongoTwoFactorAuthRecord } from '../shared/mongo-auth.types'
+import { TwoFactorAuth } from '../../../../../infrastructure/database/models/two-factor-auth.model';
+import { MongoAuthBaseRepository } from '../shared/mongo-auth-base.repository';
+import { MongoAuthMapper } from '../shared/mongo-auth.mapper';
+import type { MongoTwoFactorAuthRecord } from '../shared/mongo-auth.types';
 
 export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
   constructor(private readonly _mapper = new MongoAuthMapper()) {
-    super()
+    super();
   }
 
   async hasActiveTwoFactor(userId: string) {
@@ -18,9 +18,9 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
             userId,
             status: 'active',
             deletedAt: null,
-          }),
-        ),
-    )
+          })
+        )
+    );
   }
 
   async findActiveTwoFactorForLogin(userId: string) {
@@ -34,11 +34,11 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
           deletedAt: null,
         })
           .select('+totpSecretEncrypted +backupCodes +backupCodes.codeHash')
-          .lean<MongoTwoFactorAuthRecord>()
+          .lean<MongoTwoFactorAuthRecord>();
 
-        return this._mapper.toTwoFactorAuthEntity(twoFactor)
-      },
-    )
+        return this._mapper.toTwoFactorAuthEntity(twoFactor);
+      }
+    );
   }
 
   async touchTwoFactorLastUsed(userId: string) {
@@ -59,12 +59,12 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoTwoFactorAuthRecord>()
+          }
+        ).lean<MongoTwoFactorAuthRecord>();
 
-        return this._mapper.toTwoFactorAuthEntity(twoFactor)
-      },
-    )
+        return this._mapper.toTwoFactorAuthEntity(twoFactor);
+      }
+    );
   }
 
   async markBackupCodeUsed(userId: string, backupCodeIndex: number) {
@@ -72,7 +72,7 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
       'AUTH_TWO_FACTOR_WRITE_FAILED',
       'Failed to mark backup code used',
       async () => {
-        const usedAtPath = `backupCodes.${backupCodeIndex}.usedAt`
+        const usedAtPath = `backupCodes.${backupCodeIndex}.usedAt`;
 
         const twoFactor = await TwoFactorAuth.findOneAndUpdate(
           {
@@ -92,14 +92,13 @@ export class MongoAuthTwoFactorRepository extends MongoAuthBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoTwoFactorAuthRecord>()
+          }
+        ).lean<MongoTwoFactorAuthRecord>();
 
-        return this._mapper.toTwoFactorAuthEntity(twoFactor)
-      },
-    )
+        return this._mapper.toTwoFactorAuthEntity(twoFactor);
+      }
+    );
   }
 }
 
-export const mongoAuthTwoFactorRepository =
-  new MongoAuthTwoFactorRepository()
+export const mongoAuthTwoFactorRepository = new MongoAuthTwoFactorRepository();

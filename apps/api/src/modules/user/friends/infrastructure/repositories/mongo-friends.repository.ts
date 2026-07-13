@@ -1,7 +1,7 @@
-import type { IFriendCommandRepository } from "../../domain/repositories/friend-command.repository.interface";
-import type { IFriendQueryRepository } from "../../domain/repositories/friend-query.repository.interface";
-import type { IFriendRequestRepository } from "../../domain/repositories/friend-request.repository.interface";
-import type { IFriendsRepository } from "../../domain/repositories/friends.repository.interface";
+import type { IFriendCommandRepository } from '../../domain/repositories/friend-command.repository.interface';
+import type { IFriendQueryRepository } from '../../domain/repositories/friend-query.repository.interface';
+import type { IFriendRequestRepository } from '../../domain/repositories/friend-request.repository.interface';
+import type { IFriendsRepository } from '../../domain/repositories/friends.repository.interface';
 import type {
   FriendRequestActionCommandInput,
   ListFriendRequestsInput,
@@ -9,20 +9,20 @@ import type {
   RemoveFriendCommandInput,
   SearchFriendUsersInput,
   SendFriendRequestCommandInput,
-} from "../../domain/friends.types";
+} from '../../domain/friends.types';
 import {
   MongoFriendCommandRepository,
   mongoFriendCommandRepository,
-} from "./internal/mongo-friend-command.repository";
+} from './internal/mongo-friend-command.repository';
 import {
   MongoFriendQueryRepository,
   mongoFriendQueryRepository,
-} from "./internal/mongo-friend-query.repository";
+} from './internal/mongo-friend-query.repository';
 import {
   MongoFriendRequestRepository,
   mongoFriendRequestRepository,
-} from "./internal/mongo-friend-request.repository";
-import { MongoFriendsMapper } from "./shared/mongo-friends.mapper";
+} from './internal/mongo-friend-request.repository';
+import { MongoFriendsMapper } from './shared/mongo-friends.mapper';
 
 type MongoFriendsRepositoryDependencies = {
   queryRepository: IFriendQueryRepository;
@@ -37,25 +37,19 @@ export class MongoFriendsRepository implements IFriendsRepository {
 
   constructor(
     mapper?: MongoFriendsMapper,
-    dependencies: Partial<MongoFriendsRepositoryDependencies> = {},
+    dependencies: Partial<MongoFriendsRepositoryDependencies> = {}
   ) {
     this._queryRepository =
       dependencies.queryRepository ??
-      (mapper
-        ? new MongoFriendQueryRepository(mapper)
-        : mongoFriendQueryRepository);
+      (mapper ? new MongoFriendQueryRepository(mapper) : mongoFriendQueryRepository);
 
     this._requestRepository =
       dependencies.requestRepository ??
-      (mapper
-        ? new MongoFriendRequestRepository(mapper)
-        : mongoFriendRequestRepository);
+      (mapper ? new MongoFriendRequestRepository(mapper) : mongoFriendRequestRepository);
 
     this._commandRepository =
       dependencies.commandRepository ??
-      (mapper
-        ? new MongoFriendCommandRepository(mapper)
-        : mongoFriendCommandRepository);
+      (mapper ? new MongoFriendCommandRepository(mapper) : mongoFriendCommandRepository);
   }
 
   searchUsers(input: SearchFriendUsersInput) {

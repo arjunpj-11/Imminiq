@@ -1,58 +1,58 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
-export type TrackerLevel = 'beginner' | 'intermediate' | 'advanced'
+export type TrackerLevel = 'beginner' | 'intermediate' | 'advanced';
 
-export type TrackerVisibility = 'private' | 'public' | 'unlisted'
+export type TrackerVisibility = 'private' | 'public' | 'unlisted';
 
-export type TrackerStatus = 'draft' | 'active' | 'archived'
+export type TrackerStatus = 'draft' | 'active' | 'archived';
 
-export type TrackerVerificationStatus = 'pending' | 'verified' | 'rejected'
+export type TrackerVerificationStatus = 'pending' | 'verified' | 'rejected';
 
 export interface ITrackerDocument extends Document {
-  ownerId: mongoose.Types.ObjectId
+  ownerId: mongoose.Types.ObjectId;
 
-  title: string
-  slug: string
-  description: string
+  title: string;
+  slug: string;
+  description: string;
 
-  category: string
-  field: string
-  goal: string
+  category: string;
+  field: string;
+  goal: string;
 
-  level: TrackerLevel
+  level: TrackerLevel;
 
-  tags: string[]
-  allowClone: boolean
-  sourceTrackerId?: mongoose.Types.ObjectId | null
+  tags: string[];
+  allowClone: boolean;
+  sourceTrackerId?: mongoose.Types.ObjectId | null;
 
-  visibility: TrackerVisibility
-  status: TrackerStatus
+  visibility: TrackerVisibility;
+  status: TrackerStatus;
 
-  verificationStatus?: TrackerVerificationStatus | null
-  verifiedAt?: Date | null
+  verificationStatus?: TrackerVerificationStatus | null;
+  verifiedAt?: Date | null;
 
-  isAIGenerated: boolean
-  aiJobId?: mongoose.Types.ObjectId
+  isAIGenerated: boolean;
+  aiJobId?: mongoose.Types.ObjectId;
 
-  coverImageUrl?: string
+  coverImageUrl?: string;
 
-  topicsCount: number
-  subtopicsCount: number
+  topicsCount: number;
+  subtopicsCount: number;
 
-  cloneCount: number
-  likeCount: number
-  saveCount: number
+  cloneCount: number;
+  likeCount: number;
+  saveCount: number;
 
-  progressPercent: number
+  progressPercent: number;
 
-  ratingAverage: number
-  ratingCount: number
+  ratingAverage: number;
+  ratingCount: number;
 
-  publishedAt?: Date
-  deletedAt?: Date | null
+  publishedAt?: Date;
+  deletedAt?: Date | null;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const trackerSchema = new Schema<ITrackerDocument>(
@@ -112,9 +112,7 @@ const trackerSchema = new Schema<ITrackerDocument>(
       default: [],
       set: (tags: unknown[]) =>
         Array.isArray(tags)
-          ? tags
-              .map((tag) => String(tag).trim().toLowerCase())
-              .filter(Boolean)
+          ? tags.map((tag) => String(tag).trim().toLowerCase()).filter(Boolean)
           : [],
     },
 
@@ -230,18 +228,18 @@ const trackerSchema = new Schema<ITrackerDocument>(
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
-trackerSchema.index({ ownerId: 1, status: 1 })
-trackerSchema.index({ visibility: 1, status: 1 })
-trackerSchema.index({ visibility: 1, publishedAt: -1 })
-trackerSchema.index({ field: 1 })
-trackerSchema.index({ category: 1 })
-trackerSchema.index({ level: 1 })
-trackerSchema.index({ tags: 1 })
-trackerSchema.index({ sourceTrackerId: 1 })
-trackerSchema.index({ verificationStatus: 1, visibility: 1 })
+trackerSchema.index({ ownerId: 1, status: 1 });
+trackerSchema.index({ visibility: 1, status: 1 });
+trackerSchema.index({ visibility: 1, publishedAt: -1 });
+trackerSchema.index({ field: 1 });
+trackerSchema.index({ category: 1 });
+trackerSchema.index({ level: 1 });
+trackerSchema.index({ tags: 1 });
+trackerSchema.index({ sourceTrackerId: 1 });
+trackerSchema.index({ verificationStatus: 1, visibility: 1 });
 trackerSchema.index(
   { ownerId: 1, sourceTrackerId: 1 },
   {
@@ -250,8 +248,8 @@ trackerSchema.index(
       sourceTrackerId: { $type: 'objectId' },
       deletedAt: null,
     },
-  },
-)
+  }
+);
 
 export const Tracker =
-  mongoose.models.Tracker || mongoose.model<ITrackerDocument>('Tracker', trackerSchema)
+  mongoose.models.Tracker || mongoose.model<ITrackerDocument>('Tracker', trackerSchema);

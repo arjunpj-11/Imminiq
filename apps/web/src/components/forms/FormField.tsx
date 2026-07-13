@@ -1,15 +1,15 @@
-import { useId, type ReactNode } from 'react'
+import { useId, type ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 interface IFormFieldProps {
-  label?: ReactNode
-  hint?: ReactNode
-  error?: ReactNode
-  children: ReactNode
-  className?: string
-  labelClassName?: string
-  required?: boolean
+  label?: ReactNode;
+  hint?: ReactNode;
+  error?: ReactNode;
+  children: ReactNode;
+  className?: string;
+  labelClassName?: string;
+  required?: boolean;
 }
 
 export default function FormField({
@@ -21,7 +21,7 @@ export default function FormField({
   labelClassName,
   required = false,
 }: IFormFieldProps) {
-  const messageId = useId()
+  const messageId = useId();
 
   return (
     <label className={cn('block', className)}>
@@ -29,18 +29,24 @@ export default function FormField({
         <span
           className={cn(
             'mb-2 flex items-center gap-1 text-[12px] font-[650] text-(--text-primary)',
-            labelClassName,
+            labelClassName
           )}
         >
           {label}
           {required && (
-            <span className="text-(--danger)" aria-hidden="true">*</span>
+            <span className="text-(--danger)" aria-hidden="true">
+              *
+            </span>
           )}
         </span>
       )}
       {children}
       {error ? (
-        <span id={messageId} role="alert" className="mt-1.5 block text-[11px] leading-4 text-(--danger)">
+        <span
+          id={messageId}
+          role="alert"
+          className="mt-1.5 block text-[11px] leading-4 text-(--danger)"
+        >
           {error}
         </span>
       ) : hint ? (
@@ -49,5 +55,5 @@ export default function FormField({
         </span>
       ) : null}
     </label>
-  )
+  );
 }

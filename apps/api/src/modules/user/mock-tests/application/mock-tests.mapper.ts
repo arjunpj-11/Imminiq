@@ -1,10 +1,10 @@
-import type { MockTestAIEvaluationEntity } from '../domain/entities/mock-test-ai-evaluation.entity'
-import type { MockTestAnswerEntity } from '../domain/entities/mock-test-answer.entity'
-import { MockTestAttemptEntity } from '../domain/entities/mock-test-attempt.entity'
-import type { MockTestCreationSessionEntity } from '../domain/entities/mock-test-creation-session.entity'
-import type { MockTestQuestionEntity } from '../domain/entities/mock-test-question.entity'
-import type { MockTestReportEntity } from '../domain/entities/mock-test-report.entity'
-import { MockTestEntity } from '../domain/entities/mock-test.entity'
+import type { MockTestAIEvaluationEntity } from '../domain/entities/mock-test-ai-evaluation.entity';
+import type { MockTestAnswerEntity } from '../domain/entities/mock-test-answer.entity';
+import { MockTestAttemptEntity } from '../domain/entities/mock-test-attempt.entity';
+import type { MockTestCreationSessionEntity } from '../domain/entities/mock-test-creation-session.entity';
+import type { MockTestQuestionEntity } from '../domain/entities/mock-test-question.entity';
+import type { MockTestReportEntity } from '../domain/entities/mock-test-report.entity';
+import { MockTestEntity } from '../domain/entities/mock-test.entity';
 import type {
   IFinishMockTestAttemptDTO,
   IImportSharedMockTestDTO,
@@ -24,63 +24,62 @@ import type {
   PublicMockTestQuestionDTO,
   ITestAnalyticsDTO,
   ITestAttemptResultDTO,
-} from './mock-tests.dto'
-import type { MockTestListResult } from '../domain/repositories/mock-test.repository.interface'
+} from './mock-tests.dto';
+import type { MockTestListResult } from '../domain/repositories/mock-test.repository.interface';
 import type {
   MockTestAttemptHistoryItem,
   MockTestPerformanceTrend,
   MockTestTopicBreakdown,
-} from '../domain/value-objects/mock-test-analytics.vo'
-import type { IScoreResult } from './services/test-scorer.service'
+} from '../domain/value-objects/mock-test-analytics.vo';
+import type { IScoreResult } from './services/test-scorer.service';
 
 export interface IMockTestsMapper {
-  toMockTest(test: MockTestEntity): IMockTestDTO
-  toPublicMockTest(test: MockTestEntity): PublicMockTestDTO
-  toQuestion(question: MockTestQuestionEntity): IMockTestQuestionDTO
-  toAttempt(attempt: MockTestAttemptEntity): IMockTestAttemptDTO
-  toAnswer(answer: MockTestAnswerEntity): IMockTestAnswerDTO
-  toAIEvaluation(evaluation: MockTestAIEvaluationEntity): IMockTestAIEvaluationDTO
-  toReport(report: MockTestReportEntity): IMockTestReportDTO
-  sanitizeQuestionForAttempt(question: MockTestQuestionEntity): PublicMockTestQuestionDTO
-  toListItem(test: MockTestEntity, latestAttempt?: MockTestAttemptEntity | null): IMockTestDTO & { latestAttempt: IMockTestAttemptDTO | null }
+  toMockTest(test: MockTestEntity): IMockTestDTO;
+  toPublicMockTest(test: MockTestEntity): PublicMockTestDTO;
+  toQuestion(question: MockTestQuestionEntity): IMockTestQuestionDTO;
+  toAttempt(attempt: MockTestAttemptEntity): IMockTestAttemptDTO;
+  toAnswer(answer: MockTestAnswerEntity): IMockTestAnswerDTO;
+  toAIEvaluation(evaluation: MockTestAIEvaluationEntity): IMockTestAIEvaluationDTO;
+  toReport(report: MockTestReportEntity): IMockTestReportDTO;
+  sanitizeQuestionForAttempt(question: MockTestQuestionEntity): PublicMockTestQuestionDTO;
+  toListItem(
+    test: MockTestEntity,
+    latestAttempt?: MockTestAttemptEntity | null
+  ): IMockTestDTO & { latestAttempt: IMockTestAttemptDTO | null };
   toAttemptResult(input: {
-    attempt: MockTestAttemptEntity
-    report: MockTestReportEntity | null
+    attempt: MockTestAttemptEntity;
+    report: MockTestReportEntity | null;
     answers: (MockTestAnswerEntity & {
-      question?: MockTestQuestionEntity
-      aiEvaluation?: MockTestAIEvaluationEntity
-    })[]
-  }): ITestAttemptResultDTO
-  toCreationSessionDto(session: MockTestCreationSessionEntity): IMockTestCreationSessionDTO
-  toListDto(result: MockTestListResult): IMockTestListDTO
-  toPublicListDto(result: MockTestListResult): IPublicMockTestListDTO
+      question?: MockTestQuestionEntity;
+      aiEvaluation?: MockTestAIEvaluationEntity;
+    })[];
+  }): ITestAttemptResultDTO;
+  toCreationSessionDto(session: MockTestCreationSessionEntity): IMockTestCreationSessionDTO;
+  toListDto(result: MockTestListResult): IMockTestListDTO;
+  toPublicListDto(result: MockTestListResult): IPublicMockTestListDTO;
   toDetailsDto(input: {
-    test: MockTestEntity
-    questions: MockTestQuestionEntity[]
-    latestAttempt: MockTestAttemptEntity | null
-    includeAnswers: boolean
-  }): IMockTestDetailsDTO
+    test: MockTestEntity;
+    questions: MockTestQuestionEntity[];
+    latestAttempt: MockTestAttemptEntity | null;
+    includeAnswers: boolean;
+  }): IMockTestDetailsDTO;
   toAttemptSessionDto(
     attempt: MockTestAttemptEntity,
-    questions: MockTestQuestionEntity[],
-  ): IMockTestAttemptSessionDTO
+    questions: MockTestQuestionEntity[]
+  ): IMockTestAttemptSessionDTO;
   toFinishAttemptDto(input: {
-    attempt: MockTestAttemptEntity
-    report: MockTestReportEntity
-    scoreResult: IScoreResult
-  }): IFinishMockTestAttemptDTO
+    attempt: MockTestAttemptEntity;
+    report: MockTestReportEntity;
+    scoreResult: IScoreResult;
+  }): IFinishMockTestAttemptDTO;
   toImportSharedDto(input: {
-    test: MockTestEntity
-    imported: boolean
-    alreadyImported: boolean
-  }): IImportSharedMockTestDTO
-  toAttemptHistoryDto(item: MockTestAttemptHistoryItem): IMockTestAttemptHistoryDTO
-  toPerformanceTrendDto(
-    trend: MockTestPerformanceTrend,
-  ): ITestAnalyticsDTO['trends'][number]
-  toTopicBreakdownDto(
-    item: MockTestTopicBreakdown,
-  ): ITestAnalyticsDTO['topicBreakdown'][number]
+    test: MockTestEntity;
+    imported: boolean;
+    alreadyImported: boolean;
+  }): IImportSharedMockTestDTO;
+  toAttemptHistoryDto(item: MockTestAttemptHistoryItem): IMockTestAttemptHistoryDTO;
+  toPerformanceTrendDto(trend: MockTestPerformanceTrend): ITestAnalyticsDTO['trends'][number];
+  toTopicBreakdownDto(item: MockTestTopicBreakdown): ITestAnalyticsDTO['topicBreakdown'][number];
 }
 
 export class MockTestsMapper implements IMockTestsMapper {
@@ -106,12 +105,12 @@ export class MockTestsMapper implements IMockTestsMapper {
       attemptCount: test.attemptCount,
       createdAt: test.createdAt,
       updatedAt: test.updatedAt,
-    }
+    };
   }
 
   toPublicMockTest(test: MockTestEntity): PublicMockTestDTO {
-    const { shareToken: _shareToken, ...safeTest } = this.toMockTest(test)
-    return safeTest
+    const { shareToken: _shareToken, ...safeTest } = this.toMockTest(test);
+    return safeTest;
   }
 
   toQuestion(question: MockTestQuestionEntity): IMockTestQuestionDTO {
@@ -127,7 +126,7 @@ export class MockTestsMapper implements IMockTestsMapper {
       order: question.order,
       points: question.points,
       coding: question.coding,
-    }
+    };
   }
 
   toAttempt(attempt: MockTestAttemptEntity): IMockTestAttemptDTO {
@@ -146,7 +145,7 @@ export class MockTestsMapper implements IMockTestsMapper {
       totalQuestions: attempt.totalQuestions,
       answeredQuestions: attempt.answeredQuestions,
       createdAt: attempt.createdAt,
-    }
+    };
   }
 
   toAnswer(answer: MockTestAnswerEntity): IMockTestAnswerDTO {
@@ -159,7 +158,7 @@ export class MockTestsMapper implements IMockTestsMapper {
       pointsEarned: answer.pointsEarned,
       aiEvaluationId: answer.aiEvaluationId,
       submittedAt: answer.submittedAt,
-    }
+    };
   }
 
   toAIEvaluation(evaluation: MockTestAIEvaluationEntity): IMockTestAIEvaluationDTO {
@@ -173,7 +172,7 @@ export class MockTestsMapper implements IMockTestsMapper {
       feedback: evaluation.feedback,
       status: evaluation.status,
       createdAt: evaluation.createdAt,
-    }
+    };
   }
 
   toReport(report: MockTestReportEntity): IMockTestReportDTO {
@@ -194,7 +193,7 @@ export class MockTestsMapper implements IMockTestsMapper {
       weakTopics: [...report.weakTopics],
       recommendations: [...report.recommendations],
       createdAt: report.createdAt,
-    }
+    };
   }
 
   sanitizeQuestionForAttempt(question: MockTestQuestionEntity): PublicMockTestQuestionDTO {
@@ -209,32 +208,32 @@ export class MockTestsMapper implements IMockTestsMapper {
       points: question.points,
       coding: question.coding
         ? {
-          ...question.coding,
-          testCases: question.coding.testCases
-            .filter((testCase) => !testCase.isHidden)
-            .map((testCase) => ({ ...testCase, isHidden: false })),
-        }
+            ...question.coding,
+            testCases: question.coding.testCases
+              .filter((testCase) => !testCase.isHidden)
+              .map((testCase) => ({ ...testCase, isHidden: false })),
+          }
         : undefined,
-    }
+    };
   }
 
   toListItem(
     test: MockTestEntity,
-    latestAttempt?: MockTestAttemptEntity | null,
+    latestAttempt?: MockTestAttemptEntity | null
   ): IMockTestDTO & { latestAttempt: IMockTestAttemptDTO | null } {
     return {
       ...this.toMockTest(test),
       latestAttempt: latestAttempt ? this.toAttempt(latestAttempt) : null,
-    }
+    };
   }
 
   toAttemptResult(input: {
-    attempt: MockTestAttemptEntity
-    report: MockTestReportEntity | null
+    attempt: MockTestAttemptEntity;
+    report: MockTestReportEntity | null;
     answers: (MockTestAnswerEntity & {
-      question?: MockTestQuestionEntity
-      aiEvaluation?: MockTestAIEvaluationEntity
-    })[]
+      question?: MockTestQuestionEntity;
+      aiEvaluation?: MockTestAIEvaluationEntity;
+    })[];
   }): ITestAttemptResultDTO {
     return {
       attempt: this.toAttempt(input.attempt),
@@ -242,11 +241,9 @@ export class MockTestsMapper implements IMockTestsMapper {
       answers: input.answers.map((answer) => ({
         ...this.toAnswer(answer),
         question: answer.question ? this.toQuestion(answer.question) : undefined,
-        aiEvaluation: answer.aiEvaluation
-          ? this.toAIEvaluation(answer.aiEvaluation)
-          : undefined,
+        aiEvaluation: answer.aiEvaluation ? this.toAIEvaluation(answer.aiEvaluation) : undefined,
       })),
-    }
+    };
   }
 
   toCreationSessionDto(session: MockTestCreationSessionEntity): IMockTestCreationSessionDTO {
@@ -258,105 +255,92 @@ export class MockTestsMapper implements IMockTestsMapper {
       draftData: { ...session.draftData },
       createdAt: session.createdAt,
       updatedAt: session.updatedAt,
-    }
+    };
   }
 
   toListDto(result: MockTestListResult): IMockTestListDTO {
     return {
       tests: result.tests.map((test) => this.toMockTest(test)),
       total: result.total,
-    }
+    };
   }
 
   toPublicListDto(result: MockTestListResult): IPublicMockTestListDTO {
     return {
       tests: result.tests.map((test) => this.toPublicMockTest(test)),
       total: result.total,
-    }
+    };
   }
 
   toDetailsDto(input: {
-    test: MockTestEntity
-    questions: MockTestQuestionEntity[]
-    latestAttempt: MockTestAttemptEntity | null
-    includeAnswers: boolean
+    test: MockTestEntity;
+    questions: MockTestQuestionEntity[];
+    latestAttempt: MockTestAttemptEntity | null;
+    includeAnswers: boolean;
   }): IMockTestDetailsDTO {
     return {
-      test: input.includeAnswers
-        ? this.toMockTest(input.test)
-        : this.toPublicMockTest(input.test),
+      test: input.includeAnswers ? this.toMockTest(input.test) : this.toPublicMockTest(input.test),
       questions: input.includeAnswers
         ? input.questions.map((question) => this.toQuestion(question))
         : input.questions.map((question) => this.sanitizeQuestionForAttempt(question)),
-      latestAttempt: input.latestAttempt
-        ? this.toAttempt(input.latestAttempt)
-        : null,
-    }
+      latestAttempt: input.latestAttempt ? this.toAttempt(input.latestAttempt) : null,
+    };
   }
 
   toAttemptSessionDto(
     attempt: MockTestAttemptEntity,
-    questions: MockTestQuestionEntity[],
+    questions: MockTestQuestionEntity[]
   ): IMockTestAttemptSessionDTO {
     return {
       attempt: this.toAttempt(attempt),
-      questions: questions.map((question) =>
-        this.sanitizeQuestionForAttempt(question)),
-    }
+      questions: questions.map((question) => this.sanitizeQuestionForAttempt(question)),
+    };
   }
 
   toFinishAttemptDto(input: {
-    attempt: MockTestAttemptEntity
-    report: MockTestReportEntity
-    scoreResult: IScoreResult
+    attempt: MockTestAttemptEntity;
+    report: MockTestReportEntity;
+    scoreResult: IScoreResult;
   }): IFinishMockTestAttemptDTO {
     return {
       attempt: this.toAttempt(input.attempt),
       report: this.toReport(input.report),
       scoreResult: { ...input.scoreResult },
-    }
+    };
   }
 
   toImportSharedDto(input: {
-    test: MockTestEntity
-    imported: boolean
-    alreadyImported: boolean
+    test: MockTestEntity;
+    imported: boolean;
+    alreadyImported: boolean;
   }): IImportSharedMockTestDTO {
     return {
       test: this.toMockTest(input.test),
       imported: input.imported,
       alreadyImported: input.alreadyImported,
-    }
+    };
   }
 
-  toAttemptHistoryDto(
-    item: MockTestAttemptHistoryItem,
-  ): IMockTestAttemptHistoryDTO {
+  toAttemptHistoryDto(item: MockTestAttemptHistoryItem): IMockTestAttemptHistoryDTO {
     return {
       ...this.toAttempt(new MockTestAttemptEntity(item)),
-      test: item.test
-        ? this.toMockTest(new MockTestEntity(item.test))
-        : null,
-    }
+      test: item.test ? this.toMockTest(new MockTestEntity(item.test)) : null,
+    };
   }
 
-  toPerformanceTrendDto(
-    trend: MockTestPerformanceTrend,
-  ): ITestAnalyticsDTO['trends'][number] {
+  toPerformanceTrendDto(trend: MockTestPerformanceTrend): ITestAnalyticsDTO['trends'][number] {
     return {
       date: trend.date,
       averageScore: trend.averageScore,
       attempts: trend.attempts,
-    }
+    };
   }
 
-  toTopicBreakdownDto(
-    item: MockTestTopicBreakdown,
-  ): ITestAnalyticsDTO['topicBreakdown'][number] {
+  toTopicBreakdownDto(item: MockTestTopicBreakdown): ITestAnalyticsDTO['topicBreakdown'][number] {
     return {
       topic: item.topic,
       averageScore: item.averageScore,
       totalAttempts: item.totalAttempts,
-    }
+    };
   }
 }

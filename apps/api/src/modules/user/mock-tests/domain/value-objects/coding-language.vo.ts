@@ -1,10 +1,4 @@
-export type MockTestCodingLanguage =
-  | 'javascript'
-  | 'typescript'
-  | 'python'
-  | 'java'
-  | 'cpp'
-  | 'c'
+export type MockTestCodingLanguage = 'javascript' | 'typescript' | 'python' | 'java' | 'cpp' | 'c';
 
 export type MockTestCodingValueType =
   | 'number'
@@ -14,4 +8,4 @@ export type MockTestCodingValueType =
   | 'string[]'
   | 'boolean[]'
   | 'number[][]'
-  | 'string[][]'
+  | 'string[][]';

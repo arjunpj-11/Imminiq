@@ -1,48 +1,38 @@
-import type { IRecordUserActivityUseCase } from '../../../activity'
+import type { IRecordUserActivityUseCase } from '../../../activity';
 import type {
   ICommunityActivityRecorder,
   RecordCommunityTrackerClonedActivityInput,
   RecordCommunityTrackerVerifiedActivityInput,
   RecordCommunityVerificationMajorityActivityInput,
   RecordCommunityVerificationVoteActivityInput,
-} from '../../domain/services/community-activity.interface'
+} from '../../domain/services/community-activity.interface';
 
 const normalizeText = (
   value: string | null | undefined,
   fallback: string,
-  maximumLength: number,
+  maximumLength: number
 ): string => {
-  const normalized = value?.trim() || fallback
+  const normalized = value?.trim() || fallback;
 
   if (normalized.length <= maximumLength) {
-    return normalized
+    return normalized;
   }
 
-  return normalized.slice(0, maximumLength).trimEnd()
-}
+  return normalized.slice(0, maximumLength).trimEnd();
+};
 
 const normalizeReward = (value: number): number => {
   if (!Number.isFinite(value)) {
-    return 0
+    return 0;
   }
 
-  return Math.max(0, Math.floor(value))
-}
+  return Math.max(0, Math.floor(value));
+};
 
-export class ActivityCommunityGateway
-  implements ICommunityActivityRecorder
-{
-  constructor(
-    private readonly _activityRecorder: IRecordUserActivityUseCase,
-  ) {}
-  async recordTrackerCloned(
-    input: RecordCommunityTrackerClonedActivityInput,
-  ): Promise<void> {
-    const trackerTitle = normalizeText(
-      input.trackerTitle,
-      'Untitled tracker',
-      150,
-    )
+export class ActivityCommunityGateway implements ICommunityActivityRecorder {
+  constructor(private readonly _activityRecorder: IRecordUserActivityUseCase) {}
+  async recordTrackerCloned(input: RecordCommunityTrackerClonedActivityInput): Promise<void> {
+    const trackerTitle = normalizeText(input.trackerTitle, 'Untitled tracker', 150);
 
     await this._activityRecorder.execute({
       userId: input.userId,
@@ -50,19 +40,14 @@ export class ActivityCommunityGateway
       category: 'community',
       type: 'tracker_cloned',
 
-      title: normalizeText(
-        `Cloned ${trackerTitle}`,
-        'Cloned community tracker',
-        180,
-      ),
+      title: normalizeText(`Cloned ${trackerTitle}`, 'Cloned community tracker', 180),
       subtitle: 'Added to your tracker dashboard',
 
       xpAwarded: 0,
       xpBucket: 'none',
       coinsAwarded: 0,
 
-      eventKey:
-        `community:tracker-cloned:${input.clonedTrackerId}`,
+      eventKey: `community:tracker-cloned:${input.clonedTrackerId}`,
 
       trackerId: input.clonedTrackerId,
       sourceUserId: input.sourceUserId,
@@ -74,21 +59,15 @@ export class ActivityCommunityGateway
             occurredAt: input.occurredAt,
           }
         : {}),
-    })
+    });
   }
 
   async recordVerificationVoteSubmitted(
-    input: RecordCommunityVerificationVoteActivityInput,
+    input: RecordCommunityVerificationVoteActivityInput
   ): Promise<void> {
-    const trackerTitle = normalizeText(
-      input.trackerTitle,
-      'Untitled tracker',
-      150,
-    )
+    const trackerTitle = normalizeText(input.trackerTitle, 'Untitled tracker', 150);
 
-    const xpAwarded = normalizeReward(
-      input.xpAwarded,
-    )
+    const xpAwarded = normalizeReward(input.xpAwarded);
 
     await this._activityRecorder.execute({
       userId: input.userId,
@@ -100,14 +79,10 @@ export class ActivityCommunityGateway
       subtitle: trackerTitle,
 
       xpAwarded,
-      xpBucket:
-        xpAwarded > 0
-          ? 'teacher'
-          : 'none',
+      xpBucket: xpAwarded > 0 ? 'teacher' : 'none',
       coinsAwarded: 0,
 
-      eventKey:
-        `community:verification-vote:${input.voteId}`,
+      eventKey: `community:verification-vote:${input.voteId}`,
 
       trackerId: input.trackerId,
       sourceUserId: input.ownerId,
@@ -119,25 +94,17 @@ export class ActivityCommunityGateway
             occurredAt: input.occurredAt,
           }
         : {}),
-    })
+    });
   }
 
   async recordVerificationMajorityWon(
-    input: RecordCommunityVerificationMajorityActivityInput,
+    input: RecordCommunityVerificationMajorityActivityInput
   ): Promise<void> {
-    const trackerTitle = normalizeText(
-      input.trackerTitle,
-      'Untitled tracker',
-      150,
-    )
+    const trackerTitle = normalizeText(input.trackerTitle, 'Untitled tracker', 150);
 
-    const xpAwarded = normalizeReward(
-      input.xpAwarded,
-    )
+    const xpAwarded = normalizeReward(input.xpAwarded);
 
-    const coinsAwarded = normalizeReward(
-      input.coinsAwarded,
-    )
+    const coinsAwarded = normalizeReward(input.coinsAwarded);
 
     await this._activityRecorder.execute({
       userId: input.userId,
@@ -149,14 +116,10 @@ export class ActivityCommunityGateway
       subtitle: trackerTitle,
 
       xpAwarded,
-      xpBucket:
-        xpAwarded > 0
-          ? 'teacher'
-          : 'none',
+      xpBucket: xpAwarded > 0 ? 'teacher' : 'none',
       coinsAwarded,
 
-      eventKey:
-        `community:verification-majority-won:${input.voteId}`,
+      eventKey: `community:verification-majority-won:${input.voteId}`,
 
       trackerId: input.trackerId,
       sourceUserId: input.ownerId,
@@ -164,17 +127,11 @@ export class ActivityCommunityGateway
       details: {
         milestoneValue: coinsAwarded,
       },
-    })
+    });
   }
 
-  async recordTrackerVerified(
-    input: RecordCommunityTrackerVerifiedActivityInput,
-  ): Promise<void> {
-    const trackerTitle = normalizeText(
-      input.trackerTitle,
-      'Untitled tracker',
-      150,
-    )
+  async recordTrackerVerified(input: RecordCommunityTrackerVerifiedActivityInput): Promise<void> {
+    const trackerTitle = normalizeText(input.trackerTitle, 'Untitled tracker', 150);
 
     await this._activityRecorder.execute({
       userId: input.ownerId,
@@ -182,23 +139,18 @@ export class ActivityCommunityGateway
       category: 'community',
       type: 'tracker_verified',
 
-      title: normalizeText(
-        `Verified ${trackerTitle}`,
-        'Tracker verified',
-        180,
-      ),
+      title: normalizeText(`Verified ${trackerTitle}`, 'Tracker verified', 180),
       subtitle: 'Community verification approved',
 
       xpAwarded: 0,
       xpBucket: 'none',
       coinsAwarded: 0,
 
-      eventKey:
-        `community:tracker-verified:${input.submissionId}`,
+      eventKey: `community:tracker-verified:${input.submissionId}`,
 
       trackerId: input.trackerId,
 
       details: {},
-    })
+    });
   }
 }

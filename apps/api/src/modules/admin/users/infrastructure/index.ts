@@ -1,1 +1,4 @@
-export { MongoAdminUsersRepository, mongoAdminUsersRepository } from './repositories/mongo-admin-users.repository'
+export {
+  MongoAdminUsersRepository,
+  mongoAdminUsersRepository,
+} from './repositories/mongo-admin-users.repository';

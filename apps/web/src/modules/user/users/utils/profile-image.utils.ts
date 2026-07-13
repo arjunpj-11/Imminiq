@@ -1,30 +1,30 @@
 export function loadImage(src: string) {
   return new Promise<HTMLImageElement>((resolve, reject) => {
-    const image = new Image()
-    image.onload = () => resolve(image)
-    image.onerror = () => reject(new Error('Could not load image'))
-    image.src = src
-  })
+    const image = new Image();
+    image.onload = () => resolve(image);
+    image.onerror = () => reject(new Error('Could not load image'));
+    image.src = src;
+  });
 }
 
 export async function bannerDataUrlToPng(dataUrl: string) {
-  const image = await loadImage(dataUrl)
-  const width = 1600
-  const height = 400
+  const image = await loadImage(dataUrl);
+  const width = 1600;
+  const height = 400;
 
-  const canvas = document.createElement('canvas')
-  canvas.width = width
-  canvas.height = height
+  const canvas = document.createElement('canvas');
+  canvas.width = width;
+  canvas.height = height;
 
-  const ctx = canvas.getContext('2d')
+  const ctx = canvas.getContext('2d');
 
   if (!ctx) {
-    throw new Error('Could not prepare banner canvas')
+    throw new Error('Could not prepare banner canvas');
   }
 
-  ctx.drawImage(image, 0, 0, width, height)
+  ctx.drawImage(image, 0, 0, width, height);
 
-  return canvas.toDataURL('image/png')
+  return canvas.toDataURL('image/png');
 }
 
 export function svgBannerDataUrl(start: string, mid: string, end: string) {
@@ -48,14 +48,14 @@ export function svgBannerDataUrl(start: string, mid: string, end: string) {
       <rect width="1600" height="400" fill="url(#grid)" opacity="0.6"/>
       <circle cx="800" cy="170" r="270" fill="url(#r)"/>
     </svg>
-  `
+  `;
 
-  const encodedBytes = new TextEncoder().encode(svg)
-  let binary = ''
+  const encodedBytes = new TextEncoder().encode(svg);
+  let binary = '';
 
   encodedBytes.forEach((byte) => {
-    binary += String.fromCharCode(byte)
-  })
+    binary += String.fromCharCode(byte);
+  });
 
-  return `data:image/svg+xml;base64,${btoa(binary)}`
+  return `data:image/svg+xml;base64,${btoa(binary)}`;
 }

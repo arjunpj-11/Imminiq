@@ -3,11 +3,10 @@ import {
   SystemPageHeader,
   SystemPageNoise,
   SystemToast,
-} from '../components/system/SystemPageChrome'
+} from '../components/system/SystemPageChrome';
 
-import { useState } from 'react'
-import { Link } from 'react-router-dom'
-
+import { useState } from 'react';
+import { Link } from 'react-router-dom';
 
 const HomeIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -24,8 +23,8 @@ const HomeIcon = ({ className = '' }: { className?: string }) => {
       <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
       <polyline points="9 22 9 12 15 12 15 22" />
     </svg>
-  )
-}
+  );
+};
 
 const DashboardIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -44,8 +43,8 @@ const DashboardIcon = ({ className = '' }: { className?: string }) => {
       <rect x="3" y="14" width="7" height="7" />
       <rect x="14" y="14" width="7" height="7" />
     </svg>
-  )
-}
+  );
+};
 
 const RoadmapIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -61,8 +60,8 @@ const RoadmapIcon = ({ className = '' }: { className?: string }) => {
     >
       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
-  )
-}
+  );
+};
 
 const MockTestIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -79,8 +78,8 @@ const MockTestIcon = ({ className = '' }: { className?: string }) => {
       <path d="M9 11l3 3L22 4" />
       <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
     </svg>
-  )
-}
+  );
+};
 
 const LeaderboardIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -98,8 +97,8 @@ const LeaderboardIcon = ({ className = '' }: { className?: string }) => {
       <line x1="12" y1="20" x2="12" y2="4" />
       <line x1="6" y1="20" x2="6" y2="14" />
     </svg>
-  )
-}
+  );
+};
 
 const CommunityIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -118,8 +117,8 @@ const CommunityIcon = ({ className = '' }: { className?: string }) => {
       <path d="M23 21v-2a4 4 0 00-3-3.87" />
       <path d="M16 3.13a4 4 0 010 7.75" />
     </svg>
-  )
-}
+  );
+};
 
 const CompassIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -134,21 +133,21 @@ const CompassIcon = ({ className = '' }: { className?: string }) => {
       <circle cx="12" cy="12" r="10" />
       <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" />
     </svg>
-  )
-}
+  );
+};
 
 export default function NotFoundPage() {
-  const [toast, setToast] = useState('')
-  const [isToastVisible, setIsToastVisible] = useState(false)
+  const [toast, setToast] = useState('');
+  const [isToastVisible, setIsToastVisible] = useState(false);
 
   const showToast = (message: string) => {
-    setToast(message)
-    setIsToastVisible(true)
+    setToast(message);
+    setIsToastVisible(true);
 
     window.setTimeout(() => {
-      setIsToastVisible(false)
-    }, 2600)
-  }
+      setIsToastVisible(false);
+    }, 2600);
+  };
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) transition-colors dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -201,8 +200,8 @@ export default function NotFoundPage() {
         </h2>
 
         <p className="mx-auto mb-8 max-w-100 text-center text-sm leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-          The page you are looking for does not exist, may have been moved, or
-          the URL might contain a typo. Let’s get you back on track.
+          The page you are looking for does not exist, may have been moved, or the URL might contain
+          a typo. Let’s get you back on track.
         </p>
 
         {/* Quick Links */}
@@ -254,5 +253,5 @@ export default function NotFoundPage() {
 
       <SystemPageFooter onUnavailableLink={showToast} />
     </div>
-  )
+  );
 }

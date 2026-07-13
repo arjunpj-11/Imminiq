@@ -6,4 +6,4 @@ export {
   MODERATION_APPEAL_IDENTIFIER_MAX_LENGTH,
   MODERATION_APPEAL_REASON_MAX_LENGTH,
   MODERATION_APPEAL_REASON_MIN_LENGTH,
-} from '../domain/moderation-appeal.constants'
+} from '../domain/moderation-appeal.constants';

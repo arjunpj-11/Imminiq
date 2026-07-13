@@ -1,32 +1,32 @@
-import { Component, type ErrorInfo, type ReactNode } from 'react'
+import { Component, type ErrorInfo, type ReactNode } from 'react';
 
-import Button from '../ui/Button'
+import Button from '../ui/Button';
 
 interface IWidgetErrorBoundaryProps {
-  children: ReactNode
-  title?: string
+  children: ReactNode;
+  title?: string;
 }
 
 interface IWidgetErrorBoundaryState {
-  failed: boolean
+  failed: boolean;
 }
 
 export default class WidgetErrorBoundary extends Component<
   IWidgetErrorBoundaryProps,
   IWidgetErrorBoundaryState
 > {
-  state: IWidgetErrorBoundaryState = { failed: false }
+  state: IWidgetErrorBoundaryState = { failed: false };
 
   static getDerivedStateFromError(): IWidgetErrorBoundaryState {
-    return { failed: true }
+    return { failed: true };
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
-    console.error('Imminiq widget error', error, info)
+    console.error('Imminiq widget error', error, info);
   }
 
   render() {
-    if (!this.state.failed) return this.props.children
+    if (!this.state.failed) return this.props.children;
 
     return (
       <section className="surface-flat p-5 text-center">
@@ -45,6 +45,6 @@ export default class WidgetErrorBoundary extends Component<
           Try section again
         </Button>
       </section>
-    )
+    );
   }
 }

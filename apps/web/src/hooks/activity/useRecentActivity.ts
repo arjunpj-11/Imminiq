@@ -1,25 +1,22 @@
-import { useQuery } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
-import api from '../../lib/axios'
+import { useQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import api from '../../lib/axios';
 import type {
   IActivityFeedItem,
   IApiErrorResponse,
   IApiResponse,
-} from '../../modules/user/users/types/profile.types'
-import { activityQueryKeys } from './activity.query-keys'
+} from '../../modules/user/users/types/profile.types';
+import { activityQueryKeys } from './activity.query-keys';
 
 interface IRecentActivityResponse {
-  items: IActivityFeedItem[]
+  items: IActivityFeedItem[];
 }
 
 interface IUseRecentActivityOptions {
-  enabled?: boolean
+  enabled?: boolean;
 }
 
-export const useRecentActivity = (
-  limit = 10,
-  options: IUseRecentActivityOptions = {}
-) => {
+export const useRecentActivity = (limit = 10, options: IUseRecentActivityOptions = {}) => {
   return useQuery<
     IApiResponse<IRecentActivityResponse>,
     AxiosError<IApiErrorResponse>,
@@ -33,11 +30,11 @@ export const useRecentActivity = (
         {
           params: { limit },
         }
-      )
+      );
 
-      return response.data
+      return response.data;
     },
     select: (response) => response.data,
     staleTime: 1000 * 60 * 3,
-  })
-}
+  });
+};

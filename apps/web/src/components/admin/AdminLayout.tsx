@@ -1,9 +1,27 @@
-import { Activity, BarChart3, Bell, BookOpenCheck, CircleHelp, ClipboardCheck, FileBarChart, Gauge, HeartPulse, LogOut, Menu, Megaphone, Settings, ShieldCheck, TicketCheck, Users, X } from 'lucide-react'
-import { useEffect, useState } from 'react'
-import { NavLink, Outlet, useNavigate } from 'react-router-dom'
-import ImminiqWordmark from '../ui/ImminiqWordmark'
-import { useAuthStore } from '../../store/useAuthStore'
-import api from '../../lib/axios'
+import {
+  Activity,
+  BarChart3,
+  Bell,
+  BookOpenCheck,
+  CircleHelp,
+  ClipboardCheck,
+  FileBarChart,
+  Gauge,
+  HeartPulse,
+  LogOut,
+  Menu,
+  Megaphone,
+  Settings,
+  ShieldCheck,
+  TicketCheck,
+  Users,
+  X,
+} from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import ImminiqWordmark from '../ui/ImminiqWordmark';
+import { useAuthStore } from '../../store/useAuthStore';
+import api from '../../lib/axios';
 
 const links = [
   { to: '/admin', label: 'Dashboard', icon: Gauge, end: true },
@@ -17,54 +35,116 @@ const links = [
   { to: '/admin/audit-logs', label: 'Audit Logs', icon: Activity },
   { to: '/admin/system-health', label: 'System Health', icon: HeartPulse },
   { to: '/admin/support-tickets', label: 'Support Tickets', icon: TicketCheck },
-]
+];
 
 export default function AdminLayout() {
-  const [open, setOpen] = useState(false)
-  const user = useAuthStore((state) => state.user)
-  const clearAuth = useAuthStore((state) => state.clearAuth)
-  const navigate = useNavigate()
+  const [open, setOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+  const navigate = useNavigate();
 
   useEffect(() => {
-    document.documentElement.classList.add('admin-dark')
-    return () => document.documentElement.classList.remove('admin-dark')
-  }, [])
+    document.documentElement.classList.add('admin-dark');
+    return () => document.documentElement.classList.remove('admin-dark');
+  }, []);
 
   const logout = async () => {
-    try { await api.post('/auth/logout') } catch { /* Local sign-out still completes. */ }
-    clearAuth()
-    navigate('/login', { replace: true })
-  }
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      /* Local sign-out still completes. */
+    }
+    clearAuth();
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="admin-theme min-h-screen bg-[#141412] text-[#f2f0eb]">
-      {open && <button className="fixed inset-0 z-30 bg-black/60 lg:hidden" aria-label="Close navigation" onClick={() => setOpen(false)} />}
-      <aside className={`fixed inset-y-0 left-0 z-40 flex w-[252px] flex-col border-r border-[rgba(255,255,255,0.09)] bg-[#18100e] transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}>
+      {open && (
+        <button
+          className="fixed inset-0 z-30 bg-black/60 lg:hidden"
+          aria-label="Close navigation"
+          onClick={() => setOpen(false)}
+        />
+      )}
+      <aside
+        className={`fixed inset-y-0 left-0 z-40 flex w-[252px] flex-col border-r border-[rgba(255,255,255,0.09)] bg-[#18100e] transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+      >
         <div className="flex h-[86px] items-center justify-between px-8">
-          <div className="flex items-center gap-3"><ImminiqWordmark /><span className="rounded border border-[rgba(255,255,255,0.16)] px-1.5 py-0.5 text-[9px] font-bold text-[#e8816a]">ADMIN</span></div>
-          <button className="lg:hidden" onClick={() => setOpen(false)}><X size={20} /></button>
+          <div className="flex items-center gap-3">
+            <ImminiqWordmark />
+            <span className="rounded border border-[rgba(255,255,255,0.16)] px-1.5 py-0.5 text-[9px] font-bold text-[#e8816a]">
+              ADMIN
+            </span>
+          </div>
+          <button className="lg:hidden" onClick={() => setOpen(false)}>
+            <X size={20} />
+          </button>
         </div>
         <nav className="mt-5 space-y-1 px-3">
           {links.map(({ to, label, icon: Icon, end }) => (
-            <NavLink key={label} to={to} end={end} onClick={() => setOpen(false)} className={({ isActive }) => `flex items-center gap-4 rounded-md px-5 py-3.5 text-[14px] font-semibold transition ${isActive ? 'bg-[rgba(232,129,106,0.15)] text-[#e8816a]' : 'text-[#aaa59d] hover:bg-[#24211e]'}`}>
-              <Icon size={20} strokeWidth={1.8} />{label}
+            <NavLink
+              key={label}
+              to={to}
+              end={end}
+              onClick={() => setOpen(false)}
+              className={({ isActive }) =>
+                `flex items-center gap-4 rounded-md px-5 py-3.5 text-[14px] font-semibold transition ${isActive ? 'bg-[rgba(232,129,106,0.15)] text-[#e8816a]' : 'text-[#aaa59d] hover:bg-[#24211e]'}`
+              }
+            >
+              <Icon size={20} strokeWidth={1.8} />
+              {label}
             </NavLink>
           ))}
         </nav>
         <div className="mt-auto border-t border-[rgba(255,255,255,0.09)] p-3">
-          <NavLink to="/admin/settings" className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"><Settings size={18} />Settings</NavLink>
-          <NavLink to="/admin/support" className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"><CircleHelp size={18} />Support</NavLink>
-          <button className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]" onClick={() => void logout()}><LogOut size={18} />Sign out</button>
+          <NavLink
+            to="/admin/settings"
+            className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
+          >
+            <Settings size={18} />
+            Settings
+          </NavLink>
+          <NavLink
+            to="/admin/support"
+            className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
+          >
+            <CircleHelp size={18} />
+            Support
+          </NavLink>
+          <button
+            className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
+            onClick={() => void logout()}
+          >
+            <LogOut size={18} />
+            Sign out
+          </button>
         </div>
       </aside>
       <div className="lg:pl-[252px]">
         <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between border-b border-[rgba(255,255,255,0.09)] bg-[#1c1a18]/95 px-4 backdrop-blur sm:px-8">
-          <button className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation"><Menu size={22} /></button>
-          <div className="hidden items-center gap-2 text-sm font-semibold lg:flex"><ShieldCheck size={17} className="text-[#e8816a]" />Admin console</div>
-          <div className="flex items-center gap-5"><Bell size={19} className="text-[#aaa59d]" /><div className="text-right"><div className="text-xs font-bold">{user?.fullName || user?.username}</div><div className="text-[9px] uppercase tracking-widest text-[#aaa59d]">{user?.role}</div></div><div className="grid h-9 w-9 place-items-center rounded-full bg-[#52c58c] text-xs font-bold text-white">{(user?.fullName || user?.username || 'A').slice(0, 2).toUpperCase()}</div></div>
+          <button className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
+            <Menu size={22} />
+          </button>
+          <div className="hidden items-center gap-2 text-sm font-semibold lg:flex">
+            <ShieldCheck size={17} className="text-[#e8816a]" />
+            Admin console
+          </div>
+          <div className="flex items-center gap-5">
+            <Bell size={19} className="text-[#aaa59d]" />
+            <div className="text-right">
+              <div className="text-xs font-bold">{user?.fullName || user?.username}</div>
+              <div className="text-[9px] uppercase tracking-widest text-[#aaa59d]">
+                {user?.role}
+              </div>
+            </div>
+            <div className="grid h-9 w-9 place-items-center rounded-full bg-[#52c58c] text-xs font-bold text-white">
+              {(user?.fullName || user?.username || 'A').slice(0, 2).toUpperCase()}
+            </div>
+          </div>
         </header>
         <Outlet />
       </div>
     </div>
-  )
+  );
 }

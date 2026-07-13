@@ -1,81 +1,69 @@
-import type { MockTestAttemptEntity } from '../entities/mock-test-attempt.entity'
-import type { AttemptStatus } from '../value-objects/attempt-status.vo'
+import type { MockTestAttemptEntity } from '../entities/mock-test-attempt.entity';
+import type { AttemptStatus } from '../value-objects/attempt-status.vo';
 
 export type CreateMockTestAttemptInput = {
-  testId: string
-  userId: string
-  totalQuestions: number
-}
+  testId: string;
+  userId: string;
+  totalQuestions: number;
+};
 
 export type FindMockTestAttemptsByUserInput = {
-  userId: string
-  testId?: string
-}
+  userId: string;
+  testId?: string;
+};
 
 export type FindLatestMockTestAttemptsInput = {
-  userId: string
-  testIds: string[]
-}
+  userId: string;
+  testIds: string[];
+};
 
 export type FindActiveMockTestAttemptInput = {
-  userId: string
-  testId: string
-}
+  userId: string;
+  testId: string;
+};
 
 export type UpdateMockTestAttemptInput = {
-  status?: AttemptStatus
+  status?: AttemptStatus;
 
-  score?: number
-  maxScore?: number
-  percentage?: number
-  passed?: boolean
+  score?: number;
+  maxScore?: number;
+  percentage?: number;
+  passed?: boolean;
 
-  answeredCount?: number
-  correctCount?: number
+  answeredCount?: number;
+  correctCount?: number;
 
-  startedAt?: Date
-  completedAt?: Date
-  abandonedAt?: Date
+  startedAt?: Date;
+  completedAt?: Date;
+  abandonedAt?: Date;
 
-  timeSpentSeconds?: number
-}
+  timeSpentSeconds?: number;
+};
 
 export type AbandonActiveMockTestAttemptsInput = {
-  userId: string
-  testId: string
-}
+  userId: string;
+  testId: string;
+};
 
 export interface IMockTestAttemptRepository {
-  findAttemptById(
-    attemptId: string,
-  ): Promise<MockTestAttemptEntity | null>
+  findAttemptById(attemptId: string): Promise<MockTestAttemptEntity | null>;
 
-  findAttemptsByUser(
-    input: FindMockTestAttemptsByUserInput,
-  ): Promise<MockTestAttemptEntity[]>
+  findAttemptsByUser(input: FindMockTestAttemptsByUserInput): Promise<MockTestAttemptEntity[]>;
 
   findLatestAttemptsForTests(
-    input: FindLatestMockTestAttemptsInput,
-  ): Promise<Record<string, MockTestAttemptEntity>>
+    input: FindLatestMockTestAttemptsInput
+  ): Promise<Record<string, MockTestAttemptEntity>>;
 
-  findActiveAttempt(
-    input: FindActiveMockTestAttemptInput,
-  ): Promise<MockTestAttemptEntity | null>
+  findActiveAttempt(input: FindActiveMockTestAttemptInput): Promise<MockTestAttemptEntity | null>;
 
-  createAttempt(
-    data: CreateMockTestAttemptInput,
-  ): Promise<MockTestAttemptEntity>
+  createAttempt(data: CreateMockTestAttemptInput): Promise<MockTestAttemptEntity>;
 
   updateAttempt(
     attemptId: string,
-    data: UpdateMockTestAttemptInput,
-  ): Promise<MockTestAttemptEntity | null>
+    data: UpdateMockTestAttemptInput
+  ): Promise<MockTestAttemptEntity | null>;
 
-  incrementAnsweredCount(
-    attemptId: string,
-  ): Promise<void>
+  incrementAnsweredCount(attemptId: string): Promise<void>;
 
-  abandonActiveAttempts(
-    input: AbandonActiveMockTestAttemptsInput,
-  ): Promise<void>
+  abandonActiveAttempts(input: AbandonActiveMockTestAttemptsInput): Promise<void>;
 }

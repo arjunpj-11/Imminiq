@@ -1,10 +1,10 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router-dom';
 
 import {
   MockTestAttemptPage,
   TrackerLessonPage,
   TrackerQuickRevisionPage,
-} from '../config/focused-pages'
+} from '../config/focused-pages';
 
 export const focusedRoutes: RouteObject[] = [
   {
@@ -19,4 +19,4 @@ export const focusedRoutes: RouteObject[] = [
     path: '/trackers/:trackerId/revision',
     element: <TrackerQuickRevisionPage />,
   },
-]
+];

@@ -1,19 +1,19 @@
-import { useState, type CSSProperties } from 'react'
+import { useState, type CSSProperties } from 'react';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 interface IUserAvatarProps {
-  name: string
-  src?: string | null
-  initials?: string
-  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl'
-  sizeClassName?: string
-  className?: string
-  imageClassName?: string
-  fallbackClassName?: string
-  fallbackStyle?: CSSProperties
-  imageLoading?: 'eager' | 'lazy'
-  roundedClassName?: string
+  name: string;
+  src?: string | null;
+  initials?: string;
+  size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+  sizeClassName?: string;
+  className?: string;
+  imageClassName?: string;
+  fallbackClassName?: string;
+  fallbackStyle?: CSSProperties;
+  imageLoading?: 'eager' | 'lazy';
+  roundedClassName?: string;
 }
 
 const sizeClasses = {
@@ -22,7 +22,7 @@ const sizeClasses = {
   md: 'h-10 w-10 text-[12px]',
   lg: 'h-12 w-12 text-[14px]',
   xl: 'h-20 w-20 text-[22px]',
-} as const
+} as const;
 
 const initialsFor = (name: string) =>
   name
@@ -32,7 +32,7 @@ const initialsFor = (name: string) =>
     .slice(0, 2)
     .map((part) => part[0])
     .join('')
-    .toUpperCase() || 'IM'
+    .toUpperCase() || 'IM';
 
 export default function UserAvatar({
   name,
@@ -47,15 +47,15 @@ export default function UserAvatar({
   imageLoading = size === 'xl' ? 'eager' : 'lazy',
   roundedClassName = 'rounded-full',
 }: IUserAvatarProps) {
-  const [failedSource, setFailedSource] = useState<string | null>(null)
+  const [failedSource, setFailedSource] = useState<string | null>(null);
 
-  const showImage = Boolean(src) && failedSource !== src
+  const showImage = Boolean(src) && failedSource !== src;
 
   const handleImageError = () => {
     if (src) {
-      setFailedSource(src)
+      setFailedSource(src);
     }
-  }
+  };
 
   return (
     <span
@@ -63,10 +63,9 @@ export default function UserAvatar({
         'inline-flex shrink-0 items-center justify-center overflow-hidden font-bold',
         roundedClassName,
         sizeClassName || sizeClasses[size],
-        !showImage &&
-          'bg-linear-to-br from-(--brand-500) to-[#e9a08e] text-white',
+        !showImage && 'bg-linear-to-br from-(--brand-500) to-[#e9a08e] text-white',
         !showImage && fallbackClassName,
-        className,
+        className
       )}
       style={!showImage ? fallbackStyle : undefined}
       aria-label={`${name}'s avatar`}
@@ -85,5 +84,5 @@ export default function UserAvatar({
         initials || initialsFor(name)
       )}
     </span>
-  )
+  );
 }

@@ -88,9 +88,7 @@ export class MongoMockTestsMapper {
     });
   }
 
-  toMockTestQuestionEntity(
-    doc: RawMockTestQuestionDoc,
-  ): MockTestQuestionEntity {
+  toMockTestQuestionEntity(doc: RawMockTestQuestionDoc): MockTestQuestionEntity {
     return new MockTestQuestionEntity({
       _id: this.toId(doc._id),
       testId: this.toId(doc.testId),
@@ -118,8 +116,7 @@ export class MongoMockTestsMapper {
       score: doc.score,
       scorePercentage: doc.scorePercentage,
       passed: doc.passed,
-      flaggedQuestions:
-        doc.flaggedQuestions?.map((item) => this.toId(item)) || [],
+      flaggedQuestions: doc.flaggedQuestions?.map((item) => this.toId(item)) || [],
       totalQuestions: this.numberOrZero(doc.totalQuestions),
       answeredQuestions: this.numberOrZero(doc.answeredQuestions),
       createdAt: this.dateOrNow(doc.createdAt),
@@ -139,9 +136,7 @@ export class MongoMockTestsMapper {
     });
   }
 
-  toMockTestAIEvaluationEntity(
-    doc: RawMockTestAIEvaluationDoc,
-  ): MockTestAIEvaluationEntity {
+  toMockTestAIEvaluationEntity(doc: RawMockTestAIEvaluationDoc): MockTestAIEvaluationEntity {
     return new MockTestAIEvaluationEntity({
       _id: this.toId(doc._id),
       attemptId: this.toId(doc.attemptId),
@@ -177,7 +172,7 @@ export class MongoMockTestsMapper {
   }
 
   toMockTestCreationSessionEntity(
-    doc: RawMockTestCreationSessionDoc,
+    doc: RawMockTestCreationSessionDoc
   ): MockTestCreationSessionEntity {
     return new MockTestCreationSessionEntity({
       _id: this.toId(doc._id),

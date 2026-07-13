@@ -1,14 +1,11 @@
-import { ApiError } from '../../../shared/utils/ApiError'
+import { ApiError } from '../../../shared/utils/ApiError';
 
-import { economyAIChatWithFallback } from '../ai-fallback.helper'
-import type {
-  LessonVisualizationResult,
-  IVisualizationInput,
-} from '../ai.schemas'
+import { economyAIChatWithFallback } from '../ai-fallback.helper';
+import type { LessonVisualizationResult, IVisualizationInput } from '../ai.schemas';
 import {
   buildVisualizationPrompt,
   LESSON_VISUALIZATION_SYSTEM_PROMPT,
-} from '../prompts/lesson-visualization.prompt'
+} from '../prompts/lesson-visualization.prompt';
 
 // ============================================================
 // GEMINI — LESSON VISUALIZATION GENERATION
@@ -23,26 +20,22 @@ export const generateLessonVisualization = async (
       { role: 'user', content: buildVisualizationPrompt(lesson) },
     ],
     'llama-3.3-70b-versatile'
-  )
+  );
 
   if (!rawText) {
-    throw new ApiError(
-      502,
-      'AI returned an empty response',
-      'VISUALIZATION_EMPTY_RESPONSE'
-    )
+    throw new ApiError(502, 'AI returned an empty response', 'VISUALIZATION_EMPTY_RESPONSE');
   }
 
   let html = rawText
     .replace(/^```html\s*/i, '')
     .replace(/^```\s*/i, '')
     .replace(/\s*```$/i, '')
-    .trim()
+    .trim();
 
-  const doctypeIndex = html.search(/<!doctype html>/i)
+  const doctypeIndex = html.search(/<!doctype html>/i);
 
   if (doctypeIndex > 0) {
-    html = html.slice(doctypeIndex)
+    html = html.slice(doctypeIndex);
   }
 
   if (!html.toLowerCase().includes('<canvas')) {
@@ -50,12 +43,12 @@ export const generateLessonVisualization = async (
       502,
       'AI did not return a canvas visualization. Please try regenerating.',
       'VISUALIZATION_NO_CANVAS'
-    )
+    );
   }
 
   return {
     html,
     visualTitle: `${lesson.title} — Visual`,
     visualDescription: `Interactive AI visualization of "${lesson.title}"`,
-  }
-}
+  };
+};

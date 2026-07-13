@@ -1,58 +1,54 @@
-import { SettingsDomainError } from '../../../domain/settings-domain.error'
-import type { ErrorMapper } from './mongo-settings-error.mapper'
+import { SettingsDomainError } from '../../../domain/settings-domain.error';
+import type { ErrorMapper } from './mongo-settings-error.mapper';
 
 type RepositoryErrorDetails = Error & {
-  code?: unknown
-  keyPattern?: unknown
-  keyValue?: unknown
-  path?: unknown
-  value?: unknown
-  errors?: unknown
-  reason?: unknown
-}
+  code?: unknown;
+  keyPattern?: unknown;
+  keyValue?: unknown;
+  path?: unknown;
+  value?: unknown;
+  errors?: unknown;
+  reason?: unknown;
+};
 
 export abstract class MongoSettingsBaseRepository {
   protected async execute<T>(
     code: string,
     message: string,
     operation: () => Promise<T>,
-    mapError?: ErrorMapper,
+    mapError?: ErrorMapper
   ): Promise<T> {
     try {
-      return await operation()
+      return await operation();
     } catch (error) {
       if (error instanceof SettingsDomainError) {
-        throw error
+        throw error;
       }
 
-      this.logRepositoryError(code, message, error)
+      this.logRepositoryError(code, message, error);
 
-      const mappedError = mapError?.(error)
+      const mappedError = mapError?.(error);
 
       if (mappedError) {
-        throw mappedError
+        throw mappedError;
       }
 
-      throw new SettingsDomainError(code, message)
+      throw new SettingsDomainError(code, message);
     }
   }
 
-  private logRepositoryError(
-    code: string,
-    message: string,
-    error: unknown,
-  ): void {
+  private logRepositoryError(code: string, message: string, error: unknown): void {
     if (!(error instanceof Error)) {
       console.error('Settings repository operation failed', {
         code,
         message,
         originalError: error,
-      })
+      });
 
-      return
+      return;
     }
 
-    const details = error as RepositoryErrorDetails
+    const details = error as RepositoryErrorDetails;
 
     console.error('Settings repository operation failed', {
       code,
@@ -69,6 +65,6 @@ export abstract class MongoSettingsBaseRepository {
         reason: details.reason,
         stack: details.stack,
       },
-    })
+    });
   }
 }

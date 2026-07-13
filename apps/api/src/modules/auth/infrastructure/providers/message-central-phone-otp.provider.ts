@@ -1,28 +1,24 @@
 import {
   sendPhoneOtp,
   verifyPhoneOtp,
-} from '../../../../infrastructure/sms/message-central.client'
-import { AuthDomainError } from '../../domain/auth-domain.error'
-import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
+} from '../../../../infrastructure/sms/message-central.client';
+import { AuthDomainError } from '../../domain/auth-domain.error';
+import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface';
 
 export class MessageCentralPhoneOtpProvider implements IPhoneOtpProvider {
   async sendOtp(phone: string): Promise<{ verificationId: string }> {
-    const result = await sendPhoneOtp(phone)
+    const result = await sendPhoneOtp(phone);
 
     if (!result.verificationId) {
-      throw new AuthDomainError(
-        'PHONE_OTP_SEND_FAILED',
-        'Failed to send phone OTP'
-      )
+      throw new AuthDomainError('PHONE_OTP_SEND_FAILED', 'Failed to send phone OTP');
     }
 
-    return result
+    return result;
   }
 
   async verifyOtp(verificationId: string, otp: string): Promise<boolean> {
-    return verifyPhoneOtp(verificationId, otp)
+    return verifyPhoneOtp(verificationId, otp);
   }
 }
 
-export const messageCentralPhoneOtpProvider =
-  new MessageCentralPhoneOtpProvider()
+export const messageCentralPhoneOtpProvider = new MessageCentralPhoneOtpProvider();

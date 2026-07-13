@@ -1,10 +1,10 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 
-import { TrackerDomainError } from "../../../domain/tracker-domain.error";
+import { TrackerDomainError } from '../../../domain/tracker-domain.error';
 import type {
   SubtopicWithProgressRecord,
   TopicWithProgressRecord,
-} from "../../../domain/trackers.types";
+} from '../../../domain/trackers.types';
 import type {
   MongoLessonVisualizationRecord,
   MongoQuery,
@@ -15,49 +15,44 @@ import type {
   MongoTopicProgressRecord,
   MongoTrackerSortBy,
   StreakIntensityLevel,
-} from "./mongo-tracker.types";
+} from './mongo-tracker.types';
 
 export class MongoTrackerMapper {
   toDomainRecord<T>(value: unknown): T {
-    return this.normalizePersistenceValue(value) as T
+    return this.normalizePersistenceValue(value) as T;
   }
 
   private normalizePersistenceValue(value: unknown): unknown {
     if (value instanceof Types.ObjectId) {
-      return value.toHexString()
+      return value.toHexString();
     }
 
     if (value instanceof Date || value === null || value === undefined) {
-      return value
+      return value;
     }
 
     if (Array.isArray(value)) {
-      return value.map((item) => this.normalizePersistenceValue(item))
+      return value.map((item) => this.normalizePersistenceValue(item));
     }
 
     if (typeof value === 'object') {
-      const document = value as { toObject?: () => unknown }
-      const plainValue = typeof document.toObject === 'function'
-        ? document.toObject()
-        : value
+      const document = value as { toObject?: () => unknown };
+      const plainValue = typeof document.toObject === 'function' ? document.toObject() : value;
 
       return Object.fromEntries(
         Object.entries(plainValue as Record<string, unknown>).map(([key, item]) => [
           key,
           this.normalizePersistenceValue(item),
-        ]),
-      )
+        ])
+      );
     }
 
-    return value
+    return value;
   }
 
   toObjectId(value: string): Types.ObjectId {
     if (!Types.ObjectId.isValid(value)) {
-      throw new TrackerDomainError(
-        "INVALID_OBJECT_ID",
-        "Invalid tracker identifier",
-      );
+      throw new TrackerDomainError('INVALID_OBJECT_ID', 'Invalid tracker identifier');
     }
 
     return new Types.ObjectId(value);
@@ -76,17 +71,15 @@ export class MongoTrackerMapper {
   }
 
   buildTrackerSort(sortBy: MongoTrackerSortBy): Record<string, MongoSortOrder> {
-    if (sortBy === "createdAt") return { createdAt: -1 };
-    if (sortBy === "progress") return { progressPercent: -1, lastActiveAt: -1 };
-    if (sortBy === "title") return { title: 1 };
+    if (sortBy === 'createdAt') return { createdAt: -1 };
+    if (sortBy === 'progress') return { progressPercent: -1, lastActiveAt: -1 };
+    if (sortBy === 'title') return { title: 1 };
 
     return { lastActiveAt: -1, updatedAt: -1 };
   }
 
   getUtcDayStart(date = new Date()): Date {
-    return new Date(
-      Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()),
-    );
+    return new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()));
   }
 
   getPreviousUtcDayStart(date: Date): Date {
@@ -97,18 +90,18 @@ export class MongoTrackerMapper {
   }
 
   getIntensityLevel(activityCount: number): StreakIntensityLevel {
-    if (activityCount <= 0) return "none";
-    if (activityCount < 3) return "low";
-    if (activityCount < 6) return "medium";
+    if (activityCount <= 0) return 'none';
+    if (activityCount < 3) return 'low';
+    if (activityCount < 6) return 'medium';
 
-    return "high";
+    return 'high';
   }
 
   toSubtopicWithProgress(
     subtopic: MongoSubtopicContentRecord,
-    progress?: MongoSubtopicProgressRecord | null,
+    progress?: MongoSubtopicProgressRecord | null
   ): SubtopicWithProgressRecord {
-    const defaultStatus = subtopic.isLocked ? "locked" : "available";
+    const defaultStatus = subtopic.isLocked ? 'locked' : 'available';
 
     return {
       _id: subtopic._id.toHexString(),
@@ -122,8 +115,7 @@ export class MongoTrackerMapper {
       isLocked: Boolean(subtopic.isLocked),
       estimatedMinutes: subtopic.estimatedMinutes || 0,
       learningVideo: subtopic.learningVideo ?? null,
-      status: (progress?.status ??
-        defaultStatus) as SubtopicWithProgressRecord["status"],
+      status: (progress?.status ?? defaultStatus) as SubtopicWithProgressRecord['status'],
       isUnlocked: progress ? Boolean(progress.isUnlocked) : !subtopic.isLocked,
       progressPercent: progress?.progressPercent ?? 0,
       completedAt: progress?.completedAt ?? null,
@@ -132,12 +124,12 @@ export class MongoTrackerMapper {
 
   toTopicWithProgress(
     topic: MongoTopicContentRecord,
-    progress?: MongoTopicProgressRecord | null,
+    progress?: MongoTopicProgressRecord | null
   ): TopicWithProgressRecord {
     return {
       ...topic,
       _id: topic._id.toHexString(),
-      status: progress?.status ?? "active",
+      status: progress?.status ?? 'active',
       progressPercent: progress?.progressPercent ?? 0,
     } as TopicWithProgressRecord;
   }
@@ -152,9 +144,9 @@ export class MongoTrackerMapper {
     }
 
     return {
-      html: String(doc.html ?? ""),
-      visualTitle: String(doc.visualTitle ?? ""),
-      visualDescription: String(doc.visualDescription ?? ""),
+      html: String(doc.html ?? ''),
+      visualTitle: String(doc.visualTitle ?? ''),
+      visualDescription: String(doc.visualDescription ?? ''),
     };
   }
 }

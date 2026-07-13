@@ -1,1 +1,1 @@
-export * from './repositories/mongo-notifications.repository'
+export * from './repositories/mongo-notifications.repository';

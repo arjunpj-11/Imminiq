@@ -1,9 +1,9 @@
 type DashboardWelcomeProps = {
   summary: {
-    user: { fullName: string }
-    streak: { current: number }
-  }
-}
+    user: { fullName: string };
+    streak: { current: number };
+  };
+};
 
 export default function DashboardWelcome({ summary }: DashboardWelcomeProps) {
   return (
@@ -41,5 +41,5 @@ export default function DashboardWelcome({ summary }: DashboardWelcomeProps) {
         </div>
       </div>
     </section>
-  )
+  );
 }

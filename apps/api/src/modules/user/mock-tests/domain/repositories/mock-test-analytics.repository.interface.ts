@@ -3,16 +3,16 @@ import type {
   MockTestPerformanceTrend,
   MockTestSummary,
   MockTestTopicBreakdown,
-} from '../value-objects/mock-test-analytics.vo'
+} from '../value-objects/mock-test-analytics.vo';
 
 export interface IMockTestAnalyticsRepository {
-  getAttemptHistory(userId: string): Promise<MockTestAttemptHistoryItem[]>
+  getAttemptHistory(userId: string): Promise<MockTestAttemptHistoryItem[]>;
 
-  getUserSummary(userId: string): Promise<MockTestSummary>
+  getUserSummary(userId: string): Promise<MockTestSummary>;
 
-  getPerformanceTrends(userId: string): Promise<MockTestPerformanceTrend[]>
+  getPerformanceTrends(userId: string): Promise<MockTestPerformanceTrend[]>;
 
-  getTopicBreakdown(userId: string): Promise<MockTestTopicBreakdown[]>
+  getTopicBreakdown(userId: string): Promise<MockTestTopicBreakdown[]>;
 
-  updateAnalyticsSnapshot(testId: string): Promise<void>
+  updateAnalyticsSnapshot(testId: string): Promise<void>;
 }

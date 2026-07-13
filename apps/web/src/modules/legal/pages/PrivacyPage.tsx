@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 import {
   BodyP,
@@ -13,10 +13,10 @@ import {
   Section,
   Tag,
   TermsList,
-} from '../components/LegalShared'
+} from '../components/LegalShared';
 
-import { cn, scrollbarClass } from '../utils/legal-ui'
-import { useLegalDocumentNavigation } from '../hooks/useLegalDocumentNavigation'
+import { cn, scrollbarClass } from '../utils/legal-ui';
+import { useLegalDocumentNavigation } from '../hooks/useLegalDocumentNavigation';
 
 const TOC = [
   { id: 's1', num: '01', label: 'Introduction' },
@@ -34,17 +34,11 @@ const TOC = [
   { id: 's13', num: '13', label: 'Third-Party Links' },
   { id: 's14', num: '14', label: 'Changes to Policy' },
   { id: 's15', num: '15', label: 'Contact & DPO' },
-]
+];
 
 export default function PrivacyPage() {
-  const {
-    activeId,
-    readPct,
-    scrollAreaRef,
-    handleBack,
-    handleTocClick,
-  } = useLegalDocumentNavigation()
-
+  const { activeId, readPct, scrollAreaRef, handleBack, handleTocClick } =
+    useLegalDocumentNavigation();
 
   return (
     <div
@@ -88,8 +82,6 @@ export default function PrivacyPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2.5">
-            
-
             <button
               type="button"
               onClick={handleBack}
@@ -128,8 +120,7 @@ export default function PrivacyPage() {
                     <span
                       className={cn(
                         'min-w-4 shrink-0 font-mono text-[9px] text-(--border-subtle) transition dark:text-white/20',
-                        activeId === item.id &&
-                          'text-(--brand-500) dark:text-[#f5a090]'
+                        activeId === item.id && 'text-(--brand-500) dark:text-[#f5a090]'
                       )}
                     >
                       {item.num}
@@ -166,27 +157,25 @@ export default function PrivacyPage() {
               </h1>
 
               <p className="mb-5 max-w-150 text-[15px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                We believe your learning data is yours. This policy explains what
-                we collect, why we collect it, who sees it, and the controls you
-                have over it — written in plain language.
+                We believe your learning data is yours. This policy explains what we collect, why we
+                collect it, who sees it, and the controls you have over it — written in plain
+                language.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                {[
-                  'Effective: 1 May 2026',
-                  'Last Updated: 10 May 2026',
-                  'Version 6.6.2',
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-(--text-secondary) dark:text-(--text-secondary)"
-                  >
-                    <span className="text-(--brand-500) opacity-70 dark:text-(--brand-500)">
-                      <IconShield className="h-3 w-3" />
-                    </span>
-                    {item}
-                  </div>
-                ))}
+                {['Effective: 1 May 2026', 'Last Updated: 10 May 2026', 'Version 6.6.2'].map(
+                  (item) => (
+                    <div
+                      key={item}
+                      className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-(--text-secondary) dark:text-(--text-secondary)"
+                    >
+                      <span className="text-(--brand-500) opacity-70 dark:text-(--brand-500)">
+                        <IconShield className="h-3 w-3" />
+                      </span>
+                      {item}
+                    </div>
+                  )
+                )}
               </div>
             </div>
 
@@ -248,23 +237,21 @@ export default function PrivacyPage() {
 
             <Section id="s1" num="01" title="Introduction">
               <BodyP>
-                This Scholarly Privacy Policy describes how Imminiq collects,
-                uses, stores, and shares information when you use our website,
-                applications, APIs, and learning services.
+                This Scholarly Privacy Policy describes how Imminiq collects, uses, stores, and
+                shares information when you use our website, applications, APIs, and learning
+                services.
               </BodyP>
 
               <BodyP>
-                By using Imminiq, you agree to this policy. If you do not agree,
-                please stop using the platform and contact us for help with data
-                deletion.
+                By using Imminiq, you agree to this policy. If you do not agree, please stop using
+                the platform and contact us for help with data deletion.
               </BodyP>
             </Section>
 
             <Section id="s2" num="02" title="Information We Collect">
               <BodyP>
-                We collect information you provide directly, information generated
-                while using the platform, and limited technical data required to
-                operate the service.
+                We collect information you provide directly, information generated while using the
+                platform, and limited technical data required to operate the service.
               </BodyP>
 
               <div className="overflow-x-auto rounded-xl border border-(--border-subtle) dark:border-white/15">
@@ -340,22 +327,21 @@ export default function PrivacyPage() {
 
             <Section id="s4" num="04" title="Legal Basis">
               <BodyP>
-                We process your data only when we have a valid reason, such as
-                providing the service, protecting our platform, meeting legal
-                obligations, or using data with your consent.
+                We process your data only when we have a valid reason, such as providing the
+                service, protecting our platform, meeting legal obligations, or using data with your
+                consent.
               </BodyP>
 
               <HighlightCard label="Consent">
-                Optional features such as analytics cookies, marketing messages,
-                public profile visibility, and community sharing can be controlled
-                from settings.
+                Optional features such as analytics cookies, marketing messages, public profile
+                visibility, and community sharing can be controlled from settings.
               </HighlightCard>
             </Section>
 
             <Section id="s5" num="05" title="Data Sharing">
               <BodyP>
-                We do not sell your personal data. We share data only with trusted
-                service providers when required to run Imminiq.
+                We do not sell your personal data. We share data only with trusted service providers
+                when required to run Imminiq.
               </BodyP>
 
               <div className="flex flex-wrap gap-2">
@@ -380,40 +366,36 @@ export default function PrivacyPage() {
 
             <Section id="s6" num="06" title="AI & Learning Data">
               <BodyP>
-                Imminiq uses AI to generate roadmaps, explanations, summaries,
-                mock tests, and learning insights. Inputs may include your survey
-                answers, selected field, skill level, goals, tracker data, and
-                learning progress.
+                Imminiq uses AI to generate roadmaps, explanations, summaries, mock tests, and
+                learning insights. Inputs may include your survey answers, selected field, skill
+                level, goals, tracker data, and learning progress.
               </BodyP>
 
               <HighlightCard label="Daily Quota" variant="green">
-                AI usage is metered by subscription plan. Free users have a
-                smaller daily quota than Pro and Premium users. Quota data may be
-                stored with your user settings and usage records.
+                AI usage is metered by subscription plan. Free users have a smaller daily quota than
+                Pro and Premium users. Quota data may be stored with your user settings and usage
+                records.
               </HighlightCard>
             </Section>
 
             <Section id="s7" num="07" title="Cookies & Tracking Technologies">
               <BodyP>
-                We use cookies to keep you logged in, remember preferences, and
-                understand basic platform usage. We do not use advertising or
-                cross-site tracking cookies.
+                We use cookies to keep you logged in, remember preferences, and understand basic
+                platform usage. We do not use advertising or cross-site tracking cookies.
               </BodyP>
 
               <div className="overflow-x-auto rounded-xl border border-(--border-subtle) dark:border-white/15">
                 <table className="w-full border-collapse text-[13px]">
                   <thead>
                     <tr className="bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.09)]">
-                      {['Cookie Type', 'Purpose', 'Duration', 'Required?'].map(
-                        (heading) => (
-                          <th
-                            key={heading}
-                            className="whitespace-nowrap border-b border-(--border-subtle) px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) dark:border-white/15 dark:text-(--brand-500)"
-                          >
-                            {heading}
-                          </th>
-                        )
-                      )}
+                      {['Cookie Type', 'Purpose', 'Duration', 'Required?'].map((heading) => (
+                        <th
+                          key={heading}
+                          className="whitespace-nowrap border-b border-(--border-subtle) px-4 py-3 text-left font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) dark:border-white/15 dark:text-(--brand-500)"
+                        >
+                          {heading}
+                        </th>
+                      ))}
                     </tr>
                   </thead>
 
@@ -426,13 +408,7 @@ export default function PrivacyPage() {
                         'Essential',
                         'rust',
                       ],
-                      [
-                        'Preferences',
-                        'Theme, language, timezone',
-                        '1 year',
-                        'Essential',
-                        'rust',
-                      ],
+                      ['Preferences', 'Theme, language, timezone', '1 year', 'Essential', 'rust'],
                       [
                         'Analytics',
                         'Anonymised page views and usage',
@@ -462,9 +438,7 @@ export default function PrivacyPage() {
                           {duration}
                         </td>
                         <td className="border-b border-(--border-subtle) px-4 py-3 align-top dark:border-white/15">
-                          <Tag variant={variant as 'rust' | 'amber'}>
-                            {required}
-                          </Tag>
+                          <Tag variant={variant as 'rust' | 'amber'}>{required}</Tag>
                         </td>
                       </tr>
                     ))}
@@ -475,9 +449,8 @@ export default function PrivacyPage() {
 
             <Section id="s8" num="08" title="Data Retention">
               <BodyP>
-                We keep data only for as long as needed to provide the service,
-                comply with legal obligations, resolve disputes, prevent abuse,
-                and maintain platform security.
+                We keep data only for as long as needed to provide the service, comply with legal
+                obligations, resolve disputes, prevent abuse, and maintain platform security.
               </BodyP>
 
               <TermsList
@@ -492,29 +465,17 @@ export default function PrivacyPage() {
 
             <Section id="s9" num="09" title="Security">
               <BodyP>
-                We use technical and organisational safeguards to protect your
-                data. No online platform can guarantee absolute security, but we
-                design Imminiq with strong protections from the start.
+                We use technical and organisational safeguards to protect your data. No online
+                platform can guarantee absolute security, but we design Imminiq with strong
+                protections from the start.
               </BodyP>
 
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {[
-                  [
-                    'Authentication',
-                    'JWT sessions, refresh-token rotation, HTTP-only cookies.',
-                  ],
-                  [
-                    'Passwords',
-                    'Passwords are hashed using strong one-way hashing.',
-                  ],
-                  [
-                    'Access control',
-                    'Role-based access for admin and moderation features.',
-                  ],
-                  [
-                    'Monitoring',
-                    'Logs and alerts for abuse, errors, and suspicious activity.',
-                  ],
+                  ['Authentication', 'JWT sessions, refresh-token rotation, HTTP-only cookies.'],
+                  ['Passwords', 'Passwords are hashed using strong one-way hashing.'],
+                  ['Access control', 'Role-based access for admin and moderation features.'],
+                  ['Monitoring', 'Logs and alerts for abuse, errors, and suspicious activity.'],
                 ].map(([title, desc]) => (
                   <div
                     key={title}
@@ -534,8 +495,8 @@ export default function PrivacyPage() {
 
             <Section id="s10" num="10" title="Your Rights">
               <BodyP>
-                Depending on your location, you may have the right to access,
-                correct, export, restrict, or delete your personal data.
+                Depending on your location, you may have the right to access, correct, export,
+                restrict, or delete your personal data.
               </BodyP>
 
               <TermsList
@@ -550,30 +511,28 @@ export default function PrivacyPage() {
               />
 
               <HighlightCard label="Response Time" variant="green">
-                We aim to respond to reasonable privacy requests within 30 days.
-                We will not charge a fee for reasonable requests.
+                We aim to respond to reasonable privacy requests within 30 days. We will not charge
+                a fee for reasonable requests.
               </HighlightCard>
             </Section>
 
             <Section id="s11" num="11" title="Children's Privacy">
               <BodyP>
-                Imminiq is intended for users aged 13 and above. We do not
-                knowingly collect personal data from children under 13.
+                Imminiq is intended for users aged 13 and above. We do not knowingly collect
+                personal data from children under 13.
               </BodyP>
 
               <BodyP>
-                If we discover that we collected personal data from a child under
-                13 without parental consent, we will take steps to delete that
-                information. Contact us at{' '}
+                If we discover that we collected personal data from a child under 13 without
+                parental consent, we will take steps to delete that information. Contact us at{' '}
                 <EmailLink>privacy@imminiq.com</EmailLink>.
               </BodyP>
             </Section>
 
             <Section id="s12" num="12" title="International Data Transfers">
               <BodyP>
-                Imminiq may process data in countries outside your country of
-                residence. Data protection laws may differ depending on where the
-                service provider operates.
+                Imminiq may process data in countries outside your country of residence. Data
+                protection laws may differ depending on where the service provider operates.
               </BodyP>
 
               <TermsList
@@ -587,35 +546,33 @@ export default function PrivacyPage() {
 
             <Section id="s13" num="13" title="Third-Party Links & Services">
               <BodyP>
-                The platform may contain links to external websites, GitHub
-                repositories, academic resources, or third-party tools. These
-                external sites are not operated by Imminiq.
+                The platform may contain links to external websites, GitHub repositories, academic
+                resources, or third-party tools. These external sites are not operated by Imminiq.
               </BodyP>
 
               <BodyP>
-                OAuth integrations with Google and GitHub are governed by their
-                own privacy policies. When you connect a social provider, we
-                receive only the limited information required for login.
+                OAuth integrations with Google and GitHub are governed by their own privacy
+                policies. When you connect a social provider, we receive only the limited
+                information required for login.
               </BodyP>
             </Section>
 
             <Section id="s14" num="14" title="Changes to This Policy">
               <BodyP>
-                We may update this policy as Imminiq grows. If changes are
-                important, we will notify you through the platform, email, or
-                another reasonable method.
+                We may update this policy as Imminiq grows. If changes are important, we will notify
+                you through the platform, email, or another reasonable method.
               </BodyP>
 
               <HighlightCard label="Policy Updates" variant="amber">
-                The latest version will always be available on this page with the
-                effective date and last updated date clearly shown.
+                The latest version will always be available on this page with the effective date and
+                last updated date clearly shown.
               </HighlightCard>
             </Section>
 
             <Section id="s15" num="15" title="Contact & DPO">
               <BodyP>
-                For privacy questions, data requests, security concerns, or
-                account deletion help, contact the Imminiq privacy team.
+                For privacy questions, data requests, security concerns, or account deletion help,
+                contact the Imminiq privacy team.
               </BodyP>
 
               <div className="rounded-md border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
@@ -624,9 +581,8 @@ export default function PrivacyPage() {
                 </div>
 
                 <p className="mb-4 text-sm leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                  Email us at <EmailLink>privacy@imminiq.com</EmailLink>. For
-                  urgent security concerns, include “Security” in the subject
-                  line.
+                  Email us at <EmailLink>privacy@imminiq.com</EmailLink>. For urgent security
+                  concerns, include “Security” in the subject line.
                 </p>
 
                 <div className="flex flex-wrap gap-3">
@@ -652,5 +608,5 @@ export default function PrivacyPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

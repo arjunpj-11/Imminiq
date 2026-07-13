@@ -6,4 +6,4 @@ export {
   TWO_FACTOR_DISABLE_ATTEMPT_SCOPE,
   TWO_FACTOR_ISSUER,
   TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
-} from '../domain/security.constants'
+} from '../domain/security.constants';

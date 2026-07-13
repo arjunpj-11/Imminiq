@@ -1,71 +1,65 @@
-import type { ModerationAppealUseCases } from './application/moderation-appeal-use-cases.contract'
+import type { ModerationAppealUseCases } from './application/moderation-appeal-use-cases.contract';
 import {
   ModerationAppealMapper,
   type IModerationAppealMapper,
-} from './application/moderation-appeal.mapper'
+} from './application/moderation-appeal.mapper';
 import {
   ModerationAppealSubmissionPolicy,
   type IModerationAppealSubmissionPolicy,
-} from './application/moderation-appeal-submission-policy.policy'
+} from './application/moderation-appeal-submission-policy.policy';
 import {
   ModerationAppealCaseIdAllocator,
   type IModerationAppealCaseIdAllocator,
-} from './application/services/moderation-appeal-case-id.service'
-import { GetActiveModerationAppealStatusUseCase } from './application/use-cases/get-active-moderation-appeal-status.usecase'
-import { SubmitModerationAppealUseCase } from './application/use-cases/submit-moderation-appeal.usecase'
-import { mongoModerationAppealRepository } from './infrastructure/repositories/mongo-moderation-appeal.repository'
-import { cryptoModerationAppealCaseIdGenerator } from './infrastructure/services/crypto-moderation-appeal-case-id-generator.service'
-
+} from './application/services/moderation-appeal-case-id.service';
+import { GetActiveModerationAppealStatusUseCase } from './application/use-cases/get-active-moderation-appeal-status.usecase';
+import { SubmitModerationAppealUseCase } from './application/use-cases/submit-moderation-appeal.usecase';
+import { mongoModerationAppealRepository } from './infrastructure/repositories/mongo-moderation-appeal.repository';
+import { cryptoModerationAppealCaseIdGenerator } from './infrastructure/services/crypto-moderation-appeal-case-id-generator.service';
 
 export type ModerationAppealServiceHelpers = {
-  moderationAppealMapper: IModerationAppealMapper
-  moderationAppealSubmissionPolicy: IModerationAppealSubmissionPolicy
-  caseIdAllocator: IModerationAppealCaseIdAllocator
-}
+  moderationAppealMapper: IModerationAppealMapper;
+  moderationAppealSubmissionPolicy: IModerationAppealSubmissionPolicy;
+  caseIdAllocator: IModerationAppealCaseIdAllocator;
+};
 
 export type ModerationAppealComposition = {
-  useCases: ModerationAppealUseCases
-  helpers: ModerationAppealServiceHelpers
-}
+  useCases: ModerationAppealUseCases;
+  helpers: ModerationAppealServiceHelpers;
+};
 
-export const createModerationAppealComposition =
-  (): ModerationAppealComposition => {
-    const moderationAppealRepository = mongoModerationAppealRepository
+export const createModerationAppealComposition = (): ModerationAppealComposition => {
+  const moderationAppealRepository = mongoModerationAppealRepository;
 
-    const moderationAppealMapper = new ModerationAppealMapper()
+  const moderationAppealMapper = new ModerationAppealMapper();
 
-    const moderationAppealSubmissionPolicy =
-      new ModerationAppealSubmissionPolicy()
+  const moderationAppealSubmissionPolicy = new ModerationAppealSubmissionPolicy();
 
-    const moderationAppealCaseIdGenerator =
-      cryptoModerationAppealCaseIdGenerator
+  const moderationAppealCaseIdGenerator = cryptoModerationAppealCaseIdGenerator;
 
-    const caseIdAllocator =
-      new ModerationAppealCaseIdAllocator(
+  const caseIdAllocator = new ModerationAppealCaseIdAllocator(
+    moderationAppealRepository,
+    moderationAppealCaseIdGenerator
+  );
+
+  return {
+    useCases: {
+      submitModerationAppeal: new SubmitModerationAppealUseCase(
         moderationAppealRepository,
-        moderationAppealCaseIdGenerator
-      )
-
-    return {
-      useCases: {
-        submitModerationAppeal: new SubmitModerationAppealUseCase(
-          moderationAppealRepository,
-          caseIdAllocator,
-          moderationAppealSubmissionPolicy,
-          moderationAppealMapper
-        ),
-
-        getActiveModerationAppealStatus:
-          new GetActiveModerationAppealStatusUseCase(
-            moderationAppealRepository,
-            moderationAppealMapper
-          ),
-      },
-
-      helpers: {
-        moderationAppealMapper,
-        moderationAppealSubmissionPolicy,
         caseIdAllocator,
-      },
-    }
-  }
+        moderationAppealSubmissionPolicy,
+        moderationAppealMapper
+      ),
+
+      getActiveModerationAppealStatus: new GetActiveModerationAppealStatusUseCase(
+        moderationAppealRepository,
+        moderationAppealMapper
+      ),
+    },
+
+    helpers: {
+      moderationAppealMapper,
+      moderationAppealSubmissionPolicy,
+      caseIdAllocator,
+    },
+  };
+};

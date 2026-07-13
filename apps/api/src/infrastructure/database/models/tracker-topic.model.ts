@@ -1,26 +1,26 @@
 // apps/api/src/infrastructure/database/models/tracker-topic.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ITrackerTopicDocument extends Document {
-  trackerId: mongoose.Types.ObjectId
-  title: string
-  description: string
-  order: number
-  status: string
-  estimatedHours: number
-  progressPercent: number
+  trackerId: mongoose.Types.ObjectId;
+  title: string;
+  description: string;
+  order: number;
+  status: string;
+  estimatedHours: number;
+  progressPercent: number;
   learningVideo?: {
-    videoId: string
-    title: string
-    url: string
-    channelTitle: string
-    thumbnailUrl: string
-    durationSeconds: number
-  } | null
-  deletedAt?: Date | null
-  createdAt: Date
-  updatedAt: Date
+    videoId: string;
+    title: string;
+    url: string;
+    channelTitle: string;
+    thumbnailUrl: string;
+    durationSeconds: number;
+  } | null;
+  deletedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const trackerTopicSchema = new Schema<ITrackerTopicDocument>(
@@ -71,7 +71,7 @@ const trackerTopicSchema = new Schema<ITrackerTopicDocument>(
           thumbnailUrl: { type: String, default: '', trim: true },
           durationSeconds: { type: Number, default: 0, min: 0 },
         },
-        { _id: false },
+        { _id: false }
       ),
       default: null,
     },
@@ -81,11 +81,11 @@ const trackerTopicSchema = new Schema<ITrackerTopicDocument>(
     },
   },
   { timestamps: true }
-)
+);
 
-trackerTopicSchema.index({ trackerId: 1, order: 1 })
+trackerTopicSchema.index({ trackerId: 1, order: 1 });
 
 export const TrackerTopic = mongoose.model<ITrackerTopicDocument>(
   'TrackerTopic',
   trackerTopicSchema
-)
+);

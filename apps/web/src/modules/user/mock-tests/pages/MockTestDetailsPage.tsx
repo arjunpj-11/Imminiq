@@ -2,15 +2,12 @@
 // MockTestDetailsPage.tsx — aligned with Trackers design
 // ============================================================
 
-import type { ReactNode } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import type { ReactNode } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
 
-import {
-  useMockTestDetails,
-  useStartMockTestAttempt,
-} from '../hooks/useMockTests'
+import { useMockTestDetails, useStartMockTestAttempt } from '../hooks/useMockTests';
 
 function PageShell({ children }: { children: ReactNode }) {
   return (
@@ -19,28 +16,27 @@ function PageShell({ children }: { children: ReactNode }) {
         {children}
       </div>
     </AppShellBoundary>
-  )
+  );
 }
 
-
 export default function MockTestDetailsPage() {
-  const { testId = '' } = useParams()
-  const navigate = useNavigate()
+  const { testId = '' } = useParams();
+  const navigate = useNavigate();
 
-  const detailsQuery = useMockTestDetails(testId)
-  const startMutation = useStartMockTestAttempt()
-  const data = detailsQuery.data
+  const detailsQuery = useMockTestDetails(testId);
+  const startMutation = useStartMockTestAttempt();
+  const data = detailsQuery.data;
 
   const start = async () => {
-    if (!testId) return
+    if (!testId) return;
 
-    const response = await startMutation.mutateAsync(testId)
-    const started = response.data
+    const response = await startMutation.mutateAsync(testId);
+    const started = response.data;
 
     navigate(`/mock-tests/attempts/${started.attempt._id}`, {
       state: started,
-    })
-  }
+    });
+  };
 
   if (detailsQuery.isLoading) {
     return (
@@ -56,7 +52,7 @@ export default function MockTestDetailsPage() {
           ))}
         </div>
       </PageShell>
-    )
+    );
   }
 
   if (detailsQuery.isError) {
@@ -66,7 +62,7 @@ export default function MockTestDetailsPage() {
           Failed to load mock test.
         </div>
       </PageShell>
-    )
+    );
   }
 
   if (!data) {
@@ -76,10 +72,10 @@ export default function MockTestDetailsPage() {
           Test not found.
         </div>
       </PageShell>
-    )
+    );
   }
 
-  const isContinuing = data.latestAttempt?.status === 'in_progress'
+  const isContinuing = data.latestAttempt?.status === 'in_progress';
 
   return (
     <PageShell>
@@ -145,8 +141,7 @@ export default function MockTestDetailsPage() {
             className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-white/20"
           >
             <div className="font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
-              Question {index + 1} · {question.type.replace('_', ' ')} ·{' '}
-              {question.points} pts
+              Question {index + 1} · {question.type.replace('_', ' ')} · {question.points} pts
             </div>
 
             <h3 className="mt-2 font-ui text-[16px] font-black leading-snug text-(--text-primary) dark:text-(--text-primary)">
@@ -169,5 +164,5 @@ export default function MockTestDetailsPage() {
         ))}
       </section>
     </PageShell>
-  )
+  );
 }

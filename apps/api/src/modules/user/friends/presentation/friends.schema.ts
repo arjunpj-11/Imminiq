@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 import {
   FRIEND_REQUEST_MESSAGE_MAX_LENGTH,
@@ -7,12 +7,12 @@ import {
   FRIENDS_MAX_PAGE_SIZE,
   FRIENDS_SEARCH_MAX_LENGTH,
   FRIENDS_SEARCH_MIN_LENGTH,
-} from "../domain/friends.constants";
+} from '../domain/friends.constants';
 
 const objectIdSchema = z
   .string()
   .trim()
-  .regex(/^[a-f\d]{24}$/i, "Identifier is invalid");
+  .regex(/^[a-f\d]{24}$/i, 'Identifier is invalid');
 
 const pageSchema = z.coerce.number().int().min(1).default(FRIENDS_DEFAULT_PAGE);
 
@@ -29,7 +29,7 @@ export const searchUsersQuerySchema = z.object({
     .trim()
     .min(
       FRIENDS_SEARCH_MIN_LENGTH,
-      `Search must contain at least ${FRIENDS_SEARCH_MIN_LENGTH} characters`,
+      `Search must contain at least ${FRIENDS_SEARCH_MIN_LENGTH} characters`
     )
     .max(FRIENDS_SEARCH_MAX_LENGTH),
   page: pageSchema,
@@ -63,7 +63,5 @@ export const friendParamsSchema = z.object({
 
 export type SearchUsersQuery = z.infer<typeof searchUsersQuerySchema>;
 export type ListFriendsQuery = z.infer<typeof listFriendsQuerySchema>;
-export type ListFriendRequestsQuery = z.infer<
-  typeof listFriendRequestsQuerySchema
->;
+export type ListFriendRequestsQuery = z.infer<typeof listFriendRequestsQuerySchema>;
 export type SendFriendRequestInput = z.infer<typeof sendFriendRequestSchema>;

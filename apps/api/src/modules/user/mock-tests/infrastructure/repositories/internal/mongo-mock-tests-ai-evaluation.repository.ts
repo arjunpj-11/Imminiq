@@ -22,10 +22,10 @@ export class MongoMockTestsAIEvaluationRepository extends MongoMockTestsBaseRepo
         });
 
         return this._mapper.toMockTestAIEvaluationEntity(
-          doc.toObject() as RawMockTestAIEvaluationDoc,
+          doc.toObject() as RawMockTestAIEvaluationDoc
         );
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
@@ -46,14 +46,11 @@ export class MongoMockTestsAIEvaluationRepository extends MongoMockTestsBaseRepo
         }).lean();
 
         return docs.map((doc) =>
-          this._mapper.toMockTestAIEvaluationEntity(
-            doc as RawMockTestAIEvaluationDoc,
-          ),
+          this._mapper.toMockTestAIEvaluationEntity(doc as RawMockTestAIEvaluationDoc)
         );
-      },
+      }
     );
   }
 }
 
-export const mongoMockTestsAIEvaluationRepository =
-  new MongoMockTestsAIEvaluationRepository();
+export const mongoMockTestsAIEvaluationRepository = new MongoMockTestsAIEvaluationRepository();

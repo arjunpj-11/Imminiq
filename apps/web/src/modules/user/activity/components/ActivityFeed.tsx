@@ -2,12 +2,9 @@ import type {
   IActivityEvent,
   ActivityEventIcon,
   IActivityFeedGroup,
-} from '../types/activity.types'
-import {
-  formatActivityTimestamp,
-  formatNumber,
-} from '../utils/activity-formatters'
-import { cn } from '../utils/activity-ui'
+} from '../types/activity.types';
+import { formatActivityTimestamp, formatNumber } from '../utils/activity-formatters';
+import { cn } from '../utils/activity-ui';
 import {
   ClipboardCheckIcon,
   CoinsIcon,
@@ -17,63 +14,58 @@ import {
   RefreshIcon,
   StarIcon,
   UsersIcon,
-} from './icons/ActivityIcons'
+} from './icons/ActivityIcons';
 
 interface IEventIconBubbleProps {
-  type: ActivityEventIcon
+  type: ActivityEventIcon;
 }
 
 const EventIconBubble = ({ type }: IEventIconBubbleProps) => {
   const configuration = {
     tracker: {
-      background:
-        'bg-[rgba(184,76,43,0.1)] dark:bg-[rgba(232,129,106,0.12)]',
+      background: 'bg-[rgba(184,76,43,0.1)] dark:bg-[rgba(232,129,106,0.12)]',
       color: 'text-[var(--brand-500)] dark:text-[var(--brand-500)]',
       icon: <GraduationCapIcon size={14} />,
     },
     test: {
-      background:
-        'bg-[rgba(45,106,71,0.1)] dark:bg-[rgba(92,201,138,0.12)]',
+      background: 'bg-[rgba(45,106,71,0.1)] dark:bg-[rgba(92,201,138,0.12)]',
       color: 'text-[var(--success)] dark:text-[var(--success)]',
       icon: <ClipboardCheckIcon size={14} />,
     },
     community: {
-      background:
-        'bg-[rgba(124,90,30,0.1)] dark:bg-[rgba(196,154,44,0.12)]',
+      background: 'bg-[rgba(124,90,30,0.1)] dark:bg-[rgba(196,154,44,0.12)]',
       color: 'text-[#7c5a1e] dark:text-[#c49a2c]',
       icon: <UsersIcon size={14} />,
     },
     fire: {
-      background:
-        'bg-[rgba(184,76,43,0.1)] dark:bg-[rgba(232,129,106,0.12)]',
+      background: 'bg-[rgba(184,76,43,0.1)] dark:bg-[rgba(232,129,106,0.12)]',
       color: 'text-[var(--brand-500)] dark:text-[var(--brand-500)]',
       icon: <FireIcon size={14} />,
     },
     star: {
-      background:
-        'bg-[rgba(196,154,44,0.1)] dark:bg-[rgba(196,154,44,0.12)]',
+      background: 'bg-[rgba(196,154,44,0.1)] dark:bg-[rgba(196,154,44,0.12)]',
       color: 'text-[#c49a2c]',
       icon: <StarIcon size={13} />,
     },
-  } as const
+  } as const;
 
-  const selected = configuration[type]
+  const selected = configuration[type];
 
   return (
     <div
       className={cn(
         'flex h-9 w-9 shrink-0 items-center justify-center rounded-full',
         selected.background,
-        selected.color,
+        selected.color
       )}
     >
       {selected.icon}
     </div>
-  )
-}
+  );
+};
 
 interface IActivityRowProps {
-  event: IActivityEvent
+  event: IActivityEvent;
 }
 
 const ActivityRow = ({ event }: IActivityRowProps) => (
@@ -115,7 +107,7 @@ const ActivityRow = ({ event }: IActivityRowProps) => (
       </div>
     </div>
   </article>
-)
+);
 
 const DateDivider = ({ label }: { label: string }) => (
   <div className="flex items-center gap-3 border-b border-[#e8ddd6] bg-[rgba(26,23,20,0.018)] px-5 py-2.5 dark:border-white/8 dark:bg-white/[0.018]">
@@ -124,14 +116,14 @@ const DateDivider = ({ label }: { label: string }) => (
     </span>
     <div className="h-px flex-1 bg-[#e8ddd6] dark:bg-white/8" />
   </div>
-)
+);
 
 interface IActivityFeedProps {
-  groups: IActivityFeedGroup[]
-  hasMore: boolean
-  isFetchingNextPage: boolean
-  isFetchNextPageError: boolean
-  onLoadMore: () => void
+  groups: IActivityFeedGroup[];
+  hasMore: boolean;
+  isFetchingNextPage: boolean;
+  isFetchNextPageError: boolean;
+  onLoadMore: () => void;
 }
 
 export default function ActivityFeed({
@@ -149,8 +141,8 @@ export default function ActivityFeed({
             No activity yet
           </h3>
           <p className="mx-auto mt-2 max-w-sm text-[12px] leading-[1.6] text-[#b0a097] dark:text-[#6b6460]">
-            Complete a tracker subtopic, take a mock test, or contribute to
-            the community to start building your activity timeline.
+            Complete a tracker subtopic, take a mock test, or contribute to the community to start
+            building your activity timeline.
           </p>
         </div>
       ) : (
@@ -178,18 +170,11 @@ export default function ActivityFeed({
             disabled={isFetchingNextPage}
             className="inline-flex items-center justify-center gap-2 rounded-sm border border-[rgba(184,76,43,0.2)] bg-[rgba(184,76,43,0.06)] px-4 py-2.5 font-mono text-[10px] font-bold uppercase tracking-[0.08em] text-(--brand-500) transition hover:bg-[rgba(184,76,43,0.11)] disabled:cursor-not-allowed disabled:opacity-60 dark:border-[rgba(232,129,106,0.2)] dark:bg-[rgba(232,129,106,0.07)] dark:text-(--brand-500)"
           >
-            <RefreshIcon
-              size={12}
-              className={isFetchingNextPage ? 'animate-spin' : ''}
-            />
-            {isFetchingNextPage
-              ? 'Loading…'
-              : isFetchNextPageError
-                ? 'Retry'
-                : 'Load more'}
+            <RefreshIcon size={12} className={isFetchingNextPage ? 'animate-spin' : ''} />
+            {isFetchingNextPage ? 'Loading…' : isFetchNextPageError ? 'Retry' : 'Load more'}
           </button>
         </div>
       )}
     </div>
-  )
+  );
 }

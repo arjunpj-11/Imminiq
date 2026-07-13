@@ -1,38 +1,33 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-import type { ActivityTimeRange } from '../../../domain/activity.types'
-import type { ActivityCategory } from '../../../domain/value-objects/activity-category.vo'
+import type { ActivityTimeRange } from '../../../domain/activity.types';
+import type { ActivityCategory } from '../../../domain/value-objects/activity-category.vo';
 
 export class MongoActivityFilterBuilder {
-  static activeByUser(
-    userId: mongoose.Types.ObjectId,
-  ): Record<string, unknown> {
+  static activeByUser(userId: mongoose.Types.ObjectId): Record<string, unknown> {
     return {
       userId,
       deletedAt: null,
-    }
+    };
   }
 
-  static dateRange(
-    range: ActivityTimeRange,
-  ): Record<string, Date> {
+  static dateRange(range: ActivityTimeRange): Record<string, Date> {
     return {
       $gte: range.start,
       $lt: range.end,
-    }
+    };
   }
 
   static feed(input: {
-    userId: mongoose.Types.ObjectId
-    categories?: ActivityCategory[]
-    beforeOccurredAt?: Date
-    beforeId?: mongoose.Types.ObjectId
+    userId: mongoose.Types.ObjectId;
+    categories?: ActivityCategory[];
+    beforeOccurredAt?: Date;
+    beforeId?: mongoose.Types.ObjectId;
   }): Record<string, unknown> {
     return {
       ...this.activeByUser(input.userId),
 
-      ...(input.categories &&
-      input.categories.length > 0
+      ...(input.categories && input.categories.length > 0
         ? {
             category: {
               $in: input.categories,
@@ -40,8 +35,7 @@ export class MongoActivityFilterBuilder {
           }
         : {}),
 
-      ...(input.beforeOccurredAt &&
-      input.beforeId
+      ...(input.beforeOccurredAt && input.beforeId
         ? {
             $or: [
               {
@@ -50,8 +44,7 @@ export class MongoActivityFilterBuilder {
                 },
               },
               {
-                occurredAt:
-                  input.beforeOccurredAt,
+                occurredAt: input.beforeOccurredAt,
                 _id: {
                   $lt: input.beforeId,
                 },
@@ -59,6 +52,6 @@ export class MongoActivityFilterBuilder {
             ],
           }
         : {}),
-    }
+    };
   }
 }

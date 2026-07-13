@@ -1,8 +1,8 @@
-export { default as NotificationsPage } from './pages/NotificationsPage'
-export * from './types/notification.types'
-export * from './constants/notification.constants'
-export * from './hooks/notification-query-keys'
-export * from './hooks/useNotifications'
-export * from './hooks/useMarkNotificationRead'
-export * from './hooks/useMarkAllNotificationsRead'
-export * from './utils/notification-formatters'
+export { default as NotificationsPage } from './pages/NotificationsPage';
+export * from './types/notification.types';
+export * from './constants/notification.constants';
+export * from './hooks/notification-query-keys';
+export * from './hooks/useNotifications';
+export * from './hooks/useMarkNotificationRead';
+export * from './hooks/useMarkAllNotificationsRead';
+export * from './utils/notification-formatters';

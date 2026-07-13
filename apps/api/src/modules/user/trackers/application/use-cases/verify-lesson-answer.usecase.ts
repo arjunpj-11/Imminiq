@@ -1,66 +1,65 @@
-import { TrackerApplicationError } from '../tracker-application.error'
-import type { ITrackerMapper } from '../tracker.mapper'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
+import { TrackerApplicationError } from '../tracker-application.error';
+import type { ITrackerMapper } from '../tracker.mapper';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 
 type VerifyLessonAnswerInput = {
-  trackerId: string
-  subtopicId: string
-  userId: string
-  question: string
-  answer: string
-}
+  trackerId: string;
+  subtopicId: string;
+  userId: string;
+  question: string;
+  answer: string;
+};
 
-type VerifyLessonAnswerResultDTO = ReturnType<
-  ITrackerMapper['toLessonAnswerVerificationDto']
->
+type VerifyLessonAnswerResultDTO = ReturnType<ITrackerMapper['toLessonAnswerVerificationDto']>;
 
 const getIsCorrectFromResult = (result: {
-  verdict?: 'correct' | 'partially_correct' | 'incorrect'
+  verdict?: 'correct' | 'partially_correct' | 'incorrect';
 }) => {
-  return result.verdict === 'correct'
-}
+  return result.verdict === 'correct';
+};
 
 export interface IVerifyLessonAnswerUseCase {
-  execute(input: VerifyLessonAnswerInput): Promise<VerifyLessonAnswerResultDTO>
+  execute(input: VerifyLessonAnswerInput): Promise<VerifyLessonAnswerResultDTO>;
 }
 
 export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
   constructor(
-    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLessonAnswerAttempt' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'>,
+    private readonly _trackerRepository: Pick<
+      ITrackerRepository,
+      'createLessonAnswerAttempt' | 'findLessonBySubtopicId' | 'findOwnedTrackerById'
+    >,
     private readonly _trackerAIGateway: ITrackerAIGateway,
-    private readonly _trackerMapper: ITrackerMapper,
+    private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(
-    input: VerifyLessonAnswerInput,
-  ): Promise<VerifyLessonAnswerResultDTO> {
+  async execute(input: VerifyLessonAnswerInput): Promise<VerifyLessonAnswerResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
-    })
+    });
 
     if (!tracker) {
-      throw TrackerApplicationError.trackerNotFound('Tracker not found')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found');
     }
 
     const lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-    })
+    });
 
     if (!lesson) {
       throw TrackerApplicationError.lessonNotGenerated(
-        'Generate the lesson before verifying answer',
-      )
+        'Generate the lesson before verifying answer'
+      );
     }
 
     const practiceTask = lesson.practiceTask as
       | {
-          expectedAnswer?: string
+          expectedAnswer?: string;
         }
-      | undefined
+      | undefined;
 
     const result = await this._trackerAIGateway.verifyNonCodingAnswer({
       lessonTitle: lesson.title || tracker.title || 'Lesson practice',
@@ -70,9 +69,9 @@ export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
       question: input.question,
       expectedAnswer: practiceTask?.expectedAnswer || '',
       userAnswer: input.answer,
-    })
+    });
 
-    const isCorrect = getIsCorrectFromResult(result)
+    const isCorrect = getIsCorrectFromResult(result);
 
     await this._trackerRepository.createLessonAnswerAttempt({
       trackerId: input.trackerId,
@@ -83,14 +82,9 @@ export class VerifyLessonAnswerUseCase implements IVerifyLessonAnswerUseCase {
       answer: input.answer,
       feedback: result,
       isCorrect,
-      score:
-        typeof result.score === 'number'
-          ? result.score
-          : isCorrect
-            ? 100
-            : 0,
-    })
+      score: typeof result.score === 'number' ? result.score : isCorrect ? 100 : 0,
+    });
 
-    return this._trackerMapper.toLessonAnswerVerificationDto(result)
+    return this._trackerMapper.toLessonAnswerVerificationDto(result);
   }
 }

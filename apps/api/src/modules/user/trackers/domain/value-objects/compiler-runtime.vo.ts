@@ -1,1 +1,1 @@
-export type CompilerRuntime = 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null
+export type CompilerRuntime = 'javascript' | 'typescript' | 'python' | 'c++' | 'c' | 'java' | null;

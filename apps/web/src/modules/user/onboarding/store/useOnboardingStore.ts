@@ -1,60 +1,52 @@
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys'
-import { safeSessionStateStorage, safeSessionStorage } from '../../../../lib/storage/safe-storage'
-import type { Level } from '../types/onboarding.types'
-import type {
-  ITrackerIntakeMessage,
-  ITrackerIntakeProfile,
-} from '../types/onboarding.types'
+import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
+import { safeSessionStateStorage, safeSessionStorage } from '../../../../lib/storage/safe-storage';
+import type { Level } from '../types/onboarding.types';
+import type { ITrackerIntakeMessage, ITrackerIntakeProfile } from '../types/onboarding.types';
 
 interface IOnboardingStepOneDraft {
-  goal: string
-  topic: string
+  goal: string;
+  topic: string;
 }
 
 interface IOnboardingStepTwoDraft {
-  level: Level
-  hoursPerDay: number
+  level: Level;
+  hoursPerDay: number;
 }
 
 interface IOnboardingStore {
-  currentStep: 1 | 2
-  step1Data: IOnboardingStepOneDraft | null
-  step2Data: IOnboardingStepTwoDraft | null
-  intakeMessages: ITrackerIntakeMessage[]
-  intakeProfile: ITrackerIntakeProfile | null
-  activeRoadmapJobId: string | null
-  setStep: (step: 1 | 2) => void
-  saveStep1: (data: IOnboardingStepOneDraft) => void
-  saveStep2: (data: Partial<IOnboardingStepTwoDraft> & Pick<IOnboardingStepTwoDraft, 'level'>) => void
-  saveIntake: (
-    messages: ITrackerIntakeMessage[],
-    profile?: ITrackerIntakeProfile,
-  ) => void
-  clearIntake: () => void
-  setActiveRoadmapJobId: (jobId: string | null) => void
-  reset: () => void
+  currentStep: 1 | 2;
+  step1Data: IOnboardingStepOneDraft | null;
+  step2Data: IOnboardingStepTwoDraft | null;
+  intakeMessages: ITrackerIntakeMessage[];
+  intakeProfile: ITrackerIntakeProfile | null;
+  activeRoadmapJobId: string | null;
+  setStep: (step: 1 | 2) => void;
+  saveStep1: (data: IOnboardingStepOneDraft) => void;
+  saveStep2: (
+    data: Partial<IOnboardingStepTwoDraft> & Pick<IOnboardingStepTwoDraft, 'level'>
+  ) => void;
+  saveIntake: (messages: ITrackerIntakeMessage[], profile?: ITrackerIntakeProfile) => void;
+  clearIntake: () => void;
+  setActiveRoadmapJobId: (jobId: string | null) => void;
+  reset: () => void;
 }
 
 const readLegacyStepOne = (): IOnboardingStepOneDraft | null => {
   const topic =
-    safeSessionStorage.get('imminiq_topic') ||
-    safeSessionStorage.get('imminiq_draft_topic') ||
-    ''
+    safeSessionStorage.get('imminiq_topic') || safeSessionStorage.get('imminiq_draft_topic') || '';
   const goal =
-    safeSessionStorage.get('imminiq_goal') ||
-    safeSessionStorage.get('imminiq_draft_goal') ||
-    ''
+    safeSessionStorage.get('imminiq_goal') || safeSessionStorage.get('imminiq_draft_goal') || '';
 
-  return topic || goal ? { topic, goal } : null
-}
+  return topic || goal ? { topic, goal } : null;
+};
 
 const readLegacyLevel = (): Level => {
-  const value = safeSessionStorage.get('imminiq_level')
-  return value === 'beginner' || value === 'advanced' ? value : 'intermediate'
-}
+  const value = safeSessionStorage.get('imminiq_level');
+  return value === 'beginner' || value === 'advanced' ? value : 'intermediate';
+};
 
 export const useOnboardingStore = create<IOnboardingStore>()(
   persist(
@@ -79,10 +71,8 @@ export const useOnboardingStore = create<IOnboardingStore>()(
           intakeMessages,
           intakeProfile: intakeProfile ?? state.intakeProfile,
         })),
-      clearIntake: () =>
-        set({ intakeMessages: [], intakeProfile: null }),
-      setActiveRoadmapJobId: (activeRoadmapJobId) =>
-        set({ activeRoadmapJobId }),
+      clearIntake: () => set({ intakeMessages: [], intakeProfile: null }),
+      setActiveRoadmapJobId: (activeRoadmapJobId) => set({ activeRoadmapJobId }),
       reset: () =>
         set({
           currentStep: 1,
@@ -111,8 +101,8 @@ export const useOnboardingStore = create<IOnboardingStore>()(
         intakeProfile,
         activeRoadmapJobId,
       }),
-    },
-  ),
-)
+    }
+  )
+);
 
-export const getOnboardingSnapshot = () => useOnboardingStore.getState()
+export const getOnboardingSnapshot = () => useOnboardingStore.getState();

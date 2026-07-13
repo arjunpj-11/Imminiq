@@ -1,10 +1,10 @@
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 interface IImminiqLogoProps {
-  size?: number
-  className?: string
-  title?: string
-  decorative?: boolean
+  size?: number;
+  className?: string;
+  title?: string;
+  decorative?: boolean;
 }
 
 export default function ImminiqLogo({
@@ -46,5 +46,5 @@ export default function ImminiqLogo({
         />
       </g>
     </svg>
-  )
+  );
 }

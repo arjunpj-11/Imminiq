@@ -1,47 +1,44 @@
-import type {
-  LeaderboardSection,
-  LeaderboardXpActivitySource,
-} from '../leaderboard.types'
+import type { LeaderboardSection, LeaderboardXpActivitySource } from '../leaderboard.types';
 
 export type RecordLeaderboardXpActivityInput = {
-  userId: string
-  section: LeaderboardSection
-  amount: number
-  source: LeaderboardXpActivitySource
-  idempotencyKey: string
-  sourceEntityId?: string
-  occurredAt: Date
-  metadata?: Record<string, unknown>
-}
+  userId: string;
+  section: LeaderboardSection;
+  amount: number;
+  source: LeaderboardXpActivitySource;
+  idempotencyKey: string;
+  sourceEntityId?: string;
+  occurredAt: Date;
+  metadata?: Record<string, unknown>;
+};
 
 export type RecordLeaderboardXpActivityResult = {
-  created: boolean
-}
+  created: boolean;
+};
 
 export type ReplaceLeaderboardFriendsInput = {
-  userId: string
-  friendUserIds: string[]
-}
+  userId: string;
+  friendUserIds: string[];
+};
 
 export type CaptureLeaderboardSnapshotInput = {
-  section: LeaderboardSection
-  snapshotKey: string
-  capturedAt: Date
-}
+  section: LeaderboardSection;
+  snapshotKey: string;
+  capturedAt: Date;
+};
 
 export type CaptureLeaderboardSnapshotResult = {
-  section: LeaderboardSection
-  capturedUsers: number
-}
+  section: LeaderboardSection;
+  capturedUsers: number;
+};
 
 export interface ILeaderboardActivityRepository {
   recordXpActivity(
-    input: RecordLeaderboardXpActivityInput,
-  ): Promise<RecordLeaderboardXpActivityResult>
+    input: RecordLeaderboardXpActivityInput
+  ): Promise<RecordLeaderboardXpActivityResult>;
 
-  replaceFriendUserIds(input: ReplaceLeaderboardFriendsInput): Promise<void>
+  replaceFriendUserIds(input: ReplaceLeaderboardFriendsInput): Promise<void>;
 
   captureRankSnapshot(
-    input: CaptureLeaderboardSnapshotInput,
-  ): Promise<CaptureLeaderboardSnapshotResult>
+    input: CaptureLeaderboardSnapshotInput
+  ): Promise<CaptureLeaderboardSnapshotResult>;
 }

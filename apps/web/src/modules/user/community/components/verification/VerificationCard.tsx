@@ -1,11 +1,11 @@
-import type { ICommunityVerifyItem } from '../../types/community.types'
-import { formatProgress } from '../../utils/community-formatters'
-import { cn } from '../../utils/community-ui'
-import { CheckIcon, ClockIcon, DotsIcon } from '../icons/CommunityIcons'
+import type { ICommunityVerifyItem } from '../../types/community.types';
+import { formatProgress } from '../../utils/community-formatters';
+import { cn } from '../../utils/community-ui';
+import { CheckIcon, ClockIcon, DotsIcon } from '../icons/CommunityIcons';
 
 interface IVerificationCardProps {
-  item: ICommunityVerifyItem
-  onPreview: (submissionId: string) => void
+  item: ICommunityVerifyItem;
+  onPreview: (submissionId: string) => void;
 }
 
 const ProgressBar = ({ value, urgent }: { value: number; urgent?: boolean }) => (
@@ -18,12 +18,9 @@ const ProgressBar = ({ value, urgent }: { value: number; urgent?: boolean }) => 
       }}
     />
   </div>
-)
+);
 
-export default function VerificationCard({
-  item,
-  onPreview,
-}: IVerificationCardProps) {
+export default function VerificationCard({ item, onPreview }: IVerificationCardProps) {
   return (
     <div
       className={cn(
@@ -33,7 +30,7 @@ export default function VerificationCard({
           ? 'border-(--border-subtle) opacity-60 dark:border-(--border-subtle)'
           : item.urgent
             ? 'border-(--border-subtle) border-l-[3px] border-l-[#c49a2c] dark:border-(--border-subtle) dark:border-l-[#c49a2c]'
-            : 'border-(--border-subtle) border-l-[3px] border-l-[rgba(184,76,43,0.35)] hover:border-l-[rgba(184,76,43,0.55)] dark:border-(--border-subtle) dark:border-l-[rgba(232,129,106,0.35)]',
+            : 'border-(--border-subtle) border-l-[3px] border-l-[rgba(184,76,43,0.35)] hover:border-l-[rgba(184,76,43,0.55)] dark:border-(--border-subtle) dark:border-l-[rgba(232,129,106,0.35)]'
       )}
     >
       <div className="flex flex-1 flex-col gap-0 p-4">
@@ -114,9 +111,7 @@ export default function VerificationCard({
               <div className="text-[11.5px] font-bold text-(--success) dark:text-(--success)">
                 Voted Pass
               </div>
-              <div className="text-[10px] text-[#9b9a92]">
-                Awaiting consensus
-              </div>
+              <div className="text-[10px] text-[#9b9a92]">Awaiting consensus</div>
             </div>
           </div>
         ) : (
@@ -132,7 +127,7 @@ export default function VerificationCard({
                 'inline-flex shrink-0 items-center gap-1.5 rounded-lg border-[1.5px] px-3 py-1.25 text-[11.5px] font-bold transition',
                 item.closed
                   ? 'cursor-not-allowed border-(--border-subtle) text-[#9b9a92] dark:border-(--border-subtle)'
-                  : 'border-[rgba(184,76,43,0.22)] text-(--brand-500) hover:border-[rgba(184,76,43,0.4)] hover:bg-[rgba(184,76,43,0.07)] dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.08)]',
+                  : 'border-[rgba(184,76,43,0.22)] text-(--brand-500) hover:border-[rgba(184,76,43,0.4)] hover:bg-[rgba(184,76,43,0.07)] dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.08)]'
               )}
             >
               Preview
@@ -141,5 +136,5 @@ export default function VerificationCard({
         )}
       </div>
     </div>
-  )
+  );
 }

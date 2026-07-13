@@ -1,13 +1,12 @@
-import type { AdminListQuery, AdminPage } from '../domain/admin-shared.types'
+import type { AdminListQuery, AdminPage } from '../domain/admin-shared.types';
 
-export const escapeAdminSearch = (value = '') =>
-  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+export const escapeAdminSearch = (value = '') => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 export const createAdminPage = <T>(
   items: T[],
   query: AdminListQuery,
   total: number,
-  stats?: Record<string, number>,
+  stats?: Record<string, number>
 ): AdminPage<T> => ({
   items,
   pagination: {
@@ -17,4 +16,4 @@ export const createAdminPage = <T>(
     pages: Math.max(1, Math.ceil(total / query.limit)),
   },
   ...(stats ? { stats } : {}),
-})
+});

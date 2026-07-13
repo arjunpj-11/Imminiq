@@ -1,16 +1,13 @@
-import type { IDashboardRecommendedAction } from '../types/dashboard.types'
-import { cn } from '../utils/cn'
+import type { IDashboardRecommendedAction } from '../types/dashboard.types';
+import { cn } from '../utils/cn';
 
 type RecommendedActionsProps = {
-  actions: IDashboardRecommendedAction[]
-  onNavigate: (link: string) => void
-}
+  actions: IDashboardRecommendedAction[];
+  onNavigate: (link: string) => void;
+};
 
-export default function RecommendedActions({
-  actions,
-  onNavigate,
-}: RecommendedActionsProps) {
-  if (actions.length === 0) return null
+export default function RecommendedActions({ actions, onNavigate }: RecommendedActionsProps) {
+  if (actions.length === 0) return null;
 
   return (
     <div className="flex flex-wrap gap-2.5">
@@ -30,5 +27,5 @@ export default function RecommendedActions({
         </button>
       ))}
     </div>
-  )
+  );
 }

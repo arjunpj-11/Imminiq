@@ -1,18 +1,13 @@
-import { cn } from '../../../../lib/cn'
-import { getUserFacingError } from '../../../../lib/user-facing-error'
+import { cn } from '../../../../lib/cn';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 
-import {
-  type ChangeEvent,
-  useCallback,
-  useMemo,
-  useState,
-} from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { type ChangeEvent, useCallback, useMemo, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
-import { CheckCircleIcon, HintIcon } from '../components/MockTestAttemptIcons'
-import { MockTestAttemptFooter, MockTestAttemptHeader } from '../components/MockTestAttemptChrome'
-import { useCountdown } from '../hooks/useCountdown'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { CheckCircleIcon, HintIcon } from '../components/MockTestAttemptIcons';
+import { MockTestAttemptFooter, MockTestAttemptHeader } from '../components/MockTestAttemptChrome';
+import { useCountdown } from '../hooks/useCountdown';
 
 import {
   useFinishMockTestAttempt,
@@ -20,7 +15,7 @@ import {
   useRunMockTestCode,
   useSubmitMockTestAnswer,
   useSubmitMockTestCode,
-} from '../hooks/useMockTests'
+} from '../hooks/useMockTests';
 
 import {
   buildCompilerOutput,
@@ -29,116 +24,99 @@ import {
   formatJsonValue,
   getStarterCode,
   type Confidence,
-} from '../utils/mock-test-attempt.utils'
+} from '../utils/mock-test-attempt.utils';
 
 import type {
   IMockTestCodeRunResponse,
   MockTestCodingLanguage,
   IPublicMockTestQuestion,
   IStartAttemptResponse,
-} from '../types/mock-tests.types'
+} from '../types/mock-tests.types';
 
 export default function MockTestAttemptPage() {
-  const { attemptId = '' } = useParams()
-  const navigate = useNavigate()
-  const location = useLocation()
+  const { attemptId = '' } = useParams();
+  const navigate = useNavigate();
+  const location = useLocation();
 
-  const initial = location.state as IStartAttemptResponse | undefined
-  const shouldFetch = !initial?.questions?.length && Boolean(attemptId)
-  const questionsQuery = useMockTestAttemptQuestions(
-    shouldFetch ? attemptId : undefined
-  )
+  const initial = location.state as IStartAttemptResponse | undefined;
+  const shouldFetch = !initial?.questions?.length && Boolean(attemptId);
+  const questionsQuery = useMockTestAttemptQuestions(shouldFetch ? attemptId : undefined);
 
   const questions = useMemo<IPublicMockTestQuestion[]>(() => {
-    if (initial?.questions?.length) return initial.questions
+    if (initial?.questions?.length) return initial.questions;
 
-    return (questionsQuery.data || []) as IPublicMockTestQuestion[]
-  }, [initial?.questions, questionsQuery.data])
+    return (questionsQuery.data || []) as IPublicMockTestQuestion[];
+  }, [initial?.questions, questionsQuery.data]);
 
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [visited, setVisited] = useState<Set<number>>(new Set([0]))
-  const [answers, setAnswers] = useState<Record<string, string>>({})
-  const [confidence, setConfidence] = useState<Record<number, Confidence>>({})
-  const [flagged, setFlagged] = useState<Set<number>>(new Set())
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [visited, setVisited] = useState<Set<number>>(new Set([0]));
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [confidence, setConfidence] = useState<Record<number, Confidence>>({});
+  const [flagged, setFlagged] = useState<Set<number>>(new Set());
 
   const [languageByQuestion, setLanguageByQuestion] = useState<
     Record<string, MockTestCodingLanguage>
-  >({})
-  const [codeByQuestion, setCodeByQuestion] = useState<Record<string, string>>(
-    {}
-  )
+  >({});
+  const [codeByQuestion, setCodeByQuestion] = useState<Record<string, string>>({});
   const [codeResultByQuestion, setCodeResultByQuestion] = useState<
     Record<string, IMockTestCodeRunResponse | null>
-  >({})
-  const [codeFeedbackByQuestion, setCodeFeedbackByQuestion] = useState<
-    Record<string, string>
-  >({})
-  const [compilerExpanded, setCompilerExpanded] = useState(false)
+  >({});
+  const [codeFeedbackByQuestion, setCodeFeedbackByQuestion] = useState<Record<string, string>>({});
+  const [compilerExpanded, setCompilerExpanded] = useState(false);
 
-  const submitMutation = useSubmitMockTestAnswer()
-  const runCodeMutation = useRunMockTestCode()
-  const submitCodeMutation = useSubmitMockTestCode()
-  const finishMutation = useFinishMockTestAttempt()
-  const timerDisplay = useCountdown(3600)
+  const submitMutation = useSubmitMockTestAnswer();
+  const runCodeMutation = useRunMockTestCode();
+  const submitCodeMutation = useSubmitMockTestCode();
+  const finishMutation = useFinishMockTestAttempt();
+  const timerDisplay = useCountdown(3600);
 
-  const totalQuestions = questions.length || 15
-  const question = questions[currentIndex]
-  const isMCQ = question?.type === 'mcq' && Boolean(question.options?.length)
-  const isCoding = question?.type === 'coding' && Boolean(question.coding)
+  const totalQuestions = questions.length || 15;
+  const question = questions[currentIndex];
+  const isMCQ = question?.type === 'mcq' && Boolean(question.options?.length);
+  const isCoding = question?.type === 'coding' && Boolean(question.coding);
 
   const selectedLanguage = useMemo(() => {
-    if (!question?._id) return COMPILER_LANGUAGES[0]
+    if (!question?._id) return COMPILER_LANGUAGES[0];
 
-    return findCompilerLanguage(
-      languageByQuestion[question._id] || question.coding?.language
-    )
-  }, [languageByQuestion, question])
+    return findCompilerLanguage(languageByQuestion[question._id] || question.coding?.language);
+  }, [languageByQuestion, question]);
 
   const currentCode = useMemo(() => {
-    if (!question?._id) return ''
+    if (!question?._id) return '';
 
-    return (
-      codeByQuestion[question._id] ||
-      getStarterCode(question, selectedLanguage.value)
-    )
-  }, [codeByQuestion, question, selectedLanguage.value])
+    return codeByQuestion[question._id] || getStarterCode(question, selectedLanguage.value);
+  }, [codeByQuestion, question, selectedLanguage.value]);
 
-  const currentCodeResult = question?._id
-    ? codeResultByQuestion[question._id]
-    : null
+  const currentCodeResult = question?._id ? codeResultByQuestion[question._id] : null;
 
-  const currentCodeFeedback = question?._id
-    ? codeFeedbackByQuestion[question._id]
-    : ''
+  const currentCodeFeedback = question?._id ? codeFeedbackByQuestion[question._id] : '';
 
-  const lineCount = Math.max(1, currentCode.split('\n').length)
-
-
+  const lineCount = Math.max(1, currentCode.split('\n').length);
 
   const goTo = useCallback(
     (index: number) => {
-      if (index < 0 || index >= totalQuestions) return
+      if (index < 0 || index >= totalQuestions) return;
 
-      setCurrentIndex(index)
-      setVisited((prev) => new Set([...prev, index]))
+      setCurrentIndex(index);
+      setVisited((prev) => new Set([...prev, index]));
     },
     [totalQuestions]
-  )
+  );
 
   const submitAnswer = async () => {
-    if (!question || !attemptId || isCoding) return
+    if (!question || !attemptId || isCoding) return;
 
-    const answer = answers[question._id]?.trim()
-    if (!answer) return
+    const answer = answers[question._id]?.trim();
+    if (!answer) return;
 
     await submitMutation.mutateAsync({
       attemptId,
       payload: { questionId: question._id, answer },
-    })
-  }
+    });
+  };
 
   const runCode = () => {
-    if (!question?._id || !question.coding || !attemptId) return
+    if (!question?._id || !question.coding || !attemptId) return;
 
     runCodeMutation.mutate(
       {
@@ -155,28 +133,28 @@ export default function MockTestAttemptPage() {
           setCodeResultByQuestion((prev) => ({
             ...prev,
             [question._id]: response.data,
-          }))
+          }));
 
           setCodeFeedbackByQuestion((prev) => ({
             ...prev,
             [question._id]: response.data.passed
               ? 'Visible test cases passed.'
               : `${response.data.passedCount}/${response.data.totalCount} visible test cases passed.`,
-          }))
+          }));
         },
 
         onError: (error) => {
           setCodeFeedbackByQuestion((prev) => ({
             ...prev,
             [question._id]: getUserFacingError(error, 'Unable to run this code. Please try again.'),
-          }))
+          }));
         },
       }
-    )
-  }
+    );
+  };
 
   const submitCode = () => {
-    if (!question?._id || !question.coding || !attemptId) return
+    if (!question?._id || !question.coding || !attemptId) return;
 
     submitCodeMutation.mutate(
       {
@@ -193,12 +171,12 @@ export default function MockTestAttemptPage() {
           setAnswers((prev) => ({
             ...prev,
             [question._id]: currentCode,
-          }))
+          }));
 
           setCodeResultByQuestion((prev) => ({
             ...prev,
             [question._id]: response.data,
-          }))
+          }));
 
           setCodeFeedbackByQuestion((prev) => ({
             ...prev,
@@ -207,85 +185,92 @@ export default function MockTestAttemptPage() {
               (response.data.isCorrect
                 ? 'Accepted. All test cases passed.'
                 : `${response.data.passedCount}/${response.data.totalCount} test cases passed.`),
-          }))
+          }));
         },
 
         onError: (error) => {
           setCodeFeedbackByQuestion((prev) => ({
             ...prev,
-            [question._id]: getUserFacingError(error, 'Unable to submit this code. Please try again.'),
-          }))
+            [question._id]: getUserFacingError(
+              error,
+              'Unable to submit this code. Please try again.'
+            ),
+          }));
         },
       }
-    )
-  }
+    );
+  };
 
   const finish = async () => {
-    if (!attemptId) return
+    if (!attemptId) return;
 
-    await finishMutation.mutateAsync({ attemptId })
-    navigate(`/mock-tests/attempts/${attemptId}/result`)
-  }
+    await finishMutation.mutateAsync({ attemptId });
+    navigate(`/mock-tests/attempts/${attemptId}/result`);
+  };
 
   const toggleFlag = () => {
     setFlagged((prev) => {
-      const next = new Set(prev)
+      const next = new Set(prev);
 
       if (next.has(currentIndex)) {
-        next.delete(currentIndex)
+        next.delete(currentIndex);
       } else {
-        next.add(currentIndex)
+        next.add(currentIndex);
       }
 
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const handleLanguageChange = (event: ChangeEvent<HTMLSelectElement>) => {
-    if (!question?._id) return
+    if (!question?._id) return;
 
-    const nextLanguage = findCompilerLanguage(event.target.value)
+    const nextLanguage = findCompilerLanguage(event.target.value);
 
     setLanguageByQuestion((prev) => ({
       ...prev,
       [question._id]: nextLanguage.value,
-    }))
+    }));
 
     setCodeByQuestion((prev) => ({
       ...prev,
       [question._id]: getStarterCode(question, nextLanguage.value),
-    }))
+    }));
 
     setCodeResultByQuestion((prev) => ({
       ...prev,
       [question._id]: null,
-    }))
+    }));
 
     setCodeFeedbackByQuestion((prev) => ({
       ...prev,
       [question._id]: `Compiler language changed to ${nextLanguage.label}`,
-    }))
-  }
+    }));
+  };
 
   const handleCodeChange = (value: string) => {
-    if (!question?._id) return
+    if (!question?._id) return;
 
     setCodeByQuestion((prev) => ({
       ...prev,
       [question._id]: value,
-    }))
-  }
+    }));
+  };
 
-  const isLoading = shouldFetch && questionsQuery.isLoading
-  const isFinishing = finishMutation.isPending
-  const isSubmitting = submitMutation.isPending
-  const isRunningCode = runCodeMutation.isPending
-  const isSubmittingCode = submitCodeMutation.isPending
-
-
+  const isLoading = shouldFetch && questionsQuery.isLoading;
+  const isFinishing = finishMutation.isPending;
+  const isSubmitting = submitMutation.isPending;
+  const isRunningCode = runCodeMutation.isPending;
+  const isSubmittingCode = submitCodeMutation.isPending;
 
   return (
-    <AppShellBoundary showSidebar={false} withTopBar={false} withFooter={false} withBottomNav={false} className="bg-(--surface-sunken)">
+    <AppShellBoundary
+      showSidebar={false}
+      withTopBar={false}
+      withFooter={false}
+      withBottomNav={false}
+      className="bg-(--surface-sunken)"
+    >
       <div className="flex h-dvh min-h-0 flex-col overflow-hidden">
         <MockTestAttemptHeader
           timerDisplay={timerDisplay}
@@ -327,8 +312,7 @@ export default function MockTestAttemptPage() {
                   <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
                     <div className="mb-3 font-mono text-[9px] uppercase tracking-[0.13em] text-(--text-secondary) dark:text-(--text-secondary)">
                       Question {currentIndex + 1} of {totalQuestions}
-                      {question.type &&
-                        ` · ${question.type.replace('_', ' ')}`}
+                      {question.type && ` · ${question.type.replace('_', ' ')}`}
                       {question.points && ` · ${question.points} pts`}
                     </div>
 
@@ -400,9 +384,7 @@ export default function MockTestAttemptPage() {
                         <button
                           type="button"
                           onClick={submitAnswer}
-                          disabled={
-                            !answers[question._id]?.trim() || isSubmitting
-                          }
+                          disabled={!answers[question._id]?.trim() || isSubmitting}
                           className="mt-4 rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-5 py-2.5 text-sm font-bold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:bg-white/8 dark:text-(--text-primary) dark:hover:bg-white/12"
                         >
                           {isSubmitting ? 'Saving…' : 'Save answer'}
@@ -415,8 +397,7 @@ export default function MockTestAttemptPage() {
                     <section
                       className={cn(
                         'overflow-hidden rounded-2xl border border-white/10 bg-[#1e1e1e] shadow-[0_2px_16px_rgba(26,23,20,0.08)]',
-                        compilerExpanded &&
-                          'fixed inset-4 z-50 overflow-y-auto bg-[#111]'
+                        compilerExpanded && 'fixed inset-4 z-50 overflow-y-auto bg-[#111]'
                       )}
                     >
                       <div className="border-b border-white/10 bg-[#161616] px-5 py-4">
@@ -429,9 +410,7 @@ export default function MockTestAttemptPage() {
 
                           <button
                             type="button"
-                            onClick={() =>
-                              setCompilerExpanded((value) => !value)
-                            }
+                            onClick={() => setCompilerExpanded((value) => !value)}
                             className="rounded-md border border-white/10 bg-[#1e1e1e] px-3 py-1.5 font-mono text-[10px] font-bold uppercase tracking-wider text-[#888] transition hover:bg-[#2a2a2a] hover:text-[#d4d4d4]"
                           >
                             {compilerExpanded ? '⊡ Minimize' : '⛶ Maximize'}
@@ -474,18 +453,14 @@ export default function MockTestAttemptPage() {
 
                       <div className="flex min-h-80 bg-[#111] py-4 font-mono text-[14px] text-[#d4d4d4]">
                         <div className="select-none px-4 text-right leading-[1.6] text-[#555]">
-                          {Array.from({ length: lineCount }).map(
-                            (_, index) => (
-                              <div key={index}>{index + 1}</div>
-                            )
-                          )}
+                          {Array.from({ length: lineCount }).map((_, index) => (
+                            <div key={index}>{index + 1}</div>
+                          ))}
                         </div>
 
                         <textarea
                           value={currentCode}
-                          onChange={(event) =>
-                            handleCodeChange(event.target.value)
-                          }
+                          onChange={(event) => handleCodeChange(event.target.value)}
                           spellCheck={false}
                           className="min-h-80 flex-1 resize-none bg-transparent pr-4 font-mono text-[14px] leading-[1.6] text-[#d4d4d4] outline-none"
                         />
@@ -505,16 +480,11 @@ export default function MockTestAttemptPage() {
 
                             <button
                               type="button"
-                              disabled={
-                                isSubmittingCode || !currentCode.trim()
-                              }
+                              disabled={isSubmittingCode || !currentCode.trim()}
                               onClick={submitCode}
                               className="inline-flex items-center gap-1.5 rounded-md border border-(--brand-500)/40 bg-(--brand-500) px-3 py-2 text-[10px] font-bold uppercase tracking-wider text-white transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-50"
                             >
-                              ✓{' '}
-                              {isSubmittingCode
-                                ? 'Submitting'
-                                : 'Submit Code'}
+                              ✓ {isSubmittingCode ? 'Submitting' : 'Submit Code'}
                             </button>
                           </div>
 
@@ -544,75 +514,61 @@ export default function MockTestAttemptPage() {
 
                           {!currentCodeResult ? (
                             <div className="rounded-xl border border-dashed border-white/10 bg-[#111] p-5 text-center text-[12px] text-[#888]">
-                              Run or submit your code to see test case
-                              results.
+                              Run or submit your code to see test case results.
                             </div>
                           ) : (
                             <div className="max-h-72 space-y-2 overflow-y-auto pr-1">
-                              {currentCodeResult.testCases.map(
-                                (testCase) => (
-                                  <div
-                                    key={testCase.index}
-                                    className={cn(
-                                      'rounded-xl border p-3 font-mono text-[11.5px]',
-                                      testCase.passed
-                                        ? 'border-[#2e5a39] bg-[#101a13]'
-                                        : 'border-[#ffbd2e]/30 bg-[#2d2614]'
-                                    )}
-                                  >
-                                    <div className="mb-2 flex items-center justify-between gap-2">
-                                      <span
-                                        className={cn(
-                                          'rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]',
-                                          testCase.passed
-                                            ? 'bg-[#1a3d24] text-[#4caf50]'
-                                            : 'bg-[#3a2b12] text-[#ffbd2e]'
-                                        )}
-                                      >
-                                        {testCase.passed
-                                          ? 'Passed'
-                                          : 'Failed'}
-                                      </span>
-
-                                      <span className="text-[#777]">
-                                        Case {testCase.index + 1}
-                                        {testCase.isHidden
-                                          ? ' · hidden'
-                                          : ''}
-                                      </span>
-                                    </div>
-
-                                    {!testCase.isHidden && (
-                                      <>
-                                        <div className="text-[#aaa]">
-                                          Input:{' '}
-                                          {formatJsonValue(testCase.input)}
-                                        </div>
-
-                                        <div className="mt-1 text-[#aaa]">
-                                          Expected:{' '}
-                                          {formatJsonValue(
-                                            testCase.expectedOutput
-                                          )}
-                                        </div>
-                                      </>
-                                    )}
-
-                                    <div className="mt-1 text-[#aaa]">
-                                      Actual:{' '}
-                                      {formatJsonValue(
-                                        testCase.actualOutput
+                              {currentCodeResult.testCases.map((testCase) => (
+                                <div
+                                  key={testCase.index}
+                                  className={cn(
+                                    'rounded-xl border p-3 font-mono text-[11.5px]',
+                                    testCase.passed
+                                      ? 'border-[#2e5a39] bg-[#101a13]'
+                                      : 'border-[#ffbd2e]/30 bg-[#2d2614]'
+                                  )}
+                                >
+                                  <div className="mb-2 flex items-center justify-between gap-2">
+                                    <span
+                                      className={cn(
+                                        'rounded-full px-2 py-0.5 text-[8px] font-bold uppercase tracking-[0.08em]',
+                                        testCase.passed
+                                          ? 'bg-[#1a3d24] text-[#4caf50]'
+                                          : 'bg-[#3a2b12] text-[#ffbd2e]'
                                       )}
-                                    </div>
+                                    >
+                                      {testCase.passed ? 'Passed' : 'Failed'}
+                                    </span>
 
-                                    {testCase.error && (
-                                      <div className="mt-2 text-[#ff9b8a]">
-                                        Error: {testCase.error}
-                                      </div>
-                                    )}
+                                    <span className="text-[#777]">
+                                      Case {testCase.index + 1}
+                                      {testCase.isHidden ? ' · hidden' : ''}
+                                    </span>
                                   </div>
-                                )
-                              )}
+
+                                  {!testCase.isHidden && (
+                                    <>
+                                      <div className="text-[#aaa]">
+                                        Input: {formatJsonValue(testCase.input)}
+                                      </div>
+
+                                      <div className="mt-1 text-[#aaa]">
+                                        Expected: {formatJsonValue(testCase.expectedOutput)}
+                                      </div>
+                                    </>
+                                  )}
+
+                                  <div className="mt-1 text-[#aaa]">
+                                    Actual: {formatJsonValue(testCase.actualOutput)}
+                                  </div>
+
+                                  {testCase.error && (
+                                    <div className="mt-2 text-[#ff9b8a]">
+                                      Error: {testCase.error}
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
                             </div>
                           )}
                         </div>
@@ -638,13 +594,12 @@ export default function MockTestAttemptPage() {
                           <line x1="8" y1="12" x2="16" y2="12" />
                           <line x1="12" y1="8" x2="12" y2="16" />
                         </svg>
-                        {question.type.replace('_', ' ')} ·{' '}
-                        {question.points} pts
+                        {question.type.replace('_', ' ')} · {question.points} pts
                       </p>
 
                       <div className="flex flex-col gap-2">
                         {question.options!.map((option, i) => {
-                          const selected = answers[question._id] === option
+                          const selected = answers[question._id] === option;
 
                           return (
                             <button
@@ -684,7 +639,7 @@ export default function MockTestAttemptPage() {
                                 </span>
                               )}
                             </button>
-                          )
+                          );
                         })}
                       </div>
 
@@ -706,14 +661,14 @@ export default function MockTestAttemptPage() {
 
                     <div className="flex gap-1.5">
                       {(['low', 'medium', 'high'] as const).map((level) => {
-                        const active = confidence[currentIndex] === level
+                        const active = confidence[currentIndex] === level;
 
                         const activeColor =
                           level === 'high'
                             ? 'border-[var(--success)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[#6fcb8a] dark:bg-[#6fcb8a]/8 dark:text-[#6fcb8a]'
                             : level === 'medium'
                               ? 'border-[var(--warning)] bg-[rgba(201,128,0,0.08)] text-[var(--warning)] dark:border-[#f0c060] dark:bg-[#f0c060]/8 dark:text-[#f0c060]'
-                              : 'border-[var(--brand-500)] bg-[rgba(184,76,43,0.08)] text-[var(--brand-500)] dark:border-[var(--brand-500)] dark:bg-[var(--brand-500)]/8 dark:text-[var(--brand-500)]'
+                              : 'border-[var(--brand-500)] bg-[rgba(184,76,43,0.08)] text-[var(--brand-500)] dark:border-[var(--brand-500)] dark:bg-[var(--brand-500)]/8 dark:text-[var(--brand-500)]';
 
                         return (
                           <button
@@ -734,7 +689,7 @@ export default function MockTestAttemptPage() {
                           >
                             {level}
                           </button>
-                        )
+                        );
                       })}
                     </div>
                   </div>
@@ -769,5 +724,5 @@ export default function MockTestAttemptPage() {
         />
       </div>
     </AppShellBoundary>
-  )
+  );
 }

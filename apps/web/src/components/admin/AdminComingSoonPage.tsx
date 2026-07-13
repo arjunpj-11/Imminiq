@@ -1,4 +1,4 @@
-import { Construction } from 'lucide-react'
+import { Construction } from 'lucide-react';
 
 export default function AdminComingSoonPage() {
   return (
@@ -10,13 +10,11 @@ export default function AdminComingSoonPage() {
         <p className="mt-6 text-[10px] font-bold uppercase tracking-[0.2em] text-[#e8816a]">
           Under construction
         </p>
-        <h1 className="font-editorial mt-2 text-3xl font-bold">
-          This module is coming soon
-        </h1>
+        <h1 className="font-editorial mt-2 text-3xl font-bold">This module is coming soon</h1>
         <p className="mt-3 text-sm leading-6 text-[#aaa59d]">
           We’re still building this part of the admin console. Please check back later.
         </p>
       </section>
     </main>
-  )
+  );
 }

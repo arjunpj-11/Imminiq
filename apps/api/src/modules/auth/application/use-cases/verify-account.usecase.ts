@@ -1,21 +1,21 @@
-import { AuthApplicationError } from '../auth-application.error'
-import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
-import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
-import type { IPhoneOtpSessionStore } from '../../domain/services/phone-otp-session-store.interface'
-import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
-import type { IOtpStore } from '../../domain/services/otp-store.interface'
-import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
+import { AuthApplicationError } from '../auth-application.error';
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
+import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface';
+import type { IPhoneOtpSessionStore } from '../../domain/services/phone-otp-session-store.interface';
+import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface';
+import type { IOtpStore } from '../../domain/services/otp-store.interface';
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
 import type {
   IPendingRegistrationStore,
   PendingRegistration,
-} from '../../domain/services/pending-registration-store.interface'
-import type { IUsernameGenerator } from '../services/username-generator.service'
-import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo'
+} from '../../domain/services/pending-registration-store.interface';
+import type { IUsernameGenerator } from '../services/username-generator.service';
+import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo';
 
-const VERIFY_ACCOUNT_SCOPE = 'auth_verify_account_otp' as const
+const VERIFY_ACCOUNT_SCOPE = 'auth_verify_account_otp' as const;
 
 export interface IVerifyAccountUseCase {
-  execute(identifier: string, otp: string): Promise<void>
+  execute(identifier: string, otp: string): Promise<void>;
 }
 
 export class VerifyAccountUseCase implements IVerifyAccountUseCase {
@@ -31,26 +31,22 @@ export class VerifyAccountUseCase implements IVerifyAccountUseCase {
   ) {}
 
   async execute(identifier: string, otp: string): Promise<void> {
-    const parsedIdentifier = this._identifierNormalizer.normalize(identifier)
+    const parsedIdentifier = this._identifierNormalizer.normalize(identifier);
 
-    await this.assertOtpVerificationAllowed(parsedIdentifier.value)
+    await this.assertOtpVerificationAllowed(parsedIdentifier.value);
 
-    const user = await this._authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this._authRepository.findByIdentifier(parsedIdentifier.value);
     const pendingRegistration = user
       ? null
-      : await this._pendingRegistrationStore.get(parsedIdentifier.value)
+      : await this._pendingRegistrationStore.get(parsedIdentifier.value);
 
     if (
       !user &&
-      !this.matchesIdentifier(
-        pendingRegistration,
-        parsedIdentifier.method,
-        parsedIdentifier.value
-      )
+      !this.matchesIdentifier(pendingRegistration, parsedIdentifier.method, parsedIdentifier.value)
     ) {
-      await this.recordInvalidOtpAttempt(parsedIdentifier.value)
+      await this.recordInvalidOtpAttempt(parsedIdentifier.value);
 
-      throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
+      throw AuthApplicationError.invalidOtp('Invalid or expired OTP');
     }
 
     if (parsedIdentifier.method === 'email') {
@@ -58,74 +54,69 @@ export class VerifyAccountUseCase implements IVerifyAccountUseCase {
         email: parsedIdentifier.email,
         otp,
         purpose: 'email_verification',
-      })
+      });
 
       if (!valid) {
-        await this.recordInvalidOtpAttempt(parsedIdentifier.value)
+        await this.recordInvalidOtpAttempt(parsedIdentifier.value);
 
-        throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
+        throw AuthApplicationError.invalidOtp('Invalid or expired OTP');
       }
 
       if (user?.emailVerified) {
-        throw AuthApplicationError.emailAlreadyVerified('Email is already verified')
+        throw AuthApplicationError.emailAlreadyVerified('Email is already verified');
       }
 
       if (user) {
-        await this._authRepository.markEmailVerified(user.id)
+        await this._authRepository.markEmailVerified(user.id);
       } else {
-        await this.createVerifiedUser(pendingRegistration!, 'email')
-        await this._pendingRegistrationStore.delete(parsedIdentifier.value)
+        await this.createVerifiedUser(pendingRegistration!, 'email');
+        await this._pendingRegistrationStore.delete(parsedIdentifier.value);
       }
 
-      await this._securityAttemptStore.clear(
-        VERIFY_ACCOUNT_SCOPE,
-        parsedIdentifier.value
-      )
+      await this._securityAttemptStore.clear(VERIFY_ACCOUNT_SCOPE, parsedIdentifier.value);
 
-      return
+      return;
     }
 
     if (parsedIdentifier.method === 'phone') {
-      const verificationId =
-        await this._phoneOtpSessionStore.getVerificationId(
-          parsedIdentifier.phone!,
-          'phone_verification'
-        )
+      const verificationId = await this._phoneOtpSessionStore.getVerificationId(
+        parsedIdentifier.phone!,
+        'phone_verification'
+      );
 
       if (!verificationId) {
-        await this.recordInvalidOtpAttempt(parsedIdentifier.value)
+        await this.recordInvalidOtpAttempt(parsedIdentifier.value);
 
-        throw AuthApplicationError.otpSessionExpired('OTP session expired. Please request a new OTP.')
+        throw AuthApplicationError.otpSessionExpired(
+          'OTP session expired. Please request a new OTP.'
+        );
       }
 
-      const valid = await this._phoneOtpProvider.verifyOtp(verificationId, otp)
+      const valid = await this._phoneOtpProvider.verifyOtp(verificationId, otp);
 
       if (!valid) {
-        await this.recordInvalidOtpAttempt(parsedIdentifier.value)
+        await this.recordInvalidOtpAttempt(parsedIdentifier.value);
 
-        throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
+        throw AuthApplicationError.invalidOtp('Invalid or expired OTP');
       }
 
       if (user?.phoneVerified) {
-        throw AuthApplicationError.phoneAlreadyVerified('Phone is already verified')
+        throw AuthApplicationError.phoneAlreadyVerified('Phone is already verified');
       }
 
       if (user) {
-        await this._authRepository.markPhoneVerified(user.id)
+        await this._authRepository.markPhoneVerified(user.id);
       } else {
-        await this.createVerifiedUser(pendingRegistration!, 'phone')
-        await this._pendingRegistrationStore.delete(parsedIdentifier.value)
+        await this.createVerifiedUser(pendingRegistration!, 'phone');
+        await this._pendingRegistrationStore.delete(parsedIdentifier.value);
       }
 
-      await this._securityAttemptStore.clear(
-        VERIFY_ACCOUNT_SCOPE,
-        parsedIdentifier.value
-      )
+      await this._securityAttemptStore.clear(VERIFY_ACCOUNT_SCOPE, parsedIdentifier.value);
 
       await this._phoneOtpSessionStore.deleteVerificationId(
         parsedIdentifier.phone!,
         'phone_verification'
-      )
+      );
     }
   }
 
@@ -134,11 +125,11 @@ export class VerifyAccountUseCase implements IVerifyAccountUseCase {
     method: VerificationMethod,
     identifier: string
   ): registration is PendingRegistration {
-    if (!registration) return false
+    if (!registration) return false;
 
     return method === 'email'
       ? registration.email === identifier
-      : registration.phone === identifier
+      : registration.phone === identifier;
   }
 
   private async createVerifiedUser(
@@ -148,25 +139,24 @@ export class VerifyAccountUseCase implements IVerifyAccountUseCase {
     const username = await this._usernameGenerator.generateRegistrationUsername({
       email: registration.email,
       fullName: registration.fullName,
-    })
+    });
 
     await this._authRepository.createUser({
       ...registration,
       username,
       emailVerified: method === 'email',
       phoneVerified: method === 'phone',
-    })
+    });
   }
 
   private async assertOtpVerificationAllowed(identifier: string): Promise<void> {
-    const blocked = await this._securityAttemptStore.isBlocked(
-      VERIFY_ACCOUNT_SCOPE,
-      identifier
-    )
+    const blocked = await this._securityAttemptStore.isBlocked(VERIFY_ACCOUNT_SCOPE, identifier);
 
-    if (!blocked) return
+    if (!blocked) return;
 
-    throw AuthApplicationError.otpVerificationTemporarilyBlocked('Too many invalid verification attempts. Request a new OTP or try again later.')
+    throw AuthApplicationError.otpVerificationTemporarilyBlocked(
+      'Too many invalid verification attempts. Request a new OTP or try again later.'
+    );
   }
 
   private async recordInvalidOtpAttempt(identifier: string): Promise<void> {
@@ -174,10 +164,12 @@ export class VerifyAccountUseCase implements IVerifyAccountUseCase {
       VERIFY_ACCOUNT_SCOPE,
       identifier,
       'otpVerification'
-    )
+    );
 
     if (result.blocked) {
-      throw AuthApplicationError.otpVerificationTemporarilyBlocked('Too many invalid verification attempts. Request a new OTP or try again later.')
+      throw AuthApplicationError.otpVerificationTemporarilyBlocked(
+        'Too many invalid verification attempts. Request a new OTP or try again later.'
+      );
     }
   }
 }

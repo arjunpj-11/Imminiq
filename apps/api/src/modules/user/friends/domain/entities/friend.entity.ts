@@ -1,4 +1,4 @@
-import type { FriendshipStatus } from "../friends.types";
+import type { FriendshipStatus } from '../friends.types';
 
 export type FriendEntityProps = {
   id: string;

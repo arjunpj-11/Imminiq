@@ -1,48 +1,54 @@
-import { cn } from '../../../../lib/cn'
-import type { IPublicMockTestQuestion } from '../types/mock-tests.types'
-import { FlagIcon } from './MockTestAttemptIcons'
+import { cn } from '../../../../lib/cn';
+import type { IPublicMockTestQuestion } from '../types/mock-tests.types';
+import { FlagIcon } from './MockTestAttemptIcons';
 
 interface IAttemptNavigationState {
-  currentIndex: number
-  totalQuestions: number
-  questions: IPublicMockTestQuestion[]
-  answers: Record<string, string>
-  flagged: Set<number>
-  visited: Set<number>
-  onGoTo: (index: number) => void
+  currentIndex: number;
+  totalQuestions: number;
+  questions: IPublicMockTestQuestion[];
+  answers: Record<string, string>;
+  flagged: Set<number>;
+  visited: Set<number>;
+  onGoTo: (index: number) => void;
 }
 
 function getQuestionNumberClass(
   index: number,
-  { currentIndex, questions, answers, flagged, visited }: Omit<IAttemptNavigationState, 'totalQuestions' | 'onGoTo'>,
+  {
+    currentIndex,
+    questions,
+    answers,
+    flagged,
+    visited,
+  }: Omit<IAttemptNavigationState, 'totalQuestions' | 'onGoTo'>
 ) {
   if (index === currentIndex) {
-    return 'border-[var(--brand-500)] bg-[var(--brand-500)] font-bold text-white dark:border-[var(--brand-500)] dark:bg-[var(--brand-500)]'
+    return 'border-[var(--brand-500)] bg-[var(--brand-500)] font-bold text-white dark:border-[var(--brand-500)] dark:bg-[var(--brand-500)]';
   }
 
-  const question = questions[index]
+  const question = questions[index];
 
   if (question && answers[question._id]) {
-    return 'border-[var(--success)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[#6fcb8a] dark:bg-transparent dark:text-[#6fcb8a]'
+    return 'border-[var(--success)] bg-[rgba(45,106,71,0.08)] text-[var(--success)] dark:border-[#6fcb8a] dark:bg-transparent dark:text-[#6fcb8a]';
   }
 
   if (flagged.has(index)) {
-    return 'border-[var(--warning)] bg-[rgba(201,128,0,0.08)] text-[var(--warning)] dark:border-[#f0c060] dark:bg-transparent dark:text-[#f0c060]'
+    return 'border-[var(--warning)] bg-[rgba(201,128,0,0.08)] text-[var(--warning)] dark:border-[#f0c060] dark:bg-transparent dark:text-[#f0c060]';
   }
 
   if (visited.has(index)) {
-    return 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] dark:border-white/16 dark:bg-[var(--surface-elevated)] dark:text-[var(--text-primary)]'
+    return 'border-[var(--border-subtle)] bg-[var(--surface-card)] text-[var(--text-primary)] dark:border-white/16 dark:bg-[var(--surface-elevated)] dark:text-[var(--text-primary)]';
   }
 
-  return 'border-[var(--border-subtle)] text-[var(--text-secondary)] dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]'
+  return 'border-[var(--border-subtle)] text-[var(--text-secondary)] dark:border-[var(--border-subtle)] dark:text-[var(--text-secondary)]';
 }
 
 interface IMockTestAttemptHeaderProps extends IAttemptNavigationState {
-  timerDisplay: string
-  isFinishing: boolean
-  canFinish: boolean
-  onToggleFlag: () => void
-  onFinish: () => void
+  timerDisplay: string;
+  isFinishing: boolean;
+  canFinish: boolean;
+  onToggleFlag: () => void;
+  onFinish: () => void;
 }
 
 export function MockTestAttemptHeader({
@@ -59,7 +65,7 @@ export function MockTestAttemptHeader({
   onFinish,
   onGoTo,
 }: IMockTestAttemptHeaderProps) {
-  const navigationState = { currentIndex, questions, answers, flagged, visited }
+  const navigationState = { currentIndex, questions, answers, flagged, visited };
 
   return (
     <div className="w-full shrink-0 border-b border-(--border-subtle) bg-(--surface-canvas) dark:border-white/8 dark:bg-(--surface-canvas)">
@@ -74,7 +80,8 @@ export function MockTestAttemptHeader({
             </div>
 
             <h1 className="font-ui text-[22px] font-black leading-tight text-(--text-primary) dark:text-(--text-primary)">
-              Mock test <span className="text-(--brand-500) dark:text-(--brand-500)">in progress</span>
+              Mock test{' '}
+              <span className="text-(--brand-500) dark:text-(--brand-500)">in progress</span>
             </h1>
           </div>
 
@@ -90,7 +97,7 @@ export function MockTestAttemptHeader({
                 'flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-[12px] font-semibold transition',
                 flagged.has(currentIndex)
                   ? 'border-(--warning) bg-[rgba(201,128,0,0.08)] text-(--warning) dark:border-[#f0c060] dark:bg-transparent dark:text-[#f0c060]'
-                  : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-white/16 dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:text-(--brand-500)',
+                  : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-white/16 dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:text-(--brand-500)'
               )}
             >
               <FlagIcon />
@@ -118,7 +125,7 @@ export function MockTestAttemptHeader({
               aria-current={index === currentIndex ? 'step' : undefined}
               className={cn(
                 'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border font-mono text-[11px] transition hover:-translate-y-px',
-                getQuestionNumberClass(index, navigationState),
+                getQuestionNumberClass(index, navigationState)
               )}
             >
               {index + 1}
@@ -127,15 +134,15 @@ export function MockTestAttemptHeader({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 interface IMockTestAttemptFooterProps {
-  currentIndex: number
-  totalQuestions: number
-  questions: IPublicMockTestQuestion[]
-  answers: Record<string, string>
-  onGoTo: (index: number) => void
+  currentIndex: number;
+  totalQuestions: number;
+  questions: IPublicMockTestQuestion[];
+  answers: Record<string, string>;
+  onGoTo: (index: number) => void;
 }
 
 export function MockTestAttemptFooter({
@@ -163,8 +170,8 @@ export function MockTestAttemptFooter({
           </span>
           <div className="flex gap-1">
             {Array.from({ length: totalQuestions }).map((_, index) => {
-              const question = questions[index]
-              const done = Boolean((question && answers[question._id]) || index === currentIndex)
+              const question = questions[index];
+              const done = Boolean((question && answers[question._id]) || index === currentIndex);
 
               return (
                 <div
@@ -173,10 +180,10 @@ export function MockTestAttemptFooter({
                     'h-1.5 w-1.5 rounded-full transition',
                     done
                       ? 'bg-(--brand-500) dark:bg-(--brand-500)'
-                      : 'bg-[#d8c8bc] dark:bg-white/16',
+                      : 'bg-[#d8c8bc] dark:bg-white/16'
                   )}
                 />
-              )
+              );
             })}
           </div>
         </div>
@@ -191,5 +198,5 @@ export function MockTestAttemptFooter({
         </button>
       </div>
     </div>
-  )
+  );
 }

@@ -1,8 +1,4 @@
-import mongoose, {
-  Schema,
-  model,
-  type InferSchemaType,
-} from 'mongoose'
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 const uploadSchema = new Schema(
   {
@@ -62,10 +58,10 @@ const uploadSchema = new Schema(
     timestamps: true,
     collection: 'uploads',
   }
-)
+);
 
-uploadSchema.index({ referenceType: 1, referenceId: 1 })
+uploadSchema.index({ referenceType: 1, referenceId: 1 });
 
-export type UploadDocument = InferSchemaType<typeof uploadSchema>
+export type UploadDocument = InferSchemaType<typeof uploadSchema>;
 
-export const Upload = mongoose.models.Upload || model('Upload', uploadSchema)
+export const Upload = mongoose.models.Upload || model('Upload', uploadSchema);

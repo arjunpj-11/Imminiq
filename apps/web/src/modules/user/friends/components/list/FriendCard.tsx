@@ -1,8 +1,8 @@
-import { Link } from "react-router-dom";
-import type { IFriendUser } from "../../types/friends.types";
-import { formatMutualFriends } from "../../utils/friends-formatters";
-import FriendsAvatar from "../shared/FriendsAvatar";
-import { MoreIcon, SpinnerIcon } from "../icons/FriendsIcons";
+import { Link } from 'react-router-dom';
+import type { IFriendUser } from '../../types/friends.types';
+import { formatMutualFriends } from '../../utils/friends-formatters';
+import FriendsAvatar from '../shared/FriendsAvatar';
+import { MoreIcon, SpinnerIcon } from '../icons/FriendsIcons';
 
 interface IFriendCardProps {
   friend: IFriendUser;
@@ -10,11 +10,7 @@ interface IFriendCardProps {
   onRemove: (friend: IFriendUser) => void;
 }
 
-export default function FriendCard({
-  friend,
-  removing,
-  onRemove,
-}: IFriendCardProps) {
+export default function FriendCard({ friend, removing, onRemove }: IFriendCardProps) {
   return (
     <article className="render-lazy flex min-w-0 items-center gap-3.5 rounded-lg border border-[#e8ddd6] bg-white/55 p-4 transition hover:border-[rgba(184,76,43,0.24)] hover:bg-white/75 dark:border-white/8 dark:bg-white/3 dark:hover:border-white/15 dark:hover:bg-white/5">
       <Link
@@ -24,9 +20,7 @@ export default function FriendCard({
       >
         <FriendsAvatar
           fullName={friend.fullName}
-          {...(friend.avatarUrl !== undefined
-            ? { avatarUrl: friend.avatarUrl }
-            : {})}
+          {...(friend.avatarUrl !== undefined ? { avatarUrl: friend.avatarUrl } : {})}
         />
       </Link>
 

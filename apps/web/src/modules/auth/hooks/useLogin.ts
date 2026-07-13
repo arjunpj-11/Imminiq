@@ -1,58 +1,53 @@
-import { useMutation } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
-import type { AxiosError } from 'axios'
-import api from '../../../lib/axios'
-import { useAuthStore, type IAuthUser } from '../store/useAuthStore'
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import type { AxiosError } from 'axios';
+import api from '../../../lib/axios';
+import { useAuthStore, type IAuthUser } from '../store/useAuthStore';
 import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
   saveBlockedAppealToken,
-} from '../../../lib/blockedAppealSession'
+} from '../../../lib/blockedAppealSession';
 
 interface ILoginPayload {
-  identifier: string
-  password: string
+  identifier: string;
+  password: string;
 }
 
-type LoginRedirectPath =
-  | '/dashboard'
-  | '/onboarding/step-1'
-  | '/admin'
+type LoginRedirectPath = '/dashboard' | '/onboarding/step-1' | '/admin';
 
 interface IStandardLoginData {
-  accessToken?: string
-  user?: IAuthUser
-  redirectPath?: LoginRedirectPath
-  requiresTwoFactor?: false
+  accessToken?: string;
+  user?: IAuthUser;
+  redirectPath?: LoginRedirectPath;
+  requiresTwoFactor?: false;
 }
 
 interface ITwoFactorRequiredLoginData {
-  requiresTwoFactor: true
-  challengeExpiresInMinutes?: number
+  requiresTwoFactor: true;
+  challengeExpiresInMinutes?: number;
 }
 
-type LoginResponseData =
-  | IStandardLoginData
-  | ITwoFactorRequiredLoginData
+type LoginResponseData = IStandardLoginData | ITwoFactorRequiredLoginData;
 
 interface ILoginResponse {
-  success: boolean
-  message: string
-  data?: LoginResponseData
+  success: boolean;
+  message: string;
+  data?: LoginResponseData;
 }
 
 interface IApiErrorResponse {
-  success?: boolean
-  message?: string
-  code?: string
-  data?: { appealToken?: string }
+  success?: boolean;
+  message?: string;
+  code?: string;
+  data?: { appealToken?: string };
 }
 
 const isTwoFactorRequired = (
   data: LoginResponseData | undefined
 ): data is ITwoFactorRequiredLoginData => {
-  return !!data && data.requiresTwoFactor === true
-}
+  return !!data && data.requiresTwoFactor === true;
+};
 
 const isRestrictedAccountCode = (code?: string) => {
   return (
@@ -60,96 +55,80 @@ const isRestrictedAccountCode = (code?: string) => {
     code === 'ACCOUNT_BANNED' ||
     code === 'ACCOUNT_DEACTIVATED' ||
     code === 'ACCOUNT_PAUSED'
-  )
-}
+  );
+};
 
 export const useLogin = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const setUser = useAuthStore((state) => state.setUser)
-  const setAccessToken = useAuthStore(
-    (state) => state.setAccessToken
-  )
-  const clearAuth = useAuthStore((state) => state.clearAuth)
+  const setUser = useAuthStore((state) => state.setUser);
+  const setAccessToken = useAuthStore((state) => state.setAccessToken);
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
-  return useMutation<
-    ILoginResponse,
-    AxiosError<IApiErrorResponse>,
-    ILoginPayload
-  >({
+  return useMutation<ILoginResponse, AxiosError<IApiErrorResponse>, ILoginPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<ILoginResponse>(
-        '/auth/login',
-        payload
-      )
+      const response = await api.post<ILoginResponse>('/auth/login', payload);
 
-      return response.data
+      return response.data;
     },
 
     onSuccess: (response) => {
-      const data = response.data
+      const data = response.data;
 
       if (isTwoFactorRequired(data)) {
         navigate('/two-factor-challenge', {
           replace: true,
-        })
+        });
 
-        return
+        return;
       }
 
-      const user = data?.user
-      const accessToken = data?.accessToken
+      const user = data?.user;
+      const accessToken = data?.accessToken;
       const redirectPath = ['admin', 'superadmin'].includes(user?.role || '')
         ? '/admin'
-        : data?.redirectPath || '/dashboard'
+        : data?.redirectPath || '/dashboard';
 
       if (!user) {
-        console.error(
-          'Login succeeded, but user was not returned from backend.'
-        )
-        return
+        console.error('Login succeeded, but user was not returned from backend.');
+        return;
       }
 
       if (!accessToken) {
-        console.error(
-          'Login succeeded, but access token was not returned from backend.'
-        )
-        return
+        console.error('Login succeeded, but access token was not returned from backend.');
+        return;
       }
 
-      clearBlockedAppealIdentifier()
+      clearBlockedAppealIdentifier();
 
-      setUser(user)
-      setAccessToken(accessToken)
+      setUser(user);
+      setAccessToken(accessToken);
 
       navigate(redirectPath, {
         replace: true,
-      })
+      });
     },
 
     onError: (error, payload) => {
-      const errorCode = error.response?.data?.code
+      const errorCode = error.response?.data?.code;
 
       if (isRestrictedAccountCode(errorCode)) {
-        const appealToken = error.response?.data?.data?.appealToken
+        const appealToken = error.response?.data?.data?.appealToken;
 
-        if (!appealToken) return
+        if (!appealToken) return;
 
-        clearAuth()
-        saveBlockedAppealIdentifier(payload.identifier)
-        saveBlockedAppealToken(appealToken)
+        clearAuth();
+        saveBlockedAppealIdentifier(payload.identifier);
+        saveBlockedAppealToken(appealToken);
 
         navigate('/blocked', {
           replace: true,
-        })
+        });
 
-        return
+        return;
       }
 
-      console.error(
-        error.response?.data?.message ||
-          'Login failed. Please try again.'
-      )
+      console.error(error.response?.data?.message || 'Login failed. Please try again.');
     },
-  })
-}
+  });
+};

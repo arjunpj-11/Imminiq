@@ -1,3 +1,3 @@
 export interface IDashboardInsightGenerator {
-  generate(userData: string): Promise<string>
+  generate(userData: string): Promise<string>;
 }

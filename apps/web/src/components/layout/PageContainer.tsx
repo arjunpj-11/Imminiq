@@ -1,12 +1,12 @@
-import type { ElementType, ReactNode } from 'react'
+import type { ElementType, ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 interface IPageContainerProps {
-  children: ReactNode
-  className?: string
-  as?: ElementType
-  density?: 'comfortable' | 'compact'
+  children: ReactNode;
+  className?: string;
+  as?: ElementType;
+  density?: 'comfortable' | 'compact';
 }
 
 export default function PageContainer({
@@ -22,10 +22,10 @@ export default function PageContainer({
         density === 'comfortable'
           ? 'mt-6 gap-6 max-[900px]:mt-5 max-[640px]:mt-4 max-[640px]:gap-4'
           : 'mt-4 gap-4 max-[640px]:mt-3 max-[640px]:gap-3',
-        className,
+        className
       )}
     >
       {children}
     </Component>
-  )
+  );
 }

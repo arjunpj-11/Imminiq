@@ -1,17 +1,17 @@
-import type { SecuritySessionEntity } from '../domain/entities/security-session.entity'
-import type { ISecuritySessionDTO } from './security.dto'
+import type { SecuritySessionEntity } from '../domain/entities/security-session.entity';
+import type { ISecuritySessionDTO } from './security.dto';
 
 export interface ISecurityMapper {
   toSessionDto(
     session: SecuritySessionEntity,
-    currentSessionId?: string | null,
-  ): ISecuritySessionDTO
+    currentSessionId?: string | null
+  ): ISecuritySessionDTO;
 }
 
 export class SecurityMapper implements ISecurityMapper {
   toSessionDto(
     session: SecuritySessionEntity,
-    currentSessionId?: string | null,
+    currentSessionId?: string | null
   ): ISecuritySessionDTO {
     return {
       id: session.id,
@@ -20,6 +20,6 @@ export class SecurityMapper implements ISecurityMapper {
       client: session.userAgent ?? 'Unknown client',
       lastActive: session.updatedAt?.toISOString() ?? 'Unknown',
       current: currentSessionId === session.id,
-    }
+    };
   }
 }

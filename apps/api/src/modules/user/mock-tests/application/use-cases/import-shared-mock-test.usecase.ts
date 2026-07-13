@@ -1,41 +1,37 @@
-import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface'
-import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
-import { MockTestsApplicationError } from '../mock-tests-application.error'
-import type { IImportSharedMockTestDTO } from '../mock-tests.dto'
-import type { IMockTestsMapper } from '../mock-tests.mapper'
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
+import type { IMockTestSharingRepository } from '../../domain/repositories/mock-test-sharing.repository.interface';
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
+import type { IImportSharedMockTestDTO } from '../mock-tests.dto';
+import type { IMockTestsMapper } from '../mock-tests.mapper';
 
-type ImportSharedMockTestRepository =
-  IMockTestRepository &
+type ImportSharedMockTestRepository = IMockTestRepository &
   IMockTestQuestionRepository &
-  IMockTestSharingRepository
+  IMockTestSharingRepository;
 
-const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/
+const SAFE_SHARE_TOKEN_PATTERN = /^[a-zA-Z0-9_-]{16,100}$/;
 
 export interface IImportSharedMockTestUseCase {
-  execute(input: {
-    userId: string
-    shareToken: string
-  }): Promise<IImportSharedMockTestDTO>
+  execute(input: { userId: string; shareToken: string }): Promise<IImportSharedMockTestDTO>;
 }
 
 export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase {
   constructor(
     private readonly _repository: ImportSharedMockTestRepository,
-    private readonly _mapper: IMockTestsMapper,
+    private readonly _mapper: IMockTestsMapper
   ) {}
 
   async execute(input: { userId: string; shareToken: string }) {
-    const shareToken = input.shareToken.trim()
+    const shareToken = input.shareToken.trim();
 
     if (!SAFE_SHARE_TOKEN_PATTERN.test(shareToken)) {
-      throw MockTestsApplicationError.invalidShareLink()
+      throw MockTestsApplicationError.invalidShareLink();
     }
 
-    const sourceTest = await this._repository.findSharedTestByToken(shareToken)
+    const sourceTest = await this._repository.findSharedTestByToken(shareToken);
 
     if (!sourceTest || !sourceTest.isShareEnabled) {
-      throw MockTestsApplicationError.sharedTestNotFound()
+      throw MockTestsApplicationError.sharedTestNotFound();
     }
 
     if (sourceTest.ownerId === input.userId) {
@@ -43,26 +39,26 @@ export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase
         test: sourceTest,
         imported: false,
         alreadyImported: true,
-      })
+      });
     }
 
     const existingImport = await this._repository.findImportedSharedTest({
-  ownerId: input.userId,
-  sourceTestId: sourceTest._id,
-})
+      ownerId: input.userId,
+      sourceTestId: sourceTest._id,
+    });
 
     if (existingImport) {
       return this._mapper.toImportSharedDto({
         test: existingImport,
         imported: false,
         alreadyImported: true,
-      })
+      });
     }
 
-    const sourceQuestions = await this._repository.findQuestionsByTest(sourceTest._id)
+    const sourceQuestions = await this._repository.findQuestionsByTest(sourceTest._id);
 
     if (!sourceQuestions.length) {
-      throw MockTestsApplicationError.sharedTestEmpty()
+      throw MockTestsApplicationError.sharedTestEmpty();
     }
 
     const importedTest = await this._repository.createTest({
@@ -77,7 +73,7 @@ export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase
       questionCount: sourceTest.questionCount,
       tags: sourceTest.tags,
       isAIGenerated: sourceTest.isAIGenerated,
-    })
+    });
 
     await this._repository.createQuestions(
       sourceQuestions.map((question) => ({
@@ -91,15 +87,15 @@ export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase
         order: question.order,
         points: question.points,
         coding: question.coding,
-      })),
-    )
+      }))
+    );
 
-    await this._repository.incrementCloneCount(sourceTest._id)
+    await this._repository.incrementCloneCount(sourceTest._id);
 
     return this._mapper.toImportSharedDto({
       test: importedTest,
       imported: true,
       alreadyImported: false,
-    })
+    });
   }
 }

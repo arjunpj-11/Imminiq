@@ -13,6 +13,6 @@ export const ACTIVITY_TYPES = [
   'streak_milestone',
   'xp_milestone',
   'daily_goal_completed',
-] as const
+] as const;
 
-export type ActivityType = (typeof ACTIVITY_TYPES)[number]
+export type ActivityType = (typeof ACTIVITY_TYPES)[number];

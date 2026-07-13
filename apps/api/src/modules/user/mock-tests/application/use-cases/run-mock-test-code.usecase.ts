@@ -1,51 +1,54 @@
-import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface'
-import type { IRunMockTestCodePayloadDTO } from '../mock-tests.dto'
-import { MockTestsApplicationError } from '../mock-tests-application.error'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
+import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface';
+import type { IRunMockTestCodePayloadDTO } from '../mock-tests.dto';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
 
-type RunMockTestCodeRepository =
-  IMockTestAttemptRepository &
-  IMockTestQuestionRepository
+type RunMockTestCodeRepository = IMockTestAttemptRepository & IMockTestQuestionRepository;
 
 export interface IRunMockTestCodeUseCase {
-  execute(attemptId: string, userId: string, questionId: string, payload: IRunMockTestCodePayloadDTO): Promise<import("../../domain/services/mock-test-code-runner.interface").MockTestCodeRunResult>
+  execute(
+    attemptId: string,
+    userId: string,
+    questionId: string,
+    payload: IRunMockTestCodePayloadDTO
+  ): Promise<import('../../domain/services/mock-test-code-runner.interface').MockTestCodeRunResult>;
 }
 
 export class RunMockTestCodeUseCase implements IRunMockTestCodeUseCase {
   constructor(
     private readonly _repository: RunMockTestCodeRepository,
-    private readonly _codeRunner: IMockTestCodeRunner,
-  ) { }
+    private readonly _codeRunner: IMockTestCodeRunner
+  ) {}
 
   async execute(
     attemptId: string,
     userId: string,
     questionId: string,
-    payload: IRunMockTestCodePayloadDTO,
+    payload: IRunMockTestCodePayloadDTO
   ) {
-    const attempt = await this._repository.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId);
 
     if (!attempt) {
-      throw MockTestsApplicationError.notFound('Attempt not found')
+      throw MockTestsApplicationError.notFound('Attempt not found');
     }
 
     if (attempt.userId !== userId) {
-      throw MockTestsApplicationError.forbidden()
+      throw MockTestsApplicationError.forbidden();
     }
 
     if (attempt.status !== 'in_progress') {
-      throw MockTestsApplicationError.testNotActive()
+      throw MockTestsApplicationError.testNotActive();
     }
 
-    const question = await this._repository.findQuestionById(questionId)
+    const question = await this._repository.findQuestionById(questionId);
 
     if (!question || question.testId !== attempt.testId) {
-      throw MockTestsApplicationError.notFound('Question not found')
+      throw MockTestsApplicationError.notFound('Question not found');
     }
 
     if (question.type !== 'coding' || !question.coding) {
-      throw MockTestsApplicationError.notCodingQuestion()
+      throw MockTestsApplicationError.notCodingQuestion();
     }
 
     return this._codeRunner.run({
@@ -54,6 +57,6 @@ export class RunMockTestCodeUseCase implements IRunMockTestCodeUseCase {
       mode: 'run',
       language: payload.language,
       languageId: payload.languageId,
-    })
+    });
   }
 }

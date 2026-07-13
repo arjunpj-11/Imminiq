@@ -1,7 +1,7 @@
 interface ISettingsContentLoadingProps {
-  eyebrow?: string
-  title?: string
-  description?: string
+  eyebrow?: string;
+  title?: string;
+  description?: string;
 }
 
 export default function SettingsContentLoading({
@@ -71,5 +71,5 @@ export default function SettingsContentLoading({
         {eyebrow}. {title}. {description}
       </span>
     </div>
-  )
+  );
 }

@@ -1,16 +1,16 @@
-import { AuthApplicationError } from '../auth-application.error'
-import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
-import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface'
-import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface'
-import type { IPhoneOtpSessionStore } from '../../domain/services/phone-otp-session-store.interface'
-import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
-import type { IOtpStore } from '../../domain/services/otp-store.interface'
-import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface'
+import { AuthApplicationError } from '../auth-application.error';
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
+import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface';
+import type { IPhoneOtpProvider } from '../../domain/services/phone-otp-provider.interface';
+import type { IPhoneOtpSessionStore } from '../../domain/services/phone-otp-session-store.interface';
+import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface';
+import type { IOtpStore } from '../../domain/services/otp-store.interface';
+import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
 
-const VERIFY_RESET_SCOPE = 'auth_verify_reset_otp' as const
+const VERIFY_RESET_SCOPE = 'auth_verify_reset_otp' as const;
 
 export interface IVerifyResetCodeUseCase {
-  execute(identifier: string, otp: string): Promise<{ resetToken: string }>
+  execute(identifier: string, otp: string): Promise<{ resetToken: string }>;
 }
 
 export class VerifyResetCodeUseCase implements IVerifyResetCodeUseCase {
@@ -25,16 +25,16 @@ export class VerifyResetCodeUseCase implements IVerifyResetCodeUseCase {
   ) {}
 
   async execute(identifier: string, otp: string): Promise<{ resetToken: string }> {
-    const parsedIdentifier = this._identifierNormalizer.normalize(identifier)
+    const parsedIdentifier = this._identifierNormalizer.normalize(identifier);
 
-    await this.assertResetOtpAllowed(parsedIdentifier.value)
+    await this.assertResetOtpAllowed(parsedIdentifier.value);
 
-    const user = await this._authRepository.findByIdentifier(parsedIdentifier.value)
+    const user = await this._authRepository.findByIdentifier(parsedIdentifier.value);
 
     if (!user) {
-      await this.recordInvalidResetOtp(parsedIdentifier.value)
+      await this.recordInvalidResetOtp(parsedIdentifier.value);
 
-      throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
+      throw AuthApplicationError.invalidOtp('Invalid or expired OTP');
     }
 
     if (parsedIdentifier.email) {
@@ -42,61 +42,58 @@ export class VerifyResetCodeUseCase implements IVerifyResetCodeUseCase {
         email: parsedIdentifier.email,
         otp,
         purpose: 'password_reset',
-      })
+      });
 
       if (!valid) {
-        await this.recordInvalidResetOtp(parsedIdentifier.value)
+        await this.recordInvalidResetOtp(parsedIdentifier.value);
 
-        throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
+        throw AuthApplicationError.invalidOtp('Invalid or expired OTP');
       }
     }
 
     if (parsedIdentifier.phone) {
-      const verificationId =
-        await this._phoneOtpSessionStore.getVerificationId(
-          parsedIdentifier.phone,
-          'password_reset'
-        )
+      const verificationId = await this._phoneOtpSessionStore.getVerificationId(
+        parsedIdentifier.phone,
+        'password_reset'
+      );
 
       if (!verificationId) {
-        await this.recordInvalidResetOtp(parsedIdentifier.value)
+        await this.recordInvalidResetOtp(parsedIdentifier.value);
 
-        throw AuthApplicationError.otpSessionExpired('OTP session expired. Please request a new OTP.')
+        throw AuthApplicationError.otpSessionExpired(
+          'OTP session expired. Please request a new OTP.'
+        );
       }
 
-      const valid = await this._phoneOtpProvider.verifyOtp(verificationId, otp)
+      const valid = await this._phoneOtpProvider.verifyOtp(verificationId, otp);
 
       if (!valid) {
-        await this.recordInvalidResetOtp(parsedIdentifier.value)
+        await this.recordInvalidResetOtp(parsedIdentifier.value);
 
-        throw AuthApplicationError.invalidOtp('Invalid or expired OTP')
+        throw AuthApplicationError.invalidOtp('Invalid or expired OTP');
       }
 
       await this._phoneOtpSessionStore.deleteVerificationId(
         parsedIdentifier.phone,
         'password_reset'
-      )
+      );
     }
 
-    await this._securityAttemptStore.clear(
-      VERIFY_RESET_SCOPE,
-      parsedIdentifier.value
-    )
+    await this._securityAttemptStore.clear(VERIFY_RESET_SCOPE, parsedIdentifier.value);
 
     return {
       resetToken: await this._passwordResetToken.generate(user.id),
-    }
+    };
   }
 
   private async assertResetOtpAllowed(identifier: string): Promise<void> {
-    const blocked = await this._securityAttemptStore.isBlocked(
-      VERIFY_RESET_SCOPE,
-      identifier
-    )
+    const blocked = await this._securityAttemptStore.isBlocked(VERIFY_RESET_SCOPE, identifier);
 
-    if (!blocked) return
+    if (!blocked) return;
 
-    throw AuthApplicationError.resetCodeVerificationTemporarilyBlocked('Too many invalid reset-code attempts. Request a new code or try again later.')
+    throw AuthApplicationError.resetCodeVerificationTemporarilyBlocked(
+      'Too many invalid reset-code attempts. Request a new code or try again later.'
+    );
   }
 
   private async recordInvalidResetOtp(identifier: string): Promise<void> {
@@ -104,10 +101,12 @@ export class VerifyResetCodeUseCase implements IVerifyResetCodeUseCase {
       VERIFY_RESET_SCOPE,
       identifier,
       'otpVerification'
-    )
+    );
 
     if (result.blocked) {
-      throw AuthApplicationError.resetCodeVerificationTemporarilyBlocked('Too many invalid reset-code attempts. Request a new code or try again later.')
+      throw AuthApplicationError.resetCodeVerificationTemporarilyBlocked(
+        'Too many invalid reset-code attempts. Request a new code or try again later.'
+      );
     }
   }
 }

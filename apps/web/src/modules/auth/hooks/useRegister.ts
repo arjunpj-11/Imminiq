@@ -1,46 +1,40 @@
-import { useMutation } from '@tanstack/react-query'
-import { useNavigate } from 'react-router-dom'
-import type { AxiosError } from 'axios'
-import api from '../../../lib/axios'
+import { useMutation } from '@tanstack/react-query';
+import { useNavigate } from 'react-router-dom';
+import type { AxiosError } from 'axios';
+import api from '../../../lib/axios';
 
 interface IRegisterPayload {
-  fullName: string
-  identifier: string // email or phone number
-  password: string
+  fullName: string;
+  identifier: string; // email or phone number
+  password: string;
 }
 
 interface IRegisterResponse {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
   data?: {
-    userId?: string
-    email?: string
-    phone?: string
-    verificationTarget?: string
-    verificationMethod?: 'email' | 'phone'
-  }
+    userId?: string;
+    email?: string;
+    phone?: string;
+    verificationTarget?: string;
+    verificationMethod?: 'email' | 'phone';
+  };
 }
 
 interface IApiErrorResponse {
-  success?: boolean
-  message?: string
+  success?: boolean;
+  message?: string;
 }
 
-const registerUser = async (
-  data: IRegisterPayload
-): Promise<IRegisterResponse> => {
-  const response = await api.post<IRegisterResponse>('/auth/register', data)
-  return response.data
-}
+const registerUser = async (data: IRegisterPayload): Promise<IRegisterResponse> => {
+  const response = await api.post<IRegisterResponse>('/auth/register', data);
+  return response.data;
+};
 
 export const useRegister = () => {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  return useMutation<
-    IRegisterResponse,
-    AxiosError<IApiErrorResponse>,
-    IRegisterPayload
-  >({
+  return useMutation<IRegisterResponse, AxiosError<IApiErrorResponse>, IRegisterPayload>({
     mutationFn: registerUser,
 
     onSuccess: (data, variables) => {
@@ -52,14 +46,13 @@ export const useRegister = () => {
           purpose: 'account_verification',
           from: 'register',
         },
-      })
+      });
     },
 
     onError: (error) => {
-      const message =
-        error.response?.data?.message || 'Registration failed. Please try again.'
+      const message = error.response?.data?.message || 'Registration failed. Please try again.';
 
-      console.error(message)
+      console.error(message);
     },
-  })
-}
+  });
+};

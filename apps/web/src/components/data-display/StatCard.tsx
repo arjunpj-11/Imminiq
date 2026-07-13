@@ -1,11 +1,11 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
-export type StatTone = 'rust' | 'green' | 'amber' | 'blue'
+export type StatTone = 'rust' | 'green' | 'amber' | 'blue';
 export interface IStatAccent {
-  light: string
-  dark: string
+  light: string;
+  dark: string;
 }
 
 const toneColors: Record<StatTone, string> = {
@@ -13,21 +13,21 @@ const toneColors: Record<StatTone, string> = {
   green: 'var(--success)',
   amber: 'var(--warning)',
   blue: 'var(--info)',
-}
+};
 
 interface IStatCardProps {
-  label: ReactNode
-  value?: ReactNode
-  helper?: ReactNode
-  footer?: ReactNode
-  action?: ReactNode
-  children?: ReactNode
-  tone?: StatTone
-  accent?: IStatAccent
-  className?: string
-  valueClassName?: string
-  variant?: 'flat' | 'elevated' | 'spotlight'
-  trend?: ReactNode
+  label: ReactNode;
+  value?: ReactNode;
+  helper?: ReactNode;
+  footer?: ReactNode;
+  action?: ReactNode;
+  children?: ReactNode;
+  tone?: StatTone;
+  accent?: IStatAccent;
+  className?: string;
+  valueClassName?: string;
+  variant?: 'flat' | 'elevated' | 'spotlight';
+  trend?: ReactNode;
 }
 
 export default function StatCard({
@@ -44,7 +44,7 @@ export default function StatCard({
   variant = 'flat',
   trend,
 }: IStatCardProps) {
-  const color = accent?.light ?? toneColors[tone]
+  const color = accent?.light ?? toneColors[tone];
 
   return (
     <div
@@ -53,7 +53,7 @@ export default function StatCard({
         variant === 'flat' && 'surface-flat',
         variant === 'elevated' && 'surface-elevated',
         variant === 'spotlight' && 'surface-spotlight',
-        className,
+        className
       )}
     >
       <div className="flex items-start justify-between gap-3">
@@ -66,23 +66,14 @@ export default function StatCard({
       </div>
 
       {value !== undefined && (
-        <div
-          className={cn(
-            'type-metric-xl mt-3 text-(--text-primary)',
-            valueClassName,
-          )}
-        >
+        <div className={cn('type-metric-xl mt-3 text-(--text-primary)', valueClassName)}>
           {value}
         </div>
       )}
 
       {children}
 
-      {helper && (
-        <div className="type-body-sm mt-2.5 flex-1 text-(--text-secondary)">
-          {helper}
-        </div>
-      )}
+      {helper && <div className="type-body-sm mt-2.5 flex-1 text-(--text-secondary)">{helper}</div>}
 
       {footer && <div className="mt-2.5">{footer}</div>}
       {action && <div className="mt-3">{action}</div>}
@@ -93,5 +84,5 @@ export default function StatCard({
         style={{ background: `linear-gradient(90deg, transparent, ${color}, transparent)` }}
       />
     </div>
-  )
+  );
 }

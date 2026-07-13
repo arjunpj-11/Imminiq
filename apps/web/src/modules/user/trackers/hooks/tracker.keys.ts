@@ -1,4 +1,4 @@
-import type { LessonCodeSubmissionAction, ITrackerListQuery } from '../types/tracker.types'
+import type { LessonCodeSubmissionAction, ITrackerListQuery } from '../types/tracker.types';
 
 export const trackerKeys = {
   all: ['trackers'] as const,
@@ -17,32 +17,12 @@ export const trackerKeys = {
   lessonCodeSubmissions: (
     trackerId: string,
     subtopicId: string,
-    action?: LessonCodeSubmissionAction,
-  ) =>
-    [
-      ...trackerKeys.lesson(trackerId, subtopicId),
-      'code-submissions',
-      action || 'all',
-    ] as const,
+    action?: LessonCodeSubmissionAction
+  ) => [...trackerKeys.lesson(trackerId, subtopicId), 'code-submissions', action || 'all'] as const,
   lessonGeneratedQuestions: (trackerId: string, subtopicId: string) =>
     [...trackerKeys.lesson(trackerId, subtopicId), 'generated-questions'] as const,
-  lessonQuestionSolution: (
-    trackerId: string,
-    subtopicId: string,
-    question: string,
-  ) =>
-    [
-      ...trackerKeys.lesson(trackerId, subtopicId),
-      'question-solution',
-      question,
-    ] as const,
-  lessonQuestionSolutionDoubts: (
-    trackerId: string,
-    subtopicId: string,
-    question: string,
-  ) =>
-    [
-      ...trackerKeys.lessonQuestionSolution(trackerId, subtopicId, question),
-      'doubts',
-    ] as const,
-}
+  lessonQuestionSolution: (trackerId: string, subtopicId: string, question: string) =>
+    [...trackerKeys.lesson(trackerId, subtopicId), 'question-solution', question] as const,
+  lessonQuestionSolutionDoubts: (trackerId: string, subtopicId: string, question: string) =>
+    [...trackerKeys.lessonQuestionSolution(trackerId, subtopicId, question), 'doubts'] as const,
+};

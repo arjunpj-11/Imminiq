@@ -1,23 +1,23 @@
-import { cn } from '../../../../lib/cn'
+import { cn } from '../../../../lib/cn';
 
 // MockTestResultPage.tsx
 
-import { useNavigate, useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
 
-import { useMockTestAttemptResult } from '../hooks/useMockTests'
-import { formatDuration } from '../utils/mock-tests-formatters'
+import { useMockTestAttemptResult } from '../hooks/useMockTests';
+import { formatDuration } from '../utils/mock-tests-formatters';
 
 export default function MockTestResultPage() {
-  const { attemptId = '' } = useParams()
-  const navigate = useNavigate()
+  const { attemptId = '' } = useParams();
+  const navigate = useNavigate();
 
-  const resultQuery = useMockTestAttemptResult(attemptId)
-  const data = resultQuery.data
-  const report = data?.report
+  const resultQuery = useMockTestAttemptResult(attemptId);
+  const data = resultQuery.data;
+  const report = data?.report;
 
-  const resultAccent = report?.passed ? 'var(--success)' : 'var(--brand-500)'
+  const resultAccent = report?.passed ? 'var(--success)' : 'var(--brand-500)';
 
   return (
     <AppShellBoundary>
@@ -99,9 +99,7 @@ export default function MockTestResultPage() {
 
               <button
                 type="button"
-                onClick={() =>
-                  navigate(`/mock-tests/attempts/${attemptId}/analysis`)
-                }
+                onClick={() => navigate(`/mock-tests/attempts/${attemptId}/analysis`)}
                 className="mt-7 rounded-md bg-(--brand-500) px-6 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
               >
                 View analysis
@@ -111,5 +109,5 @@ export default function MockTestResultPage() {
         </div>
       </div>
     </AppShellBoundary>
-  )
+  );
 }

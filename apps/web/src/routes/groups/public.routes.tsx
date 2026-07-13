@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router-dom';
 
 import {
   BlockedPage,
@@ -14,8 +14,8 @@ import {
   TwoFactorChallengePage,
   VerifyAccountPage,
   VerifyEmailChangePage,
-} from '../config/public-pages'
-import { ROUTES } from '../config/route-paths'
+} from '../config/public-pages';
+import { ROUTES } from '../config/route-paths';
 
 export const publicRoutes: RouteObject[] = [
   {
@@ -70,4 +70,4 @@ export const publicRoutes: RouteObject[] = [
     path: ROUTES.publicProfile,
     element: <ProfilePage />,
   },
-]
+];

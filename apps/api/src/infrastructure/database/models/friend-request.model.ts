@@ -1,29 +1,24 @@
-import mongoose, { Schema, model, type InferSchemaType } from "mongoose";
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 const friendRequestSchema = new Schema(
   {
     senderId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
     },
 
     receiverId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
       validate: {
-        validator(
-          this: { senderId?: mongoose.Types.ObjectId },
-          value: mongoose.Types.ObjectId,
-        ) {
-          return (
-            !this.senderId || this.senderId.toString() !== value.toString()
-          );
+        validator(this: { senderId?: mongoose.Types.ObjectId }, value: mongoose.Types.ObjectId) {
+          return !this.senderId || this.senderId.toString() !== value.toString();
         },
-        message: "A user cannot send a friend invite to themselves",
+        message: 'A user cannot send a friend invite to themselves',
       },
     },
 
@@ -43,8 +38,8 @@ const friendRequestSchema = new Schema(
 
     status: {
       type: String,
-      enum: ["pending", "accepted", "rejected", "cancelled"],
-      default: "pending",
+      enum: ['pending', 'accepted', 'rejected', 'cancelled'],
+      default: 'pending',
       index: true,
     },
 
@@ -52,7 +47,7 @@ const friendRequestSchema = new Schema(
       type: String,
       trim: true,
       maxlength: 280,
-      default: "",
+      default: '',
     },
 
     deletedAt: {
@@ -63,8 +58,8 @@ const friendRequestSchema = new Schema(
   },
   {
     timestamps: true,
-    collection: "friend_requests",
-  },
+    collection: 'friend_requests',
+  }
 );
 
 // Only one live pending request may exist for a user pair, regardless
@@ -75,12 +70,12 @@ friendRequestSchema.index(
   },
   {
     unique: true,
-    name: "unique_pending_friend_request_pair",
+    name: 'unique_pending_friend_request_pair',
     partialFilterExpression: {
-      status: "pending",
+      status: 'pending',
       deletedAt: null,
     },
-  },
+  }
 );
 
 friendRequestSchema.index({
@@ -108,6 +103,5 @@ friendRequestSchema.index({
 export type FriendRequestDocument = InferSchemaType<typeof friendRequestSchema>;
 
 export const FriendRequest: mongoose.Model<FriendRequestDocument> =
-  (mongoose.models.FriendRequest as
-    mongoose.Model<FriendRequestDocument> | undefined) ??
-  model<FriendRequestDocument>("FriendRequest", friendRequestSchema);
+  (mongoose.models.FriendRequest as mongoose.Model<FriendRequestDocument> | undefined) ??
+  model<FriendRequestDocument>('FriendRequest', friendRequestSchema);

@@ -1,93 +1,78 @@
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react';
 
-import { safeLocalStorage } from '../../../../lib/storage/safe-storage'
-import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys'
-import { normalizeEmail } from '../utils/security-settings.utils'
+import { safeLocalStorage } from '../../../../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../../../../lib/storage/storage-keys';
+import { normalizeEmail } from '../utils/security-settings.utils';
 
 export interface IPendingEmailTimer {
-  email: string
-  expiresAt: number
+  email: string;
+  expiresAt: number;
 }
 
-const EMAIL_CHANGE_EXPIRY_MS = 10 * 60 * 1000
+const EMAIL_CHANGE_EXPIRY_MS = 10 * 60 * 1000;
 
-const getSecondsRemaining = (
-  expiresAt: number,
-  currentTime = Date.now(),
-): number => {
-  return Math.max(0, Math.ceil((expiresAt - currentTime) / 1000))
-}
+const getSecondsRemaining = (expiresAt: number, currentTime = Date.now()): number => {
+  return Math.max(0, Math.ceil((expiresAt - currentTime) / 1000));
+};
 
 const readPendingEmailTimer = (): IPendingEmailTimer | null => {
-  const raw = safeLocalStorage.get(
-    STORAGE_KEYS.pendingEmailChangeTimer,
-  )
+  const raw = safeLocalStorage.get(STORAGE_KEYS.pendingEmailChangeTimer);
 
   if (!raw) {
-    return null
+    return null;
   }
 
   try {
-    const parsed = JSON.parse(raw) as IPendingEmailTimer
+    const parsed = JSON.parse(raw) as IPendingEmailTimer;
 
-    if (
-      typeof parsed?.email !== 'string' ||
-      typeof parsed?.expiresAt !== 'number'
-    ) {
-      return null
+    if (typeof parsed?.email !== 'string' || typeof parsed?.expiresAt !== 'number') {
+      return null;
     }
 
-    return parsed
+    return parsed;
   } catch {
-    return null
+    return null;
   }
-}
+};
 
 export function usePendingEmailChangeTimer() {
-  const [timer, setTimer] = useState<IPendingEmailTimer | null>(
-    readPendingEmailTimer,
-  )
+  const [timer, setTimer] = useState<IPendingEmailTimer | null>(readPendingEmailTimer);
 
-  const [currentTime, setCurrentTime] = useState(() => Date.now())
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
 
-  const secondsLeft = timer
-    ? getSecondsRemaining(timer.expiresAt, currentTime)
-    : 0
+  const secondsLeft = timer ? getSecondsRemaining(timer.expiresAt, currentTime) : 0;
 
   useEffect(() => {
     if (!timer) {
-      return undefined
+      return undefined;
     }
 
     const intervalId = window.setInterval(() => {
-      setCurrentTime(Date.now())
-    }, 1000)
+      setCurrentTime(Date.now());
+    }, 1000);
 
     return () => {
-      window.clearInterval(intervalId)
-    }
-  }, [timer])
+      window.clearInterval(intervalId);
+    };
+  }, [timer]);
 
   const start = useCallback((email: string) => {
-    const now = Date.now()
+    const now = Date.now();
 
     const nextTimer: IPendingEmailTimer = {
       email: normalizeEmail(email),
       expiresAt: now + EMAIL_CHANGE_EXPIRY_MS,
-    }
+    };
 
-    safeLocalStorage.set(
-      STORAGE_KEYS.pendingEmailChangeTimer,
-      JSON.stringify(nextTimer),
-    )
+    safeLocalStorage.set(STORAGE_KEYS.pendingEmailChangeTimer, JSON.stringify(nextTimer));
 
-    setTimer(nextTimer)
-    setCurrentTime(now)
-  }, [])
+    setTimer(nextTimer);
+    setCurrentTime(now);
+  }, []);
 
   return {
     timer,
     secondsLeft,
     start,
-  }
+  };
 }

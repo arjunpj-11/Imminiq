@@ -1,7 +1,7 @@
 type EmptyCardProps = {
-  title: string
-  description: string
-}
+  title: string;
+  description: string;
+};
 
 export default function EmptyCard({ title, description }: EmptyCardProps) {
   return (
@@ -13,5 +13,5 @@ export default function EmptyCard({ title, description }: EmptyCardProps) {
         {description}
       </div>
     </div>
-  )
+  );
 }

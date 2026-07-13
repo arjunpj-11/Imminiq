@@ -1,18 +1,18 @@
-import { aiQueue } from '../infrastructure/queue/queues'
+import { aiQueue } from '../infrastructure/queue/queues';
 
 const clearAIQueue = async () => {
   try {
     await aiQueue.obliterate({
       force: true,
-    })
+    });
 
-    console.log('✅ AI BullMQ queue cleared completely')
+    console.log('✅ AI BullMQ queue cleared completely');
   } catch (error) {
-    console.error('❌ Failed to clear AI BullMQ queue:', error)
-    process.exitCode = 1
+    console.error('❌ Failed to clear AI BullMQ queue:', error);
+    process.exitCode = 1;
   } finally {
-    await aiQueue.close()
+    await aiQueue.close();
   }
-}
+};
 
-clearAIQueue()
+clearAIQueue();

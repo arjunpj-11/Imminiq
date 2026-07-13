@@ -1,23 +1,20 @@
 // apps/api/src/infrastructure/database/models/battle.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
-export type BattleStatus =
-  | 'waiting'
-  | 'live'
-  | 'completed'
+export type BattleStatus = 'waiting' | 'live' | 'completed';
 
 export interface IBattleDocument extends Document {
-  challengeId: mongoose.Types.ObjectId
-  playerOneId: mongoose.Types.ObjectId
-  playerTwoId: mongoose.Types.ObjectId
-  winnerId?: mongoose.Types.ObjectId
-  status: BattleStatus
-  battleMap?: Record<string, unknown>
-  startedAt?: Date
-  endedAt?: Date
-  createdAt: Date
-  updatedAt: Date
+  challengeId: mongoose.Types.ObjectId;
+  playerOneId: mongoose.Types.ObjectId;
+  playerTwoId: mongoose.Types.ObjectId;
+  winnerId?: mongoose.Types.ObjectId;
+  status: BattleStatus;
+  battleMap?: Record<string, unknown>;
+  startedAt?: Date;
+  endedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const battleSchema = new Schema<IBattleDocument>(
@@ -67,24 +64,21 @@ const battleSchema = new Schema<IBattleDocument>(
   {
     timestamps: true,
   }
-)
+);
 
 battleSchema.index({
   challengeId: 1,
   status: 1,
-})
+});
 
 battleSchema.index({
   playerOneId: 1,
   status: 1,
-})
+});
 
 battleSchema.index({
   playerTwoId: 1,
   status: 1,
-})
+});
 
-export const Battle = mongoose.model<IBattleDocument>(
-  'Battle',
-  battleSchema
-)
+export const Battle = mongoose.model<IBattleDocument>('Battle', battleSchema);

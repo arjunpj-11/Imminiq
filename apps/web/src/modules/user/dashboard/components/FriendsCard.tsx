@@ -1,20 +1,16 @@
-import type { IDashboardFriend } from '../types/dashboard.types'
-import { cn } from '../utils/cn'
-import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters'
-import EmptyCard from './EmptyCard'
+import type { IDashboardFriend } from '../types/dashboard.types';
+import { cn } from '../utils/cn';
+import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters';
+import EmptyCard from './EmptyCard';
 
 type FriendsCardProps = {
-  friends: IDashboardFriend[]
-  onOpenFriends: () => void
-  onOpenProfile: (username: string) => void
-}
+  friends: IDashboardFriend[];
+  onOpenFriends: () => void;
+  onOpenProfile: (username: string) => void;
+};
 
-export default function FriendsCard({
-  friends,
-  onOpenFriends,
-  onOpenProfile,
-}: FriendsCardProps) {
-  const onlineCount = friends.filter((friend) => friend.isOnline).length
+export default function FriendsCard({ friends, onOpenFriends, onOpenProfile }: FriendsCardProps) {
+  const onlineCount = friends.filter((friend) => friend.isOnline).length;
 
   return (
     <section className="flex flex-col gap-4 rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -60,9 +56,7 @@ export default function FriendsCard({
                 <span
                   className={cn(
                     'absolute bottom-px right-px h-2 w-2 rounded-full border-2 border-[#fdf8f5] dark:border-[#1e1c19]',
-                    friend.isOnline
-                      ? 'bg-(--success)'
-                      : 'bg-[#6b5f58]/50 dark:bg-[#9b9a92]/50'
+                    friend.isOnline ? 'bg-(--success)' : 'bg-[#6b5f58]/50 dark:bg-[#9b9a92]/50'
                   )}
                 />
               </button>
@@ -73,9 +67,7 @@ export default function FriendsCard({
                 </div>
                 <div className="truncate text-[11px] text-(--text-secondary) dark:text-(--text-secondary)">
                   @{friend.username} ·{' '}
-                  {friend.isOnline
-                    ? 'Online now'
-                    : formatRelativeTime(friend.lastActiveAt)}
+                  {friend.isOnline ? 'Online now' : formatRelativeTime(friend.lastActiveAt)}
                 </div>
               </div>
             </div>
@@ -91,5 +83,5 @@ export default function FriendsCard({
         View Friends
       </button>
     </section>
-  )
+  );
 }

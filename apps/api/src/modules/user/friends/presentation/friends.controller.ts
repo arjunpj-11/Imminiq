@@ -1,11 +1,11 @@
-import type { NextFunction, Request, Response } from "express";
+import type { NextFunction, Request, Response } from 'express';
 
-import { HttpStatusCode } from "../../../../shared/constants/http-status-code.enum";
-import { FRIENDS_RESPONSE_MESSAGES } from "../application/friends.constants";
-import { ApiError } from "../../../../shared/utils/ApiError";
-import { ApiResponse } from "../../../../shared/utils/ApiResponse";
-import { getAuthUser } from "../../../../shared/utils/getAuthUser";
-import type { FriendsUseCases } from "../application/friends-use-cases.contract";
+import { HttpStatusCode } from '../../../../shared/constants/http-status-code.enum';
+import { FRIENDS_RESPONSE_MESSAGES } from '../application/friends.constants';
+import { ApiError } from '../../../../shared/utils/ApiError';
+import { ApiResponse } from '../../../../shared/utils/ApiResponse';
+import { getAuthUser } from '../../../../shared/utils/getAuthUser';
+import type { FriendsUseCases } from '../application/friends-use-cases.contract';
 import {
   friendParamsSchema,
   friendRequestParamsSchema,
@@ -13,7 +13,7 @@ import {
   listFriendsQuerySchema,
   searchUsersQuerySchema,
   sendFriendRequestSchema,
-} from "./friends.schema";
+} from './friends.schema';
 
 export class FriendsController {
   constructor(private readonly _useCases: FriendsUseCases) {}
@@ -22,7 +22,7 @@ export class FriendsController {
     try {
       const query = this.parseOrThrow(
         listFriendsQuerySchema.safeParse(req.query),
-        "Friends query is invalid",
+        'Friends query is invalid'
       );
       const user = getAuthUser(req);
       const result = await this._useCases.listFriends.execute(user.userId, {
@@ -41,7 +41,7 @@ export class FriendsController {
     try {
       const query = this.parseOrThrow(
         searchUsersQuerySchema.safeParse(req.query),
-        "People search query is invalid",
+        'People search query is invalid'
       );
       const user = getAuthUser(req);
       const result = await this._useCases.searchUsers.execute(user.userId, {
@@ -60,14 +60,12 @@ export class FriendsController {
     try {
       const query = this.parseOrThrow(
         listFriendRequestsQuerySchema.safeParse(req.query),
-        "Friend request query is invalid",
+        'Friend request query is invalid'
       );
       const user = getAuthUser(req);
       const result = await this._useCases.listFriendRequests.execute(user.userId, query);
 
-      res.json(
-        new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUESTS_LISTED, result),
-      );
+      res.json(new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUESTS_LISTED, result));
     } catch (error) {
       next(error);
     }
@@ -77,7 +75,7 @@ export class FriendsController {
     try {
       const body = this.parseOrThrow(
         sendFriendRequestSchema.safeParse(req.body),
-        "Friend invite is invalid",
+        'Friend invite is invalid'
       );
       const user = getAuthUser(req);
       const result = await this._useCases.sendFriendRequest.execute(user.userId, {
@@ -91,9 +89,9 @@ export class FriendsController {
           new ApiResponse(
             result.created
               ? FRIENDS_RESPONSE_MESSAGES.REQUEST_SENT
-              : "Friend invite already pending",
-            result,
-          ),
+              : 'Friend invite already pending',
+            result
+          )
         );
     } catch (error) {
       next(error);
@@ -104,17 +102,12 @@ export class FriendsController {
     try {
       const params = this.parseOrThrow(
         friendRequestParamsSchema.safeParse(req.params),
-        "Friend request identifier is invalid",
+        'Friend request identifier is invalid'
       );
       const user = getAuthUser(req);
-      const result = await this._useCases.acceptFriendRequest.execute(
-        user.userId,
-        params,
-      );
+      const result = await this._useCases.acceptFriendRequest.execute(user.userId, params);
 
-      res.json(
-        new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUEST_ACCEPTED, result),
-      );
+      res.json(new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUEST_ACCEPTED, result));
     } catch (error) {
       next(error);
     }
@@ -124,17 +117,12 @@ export class FriendsController {
     try {
       const params = this.parseOrThrow(
         friendRequestParamsSchema.safeParse(req.params),
-        "Friend request identifier is invalid",
+        'Friend request identifier is invalid'
       );
       const user = getAuthUser(req);
-      const result = await this._useCases.declineFriendRequest.execute(
-        user.userId,
-        params,
-      );
+      const result = await this._useCases.declineFriendRequest.execute(user.userId, params);
 
-      res.json(
-        new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUEST_DECLINED, result),
-      );
+      res.json(new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUEST_DECLINED, result));
     } catch (error) {
       next(error);
     }
@@ -144,17 +132,12 @@ export class FriendsController {
     try {
       const params = this.parseOrThrow(
         friendRequestParamsSchema.safeParse(req.params),
-        "Friend request identifier is invalid",
+        'Friend request identifier is invalid'
       );
       const user = getAuthUser(req);
-      const result = await this._useCases.cancelFriendRequest.execute(
-        user.userId,
-        params,
-      );
+      const result = await this._useCases.cancelFriendRequest.execute(user.userId, params);
 
-      res.json(
-        new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUEST_CANCELLED, result),
-      );
+      res.json(new ApiResponse(FRIENDS_RESPONSE_MESSAGES.REQUEST_CANCELLED, result));
     } catch (error) {
       next(error);
     }
@@ -164,14 +147,12 @@ export class FriendsController {
     try {
       const params = this.parseOrThrow(
         friendParamsSchema.safeParse(req.params),
-        "Friend identifier is invalid",
+        'Friend identifier is invalid'
       );
       const user = getAuthUser(req);
       const result = await this._useCases.removeFriend.execute(user.userId, params);
 
-      res.json(
-        new ApiResponse(FRIENDS_RESPONSE_MESSAGES.FRIEND_REMOVED, result),
-      );
+      res.json(new ApiResponse(FRIENDS_RESPONSE_MESSAGES.FRIEND_REMOVED, result));
     } catch (error) {
       next(error);
     }
@@ -186,7 +167,7 @@ export class FriendsController {
             issues: Array<{ message: string }>;
           };
         },
-    fallbackMessage: string,
+    fallbackMessage: string
   ): T {
     if (result.success) {
       return result.data;
@@ -195,7 +176,7 @@ export class FriendsController {
     throw new ApiError(
       HttpStatusCode.BAD_REQUEST,
       result.error.issues[0]?.message ?? fallbackMessage,
-      "VALIDATION_ERROR",
+      'VALIDATION_ERROR'
     );
   }
 }

@@ -12,10 +12,10 @@ export type {
   IDashboardSummaryDTO,
   IDashboardTrackerSummaryDTO,
   IDashboardUserSummaryDTO,
-} from './application/dashboard.dto'
+} from './application/dashboard.dto';
 
 export type {
   DashboardBattleResult,
   DashboardIntensityLevel,
   DashboardRecommendedActionType,
-} from './domain/dashboard.types'
+} from './domain/dashboard.types';

@@ -1,28 +1,28 @@
-import { useEffect, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { cn } from '../utils/landing-ui'
+import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { cn } from '../utils/landing-ui';
 
 export default function FinalCta() {
-  const sectionRef = useRef<HTMLElement | null>(null)
-  const [visible, setVisible] = useState(false)
-  const [bigVisible, setBigVisible] = useState(false)
+  const sectionRef = useRef<HTMLElement | null>(null);
+  const [visible, setVisible] = useState(false);
+  const [bigVisible, setBigVisible] = useState(false);
 
   useEffect(() => {
-    const section = sectionRef.current
-    if (!section) return undefined
+    const section = sectionRef.current;
+    if (!section) return undefined;
 
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
-          setVisible(true)
-          setTimeout(() => setBigVisible(true), 300)
+          setVisible(true);
+          setTimeout(() => setBigVisible(true), 300);
         }
       },
       { threshold: 0.2 }
-    )
-    observer.observe(section)
-    return () => observer.disconnect()
-  }, [])
+    );
+    observer.observe(section);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <section
@@ -30,7 +30,14 @@ export default function FinalCta() {
       className="relative flex min-h-screen flex-col justify-between overflow-hidden bg-[#f5ede4] px-5 pb-4 pt-20 text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb] sm:px-8 lg:px-10"
     >
       <div className="pointer-events-none absolute inset-0 opacity-[0.035]">
-        <div className="h-full w-full" style={{ backgroundImage: 'linear-gradient(rgba(26,23,20,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(26,23,20,.16) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        <div
+          className="h-full w-full"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(26,23,20,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(26,23,20,.16) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
       </div>
 
       {/* Top content row */}
@@ -45,14 +52,21 @@ export default function FinalCta() {
             Start before the crowd
           </p>
           <p className="mt-5 max-w-118 text-[15px] leading-[1.8] text-[#6b5f58] dark:text-[#b8b4aa]">
-            Imminiq is preparing for launch. Join early access and be ready when the full learning system opens.
+            Imminiq is preparing for launch. Join early access and be ready when the full learning
+            system opens.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 text-[14px] text-[#6b5f58] dark:text-[#b8b4aa]">
-          <Link to="/privacy" className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">Privacy</Link>
-          <Link to="/terms" className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">Terms</Link>
-          <Link to="/login" className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">Sign in</Link>
+          <Link to="/privacy" className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">
+            Privacy
+          </Link>
+          <Link to="/terms" className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">
+            Terms
+          </Link>
+          <Link to="/login" className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">
+            Sign in
+          </Link>
         </div>
 
         <Link
@@ -73,20 +87,20 @@ export default function FinalCta() {
         aria-label="Let’s start by signing in"
       >
         {"Let's start".split('').map((char, i) => (
-  <span
-    key={i}
-    className="inline-block transition-all"
-    style={{
-      opacity: bigVisible ? 1 : 0,
-      transform: bigVisible ? 'none' : 'translateY(40px)',
-      transitionDuration: '0.7s',
-      transitionDelay: bigVisible ? `${i * 55}ms` : '0ms',
-    }}
-  >
-    {char === ' ' ? '\u00A0' : char}
-  </span>
-))}
+          <span
+            key={i}
+            className="inline-block transition-all"
+            style={{
+              opacity: bigVisible ? 1 : 0,
+              transform: bigVisible ? 'none' : 'translateY(40px)',
+              transitionDuration: '0.7s',
+              transitionDelay: bigVisible ? `${i * 55}ms` : '0ms',
+            }}
+          >
+            {char === ' ' ? '\u00A0' : char}
+          </span>
+        ))}
       </Link>
     </section>
-  )
+  );
 }

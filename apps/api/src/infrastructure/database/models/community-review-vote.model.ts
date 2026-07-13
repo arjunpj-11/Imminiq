@@ -1,15 +1,15 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
-export type CommunityReviewVoteChoice = 'pass' | 'fail'
+export type CommunityReviewVoteChoice = 'pass' | 'fail';
 
 export interface ICommunityReviewVoteDocument extends Document {
-  submissionId: mongoose.Types.ObjectId
-  userId: mongoose.Types.ObjectId
-  choice: CommunityReviewVoteChoice
-  reason?: string | null
-  rewardCoins: number
-  createdAt: Date
-  updatedAt: Date
+  submissionId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  choice: CommunityReviewVoteChoice;
+  reason?: string | null;
+  rewardCoins: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const communityReviewVoteSchema = new Schema<ICommunityReviewVoteDocument>(
@@ -50,19 +50,13 @@ const communityReviewVoteSchema = new Schema<ICommunityReviewVoteDocument>(
   {
     timestamps: true,
     collection: 'community_review_votes',
-  },
-)
+  }
+);
 
-communityReviewVoteSchema.index(
-  { submissionId: 1, userId: 1 },
-  { unique: true },
-)
-communityReviewVoteSchema.index({ userId: 1, createdAt: -1 })
-communityReviewVoteSchema.index({ rewardCoins: -1 })
+communityReviewVoteSchema.index({ submissionId: 1, userId: 1 }, { unique: true });
+communityReviewVoteSchema.index({ userId: 1, createdAt: -1 });
+communityReviewVoteSchema.index({ rewardCoins: -1 });
 
 export const CommunityReviewVote =
   mongoose.models.CommunityReviewVote ||
-  mongoose.model<ICommunityReviewVoteDocument>(
-    'CommunityReviewVote',
-    communityReviewVoteSchema,
-  )
+  mongoose.model<ICommunityReviewVoteDocument>('CommunityReviewVote', communityReviewVoteSchema);

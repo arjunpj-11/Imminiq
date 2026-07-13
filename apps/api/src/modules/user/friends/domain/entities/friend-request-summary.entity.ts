@@ -1,7 +1,7 @@
-import type { FriendRequestEntity } from "./friend-request.entity";
-import type { FriendUserEntity } from "./friend-user.entity";
+import type { FriendRequestEntity } from './friend-request.entity';
+import type { FriendUserEntity } from './friend-user.entity';
 
-export type FriendRequestDirection = "received" | "sent";
+export type FriendRequestDirection = 'received' | 'sent';
 
 export type FriendRequestSummaryEntityProps = {
   request: FriendRequestEntity;

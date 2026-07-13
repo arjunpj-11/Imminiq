@@ -1,21 +1,21 @@
-import { useState } from 'react'
-import type { FormEvent } from 'react'
+import { useState } from 'react';
+import type { FormEvent } from 'react';
 
 import type {
   ICommunityVerificationSubmission,
   VerificationVoteChoice,
-} from '../../types/community.types'
-import { validateVoteReason } from '../../utils/community-validation'
-import { cn } from '../../utils/community-ui'
-import { CheckIcon, CoinsIcon } from '../icons/CommunityIcons'
+} from '../../types/community.types';
+import { validateVoteReason } from '../../utils/community-validation';
+import { cn } from '../../utils/community-ui';
+import { CheckIcon, CoinsIcon } from '../icons/CommunityIcons';
 
 interface IVerificationVotePanelProps {
-  submission: ICommunityVerificationSubmission
-  pending?: boolean
-  apiError?: string
-  rewardMessage?: string
-  allTopicsChecked?: boolean
-  onVote: (vote: VerificationVoteChoice, reason: string) => void
+  submission: ICommunityVerificationSubmission;
+  pending?: boolean;
+  apiError?: string;
+  rewardMessage?: string;
+  allTopicsChecked?: boolean;
+  onVote: (vote: VerificationVoteChoice, reason: string) => void;
 }
 
 export default function VerificationVotePanel({
@@ -26,26 +26,23 @@ export default function VerificationVotePanel({
   allTopicsChecked = false,
   onVote,
 }: IVerificationVotePanelProps) {
-  const [vote, setVote] = useState<VerificationVoteChoice>('pass')
-  const [reason, setReason] = useState('')
-  const [reasonError, setReasonError] = useState<string | undefined>()
+  const [vote, setVote] = useState<VerificationVoteChoice>('pass');
+  const [reason, setReason] = useState('');
+  const [reasonError, setReasonError] = useState<string | undefined>();
 
   const disabled =
-    submission.closed ||
-    Boolean(submission.userVote) ||
-    pending ||
-    !allTopicsChecked
+    submission.closed || Boolean(submission.userVote) || pending || !allTopicsChecked;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
+    event.preventDefault();
 
-    const error = validateVoteReason(reason)
-    setReasonError(error)
+    const error = validateVoteReason(reason);
+    setReasonError(error);
 
-    if (error) return
+    if (error) return;
 
-    onVote(vote, reason.trim())
-  }
+    onVote(vote, reason.trim());
+  };
 
   return (
     <form
@@ -112,12 +109,10 @@ export default function VerificationVotePanel({
                     ? choice === 'pass'
                       ? 'border-[rgba(45,106,71,0.35)] bg-[rgba(45,106,71,0.08)] text-(--success) dark:text-(--success)'
                       : 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:text-(--brand-500)'
-                    : 'border-(--border-subtle) text-(--text-secondary) hover:border-[rgba(184,76,43,0.24)] dark:border-(--border-subtle) dark:text-(--text-secondary)',
+                    : 'border-(--border-subtle) text-(--text-secondary) hover:border-[rgba(184,76,43,0.24)] dark:border-(--border-subtle) dark:text-(--text-secondary)'
                 )}
               >
-                <div className="font-ui text-[16px] font-black capitalize">
-                  {choice}
-                </div>
+                <div className="font-ui text-[16px] font-black capitalize">{choice}</div>
                 <div className="mt-1 text-[11px] leading-normal opacity-80">
                   {choice === 'pass'
                     ? 'The tracker looks accurate and useful.'
@@ -138,9 +133,9 @@ export default function VerificationVotePanel({
               id="community-review-reason"
               value={reason}
               onChange={(event) => {
-                setReason(event.target.value)
+                setReason(event.target.value);
                 if (reasonError) {
-                  setReasonError(validateVoteReason(event.target.value))
+                  setReasonError(validateVoteReason(event.target.value));
                 }
               }}
               onBlur={() => setReasonError(validateVoteReason(reason))}
@@ -171,5 +166,5 @@ export default function VerificationVotePanel({
         </>
       )}
     </form>
-  )
+  );
 }

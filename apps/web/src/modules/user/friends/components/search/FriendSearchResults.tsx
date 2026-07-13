@@ -1,6 +1,6 @@
-import type { IFriendUser } from "../../types/friends.types";
-import FriendSearchResultCard from "./FriendSearchResultCard";
-import { FriendsEmptyState, FriendsLoadMoreButton } from "../shared/FriendsStates";
+import type { IFriendUser } from '../../types/friends.types';
+import FriendSearchResultCard from './FriendSearchResultCard';
+import { FriendsEmptyState, FriendsLoadMoreButton } from '../shared/FriendsStates';
 
 interface IFriendSearchResultsProps {
   query: string;
@@ -46,7 +46,7 @@ export default function FriendSearchResults({
   return (
     <section aria-label="People search results">
       <p className="mb-3 text-[12px] text-[#9b9a92]">
-        {total} result{total === 1 ? "" : "s"} for “{query}”
+        {total} result{total === 1 ? '' : 's'} for “{query}”
       </p>
       <div className="space-y-2.5">
         {users.map((user) => (

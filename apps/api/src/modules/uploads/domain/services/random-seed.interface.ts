@@ -1,3 +1,3 @@
 export interface IRandomSeedGenerator {
-  createSeed(upperBound: number): number
+  createSeed(upperBound: number): number;
 }

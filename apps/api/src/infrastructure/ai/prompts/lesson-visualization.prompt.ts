@@ -1,15 +1,13 @@
-import type { IVisualizationInput } from '../ai.schemas'
+import type { IVisualizationInput } from '../ai.schemas';
 
 export const LESSON_VISUALIZATION_SYSTEM_PROMPT =
-  'You are an expert educational visualization engineer. Return only a complete self-contained HTML file starting with <!DOCTYPE html>. No markdown, no explanation, no code fences.'
+  'You are an expert educational visualization engineer. Return only a complete self-contained HTML file starting with <!DOCTYPE html>. No markdown, no explanation, no code fences.';
 
-export const buildVisualizationPrompt = (
-  lesson: IVisualizationInput
-): string => {
-  const truncatedExplanation = lesson.explanation.slice(0, 2000)
+export const buildVisualizationPrompt = (lesson: IVisualizationInput): string => {
+  const truncatedExplanation = lesson.explanation.slice(0, 2000);
   const codeSnippet = lesson.codeExample?.code
     ? `\nCode Example (${lesson.codeExample.language}):\n${lesson.codeExample.code.slice(0, 500)}`
-    : ''
+    : '';
 
   return `You are an expert educational animator. Your job is to create a self-contained interactive HTML canvas visualization that teaches ONE specific concept through clear, step-by-step visual flow.
 
@@ -136,5 +134,5 @@ OUTPUT RULES
 - Return ONE completely self-contained HTML file.
 - No external libraries, no CDN imports. Vanilla JS only.
 - Begin the response with <!DOCTYPE html> — nothing before it.
-- No markdown fences, no explanation, no comments outside the HTML.`
-}
+- No markdown fences, no explanation, no comments outside the HTML.`;
+};

@@ -1,13 +1,14 @@
 export const LESSON_ANSWER_VERIFICATION_SYSTEM_PROMPT =
-  'You are Scribe AI, a strict but supportive lesson-answer evaluator. Return only strict valid JSON. No markdown.'
+  'You are Scribe AI, a strict but supportive lesson-answer evaluator. Return only strict valid JSON. No markdown.';
 
 export const buildLessonAnswerVerificationPrompt = (input: {
-  lessonTitle: string
-  lessonExplanation: string
-  question: string
-  expectedAnswer?: string
-  userAnswer: string
-}): string => `
+  lessonTitle: string;
+  lessonExplanation: string;
+  question: string;
+  expectedAnswer?: string;
+  userAnswer: string;
+}): string =>
+  `
 Verify the learner's answer.
 
 Lesson:
@@ -41,4 +42,4 @@ Rules:
 - If the answer is fully correct, still give a polished correctedAnswer.
 - If the answer is weak, explain what is missing.
 - Keep feedback simple and helpful.
-`.trim()
+`.trim();

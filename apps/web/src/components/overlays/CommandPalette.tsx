@@ -6,44 +6,44 @@ import {
   useState,
   type KeyboardEvent,
   type RefObject,
-} from 'react'
-import { useNavigate } from 'react-router-dom'
+} from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 import {
   formatNavigationShortcut,
   NAVIGATION_COMMANDS,
   scoreCommandSearch,
   type NavigationShortcut,
-} from '../../lib/navigation-commands'
-import { useThemeStore } from '../../store/useThemeStore'
-import Modal from './Modal'
+} from '../../lib/navigation-commands';
+import { useThemeStore } from '../../store/useThemeStore';
+import Modal from './Modal';
 
 interface ICommandPaletteProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
 }
 
 interface ICommandPaletteContentProps {
-  inputRef: RefObject<HTMLInputElement | null>
-  onClose: () => void
+  inputRef: RefObject<HTMLInputElement | null>;
+  onClose: () => void;
 }
 
 interface ICommand {
-  id: string
-  label: string
-  description: string
-  group: 'Navigate' | 'Actions'
-  keywords: readonly string[]
-  path?: string
-  shortcut?: NavigationShortcut
-  run: () => void
+  id: string;
+  label: string;
+  description: string;
+  group: 'Navigate' | 'Actions';
+  keywords: readonly string[];
+  path?: string;
+  shortcut?: NavigationShortcut;
+  run: () => void;
 }
 
 const GROUP_ORDER: Record<ICommand['group'], number> = {
   Navigate: 0,
   Actions: 1,
-}
+};
 
 const SearchIcon = () => (
   <svg
@@ -58,13 +58,10 @@ const SearchIcon = () => (
     <circle cx="11" cy="11" r="8" />
     <path d="m21 21-4.35-4.35" />
   </svg>
-)
+);
 
-export default function CommandPalette({
-  open,
-  onClose,
-}: ICommandPaletteProps) {
-  const inputRef = useRef<HTMLInputElement>(null)
+export default function CommandPalette({ open, onClose }: ICommandPaletteProps) {
+  const inputRef = useRef<HTMLInputElement>(null);
 
   return (
     <Modal
@@ -75,34 +72,26 @@ export default function CommandPalette({
       contentClassName="max-w-2xl p-0"
       overlayClassName="items-start pt-[min(14vh,120px)]"
     >
-      {open ? (
-        <CommandPaletteContent
-          inputRef={inputRef}
-          onClose={onClose}
-        />
-      ) : null}
+      {open ? <CommandPaletteContent inputRef={inputRef} onClose={onClose} /> : null}
     </Modal>
-  )
+  );
 }
 
-function CommandPaletteContent({
-  inputRef,
-  onClose,
-}: ICommandPaletteContentProps) {
-  const navigate = useNavigate()
-  const toggleTheme = useThemeStore((state) => state.toggleTheme)
+function CommandPaletteContent({ inputRef, onClose }: ICommandPaletteContentProps) {
+  const navigate = useNavigate();
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
-  const optionRefs = useRef<Record<string, HTMLButtonElement | null>>({})
-  const [query, setQuery] = useState('')
-  const [activeIndex, setActiveIndex] = useState(0)
+  const optionRefs = useRef<Record<string, HTMLButtonElement | null>>({});
+  const [query, setQuery] = useState('');
+  const [activeIndex, setActiveIndex] = useState(0);
 
   const go = useCallback(
     (path: string) => {
-      onClose()
-      navigate(path)
+      onClose();
+      navigate(path);
     },
-    [navigate, onClose],
-  )
+    [navigate, onClose]
+  );
 
   const commands = useMemo<ICommand[]>(
     () => [
@@ -116,28 +105,21 @@ function CommandPaletteContent({
         label: 'Toggle theme',
         description: 'Switch between light and dark appearance',
         group: 'Actions' as const,
-        keywords: [
-          'dark',
-          'light',
-          'mode',
-          'appearance',
-          'theme',
-          'colour scheme',
-        ],
+        keywords: ['dark', 'light', 'mode', 'appearance', 'theme', 'colour scheme'],
         run: () => {
-          toggleTheme()
-          onClose()
+          toggleTheme();
+          onClose();
         },
       },
     ],
-    [go, onClose, toggleTheme],
-  )
+    [go, onClose, toggleTheme]
+  );
 
   const filtered = useMemo(() => {
-    const normalizedQuery = query.trim()
+    const normalizedQuery = query.trim();
 
     if (!normalizedQuery) {
-      return commands
+      return commands;
     }
 
     return commands
@@ -149,97 +131,92 @@ function CommandPaletteContent({
       .filter((result) => result.score >= 0)
       .sort(
         (left, right) =>
-          GROUP_ORDER[left.command.group] -
-            GROUP_ORDER[right.command.group] ||
+          GROUP_ORDER[left.command.group] - GROUP_ORDER[right.command.group] ||
           right.score - left.score ||
-          left.originalIndex - right.originalIndex,
+          left.originalIndex - right.originalIndex
       )
-      .map((result) => result.command)
-  }, [commands, query])
+      .map((result) => result.command);
+  }, [commands, query]);
 
   /*
    * Do not synchronously correct activeIndex inside an effect.
    * Derive a valid index from the current result count instead.
    */
-  const safeActiveIndex =
-    filtered.length === 0
-      ? 0
-      : Math.min(activeIndex, filtered.length - 1)
+  const safeActiveIndex = filtered.length === 0 ? 0 : Math.min(activeIndex, filtered.length - 1);
 
-  const activeCommand = filtered[safeActiveIndex]
+  const activeCommand = filtered[safeActiveIndex];
 
   useEffect(() => {
     if (!activeCommand) {
-      return
+      return;
     }
 
     const frameId = window.requestAnimationFrame(() => {
       optionRefs.current[activeCommand.id]?.scrollIntoView({
         block: 'nearest',
         behavior: 'auto',
-      })
-    })
+      });
+    });
 
     return () => {
-      window.cancelAnimationFrame(frameId)
-    }
-  }, [activeCommand])
+      window.cancelAnimationFrame(frameId);
+    };
+  }, [activeCommand]);
 
   const moveActive = (nextIndex: number) => {
     if (filtered.length === 0) {
-      return
+      return;
     }
 
-    const wrappedIndex =
-      (nextIndex + filtered.length) % filtered.length
+    const wrappedIndex = (nextIndex + filtered.length) % filtered.length;
 
-    setActiveIndex(wrappedIndex)
-  }
+    setActiveIndex(wrappedIndex);
+  };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLElement>) => {
     if (event.key === 'ArrowDown') {
-      event.preventDefault()
-      moveActive(safeActiveIndex + 1)
-      return
+      event.preventDefault();
+      moveActive(safeActiveIndex + 1);
+      return;
     }
 
     if (event.key === 'ArrowUp') {
-      event.preventDefault()
-      moveActive(safeActiveIndex - 1)
-      return
+      event.preventDefault();
+      moveActive(safeActiveIndex - 1);
+      return;
     }
 
     if (event.key === 'Home') {
-      event.preventDefault()
-      setActiveIndex(0)
-      return
+      event.preventDefault();
+      setActiveIndex(0);
+      return;
     }
 
     if (event.key === 'End') {
-      event.preventDefault()
-      setActiveIndex(Math.max(0, filtered.length - 1))
-      return
+      event.preventDefault();
+      setActiveIndex(Math.max(0, filtered.length - 1));
+      return;
     }
 
     if (event.key === 'PageDown') {
-      event.preventDefault()
-      moveActive(safeActiveIndex + 5)
-      return
+      event.preventDefault();
+      moveActive(safeActiveIndex + 5);
+      return;
     }
 
     if (event.key === 'PageUp') {
-      event.preventDefault()
-      moveActive(safeActiveIndex - 5)
-      return
+      event.preventDefault();
+      moveActive(safeActiveIndex - 5);
+      return;
     }
 
     if (event.key === 'Enter') {
-      event.preventDefault()
-      activeCommand?.run()
+      event.preventDefault();
+      activeCommand?.run();
     }
-  }
+  };
 
-  let renderedGroup: ICommand['group'] | null = null
+  let renderedGroup: ICommand['group'] | null = null;
 
   return (
     <div onKeyDown={handleKeyDown}>
@@ -252,17 +229,13 @@ function CommandPaletteContent({
           ref={inputRef}
           value={query}
           onChange={(event) => {
-            setQuery(event.target.value)
-            setActiveIndex(0)
+            setQuery(event.target.value);
+            setActiveIndex(0);
           }}
           placeholder="Search every page and action…"
           aria-label="Search pages and actions"
           aria-controls="imminiq-command-list"
-          aria-activedescendant={
-            activeCommand
-              ? `imminiq-command-${activeCommand.id}`
-              : undefined
-          }
+          aria-activedescendant={activeCommand ? `imminiq-command-${activeCommand.id}` : undefined}
           aria-autocomplete="list"
           autoComplete="off"
           spellCheck={false}
@@ -282,8 +255,8 @@ function CommandPaletteContent({
       >
         {filtered.length > 0 ? (
           filtered.map((command, index) => {
-            const showGroup = command.group !== renderedGroup
-            renderedGroup = command.group
+            const showGroup = command.group !== renderedGroup;
+            renderedGroup = command.group;
 
             return (
               <div key={command.id}>
@@ -296,7 +269,7 @@ function CommandPaletteContent({
                 <button
                   id={`imminiq-command-${command.id}`}
                   ref={(element) => {
-                    optionRefs.current[command.id] = element
+                    optionRefs.current[command.id] = element;
                   }}
                   type="button"
                   role="option"
@@ -308,7 +281,7 @@ function CommandPaletteContent({
                     'flex w-full items-center gap-3 rounded-md px-3 py-2.5 text-left transition',
                     index === safeActiveIndex
                       ? 'bg-[color-mix(in_srgb,var(--brand-500)_10%,transparent)] text-(--brand-500)'
-                      : 'text-(--text-primary) hover:bg-(--surface-muted)',
+                      : 'text-(--text-primary) hover:bg-(--surface-muted)'
                   )}
                 >
                   <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-sm border border-(--border-subtle) bg-(--surface-card) font-mono text-[11px] font-bold">
@@ -316,9 +289,7 @@ function CommandPaletteContent({
                   </span>
 
                   <span className="min-w-0 flex-1">
-                    <span className="block truncate text-[13px] font-[670]">
-                      {command.label}
-                    </span>
+                    <span className="block truncate text-[13px] font-[670]">{command.label}</span>
 
                     <span className="mt-0.5 block truncate text-[11px] text-(--text-secondary)">
                       {command.description}
@@ -329,10 +300,10 @@ function CommandPaletteContent({
                     <kbd
                       className="shrink-0 rounded-sm bg-(--surface-muted) px-2 py-1 font-mono text-[9px] text-(--text-muted)"
                       title={`Global shortcut: press ${formatNavigationShortcut(
-                        command.shortcut,
+                        command.shortcut
                       ).replace(' ', ' then ')}`}
                       aria-label={`Global shortcut: ${formatNavigationShortcut(
-                        command.shortcut,
+                        command.shortcut
                       ).replace(' ', ' then ')}`}
                     >
                       {formatNavigationShortcut(command.shortcut)}
@@ -340,16 +311,11 @@ function CommandPaletteContent({
                   )}
                 </button>
               </div>
-            )
+            );
           })
         ) : (
-          <div
-            className="px-5 py-12 text-center"
-            role="status"
-          >
-            <div className="type-heading-md text-(--text-primary)">
-              No matching page or action
-            </div>
+          <div className="px-5 py-12 text-center" role="status">
+            <div className="type-heading-md text-(--text-primary)">No matching page or action</div>
 
             <p className="type-body-sm mt-1 text-(--text-secondary)">
               Try a page name, related word, or shortcut such as GD.
@@ -364,14 +330,10 @@ function CommandPaletteContent({
         <span>Esc Close</span>
         <span>G then key · Quick go outside search</span>
 
-        <span
-          className="ml-auto"
-          aria-live="polite"
-        >
-          {filtered.length}{' '}
-          {filtered.length === 1 ? 'result' : 'results'}
+        <span className="ml-auto" aria-live="polite">
+          {filtered.length} {filtered.length === 1 ? 'result' : 'results'}
         </span>
       </div>
     </div>
-  )
+  );
 }

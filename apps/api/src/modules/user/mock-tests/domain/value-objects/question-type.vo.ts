@@ -1,1 +1,1 @@
-export type QuestionType = 'mcq' | 'short_answer' | 'coding'
+export type QuestionType = 'mcq' | 'short_answer' | 'coding';

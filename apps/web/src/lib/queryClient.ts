@@ -1,18 +1,18 @@
-import { QueryClient } from '@tanstack/react-query'
-import { isAxiosError } from 'axios'
+import { QueryClient } from '@tanstack/react-query';
+import { isAxiosError } from 'axios';
 
 const shouldRetry = (failureCount: number, error: unknown) => {
-  if (failureCount >= 2) return false
+  if (failureCount >= 2) return false;
 
   if (isAxiosError(error)) {
-    const status = error.response?.status
+    const status = error.response?.status;
     if (status && status >= 400 && status < 500 && status !== 408 && status !== 429) {
-      return false
+      return false;
     }
   }
 
-  return true
-}
+  return true;
+};
 
 export const queryClient = new QueryClient({
   defaultOptions: {
@@ -30,4 +30,4 @@ export const queryClient = new QueryClient({
       networkMode: 'online',
     },
   },
-})
+});

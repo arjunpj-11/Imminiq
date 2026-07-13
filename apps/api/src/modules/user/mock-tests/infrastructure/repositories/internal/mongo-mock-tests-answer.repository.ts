@@ -32,10 +32,8 @@ export class MongoMockTestsAnswerRepository extends MongoMockTestsBaseRepository
           deletedAt: null,
         }).lean();
 
-        return docs.map((doc) =>
-          this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc),
-        );
-      },
+        return docs.map((doc) => this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc));
+      }
     );
   }
 
@@ -59,10 +57,8 @@ export class MongoMockTestsAnswerRepository extends MongoMockTestsBaseRepository
           deletedAt: null,
         }).lean();
 
-        return doc
-          ? this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc) : null;
+      }
     );
   }
 
@@ -73,11 +69,9 @@ export class MongoMockTestsAnswerRepository extends MongoMockTestsBaseRepository
       async () => {
         const doc = await MockTestAnswerModel.create(data);
 
-        return this._mapper.toMockTestAnswerEntity(
-          doc.toObject() as RawMockTestAnswerDoc,
-        );
+        return this._mapper.toMockTestAnswerEntity(doc.toObject() as RawMockTestAnswerDoc);
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
@@ -101,9 +95,7 @@ export class MongoMockTestsAnswerRepository extends MongoMockTestsBaseRepository
           }).lean();
 
           return existingDoc
-            ? this._mapper.toMockTestAnswerEntity(
-                existingDoc as RawMockTestAnswerDoc,
-              )
+            ? this._mapper.toMockTestAnswerEntity(existingDoc as RawMockTestAnswerDoc)
             : null;
         }
 
@@ -115,13 +107,11 @@ export class MongoMockTestsAnswerRepository extends MongoMockTestsBaseRepository
           update,
           {
             new: true,
-          },
+          }
         ).lean();
 
-        return doc
-          ? this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestAnswerEntity(doc as RawMockTestAnswerDoc) : null;
+      }
     );
   }
 
@@ -140,5 +130,4 @@ export class MongoMockTestsAnswerRepository extends MongoMockTestsBaseRepository
   }
 }
 
-export const mongoMockTestsAnswerRepository =
-  new MongoMockTestsAnswerRepository();
+export const mongoMockTestsAnswerRepository = new MongoMockTestsAnswerRepository();

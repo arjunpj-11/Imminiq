@@ -2,26 +2,24 @@ import type {
   IAdaptiveAdvisorChatDTO,
   IAdaptiveAssessmentGenerationDTO,
   IAdaptiveLearningDashboardDTO,
-} from './adaptive-learning.dto'
+} from './adaptive-learning.dto';
 
 export interface IAdaptiveLearningMapper {
-  toDashboard(data: IAdaptiveLearningDashboardDTO): IAdaptiveLearningDashboardDTO
-  toAssessmentGeneration(
-    data: IAdaptiveAssessmentGenerationDTO,
-  ): IAdaptiveAssessmentGenerationDTO
-  toAdvisorChat(data: IAdaptiveAdvisorChatDTO): IAdaptiveAdvisorChatDTO
+  toDashboard(data: IAdaptiveLearningDashboardDTO): IAdaptiveLearningDashboardDTO;
+  toAssessmentGeneration(data: IAdaptiveAssessmentGenerationDTO): IAdaptiveAssessmentGenerationDTO;
+  toAdvisorChat(data: IAdaptiveAdvisorChatDTO): IAdaptiveAdvisorChatDTO;
 }
 
 export class AdaptiveLearningMapper implements IAdaptiveLearningMapper {
   toDashboard(data: IAdaptiveLearningDashboardDTO) {
-    return data
+    return data;
   }
 
   toAssessmentGeneration(data: IAdaptiveAssessmentGenerationDTO) {
-    return data
+    return data;
   }
 
   toAdvisorChat(data: IAdaptiveAdvisorChatDTO) {
-    return data
+    return data;
   }
 }

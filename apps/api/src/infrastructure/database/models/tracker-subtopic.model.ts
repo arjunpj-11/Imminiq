@@ -1,28 +1,28 @@
 // apps/api/src/infrastructure/database/models/tracker-subtopic.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ITrackerSubtopicDocument extends Document {
-  trackerId: mongoose.Types.ObjectId
-  topicId: mongoose.Types.ObjectId
-  parentSubtopicId?: mongoose.Types.ObjectId | null
-  title: string
-  description: string
-  order: number
-  depth: number
-  isLocked: boolean
-  estimatedMinutes: number
+  trackerId: mongoose.Types.ObjectId;
+  topicId: mongoose.Types.ObjectId;
+  parentSubtopicId?: mongoose.Types.ObjectId | null;
+  title: string;
+  description: string;
+  order: number;
+  depth: number;
+  isLocked: boolean;
+  estimatedMinutes: number;
   learningVideo?: {
-    videoId: string
-    title: string
-    url: string
-    channelTitle: string
-    thumbnailUrl: string
-    durationSeconds: number
-  } | null
-  deletedAt?: Date | null
-  createdAt: Date
-  updatedAt: Date
+    videoId: string;
+    title: string;
+    url: string;
+    channelTitle: string;
+    thumbnailUrl: string;
+    durationSeconds: number;
+  } | null;
+  deletedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const trackerSubtopicSchema = new Schema<ITrackerSubtopicDocument>(
@@ -82,7 +82,7 @@ const trackerSubtopicSchema = new Schema<ITrackerSubtopicDocument>(
           thumbnailUrl: { type: String, default: '', trim: true },
           durationSeconds: { type: Number, default: 0, min: 0 },
         },
-        { _id: false },
+        { _id: false }
       ),
       default: null,
     },
@@ -92,12 +92,12 @@ const trackerSubtopicSchema = new Schema<ITrackerSubtopicDocument>(
     },
   },
   { timestamps: true }
-)
+);
 
-trackerSubtopicSchema.index({ trackerId: 1, topicId: 1, order: 1 })
-trackerSubtopicSchema.index({ trackerId: 1, topicId: 1, depth: 1 })
+trackerSubtopicSchema.index({ trackerId: 1, topicId: 1, order: 1 });
+trackerSubtopicSchema.index({ trackerId: 1, topicId: 1, depth: 1 });
 
 export const TrackerSubtopic = mongoose.model<ITrackerSubtopicDocument>(
   'TrackerSubtopic',
   trackerSubtopicSchema
-)
+);

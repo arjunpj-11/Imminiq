@@ -1,8 +1,5 @@
-import { ACTIVITY_QUERY_ROOT } from '../constants/activity.constants'
-import type {
-  IActivityFeedQueryInput,
-  IActivityPageQueryInput,
-} from '../types/activity.types'
+import { ACTIVITY_QUERY_ROOT } from '../constants/activity.constants';
+import type { IActivityFeedQueryInput, IActivityPageQueryInput } from '../types/activity.types';
 
 export const activityQueryKeys = {
   all: [ACTIVITY_QUERY_ROOT] as const,
@@ -17,10 +14,5 @@ export const activityQueryKeys = {
     ] as const,
   feeds: () => [...activityQueryKeys.all, 'feed'] as const,
   feed: (input: IActivityFeedQueryInput) =>
-    [
-      ...activityQueryKeys.feeds(),
-      input.filter,
-      input.limit,
-      input.utcOffsetMinutes,
-    ] as const,
-}
+    [...activityQueryKeys.feeds(), input.filter, input.limit, input.utcOffsetMinutes] as const,
+};

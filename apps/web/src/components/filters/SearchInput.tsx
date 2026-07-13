@@ -1,13 +1,12 @@
-import type { InputHTMLAttributes, ReactNode } from 'react'
+import type { InputHTMLAttributes, ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
-import Input from '../forms/Input'
+import { cn } from '../../lib/cn';
+import Input from '../forms/Input';
 
-interface ISearchInputProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
-  icon?: ReactNode
-  onClear?: () => void
-  containerClassName?: string
+interface ISearchInputProps extends Omit<InputHTMLAttributes<HTMLInputElement>, 'type'> {
+  icon?: ReactNode;
+  onClear?: () => void;
+  containerClassName?: string;
 }
 
 export default function SearchInput({
@@ -18,8 +17,8 @@ export default function SearchInput({
   value,
   ...props
 }: ISearchInputProps) {
-  const hasIcon = icon !== null && icon !== undefined
-  const hasValue = typeof value === 'string' && value.length > 0
+  const hasIcon = icon !== null && icon !== undefined;
+  const hasValue = typeof value === 'string' && value.length > 0;
 
   return (
     <div className={cn('relative min-w-0 flex-1', containerClassName)}>
@@ -33,11 +32,7 @@ export default function SearchInput({
         {...props}
         type="search"
         value={value}
-        className={cn(
-          hasIcon && 'pl-10',
-          onClear && 'pr-10',
-          className,
-        )}
+        className={cn(hasIcon && 'pl-10', onClear && 'pr-10', className)}
       />
 
       {onClear && hasValue && (
@@ -51,5 +46,5 @@ export default function SearchInput({
         </button>
       )}
     </div>
-  )
+  );
 }

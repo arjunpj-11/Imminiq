@@ -1,10 +1,10 @@
-import { useState, type FormEvent } from 'react'
-import { Link } from 'react-router-dom'
-import axios from 'axios'
+import { useState, type FormEvent } from 'react';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
 
-import { useVerifyTwoFactorLogin } from '../hooks/useVerifyTwoFactorLogin'
-import { AlertIcon, LogoIcon } from '../components/icons/AuthIcons'
-import { cn } from '../utils/auth-ui'
+import { useVerifyTwoFactorLogin } from '../hooks/useVerifyTwoFactorLogin';
+import { AlertIcon, LogoIcon } from '../components/icons/AuthIcons';
+import { cn } from '../utils/auth-ui';
 
 const ShieldIcon = () => {
   return (
@@ -20,54 +20,49 @@ const ShieldIcon = () => {
       <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
       <path d="M9 12l2 2 4-5" />
     </svg>
-  )
-}
+  );
+};
 
 const normalizeCodeInput = (value: string) => {
-  return value
-    .toUpperCase()
-    .replace(/\s+/g, '')
-    .slice(0, 11)
-}
+  return value.toUpperCase().replace(/\s+/g, '').slice(0, 11);
+};
 
 const isValidTwoFactorCode = (value: string) => {
-  const compact = value.trim().replace(/\s/g, '')
+  const compact = value.trim().replace(/\s/g, '');
 
-  const isTotp = /^\d{6}$/.test(compact)
-  const isBackupCode = /^[A-F0-9]{5}-?[A-F0-9]{5}$/.test(compact)
+  const isTotp = /^\d{6}$/.test(compact);
+  const isBackupCode = /^[A-F0-9]{5}-?[A-F0-9]{5}$/.test(compact);
 
-  return isTotp || isBackupCode
-}
+  return isTotp || isBackupCode;
+};
 
 export default function TwoFactorChallengePage() {
-  const verifyTwoFactor = useVerifyTwoFactorLogin()
+  const verifyTwoFactor = useVerifyTwoFactorLogin();
 
-  const [code, setCode] = useState('')
-  const [touched, setTouched] = useState(false)
+  const [code, setCode] = useState('');
+  const [touched, setTouched] = useState(false);
 
-  const apiError = axios.isAxiosError<{ message?: string }>(
-    verifyTwoFactor.error
-  )
+  const apiError = axios.isAxiosError<{ message?: string }>(verifyTwoFactor.error)
     ? verifyTwoFactor.error.response?.data?.message
-    : undefined
+    : undefined;
 
   const formError =
     touched && !isValidTwoFactorCode(code)
       ? 'Enter a valid 6-digit authenticator code or backup code.'
-      : undefined
+      : undefined;
 
   const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    setTouched(true)
+    event.preventDefault();
+    setTouched(true);
 
     if (!isValidTwoFactorCode(code)) {
-      return
+      return;
     }
 
     verifyTwoFactor.mutate({
       code: code.trim(),
-    })
-  }
+    });
+  };
 
   return (
     <div
@@ -105,8 +100,8 @@ export default function TwoFactorChallengePage() {
             </h1>
 
             <p className="mt-5 text-[15px] leading-[1.75] text-(--text-secondary) dark:text-(--text-secondary)">
-              Your password or OAuth login was accepted. Complete your second
-              verification step to securely enter Imminiq.
+              Your password or OAuth login was accepted. Complete your second verification step to
+              securely enter Imminiq.
             </p>
           </div>
 
@@ -143,8 +138,8 @@ export default function TwoFactorChallengePage() {
               </h2>
 
               <p className="mx-auto mt-3 max-w-97.5 text-center text-[13.5px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                Use the 6-digit code from your authenticator app. You may also
-                use one of your backup codes.
+                Use the 6-digit code from your authenticator app. You may also use one of your
+                backup codes.
               </p>
 
               {apiError && (
@@ -168,9 +163,7 @@ export default function TwoFactorChallengePage() {
                 <input
                   id="twoFactorCode"
                   value={code}
-                  onChange={(event) =>
-                    setCode(normalizeCodeInput(event.target.value))
-                  }
+                  onChange={(event) => setCode(normalizeCodeInput(event.target.value))}
                   onBlur={() => setTouched(true)}
                   placeholder="123456 or ABCDE-12345"
                   autoFocus
@@ -203,10 +196,7 @@ export default function TwoFactorChallengePage() {
 
               <button
                 type="submit"
-                disabled={
-                  verifyTwoFactor.isPending ||
-                  !isValidTwoFactorCode(code)
-                }
+                disabled={verifyTwoFactor.isPending || !isValidTwoFactorCode(code)}
                 className={cn(
                   'mt-5 w-full rounded-xl bg-(--brand-500) px-5 py-3.5 text-[15px] font-bold text-[#f5ede4] transition',
                   'hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)]',
@@ -214,15 +204,11 @@ export default function TwoFactorChallengePage() {
                   'dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)'
                 )}
               >
-                {verifyTwoFactor.isPending
-                  ? 'Verifying...'
-                  : 'Verify and Continue'}
+                {verifyTwoFactor.isPending ? 'Verifying...' : 'Verify and Continue'}
               </button>
 
               <div className="mt-5 flex flex-col gap-2 text-center text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
-                <p>
-                  Lost access to your authenticator? Use a saved backup code.
-                </p>
+                <p>Lost access to your authenticator? Use a saved backup code.</p>
 
                 <Link
                   to="/login"
@@ -236,5 +222,5 @@ export default function TwoFactorChallengePage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

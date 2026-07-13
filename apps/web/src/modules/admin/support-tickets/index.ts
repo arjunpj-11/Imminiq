@@ -1,1 +1,1 @@
-export { default as AdminSupportTicketsPage } from './pages/AdminSupportTicketsPage'
+export { default as AdminSupportTicketsPage } from './pages/AdminSupportTicketsPage';

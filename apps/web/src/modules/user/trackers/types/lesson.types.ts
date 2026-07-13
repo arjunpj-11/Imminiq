@@ -1,10 +1,10 @@
 export type LessonLocationState = {
-  returnToRoadmapStack?: unknown[]
-}
+  returnToRoadmapStack?: unknown[];
+};
 
 export type CompilerLanguageOption = {
-  label: string
-  value: string
-  fileName: string
-  languageId: number
-}
+  label: string;
+  value: string;
+  fileName: string;
+  languageId: number;
+};

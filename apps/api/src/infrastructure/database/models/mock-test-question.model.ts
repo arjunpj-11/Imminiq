@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const mockTestCodingTestCaseSchema = new Schema(
   {
@@ -24,8 +24,8 @@ const mockTestCodingTestCaseSchema = new Schema(
       default: undefined,
     },
   },
-  { _id: false },
-)
+  { _id: false }
+);
 
 const mockTestCodingSchema = new Schema(
   {
@@ -114,8 +114,8 @@ const mockTestCodingSchema = new Schema(
       default: [],
     },
   },
-  { _id: false },
-)
+  { _id: false }
+);
 
 const mockTestQuestionSchema = new Schema(
   {
@@ -175,11 +175,10 @@ const mockTestQuestionSchema = new Schema(
       default: undefined,
     },
   },
-  { timestamps: true },
-)
+  { timestamps: true }
+);
 
-mockTestQuestionSchema.index({ testId: 1, order: 1 }, { unique: true })
+mockTestQuestionSchema.index({ testId: 1, order: 1 }, { unique: true });
 
 export const MockTestQuestionModel =
-  mongoose.models.MockTestQuestion ||
-  mongoose.model('MockTestQuestion', mockTestQuestionSchema)
+  mongoose.models.MockTestQuestion || mongoose.model('MockTestQuestion', mockTestQuestionSchema);

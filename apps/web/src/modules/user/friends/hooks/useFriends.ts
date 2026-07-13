@@ -1,24 +1,21 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
+import { useInfiniteQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
-import api from "../../../../lib/axios";
-import {
-  FRIENDS_ENDPOINTS,
-  FRIENDS_STALE_TIME_MS,
-} from "../constants/friends.constants";
+import api from '../../../../lib/axios';
+import { FRIENDS_ENDPOINTS, FRIENDS_STALE_TIME_MS } from '../constants/friends.constants';
 import type {
   IFriendUsersPage,
   IFriendsApiErrorResponse,
   IFriendsApiResponse,
   IFriendsListQueryInput,
-} from "../types/friends.types";
-import { friendsQueryKeys } from "./friends-query-keys";
+} from '../types/friends.types';
+import { friendsQueryKeys } from './friends-query-keys';
 
 export const useFriends = (input: IFriendsListQueryInput) =>
   useInfiniteQuery<IFriendUsersPage, AxiosError<IFriendsApiErrorResponse>>({
     queryKey: friendsQueryKeys.list(input),
     queryFn: async ({ pageParam }) => {
-      const page = typeof pageParam === "number" ? pageParam : 1;
+      const page = typeof pageParam === 'number' ? pageParam : 1;
       const response = await api.get<IFriendsApiResponse<IFriendUsersPage>>(
         FRIENDS_ENDPOINTS.root,
         {
@@ -27,7 +24,7 @@ export const useFriends = (input: IFriendsListQueryInput) =>
             limit: input.limit,
             ...(input.search ? { q: input.search } : {}),
           },
-        },
+        }
       );
 
       return response.data.data;

@@ -1,10 +1,10 @@
 export const ROADMAP_STRUCTURE_SYSTEM_PROMPT =
-  'You are an elite curriculum architect. Return strict valid JSON only. Build complete zero-to-hero master roadmaps with interview depth.'
+  'You are an elite curriculum architect. Return strict valid JSON only. Build complete zero-to-hero master roadmaps with interview depth.';
 
 export const buildRoadmapStructurePrompt = (input: {
-  topic: string
-  goal?: string
-  level: 'beginner' | 'intermediate' | 'advanced'
+  topic: string;
+  goal?: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
 }): string => `
 You are a senior curriculum architect, interview mentor, and full learning-path designer.
 
@@ -175,4 +175,4 @@ Final checks before responding:
 - All order numbers must start at 1 and increment inside their own sibling group.
 - Checklist leaves must have "children": [].
 - The roadmap must feel like a complete study tracker, not a short outline.
-`
+`;

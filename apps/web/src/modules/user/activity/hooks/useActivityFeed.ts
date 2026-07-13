@@ -1,18 +1,15 @@
-import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
+import { keepPreviousData, useInfiniteQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
-import api from '../../../../lib/axios'
-import {
-  ACTIVITY_ENDPOINTS,
-  ACTIVITY_STALE_TIME_MS,
-} from '../constants/activity.constants'
+import api from '../../../../lib/axios';
+import { ACTIVITY_ENDPOINTS, ACTIVITY_STALE_TIME_MS } from '../constants/activity.constants';
 import type {
   IActivityApiErrorResponse,
   IActivityApiResponse,
   IActivityFeedQueryInput,
   IActivityFeedResponse,
-} from '../types/activity.types'
-import { activityQueryKeys } from './activity-query-keys'
+} from '../types/activity.types';
+import { activityQueryKeys } from './activity-query-keys';
 
 interface IUseActivityFeedOptions extends IActivityFeedQueryInput {
   /**
@@ -24,8 +21,8 @@ interface IUseActivityFeedOptions extends IActivityFeedQueryInput {
    * the real fetch — that was the cause of the "filter doesn't update"
    * bug. When in doubt, omit it.
    */
-  initialFeed?: IActivityFeedResponse
-  initialDataUpdatedAt?: number
+  initialFeed?: IActivityFeedResponse;
+  initialDataUpdatedAt?: number;
 }
 
 export const useActivityFeed = ({
@@ -33,31 +30,27 @@ export const useActivityFeed = ({
   initialDataUpdatedAt,
   ...input
 }: IUseActivityFeedOptions) =>
-  useInfiniteQuery<
-    IActivityFeedResponse,
-    AxiosError<IActivityApiErrorResponse>
-  >({
+  useInfiniteQuery<IActivityFeedResponse, AxiosError<IActivityApiErrorResponse>>({
     queryKey: activityQueryKeys.feed(input),
     queryFn: async ({ pageParam }) => {
-      const cursor =
-        typeof pageParam === 'string' ? pageParam : undefined
+      const cursor = typeof pageParam === 'string' ? pageParam : undefined;
 
-      const response = await api.get<
-        IActivityApiResponse<IActivityFeedResponse>
-      >(ACTIVITY_ENDPOINTS.feed, {
-        params: {
-          filter: input.filter,
-          limit: input.limit,
-          utcOffsetMinutes: input.utcOffsetMinutes,
-          ...(cursor ? { cursor } : {}),
-        },
-      })
+      const response = await api.get<IActivityApiResponse<IActivityFeedResponse>>(
+        ACTIVITY_ENDPOINTS.feed,
+        {
+          params: {
+            filter: input.filter,
+            limit: input.limit,
+            utcOffsetMinutes: input.utcOffsetMinutes,
+            ...(cursor ? { cursor } : {}),
+          },
+        }
+      );
 
-      return response.data.data
+      return response.data.data;
     },
     initialPageParam: null,
-    getNextPageParam: (lastPage) =>
-      lastPage.pagination.nextCursor ?? undefined,
+    getNextPageParam: (lastPage) => lastPage.pagination.nextCursor ?? undefined,
     // Seed the cache ONLY when the caller has confirmed initialFeed
     // actually matches this filter/year — otherwise a stale/mismatched
     // feed gets stamped "fresh" for the new query key and the real
@@ -68,9 +61,7 @@ export const useActivityFeed = ({
             pages: [initialFeed],
             pageParams: [null],
           },
-          ...(initialDataUpdatedAt !== undefined
-            ? { initialDataUpdatedAt }
-            : {}),
+          ...(initialDataUpdatedAt !== undefined ? { initialDataUpdatedAt } : {}),
         }
       : {}),
     // While a new filter's first page is loading, keep rendering the
@@ -80,4 +71,4 @@ export const useActivityFeed = ({
     placeholderData: keepPreviousData,
     staleTime: ACTIVITY_STALE_TIME_MS,
     retry: 1,
-  })
+  });

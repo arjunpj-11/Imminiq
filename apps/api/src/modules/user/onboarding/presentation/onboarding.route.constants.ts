@@ -10,7 +10,7 @@ export const ONBOARDING_ROUTE_PATHS = {
   JOB_RESULT: '/jobs/:jobId/result',
   EVALUATE_ROADMAP: '/jobs/:jobId/evaluate',
   EVALUATION_RESULT: '/jobs/:jobId/evaluation-result',
-} as const
+} as const;
 
 export type OnboardingRoutePath =
-  (typeof ONBOARDING_ROUTE_PATHS)[keyof typeof ONBOARDING_ROUTE_PATHS]
+  (typeof ONBOARDING_ROUTE_PATHS)[keyof typeof ONBOARDING_ROUTE_PATHS];

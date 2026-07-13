@@ -17,7 +17,6 @@ export const SETTINGS_ROUTE_PATHS = {
   LEARNING_JOURNEY: '/learning-journey',
 
   RESET: '/reset',
-} as const
+} as const;
 
-export type SettingsRoutePath =
-  (typeof SETTINGS_ROUTE_PATHS)[keyof typeof SETTINGS_ROUTE_PATHS]
+export type SettingsRoutePath = (typeof SETTINGS_ROUTE_PATHS)[keyof typeof SETTINGS_ROUTE_PATHS];

@@ -4,32 +4,25 @@ export const ACTIVITY_CATEGORIES = [
   'community',
   'streak',
   'xp_milestone',
-] as const
+] as const;
 
-export type ActivityCategory =
-  (typeof ACTIVITY_CATEGORIES)[number]
+export type ActivityCategory = (typeof ACTIVITY_CATEGORIES)[number];
 
-export const ACTIVITY_FEED_FILTERS = [
-  'all',
-  'trackers',
-  'mock_tests',
-  'community',
-] as const
+export const ACTIVITY_FEED_FILTERS = ['all', 'trackers', 'mock_tests', 'community'] as const;
 
-export type ActivityFeedFilter =
-  (typeof ACTIVITY_FEED_FILTERS)[number]
+export type ActivityFeedFilter = (typeof ACTIVITY_FEED_FILTERS)[number];
 
 export const activityCategoriesForFilter = (
-  filter: ActivityFeedFilter,
+  filter: ActivityFeedFilter
 ): ActivityCategory[] | undefined => {
   switch (filter) {
     case 'trackers':
-      return ['tracker']
+      return ['tracker'];
     case 'mock_tests':
-      return ['mock_test']
+      return ['mock_test'];
     case 'community':
-      return ['community']
+      return ['community'];
     case 'all':
-      return undefined
+      return undefined;
   }
-}
+};

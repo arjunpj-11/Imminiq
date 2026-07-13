@@ -1,1 +1,1 @@
-export { createAdminDashboardRoutes } from './admin-dashboard.routes'
+export { createAdminDashboardRoutes } from './admin-dashboard.routes';

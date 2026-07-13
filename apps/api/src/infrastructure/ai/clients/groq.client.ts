@@ -1,7 +1,7 @@
-import Groq from 'groq-sdk'
-import { env } from '../../../config/env'
+import Groq from 'groq-sdk';
+import { env } from '../../../config/env';
 
-export const groq = new Groq({ apiKey: env.GROQ_API_KEY })
+export const groq = new Groq({ apiKey: env.GROQ_API_KEY });
 
 export const groqChat = async (
   messages: { role: 'user' | 'assistant' | 'system'; content: string }[],
@@ -12,7 +12,7 @@ export const groqChat = async (
     messages,
     temperature: 0.7,
     max_tokens: 2048,
-  })
+  });
 
-  return response.choices[0].message.content
-}
+  return response.choices[0].message.content;
+};

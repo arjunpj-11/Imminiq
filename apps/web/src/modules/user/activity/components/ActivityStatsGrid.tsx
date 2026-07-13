@@ -1,11 +1,11 @@
-import StatCard from '../../../../components/data-display/StatCard'
-import StatGrid from '../../../../components/data-display/StatGrid'
-import type { IActivityPageResponse } from '../types/activity.types'
-import { formatCompactNumber } from '../utils/activity-formatters'
-import { ACTIVITY_STAT_ACCENTS } from '../utils/activity-ui'
+import StatCard from '../../../../components/data-display/StatCard';
+import StatGrid from '../../../../components/data-display/StatGrid';
+import type { IActivityPageResponse } from '../types/activity.types';
+import { formatCompactNumber } from '../utils/activity-formatters';
+import { ACTIVITY_STAT_ACCENTS } from '../utils/activity-ui';
 
 interface IActivityStatsGridProps {
-  stats: IActivityPageResponse['stats']
+  stats: IActivityPageResponse['stats'];
 }
 
 export default function ActivityStatsGrid({ stats }: IActivityStatsGridProps) {
@@ -30,7 +30,7 @@ export default function ActivityStatsGrid({ stats }: IActivityStatsGridProps) {
       value: formatCompactNumber(stats.testsAttempted),
       helper: `${formatCompactNumber(stats.totalQuestions)} questions total`,
     },
-  ]
+  ];
 
   return (
     <StatGrid>
@@ -39,11 +39,10 @@ export default function ActivityStatsGrid({ stats }: IActivityStatsGridProps) {
           key={card.label}
           {...card}
           accent={
-            ACTIVITY_STAT_ACCENTS[index % ACTIVITY_STAT_ACCENTS.length] ??
-            ACTIVITY_STAT_ACCENTS[0]
+            ACTIVITY_STAT_ACCENTS[index % ACTIVITY_STAT_ACCENTS.length] ?? ACTIVITY_STAT_ACCENTS[0]
           }
         />
       ))}
     </StatGrid>
-  )
+  );
 }

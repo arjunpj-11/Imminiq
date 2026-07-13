@@ -1,16 +1,10 @@
-import { useState, type ReactNode } from 'react'
+import { useState, type ReactNode } from 'react';
 
-import type { ICommunityTrackerReview } from '../../types/community.types'
-import { cn } from '../../utils/community-ui'
+import type { ICommunityTrackerReview } from '../../types/community.types';
+import { cn } from '../../utils/community-ui';
 
 export const BackIcon = () => (
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path
       d="M19 12H5M11 6l-6 6 6 6"
       stroke="currentColor"
@@ -19,7 +13,7 @@ export const BackIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 export const HeartIcon = ({ filled = false }: { filled?: boolean }) => (
   <svg
@@ -36,22 +30,10 @@ export const HeartIcon = ({ filled = false }: { filled?: boolean }) => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-export const StarIcon = ({
-  filled = true,
-  half = false,
-}: {
-  filled?: boolean
-  half?: boolean
-}) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+export const StarIcon = ({ filled = true, half = false }: { filled?: boolean; half?: boolean }) => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     {half ? (
       <>
         <defs>
@@ -79,25 +61,11 @@ export const StarIcon = ({
       />
     )}
   </svg>
-)
+);
 
 export const CopyIcon = () => (
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
-    <rect
-      x="8"
-      y="8"
-      width="11"
-      height="11"
-      rx="2"
-      stroke="currentColor"
-      strokeWidth="1.7"
-    />
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <rect x="8" y="8" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="1.7" />
 
     <path
       d="M5 15H4.5C3.7 15 3 14.3 3 13.5V4.5C3 3.7 3.7 3 4.5 3H13.5C14.3 3 15 3.7 15 4.5V5"
@@ -106,16 +74,10 @@ export const CopyIcon = () => (
       strokeLinecap="round"
     />
   </svg>
-)
+);
 
 export const MessageIcon = () => (
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path
       d="M5 18.5V20.5L8.2 18.5H17C19.2 18.5 21 16.7 21 14.5V7.5C21 5.3 19.2 3.5 17 3.5H7C4.8 3.5 3 5.3 3 7.5V14.5C3 16.7 4.8 18.5 7 18.5H5Z"
       stroke="currentColor"
@@ -123,16 +85,10 @@ export const MessageIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 export const VerifiedIcon = () => (
-  <svg
-    width="13"
-    height="13"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path
       d="M12 2.5L14.5 5L18 4.5L19.5 7.7L22 10L20.7 13.3L21 17L17.5 18.2L15 21L12 19.3L9 21L6.5 18.2L3 17L3.3 13.3L2 10L4.5 7.7L6 4.5L9.5 5L12 2.5Z"
       fill="currentColor"
@@ -147,16 +103,10 @@ export const VerifiedIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 export const TopicIcon = () => (
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path
       d="M5 4.5H19M5 9.5H15M5 14.5H19M5 19.5H13"
       stroke="currentColor"
@@ -164,16 +114,10 @@ export const TopicIcon = () => (
       strokeLinecap="round"
     />
   </svg>
-)
+);
 
 const ThumbsUpIcon = () => (
-  <svg
-    width="13"
-    height="13"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path
       d="M7 22V11M2 13V20C2 21.1 2.9 22 4 22H16.4C17.6 22 18.6 21.1 18.8 19.9L20 13.9C20.2 12.5 19.1 11.2 17.7 11.2H14V6C14 4.3 12.7 3 11 3C10.4 3 10 3.4 10 4V5L8.1 9.7C7.7 10.5 7 11 6.2 11H4C2.9 11 2 11.9 2 13Z"
       stroke="currentColor"
@@ -182,7 +126,7 @@ const ThumbsUpIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 export const ChevronIcon = ({ open }: { open: boolean }) => (
   <svg
@@ -204,22 +148,22 @@ export const ChevronIcon = ({ open }: { open: boolean }) => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-type StarSize = 'sm' | 'md' | 'lg'
+type StarSize = 'sm' | 'md' | 'lg';
 
 const starSizePx: Record<StarSize, number> = {
   sm: 13,
   md: 16,
   lg: 22,
-}
+};
 
 interface IRatingStarsProps {
-  value: number
-  size?: StarSize
-  interactive?: boolean
-  disabled?: boolean
-  onChange?: (rating: number) => void
+  value: number;
+  size?: StarSize;
+  interactive?: boolean;
+  disabled?: boolean;
+  onChange?: (rating: number) => void;
 }
 
 export function RatingStars({
@@ -229,53 +173,44 @@ export function RatingStars({
   disabled = false,
   onChange,
 }: IRatingStarsProps) {
-  const [hovered, setHovered] = useState(0)
+  const [hovered, setHovered] = useState(0);
 
-  const px = starSizePx[size]
-  const displayed = interactive && hovered > 0 ? hovered : value
+  const px = starSizePx[size];
+  const displayed = interactive && hovered > 0 ? hovered : value;
 
   const handleMouseLeave = () => {
     if (interactive) {
-      setHovered(0)
+      setHovered(0);
     }
-  }
+  };
 
   return (
     <div
       className="flex items-center gap-0.5"
       onMouseLeave={handleMouseLeave}
       role={interactive ? 'group' : undefined}
-      aria-label={
-        interactive ? 'Select a rating' : `${value} out of 5 stars`
-      }
+      aria-label={interactive ? 'Select a rating' : `${value} out of 5 stars`}
     >
       {[1, 2, 3, 4, 5].map((star) => {
-        const isFilled = star <= Math.floor(displayed)
-        const isHalf =
-          !isFilled &&
-          star === Math.ceil(displayed) &&
-          displayed % 1 >= 0.4
+        const isFilled = star <= Math.floor(displayed);
+        const isHalf = !isFilled && star === Math.ceil(displayed) && displayed % 1 >= 0.4;
 
-        const gradientId = `rating-half-${star}-${size}`
+        const gradientId = `rating-half-${star}-${size}`;
 
         return (
           <button
             key={star}
             type="button"
             disabled={!interactive || disabled}
-            aria-label={
-              interactive
-                ? `Rate ${star} star${star > 1 ? 's' : ''}`
-                : undefined
-            }
+            aria-label={interactive ? `Rate ${star} star${star > 1 ? 's' : ''}` : undefined}
             onClick={() => {
               if (interactive && !disabled) {
-                onChange?.(star)
+                onChange?.(star);
               }
             }}
             onMouseEnter={() => {
               if (interactive && !disabled) {
-                setHovered(star)
+                setHovered(star);
               }
             }}
             style={{
@@ -294,26 +229,14 @@ export function RatingStars({
               interactive && !disabled && 'hover:scale-110',
               isFilled || isHalf
                 ? 'text-(--brand-500) dark:text-(--brand-500)'
-                : 'text-[#d4c8bf] dark:text-white/20',
+                : 'text-[#d4c8bf] dark:text-white/20'
             )}
           >
-            <svg
-              width={px}
-              height={px}
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
+            <svg width={px} height={px} viewBox="0 0 24 24" fill="none" aria-hidden="true">
               {isHalf ? (
                 <>
                   <defs>
-                    <linearGradient
-                      id={gradientId}
-                      x1="0"
-                      x2="1"
-                      y1="0"
-                      y2="0"
-                    >
+                    <linearGradient id={gradientId} x1="0" x2="1" y1="0" y2="0">
                       <stop offset="50%" stopColor="currentColor" />
                       <stop offset="50%" stopColor="transparent" />
                     </linearGradient>
@@ -338,30 +261,25 @@ export function RatingStars({
               )}
             </svg>
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }
 
 interface IAvatarProps {
-  initials: string
-  avatarUrl?: string | null
-  size?: 'sm' | 'md' | 'lg'
-  accent?: boolean
+  initials: string;
+  avatarUrl?: string | null;
+  size?: 'sm' | 'md' | 'lg';
+  accent?: boolean;
 }
 
-export const Avatar = ({
-  initials,
-  avatarUrl,
-  size = 'md',
-  accent = false,
-}: IAvatarProps) => {
+export const Avatar = ({ initials, avatarUrl, size = 'md', accent = false }: IAvatarProps) => {
   const sizeClass = {
     sm: 'h-7 w-7 text-[10px]',
     md: 'h-9 w-9 text-[11px]',
     lg: 'h-11 w-11 text-[13px]',
-  }[size]
+  }[size];
 
   return (
     <div
@@ -370,20 +288,18 @@ export const Avatar = ({
         sizeClass,
         accent
           ? 'bg-(--brand-500) text-white dark:bg-(--brand-500) dark:text-[#141412]'
-          : 'bg-[#1a1714] text-white dark:bg-[#f2f0eb] dark:text-[#141412]',
+          : 'bg-[#1a1714] text-white dark:bg-[#f2f0eb] dark:text-[#141412]'
       )}
     >
-      {avatarUrl ? (
-        <img src={avatarUrl} alt="" className="h-full w-full object-cover" />
-      ) : initials}
+      {avatarUrl ? <img src={avatarUrl} alt="" className="h-full w-full object-cover" /> : initials}
     </div>
-  )
-}
+  );
+};
 
 interface IStatPillProps {
-  icon: ReactNode
-  label: string
-  value: string
+  icon: ReactNode;
+  label: string;
+  value: string;
 }
 
 export const StatPill = ({ icon, label, value }: IStatPillProps) => (
@@ -391,31 +307,27 @@ export const StatPill = ({ icon, label, value }: IStatPillProps) => (
     <div className="mb-1 flex items-center gap-1.5 text-(--brand-500) dark:text-(--brand-500)">
       {icon}
 
-      <span className="font-mono text-[8px] uppercase tracking-widest">
-        {label}
-      </span>
+      <span className="font-mono text-[8px] uppercase tracking-widest">{label}</span>
     </div>
 
     <p className="font-ui text-[20px] font-extrabold text-(--text-primary) dark:text-(--text-primary)">
       {value}
     </p>
   </div>
-)
+);
 
 interface IRatingBarProps {
-  star: number
-  count: number
-  total: number
+  star: number;
+  count: number;
+  total: number;
 }
 
 export const RatingBar = ({ star, count, total }: IRatingBarProps) => {
-  const percentage = total > 0 ? Math.round((count / total) * 100) : 0
+  const percentage = total > 0 ? Math.round((count / total) * 100) : 0;
 
   return (
     <div className="flex items-center gap-2.5">
-      <span className="w-3 shrink-0 text-right font-mono text-[10px] text-[#9b9a92]">
-        {star}
-      </span>
+      <span className="w-3 shrink-0 text-right font-mono text-[10px] text-[#9b9a92]">{star}</span>
 
       <StarIcon filled />
 
@@ -426,24 +338,18 @@ export const RatingBar = ({ star, count, total }: IRatingBarProps) => {
         />
       </div>
 
-      <span className="w-6 shrink-0 text-right font-mono text-[10px] text-[#9b9a92]">
-        {count}
-      </span>
+      <span className="w-6 shrink-0 text-right font-mono text-[10px] text-[#9b9a92]">{count}</span>
     </div>
-  )
-}
+  );
+};
 
 interface IReviewCardProps {
-  review: ICommunityTrackerReview
-  helpfulLoading: boolean
-  onHelpful: () => void
+  review: ICommunityTrackerReview;
+  helpfulLoading: boolean;
+  onHelpful: () => void;
 }
 
-export const ReviewCard = ({
-  review,
-  helpfulLoading,
-  onHelpful,
-}: IReviewCardProps) => (
+export const ReviewCard = ({ review, helpfulLoading, onHelpful }: IReviewCardProps) => (
   <article className="rounded-lg border border-[#e8ddd6] bg-white/50 p-4 dark:border-white/8 dark:bg-white/3 sm:p-5">
     <div className="flex gap-3">
       <Avatar initials={review.author.initials} size="md" />
@@ -484,7 +390,7 @@ export const ReviewCard = ({
               'inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold transition disabled:cursor-not-allowed disabled:opacity-60',
               review.helpfulByMe
                 ? 'border-[rgba(184,76,43,0.28)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)'
-                : 'border-(--border-subtle) text-[#9b9a92] hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:hover:text-(--brand-500)',
+                : 'border-(--border-subtle) text-[#9b9a92] hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:hover:text-(--brand-500)'
             )}
           >
             <ThumbsUpIcon />
@@ -494,51 +400,46 @@ export const ReviewCard = ({
       </div>
     </div>
   </article>
-)
+);
 
 const formatRelativeTime = (value?: string): string => {
   if (!value) {
-    return 'Recently'
+    return 'Recently';
   }
 
-  const date = new Date(value)
-  const time = date.getTime()
+  const date = new Date(value);
+  const time = date.getTime();
 
   if (Number.isNaN(time)) {
-    return 'Recently'
+    return 'Recently';
   }
 
-  const differenceInMilliseconds = Date.now() - time
-  const differenceInMinutes = Math.max(
-    0,
-    Math.floor(differenceInMilliseconds / 60_000),
-  )
+  const differenceInMilliseconds = Date.now() - time;
+  const differenceInMinutes = Math.max(0, Math.floor(differenceInMilliseconds / 60_000));
 
   if (differenceInMinutes < 1) {
-    return 'Just now'
+    return 'Just now';
   }
 
   if (differenceInMinutes < 60) {
-    return `${differenceInMinutes} min ago`
+    return `${differenceInMinutes} min ago`;
   }
 
-  const differenceInHours = Math.floor(differenceInMinutes / 60)
+  const differenceInHours = Math.floor(differenceInMinutes / 60);
 
   if (differenceInHours < 24) {
-    return `${differenceInHours} hr ago`
+    return `${differenceInHours} hr ago`;
   }
 
-  const differenceInDays = Math.floor(differenceInHours / 24)
+  const differenceInDays = Math.floor(differenceInHours / 24);
 
   if (differenceInDays < 7) {
-    return `${differenceInDays} day${
-      differenceInDays === 1 ? '' : 's'
-    } ago`
+    return `${differenceInDays} day${differenceInDays === 1 ? '' : 's'} ago`;
   }
 
   return date.toLocaleDateString(undefined, {
     month: 'short',
     day: 'numeric',
     year: 'numeric',
-  })
-}
+  });
+};

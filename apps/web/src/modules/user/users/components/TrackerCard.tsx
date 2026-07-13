@@ -1,4 +1,4 @@
-import { cn } from '../utils/profile-ui.utils'
+import { cn } from '../utils/profile-ui.utils';
 
 /* ─── Tracker Card ─── */
 interface ITrackerCardProps {
@@ -24,29 +24,20 @@ export default function TrackerCard({
       onClick={onClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClick()}
     >
       <div
-        className={cn(
-          "h-35 relative overflow-hidden flex items-center justify-center",
-          thumbClass,
-        )}
+        className={cn('h-35 relative overflow-hidden flex items-center justify-center', thumbClass)}
       >
         <div
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px)",
+              'repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px)',
           }}
         />
         <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2.25 py-1 rounded-full bg-[rgba(0,0,0,0.55)] backdrop-blur-sm font-mono text-[9px] text-white tracking-[0.06em]">
-          <svg
-            width="9"
-            height="9"
-            viewBox="0 0 24 24"
-            fill="var(--warning)"
-            stroke="none"
-          >
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--warning)" stroke="none">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
           {rating.toFixed(1)}

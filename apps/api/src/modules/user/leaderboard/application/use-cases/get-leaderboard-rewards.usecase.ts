@@ -1,11 +1,8 @@
-import {
-  LEADERBOARD_REWARDS,
-  LEADERBOARD_SCORING_RULES,
-} from '../leaderboard.constants'
-import type { LeaderboardRewardsResponseDTO } from '../leaderboard.dto'
+import { LEADERBOARD_REWARDS, LEADERBOARD_SCORING_RULES } from '../leaderboard.constants';
+import type { LeaderboardRewardsResponseDTO } from '../leaderboard.dto';
 
 export interface IGetLeaderboardRewardsUseCase {
-  execute(): LeaderboardRewardsResponseDTO
+  execute(): LeaderboardRewardsResponseDTO;
 }
 
 export class GetLeaderboardRewardsUseCase implements IGetLeaderboardRewardsUseCase {
@@ -19,6 +16,6 @@ export class GetLeaderboardRewardsUseCase implements IGetLeaderboardRewardsUseCa
         scoringRules: LEADERBOARD_SCORING_RULES.trainers,
         reward: LEADERBOARD_REWARDS.trainers,
       },
-    }
+    };
   }
 }

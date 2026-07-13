@@ -1,13 +1,12 @@
-import { Types } from "mongoose";
+import { Types } from 'mongoose';
 
 import type {
   GeneratedTrackerLessonRecord,
   LearningVideoRecord,
   TrackerListFilter,
-} from "../../../domain/trackers.types";
+} from '../../../domain/trackers.types';
 
-export type MongoPrimitive =
-  string | number | boolean | null | Date | Types.ObjectId;
+export type MongoPrimitive = string | number | boolean | null | Date | Types.ObjectId;
 
 export type MongoOperatorValue = {
   $ne?: MongoPrimitive;
@@ -21,20 +20,19 @@ export type MongoValue = MongoPrimitive | MongoPrimitive[] | MongoOperatorValue;
 
 export type MongoQuery = Record<string, MongoValue>;
 
-export type MongoUpdateValue =
-  MongoPrimitive | MongoPrimitive[] | Record<string, unknown>;
+export type MongoUpdateValue = MongoPrimitive | MongoPrimitive[] | Record<string, unknown>;
 
 export type MongoUpdate = Record<string, MongoUpdateValue>;
 
 export type MongoSortOrder = 1 | -1;
 
-export type StreakIntensityLevel = "none" | "low" | "medium" | "high";
+export type StreakIntensityLevel = 'none' | 'low' | 'medium' | 'high';
 
 export type MongoDuplicateKeyError = {
   code?: number;
 };
 
-export type MongoTrackerSortBy = TrackerListFilter["sortBy"];
+export type MongoTrackerSortBy = TrackerListFilter['sortBy'];
 
 export type MongoSubtopicContentRecord = {
   _id: Types.ObjectId;

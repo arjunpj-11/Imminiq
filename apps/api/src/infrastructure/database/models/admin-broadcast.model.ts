@@ -1,4 +1,4 @@
-import mongoose, { Schema, type InferSchemaType } from 'mongoose'
+import mongoose, { Schema, type InferSchemaType } from 'mongoose';
 
 const adminBroadcastSchema = new Schema(
   {
@@ -11,10 +11,11 @@ const adminBroadcastSchema = new Schema(
     status: { type: String, enum: ['sent', 'failed'], default: 'sent', index: true },
     sentAt: { type: Date, default: Date.now, index: true },
   },
-  { timestamps: true, collection: 'admin_broadcasts' },
-)
+  { timestamps: true, collection: 'admin_broadcasts' }
+);
 
-adminBroadcastSchema.index({ sentAt: -1 })
+adminBroadcastSchema.index({ sentAt: -1 });
 
-export type AdminBroadcastDocument = InferSchemaType<typeof adminBroadcastSchema>
-export const AdminBroadcast = mongoose.models.AdminBroadcast || mongoose.model('AdminBroadcast', adminBroadcastSchema)
+export type AdminBroadcastDocument = InferSchemaType<typeof adminBroadcastSchema>;
+export const AdminBroadcast =
+  mongoose.models.AdminBroadcast || mongoose.model('AdminBroadcast', adminBroadcastSchema);

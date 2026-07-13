@@ -54,5 +54,5 @@ export default function ProfileDocumentStyles() {
         background-color: rgba(232, 129, 106, 0.70);
       }
     `}</style>
-  )
+  );
 }

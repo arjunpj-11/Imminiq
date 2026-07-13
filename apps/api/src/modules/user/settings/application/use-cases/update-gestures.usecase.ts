@@ -1,33 +1,30 @@
-import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface'
-import type {
-  IUpdateGesturesPayloadDTO,
-  UserSettingsViewDTO,
-} from '../settings.dto'
-import type { ISettingsMapper } from '../settings.mapper'
+import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
+import type { IUpdateGesturesPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateGesturesRepository = {
-  updateGestures: ISettingsCommandRepository['updateGestures']
-}
+  updateGestures: ISettingsCommandRepository['updateGestures'];
+};
 
 export interface IUpdateGesturesUseCase {
-  execute(userId: string, payload: IUpdateGesturesPayloadDTO): Promise<UserSettingsViewDTO | null>
+  execute(userId: string, payload: IUpdateGesturesPayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdateGesturesUseCase implements IUpdateGesturesUseCase {
   constructor(
     private readonly _settingsRepository: UpdateGesturesRepository,
-    private readonly _settingsMapper: ISettingsMapper,
+    private readonly _settingsMapper: ISettingsMapper
   ) {}
 
   async execute(
     userId: string,
-    payload: IUpdateGesturesPayloadDTO,
+    payload: IUpdateGesturesPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateGestures({
       userId,
       data: payload,
-    })
+    });
 
-    return this._settingsMapper.toNullableDto(settings)
+    return this._settingsMapper.toNullableDto(settings);
   }
 }

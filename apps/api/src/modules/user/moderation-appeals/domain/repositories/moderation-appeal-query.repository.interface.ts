@@ -1,18 +1,16 @@
-import type { ModerationAppealEntity } from '../entities/moderation-appeal.entity'
-import type { RestrictedModerationUserEntity } from '../entities/restricted-moderation-user.entity'
+import type { ModerationAppealEntity } from '../entities/moderation-appeal.entity';
+import type { RestrictedModerationUserEntity } from '../entities/restricted-moderation-user.entity';
 
 export interface IModerationAppealQueryRepository {
   findRestrictedUserByIdentifier(
     identifier: string
-  ): Promise<RestrictedModerationUserEntity | null>
+  ): Promise<RestrictedModerationUserEntity | null>;
 
-  findActiveAppealForUser(
-    userId: string
-  ): Promise<ModerationAppealEntity | null>
+  findActiveAppealForUser(userId: string): Promise<ModerationAppealEntity | null>;
 
   findLatestActiveAppealForRestrictedIdentifier(
     identifier: string
-  ): Promise<ModerationAppealEntity | null>
+  ): Promise<ModerationAppealEntity | null>;
 
-  caseIdExists(caseId: string): Promise<boolean>
+  caseIdExists(caseId: string): Promise<boolean>;
 }

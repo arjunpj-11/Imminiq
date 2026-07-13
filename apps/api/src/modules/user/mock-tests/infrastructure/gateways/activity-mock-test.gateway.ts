@@ -1,115 +1,83 @@
-import type { IRecordUserActivityUseCase } from '../../../activity'
+import type { IRecordUserActivityUseCase } from '../../../activity';
 import type {
   IMockTestActivityRecorder,
   RecordMockTestCompletedActivityInput,
   RecordMockTestGeneratedActivityInput,
-} from '../../domain/services/mock-test-activity.interface'
+} from '../../domain/services/mock-test-activity.interface';
 
-type ActivityDifficulty =
-  | 'beginner'
-  | 'intermediate'
-  | 'advanced'
+type ActivityDifficulty = 'beginner' | 'intermediate' | 'advanced';
 
 const normalizeText = (
   value: string | null | undefined,
   fallback: string,
-  maximumLength: number,
+  maximumLength: number
 ): string => {
-  const normalized = value?.trim() || fallback
+  const normalized = value?.trim() || fallback;
 
   if (normalized.length <= maximumLength) {
-    return normalized
+    return normalized;
   }
 
-  return normalized.slice(0, maximumLength).trimEnd()
-}
+  return normalized.slice(0, maximumLength).trimEnd();
+};
 
-const normalizeNonNegativeInteger = (
-  value: number,
-): number => {
+const normalizeNonNegativeInteger = (value: number): number => {
   if (!Number.isFinite(value)) {
-    return 0
+    return 0;
   }
 
-  return Math.max(0, Math.floor(value))
-}
+  return Math.max(0, Math.floor(value));
+};
 
-const normalizePercentage = (
-  value: number,
-): number => {
+const normalizePercentage = (value: number): number => {
   if (!Number.isFinite(value)) {
-    return 0
+    return 0;
   }
 
-  return Math.min(100, Math.max(0, value))
-}
+  return Math.min(100, Math.max(0, value));
+};
 
-const toActivityDifficulty = (
-  difficulty: string,
-): ActivityDifficulty => {
+const toActivityDifficulty = (difficulty: string): ActivityDifficulty => {
   switch (difficulty.toLowerCase()) {
     case 'easy':
     case 'beginner':
-      return 'beginner'
+      return 'beginner';
 
     case 'hard':
     case 'advanced':
-      return 'advanced'
+      return 'advanced';
 
     case 'medium':
     case 'intermediate':
     default:
-      return 'intermediate'
+      return 'intermediate';
   }
-}
+};
 
-const toDifficultyLabel = (
-  difficulty: string,
-): string => {
-  const normalized = difficulty.trim()
+const toDifficultyLabel = (difficulty: string): string => {
+  const normalized = difficulty.trim();
 
   if (!normalized) {
-    return 'Medium'
+    return 'Medium';
   }
 
-  return (
-    normalized.charAt(0).toUpperCase() +
-    normalized.slice(1).toLowerCase()
-  )
-}
+  return normalized.charAt(0).toUpperCase() + normalized.slice(1).toLowerCase();
+};
 
-export class ActivityMockTestGateway
-  implements IMockTestActivityRecorder
-{
-  constructor(
-    private readonly _activityRecorder: IRecordUserActivityUseCase,
-  ) {}
-  async recordMockTestGenerated(
-    input: RecordMockTestGeneratedActivityInput,
-  ): Promise<void> {
-    const testTitle = normalizeText(
-      input.testTitle,
-      'Untitled mock test',
-      160,
-    )
+export class ActivityMockTestGateway implements IMockTestActivityRecorder {
+  constructor(private readonly _activityRecorder: IRecordUserActivityUseCase) {}
+  async recordMockTestGenerated(input: RecordMockTestGeneratedActivityInput): Promise<void> {
+    const testTitle = normalizeText(input.testTitle, 'Untitled mock test', 160);
 
-    const totalQuestions =
-      normalizeNonNegativeInteger(
-        input.totalQuestions,
-      )
+    const totalQuestions = normalizeNonNegativeInteger(input.totalQuestions);
 
-    const difficulty =
-      toActivityDifficulty(
-        String(input.difficulty),
-      )
+    const difficulty = toActivityDifficulty(String(input.difficulty));
 
     const subtitle = normalizeText(
-      `${totalQuestions} questions · ${toDifficultyLabel(
-        String(input.difficulty),
-      )}`,
+      `${totalQuestions} questions · ${toDifficultyLabel(String(input.difficulty))}`,
       `${totalQuestions} questions`,
-      300,
-    )
+      300
+    );
 
     await this._activityRecorder.execute({
       userId: input.userId,
@@ -117,11 +85,7 @@ export class ActivityMockTestGateway
       category: 'mock_test',
       type: 'mock_test_generated',
 
-      title: normalizeText(
-        `Generated ${testTitle}`,
-        'Generated mock test',
-        180,
-      ),
+      title: normalizeText(`Generated ${testTitle}`, 'Generated mock test', 180),
 
       subtitle,
 
@@ -129,8 +93,7 @@ export class ActivityMockTestGateway
       xpBucket: 'none',
       coinsAwarded: 0,
 
-      eventKey:
-        `mock-test-generated:${input.mockTestId}`,
+      eventKey: `mock-test-generated:${input.mockTestId}`,
 
       mockTestId: input.mockTestId,
 
@@ -147,52 +110,29 @@ export class ActivityMockTestGateway
 
       ...(input.utcOffsetMinutes !== undefined
         ? {
-            utcOffsetMinutes:
-              input.utcOffsetMinutes,
+            utcOffsetMinutes: input.utcOffsetMinutes,
           }
         : {}),
-    })
+    });
   }
 
-  async recordMockTestCompleted(
-    input: RecordMockTestCompletedActivityInput,
-  ): Promise<void> {
-    const testTitle = normalizeText(
-      input.testTitle,
-      'Untitled mock test',
-      160,
-    )
+  async recordMockTestCompleted(input: RecordMockTestCompletedActivityInput): Promise<void> {
+    const testTitle = normalizeText(input.testTitle, 'Untitled mock test', 160);
 
-    const totalQuestions =
-      normalizeNonNegativeInteger(
-        input.totalQuestions,
-      )
+    const totalQuestions = normalizeNonNegativeInteger(input.totalQuestions);
 
     const correctAnswers = Math.min(
       totalQuestions,
-      normalizeNonNegativeInteger(
-        input.correctAnswers,
-      ),
-    )
+      normalizeNonNegativeInteger(input.correctAnswers)
+    );
 
-    const durationSeconds =
-      normalizeNonNegativeInteger(
-        input.durationSeconds,
-      )
+    const durationSeconds = normalizeNonNegativeInteger(input.durationSeconds);
 
-    const scorePercentage =
-      normalizePercentage(
-        input.scorePercentage,
-      )
+    const scorePercentage = normalizePercentage(input.scorePercentage);
 
-    const xpAwarded =
-      normalizeNonNegativeInteger(
-        input.xpAwarded,
-      )
+    const xpAwarded = normalizeNonNegativeInteger(input.xpAwarded);
 
-    const resultLabel = input.passed
-      ? 'Passed'
-      : 'Not passed'
+    const resultLabel = input.passed ? 'Passed' : 'Not passed';
 
     const subtitle = normalizeText(
       [
@@ -201,8 +141,8 @@ export class ActivityMockTestGateway
         resultLabel,
       ].join(' · '),
       resultLabel,
-      300,
-    )
+      300
+    );
 
     await this._activityRecorder.execute({
       userId: input.userId,
@@ -210,25 +150,17 @@ export class ActivityMockTestGateway
       category: 'mock_test',
       type: 'mock_test_completed',
 
-      title: normalizeText(
-        `Completed ${testTitle}`,
-        'Completed mock test',
-        180,
-      ),
+      title: normalizeText(`Completed ${testTitle}`, 'Completed mock test', 180),
 
       subtitle,
 
       xpAwarded,
 
-      xpBucket:
-        xpAwarded > 0
-          ? 'learning'
-          : 'none',
+      xpBucket: xpAwarded > 0 ? 'learning' : 'none',
 
       coinsAwarded: 0,
 
-      eventKey:
-        `mock-test-completed:${input.attemptId}`,
+      eventKey: `mock-test-completed:${input.attemptId}`,
 
       mockTestId: input.mockTestId,
       attemptId: input.attemptId,
@@ -245,18 +177,14 @@ export class ActivityMockTestGateway
         correctAnswers,
         durationSeconds,
 
-        difficulty:
-          toActivityDifficulty(
-            String(input.difficulty),
-          ),
+        difficulty: toActivityDifficulty(String(input.difficulty)),
       },
 
       ...(input.utcOffsetMinutes !== undefined
         ? {
-            utcOffsetMinutes:
-              input.utcOffsetMinutes,
+            utcOffsetMinutes: input.utcOffsetMinutes,
           }
         : {}),
-    })
+    });
   }
 }

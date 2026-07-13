@@ -1,1 +1,1 @@
-export { default as AdminSettingsPage } from './pages/AdminSettingsPage'
+export { default as AdminSettingsPage } from './pages/AdminSettingsPage';

@@ -1,22 +1,22 @@
-import { useEffect, useRef } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   findNavigationCommandByShortcut,
   NAVIGATION_COMMANDS,
-} from '../../lib/navigation-commands'
-import { useAppShellStore } from '../../store/useAppShellStore'
-import CommandPalette from '../overlays/CommandPalette'
+} from '../../lib/navigation-commands';
+import { useAppShellStore } from '../../store/useAppShellStore';
+import CommandPalette from '../overlays/CommandPalette';
 
 const isEditableTarget = (target: EventTarget | null) => {
-  if (!(target instanceof HTMLElement)) return false
+  if (!(target instanceof HTMLElement)) return false;
 
   return (
     target.isContentEditable ||
     target.matches('input, textarea, select, [role="textbox"]') ||
     Boolean(target.closest('[contenteditable="true"], [role="textbox"]'))
-  )
-}
+  );
+};
 
 /**
  * Owns global authenticated navigation shortcuts and the command palette.
@@ -24,37 +24,31 @@ const isEditableTarget = (target: EventTarget | null) => {
  * so shortcuts keep working even when the regular top bar is intentionally hidden.
  */
 export default function GlobalNavigationController() {
-  const navigate = useNavigate()
-  const commandPaletteOpen = useAppShellStore(
-    (state) => state.commandPaletteOpen,
-  )
-  const closeCommandPalette = useAppShellStore(
-    (state) => state.closeCommandPalette,
-  )
-  const toggleCommandPalette = useAppShellStore(
-    (state) => state.toggleCommandPalette,
-  )
-  const navigationChordRef = useRef<string | null>(null)
-  const navigationChordTimerRef = useRef<number | null>(null)
+  const navigate = useNavigate();
+  const commandPaletteOpen = useAppShellStore((state) => state.commandPaletteOpen);
+  const closeCommandPalette = useAppShellStore((state) => state.closeCommandPalette);
+  const toggleCommandPalette = useAppShellStore((state) => state.toggleCommandPalette);
+  const navigationChordRef = useRef<string | null>(null);
+  const navigationChordTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     const clearNavigationChord = () => {
-      navigationChordRef.current = null
+      navigationChordRef.current = null;
       if (navigationChordTimerRef.current !== null) {
-        window.clearTimeout(navigationChordTimerRef.current)
-        navigationChordTimerRef.current = null
+        window.clearTimeout(navigationChordTimerRef.current);
+        navigationChordTimerRef.current = null;
       }
-    }
+    };
 
     const handleShortcut = (event: KeyboardEvent) => {
-      const key = event.key.toLowerCase()
+      const key = event.key.toLowerCase();
 
       if ((event.metaKey || event.ctrlKey) && key === 'k') {
-        if (isEditableTarget(event.target) && !commandPaletteOpen) return
-        event.preventDefault()
-        clearNavigationChord()
-        toggleCommandPalette()
-        return
+        if (isEditableTarget(event.target) && !commandPaletteOpen) return;
+        event.preventDefault();
+        clearNavigationChord();
+        toggleCommandPalette();
+        return;
       }
 
       if (
@@ -67,51 +61,43 @@ export default function GlobalNavigationController() {
         event.altKey ||
         isEditableTarget(event.target)
       ) {
-        clearNavigationChord()
-        return
+        clearNavigationChord();
+        return;
       }
 
       // Avoid navigating away while another modal is active.
       if (document.querySelector('[role="dialog"][aria-modal="true"]')) {
-        clearNavigationChord()
-        return
+        clearNavigationChord();
+        return;
       }
 
-      const pendingPrefix = navigationChordRef.current
+      const pendingPrefix = navigationChordRef.current;
       if (pendingPrefix) {
-        const command = findNavigationCommandByShortcut(pendingPrefix, key)
-        clearNavigationChord()
+        const command = findNavigationCommandByShortcut(pendingPrefix, key);
+        clearNavigationChord();
         if (command) {
-          event.preventDefault()
-          navigate(command.path)
+          event.preventDefault();
+          navigate(command.path);
         }
-        return
+        return;
       }
 
       const startsShortcut = NAVIGATION_COMMANDS.some(
-        (command) => command.shortcut?.[0].toLowerCase() === key,
-      )
-      if (!startsShortcut) return
+        (command) => command.shortcut?.[0].toLowerCase() === key
+      );
+      if (!startsShortcut) return;
 
-      event.preventDefault()
-      navigationChordRef.current = key
-      navigationChordTimerRef.current = window.setTimeout(
-        clearNavigationChord,
-        1_200,
-      )
-    }
+      event.preventDefault();
+      navigationChordRef.current = key;
+      navigationChordTimerRef.current = window.setTimeout(clearNavigationChord, 1_200);
+    };
 
-    window.addEventListener('keydown', handleShortcut)
+    window.addEventListener('keydown', handleShortcut);
     return () => {
-      clearNavigationChord()
-      window.removeEventListener('keydown', handleShortcut)
-    }
-  }, [commandPaletteOpen, navigate, toggleCommandPalette])
+      clearNavigationChord();
+      window.removeEventListener('keydown', handleShortcut);
+    };
+  }, [commandPaletteOpen, navigate, toggleCommandPalette]);
 
-  return (
-    <CommandPalette
-      open={commandPaletteOpen}
-      onClose={closeCommandPalette}
-    />
-  )
+  return <CommandPalette open={commandPaletteOpen} onClose={closeCommandPalette} />;
 }

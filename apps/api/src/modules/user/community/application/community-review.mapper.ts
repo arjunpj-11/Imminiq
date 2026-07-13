@@ -1,15 +1,15 @@
-import type { CommunityPublicTrackerDetailEntity } from '../domain/entities/community-public-tracker-detail.entity'
-import type { CommunityTrackerReviewEntity } from '../domain/entities/community-tracker-review.entity'
+import type { CommunityPublicTrackerDetailEntity } from '../domain/entities/community-public-tracker-detail.entity';
+import type { CommunityTrackerReviewEntity } from '../domain/entities/community-tracker-review.entity';
 import type {
   CommunityPublicTrackerDetailViewDTO,
   CommunityTrackerReviewViewDTO,
-} from './community-review.dto'
+} from './community-review.dto';
 
 export interface ICommunityReviewMapper {
-  toReviewView(entity: CommunityTrackerReviewEntity): CommunityTrackerReviewViewDTO
+  toReviewView(entity: CommunityTrackerReviewEntity): CommunityTrackerReviewViewDTO;
   toPublicTrackerDetailView(
-    entity: CommunityPublicTrackerDetailEntity,
-  ): CommunityPublicTrackerDetailViewDTO
+    entity: CommunityPublicTrackerDetailEntity
+  ): CommunityPublicTrackerDetailViewDTO;
 }
 
 export class CommunityReviewMapper implements ICommunityReviewMapper {
@@ -32,11 +32,11 @@ export class CommunityReviewMapper implements ICommunityReviewMapper {
       isMine: entity.isMine,
       createdAt: this.toIso(entity.createdAt),
       updatedAt: this.toIso(entity.updatedAt),
-    }
+    };
   }
 
   toPublicTrackerDetailView(
-    entity: CommunityPublicTrackerDetailEntity,
+    entity: CommunityPublicTrackerDetailEntity
   ): CommunityPublicTrackerDetailViewDTO {
     return {
       _id: entity.id,
@@ -95,14 +95,14 @@ export class CommunityReviewMapper implements ICommunityReviewMapper {
       myReview: entity.myReview ? this.toReviewView(entity.myReview) : null,
       createdAt: this.toIso(entity.createdAt),
       publishedAt: this.toIsoOrNull(entity.publishedAt),
-    }
+    };
   }
 
   private toIso(value?: Date): string | undefined {
-    return value ? value.toISOString() : undefined
+    return value ? value.toISOString() : undefined;
   }
 
   private toIsoOrNull(value?: Date | null): string | null {
-    return value ? value.toISOString() : null
+    return value ? value.toISOString() : null;
   }
 }

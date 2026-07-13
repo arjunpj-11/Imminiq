@@ -1,8 +1,4 @@
-import mongoose, {
-  Schema,
-  model,
-  type InferSchemaType,
-} from 'mongoose'
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 const userProfileSchema = new Schema(
   {
@@ -13,12 +9,12 @@ const userProfileSchema = new Schema(
       index: true,
     },
 
-   fullName: {
-  type: String,
-  trim: true,
-  maxlength: 80,
-  default: '',
-},
+    fullName: {
+      type: String,
+      trim: true,
+      maxlength: 80,
+      default: '',
+    },
 
     headline: {
       type: String,
@@ -122,13 +118,10 @@ const userProfileSchema = new Schema(
     timestamps: true,
     collection: 'user_profiles',
   }
-)
+);
 
-userProfileSchema.index({ userId: 1, deletedAt: 1 })
+userProfileSchema.index({ userId: 1, deletedAt: 1 });
 
-export type UserProfileDocument =
-  InferSchemaType<typeof userProfileSchema>
+export type UserProfileDocument = InferSchemaType<typeof userProfileSchema>;
 
-export const UserProfile =
-  mongoose.models.UserProfile ||
-  model('UserProfile', userProfileSchema)
+export const UserProfile = mongoose.models.UserProfile || model('UserProfile', userProfileSchema);

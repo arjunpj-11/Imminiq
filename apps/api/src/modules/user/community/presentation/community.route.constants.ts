@@ -9,7 +9,6 @@ export const COMMUNITY_ROUTE_PATHS = {
   VERIFY_SUBMISSION: '/verify/:submissionId',
   VERIFY_VOTE: '/verify/:submissionId/vote',
   TRACKER_LIKE: '/trackers/:trackerId/like',
-} as const
+} as const;
 
-export type CommunityRoutePath =
-  (typeof COMMUNITY_ROUTE_PATHS)[keyof typeof COMMUNITY_ROUTE_PATHS]
+export type CommunityRoutePath = (typeof COMMUNITY_ROUTE_PATHS)[keyof typeof COMMUNITY_ROUTE_PATHS];

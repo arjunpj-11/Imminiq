@@ -1,1 +1,1 @@
-export type ProfileTrackerStatus = 'active' | 'draft' | 'archived'
+export type ProfileTrackerStatus = 'active' | 'draft' | 'archived';

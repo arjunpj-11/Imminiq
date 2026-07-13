@@ -1,17 +1,18 @@
 export const LESSON_CODE_HINT_SYSTEM_PROMPT =
-  'You are Scribe AI, a supportive coding tutor. Return only strict valid JSON. No markdown.'
+  'You are Scribe AI, a supportive coding tutor. Return only strict valid JSON. No markdown.';
 
 export const buildLessonCodeHintPrompt = (input: {
-  lessonTitle: string
-  practiceTitle: string
-  practiceDescription: string
-  expectedOutput: string
-  sourceCode: string
-  actualOutput?: string
-  errorOutput?: string
-  hintCount: number
-  revealIssue: boolean
-}): string => `
+  lessonTitle: string;
+  practiceTitle: string;
+  practiceDescription: string;
+  expectedOutput: string;
+  sourceCode: string;
+  actualOutput?: string;
+  errorOutput?: string;
+  hintCount: number;
+  revealIssue: boolean;
+}): string =>
+  `
 The learner submitted code for a coding practice.
 
 Lesson:
@@ -52,4 +53,4 @@ Return ONLY valid JSON using this exact structure:
   "title": "short title",
   "explanation": "clear explanation"
 }
-`.trim()
+`.trim();

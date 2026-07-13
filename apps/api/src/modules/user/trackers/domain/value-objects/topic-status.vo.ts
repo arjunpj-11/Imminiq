@@ -1,1 +1,1 @@
-export type TopicStatus = 'locked' | 'active' | 'completed'
+export type TopicStatus = 'locked' | 'active' | 'completed';

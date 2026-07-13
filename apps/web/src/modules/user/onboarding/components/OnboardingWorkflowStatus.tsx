@@ -1,15 +1,15 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
-import type { ActivityChip } from '../types/onboarding.types'
-import { cn } from '../utils/cn'
+import type { ActivityChip } from '../types/onboarding.types';
+import { cn } from '../utils/cn';
 
 interface IOnboardingProgressStatusCardProps {
-  logMessage: string
-  engineLabel: string
-  nextLabel: string
-  progress: number
-  stepsLabel: string
-  progressAriaLabel: string
+  logMessage: string;
+  engineLabel: string;
+  nextLabel: string;
+  progress: number;
+  stepsLabel: string;
+  progressAriaLabel: string;
 }
 
 export function OnboardingProgressStatusCard({
@@ -71,14 +71,14 @@ export function OnboardingProgressStatusCard({
         }
       `}</style>
     </section>
-  )
+  );
 }
 
 interface IOnboardingActivityChipsProps {
-  chips: ActivityChip[]
-  activeActivityIndex: number
-  completed: boolean
-  ariaLabel: string
+  chips: ActivityChip[];
+  activeActivityIndex: number;
+  completed: boolean;
+  ariaLabel: string;
 }
 
 export function OnboardingActivityChips({
@@ -94,7 +94,7 @@ export function OnboardingActivityChips({
       aria-label={ariaLabel}
     >
       {chips.map((chip, index) => {
-        const active = !completed && index === activeActivityIndex
+        const active = !completed && index === activeActivityIndex;
 
         return (
           <div
@@ -105,23 +105,23 @@ export function OnboardingActivityChips({
               'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary)',
               'dark:border-white/15 dark:bg-(--surface-card) dark:text-(--text-secondary)',
               active &&
-                'border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] font-semibold text-(--text-primary) dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--text-primary)',
+                'border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.10)] font-semibold text-(--text-primary) dark:border-[rgba(232,129,106,0.24)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--text-primary)'
             )}
           >
             <span
               className={cn(
                 'shrink-0 opacity-60 transition',
-                active && 'text-(--brand-500) opacity-100 dark:text-(--brand-500)',
+                active && 'text-(--brand-500) opacity-100 dark:text-(--brand-500)'
               )}
             >
               {chip.icon}
             </span>
             {chip.label}
           </div>
-        )
+        );
       })}
     </section>
-  )
+  );
 }
 
 export function OnboardingWorkflowFooter() {
@@ -146,5 +146,5 @@ export function OnboardingWorkflowFooter() {
         </Link>
       </div>
     </footer>
-  )
+  );
 }

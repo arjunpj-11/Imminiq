@@ -4,10 +4,8 @@ export const ACTIVITY_FEED_ICON_BY_CATEGORY = {
   community: 'community',
   streak: 'fire',
   xp_milestone: 'star',
-} as const
+} as const;
 
-export const ACTIVITY_DAILY_GOAL_TITLE =
-  'Daily goal completed'
+export const ACTIVITY_DAILY_GOAL_TITLE = 'Daily goal completed';
 
-export const ACTIVITY_DAILY_GOAL_SUBTITLE =
-  'Completed one subtopic and one mock test today'
+export const ACTIVITY_DAILY_GOAL_SUBTITLE = 'Completed one subtopic and one mock test today';

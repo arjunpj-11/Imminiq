@@ -1,16 +1,16 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ILeaderboardXpEventDocument extends Document {
-  userId: mongoose.Types.ObjectId
-  section: 'students' | 'trainers'
-  amount: number
-  source: string
-  idempotencyKey: string
-  sourceEntityId?: string
-  occurredAt: Date
-  metadata?: Record<string, unknown>
-  createdAt: Date
-  updatedAt: Date
+  userId: mongoose.Types.ObjectId;
+  section: 'students' | 'trainers';
+  amount: number;
+  source: string;
+  idempotencyKey: string;
+  sourceEntityId?: string;
+  occurredAt: Date;
+  metadata?: Record<string, unknown>;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const leaderboardXpEventSchema = new Schema<ILeaderboardXpEventDocument>(
@@ -63,8 +63,8 @@ const leaderboardXpEventSchema = new Schema<ILeaderboardXpEventDocument>(
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
 leaderboardXpEventSchema.index(
   {
@@ -72,24 +72,21 @@ leaderboardXpEventSchema.index(
   },
   {
     unique: true,
-  },
-)
+  }
+);
 
 leaderboardXpEventSchema.index({
   section: 1,
   occurredAt: 1,
   userId: 1,
-})
+});
 
 leaderboardXpEventSchema.index({
   userId: 1,
   section: 1,
   occurredAt: -1,
-})
+});
 
 export const LeaderboardXpEvent =
   mongoose.models.LeaderboardXpEvent ||
-  mongoose.model<ILeaderboardXpEventDocument>(
-    'LeaderboardXpEvent',
-    leaderboardXpEventSchema,
-  )
+  mongoose.model<ILeaderboardXpEventDocument>('LeaderboardXpEvent', leaderboardXpEventSchema);

@@ -1,10 +1,10 @@
-import type { ToastTone } from '../types/profile.types'
-import { cn } from '../utils/profile-ui.utils'
+import type { ToastTone } from '../types/profile.types';
+import { cn } from '../utils/profile-ui.utils';
 
 interface IProfileToastProps {
-  message: string
-  visible: boolean
-  tone: ToastTone
+  message: string;
+  visible: boolean;
+  tone: ToastTone;
 }
 
 export default function ProfileToast({ message, visible, tone }: IProfileToastProps) {
@@ -27,5 +27,5 @@ export default function ProfileToast({ message, visible, tone }: IProfileToastPr
       )}
       <span className="min-w-0 leading-[1.4]">{message}</span>
     </div>
-  )
+  );
 }

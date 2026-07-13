@@ -1,38 +1,38 @@
-import { useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom';
 
-import CommunityErrorState from '../components/shared/CommunityErrorState'
-import CommunityLayout from '../components/shared/CommunityLayout'
-import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
-import CommunityPagination from '../components/shared/CommunityPagination'
-import StatCard from '../../../../components/data-display/StatCard'
-import VerificationCard from '../components/verification/VerificationCard'
-import VerificationHowItWorks from '../components/verification/VerificationHowItWorks'
-import VerificationLeaderboard from '../components/verification/VerificationLeaderboard'
-import VerificationTipCard from '../components/verification/VerificationTipCard'
+import CommunityErrorState from '../components/shared/CommunityErrorState';
+import CommunityLayout from '../components/shared/CommunityLayout';
+import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton';
+import CommunityPagination from '../components/shared/CommunityPagination';
+import StatCard from '../../../../components/data-display/StatCard';
+import VerificationCard from '../components/verification/VerificationCard';
+import VerificationHowItWorks from '../components/verification/VerificationHowItWorks';
+import VerificationLeaderboard from '../components/verification/VerificationLeaderboard';
+import VerificationTipCard from '../components/verification/VerificationTipCard';
 import {
   ArrowLeftIcon,
   // ArrowRightIcon,
   // CoinsIcon,
-} from '../components/icons/CommunityIcons'
+} from '../components/icons/CommunityIcons';
 import {
   COMMUNITY_VERIFY_PAGE_LIMIT,
   COMMUNITY_VERIFY_STAT_ACCENTS,
-} from '../constants/community.constants'
-import { useVerificationDashboard } from '../hooks/useVerificationDashboard'
-import { useCommunityVerifyPage } from '../hooks/useCommunitySearchState'
-import { getApiErrorMessage } from '../utils/community-formatters'
-import { communityPageClass } from '../utils/community-ui'
+} from '../constants/community.constants';
+import { useVerificationDashboard } from '../hooks/useVerificationDashboard';
+import { useCommunityVerifyPage } from '../hooks/useCommunitySearchState';
+import { getApiErrorMessage } from '../utils/community-formatters';
+import { communityPageClass } from '../utils/community-ui';
 
 export default function VerifyAndEarnPage() {
-  const navigate = useNavigate()
-  const { page: verifyPage, setPage: setVerifyPage } = useCommunityVerifyPage()
+  const navigate = useNavigate();
+  const { page: verifyPage, setPage: setVerifyPage } = useCommunityVerifyPage();
   const dashboard = useVerificationDashboard({
     page: verifyPage,
     limit: COMMUNITY_VERIFY_PAGE_LIMIT,
-  })
+  });
 
   if (dashboard.isLoading && !dashboard.data) {
-    return <CommunityPageSkeleton variant="verify" />
+    return <CommunityPageSkeleton variant="verify" />;
   }
 
   return (
@@ -43,7 +43,7 @@ export default function VerifyAndEarnPage() {
             title="Verification unavailable"
             message={getApiErrorMessage(
               'Something went wrong loading verification data.',
-              dashboard.error?.response?.data?.message,
+              dashboard.error?.response?.data?.message
             )}
             actionLabel="Try again"
             onAction={() => void dashboard.refetch()}
@@ -65,8 +65,7 @@ export default function VerifyAndEarnPage() {
                   Verify &amp; earn
                 </div>
                 <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
-                  Review trackers ·{' '}
-                  <span className="text-[#c49a2c]">Earn coins</span>
+                  Review trackers · <span className="text-[#c49a2c]">Earn coins</span>
                 </h1>
                 <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
                   Validate community submissions and keep the knowledge commons accurate.
@@ -147,9 +146,7 @@ export default function VerifyAndEarnPage() {
                       <VerificationCard
                         key={item._id}
                         item={item}
-                        onPreview={(submissionId) =>
-                          navigate(`/community/verify/${submissionId}`)
-                        }
+                        onPreview={(submissionId) => navigate(`/community/verify/${submissionId}`)}
                       />
                     ))}
                   </div>
@@ -180,5 +177,5 @@ export default function VerifyAndEarnPage() {
         )}
       </div>
     </CommunityLayout>
-  )
+  );
 }

@@ -1,19 +1,19 @@
-import EmptyState from '../../../../components/feedback/EmptyState'
-import TrackerCard from './TrackerCard'
+import EmptyState from '../../../../components/feedback/EmptyState';
+import TrackerCard from './TrackerCard';
 
 export interface IPublishedTrackerCardViewModel {
-  id: string
-  title: string
-  desc: string
-  rating: number
-  clones: string
-  thumbClass: string
-  slug: string
+  id: string;
+  title: string;
+  desc: string;
+  rating: number;
+  clones: string;
+  thumbClass: string;
+  slug: string;
 }
 
 interface IPublishedTrackersSectionProps {
-  trackers: IPublishedTrackerCardViewModel[]
-  onOpen: (tracker: IPublishedTrackerCardViewModel) => void
+  trackers: IPublishedTrackerCardViewModel[];
+  onOpen: (tracker: IPublishedTrackerCardViewModel) => void;
 }
 
 export default function PublishedTrackersSection({
@@ -45,5 +45,5 @@ export default function PublishedTrackersSection({
         />
       )}
     </section>
-  )
+  );
 }

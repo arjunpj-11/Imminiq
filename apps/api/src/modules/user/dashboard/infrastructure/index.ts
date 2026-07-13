@@ -1,8 +1,8 @@
 export {
   MongoDashboardRepository,
   mongoDashboardRepository,
-} from './repositories/mongo-dashboard.repository'
+} from './repositories/mongo-dashboard.repository';
 export {
   AIDashboardInsightGenerator,
   aiDashboardInsightGenerator,
-} from './gateways/ai-dashboard-insight.gateway'
+} from './gateways/ai-dashboard-insight.gateway';

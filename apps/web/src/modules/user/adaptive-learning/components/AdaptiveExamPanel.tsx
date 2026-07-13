@@ -1,24 +1,24 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 import {
   useAdaptiveLearningDashboard,
   useGenerateAdaptiveAssessment,
-} from '../hooks/useAdaptiveLearning'
-import { useActiveMockTestGeneration } from '../../mock-tests/hooks/useMockTests'
+} from '../hooks/useAdaptiveLearning';
+import { useActiveMockTestGeneration } from '../../mock-tests/hooks/useMockTests';
 
 export default function AdaptiveExamPanel() {
-  const navigate = useNavigate()
-  const dashboard = useAdaptiveLearningDashboard()
-  const generate = useGenerateAdaptiveAssessment()
-  const activeGeneration = useActiveMockTestGeneration()
-  const [generationStarted, setGenerationStarted] = useState(false)
-  const assessment = dashboard.data?.latestAssessment
+  const navigate = useNavigate();
+  const dashboard = useAdaptiveLearningDashboard();
+  const generate = useGenerateAdaptiveAssessment();
+  const activeGeneration = useActiveMockTestGeneration();
+  const [generationStarted, setGenerationStarted] = useState(false);
+  const assessment = dashboard.data?.latestAssessment;
 
   const generateExam = async () => {
-    await generate.mutateAsync()
-    setGenerationStarted(true)
-  }
+    await generate.mutateAsync();
+    setGenerationStarted(true);
+  };
 
   return (
     <section className="rounded-2xl border border-[rgba(184,76,43,0.22)] bg-[linear-gradient(135deg,rgba(184,76,43,0.10),var(--surface-card))] p-5 shadow-(--shadow-1)">
@@ -39,7 +39,9 @@ export default function AdaptiveExamPanel() {
           </p>
           {assessment?.status === 'completed' ? (
             <p className="mt-2 text-[12px] font-bold text-(--brand-500)">
-              Predicted {assessment.predictedScore}% · scored {assessment.actualScore}% · mastery {assessment.masteryChange && assessment.masteryChange > 0 ? '+' : ''}{assessment.masteryChange ?? 0}
+              Predicted {assessment.predictedScore}% · scored {assessment.actualScore}% · mastery{' '}
+              {assessment.masteryChange && assessment.masteryChange > 0 ? '+' : ''}
+              {assessment.masteryChange ?? 0}
             </p>
           ) : null}
         </div>
@@ -70,10 +72,10 @@ export default function AdaptiveExamPanel() {
               {activeGeneration.data
                 ? 'Another test is generating'
                 : generate.isPending
-                ? 'Starting background job…'
-                : generationStarted
-                  ? 'Generating in background'
-                  : 'Generate my exam'}
+                  ? 'Starting background job…'
+                  : generationStarted
+                    ? 'Generating in background'
+                    : 'Generate my exam'}
             </button>
           )}
         </div>
@@ -84,5 +86,5 @@ export default function AdaptiveExamPanel() {
         </p>
       ) : null}
     </section>
-  )
+  );
 }

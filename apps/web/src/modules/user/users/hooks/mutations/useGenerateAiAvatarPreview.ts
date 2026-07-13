@@ -1,23 +1,23 @@
-import { useMutation } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
-import api from '../../../../../lib/axios'
+import { useMutation } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import api from '../../../../../lib/axios';
 
 interface IGenerateAiAvatarPreviewPayload {
-  prompt: string
+  prompt: string;
 }
 
 interface IGenerateAiAvatarPreviewResponse {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
   data?: {
-    imageUrl: string
-  }
+    imageUrl: string;
+  };
 }
 
 interface IApiErrorResponse {
-  success?: boolean
-  message?: string
-  code?: string
+  success?: boolean;
+  message?: string;
+  code?: string;
 }
 
 export const useGenerateAiAvatarPreview = () => {
@@ -27,13 +27,12 @@ export const useGenerateAiAvatarPreview = () => {
     IGenerateAiAvatarPreviewPayload
   >({
     mutationFn: async (payload) => {
-      const response =
-        await api.post<IGenerateAiAvatarPreviewResponse>(
-          '/uploads/avatar/ai-preview',
-          payload
-        )
+      const response = await api.post<IGenerateAiAvatarPreviewResponse>(
+        '/uploads/avatar/ai-preview',
+        payload
+      );
 
-      return response.data
+      return response.data;
     },
-  })
-}
+  });
+};

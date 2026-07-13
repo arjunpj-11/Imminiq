@@ -1,4 +1,4 @@
-import ImminiqLogo from './ImminiqLogo'
+import ImminiqLogo from './ImminiqLogo';
 
 export default function AuthLoadingScreen() {
   return (
@@ -63,5 +63,5 @@ export default function AuthLoadingScreen() {
         }
       `}</style>
     </div>
-  )
+  );
 }

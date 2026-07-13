@@ -1,1 +1,1 @@
-export { default } from '../../../../components/overlays/ConfirmDialog'
+export { default } from '../../../../components/overlays/ConfirmDialog';

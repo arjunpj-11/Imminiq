@@ -25,7 +25,6 @@ export const MOCK_TEST_ROUTE_PATHS = {
   SHARE_TEST: '/:testId/share',
   TEST_BY_ID: '/:testId',
   START_ATTEMPT: '/:testId/start',
-} as const
+} as const;
 
-export type MockTestRoutePath =
-  (typeof MOCK_TEST_ROUTE_PATHS)[keyof typeof MOCK_TEST_ROUTE_PATHS]
+export type MockTestRoutePath = (typeof MOCK_TEST_ROUTE_PATHS)[keyof typeof MOCK_TEST_ROUTE_PATHS];

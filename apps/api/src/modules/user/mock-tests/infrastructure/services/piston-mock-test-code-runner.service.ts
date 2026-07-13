@@ -1,18 +1,24 @@
-import { executeCodeWithPiston } from '../../../../../infrastructure/compiler/piston.service'
-import { MockTestsDomainError } from '../../domain/mock-tests-domain.error'
-import type { MockTestCodingLanguage, MockTestCodingValueType } from '../../domain/value-objects/coding-language.vo'
-import type { MockTestCodingDetails, MockTestCodingTestCase } from '../../domain/value-objects/mock-test-coding.vo'
+import { executeCodeWithPiston } from '../../../../../infrastructure/compiler/piston.service';
+import { MockTestsDomainError } from '../../domain/mock-tests-domain.error';
+import type {
+  MockTestCodingLanguage,
+  MockTestCodingValueType,
+} from '../../domain/value-objects/coding-language.vo';
+import type {
+  MockTestCodingDetails,
+  MockTestCodingTestCase,
+} from '../../domain/value-objects/mock-test-coding.vo';
 import type {
   MockTestCodeRunMode,
   MockTestCodeRunResult,
   IMockTestCodeRunner,
   MockTestCodeTestCaseResult,
-} from '../../domain/services/mock-test-code-runner.interface'
+} from '../../domain/services/mock-test-code-runner.interface';
 
-type CodeRunMode = MockTestCodeRunMode
-type TestCaseResult = MockTestCodeTestCaseResult
+type CodeRunMode = MockTestCodeRunMode;
+type TestCaseResult = MockTestCodeTestCaseResult;
 
-const RESULT_MARKER = '__IMMINIQ_MOCK_TEST_RESULT__'
+const RESULT_MARKER = '__IMMINIQ_MOCK_TEST_RESULT__';
 
 const languageIdByLanguage: Record<MockTestCodingLanguage, number> = {
   javascript: 63,
@@ -21,131 +27,129 @@ const languageIdByLanguage: Record<MockTestCodingLanguage, number> = {
   java: 62,
   cpp: 54,
   c: 50,
-}
+};
 
-const getLanguageId = (
-  language: MockTestCodingLanguage,
-  languageId?: number,
-) => languageId || languageIdByLanguage[language]
+const getLanguageId = (language: MockTestCodingLanguage, languageId?: number) =>
+  languageId || languageIdByLanguage[language];
 
 const escapeForSingleQuotedString = (value: string): string =>
-  value.replace(/\\/g, '\\\\').replace(/'/g, "\\'")
+  value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 
 const escapeForPythonTripleQuotedString = (value: string): string =>
-  value.replace(/\\/g, '\\\\').replace(/"""/g, '\\"\\"\\"')
+  value.replace(/\\/g, '\\\\').replace(/"""/g, '\\"\\"\\"');
 
 const jsonStringLiteral = (value: unknown): string => {
-  return JSON.stringify(String(value))
-}
+  return JSON.stringify(String(value));
+};
 
 const toCppLiteral = (value: unknown, type: MockTestCodingValueType): string => {
-  if (type === 'number') return String(Number(value))
-  if (type === 'boolean') return value ? 'true' : 'false'
-  if (type === 'string') return jsonStringLiteral(value)
+  if (type === 'number') return String(Number(value));
+  if (type === 'boolean') return value ? 'true' : 'false';
+  if (type === 'string') return jsonStringLiteral(value);
 
   if (type === 'number[]') {
-    return `{${Array.isArray(value) ? value.map((item) => Number(item)).join(', ') : ''}}`
+    return `{${Array.isArray(value) ? value.map((item) => Number(item)).join(', ') : ''}}`;
   }
 
   if (type === 'boolean[]') {
-    return `{${Array.isArray(value) ? value.map((item) => (item ? 'true' : 'false')).join(', ') : ''}}`
+    return `{${Array.isArray(value) ? value.map((item) => (item ? 'true' : 'false')).join(', ') : ''}}`;
   }
 
   if (type === 'string[]') {
-    return `{${Array.isArray(value) ? value.map(jsonStringLiteral).join(', ') : ''}}`
+    return `{${Array.isArray(value) ? value.map(jsonStringLiteral).join(', ') : ''}}`;
   }
 
   if (type === 'number[][]') {
-    return `{${Array.isArray(value) ? value.map((row) => toCppLiteral(row, 'number[]')).join(', ') : ''}}`
+    return `{${Array.isArray(value) ? value.map((row) => toCppLiteral(row, 'number[]')).join(', ') : ''}}`;
   }
 
   if (type === 'string[][]') {
-    return `{${Array.isArray(value) ? value.map((row) => toCppLiteral(row, 'string[]')).join(', ') : ''}}`
+    return `{${Array.isArray(value) ? value.map((row) => toCppLiteral(row, 'string[]')).join(', ') : ''}}`;
   }
 
-  return '{}'
-}
+  return '{}';
+};
 
 const toJavaLiteral = (value: unknown, type: MockTestCodingValueType): string => {
-  if (type === 'number') return String(Number(value))
-  if (type === 'boolean') return value ? 'true' : 'false'
-  if (type === 'string') return jsonStringLiteral(value)
+  if (type === 'number') return String(Number(value));
+  if (type === 'boolean') return value ? 'true' : 'false';
+  if (type === 'string') return jsonStringLiteral(value);
 
   if (type === 'number[]') {
-    return `new int[]{${Array.isArray(value) ? value.map((item) => Number(item)).join(', ') : ''}}`
+    return `new int[]{${Array.isArray(value) ? value.map((item) => Number(item)).join(', ') : ''}}`;
   }
 
   if (type === 'boolean[]') {
-    return `new boolean[]{${Array.isArray(value) ? value.map((item) => (item ? 'true' : 'false')).join(', ') : ''}}`
+    return `new boolean[]{${Array.isArray(value) ? value.map((item) => (item ? 'true' : 'false')).join(', ') : ''}}`;
   }
 
   if (type === 'string[]') {
-    return `new String[]{${Array.isArray(value) ? value.map(jsonStringLiteral).join(', ') : ''}}`
+    return `new String[]{${Array.isArray(value) ? value.map(jsonStringLiteral).join(', ') : ''}}`;
   }
 
   if (type === 'number[][]') {
-    return `new int[][]{${Array.isArray(value) ? value.map((row) => toJavaLiteral(row, 'number[]').replace('new int[]', '')).join(', ') : ''}}`
+    return `new int[][]{${Array.isArray(value) ? value.map((row) => toJavaLiteral(row, 'number[]').replace('new int[]', '')).join(', ') : ''}}`;
   }
 
   if (type === 'string[][]') {
-    return `new String[][]{${Array.isArray(value) ? value.map((row) => toJavaLiteral(row, 'string[]').replace('new String[]', '')).join(', ') : ''}}`
+    return `new String[][]{${Array.isArray(value) ? value.map((row) => toJavaLiteral(row, 'string[]').replace('new String[]', '')).join(', ') : ''}}`;
   }
 
-  return 'null'
-}
+  return 'null';
+};
 
 const toCppType = (type: MockTestCodingValueType): string => {
   switch (type) {
     case 'number':
-      return 'int'
+      return 'int';
     case 'string':
-      return 'string'
+      return 'string';
     case 'boolean':
-      return 'bool'
+      return 'bool';
     case 'number[]':
-      return 'vector<int>'
+      return 'vector<int>';
     case 'string[]':
-      return 'vector<string>'
+      return 'vector<string>';
     case 'boolean[]':
-      return 'vector<bool>'
+      return 'vector<bool>';
     case 'number[][]':
-      return 'vector<vector<int>>'
+      return 'vector<vector<int>>';
     case 'string[][]':
-      return 'vector<vector<string>>'
+      return 'vector<vector<string>>';
     default:
-      return 'int'
+      return 'int';
   }
-}
+};
 
 const toJavaType = (type: MockTestCodingValueType): string => {
   switch (type) {
     case 'number':
-      return 'int'
+      return 'int';
     case 'string':
-      return 'String'
+      return 'String';
     case 'boolean':
-      return 'boolean'
+      return 'boolean';
     case 'number[]':
-      return 'int[]'
+      return 'int[]';
     case 'string[]':
-      return 'String[]'
+      return 'String[]';
     case 'boolean[]':
-      return 'boolean[]'
+      return 'boolean[]';
     case 'number[][]':
-      return 'int[][]'
+      return 'int[][]';
     case 'string[][]':
-      return 'String[][]'
+      return 'String[][]';
     default:
-      return 'int'
+      return 'int';
   }
-}
+};
 
 const buildJavaScriptRunner = (
   sourceCode: string,
   coding: MockTestCodingDetails,
-  testCases: MockTestCodingTestCase[],
+  testCases: MockTestCodingTestCase[]
 ): string => {
-  const testCaseJson = JSON.stringify(testCases)
+  const testCaseJson = JSON.stringify(testCases);
 
   return `
 ${sourceCode}
@@ -203,15 +207,15 @@ for (let i = 0; i < __imminiqTestCases.length; i += 1) {
 }
 
 console.log('${RESULT_MARKER}' + JSON.stringify(__imminiqResults))
-`
-}
+`;
+};
 
 const buildPythonRunner = (
   sourceCode: string,
   coding: MockTestCodingDetails,
-  testCases: MockTestCodingTestCase[],
+  testCases: MockTestCodingTestCase[]
 ): string => {
-  const testCaseJson = JSON.stringify(testCases)
+  const testCaseJson = JSON.stringify(testCases);
 
   return `
 ${sourceCode}
@@ -257,22 +261,22 @@ for i, test_case in enumerate(__imminiq_test_cases):
         })
 
 print("${RESULT_MARKER}" + json.dumps(__imminiq_results))
-`
-}
+`;
+};
 
 const buildCppRunner = (
   sourceCode: string,
   coding: MockTestCodingDetails,
-  testCases: MockTestCodingTestCase[],
+  testCases: MockTestCodingTestCase[]
 ): string => {
   const cases = testCases
     .map((testCase, index) => {
       const args = coding.inputTypes.map((type, argIndex) => {
-        return `${toCppType(type)} arg${argIndex} = ${toCppLiteral(testCase.input[argIndex], type)};`
-      })
+        return `${toCppType(type)} arg${argIndex} = ${toCppLiteral(testCase.input[argIndex], type)};`;
+      });
 
-      const callArgs = coding.inputTypes.map((_, argIndex) => `arg${argIndex}`).join(', ')
-      const expected = `${toCppType(coding.outputType)} expected = ${toCppLiteral(testCase.expectedOutput, coding.outputType)};`
+      const callArgs = coding.inputTypes.map((_, argIndex) => `arg${argIndex}`).join(', ');
+      const expected = `${toCppType(coding.outputType)} expected = ${toCppLiteral(testCase.expectedOutput, coding.outputType)};`;
 
       return `
 try {
@@ -284,9 +288,9 @@ try {
 } catch (...) {
   cout << "{\\"index\\":${index},\\"input\\":\\"[case]\\",\\"expectedOutput\\":\\"[error]\\",\\"actualOutput\\":null,\\"passed\\":false,\\"isHidden\\":${testCase.isHidden ? 'true' : 'false'},\\"error\\":\\"Runtime error\\"}";
 }
-`
+`;
     })
-    .join('cout << ",";\n')
+    .join('cout << ",";\n');
 
   return `
 #include <bits/stdc++.h>
@@ -332,22 +336,22 @@ int main() {
   cout << "]";
   return 0;
 }
-`
-}
+`;
+};
 
 const buildJavaRunner = (
   sourceCode: string,
   coding: MockTestCodingDetails,
-  testCases: MockTestCodingTestCase[],
+  testCases: MockTestCodingTestCase[]
 ): string => {
   const cases = testCases
     .map((testCase, index) => {
       const args = coding.inputTypes.map((type, argIndex) => {
-        return `${toJavaType(type)} arg${argIndex} = ${toJavaLiteral(testCase.input[argIndex], type)};`
-      })
+        return `${toJavaType(type)} arg${argIndex} = ${toJavaLiteral(testCase.input[argIndex], type)};`;
+      });
 
-      const callArgs = coding.inputTypes.map((_, argIndex) => `arg${argIndex}`).join(', ')
-      const expected = `${toJavaType(coding.outputType)} expected = ${toJavaLiteral(testCase.expectedOutput, coding.outputType)};`
+      const callArgs = coding.inputTypes.map((_, argIndex) => `arg${argIndex}`).join(', ');
+      const expected = `${toJavaType(coding.outputType)} expected = ${toJavaLiteral(testCase.expectedOutput, coding.outputType)};`;
 
       return `
 try {
@@ -359,9 +363,9 @@ try {
 } catch (Exception error) {
   System.out.print("{\\"index\\":${index},\\"input\\":\\"[case]\\",\\"expectedOutput\\":\\"[error]\\",\\"actualOutput\\":null,\\"passed\\":false,\\"isHidden\\":${testCase.isHidden ? 'true' : 'false'},\\"error\\":" + quoteJson(error.getMessage()) + "}");
 }
-`
+`;
     })
-    .join('System.out.print(",");\n')
+    .join('System.out.print(",");\n');
 
   return `
 import java.util.*;
@@ -394,13 +398,13 @@ public class Main {
     System.out.print("]");
   }
 }
-`
-}
+`;
+};
 
 const buildCRunner = (
   sourceCode: string,
   coding: MockTestCodingDetails,
-  testCases: MockTestCodingTestCase[],
+  testCases: MockTestCodingTestCase[]
 ): string => {
   if (
     coding.inputTypes.some((type) => !['number', 'boolean', 'number[]'].includes(type)) ||
@@ -408,44 +412,42 @@ const buildCRunner = (
   ) {
     throw new MockTestsDomainError(
       'C_TYPE_NOT_SUPPORTED',
-      'C mock test runner currently supports number, boolean, and number[] only',
-    )
+      'C mock test runner currently supports number, boolean, and number[] only'
+    );
   }
 
   const numberArrayLiteral = (value: unknown) =>
-    `{${Array.isArray(value) ? value.map((item) => Number(item)).join(', ') : ''}}`
+    `{${Array.isArray(value) ? value.map((item) => Number(item)).join(', ') : ''}}`;
 
   const cases = testCases
     .map((testCase, index) => {
-      const declarations: string[] = []
-      const callArgs: string[] = []
+      const declarations: string[] = [];
+      const callArgs: string[] = [];
 
       coding.inputTypes.forEach((type, argIndex) => {
-        const value = testCase.input[argIndex]
+        const value = testCase.input[argIndex];
 
         if (type === 'number[]') {
-          const arr = Array.isArray(value) ? value : []
-          declarations.push(`int arg${argIndex}[] = ${numberArrayLiteral(arr)};`)
-          declarations.push(`int arg${argIndex}Size = ${arr.length};`)
-          callArgs.push(`arg${argIndex}`)
-          callArgs.push(`arg${argIndex}Size`)
-          return
+          const arr = Array.isArray(value) ? value : [];
+          declarations.push(`int arg${argIndex}[] = ${numberArrayLiteral(arr)};`);
+          declarations.push(`int arg${argIndex}Size = ${arr.length};`);
+          callArgs.push(`arg${argIndex}`);
+          callArgs.push(`arg${argIndex}Size`);
+          return;
         }
 
         if (type === 'boolean') {
-          declarations.push(`bool arg${argIndex} = ${value ? 'true' : 'false'};`)
-          callArgs.push(`arg${argIndex}`)
-          return
+          declarations.push(`bool arg${argIndex} = ${value ? 'true' : 'false'};`);
+          callArgs.push(`arg${argIndex}`);
+          return;
         }
 
-        declarations.push(`int arg${argIndex} = ${Number(value)};`)
-        callArgs.push(`arg${argIndex}`)
-      })
+        declarations.push(`int arg${argIndex} = ${Number(value)};`);
+        callArgs.push(`arg${argIndex}`);
+      });
 
       if (coding.outputType === 'number[]') {
-        const expected = Array.isArray(testCase.expectedOutput)
-          ? testCase.expectedOutput
-          : []
+        const expected = Array.isArray(testCase.expectedOutput) ? testCase.expectedOutput : [];
 
         return `
 {
@@ -457,7 +459,7 @@ const buildCRunner = (
   bool passed = compareIntArray(actual, returnSize, expected, expectedSize);
   printf("{\\"index\\":${index},\\"input\\":\\"[case]\\",\\"expectedOutput\\":\\"[array]\\",\\"actualOutput\\":\\"[array]\\",\\"passed\\":%s,\\"isHidden\\":${testCase.isHidden ? 'true' : 'false'}}", passed ? "true" : "false");
 }
-`
+`;
       }
 
       const expected =
@@ -465,7 +467,7 @@ const buildCRunner = (
           ? testCase.expectedOutput
             ? 'true'
             : 'false'
-          : String(Number(testCase.expectedOutput))
+          : String(Number(testCase.expectedOutput));
 
       return `
 {
@@ -475,9 +477,9 @@ const buildCRunner = (
   bool passed = actual == expected;
   printf("{\\"index\\":${index},\\"input\\":\\"[case]\\",\\"expectedOutput\\":\\"%d\\",\\"actualOutput\\":\\"%d\\",\\"passed\\":%s,\\"isHidden\\":${testCase.isHidden ? 'true' : 'false'}}", expected, actual, passed ? "true" : "false");
 }
-`
+`;
     })
-    .join('printf(",");\n')
+    .join('printf(",");\n');
 
   return `
 #include <stdio.h>
@@ -502,8 +504,8 @@ int main() {
   printf("]");
   return 0;
 }
-`
-}
+`;
+};
 
 const buildRunner = ({
   sourceCode,
@@ -511,56 +513,53 @@ const buildRunner = ({
   testCases,
   language,
 }: {
-  sourceCode: string
-  coding: MockTestCodingDetails
-  testCases: MockTestCodingTestCase[]
-  language: MockTestCodingLanguage
+  sourceCode: string;
+  coding: MockTestCodingDetails;
+  testCases: MockTestCodingTestCase[];
+  language: MockTestCodingLanguage;
 }) => {
   switch (language) {
     case 'javascript':
     case 'typescript':
-      return buildJavaScriptRunner(sourceCode, coding, testCases)
+      return buildJavaScriptRunner(sourceCode, coding, testCases);
     case 'python':
-      return buildPythonRunner(sourceCode, coding, testCases)
+      return buildPythonRunner(sourceCode, coding, testCases);
     case 'java':
-      return buildJavaRunner(sourceCode, coding, testCases)
+      return buildJavaRunner(sourceCode, coding, testCases);
     case 'cpp':
-      return buildCppRunner(sourceCode, coding, testCases)
+      return buildCppRunner(sourceCode, coding, testCases);
     case 'c':
-      return buildCRunner(sourceCode, coding, testCases)
+      return buildCRunner(sourceCode, coding, testCases);
     default:
-      throw new MockTestsDomainError(
-        'UNSUPPORTED_CODING_LANGUAGE',
-        'Unsupported coding language',
-      )
+      throw new MockTestsDomainError('UNSUPPORTED_CODING_LANGUAGE', 'Unsupported coding language');
   }
-}
+};
 
 const parseRunnerResults = (stdout: string): TestCaseResult[] => {
-  const markerIndex = stdout.lastIndexOf(RESULT_MARKER)
+  const markerIndex = stdout.lastIndexOf(RESULT_MARKER);
 
-  if (markerIndex < 0) return []
+  if (markerIndex < 0) return [];
 
-  const jsonText = stdout.slice(markerIndex + RESULT_MARKER.length).trim()
+  const jsonText = stdout.slice(markerIndex + RESULT_MARKER.length).trim();
 
   try {
-    const parsed = JSON.parse(jsonText) as TestCaseResult[]
-    return Array.isArray(parsed) ? parsed : []
+    const parsed = JSON.parse(jsonText) as TestCaseResult[];
+    return Array.isArray(parsed) ? parsed : [];
   } catch {
-    return []
+    return [];
   }
-}
+};
 
 const hideHiddenTestCaseDetails = (testCase: TestCaseResult): TestCaseResult => {
-  if (!testCase.isHidden) return testCase
+  if (!testCase.isHidden) return testCase;
 
   return {
     ...testCase,
     input: [],
     expectedOutput: '[hidden]',
     actualOutput: testCase.passed ? '[hidden]' : testCase.actualOutput,
-  }
-}
+  };
+};
 
 const runMockTestCodingQuestion = async ({
   sourceCode,
@@ -569,102 +568,83 @@ const runMockTestCodingQuestion = async ({
   language,
   languageId,
 }: {
-  sourceCode: string
-  coding: MockTestCodingDetails
-  mode: CodeRunMode
-  language?: MockTestCodingLanguage
-  languageId?: number
+  sourceCode: string;
+  coding: MockTestCodingDetails;
+  mode: CodeRunMode;
+  language?: MockTestCodingLanguage;
+  languageId?: number;
 }): Promise<MockTestCodeRunResult> => {
-  const selectedLanguage = language || coding.language || 'javascript'
+  const selectedLanguage = language || coding.language || 'javascript';
 
   const selectedTestCases =
-    mode === 'run'
-      ? coding.testCases.filter((testCase) => !testCase.isHidden)
-      : coding.testCases
+    mode === 'run' ? coding.testCases.filter((testCase) => !testCase.isHidden) : coding.testCases;
 
-  const testCasesToRun = selectedTestCases.length
-    ? selectedTestCases
-    : coding.testCases
+  const testCasesToRun = selectedTestCases.length ? selectedTestCases : coding.testCases;
 
   const runnerCode = buildRunner({
     sourceCode,
     coding,
     testCases: testCasesToRun,
     language: selectedLanguage,
-  })
+  });
 
   const execution = await executeCodeWithPiston({
     sourceCode: runnerCode,
     language: selectedLanguage,
     languageId: getLanguageId(selectedLanguage, languageId),
-  })
+  });
 
-  const parsedResults = parseRunnerResults(execution.stdout)
+  const parsedResults = parseRunnerResults(execution.stdout);
 
   const hasExecutionFailure =
-    Boolean(execution.stderr) ||
-    Boolean(execution.compileOutput) ||
-    execution.status.id !== 3
+    Boolean(execution.stderr) || Boolean(execution.compileOutput) || execution.status.id !== 3;
 
   const testCases =
     parsedResults.length > 0
       ? parsedResults
       : testCasesToRun.map((testCase, index) => ({
-        index,
-        input: testCase.input,
-        expectedOutput: testCase.expectedOutput,
-        actualOutput: null,
-        passed: false,
-        isHidden: Boolean(testCase.isHidden),
-        explanation: testCase.explanation,
-        error:
-          execution.stderr ||
-          execution.compileOutput ||
-          execution.message ||
-          'Code execution failed',
-      }))
+          index,
+          input: testCase.input,
+          expectedOutput: testCase.expectedOutput,
+          actualOutput: null,
+          passed: false,
+          isHidden: Boolean(testCase.isHidden),
+          explanation: testCase.explanation,
+          error:
+            execution.stderr ||
+            execution.compileOutput ||
+            execution.message ||
+            'Code execution failed',
+        }));
 
-  const passedCount = testCases.filter((testCase) => testCase.passed).length
-  const totalCount = testCases.length
+  const passedCount = testCases.filter((testCase) => testCase.passed).length;
+  const totalCount = testCases.length;
 
   return {
     passed: !hasExecutionFailure && totalCount > 0 && passedCount === totalCount,
     passedCount,
     totalCount,
-    testCases:
-      mode === 'run'
-        ? testCases
-        : testCases.map(hideHiddenTestCaseDetails),
-    stdout: execution.stdout
-      .replace(new RegExp(`${RESULT_MARKER}.*`, 's'), '')
-      .trim(),
+    testCases: mode === 'run' ? testCases : testCases.map(hideHiddenTestCaseDetails),
+    stdout: execution.stdout.replace(new RegExp(`${RESULT_MARKER}.*`, 's'), '').trim(),
     stderr: execution.stderr,
     compileOutput: execution.compileOutput,
     message: execution.message,
     status: execution.status,
-  }
-}
+  };
+};
 
-
-export class PistonMockTestCodeRunner
-  implements IMockTestCodeRunner {
-  async run(
-    input: Parameters<IMockTestCodeRunner['run']>[0],
-  ): Promise<MockTestCodeRunResult> {
+export class PistonMockTestCodeRunner implements IMockTestCodeRunner {
+  async run(input: Parameters<IMockTestCodeRunner['run']>[0]): Promise<MockTestCodeRunResult> {
     try {
-      return await runMockTestCodingQuestion(input)
+      return await runMockTestCodingQuestion(input);
     } catch (error) {
       if (error instanceof MockTestsDomainError) {
-        throw error
+        throw error;
       }
 
-      throw new MockTestsDomainError(
-        'CODE_EXECUTION_FAILED',
-        'Mock test code execution failed',
-      )
+      throw new MockTestsDomainError('CODE_EXECUTION_FAILED', 'Mock test code execution failed');
     }
   }
 }
 
-export const pistonMockTestCodeRunner =
-  new PistonMockTestCodeRunner()
+export const pistonMockTestCodeRunner = new PistonMockTestCodeRunner();

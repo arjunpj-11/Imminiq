@@ -1,3 +1,3 @@
 export interface ISecurityEmailChangeUrlBuilder {
-  buildVerificationUrl(rawToken: string): string
+  buildVerificationUrl(rawToken: string): string;
 }

@@ -1,1 +1,12 @@
-export type AdminAnalytics = { rangeDays: number; metrics: { users: number; activeUsers: number; trackers: number; tests: number; attempts: number }; dailyUsers: Array<{ date: string; value: number }>; dailyActivity: Array<{ date: string; value: number }> }
+export type AdminAnalytics = {
+  rangeDays: number;
+  metrics: {
+    users: number;
+    activeUsers: number;
+    trackers: number;
+    tests: number;
+    attempts: number;
+  };
+  dailyUsers: Array<{ date: string; value: number }>;
+  dailyActivity: Array<{ date: string; value: number }>;
+};

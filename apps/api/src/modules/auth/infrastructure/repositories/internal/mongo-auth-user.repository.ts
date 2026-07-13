@@ -1,65 +1,53 @@
-import { env } from '../../../../../config/env'
-import { User } from '../../../../../infrastructure/database/models/user.model'
+import { env } from '../../../../../config/env';
+import { User } from '../../../../../infrastructure/database/models/user.model';
 import type {
   CreateAuthUserInput,
   CreateOAuthUserInput,
   UpdateAuthProfileInput,
   UpdateAuthUserInput,
-} from '../../../domain/repositories/auth-user.repository.interface'
-import { MongoAuthBaseRepository } from '../shared/mongo-auth-base.repository'
-import { MongoAuthErrorMapper } from '../shared/mongo-auth-error.mapper'
-import { MongoAuthMapper } from '../shared/mongo-auth.mapper'
-import { MongoAuthNormalizer } from '../shared/mongo-auth-normalizer'
-import type {
-  MongoAuthUserRecord,
-  MongoOAuthAuthUserRecord,
-} from '../shared/mongo-auth.types'
+} from '../../../domain/repositories/auth-user.repository.interface';
+import { MongoAuthBaseRepository } from '../shared/mongo-auth-base.repository';
+import { MongoAuthErrorMapper } from '../shared/mongo-auth-error.mapper';
+import { MongoAuthMapper } from '../shared/mongo-auth.mapper';
+import { MongoAuthNormalizer } from '../shared/mongo-auth-normalizer';
+import type { MongoAuthUserRecord, MongoOAuthAuthUserRecord } from '../shared/mongo-auth.types';
 import {
   MongoAuthProfileProvisioner,
   mongoAuthProfileProvisioner,
-} from './mongo-auth-profile.provisioner'
+} from './mongo-auth-profile.provisioner';
 
 export class MongoAuthUserRepository extends MongoAuthBaseRepository {
   constructor(
     private readonly _mapper = new MongoAuthMapper(),
-    private readonly _profileProvisioner: MongoAuthProfileProvisioner =
-      mongoAuthProfileProvisioner,
+    private readonly _profileProvisioner: MongoAuthProfileProvisioner = mongoAuthProfileProvisioner
   ) {
-    super()
+    super();
   }
 
   async findByEmail(email: string) {
-    return this.execute(
-      'AUTH_USER_READ_FAILED',
-      'Failed to read auth user by email',
-      async () => {
-        const user = await User.findOne({
-          email: MongoAuthNormalizer.email(email),
-          deletedAt: null,
-        })
-          .select('+passwordHash')
-          .lean<MongoAuthUserRecord>()
+    return this.execute('AUTH_USER_READ_FAILED', 'Failed to read auth user by email', async () => {
+      const user = await User.findOne({
+        email: MongoAuthNormalizer.email(email),
+        deletedAt: null,
+      })
+        .select('+passwordHash')
+        .lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   async findByPhone(phone: string) {
-    return this.execute(
-      'AUTH_USER_READ_FAILED',
-      'Failed to read auth user by phone',
-      async () => {
-        const user = await User.findOne({
-          phone: MongoAuthNormalizer.phone(phone),
-          deletedAt: null,
-        })
-          .select('+passwordHash')
-          .lean<MongoAuthUserRecord>()
+    return this.execute('AUTH_USER_READ_FAILED', 'Failed to read auth user by phone', async () => {
+      const user = await User.findOne({
+        phone: MongoAuthNormalizer.phone(phone),
+        deletedAt: null,
+      })
+        .select('+passwordHash')
+        .lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   async findByIdentifier(identifier: string) {
@@ -67,8 +55,8 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
       'AUTH_USER_READ_FAILED',
       'Failed to read auth user by identifier',
       async () => {
-        const value = identifier.trim()
-        const isEmail = value.includes('@')
+        const value = identifier.trim();
+        const isEmail = value.includes('@');
 
         const user = await User.findOne({
           ...(isEmail
@@ -77,28 +65,24 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           deletedAt: null,
         })
           .select('+passwordHash')
-          .lean<MongoAuthUserRecord>()
+          .lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+        return this._mapper.toAuthUserEntity(user);
+      }
+    );
   }
 
   async findById(id: string) {
-    return this.execute(
-      'AUTH_USER_READ_FAILED',
-      'Failed to read auth user by id',
-      async () => {
-        const user = await User.findOne({
-          _id: id,
-          deletedAt: null,
-        })
-          .select('+passwordHash')
-          .lean<MongoAuthUserRecord>()
+    return this.execute('AUTH_USER_READ_FAILED', 'Failed to read auth user by id', async () => {
+      const user = await User.findOne({
+        _id: id,
+        deletedAt: null,
+      })
+        .select('+passwordHash')
+        .lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   async findByUsername(username: string) {
@@ -109,39 +93,33 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
         const user = await User.findOne({
           username: MongoAuthNormalizer.username(username),
           deletedAt: null,
-        }).lean<MongoAuthUserRecord>()
+        }).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+        return this._mapper.toAuthUserEntity(user);
+      }
+    );
   }
 
   async emailExists(email: string) {
-    return this.execute(
-      'AUTH_USER_READ_FAILED',
-      'Failed to check email availability',
-      async () =>
-        Boolean(
-          await User.exists({
-            email: MongoAuthNormalizer.email(email),
-            deletedAt: null,
-          }),
-        ),
-    )
+    return this.execute('AUTH_USER_READ_FAILED', 'Failed to check email availability', async () =>
+      Boolean(
+        await User.exists({
+          email: MongoAuthNormalizer.email(email),
+          deletedAt: null,
+        })
+      )
+    );
   }
 
   async phoneExists(phone: string) {
-    return this.execute(
-      'AUTH_USER_READ_FAILED',
-      'Failed to check phone availability',
-      async () =>
-        Boolean(
-          await User.exists({
-            phone: MongoAuthNormalizer.phone(phone),
-            deletedAt: null,
-          }),
-        ),
-    )
+    return this.execute('AUTH_USER_READ_FAILED', 'Failed to check phone availability', async () =>
+      Boolean(
+        await User.exists({
+          phone: MongoAuthNormalizer.phone(phone),
+          deletedAt: null,
+        })
+      )
+    );
   }
 
   async usernameExists(username: string) {
@@ -153,9 +131,9 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           await User.exists({
             username: MongoAuthNormalizer.username(username),
             deletedAt: null,
-          }),
-        ),
-    )
+          })
+        )
+    );
   }
 
   async createUser(data: CreateAuthUserInput) {
@@ -175,17 +153,15 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           verificationExpiresAt:
             data.emailVerified || data.phoneVerified
               ? null
-              : new Date(
-                  Date.now() + env.OTP_EXPIRES_MINUTES * 60 * 1000,
-                ),
-        })
+              : new Date(Date.now() + env.OTP_EXPIRES_MINUTES * 60 * 1000),
+        });
 
         return this._mapper.toAuthUserEntityOrThrow(
-          this._mapper.toPlainRecord<MongoAuthUserRecord>(user),
-        )
+          this._mapper.toPlainRecord<MongoAuthUserRecord>(user)
+        );
       },
-      MongoAuthErrorMapper.mapDuplicateUserError,
-    )
+      MongoAuthErrorMapper.mapDuplicateUserError
+    );
   }
 
   async createOAuthUser(data: CreateOAuthUserInput) {
@@ -193,21 +169,20 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
       'AUTH_USER_WRITE_FAILED',
       'Failed to create OAuth user',
       async () => {
-        const normalizedEmail = MongoAuthNormalizer.email(data.email)
+        const normalizedEmail = MongoAuthNormalizer.email(data.email);
 
         const existingUser = await User.findOne({
           email: normalizedEmail,
         })
           .select('+passwordHash')
-          .lean<MongoOAuthAuthUserRecord>()
+          .lean<MongoOAuthAuthUserRecord>();
 
         if (existingUser) {
           const updatedUser = await User.findByIdAndUpdate(
             existingUser._id,
             {
               $set: {
-                fullName:
-                  existingUser.fullName || MongoAuthNormalizer.text(data.fullName),
+                fullName: existingUser.fullName || MongoAuthNormalizer.text(data.fullName),
                 avatarUrl: existingUser.avatarUrl || data.avatarUrl,
                 provider: existingUser.provider || data.provider,
                 providerId: existingUser.providerId || data.providerId,
@@ -218,15 +193,15 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
             },
             {
               returnDocument: 'after',
-            },
+            }
           )
             .select('+passwordHash')
-            .lean<MongoAuthUserRecord>()
+            .lean<MongoAuthUserRecord>();
 
           if (updatedUser) {
-            await this._profileProvisioner.ensureProfile(updatedUser)
+            await this._profileProvisioner.ensureProfile(updatedUser);
 
-            return this._mapper.toAuthUserEntityOrThrow(updatedUser)
+            return this._mapper.toAuthUserEntityOrThrow(updatedUser);
           }
         }
 
@@ -241,16 +216,16 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           phoneVerified: false,
           passwordHash: null,
           verificationExpiresAt: null,
-        })
+        });
 
-        const plainUser = this._mapper.toPlainRecord<MongoAuthUserRecord>(user)
+        const plainUser = this._mapper.toPlainRecord<MongoAuthUserRecord>(user);
 
-        await this._profileProvisioner.ensureProfile(plainUser)
+        await this._profileProvisioner.ensureProfile(plainUser);
 
-        return this._mapper.toAuthUserEntityOrThrow(plainUser)
+        return this._mapper.toAuthUserEntityOrThrow(plainUser);
       },
-      MongoAuthErrorMapper.mapDuplicateUserError,
-    )
+      MongoAuthErrorMapper.mapDuplicateUserError
+    );
   }
 
   async updateProfile(id: string, data: UpdateAuthProfileInput) {
@@ -265,24 +240,20 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           },
           {
             $set: {
-              ...(data.fullName
-                ? { fullName: MongoAuthNormalizer.text(data.fullName) }
-                : {}),
-              ...(data.username
-                ? { username: MongoAuthNormalizer.username(data.username) }
-                : {}),
+              ...(data.fullName ? { fullName: MongoAuthNormalizer.text(data.fullName) } : {}),
+              ...(data.username ? { username: MongoAuthNormalizer.username(data.username) } : {}),
               ...(data.avatarUrl ? { avatarUrl: data.avatarUrl } : {}),
             },
           },
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoAuthUserRecord>()
+          }
+        ).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user);
       },
-      MongoAuthErrorMapper.mapDuplicateUserError,
-    )
+      MongoAuthErrorMapper.mapDuplicateUserError
+    );
   }
 
   async updateUser(id: string, data: UpdateAuthUserInput) {
@@ -290,15 +261,15 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
       'AUTH_USER_WRITE_FAILED',
       'Failed to update auth user',
       async () => {
-        const update = this.buildUserUpdate(data)
+        const update = this.buildUserUpdate(data);
 
         if (Object.keys(update.$set).length === 0) {
           const user = await User.findOne({
             _id: id,
             deletedAt: null,
-          }).lean<MongoAuthUserRecord>()
+          }).lean<MongoAuthUserRecord>();
 
-          return this._mapper.toAuthUserEntity(user)
+          return this._mapper.toAuthUserEntity(user);
         }
 
         const user = await User.findOneAndUpdate(
@@ -309,123 +280,107 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           update,
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoAuthUserRecord>()
+          }
+        ).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
+        return this._mapper.toAuthUserEntity(user);
       },
-      MongoAuthErrorMapper.mapDuplicateUserError,
-    )
+      MongoAuthErrorMapper.mapDuplicateUserError
+    );
   }
 
   async markEmailVerified(id: string) {
-    return this.execute(
-      'AUTH_USER_WRITE_FAILED',
-      'Failed to mark email verified',
-      async () => {
-        const user = await User.findOneAndUpdate(
-          {
-            _id: id,
-            deletedAt: null,
+    return this.execute('AUTH_USER_WRITE_FAILED', 'Failed to mark email verified', async () => {
+      const user = await User.findOneAndUpdate(
+        {
+          _id: id,
+          deletedAt: null,
+        },
+        {
+          $set: {
+            emailVerified: true,
+            verificationExpiresAt: null,
           },
-          {
-            $set: {
-              emailVerified: true,
-              verificationExpiresAt: null,
-            },
-          },
-          {
-            returnDocument: 'after',
-          },
-        ).lean<MongoAuthUserRecord>()
-
-        if (user) {
-          await this._profileProvisioner.ensureProfile(user)
+        },
+        {
+          returnDocument: 'after',
         }
+      ).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      if (user) {
+        await this._profileProvisioner.ensureProfile(user);
+      }
+
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   async markPhoneVerified(id: string) {
-    return this.execute(
-      'AUTH_USER_WRITE_FAILED',
-      'Failed to mark phone verified',
-      async () => {
-        const user = await User.findOneAndUpdate(
-          {
-            _id: id,
-            deletedAt: null,
+    return this.execute('AUTH_USER_WRITE_FAILED', 'Failed to mark phone verified', async () => {
+      const user = await User.findOneAndUpdate(
+        {
+          _id: id,
+          deletedAt: null,
+        },
+        {
+          $set: {
+            phoneVerified: true,
+            verificationExpiresAt: null,
           },
-          {
-            $set: {
-              phoneVerified: true,
-              verificationExpiresAt: null,
-            },
-          },
-          {
-            returnDocument: 'after',
-          },
-        ).lean<MongoAuthUserRecord>()
-
-        if (user) {
-          await this._profileProvisioner.ensureProfile(user)
+        },
+        {
+          returnDocument: 'after',
         }
+      ).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      if (user) {
+        await this._profileProvisioner.ensureProfile(user);
+      }
+
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   async updatePasswordHash(id: string, passwordHash: string) {
-    return this.execute(
-      'AUTH_USER_WRITE_FAILED',
-      'Failed to update password hash',
-      async () => {
-        const user = await User.findOneAndUpdate(
-          {
-            _id: id,
-            deletedAt: null,
+    return this.execute('AUTH_USER_WRITE_FAILED', 'Failed to update password hash', async () => {
+      const user = await User.findOneAndUpdate(
+        {
+          _id: id,
+          deletedAt: null,
+        },
+        {
+          $set: {
+            passwordHash,
           },
-          {
-            $set: {
-              passwordHash,
-            },
-          },
-          {
-            returnDocument: 'after',
-          },
-        ).lean<MongoAuthUserRecord>()
+        },
+        {
+          returnDocument: 'after',
+        }
+      ).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   async updateLastActive(id: string) {
-    return this.execute(
-      'AUTH_USER_WRITE_FAILED',
-      'Failed to update last active time',
-      async () => {
-        const user = await User.findOneAndUpdate(
-          {
-            _id: id,
-            deletedAt: null,
+    return this.execute('AUTH_USER_WRITE_FAILED', 'Failed to update last active time', async () => {
+      const user = await User.findOneAndUpdate(
+        {
+          _id: id,
+          deletedAt: null,
+        },
+        {
+          $set: {
+            lastActiveAt: new Date(),
           },
-          {
-            $set: {
-              lastActiveAt: new Date(),
-            },
-          },
-          {
-            returnDocument: 'after',
-          },
-        ).lean<MongoAuthUserRecord>()
+        },
+        {
+          returnDocument: 'after',
+        }
+      ).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   async cancelScheduledDeletionIfRecoverable(id: string) {
@@ -453,83 +408,79 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoAuthUserRecord>()
+          }
+        ).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+        return this._mapper.toAuthUserEntity(user);
+      }
+    );
   }
 
   async deleteUserById(id: string) {
-    return this.execute(
-      'AUTH_USER_DELETE_FAILED',
-      'Failed to delete auth user',
-      async () => {
-        const user = await User.findByIdAndDelete(id).lean<MongoAuthUserRecord>()
+    return this.execute('AUTH_USER_DELETE_FAILED', 'Failed to delete auth user', async () => {
+      const user = await User.findByIdAndDelete(id).lean<MongoAuthUserRecord>();
 
-        return this._mapper.toAuthUserEntity(user)
-      },
-    )
+      return this._mapper.toAuthUserEntity(user);
+    });
   }
 
   private buildUserUpdate(data: UpdateAuthUserInput): {
-    $set: Record<string, unknown>
+    $set: Record<string, unknown>;
   } {
-    const $set: Record<string, unknown> = {}
+    const $set: Record<string, unknown> = {};
 
     if (data.fullName !== undefined) {
-      $set.fullName = MongoAuthNormalizer.text(data.fullName)
+      $set.fullName = MongoAuthNormalizer.text(data.fullName);
     }
 
     if (data.email !== undefined) {
-      $set.email = MongoAuthNormalizer.email(data.email)
+      $set.email = MongoAuthNormalizer.email(data.email);
     }
 
     if (data.phone !== undefined) {
-      $set.phone = MongoAuthNormalizer.phone(data.phone)
+      $set.phone = MongoAuthNormalizer.phone(data.phone);
     }
 
     if (data.username !== undefined) {
-      $set.username = MongoAuthNormalizer.username(data.username)
+      $set.username = MongoAuthNormalizer.username(data.username);
     }
 
     if (data.avatarUrl !== undefined) {
-      $set.avatarUrl = data.avatarUrl
+      $set.avatarUrl = data.avatarUrl;
     }
 
     if (data.passwordHash !== undefined) {
-      $set.passwordHash = data.passwordHash
+      $set.passwordHash = data.passwordHash;
     }
 
     if (data.emailVerified !== undefined) {
-      $set.emailVerified = data.emailVerified
+      $set.emailVerified = data.emailVerified;
     }
 
     if (data.phoneVerified !== undefined) {
-      $set.phoneVerified = data.phoneVerified
+      $set.phoneVerified = data.phoneVerified;
     }
 
     if (data.onboardingCompleted !== undefined) {
-      $set.onboardingCompleted = data.onboardingCompleted
+      $set.onboardingCompleted = data.onboardingCompleted;
     }
 
     if (data.lastActiveAt !== undefined) {
-      $set.lastActiveAt = data.lastActiveAt
+      $set.lastActiveAt = data.lastActiveAt;
     }
 
     if (data.status !== undefined) {
-      $set.status = data.status
+      $set.status = data.status;
     }
 
     if (data.scheduledDeletionAt !== undefined) {
-      $set.scheduledDeletionAt = data.scheduledDeletionAt
+      $set.scheduledDeletionAt = data.scheduledDeletionAt;
     }
 
     return {
       $set,
-    }
+    };
   }
 }
 
-export const mongoAuthUserRepository = new MongoAuthUserRepository()
+export const mongoAuthUserRepository = new MongoAuthUserRepository();

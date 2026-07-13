@@ -1,3 +1,3 @@
 export interface IClock {
-  now(): Date
+  now(): Date;
 }

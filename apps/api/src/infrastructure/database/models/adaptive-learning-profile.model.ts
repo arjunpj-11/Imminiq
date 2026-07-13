@@ -1,10 +1,6 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
-export type AdaptiveMasteryLevel =
-  | 'foundation'
-  | 'developing'
-  | 'proficient'
-  | 'advanced'
+export type AdaptiveMasteryLevel = 'foundation' | 'developing' | 'proficient' | 'advanced';
 
 const adaptiveLevelHistorySchema = new Schema(
   {
@@ -28,8 +24,8 @@ const adaptiveLevelHistorySchema = new Schema(
     reason: { type: String, required: true, maxlength: 300 },
     recordedAt: { type: Date, default: Date.now },
   },
-  { _id: true },
-)
+  { _id: true }
+);
 
 const adaptiveLearningProfileSchema = new Schema(
   {
@@ -48,11 +44,11 @@ const adaptiveLearningProfileSchema = new Schema(
     },
     history: { type: [adaptiveLevelHistorySchema], default: [] },
   },
-  { timestamps: true },
-)
+  { timestamps: true }
+);
 
-adaptiveLearningProfileSchema.index({ 'history.attemptId': 1 })
+adaptiveLearningProfileSchema.index({ 'history.attemptId': 1 });
 
 export const AdaptiveLearningProfileModel =
   mongoose.models.AdaptiveLearningProfile ||
-  mongoose.model('AdaptiveLearningProfile', adaptiveLearningProfileSchema)
+  mongoose.model('AdaptiveLearningProfile', adaptiveLearningProfileSchema);

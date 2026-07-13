@@ -1,16 +1,16 @@
 export class CommunityDomainError extends Error {
-  readonly code: string
-  readonly isOperational = true
+  readonly code: string;
+  readonly isOperational = true;
 
   constructor(code: string, message: string) {
-    super(message)
-    this.name = 'CommunityDomainError'
-    this.code = code
+    super(message);
+    this.name = 'CommunityDomainError';
+    this.code = code;
 
     const errorConstructor = Error as ErrorConstructor & {
-      captureStackTrace?: (target: object) => void
-    }
+      captureStackTrace?: (target: object) => void;
+    };
 
-    errorConstructor.captureStackTrace?.(this)
+    errorConstructor.captureStackTrace?.(this);
   }
 }

@@ -1,1 +1,1 @@
-export type EvaluationStatus = 'pending' | 'completed' | 'failed'
+export type EvaluationStatus = 'pending' | 'completed' | 'failed';

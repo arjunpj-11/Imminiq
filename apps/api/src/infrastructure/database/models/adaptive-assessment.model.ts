@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const adaptiveAssessmentSchema = new Schema(
   {
@@ -48,12 +48,12 @@ const adaptiveAssessmentSchema = new Schema(
     masteryChange: { type: Number, default: null },
     completedAt: { type: Date, default: null },
   },
-  { timestamps: true },
-)
+  { timestamps: true }
+);
 
-adaptiveAssessmentSchema.index({ userId: 1, createdAt: -1 })
-adaptiveAssessmentSchema.index({ userId: 1, status: 1 })
+adaptiveAssessmentSchema.index({ userId: 1, createdAt: -1 });
+adaptiveAssessmentSchema.index({ userId: 1, status: 1 });
 
 export const AdaptiveAssessmentModel =
   mongoose.models.AdaptiveAssessment ||
-  mongoose.model('AdaptiveAssessment', adaptiveAssessmentSchema)
+  mongoose.model('AdaptiveAssessment', adaptiveAssessmentSchema);

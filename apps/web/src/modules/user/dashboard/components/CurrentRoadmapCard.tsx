@@ -1,72 +1,118 @@
 // CurrentRoadmapCard.tsx
-import EmptyCard from './EmptyCard'
-import { formatRelativeTime } from '../utils/dashboard-formatters'
-import type { ReactElement } from 'react'
-
+import EmptyCard from './EmptyCard';
+import { formatRelativeTime } from '../utils/dashboard-formatters';
+import type { ReactElement } from 'react';
 
 type CurrentRoadmap = {
-  _id: string
-  title: string
-  level: string
-  lastStudiedAt?: string | Date | null
-  completionPercentage?: number | null
-  totalTopics?: number | null
-  completedTopics?: number | null
-  remainingTopics?: number | null
-  estimatedHours?: number | null
-}
+  _id: string;
+  title: string;
+  level: string;
+  lastStudiedAt?: string | Date | null;
+  completionPercentage?: number | null;
+  totalTopics?: number | null;
+  completedTopics?: number | null;
+  remainingTopics?: number | null;
+  estimatedHours?: number | null;
+};
 
 type CurrentRoadmapCardProps = {
-  currentRoadmap?: CurrentRoadmap | null
-  onNavigate: (link: string) => void
-}
+  currentRoadmap?: CurrentRoadmap | null;
+  onNavigate: (link: string) => void;
+};
 
 const BeginnerIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="10"
+    height="10"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
   </svg>
-)
+);
 
 const IntermediateIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="10"
+    height="10"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
     <line x1="15" y1="5" x2="19" y2="9" />
   </svg>
-)
+);
 
 const AdvancedIcon = () => (
-  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+  <svg
+    width="10"
+    height="10"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  >
     <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z" />
     <line x1="15" y1="5" x2="19" y2="9" />
     <line x1="2" y1="22" x2="6" y2="18" />
   </svg>
-)
+);
 
-const LEVEL_CONFIG: Record<string, { icon: ReactElement; color: string; bg: string; darkColor: string; darkBg: string }> = {
-  beginner:     { icon: <BeginnerIcon />,     color: 'var(--success)', bg: 'rgba(45,106,71,0.08)',   darkColor: 'var(--success)', darkBg: 'rgba(92,201,138,0.10)' },
-  intermediate: { icon: <IntermediateIcon />, color: 'var(--brand-500)', bg: 'rgba(184,76,43,0.08)',  darkColor: 'var(--brand-500)', darkBg: 'rgba(232,129,106,0.10)' },
-  advanced:     { icon: <AdvancedIcon />,     color: '#7c5a1e', bg: 'rgba(124,90,30,0.08)',  darkColor: '#d4a84b', darkBg: 'rgba(212,168,75,0.10)' },
-}
+const LEVEL_CONFIG: Record<
+  string,
+  { icon: ReactElement; color: string; bg: string; darkColor: string; darkBg: string }
+> = {
+  beginner: {
+    icon: <BeginnerIcon />,
+    color: 'var(--success)',
+    bg: 'rgba(45,106,71,0.08)',
+    darkColor: 'var(--success)',
+    darkBg: 'rgba(92,201,138,0.10)',
+  },
+  intermediate: {
+    icon: <IntermediateIcon />,
+    color: 'var(--brand-500)',
+    bg: 'rgba(184,76,43,0.08)',
+    darkColor: 'var(--brand-500)',
+    darkBg: 'rgba(232,129,106,0.10)',
+  },
+  advanced: {
+    icon: <AdvancedIcon />,
+    color: '#7c5a1e',
+    bg: 'rgba(124,90,30,0.08)',
+    darkColor: '#d4a84b',
+    darkBg: 'rgba(212,168,75,0.10)',
+  },
+};
 
 function getMilestones(progress: number) {
   return [25, 50, 75, 100].map((m) => ({
     value: m,
     reached: progress >= m,
-  }))
+  }));
 }
 
 export default function CurrentRoadmapCard({
   currentRoadmap,
   onNavigate,
 }: CurrentRoadmapCardProps) {
-  const progress = currentRoadmap?.completionPercentage ?? 0
-  const levelKey = currentRoadmap?.level?.toLowerCase() ?? 'beginner'
-  const levelCfg = LEVEL_CONFIG[levelKey] ?? LEVEL_CONFIG.beginner
-  const milestones = getMilestones(progress)
+  const progress = currentRoadmap?.completionPercentage ?? 0;
+  const levelKey = currentRoadmap?.level?.toLowerCase() ?? 'beginner';
+  const levelCfg = LEVEL_CONFIG[levelKey] ?? LEVEL_CONFIG.beginner;
+  const milestones = getMilestones(progress);
 
   return (
     <div className="relative overflow-hidden self-start rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-4">
-
       {/* Subtle radial glow top-right */}
       <div
         aria-hidden
@@ -145,9 +191,7 @@ export default function CurrentRoadmapCard({
                   >
                     <div
                       className={`h-2.5 w-0.5 rounded-full transition-colors duration-500 ${
-                        m.reached
-                          ? 'bg-white/60'
-                          : 'bg-[rgba(26,23,20,0.15)] dark:bg-white/15'
+                        m.reached ? 'bg-white/60' : 'bg-[rgba(26,23,20,0.15)] dark:bg-white/15'
                       }`}
                     />
                   </div>
@@ -176,8 +220,8 @@ export default function CurrentRoadmapCard({
           {/* ── Mini stat pills ── */}
           <div className="mt-4 grid grid-cols-3 gap-2">
             {[
-              { label: 'Topics',    value: currentRoadmap.totalTopics,     sub: 'total in roadmap' },
-              { label: 'Done',      value: currentRoadmap.completedTopics, sub: 'topics completed' },
+              { label: 'Topics', value: currentRoadmap.totalTopics, sub: 'total in roadmap' },
+              { label: 'Done', value: currentRoadmap.completedTopics, sub: 'topics completed' },
               { label: 'Remaining', value: currentRoadmap.remainingTopics, sub: 'left to study' },
             ].map(({ label, value, sub }) => (
               <div
@@ -224,5 +268,5 @@ export default function CurrentRoadmapCard({
         </>
       )}
     </div>
-  )
+  );
 }

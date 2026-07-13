@@ -30,9 +30,9 @@ export class MongoMockTestsQuestionRepository extends MongoMockTestsBaseReposito
           .lean();
 
         return docs.map((doc) =>
-          this._mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc),
+          this._mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc)
         );
-      },
+      }
     );
   }
 
@@ -52,10 +52,8 @@ export class MongoMockTestsQuestionRepository extends MongoMockTestsBaseReposito
           deletedAt: null,
         }).lean();
 
-        return doc
-          ? this._mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc) : null;
+      }
     );
   }
 
@@ -67,15 +65,12 @@ export class MongoMockTestsQuestionRepository extends MongoMockTestsBaseReposito
         const docs = await MockTestQuestionModel.insertMany(questions);
 
         return docs.map((doc) =>
-          this._mapper.toMockTestQuestionEntity(
-            doc.toObject() as RawMockTestQuestionDoc,
-          ),
+          this._mapper.toMockTestQuestionEntity(doc.toObject() as RawMockTestQuestionDoc)
         );
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 }
 
-export const mongoMockTestsQuestionRepository =
-  new MongoMockTestsQuestionRepository();
+export const mongoMockTestsQuestionRepository = new MongoMockTestsQuestionRepository();

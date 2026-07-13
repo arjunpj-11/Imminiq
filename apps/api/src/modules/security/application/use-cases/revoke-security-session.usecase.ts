@@ -1,49 +1,47 @@
-import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
-import type { IRevokeSessionResponseDTO } from '../security.dto'
-import { SecurityApplicationError } from '../security-application.error'
-import type { ICurrentSessionResolver } from '../services/current-session.service'
+import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
+import type { IRevokeSessionResponseDTO } from '../security.dto';
+import { SecurityApplicationError } from '../security-application.error';
+import type { ICurrentSessionResolver } from '../services/current-session.service';
 
 export interface IRevokeSecuritySessionUseCase {
   execute(
     userId: string,
     sessionId: string,
     refreshToken?: string,
-    authenticatedSessionId?: string,
-  ): Promise<IRevokeSessionResponseDTO>
+    authenticatedSessionId?: string
+  ): Promise<IRevokeSessionResponseDTO>;
 }
 
 export class RevokeSecuritySessionUseCase implements IRevokeSecuritySessionUseCase {
   constructor(
     private readonly _securitySessionRepository: ISecuritySessionRepository,
-    private readonly _currentSessionResolver: ICurrentSessionResolver,
+    private readonly _currentSessionResolver: ICurrentSessionResolver
   ) {}
 
   async execute(
     userId: string,
     sessionId: string,
     refreshToken?: string,
-    authenticatedSessionId?: string,
+    authenticatedSessionId?: string
   ): Promise<IRevokeSessionResponseDTO> {
-    const currentSessionId =
-      await this._currentSessionResolver.getCurrentSessionId(
-        refreshToken,
-        authenticatedSessionId,
-      )
+    const currentSessionId = await this._currentSessionResolver.getCurrentSessionId(
+      refreshToken,
+      authenticatedSessionId
+    );
 
     if (currentSessionId === sessionId) {
-      throw SecurityApplicationError.cannotRevokeCurrentSession()
+      throw SecurityApplicationError.cannotRevokeCurrentSession();
     }
 
-    const revokedSession =
-      await this._securitySessionRepository.revokeSessionById({
-        userId,
-        sessionId,
-      })
+    const revokedSession = await this._securitySessionRepository.revokeSessionById({
+      userId,
+      sessionId,
+    });
 
     if (!revokedSession) {
-      throw SecurityApplicationError.sessionNotFound()
+      throw SecurityApplicationError.sessionNotFound();
     }
 
-    return { revoked: true, sessionId }
+    return { revoked: true, sessionId };
   }
 }

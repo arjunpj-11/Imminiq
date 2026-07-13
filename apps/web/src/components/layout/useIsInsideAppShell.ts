@@ -1,6 +1,5 @@
-import { useContext } from 'react'
+import { useContext } from 'react';
 
-import { AppShellContext } from './AppShellContext'
+import { AppShellContext } from './AppShellContext';
 
-export const useIsInsideAppShell = () =>
-  useContext(AppShellContext) !== null
+export const useIsInsideAppShell = () => useContext(AppShellContext) !== null;

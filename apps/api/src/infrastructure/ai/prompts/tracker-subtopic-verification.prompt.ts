@@ -1,19 +1,19 @@
 export const TRACKER_SUBTOPIC_VERIFICATION_SYSTEM_PROMPT =
-  'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.'
+  'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.';
 
 export const buildTrackerSubtopicVerificationPrompt = (input: {
-  trackerTitle: string
-  topicTitle: string
-  topicDescription: string
-  subtopicTitle: string
-  subtopicDescription: string
-  difficulty: 'beginner' | 'intermediate' | 'advanced'
+  trackerTitle: string;
+  topicTitle: string;
+  topicDescription: string;
+  subtopicTitle: string;
+  subtopicDescription: string;
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
   existingSubtopics: {
-    id: string
-    title: string
-    description: string
-    difficulty: string
-  }[]
+    id: string;
+    title: string;
+    description: string;
+    difficulty: string;
+  }[];
 }): string => {
   const existingList = input.existingSubtopics.length
     ? input.existingSubtopics
@@ -24,7 +24,7 @@ export const buildTrackerSubtopicVerificationPrompt = (input: {
             }${subtopic.description ? ` — ${subtopic.description}` : ''}`
         )
         .join('\n')
-    : 'None yet'
+    : 'None yet';
 
   return `
 A user wants to add a new subtopic (lesson) under a topic in their learning tracker.
@@ -61,5 +61,5 @@ Return ONLY valid JSON using this exact structure:
   "polishedTitle": "Fix obvious typos only. Otherwise return the title exactly as given.",
   "polishedDescription": "One clear sentence describing what the learner will understand or practice in this subtopic."
 }
-`.trim()
-}
+`.trim();
+};

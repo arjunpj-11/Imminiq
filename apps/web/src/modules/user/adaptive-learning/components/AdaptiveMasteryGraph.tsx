@@ -1,25 +1,22 @@
-import type { IAdaptiveHistoryEntry } from '../types/adaptive-learning.types'
+import type { IAdaptiveHistoryEntry } from '../types/adaptive-learning.types';
 
 interface IAdaptiveMasteryGraphProps {
-  history: IAdaptiveHistoryEntry[]
+  history: IAdaptiveHistoryEntry[];
 }
 
-export default function AdaptiveMasteryGraph({
-  history,
-}: IAdaptiveMasteryGraphProps) {
-  const points = history.slice(-10)
-  const width = 760
-  const height = 180
-  const padding = 18
+export default function AdaptiveMasteryGraph({ history }: IAdaptiveMasteryGraphProps) {
+  const points = history.slice(-10);
+  const width = 760;
+  const height = 180;
+  const padding = 18;
   const xFor = (index: number) =>
     points.length <= 1
       ? width / 2
-      : padding + (index / (points.length - 1)) * (width - padding * 2)
-  const yFor = (score: number) =>
-    height - padding - (score / 100) * (height - padding * 2)
+      : padding + (index / (points.length - 1)) * (width - padding * 2);
+  const yFor = (score: number) => height - padding - (score / 100) * (height - padding * 2);
   const polyline = points
     .map((point, index) => `${xFor(index)},${yFor(point.masteryScore)}`)
-    .join(' ')
+    .join(' ');
 
   return (
     <div className="overflow-hidden rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1)">
@@ -83,5 +80,5 @@ export default function AdaptiveMasteryGraph({
         <span>{points.at(-1)?.masteryScore ?? 0}% mastery</span>
       </div>
     </div>
-  )
+  );
 }

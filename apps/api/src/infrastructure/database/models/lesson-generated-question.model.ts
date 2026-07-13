@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/lesson-generated-question.model.ts
 
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const lessonGeneratedQuestionSchema = new Schema(
   {
@@ -60,7 +60,7 @@ const lessonGeneratedQuestionSchema = new Schema(
   {
     timestamps: true,
   }
-)
+);
 
 lessonGeneratedQuestionSchema.index(
   {
@@ -75,18 +75,15 @@ lessonGeneratedQuestionSchema.index(
       deletedAt: null,
     },
   }
-)
+);
 
 lessonGeneratedQuestionSchema.index({
   trackerId: 1,
   subtopicId: 1,
   userId: 1,
   createdAt: 1,
-})
+});
 
 export const LessonGeneratedQuestion =
   mongoose.models.LessonGeneratedQuestion ||
-  mongoose.model(
-    'LessonGeneratedQuestion',
-    lessonGeneratedQuestionSchema
-  )
+  mongoose.model('LessonGeneratedQuestion', lessonGeneratedQuestionSchema);

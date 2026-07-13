@@ -1,33 +1,33 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react';
 
-import { toast } from '../../lib/toast'
+import { toast } from '../../lib/toast';
 
 export default function OnlineStatus() {
-  const [online, setOnline] = useState(() => navigator.onLine)
-  const wasOffline = useRef(!navigator.onLine)
+  const [online, setOnline] = useState(() => navigator.onLine);
+  const wasOffline = useRef(!navigator.onLine);
 
   useEffect(() => {
     const handleOffline = () => {
-      wasOffline.current = true
-      setOnline(false)
-    }
+      wasOffline.current = true;
+      setOnline(false);
+    };
     const handleOnline = () => {
-      setOnline(true)
+      setOnline(true);
       if (wasOffline.current) {
-        toast.success('You are back online', 'Live data can sync again.')
-        wasOffline.current = false
+        toast.success('You are back online', 'Live data can sync again.');
+        wasOffline.current = false;
       }
-    }
+    };
 
-    window.addEventListener('offline', handleOffline)
-    window.addEventListener('online', handleOnline)
+    window.addEventListener('offline', handleOffline);
+    window.addEventListener('online', handleOnline);
     return () => {
-      window.removeEventListener('offline', handleOffline)
-      window.removeEventListener('online', handleOnline)
-    }
-  }, [])
+      window.removeEventListener('offline', handleOffline);
+      window.removeEventListener('online', handleOnline);
+    };
+  }, []);
 
-  if (online) return null
+  if (online) return null;
 
   return (
     <div
@@ -36,5 +36,5 @@ export default function OnlineStatus() {
     >
       You are offline. Read-only content remains available; changes will need a connection.
     </div>
-  )
+  );
 }

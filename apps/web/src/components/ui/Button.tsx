@@ -1,15 +1,10 @@
-import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react'
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
-export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'ghost'
-  | 'danger'
-  | 'outline-danger'
+export type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'danger' | 'outline-danger';
 
-export type ButtonSize = 'sm' | 'md' | 'lg'
+export type ButtonSize = 'sm' | 'md' | 'lg';
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
@@ -22,22 +17,22 @@ const variantClasses: Record<ButtonVariant, string> = {
     'border-transparent bg-[var(--danger)] text-white shadow-[0_5px_16px_color-mix(in_srgb,var(--danger)_18%,transparent)] hover:brightness-90',
   'outline-danger':
     'border-[color-mix(in_srgb,var(--danger)_40%,transparent)] bg-transparent text-[var(--danger)] hover:bg-[color-mix(in_srgb,var(--danger)_9%,transparent)]',
-}
+};
 
 const sizeClasses: Record<ButtonSize, string> = {
   sm: 'min-h-8 rounded-[var(--radius-sm)] px-3 py-1.5 text-[11px]',
   md: 'min-h-10 rounded-[var(--radius-md)] px-4 py-2.5 text-[12px]',
   lg: 'min-h-12 rounded-[var(--radius-md)] px-5 py-3 text-[13px]',
-}
+};
 
 export interface IButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: ButtonVariant
-  size?: ButtonSize
-  loading?: boolean
-  loadingText?: ReactNode
-  leftIcon?: ReactNode
-  rightIcon?: ReactNode
-  fullWidth?: boolean
+  variant?: ButtonVariant;
+  size?: ButtonSize;
+  loading?: boolean;
+  loadingText?: ReactNode;
+  leftIcon?: ReactNode;
+  rightIcon?: ReactNode;
+  fullWidth?: boolean;
 }
 
 const Button = forwardRef<HTMLButtonElement, IButtonProps>(function Button(
@@ -55,9 +50,9 @@ const Button = forwardRef<HTMLButtonElement, IButtonProps>(function Button(
     type = 'button',
     ...props
   },
-  ref,
+  ref
 ) {
-  const isDisabled = disabled || loading
+  const isDisabled = disabled || loading;
 
   return (
     <button
@@ -70,7 +65,7 @@ const Button = forwardRef<HTMLButtonElement, IButtonProps>(function Button(
         variantClasses[variant],
         sizeClasses[size],
         fullWidth && 'w-full',
-        className,
+        className
       )}
       {...props}
     >
@@ -85,7 +80,7 @@ const Button = forwardRef<HTMLButtonElement, IButtonProps>(function Button(
       <span>{loading && loadingText !== undefined ? loadingText : children}</span>
       {!loading && rightIcon}
     </button>
-  )
-})
+  );
+});
 
-export default Button
+export default Button;

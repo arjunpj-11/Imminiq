@@ -1,46 +1,38 @@
 // apps/api/src/infrastructure/database/models/ai-generation-job.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export type AIGenerationJobType =
-  | 'roadmap'
-  | 'lesson'
-  | 'mock_test'
-  | 'evaluation'
-  | 'visualization'
+  'roadmap' | 'lesson' | 'mock_test' | 'evaluation' | 'visualization';
 
-export type AIGenerationJobStatus =
-  | 'pending'
-  | 'processing'
-  | 'completed'
-  | 'failed'
+export type AIGenerationJobStatus = 'pending' | 'processing' | 'completed' | 'failed';
 
 export interface IAIGenerationJobDocument extends Document {
-  userId: mongoose.Types.ObjectId
+  userId: mongoose.Types.ObjectId;
 
-  jobType: AIGenerationJobType
-  status: AIGenerationJobStatus
+  jobType: AIGenerationJobType;
+  status: AIGenerationJobStatus;
 
-  prompt?: string
+  prompt?: string;
 
-  inputData: Record<string, unknown>
-  outputData?: Record<string, unknown>
+  inputData: Record<string, unknown>;
+  outputData?: Record<string, unknown>;
 
-  errorMessage?: string
+  errorMessage?: string;
 
-  aiModel?: string
-  tokenUsage?: Record<string, unknown>
+  aiModel?: string;
+  tokenUsage?: Record<string, unknown>;
 
-  totalSteps: number
-  currentStep: number
+  totalSteps: number;
+  currentStep: number;
 
-  startedAt?: Date
-  completedAt?: Date
+  startedAt?: Date;
+  completedAt?: Date;
 
-  deletedAt?: Date | null
+  deletedAt?: Date | null;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const aiGenerationJobSchema = new Schema<IAIGenerationJobDocument>(
@@ -53,13 +45,7 @@ const aiGenerationJobSchema = new Schema<IAIGenerationJobDocument>(
 
     jobType: {
       type: String,
-      enum: [
-        'roadmap',
-        'lesson',
-        'mock_test',
-        'evaluation',
-        'visualization',
-      ],
+      enum: ['roadmap', 'lesson', 'mock_test', 'evaluation', 'visualization'],
       required: true,
     },
 
@@ -125,14 +111,13 @@ const aiGenerationJobSchema = new Schema<IAIGenerationJobDocument>(
   {
     timestamps: true,
   }
-)
+);
 
-aiGenerationJobSchema.index({ userId: 1, status: 1 })
-aiGenerationJobSchema.index({ jobType: 1, status: 1 })
-aiGenerationJobSchema.index({ createdAt: -1 })
+aiGenerationJobSchema.index({ userId: 1, status: 1 });
+aiGenerationJobSchema.index({ jobType: 1, status: 1 });
+aiGenerationJobSchema.index({ createdAt: -1 });
 
-export const AIGenerationJob =
-  mongoose.model<IAIGenerationJobDocument>(
-    'AIGenerationJob',
-    aiGenerationJobSchema
-  )
+export const AIGenerationJob = mongoose.model<IAIGenerationJobDocument>(
+  'AIGenerationJob',
+  aiGenerationJobSchema
+);

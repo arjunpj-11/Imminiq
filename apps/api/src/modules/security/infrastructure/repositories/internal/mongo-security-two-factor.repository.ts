@@ -1,31 +1,27 @@
-import { TwoFactorAuth } from '../../../../../infrastructure/database/models/two-factor-auth.model'
+import { TwoFactorAuth } from '../../../../../infrastructure/database/models/two-factor-auth.model';
 import type {
   ActivateTwoFactorInput,
   SavePendingTwoFactorSetupInput,
-} from '../../../domain/repositories/security-two-factor.repository.interface'
-import { MongoSecurityBaseRepository } from '../shared/mongo-security-base.repository'
-import { MongoSecurityErrorMapper } from '../shared/mongo-security-error.mapper'
-import { MongoSecurityMapper } from '../shared/mongo-security.mapper'
-import type { MongoTwoFactorRecord } from '../shared/mongo-security.types'
+} from '../../../domain/repositories/security-two-factor.repository.interface';
+import { MongoSecurityBaseRepository } from '../shared/mongo-security-base.repository';
+import { MongoSecurityErrorMapper } from '../shared/mongo-security-error.mapper';
+import { MongoSecurityMapper } from '../shared/mongo-security.mapper';
+import type { MongoTwoFactorRecord } from '../shared/mongo-security.types';
 
 export class MongoSecurityTwoFactorRepository extends MongoSecurityBaseRepository {
   constructor(private readonly _mapper = new MongoSecurityMapper()) {
-    super()
+    super();
   }
 
   async findTwoFactorByUserId(userId: string) {
-    return this.execute(
-      'TWO_FACTOR_LOOKUP_FAILED',
-      'Failed to read two-factor auth',
-      async () => {
-        const twoFactor = await TwoFactorAuth.findOne({
-          userId,
-          deletedAt: null,
-        }).lean<MongoTwoFactorRecord>()
+    return this.execute('TWO_FACTOR_LOOKUP_FAILED', 'Failed to read two-factor auth', async () => {
+      const twoFactor = await TwoFactorAuth.findOne({
+        userId,
+        deletedAt: null,
+      }).lean<MongoTwoFactorRecord>();
 
-        return this._mapper.toTwoFactorEntity(twoFactor)
-      },
-    )
+      return this._mapper.toTwoFactorEntity(twoFactor);
+    });
   }
 
   async findTwoFactorWithSecret(userId: string) {
@@ -38,11 +34,11 @@ export class MongoSecurityTwoFactorRepository extends MongoSecurityBaseRepositor
           deletedAt: null,
         })
           .select('+totpSecretEncrypted')
-          .lean<MongoTwoFactorRecord>()
+          .lean<MongoTwoFactorRecord>();
 
-        return this._mapper.toTwoFactorEntity(twoFactor)
-      },
-    )
+        return this._mapper.toTwoFactorEntity(twoFactor);
+      }
+    );
   }
 
   async savePendingTwoFactorSetup(input: SavePendingTwoFactorSetupInput) {
@@ -70,15 +66,15 @@ export class MongoSecurityTwoFactorRepository extends MongoSecurityBaseRepositor
             upsert: true,
             returnDocument: 'after',
             setDefaultsOnInsert: true,
-          },
+          }
         )
           .select('+totpSecretEncrypted')
-          .lean<MongoTwoFactorRecord>()
+          .lean<MongoTwoFactorRecord>();
 
-        return this._mapper.toTwoFactorEntity(twoFactor)
+        return this._mapper.toTwoFactorEntity(twoFactor);
       },
-      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
-    )
+      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError
+    );
   }
 
   async activateTwoFactor(input: ActivateTwoFactorInput) {
@@ -101,14 +97,14 @@ export class MongoSecurityTwoFactorRepository extends MongoSecurityBaseRepositor
           },
           {
             returnDocument: 'after',
-          },
+          }
         )
           .select('+totpSecretEncrypted')
-          .lean<MongoTwoFactorRecord>()
+          .lean<MongoTwoFactorRecord>();
 
-        return this._mapper.toTwoFactorEntity(twoFactor)
-      },
-    )
+        return this._mapper.toTwoFactorEntity(twoFactor);
+      }
+    );
   }
 
   async disableTwoFactor(userId: string) {
@@ -135,14 +131,13 @@ export class MongoSecurityTwoFactorRepository extends MongoSecurityBaseRepositor
           },
           {
             returnDocument: 'after',
-          },
-        ).lean<MongoTwoFactorRecord>()
+          }
+        ).lean<MongoTwoFactorRecord>();
 
-        return this._mapper.toTwoFactorEntity(twoFactor)
-      },
-    )
+        return this._mapper.toTwoFactorEntity(twoFactor);
+      }
+    );
   }
 }
 
-export const mongoSecurityTwoFactorRepository =
-  new MongoSecurityTwoFactorRepository()
+export const mongoSecurityTwoFactorRepository = new MongoSecurityTwoFactorRepository();

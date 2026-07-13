@@ -1,6 +1,1 @@
-export type BadgeType =
-  | 'streak'
-  | 'test'
-  | 'tracker'
-  | 'battle'
-  | 'community'
+export type BadgeType = 'streak' | 'test' | 'tracker' | 'battle' | 'community';

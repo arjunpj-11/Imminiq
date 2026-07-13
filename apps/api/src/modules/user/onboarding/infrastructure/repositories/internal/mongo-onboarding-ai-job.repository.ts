@@ -1,34 +1,32 @@
-import { AIGenerationJob } from '../../../../../../infrastructure/database/models/ai-generation-job.model'
-import { AIGenerationStep } from '../../../../../../infrastructure/database/models/ai-generation-step.model'
+import { AIGenerationJob } from '../../../../../../infrastructure/database/models/ai-generation-job.model';
+import { AIGenerationStep } from '../../../../../../infrastructure/database/models/ai-generation-step.model';
 import {
   ROADMAP_EVALUATION_TOTAL_STEPS,
   ROADMAP_GENERATION_TOTAL_STEPS,
-} from '../../../domain/onboarding.constants'
-import type { AIGenerationJobEntity } from '../../../domain/entities/ai-generation-job.entity'
-import type { AIGenerationStepEntity } from '../../../domain/entities/ai-generation-step.entity'
+} from '../../../domain/onboarding.constants';
+import type { AIGenerationJobEntity } from '../../../domain/entities/ai-generation-job.entity';
+import type { AIGenerationStepEntity } from '../../../domain/entities/ai-generation-step.entity';
 import type {
   CreateAIJobStepsInput,
   CreateEvaluationAIJobInput,
   CreateRoadmapAIJobInput,
-} from '../../../domain/repositories/onboarding-ai-job-command.repository.interface'
-import type { FindActiveEvaluationJobForRoadmapInput } from '../../../domain/repositories/onboarding-ai-job-query.repository.interface'
-import { MongoOnboardingBaseRepository } from '../shared/mongo-onboarding-base.repository'
-import { MongoOnboardingErrorMapper } from '../shared/mongo-onboarding-error.mapper'
-import { MongoOnboardingMapper } from '../shared/mongo-onboarding.mapper'
+} from '../../../domain/repositories/onboarding-ai-job-command.repository.interface';
+import type { FindActiveEvaluationJobForRoadmapInput } from '../../../domain/repositories/onboarding-ai-job-query.repository.interface';
+import { MongoOnboardingBaseRepository } from '../shared/mongo-onboarding-base.repository';
+import { MongoOnboardingErrorMapper } from '../shared/mongo-onboarding-error.mapper';
+import { MongoOnboardingMapper } from '../shared/mongo-onboarding.mapper';
 import type {
   MaybeMongooseDocument,
   MongoAIGenerationJobRecord,
   MongoAIGenerationStepRecord,
-} from '../shared/mongo-onboarding.types'
+} from '../shared/mongo-onboarding.types';
 
 export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepository {
   constructor(private readonly _mapper = new MongoOnboardingMapper()) {
-    super()
+    super();
   }
 
-  async findActiveRoadmapJobForUser(
-    userId: string,
-  ): Promise<AIGenerationJobEntity | null> {
+  async findActiveRoadmapJobForUser(userId: string): Promise<AIGenerationJobEntity | null> {
     return this.execute(
       'ACTIVE_ROADMAP_JOB_QUERY_FAILED',
       'Failed to read active roadmap job',
@@ -44,15 +42,15 @@ export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepositor
           .sort({
             createdAt: -1,
           })
-          .lean<MongoAIGenerationJobRecord>()
+          .lean<MongoAIGenerationJobRecord>();
 
-        return this._mapper.toAIJobEntity(job)
-      },
-    )
+        return this._mapper.toAIJobEntity(job);
+      }
+    );
   }
 
   async findActiveEvaluationJobForRoadmap(
-    input: FindActiveEvaluationJobForRoadmapInput,
+    input: FindActiveEvaluationJobForRoadmapInput
   ): Promise<AIGenerationJobEntity | null> {
     return this.execute(
       'ACTIVE_EVALUATION_JOB_QUERY_FAILED',
@@ -70,27 +68,23 @@ export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepositor
           .sort({
             createdAt: -1,
           })
-          .lean<MongoAIGenerationJobRecord>()
+          .lean<MongoAIGenerationJobRecord>();
 
-        return this._mapper.toAIJobEntity(job)
-      },
-    )
+        return this._mapper.toAIJobEntity(job);
+      }
+    );
   }
 
-  async createAIJob(
-    data: CreateRoadmapAIJobInput,
-  ): Promise<AIGenerationJobEntity> {
+  async createAIJob(data: CreateRoadmapAIJobInput): Promise<AIGenerationJobEntity> {
     return this.execute(
       'ROADMAP_JOB_CREATE_FAILED',
       'Failed to create roadmap AI job',
       async () => {
         const persistenceInputData: Record<string, unknown> = {
           topic: data.inputData.topic,
-          ...(data.inputData.goal !== undefined
-            ? { goal: data.inputData.goal }
-            : {}),
+          ...(data.inputData.goal !== undefined ? { goal: data.inputData.goal } : {}),
           level: data.inputData.level,
-        }
+        };
 
         const aiJob = await AIGenerationJob.create({
           userId: data.userId,
@@ -99,21 +93,19 @@ export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepositor
           inputData: persistenceInputData,
           totalSteps: ROADMAP_GENERATION_TOTAL_STEPS,
           currentStep: 0,
-        })
+        });
 
         return this._mapper.toAIJobEntityOrThrow(
           this._mapper.toPlainRecord(
-            aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>,
-          ),
-        )
+            aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>
+          )
+        );
       },
-      MongoOnboardingErrorMapper.mapDuplicateRecordError,
-    )
+      MongoOnboardingErrorMapper.mapDuplicateRecordError
+    );
   }
 
-  async createEvaluationAIJob(
-    data: CreateEvaluationAIJobInput,
-  ): Promise<AIGenerationJobEntity> {
+  async createEvaluationAIJob(data: CreateEvaluationAIJobInput): Promise<AIGenerationJobEntity> {
     return this.execute(
       'EVALUATION_JOB_CREATE_FAILED',
       'Failed to create evaluation AI job',
@@ -121,7 +113,7 @@ export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepositor
         const persistenceInputData: Record<string, unknown> = {
           sourceRoadmapJobId: data.inputData.sourceRoadmapJobId,
           trackerId: data.inputData.trackerId,
-        }
+        };
 
         const aiJob = await AIGenerationJob.create({
           userId: data.userId,
@@ -130,16 +122,16 @@ export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepositor
           inputData: persistenceInputData,
           totalSteps: ROADMAP_EVALUATION_TOTAL_STEPS,
           currentStep: 0,
-        })
+        });
 
         return this._mapper.toAIJobEntityOrThrow(
           this._mapper.toPlainRecord(
-            aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>,
-          ),
-        )
+            aiJob as unknown as MaybeMongooseDocument<MongoAIGenerationJobRecord>
+          )
+        );
       },
-      MongoOnboardingErrorMapper.mapDuplicateRecordError,
-    )
+      MongoOnboardingErrorMapper.mapDuplicateRecordError
+    );
   }
 
   async createAIJobSteps(data: CreateAIJobStepsInput): Promise<void> {
@@ -153,47 +145,38 @@ export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepositor
             stepNumber: index + 1,
             stepLabel,
             status: 'pending',
-          })),
-        )
+          }))
+        );
       },
-      MongoOnboardingErrorMapper.mapDuplicateRecordError,
-    )
+      MongoOnboardingErrorMapper.mapDuplicateRecordError
+    );
   }
 
   async getJobById(jobId: string): Promise<AIGenerationJobEntity | null> {
-    return this.execute(
-      'AI_JOB_QUERY_FAILED',
-      'Failed to read AI job',
-      async () => {
-        const job = await AIGenerationJob.findOne({
-          _id: jobId,
-          deletedAt: null,
-        }).lean<MongoAIGenerationJobRecord>()
+    return this.execute('AI_JOB_QUERY_FAILED', 'Failed to read AI job', async () => {
+      const job = await AIGenerationJob.findOne({
+        _id: jobId,
+        deletedAt: null,
+      }).lean<MongoAIGenerationJobRecord>();
 
-        return this._mapper.toAIJobEntity(job)
-      },
-    )
+      return this._mapper.toAIJobEntity(job);
+    });
   }
 
   async getJobSteps(jobId: string): Promise<AIGenerationStepEntity[]> {
-    return this.execute(
-      'AI_JOB_STEPS_QUERY_FAILED',
-      'Failed to read AI job steps',
-      async () => {
-        const steps = await AIGenerationStep.find({
-          jobId,
-          deletedAt: null,
+    return this.execute('AI_JOB_STEPS_QUERY_FAILED', 'Failed to read AI job steps', async () => {
+      const steps = await AIGenerationStep.find({
+        jobId,
+        deletedAt: null,
+      })
+        .sort({
+          stepNumber: 1,
         })
-          .sort({
-            stepNumber: 1,
-          })
-          .lean<MongoAIGenerationStepRecord[]>()
+        .lean<MongoAIGenerationStepRecord[]>();
 
-        return steps.map((step) => this._mapper.toAIJobStepEntity(step))
-      },
-    )
+      return steps.map((step) => this._mapper.toAIJobStepEntity(step));
+    });
   }
 }
 
-export const mongoOnboardingAIJobRepository =
-  new MongoOnboardingAIJobRepository()
+export const mongoOnboardingAIJobRepository = new MongoOnboardingAIJobRepository();

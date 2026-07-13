@@ -1,60 +1,56 @@
-import { DashboardDomainError } from '../../../domain/dashboard-domain.error'
-import type { ErrorMapper } from './mongo-dashboard-error.mapper'
+import { DashboardDomainError } from '../../../domain/dashboard-domain.error';
+import type { ErrorMapper } from './mongo-dashboard-error.mapper';
 
 type ErrorDetails = {
-  name?: unknown
-  message?: unknown
-  code?: unknown
-  keyPattern?: unknown
-  keyValue?: unknown
-  path?: unknown
-  value?: unknown
-  errors?: unknown
-  stack?: unknown
-}
+  name?: unknown;
+  message?: unknown;
+  code?: unknown;
+  keyPattern?: unknown;
+  keyValue?: unknown;
+  path?: unknown;
+  value?: unknown;
+  errors?: unknown;
+  stack?: unknown;
+};
 
 export abstract class MongoDashboardBaseRepository {
   protected async execute<T>(
     code: string,
     message: string,
     operation: () => Promise<T>,
-    mapError?: ErrorMapper,
+    mapError?: ErrorMapper
   ): Promise<T> {
     try {
-      return await operation()
+      return await operation();
     } catch (error: unknown) {
       if (error instanceof DashboardDomainError) {
-        throw error
+        throw error;
       }
 
-      const mappedError = mapError?.(error)
+      const mappedError = mapError?.(error);
 
       if (mappedError) {
-        throw mappedError
+        throw mappedError;
       }
 
-      this.logRepositoryError(code, message, error)
+      this.logRepositoryError(code, message, error);
 
-      throw new DashboardDomainError(code, message)
+      throw new DashboardDomainError(code, message);
     }
   }
 
-  private logRepositoryError(
-    code: string,
-    message: string,
-    error: unknown,
-  ): void {
+  private logRepositoryError(code: string, message: string, error: unknown): void {
     if (!(error instanceof Error)) {
       console.error('Dashboard repository operation failed', {
         code,
         message,
         originalError: error,
-      })
+      });
 
-      return
+      return;
     }
 
-    const details = error as Error & ErrorDetails
+    const details = error as Error & ErrorDetails;
 
     console.error('Dashboard repository operation failed', {
       code,
@@ -70,6 +66,6 @@ export abstract class MongoDashboardBaseRepository {
         validationErrors: details.errors,
         stack: details.stack,
       },
-    })
+    });
   }
 }

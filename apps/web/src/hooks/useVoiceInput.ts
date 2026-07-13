@@ -1,188 +1,178 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react';
 
 type SpeechRecognitionResultEvent = Event & {
-  resultIndex: number
+  resultIndex: number;
   results: {
-    length: number
+    length: number;
     [index: number]: {
-      isFinal: boolean
+      isFinal: boolean;
       [index: number]: {
-        transcript: string
-      }
-    }
-  }
-}
+        transcript: string;
+      };
+    };
+  };
+};
 
 type BrowserSpeechRecognition = {
-  lang: string
-  continuous: boolean
-  interimResults: boolean
-  maxAlternatives: number
-  onstart: (() => void) | null
-  onend: (() => void) | null
-  onerror: ((event: Event) => void) | null
-  onresult: ((event: SpeechRecognitionResultEvent) => void) | null
-  start: () => void
-  stop: () => void
-  abort: () => void
-}
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  maxAlternatives: number;
+  onstart: (() => void) | null;
+  onend: (() => void) | null;
+  onerror: ((event: Event) => void) | null;
+  onresult: ((event: SpeechRecognitionResultEvent) => void) | null;
+  start: () => void;
+  stop: () => void;
+  abort: () => void;
+};
 
-type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition
+type BrowserSpeechRecognitionConstructor = new () => BrowserSpeechRecognition;
 
 type SpeechRecognitionWindow = Window &
   typeof globalThis & {
-    SpeechRecognition?: BrowserSpeechRecognitionConstructor
-    webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor
-  }
+    SpeechRecognition?: BrowserSpeechRecognitionConstructor;
+    webkitSpeechRecognition?: BrowserSpeechRecognitionConstructor;
+  };
 
 const getSpeechRecognitionConstructor = () => {
-  if (typeof window === 'undefined') return null
+  if (typeof window === 'undefined') return null;
 
-  const speechWindow = window as SpeechRecognitionWindow
-  return (
-    speechWindow.SpeechRecognition ??
-    speechWindow.webkitSpeechRecognition ??
-    null
-  )
-}
+  const speechWindow = window as SpeechRecognitionWindow;
+  return speechWindow.SpeechRecognition ?? speechWindow.webkitSpeechRecognition ?? null;
+};
 
 export const useVoiceInput = (onTranscript: (text: string) => void) => {
-  const [isListening, setIsListening] = useState(false)
-  const [isSupported] = useState(() =>
-    Boolean(getSpeechRecognitionConstructor()),
-  )
+  const [isListening, setIsListening] = useState(false);
+  const [isSupported] = useState(() => Boolean(getSpeechRecognitionConstructor()));
 
-  const transcriptHandlerRef = useRef(onTranscript)
-  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null)
-  const shouldListenRef = useRef(false)
-  const restartTimeoutRef = useRef<number | null>(null)
-  const startListeningRef = useRef<() => void>(() => undefined)
+  const transcriptHandlerRef = useRef(onTranscript);
+  const recognitionRef = useRef<BrowserSpeechRecognition | null>(null);
+  const shouldListenRef = useRef(false);
+  const restartTimeoutRef = useRef<number | null>(null);
+  const startListeningRef = useRef<() => void>(() => undefined);
 
   useEffect(() => {
-    transcriptHandlerRef.current = onTranscript
-  }, [onTranscript])
+    transcriptHandlerRef.current = onTranscript;
+  }, [onTranscript]);
 
   const clearRestartTimeout = useCallback(() => {
-    if (restartTimeoutRef.current === null) return
+    if (restartTimeoutRef.current === null) return;
 
-    window.clearTimeout(restartTimeoutRef.current)
-    restartTimeoutRef.current = null
-  }, [])
+    window.clearTimeout(restartTimeoutRef.current);
+    restartTimeoutRef.current = null;
+  }, []);
 
   const scheduleRestart = useCallback(
     (delay: number) => {
-      if (!shouldListenRef.current) return
+      if (!shouldListenRef.current) return;
 
-      clearRestartTimeout()
+      clearRestartTimeout();
       restartTimeoutRef.current = window.setTimeout(() => {
         if (shouldListenRef.current) {
-          startListeningRef.current()
+          startListeningRef.current();
         }
-      }, delay)
+      }, delay);
     },
-    [clearRestartTimeout],
-  )
+    [clearRestartTimeout]
+  );
 
   const startListening = useCallback(() => {
-    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor()
-    if (!SpeechRecognitionConstructor || !isSupported) return
+    const SpeechRecognitionConstructor = getSpeechRecognitionConstructor();
+    if (!SpeechRecognitionConstructor || !isSupported) return;
 
-    shouldListenRef.current = true
-    clearRestartTimeout()
+    shouldListenRef.current = true;
+    clearRestartTimeout();
 
     try {
-      recognitionRef.current?.abort()
+      recognitionRef.current?.abort();
     } catch {
-      recognitionRef.current = null
+      recognitionRef.current = null;
     }
 
-    const recognition = new SpeechRecognitionConstructor()
-    recognition.lang = 'en-US'
-    recognition.continuous = true
-    recognition.interimResults = true
-    recognition.maxAlternatives = 1
+    const recognition = new SpeechRecognitionConstructor();
+    recognition.lang = 'en-US';
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.maxAlternatives = 1;
 
-    recognition.onstart = () => setIsListening(true)
+    recognition.onstart = () => setIsListening(true);
     recognition.onend = () => {
-      setIsListening(false)
-      recognitionRef.current = null
-      scheduleRestart(250)
-    }
+      setIsListening(false);
+      recognitionRef.current = null;
+      scheduleRestart(250);
+    };
     recognition.onerror = () => {
-      setIsListening(false)
-      recognitionRef.current = null
-      scheduleRestart(450)
-    }
+      setIsListening(false);
+      recognitionRef.current = null;
+      scheduleRestart(450);
+    };
     recognition.onresult = (event) => {
-      let finalTranscript = ''
+      let finalTranscript = '';
 
-      for (
-        let index = event.resultIndex;
-        index < event.results.length;
-        index += 1
-      ) {
-        const result = event.results[index]
-        const transcript = result?.[0]?.transcript?.trim()
+      for (let index = event.resultIndex; index < event.results.length; index += 1) {
+        const result = event.results[index];
+        const transcript = result?.[0]?.transcript?.trim();
 
         if (result?.isFinal && transcript) {
-          finalTranscript += ` ${transcript}`
+          finalTranscript += ` ${transcript}`;
         }
       }
 
-      const cleanedTranscript = finalTranscript.trim()
+      const cleanedTranscript = finalTranscript.trim();
       if (cleanedTranscript) {
-        transcriptHandlerRef.current(cleanedTranscript)
+        transcriptHandlerRef.current(cleanedTranscript);
       }
-    }
+    };
 
-    recognitionRef.current = recognition
+    recognitionRef.current = recognition;
 
     try {
-      recognition.start()
+      recognition.start();
     } catch {
-      setIsListening(false)
-      recognitionRef.current = null
+      setIsListening(false);
+      recognitionRef.current = null;
     }
-  }, [clearRestartTimeout, isSupported, scheduleRestart])
+  }, [clearRestartTimeout, isSupported, scheduleRestart]);
 
   useEffect(() => {
-    startListeningRef.current = startListening
-  }, [startListening])
+    startListeningRef.current = startListening;
+  }, [startListening]);
 
   const stopListening = useCallback(() => {
-    shouldListenRef.current = false
-    clearRestartTimeout()
+    shouldListenRef.current = false;
+    clearRestartTimeout();
 
     try {
-      recognitionRef.current?.stop()
+      recognitionRef.current?.stop();
     } catch {
-      recognitionRef.current = null
+      recognitionRef.current = null;
     }
 
-    setIsListening(false)
-  }, [clearRestartTimeout])
+    setIsListening(false);
+  }, [clearRestartTimeout]);
 
   const toggle = useCallback(() => {
     if (shouldListenRef.current || isListening) {
-      stopListening()
-      return
+      stopListening();
+      return;
     }
 
-    startListening()
-  }, [isListening, startListening, stopListening])
+    startListening();
+  }, [isListening, startListening, stopListening]);
 
   useEffect(() => {
     return () => {
-      shouldListenRef.current = false
-      clearRestartTimeout()
+      shouldListenRef.current = false;
+      clearRestartTimeout();
 
       try {
-        recognitionRef.current?.abort()
+        recognitionRef.current?.abort();
       } catch {
-        recognitionRef.current = null
+        recognitionRef.current = null;
       }
-    }
-  }, [clearRestartTimeout])
+    };
+  }, [clearRestartTimeout]);
 
-  return { isListening, isSupported, toggle }
-}
+  return { isListening, isSupported, toggle };
+};

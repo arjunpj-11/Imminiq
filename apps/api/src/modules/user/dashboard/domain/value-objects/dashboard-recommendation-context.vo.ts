@@ -1,10 +1,10 @@
 export type DashboardRecommendationTracker = {
-  id: string
-  title: string
-  completionPercentage: number
-}
+  id: string;
+  title: string;
+  completionPercentage: number;
+};
 
 export type DashboardRecommendationContext = {
-  totalTrackers: number
-  latestIncompleteTracker: DashboardRecommendationTracker | null
-}
+  totalTrackers: number;
+  latestIncompleteTracker: DashboardRecommendationTracker | null;
+};

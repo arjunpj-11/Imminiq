@@ -1,1 +1,1 @@
-export { createAdminUsersRoutes } from './admin-users.routes'
+export { createAdminUsersRoutes } from './admin-users.routes';

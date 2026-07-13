@@ -1,7 +1,7 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
-import ImminiqLogo from '../../../components/ui/ImminiqLogo'
-import ImminiqWordmark from '../../../components/ui/ImminiqWordmark'
+import ImminiqLogo from '../../../components/ui/ImminiqLogo';
+import ImminiqWordmark from '../../../components/ui/ImminiqWordmark';
 
 export default function FloatingStudioNav() {
   return (
@@ -37,5 +37,5 @@ export default function FloatingStudioNav() {
         </div>
       </div>
     </div>
-  )
+  );
 }

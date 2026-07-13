@@ -3,7 +3,7 @@ export const navItems = [
   { label: 'System', href: '#system', tone: 'blue' },
   { label: 'Flow', href: '#flow', tone: 'green' },
   { label: 'Arena', href: '#arena', tone: 'amber' },
-]
+];
 
 export const heroTrailCards = [
   {
@@ -30,7 +30,7 @@ export const heroTrailCards = [
     body: 'Streaks, heatmaps, revision signals.',
     tone: 'amber',
   },
-]
+];
 
 export const featureCards = [
   {
@@ -65,7 +65,7 @@ export const featureCards = [
     items: ['Streak tracking', 'Heatmaps', 'Mastery signals'],
     tone: 'amber',
   },
-]
+];
 
 export const horizontalFlowCards = [
   {
@@ -88,11 +88,11 @@ export const horizontalFlowCards = [
     title: 'Refine with feedback',
     body: 'Track gaps, review progress, revisit weak areas, and keep the streak alive.',
   },
-]
+];
 
 export const audienceCards = [
   'Developers preparing for interviews',
   'Students building long-term mastery',
   'Self-learners who need structure',
   'Competitive learners who like pressure',
-]
+];

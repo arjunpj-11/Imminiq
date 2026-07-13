@@ -1,6 +1,6 @@
-import type { ChangeEvent, FormEvent } from "react";
+import type { ChangeEvent, FormEvent } from 'react';
 
-import { CloseIcon, SearchIcon } from "../icons/FriendsIcons";
+import { CloseIcon, SearchIcon } from '../icons/FriendsIcons';
 
 interface IFriendsSearchInputProps {
   value: string;
@@ -21,7 +21,7 @@ export default function FriendsSearchInput({
   onChange,
   onClear,
   onSubmit,
-  submitLabel = "Search",
+  submitLabel = 'Search',
   submitDisabled = false,
   autoFocus = false,
 }: IFriendsSearchInputProps) {
@@ -31,19 +31,14 @@ export default function FriendsSearchInput({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit}
-      className="flex flex-col gap-2.5 sm:flex-row sm:items-center"
-    >
+    <form onSubmit={handleSubmit} className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
       <label className="flex flex-1 items-center gap-2.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3 transition focus-within:border-(--brand-500) focus-within:ring-2 focus-within:ring-[rgba(184,76,43,0.10)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:focus-within:border-(--brand-500)">
         <span className="text-[#9b9a92]">
           <SearchIcon />
         </span>
         <input
           value={value}
-          onChange={(event: ChangeEvent<HTMLInputElement>) =>
-            onChange(event.target.value)
-          }
+          onChange={(event: ChangeEvent<HTMLInputElement>) => onChange(event.target.value)}
           type="search"
           placeholder={placeholder}
           autoFocus={autoFocus}

@@ -1,37 +1,43 @@
-import { TrackerApplicationError } from '../tracker-application.error'
-import type { ITrackerMapper } from '../tracker.mapper'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
+import { TrackerApplicationError } from '../tracker-application.error';
+import type { ITrackerMapper } from '../tracker.mapper';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 
 export interface IGenerateLessonVisualizationUseCase {
   execute(input: {
-    trackerId: string
-    subtopicId: string
-    userId: string
-    regenerate?: boolean
-  }): Promise<ReturnType<ITrackerMapper['toLessonVisualizationDto']>>
+    trackerId: string;
+    subtopicId: string;
+    userId: string;
+    regenerate?: boolean;
+  }): Promise<ReturnType<ITrackerMapper['toLessonVisualizationDto']>>;
 }
 
 export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisualizationUseCase {
   constructor(
-    private readonly _trackerRepository: Pick<ITrackerRepository, 'findLessonBySubtopicId' | 'findLessonVisualization' | 'findOwnedTrackerById' | 'saveLessonVisualization'>,
+    private readonly _trackerRepository: Pick<
+      ITrackerRepository,
+      | 'findLessonBySubtopicId'
+      | 'findLessonVisualization'
+      | 'findOwnedTrackerById'
+      | 'saveLessonVisualization'
+    >,
     private readonly _trackerAIGateway: ITrackerAIGateway,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(input: {
-    trackerId: string
-    subtopicId: string
-    userId: string
-    regenerate?: boolean
+    trackerId: string;
+    subtopicId: string;
+    userId: string;
+    regenerate?: boolean;
   }) {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
-    })
+    });
 
     if (!tracker) {
-      throw TrackerApplicationError.trackerNotFound('Tracker not found')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found');
     }
 
     if (!input.regenerate) {
@@ -39,10 +45,10 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
-      })
+      });
 
       if (cached) {
-        return this._trackerMapper.toLessonVisualizationDto(cached)
+        return this._trackerMapper.toLessonVisualizationDto(cached);
       }
     }
 
@@ -50,12 +56,10 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-    })
+    });
 
     if (!lesson) {
-      throw TrackerApplicationError.lessonNotGenerated(
-        'Generate the lesson before visualizing'
-      )
+      throw TrackerApplicationError.lessonNotGenerated('Generate the lesson before visualizing');
     }
 
     const result = await this._trackerAIGateway.generateLessonVisualization({
@@ -66,19 +70,18 @@ export class GenerateLessonVisualizationUseCase implements IGenerateLessonVisual
       tags: lesson.tags ?? [],
       difficulty: lesson.difficulty,
       codeExample: lesson.codeExample,
-    })
+    });
 
-    const savedVisualization =
-      await this._trackerRepository.saveLessonVisualization({
-        trackerId: input.trackerId,
-        subtopicId: input.subtopicId,
-        userId: input.userId,
-        lessonId: lesson._id.toString(),
-        html: result.html,
-        visualTitle: result.visualTitle,
-        visualDescription: result.visualDescription,
-      })
+    const savedVisualization = await this._trackerRepository.saveLessonVisualization({
+      trackerId: input.trackerId,
+      subtopicId: input.subtopicId,
+      userId: input.userId,
+      lessonId: lesson._id.toString(),
+      html: result.html,
+      visualTitle: result.visualTitle,
+      visualDescription: result.visualDescription,
+    });
 
-    return this._trackerMapper.toLessonVisualizationDto(savedVisualization)
+    return this._trackerMapper.toLessonVisualizationDto(savedVisualization);
   }
 }

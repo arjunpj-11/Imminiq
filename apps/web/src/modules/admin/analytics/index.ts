@@ -1,1 +1,1 @@
-export { default as AdminAnalyticsPage } from './pages/AdminAnalyticsPage'
+export { default as AdminAnalyticsPage } from './pages/AdminAnalyticsPage';

@@ -1,13 +1,8 @@
-import { Link } from "react-router-dom";
-import type { IFriendUser } from "../../types/friends.types";
-import { formatMutualFriends } from "../../utils/friends-formatters";
-import FriendsAvatar from "../shared/FriendsAvatar";
-import {
-  CheckIcon,
-  ClockIcon,
-  SpinnerIcon,
-  UserPlusIcon,
-} from "../icons/FriendsIcons";
+import { Link } from 'react-router-dom';
+import type { IFriendUser } from '../../types/friends.types';
+import { formatMutualFriends } from '../../utils/friends-formatters';
+import FriendsAvatar from '../shared/FriendsAvatar';
+import { CheckIcon, ClockIcon, SpinnerIcon, UserPlusIcon } from '../icons/FriendsIcons';
 
 interface IFriendSearchResultCardProps {
   user: IFriendUser;
@@ -34,9 +29,7 @@ export default function FriendSearchResultCard({
         >
           <FriendsAvatar
             fullName={user.fullName}
-            {...(user.avatarUrl !== undefined
-              ? { avatarUrl: user.avatarUrl }
-              : {})}
+            {...(user.avatarUrl !== undefined ? { avatarUrl: user.avatarUrl } : {})}
           />
         </Link>
 
@@ -58,13 +51,12 @@ export default function FriendSearchResultCard({
         </div>
       </div>
 
-      {relationship.status === "friends" ? (
+      {relationship.status === 'friends' ? (
         <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border-[1.5px] border-[rgba(45,106,71,0.25)] bg-[rgba(45,106,71,0.08)] px-3.5 py-2 text-[11.5px] font-bold text-(--success) dark:text-(--success)">
           <CheckIcon />
           Friends
         </span>
-      ) : relationship.status === "pending" &&
-        relationship.direction === "received" ? (
+      ) : relationship.status === 'pending' && relationship.direction === 'received' ? (
         <button
           type="button"
           onClick={onOpenRequests}
@@ -73,7 +65,7 @@ export default function FriendSearchResultCard({
           <ClockIcon />
           Review invite
         </button>
-      ) : relationship.status === "pending" ? (
+      ) : relationship.status === 'pending' ? (
         <span className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) px-3.5 py-2 text-[11.5px] font-bold text-[#9b9a92] dark:border-(--border-subtle)">
           <ClockIcon />
           Pending
@@ -85,12 +77,8 @@ export default function FriendSearchResultCard({
           disabled={sending}
           className="inline-flex shrink-0 items-center justify-center gap-1.5 rounded-md bg-(--brand-500) px-3.5 py-2 text-[11.5px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-55 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
         >
-          {sending ? (
-            <SpinnerIcon className="animate-spin" />
-          ) : (
-            <UserPlusIcon />
-          )}
-          {sending ? "Sending…" : "Add Friend"}
+          {sending ? <SpinnerIcon className="animate-spin" /> : <UserPlusIcon />}
+          {sending ? 'Sending…' : 'Add Friend'}
         </button>
       )}
     </article>

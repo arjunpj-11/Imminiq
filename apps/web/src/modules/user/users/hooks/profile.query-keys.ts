@@ -7,4 +7,4 @@ export const profileQueryKeys = {
   trackers: (params: Record<string, unknown>) =>
     [...profileQueryKeys.all, 'published-trackers', params] as const,
   uploadState: () => [...profileQueryKeys.all, 'upload-state'] as const,
-}
+};

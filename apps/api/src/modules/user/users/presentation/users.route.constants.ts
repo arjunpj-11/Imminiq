@@ -7,7 +7,6 @@ export const USER_ROUTE_PATHS = {
   MY_STREAK: '/me/streak',
   MY_PUBLISHED_TRACKERS: '/me/published-trackers',
   MY_BADGES: '/me/badges',
-} as const
+} as const;
 
-export type UserRoutePath =
-  (typeof USER_ROUTE_PATHS)[keyof typeof USER_ROUTE_PATHS]
+export type UserRoutePath = (typeof USER_ROUTE_PATHS)[keyof typeof USER_ROUTE_PATHS];

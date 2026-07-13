@@ -1,16 +1,13 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import { AppShellBoundary } from '../../../../../components/layout/AppShell'
+import { AppShellBoundary } from '../../../../../components/layout/AppShell';
 
 interface ICommunityLayoutProps {
-  children: ReactNode
-  loadingLabel?: string
+  children: ReactNode;
+  loadingLabel?: string;
 }
 
-export default function CommunityLayout({
-  children,
-  loadingLabel,
-}: ICommunityLayoutProps) {
+export default function CommunityLayout({ children, loadingLabel }: ICommunityLayoutProps) {
   return (
     <AppShellBoundary>
       <div
@@ -21,5 +18,5 @@ export default function CommunityLayout({
         {children}
       </div>
     </AppShellBoundary>
-  )
+  );
 }

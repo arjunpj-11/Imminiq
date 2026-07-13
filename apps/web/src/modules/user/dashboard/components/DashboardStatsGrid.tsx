@@ -1,23 +1,21 @@
-import StatCard, {
-  type IStatAccent,
-} from '../../../../components/data-display/StatCard'
-import StatGrid from '../../../../components/data-display/StatGrid'
-import { formatCompactNumber } from '../utils/dashboard-formatters'
+import StatCard, { type IStatAccent } from '../../../../components/data-display/StatCard';
+import StatGrid from '../../../../components/data-display/StatGrid';
+import { formatCompactNumber } from '../utils/dashboard-formatters';
 
 type DashboardStatsGridProps = {
   summary: {
-    trackers: { total: number; active: number; completed: number }
-    stats: { totalSubtopicsCompleted: number; publishedTrackers: number }
-    user: { coinBalance: number }
-  }
-}
+    trackers: { total: number; active: number; completed: number };
+    stats: { totalSubtopicsCompleted: number; publishedTrackers: number };
+    user: { coinBalance: number };
+  };
+};
 
 const ACCENTS: IStatAccent[] = [
   { light: 'var(--brand-500)', dark: 'var(--brand-500)' },
   { light: 'var(--success)', dark: 'var(--success)' },
   { light: 'var(--warning)', dark: 'var(--warning)' },
   { light: 'var(--info)', dark: 'var(--info)' },
-]
+];
 
 export default function DashboardStatsGrid({ summary }: DashboardStatsGridProps) {
   const cards = [
@@ -41,7 +39,7 @@ export default function DashboardStatsGrid({ summary }: DashboardStatsGridProps)
       value: formatCompactNumber(summary.user.coinBalance),
       helper: 'Rewards balance',
     },
-  ]
+  ];
 
   return (
     <StatGrid>
@@ -49,5 +47,5 @@ export default function DashboardStatsGrid({ summary }: DashboardStatsGridProps)
         <StatCard key={card.label} {...card} accent={ACCENTS[index]} />
       ))}
     </StatGrid>
-  )
+  );
 }

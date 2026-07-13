@@ -1,35 +1,32 @@
 // apps/web/src/modules/user/community/pages/CommunityBrowsePage.tsx
 
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import CommunityErrorState from '../components/shared/CommunityErrorState'
-import CommunityFilters from '../components/browse/CommunityFilters'
-import CommunityLayout from '../components/shared/CommunityLayout'
-import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
-import CloneTrackerConfirmDialog from '../components/shared/CloneTrackerConfirmDialog'
-import CommunityPagination from '../components/shared/CommunityPagination'
-import StatCard from '../../../../components/data-display/StatCard'
-import CommunityTrackerCard from '../components/browse/CommunityTrackerCard'
-import VerifyEarnBanner from '../components/verification/VerifyEarnBanner'
-import { BookOpenIcon } from '../components/icons/CommunityIcons'
-import {
-  COMMUNITY_PAGE_LIMIT,
-  COMMUNITY_STAT_ACCENTS,
-} from '../constants/community.constants'
-import { useCloneCommunityTracker } from '../hooks/useCloneCommunityTracker'
-import { useCommunityBrowse } from '../hooks/useCommunityBrowse'
-import { useDebouncedValue } from '../../../../hooks/useDebouncedValue'
-import { useCommunitySearchState } from '../hooks/useCommunitySearchState'
-import { getApiErrorMessage } from '../utils/community-formatters'
-import { communityPageClass, cn } from '../utils/community-ui'
-import { validateSearch } from '../utils/community-validation'
-import type { ICommunityTracker } from '../types/community.types'
+import CommunityErrorState from '../components/shared/CommunityErrorState';
+import CommunityFilters from '../components/browse/CommunityFilters';
+import CommunityLayout from '../components/shared/CommunityLayout';
+import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton';
+import CloneTrackerConfirmDialog from '../components/shared/CloneTrackerConfirmDialog';
+import CommunityPagination from '../components/shared/CommunityPagination';
+import StatCard from '../../../../components/data-display/StatCard';
+import CommunityTrackerCard from '../components/browse/CommunityTrackerCard';
+import VerifyEarnBanner from '../components/verification/VerifyEarnBanner';
+import { BookOpenIcon } from '../components/icons/CommunityIcons';
+import { COMMUNITY_PAGE_LIMIT, COMMUNITY_STAT_ACCENTS } from '../constants/community.constants';
+import { useCloneCommunityTracker } from '../hooks/useCloneCommunityTracker';
+import { useCommunityBrowse } from '../hooks/useCommunityBrowse';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { useCommunitySearchState } from '../hooks/useCommunitySearchState';
+import { getApiErrorMessage } from '../utils/community-formatters';
+import { communityPageClass, cn } from '../utils/community-ui';
+import { validateSearch } from '../utils/community-validation';
+import type { ICommunityTracker } from '../types/community.types';
 
 export default function CommunityBrowsePage() {
-  const navigate = useNavigate()
-  const [activeCloneId, setActiveCloneId] = useState<string | null>(null)
-  const [cloneCandidate, setCloneCandidate] = useState<ICommunityTracker | null>(null)
+  const navigate = useNavigate();
+  const [activeCloneId, setActiveCloneId] = useState<string | null>(null);
+  const [cloneCandidate, setCloneCandidate] = useState<ICommunityTracker | null>(null);
 
   const {
     search,
@@ -45,11 +42,11 @@ export default function CommunityBrowsePage() {
     setSort,
     setPage,
     clearFilters,
-  } = useCommunitySearchState()
+  } = useCommunitySearchState();
 
-  const debouncedSearch = useDebouncedValue(search, 400)
-  const searchError = validateSearch(search)
-  const debouncedSearchError = validateSearch(debouncedSearch)
+  const debouncedSearch = useDebouncedValue(search, 400);
+  const searchError = validateSearch(search);
+  const debouncedSearchError = validateSearch(debouncedSearch);
 
   const browseQuery = useMemo(
     () => ({
@@ -61,54 +58,46 @@ export default function CommunityBrowsePage() {
       page,
       limit: COMMUNITY_PAGE_LIMIT,
     }),
-    [
-      debouncedSearch,
-      debouncedSearchError,
-      minRating,
-      page,
-      selectedTopics,
-      sort,
-      verifiedOnly,
-    ],
-  )
+    [debouncedSearch, debouncedSearchError, minRating, page, selectedTopics, sort, verifiedOnly]
+  );
 
-  const browse = useCommunityBrowse(browseQuery)
-  const cloneTracker = useCloneCommunityTracker()
+  const browse = useCommunityBrowse(browseQuery);
+  const cloneTracker = useCloneCommunityTracker();
 
   const handleClone = (trackerId: string) => {
-    const tracker = browse.data?.trackers.find((item) => item._id === trackerId)
-    if (tracker) setCloneCandidate(tracker)
-  }
+    const tracker = browse.data?.trackers.find((item) => item._id === trackerId);
+    if (tracker) setCloneCandidate(tracker);
+  };
 
   const confirmClone = () => {
-    if (!cloneCandidate || cloneTracker.isPending) return
+    if (!cloneCandidate || cloneTracker.isPending) return;
 
-    setActiveCloneId(cloneCandidate._id)
+    setActiveCloneId(cloneCandidate._id);
 
     cloneTracker.mutate(
       { trackerId: cloneCandidate._id },
       {
         onSuccess: () => {
-          setActiveCloneId(null)
-          setCloneCandidate(null)
+          setActiveCloneId(null);
+          setCloneCandidate(null);
         },
         onError: () => {
-          setActiveCloneId(null)
-          setCloneCandidate(null)
+          setActiveCloneId(null);
+          setCloneCandidate(null);
         },
-      },
-    )
-  }
+      }
+    );
+  };
 
   const handleOpenTracker = (trackerId: string) => {
-    navigate(`/community/trackers/${trackerId}`)
-  }
+    navigate(`/community/trackers/${trackerId}`);
+  };
 
-  const isInitialLoading = browse.isLoading && !browse.data
-  const isUpdatingResults = browse.isFetching && Boolean(browse.data)
+  const isInitialLoading = browse.isLoading && !browse.data;
+  const isUpdatingResults = browse.isFetching && Boolean(browse.data);
 
   if (isInitialLoading) {
-    return <CommunityPageSkeleton variant="browse" />
+    return <CommunityPageSkeleton variant="browse" />;
   }
 
   return (
@@ -119,7 +108,7 @@ export default function CommunityBrowsePage() {
             title="Community unavailable"
             message={getApiErrorMessage(
               'Something went wrong loading community data.',
-              browse.error?.response?.data?.message,
+              browse.error?.response?.data?.message
             )}
             actionLabel="Try again"
             onAction={() => void browse.refetch()}
@@ -134,9 +123,7 @@ export default function CommunityBrowsePage() {
                 </div>
                 <h1 className="font-ui text-[clamp(26px,3.5vw,38px)] font-extrabold leading-[1.15] tracking-[-0.8px] text-(--text-primary) dark:text-(--text-primary)">
                   Exchange your{' '}
-                  <span className="text-(--brand-500) dark:text-(--brand-500)">
-                    knowledge
-                  </span>
+                  <span className="text-(--brand-500) dark:text-(--brand-500)">knowledge</span>
                 </h1>
                 <p className="mt-2 max-w-125 text-[13px] italic leading-[1.55] text-(--text-secondary) opacity-80 dark:text-(--text-secondary)">
                   Join the collective effort to curate the finest academic paths.
@@ -160,7 +147,7 @@ export default function CommunityBrowsePage() {
               <div className="rounded-xl border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-4 py-3 text-[12px] leading-normal text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)">
                 {getApiErrorMessage(
                   'Unable to clone tracker. Please try again.',
-                  cloneTracker.error?.response?.data?.message,
+                  cloneTracker.error?.response?.data?.message
                 )}
               </div>
             )}
@@ -170,9 +157,7 @@ export default function CommunityBrowsePage() {
                 <StatCard
                   key={card.label}
                   {...card}
-                  accent={
-                    COMMUNITY_STAT_ACCENTS[index] ?? COMMUNITY_STAT_ACCENTS[0]
-                  }
+                  accent={COMMUNITY_STAT_ACCENTS[index] ?? COMMUNITY_STAT_ACCENTS[0]}
                 />
               ))}
             </div>
@@ -211,10 +196,7 @@ export default function CommunityBrowsePage() {
             </div>
 
             <div
-              className={cn(
-                'transition-opacity duration-200',
-                isUpdatingResults && 'opacity-70',
-              )}
+              className={cn('transition-opacity duration-200', isUpdatingResults && 'opacity-70')}
             >
               {browse.data.trackers.length > 0 ? (
                 <div className="grid grid-cols-3 gap-4 max-[860px]:grid-cols-2 max-[540px]:grid-cols-1">
@@ -222,9 +204,7 @@ export default function CommunityBrowsePage() {
                     <CommunityTrackerCard
                       key={tracker._id}
                       tracker={tracker}
-                      cloning={
-                        activeCloneId === tracker._id && cloneTracker.isPending
-                      }
+                      cloning={activeCloneId === tracker._id && cloneTracker.isPending}
                       onClone={handleClone}
                       onOpen={handleOpenTracker}
                     />
@@ -242,10 +222,7 @@ export default function CommunityBrowsePage() {
               )}
             </div>
 
-            <CommunityPagination
-              pagination={browse.data.pagination}
-              onPageChange={setPage}
-            />
+            <CommunityPagination pagination={browse.data.pagination} onPageChange={setPage} />
           </>
         )}
       </div>
@@ -255,9 +232,9 @@ export default function CommunityBrowsePage() {
         isLoading={cloneTracker.isPending}
         onConfirm={confirmClone}
         onClose={() => {
-          if (!cloneTracker.isPending) setCloneCandidate(null)
+          if (!cloneTracker.isPending) setCloneCandidate(null);
         }}
       />
     </CommunityLayout>
-  )
+  );
 }

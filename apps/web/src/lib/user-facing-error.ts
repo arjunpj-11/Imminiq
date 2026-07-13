@@ -1,9 +1,9 @@
-import axios from 'axios'
+import axios from 'axios';
 
 export interface IApiErrorPayload {
-  message?: string
-  code?: string
-  errors?: Record<string, string[]>
+  message?: string;
+  code?: string;
+  errors?: Record<string, string[]>;
 }
 
 const ERROR_MESSAGES: Record<string, string> = {
@@ -14,42 +14,40 @@ const ERROR_MESSAGES: Record<string, string> = {
   FORBIDDEN: 'You do not have permission to perform this action.',
   RATE_LIMITED: 'Too many attempts. Please wait a moment and try again.',
   CSRF_TOKEN_INVALID: 'Your secure session expired. Refresh the page and try again.',
-}
+};
 
-const firstFieldError = (
-  errors?: Record<string, string[]>,
-): string | undefined => {
-  if (!errors) return undefined
+const firstFieldError = (errors?: Record<string, string[]>): string | undefined => {
+  if (!errors) return undefined;
 
   for (const messages of Object.values(errors)) {
-    const message = messages.find((item) => item.trim().length > 0)
-    if (message) return message
+    const message = messages.find((item) => item.trim().length > 0);
+    if (message) return message;
   }
 
-  return undefined
-}
+  return undefined;
+};
 
 export const getUserFacingError = (
   error: unknown,
-  fallback = 'Something went wrong. Please try again.',
+  fallback = 'Something went wrong. Please try again.'
 ): string => {
   if (!axios.isAxiosError<IApiErrorPayload>(error)) {
-    return fallback
+    return fallback;
   }
 
   if (!error.response) {
-    return ERROR_MESSAGES.NETWORK_ERROR
+    return ERROR_MESSAGES.NETWORK_ERROR;
   }
 
-  const { status, data } = error.response
-  const definedMessage = data?.code ? ERROR_MESSAGES[data.code] : undefined
+  const { status, data } = error.response;
+  const definedMessage = data?.code ? ERROR_MESSAGES[data.code] : undefined;
 
   if (definedMessage) {
     if (data.code === 'VALIDATION_ERROR') {
-      return firstFieldError(data.errors) ?? definedMessage
+      return firstFieldError(data.errors) ?? definedMessage;
     }
 
-    return definedMessage
+    return definedMessage;
   }
 
   // Operational 4xx messages are authored by the API and safe for users.
@@ -60,15 +58,13 @@ export const getUserFacingError = (
     data.message.trim().length > 0 &&
     data.message.length <= 300
   ) {
-    return data.message.trim()
+    return data.message.trim();
   }
 
-  return fallback
-}
+  return fallback;
+};
 
-export const getValidationErrors = (
-  error: unknown,
-): Record<string, string[]> => {
-  if (!axios.isAxiosError<IApiErrorPayload>(error)) return {}
-  return error.response?.data?.errors ?? {}
-}
+export const getValidationErrors = (error: unknown): Record<string, string[]> => {
+  if (!axios.isAxiosError<IApiErrorPayload>(error)) return {};
+  return error.response?.data?.errors ?? {};
+};

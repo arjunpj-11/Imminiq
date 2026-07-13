@@ -21,103 +21,82 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
   }
 
   async findTestById(testId: string) {
-    return this.execute(
-      'MOCK_TEST_READ_FAILED',
-      'Failed to read mock test',
-      async () => {
-        const safeTestId = MongoMockTestsObjectId.toObjectId(testId);
+    return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read mock test', async () => {
+      const safeTestId = MongoMockTestsObjectId.toObjectId(testId);
 
-        if (!safeTestId) {
-          return null;
-        }
+      if (!safeTestId) {
+        return null;
+      }
 
-        const doc = await MockTestModel.findOne({
-          _id: safeTestId,
-          deletedAt: null,
-        }).lean();
+      const doc = await MockTestModel.findOne({
+        _id: safeTestId,
+        deletedAt: null,
+      }).lean();
 
-        return doc
-          ? this._mapper.toMockTestEntity(doc as RawMockTestDoc)
-          : null;
-      },
-    );
+      return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null;
+    });
   }
 
   async findTestsByOwner(input: FindMockTestsByOwnerInput) {
-    return this.execute(
-      'MOCK_TEST_READ_FAILED',
-      'Failed to read owner mock tests',
-      async () => {
-        const { ownerId, page = 1, limit = 6 } = input;
-        const safeOwnerId = MongoMockTestsObjectId.toObjectId(ownerId);
+    return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read owner mock tests', async () => {
+      const { ownerId, page = 1, limit = 6 } = input;
+      const safeOwnerId = MongoMockTestsObjectId.toObjectId(ownerId);
 
-        if (!safeOwnerId) {
-          return {
-            tests: [],
-            total: 0,
-          };
-        }
-
-        const safePage = MongoMockTestsQueryUtils.sanitizePage(page);
-        const safeLimit = MongoMockTestsQueryUtils.sanitizeLimit(limit);
-        const skip = (safePage - 1) * safeLimit;
-
-        const query = {
-          ownerId: safeOwnerId,
-          deletedAt: null,
-        };
-
-        const [docs, total] = await Promise.all([
-          MockTestModel.find(query)
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(safeLimit)
-            .lean(),
-          MockTestModel.countDocuments(query),
-        ]);
-
+      if (!safeOwnerId) {
         return {
-          tests: docs.map((doc) =>
-            this._mapper.toMockTestEntity(doc as RawMockTestDoc),
-          ),
-          total,
+          tests: [],
+          total: 0,
         };
-      },
-    );
+      }
+
+      const safePage = MongoMockTestsQueryUtils.sanitizePage(page);
+      const safeLimit = MongoMockTestsQueryUtils.sanitizeLimit(limit);
+      const skip = (safePage - 1) * safeLimit;
+
+      const query = {
+        ownerId: safeOwnerId,
+        deletedAt: null,
+      };
+
+      const [docs, total] = await Promise.all([
+        MockTestModel.find(query).sort({ createdAt: -1 }).skip(skip).limit(safeLimit).lean(),
+        MockTestModel.countDocuments(query),
+      ]);
+
+      return {
+        tests: docs.map((doc) => this._mapper.toMockTestEntity(doc as RawMockTestDoc)),
+        total,
+      };
+    });
   }
 
   async findPublicTests(input: FindPublicMockTestsInput) {
-    return this.execute(
-      'MOCK_TEST_READ_FAILED',
-      'Failed to read public mock tests',
-      async () => {
-        const { difficulty, tags, page = 1, limit = 20 } = input;
+    return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read public mock tests', async () => {
+      const { difficulty, tags, page = 1, limit = 20 } = input;
 
-        const safeDifficulty =
-          MongoMockTestsQueryUtils.sanitizeDifficulty(difficulty);
-        const safeTags = MongoMockTestsQueryUtils.sanitizeTags(tags);
-        const safePage = MongoMockTestsQueryUtils.sanitizePage(page);
-        const safeLimit = MongoMockTestsQueryUtils.sanitizeLimit(limit);
-        const skip = (safePage - 1) * safeLimit;
+      const safeDifficulty = MongoMockTestsQueryUtils.sanitizeDifficulty(difficulty);
+      const safeTags = MongoMockTestsQueryUtils.sanitizeTags(tags);
+      const safePage = MongoMockTestsQueryUtils.sanitizePage(page);
+      const safeLimit = MongoMockTestsQueryUtils.sanitizeLimit(limit);
+      const skip = (safePage - 1) * safeLimit;
 
-        const docs = await this.findPublicTestDocsByDifficulty(safeDifficulty);
+      const docs = await this.findPublicTestDocsByDifficulty(safeDifficulty);
 
-        const filteredDocs = safeTags.length
-          ? docs.filter((doc) => {
-              const docTags = Array.isArray(doc.tags) ? doc.tags : [];
+      const filteredDocs = safeTags.length
+        ? docs.filter((doc) => {
+            const docTags = Array.isArray(doc.tags) ? doc.tags : [];
 
-              return safeTags.some((tag) => docTags.includes(tag));
-            })
-          : docs;
+            return safeTags.some((tag) => docTags.includes(tag));
+          })
+        : docs;
 
-        const paginatedDocs = filteredDocs.slice(skip, skip + safeLimit);
+      const paginatedDocs = filteredDocs.slice(skip, skip + safeLimit);
 
-        return {
-          tests: paginatedDocs.map((doc) => this._mapper.toMockTestEntity(doc)),
-          total: filteredDocs.length,
-        };
-      },
-    );
+      return {
+        tests: paginatedDocs.map((doc) => this._mapper.toMockTestEntity(doc)),
+        total: filteredDocs.length,
+      };
+    });
   }
 
   async createTest(data: CreateMockTestInput) {
@@ -129,7 +108,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
 
         return this._mapper.toMockTestEntity(doc.toObject() as RawMockTestDoc);
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
@@ -152,9 +131,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
             deletedAt: null,
           }).lean();
 
-          return existingDoc
-            ? this._mapper.toMockTestEntity(existingDoc as RawMockTestDoc)
-            : null;
+          return existingDoc ? this._mapper.toMockTestEntity(existingDoc as RawMockTestDoc) : null;
         }
 
         const doc = await MockTestModel.findOneAndUpdate(
@@ -165,38 +142,32 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
           update,
           {
             new: true,
-          },
+          }
         ).lean();
 
-        return doc
-          ? this._mapper.toMockTestEntity(doc as RawMockTestDoc)
-          : null;
+        return doc ? this._mapper.toMockTestEntity(doc as RawMockTestDoc) : null;
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
   async deleteTest(testId: string) {
-    return this.execute(
-      'MOCK_TEST_DELETE_FAILED',
-      'Failed to delete mock test',
-      async () => {
-        const safeTestId = MongoMockTestsObjectId.toObjectId(testId);
+    return this.execute('MOCK_TEST_DELETE_FAILED', 'Failed to delete mock test', async () => {
+      const safeTestId = MongoMockTestsObjectId.toObjectId(testId);
 
-        if (!safeTestId) {
-          return;
-        }
+      if (!safeTestId) {
+        return;
+      }
 
-        await Promise.all([
-          MockTestQuestionModel.deleteMany({
-            testId: safeTestId,
-          }),
-          MockTestModel.findOneAndDelete({
-            _id: safeTestId,
-          }),
-        ]);
-      },
-    );
+      await Promise.all([
+        MockTestQuestionModel.deleteMany({
+          testId: safeTestId,
+        }),
+        MockTestModel.findOneAndDelete({
+          _id: safeTestId,
+        }),
+      ]);
+    });
   }
 
   private buildMockTestUpdate(data: UpdateMockTestInput): {
@@ -225,7 +196,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
   }
 
   private async findPublicTestDocsByDifficulty(
-    difficulty?: DifficultyLevel,
+    difficulty?: DifficultyLevel
   ): Promise<RawMockTestDoc[]> {
     if (difficulty === 'easy') {
       return (await MockTestModel.find({

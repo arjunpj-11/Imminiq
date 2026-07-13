@@ -1,1 +1,1 @@
-export { default as AdminSystemHealthPage } from './pages/AdminSystemHealthPage'
+export { default as AdminSystemHealthPage } from './pages/AdminSystemHealthPage';

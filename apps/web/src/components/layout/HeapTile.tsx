@@ -1,10 +1,10 @@
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef } from 'react';
 import type {
   HeatmapIntensity,
   IStreakSummary,
-} from "../../modules/user/users/types/profile.types";
+} from '../../modules/user/users/types/profile.types';
 
 interface IHeapTileProps {
   streak?: IStreakSummary;
@@ -23,11 +23,10 @@ interface IHeatmapCell {
 }
 
 const intensityClass: Record<HeatmapIntensity, string> = {
-  none: "bg-[rgba(26,23,20,0.09)] dark:bg-[rgba(242,240,235,0.07)]",
-  low: "bg-[rgba(184,76,43,0.18)] dark:bg-[rgba(232,129,106,0.22)]",
-  medium:
-    "bg-[rgba(184,76,43,0.38)] dark:bg-[rgba(232,129,106,0.42)]",
-  high: "bg-[var(--brand-500)] dark:bg-[var(--brand-500)]",
+  none: 'bg-[rgba(26,23,20,0.09)] dark:bg-[rgba(242,240,235,0.07)]',
+  low: 'bg-[rgba(184,76,43,0.18)] dark:bg-[rgba(232,129,106,0.22)]',
+  medium: 'bg-[rgba(184,76,43,0.38)] dark:bg-[rgba(232,129,106,0.42)]',
+  high: 'bg-[var(--brand-500)] dark:bg-[var(--brand-500)]',
 };
 
 const toDateKey = (value: Date) => value.toISOString().slice(0, 10);
@@ -60,9 +59,7 @@ function buildHeatmap(year: number, streak?: IStreakSummary) {
   const end = new Date(last);
   end.setUTCDate(end.getUTCDate() + (6 - end.getUTCDay()));
 
-  const heatmapByDate = new Map(
-    (streak?.heatmap ?? []).map((item) => [item.date, item]),
-  );
+  const heatmapByDate = new Map((streak?.heatmap ?? []).map((item) => [item.date, item]));
 
   const weeks: IHeatmapCell[][] = [];
   const cursor = new Date(start);
@@ -78,7 +75,7 @@ function buildHeatmap(year: number, streak?: IStreakSummary) {
       week.push({
         date,
         inside,
-        intensityLevel: match?.intensityLevel ?? "none",
+        intensityLevel: match?.intensityLevel ?? 'none',
         activityCount: match?.activityCount ?? 0,
         isFrozen: Boolean(match?.isFrozen),
       });
@@ -91,14 +88,12 @@ function buildHeatmap(year: number, streak?: IStreakSummary) {
 
   const months = Array.from({ length: 12 }, (_, monthIndex) => {
     const monthStart = new Date(Date.UTC(year, monthIndex, 1));
-    const daysFromStart = Math.round(
-      (monthStart.getTime() - start.getTime()) / 86400000,
-    );
+    const daysFromStart = Math.round((monthStart.getTime() - start.getTime()) / 86400000);
 
     return {
       label: monthStart.toLocaleDateString(undefined, {
-        month: "short",
-        timeZone: "UTC",
+        month: 'short',
+        timeZone: 'UTC',
       }),
       weekIndex: Math.floor(daysFromStart / 7),
     };
@@ -120,11 +115,8 @@ export default function HeapTile({
 
   const years = useMemo(
     () =>
-      Array.from(
-        { length: currentYear - accountStartYear + 1 },
-        (_, index) => currentYear - index,
-      ),
-    [accountStartYear, currentYear],
+      Array.from({ length: currentYear - accountStartYear + 1 }, (_, index) => currentYear - index),
+    [accountStartYear, currentYear]
   );
 
   useEffect(() => {
@@ -139,10 +131,7 @@ export default function HeapTile({
     }
   }, [currentYear, year]);
 
-  const { weeks, months } = useMemo(
-    () => buildHeatmap(year, streak),
-    [streak, year],
-  );
+  const { weeks, months } = useMemo(() => buildHeatmap(year, streak), [streak, year]);
 
   return (
     <section className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5.5 shadow-[0_2px_16px_rgba(26,23,20,0.06),0_1px_3px_rgba(26,23,20,0.04)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:shadow-[0_4px_24px_rgba(0,0,0,0.28),0_1px_4px_rgba(0,0,0,0.18)] max-[640px]:p-4.5">
@@ -214,16 +203,13 @@ export default function HeapTile({
         <div
           className="grid min-w-max items-start gap-x-2 gap-y-1.75"
           style={{
-            gridTemplateColumns: "34px auto",
-            gridTemplateRows: "18px auto",
+            gridTemplateColumns: '34px auto',
+            gridTemplateRows: '18px auto',
           }}
           role="img"
           aria-label={`Learning activity calendar heatmap for ${year}`}
         >
-          <div
-            style={{ gridColumn: 2, gridRow: 1 }}
-            className="relative h-4.5 min-w-fit"
-          >
+          <div style={{ gridColumn: 2, gridRow: 1 }} className="relative h-4.5 min-w-fit">
             {months.map((month) => (
               <span
                 key={`${month.label}-${month.weekIndex}`}
@@ -240,7 +226,7 @@ export default function HeapTile({
             className="grid grid-rows-7 gap-0.75"
             aria-hidden="true"
           >
-            {["", "Mon", "", "Wed", "", "Fri", ""].map((weekday, index) => (
+            {['', 'Mon', '', 'Wed', '', 'Fri', ''].map((weekday, index) => (
               <span
                 key={`${weekday}-${index}`}
                 className="h-2.75 font-mono text-[7px] uppercase leading-2.75 tracking-[0.08em] text-(--text-secondary) opacity-60 dark:text-(--text-secondary)"
@@ -250,32 +236,29 @@ export default function HeapTile({
             ))}
           </div>
 
-          <div
-            style={{ gridColumn: 2, gridRow: 2 }}
-            className="flex min-w-fit gap-0.75"
-          >
+          <div style={{ gridColumn: 2, gridRow: 2 }} className="flex min-w-fit gap-0.75">
             {weeks.map((week, weekIndex) => (
               <div key={weekIndex} className="flex flex-col gap-0.75">
                 {week.map((cell, dayIndex) => (
                   <div
                     key={`${weekIndex}-${dayIndex}`}
                     className={cn(
-                      "h-2.75 w-2.75 shrink-0 cursor-default rounded-xs transition-all duration-150 hover:scale-[1.12] hover:opacity-85",
+                      'h-2.75 w-2.75 shrink-0 cursor-default rounded-xs transition-all duration-150 hover:scale-[1.12] hover:opacity-85',
                       cell.inside
                         ? intensityClass[cell.intensityLevel]
-                        : "pointer-events-none opacity-0",
+                        : 'pointer-events-none opacity-0'
                     )}
                     title={
                       cell.inside
                         ? `${cell.date.toLocaleDateString(undefined, {
-                            month: "short",
-                            day: "numeric",
-                            year: "numeric",
-                            timeZone: "UTC",
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            timeZone: 'UTC',
                           })} · ${cell.activityCount} activit${
-                            cell.activityCount === 1 ? "y" : "ies"
-                          }${cell.isFrozen ? " · Streak freeze used" : ""}`
-                        : ""
+                            cell.activityCount === 1 ? 'y' : 'ies'
+                          }${cell.isFrozen ? ' · Streak freeze used' : ''}`
+                        : ''
                     }
                   />
                 ))}
@@ -289,14 +272,9 @@ export default function HeapTile({
         <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
           Less active
         </span>
-        {(["none", "low", "medium", "high"] as HeatmapIntensity[]).map(
-          (level) => (
-            <div
-              key={level}
-              className={cn("h-2.75 w-2.75 rounded-xs", intensityClass[level])}
-            />
-          ),
-        )}
+        {(['none', 'low', 'medium', 'high'] as HeatmapIntensity[]).map((level) => (
+          <div key={level} className={cn('h-2.75 w-2.75 rounded-xs', intensityClass[level])} />
+        ))}
         <span className="font-mono text-[8px] text-(--text-secondary) opacity-50 dark:text-(--text-secondary)">
           More active
         </span>

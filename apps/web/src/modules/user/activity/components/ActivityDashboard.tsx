@@ -1,24 +1,21 @@
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 
-import { useActivityFeed } from '../hooks/useActivityFeed'
-import type {
-  ActivityFeedFilter,
-  IActivityPageResponse,
-} from '../types/activity.types'
-import { mergeActivityFeedPages } from '../utils/activity-formatters'
-import ActivityFeed from './ActivityFeed'
-import ActivityFilterTabs from './ActivityFilterTabs'
-import ActivityHeader from './ActivityHeader'
-import ActivityHeatmap from './ActivityHeatmap'
-import ActivitySidebar from './ActivitySidebar'
-import ActivityStatsGrid from './ActivityStatsGrid'
+import { useActivityFeed } from '../hooks/useActivityFeed';
+import type { ActivityFeedFilter, IActivityPageResponse } from '../types/activity.types';
+import { mergeActivityFeedPages } from '../utils/activity-formatters';
+import ActivityFeed from './ActivityFeed';
+import ActivityFilterTabs from './ActivityFilterTabs';
+import ActivityHeader from './ActivityHeader';
+import ActivityHeatmap from './ActivityHeatmap';
+import ActivitySidebar from './ActivitySidebar';
+import ActivityStatsGrid from './ActivityStatsGrid';
 
 interface IActivityDashboardProps {
-  activity: IActivityPageResponse
-  filter: ActivityFeedFilter
-  year: number
-  utcOffsetMinutes: number
-  isPageFetching: boolean
+  activity: IActivityPageResponse;
+  filter: ActivityFeedFilter;
+  year: number;
+  utcOffsetMinutes: number;
+  isPageFetching: boolean;
   /**
    * True while `activity` is still showing the PREVIOUS filter/year's
    * data (TanStack Query's `keepPreviousData` placeholder) because the
@@ -26,9 +23,9 @@ interface IActivityDashboardProps {
    * true, `activity.feed` does not belong to `filter` and must not be
    * fed into useActivityFeed as initial data.
    */
-  isPageDataStale: boolean
-  onFilterChange: (filter: ActivityFeedFilter) => void
-  onYearChange: (year: number) => void
+  isPageDataStale: boolean;
+  onFilterChange: (filter: ActivityFeedFilter) => void;
+  onYearChange: (year: number) => void;
 }
 
 export default function ActivityDashboard({
@@ -41,7 +38,7 @@ export default function ActivityDashboard({
   onFilterChange,
   onYearChange,
 }: IActivityDashboardProps) {
-  const generatedAtMs = Date.parse(activity.generatedAt)
+  const generatedAtMs = Date.parse(activity.generatedAt);
 
   /**
    * React components must remain pure during rendering.
@@ -52,9 +49,7 @@ export default function ActivityDashboard({
    * A value of 0 tells TanStack Query that the initial data is old,
    * allowing it to refetch when generatedAt is invalid.
    */
-  const initialDataUpdatedAt = Number.isNaN(generatedAtMs)
-    ? 0
-    : generatedAtMs
+  const initialDataUpdatedAt = Number.isNaN(generatedAtMs) ? 0 : generatedAtMs;
 
   const feedQuery = useActivityFeed({
     filter,
@@ -63,28 +58,19 @@ export default function ActivityDashboard({
     // Only hand the feed query a starting point when we're sure it
     // actually belongs to `filter` — see isPageDataStale above. This is
     // the fix for filter switches silently showing stale/wrong data.
-    ...(isPageDataStale
-      ? {}
-      : { initialFeed: activity.feed, initialDataUpdatedAt }),
-  })
+    ...(isPageDataStale ? {} : { initialFeed: activity.feed, initialDataUpdatedAt }),
+  });
 
   const feedGroups = useMemo(
-    () =>
-      mergeActivityFeedPages(
-        feedQuery.data?.pages ?? [activity.feed],
-      ),
-    [activity.feed, feedQuery.data?.pages],
-  )
+    () => mergeActivityFeedPages(feedQuery.data?.pages ?? [activity.feed]),
+    [activity.feed, feedQuery.data?.pages]
+  );
 
-  const isUpdating =
-    (isPageFetching || feedQuery.isFetching) &&
-    !feedQuery.isFetchingNextPage
+  const isUpdating = (isPageFetching || feedQuery.isFetching) && !feedQuery.isFetchingNextPage;
 
   return (
     <>
-      <ActivityHeader
-        currentStreak={activity.streak.currentStreak}
-      />
+      <ActivityHeader currentStreak={activity.streak.currentStreak} />
 
       <ActivityStatsGrid stats={activity.stats} />
 
@@ -118,23 +104,16 @@ export default function ActivityDashboard({
           <ActivityFeed
             groups={feedGroups}
             hasMore={Boolean(feedQuery.hasNextPage)}
-            isFetchingNextPage={
-              feedQuery.isFetchingNextPage
-            }
-            isFetchNextPageError={
-              feedQuery.isFetchNextPageError
-            }
+            isFetchingNextPage={feedQuery.isFetchingNextPage}
+            isFetchNextPageError={feedQuery.isFetchNextPageError}
             onLoadMore={() => {
-              void feedQuery.fetchNextPage()
+              void feedQuery.fetchNextPage();
             }}
           />
         </div>
 
-        <ActivitySidebar
-          weekly={activity.weekly}
-          personalBests={activity.personalBests}
-        />
+        <ActivitySidebar weekly={activity.weekly} personalBests={activity.personalBests} />
       </div>
     </>
-  )
+  );
 }

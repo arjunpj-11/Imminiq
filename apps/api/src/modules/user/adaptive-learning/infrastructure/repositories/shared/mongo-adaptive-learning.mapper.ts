@@ -2,12 +2,12 @@ import type {
   AdaptiveAdvisorMessage,
   AdaptiveAssessment,
   AdaptiveProfile,
-} from '../../../domain/adaptive-learning.types'
+} from '../../../domain/adaptive-learning.types';
 import type {
   MongoAdaptiveAdvisorMessageRecord,
   MongoAdaptiveAssessmentRecord,
   MongoAdaptiveProfileRecord,
-} from './mongo-adaptive-learning.types'
+} from './mongo-adaptive-learning.types';
 
 export class MongoAdaptiveLearningMapper {
   toProfile(document: MongoAdaptiveProfileRecord): AdaptiveProfile {
@@ -22,16 +22,14 @@ export class MongoAdaptiveLearningMapper {
         reason: item.reason,
         recordedAt: item.recordedAt,
       })),
-    }
+    };
   }
 
   toAssessment(document: MongoAdaptiveAssessmentRecord): AdaptiveAssessment {
     return {
       id: document._id.toString(),
       testId: document.testId.toString(),
-      ...(document.trackerId
-        ? { trackerId: document.trackerId.toString() }
-        : {}),
+      ...(document.trackerId ? { trackerId: document.trackerId.toString() } : {}),
       topic: document.topic,
       difficulty: document.difficulty,
       questionCount: document.questionCount,
@@ -40,25 +38,19 @@ export class MongoAdaptiveLearningMapper {
       focusAreas: document.focusAreas ?? [],
       baselineMasteryScore: document.baselineMasteryScore,
       status: document.status,
-      ...(document.actualScore != null
-        ? { actualScore: document.actualScore }
-        : {}),
-      ...(document.masteryChange != null
-        ? { masteryChange: document.masteryChange }
-        : {}),
+      ...(document.actualScore != null ? { actualScore: document.actualScore } : {}),
+      ...(document.masteryChange != null ? { masteryChange: document.masteryChange } : {}),
       createdAt: document.createdAt,
       ...(document.completedAt ? { completedAt: document.completedAt } : {}),
-    }
+    };
   }
 
-  toAdvisorMessage(
-    document: MongoAdaptiveAdvisorMessageRecord,
-  ): AdaptiveAdvisorMessage {
+  toAdvisorMessage(document: MongoAdaptiveAdvisorMessageRecord): AdaptiveAdvisorMessage {
     return {
       id: document._id.toString(),
       role: document.role,
       content: document.content,
       createdAt: document.createdAt,
-    }
+    };
   }
 }

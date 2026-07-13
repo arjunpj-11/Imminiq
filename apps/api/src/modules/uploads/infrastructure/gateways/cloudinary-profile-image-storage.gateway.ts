@@ -1,20 +1,15 @@
-import { Readable } from 'node:stream'
+import { Readable } from 'node:stream';
 
-import { cloudinary } from '../../../../infrastructure/storage/cloudinary.client'
-import { StoredProfileImageEntity } from '../../domain/entities/stored-profile-image.entity'
-import { UploadsDomainError } from '../../domain/uploads-domain.error'
-import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface'
-import type {
-  ProfileImageFolder,
-  UploadedProfileImageFile,
-} from '../../domain/uploads.types'
+import { cloudinary } from '../../../../infrastructure/storage/cloudinary.client';
+import { StoredProfileImageEntity } from '../../domain/entities/stored-profile-image.entity';
+import { UploadsDomainError } from '../../domain/uploads-domain.error';
+import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface';
+import type { ProfileImageFolder, UploadedProfileImageFile } from '../../domain/uploads.types';
 
-export class CloudinaryProfileImageStorageGateway
-  implements IProfileImageStorage
-{
+export class CloudinaryProfileImageStorageGateway implements IProfileImageStorage {
   async uploadProfileImage(
     file: UploadedProfileImageFile,
-    folder: ProfileImageFolder,
+    folder: ProfileImageFolder
   ): Promise<StoredProfileImageEntity> {
     return new Promise((resolve, reject) => {
       try {
@@ -26,13 +21,8 @@ export class CloudinaryProfileImageStorageGateway
           },
           (error, result) => {
             if (error || !result) {
-              reject(
-                new UploadsDomainError(
-                  'IMAGE_UPLOAD_FAILED',
-                  'Image upload failed',
-                ),
-              )
-              return
+              reject(new UploadsDomainError('IMAGE_UPLOAD_FAILED', 'Image upload failed'));
+              return;
             }
 
             resolve(
@@ -42,26 +32,18 @@ export class CloudinaryProfileImageStorageGateway
                 fileType: file.mimetype.split('/')[1] ?? 'image',
                 mimeType: file.mimetype,
                 sizeBytes: file.size,
-                ...(result.public_id
-                  ? { storagePublicId: result.public_id }
-                  : {}),
-              }),
-            )
-          },
-        )
+                ...(result.public_id ? { storagePublicId: result.public_id } : {}),
+              })
+            );
+          }
+        );
 
-        Readable.from(file.buffer).pipe(stream)
+        Readable.from(file.buffer).pipe(stream);
       } catch {
-        reject(
-          new UploadsDomainError(
-            'IMAGE_UPLOAD_FAILED',
-            'Image upload failed',
-          ),
-        )
+        reject(new UploadsDomainError('IMAGE_UPLOAD_FAILED', 'Image upload failed'));
       }
-    })
+    });
   }
 }
 
-export const cloudinaryProfileImageStorageGateway =
-  new CloudinaryProfileImageStorageGateway()
+export const cloudinaryProfileImageStorageGateway = new CloudinaryProfileImageStorageGateway();

@@ -1,28 +1,26 @@
-import { useEffect } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
-import { useRoadmapJobStatus } from '../../onboarding/hooks/useRoadmapJobStatus'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { useRoadmapJobStatus } from '../../onboarding/hooks/useRoadmapJobStatus';
 
 export default function MockTestGeneratingPage() {
-  const navigate = useNavigate()
-  const { jobId } = useParams<{ jobId: string }>()
-  const job = useRoadmapJobStatus(jobId)
-  const status = (
-    job.data?.data?.status || job.data?.data?.state || ''
-  ).toLowerCase()
-  const testId = job.data?.data?.testId
+  const navigate = useNavigate();
+  const { jobId } = useParams<{ jobId: string }>();
+  const job = useRoadmapJobStatus(jobId);
+  const status = (job.data?.data?.status || job.data?.data?.state || '').toLowerCase();
+  const testId = job.data?.data?.testId;
 
   useEffect(() => {
-    if (!['completed', 'success', 'done'].includes(status) || !testId) return
+    if (!['completed', 'success', 'done'].includes(status) || !testId) return;
 
     const timer = window.setTimeout(() => {
-      navigate(`/mock-tests/${testId}`, { replace: true })
-    }, 900)
-    return () => window.clearTimeout(timer)
-  }, [navigate, status, testId])
+      navigate(`/mock-tests/${testId}`, { replace: true });
+    }, 900);
+    return () => window.clearTimeout(timer);
+  }, [navigate, status, testId]);
 
-  const failed = ['failed', 'error'].includes(status)
+  const failed = ['failed', 'error'].includes(status);
 
   return (
     <AppShellBoundary>
@@ -78,5 +76,5 @@ export default function MockTestGeneratingPage() {
         </section>
       </main>
     </AppShellBoundary>
-  )
+  );
 }

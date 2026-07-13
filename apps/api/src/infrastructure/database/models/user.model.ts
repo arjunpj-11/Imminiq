@@ -1,63 +1,63 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IUserDocument extends Document {
-  _id: mongoose.Types.ObjectId
+  _id: mongoose.Types.ObjectId;
 
-  fullName: string
-  username: string
+  fullName: string;
+  username: string;
 
-  email?: string
-  phone?: string
+  email?: string;
+  phone?: string;
 
-  passwordHash: string | null
+  passwordHash: string | null;
 
-  avatarUrl?: string
+  avatarUrl?: string;
 
-  role: 'user' | 'admin' | 'moderator' | 'superadmin'
-  status: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
+  role: 'user' | 'admin' | 'moderator' | 'superadmin';
+  status: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned';
 
-  emailVerified: boolean
-  phoneVerified: boolean
+  emailVerified: boolean;
+  phoneVerified: boolean;
 
   // Used to auto-delete unverified accounts
-  verificationExpiresAt?: Date | null
+  verificationExpiresAt?: Date | null;
 
   // Pending email change verification
-  pendingEmail?: string | null
-  pendingEmailChangeTokenHash?: string | null
-  pendingEmailChangeExpiresAt?: Date | null
-  pendingEmailChangeRequestedAt?: Date | null
+  pendingEmail?: string | null;
+  pendingEmailChangeTokenHash?: string | null;
+  pendingEmailChangeExpiresAt?: Date | null;
+  pendingEmailChangeRequestedAt?: Date | null;
 
   // Scheduled account deletion grace period
-  deletionRequestedAt?: Date | null
-  scheduledDeletionAt?: Date | null
+  deletionRequestedAt?: Date | null;
+  scheduledDeletionAt?: Date | null;
 
-  provider: 'local' | 'google' | 'github'
-  providerId?: string
+  provider: 'local' | 'google' | 'github';
+  providerId?: string;
 
-  referralCode?: string
-  referredBy?: mongoose.Types.ObjectId | null
+  referralCode?: string;
+  referredBy?: mongoose.Types.ObjectId | null;
 
-  coins: number
+  coins: number;
 
   // Student/learning progression
-  xp: number
-  level: number
+  xp: number;
+  level: number;
 
   // Teacher/community contribution progression
-  teacherXp: number
-  teacherLevel: number
+  teacherXp: number;
+  teacherLevel: number;
 
-  streakCount: number
+  streakCount: number;
 
-  isPremium: boolean
-  onboardingCompleted: boolean
+  isPremium: boolean;
+  onboardingCompleted: boolean;
 
-  lastActiveAt: Date
-  deletedAt?: Date | null
+  lastActiveAt: Date;
+  deletedAt?: Date | null;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 /**
@@ -71,27 +71,27 @@ export interface IUserDocument extends Document {
  * by 300: 800, 1100, 1400, 1700, ...
  */
 export function calculateProgressionLevelFromXp(xp: number): number {
-  const normalizedXp = Math.max(Math.floor(xp), 0)
+  const normalizedXp = Math.max(Math.floor(xp), 0);
 
-  let level = 1
-  let nextLevelAt = 500
-  let requiredXpIncrease = 800
+  let level = 1;
+  let nextLevelAt = 500;
+  let requiredXpIncrease = 800;
 
   while (normalizedXp >= nextLevelAt) {
-    level += 1
-    nextLevelAt += requiredXpIncrease
-    requiredXpIncrease += 300
+    level += 1;
+    nextLevelAt += requiredXpIncrease;
+    requiredXpIncrease += 300;
   }
 
-  return level
+  return level;
 }
 
 export function calculateStudentLevelFromXp(xp: number): number {
-  return calculateProgressionLevelFromXp(xp)
+  return calculateProgressionLevelFromXp(xp);
 }
 
 export function calculateTeacherLevelFromXp(teacherXp: number): number {
-  return calculateProgressionLevelFromXp(teacherXp)
+  return calculateProgressionLevelFromXp(teacherXp);
 }
 
 const userSchema = new Schema<IUserDocument>(
@@ -289,20 +289,20 @@ const userSchema = new Schema<IUserDocument>(
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
 // Keeps derived levels synchronized when a document is created or saved.
 // Query updates such as updateOne/findOneAndUpdate do not execute this hook.
 userSchema.pre('save', function (this: IUserDocument) {
   if (this.isNew || this.isModified('xp')) {
-    this.level = calculateStudentLevelFromXp(this.xp)
+    this.level = calculateStudentLevelFromXp(this.xp);
   }
 
   if (this.isNew || this.isModified('teacherXp')) {
-    this.teacherLevel = calculateTeacherLevelFromXp(this.teacherXp)
+    this.teacherLevel = calculateTeacherLevelFromXp(this.teacherXp);
   }
-})
+});
 
 // ─── INDEXES ──────────────────────────────────────────────
 
@@ -315,8 +315,8 @@ userSchema.index(
         $type: 'string',
       },
     },
-  },
-)
+  }
+);
 
 userSchema.index(
   { phone: 1 },
@@ -327,15 +327,15 @@ userSchema.index(
         $type: 'string',
       },
     },
-  },
-)
+  }
+);
 
 userSchema.index(
   { username: 1 },
   {
     unique: true,
-  },
-)
+  }
+);
 
 userSchema.index(
   { referralCode: 1 },
@@ -346,8 +346,8 @@ userSchema.index(
         $type: 'string',
       },
     },
-  },
-)
+  }
+);
 
 userSchema.index(
   { verificationExpiresAt: 1 },
@@ -359,37 +359,37 @@ userSchema.index(
       phoneVerified: false,
       deletedAt: null,
     },
-  },
-)
+  }
+);
 
 userSchema.index({
   role: 1,
   status: 1,
-})
+});
 
 userSchema.index({
   status: 1,
   lastActiveAt: -1,
-})
+});
 
 userSchema.index({
   status: 1,
   scheduledDeletionAt: 1,
-})
+});
 
 userSchema.index({
   deletedAt: 1,
-})
+});
 
 userSchema.index({
   provider: 1,
   providerId: 1,
-})
+});
 
 userSchema.index({
   pendingEmailChangeTokenHash: 1,
   pendingEmailChangeExpiresAt: 1,
-})
+});
 
 // Student leaderboard: XP decides rank. Level is only a derived display value.
 userSchema.index(
@@ -403,8 +403,8 @@ userSchema.index(
   },
   {
     name: 'student_leaderboard_rank',
-  },
-)
+  }
+);
 
 // Trainer leaderboard: teacher XP decides rank.
 userSchema.index(
@@ -418,8 +418,7 @@ userSchema.index(
   },
   {
     name: 'trainer_leaderboard_rank',
-  },
-)
+  }
+);
 
-export const User =
-  mongoose.models.User || mongoose.model<IUserDocument>('User', userSchema)
+export const User = mongoose.models.User || mongoose.model<IUserDocument>('User', userSchema);

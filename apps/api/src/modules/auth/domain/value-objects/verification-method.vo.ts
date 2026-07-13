@@ -1,1 +1,1 @@
-export type VerificationMethod = 'email' | 'phone'
+export type VerificationMethod = 'email' | 'phone';

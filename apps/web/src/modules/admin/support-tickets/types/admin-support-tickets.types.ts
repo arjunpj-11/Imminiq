@@ -1,1 +1,12 @@
-export type AdminSupportTicket = { id: string; subject: string; description: string; category: string; priority: string; status: 'open' | 'in_progress' | 'resolved' | 'closed'; requester: string; resolutionNote: string; createdAt: string; updatedAt: string }
+export type AdminSupportTicket = {
+  id: string;
+  subject: string;
+  description: string;
+  category: string;
+  priority: string;
+  status: 'open' | 'in_progress' | 'resolved' | 'closed';
+  requester: string;
+  resolutionNote: string;
+  createdAt: string;
+  updatedAt: string;
+};

@@ -1,26 +1,24 @@
-import { UploadsDomainError } from '../../domain/uploads-domain.error'
-import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface'
-import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface'
-import type { IRemoveAvatarResultDTO } from '../uploads.dto'
-import { UploadsApplicationError } from '../uploads-application.error'
-import type { IUploadUserProfileReader } from '../services/upload-user-profile.service'
+import { UploadsDomainError } from '../../domain/uploads-domain.error';
+import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface';
+import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface';
+import type { IRemoveAvatarResultDTO } from '../uploads.dto';
+import { UploadsApplicationError } from '../uploads-application.error';
+import type { IUploadUserProfileReader } from '../services/upload-user-profile.service';
 
-type RemoveAvatarRepository =
-  IProfileImageRepository & IUploadRecordRepository
+type RemoveAvatarRepository = IProfileImageRepository & IUploadRecordRepository;
 
 export interface IRemoveAvatarUseCase {
-  execute(userId: string): Promise<IRemoveAvatarResultDTO>
+  execute(userId: string): Promise<IRemoveAvatarResultDTO>;
 }
 
 export class RemoveAvatarUseCase implements IRemoveAvatarUseCase {
   constructor(
     private readonly _userProfileReader: IUploadUserProfileReader,
-    private readonly _uploadsRepository: RemoveAvatarRepository,
+    private readonly _uploadsRepository: RemoveAvatarRepository
   ) {}
 
   async execute(userId: string): Promise<IRemoveAvatarResultDTO> {
-    const context =
-      await this._userProfileReader.getRequiredContext(userId)
+    const context = await this._userProfileReader.getRequiredContext(userId);
 
     try {
       await Promise.all([
@@ -29,18 +27,18 @@ export class RemoveAvatarUseCase implements IRemoveAvatarUseCase {
           userId: context.userId,
           kind: 'avatar',
         }),
-      ])
+      ]);
 
       return {
         avatarRemoved: true,
         defaultAvatarApplied: true,
-      }
+      };
     } catch (error) {
       if (error instanceof UploadsDomainError) {
-        throw UploadsApplicationError.profileImageUpdateFailed()
+        throw UploadsApplicationError.profileImageUpdateFailed();
       }
 
-      throw error
+      throw error;
     }
   }
 }

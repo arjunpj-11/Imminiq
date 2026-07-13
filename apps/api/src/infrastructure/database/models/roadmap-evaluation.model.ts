@@ -1,58 +1,49 @@
 // apps/api/src/modules/user/trackers/roadmap-evaluation.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
-export type RoadmapEvaluationType =
-  | 'ai_quality'
-  | 'reviewer_check'
-  | 'self_review'
+export type RoadmapEvaluationType = 'ai_quality' | 'reviewer_check' | 'self_review';
 
-export type RoadmapEvaluationStatus =
-  | 'pending'
-  | 'completed'
-  | 'failed'
+export type RoadmapEvaluationStatus = 'pending' | 'completed' | 'failed';
 
-export type MissingTopicPriority =
-  | 'high'
-  | 'medium'
-  | 'optional'
+export type MissingTopicPriority = 'high' | 'medium' | 'optional';
 
 export interface IRoadmapEvaluationMissingTopicDocument {
-  title: string
-  priority: MissingTopicPriority
-  description: string
-  estimatedHours: number
-  readinessImpact: number
+  title: string;
+  priority: MissingTopicPriority;
+  description: string;
+  estimatedHours: number;
+  readinessImpact: number;
 }
 
 export interface IRoadmapEvaluationDocument extends Document {
-  trackerId: mongoose.Types.ObjectId
-  userId: mongoose.Types.ObjectId
-  aiJobId?: mongoose.Types.ObjectId
+  trackerId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  aiJobId?: mongoose.Types.ObjectId;
 
-  evaluationType: RoadmapEvaluationType
+  evaluationType: RoadmapEvaluationType;
 
-  score: number
-  coverageScore: number
-  difficultyBalanceScore: number
-  sequencingScore: number
-  timeFitScore: number
+  score: number;
+  coverageScore: number;
+  difficultyBalanceScore: number;
+  sequencingScore: number;
+  timeFitScore: number;
 
-  missingTopics: IRoadmapEvaluationMissingTopicDocument[]
-  duplicateTopics: string[]
+  missingTopics: IRoadmapEvaluationMissingTopicDocument[];
+  duplicateTopics: string[];
 
-  strengths: string[]
-  weaknesses: string[]
-  aiSuggestions: string[]
-  recommendedNextActions: string[]
+  strengths: string[];
+  weaknesses: string[];
+  aiSuggestions: string[];
+  recommendedNextActions: string[];
 
-  status: RoadmapEvaluationStatus
+  status: RoadmapEvaluationStatus;
 
-  evaluatedAt?: Date
-  deletedAt?: Date | null
+  evaluatedAt?: Date;
+  deletedAt?: Date | null;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const missingTopicSchema = new Schema<IRoadmapEvaluationMissingTopicDocument>(
@@ -91,7 +82,7 @@ const missingTopicSchema = new Schema<IRoadmapEvaluationMissingTopicDocument>(
   {
     _id: false,
   }
-)
+);
 
 const roadmapEvaluationSchema = new Schema<IRoadmapEvaluationDocument>(
   {
@@ -201,15 +192,14 @@ const roadmapEvaluationSchema = new Schema<IRoadmapEvaluationDocument>(
   {
     timestamps: true,
   }
-)
+);
 
-roadmapEvaluationSchema.index({ trackerId: 1 })
-roadmapEvaluationSchema.index({ userId: 1 })
-roadmapEvaluationSchema.index({ trackerId: 1, status: 1 })
-roadmapEvaluationSchema.index({ aiJobId: 1 })
+roadmapEvaluationSchema.index({ trackerId: 1 });
+roadmapEvaluationSchema.index({ userId: 1 });
+roadmapEvaluationSchema.index({ trackerId: 1, status: 1 });
+roadmapEvaluationSchema.index({ aiJobId: 1 });
 
-export const RoadmapEvaluation =
-  mongoose.model<IRoadmapEvaluationDocument>(
-    'RoadmapEvaluation',
-    roadmapEvaluationSchema
-  )
+export const RoadmapEvaluation = mongoose.model<IRoadmapEvaluationDocument>(
+  'RoadmapEvaluation',
+  roadmapEvaluationSchema
+);

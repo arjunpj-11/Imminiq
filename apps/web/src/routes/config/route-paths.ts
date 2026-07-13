@@ -14,7 +14,7 @@ export const ROUTES = {
   dashboard: '/dashboard',
   profile: '/profile',
   publicProfile: '/profile/:username',
-} as const
+} as const;
 
 const PUBLIC_EXACT_PATHS = new Set<string>([
   ROUTES.home,
@@ -29,8 +29,8 @@ const PUBLIC_EXACT_PATHS = new Set<string>([
   ROUTES.offline,
   ROUTES.privacy,
   ROUTES.terms,
-])
+]);
 
 export const isPublicRoute = (pathname: string) =>
   PUBLIC_EXACT_PATHS.has(pathname) ||
-  (pathname.startsWith('/profile/') && pathname !== ROUTES.profile)
+  (pathname.startsWith('/profile/') && pathname !== ROUTES.profile);

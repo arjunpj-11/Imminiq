@@ -3,21 +3,21 @@ import {
   roadmapEvaluationSchema,
   type GeneratedRoadmapStructure,
   type RoadmapEvaluation,
-} from '../ai.schemas'
-import { trackerAIChatWithFallback } from '../ai-fallback.helper'
-import { parseAIJson } from '../ai-json.parser'
+} from '../ai.schemas';
+import { trackerAIChatWithFallback } from '../ai-fallback.helper';
+import { parseAIJson } from '../ai-json.parser';
 import {
   cerebrasRoadmapEvaluationChat,
   cerebrasRoadmapStructureChat,
-} from '../clients/cerebras.client'
+} from '../clients/cerebras.client';
 import {
   buildRoadmapEvaluationPrompt,
   ROADMAP_EVALUATION_SYSTEM_PROMPT,
-} from '../prompts/roadmap-evaluation.prompt'
+} from '../prompts/roadmap-evaluation.prompt';
 import {
   buildRoadmapStructurePrompt,
   ROADMAP_STRUCTURE_SYSTEM_PROMPT,
-} from '../prompts/roadmap-structure.prompt'
+} from '../prompts/roadmap-structure.prompt';
 
 export const normalizeTrackerTitle = (generatedTitle: string, requestedTopic: string) => {
   const cleanedTitle = generatedTitle
@@ -26,13 +26,11 @@ export const normalizeTrackerTitle = (generatedTitle: string, requestedTopic: st
     .replace(/^\s*tracker\s*:\s*/i, '')
     .replace(/\s*[:|–—-]\s*$/g, '')
     .replace(/\s{2,}/g, ' ')
-    .trim()
+    .trim();
 
-  const isOnlyArticle = /^(?:a|an|the)$/i.test(cleanedTitle)
-  return cleanedTitle.length >= 3 && !isOnlyArticle
-    ? cleanedTitle
-    : requestedTopic.trim()
-}
+  const isOnlyArticle = /^(?:a|an|the)$/i.test(cleanedTitle);
+  return cleanedTitle.length >= 3 && !isOnlyArticle ? cleanedTitle : requestedTopic.trim();
+};
 
 // ============================================================
 // GEMINI / CEREBRAS — COMPLEX ROADMAP GENERATION
@@ -51,30 +49,22 @@ export const generateRoadmapStructure = async (
     }),
     ROADMAP_STRUCTURE_SYSTEM_PROMPT,
     cerebrasRoadmapStructureChat
-  )
+  );
 
-  const roadmap = parseAIJson(
-    response,
-    generatedRoadmapStructureSchema
-  )
+  const roadmap = parseAIJson(response, generatedRoadmapStructureSchema);
 
   return {
     ...roadmap,
     title: normalizeTrackerTitle(roadmap.title, topic),
-  }
-}
+  };
+};
 
-export const evaluateRoadmap = async (
-  roadmap: unknown
-): Promise<RoadmapEvaluation> => {
+export const evaluateRoadmap = async (roadmap: unknown): Promise<RoadmapEvaluation> => {
   const response = await trackerAIChatWithFallback(
     buildRoadmapEvaluationPrompt(roadmap),
     ROADMAP_EVALUATION_SYSTEM_PROMPT,
     cerebrasRoadmapEvaluationChat
-  )
+  );
 
-  return parseAIJson(
-    response,
-    roadmapEvaluationSchema
-  )
-}
+  return parseAIJson(response, roadmapEvaluationSchema);
+};

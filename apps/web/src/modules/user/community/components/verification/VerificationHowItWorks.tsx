@@ -1,12 +1,10 @@
-import { SparklesIcon } from '../icons/CommunityIcons'
+import { SparklesIcon } from '../icons/CommunityIcons';
 
 interface IVerificationHowItWorksProps {
-  steps: string[]
+  steps: string[];
 }
 
-export default function VerificationHowItWorks({
-  steps,
-}: IVerificationHowItWorksProps) {
+export default function VerificationHowItWorks({ steps }: IVerificationHowItWorksProps) {
   return (
     <div className="rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-(--border-subtle) dark:bg-(--surface-card)">
       <div className="mb-4 flex items-center gap-2">
@@ -31,5 +29,5 @@ export default function VerificationHowItWorks({
         ))}
       </div>
     </div>
-  )
+  );
 }

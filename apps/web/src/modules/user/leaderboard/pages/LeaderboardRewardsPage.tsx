@@ -1,30 +1,27 @@
-import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import LeaderboardAppShell from '../components/LeaderboardAppShell'
-import LeaderboardRewardsView from '../components/LeaderboardRewardsView'
-import {
-  LeaderboardContentSkeleton,
-  LeaderboardErrorState,
-} from '../components/LeaderboardStates'
+import LeaderboardAppShell from '../components/LeaderboardAppShell';
+import LeaderboardRewardsView from '../components/LeaderboardRewardsView';
+import { LeaderboardContentSkeleton, LeaderboardErrorState } from '../components/LeaderboardStates';
 import {
   LEADERBOARD_ROUTES,
   LEADERBOARD_SECTION_LABELS,
   LEADERBOARD_SECTIONS,
-} from '../constants/leaderboard.constants'
-import { useLeaderboardRewards } from '../hooks/useLeaderboardRewards'
-import type { LeaderboardSection } from '../types/leaderboard.types'
-import { cn } from '../utils/leaderboard-ui'
+} from '../constants/leaderboard.constants';
+import { useLeaderboardRewards } from '../hooks/useLeaderboardRewards';
+import type { LeaderboardSection } from '../types/leaderboard.types';
+import { cn } from '../utils/leaderboard-ui';
 import {
   ArrowLeftIcon,
   ChalkBoardIcon,
   GraduationCapIcon,
-} from '../components/icons/LeaderboardIcons'
+} from '../components/icons/LeaderboardIcons';
 
 export default function LeaderboardRewardsPage() {
-  const navigate = useNavigate()
-  const [section, setSection] = useState<LeaderboardSection>('students')
-  const rewardsQuery = useLeaderboardRewards()
+  const navigate = useNavigate();
+  const [section, setSection] = useState<LeaderboardSection>('students');
+  const rewardsQuery = useLeaderboardRewards();
 
   return (
     <LeaderboardAppShell>
@@ -47,16 +44,22 @@ export default function LeaderboardRewardsPage() {
                 <ArrowLeftIcon /> Back to leaderboard
               </button>
               <h1 className="font-ui text-[clamp(30px,4vw,44px)] font-black leading-tight text-(--text-primary) dark:text-(--text-primary)">
-                Rewards & <span className="text-(--brand-500) dark:text-(--brand-500)">Scoring</span>
+                Rewards &{' '}
+                <span className="text-(--brand-500) dark:text-(--brand-500)">Scoring</span>
               </h1>
               <p className="mt-2 max-w-155 text-[13px] italic leading-[1.7] text-[#7a6e66] dark:text-(--text-secondary)">
-                See how XP is earned and what you can unlock by reaching the weekly leaderboard target.
+                See how XP is earned and what you can unlock by reaching the weekly leaderboard
+                target.
               </p>
             </header>
 
-            <div className="flex gap-2.5 max-[420px]:flex-col" role="group" aria-label="Reward category">
+            <div
+              className="flex gap-2.5 max-[420px]:flex-col"
+              role="group"
+              aria-label="Reward category"
+            >
               {LEADERBOARD_SECTIONS.map((option) => {
-                const active = option === section
+                const active = option === section;
                 return (
                   <button
                     key={option}
@@ -67,13 +70,17 @@ export default function LeaderboardRewardsPage() {
                       'flex items-center gap-2.5 rounded-xl border px-4 py-3 text-[12px] font-bold transition',
                       active
                         ? 'border-(--brand-500) bg-(--brand-500) text-white dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412]'
-                        : 'border-(--border-subtle) bg-(--surface-card) text-[#7a6e66] hover:border-[rgba(184,76,43,0.28)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)',
+                        : 'border-(--border-subtle) bg-(--surface-card) text-[#7a6e66] hover:border-[rgba(184,76,43,0.28)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)'
                     )}
                   >
-                    {option === 'students' ? <GraduationCapIcon size={18} /> : <ChalkBoardIcon size={18} />}
+                    {option === 'students' ? (
+                      <GraduationCapIcon size={18} />
+                    ) : (
+                      <ChalkBoardIcon size={18} />
+                    )}
                     {LEADERBOARD_SECTION_LABELS[option].label}
                   </button>
-                )
+                );
               })}
             </div>
 
@@ -86,5 +93,5 @@ export default function LeaderboardRewardsPage() {
         )}
       </div>
     </LeaderboardAppShell>
-  )
+  );
 }

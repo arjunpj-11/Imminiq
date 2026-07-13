@@ -1,19 +1,173 @@
-import { useState } from 'react'
-import { Eye, Trash2 } from 'lucide-react'
-import { Link } from 'react-router-dom'
-import ConfirmDialog from '../../../../components/overlays/ConfirmDialog'
-import { AdminEmpty, AdminError, AdminLoading, AdminMetricGrid, AdminPageHeader, AdminPanel, AdminSearch, AdminStatusBadge } from '../../../../components/admin/AdminPage'
-import { useDebouncedValue } from '../../../../hooks/useDebouncedValue'
-import { useAdminTrackers, useDeleteAdminTracker } from '../hooks/useAdminTrackers'
-import type { AdminTracker } from '../types/admin-trackers.types'
+import { useState } from 'react';
+import { Eye, Trash2 } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
+import {
+  AdminEmpty,
+  AdminError,
+  AdminLoading,
+  AdminMetricGrid,
+  AdminPageHeader,
+  AdminPanel,
+  AdminSearch,
+  AdminStatusBadge,
+} from '../../../../components/admin/AdminPage';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { useAdminTrackers, useDeleteAdminTracker } from '../hooks/useAdminTrackers';
+import type { AdminTracker } from '../types/admin-trackers.types';
 
 export default function AdminTrackersPage() {
-  const [search, setSearch] = useState(''); const [status, setStatus] = useState('all'); const [page, setPage] = useState(1); const [deleting, setDeleting] = useState<AdminTracker | null>(null)
-  const { data, isLoading, isError } = useAdminTrackers({ search: useDebouncedValue(search, 300), status, page }); const remove = useDeleteAdminTracker()
-  return <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8"><AdminPageHeader title="Tracker Management" description="Inspect tracker learning structures and remove policy-violating trackers when necessary." />
-    <AdminMetricGrid metrics={[{ label: 'All trackers', value: data?.pagination.total ?? 0 }, { label: 'Active', value: data?.stats?.active ?? 0, tone: 'success' }, { label: 'Draft', value: data?.stats?.draft ?? 0, tone: 'warning' }, { label: 'Archived', value: data?.stats?.archived ?? 0, tone: 'info' }]} />
-    <AdminPanel title="All trackers" toolbar={<div className="flex flex-wrap gap-3"><select value={status} onChange={(e) => { setStatus(e.target.value); setPage(1) }} className="admin-select"><option value="all">All statuses</option><option value="active">Active</option><option value="draft">Draft</option><option value="archived">Archived</option></select><AdminSearch value={search} onChange={(v) => { setSearch(v); setPage(1) }} placeholder="Search trackers…" /></div>}>
-      {isLoading ? <AdminLoading /> : isError ? <AdminError /> : !data?.items.length ? <AdminEmpty /> : <><div className="overflow-x-auto"><table className="admin-table w-full min-w-[900px] text-left text-sm"><thead><tr><th>Tracker</th><th>Owner</th><th>Category</th><th>Visibility</th><th>Status</th><th>Topics</th><th>Actions</th></tr></thead><tbody>{data.items.map((item) => <tr key={item.id}><td><div className="font-semibold">{item.title}</div><div className="text-xs text-[#817c75]">{item.level}</div></td><td>{item.owner}</td><td>{item.category}</td><td><AdminStatusBadge value={item.visibility} /></td><td><AdminStatusBadge value={item.status} /></td><td>{item.topicsCount}</td><td><div className="flex gap-2"><Link to={`/admin/trackers/${item.id}`} className="admin-button inline-flex items-center gap-2"><Eye size={14} />View</Link><button onClick={() => setDeleting(item)} className="admin-icon-button text-[#e26767]" title="Delete tracker"><Trash2 size={15} /></button></div></td></tr>)}</tbody></table></div><Pager page={page} pages={data.pagination.pages} setPage={setPage} /></>}
-    </AdminPanel><ConfirmDialog open={Boolean(deleting)} title={`Delete ${deleting?.title ?? 'tracker'}?`} description="The tracker and its learning structure will be removed. Its owner will receive an email explaining the administrative removal." confirmText="Delete tracker" variant="danger" isLoading={remove.isPending} onClose={() => setDeleting(null)} onConfirm={() => deleting && remove.mutate(deleting.id, { onSuccess: () => setDeleting(null) })} /></main>
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('all');
+  const [page, setPage] = useState(1);
+  const [deleting, setDeleting] = useState<AdminTracker | null>(null);
+  const { data, isLoading, isError } = useAdminTrackers({
+    search: useDebouncedValue(search, 300),
+    status,
+    page,
+  });
+  const remove = useDeleteAdminTracker();
+  return (
+    <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
+      <AdminPageHeader
+        title="Tracker Management"
+        description="Inspect tracker learning structures and remove policy-violating trackers when necessary."
+      />
+      <AdminMetricGrid
+        metrics={[
+          { label: 'All trackers', value: data?.pagination.total ?? 0 },
+          { label: 'Active', value: data?.stats?.active ?? 0, tone: 'success' },
+          { label: 'Draft', value: data?.stats?.draft ?? 0, tone: 'warning' },
+          { label: 'Archived', value: data?.stats?.archived ?? 0, tone: 'info' },
+        ]}
+      />
+      <AdminPanel
+        title="All trackers"
+        toolbar={
+          <div className="flex flex-wrap gap-3">
+            <select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+              className="admin-select"
+            >
+              <option value="all">All statuses</option>
+              <option value="active">Active</option>
+              <option value="draft">Draft</option>
+              <option value="archived">Archived</option>
+            </select>
+            <AdminSearch
+              value={search}
+              onChange={(v) => {
+                setSearch(v);
+                setPage(1);
+              }}
+              placeholder="Search trackers…"
+            />
+          </div>
+        }
+      >
+        {isLoading ? (
+          <AdminLoading />
+        ) : isError ? (
+          <AdminError />
+        ) : !data?.items.length ? (
+          <AdminEmpty />
+        ) : (
+          <>
+            <div className="overflow-x-auto">
+              <table className="admin-table w-full min-w-[900px] text-left text-sm">
+                <thead>
+                  <tr>
+                    <th>Tracker</th>
+                    <th>Owner</th>
+                    <th>Category</th>
+                    <th>Visibility</th>
+                    <th>Status</th>
+                    <th>Topics</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.items.map((item) => (
+                    <tr key={item.id}>
+                      <td>
+                        <div className="font-semibold">{item.title}</div>
+                        <div className="text-xs text-[#817c75]">{item.level}</div>
+                      </td>
+                      <td>{item.owner}</td>
+                      <td>{item.category}</td>
+                      <td>
+                        <AdminStatusBadge value={item.visibility} />
+                      </td>
+                      <td>
+                        <AdminStatusBadge value={item.status} />
+                      </td>
+                      <td>{item.topicsCount}</td>
+                      <td>
+                        <div className="flex gap-2">
+                          <Link
+                            to={`/admin/trackers/${item.id}`}
+                            className="admin-button inline-flex items-center gap-2"
+                          >
+                            <Eye size={14} />
+                            View
+                          </Link>
+                          <button
+                            onClick={() => setDeleting(item)}
+                            className="admin-icon-button text-[#e26767]"
+                            title="Delete tracker"
+                          >
+                            <Trash2 size={15} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            <Pager page={page} pages={data.pagination.pages} setPage={setPage} />
+          </>
+        )}
+      </AdminPanel>
+      <ConfirmDialog
+        open={Boolean(deleting)}
+        title={`Delete ${deleting?.title ?? 'tracker'}?`}
+        description="The tracker and its learning structure will be removed. Its owner will receive an email explaining the administrative removal."
+        confirmText="Delete tracker"
+        variant="danger"
+        isLoading={remove.isPending}
+        onClose={() => setDeleting(null)}
+        onConfirm={() =>
+          deleting && remove.mutate(deleting.id, { onSuccess: () => setDeleting(null) })
+        }
+      />
+    </main>
+  );
 }
-function Pager({ page, pages, setPage }: { page: number; pages: number; setPage: (value: number) => void }) { return <div className="flex justify-end gap-2 border-t border-white/10 p-4"><button disabled={page <= 1} onClick={() => setPage(page - 1)} className="admin-button">Previous</button><span className="px-3 py-2 text-xs text-[#aaa59d]">{page} / {pages}</span><button disabled={page >= pages} onClick={() => setPage(page + 1)} className="admin-button">Next</button></div> }
+function Pager({
+  page,
+  pages,
+  setPage,
+}: {
+  page: number;
+  pages: number;
+  setPage: (value: number) => void;
+}) {
+  return (
+    <div className="flex justify-end gap-2 border-t border-white/10 p-4">
+      <button disabled={page <= 1} onClick={() => setPage(page - 1)} className="admin-button">
+        Previous
+      </button>
+      <span className="px-3 py-2 text-xs text-[#aaa59d]">
+        {page} / {pages}
+      </span>
+      <button disabled={page >= pages} onClick={() => setPage(page + 1)} className="admin-button">
+        Next
+      </button>
+    </div>
+  );
+}

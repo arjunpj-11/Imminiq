@@ -1,4 +1,4 @@
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 // ─── SVG icons ───────────────────────────────────────────────────────────────
 
@@ -27,21 +27,11 @@ function MicIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
       />
 
-      <path
-        d="M12 17v4"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M12 17v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
 
-      <path
-        d="M8.75 21h6.5"
-        stroke="currentColor"
-        strokeWidth="1.8"
-        strokeLinecap="round"
-      />
+      <path d="M8.75 21h6.5" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     </svg>
-  )
+  );
 }
 
 function StopIcon({ className }: { className?: string }) {
@@ -53,37 +43,25 @@ function StopIcon({ className }: { className?: string }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
     >
-      <rect
-        x="7"
-        y="7"
-        width="10"
-        height="10"
-        rx="2.2"
-        fill="currentColor"
-      />
+      <rect x="7" y="7" width="10" height="10" rx="2.2" fill="currentColor" />
     </svg>
-  )
+  );
 }
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface IMicButtonProps {
-  isListening: boolean
-  isSupported: boolean
-  onToggle: () => void
-  size?: 'sm' | 'md'
+  isListening: boolean;
+  isSupported: boolean;
+  onToggle: () => void;
+  size?: 'sm' | 'md';
 }
 
 // ─── Mic button ──────────────────────────────────────────────────────────────
 
-export function MicButton({
-  isListening,
-  isSupported,
-  onToggle,
-  size = 'md',
-}: IMicButtonProps) {
+export function MicButton({ isListening, isSupported, onToggle, size = 'md' }: IMicButtonProps) {
   if (!isSupported) {
-    return null
+    return null;
   }
 
   return (
@@ -91,16 +69,14 @@ export function MicButton({
       type="button"
       onClick={onToggle}
       title={isListening ? 'Stop listening' : 'Voice input'}
-      aria-label={
-        isListening ? 'Stop voice input' : 'Start voice input'
-      }
+      aria-label={isListening ? 'Stop voice input' : 'Start voice input'}
       aria-pressed={isListening}
       className={cn(
         'relative flex shrink-0 items-center justify-center overflow-hidden rounded-full border transition',
         size === 'sm' ? 'h-9 w-9' : 'h-10 w-10',
         isListening
           ? 'border-red-400 bg-red-500/10 text-red-500 shadow-[0_0_0_4px_rgba(239,68,68,0.10)] dark:border-red-400/60 dark:text-red-400'
-          : 'border-(--border-subtle) text-(--text-secondary) hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)',
+          : 'border-(--border-subtle) text-(--text-secondary) hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
       )}
     >
       {isListening && (
@@ -140,11 +116,9 @@ export function MicButton({
         {isListening ? (
           <StopIcon className="h-4 w-4" />
         ) : (
-          <MicIcon
-            className={size === 'sm' ? 'h-4.5 w-4.5' : 'h-5 w-5'}
-          />
+          <MicIcon className={size === 'sm' ? 'h-4.5 w-4.5' : 'h-5 w-5'} />
         )}
       </span>
     </button>
-  )
+  );
 }

@@ -1,69 +1,57 @@
-import { Router } from 'express'
+import { Router } from 'express';
 
-import { authenticate } from '../../../shared/middlewares/auth.middleware'
-import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware'
-import {
-  avatarUpload,
-  bannerUpload,
-} from '../../../shared/middlewares/profile-image-upload'
+import { authenticate } from '../../../shared/middlewares/auth.middleware';
+import { validateUploadedImageSignature } from '../../../shared/middlewares/image-upload-signature.middleware';
+import { avatarUpload, bannerUpload } from '../../../shared/middlewares/profile-image-upload';
 import {
   authenticatedApiIpLimiter,
   profileImageUploadIpLimiter,
-} from '../../../shared/middlewares/security-rate-limit.middleware'
-import { validate } from '../../../shared/middlewares/validate'
-import { UploadsController } from './uploads.controller'
-import type { UploadsUseCases } from '../application/uploads-use-cases.contract'
-import { UPLOAD_ROUTE_PATHS } from './uploads.route.constants'
-import {
-  generateAIAvatarPreviewSchema,
-  generateAIBannerPreviewSchema,
-} from './uploads.schema'
+} from '../../../shared/middlewares/security-rate-limit.middleware';
+import { validate } from '../../../shared/middlewares/validate';
+import { UploadsController } from './uploads.controller';
+import type { UploadsUseCases } from '../application/uploads-use-cases.contract';
+import { UPLOAD_ROUTE_PATHS } from './uploads.route.constants';
+import { generateAIAvatarPreviewSchema, generateAIBannerPreviewSchema } from './uploads.schema';
 
 export const createUploadsRoutes = (useCases: UploadsUseCases) => {
-const uploadsController = new UploadsController(useCases)
-const router = Router()
+  const uploadsController = new UploadsController(useCases);
+  const router = Router();
 
-// ─── PROTECTED ───────────────────────────────────────────────
+  // ─── PROTECTED ───────────────────────────────────────────────
 
-router.use(authenticatedApiIpLimiter, authenticate)
+  router.use(authenticatedApiIpLimiter, authenticate);
 
-router.post(
-  UPLOAD_ROUTE_PATHS.AVATAR,
-  profileImageUploadIpLimiter,
-  avatarUpload.single('file'),
-  validateUploadedImageSignature,
-  uploadsController.uploadAvatar
-)
+  router.post(
+    UPLOAD_ROUTE_PATHS.AVATAR,
+    profileImageUploadIpLimiter,
+    avatarUpload.single('file'),
+    validateUploadedImageSignature,
+    uploadsController.uploadAvatar
+  );
 
-router.delete(
-  UPLOAD_ROUTE_PATHS.AVATAR,
-  uploadsController.removeAvatar
-)
+  router.delete(UPLOAD_ROUTE_PATHS.AVATAR, uploadsController.removeAvatar);
 
-router.post(
-  UPLOAD_ROUTE_PATHS.AVATAR_AI_PREVIEW,
-  validate(generateAIAvatarPreviewSchema),
-  uploadsController.generateAIAvatarPreview
-)
+  router.post(
+    UPLOAD_ROUTE_PATHS.AVATAR_AI_PREVIEW,
+    validate(generateAIAvatarPreviewSchema),
+    uploadsController.generateAIAvatarPreview
+  );
 
-router.post(
-  UPLOAD_ROUTE_PATHS.BANNER,
-  profileImageUploadIpLimiter,
-  bannerUpload.single('file'),
-  validateUploadedImageSignature,
-  uploadsController.uploadBanner
-)
+  router.post(
+    UPLOAD_ROUTE_PATHS.BANNER,
+    profileImageUploadIpLimiter,
+    bannerUpload.single('file'),
+    validateUploadedImageSignature,
+    uploadsController.uploadBanner
+  );
 
-router.delete(
-  UPLOAD_ROUTE_PATHS.BANNER,
-  uploadsController.removeBanner
-)
+  router.delete(UPLOAD_ROUTE_PATHS.BANNER, uploadsController.removeBanner);
 
-router.post(
-  UPLOAD_ROUTE_PATHS.BANNER_AI_PREVIEW,
-  validate(generateAIBannerPreviewSchema),
-  uploadsController.generateAIBannerPreview
-)
+  router.post(
+    UPLOAD_ROUTE_PATHS.BANNER_AI_PREVIEW,
+    validate(generateAIBannerPreviewSchema),
+    uploadsController.generateAIBannerPreview
+  );
 
-return router
-}
+  return router;
+};

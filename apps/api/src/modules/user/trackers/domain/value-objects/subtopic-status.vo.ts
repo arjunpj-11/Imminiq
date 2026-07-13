@@ -1,1 +1,1 @@
-export type SubtopicStatus = 'locked' | 'available' | 'in_progress' | 'completed'
+export type SubtopicStatus = 'locked' | 'available' | 'in_progress' | 'completed';

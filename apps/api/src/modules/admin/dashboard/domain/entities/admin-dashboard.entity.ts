@@ -1,21 +1,21 @@
 export type AdminDashboardMetrics = {
-  totalUsers: number
-  activeToday: number
-  blockedUsers: number
-  totalTrackers: number
-}
+  totalUsers: number;
+  activeToday: number;
+  blockedUsers: number;
+  totalTrackers: number;
+};
 
 export type AdminDashboardActivity = {
-  id: string
-  action: string
-  module: string
-  severity: string
-  createdAt: Date
-  user: { fullName: string; username: string } | null
-}
+  id: string;
+  action: string;
+  module: string;
+  severity: string;
+  createdAt: Date;
+  user: { fullName: string; username: string } | null;
+};
 
 export type AdminDashboardEntity = {
-  metrics: AdminDashboardMetrics
-  weeklyActivity: number[]
-  recentActivity: AdminDashboardActivity[]
-}
+  metrics: AdminDashboardMetrics;
+  weeklyActivity: number[];
+  recentActivity: AdminDashboardActivity[];
+};

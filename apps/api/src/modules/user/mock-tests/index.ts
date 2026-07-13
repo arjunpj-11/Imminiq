@@ -18,13 +18,9 @@ export type {
   SubmitMockTestCodePayloadDTO,
   ITestAnalyticsDTO,
   ITestAttemptResultDTO,
-} from './application/mock-tests.dto'
+} from './application/mock-tests.dto';
 
-export type {
-  DifficultyLevel,
-  QuestionType,
-  TestVisibility,
-} from './domain/mock-tests.types'
+export type { DifficultyLevel, QuestionType, TestVisibility } from './domain/mock-tests.types';
 
-export type { IGenerateMockTestUseCase } from './application/use-cases/generate-mock-test.usecase'
-export type { IMockTestCompletionObserver } from './domain/services/mock-test-completion-observer.interface'
+export type { IGenerateMockTestUseCase } from './application/use-cases/generate-mock-test.usecase';
+export type { IMockTestCompletionObserver } from './domain/services/mock-test-completion-observer.interface';

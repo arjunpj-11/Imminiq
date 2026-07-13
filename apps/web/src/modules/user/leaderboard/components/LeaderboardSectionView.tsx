@@ -1,19 +1,17 @@
-import type { ILeaderboardResponse } from '../types/leaderboard.types'
-import LeaderboardMyRankBar from './LeaderboardMyRankBar'
-import LeaderboardPodium from './LeaderboardPodium'
-import LeaderboardSidebar from './LeaderboardSidebar'
-import LeaderboardTable from './LeaderboardTable'
+import type { ILeaderboardResponse } from '../types/leaderboard.types';
+import LeaderboardMyRankBar from './LeaderboardMyRankBar';
+import LeaderboardPodium from './LeaderboardPodium';
+import LeaderboardSidebar from './LeaderboardSidebar';
+import LeaderboardTable from './LeaderboardTable';
 
 export default function LeaderboardSectionView({
   leaderboard,
 }: {
-  leaderboard: ILeaderboardResponse
+  leaderboard: ILeaderboardResponse;
 }) {
   const currentUserIsInPodium = leaderboard.currentUser
-    ? leaderboard.topThree.some(
-        (entry) => entry.userId === leaderboard.currentUser?.userId,
-      )
-    : false
+    ? leaderboard.topThree.some((entry) => entry.userId === leaderboard.currentUser?.userId)
+    : false;
 
   return (
     <div className="flex items-start gap-5 max-[860px]:flex-col">
@@ -22,13 +20,9 @@ export default function LeaderboardSectionView({
         <LeaderboardTable
           section={leaderboard.section}
           entries={leaderboard.entries}
-          currentUser={
-            currentUserIsInPodium ? null : leaderboard.currentUser
-          }
+          currentUser={currentUserIsInPodium ? null : leaderboard.currentUser}
         />
-        {leaderboard.currentUser && (
-          <LeaderboardMyRankBar entry={leaderboard.currentUser} />
-        )}
+        {leaderboard.currentUser && <LeaderboardMyRankBar entry={leaderboard.currentUser} />}
       </div>
 
       <LeaderboardSidebar
@@ -38,5 +32,5 @@ export default function LeaderboardSectionView({
         reward={leaderboard.reward}
       />
     </div>
-  )
+  );
 }
