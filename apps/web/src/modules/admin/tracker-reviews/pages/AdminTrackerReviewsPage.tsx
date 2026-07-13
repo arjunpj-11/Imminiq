@@ -24,7 +24,7 @@ export default function AdminTrackerReviewsPage() {
   const resolve = useResolveAdminTrackerReview();
   const data = query.data;
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
+    <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Tracker Reviews"
         description="Resolve community tracker verification cases using the recorded consensus signals."
@@ -72,7 +72,7 @@ export default function AdminTrackerReviewsPage() {
           <AdminEmpty>No tracker reviews match this view.</AdminEmpty>
         ) : (
           <div className="overflow-x-auto">
-            <table className="admin-table w-full min-w-[900px] text-left text-sm">
+            <table className="admin-table w-full min-w-225 text-left text-sm">
               <thead>
                 <tr>
                   <th>Review</th>

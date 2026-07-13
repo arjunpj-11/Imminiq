@@ -28,7 +28,7 @@ export default function AdminTrackersPage() {
   });
   const remove = useDeleteAdminTracker();
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
+    <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Tracker Management"
         description="Inspect tracker learning structures and remove policy-violating trackers when necessary."
@@ -78,7 +78,7 @@ export default function AdminTrackersPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="admin-table w-full min-w-[900px] text-left text-sm">
+              <table className="admin-table w-full min-w-225 text-left text-sm">
                 <thead>
                   <tr>
                     <th>Tracker</th>

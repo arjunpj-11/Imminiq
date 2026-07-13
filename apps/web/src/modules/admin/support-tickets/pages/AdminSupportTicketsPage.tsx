@@ -28,7 +28,7 @@ export default function AdminSupportTicketsPage() {
     page,
   });
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
+    <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Support Tickets"
         description="Review complete user requests, communicate progress, and update resolution status."
@@ -78,7 +78,7 @@ export default function AdminSupportTicketsPage() {
         ) : (
           <>
             <div className="overflow-x-auto">
-              <table className="admin-table w-full min-w-[850px] text-left text-sm">
+              <table className="admin-table w-full min-w-212.5 text-left text-sm">
                 <thead>
                   <tr>
                     <th>Ticket</th>
@@ -257,7 +257,7 @@ function Info({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-lg bg-[#24211e] p-4">
       <div className="text-[10px] uppercase text-[#817c75]">{label}</div>
-      <div className="mt-2 break-words text-sm font-semibold">{value}</div>
+      <div className="mt-2 wrap-break-word text-sm font-semibold">{value}</div>
     </div>
   );
 }

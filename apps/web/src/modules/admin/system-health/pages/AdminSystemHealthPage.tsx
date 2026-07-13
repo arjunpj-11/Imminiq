@@ -11,7 +11,7 @@ import { useAdminSystemHealth } from '../hooks/useAdminSystemHealth';
 export default function AdminSystemHealthPage() {
   const { data, isLoading, isError, refetch, isFetching } = useAdminSystemHealth();
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
+    <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="System Health"
         description="Live dependency and runtime telemetry refreshed every fifteen seconds."

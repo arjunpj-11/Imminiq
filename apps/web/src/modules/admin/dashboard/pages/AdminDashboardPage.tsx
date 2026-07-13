@@ -27,7 +27,7 @@ export default function AdminDashboardPage() {
   const peak = Math.max(...data.weeklyActivity, 1);
 
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-9 sm:px-8">
+    <main className="mx-auto max-w-310 px-5 py-9 sm:px-8">
       <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
         <div>
           <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#e8816a]">
@@ -120,7 +120,7 @@ export default function AdminDashboardPage() {
           </span>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[650px] text-left text-sm">
+          <table className="w-full min-w-162.5 text-left text-sm">
             <thead className="border-b border-[rgba(255,255,255,0.16)] bg-[#141412] text-[9px] uppercase tracking-wider text-[#aaa59d]">
               <tr>
                 <th className="px-8 py-4">Event type</th>

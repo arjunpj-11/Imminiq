@@ -17,7 +17,7 @@ export default function AdminTrackerDetailPage() {
   if (isLoading) return <AdminLoading />;
   if (isError || !data) return <AdminError />;
   return (
-    <main className="mx-auto max-w-[1100px] px-5 py-8 sm:px-8">
+    <main className="mx-auto max-w-275 px-5 py-8 sm:px-8">
       <Link
         to="/admin/trackers"
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"

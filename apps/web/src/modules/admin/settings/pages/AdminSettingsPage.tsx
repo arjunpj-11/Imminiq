@@ -10,7 +10,7 @@ import type { AdminSettings } from '../types/admin-settings.types';
 export default function AdminSettingsPage() {
   const { data, isLoading, isError } = useAdminSettings();
   return (
-    <main className="mx-auto max-w-[900px] px-5 py-8 sm:px-8">
+    <main className="mx-auto max-w-225 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Console Settings"
         description="Global operational controls for the Imminiq administration environment."
