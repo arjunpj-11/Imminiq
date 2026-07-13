@@ -16,7 +16,7 @@ export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
     if (target.role === 'admin' && actor.role !== 'superadmin') throw AdminUsersApplicationError.protectedAdmin('Only a super admin can change another admin')
     await this._repository.updateStatus(userId, status)
     if (status === 'blocked') await this._repository.revokeSessions(userId)
-    await this._repository.recordStatusChange({ ...meta, actorId: actor.userId, userId, previousStatus: target.status, status })
+    await this._repository.recordStatusChange({ ...meta, actorId: actor.userId, userId, previousStatus: target.status, status, targetName: target.fullName, targetUsername: target.username })
     return { userId, status }
   }
 }

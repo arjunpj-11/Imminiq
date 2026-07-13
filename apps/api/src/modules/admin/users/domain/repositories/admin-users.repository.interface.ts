@@ -12,6 +12,8 @@ export type RecordAdminStatusChangeInput = AdminActionMeta & {
   userId: string
   previousStatus: string
   status: AdminManagedUserStatus
+  targetName: string
+  targetUsername: string
 }
 
 export interface IAdminUsersRepository {

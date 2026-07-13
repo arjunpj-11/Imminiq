@@ -103,3 +103,7 @@ export const MockTestDetailsPage = lazy(
 export const MockTestResultPage = lazy(
   () => import('../../modules/user/mock-tests/pages/MockTestResultPage'),
 )
+
+export const RaiseSupportTicketPage = lazy(
+  () => import('../../modules/user/support-tickets/pages/RaiseSupportTicketPage'),
+)

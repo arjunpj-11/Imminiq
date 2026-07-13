@@ -27,6 +27,7 @@ import {
   TrackerManagePage,
   TrackerRoadmapPage,
   VerifyAndEarnPage,
+  RaiseSupportTicketPage,
 } from '../config/authenticated-pages'
 
 export const authenticatedRoutes: RouteObject[] = [
@@ -110,6 +111,10 @@ export const authenticatedRoutes: RouteObject[] = [
   {
     path: '/activity',
     element: <ActivityPage />,
+  },
+  {
+    path: '/support',
+    element: <RaiseSupportTicketPage />,
   },
 
   {

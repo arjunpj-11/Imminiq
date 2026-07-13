@@ -130,7 +130,7 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
       outcome: 'success',
       ipAddress: input.ipAddress,
       userAgent: input.userAgent,
-      metadata: { actorId: input.actorId, reason: input.reason ?? '', previousStatus: input.previousStatus },
+      metadata: { actorId: input.actorId, targetId: input.userId, targetName: input.targetName, targetUsername: input.targetUsername, reason: input.reason ?? '', previousStatus: input.previousStatus, newStatus: input.status, changes: { status: { from: input.previousStatus, to: input.status } } },
     })
   }
 }

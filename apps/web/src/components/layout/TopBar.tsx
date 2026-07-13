@@ -266,6 +266,7 @@ export default function TopBar({
                         ['/activity', 'Activity'],
                         ['/settings/preferences', 'Preferences'],
                         ['/settings/security', 'Account security'],
+                        ['/support', 'Raise a support ticket'],
                       ].map(([to, label]) => (
                         <Link key={to} to={to} role="menuitem" onClick={() => setProfileOpen(false)} className="block rounded-sm px-3 py-2.5 text-[12px] font-medium text-(--text-secondary) no-underline transition hover:bg-(--surface-muted) hover:text-(--text-primary)">
                           {label}
