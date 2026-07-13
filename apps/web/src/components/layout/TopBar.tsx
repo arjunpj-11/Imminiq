@@ -7,6 +7,7 @@ import { useAuthStore } from '../../store/useAuthStore'
 import { useAppShellStore } from '../../store/useAppShellStore'
 import ImminiqLogo from '../ui/ImminiqLogo'
 import ImminiqWordmark from '../ui/ImminiqWordmark'
+import ConfirmDialog from '../overlays/ConfirmDialog'
 
 interface ITopBarProps {
   onMenuClick?: () => void
@@ -98,6 +99,7 @@ export default function TopBar({
   const [profileOpen, setProfileOpen] = useState(false)
   const [streakOpen, setStreakOpen] = useState(false)
   const [isSigningOut, setIsSigningOut] = useState(false)
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false)
   const profileRef = useRef<HTMLDivElement>(null)
   const streakRef = useRef<HTMLDivElement>(null)
 
@@ -136,6 +138,11 @@ export default function TopBar({
       navigate('/login', { replace: true })
       setIsSigningOut(false)
     }
+  }
+
+  const requestSignOut = () => {
+    setProfileOpen(false)
+    setSignOutConfirmOpen(true)
   }
 
   return (
@@ -265,7 +272,7 @@ export default function TopBar({
                         </Link>
                       ))}
                       <div className="my-1 h-px bg-(--border-subtle)" />
-                      <button type="button" role="menuitem" onClick={handleSignOut} disabled={isSigningOut} className="w-full rounded-sm px-3 py-2.5 text-left text-[12px] font-semibold text-(--danger) transition hover:bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] disabled:opacity-60">
+                      <button type="button" role="menuitem" onClick={requestSignOut} disabled={isSigningOut} className="w-full rounded-sm px-3 py-2.5 text-left text-[12px] font-semibold text-(--danger) transition hover:bg-[color-mix(in_srgb,var(--danger)_8%,transparent)] disabled:opacity-60">
                         {isSigningOut ? 'Signing out…' : 'Sign out'}
                       </button>
                     </div>
@@ -276,6 +283,17 @@ export default function TopBar({
           )}
         </div>
       </header>
+      <ConfirmDialog
+        open={signOutConfirmOpen}
+        title="Sign out of Imminiq?"
+        description="Are you sure you want to sign out? You’ll need to sign in again to continue learning."
+        confirmText="Sign out"
+        isLoading={isSigningOut}
+        onConfirm={() => { void handleSignOut() }}
+        onClose={() => {
+          if (!isSigningOut) setSignOutConfirmOpen(false)
+        }}
+      />
     </>
   )
 }

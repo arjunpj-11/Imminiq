@@ -364,7 +364,7 @@ const processRoadmapGeneration = async (
   )
 
   const learningVideos = await findTrackerTopicLearningVideos({
-    trackerTitle: roadmap.title,
+    trackerTitle: topic,
     topics: roadmap.topics.map((roadmapTopic) => ({
       title: roadmapTopic.title,
       order: roadmapTopic.order,

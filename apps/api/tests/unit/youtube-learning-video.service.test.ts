@@ -39,8 +39,8 @@ describe('YouTube learning video recommendations', () => {
       })
 
     const result = await findTrackerTopicLearningVideos({
-      trackerTitle: 'Full Stack Development',
-      topics: [{ title: 'JavaScript Fundamentals', order: 1 }],
+      trackerTitle: 'Complete Full Stack Development Zero-to-Hero Roadmap',
+      topics: [{ title: 'Module 1: JavaScript Fundamentals', order: 1 }],
     })
 
     expect(result.get(1)).toEqual({
@@ -51,7 +51,12 @@ describe('YouTube learning video recommendations', () => {
       thumbnailUrl: 'https://img.youtube.com/video-123.jpg',
       durationSeconds: 4800,
     })
-    expect(String(fetchMock.mock.calls[0][0])).toContain('videoEmbeddable=true')
+    const searchUrl = new URL(String(fetchMock.mock.calls[0][0]))
+    expect(searchUrl.searchParams.get('q')).toBe(
+      'JavaScript Fundamentals Full Stack Development full chapter tutorial',
+    )
+    expect(searchUrl.searchParams.get('videoEmbeddable')).toBe('true')
+    expect(searchUrl.searchParams.has('videoSyndicated')).toBe(false)
   })
 
   it('rejects short or weakly matched videos', async () => {

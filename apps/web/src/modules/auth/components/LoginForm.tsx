@@ -15,7 +15,6 @@ import { validateIdentifier } from '../utils/auth-validation'
 interface IFormState {
   identifier: string
   password: string
-  rememberMe: boolean
 }
 
 interface IFormErrors {
@@ -25,7 +24,7 @@ interface IFormErrors {
 
 const validateField = (
   name: keyof IFormState,
-  value: string | boolean
+  value: string
 ): string | undefined => {
   switch (name) {
     case 'identifier':
@@ -52,36 +51,33 @@ export default function LoginForm() {
   const [form, setForm] = useState<IFormState>({
     identifier: '',
     password: '',
-    rememberMe: false,
   })
   const [errors, setErrors] = useState<IFormErrors>({})
   const [touched, setTouched] = useState<Record<string, boolean>>({})
   const [showPw, setShowPw] = useState(false)
 
   const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = event.target
+    const { name, value } = event.target
     const fieldName = name as keyof IFormState
-    const fieldValue = type === 'checkbox' ? checked : value
 
-    setForm((current) => ({ ...current, [fieldName]: fieldValue }))
+    setForm((current) => ({ ...current, [fieldName]: value }))
 
     if (touched[name]) {
       setErrors((current) => ({
         ...current,
-        [fieldName]: validateField(fieldName, fieldValue),
+        [fieldName]: validateField(fieldName, value),
       }))
     }
   }
 
   const handleBlur = (event: FocusEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = event.target
+    const { name, value } = event.target
     const fieldName = name as keyof IFormState
-    const fieldValue = type === 'checkbox' ? checked : value
 
     setTouched((current) => ({ ...current, [fieldName]: true }))
     setErrors((current) => ({
       ...current,
-      [fieldName]: validateField(fieldName, fieldValue),
+      [fieldName]: validateField(fieldName, value),
     }))
   }
 
@@ -103,7 +99,6 @@ export default function LoginForm() {
     login({
       identifier: form.identifier.trim(),
       password: form.password,
-      rememberMe: form.rememberMe,
     })
   }
 
@@ -152,17 +147,6 @@ export default function LoginForm() {
             </button>
           </div>
           <FieldError message={errors.password} />
-        </label>
-
-        <label className="flex items-center gap-2 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
-          <input
-            type="checkbox"
-            name="rememberMe"
-            checked={form.rememberMe}
-            onChange={handleChange}
-            className="accent-(--brand-500) dark:accent-(--brand-500)"
-          />
-          Remember this device
         </label>
 
         <button

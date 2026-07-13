@@ -19,6 +19,21 @@ import {
   ROADMAP_STRUCTURE_SYSTEM_PROMPT,
 } from '../prompts/roadmap-structure.prompt'
 
+export const normalizeTrackerTitle = (generatedTitle: string, requestedTopic: string) => {
+  const cleanedTitle = generatedTitle
+    .replace(/\bzero\s*[-–—]?\s*to\s*[-–—]?\s*hero\b/gi, '')
+    .replace(/\b(complete|ultimate|mastery|master|roadmap|learning path|journey)\b/gi, '')
+    .replace(/^\s*tracker\s*:\s*/i, '')
+    .replace(/\s*[:|–—-]\s*$/g, '')
+    .replace(/\s{2,}/g, ' ')
+    .trim()
+
+  const isOnlyArticle = /^(?:a|an|the)$/i.test(cleanedTitle)
+  return cleanedTitle.length >= 3 && !isOnlyArticle
+    ? cleanedTitle
+    : requestedTopic.trim()
+}
+
 // ============================================================
 // GEMINI / CEREBRAS — COMPLEX ROADMAP GENERATION
 // ============================================================
@@ -38,10 +53,15 @@ export const generateRoadmapStructure = async (
     cerebrasRoadmapStructureChat
   )
 
-  return parseAIJson(
+  const roadmap = parseAIJson(
     response,
     generatedRoadmapStructureSchema
   )
+
+  return {
+    ...roadmap,
+    title: normalizeTrackerTitle(roadmap.title, topic),
+  }
 }
 
 export const evaluateRoadmap = async (

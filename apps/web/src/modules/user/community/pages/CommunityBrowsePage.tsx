@@ -7,6 +7,7 @@ import CommunityErrorState from '../components/shared/CommunityErrorState'
 import CommunityFilters from '../components/browse/CommunityFilters'
 import CommunityLayout from '../components/shared/CommunityLayout'
 import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
+import CloneTrackerConfirmDialog from '../components/shared/CloneTrackerConfirmDialog'
 import CommunityPagination from '../components/shared/CommunityPagination'
 import StatCard from '../../../../components/data-display/StatCard'
 import CommunityTrackerCard from '../components/browse/CommunityTrackerCard'
@@ -23,10 +24,12 @@ import { useCommunitySearchState } from '../hooks/useCommunitySearchState'
 import { getApiErrorMessage } from '../utils/community-formatters'
 import { communityPageClass, cn } from '../utils/community-ui'
 import { validateSearch } from '../utils/community-validation'
+import type { ICommunityTracker } from '../types/community.types'
 
 export default function CommunityBrowsePage() {
   const navigate = useNavigate()
   const [activeCloneId, setActiveCloneId] = useState<string | null>(null)
+  const [cloneCandidate, setCloneCandidate] = useState<ICommunityTracker | null>(null)
 
   const {
     search,
@@ -73,16 +76,25 @@ export default function CommunityBrowsePage() {
   const cloneTracker = useCloneCommunityTracker()
 
   const handleClone = (trackerId: string) => {
-    setActiveCloneId(trackerId)
+    const tracker = browse.data?.trackers.find((item) => item._id === trackerId)
+    if (tracker) setCloneCandidate(tracker)
+  }
+
+  const confirmClone = () => {
+    if (!cloneCandidate || cloneTracker.isPending) return
+
+    setActiveCloneId(cloneCandidate._id)
 
     cloneTracker.mutate(
-      { trackerId },
+      { trackerId: cloneCandidate._id },
       {
         onSuccess: () => {
           setActiveCloneId(null)
+          setCloneCandidate(null)
         },
         onError: () => {
           setActiveCloneId(null)
+          setCloneCandidate(null)
         },
       },
     )
@@ -237,6 +249,15 @@ export default function CommunityBrowsePage() {
           </>
         )}
       </div>
+      <CloneTrackerConfirmDialog
+        open={Boolean(cloneCandidate)}
+        trackerTitle={cloneCandidate?.title ?? ''}
+        isLoading={cloneTracker.isPending}
+        onConfirm={confirmClone}
+        onClose={() => {
+          if (!cloneTracker.isPending) setCloneCandidate(null)
+        }}
+      />
     </CommunityLayout>
   )
 }

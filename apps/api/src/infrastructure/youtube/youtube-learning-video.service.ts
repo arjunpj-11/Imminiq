@@ -36,8 +36,20 @@ type YouTubeVideosResponse = {
 
 const STOP_WORDS = new Set([
   'and', 'for', 'from', 'into', 'the', 'with', 'your', 'zero', 'hero',
-  'roadmap', 'interview', 'preparation', 'complete', 'mastery',
+  'roadmap', 'interview', 'preparation', 'complete', 'mastery', 'module',
+  'topic', 'chapter', 'unit',
 ])
+
+const cleanTopicTitle = (value: string) => value
+  .replace(/^\s*(?:module|topic|chapter|unit)\s*\d+\s*[:.)–—-]?\s*/i, '')
+  .replace(/^\s*\d+\s*[.:)–—-]\s*/, '')
+  .trim()
+
+const cleanTrackerSubject = (value: string) => value
+  .replace(/\bzero\s*[-–—]?\s*to\s*[-–—]?\s*hero\b/gi, '')
+  .replace(/\b(master|mastery|complete|ultimate|roadmap|learning path|journey)\b/gi, '')
+  .replace(/\s{2,}/g, ' ')
+  .trim()
 
 const tokenize = (value: string) => value
   .toLowerCase()
@@ -76,16 +88,17 @@ const findTopicLearningVideo = async (
   trackerTitle: string,
   topicTitle: string,
 ): Promise<LearningVideoRecommendation | null> => {
+  const cleanTopic = cleanTopicTitle(topicTitle)
+  const cleanSubject = cleanTrackerSubject(trackerTitle)
   const searchUrl = new URL('https://www.googleapis.com/youtube/v3/search')
   searchUrl.search = new URLSearchParams({
     part: 'snippet',
-    q: `${trackerTitle} ${topicTitle} full course tutorial`,
+    q: `${cleanTopic} ${cleanSubject} full chapter tutorial`,
     type: 'video',
     order: 'relevance',
     maxResults: '5',
     safeSearch: 'strict',
     videoEmbeddable: 'true',
-    videoSyndicated: 'true',
     relevanceLanguage: 'en',
     key: env.YOUTUBE_DATA_API_KEY,
   }).toString()
@@ -105,7 +118,7 @@ const findTopicLearningVideo = async (
   }).toString()
 
   const videos = await fetchYouTubeJson<YouTubeVideosResponse>(videosUrl)
-  const topicTokens = [...new Set(tokenize(topicTitle))]
+  const topicTokens = [...new Set(tokenize(cleanTopic))]
   if (topicTokens.length === 0) return null
 
   const candidates = (videos.items || []).flatMap((video) => {

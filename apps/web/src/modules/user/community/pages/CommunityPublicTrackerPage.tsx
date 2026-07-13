@@ -4,6 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import CommunityErrorState from '../components/shared/CommunityErrorState'
 import CommunityLayout from '../components/shared/CommunityLayout'
 import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
+import CloneTrackerConfirmDialog from '../components/shared/CloneTrackerConfirmDialog'
 import {
   Avatar,
   BackIcon,
@@ -78,6 +79,7 @@ function CommunityPublicTrackerLoaded({
   const toggleLike = useToggleCommunityTrackerLike()
 
   const [cloned, setCloned] = useState(false)
+  const [cloneConfirmOpen, setCloneConfirmOpen] = useState(false)
   const [openTopicId, setOpenTopicId] = useState(
     () => tracker.topics[0]?._id ?? '',
   )
@@ -134,10 +136,20 @@ function CommunityPublicTrackerLoaded({
       return
     }
 
+    setCloneConfirmOpen(true)
+  }
+
+  const confirmClone = () => {
+    if (isCloned || cloneTracker.isPending) return
+
     cloneTracker.mutate(
       { trackerId: tracker._id },
       {
-        onSuccess: () => setCloned(true),
+        onSuccess: () => {
+          setCloned(true)
+          setCloneConfirmOpen(false)
+        },
+        onError: () => setCloneConfirmOpen(false),
       },
     )
   }
@@ -603,6 +615,15 @@ function CommunityPublicTrackerLoaded({
           </div>
         </section>
       </div>
+      <CloneTrackerConfirmDialog
+        open={cloneConfirmOpen}
+        trackerTitle={tracker.title}
+        isLoading={cloneTracker.isPending}
+        onConfirm={confirmClone}
+        onClose={() => {
+          if (!cloneTracker.isPending) setCloneConfirmOpen(false)
+        }}
+      />
     </CommunityLayout>
   )
 }

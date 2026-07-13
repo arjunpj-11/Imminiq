@@ -111,11 +111,7 @@ export default function CommunityTrackerCard({
           </div>
         </div>
 
-        <div className="mt-3.5 flex items-center justify-between gap-3">
-          <span className="font-mono text-[8.5px] uppercase tracking-widest text-[#9b9a92]">
-            {tracker.inDashboard ? 'Active · In progress' : 'Not started'}
-          </span>
-
+        <div className="mt-3.5 flex items-center justify-end gap-3">
           {tracker.inDashboard ? (
             <span className="inline-flex items-center gap-1.5 rounded-lg border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.07)] px-3.5 py-1.5 text-[12px] font-bold text-(--success) dark:text-(--success)">
               <CheckIcon />

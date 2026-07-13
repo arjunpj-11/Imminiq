@@ -12,7 +12,6 @@ import {
 interface ILoginPayload {
   identifier: string
   password: string
-  rememberMe?: boolean
 }
 
 type LoginRedirectPath =
