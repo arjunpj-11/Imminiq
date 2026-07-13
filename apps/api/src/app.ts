@@ -33,6 +33,8 @@ import leaderBoardRouter from './modules/user/leaderboard/presentation/leaderboa
 import { createActivityComposition } from './modules/user/activity/activity.factory'
 import { createActivityRoutes } from './modules/user/activity/presentation/activity.routes'
 import { friendsRoutes } from './modules/user/friends/presentation/friends.routes'
+import { createAdminDashboardComposition, createAdminDashboardRoutes } from './modules/admin/dashboard'
+import { createAdminUsersComposition, createAdminUsersRoutes } from './modules/admin/users'
 import { createNotificationsComposition, createNotificationsRoutes } from './modules/notifications'
 import { createAdaptiveLearningComposition } from './modules/user/adaptive-learning/adaptive-learning.factory'
 import { createAdaptiveLearningRoutes } from './modules/user/adaptive-learning/presentation/adaptive-learning.routes'
@@ -110,6 +112,8 @@ app.use('/api/uploads', uploadsRouter)
 app.use('/api/settings', settingsRouter)
 
 app.use('/api/dashboard', dashboardRoutes)
+app.use('/api/admin/dashboard', createAdminDashboardRoutes(createAdminDashboardComposition().useCases))
+app.use('/api/admin/users', createAdminUsersRoutes(createAdminUsersComposition().useCases))
 
 app.get('/api/health/live', (_req, res) => {
   res.json({ status: 'ok', uptimeSeconds: Math.floor(process.uptime()) })

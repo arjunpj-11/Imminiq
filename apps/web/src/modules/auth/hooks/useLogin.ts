@@ -17,6 +17,7 @@ interface ILoginPayload {
 type LoginRedirectPath =
   | '/dashboard'
   | '/onboarding/step-1'
+  | '/admin'
 
 interface IStandardLoginData {
   accessToken?: string
@@ -98,8 +99,9 @@ export const useLogin = () => {
 
       const user = data?.user
       const accessToken = data?.accessToken
-      const redirectPath =
-        data?.redirectPath || '/dashboard'
+      const redirectPath = ['admin', 'superadmin'].includes(user?.role || '')
+        ? '/admin'
+        : data?.redirectPath || '/dashboard'
 
       if (!user) {
         console.error(

@@ -5,7 +5,7 @@ import { describe, expect, it } from 'vitest'
 const sourceRoot = join(process.cwd(), 'src')
 const modulesRoot = join(sourceRoot, 'modules')
 const layers = ['domain', 'application', 'infrastructure', 'presentation'] as const
-const moduleScopes = new Set(['user'])
+const moduleScopes = new Set(['user', 'admin'])
 const flattenedCategories = new Set([
   'constants',
   'contracts',

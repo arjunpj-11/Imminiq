@@ -25,6 +25,7 @@ interface IUser {
 type LoginRedirectPath =
   | '/dashboard'
   | '/onboarding/step-1'
+  | '/admin'
 
 interface IVerifyTwoFactorLoginResponse {
   success: boolean
@@ -67,8 +68,9 @@ export const useVerifyTwoFactorLogin = () => {
     onSuccess: (response) => {
       const user = response.data?.user
       const accessToken = response.data?.accessToken
-      const redirectPath =
-        response.data?.redirectPath || '/dashboard'
+      const redirectPath = ['admin', 'superadmin'].includes(user?.role || '')
+        ? '/admin'
+        : response.data?.redirectPath || '/dashboard'
 
       if (!user) {
         console.error(
