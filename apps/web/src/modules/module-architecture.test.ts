@@ -190,6 +190,22 @@ describe('frontend feature-module architecture', () => {
     expect(violations).toEqual([]);
   });
 
+  it('keeps global API contracts out of the admin shared public API', () => {
+    const adminSharedIndex = readFileSync(join(modulesRoot, 'admin', 'shared', 'index.ts'), 'utf8');
+    const violations = scopedModuleRoots('admin')
+      .flatMap(collectFiles)
+      .filter((file) => {
+        const source = readFileSync(file, 'utf8');
+        return /import\s+type\s+\{[^}]*\bApiEnvelope\b[^}]*\}\s+from\s+['"][^'"]*shared['"]/s.test(
+          source
+        );
+      })
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(adminSharedIndex).not.toMatch(/\bApiEnvelope\b/);
+    expect(violations).toEqual([]);
+  });
+
   it('uses the central route registry for component navigation', () => {
     const violations = collectFiles(sourceRoot)
       .filter((file) => file.endsWith('.tsx'))

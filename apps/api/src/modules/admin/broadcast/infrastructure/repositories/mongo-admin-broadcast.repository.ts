@@ -3,9 +3,9 @@ import { AdminConsoleSettings } from '../../../../../infrastructure/database/mod
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
 import { UserSettings } from '../../../../../infrastructure/database/models/user-settings.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
-import type { AdminActor, AdminListQuery } from '../../../shared';
-import { recordAdminAction } from '../../../shared';
-import { createAdminPage, escapeAdminSearch } from '../../../shared';
+import type { AdminActor, AdminListQuery } from '../../../shared/domain';
+import { recordAdminAction } from '../../../shared/infrastructure';
+import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
 import type { AdminBroadcastInput } from '../../domain/entities/admin-broadcast.entity';
 import type { IAdminBroadcastRepository } from '../../domain/repositories/admin-broadcast.repository.interface';
 export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository {

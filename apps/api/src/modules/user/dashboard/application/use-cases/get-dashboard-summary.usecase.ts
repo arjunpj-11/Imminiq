@@ -4,7 +4,7 @@ import type { IDashboardStreakRepository } from '../../domain/repositories/dashb
 import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface';
 import type { IDashboardUserRepository } from '../../domain/repositories/dashboard-user.repository.interface';
 import { DASHBOARD_DEFAULT_RECENT_ACTIVITY_LIMIT } from '../dashboard.constants';
-import type { IDashboardSummaryDTO } from '../dashboard.dto';
+import type { DashboardSummaryDTO } from '../dashboard.dto';
 import { DashboardApplicationError } from '../dashboard-application.error';
 import type { IDashboardMapper } from '../dashboard.mapper';
 
@@ -15,7 +15,7 @@ type DashboardSummaryRepository = IDashboardUserRepository &
   IDashboardNotificationRepository;
 
 export interface IGetDashboardSummaryUseCase {
-  execute(userId: string): Promise<IDashboardSummaryDTO>;
+  execute(userId: string): Promise<DashboardSummaryDTO>;
 }
 
 export class GetDashboardSummaryUseCase implements IGetDashboardSummaryUseCase {
@@ -24,7 +24,7 @@ export class GetDashboardSummaryUseCase implements IGetDashboardSummaryUseCase {
     private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string): Promise<IDashboardSummaryDTO> {
+  async execute(userId: string): Promise<DashboardSummaryDTO> {
     const [user, profile, streak, trackers, stats, recentActivity, unreadNotificationCount] =
       await Promise.all([
         this._dashboardRepository.findUserById(userId),

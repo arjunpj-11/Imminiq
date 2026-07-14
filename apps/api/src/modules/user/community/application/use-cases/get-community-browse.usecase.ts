@@ -4,11 +4,11 @@ import {
   COMMUNITY_MAX_LIMIT,
 } from '../../domain/community.constants';
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
-import type { ICommunityBrowseViewDTO, ICommunityTrackerListPayloadDTO } from '../community.dto';
+import type { CommunityBrowseViewDTO, CommunityTrackerListPayloadDTO } from '../community.dto';
 import type { ICommunityMapper } from '../community.mapper';
 
 export interface IGetCommunityBrowseUseCase {
-  execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityBrowseViewDTO>;
+  execute(payload: CommunityTrackerListPayloadDTO): Promise<CommunityBrowseViewDTO>;
 }
 
 export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
@@ -17,7 +17,7 @@ export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
     private readonly _mapper: ICommunityMapper
   ) {}
 
-  async execute(payload: ICommunityTrackerListPayloadDTO): Promise<ICommunityBrowseViewDTO> {
+  async execute(payload: CommunityTrackerListPayloadDTO): Promise<CommunityBrowseViewDTO> {
     const page = this.normalizePage(payload.page);
     const limit = this.normalizeLimit(payload.limit);
 

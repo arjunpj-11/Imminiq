@@ -1,12 +1,12 @@
 import type { AdminAITokenSpend } from '../domain/entities/admin-ai-token-spend.entity';
-import type { IAdminAITokenSpendDTO } from './admin-ai-token-spend.dto';
+import type { AdminAITokenSpendDTO } from './admin-ai-token-spend.dto';
 
 export interface IAdminAITokenSpendMapper {
-  toDTO(entity: AdminAITokenSpend): IAdminAITokenSpendDTO;
+  toDTO(entity: AdminAITokenSpend): AdminAITokenSpendDTO;
 }
 
 export class AdminAITokenSpendMapper implements IAdminAITokenSpendMapper {
-  toDTO(entity: AdminAITokenSpend): IAdminAITokenSpendDTO {
+  toDTO(entity: AdminAITokenSpend): AdminAITokenSpendDTO {
     return {
       ...entity,
       summary: { ...entity.summary },

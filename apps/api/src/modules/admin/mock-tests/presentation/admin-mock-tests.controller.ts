@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { sendAdminResult } from '../../shared';
+import { sendAdminResult } from '../../shared/presentation';
 import type { AdminMockTestsUseCases } from '../application/admin-mock-tests-use-cases.contract';
 import { adminMockTestsQuerySchema } from './admin-mock-tests.schema';
 export class AdminMockTestsController {

@@ -1,4 +1,4 @@
-import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared';
+import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared/domain';
 import type {
   AdminTracker,
   AdminTrackerDeleteResult,

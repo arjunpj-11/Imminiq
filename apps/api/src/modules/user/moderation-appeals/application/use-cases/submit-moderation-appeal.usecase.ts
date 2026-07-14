@@ -1,8 +1,8 @@
 import type { IModerationAppealCommandRepository } from '../../domain/repositories/moderation-appeal-command.repository.interface';
 import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface';
 import type {
-  ISubmitModerationAppealPayloadDTO,
-  ISubmitModerationAppealResultDTO,
+  SubmitModerationAppealPayloadDTO,
+  SubmitModerationAppealResultDTO,
 } from '../moderation-appeal.dto';
 import type { IModerationAppealMapper } from '../moderation-appeal.mapper';
 import type { IModerationAppealSubmissionPolicy } from '../moderation-appeal-submission-policy.policy';
@@ -13,7 +13,7 @@ type SubmitModerationAppealRepository = IModerationAppealQueryRepository &
   IModerationAppealCommandRepository;
 
 export interface ISubmitModerationAppealUseCase {
-  execute(payload: ISubmitModerationAppealPayloadDTO): Promise<ISubmitModerationAppealResultDTO>;
+  execute(payload: SubmitModerationAppealPayloadDTO): Promise<SubmitModerationAppealResultDTO>;
 }
 
 export class SubmitModerationAppealUseCase implements ISubmitModerationAppealUseCase {
@@ -25,8 +25,8 @@ export class SubmitModerationAppealUseCase implements ISubmitModerationAppealUse
   ) {}
 
   async execute(
-    payload: ISubmitModerationAppealPayloadDTO
-  ): Promise<ISubmitModerationAppealResultDTO> {
+    payload: SubmitModerationAppealPayloadDTO
+  ): Promise<SubmitModerationAppealResultDTO> {
     const user = await this._moderationAppealRepository.findRestrictedUserByIdentifier(
       payload.identifier
     );

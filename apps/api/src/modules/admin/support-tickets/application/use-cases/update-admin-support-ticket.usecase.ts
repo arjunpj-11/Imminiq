@@ -1,8 +1,8 @@
-import type { AdminActor } from '../../../shared';
+import type { AdminActor } from '../../../shared/domain';
 import type { AdminSupportTicketUpdate } from '../../domain/entities/admin-support-ticket.entity';
 import type { IAdminSupportTicketsRepository } from '../../domain/repositories/admin-support-tickets.repository.interface';
 import { AdminSupportTicketsApplicationError } from '../admin-support-tickets-application.error';
-import type { IAdminSupportTicketResultDTO } from '../admin-support-tickets.dto';
+import type { AdminSupportTicketResultDTO } from '../admin-support-tickets.dto';
 import type { IAdminSupportTicketsMapper } from '../admin-support-tickets.mapper';
 
 export interface IUpdateAdminSupportTicketUseCase {
@@ -10,7 +10,7 @@ export interface IUpdateAdminSupportTicketUseCase {
     id: string,
     input: AdminSupportTicketUpdate,
     actor: AdminActor
-  ): Promise<IAdminSupportTicketResultDTO>;
+  ): Promise<AdminSupportTicketResultDTO>;
 }
 
 export class UpdateAdminSupportTicketUseCase implements IUpdateAdminSupportTicketUseCase {
@@ -23,7 +23,7 @@ export class UpdateAdminSupportTicketUseCase implements IUpdateAdminSupportTicke
     id: string,
     input: AdminSupportTicketUpdate,
     actor: AdminActor
-  ): Promise<IAdminSupportTicketResultDTO> {
+  ): Promise<AdminSupportTicketResultDTO> {
     const result = await this.repository.update(id, input, actor);
     if (!result) throw AdminSupportTicketsApplicationError.notFound();
     return this.mapper.toResultDTO(result);

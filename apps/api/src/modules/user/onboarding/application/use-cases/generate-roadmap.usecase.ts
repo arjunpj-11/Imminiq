@@ -4,7 +4,7 @@ import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/
 import type { IOnboardingResponseCommandRepository } from '../../domain/repositories/onboarding-response-command.repository.interface';
 import type { IAIJobQueueGateway } from '../../domain/services/ai-job-queue.interface';
 import type { IAIJobQuotaStore } from '../../domain/services/ai-job-quota-store.interface';
-import type { IGenerateRoadmapPayloadDTO, IGenerateRoadmapResultDTO } from '../onboarding.dto';
+import type { GenerateRoadmapPayloadDTO, GenerateRoadmapResultDTO } from '../onboarding.dto';
 import { OnboardingApplicationError } from '../onboarding-application.error';
 
 type GenerateRoadmapRepository = IOnboardingAIJobQueryRepository &
@@ -12,7 +12,7 @@ type GenerateRoadmapRepository = IOnboardingAIJobQueryRepository &
   IOnboardingResponseCommandRepository;
 
 export interface IGenerateRoadmapUseCase {
-  execute(userId: string, payload: IGenerateRoadmapPayloadDTO): Promise<IGenerateRoadmapResultDTO>;
+  execute(userId: string, payload: GenerateRoadmapPayloadDTO): Promise<GenerateRoadmapResultDTO>;
 }
 
 export class GenerateRoadmapUseCase implements IGenerateRoadmapUseCase {
@@ -24,8 +24,8 @@ export class GenerateRoadmapUseCase implements IGenerateRoadmapUseCase {
 
   async execute(
     userId: string,
-    payload: IGenerateRoadmapPayloadDTO
-  ): Promise<IGenerateRoadmapResultDTO> {
+    payload: GenerateRoadmapPayloadDTO
+  ): Promise<GenerateRoadmapResultDTO> {
     const activeRoadmapJob = await this._onboardingRepository.findActiveRoadmapJobForUser(userId);
 
     if (activeRoadmapJob) {

@@ -1,4 +1,4 @@
-export interface IAdminTrackerReviewDTO {
+export interface AdminTrackerReviewDTO {
   id: string;
   trackerId: string;
   title: string;
@@ -11,12 +11,12 @@ export interface IAdminTrackerReviewDTO {
   createdAt: Date;
 }
 
-export interface IAdminTrackerReviewStatusResultDTO {
+export interface AdminTrackerReviewStatusResultDTO {
   id: string;
   status: string;
 }
 
-export interface IAdminTrackerReviewConsensusResultDTO {
+export interface AdminTrackerReviewConsensusResultDTO {
   id: string;
   passVotes: number;
   failVotes: number;

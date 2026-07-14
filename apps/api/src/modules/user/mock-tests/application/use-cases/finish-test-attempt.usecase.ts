@@ -10,7 +10,7 @@ import type { IMockTestScorer } from '../services/test-scorer.service';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
 import type { IClock } from '../../../../../shared/time/clock.interface';
 import type { IMockTestCompletionObserver } from '../../domain/services/mock-test-completion-observer.interface';
-import type { IFinishMockTestAttemptDTO } from '../mock-tests.dto';
+import type { FinishMockTestAttemptDTO } from '../mock-tests.dto';
 
 const MOCK_TEST_COMPLETION_XP = 50;
 
@@ -26,7 +26,7 @@ type QuestionScoreLike = {
 };
 
 export interface IFinishTestAttemptUseCase {
-  execute(attemptId: string, userId: string): Promise<IFinishMockTestAttemptDTO>;
+  execute(attemptId: string, userId: string): Promise<FinishMockTestAttemptDTO>;
 }
 
 export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {

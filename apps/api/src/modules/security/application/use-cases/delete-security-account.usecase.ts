@@ -5,7 +5,7 @@ import {
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
-import type { IDeleteAccountPayloadDTO, IDeleteAccountResponseDTO } from '../security.dto';
+import type { DeleteAccountPayloadDTO, DeleteAccountResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service';
 import type { IClock } from '../../../../shared/time/clock.interface';
@@ -13,7 +13,7 @@ import type { IClock } from '../../../../shared/time/clock.interface';
 type DeleteSecurityAccountRepository = ISecurityUserRepository & ISecuritySessionRepository;
 
 export interface IDeleteSecurityAccountUseCase {
-  execute(userId: string, payload: IDeleteAccountPayloadDTO): Promise<IDeleteAccountResponseDTO>;
+  execute(userId: string, payload: DeleteAccountPayloadDTO): Promise<DeleteAccountResponseDTO>;
 }
 
 export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCase {
@@ -26,8 +26,8 @@ export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCa
 
   async execute(
     userId: string,
-    payload: IDeleteAccountPayloadDTO
-  ): Promise<IDeleteAccountResponseDTO> {
+    payload: DeleteAccountPayloadDTO
+  ): Promise<DeleteAccountResponseDTO> {
     if (payload.confirmation !== 'DELETE') {
       throw SecurityApplicationError.invalidDeleteConfirmation();
     }

@@ -1,10 +1,10 @@
-import type { AdminActor } from '../../../shared';
+import type { AdminActor } from '../../../shared/domain';
 import type {
   AdminPlanLimits,
   AdminSubscriptionPlan,
 } from '../../domain/entities/admin-subscription.entity';
 import type { IAdminSubscriptionsRepository } from '../../domain/repositories/admin-subscriptions.repository.interface';
-import type { IAdminSubscriptionPlanDTO } from '../admin-subscriptions.dto';
+import type { AdminSubscriptionPlanDTO } from '../admin-subscriptions.dto';
 import type { IAdminSubscriptionsMapper } from '../admin-subscriptions.mapper';
 
 export interface IUpdateAdminPlanLimitsUseCase {
@@ -12,7 +12,7 @@ export interface IUpdateAdminPlanLimitsUseCase {
     planId: AdminSubscriptionPlan['planId'],
     limits: AdminPlanLimits,
     actor: AdminActor
-  ): Promise<IAdminSubscriptionPlanDTO>;
+  ): Promise<AdminSubscriptionPlanDTO>;
 }
 
 export class UpdateAdminPlanLimitsUseCase implements IUpdateAdminPlanLimitsUseCase {
@@ -25,7 +25,7 @@ export class UpdateAdminPlanLimitsUseCase implements IUpdateAdminPlanLimitsUseCa
     planId: AdminSubscriptionPlan['planId'],
     limits: AdminPlanLimits,
     actor: AdminActor
-  ): Promise<IAdminSubscriptionPlanDTO> {
+  ): Promise<AdminSubscriptionPlanDTO> {
     return this.repository
       .updatePlanLimits(planId, limits, actor)
       .then((plan) => this.mapper.toPlanDTO(plan));

@@ -1,15 +1,15 @@
 import type { DashboardRecommendedActionType } from '../domain/value-objects/dashboard-action-type.vo';
 import type { DashboardBattleResult } from '../domain/value-objects/dashboard-battle-result.vo';
 
-export interface IDashboardRecentItemsQueryDTO {
+export interface DashboardRecentItemsQueryDTO {
   limit?: number;
 }
 
-export interface IDashboardActivityIntensityQueryDTO {
+export interface DashboardActivityIntensityQueryDTO {
   months?: number;
 }
 
-export interface IDashboardUserSummaryDTO {
+export interface DashboardUserSummaryDTO {
   _id: string;
   fullName: string;
   username: string;
@@ -18,13 +18,13 @@ export interface IDashboardUserSummaryDTO {
   coinBalance: number;
 }
 
-export interface IDashboardStreakSummaryDTO {
+export interface DashboardStreakSummaryDTO {
   current: number;
   longest: number;
   lastActiveAt: Date | null;
 }
 
-export interface IDashboardActiveTrackerDTO {
+export interface DashboardActiveTrackerDTO {
   _id: string;
   title: string;
   level: string;
@@ -35,47 +35,47 @@ export interface IDashboardActiveTrackerDTO {
   remainingTopics: number;
 }
 
-export interface IDashboardTrackerSummaryDTO {
+export interface DashboardTrackerSummaryDTO {
   total: number;
   active: number;
   completed: number;
-  activeTrackers: IDashboardActiveTrackerDTO[];
+  activeTrackers: DashboardActiveTrackerDTO[];
 }
 
-export interface IDashboardStatsDTO {
+export interface DashboardStatsDTO {
   totalSubtopicsCompleted: number;
   totalPoints: number;
   publishedTrackers: number;
 }
 
-export interface IDashboardRecentActivityDTO {
+export interface DashboardRecentActivityDTO {
   type: string;
   description: string;
   createdAt: Date;
 }
 
-export interface IDashboardNotificationMetaDTO {
+export interface DashboardNotificationMetaDTO {
   unreadCount: number;
   hasUnread: boolean;
 }
 
-export interface IDashboardSummaryDTO {
-  user: IDashboardUserSummaryDTO;
-  streak: IDashboardStreakSummaryDTO;
-  trackers: IDashboardTrackerSummaryDTO;
-  stats: IDashboardStatsDTO;
-  recentActivity: IDashboardRecentActivityDTO[];
-  notifications: IDashboardNotificationMetaDTO;
+export interface DashboardSummaryDTO {
+  user: DashboardUserSummaryDTO;
+  streak: DashboardStreakSummaryDTO;
+  trackers: DashboardTrackerSummaryDTO;
+  stats: DashboardStatsDTO;
+  recentActivity: DashboardRecentActivityDTO[];
+  notifications: DashboardNotificationMetaDTO;
   isPremium: boolean;
 }
 
-export interface IDashboardActivityIntensityItemDTO {
+export interface DashboardActivityIntensityItemDTO {
   date: string;
   activityCount: number;
   count: number;
 }
 
-export interface IDashboardFriendItemDTO {
+export interface DashboardFriendItemDTO {
   _id: string;
   fullName: string;
   username: string;
@@ -84,14 +84,14 @@ export interface IDashboardFriendItemDTO {
   isOnline: boolean;
 }
 
-export interface IDashboardRecommendedActionDTO {
+export interface DashboardRecommendedActionDTO {
   type: DashboardRecommendedActionType;
   title: string;
   description: string;
   link: string;
 }
 
-export interface IDashboardBattleItemDTO {
+export interface DashboardBattleItemDTO {
   _id: string;
   opponent: {
     _id: string;
@@ -106,6 +106,6 @@ export interface IDashboardBattleItemDTO {
   completedAt: Date;
 }
 
-export interface IDashboardAIInsightResultDTO {
+export interface DashboardAIInsightResultDTO {
   insight: string;
 }

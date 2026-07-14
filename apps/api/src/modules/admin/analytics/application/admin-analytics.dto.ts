@@ -1,4 +1,4 @@
-export interface IAdminAnalyticsDTO {
+export interface AdminAnalyticsDTO {
   rangeDays: number;
   rangeFrom: string;
   rangeTo: string;

@@ -1,10 +1,10 @@
-import type { AdminListQuery, AdminPage } from '../../../shared';
+import type { AdminListQuery, AdminPage } from '../../../shared/domain';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
-import type { IAdminTrackerDTO } from '../admin-trackers.dto';
+import type { AdminTrackerDTO } from '../admin-trackers.dto';
 import type { IAdminTrackersMapper } from '../admin-trackers.mapper';
 
 export interface IListAdminTrackersUseCase {
-  execute(query: AdminListQuery): Promise<AdminPage<IAdminTrackerDTO>>;
+  execute(query: AdminListQuery): Promise<AdminPage<AdminTrackerDTO>>;
 }
 
 export class ListAdminTrackersUseCase implements IListAdminTrackersUseCase {
@@ -13,7 +13,7 @@ export class ListAdminTrackersUseCase implements IListAdminTrackersUseCase {
     private readonly mapper: IAdminTrackersMapper
   ) {}
 
-  async execute(query: AdminListQuery): Promise<AdminPage<IAdminTrackerDTO>> {
+  async execute(query: AdminListQuery): Promise<AdminPage<AdminTrackerDTO>> {
     return this.mapper.toPageDTO(await this.repository.list(query));
   }
 }

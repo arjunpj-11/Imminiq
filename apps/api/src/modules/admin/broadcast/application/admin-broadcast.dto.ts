@@ -1,4 +1,4 @@
-export interface IAdminBroadcastDTO {
+export interface AdminBroadcastDTO {
   id: string;
   title: string;
   message: string;
@@ -9,7 +9,7 @@ export interface IAdminBroadcastDTO {
   sentAt: Date;
 }
 
-export interface IAdminBroadcastResultDTO {
+export interface AdminBroadcastResultDTO {
   id: string;
   recipientCount: number;
   status: string;

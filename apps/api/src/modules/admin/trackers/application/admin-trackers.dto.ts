@@ -1,4 +1,4 @@
-export interface IAdminTrackerDTO {
+export interface AdminTrackerDTO {
   id: string;
   title: string;
   owner: string;
@@ -12,7 +12,7 @@ export interface IAdminTrackerDTO {
   createdAt: Date;
 }
 
-export interface IAdminTrackerSubtopicDTO {
+export interface AdminTrackerSubtopicDTO {
   id: string;
   title: string;
   description: string;
@@ -22,24 +22,24 @@ export interface IAdminTrackerSubtopicDTO {
   estimatedMinutes: number;
 }
 
-export interface IAdminTrackerTopicDTO {
+export interface AdminTrackerTopicDTO {
   id: string;
   title: string;
   description: string;
   order: number;
   status: string;
   estimatedHours: number;
-  subtopics: IAdminTrackerSubtopicDTO[];
+  subtopics: AdminTrackerSubtopicDTO[];
 }
 
-export interface IAdminTrackerDetailDTO extends IAdminTrackerDTO {
+export interface AdminTrackerDetailDTO extends AdminTrackerDTO {
   description: string;
   ownerId: string;
   ownerEmail?: string;
-  topics: IAdminTrackerTopicDTO[];
+  topics: AdminTrackerTopicDTO[];
 }
 
-export interface IAdminTrackerDeleteResultDTO {
+export interface AdminTrackerDeleteResultDTO {
   id: string;
   title: string;
   owner: string;
@@ -47,7 +47,7 @@ export interface IAdminTrackerDeleteResultDTO {
   deletedAt: Date;
 }
 
-export interface IAdminPublishedTrackerDTO {
+export interface AdminPublishedTrackerDTO {
   id: string;
   title: string;
   owner: string;
@@ -63,7 +63,7 @@ export interface IAdminPublishedTrackerDTO {
   adminRating: number | null;
 }
 
-export interface IAdminPublishedTrackerEngagementResultDTO {
+export interface AdminPublishedTrackerEngagementResultDTO {
   id: string;
   likeCount: number;
   ratingAverage: number;

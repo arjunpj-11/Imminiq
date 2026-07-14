@@ -1,7 +1,7 @@
 import type { NextFunction, Request, Response } from 'express';
 import type { AdminUsersUseCases } from '../application/admin-users-use-cases.contract';
 import { adminUserStatusSchema, adminUsersQuerySchema } from './admin-users.schema';
-import { sendAdminResult } from '../../shared';
+import { sendAdminResult } from '../../shared/presentation';
 
 type UserIdParams = { userId: string };
 

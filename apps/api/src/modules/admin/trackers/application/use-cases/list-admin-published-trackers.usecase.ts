@@ -1,10 +1,10 @@
-import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared';
+import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared/domain';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
-import type { IAdminPublishedTrackerDTO } from '../admin-trackers.dto';
+import type { AdminPublishedTrackerDTO } from '../admin-trackers.dto';
 import type { IAdminTrackersMapper } from '../admin-trackers.mapper';
 
 export interface IListAdminPublishedTrackersUseCase {
-  execute(query: AdminListQuery, actor: AdminActor): Promise<AdminPage<IAdminPublishedTrackerDTO>>;
+  execute(query: AdminListQuery, actor: AdminActor): Promise<AdminPage<AdminPublishedTrackerDTO>>;
 }
 
 export class ListAdminPublishedTrackersUseCase implements IListAdminPublishedTrackersUseCase {
@@ -16,7 +16,7 @@ export class ListAdminPublishedTrackersUseCase implements IListAdminPublishedTra
   async execute(
     query: AdminListQuery,
     actor: AdminActor
-  ): Promise<AdminPage<IAdminPublishedTrackerDTO>> {
+  ): Promise<AdminPage<AdminPublishedTrackerDTO>> {
     return this.mapper.toPublishedPageDTO(await this.repository.listPublished(query, actor));
   }
 }

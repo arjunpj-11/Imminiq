@@ -1,6 +1,6 @@
 import { AIGenerationJob } from '../../../../../infrastructure/database/models/ai-generation-job.model';
 import { aiQueue } from '../../../../../infrastructure/queue/queues';
-import type { IGenerateMockTestPayloadDTO } from '../../application/mock-tests.dto';
+import type { GenerateMockTestPayloadDTO } from '../../application/mock-tests.dto';
 import type { IMockTestGenerationJobGateway } from '../../application/services/mock-test-generation-job.interface';
 
 export class BullMqMockTestGenerationJobGateway implements IMockTestGenerationJobGateway {
@@ -18,7 +18,7 @@ export class BullMqMockTestGenerationJobGateway implements IMockTestGenerationJo
     return job ? { jobId: job._id.toString(), status: job.status } : null;
   }
 
-  async enqueue(userId: string, payload: IGenerateMockTestPayloadDTO) {
+  async enqueue(userId: string, payload: GenerateMockTestPayloadDTO) {
     const job = await AIGenerationJob.create({
       userId,
       jobType: 'mock_test',

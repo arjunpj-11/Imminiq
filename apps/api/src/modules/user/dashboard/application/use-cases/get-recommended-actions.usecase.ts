@@ -1,11 +1,11 @@
 import { DashboardRecommendedActionEntity } from '../../domain/entities/dashboard-recommended-action.entity';
 import type { IDashboardRecommendationRepository } from '../../domain/repositories/dashboard-recommendation.repository.interface';
 import { DASHBOARD_MAX_RECOMMENDED_ACTIONS } from '../dashboard.constants';
-import type { IDashboardRecommendedActionDTO } from '../dashboard.dto';
+import type { DashboardRecommendedActionDTO } from '../dashboard.dto';
 import type { IDashboardMapper } from '../dashboard.mapper';
 
 export interface IGetRecommendedActionsUseCase {
-  execute(userId: string): Promise<IDashboardRecommendedActionDTO[]>;
+  execute(userId: string): Promise<DashboardRecommendedActionDTO[]>;
 }
 
 export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCase {
@@ -14,7 +14,7 @@ export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCa
     private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string): Promise<IDashboardRecommendedActionDTO[]> {
+  async execute(userId: string): Promise<DashboardRecommendedActionDTO[]> {
     const context = await this._dashboardRepository.getRecommendationContext(userId);
     const actions: DashboardRecommendedActionEntity[] = [];
 

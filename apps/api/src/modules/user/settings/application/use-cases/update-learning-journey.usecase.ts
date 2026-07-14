@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdateLearningJourneyPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateLearningJourneyPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateLearningJourneyRepository = {
@@ -9,7 +9,7 @@ type UpdateLearningJourneyRepository = {
 export interface IUpdateLearningJourneyUseCase {
   execute(
     userId: string,
-    payload: IUpdateLearningJourneyPayloadDTO
+    payload: UpdateLearningJourneyPayloadDTO
   ): Promise<UserSettingsViewDTO | null>;
 }
 
@@ -21,7 +21,7 @@ export class UpdateLearningJourneyUseCase implements IUpdateLearningJourneyUseCa
 
   async execute(
     userId: string,
-    payload: IUpdateLearningJourneyPayloadDTO
+    payload: UpdateLearningJourneyPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateLearningJourney({
       userId,

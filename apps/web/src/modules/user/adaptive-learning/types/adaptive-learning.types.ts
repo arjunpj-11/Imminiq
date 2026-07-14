@@ -34,7 +34,7 @@ export interface IAdaptiveAdvisorMessage {
   createdAt: string;
 }
 
-export type IAdaptiveAdvisorAction =
+export type AdaptiveAdvisorAction =
   | {
       type: 'create_tracker';
       label: string;

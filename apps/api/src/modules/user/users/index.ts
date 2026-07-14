@@ -1,19 +1,19 @@
 export type { IGetMeUseCase } from './application/use-cases/get-me.usecase';
 
 export type {
-  IActivityFeedItemViewDTO,
-  IBadgeShowcaseItemDTO,
-  IBadgeShowcaseViewDTO,
-  ICurrentUserViewDTO,
-  IEarnedBadgeViewDTO,
-  IEditableProfileViewDTO,
-  IPaginationQueryDTO,
-  IPaginationViewDTO,
-  IProfileStatsViewDTO,
-  IPublicProfilePageViewDTO,
-  IPublishedTrackerViewDTO,
-  IStreakHeatmapDayDTO,
-  IStreakSummaryViewDTO,
+  ActivityFeedItemViewDTO,
+  BadgeShowcaseItemDTO,
+  BadgeShowcaseViewDTO,
+  CurrentUserViewDTO,
+  EarnedBadgeViewDTO,
+  EditableProfileViewDTO,
+  PaginationQueryDTO,
+  PaginationViewDTO,
+  ProfileStatsViewDTO,
+  PublicProfilePageViewDTO,
+  PublishedTrackerViewDTO,
+  StreakHeatmapDayDTO,
+  StreakSummaryViewDTO,
   UpdateMyProfileInputDTO,
 } from './application/users.dto';
 

@@ -1,4 +1,4 @@
-export interface IAdminAITokenSpendDTO {
+export interface AdminAITokenSpendDTO {
   rangeDays: number;
   rangeFrom: string;
   rangeTo: string;
@@ -23,5 +23,5 @@ export interface IAdminAITokenSpendDTO {
     totalTokens: number;
     requests: number;
   }>;
-  byProvider: IAdminAITokenSpendDTO['byCategory'];
+  byProvider: AdminAITokenSpendDTO['byCategory'];
 }

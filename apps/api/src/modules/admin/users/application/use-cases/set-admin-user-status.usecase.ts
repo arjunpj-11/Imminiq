@@ -5,7 +5,7 @@ import type {
 } from '../../domain/admin-users.types';
 import { AdminUsersDomainError } from '../../domain/admin-users-domain.error';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
-import type { IAdminStatusResultDTO } from '../admin-users.dto';
+import type { AdminStatusResultDTO } from '../admin-users.dto';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
 
 export interface ISetAdminUserStatusUseCase {
@@ -14,7 +14,7 @@ export interface ISetAdminUserStatusUseCase {
     status: AdminManagedUserStatus,
     actor: AdminActor,
     meta: AdminActionMeta
-  ): Promise<IAdminStatusResultDTO>;
+  ): Promise<AdminStatusResultDTO>;
 }
 export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
   constructor(private readonly _repository: IAdminUsersRepository) {}

@@ -2,11 +2,11 @@ import type {
   IAdminUsersRepository,
   ListAdminUsersInput,
 } from '../../domain/repositories/admin-users.repository.interface';
-import type { IAdminUsersListDTO } from '../admin-users.dto';
+import type { AdminUsersListDTO } from '../admin-users.dto';
 import type { IAdminUsersMapper } from '../admin-users.mapper';
 
 export interface IListAdminUsersUseCase {
-  execute(input: ListAdminUsersInput): Promise<IAdminUsersListDTO>;
+  execute(input: ListAdminUsersInput): Promise<AdminUsersListDTO>;
 }
 export class ListAdminUsersUseCase implements IListAdminUsersUseCase {
   constructor(

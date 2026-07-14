@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { sendAdminResult } from '../../shared';
+import { sendAdminResult } from '../../shared/presentation';
 import type { AdminAITokenSpendUseCases } from '../application/admin-ai-token-spend-use-cases.contract';
 import { adminAITokenSpendQuerySchema } from './admin-ai-token-spend.schema';
 

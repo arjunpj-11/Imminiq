@@ -1,12 +1,12 @@
 import type { AdminAnalytics } from '../domain/entities/admin-analytics.entity';
-import type { IAdminAnalyticsDTO } from './admin-analytics.dto';
+import type { AdminAnalyticsDTO } from './admin-analytics.dto';
 
 export interface IAdminAnalyticsMapper {
-  toDTO(entity: AdminAnalytics): IAdminAnalyticsDTO;
+  toDTO(entity: AdminAnalytics): AdminAnalyticsDTO;
 }
 
 export class AdminAnalyticsMapper implements IAdminAnalyticsMapper {
-  toDTO(entity: AdminAnalytics): IAdminAnalyticsDTO {
+  toDTO(entity: AdminAnalytics): AdminAnalyticsDTO {
     return {
       ...entity,
       metrics: { ...entity.metrics },

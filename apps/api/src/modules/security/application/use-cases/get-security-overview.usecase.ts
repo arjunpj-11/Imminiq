@@ -1,7 +1,7 @@
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
-import type { ISecurityOverviewDTO } from '../security.dto';
+import type { SecurityOverviewDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 import type { ISecurityMapper } from '../security.mapper';
 import type { ICurrentSessionResolver } from '../services/current-session.service';
@@ -15,7 +15,7 @@ export interface IGetSecurityOverviewUseCase {
     userId: string,
     refreshToken?: string,
     authenticatedSessionId?: string
-  ): Promise<ISecurityOverviewDTO>;
+  ): Promise<SecurityOverviewDTO>;
 }
 
 export class GetSecurityOverviewUseCase implements IGetSecurityOverviewUseCase {
@@ -29,7 +29,7 @@ export class GetSecurityOverviewUseCase implements IGetSecurityOverviewUseCase {
     userId: string,
     refreshToken?: string,
     authenticatedSessionId?: string
-  ): Promise<ISecurityOverviewDTO> {
+  ): Promise<SecurityOverviewDTO> {
     const user = await this._securityRepository.findUserById(userId);
 
     if (!user) {

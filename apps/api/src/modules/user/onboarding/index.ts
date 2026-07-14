@@ -1,14 +1,14 @@
 export type {
-  IGenerateRoadmapPayloadDTO,
-  IGenerateRoadmapResultDTO,
-  IGetEvaluationResultDTO,
-  IGetJobStatusResultDTO,
-  IOnboardingResponseRecordDTO,
-  IOnboardingStatusResultDTO,
-  IRoadmapTreeResultDTO,
-  ISaveOnboardingStepOnePayloadDTO,
-  ISaveOnboardingStepTwoPayloadDTO,
-  ISubtopicTreeNodeDTO,
+  GenerateRoadmapPayloadDTO,
+  GenerateRoadmapResultDTO,
+  GetEvaluationResultDTO,
+  GetJobStatusResultDTO,
+  OnboardingResponseRecordDTO,
+  OnboardingStatusResultDTO,
+  RoadmapTreeResultDTO,
+  SaveOnboardingStepOnePayloadDTO,
+  SaveOnboardingStepTwoPayloadDTO,
+  SubtopicTreeNodeDTO,
 } from './application/onboarding.dto';
 
 export type { RoadmapLevel } from './domain/onboarding.types';

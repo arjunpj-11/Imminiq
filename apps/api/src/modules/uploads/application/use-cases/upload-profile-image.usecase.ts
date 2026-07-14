@@ -3,7 +3,7 @@ import { UploadsDomainError } from '../../domain/uploads-domain.error';
 import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface';
 import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface';
 import type { IProfileImageStorage } from '../../domain/services/profile-image-storage.interface';
-import type { IUploadProfileImageInputDTO, IUploadProfileImageResultDTO } from '../uploads.dto';
+import type { UploadProfileImageInputDTO, UploadProfileImageResultDTO } from '../uploads.dto';
 import { UploadsApplicationError } from '../uploads-application.error';
 import type { IUploadsMapper } from '../uploads.mapper';
 import type { IUploadUserProfileReader } from '../services/upload-user-profile.service';
@@ -13,7 +13,7 @@ type UploadProfileImageRepository = IProfileImageRepository & IUploadRecordRepos
 type StoredProfileImage = Awaited<ReturnType<IProfileImageStorage['uploadProfileImage']>>;
 
 export interface IUploadProfileImageUseCase {
-  execute(input: IUploadProfileImageInputDTO): Promise<IUploadProfileImageResultDTO>;
+  execute(input: UploadProfileImageInputDTO): Promise<UploadProfileImageResultDTO>;
 }
 
 export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
@@ -24,7 +24,7 @@ export class UploadProfileImageUseCase implements IUploadProfileImageUseCase {
     private readonly _uploadsMapper: IUploadsMapper
   ) {}
 
-  async execute(input: IUploadProfileImageInputDTO): Promise<IUploadProfileImageResultDTO> {
+  async execute(input: UploadProfileImageInputDTO): Promise<UploadProfileImageResultDTO> {
     if (!input.file) {
       throw UploadsApplicationError.imageFileRequired();
     }

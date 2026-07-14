@@ -10,9 +10,9 @@ import type {
 } from '../../domain/services/security-attempt-store.interface';
 import type { ITwoFactorCodeVerifier } from '../../domain/services/two-factor-code-verifier.interface';
 import type {
-  IAuthLoginSuccessResultDTO,
+  AuthLoginSuccessResultDTO,
   RequestMetaDTO,
-  ITwoFactorLoginVerifyPayloadDTO,
+  TwoFactorLoginVerifyPayloadDTO,
 } from '../auth.dto';
 import type { IAuthUserMapper } from '../auth-user.mapper';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
@@ -31,9 +31,9 @@ const TWO_FACTOR_LOGIN_SCOPE: SecurityAttemptScope = 'auth_two_factor_login';
 export interface IVerifyTwoFactorLoginUseCase {
   execute(
     challengeToken: string,
-    payload: ITwoFactorLoginVerifyPayloadDTO,
+    payload: TwoFactorLoginVerifyPayloadDTO,
     meta?: RequestMetaDTO
-  ): Promise<IAuthLoginSuccessResultDTO>;
+  ): Promise<AuthLoginSuccessResultDTO>;
 }
 
 export class VerifyTwoFactorLoginUseCase implements IVerifyTwoFactorLoginUseCase {
@@ -52,9 +52,9 @@ export class VerifyTwoFactorLoginUseCase implements IVerifyTwoFactorLoginUseCase
 
   async execute(
     challengeToken: string,
-    payload: ITwoFactorLoginVerifyPayloadDTO,
+    payload: TwoFactorLoginVerifyPayloadDTO,
     meta?: RequestMetaDTO
-  ): Promise<IAuthLoginSuccessResultDTO> {
+  ): Promise<AuthLoginSuccessResultDTO> {
     const decoded = this._authToken.verifyTwoFactorChallengeToken(challengeToken);
 
     await this.assertTwoFactorLoginAllowed(decoded.userId);

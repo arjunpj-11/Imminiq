@@ -9,7 +9,7 @@ import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph';
 import { useGenerateRoadmap } from '../../onboarding/hooks/useGenerateRoadmap';
 import { useOnboardingStore } from '../../onboarding/store/useOnboardingStore';
 import { useGenerateMockTest } from '../../mock-tests/hooks/useMockTests';
-import type { IAdaptiveAdvisorAction } from '../types/adaptive-learning.types';
+import type { AdaptiveAdvisorAction } from '../types/adaptive-learning.types';
 import {
   useAdaptiveAdvisorChat,
   useClearAdaptiveAdvisorChat,
@@ -30,7 +30,7 @@ export default function AdaptiveLearningPage() {
   const setActiveRoadmapJobId = useOnboardingStore((state) => state.setActiveRoadmapJobId);
   const activeRoadmapJobId = useOnboardingStore((state) => state.activeRoadmapJobId);
   const [question, setQuestion] = useState('');
-  const [advisorAction, setAdvisorAction] = useState<IAdaptiveAdvisorAction | null>(null);
+  const [advisorAction, setAdvisorAction] = useState<AdaptiveAdvisorAction | null>(null);
   const [actionError, setActionError] = useState('');
   const [clearDialogOpen, setClearDialogOpen] = useState(false);
   const [assessmentGenerationStarted, setAssessmentGenerationStarted] = useState(false);

@@ -8,7 +8,7 @@ import type {
   SecurityAttemptScope,
   ISecurityAttemptStore,
 } from '../../domain/services/security-attempt-store.interface';
-import type { AuthLoginResultDTO, ILoginPayloadDTO, RequestMetaDTO } from '../auth.dto';
+import type { AuthLoginResultDTO, LoginPayloadDTO, RequestMetaDTO } from '../auth.dto';
 import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants';
 import type { IAuthUserMapper } from '../auth-user.mapper';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
@@ -22,7 +22,7 @@ type LoginRepository = IAuthUserRepository & IAuthTwoFactorRepository;
 const LOGIN_SCOPE: SecurityAttemptScope = 'auth_login';
 
 export interface ILoginUserUseCase {
-  execute(payload: ILoginPayloadDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO>;
+  execute(payload: LoginPayloadDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO>;
 }
 
 export class LoginUserUseCase implements ILoginUserUseCase {
@@ -40,7 +40,7 @@ export class LoginUserUseCase implements ILoginUserUseCase {
     private readonly _moderationAppealToken: IModerationAppealToken
   ) {}
 
-  async execute(payload: ILoginPayloadDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO> {
+  async execute(payload: LoginPayloadDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO> {
     const parsedIdentifier = this._identifierNormalizer.normalize(payload.identifier);
 
     await this.throwIfLoginTemporarilyBlocked(parsedIdentifier.value);

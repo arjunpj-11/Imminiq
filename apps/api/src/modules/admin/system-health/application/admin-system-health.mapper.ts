@@ -1,12 +1,12 @@
 import type { AdminSystemHealth } from '../domain/entities/admin-system-health.entity';
-import type { IAdminSystemHealthDTO } from './admin-system-health.dto';
+import type { AdminSystemHealthDTO } from './admin-system-health.dto';
 
 export interface IAdminSystemHealthMapper {
-  toDTO(entity: AdminSystemHealth): IAdminSystemHealthDTO;
+  toDTO(entity: AdminSystemHealth): AdminSystemHealthDTO;
 }
 
 export class AdminSystemHealthMapper implements IAdminSystemHealthMapper {
-  toDTO(entity: AdminSystemHealth): IAdminSystemHealthDTO {
+  toDTO(entity: AdminSystemHealth): AdminSystemHealthDTO {
     return {
       ...entity,
       services: {

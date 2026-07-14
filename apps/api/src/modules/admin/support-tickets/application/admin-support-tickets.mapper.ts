@@ -1,27 +1,27 @@
-import type { AdminPage } from '../../shared';
+import type { AdminPage } from '../../shared/domain';
 import type {
   AdminSupportTicket,
   AdminSupportTicketResult,
 } from '../domain/entities/admin-support-ticket.entity';
 import type {
-  IAdminSupportTicketDTO,
-  IAdminSupportTicketResultDTO,
+  AdminSupportTicketDTO,
+  AdminSupportTicketResultDTO,
 } from './admin-support-tickets.dto';
 
 export interface IAdminSupportTicketsMapper {
-  toDTO(entity: AdminSupportTicket): IAdminSupportTicketDTO;
-  toResultDTO(result: AdminSupportTicketResult): IAdminSupportTicketResultDTO;
-  toPageDTO(page: AdminPage<AdminSupportTicket>): AdminPage<IAdminSupportTicketDTO>;
+  toDTO(entity: AdminSupportTicket): AdminSupportTicketDTO;
+  toResultDTO(result: AdminSupportTicketResult): AdminSupportTicketResultDTO;
+  toPageDTO(page: AdminPage<AdminSupportTicket>): AdminPage<AdminSupportTicketDTO>;
 }
 
 export class AdminSupportTicketsMapper implements IAdminSupportTicketsMapper {
-  toDTO(entity: AdminSupportTicket): IAdminSupportTicketDTO {
+  toDTO(entity: AdminSupportTicket): AdminSupportTicketDTO {
     return { ...entity };
   }
-  toResultDTO(result: AdminSupportTicketResult): IAdminSupportTicketResultDTO {
+  toResultDTO(result: AdminSupportTicketResult): AdminSupportTicketResultDTO {
     return { ...result };
   }
-  toPageDTO(page: AdminPage<AdminSupportTicket>): AdminPage<IAdminSupportTicketDTO> {
+  toPageDTO(page: AdminPage<AdminSupportTicket>): AdminPage<AdminSupportTicketDTO> {
     return {
       ...page,
       items: page.items.map((item) => this.toDTO(item)),

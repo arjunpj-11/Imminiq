@@ -24,6 +24,5 @@ export type {
   AdminPageData,
   AdminPagination,
 } from './types/admin-api.types';
-export type { ApiEnvelope } from '../../../lib/api.types';
 export { downloadCsv } from './utils/downloadCsv';
 export { downloadTablePdf } from './utils/downloadPdf';

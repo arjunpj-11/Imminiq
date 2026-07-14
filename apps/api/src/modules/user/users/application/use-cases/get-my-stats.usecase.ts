@@ -1,8 +1,8 @@
 import type { IUsersProfileDataReader } from '../services/users-profile-data.service';
-import type { IProfileStatsViewDTO } from '../users.dto';
+import type { ProfileStatsViewDTO } from '../users.dto';
 
 export interface IGetMyStatsUseCase {
-  execute(userId: string): Promise<IProfileStatsViewDTO>;
+  execute(userId: string): Promise<ProfileStatsViewDTO>;
 }
 
 export class GetMyStatsUseCase implements IGetMyStatsUseCase {

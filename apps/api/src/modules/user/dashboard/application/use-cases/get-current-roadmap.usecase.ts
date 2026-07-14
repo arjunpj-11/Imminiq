@@ -1,9 +1,9 @@
 import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface';
-import type { IDashboardActiveTrackerDTO } from '../dashboard.dto';
+import type { DashboardActiveTrackerDTO } from '../dashboard.dto';
 import type { IDashboardMapper } from '../dashboard.mapper';
 
 export interface IGetCurrentRoadmapUseCase {
-  execute(userId: string): Promise<IDashboardActiveTrackerDTO | null>;
+  execute(userId: string): Promise<DashboardActiveTrackerDTO | null>;
 }
 
 export class GetCurrentRoadmapUseCase implements IGetCurrentRoadmapUseCase {
@@ -12,7 +12,7 @@ export class GetCurrentRoadmapUseCase implements IGetCurrentRoadmapUseCase {
     private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string): Promise<IDashboardActiveTrackerDTO | null> {
+  async execute(userId: string): Promise<DashboardActiveTrackerDTO | null> {
     const trackerSummary = await this._dashboardRepository.getTrackerOverview(userId);
     const currentTracker = trackerSummary.activeTrackers[0];
 

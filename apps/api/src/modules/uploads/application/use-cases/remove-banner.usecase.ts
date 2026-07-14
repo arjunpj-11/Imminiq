@@ -1,14 +1,14 @@
 import { UploadsDomainError } from '../../domain/uploads-domain.error';
 import type { IProfileImageRepository } from '../../domain/repositories/profile-image.repository.interface';
 import type { IUploadRecordRepository } from '../../domain/repositories/upload-record.repository.interface';
-import type { IRemoveBannerResultDTO } from '../uploads.dto';
+import type { RemoveBannerResultDTO } from '../uploads.dto';
 import { UploadsApplicationError } from '../uploads-application.error';
 import type { IUploadUserProfileReader } from '../services/upload-user-profile.service';
 
 type RemoveBannerRepository = IProfileImageRepository & IUploadRecordRepository;
 
 export interface IRemoveBannerUseCase {
-  execute(userId: string): Promise<IRemoveBannerResultDTO>;
+  execute(userId: string): Promise<RemoveBannerResultDTO>;
 }
 
 export class RemoveBannerUseCase implements IRemoveBannerUseCase {
@@ -17,7 +17,7 @@ export class RemoveBannerUseCase implements IRemoveBannerUseCase {
     private readonly _uploadsRepository: RemoveBannerRepository
   ) {}
 
-  async execute(userId: string): Promise<IRemoveBannerResultDTO> {
+  async execute(userId: string): Promise<RemoveBannerResultDTO> {
     const context = await this._userProfileReader.getRequiredContext(userId);
 
     try {

@@ -3,19 +3,17 @@ import { SubscriptionPlan as SubscriptionPlanModel } from '../../../../../infras
 import { Subscription } from '../../../../../infrastructure/database/models/subscription.model';
 import { TrackerLesson } from '../../../../../infrastructure/database/models/tracker-lesson.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
+import type {
+  ISubscriptionLimitEnforcer,
+  PlanLimitContext,
+  PlanLimitKind,
+} from '../../application/subscription-limit.contract';
 import {
   getDefaultPlanLimits,
   type SubscriptionPlanId,
   type SubscriptionPlanLimits,
 } from '../../domain/entities/subscription.entity';
 import { SubscriptionLimitExceededError } from '../../domain/subscription-limit.error';
-
-export type PlanLimitKind =
-  | 'tracker_capacity'
-  | 'tracker_generation'
-  | 'lesson_generation'
-  | 'mock_test_generation'
-  | 'ai_tutor_request';
 
 const limitFields = {
   tracker_generation: 'trackerGenerationsPerMonth',
@@ -39,7 +37,7 @@ const periodStart = (kind: Exclude<PlanLimitKind, 'tracker_capacity'>, now: Date
   return new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()));
 };
 
-export class SubscriptionLimitService {
+export class SubscriptionLimitService implements ISubscriptionLimitEnforcer {
   private async resolveLimits(userId: string): Promise<SubscriptionPlanLimits> {
     const active = await Subscription.findOne({
       userId,
@@ -104,8 +102,8 @@ export class SubscriptionLimitService {
   async enforce(
     userId: string,
     kind: PlanLimitKind,
-    context: { trackerId?: string; subtopicId?: string } = {}
-  ) {
+    context: PlanLimitContext = {}
+  ): Promise<void> {
     const limits = await this.resolveLimits(userId);
     if (kind === 'tracker_capacity' || kind === 'tracker_generation') {
       if (kind === 'tracker_capacity' && context.trackerId) {
@@ -135,5 +133,3 @@ export class SubscriptionLimitService {
     );
   }
 }
-
-export const subscriptionLimitService = new SubscriptionLimitService();

@@ -1,4 +1,4 @@
-export interface IAdminSystemHealthDTO {
+export interface AdminSystemHealthDTO {
   status: string;
   checkedAt: Date;
   uptimeSeconds: number;

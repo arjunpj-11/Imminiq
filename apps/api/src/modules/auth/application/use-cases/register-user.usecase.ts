@@ -5,11 +5,11 @@ import type { IPasswordHasher } from '../../domain/services/password-hasher.inte
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface';
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo';
 import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/auth.constants';
-import type { IRegisterPayloadDTO } from '../auth.dto';
+import type { RegisterPayloadDTO } from '../auth.dto';
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
 
 export interface IRegisterUserUseCase {
-  execute(payload: IRegisterPayloadDTO): Promise<{
+  execute(payload: RegisterPayloadDTO): Promise<{
     verificationTarget: string;
     verificationMethod: VerificationMethod;
   }>;
@@ -24,7 +24,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     private readonly _pendingRegistrationStore: IPendingRegistrationStore
   ) {}
 
-  async execute(payload: IRegisterPayloadDTO): Promise<{
+  async execute(payload: RegisterPayloadDTO): Promise<{
     verificationTarget: string;
     verificationMethod: VerificationMethod;
   }> {

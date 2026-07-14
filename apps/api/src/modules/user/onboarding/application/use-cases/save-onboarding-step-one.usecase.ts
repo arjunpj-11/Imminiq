@@ -1,15 +1,15 @@
 import type { IOnboardingResponseCommandRepository } from '../../domain/repositories/onboarding-response-command.repository.interface';
 import type {
-  IOnboardingResponseRecordDTO,
-  ISaveOnboardingStepOnePayloadDTO,
+  OnboardingResponseRecordDTO,
+  SaveOnboardingStepOnePayloadDTO,
 } from '../onboarding.dto';
 import type { IOnboardingMapper } from '../onboarding.mapper';
 
 export interface ISaveOnboardingStepOneUseCase {
   execute(
     userId: string,
-    payload: ISaveOnboardingStepOnePayloadDTO
-  ): Promise<IOnboardingResponseRecordDTO | null>;
+    payload: SaveOnboardingStepOnePayloadDTO
+  ): Promise<OnboardingResponseRecordDTO | null>;
 }
 
 export class SaveOnboardingStepOneUseCase implements ISaveOnboardingStepOneUseCase {
@@ -20,8 +20,8 @@ export class SaveOnboardingStepOneUseCase implements ISaveOnboardingStepOneUseCa
 
   async execute(
     userId: string,
-    payload: ISaveOnboardingStepOnePayloadDTO
-  ): Promise<IOnboardingResponseRecordDTO | null> {
+    payload: SaveOnboardingStepOnePayloadDTO
+  ): Promise<OnboardingResponseRecordDTO | null> {
     const response = await this._onboardingRepository.saveStep1({
       userId,
       topic: payload.topic,

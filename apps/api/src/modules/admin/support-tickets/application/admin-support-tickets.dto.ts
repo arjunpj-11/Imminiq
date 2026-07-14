@@ -1,4 +1,4 @@
-export interface IAdminSupportTicketDTO {
+export interface AdminSupportTicketDTO {
   id: string;
   subject: string;
   description: string;
@@ -11,7 +11,7 @@ export interface IAdminSupportTicketDTO {
   updatedAt: Date;
 }
 
-export interface IAdminSupportTicketResultDTO {
+export interface AdminSupportTicketResultDTO {
   id: string;
   status: string;
   resolutionNote: string;

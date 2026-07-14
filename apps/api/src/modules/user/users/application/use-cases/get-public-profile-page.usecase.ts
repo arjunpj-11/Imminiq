@@ -3,7 +3,7 @@ import type { IUserProfileRepository } from '../../domain/repositories/user-prof
 import type { IUserRelationshipRepository } from '../../domain/repositories/user-relationship.repository.interface';
 import type { IUserTrackerRepository } from '../../domain/repositories/user-tracker.repository.interface';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
-import type { IPaginationQueryDTO, IPublicProfilePageViewDTO } from '../users.dto';
+import type { PaginationQueryDTO, PublicProfilePageViewDTO } from '../users.dto';
 import { UsersApplicationError } from '../users-application.error';
 import type { IUsersMapper } from '../users.mapper';
 import type { IUsersProfileDataReader } from '../services/users-profile-data.service';
@@ -18,8 +18,8 @@ export interface IGetPublicProfilePageUseCase {
   execute(
     username: string,
     viewerUserId: string | undefined,
-    query: IPaginationQueryDTO
-  ): Promise<IPublicProfilePageViewDTO>;
+    query: PaginationQueryDTO
+  ): Promise<PublicProfilePageViewDTO>;
 }
 
 export class GetPublicProfilePageUseCase implements IGetPublicProfilePageUseCase {
@@ -32,8 +32,8 @@ export class GetPublicProfilePageUseCase implements IGetPublicProfilePageUseCase
   async execute(
     username: string,
     viewerUserId: string | undefined,
-    query: IPaginationQueryDTO
-  ): Promise<IPublicProfilePageViewDTO> {
+    query: PaginationQueryDTO
+  ): Promise<PublicProfilePageViewDTO> {
     const user = await this._usersRepository.findByUsername(username);
 
     if (!user) {

@@ -6,7 +6,7 @@ import { adaptiveLearningKeys } from './adaptive-learning.query-keys';
 import { mockTestKeys } from '../../mock-tests';
 import type {
   IAdaptiveAdvisorMessage,
-  IAdaptiveAdvisorAction,
+  AdaptiveAdvisorAction,
   IAdaptiveApiResponse,
   IAdaptiveDashboard,
 } from '../types/adaptive-learning.types';
@@ -49,7 +49,7 @@ export const useAdaptiveAdvisorChat = () => {
       const response = await api.post<
         IAdaptiveApiResponse<{
           message: IAdaptiveAdvisorMessage;
-          action?: IAdaptiveAdvisorAction;
+          action?: AdaptiveAdvisorAction;
         }>
       >(ADAPTIVE_LEARNING_API_PATHS.advisorChat, { question });
       return response.data.data;

@@ -1,4 +1,4 @@
-import type { IGenerateMockTestPayloadDTO } from '../mock-tests.dto';
+import type { GenerateMockTestPayloadDTO } from '../mock-tests.dto';
 
 export interface IMockTestGenerationJobGateway {
   findActive(userId: string): Promise<{
@@ -8,6 +8,6 @@ export interface IMockTestGenerationJobGateway {
 
   enqueue(
     userId: string,
-    payload: IGenerateMockTestPayloadDTO
+    payload: GenerateMockTestPayloadDTO
   ): Promise<{ jobId: string; status: 'pending' }>;
 }

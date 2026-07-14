@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { ApiEnvelope } from '../../shared';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 import type { AdminMockTestDetail } from '../types/admin-mock-tests.types';
 import { adminMockTestsKeys } from './admin-mock-tests.query-keys';
 import {

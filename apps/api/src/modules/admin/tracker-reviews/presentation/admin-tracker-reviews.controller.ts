@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { getAdminActor, sendAdminResult } from '../../shared';
+import { getAdminActor, sendAdminResult } from '../../shared/presentation';
 import type { AdminTrackerReviewsUseCases } from '../application/admin-tracker-reviews-use-cases.contract';
 import {
   adminTrackerReviewConsensusSchema,

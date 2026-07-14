@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from 'express';
-import { sendAdminResult } from '../../shared';
+import { sendAdminResult } from '../../shared/presentation';
 import type { AdminSystemHealthUseCases } from '../application/admin-system-health-use-cases.contract';
 export class AdminSystemHealthController {
   constructor(private readonly useCases: AdminSystemHealthUseCases) {}

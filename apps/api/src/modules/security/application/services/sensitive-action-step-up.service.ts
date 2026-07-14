@@ -4,13 +4,13 @@ import type { ISecurityAuditLogger } from '../../domain/services/security-audit-
 import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface';
 import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface';
 import type { SensitiveSecurityAction } from '../../domain/security.types';
-import type { ISensitiveActionStepUpPayloadDTO } from '../security.dto';
+import type { SensitiveActionStepUpPayloadDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 
 export interface ISensitiveActionAuthorizer {
   assertSatisfied(input: {
     user: SecurityUserEntity;
-    payload: ISensitiveActionStepUpPayloadDTO;
+    payload: SensitiveActionStepUpPayloadDTO;
     action: SensitiveSecurityAction;
   }): Promise<void>;
 }
@@ -25,7 +25,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
 
   async assertSatisfied(input: {
     user: SecurityUserEntity;
-    payload: ISensitiveActionStepUpPayloadDTO;
+    payload: SensitiveActionStepUpPayloadDTO;
     action: SensitiveSecurityAction;
   }): Promise<void> {
     const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(input.user.id);
@@ -48,7 +48,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
 
   private async assertPasswordStepSatisfied(input: {
     user: SecurityUserEntity;
-    payload: ISensitiveActionStepUpPayloadDTO;
+    payload: SensitiveActionStepUpPayloadDTO;
     action: SensitiveSecurityAction;
   }): Promise<void> {
     if (!input.payload.currentPassword) {
@@ -81,7 +81,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
   private async assertTwoFactorStepSatisfied(input: {
     userId: string;
     encryptedSecret: string | null;
-    payload: ISensitiveActionStepUpPayloadDTO;
+    payload: SensitiveActionStepUpPayloadDTO;
     action: SensitiveSecurityAction;
   }): Promise<void> {
     if (!input.payload.twoFactorCode) {

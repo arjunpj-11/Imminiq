@@ -7,7 +7,7 @@ import type { UserProfileUpdate } from '../domain/value-objects/user-profile-upd
 
 export type UpdateMyProfileInputDTO = UserProfileUpdate;
 
-export interface IPaginationQueryDTO {
+export interface PaginationQueryDTO {
   page: number;
   limit: number;
   search?: string;
@@ -15,7 +15,7 @@ export interface IPaginationQueryDTO {
   sort?: ProfileSort;
 }
 
-export interface ICurrentUserViewDTO {
+export interface CurrentUserViewDTO {
   _id: string;
   fullName: string;
   username: string;
@@ -36,7 +36,7 @@ export interface ICurrentUserViewDTO {
   updatedAt?: Date;
 }
 
-export interface IEditableProfileViewDTO {
+export interface EditableProfileViewDTO {
   _id?: string;
   userId: string;
   fullName: string;
@@ -57,7 +57,7 @@ export interface IEditableProfileViewDTO {
   likeCount: number;
 }
 
-export interface IStreakHeatmapDayDTO {
+export interface StreakHeatmapDayDTO {
   date: string;
   activityCount: number;
   intensityLevel: StreakIntensity;
@@ -65,16 +65,16 @@ export interface IStreakHeatmapDayDTO {
   isFrozen: boolean;
 }
 
-export interface IStreakSummaryViewDTO {
+export interface StreakSummaryViewDTO {
   currentStreak: number;
   longestStreak: number;
   totalActiveDays: number;
   totalFreezeUsed: number;
   lastActiveDate: string | null;
-  heatmap: IStreakHeatmapDayDTO[];
+  heatmap: StreakHeatmapDayDTO[];
 }
 
-export interface IBadgeShowcaseItemDTO {
+export interface BadgeShowcaseItemDTO {
   _id: string;
   name: string;
   description: string;
@@ -85,13 +85,13 @@ export interface IBadgeShowcaseItemDTO {
   criteria: Record<string, unknown>;
 }
 
-export interface IBadgeShowcaseViewDTO {
+export interface BadgeShowcaseViewDTO {
   earnedCount: number;
   totalCount: number;
-  items: IBadgeShowcaseItemDTO[];
+  items: BadgeShowcaseItemDTO[];
 }
 
-export interface IEarnedBadgeViewDTO {
+export interface EarnedBadgeViewDTO {
   _id: string;
   name: string;
   description: string;
@@ -101,7 +101,7 @@ export interface IEarnedBadgeViewDTO {
   earnedAt?: Date | string | null;
 }
 
-export interface IPublishedTrackerViewDTO {
+export interface PublishedTrackerViewDTO {
   _id: string;
   title: string;
   slug: string;
@@ -124,7 +124,7 @@ export interface IPublishedTrackerViewDTO {
   createdAt?: Date;
 }
 
-export interface IActivityFeedItemViewDTO {
+export interface ActivityFeedItemViewDTO {
   _id: string;
   action: string;
   module: string;
@@ -133,7 +133,7 @@ export interface IActivityFeedItemViewDTO {
   createdAt: Date;
 }
 
-export interface IProfileStatsViewDTO {
+export interface ProfileStatsViewDTO {
   streakCount: number;
   studentLevel: number;
   studentRank: number;
@@ -148,23 +148,23 @@ export interface IProfileStatsViewDTO {
   likeCount: number;
 }
 
-export interface IPaginationViewDTO {
+export interface PaginationViewDTO {
   page: number;
   limit: number;
   total: number;
   totalPages: number;
 }
 
-export interface IPublicProfilePageViewDTO {
-  user: ICurrentUserViewDTO;
-  profile: IEditableProfileViewDTO;
-  stats: IProfileStatsViewDTO | null;
-  streak: IStreakSummaryViewDTO | null;
-  badges: IBadgeShowcaseViewDTO;
+export interface PublicProfilePageViewDTO {
+  user: CurrentUserViewDTO;
+  profile: EditableProfileViewDTO;
+  stats: ProfileStatsViewDTO | null;
+  streak: StreakSummaryViewDTO | null;
+  badges: BadgeShowcaseViewDTO;
   publishedTrackers: {
-    items: IPublishedTrackerViewDTO[];
-    pagination: IPaginationViewDTO;
+    items: PublishedTrackerViewDTO[];
+    pagination: PaginationViewDTO;
   };
-  recentActivity: IActivityFeedItemViewDTO[] | null;
+  recentActivity: ActivityFeedItemViewDTO[] | null;
   relationship: RelationshipState;
 }

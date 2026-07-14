@@ -1,11 +1,11 @@
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
 import { AdminUsersDomainError } from '../../domain/admin-users-domain.error';
-import type { IAdminUserDetailDTO } from '../admin-users.dto';
+import type { AdminUserDetailDTO } from '../admin-users.dto';
 import type { IAdminUsersMapper } from '../admin-users.mapper';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
 
 export interface IGetAdminUserDetailUseCase {
-  execute(userId: string): Promise<IAdminUserDetailDTO>;
+  execute(userId: string): Promise<AdminUserDetailDTO>;
 }
 export class GetAdminUserDetailUseCase implements IGetAdminUserDetailUseCase {
   constructor(

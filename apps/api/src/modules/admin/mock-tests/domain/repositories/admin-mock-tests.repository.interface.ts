@@ -1,4 +1,4 @@
-import type { AdminListQuery, AdminPage } from '../../../shared';
+import type { AdminListQuery, AdminPage } from '../../../shared/domain';
 import type { AdminMockTest, AdminMockTestDetail } from '../entities/admin-mock-test.entity';
 export interface IAdminMockTestsRepository {
   list(query: AdminListQuery): Promise<AdminPage<AdminMockTest>>;

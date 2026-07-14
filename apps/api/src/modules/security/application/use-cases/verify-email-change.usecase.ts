@@ -2,13 +2,13 @@ import type { ISecuritySessionRepository } from '../../domain/repositories/secur
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface';
-import type { IVerifyEmailChangePayloadDTO, IVerifyEmailChangeResponseDTO } from '../security.dto';
+import type { VerifyEmailChangePayloadDTO, VerifyEmailChangeResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 
 type VerifyEmailChangeRepository = ISecurityUserRepository & ISecuritySessionRepository;
 
 export interface IVerifyEmailChangeUseCase {
-  execute(payload: IVerifyEmailChangePayloadDTO): Promise<IVerifyEmailChangeResponseDTO>;
+  execute(payload: VerifyEmailChangePayloadDTO): Promise<VerifyEmailChangeResponseDTO>;
 }
 
 export class VerifyEmailChangeUseCase implements IVerifyEmailChangeUseCase {
@@ -18,7 +18,7 @@ export class VerifyEmailChangeUseCase implements IVerifyEmailChangeUseCase {
     private readonly _securityAuditLogger: ISecurityAuditLogger
   ) {}
 
-  async execute(payload: IVerifyEmailChangePayloadDTO): Promise<IVerifyEmailChangeResponseDTO> {
+  async execute(payload: VerifyEmailChangePayloadDTO): Promise<VerifyEmailChangeResponseDTO> {
     const tokenHash = this._emailChangeToken.hash(payload.token);
 
     const user = await this._securityRepository.findUserByPendingEmailTokenHash(tokenHash);

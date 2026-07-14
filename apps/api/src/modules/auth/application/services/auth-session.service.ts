@@ -2,10 +2,10 @@ import type { IAuthSessionRepository } from '../../domain/repositories/auth-sess
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { AuthRole } from '../../domain/value-objects/auth-role.vo';
 import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface';
-import type { RequestMetaDTO, ITokenPairDTO } from '../auth.dto';
+import type { RequestMetaDTO, TokenPairDTO } from '../auth.dto';
 
 export interface IAuthSessionIssuer {
-  issueTokenPair(userId: string, role: AuthRole, meta?: RequestMetaDTO): Promise<ITokenPairDTO>;
+  issueTokenPair(userId: string, role: AuthRole, meta?: RequestMetaDTO): Promise<TokenPairDTO>;
 }
 
 export class AuthSessionIssuer implements IAuthSessionIssuer {
@@ -19,7 +19,7 @@ export class AuthSessionIssuer implements IAuthSessionIssuer {
     userId: string,
     role: AuthRole,
     meta?: RequestMetaDTO
-  ): Promise<ITokenPairDTO> {
+  ): Promise<TokenPairDTO> {
     const refreshToken = this._authToken.generateRefreshToken();
     const refreshTokenHash = this._refreshTokenHasher.hash(refreshToken);
 

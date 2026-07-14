@@ -1,10 +1,10 @@
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
-import type { ICommunityVerificationSubmissionViewDTO } from '../community.dto';
+import type { CommunityVerificationSubmissionViewDTO } from '../community.dto';
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
 
 export interface IGetVerificationSubmissionUseCase {
-  execute(submissionId: string, userId: string): Promise<ICommunityVerificationSubmissionViewDTO>;
+  execute(submissionId: string, userId: string): Promise<CommunityVerificationSubmissionViewDTO>;
 }
 
 export class GetVerificationSubmissionUseCase implements IGetVerificationSubmissionUseCase {
@@ -16,7 +16,7 @@ export class GetVerificationSubmissionUseCase implements IGetVerificationSubmiss
   async execute(
     submissionId: string,
     userId: string
-  ): Promise<ICommunityVerificationSubmissionViewDTO> {
+  ): Promise<CommunityVerificationSubmissionViewDTO> {
     const submission = await this._repository.findVerificationSubmissionById(submissionId, userId);
 
     if (!submission) {

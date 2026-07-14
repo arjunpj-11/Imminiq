@@ -1,9 +1,9 @@
 import type { IAdminSettingsRepository } from '../../domain/repositories/admin-settings.repository.interface';
-import type { IAdminSettingsDTO } from '../admin-settings.dto';
+import type { AdminSettingsDTO } from '../admin-settings.dto';
 import type { IAdminSettingsMapper } from '../admin-settings.mapper';
 
 export interface IGetAdminSettingsUseCase {
-  execute(): Promise<IAdminSettingsDTO>;
+  execute(): Promise<AdminSettingsDTO>;
 }
 
 export class GetAdminSettingsUseCase implements IGetAdminSettingsUseCase {
@@ -12,7 +12,7 @@ export class GetAdminSettingsUseCase implements IGetAdminSettingsUseCase {
     private readonly mapper: IAdminSettingsMapper
   ) {}
 
-  async execute(): Promise<IAdminSettingsDTO> {
+  async execute(): Promise<AdminSettingsDTO> {
     return this.mapper.toDTO(await this.repository.get());
   }
 }

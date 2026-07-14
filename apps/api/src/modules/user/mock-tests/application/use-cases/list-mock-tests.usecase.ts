@@ -7,7 +7,7 @@ import {
   MAX_MOCK_TEST_LIST_LIMIT,
 } from '../../domain/mock-tests.constants';
 import type { MockTestSummary } from '../../domain/value-objects/mock-test-analytics.vo';
-import type { IMockTestAttemptDTO, IMockTestDTO } from '../mock-tests.dto';
+import type { MockTestAttemptDTO, MockTestDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
 
 type ListMockTestsOptions = {
@@ -21,8 +21,8 @@ type ListMockTestsRepository = IMockTestRepository &
 
 type ListMockTestsResultDTO = {
   summary: MockTestSummary;
-  tests: (IMockTestDTO & {
-    latestAttempt: IMockTestAttemptDTO | null;
+  tests: (MockTestDTO & {
+    latestAttempt: MockTestAttemptDTO | null;
   })[];
   pagination: {
     page: number;

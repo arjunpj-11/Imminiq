@@ -3,27 +3,27 @@ import type { UserStatus } from '../domain/value-objects/user-status.vo';
 import type { VerificationMethod } from '../domain/value-objects/verification-method.vo';
 import type { LoginRedirectPath } from '../domain/value-objects/login-redirect-path.vo';
 
-export interface IRegisterPayloadDTO {
+export interface RegisterPayloadDTO {
   fullName: string;
   identifier: string;
   password: string;
 }
 
-export interface ILoginPayloadDTO {
+export interface LoginPayloadDTO {
   identifier: string;
   password: string;
 }
 
-export interface ITwoFactorLoginVerifyPayloadDTO {
+export interface TwoFactorLoginVerifyPayloadDTO {
   code: string;
 }
 
-export interface ITokenPairDTO {
+export interface TokenPairDTO {
   accessToken: string;
   refreshToken: string;
 }
 
-export interface IAuthUserDTO {
+export interface AuthUserDTO {
   _id: string;
   fullName: string;
   username: string;
@@ -38,7 +38,7 @@ export interface IAuthUserDTO {
   onboardingCompleted: boolean;
 }
 
-export interface IAuthSessionDTO {
+export interface AuthSessionDTO {
   id: string;
   expiresAt: string;
   revokedAt: string | null;
@@ -48,28 +48,28 @@ export interface IAuthSessionDTO {
   createdAt: string | null;
 }
 
-export interface IAuthLoginSuccessResultDTO {
+export interface AuthLoginSuccessResultDTO {
   requiresTwoFactor: false;
-  tokens: ITokenPairDTO;
-  user: IAuthUserDTO;
+  tokens: TokenPairDTO;
+  user: AuthUserDTO;
   redirectPath: LoginRedirectPath;
 }
 
-export interface IAuthTwoFactorChallengeResultDTO {
+export interface AuthTwoFactorChallengeResultDTO {
   requiresTwoFactor: true;
   challengeToken: string;
   challengeExpiresInMinutes: number;
 }
 
-export type AuthLoginResultDTO = IAuthLoginSuccessResultDTO | IAuthTwoFactorChallengeResultDTO;
+export type AuthLoginResultDTO = AuthLoginSuccessResultDTO | AuthTwoFactorChallengeResultDTO;
 
-export interface IAuthResponseDTO {
+export interface AuthResponseDTO {
   success: boolean;
   message: string;
   data:
     | {
         accessToken: string;
-        user: IAuthUserDTO;
+        user: AuthUserDTO;
         redirectPath: LoginRedirectPath;
       }
     | {
@@ -78,7 +78,7 @@ export interface IAuthResponseDTO {
       };
 }
 
-export interface IRegisterResponseDTO {
+export interface RegisterResponseDTO {
   success: boolean;
   message: string;
   data: {
@@ -87,7 +87,7 @@ export interface IRegisterResponseDTO {
   };
 }
 
-export interface IApiErrorResponseDTO {
+export interface ApiErrorResponseDTO {
   success: false;
   message: string;
   errors?: Record<string, string[]>;

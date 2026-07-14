@@ -1,6 +1,6 @@
-import type { AdminPage } from '../../shared';
+import type { AdminPage } from '../../shared/domain';
 
-export interface IAdminSubscriptionItemDTO {
+export interface AdminSubscriptionItemDTO {
   id: string;
   userId: string;
   userName: string;
@@ -16,7 +16,7 @@ export interface IAdminSubscriptionItemDTO {
   purchasedAt: Date;
 }
 
-export interface IAdminPlanLimitsDTO {
+export interface AdminPlanLimitsDTO {
   maxTrackers: number;
   trackerGenerationsPerMonth: number;
   lessonGenerationsPerDay: number;
@@ -24,13 +24,13 @@ export interface IAdminPlanLimitsDTO {
   aiTutorRequestsPerDay: number;
 }
 
-export interface IAdminSubscriptionPlanDTO {
+export interface AdminSubscriptionPlanDTO {
   planId: 'free' | 'pro' | 'premium';
-  limits: IAdminPlanLimitsDTO;
+  limits: AdminPlanLimitsDTO;
   updatedAt: Date | null;
 }
 
-export interface IAdminSubscriptionOverviewDTO {
+export interface AdminSubscriptionOverviewDTO {
   metrics: {
     totalRevenue: number;
     subscriptionsBought: number;
@@ -39,6 +39,6 @@ export interface IAdminSubscriptionOverviewDTO {
   };
   planBreakdown: Array<{ plan: string; count: number; revenue: number }>;
   revenueByMonth: Array<{ month: string; revenue: number; subscriptions: number }>;
-  subscriptions: AdminPage<IAdminSubscriptionItemDTO>;
-  plans: IAdminSubscriptionPlanDTO[];
+  subscriptions: AdminPage<AdminSubscriptionItemDTO>;
+  plans: AdminSubscriptionPlanDTO[];
 }

@@ -1,4 +1,4 @@
-import type { AdminPage } from '../../shared';
+import type { AdminPage } from '../../shared/domain';
 import type {
   AdminPublishedTracker,
   AdminPublishedTrackerEngagementResult,
@@ -7,32 +7,32 @@ import type {
   AdminTrackerDetail,
 } from '../domain/entities/admin-tracker.entity';
 import type {
-  IAdminPublishedTrackerDTO,
-  IAdminPublishedTrackerEngagementResultDTO,
-  IAdminTrackerDTO,
-  IAdminTrackerDeleteResultDTO,
-  IAdminTrackerDetailDTO,
+  AdminPublishedTrackerDTO,
+  AdminPublishedTrackerEngagementResultDTO,
+  AdminTrackerDTO,
+  AdminTrackerDeleteResultDTO,
+  AdminTrackerDetailDTO,
 } from './admin-trackers.dto';
 
 export interface IAdminTrackersMapper {
-  toDTO(entity: AdminTracker): IAdminTrackerDTO;
-  toDetailDTO(entity: AdminTrackerDetail): IAdminTrackerDetailDTO;
-  toDeleteResultDTO(result: AdminTrackerDeleteResult): IAdminTrackerDeleteResultDTO;
-  toPublishedDTO(entity: AdminPublishedTracker): IAdminPublishedTrackerDTO;
+  toDTO(entity: AdminTracker): AdminTrackerDTO;
+  toDetailDTO(entity: AdminTrackerDetail): AdminTrackerDetailDTO;
+  toDeleteResultDTO(result: AdminTrackerDeleteResult): AdminTrackerDeleteResultDTO;
+  toPublishedDTO(entity: AdminPublishedTracker): AdminPublishedTrackerDTO;
   toEngagementResultDTO(
     result: AdminPublishedTrackerEngagementResult
-  ): IAdminPublishedTrackerEngagementResultDTO;
-  toPageDTO(page: AdminPage<AdminTracker>): AdminPage<IAdminTrackerDTO>;
+  ): AdminPublishedTrackerEngagementResultDTO;
+  toPageDTO(page: AdminPage<AdminTracker>): AdminPage<AdminTrackerDTO>;
   toPublishedPageDTO(
     page: AdminPage<AdminPublishedTracker>
-  ): AdminPage<IAdminPublishedTrackerDTO>;
+  ): AdminPage<AdminPublishedTrackerDTO>;
 }
 
 export class AdminTrackersMapper implements IAdminTrackersMapper {
-  toDTO(entity: AdminTracker): IAdminTrackerDTO {
+  toDTO(entity: AdminTracker): AdminTrackerDTO {
     return { ...entity };
   }
-  toDetailDTO(entity: AdminTrackerDetail): IAdminTrackerDetailDTO {
+  toDetailDTO(entity: AdminTrackerDetail): AdminTrackerDetailDTO {
     return {
       ...entity,
       topics: entity.topics.map((topic) => ({
@@ -41,23 +41,23 @@ export class AdminTrackersMapper implements IAdminTrackersMapper {
       })),
     };
   }
-  toDeleteResultDTO(result: AdminTrackerDeleteResult): IAdminTrackerDeleteResultDTO {
+  toDeleteResultDTO(result: AdminTrackerDeleteResult): AdminTrackerDeleteResultDTO {
     return { ...result };
   }
-  toPublishedDTO(entity: AdminPublishedTracker): IAdminPublishedTrackerDTO {
+  toPublishedDTO(entity: AdminPublishedTracker): AdminPublishedTrackerDTO {
     return { ...entity };
   }
   toEngagementResultDTO(
     result: AdminPublishedTrackerEngagementResult
-  ): IAdminPublishedTrackerEngagementResultDTO {
+  ): AdminPublishedTrackerEngagementResultDTO {
     return { ...result };
   }
-  toPageDTO(page: AdminPage<AdminTracker>): AdminPage<IAdminTrackerDTO> {
+  toPageDTO(page: AdminPage<AdminTracker>): AdminPage<AdminTrackerDTO> {
     return this.mapPage(page, (item) => this.toDTO(item));
   }
   toPublishedPageDTO(
     page: AdminPage<AdminPublishedTracker>
-  ): AdminPage<IAdminPublishedTrackerDTO> {
+  ): AdminPage<AdminPublishedTrackerDTO> {
     return this.mapPage(page, (item) => this.toPublishedDTO(item));
   }
   private mapPage<TEntity, TDTO>(

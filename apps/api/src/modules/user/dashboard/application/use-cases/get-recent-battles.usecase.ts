@@ -1,9 +1,9 @@
 import type { IDashboardBattleRepository } from '../../domain/repositories/dashboard-battle.repository.interface';
-import type { IDashboardBattleItemDTO } from '../dashboard.dto';
+import type { DashboardBattleItemDTO } from '../dashboard.dto';
 import type { IDashboardMapper } from '../dashboard.mapper';
 
 export interface IGetRecentBattlesUseCase {
-  execute(userId: string, limit?: number): Promise<IDashboardBattleItemDTO[]>;
+  execute(userId: string, limit?: number): Promise<DashboardBattleItemDTO[]>;
 }
 
 export class GetRecentBattlesUseCase implements IGetRecentBattlesUseCase {
@@ -12,7 +12,7 @@ export class GetRecentBattlesUseCase implements IGetRecentBattlesUseCase {
     private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string, limit?: number): Promise<IDashboardBattleItemDTO[]> {
+  async execute(userId: string, limit?: number): Promise<DashboardBattleItemDTO[]> {
     const battles = await this._dashboardRepository.getRecentBattles({
       userId,
       limit,

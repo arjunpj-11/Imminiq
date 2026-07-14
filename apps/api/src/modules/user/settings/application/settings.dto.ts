@@ -8,11 +8,11 @@ import type {
 } from '../domain/settings.types';
 import type { NotificationTypeSettings, UserSettingsData } from '../domain/settings.types';
 
-export interface IUpdateAppearancePayloadDTO {
+export interface UpdateAppearancePayloadDTO {
   theme?: ThemeType;
 }
 
-export interface IUpdateNotificationsPayloadDTO {
+export interface UpdateNotificationsPayloadDTO {
   globalEnabled?: boolean;
   globalEmail?: boolean;
   globalPush?: boolean;
@@ -21,7 +21,7 @@ export interface IUpdateNotificationsPayloadDTO {
   types?: Partial<NotificationTypeSettings>;
 }
 
-export interface IUpdatePrivacyPayloadDTO {
+export interface UpdatePrivacyPayloadDTO {
   profileVisibility?: ProfileVisibilityType;
   showProfile?: boolean;
   showStreak?: boolean;
@@ -39,7 +39,7 @@ export interface IUpdatePrivacyPayloadDTO {
   showTrackerProgress?: boolean;
 }
 
-export interface IUpdateCodeEditorPayloadDTO {
+export interface UpdateCodeEditorPayloadDTO {
   theme?: string;
   fontSize?: number;
   tabSize?: number;
@@ -49,20 +49,20 @@ export interface IUpdateCodeEditorPayloadDTO {
   minimap?: boolean;
 }
 
-export interface IUpdateCompilerPayloadDTO {
+export interface UpdateCompilerPayloadDTO {
   defaultLanguage?: string;
   defaultRuntime?: string;
   autoSwitchLanguage?: boolean;
 }
 
-export interface IUpdateAIBehaviourPayloadDTO {
+export interface UpdateAIBehaviourPayloadDTO {
   responseStyle?: AIResponseStyleType;
   autoGenerateLessons?: boolean;
   showAIInsights?: boolean;
   dailyQuotaAlert?: boolean;
 }
 
-export interface IUpdateLearningJourneyPayloadDTO {
+export interface UpdateLearningJourneyPayloadDTO {
   dailyGoalMinutes?: number;
   reminderEnabled?: boolean;
   reminderTime?: string;
@@ -70,7 +70,7 @@ export interface IUpdateLearningJourneyPayloadDTO {
   showEstimatedTime?: boolean;
 }
 
-export interface IUpdateGesturesPayloadDTO {
+export interface UpdateGesturesPayloadDTO {
   enabled?: boolean;
   sensitivity?: number;
   swipeToNext?: boolean;
@@ -82,21 +82,21 @@ export interface IUpdateGesturesPayloadDTO {
   scrollGesture?: boolean;
 }
 
-export interface IUpdateQuietHoursPayloadDTO {
+export interface UpdateQuietHoursPayloadDTO {
   quietHoursEnabled: boolean;
   quietHoursStart?: string;
   quietHoursEnd?: string;
   quietHoursDays?: QuietHoursDayType[];
 }
 
-export interface IUpdateEmailDigestPayloadDTO {
+export interface UpdateEmailDigestPayloadDTO {
   enabled?: boolean;
   frequency?: DigestFrequencyType;
   includeActivity?: boolean;
   includeRecommendations?: boolean;
 }
 
-export interface IUpdateAccountPayloadDTO {
+export interface UpdateAccountPayloadDTO {
   language?: string;
   timezone?: string;
   dateFormat?: string;

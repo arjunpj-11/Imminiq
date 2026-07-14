@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdateAppearancePayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateAppearancePayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateAppearanceRepository = {
@@ -9,7 +9,7 @@ type UpdateAppearanceRepository = {
 export interface IUpdateAppearanceUseCase {
   execute(
     userId: string,
-    payload: IUpdateAppearancePayloadDTO
+    payload: UpdateAppearancePayloadDTO
   ): Promise<UserSettingsViewDTO | null>;
 }
 
@@ -21,7 +21,7 @@ export class UpdateAppearanceUseCase implements IUpdateAppearanceUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdateAppearancePayloadDTO
+    payload: UpdateAppearancePayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateAppearance({
       userId,

@@ -6,8 +6,8 @@ import {
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface';
 import type {
-  IVoteVerificationSubmissionPayloadDTO,
-  IVoteVerificationSubmissionViewDTO,
+  VoteVerificationSubmissionPayloadDTO,
+  VoteVerificationSubmissionViewDTO,
 } from '../community.dto';
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
@@ -15,8 +15,8 @@ import type { ICommunityVerificationPolicy } from '../community-verification.pol
 
 export interface IVoteVerificationSubmissionUseCase {
   execute(
-    payload: IVoteVerificationSubmissionPayloadDTO
-  ): Promise<IVoteVerificationSubmissionViewDTO>;
+    payload: VoteVerificationSubmissionPayloadDTO
+  ): Promise<VoteVerificationSubmissionViewDTO>;
 }
 
 export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmissionUseCase {
@@ -28,8 +28,8 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
   ) {}
 
   async execute(
-    payload: IVoteVerificationSubmissionPayloadDTO
-  ): Promise<IVoteVerificationSubmissionViewDTO> {
+    payload: VoteVerificationSubmissionPayloadDTO
+  ): Promise<VoteVerificationSubmissionViewDTO> {
     const submission = await this._repository.findVerificationSubmissionById(
       payload.submissionId,
       payload.userId

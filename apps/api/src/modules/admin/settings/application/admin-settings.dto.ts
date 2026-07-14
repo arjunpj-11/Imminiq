@@ -1,4 +1,4 @@
-export interface IAdminSettingsDTO {
+export interface AdminSettingsDTO {
   maintenanceMode: boolean;
   allowBroadcasts: boolean;
   supportEmail: string;

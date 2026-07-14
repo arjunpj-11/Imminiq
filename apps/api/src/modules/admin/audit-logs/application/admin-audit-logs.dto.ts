@@ -1,4 +1,4 @@
-export interface IAdminAuditLogDTO {
+export interface AdminAuditLogDTO {
   id: string;
   action: string;
   module: string;

@@ -7,7 +7,7 @@ import {
 } from '../constants/admin-users.constants';
 import type { AdminUsersData } from '../types/admin-users.types';
 import { adminUsersKeys, type AdminUsersQuery } from './admin-users.query-keys';
-import type { ApiEnvelope } from '../../shared';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 
 export const useAdminUsers = (query: AdminUsersQuery) =>
   useQuery({

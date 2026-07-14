@@ -5,9 +5,9 @@ import { TrackerSubtopic } from '../../../../../infrastructure/database/models/t
 import { TrackerLesson } from '../../../../../infrastructure/database/models/tracker-lesson.model';
 import { CommunityTrackerLike } from '../../../../../infrastructure/database/models/community-tracker-like.model';
 import { CommunityTrackerReview } from '../../../../../infrastructure/database/models/community-tracker-review.model';
-import { recordAdminAction } from '../../../shared';
-import { createAdminPage, escapeAdminSearch } from '../../../shared';
-import type { AdminActor, AdminListQuery } from '../../../shared';
+import { recordAdminAction } from '../../../shared/infrastructure';
+import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
+import type { AdminActor, AdminListQuery } from '../../../shared/domain';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
   async list(query: AdminListQuery) {

@@ -3,21 +3,21 @@ import type {
   AdminSubscriptionPlan,
 } from '../domain/entities/admin-subscription.entity';
 import type {
-  IAdminSubscriptionOverviewDTO,
-  IAdminSubscriptionPlanDTO,
+  AdminSubscriptionOverviewDTO,
+  AdminSubscriptionPlanDTO,
 } from './admin-subscriptions.dto';
 
 export interface IAdminSubscriptionsMapper {
-  toOverviewDTO(entity: AdminSubscriptionOverview): IAdminSubscriptionOverviewDTO;
-  toPlanDTO(entity: AdminSubscriptionPlan): IAdminSubscriptionPlanDTO;
+  toOverviewDTO(entity: AdminSubscriptionOverview): AdminSubscriptionOverviewDTO;
+  toPlanDTO(entity: AdminSubscriptionPlan): AdminSubscriptionPlanDTO;
 }
 
 export class AdminSubscriptionsMapper implements IAdminSubscriptionsMapper {
-  toPlanDTO(entity: AdminSubscriptionPlan): IAdminSubscriptionPlanDTO {
+  toPlanDTO(entity: AdminSubscriptionPlan): AdminSubscriptionPlanDTO {
     return { ...entity, limits: { ...entity.limits } };
   }
 
-  toOverviewDTO(entity: AdminSubscriptionOverview): IAdminSubscriptionOverviewDTO {
+  toOverviewDTO(entity: AdminSubscriptionOverview): AdminSubscriptionOverviewDTO {
     return {
       metrics: { ...entity.metrics },
       planBreakdown: entity.planBreakdown.map((item) => ({ ...item })),

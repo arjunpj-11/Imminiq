@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 
 import type {
-  IDashboardActivityIntensityQueryDTO,
-  IDashboardRecentItemsQueryDTO,
+  DashboardActivityIntensityQueryDTO,
+  DashboardRecentItemsQueryDTO,
 } from '../application/dashboard.dto';
 import type { DashboardUseCases } from '../application/dashboard-use-cases.contract';
 import { ApiResponse } from '../../../../shared/utils/ApiResponse';
@@ -37,7 +37,7 @@ export class DashboardController {
     try {
       const userId = getAuthUser(req).userId;
       const query = res.locals
-        .dashboardActivityIntensityQuery as IDashboardActivityIntensityQueryDTO;
+        .dashboardActivityIntensityQuery as DashboardActivityIntensityQueryDTO;
 
       const data = await this._useCases.getActivityIntensity.execute(userId, query.months);
 
@@ -50,7 +50,7 @@ export class DashboardController {
   getRecentBattles = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId;
-      const query = res.locals.dashboardRecentItemsQuery as IDashboardRecentItemsQueryDTO;
+      const query = res.locals.dashboardRecentItemsQuery as DashboardRecentItemsQueryDTO;
 
       const data = await this._useCases.getRecentBattles.execute(userId, query.limit);
 
@@ -63,7 +63,7 @@ export class DashboardController {
   getFriendsHub = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = getAuthUser(req).userId;
-      const query = res.locals.dashboardRecentItemsQuery as IDashboardRecentItemsQueryDTO;
+      const query = res.locals.dashboardRecentItemsQuery as DashboardRecentItemsQueryDTO;
 
       const data = await this._useCases.getFriendsHub.execute(userId, query.limit);
 

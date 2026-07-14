@@ -4,14 +4,14 @@ import type { IAuthUserRepository } from '../../domain/repositories/auth-user.re
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-refresh-token-store.interface';
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
-import type { RequestMetaDTO, ITokenPairDTO } from '../auth.dto';
+import type { RequestMetaDTO, TokenPairDTO } from '../auth.dto';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface';
 
 type RefreshTokensRepository = IAuthUserRepository & IAuthSessionRepository;
 
 export interface IRefreshAuthTokensUseCase {
-  execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO>;
+  execute(refreshToken: string, meta?: RequestMetaDTO): Promise<TokenPairDTO>;
 }
 
 export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
@@ -24,7 +24,7 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
     private readonly _refreshTokenHasher: IRefreshTokenHasher
   ) {}
 
-  async execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO> {
+  async execute(refreshToken: string, meta?: RequestMetaDTO): Promise<TokenPairDTO> {
     const refreshTokenHash = this._refreshTokenHasher.hash(refreshToken);
 
     const tokenRecord = await this._authRepository.findSessionByRefreshTokenHash(refreshTokenHash);

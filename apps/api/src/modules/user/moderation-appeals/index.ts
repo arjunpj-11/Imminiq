@@ -1,9 +1,9 @@
 export type {
-  IGetActiveModerationAppealStatusResultDTO,
-  IGetModerationAppealStatusPayloadDTO,
-  IModerationAppealStatusDTO,
-  ISubmitModerationAppealPayloadDTO,
-  ISubmitModerationAppealResultDTO,
+  GetActiveModerationAppealStatusResultDTO,
+  GetModerationAppealStatusPayloadDTO,
+  ModerationAppealStatusDTO,
+  SubmitModerationAppealPayloadDTO,
+  SubmitModerationAppealResultDTO,
 } from './application/moderation-appeal.dto';
 
 export type {

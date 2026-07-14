@@ -1,15 +1,15 @@
 import type { IGetMeUseCase } from '../../../user/users';
-import type { IUploadUserProfileContextDTO } from '../uploads.dto';
+import type { UploadUserProfileContextDTO } from '../uploads.dto';
 import { UploadsApplicationError } from '../uploads-application.error';
 
 export interface IUploadUserProfileReader {
-  getRequiredContext(userId: string): Promise<IUploadUserProfileContextDTO>;
+  getRequiredContext(userId: string): Promise<UploadUserProfileContextDTO>;
 }
 
 export class UploadUserProfileReader implements IUploadUserProfileReader {
   constructor(private readonly _usersProfileReader: IGetMeUseCase) {}
 
-  async getRequiredContext(userId: string): Promise<IUploadUserProfileContextDTO> {
+  async getRequiredContext(userId: string): Promise<UploadUserProfileContextDTO> {
     try {
       const { user, profile } = await this._usersProfileReader.execute(userId);
 

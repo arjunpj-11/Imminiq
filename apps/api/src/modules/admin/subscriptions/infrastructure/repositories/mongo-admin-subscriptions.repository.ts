@@ -1,8 +1,8 @@
 import { Subscription } from '../../../../../infrastructure/database/models/subscription.model';
 import { SubscriptionPlan as SubscriptionPlanModel } from '../../../../../infrastructure/database/models/subscription-plan.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
-import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../shared';
-import type { AdminActor } from '../../../shared';
+import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../shared/infrastructure';
+import type { AdminActor } from '../../../shared/domain';
 import {
   getDefaultPlanLimits,
   type SubscriptionPlanId,

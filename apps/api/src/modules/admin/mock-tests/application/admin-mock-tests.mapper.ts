@@ -1,22 +1,22 @@
-import type { AdminPage } from '../../shared';
+import type { AdminPage } from '../../shared/domain';
 import type {
   AdminMockTest,
   AdminMockTestDetail,
 } from '../domain/entities/admin-mock-test.entity';
-import type { IAdminMockTestDetailDTO, IAdminMockTestDTO } from './admin-mock-tests.dto';
+import type { AdminMockTestDetailDTO, AdminMockTestDTO } from './admin-mock-tests.dto';
 
 export interface IAdminMockTestsMapper {
-  toDTO(entity: AdminMockTest): IAdminMockTestDTO;
-  toDetailDTO(entity: AdminMockTestDetail): IAdminMockTestDetailDTO;
-  toPageDTO(page: AdminPage<AdminMockTest>): AdminPage<IAdminMockTestDTO>;
+  toDTO(entity: AdminMockTest): AdminMockTestDTO;
+  toDetailDTO(entity: AdminMockTestDetail): AdminMockTestDetailDTO;
+  toPageDTO(page: AdminPage<AdminMockTest>): AdminPage<AdminMockTestDTO>;
 }
 
 export class AdminMockTestsMapper implements IAdminMockTestsMapper {
-  toDTO(entity: AdminMockTest): IAdminMockTestDTO {
+  toDTO(entity: AdminMockTest): AdminMockTestDTO {
     return { ...entity };
   }
 
-  toDetailDTO(entity: AdminMockTestDetail): IAdminMockTestDetailDTO {
+  toDetailDTO(entity: AdminMockTestDetail): AdminMockTestDetailDTO {
     return {
       ...entity,
       tags: [...entity.tags],
@@ -28,7 +28,7 @@ export class AdminMockTestsMapper implements IAdminMockTestsMapper {
     };
   }
 
-  toPageDTO(page: AdminPage<AdminMockTest>): AdminPage<IAdminMockTestDTO> {
+  toPageDTO(page: AdminPage<AdminMockTest>): AdminPage<AdminMockTestDTO> {
     return {
       ...page,
       items: page.items.map((item) => this.toDTO(item)),

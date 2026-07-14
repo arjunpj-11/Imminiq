@@ -1,35 +1,35 @@
 import type { ProfileUploadKind, UploadedProfileImageFile } from '../domain/uploads.types';
 
-export interface IUploadProfileImageInputDTO {
+export interface UploadProfileImageInputDTO {
   userId: string;
   kind: ProfileUploadKind;
   file?: UploadedProfileImageFile;
 }
 
-export interface IUploadProfileImageResultDTO {
+export interface UploadProfileImageResultDTO {
   uploadId: string;
   fileUrl: string;
   kind: ProfileUploadKind;
 }
 
-export interface IRemoveAvatarResultDTO {
+export interface RemoveAvatarResultDTO {
   avatarRemoved: true;
   defaultAvatarApplied: true;
 }
 
-export interface IRemoveBannerResultDTO {
+export interface RemoveBannerResultDTO {
   bannerRemoved: true;
 }
 
-export interface IAIImagePreviewResultDTO {
+export interface AIImagePreviewResultDTO {
   imageUrl: string;
 }
 
-export interface IGenerateAIImagePreviewInputDTO {
+export interface GenerateAIImagePreviewInputDTO {
   prompt: string;
 }
 
-export interface IUploadUserProfileContextDTO {
+export interface UploadUserProfileContextDTO {
   userId: string;
   fullName: string;
   profileId: string;

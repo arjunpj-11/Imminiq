@@ -1,10 +1,10 @@
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 import { AdminTrackersApplicationError } from '../admin-trackers-application.error';
-import type { IAdminTrackerDetailDTO } from '../admin-trackers.dto';
+import type { AdminTrackerDetailDTO } from '../admin-trackers.dto';
 import type { IAdminTrackersMapper } from '../admin-trackers.mapper';
 
 export interface IGetAdminTrackerDetailUseCase {
-  execute(id: string): Promise<IAdminTrackerDetailDTO>;
+  execute(id: string): Promise<AdminTrackerDetailDTO>;
 }
 
 export class GetAdminTrackerDetailUseCase implements IGetAdminTrackerDetailUseCase {

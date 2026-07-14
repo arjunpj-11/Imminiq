@@ -6,9 +6,9 @@ import type { IUserStreakRepository } from '../../domain/repositories/user-strea
 import type { IUserTrackerRepository } from '../../domain/repositories/user-tracker.repository.interface';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import type {
-  IBadgeShowcaseViewDTO,
-  IProfileStatsViewDTO,
-  IStreakSummaryViewDTO,
+  BadgeShowcaseViewDTO,
+  ProfileStatsViewDTO,
+  StreakSummaryViewDTO,
 } from '../users.dto';
 import { UsersApplicationError } from '../users-application.error';
 import type { IUsersMapper } from '../users.mapper';
@@ -21,13 +21,13 @@ type UsersProfileDataRepository = IUserRepository &
   IUserTrackerRepository;
 
 export interface IUsersProfileDataReader {
-  getBadgeShowcase(userId: string): Promise<IBadgeShowcaseViewDTO>;
-  getStreakSummary(userId: string, requestedYear?: number): Promise<IStreakSummaryViewDTO>;
+  getBadgeShowcase(userId: string): Promise<BadgeShowcaseViewDTO>;
+  getStreakSummary(userId: string, requestedYear?: number): Promise<StreakSummaryViewDTO>;
   getStats(
     userId: string,
     user?: UserEntity,
     profile?: UserProfileEntity
-  ): Promise<IProfileStatsViewDTO>;
+  ): Promise<ProfileStatsViewDTO>;
 }
 
 export class UsersProfileDataReader implements IUsersProfileDataReader {
@@ -37,7 +37,7 @@ export class UsersProfileDataReader implements IUsersProfileDataReader {
     private readonly _clock: IClock
   ) {}
 
-  async getBadgeShowcase(userId: string): Promise<IBadgeShowcaseViewDTO> {
+  async getBadgeShowcase(userId: string): Promise<BadgeShowcaseViewDTO> {
     const { catalog, earned } = await this._usersRepository.findBadgeShowcase(userId);
 
     const earnedMap = new Map(earned.map((item) => [item.badge.id, item.earnedAt] as const));
@@ -53,7 +53,7 @@ export class UsersProfileDataReader implements IUsersProfileDataReader {
     };
   }
 
-  async getStreakSummary(userId: string, requestedYear?: number): Promise<IStreakSummaryViewDTO> {
+  async getStreakSummary(userId: string, requestedYear?: number): Promise<StreakSummaryViewDTO> {
     const year = requestedYear ?? this._clock.now().getUTCFullYear();
 
     const [snapshot, history] = await Promise.all([
@@ -80,7 +80,7 @@ export class UsersProfileDataReader implements IUsersProfileDataReader {
     userId: string,
     user?: UserEntity,
     _profile?: UserProfileEntity
-  ): Promise<IProfileStatsViewDTO> {
+  ): Promise<ProfileStatsViewDTO> {
     const resolvedUser = user ?? (await this._usersRepository.findById(userId));
 
     if (!resolvedUser) {

@@ -2,7 +2,7 @@ import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-t
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface';
-import type { IAttemptAnalysisDTO } from '../mock-tests.dto';
+import type { AttemptAnalysisDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 
 type GetAttemptAnalysisRepository = IMockTestAttemptRepository &
@@ -11,13 +11,13 @@ type GetAttemptAnalysisRepository = IMockTestAttemptRepository &
   IMockTestReportRepository;
 
 export interface IGetAttemptAnalysisUseCase {
-  execute(attemptId: string, userId: string): Promise<IAttemptAnalysisDTO>;
+  execute(attemptId: string, userId: string): Promise<AttemptAnalysisDTO>;
 }
 
 export class GetAttemptAnalysisUseCase implements IGetAttemptAnalysisUseCase {
   constructor(private readonly _repository: GetAttemptAnalysisRepository) {}
 
-  async execute(attemptId: string, userId: string): Promise<IAttemptAnalysisDTO> {
+  async execute(attemptId: string, userId: string): Promise<AttemptAnalysisDTO> {
     const attempt = await this._repository.findAttemptById(attemptId);
 
     if (!attempt) {

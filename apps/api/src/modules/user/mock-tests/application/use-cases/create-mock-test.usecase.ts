@@ -1,6 +1,6 @@
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
-import type { ICreateMockTestPayloadDTO, IMockTestDTO } from '../mock-tests.dto';
+import type { CreateMockTestPayloadDTO, MockTestDTO } from '../mock-tests.dto';
 import { MAX_MANUAL_QUESTIONS } from '../../domain/mock-tests.constants';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
@@ -8,7 +8,7 @@ import type { IMockTestsMapper } from '../mock-tests.mapper';
 type CreateMockTestRepository = IMockTestRepository & IMockTestQuestionRepository;
 
 export interface ICreateMockTestUseCase {
-  execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO>;
+  execute(userId: string, payload: CreateMockTestPayloadDTO): Promise<MockTestDTO>;
 }
 
 export class CreateMockTestUseCase implements ICreateMockTestUseCase {
@@ -17,7 +17,7 @@ export class CreateMockTestUseCase implements ICreateMockTestUseCase {
     private readonly _mapper: IMockTestsMapper
   ) {}
 
-  async execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO> {
+  async execute(userId: string, payload: CreateMockTestPayloadDTO): Promise<MockTestDTO> {
     if (!payload.questions?.length) {
       throw MockTestsApplicationError.validation('At least one question is required');
     }

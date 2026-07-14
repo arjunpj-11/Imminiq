@@ -5,14 +5,14 @@ import {
 } from '../../domain/community.constants';
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
 import type {
-  ICommunityVerificationDashboardViewDTO,
-  IVerificationQueuePayloadDTO,
+  CommunityVerificationDashboardViewDTO,
+  VerificationQueuePayloadDTO,
 } from '../community.dto';
 import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../../domain/community.constants';
 import type { ICommunityMapper } from '../community.mapper';
 
 export interface IGetVerificationDashboardUseCase {
-  execute(payload: IVerificationQueuePayloadDTO): Promise<ICommunityVerificationDashboardViewDTO>;
+  execute(payload: VerificationQueuePayloadDTO): Promise<CommunityVerificationDashboardViewDTO>;
 }
 
 export class GetVerificationDashboardUseCase implements IGetVerificationDashboardUseCase {
@@ -22,8 +22,8 @@ export class GetVerificationDashboardUseCase implements IGetVerificationDashboar
   ) {}
 
   async execute(
-    payload: IVerificationQueuePayloadDTO
-  ): Promise<ICommunityVerificationDashboardViewDTO> {
+    payload: VerificationQueuePayloadDTO
+  ): Promise<CommunityVerificationDashboardViewDTO> {
     const page = this.normalizePage(payload.page);
     const limit = this.normalizeLimit(payload.limit);
 

@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdatePrivacyPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdatePrivacyPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdatePrivacyRepository = {
@@ -7,7 +7,7 @@ type UpdatePrivacyRepository = {
 };
 
 export interface IUpdatePrivacyUseCase {
-  execute(userId: string, payload: IUpdatePrivacyPayloadDTO): Promise<UserSettingsViewDTO | null>;
+  execute(userId: string, payload: UpdatePrivacyPayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdatePrivacyUseCase implements IUpdatePrivacyUseCase {
@@ -18,7 +18,7 @@ export class UpdatePrivacyUseCase implements IUpdatePrivacyUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdatePrivacyPayloadDTO
+    payload: UpdatePrivacyPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updatePrivacy({
       userId,

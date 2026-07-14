@@ -1,7 +1,7 @@
 import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
 import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface';
-import type { IRunMockTestCodePayloadDTO } from '../mock-tests.dto';
+import type { RunMockTestCodePayloadDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 
 type RunMockTestCodeRepository = IMockTestAttemptRepository & IMockTestQuestionRepository;
@@ -11,7 +11,7 @@ export interface IRunMockTestCodeUseCase {
     attemptId: string,
     userId: string,
     questionId: string,
-    payload: IRunMockTestCodePayloadDTO
+    payload: RunMockTestCodePayloadDTO
   ): Promise<import('../../domain/services/mock-test-code-runner.interface').MockTestCodeRunResult>;
 }
 
@@ -25,7 +25,7 @@ export class RunMockTestCodeUseCase implements IRunMockTestCodeUseCase {
     attemptId: string,
     userId: string,
     questionId: string,
-    payload: IRunMockTestCodePayloadDTO
+    payload: RunMockTestCodePayloadDTO
   ) {
     const attempt = await this._repository.findAttemptById(attemptId);
 

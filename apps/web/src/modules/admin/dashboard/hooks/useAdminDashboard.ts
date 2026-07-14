@@ -8,7 +8,7 @@ import {
 } from '../constants/admin-dashboard.constants';
 import type { AdminDashboardData } from '../types/admin-dashboard.types';
 import { adminDashboardKeys } from './admin-dashboard.query-keys';
-import type { ApiEnvelope } from '../../shared';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 
 export const useAdminDashboard = () =>
   useQuery({

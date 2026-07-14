@@ -1,4 +1,4 @@
-export interface IAdminMockTestDTO {
+export interface AdminMockTestDTO {
   id: string;
   title: string;
   owner: string;
@@ -11,7 +11,7 @@ export interface IAdminMockTestDTO {
   createdAt: Date;
 }
 
-export interface IAdminMockTestQuestionDTO {
+export interface AdminMockTestQuestionDTO {
   id: string;
   order: number;
   type: string;
@@ -29,10 +29,10 @@ export interface IAdminMockTestQuestionDTO {
   };
 }
 
-export interface IAdminMockTestDetailDTO extends IAdminMockTestDTO {
+export interface AdminMockTestDetailDTO extends AdminMockTestDTO {
   description: string;
   timeLimitMinutes: number;
   passingScore: number;
   tags: string[];
-  questions: IAdminMockTestQuestionDTO[];
+  questions: AdminMockTestQuestionDTO[];
 }

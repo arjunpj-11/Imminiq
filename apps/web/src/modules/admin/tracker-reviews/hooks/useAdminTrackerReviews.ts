@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../shared';
+import type { AdminListQuery, AdminPageData } from '../../shared';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 import type { AdminTrackerReview } from '../types/admin-tracker-reviews.types';
 import { adminTrackerReviewsKeys } from './admin-tracker-reviews.query-keys';
 import {

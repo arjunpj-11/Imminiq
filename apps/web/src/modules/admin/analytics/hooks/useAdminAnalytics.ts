@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { ApiEnvelope } from '../../shared';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 import type { AdminAnalytics } from '../types/admin-analytics.types';
 import { adminAnalyticsKeys } from './admin-analytics.query-keys';
 import {

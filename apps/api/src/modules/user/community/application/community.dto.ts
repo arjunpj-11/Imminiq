@@ -1,11 +1,11 @@
 import type { CommunitySort, VerificationVoteChoice } from '../domain/community.types';
 
-export interface ICommunityPaginationQueryDTO {
+export interface CommunityPaginationQueryDTO {
   page?: number;
   limit?: number;
 }
 
-export interface ICommunityTrackerListPayloadDTO extends ICommunityPaginationQueryDTO {
+export interface CommunityTrackerListPayloadDTO extends CommunityPaginationQueryDTO {
   userId: string;
   search?: string;
   topics?: string[];
@@ -14,11 +14,11 @@ export interface ICommunityTrackerListPayloadDTO extends ICommunityPaginationQue
   sort?: CommunitySort;
 }
 
-export interface IVerificationQueuePayloadDTO extends ICommunityPaginationQueryDTO {
+export interface VerificationQueuePayloadDTO extends CommunityPaginationQueryDTO {
   userId: string;
 }
 
-export interface ISubmitTrackerForVerificationPayloadDTO {
+export interface SubmitTrackerForVerificationPayloadDTO {
   trackerId: string;
   userId: string;
   requiredVotes?: number;
@@ -26,7 +26,7 @@ export interface ISubmitTrackerForVerificationPayloadDTO {
   urgent?: boolean;
 }
 
-export interface ICommunityTrackerViewDTO {
+export interface CommunityTrackerViewDTO {
   _id: string;
   title: string;
   description: string;
@@ -37,13 +37,13 @@ export interface ICommunityTrackerViewDTO {
   topic: string;
 }
 
-export interface ICommunityStatCardViewDTO {
+export interface CommunityStatCardViewDTO {
   label: string;
   value: string;
   helper: string;
 }
 
-export interface ICommunityPaginationViewDTO {
+export interface CommunityPaginationViewDTO {
   page: number;
   limit: number;
   total: number;
@@ -52,24 +52,24 @@ export interface ICommunityPaginationViewDTO {
   hasPreviousPage: boolean;
 }
 
-export interface ICommunityTrackerListViewDTO {
-  trackers: ICommunityTrackerViewDTO[];
-  pagination: ICommunityPaginationViewDTO;
+export interface CommunityTrackerListViewDTO {
+  trackers: CommunityTrackerViewDTO[];
+  pagination: CommunityPaginationViewDTO;
 }
 
-export interface ICommunityBrowseViewDTO extends ICommunityTrackerListViewDTO {
-  stats: ICommunityStatCardViewDTO[];
+export interface CommunityBrowseViewDTO extends CommunityTrackerListViewDTO {
+  stats: CommunityStatCardViewDTO[];
   topics: string[];
-  verifyBanner: ICommunityVerifyBannerViewDTO;
+  verifyBanner: CommunityVerifyBannerViewDTO;
 }
 
-export interface ICommunityVerifyBannerViewDTO {
+export interface CommunityVerifyBannerViewDTO {
   queueCount: number;
   rewardCoins: number;
   activeReviewersThisWeek: number;
 }
 
-export interface ICommunityVerifyItemViewDTO {
+export interface CommunityVerifyItemViewDTO {
   _id: string;
   title: string;
   category: string;
@@ -84,7 +84,7 @@ export interface ICommunityVerifyItemViewDTO {
   requiredVotes: number;
 }
 
-export interface ICommunityVerificationStatsViewDTO {
+export interface CommunityVerificationStatsViewDTO {
   awaiting: string;
   reviewed: string;
   totalEarned: string;
@@ -94,7 +94,7 @@ export interface ICommunityVerificationStatsViewDTO {
   activeReviewersThisWeek: number;
 }
 
-export interface ICommunityLeaderboardEntryViewDTO {
+export interface CommunityLeaderboardEntryViewDTO {
   rank: number;
   name: string;
   earned: string;
@@ -102,18 +102,18 @@ export interface ICommunityLeaderboardEntryViewDTO {
   isMe?: boolean;
 }
 
-export interface ICommunityVerificationQueueViewDTO {
-  items: ICommunityVerifyItemViewDTO[];
-  pagination: ICommunityPaginationViewDTO;
+export interface CommunityVerificationQueueViewDTO {
+  items: CommunityVerifyItemViewDTO[];
+  pagination: CommunityPaginationViewDTO;
 }
 
-export interface ICommunityVerificationDashboardViewDTO extends ICommunityVerificationQueueViewDTO {
-  stats: ICommunityVerificationStatsViewDTO;
-  leaderboard: ICommunityLeaderboardEntryViewDTO[];
+export interface CommunityVerificationDashboardViewDTO extends CommunityVerificationQueueViewDTO {
+  stats: CommunityVerificationStatsViewDTO;
+  leaderboard: CommunityLeaderboardEntryViewDTO[];
   howItWorks: string[];
 }
 
-export interface ICommunityVerificationSubmissionViewDTO extends ICommunityVerifyItemViewDTO {
+export interface CommunityVerificationSubmissionViewDTO extends CommunityVerifyItemViewDTO {
   trackerId: string;
   ownerId: string;
   userVote?: VerificationVoteChoice | null;
@@ -121,21 +121,21 @@ export interface ICommunityVerificationSubmissionViewDTO extends ICommunityVerif
   reviewTracker?: CommunityVerificationReviewTrackerViewDTO | null;
 }
 
-export interface IVoteVerificationSubmissionPayloadDTO {
+export interface VoteVerificationSubmissionPayloadDTO {
   submissionId: string;
   userId: string;
   vote: VerificationVoteChoice;
   reason?: string | null;
 }
 
-export interface IVoteVerificationSubmissionViewDTO {
+export interface VoteVerificationSubmissionViewDTO {
   vote: {
     _id: string;
     submissionId: string;
     choice: VerificationVoteChoice;
     rewardCoins: number;
   };
-  submission: ICommunityVerificationSubmissionViewDTO;
+  submission: CommunityVerificationSubmissionViewDTO;
   reward: {
     awarded: boolean;
     coins: number;

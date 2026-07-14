@@ -4,12 +4,12 @@ import type { ISecurityAuditLogger } from '../../domain/services/security-audit-
 import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface';
 import type { ISecurityEmailChangeUrlBuilder } from '../../domain/services/security-email-change-url.interface';
 import type { ISecurityEmailProvider } from '../../domain/services/security-email-provider.interface';
-import type { IChangeEmailPayloadDTO, IEmailChangeRequestResponseDTO } from '../security.dto';
+import type { ChangeEmailPayloadDTO, EmailChangeRequestResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service';
 
 export interface IRequestEmailChangeUseCase {
-  execute(userId: string, payload: IChangeEmailPayloadDTO): Promise<IEmailChangeRequestResponseDTO>;
+  execute(userId: string, payload: ChangeEmailPayloadDTO): Promise<EmailChangeRequestResponseDTO>;
 }
 
 export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
@@ -24,8 +24,8 @@ export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
 
   async execute(
     userId: string,
-    payload: IChangeEmailPayloadDTO
-  ): Promise<IEmailChangeRequestResponseDTO> {
+    payload: ChangeEmailPayloadDTO
+  ): Promise<EmailChangeRequestResponseDTO> {
     const user = await this._securityUserRepository.findUserById(userId);
 
     if (!user) {

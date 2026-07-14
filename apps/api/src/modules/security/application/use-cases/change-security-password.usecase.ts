@@ -1,13 +1,13 @@
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
 import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface';
-import type { IChangePasswordPayloadDTO, IChangePasswordResponseDTO } from '../security.dto';
+import type { ChangePasswordPayloadDTO, ChangePasswordResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 
 type ChangeSecurityPasswordRepository = ISecurityUserRepository & ISecuritySessionRepository;
 
 export interface IChangeSecurityPasswordUseCase {
-  execute(userId: string, payload: IChangePasswordPayloadDTO): Promise<IChangePasswordResponseDTO>;
+  execute(userId: string, payload: ChangePasswordPayloadDTO): Promise<ChangePasswordResponseDTO>;
 }
 
 export class ChangeSecurityPasswordUseCase implements IChangeSecurityPasswordUseCase {
@@ -18,8 +18,8 @@ export class ChangeSecurityPasswordUseCase implements IChangeSecurityPasswordUse
 
   async execute(
     userId: string,
-    payload: IChangePasswordPayloadDTO
-  ): Promise<IChangePasswordResponseDTO> {
+    payload: ChangePasswordPayloadDTO
+  ): Promise<ChangePasswordResponseDTO> {
     const user = await this._securityRepository.findUserById(userId);
 
     if (!user) {

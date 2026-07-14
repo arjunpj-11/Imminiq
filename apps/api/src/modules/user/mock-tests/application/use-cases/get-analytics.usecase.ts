@@ -1,12 +1,12 @@
 import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface';
 import type { IMockTestAIGateway } from '../../domain/services/mock-test-ai.interface';
-import type { ITestAnalyticsDTO } from '../mock-tests.dto';
+import type { TestAnalyticsDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
 
 const DEFAULT_AI_INSIGHTS = 'Keep practicing to improve your performance.';
 
 export interface IGetAnalyticsUseCase {
-  execute(userId: string): Promise<ITestAnalyticsDTO>;
+  execute(userId: string): Promise<TestAnalyticsDTO>;
 }
 
 export class GetAnalyticsUseCase implements IGetAnalyticsUseCase {
@@ -16,7 +16,7 @@ export class GetAnalyticsUseCase implements IGetAnalyticsUseCase {
     private readonly _mapper: IMockTestsMapper
   ) {}
 
-  async execute(userId: string): Promise<ITestAnalyticsDTO> {
+  async execute(userId: string): Promise<TestAnalyticsDTO> {
     const [trends, topicBreakdown] = await Promise.all([
       this._repository.getPerformanceTrends(userId),
       this._repository.getTopicBreakdown(userId),

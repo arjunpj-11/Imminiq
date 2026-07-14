@@ -1,11 +1,11 @@
 import type { IAdaptiveLearningRepository } from '../../domain/repositories/adaptive-learning.repository.interface';
 import type { IAdaptiveLearningAgent } from '../../domain/services/adaptive-learning-agent.interface';
 import { AdaptiveLearningApplicationError } from '../adaptive-learning-application.error';
-import type { IAdaptiveAdvisorChatDTO } from '../adaptive-learning.dto';
+import type { AdaptiveAdvisorChatDTO } from '../adaptive-learning.dto';
 import type { IAdaptiveLearningMapper } from '../adaptive-learning.mapper';
 
 export interface IChatWithAdaptiveAdvisorUseCase {
-  execute(userId: string, question: string): Promise<IAdaptiveAdvisorChatDTO>;
+  execute(userId: string, question: string): Promise<AdaptiveAdvisorChatDTO>;
 }
 
 export class ChatWithAdaptiveAdvisorUseCase implements IChatWithAdaptiveAdvisorUseCase {
@@ -15,7 +15,7 @@ export class ChatWithAdaptiveAdvisorUseCase implements IChatWithAdaptiveAdvisorU
     private readonly _mapper: IAdaptiveLearningMapper
   ) {}
 
-  async execute(userId: string, question: string): Promise<IAdaptiveAdvisorChatDTO> {
+  async execute(userId: string, question: string): Promise<AdaptiveAdvisorChatDTO> {
     const cleanQuestion = question.trim();
     if (cleanQuestion.length < 2) {
       throw AdaptiveLearningApplicationError.invalidAdvisorQuestion();

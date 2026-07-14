@@ -6,16 +6,16 @@ import {
 } from '../../domain/community.constants';
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
 import type {
-  ICommunityVerificationSubmissionViewDTO,
-  ISubmitTrackerForVerificationPayloadDTO,
+  CommunityVerificationSubmissionViewDTO,
+  SubmitTrackerForVerificationPayloadDTO,
 } from '../community.dto';
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
 
 export interface ISubmitTrackerForVerificationUseCase {
   execute(
-    payload: ISubmitTrackerForVerificationPayloadDTO
-  ): Promise<ICommunityVerificationSubmissionViewDTO>;
+    payload: SubmitTrackerForVerificationPayloadDTO
+  ): Promise<CommunityVerificationSubmissionViewDTO>;
 }
 
 export class SubmitTrackerForVerificationUseCase implements ISubmitTrackerForVerificationUseCase {
@@ -25,8 +25,8 @@ export class SubmitTrackerForVerificationUseCase implements ISubmitTrackerForVer
   ) {}
 
   async execute(
-    payload: ISubmitTrackerForVerificationPayloadDTO
-  ): Promise<ICommunityVerificationSubmissionViewDTO> {
+    payload: SubmitTrackerForVerificationPayloadDTO
+  ): Promise<CommunityVerificationSubmissionViewDTO> {
     const submission = await this._repository.submitTrackerForVerification({
       trackerId: payload.trackerId,
       userId: payload.userId,

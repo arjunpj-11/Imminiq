@@ -1,4 +1,5 @@
 export * from './subscriptions-application.error';
+export * from './subscription-limit.contract';
 export * from './subscriptions-use-cases.contract';
 export * from './subscriptions.dto';
 export * from './subscriptions.mapper';
