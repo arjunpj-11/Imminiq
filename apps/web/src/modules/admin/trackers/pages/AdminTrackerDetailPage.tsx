@@ -1,5 +1,5 @@
 import { ArrowLeft, Clock3 } from 'lucide-react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useLocation, useParams } from 'react-router-dom';
 import {
   AdminEmpty,
   AdminError,
@@ -13,17 +13,21 @@ import type { AdminTrackerSubtopic } from '../types/admin-trackers.types';
 
 export default function AdminTrackerDetailPage() {
   const { trackerId } = useParams();
+  const location = useLocation();
+  const fromTrackerReview = Boolean(
+    (location.state as { fromTrackerReview?: boolean } | null)?.fromTrackerReview
+  );
   const { data, isLoading, isError } = useAdminTrackerDetail(trackerId);
   if (isLoading) return <AdminLoading />;
   if (isError || !data) return <AdminError />;
   return (
     <main className="mx-auto max-w-275 px-5 py-8 sm:px-8">
       <Link
-        to="/admin/trackers"
+        to={fromTrackerReview ? '/admin/trackers/reviews' : '/admin/trackers'}
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
       >
         <ArrowLeft size={16} />
-        Back to trackers
+        {fromTrackerReview ? 'Back to tracker reviews' : 'Back to trackers'}
       </Link>
       <AdminPageHeader
         title={data.title}

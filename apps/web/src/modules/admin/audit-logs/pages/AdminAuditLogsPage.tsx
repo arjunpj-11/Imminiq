@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Eye, X } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Download, Eye, FileText, X } from 'lucide-react';
 import {
   AdminEmpty,
   AdminError,
@@ -11,23 +11,137 @@ import {
   AdminStatusBadge,
 } from '../../../../components/admin/AdminPage';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
-import { useAdminAuditLogs } from '../hooks/useAdminAuditLogs';
+import { toast } from '../../../../lib/toast';
+import { downloadCsv } from '../../downloadCsv';
+import { downloadTablePdf } from '../../downloadPdf';
+import { AdminDateRangeFilter } from '../../AdminDateRangeFilter';
+import { useAdminDateRange } from '../../dateRange';
+import { useAdminAuditLogs, useExportAdminAuditLogs } from '../hooks/useAdminAuditLogs';
 import type { AdminAuditLog } from '../types/admin-audit-logs.types';
 
 export default function AdminAuditLogsPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<AdminAuditLog | null>(null);
+  const filteredSearch = useDebouncedValue(search, 300);
+  const dateRange = useAdminDateRange(30);
+  const exportLogs = useExportAdminAuditLogs();
   const { data, isLoading, isError } = useAdminAuditLogs({
-    search: useDebouncedValue(search, 300),
+    search: filteredSearch,
+    ...dateRange.range,
     page,
     limit: 25,
   });
+  useEffect(() => setPage(1), [dateRange.range.from, dateRange.range.to]);
+  const downloadAuditReport = async (format: 'csv' | 'pdf') => {
+    try {
+      const items = await exportLogs.mutateAsync({
+        search: filteredSearch,
+        ...dateRange.range,
+      });
+      const date = new Date().toISOString().slice(0, 10);
+      if (format === 'csv') {
+        downloadCsv(`audit-logs-${date}.csv`, [
+          ['AUDIT LOG REPORT'],
+          ['Date range', `${dateRange.range.from} to ${dateRange.range.to}`],
+          ['Search', filteredSearch || 'All events'],
+          ['Matching events', items.length],
+          [],
+          [
+            'Action',
+            'Actor',
+            'Actor ID',
+            'Target',
+            'Target ID',
+            'Module',
+            'Outcome',
+            'IP address',
+            'Timestamp',
+            'Metadata',
+          ],
+          ...items.map((item) => [
+            item.action,
+            item.actor,
+            item.actorId,
+            item.target,
+            item.targetId,
+            item.module,
+            item.outcome,
+            item.ipAddress,
+            item.createdAt,
+            JSON.stringify(item.metadata),
+          ]),
+        ]);
+      } else {
+        await downloadTablePdf({
+          filename: `audit-logs-${date}.pdf`,
+          title: 'Audit Logs',
+          description: 'Administrative and security activity matching the selected filters.',
+          filters: [
+            `Date range: ${dateRange.range.from} to ${dateRange.range.to}`,
+            `Search: ${filteredSearch || 'All events'}`,
+            `Matching records: ${items.length}`,
+          ],
+          summary: [
+            { label: 'Matching events', value: items.length },
+            { label: 'Product activity', value: data?.stats?.activity ?? 0 },
+            { label: 'Security events', value: data?.stats?.security ?? 0 },
+          ],
+          columns: [
+            { header: 'Action', key: 'action', width: 92 },
+            { header: 'Actor', key: 'actor', width: 76 },
+            { header: 'Target', key: 'target', width: 72 },
+            { header: 'Module', key: 'module', width: 62 },
+            { header: 'Outcome', key: 'outcome', width: 52 },
+            { header: 'IP address', key: 'ipAddress', width: 65 },
+            { header: 'Timestamp', key: 'timestamp', width: 82 },
+            { header: 'Recorded details', key: 'metadata' },
+          ],
+          rows: items.map((item) => ({
+            action: item.action,
+            actor: `${item.actor}${item.actorId ? `\n${item.actorId}` : ''}`,
+            target: `${item.target ?? '-'}${item.targetId ? `\n${item.targetId}` : ''}`,
+            module: item.module,
+            outcome: item.outcome,
+            ipAddress: item.ipAddress || '-',
+            timestamp: new Date(item.createdAt).toLocaleString(),
+            metadata: JSON.stringify(item.metadata),
+          })),
+        });
+      }
+      toast.success(
+        `Audit log ${format.toUpperCase()} downloaded`,
+        `${items.length} matching events exported.`
+      );
+    } catch {
+      toast.error('Audit export failed', 'Please try again.');
+    }
+  };
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Audit Logs"
         description="A read-only trace showing which administrator acted, the affected target, and the complete recorded change."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <button
+              className="admin-button inline-flex items-center gap-2"
+              disabled={exportLogs.isPending}
+              onClick={() => void downloadAuditReport('csv')}
+            >
+              <Download size={16} />
+              {exportLogs.isPending ? 'Preparing…' : 'Download CSV'}
+            </button>
+            <button
+              className="admin-primary-button inline-flex items-center gap-2"
+              disabled={exportLogs.isPending}
+              onClick={() => void downloadAuditReport('pdf')}
+            >
+              <FileText size={16} />
+              {exportLogs.isPending ? 'Preparing…' : 'Download PDF'}
+            </button>
+          </div>
+        }
       />
       <AdminMetricGrid
         metrics={[
@@ -39,14 +153,17 @@ export default function AdminAuditLogsPage() {
       <AdminPanel
         title="Event stream"
         toolbar={
-          <AdminSearch
-            value={search}
-            onChange={(v) => {
-              setSearch(v);
-              setPage(1);
-            }}
-            placeholder="Search events, admins, or targets…"
-          />
+          <div className="flex flex-wrap items-center gap-3">
+            <AdminDateRangeFilter {...dateRange} />
+            <AdminSearch
+              value={search}
+              onChange={(v) => {
+                setSearch(v);
+                setPage(1);
+              }}
+              placeholder="Search events, admins, or targets…"
+            />
+          </div>
         }
       >
         {isLoading ? (

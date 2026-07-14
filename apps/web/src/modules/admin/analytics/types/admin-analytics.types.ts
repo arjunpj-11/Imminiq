@@ -1,5 +1,7 @@
 export type AdminAnalytics = {
   rangeDays: number;
+  rangeFrom: string;
+  rangeTo: string;
   metrics: {
     users: number;
     activeUsers: number;

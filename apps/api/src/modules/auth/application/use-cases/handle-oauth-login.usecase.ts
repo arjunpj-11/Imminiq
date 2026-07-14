@@ -50,7 +50,10 @@ export class HandleOAuthLoginUseCase implements IHandleOAuthLoginUseCase {
 
     const authenticatedUser = recoveredUser ?? dbUser;
 
-    const redirectPath = await this._authRedirectResolver.resolveRedirectPath(userId);
+    const redirectPath = await this._authRedirectResolver.resolveRedirectPath(
+      userId,
+      authenticatedUser.role
+    );
 
     const tokens = await this._authSessionIssuer.issueTokenPair(
       userId,

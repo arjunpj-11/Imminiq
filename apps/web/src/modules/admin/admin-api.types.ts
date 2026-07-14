@@ -5,4 +5,11 @@ export type AdminPageData<T> = {
   pagination: AdminPagination;
   stats?: Record<string, number>;
 };
-export type AdminListQuery = { search?: string; status?: string; page?: number; limit?: number };
+export type AdminListQuery = {
+  search?: string;
+  status?: string;
+  from?: string;
+  to?: string;
+  page?: number;
+  limit?: number;
+};

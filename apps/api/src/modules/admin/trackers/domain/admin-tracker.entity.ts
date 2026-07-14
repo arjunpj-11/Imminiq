@@ -42,3 +42,26 @@ export type AdminTrackerDeleteResult = {
   ownerEmail?: string;
   deletedAt: Date;
 };
+export type AdminPublishedTracker = {
+  id: string;
+  title: string;
+  owner: string;
+  category: string;
+  level: string;
+  topicsCount: number;
+  cloneCount: number;
+  likeCount: number;
+  ratingAverage: number;
+  ratingCount: number;
+  publishedAt: Date;
+  adminLiked: boolean;
+  adminRating: number | null;
+};
+export type AdminPublishedTrackerEngagementResult = {
+  id: string;
+  likeCount: number;
+  ratingAverage: number;
+  ratingCount: number;
+  adminLiked: boolean;
+  adminRating: number | null;
+};

@@ -8,6 +8,7 @@ export const createAdminTrackerReviewsRoutes = (useCase: IAdminTrackerReviewsUse
   const controller = new AdminTrackerReviewsController(useCase);
   router.use(authenticate, requireAdmin);
   router.get('/', controller.list);
+  router.patch('/:id/consensus', controller.addConsensusVote);
   router.patch('/:id/status', controller.resolve);
   return router;
 };

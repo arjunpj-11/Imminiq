@@ -5,18 +5,18 @@ import { Tracker } from '../../../../../infrastructure/database/models/tracker.m
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import type { IAdminAnalyticsRepository } from '../../domain/repositories/admin-analytics.repository.interface';
 export class MongoAdminAnalyticsRepository implements IAdminAnalyticsRepository {
-  async get(days: number) {
-    const since = new Date(Date.now() - days * 86400000);
+  async get({ from, to, days }: import('../../domain/admin-analytics.entity').AdminAnalyticsRange) {
+    const createdAt = { $gte: from, $lte: to };
     const verified = { deletedAt: null, $or: [{ emailVerified: true }, { phoneVerified: true }] };
     const [users, activeUsers, trackers, tests, attempts, dailyUsers, dailyActivity] =
       await Promise.all([
         User.countDocuments(verified),
-        User.countDocuments({ ...verified, lastActiveAt: { $gte: since } }),
+        User.countDocuments({ ...verified, lastActiveAt: createdAt }),
         Tracker.countDocuments({ deletedAt: null }),
         MockTestModel.countDocuments(),
-        MockTestAttemptModel.countDocuments({ createdAt: { $gte: since } }),
+        MockTestAttemptModel.countDocuments({ createdAt }),
         User.aggregate<{ _id: string; value: number }>([
-          { $match: { ...verified, createdAt: { $gte: since } } },
+          { $match: { ...verified, createdAt } },
           {
             $group: {
               _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
@@ -26,7 +26,7 @@ export class MongoAdminAnalyticsRepository implements IAdminAnalyticsRepository 
           { $sort: { _id: 1 } },
         ]),
         ActivityLog.aggregate<{ _id: string; value: number }>([
-          { $match: { deletedAt: null, createdAt: { $gte: since } } },
+          { $match: { deletedAt: null, createdAt } },
           {
             $group: {
               _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },
@@ -38,6 +38,8 @@ export class MongoAdminAnalyticsRepository implements IAdminAnalyticsRepository 
       ]);
     return {
       rangeDays: days,
+      rangeFrom: from.toISOString().slice(0, 10),
+      rangeTo: to.toISOString().slice(0, 10),
       metrics: { users, activeUsers, trackers, tests, attempts },
       dailyUsers: dailyUsers.map((x) => ({ date: x._id, value: x.value })),
       dailyActivity: dailyActivity.map((x) => ({ date: x._id, value: x.value })),

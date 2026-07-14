@@ -35,3 +35,18 @@ export type AdminTrackerDetail = AdminTracker & {
   ownerEmail?: string;
   topics: AdminTrackerTopic[];
 };
+export type AdminPublishedTracker = {
+  id: string;
+  title: string;
+  owner: string;
+  category: string;
+  level: string;
+  topicsCount: number;
+  cloneCount: number;
+  likeCount: number;
+  ratingAverage: number;
+  ratingCount: number;
+  publishedAt: string;
+  adminLiked: boolean;
+  adminRating: number | null;
+};

@@ -1,4 +1,4 @@
-import type { AdminAnalytics } from '../admin-analytics.entity';
+import type { AdminAnalytics, AdminAnalyticsRange } from '../admin-analytics.entity';
 export interface IAdminAnalyticsRepository {
-  get(days: number): Promise<AdminAnalytics>;
+  get(range: AdminAnalyticsRange): Promise<AdminAnalytics>;
 }

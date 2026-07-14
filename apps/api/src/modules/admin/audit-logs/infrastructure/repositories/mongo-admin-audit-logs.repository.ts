@@ -7,11 +7,21 @@ import type { IAdminAuditLogsRepository } from '../../domain/repositories/admin-
 export class MongoAdminAuditLogsRepository implements IAdminAuditLogsRepository {
   async list(query: AdminListQuery) {
     const text = query.search?.toLowerCase();
+    const createdAt = {
+      ...(query.from ? { $gte: new Date(`${query.from}T00:00:00.000Z`) } : {}),
+      ...(query.to ? { $lte: new Date(`${query.to}T23:59:59.999Z`) } : {}),
+    };
+    const activityFilter = {
+      deletedAt: null,
+      ...(Object.keys(createdAt).length ? { createdAt } : {}),
+    };
+    const securityFilter = Object.keys(createdAt).length ? { createdAt } : {};
+    const fetchLimit = text ? 0 : query.page * query.limit;
     const [activity, security, activityCount, securityCount] = await Promise.all([
-      ActivityLog.find({ deletedAt: null }).sort({ createdAt: -1 }).limit(500).lean(),
-      SecurityAuditEvent.find().sort({ createdAt: -1 }).limit(500).lean(),
-      ActivityLog.countDocuments({ deletedAt: null }),
-      SecurityAuditEvent.countDocuments(),
+      ActivityLog.find(activityFilter).sort({ createdAt: -1 }).limit(fetchLimit).lean(),
+      SecurityAuditEvent.find(securityFilter).sort({ createdAt: -1 }).limit(fetchLimit).lean(),
+      ActivityLog.countDocuments(activityFilter),
+      SecurityAuditEvent.countDocuments(securityFilter),
     ]);
     const ids = new Set<string>();
     activity.forEach((row) => ids.add(String(row.userId)));

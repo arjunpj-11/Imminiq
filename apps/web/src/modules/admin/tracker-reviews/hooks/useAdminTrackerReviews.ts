@@ -21,3 +21,11 @@ export const useResolveAdminTrackerReview = () => {
     onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'tracker-reviews'] }),
   });
 };
+export const useAddAdminTrackerReviewConsensus = () => {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, choice }: { id: string; choice: 'pass' | 'fail' }) =>
+      api.patch(`/admin/tracker-reviews/${id}/consensus`, { choice }),
+    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'tracker-reviews'] }),
+  });
+};

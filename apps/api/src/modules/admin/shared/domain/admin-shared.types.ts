@@ -1,6 +1,8 @@
 export type AdminListQuery = {
   search?: string;
   status?: string;
+  from?: string;
+  to?: string;
   page: number;
   limit: number;
 };

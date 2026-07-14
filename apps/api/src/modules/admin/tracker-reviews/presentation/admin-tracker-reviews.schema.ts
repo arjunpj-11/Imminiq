@@ -8,3 +8,6 @@ export const adminTrackerReviewsQuerySchema = z.object({
 export const adminTrackerReviewStatusSchema = z.object({
   status: z.enum(['approved', 'rejected']),
 });
+export const adminTrackerReviewConsensusSchema = z.object({
+  choice: z.enum(['pass', 'fail']),
+});

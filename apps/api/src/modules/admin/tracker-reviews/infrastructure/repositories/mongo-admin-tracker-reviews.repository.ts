@@ -5,6 +5,7 @@ import type { AdminActor, AdminListQuery } from '../../../shared';
 import { recordAdminAction } from '../../../shared';
 import { createAdminPage, escapeAdminSearch } from '../../../shared';
 import type { IAdminTrackerReviewsRepository } from '../../domain/repositories/admin-tracker-reviews.repository.interface';
+import type { AdminTrackerReviewConsensusChoice } from '../../domain/admin-tracker-review.entity';
 export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsRepository {
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> = { deletedAt: null };
@@ -30,6 +31,7 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
       const owner = row.ownerId as unknown as { fullName?: string; username?: string };
       return {
         id: String(row._id),
+        trackerId: String(row.trackerId),
         title: row.title,
         owner: owner?.fullName ?? owner?.username ?? 'Unknown',
         category: row.category,
@@ -41,6 +43,42 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
       };
     });
     return createAdminPage(items, query, total, { open, approved, rejected });
+  }
+  async addConsensusVote(
+    id: string,
+    choice: AdminTrackerReviewConsensusChoice,
+    actor: AdminActor
+  ) {
+    const voteField = choice === 'pass' ? 'passVotes' : 'failVotes';
+    const review = await CommunityVerificationSubmission.findOneAndUpdate(
+      { _id: id, deletedAt: null, status: 'open' },
+      { $inc: { [voteField]: 1 } },
+      { new: true }
+    ).lean();
+    if (!review) {
+      const exists = await CommunityVerificationSubmission.exists({ _id: id, deletedAt: null });
+      if (!exists) {
+        throw new ApiError(404, 'Tracker review not found', 'TRACKER_REVIEW_NOT_FOUND');
+      }
+      throw new ApiError(
+        409,
+        'Consensus can only be changed while a review is open',
+        'TRACKER_REVIEW_NOT_OPEN'
+      );
+    }
+    const progress = Math.min(
+      100,
+      Math.round(((review.passVotes + review.failVotes) / review.requiredVotes) * 100)
+    );
+    await CommunityVerificationSubmission.updateOne({ _id: id }, { $set: { progress } });
+    await recordAdminAction(actor, 'admin_tracker_review_consensus_vote_added', 'admin.tracker-reviews', {
+      reviewId: id,
+      trackerId: String(review.trackerId),
+      choice,
+      passVotes: review.passVotes,
+      failVotes: review.failVotes,
+    });
+    return { id, passVotes: review.passVotes, failVotes: review.failVotes };
   }
   async resolve(id: string, status: string, actor: AdminActor) {
     const review = await CommunityVerificationSubmission.findOneAndUpdate(

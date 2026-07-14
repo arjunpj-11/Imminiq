@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useMemo } from 'react';
+import { Download, FileText } from 'lucide-react';
 import {
   AdminError,
   AdminLoading,
@@ -7,36 +8,95 @@ import {
   AdminPanel,
 } from '../../../../components/admin/AdminPage';
 import { useAdminAnalytics } from '../hooks/useAdminAnalytics';
+import { downloadCsv } from '../../downloadCsv';
+import { downloadTablePdf } from '../../downloadPdf';
+import { AdminDateRangeFilter } from '../../AdminDateRangeFilter';
+import { enumerateDateRange, useAdminDateRange } from '../../dateRange';
 
 export default function AdminAnalyticsPage() {
-  const [days, setDays] = useState(30);
-  const { data, isLoading, isError } = useAdminAnalytics(days);
+  const dateRange = useAdminDateRange(30);
+  const { data, isLoading, isError } = useAdminAnalytics(dateRange.range);
   const activity = useMemo(() => {
     const values = new Map(data?.dailyActivity.map((point) => [point.date, point.value]) ?? []);
-    return Array.from({ length: days }, (_, index) => {
-      const date = new Date();
-      date.setHours(12, 0, 0, 0);
-      date.setDate(date.getDate() - (days - index - 1));
-      const key = date.toISOString().slice(0, 10);
-      return { date: key, value: values.get(key) ?? 0 };
-    });
-  }, [data, days]);
+    return enumerateDateRange(dateRange.range).map((date) => ({
+      date,
+      value: values.get(date) ?? 0,
+    }));
+  }, [data, dateRange.range]);
   const max = Math.max(1, ...activity.map((point) => point.value));
+  const downloadAnalyticsReport = async (format: 'csv' | 'pdf') => {
+    if (!data) return;
+    const users = new Map(data.dailyUsers.map((point) => [point.date, point.value]));
+    if (format === 'csv') {
+      downloadCsv(`platform-activity-${dateRange.range.from}-to-${dateRange.range.to}.csv`, [
+        ['PLATFORM ACTIVITY REPORT'],
+        ['Date range', `${dateRange.range.from} to ${dateRange.range.to}`],
+        ['Generated', new Date().toLocaleString()],
+        [],
+        ['SUMMARY METRICS'],
+        ['Verified users', 'Active users', 'Trackers', 'Tests', 'Test attempts'],
+        [
+          data.metrics.users,
+          data.metrics.activeUsers,
+          data.metrics.trackers,
+          data.metrics.tests,
+          data.metrics.attempts,
+        ],
+        [],
+        ['DAILY RESULTS'],
+        ['Date', 'Platform activity', 'New users'],
+        ...activity.map((point) => [point.date, point.value, users.get(point.date) ?? 0]),
+      ]);
+      return;
+    }
+    await downloadTablePdf({
+      filename: `platform-activity-${dateRange.range.from}-to-${dateRange.range.to}.pdf`,
+      title: 'Platform Activity',
+      description: 'Adoption and engagement signals for the selected reporting period.',
+      filters: [`Date range: ${dateRange.range.from} to ${dateRange.range.to}`],
+      summary: [
+        { label: 'Verified users', value: data.metrics.users },
+        { label: 'Active users', value: data.metrics.activeUsers },
+        { label: 'Trackers', value: data.metrics.trackers },
+        { label: 'Tests', value: data.metrics.tests },
+        { label: 'Test attempts', value: data.metrics.attempts },
+      ],
+      columns: [
+        { header: 'Date', key: 'date' },
+        { header: 'Platform activity', key: 'activity' },
+        { header: 'New users', key: 'users' },
+      ],
+      rows: activity.map((point) => ({
+        date: point.date,
+        activity: point.value,
+        users: users.get(point.date) ?? 0,
+      })),
+      orientation: 'portrait',
+    });
+  };
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
-        title="Platform Analytics"
-        description="Live adoption and engagement signals calculated from production collections."
+        title="Platform Activity"
+        description="Live adoption and engagement signals calculated for the selected date range."
         action={
-          <select
-            value={days}
-            onChange={(e) => setDays(Number(e.target.value))}
-            className="admin-select"
-          >
-            <option value={7}>Last 7 days</option>
-            <option value={30}>Last 30 days</option>
-            <option value={90}>Last 90 days</option>
-          </select>
+          <div className="flex flex-wrap gap-2">
+            <AdminDateRangeFilter {...dateRange} />
+            <button
+              className="admin-button inline-flex items-center gap-2"
+              disabled={!data || isLoading}
+              onClick={() => void downloadAnalyticsReport('csv')}
+            >
+              <Download size={16} /> Download CSV
+            </button>
+            <button
+              className="admin-primary-button inline-flex items-center gap-2"
+              disabled={!data || isLoading}
+              onClick={() => void downloadAnalyticsReport('pdf')}
+            >
+              <FileText size={16} /> Download PDF
+            </button>
+          </div>
         }
       />
       {isLoading ? (
@@ -50,7 +110,7 @@ export default function AdminAnalyticsPage() {
               metrics={[
                 { label: 'Verified users', value: data.metrics.users },
                 {
-                  label: `Active (${days}d)`,
+                  label: `Active (${data.rangeDays}d)`,
                   value: data.metrics.activeUsers,
                   tone: 'success',
                 },

@@ -1,9 +1,13 @@
-import type { RouteObject } from 'react-router-dom';
+import { Navigate, type RouteObject } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
 import AdminComingSoonPage from '../../components/admin/AdminComingSoonPage';
 import { AdminDashboardPage } from '../../modules/admin/dashboard';
 import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
-import { AdminTrackerDetailPage, AdminTrackersPage } from '../../modules/admin/trackers';
+import {
+  AdminPublishedTrackersPage,
+  AdminTrackerDetailPage,
+  AdminTrackersPage,
+} from '../../modules/admin/trackers';
 import { AdminMockTestDetailPage, AdminMockTestsPage } from '../../modules/admin/mock-tests';
 import { AdminTrackerReviewsPage } from '../../modules/admin/tracker-reviews';
 import { AdminAnalyticsPage } from '../../modules/admin/analytics';
@@ -21,11 +25,17 @@ export const adminRoutes: RouteObject[] = [
       { path: '/admin/users', element: <AdminUsersPage /> },
       { path: '/admin/users/:userId', element: <AdminUserDetailPage /> },
       { path: '/admin/trackers', element: <AdminTrackersPage /> },
+      { path: '/admin/trackers/reviews', element: <AdminTrackerReviewsPage /> },
+      { path: '/admin/trackers/published', element: <AdminPublishedTrackersPage /> },
       { path: '/admin/trackers/:trackerId', element: <AdminTrackerDetailPage /> },
       { path: '/admin/mock-tests', element: <AdminMockTestsPage /> },
       { path: '/admin/mock-tests/:testId', element: <AdminMockTestDetailPage /> },
-      { path: '/admin/tracker-reviews', element: <AdminTrackerReviewsPage /> },
-      { path: '/admin/analytics', element: <AdminAnalyticsPage /> },
+      {
+        path: '/admin/tracker-reviews',
+        element: <Navigate to="/admin/trackers/reviews" replace />,
+      },
+      { path: '/admin/activity', element: <AdminAnalyticsPage /> },
+      { path: '/admin/analytics', element: <Navigate to="/admin/activity" replace /> },
       { path: '/admin/broadcast', element: <AdminBroadcastPage /> },
       { path: '/admin/subscriptions', element: <AdminComingSoonPage /> },
       { path: '/admin/audit-logs', element: <AdminAuditLogsPage /> },

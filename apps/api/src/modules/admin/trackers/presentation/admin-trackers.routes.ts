@@ -8,6 +8,9 @@ export const createAdminTrackersRoutes = (useCase: IAdminTrackersUseCase) => {
   const controller = new AdminTrackersController(useCase);
   router.use(authenticate, requireAdmin);
   router.get('/', controller.list);
+  router.get('/published', controller.listPublished);
+  router.post('/published/:id/like', controller.likePublished);
+  router.put('/published/:id/rating', controller.ratePublished);
   router.get('/:id', controller.getDetail);
   router.delete('/:id', controller.delete);
   return router;

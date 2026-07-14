@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, Trash2 } from 'lucide-react';
+import { Eye, FileBarChart, Globe2, Trash2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import {
@@ -32,6 +32,22 @@ export default function AdminTrackersPage() {
       <AdminPageHeader
         title="Tracker Management"
         description="Inspect tracker learning structures and remove policy-violating trackers when necessary."
+        action={
+          <div className="flex flex-wrap gap-2">
+            <Link
+              to="/admin/trackers/reviews"
+              className="admin-button inline-flex items-center gap-2"
+            >
+              <FileBarChart size={16} /> Tracker reviews
+            </Link>
+            <Link
+              to="/admin/trackers/published"
+              className="admin-primary-button inline-flex items-center gap-2"
+            >
+              <Globe2 size={16} /> Published trackers
+            </Link>
+          </div>
+        }
       />
       <AdminMetricGrid
         metrics={[

@@ -119,7 +119,10 @@ export class LoginUserUseCase implements ILoginUserUseCase {
 
     const authenticatedUser = recoveredUser ?? user;
 
-    const redirectPath = await this._authRedirectResolver.resolveRedirectPath(userId);
+    const redirectPath = await this._authRedirectResolver.resolveRedirectPath(
+      userId,
+      authenticatedUser.role
+    );
 
     const tokens = await this._authSessionIssuer.issueTokenPair(userId, user.role, meta);
 
