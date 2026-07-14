@@ -1,23 +1,19 @@
 import {
   ACCOUNT_DELETION_RECOVERY_DAYS,
   ACCOUNT_DELETION_RECOVERY_MS,
-} from '../../domain/security.constants'
-import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface'
-import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface'
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
-import type {
-  IDeleteAccountPayloadDTO,
-  IDeleteAccountResponseDTO,
-} from '../security.dto'
-import { SecurityApplicationError } from '../security-application.error'
-import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service'
-import type { IClock } from '../../../../shared/time/clock.interface'
+} from '../../domain/security.constants';
+import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
+import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { IDeleteAccountPayloadDTO, IDeleteAccountResponseDTO } from '../security.dto';
+import { SecurityApplicationError } from '../security-application.error';
+import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service';
+import type { IClock } from '../../../../shared/time/clock.interface';
 
-type DeleteSecurityAccountRepository =
-  ISecurityUserRepository & ISecuritySessionRepository
+type DeleteSecurityAccountRepository = ISecurityUserRepository & ISecuritySessionRepository;
 
 export interface IDeleteSecurityAccountUseCase {
-  execute(userId: string, payload: IDeleteAccountPayloadDTO): Promise<IDeleteAccountResponseDTO>
+  execute(userId: string, payload: IDeleteAccountPayloadDTO): Promise<IDeleteAccountResponseDTO>;
 }
 
 export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCase {
@@ -25,56 +21,55 @@ export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCa
     private readonly _securityRepository: DeleteSecurityAccountRepository,
     private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
     private readonly _securityAuditLogger: ISecurityAuditLogger,
-    private readonly _clock: IClock,
+    private readonly _clock: IClock
   ) {}
 
   async execute(
     userId: string,
-    payload: IDeleteAccountPayloadDTO,
+    payload: IDeleteAccountPayloadDTO
   ): Promise<IDeleteAccountResponseDTO> {
     if (payload.confirmation !== 'DELETE') {
-      throw SecurityApplicationError.invalidDeleteConfirmation()
+      throw SecurityApplicationError.invalidDeleteConfirmation();
     }
 
-    const user = await this._securityRepository.findUserById(userId)
+    const user = await this._securityRepository.findUserById(userId);
 
     if (!user) {
-      throw SecurityApplicationError.notFound()
+      throw SecurityApplicationError.notFound();
     }
 
     await this._sensitiveActionAuthorizer.assertSatisfied({
       user,
       payload,
       action: 'delete_account',
-    })
+    });
 
-    await this._securityRepository.revokeAllSessions(userId)
+    await this._securityRepository.revokeAllSessions(userId);
 
     const scheduledDeletionAt = new Date(
-      this._clock.now().getTime() + ACCOUNT_DELETION_RECOVERY_MS,
-    )
+      this._clock.now().getTime() + ACCOUNT_DELETION_RECOVERY_MS
+    );
 
-    const scheduledUser =
-      await this._securityRepository.scheduleAccountDeletion({
-        userId,
-        scheduledDeletionAt,
-      })
+    const scheduledUser = await this._securityRepository.scheduleAccountDeletion({
+      userId,
+      scheduledDeletionAt,
+    });
 
     if (!scheduledUser) {
-      throw SecurityApplicationError.accountDeleteFailed()
+      throw SecurityApplicationError.accountDeleteFailed();
     }
 
     await this._securityAuditLogger.record({
       userId,
       eventType: 'ACCOUNT_DELETION_SCHEDULED',
       outcome: 'success',
-    })
+    });
 
     return {
       deleted: true,
       deletionScheduled: true,
       scheduledDeletionAt: scheduledDeletionAt.toISOString(),
       recoveryWindowDays: ACCOUNT_DELETION_RECOVERY_DAYS,
-    }
+    };
   }
 }

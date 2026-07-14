@@ -1,12 +1,10 @@
-import type { FriendRequestEntity } from "./entities/friend-request.entity";
-import type { FriendRequestSummaryEntity } from "./entities/friend-request-summary.entity";
-import type { FriendUserEntity } from "./entities/friend-user.entity";
+import type { FriendRequestEntity } from './entities/friend-request.entity';
+import type { FriendRequestSummaryEntity } from './entities/friend-request-summary.entity';
+import type { FriendUserEntity } from './entities/friend-user.entity';
 
-export type FriendRelationshipStatus =
-  "none" | "pending_sent" | "pending_received" | "friends";
-export type FriendRequestStatus =
-  "pending" | "accepted" | "rejected" | "cancelled";
-export type FriendshipStatus = "active" | "blocked";
+export type FriendRelationshipStatus = 'none' | 'pending_sent' | 'pending_received' | 'friends';
+export type FriendRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
+export type FriendshipStatus = 'active' | 'blocked';
 
 export type PaginationInput = {
   page: number;
@@ -43,22 +41,22 @@ export type SendFriendRequestCommandInput = {
 
 export type SendFriendRequestCommandResult =
   | {
-      outcome: "created";
+      outcome: 'created';
       request: FriendRequestEntity;
     }
   | {
-      outcome: "already_pending";
+      outcome: 'already_pending';
       request: FriendRequestEntity;
     }
   | {
-      outcome: "already_friends";
+      outcome: 'already_friends';
     }
   | {
-      outcome: "reverse_pending";
+      outcome: 'reverse_pending';
       request: FriendRequestEntity;
     }
   | {
-      outcome: "target_unavailable";
+      outcome: 'target_unavailable';
     };
 
 export type FriendRequestActionCommandInput = {
@@ -68,16 +66,15 @@ export type FriendRequestActionCommandInput = {
 
 export type AcceptFriendRequestCommandResult =
   | {
-      outcome: "accepted" | "already_accepted";
+      outcome: 'accepted' | 'already_accepted';
       friendUserId: string;
     }
   | {
-      outcome: "not_found" | "forbidden" | "not_pending" | "target_unavailable";
+      outcome: 'not_found' | 'forbidden' | 'not_pending' | 'target_unavailable';
     };
 
 export type ChangeFriendRequestCommandResult = {
-  outcome:
-    "changed" | "already_changed" | "not_found" | "forbidden" | "not_pending";
+  outcome: 'changed' | 'already_changed' | 'not_found' | 'forbidden' | 'not_pending';
 };
 
 export type RemoveFriendCommandInput = {
@@ -86,7 +83,7 @@ export type RemoveFriendCommandInput = {
 };
 
 export type RemoveFriendCommandResult = {
-  outcome: "removed" | "not_friends";
+  outcome: 'removed' | 'not_friends';
 };
 
 export type FriendUsersPage = PaginatedResult<FriendUserEntity>;

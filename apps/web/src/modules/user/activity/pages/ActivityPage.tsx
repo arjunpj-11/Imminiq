@@ -1,41 +1,32 @@
-import { useMemo } from 'react'
-import { useSearchParams } from 'react-router-dom'
+import { useMemo } from 'react';
+import { useSearchParams } from 'react-router-dom';
 
-import ActivityAppShell from '../components/ActivityAppShell'
-import ActivityDashboard from '../components/ActivityDashboard'
-import {
-  ActivityContentSkeleton,
-  ActivityErrorState,
-} from '../components/ActivityStates'
-import { ACTIVITY_DEFAULT_FEED_LIMIT } from '../constants/activity.constants'
-import { useActivityPage } from '../hooks/useActivityPage'
-import type { ActivityFeedFilter } from '../types/activity.types'
+import ActivityAppShell from '../components/ActivityAppShell';
+import ActivityDashboard from '../components/ActivityDashboard';
+import { ActivityContentSkeleton, ActivityErrorState } from '../components/ActivityStates';
+import { ACTIVITY_DEFAULT_FEED_LIMIT } from '../constants/activity.constants';
+import { useActivityPage } from '../hooks/useActivityPage';
+import type { ActivityFeedFilter } from '../types/activity.types';
 import {
   getBrowserUtcOffsetMinutes,
   parseActivityFilter,
   parseActivityYear,
-} from '../utils/activity-formatters'
+} from '../utils/activity-formatters';
 
 export default function ActivityPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const filter = parseActivityFilter(searchParams.get('filter'))
-  const year = parseActivityYear(searchParams.get('year'))
-  const utcOffsetMinutes = useMemo(
-    () => getBrowserUtcOffsetMinutes(),
-    [],
-  )
+  const [searchParams, setSearchParams] = useSearchParams();
+  const filter = parseActivityFilter(searchParams.get('filter'));
+  const year = parseActivityYear(searchParams.get('year'));
+  const utcOffsetMinutes = useMemo(() => getBrowserUtcOffsetMinutes(), []);
 
   const activityQuery = useActivityPage({
     year,
     filter,
     limit: ACTIVITY_DEFAULT_FEED_LIMIT,
     utcOffsetMinutes,
-  })
+  });
 
-  const updateSearchParams = (
-    nextYear: number,
-    nextFilter: ActivityFeedFilter,
-  ) => {
+  const updateSearchParams = (nextYear: number, nextFilter: ActivityFeedFilter) => {
     setSearchParams(
       {
         year: String(nextYear),
@@ -43,21 +34,19 @@ export default function ActivityPage() {
       },
       {
         replace: true,
-      },
-    )
-  }
+      }
+    );
+  };
 
-  const activity = activityQuery.data
+  const activity = activityQuery.data;
   const viewer = activity
     ? {
         name: activity.user.fullName,
-        ...(activity.user.avatarUrl !== undefined
-          ? { avatarUrl: activity.user.avatarUrl }
-          : {}),
+        ...(activity.user.avatarUrl !== undefined ? { avatarUrl: activity.user.avatarUrl } : {}),
         streak: activity.streak.currentStreak,
         isPremium: activity.user.isPremium,
       }
-    : undefined
+    : undefined;
 
   return (
     <ActivityAppShell {...(viewer ? { viewer } : {})}>
@@ -68,8 +57,7 @@ export default function ActivityPage() {
           <ActivityErrorState
             {...(activityQuery.error?.response?.data?.message
               ? {
-                  message:
-                    activityQuery.error.response.data.message,
+                  message: activityQuery.error.response.data.message,
                 }
               : {})}
             onRetry={() => void activityQuery.refetch()}
@@ -82,15 +70,11 @@ export default function ActivityPage() {
             utcOffsetMinutes={utcOffsetMinutes}
             isPageFetching={activityQuery.isFetching}
             isPageDataStale={activityQuery.isPlaceholderData}
-            onFilterChange={(nextFilter) =>
-              updateSearchParams(year, nextFilter)
-            }
-            onYearChange={(nextYear) =>
-              updateSearchParams(nextYear, filter)
-            }
+            onFilterChange={(nextFilter) => updateSearchParams(year, nextFilter)}
+            onYearChange={(nextYear) => updateSearchParams(nextYear, filter)}
           />
         )}
       </div>
     </ActivityAppShell>
-  )
+  );
 }

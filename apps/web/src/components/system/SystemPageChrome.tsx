@@ -1,48 +1,44 @@
-import type { ReactNode } from 'react'
-import { Link } from 'react-router-dom'
+import type { ReactNode } from 'react';
+import { Link } from 'react-router-dom';
 
-import { cn } from '../../lib/cn'
-import AppNoiseOverlay from '../layout/AppNoiseOverlay'
-import ImminiqLogo from '../ui/ImminiqLogo'
-import ImminiqWordmark from '../ui/ImminiqWordmark'
+import { cn } from '../../lib/cn';
+import AppNoiseOverlay from '../layout/AppNoiseOverlay';
+import ImminiqLogo from '../ui/ImminiqLogo';
+import ImminiqWordmark from '../ui/ImminiqWordmark';
 
 interface ISystemPageNoiseProps {
-  className?: string
+  className?: string;
 }
 
 export function SystemPageNoise({ className }: ISystemPageNoiseProps) {
-  return <AppNoiseOverlay className={cn('opacity-[0.025]', className)} />
+  return <AppNoiseOverlay className={cn('opacity-[0.025]', className)} />;
 }
 
 interface ISystemToastProps {
-  message: ReactNode
-  visible: boolean
-  className?: string
+  message: ReactNode;
+  visible: boolean;
+  className?: string;
 }
 
-export function SystemToast({
-  message,
-  visible,
-  className,
-}: ISystemToastProps) {
+export function SystemToast({ message, visible, className }: ISystemToastProps) {
   return (
     <div
       className={cn(
         'pointer-events-none fixed bottom-7 left-1/2 z-200 -translate-x-1/2 translate-y-5 whitespace-nowrap rounded-full bg-[#1a1714] px-4.5 py-2.5 text-[13px] font-medium text-[#f5ede4] opacity-0 shadow-[0_16px_56px_rgba(0,0,0,0.4)] transition-all duration-300 dark:bg-[#f2f0eb] dark:text-[#141412]',
         visible && 'translate-y-0 opacity-100',
-        className,
+        className
       )}
       role="status"
       aria-live="polite"
     >
       {message}
     </div>
-  )
+  );
 }
 
 interface ISystemBrandLinkProps {
-  to: string
-  className?: string
+  to: string;
+  className?: string;
 }
 
 export function SystemBrandLink({ to, className }: ISystemBrandLinkProps) {
@@ -59,11 +55,11 @@ export function SystemBrandLink({ to, className }: ISystemBrandLinkProps) {
         className="font-serif text-[22px] font-extrabold leading-none tracking-[-0.5px]"
       />
     </Link>
-  )
+  );
 }
 
 interface ISystemPageFooterProps {
-  onUnavailableLink: (message: string) => void
+  onUnavailableLink: (message: string) => void;
 }
 
 const systemFooterLinks = [
@@ -71,11 +67,9 @@ const systemFooterLinks = [
   ['Terms of Service', 'Terms page can be linked later.'],
   ['Academic Integrity', 'Academic Integrity page can be linked later.'],
   ['Contact', 'Contact page can be linked later.'],
-] as const
+] as const;
 
-export function SystemPageFooter({
-  onUnavailableLink,
-}: ISystemPageFooterProps) {
+export function SystemPageFooter({ onUnavailableLink }: ISystemPageFooterProps) {
   return (
     <footer className="relative z-10 flex flex-wrap items-center justify-between gap-3 border-t border-(--border-subtle) bg-[rgba(245,237,228,0.92)] px-4 py-4.5 shadow-[0_-1px_0_rgba(253,248,245,0.6)] backdrop-blur-2xl sm:px-8 lg:px-10 dark:border-(--border-subtle) dark:bg-[rgba(20,20,18,0.92)] dark:shadow-[0_-1px_0_rgba(30,28,25,0.6)]">
       <ImminiqWordmark className="font-serif text-base font-extrabold" />
@@ -97,17 +91,17 @@ export function SystemPageFooter({
         © 2026 Imminiq. Scholarly Rigor, Digital Craft.
       </div>
     </footer>
-  )
+  );
 }
 
 interface ISystemPageHeaderProps {
-  brandTo: string
-  actionTo: string
-  actionLabel: string
-  actionIcon: ReactNode
-  onUnavailableLink: (message: string) => void
-  helpMessage?: string
-  actionsClassName?: string
+  brandTo: string;
+  actionTo: string;
+  actionLabel: string;
+  actionIcon: ReactNode;
+  onUnavailableLink: (message: string) => void;
+  helpMessage?: string;
+  actionsClassName?: string;
 }
 
 export function SystemPageHeader({
@@ -135,9 +129,7 @@ export function SystemPageHeader({
         <button
           type="button"
           className="hidden rounded-lg px-3 py-1.5 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) transition hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) md:block dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.1)] dark:hover:text-(--brand-500)"
-          onClick={() =>
-            onUnavailableLink('Community guidelines page can be linked later.')
-          }
+          onClick={() => onUnavailableLink('Community guidelines page can be linked later.')}
         >
           Community Guidelines
         </button>
@@ -151,5 +143,5 @@ export function SystemPageHeader({
         </Link>
       </div>
     </header>
-  )
+  );
 }

@@ -1,34 +1,34 @@
-import { create } from 'zustand'
-import { createJSONStorage, persist } from 'zustand/middleware'
+import { create } from 'zustand';
+import { createJSONStorage, persist } from 'zustand/middleware';
 
-import { STORAGE_KEYS } from '../lib/storage/storage-keys'
-import { safeLocalStateStorage } from '../lib/storage/safe-storage'
+import { STORAGE_KEYS } from '../lib/storage/storage-keys';
+import { safeLocalStateStorage } from '../lib/storage/safe-storage';
 
 export interface IAuthUser {
-  _id: string
-  fullName?: string
-  username: string
-  email?: string
-  phone?: string
-  role: string
-  status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned'
-  isPremium?: boolean
-  avatarUrl?: string
-  emailVerified?: boolean
-  phoneVerified?: boolean
-  onboardingCompleted?: boolean
+  _id: string;
+  fullName?: string;
+  username: string;
+  email?: string;
+  phone?: string;
+  role: string;
+  status?: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned';
+  isPremium?: boolean;
+  avatarUrl?: string;
+  emailVerified?: boolean;
+  phoneVerified?: boolean;
+  onboardingCompleted?: boolean;
 }
 
 interface IAuthStore {
-  user: IAuthUser | null
-  accessToken: string | null
-  isAuthenticated: boolean
-  authReady: boolean
-  setUser: (user: IAuthUser) => void
-  setAccessToken: (accessToken: string | null) => void
-  setAuthReady: (authReady: boolean) => void
-  clearUser: () => void
-  clearAuth: () => void
+  user: IAuthUser | null;
+  accessToken: string | null;
+  isAuthenticated: boolean;
+  authReady: boolean;
+  setUser: (user: IAuthUser) => void;
+  setAccessToken: (accessToken: string | null) => void;
+  setAuthReady: (authReady: boolean) => void;
+  clearUser: () => void;
+  clearAuth: () => void;
 }
 
 export const useAuthStore = create<IAuthStore>()(
@@ -56,6 +56,6 @@ export const useAuthStore = create<IAuthStore>()(
         user: state.user,
         isAuthenticated: state.isAuthenticated,
       }),
-    },
-  ),
-)
+    }
+  )
+);

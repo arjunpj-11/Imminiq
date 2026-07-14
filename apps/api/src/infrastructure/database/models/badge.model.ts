@@ -1,8 +1,4 @@
-import mongoose, {
-  Schema,
-  model,
-  type InferSchemaType,
-} from 'mongoose'
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 const badgeSchema = new Schema(
   {
@@ -43,10 +39,10 @@ const badgeSchema = new Schema(
     timestamps: true,
     collection: 'badges',
   }
-)
+);
 
-badgeSchema.index({ badgeType: 1, deletedAt: 1 })
+badgeSchema.index({ badgeType: 1, deletedAt: 1 });
 
-export type BadgeDocument = InferSchemaType<typeof badgeSchema>
+export type BadgeDocument = InferSchemaType<typeof badgeSchema>;
 
-export const Badge = mongoose.models.Badge || model('Badge', badgeSchema)
+export const Badge = mongoose.models.Badge || model('Badge', badgeSchema);

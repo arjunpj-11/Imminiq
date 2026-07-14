@@ -1,18 +1,18 @@
-import { AuthApplicationError } from '../auth-application.error'
-import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
-import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface'
-import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface'
-import type { IAuthToken } from '../../domain/services/auth-token.interface'
-import type { AuthLoginResultDTO, OAuthLoginUserDTO, RequestMetaDTO } from '../auth.dto'
-import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants'
-import type { IAuthUserMapper } from '../auth-user.mapper'
-import type { IAuthAccountPolicy } from '../auth-account-policy.policy'
-import type { IAuthSessionIssuer } from '../services/auth-session.service'
+import { AuthApplicationError } from '../auth-application.error';
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
+import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-two-factor.repository.interface';
+import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface';
+import type { IAuthToken } from '../../domain/services/auth-token.interface';
+import type { AuthLoginResultDTO, OAuthLoginUserDTO, RequestMetaDTO } from '../auth.dto';
+import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants';
+import type { IAuthUserMapper } from '../auth-user.mapper';
+import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
+import type { IAuthSessionIssuer } from '../services/auth-session.service';
 
-type OAuthLoginRepository = IAuthUserRepository & IAuthTwoFactorRepository
+type OAuthLoginRepository = IAuthUserRepository & IAuthTwoFactorRepository;
 
 export interface IHandleOAuthLoginUseCase {
-  execute(user: OAuthLoginUserDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO>
+  execute(user: OAuthLoginUserDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO>;
 }
 
 export class HandleOAuthLoginUseCase implements IHandleOAuthLoginUseCase {
@@ -25,68 +25,65 @@ export class HandleOAuthLoginUseCase implements IHandleOAuthLoginUseCase {
     private readonly _authUserMapper: IAuthUserMapper
   ) {}
 
-  async execute(
-    user: OAuthLoginUserDTO,
-    meta?: RequestMetaDTO
-  ): Promise<AuthLoginResultDTO> {
-    const userId = this.resolveOAuthUserId(user)
+  async execute(user: OAuthLoginUserDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO> {
+    const userId = this.resolveOAuthUserId(user);
 
-    const dbUser = await this._authRepository.findById(userId)
+    const dbUser = await this._authRepository.findById(userId);
 
     if (!dbUser) {
-      throw AuthApplicationError.notFound('User not found')
+      throw AuthApplicationError.notFound('User not found');
     }
 
-    this._authAccountPolicy.ensureUserCanAuthenticate(dbUser)
+    this._authAccountPolicy.ensureUserCanAuthenticate(dbUser);
 
-    const twoFactorEnabled =
-      await this._authRepository.hasActiveTwoFactor(userId)
+    const twoFactorEnabled = await this._authRepository.hasActiveTwoFactor(userId);
 
     if (twoFactorEnabled) {
       return {
         requiresTwoFactor: true,
         challengeToken: this._authToken.generateTwoFactorChallengeToken(userId),
         challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
-      }
+      };
     }
 
-    const recoveredUser =
-      await this._authRepository.cancelScheduledDeletionIfRecoverable(userId)
+    const recoveredUser = await this._authRepository.cancelScheduledDeletionIfRecoverable(userId);
 
-    const authenticatedUser = recoveredUser ?? dbUser
+    const authenticatedUser = recoveredUser ?? dbUser;
 
-    const redirectPath =
-      await this._authRedirectResolver.resolveRedirectPath(userId)
+    const redirectPath = await this._authRedirectResolver.resolveRedirectPath(
+      userId,
+      authenticatedUser.role
+    );
 
     const tokens = await this._authSessionIssuer.issueTokenPair(
       userId,
       authenticatedUser.role,
       meta
-    )
+    );
 
-    await this._authRepository.updateLastActive(userId)
+    await this._authRepository.updateLastActive(userId);
 
     return {
       requiresTwoFactor: false,
       tokens,
       user: this._authUserMapper.toAuthUser(authenticatedUser),
       redirectPath,
-    }
+    };
   }
 
   private resolveOAuthUserId(user: OAuthLoginUserDTO): string {
     if (typeof user._id === 'string') {
-      return user._id
+      return user._id;
     }
 
     if (user._id) {
-      return user._id.toString()
+      return user._id.toString();
     }
 
     if (user.id) {
-      return user.id
+      return user.id;
     }
 
-    throw AuthApplicationError.notFound('User not found')
+    throw AuthApplicationError.notFound('User not found');
   }
 }

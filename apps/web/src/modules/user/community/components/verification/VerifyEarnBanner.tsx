@@ -1,15 +1,12 @@
-import type { ICommunityVerifyBanner } from '../../types/community.types'
-import { ArrowRightIcon, CoinsIcon } from '../icons/CommunityIcons'
+import type { ICommunityVerifyBanner } from '../../types/community.types';
+import { ArrowRightIcon, CoinsIcon } from '../icons/CommunityIcons';
 
 interface IVerifyEarnBannerProps {
-  banner: ICommunityVerifyBanner
-  onGo: () => void
+  banner: ICommunityVerifyBanner;
+  onGo: () => void;
 }
 
-export default function VerifyEarnBanner({
-  banner,
-  onGo,
-}: IVerifyEarnBannerProps) {
+export default function VerifyEarnBanner({ banner, onGo }: IVerifyEarnBannerProps) {
   return (
     <div className="flex flex-wrap items-center justify-between gap-5 rounded-xl border-[1.5px] border-[rgba(196,154,44,0.2)] bg-[rgba(196,154,44,0.06)] p-6 dark:border-[rgba(196,154,44,0.18)] dark:bg-[rgba(196,154,44,0.05)]">
       <div className="flex items-start gap-4">
@@ -24,7 +21,8 @@ export default function VerifyEarnBanner({
             Earn coins by reviewing trackers
           </h2>
           <p className="max-w-100 text-[12.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
-            Vote on community submissions, help keep knowledge accurate, and earn coins every time you're in the majority.
+            Vote on community submissions, help keep knowledge accurate, and earn coins every time
+            you're in the majority.
           </p>
 
           <div className="mt-3 flex flex-wrap items-center gap-5">
@@ -66,5 +64,5 @@ export default function VerifyEarnBanner({
         Verify &amp; earn <ArrowRightIcon />
       </button>
     </div>
-  )
+  );
 }

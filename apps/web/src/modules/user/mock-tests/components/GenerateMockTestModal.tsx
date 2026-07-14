@@ -1,28 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { createPortal } from 'react-dom'
-import { useNavigate } from 'react-router-dom'
-import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock'
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
+import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
+import { boundedInteger } from '../../../../lib/bounded-number';
 
 import {
   DIFFICULTY_OPTIONS,
+  MAX_MOCK_TEST_QUESTIONS,
   QUESTION_TYPE_OPTIONS,
-} from '../constants/mock-tests.constants'
-import {
-  useTrackerRoadmap,
-  useTrackers,
-} from '../../trackers'
-import { useGenerateMockTest } from '../hooks/useMockTests'
-import { useMockTestsStore } from '../store/mockTests.store'
-import { cn } from '../utils/mock-tests-formatters'
-import { SparklesIcon } from './MockTestIcons'
-import type { QuestionType } from '../types/mock-tests.types'
-import { TopicGroup, SelectionPreview } from './MockTestTopicSelection'
+} from '../constants/mock-tests.constants';
+import { useTrackerRoadmap, useTrackers } from '../../trackers';
+import { useGenerateMockTest } from '../hooks/useMockTests';
+import { useMockTestsStore } from '../store/mockTests.store';
+import { cn } from '../utils/mock-tests-formatters';
+import { SparklesIcon } from './MockTestIcons';
+import type { QuestionType } from '../types/mock-tests.types';
+import { TopicGroup, SelectionPreview } from './MockTestTopicSelection';
 import {
   buildStructuredTopicString,
   flattenRoadmap,
   type IFlatNode,
-} from '../utils/mock-test-topic-selection'
-
+} from '../utils/mock-test-topic-selection';
 
 const CloseIcon = () => (
   <svg width="13" height="13" viewBox="0 0 13 13" fill="none" aria-hidden="true">
@@ -33,220 +31,209 @@ const CloseIcon = () => (
       strokeLinecap="round"
     />
   </svg>
-)
+);
 
 const CHEVRON_STYLE =
-  "url(\"data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6.5L11 1' stroke='%236b5f58' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")"
+  "url(\"data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 6.5L11 1' stroke='%236b5f58' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E\")";
 
 interface IGenerateMockTestModalProps {
-  open: boolean
-  onClose: () => void
+  open: boolean;
+  onClose: () => void;
+  generationBlocked?: boolean;
 }
 
 export function GenerateMockTestModal({
   open,
   onClose,
+  generationBlocked = false,
 }: IGenerateMockTestModalProps) {
-  const navigate = useNavigate()
-  const overlayRef = useRef<HTMLDivElement>(null)
+  const navigate = useNavigate();
+  const overlayRef = useRef<HTMLDivElement>(null);
 
-  const { generateDraft, updateGenerateDraft, resetGenerateDraft } =
-    useMockTestsStore()
-  const generateMutation = useGenerateMockTest()
-  useBodyScrollLock(open)
+  const { generateDraft, updateGenerateDraft, resetGenerateDraft } = useMockTestsStore();
+  const generateMutation = useGenerateMockTest();
+  useBodyScrollLock(open);
 
-  type TopicSource = 'manual' | 'tracker'
+  type TopicSource = 'manual' | 'tracker';
 
-  const [topicSource, setTopicSource] = useState<TopicSource>('manual')
-  const [runInBackground, setRunInBackground] = useState(false)
-  const [manualSelectedTrackerId, setManualSelectedTrackerId] =
-    useState<string>('')
+  const [topicSource, setTopicSource] = useState<TopicSource>('manual');
+  const [runInBackground, setRunInBackground] = useState(false);
+  const [manualSelectedTrackerId, setManualSelectedTrackerId] = useState<string>('');
   const [selectedNodesByTracker, setSelectedNodesByTracker] = useState<
     Record<string, Map<string, string>>
-  >({})
+  >({});
 
-  const trackersQuery = useTrackers({ limit: 50 })
+  const trackersQuery = useTrackers({ limit: 50 });
 
   const trackers = useMemo(
     () => trackersQuery.data?.trackers ?? [],
     [trackersQuery.data?.trackers]
-  )
+  );
 
-  const selectedTrackerId = manualSelectedTrackerId || trackers[0]?._id || ''
+  const selectedTrackerId = manualSelectedTrackerId || trackers[0]?._id || '';
 
   const selectedNodes = useMemo(
     () => selectedNodesByTracker[selectedTrackerId] ?? new Map<string, string>(),
     [selectedNodesByTracker, selectedTrackerId]
-  )
+  );
 
   const roadmapQuery = useTrackerRoadmap(
     topicSource === 'tracker' && selectedTrackerId ? selectedTrackerId : undefined
-  )
+  );
 
   useEffect(() => {
-    if (!open) return
+    if (!open) return;
 
     const handler = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
-    }
+      if (event.key === 'Escape') onClose();
+    };
 
-    document.addEventListener('keydown', handler)
+    document.addEventListener('keydown', handler);
 
     return () => {
-      document.removeEventListener('keydown', handler)
-    }
-  }, [open, onClose])
+      document.removeEventListener('keydown', handler);
+    };
+  }, [open, onClose]);
 
   const flatNodes = useMemo(
     () => flattenRoadmap(roadmapQuery.data?.roadmap ?? []),
     [roadmapQuery.data?.roadmap]
-  )
+  );
 
   const groups = useMemo(() => {
-    const map = new Map<string, { title: string; nodes: IFlatNode[] }>()
+    const map = new Map<string, { title: string; nodes: IFlatNode[] }>();
 
     for (const node of flatNodes) {
       if (!map.has(node.parentTopicId)) {
         map.set(node.parentTopicId, {
           title: node.parentTopicTitle,
           nodes: [],
-        })
+        });
       }
 
-      map.get(node.parentTopicId)!.nodes.push(node)
+      map.get(node.parentTopicId)!.nodes.push(node);
     }
 
-    return Array.from(map.values())
-  }, [flatNodes])
+    return Array.from(map.values());
+  }, [flatNodes]);
 
-  const selectedTracker = trackers.find(
-    (tracker) => tracker._id === selectedTrackerId
-  )
+  const selectedTracker = trackers.find((tracker) => tracker._id === selectedTrackerId);
 
-  const updateSelectedNodes = (
-    updater: (previous: Map<string, string>) => Map<string, string>
-  ) => {
-    if (!selectedTrackerId) return
+  const updateSelectedNodes = (updater: (previous: Map<string, string>) => Map<string, string>) => {
+    if (!selectedTrackerId) return;
 
     setSelectedNodesByTracker((previous) => {
-      const current = previous[selectedTrackerId] ?? new Map<string, string>()
-      const next = updater(current)
+      const current = previous[selectedTrackerId] ?? new Map<string, string>();
+      const next = updater(current);
 
       return {
         ...previous,
         [selectedTrackerId]: next,
-      }
-    })
-  }
+      };
+    });
+  };
 
   const clearSelectedNodes = () => {
-    if (!selectedTrackerId) return
+    if (!selectedTrackerId) return;
 
     setSelectedNodesByTracker((previous) => ({
       ...previous,
       [selectedTrackerId]: new Map<string, string>(),
-    }))
-  }
+    }));
+  };
 
   const toggleNode = (id: string, title: string) => {
     updateSelectedNodes((previous) => {
-      const next = new Map(previous)
+      const next = new Map(previous);
 
       if (next.has(id)) {
-        next.delete(id)
+        next.delete(id);
       } else {
-        next.set(id, title)
+        next.set(id, title);
       }
 
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const selectAllInGroup = (nodes: IFlatNode[]) => {
     updateSelectedNodes((previous) => {
-      const next = new Map(previous)
+      const next = new Map(previous);
 
       nodes.forEach((node) => {
-        next.set(node._id, node.title)
-      })
+        next.set(node._id, node.title);
+      });
 
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const deselectAllInGroup = (nodes: IFlatNode[]) => {
     updateSelectedNodes((previous) => {
-      const next = new Map(previous)
+      const next = new Map(previous);
 
       nodes.forEach((node) => {
-        next.delete(node._id)
-      })
+        next.delete(node._id);
+      });
 
-      return next
-    })
-  }
+      return next;
+    });
+  };
 
   const toggleType = (type: QuestionType) => {
-    const exists = generateDraft.questionTypes.includes(type)
+    const exists = generateDraft.questionTypes.includes(type);
 
     const next = exists
       ? generateDraft.questionTypes.filter((item) => item !== type)
-      : [...generateDraft.questionTypes, type]
+      : [...generateDraft.questionTypes, type];
 
     updateGenerateDraft({
       questionTypes: next.length ? next : ['mcq'],
-    })
-  }
+    });
+  };
 
-  const selectedIds = useMemo(() => new Set(selectedNodes.keys()), [selectedNodes])
+  const selectedIds = useMemo(() => new Set(selectedNodes.keys()), [selectedNodes]);
 
   const canSubmit =
-    topicSource === 'manual'
-      ? generateDraft.topic.trim().length > 0
-      : selectedNodes.size > 0
+    topicSource === 'manual' ? generateDraft.topic.trim().length > 0 : selectedNodes.size > 0;
 
   const handleSubmit = async () => {
-    if (!canSubmit || generateMutation.isPending) return
+    if (!canSubmit || generateMutation.isPending || generationBlocked) return;
 
     const topicValue =
       topicSource === 'tracker'
-        ? buildStructuredTopicString(
-            selectedNodes,
-            flatNodes,
-            selectedTracker?.title || ''
-          )
-        : generateDraft.topic.trim()
+        ? buildStructuredTopicString(selectedNodes, flatNodes, selectedTracker?.title || '')
+        : generateDraft.topic.trim();
 
     const response = await generateMutation.mutateAsync({
       ...generateDraft,
       topic: topicValue,
       runInBackground,
-    })
+    });
 
-    resetGenerateDraft()
-    clearSelectedNodes()
-    onClose()
+    resetGenerateDraft();
+    clearSelectedNodes();
+    onClose();
 
-    const testId = '_id' in response.data ? response.data._id : undefined
+    const testId = '_id' in response.data ? response.data._id : undefined;
 
     if (testId) {
-      navigate(`/mock-tests/${testId}`)
+      navigate(`/mock-tests/${testId}`);
     }
-  }
+  };
 
   const handleOverlayClick = (event: React.MouseEvent) => {
     if (event.target === overlayRef.current) {
-      onClose()
+      onClose();
     }
-  }
+  };
 
-  if (!open) return null
+  if (!open) return null;
 
-  const isRoadmapLoading = roadmapQuery.isLoading
-  const totalSelected = selectedNodes.size
+  const isRoadmapLoading = roadmapQuery.isLoading;
+  const totalSelected = selectedNodes.size;
 
   return createPortal(
-    (
     <div
       ref={overlayRef}
       onClick={handleOverlayClick}
@@ -299,7 +286,7 @@ export function GenerateMockTestModal({
                 type="button"
                 onClick={() => setTopicSource(source)}
                 className={cn(
-                  "rounded-xl py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest transition-all duration-200",
+                  'rounded-xl py-2.5 font-mono text-[11px] font-bold uppercase tracking-widest transition-all duration-200',
                   topicSource === source
                     ? 'bg-(--brand-500) text-white shadow-[0_2px_16px_rgba(184,76,43,0.25)] dark:bg-(--brand-500) dark:shadow-[0_2px_16px_rgba(232,129,106,0.35)]'
                     : 'text-(--text-secondary) hover:text-(--brand-500) dark:text-[#6b6560] dark:hover:text-[#9b9a92]'
@@ -322,9 +309,7 @@ export function GenerateMockTestModal({
                 <input
                   autoFocus
                   value={generateDraft.topic}
-                  onChange={(event) =>
-                    updateGenerateDraft({ topic: event.target.value })
-                  }
+                  onChange={(event) => updateGenerateDraft({ topic: event.target.value })}
                   placeholder="e.g. Recursion, Australian Visa 189…"
                   className="w-full rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition placeholder:text-[#9b8f87] focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:placeholder:text-[#3a3834] dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
                 />
@@ -347,9 +332,7 @@ export function GenerateMockTestModal({
                   ) : (
                     <select
                       value={selectedTrackerId}
-                      onChange={(event) =>
-                        setManualSelectedTrackerId(event.target.value)
-                      }
+                      onChange={(event) => setManualSelectedTrackerId(event.target.value)}
                       className="w-full appearance-none rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
                       style={{
                         backgroundImage: CHEVRON_STYLE,
@@ -447,8 +430,7 @@ export function GenerateMockTestModal({
                   value={generateDraft.difficulty}
                   onChange={(event) =>
                     updateGenerateDraft({
-                      difficulty: event.target
-                        .value as typeof generateDraft.difficulty,
+                      difficulty: event.target.value as typeof generateDraft.difficulty,
                     })
                   }
                   className="w-full appearance-none rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
@@ -474,11 +456,15 @@ export function GenerateMockTestModal({
                 <input
                   type="number"
                   min={1}
-                  max={50}
+                  max={MAX_MOCK_TEST_QUESTIONS}
                   value={generateDraft.questionCount}
                   onChange={(event) =>
                     updateGenerateDraft({
-                      questionCount: Number(event.target.value),
+                      questionCount: boundedInteger(
+                        event.target.value,
+                        1,
+                        MAX_MOCK_TEST_QUESTIONS
+                      ),
                     })
                   }
                   className="w-full rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"
@@ -498,7 +484,7 @@ export function GenerateMockTestModal({
                     type="button"
                     onClick={() => toggleType(type)}
                     className={cn(
-                      "rounded-full border px-4 py-2 font-mono text-[10px] font-bold capitalize tracking-[0.08em] transition-all duration-150 hover:-translate-y-px active:scale-95",
+                      'rounded-full border px-4 py-2 font-mono text-[10px] font-bold capitalize tracking-[0.08em] transition-all duration-150 hover:-translate-y-px active:scale-95',
                       generateDraft.questionTypes.includes(type)
                         ? 'border-(--brand-500) bg-[rgba(184,76,43,0.10)] text-(--brand-500) shadow-[0_0_0_1px_rgba(184,76,43,0.12)] dark:border-(--brand-500) dark:bg-(--brand-500)/15 dark:text-(--brand-500) dark:shadow-[0_0_0_1px_rgba(232,129,106,0.15)]'
                         : 'border-(--border-subtle) bg-white/35 text-(--text-secondary) hover:border-(--brand-500) hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/2 dark:text-[#6b6560] dark:hover:border-white/20 dark:hover:text-[#9b9a92]'
@@ -523,27 +509,33 @@ export function GenerateMockTestModal({
               className="mt-0.5 accent-(--brand-500)"
             />
             <span>
-              <span className="block text-sm font-bold text-(--text-primary)">Run in background</span>
-              <span className="block text-[11px] text-(--text-secondary)">Keep using Imminiq. We’ll notify you when the test is ready.</span>
+              <span className="block text-sm font-bold text-(--text-primary)">
+                Run in background
+              </span>
+              <span className="block text-[11px] text-(--text-secondary)">
+                Keep using Imminiq. We’ll notify you when the test is ready.
+              </span>
             </span>
           </label>
 
           <button
             type="button"
             onClick={handleSubmit}
-            disabled={generateMutation.isPending || !canSubmit}
+            disabled={generateMutation.isPending || !canSubmit || generationBlocked}
             className={cn(
-              "relative w-full overflow-hidden rounded-2xl py-4 font-ui text-[17px] font-black text-white transition-all duration-200",
-              canSubmit && !generateMutation.isPending
+              'relative w-full overflow-hidden rounded-2xl py-4 font-ui text-[17px] font-black text-white transition-all duration-200',
+              canSubmit && !generateMutation.isPending && !generationBlocked
                 ? 'bg-(--brand-500) hover:-translate-y-0.5 hover:bg-(--brand-600) hover:shadow-[0_12px_32px_rgba(184,76,43,0.30)] dark:bg-(--brand-500) dark:hover:bg-[#d9522d] dark:hover:shadow-[0_12px_32px_rgba(232,129,106,0.4)]'
                 : 'cursor-not-allowed bg-(--brand-500)/35 dark:bg-(--brand-500)/35'
             )}
           >
-            {canSubmit && !generateMutation.isPending && (
+            {canSubmit && !generateMutation.isPending && !generationBlocked && (
               <span className="pointer-events-none absolute inset-0 -translate-x-full animate-[shimmer_2.5s_infinite] bg-linear-to-r from-transparent via-white/10 to-transparent" />
             )}
 
-            {generateMutation.isPending ? (
+            {generationBlocked ? (
+              'Another test is generating…'
+            ) : generateMutation.isPending ? (
               <span className="flex items-center justify-center gap-2.5">
                 <span className="inline-block h-4 w-4 animate-spin rounded-full border-2 border-white/30 border-t-white" />
                 {runInBackground ? 'Starting…' : 'Generating…'}
@@ -573,10 +565,9 @@ export function GenerateMockTestModal({
           100% { transform: translateX(100%); }
         }
       `}</style>
-    </div>
-    ),
-    document.body,
-  )
+    </div>,
+    document.body
+  );
 }
 
-export default GenerateMockTestModal
+export default GenerateMockTestModal;

@@ -1,12 +1,12 @@
-import { cn } from '../../utils/tracker-ui'
-import { formatMathTextToHtml } from '../../utils/lesson-content.utils'
+import { cn } from '../../utils/tracker-ui';
+import { formatMathTextToHtml } from '../../utils/lesson-content.utils';
 
 export default function MathText({
   children,
   className,
 }: {
-  children: string
-  className?: string
+  children: string;
+  className?: string;
 }) {
   return (
     <div
@@ -18,5 +18,5 @@ export default function MathText({
       )}
       dangerouslySetInnerHTML={{ __html: formatMathTextToHtml(children) }}
     />
-  )
+  );
 }

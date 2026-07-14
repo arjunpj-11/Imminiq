@@ -12,4 +12,4 @@ export const STORAGE_KEYS = {
   authSync: 'imminiq-auth-sync',
   otpExpiry: 'otp_expiry',
   otpResendExpiry: 'otp_resend_expiry',
-} as const
+} as const;

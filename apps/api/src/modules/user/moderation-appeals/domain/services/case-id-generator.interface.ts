@@ -1,3 +1,3 @@
 export interface IModerationAppealCaseIdGenerator {
-  generate(): string
+  generate(): string;
 }

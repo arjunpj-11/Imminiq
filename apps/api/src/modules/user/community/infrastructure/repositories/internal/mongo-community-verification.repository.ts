@@ -1,16 +1,14 @@
-import {
-  COMMUNITY_REVIEW_REWARD_COINS,
-} from '../../../domain/community.constants'
-import { CommunityDomainError } from '../../../domain/community-domain.error'
+import { COMMUNITY_REVIEW_REWARD_COINS } from '../../../domain/community.constants';
+import { CommunityDomainError } from '../../../domain/community-domain.error';
 import type {
   CreateCommunityReviewVoteInput,
   FindVerificationQueueQuery,
   SubmitTrackerForVerificationInput,
-} from '../../../domain/repositories/community-verification.repository.interface'
-import type { VerificationVoteChoice } from '../../../domain/community.types'
-import { MongoCommunityBaseRepository } from '../shared/mongo-community-base.repository'
-import { MongoCommunityErrorMapper } from '../shared/mongo-community-error.mapper'
-import { MongoCommunityMapper } from '../shared/mongo-community.mapper'
+} from '../../../domain/repositories/community-verification.repository.interface';
+import type { VerificationVoteChoice } from '../../../domain/community.types';
+import { MongoCommunityBaseRepository } from '../shared/mongo-community-base.repository';
+import { MongoCommunityErrorMapper } from '../shared/mongo-community-error.mapper';
+import { MongoCommunityMapper } from '../shared/mongo-community.mapper';
 import {
   CommunityReviewVoteModel,
   CommunityTrackerModel,
@@ -19,10 +17,10 @@ import {
   CommunityUserModel,
   CommunityUserProfileModel,
   CommunityVerificationSubmissionModel,
-} from '../shared/mongo-community.models'
-import { MongoCommunityNormalizer } from '../shared/mongo-community-normalizer'
-import { MongoCommunityObjectId } from '../shared/mongo-community-object-id'
-import { MongoCommunityQueryUtils } from '../shared/mongo-community-query.utils'
+} from '../shared/mongo-community.models';
+import { MongoCommunityNormalizer } from '../shared/mongo-community-normalizer';
+import { MongoCommunityObjectId } from '../shared/mongo-community-object-id';
+import { MongoCommunityQueryUtils } from '../shared/mongo-community-query.utils';
 import type {
   MongoCommunityLeaderboardAggregate,
   MongoCommunitySubmissionRecord,
@@ -33,17 +31,16 @@ import type {
   MongoUserProfileRecord,
   MongoUserRecord,
   MongoVerificationReviewTrackerRecord,
-} from '../shared/mongo-community.types'
+} from '../shared/mongo-community.types';
 
-type SubmissionQuery = Record<string, unknown>
-
+type SubmissionQuery = Record<string, unknown>;
 
 export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepository {
   constructor(
     private readonly _mapper = new MongoCommunityMapper(),
-    private readonly _errorMapper = new MongoCommunityErrorMapper(),
+    private readonly _errorMapper = new MongoCommunityErrorMapper()
   ) {
-    super()
+    super();
   }
 
   async submitTrackerForVerification(data: SubmitTrackerForVerificationInput) {
@@ -51,19 +48,17 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
       'COMMUNITY_VERIFICATION_SUBMIT_FAILED',
       'Failed to submit tracker for verification',
       async () => {
-        await this.expireDueOpenSubmissions()
+        await this.expireDueOpenSubmissions();
 
         if (
           !MongoCommunityObjectId.isValid(data.trackerId) ||
           !MongoCommunityObjectId.isValid(data.userId)
         ) {
-          return null
+          return null;
         }
 
-        const trackerObjectId = MongoCommunityObjectId.toObjectId(
-          data.trackerId,
-        )
-        const userObjectId = MongoCommunityObjectId.toObjectId(data.userId)
+        const trackerObjectId = MongoCommunityObjectId.toObjectId(data.trackerId);
+        const userObjectId = MongoCommunityObjectId.toObjectId(data.userId);
 
         const tracker = await CommunityTrackerModel.findOne({
           _id: trackerObjectId,
@@ -71,34 +66,29 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           ...MongoCommunityQueryUtils.publicTrackerVisibilityQuery(),
           publishedAt: { $ne: null },
           verificationStatus: { $ne: 'verified' },
-        }).lean<MongoCommunityTrackerRecord>()
+        }).lean<MongoCommunityTrackerRecord>();
 
         if (!tracker) {
-          return null
+          return null;
         }
 
-        const existingSubmission =
-          await CommunityVerificationSubmissionModel.findOne({
-            trackerId: trackerObjectId,
-            ...this.openSubmissionQuery(),
-          }).lean<MongoCommunitySubmissionRecord>()
+        const existingSubmission = await CommunityVerificationSubmissionModel.findOne({
+          trackerId: trackerObjectId,
+          ...this.openSubmissionQuery(),
+        }).lean<MongoCommunitySubmissionRecord>();
 
         if (existingSubmission) {
-          console.log('Existing submission found:', existingSubmission)
-          return this.toSubmissionWithReview(existingSubmission, null)
+          console.log('Existing submission found:', existingSubmission);
+          return this.toSubmissionWithReview(existingSubmission, null);
         }
 
-        const expiresAt = new Date(
-          Date.now() + data.durationHours * 60 * 60 * 1000,
-        )
+        const expiresAt = new Date(Date.now() + data.durationHours * 60 * 60 * 1000);
 
         const submission = await CommunityVerificationSubmissionModel.create({
           trackerId: trackerObjectId,
           ownerId: userObjectId,
           title: tracker.title,
-          category: MongoCommunityNormalizer.topic(
-            tracker.category || tracker.field || 'general',
-          ),
+          category: MongoCommunityNormalizer.topic(tracker.category || tracker.field || 'general'),
           excerpt: this.createExcerpt(tracker.description ?? ''),
           passVotes: 0,
           failVotes: 0,
@@ -109,7 +99,7 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           consensusChoice: null,
           expiresAt,
           deletedAt: null,
-        })
+        });
 
         await CommunityTrackerModel.updateOne(
           {
@@ -122,22 +112,22 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
               verificationStatus: 'pending',
               verifiedAt: null,
             },
-          },
-        )
+          }
+        );
 
         const plainSubmission =
-          this._mapper.toPlainRecord<MongoCommunitySubmissionRecord>(submission)
+          this._mapper.toPlainRecord<MongoCommunitySubmissionRecord>(submission);
 
         if (!plainSubmission) {
           throw new CommunityDomainError(
             'COMMUNITY_SUBMISSION_MAPPING_FAILED',
-            'Failed to map verification submission',
-          )
+            'Failed to map verification submission'
+          );
         }
 
-        return this.toSubmissionWithReview(plainSubmission, null)
-      },
-    )
+        return this.toSubmissionWithReview(plainSubmission, null);
+      }
+    );
   }
 
   async getVerificationStats(userId: string) {
@@ -145,43 +135,38 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
       'COMMUNITY_VERIFICATION_STATS_READ_FAILED',
       'Failed to read verification stats',
       async () => {
-        await this.expireDueOpenSubmissions()
+        await this.expireDueOpenSubmissions();
 
-        const userObjectId = MongoCommunityObjectId.toObjectId(userId)
-        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
+        const userObjectId = MongoCommunityObjectId.toObjectId(userId);
+        const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
 
-        const [awaiting, reviewed, rewardResult, user, activeReviewers] =
-          await Promise.all([
-            CommunityVerificationSubmissionModel.countDocuments(
-              this.openSubmissionQuery(),
-            ),
-            CommunityReviewVoteModel.countDocuments({
-              userId: userObjectId,
-            }),
-            CommunityReviewVoteModel.aggregate<{ total: number }>([
-              {
-                $match: {
-                  userId: userObjectId,
+        const [awaiting, reviewed, rewardResult, user, activeReviewers] = await Promise.all([
+          CommunityVerificationSubmissionModel.countDocuments(this.openSubmissionQuery()),
+          CommunityReviewVoteModel.countDocuments({
+            userId: userObjectId,
+          }),
+          CommunityReviewVoteModel.aggregate<{ total: number }>([
+            {
+              $match: {
+                userId: userObjectId,
+              },
+            },
+            {
+              $group: {
+                _id: null,
+                total: {
+                  $sum: '$rewardCoins',
                 },
               },
-              {
-                $group: {
-                  _id: null,
-                  total: {
-                    $sum: '$rewardCoins',
-                  },
-                },
-              },
-            ]),
-            CommunityUserModel.findById(
-              userObjectId,
-            ).lean<MongoUserRecord>(),
-            CommunityReviewVoteModel.distinct('userId', {
-              createdAt: {
-                $gte: weekAgo,
-              },
-            }),
-          ])
+            },
+          ]),
+          CommunityUserModel.findById(userObjectId).lean<MongoUserRecord>(),
+          CommunityReviewVoteModel.distinct('userId', {
+            createdAt: {
+              $gte: weekAgo,
+            },
+          }),
+        ]);
 
         return {
           awaiting,
@@ -191,11 +176,10 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           queueCount: awaiting,
           rewardCoins: COMMUNITY_REVIEW_REWARD_COINS,
           activeReviewersThisWeek: activeReviewers.length,
-        }
-      },
-    )
+        };
+      }
+    );
   }
-
 
   async getUserCoinBalance(userId: string): Promise<number> {
     return this.execute(
@@ -203,7 +187,7 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
       'Failed to read community coin balance',
       async () => {
         if (!MongoCommunityObjectId.isValid(userId)) {
-          return 0
+          return 0;
         }
 
         const user = await CommunityUserModel.findOne({
@@ -213,11 +197,11 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           .select({
             coins: 1,
           })
-          .lean<MongoUserRecord>()
+          .lean<MongoUserRecord>();
 
-        return Math.max(0, Number(user?.coins ?? 0))
-      },
-    )
+        return Math.max(0, Number(user?.coins ?? 0));
+      }
+    );
   }
 
   async findVerificationQueue(query: FindVerificationQueueQuery) {
@@ -225,10 +209,10 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
       'COMMUNITY_VERIFICATION_QUEUE_READ_FAILED',
       'Failed to read verification queue',
       async () => {
-        await this.expireDueOpenSubmissions()
+        await this.expireDueOpenSubmissions();
 
-        const filters = this.openSubmissionQuery(query.userId)
-        const skip = (query.page - 1) * query.limit
+        const filters = this.openSubmissionQuery(query.userId);
+        const skip = (query.page - 1) * query.limit;
 
         const [submissions, total] = (await Promise.all([
           CommunityVerificationSubmissionModel.find(filters)
@@ -241,99 +225,77 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
             .limit(query.limit)
             .lean<MongoCommunitySubmissionRecord[]>(),
           CommunityVerificationSubmissionModel.countDocuments(filters),
-        ])) as [MongoCommunitySubmissionRecord[], number]
+        ])) as [MongoCommunitySubmissionRecord[], number];
 
         const submissionIds = submissions.map((submission) =>
-          MongoCommunityObjectId.toExistingObjectId(submission._id),
-        )
+          MongoCommunityObjectId.toExistingObjectId(submission._id)
+        );
 
         const votes = (await CommunityReviewVoteModel.find({
           submissionId: {
             $in: submissionIds,
           },
           userId: MongoCommunityObjectId.toObjectId(query.userId),
-        }).lean<MongoCommunityVoteRecord[]>()) as MongoCommunityVoteRecord[]
+        }).lean<MongoCommunityVoteRecord[]>()) as MongoCommunityVoteRecord[];
 
-        const voteBySubmission = new Map<
-          string,
-          VerificationVoteChoice | undefined
-        >(
-          votes.map((vote) => [
-            String(vote.submissionId),
-            vote.choice,
-          ]),
-        )
+        const voteBySubmission = new Map<string, VerificationVoteChoice | undefined>(
+          votes.map((vote) => [String(vote.submissionId), vote.choice])
+        );
 
         const items = submissions
           .map((submission) =>
             this._mapper.toSubmissionEntity(
               submission,
-              voteBySubmission.get(String(submission._id)) ?? null,
-            ),
+              voteBySubmission.get(String(submission._id)) ?? null
+            )
           )
-          .filter(
-            (item): item is NonNullable<typeof item> =>
-              Boolean(item),
-          )
+          .filter((item): item is NonNullable<typeof item> => Boolean(item));
 
         return {
           items,
           total,
           page: query.page,
           limit: query.limit,
-          totalPages: MongoCommunityQueryUtils.calculateTotalPages(
-            total,
-            query.limit,
-          ),
-        }
-      },
-    )
+          totalPages: MongoCommunityQueryUtils.calculateTotalPages(total, query.limit),
+        };
+      }
+    );
   }
 
-  async findVerificationSubmissionById(
-    submissionId: string,
-    userId: string,
-  ) {
+  async findVerificationSubmissionById(submissionId: string, userId: string) {
     return this.execute(
       'COMMUNITY_VERIFICATION_SUBMISSION_READ_FAILED',
       'Failed to read verification submission',
       async () => {
-        await this.expireDueOpenSubmissions()
+        await this.expireDueOpenSubmissions();
 
         if (
           !MongoCommunityObjectId.isValid(submissionId) ||
           !MongoCommunityObjectId.isValid(userId)
         ) {
-          return null
+          return null;
         }
 
-        const submission =
-          await CommunityVerificationSubmissionModel.findOne({
-            _id: MongoCommunityObjectId.toObjectId(submissionId),
-            deletedAt: null,
-          }).lean<MongoCommunitySubmissionRecord>()
+        const submission = await CommunityVerificationSubmissionModel.findOne({
+          _id: MongoCommunityObjectId.toObjectId(submissionId),
+          deletedAt: null,
+        }).lean<MongoCommunitySubmissionRecord>();
 
         if (!submission) {
-          return null
+          return null;
         }
 
         const vote = await CommunityReviewVoteModel.findOne({
           submissionId: submission._id,
           userId: MongoCommunityObjectId.toObjectId(userId),
-        }).lean<MongoCommunityVoteRecord>()
+        }).lean<MongoCommunityVoteRecord>();
 
-        return this.toSubmissionWithReview(
-          submission,
-          vote?.choice ?? null,
-        )
-      },
-    )
+        return this.toSubmissionWithReview(submission, vote?.choice ?? null);
+      }
+    );
   }
 
-  async findVoteBySubmissionAndUser(
-    submissionId: string,
-    userId: string,
-  ) {
+  async findVoteBySubmissionAndUser(submissionId: string, userId: string) {
     return this.execute(
       'COMMUNITY_VERIFICATION_VOTE_READ_FAILED',
       'Failed to read verification vote',
@@ -342,45 +304,39 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           !MongoCommunityObjectId.isValid(submissionId) ||
           !MongoCommunityObjectId.isValid(userId)
         ) {
-          return null
+          return null;
         }
 
         const vote = await CommunityReviewVoteModel.findOne({
-          submissionId:
-            MongoCommunityObjectId.toObjectId(submissionId),
+          submissionId: MongoCommunityObjectId.toObjectId(submissionId),
           userId: MongoCommunityObjectId.toObjectId(userId),
-        }).lean<MongoCommunityVoteRecord>()
+        }).lean<MongoCommunityVoteRecord>();
 
-        return this._mapper.toVoteEntity(vote)
-      },
-    )
+        return this._mapper.toVoteEntity(vote);
+      }
+    );
   }
 
-  async createVerificationVote(
-    data: CreateCommunityReviewVoteInput,
-  ) {
+  async createVerificationVote(data: CreateCommunityReviewVoteInput) {
     return this.execute(
       'COMMUNITY_VERIFICATION_VOTE_CREATE_FAILED',
       'Failed to create verification vote',
       async () => {
-        await this.expireDueOpenSubmissions()
+        await this.expireDueOpenSubmissions();
 
-        const submissionId =
-          MongoCommunityObjectId.toObjectId(data.submissionId)
-        const userId =
-          MongoCommunityObjectId.toObjectId(data.userId)
+        const submissionId = MongoCommunityObjectId.toObjectId(data.submissionId);
+        const userId = MongoCommunityObjectId.toObjectId(data.userId);
 
-        const submission =
-          await CommunityVerificationSubmissionModel.findOne({
-            _id: submissionId,
-            ...this.openSubmissionQuery(),
-          }).lean<MongoCommunitySubmissionRecord>()
+        const submission = await CommunityVerificationSubmissionModel.findOne({
+          _id: submissionId,
+          ...this.openSubmissionQuery(),
+        }).lean<MongoCommunitySubmissionRecord>();
 
         if (!submission) {
           throw new CommunityDomainError(
             'COMMUNITY_VERIFICATION_SUBMISSION_CLOSED',
-            'Verification submission is closed or expired',
-          )
+            'Verification submission is closed or expired'
+          );
         }
 
         const vote = await CommunityReviewVoteModel.create({
@@ -389,8 +345,7 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           choice: data.choice,
           reason: data.reason ?? null,
           rewardCoins: 0,
-        })
-
+        });
 
         const update = {
           $inc:
@@ -401,7 +356,7 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
               : {
                   failVotes: 1,
                 },
-        }
+        };
 
         await CommunityVerificationSubmissionModel.updateOne(
           {
@@ -409,50 +364,39 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
             status: 'open',
             deletedAt: null,
           },
-          update,
-        )
+          update
+        );
 
-        await this.closeSubmissionIfConsensusReached(
-          data.submissionId,
-        )
+        await this.closeSubmissionIfConsensusReached(data.submissionId);
 
-        const plainVote =
-          this._mapper.toPlainRecord<MongoCommunityVoteRecord>(
-            vote,
-          )
+        const plainVote = this._mapper.toPlainRecord<MongoCommunityVoteRecord>(vote);
 
-        const voteEntity =
-          this._mapper.toVoteEntity(plainVote)
+        const voteEntity = this._mapper.toVoteEntity(plainVote);
 
         if (!voteEntity) {
           throw new CommunityDomainError(
             'COMMUNITY_VOTE_MAPPING_FAILED',
-            'Failed to map review vote',
-          )
+            'Failed to map review vote'
+          );
         }
 
-        return voteEntity
+        return voteEntity;
       },
-      (error) =>
-        this._errorMapper.mapDuplicateVote(error),
-    )
+      (error) => this._errorMapper.mapDuplicateVote(error)
+    );
   }
 
-  async findUnrewardedMajorityVotes(
-    submissionId: string,
-    choice: VerificationVoteChoice,
-  ) {
+  async findUnrewardedMajorityVotes(submissionId: string, choice: VerificationVoteChoice) {
     return this.execute(
       'COMMUNITY_REWARDABLE_VOTES_READ_FAILED',
       'Failed to read rewardable verification votes',
       async () => {
         if (!MongoCommunityObjectId.isValid(submissionId)) {
-          return []
+          return [];
         }
 
         const votes = (await CommunityReviewVoteModel.find({
-          submissionId:
-            MongoCommunityObjectId.toObjectId(submissionId),
+          submissionId: MongoCommunityObjectId.toObjectId(submissionId),
           choice,
           $or: [
             {
@@ -467,107 +411,89 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
               rewardCoins: null,
             },
           ],
-        }).lean<MongoCommunityVoteRecord[]>()) as MongoCommunityVoteRecord[]
+        }).lean<MongoCommunityVoteRecord[]>()) as MongoCommunityVoteRecord[];
 
         return votes
-          .map((vote) =>
-            this._mapper.toVoteEntity(vote),
-          )
-          .filter(
-            (vote): vote is NonNullable<typeof vote> =>
-              Boolean(vote),
-          )
-      },
-    )
+          .map((vote) => this._mapper.toVoteEntity(vote))
+          .filter((vote): vote is NonNullable<typeof vote> => Boolean(vote));
+      }
+    );
   }
 
-  async markVerificationVoteRewarded(
-    voteId: string,
-    rewardCoins: number,
-  ): Promise<boolean> {
+  async markVerificationVoteRewarded(voteId: string, rewardCoins: number): Promise<boolean> {
     return this.execute(
       'COMMUNITY_VOTE_REWARD_MARK_FAILED',
       'Failed to mark verification vote as rewarded',
       async () => {
         if (!MongoCommunityObjectId.isValid(voteId)) {
-          return false
+          return false;
         }
 
-        const rewardedVote =
-          await CommunityReviewVoteModel.findOneAndUpdate(
-            {
-              _id: MongoCommunityObjectId.toObjectId(voteId),
-              $or: [
-                {
-                  rewardCoins: 0,
-                },
-                {
-                  rewardCoins: {
-                    $exists: false,
-                  },
-                },
-                {
-                  rewardCoins: null,
-                },
-              ],
-            },
-            {
-              $set: {
-                rewardCoins,
+        const rewardedVote = await CommunityReviewVoteModel.findOneAndUpdate(
+          {
+            _id: MongoCommunityObjectId.toObjectId(voteId),
+            $or: [
+              {
+                rewardCoins: 0,
               },
+              {
+                rewardCoins: {
+                  $exists: false,
+                },
+              },
+              {
+                rewardCoins: null,
+              },
+            ],
+          },
+          {
+            $set: {
+              rewardCoins,
             },
-            {
-              new: true,
-            },
-          ).lean<MongoCommunityVoteRecord>()
+          },
+          {
+            new: true,
+          }
+        ).lean<MongoCommunityVoteRecord>();
 
         if (!rewardedVote) {
-          return false
+          return false;
         }
 
-
-        return true
-      },
-    )
+        return true;
+      }
+    );
   }
 
-  async findVerificationLeaderboard(
-    userId: string,
-    limit: number,
-  ) {
+  async findVerificationLeaderboard(userId: string, limit: number) {
     return this.execute(
       'COMMUNITY_LEADERBOARD_READ_FAILED',
       'Failed to read community leaderboard',
       async () => {
-        const rows =
-          (await CommunityReviewVoteModel.aggregate<MongoCommunityLeaderboardAggregate>(
-            [
-              {
-                $group: {
-                  _id: '$userId',
-                  totalEarned: {
-                    $sum: '$rewardCoins',
-                  },
-                  reviewed: {
-                    $sum: 1,
-                  },
-                },
+        const rows = (await CommunityReviewVoteModel.aggregate<MongoCommunityLeaderboardAggregate>([
+          {
+            $group: {
+              _id: '$userId',
+              totalEarned: {
+                $sum: '$rewardCoins',
               },
-              {
-                $sort: {
-                  totalEarned: -1,
-                  reviewed: -1,
-                },
+              reviewed: {
+                $sum: 1,
               },
-              {
-                $limit: limit,
-              },
-            ],
-          )) as MongoCommunityLeaderboardAggregate[]
+            },
+          },
+          {
+            $sort: {
+              totalEarned: -1,
+              reviewed: -1,
+            },
+          },
+          {
+            $limit: limit,
+          },
+        ])) as MongoCommunityLeaderboardAggregate[];
 
-        const userIds = rows.map((row) =>
-          MongoCommunityObjectId.toExistingObjectId(row._id),
-        )
+        const userIds = rows.map((row) => MongoCommunityObjectId.toExistingObjectId(row._id));
 
         const [profiles, users] = (await Promise.all([
           CommunityUserProfileModel.find({
@@ -582,44 +508,29 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
             },
             deletedAt: null,
           }).lean<MongoUserRecord[]>(),
-        ])) as [
-          MongoUserProfileRecord[],
-          MongoUserRecord[],
-        ]
+        ])) as [MongoUserProfileRecord[], MongoUserRecord[]];
 
         const profileByUserId = new Map(
-          profiles.map((profile) => [
-            String(profile.userId),
-            profile,
-          ]),
-        )
+          profiles.map((profile) => [String(profile.userId), profile])
+        );
 
-        const userById = new Map(
-          users.map((user) => [
-            String(user._id),
-            user,
-          ]),
-        )
+        const userById = new Map(users.map((user) => [String(user._id), user]));
 
         return rows.map((row, index) =>
           this._mapper.toLeaderboardEntryEntity({
             userId: String(row._id),
             rank: index + 1,
-            profile:
-              profileByUserId.get(String(row._id)),
+            profile: profileByUserId.get(String(row._id)),
             user: userById.get(String(row._id)),
             earnedCoins: row.totalEarned,
-            isCurrentUser:
-              String(row._id) === userId,
-          }),
-        )
-      },
-    )
+            isCurrentUser: String(row._id) === userId,
+          })
+        );
+      }
+    );
   }
 
-  private openSubmissionQuery(
-    excludeOwnerId?: string,
-  ): SubmissionQuery {
+  private openSubmissionQuery(excludeOwnerId?: string): SubmissionQuery {
     const query: SubmissionQuery = {
       deletedAt: null,
       status: 'open',
@@ -638,91 +549,77 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           },
         },
       ],
-    }
+    };
 
     if (excludeOwnerId) {
       query.ownerId = {
-        $ne: MongoCommunityObjectId.toObjectId(
-          excludeOwnerId,
-        ),
-      }
+        $ne: MongoCommunityObjectId.toObjectId(excludeOwnerId),
+      };
     }
 
-    return query
+    return query;
   }
 
   private async toSubmissionWithReview(
     submission: MongoCommunitySubmissionRecord,
-    userVote: VerificationVoteChoice | null,
+    userVote: VerificationVoteChoice | null
   ) {
-    const reviewTracker =
-      await this.getVerificationReviewTracker(
-        submission,
-      )
+    const reviewTracker = await this.getVerificationReviewTracker(submission);
 
     return this._mapper.toSubmissionEntity(
       {
         ...submission,
         reviewTracker,
       },
-      userVote,
-    )
+      userVote
+    );
   }
 
   private async getVerificationReviewTracker(
-    submission: MongoCommunitySubmissionRecord,
+    submission: MongoCommunitySubmissionRecord
   ): Promise<MongoVerificationReviewTrackerRecord | null> {
-    const trackerId =
-      MongoCommunityObjectId.toExistingObjectId(
-        submission.trackerId,
-      )
+    const trackerId = MongoCommunityObjectId.toExistingObjectId(submission.trackerId);
 
-    const [tracker, topics, subtopics] =
-      (await Promise.all([
-        CommunityTrackerModel.findOne({
-          _id: trackerId,
-          deletedAt: null,
-        }).lean<MongoCommunityTrackerRecord>(),
-        CommunityTrackerTopicModel.find({
-          trackerId,
-          deletedAt: null,
+    const [tracker, topics, subtopics] = (await Promise.all([
+      CommunityTrackerModel.findOne({
+        _id: trackerId,
+        deletedAt: null,
+      }).lean<MongoCommunityTrackerRecord>(),
+      CommunityTrackerTopicModel.find({
+        trackerId,
+        deletedAt: null,
+      })
+        .sort({
+          order: 1,
         })
-          .sort({
-            order: 1,
-          })
-          .lean<MongoTrackerTopicRecord[]>(),
-        CommunityTrackerSubtopicModel.find({
-          trackerId,
-          deletedAt: null,
+        .lean<MongoTrackerTopicRecord[]>(),
+      CommunityTrackerSubtopicModel.find({
+        trackerId,
+        deletedAt: null,
+      })
+        .sort({
+          depth: 1,
+          order: 1,
         })
-          .sort({
-            depth: 1,
-            order: 1,
-          })
-          .lean<MongoTrackerSubtopicRecord[]>(),
-      ])) as [
-        MongoCommunityTrackerRecord | null,
-        MongoTrackerTopicRecord[],
-        MongoTrackerSubtopicRecord[],
-      ]
+        .lean<MongoTrackerSubtopicRecord[]>(),
+    ])) as [
+      MongoCommunityTrackerRecord | null,
+      MongoTrackerTopicRecord[],
+      MongoTrackerSubtopicRecord[],
+    ];
 
     if (!tracker) {
-      return null
+      return null;
     }
 
-    const subtopicsByTopicId =
-      new Map<
-        string,
-        MongoTrackerSubtopicRecord[]
-      >()
+    const subtopicsByTopicId = new Map<string, MongoTrackerSubtopicRecord[]>();
 
     for (const subtopic of subtopics) {
-      const topicId = String(subtopic.topicId)
-      const items =
-        subtopicsByTopicId.get(topicId) ?? []
+      const topicId = String(subtopic.topicId);
+      const items = subtopicsByTopicId.get(topicId) ?? [];
 
-      items.push(subtopic)
-      subtopicsByTopicId.set(topicId, items)
+      items.push(subtopic);
+      subtopicsByTopicId.set(topicId, items);
     }
 
     return {
@@ -736,61 +633,41 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
       tags: tracker.tags ?? [],
       visibility: tracker.visibility ?? 'private',
       status: tracker.status ?? 'active',
-      topicsCount:
-        tracker.topicsCount ?? topics.length,
-      subtopicsCount:
-        tracker.subtopicsCount ?? subtopics.length,
+      topicsCount: tracker.topicsCount ?? topics.length,
+      subtopicsCount: tracker.subtopicsCount ?? subtopics.length,
       topics: topics.map((topic) => ({
         id: String(topic._id),
         title: topic.title,
         description: topic.description ?? '',
         order: topic.order,
         status: topic.status ?? 'active',
-        estimatedHours:
-          topic.estimatedHours ?? 0,
-        subtopics:
-          (
-            subtopicsByTopicId.get(
-              String(topic._id),
-            ) ?? []
-          ).map((subtopic) => ({
-            id: String(subtopic._id),
-            topicId: String(subtopic.topicId),
-            parentSubtopicId:
-              subtopic.parentSubtopicId
-                ? String(
-                    subtopic.parentSubtopicId,
-                  )
-                : null,
-            title: subtopic.title,
-            description:
-              subtopic.description ?? '',
-            order: subtopic.order,
-            depth: subtopic.depth,
-            isLocked: Boolean(
-              subtopic.isLocked,
-            ),
-            estimatedMinutes:
-              subtopic.estimatedMinutes ?? 0,
-          })),
+        estimatedHours: topic.estimatedHours ?? 0,
+        subtopics: (subtopicsByTopicId.get(String(topic._id)) ?? []).map((subtopic) => ({
+          id: String(subtopic._id),
+          topicId: String(subtopic.topicId),
+          parentSubtopicId: subtopic.parentSubtopicId ? String(subtopic.parentSubtopicId) : null,
+          title: subtopic.title,
+          description: subtopic.description ?? '',
+          order: subtopic.order,
+          depth: subtopic.depth,
+          isLocked: Boolean(subtopic.isLocked),
+          estimatedMinutes: subtopic.estimatedMinutes ?? 0,
+        })),
       })),
-    }
+    };
   }
 
   private async expireDueOpenSubmissions(): Promise<void> {
-    const now = new Date()
+    const now = new Date();
 
-    const submissions =
-      (await CommunityVerificationSubmissionModel.find({
-        status: 'open',
-        deletedAt: null,
-        expiresAt: {
-          $ne: null,
-          $lte: now,
-        },
-      }).lean<
-        MongoCommunitySubmissionRecord[]
-      >()) as MongoCommunitySubmissionRecord[]
+    const submissions = (await CommunityVerificationSubmissionModel.find({
+      status: 'open',
+      deletedAt: null,
+      expiresAt: {
+        $ne: null,
+        $lte: now,
+      },
+    }).lean<MongoCommunitySubmissionRecord[]>()) as MongoCommunitySubmissionRecord[];
 
     for (const submission of submissions) {
       await CommunityVerificationSubmissionModel.updateOne(
@@ -802,14 +679,11 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
         {
           $set: {
             status: 'expired',
-            progress:
-              this.calculateSubmissionProgress(
-                submission,
-              ),
+            progress: this.calculateSubmissionProgress(submission),
             consensusChoice: null,
           },
-        },
-      )
+        }
+      );
 
       await CommunityTrackerModel.updateOne(
         {
@@ -822,69 +696,39 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
             verificationStatus: null,
             verifiedAt: null,
           },
-        },
-      )
+        }
+      );
     }
   }
 
-  private calculateSubmissionProgress(
-    submission: MongoCommunitySubmissionRecord,
-  ): number {
-    const passVotes =
-      Number(submission.passVotes ?? 0)
-    const failVotes =
-      Number(submission.failVotes ?? 0)
-    const requiredVotes = Math.max(
-      Number(submission.requiredVotes ?? 10),
-      1,
-    )
-    const totalVotes = passVotes + failVotes
+  private calculateSubmissionProgress(submission: MongoCommunitySubmissionRecord): number {
+    const passVotes = Number(submission.passVotes ?? 0);
+    const failVotes = Number(submission.failVotes ?? 0);
+    const requiredVotes = Math.max(Number(submission.requiredVotes ?? 10), 1);
+    const totalVotes = passVotes + failVotes;
 
-    return Math.min(
-      Math.round(
-        (totalVotes / requiredVotes) * 100,
-      ),
-      100,
-    )
+    return Math.min(Math.round((totalVotes / requiredVotes) * 100), 100);
   }
 
   private createExcerpt(value: string): string {
-    return value.trim().slice(0, 280)
+    return value.trim().slice(0, 280);
   }
 
-  private async closeSubmissionIfConsensusReached(
-    submissionId: string,
-  ): Promise<void> {
-    const submission =
-      await CommunityVerificationSubmissionModel.findById(
-        MongoCommunityObjectId.toObjectId(
-          submissionId,
-        ),
-      ).lean<MongoCommunitySubmissionRecord>()
+  private async closeSubmissionIfConsensusReached(submissionId: string): Promise<void> {
+    const submission = await CommunityVerificationSubmissionModel.findById(
+      MongoCommunityObjectId.toObjectId(submissionId)
+    ).lean<MongoCommunitySubmissionRecord>();
 
-    if (
-      !submission ||
-      submission.status !== 'open'
-    ) {
-      return
+    if (!submission || submission.status !== 'open') {
+      return;
     }
 
-    const passVotes =
-      Number(submission.passVotes ?? 0)
-    const failVotes =
-      Number(submission.failVotes ?? 0)
-    const requiredVotes = Math.max(
-      Number(submission.requiredVotes ?? 10),
-      1,
-    )
-    const totalVotes = passVotes + failVotes
+    const passVotes = Number(submission.passVotes ?? 0);
+    const failVotes = Number(submission.failVotes ?? 0);
+    const requiredVotes = Math.max(Number(submission.requiredVotes ?? 10), 1);
+    const totalVotes = passVotes + failVotes;
 
-    const progress = Math.min(
-      Math.round(
-        (totalVotes / requiredVotes) * 100,
-      ),
-      100,
-    )
+    const progress = Math.min(Math.round((totalVotes / requiredVotes) * 100), 100);
 
     if (totalVotes < requiredVotes) {
       await CommunityVerificationSubmissionModel.updateOne(
@@ -895,21 +739,15 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           $set: {
             progress,
           },
-        },
-      )
+        }
+      );
 
-      return
+      return;
     }
 
-    const consensusChoice: VerificationVoteChoice =
-      passVotes >= failVotes
-        ? 'pass'
-        : 'fail'
+    const consensusChoice: VerificationVoteChoice = passVotes >= failVotes ? 'pass' : 'fail';
 
-    const status =
-      consensusChoice === 'pass'
-        ? 'approved'
-        : 'rejected'
+    const status = consensusChoice === 'pass' ? 'approved' : 'rejected';
 
     await CommunityVerificationSubmissionModel.updateOne(
       {
@@ -921,8 +759,8 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           consensusChoice,
           progress: 100,
         },
-      },
-    )
+      }
+    );
 
     await CommunityTrackerModel.updateOne(
       {
@@ -930,19 +768,12 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
       },
       {
         $set: {
-          verificationStatus:
-            consensusChoice === 'pass'
-              ? 'verified'
-              : 'rejected',
-          verifiedAt:
-            consensusChoice === 'pass'
-              ? new Date()
-              : null,
+          verificationStatus: consensusChoice === 'pass' ? 'verified' : 'rejected',
+          verifiedAt: consensusChoice === 'pass' ? new Date() : null,
         },
-      },
-    )
+      }
+    );
   }
 }
 
-export const mongoCommunityVerificationRepository =
-  new MongoCommunityVerificationRepository()
+export const mongoCommunityVerificationRepository = new MongoCommunityVerificationRepository();

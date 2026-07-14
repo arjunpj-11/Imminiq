@@ -1,76 +1,51 @@
-import type { DashboardUseCases } from './application/dashboard-use-cases.contract'
-import {
-  DashboardMapper,
-  type IDashboardMapper,
-} from './application/dashboard.mapper'
-import { GetActivityIntensityUseCase } from './application/use-cases/get-activity-intensity.usecase'
-import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase'
-import { GetCurrentRoadmapUseCase } from './application/use-cases/get-current-roadmap.usecase'
-import { GetDashboardSummaryUseCase } from './application/use-cases/get-dashboard-summary.usecase'
-import { GetFriendsHubUseCase } from './application/use-cases/get-friends-hub.usecase'
-import { GetRecentBattlesUseCase } from './application/use-cases/get-recent-battles.usecase'
-import { GetRecommendedActionsUseCase } from './application/use-cases/get-recommended-actions.usecase'
-import type { IDashboardInsightGenerator } from './domain/services/dashboard-insight-generator.interface'
-import { aiDashboardInsightGenerator } from './infrastructure/gateways/ai-dashboard-insight.gateway'
-import { mongoDashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository'
-
+import type { DashboardUseCases } from './application/dashboard-use-cases.contract';
+import { DashboardMapper, type IDashboardMapper } from './application/dashboard.mapper';
+import { GetActivityIntensityUseCase } from './application/use-cases/get-activity-intensity.usecase';
+import { GetAIInsightsUseCase } from './application/use-cases/get-ai-insights.usecase';
+import { GetCurrentRoadmapUseCase } from './application/use-cases/get-current-roadmap.usecase';
+import { GetDashboardSummaryUseCase } from './application/use-cases/get-dashboard-summary.usecase';
+import { GetFriendsHubUseCase } from './application/use-cases/get-friends-hub.usecase';
+import { GetRecentBattlesUseCase } from './application/use-cases/get-recent-battles.usecase';
+import { GetRecommendedActionsUseCase } from './application/use-cases/get-recommended-actions.usecase';
+import type { IDashboardInsightGenerator } from './domain/services/dashboard-insight-generator.interface';
+import { aiDashboardInsightGenerator } from './infrastructure/gateways/ai-dashboard-insight.gateway';
+import { mongoDashboardRepository } from './infrastructure/repositories/mongo-dashboard.repository';
 
 export type DashboardServiceHelpers = {
-  dashboardMapper: IDashboardMapper
-  dashboardInsightGenerator: IDashboardInsightGenerator
-}
+  dashboardMapper: IDashboardMapper;
+  dashboardInsightGenerator: IDashboardInsightGenerator;
+};
 
 export type DashboardComposition = {
-  useCases: DashboardUseCases
-  helpers: DashboardServiceHelpers
-}
+  useCases: DashboardUseCases;
+  helpers: DashboardServiceHelpers;
+};
 
 export const createDashboardComposition = (): DashboardComposition => {
-  const dashboardRepository = mongoDashboardRepository
-  const dashboardInsightGenerator = aiDashboardInsightGenerator
-  const dashboardMapper = new DashboardMapper()
+  const dashboardRepository = mongoDashboardRepository;
+  const dashboardInsightGenerator = aiDashboardInsightGenerator;
+  const dashboardMapper = new DashboardMapper();
 
   return {
     useCases: {
-      getDashboardSummary: new GetDashboardSummaryUseCase(
-        dashboardRepository,
-        dashboardMapper
-      ),
+      getDashboardSummary: new GetDashboardSummaryUseCase(dashboardRepository, dashboardMapper),
 
-      getCurrentRoadmap: new GetCurrentRoadmapUseCase(
-        dashboardRepository,
-        dashboardMapper
-      ),
+      getCurrentRoadmap: new GetCurrentRoadmapUseCase(dashboardRepository, dashboardMapper),
 
-      getActivityIntensity: new GetActivityIntensityUseCase(
-        dashboardRepository,
-        dashboardMapper
-      ),
+      getActivityIntensity: new GetActivityIntensityUseCase(dashboardRepository, dashboardMapper),
 
-      getRecentBattles: new GetRecentBattlesUseCase(
-        dashboardRepository,
-        dashboardMapper
-      ),
+      getRecentBattles: new GetRecentBattlesUseCase(dashboardRepository, dashboardMapper),
 
-      getFriendsHub: new GetFriendsHubUseCase(
-        dashboardRepository,
-        dashboardMapper
-      ),
+      getFriendsHub: new GetFriendsHubUseCase(dashboardRepository, dashboardMapper),
 
-      getRecommendedActions: new GetRecommendedActionsUseCase(
-        dashboardRepository,
-        dashboardMapper
-      ),
+      getRecommendedActions: new GetRecommendedActionsUseCase(dashboardRepository, dashboardMapper),
 
-      getAIInsights: new GetAIInsightsUseCase(
-        dashboardRepository,
-        dashboardInsightGenerator
-      ),
+      getAIInsights: new GetAIInsightsUseCase(dashboardRepository, dashboardInsightGenerator),
     },
 
     helpers: {
       dashboardMapper,
       dashboardInsightGenerator,
     },
-  }
-}
+  };
+};

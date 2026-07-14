@@ -1,39 +1,32 @@
-import StatCard from '../../../../components/data-display/StatCard'
-import { cn } from '../../../../lib/cn'
-import type { IProfileStats, IStreakSummary } from '../types/profile.types'
-import { formatCompactNumber } from '../utils/profile-formatters'
+import StatCard from '../../../../components/data-display/StatCard';
+import { cn } from '../../../../lib/cn';
+import type { IProfileStats, IStreakSummary } from '../types/profile.types';
+import { formatCompactNumber } from '../utils/profile-formatters';
 
 interface IProfileStatsGridProps {
-  stats?: IProfileStats | null
-  streak?: IStreakSummary | null
+  stats?: IProfileStats | null;
+  streak?: IStreakSummary | null;
 }
 
-export default function ProfileStatsGrid({
-  stats,
-  streak,
-}: IProfileStatsGridProps) {
+export default function ProfileStatsGrid({ stats, streak }: IProfileStatsGridProps) {
   return (
-    <div className="grid grid-cols-4 gap-2.5 animate-[fadeUp_0.38s_ease_0.1s_both] max-[860px]:grid-cols-2 max-[420px]:grid-cols-1">
+    <div className="grid grid-cols-3 gap-2.5 animate-[fadeUp_0.38s_ease_0.1s_both] max-[860px]:grid-cols-2 max-[420px]:grid-cols-1">
       <StatCard tone="rust" label="">
         <div className="font-ui text-[clamp(28px,4vw,36px)] font-extrabold leading-none tracking-[-2px] text-(--brand-500) dark:text-(--brand-500)">
           {streak?.currentStreak ?? stats?.streakCount ?? 0}{' '}
-          <span className="font-ui text-[14px] font-medium opacity-60">
-            days
-          </span>
+          <span className="font-ui text-[14px] font-medium opacity-60">days</span>
         </div>
         <div className="mt-1 flex h-8 items-end gap-0.75">
-          {[20, 55, 35, 80, 60, 90, 100, 70, 85, 50, 95, 42].map(
-            (height, index) => (
-              <div
-                key={index}
-                className={cn(
-                  'flex-1 rounded-sm bg-(--brand-500) dark:bg-(--brand-500)',
-                  index === 11 ? 'opacity-70' : 'opacity-18',
-                )}
-                style={{ height: `${height}%` }}
-              />
-            ),
-          )}
+          {[20, 55, 35, 80, 60, 90, 100, 70, 85, 50, 95, 42].map((height, index) => (
+            <div
+              key={index}
+              className={cn(
+                'flex-1 rounded-sm bg-(--brand-500) dark:bg-(--brand-500)',
+                index === 11 ? 'opacity-70' : 'opacity-18'
+              )}
+              style={{ height: `${height}%` }}
+            />
+          ))}
         </div>
       </StatCard>
 
@@ -70,6 +63,46 @@ export default function ProfileStatsGrid({
         </div>
       </StatCard>
 
+      <StatCard tone="rust" label="">
+        <div className="flex items-baseline gap-2">
+          <div className="font-ui text-[clamp(28px,4vw,36px)] font-extrabold leading-none tracking-[-2px] text-(--brand-500)">
+            {stats?.teacherLevel ?? 1}
+          </div>
+          <div className="font-mono text-[11px] tracking-[0.06em] text-(--brand-500)">
+            Teacher level
+          </div>
+        </div>
+        <div className="mt-2 flex items-center justify-between rounded-md border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.06)] px-2.5 py-2">
+          <span className="font-mono text-[8px] uppercase tracking-[0.12em] text-(--text-secondary) opacity-60">
+            Teaching XP
+          </span>
+          <span className="font-mono text-[10px] font-medium text-(--brand-500)">
+            {formatCompactNumber(stats?.teacherXp ?? 0)} XP
+          </span>
+        </div>
+      </StatCard>
+
+      <StatCard tone="green" label="">
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <div className="font-ui text-[clamp(26px,4vw,34px)] font-extrabold leading-none text-(--success)">
+              #{stats?.studentRank || '—'}
+            </div>
+            <div className="mt-2 font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary)">
+              Student rank
+            </div>
+          </div>
+          <div>
+            <div className="font-ui text-[clamp(26px,4vw,34px)] font-extrabold leading-none text-(--brand-500)">
+              #{stats?.teacherRank || '—'}
+            </div>
+            <div className="mt-2 font-mono text-[8px] uppercase tracking-[0.14em] text-(--text-secondary)">
+              Teacher rank
+            </div>
+          </div>
+        </div>
+      </StatCard>
+
       <StatCard tone="blue" label="">
         <div className="mt-1 grid grid-cols-2 gap-2">
           {[
@@ -96,7 +129,7 @@ export default function ProfileStatsGrid({
               <div
                 className={cn(
                   'font-ui text-[20px] font-extrabold leading-none tracking-[-1px] text-(--text-primary) dark:text-(--text-primary)',
-                  item.className,
+                  item.className
                 )}
               >
                 {item.value}
@@ -109,5 +142,5 @@ export default function ProfileStatsGrid({
         </div>
       </StatCard>
     </div>
-  )
+  );
 }

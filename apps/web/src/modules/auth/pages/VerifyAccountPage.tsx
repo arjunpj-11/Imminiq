@@ -1,213 +1,227 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import type { ClipboardEvent, KeyboardEvent } from 'react'
-import { Link, useLocation, useNavigate } from 'react-router-dom'
-import axios from 'axios'
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ClipboardEvent, KeyboardEvent } from 'react';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
-import api from '../../../lib/axios'
-import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
-import { safeSessionStorage } from '../../../lib/storage/safe-storage'
-import { OTP_LENGTH, OTP_RESEND_WAIT_SECONDS, TOTAL_OTP_SECONDS } from '../constants/auth.constants'
-import type { VerifyPurpose, VerifyState } from '../types/auth.types'
-import { maskIdentifier, formatTime } from '../utils/auth-formatters'
-import { cn } from '../utils/auth-ui'
-import { LogoIcon } from '../components/icons/AuthIcons'
+import api from '../../../lib/axios';
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
+import { safeSessionStorage } from '../../../lib/storage/safe-storage';
+import {
+  OTP_LENGTH,
+  OTP_RESEND_WAIT_SECONDS,
+  TOTAL_OTP_SECONDS,
+} from '../constants/auth.constants';
+import type { VerifyPurpose, VerifyState } from '../types/auth.types';
+import { maskIdentifier, formatTime } from '../utils/auth-formatters';
+import { cn } from '../utils/auth-ui';
+import { LogoIcon } from '../components/icons/AuthIcons';
 
 export default function VerifyAccountPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const routeState = location.state as VerifyState | null
+  const navigate = useNavigate();
+  const location = useLocation();
+  const routeState = location.state as VerifyState | null;
 
-  const identifier = routeState?.identifier
-  const method = routeState?.method
-  const purpose: VerifyPurpose = routeState?.purpose || 'account_verification'
-  const isPasswordReset = purpose === 'password_reset'
+  const identifier = routeState?.identifier;
+  const method = routeState?.method;
+  const purpose: VerifyPurpose = routeState?.purpose || 'account_verification';
+  const isPasswordReset = purpose === 'password_reset';
 
-  const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''))
-  const [error, setError] = useState('')
+  const [digits, setDigits] = useState<string[]>(Array(OTP_LENGTH).fill(''));
+  const [error, setError] = useState('');
   const [secondsLeft, setSecondsLeft] = useState<number>(() => {
-    const stored = safeSessionStorage.get(STORAGE_KEYS.otpExpiry)
+    const stored = safeSessionStorage.get(STORAGE_KEYS.otpExpiry);
     if (!stored) {
-      const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000
-      safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry))
-      return TOTAL_OTP_SECONDS
+      const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000;
+      safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry));
+      return TOTAL_OTP_SECONDS;
     }
-    return Math.max(0, Math.round((Number(stored) - Date.now()) / 1000))
-  })
+    return Math.max(0, Math.round((Number(stored) - Date.now()) / 1000));
+  });
   const [resendLeft, setResendLeft] = useState<number>(() => {
-    const stored = safeSessionStorage.get(STORAGE_KEYS.otpResendExpiry)
+    const stored = safeSessionStorage.get(STORAGE_KEYS.otpResendExpiry);
     if (!stored) {
-      const expiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000
-      safeSessionStorage.set(STORAGE_KEYS.otpResendExpiry, String(expiry))
-      return OTP_RESEND_WAIT_SECONDS
+      const expiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000;
+      safeSessionStorage.set(STORAGE_KEYS.otpResendExpiry, String(expiry));
+      return OTP_RESEND_WAIT_SECONDS;
     }
-    return Math.max(0, Math.round((Number(stored) - Date.now()) / 1000))
-  })
-  const [isVerifying, setIsVerifying] = useState(false)
-  const [isResending, setIsResending] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+    return Math.max(0, Math.round((Number(stored) - Date.now()) / 1000));
+  });
+  const [isVerifying, setIsVerifying] = useState(false);
+  const [isResending, setIsResending] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
 
-  const inputRefs = useRef<Array<HTMLInputElement | null>>([])
-  const otp = useMemo(() => digits.join(''), [digits])
-  const destinationText = maskIdentifier(identifier)
-  const progressPercent = (secondsLeft / TOTAL_OTP_SECONDS) * 100
-  const canResend = resendLeft <= 0 && !isResending
+  const inputRefs = useRef<Array<HTMLInputElement | null>>([]);
+  const otp = useMemo(() => digits.join(''), [digits]);
+  const destinationText = maskIdentifier(identifier);
+  const progressPercent = (secondsLeft / TOTAL_OTP_SECONDS) * 100;
+  const canResend = resendLeft <= 0 && !isResending;
 
   useEffect(() => {
     const timer = window.setInterval(() => {
-      const expiry = Number(safeSessionStorage.get(STORAGE_KEYS.otpExpiry) || 0)
-      const resendExpiry = Number(safeSessionStorage.get(STORAGE_KEYS.otpResendExpiry) || 0)
-      setSecondsLeft(Math.max(0, Math.round((expiry - Date.now()) / 1000)))
-      setResendLeft(Math.max(0, Math.round((resendExpiry - Date.now()) / 1000)))
-    }, 1000)
+      const expiry = Number(safeSessionStorage.get(STORAGE_KEYS.otpExpiry) || 0);
+      const resendExpiry = Number(safeSessionStorage.get(STORAGE_KEYS.otpResendExpiry) || 0);
+      setSecondsLeft(Math.max(0, Math.round((expiry - Date.now()) / 1000)));
+      setResendLeft(Math.max(0, Math.round((resendExpiry - Date.now()) / 1000)));
+    }, 1000);
 
-    return () => window.clearInterval(timer)
-  }, [])
+    return () => window.clearInterval(timer);
+  }, []);
 
-  const clearError = () => setError('')
+  const clearError = () => setError('');
 
   const updateDigit = (index: number, value: string) => {
-    const clean = value.replace(/\D/g, '').slice(-1)
+    const clean = value.replace(/\D/g, '').slice(-1);
     setDigits((current) => {
-      const next = [...current]
-      next[index] = clean
-      return next
-    })
-    clearError()
+      const next = [...current];
+      next[index] = clean;
+      return next;
+    });
+    clearError();
 
     if (clean && index < OTP_LENGTH - 1) {
-      inputRefs.current[index + 1]?.focus()
+      inputRefs.current[index + 1]?.focus();
     }
-  }
+  };
 
   const handleKeyDown = (event: KeyboardEvent<HTMLInputElement>, index: number) => {
     if (event.key === 'Backspace') {
-      event.preventDefault()
+      event.preventDefault();
       if (digits[index]) {
         setDigits((current) => {
-          const next = [...current]
-          next[index] = ''
-          return next
-        })
-        return
+          const next = [...current];
+          next[index] = '';
+          return next;
+        });
+        return;
       }
       if (index > 0) {
-        inputRefs.current[index - 1]?.focus()
+        inputRefs.current[index - 1]?.focus();
         setDigits((current) => {
-          const next = [...current]
-          next[index - 1] = ''
-          return next
-        })
+          const next = [...current];
+          next[index - 1] = '';
+          return next;
+        });
       }
     }
 
     if (event.key === 'ArrowLeft' && index > 0) {
-      event.preventDefault()
-      inputRefs.current[index - 1]?.focus()
+      event.preventDefault();
+      inputRefs.current[index - 1]?.focus();
     }
 
     if (event.key === 'ArrowRight' && index < OTP_LENGTH - 1) {
-      event.preventDefault()
-      inputRefs.current[index + 1]?.focus()
+      event.preventDefault();
+      inputRefs.current[index + 1]?.focus();
     }
 
     if (event.key === 'Enter') {
-      void handleVerify()
+      void handleVerify();
     }
-  }
+  };
 
   const handlePaste = (event: ClipboardEvent<HTMLInputElement>) => {
-    event.preventDefault()
-    const pastedDigits = event.clipboardData.getData('text').replace(/\D/g, '').slice(0, OTP_LENGTH)
-    if (!pastedDigits) return
+    event.preventDefault();
+    const pastedDigits = event.clipboardData
+      .getData('text')
+      .replace(/\D/g, '')
+      .slice(0, OTP_LENGTH);
+    if (!pastedDigits) return;
 
-    const nextDigits = Array(OTP_LENGTH).fill('')
+    const nextDigits = Array(OTP_LENGTH).fill('');
     pastedDigits.split('').forEach((digit, index) => {
-      nextDigits[index] = digit
-    })
-    setDigits(nextDigits)
-    clearError()
-    inputRefs.current[Math.min(pastedDigits.length, OTP_LENGTH - 1)]?.focus()
-  }
+      nextDigits[index] = digit;
+    });
+    setDigits(nextDigits);
+    clearError();
+    inputRefs.current[Math.min(pastedDigits.length, OTP_LENGTH - 1)]?.focus();
+  };
 
   const handleVerify = async () => {
     if (!identifier) {
-      setError(isPasswordReset ? 'Reset details are missing. Please request a new code.' : 'Verification details are missing. Please register again.')
-      return
+      setError(
+        isPasswordReset
+          ? 'Reset details are missing. Please request a new code.'
+          : 'Verification details are missing. Please register again.'
+      );
+      return;
     }
 
     if (otp.length < OTP_LENGTH) {
-      setError('Please enter all 6 digits.')
-      inputRefs.current[0]?.focus()
-      return
+      setError('Please enter all 6 digits.');
+      inputRefs.current[0]?.focus();
+      return;
     }
 
     if (secondsLeft <= 0) {
-      setError('Code expired. Please request a new one.')
-      return
+      setError('Code expired. Please request a new one.');
+      return;
     }
 
     try {
-      setIsVerifying(true)
-      clearError()
-      let resetToken: string | undefined
+      setIsVerifying(true);
+      clearError();
+      let resetToken: string | undefined;
 
       if (isPasswordReset) {
-        const response = await api.post('/auth/verify-reset-code', { identifier, otp })
-        resetToken = response.data?.data?.resetToken
-        if (!resetToken) throw new Error('Reset token was not returned')
+        const response = await api.post('/auth/verify-reset-code', { identifier, otp });
+        resetToken = response.data?.data?.resetToken;
+        if (!resetToken) throw new Error('Reset token was not returned');
       } else {
-        await api.post('/auth/verify-account', { identifier, otp })
+        await api.post('/auth/verify-account', { identifier, otp });
       }
 
-      setIsSuccess(true)
-      safeSessionStorage.remove(STORAGE_KEYS.otpExpiry)
-      safeSessionStorage.remove(STORAGE_KEYS.otpResendExpiry)
+      setIsSuccess(true);
+      safeSessionStorage.remove(STORAGE_KEYS.otpExpiry);
+      safeSessionStorage.remove(STORAGE_KEYS.otpResendExpiry);
 
       window.setTimeout(() => {
         if (isPasswordReset) {
-          navigate('/reset-password', { replace: true, state: { resetToken } })
-          return
+          navigate('/reset-password', { replace: true, state: { resetToken } });
+          return;
         }
-        navigate('/login', { replace: true, state: { message: 'Account verified successfully. Please sign in.' } })
-      }, 1300)
+        navigate('/login', {
+          replace: true,
+          state: { message: 'Account verified successfully. Please sign in.' },
+        });
+      }, 1300);
     } catch (unknownError: unknown) {
-      let message = 'Invalid code. Please try again.'
+      let message = 'Invalid code. Please try again.';
       if (axios.isAxiosError<{ message?: string }>(unknownError)) {
-        message = unknownError.response?.data?.message || message
+        message = unknownError.response?.data?.message || message;
       }
-      setDigits(Array(OTP_LENGTH).fill(''))
-      inputRefs.current[0]?.focus()
-      setError(message)
+      setDigits(Array(OTP_LENGTH).fill(''));
+      inputRefs.current[0]?.focus();
+      setError(message);
     } finally {
-      setIsVerifying(false)
+      setIsVerifying(false);
     }
-  }
+  };
 
   const handleResend = async () => {
-    if (!identifier || !canResend) return
+    if (!identifier || !canResend) return;
 
     try {
-      setIsResending(true)
-      clearError()
-      await api.post('/auth/send-otp', { identifier, method, purpose })
-      const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000
-      const resendExpiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000
-      safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry))
-      safeSessionStorage.set(STORAGE_KEYS.otpResendExpiry, String(resendExpiry))
-      setSecondsLeft(TOTAL_OTP_SECONDS)
-      setResendLeft(OTP_RESEND_WAIT_SECONDS)
-      setDigits(Array(OTP_LENGTH).fill(''))
-      inputRefs.current[0]?.focus()
+      setIsResending(true);
+      clearError();
+      await api.post('/auth/send-otp', { identifier, method, purpose });
+      const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000;
+      const resendExpiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000;
+      safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry));
+      safeSessionStorage.set(STORAGE_KEYS.otpResendExpiry, String(resendExpiry));
+      setSecondsLeft(TOTAL_OTP_SECONDS);
+      setResendLeft(OTP_RESEND_WAIT_SECONDS);
+      setDigits(Array(OTP_LENGTH).fill(''));
+      inputRefs.current[0]?.focus();
     } catch (unknownError: unknown) {
-      let message = 'Could not resend code. Please try again.'
+      let message = 'Could not resend code. Please try again.';
       if (axios.isAxiosError<{ message?: string }>(unknownError)) {
-        message = unknownError.response?.data?.message || message
+        message = unknownError.response?.data?.message || message;
       }
-      setError(message)
+      setError(message);
     } finally {
-      setIsResending(false)
+      setIsResending(false);
     }
-  }
+  };
 
   const otpInputClass = (digit: string) =>
     cn(
@@ -215,7 +229,7 @@ export default function VerifyAccountPage() {
       digit
         ? 'border-[var(--success)] shadow-[0_0_0_3px_rgba(76,175,125,0.08)] dark:border-[var(--success)]'
         : 'border-[var(--border-subtle)] focus:border-[var(--brand-500)] focus:shadow-[0_0_0_3px_rgba(184,76,43,0.10)] dark:border-white/15 dark:focus:border-[var(--brand-500)]'
-    )
+    );
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-(--surface-canvas) px-4 py-10 font-ui text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -233,7 +247,10 @@ export default function VerifyAccountPage() {
           </Link>
 
           <div className="relative mx-auto mb-5 h-2 overflow-hidden rounded-full bg-(--border-subtle) dark:bg-white/10">
-            <div className="h-full rounded-full bg-(--brand-500) transition-all dark:bg-(--brand-500)" style={{ width: `${progressPercent}%` }} />
+            <div
+              className="h-full rounded-full bg-(--brand-500) transition-all dark:bg-(--brand-500)"
+              style={{ width: `${progressPercent}%` }}
+            />
           </div>
 
           <div className="relative mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.16em] text-(--text-secondary) dark:text-(--text-secondary)">
@@ -245,19 +262,34 @@ export default function VerifyAccountPage() {
           </h1>
 
           <p className="relative mx-auto mb-6.5 max-w-75 text-[13.5px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-            We sent a 6-digit code to<br />
-            <span className="break-all font-mono text-[11.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">{destinationText}</span>.
+            We sent a 6-digit code to
             <br />
-            {isPasswordReset ? 'Enter it below to reset your password.' : 'Enter it below to continue.'}
+            <span className="break-all font-mono text-[11.5px] font-semibold text-(--text-primary) dark:text-(--text-primary)">
+              {destinationText}
+            </span>
+            .
+            <br />
+            {isPasswordReset
+              ? 'Enter it below to reset your password.'
+              : 'Enter it below to continue.'}
           </p>
 
-          <div className="relative mb-1.5 flex flex-nowrap justify-center gap-1.75" role="group" aria-label="6-digit verification code">
+          <div
+            className="relative mb-1.5 flex flex-nowrap justify-center gap-1.75"
+            role="group"
+            aria-label="6-digit verification code"
+          >
             {digits.map((digit, index) => (
               <div className="flex items-center gap-1.75" key={index}>
-                {index === 3 && <span className="h-1.25 w-1.25 rounded-full bg-(--border-subtle) dark:bg-white/15" aria-hidden="true" />}
+                {index === 3 && (
+                  <span
+                    className="h-1.25 w-1.25 rounded-full bg-(--border-subtle) dark:bg-white/15"
+                    aria-hidden="true"
+                  />
+                )}
                 <input
                   ref={(element) => {
-                    inputRefs.current[index] = element
+                    inputRefs.current[index] = element;
                   }}
                   className={otpInputClass(digit)}
                   type="text"
@@ -271,8 +303,8 @@ export default function VerifyAccountPage() {
                   onKeyDown={(event) => handleKeyDown(event, index)}
                   onPaste={handlePaste}
                   onFocus={(event) => {
-                    event.target.select()
-                    clearError()
+                    event.target.select();
+                    clearError();
                   }}
                 />
               </div>
@@ -280,7 +312,11 @@ export default function VerifyAccountPage() {
           </div>
 
           {error ? (
-            <div className="mt-2.5 flex min-h-5 items-center justify-center gap-1.5 text-xs text-(--danger) dark:text-(--danger)" role="alert" aria-live="polite">
+            <div
+              className="mt-2.5 flex min-h-5 items-center justify-center gap-1.5 text-xs text-(--danger) dark:text-(--danger)"
+              role="alert"
+              aria-live="polite"
+            >
               <span>{error}</span>
             </div>
           ) : (
@@ -301,7 +337,11 @@ export default function VerifyAccountPage() {
             disabled={isVerifying || otp.length < OTP_LENGTH}
             className="mt-6 w-full rounded-md bg-(--brand-500) p-3.25 text-[15px] font-bold tracking-[0.01em] text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
-            {isVerifying ? 'Verifying...' : isPasswordReset ? 'Verify reset code' : 'Verify account'}
+            {isVerifying
+              ? 'Verifying...'
+              : isPasswordReset
+                ? 'Verify reset code'
+                : 'Verify account'}
           </button>
 
           <div className="mt-5 text-center">
@@ -322,5 +362,5 @@ export default function VerifyAccountPage() {
         </main>
       </div>
     </div>
-  )
+  );
 }

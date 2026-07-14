@@ -31,8 +31,8 @@ export type RemoveFriendPayloadDTO = {
 };
 
 export type FriendRelationshipViewDTO = {
-  status: "none" | "pending" | "friends";
-  direction?: "sent" | "received";
+  status: 'none' | 'pending' | 'friends';
+  direction?: 'sent' | 'received';
 };
 
 export type FriendUserViewDTO = {
@@ -62,8 +62,8 @@ export type FriendUsersPageViewDTO = {
 
 export type FriendRequestViewDTO = {
   id: string;
-  direction: "received" | "sent";
-  status: "pending" | "accepted" | "rejected" | "cancelled";
+  direction: 'received' | 'sent';
+  status: 'pending' | 'accepted' | 'rejected' | 'cancelled';
   message: string;
   createdAt: Date;
   updatedAt: Date;
@@ -87,7 +87,7 @@ export type SendFriendRequestViewDTO = {
   request: {
     id: string;
     receiverUserId: string;
-    status: "pending";
+    status: 'pending';
     message: string;
     createdAt: Date;
   };

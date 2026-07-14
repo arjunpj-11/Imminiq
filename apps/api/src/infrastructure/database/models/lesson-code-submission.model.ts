@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/lesson-code-submission.model.ts
 
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const lessonCodeSubmissionSchema = new Schema(
   {
@@ -132,7 +132,7 @@ const lessonCodeSubmissionSchema = new Schema(
   {
     timestamps: true,
   }
-)
+);
 
 lessonCodeSubmissionSchema.index({
   trackerId: 1,
@@ -140,8 +140,8 @@ lessonCodeSubmissionSchema.index({
   userId: 1,
   action: 1,
   createdAt: -1,
-})
+});
 
 export const LessonCodeSubmission =
   mongoose.models.LessonCodeSubmission ||
-  mongoose.model('LessonCodeSubmission', lessonCodeSubmissionSchema)
+  mongoose.model('LessonCodeSubmission', lessonCodeSubmissionSchema);

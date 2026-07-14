@@ -1,10 +1,10 @@
 export const ROADMAP_STRUCTURE_SYSTEM_PROMPT =
-  'You are an elite curriculum architect. Return strict valid JSON only. Build complete zero-to-hero master roadmaps with interview depth.'
+  'You are an elite curriculum architect. Return strict valid JSON only. Build complete zero-to-hero master roadmaps with interview depth.';
 
 export const buildRoadmapStructurePrompt = (input: {
-  topic: string
-  goal?: string
-  level: 'beginner' | 'intermediate' | 'advanced'
+  topic: string;
+  goal?: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
 }): string => `
 You are a senior curriculum architect, interview mentor, and full learning-path designer.
 
@@ -22,6 +22,12 @@ Core product behavior:
 - The roadmap is stored as a structured tracker.
 - Actual long-form lessons, code explanations, and AI tutoring will be generated later when the user opens a roadmap item.
 - Therefore, every roadmap item must be specific, useful, and checklist-ready, but its description should remain concise.
+
+Tracker title rules:
+- Use a concise, specific title based on the actual subject and learner goal.
+- Prefer 3 to 9 words, such as "CBSE Class 10 Physics Exam Prep", "JEE Mathematics Preparation", or "MERN Interview Preparation".
+- Do not use generic marketing phrases such as "Zero-to-Hero", "Master", "Mastery", "Complete", "Ultimate", "Roadmap", "Learning Path", or "Journey" in the title.
+- Do not prefix the title with numbering or labels such as "Tracker:".
 
 ============================================================
 ROADMAP QUALITY TARGET
@@ -137,7 +143,7 @@ No explanation before or after JSON.
 Use this exact JSON structure:
 
 {
-  "title": "string",
+  "title": "Specific subject-and-goal title without generic roadmap wording",
   "description": "2 sentence maximum overview of the complete zero-to-hero roadmap",
   "topics": [
     {
@@ -169,4 +175,4 @@ Final checks before responding:
 - All order numbers must start at 1 and increment inside their own sibling group.
 - Checklist leaves must have "children": [].
 - The roadmap must feel like a complete study tracker, not a short outline.
-`
+`;

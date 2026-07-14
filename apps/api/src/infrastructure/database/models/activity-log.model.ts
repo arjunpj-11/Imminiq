@@ -1,8 +1,4 @@
-import mongoose, {
-  Schema,
-  model,
-  type InferSchemaType,
-} from 'mongoose'
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 const activityLogSchema = new Schema(
   {
@@ -53,12 +49,11 @@ const activityLogSchema = new Schema(
     timestamps: true,
     collection: 'activity_logs',
   }
-)
+);
 
-activityLogSchema.index({ userId: 1, createdAt: -1 })
-activityLogSchema.index({ module: 1, action: 1 })
+activityLogSchema.index({ userId: 1, createdAt: -1 });
+activityLogSchema.index({ module: 1, action: 1 });
 
-export type ActivityLogDocument = InferSchemaType<typeof activityLogSchema>
+export type ActivityLogDocument = InferSchemaType<typeof activityLogSchema>;
 
-export const ActivityLog =
-  mongoose.models.ActivityLog || model('ActivityLog', activityLogSchema)
+export const ActivityLog = mongoose.models.ActivityLog || model('ActivityLog', activityLogSchema);

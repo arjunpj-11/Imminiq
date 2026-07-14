@@ -1,49 +1,37 @@
-import { useSearchParams } from 'react-router-dom'
+import { useSearchParams } from 'react-router-dom';
 
-import LeaderboardAppShell from '../components/LeaderboardAppShell'
-import LeaderboardControls from '../components/LeaderboardControls'
-import LeaderboardHeader from '../components/LeaderboardHeader'
-import LeaderboardSectionView from '../components/LeaderboardSectionView'
-import {
-  LeaderboardContentSkeleton,
-  LeaderboardErrorState,
-} from '../components/LeaderboardStates'
-import { LEADERBOARD_DISPLAY_LIMIT } from '../constants/leaderboard.constants'
-import { useLeaderboard } from '../hooks/useLeaderboard'
-import type {
-  LeaderboardScope,
-  LeaderboardSection,
-} from '../types/leaderboard.types'
-import {
-  parseLeaderboardScope,
-  parseLeaderboardSection,
-} from '../utils/leaderboard-formatters'
+import LeaderboardAppShell from '../components/LeaderboardAppShell';
+import LeaderboardControls from '../components/LeaderboardControls';
+import LeaderboardHeader from '../components/LeaderboardHeader';
+import LeaderboardSectionView from '../components/LeaderboardSectionView';
+import { LeaderboardContentSkeleton, LeaderboardErrorState } from '../components/LeaderboardStates';
+import { LEADERBOARD_DISPLAY_LIMIT } from '../constants/leaderboard.constants';
+import { useLeaderboard } from '../hooks/useLeaderboard';
+import type { LeaderboardScope, LeaderboardSection } from '../types/leaderboard.types';
+import { parseLeaderboardScope, parseLeaderboardSection } from '../utils/leaderboard-formatters';
 
 export default function LeaderboardPage() {
-  const [searchParams, setSearchParams] = useSearchParams()
-  const section = parseLeaderboardSection(searchParams.get('section'))
-  const scope = parseLeaderboardScope(searchParams.get('scope'))
+  const [searchParams, setSearchParams] = useSearchParams();
+  const section = parseLeaderboardSection(searchParams.get('section'));
+  const scope = parseLeaderboardScope(searchParams.get('scope'));
 
   const leaderboardQuery = useLeaderboard({
     section,
     scope,
     limit: LEADERBOARD_DISPLAY_LIMIT,
-  })
+  });
 
-  const updateFilters = (
-    nextSection: LeaderboardSection,
-    nextScope: LeaderboardScope,
-  ) => {
+  const updateFilters = (nextSection: LeaderboardSection, nextScope: LeaderboardScope) => {
     setSearchParams(
       {
         section: nextSection,
         scope: nextScope,
       },
-      { replace: true },
-    )
-  }
+      { replace: true }
+    );
+  };
 
-  const currentUser = leaderboardQuery.data?.currentUser
+  const currentUser = leaderboardQuery.data?.currentUser;
   const viewer = currentUser
     ? {
         name: currentUser.name,
@@ -52,7 +40,7 @@ export default function LeaderboardPage() {
         streak: currentUser.streak,
         levelLabel: currentUser.track,
       }
-    : undefined
+    : undefined;
 
   return (
     <LeaderboardAppShell viewer={viewer}>
@@ -81,7 +69,11 @@ export default function LeaderboardPage() {
             />
 
             {leaderboardQuery.isFetching && (
-              <div className="-mb-5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]" role="status" aria-live="polite">
+              <div
+                className="-mb-5 font-mono text-[9px] uppercase tracking-[0.12em] text-[#b0a097] dark:text-[#6b6460]"
+                role="status"
+                aria-live="polite"
+              >
                 Updating leaderboard…
               </div>
             )}
@@ -91,5 +83,5 @@ export default function LeaderboardPage() {
         )}
       </div>
     </LeaderboardAppShell>
-  )
+  );
 }

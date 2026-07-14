@@ -1,35 +1,33 @@
-import { useEffect, useRef, useState } from 'react'
-import { useNavigate, useSearchParams } from 'react-router-dom'
-import type { AxiosError } from 'axios'
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import type { AxiosError } from 'axios';
 
-import { useVerifyEmailChange } from '../hooks/useVerifyEmailChange'
-import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.types'
-import { STORAGE_KEYS } from '../../../lib/storage/storage-keys'
-import { safeLocalStorage } from '../../../lib/storage/safe-storage'
+import { useVerifyEmailChange } from '../hooks/useVerifyEmailChange';
+import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.types';
+import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
+import { safeLocalStorage } from '../../../lib/storage/safe-storage';
 
 export default function VerifyEmailChangePage() {
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
-  const verifyEmailChange = useVerifyEmailChange()
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const verifyEmailChange = useVerifyEmailChange();
 
-  const token = searchParams.get('token')
-  const hasStartedRef = useRef(false)
+  const token = searchParams.get('token');
+  const hasStartedRef = useRef(false);
 
-  const [status, setStatus] = useState<VerificationStatus>(
-    token ? 'loading' : 'missing-token'
-  )
+  const [status, setStatus] = useState<VerificationStatus>(token ? 'loading' : 'missing-token');
   const [errorMessage, setErrorMessage] = useState(
     'This verification link is invalid, expired, or already used.'
-  )
+  );
 
   useEffect(() => {
-    if (!token || hasStartedRef.current) return
+    if (!token || hasStartedRef.current) return;
 
-    hasStartedRef.current = true
+    hasStartedRef.current = true;
 
     const verify = async () => {
       try {
-        await verifyEmailChange.mutateAsync(token)
+        await verifyEmailChange.mutateAsync(token);
 
         safeLocalStorage.set(
           STORAGE_KEYS.authSync,
@@ -37,22 +35,22 @@ export default function VerifyEmailChangePage() {
             type: 'EMAIL_CHANGED_LOGOUT',
             timestamp: Date.now(),
           })
-        )
+        );
 
-        setStatus('success')
+        setStatus('success');
       } catch (error) {
-        const axiosError = error as AxiosError<AuthApiErrorResponse>
+        const axiosError = error as AxiosError<AuthApiErrorResponse>;
 
         setErrorMessage(
           axiosError.response?.data?.message ??
             'This verification link is invalid, expired, or already used.'
-        )
-        setStatus('error')
+        );
+        setStatus('error');
       }
-    }
+    };
 
-    void verify()
-  }, [token, verifyEmailChange])
+    void verify();
+  }, [token, verifyEmailChange]);
 
   const title =
     status === 'loading'
@@ -61,7 +59,7 @@ export default function VerifyEmailChangePage() {
         ? 'Email changed successfully'
         : status === 'missing-token'
           ? 'Missing verification token'
-          : 'Verification failed'
+          : 'Verification failed';
 
   const description =
     status === 'loading'
@@ -70,7 +68,7 @@ export default function VerifyEmailChangePage() {
         ? 'Your email address was updated. For security, please sign in again.'
         : status === 'missing-token'
           ? 'The verification token is missing from this link.'
-          : errorMessage
+          : errorMessage;
 
   return (
     <div className="relative flex min-h-screen items-center justify-center overflow-hidden bg-(--surface-canvas) px-4 py-10 font-ui text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -121,5 +119,5 @@ export default function VerifyEmailChangePage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

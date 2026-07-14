@@ -1,21 +1,27 @@
-import { AlertIcon, WarningIcon } from './icons/AuthIcons'
-import { cn } from '../utils/auth-ui'
+import { AlertIcon, WarningIcon } from './icons/AuthIcons';
+import { cn } from '../utils/auth-ui';
 
 export function FieldError({ message }: { message?: string }) {
-  if (!message) return null
+  if (!message) return null;
 
   return (
     <p className="mt-1.5 flex items-center gap-1.5 text-[11.5px] leading-normal text-(--danger) dark:text-(--danger)">
       <AlertIcon />
       {message}
     </p>
-  )
+  );
 }
 
-export function ApiErrorBanner({ message, warning = false }: { message?: string; warning?: boolean }) {
-  if (!message) return null
+export function ApiErrorBanner({
+  message,
+  warning = false,
+}: {
+  message?: string;
+  warning?: boolean;
+}) {
+  if (!message) return null;
 
-  const Icon = warning ? WarningIcon : AlertIcon
+  const Icon = warning ? WarningIcon : AlertIcon;
 
   return (
     <div
@@ -30,5 +36,5 @@ export function ApiErrorBanner({ message, warning = false }: { message?: string;
       <Icon className="mt-0.5" />
       <span>{message}</span>
     </div>
-  )
+  );
 }

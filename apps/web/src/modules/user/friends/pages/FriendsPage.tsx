@@ -1,56 +1,52 @@
-import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import FriendRequestsView from "../components/requests/FriendRequestsView";
-import FriendsAppShell from "../components/shared/FriendsAppShell";
-import FriendsHeader from "../components/shared/FriendsHeader";
-import FriendsListView from "../components/list/FriendsListView";
-import FriendsSearchInput from "../components/search/FriendsSearchInput";
+import FriendRequestsView from '../components/requests/FriendRequestsView';
+import FriendsAppShell from '../components/shared/FriendsAppShell';
+import FriendsHeader from '../components/shared/FriendsHeader';
+import FriendsListView from '../components/list/FriendsListView';
+import FriendsSearchInput from '../components/search/FriendsSearchInput';
 import {
   FriendsActionError,
   FriendsErrorState,
   FriendsListSkeleton,
   FriendsRequestsSkeleton,
-} from "../components/shared/FriendsStates";
-import FriendsTabs from "../components/shared/FriendsTabs";
-import RemoveFriendDialog from "../components/list/RemoveFriendDialog";
-import { UserPlusIcon } from "../components/icons/FriendsIcons";
+} from '../components/shared/FriendsStates';
+import FriendsTabs from '../components/shared/FriendsTabs';
+import RemoveFriendDialog from '../components/list/RemoveFriendDialog';
+import { UserPlusIcon } from '../components/icons/FriendsIcons';
 import {
   FRIENDS_DEFAULT_PAGE_SIZE,
   FRIENDS_SEARCH_DEBOUNCE_MS,
-} from "../constants/friends.constants";
-import { useAcceptFriendRequest } from "../hooks/useAcceptFriendRequest";
-import { useCancelFriendRequest } from "../hooks/useCancelFriendRequest";
-import { useDebouncedValue } from '../../../../hooks/useDebouncedValue'
-import { useDeclineFriendRequest } from "../hooks/useDeclineFriendRequest";
-import { useFriends } from "../hooks/useFriends";
-import { useReceivedFriendRequests } from "../hooks/useReceivedFriendRequests";
-import { useRemoveFriend } from "../hooks/useRemoveFriend";
-import { useSentFriendRequests } from "../hooks/useSentFriendRequests";
-import type {
-  IFriendRequest,
-  IFriendUser,
-  FriendsTab,
-} from "../types/friends.types";
+} from '../constants/friends.constants';
+import { useAcceptFriendRequest } from '../hooks/useAcceptFriendRequest';
+import { useCancelFriendRequest } from '../hooks/useCancelFriendRequest';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { useDeclineFriendRequest } from '../hooks/useDeclineFriendRequest';
+import { useFriends } from '../hooks/useFriends';
+import { useReceivedFriendRequests } from '../hooks/useReceivedFriendRequests';
+import { useRemoveFriend } from '../hooks/useRemoveFriend';
+import { useSentFriendRequests } from '../hooks/useSentFriendRequests';
+import type { IFriendRequest, IFriendUser, FriendsTab } from '../types/friends.types';
 import {
   getFriendsApiErrorMessage,
   mergeFriendRequestPages,
   mergeFriendUserPages,
   normalizeSearchQuery,
   parseFriendsTab,
-} from "../utils/friends-formatters";
+} from '../utils/friends-formatters';
 
 export default function FriendsPage() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const activeTab = parseFriendsTab(searchParams.get("tab"));
-  const [friendSearch, setFriendSearch] = useState("");
+  const activeTab = parseFriendsTab(searchParams.get('tab'));
+  const [friendSearch, setFriendSearch] = useState('');
   const [selectedFriend, setSelectedFriend] = useState<IFriendUser | null>(null);
   const [actionError, setActionError] = useState<string>();
 
   const debouncedSearch = useDebouncedValue(
     normalizeSearchQuery(friendSearch),
-    FRIENDS_SEARCH_DEBOUNCE_MS,
+    FRIENDS_SEARCH_DEBOUNCE_MS
   );
 
   const friendsQuery = useFriends({
@@ -71,15 +67,15 @@ export default function FriendsPage() {
 
   const friends = useMemo(
     () => mergeFriendUserPages(friendsQuery.data?.pages ?? []),
-    [friendsQuery.data?.pages],
+    [friendsQuery.data?.pages]
   );
   const received = useMemo(
     () => mergeFriendRequestPages(receivedQuery.data?.pages ?? []),
-    [receivedQuery.data?.pages],
+    [receivedQuery.data?.pages]
   );
   const sent = useMemo(
     () => mergeFriendRequestPages(sentQuery.data?.pages ?? []),
-    [sentQuery.data?.pages],
+    [sentQuery.data?.pages]
   );
 
   const friendsFirstPage = friendsQuery.data?.pages[0];
@@ -88,7 +84,7 @@ export default function FriendsPage() {
 
   const changeTab = (tab: FriendsTab) => {
     setActionError(undefined);
-    setSearchParams(tab === "requests" ? { tab: "requests" } : {}, {
+    setSearchParams(tab === 'requests' ? { tab: 'requests' } : {}, {
       replace: true,
     });
   };
@@ -100,12 +96,9 @@ export default function FriendsPage() {
       {
         onError: (error) =>
           setActionError(
-            getFriendsApiErrorMessage(
-              error,
-              "The friend invite could not be accepted.",
-            ),
+            getFriendsApiErrorMessage(error, 'The friend invite could not be accepted.')
           ),
-      },
+      }
     );
   };
 
@@ -116,12 +109,9 @@ export default function FriendsPage() {
       {
         onError: (error) =>
           setActionError(
-            getFriendsApiErrorMessage(
-              error,
-              "The friend invite could not be declined.",
-            ),
+            getFriendsApiErrorMessage(error, 'The friend invite could not be declined.')
           ),
-      },
+      }
     );
   };
 
@@ -132,12 +122,9 @@ export default function FriendsPage() {
       {
         onError: (error) =>
           setActionError(
-            getFriendsApiErrorMessage(
-              error,
-              "The sent invite could not be cancelled.",
-            ),
+            getFriendsApiErrorMessage(error, 'The sent invite could not be cancelled.')
           ),
-      },
+      }
     );
   };
 
@@ -150,21 +137,14 @@ export default function FriendsPage() {
       {
         onSuccess: () => setSelectedFriend(null),
         onError: (error) =>
-          setActionError(
-            getFriendsApiErrorMessage(
-              error,
-              "The friend could not be removed.",
-            ),
-          ),
-      },
+          setActionError(getFriendsApiErrorMessage(error, 'The friend could not be removed.')),
+      }
     );
   };
 
   const friendsCount = friendsFirstPage?.pagination.total ?? 0;
   const pendingCount =
-    receivedFirstPage?.pendingReceivedCount ??
-    receivedFirstPage?.pagination.total ??
-    0;
+    receivedFirstPage?.pendingReceivedCount ?? receivedFirstPage?.pagination.total ?? 0;
 
   const acceptingRequestId = acceptMutation.isPending
     ? acceptMutation.variables?.requestId
@@ -188,12 +168,12 @@ export default function FriendsPage() {
         />
 
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-          {activeTab === "friends" && (
+          {activeTab === 'friends' && (
             <div className="min-w-0 flex-1">
               <FriendsSearchInput
                 value={friendSearch}
                 onChange={setFriendSearch}
-                onClear={() => setFriendSearch("")}
+                onClear={() => setFriendSearch('')}
                 placeholder="Search your friends..."
                 ariaLabel="Search your friends"
               />
@@ -202,8 +182,8 @@ export default function FriendsPage() {
 
           <button
             type="button"
-            onClick={() => navigate("/friends/search")}
-            className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/30 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600) ${activeTab === "requests" ? "sm:ml-auto" : ""}`}
+            onClick={() => navigate('/friends/search')}
+            className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/30 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600) ${activeTab === 'requests' ? 'sm:ml-auto' : ''}`}
           >
             <UserPlusIcon />
             Find friends
@@ -219,7 +199,7 @@ export default function FriendsPage() {
 
         <FriendsActionError message={actionError} />
 
-        {activeTab === "friends" ? (
+        {activeTab === 'friends' ? (
           friendsQuery.isPending ? (
             <FriendsListSkeleton />
           ) : friendsQuery.isError ? (

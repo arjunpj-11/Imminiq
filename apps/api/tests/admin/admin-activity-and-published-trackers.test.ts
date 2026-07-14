@@ -1,0 +1,67 @@
+import { describe, expect, it, vi } from 'vitest';
+
+import { adminAnalyticsQuerySchema } from '../../src/modules/admin/analytics/presentation/admin-analytics.schema';
+import { adminAuditLogsQuerySchema } from '../../src/modules/admin/audit-logs/presentation/admin-audit-logs.schema';
+import { AdminTrackersUseCase } from '../../src/modules/admin/trackers/application/use-cases/admin-trackers.usecase';
+import type { IAdminTrackersRepository } from '../../src/modules/admin/trackers/domain/repositories/admin-trackers.repository.interface';
+import type { IAdminTrackerEmailProvider } from '../../src/modules/admin/trackers/domain/services/admin-tracker-email-provider.interface';
+import { adminPublishedTrackerRatingSchema } from '../../src/modules/admin/trackers/presentation/admin-trackers.schema';
+
+describe('admin report date filters', () => {
+  it('supports the four-day activity preset and custom dates', () => {
+    expect(adminAnalyticsQuerySchema.parse({ days: '4' }).days).toBe(4);
+    expect(
+      adminAnalyticsQuerySchema.parse({ from: '2026-07-01', to: '2026-07-14' })
+    ).toMatchObject({ from: '2026-07-01', to: '2026-07-14' });
+  });
+
+  it('rejects reversed audit and activity date ranges', () => {
+    expect(() =>
+      adminAuditLogsQuerySchema.parse({ from: '2026-07-14', to: '2026-07-01' })
+    ).toThrow();
+    expect(() =>
+      adminAnalyticsQuerySchema.parse({ from: '2026-07-14', to: '2026-07-01' })
+    ).toThrow();
+  });
+});
+
+describe('published tracker administration', () => {
+  const actor = {
+    userId: '64b000000000000000000001',
+    role: 'admin' as const,
+    ipAddress: '127.0.0.1',
+    userAgent: 'test',
+  };
+
+  it('accepts only whole-number ratings from one to five', () => {
+    expect(adminPublishedTrackerRatingSchema.parse({ rating: 5 })).toEqual({ rating: 5 });
+    expect(() => adminPublishedTrackerRatingSchema.parse({ rating: 0 })).toThrow();
+    expect(() => adminPublishedTrackerRatingSchema.parse({ rating: 4.5 })).toThrow();
+  });
+
+  it('delegates canonical likes and ratings with the administrator actor', async () => {
+    const engagement = {
+      id: 'tracker-id',
+      likeCount: 10,
+      ratingAverage: 4.5,
+      ratingCount: 2,
+      adminLiked: true,
+      adminRating: 5,
+    };
+    const repository = {
+      list: vi.fn(),
+      listPublished: vi.fn(),
+      likePublished: vi.fn().mockResolvedValue(engagement),
+      ratePublished: vi.fn().mockResolvedValue(engagement),
+      getDetail: vi.fn(),
+      delete: vi.fn(),
+    } as unknown as IAdminTrackersRepository;
+    const email = { sendTrackerDeleted: vi.fn() } as IAdminTrackerEmailProvider;
+    const useCase = new AdminTrackersUseCase(repository, email);
+
+    await expect(useCase.likePublished('tracker-id', actor)).resolves.toEqual(engagement);
+    await expect(useCase.ratePublished('tracker-id', 5, actor)).resolves.toEqual(engagement);
+    expect(repository.likePublished).toHaveBeenCalledWith('tracker-id', actor);
+    expect(repository.ratePublished).toHaveBeenCalledWith('tracker-id', 5, actor);
+  });
+});

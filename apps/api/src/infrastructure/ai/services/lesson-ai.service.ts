@@ -1,27 +1,24 @@
-import { ApiError } from '../../../shared/utils/ApiError'
+import { ApiError } from '../../../shared/utils/ApiError';
 
-import {
-  generatedLessonSchema,
-  type GeneratedLesson,
-} from '../ai.schemas'
-import { parseAIJson } from '../ai-json.parser'
-import { groqChat } from '../clients/groq.client'
+import { generatedLessonSchema, type GeneratedLesson } from '../ai.schemas';
+import { parseAIJson } from '../ai-json.parser';
+import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
 import {
   buildLessonGenerationPrompt,
   LESSON_GENERATION_SYSTEM_PROMPT,
-} from '../prompts/lesson-generation.prompt'
-import { buildLessonTutorSystemPrompt } from '../prompts/lesson-tutor.prompt'
+} from '../prompts/lesson-generation.prompt';
+import { buildLessonTutorSystemPrompt } from '../prompts/lesson-tutor.prompt';
 
 // ============================================================
 // GROQ — LESSON GENERATION
 // ============================================================
 
 export const generateLesson = async (input: {
-  trackerTitle: string
-  topicTitle?: string
-  subtopicTitle: string
-  subtopicDescription?: string
-  level?: 'beginner' | 'intermediate' | 'advanced'
+  trackerTitle: string;
+  topicTitle?: string;
+  subtopicTitle: string;
+  subtopicDescription?: string;
+  level?: 'beginner' | 'intermediate' | 'advanced';
 }): Promise<GeneratedLesson> => {
   const response = await groqChat(
     [
@@ -34,32 +31,29 @@ export const generateLesson = async (input: {
         content: buildLessonGenerationPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
-  )
+    'llama-3.3-70b-versatile',
+    'lesson_generation'
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty lesson response',
-      'GROQ_EMPTY_LESSON_RESPONSE'
-    )
+    throw new ApiError(502, 'Groq returned an empty lesson response', 'GROQ_EMPTY_LESSON_RESPONSE');
   }
 
-  const lesson = parseAIJson(response, generatedLessonSchema)
+  const lesson = parseAIJson(response, generatedLessonSchema);
 
   return {
     ...lesson,
     compilerRuntime: lesson.compilerRuntime ?? null,
-  }
-}
+  };
+};
 
 export const chatWithLessonTutor = async (input: {
-  lessonTitle: string
-  lessonContent: string
+  lessonTitle: string;
+  lessonContent: string;
   messages: {
-    role: 'user' | 'assistant' | 'system'
-    content: string
-  }[]
+    role: 'user' | 'assistant' | 'system';
+    content: string;
+  }[];
 }): Promise<string> => {
   const response = await groqChat(
     [
@@ -72,16 +66,13 @@ export const chatWithLessonTutor = async (input: {
       },
       ...input.messages,
     ],
-    'llama-3.3-70b-versatile'
-  )
+    'llama-3.3-70b-versatile',
+    'ai_tutoring'
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty tutor response',
-      'GROQ_EMPTY_TUTOR_RESPONSE'
-    )
+    throw new ApiError(502, 'Groq returned an empty tutor response', 'GROQ_EMPTY_TUTOR_RESPONSE');
   }
 
-  return response
-}
+  return response;
+};

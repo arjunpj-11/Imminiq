@@ -1,53 +1,71 @@
-import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface'
-import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface'
-import type { SubmitMockTestCodePayloadDTO } from '../mock-tests.dto'
-import { MockTestsApplicationError } from '../mock-tests-application.error'
+import type { IMockTestAnswerRepository } from '../../domain/repositories/mock-test-answer.repository.interface';
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
+import type { IMockTestCodeRunner } from '../../domain/services/mock-test-code-runner.interface';
+import type { SubmitMockTestCodePayloadDTO } from '../mock-tests.dto';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
 
-type SubmitMockTestCodeRepository =
-  IMockTestAttemptRepository &
+type SubmitMockTestCodeRepository = IMockTestAttemptRepository &
   IMockTestQuestionRepository &
-  IMockTestAnswerRepository
+  IMockTestAnswerRepository;
 
 export interface ISubmitMockTestCodeUseCase {
-  execute(attemptId: string, userId: string, questionId: string, payload: SubmitMockTestCodePayloadDTO): Promise<{ answer: import("../../domain").MockTestAnswerEntity; isCorrect: boolean; pointsEarned: number; maxPoints: number; passedCount: number; totalCount: number; testCases: import("../../domain/services/mock-test-code-runner.interface").MockTestCodeTestCaseResult[]; stdout: string; stderr: string; compileOutput: string; message: string; status: { id: number; description: string; }; feedback: string; }>
+  execute(
+    attemptId: string,
+    userId: string,
+    questionId: string,
+    payload: SubmitMockTestCodePayloadDTO
+  ): Promise<{
+    answer: import('../../domain').MockTestAnswerEntity;
+    isCorrect: boolean;
+    pointsEarned: number;
+    maxPoints: number;
+    passedCount: number;
+    totalCount: number;
+    testCases: import('../../domain/services/mock-test-code-runner.interface').MockTestCodeTestCaseResult[];
+    stdout: string;
+    stderr: string;
+    compileOutput: string;
+    message: string;
+    status: { id: number; description: string };
+    feedback: string;
+  }>;
 }
 
 export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {
   constructor(
     private readonly _repository: SubmitMockTestCodeRepository,
-    private readonly _codeRunner: IMockTestCodeRunner,
+    private readonly _codeRunner: IMockTestCodeRunner
   ) {}
 
   async execute(
     attemptId: string,
     userId: string,
     questionId: string,
-    payload: SubmitMockTestCodePayloadDTO,
+    payload: SubmitMockTestCodePayloadDTO
   ) {
-    const attempt = await this._repository.findAttemptById(attemptId)
+    const attempt = await this._repository.findAttemptById(attemptId);
 
     if (!attempt) {
-      throw MockTestsApplicationError.notFound('Attempt not found')
+      throw MockTestsApplicationError.notFound('Attempt not found');
     }
 
     if (attempt.userId !== userId) {
-      throw MockTestsApplicationError.forbidden()
+      throw MockTestsApplicationError.forbidden();
     }
 
     if (attempt.status !== 'in_progress') {
-      throw MockTestsApplicationError.testNotActive()
+      throw MockTestsApplicationError.testNotActive();
     }
 
-    const question = await this._repository.findQuestionById(questionId)
+    const question = await this._repository.findQuestionById(questionId);
 
     if (!question || question.testId !== attempt.testId) {
-      throw MockTestsApplicationError.notFound('Question not found')
+      throw MockTestsApplicationError.notFound('Question not found');
     }
 
     if (question.type !== 'coding' || !question.coding) {
-      throw MockTestsApplicationError.notCodingQuestion()
+      throw MockTestsApplicationError.notCodingQuestion();
     }
 
     const result = await this._codeRunner.run({
@@ -56,17 +74,17 @@ export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {
       mode: 'submit',
       language: payload.language,
       languageId: payload.languageId,
-    })
+    });
 
     const pointsEarned =
       result.totalCount > 0
         ? Math.round((result.passedCount / result.totalCount) * question.points)
-        : 0
+        : 0;
 
     const existing = await this._repository.findAnswerByQuestion({
       attemptId,
       questionId,
-    })
+    });
 
     const answer = existing
       ? await this._repository.updateAnswer(existing._id, {
@@ -80,14 +98,14 @@ export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {
           answer: payload.sourceCode,
           isCorrect: result.passed,
           pointsEarned,
-        })
+        });
 
     if (!answer) {
-      throw MockTestsApplicationError.answerSaveFailed()
+      throw MockTestsApplicationError.answerSaveFailed();
     }
 
     if (!existing) {
-      await this._repository.incrementAnsweredCount(attemptId)
+      await this._repository.incrementAnsweredCount(attemptId);
     }
 
     return {
@@ -106,6 +124,6 @@ export class SubmitMockTestCodeUseCase implements ISubmitMockTestCodeUseCase {
       feedback: result.passed
         ? 'Accepted. All test cases passed.'
         : `${result.passedCount}/${result.totalCount} test cases passed.`,
-    }
+    };
   }
 }

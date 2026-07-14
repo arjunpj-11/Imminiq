@@ -1,23 +1,24 @@
-import type { IMockTestGenerationJobGateway } from '../services/mock-test-generation-job.interface'
-import type { IGenerateMockTestPayloadDTO } from '../mock-tests.dto'
+import type { IMockTestGenerationJobGateway } from '../services/mock-test-generation-job.interface';
+import type { IGenerateMockTestPayloadDTO } from '../mock-tests.dto';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
 
 export interface IStartMockTestGenerationUseCase {
   execute(
     userId: string,
-    payload: IGenerateMockTestPayloadDTO,
-  ): Promise<{ jobId: string; status: 'pending' }>
+    payload: IGenerateMockTestPayloadDTO
+  ): Promise<{ jobId: string; status: 'pending' }>;
 }
 
-export class StartMockTestGenerationUseCase
-  implements IStartMockTestGenerationUseCase
-{
-  constructor(
-    private readonly _jobGateway: IMockTestGenerationJobGateway,
-  ) {}
+export class StartMockTestGenerationUseCase implements IStartMockTestGenerationUseCase {
+  constructor(private readonly _jobGateway: IMockTestGenerationJobGateway) {}
 
-  execute(userId: string, payload: IGenerateMockTestPayloadDTO) {
-    const { runInBackground: _, ...jobPayload } = payload
+  async execute(userId: string, payload: IGenerateMockTestPayloadDTO) {
+    if (await this._jobGateway.findActive(userId)) {
+      throw MockTestsApplicationError.generationAlreadyActive();
+    }
 
-    return this._jobGateway.enqueue(userId, jobPayload)
+    const { runInBackground: _, ...jobPayload } = payload;
+
+    return this._jobGateway.enqueue(userId, jobPayload);
   }
 }

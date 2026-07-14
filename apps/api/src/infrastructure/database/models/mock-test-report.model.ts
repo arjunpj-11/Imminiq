@@ -1,8 +1,13 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const mockTestReportSchema = new Schema(
   {
-    attemptId: { type: Schema.Types.ObjectId, ref: 'MockTestAttempt', required: true, unique: true },
+    attemptId: {
+      type: Schema.Types.ObjectId,
+      ref: 'MockTestAttempt',
+      required: true,
+      unique: true,
+    },
     userId: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     testId: { type: Schema.Types.ObjectId, ref: 'MockTest', required: true, index: true },
     score: { type: Number, required: true },
@@ -18,6 +23,7 @@ const mockTestReportSchema = new Schema(
     recommendations: { type: [String], default: [] },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
-)
+);
 
-export const MockTestReportModel = mongoose.models.MockTestReport || mongoose.model('MockTestReport', mockTestReportSchema)
+export const MockTestReportModel =
+  mongoose.models.MockTestReport || mongoose.model('MockTestReport', mockTestReportSchema);

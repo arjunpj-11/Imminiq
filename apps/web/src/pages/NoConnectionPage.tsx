@@ -1,14 +1,12 @@
-import { safeSessionStorage } from '../lib/storage/safe-storage'
-import { STORAGE_KEYS } from '../lib/storage/storage-keys'
-import { cn } from '../lib/cn'
-import { SystemPageNoise, SystemToast } from '../components/system/SystemPageChrome'
-import ImminiqLogo from '../components/ui/ImminiqLogo'
-import ImminiqWordmark from '../components/ui/ImminiqWordmark'
+import { safeSessionStorage } from '../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../lib/storage/storage-keys';
+import { cn } from '../lib/cn';
+import { SystemPageNoise, SystemToast } from '../components/system/SystemPageChrome';
+import ImminiqLogo from '../components/ui/ImminiqLogo';
+import ImminiqWordmark from '../components/ui/ImminiqWordmark';
 
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
-
-
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const RefreshIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -25,8 +23,8 @@ const RefreshIcon = ({ className = '' }: { className?: string }) => {
       <polyline points="1 4 1 10 7 10" />
       <path d="M3.51 15a9 9 0 102.13-9.36L1 10" />
     </svg>
-  )
-}
+  );
+};
 
 const RouterIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -42,8 +40,8 @@ const RouterIcon = ({ className = '' }: { className?: string }) => {
     >
       <path d="M1 6s1-2 5-2c3 0 4 2 7 2 3 0 4-2 7-2s4 2 4 2v14s-1-2-4-2c-3 0-4 2-7 2-3 0-4-2-7-2-4 0-5 2-5 2z" />
     </svg>
-  )
-}
+  );
+};
 
 const PhoneIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -60,8 +58,8 @@ const PhoneIcon = ({ className = '' }: { className?: string }) => {
       <rect x="5" y="2" width="14" height="20" rx="2" />
       <line x1="12" y1="18" x2="12.01" y2="18" />
     </svg>
-  )
-}
+  );
+};
 
 const InfoIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -79,8 +77,8 @@ const InfoIcon = ({ className = '' }: { className?: string }) => {
       <line x1="12" y1="8" x2="12" y2="12" />
       <line x1="12" y1="16" x2="12.01" y2="16" />
     </svg>
-  )
-}
+  );
+};
 
 const XCircleIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -97,8 +95,8 @@ const XCircleIcon = ({ className = '' }: { className?: string }) => {
       <circle cx="12" cy="12" r="10" />
       <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
     </svg>
-  )
-}
+  );
+};
 
 const ClockIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -115,119 +113,121 @@ const ClockIcon = ({ className = '' }: { className?: string }) => {
       <circle cx="12" cy="12" r="10" />
       <polyline points="12 6 12 12 16 14" />
     </svg>
-  )
-}
+  );
+};
 
 export default function NoConnectionPage() {
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-  const redirectStartedRef = useRef(false)
+  const redirectStartedRef = useRef(false);
 
-  const [toast, setToast] = useState('')
-  const [isToastVisible, setIsToastVisible] = useState(false)
-  const [isRetrying, setIsRetrying] = useState(false)
-  const [signalLevel, setSignalLevel] = useState(0)
-  const [hasRedirectStarted, setHasRedirectStarted] = useState(false)
+  const [toast, setToast] = useState('');
+  const [isToastVisible, setIsToastVisible] = useState(false);
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [signalLevel, setSignalLevel] = useState(0);
+  const [hasRedirectStarted, setHasRedirectStarted] = useState(false);
 
   const disconnectedSince = useMemo(() => {
     return new Date().toLocaleTimeString(undefined, {
       hour: '2-digit',
       minute: '2-digit',
-    })
-  }, [])
+    });
+  }, []);
 
   const showToast = useCallback((message: string) => {
-    setToast(message)
-    setIsToastVisible(true)
+    setToast(message);
+    setIsToastVisible(true);
 
     window.setTimeout(() => {
-      setIsToastVisible(false)
-    }, 2800)
-  }, [])
+      setIsToastVisible(false);
+    }, 2800);
+  }, []);
 
   const redirectToPreviousPage = useCallback(() => {
     if (redirectStartedRef.current) {
-      return
+      return;
     }
 
-    redirectStartedRef.current = true
-    setHasRedirectStarted(true)
+    redirectStartedRef.current = true;
+    setHasRedirectStarted(true);
 
-    const previousPath =
-      safeSessionStorage.get(STORAGE_KEYS.lastOnlinePath) || '/dashboard'
+    const previousPath = safeSessionStorage.get(STORAGE_KEYS.lastOnlinePath) || '/dashboard';
 
-    safeSessionStorage.remove(STORAGE_KEYS.lastOnlinePath)
+    safeSessionStorage.remove(STORAGE_KEYS.lastOnlinePath);
 
     navigate(previousPath, {
       replace: true,
-    })
-  }, [navigate])
+    });
+  }, [navigate]);
 
   const handleReconnectSuccess = useCallback(() => {
     if (redirectStartedRef.current) {
-      return
+      return;
     }
 
-    setSignalLevel(4)
-    setIsRetrying(false)
-    showToast('Connection restored! Redirecting…')
+    setSignalLevel(4);
+    setIsRetrying(false);
+    showToast('Connection restored! Redirecting…');
 
     window.setTimeout(() => {
-      redirectToPreviousPage()
-    }, 700)
-  }, [redirectToPreviousPage, showToast])
+      redirectToPreviousPage();
+    }, 700);
+  }, [redirectToPreviousPage, showToast]);
 
   const handleRetry = () => {
     if (isRetrying || redirectStartedRef.current) {
-      return
+      return;
     }
 
-    setIsRetrying(true)
-    setSignalLevel(0)
+    setIsRetrying(true);
+    setSignalLevel(0);
 
-    const intervals = [1, 2, 3, 4]
+    const intervals = [1, 2, 3, 4];
 
     intervals.forEach((level, index) => {
-      window.setTimeout(() => {
-        setSignalLevel(level)
-      }, 380 * (index + 1))
-    })
+      window.setTimeout(
+        () => {
+          setSignalLevel(level);
+        },
+        380 * (index + 1)
+      );
+    });
 
     window.setTimeout(() => {
       if (navigator.onLine) {
-        handleReconnectSuccess()
-        return
+        handleReconnectSuccess();
+        return;
       }
 
-      setSignalLevel(0)
-      setIsRetrying(false)
-      showToast('Still offline. Check your connection and try again.')
-    }, 2200)
-  }
+      setSignalLevel(0);
+      setIsRetrying(false);
+      showToast('Still offline. Check your connection and try again.');
+    }, 2200);
+  };
 
   useEffect(() => {
     const handleOnline = () => {
-      handleReconnectSuccess()
-    }
+      handleReconnectSuccess();
+    };
 
-    window.addEventListener('online', handleOnline)
+    window.addEventListener('online', handleOnline);
 
-    let reconnectTimeout: number | undefined
+    let reconnectTimeout: number | undefined;
 
     if (navigator.onLine) {
       reconnectTimeout = window.setTimeout(() => {
-        handleReconnectSuccess()
-      }, 0)
+        handleReconnectSuccess();
+      }, 0);
     }
 
     return () => {
-      window.removeEventListener('online', handleOnline)
+      window.removeEventListener('online', handleOnline);
 
       if (reconnectTimeout) {
-        window.clearTimeout(reconnectTimeout)
+        window.clearTimeout(reconnectTimeout);
       }
-    }
-  }, [handleReconnectSuccess])
+    };
+  }, [handleReconnectSuccess]);
 
   return (
     <div className="relative min-h-screen overflow-x-hidden bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) transition-colors dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -260,8 +260,6 @@ export default function NoConnectionPage() {
             <span className="h-1.25 w-1.25 animate-pulse rounded-full bg-(--warning) dark:bg-(--warning)" />
             No connection
           </div>
-
-          
         </div>
       </header>
 
@@ -294,14 +292,14 @@ export default function NoConnectionPage() {
           </h1>
 
           <p className="mx-auto mb-8 max-w-95 text-center text-sm leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-            Imminiq can&apos;t reach its servers. Check your Wi-Fi or mobile data,
-            then try reconnecting.
+            Imminiq can&apos;t reach its servers. Check your Wi-Fi or mobile data, then try
+            reconnecting.
           </p>
 
           {/* Signal Bars */}
           <div className="mb-8 flex h-8 items-end gap-1.25" aria-hidden="true">
             {[35, 55, 75, 100].map((height, index) => {
-              const isAlive = signalLevel > index
+              const isAlive = signalLevel > index;
 
               return (
                 <div
@@ -314,7 +312,7 @@ export default function NoConnectionPage() {
                   )}
                   style={{ height: `${height}%` }}
                 />
-              )
+              );
             })}
           </div>
 
@@ -428,12 +426,7 @@ export default function NoConnectionPage() {
           <ImminiqWordmark className="font-serif text-base font-extrabold" />
 
           <div className="flex flex-wrap gap-5">
-            {[
-              'Privacy Policy',
-              'Terms of Service',
-              'Academic Integrity',
-              'Contact',
-            ].map((item) => (
+            {['Privacy Policy', 'Terms of Service', 'Academic Integrity', 'Contact'].map((item) => (
               <span
                 key={item}
                 className="font-mono text-[8.5px] uppercase tracking-[0.12em] text-(--text-secondary)/40 dark:text-(--text-secondary)/40"
@@ -449,5 +442,5 @@ export default function NoConnectionPage() {
         </footer>
       </div>
     </div>
-  )
+  );
 }

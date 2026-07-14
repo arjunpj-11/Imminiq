@@ -1,8 +1,8 @@
-import type { AuthUserEntity } from '../domain/entities/auth-user.entity'
-import type { IAuthUserDTO } from './auth.dto'
+import type { AuthUserEntity } from '../domain/entities/auth-user.entity';
+import type { IAuthUserDTO } from './auth.dto';
 
 export interface IAuthUserMapper {
-  toAuthUser(user: AuthUserEntity): IAuthUserDTO
+  toAuthUser(user: AuthUserEntity): IAuthUserDTO;
 }
 
 export class AuthUserMapper implements IAuthUserMapper {
@@ -20,6 +20,6 @@ export class AuthUserMapper implements IAuthUserMapper {
       isPremium: user.isPremium,
       avatarUrl: user.avatarUrl,
       onboardingCompleted: user.onboardingCompleted,
-    }
+    };
   }
 }

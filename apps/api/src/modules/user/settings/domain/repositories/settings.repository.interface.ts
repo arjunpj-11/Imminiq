@@ -1,11 +1,9 @@
-import type { ISettingsCommandRepository } from './settings-command.repository.interface'
-import type { ISettingsQueryRepository } from './settings-query.repository.interface'
+import type { ISettingsCommandRepository } from './settings-command.repository.interface';
+import type { ISettingsQueryRepository } from './settings-query.repository.interface';
 
-export interface ISettingsRepository
-  extends ISettingsQueryRepository,
-    ISettingsCommandRepository {}
+export interface ISettingsRepository extends ISettingsQueryRepository, ISettingsCommandRepository {}
 
-export type SettingsRepository = ISettingsRepository
+export type SettingsRepository = ISettingsRepository;
 
 export type {
   SettingsAIBehaviourUpdateInput,
@@ -32,4 +30,4 @@ export type {
   UpdateSettingsNotificationsInput,
   UpdateSettingsPrivacyInput,
   UpdateSettingsQuietHoursInput,
-} from './settings-command.repository.interface'
+} from './settings-command.repository.interface';

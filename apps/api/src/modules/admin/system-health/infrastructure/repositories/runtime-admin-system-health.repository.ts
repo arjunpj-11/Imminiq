@@ -1,0 +1,39 @@
+import mongoose from 'mongoose';
+import { redis } from '../../../../../config/redis';
+import type { IAdminSystemHealthRepository } from '../../domain/repositories/admin-system-health.repository.interface';
+export class RuntimeAdminSystemHealthRepository implements IAdminSystemHealthRepository {
+  async inspect() {
+    let redisReady: boolean;
+    let redisLatencyMs: number | null = null;
+    const started = Date.now();
+    try {
+      redisReady = (await redis.ping()) === 'PONG';
+      redisLatencyMs = Date.now() - started;
+    } catch {
+      redisReady = false;
+    }
+    const mongoReady = mongoose.connection.readyState === 1;
+    const memory = process.memoryUsage();
+    const collections =
+      mongoReady && mongoose.connection.db
+        ? await mongoose.connection.db.listCollections().toArray()
+        : [];
+    return {
+      status: mongoReady && redisReady ? 'healthy' : 'degraded',
+      checkedAt: new Date(),
+      uptimeSeconds: Math.floor(process.uptime()),
+      services: {
+        api: { status: 'healthy' },
+        mongodb: { status: mongoReady ? 'healthy' : 'down', collections: collections.length },
+        redis: { status: redisReady ? 'healthy' : 'down', latencyMs: redisLatencyMs },
+      },
+      memory: {
+        rssMb: Math.round(memory.rss / 1048576),
+        heapUsedMb: Math.round(memory.heapUsed / 1048576),
+        heapTotalMb: Math.round(memory.heapTotal / 1048576),
+      },
+      nodeVersion: process.version,
+    };
+  }
+}
+export const runtimeAdminSystemHealthRepository = new RuntimeAdminSystemHealthRepository();

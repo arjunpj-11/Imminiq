@@ -1,12 +1,10 @@
-import { FireIcon, LiveDotIcon } from './icons/ActivityIcons'
+import { FireIcon, LiveDotIcon } from './icons/ActivityIcons';
 
 interface IActivityHeaderProps {
-  currentStreak: number
+  currentStreak: number;
 }
 
-export default function ActivityHeader({
-  currentStreak,
-}: IActivityHeaderProps) {
+export default function ActivityHeader({ currentStreak }: IActivityHeaderProps) {
   return (
     <section className="flex flex-wrap items-start justify-between gap-5">
       <div>
@@ -18,15 +16,11 @@ export default function ActivityHeader({
         </div>
 
         <h1 className="font-ui text-[clamp(28px,3.5vw,40px)] font-black leading-[1.08] tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary)">
-          Your{' '}
-          <span className="text-(--brand-500) dark:text-(--brand-500)">
-            Activity
-          </span>
+          Your <span className="text-(--brand-500) dark:text-(--brand-500)">Activity</span>
         </h1>
 
         <p className="mt-2.5 max-w-105 text-[13px] italic leading-[1.6] text-[#7a6e66] dark:text-(--text-secondary)">
-          Track sessions, XP earned, streaks, and your learning rhythm
-          over time.
+          Track sessions, XP earned, streaks, and your learning rhythm over time.
         </p>
       </div>
 
@@ -52,5 +46,5 @@ export default function ActivityHeader({
         </div>
       </div>
     </section>
-  )
+  );
 }

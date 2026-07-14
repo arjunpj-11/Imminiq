@@ -1,85 +1,78 @@
-import { useEffect, useMemo, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
-import { isAxiosError } from 'axios'
+import { useEffect, useMemo, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { isAxiosError } from 'axios';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
-import HeapTile from '../../../../components/layout/HeapTile'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import HeapTile from '../../../../components/layout/HeapTile';
 
-import { useProfile } from '../hooks/queries/useProfile'
-import { useUpdateProfile } from '../hooks/mutations/useUpdateProfile'
-import { useProfileStats } from '../hooks/queries/useProfileStats'
-import { usePublishedTrackers } from '../hooks/queries/usePublishedTrackers'
-import { useUploadAvatar } from '../hooks/mutations/useUploadAvatar'
-import { useUploadBanner } from '../hooks/mutations/useUploadBanner'
-import { useStreak } from '../../../../hooks/progress/useStreak'
-import { usePublicProfile } from '../hooks/public/usePublicProfile'
-import { useSendFriendRequest } from '../../../../hooks/friends/useSendFriendRequest'
-import { useAuthStore } from '../../../../store/useAuthStore'
-import { useProfileStore } from '../store/useProfileStore'
-import type { IPublishedTracker } from '../types/profile.types'
+import { useProfile } from '../hooks/queries/useProfile';
+import { useUpdateProfile } from '../hooks/mutations/useUpdateProfile';
+import { useProfileStats } from '../hooks/queries/useProfileStats';
+import { usePublishedTrackers } from '../hooks/queries/usePublishedTrackers';
+import { useUploadAvatar } from '../hooks/mutations/useUploadAvatar';
+import { useUploadBanner } from '../hooks/mutations/useUploadBanner';
+import { useStreak } from '../../../../hooks/progress/useStreak';
+import { usePublicProfile } from '../hooks/public/usePublicProfile';
+import { useSendFriendRequest } from '../../friends/hooks/useSendFriendRequest';
+import { useAuthStore } from '../../../../store/useAuthStore';
+import { useProfileStore } from '../store/useProfileStore';
+import type { IPublishedTracker } from '../types/profile.types';
 
-import AvatarCropModal from '../components/AvatarCropModal'
-import BannerModal from '../components/BannerModal'
-import EditProfilePanel from '../components/EditProfilePanel'
-import ProfileToast from '../components/ProfileToast'
-import { trackerThumbClasses } from '../constants/profile-style.constants'
-import { useProfileToast } from '../hooks/ui/useProfileToast'
-import { useSubmitRateLimit } from '../hooks/ui/useSubmitRateLimit'
-import type { IProfileData } from '../types/profile.types'
+import AvatarCropModal from '../components/AvatarCropModal';
+import BannerModal from '../components/BannerModal';
+import EditProfilePanel from '../components/EditProfilePanel';
+import ProfileToast from '../components/ProfileToast';
+import { trackerThumbClasses } from '../constants/profile-style.constants';
+import { useProfileToast } from '../hooks/ui/useProfileToast';
+import { useSubmitRateLimit } from '../hooks/ui/useSubmitRateLimit';
+import type { IProfileData } from '../types/profile.types';
 import {
   dataUrlToFile,
   formatLocation,
   normalizeOptionalUrl,
   parseLocation,
-} from '../utils/profile-data'
-import { fallbackCopyText } from '../utils/profile-clipboard'
-import {
-  formatCompactNumber,
-  formatProfileLevel,
-} from '../utils/profile-formatters'
+} from '../utils/profile-data';
+import { fallbackCopyText } from '../utils/profile-clipboard';
+import { formatCompactNumber, formatProfileLevel } from '../utils/profile-formatters';
 
-import ProfilePageSkeleton from '../components/ProfilePageSkeleton'
-import ProfileHeader from '../components/ProfileHeader'
-import ProfileDocumentStyles from '../components/ProfileDocumentStyles'
-import ProfileStatsGrid from '../components/ProfileStatsGrid'
-import ProfileAboutCard from '../components/ProfileAboutCard'
+import ProfilePageSkeleton from '../components/ProfilePageSkeleton';
+import ProfileHeader from '../components/ProfileHeader';
+import ProfileDocumentStyles from '../components/ProfileDocumentStyles';
+import ProfileStatsGrid from '../components/ProfileStatsGrid';
+import ProfileAboutCard from '../components/ProfileAboutCard';
 import PublishedTrackersSection, {
   type IPublishedTrackerCardViewModel,
-} from '../components/PublishedTrackersSection'
+} from '../components/PublishedTrackersSection';
+import AdaptiveMasteryGraph from '../../adaptive-learning/components/AdaptiveMasteryGraph';
+import { useAdaptiveLearningDashboard } from '../../adaptive-learning/hooks/useAdaptiveLearning';
 
 /* ─── Main ProfilePage ─── */
 export default function ProfilePage() {
-  const { username } = useParams<{ username: string }>()
-  const navigate = useNavigate()
-  const location = useLocation()
-  const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
+  const { username } = useParams<{ username: string }>();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const authReady = useAuthStore((state) => state.authReady);
 
-  const isPublicView = Boolean(username)
-  const isOwnView = !isPublicView
-  const showSidebar = isOwnView || isAuthenticated
+  const isPublicView = Boolean(username);
+  const isOwnView = !isPublicView;
+  const showSidebar = isOwnView || isAuthenticated;
+  const adaptiveDashboard = useAdaptiveLearningDashboard(isOwnView);
 
-  const editOpen = useProfileStore((state) => state.editPanelOpen)
-  const openEditPanel = useProfileStore((state) => state.openEditPanel)
-  const closeEditPanel = useProfileStore((state) => state.closeEditPanel)
+  const editOpen = useProfileStore((state) => state.editPanelOpen);
+  const openEditPanel = useProfileStore((state) => state.openEditPanel);
+  const closeEditPanel = useProfileStore((state) => state.closeEditPanel);
 
-  const bannerModalOpen = useProfileStore((state) => state.bannerModalOpen)
-  const openBannerModal = useProfileStore((state) => state.openBannerModal)
-  const closeBannerModal = useProfileStore((state) => state.closeBannerModal)
+  const bannerModalOpen = useProfileStore((state) => state.bannerModalOpen);
+  const openBannerModal = useProfileStore((state) => state.openBannerModal);
+  const closeBannerModal = useProfileStore((state) => state.closeBannerModal);
 
-  const avatarModalOpen = useProfileStore((state) => state.avatarCropModalOpen)
-  const openAvatarCropModal = useProfileStore(
-    (state) => state.openAvatarCropModal,
-  )
-  const closeAvatarCropModal = useProfileStore(
-    (state) => state.closeAvatarCropModal,
-  )
+  const avatarModalOpen = useProfileStore((state) => state.avatarCropModalOpen);
+  const openAvatarCropModal = useProfileStore((state) => state.openAvatarCropModal);
+  const closeAvatarCropModal = useProfileStore((state) => state.closeAvatarCropModal);
 
-  const selectedHeatmapYear = useProfileStore(
-    (state) => state.selectedHeatmapYear,
-  )
-  const setSelectedHeatmapYear = useProfileStore(
-    (state) => state.setSelectedHeatmapYear,
-  )
+  const selectedHeatmapYear = useProfileStore((state) => state.selectedHeatmapYear);
+  const setSelectedHeatmapYear = useProfileStore((state) => state.setSelectedHeatmapYear);
 
   const {
     message: toastMsg,
@@ -87,101 +80,103 @@ export default function ProfilePage() {
     tone: toastTone,
     show: showToast,
     showLoading: showLoadingToast,
-  } = useProfileToast()
+  } = useProfileToast();
 
-  const submitRateLimit = useSubmitRateLimit(1800)
+  const submitRateLimit = useSubmitRateLimit(1800);
 
-  const profileQuery = useProfile({ enabled: isOwnView })
-  const statsQuery = useProfileStats({ enabled: isOwnView })
-  const trackersQuery = usePublishedTrackers(
-    { page: 1, limit: 3 },
-    { enabled: isOwnView },
-  )
-  const streakQuery = useStreak(selectedHeatmapYear, { enabled: isOwnView })
+  const profileQuery = useProfile({ enabled: isOwnView });
+  const statsQuery = useProfileStats({ enabled: isOwnView });
+  const trackersQuery = usePublishedTrackers({ page: 1, limit: 3 }, { enabled: isOwnView });
+  const streakQuery = useStreak(selectedHeatmapYear, { enabled: isOwnView });
 
   const publicProfileQuery = usePublicProfile(
     username ?? '',
     { page: 1, limit: 3, sort: 'publishedAt' },
-    { enabled: isPublicView },
-  )
+    { enabled: isPublicView && authReady }
+  );
 
-  const activeProfileData = isPublicView
-    ? publicProfileQuery.data
-    : profileQuery.data
+  const activeProfileData = isPublicView ? publicProfileQuery.data : profileQuery.data;
 
-  const shareUsername = activeProfileData?.user?.username || username || ''
+  const shareUsername = activeProfileData?.user?.username || username || '';
 
   const profileShareUrl = useMemo(() => {
-    if (typeof window === 'undefined') return ''
+    if (typeof window === 'undefined') return '';
 
     if (!shareUsername) {
-      return window.location.href
+      return window.location.href;
     }
 
-    return `${window.location.origin}/profile/${shareUsername}`
-  }, [shareUsername])
+    return `${window.location.origin}/profile/${shareUsername}`;
+  }, [shareUsername]);
 
   const copyProfileLink = async () => {
     if (!profileShareUrl) {
-      showToast('Profile URL is unavailable.', 'error')
-      return
+      showToast('Profile URL is unavailable.', 'error');
+      return;
     }
 
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(profileShareUrl)
+        await navigator.clipboard.writeText(profileShareUrl);
       } else {
-        const copied = fallbackCopyText(profileShareUrl)
+        const copied = fallbackCopyText(profileShareUrl);
 
         if (!copied) {
-          throw new Error('Clipboard fallback failed')
+          throw new Error('Clipboard fallback failed');
         }
       }
 
-      showToast('Profile URL copied!', 'success')
+      showToast('Profile URL copied!', 'success');
     } catch {
       try {
-        const copied = fallbackCopyText(profileShareUrl)
+        const copied = fallbackCopyText(profileShareUrl);
 
         if (!copied) {
-          throw new Error('Clipboard fallback failed')
+          throw new Error('Clipboard fallback failed');
         }
 
-        showToast('Profile URL copied!', 'success')
+        showToast('Profile URL copied!', 'success');
       } catch {
-        showToast('Unable to copy profile URL.', 'error')
+        showToast('Unable to copy profile URL.', 'error');
       }
     }
-  }
+  };
 
   const activeStats = isPublicView
     ? (publicProfileQuery.data?.stats ?? undefined)
-    : statsQuery.data
+    : statsQuery.data;
 
   const activeStreak = isPublicView
     ? (publicProfileQuery.data?.streak ?? undefined)
-    : streakQuery.data
+    : streakQuery.data;
 
   const activeTrackerData = isPublicView
     ? publicProfileQuery.data?.publishedTrackers
-    : trackersQuery.data
+    : trackersQuery.data;
 
-  const updateProfileMutation = useUpdateProfile()
-  const uploadAvatarMutation = useUploadAvatar()
-  const uploadBannerMutation = useUploadBanner()
-  const sendFriendRequestMutation = useSendFriendRequest()
-  const [friendRequestSent, setFriendRequestSent] = useState(false)
+  const updateProfileMutation = useUpdateProfile();
+  const uploadAvatarMutation = useUploadAvatar();
+  const uploadBannerMutation = useUploadBanner();
+  const sendFriendRequestMutation = useSendFriendRequest();
+  const [relationshipOverride, setRelationshipOverride] = useState<{
+    username: string;
+    state: 'request_sent';
+  } | null>(null);
+  const relationship =
+    (relationshipOverride && relationshipOverride.username === username
+      ? relationshipOverride.state
+      : null) ??
+    publicProfileQuery.data?.relationship ??
+    'not_connected';
 
   const profile = useMemo<IProfileData | null>(() => {
-    if (!activeProfileData) return null
+    if (!activeProfileData) return null;
 
-    const parsedLocation = parseLocation(activeProfileData.profile.location)
+    const parsedLocation = parseLocation(activeProfileData.profile.location);
 
     return {
       name:
-        activeProfileData.profile.fullName ||
-        activeProfileData.user.fullName ||
-        'Imminiq Learner',
+        activeProfileData.profile.fullName || activeProfileData.user.fullName || 'Imminiq Learner',
       username: activeProfileData.user.username || '',
       profession: activeProfileData.profile.headline || '',
       bio: activeProfileData.profile.bio || '',
@@ -195,25 +190,24 @@ export default function ProfilePage() {
       githubUrl: activeProfileData.profile.githubUrl || '',
       linkedinUrl: activeProfileData.profile.linkedinUrl || '',
       portfolioUrl: activeProfileData.profile.portfolioUrl || '',
-    }
-  }, [activeProfileData])
+    };
+  }, [activeProfileData]);
 
   const locationStr = profile
-    ? [profile.city, profile.state, profile.country]
-        .filter(Boolean)
-        .join(', ') + (profile.postal ? ` — ${profile.postal}` : '')
-    : ''
+    ? [profile.city, profile.state, profile.country].filter(Boolean).join(', ') +
+      (profile.postal ? ` — ${profile.postal}` : '')
+    : '';
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key !== 'Escape') return
-      if (avatarModalOpen) closeAvatarCropModal()
-      else if (bannerModalOpen) closeBannerModal()
-      else if (editOpen) closeEditPanel()
-    }
+      if (event.key !== 'Escape') return;
+      if (avatarModalOpen) closeAvatarCropModal();
+      else if (bannerModalOpen) closeBannerModal();
+      else if (editOpen) closeEditPanel();
+    };
 
-    window.addEventListener('keydown', onKeyDown)
-    return () => window.removeEventListener('keydown', onKeyDown)
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
   }, [
     avatarModalOpen,
     bannerModalOpen,
@@ -221,70 +215,77 @@ export default function ProfilePage() {
     closeBannerModal,
     closeEditPanel,
     editOpen,
-  ])
+  ]);
 
   const redirectGuestToLogin = () => {
-    navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`)
-  }
+    navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+  };
 
   const handleSendFriendRequest = async () => {
     if (!isAuthenticated) {
-      redirectGuestToLogin()
-      return
+      redirectGuestToLogin();
+      return;
     }
 
-    const receiverId = activeProfileData?.user?._id
+    if (relationship === 'request_received') {
+      navigate('/friends?tab=requests');
+      return;
+    }
+
+    const receiverId = activeProfileData?.user?._id;
 
     if (!receiverId) {
-      showToast('Unable to find this user.', 'error')
-      return
+      showToast('Unable to find this user.', 'error');
+      return;
     }
 
     if (!submitRateLimit.canStart('friend-request')) {
-      showToast('Please wait before sending another request.', 'info')
-      return
+      showToast('Please wait before sending another request.', 'info');
+      return;
     }
 
-    showLoadingToast('Sending friend request…')
+    showLoadingToast('Sending friend request…');
 
     try {
       await sendFriendRequestMutation.mutateAsync({
-        receiverId,
-      })
+        receiverUserId: receiverId,
+      });
 
-      setFriendRequestSent(true)
-      showToast('Friend request sent!', 'success')
+      setRelationshipOverride({
+        username: username ?? '',
+        state: 'request_sent',
+      });
+      showToast('Friend request sent!', 'success');
     } catch (error: unknown) {
       const message = isAxiosError<{ message?: string }>(error)
-        ? error.response?.data?.message ||
-          'Unable to send friend request right now.'
-        : 'Unable to send friend request right now.'
+        ? error.response?.data?.message || 'Unable to send friend request right now.'
+        : 'Unable to send friend request right now.';
 
-      showToast(message, 'error')
+      showToast(message, 'error');
     } finally {
-      submitRateLimit.finish('friend-request')
+      submitRateLimit.finish('friend-request');
     }
-  }
+  };
 
   const handleOpenChats = () => {
     if (!isAuthenticated) {
-      redirectGuestToLogin()
-      return
+      redirectGuestToLogin();
+      return;
     }
 
-    navigate('/chats')
-  }
+    navigate('/chats');
+  };
 
   const handleSave = async (data: Partial<IProfileData>) => {
-    if (!isOwnView) return
+    if (!isOwnView) return;
 
     if (!submitRateLimit.canStart('profile-save')) {
-      showToast('Please wait before saving profile again.', 'info')
-      return
+      showToast('Please wait before saving profile again.', 'info');
+      return;
     }
 
-    closeEditPanel()
-    showLoadingToast('Saving profile changes…')
+    closeEditPanel();
+    showLoadingToast('Saving profile changes…');
 
     try {
       await updateProfileMutation.mutateAsync({
@@ -301,53 +302,47 @@ export default function ProfilePage() {
         githubUrl: normalizeOptionalUrl(data.githubUrl ?? ''),
         linkedinUrl: normalizeOptionalUrl(data.linkedinUrl ?? ''),
         portfolioUrl: normalizeOptionalUrl(data.portfolioUrl ?? ''),
-      })
+      });
 
-      await profileQuery.refetch()
-      showToast('Profile saved!', 'success')
+      await profileQuery.refetch();
+      showToast('Profile saved!', 'success');
     } catch {
-      showToast('Unable to save profile. Please try again.', 'error')
+      showToast('Unable to save profile. Please try again.', 'error');
     } finally {
-      submitRateLimit.finish('profile-save')
+      submitRateLimit.finish('profile-save');
     }
-  }
+  };
 
   const trackers: IPublishedTrackerCardViewModel[] = (activeTrackerData?.items ?? []).map(
     (tracker: IPublishedTracker, index: number) => ({
+      id: tracker._id,
       title: tracker.title,
       desc: tracker.description || 'Published tracker',
       rating: Number(tracker.ratingAverage ?? 0),
       clones: formatCompactNumber(tracker.cloneCount),
       thumbClass: trackerThumbClasses[index % trackerThumbClasses.length],
       slug: tracker.slug,
-    }),
-  )
+    })
+  );
 
   const profileLevelLabel = formatProfileLevel(
-    activeStats?.studentLevel ?? activeProfileData?.user.level,
-  )
+    activeStats?.studentLevel ?? activeProfileData?.user.level
+  );
 
-  const accountCreatedAt = activeProfileData?.user.createdAt ?? null
+  const accountCreatedAt = activeProfileData?.user.createdAt ?? null;
 
-  const activeProfileQueryError = isPublicView
-    ? publicProfileQuery.isError
-    : profileQuery.isError
+  const activeProfileQueryError = isPublicView ? publicProfileQuery.isError : profileQuery.isError;
 
   const activeProfileQueryLoading = isPublicView
     ? publicProfileQuery.isLoading
-    : profileQuery.isLoading
+    : profileQuery.isLoading;
 
   if (activeProfileQueryError) {
     return (
-      <AppShellBoundary
-        showSidebar={showSidebar}
-        isGuest={isPublicView && !isAuthenticated}
-      >
+      <AppShellBoundary showSidebar={showSidebar} isGuest={isPublicView && !isAuthenticated}>
         <div className="flex min-h-[calc(100vh-88px)] items-center justify-center px-4">
           <div className="max-w-105 rounded-lg border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-6 py-5 text-center shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
-            <div className="font-ui text-[20px] font-extrabold">
-              Profile unavailable
-            </div>
+            <div className="font-ui text-[20px] font-extrabold">Profile unavailable</div>
             <p className="mt-2 text-[13px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
               {isPublicView
                 ? 'This public profile is unavailable or could not be loaded right now.'
@@ -356,11 +351,11 @@ export default function ProfilePage() {
           </div>
         </div>
       </AppShellBoundary>
-    )
+    );
   }
 
   if (activeProfileQueryLoading || !profile) {
-    return <ProfilePageSkeleton showSidebar={showSidebar} />
+    return <ProfilePageSkeleton showSidebar={showSidebar} />;
   }
 
   return (
@@ -394,7 +389,7 @@ export default function ProfilePage() {
             location={locationStr}
             isOwnView={isOwnView}
             isPublicView={isPublicView}
-            friendRequestSent={friendRequestSent}
+            relationship={relationship}
             isSendingFriendRequest={sendFriendRequestMutation.isPending}
             onChangeBanner={openBannerModal}
             onChangeAvatar={openAvatarCropModal}
@@ -409,35 +404,26 @@ export default function ProfilePage() {
 
             <ProfileAboutCard
               profile={profile}
-              onMissingLink={(label) =>
-                showToast(`${label} link has not been added yet.`)
-              }
+              onMissingLink={(label) => showToast(`${label} link has not been added yet.`)}
             />
 
             <div className="animate-[fadeUp_0.38s_ease_0.26s_both]">
               <HeapTile
                 streak={activeStreak}
-                year={
-                  isPublicView
-                    ? new Date().getFullYear()
-                    : selectedHeatmapYear
-                }
-                onYearChange={
-                  isPublicView ? () => undefined : setSelectedHeatmapYear
-                }
-                isLoading={
-                  isPublicView
-                    ? publicProfileQuery.isLoading
-                    : streakQuery.isLoading
-                }
+                year={isPublicView ? new Date().getFullYear() : selectedHeatmapYear}
+                onYearChange={isPublicView ? () => undefined : setSelectedHeatmapYear}
+                isLoading={isPublicView ? publicProfileQuery.isLoading : streakQuery.isLoading}
                 accountCreatedAt={accountCreatedAt}
               />
             </div>
 
+            {isOwnView && adaptiveDashboard.data ? (
+              <AdaptiveMasteryGraph history={adaptiveDashboard.data.profile.history} />
+            ) : null}
+
             <PublishedTrackersSection
               trackers={trackers}
-              onClone={() => showToast('Tracker cloned!')}
-              onOpen={(tracker) => showToast(`Opening ${tracker.title}…`)}
+              onOpen={(tracker) => navigate(`/community/trackers/${tracker.id}`)}
             />
           </div>
         </div>
@@ -449,26 +435,23 @@ export default function ProfilePage() {
           onClose={closeBannerModal}
           onApply={async (bannerDataUrl) => {
             if (!submitRateLimit.canStart('banner-upload')) {
-              showToast('Please wait before uploading another banner.', 'info')
-              return
+              showToast('Please wait before uploading another banner.', 'info');
+              return;
             }
 
-            closeBannerModal()
-            showLoadingToast('Uploading banner…')
+            closeBannerModal();
+            showLoadingToast('Uploading banner…');
 
             try {
-              const file = dataUrlToFile(
-                bannerDataUrl,
-                `profile-banner-${Date.now()}.png`,
-              )
+              const file = dataUrlToFile(bannerDataUrl, `profile-banner-${Date.now()}.png`);
 
-              await uploadBannerMutation.mutateAsync(file)
-              await profileQuery.refetch()
-              showToast('Banner updated!', 'success')
+              await uploadBannerMutation.mutateAsync(file);
+              await profileQuery.refetch();
+              showToast('Banner updated!', 'success');
             } catch {
-              showToast('Unable to upload banner. Please try again.', 'error')
+              showToast('Unable to upload banner. Please try again.', 'error');
             } finally {
-              submitRateLimit.finish('banner-upload')
+              submitRateLimit.finish('banner-upload');
             }
           }}
           onToast={showToast}
@@ -481,32 +464,23 @@ export default function ProfilePage() {
           onClose={closeAvatarCropModal}
           onApply={async (avatarUrl) => {
             if (!submitRateLimit.canStart('avatar-upload')) {
-              showToast(
-                'Please wait before uploading another profile photo.',
-                'info',
-              )
-              return
+              showToast('Please wait before uploading another profile photo.', 'info');
+              return;
             }
 
-            closeAvatarCropModal()
-            showLoadingToast('Uploading profile photo…')
+            closeAvatarCropModal();
+            showLoadingToast('Uploading profile photo…');
 
             try {
-              const file = dataUrlToFile(
-                avatarUrl,
-                `profile-avatar-${Date.now()}.png`,
-              )
+              const file = dataUrlToFile(avatarUrl, `profile-avatar-${Date.now()}.png`);
 
-              await uploadAvatarMutation.mutateAsync(file)
-              await profileQuery.refetch()
-              showToast('Profile photo updated!', 'success')
+              await uploadAvatarMutation.mutateAsync(file);
+              await profileQuery.refetch();
+              showToast('Profile photo updated!', 'success');
             } catch {
-              showToast(
-                'Unable to upload profile photo. Please try again.',
-                'error',
-              )
+              showToast('Unable to upload profile photo. Please try again.', 'error');
             } finally {
-              submitRateLimit.finish('avatar-upload')
+              submitRateLimit.finish('avatar-upload');
             }
           }}
           onToast={showToast}
@@ -523,5 +497,5 @@ export default function ProfilePage() {
         />
       )}
     </AppShellBoundary>
-  )
+  );
 }

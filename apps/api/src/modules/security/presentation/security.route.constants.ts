@@ -13,7 +13,6 @@ export const SECURITY_ROUTE_PATHS = {
   TWO_FACTOR_DISABLE: '/2fa/disable',
 
   DELETE_ACCOUNT: '/delete-account',
-} as const
+} as const;
 
-export type SecurityRoutePath =
-  (typeof SECURITY_ROUTE_PATHS)[keyof typeof SECURITY_ROUTE_PATHS]
+export type SecurityRoutePath = (typeof SECURITY_ROUTE_PATHS)[keyof typeof SECURITY_ROUTE_PATHS];

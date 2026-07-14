@@ -1,15 +1,13 @@
 export interface IGeneratePreviewImageInput {
-  prompt: string
-  steps: number
-  seed: number
+  prompt: string;
+  steps: number;
+  seed: number;
 }
 
 export interface IGeneratedPreviewImage {
-  dataUrl: string
+  dataUrl: string;
 }
 
 export interface IAIImageGenerator {
-  generatePreviewImage(
-    input: IGeneratePreviewImageInput,
-  ): Promise<IGeneratedPreviewImage>
+  generatePreviewImage(input: IGeneratePreviewImageInput): Promise<IGeneratedPreviewImage>;
 }

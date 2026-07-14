@@ -1,15 +1,15 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ICommunityTrackerReviewSchemaFields extends Document {
-  trackerId: mongoose.Types.ObjectId
-  userId: mongoose.Types.ObjectId
-  rating: number
-  comment: string
-  helpfulUserIds: mongoose.Types.ObjectId[]
-  helpfulCount: number
-  deletedAt?: Date | null
-  createdAt: Date
-  updatedAt: Date
+  trackerId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  rating: number;
+  comment: string;
+  helpfulUserIds: mongoose.Types.ObjectId[];
+  helpfulCount: number;
+  deletedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const communityTrackerReviewSchema = new Schema<ICommunityTrackerReviewSchemaFields>(
@@ -57,12 +57,12 @@ const communityTrackerReviewSchema = new Schema<ICommunityTrackerReviewSchemaFie
   {
     timestamps: true,
     collection: 'community_tracker_reviews',
-  },
-)
+  }
+);
 
-communityTrackerReviewSchema.index({ trackerId: 1, createdAt: -1 })
-communityTrackerReviewSchema.index({ trackerId: 1, helpfulCount: -1 })
-communityTrackerReviewSchema.index({ userId: 1, createdAt: -1 })
+communityTrackerReviewSchema.index({ trackerId: 1, createdAt: -1 });
+communityTrackerReviewSchema.index({ trackerId: 1, helpfulCount: -1 });
+communityTrackerReviewSchema.index({ userId: 1, createdAt: -1 });
 communityTrackerReviewSchema.index(
   { trackerId: 1, userId: 1 },
   {
@@ -70,23 +70,19 @@ communityTrackerReviewSchema.index(
     partialFilterExpression: {
       deletedAt: null,
     },
-  },
-)
+  }
+);
 
 type CommunityTrackerReviewDocument =
-  mongoose.HydratedDocument<ICommunityTrackerReviewSchemaFields>
+  mongoose.HydratedDocument<ICommunityTrackerReviewSchemaFields>;
 
-communityTrackerReviewSchema.pre('save', function (
-  this: CommunityTrackerReviewDocument,
-) {
-  this.helpfulCount = Array.isArray(this.helpfulUserIds)
-    ? this.helpfulUserIds.length
-    : 0
-})
+communityTrackerReviewSchema.pre('save', function (this: CommunityTrackerReviewDocument) {
+  this.helpfulCount = Array.isArray(this.helpfulUserIds) ? this.helpfulUserIds.length : 0;
+});
 
 export const CommunityTrackerReview =
   mongoose.models.CommunityTrackerReview ||
   mongoose.model<ICommunityTrackerReviewSchemaFields>(
     'CommunityTrackerReview',
-    communityTrackerReviewSchema,
-  )
+    communityTrackerReviewSchema
+  );

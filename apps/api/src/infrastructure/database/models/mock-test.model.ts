@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const mockTestSchema = new Schema(
   {
@@ -112,12 +112,12 @@ const mockTestSchema = new Schema(
       default: 0,
     },
   },
-  { timestamps: true },
-)
+  { timestamps: true }
+);
 
-mockTestSchema.index({ ownerId: 1, createdAt: -1 })
-mockTestSchema.index({ visibility: 1, difficulty: 1, createdAt: -1 })
-mockTestSchema.index({ title: 'text', description: 'text', tags: 'text' })
+mockTestSchema.index({ ownerId: 1, createdAt: -1 });
+mockTestSchema.index({ visibility: 1, difficulty: 1, createdAt: -1 });
+mockTestSchema.index({ title: 'text', description: 'text', tags: 'text' });
 
 mockTestSchema.index(
   { ownerId: 1, sourceTestId: 1 },
@@ -126,8 +126,7 @@ mockTestSchema.index(
     partialFilterExpression: {
       sourceTestId: { $type: 'objectId' },
     },
-  },
-)
+  }
+);
 
-export const MockTestModel =
-  mongoose.models.MockTest || mongoose.model('MockTest', mockTestSchema)
+export const MockTestModel = mongoose.models.MockTest || mongoose.model('MockTest', mockTestSchema);

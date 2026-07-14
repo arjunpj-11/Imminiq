@@ -1,12 +1,12 @@
-import { FriendsDomainError } from "../../../domain/friends-domain.error";
-import type { FriendsMongoErrorMapper } from "./mongo-friends-error.mapper";
+import { FriendsDomainError } from '../../../domain/friends-domain.error';
+import type { FriendsMongoErrorMapper } from './mongo-friends-error.mapper';
 
 export abstract class MongoFriendsBaseRepository {
   protected async execute<T>(
     code: string,
     message: string,
     operation: () => Promise<T>,
-    mapError?: FriendsMongoErrorMapper,
+    mapError?: FriendsMongoErrorMapper
   ): Promise<T> {
     try {
       return await operation();
@@ -27,11 +27,7 @@ export abstract class MongoFriendsBaseRepository {
     }
   }
 
-  private logRepositoryError(
-    code: string,
-    message: string,
-    error: unknown,
-  ): void {
+  private logRepositoryError(code: string, message: string, error: unknown): void {
     const originalError =
       error instanceof Error
         ? {
@@ -41,7 +37,7 @@ export abstract class MongoFriendsBaseRepository {
           }
         : error;
 
-    console.error("Friends repository operation failed", {
+    console.error('Friends repository operation failed', {
       code,
       message,
       originalError,

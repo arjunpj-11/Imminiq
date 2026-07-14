@@ -2,4 +2,4 @@ export type {
   IJwtPayload,
   ResetTokenPayload,
   TwoFactorChallengeTokenPayload,
-} from '../domain/value-objects/token-payload.vo'
+} from '../domain/value-objects/token-payload.vo';

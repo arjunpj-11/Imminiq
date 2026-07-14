@@ -1,15 +1,15 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
-import api from "../../../../lib/axios";
-import { FRIENDS_ENDPOINTS } from "../constants/friends.constants";
+import api from '../../../../lib/axios';
+import { FRIENDS_ENDPOINTS } from '../constants/friends.constants';
 import type {
   IAcceptFriendRequestResponse,
   IFriendRequestActionInput,
   IFriendsApiErrorResponse,
   IFriendsApiResponse,
-} from "../types/friends.types";
-import { friendsQueryKeys } from "./friends-query-keys";
+} from '../types/friends.types';
+import { friendsQueryKeys } from './friends-query-keys';
 
 export const useAcceptFriendRequest = () => {
   const queryClient = useQueryClient();
@@ -20,9 +20,9 @@ export const useAcceptFriendRequest = () => {
     IFriendRequestActionInput
   >({
     mutationFn: async ({ requestId }) => {
-      const response = await api.post<
-        IFriendsApiResponse<IAcceptFriendRequestResponse>
-      >(FRIENDS_ENDPOINTS.acceptRequest(requestId));
+      const response = await api.post<IFriendsApiResponse<IAcceptFriendRequestResponse>>(
+        FRIENDS_ENDPOINTS.acceptRequest(requestId)
+      );
 
       return response.data.data;
     },

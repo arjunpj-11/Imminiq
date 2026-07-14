@@ -1,34 +1,31 @@
-import mongoose, { Schema, model, type InferSchemaType } from "mongoose";
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 const friendSchema = new Schema(
   {
     userId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
     },
 
     friendId: {
       type: Schema.Types.ObjectId,
-      ref: "User",
+      ref: 'User',
       required: true,
       index: true,
       validate: {
-        validator(
-          this: { userId?: mongoose.Types.ObjectId },
-          value: mongoose.Types.ObjectId,
-        ) {
+        validator(this: { userId?: mongoose.Types.ObjectId }, value: mongoose.Types.ObjectId) {
           return !this.userId || this.userId.toString() !== value.toString();
         },
-        message: "A user cannot be their own friend",
+        message: 'A user cannot be their own friend',
       },
     },
 
     status: {
       type: String,
-      enum: ["active", "blocked"],
-      default: "active",
+      enum: ['active', 'blocked'],
+      default: 'active',
       index: true,
     },
 
@@ -40,8 +37,8 @@ const friendSchema = new Schema(
   },
   {
     timestamps: true,
-    collection: "friends",
-  },
+    collection: 'friends',
+  }
 );
 
 // One active directional relationship may exist only once.
@@ -53,11 +50,11 @@ friendSchema.index(
   },
   {
     unique: true,
-    name: "unique_active_friend_relationship",
+    name: 'unique_active_friend_relationship',
     partialFilterExpression: {
       deletedAt: null,
     },
-  },
+  }
 );
 
 friendSchema.index({
@@ -77,4 +74,4 @@ export type FriendDocument = InferSchemaType<typeof friendSchema>;
 
 export const Friend: mongoose.Model<FriendDocument> =
   (mongoose.models.Friend as mongoose.Model<FriendDocument> | undefined) ??
-  model<FriendDocument>("Friend", friendSchema);
+  model<FriendDocument>('Friend', friendSchema);

@@ -1,24 +1,15 @@
-import type { OtpPurpose } from '../value-objects/otp-purpose.vo'
+import type { OtpPurpose } from '../value-objects/otp-purpose.vo';
 
-export type PhoneOtpPurpose = Extract<
-  OtpPurpose,
-  'phone_verification' | 'password_reset'
->
+export type PhoneOtpPurpose = Extract<OtpPurpose, 'phone_verification' | 'password_reset'>;
 
 export interface IPhoneOtpSessionStore {
   saveVerificationId(
     phone: string,
     purpose: PhoneOtpPurpose,
     verificationId: string
-  ): Promise<void>
+  ): Promise<void>;
 
-  getVerificationId(
-    phone: string,
-    purpose: PhoneOtpPurpose
-  ): Promise<string | null>
+  getVerificationId(phone: string, purpose: PhoneOtpPurpose): Promise<string | null>;
 
-  deleteVerificationId(
-    phone: string,
-    purpose: PhoneOtpPurpose
-  ): Promise<void>
+  deleteVerificationId(phone: string, purpose: PhoneOtpPurpose): Promise<void>;
 }

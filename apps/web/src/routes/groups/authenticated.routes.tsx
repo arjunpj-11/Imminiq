@@ -1,6 +1,7 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router-dom';
 
 import {
+  AdaptiveLearningPage,
   AccountSecuritySettingsPage,
   ActivityPage,
   CommunityBrowsePage,
@@ -13,6 +14,7 @@ import {
   LeaderboardRewardsPage,
   MockTestAnalysisPage,
   MockTestDetailsPage,
+  MockTestGeneratingPage,
   MockTestResultPage,
   MockTestsPage,
   MyPublishedTrackersPage,
@@ -25,7 +27,9 @@ import {
   TrackerManagePage,
   TrackerRoadmapPage,
   VerifyAndEarnPage,
-} from '../config/authenticated-pages'
+  RaiseSupportTicketPage,
+  SubscriptionPlansPage,
+} from '../config/authenticated-pages';
 
 export const authenticatedRoutes: RouteObject[] = [
   {
@@ -35,6 +39,10 @@ export const authenticatedRoutes: RouteObject[] = [
   {
     path: '/profile',
     element: <ProfilePage />,
+  },
+  {
+    path: '/learning-agent',
+    element: <AdaptiveLearningPage />,
   },
 
   {
@@ -105,6 +113,14 @@ export const authenticatedRoutes: RouteObject[] = [
     path: '/activity',
     element: <ActivityPage />,
   },
+  {
+    path: '/pricing',
+    element: <SubscriptionPlansPage />,
+  },
+  {
+    path: '/support',
+    element: <RaiseSupportTicketPage />,
+  },
 
   {
     path: '/friends',
@@ -120,6 +136,10 @@ export const authenticatedRoutes: RouteObject[] = [
     element: <MockTestsPage />,
   },
   {
+    path: '/mock-tests/generating/:jobId',
+    element: <MockTestGeneratingPage />,
+  },
+  {
     path: '/mock-tests/attempts/:attemptId/result',
     element: <MockTestResultPage />,
   },
@@ -131,4 +151,4 @@ export const authenticatedRoutes: RouteObject[] = [
     path: '/mock-tests/:testId',
     element: <MockTestDetailsPage />,
   },
-]
+];

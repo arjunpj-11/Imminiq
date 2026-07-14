@@ -2,16 +2,11 @@
 // MockTestSkeletons.tsx — light + dark theme matching Trackers
 // ============================================================
 
-import { cn } from '../utils/mock-tests-formatters'
+import { cn } from '../utils/mock-tests-formatters';
 
 export const SkeletonBlock = ({ className }: { className?: string }) => (
-  <div
-    className={cn(
-      'animate-pulse rounded-full bg-[#e8d9cf] dark:bg-white/8',
-      className
-    )}
-  />
-)
+  <div className={cn('animate-pulse rounded-full bg-[#e8d9cf] dark:bg-white/8', className)} />
+);
 
 export const StatCardSkeleton = () => (
   <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -19,7 +14,7 @@ export const StatCardSkeleton = () => (
     <SkeletonBlock className="mt-5 h-9 w-24 rounded-2xl" />
     <SkeletonBlock className="mt-4 h-2.5 w-32" />
   </div>
-)
+);
 
 export const TestRowSkeleton = () => (
   <div className="flex animate-pulse items-center gap-4 rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -35,4 +30,4 @@ export const TestRowSkeleton = () => (
       <div className="h-8 w-16 rounded-md bg-[#e8d9cf] dark:bg-white/8" />
     </div>
   </div>
-)
+);

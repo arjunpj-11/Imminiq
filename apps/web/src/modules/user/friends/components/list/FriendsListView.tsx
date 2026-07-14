@@ -1,6 +1,6 @@
-import type { IFriendUser } from "../../types/friends.types";
-import FriendCard from "./FriendCard";
-import { FriendsEmptyState, FriendsLoadMoreButton } from "../shared/FriendsStates";
+import type { IFriendUser } from '../../types/friends.types';
+import FriendCard from './FriendCard';
+import { FriendsEmptyState, FriendsLoadMoreButton } from '../shared/FriendsStates';
 
 interface IFriendsListViewProps {
   friends: IFriendUser[];
@@ -26,11 +26,11 @@ export default function FriendsListView({
   if (friends.length === 0) {
     return (
       <FriendsEmptyState
-        title={search ? "No matching friends" : "No friends yet"}
+        title={search ? 'No matching friends' : 'No friends yet'}
         message={
           search
-            ? "Try searching with another name or username."
-            : "Search for people you know and send them a friend invite to get started."
+            ? 'Try searching with another name or username.'
+            : 'Search for people you know and send them a friend invite to get started.'
         }
       />
     );

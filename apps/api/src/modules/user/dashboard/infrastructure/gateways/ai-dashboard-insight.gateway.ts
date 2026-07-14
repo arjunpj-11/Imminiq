@@ -1,32 +1,31 @@
-import { generateDashboardInsights } from '../../../../../infrastructure/ai/ai.service'
-import { DashboardDomainError } from '../../domain/dashboard-domain.error'
-import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
+import { generateDashboardInsights } from '../../../../../infrastructure/ai/ai.service';
+import { DashboardDomainError } from '../../domain/dashboard-domain.error';
+import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface';
 
-export class AIDashboardInsightGenerator
-  implements IDashboardInsightGenerator {
+export class AIDashboardInsightGenerator implements IDashboardInsightGenerator {
   async generate(userData: string): Promise<string> {
     try {
-      const insight = await generateDashboardInsights(userData)
+      const insight = await generateDashboardInsights(userData);
 
       if (!insight) {
         throw new DashboardDomainError(
           'DASHBOARD_INSIGHT_EMPTY',
           'Dashboard insight generation returned an empty response'
-        )
+        );
       }
 
-      return insight
+      return insight;
     } catch (error) {
       if (error instanceof DashboardDomainError) {
-        throw error
+        throw error;
       }
 
       throw new DashboardDomainError(
         'DASHBOARD_INSIGHT_GENERATION_FAILED',
         'Dashboard insight generation failed'
-      )
+      );
     }
   }
 }
 
-export const aiDashboardInsightGenerator = new AIDashboardInsightGenerator()
+export const aiDashboardInsightGenerator = new AIDashboardInsightGenerator();

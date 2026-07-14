@@ -1,55 +1,47 @@
-import type { SecurityUserEntity } from '../entities/security-user.entity'
+import type { SecurityUserEntity } from '../entities/security-user.entity';
 
 export type PendingEmailChangeInput = {
-  pendingEmail: string
-  tokenHash: string
-  expiresAt: Date
-}
+  pendingEmail: string;
+  tokenHash: string;
+  expiresAt: Date;
+};
 
 export type SavePendingEmailChangeInput = {
-  userId: string
-  data: PendingEmailChangeInput
-}
+  userId: string;
+  data: PendingEmailChangeInput;
+};
 
 export type ConfirmPendingEmailChangeInput = {
-  userId: string
-  pendingEmail: string
-}
+  userId: string;
+  pendingEmail: string;
+};
 
 export type UpdateSecurityPasswordHashInput = {
-  userId: string
-  passwordHash: string
-}
+  userId: string;
+  passwordHash: string;
+};
 
 export type ScheduleAccountDeletionInput = {
-  userId: string
-  scheduledDeletionAt: Date
-}
+  userId: string;
+  scheduledDeletionAt: Date;
+};
 
 export interface ISecurityUserRepository {
-  findUserById(userId: string): Promise<SecurityUserEntity | null>
+  findUserById(userId: string): Promise<SecurityUserEntity | null>;
 
-  emailExists(email: string): Promise<boolean>
+  emailExists(email: string): Promise<boolean>;
 
-  findUserByPendingEmailTokenHash(
-    tokenHash: string
-  ): Promise<SecurityUserEntity | null>
+  findUserByPendingEmailTokenHash(tokenHash: string): Promise<SecurityUserEntity | null>;
 
-  savePendingEmailChange(
-    input: SavePendingEmailChangeInput
-  ): Promise<SecurityUserEntity | null>
+  savePendingEmailChange(input: SavePendingEmailChangeInput): Promise<SecurityUserEntity | null>;
 
   confirmPendingEmailChange(
     input: ConfirmPendingEmailChangeInput
-  ): Promise<SecurityUserEntity | null>
+  ): Promise<SecurityUserEntity | null>;
 
-  clearPendingEmailChange(userId: string): Promise<SecurityUserEntity | null>
+  clearPendingEmailChange(userId: string): Promise<SecurityUserEntity | null>;
 
-  updatePasswordHash(
-    input: UpdateSecurityPasswordHashInput
-  ): Promise<SecurityUserEntity | null>
+  updatePasswordHash(input: UpdateSecurityPasswordHashInput): Promise<SecurityUserEntity | null>;
 
-  scheduleAccountDeletion(
-    input: ScheduleAccountDeletionInput
-  ): Promise<SecurityUserEntity | null>
+  scheduleAccountDeletion(input: ScheduleAccountDeletionInput): Promise<SecurityUserEntity | null>;
 }

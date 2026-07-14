@@ -1,6 +1,6 @@
-import type mongoose from "mongoose";
+import type mongoose from 'mongoose';
 
-import { Notification } from "../../../../../../infrastructure/database/models/notification.model";
+import { Notification } from '../../../../../../infrastructure/database/models/notification.model';
 
 export class MongoFriendNotificationProvisioner {
   async createFriendRequestReceived(
@@ -10,23 +10,23 @@ export class MongoFriendNotificationProvisioner {
       senderName: string;
       requestId: mongoose.Types.ObjectId;
     },
-    session: mongoose.ClientSession,
+    session: mongoose.ClientSession
   ): Promise<void> {
     await Notification.create(
       [
         {
           userId: input.receiverUserId,
-          type: "friend_request_received",
+          type: 'friend_request_received',
           message: `${input.senderName} sent you a friend invite.`,
           isRead: false,
-          deepLink: "/friends?tab=requests",
+          deepLink: '/friends?tab=requests',
           metadata: {
             requestId: input.requestId.toString(),
             senderUserId: input.senderUserId.toString(),
           },
         },
       ],
-      { session },
+      { session }
     );
   }
 
@@ -37,23 +37,23 @@ export class MongoFriendNotificationProvisioner {
       receiverName: string;
       requestId: mongoose.Types.ObjectId;
     },
-    session: mongoose.ClientSession,
+    session: mongoose.ClientSession
   ): Promise<void> {
     await Notification.create(
       [
         {
           userId: input.senderUserId,
-          type: "friend_request_accepted",
+          type: 'friend_request_accepted',
           message: `${input.receiverName} accepted your friend invite.`,
           isRead: false,
-          deepLink: "/friends",
+          deepLink: '/friends',
           metadata: {
             requestId: input.requestId.toString(),
             friendUserId: input.receiverUserId.toString(),
           },
         },
       ],
-      { session },
+      { session }
     );
   }
 }

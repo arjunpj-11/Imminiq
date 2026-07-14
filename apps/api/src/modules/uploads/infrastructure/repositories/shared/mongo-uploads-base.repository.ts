@@ -1,61 +1,57 @@
-import { UploadsDomainError } from '../../../domain/uploads-domain.error'
-import type { ErrorMapper } from './mongo-uploads-error.mapper'
+import { UploadsDomainError } from '../../../domain/uploads-domain.error';
+import type { ErrorMapper } from './mongo-uploads-error.mapper';
 
 type ErrorDetails = {
-  name?: unknown
-  message?: unknown
-  code?: unknown
-  keyPattern?: unknown
-  keyValue?: unknown
-  path?: unknown
-  value?: unknown
-  errors?: unknown
-  reason?: unknown
-  stack?: unknown
-}
+  name?: unknown;
+  message?: unknown;
+  code?: unknown;
+  keyPattern?: unknown;
+  keyValue?: unknown;
+  path?: unknown;
+  value?: unknown;
+  errors?: unknown;
+  reason?: unknown;
+  stack?: unknown;
+};
 
 export abstract class MongoUploadsBaseRepository {
   protected async execute<T>(
     code: string,
     message: string,
     operation: () => Promise<T>,
-    mapError?: ErrorMapper,
+    mapError?: ErrorMapper
   ): Promise<T> {
     try {
-      return await operation()
+      return await operation();
     } catch (error: unknown) {
       if (error instanceof UploadsDomainError) {
-        throw error
+        throw error;
       }
 
-      const mappedError = mapError?.(error)
+      const mappedError = mapError?.(error);
 
       if (mappedError) {
-        throw mappedError
+        throw mappedError;
       }
 
-      this.logRepositoryError(code, message, error)
+      this.logRepositoryError(code, message, error);
 
-      throw new UploadsDomainError(code, message)
+      throw new UploadsDomainError(code, message);
     }
   }
 
-  private logRepositoryError(
-    code: string,
-    message: string,
-    error: unknown,
-  ): void {
+  private logRepositoryError(code: string, message: string, error: unknown): void {
     if (!(error instanceof Error)) {
       console.error('Uploads repository operation failed', {
         code,
         message,
         originalError: error,
-      })
+      });
 
-      return
+      return;
     }
 
-    const details = error as Error & ErrorDetails
+    const details = error as Error & ErrorDetails;
 
     console.error('Uploads repository operation failed', {
       code,
@@ -72,6 +68,6 @@ export abstract class MongoUploadsBaseRepository {
         reason: details.reason,
         stack: details.stack,
       },
-    })
+    });
   }
 }

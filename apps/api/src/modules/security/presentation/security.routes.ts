@@ -1,14 +1,14 @@
-import { Router } from 'express'
+import { Router } from 'express';
 
-import { authenticate } from '../../../shared/middlewares/auth.middleware'
+import { authenticate } from '../../../shared/middlewares/auth.middleware';
 import {
   publicEmailChangeVerifyIpLimiter,
   securityTwoFactorIpLimiter,
-} from '../../../shared/middlewares/security-rate-limit.middleware'
-import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate'
-import { SecurityController } from './security.controller'
-import { createSecurityComposition } from '../security.factory'
-import { SECURITY_ROUTE_PATHS } from './security.route.constants'
+} from '../../../shared/middlewares/security-rate-limit.middleware';
+import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate';
+import { SecurityController } from './security.controller';
+import { createSecurityComposition } from '../security.factory';
+import { SECURITY_ROUTE_PATHS } from './security.route.constants';
 import {
   changeEmailSchema,
   changePasswordSchema,
@@ -16,11 +16,11 @@ import {
   disableTwoFactorSchema,
   verifyEmailChangeSchema,
   verifyTwoFactorSetupSchema,
-} from './security.schema'
+} from './security.schema';
 
-const securityController = new SecurityController(createSecurityComposition().useCases)
-const router = Router()
-router.param('sessionId', validateIdentifierParam)
+const securityController = new SecurityController(createSecurityComposition().useCases);
+const router = Router();
+router.param('sessionId', validateIdentifierParam);
 
 // ─── PUBLIC ──────────────────────────────────────────────────
 
@@ -29,58 +29,49 @@ router.post(
   publicEmailChangeVerifyIpLimiter,
   validate(verifyEmailChangeSchema),
   securityController.verifyEmailChange
-)
+);
 
 // ─── PROTECTED ───────────────────────────────────────────────
 
-router.use(authenticate)
+router.use(authenticate);
 
-router.get(
-  SECURITY_ROUTE_PATHS.OVERVIEW,
-  securityController.getOverview
-)
+router.get(SECURITY_ROUTE_PATHS.OVERVIEW, securityController.getOverview);
 
 router.patch(
   SECURITY_ROUTE_PATHS.CHANGE_EMAIL,
   validate(changeEmailSchema),
   securityController.requestEmailChange
-)
+);
 
 router.patch(
   SECURITY_ROUTE_PATHS.CHANGE_PASSWORD,
   validate(changePasswordSchema),
   securityController.changePassword
-)
+);
 
-router.delete(
-  SECURITY_ROUTE_PATHS.SESSION_BY_ID,
-  securityController.revokeSession
-)
+router.delete(SECURITY_ROUTE_PATHS.SESSION_BY_ID, securityController.revokeSession);
 
-router.post(
-  SECURITY_ROUTE_PATHS.TWO_FACTOR_SETUP,
-  securityController.setupTwoFactor
-)
+router.post(SECURITY_ROUTE_PATHS.TWO_FACTOR_SETUP, securityController.setupTwoFactor);
 
 router.post(
   SECURITY_ROUTE_PATHS.TWO_FACTOR_VERIFY,
   securityTwoFactorIpLimiter,
   validate(verifyTwoFactorSetupSchema),
   securityController.verifyTwoFactorSetup
-)
+);
 
 router.post(
   SECURITY_ROUTE_PATHS.TWO_FACTOR_DISABLE,
   securityTwoFactorIpLimiter,
   validate(disableTwoFactorSchema),
   securityController.disableTwoFactor
-)
+);
 
 router.delete(
   SECURITY_ROUTE_PATHS.DELETE_ACCOUNT,
   validate(deleteAccountSchema),
   securityController.deleteAccount
-)
+);
 
-export default router
-export { router as securityRoutes }
+export default router;
+export { router as securityRoutes };

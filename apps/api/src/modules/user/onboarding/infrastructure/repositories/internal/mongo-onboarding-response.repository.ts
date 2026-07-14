@@ -1,17 +1,17 @@
-import { OnboardingResponse } from '../../../../../../infrastructure/database/models/onboarding-response.model'
-import type { OnboardingResponseEntity } from '../../../domain/entities/onboarding-response.entity'
+import { OnboardingResponse } from '../../../../../../infrastructure/database/models/onboarding-response.model';
+import type { OnboardingResponseEntity } from '../../../domain/entities/onboarding-response.entity';
 import type {
   SaveOnboardingStep1Input,
   SaveOnboardingStep2Input,
-} from '../../../domain/repositories/onboarding-response-command.repository.interface'
-import { MongoOnboardingBaseRepository } from '../shared/mongo-onboarding-base.repository'
-import { MongoOnboardingErrorMapper } from '../shared/mongo-onboarding-error.mapper'
-import { MongoOnboardingMapper } from '../shared/mongo-onboarding.mapper'
-import type { MongoOnboardingResponseRecord } from '../shared/mongo-onboarding.types'
+} from '../../../domain/repositories/onboarding-response-command.repository.interface';
+import { MongoOnboardingBaseRepository } from '../shared/mongo-onboarding-base.repository';
+import { MongoOnboardingErrorMapper } from '../shared/mongo-onboarding-error.mapper';
+import { MongoOnboardingMapper } from '../shared/mongo-onboarding.mapper';
+import type { MongoOnboardingResponseRecord } from '../shared/mongo-onboarding.types';
 
 export class MongoOnboardingResponseRepository extends MongoOnboardingBaseRepository {
   constructor(private readonly _mapper = new MongoOnboardingMapper()) {
-    super()
+    super();
   }
 
   async getStatus(userId: string): Promise<OnboardingResponseEntity | null> {
@@ -22,16 +22,14 @@ export class MongoOnboardingResponseRepository extends MongoOnboardingBaseReposi
         const response = await OnboardingResponse.findOne({
           userId,
           deletedAt: null,
-        }).lean<MongoOnboardingResponseRecord>()
+        }).lean<MongoOnboardingResponseRecord>();
 
-        return this._mapper.toOnboardingResponseEntity(response)
-      },
-    )
+        return this._mapper.toOnboardingResponseEntity(response);
+      }
+    );
   }
 
-  async saveStep1(
-    data: SaveOnboardingStep1Input,
-  ): Promise<OnboardingResponseEntity | null> {
+  async saveStep1(data: SaveOnboardingStep1Input): Promise<OnboardingResponseEntity | null> {
     return this.execute(
       'ONBOARDING_STEP_ONE_SAVE_FAILED',
       'Failed to save onboarding step one',
@@ -54,18 +52,16 @@ export class MongoOnboardingResponseRepository extends MongoOnboardingBaseReposi
             upsert: true,
             new: true,
             setDefaultsOnInsert: true,
-          },
-        ).lean<MongoOnboardingResponseRecord>()
+          }
+        ).lean<MongoOnboardingResponseRecord>();
 
-        return this._mapper.toOnboardingResponseEntity(response)
+        return this._mapper.toOnboardingResponseEntity(response);
       },
-      MongoOnboardingErrorMapper.mapDuplicateRecordError,
-    )
+      MongoOnboardingErrorMapper.mapDuplicateRecordError
+    );
   }
 
-  async saveStep2(
-    data: SaveOnboardingStep2Input,
-  ): Promise<OnboardingResponseEntity | null> {
+  async saveStep2(data: SaveOnboardingStep2Input): Promise<OnboardingResponseEntity | null> {
     return this.execute(
       'ONBOARDING_STEP_TWO_SAVE_FAILED',
       'Failed to save onboarding step two',
@@ -87,18 +83,16 @@ export class MongoOnboardingResponseRepository extends MongoOnboardingBaseReposi
             upsert: true,
             new: true,
             setDefaultsOnInsert: true,
-          },
-        ).lean<MongoOnboardingResponseRecord>()
+          }
+        ).lean<MongoOnboardingResponseRecord>();
 
-        return this._mapper.toOnboardingResponseEntity(response)
+        return this._mapper.toOnboardingResponseEntity(response);
       },
-      MongoOnboardingErrorMapper.mapDuplicateRecordError,
-    )
+      MongoOnboardingErrorMapper.mapDuplicateRecordError
+    );
   }
 
-  async markCompleted(
-    userId: string,
-  ): Promise<OnboardingResponseEntity | null> {
+  async markCompleted(userId: string): Promise<OnboardingResponseEntity | null> {
     return this.execute(
       'ONBOARDING_COMPLETION_SAVE_FAILED',
       'Failed to save onboarding completion',
@@ -116,14 +110,13 @@ export class MongoOnboardingResponseRepository extends MongoOnboardingBaseReposi
           },
           {
             new: true,
-          },
-        ).lean<MongoOnboardingResponseRecord>()
+          }
+        ).lean<MongoOnboardingResponseRecord>();
 
-        return this._mapper.toOnboardingResponseEntity(response)
-      },
-    )
+        return this._mapper.toOnboardingResponseEntity(response);
+      }
+    );
   }
 }
 
-export const mongoOnboardingResponseRepository =
-  new MongoOnboardingResponseRepository()
+export const mongoOnboardingResponseRepository = new MongoOnboardingResponseRepository();

@@ -1,12 +1,12 @@
-import { AuthToken } from '../../../../../infrastructure/database/models/auth-token.model'
-import type { RevokeSecuritySessionInput } from '../../../domain/repositories/security-session.repository.interface'
-import { MongoSecurityBaseRepository } from '../shared/mongo-security-base.repository'
-import { MongoSecurityMapper } from '../shared/mongo-security.mapper'
-import type { MongoSecuritySessionRecord } from '../shared/mongo-security.types'
+import { AuthToken } from '../../../../../infrastructure/database/models/auth-token.model';
+import type { RevokeSecuritySessionInput } from '../../../domain/repositories/security-session.repository.interface';
+import { MongoSecurityBaseRepository } from '../shared/mongo-security-base.repository';
+import { MongoSecurityMapper } from '../shared/mongo-security.mapper';
+import type { MongoSecuritySessionRecord } from '../shared/mongo-security.types';
 
 export class MongoSecuritySessionRepository extends MongoSecurityBaseRepository {
   constructor(private readonly _mapper = new MongoSecurityMapper()) {
-    super()
+    super();
   }
 
   async findActiveSessions(userId: string) {
@@ -25,13 +25,11 @@ export class MongoSecuritySessionRepository extends MongoSecurityBaseRepository 
           .sort({
             updatedAt: -1,
           })
-          .lean<MongoSecuritySessionRecord[]>()
+          .lean<MongoSecuritySessionRecord[]>();
 
-        return sessions.map((session) =>
-          this._mapper.toSecuritySessionEntity(session),
-        )
-      },
-    )
+        return sessions.map((session) => this._mapper.toSecuritySessionEntity(session));
+      }
+    );
   }
 
   async findCurrentSessionByRefreshTokenHash(refreshTokenHash: string) {
@@ -46,38 +44,34 @@ export class MongoSecuritySessionRepository extends MongoSecurityBaseRepository 
             $gt: new Date(),
           },
           deletedAt: null,
-        }).lean<MongoSecuritySessionRecord>()
+        }).lean<MongoSecuritySessionRecord>();
 
-        return session ? this._mapper.toSecuritySessionEntity(session) : null
-      },
-    )
+        return session ? this._mapper.toSecuritySessionEntity(session) : null;
+      }
+    );
   }
 
   async revokeSessionById(input: RevokeSecuritySessionInput) {
-    return this.execute(
-      'SESSION_REVOKE_FAILED',
-      'Failed to revoke security session',
-      async () => {
-        const session = await AuthToken.findOneAndUpdate(
-          {
-            _id: input.sessionId,
-            userId: input.userId,
-            revokedAt: null,
-            deletedAt: null,
+    return this.execute('SESSION_REVOKE_FAILED', 'Failed to revoke security session', async () => {
+      const session = await AuthToken.findOneAndUpdate(
+        {
+          _id: input.sessionId,
+          userId: input.userId,
+          revokedAt: null,
+          deletedAt: null,
+        },
+        {
+          $set: {
+            revokedAt: new Date(),
           },
-          {
-            $set: {
-              revokedAt: new Date(),
-            },
-          },
-          {
-            returnDocument: 'after',
-          },
-        ).lean<MongoSecuritySessionRecord>()
+        },
+        {
+          returnDocument: 'after',
+        }
+      ).lean<MongoSecuritySessionRecord>();
 
-        return session ? this._mapper.toSecuritySessionEntity(session) : null
-      },
-    )
+      return session ? this._mapper.toSecuritySessionEntity(session) : null;
+    });
   }
 
   async revokeAllSessions(userId: string): Promise<void> {
@@ -95,12 +89,11 @@ export class MongoSecuritySessionRepository extends MongoSecurityBaseRepository 
             $set: {
               revokedAt: new Date(),
             },
-          },
-        )
-      },
-    )
+          }
+        );
+      }
+    );
   }
 }
 
-export const mongoSecuritySessionRepository =
-  new MongoSecuritySessionRepository()
+export const mongoSecuritySessionRepository = new MongoSecuritySessionRepository();

@@ -1,30 +1,30 @@
-import { useQuery } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
+import { useQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
-import api from '../../../../lib/axios'
+import api from '../../../../lib/axios';
 import type {
   IApiErrorResponse,
   IApiResponse,
   ICommunityVerificationSubmission,
-} from '../types/community.types'
+} from '../types/community.types';
 
 interface IVerificationSubmissionData {
-  submission: ICommunityVerificationSubmission
+  submission: ICommunityVerificationSubmission;
 }
 
 const fetchVerificationSubmission = async (
-  submissionId: string,
+  submissionId: string
 ): Promise<IVerificationSubmissionData> => {
   const response = await api.get<IApiResponse<IVerificationSubmissionData>>(
-    `/community/verify/${submissionId}`,
-  )
+    `/community/verify/${submissionId}`
+  );
 
   if (!response.data.data) {
-    throw new Error('Verification submission was not returned.')
+    throw new Error('Verification submission was not returned.');
   }
 
-  return response.data.data
-}
+  return response.data.data;
+};
 
 export const useVerificationSubmission = (submissionId?: string) => {
   return useQuery<IVerificationSubmissionData, AxiosError<IApiErrorResponse>>({
@@ -32,5 +32,5 @@ export const useVerificationSubmission = (submissionId?: string) => {
     queryFn: () => fetchVerificationSubmission(submissionId || ''),
     enabled: Boolean(submissionId),
     staleTime: 15 * 1000,
-  })
-}
+  });
+};

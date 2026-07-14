@@ -1,6 +1,6 @@
-import type { IFriendRequest } from "../../types/friends.types";
-import FriendRequestCard from "./FriendRequestCard";
-import { FriendsEmptyState, FriendsLoadMoreButton } from "../shared/FriendsStates";
+import type { IFriendRequest } from '../../types/friends.types';
+import FriendRequestCard from './FriendRequestCard';
+import { FriendsEmptyState, FriendsLoadMoreButton } from '../shared/FriendsStates';
 
 interface IFriendRequestsViewProps {
   received: IFriendRequest[];

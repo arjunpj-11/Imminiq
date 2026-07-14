@@ -3,7 +3,7 @@ import type {
   GenerationStep,
   LevelOption,
   PreviewItem,
-} from '../types/onboarding.types'
+} from '../types/onboarding.types';
 
 export const topicChips = [
   'MERN interviews',
@@ -14,7 +14,7 @@ export const topicChips = [
   'Data Structures',
   'Machine Learning',
   'SQL & Databases',
-]
+];
 
 export const goalChips = [
   'Crack top companies',
@@ -23,7 +23,7 @@ export const goalChips = [
   'Build fundamentals',
   'Ace competitive exam',
   'Freelance & remote work',
-]
+];
 
 export const roadmapPreviewMap: Record<string, PreviewItem[]> = {
   default: [
@@ -79,7 +79,7 @@ export const roadmapPreviewMap: Record<string, PreviewItem[]> = {
     ['Query Mastery', 'Joins, subqueries, grouping, and window functions'],
     ['Performance Skills', 'Indexes, query tuning, and real-world database design'],
   ],
-}
+};
 
 export const levelOptions: LevelOption[] = [
   {
@@ -103,7 +103,7 @@ export const levelOptions: LevelOption[] = [
     description:
       'I already have strong knowledge and want advanced refinement, deeper edge cases, and high-level mastery.',
   },
-]
+];
 
 export const generationSteps: GenerationStep[] = [
   {
@@ -126,7 +126,7 @@ export const generationSteps: GenerationStep[] = [
     label: 'Finalising',
     activeLabel: 'Finalising…',
   },
-]
+];
 
 export const evaluationSteps: EvaluationStep[] = [
   {
@@ -149,4 +149,4 @@ export const evaluationSteps: EvaluationStep[] = [
     label: 'Compiling score',
     activeLabel: 'Compiling score…',
   },
-]
+];

@@ -1,8 +1,4 @@
-import mongoose, {
-  Schema,
-  model,
-  type InferSchemaType,
-} from 'mongoose'
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 export const USER_ACTIVITY_CATEGORIES = [
   'tracker',
@@ -10,7 +6,7 @@ export const USER_ACTIVITY_CATEGORIES = [
   'community',
   'streak',
   'xp_milestone',
-] as const
+] as const;
 
 export const USER_ACTIVITY_TYPES = [
   'subtopic_completed',
@@ -27,13 +23,9 @@ export const USER_ACTIVITY_TYPES = [
   'streak_milestone',
   'xp_milestone',
   'daily_goal_completed',
-] as const
+] as const;
 
-export const USER_ACTIVITY_XP_BUCKETS = [
-  'learning',
-  'teacher',
-  'none',
-] as const
+export const USER_ACTIVITY_XP_BUCKETS = ['learning', 'teacher', 'none'] as const;
 
 const activityDetailsSchema = new Schema(
   {
@@ -94,18 +86,14 @@ const activityDetailsSchema = new Schema(
 
     difficulty: {
       type: String,
-      enum: [
-        'beginner',
-        'intermediate',
-        'advanced',
-      ],
+      enum: ['beginner', 'intermediate', 'advanced'],
       default: undefined,
     },
   },
   {
     _id: false,
-  },
-)
+  }
+);
 
 const userActivitySchema = new Schema(
   {
@@ -229,8 +217,8 @@ const userActivitySchema = new Schema(
   {
     timestamps: true,
     collection: 'user_activities',
-  },
-)
+  }
+);
 
 userActivitySchema.index(
   {
@@ -240,8 +228,8 @@ userActivitySchema.index(
   {
     unique: true,
     name: 'user_activity_event_key_unique',
-  },
-)
+  }
+);
 
 userActivitySchema.index(
   {
@@ -252,8 +240,8 @@ userActivitySchema.index(
   },
   {
     name: 'user_activity_feed',
-  },
-)
+  }
+);
 
 userActivitySchema.index(
   {
@@ -265,8 +253,8 @@ userActivitySchema.index(
   },
   {
     name: 'user_activity_category_feed',
-  },
-)
+  }
+);
 
 userActivitySchema.index(
   {
@@ -277,8 +265,8 @@ userActivitySchema.index(
   },
   {
     name: 'user_activity_type_statistics',
-  },
-)
+  }
+);
 
 userActivitySchema.index(
   {
@@ -289,8 +277,8 @@ userActivitySchema.index(
   },
   {
     name: 'user_activity_xp_statistics',
-  },
-)
+  }
+);
 
 userActivitySchema.index(
   {
@@ -300,8 +288,8 @@ userActivitySchema.index(
   },
   {
     name: 'user_activity_tracker_sources',
-  },
-)
+  }
+);
 
 userActivitySchema.index(
   {
@@ -310,12 +298,10 @@ userActivitySchema.index(
   },
   {
     name: 'user_activity_mock_test_sources',
-  },
-)
+  }
+);
 
-export type UserActivityDocument =
-  InferSchemaType<typeof userActivitySchema>
+export type UserActivityDocument = InferSchemaType<typeof userActivitySchema>;
 
 export const UserActivity =
-  mongoose.models.UserActivity ||
-  model('UserActivity', userActivitySchema)
+  mongoose.models.UserActivity || model('UserActivity', userActivitySchema);

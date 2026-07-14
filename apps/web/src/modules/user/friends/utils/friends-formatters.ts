@@ -1,11 +1,11 @@
-import axios from "axios";
+import axios from 'axios';
 
 import type {
   IFriendRequest,
   IFriendUser,
   IFriendsApiErrorResponse,
   FriendsTab,
-} from "../types/friends.types";
+} from '../types/friends.types';
 
 export const getInitials = (value: string): string => {
   const initials = value
@@ -14,9 +14,9 @@ export const getInitials = (value: string): string => {
     .filter(Boolean)
     .slice(0, 2)
     .map((part) => part.charAt(0).toUpperCase())
-    .join("");
+    .join('');
 
-  return initials || "IU";
+  return initials || 'IU';
 };
 
 export const formatLevelLabel = (level: number): string =>
@@ -24,21 +24,21 @@ export const formatLevelLabel = (level: number): string =>
 
 export const formatMutualFriends = (count: number): string => {
   const normalized = Math.max(0, Math.floor(count || 0));
-  return `${normalized} mutual friend${normalized === 1 ? "" : "s"}`;
+  return `${normalized} mutual friend${normalized === 1 ? '' : 's'}`;
 };
 
 export const formatRequestTime = (value: string): string => {
   const date = new Date(value);
 
   if (Number.isNaN(date.getTime())) {
-    return "";
+    return '';
   }
 
   const now = Date.now();
   const difference = Math.max(0, now - date.getTime());
   const minutes = Math.floor(difference / 60_000);
 
-  if (minutes < 1) return "Just now";
+  if (minutes < 1) return 'Just now';
   if (minutes < 60) return `${minutes}m ago`;
 
   const hours = Math.floor(minutes / 60);
@@ -48,20 +48,17 @@ export const formatRequestTime = (value: string): string => {
   if (days < 7) return `${days}d ago`;
 
   return new Intl.DateTimeFormat(undefined, {
-    month: "short",
-    day: "numeric",
+    month: 'short',
+    day: 'numeric',
   }).format(date);
 };
 
 export const parseFriendsTab = (value: string | null): FriendsTab =>
-  value === "requests" ? "requests" : "friends";
+  value === 'requests' ? 'requests' : 'friends';
 
-export const normalizeSearchQuery = (value: string): string =>
-  value.trim().slice(0, 80);
+export const normalizeSearchQuery = (value: string): string => value.trim().slice(0, 80);
 
-export const mergeFriendUserPages = (
-  pages: Array<{ items: IFriendUser[] }>,
-): IFriendUser[] => {
+export const mergeFriendUserPages = (pages: Array<{ items: IFriendUser[] }>): IFriendUser[] => {
   const users = new Map<string, IFriendUser>();
 
   for (const page of pages) {
@@ -74,7 +71,7 @@ export const mergeFriendUserPages = (
 };
 
 export const mergeFriendRequestPages = (
-  pages: Array<{ items: IFriendRequest[] }>,
+  pages: Array<{ items: IFriendRequest[] }>
 ): IFriendRequest[] => {
   const requests = new Map<string, IFriendRequest>();
 
@@ -87,10 +84,7 @@ export const mergeFriendRequestPages = (
   return [...requests.values()];
 };
 
-export const getFriendsApiErrorMessage = (
-  error: unknown,
-  fallback: string,
-): string => {
+export const getFriendsApiErrorMessage = (error: unknown, fallback: string): string => {
   if (!axios.isAxiosError<IFriendsApiErrorResponse>(error)) {
     return fallback;
   }

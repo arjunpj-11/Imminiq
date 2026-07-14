@@ -1,26 +1,24 @@
-import type { FriendRequestEntity } from "../domain/entities/friend-request.entity";
-import type { FriendRequestSummaryEntity } from "../domain/entities/friend-request-summary.entity";
-import type { FriendUserEntity } from "../domain/entities/friend-user.entity";
+import type { FriendRequestEntity } from '../domain/entities/friend-request.entity';
+import type { FriendRequestSummaryEntity } from '../domain/entities/friend-request-summary.entity';
+import type { FriendUserEntity } from '../domain/entities/friend-user.entity';
 import type {
   FriendRequestViewDTO,
   FriendRelationshipViewDTO,
   FriendUserViewDTO,
   FriendUsersPageViewDTO,
   PaginationViewDTO,
-} from "./friends.dto";
-import type { PaginatedResult } from "../domain/friends.types";
+} from './friends.dto';
+import type { PaginatedResult } from '../domain/friends.types';
 
 export interface IFriendsMapper {
   toFriendUserView(user: FriendUserEntity): FriendUserViewDTO;
   toFriendRequestView(summary: FriendRequestSummaryEntity): FriendRequestViewDTO;
-  toFriendUsersPageView(
-    page: PaginatedResult<FriendUserEntity>,
-  ): FriendUsersPageViewDTO;
+  toFriendUsersPageView(page: PaginatedResult<FriendUserEntity>): FriendUsersPageViewDTO;
   toPaginationView<T>(page: PaginatedResult<T>): PaginationViewDTO;
   toRequestActionView(request: FriendRequestEntity): {
     id: string;
     receiverUserId: string;
-    status: "pending";
+    status: 'pending';
     message: string;
     createdAt: Date;
   };
@@ -32,9 +30,7 @@ export class FriendsMapper implements IFriendsMapper {
       id: user.id,
       fullName: user.fullName,
       username: user.username,
-      handle: user.username.startsWith("@")
-        ? user.username
-        : `@${user.username}`,
+      handle: user.username.startsWith('@') ? user.username : `@${user.username}`,
       initials: this.getInitials(user.fullName || user.username),
       ...(user.avatarUrl !== undefined ? { avatarUrl: user.avatarUrl } : {}),
       level: user.level,
@@ -56,9 +52,7 @@ export class FriendsMapper implements IFriendsMapper {
     };
   }
 
-  toFriendUsersPageView(
-    page: PaginatedResult<FriendUserEntity>,
-  ): FriendUsersPageViewDTO {
+  toFriendUsersPageView(page: PaginatedResult<FriendUserEntity>): FriendUsersPageViewDTO {
     return {
       items: page.items.map((item) => this.toFriendUserView(item)),
       pagination: this.toPaginationView(page),
@@ -78,34 +72,34 @@ export class FriendsMapper implements IFriendsMapper {
     return {
       id: request.id,
       receiverUserId: request.receiverId,
-      status: "pending" as const,
+      status: 'pending' as const,
       message: request.message,
       createdAt: request.createdAt,
     };
   }
 
   private toRelationshipView(
-    status: FriendUserEntity["relationshipStatus"],
+    status: FriendUserEntity['relationshipStatus']
   ): FriendRelationshipViewDTO {
-    if (status === "friends") {
-      return { status: "friends" };
+    if (status === 'friends') {
+      return { status: 'friends' };
     }
 
-    if (status === "pending_sent") {
+    if (status === 'pending_sent') {
       return {
-        status: "pending",
-        direction: "sent",
+        status: 'pending',
+        direction: 'sent',
       };
     }
 
-    if (status === "pending_received") {
+    if (status === 'pending_received') {
       return {
-        status: "pending",
-        direction: "received",
+        status: 'pending',
+        direction: 'received',
       };
     }
 
-    return { status: "none" };
+    return { status: 'none' };
   }
 
   private getInitials(value: string): string {
@@ -114,8 +108,8 @@ export class FriendsMapper implements IFriendsMapper {
       .split(/\s+/)
       .slice(0, 2)
       .map((part) => part.charAt(0).toUpperCase())
-      .join("");
+      .join('');
 
-    return initials || "IU";
+    return initials || 'IU';
   }
 }

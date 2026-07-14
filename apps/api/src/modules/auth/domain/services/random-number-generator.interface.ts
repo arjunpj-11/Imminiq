@@ -1,3 +1,3 @@
 export interface IRandomNumberGenerator {
-  integer(minInclusive: number, maxExclusive: number): number
+  integer(minInclusive: number, maxExclusive: number): number;
 }

@@ -1,7 +1,7 @@
-import type React from 'react'
-import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock'
-import { cn } from '../utils/profile-ui.utils'
-import { useImageCropControls } from '../hooks/ui/useImageCropControls'
+import type React from 'react';
+import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
+import { cn } from '../utils/profile-ui.utils';
+import { useImageCropControls } from '../hooks/ui/useImageCropControls';
 
 /* ─── Avatar Crop Modal ─── */
 interface IAvatarCropModalProps {
@@ -46,24 +46,24 @@ export default function AvatarCropModal({
     const file = event.target.files?.[0];
     if (!file) return;
     if (file.size > 5 * 1024 * 1024) {
-      onToast("File too large — max 5MB");
-      event.target.value = "";
+      onToast('File too large — max 5MB');
+      event.target.value = '';
       return;
     }
 
     const reader = new FileReader();
     reader.onload = () => {
-      const result = typeof reader.result === "string" ? reader.result : null;
+      const result = typeof reader.result === 'string' ? reader.result : null;
       if (!result) return;
       setImageSource(result);
     };
     reader.readAsDataURL(file);
-    event.target.value = "";
+    event.target.value = '';
   };
 
   const applyAvatar = async () => {
     if (!imageSrc || !previewRef.current) {
-      onToast("Upload a profile image first");
+      onToast('Upload a profile image first');
       return;
     }
 
@@ -77,10 +77,8 @@ export default function AvatarCropModal({
     <div
       onMouseDown={(event) => event.target === event.currentTarget && onClose()}
       className={cn(
-        "fixed inset-0 z-150 flex items-center justify-center bg-[rgba(26,23,20,0.72)] p-4 backdrop-blur-sm transition",
-        open
-          ? "pointer-events-auto opacity-100"
-          : "pointer-events-none opacity-0",
+        'fixed inset-0 z-150 flex items-center justify-center bg-[rgba(26,23,20,0.72)] p-4 backdrop-blur-sm transition',
+        open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
       )}
     >
       <div className="w-[min(620px,100%)] overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_20px_70px_rgba(0,0,0,0.32)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -132,12 +130,7 @@ export default function AvatarCropModal({
             <span className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary)">
               PNG or JPG, up to 5MB.
             </span>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              onChange={handleUpload}
-            />
+            <input type="file" accept="image/*" className="hidden" onChange={handleUpload} />
           </label>
 
           <div className="flex justify-center">
@@ -149,8 +142,8 @@ export default function AvatarCropModal({
               onPointerCancel={handlePointerUp}
               onWheel={handleWheel}
               className={cn(
-                "relative h-80 w-[320px] touch-none overflow-hidden rounded-full border-[3px] border-(--brand-500) bg-[#0e0c0a] shadow-[0_14px_34px_rgba(0,0,0,0.20)] dark:border-(--brand-500) max-[420px]:h-65 max-[420px]:w-65",
-                dragging && "cursor-grabbing",
+                'relative h-80 w-[320px] touch-none overflow-hidden rounded-full border-[3px] border-(--brand-500) bg-[#0e0c0a] shadow-[0_14px_34px_rgba(0,0,0,0.20)] dark:border-(--brand-500) max-[420px]:h-65 max-[420px]:w-65',
+                dragging && 'cursor-grabbing'
               )}
             >
               {imageSrc ? (

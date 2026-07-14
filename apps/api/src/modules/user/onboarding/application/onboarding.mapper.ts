@@ -1,11 +1,11 @@
-import type { AIGenerationJobEntity } from '../domain/entities/ai-generation-job.entity'
-import type { AIGenerationStepEntity } from '../domain/entities/ai-generation-step.entity'
-import type { OnboardingResponseEntity } from '../domain/entities/onboarding-response.entity'
+import type { AIGenerationJobEntity } from '../domain/entities/ai-generation-job.entity';
+import type { AIGenerationStepEntity } from '../domain/entities/ai-generation-step.entity';
+import type { OnboardingResponseEntity } from '../domain/entities/onboarding-response.entity';
 import type {
   RoadmapSubtopicNodeEntity,
   RoadmapTopicNodeEntity,
   RoadmapTreeEntity,
-} from '../domain/entities/roadmap-tree.entity'
+} from '../domain/entities/roadmap-tree.entity';
 import type {
   IGetJobStatusResultDTO,
   IOnboardingResponseRecordDTO,
@@ -14,31 +14,26 @@ import type {
   IRoadmapTreeResultDTO,
   ISubtopicTreeNodeDTO,
   ITrackerRecordDTO,
-} from './onboarding.dto'
+} from './onboarding.dto';
 
 export interface IOnboardingMapper {
-  toResponseDto(
-    response: OnboardingResponseEntity | null,
-  ): IOnboardingResponseRecordDTO | null
+  toResponseDto(response: OnboardingResponseEntity | null): IOnboardingResponseRecordDTO | null;
 
-  toStatusDto(
-    response: OnboardingResponseEntity | null,
-  ): IOnboardingStatusResultDTO
+  toStatusDto(response: OnboardingResponseEntity | null): IOnboardingStatusResultDTO;
 
   toJobStatusDto(
     job: AIGenerationJobEntity,
     steps: AIGenerationStepEntity[],
     trackerId: string | null,
-  ): IGetJobStatusResultDTO
+    testId: string | null
+  ): IGetJobStatusResultDTO;
 
-  toRoadmapTreeDto(tree: RoadmapTreeEntity): IRoadmapTreeResultDTO
+  toRoadmapTreeDto(tree: RoadmapTreeEntity): IRoadmapTreeResultDTO;
 }
 
 export class OnboardingMapper implements IOnboardingMapper {
-  toResponseDto(
-    response: OnboardingResponseEntity | null,
-  ): IOnboardingResponseRecordDTO | null {
-    if (!response) return null
+  toResponseDto(response: OnboardingResponseEntity | null): IOnboardingResponseRecordDTO | null {
+    if (!response) return null;
 
     return {
       ...(response.id ? { _id: response.id } : {}),
@@ -50,42 +45,37 @@ export class OnboardingMapper implements IOnboardingMapper {
       completedStep: response.completedStep,
       ...(response.createdAt ? { createdAt: response.createdAt } : {}),
       ...(response.updatedAt ? { updatedAt: response.updatedAt } : {}),
-    }
+    };
   }
 
-  toStatusDto(
-    response: OnboardingResponseEntity | null,
-  ): IOnboardingStatusResultDTO {
+  toStatusDto(response: OnboardingResponseEntity | null): IOnboardingStatusResultDTO {
     return {
       isCompleted: response?.isCompleted ?? false,
       step1Completed: Boolean(response?.preparingFor),
       step2Completed: Boolean(response?.currentLevel),
       completedStep: response?.completedStep ?? 0,
       data: this.toResponseDto(response),
-    }
+    };
   }
 
   toJobStatusDto(
     job: AIGenerationJobEntity,
     steps: AIGenerationStepEntity[],
     trackerId: string | null,
+    testId: string | null
   ): IGetJobStatusResultDTO {
     const activeStep =
       steps.find((step) => step.status === 'active') ??
-      steps.find((step) => step.stepNumber === job.currentStep)
+      steps.find((step) => step.stepNumber === job.currentStep);
 
-    const completedSteps = steps.filter(
-      (step) => step.status === 'completed',
-    ).length
+    const completedSteps = steps.filter((step) => step.status === 'completed').length;
 
     return {
       jobId: job.id,
       jobType: job.jobType,
       status: job.status,
       currentStepNumber: job.currentStep,
-      currentStep:
-        activeStep?.stepLabel ??
-        (job.status === 'completed' ? 'Complete' : 'Queued'),
+      currentStep: activeStep?.stepLabel ?? (job.status === 'completed' ? 'Complete' : 'Queued'),
       completedSteps,
       totalSteps: job.totalSteps,
       steps: steps.map((step) => ({
@@ -96,27 +86,23 @@ export class OnboardingMapper implements IOnboardingMapper {
         completedAt: step.completedAt,
       })),
       trackerId,
+      testId,
       errorMessage: job.errorMessage ?? null,
-    }
+    };
   }
 
   toRoadmapTreeDto(tree: RoadmapTreeEntity): IRoadmapTreeResultDTO {
     return {
-      tracker: tree.tracker
-        ? this.toTrackerRecord(tree.tracker.id, tree.tracker.attributes)
-        : null,
+      tracker: tree.tracker ? this.toTrackerRecord(tree.tracker.id, tree.tracker.attributes) : null,
       topics: tree.topics.map((topic) => this.toTopicDto(topic)),
-    }
+    };
   }
 
-  private toTrackerRecord(
-    id: string,
-    rawData: Record<string, unknown>,
-  ): ITrackerRecordDTO {
+  private toTrackerRecord(id: string, rawData: Record<string, unknown>): ITrackerRecordDTO {
     return {
       ...rawData,
       _id: id,
-    }
+    };
   }
 
   private toTopicDto(topic: RoadmapTopicNodeEntity): IRoadmapTopicTreeNodeDTO {
@@ -126,12 +112,10 @@ export class OnboardingMapper implements IOnboardingMapper {
       description: topic.description,
       order: topic.order,
       children: topic.children.map((child) => this.toSubtopicDto(child)),
-    }
+    };
   }
 
-  private toSubtopicDto(
-    subtopic: RoadmapSubtopicNodeEntity,
-  ): ISubtopicTreeNodeDTO {
+  private toSubtopicDto(subtopic: RoadmapSubtopicNodeEntity): ISubtopicTreeNodeDTO {
     return {
       _id: subtopic.id,
       title: subtopic.title,
@@ -139,6 +123,6 @@ export class OnboardingMapper implements IOnboardingMapper {
       order: subtopic.order,
       depth: subtopic.depth,
       children: subtopic.children.map((child) => this.toSubtopicDto(child)),
-    }
+    };
   }
 }

@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const topicBreakdownSchema = new Schema(
   {
@@ -7,7 +7,7 @@ const topicBreakdownSchema = new Schema(
     attemptCount: { type: Number, default: 0 },
   },
   { _id: false }
-)
+);
 
 const mockTestAnalyticsSnapshotSchema = new Schema(
   {
@@ -19,6 +19,8 @@ const mockTestAnalyticsSnapshotSchema = new Schema(
     topicBreakdown: { type: [topicBreakdownSchema], default: [] },
   },
   { timestamps: { createdAt: true, updatedAt: false } }
-)
+);
 
-export const MockTestAnalyticsSnapshotModel = mongoose.models.MockTestAnalyticsSnapshot || mongoose.model('MockTestAnalyticsSnapshot', mockTestAnalyticsSnapshotSchema)
+export const MockTestAnalyticsSnapshotModel =
+  mongoose.models.MockTestAnalyticsSnapshot ||
+  mongoose.model('MockTestAnalyticsSnapshot', mockTestAnalyticsSnapshotSchema);

@@ -1,41 +1,41 @@
-import type { LessonAnswerAttempt } from '../../types/tracker.types'
+import type { LessonAnswerAttempt } from '../../types/tracker.types';
 
 export const formatVerdict = (verdict?: string) => {
-  if (!verdict) return 'Not checked'
+  if (!verdict) return 'Not checked';
 
   return verdict
     .split('_')
     .join(' ')
-    .replace(/\b\w/g, (letter) => letter.toUpperCase())
-}
+    .replace(/\b\w/g, (letter) => letter.toUpperCase());
+};
 
 export const formatDateTime = (value?: string) => {
-  if (!value) return ''
+  if (!value) return '';
 
   return new Intl.DateTimeFormat(undefined, {
     dateStyle: 'medium',
     timeStyle: 'short',
-  }).format(new Date(value))
-}
+  }).format(new Date(value));
+};
 
 export const uniqueQuestions = (questions: string[]) => {
-  const seen = new Set<string>()
+  const seen = new Set<string>();
 
   return questions.filter((question) => {
-    const normalized = question.trim().toLowerCase()
+    const normalized = question.trim().toLowerCase();
 
     if (!normalized || seen.has(normalized)) {
-      return false
+      return false;
     }
 
-    seen.add(normalized)
+    seen.add(normalized);
 
-    return true
-  })
-}
+    return true;
+  });
+};
 
 export const getAttemptFeedback = (attempt: LessonAnswerAttempt) => {
-  const feedback = attempt.feedback
+  const feedback = attempt.feedback;
 
   if (
     feedback &&
@@ -43,14 +43,14 @@ export const getAttemptFeedback = (attempt: LessonAnswerAttempt) => {
     'feedback' in feedback &&
     typeof feedback.feedback === 'string'
   ) {
-    return feedback.feedback
+    return feedback.feedback;
   }
 
-  return ''
-}
+  return '';
+};
 
 export const getAttemptCorrectedAnswer = (attempt: LessonAnswerAttempt) => {
-  const feedback = attempt.feedback
+  const feedback = attempt.feedback;
 
   if (
     feedback &&
@@ -58,8 +58,8 @@ export const getAttemptCorrectedAnswer = (attempt: LessonAnswerAttempt) => {
     'correctedAnswer' in feedback &&
     typeof feedback.correctedAnswer === 'string'
   ) {
-    return feedback.correctedAnswer
+    return feedback.correctedAnswer;
   }
 
-  return ''
-}
+  return '';
+};

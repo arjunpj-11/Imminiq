@@ -1,5 +1,5 @@
-import ForgotPasswordForm from '../components/ForgotPasswordForm'
+import ForgotPasswordForm from '../components/ForgotPasswordForm';
 
 export default function ForgotPasswordPage() {
-  return <ForgotPasswordForm />
+  return <ForgotPasswordForm />;
 }

@@ -1,5 +1,1 @@
-export type ProfileSort =
-  | 'createdAt'
-  | 'publishedAt'
-  | 'ratingAverage'
-  | 'cloneCount'
+export type ProfileSort = 'createdAt' | 'publishedAt' | 'ratingAverage' | 'cloneCount';

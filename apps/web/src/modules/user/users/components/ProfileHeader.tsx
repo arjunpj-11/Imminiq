@@ -1,42 +1,63 @@
-import type { IProfileData, IProfileStats, IStreakSummary } from '../types/profile.types'
-import { formatCompactNumber } from '../utils/profile-formatters'
-import { cn } from '../../../../lib/cn'
+import type {
+  IProfileData,
+  IProfileStats,
+  IStreakSummary,
+  ProfileRelationshipState,
+} from '../types/profile.types';
+import { formatCompactNumber } from '../utils/profile-formatters';
+import { cn } from '../../../../lib/cn';
 
 interface IProfileHeaderProps {
-  profile: IProfileData
-  stats?: IProfileStats | null
-  streak?: IStreakSummary | null
-  levelLabel: string
-  location: string
-  isOwnView: boolean
-  isPublicView: boolean
-  friendRequestSent: boolean
-  isSendingFriendRequest: boolean
-  onChangeBanner: () => void
-  onChangeAvatar: () => void
-  onEdit: () => void
-  onSendFriendRequest: () => void
-  onMessage: () => void
-  onCopyProfileLink: () => void
+  profile: IProfileData;
+  stats?: IProfileStats | null;
+  streak?: IStreakSummary | null;
+  levelLabel: string;
+  location: string;
+  isOwnView: boolean;
+  isPublicView: boolean;
+  relationship: ProfileRelationshipState;
+  isSendingFriendRequest: boolean;
+  onChangeBanner: () => void;
+  onChangeAvatar: () => void;
+  onEdit: () => void;
+  onSendFriendRequest: () => void;
+  onMessage: () => void;
+  onCopyProfileLink: () => void;
 }
 
 function BannerIcon() {
   return (
-    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+    <svg
+      width="12"
+      height="12"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
       <rect x="3" y="3" width="18" height="18" rx="2" />
       <circle cx="8.5" cy="8.5" r="1.5" />
       <polyline points="21 15 16 10 5 21" />
     </svg>
-  )
+  );
 }
 
 function CameraIcon() {
   return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" aria-hidden="true">
+    <svg
+      width="18"
+      height="18"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="white"
+      strokeWidth="2"
+      aria-hidden="true"
+    >
       <path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z" />
       <circle cx="12" cy="13" r="4" />
     </svg>
-  )
+  );
 }
 
 function ProfileAvatar({
@@ -49,7 +70,7 @@ function ProfileAvatar({
     .map((word) => word[0])
     .join('')
     .slice(0, 2)
-    .toUpperCase()
+    .toUpperCase();
 
   return (
     <div className="relative z-20 -mt-18 shrink-0 max-[640px]:-mt-13.5">
@@ -62,15 +83,13 @@ function ProfileAvatar({
           'group relative flex h-25 w-25 items-center justify-center overflow-hidden rounded-full border-4 border-[#fdf8f5] bg-linear-to-br from-(--brand-500) via-(--brand-500) to-(--warning) shadow-[0_4px_24px_rgba(26,23,20,0.18),0_0_0_1px_rgba(26,23,20,0.06)] transition-shadow dark:border-[#1e1c19] max-[640px]:h-23 max-[640px]:w-23',
           isOwnView
             ? 'cursor-pointer hover:shadow-[0_6px_32px_rgba(26,23,20,0.22),0_0_0_2px_var(--brand-500)]'
-            : 'cursor-default',
+            : 'cursor-default'
         )}
       >
         {profile.avatarUrl ? (
           <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
         ) : (
-          <span className="font-ui text-[26px] font-bold text-white/90">
-            {initials}
-          </span>
+          <span className="font-ui text-[26px] font-bold text-white/90">{initials}</span>
         )}
 
         {isOwnView && (
@@ -87,12 +106,12 @@ function ProfileAvatar({
         PRO
       </div>
     </div>
-  )
+  );
 }
 
 function ProfileActions({
   isPublicView,
-  friendRequestSent,
+  relationship,
   isSendingFriendRequest,
   onSendFriendRequest,
   onMessage,
@@ -116,23 +135,39 @@ function ProfileActions({
           <button
             type="button"
             onClick={onSendFriendRequest}
-            disabled={isSendingFriendRequest || friendRequestSent}
+            disabled={
+              isSendingFriendRequest ||
+              relationship === 'request_sent' ||
+              relationship === 'friends'
+            }
             className={cn(
               'inline-flex items-center gap-1.75 whitespace-nowrap rounded-md px-5.5 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-70 max-[640px]:flex-[1_1_150px] max-[640px]:justify-center',
-              friendRequestSent
+              relationship === 'request_sent' || relationship === 'friends'
                 ? 'border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] text-(--success) dark:border-[rgba(92,201,138,0.22)] dark:bg-[rgba(92,201,138,0.10)] dark:text-(--success)'
-                : 'bg-(--brand-500) text-[#fdf8f5] hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)',
+                : 'bg-(--brand-500) text-[#fdf8f5] hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.28)] dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)'
             )}
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" aria-hidden="true">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2.5"
+              aria-hidden="true"
+            >
               <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2" />
               <circle cx="12" cy="7" r="4" />
             </svg>
             {isSendingFriendRequest
               ? 'Sending...'
-              : friendRequestSent
-                ? 'Request Sent'
-                : 'Send Request'}
+              : relationship === 'friends'
+                ? 'Friends'
+                : relationship === 'request_received'
+                  ? 'Review Request'
+                  : relationship === 'request_sent'
+                    ? 'Request Sent'
+                    : 'Send Request'}
           </button>
 
           <button
@@ -140,7 +175,15 @@ function ProfileActions({
             onClick={onMessage}
             className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) px-5.5 py-2.5 text-[13px] font-semibold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-primary) max-[640px]:flex-[1_1_150px] max-[640px]:justify-center"
           >
-            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+            <svg
+              width="13"
+              height="13"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              aria-hidden="true"
+            >
               <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
             </svg>
             Message
@@ -152,7 +195,15 @@ function ProfileActions({
           onClick={onEdit}
           className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] px-4.5 py-2.5 text-[13px] font-semibold text-(--brand-500) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-(--brand-500) hover:text-[#fdf8f5] dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500) max-[640px]:flex-[1_1_150px] max-[640px]:justify-center"
         >
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+          <svg
+            width="13"
+            height="13"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            aria-hidden="true"
+          >
             <path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7" />
             <path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z" />
           </svg>
@@ -165,14 +216,22 @@ function ProfileActions({
         onClick={onCopyProfileLink}
         className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) px-4.5 py-2.5 text-[13px] font-semibold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-primary) max-[640px]:flex-[1_1_170px] max-[640px]:justify-center"
       >
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+        <svg
+          width="13"
+          height="13"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="2"
+          aria-hidden="true"
+        >
           <rect x="9" y="9" width="13" height="13" rx="2" />
           <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
         </svg>
         Copy Profile URL
       </button>
     </div>
-  )
+  );
 }
 
 function ProfileChips({ stats, streak }: Pick<IProfileHeaderProps, 'stats' | 'streak'>) {
@@ -194,10 +253,15 @@ function ProfileChips({ stats, streak }: Pick<IProfileHeaderProps, 'stats' | 'st
     },
     {
       className:
+        'bg-[rgba(184,76,43,0.08)] border-[rgba(184,76,43,0.20)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.10)] dark:border-[rgba(232,129,106,0.22)]',
+      label: `Teacher Level ${stats?.teacherLevel ?? 1}`,
+    },
+    {
+      className:
         'bg-[rgba(45,106,71,0.08)] border-[rgba(45,106,71,0.20)] text-[var(--success)] dark:bg-[rgba(92,201,138,0.10)] dark:border-[rgba(92,201,138,0.22)] dark:text-[var(--success)]',
       label: `Rating ${Number(stats?.ratingAverage ?? 0).toFixed(1)}`,
     },
-  ]
+  ];
 
   return (
     <div className="mt-4 flex flex-wrap items-center gap-1.75">
@@ -206,14 +270,14 @@ function ProfileChips({ stats, streak }: Pick<IProfileHeaderProps, 'stats' | 'st
           key={chip.label}
           className={cn(
             'inline-flex items-center rounded-full border px-3 py-1.25 font-mono text-[9px] uppercase tracking-widest whitespace-nowrap',
-            chip.className,
+            chip.className
           )}
         >
           {chip.label}
         </span>
       ))}
     </div>
-  )
+  );
 }
 
 export default function ProfileHeader({
@@ -224,7 +288,7 @@ export default function ProfileHeader({
   location,
   isOwnView,
   isPublicView,
-  friendRequestSent,
+  relationship,
   isSendingFriendRequest,
   onChangeBanner,
   onChangeAvatar,
@@ -302,7 +366,7 @@ export default function ProfileHeader({
 
           <ProfileActions
             isPublicView={isPublicView}
-            friendRequestSent={friendRequestSent}
+            relationship={relationship}
             isSendingFriendRequest={isSendingFriendRequest}
             onSendFriendRequest={onSendFriendRequest}
             onMessage={onMessage}
@@ -314,5 +378,5 @@ export default function ProfileHeader({
         <ProfileChips stats={stats} streak={streak} />
       </div>
     </>
-  )
+  );
 }

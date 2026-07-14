@@ -1,16 +1,16 @@
 // apps/web/src/modules/user/trackers/components/lesson/LessonVisualizerCard.tsx
 
-import { useEffect, useRef, useState } from 'react'
-import { getUserFacingError } from '../../../../../lib/user-facing-error'
-import { useGenerateLessonVisualization } from '../../hooks/useTrackers'
-import { cn } from '../../utils/tracker-ui'
+import { useEffect, useRef, useState } from 'react';
+import { getUserFacingError } from '../../../../../lib/user-facing-error';
+import { useGenerateLessonVisualization } from '../../hooks/useTrackers';
+import { cn } from '../../utils/tracker-ui';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
 interface IProps {
-  trackerId: string
-  subtopicId: string
-  lessonTitle: string
+  trackerId: string;
+  subtopicId: string;
+  lessonTitle: string;
 }
 
 // ─── Sparkle icon ─────────────────────────────────────────────────────────────
@@ -31,7 +31,7 @@ function SparkleIcon({ className }: { className?: string }) {
         strokeLinejoin="round"
       />
     </svg>
-  )
+  );
 }
 
 // ─── Animated loading dots ────────────────────────────────────────────────────
@@ -73,7 +73,7 @@ function GeneratingPulse() {
         }
       `}</style>
     </div>
-  )
+  );
 }
 
 // ─── Scaled iframe that fits Gemini's output without clipping ─────────────────
@@ -83,36 +83,30 @@ function GeneratingPulse() {
 // use CSS transform: scale() to shrink it so it fills the available modal area
 // without scrollbars and without cutting anything off.
 
-const GEMINI_CANVAS_W = 1280
-const GEMINI_CANVAS_H = 900
+const GEMINI_CANVAS_W = 1280;
+const GEMINI_CANVAS_H = 900;
 
-function ScaledIframe({
-  html,
-  title,
-}: {
-  html: string
-  title: string
-}) {
-  const wrapperRef = useRef<HTMLDivElement>(null)
-  const [scale, setScale] = useState(1)
+function ScaledIframe({ html, title }: { html: string; title: string }) {
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
 
   useEffect(() => {
-    const el = wrapperRef.current
-    if (!el) return
+    const el = wrapperRef.current;
+    if (!el) return;
 
     const recalc = () => {
-      const scaleX = el.clientWidth / GEMINI_CANVAS_W
-      const scaleY = el.clientHeight / GEMINI_CANVAS_H
+      const scaleX = el.clientWidth / GEMINI_CANVAS_W;
+      const scaleY = el.clientHeight / GEMINI_CANVAS_H;
       // Use the smaller axis so nothing is clipped; cap at 1 (never upscale)
-      setScale(Math.min(scaleX, scaleY, 1))
-    }
+      setScale(Math.min(scaleX, scaleY, 1));
+    };
 
-    recalc()
+    recalc();
 
-    const ro = new ResizeObserver(recalc)
-    ro.observe(el)
-    return () => ro.disconnect()
-  }, [])
+    const ro = new ResizeObserver(recalc);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
 
   return (
     // Outer wrapper — fills modal body, hides any stray overflow
@@ -147,7 +141,7 @@ function ScaledIframe({
         />
       </div>
     </div>
-  )
+  );
 }
 
 // ─── Visualizer modal ────────────────────────────────────────────────────────
@@ -159,20 +153,20 @@ function VisualizerModal({
   onRegenerate,
   isRegenerating,
 }: {
-  html: string
-  lessonTitle: string
-  onClose: () => void
-  onRegenerate: () => void
-  isRegenerating: boolean
+  html: string;
+  lessonTitle: string;
+  onClose: () => void;
+  onRegenerate: () => void;
+  isRegenerating: boolean;
 }) {
   // Close on Escape
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose()
-    }
-    window.addEventListener('keydown', handleKey)
-    return () => window.removeEventListener('keydown', handleKey)
-  }, [onClose])
+      if (e.key === 'Escape') onClose();
+    };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
 
   return (
     <div
@@ -237,76 +231,72 @@ function VisualizerModal({
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 // ─── Main component ───────────────────────────────────────────────────────────
 
-export default function LessonVisualizerCard({
-  trackerId,
-  subtopicId,
-  lessonTitle,
-}: IProps) {
-  const visualizeMutation = useGenerateLessonVisualization()
+export default function LessonVisualizerCard({ trackerId, subtopicId, lessonTitle }: IProps) {
+  const visualizeMutation = useGenerateLessonVisualization();
 
-  const [generatedHtml, setGeneratedHtml] = useState<string | null>(null)
-  const [modalOpen, setModalOpen] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [generatedHtml, setGeneratedHtml] = useState<string | null>(null);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Cache key — reset HTML when lesson changes
-  const prevSubtopicIdRef = useRef(subtopicId)
+  const prevSubtopicIdRef = useRef(subtopicId);
   useEffect(() => {
     if (prevSubtopicIdRef.current !== subtopicId) {
-      prevSubtopicIdRef.current = subtopicId
-      setGeneratedHtml(null)
-      setError(null)
+      prevSubtopicIdRef.current = subtopicId;
+      setGeneratedHtml(null);
+      setError(null);
     }
-  }, [subtopicId])
+  }, [subtopicId]);
 
-  const isGenerating = visualizeMutation.isPending
+  const isGenerating = visualizeMutation.isPending;
 
   const generate = () => {
-    setError(null)
+    setError(null);
     visualizeMutation.mutate(
       { trackerId, subtopicId },
       {
         onSuccess: (data) => {
-          setGeneratedHtml(data.data.html)
-          setModalOpen(true)
+          setGeneratedHtml(data.data.html);
+          setModalOpen(true);
         },
         onError: (err) => {
-          setError(getUserFacingError(err, 'Failed to generate visualization.'))
+          setError(getUserFacingError(err, 'Failed to generate visualization.'));
         },
       }
-    )
-  }
+    );
+  };
 
   const handleOpenOrGenerate = () => {
     if (generatedHtml) {
-      setModalOpen(true)
+      setModalOpen(true);
     } else {
-      generate()
+      generate();
     }
-  }
+  };
 
   const handleRegenerate = () => {
-    setGeneratedHtml(null)
-    setError(null)
+    setGeneratedHtml(null);
+    setError(null);
     visualizeMutation.mutate(
       { trackerId, subtopicId, regenerate: true },
       {
         onSuccess: (data) => {
-          setGeneratedHtml(data.data.html)
-          setModalOpen(true)
+          setGeneratedHtml(data.data.html);
+          setModalOpen(true);
         },
         onError: (err) => {
-          setError(getUserFacingError(err, 'Failed to generate visualization.'))
+          setError(getUserFacingError(err, 'Failed to generate visualization.'));
         },
       }
-    )
-  }
+    );
+  };
 
-  const isReady = Boolean(generatedHtml) && !isGenerating
+  const isReady = Boolean(generatedHtml) && !isGenerating;
 
   return (
     <>
@@ -399,5 +389,5 @@ export default function LessonVisualizerCard({
         />
       )}
     </>
-  )
+  );
 }

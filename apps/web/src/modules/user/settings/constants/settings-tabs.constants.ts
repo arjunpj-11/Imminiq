@@ -15,4 +15,4 @@ export const SETTINGS_TABS = [
     label: 'Privacy',
     to: '/settings/privacy',
   },
-] as const
+] as const;

@@ -12,7 +12,7 @@ export type {
   ICommunityVerifyItemViewDTO,
   IVoteVerificationSubmissionPayloadDTO,
   IVoteVerificationSubmissionViewDTO,
-} from './application/community.dto'
+} from './application/community.dto';
 
 export type {
   CommunitySort,
@@ -20,4 +20,7 @@ export type {
   CommunityVerificationSubmissionRecord,
   VerificationSubmissionStatus,
   VerificationVoteChoice,
-} from './domain/community.types'
+} from './domain/community.types';
+
+export { createCommunityComposition } from './community.factory';
+export { createCommunityRoutes } from './presentation/community.routes';

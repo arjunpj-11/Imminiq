@@ -1,1 +1,1 @@
-export type DashboardIntensityLevel = 'none' | 'low' | 'medium' | 'high'
+export type DashboardIntensityLevel = 'none' | 'low' | 'medium' | 'high';

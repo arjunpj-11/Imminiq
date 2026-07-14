@@ -1,21 +1,28 @@
-import { horizontalFlowCards } from '../constants/landing.constants'
-import { useHorizontalScroll } from '../hooks/useHorizontalScroll'
+import { horizontalFlowCards } from '../constants/landing.constants';
+import { useHorizontalScroll } from '../hooks/useHorizontalScroll';
 
 export default function HorizontalFlow() {
-  const { sectionRef, trackRef, offset } = useHorizontalScroll()
+  const { sectionRef, trackRef, offset } = useHorizontalScroll();
 
   return (
-    <section id="flow" ref={sectionRef} className="relative h-[320vh] bg-[#f5ede4] text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb]">
+    <section
+      id="flow"
+      ref={sectionRef}
+      className="relative h-[320vh] bg-[#f5ede4] text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb]"
+    >
       <div className="sticky top-0 flex h-screen flex-col justify-center overflow-hidden px-4 py-18 sm:px-8 lg:px-10">
         <div className="mb-8 flex flex-wrap items-end justify-between gap-5">
           <div>
-            <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">Horizontal flow</p>
+            <p className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
+              Horizontal flow
+            </p>
             <h2 className="mt-3 max-w-180 font-['Playfair_Display',serif] text-[clamp(38px,7vw,86px)] font-extrabold leading-[0.95] tracking-[-0.07em]">
               Scroll down. The product moves sideways.
             </h2>
           </div>
           <p className="max-w-86 text-[13px] leading-[1.7] text-[#6b5f58] dark:text-[#9b9a92]">
-            This recreates the vertical-to-horizontal scroll feeling from your reference without needing Next.js.
+            This recreates the vertical-to-horizontal scroll feeling from your reference without
+            needing Next.js.
           </p>
         </div>
 
@@ -30,7 +37,9 @@ export default function HorizontalFlow() {
               className="flex h-[54vh] w-[min(78vw,720px)] shrink-0 flex-col justify-between rounded-[34px] border border-[#e0d0c5] bg-[#fdf8f5] p-6 shadow-[0_28px_90px_rgba(26,23,20,0.12)] dark:border-white/10 dark:bg-white/5.5 dark:shadow-[0_28px_90px_rgba(0,0,0,0.30)] backdrop-blur md:p-8"
             >
               <div className="flex items-center justify-between gap-4">
-                <span className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">{card.eyebrow}</span>
+                <span className="font-['DM_Mono',monospace] text-[10px] uppercase tracking-[0.18em] text-[#b84c2b] dark:text-[#e8816a]">
+                  {card.eyebrow}
+                </span>
                 <span className="flex h-12 w-12 items-center justify-center rounded-full border border-[#d8c7bc] bg-[#f5ede4] dark:border-white/12 dark:bg-white/6 font-['DM_Mono',monospace] text-[12px]">
                   {String(index + 1).padStart(2, '0')}
                 </span>
@@ -39,12 +48,14 @@ export default function HorizontalFlow() {
                 <h3 className="font-['Playfair_Display',serif] text-[clamp(42px,6vw,76px)] font-black leading-[0.92] tracking-[-0.07em]">
                   {card.title}
                 </h3>
-                <p className="mt-5 max-w-130 text-[15px] leading-[1.75] text-[#6b5f58] dark:text-[#d8d6cf]">{card.body}</p>
+                <p className="mt-5 max-w-130 text-[15px] leading-[1.75] text-[#6b5f58] dark:text-[#d8d6cf]">
+                  {card.body}
+                </p>
               </div>
             </article>
           ))}
         </div>
       </div>
     </section>
-  )
+  );
 }

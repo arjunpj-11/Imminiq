@@ -1,1 +1,1 @@
-export { default as OnboardingLogoIcon } from '../../../../components/ui/ImminiqLogo'
+export { default as OnboardingLogoIcon } from '../../../../components/ui/ImminiqLogo';

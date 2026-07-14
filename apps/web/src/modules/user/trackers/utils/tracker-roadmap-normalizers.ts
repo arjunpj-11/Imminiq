@@ -1,67 +1,67 @@
-import { cn } from '../../../../lib/cn'
-import type { ITracker } from '../types/tracker.types'
+import { cn } from '../../../../lib/cn';
+import type { ITracker } from '../types/tracker.types';
 
-type RawRoadmapNode = Record<string, unknown>
+type RawRoadmapNode = Record<string, unknown>;
 
 export type RoadmapSubtopicNode = {
-  _id: string
-  title: string
-  description?: string
-  difficulty?: string
-  level?: string
-  order?: number
-  children?: RoadmapSubtopicNode[]
-  subtopics?: RoadmapSubtopicNode[]
-}
+  _id: string;
+  title: string;
+  description?: string;
+  difficulty?: string;
+  level?: string;
+  order?: number;
+  children?: RoadmapSubtopicNode[];
+  subtopics?: RoadmapSubtopicNode[];
+};
 
 export type RoadmapTopicNode = {
-  _id: string
-  title: string
-  description?: string
-  order?: number
-  subtopicsCount?: number
-  children?: RoadmapSubtopicNode[]
-  subtopics?: RoadmapSubtopicNode[]
-}
+  _id: string;
+  title: string;
+  description?: string;
+  order?: number;
+  subtopicsCount?: number;
+  children?: RoadmapSubtopicNode[];
+  subtopics?: RoadmapSubtopicNode[];
+};
 
 export type TrackerRoadmapLike = {
-  tracker?: ITracker
-  topics?: unknown[]
-  topicTree?: unknown[]
-  roadmapTopics?: unknown[]
+  tracker?: ITracker;
+  topics?: unknown[];
+  topicTree?: unknown[];
+  roadmapTopics?: unknown[];
   roadmap?:
     | unknown[]
     | {
-        topics?: unknown[]
-        topicTree?: unknown[]
-        roadmapTopics?: unknown[]
-      }
+        topics?: unknown[];
+        topicTree?: unknown[];
+        roadmapTopics?: unknown[];
+      };
   data?: {
-    tracker?: ITracker
-    topics?: unknown[]
-    topicTree?: unknown[]
-    roadmapTopics?: unknown[]
+    tracker?: ITracker;
+    topics?: unknown[];
+    topicTree?: unknown[];
+    roadmapTopics?: unknown[];
     roadmap?:
       | unknown[]
       | {
-          topics?: unknown[]
-          topicTree?: unknown[]
-          roadmapTopics?: unknown[]
-        }
-  }
-}
+          topics?: unknown[];
+          topicTree?: unknown[];
+          roadmapTopics?: unknown[];
+        };
+  };
+};
 
-export type SubtopicDifficulty = 'beginner' | 'intermediate' | 'advanced'
-export type AiVerificationStatus = 'idle' | 'checking' | 'approved' | 'rejected'
+export type SubtopicDifficulty = 'beginner' | 'intermediate' | 'advanced';
+export type AiVerificationStatus = 'idle' | 'checking' | 'approved' | 'rejected';
 export type AiVerificationState = {
-  status: AiVerificationStatus
-  message: string | null
-}
+  status: AiVerificationStatus;
+  message: string | null;
+};
 
 const getRawId = (node: RawRoadmapNode) => {
-  const rawId = node._id || node.id || node.topicId || node.subtopicId
+  const rawId = node._id || node.id || node.topicId || node.subtopicId;
 
-  if (typeof rawId === 'string') return rawId
+  if (typeof rawId === 'string') return rawId;
 
   if (
     rawId &&
@@ -69,59 +69,50 @@ const getRawId = (node: RawRoadmapNode) => {
     'toString' in rawId &&
     typeof rawId.toString === 'function'
   ) {
-    return rawId.toString()
+    return rawId.toString();
   }
 
-  return ''
-}
+  return '';
+};
 
-const getRawText = (
-  node: RawRoadmapNode,
-  keys: string[],
-  fallback = '',
-) => {
+const getRawText = (node: RawRoadmapNode, keys: string[], fallback = '') => {
   for (const key of keys) {
-    const value = node[key]
-    if (typeof value === 'string' && value.trim()) return value
+    const value = node[key];
+    if (typeof value === 'string' && value.trim()) return value;
   }
-  return fallback
-}
+  return fallback;
+};
 
 const getRawNumber = (node: RawRoadmapNode, key: string) => {
-  const value = node[key]
-  return typeof value === 'number' ? value : undefined
-}
+  const value = node[key];
+  return typeof value === 'number' ? value : undefined;
+};
 
 const getRawArray = (node: RawRoadmapNode, keys: string[]): unknown[] => {
   for (const key of keys) {
-    const value = node[key]
-    if (Array.isArray(value)) return value
+    const value = node[key];
+    if (Array.isArray(value)) return value;
   }
-  return []
-}
+  return [];
+};
 
 const isRawNode = (value: unknown): value is RawRoadmapNode =>
-  Boolean(value && typeof value === 'object' && !Array.isArray(value))
+  Boolean(value && typeof value === 'object' && !Array.isArray(value));
 
 const normalizeSubtopicNode = (
   value: unknown,
-  fallbackIndex: number,
+  fallbackIndex: number
 ): RoadmapSubtopicNode | null => {
-  if (!isRawNode(value)) return null
+  if (!isRawNode(value)) return null;
 
-  const wrappedSubtopic = value.subtopic
-  const source = isRawNode(wrappedSubtopic) ? wrappedSubtopic : value
-  const id = getRawId(source) || getRawId(value)
-  if (!id) return null
+  const wrappedSubtopic = value.subtopic;
+  const source = isRawNode(wrappedSubtopic) ? wrappedSubtopic : value;
+  const id = getRawId(source) || getRawId(value);
+  if (!id) return null;
 
-  const children = getRawArray(source, [
-    'children',
-    'subtopics',
-    'childSubtopics',
-    'nodes',
-  ])
+  const children = getRawArray(source, ['children', 'subtopics', 'childSubtopics', 'nodes'])
     .map((child, index) => normalizeSubtopicNode(child, index))
-    .filter((child): child is RoadmapSubtopicNode => Boolean(child))
+    .filter((child): child is RoadmapSubtopicNode => Boolean(child));
 
   return {
     _id: id,
@@ -132,36 +123,28 @@ const normalizeSubtopicNode = (
     order: getRawNumber(source, 'order') ?? getRawNumber(value, 'order'),
     children,
     subtopics: children,
-  }
-}
+  };
+};
 
-const normalizeTopicNode = (
-  value: unknown,
-  fallbackIndex: number,
-): RoadmapTopicNode | null => {
-  if (!isRawNode(value)) return null
+const normalizeTopicNode = (value: unknown, fallbackIndex: number): RoadmapTopicNode | null => {
+  if (!isRawNode(value)) return null;
 
-  const wrappedTopic = value.topic
-  const source = isRawNode(wrappedTopic) ? wrappedTopic : value
-  const id = getRawId(source) || getRawId(value)
-  if (!id) return null
+  const wrappedTopic = value.topic;
+  const source = isRawNode(wrappedTopic) ? wrappedTopic : value;
+  const id = getRawId(source) || getRawId(value);
+  if (!id) return null;
 
-  const subtopics = getRawArray(value, [
-    'subtopics',
-    'children',
-    'lessons',
-    'nodes',
-  ])
+  const subtopics = getRawArray(value, ['subtopics', 'children', 'lessons', 'nodes'])
     .concat(getRawArray(source, ['subtopics', 'children', 'lessons', 'nodes']))
     .map((subtopic, index) => normalizeSubtopicNode(subtopic, index))
-    .filter((subtopic): subtopic is RoadmapSubtopicNode => Boolean(subtopic))
+    .filter((subtopic): subtopic is RoadmapSubtopicNode => Boolean(subtopic));
 
-  const seen = new Set<string>()
+  const seen = new Set<string>();
   const uniqueSubtopics = subtopics.filter((subtopic) => {
-    if (seen.has(subtopic._id)) return false
-    seen.add(subtopic._id)
-    return true
-  })
+    if (seen.has(subtopic._id)) return false;
+    seen.add(subtopic._id);
+    return true;
+  });
 
   return {
     _id: id,
@@ -174,29 +157,21 @@ const normalizeTopicNode = (
       uniqueSubtopics.length,
     children: uniqueSubtopics,
     subtopics: uniqueSubtopics,
-  }
-}
+  };
+};
 
-export const getChildren = (
-  node?: RoadmapTopicNode | RoadmapSubtopicNode,
-) => node?.children || node?.subtopics || []
+export const getChildren = (node?: RoadmapTopicNode | RoadmapSubtopicNode) =>
+  node?.children || node?.subtopics || [];
 
-export const countNestedSubtopics = (
-  nodes: RoadmapSubtopicNode[] = [],
-): number =>
-  nodes.reduce(
-    (total, node) => total + 1 + countNestedSubtopics(getChildren(node)),
-    0,
-  )
+export const countNestedSubtopics = (nodes: RoadmapSubtopicNode[] = []): number =>
+  nodes.reduce((total, node) => total + 1 + countNestedSubtopics(getChildren(node)), 0);
 
 const extractFirstArray = (...values: unknown[]) =>
-  values.find((value): value is unknown[] => Array.isArray(value)) || []
+  values.find((value): value is unknown[] => Array.isArray(value)) || [];
 
-export const extractRoadmapTopics = (
-  roadmapData?: TrackerRoadmapLike,
-): RoadmapTopicNode[] => {
-  const roadmap = roadmapData?.roadmap
-  const dataRoadmap = roadmapData?.data?.roadmap
+export const extractRoadmapTopics = (roadmapData?: TrackerRoadmapLike): RoadmapTopicNode[] => {
+  const roadmap = roadmapData?.roadmap;
+  const dataRoadmap = roadmapData?.data?.roadmap;
 
   const rawTopics = extractFirstArray(
     Array.isArray(roadmap) ? roadmap : undefined,
@@ -212,27 +187,23 @@ export const extractRoadmapTopics = (
     roadmapData?.data?.roadmapTopics,
     !Array.isArray(dataRoadmap) ? dataRoadmap?.topics : undefined,
     !Array.isArray(dataRoadmap) ? dataRoadmap?.topicTree : undefined,
-    !Array.isArray(dataRoadmap) ? dataRoadmap?.roadmapTopics : undefined,
-  )
+    !Array.isArray(dataRoadmap) ? dataRoadmap?.roadmapTopics : undefined
+  );
 
   return rawTopics
     .map((topic, index) => normalizeTopicNode(topic, index))
     .filter((topic): topic is RoadmapTopicNode => Boolean(topic))
-    .sort((first, second) => (first.order ?? 0) - (second.order ?? 0))
-}
+    .sort((first, second) => (first.order ?? 0) - (second.order ?? 0));
+};
 
-export const extractRoadmapTracker = (
-  roadmapData?: TrackerRoadmapLike,
-): ITracker | undefined => roadmapData?.tracker || roadmapData?.data?.tracker
+export const extractRoadmapTracker = (roadmapData?: TrackerRoadmapLike): ITracker | undefined =>
+  roadmapData?.tracker || roadmapData?.data?.tracker;
 
 export const flattenSubtopics = (
   nodes: RoadmapSubtopicNode[],
-  depth = 0,
+  depth = 0
 ): { node: RoadmapSubtopicNode; depth: number }[] =>
-  nodes.flatMap((node) => [
-    { node, depth },
-    ...flattenSubtopics(getChildren(node), depth + 1),
-  ])
+  nodes.flatMap((node) => [{ node, depth }, ...flattenSubtopics(getChildren(node), depth + 1)]);
 
 export const getVerificationMessageClass = (status: AiVerificationStatus) =>
   cn(
@@ -242,5 +213,5 @@ export const getVerificationMessageClass = (status: AiVerificationStatus) =>
     status === 'rejected' &&
       'border-red-300 bg-red-50 text-red-600 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300',
     status === 'checking' &&
-      'border-[var(--border-subtle)] bg-[var(--surface-canvas)] text-[var(--text-secondary)] dark:border-white/15 dark:bg-[var(--surface-canvas)] dark:text-[var(--text-secondary)]',
-  )
+      'border-[var(--border-subtle)] bg-[var(--surface-canvas)] text-[var(--text-secondary)] dark:border-white/15 dark:bg-[var(--surface-canvas)] dark:text-[var(--text-secondary)]'
+  );

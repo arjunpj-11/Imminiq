@@ -1,14 +1,14 @@
-import type { ChangeEventHandler, FocusEventHandler } from 'react'
+import type { ChangeEventHandler, FocusEventHandler } from 'react';
 
-import { authInputClass, authLabelClass } from '../utils/auth-ui'
-import { FieldError } from './AuthError'
+import { authInputClass, authLabelClass } from '../utils/auth-ui';
+import { FieldError } from './AuthError';
 
 interface IAuthIdentifierFieldProps {
-  value: string
-  error?: string
-  valid?: boolean
-  onChange: ChangeEventHandler<HTMLInputElement>
-  onBlur: FocusEventHandler<HTMLInputElement>
+  value: string;
+  error?: string;
+  valid?: boolean;
+  onChange: ChangeEventHandler<HTMLInputElement>;
+  onBlur: FocusEventHandler<HTMLInputElement>;
 }
 
 export default function AuthIdentifierField({
@@ -32,5 +32,5 @@ export default function AuthIdentifierField({
       />
       <FieldError message={error} />
     </label>
-  )
+  );
 }

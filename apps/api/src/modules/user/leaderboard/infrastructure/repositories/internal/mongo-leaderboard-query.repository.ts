@@ -1,182 +1,163 @@
-import mongoose from 'mongoose'
+import mongoose from 'mongoose';
 
-import { LeaderboardAudience } from '../../../../../../infrastructure/database/models/leaderboard-audience.model'
-import { LeaderboardRankSnapshot } from '../../../../../../infrastructure/database/models/leaderboard-rank-snapshot.model'
-import { LeaderboardXpEvent } from '../../../../../../infrastructure/database/models/leaderboard-xp-event.model'
-import { User } from '../../../../../../infrastructure/database/models/user.model'
-import { LeaderboardDomainError } from '../../../domain/leaderboard-domain.error'
+import { LeaderboardAudience } from '../../../../../../infrastructure/database/models/leaderboard-audience.model';
+import { LeaderboardRankSnapshot } from '../../../../../../infrastructure/database/models/leaderboard-rank-snapshot.model';
+import { LeaderboardXpEvent } from '../../../../../../infrastructure/database/models/leaderboard-xp-event.model';
+import { User } from '../../../../../../infrastructure/database/models/user.model';
+import { LeaderboardDomainError } from '../../../domain/leaderboard-domain.error';
 import type {
   FindLeaderboardInput,
   LeaderboardQueryResult,
-} from '../../../domain/repositories/leaderboard-query.repository.interface'
+} from '../../../domain/repositories/leaderboard-query.repository.interface';
 import type {
   LeaderboardScope,
   LeaderboardSection,
   LeaderboardTimeRange,
-} from '../../../domain/leaderboard.types'
-import { MongoLeaderboardBaseRepository } from '../shared/mongo-leaderboard-base.repository'
-import { MongoLeaderboardFilterBuilder } from '../shared/mongo-leaderboard-filter.builder'
-import { MongoLeaderboardMapper } from '../shared/mongo-leaderboard.mapper'
+} from '../../../domain/leaderboard.types';
+import { MongoLeaderboardBaseRepository } from '../shared/mongo-leaderboard-base.repository';
+import { MongoLeaderboardFilterBuilder } from '../shared/mongo-leaderboard-filter.builder';
+import { MongoLeaderboardMapper } from '../shared/mongo-leaderboard.mapper';
 import type {
   MongoLeaderboardFacetRecord,
   MongoRankedUserRecord,
   MongoSnapshotRankRecord,
-} from '../shared/mongo-leaderboard.types'
+} from '../shared/mongo-leaderboard.types';
 
 type RankingBundle = {
-  topEntries: MongoRankedUserRecord[]
-  viewerEntry: MongoRankedUserRecord | null
-  participantCount: number
-  targetRankScore: number | null
-}
+  topEntries: MongoRankedUserRecord[];
+  viewerEntry: MongoRankedUserRecord | null;
+  participantCount: number;
+  targetRankScore: number | null;
+};
 
 type SnapshotReference = {
-  snapshotKey: string
-  capturedAt: Date
-}
+  snapshotKey: string;
+  capturedAt: Date;
+};
 
 export class MongoLeaderboardQueryRepository extends MongoLeaderboardBaseRepository {
   constructor(private readonly _mapper = new MongoLeaderboardMapper()) {
-    super()
+    super();
   }
 
-  async findLeaderboard(
-    input: FindLeaderboardInput,
-  ): Promise<LeaderboardQueryResult> {
-    return this.execute(
-      'LEADERBOARD_READ_FAILED',
-      'Failed to read leaderboard',
-      async () => {
-        const audienceIds = await this.resolveAudienceIds(
-          input.scope,
-          input.viewerUserId,
-        )
-console.log(audienceIds)
-        const selectedRanking =
-          input.scope === 'weekly'
-            ? await this.findWeeklyRanking(
-                input.section,
-                input.viewerUserId,
-                input.currentPeriod,
-                input.limit,
-                input.targetRank,
-              )
-            : await this.findTotalRanking(
-                input.section,
-                input.viewerUserId,
-                input.limit,
-                input.targetRank,
-                audienceIds,
-              )
-              console.log(selectedRanking)
-
-        const selectedUserIds = this.collectRankingUserIds(selectedRanking)
-
-        const previousSelectedRanks =
-          input.scope === 'weekly'
-            ? await this.findPreviousWeeklyRanks(
-                input.section,
-                input.previousPeriod,
-                selectedUserIds,
-              )
-            : await this.findPreviousSnapshotRanks(
-                input.section,
-                input.scope,
-                input.previousSnapshotBefore,
-                selectedUserIds,
-                audienceIds,
-              )
-
-        const topEntries = selectedRanking.topEntries.map((record) =>
-          this._mapper.toEntryEntity(
-            record,
-            input.section,
-            previousSelectedRanks.get(this._mapper.toId(record._id)),
-          ),
-        )
-
-        const viewerEntry = selectedRanking.viewerEntry
-          ? this._mapper.toEntryEntity(
-              selectedRanking.viewerEntry,
+  async findLeaderboard(input: FindLeaderboardInput): Promise<LeaderboardQueryResult> {
+    return this.execute('LEADERBOARD_READ_FAILED', 'Failed to read leaderboard', async () => {
+      const audienceIds = await this.resolveAudienceIds(input.scope, input.viewerUserId);
+      console.log(audienceIds);
+      const selectedRanking =
+        input.scope === 'weekly'
+          ? await this.findWeeklyRanking(
               input.section,
-              previousSelectedRanks.get(
-                this._mapper.toId(selectedRanking.viewerEntry._id),
-              ),
+              input.viewerUserId,
+              input.currentPeriod,
+              input.limit,
+              input.targetRank
             )
-          : null
+          : await this.findTotalRanking(
+              input.section,
+              input.viewerUserId,
+              input.limit,
+              input.targetRank,
+              audienceIds
+            );
+      console.log(selectedRanking);
 
-        const globalViewerEntry =
-          input.scope === 'global'
-            ? viewerEntry
-            : await this.findGlobalViewerEntry(
-                input.section,
-                input.viewerUserId,
-                input.previousSnapshotBefore,
-              )
+      const selectedUserIds = this.collectRankingUserIds(selectedRanking);
 
-        const [
-          activeStudentCount,
-          activeTrainerCount,
-          streakChampions,
-          weeklyScores,
-        ] = await Promise.all([
+      const previousSelectedRanks =
+        input.scope === 'weekly'
+          ? await this.findPreviousWeeklyRanks(input.section, input.previousPeriod, selectedUserIds)
+          : await this.findPreviousSnapshotRanks(
+              input.section,
+              input.scope,
+              input.previousSnapshotBefore,
+              selectedUserIds,
+              audienceIds
+            );
+
+      const topEntries = selectedRanking.topEntries.map((record) =>
+        this._mapper.toEntryEntity(
+          record,
+          input.section,
+          previousSelectedRanks.get(this._mapper.toId(record._id))
+        )
+      );
+
+      const viewerEntry = selectedRanking.viewerEntry
+        ? this._mapper.toEntryEntity(
+            selectedRanking.viewerEntry,
+            input.section,
+            previousSelectedRanks.get(this._mapper.toId(selectedRanking.viewerEntry._id))
+          )
+        : null;
+
+      const globalViewerEntry =
+        input.scope === 'global'
+          ? viewerEntry
+          : await this.findGlobalViewerEntry(
+              input.section,
+              input.viewerUserId,
+              input.previousSnapshotBefore
+            );
+
+      const [activeStudentCount, activeTrainerCount, streakChampions, weeklyScores] =
+        await Promise.all([
           this.countActiveParticipants('students'),
           this.countActiveParticipants('trainers'),
           this.findStreakChampions(
             input.section,
             input.streakChampionLimit,
-            input.scope === 'friends' ? audienceIds : undefined,
+            input.scope === 'friends' ? audienceIds : undefined
           ),
           this.findViewerWeeklyScores(
             input.viewerUserId,
             input.section,
             input.currentPeriod,
-            input.previousPeriod,
+            input.previousPeriod
           ),
-        ])
+        ]);
 
-        return {
-          topEntries,
-          viewerEntry,
-          globalViewerEntry,
-          streakChampions,
-          selectedParticipantCount: selectedRanking.participantCount,
-          activeStudentCount,
-          activeTrainerCount,
-          targetRankScore: selectedRanking.targetRankScore,
-          weeklyScore: weeklyScores.current,
-          previousWeeklyScore: weeklyScores.previous,
-        }
-      },
-    )
+      return {
+        topEntries,
+        viewerEntry,
+        globalViewerEntry,
+        streakChampions,
+        selectedParticipantCount: selectedRanking.participantCount,
+        activeStudentCount,
+        activeTrainerCount,
+        targetRankScore: selectedRanking.targetRankScore,
+        weeklyScore: weeklyScores.current,
+        previousWeeklyScore: weeklyScores.previous,
+      };
+    });
   }
 
   private async resolveAudienceIds(
     scope: LeaderboardScope,
-    viewerUserId: string,
+    viewerUserId: string
   ): Promise<mongoose.Types.ObjectId[] | undefined> {
     if (scope !== 'friends') {
-      return undefined
+      return undefined;
     }
 
-    const viewerObjectId = this.toObjectId(viewerUserId)
+    const viewerObjectId = this.toObjectId(viewerUserId);
 
     const audience = await LeaderboardAudience.findOne({
       userId: viewerObjectId,
     })
       .select({ friendUserIds: 1 })
       .lean<{
-        friendUserIds?: mongoose.Types.ObjectId[]
-      }>()
+        friendUserIds?: mongoose.Types.ObjectId[];
+      }>();
 
-    const ids = new Map<string, mongoose.Types.ObjectId>()
-    ids.set(viewerObjectId.toString(), viewerObjectId)
+    const ids = new Map<string, mongoose.Types.ObjectId>();
+    ids.set(viewerObjectId.toString(), viewerObjectId);
 
     for (const friendUserId of audience?.friendUserIds ?? []) {
-      ids.set(friendUserId.toString(), friendUserId)
+      ids.set(friendUserId.toString(), friendUserId);
     }
 
-    return [...ids.values()]
+    return [...ids.values()];
   }
 
   private async findTotalRanking(
@@ -184,11 +165,11 @@ console.log(audienceIds)
     viewerUserId: string,
     limit: number,
     targetRank: number,
-    audienceIds?: mongoose.Types.ObjectId[],
+    audienceIds?: mongoose.Types.ObjectId[]
   ): Promise<RankingBundle> {
-    const viewerObjectId = this.toObjectId(viewerUserId)
-    const scoreField = MongoLeaderboardFilterBuilder.scoreField(section)
-    const levelField = MongoLeaderboardFilterBuilder.levelField(section)
+    const viewerObjectId = this.toObjectId(viewerUserId);
+    const scoreField = MongoLeaderboardFilterBuilder.scoreField(section);
+    const levelField = MongoLeaderboardFilterBuilder.levelField(section);
 
     const pipeline: mongoose.PipelineStage[] = [
       {
@@ -245,20 +226,15 @@ console.log(audienceIds)
             },
             { $limit: 1 },
           ],
-          targetEntries: [
-            { $skip: targetRank - 1 },
-            { $limit: 1 },
-          ],
+          targetEntries: [{ $skip: targetRank - 1 }, { $limit: 1 }],
           metadata: [{ $count: 'count' }],
         },
       },
-    ]
+    ];
 
-    const [facet] = await User.aggregate<MongoLeaderboardFacetRecord>(
-      pipeline,
-    )
+    const [facet] = await User.aggregate<MongoLeaderboardFacetRecord>(pipeline);
 
-    return this.toRankingBundle(facet)
+    return this.toRankingBundle(facet);
   }
 
   private async findWeeklyRanking(
@@ -266,17 +242,11 @@ console.log(audienceIds)
     viewerUserId: string,
     period: LeaderboardTimeRange,
     limit: number,
-    targetRank: number,
+    targetRank: number
   ): Promise<RankingBundle> {
-    const viewerObjectId = this.toObjectId(viewerUserId)
-    const scoreField = MongoLeaderboardFilterBuilder.scoreField(
-      section,
-      'user.',
-    )
-    const levelField = MongoLeaderboardFilterBuilder.levelField(
-      section,
-      'user.',
-    )
+    const viewerObjectId = this.toObjectId(viewerUserId);
+    const scoreField = MongoLeaderboardFilterBuilder.scoreField(section, 'user.');
+    const levelField = MongoLeaderboardFilterBuilder.levelField(section, 'user.');
 
     const pipeline: mongoose.PipelineStage[] = [
       {
@@ -313,10 +283,7 @@ console.log(audienceIds)
       },
       { $unwind: '$user' },
       {
-        $match: MongoLeaderboardFilterBuilder.eligibleUser(
-          section,
-          'user.',
-        ),
+        $match: MongoLeaderboardFilterBuilder.eligibleUser(section, 'user.'),
       },
       {
         $project: {
@@ -359,56 +326,46 @@ console.log(audienceIds)
             },
             { $limit: 1 },
           ],
-          targetEntries: [
-            { $skip: targetRank - 1 },
-            { $limit: 1 },
-          ],
+          targetEntries: [{ $skip: targetRank - 1 }, { $limit: 1 }],
           metadata: [{ $count: 'count' }],
         },
       },
-    ]
+    ];
 
-    const [facet] =
-      await LeaderboardXpEvent.aggregate<MongoLeaderboardFacetRecord>(
-        pipeline,
-      )
+    const [facet] = await LeaderboardXpEvent.aggregate<MongoLeaderboardFacetRecord>(pipeline);
 
-    return this.toRankingBundle(facet)
+    return this.toRankingBundle(facet);
   }
 
-  private toRankingBundle(
-    facet?: MongoLeaderboardFacetRecord,
-  ): RankingBundle {
+  private toRankingBundle(facet?: MongoLeaderboardFacetRecord): RankingBundle {
     return {
       topEntries: facet?.topEntries ?? [],
       viewerEntry: facet?.viewerEntries?.[0] ?? null,
       participantCount: facet?.metadata?.[0]?.count ?? 0,
       targetRankScore: facet?.targetEntries?.[0]?.score ?? null,
-    }
+    };
   }
 
   private collectRankingUserIds(ranking: RankingBundle): string[] {
-    const ids = new Set(
-      ranking.topEntries.map((record) => this._mapper.toId(record._id)),
-    )
+    const ids = new Set(ranking.topEntries.map((record) => this._mapper.toId(record._id)));
 
     if (ranking.viewerEntry) {
-      ids.add(this._mapper.toId(ranking.viewerEntry._id))
+      ids.add(this._mapper.toId(ranking.viewerEntry._id));
     }
 
-    return [...ids]
+    return [...ids];
   }
 
   private async findPreviousWeeklyRanks(
     section: LeaderboardSection,
     period: LeaderboardTimeRange,
-    userIds: string[],
+    userIds: string[]
   ): Promise<Map<string, number>> {
     if (userIds.length === 0) {
-      return new Map()
+      return new Map();
     }
 
-    const objectIds = userIds.map((userId) => this.toObjectId(userId))
+    const objectIds = userIds.map((userId) => this.toObjectId(userId));
 
     const pipeline: mongoose.PipelineStage[] = [
       {
@@ -445,10 +402,7 @@ console.log(audienceIds)
       },
       { $unwind: '$user' },
       {
-        $match: MongoLeaderboardFilterBuilder.eligibleUser(
-          section,
-          'user.',
-        ),
+        $match: MongoLeaderboardFilterBuilder.eligibleUser(section, 'user.'),
       },
       {
         $project: {
@@ -482,16 +436,14 @@ console.log(audienceIds)
           rank: 1,
         },
       },
-    ]
+    ];
 
     const records = await LeaderboardXpEvent.aggregate<{
-      _id: mongoose.Types.ObjectId
-      rank: number
-    }>(pipeline)
+      _id: mongoose.Types.ObjectId;
+      rank: number;
+    }>(pipeline);
 
-    return new Map(
-      records.map((record) => [record._id.toString(), record.rank]),
-    )
+    return new Map(records.map((record) => [record._id.toString(), record.rank]));
   }
 
   private async findPreviousSnapshotRanks(
@@ -499,19 +451,16 @@ console.log(audienceIds)
     scope: LeaderboardScope,
     snapshotBefore: Date,
     userIds: string[],
-    audienceIds?: mongoose.Types.ObjectId[],
+    audienceIds?: mongoose.Types.ObjectId[]
   ): Promise<Map<string, number>> {
     if (userIds.length === 0) {
-      return new Map()
+      return new Map();
     }
 
-    const reference = await this.findSnapshotReference(
-      section,
-      snapshotBefore,
-    )
+    const reference = await this.findSnapshotReference(section, snapshotBefore);
 
     if (!reference) {
-      return new Map()
+      return new Map();
     }
 
     if (scope === 'friends') {
@@ -532,20 +481,20 @@ console.log(audienceIds)
           score: 1,
           rank: 1,
         })
-        .lean<MongoSnapshotRankRecord[]>()
+        .lean<MongoSnapshotRankRecord[]>();
 
-      const targetIds = new Set(userIds)
-      const ranks = new Map<string, number>()
+      const targetIds = new Set(userIds);
+      const ranks = new Map<string, number>();
 
       snapshots.forEach((snapshot, index) => {
-        const userId = snapshot.userId.toString()
+        const userId = snapshot.userId.toString();
 
         if (targetIds.has(userId)) {
-          ranks.set(userId, index + 1)
+          ranks.set(userId, index + 1);
         }
-      })
+      });
 
-      return ranks
+      return ranks;
     }
 
     const snapshots = await LeaderboardRankSnapshot.find({
@@ -559,21 +508,16 @@ console.log(audienceIds)
         userId: 1,
         rank: 1,
       })
-      .lean<MongoSnapshotRankRecord[]>()
+      .lean<MongoSnapshotRankRecord[]>();
 
-    return new Map(
-      snapshots.map((snapshot) => [
-        snapshot.userId.toString(),
-        snapshot.rank,
-      ]),
-    )
+    return new Map(snapshots.map((snapshot) => [snapshot.userId.toString(), snapshot.rank]));
   }
 
   private async findSnapshotReference(
     section: LeaderboardSection,
-    snapshotBefore: Date,
+    snapshotBefore: Date
   ): Promise<SnapshotReference | null> {
-    const snapshotKey = snapshotBefore.toISOString().slice(0, 10)
+    const snapshotKey = snapshotBefore.toISOString().slice(0, 10);
 
     const exact = await LeaderboardRankSnapshot.findOne({
       section,
@@ -581,10 +525,10 @@ console.log(audienceIds)
     })
       .sort({ capturedAt: -1 })
       .select({ snapshotKey: 1, capturedAt: 1 })
-      .lean<SnapshotReference>()
+      .lean<SnapshotReference>();
 
     if (exact) {
-      return exact
+      return exact;
     }
 
     return LeaderboardRankSnapshot.findOne({
@@ -595,54 +539,42 @@ console.log(audienceIds)
     })
       .sort({ capturedAt: -1 })
       .select({ snapshotKey: 1, capturedAt: 1 })
-      .lean<SnapshotReference>()
+      .lean<SnapshotReference>();
   }
 
   private async findGlobalViewerEntry(
     section: LeaderboardSection,
     viewerUserId: string,
-    snapshotBefore: Date,
+    snapshotBefore: Date
   ) {
-    const ranking = await this.findTotalRanking(
-      section,
-      viewerUserId,
-      1,
-      1,
-    )
+    const ranking = await this.findTotalRanking(section, viewerUserId, 1, 1);
 
     if (!ranking.viewerEntry) {
-      return null
+      return null;
     }
 
-    const previousRanks = await this.findPreviousSnapshotRanks(
-      section,
-      'global',
-      snapshotBefore,
-      [viewerUserId],
-    )
+    const previousRanks = await this.findPreviousSnapshotRanks(section, 'global', snapshotBefore, [
+      viewerUserId,
+    ]);
 
     return this._mapper.toEntryEntity(
       ranking.viewerEntry,
       section,
-      previousRanks.get(viewerUserId),
-    )
+      previousRanks.get(viewerUserId)
+    );
   }
 
-  private async countActiveParticipants(
-    section: LeaderboardSection,
-  ): Promise<number> {
-    return User.countDocuments(
-      MongoLeaderboardFilterBuilder.eligibleUser(section),
-    )
+  private async countActiveParticipants(section: LeaderboardSection): Promise<number> {
+    return User.countDocuments(MongoLeaderboardFilterBuilder.eligibleUser(section));
   }
 
   private async findStreakChampions(
     section: LeaderboardSection,
     limit: number,
-    audienceIds?: mongoose.Types.ObjectId[],
+    audienceIds?: mongoose.Types.ObjectId[]
   ) {
-    const scoreField = MongoLeaderboardFilterBuilder.scoreField(section)
-    const levelField = MongoLeaderboardFilterBuilder.levelField(section)
+    const scoreField = MongoLeaderboardFilterBuilder.scoreField(section);
+    const levelField = MongoLeaderboardFilterBuilder.levelField(section);
 
     const pipeline: mongoose.PipelineStage[] = [
       {
@@ -682,10 +614,9 @@ console.log(audienceIds)
           createdAt: 1,
         },
       },
-    ]
+    ];
 
-    const records =
-      await User.aggregate<MongoRankedUserRecord>(pipeline)
+    const records = await User.aggregate<MongoRankedUserRecord>(pipeline);
 
     return records.map((record, index) =>
       this._mapper.toEntryEntity(
@@ -693,40 +624,40 @@ console.log(audienceIds)
           ...record,
           rank: index + 1,
         },
-        section,
-      ),
-    )
+        section
+      )
+    );
   }
 
   private async findViewerWeeklyScores(
     viewerUserId: string,
     section: LeaderboardSection,
     currentPeriod: LeaderboardTimeRange,
-    previousPeriod: LeaderboardTimeRange,
+    previousPeriod: LeaderboardTimeRange
   ): Promise<{
-    current: number
-    previous: number
+    current: number;
+    previous: number;
   }> {
-    const viewerObjectId = this.toObjectId(viewerUserId)
+    const viewerObjectId = this.toObjectId(viewerUserId);
 
     const [current, previous] = await Promise.all([
       this.sumXpEvents(viewerObjectId, section, currentPeriod),
       this.sumXpEvents(viewerObjectId, section, previousPeriod),
-    ])
+    ]);
 
     return {
       current,
       previous,
-    }
+    };
   }
 
   private async sumXpEvents(
     userId: mongoose.Types.ObjectId,
     section: LeaderboardSection,
-    period: LeaderboardTimeRange,
+    period: LeaderboardTimeRange
   ): Promise<number> {
     const [record] = await LeaderboardXpEvent.aggregate<{
-      score: number
+      score: number;
     }>([
       {
         $match: {
@@ -752,19 +683,19 @@ console.log(audienceIds)
           score: 1,
         },
       },
-    ])
+    ]);
 
-    return Math.max(0, record?.score ?? 0)
+    return Math.max(0, record?.score ?? 0);
   }
 
   private toObjectId(value: string): mongoose.Types.ObjectId {
     if (!mongoose.Types.ObjectId.isValid(value)) {
       throw new LeaderboardDomainError(
         'INVALID_LEADERBOARD_USER_ID',
-        'Leaderboard user ID is invalid',
-      )
+        'Leaderboard user ID is invalid'
+      );
     }
 
-    return new mongoose.Types.ObjectId(value)
+    return new mongoose.Types.ObjectId(value);
   }
 }

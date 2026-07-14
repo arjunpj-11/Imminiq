@@ -1,25 +1,25 @@
-import { useMutation } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
-import api from '../../../../lib/axios'
-import type { OnboardingLevel } from './useSaveOnboardingStepTwo'
+import { useMutation } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import api from '../../../../lib/axios';
+import type { OnboardingLevel } from './useSaveOnboardingStepTwo';
 
 interface IGenerateRoadmapPayload {
-  topic: string
-  goal?: string
-  level: OnboardingLevel
+  topic: string;
+  goal?: string;
+  level: OnboardingLevel;
 }
 
 interface IGenerateRoadmapResponse {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
   data?: {
-    jobId?: string
-  }
+    jobId?: string;
+  };
 }
 
 interface IApiErrorResponse {
-  success?: boolean
-  message?: string
+  success?: boolean;
+  message?: string;
 }
 
 export const useGenerateRoadmap = () => {
@@ -32,9 +32,9 @@ export const useGenerateRoadmap = () => {
       const response = await api.post<IGenerateRoadmapResponse>(
         '/onboarding/generate-roadmap',
         payload
-      )
+      );
 
-      return response.data
+      return response.data;
     },
-  })
-}
+  });
+};

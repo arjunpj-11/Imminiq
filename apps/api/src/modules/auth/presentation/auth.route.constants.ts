@@ -20,7 +20,6 @@ export const AUTH_ROUTE_PATHS = {
 
   OAUTH_GITHUB: '/oauth/github',
   OAUTH_GITHUB_CALLBACK: '/oauth/github/callback',
-} as const
+} as const;
 
-export type AuthRoutePath =
-  (typeof AUTH_ROUTE_PATHS)[keyof typeof AUTH_ROUTE_PATHS]
+export type AuthRoutePath = (typeof AUTH_ROUTE_PATHS)[keyof typeof AUTH_ROUTE_PATHS];

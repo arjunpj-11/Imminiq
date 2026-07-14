@@ -1,4 +1,4 @@
 export {
   MongoLeaderboardRepository,
   mongoLeaderboardRepository,
-} from './repositories/mongo-leaderboard.repository'
+} from './repositories/mongo-leaderboard.repository';

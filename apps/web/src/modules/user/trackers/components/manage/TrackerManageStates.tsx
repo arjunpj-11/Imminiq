@@ -1,6 +1,6 @@
-import EmptyState from '../../../../../components/feedback/EmptyState'
-import SkeletonBlock from '../../../../../components/feedback/SkeletonBlock'
-import Button from '../../../../../components/ui/Button'
+import EmptyState from '../../../../../components/feedback/EmptyState';
+import SkeletonBlock from '../../../../../components/feedback/SkeletonBlock';
+import Button from '../../../../../components/ui/Button';
 
 export function TrackerManageLoadingState() {
   return (
@@ -11,7 +11,7 @@ export function TrackerManageLoadingState() {
         <SkeletonBlock className="mt-3 h-4 w-full max-w-sm" />
       </div>
     </div>
-  )
+  );
 }
 
 export function TrackerManageEmptyState({ message }: { message: string }) {
@@ -26,5 +26,5 @@ export function TrackerManageEmptyState({ message }: { message: string }) {
       }
       className="min-h-80 border-solid shadow-[0_4px_24px_rgba(26,23,20,0.07)]"
     />
-  )
+  );
 }

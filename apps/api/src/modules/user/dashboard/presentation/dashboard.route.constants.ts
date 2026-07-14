@@ -6,7 +6,6 @@ export const DASHBOARD_ROUTE_PATHS = {
   FRIENDS_HUB: '/friends-hub',
   RECOMMENDED_ACTIONS: '/recommended-actions',
   AI_INSIGHTS: '/ai-insights',
-} as const
+} as const;
 
-export type DashboardRoutePath =
-  (typeof DASHBOARD_ROUTE_PATHS)[keyof typeof DASHBOARD_ROUTE_PATHS]
+export type DashboardRoutePath = (typeof DASHBOARD_ROUTE_PATHS)[keyof typeof DASHBOARD_ROUTE_PATHS];

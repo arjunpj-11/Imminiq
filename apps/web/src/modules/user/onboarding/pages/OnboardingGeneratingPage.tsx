@@ -1,26 +1,32 @@
 // apps/web/src/modules/user/onboarding/pages/OnboardingGeneratingPage.tsx
 
-import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useOnboardingStore } from '../store/useOnboardingStore'
-import { useRoadmapJobStatus } from '../hooks/useRoadmapJobStatus'
-import OnboardingBrandLink from '../components/OnboardingBrandLink'
+import { useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useOnboardingStore } from '../store/useOnboardingStore';
+import { useRoadmapJobStatus } from '../hooks/useRoadmapJobStatus';
+import OnboardingBrandLink from '../components/OnboardingBrandLink';
 import {
   OnboardingActivityChips,
   OnboardingProgressStatusCard,
   OnboardingWorkflowFooter,
-} from '../components/OnboardingWorkflowStatus'
-import { generationSteps } from '../constants/onboarding.constants'
-import type { ActivityChip, IJobStatusApiData, JobTerminalState, INormalizedJobStatus, ProgressStepState } from '../types/onboarding.types'
-import { cn } from '../utils/cn'
-import { clampProgress, normalizeProgressStepIndex } from '../utils/onboarding-progress'
+} from '../components/OnboardingWorkflowStatus';
+import { generationSteps } from '../constants/onboarding.constants';
+import type {
+  ActivityChip,
+  IJobStatusApiData,
+  JobTerminalState,
+  INormalizedJobStatus,
+  ProgressStepState,
+} from '../types/onboarding.types';
+import { cn } from '../utils/cn';
+import { clampProgress, normalizeProgressStepIndex } from '../utils/onboarding-progress';
 
-const activityProgressMap = [0, 1, 2, 3, 3]
+const activityProgressMap = [0, 1, 2, 3, 3];
 
 const capitalize = (value: string) => {
-  if (!value) return value
-  return value.charAt(0).toUpperCase() + value.slice(1)
-}
+  if (!value) return value;
+  return value.charAt(0).toUpperCase() + value.slice(1);
+};
 
 const CheckIcon = () => {
   return (
@@ -35,8 +41,8 @@ const CheckIcon = () => {
     >
       <polyline points="20 6 9 17 4 12" />
     </svg>
-  )
-}
+  );
+};
 
 const ProfileInputIcon = () => {
   return (
@@ -52,8 +58,8 @@ const ProfileInputIcon = () => {
       <rect x="3" y="3" width="18" height="18" rx="3" />
       <path d="M9 9h6M9 12h6M9 15h4" />
     </svg>
-  )
-}
+  );
+};
 
 const SearchIcon = () => {
   return (
@@ -69,8 +75,8 @@ const SearchIcon = () => {
       <circle cx="11" cy="11" r="8" />
       <line x1="21" y1="21" x2="16.65" y2="16.65" />
     </svg>
-  )
-}
+  );
+};
 
 const PriorityIcon = () => {
   return (
@@ -90,8 +96,8 @@ const PriorityIcon = () => {
       <line x1="3" y1="12" x2="3.01" y2="12" />
       <line x1="3" y1="18" x2="3.01" y2="18" />
     </svg>
-  )
-}
+  );
+};
 
 const FlagIcon = () => {
   return (
@@ -107,8 +113,8 @@ const FlagIcon = () => {
       <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" />
       <line x1="4" y1="22" x2="4" y2="15" />
     </svg>
-  )
-}
+  );
+};
 
 const ActivitySparkIcon = () => {
   return (
@@ -123,8 +129,8 @@ const ActivitySparkIcon = () => {
     >
       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
     </svg>
-  )
-}
+  );
+};
 
 const activityChips: ActivityChip[] = [
   {
@@ -143,47 +149,42 @@ const activityChips: ActivityChip[] = [
     label: 'Creating milestones',
     icon: <FlagIcon />,
   },
-]
+];
 
 const defaultJobStatus: INormalizedJobStatus = {
   progress: 8,
   activeStepIndex: 0,
   terminalState: null,
-  logMessage:
-    'Connecting to the roadmap engine… Preparing your learning context.',
+  logMessage: 'Connecting to the roadmap engine… Preparing your learning context.',
   engineLabel: 'Initialising generation pipeline',
   nextLabel: 'Estimated next: Goal analysis',
   stepsLabel: '0 / 5 steps complete',
   activeActivityIndex: 0,
-}
+};
 
 // Each index corresponds to a generation step (0–4).
 // Used as the progress floor when the API does not return an explicit
 // progress / progressPercent / percentage value.
-const stepProgressFloors = [15, 35, 55, 75, 90]
+const stepProgressFloors = [15, 35, 55, 75, 90];
 
-const normalizeJobStatus = (
-  payload: IJobStatusApiData | undefined
-): INormalizedJobStatus => {
+const normalizeJobStatus = (payload: IJobStatusApiData | undefined): INormalizedJobStatus => {
   if (!payload) {
-    return defaultJobStatus
+    return defaultJobStatus;
   }
 
-  const rawStatus = (payload.status || payload.state || '').toLowerCase()
+  const rawStatus = (payload.status || payload.state || '').toLowerCase();
 
   const terminalState: JobTerminalState =
     rawStatus === 'completed' || rawStatus === 'success' || rawStatus === 'done'
       ? 'completed'
       : rawStatus === 'failed' || rawStatus === 'error'
         ? 'failed'
-        : null
+        : null;
 
-  const completedSteps =
-    payload.completedSteps ?? payload.completedStep ?? undefined
+  const completedSteps = payload.completedSteps ?? payload.completedStep ?? undefined;
 
   // Resolve the explicit progress value from the API (may be undefined).
-  const rawProgress =
-    payload.progress ?? payload.progressPercent ?? payload.percentage
+  const rawProgress = payload.progress ?? payload.progressPercent ?? payload.percentage;
 
   // Compute activeStepIndex first so it can drive the progress fallback
   // when the API omits a percentage field.
@@ -191,7 +192,7 @@ const normalizeJobStatus = (
     payload.currentStep ?? payload.step,
     completedSteps,
     rawProgress ?? 0
-  )
+  );
 
   // If the API sends an explicit progress value use it directly; otherwise
   // derive a meaningful floor from the current step so the bar advances
@@ -200,20 +201,20 @@ const normalizeJobStatus = (
     rawProgress ??
       (terminalState === 'completed'
         ? 100
-        : stepProgressFloors[activeStepIndex] ?? defaultJobStatus.progress)
-  )
+        : (stepProgressFloors[activeStepIndex] ?? defaultJobStatus.progress))
+  );
 
   const completedStepCount =
     terminalState === 'completed'
       ? 5
       : typeof completedSteps === 'number'
         ? Math.min(5, Math.max(0, completedSteps))
-        : Math.min(4, Math.max(0, activeStepIndex))
+        : Math.min(4, Math.max(0, activeStepIndex));
 
   const defaultActiveStep =
     generationSteps[activeStepIndex]?.activeLabel ||
     generationSteps[activeStepIndex]?.label ||
-    'Generating roadmap…'
+    'Generating roadmap…';
 
   const defaultLogByStep = [
     'Analysing your selected topic and goal to understand the roadmap direction.',
@@ -221,7 +222,7 @@ const normalizeJobStatus = (
     'Structuring the roadmap flow, practice depth, and topic progression.',
     'Matching supportive resources and implementation guidance.',
     'Finalising your personalised learning path and preparing the result.',
-  ]
+  ];
 
   const defaultNextLabels = [
     'Estimated next: Topic mapping',
@@ -229,7 +230,7 @@ const normalizeJobStatus = (
     'Estimated next: Resource mapping',
     'Estimated next: Finalisation',
     'Estimated next: Roadmap ready',
-  ]
+  ];
 
   return {
     progress,
@@ -257,15 +258,13 @@ const normalizeJobStatus = (
       (terminalState === 'completed'
         ? 'Ready — redirecting to dashboard'
         : terminalState === 'failed'
-          ? 'Return to Step 2 and generate again'
+          ? 'Return to the tracker conversation and generate again'
           : defaultNextLabels[activeStepIndex] || defaultJobStatus.nextLabel),
     stepsLabel: `${completedStepCount} / 5 steps complete`,
     activeActivityIndex:
-      terminalState === 'completed'
-        ? -1
-        : activityProgressMap[activeStepIndex] ?? 0,
-  }
-}
+      terminalState === 'completed' ? -1 : (activityProgressMap[activeStepIndex] ?? 0),
+  };
+};
 
 const StatusDot = ({ state }: { state: ProgressStepState }) => {
   if (state === 'done') {
@@ -273,7 +272,7 @@ const StatusDot = ({ state }: { state: ProgressStepState }) => {
       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-(--success) dark:bg-(--success)">
         <CheckIcon />
       </span>
-    )
+    );
   }
 
   if (state === 'active') {
@@ -282,36 +281,29 @@ const StatusDot = ({ state }: { state: ProgressStepState }) => {
         <span className="absolute -inset-1 animate-spin rounded-full border-2 border-transparent border-t-(--brand-500) dark:border-t-[#f5a090]" />
         <span className="h-2 w-2 animate-pulse rounded-full bg-[#fff8ed] dark:bg-(--surface-canvas)" />
       </span>
-    )
+    );
   }
 
-  return (
-    <span className="h-6 w-6 shrink-0 rounded-full bg-[#1a1714]/15 dark:bg-[#f2f0eb]/15" />
-  )
-}
+  return <span className="h-6 w-6 shrink-0 rounded-full bg-[#1a1714]/15 dark:bg-[#f2f0eb]/15" />;
+};
 
 export default function OnboardingGeneratingPage() {
-  const navigate = useNavigate()
-  const { jobId } = useParams<{ jobId: string }>()
+  const navigate = useNavigate();
+  const { jobId } = useParams<{ jobId: string }>();
+  const setActiveRoadmapJobId = useOnboardingStore((state) => state.setActiveRoadmapJobId);
+  const clearIntake = useOnboardingStore((state) => state.clearIntake);
 
-  const topic = useOnboardingStore(
-    (state) => state.step1Data?.topic || 'MERN stack interviews',
-  )
+  const topic = useOnboardingStore((state) => state.step1Data?.topic || 'MERN stack interviews');
   const goal = useOnboardingStore(
-    (state) => state.step1Data?.goal || 'Crack top company interviews',
-  )
-  const level = useOnboardingStore(
-    (state) => state.step2Data?.level || 'intermediate',
-  )
+    (state) => state.step1Data?.goal || 'Crack top company interviews'
+  );
+  const level = useOnboardingStore((state) => state.step2Data?.level || 'intermediate');
 
-  const {
-    data: jobStatusResponse,
-    error: jobStatusError,
-  } = useRoadmapJobStatus(jobId)
+  const { data: jobStatusResponse, error: jobStatusError } = useRoadmapJobStatus(jobId);
 
   const jobStatus = useMemo(() => {
-    return normalizeJobStatus(jobStatusResponse?.data)
-  }, [jobStatusResponse?.data])
+    return normalizeJobStatus(jobStatusResponse?.data);
+  }, [jobStatusResponse?.data]);
 
   const statusError =
     jobStatusError?.response?.data?.message ||
@@ -319,55 +311,57 @@ export default function OnboardingGeneratingPage() {
       ? 'Unable to read roadmap generation progress.'
       : !jobId
         ? 'Missing roadmap generation job ID.'
-        : '')
+        : '');
 
   useEffect(() => {
     if (jobStatus.terminalState !== 'completed') {
-      return
+      return;
     }
 
     const timer = window.setTimeout(() => {
+      clearIntake();
+      setActiveRoadmapJobId(null);
       navigate(`/onboarding/roadmap-ready/${jobId}`, {
         replace: true,
-      })
-    }, 1800)
+      });
+    }, 1800);
 
     return () => {
-      window.clearTimeout(timer)
-    }
-  }, [jobStatus.terminalState, navigate, jobId])
+      window.clearTimeout(timer);
+    };
+  }, [clearIntake, jobStatus.terminalState, navigate, jobId, setActiveRoadmapJobId]);
 
-  const visibleLevel = useMemo(() => capitalize(level), [level])
+  const visibleLevel = useMemo(() => capitalize(level), [level]);
 
   const stepStates = useMemo(() => {
     return generationSteps.map((_, index): ProgressStepState => {
       if (jobStatus.terminalState === 'completed') {
-        return 'done'
+        return 'done';
       }
 
       if (jobStatus.terminalState === 'failed') {
         if (index < jobStatus.activeStepIndex) {
-          return 'done'
+          return 'done';
         }
 
         if (index === jobStatus.activeStepIndex) {
-          return 'active'
+          return 'active';
         }
 
-        return 'pending'
+        return 'pending';
       }
 
       if (index < jobStatus.activeStepIndex) {
-        return 'done'
+        return 'done';
       }
 
       if (index === jobStatus.activeStepIndex) {
-        return 'active'
+        return 'active';
       }
 
-      return 'pending'
-    })
-  }, [jobStatus.activeStepIndex, jobStatus.terminalState])
+      return 'pending';
+    });
+  }, [jobStatus.activeStepIndex, jobStatus.terminalState]);
 
   return (
     <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -378,8 +372,6 @@ export default function OnboardingGeneratingPage() {
           <span className="hidden rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500) sm:inline-flex">
             AI Roadmap Generator
           </span>
-
-          
         </div>
       </header>
 
@@ -394,8 +386,8 @@ export default function OnboardingGeneratingPage() {
           </h1>
 
           <p className="max-w-127.5 text-[15px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-            Our AI is analysing your goals and building a personalised path for
-            your next learning phase.
+            Our AI is analysing your goals and building a personalised path for your next learning
+            phase.
           </p>
         </section>
 
@@ -460,15 +452,14 @@ export default function OnboardingGeneratingPage() {
             </h2>
 
             <p className="mb-4 text-[12.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
-              Every stage shapes the structure of your personalised learning
-              journey.
+              Every stage shapes the structure of your personalised learning journey.
             </p>
 
             <div className="flex flex-col gap-2.5" role="list">
               {generationSteps.map((step, index) => {
-                const state = stepStates[index]
-                const isActive = state === 'active'
-                const isPending = state === 'pending'
+                const state = stepStates[index];
+                const isActive = state === 'active';
+                const isPending = state === 'pending';
 
                 return (
                   <div
@@ -479,8 +470,7 @@ export default function OnboardingGeneratingPage() {
                       'flex items-center gap-3 rounded-xl border-[1.5px] px-3.5 py-2.5 transition',
                       isActive &&
                         'border-[rgba(184,76,43,0.30)] bg-[rgba(184,76,43,0.07)] dark:border-[rgba(232,129,106,0.30)] dark:bg-[rgba(232,129,106,0.08)]',
-                      isPending &&
-                        'border-transparent opacity-45',
+                      isPending && 'border-transparent opacity-45',
                       state === 'done' && 'border-transparent'
                     )}
                   >
@@ -495,7 +485,7 @@ export default function OnboardingGeneratingPage() {
                       {isActive ? step.activeLabel || step.label : step.label}
                     </span>
                   </div>
-                )
+                );
               })}
             </div>
           </article>
@@ -520,16 +510,38 @@ export default function OnboardingGeneratingPage() {
         {jobStatus.terminalState === 'failed' && (
           <button
             type="button"
-            onClick={() => navigate('/onboarding/step-2', { replace: true })}
+            onClick={() => navigate('/onboarding/step-1', { replace: true })}
             className="rounded-xl bg-(--brand-500) px-5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
-            Return to Step 2
+            Return to tracker conversation
           </button>
         )}
+
+        {jobStatus.terminalState === null ? (
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard', { replace: true })}
+            className="group relative flex w-full max-w-160 items-center gap-4 overflow-hidden rounded-2xl border border-[rgba(184,76,43,0.25)] bg-[linear-gradient(135deg,var(--surface-card),rgba(184,76,43,0.08))] px-5 py-4 text-left shadow-[0_10px_34px_rgba(26,23,20,0.08)] transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-[0_14px_42px_rgba(184,76,43,0.15)] dark:bg-[linear-gradient(135deg,var(--surface-card),rgba(232,129,106,0.08))]"
+          >
+            <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-lg text-white shadow-[0_6px_18px_rgba(184,76,43,0.25)]">
+              ↗
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-sm font-black text-(--text-primary)">
+                Continue in the background
+              </span>
+              <span className="mt-1 block text-[11.5px] leading-5 text-(--text-secondary)">
+                Go to your dashboard now—we’ll notify you when the tracker review is ready.
+              </span>
+            </span>
+            <span className="shrink-0 text-lg text-(--brand-500) transition group-hover:translate-x-1">
+              →
+            </span>
+          </button>
+        ) : null}
       </main>
 
       <OnboardingWorkflowFooter />
-
     </div>
-  )
+  );
 }

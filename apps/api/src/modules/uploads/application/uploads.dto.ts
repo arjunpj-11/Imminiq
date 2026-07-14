@@ -1,39 +1,36 @@
-import type {
-  ProfileUploadKind,
-  UploadedProfileImageFile,
-} from '../domain/uploads.types'
+import type { ProfileUploadKind, UploadedProfileImageFile } from '../domain/uploads.types';
 
 export interface IUploadProfileImageInputDTO {
-  userId: string
-  kind: ProfileUploadKind
-  file?: UploadedProfileImageFile
+  userId: string;
+  kind: ProfileUploadKind;
+  file?: UploadedProfileImageFile;
 }
 
 export interface IUploadProfileImageResultDTO {
-  uploadId: string
-  fileUrl: string
-  kind: ProfileUploadKind
+  uploadId: string;
+  fileUrl: string;
+  kind: ProfileUploadKind;
 }
 
 export interface IRemoveAvatarResultDTO {
-  avatarRemoved: true
-  defaultAvatarApplied: true
+  avatarRemoved: true;
+  defaultAvatarApplied: true;
 }
 
 export interface IRemoveBannerResultDTO {
-  bannerRemoved: true
+  bannerRemoved: true;
 }
 
 export interface IAIImagePreviewResultDTO {
-  imageUrl: string
+  imageUrl: string;
 }
 
 export interface IGenerateAIImagePreviewInputDTO {
-  prompt: string
+  prompt: string;
 }
 
 export interface IUploadUserProfileContextDTO {
-  userId: string
-  fullName: string
-  profileId: string
+  userId: string;
+  fullName: string;
+  profileId: string;
 }

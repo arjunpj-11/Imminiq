@@ -1,19 +1,16 @@
-import { useInfiniteQuery } from "@tanstack/react-query";
-import type { AxiosError } from "axios";
+import { useInfiniteQuery } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
 
-import api from "../../../../lib/axios";
-import {
-  FRIENDS_ENDPOINTS,
-  FRIENDS_STALE_TIME_MS,
-} from "../constants/friends.constants";
+import api from '../../../../lib/axios';
+import { FRIENDS_ENDPOINTS, FRIENDS_STALE_TIME_MS } from '../constants/friends.constants';
 import type {
   IFriendRequestListPage,
   IFriendRequestsQueryInput,
   IFriendRequestsResponse,
   IFriendsApiErrorResponse,
   IFriendsApiResponse,
-} from "../types/friends.types";
-import { friendsQueryKeys } from "./friends-query-keys";
+} from '../types/friends.types';
+import { friendsQueryKeys } from './friends-query-keys';
 
 export const useReceivedFriendRequests = (input: IFriendRequestsQueryInput) =>
   useInfiniteQuery<
@@ -22,16 +19,17 @@ export const useReceivedFriendRequests = (input: IFriendRequestsQueryInput) =>
   >({
     queryKey: friendsQueryKeys.receivedRequests(input),
     queryFn: async ({ pageParam }) => {
-      const page = typeof pageParam === "number" ? pageParam : 1;
-      const response = await api.get<
-        IFriendsApiResponse<IFriendRequestsResponse>
-      >(FRIENDS_ENDPOINTS.requests, {
-        params: {
-          receivedPage: page,
-          sentPage: 1,
-          limit: input.limit,
-        },
-      });
+      const page = typeof pageParam === 'number' ? pageParam : 1;
+      const response = await api.get<IFriendsApiResponse<IFriendRequestsResponse>>(
+        FRIENDS_ENDPOINTS.requests,
+        {
+          params: {
+            receivedPage: page,
+            sentPage: 1,
+            limit: input.limit,
+          },
+        }
+      );
 
       return {
         ...response.data.data.received,

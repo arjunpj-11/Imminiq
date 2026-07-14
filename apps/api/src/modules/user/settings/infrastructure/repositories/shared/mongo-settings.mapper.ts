@@ -1,6 +1,6 @@
-import { SETTINGS_NOTIFICATION_TYPE_KEYS } from '../../../domain/settings.constants'
-import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity'
-import { SettingsDomainError } from '../../../domain/settings-domain.error'
+import { SETTINGS_NOTIFICATION_TYPE_KEYS } from '../../../domain/settings.constants';
+import { UserSettingsEntity } from '../../../domain/entities/user-settings.entity';
+import { SettingsDomainError } from '../../../domain/settings-domain.error';
 import type {
   SettingsAccountUpdateInput,
   SettingsAIBehaviourUpdateInput,
@@ -13,18 +13,15 @@ import type {
   SettingsNotificationsUpdateInput,
   SettingsPrivacyUpdateInput,
   SettingsQuietHoursUpdateInput,
-} from '../../../domain/repositories/settings-command.repository.interface'
-import type {
-  NotificationTypeSettings,
-  UserSettingsData,
-} from '../../../domain/settings.types'
+} from '../../../domain/repositories/settings-command.repository.interface';
+import type { NotificationTypeSettings, UserSettingsData } from '../../../domain/settings.types';
 import type {
   FlatSettingsUpdate,
   MongoIdLike,
   MongoUserSettingsRecord,
   MongooseObjectLike,
   UpdatableValue,
-} from './mongo-settings.types'
+} from './mongo-settings.types';
 
 const NOTIFICATION_KEYS = [
   'globalEnabled',
@@ -32,7 +29,7 @@ const NOTIFICATION_KEYS = [
   'globalPush',
   'marketing',
   'weeklyReport',
-] as const
+] as const;
 
 const PRIVACY_KEYS = [
   'profileVisibility',
@@ -50,7 +47,7 @@ const PRIVACY_KEYS = [
   'allowPublicTrackerView',
   'allowTrackerCloning',
   'showTrackerProgress',
-] as const
+] as const;
 
 const CODE_EDITOR_KEYS = [
   'theme',
@@ -60,20 +57,16 @@ const CODE_EDITOR_KEYS = [
   'lineNumbers',
   'wordWrap',
   'minimap',
-] as const
+] as const;
 
-const COMPILER_KEYS = [
-  'defaultLanguage',
-  'defaultRuntime',
-  'autoSwitchLanguage',
-] as const
+const COMPILER_KEYS = ['defaultLanguage', 'defaultRuntime', 'autoSwitchLanguage'] as const;
 
 const AI_BEHAVIOUR_KEYS = [
   'responseStyle',
   'autoGenerateLessons',
   'showAIInsights',
   'dailyQuotaAlert',
-] as const
+] as const;
 
 const LEARNING_JOURNEY_KEYS = [
   'dailyGoalMinutes',
@@ -81,7 +74,7 @@ const LEARNING_JOURNEY_KEYS = [
   'reminderTime',
   'autoPlayNextTopic',
   'showEstimatedTime',
-] as const
+] as const;
 
 const GESTURE_KEYS = [
   'enabled',
@@ -93,153 +86,124 @@ const GESTURE_KEYS = [
   'zoomGesture',
   'annotateGesture',
   'scrollGesture',
-] as const
+] as const;
 
 const QUIET_HOURS_KEYS = [
   'quietHoursEnabled',
   'quietHoursStart',
   'quietHoursEnd',
   'quietHoursDays',
-] as const
+] as const;
 
 const EMAIL_DIGEST_KEYS = [
   'enabled',
   'frequency',
   'includeActivity',
   'includeRecommendations',
-] as const
+] as const;
 
-const ACCOUNT_KEYS = ['language', 'timezone', 'dateFormat'] as const
+const ACCOUNT_KEYS = ['language', 'timezone', 'dateFormat'] as const;
 
 export class MongoSettingsMapper {
   toPlainRecord<T>(document: MongooseObjectLike<T>): T {
-    return document.toObject()
+    return document.toObject();
   }
 
   toId(value: MongoIdLike | string | undefined): string | undefined {
     if (!value) {
-      return undefined
+      return undefined;
     }
 
-    return typeof value === 'string' ? value : value.toString()
+    return typeof value === 'string' ? value : value.toString();
   }
 
   toEntity(settings: MongoUserSettingsRecord | null): UserSettingsEntity | null {
     if (!settings) {
-      return null
+      return null;
     }
 
     const settingsView: UserSettingsData = {
       ...settings,
       ...(settings._id ? { _id: settings._id } : {}),
       ...(settings.userId ? { userId: this.toId(settings.userId) } : {}),
-    }
+    };
 
-    const id = this.toId(settings._id)
-    const userId = this.toId(settings.userId) ?? ''
+    const id = this.toId(settings._id);
+    const userId = this.toId(settings.userId) ?? '';
 
     return new UserSettingsEntity({
       ...(id ? { id } : {}),
       userId,
       settings: settingsView,
-    })
+    });
   }
 
   toEntityOrThrow(settings: MongoUserSettingsRecord): UserSettingsEntity {
-    const entity = this.toEntity(settings)
+    const entity = this.toEntity(settings);
 
     if (!entity) {
-      throw new SettingsDomainError(
-        'SETTINGS_MAPPING_FAILED',
-        'Failed to map user settings'
-      )
+      throw new SettingsDomainError('SETTINGS_MAPPING_FAILED', 'Failed to map user settings');
     }
 
-    return entity
+    return entity;
   }
 
-  toAppearanceUpdate(
-    data: SettingsAppearanceUpdateInput
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate('appearance', data, ['theme'])
+  toAppearanceUpdate(data: SettingsAppearanceUpdateInput): FlatSettingsUpdate {
+    return this.toSectionUpdate('appearance', data, ['theme']);
   }
 
-  toNotificationsUpdate(
-    data: Omit<SettingsNotificationsUpdateInput, 'types'>
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate('notifications', data, NOTIFICATION_KEYS)
+  toNotificationsUpdate(data: Omit<SettingsNotificationsUpdateInput, 'types'>): FlatSettingsUpdate {
+    return this.toSectionUpdate('notifications', data, NOTIFICATION_KEYS);
   }
 
-  toNotificationTypesUpdate(
-    types: Partial<NotificationTypeSettings>
-  ): FlatSettingsUpdate {
-    const update: FlatSettingsUpdate = {}
+  toNotificationTypesUpdate(types: Partial<NotificationTypeSettings>): FlatSettingsUpdate {
+    const update: FlatSettingsUpdate = {};
 
     for (const key of SETTINGS_NOTIFICATION_TYPE_KEYS) {
-      const value = types[key]
+      const value = types[key];
 
       if (value !== undefined) {
-        update[`notifications.types.${key}`] = value
+        update[`notifications.types.${key}`] = value;
       }
     }
 
-    return update
+    return update;
   }
 
   toPrivacyUpdate(data: SettingsPrivacyUpdateInput): FlatSettingsUpdate {
-    return this.toSectionUpdate('privacy', data, PRIVACY_KEYS)
+    return this.toSectionUpdate('privacy', data, PRIVACY_KEYS);
   }
 
-  toCodeEditorUpdate(
-    data: SettingsCodeEditorUpdateInput
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate('codeEditor', data, CODE_EDITOR_KEYS)
+  toCodeEditorUpdate(data: SettingsCodeEditorUpdateInput): FlatSettingsUpdate {
+    return this.toSectionUpdate('codeEditor', data, CODE_EDITOR_KEYS);
   }
 
   toCompilerUpdate(data: SettingsCompilerUpdateInput): FlatSettingsUpdate {
-    return this.toSectionUpdate('compiler', data, COMPILER_KEYS)
+    return this.toSectionUpdate('compiler', data, COMPILER_KEYS);
   }
 
-  toAIBehaviourUpdate(
-    data: SettingsAIBehaviourUpdateInput
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate('aiBehaviour', data, AI_BEHAVIOUR_KEYS)
+  toAIBehaviourUpdate(data: SettingsAIBehaviourUpdateInput): FlatSettingsUpdate {
+    return this.toSectionUpdate('aiBehaviour', data, AI_BEHAVIOUR_KEYS);
   }
 
-  toLearningJourneyUpdate(
-    data: SettingsLearningJourneyUpdateInput
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate(
-      'learningJourney',
-      data,
-      LEARNING_JOURNEY_KEYS
-    )
+  toLearningJourneyUpdate(data: SettingsLearningJourneyUpdateInput): FlatSettingsUpdate {
+    return this.toSectionUpdate('learningJourney', data, LEARNING_JOURNEY_KEYS);
   }
 
   toGesturesUpdate(data: SettingsGesturesUpdateInput): FlatSettingsUpdate {
-    return this.toSectionUpdate('gestures', data, GESTURE_KEYS)
+    return this.toSectionUpdate('gestures', data, GESTURE_KEYS);
   }
 
-  toQuietHoursUpdate(
-    data: SettingsQuietHoursUpdateInput
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate('notifications', data, QUIET_HOURS_KEYS)
+  toQuietHoursUpdate(data: SettingsQuietHoursUpdateInput): FlatSettingsUpdate {
+    return this.toSectionUpdate('notifications', data, QUIET_HOURS_KEYS);
   }
 
-  toEmailDigestUpdate(
-    data: SettingsEmailDigestUpdateInput
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate(
-      'notifications.emailDigest',
-      data,
-      EMAIL_DIGEST_KEYS
-    )
+  toEmailDigestUpdate(data: SettingsEmailDigestUpdateInput): FlatSettingsUpdate {
+    return this.toSectionUpdate('notifications.emailDigest', data, EMAIL_DIGEST_KEYS);
   }
 
-  toAccountSettingsUpdate(
-    data: SettingsAccountUpdateInput
-  ): FlatSettingsUpdate {
-    return this.toSectionUpdate('account', data, ACCOUNT_KEYS)
+  toAccountSettingsUpdate(data: SettingsAccountUpdateInput): FlatSettingsUpdate {
+    return this.toSectionUpdate('account', data, ACCOUNT_KEYS);
   }
 
   private toSectionUpdate<TData extends object, TKey extends keyof TData>(
@@ -247,16 +211,16 @@ export class MongoSettingsMapper {
     data: TData,
     allowedKeys: readonly TKey[]
   ): FlatSettingsUpdate {
-    const result: FlatSettingsUpdate = {}
+    const result: FlatSettingsUpdate = {};
 
     for (const key of allowedKeys) {
-      const value = data[key] as UpdatableValue
+      const value = data[key] as UpdatableValue;
 
       if (value !== undefined) {
-        result[`${prefix}.${String(key)}`] = value
+        result[`${prefix}.${String(key)}`] = value;
       }
     }
 
-    return result
+    return result;
   }
 }

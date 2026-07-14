@@ -1,22 +1,22 @@
-import { cn } from '../../../../lib/cn'
+import { cn } from '../../../../lib/cn';
 
 // ============================================================
 // MockTestAnalysisPage.tsx — aligned with Trackers design
 // ============================================================
 
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
 
-import { useMockTestAttemptAnalysis } from '../hooks/useMockTests'
+import { useMockTestAttemptAnalysis } from '../hooks/useMockTests';
 
 export default function MockTestAnalysisPage() {
-  const { attemptId = '' } = useParams()
+  const { attemptId = '' } = useParams();
 
-  const query = useMockTestAttemptAnalysis(attemptId)
-  const data = query.data
+  const query = useMockTestAttemptAnalysis(attemptId);
+  const data = query.data;
 
-  const summaryAccent = data?.passed ? 'var(--success)' : 'var(--brand-500)'
+  const summaryAccent = data?.passed ? 'var(--success)' : 'var(--brand-500)';
 
   return (
     <AppShellBoundary>
@@ -32,10 +32,7 @@ export default function MockTestAnalysisPage() {
           </div>
 
           <h1 className="mt-3 font-ui text-[38px] font-black leading-tight text-(--text-primary) dark:text-(--text-primary)">
-            Attempt{' '}
-            <span className="text-(--brand-500) dark:text-(--brand-500)">
-              analysis
-            </span>
+            Attempt <span className="text-(--brand-500) dark:text-(--brand-500)">analysis</span>
           </h1>
         </div>
 
@@ -109,9 +106,7 @@ export default function MockTestAnalysisPage() {
                   </div>
 
                   <p className="mt-2 text-[13px] font-bold text-(--success) dark:text-(--success)">
-                    {data.strongTopics.length
-                      ? data.strongTopics.join(', ')
-                      : 'Not enough data'}
+                    {data.strongTopics.length ? data.strongTopics.join(', ') : 'Not enough data'}
                   </p>
                 </div>
 
@@ -121,9 +116,7 @@ export default function MockTestAnalysisPage() {
                   </div>
 
                   <p className="mt-2 text-[13px] font-bold text-(--brand-500) dark:text-(--brand-500)">
-                    {data.weakTopics.length
-                      ? data.weakTopics.join(', ')
-                      : 'No weak area found'}
+                    {data.weakTopics.length ? data.weakTopics.join(', ') : 'No weak area found'}
                   </p>
                 </div>
               </div>
@@ -193,5 +186,5 @@ export default function MockTestAnalysisPage() {
         )}
       </div>
     </AppShellBoundary>
-  )
+  );
 }

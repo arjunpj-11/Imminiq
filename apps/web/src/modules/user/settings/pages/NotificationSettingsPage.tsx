@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import SettingsShell from '../components/SettingsShell'
-import SettingsContentLoading from '../components/SettingsContentLoading'
+import { useMemo, useState } from 'react';
+import SettingsShell from '../components/SettingsShell';
+import SettingsContentLoading from '../components/SettingsContentLoading';
 import {
   MonoLabel,
   PillButton,
@@ -8,22 +8,22 @@ import {
   SettingsCard,
   SettingsPageFeedback,
   ToggleRow,
-} from '../components/SettingsUi'
-import { useSettingsToast } from '../hooks/useSettingsToast'
-import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
+} from '../components/SettingsUi';
+import { useSettingsToast } from '../hooks/useSettingsToast';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import {
   useNotificationSettings,
   useResetSettings,
   useUpdateEmailDigest,
   useUpdateNotifications,
   useUpdateQuietHours,
-} from '../hooks/useSettings'
+} from '../hooks/useSettings';
 import type {
   DigestFrequencyType,
   INotificationSettings,
   INotificationTypeSettings,
   QuietHoursDayType,
-} from '../types/settings.types'
+} from '../types/settings.types';
 
 const notificationItems = [
   {
@@ -102,23 +102,13 @@ const notificationItems = [
     desc: 'When you miss a chat voice or video call.',
   },
 ] as const satisfies ReadonlyArray<{
-  key: keyof INotificationTypeSettings
-  title: string
-  desc: string
-}>
-const dayOptions: QuietHoursDayType[] = [
-  'Mon',
-  'Tue',
-  'Wed',
-  'Thu',
-  'Fri',
-  'Sat',
-  'Sun',
-]
+  key: keyof INotificationTypeSettings;
+  title: string;
+  desc: string;
+}>;
+const dayOptions: QuietHoursDayType[] = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 
-const buildAllNotificationTypes = (
-  enabled: boolean
-): INotificationTypeSettings => ({
+const buildAllNotificationTypes = (enabled: boolean): INotificationTypeSettings => ({
   friendRequests: enabled,
   challenges: enabled,
   battleResults: enabled,
@@ -134,10 +124,10 @@ const buildAllNotificationTypes = (
   paymentConfirmations: enabled,
   contributionUpdates: enabled,
   callMissed: enabled,
-})
+});
 
 export default function NotificationSettingsPage() {
-  const notificationQuery = useNotificationSettings()
+  const notificationQuery = useNotificationSettings();
 
   if (notificationQuery.isLoading) {
     return (
@@ -151,7 +141,7 @@ export default function NotificationSettingsPage() {
           description="Fetching your alert preferences, digest options, and quiet-hour rules."
         />
       </SettingsShell>
-    )
+    );
   }
 
   if (!notificationQuery.data) {
@@ -164,53 +154,44 @@ export default function NotificationSettingsPage() {
           Unable to load notification settings.
         </div>
       </SettingsShell>
-    )
+    );
   }
 
   return (
-   <NotificationSettingsForm
-  key={notificationQuery.dataUpdatedAt}
-  initialForm={notificationQuery.data}
-/>
-  )
+    <NotificationSettingsForm
+      key={notificationQuery.dataUpdatedAt}
+      initialForm={notificationQuery.data}
+    />
+  );
 }
 
-function NotificationSettingsForm({
-  initialForm,
-}: {
-  initialForm: INotificationSettings
-}) {
-  const updateNotifications = useUpdateNotifications()
-  const updateQuietHours = useUpdateQuietHours()
-  const updateEmailDigest = useUpdateEmailDigest()
-  const resetSettings = useResetSettings()
-  const toast = useSettingsToast()
+function NotificationSettingsForm({ initialForm }: { initialForm: INotificationSettings }) {
+  const updateNotifications = useUpdateNotifications();
+  const updateQuietHours = useUpdateQuietHours();
+  const updateEmailDigest = useUpdateEmailDigest();
+  const resetSettings = useResetSettings();
+  const toast = useSettingsToast();
 
-  const [form, setForm] = useState<INotificationSettings>(initialForm)
-  const [savedForm, setSavedForm] = useState(initialForm)
+  const [form, setForm] = useState<INotificationSettings>(initialForm);
+  const [savedForm, setSavedForm] = useState(initialForm);
 
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(savedForm),
     [form, savedForm]
-  )
+  );
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     when: isDirty,
     onDiscard: () => setForm(savedForm),
-  })
+  });
 
-  const masterLabel = form.globalEnabled
-    ? 'All Enabled'
-    : 'All Disabled'
+  const masterLabel = form.globalEnabled ? 'All Enabled' : 'All Disabled';
 
-  const quietDayList = useMemo(
-    () => form.quietHoursDays ?? [],
-    [form.quietHoursDays]
-  )
+  const quietDayList = useMemo(() => form.quietHoursDays ?? [], [form.quietHoursDays]);
 
   const handleSave = async () => {
     try {
-      toast.showToast('Saving notification settings...', 'loading')
+      toast.showToast('Saving notification settings...', 'loading');
 
       await updateNotifications.mutateAsync({
         globalEnabled: form.globalEnabled,
@@ -219,77 +200,73 @@ function NotificationSettingsForm({
         marketing: form.marketing,
         weeklyReport: form.weeklyReport,
         types: form.types,
-      })
+      });
 
       await updateEmailDigest.mutateAsync({
         enabled: form.emailDigest.enabled,
         frequency: form.emailDigest.frequency,
         includeActivity: form.emailDigest.includeActivity,
-        includeRecommendations:
-          form.emailDigest.includeRecommendations,
-      })
+        includeRecommendations: form.emailDigest.includeRecommendations,
+      });
 
       await updateQuietHours.mutateAsync({
-  quietHoursEnabled: form.quietHoursEnabled,
-  quietHoursStart: form.quietHoursStart,
-  quietHoursEnd: form.quietHoursEnd,
-  quietHoursDays: form.quietHoursDays,
-})
+        quietHoursEnabled: form.quietHoursEnabled,
+        quietHoursStart: form.quietHoursStart,
+        quietHoursEnd: form.quietHoursEnd,
+        quietHoursDays: form.quietHoursDays,
+      });
 
-      setSavedForm(form)
+      setSavedForm(form);
 
-      toast.showToast('Notification settings saved.', 'success')
-      return true
+      toast.showToast('Notification settings saved.', 'success');
+      return true;
     } catch {
-      toast.showToast('Unable to save notification settings.', 'error')
-      return false
+      toast.showToast('Unable to save notification settings.', 'error');
+      return false;
     }
-  }
+  };
 
   const handleReset = async () => {
     try {
-      await resetSettings.mutateAsync()
-      toast.showToast('Settings reset to defaults.', 'success')
+      await resetSettings.mutateAsync();
+      toast.showToast('Settings reset to defaults.', 'success');
     } catch {
-      toast.showToast('Unable to reset settings.', 'error')
+      toast.showToast('Unable to reset settings.', 'error');
     }
-  }
+  };
 
-  const toggleNotificationType = (
-    key: keyof INotificationTypeSettings,
-    value: boolean
-  ) => {
+  const toggleNotificationType = (key: keyof INotificationTypeSettings, value: boolean) => {
     setForm((current) => ({
       ...current,
       types: {
         ...current.types,
         [key]: value,
       },
-    }))
-  }
+    }));
+  };
 
   const toggleAllNotifications = (enabled: boolean) => {
     setForm((current) => ({
       ...current,
       globalEnabled: enabled,
       types: buildAllNotificationTypes(enabled),
-    }))
-  }
+    }));
+  };
 
   const toggleDay = (day: QuietHoursDayType) => {
     setForm((current) => {
-      const currentDays = current.quietHoursDays ?? []
+      const currentDays = current.quietHoursDays ?? [];
 
       const nextDays = currentDays.includes(day)
         ? currentDays.filter((item) => item !== day)
-        : [...currentDays, day]
+        : [...currentDays, day];
 
       return {
         ...current,
         quietHoursDays: nextDays,
-      }
-    })
-  }
+      };
+    });
+  };
 
   return (
     <SettingsShell
@@ -314,9 +291,7 @@ function NotificationSettingsForm({
 
               <PillButton
                 active={form.globalEnabled}
-                onClick={() =>
-                  toggleAllNotifications(!form.globalEnabled)
-                }
+                onClick={() => toggleAllNotifications(!form.globalEnabled)}
               >
                 {form.globalEnabled ? 'Enabled' : 'Disabled'}
               </PillButton>
@@ -382,9 +357,7 @@ function NotificationSettingsForm({
                 title={item.title}
                 description={item.desc}
                 checked={form.types[item.key]}
-                onChange={(value) =>
-                  toggleNotificationType(item.key, value)
-                }
+                onChange={(value) => toggleNotificationType(item.key, value)}
               />
             ))}
 
@@ -399,30 +372,28 @@ function NotificationSettingsForm({
             icon="✉️"
           >
             <div className="flex flex-wrap gap-2">
-              {(['daily', 'weekly', 'never'] as DigestFrequencyType[]).map(
-                (frequency) => (
-                  <PillButton
-                    key={frequency}
-                    active={form.emailDigest.frequency === frequency}
-                    onClick={() =>
-                      setForm((current) => ({
-                        ...current,
-                        emailDigest: {
-                          ...current.emailDigest,
-                          enabled: frequency !== 'never',
-                          frequency,
-                        },
-                      }))
-                    }
-                  >
-                    {frequency === 'daily'
-                      ? 'Daily Summary'
-                      : frequency === 'weekly'
-                        ? 'Weekly Digest'
-                        : 'Never'}
-                  </PillButton>
-                )
-              )}
+              {(['daily', 'weekly', 'never'] as DigestFrequencyType[]).map((frequency) => (
+                <PillButton
+                  key={frequency}
+                  active={form.emailDigest.frequency === frequency}
+                  onClick={() =>
+                    setForm((current) => ({
+                      ...current,
+                      emailDigest: {
+                        ...current.emailDigest,
+                        enabled: frequency !== 'never',
+                        frequency,
+                      },
+                    }))
+                  }
+                >
+                  {frequency === 'daily'
+                    ? 'Daily Summary'
+                    : frequency === 'weekly'
+                      ? 'Weekly Digest'
+                      : 'Never'}
+                </PillButton>
+              ))}
             </div>
 
             <div className="mt-4">
@@ -477,9 +448,7 @@ function NotificationSettingsForm({
 
             <div
               className={`mt-4 grid gap-4 sm:grid-cols-2 ${
-                form.quietHoursEnabled
-                  ? ''
-                  : 'pointer-events-none opacity-45'
+                form.quietHoursEnabled ? '' : 'pointer-events-none opacity-45'
               }`}
             >
               <label className="block">
@@ -516,11 +485,7 @@ function NotificationSettingsForm({
             </div>
 
             <div
-              className={`mt-4 ${
-                form.quietHoursEnabled
-                  ? ''
-                  : 'pointer-events-none opacity-45'
-              }`}
+              className={`mt-4 ${form.quietHoursEnabled ? '' : 'pointer-events-none opacity-45'}`}
             >
               <MonoLabel>Quiet Days</MonoLabel>
 
@@ -584,9 +549,7 @@ function NotificationSettingsForm({
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
-                  Digest
-                </span>
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">Digest</span>
 
                 <strong className="capitalize text-(--text-primary) dark:text-(--text-primary)">
                   {form.emailDigest.frequency}
@@ -598,9 +561,7 @@ function NotificationSettingsForm({
           <SettingsCard title="Quiet Window" icon="🌘">
             <div className="space-y-3 text-[13px]">
               <div className="flex items-center justify-between gap-3">
-                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
-                  Status
-                </span>
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">Status</span>
 
                 <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.quietHoursEnabled ? 'Active' : 'Inactive'}
@@ -608,9 +569,7 @@ function NotificationSettingsForm({
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
-                  From
-                </span>
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">From</span>
 
                 <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.quietHoursStart || '--:--'}
@@ -618,9 +577,7 @@ function NotificationSettingsForm({
               </div>
 
               <div className="flex items-center justify-between gap-3">
-                <span className="text-(--text-secondary) dark:text-(--text-secondary)">
-                  To
-                </span>
+                <span className="text-(--text-secondary) dark:text-(--text-secondary)">To</span>
 
                 <strong className="text-(--text-primary) dark:text-(--text-primary)">
                   {form.quietHoursEnd || '--:--'}
@@ -636,11 +593,9 @@ function NotificationSettingsForm({
         isSaving={unsavedChangesGuard.isSavingChanges}
         onStay={unsavedChangesGuard.stayOnPage}
         onDiscard={unsavedChangesGuard.discardAndLeave}
-        onSaveChanges={() =>
-          void unsavedChangesGuard.saveChangesAndLeave(handleSave)
-        }
+        onSaveChanges={() => void unsavedChangesGuard.saveChangesAndLeave(handleSave)}
         toast={toast}
       />
     </SettingsShell>
-  )
+  );
 }

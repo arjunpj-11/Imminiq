@@ -1,117 +1,117 @@
-import type { ActivityCategory } from './value-objects/activity-category.vo'
-import type { ActivityHeatmapIntensity } from './value-objects/activity-heatmap-intensity.vo'
-import type { ActivityType } from './value-objects/activity-type.vo'
+import type { ActivityCategory } from './value-objects/activity-category.vo';
+import type { ActivityHeatmapIntensity } from './value-objects/activity-heatmap-intensity.vo';
+import type { ActivityType } from './value-objects/activity-type.vo';
 
 export type ActivityTimeRange = {
-  start: Date
-  end: Date
-}
+  start: Date;
+  end: Date;
+};
 
 export type ActivityUserSummaryRecord = {
-  userId: string
-  fullName: string
-  avatarUrl: string | null | undefined
-  isPremium: boolean
-  accountCreatedAt: Date
+  userId: string;
+  fullName: string;
+  avatarUrl: string | null | undefined;
+  isPremium: boolean;
+  accountCreatedAt: Date;
 
-  learningXp: number
-  teacherXp: number
-  coins: number
-  streakCount: number
-}
+  learningXp: number;
+  teacherXp: number;
+  coins: number;
+  streakCount: number;
+};
 
 export type ActivityStatisticsRecord = {
-  sessions: number
-  subtopicsDone: number
-  testsAttempted: number
-  totalQuestions: number
-}
+  sessions: number;
+  subtopicsDone: number;
+  testsAttempted: number;
+  totalQuestions: number;
+};
 
 export type ActivityDayAggregateRecord = {
-  date: string
-  activityCount: number
-  xp: number
-  sessions: number
-}
+  date: string;
+  activityCount: number;
+  xp: number;
+  sessions: number;
+};
 
 export type ActivityStreakDayRecord = {
-  date: string
-  activityCount: number
-  intensityLevel: ActivityHeatmapIntensity
-  isFrozen: boolean
-  streakDay: number
-}
+  date: string;
+  activityCount: number;
+  intensityLevel: ActivityHeatmapIntensity;
+  isFrozen: boolean;
+  streakDay: number;
+};
 
 export type ActivityStreakAnalyticsRecord = {
-  currentStreak: number
-  longestStreak: number
-  totalActiveDays: number
-  totalFreezeUsed: number
-  latestActivityDate: string | null
-  days: ActivityStreakDayRecord[]
-}
+  currentStreak: number;
+  longestStreak: number;
+  totalActiveDays: number;
+  totalFreezeUsed: number;
+  latestActivityDate: string | null;
+  days: ActivityStreakDayRecord[];
+};
 
 export type ActivityWeeklyBreakdownRecord = {
-  tracker: number
-  mockTest: number
-  community: number
-  streak: number
-  xpMilestone: number
-}
+  tracker: number;
+  mockTest: number;
+  community: number;
+  streak: number;
+  xpMilestone: number;
+};
 
 export type ActivityPersonalBestsRecord = {
-  bestDayXp: number
-  bestWeekSessions: number
-  bestTestScore: number
-}
+  bestDayXp: number;
+  bestWeekSessions: number;
+  bestTestScore: number;
+};
 
 export type ActivityDailyGoalState = {
-  subtopicCompleted: boolean
-  mockTestCompleted: boolean
-}
+  subtopicCompleted: boolean;
+  mockTestCompleted: boolean;
+};
 
 export type ActivityAnalyticsRecord = {
-  user: ActivityUserSummaryRecord | null
-  statistics: ActivityStatisticsRecord
-  streak: ActivityStreakAnalyticsRecord
+  user: ActivityUserSummaryRecord | null;
+  statistics: ActivityStatisticsRecord;
+  streak: ActivityStreakAnalyticsRecord;
 
-  currentWeekDays: ActivityDayAggregateRecord[]
-  previousWeekXp: number
-  currentWeekBreakdown: ActivityWeeklyBreakdownRecord
+  currentWeekDays: ActivityDayAggregateRecord[];
+  previousWeekXp: number;
+  currentWeekBreakdown: ActivityWeeklyBreakdownRecord;
 
-  personalBests: ActivityPersonalBestsRecord
-  dailyGoal: ActivityDailyGoalState
-}
+  personalBests: ActivityPersonalBestsRecord;
+  dailyGoal: ActivityDailyGoalState;
+};
 
 export type ActivityProgressionChange = {
-  previousLearningXp: number
-  currentLearningXp: number
-  previousLearningLevel: number
-  currentLearningLevel: number
+  previousLearningXp: number;
+  currentLearningXp: number;
+  previousLearningLevel: number;
+  currentLearningLevel: number;
 
-  previousTeacherXp: number
-  currentTeacherXp: number
-  previousTeacherLevel: number
-  currentTeacherLevel: number
+  previousTeacherXp: number;
+  currentTeacherXp: number;
+  previousTeacherLevel: number;
+  currentTeacherLevel: number;
 
-  previousCoins: number
-  currentCoins: number
-}
+  previousCoins: number;
+  currentCoins: number;
+};
 
 export type ActivityReferenceIds = {
-  trackerId?: string
-  topicId?: string
-  subtopicId?: string
-  mockTestId?: string
-  attemptId?: string
-  sourceUserId?: string
-}
+  trackerId?: string;
+  topicId?: string;
+  subtopicId?: string;
+  mockTestId?: string;
+  attemptId?: string;
+  sourceUserId?: string;
+};
 
 export type ActivityRecordCore = ActivityReferenceIds & {
-  userId: string
-  category: ActivityCategory
-  type: ActivityType
-  eventKey: string
-}
+  userId: string;
+  category: ActivityCategory;
+  type: ActivityType;
+  eventKey: string;
+};
 
-export type ActivityCategoryTotals = Record<ActivityCategory, number>
+export type ActivityCategoryTotals = Record<ActivityCategory, number>;

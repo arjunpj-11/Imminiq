@@ -4,36 +4,37 @@
 
 import {
   DIFFICULTY_OPTIONS,
+  MAX_MOCK_TEST_QUESTIONS,
   QUESTION_TYPE_OPTIONS,
-} from '../constants/mock-tests.constants'
-import { useGenerateMockTest } from '../hooks/useMockTests'
-import { useMockTestsStore } from '../store/mockTests.store'
-import { cn } from '../utils/mock-tests-formatters'
-import { SparklesIcon } from './MockTestIcons'
-import type { QuestionType } from '../types/mock-tests.types'
-import { getUserFacingError } from '../../../../lib/user-facing-error'
+} from '../constants/mock-tests.constants';
+import { useGenerateMockTest } from '../hooks/useMockTests';
+import { useMockTestsStore } from '../store/mockTests.store';
+import { cn } from '../utils/mock-tests-formatters';
+import { SparklesIcon } from './MockTestIcons';
+import type { QuestionType } from '../types/mock-tests.types';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { boundedInteger } from '../../../../lib/bounded-number';
 
 export function GenerateMockTestPanel() {
-  const { generateDraft, updateGenerateDraft, resetGenerateDraft } =
-    useMockTestsStore()
-  const generateMutation = useGenerateMockTest()
+  const { generateDraft, updateGenerateDraft, resetGenerateDraft } = useMockTestsStore();
+  const generateMutation = useGenerateMockTest();
 
   const toggleType = (type: QuestionType) => {
-    const exists = generateDraft.questionTypes.includes(type)
+    const exists = generateDraft.questionTypes.includes(type);
 
     const next = exists
       ? generateDraft.questionTypes.filter((item) => item !== type)
-      : [...generateDraft.questionTypes, type]
+      : [...generateDraft.questionTypes, type];
 
-    updateGenerateDraft({ questionTypes: next.length ? next : ['mcq'] })
-  }
+    updateGenerateDraft({ questionTypes: next.length ? next : ['mcq'] });
+  };
 
   const submit = async () => {
-    if (!generateDraft.topic.trim()) return
+    if (!generateDraft.topic.trim()) return;
 
-    await generateMutation.mutateAsync(generateDraft)
-    resetGenerateDraft()
-  }
+    await generateMutation.mutateAsync(generateDraft);
+    resetGenerateDraft();
+  };
 
   return (
     <div className="rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -78,10 +79,12 @@ export function GenerateMockTestPanel() {
           <input
             type="number"
             min={1}
-            max={50}
+            max={MAX_MOCK_TEST_QUESTIONS}
             value={generateDraft.questionCount}
             onChange={(e) =>
-              updateGenerateDraft({ questionCount: Number(e.target.value) })
+              updateGenerateDraft({
+                questionCount: boundedInteger(e.target.value, 1, MAX_MOCK_TEST_QUESTIONS),
+              })
             }
             className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-3 py-3 text-sm text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
           />
@@ -90,7 +93,7 @@ export function GenerateMockTestPanel() {
         {/* question type chips */}
         <div className="flex flex-wrap gap-2">
           {QUESTION_TYPE_OPTIONS.map((type) => {
-            const isSelected = generateDraft.questionTypes.includes(type)
+            const isSelected = generateDraft.questionTypes.includes(type);
 
             return (
               <button
@@ -106,7 +109,7 @@ export function GenerateMockTestPanel() {
               >
                 {type.replace('_', ' ')}
               </button>
-            )
+            );
           })}
         </div>
 
@@ -122,12 +125,15 @@ export function GenerateMockTestPanel() {
 
         {generateMutation.error && (
           <p className="text-xs text-(--brand-500) dark:text-(--brand-500)">
-            {getUserFacingError(generateMutation.error, 'Unable to generate the mock test. Please try again.')}
+            {getUserFacingError(
+              generateMutation.error,
+              'Unable to generate the mock test. Please try again.'
+            )}
           </p>
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default GenerateMockTestPanel
+export default GenerateMockTestPanel;

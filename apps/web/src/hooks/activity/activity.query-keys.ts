@@ -3,4 +3,4 @@ export const activityQueryKeys = {
   recent: (limit: number) => [...activityQueryKeys.all, 'recent', limit] as const,
   paginated: (page: number, limit: number) =>
     [...activityQueryKeys.all, 'page', page, limit] as const,
-}
+};

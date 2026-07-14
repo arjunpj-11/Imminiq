@@ -14,4 +14,4 @@ export const SETTINGS_NOTIFICATION_TYPE_KEYS = [
   'paymentConfirmations',
   'contributionUpdates',
   'callMissed',
-] as const
+] as const;

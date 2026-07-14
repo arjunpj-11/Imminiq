@@ -32,11 +32,9 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
         }).lean();
 
         return doc
-          ? this._mapper.toMockTestCreationSessionEntity(
-              doc as RawMockTestCreationSessionDoc,
-            )
+          ? this._mapper.toMockTestCreationSessionEntity(doc as RawMockTestCreationSessionDoc)
           : null;
-      },
+      }
     );
   }
 
@@ -58,11 +56,9 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
         }).lean();
 
         return doc
-          ? this._mapper.toMockTestCreationSessionEntity(
-              doc as RawMockTestCreationSessionDoc,
-            )
+          ? this._mapper.toMockTestCreationSessionEntity(doc as RawMockTestCreationSessionDoc)
           : null;
-      },
+      }
     );
   }
 
@@ -79,17 +75,14 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
         });
 
         return this._mapper.toMockTestCreationSessionEntity(
-          doc.toObject() as RawMockTestCreationSessionDoc,
+          doc.toObject() as RawMockTestCreationSessionDoc
         );
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
-  async updateCreationSession(
-    sessionId: string,
-    data: UpdateMockTestCreationSessionInput,
-  ) {
+  async updateCreationSession(sessionId: string, data: UpdateMockTestCreationSessionInput) {
     return this.execute(
       'MOCK_TEST_CREATION_SESSION_WRITE_FAILED',
       'Failed to update mock test creation session',
@@ -110,7 +103,7 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
 
           return existingDoc
             ? this._mapper.toMockTestCreationSessionEntity(
-                existingDoc as RawMockTestCreationSessionDoc,
+                existingDoc as RawMockTestCreationSessionDoc
               )
             : null;
         }
@@ -123,16 +116,14 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
           update,
           {
             new: true,
-          },
+          }
         ).lean();
 
         return doc
-          ? this._mapper.toMockTestCreationSessionEntity(
-              doc as RawMockTestCreationSessionDoc,
-            )
+          ? this._mapper.toMockTestCreationSessionEntity(doc as RawMockTestCreationSessionDoc)
           : null;
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
@@ -157,15 +148,13 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
               status: 'cancelled',
               cancelledAt: new Date(),
             },
-          },
+          }
         );
-      },
+      }
     );
   }
 
-  private buildMockTestCreationSessionUpdate(
-    data: UpdateMockTestCreationSessionInput,
-  ): {
+  private buildMockTestCreationSessionUpdate(data: UpdateMockTestCreationSessionInput): {
     $set: Record<string, unknown>;
   } {
     const $set: Record<string, unknown> = {};

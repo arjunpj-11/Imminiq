@@ -1,10 +1,11 @@
-import Cerebras from '@cerebras/cerebras_cloud_sdk'
-import { env } from '../../../config/env'
+import Cerebras from '@cerebras/cerebras_cloud_sdk';
+import { env } from '../../../config/env';
+import { recordAITokenUsage, type AITokenUsageCategory } from '../ai-token-usage';
 
 const cerebras = new Cerebras({
   apiKey: env.CEREBRAS_API_KEY,
   warmTCPConnection: false,
-})
+});
 
 const getResponseText = (response: unknown) => {
   const completion = response as {
@@ -13,40 +14,54 @@ const getResponseText = (response: unknown) => {
         content?:
           | string
           | Array<{
-              type?: string
-              text?: string
+              type?: string;
+              text?: string;
             }>
-          | null
-      }
-    }>
-  }
+          | null;
+      };
+    }>;
+  };
 
-  const content =
-    completion.choices?.[0]?.message?.content
+  const content = completion.choices?.[0]?.message?.content;
 
   if (typeof content === 'string') {
     if (!content.trim()) {
-      throw new Error('Cerebras returned an empty response')
+      throw new Error('Cerebras returned an empty response');
     }
 
-    return content
+    return content;
   }
 
   if (Array.isArray(content)) {
     const text = content
       .map((part) => part.text || '')
       .join('')
-      .trim()
+      .trim();
 
     if (!text) {
-      throw new Error('Cerebras returned an empty response')
+      throw new Error('Cerebras returned an empty response');
     }
 
-    return text
+    return text;
   }
 
-  throw new Error('Cerebras returned an empty response')
-}
+  throw new Error('Cerebras returned an empty response');
+};
+
+const recordCerebrasUsage = (
+  response: unknown,
+  category: AITokenUsageCategory,
+  model: string
+) => {
+  const usage = (response as {
+    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+  }).usage;
+  recordAITokenUsage('Cerebras', model, category, {
+    promptTokens: usage?.prompt_tokens,
+    completionTokens: usage?.completion_tokens,
+    totalTokens: usage?.total_tokens,
+  });
+};
 
 /**
  * Generic text chat fallback.
@@ -54,33 +69,36 @@ const getResponseText = (response: unknown) => {
  */
 export const cerebrasChat = async (
   prompt: string,
-  system?: string
+  system?: string,
+  category: AITokenUsageCategory = 'other'
 ) => {
-  const response =
-    await cerebras.chat.completions.create({
-      model: 'qwen-3-235b-a22b-instruct-2507',
+  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const response = await cerebras.chat.completions.create({
+    model,
 
-      messages: [
-        ...(system
-          ? [
-              {
-                role: 'system' as const,
-                content: system,
-              },
-            ]
-          : []),
+    messages: [
+      ...(system
+        ? [
+            {
+              role: 'system' as const,
+              content: system,
+            },
+          ]
+        : []),
 
-        {
-          role: 'user' as const,
-          content: prompt,
-        },
-      ],
+      {
+        role: 'user' as const,
+        content: prompt,
+      },
+    ],
 
-      temperature: 0.2,
-    })
+    temperature: 0.2,
+  });
 
-  return getResponseText(response)
-}
+  recordCerebrasUsage(response, category, model);
+
+  return getResponseText(response);
+};
 
 // ============================================================
 // STRUCTURED OUTPUT SCHEMAS
@@ -126,21 +144,12 @@ const roadmapStructureResponseSchema = {
           },
         },
 
-        required: [
-          'title',
-          'description',
-          'order',
-          'children',
-        ],
+        required: ['title', 'description', 'order', 'children'],
       },
     },
   },
 
-  required: [
-    'title',
-    'description',
-    'topics',
-  ],
+  required: ['title', 'description', 'topics'],
 
   $defs: {
     roadmapNode: {
@@ -168,15 +177,10 @@ const roadmapStructureResponseSchema = {
         },
       },
 
-      required: [
-        'title',
-        'description',
-        'order',
-        'children',
-      ],
+      required: ['title', 'description', 'order', 'children'],
     },
   },
-}
+};
 
 const roadmapEvaluationResponseSchema = {
   type: 'object',
@@ -189,13 +193,7 @@ const roadmapEvaluationResponseSchema = {
 
     grade: {
       type: 'string',
-      enum: [
-        'Poor',
-        'Fair',
-        'Good',
-        'Very Good',
-        'Excellent',
-      ],
+      enum: ['Poor', 'Fair', 'Good', 'Very Good', 'Excellent'],
     },
 
     summary: {
@@ -226,23 +224,13 @@ const roadmapEvaluationResponseSchema = {
           },
         },
 
-        required: [
-          'title',
-          'description',
-          'reason',
-          'suggestedParentTitle',
-        ],
+        required: ['title', 'description', 'reason', 'suggestedParentTitle'],
       },
     },
   },
 
-  required: [
-    'score',
-    'grade',
-    'summary',
-    'missingTopics',
-  ],
-}
+  required: ['score', 'grade', 'summary', 'missingTopics'],
+};
 
 // ============================================================
 // STRUCTURED CEREBRAS FALLBACKS
@@ -250,78 +238,84 @@ const roadmapEvaluationResponseSchema = {
 
 export const cerebrasRoadmapStructureChat = async (
   prompt: string,
-  system?: string
+  system?: string,
+  category: AITokenUsageCategory = 'roadmap_generation'
 ) => {
-  const response =
-    await cerebras.chat.completions.create({
-    model: 'qwen-3-235b-a22b-instruct-2507',
+  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const response = await cerebras.chat.completions.create({
+    model,
 
-      messages: [
-        ...(system
-          ? [
-              {
-                role: 'system' as const,
-                content: system,
-              },
-            ]
-          : []),
+    messages: [
+      ...(system
+        ? [
+            {
+              role: 'system' as const,
+              content: system,
+            },
+          ]
+        : []),
 
-        {
-          role: 'user' as const,
-          content: prompt,
-        },
-      ],
-
-      temperature: 0.2,
-
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
-          name: 'roadmap_structure',
-          strict: true,
-          schema: roadmapStructureResponseSchema,
-        },
+      {
+        role: 'user' as const,
+        content: prompt,
       },
-    })
+    ],
 
-  return getResponseText(response)
-}
+    temperature: 0.2,
+
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'roadmap_structure',
+        strict: true,
+        schema: roadmapStructureResponseSchema,
+      },
+    },
+  });
+
+  recordCerebrasUsage(response, category, model);
+
+  return getResponseText(response);
+};
 
 export const cerebrasRoadmapEvaluationChat = async (
   prompt: string,
-  system?: string
+  system?: string,
+  category: AITokenUsageCategory = 'roadmap_evaluation'
 ) => {
-  const response =
-    await cerebras.chat.completions.create({
-     model: 'qwen-3-235b-a22b-instruct-2507',
+  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const response = await cerebras.chat.completions.create({
+    model,
 
-      messages: [
-        ...(system
-          ? [
-              {
-                role: 'system' as const,
-                content: system,
-              },
-            ]
-          : []),
+    messages: [
+      ...(system
+        ? [
+            {
+              role: 'system' as const,
+              content: system,
+            },
+          ]
+        : []),
 
-        {
-          role: 'user' as const,
-          content: prompt,
-        },
-      ],
-
-      temperature: 0.2,
-
-      response_format: {
-        type: 'json_schema',
-        json_schema: {
-          name: 'roadmap_evaluation',
-          strict: true,
-          schema: roadmapEvaluationResponseSchema,
-        },
+      {
+        role: 'user' as const,
+        content: prompt,
       },
-    })
+    ],
 
-  return getResponseText(response)
-}
+    temperature: 0.2,
+
+    response_format: {
+      type: 'json_schema',
+      json_schema: {
+        name: 'roadmap_evaluation',
+        strict: true,
+        schema: roadmapEvaluationResponseSchema,
+      },
+    },
+  });
+
+  recordCerebrasUsage(response, category, model);
+
+  return getResponseText(response);
+};

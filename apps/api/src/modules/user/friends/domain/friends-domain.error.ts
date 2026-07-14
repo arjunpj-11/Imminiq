@@ -4,7 +4,7 @@ export class FriendsDomainError extends Error {
 
   constructor(code: string, message: string) {
     super(message);
-    this.name = "FriendsDomainError";
+    this.name = 'FriendsDomainError';
     this.code = code;
 
     const errorConstructor = Error as ErrorConstructor & {

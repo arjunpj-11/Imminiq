@@ -1,26 +1,26 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import { getUserFacingError } from '../../../../../lib/user-facing-error'
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { getUserFacingError } from '../../../../../lib/user-facing-error';
 
 import {
   useChatWithLessonTutor,
   useClearLessonChatHistory,
   useLessonChatHistory,
-} from '../../hooks/useTrackers'
-import type { PersistedLessonChatMessage } from '../../types/tracker.types'
+} from '../../hooks/useTrackers';
+import type { PersistedLessonChatMessage } from '../../types/tracker.types';
 
-import { DEFAULT_CHAT_GREETING } from '../../constants/lesson-compiler.constants'
-import { cn } from '../../utils/tracker-ui'
-import MathText from './MathText'
-import ConfirmDialog from '../ConfirmDialog'
+import { DEFAULT_CHAT_GREETING } from '../../constants/lesson-compiler.constants';
+import { cn } from '../../utils/tracker-ui';
+import MathText from './MathText';
+import ConfirmDialog from '../ConfirmDialog';
 
-import { useVoiceInput } from '../../hooks/useVoiceInput'
+import { useVoiceInput } from '../../../../../hooks/useVoiceInput';
 
 type LocalLessonChatMessage = {
-  role: 'user' | 'assistant'
-  content: string
-}
+  role: 'user' | 'assistant';
+  content: string;
+};
 
-import { MicButton } from './VoiceInputButton'
+import { MicButton } from '../../../../../components/input/VoiceInputButton';
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -29,27 +29,25 @@ export default function LessonChatCard({
   trackerId,
   subtopicId,
 }: {
-  lessonTitle: string
-  trackerId: string
-  subtopicId: string
+  lessonTitle: string;
+  trackerId: string;
+  subtopicId: string;
 }) {
-  const chatMutation = useChatWithLessonTutor()
-  const clearChatMutation = useClearLessonChatHistory()
-  const chatHistoryQuery = useLessonChatHistory(trackerId, subtopicId)
+  const chatMutation = useChatWithLessonTutor();
+  const clearChatMutation = useClearLessonChatHistory();
+  const chatHistoryQuery = useLessonChatHistory(trackerId, subtopicId);
 
-  const sendLockRef = useRef(false)
+  const sendLockRef = useRef(false);
 
-  const [message, setMessage] = useState('')
-  const [zoomOpen, setZoomOpen] = useState(false)
-  const [isSending, setIsSending] = useState(false)
-  const [localMessages, setLocalMessages] = useState<
-    LocalLessonChatMessage[]
-  >([])
-  const [clearConfirmOpen, setClearConfirmOpen] = useState(false)
+  const [message, setMessage] = useState('');
+  const [zoomOpen, setZoomOpen] = useState(false);
+  const [isSending, setIsSending] = useState(false);
+  const [localMessages, setLocalMessages] = useState<LocalLessonChatMessage[]>([]);
+  const [clearConfirmOpen, setClearConfirmOpen] = useState(false);
 
   const voice = useVoiceInput((transcript) =>
     setMessage((prev) => (prev ? `${prev} ${transcript}` : transcript))
-  )
+  );
 
   const savedMessages = useMemo<LocalLessonChatMessage[]>(() => {
     return (
@@ -57,52 +55,51 @@ export default function LessonChatCard({
         role: item.role,
         content: item.content,
       })) ?? []
-    )
-  }, [chatHistoryQuery.data])
+    );
+  }, [chatHistoryQuery.data]);
 
   const messages = useMemo<LocalLessonChatMessage[]>(() => {
     return [
       { role: 'assistant', content: DEFAULT_CHAT_GREETING },
       ...savedMessages,
       ...localMessages,
-    ]
-  }, [savedMessages, localMessages])
+    ];
+  }, [savedMessages, localMessages]);
 
-  const hasSavedMessages = savedMessages.length > 0
+  const hasSavedMessages = savedMessages.length > 0;
 
-  const isChatBusy =
-    isSending || chatMutation.isPending || clearChatMutation.isPending
+  const isChatBusy = isSending || chatMutation.isPending || clearChatMutation.isPending;
 
   useEffect(() => {
-    if (!zoomOpen) return
+    if (!zoomOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setZoomOpen(false)
-    }
+      if (event.key === 'Escape') setZoomOpen(false);
+    };
 
-    window.addEventListener('keydown', handleEscape)
+    window.addEventListener('keydown', handleEscape);
 
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [zoomOpen])
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [zoomOpen]);
 
   const sendMessage = () => {
-    const trimmed = message.trim()
+    const trimmed = message.trim();
 
     if (!trimmed || chatMutation.isPending || sendLockRef.current) {
-      return
+      return;
     }
 
-    sendLockRef.current = true
-    setIsSending(true)
+    sendLockRef.current = true;
+    setIsSending(true);
 
     const apiMessages = [
       ...savedMessages,
       ...localMessages,
       { role: 'user' as const, content: trimmed },
-    ]
+    ];
 
-    setLocalMessages([{ role: 'user', content: trimmed }])
-    setMessage('')
+    setLocalMessages([{ role: 'user', content: trimmed }]);
+    setMessage('');
 
     chatMutation.mutate(
       {
@@ -112,8 +109,8 @@ export default function LessonChatCard({
       },
       {
         onSuccess: async () => {
-          await chatHistoryQuery.refetch()
-          setLocalMessages([])
+          await chatHistoryQuery.refetch();
+          setLocalMessages([]);
         },
 
         onError: (error) => {
@@ -122,28 +119,28 @@ export default function LessonChatCard({
               role: 'assistant',
               content: getUserFacingError(error, 'I could not answer right now. Please try again.'),
             },
-          ])
+          ]);
         },
 
         onSettled: () => {
-          sendLockRef.current = false
-          setIsSending(false)
+          sendLockRef.current = false;
+          setIsSending(false);
         },
       }
-    )
-  }
+    );
+  };
 
   const clearChatHistory = () => {
     if (clearChatMutation.isPending || isSending || !hasSavedMessages) {
-      return
+      return;
     }
 
-    setClearConfirmOpen(true)
-  }
+    setClearConfirmOpen(true);
+  };
 
   const confirmClearChatHistory = () => {
     if (clearChatMutation.isPending || isSending || !hasSavedMessages) {
-      return
+      return;
     }
 
     clearChatMutation.mutate(
@@ -153,19 +150,19 @@ export default function LessonChatCard({
       },
       {
         onSuccess: async () => {
-          setLocalMessages([])
-          await chatHistoryQuery.refetch()
-          setClearConfirmOpen(false)
+          setLocalMessages([]);
+          await chatHistoryQuery.refetch();
+          setClearConfirmOpen(false);
         },
       }
-    )
-  }
+    );
+  };
 
   const closeClearConfirm = () => {
-    if (clearChatMutation.isPending) return
+    if (clearChatMutation.isPending) return;
 
-    setClearConfirmOpen(false)
-  }
+    setClearConfirmOpen(false);
+  };
 
   const renderMessages = (large = false) => (
     <div
@@ -181,15 +178,12 @@ export default function LessonChatCard({
       )}
 
       {messages.map((item, index) => {
-        const isUser = item.role === 'user'
+        const isUser = item.role === 'user';
 
         return (
           <div
             key={`${item.role}-${index}-${item.content.slice(0, 24)}`}
-            className={cn(
-              'flex items-end gap-3',
-              isUser && 'flex-row-reverse'
-            )}
+            className={cn('flex items-end gap-3', isUser && 'flex-row-reverse')}
           >
             {!isUser && (
               <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-(--brand-500) dark:bg-white/9 dark:text-(--brand-500)">
@@ -200,9 +194,7 @@ export default function LessonChatCard({
             <div
               className={cn(
                 'px-4 py-3 leading-normal',
-                large
-                  ? 'max-w-[78%] text-[14px]'
-                  : 'max-w-[85%] text-[13px]',
+                large ? 'max-w-[78%] text-[14px]' : 'max-w-[85%] text-[13px]',
                 isUser
                   ? 'rounded-[16px_16px_4px_16px] border border-[rgba(184,76,43,0.16)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)'
                   : 'rounded-[16px_16px_16px_4px] bg-[rgba(26,23,20,0.09)] text-(--text-primary) dark:bg-white/9 dark:text-(--text-primary)'
@@ -211,7 +203,7 @@ export default function LessonChatCard({
               <MathText>{item.content}</MathText>
             </div>
           </div>
-        )
+        );
       })}
 
       {isSending && (
@@ -221,20 +213,16 @@ export default function LessonChatCard({
       )}
 
       {clearChatMutation.isPending && (
-        <div className="text-[12px] text-red-500 dark:text-red-400">
-          Clearing chat history...
-        </div>
+        <div className="text-[12px] text-red-500 dark:text-red-400">Clearing chat history...</div>
       )}
     </div>
-  )
+  );
 
   const renderQuickActions = () => (
     <div className="flex flex-wrap gap-2">
       <button
         type="button"
-        onClick={() =>
-          setMessage('Explain this lesson in simple words')
-        }
+        onClick={() => setMessage('Explain this lesson in simple words')}
         disabled={isChatBusy}
         className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[9px] font-semibold uppercase tracking-[0.08em] text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
       >
@@ -250,7 +238,7 @@ export default function LessonChatCard({
         Show examples
       </button>
     </div>
-  )
+  );
 
   const renderChatInput = () => (
     <div className="flex items-center gap-2 rounded-xl border-[1.5px] border-(--border-subtle) bg-white px-3 py-1.5 transition focus-within:border-(--brand-500) focus-within:shadow-[0_0_0_3px_rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
@@ -259,17 +247,15 @@ export default function LessonChatCard({
         onChange={(event) => setMessage(event.target.value)}
         onKeyDown={(event) => {
           if (event.key === 'Enter') {
-            event.preventDefault()
+            event.preventDefault();
 
             if (!isChatBusy) {
-              sendMessage()
+              sendMessage();
             }
           }
         }}
         disabled={clearChatMutation.isPending}
-        placeholder={
-          voice.isListening ? 'Listening...' : 'Send a message...'
-        }
+        placeholder={voice.isListening ? 'Listening...' : 'Send a message...'}
         className="min-w-0 flex-1 bg-transparent py-1.5 text-[13px] text-(--text-primary) outline-none placeholder:text-(--text-secondary)/60 disabled:cursor-not-allowed disabled:opacity-60 dark:text-(--text-primary) dark:placeholder:text-[#9b9a92]/60"
       />
 
@@ -289,7 +275,7 @@ export default function LessonChatCard({
         ➤
       </button>
     </div>
-  )
+  );
 
   return (
     <>
@@ -394,5 +380,5 @@ export default function LessonChatCard({
         </div>
       )}
     </>
-  )
+  );
 }

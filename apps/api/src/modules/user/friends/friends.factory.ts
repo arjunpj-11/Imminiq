@@ -1,17 +1,15 @@
-import type { FriendsUseCases } from './application/friends-use-cases.contract'
-import { FriendsMapper } from "./application/friends.mapper";
-import { FriendRelationshipPolicy } from "./application/friend-relationship.policy";
-import { AcceptFriendRequestUseCase } from "./application/use-cases/accept-friend-request.usecase";
-import { CancelFriendRequestUseCase } from "./application/use-cases/cancel-friend-request.usecase";
-import { DeclineFriendRequestUseCase } from "./application/use-cases/decline-friend-request.usecase";
-import { ListFriendRequestsUseCase } from "./application/use-cases/list-friend-requests.usecase";
-import { ListFriendsUseCase } from "./application/use-cases/list-friends.usecase";
-import { RemoveFriendUseCase } from "./application/use-cases/remove-friend.usecase";
-import { SearchUsersUseCase } from "./application/use-cases/search-users.usecase";
-import { SendFriendRequestUseCase } from "./application/use-cases/send-friend-request.usecase";
-import { mongoFriendsRepository } from "./infrastructure/repositories/mongo-friends.repository";
-
-;
+import type { FriendsUseCases } from './application/friends-use-cases.contract';
+import { FriendsMapper } from './application/friends.mapper';
+import { FriendRelationshipPolicy } from './application/friend-relationship.policy';
+import { AcceptFriendRequestUseCase } from './application/use-cases/accept-friend-request.usecase';
+import { CancelFriendRequestUseCase } from './application/use-cases/cancel-friend-request.usecase';
+import { DeclineFriendRequestUseCase } from './application/use-cases/decline-friend-request.usecase';
+import { ListFriendRequestsUseCase } from './application/use-cases/list-friend-requests.usecase';
+import { ListFriendsUseCase } from './application/use-cases/list-friends.usecase';
+import { RemoveFriendUseCase } from './application/use-cases/remove-friend.usecase';
+import { SearchUsersUseCase } from './application/use-cases/search-users.usecase';
+import { SendFriendRequestUseCase } from './application/use-cases/send-friend-request.usecase';
+import { mongoFriendsRepository } from './infrastructure/repositories/mongo-friends.repository';
 
 export type FriendsComposition = {
   useCases: FriendsUseCases;
@@ -26,26 +24,20 @@ export const createFriendsComposition = (): FriendsComposition => {
     useCases: {
       searchUsers: new SearchUsersUseCase(friendsRepository, friendsMapper),
       listFriends: new ListFriendsUseCase(friendsRepository, friendsMapper),
-      listFriendRequests: new ListFriendRequestsUseCase(
-        friendsRepository,
-        friendsMapper,
-      ),
+      listFriendRequests: new ListFriendRequestsUseCase(friendsRepository, friendsMapper),
       sendFriendRequest: new SendFriendRequestUseCase(
         friendsRepository,
         relationshipPolicy,
-        friendsMapper,
+        friendsMapper
       ),
       acceptFriendRequest: new AcceptFriendRequestUseCase(
         friendsRepository,
         friendsRepository,
-        friendsMapper,
+        friendsMapper
       ),
       declineFriendRequest: new DeclineFriendRequestUseCase(friendsRepository),
       cancelFriendRequest: new CancelFriendRequestUseCase(friendsRepository),
-      removeFriend: new RemoveFriendUseCase(
-        friendsRepository,
-        relationshipPolicy,
-      ),
+      removeFriend: new RemoveFriendUseCase(friendsRepository, relationshipPolicy),
     },
   };
 };

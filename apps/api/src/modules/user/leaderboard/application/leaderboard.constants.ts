@@ -1,23 +1,20 @@
-import type { LeaderboardSection } from '../domain/value-objects/leaderboard-section.vo'
+import type { LeaderboardSection } from '../domain/value-objects/leaderboard-section.vo';
 
 export type LeaderboardScoringRule = {
-  label: string
-  xpLabel: string
-  source: string
-}
+  label: string;
+  xpLabel: string;
+  source: string;
+};
 
 export type LeaderboardReward = {
-  title: string
-  description: string
-  targetRank: number
-  badgeName: string
-  coins: number
-}
+  title: string;
+  description: string;
+  targetRank: number;
+  badgeName: string;
+  coins: number;
+};
 
-export const LEADERBOARD_SCORING_RULES: Record<
-  LeaderboardSection,
-  LeaderboardScoringRule[]
-> = {
+export const LEADERBOARD_SCORING_RULES: Record<LeaderboardSection, LeaderboardScoringRule[]> = {
   students: [
     {
       label: 'Subtopic mastery',
@@ -62,12 +59,9 @@ export const LEADERBOARD_SCORING_RULES: Record<
       source: 'community_vote',
     },
   ],
-}
+};
 
-export const LEADERBOARD_REWARDS: Record<
-  LeaderboardSection,
-  LeaderboardReward
-> = {
+export const LEADERBOARD_REWARDS: Record<LeaderboardSection, LeaderboardReward> = {
   students: {
     title: 'Elite Distinction',
     description:
@@ -84,4 +78,4 @@ export const LEADERBOARD_REWARDS: Record<
     badgeName: 'Centurion Mentor',
     coins: 500,
   },
-}
+};

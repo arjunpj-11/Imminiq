@@ -1,24 +1,20 @@
 // apps/api/src/infrastructure/database/models/user-subtopic-progress.model.ts
 
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
-export type SubtopicProgressStatus =
-  | 'locked'
-  | 'available'
-  | 'in_progress'
-  | 'completed'
+export type SubtopicProgressStatus = 'locked' | 'available' | 'in_progress' | 'completed';
 
 export interface IUserSubtopicProgressDocument extends Document {
-  userId: mongoose.Types.ObjectId
-  trackerId: mongoose.Types.ObjectId
-  topicId: mongoose.Types.ObjectId
-  subtopicId: mongoose.Types.ObjectId
-  status: SubtopicProgressStatus
-  isUnlocked: boolean
-  progressPercent: number
-  completedAt?: Date | null
-  createdAt: Date
-  updatedAt: Date
+  userId: mongoose.Types.ObjectId;
+  trackerId: mongoose.Types.ObjectId;
+  topicId: mongoose.Types.ObjectId;
+  subtopicId: mongoose.Types.ObjectId;
+  status: SubtopicProgressStatus;
+  isUnlocked: boolean;
+  progressPercent: number;
+  completedAt?: Date | null;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const userSubtopicProgressSchema = new Schema<IUserSubtopicProgressDocument>(
@@ -58,24 +54,21 @@ const userSubtopicProgressSchema = new Schema<IUserSubtopicProgressDocument>(
       min: 0,
       max: 100,
     },
-   
+
     completedAt: {
       type: Date,
       default: null,
     },
   },
   { timestamps: true }
-)
+);
 
 // One progress doc per user+subtopic
-userSubtopicProgressSchema.index(
-  { userId: 1, subtopicId: 1 },
-  { unique: true }
-)
-userSubtopicProgressSchema.index({ userId: 1, trackerId: 1 })
-userSubtopicProgressSchema.index({ userId: 1, trackerId: 1, status: 1 })
+userSubtopicProgressSchema.index({ userId: 1, subtopicId: 1 }, { unique: true });
+userSubtopicProgressSchema.index({ userId: 1, trackerId: 1 });
+userSubtopicProgressSchema.index({ userId: 1, trackerId: 1, status: 1 });
 
 export const UserSubtopicProgress = mongoose.model<IUserSubtopicProgressDocument>(
   'UserSubtopicProgress',
   userSubtopicProgressSchema
-)
+);

@@ -1,3 +1,3 @@
 export interface IShareTokenGenerator {
-  generate(): string
+  generate(): string;
 }

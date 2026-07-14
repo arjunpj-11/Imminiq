@@ -1,1 +1,1 @@
-export type TwoFactorStatus = 'pending' | 'active' | 'disabled'
+export type TwoFactorStatus = 'pending' | 'active' | 'disabled';

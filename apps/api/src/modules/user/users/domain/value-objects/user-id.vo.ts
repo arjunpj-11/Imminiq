@@ -1,1 +1,1 @@
-export type UserIdInput = string | { toString(): string }
+export type UserIdInput = string | { toString(): string };

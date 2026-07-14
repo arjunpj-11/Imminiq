@@ -3,7 +3,7 @@ interface IIconProps {
   className?: string;
 }
 
-export const BackIcon = ({ size = 15, className = "" }: IIconProps) => (
+export const BackIcon = ({ size = 15, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -22,7 +22,7 @@ export const BackIcon = ({ size = 15, className = "" }: IIconProps) => (
   </svg>
 );
 
-export const SearchIcon = ({ size = 15, className = "" }: IIconProps) => (
+export const SearchIcon = ({ size = 15, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -32,16 +32,11 @@ export const SearchIcon = ({ size = 15, className = "" }: IIconProps) => (
     className={className}
   >
     <circle cx="11" cy="11" r="7" stroke="currentColor" strokeWidth="1.8" />
-    <path
-      d="M21 21L16.6 16.6"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
+    <path d="M21 21L16.6 16.6" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
   </svg>
 );
 
-export const UserPlusIcon = ({ size = 14, className = "" }: IIconProps) => (
+export const UserPlusIcon = ({ size = 14, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -58,16 +53,11 @@ export const UserPlusIcon = ({ size = 14, className = "" }: IIconProps) => (
       strokeLinejoin="round"
     />
     <circle cx="8.5" cy="7" r="4" stroke="currentColor" strokeWidth="1.9" />
-    <path
-      d="M20 8v6M23 11h-6"
-      stroke="currentColor"
-      strokeWidth="1.9"
-      strokeLinecap="round"
-    />
+    <path d="M20 8v6M23 11h-6" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" />
   </svg>
 );
 
-export const ClockIcon = ({ size = 14, className = "" }: IIconProps) => (
+export const ClockIcon = ({ size = 14, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -87,7 +77,7 @@ export const ClockIcon = ({ size = 14, className = "" }: IIconProps) => (
   </svg>
 );
 
-export const CheckIcon = ({ size = 14, className = "" }: IIconProps) => (
+export const CheckIcon = ({ size = 14, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -106,7 +96,7 @@ export const CheckIcon = ({ size = 14, className = "" }: IIconProps) => (
   </svg>
 );
 
-export const CloseIcon = ({ size = 14, className = "" }: IIconProps) => (
+export const CloseIcon = ({ size = 14, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -115,16 +105,11 @@ export const CloseIcon = ({ size = 14, className = "" }: IIconProps) => (
     aria-hidden="true"
     className={className}
   >
-    <path
-      d="M6 6l12 12M18 6L6 18"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );
 
-export const FriendsIcon = ({ size = 15, className = "" }: IIconProps) => (
+export const FriendsIcon = ({ size = 15, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -149,7 +134,7 @@ export const FriendsIcon = ({ size = 15, className = "" }: IIconProps) => (
   </svg>
 );
 
-export const MoreIcon = ({ size = 16, className = "" }: IIconProps) => (
+export const MoreIcon = ({ size = 16, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -164,7 +149,7 @@ export const MoreIcon = ({ size = 16, className = "" }: IIconProps) => (
   </svg>
 );
 
-export const AlertIcon = ({ size = 16, className = "" }: IIconProps) => (
+export const AlertIcon = ({ size = 16, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -173,23 +158,13 @@ export const AlertIcon = ({ size = 16, className = "" }: IIconProps) => (
     aria-hidden="true"
     className={className}
   >
-    <path
-      d="M12 3l9 16H3L12 3z"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M12 9v4"
-      stroke="currentColor"
-      strokeWidth="1.8"
-      strokeLinecap="round"
-    />
+    <path d="M12 3l9 16H3L12 3z" stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" />
+    <path d="M12 9v4" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
     <circle cx="12" cy="16.5" r="1" fill="currentColor" />
   </svg>
 );
 
-export const SpinnerIcon = ({ size = 16, className = "" }: IIconProps) => (
+export const SpinnerIcon = ({ size = 16, className = '' }: IIconProps) => (
   <svg
     width={size}
     height={size}
@@ -198,19 +173,7 @@ export const SpinnerIcon = ({ size = 16, className = "" }: IIconProps) => (
     aria-hidden="true"
     className={className}
   >
-    <circle
-      cx="12"
-      cy="12"
-      r="9"
-      stroke="currentColor"
-      strokeWidth="2"
-      opacity="0.2"
-    />
-    <path
-      d="M21 12a9 9 0 00-9-9"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <circle cx="12" cy="12" r="9" stroke="currentColor" strokeWidth="2" opacity="0.2" />
+    <path d="M21 12a9 9 0 00-9-9" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
 );

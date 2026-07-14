@@ -1,12 +1,9 @@
 type DailyInsightCardProps = {
-  insight?: string | null
-  onDismiss: () => void
-}
+  insight?: string | null;
+  onDismiss: () => void;
+};
 
-export default function DailyInsightCard({
-  insight,
-  onDismiss,
-}: DailyInsightCardProps) {
+export default function DailyInsightCard({ insight, onDismiss }: DailyInsightCardProps) {
   return (
     <section className="relative flex flex-wrap items-center gap-4 overflow-hidden rounded-2xl bg-linear-to-br from-(--brand-500) to-[#963d22] px-5.5 py-4 shadow-[0_8px_32px_rgba(184,76,43,0.28)]">
       <div className="relative z-1 text-[26px]">💡</div>
@@ -17,8 +14,7 @@ export default function DailyInsightCard({
         </div>
 
         <div className="text-[13.5px] font-semibold leading-normal text-white">
-          {insight ??
-            'Keep your streak alive by completing at least one learning step today.'}
+          {insight ?? 'Keep your streak alive by completing at least one learning step today.'}
         </div>
       </div>
 
@@ -31,5 +27,5 @@ export default function DailyInsightCard({
         ×
       </button>
     </section>
-  )
+  );
 }

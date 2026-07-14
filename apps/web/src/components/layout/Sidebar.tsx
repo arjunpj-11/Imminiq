@@ -1,19 +1,21 @@
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
-import { Link, NavLink, useLocation } from 'react-router-dom'
+import { Link, NavLink, useLocation } from 'react-router-dom';
 
-import { prefetchRoute } from '../../lib/route-prefetch'
-import ImminiqLogo from '../ui/ImminiqLogo'
-import ImminiqWordmark from '../ui/ImminiqWordmark'
+import { prefetchRoute } from '../../lib/route-prefetch';
+import { getTemporaryUserNavItem } from '../../lib/current-page-navigation';
+import { refreshCurrentRoute } from '../../lib/refresh-current-route';
+import ImminiqLogo from '../ui/ImminiqLogo';
+import ImminiqWordmark from '../ui/ImminiqWordmark';
 
 interface ISidebarProps {
-  mobileOpen: boolean
-  collapsed: boolean
-  onCloseMobile: () => void
-  onToggleCollapsed: () => void
+  mobileOpen: boolean;
+  collapsed: boolean;
+  onCloseMobile: () => void;
+  onToggleCollapsed: () => void;
 }
 
-const navItems = [
+const mainItems = [
   {
     label: 'Dashboard',
     to: '/dashboard',
@@ -66,6 +68,9 @@ const navItems = [
       </svg>
     ),
   },
+];
+
+const discoverItems = [
   {
     label: 'Community',
     to: '/community',
@@ -103,9 +108,30 @@ const navItems = [
       </svg>
     ),
   },
-]
+];
 
-const activityItems = [
+const intelligenceItems = [
+  {
+    label: 'Adaptive Learning',
+    to: '/learning-agent',
+    icon: (
+      <svg
+        width="15"
+        height="15"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      >
+        <path d="M12 2l1.4 5.1L18 9l-4.6 1.9L12 16l-1.4-5.1L6 9l4.6-1.9L12 2Z" />
+        <path d="M5 15l.8 2.2L8 18l-2.2.8L5 21l-.8-2.2L2 18l2.2-.8L5 15Z" />
+        <path d="M19 14l.8 2.2L22 17l-2.2.8L19 20l-.8-2.2L16 17l2.2-.8L19 14Z" />
+      </svg>
+    ),
+  },
+];
+
+const personalItems = [
   {
     label: 'Activity',
     to: '/activity',
@@ -140,7 +166,7 @@ const activityItems = [
       </svg>
     ),
   },
-]
+];
 
 export default function Sidebar({
   mobileOpen,
@@ -148,30 +174,33 @@ export default function Sidebar({
   onCloseMobile,
   onToggleCollapsed,
 }: ISidebarProps) {
-  const location = useLocation()
+  const location = useLocation();
 
   const isInsideSettings =
-    location.pathname === '/settings' ||
-    location.pathname.startsWith('/settings/')
+    location.pathname === '/settings' || location.pathname.startsWith('/settings/');
 
-  const currentPathWithSearchAndHash = `${location.pathname}${location.search}${location.hash}`
+  const currentPathWithSearchAndHash = `${location.pathname}${location.search}${location.hash}`;
+
+  const temporaryItem = getTemporaryUserNavItem(
+    location.pathname,
+    location.search,
+    location.hash
+  );
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
-      "mb-px flex items-center justify-between rounded-[var(--radius-sm)] px-2.5 py-[9px] font-ui text-[13px] font-medium tracking-normal no-underline transition",
+      'mb-px flex items-center justify-between rounded-[var(--radius-sm)] px-2.5 py-[9px] font-ui text-[13px] font-medium tracking-normal no-underline transition',
       isActive
         ? 'bg-[rgba(184,76,43,0.10)] text-[var(--brand-500)] dark:bg-[rgba(232,129,106,0.12)] dark:text-[var(--brand-500)]'
         : 'text-[var(--text-secondary)] hover:bg-[rgba(184,76,43,0.06)] hover:text-[var(--brand-500)] dark:text-[var(--text-secondary)] dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-[var(--brand-500)]'
-    )
+    );
 
   return (
     <>
       <div
         className={cn(
           'fixed inset-0 z-29 bg-[rgba(26,23,20,0.55)] opacity-0 backdrop-blur-sm transition-opacity duration-300 dark:bg-[rgba(0,0,0,0.70)] min-[901px]:hidden',
-          mobileOpen
-            ? 'pointer-events-auto opacity-100'
-            : 'pointer-events-none'
+          mobileOpen ? 'pointer-events-auto opacity-100' : 'pointer-events-none'
         )}
         onClick={onCloseMobile}
         aria-hidden="true"
@@ -179,13 +208,9 @@ export default function Sidebar({
 
       <aside
         className={cn(
-          "fixed bottom-0 left-0 top-0 z-30 flex w-56 flex-col border-r border-(--border-subtle) bg-(--surface-card) font-ui tracking-normal shadow-[0_16px_56px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out dark:border-(--border-subtle) dark:bg-(--surface-card) min-[901px]:shadow-none",
-          mobileOpen
-            ? 'max-[900px]:translate-x-0'
-            : 'max-[900px]:-translate-x-full',
-          collapsed
-            ? 'min-[901px]:-translate-x-56'
-            : 'min-[901px]:translate-x-0'
+          'fixed bottom-0 left-0 top-0 z-30 flex w-56 flex-col border-r border-(--border-subtle) bg-(--surface-card) font-ui tracking-normal shadow-[0_16px_56px_rgba(0,0,0,0.15)] transition-transform duration-300 ease-in-out dark:border-(--border-subtle) dark:bg-(--surface-card) min-[901px]:shadow-none',
+          mobileOpen ? 'max-[900px]:translate-x-0' : 'max-[900px]:-translate-x-full',
+          collapsed ? 'min-[901px]:-translate-x-56' : 'min-[901px]:translate-x-0'
         )}
       >
         <Link
@@ -203,11 +228,12 @@ export default function Sidebar({
             Main
           </div>
 
-          {navItems.map((item) => (
+          {mainItems.map((item) => (
             <NavLink
               key={item.label}
               to={item.to}
               onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
               onMouseEnter={() => prefetchRoute(item.to)}
               onFocus={() => prefetchRoute(item.to)}
               className={navLinkClass}
@@ -222,13 +248,12 @@ export default function Sidebar({
                   {'kbd' in item && item.kbd ? (
                     <span
                       className={cn(
-                        "rounded px-1.25 py-0.5 font-mono text-[9px]",
+                        'rounded px-1.25 py-0.5 font-mono text-[9px]',
                         isActive
                           ? 'bg-[rgba(184,76,43,0.14)] text-(--brand-500) dark:bg-[rgba(232,129,106,0.16)] dark:text-(--brand-500)'
                           : 'bg-[rgba(26,23,20,0.09)] text-(--text-secondary) opacity-60 dark:bg-[rgba(242,240,235,0.09)] dark:text-(--text-secondary)'
                       )}
-                    >
-                    </span>
+                    ></span>
                   ) : null}
                 </>
               )}
@@ -236,22 +261,63 @@ export default function Sidebar({
           ))}
 
           <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
+            Intelligence
+          </div>
+
+          {intelligenceItems.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
+              onMouseEnter={() => prefetchRoute(item.to)}
+              onFocus={() => prefetchRoute(item.to)}
+              className={navLinkClass}
+            >
+              <span className="flex items-center gap-2.5">
+                {item.icon}
+                {item.label}
+              </span>
+            </NavLink>
+          ))}
+
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
+            Discover
+          </div>
+
+          {discoverItems.map((item) => (
+            <NavLink
+              key={item.label}
+              to={item.to}
+              onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
+              onMouseEnter={() => prefetchRoute(item.to)}
+              onFocus={() => prefetchRoute(item.to)}
+              className={navLinkClass}
+            >
+              <span className="flex items-center gap-2.5">
+                {item.icon}
+                {item.label}
+              </span>
+            </NavLink>
+          ))}
+
+          <div className="px-2.5 pb-1.25 pt-4.5 font-mono text-[8.5px] uppercase tracking-[0.15em] text-(--text-secondary) opacity-45 dark:text-(--text-secondary)">
             Personal
           </div>
 
-          {activityItems.map((item) => {
-            const isSettingsItem = item.label === 'Settings'
+          {personalItems.map((item) => {
+            const isSettingsItem = item.label === 'Settings';
 
             const target =
-              isSettingsItem && isInsideSettings
-                ? currentPathWithSearchAndHash
-                : item.to
+              isSettingsItem && isInsideSettings ? currentPathWithSearchAndHash : item.to;
 
             return (
               <NavLink
                 key={item.label}
                 to={target}
                 onClick={onCloseMobile}
+                onDoubleClick={refreshCurrentRoute}
                 onMouseEnter={() => prefetchRoute(target)}
                 onFocus={() => prefetchRoute(target)}
                 className={({ isActive }) =>
@@ -265,8 +331,35 @@ export default function Sidebar({
                   {item.label}
                 </span>
               </NavLink>
-            )
+            );
           })}
+
+          {temporaryItem && (
+            <NavLink
+              to={temporaryItem.to}
+              end
+              onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
+              className={navLinkClass}
+              aria-label={`${temporaryItem.label}. Double-click to refresh this page.`}
+            >
+              <span className="flex min-w-0 items-center gap-2.5">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="M3 12a9 9 0 1 0 3-6.7" />
+                  <path d="M3 3v6h6" />
+                </svg>
+                <span className="truncate">{temporaryItem.label}</span>
+              </span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="relative mx-2.5 mb-4 overflow-hidden rounded-md border border-[rgba(184,76,43,0.14)] bg-[rgba(184,76,43,0.07)] p-3.5 dark:border-[rgba(232,129,106,0.16)] dark:bg-[rgba(232,129,106,0.07)]">
@@ -277,8 +370,7 @@ export default function Sidebar({
           </div>
 
           <p className="relative z-1 mb-2.5 text-[11px] leading-[1.45] tracking-normal text-(--text-secondary) dark:text-(--text-secondary)">
-            Unlock advanced insights, AI evaluations, and unlimited tracker
-            sharing.
+            Unlock advanced insights, AI evaluations, and unlimited tracker sharing.
           </p>
 
           <Link
@@ -307,14 +399,11 @@ export default function Sidebar({
           fill="none"
           stroke="currentColor"
           strokeWidth="2.5"
-          className={cn(
-            'transition-transform duration-300',
-            collapsed && 'rotate-180'
-          )}
+          className={cn('transition-transform duration-300', collapsed && 'rotate-180')}
         >
           <polyline points="15 18 9 12 15 6" />
         </svg>
       </button>
     </>
-  )
+  );
 }

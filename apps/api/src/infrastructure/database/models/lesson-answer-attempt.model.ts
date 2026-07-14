@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/lesson-answer-attempt.model.ts
 
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const lessonAnswerAttemptSchema = new Schema(
   {
@@ -81,7 +81,7 @@ const lessonAnswerAttemptSchema = new Schema(
   {
     timestamps: true,
   }
-)
+);
 
 lessonAnswerAttemptSchema.index({
   trackerId: 1,
@@ -89,8 +89,8 @@ lessonAnswerAttemptSchema.index({
   userId: 1,
   questionId: 1,
   createdAt: -1,
-})
+});
 
 export const LessonAnswerAttempt =
   mongoose.models.LessonAnswerAttempt ||
-  mongoose.model('LessonAnswerAttempt', lessonAnswerAttemptSchema)
+  mongoose.model('LessonAnswerAttempt', lessonAnswerAttemptSchema);

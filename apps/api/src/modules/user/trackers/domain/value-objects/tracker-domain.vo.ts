@@ -7,4 +7,4 @@ export type TrackerDomain =
   | 'development'
   | 'design'
   | 'ai'
-  | 'other'
+  | 'other';

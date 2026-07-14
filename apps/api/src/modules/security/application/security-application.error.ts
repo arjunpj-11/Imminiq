@@ -1,4 +1,4 @@
-import { SecurityDomainError } from '../domain/security-domain.error'
+import { SecurityDomainError } from '../domain/security-domain.error';
 
 export type SecurityApplicationErrorCode =
   | 'ACCOUNT_DELETE_FAILED'
@@ -31,265 +31,241 @@ export type SecurityApplicationErrorCode =
   | 'TWO_FACTOR_SETUP_NOT_FOUND'
   | 'TWO_FACTOR_SETUP_NOT_PENDING'
   | 'TWO_FACTOR_SETUP_TEMPORARILY_BLOCKED'
-  | 'WRONG_PASSWORD'
+  | 'WRONG_PASSWORD';
 
 export class SecurityApplicationError extends SecurityDomainError {
-  readonly statusCode: number
+  readonly statusCode: number;
 
-  private constructor(
-    statusCode: number,
-    code: SecurityApplicationErrorCode,
-    message: string,
-  ) {
-    super(code, message)
-    this.name = 'SecurityApplicationError'
-    this.statusCode = statusCode
+  private constructor(statusCode: number, code: SecurityApplicationErrorCode, message: string) {
+    super(code, message);
+    this.name = 'SecurityApplicationError';
+    this.statusCode = statusCode;
   }
 
   static accountDeleteFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
       500,
       'ACCOUNT_DELETE_FAILED',
-      'Failed to schedule account deletion',
-    )
+      'Failed to schedule account deletion'
+    );
   }
 
   static cannotRevokeCurrentSession(): SecurityApplicationError {
     return new SecurityApplicationError(
       403,
       'CANNOT_REVOKE_CURRENT_SESSION',
-      'Use logout to end your current session',
-    )
+      'Use logout to end your current session'
+    );
   }
 
   static emailChangeLinkInvalid(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'EMAIL_CHANGE_LINK_INVALID',
-      'This email verification link is invalid or expired',
-    )
+      'This email verification link is invalid or expired'
+    );
   }
 
   static emailChangeRequestFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
       500,
       'EMAIL_CHANGE_REQUEST_FAILED',
-      'Failed to create email change request',
-    )
+      'Failed to create email change request'
+    );
   }
 
   static emailChangeVerifyFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
       500,
       'EMAIL_CHANGE_VERIFY_FAILED',
-      'Failed to verify email change',
-    )
+      'Failed to verify email change'
+    );
   }
 
   static emailRequired(): SecurityApplicationError {
-    return new SecurityApplicationError(
-      400,
-      'EMAIL_REQUIRED',
-      'New email is required',
-    )
+    return new SecurityApplicationError(400, 'EMAIL_REQUIRED', 'New email is required');
   }
 
-  static emailTaken(
-    message = 'Email is already in use',
-  ): SecurityApplicationError {
-    return new SecurityApplicationError(409, 'EMAIL_TAKEN', message)
+  static emailTaken(message = 'Email is already in use'): SecurityApplicationError {
+    return new SecurityApplicationError(409, 'EMAIL_TAKEN', message);
   }
 
   static emailUnchanged(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'EMAIL_UNCHANGED',
-      'New email must be different from current email',
-    )
+      'New email must be different from current email'
+    );
   }
 
   static invalidDeleteConfirmation(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'INVALID_DELETE_CONFIRMATION',
-      'Type DELETE to confirm account deletion',
-    )
+      'Type DELETE to confirm account deletion'
+    );
   }
 
   static invalidTwoFactorCode(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'INVALID_TWO_FACTOR_CODE',
-      'Invalid authenticator code',
-    )
+      'Invalid authenticator code'
+    );
   }
 
   static notFound(message = 'User not found'): SecurityApplicationError {
-    return new SecurityApplicationError(404, 'NOT_FOUND', message)
+    return new SecurityApplicationError(404, 'NOT_FOUND', message);
   }
 
   static passwordChangeFailed(): SecurityApplicationError {
-    return new SecurityApplicationError(
-      500,
-      'PASSWORD_CHANGE_FAILED',
-      'Unable to change password',
-    )
+    return new SecurityApplicationError(500, 'PASSWORD_CHANGE_FAILED', 'Unable to change password');
   }
 
   static passwordUnavailable(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'PASSWORD_UNAVAILABLE',
-      'Password changes are unavailable for this account',
-    )
+      'Password changes are unavailable for this account'
+    );
   }
 
   static sessionNotFound(): SecurityApplicationError {
-    return new SecurityApplicationError(
-      404,
-      'SESSION_NOT_FOUND',
-      'Session not found',
-    )
+    return new SecurityApplicationError(404, 'SESSION_NOT_FOUND', 'Session not found');
   }
 
   static stepUpPasswordInvalid(): SecurityApplicationError {
     return new SecurityApplicationError(
       401,
       'STEP_UP_PASSWORD_INVALID',
-      'Current password is incorrect',
-    )
+      'Current password is incorrect'
+    );
   }
 
   static stepUpPasswordRequired(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'STEP_UP_PASSWORD_REQUIRED',
-      'Current password is required for this security action',
-    )
+      'Current password is required for this security action'
+    );
   }
 
   static stepUpPasswordUnavailable(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'STEP_UP_PASSWORD_UNAVAILABLE',
-      'Password reauthentication is unavailable for this account',
-    )
+      'Password reauthentication is unavailable for this account'
+    );
   }
 
   static stepUpRequiresTwoFactorForSocialAccount(): SecurityApplicationError {
     return new SecurityApplicationError(
       403,
       'STEP_UP_REQUIRES_TWO_FACTOR_FOR_SOCIAL_ACCOUNT',
-      'Enable two-factor authentication before performing this security action.',
-    )
+      'Enable two-factor authentication before performing this security action.'
+    );
   }
 
   static stepUpTwoFactorInvalid(): SecurityApplicationError {
     return new SecurityApplicationError(
       401,
       'STEP_UP_TWO_FACTOR_INVALID',
-      'Invalid two-factor code',
-    )
+      'Invalid two-factor code'
+    );
   }
 
   static stepUpTwoFactorRequired(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'STEP_UP_TWO_FACTOR_REQUIRED',
-      'Two-factor code is required for this security action',
-    )
+      'Two-factor code is required for this security action'
+    );
   }
 
   static twoFactorAlreadyEnabled(): SecurityApplicationError {
     return new SecurityApplicationError(
       409,
       'TWO_FACTOR_ALREADY_ENABLED',
-      'Two-factor authentication is already enabled',
-    )
+      'Two-factor authentication is already enabled'
+    );
   }
 
   static twoFactorDisableFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
       500,
       'TWO_FACTOR_DISABLE_FAILED',
-      'Unable to disable two-factor authentication',
-    )
+      'Unable to disable two-factor authentication'
+    );
   }
 
   static twoFactorDisableTemporarilyBlocked(): SecurityApplicationError {
     return new SecurityApplicationError(
       429,
       'TWO_FACTOR_DISABLE_TEMPORARILY_BLOCKED',
-      'Too many invalid authenticator codes. Please try again later.',
-    )
+      'Too many invalid authenticator codes. Please try again later.'
+    );
   }
 
   static twoFactorEnableFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
       500,
       'TWO_FACTOR_ENABLE_FAILED',
-      'Unable to enable two-factor authentication',
-    )
+      'Unable to enable two-factor authentication'
+    );
   }
 
   static twoFactorNotEnabled(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'TWO_FACTOR_NOT_ENABLED',
-      'Two-factor authentication is not enabled',
-    )
+      'Two-factor authentication is not enabled'
+    );
   }
 
   static twoFactorSecretMissing(): SecurityApplicationError {
     return new SecurityApplicationError(
       500,
       'TWO_FACTOR_SECRET_MISSING',
-      'Two-factor secret is missing',
-    )
+      'Two-factor secret is missing'
+    );
   }
 
   static twoFactorSetupFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
       500,
       'TWO_FACTOR_SETUP_FAILED',
-      'Unable to start two-factor setup',
-    )
+      'Unable to start two-factor setup'
+    );
   }
 
   static twoFactorSetupNotFound(): SecurityApplicationError {
     return new SecurityApplicationError(
       404,
       'TWO_FACTOR_SETUP_NOT_FOUND',
-      'Two-factor setup was not found',
-    )
+      'Two-factor setup was not found'
+    );
   }
 
   static twoFactorSetupNotPending(): SecurityApplicationError {
     return new SecurityApplicationError(
       400,
       'TWO_FACTOR_SETUP_NOT_PENDING',
-      'Start two-factor setup again before verifying',
-    )
+      'Start two-factor setup again before verifying'
+    );
   }
 
   static twoFactorSetupTemporarilyBlocked(): SecurityApplicationError {
     return new SecurityApplicationError(
       429,
       'TWO_FACTOR_SETUP_TEMPORARILY_BLOCKED',
-      'Too many invalid authenticator codes. Start setup again or try later.',
-    )
+      'Too many invalid authenticator codes. Start setup again or try later.'
+    );
   }
 
   static wrongPassword(): SecurityApplicationError {
-    return new SecurityApplicationError(
-      400,
-      'WRONG_PASSWORD',
-      'Current password is incorrect',
-    )
+    return new SecurityApplicationError(400, 'WRONG_PASSWORD', 'Current password is incorrect');
   }
 }
 
-export const isSecurityApplicationError = (
-  error: unknown,
-): error is SecurityApplicationError =>
-  error instanceof SecurityApplicationError
+export const isSecurityApplicationError = (error: unknown): error is SecurityApplicationError =>
+  error instanceof SecurityApplicationError;

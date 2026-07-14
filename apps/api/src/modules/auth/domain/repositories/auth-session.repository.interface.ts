@@ -1,41 +1,34 @@
-import type { AuthSessionEntity } from '../entities/auth-session.entity'
+import type { AuthSessionEntity } from '../entities/auth-session.entity';
 
 export type AuthSessionMetaInput = {
-  device?: string
-  ipAddress?: string
-  userAgent?: string
-}
+  device?: string;
+  ipAddress?: string;
+  userAgent?: string;
+};
 
 export type SaveAuthSessionInput = AuthSessionMetaInput & {
-  userId: string
-  refreshTokenHash: string
-}
+  userId: string;
+  refreshTokenHash: string;
+};
 
 export type RotateAuthSessionInput = {
-  sessionId: string
-  newRefreshTokenHash: string
-  meta?: AuthSessionMetaInput
-}
+  sessionId: string;
+  newRefreshTokenHash: string;
+  meta?: AuthSessionMetaInput;
+};
 
 export interface IAuthSessionRepository {
-  saveSession(data: SaveAuthSessionInput): Promise<AuthSessionEntity>
+  saveSession(data: SaveAuthSessionInput): Promise<AuthSessionEntity>;
 
-  findSessionByRefreshTokenHash(
-    refreshTokenHash: string
-  ): Promise<AuthSessionEntity | null>
+  findSessionByRefreshTokenHash(refreshTokenHash: string): Promise<AuthSessionEntity | null>;
 
-  rotateRefreshTokenInSameSession(
-    data: RotateAuthSessionInput
-  ): Promise<AuthSessionEntity | null>
+  rotateRefreshTokenInSameSession(data: RotateAuthSessionInput): Promise<AuthSessionEntity | null>;
 
-  findAllUserSessions(userId: string): Promise<AuthSessionEntity[]>
+  findAllUserSessions(userId: string): Promise<AuthSessionEntity[]>;
 
-  revokeSessionByRefreshTokenHash(refreshTokenHash: string): Promise<boolean>
+  revokeSessionByRefreshTokenHash(refreshTokenHash: string): Promise<boolean>;
 
-  revokeAllUserSessions(userId: string): Promise<void>
+  revokeAllUserSessions(userId: string): Promise<void>;
 
-  revokeSessionById(
-    sessionId: string,
-    userId: string
-  ): Promise<AuthSessionEntity | null>
+  revokeSessionById(sessionId: string, userId: string): Promise<AuthSessionEntity | null>;
 }

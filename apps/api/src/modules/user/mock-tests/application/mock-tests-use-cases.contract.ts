@@ -1,24 +1,25 @@
-import type * as Application from './index'
+import type * as Application from './index';
 export type MockTestsUseCases = {
-  listMockTests: Application.IListMockTestsUseCase
-  getMockTestDetails: Application.IGetMockTestDetailsUseCase
-  createMockTest: Application.ICreateMockTestUseCase
-  generateMockTest: Application.IGenerateMockTestUseCase
-  startMockTestGeneration: Application.IStartMockTestGenerationUseCase
-  startTestAttempt: Application.IStartTestAttemptUseCase
-  getAttemptQuestions: Application.IGetAttemptQuestionsUseCase
-  submitAnswer: Application.ISubmitAnswerUseCase
-  flagQuestion: Application.IFlagQuestionUseCase
-  finishTestAttempt: Application.IFinishTestAttemptUseCase
-  getAttemptResult: Application.IGetAttemptResultUseCase
-  getAttemptAnalysis: Application.IGetAttemptAnalysisUseCase
-  retakeTest: Application.IRetakeTestUseCase
-  getAnalytics: Application.IGetAnalyticsUseCase
-  getAIInsights: Application.IGetAIInsightsUseCase
-  getHistory: Application.IGetHistoryUseCase
-  getTopicBreakdown: Application.IGetTopicBreakdownUseCase
-  shareMockTest: Application.IShareMockTestUseCase
-  importSharedMockTest: Application.ImportSharedMockTestUseCase
-  runMockTestCode: Application.IRunMockTestCodeUseCase
-  submitMockTestCode: Application.ISubmitMockTestCodeUseCase
-}
+  listMockTests: Application.IListMockTestsUseCase;
+  getMockTestDetails: Application.IGetMockTestDetailsUseCase;
+  createMockTest: Application.ICreateMockTestUseCase;
+  generateMockTest: Application.IGenerateMockTestUseCase;
+  startMockTestGeneration: Application.IStartMockTestGenerationUseCase;
+  getActiveMockTestGeneration: Application.IGetActiveMockTestGenerationUseCase;
+  startTestAttempt: Application.IStartTestAttemptUseCase;
+  getAttemptQuestions: Application.IGetAttemptQuestionsUseCase;
+  submitAnswer: Application.ISubmitAnswerUseCase;
+  flagQuestion: Application.IFlagQuestionUseCase;
+  finishTestAttempt: Application.IFinishTestAttemptUseCase;
+  getAttemptResult: Application.IGetAttemptResultUseCase;
+  getAttemptAnalysis: Application.IGetAttemptAnalysisUseCase;
+  retakeTest: Application.IRetakeTestUseCase;
+  getAnalytics: Application.IGetAnalyticsUseCase;
+  getAIInsights: Application.IGetAIInsightsUseCase;
+  getHistory: Application.IGetHistoryUseCase;
+  getTopicBreakdown: Application.IGetTopicBreakdownUseCase;
+  shareMockTest: Application.IShareMockTestUseCase;
+  importSharedMockTest: Application.ImportSharedMockTestUseCase;
+  runMockTestCode: Application.IRunMockTestCodeUseCase;
+  submitMockTestCode: Application.ISubmitMockTestCodeUseCase;
+};

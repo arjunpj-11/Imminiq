@@ -1,20 +1,13 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
-const objectIdSchema = z.string().trim().min(1, 'Id is required')
+const objectIdSchema = z.string().trim().min(1, 'Id is required');
 
 export const mockTestListQuerySchema = z.object({
   page: z.coerce.number().int().min(1).optional(),
   limit: z.coerce.number().int().min(1).max(50).optional(),
-})
+});
 
-const codingLanguageSchema = z.enum([
-  'javascript',
-  'typescript',
-  'python',
-  'java',
-  'cpp',
-  'c',
-])
+const codingLanguageSchema = z.enum(['javascript', 'typescript', 'python', 'java', 'cpp', 'c']);
 
 const codingValueTypeSchema = z.enum([
   'number',
@@ -25,14 +18,14 @@ const codingValueTypeSchema = z.enum([
   'boolean[]',
   'number[][]',
   'string[][]',
-])
+]);
 
 const codingTestCaseSchema = z.object({
   input: z.array(z.unknown()),
   expectedOutput: z.unknown(),
   isHidden: z.boolean().optional(),
   explanation: z.string().optional(),
-})
+});
 
 const codingSchema = z.object({
   functionName: z.string().trim().min(1).max(80),
@@ -51,7 +44,7 @@ const codingSchema = z.object({
     })
     .optional(),
   testCases: z.array(codingTestCaseSchema).min(1).max(20),
-})
+});
 
 const questionSchema = z
   .object({
@@ -65,15 +58,12 @@ const questionSchema = z
     coding: codingSchema.optional(),
   })
   .superRefine((value, ctx) => {
-    if (
-      value.type === 'mcq' &&
-      (!value.options || value.options.length !== 4)
-    ) {
+    if (value.type === 'mcq' && (!value.options || value.options.length !== 4)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ['options'],
         message: 'MCQ must have exactly 4 options',
-      })
+      });
     }
 
     if (value.type === 'mcq' && !value.correctAnswer) {
@@ -81,7 +71,7 @@ const questionSchema = z
         code: z.ZodIssueCode.custom,
         path: ['correctAnswer'],
         message: 'MCQ correct answer is required',
-      })
+      });
     }
 
     if (value.type === 'coding' && !value.coding) {
@@ -89,65 +79,63 @@ const questionSchema = z
         code: z.ZodIssueCode.custom,
         path: ['coding'],
         message: 'Coding question details are required',
-      })
+      });
     }
-  })
+  });
 
 export const createMockTestSchema = z.object({
   title: z.string().trim().min(3).max(200),
   description: z.string().trim().max(500).optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
   visibility: z.enum(['private', 'public']).optional(),
-  timeLimitMinutes: z.number().min(5).max(180).optional(),
-  passingScore: z.number().min(1).max(100).optional(),
+  timeLimitMinutes: z.number().int().min(5).max(180).optional(),
+  passingScore: z.number().int().min(1).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(10).optional(),
   trackerId: z.string().trim().optional(),
   questions: z.array(questionSchema).min(1).max(100),
-})
+});
 
 export const generateMockTestSchema = z.object({
   topic: z.string().trim().min(2).max(200),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
-  questionCount: z.number().min(1).max(50).optional(),
+  questionCount: z.number().int().min(1).max(50).optional(),
   questionTypes: z
     .array(z.enum(['mcq', 'short_answer', 'coding']))
     .min(1)
     .optional(),
   trackerId: z.string().trim().optional(),
   topicId: z.string().trim().optional(),
-  timeLimitMinutes: z.number().min(5).max(180).optional(),
-  passingScore: z.number().min(1).max(100).optional(),
+  timeLimitMinutes: z.number().int().min(5).max(180).optional(),
+  passingScore: z.number().int().min(1).max(100).optional(),
   visibility: z.enum(['private', 'public']).optional(),
   runInBackground: z.boolean().optional(),
-})
+});
 
 export const submitAnswerSchema = z.object({
   questionId: objectIdSchema,
   answer: z.string().trim().min(1, 'Answer cannot be empty'),
-})
+});
 
 export const runMockTestCodeSchema = z.object({
   sourceCode: z.string().min(1, 'Source code is required'),
   language: codingLanguageSchema.optional(),
   languageId: z.coerce.number().int().positive().max(1000).optional(),
-})
+});
 
-export const submitMockTestCodeSchema = runMockTestCodeSchema
+export const submitMockTestCodeSchema = runMockTestCodeSchema;
 
 export const flagQuestionSchema = z.object({
   questionId: objectIdSchema,
-})
+});
 
-export type CreateMockTestInput = z.infer<typeof createMockTestSchema>
+export type CreateMockTestInput = z.infer<typeof createMockTestSchema>;
 
-export type GenerateMockTestInput = z.infer<typeof generateMockTestSchema>
+export type GenerateMockTestInput = z.infer<typeof generateMockTestSchema>;
 
-export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>
+export type SubmitAnswerInput = z.infer<typeof submitAnswerSchema>;
 
-export type RunMockTestCodeInput = z.infer<typeof runMockTestCodeSchema>
+export type RunMockTestCodeInput = z.infer<typeof runMockTestCodeSchema>;
 
-export type SubmitMockTestCodeInput = z.infer<
-  typeof submitMockTestCodeSchema
->
+export type SubmitMockTestCodeInput = z.infer<typeof submitMockTestCodeSchema>;
 
-export type FlagQuestionInput = z.infer<typeof flagQuestionSchema>
+export type FlagQuestionInput = z.infer<typeof flagQuestionSchema>;

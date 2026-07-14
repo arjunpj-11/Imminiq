@@ -1,22 +1,22 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 export interface IPillTabItem<T extends string> {
-  value: T
-  label: ReactNode
-  icon?: ReactNode
-  count?: number
-  disabled?: boolean
+  value: T;
+  label: ReactNode;
+  icon?: ReactNode;
+  count?: number;
+  disabled?: boolean;
 }
 
 interface IPillTabsProps<T extends string> {
-  value: T
-  items: Array<IPillTabItem<T>>
-  onValueChange: (value: T) => void
-  className?: string
-  itemClassName?: string
-  ariaLabel?: string
+  value: T;
+  items: Array<IPillTabItem<T>>;
+  onValueChange: (value: T) => void;
+  className?: string;
+  itemClassName?: string;
+  ariaLabel?: string;
 }
 
 export default function PillTabs<T extends string>({
@@ -33,11 +33,11 @@ export default function PillTabs<T extends string>({
       aria-label={ariaLabel}
       className={cn(
         'inline-flex max-w-full items-center gap-1 overflow-x-auto rounded-xl border border-(--border-subtle) bg-(--surface-card) p-1 dark:border-(--border-subtle) dark:bg-(--surface-card)',
-        className,
+        className
       )}
     >
       {items.map((item) => {
-        const active = item.value === value
+        const active = item.value === value;
 
         return (
           <button
@@ -52,7 +52,7 @@ export default function PillTabs<T extends string>({
               active
                 ? 'bg-(--brand-500) text-white shadow-sm dark:bg-(--brand-500) dark:text-[#141412]'
                 : 'text-(--text-secondary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)',
-              itemClassName,
+              itemClassName
             )}
           >
             {item.icon}
@@ -63,15 +63,15 @@ export default function PillTabs<T extends string>({
                   'inline-flex min-w-5 items-center justify-center rounded-full px-1.5 py-0.5 font-mono text-[9px]',
                   active
                     ? 'bg-white/20 text-current'
-                    : 'bg-black/5 text-(--text-secondary) dark:bg-white/8 dark:text-(--text-secondary)',
+                    : 'bg-black/5 text-(--text-secondary) dark:bg-white/8 dark:text-(--text-secondary)'
                 )}
               >
                 {item.count}
               </span>
             )}
           </button>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

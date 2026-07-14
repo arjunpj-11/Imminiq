@@ -1,16 +1,17 @@
-import { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useEffect, useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
 import {
   useRoadmapJobResult,
   type IRoadmapSubtopic,
   type IRoadmapTopic,
-} from '../hooks/useRoadmapJobResult'
-import { useRunRoadmapEvaluation } from '../hooks/useRunRoadmapEvaluation'
-import OnboardingBrandLink from '../components/OnboardingBrandLink'
-import type { Section } from '../types/onboarding.types'
-import { cn } from '../utils/cn'
-import { capitalize } from '../utils/onboarding-formatters'
+} from '../hooks/useRoadmapJobResult';
+import { useRunRoadmapEvaluation } from '../hooks/useRunRoadmapEvaluation';
+import OnboardingBrandLink from '../components/OnboardingBrandLink';
+import type { Section } from '../types/onboarding.types';
+import { cn } from '../utils/cn';
+import { capitalize } from '../utils/onboarding-formatters';
+import { useOnboardingStore } from '../store/useOnboardingStore';
 
 const ChevronDownIcon = () => {
   return (
@@ -25,8 +26,8 @@ const ChevronDownIcon = () => {
     >
       <polyline points="6 9 12 15 18 9" />
     </svg>
-  )
-}
+  );
+};
 
 const PulseIcon = () => {
   return (
@@ -41,8 +42,8 @@ const PulseIcon = () => {
     >
       <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
     </svg>
-  )
-}
+  );
+};
 
 const DashboardIcon = () => {
   return (
@@ -60,68 +61,64 @@ const DashboardIcon = () => {
       <rect x="3" y="14" width="7" height="7" />
       <rect x="14" y="14" width="7" height="7" />
     </svg>
-  )
-}
+  );
+};
 
 const getChildren = (node?: IRoadmapSubtopic) => {
-  return node?.children || node?.subtopics || []
-}
+  return node?.children || node?.subtopics || [];
+};
 
 const countNestedSubtopics = (nodes: IRoadmapSubtopic[] = []): number => {
   return nodes.reduce((total, node) => {
-    return total + 1 + countNestedSubtopics(getChildren(node))
-  }, 0)
-}
+    return total + 1 + countNestedSubtopics(getChildren(node));
+  }, 0);
+};
 
 const buildSections = (topic?: IRoadmapTopic): Section[] => {
-  if (!topic) return []
+  if (!topic) return [];
 
-  const directChildren = topic.children || topic.subtopics || []
+  const directChildren = topic.children || topic.subtopics || [];
 
   if (!directChildren.length) {
-    return []
+    return [];
   }
 
   const groupedChildren = directChildren.filter((child) => {
-    return getChildren(child).length > 0
-  })
+    return getChildren(child).length > 0;
+  });
 
   const leafChildren = directChildren.filter((child) => {
-    return getChildren(child).length === 0
-  })
+    return getChildren(child).length === 0;
+  });
 
   const sections: Section[] = groupedChildren.map((child, index) => {
     return {
       id: child._id || `${topic._id}-section-${index}`,
       title: child.title || `Section ${index + 1}`,
       items: getChildren(child),
-    }
-  })
+    };
+  });
 
   if (leafChildren.length) {
     sections.unshift({
       id: `${topic._id}-core-roadmap`,
       title: groupedChildren.length ? 'Core Topics' : 'Roadmap Topics',
       items: leafChildren,
-    })
+    });
   }
 
-  return sections
-}
+  return sections;
+};
 
 const flattenSectionCount = (topic?: IRoadmapTopic) => {
-  return countNestedSubtopics(topic?.children || topic?.subtopics || [])
-}
+  return countNestedSubtopics(topic?.children || topic?.subtopics || []);
+};
 
-const SectionDifficultyBadge = ({
-  item,
-}: {
-  item: IRoadmapSubtopic
-}) => {
-  const difficulty = item.difficulty || item.level
+const SectionDifficultyBadge = ({ item }: { item: IRoadmapSubtopic }) => {
+  const difficulty = item.difficulty || item.level;
 
   if (!difficulty) {
-    return null
+    return null;
   }
 
   return (
@@ -138,8 +135,8 @@ const SectionDifficultyBadge = ({
     >
       {difficulty}
     </span>
-  )
-}
+  );
+};
 
 const LoadingPanel = () => {
   return (
@@ -156,8 +153,8 @@ const LoadingPanel = () => {
         </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const EmptyPanel = ({ message }: { message: string }) => {
   return (
@@ -172,129 +169,127 @@ const EmptyPanel = ({ message }: { message: string }) => {
         </p>
       </div>
     </div>
-  )
-}
+  );
+};
 
 export default function OnboardingRoadmapReadyPage() {
-  const { jobId } = useParams<{ jobId: string }>()
-  const navigate = useNavigate()
+  const { jobId } = useParams<{ jobId: string }>();
+  const navigate = useNavigate();
+  const clearIntake = useOnboardingStore((state) => state.clearIntake);
+  const setActiveRoadmapJobId = useOnboardingStore((state) => state.setActiveRoadmapJobId);
 
-  const { data, isLoading, error } = useRoadmapJobResult(jobId)
-  const runRoadmapEvaluation = useRunRoadmapEvaluation()
+  const { data, isLoading, error } = useRoadmapJobResult(jobId);
+  const runRoadmapEvaluation = useRunRoadmapEvaluation();
 
-  const tracker = data?.data?.tracker
+  const tracker = data?.data?.tracker;
+
+  useEffect(() => {
+    if (!tracker) return;
+    clearIntake();
+    setActiveRoadmapJobId(null);
+  }, [clearIntake, setActiveRoadmapJobId, tracker]);
 
   const topics = useMemo(() => {
-    return data?.data?.topics || []
-  }, [data?.data?.topics])
+    return data?.data?.topics || [];
+  }, [data?.data?.topics]);
 
-  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null)
-  const [sectionOverrides, setSectionOverrides] = useState<
-    Record<string, boolean>
-  >({})
-  const [evaluationError, setEvaluationError] = useState<string | null>(null)
+  const [selectedTopicId, setSelectedTopicId] = useState<string | null>(null);
+  const [sectionOverrides, setSectionOverrides] = useState<Record<string, boolean>>({});
+  const [evaluationError, setEvaluationError] = useState<string | null>(null);
 
-  const activeTopicId = selectedTopicId || topics[0]?._id || ''
+  const activeTopicId = selectedTopicId || topics[0]?._id || '';
 
   const activeTopic = useMemo(() => {
-    return topics.find((topic) => topic._id === activeTopicId) || topics[0]
-  }, [topics, activeTopicId])
+    return topics.find((topic) => topic._id === activeTopicId) || topics[0];
+  }, [topics, activeTopicId]);
 
   const sections = useMemo(() => {
-    return buildSections(activeTopic)
-  }, [activeTopic])
+    return buildSections(activeTopic);
+  }, [activeTopic]);
 
-  const totalTopics = tracker?.topicsCount || topics.length
+  const totalTopics = tracker?.topicsCount || topics.length;
 
   const totalSubtopics =
     tracker?.subtopicsCount ||
     topics.reduce((total, topic) => {
-      return total + flattenSectionCount(topic)
-    }, 0)
+      return total + flattenSectionCount(topic);
+    }, 0);
 
-  const totalPreviewNodes = totalTopics + totalSubtopics
+  const totalPreviewNodes = totalTopics + totalSubtopics;
 
   const coverageRows = useMemo(() => {
     return topics.map((topic) => {
-      const count = topic.subtopicsCount || flattenSectionCount(topic)
+      const count = topic.subtopicsCount || flattenSectionCount(topic);
 
       const percent =
         totalSubtopics > 0
           ? Math.round((count / totalSubtopics) * 100)
           : topics.length > 0
             ? Math.round(100 / topics.length)
-            : 0
+            : 0;
 
       return {
         id: topic._id,
         title: topic.title,
         count,
         percent,
-      }
-    })
-  }, [topics, totalSubtopics])
+      };
+    });
+  }, [topics, totalSubtopics]);
 
   const aiInsight = useMemo(() => {
-    const firstTopicTitle = topics[0]?.title || 'your first learning module'
+    const firstTopicTitle = topics[0]?.title || 'your first learning module';
 
-    return `Your roadmap starts with ${firstTopicTitle} and expands into ${totalTopics} structured topic areas. Run AI Evaluation to let Gemini score the roadmap quality, completeness, and interview-readiness.`
-  }, [topics, totalTopics])
+    return `Your roadmap starts with ${firstTopicTitle} and expands into ${totalTopics} structured topic areas. Run AI Evaluation to let Gemini score the roadmap quality, completeness, and interview-readiness.`;
+  }, [topics, totalTopics]);
 
   const resultError =
     error?.response?.data?.message ||
     (!jobId
       ? 'Missing roadmap generation job ID.'
-      : 'Unable to fetch the generated roadmap result.')
+      : 'Unable to fetch the generated roadmap result.');
 
   const toggleSection = (sectionId: string, defaultOpen: boolean) => {
     setSectionOverrides((current) => ({
       ...current,
-      [sectionId]:
-        current[sectionId] === undefined
-          ? !defaultOpen
-          : !current[sectionId],
-    }))
-  }
+      [sectionId]: current[sectionId] === undefined ? !defaultOpen : !current[sectionId],
+    }));
+  };
 
   const handleRunAiEvaluation = async () => {
     if (!jobId || !tracker) {
-      setEvaluationError('Roadmap data is missing. Please regenerate it.')
-      return
+      setEvaluationError('Roadmap data is missing. Please regenerate it.');
+      return;
     }
 
-    setEvaluationError(null)
+    setEvaluationError(null);
 
     try {
-      const response =
-        await runRoadmapEvaluation.mutateAsync(jobId)
+      const response = await runRoadmapEvaluation.mutateAsync(jobId);
 
-      navigate(
-        `/onboarding/roadmap-evaluation/${response.data.jobId}`
-      )
+      navigate(`/onboarding/roadmap-evaluation/${response.data.jobId}`);
     } catch (mutationError) {
       const message =
         mutationError instanceof Error
           ? mutationError.message
-          : 'Unable to evaluate roadmap right now.'
+          : 'Unable to evaluate roadmap right now.';
 
-      setEvaluationError(message)
+      setEvaluationError(message);
     }
-  }
+  };
 
   if (isLoading) {
     return (
       <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
           <OnboardingBrandLink />
-
-          
         </header>
 
         <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
           <LoadingPanel />
         </main>
       </div>
-    )
+    );
   }
 
   if (!tracker) {
@@ -302,23 +297,19 @@ export default function OnboardingRoadmapReadyPage() {
       <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
         <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
           <OnboardingBrandLink />
-
-          
         </header>
 
         <main className="mx-auto flex w-full max-w-280 flex-1 items-center px-4 py-8 sm:px-6 md:px-12">
           <EmptyPanel message={resultError} />
         </main>
       </div>
-    )
+    );
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
         <OnboardingBrandLink />
-
-        
       </header>
 
       <main className="mx-auto flex w-full max-w-280 flex-1 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">
@@ -383,7 +374,7 @@ export default function OnboardingRoadmapReadyPage() {
           <div className="min-w-0 flex-1 overflow-hidden rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_4px_24px_rgba(26,23,20,0.07),0_1px_4px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card)">
             <div className="flex flex-wrap gap-2 px-4 pt-4 sm:px-6 sm:pt-5">
               {topics.map((topic) => {
-                const active = topic._id === activeTopic?._id
+                const active = topic._id === activeTopic?._id;
 
                 return (
                   <button
@@ -399,7 +390,7 @@ export default function OnboardingRoadmapReadyPage() {
                   >
                     {topic.title}
                   </button>
-                )
+                );
               })}
             </div>
 
@@ -421,8 +412,8 @@ export default function OnboardingRoadmapReadyPage() {
             {sections.length ? (
               <div>
                 {sections.map((section, index) => {
-                  const defaultOpen = index === 0
-                  const open = sectionOverrides[section.id] ?? defaultOpen
+                  const defaultOpen = index === 0;
+                  const open = sectionOverrides[section.id] ?? defaultOpen;
 
                   return (
                     <div
@@ -481,7 +472,7 @@ export default function OnboardingRoadmapReadyPage() {
                         </div>
                       )}
                     </div>
-                  )
+                  );
                 })}
               </div>
             ) : (
@@ -493,17 +484,13 @@ export default function OnboardingRoadmapReadyPage() {
 
           <aside className="flex w-full flex-col gap-4 lg:w-78 lg:shrink-0">
             <div className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 dark:border-white/15 dark:bg-(--surface-card)">
-              <h3 className="mb-4 font-serif text-[15px] font-bold tracking-[-0.3px]">
-                Coverage
-              </h3>
+              <h3 className="mb-4 font-serif text-[15px] font-bold tracking-[-0.3px]">Coverage</h3>
 
               <div className="flex flex-col gap-3">
                 {coverageRows.map((row, index) => (
                   <div key={row.id}>
                     <div className="mb-1.5 flex items-center justify-between gap-2">
-                      <span className="truncate text-[12px] font-medium">
-                        {row.title}
-                      </span>
+                      <span className="truncate text-[12px] font-medium">{row.title}</span>
 
                       <span className="font-mono text-[9.5px] text-(--text-secondary) dark:text-(--text-secondary)">
                         {row.count}
@@ -574,7 +561,6 @@ export default function OnboardingRoadmapReadyPage() {
               <span className="flex h-5 w-5 items-center justify-center rounded-[5px] border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
                 <DashboardIcon />
               </span>
-
               Go to Dashboard
             </button>
 
@@ -591,5 +577,5 @@ export default function OnboardingRoadmapReadyPage() {
         </section>
       </main>
     </div>
-  )
+  );
 }

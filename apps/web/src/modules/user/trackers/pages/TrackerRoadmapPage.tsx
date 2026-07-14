@@ -1,9 +1,9 @@
-import { cn } from '../../../../lib/cn'
-import { useMemo, useState } from 'react'
-import { useLocation, useNavigate, useParams } from 'react-router-dom'
+import { cn } from '../../../../lib/cn';
+import { useMemo, useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
-import { useTrackerRoadmap } from '../hooks/useTrackers'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { useTrackerRoadmap } from '../hooks/useTrackers';
 import {
   CheckIcon,
   CompassIcon,
@@ -11,121 +11,115 @@ import {
   LayersIcon,
   RoadmapFlowNode,
   StarIcon,
-} from '../components/roadmap/RoadmapFlow'
-import type { BreadcrumbItem, RoadmapLocationState, RoadmapNode } from '../utils/roadmap.types'
+} from '../components/roadmap/RoadmapFlow';
+import type { BreadcrumbItem, RoadmapLocationState, RoadmapNode } from '../utils/roadmap.types';
 import {
   findFreshNodes,
   getNodeState,
   mapTopicToNode,
   readSavedRoadmapStack,
   saveRoadmapStack,
-} from '../utils/roadmap.utils'
-
+} from '../utils/roadmap.utils';
 
 export default function TrackerRoadmapPage() {
-  const navigate = useNavigate()
-  const location = useLocation()
-  const { trackerId } = useParams<{ trackerId: string }>()
+  const navigate = useNavigate();
+  const location = useLocation();
+  const { trackerId } = useParams<{ trackerId: string }>();
 
   const [breadcrumbStack, setBreadcrumbStack] = useState<BreadcrumbItem[]>(() => {
-    const state = location.state as RoadmapLocationState | null
-    if (state?.roadmapBreadcrumbStack) return state.roadmapBreadcrumbStack
-    return readSavedRoadmapStack(trackerId)
-  })
+    const state = location.state as RoadmapLocationState | null;
+    if (state?.roadmapBreadcrumbStack) return state.roadmapBreadcrumbStack;
+    return readSavedRoadmapStack(trackerId);
+  });
 
-  const roadmapQuery = useTrackerRoadmap(trackerId || '')
+  const roadmapQuery = useTrackerRoadmap(trackerId || '');
 
-  const roadmapData = roadmapQuery.data
+  const roadmapData = roadmapQuery.data;
 
   const topLevelNodes = useMemo(
     () => (roadmapData?.roadmap || []).map(mapTopicToNode),
     [roadmapData?.roadmap]
-  )
+  );
 
   const syncedBreadcrumbStack = useMemo(() => {
     if (breadcrumbStack.length === 0 || topLevelNodes.length === 0) {
-      return breadcrumbStack
+      return breadcrumbStack;
     }
 
     return breadcrumbStack.map((crumb) => {
-      const freshNodes = findFreshNodes(topLevelNodes, crumb.id)
-      return freshNodes ? { ...crumb, nodes: freshNodes } : crumb
-    })
-  }, [topLevelNodes, breadcrumbStack])
+      const freshNodes = findFreshNodes(topLevelNodes, crumb.id);
+      return freshNodes ? { ...crumb, nodes: freshNodes } : crumb;
+    });
+  }, [topLevelNodes, breadcrumbStack]);
 
   const currentNodes =
     syncedBreadcrumbStack.length > 0
       ? syncedBreadcrumbStack[syncedBreadcrumbStack.length - 1].nodes
-      : topLevelNodes
+      : topLevelNodes;
 
   const currentTitle =
     syncedBreadcrumbStack.length > 0
       ? syncedBreadcrumbStack[syncedBreadcrumbStack.length - 1].title
-      : roadmapData?.tracker.title || 'Study Roadmap'
+      : roadmapData?.tracker.title || 'Study Roadmap';
 
-  const isFirstLevel = syncedBreadcrumbStack.length === 0
+  const isFirstLevel = syncedBreadcrumbStack.length === 0;
 
   const completedCount = currentNodes.filter(
     (node) => getNodeState(node, isFirstLevel) === 'completed'
-  ).length
+  ).length;
 
   const progress =
-    currentNodes.length === 0
-      ? 0
-      : Math.round((completedCount / currentNodes.length) * 100)
+    currentNodes.length === 0 ? 0 : Math.round((completedCount / currentNodes.length) * 100);
 
-  const isMainLoading = roadmapQuery.isLoading
+  const isMainLoading = roadmapQuery.isLoading;
 
-  const hasMainError = !trackerId || roadmapQuery.isError
+  const hasMainError = !trackerId || roadmapQuery.isError;
 
   const handleNodeClick = (node: RoadmapNode) => {
-    const firstLevel = breadcrumbStack.length === 0
-    if (firstLevel && (node.isLocked || node.status === 'locked')) return
+    const firstLevel = breadcrumbStack.length === 0;
+    if (firstLevel && (node.isLocked || node.status === 'locked')) return;
 
     if (node.children.length > 0) {
       setBreadcrumbStack((current) => {
-        const nextStack = [
-          ...current,
-          { id: node._id, title: node.title, nodes: node.children },
-        ]
-        saveRoadmapStack(trackerId, nextStack)
-        return nextStack
-      })
+        const nextStack = [...current, { id: node._id, title: node.title, nodes: node.children }];
+        saveRoadmapStack(trackerId, nextStack);
+        return nextStack;
+      });
 
-      window.scrollTo({ top: 0, behavior: 'smooth' })
-      return
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
     }
 
     if (node.nodeType === 'subtopic') {
-      saveRoadmapStack(trackerId, breadcrumbStack)
+      saveRoadmapStack(trackerId, breadcrumbStack);
 
       navigate(`/trackers/${trackerId}/lessons/${node._id}`, {
         state: { returnToRoadmapStack: breadcrumbStack },
-      })
+      });
     }
-  }
+  };
 
   const goToBreadcrumb = (index: number) => {
     if (index === -1) {
-      saveRoadmapStack(trackerId, [])
-      setBreadcrumbStack([])
-      return
+      saveRoadmapStack(trackerId, []);
+      setBreadcrumbStack([]);
+      return;
     }
 
     setBreadcrumbStack((current) => {
-      const nextStack = current.slice(0, index + 1)
-      saveRoadmapStack(trackerId, nextStack)
-      return nextStack
-    })
-  }
+      const nextStack = current.slice(0, index + 1);
+      saveRoadmapStack(trackerId, nextStack);
+      return nextStack;
+    });
+  };
 
   const goBackOneLevel = () => {
     setBreadcrumbStack((current) => {
-      const nextStack = current.slice(0, -1)
-      saveRoadmapStack(trackerId, nextStack)
-      return nextStack
-    })
-  }
+      const nextStack = current.slice(0, -1);
+      saveRoadmapStack(trackerId, nextStack);
+      return nextStack;
+    });
+  };
 
   return (
     <AppShellBoundary>
@@ -176,15 +170,13 @@ export default function TrackerRoadmapPage() {
                 Trackers
               </button>
 
-              <span className="text-(--text-secondary)/40 dark:text-(--text-secondary)/40">
-                /
-              </span>
+              <span className="text-(--text-secondary)/40 dark:text-(--text-secondary)/40">/</span>
 
               <button
                 type="button"
                 onClick={() => goToBreadcrumb(-1)}
                 className={cn(
-                  "font-mono text-[8.5px] uppercase tracking-[0.14em] transition",
+                  'font-mono text-[8.5px] uppercase tracking-[0.14em] transition',
                   syncedBreadcrumbStack.length === 0
                     ? 'text-(--brand-500) dark:text-(--brand-500)'
                     : 'text-(--text-secondary) hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
@@ -202,7 +194,7 @@ export default function TrackerRoadmapPage() {
                     type="button"
                     onClick={() => goToBreadcrumb(index)}
                     className={cn(
-                      "max-w-42 truncate font-mono text-[8.5px] uppercase tracking-[0.14em] transition",
+                      'max-w-42 truncate font-mono text-[8.5px] uppercase tracking-[0.14em] transition',
                       index === syncedBreadcrumbStack.length - 1
                         ? 'text-(--brand-500) dark:text-(--brand-500)'
                         : 'text-(--text-secondary) hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
@@ -226,9 +218,7 @@ export default function TrackerRoadmapPage() {
                   </span>
                   <span className="h-1 w-1 rounded-full bg-[#6b5f58]/40 dark:bg-[#9b9a92]/40" />
                   <span>
-                    {isFirstLevel
-                      ? 'Locked nodes apply here'
-                      : 'All inner nodes are open'}
+                    {isFirstLevel ? 'Locked nodes apply here' : 'All inner nodes are open'}
                   </span>
                   <span className="h-1 w-1 rounded-full bg-[#6b5f58]/40 dark:bg-[#9b9a92]/40" />
                   <span>Last node opens lesson</span>
@@ -323,10 +313,7 @@ export default function TrackerRoadmapPage() {
                 <FlowConnector direction="down" />
 
                 {currentNodes.map((node, index) => (
-                  <div
-                    key={node._id}
-                    className="flex w-full flex-col items-center"
-                  >
+                  <div key={node._id} className="flex w-full flex-col items-center">
                     <RoadmapFlowNode
                       node={node}
                       index={index}
@@ -354,9 +341,7 @@ export default function TrackerRoadmapPage() {
               </div>
             ) : (
               <div className="w-full rounded-xl border-[1.5px] border-dashed border-(--border-subtle) bg-(--surface-card) p-8 text-center dark:border-(--border-subtle) dark:bg-(--surface-card)">
-                <h2 className="font-ui text-[22px] font-extrabold">
-                  No nodes found
-                </h2>
+                <h2 className="font-ui text-[22px] font-extrabold">No nodes found</h2>
                 <p className="mt-2 text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
                   This part of the roadmap has no child nodes yet.
                 </p>
@@ -366,5 +351,5 @@ export default function TrackerRoadmapPage() {
         </div>
       )}
     </AppShellBoundary>
-  )
+  );
 }

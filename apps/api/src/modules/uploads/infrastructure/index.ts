@@ -1,16 +1,16 @@
 export {
   CloudflareAIImageGenerationGateway,
   cloudflareAIImageGenerationGateway,
-} from './gateways/cloudflare-ai-image-generation.gateway'
+} from './gateways/cloudflare-ai-image-generation.gateway';
 export {
   CloudinaryProfileImageStorageGateway,
   cloudinaryProfileImageStorageGateway,
-} from './gateways/cloudinary-profile-image-storage.gateway'
+} from './gateways/cloudinary-profile-image-storage.gateway';
 export {
   MongoUploadsRepository,
   mongoUploadsRepository,
-} from './repositories/mongo-uploads.repository'
+} from './repositories/mongo-uploads.repository';
 export {
   CryptoRandomSeedGenerator,
   cryptoRandomSeedGenerator,
-} from './services/crypto-random-seed.service'
+} from './services/crypto-random-seed.service';

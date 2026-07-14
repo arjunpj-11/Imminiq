@@ -1,22 +1,27 @@
-import { TrackerApplicationError } from '../tracker-application.error'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { UpdateTrackerInput } from '../../domain/trackers.types'
-import { ITrackerMapper } from '..'
+import { TrackerApplicationError } from '../tracker-application.error';
+import type { ITrackerMapper } from '../tracker.mapper';
+import type { ITrackerCommandRepository } from '../../domain/repositories/tracker-command.repository.interface';
+import type { UpdateTrackerInput } from '../../domain/trackers.types';
+
+type UpdateTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>;
 
 export interface IUpdateTrackerUseCase {
-  execute(input: UpdateTrackerInput): Promise<import("../../domain/value-objects/tracker-record.vo").TrackerRecord>
+  execute(input: UpdateTrackerInput): Promise<UpdateTrackerResultDTO>;
 }
 
 export class UpdateTrackerUseCase implements IUpdateTrackerUseCase {
-  constructor(private readonly _trackerRepository: Pick<ITrackerRepository, 'updateOwnedTracker'>,private readonly _trackerMapper: ITrackerMapper) {}
+  constructor(
+    private readonly _trackerRepository: Pick<ITrackerCommandRepository, 'updateOwnedTracker'>,
+    private readonly _trackerMapper: ITrackerMapper
+  ) {}
 
-  async execute(input: UpdateTrackerInput) {
-    const tracker = await this._trackerRepository.updateOwnedTracker(input)
+  async execute(input: UpdateTrackerInput): Promise<UpdateTrackerResultDTO> {
+    const tracker = await this._trackerRepository.updateOwnedTracker(input);
 
     if (!tracker) {
-      throw TrackerApplicationError.trackerNotFound('Tracker not found')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found');
     }
 
-    return this._trackerMapper.toTrackerDto(tracker)
+    return this._trackerMapper.toTrackerDto(tracker);
   }
 }

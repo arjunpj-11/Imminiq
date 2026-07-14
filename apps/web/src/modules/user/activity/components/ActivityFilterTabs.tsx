@@ -1,31 +1,31 @@
-import PillTabs from '../../../../components/navigation/PillTabs'
-import { ACTIVITY_FILTER_OPTIONS } from '../constants/activity.constants'
-import type { ActivityFeedFilter } from '../types/activity.types'
+import PillTabs from '../../../../components/navigation/PillTabs';
+import { ACTIVITY_FILTER_OPTIONS } from '../constants/activity.constants';
+import type { ActivityFeedFilter } from '../types/activity.types';
 import {
   ActivityIcon,
   ClipboardCheckIcon,
   GraduationCapIcon,
   UsersIcon,
-} from './icons/ActivityIcons'
+} from './icons/ActivityIcons';
 
 interface IActivityFilterTabsProps {
-  activeFilter: ActivityFeedFilter
-  disabled?: boolean
-  onChange: (filter: ActivityFeedFilter) => void
+  activeFilter: ActivityFeedFilter;
+  disabled?: boolean;
+  onChange: (filter: ActivityFeedFilter) => void;
 }
 
 const filterIcon = (filter: ActivityFeedFilter) => {
   switch (filter) {
     case 'trackers':
-      return <GraduationCapIcon size={12} />
+      return <GraduationCapIcon size={12} />;
     case 'mock_tests':
-      return <ClipboardCheckIcon size={12} />
+      return <ClipboardCheckIcon size={12} />;
     case 'community':
-      return <UsersIcon size={12} />
+      return <UsersIcon size={12} />;
     default:
-      return <ActivityIcon size={12} />
+      return <ActivityIcon size={12} />;
   }
-}
+};
 
 export default function ActivityFilterTabs({
   activeFilter,
@@ -46,5 +46,5 @@ export default function ActivityFilterTabs({
         disabled,
       }))}
     />
-  )
+  );
 }

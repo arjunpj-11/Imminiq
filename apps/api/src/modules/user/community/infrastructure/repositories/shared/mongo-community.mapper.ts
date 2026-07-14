@@ -1,25 +1,25 @@
 // apps/api/src/modules/user/community/infrastructure/repositories/mongo-community.mapper.ts
 
-import { CommunityPublicTrackerDetailEntity } from '../../../domain/entities/community-public-tracker-detail.entity'
+import { CommunityPublicTrackerDetailEntity } from '../../../domain/entities/community-public-tracker-detail.entity';
 import type {
   CommunityRatingSummaryEntity,
   CommunityPublicTrackerTopicEntity,
-} from '../../../domain/entities/community-public-tracker-detail.entity'
-import { CommunityTrackerReviewEntity } from '../../../domain/entities/community-tracker-review.entity'
-import { CommunityLeaderboardEntryEntity } from '../../../domain/entities/community-leaderboard-entry.entity'
-import { CommunityMemberStatsEntity } from '../../../domain/entities/community-member-stats.entity'
-import { CommunityReviewVoteEntity } from '../../../domain/entities/community-review-vote.entity'
-import { CommunityTrackerEntity } from '../../../domain/entities/community-tracker.entity'
+} from '../../../domain/entities/community-public-tracker-detail.entity';
+import { CommunityTrackerReviewEntity } from '../../../domain/entities/community-tracker-review.entity';
+import { CommunityLeaderboardEntryEntity } from '../../../domain/entities/community-leaderboard-entry.entity';
+import { CommunityMemberStatsEntity } from '../../../domain/entities/community-member-stats.entity';
+import { CommunityReviewVoteEntity } from '../../../domain/entities/community-review-vote.entity';
+import { CommunityTrackerEntity } from '../../../domain/entities/community-tracker.entity';
 import {
   CommunityVerificationSubmissionEntity,
   type CommunityVerificationReviewSubtopic,
   type CommunityVerificationReviewTopic,
   type CommunityVerificationReviewTracker,
-} from '../../../domain/entities/community-verification-submission.entity'
+} from '../../../domain/entities/community-verification-submission.entity';
 import type {
   VerificationSubmissionStatus,
   VerificationVoteChoice,
-} from '../../../domain/community.types'
+} from '../../../domain/community.types';
 import type {
   MongoAuthorLookup,
   MongoCommunitySubmissionRecord,
@@ -31,18 +31,18 @@ import type {
   MongoTrackerTopicRecord,
   MongoUserProfileRecord,
   MongoUserRecord,
-} from './mongo-community.types'
+} from './mongo-community.types';
 
 export class MongoCommunityMapper {
   toTrackerEntity(
     record: MongoCommunityTrackerRecord | null | undefined,
-    userId?: string,
+    userId?: string
   ): CommunityTrackerEntity | null {
     if (!record?._id) {
-      return null
+      return null;
     }
 
-    const ownerId = this.toId(record.ownerId)
+    const ownerId = this.toId(record.ownerId);
 
     return new CommunityTrackerEntity({
       id: this.toId(record._id),
@@ -55,24 +55,23 @@ export class MongoCommunityMapper {
       inDashboard: Boolean(record.inDashboard) || ownerId === userId,
       topic: this.toString(record.category ?? record.field, 'General'),
       createdAt: this.toDate(record.createdAt),
-    })
+    });
   }
 
   toSubmissionEntity(
     record: MongoCommunitySubmissionRecord | null | undefined,
-    userVote?: VerificationVoteChoice | null,
+    userVote?: VerificationVoteChoice | null
   ): CommunityVerificationSubmissionEntity | null {
     if (!record?._id) {
-      return null
+      return null;
     }
 
-    const passVotes = this.toNumber(record.passVotes, 0)
-    const failVotes = this.toNumber(record.failVotes, 0)
-    const requiredVotes = Math.max(this.toNumber(record.requiredVotes, 10), 1)
-    const totalVotes = passVotes + failVotes
+    const passVotes = this.toNumber(record.passVotes, 0);
+    const failVotes = this.toNumber(record.failVotes, 0);
+    const requiredVotes = Math.max(this.toNumber(record.requiredVotes, 10), 1);
+    const totalVotes = passVotes + failVotes;
     const progress =
-      record.progress ??
-      Math.min(Math.round((totalVotes / requiredVotes) * 100), 100)
+      record.progress ?? Math.min(Math.round((totalVotes / requiredVotes) * 100), 100);
 
     return new CommunityVerificationSubmissionEntity({
       id: this.toId(record._id),
@@ -92,14 +91,14 @@ export class MongoCommunityMapper {
       expiresAt: this.toDateOrNull(record.expiresAt),
       createdAt: this.toDate(record.createdAt),
       reviewTracker: this.toReviewTracker(record.reviewTracker),
-    })
+    });
   }
 
   toVoteEntity(
-    record: MongoCommunityVoteRecord | null | undefined,
+    record: MongoCommunityVoteRecord | null | undefined
   ): CommunityReviewVoteEntity | null {
     if (!record?._id) {
-      return null
+      return null;
     }
 
     return new CommunityReviewVoteEntity({
@@ -110,50 +109,50 @@ export class MongoCommunityMapper {
       reason: record.reason ?? null,
       rewardCoins: this.toNumber(record.rewardCoins, 0),
       createdAt: this.toDate(record.createdAt),
-    })
+    });
   }
 
   toStatsEntity(input: {
-    publishedCount: number
-    clonesReceived: number
-    clonedByUser: number
-    averageRating: number
+    publishedCount: number;
+    clonesReceived: number;
+    clonedByUser: number;
+    averageRating: number;
   }): CommunityMemberStatsEntity {
-    return new CommunityMemberStatsEntity(input)
+    return new CommunityMemberStatsEntity(input);
   }
 
   toLeaderboardEntryEntity(input: {
-    userId: string
-    rank: number
-    profile?: MongoUserProfileRecord | null
-    user?: MongoUserRecord | null
-    earnedCoins: number
-    isCurrentUser: boolean
+    userId: string;
+    rank: number;
+    profile?: MongoUserProfileRecord | null;
+    user?: MongoUserRecord | null;
+    earnedCoins: number;
+    isCurrentUser: boolean;
   }): CommunityLeaderboardEntryEntity {
     return new CommunityLeaderboardEntryEntity({
       userId: input.userId,
       rank: input.rank,
       name: this.toString(
         input.profile?.fullName ?? input.user?.fullName ?? input.user?.username,
-        `Scholar ${input.rank}`,
+        `Scholar ${input.rank}`
       ),
       earnedCoins: input.earnedCoins,
       badge: this.badgeForRank(input.rank),
       isCurrentUser: input.isCurrentUser,
-    })
+    });
   }
 
   toPublicTrackerDetailEntity(input: {
-    tracker: MongoCommunityTrackerRecord
-    userId: string
-    clone?: MongoCommunityTrackerRecord | null
-    liked: unknown
-    topics: MongoTrackerTopicRecord[]
-    subtopics: MongoTrackerSubtopicRecord[]
-    ratingSummary: CommunityRatingSummaryEntity
-    reviews: CommunityTrackerReviewEntity[]
-    myReview: CommunityTrackerReviewEntity | null
-    author: MongoAuthorLookup
+    tracker: MongoCommunityTrackerRecord;
+    userId: string;
+    clone?: MongoCommunityTrackerRecord | null;
+    liked: unknown;
+    topics: MongoTrackerTopicRecord[];
+    subtopics: MongoTrackerSubtopicRecord[];
+    ratingSummary: CommunityRatingSummaryEntity;
+    reviews: CommunityTrackerReviewEntity[];
+    myReview: CommunityTrackerReviewEntity | null;
+    author: MongoAuthorLookup;
   }): CommunityPublicTrackerDetailEntity {
     const {
       tracker,
@@ -166,7 +165,7 @@ export class MongoCommunityMapper {
       reviews,
       myReview,
       author,
-    } = input
+    } = input;
 
     return new CommunityPublicTrackerDetailEntity({
       id: this.toId(tracker._id),
@@ -192,6 +191,7 @@ export class MongoCommunityMapper {
       author: {
         id: this.toId(tracker.ownerId),
         name: author.name,
+        username: author.username,
         initials: author.initials,
         avatarUrl: author.avatarUrl ?? null,
         role: 'Community mentor',
@@ -202,25 +202,25 @@ export class MongoCommunityMapper {
       myReview,
       createdAt: this.toDate(tracker.createdAt),
       publishedAt: this.toDateOrNull(tracker.publishedAt),
-    })
+    });
   }
 
   toReviewEntity(
     review: MongoCommunityTrackerReviewRecord | null | undefined,
     currentUserId: string,
-    authors?: Map<string, MongoAuthorLookup>,
+    authors?: Map<string, MongoAuthorLookup>
   ): CommunityTrackerReviewEntity | null {
     if (!review?._id) {
-      return null
+      return null;
     }
 
-    const userId = String(review.userId)
-    const author = authors?.get(userId)
+    const userId = String(review.userId);
+    const author = authors?.get(userId);
     const authorName = this.toString(
       author?.name ?? review.authorName,
-      `Scholar ${userId.slice(-4)}`,
-    )
-    const helpfulUserIds = this.toHelpfulUserIdStrings(review.helpfulUserIds)
+      `Scholar ${userId.slice(-4)}`
+    );
+    const helpfulUserIds = this.toHelpfulUserIdStrings(review.helpfulUserIds);
 
     return new CommunityTrackerReviewEntity({
       id: this.toId(review._id),
@@ -236,49 +236,50 @@ export class MongoCommunityMapper {
       isMine: userId === currentUserId,
       createdAt: this.toDate(review.createdAt),
       updatedAt: this.toDate(review.updatedAt),
-    })
+    });
   }
 
   toAuthorLookup(input: {
-    id: MongoIdLike
-    profile?: MongoUserProfileRecord | null
-    user?: MongoUserRecord | null
-    fallbackName: string
+    id: MongoIdLike;
+    profile?: MongoUserProfileRecord | null;
+    user?: MongoUserRecord | null;
+    fallbackName: string;
   }): MongoAuthorLookup {
-    const id = this.toId(input.id)
+    const id = this.toId(input.id);
     const name = this.toString(
       input.profile?.fullName ?? input.user?.fullName ?? input.user?.username,
-      input.fallbackName,
-    )
+      input.fallbackName
+    );
 
     return {
       id,
       name,
+      username: this.toString(input.user?.username, ''),
       initials: this.getInitials(name),
       avatarUrl: input.profile?.avatarUrl ?? input.user?.avatarUrl ?? null,
-    }
+    };
   }
 
   toHelpfulUserIdStrings(value: unknown): Set<string> {
     if (!Array.isArray(value)) {
-      return new Set()
+      return new Set();
     }
 
-    return new Set(value.map((item) => String(item)))
+    return new Set(value.map((item) => String(item)));
   }
 
   private toPublicTrackerTopics(
     topics: MongoTrackerTopicRecord[],
-    subtopics: MongoTrackerSubtopicRecord[],
+    subtopics: MongoTrackerSubtopicRecord[]
   ): CommunityPublicTrackerTopicEntity[] {
-    const subtopicsByTopicId = new Map<string, MongoTrackerSubtopicRecord[]>()
+    const subtopicsByTopicId = new Map<string, MongoTrackerSubtopicRecord[]>();
 
     for (const subtopic of subtopics) {
-      const topicId = String(subtopic.topicId)
-      const items = subtopicsByTopicId.get(topicId) ?? []
+      const topicId = String(subtopic.topicId);
+      const items = subtopicsByTopicId.get(topicId) ?? [];
 
-      items.push(subtopic)
-      subtopicsByTopicId.set(topicId, items)
+      items.push(subtopic);
+      subtopicsByTopicId.set(topicId, items);
     }
 
     return topics.map((topic) => ({
@@ -288,22 +289,18 @@ export class MongoCommunityMapper {
       order: this.toNumber(topic.order, 0),
       status: this.toString(topic.status, 'active'),
       estimatedHours: this.toNumber(topic.estimatedHours, 0),
-      subtopics: (subtopicsByTopicId.get(String(topic._id)) ?? []).map(
-        (subtopic) => ({
-          id: this.toId(subtopic._id),
-          topicId: this.toId(subtopic.topicId),
-          parentSubtopicId: subtopic.parentSubtopicId
-            ? this.toId(subtopic.parentSubtopicId)
-            : null,
-          title: this.toString(subtopic.title, 'Untitled subtopic'),
-          description: this.toString(subtopic.description, ''),
-          order: this.toNumber(subtopic.order, 0),
-          depth: this.toNumber(subtopic.depth, 0),
-          isLocked: Boolean(subtopic.isLocked),
-          estimatedMinutes: this.toNumber(subtopic.estimatedMinutes, 0),
-        }),
-      ),
-    }))
+      subtopics: (subtopicsByTopicId.get(String(topic._id)) ?? []).map((subtopic) => ({
+        id: this.toId(subtopic._id),
+        topicId: this.toId(subtopic.topicId),
+        parentSubtopicId: subtopic.parentSubtopicId ? this.toId(subtopic.parentSubtopicId) : null,
+        title: this.toString(subtopic.title, 'Untitled subtopic'),
+        description: this.toString(subtopic.description, ''),
+        order: this.toNumber(subtopic.order, 0),
+        depth: this.toNumber(subtopic.depth, 0),
+        isLocked: Boolean(subtopic.isLocked),
+        estimatedMinutes: this.toNumber(subtopic.estimatedMinutes, 0),
+      })),
+    }));
   }
 
   private getInitials(value: string): string {
@@ -312,35 +309,29 @@ export class MongoCommunityMapper {
       .map((word) => word[0])
       .join('')
       .slice(0, 2)
-      .toUpperCase()
+      .toUpperCase();
 
-    return initials || 'IM'
+    return initials || 'IM';
   }
 
   toPlainRecord<T>(document: { toObject?: () => T } | T | null): T | null {
     if (!document) {
-      return null
+      return null;
     }
 
-    if (
-      typeof document === 'object' &&
-      'toObject' in document &&
-      document.toObject
-    ) {
-      return document.toObject()
+    if (typeof document === 'object' && 'toObject' in document && document.toObject) {
+      return document.toObject();
     }
 
-    return document as T
+    return document as T;
   }
 
-  private toReviewTracker(
-    value: unknown,
-  ): CommunityVerificationReviewTracker | null {
+  private toReviewTracker(value: unknown): CommunityVerificationReviewTracker | null {
     if (!value || typeof value !== 'object') {
-      return null
+      return null;
     }
 
-    const record = value as Record<string, unknown>
+    const record = value as Record<string, unknown>;
 
     return {
       id: this.toString(record.id, ''),
@@ -356,22 +347,19 @@ export class MongoCommunityMapper {
       topicsCount: this.toNumber(record.topicsCount, 0),
       subtopicsCount: this.toNumber(record.subtopicsCount, 0),
       topics: this.toReviewTopics(record.topics),
-    }
+    };
   }
 
   private toReviewTopics(value: unknown): CommunityVerificationReviewTopic[] {
     if (!Array.isArray(value)) {
-      return []
+      return [];
     }
 
-    return value.map((item) => this.toReviewTopic(item))
+    return value.map((item) => this.toReviewTopic(item));
   }
 
   private toReviewTopic(value: unknown): CommunityVerificationReviewTopic {
-    const record =
-      value && typeof value === 'object'
-        ? (value as Record<string, unknown>)
-        : {}
+    const record = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
 
     return {
       id: this.toString(record.id, ''),
@@ -381,136 +369,122 @@ export class MongoCommunityMapper {
       status: this.toString(record.status, 'active'),
       estimatedHours: this.toNumber(record.estimatedHours, 0),
       subtopics: this.toReviewSubtopics(record.subtopics),
-    }
+    };
   }
 
-  private toReviewSubtopics(
-    value: unknown,
-  ): CommunityVerificationReviewSubtopic[] {
+  private toReviewSubtopics(value: unknown): CommunityVerificationReviewSubtopic[] {
     if (!Array.isArray(value)) {
-      return []
+      return [];
     }
 
-    return value.map((item) => this.toReviewSubtopic(item))
+    return value.map((item) => this.toReviewSubtopic(item));
   }
 
-  private toReviewSubtopic(
-    value: unknown,
-  ): CommunityVerificationReviewSubtopic {
-    const record =
-      value && typeof value === 'object'
-        ? (value as Record<string, unknown>)
-        : {}
+  private toReviewSubtopic(value: unknown): CommunityVerificationReviewSubtopic {
+    const record = value && typeof value === 'object' ? (value as Record<string, unknown>) : {};
 
     return {
       id: this.toString(record.id, ''),
       topicId: this.toString(record.topicId, ''),
       parentSubtopicId:
-        typeof record.parentSubtopicId === 'string'
-          ? record.parentSubtopicId
-          : null,
+        typeof record.parentSubtopicId === 'string' ? record.parentSubtopicId : null,
       title: this.toString(record.title, 'Untitled subtopic'),
       description: this.toString(record.description, ''),
       order: this.toNumber(record.order, 0),
       depth: this.toNumber(record.depth, 0),
       isLocked: Boolean(record.isLocked),
       estimatedMinutes: this.toNumber(record.estimatedMinutes, 0),
-    }
+    };
   }
 
   private badgeForRank(rank: number): string {
     if (rank === 1) {
-      return '🥇'
+      return '🥇';
     }
 
     if (rank === 2) {
-      return '🥈'
+      return '🥈';
     }
 
     if (rank === 3) {
-      return '🥉'
+      return '🥉';
     }
 
-    return '🏅'
+    return '🏅';
   }
 
   private toSubmissionStatus(value: unknown): VerificationSubmissionStatus {
-    if (
-      value === 'closed' ||
-      value === 'approved' ||
-      value === 'rejected' ||
-      value === 'expired'
-    ) {
-      return value
+    if (value === 'closed' || value === 'approved' || value === 'rejected' || value === 'expired') {
+      return value;
     }
 
-    return 'open'
+    return 'open';
   }
 
   private toVoteChoice(value: unknown): VerificationVoteChoice | null {
     if (value === 'pass' || value === 'fail') {
-      return value
+      return value;
     }
 
-    return null
+    return null;
   }
 
   private toDate(value: unknown): Date | undefined {
-    const date = this.toDateOrNull(value)
+    const date = this.toDateOrNull(value);
 
-    return date ?? undefined
+    return date ?? undefined;
   }
 
   private toDateOrNull(value: unknown): Date | null {
     if (!value) {
-      return null
+      return null;
     }
 
-    const date = value instanceof Date ? value : new Date(String(value))
+    const date = value instanceof Date ? value : new Date(String(value));
 
     if (Number.isNaN(date.getTime())) {
-      return null
+      return null;
     }
 
-    return date
+    return date;
   }
 
   private toNumber(value: unknown, fallback: number): number {
-    const numeric = Number(value)
+    const numeric = Number(value);
 
     if (!Number.isFinite(numeric)) {
-      return fallback
+      return fallback;
     }
 
-    return numeric
+    return numeric;
   }
 
   private toString(value: unknown, fallback: string): string {
     if (typeof value !== 'string') {
-      return fallback
+      return fallback;
     }
 
-    const trimmed = value.trim()
+    const trimmed = value.trim();
 
-    return trimmed || fallback
+    return trimmed || fallback;
   }
 
   private toStringArray(value: unknown): string[] {
     if (!Array.isArray(value)) {
-      return []
+      return [];
     }
 
     return value
       .filter((item): item is string => typeof item === 'string')
       .map((item) => item.trim())
-      .filter(Boolean)
+      .filter(Boolean);
   }
 
   private toId(value: MongoIdLike | null | undefined): string {
     if (!value) {
-      return ''
+      return '';
     }
 
-    return value.toString()
+    return value.toString();
   }
 }

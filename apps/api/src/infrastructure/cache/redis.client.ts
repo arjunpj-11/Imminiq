@@ -1,1 +1,1 @@
-export { redis } from '../../config/redis'
+export { redis } from '../../config/redis';

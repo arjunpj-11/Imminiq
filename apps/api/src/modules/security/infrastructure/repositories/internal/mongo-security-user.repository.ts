@@ -1,36 +1,32 @@
-import { User } from '../../../../../infrastructure/database/models/user.model'
+import { User } from '../../../../../infrastructure/database/models/user.model';
 import type {
   ConfirmPendingEmailChangeInput,
   SavePendingEmailChangeInput,
   ScheduleAccountDeletionInput,
   UpdateSecurityPasswordHashInput,
-} from '../../../domain/repositories/security-user.repository.interface'
-import { MongoSecurityBaseRepository } from '../shared/mongo-security-base.repository'
-import { MongoSecurityErrorMapper } from '../shared/mongo-security-error.mapper'
-import { MongoSecurityNormalizer } from '../shared/mongo-security-normalizer'
-import { MongoSecurityMapper } from '../shared/mongo-security.mapper'
-import type { MongoSecurityUserRecord } from '../shared/mongo-security.types'
+} from '../../../domain/repositories/security-user.repository.interface';
+import { MongoSecurityBaseRepository } from '../shared/mongo-security-base.repository';
+import { MongoSecurityErrorMapper } from '../shared/mongo-security-error.mapper';
+import { MongoSecurityNormalizer } from '../shared/mongo-security-normalizer';
+import { MongoSecurityMapper } from '../shared/mongo-security.mapper';
+import type { MongoSecurityUserRecord } from '../shared/mongo-security.types';
 
 export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
   constructor(private readonly _mapper = new MongoSecurityMapper()) {
-    super()
+    super();
   }
 
   async findUserById(userId: string) {
-    return this.execute(
-      'SECURITY_USER_LOOKUP_FAILED',
-      'Failed to read security user',
-      async () => {
-        const user = await User.findOne({
-          _id: userId,
-          deletedAt: null,
-        })
-          .select('+passwordHash')
-          .lean<MongoSecurityUserRecord>()
+    return this.execute('SECURITY_USER_LOOKUP_FAILED', 'Failed to read security user', async () => {
+      const user = await User.findOne({
+        _id: userId,
+        deletedAt: null,
+      })
+        .select('+passwordHash')
+        .lean<MongoSecurityUserRecord>();
 
-        return this._mapper.toSecurityUserEntity(user)
-      },
-    )
+      return this._mapper.toSecurityUserEntity(user);
+    });
   }
 
   async emailExists(email: string): Promise<boolean> {
@@ -41,11 +37,11 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
         const user = await User.exists({
           email: MongoSecurityNormalizer.email(email),
           deletedAt: null,
-        })
+        });
 
-        return Boolean(user)
-      },
-    )
+        return Boolean(user);
+      }
+    );
   }
 
   async findUserByPendingEmailTokenHash(tokenHash: string) {
@@ -64,11 +60,11 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
           deletedAt: null,
         })
           .select('+passwordHash +pendingEmailChangeTokenHash')
-          .lean<MongoSecurityUserRecord>()
+          .lean<MongoSecurityUserRecord>();
 
-        return this._mapper.toSecurityUserEntity(user)
-      },
-    )
+        return this._mapper.toSecurityUserEntity(user);
+      }
+    );
   }
 
   async savePendingEmailChange(input: SavePendingEmailChangeInput) {
@@ -83,9 +79,7 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
           },
           {
             $set: {
-              pendingEmail: MongoSecurityNormalizer.email(
-                input.data.pendingEmail,
-              ),
+              pendingEmail: MongoSecurityNormalizer.email(input.data.pendingEmail),
               pendingEmailChangeTokenHash: input.data.tokenHash,
               pendingEmailChangeExpiresAt: input.data.expiresAt,
               pendingEmailChangeRequestedAt: new Date(),
@@ -93,15 +87,15 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
+          }
         )
           .select('+passwordHash')
-          .lean<MongoSecurityUserRecord>()
+          .lean<MongoSecurityUserRecord>();
 
-        return this._mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user);
       },
-      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
-    )
+      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError
+    );
   }
 
   async confirmPendingEmailChange(input: ConfirmPendingEmailChangeInput) {
@@ -109,9 +103,7 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
       'PENDING_EMAIL_CONFIRM_FAILED',
       'Failed to confirm pending email change',
       async () => {
-        const normalizedEmail = MongoSecurityNormalizer.email(
-          input.pendingEmail,
-        )
+        const normalizedEmail = MongoSecurityNormalizer.email(input.pendingEmail);
 
         const user = await User.findOneAndUpdate(
           {
@@ -133,15 +125,15 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
+          }
         )
           .select('+passwordHash')
-          .lean<MongoSecurityUserRecord>()
+          .lean<MongoSecurityUserRecord>();
 
-        return this._mapper.toSecurityUserEntity(user)
+        return this._mapper.toSecurityUserEntity(user);
       },
-      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError,
-    )
+      MongoSecurityErrorMapper.mapDuplicateSecurityRecordError
+    );
   }
 
   async clearPendingEmailChange(userId: string) {
@@ -164,42 +156,38 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
+          }
         )
           .select('+passwordHash')
-          .lean<MongoSecurityUserRecord>()
+          .lean<MongoSecurityUserRecord>();
 
-        return this._mapper.toSecurityUserEntity(user)
-      },
-    )
+        return this._mapper.toSecurityUserEntity(user);
+      }
+    );
   }
 
   async updatePasswordHash(input: UpdateSecurityPasswordHashInput) {
-    return this.execute(
-      'PASSWORD_UPDATE_FAILED',
-      'Failed to update password hash',
-      async () => {
-        const user = await User.findOneAndUpdate(
-          {
-            _id: input.userId,
-            deletedAt: null,
+    return this.execute('PASSWORD_UPDATE_FAILED', 'Failed to update password hash', async () => {
+      const user = await User.findOneAndUpdate(
+        {
+          _id: input.userId,
+          deletedAt: null,
+        },
+        {
+          $set: {
+            passwordHash: input.passwordHash,
+            passwordChangedAt: new Date(),
           },
-          {
-            $set: {
-              passwordHash: input.passwordHash,
-              passwordChangedAt: new Date(),
-            },
-          },
-          {
-            returnDocument: 'after',
-          },
-        )
-          .select('+passwordHash')
-          .lean<MongoSecurityUserRecord>()
+        },
+        {
+          returnDocument: 'after',
+        }
+      )
+        .select('+passwordHash')
+        .lean<MongoSecurityUserRecord>();
 
-        return this._mapper.toSecurityUserEntity(user)
-      },
-    )
+      return this._mapper.toSecurityUserEntity(user);
+    });
   }
 
   async scheduleAccountDeletion(input: ScheduleAccountDeletionInput) {
@@ -222,15 +210,15 @@ export class MongoSecurityUserRepository extends MongoSecurityBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
+          }
         )
           .select('+passwordHash')
-          .lean<MongoSecurityUserRecord>()
+          .lean<MongoSecurityUserRecord>();
 
-        return this._mapper.toSecurityUserEntity(user)
-      },
-    )
+        return this._mapper.toSecurityUserEntity(user);
+      }
+    );
   }
 }
 
-export const mongoSecurityUserRepository = new MongoSecurityUserRepository()
+export const mongoSecurityUserRepository = new MongoSecurityUserRepository();

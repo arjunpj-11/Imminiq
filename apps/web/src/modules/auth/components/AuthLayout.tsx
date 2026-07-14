@@ -1,12 +1,12 @@
-import { Link } from 'react-router-dom'
-import { LogoIcon } from './icons/AuthIcons'
-import { cn } from '../utils/auth-ui'
+import { Link } from 'react-router-dom';
+import { LogoIcon } from './icons/AuthIcons';
+import { cn } from '../utils/auth-ui';
 
 interface IAuthLayoutProps {
-  badge: string
-  title: string
-  subtitle: string
-  children: React.ReactNode
+  badge: string;
+  title: string;
+  subtitle: string;
+  children: React.ReactNode;
 }
 
 export default function AuthLayout({ badge, title, subtitle, children }: IAuthLayoutProps) {
@@ -34,7 +34,10 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
       </div>
 
       <div className="flex flex-1 flex-col lg:flex-row lg:overflow-hidden">
-        <aside className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-18 xl:py-13" aria-hidden="true">
+        <aside
+          className="relative hidden w-1/2 min-w-0 flex-1 overflow-hidden px-14 py-12 lg:flex lg:flex-col lg:justify-between xl:px-18 xl:py-13"
+          aria-hidden="true"
+        >
           <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.13)_0%,transparent_70%)]" />
           <Link to="/" className="relative z-1 inline-flex items-center gap-3 leading-none">
             <LogoIcon className="h-11 w-11" />
@@ -80,5 +83,5 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
         </main>
       </div>
     </div>
-  )
+  );
 }

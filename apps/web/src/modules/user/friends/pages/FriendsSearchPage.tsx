@@ -1,37 +1,35 @@
-import { useMemo, useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useMemo, useState } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
-import FriendSearchResults from "../components/search/FriendSearchResults";
-import FriendsAppShell from "../components/shared/FriendsAppShell";
-import FriendsHeader from "../components/shared/FriendsHeader";
-import FriendsSearchInput from "../components/search/FriendsSearchInput";
+import FriendSearchResults from '../components/search/FriendSearchResults';
+import FriendsAppShell from '../components/shared/FriendsAppShell';
+import FriendsHeader from '../components/shared/FriendsHeader';
+import FriendsSearchInput from '../components/search/FriendsSearchInput';
 import {
   FriendsActionError,
   FriendsEmptyState,
   FriendsErrorState,
   FriendsListSkeleton,
-} from "../components/shared/FriendsStates";
-import { BackIcon } from "../components/icons/FriendsIcons";
+} from '../components/shared/FriendsStates';
+import { BackIcon } from '../components/icons/FriendsIcons';
 import {
   FRIENDS_DEFAULT_PAGE_SIZE,
   FRIENDS_SEARCH_MIN_LENGTH,
-} from "../constants/friends.constants";
-import { useFriendSearch } from "../hooks/useFriendSearch";
-import { useSendFriendRequest } from "../hooks/useSendFriendRequest";
-import type { IFriendUser } from "../types/friends.types";
+} from '../constants/friends.constants';
+import { useFriendSearch } from '../hooks/useFriendSearch';
+import { useSendFriendRequest } from '../hooks/useSendFriendRequest';
+import type { IFriendUser } from '../types/friends.types';
 import {
   getFriendsApiErrorMessage,
   mergeFriendUserPages,
   normalizeSearchQuery,
-} from "../utils/friends-formatters";
+} from '../utils/friends-formatters';
 
 type FriendsSearchPageContentProps = {
   activeQuery: string;
 };
 
-function FriendsSearchPageContent({
-  activeQuery,
-}: FriendsSearchPageContentProps) {
+function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps) {
   const navigate = useNavigate();
   const [, setSearchParams] = useSearchParams();
 
@@ -55,7 +53,7 @@ function FriendsSearchPageContent({
 
   const users = useMemo(
     () => mergeFriendUserPages(searchQuery.data?.pages ?? []),
-    [searchQuery.data?.pages],
+    [searchQuery.data?.pages]
   );
 
   const firstPage = searchQuery.data?.pages[0];
@@ -76,12 +74,12 @@ function FriendsSearchPageContent({
       },
       {
         replace: true,
-      },
+      }
     );
   };
 
   const handleClear = () => {
-    setInputValue("");
+    setInputValue('');
     setActionError(undefined);
     setSearchParams({}, { replace: true });
   };
@@ -95,31 +93,22 @@ function FriendsSearchPageContent({
       },
       {
         onError: (error) => {
-          setActionError(
-            getFriendsApiErrorMessage(
-              error,
-              "The friend invite could not be sent.",
-            ),
-          );
+          setActionError(getFriendsApiErrorMessage(error, 'The friend invite could not be sent.'));
         },
-      },
+      }
     );
   };
 
-  const sendingUserId = sendMutation.isPending
-    ? sendMutation.variables?.receiverUserId
-    : undefined;
+  const sendingUserId = sendMutation.isPending ? sendMutation.variables?.receiverUserId : undefined;
 
-  const queryTooShort =
-    activeQuery.length > 0 &&
-    activeQuery.length < FRIENDS_SEARCH_MIN_LENGTH;
+  const queryTooShort = activeQuery.length > 0 && activeQuery.length < FRIENDS_SEARCH_MIN_LENGTH;
 
   return (
     <FriendsAppShell>
       <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-7 pb-24 sm:px-6 min-[901px]:pb-8">
         <button
           type="button"
-          onClick={() => navigate("/friends")}
+          onClick={() => navigate('/friends')}
           className="inline-flex w-fit items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/20 dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
         >
           <BackIcon />
@@ -158,18 +147,14 @@ function FriendsSearchPageContent({
               hasMore={false}
               loadingMore={false}
               onSendRequest={handleSendRequest}
-              onOpenRequests={() =>
-                navigate("/friends?tab=requests")
-              }
+              onOpenRequests={() => navigate('/friends?tab=requests')}
               onLoadMore={() => undefined}
             />
           ) : searchQuery.isPending ? (
             <FriendsListSkeleton count={5} />
           ) : searchQuery.isError ? (
             <FriendsErrorState
-              message={
-                searchQuery.error?.response?.data?.message
-              }
+              message={searchQuery.error?.response?.data?.message}
               onRetry={() => {
                 void searchQuery.refetch();
               }}
@@ -187,9 +172,7 @@ function FriendsSearchPageContent({
                   }
                 : {})}
               onSendRequest={handleSendRequest}
-              onOpenRequests={() =>
-                navigate("/friends?tab=requests")
-              }
+              onOpenRequests={() => navigate('/friends?tab=requests')}
               onLoadMore={() => {
                 void searchQuery.fetchNextPage();
               }}
@@ -204,19 +187,12 @@ function FriendsSearchPageContent({
 export default function FriendsSearchPage() {
   const [searchParams] = useSearchParams();
 
-  const activeQuery = normalizeSearchQuery(
-    searchParams.get("q") ?? "",
-  );
+  const activeQuery = normalizeSearchQuery(searchParams.get('q') ?? '');
 
   /*
    * Changing the URL query changes the key. React then creates fresh
    * input state using the new activeQuery value, avoiding setState
    * inside an effect.
    */
-  return (
-    <FriendsSearchPageContent
-      key={activeQuery}
-      activeQuery={activeQuery}
-    />
-  );
+  return <FriendsSearchPageContent key={activeQuery} activeQuery={activeQuery} />;
 }

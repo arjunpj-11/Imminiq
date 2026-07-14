@@ -1,26 +1,22 @@
-import { cn } from '../../../../../lib/cn'
-import type { RoadmapSubtopicNode } from '../../utils/tracker-roadmap-normalizers'
-import { getChildren } from '../../utils/tracker-roadmap-normalizers'
+import { cn } from '../../../../../lib/cn';
+import type { RoadmapSubtopicNode } from '../../utils/tracker-roadmap-normalizers';
+import { getChildren } from '../../utils/tracker-roadmap-normalizers';
 
 interface ISubtopicTreeNodeProps {
-  subtopic: RoadmapSubtopicNode
-  index: number
-  depth?: number
+  subtopic: RoadmapSubtopicNode;
+  index: number;
+  depth?: number;
 }
 
-export default function SubtopicTreeNode({
-  subtopic,
-  index,
-  depth = 0,
-}: ISubtopicTreeNodeProps) {
-  const children = getChildren(subtopic)
+export default function SubtopicTreeNode({ subtopic, index, depth = 0 }: ISubtopicTreeNodeProps) {
+  const children = getChildren(subtopic);
 
   return (
     <div>
       <div
         className={cn(
           'rounded-md border border-(--border-subtle) bg-(--surface-card) p-4 dark:border-white/15 dark:bg-(--surface-card)',
-          depth > 0 && 'bg-[#faf6f3] dark:bg-[#1a1815]',
+          depth > 0 && 'bg-[#faf6f3] dark:bg-[#1a1815]'
         )}
       >
         <div className="flex flex-wrap items-start gap-3">
@@ -70,5 +66,5 @@ export default function SubtopicTreeNode({
         </div>
       )}
     </div>
-  )
+  );
 }

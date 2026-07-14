@@ -1,14 +1,13 @@
-import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface'
-import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface'
-import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface'
-import type { IDashboardAIInsightResultDTO } from '../dashboard.dto'
-import { DashboardApplicationError } from '../dashboard-application.error'
+import type { IDashboardStreakRepository } from '../../domain/repositories/dashboard-streak.repository.interface';
+import type { IDashboardTrackerRepository } from '../../domain/repositories/dashboard-tracker.repository.interface';
+import type { IDashboardInsightGenerator } from '../../domain/services/dashboard-insight-generator.interface';
+import type { IDashboardAIInsightResultDTO } from '../dashboard.dto';
+import { DashboardApplicationError } from '../dashboard-application.error';
 
-type DashboardInsightRepository =
-  IDashboardStreakRepository & IDashboardTrackerRepository
+type DashboardInsightRepository = IDashboardStreakRepository & IDashboardTrackerRepository;
 
 export interface IGetAIInsightsUseCase {
-  execute(userId: string): Promise<IDashboardAIInsightResultDTO>
+  execute(userId: string): Promise<IDashboardAIInsightResultDTO>;
 }
 
 export class GetAIInsightsUseCase implements IGetAIInsightsUseCase {
@@ -22,7 +21,7 @@ export class GetAIInsightsUseCase implements IGetAIInsightsUseCase {
       this._dashboardRepository.getStreakData(userId),
       this._dashboardRepository.getTrackerOverview(userId),
       this._dashboardRepository.getAggregatedStats(userId),
-    ])
+    ]);
 
     const userData = JSON.stringify({
       streak: streak.current,
@@ -33,13 +32,13 @@ export class GetAIInsightsUseCase implements IGetAIInsightsUseCase {
       totalSubtopicsCompleted: stats.totalSubtopicsCompleted,
       totalPoints: stats.totalPoints,
       publishedTrackers: stats.publishedTrackers,
-    })
+    });
 
     try {
-      const insight = await this._dashboardInsightGenerator.generate(userData)
-      return { insight }
+      const insight = await this._dashboardInsightGenerator.generate(userData);
+      return { insight };
     } catch {
-      throw DashboardApplicationError.insightGenerationFailed()
+      throw DashboardApplicationError.insightGenerationFailed();
     }
   }
 }

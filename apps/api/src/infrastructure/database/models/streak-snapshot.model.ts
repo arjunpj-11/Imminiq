@@ -1,8 +1,4 @@
-import mongoose, {
-  Schema,
-  model,
-  type InferSchemaType,
-} from 'mongoose'
+import mongoose, { Schema, model, type InferSchemaType } from 'mongoose';
 
 const streakSnapshotSchema = new Schema(
   {
@@ -51,14 +47,11 @@ const streakSnapshotSchema = new Schema(
     timestamps: true,
     collection: 'streak_snapshots',
   }
-)
+);
 
-streakSnapshotSchema.index(
-  { userId: 1, snapshotDate: 1 },
-  { unique: true }
-)
+streakSnapshotSchema.index({ userId: 1, snapshotDate: 1 }, { unique: true });
 
-export type StreakSnapshotDocument = InferSchemaType<typeof streakSnapshotSchema>
+export type StreakSnapshotDocument = InferSchemaType<typeof streakSnapshotSchema>;
 
 export const StreakSnapshot =
-  mongoose.models.StreakSnapshot || model('StreakSnapshot', streakSnapshotSchema)
+  mongoose.models.StreakSnapshot || model('StreakSnapshot', streakSnapshotSchema);

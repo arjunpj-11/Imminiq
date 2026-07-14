@@ -1,18 +1,17 @@
-import { AuthApplicationError } from '../auth-application.error'
-import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface'
-import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface'
-import type { IAuthToken } from '../../domain/services/auth-token.interface'
-import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-refresh-token-store.interface'
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
-import type { RequestMetaDTO, ITokenPairDTO } from '../auth.dto'
-import type { IAuthAccountPolicy } from '../auth-account-policy.policy'
-import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface'
+import { AuthApplicationError } from '../auth-application.error';
+import type { IAuthSessionRepository } from '../../domain/repositories/auth-session.repository.interface';
+import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
+import type { IAuthToken } from '../../domain/services/auth-token.interface';
+import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-refresh-token-store.interface';
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { RequestMetaDTO, ITokenPairDTO } from '../auth.dto';
+import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
+import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface';
 
-type RefreshTokensRepository =
-  IAuthUserRepository & IAuthSessionRepository
+type RefreshTokensRepository = IAuthUserRepository & IAuthSessionRepository;
 
 export interface IRefreshAuthTokensUseCase {
-  execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO>
+  execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO>;
 }
 
 export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
@@ -22,21 +21,19 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
     private readonly _retiredRefreshTokenStore: IRetiredRefreshTokenStore,
     private readonly _securityAuditLogger: ISecurityAuditLogger,
     private readonly _authAccountPolicy: IAuthAccountPolicy,
-    private readonly _refreshTokenHasher: IRefreshTokenHasher,
+    private readonly _refreshTokenHasher: IRefreshTokenHasher
   ) {}
 
   async execute(refreshToken: string, meta?: RequestMetaDTO): Promise<ITokenPairDTO> {
-    const refreshTokenHash = this._refreshTokenHasher.hash(refreshToken)
+    const refreshTokenHash = this._refreshTokenHasher.hash(refreshToken);
 
-    const tokenRecord =
-      await this._authRepository.findSessionByRefreshTokenHash(refreshTokenHash)
+    const tokenRecord = await this._authRepository.findSessionByRefreshTokenHash(refreshTokenHash);
 
     if (!tokenRecord) {
-      const retired =
-        await this._retiredRefreshTokenStore.findByRawToken(refreshToken)
+      const retired = await this._retiredRefreshTokenStore.findByRawToken(refreshToken);
 
       if (retired) {
-        await this._authRepository.revokeAllUserSessions(retired.userId)
+        await this._authRepository.revokeAllUserSessions(retired.userId);
 
         await this._securityAuditLogger.record({
           userId: retired.userId,
@@ -47,55 +44,49 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
           metadata: {
             sessionId: retired.sessionId,
           },
-        })
+        });
 
         throw AuthApplicationError.refreshTokenReuseDetected(
           'Refresh token reuse detected. Please sign in again.'
-        )
+        );
       }
 
-      throw AuthApplicationError.unauthorized('Invalid refresh token')
+      throw AuthApplicationError.unauthorized('Invalid refresh token');
     }
 
-    const user = await this._authRepository.findById(tokenRecord.userId)
+    const user = await this._authRepository.findById(tokenRecord.userId);
 
     if (!user) {
-      throw AuthApplicationError.unauthorized('User not found')
+      throw AuthApplicationError.unauthorized('User not found');
     }
 
-    this._authAccountPolicy.ensureUserCanAuthenticate(user)
+    this._authAccountPolicy.ensureUserCanAuthenticate(user);
 
-    const accessToken = this._authToken.generateAccessToken(
-      user.id,
-      user.role
-    )
+    const accessToken = this._authToken.generateAccessToken(user.id, user.role, tokenRecord.id);
 
-    const newRefreshToken = this._authToken.generateRefreshToken()
-    const newRefreshTokenHash = this._refreshTokenHasher.hash(newRefreshToken)
+    const newRefreshToken = this._authToken.generateRefreshToken();
+    const newRefreshTokenHash = this._refreshTokenHasher.hash(newRefreshToken);
 
     await this._retiredRefreshTokenStore.retire({
       refreshTokenHash,
       userId: tokenRecord.userId,
       sessionId: tokenRecord.id,
       expiresAt: tokenRecord.expiresAt,
-    })
+    });
 
-    const rotatedSession =
-      await this._authRepository.rotateRefreshTokenInSameSession({
-        sessionId: tokenRecord.id,
-        newRefreshTokenHash,
-        meta,
-      })
+    const rotatedSession = await this._authRepository.rotateRefreshTokenInSameSession({
+      sessionId: tokenRecord.id,
+      newRefreshTokenHash,
+      meta,
+    });
 
     if (!rotatedSession) {
-      throw AuthApplicationError.sessionRefreshFailed(
-        'Unable to refresh session'
-      )
+      throw AuthApplicationError.sessionRefreshFailed('Unable to refresh session');
     }
 
     return {
       accessToken,
       refreshToken: newRefreshToken,
-    }
+    };
   }
 }

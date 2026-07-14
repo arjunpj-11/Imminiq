@@ -1,4 +1,4 @@
-import type { RouteObject } from 'react-router-dom'
+import type { RouteObject } from 'react-router-dom';
 
 import {
   OnboardingGeneratingPage,
@@ -6,17 +6,12 @@ import {
   OnboardingRoadmapEvaluationScorePage,
   OnboardingRoadmapReadyPage,
   OnboardingStepOnePage,
-  OnboardingStepTwoPage,
-} from '../config/onboarding-pages'
+} from '../config/onboarding-pages';
 
 export const onboardingRoutes: RouteObject[] = [
   {
     path: '/onboarding/step-1',
     element: <OnboardingStepOnePage />,
-  },
-  {
-    path: '/onboarding/step-2',
-    element: <OnboardingStepTwoPage />,
   },
   {
     path: '/onboarding/generating/:jobId',
@@ -34,4 +29,4 @@ export const onboardingRoutes: RouteObject[] = [
     path: '/onboarding/roadmap-evaluation/:jobId/score',
     element: <OnboardingRoadmapEvaluationScorePage />,
   },
-]
+];

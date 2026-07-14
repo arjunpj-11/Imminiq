@@ -1,8 +1,8 @@
-import type { ILeaderboardTopThreeEntry } from '../types/leaderboard.types'
-import { formatNumber } from '../utils/leaderboard-formatters'
-import { cn } from '../utils/leaderboard-ui'
-import LeaderboardAvatar from './LeaderboardAvatar'
-import { FireIcon, MedalIcon } from './icons/LeaderboardIcons'
+import type { ILeaderboardTopThreeEntry } from '../types/leaderboard.types';
+import { formatNumber } from '../utils/leaderboard-formatters';
+import { cn } from '../utils/leaderboard-ui';
+import LeaderboardAvatar from './LeaderboardAvatar';
+import { FireIcon, MedalIcon } from './icons/LeaderboardIcons';
 
 const podiumTokens = {
   1: {
@@ -44,13 +44,13 @@ const podiumTokens = {
     streakBackground: 'rgba(184,115,51,0.09)',
     streakBorder: 'rgba(184,115,51,0.28)',
   },
-} as const
+} as const;
 
-const podiumOrder: ReadonlyArray<1 | 2 | 3> = [2, 1, 3]
+const podiumOrder: ReadonlyArray<1 | 2 | 3> = [2, 1, 3];
 
 function PodiumCard({ entry }: { entry: ILeaderboardTopThreeEntry }) {
-  const token = podiumTokens[entry.rank]
-  const isChampion = entry.rank === 1
+  const token = podiumTokens[entry.rank];
+  const isChampion = entry.rank === 1;
 
   return (
     <article
@@ -58,20 +58,30 @@ function PodiumCard({ entry }: { entry: ILeaderboardTopThreeEntry }) {
         'group relative flex flex-col items-center overflow-hidden rounded-xl border-[1.5px] px-5 pb-6 pt-6 transition-all duration-200',
         token.background,
         token.border,
-        token.shadow,
+        token.shadow
       )}
     >
-      <div className="absolute inset-x-0 top-0 h-[2.5px] dark:hidden" style={{ background: token.lightStrip }} />
-      <div className="absolute inset-x-0 top-0 hidden h-[2.5px] dark:block" style={{ background: token.darkStrip }} />
+      <div
+        className="absolute inset-x-0 top-0 h-[2.5px] dark:hidden"
+        style={{ background: token.lightStrip }}
+      />
+      <div
+        className="absolute inset-x-0 top-0 hidden h-[2.5px] dark:block"
+        style={{ background: token.darkStrip }}
+      />
 
       <div className="relative mb-3 mt-2">
-        <div className="rounded-full p-0.75" style={{ background: `linear-gradient(135deg, ${token.ring}80, ${token.ring}20)` }}>
+        <div
+          className="rounded-full p-0.75"
+          style={{ background: `linear-gradient(135deg, ${token.ring}80, ${token.ring}20)` }}
+        >
           <div className="rounded-full bg-(--surface-card) p-0.5 dark:bg-(--surface-card)">
             <LeaderboardAvatar
               initials={entry.initials}
               color={entry.avatarColor}
               avatarUrl={entry.avatarUrl}
               name={entry.name}
+              username={entry.username}
               size={isChampion ? 'xl' : 'lg'}
             />
           </div>
@@ -81,40 +91,58 @@ function PodiumCard({ entry }: { entry: ILeaderboardTopThreeEntry }) {
         </div>
       </div>
 
-      <h3 className={cn("mt-1 text-center font-ui font-black leading-[1.2] text-(--text-primary) dark:text-(--text-primary)", isChampion ? 'text-[19px]' : 'text-[14.5px]')}>
+      <h3
+        className={cn(
+          'mt-1 text-center font-ui font-black leading-[1.2] text-(--text-primary) dark:text-(--text-primary)',
+          isChampion ? 'text-[19px]' : 'text-[14.5px]'
+        )}
+      >
         {entry.name}
       </h3>
 
-      <span className="mt-1.5 font-mono text-[12px] font-bold tabular-nums dark:hidden" style={{ color: token.lightXp }}>
+      <span
+        className="mt-1.5 font-mono text-[12px] font-bold tabular-nums dark:hidden"
+        style={{ color: token.lightXp }}
+      >
         {formatNumber(entry.xp)} XP
       </span>
-      <span className="mt-1.5 hidden font-mono text-[12px] font-bold tabular-nums dark:inline" style={{ color: token.darkXp }}>
+      <span
+        className="mt-1.5 hidden font-mono text-[12px] font-bold tabular-nums dark:inline"
+        style={{ color: token.darkXp }}
+      >
         {formatNumber(entry.xp)} XP
       </span>
 
       <div
         className="mt-3 flex items-center gap-1.5 rounded-full border px-3 py-1.5 font-mono text-[9.5px] font-bold uppercase tracking-[0.06em]"
-        style={{ color: token.streakText, background: token.streakBackground, borderColor: token.streakBorder }}
+        style={{
+          color: token.streakText,
+          background: token.streakBackground,
+          borderColor: token.streakBorder,
+        }}
       >
         <FireIcon size={11} />
         {entry.streakDays}-day streak
       </div>
     </article>
-  )
+  );
 }
 
 export default function LeaderboardPodium({ entries }: { entries: ILeaderboardTopThreeEntry[] }) {
   const orderedEntries = podiumOrder
     .map((rank) => entries.find((entry) => entry.rank === rank))
-    .filter((entry): entry is ILeaderboardTopThreeEntry => Boolean(entry))
+    .filter((entry): entry is ILeaderboardTopThreeEntry => Boolean(entry));
 
-  if (orderedEntries.length === 0) return null
+  if (orderedEntries.length === 0) return null;
 
   return (
-    <section className="grid grid-cols-3 items-end gap-3 max-[540px]:grid-cols-1" aria-label="Top leaderboard positions">
+    <section
+      className="grid grid-cols-3 items-end gap-3 max-[540px]:grid-cols-1"
+      aria-label="Top leaderboard positions"
+    >
       {orderedEntries.map((entry) => (
         <PodiumCard key={entry.userId} entry={entry} />
       ))}
     </section>
-  )
+  );
 }

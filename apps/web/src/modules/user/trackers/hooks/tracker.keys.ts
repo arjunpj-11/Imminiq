@@ -1,8 +1,9 @@
-import type { LessonCodeSubmissionAction, ITrackerListQuery } from '../types/tracker.types'
+import type { LessonCodeSubmissionAction, ITrackerListQuery } from '../types/tracker.types';
 
 export const trackerKeys = {
   all: ['trackers'] as const,
   summary: () => [...trackerKeys.all, 'summary'] as const,
+  domains: (search: string) => [...trackerKeys.all, 'domains', search] as const,
   lists: () => [...trackerKeys.all, 'list'] as const,
   list: (query: ITrackerListQuery) => [...trackerKeys.lists(), query] as const,
   details: () => [...trackerKeys.all, 'detail'] as const,
@@ -17,32 +18,12 @@ export const trackerKeys = {
   lessonCodeSubmissions: (
     trackerId: string,
     subtopicId: string,
-    action?: LessonCodeSubmissionAction,
-  ) =>
-    [
-      ...trackerKeys.lesson(trackerId, subtopicId),
-      'code-submissions',
-      action || 'all',
-    ] as const,
+    action?: LessonCodeSubmissionAction
+  ) => [...trackerKeys.lesson(trackerId, subtopicId), 'code-submissions', action || 'all'] as const,
   lessonGeneratedQuestions: (trackerId: string, subtopicId: string) =>
     [...trackerKeys.lesson(trackerId, subtopicId), 'generated-questions'] as const,
-  lessonQuestionSolution: (
-    trackerId: string,
-    subtopicId: string,
-    question: string,
-  ) =>
-    [
-      ...trackerKeys.lesson(trackerId, subtopicId),
-      'question-solution',
-      question,
-    ] as const,
-  lessonQuestionSolutionDoubts: (
-    trackerId: string,
-    subtopicId: string,
-    question: string,
-  ) =>
-    [
-      ...trackerKeys.lessonQuestionSolution(trackerId, subtopicId, question),
-      'doubts',
-    ] as const,
-}
+  lessonQuestionSolution: (trackerId: string, subtopicId: string, question: string) =>
+    [...trackerKeys.lesson(trackerId, subtopicId), 'question-solution', question] as const,
+  lessonQuestionSolutionDoubts: (trackerId: string, subtopicId: string, question: string) =>
+    [...trackerKeys.lessonQuestionSolution(trackerId, subtopicId, question), 'doubts'] as const,
+};

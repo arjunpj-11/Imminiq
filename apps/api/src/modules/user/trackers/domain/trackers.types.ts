@@ -15,6 +15,7 @@ export type {
   GeneratedTrackerLessonRecord,
   LastSiblingSubtopicRecord,
   LastTopicRecord,
+  LearningVideoRecord,
   LessonType,
   MissingTopicSuggestion,
   ObjectIdLike,
@@ -45,5 +46,5 @@ export type {
   UpdateSubtopicProgressInput,
   UpdateTrackerInput,
   UserSubtopicProgressRecord,
-  UserTopicProgressRecord
-} from './value-objects/tracker-record.vo'
+  UserTopicProgressRecord,
+} from './value-objects/tracker-record.vo';

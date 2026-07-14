@@ -1,27 +1,27 @@
-import { Router } from 'express'
+import { Router } from 'express';
 
-import { authenticate } from '../../../../shared/middlewares/auth.middleware'
-import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware'
-import { LeaderboardController } from './leaderboard.controller'
-import { leaderboardComposition } from '../leaderboard.factory'
-import { LEADERBOARD_ROUTE_PATHS } from './leaderboard.route.constants'
+import { authenticate } from '../../../../shared/middlewares/auth.middleware';
+import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
+import { LeaderboardController } from './leaderboard.controller';
+import { leaderboardComposition } from '../leaderboard.factory';
+import { LEADERBOARD_ROUTE_PATHS } from './leaderboard.route.constants';
 
-const leaderboardController = new LeaderboardController(leaderboardComposition.useCases)
-const router = Router()
+const leaderboardController = new LeaderboardController(leaderboardComposition.useCases);
+const router = Router();
 
 router.get(
   LEADERBOARD_ROUTE_PATHS.ROOT,
   authenticatedApiIpLimiter,
   authenticate,
-  leaderboardController.getLeaderboard,
-)
+  leaderboardController.getLeaderboard
+);
 
 router.get(
   LEADERBOARD_ROUTE_PATHS.REWARDS,
   authenticatedApiIpLimiter,
   authenticate,
-  leaderboardController.getRewards,
-)
+  leaderboardController.getRewards
+);
 
-export default router
-export { router as leaderboardRoutes }
+export default router;
+export { router as leaderboardRoutes };

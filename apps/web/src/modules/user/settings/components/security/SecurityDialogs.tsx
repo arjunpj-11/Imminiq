@@ -1,6 +1,6 @@
-import Modal from '../../../../../components/overlays/Modal'
-import type { ITwoFactorSetupResponse } from '../../types/settings.types'
-import { MonoLabel, TextField } from '../SettingsUi'
+import Modal from '../../../../../components/overlays/Modal';
+import type { ITwoFactorSetupResponse } from '../../types/settings.types';
+import { MonoLabel, TextField } from '../SettingsUi';
 
 export function InlineSecurityError({ message }: { message: string }) {
   return (
@@ -10,19 +10,19 @@ export function InlineSecurityError({ message }: { message: string }) {
     >
       {message}
     </div>
-  )
+  );
 }
 
 interface ITwoFactorSetupDialogProps {
-  open: boolean
-  data: ITwoFactorSetupResponse | null
-  backupCodes: string[]
-  token: string
-  error: string
-  isVerifying: boolean
-  onTokenChange: (value: string) => void
-  onVerify: () => void
-  onClose: () => void
+  open: boolean;
+  data: ITwoFactorSetupResponse | null;
+  backupCodes: string[];
+  token: string;
+  error: string;
+  isVerifying: boolean;
+  onTokenChange: (value: string) => void;
+  onVerify: () => void;
+  onClose: () => void;
 }
 
 export function TwoFactorSetupDialog({
@@ -36,7 +36,7 @@ export function TwoFactorSetupDialog({
   onVerify,
   onClose,
 }: ITwoFactorSetupDialogProps) {
-  if (!data) return null
+  if (!data) return null;
 
   return (
     <Modal
@@ -80,7 +80,8 @@ export function TwoFactorSetupDialog({
 
           <div>
             <p className="text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-              Open Google Authenticator, Microsoft Authenticator, Authy, or another TOTP app and scan this QR code.
+              Open Google Authenticator, Microsoft Authenticator, Authy, or another TOTP app and
+              scan this QR code.
             </p>
 
             <div className="mt-4 rounded-md bg-[#f9f3ef] p-4 dark:bg-(--surface-card)">
@@ -118,9 +119,12 @@ export function TwoFactorSetupDialog({
       ) : (
         <div className="mt-6">
           <div className="rounded-2xl border border-[rgba(45,106,71,0.20)] bg-[rgba(45,106,71,0.08)] p-4">
-            <h3 className="text-[16px] font-bold text-(--success) dark:text-(--success)">2FA is enabled</h3>
+            <h3 className="text-[16px] font-bold text-(--success) dark:text-(--success)">
+              2FA is enabled
+            </h3>
             <p className="mt-2 text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-              Save these backup codes somewhere safe. Each code can be used once if you lose access to your authenticator app.
+              Save these backup codes somewhere safe. Each code can be used once if you lose access
+              to your authenticator app.
             </p>
           </div>
 
@@ -145,17 +149,17 @@ export function TwoFactorSetupDialog({
         </div>
       )}
     </Modal>
-  )
+  );
 }
 
 interface IDisableTwoFactorDialogProps {
-  open: boolean
-  token: string
-  error: string
-  isPending: boolean
-  onTokenChange: (value: string) => void
-  onConfirm: () => void
-  onClose: () => void
+  open: boolean;
+  token: string;
+  error: string;
+  isPending: boolean;
+  onTokenChange: (value: string) => void;
+  onConfirm: () => void;
+  onClose: () => void;
 }
 
 export function DisableTwoFactorDialog({
@@ -181,15 +185,27 @@ export function DisableTwoFactorDialog({
       <h2 id="disable-two-factor-title" className="font-ui text-[24px] font-extrabold">
         Disable Two-Factor Authentication
       </h2>
-      <p id="disable-two-factor-description" className="mt-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
+      <p
+        id="disable-two-factor-description"
+        className="mt-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)"
+      >
         Enter a current 6-digit authenticator code to disable 2FA.
       </p>
 
       <div className="mt-4">
-        <TextField label="Authenticator Code" value={token} onChange={onTokenChange} placeholder="123456" />
+        <TextField
+          label="Authenticator Code"
+          value={token}
+          onChange={onTokenChange}
+          placeholder="123456"
+        />
       </div>
 
-      {error && <div className="mt-3"><InlineSecurityError message={error} /></div>}
+      {error && (
+        <div className="mt-3">
+          <InlineSecurityError message={error} />
+        </div>
+      )}
 
       <div className="mt-5 flex justify-end gap-2">
         <button
@@ -210,24 +226,24 @@ export function DisableTwoFactorDialog({
         </button>
       </div>
     </Modal>
-  )
+  );
 }
 
 interface IDeleteAccountDialogProps {
-  open: boolean
-  confirmation: string
-  currentPassword: string
-  twoFactorCode: string
-  requirePassword: boolean
-  requireTwoFactor: boolean
-  error: string
-  isPending: boolean
-  canSubmit: boolean
-  onConfirmationChange: (value: string) => void
-  onCurrentPasswordChange: (value: string) => void
-  onTwoFactorCodeChange: (value: string) => void
-  onConfirm: () => void
-  onClose: () => void
+  open: boolean;
+  confirmation: string;
+  currentPassword: string;
+  twoFactorCode: string;
+  requirePassword: boolean;
+  requireTwoFactor: boolean;
+  error: string;
+  isPending: boolean;
+  canSubmit: boolean;
+  onConfirmationChange: (value: string) => void;
+  onCurrentPasswordChange: (value: string) => void;
+  onTwoFactorCodeChange: (value: string) => void;
+  onConfirm: () => void;
+  onClose: () => void;
 }
 
 export function DeleteAccountDialog({
@@ -257,24 +273,52 @@ export function DeleteAccountDialog({
       contentClassName="max-w-120 p-6"
       overlayClassName="z-160"
     >
-      <h2 id="delete-account-title" className="font-ui text-[24px] font-extrabold text-(--danger) dark:text-(--danger)">
+      <h2
+        id="delete-account-title"
+        className="font-ui text-[24px] font-extrabold text-(--danger) dark:text-(--danger)"
+      >
         Schedule Account Deletion
       </h2>
-      <p id="delete-account-description" className="mt-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-        Type <strong>DELETE</strong> to continue. Your account will be scheduled for deletion after <strong>30 days</strong>. Signing in again during that recovery window automatically cancels the request.
+      <p
+        id="delete-account-description"
+        className="mt-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)"
+      >
+        Type <strong>DELETE</strong> to continue. Your account will be scheduled for deletion after{' '}
+        <strong>30 days</strong>. Signing in again during that recovery window automatically cancels
+        the request.
       </p>
 
       <div className="mt-4 space-y-4">
-        <TextField label="Confirmation" value={confirmation} onChange={onConfirmationChange} placeholder="DELETE" />
+        <TextField
+          label="Confirmation"
+          value={confirmation}
+          onChange={onConfirmationChange}
+          placeholder="DELETE"
+        />
         {requirePassword && (
-          <TextField label="Current Password" value={currentPassword} onChange={onCurrentPasswordChange} type="password" placeholder="Re-enter your password" />
+          <TextField
+            label="Current Password"
+            value={currentPassword}
+            onChange={onCurrentPasswordChange}
+            type="password"
+            placeholder="Re-enter your password"
+          />
         )}
         {requireTwoFactor && (
-          <TextField label="Two-Factor Code" value={twoFactorCode} onChange={onTwoFactorCodeChange} placeholder="123456" />
+          <TextField
+            label="Two-Factor Code"
+            value={twoFactorCode}
+            onChange={onTwoFactorCodeChange}
+            placeholder="123456"
+          />
         )}
       </div>
 
-      {error && <div className="mt-3"><InlineSecurityError message={error} /></div>}
+      {error && (
+        <div className="mt-3">
+          <InlineSecurityError message={error} />
+        </div>
+      )}
 
       <div className="mt-5 flex justify-end gap-2">
         <button
@@ -295,5 +339,5 @@ export function DeleteAccountDialog({
         </button>
       </div>
     </Modal>
-  )
+  );
 }

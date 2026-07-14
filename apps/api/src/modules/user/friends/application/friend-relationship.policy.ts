@@ -1,4 +1,4 @@
-import { FriendsApplicationError } from "./friends-application.error";
+import { FriendsApplicationError } from './friends-application.error';
 
 export interface IFriendRelationshipPolicy {
   ensureDifferentUsers(actorUserId: string, targetUserId: string): void;

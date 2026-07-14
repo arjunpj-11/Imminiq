@@ -1,22 +1,19 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
 
 interface ILeaderboardAppShellProps {
-  children: ReactNode
+  children: ReactNode;
   viewer?: {
-    name: string
-    initials: string
-    avatarUrl: string | null | undefined
-    streak: number
-    levelLabel: string
-  }
+    name: string;
+    initials: string;
+    avatarUrl: string | null | undefined;
+    streak: number;
+    levelLabel: string;
+  };
 }
 
-export default function LeaderboardAppShell({
-  children,
-  viewer,
-}: ILeaderboardAppShellProps) {
+export default function LeaderboardAppShell({ children, viewer }: ILeaderboardAppShellProps) {
   return (
     <AppShellBoundary
       viewer={
@@ -33,5 +30,5 @@ export default function LeaderboardAppShell({
     >
       {children}
     </AppShellBoundary>
-  )
+  );
 }

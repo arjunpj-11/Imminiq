@@ -10,5 +10,5 @@ export default function DashboardErrorState() {
         </p>
       </div>
     </div>
-  )
+  );
 }

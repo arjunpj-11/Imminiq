@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom'
+import { Link } from 'react-router-dom';
 
 import {
   BodyP,
@@ -13,10 +13,10 @@ import {
   LogoIcon,
   Section,
   TermsList,
-} from '../components/LegalShared'
+} from '../components/LegalShared';
 
-import { cn, scrollbarClass } from '../utils/legal-ui'
-import { useLegalDocumentNavigation } from '../hooks/useLegalDocumentNavigation'
+import { cn, scrollbarClass } from '../utils/legal-ui';
+import { useLegalDocumentNavigation } from '../hooks/useLegalDocumentNavigation';
 
 const TOC = [
   { id: 's1', num: '01', label: 'Acceptance of Terms' },
@@ -35,17 +35,11 @@ const TOC = [
   { id: 's14', num: '14', label: 'Governing Law & Disputes' },
   { id: 's15', num: '15', label: 'Changes to These Terms' },
   { id: 's16', num: '16', label: 'Contact Us' },
-]
+];
 
 export default function TermsPage() {
-  const {
-    activeId,
-    readPct,
-    scrollAreaRef,
-    handleBack,
-    handleTocClick,
-  } = useLegalDocumentNavigation()
-
+  const { activeId, readPct, scrollAreaRef, handleBack, handleTocClick } =
+    useLegalDocumentNavigation();
 
   return (
     <div className="h-screen overflow-hidden bg-(--surface-canvas) text-(--text-primary) font-[DM_Sans,sans-serif] dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -86,8 +80,6 @@ export default function TermsPage() {
           </div>
 
           <div className="flex shrink-0 items-center gap-2.5">
-            
-
             <button
               type="button"
               onClick={handleBack}
@@ -126,8 +118,7 @@ export default function TermsPage() {
                     <span
                       className={cn(
                         'min-w-4 shrink-0 font-mono text-[9px] text-(--border-subtle) transition dark:text-white/20',
-                        activeId === item.id &&
-                          'text-(--brand-500) dark:text-[#f5a090]'
+                        activeId === item.id && 'text-(--brand-500) dark:text-[#f5a090]'
                       )}
                     >
                       {item.num}
@@ -164,27 +155,24 @@ export default function TermsPage() {
               </h1>
 
               <p className="mb-5 max-w-160 text-[15px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                These terms govern your access to and use of Imminiq — our
-                AI-powered personalized learning platform. Please read them
-                carefully before creating an account.
+                These terms govern your access to and use of Imminiq — our AI-powered personalized
+                learning platform. Please read them carefully before creating an account.
               </p>
 
               <div className="flex flex-wrap items-center gap-4">
-                {[
-                  'Effective: 1 May 2026',
-                  'Last Updated: 10 May 2026',
-                  'Version 6.6.2',
-                ].map((item) => (
-                  <div
-                    key={item}
-                    className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-(--text-secondary) dark:text-(--text-secondary)"
-                  >
-                    <span className="text-(--brand-500) opacity-70 dark:text-(--brand-500)">
-                      <IconShield className="h-3 w-3" />
-                    </span>
-                    {item}
-                  </div>
-                ))}
+                {['Effective: 1 May 2026', 'Last Updated: 10 May 2026', 'Version 6.6.2'].map(
+                  (item) => (
+                    <div
+                      key={item}
+                      className="flex items-center gap-1.5 font-mono text-[10px] uppercase tracking-[0.06em] text-(--text-secondary) dark:text-(--text-secondary)"
+                    >
+                      <span className="text-(--brand-500) opacity-70 dark:text-(--brand-500)">
+                        <IconShield className="h-3 w-3" />
+                      </span>
+                      {item}
+                    </div>
+                  )
+                )}
               </div>
             </div>
 
@@ -215,27 +203,24 @@ export default function TermsPage() {
                   Important — Please Read Before Using Imminiq
                 </strong>
                 <p className="text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-                  By registering an account or using any part of this platform,
-                  you agree to be bound by these Terms. If you do not agree, you
-                  must not access or use Imminiq. These Terms apply to all users
-                  — free, pro, and premium.
+                  By registering an account or using any part of this platform, you agree to be
+                  bound by these Terms. If you do not agree, you must not access or use Imminiq.
+                  These Terms apply to all users — free, pro, and premium.
                 </p>
               </div>
             </div>
 
             <Section id="s1" num="01" title="Acceptance of Terms">
               <BodyP>
-                Welcome to Imminiq. These Terms of Service constitute a legally
-                binding agreement between you and Imminiq regarding your access
-                to and use of the Imminiq platform, including our website, mobile
-                applications, APIs, and associated services.
+                Welcome to Imminiq. These Terms of Service constitute a legally binding agreement
+                between you and Imminiq regarding your access to and use of the Imminiq platform,
+                including our website, mobile applications, APIs, and associated services.
               </BodyP>
 
               <BodyP>
-                By clicking <strong>Create account</strong>, completing the
-                registration process, signing in via Google or GitHub, or
-                otherwise accessing the Platform, you acknowledge that you have
-                read, understood, and agreed to these Terms and our{' '}
+                By clicking <strong>Create account</strong>, completing the registration process,
+                signing in via Google or GitHub, or otherwise accessing the Platform, you
+                acknowledge that you have read, understood, and agreed to these Terms and our{' '}
                 <Link
                   className="font-medium text-(--brand-500) underline underline-offset-4 hover:text-[#963d22] dark:text-(--brand-500) dark:hover:text-[#f5a090]"
                   to="/privacy"
@@ -246,9 +231,9 @@ export default function TermsPage() {
               </BodyP>
 
               <HighlightCard label="Quick Summary">
-                Using Imminiq means agreeing to these Terms. If you are
-                registering on behalf of an organization, you confirm that you
-                have the authority to bind that organization to these Terms.
+                Using Imminiq means agreeing to these Terms. If you are registering on behalf of an
+                organization, you confirm that you have the authority to bind that organization to
+                these Terms.
               </HighlightCard>
             </Section>
 
@@ -258,9 +243,9 @@ export default function TermsPage() {
               <TermsList
                 items={[
                   <>
-                    You must be at least <strong>13 years of age</strong>. If you
-                    are under 18, you may only use the Platform with the consent
-                    and supervision of a parent or legal guardian.
+                    You must be at least <strong>13 years of age</strong>. If you are under 18, you
+                    may only use the Platform with the consent and supervision of a parent or legal
+                    guardian.
                   </>,
                   'You must not be prohibited from using the Platform under applicable law in your jurisdiction.',
                   'You must not have had a previous account suspended or terminated by Imminiq for violations of these Terms.',
@@ -269,15 +254,15 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                We reserve the right to verify eligibility and to refuse service,
-                close accounts, and remove or edit content at our sole discretion.
+                We reserve the right to verify eligibility and to refuse service, close accounts,
+                and remove or edit content at our sole discretion.
               </BodyP>
             </Section>
 
             <Section id="s3" num="03" title="Account Registration & Security">
               <BodyP>
-                To access most features of Imminiq, you must create an account.
-                When registering, you agree to:
+                To access most features of Imminiq, you must create an account. When registering,
+                you agree to:
               </BodyP>
 
               <TermsList
@@ -286,9 +271,8 @@ export default function TermsPage() {
                   'Maintain and promptly update your account information to keep it accurate and complete.',
                   'Choose a strong password and keep it confidential. You are responsible for all activity under your account.',
                   <>
-                    Notify us immediately at{' '}
-                    <EmailLink>security@imminiq.com</EmailLink> if you suspect
-                    any unauthorized use of your account.
+                    Notify us immediately at <EmailLink>security@imminiq.com</EmailLink> if you
+                    suspect any unauthorized use of your account.
                   </>,
                   'Not share your account credentials with any third party or allow others to access your account.',
                 ]}
@@ -301,8 +285,8 @@ export default function TermsPage() {
                     Two-Factor Authentication
                   </strong>
                   <p className="m-0 text-[12.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-                    We strongly recommend enabling TOTP-based 2FA from your
-                    account settings for additional security.
+                    We strongly recommend enabling TOTP-based 2FA from your account settings for
+                    additional security.
                   </p>
                 </div>
 
@@ -312,9 +296,8 @@ export default function TermsPage() {
                     One Account Per Person
                   </strong>
                   <p className="m-0 text-[12.5px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-                    Each individual may only maintain one active Imminiq account.
-                    Creating multiple accounts to bypass restrictions is
-                    prohibited.
+                    Each individual may only maintain one active Imminiq account. Creating multiple
+                    accounts to bypass restrictions is prohibited.
                   </p>
                 </div>
               </div>
@@ -322,8 +305,8 @@ export default function TermsPage() {
 
             <Section id="s4" num="04" title="Platform Services">
               <BodyP>
-                Imminiq provides an AI-powered personalized learning platform.
-                Our core services include:
+                Imminiq provides an AI-powered personalized learning platform. Our core services
+                include:
               </BodyP>
 
               <TermsList
@@ -339,16 +322,15 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                We reserve the right to modify, suspend, or discontinue any
-                feature or service at any time, with or without notice.
+                We reserve the right to modify, suspend, or discontinue any feature or service at
+                any time, with or without notice.
               </BodyP>
             </Section>
 
             <Section id="s5" num="05" title="User Conduct & Acceptable Use">
               <BodyP>
-                You agree to use Imminiq only for lawful, educational, and
-                personal learning purposes. The following are{' '}
-                <strong>strictly prohibited</strong>:
+                You agree to use Imminiq only for lawful, educational, and personal learning
+                purposes. The following are <strong>strictly prohibited</strong>:
               </BodyP>
 
               <TermsList
@@ -366,24 +348,23 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                Violation of these conduct rules may result in immediate account
-                suspension, permanent banning, and legal action where applicable.
+                Violation of these conduct rules may result in immediate account suspension,
+                permanent banning, and legal action where applicable.
               </BodyP>
             </Section>
 
             <Section id="s6" num="06" title="Intellectual Property">
               <BodyP>
-                All content on the Platform created by or on behalf of Imminiq —
-                including platform design, interface elements, brand assets,
-                AI-generated roadmap frameworks, proprietary algorithms, lesson
-                structures, and documentation — is the exclusive property of
-                Imminiq.
+                All content on the Platform created by or on behalf of Imminiq — including platform
+                design, interface elements, brand assets, AI-generated roadmap frameworks,
+                proprietary algorithms, lesson structures, and documentation — is the exclusive
+                property of Imminiq.
               </BodyP>
 
               <BodyP>
-                You may not copy, reproduce, distribute, transmit, display, sell,
-                or create derivative works from our proprietary content without
-                express prior written permission.
+                You may not copy, reproduce, distribute, transmit, display, sell, or create
+                derivative works from our proprietary content without express prior written
+                permission.
               </BodyP>
 
               <TermsList
@@ -395,16 +376,15 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                The Imminiq name, logo, and brand identity are trademarks of
-                Imminiq. Unauthorized use of our trademarks is prohibited.
+                The Imminiq name, logo, and brand identity are trademarks of Imminiq. Unauthorized
+                use of our trademarks is prohibited.
               </BodyP>
             </Section>
 
             <Section id="s7" num="07" title="User-Generated Content">
               <BodyP>
-                You may create and share content on Imminiq, including learning
-                trackers, community posts, comments, reviews, and code
-                submissions.
+                You may create and share content on Imminiq, including learning trackers, community
+                posts, comments, reviews, and code submissions.
               </BodyP>
 
               <TermsList
@@ -417,27 +397,25 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                You are solely responsible for all User Content you submit.
-                Imminiq does not endorse or verify the accuracy of User Content.
+                You are solely responsible for all User Content you submit. Imminiq does not endorse
+                or verify the accuracy of User Content.
               </BodyP>
             </Section>
 
             <Section id="s8" num="08" title="AI Features & Limitations">
               <BodyP>
-                Imminiq uses third-party AI models to power features including
-                roadmap generation, lesson explanations, mock test creation, code
-                review, and performance analysis.
+                Imminiq uses third-party AI models to power features including roadmap generation,
+                lesson explanations, mock test creation, code review, and performance analysis.
               </BodyP>
 
               <TermsList
                 items={[
                   <>
                     <strong>
-                      AI outputs are not guaranteed to be accurate, complete, or
-                      appropriate for all use cases.
+                      AI outputs are not guaranteed to be accurate, complete, or appropriate for all
+                      use cases.
                     </strong>{' '}
-                    You should verify critical information from authoritative
-                    external sources.
+                    You should verify critical information from authoritative external sources.
                   </>,
                   'AI-generated roadmaps, test questions, and lesson content are learning aids — not substitutes for professional academic advice or certified curricula.',
                   'Your prompts and interactions with AI features may be used to improve our AI systems, subject to our Privacy Policy.',
@@ -447,49 +425,46 @@ export default function TermsPage() {
               />
 
               <HighlightCard label="Academic Integrity">
-                AI features on Imminiq are designed to support learning, not to
-                replace your own intellectual effort. You are responsible for how
-                you use AI outputs outside Imminiq.
+                AI features on Imminiq are designed to support learning, not to replace your own
+                intellectual effort. You are responsible for how you use AI outputs outside Imminiq.
               </HighlightCard>
             </Section>
 
             <Section id="s9" num="09" title="Subscriptions & Payments">
               <BodyP>
-                Imminiq offers Free, Pro, and Premium subscription tiers. Paid
-                subscriptions are billed through our payment gateway Razorpay.
+                Imminiq offers Free, Pro, and Premium subscription tiers. Paid subscriptions are
+                billed through our payment gateway Razorpay.
               </BodyP>
 
               <TermsList
                 items={[
                   <>
-                    <strong>Billing.</strong> Subscriptions are billed monthly or
-                    annually as selected at checkout.
+                    <strong>Billing.</strong> Subscriptions are billed monthly or annually as
+                    selected at checkout.
                   </>,
                   <>
-                    <strong>Auto-renewal.</strong> Subscriptions renew
-                    automatically unless you cancel before the renewal date.
+                    <strong>Auto-renewal.</strong> Subscriptions renew automatically unless you
+                    cancel before the renewal date.
                   </>,
                   <>
-                    <strong>Upgrades & Downgrades.</strong> Plan changes take
-                    effect at the next billing cycle unless upgrading.
+                    <strong>Upgrades & Downgrades.</strong> Plan changes take effect at the next
+                    billing cycle unless upgrading.
                   </>,
                   <>
-                    <strong>Cancellation.</strong> You may cancel at any time.
-                    Your subscription remains active until the end of the current
-                    billing period.
+                    <strong>Cancellation.</strong> You may cancel at any time. Your subscription
+                    remains active until the end of the current billing period.
                   </>,
                   <>
-                    <strong>Refunds.</strong> Refund requests may be submitted
-                    within 7 days of an initial purchase and are assessed case by
-                    case.
+                    <strong>Refunds.</strong> Refund requests may be submitted within 7 days of an
+                    initial purchase and are assessed case by case.
                   </>,
                   <>
-                    <strong>Taxes.</strong> Applicable taxes may be calculated
-                    and added at checkout based on your billing location.
+                    <strong>Taxes.</strong> Applicable taxes may be calculated and added at checkout
+                    based on your billing location.
                   </>,
                   <>
-                    <strong>Failed Payments.</strong> If payment continues to
-                    fail, your subscription may be downgraded to the Free tier.
+                    <strong>Failed Payments.</strong> If payment continues to fail, your
+                    subscription may be downgraded to the Free tier.
                   </>,
                 ]}
               />
@@ -497,8 +472,8 @@ export default function TermsPage() {
 
             <Section id="s10" num="10" title="Coins, Store & Rewards">
               <BodyP>
-                Imminiq operates an in-app virtual economy using Coins as a
-                non-monetary reward currency.
+                Imminiq operates an in-app virtual economy using Coins as a non-monetary reward
+                currency.
               </BodyP>
 
               <TermsList
@@ -517,16 +492,15 @@ export default function TermsPage() {
               <BodyP>Either you or Imminiq may terminate your account at any time.</BodyP>
 
               <BodyP>
-                <strong>By you:</strong> You may delete your account at any time
-                from Settings → Account → Delete Account. Deletion initiates a
-                30-day grace period during which your account is deactivated.
+                <strong>By you:</strong> You may delete your account at any time from Settings →
+                Account → Delete Account. Deletion initiates a 30-day grace period during which your
+                account is deactivated.
               </BodyP>
 
               <BodyP>
-                <strong>By Imminiq:</strong> We may suspend or terminate your
-                account without prior notice if we determine that you violated
-                these Terms, engaged in fraudulent activity, or pose a risk to
-                users or the platform.
+                <strong>By Imminiq:</strong> We may suspend or terminate your account without prior
+                notice if we determine that you violated these Terms, engaged in fraudulent
+                activity, or pose a risk to users or the platform.
               </BodyP>
 
               <TermsList
@@ -545,8 +519,8 @@ export default function TermsPage() {
             <Section id="s12" num="12" title="Disclaimers & Warranties">
               <BodyP>
                 The Platform is provided on an <strong>as is</strong> and{' '}
-                <strong>as available</strong> basis without warranties of any
-                kind, either express or implied.
+                <strong>as available</strong> basis without warranties of any kind, either express
+                or implied.
               </BodyP>
 
               <TermsList
@@ -559,17 +533,16 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                We do not warrant that learning outcomes will result from use of
-                the Platform. Educational progress depends on your individual
-                effort, consistency, and application of knowledge.
+                We do not warrant that learning outcomes will result from use of the Platform.
+                Educational progress depends on your individual effort, consistency, and application
+                of knowledge.
               </BodyP>
             </Section>
 
             <Section id="s13" num="13" title="Limitation of Liability">
               <BodyP>
-                To the fullest extent permitted by applicable law, Imminiq and
-                its officers, directors, employees, partners, and licensors shall
-                not be liable for:
+                To the fullest extent permitted by applicable law, Imminiq and its officers,
+                directors, employees, partners, and licensors shall not be liable for:
               </BodyP>
 
               <TermsList
@@ -582,36 +555,34 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                Our total aggregate liability to you shall not exceed the greater
-                of either the amount you paid to Imminiq in the 12 months
-                preceding the claim, or INR 1,000.
+                Our total aggregate liability to you shall not exceed the greater of either the
+                amount you paid to Imminiq in the 12 months preceding the claim, or INR 1,000.
               </BodyP>
             </Section>
 
             <Section id="s14" num="14" title="Governing Law & Disputes">
               <BodyP>
-                These Terms are governed by and construed in accordance with the
-                laws of India. Any disputes shall be subject to the exclusive
-                jurisdiction of the competent courts located in Kerala, India.
+                These Terms are governed by and construed in accordance with the laws of India. Any
+                disputes shall be subject to the exclusive jurisdiction of the competent courts
+                located in Kerala, India.
               </BodyP>
 
               <BodyP>
-                Before initiating formal legal proceedings, both parties agree to
-                make a good-faith effort to resolve disputes through informal
-                negotiation. Contact us at{' '}
+                Before initiating formal legal proceedings, both parties agree to make a good-faith
+                effort to resolve disputes through informal negotiation. Contact us at{' '}
                 <EmailLink>legal@imminiq.com</EmailLink>.
               </BodyP>
 
               <HighlightCard label="Users Outside India">
-                If you access Imminiq from outside India, you do so at your own
-                risk and are responsible for compliance with local laws.
+                If you access Imminiq from outside India, you do so at your own risk and are
+                responsible for compliance with local laws.
               </HighlightCard>
             </Section>
 
             <Section id="s15" num="15" title="Changes to These Terms">
               <BodyP>
-                We may update these Terms from time to time to reflect changes in
-                our services, legal requirements, or business practices.
+                We may update these Terms from time to time to reflect changes in our services,
+                legal requirements, or business practices.
               </BodyP>
 
               <TermsList
@@ -623,15 +594,15 @@ export default function TermsPage() {
               />
 
               <BodyP>
-                Your continued use of Imminiq after the effective date of
-                revised Terms constitutes your acceptance of those changes.
+                Your continued use of Imminiq after the effective date of revised Terms constitutes
+                your acceptance of those changes.
               </BodyP>
             </Section>
 
             <Section id="s16" num="16" title="Contact Us">
               <BodyP>
-                If you have any questions, concerns, or requests regarding these
-                Terms, please reach out through one of the following channels:
+                If you have any questions, concerns, or requests regarding these Terms, please reach
+                out through one of the following channels:
               </BodyP>
 
               <div className="rounded-md border border-(--border-subtle) bg-(--surface-card) p-5 shadow-[0_6px_32px_rgba(26,23,20,0.07),0_1px_6px_rgba(26,23,20,0.04)] dark:border-white/15 dark:bg-(--surface-card) dark:shadow-[0_18px_60px_rgba(0,0,0,0.45),0_0_40px_rgba(232,129,106,0.07)]">
@@ -645,8 +616,7 @@ export default function TermsPage() {
                       Legal Enquiries
                     </strong>
                     <p className="text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-                      For Terms of Service questions, legal notices, and
-                      compliance requests:{' '}
+                      For Terms of Service questions, legal notices, and compliance requests:{' '}
                       <EmailLink>legal@imminiq.com</EmailLink>
                     </p>
                   </div>
@@ -662,8 +632,8 @@ export default function TermsPage() {
                       Account & Security
                     </strong>
                     <p className="text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-                      For account access, security concerns, and suspension
-                      appeals: <EmailLink>support@imminiq.com</EmailLink>
+                      For account access, security concerns, and suspension appeals:{' '}
+                      <EmailLink>support@imminiq.com</EmailLink>
                     </p>
                   </div>
                 </div>
@@ -680,8 +650,8 @@ export default function TermsPage() {
               </h3>
 
               <p className="mx-auto mb-6 max-w-140 text-sm leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                By creating your account, you confirm you have read and agree to
-                these Terms and our Scholarly Privacy Policy.
+                By creating your account, you confirm you have read and agree to these Terms and our
+                Scholarly Privacy Policy.
               </p>
 
               <Link
@@ -721,5 +691,5 @@ export default function TermsPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

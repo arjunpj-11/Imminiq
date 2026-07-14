@@ -1,43 +1,30 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
-const optionalCleanStringSchema = (
-  maxLength: number,
-  maxMessage: string
-) =>
-  z.preprocess(
-    (value) => {
-      if (typeof value !== 'string') {
-        return value
-      }
-
-      const trimmedValue = value.trim()
-
-      return trimmedValue.length > 0 ? trimmedValue : undefined
-    },
-    z.string().max(maxLength, maxMessage).optional()
-  )
-
-const optionalUrlSchema = z.preprocess(
-  (value) => {
+const optionalCleanStringSchema = (maxLength: number, maxMessage: string) =>
+  z.preprocess((value) => {
     if (typeof value !== 'string') {
-      return value
+      return value;
     }
 
-    const trimmedValue = value.trim()
+    const trimmedValue = value.trim();
 
-    return trimmedValue.length > 0 ? trimmedValue : undefined
-  },
-  z
-    .string()
-    .url('Must be a valid URL')
-    .max(300, 'URL must not exceed 300 characters')
-    .optional()
-)
+    return trimmedValue.length > 0 ? trimmedValue : undefined;
+  }, z.string().max(maxLength, maxMessage).optional());
 
-const profileTagSchema = z.string().trim().min(1).max(40)
+const optionalUrlSchema = z.preprocess((value) => {
+  if (typeof value !== 'string') {
+    return value;
+  }
+
+  const trimmedValue = value.trim();
+
+  return trimmedValue.length > 0 ? trimmedValue : undefined;
+}, z.string().url('Must be a valid URL').max(300, 'URL must not exceed 300 characters').optional());
+
+const profileTagSchema = z.string().trim().min(1).max(40);
 
 const hasAtLeastOneDefinedValue = (payload: Record<string, unknown>) =>
-  Object.values(payload).some((value) => value !== undefined)
+  Object.values(payload).some((value) => value !== undefined);
 
 export const updateMyProfileSchema = z
   .object({
@@ -55,6 +42,6 @@ export const updateMyProfileSchema = z
   })
   .refine(hasAtLeastOneDefinedValue, {
     message: 'At least one profile field is required',
-  })
+  });
 
-export type UpdateMyProfileInput = z.infer<typeof updateMyProfileSchema>
+export type UpdateMyProfileInput = z.infer<typeof updateMyProfileSchema>;

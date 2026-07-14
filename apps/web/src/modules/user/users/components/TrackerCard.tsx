@@ -1,4 +1,4 @@
-import { cn } from '../utils/profile-ui.utils'
+import { cn } from '../utils/profile-ui.utils';
 
 /* ─── Tracker Card ─── */
 interface ITrackerCardProps {
@@ -7,7 +7,6 @@ interface ITrackerCardProps {
   rating: number;
   clones: string;
   thumbClass: string;
-  onClone: () => void;
   onClick: () => void;
 }
 
@@ -17,7 +16,6 @@ export default function TrackerCard({
   rating,
   clones,
   thumbClass,
-  onClone,
   onClick,
 }: ITrackerCardProps) {
   return (
@@ -26,29 +24,20 @@ export default function TrackerCard({
       onClick={onClick}
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => (e.key === "Enter" || e.key === " ") && onClick()}
+      onKeyDown={(e) => (e.key === 'Enter' || e.key === ' ') && onClick()}
     >
       <div
-        className={cn(
-          "h-35 relative overflow-hidden flex items-center justify-center",
-          thumbClass,
-        )}
+        className={cn('h-35 relative overflow-hidden flex items-center justify-center', thumbClass)}
       >
         <div
           className="absolute inset-0"
           style={{
             backgroundImage:
-              "repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px)",
+              'repeating-linear-gradient(0deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px),repeating-linear-gradient(90deg,transparent,transparent 28px,rgba(255,255,255,0.04) 28px,rgba(255,255,255,0.04) 29px)',
           }}
         />
         <div className="absolute top-2.5 right-2.5 flex items-center gap-1 px-2.25 py-1 rounded-full bg-[rgba(0,0,0,0.55)] backdrop-blur-sm font-mono text-[9px] text-white tracking-[0.06em]">
-          <svg
-            width="9"
-            height="9"
-            viewBox="0 0 24 24"
-            fill="var(--warning)"
-            stroke="none"
-          >
+          <svg width="9" height="9" viewBox="0 0 24 24" fill="var(--warning)" stroke="none">
             <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
           </svg>
           {rating.toFixed(1)}
@@ -61,7 +50,7 @@ export default function TrackerCard({
         <p className="text-[12px] text-(--text-secondary) dark:text-(--text-secondary) leading-normal mb-3 min-h-9">
           {desc}
         </p>
-        <div className="flex items-center justify-between gap-2.5 flex-wrap">
+        <div className="flex items-center gap-2.5 flex-wrap">
           <div className="text-[11.5px] text-(--text-secondary) dark:text-(--text-secondary) flex items-center gap-1">
             <svg
               width="12"
@@ -76,16 +65,6 @@ export default function TrackerCard({
             </svg>
             {clones} Clones
           </div>
-          <button
-            type="button"
-            className="px-4 py-1.75 rounded-lg bg-[rgba(184,76,43,0.08)] dark:bg-[rgba(232,129,106,0.09)] border-[1.5px] border-[rgba(184,76,43,0.16)] dark:border-[rgba(232,129,106,0.22)] text-[12px] font-semibold text-(--brand-500) dark:text-(--brand-500) transition hover:bg-(--brand-500) hover:text-[#fdf8f5] hover:border-(--brand-500) hover:-translate-y-px"
-            onClick={(e) => {
-              e.stopPropagation();
-              onClone();
-            }}
-          >
-            Clone
-          </button>
         </div>
       </div>
     </div>

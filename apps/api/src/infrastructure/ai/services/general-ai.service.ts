@@ -1,43 +1,55 @@
-import { ApiError } from '../../../shared/utils/ApiError'
+import { ApiError } from '../../../shared/utils/ApiError';
 
-import { geminiChat } from '../clients/gemini.client'
-import { groqChat } from '../clients/groq.client'
+import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
 import {
   buildDashboardInsightPrompt,
-  DASHBOARD_INSIGHT_SYSTEM_PROMPT,    
-} from '../prompts/dashboard-insight.prompt'
+  DASHBOARD_INSIGHT_SYSTEM_PROMPT,
+} from '../prompts/dashboard-insight.prompt';
 
 // ============================================================
 // LEGACY / GENERAL AI HELPERS
 // ============================================================
 
-export const generateRoadmap = (
-  goal: string,
-  level: string
-) =>
-  geminiChat(
-    `Generate a detailed learning roadmap for ${goal} at ${level} level`,
-    'You are an expert learning path designer.'
-  )
+export const generateRoadmap = (goal: string, level: string) =>
+  groqChat(
+    [
+      { role: 'system', content: 'You are an expert learning path designer.' },
+      {
+        role: 'user',
+        content: `Generate a detailed learning roadmap for ${goal} at ${level} level`,
+      },
+    ],
+    'llama-3.3-70b-versatile',
+    'roadmap_generation'
+  );
 
-export const detectMissingTopics = (
-  roadmap: string,
-  targetRole: string
-) =>
-  geminiChat(
-    `Compare this roadmap against ${targetRole} requirements and list missing topics: ${roadmap}`,
-    'You are a curriculum gap analyst.'
-  )
+export const detectMissingTopics = (roadmap: string, targetRole: string) =>
+  groqChat(
+    [
+      { role: 'system', content: 'You are a curriculum gap analyst.' },
+      {
+        role: 'user',
+        content: `Compare this roadmap against ${targetRole} requirements and list missing topics: ${roadmap}`,
+      },
+    ],
+    'llama-3.3-70b-versatile',
+    'roadmap_evaluation'
+  );
 
 export const analyzeTestPerformance = (results: string) =>
-  geminiChat(
-    `Analyze this test performance and identify weak areas: ${results}`,
-    'You are a learning analytics expert.'
-  )
+  groqChat(
+    [
+      { role: 'system', content: 'You are a learning analytics expert.' },
+      {
+        role: 'user',
+        content: `Analyze this test performance and identify weak areas: ${results}`,
+      },
+    ],
+    'llama-3.3-70b-versatile',
+    'mock_test_evaluation'
+  );
 
-export const generateDashboardInsights = async (
-  userData: string
-): Promise<string> => {
+export const generateDashboardInsights = async (userData: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -49,14 +61,14 @@ export const generateDashboardInsights = async (
         content: buildDashboardInsightPrompt(userData),
       },
     ],
-    'llama-3.1-8b-instant'
-  )
+    'llama-3.1-8b-instant',
+    'dashboard_insights'
+  );
 
   return (
-    response ||
-    'Focus on completing one small lesson today to keep your learning momentum strong.'
-  )
-}
+    response || 'Focus on completing one small lesson today to keep your learning momentum strong.'
+  );
+};
 
 // ============================================================
 // GROQ LLAMA 3.3 70B — CONVERSATIONAL TASKS
@@ -64,29 +76,20 @@ export const generateDashboardInsights = async (
 
 export const chatWithTutor = async (
   messages: {
-    role: 'user' | 'assistant' | 'system'
-    content: string
+    role: 'user' | 'assistant' | 'system';
+    content: string;
   }[]
 ): Promise<string> => {
-  const response = await groqChat(
-    messages,
-    'llama-3.3-70b-versatile'
-  )
+  const response = await groqChat(messages, 'llama-3.3-70b-versatile', 'ai_tutoring');
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty chat response',
-      'GROQ_EMPTY_CHAT_RESPONSE'
-    )
+    throw new ApiError(502, 'Groq returned an empty chat response', 'GROQ_EMPTY_CHAT_RESPONSE');
   }
 
-  return response
-}
+  return response;
+};
 
-export const explainTopic = async (
-  topic: string
-): Promise<string> => {
+export const explainTopic = async (topic: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -94,23 +97,22 @@ export const explainTopic = async (
         content: `Explain this topic clearly with examples: ${topic}`,
       },
     ],
-    'llama-3.3-70b-versatile'
-  )
+    'llama-3.3-70b-versatile',
+    'ai_tutoring'
+  );
 
   if (!response) {
     throw new ApiError(
       502,
       'Groq returned an empty topic explanation',
       'GROQ_EMPTY_TOPIC_EXPLANATION'
-    )
+    );
   }
 
-  return response
-}
+  return response;
+};
 
-export const explainELI5 = async (
-  topic: string
-): Promise<string> => {
+export const explainELI5 = async (topic: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -118,24 +120,18 @@ export const explainELI5 = async (
         content: `Explain this like I am 5 years old: ${topic}`,
       },
     ],
-    'llama-3.3-70b-versatile'
-  )
+    'llama-3.3-70b-versatile',
+    'ai_tutoring'
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty ELI5 explanation',
-      'GROQ_EMPTY_ELI5_RESPONSE'
-    )
+    throw new ApiError(502, 'Groq returned an empty ELI5 explanation', 'GROQ_EMPTY_ELI5_RESPONSE');
   }
 
-  return response
-}
+  return response;
+};
 
-export const generateMockQuestions = async (
-  topic: string,
-  count: number
-): Promise<string> => {
+export const generateMockQuestions = async (topic: string, count: number): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -143,24 +139,18 @@ export const generateMockQuestions = async (
         content: `Generate ${count} MCQ questions for: ${topic}. Return as JSON array.`,
       },
     ],
-    'llama-3.3-70b-versatile'
-  )
+    'llama-3.3-70b-versatile',
+    'mock_test_generation'
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned empty mock questions',
-      'GROQ_EMPTY_MOCK_QUESTIONS'
-    )
+    throw new ApiError(502, 'Groq returned empty mock questions', 'GROQ_EMPTY_MOCK_QUESTIONS');
   }
 
-  return response
-}
+  return response;
+};
 
-export const reviewCode = async (
-  code: string,
-  language: string
-): Promise<string> => {
+export const reviewCode = async (code: string, language: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -169,23 +159,16 @@ export const reviewCode = async (
       },
     ],
     'llama-3.3-70b-versatile'
-  )
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty code review',
-      'GROQ_EMPTY_CODE_REVIEW'
-    )
+    throw new ApiError(502, 'Groq returned an empty code review', 'GROQ_EMPTY_CODE_REVIEW');
   }
 
-  return response
-}
+  return response;
+};
 
-export const optimizeCode = async (
-  code: string,
-  language: string
-): Promise<string> => {
+export const optimizeCode = async (code: string, language: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -194,22 +177,20 @@ export const optimizeCode = async (
       },
     ],
     'llama-3.3-70b-versatile'
-  )
+  );
 
   if (!response) {
     throw new ApiError(
       502,
       'Groq returned an empty optimized code response',
       'GROQ_EMPTY_OPTIMIZE_RESPONSE'
-    )
+    );
   }
 
-  return response
-}
+  return response;
+};
 
-export const simplifyLesson = async (
-  content: string
-): Promise<string> => {
+export const simplifyLesson = async (content: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -218,23 +199,20 @@ export const simplifyLesson = async (
       },
     ],
     'llama-3.3-70b-versatile'
-  )
+  );
 
   if (!response) {
     throw new ApiError(
       502,
       'Groq returned an empty simplified lesson',
       'GROQ_EMPTY_SIMPLIFY_RESPONSE'
-    )
+    );
   }
 
-  return response
-}
+  return response;
+};
 
-export const generateCodeExample = async (
-  topic: string,
-  language: string
-): Promise<string> => {
+export const generateCodeExample = async (topic: string, language: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -243,26 +221,20 @@ export const generateCodeExample = async (
       },
     ],
     'llama-3.3-70b-versatile'
-  )
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty code example',
-      'GROQ_EMPTY_CODE_EXAMPLE'
-    )
+    throw new ApiError(502, 'Groq returned an empty code example', 'GROQ_EMPTY_CODE_EXAMPLE');
   }
 
-  return response
-}
+  return response;
+};
 
 // ============================================================
 // GROQ LLAMA 3.1 8B — FAST SIMPLE TASKS
 // ============================================================
 
-export const quickSummary = async (
-  content: string
-): Promise<string> => {
+export const quickSummary = async (content: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -271,22 +243,16 @@ export const quickSummary = async (
       },
     ],
     'llama-3.1-8b-instant'
-  )
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty summary',
-      'GROQ_EMPTY_SUMMARY'
-    )
+    throw new ApiError(502, 'Groq returned an empty summary', 'GROQ_EMPTY_SUMMARY');
   }
 
-  return response
-}
+  return response;
+};
 
-export const generateTopicTags = async (
-  content: string
-): Promise<string> => {
+export const generateTopicTags = async (content: string): Promise<string> => {
   const response = await groqChat(
     [
       {
@@ -295,15 +261,11 @@ export const generateTopicTags = async (
       },
     ],
     'llama-3.1-8b-instant'
-  )
+  );
 
   if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned empty topic tags',
-      'GROQ_EMPTY_TOPIC_TAGS'
-    )
+    throw new ApiError(502, 'Groq returned empty topic tags', 'GROQ_EMPTY_TOPIC_TAGS');
   }
 
-  return response
-}
+  return response;
+};

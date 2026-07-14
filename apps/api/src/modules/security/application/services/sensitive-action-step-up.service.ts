@@ -1,18 +1,18 @@
-import type { SecurityUserEntity } from '../../domain/entities/security-user.entity'
-import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface'
-import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface'
-import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
-import type { SensitiveSecurityAction } from '../../domain/security.types'
-import type { ISensitiveActionStepUpPayloadDTO } from '../security.dto'
-import { SecurityApplicationError } from '../security-application.error'
+import type { SecurityUserEntity } from '../../domain/entities/security-user.entity';
+import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface';
+import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface';
+import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface';
+import type { SensitiveSecurityAction } from '../../domain/security.types';
+import type { ISensitiveActionStepUpPayloadDTO } from '../security.dto';
+import { SecurityApplicationError } from '../security-application.error';
 
 export interface ISensitiveActionAuthorizer {
   assertSatisfied(input: {
-    user: SecurityUserEntity
-    payload: ISensitiveActionStepUpPayloadDTO
-    action: SensitiveSecurityAction
-  }): Promise<void>
+    user: SecurityUserEntity;
+    payload: ISensitiveActionStepUpPayloadDTO;
+    action: SensitiveSecurityAction;
+  }): Promise<void>;
 }
 
 export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
@@ -20,22 +20,20 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
     private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
     private readonly _twoFactorGateway: ITwoFactorGateway,
     private readonly _passwordHasher: ISecurityPasswordHasher,
-    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _securityAuditLogger: ISecurityAuditLogger
   ) {}
 
   async assertSatisfied(input: {
-    user: SecurityUserEntity
-    payload: ISensitiveActionStepUpPayloadDTO
-    action: SensitiveSecurityAction
+    user: SecurityUserEntity;
+    payload: ISensitiveActionStepUpPayloadDTO;
+    action: SensitiveSecurityAction;
   }): Promise<void> {
-    const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(
-      input.user.id,
-    )
+    const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(input.user.id);
 
     if (input.user.provider === 'local') {
-      await this.assertPasswordStepSatisfied(input)
+      await this.assertPasswordStepSatisfied(input);
     } else if (twoFactor?.status !== 'active') {
-      throw SecurityApplicationError.stepUpRequiresTwoFactorForSocialAccount()
+      throw SecurityApplicationError.stepUpRequiresTwoFactorForSocialAccount();
     }
 
     if (twoFactor?.status === 'active') {
@@ -44,30 +42,30 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
         encryptedSecret: twoFactor.totpSecretEncrypted,
         payload: input.payload,
         action: input.action,
-      })
+      });
     }
   }
 
   private async assertPasswordStepSatisfied(input: {
-    user: SecurityUserEntity
-    payload: ISensitiveActionStepUpPayloadDTO
-    action: SensitiveSecurityAction
+    user: SecurityUserEntity;
+    payload: ISensitiveActionStepUpPayloadDTO;
+    action: SensitiveSecurityAction;
   }): Promise<void> {
     if (!input.payload.currentPassword) {
-      throw SecurityApplicationError.stepUpPasswordRequired()
+      throw SecurityApplicationError.stepUpPasswordRequired();
     }
 
     if (!input.user.passwordHash) {
-      throw SecurityApplicationError.stepUpPasswordUnavailable()
+      throw SecurityApplicationError.stepUpPasswordUnavailable();
     }
 
     const validPassword = await this._passwordHasher.compare(
       input.payload.currentPassword,
-      input.user.passwordHash,
-    )
+      input.user.passwordHash
+    );
 
     if (validPassword) {
-      return
+      return;
     }
 
     await this._securityAuditLogger.record({
@@ -75,32 +73,32 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
       eventType: 'SENSITIVE_ACTION_PASSWORD_REAUTH_FAILED',
       outcome: 'failure',
       metadata: { action: input.action },
-    })
+    });
 
-    throw SecurityApplicationError.stepUpPasswordInvalid()
+    throw SecurityApplicationError.stepUpPasswordInvalid();
   }
 
   private async assertTwoFactorStepSatisfied(input: {
-    userId: string
-    encryptedSecret: string | null
-    payload: ISensitiveActionStepUpPayloadDTO
-    action: SensitiveSecurityAction
+    userId: string;
+    encryptedSecret: string | null;
+    payload: ISensitiveActionStepUpPayloadDTO;
+    action: SensitiveSecurityAction;
   }): Promise<void> {
     if (!input.payload.twoFactorCode) {
-      throw SecurityApplicationError.stepUpTwoFactorRequired()
+      throw SecurityApplicationError.stepUpTwoFactorRequired();
     }
 
     if (!input.encryptedSecret) {
-      throw SecurityApplicationError.twoFactorSecretMissing()
+      throw SecurityApplicationError.twoFactorSecretMissing();
     }
 
     const validTwoFactorCode = await this._twoFactorGateway.verifyToken({
       encryptedSecret: input.encryptedSecret,
       token: input.payload.twoFactorCode,
-    })
+    });
 
     if (validTwoFactorCode) {
-      return
+      return;
     }
 
     await this._securityAuditLogger.record({
@@ -108,8 +106,8 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
       eventType: 'SENSITIVE_ACTION_TWO_FACTOR_REAUTH_FAILED',
       outcome: 'failure',
       metadata: { action: input.action },
-    })
+    });
 
-    throw SecurityApplicationError.stepUpTwoFactorInvalid()
+    throw SecurityApplicationError.stepUpTwoFactorInvalid();
   }
 }

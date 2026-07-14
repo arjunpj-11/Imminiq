@@ -1,20 +1,16 @@
-import type { MockTestAIEvaluationEntity } from '../entities/mock-test-ai-evaluation.entity'
+import type { MockTestAIEvaluationEntity } from '../entities/mock-test-ai-evaluation.entity';
 
 export type CreateMockTestAIEvaluationInput = {
-  attemptId: string
-  questionId: string
-  answerId: string
-  score: number
-  maxScore: number
-  feedback: string
-}
+  attemptId: string;
+  questionId: string;
+  answerId: string;
+  score: number;
+  maxScore: number;
+  feedback: string;
+};
 
 export interface IMockTestAIEvaluationRepository {
-  createAIEvaluation(
-    data: CreateMockTestAIEvaluationInput
-  ): Promise<MockTestAIEvaluationEntity>
+  createAIEvaluation(data: CreateMockTestAIEvaluationInput): Promise<MockTestAIEvaluationEntity>;
 
-  findAIEvaluationsByAttempt(
-    attemptId: string
-  ): Promise<MockTestAIEvaluationEntity[]>
+  findAIEvaluationsByAttempt(attemptId: string): Promise<MockTestAIEvaluationEntity[]>;
 }

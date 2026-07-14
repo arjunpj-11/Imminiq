@@ -1,13 +1,14 @@
 export const LESSON_GENERATION_SYSTEM_PROMPT =
-  'You are Scribe AI, an expert programming tutor inside Imminiq. Return only strict valid JSON. No markdown. No extra explanation.'
+  'You are Scribe AI, an expert programming tutor inside Imminiq. Return only strict valid JSON. No markdown. No extra explanation.';
 
 export const buildLessonGenerationPrompt = (input: {
-  trackerTitle: string
-  topicTitle?: string
-  subtopicTitle: string
-  subtopicDescription?: string
-  level?: 'beginner' | 'intermediate' | 'advanced'
-}): string => `
+  trackerTitle: string;
+  topicTitle?: string;
+  subtopicTitle: string;
+  subtopicDescription?: string;
+  level?: 'beginner' | 'intermediate' | 'advanced';
+}): string =>
+  `
 Generate a full lesson for this roadmap node.
 
 Tracker:
@@ -119,4 +120,4 @@ QUALITY RULES
 - Explanation should be detailed but readable.
 - Avoid vague generic content.
 - Do not use markdown fences inside any string value.
-`.trim()
+`.trim();

@@ -1,10 +1,10 @@
-export type { LeaderboardScope } from './value-objects/leaderboard-scope.vo'
-export type { LeaderboardSection } from './value-objects/leaderboard-section.vo'
+export type { LeaderboardScope } from './value-objects/leaderboard-scope.vo';
+export type { LeaderboardSection } from './value-objects/leaderboard-section.vo';
 
 export type LeaderboardTimeRange = {
-  start: Date
-  end: Date
-}
+  start: Date;
+  end: Date;
+};
 
 export type LeaderboardXpActivitySource =
   | 'subtopic_mastery'
@@ -18,4 +18,4 @@ export type LeaderboardXpActivitySource =
   | 'student_milestone'
   | 'community_vote'
   | 'manual_adjustment'
-  | (string & {})
+  | (string & {});

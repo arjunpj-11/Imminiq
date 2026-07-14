@@ -1,24 +1,24 @@
-import { useId, type ReactNode } from 'react'
+import { useId, type ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
-import Button from '../ui/Button'
-import Modal from './Modal'
+import { cn } from '../../lib/cn';
+import Button from '../ui/Button';
+import Modal from './Modal';
 
-export type ConfirmDialogVariant = 'default' | 'danger'
+export type ConfirmDialogVariant = 'default' | 'danger';
 
 interface IConfirmDialogProps {
-  open: boolean
-  title: ReactNode
-  description?: ReactNode
-  confirmText?: ReactNode
-  cancelText?: ReactNode
-  isLoading?: boolean
-  variant?: ConfirmDialogVariant
-  icon?: ReactNode
-  header?: ReactNode
-  onConfirm: () => void
-  onClose: () => void
-  contentClassName?: string
+  open: boolean;
+  title: ReactNode;
+  description?: ReactNode;
+  confirmText?: ReactNode;
+  cancelText?: ReactNode;
+  isLoading?: boolean;
+  variant?: ConfirmDialogVariant;
+  icon?: ReactNode;
+  header?: ReactNode;
+  onConfirm: () => void;
+  onClose: () => void;
+  contentClassName?: string;
 }
 
 export default function ConfirmDialog({
@@ -35,10 +35,10 @@ export default function ConfirmDialog({
   onClose,
   contentClassName,
 }: IConfirmDialogProps) {
-  const id = useId()
-  const titleId = `confirm-title-${id}`
-  const descriptionId = description ? `confirm-description-${id}` : undefined
-  const isDanger = variant === 'danger'
+  const id = useId();
+  const titleId = `confirm-title-${id}`;
+  const descriptionId = description ? `confirm-description-${id}` : undefined;
+  const isDanger = variant === 'danger';
 
   return (
     <Modal
@@ -57,7 +57,7 @@ export default function ConfirmDialog({
               'flex h-10 w-10 shrink-0 items-center justify-center rounded-full border text-[18px]',
               isDanger
                 ? 'border-red-400/40 bg-red-500/10 text-red-500 dark:border-red-400/30 dark:text-red-400'
-                : 'border-(--border-subtle) bg-white/70 text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--brand-500)',
+                : 'border-(--border-subtle) bg-white/70 text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--brand-500)'
             )}
           >
             {icon ?? (isDanger ? '!' : '?')}
@@ -82,11 +82,7 @@ export default function ConfirmDialog({
       )}
 
       <div className="mt-5 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
-        <Button
-          variant="secondary"
-          onClick={onClose}
-          disabled={isLoading}
-        >
+        <Button variant="secondary" onClick={onClose} disabled={isLoading}>
           {cancelText}
         </Button>
         <Button
@@ -99,5 +95,5 @@ export default function ConfirmDialog({
         </Button>
       </div>
     </Modal>
-  )
+  );
 }

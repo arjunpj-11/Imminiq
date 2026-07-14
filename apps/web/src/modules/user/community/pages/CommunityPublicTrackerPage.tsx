@@ -1,9 +1,10 @@
-import { useMemo, useState } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
+import { useMemo, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 
-import CommunityErrorState from '../components/shared/CommunityErrorState'
-import CommunityLayout from '../components/shared/CommunityLayout'
-import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton'
+import CommunityErrorState from '../components/shared/CommunityErrorState';
+import CommunityLayout from '../components/shared/CommunityLayout';
+import CommunityPageSkeleton from '../components/shared/CommunityPageSkeleton';
+import CloneTrackerConfirmDialog from '../components/shared/CloneTrackerConfirmDialog';
 import {
   Avatar,
   BackIcon,
@@ -18,30 +19,27 @@ import {
   StatPill,
   TopicIcon,
   VerifiedIcon,
-} from '../components/public-tracker/CommunityPublicTrackerUi'
-import {
-  getTotalSubtopics,
-  ratingLabel,
-} from '../utils/community-tracker.utils'
-import { CheckIcon } from '../components/icons/CommunityIcons'
-import { useCloneCommunityTracker } from '../hooks/useCloneCommunityTracker'
-import { useCommunityPublicTracker } from '../hooks/useCommunityPublicTracker'
-import { useToggleCommunityReviewHelpful } from '../hooks/useToggleCommunityReviewHelpful'
-import { useToggleCommunityTrackerLike } from '../hooks/useToggleCommunityTrackerLike'
-import { useUpsertCommunityTrackerReview } from '../hooks/useUpsertCommunityTrackerReview'
-import type { ICommunityPublicTrackerDetail } from '../types/community.types'
-import { getApiErrorMessage } from '../utils/community-formatters'
-import { cn, communityPageClass } from '../utils/community-ui'
+} from '../components/public-tracker/CommunityPublicTrackerUi';
+import { getTotalSubtopics, ratingLabel } from '../utils/community-tracker.utils';
+import { CheckIcon } from '../components/icons/CommunityIcons';
+import { useCloneCommunityTracker } from '../hooks/useCloneCommunityTracker';
+import { useCommunityPublicTracker } from '../hooks/useCommunityPublicTracker';
+import { useToggleCommunityReviewHelpful } from '../hooks/useToggleCommunityReviewHelpful';
+import { useToggleCommunityTrackerLike } from '../hooks/useToggleCommunityTrackerLike';
+import { useUpsertCommunityTrackerReview } from '../hooks/useUpsertCommunityTrackerReview';
+import type { ICommunityPublicTrackerDetail } from '../types/community.types';
+import { getApiErrorMessage } from '../utils/community-formatters';
+import { cn, communityPageClass } from '../utils/community-ui';
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function CommunityPublicTrackerPage() {
-  const { trackerId } = useParams<{ trackerId: string }>()
-  const trackerQuery = useCommunityPublicTracker(trackerId)
-  const tracker = trackerQuery.data
+  const { trackerId } = useParams<{ trackerId: string }>();
+  const trackerQuery = useCommunityPublicTracker(trackerId);
+  const tracker = trackerQuery.data;
 
   if (trackerQuery.isLoading || !trackerId) {
-    return <CommunityPageSkeleton variant="browse" />
+    return <CommunityPageSkeleton variant="browse" />;
   }
 
   if (trackerQuery.isError || !tracker) {
@@ -52,101 +50,100 @@ export default function CommunityPublicTrackerPage() {
             title="Tracker unavailable"
             message={getApiErrorMessage(
               'Something went wrong loading this community tracker.',
-              trackerQuery.error,
+              trackerQuery.error
             )}
             actionLabel="Try again"
             onAction={() => void trackerQuery.refetch()}
           />
         </div>
       </CommunityLayout>
-    )
+    );
   }
 
-  return <CommunityPublicTrackerLoaded key={tracker._id} tracker={tracker} />
+  return <CommunityPublicTrackerLoaded key={tracker._id} tracker={tracker} />;
 }
 
-function CommunityPublicTrackerLoaded({
-  tracker,
-}: {
-  tracker: ICommunityPublicTrackerDetail
-}) {
-  const navigate = useNavigate()
+function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTrackerDetail }) {
+  const navigate = useNavigate();
 
-  const cloneTracker = useCloneCommunityTracker()
-  const upsertReview = useUpsertCommunityTrackerReview()
-  const toggleHelpful = useToggleCommunityReviewHelpful()
-  const toggleLike = useToggleCommunityTrackerLike()
+  const cloneTracker = useCloneCommunityTracker();
+  const upsertReview = useUpsertCommunityTrackerReview();
+  const toggleHelpful = useToggleCommunityReviewHelpful();
+  const toggleLike = useToggleCommunityTrackerLike();
 
-  const [cloned, setCloned] = useState(false)
-  const [openTopicId, setOpenTopicId] = useState(
-    () => tracker.topics[0]?._id ?? '',
-  )
-  const [reviewText, setReviewText] = useState(
-    () => tracker.myReview?.comment ?? '',
-  )
-  const [myRating, setMyRating] = useState(
-    () => tracker.myReview?.rating ?? 0,
-  )
-  const [sortBy, setSortBy] = useState<'top' | 'new'>('top')
-  const [activeHelpfulReviewId, setActiveHelpfulReviewId] = useState<string | null>(null)
+  const [cloned, setCloned] = useState(false);
+  const [cloneConfirmOpen, setCloneConfirmOpen] = useState(false);
+  const [openTopicId, setOpenTopicId] = useState(() => tracker.topics[0]?._id ?? '');
+  const [reviewText, setReviewText] = useState(() => tracker.myReview?.comment ?? '');
+  const [myRating, setMyRating] = useState(() => tracker.myReview?.rating ?? 0);
+  const [sortBy, setSortBy] = useState<'top' | 'new'>('top');
+  const [activeHelpfulReviewId, setActiveHelpfulReviewId] = useState<string | null>(null);
 
-  const totalSubtopics = useMemo(
-    () => getTotalSubtopics(tracker),
-    [tracker],
-  )
+  const totalSubtopics = useMemo(() => getTotalSubtopics(tracker), [tracker]);
 
   const sortedReviews = useMemo(() => {
-    const copy = [...tracker.reviews]
+    const copy = [...tracker.reviews];
 
     if (sortBy === 'top') {
-      copy.sort((first, second) => second.helpfulCount - first.helpfulCount)
+      copy.sort((first, second) => second.helpfulCount - first.helpfulCount);
     } else {
       copy.sort((first, second) => {
-        const secondDate = new Date(second.createdAt ?? '').getTime()
-        const firstDate = new Date(first.createdAt ?? '').getTime()
+        const secondDate = new Date(second.createdAt ?? '').getTime();
+        const firstDate = new Date(first.createdAt ?? '').getTime();
 
-        return (Number.isNaN(secondDate) ? 0 : secondDate) -
-          (Number.isNaN(firstDate) ? 0 : firstDate)
-      })
+        return (
+          (Number.isNaN(secondDate) ? 0 : secondDate) - (Number.isNaN(firstDate) ? 0 : firstDate)
+        );
+      });
     }
 
-    return copy
-  }, [tracker.reviews, sortBy])
+    return copy;
+  }, [tracker.reviews, sortBy]);
 
-  const isCloned = cloned || tracker.inDashboard
-  const likeCount = tracker.likes
-  const cloneCount = tracker.clones + (cloned ? 1 : 0)
-  const ratingSummary = tracker.ratingSummary
-  const liveTotal = ratingSummary.count
+  const isCloned = cloned || tracker.inDashboard;
+  const likeCount = tracker.likes;
+  const cloneCount = tracker.clones + (cloned ? 1 : 0);
+  const ratingSummary = tracker.ratingSummary;
+  const liveTotal = ratingSummary.count;
 
   const handleLike = () => {
     if (toggleLike.isPending) {
-      return
+      return;
     }
 
     toggleLike.mutate({
       trackerId: tracker._id,
-    })
-  }
+    });
+  };
 
   const handleClone = () => {
     if (isCloned || cloneTracker.isPending) {
-      return
+      return;
     }
+
+    setCloneConfirmOpen(true);
+  };
+
+  const confirmClone = () => {
+    if (isCloned || cloneTracker.isPending) return;
 
     cloneTracker.mutate(
       { trackerId: tracker._id },
       {
-        onSuccess: () => setCloned(true),
-      },
-    )
-  }
+        onSuccess: () => {
+          setCloned(true);
+          setCloneConfirmOpen(false);
+        },
+        onError: () => setCloneConfirmOpen(false),
+      }
+    );
+  };
 
   const handleSubmitReview = () => {
-    const comment = reviewText.trim()
+    const comment = reviewText.trim();
 
     if (!comment || myRating === 0 || upsertReview.isPending) {
-      return
+      return;
     }
 
     upsertReview.mutate(
@@ -157,20 +154,20 @@ function CommunityPublicTrackerLoaded({
       },
       {
         onSuccess: () => {
-          setReviewText('')
-          setMyRating(0)
-          setSortBy('new')
+          setReviewText('');
+          setMyRating(0);
+          setSortBy('new');
         },
-      },
-    )
-  }
+      }
+    );
+  };
 
   const handleHelpful = (reviewId: string) => {
     if (toggleHelpful.isPending) {
-      return
+      return;
     }
 
-    setActiveHelpfulReviewId(reviewId)
+    setActiveHelpfulReviewId(reviewId);
     toggleHelpful.mutate(
       {
         trackerId: tracker._id,
@@ -178,9 +175,9 @@ function CommunityPublicTrackerLoaded({
       },
       {
         onSettled: () => setActiveHelpfulReviewId(null),
-      },
-    )
-  }
+      }
+    );
+  };
 
   return (
     <CommunityLayout>
@@ -230,7 +227,10 @@ function CommunityPublicTrackerLoaded({
 
                 <div className="mt-5 flex flex-wrap gap-2">
                   {tracker.tags.map((tag) => (
-                    <span key={tag} className="rounded-full border border-(--border-subtle) bg-white/65 px-3 py-1 text-[11px] font-semibold text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary)">
+                    <span
+                      key={tag}
+                      className="rounded-full border border-(--border-subtle) bg-white/65 px-3 py-1 text-[11px] font-semibold text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary)"
+                    >
                       #{tag}
                     </span>
                   ))}
@@ -245,15 +245,11 @@ function CommunityPublicTrackerLoaded({
                       'inline-flex items-center gap-2 rounded-md border-[1.5px] px-4 py-2.5 text-[13px] font-bold transition disabled:cursor-not-allowed disabled:opacity-60',
                       tracker.likedByMe
                         ? 'border-[rgba(184,76,43,0.28)] bg-[rgba(184,76,43,0.10)] text-(--brand-500) dark:border-[rgba(232,129,106,0.25)] dark:text-(--brand-500)'
-                        : 'border-(--border-subtle) bg-white/60 text-(--text-secondary) hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)',
+                        : 'border-(--border-subtle) bg-white/60 text-(--text-secondary) hover:border-[rgba(184,76,43,0.25)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-white/4 dark:text-(--text-secondary) dark:hover:text-(--brand-500)'
                     )}
                   >
                     <HeartIcon filled={tracker.likedByMe} />
-                    {toggleLike.isPending
-                      ? 'Saving...'
-                      : tracker.likedByMe
-                        ? 'Liked'
-                        : 'Like'}
+                    {toggleLike.isPending ? 'Saving...' : tracker.likedByMe ? 'Liked' : 'Like'}
                   </button>
 
                   <button
@@ -275,7 +271,7 @@ function CommunityPublicTrackerLoaded({
                   <p className="mt-3 text-[12px] font-medium text-(--brand-500) dark:text-(--brand-500)">
                     {getApiErrorMessage(
                       'Unable to update like. Please try again.',
-                      toggleLike.error,
+                      toggleLike.error
                     )}
                   </p>
                 )}
@@ -284,7 +280,7 @@ function CommunityPublicTrackerLoaded({
                   <p className="mt-3 text-[12px] font-medium text-(--brand-500) dark:text-(--brand-500)">
                     {getApiErrorMessage(
                       'Unable to clone tracker. Please try again.',
-                      cloneTracker.error,
+                      cloneTracker.error
                     )}
                   </p>
                 )}
@@ -292,11 +288,33 @@ function CommunityPublicTrackerLoaded({
 
               <aside className="rounded-lg border border-[#e8ddd6] bg-white/60 p-4 dark:border-white/8 dark:bg-white/4">
                 <div className="mb-4 flex items-center gap-3">
-                  <Avatar initials={tracker.author.initials} size="lg" accent />
+                  <button
+                    type="button"
+                    disabled={!tracker.author.username}
+                    onClick={() =>
+                      tracker.author.username && navigate(`/profile/${tracker.author.username}`)
+                    }
+                    aria-label={`Open ${tracker.author.name}'s profile`}
+                    className="rounded-xl transition hover:ring-2 hover:ring-(--brand-500)/30 disabled:cursor-default"
+                  >
+                    <Avatar
+                      initials={tracker.author.initials}
+                      avatarUrl={tracker.author.avatarUrl}
+                      size="lg"
+                      accent
+                    />
+                  </button>
                   <div>
-                    <p className="text-[13px] font-bold text-(--text-primary) dark:text-(--text-primary)">
+                    <button
+                      type="button"
+                      disabled={!tracker.author.username}
+                      onClick={() =>
+                        tracker.author.username && navigate(`/profile/${tracker.author.username}`)
+                      }
+                      className="text-left text-[13px] font-bold text-(--text-primary) transition hover:text-(--brand-500) disabled:cursor-default dark:text-(--text-primary)"
+                    >
                       {tracker.author.name}
-                    </p>
+                    </button>
                     <p className="font-mono text-[8px] uppercase tracking-widest text-[#9b9a92]">
                       {tracker.author.role}
                     </p>
@@ -304,10 +322,26 @@ function CommunityPublicTrackerLoaded({
                 </div>
 
                 <div className="grid grid-cols-2 gap-2.5">
-                  <StatPill icon={<StarIcon filled />} label="Rating" value={ratingSummary.average.toFixed(1)} />
-                  <StatPill icon={<CopyIcon />} label="Clones" value={cloneCount.toLocaleString()} />
-                  <StatPill icon={<HeartIcon filled />} label="Likes" value={likeCount.toLocaleString()} />
-                  <StatPill icon={<MessageIcon />} label="Reviews" value={ratingSummary.count.toString()} />
+                  <StatPill
+                    icon={<StarIcon filled />}
+                    label="Rating"
+                    value={ratingSummary.average.toFixed(1)}
+                  />
+                  <StatPill
+                    icon={<CopyIcon />}
+                    label="Clones"
+                    value={cloneCount.toLocaleString()}
+                  />
+                  <StatPill
+                    icon={<HeartIcon filled />}
+                    label="Likes"
+                    value={likeCount.toLocaleString()}
+                  />
+                  <StatPill
+                    icon={<MessageIcon />}
+                    label="Reviews"
+                    value={ratingSummary.count.toString()}
+                  />
                 </div>
 
                 <div className="mt-3 rounded-xl border border-[#e8ddd6] bg-(--surface-card)/70 px-3.5 py-3 dark:border-white/8 dark:bg-(--surface-card)/70">
@@ -345,13 +379,18 @@ function CommunityPublicTrackerLoaded({
 
             <div className="space-y-2.5">
               {tracker.topics.map((topic, index) => {
-                const isOpen = openTopicId === topic._id
+                const isOpen = openTopicId === topic._id;
 
                 return (
-                  <div key={topic._id} className="overflow-hidden rounded-2xl border border-[#e8ddd6] bg-white/55 dark:border-white/8 dark:bg-white/3">
+                  <div
+                    key={topic._id}
+                    className="overflow-hidden rounded-2xl border border-[#e8ddd6] bg-white/55 dark:border-white/8 dark:bg-white/3"
+                  >
                     <button
                       type="button"
-                      onClick={() => setOpenTopicId((current) => (current === topic._id ? '' : topic._id))}
+                      onClick={() =>
+                        setOpenTopicId((current) => (current === topic._id ? '' : topic._id))
+                      }
                       className="flex w-full items-start justify-between gap-4 px-4 py-4 text-left transition hover:bg-[rgba(184,76,43,0.04)] dark:hover:bg-[rgba(232,129,106,0.05)]"
                     >
                       <div className="flex gap-3">
@@ -376,7 +415,10 @@ function CommunityPublicTrackerLoaded({
                       <div className="border-t border-[#e8ddd6] px-4 py-3.5 dark:border-white/8">
                         <div className="space-y-2">
                           {topic.subtopics.map((subtopic) => (
-                            <div key={subtopic._id} className="rounded-xl border border-[#e8ddd6] bg-(--surface-card)/70 px-4 py-3 dark:border-white/8 dark:bg-(--surface-card)/70">
+                            <div
+                              key={subtopic._id}
+                              className="rounded-xl border border-[#e8ddd6] bg-(--surface-card)/70 px-4 py-3 dark:border-white/8 dark:bg-(--surface-card)/70"
+                            >
                               <div>
                                 <h4 className="text-[12.5px] font-bold text-(--text-primary) dark:text-(--text-primary)">
                                   {subtopic.title}
@@ -391,7 +433,7 @@ function CommunityPublicTrackerLoaded({
                       </div>
                     )}
                   </div>
-                )
+                );
               })}
             </div>
           </div>
@@ -460,7 +502,7 @@ function CommunityPublicTrackerLoaded({
                       'px-3 py-1.5 font-mono text-[8px] uppercase tracking-widest transition',
                       sortBy === option
                         ? 'bg-(--brand-500) text-white dark:bg-(--brand-500) dark:text-[#141412]'
-                        : 'text-[#9b9a92] hover:text-(--text-secondary) dark:hover:text-[#c8c5be]',
+                        : 'text-[#9b9a92] hover:text-(--text-secondary) dark:hover:text-[#c8c5be]'
                     )}
                   >
                     {option}
@@ -540,7 +582,7 @@ function CommunityPublicTrackerLoaded({
                     {upsertReview.isError
                       ? getApiErrorMessage(
                           'Unable to submit review. Please try again.',
-                          upsertReview.error,
+                          upsertReview.error
                         )
                       : myRating === 0
                         ? 'Select a star rating to enable submit.'
@@ -590,6 +632,15 @@ function CommunityPublicTrackerLoaded({
           </div>
         </section>
       </div>
+      <CloneTrackerConfirmDialog
+        open={cloneConfirmOpen}
+        trackerTitle={tracker.title}
+        isLoading={cloneTracker.isPending}
+        onConfirm={confirmClone}
+        onClose={() => {
+          if (!cloneTracker.isPending) setCloneConfirmOpen(false);
+        }}
+      />
     </CommunityLayout>
-  )
+  );
 }

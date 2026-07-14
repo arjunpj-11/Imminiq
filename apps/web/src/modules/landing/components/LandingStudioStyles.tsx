@@ -22,5 +22,5 @@ export default function LandingStudioStyles() {
         .landing-reveal, .landing-marquee-track, .landing-pulse-orb, .landing-float, .landing-float-delayed, .landing-loader-word, .landing-loader-orb { animation: none !important; opacity: 1 !important; transform: none !important; }
       }
     `}</style>
-  )
+  );
 }

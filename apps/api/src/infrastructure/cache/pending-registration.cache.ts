@@ -1,10 +1,10 @@
-import { redis } from '../../config/redis'
+import { redis } from '../../config/redis';
 
-const PENDING_REGISTRATION_PREFIX = 'pending-registration'
+const PENDING_REGISTRATION_PREFIX = 'pending-registration';
 
 const keyFor = (identifier: string) => {
-  return `${PENDING_REGISTRATION_PREFIX}:${identifier.trim().toLowerCase()}`
-}
+  return `${PENDING_REGISTRATION_PREFIX}:${identifier.trim().toLowerCase()}`;
+};
 
 export const pendingRegistrationCache = {
   async save(
@@ -12,23 +12,18 @@ export const pendingRegistrationCache = {
     serializedRegistration: string,
     ttlSeconds: number
   ): Promise<void> {
-    await redis.set(
-      keyFor(identifier),
-      serializedRegistration,
-      'EX',
-      ttlSeconds
-    )
+    await redis.set(keyFor(identifier), serializedRegistration, 'EX', ttlSeconds);
   },
 
   async get(identifier: string): Promise<string | null> {
-    return redis.get(keyFor(identifier))
+    return redis.get(keyFor(identifier));
   },
 
   async exists(identifier: string): Promise<boolean> {
-    return (await redis.exists(keyFor(identifier))) === 1
+    return (await redis.exists(keyFor(identifier))) === 1;
   },
 
   async delete(identifier: string): Promise<void> {
-    await redis.del(keyFor(identifier))
+    await redis.del(keyFor(identifier));
   },
-}
+};

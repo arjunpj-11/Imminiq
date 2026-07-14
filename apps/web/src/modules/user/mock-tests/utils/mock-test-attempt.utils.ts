@@ -2,15 +2,15 @@ import type {
   IMockTestCodeRunResponse,
   MockTestCodingLanguage,
   IPublicMockTestQuestion,
-} from '../types/mock-tests.types'
+} from '../types/mock-tests.types';
 
-export type Confidence = 'low' | 'medium' | 'high' | null
+export type Confidence = 'low' | 'medium' | 'high' | null;
 
 export interface ICompilerLanguageOption {
-  label: string
-  value: MockTestCodingLanguage
-  fileName: string
-  languageId: number
+  label: string;
+  value: MockTestCodingLanguage;
+  fileName: string;
+  languageId: number;
 }
 
 export const COMPILER_LANGUAGES: ICompilerLanguageOption[] = [
@@ -20,37 +20,32 @@ export const COMPILER_LANGUAGES: ICompilerLanguageOption[] = [
   { label: 'Java', value: 'java', fileName: 'Main.java', languageId: 62 },
   { label: 'C++', value: 'cpp', fileName: 'main.cpp', languageId: 54 },
   { label: 'C', value: 'c', fileName: 'main.c', languageId: 50 },
-]
+];
 
-export const findCompilerLanguage = (
-  language?: string | null,
-): ICompilerLanguageOption =>
-  COMPILER_LANGUAGES.find((item) => item.value === language) ??
-  COMPILER_LANGUAGES[0]
+export const findCompilerLanguage = (language?: string | null): ICompilerLanguageOption =>
+  COMPILER_LANGUAGES.find((item) => item.value === language) ?? COMPILER_LANGUAGES[0];
 
 export const formatJsonValue = (value: unknown) => {
-  if (typeof value === 'string') return value
+  if (typeof value === 'string') return value;
 
   try {
-    return JSON.stringify(value, null, 2)
+    return JSON.stringify(value, null, 2);
   } catch {
-    return String(value)
+    return String(value);
   }
-}
+};
 
 export const getStarterCode = (
   question: IPublicMockTestQuestion | undefined,
-  language: MockTestCodingLanguage,
+  language: MockTestCodingLanguage
 ) => {
-  if (!question?.coding) return ''
+  if (!question?.coding) return '';
 
-  return question.coding.templates?.[language] || question.coding.starterCode || ''
-}
+  return question.coding.templates?.[language] || question.coding.starterCode || '';
+};
 
-export const buildCompilerOutput = (
-  data?: IMockTestCodeRunResponse | null,
-) => {
-  if (!data) return '> Ready to run your code'
+export const buildCompilerOutput = (data?: IMockTestCodeRunResponse | null) => {
+  if (!data) return '> Ready to run your code';
 
   return [
     data.stdout ? `STDOUT:\n${data.stdout}` : '',
@@ -61,5 +56,5 @@ export const buildCompilerOutput = (
     `TEST CASES: ${data.passedCount}/${data.totalCount} passed`,
   ]
     .filter(Boolean)
-    .join('\n\n')
-}
+    .join('\n\n');
+};

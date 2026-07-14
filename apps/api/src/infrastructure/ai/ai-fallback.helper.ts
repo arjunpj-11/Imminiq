@@ -1,93 +1,192 @@
-import {
-  gemini31FlashLiteChat,
-  geminiChat,
-  geminiFlashLiteChat,
-} from './clients/gemini.client'
+import { cerebrasChat } from './clients/cerebras.client';
+import { gemini31FlashLiteChat, geminiChat, geminiFlashLiteChat } from './clients/gemini.client';
+import { groqChat } from './clients/groq.client';
+import type { AITokenUsageCategory } from './ai-token-usage';
 
-// ============================================================
-// AI FALLBACK HELPERS
-// ============================================================
+export type AIChatMessage = {
+  role: 'user' | 'assistant' | 'system';
+  content: string;
+};
 
-export const shouldFallbackFromProvider = (
-  error: unknown
-): boolean => {
-  if (!error || typeof error !== 'object') {
-    return false
-  }
+type AIProvider<T> = {
+  name: string;
+  generate: () => Promise<T | null>;
+};
+
+export const shouldFallbackFromProvider = (error: unknown): boolean => {
+  if (!error || typeof error !== 'object') return false;
 
   const possibleError = error as {
-    status?: number
-    statusCode?: number
-    message?: string
-  }
-
-  const message =
-    possibleError.message?.toLowerCase() || ''
+    status?: number;
+    statusCode?: number;
+    code?: string | number;
+    message?: string;
+  };
+  const status = possibleError.status ?? possibleError.statusCode;
+  const message = possibleError.message?.toLowerCase() || '';
 
   return (
-    possibleError.status === 429 ||
-    possibleError.statusCode === 429 ||
-    possibleError.status === 503 ||
-    possibleError.statusCode === 503 ||
-    possibleError.status === 500 ||
-    possibleError.statusCode === 500 ||
+    status === 408 ||
+    status === 429 ||
+    (typeof status === 'number' && status >= 500) ||
+    possibleError.code === 'ETIMEDOUT' ||
+    possibleError.code === 'ECONNRESET' ||
     message.includes('429') ||
-    message.includes('503') ||
-    message.includes('500') ||
     message.includes('resource_exhausted') ||
     message.includes('quota') ||
     message.includes('rate limit') ||
     message.includes('high demand') ||
     message.includes('service unavailable') ||
-    message.includes('unavailable') ||
     message.includes('temporarily unavailable') ||
-    message.includes('overloaded')
-  )
-}
+    message.includes('overloaded') ||
+    message.includes('timed out') ||
+    message.includes('timeout') ||
+    message.includes('empty response')
+  );
+};
 
-export const heavyAIChatWithFallback = async (
+const runFallbackChain = async <T>(providers: AIProvider<T>[]): Promise<T> => {
+  let lastError: unknown;
+
+  for (const [index, provider] of providers.entries()) {
+    try {
+      const response = await provider.generate();
+      if (response === null || response === undefined) {
+        throw new Error(`${provider.name} returned an empty response`);
+      }
+      if (typeof response === 'string' && !response.trim()) {
+        throw new Error(`${provider.name} returned an empty response`);
+      }
+      return response;
+    } catch (error) {
+      lastError = error;
+      const hasFallback = index < providers.length - 1;
+      if (!hasFallback || !shouldFallbackFromProvider(error)) throw error;
+      console.warn(
+        `[AI fallback] ${provider.name} is unavailable; trying ${providers[index + 1].name}.`
+      );
+    }
+  }
+
+  throw lastError ?? new Error('No AI provider was available');
+};
+
+const toPrompt = (messages: AIChatMessage[]) => {
+  const system =
+    messages
+      .filter((message) => message.role === 'system')
+      .map((message) => message.content)
+      .join('\n\n') || undefined;
+  const prompt = messages
+    .filter((message) => message.role !== 'system')
+    .map((message) => `${message.role === 'assistant' ? 'Assistant' : 'User'}: ${message.content}`)
+    .join('\n\n');
+
+  return { prompt, system };
+};
+
+const getEconomyProviders = (
+  messages: AIChatMessage[],
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile',
+  category: AITokenUsageCategory
+): AIProvider<string>[] => {
+  const alternateGroqModel =
+    primaryGroqModel === 'llama-3.1-8b-instant'
+      ? 'llama-3.3-70b-versatile'
+      : 'llama-3.1-8b-instant';
+  const { prompt, system } = toPrompt(messages);
+
+  return [
+    {
+      name: `Groq ${primaryGroqModel}`,
+      generate: () => groqChat(messages, primaryGroqModel, category),
+    },
+    {
+      name: 'Gemini 3.1 Flash-Lite',
+      generate: () => gemini31FlashLiteChat(prompt, system, category),
+    },
+    {
+      name: `Groq ${alternateGroqModel}`,
+      generate: () => groqChat(messages, alternateGroqModel, category),
+    },
+    { name: 'Cerebras Qwen 3', generate: () => cerebrasChat(prompt, system, category) },
+  ];
+};
+
+/**
+ * For chat, lessons, tests, insights, verification, and other non-tracker work.
+ * The two premium Gemini models are deliberately absent from this chain.
+ */
+export const economyAIChatWithFallback = async (
+  messages: AIChatMessage[],
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
+  category: AITokenUsageCategory = 'other'
+): Promise<string> => {
+  return runFallbackChain(getEconomyProviders(messages, primaryGroqModel, category));
+};
+
+/** Validates each model response before accepting it, so invalid JSON/schema
+ * output falls through to the next economical model instead of causing a 502. */
+export const economyAIStructuredWithFallback = async <T>(
+  messages: AIChatMessage[],
+  parseResponse: (response: string) => T,
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
+  category: AITokenUsageCategory = 'other'
+): Promise<T> =>
+  runFallbackChain(
+    getEconomyProviders(messages, primaryGroqModel, category).map((provider) => ({
+      name: provider.name,
+      generate: async () => {
+        const response = await provider.generate();
+        if (!response?.trim()) {
+          throw new Error(`${provider.name} returned an empty response`);
+        }
+        return parseResponse(response);
+      },
+    }))
+  );
+
+/**
+ * Reserved for creating/evaluating tracker roadmaps. It exhausts all five
+ * configured model options before reporting a quota/provider failure.
+ */
+export const trackerAIChatWithFallback = async (
   prompt: string,
   system: string,
-  cerebrasFallback: (
+  cerebrasStructuredFallback: (
     prompt: string,
-    system?: string
-  ) => Promise<string>
-): Promise<string> => {
-  try {
-    return await geminiChat(prompt, system)
-  } catch (geminiFlashError) {
-    if (!shouldFallbackFromProvider(geminiFlashError)) {
-      throw geminiFlashError
-    }
+    system?: string,
+    category?: AITokenUsageCategory
+  ) => Promise<string>,
+  category: AITokenUsageCategory = 'other'
+): Promise<string> =>
+  runFallbackChain([
+    { name: 'Gemini 2.5 Flash', generate: () => geminiChat(prompt, system, category) },
+    {
+      name: 'Gemini 2.5 Flash-Lite',
+      generate: () => geminiFlashLiteChat(prompt, system, category),
+    },
+    {
+      name: 'Gemini 3.1 Flash-Lite',
+      generate: () => gemini31FlashLiteChat(prompt, system, category),
+    },
+    {
+      name: 'Cerebras Qwen 3',
+      generate: () => cerebrasStructuredFallback(prompt, system, category),
+    },
+    {
+      name: 'Groq Llama 3.3 70B',
+      generate: () =>
+        groqChat(
+          [
+            { role: 'system', content: system },
+            { role: 'user', content: prompt },
+          ],
+          'llama-3.3-70b-versatile',
+          category
+        ),
+    },
+  ]);
 
-    console.warn(
-      '⚠️ Gemini 2.5 Flash unavailable or quota-limited. Trying Gemini 2.5 Flash-Lite.'
-    )
-  }
-
-  try {
-    return await geminiFlashLiteChat(prompt, system)
-  } catch (geminiFlashLiteError) {
-    if (!shouldFallbackFromProvider(geminiFlashLiteError)) {
-      throw geminiFlashLiteError
-    }
-
-    console.warn(
-      '⚠️ Gemini 2.5 Flash-Lite unavailable or quota-limited. Trying Gemini 3.1 Flash-Lite.'
-    )
-  }
-
-  try {
-    return await gemini31FlashLiteChat(prompt, system)
-  } catch (gemini31FlashLiteError) {
-    if (!shouldFallbackFromProvider(gemini31FlashLiteError)) {
-      throw gemini31FlashLiteError
-    }
-
-    console.warn(
-      '⚠️ Gemini 3.1 Flash-Lite unavailable or quota-limited. Falling back to Cerebras structured output.'
-    )
-  }
-
-  return cerebrasFallback(prompt, system)
-}
+// Backwards-compatible name for tracker-only callers.
+export const heavyAIChatWithFallback = trackerAIChatWithFallback;

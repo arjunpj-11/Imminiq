@@ -1,4 +1,1 @@
-export {
-  MongoUsersRepository,
-  mongoUsersRepository,
-} from './repositories/mongo-users.repository'
+export { MongoUsersRepository, mongoUsersRepository } from './repositories/mongo-users.repository';

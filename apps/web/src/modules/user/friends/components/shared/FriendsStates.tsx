@@ -1,4 +1,4 @@
-import { AlertIcon, SpinnerIcon } from "../icons/FriendsIcons";
+import { AlertIcon, SpinnerIcon } from '../icons/FriendsIcons';
 
 interface IEmptyStateProps {
   title: string;
@@ -22,7 +22,7 @@ interface IErrorStateProps {
 }
 
 export const FriendsErrorState = ({
-  message = "We could not load your friends right now.",
+  message = 'We could not load your friends right now.',
   onRetry,
 }: IErrorStateProps) => (
   <div
@@ -32,9 +32,7 @@ export const FriendsErrorState = ({
     <div className="mx-auto flex h-10 w-10 items-center justify-center rounded-full bg-[rgba(217,69,53,0.1)] text-(--danger) dark:text-(--danger)">
       <AlertIcon />
     </div>
-    <p className="mt-3 font-ui text-[18px] font-extrabold">
-      Something went wrong
-    </p>
+    <p className="mt-3 font-ui text-[18px] font-extrabold">Something went wrong</p>
     <p className="mx-auto mt-2 max-w-md text-[13px] leading-6 text-(--text-secondary) dark:text-(--text-secondary)">
       {message}
     </p>
@@ -50,11 +48,7 @@ export const FriendsErrorState = ({
   </div>
 );
 
-export const FriendsActionError = ({
-  message,
-}: {
-  message?: string | undefined;
-}) => {
+export const FriendsActionError = ({ message }: { message?: string | undefined }) => {
   if (!message) return null;
 
   return (
@@ -71,7 +65,7 @@ export const FriendsActionError = ({
 export const FriendsLoadMoreButton = ({
   loading,
   onClick,
-  label = "Load more",
+  label = 'Load more',
 }: {
   loading: boolean;
   onClick: () => void;
@@ -84,22 +78,16 @@ export const FriendsLoadMoreButton = ({
     className="mx-auto inline-flex min-h-10 items-center justify-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-5 py-2.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.3)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-55 dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
   >
     {loading && <SpinnerIcon className="animate-spin" />}
-    {loading ? "Loading…" : label}
+    {loading ? 'Loading…' : label}
   </button>
 );
 
 const SkeletonBlock = ({ className }: { className: string }) => (
-  <div
-    className={`animate-pulse rounded-xl bg-[#e8ddd6] dark:bg-white/8 ${className}`}
-  />
+  <div className={`animate-pulse rounded-xl bg-[#e8ddd6] dark:bg-white/8 ${className}`} />
 );
 
 export const FriendsListSkeleton = ({ count = 4 }: { count?: number }) => (
-  <div
-    className="grid gap-3 sm:grid-cols-2"
-    role="status"
-    aria-label="Loading friends"
-  >
+  <div className="grid gap-3 sm:grid-cols-2" role="status" aria-label="Loading friends">
     {Array.from({ length: count }).map((_, index) => (
       <div
         key={index}

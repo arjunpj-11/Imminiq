@@ -1,12 +1,10 @@
-import type { DashboardBattleEntity } from '../entities/dashboard-battle.entity'
+import type { DashboardBattleEntity } from '../entities/dashboard-battle.entity';
 
 export type GetRecentBattlesInput = {
-  userId: string
-  limit?: number
-}
+  userId: string;
+  limit?: number;
+};
 
 export interface IDashboardBattleRepository {
-  getRecentBattles(
-    input: GetRecentBattlesInput
-  ): Promise<DashboardBattleEntity[]>
+  getRecentBattles(input: GetRecentBattlesInput): Promise<DashboardBattleEntity[]>;
 }

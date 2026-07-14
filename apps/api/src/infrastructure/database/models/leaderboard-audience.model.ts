@@ -1,10 +1,10 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ILeaderboardAudienceDocument extends Document {
-  userId: mongoose.Types.ObjectId
-  friendUserIds: mongoose.Types.ObjectId[]
-  createdAt: Date
-  updatedAt: Date
+  userId: mongoose.Types.ObjectId;
+  friendUserIds: mongoose.Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const leaderboardAudienceSchema = new Schema<ILeaderboardAudienceDocument>(
@@ -22,8 +22,8 @@ const leaderboardAudienceSchema = new Schema<ILeaderboardAudienceDocument>(
   },
   {
     timestamps: true,
-  },
-)
+  }
+);
 
 leaderboardAudienceSchema.index(
   {
@@ -31,12 +31,9 @@ leaderboardAudienceSchema.index(
   },
   {
     unique: true,
-  },
-)
+  }
+);
 
 export const LeaderboardAudience =
   mongoose.models.LeaderboardAudience ||
-  mongoose.model<ILeaderboardAudienceDocument>(
-    'LeaderboardAudience',
-    leaderboardAudienceSchema,
-  )
+  mongoose.model<ILeaderboardAudienceDocument>('LeaderboardAudience', leaderboardAudienceSchema);

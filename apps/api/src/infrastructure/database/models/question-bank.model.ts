@@ -1,4 +1,4 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const codingTestCaseSchema = new Schema(
   {
@@ -23,8 +23,8 @@ const codingTestCaseSchema = new Schema(
       default: undefined,
     },
   },
-  { _id: false },
-)
+  { _id: false }
+);
 
 const codingSchema = new Schema(
   {
@@ -113,8 +113,8 @@ const codingSchema = new Schema(
       default: [],
     },
   },
-  { _id: false },
-)
+  { _id: false }
+);
 
 const questionBankSchema = new Schema(
   {
@@ -177,11 +177,10 @@ const questionBankSchema = new Schema(
       default: undefined,
     },
   },
-  { timestamps: true },
-)
+  { timestamps: true }
+);
 
-questionBankSchema.index({ topic: 1, difficulty: 1 })
+questionBankSchema.index({ topic: 1, difficulty: 1 });
 
 export const QuestionBankModel =
-  mongoose.models.QuestionBank ||
-  mongoose.model('QuestionBank', questionBankSchema)
+  mongoose.models.QuestionBank || mongoose.model('QuestionBank', questionBankSchema);

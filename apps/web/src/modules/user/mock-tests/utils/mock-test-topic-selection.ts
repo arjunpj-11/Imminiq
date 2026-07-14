@@ -1,12 +1,12 @@
-import type { IRoadmapSubtopic, IRoadmapTopic } from '../../trackers'
+import type { IRoadmapSubtopic, IRoadmapTopic } from '../../trackers';
 
 export interface IFlatNode {
-  _id: string
-  title: string
-  status?: string
-  depth: number
-  parentTopicId: string
-  parentTopicTitle: string
+  _id: string;
+  title: string;
+  status?: string;
+  depth: number;
+  parentTopicId: string;
+  parentTopicTitle: string;
 }
 
 function flattenSubtopic(
@@ -23,23 +23,23 @@ function flattenSubtopic(
     depth,
     parentTopicId,
     parentTopicTitle,
-  })
+  });
 
   for (const child of subtopic.children || []) {
-    flattenSubtopic(child, parentTopicId, parentTopicTitle, depth + 1, acc)
+    flattenSubtopic(child, parentTopicId, parentTopicTitle, depth + 1, acc);
   }
 }
 
 export function flattenRoadmap(topics: IRoadmapTopic[]): IFlatNode[] {
-  const acc: IFlatNode[] = []
+  const acc: IFlatNode[] = [];
 
   for (const topic of topics) {
     for (const subtopic of topic.subtopics) {
-      flattenSubtopic(subtopic, topic._id, topic.title, 0, acc)
+      flattenSubtopic(subtopic, topic._id, topic.title, 0, acc);
     }
   }
 
-  return acc
+  return acc;
 }
 
 export function buildStructuredTopicString(
@@ -47,26 +47,25 @@ export function buildStructuredTopicString(
   flatNodes: IFlatNode[],
   trackerTitle: string
 ): string {
-  const byTopic = new Map<string, { topicTitle: string; subtopics: string[] }>()
+  const byTopic = new Map<string, { topicTitle: string; subtopics: string[] }>();
 
   for (const [id, title] of selectedNodes.entries()) {
-    const node = flatNodes.find((item) => item._id === id)
-    if (!node) continue
+    const node = flatNodes.find((item) => item._id === id);
+    if (!node) continue;
 
     if (!byTopic.has(node.parentTopicId)) {
       byTopic.set(node.parentTopicId, {
         topicTitle: node.parentTopicTitle,
         subtopics: [],
-      })
+      });
     }
 
-    byTopic.get(node.parentTopicId)!.subtopics.push(title)
+    byTopic.get(node.parentTopicId)!.subtopics.push(title);
   }
 
   const topicParts = Array.from(byTopic.values())
     .map(({ topicTitle, subtopics }) => `${topicTitle} → ${subtopics.join(', ')}`)
-    .join(' | ')
+    .join(' | ');
 
-  return `[${trackerTitle}] ${topicParts}`
+  return `[${trackerTitle}] ${topicParts}`;
 }
-

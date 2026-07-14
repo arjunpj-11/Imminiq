@@ -37,10 +37,8 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
           deletedAt: null,
         }).lean();
 
-        return doc
-          ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc) : null;
+      }
     );
   }
 
@@ -71,14 +69,12 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
           query.testId = safeTestId;
         }
 
-        const docs = await MockTestAttemptModel.find(query)
-          .sort({ createdAt: -1 })
-          .lean();
+        const docs = await MockTestAttemptModel.find(query).sort({ createdAt: -1 }).lean();
 
         return docs.map((doc) =>
-          this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc),
+          this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
         );
-      },
+      }
     );
   }
 
@@ -111,9 +107,7 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
         const result: Record<string, MockTestAttemptEntity> = {};
 
         for (const doc of docs) {
-          const mapped = this._mapper.toMockTestAttemptEntity(
-            doc as RawMockTestAttemptDoc,
-          );
+          const mapped = this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc);
 
           if (!result[mapped.testId]) {
             result[mapped.testId] = mapped;
@@ -121,7 +115,7 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
         }
 
         return result;
-      },
+      }
     );
   }
 
@@ -146,10 +140,8 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
           deletedAt: null,
         }).lean();
 
-        return doc
-          ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc) : null;
+      }
     );
   }
 
@@ -166,11 +158,9 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
           flaggedQuestions: [],
         });
 
-        return this._mapper.toMockTestAttemptEntity(
-          doc.toObject() as RawMockTestAttemptDoc,
-        );
+        return this._mapper.toMockTestAttemptEntity(doc.toObject() as RawMockTestAttemptDoc);
       },
-      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError,
+      MongoMockTestsErrorMapper.mapDuplicateMockTestRecordError
     );
   }
 
@@ -194,9 +184,7 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
           }).lean();
 
           return existingDoc
-            ? this._mapper.toMockTestAttemptEntity(
-                existingDoc as RawMockTestAttemptDoc,
-              )
+            ? this._mapper.toMockTestAttemptEntity(existingDoc as RawMockTestAttemptDoc)
             : null;
         }
 
@@ -208,13 +196,11 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
           update,
           {
             new: true,
-          },
+          }
         ).lean();
 
-        return doc
-          ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc)
-          : null;
-      },
+        return doc ? this._mapper.toMockTestAttemptEntity(doc as RawMockTestAttemptDoc) : null;
+      }
     );
   }
 
@@ -238,9 +224,9 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
             $inc: {
               answeredQuestions: 1,
             },
-          },
+          }
         );
-      },
+      }
     );
   }
 
@@ -269,9 +255,9 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
             $set: {
               status: 'abandoned',
             },
-          },
+          }
         );
-      },
+      }
     );
   }
 
@@ -298,9 +284,9 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
             $addToSet: {
               flaggedQuestions: safeQuestionId,
             },
-          },
+          }
         );
-      },
+      }
     );
   }
 
@@ -327,9 +313,9 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
             $pull: {
               flaggedQuestions: safeQuestionId,
             },
-          },
+          }
         );
-      },
+      }
     );
   }
 
@@ -374,5 +360,4 @@ export class MongoMockTestsAttemptRepository extends MongoMockTestsBaseRepositor
   }
 }
 
-export const mongoMockTestsAttemptRepository =
-  new MongoMockTestsAttemptRepository();
+export const mongoMockTestsAttemptRepository = new MongoMockTestsAttemptRepository();

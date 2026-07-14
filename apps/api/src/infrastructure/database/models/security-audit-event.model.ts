@@ -1,9 +1,4 @@
-import {
-  Schema,
-  model,
-  type InferSchemaType,
-  type Types,
-} from 'mongoose'
+import { Schema, model, type InferSchemaType, type Types } from 'mongoose';
 
 const securityAuditEventSchema = new Schema(
   {
@@ -49,24 +44,20 @@ const securityAuditEventSchema = new Schema(
     timestamps: true,
     collection: 'security_audit_events',
   }
-)
+);
 
 securityAuditEventSchema.index({
   userId: 1,
   createdAt: -1,
-})
+});
 
 securityAuditEventSchema.index({
   eventType: 1,
   createdAt: -1,
-})
+});
 
-export type SecurityAuditEventDocument =
-  InferSchemaType<typeof securityAuditEventSchema> & {
-    _id: Types.ObjectId
-  }
+export type SecurityAuditEventDocument = InferSchemaType<typeof securityAuditEventSchema> & {
+  _id: Types.ObjectId;
+};
 
-export const SecurityAuditEvent = model(
-  'SecurityAuditEvent',
-  securityAuditEventSchema
-)
+export const SecurityAuditEvent = model('SecurityAuditEvent', securityAuditEventSchema);

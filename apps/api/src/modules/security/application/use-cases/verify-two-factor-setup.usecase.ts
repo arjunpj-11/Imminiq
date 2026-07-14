@@ -1,16 +1,16 @@
-import { TWO_FACTOR_SETUP_ATTEMPT_SCOPE } from '../../domain/security.constants'
-import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface'
-import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface'
-import type { ITwoFactorBackupCodeManager } from '../../domain/services/two-factor-backup-code.interface'
-import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface'
-import type {
-  ITwoFactorVerifyResponseDTO,
-  IVerifyTwoFactorSetupPayloadDTO,
-} from '../security.dto'
-import { SecurityApplicationError } from '../security-application.error'
+import { TWO_FACTOR_SETUP_ATTEMPT_SCOPE } from '../../domain/security.constants';
+import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface';
+import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface';
+import type { ITwoFactorBackupCodeManager } from '../../domain/services/two-factor-backup-code.interface';
+import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface';
+import type { ITwoFactorVerifyResponseDTO, IVerifyTwoFactorSetupPayloadDTO } from '../security.dto';
+import { SecurityApplicationError } from '../security-application.error';
 
 export interface IVerifyTwoFactorSetupUseCase {
-  execute(userId: string, payload: IVerifyTwoFactorSetupPayloadDTO): Promise<ITwoFactorVerifyResponseDTO>
+  execute(
+    userId: string,
+    payload: IVerifyTwoFactorSetupPayloadDTO
+  ): Promise<ITwoFactorVerifyResponseDTO>;
 }
 
 export class VerifyTwoFactorSetupUseCase implements IVerifyTwoFactorSetupUseCase {
@@ -18,72 +18,67 @@ export class VerifyTwoFactorSetupUseCase implements IVerifyTwoFactorSetupUseCase
     private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
     private readonly _twoFactorGateway: ITwoFactorGateway,
     private readonly _securityAttemptStore: ISecurityAttemptStore,
-    private readonly _backupCodeManager: ITwoFactorBackupCodeManager,
+    private readonly _backupCodeManager: ITwoFactorBackupCodeManager
   ) {}
 
   async execute(
     userId: string,
-    payload: IVerifyTwoFactorSetupPayloadDTO,
+    payload: IVerifyTwoFactorSetupPayloadDTO
   ): Promise<ITwoFactorVerifyResponseDTO> {
-    await this.assertSetupVerificationAllowed(userId)
+    await this.assertSetupVerificationAllowed(userId);
 
-    const twoFactor =
-      await this._twoFactorRepository.findTwoFactorWithSecret(userId)
+    const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(userId);
 
     if (!twoFactor) {
-      throw SecurityApplicationError.twoFactorSetupNotFound()
+      throw SecurityApplicationError.twoFactorSetupNotFound();
     }
 
     if (twoFactor.status === 'active') {
-      throw SecurityApplicationError.twoFactorAlreadyEnabled()
+      throw SecurityApplicationError.twoFactorAlreadyEnabled();
     }
 
     if (twoFactor.status !== 'pending') {
-      throw SecurityApplicationError.twoFactorSetupNotPending()
+      throw SecurityApplicationError.twoFactorSetupNotPending();
     }
 
     if (!twoFactor.totpSecretEncrypted) {
-      throw SecurityApplicationError.twoFactorSecretMissing()
+      throw SecurityApplicationError.twoFactorSecretMissing();
     }
 
     const valid = await this._twoFactorGateway.verifyToken({
       encryptedSecret: twoFactor.totpSecretEncrypted,
       token: payload.token,
-    })
+    });
 
     if (!valid) {
-      await this.recordInvalidSetupCode(userId)
-      throw SecurityApplicationError.invalidTwoFactorCode()
+      await this.recordInvalidSetupCode(userId);
+      throw SecurityApplicationError.invalidTwoFactorCode();
     }
 
-    await this._securityAttemptStore.clear(
-      TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
+    await this._securityAttemptStore.clear(TWO_FACTOR_SETUP_ATTEMPT_SCOPE, userId);
+
+    const backupCodes = this._backupCodeManager.generate();
+    const hashedBackupCodes = await this._backupCodeManager.hash(backupCodes);
+
+    const activatedTwoFactor = await this._twoFactorRepository.activateTwoFactor({
       userId,
-    )
-
-    const backupCodes = this._backupCodeManager.generate()
-    const hashedBackupCodes = await this._backupCodeManager.hash(backupCodes)
-
-  const activatedTwoFactor =
-  await this._twoFactorRepository.activateTwoFactor({
-    userId,
-    backupCodes: hashedBackupCodes,
-  })
+      backupCodes: hashedBackupCodes,
+    });
     if (!activatedTwoFactor) {
-      throw SecurityApplicationError.twoFactorEnableFailed()
+      throw SecurityApplicationError.twoFactorEnableFailed();
     }
 
-    return { enabled: true, backupCodes }
+    return { enabled: true, backupCodes };
   }
 
   private async assertSetupVerificationAllowed(userId: string): Promise<void> {
     const blocked = await this._securityAttemptStore.isBlocked(
       TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
-      userId,
-    )
+      userId
+    );
 
     if (blocked) {
-      throw SecurityApplicationError.twoFactorSetupTemporarilyBlocked()
+      throw SecurityApplicationError.twoFactorSetupTemporarilyBlocked();
     }
   }
 
@@ -91,11 +86,11 @@ export class VerifyTwoFactorSetupUseCase implements IVerifyTwoFactorSetupUseCase
     const result = await this._securityAttemptStore.recordFailure(
       TWO_FACTOR_SETUP_ATTEMPT_SCOPE,
       userId,
-      'twoFactorVerification',
-    )
+      'twoFactorVerification'
+    );
 
     if (result.blocked) {
-      throw SecurityApplicationError.twoFactorSetupTemporarilyBlocked()
+      throw SecurityApplicationError.twoFactorSetupTemporarilyBlocked();
     }
   }
 }

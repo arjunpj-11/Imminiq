@@ -1,22 +1,17 @@
-import { useMemo, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-import SettingsShell from '../components/SettingsShell'
-import SettingsContentLoading from '../components/SettingsContentLoading'
-import {
-  MonoLabel,
-  SettingsCard,
-  SettingsToast,
-  TextField,
-} from '../components/SettingsUi'
-import { useSettingsToast } from '../hooks/useSettingsToast'
-import { usePendingEmailChangeTimer } from '../hooks/usePendingEmailChangeTimer'
+import SettingsShell from '../components/SettingsShell';
+import SettingsContentLoading from '../components/SettingsContentLoading';
+import { MonoLabel, SettingsCard, SettingsToast, TextField } from '../components/SettingsUi';
+import { useSettingsToast } from '../hooks/useSettingsToast';
+import { usePendingEmailChangeTimer } from '../hooks/usePendingEmailChangeTimer';
 import {
   DeleteAccountDialog,
   DisableTwoFactorDialog,
   InlineSecurityError,
   TwoFactorSetupDialog,
-} from '../components/security/SecurityDialogs'
+} from '../components/security/SecurityDialogs';
 
 import {
   useChangeEmail,
@@ -27,116 +22,106 @@ import {
   useSetupTwoFactor,
   useTerminateSession,
   useVerifyTwoFactorSetup,
-} from '../hooks/useSecuritySettings'
+} from '../hooks/useSecuritySettings';
 
 import type {
   IChangeEmailPayload,
   IDeleteAccountPayload,
   ITwoFactorSetupResponse,
-} from '../types/settings.types'
+} from '../types/settings.types';
 
-import { useAuthStore } from '../../../../store/useAuthStore'
+import { useAuthStore } from '../../../../store/useAuthStore';
 import {
   formatCountdown,
   getApiErrorMessage,
   getPasswordScore,
   normalizeEmail,
-} from '../utils/security-settings.utils'
+} from '../utils/security-settings.utils';
 
 export default function AccountSecuritySettingsPage() {
-  const navigate = useNavigate()
-  const clearAuth = useAuthStore((state) => state.clearAuth)
+  const navigate = useNavigate();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
 
-  const securityQuery = useSecurityOverview()
-  const changeEmail = useChangeEmail()
-  const changePassword = useChangePassword()
-  const terminateSession = useTerminateSession()
-  const setupTwoFactor = useSetupTwoFactor()
-  const verifyTwoFactorSetup = useVerifyTwoFactorSetup()
-  const disableTwoFactor = useDisableTwoFactor()
-  const deleteAccount = useDeleteAccount()
-  const toast = useSettingsToast()
+  const securityQuery = useSecurityOverview();
+  const changeEmail = useChangeEmail();
+  const changePassword = useChangePassword();
+  const terminateSession = useTerminateSession();
+  const setupTwoFactor = useSetupTwoFactor();
+  const verifyTwoFactorSetup = useVerifyTwoFactorSetup();
+  const disableTwoFactor = useDisableTwoFactor();
+  const deleteAccount = useDeleteAccount();
+  const toast = useSettingsToast();
 
-  const [newEmail, setNewEmail] = useState('')
-  const [emailChangePassword, setEmailChangePassword] = useState('')
-  const [emailChangeTwoFactorCode, setEmailChangeTwoFactorCode] = useState('')
-  const [emailChangeError, setEmailChangeError] = useState('')
+  const [newEmail, setNewEmail] = useState('');
+  const [emailChangePassword, setEmailChangePassword] = useState('');
+  const [emailChangeTwoFactorCode, setEmailChangeTwoFactorCode] = useState('');
+  const [emailChangeError, setEmailChangeError] = useState('');
 
-  const [currentPassword, setCurrentPassword] = useState('')
-  const [newPassword, setNewPassword] = useState('')
+  const [currentPassword, setCurrentPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
 
   const {
     timer: pendingEmailTimer,
     secondsLeft: pendingEmailSecondsLeft,
     start: startPendingEmailTimer,
-  } = usePendingEmailChangeTimer()
+  } = usePendingEmailChangeTimer();
 
-  const [twoFactorSetupOpen, setTwoFactorSetupOpen] = useState(false)
-  const [twoFactorSetupData, setTwoFactorSetupData] =
-    useState<ITwoFactorSetupResponse | null>(null)
-  const [twoFactorVerifyToken, setTwoFactorVerifyToken] = useState('')
-  const [twoFactorVerifyError, setTwoFactorVerifyError] = useState('')
-  const [backupCodes, setBackupCodes] = useState<string[]>([])
+  const [twoFactorSetupOpen, setTwoFactorSetupOpen] = useState(false);
+  const [twoFactorSetupData, setTwoFactorSetupData] = useState<ITwoFactorSetupResponse | null>(
+    null
+  );
+  const [twoFactorVerifyToken, setTwoFactorVerifyToken] = useState('');
+  const [twoFactorVerifyError, setTwoFactorVerifyError] = useState('');
+  const [backupCodes, setBackupCodes] = useState<string[]>([]);
 
-  const [disableTwoFactorOpen, setDisableTwoFactorOpen] = useState(false)
-  const [disableTwoFactorToken, setDisableTwoFactorToken] = useState('')
-  const [disableTwoFactorError, setDisableTwoFactorError] = useState('')
+  const [disableTwoFactorOpen, setDisableTwoFactorOpen] = useState(false);
+  const [disableTwoFactorToken, setDisableTwoFactorToken] = useState('');
+  const [disableTwoFactorError, setDisableTwoFactorError] = useState('');
 
-  const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-  const [deleteConfirmation, setDeleteConfirmation] = useState('')
-  const [deleteCurrentPassword, setDeleteCurrentPassword] = useState('')
-  const [deleteTwoFactorCode, setDeleteTwoFactorCode] = useState('')
-  const [deleteAccountError, setDeleteAccountError] = useState('')
+  const [deleteModalOpen, setDeleteModalOpen] = useState(false);
+  const [deleteConfirmation, setDeleteConfirmation] = useState('');
+  const [deleteCurrentPassword, setDeleteCurrentPassword] = useState('');
+  const [deleteTwoFactorCode, setDeleteTwoFactorCode] = useState('');
+  const [deleteAccountError, setDeleteAccountError] = useState('');
 
-  const score = useMemo(() => getPasswordScore(newPassword), [newPassword])
+  const score = useMemo(() => getPasswordScore(newPassword), [newPassword]);
 
-  const scoreLabel =
-    score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak'
+  const scoreLabel = score >= 80 ? 'Strong' : score >= 50 ? 'Medium' : 'Weak';
 
-  const security = securityQuery.data
+  const security = securityQuery.data;
 
   const providerLabel =
     security?.authProvider === 'google'
       ? 'Google'
       : security?.authProvider === 'github'
         ? 'GitHub'
-        : 'Imminiq'
+        : 'Imminiq';
 
-  const stepUpRequiresPassword = Boolean(security?.canChangePassword)
-  const stepUpRequiresTwoFactor = Boolean(security?.twoFactorEnabled)
+  const stepUpRequiresPassword = Boolean(security?.canChangePassword);
+  const stepUpRequiresTwoFactor = Boolean(security?.twoFactorEnabled);
 
   const sensitiveActionUnavailableForSocialAccount =
-    Boolean(security) &&
-    !stepUpRequiresPassword &&
-    !stepUpRequiresTwoFactor
+    Boolean(security) && !stepUpRequiresPassword && !stepUpRequiresTwoFactor;
 
-  const pendingEmail = normalizeEmail(security?.pendingEmail)
+  const pendingEmail = normalizeEmail(security?.pendingEmail);
 
   const timerMatchesPendingEmail =
-    !!pendingEmailTimer &&
-    normalizeEmail(pendingEmailTimer.email) === pendingEmail
+    !!pendingEmailTimer && normalizeEmail(pendingEmailTimer.email) === pendingEmail;
 
-  const pendingEmailTimerExpired =
-    timerMatchesPendingEmail &&
-    pendingEmailSecondsLeft <= 0
+  const pendingEmailTimerExpired = timerMatchesPendingEmail && pendingEmailSecondsLeft <= 0;
 
-  const showPendingEmailNotice =
-    !!security?.pendingEmail && !pendingEmailTimerExpired
+  const showPendingEmailNotice = !!security?.pendingEmail && !pendingEmailTimerExpired;
 
   const showPendingEmailTimer =
-    showPendingEmailNotice &&
-    timerMatchesPendingEmail &&
-    pendingEmailSecondsLeft > 0
+    showPendingEmailNotice && timerMatchesPendingEmail && pendingEmailSecondsLeft > 0;
 
   const emailChangeStepUpReady =
     (!stepUpRequiresPassword || !!emailChangePassword) &&
-    (!stepUpRequiresTwoFactor || emailChangeTwoFactorCode.length === 6)
+    (!stepUpRequiresTwoFactor || emailChangeTwoFactorCode.length === 6);
 
   const deleteStepUpReady =
     (!stepUpRequiresPassword || !!deleteCurrentPassword) &&
-    (!stepUpRequiresTwoFactor || deleteTwoFactorCode.length === 6)
-
-
+    (!stepUpRequiresTwoFactor || deleteTwoFactorCode.length === 6);
 
   if (securityQuery.isLoading) {
     return (
@@ -150,205 +135,173 @@ export default function AccountSecuritySettingsPage() {
           description="Fetching your email, password options, sessions, and two-factor settings."
         />
       </SettingsShell>
-    )
+    );
   }
 
   const handleEmailUpdate = async () => {
     try {
-      setEmailChangeError('')
+      setEmailChangeError('');
 
       const payload: IChangeEmailPayload = {
         newEmail,
-        ...(stepUpRequiresPassword
-          ? { currentPassword: emailChangePassword }
-          : {}),
-        ...(stepUpRequiresTwoFactor
-          ? { twoFactorCode: emailChangeTwoFactorCode }
-          : {}),
-      }
+        ...(stepUpRequiresPassword ? { currentPassword: emailChangePassword } : {}),
+        ...(stepUpRequiresTwoFactor ? { twoFactorCode: emailChangeTwoFactorCode } : {}),
+      };
 
-      const result = await changeEmail.mutateAsync(payload)
+      const result = await changeEmail.mutateAsync(payload);
 
-      startPendingEmailTimer(result.pendingEmail)
+      startPendingEmailTimer(result.pendingEmail);
 
-      setNewEmail('')
-      setEmailChangePassword('')
-      setEmailChangeTwoFactorCode('')
+      setNewEmail('');
+      setEmailChangePassword('');
+      setEmailChangeTwoFactorCode('');
 
       toast.showToast(
         'Verification link sent to the new email. Your current email will stay unchanged until it is verified.',
         'success'
-      )
+      );
     } catch (error) {
-      const message = getApiErrorMessage(
-        error,
-        'Unable to send email verification link.'
-      )
+      const message = getApiErrorMessage(error, 'Unable to send email verification link.');
 
-      setEmailChangeError(message)
-      toast.showToast(message, 'error')
+      setEmailChangeError(message);
+      toast.showToast(message, 'error');
     }
-  }
+  };
 
   const handlePasswordUpdate = async () => {
     try {
       await changePassword.mutateAsync({
         currentPassword,
         newPassword,
-      })
+      });
 
-      setCurrentPassword('')
-      setNewPassword('')
+      setCurrentPassword('');
+      setNewPassword('');
 
       toast.showToast(
         'Password updated successfully. Your sessions may need to sign in again.',
         'success'
-      )
+      );
     } catch (error) {
-      toast.showToast(
-        getApiErrorMessage(error, 'Unable to update password.'),
-        'error'
-      )
+      toast.showToast(getApiErrorMessage(error, 'Unable to update password.'), 'error');
     }
-  }
+  };
 
   const handleTerminateSession = async (sessionId: string) => {
     try {
-      await terminateSession.mutateAsync(sessionId)
-      toast.showToast('Session terminated.', 'success')
+      await terminateSession.mutateAsync(sessionId);
+      toast.showToast('Session terminated.', 'success');
     } catch (error) {
-      toast.showToast(
-        getApiErrorMessage(error, 'Unable to terminate session.'),
-        'error'
-      )
+      toast.showToast(getApiErrorMessage(error, 'Unable to terminate session.'), 'error');
     }
-  }
+  };
 
   const handleStartTwoFactorSetup = async () => {
     try {
-      const setup = await setupTwoFactor.mutateAsync()
+      const setup = await setupTwoFactor.mutateAsync();
 
-      setTwoFactorSetupData(setup)
-      setTwoFactorVerifyToken('')
-      setTwoFactorVerifyError('')
-      setBackupCodes([])
-      setTwoFactorSetupOpen(true)
+      setTwoFactorSetupData(setup);
+      setTwoFactorVerifyToken('');
+      setTwoFactorVerifyError('');
+      setBackupCodes([]);
+      setTwoFactorSetupOpen(true);
 
-      toast.showToast('Scan the QR code to finish 2FA setup.', 'success')
+      toast.showToast('Scan the QR code to finish 2FA setup.', 'success');
     } catch (error) {
-      toast.showToast(
-        getApiErrorMessage(error, 'Unable to start 2FA setup.'),
-        'error'
-      )
+      toast.showToast(getApiErrorMessage(error, 'Unable to start 2FA setup.'), 'error');
     }
-  }
+  };
 
   const handleVerifyTwoFactorSetup = async () => {
     try {
-      setTwoFactorVerifyError('')
+      setTwoFactorVerifyError('');
 
       const result = await verifyTwoFactorSetup.mutateAsync({
         token: twoFactorVerifyToken,
-      })
+      });
 
-      setBackupCodes(result.backupCodes)
-      setTwoFactorVerifyToken('')
+      setBackupCodes(result.backupCodes);
+      setTwoFactorVerifyToken('');
 
-      toast.showToast(
-        'Two-factor authentication enabled successfully.',
-        'success'
-      )
+      toast.showToast('Two-factor authentication enabled successfully.', 'success');
     } catch (error) {
-      const message = getApiErrorMessage(
-        error,
-        'Unable to verify authenticator code.'
-      )
+      const message = getApiErrorMessage(error, 'Unable to verify authenticator code.');
 
-      setTwoFactorVerifyError(message)
-      toast.showToast(message, 'error')
+      setTwoFactorVerifyError(message);
+      toast.showToast(message, 'error');
     }
-  }
+  };
 
   const handleCloseTwoFactorSetup = () => {
-    setTwoFactorSetupOpen(false)
-    setTwoFactorSetupData(null)
-    setTwoFactorVerifyToken('')
-    setTwoFactorVerifyError('')
-    setBackupCodes([])
-  }
+    setTwoFactorSetupOpen(false);
+    setTwoFactorSetupData(null);
+    setTwoFactorVerifyToken('');
+    setTwoFactorVerifyError('');
+    setBackupCodes([]);
+  };
 
   const handleDisableTwoFactor = async () => {
     try {
-      setDisableTwoFactorError('')
+      setDisableTwoFactorError('');
 
       await disableTwoFactor.mutateAsync({
         token: disableTwoFactorToken,
-      })
+      });
 
-      setDisableTwoFactorToken('')
-      setDisableTwoFactorError('')
-      setDisableTwoFactorOpen(false)
+      setDisableTwoFactorToken('');
+      setDisableTwoFactorError('');
+      setDisableTwoFactorOpen(false);
 
-      toast.showToast(
-        'Two-factor authentication disabled.',
-        'success'
-      )
+      toast.showToast('Two-factor authentication disabled.', 'success');
     } catch (error) {
-      const message = getApiErrorMessage(error, 'Unable to disable 2FA.')
+      const message = getApiErrorMessage(error, 'Unable to disable 2FA.');
 
-      setDisableTwoFactorError(message)
-      toast.showToast(message, 'error')
+      setDisableTwoFactorError(message);
+      toast.showToast(message, 'error');
     }
-  }
+  };
 
   const resetDeleteModal = () => {
-    setDeleteModalOpen(false)
-    setDeleteConfirmation('')
-    setDeleteCurrentPassword('')
-    setDeleteTwoFactorCode('')
-    setDeleteAccountError('')
-  }
+    setDeleteModalOpen(false);
+    setDeleteConfirmation('');
+    setDeleteCurrentPassword('');
+    setDeleteTwoFactorCode('');
+    setDeleteAccountError('');
+  };
 
   const handleDeleteAccount = async () => {
     if (deleteConfirmation !== 'DELETE') {
-      const message = 'Type DELETE to confirm account deletion.'
+      const message = 'Type DELETE to confirm account deletion.';
 
-      setDeleteAccountError(message)
-      toast.showToast(message, 'error')
-      return
+      setDeleteAccountError(message);
+      toast.showToast(message, 'error');
+      return;
     }
 
     try {
-      setDeleteAccountError('')
+      setDeleteAccountError('');
 
       const payload: IDeleteAccountPayload = {
         confirmation: 'DELETE',
-        ...(stepUpRequiresPassword
-          ? { currentPassword: deleteCurrentPassword }
-          : {}),
-        ...(stepUpRequiresTwoFactor
-          ? { twoFactorCode: deleteTwoFactorCode }
-          : {}),
-      }
+        ...(stepUpRequiresPassword ? { currentPassword: deleteCurrentPassword } : {}),
+        ...(stepUpRequiresTwoFactor ? { twoFactorCode: deleteTwoFactorCode } : {}),
+      };
 
-      await deleteAccount.mutateAsync(payload)
+      await deleteAccount.mutateAsync(payload);
 
-      resetDeleteModal()
-      clearAuth()
+      resetDeleteModal();
+      clearAuth();
 
       navigate('/login', {
         replace: true,
-      })
+      });
     } catch (error) {
-      const message = getApiErrorMessage(
-        error,
-        'Unable to schedule account deletion.'
-      )
+      const message = getApiErrorMessage(error, 'Unable to schedule account deletion.');
 
-      setDeleteAccountError(message)
-      toast.showToast(message, 'error')
+      setDeleteAccountError(message);
+      toast.showToast(message, 'error');
     }
-  }
+  };
 
   return (
     <SettingsShell
@@ -364,9 +317,7 @@ export default function AccountSecuritySettingsPage() {
             icon="✉️"
           >
             <div className="mb-4 flex flex-wrap items-center gap-2 rounded-md bg-[#f9f3ef] px-4 py-3 dark:bg-(--surface-card)">
-              <strong className="text-[14px]">
-                {security?.email ?? 'Email not loaded'}
-              </strong>
+              <strong className="text-[14px]">{security?.email ?? 'Email not loaded'}</strong>
 
               {security?.emailVerified ? (
                 <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2.5 py-1 text-[11px] font-bold text-(--success) dark:text-(--success)">
@@ -398,16 +349,15 @@ export default function AccountSecuritySettingsPage() {
                   <strong className="text-(--text-primary) dark:text-(--text-primary)">
                     {security.pendingEmail}
                   </strong>
-                  . Your current email will remain active until that link is
-                  verified.
+                  . Your current email will remain active until that link is verified.
                 </p>
               </div>
             )}
 
             {sensitiveActionUnavailableForSocialAccount && (
               <div className="mb-4 rounded-md border border-[rgba(59,108,183,0.20)] bg-[rgba(59,108,183,0.08)] px-4 py-3 text-[13px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-                This {providerLabel} account has no local password. Enable
-                two-factor authentication first to securely change your email.
+                This {providerLabel} account has no local password. Enable two-factor authentication
+                first to securely change your email.
               </div>
             )}
 
@@ -416,8 +366,8 @@ export default function AccountSecuritySettingsPage() {
                 label="New Email Address"
                 value={newEmail}
                 onChange={(value) => {
-                  setNewEmail(value)
-                  setEmailChangeError('')
+                  setNewEmail(value);
+                  setEmailChangeError('');
                 }}
                 type="email"
                 placeholder="you@example.com"
@@ -428,8 +378,8 @@ export default function AccountSecuritySettingsPage() {
                   label="Current Password"
                   value={emailChangePassword}
                   onChange={(value) => {
-                    setEmailChangePassword(value)
-                    setEmailChangeError('')
+                    setEmailChangePassword(value);
+                    setEmailChangeError('');
                   }}
                   type="password"
                   placeholder="Re-enter your password"
@@ -441,16 +391,14 @@ export default function AccountSecuritySettingsPage() {
                   label="Two-Factor Code"
                   value={emailChangeTwoFactorCode}
                   onChange={(value) => {
-                    setEmailChangeTwoFactorCode(value)
-                    setEmailChangeError('')
+                    setEmailChangeTwoFactorCode(value);
+                    setEmailChangeError('');
                   }}
                   placeholder="123456"
                 />
               )}
 
-              {emailChangeError && (
-                <InlineSecurityError message={emailChangeError} />
-              )}
+              {emailChangeError && <InlineSecurityError message={emailChangeError} />}
 
               <div>
                 <button
@@ -522,16 +470,10 @@ export default function AccountSecuritySettingsPage() {
                 <button
                   type="button"
                   onClick={handlePasswordUpdate}
-                  disabled={
-                    !currentPassword ||
-                    !newPassword ||
-                    changePassword.isPending
-                  }
+                  disabled={!currentPassword || !newPassword || changePassword.isPending}
                   className="mt-4 rounded-md bg-(--brand-500) px-5 py-3 text-[13px] font-bold text-[#fdf8f5] transition disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412]"
                 >
-                  {changePassword.isPending
-                    ? 'Updating...'
-                    : 'Update Password'}
+                  {changePassword.isPending ? 'Updating...' : 'Update Password'}
                 </button>
               </>
             ) : (
@@ -545,8 +487,8 @@ export default function AccountSecuritySettingsPage() {
                 </h3>
 
                 <p className="mt-2 max-w-2xl text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                  This account signs in using {providerLabel} OAuth, so there is
-                  no separate Imminiq password to change here.
+                  This account signs in using {providerLabel} OAuth, so there is no separate Imminiq
+                  password to change here.
                 </p>
               </div>
             )}
@@ -576,14 +518,13 @@ export default function AccountSecuritySettingsPage() {
 
                       {session.current && (
                         <span className="rounded-full bg-[rgba(45,106,71,0.12)] px-2 py-0.5 text-[10px] text-(--success) dark:text-(--success)">
-                          Current
+                          Current session
                         </span>
                       )}
                     </div>
 
                     <p className="mt-1 text-[12.5px] text-(--text-secondary) dark:text-(--text-secondary)">
-                      {session.location} · {session.client} ·{' '}
-                      {session.lastActive}
+                      {session.location} · {session.client} · {session.lastActive}
                     </p>
                   </div>
 
@@ -615,8 +556,7 @@ export default function AccountSecuritySettingsPage() {
                 </div>
 
                 <p className="mt-1 max-w-2xl text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
-                  Secure your Imminiq archive with a verification step beyond
-                  your password.
+                  Secure your Imminiq archive with a verification step beyond your password.
                 </p>
               </div>
 
@@ -624,8 +564,8 @@ export default function AccountSecuritySettingsPage() {
                 <button
                   type="button"
                   onClick={() => {
-                    setDisableTwoFactorOpen(true)
-                    setDisableTwoFactorError('')
+                    setDisableTwoFactorOpen(true);
+                    setDisableTwoFactorError('');
                   }}
                   className="rounded-md border-[1.5px] border-[rgba(196,60,60,0.30)] bg-[rgba(196,60,60,0.08)] px-5 py-3 text-[13px] font-bold text-(--danger) transition hover:bg-[rgba(196,60,60,0.12)] dark:text-(--danger)"
                 >
@@ -651,10 +591,9 @@ export default function AccountSecuritySettingsPage() {
             </h2>
 
             <p className="mt-2 text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-              Deleting your account starts a <strong>30-day recovery period</strong>.
-              Your active sessions will be signed out immediately, and the
-              account will be scheduled for deletion. Signing in again within
-              30 days automatically cancels the deletion request.
+              Deleting your account starts a <strong>30-day recovery period</strong>. Your active
+              sessions will be signed out immediately, and the account will be scheduled for
+              deletion. Signing in again within 30 days automatically cancels the deletion request.
             </p>
 
             {sensitiveActionUnavailableForSocialAccount && (
@@ -667,8 +606,8 @@ export default function AccountSecuritySettingsPage() {
             <button
               type="button"
               onClick={() => {
-                setDeleteModalOpen(true)
-                setDeleteAccountError('')
+                setDeleteModalOpen(true);
+                setDeleteAccountError('');
               }}
               disabled={sensitiveActionUnavailableForSocialAccount}
               className="mt-4 rounded-md bg-(--danger) px-5 py-3 text-[13px] font-bold text-white transition disabled:cursor-not-allowed disabled:opacity-60"
@@ -689,9 +628,7 @@ export default function AccountSecuritySettingsPage() {
 
               <div>
                 <MonoLabel>Email Status</MonoLabel>
-                <strong>
-                  {security?.emailVerified ? 'Verified' : 'Unverified'}
-                </strong>
+                <strong>{security?.emailVerified ? 'Verified' : 'Unverified'}</strong>
               </div>
 
               {showPendingEmailNotice && security?.pendingEmail && (
@@ -709,9 +646,7 @@ export default function AccountSecuritySettingsPage() {
 
               <div>
                 <MonoLabel>Two-Factor</MonoLabel>
-                <strong>
-                  {security?.twoFactorEnabled ? 'Enabled' : 'Disabled'}
-                </strong>
+                <strong>{security?.twoFactorEnabled ? 'Enabled' : 'Disabled'}</strong>
               </div>
 
               <div>
@@ -731,8 +666,8 @@ export default function AccountSecuritySettingsPage() {
         error={twoFactorVerifyError}
         isVerifying={verifyTwoFactorSetup.isPending}
         onTokenChange={(value) => {
-          setTwoFactorVerifyToken(value)
-          setTwoFactorVerifyError('')
+          setTwoFactorVerifyToken(value);
+          setTwoFactorVerifyError('');
         }}
         onVerify={handleVerifyTwoFactorSetup}
         onClose={handleCloseTwoFactorSetup}
@@ -744,14 +679,14 @@ export default function AccountSecuritySettingsPage() {
         error={disableTwoFactorError}
         isPending={disableTwoFactor.isPending}
         onTokenChange={(value) => {
-          setDisableTwoFactorToken(value)
-          setDisableTwoFactorError('')
+          setDisableTwoFactorToken(value);
+          setDisableTwoFactorError('');
         }}
         onConfirm={handleDisableTwoFactor}
         onClose={() => {
-          setDisableTwoFactorOpen(false)
-          setDisableTwoFactorToken('')
-          setDisableTwoFactorError('')
+          setDisableTwoFactorOpen(false);
+          setDisableTwoFactorToken('');
+          setDisableTwoFactorError('');
         }}
       />
 
@@ -766,26 +701,22 @@ export default function AccountSecuritySettingsPage() {
         isPending={deleteAccount.isPending}
         canSubmit={deleteConfirmation === 'DELETE' && deleteStepUpReady}
         onConfirmationChange={(value) => {
-          setDeleteConfirmation(value)
-          setDeleteAccountError('')
+          setDeleteConfirmation(value);
+          setDeleteAccountError('');
         }}
         onCurrentPasswordChange={(value) => {
-          setDeleteCurrentPassword(value)
-          setDeleteAccountError('')
+          setDeleteCurrentPassword(value);
+          setDeleteAccountError('');
         }}
         onTwoFactorCodeChange={(value) => {
-          setDeleteTwoFactorCode(value)
-          setDeleteAccountError('')
+          setDeleteTwoFactorCode(value);
+          setDeleteAccountError('');
         }}
         onConfirm={handleDeleteAccount}
         onClose={resetDeleteModal}
       />
 
-      <SettingsToast
-        visible={toast.visible}
-        message={toast.message}
-        tone={toast.tone}
-      />
+      <SettingsToast visible={toast.visible} message={toast.message} tone={toast.tone} />
     </SettingsShell>
-  )
+  );
 }

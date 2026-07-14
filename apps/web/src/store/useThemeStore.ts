@@ -1,99 +1,97 @@
-import { safeLocalStorage } from '../lib/storage/safe-storage'
-import { STORAGE_KEYS } from '../lib/storage/storage-keys'
-import { create } from 'zustand'
+import { safeLocalStorage } from '../lib/storage/safe-storage';
+import { STORAGE_KEYS } from '../lib/storage/storage-keys';
+import { create } from 'zustand';
 
-type Theme = 'light' | 'dark'
-export type ThemeMode = 'system' | 'light' | 'dark'
+type Theme = 'light' | 'dark';
+export type ThemeMode = 'system' | 'light' | 'dark';
 
 interface IThemeStore {
   /**
    * Permanently saved theme mode.
    * This should match the last saved preference.
    */
-  mode: ThemeMode
+  mode: ThemeMode;
 
   /**
    * Currently applied visual theme.
    * This can change temporarily during preview.
    */
-  theme: Theme
+  theme: Theme;
 
   /**
    * Temporary unsaved preview mode.
    * Null means no preview is active.
    */
-  previewMode: ThemeMode | null
+  previewMode: ThemeMode | null;
 
   /**
    * True after initTheme runs once.
    */
-  initialized: boolean
+  initialized: boolean;
 
   /**
    * Permanently apply and save the theme locally.
    * Use this only after "Save Changes" succeeds.
    */
-  setMode: (mode: ThemeMode) => void
+  setMode: (mode: ThemeMode) => void;
 
   /**
    * Apply DB theme only when localStorage does not already have a theme.
    * Useful after login / current user settings fetch.
    */
-  syncServerModeIfLocalMissing: (mode: ThemeMode) => void
+  syncServerModeIfLocalMissing: (mode: ThemeMode) => void;
 
   /**
    * Temporarily preview the selected theme without saving it.
    * Use this while clicking Light / Dark / System in settings.
    */
-  previewThemeMode: (mode: ThemeMode) => void
+  previewThemeMode: (mode: ThemeMode) => void;
 
   /**
    * Cancel the temporary preview and restore the last saved mode.
    * Use this when leaving the preferences page without saving.
    */
-  clearThemePreview: () => void
+  clearThemePreview: () => void;
 
-  toggleTheme: () => void
-  initTheme: () => void
+  toggleTheme: () => void;
+  initTheme: () => void;
 }
 
 const isThemeMode = (value: string | null): value is ThemeMode => {
-  return value === 'light' || value === 'dark' || value === 'system'
-}
+  return value === 'light' || value === 'dark' || value === 'system';
+};
 
 const getSystemTheme = (): Theme => {
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
-}
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+};
 
 const resolveTheme = (mode: ThemeMode): Theme => {
-  return mode === 'system' ? getSystemTheme() : mode
-}
+  return mode === 'system' ? getSystemTheme() : mode;
+};
 
 const applyTheme = (theme: Theme) => {
-  const root = document.documentElement
+  const root = document.documentElement;
 
   if (theme === 'dark') {
-    root.classList.add('dark')
+    root.classList.add('dark');
   } else {
-    root.classList.remove('dark')
+    root.classList.remove('dark');
   }
-}
+};
 
 export const hasSavedLocalThemeMode = () => {
-  return isThemeMode(safeLocalStorage.get(STORAGE_KEYS.themeMode))
-}
+  return isThemeMode(safeLocalStorage.get(STORAGE_KEYS.themeMode));
+};
 
 const getSavedThemeMode = (): ThemeMode => {
-  const savedMode = safeLocalStorage.get(STORAGE_KEYS.themeMode)
+  const savedMode = safeLocalStorage.get(STORAGE_KEYS.themeMode);
 
   if (isThemeMode(savedMode)) {
-    return savedMode
+    return savedMode;
   }
 
-  return 'system'
-}
+  return 'system';
+};
 
 export const useThemeStore = create<IThemeStore>((set, get) => ({
   mode: 'system',
@@ -102,132 +100,131 @@ export const useThemeStore = create<IThemeStore>((set, get) => ({
   initialized: false,
 
   setMode: (mode) => {
-    const theme = resolveTheme(mode)
+    const theme = resolveTheme(mode);
 
-    applyTheme(theme)
-    safeLocalStorage.set(STORAGE_KEYS.themeMode, mode)
+    applyTheme(theme);
+    safeLocalStorage.set(STORAGE_KEYS.themeMode, mode);
 
     set({
       mode,
       theme,
       previewMode: null,
       initialized: true,
-    })
+    });
   },
 
   syncServerModeIfLocalMissing: (mode) => {
     if (hasSavedLocalThemeMode()) {
-      return
+      return;
     }
 
-    const theme = resolveTheme(mode)
+    const theme = resolveTheme(mode);
 
-    applyTheme(theme)
-    safeLocalStorage.set(STORAGE_KEYS.themeMode, mode)
+    applyTheme(theme);
+    safeLocalStorage.set(STORAGE_KEYS.themeMode, mode);
 
     set({
       mode,
       theme,
       previewMode: null,
       initialized: true,
-    })
+    });
   },
 
   previewThemeMode: (mode) => {
-    const theme = resolveTheme(mode)
+    const theme = resolveTheme(mode);
 
-    applyTheme(theme)
+    applyTheme(theme);
 
     set({
       theme,
       previewMode: mode,
-    })
+    });
   },
 
   clearThemePreview: () => {
-    const { mode, previewMode } = get()
+    const { mode, previewMode } = get();
 
     if (!previewMode) {
-      return
+      return;
     }
 
-    const savedTheme = resolveTheme(mode)
+    const savedTheme = resolveTheme(mode);
 
-    applyTheme(savedTheme)
+    applyTheme(savedTheme);
 
     set({
       theme: savedTheme,
       previewMode: null,
-    })
+    });
   },
 
   toggleTheme: () => {
-    const currentTheme = get().theme
-    const nextMode: ThemeMode =
-      currentTheme === 'dark' ? 'light' : 'dark'
+    const currentTheme = get().theme;
+    const nextMode: ThemeMode = currentTheme === 'dark' ? 'light' : 'dark';
 
-    const nextTheme = resolveTheme(nextMode)
+    const nextTheme = resolveTheme(nextMode);
 
-    applyTheme(nextTheme)
-    safeLocalStorage.set(STORAGE_KEYS.themeMode, nextMode)
+    applyTheme(nextTheme);
+    safeLocalStorage.set(STORAGE_KEYS.themeMode, nextMode);
 
     set({
       mode: nextMode,
       theme: nextTheme,
       previewMode: null,
       initialized: true,
-    })
+    });
   },
 
   initTheme: () => {
-    const alreadyInitialized = get().initialized
+    const alreadyInitialized = get().initialized;
 
     if (alreadyInitialized) {
-      return
+      return;
     }
 
-    const mode = getSavedThemeMode()
-    const theme = resolveTheme(mode)
+    const mode = getSavedThemeMode();
+    const theme = resolveTheme(mode);
 
-    applyTheme(theme)
+    applyTheme(theme);
 
     set({
       mode,
       theme,
       previewMode: null,
       initialized: true,
-    })
+    });
 
-    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
 
     const handleSystemThemeChange = () => {
-      const { mode: currentSavedMode, previewMode } = get()
+      const { mode: currentSavedMode, previewMode } = get();
 
       if (previewMode === 'system') {
-        const previewTheme = resolveTheme('system')
+        const previewTheme = resolveTheme('system');
 
-        applyTheme(previewTheme)
+        applyTheme(previewTheme);
 
         set({
           theme: previewTheme,
-        })
+        });
 
-        return
+        return;
       }
 
       if (currentSavedMode !== 'system' || previewMode) {
-        return
+        return;
       }
 
-      const newSystemTheme = resolveTheme('system')
+      const newSystemTheme = resolveTheme('system');
 
-      applyTheme(newSystemTheme)
+      applyTheme(newSystemTheme);
 
       set({
         theme: newSystemTheme,
-      })
-    }
+      });
+    };
 
-    mediaQuery.addEventListener('change', handleSystemThemeChange)
+    mediaQuery.addEventListener('change', handleSystemThemeChange);
   },
-}))
+}));

@@ -6,26 +6,22 @@ import type {
   RemoveFriendCommandResult,
   SendFriendRequestCommandInput,
   SendFriendRequestCommandResult,
-} from "../friends.types";
+} from '../friends.types';
 
 export interface IFriendCommandRepository {
-  sendFriendRequest(
-    input: SendFriendRequestCommandInput,
-  ): Promise<SendFriendRequestCommandResult>;
+  sendFriendRequest(input: SendFriendRequestCommandInput): Promise<SendFriendRequestCommandResult>;
 
   acceptFriendRequest(
-    input: FriendRequestActionCommandInput,
+    input: FriendRequestActionCommandInput
   ): Promise<AcceptFriendRequestCommandResult>;
 
   declineFriendRequest(
-    input: FriendRequestActionCommandInput,
+    input: FriendRequestActionCommandInput
   ): Promise<ChangeFriendRequestCommandResult>;
 
   cancelFriendRequest(
-    input: FriendRequestActionCommandInput,
+    input: FriendRequestActionCommandInput
   ): Promise<ChangeFriendRequestCommandResult>;
 
-  removeFriend(
-    input: RemoveFriendCommandInput,
-  ): Promise<RemoveFriendCommandResult>;
+  removeFriend(input: RemoveFriendCommandInput): Promise<RemoveFriendCommandResult>;
 }

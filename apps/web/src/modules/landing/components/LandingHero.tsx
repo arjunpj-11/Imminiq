@@ -1,31 +1,34 @@
-import { useCallback, useRef, useState } from 'react'
-import { Link } from 'react-router-dom'
-import { useHeroTrail } from '../hooks/useHeroTrail'
-import ScrambleWord from './ScrambleWord'
+import { useCallback, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { useHeroTrail } from '../hooks/useHeroTrail';
+import ScrambleWord from './ScrambleWord';
 
-const WORD_PAUSE_MS = 380
+const WORD_PAUSE_MS = 380;
 
 export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean }) {
-  const trailRef = useHeroTrail(true)
+  const trailRef = useHeroTrail(true);
 
-  const [wordStep, setWordStep] = useState(skipIntro ? 3 : 0)
-  const [showSub, setShowSub] = useState(skipIntro)
-  const [showBtns, setShowBtns] = useState(skipIntro)
-  const timerRef = useRef<number | null>(null)
+  const [wordStep, setWordStep] = useState(skipIntro ? 3 : 0);
+  const [showSub, setShowSub] = useState(skipIntro);
+  const [showBtns, setShowBtns] = useState(skipIntro);
+  const timerRef = useRef<number | null>(null);
 
   const advance = useCallback((step: number) => {
-    if (timerRef.current) window.clearTimeout(timerRef.current)
+    if (timerRef.current) window.clearTimeout(timerRef.current);
     timerRef.current = window.setTimeout(() => {
-      setWordStep(step + 1)
+      setWordStep(step + 1);
       if (step + 1 >= 3) {
-        setTimeout(() => { setShowSub(true); setShowBtns(true) }, 200)
+        setTimeout(() => {
+          setShowSub(true);
+          setShowBtns(true);
+        }, 200);
       }
-    }, WORD_PAUSE_MS)
-  }, [])
+    }, WORD_PAUSE_MS);
+  }, []);
 
-  const onDone0 = useCallback(() => advance(0), [advance])
-  const onDone1 = useCallback(() => advance(1), [advance])
-  const onDone2 = useCallback(() => advance(2), [advance])
+  const onDone0 = useCallback(() => advance(0), [advance]);
+  const onDone1 = useCallback(() => advance(1), [advance]);
+  const onDone2 = useCallback(() => advance(2), [advance]);
 
   return (
     <section
@@ -34,14 +37,20 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
       className="relative z-1 flex min-h-screen items-center justify-center overflow-hidden bg-[#f5ede4] px-4 py-24 text-[#1a1714] dark:bg-[#050505] dark:text-[#f2f0eb]"
     >
       <div className="pointer-events-none absolute inset-0 opacity-[0.045] landing-grid-mask">
-        <div className="h-full w-full" style={{ backgroundImage: 'linear-gradient(rgba(26,23,20,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(26,23,20,.16) 1px, transparent 1px)', backgroundSize: '48px 48px' }} />
+        <div
+          className="h-full w-full"
+          style={{
+            backgroundImage:
+              'linear-gradient(rgba(26,23,20,.16) 1px, transparent 1px), linear-gradient(90deg, rgba(26,23,20,.16) 1px, transparent 1px)',
+            backgroundSize: '48px 48px',
+          }}
+        />
       </div>
 
       <div className="landing-pulse-orb pointer-events-none absolute left-1/2 top-1/2 h-120 w-120 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.18),transparent_68%)] dark:bg-[radial-gradient(circle,rgba(184,76,43,0.30),transparent_68%)] blur-3xl" />
       <div className="landing-pulse-orb pointer-events-none absolute bottom-[12%] right-[10%] h-88 w-88 rounded-full bg-[radial-gradient(circle,rgba(59,108,183,0.12),transparent_70%)] dark:bg-[radial-gradient(circle,rgba(59,108,183,0.20),transparent_70%)] blur-3xl" />
 
       <div className="relative z-10 mx-auto flex w-full max-w-295 flex-col items-center justify-center gap-7 md:gap-10">
-
         {/* Row 1 — IMMINIQ */}
         <div className="flex w-full flex-col items-center gap-4 md:ml-[-16%] md:flex-row md:justify-center">
           <h1 className="font-['Playfair_Display',serif] text-[clamp(64px,12vw,164px)] font-black leading-[0.78] tracking-[-0.09em] text-[#1a1714] dark:text-[#f7f2ec]">
@@ -119,5 +128,5 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
         move your mouse inside hero · scroll vertically
       </div>
     </section>
-  )
+  );
 }

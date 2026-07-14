@@ -1,27 +1,27 @@
 // apps/web/src/modules/user/onboarding/pages/OnboardingRoadmapEvaluationLoadingPage.tsx
 
-import { useEffect, useMemo } from 'react'
-import { useNavigate, useParams } from 'react-router-dom'
-import { useOnboardingStore } from '../store/useOnboardingStore'
+import { useEffect, useMemo } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { useOnboardingStore } from '../store/useOnboardingStore';
 
 import {
   useRoadmapEvaluationJobStatus,
   type EvaluationJobStatus,
-} from '../hooks/useRoadmapEvaluationJobStatus'
-import OnboardingBrandLink from '../components/OnboardingBrandLink'
+} from '../hooks/useRoadmapEvaluationJobStatus';
+import OnboardingBrandLink from '../components/OnboardingBrandLink';
 import {
   OnboardingActivityChips,
   OnboardingProgressStatusCard,
   OnboardingWorkflowFooter,
-} from '../components/OnboardingWorkflowStatus'
-import { evaluationSteps } from '../constants/onboarding.constants'
-import type { ActivityChip, JobTerminalState, ProgressStepState } from '../types/onboarding.types'
-import { cn } from '../utils/cn'
-import { clampProgress, normalizeProgressStepIndex } from '../utils/onboarding-progress'
+} from '../components/OnboardingWorkflowStatus';
+import { evaluationSteps } from '../constants/onboarding.constants';
+import type { ActivityChip, JobTerminalState, ProgressStepState } from '../types/onboarding.types';
+import { cn } from '../utils/cn';
+import { clampProgress, normalizeProgressStepIndex } from '../utils/onboarding-progress';
 
-const activityProgressMap = [0, 1, 2, 3, 3]
+const activityProgressMap = [0, 1, 2, 3, 3];
 
-const stepProgressFloors = [15, 35, 55, 75, 90]
+const stepProgressFloors = [15, 35, 55, 75, 90];
 
 const defaultEvalStatus = {
   progress: 8,
@@ -32,56 +32,52 @@ const defaultEvalStatus = {
   nextLabel: 'Estimated next: Completeness check',
   stepsLabel: '0 / 5 steps complete',
   activeActivityIndex: 0,
-}
+};
 
-const normalizeEvalStatus = (
-  status?: EvaluationJobStatus
-) => {
-  if (!status) return defaultEvalStatus
+const normalizeEvalStatus = (status?: EvaluationJobStatus) => {
+  if (!status) return defaultEvalStatus;
 
-  const rawStatus = (status.status || '').toLowerCase()
+  const rawStatus = (status.status || '').toLowerCase();
 
   const terminalState: JobTerminalState =
     rawStatus === 'completed' || rawStatus === 'success' || rawStatus === 'done'
       ? 'completed'
       : rawStatus === 'failed' || rawStatus === 'error'
         ? 'failed'
-        : null
+        : null;
 
   const completedSteps =
-    typeof status.completedSteps === 'number' ? status.completedSteps : undefined
+    typeof status.completedSteps === 'number' ? status.completedSteps : undefined;
 
   const rawProgress =
-  status.totalSteps > 0
-    ? Math.round(
-        (status.completedSteps / status.totalSteps) * 100
-      )
-    : undefined
+    status.totalSteps > 0
+      ? Math.round((status.completedSteps / status.totalSteps) * 100)
+      : undefined;
 
- const activeStepIndex = normalizeProgressStepIndex(
-  status.currentStepNumber,
-  completedSteps,
-  rawProgress ?? 0
-)
+  const activeStepIndex = normalizeProgressStepIndex(
+    status.currentStepNumber,
+    completedSteps,
+    rawProgress ?? 0
+  );
 
   const progress = clampProgress(
     rawProgress ??
       (terminalState === 'completed'
         ? 100
-        : stepProgressFloors[activeStepIndex] ?? defaultEvalStatus.progress)
-  )
+        : (stepProgressFloors[activeStepIndex] ?? defaultEvalStatus.progress))
+  );
 
   const completedStepCount =
     terminalState === 'completed'
       ? 5
       : typeof completedSteps === 'number'
         ? Math.min(5, Math.max(0, completedSteps))
-        : Math.min(4, Math.max(0, activeStepIndex))
+        : Math.min(4, Math.max(0, activeStepIndex));
 
   const defaultActiveStep =
     evaluationSteps[activeStepIndex]?.activeLabel ||
     evaluationSteps[activeStepIndex]?.label ||
-    'Evaluating roadmap…'
+    'Evaluating roadmap…';
 
   const defaultLogByStep = [
     'Scanning your roadmap for topic coverage and structural completeness.',
@@ -89,7 +85,7 @@ const normalizeEvalStatus = (
     'Assessing how well the roadmap prepares you for real interview scenarios.',
     'Identifying missing topics, strengths, and areas of improvement.',
     'Compiling your final roadmap score and detailed feedback.',
-  ]
+  ];
 
   const defaultNextLabels = [
     'Estimated next: Learning depth',
@@ -97,14 +93,14 @@ const normalizeEvalStatus = (
     'Estimated next: Gap analysis',
     'Estimated next: Score compilation',
     'Estimated next: Score ready',
-  ]
+  ];
 
   return {
     progress,
     activeStepIndex,
     terminalState,
     logMessage:
-     terminalState === 'completed'
+      terminalState === 'completed'
         ? 'Evaluation complete. Your roadmap score is ready. ✦'
         : terminalState === 'failed'
           ? 'Evaluation failed. Please try again.'
@@ -123,60 +119,106 @@ const normalizeEvalStatus = (
           : defaultNextLabels[activeStepIndex] || defaultEvalStatus.nextLabel,
     stepsLabel: `${completedStepCount} / 5 steps complete`,
     activeActivityIndex:
-      terminalState === 'completed'
-        ? -1
-        : activityProgressMap[activeStepIndex] ?? 0,
-  }
-}
+      terminalState === 'completed' ? -1 : (activityProgressMap[activeStepIndex] ?? 0),
+  };
+};
 
 // ─── Icons ────────────────────────────────────────────────────────────────────
 
 const CheckIcon = () => (
-  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="3" aria-hidden="true">
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="white"
+    strokeWidth="3"
+    aria-hidden="true"
+  >
     <polyline points="20 6 9 17 4 12" />
   </svg>
-)
+);
 
 const ActivitySparkIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2" />
   </svg>
-)
+);
 
 const CompletenessIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <path d="M9 11l3 3L22 4" />
     <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11" />
   </svg>
-)
+);
 
 const DepthIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <line x1="12" y1="2" x2="12" y2="22" />
     <path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6" />
   </svg>
-)
+);
 
 const ReadinessIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <circle cx="12" cy="12" r="10" />
     <polyline points="12 6 12 12 16 14" />
   </svg>
-)
+);
 
 const GapIcon = () => (
-  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
+  <svg
+    width="13"
+    height="13"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    aria-hidden="true"
+  >
     <circle cx="11" cy="11" r="8" />
     <line x1="21" y1="21" x2="16.65" y2="16.65" />
   </svg>
-)
+);
 
 const activityChips: ActivityChip[] = [
   { label: 'Scanning completeness', icon: <CompletenessIcon /> },
   { label: 'Measuring depth', icon: <DepthIcon /> },
   { label: 'Checking readiness', icon: <ReadinessIcon /> },
   { label: 'Detecting gaps', icon: <GapIcon /> },
-]
+];
 
 // ─── Sub-components ───────────────────────────────────────────────────────────
 
@@ -186,7 +228,7 @@ const StatusDot = ({ state }: { state: ProgressStepState }) => {
       <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-(--success) dark:bg-(--success)">
         <CheckIcon />
       </span>
-    )
+    );
   }
 
   if (state === 'active') {
@@ -195,58 +237,51 @@ const StatusDot = ({ state }: { state: ProgressStepState }) => {
         <span className="absolute -inset-1 animate-spin rounded-full border-2 border-transparent border-t-(--brand-500) dark:border-t-[#f5a090]" />
         <span className="h-2 w-2 animate-pulse rounded-full bg-[#fff8ed] dark:bg-(--surface-canvas)" />
       </span>
-    )
+    );
   }
 
-  return (
-    <span className="h-6 w-6 shrink-0 rounded-full bg-[#1a1714]/15 dark:bg-[#f2f0eb]/15" />
-  )
-}
+  return <span className="h-6 w-6 shrink-0 rounded-full bg-[#1a1714]/15 dark:bg-[#f2f0eb]/15" />;
+};
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function OnboardingRoadmapEvaluationLoadingPage() {
-  const navigate = useNavigate()
-  const { jobId } = useParams<{ jobId: string }>()
+  const navigate = useNavigate();
+  const { jobId } = useParams<{ jobId: string }>();
 
   const roadmapTopic = useOnboardingStore(
-    (state) => state.step1Data?.topic || 'MERN stack interviews',
-  )
+    (state) => state.step1Data?.topic || 'MERN stack interviews'
+  );
   const roadmapGoal = useOnboardingStore(
-    (state) => state.step1Data?.goal || 'Crack top company interviews',
-  )
+    (state) => state.step1Data?.goal || 'Crack top company interviews'
+  );
 
-  const { data, isLoading, error } = useRoadmapEvaluationJobStatus(jobId)
+  const { data, isLoading, error } = useRoadmapEvaluationJobStatus(jobId);
 
-  const evalStatus = useMemo(
-    () => normalizeEvalStatus(data?.data),
-    [data?.data]
-  )
+  const evalStatus = useMemo(() => normalizeEvalStatus(data?.data), [data?.data]);
 
   const statusError =
-    error?.message ||
-    data?.data?.errorMessage ||
-    (!jobId ? 'Missing evaluation job ID.' : '')
+    error?.message || data?.data?.errorMessage || (!jobId ? 'Missing evaluation job ID.' : '');
 
   useEffect(() => {
-    if (evalStatus.terminalState !== 'completed') return
+    if (evalStatus.terminalState !== 'completed') return;
 
     const timer = window.setTimeout(() => {
-      navigate(`/onboarding/roadmap-evaluation/${jobId}/score`, { replace: true })
-    }, 1800)
+      navigate(`/onboarding/roadmap-evaluation/${jobId}/score`, { replace: true });
+    }, 1800);
 
-    return () => window.clearTimeout(timer)
-  }, [evalStatus.terminalState, navigate, jobId])
+    return () => window.clearTimeout(timer);
+  }, [evalStatus.terminalState, navigate, jobId]);
 
   const stepStates = useMemo<ProgressStepState[]>(() => {
     return evaluationSteps.map((_, index) => {
-      if (evalStatus.terminalState === 'completed') return 'done'
+      if (evalStatus.terminalState === 'completed') return 'done';
 
-      if (index < evalStatus.activeStepIndex) return 'done'
-      if (index === evalStatus.activeStepIndex) return 'active'
-      return 'pending'
-    })
-  }, [evalStatus.activeStepIndex, evalStatus.terminalState])
+      if (index < evalStatus.activeStepIndex) return 'done';
+      if (index === evalStatus.activeStepIndex) return 'active';
+      return 'pending';
+    });
+  }, [evalStatus.activeStepIndex, evalStatus.terminalState]);
 
   return (
     <div className="flex min-h-screen flex-col bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
@@ -258,7 +293,6 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           <span className="hidden rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-3 py-1 font-mono text-[9px] uppercase tracking-[0.13em] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.09)] dark:text-(--brand-500) sm:inline-flex">
             AI Roadmap Evaluation
           </span>
-          
         </div>
       </header>
 
@@ -275,13 +309,13 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
           </h1>
 
           <p className="max-w-127.5 text-[15px] leading-[1.65] text-(--text-secondary) dark:text-(--text-secondary)">
-            Gemini is analysing completeness, depth, interview-readiness, and
-            identifying gaps and opportunities in your roadmap.
+            Gemini is analysing completeness, depth, interview-readiness, and identifying gaps and
+            opportunities in your roadmap.
           </p>
         </section>
 
         {/* Error banner */}
-        {(statusError || isLoading === false && !data) && statusError && (
+        {(statusError || (isLoading === false && !data)) && statusError && (
           <div
             className="flex w-full items-start gap-2.5 rounded-md border border-[rgba(217,69,53,0.2)] border-l-[3px] border-l-(--danger) bg-[rgba(217,69,53,0.07)] px-4 py-3.5 text-[13px] leading-normal text-(--danger) dark:border-l-(--danger) dark:bg-[rgba(255,107,95,0.10)] dark:text-(--danger)"
             role="alert"
@@ -338,9 +372,9 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
 
             <div className="flex flex-col gap-2.5" role="list">
               {evaluationSteps.map((step, index) => {
-                const state = stepStates[index]
-                const isActive = state === 'active'
-                const isPending = state === 'pending'
+                const state = stepStates[index];
+                const isActive = state === 'active';
+                const isPending = state === 'pending';
 
                 return (
                   <div
@@ -366,7 +400,7 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
                       {isActive ? step.activeLabel || step.label : step.label}
                     </span>
                   </div>
-                )
+                );
               })}
             </div>
           </article>
@@ -401,7 +435,6 @@ export default function OnboardingRoadmapEvaluationLoadingPage() {
       </main>
 
       <OnboardingWorkflowFooter />
-
     </div>
-  )
+  );
 }

@@ -1,3 +1,3 @@
 export interface IModerationAppealToken {
-  create(userId: string, identifier: string): string
+  create(userId: string, identifier: string): string;
 }

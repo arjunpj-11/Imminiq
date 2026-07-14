@@ -1,21 +1,18 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import { AppShellBoundary } from '../../../../components/layout/AppShell'
+import { AppShellBoundary } from '../../../../components/layout/AppShell';
 
 interface IActivityAppShellProps {
-  children: ReactNode
+  children: ReactNode;
   viewer?: {
-    name: string
-    avatarUrl?: string | null
-    streak: number
-    isPremium: boolean
-  }
+    name: string;
+    avatarUrl?: string | null;
+    streak: number;
+    isPremium: boolean;
+  };
 }
 
-export default function ActivityAppShell({
-  children,
-  viewer,
-}: IActivityAppShellProps) {
+export default function ActivityAppShell({ children, viewer }: IActivityAppShellProps) {
   return (
     <AppShellBoundary
       viewer={
@@ -31,5 +28,5 @@ export default function ActivityAppShell({
     >
       {children}
     </AppShellBoundary>
-  )
+  );
 }

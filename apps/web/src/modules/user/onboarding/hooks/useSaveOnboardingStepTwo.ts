@@ -1,30 +1,27 @@
-import { useMutation } from '@tanstack/react-query'
-import type { AxiosError } from 'axios'
-import api from '../../../../lib/axios'
+import { useMutation } from '@tanstack/react-query';
+import type { AxiosError } from 'axios';
+import api from '../../../../lib/axios';
 
-export type OnboardingLevel =
-  | 'beginner'
-  | 'intermediate'
-  | 'advanced'
+export type OnboardingLevel = 'beginner' | 'intermediate' | 'advanced';
 
 interface ISaveOnboardingStepTwoPayload {
-  level: OnboardingLevel
+  level: OnboardingLevel;
 }
 
 interface ISaveOnboardingStepTwoResponse {
-  success: boolean
-  message: string
+  success: boolean;
+  message: string;
   data?: {
-    onboardingSessionId?: string
-    completedStep?: number
-    nextStep?: string
-    readyToGenerate?: boolean
-  }
+    onboardingSessionId?: string;
+    completedStep?: number;
+    nextStep?: string;
+    readyToGenerate?: boolean;
+  };
 }
 
 interface IApiErrorResponse {
-  success?: boolean
-  message?: string
+  success?: boolean;
+  message?: string;
 }
 
 export const useSaveOnboardingStepTwo = () => {
@@ -34,14 +31,12 @@ export const useSaveOnboardingStepTwo = () => {
     ISaveOnboardingStepTwoPayload
   >({
     mutationFn: async (payload) => {
-      const response =
-        await api.post<ISaveOnboardingStepTwoResponse>(
-          '/onboarding/step-2',
-          payload
-        )
+      const response = await api.post<ISaveOnboardingStepTwoResponse>(
+        '/onboarding/step-2',
+        payload
+      );
 
-      return response.data
+      return response.data;
     },
-  })
-}
-
+  });
+};

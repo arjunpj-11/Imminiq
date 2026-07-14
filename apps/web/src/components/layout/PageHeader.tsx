@@ -1,13 +1,13 @@
-import type { ReactNode } from 'react'
+import type { ReactNode } from 'react';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 interface IPageHeaderProps {
-  eyebrow?: string
-  title: ReactNode
-  description?: ReactNode
-  actions?: ReactNode
-  className?: string
+  eyebrow?: string;
+  title: ReactNode;
+  description?: ReactNode;
+  actions?: ReactNode;
+  className?: string;
 }
 
 export default function PageHeader({
@@ -21,20 +21,14 @@ export default function PageHeader({
     <header
       className={cn(
         'flex flex-wrap items-end justify-between gap-x-6 gap-y-4 border-b border-(--border-subtle) pb-5 max-[640px]:items-start max-[640px]:pb-4',
-        className,
+        className
       )}
     >
       <div className="min-w-0 flex-1">
-        {eyebrow && (
-          <p className="type-label-sm text-(--brand-500)">{eyebrow}</p>
-        )}
-        <h1 className={cn('type-heading-xl text-(--text-primary)', eyebrow && 'mt-2')}>
-          {title}
-        </h1>
+        {eyebrow && <p className="type-label-sm text-(--brand-500)">{eyebrow}</p>}
+        <h1 className={cn('type-heading-xl text-(--text-primary)', eyebrow && 'mt-2')}>{title}</h1>
         {description && (
-          <div className="type-body-md mt-2 max-w-3xl text-(--text-secondary)">
-            {description}
-          </div>
+          <div className="type-body-md mt-2 max-w-3xl text-(--text-secondary)">{description}</div>
         )}
       </div>
       {actions && (
@@ -43,5 +37,5 @@ export default function PageHeader({
         </div>
       )}
     </header>
-  )
+  );
 }

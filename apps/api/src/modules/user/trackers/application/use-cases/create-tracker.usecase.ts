@@ -1,11 +1,11 @@
-import type { ITrackerMapper } from '../tracker.mapper'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { CreateTrackerInput } from '../../domain/trackers.types'
+import type { ITrackerMapper } from '../tracker.mapper';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { CreateTrackerInput } from '../../domain/trackers.types';
 
-type CreateTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>
+type CreateTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>;
 
 export interface ICreateTrackerUseCase {
-  execute(input: CreateTrackerInput): Promise<CreateTrackerResultDTO>
+  execute(input: CreateTrackerInput): Promise<CreateTrackerResultDTO>;
 }
 
 export class CreateTrackerUseCase implements ICreateTrackerUseCase {
@@ -15,8 +15,8 @@ export class CreateTrackerUseCase implements ICreateTrackerUseCase {
   ) {}
 
   async execute(input: CreateTrackerInput): Promise<CreateTrackerResultDTO> {
-    const tracker = await this._trackerRepository.createTracker(input)
+    const tracker = await this._trackerRepository.createTracker(input);
 
-    return this._trackerMapper.toTrackerDto(tracker)
+    return this._trackerMapper.toTrackerDto(tracker);
   }
 }

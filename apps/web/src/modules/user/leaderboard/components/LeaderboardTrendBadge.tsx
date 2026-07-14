@@ -1,8 +1,4 @@
-import {
-  TrendDownIcon,
-  TrendFlatIcon,
-  TrendUpIcon,
-} from './icons/LeaderboardIcons'
+import { TrendDownIcon, TrendFlatIcon, TrendUpIcon } from './icons/LeaderboardIcons';
 
 export default function LeaderboardTrendBadge({ trend }: { trend: number }) {
   if (trend > 0) {
@@ -13,7 +9,7 @@ export default function LeaderboardTrendBadge({ trend }: { trend: number }) {
       >
         <TrendUpIcon /> {trend}
       </span>
-    )
+    );
   }
 
   if (trend < 0) {
@@ -24,7 +20,7 @@ export default function LeaderboardTrendBadge({ trend }: { trend: number }) {
       >
         <TrendDownIcon /> {Math.abs(trend)}
       </span>
-    )
+    );
   }
 
   return (
@@ -34,5 +30,5 @@ export default function LeaderboardTrendBadge({ trend }: { trend: number }) {
     >
       <TrendFlatIcon /> 0
     </span>
-  )
+  );
 }

@@ -1,17 +1,18 @@
-import 'express'
+import 'express';
 
 declare global {
   namespace Express {
     interface User {
-      userId: string
-      role: 'user' | 'admin' | 'moderator' | 'superadmin'
-      type?: 'access' | 'refresh'
+      userId: string;
+      role: 'user' | 'admin' | 'moderator' | 'superadmin';
+      type?: 'access' | 'refresh';
+      sessionId?: string;
     }
 
     interface Request {
-      user?: User
+      user?: User;
     }
   }
 }
 
-export {}
+export {};

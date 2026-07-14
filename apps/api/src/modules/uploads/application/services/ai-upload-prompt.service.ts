@@ -1,14 +1,12 @@
-import type { ProfileUploadKind } from '../../domain/uploads.types'
+import type { ProfileUploadKind } from '../../domain/uploads.types';
 
 export interface IAIUploadPromptBuilder {
-  buildPrompt(kind: ProfileUploadKind, prompt: string): string
+  buildPrompt(kind: ProfileUploadKind, prompt: string): string;
 }
 
 export class AIUploadPromptBuilder implements IAIUploadPromptBuilder {
   buildPrompt(kind: ProfileUploadKind, prompt: string): string {
-    return kind === 'avatar'
-      ? this.buildAvatarPrompt(prompt)
-      : this.buildBannerPrompt(prompt)
+    return kind === 'avatar' ? this.buildAvatarPrompt(prompt) : this.buildBannerPrompt(prompt);
   }
 
   private buildAvatarPrompt(prompt: string): string {
@@ -18,7 +16,7 @@ Subject instructions: ${prompt}.
 Style: centered portrait, clear face or character focus, polished digital illustration,
 professional profile picture composition, balanced lighting, simple background,
 no text, no watermark, no logo, square-friendly framing.
-`.trim()
+`.trim();
   }
 
   private buildBannerPrompt(prompt: string): string {
@@ -30,6 +28,6 @@ important visual elements placed near the center so the image can be cropped int
 balanced spacing on the left and right side.
 Style: polished digital artwork, elegant lighting, detailed background, premium visual quality,
 no text, no letters, no watermark, no logo, no UI elements.
-`.trim()
+`.trim();
   }
 }

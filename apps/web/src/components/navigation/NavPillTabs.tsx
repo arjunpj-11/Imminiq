@@ -1,20 +1,20 @@
-import type { ReactNode } from 'react'
-import { NavLink } from 'react-router-dom'
+import type { ReactNode } from 'react';
+import { NavLink } from 'react-router-dom';
 
-import { cn } from '../../lib/cn'
+import { cn } from '../../lib/cn';
 
 export interface INavPillTabItem {
-  to: string
-  label: ReactNode
-  icon?: ReactNode
-  end?: boolean
+  to: string;
+  label: ReactNode;
+  icon?: ReactNode;
+  end?: boolean;
 }
 
 interface INavPillTabsProps {
-  items: readonly INavPillTabItem[]
-  className?: string
-  itemClassName?: string
-  ariaLabel?: string
+  items: readonly INavPillTabItem[];
+  className?: string;
+  itemClassName?: string;
+  ariaLabel?: string;
 }
 
 export default function NavPillTabs({
@@ -28,7 +28,7 @@ export default function NavPillTabs({
       aria-label={ariaLabel}
       className={cn(
         'flex max-w-full flex-wrap gap-1 rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-2 dark:border-(--border-subtle) dark:bg-(--surface-card)',
-        className,
+        className
       )}
     >
       {items.map((item) => (
@@ -42,7 +42,7 @@ export default function NavPillTabs({
               isActive
                 ? 'bg-(--brand-500) text-[#fdf8f5] dark:bg-(--brand-500) dark:text-[#141412]'
                 : 'text-(--text-secondary) hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:bg-[rgba(232,129,106,0.08)] dark:hover:text-(--brand-500)',
-              itemClassName,
+              itemClassName
             )
           }
         >
@@ -51,5 +51,5 @@ export default function NavPillTabs({
         </NavLink>
       ))}
     </nav>
-  )
+  );
 }

@@ -1,23 +1,13 @@
-import { extname } from 'node:path'
-import multer from 'multer'
+import { extname } from 'node:path';
+import multer from 'multer';
 
-import { ApiError } from '../utils/ApiError'
+import { ApiError } from '../utils/ApiError';
 
-const storage = multer.memoryStorage()
+const storage = multer.memoryStorage();
 
-const imageMimeTypes = new Set([
-  'image/jpeg',
-  'image/jpg',
-  'image/png',
-  'image/webp',
-])
+const imageMimeTypes = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
 
-const imageExtensions = new Set([
-  '.jpg',
-  '.jpeg',
-  '.png',
-  '.webp',
-])
+const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 
 export const uploadMiddleware = multer({
   storage,
@@ -26,17 +16,13 @@ export const uploadMiddleware = multer({
     files: 1,
   },
   fileFilter: (_req, file, callback) => {
-    const extension = extname(file.originalname).trim().toLowerCase()
+    const extension = extname(file.originalname).trim().toLowerCase();
 
     if (!imageMimeTypes.has(file.mimetype)) {
       callback(
-        new ApiError(
-          400,
-          'Only JPG, PNG, and WEBP images are allowed',
-          'INVALID_IMAGE_MIME_TYPE'
-        )
-      )
-      return
+        new ApiError(400, 'Only JPG, PNG, and WEBP images are allowed', 'INVALID_IMAGE_MIME_TYPE')
+      );
+      return;
     }
 
     if (!imageExtensions.has(extension)) {
@@ -46,10 +32,10 @@ export const uploadMiddleware = multer({
           'Image filename must use .jpg, .jpeg, .png, or .webp',
           'INVALID_IMAGE_EXTENSION'
         )
-      )
-      return
+      );
+      return;
     }
 
-    callback(null, true)
+    callback(null, true);
   },
-})
+});

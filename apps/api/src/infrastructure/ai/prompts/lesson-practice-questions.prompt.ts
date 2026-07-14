@@ -1,12 +1,13 @@
 export const LESSON_PRACTICE_QUESTIONS_SYSTEM_PROMPT =
-  'You are Scribe AI, an expert lesson practice question generator. Return only strict valid JSON. No markdown.'
+  'You are Scribe AI, an expert lesson practice question generator. Return only strict valid JSON. No markdown.';
 
 export const buildLessonPracticeQuestionsPrompt = (input: {
-  lessonTitle: string
-  lessonSummary: string
-  lessonExplanation: string
-  count: number
-}): string => `
+  lessonTitle: string;
+  lessonSummary: string;
+  lessonExplanation: string;
+  count: number;
+}): string =>
+  `
 Generate ${input.count} more practice questions for this lesson.
 
 Lesson title:
@@ -30,4 +31,4 @@ Return ONLY valid JSON using this exact structure:
 {
   "questions": ["question 1", "question 2"]
 }
-`.trim()
+`.trim();

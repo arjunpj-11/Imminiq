@@ -1,1 +1,1 @@
-export * from './repositories/mongo-activity.repository'
+export * from './repositories/mongo-activity.repository';

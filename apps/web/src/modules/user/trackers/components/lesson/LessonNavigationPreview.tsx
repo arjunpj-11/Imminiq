@@ -6,18 +6,20 @@ export default function LessonNavigationPreview({
   completing,
   isCompleted,
 }: {
-  previousLesson: { _id: string; title: string } | null
-  nextLesson: { _id: string; title: string } | null
-  onOpenLesson: (id: string) => void
-  onComplete: () => void
-  completing: boolean
-  isCompleted: boolean
+  previousLesson: { _id: string; title: string } | null;
+  nextLesson: { _id: string; title: string } | null;
+  onOpenLesson: (id: string) => void;
+  onComplete: () => void;
+  completing: boolean;
+  isCompleted: boolean;
 }) {
   return (
     <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card)">
       <div className="mb-4 flex items-center justify-between gap-3">
         <div>
-          <h3 className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">Lesson Navigation</h3>
+          <h3 className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
+            Lesson Navigation
+          </h3>
           <p className="mt-1 text-[11.5px] leading-normal text-(--text-secondary) dark:text-(--text-secondary)">
             Jump to the previous or next lesson quickly.
           </p>
@@ -96,7 +98,7 @@ export default function LessonNavigationPreview({
         )}
       </div>
     </section>
-  )
+  );
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────

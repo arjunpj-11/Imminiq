@@ -1,1 +1,1 @@
-export type TrackerSortBy = 'lastActive' | 'createdAt' | 'progress' | 'title'
+export type TrackerSortBy = 'lastActive' | 'createdAt' | 'progress' | 'title';

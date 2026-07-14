@@ -1,57 +1,74 @@
-import { User } from '../../../../../../infrastructure/database/models/user.model'
-import type { UserEntity } from '../../../domain/entities/user.entity'
-import type { UpdateUserFullNameInput } from '../../../domain/repositories/users.repository.interface'
-import { MongoUsersBaseRepository } from '../shared/mongo-users-base.repository'
-import { MongoUsersErrorMapper } from '../shared/mongo-users-error.mapper'
-import { MongoUsersMapper } from '../shared/mongo-users.mapper'
-import { MONGO_USERS_ACTIVE_FILTER } from '../shared/mongo-users-query.constants'
-import type { MongoUserRecord } from '../shared/mongo-users.types'
+import { User } from '../../../../../../infrastructure/database/models/user.model';
+import type { UserEntity } from '../../../domain/entities/user.entity';
+import type { UpdateUserFullNameInput } from '../../../domain/repositories/users.repository.interface';
+import { MongoUsersBaseRepository } from '../shared/mongo-users-base.repository';
+import { MongoUsersErrorMapper } from '../shared/mongo-users-error.mapper';
+import { MongoUsersMapper } from '../shared/mongo-users.mapper';
+import { MONGO_USERS_ACTIVE_FILTER } from '../shared/mongo-users-query.constants';
+import type { MongoUserRecord } from '../shared/mongo-users.types';
 
 const USER_SELECT =
-  '_id fullName username email role status emailVerified phoneVerified onboardingCompleted coins xp level streakCount avatarUrl provider referralCode createdAt updatedAt lastActiveAt'
+  '_id fullName username email role status emailVerified phoneVerified onboardingCompleted coins xp level teacherXp teacherLevel streakCount avatarUrl provider referralCode createdAt updatedAt lastActiveAt';
 
 export class MongoUsersUserRepository extends MongoUsersBaseRepository {
   constructor(private readonly _mapper = new MongoUsersMapper()) {
-    super()
+    super();
   }
 
   async findById(userId: string): Promise<UserEntity | null> {
-    return this.execute(
-      'USER_READ_FAILED',
-      'Failed to read user',
-      async () => {
-        const user = await User.findOne({
-          _id: userId,
-          ...MONGO_USERS_ACTIVE_FILTER,
-        })
-          .select(USER_SELECT)
-          .lean<MongoUserRecord>()
+    return this.execute('USER_READ_FAILED', 'Failed to read user', async () => {
+      const user = await User.findOne({
+        _id: userId,
+        ...MONGO_USERS_ACTIVE_FILTER,
+      })
+        .select(USER_SELECT)
+        .lean<MongoUserRecord>();
 
-        return user ? this._mapper.toUserEntity(user) : null
-      },
-    )
+      return user ? this._mapper.toUserEntity(user) : null;
+    });
   }
 
   async findByUsername(username: string): Promise<UserEntity | null> {
-    return this.execute(
-      'USER_READ_FAILED',
-      'Failed to read user by username',
-      async () => {
-        const user = await User.findOne({
-          username,
-          ...MONGO_USERS_ACTIVE_FILTER,
-        })
-          .select(USER_SELECT)
-          .lean<MongoUserRecord>()
+    return this.execute('USER_READ_FAILED', 'Failed to read user by username', async () => {
+      const user = await User.findOne({
+        username,
+        ...MONGO_USERS_ACTIVE_FILTER,
+      })
+        .select(USER_SELECT)
+        .lean<MongoUserRecord>();
 
-        return user ? this._mapper.toUserEntity(user) : null
-      },
-    )
+      return user ? this._mapper.toUserEntity(user) : null;
+    });
   }
 
-  async updateFullName(
-    input: UpdateUserFullNameInput,
-  ): Promise<UserEntity | null> {
+  async getProgressionRanks(userId: string) {
+    const user = await User.findOne({
+      _id: userId,
+      ...MONGO_USERS_ACTIVE_FILTER,
+    })
+      .select('xp teacherXp')
+      .lean<{ xp?: number; teacherXp?: number }>();
+
+    if (!user) return { studentRank: 0, teacherRank: 0 };
+
+    const [higherStudentScores, higherTeacherScores] = await Promise.all([
+      User.countDocuments({
+        ...MONGO_USERS_ACTIVE_FILTER,
+        xp: { $gt: Number(user.xp ?? 0) },
+      }),
+      User.countDocuments({
+        ...MONGO_USERS_ACTIVE_FILTER,
+        teacherXp: { $gt: Number(user.teacherXp ?? 0) },
+      }),
+    ]);
+
+    return {
+      studentRank: higherStudentScores + 1,
+      teacherRank: higherTeacherScores + 1,
+    };
+  }
+
+  async updateFullName(input: UpdateUserFullNameInput): Promise<UserEntity | null> {
     return this.execute(
       'USER_UPDATE_FAILED',
       'Failed to update user full name',
@@ -68,16 +85,16 @@ export class MongoUsersUserRepository extends MongoUsersBaseRepository {
           },
           {
             returnDocument: 'after',
-          },
+          }
         )
           .select(USER_SELECT)
-          .lean<MongoUserRecord>()
+          .lean<MongoUserRecord>();
 
-        return user ? this._mapper.toUserEntity(user) : null
+        return user ? this._mapper.toUserEntity(user) : null;
       },
-      MongoUsersErrorMapper.mapDuplicateUserRecordError,
-    )
+      MongoUsersErrorMapper.mapDuplicateUserRecordError
+    );
   }
 }
 
-export const mongoUsersUserRepository = new MongoUsersUserRepository()
+export const mongoUsersUserRepository = new MongoUsersUserRepository();

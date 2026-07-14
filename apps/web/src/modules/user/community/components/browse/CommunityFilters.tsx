@@ -1,11 +1,11 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 import {
   COMMUNITY_RATING_OPTIONS,
   COMMUNITY_SORT_OPTIONS,
-} from '../../constants/community.constants'
-import type { CommunitySort } from '../../types/community.types'
-import { cn } from '../../utils/community-ui'
+} from '../../constants/community.constants';
+import type { CommunitySort } from '../../types/community.types';
+import { cn } from '../../utils/community-ui';
 import {
   ChevronDownIcon,
   FilterIcon,
@@ -13,22 +13,22 @@ import {
   StarFilledIcon,
   VerifiedIcon,
   XSmallIcon,
-} from '../icons/CommunityIcons'
+} from '../icons/CommunityIcons';
 
 interface ICommunityFiltersProps {
-  search: string
-  topics: string[]
-  selectedTopics: string[]
-  minRating: number | null
-  verifiedOnly: boolean
-  sort: CommunitySort
-  resultCount: number
-  onSearchChange: (search: string) => void
-  onTopicsChange: (topics: string[]) => void
-  onMinRatingChange: (rating: number | null) => void
-  onVerifiedOnlyChange: (verifiedOnly: boolean) => void
-  onSortChange: (sort: CommunitySort) => void
-  onClearAll: () => void
+  search: string;
+  topics: string[];
+  selectedTopics: string[];
+  minRating: number | null;
+  verifiedOnly: boolean;
+  sort: CommunitySort;
+  resultCount: number;
+  onSearchChange: (search: string) => void;
+  onTopicsChange: (topics: string[]) => void;
+  onMinRatingChange: (rating: number | null) => void;
+  onVerifiedOnlyChange: (verifiedOnly: boolean) => void;
+  onSortChange: (sort: CommunitySort) => void;
+  onClearAll: () => void;
 }
 
 export default function CommunityFilters({
@@ -46,48 +46,44 @@ export default function CommunityFilters({
   onSortChange,
   onClearAll,
 }: ICommunityFiltersProps) {
-  const [topicSearch, setTopicSearch] = useState('')
-  const [topicDropdownOpen, setTopicDropdownOpen] = useState(false)
-  const [filterPanelOpen, setFilterPanelOpen] = useState(false)
-  const dropdownRef = useRef<HTMLDivElement>(null)
+  const [topicSearch, setTopicSearch] = useState('');
+  const [topicDropdownOpen, setTopicDropdownOpen] = useState(false);
+  const [filterPanelOpen, setFilterPanelOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handler = (event: MouseEvent) => {
-      if (
-        dropdownRef.current &&
-        !dropdownRef.current.contains(event.target as Node)
-      ) {
-        setTopicDropdownOpen(false)
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setTopicDropdownOpen(false);
       }
-    }
+    };
 
-    document.addEventListener('mousedown', handler)
+    document.addEventListener('mousedown', handler);
 
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
 
   const filteredTopics = useMemo(() => {
-    const lowered = topicSearch.trim().toLowerCase()
+    const lowered = topicSearch.trim().toLowerCase();
 
-    if (!lowered) return topics
+    if (!lowered) return topics;
 
-    return topics.filter((topic) => topic.toLowerCase().includes(lowered))
-  }, [topicSearch, topics])
+    return topics.filter((topic) => topic.toLowerCase().includes(lowered));
+  }, [topicSearch, topics]);
 
   const activeFilterCount =
-    selectedTopics.length + (minRating !== null ? 1 : 0) + (verifiedOnly ? 1 : 0)
+    selectedTopics.length + (minRating !== null ? 1 : 0) + (verifiedOnly ? 1 : 0);
 
-  const isAnyFilterActive =
-    Boolean(search.trim()) || activeFilterCount > 0 || sort !== 'top-rated'
+  const isAnyFilterActive = Boolean(search.trim()) || activeFilterCount > 0 || sort !== 'top-rated';
 
   const toggleTopic = (topic: string) => {
     if (selectedTopics.includes(topic)) {
-      onTopicsChange(selectedTopics.filter((item) => item !== topic))
-      return
+      onTopicsChange(selectedTopics.filter((item) => item !== topic));
+      return;
     }
 
-    onTopicsChange([...selectedTopics, topic])
-  }
+    onTopicsChange([...selectedTopics, topic]);
+  };
 
   return (
     <div className="flex flex-col gap-3">
@@ -113,7 +109,7 @@ export default function CommunityFilters({
               'inline-flex min-w-40 items-center justify-between gap-2 rounded-xl border-[1.5px] px-4 py-2.25 text-[13px] font-medium transition',
               selectedTopics.length > 0
                 ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-(--brand-500) dark:border-[rgba(232,129,106,0.35)] dark:text-(--brand-500)'
-                : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-[rgba(184,76,43,0.22)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)',
+                : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-[rgba(184,76,43,0.22)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)'
             )}
           >
             {selectedTopics.length > 0
@@ -137,7 +133,7 @@ export default function CommunityFilters({
               <div className="max-h-60 overflow-y-auto p-2">
                 {filteredTopics.length > 0 ? (
                   filteredTopics.map((topic) => {
-                    const selected = selectedTopics.includes(topic)
+                    const selected = selectedTopics.includes(topic);
 
                     return (
                       <button
@@ -148,13 +144,13 @@ export default function CommunityFilters({
                           'flex w-full items-center justify-between rounded-lg px-3 py-2 text-left text-[12.5px] transition',
                           selected
                             ? 'bg-[rgba(184,76,43,0.09)] font-bold text-(--brand-500) dark:text-(--brand-500)'
-                            : 'text-(--text-secondary) hover:bg-[rgba(26,23,20,0.04)] dark:text-(--text-secondary) dark:hover:bg-white/6',
+                            : 'text-(--text-secondary) hover:bg-[rgba(26,23,20,0.04)] dark:text-(--text-secondary) dark:hover:bg-white/6'
                         )}
                       >
                         {topic}
                         {selected && <VerifiedIcon />}
                       </button>
-                    )
+                    );
                   })
                 ) : (
                   <div className="px-3 py-4 text-center text-[12px] text-[#9b9a92]">
@@ -185,7 +181,7 @@ export default function CommunityFilters({
             'inline-flex items-center gap-2 rounded-xl border-[1.5px] px-4 py-2.25 text-[13px] font-medium transition',
             filterPanelOpen || activeFilterCount > 0
               ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-(--brand-500) dark:border-[rgba(232,129,106,0.35)] dark:text-(--brand-500)'
-              : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-[rgba(184,76,43,0.22)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)',
+              : 'border-(--border-subtle) bg-(--surface-card) text-(--text-secondary) hover:border-[rgba(184,76,43,0.22)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)'
           )}
         >
           <FilterIcon />
@@ -224,9 +220,7 @@ export default function CommunityFilters({
               <button
                 type="button"
                 aria-label={`Remove ${topic}`}
-                onClick={() =>
-                  onTopicsChange(selectedTopics.filter((item) => item !== topic))
-                }
+                onClick={() => onTopicsChange(selectedTopics.filter((item) => item !== topic))}
                 className="opacity-60 transition hover:opacity-100"
               >
                 <XSmallIcon />
@@ -253,7 +247,7 @@ export default function CommunityFilters({
                       'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.25 text-[12px] font-medium transition',
                       minRating === option.value
                         ? 'border-[rgba(196,154,44,0.4)] bg-[rgba(196,154,44,0.12)] text-[#c49a2c]'
-                        : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)',
+                        : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)'
                     )}
                   >
                     {option.value !== null && (
@@ -281,7 +275,7 @@ export default function CommunityFilters({
                     'rounded-full border px-3 py-1.25 text-[12px] font-medium transition',
                     !verifiedOnly
                       ? 'border-[rgba(184,76,43,0.35)] bg-[rgba(184,76,43,0.09)] text-(--brand-500) dark:text-(--brand-500)'
-                      : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)',
+                      : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)'
                   )}
                 >
                   All
@@ -293,7 +287,7 @@ export default function CommunityFilters({
                     'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.25 text-[12px] font-medium transition',
                     verifiedOnly
                       ? 'border-[rgba(45,106,71,0.35)] bg-[rgba(45,106,71,0.09)] text-(--success) dark:text-(--success)'
-                      : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)',
+                      : 'border-(--border-subtle) bg-white text-(--text-secondary) hover:border-[rgba(184,76,43,0.2)] dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary)'
                   )}
                 >
                   <VerifiedIcon /> Verified only
@@ -305,8 +299,8 @@ export default function CommunityFilters({
               <button
                 type="button"
                 onClick={() => {
-                  onMinRatingChange(null)
-                  onVerifiedOnlyChange(false)
+                  onMinRatingChange(null);
+                  onVerifiedOnlyChange(false);
                 }}
                 className="text-[12px] text-[#9b9a92] underline underline-offset-2 transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
               >
@@ -317,5 +311,5 @@ export default function CommunityFilters({
         </div>
       )}
     </div>
-  )
+  );
 }

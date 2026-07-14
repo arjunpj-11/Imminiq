@@ -1,24 +1,24 @@
 // apps/api/src/shared/email/email.templates.ts
 
 type OtpEmailTemplateParams = {
-  fullName?: string
-  otp: string
-  type: 'verify_account' | 'reset_password'
-}
+  fullName?: string;
+  otp: string;
+  type: 'verify_account' | 'reset_password';
+};
 
 type EmailChangeVerificationTemplateParams = {
-  fullName?: string
-  newEmail: string
-  verificationUrl: string
-  expiresMinutes: number
-}
+  fullName?: string;
+  newEmail: string;
+  verificationUrl: string;
+  expiresMinutes: number;
+};
 
 type EmailChangeAlertTemplateParams = {
-  fullName?: string
-  requestedNewEmail: string
-}
+  fullName?: string;
+  requestedNewEmail: string;
+};
 
-const CURRENT_YEAR = new Date().getFullYear()
+const CURRENT_YEAR = new Date().getFullYear();
 
 const escapeHtml = (value: string) => {
   return value
@@ -26,32 +26,26 @@ const escapeHtml = (value: string) => {
     .replaceAll('<', '&lt;')
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;')
-}
+    .replaceAll("'", '&#039;');
+};
 
-export const otpEmailTemplate = ({
-  fullName,
-  otp,
-  type,
-}: OtpEmailTemplateParams) => {
-  const isResetPassword = type === 'reset_password'
+export const otpEmailTemplate = ({ fullName, otp, type }: OtpEmailTemplateParams) => {
+  const isResetPassword = type === 'reset_password';
 
-  const safeName = fullName ? escapeHtml(fullName) : 'there'
-  const safeOtp = escapeHtml(otp)
+  const safeName = fullName ? escapeHtml(fullName) : 'there';
+  const safeOtp = escapeHtml(otp);
 
-  const title = isResetPassword
-    ? 'Reset your Imminiq password'
-    : 'Verify your Imminiq account'
+  const title = isResetPassword ? 'Reset your Imminiq password' : 'Verify your Imminiq account';
 
-  const eyebrow = isResetPassword ? 'Password Recovery' : 'Account Verification'
+  const eyebrow = isResetPassword ? 'Password Recovery' : 'Account Verification';
 
   const description = isResetPassword
     ? 'Use this one-time code to reset your password and securely get back into your learning dashboard.'
-    : 'Use this one-time code to verify your account and start building personalized AI learning paths for any subject.'
+    : 'Use this one-time code to verify your account and start building personalized AI learning paths for any subject.';
 
   const footerNote = isResetPassword
     ? 'If you did not request a password reset, you can safely ignore this email.'
-    : 'If you did not create an Imminiq account, you can safely ignore this email.'
+    : 'If you did not create an Imminiq account, you can safely ignore this email.';
 
   return `
 <!DOCTYPE html>
@@ -184,8 +178,8 @@ export const otpEmailTemplate = ({
   </table>
 </body>
 </html>
-`
-}
+`;
+};
 
 export const emailChangeVerificationTemplate = ({
   fullName,
@@ -193,9 +187,9 @@ export const emailChangeVerificationTemplate = ({
   verificationUrl,
   expiresMinutes,
 }: EmailChangeVerificationTemplateParams) => {
-  const safeName = fullName ? escapeHtml(fullName) : 'there'
-  const safeNewEmail = escapeHtml(newEmail)
-  const safeVerificationUrl = escapeHtml(verificationUrl)
+  const safeName = fullName ? escapeHtml(fullName) : 'there';
+  const safeNewEmail = escapeHtml(newEmail);
+  const safeVerificationUrl = escapeHtml(verificationUrl);
 
   return `
 <!DOCTYPE html>
@@ -354,15 +348,15 @@ export const emailChangeVerificationTemplate = ({
   </table>
 </body>
 </html>
-`
-}
+`;
+};
 
 export const emailChangeAlertTemplate = ({
   fullName,
   requestedNewEmail,
 }: EmailChangeAlertTemplateParams) => {
-  const safeName = fullName ? escapeHtml(fullName) : 'there'
-  const safeRequestedNewEmail = escapeHtml(requestedNewEmail)
+  const safeName = fullName ? escapeHtml(fullName) : 'there';
+  const safeRequestedNewEmail = escapeHtml(requestedNewEmail);
 
   return `
 <!DOCTYPE html>
@@ -495,5 +489,5 @@ export const emailChangeAlertTemplate = ({
   </table>
 </body>
 </html>
-`
-}
+`;
+};

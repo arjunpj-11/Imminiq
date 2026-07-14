@@ -1,5 +1,5 @@
-import { TrackerDomainError } from "../../../domain/tracker-domain.error";
-import type { ErrorMapper } from "./mongo-tracker-error.mapper";
+import { TrackerDomainError } from '../../../domain/tracker-domain.error';
+import type { ErrorMapper } from './mongo-tracker-error.mapper';
 
 type ErrorDetails = {
   name?: unknown;
@@ -18,7 +18,7 @@ export abstract class MongoTrackerBaseRepository {
     code: string,
     message: string,
     operation: () => Promise<T>,
-    mapError?: ErrorMapper,
+    mapError?: ErrorMapper
   ): Promise<T> {
     try {
       return await operation();
@@ -39,13 +39,9 @@ export abstract class MongoTrackerBaseRepository {
     }
   }
 
-  private logRepositoryError(
-    code: string,
-    message: string,
-    error: unknown,
-  ): void {
+  private logRepositoryError(code: string, message: string, error: unknown): void {
     if (!(error instanceof Error)) {
-      console.error("Tracker repository operation failed", {
+      console.error('Tracker repository operation failed', {
         code,
         message,
         originalError: error,
@@ -56,7 +52,7 @@ export abstract class MongoTrackerBaseRepository {
 
     const details = error as Error & ErrorDetails;
 
-    console.error("Tracker repository operation failed", {
+    console.error('Tracker repository operation failed', {
       code,
       message,
       originalError: {

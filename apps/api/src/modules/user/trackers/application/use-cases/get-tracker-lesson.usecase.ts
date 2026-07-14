@@ -1,62 +1,68 @@
 // apps/api/src/modules/user/trackers/application/use-cases/get-tracker-lesson.usecase.ts
 
-import { TrackerApplicationError } from '../tracker-application.error'
-import type { ITrackerMapper } from '../tracker.mapper'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
-import type { SubtopicWithProgressRecord } from '../../domain/trackers.types'
+import { TrackerApplicationError } from '../tracker-application.error';
+import type { ITrackerMapper } from '../tracker.mapper';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
+import type { SubtopicWithProgressRecord } from '../../domain/trackers.types';
 
-type GetTrackerLessonResultDTO = ReturnType<
-  ITrackerMapper['toGeneratedLessonDto']
->
+type GetTrackerLessonResultDTO = ReturnType<ITrackerMapper['toGeneratedLessonDto']>;
 
 const flattenSubtopics = (subtopics: SubtopicWithProgressRecord[]) => {
   return [...subtopics].sort((a, b) => {
     if (a.topicId.toString() !== b.topicId.toString()) {
-      return a.topicId.toString().localeCompare(b.topicId.toString())
+      return a.topicId.toString().localeCompare(b.topicId.toString());
     }
 
     if (a.depth !== b.depth) {
-      return a.depth - b.depth
+      return a.depth - b.depth;
     }
 
-    return a.order - b.order
-  })
-}
+    return a.order - b.order;
+  });
+};
 
 export interface IGetTrackerLessonUseCase {
   execute(input: {
-    trackerId: string
-    subtopicId: string
-    userId: string
-  }): Promise<GetTrackerLessonResultDTO>
+    trackerId: string;
+    subtopicId: string;
+    userId: string;
+  }): Promise<GetTrackerLessonResultDTO>;
 }
 
 export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
   constructor(
-    private readonly _trackerRepository: Pick<ITrackerRepository, 'createLesson' | 'ensureUserProgressInitialized' | 'findLessonBySubtopicId' | 'findOwnedTrackerById' | 'getSubtopicsWithUserProgress' | 'getTopicsForTracker'>,
+    private readonly _trackerRepository: Pick<
+      ITrackerRepository,
+      | 'createLesson'
+      | 'ensureUserProgressInitialized'
+      | 'findLessonBySubtopicId'
+      | 'findOwnedTrackerById'
+      | 'getSubtopicsWithUserProgress'
+      | 'getTopicsForTracker'
+    >,
     private readonly _trackerAIGateway: ITrackerAIGateway,
-    private readonly _trackerMapper: ITrackerMapper,
+    private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(input: {
-    trackerId: string
-    subtopicId: string
-    userId: string
+    trackerId: string;
+    subtopicId: string;
+    userId: string;
   }): Promise<GetTrackerLessonResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
-    })
+    });
 
     if (!tracker) {
-      throw TrackerApplicationError.trackerNotFound('Tracker not found')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found');
     }
 
     await this._trackerRepository.ensureUserProgressInitialized({
       userId: input.userId,
       trackerId: input.trackerId,
-    })
+    });
 
     const [topics, subtopics] = await Promise.all([
       this._trackerRepository.getTopicsForTracker(input.trackerId),
@@ -64,25 +70,25 @@ export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
         trackerId: input.trackerId,
         userId: input.userId,
       }),
-    ])
+    ]);
 
     const currentSubtopic = subtopics.find((subtopic) => {
-      return subtopic._id.toString() === input.subtopicId
-    })
+      return subtopic._id.toString() === input.subtopicId;
+    });
 
     if (!currentSubtopic) {
-      throw TrackerApplicationError.lessonNodeNotFound('Lesson node not found')
+      throw TrackerApplicationError.lessonNodeNotFound('Lesson node not found');
     }
 
     const topic = topics.find((item) => {
-      return item._id.toString() === currentSubtopic.topicId.toString()
-    })
+      return item._id.toString() === currentSubtopic.topicId.toString();
+    });
 
     let lesson = await this._trackerRepository.findLessonBySubtopicId({
       trackerId: input.trackerId,
       subtopicId: input.subtopicId,
       userId: input.userId,
-    })
+    });
 
     if (!lesson) {
       const generated = await this._trackerAIGateway.generateLesson({
@@ -91,29 +97,28 @@ export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
         subtopicTitle: currentSubtopic.title,
         subtopicDescription: currentSubtopic.description,
         level: 'beginner',
-      })
+      });
 
       lesson = await this._trackerRepository.createLesson({
         trackerId: input.trackerId,
         subtopicId: input.subtopicId,
         userId: input.userId,
         ...generated,
-      })
+      });
     }
 
-    const flatSubtopics = flattenSubtopics(subtopics)
+    const flatSubtopics = flattenSubtopics(subtopics);
 
     const currentIndex = flatSubtopics.findIndex((subtopic) => {
-      return subtopic._id.toString() === input.subtopicId
-    })
+      return subtopic._id.toString() === input.subtopicId;
+    });
 
-    const previousSubtopic =
-      currentIndex > 0 ? flatSubtopics[currentIndex - 1] : null
+    const previousSubtopic = currentIndex > 0 ? flatSubtopics[currentIndex - 1] : null;
 
     const nextSubtopic =
       currentIndex >= 0 && currentIndex < flatSubtopics.length - 1
         ? flatSubtopics[currentIndex + 1]
-        : null
+        : null;
 
     const result = {
       tracker,
@@ -151,8 +156,8 @@ export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
         isLocked: subtopic.isLocked,
         estimatedMinutes: subtopic.estimatedMinutes || 5,
       })),
-    }
+    };
 
-    return this._trackerMapper.toGeneratedLessonDto(result)
+    return this._trackerMapper.toGeneratedLessonDto(result);
   }
 }

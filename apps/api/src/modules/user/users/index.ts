@@ -1,4 +1,4 @@
-export type { IGetMeUseCase } from './application/use-cases/get-me.usecase'
+export type { IGetMeUseCase } from './application/use-cases/get-me.usecase';
 
 export type {
   IActivityFeedItemViewDTO,
@@ -15,7 +15,7 @@ export type {
   IStreakHeatmapDayDTO,
   IStreakSummaryViewDTO,
   UpdateMyProfileInputDTO,
-} from './application/users.dto'
+} from './application/users.dto';
 
 export type {
   BadgeType,
@@ -23,4 +23,7 @@ export type {
   ProfileTrackerStatus,
   RelationshipState,
   StreakIntensity,
-} from './domain/users.types'
+} from './domain/users.types';
+
+export { createUsersComposition } from './users.factory';
+export { createUsersRoutes } from './presentation/users.routes';

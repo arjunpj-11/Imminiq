@@ -1,20 +1,16 @@
-import {
-  MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS,
-} from '../moderation-appeal.constants'
-import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface'
-import type { IModerationAppealCaseIdGenerator } from '../../domain/services/case-id-generator.interface'
-import { ModerationAppealApplicationError } from '../moderation-appeal-application.error'
+import { MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS } from '../moderation-appeal.constants';
+import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface';
+import type { IModerationAppealCaseIdGenerator } from '../../domain/services/case-id-generator.interface';
+import { ModerationAppealApplicationError } from '../moderation-appeal-application.error';
 
 export interface IModerationAppealCaseIdAllocator {
-  generateUniqueCaseId(): Promise<string>
+  generateUniqueCaseId(): Promise<string>;
 }
 
-export class ModerationAppealCaseIdAllocator
-  implements IModerationAppealCaseIdAllocator
-{
+export class ModerationAppealCaseIdAllocator implements IModerationAppealCaseIdAllocator {
   constructor(
     private readonly _moderationAppealRepository: IModerationAppealQueryRepository,
-    private readonly _caseIdGenerator: IModerationAppealCaseIdGenerator,
+    private readonly _caseIdGenerator: IModerationAppealCaseIdGenerator
   ) {}
 
   async generateUniqueCaseId(): Promise<string> {
@@ -23,14 +19,14 @@ export class ModerationAppealCaseIdAllocator
       attempt < MODERATION_APPEAL_CASE_ID_GENERATION_MAX_ATTEMPTS;
       attempt += 1
     ) {
-      const caseId = this._caseIdGenerator.generate()
-      const exists = await this._moderationAppealRepository.caseIdExists(caseId)
+      const caseId = this._caseIdGenerator.generate();
+      const exists = await this._moderationAppealRepository.caseIdExists(caseId);
 
       if (!exists) {
-        return caseId
+        return caseId;
       }
     }
 
-    throw ModerationAppealApplicationError.appealCaseIdGenerationFailed()
+    throw ModerationAppealApplicationError.appealCaseIdGenerationFailed();
   }
 }

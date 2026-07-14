@@ -2,24 +2,18 @@
 // MockTestRow.tsx — aligned with Trackers card style
 // ============================================================
 
-import type { IMockTestListItem } from '../types/mock-tests.types'
+import type { IMockTestListItem } from '../types/mock-tests.types';
 import {
   difficultyBadge,
   formatDate,
   getProgressLabel,
   getTestScore,
   isHighScore,
-} from '../utils/mock-tests-formatters'
-import { ArrowRightIcon, ClipboardIcon } from './MockTestIcons'
+} from '../utils/mock-tests-formatters';
+import { ArrowRightIcon, ClipboardIcon } from './MockTestIcons';
 
 const ShareIcon = () => (
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    aria-hidden="true"
-  >
+  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
     <path
       d="M8.7 12.8L15.3 16.2M15.3 7.8L8.7 11.2M18 9.5C19.3807 9.5 20.5 8.38071 20.5 7C20.5 5.61929 19.3807 4.5 18 4.5C16.6193 4.5 15.5 5.61929 15.5 7C15.5 8.38071 16.6193 9.5 18 9.5ZM6 14.5C7.38071 14.5 8.5 13.3807 8.5 12C8.5 10.6193 7.38071 9.5 6 9.5C4.61929 9.5 3.5 10.6193 3.5 12C3.5 13.3807 4.61929 14.5 6 14.5ZM18 19.5C19.3807 19.5 20.5 18.3807 20.5 17C20.5 15.6193 19.3807 14.5 18 14.5C16.6193 14.5 15.5 15.6193 15.5 17C15.5 18.3807 16.6193 19.5 18 19.5Z"
       stroke="currentColor"
@@ -28,7 +22,7 @@ const ShareIcon = () => (
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
 export function MockTestRow({
   test,
@@ -36,12 +30,12 @@ export function MockTestRow({
   onShare,
   onStart,
 }: {
-  test: IMockTestListItem
-  onOpen: () => void
-  onShare: () => void
-  onStart: () => void
+  test: IMockTestListItem;
+  onOpen: () => void;
+  onShare: () => void;
+  onStart: () => void;
 }) {
-  const score = getTestScore(test)
+  const score = getTestScore(test);
 
   return (
     <div className="render-lazy group flex flex-col gap-4 rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) sm:flex-row sm:items-center dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-white/20">
@@ -73,8 +67,8 @@ export function MockTestRow({
         </div>
 
         <p className="mt-1.5 line-clamp-1 text-[12.5px] text-(--text-secondary) dark:text-[#6b6560]">
-          {test.description || 'No description added'} · {test.questionCount}{' '}
-          questions · {test.timeLimitMinutes} min · {formatDate(test.createdAt)}
+          {test.description || 'No description added'} · {test.questionCount} questions ·{' '}
+          {test.timeLimitMinutes} min · {formatDate(test.createdAt)}
         </p>
       </div>
 
@@ -115,7 +109,7 @@ export function MockTestRow({
         </button>
       </div>
     </div>
-  )
+  );
 }
 
-export default MockTestRow
+export default MockTestRow;

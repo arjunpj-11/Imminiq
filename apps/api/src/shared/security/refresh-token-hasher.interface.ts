@@ -1,3 +1,3 @@
 export interface IRefreshTokenHasher {
-  hash(rawToken: string): string
+  hash(rawToken: string): string;
 }

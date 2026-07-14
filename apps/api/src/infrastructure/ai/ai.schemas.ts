@@ -1,60 +1,57 @@
-import { z } from 'zod'
+import { z } from 'zod';
 
 // ============================================================
 // SHARED ROADMAP STRUCTURE TYPES
 // ============================================================
 
 export type RoadmapNestedNode = {
-  title: string
-  description: string
-  order: number
-  children: RoadmapNestedNode[]
-}
+  title: string;
+  description: string;
+  order: number;
+  children: RoadmapNestedNode[];
+};
 
-export const roadmapNestedNodeSchema: z.ZodType<RoadmapNestedNode> =
-  z.lazy(() =>
-    z.object({
-      title: z.string().trim().min(1),
-      description: z.string().trim().default(''),
-      order: z.number().int().min(1),
-      children: z.array(roadmapNestedNodeSchema).default([]),
-    })
-  )
+export const roadmapNestedNodeSchema: z.ZodType<RoadmapNestedNode> = z.lazy(() =>
+  z.object({
+    title: z.string().trim().min(1),
+    description: z.string().trim().default(''),
+    order: z.number().int().min(1),
+    children: z.array(roadmapNestedNodeSchema).default([]),
+  })
+);
 
 export const roadmapTopicSchema = z.object({
   title: z.string().trim().min(1),
   description: z.string().trim().default(''),
   order: z.number().int().min(1),
   children: z.array(roadmapNestedNodeSchema).default([]),
-})
+});
 
 export const generatedRoadmapStructureSchema = z.object({
   title: z.string().trim().min(1),
   description: z.string().trim().default(''),
   topics: z.array(roadmapTopicSchema).min(1),
-})
+});
 
-export type GeneratedRoadmapStructure = z.infer<
-  typeof generatedRoadmapStructureSchema
->
+export type GeneratedRoadmapStructure = z.infer<typeof generatedRoadmapStructureSchema>;
 
 export type LessonVisualizationResult = {
-  html: string
-  visualTitle: string
-  visualDescription: string
-}
+  html: string;
+  visualTitle: string;
+  visualDescription: string;
+};
 
 export interface IVisualizationInput {
-  title: string
-  summary: string
-  explanation: string
-  lessonType: string
-  tags: string[]
-  difficulty: string
+  title: string;
+  summary: string;
+  explanation: string;
+  lessonType: string;
+  tags: string[];
+  difficulty: string;
   codeExample?: {
-    code?: string
-    language?: string
-  }
+    code?: string;
+    language?: string;
+  };
 }
 
 // ============================================================
@@ -64,13 +61,7 @@ export interface IVisualizationInput {
 export const roadmapEvaluationSchema = z.object({
   score: z.number().int().min(0).max(100),
 
-  grade: z.enum([
-    'Poor',
-    'Fair',
-    'Good',
-    'Very Good',
-    'Excellent',
-  ]),
+  grade: z.enum(['Poor', 'Fair', 'Good', 'Very Good', 'Excellent']),
 
   summary: z.string().trim().min(1),
 
@@ -82,11 +73,9 @@ export const roadmapEvaluationSchema = z.object({
       suggestedParentTitle: z.string().trim().min(1),
     })
   ),
-})
+});
 
-export type RoadmapEvaluation = z.infer<
-  typeof roadmapEvaluationSchema
->
+export type RoadmapEvaluation = z.infer<typeof roadmapEvaluationSchema>;
 
 // ============================================================
 // GROQ LESSON GENERATION TYPES
@@ -102,13 +91,7 @@ export const generatedLessonSchema = z.object({
   insight: z.string().trim().min(1),
 
   lessonType: z
-    .enum([
-      'concept',
-      'coding',
-      'interview',
-      'system_design',
-      'theory',
-    ])
+    .enum(['concept', 'coding', 'interview', 'system_design', 'theory'])
     .default('concept'),
 
   compilerRuntime: z
@@ -132,16 +115,12 @@ export const generatedLessonSchema = z.object({
 
   tags: z.array(z.string().trim()).default([]),
 
-  difficulty: z
-    .enum(['beginner', 'intermediate', 'advanced'])
-    .default('beginner'),
+  difficulty: z.enum(['beginner', 'intermediate', 'advanced']).default('beginner'),
 
   estimatedMinutes: z.number().int().min(5).max(90).default(15),
-})
+});
 
-export type GeneratedLesson = z.infer<
-  typeof generatedLessonSchema
->
+export type GeneratedLesson = z.infer<typeof generatedLessonSchema>;
 
 // ============================================================
 // PRACTICE / ANSWER VERIFICATION TYPES
@@ -151,43 +130,33 @@ export const codeHintSchema = z.object({
   mode: z.enum(['hint', 'issue']),
   title: z.string().trim().min(1),
   explanation: z.string().trim().min(1),
-})
+});
 
-export type CodeHintAIResult = z.infer<typeof codeHintSchema>
+export type CodeHintAIResult = z.infer<typeof codeHintSchema>;
 
 export const optimizedSolutionSchema = z.object({
   optimizedCode: z.string().default(''),
   explanation: z.string().trim().min(1),
   improvements: z.array(z.string().trim().min(1)).default([]),
-})
+});
 
-export type OptimizedSolutionAIResult = z.infer<
-  typeof optimizedSolutionSchema
->
+export type OptimizedSolutionAIResult = z.infer<typeof optimizedSolutionSchema>;
 
 export const answerVerificationSchema = z.object({
-  verdict: z.enum([
-    'correct',
-    'partially_correct',
-    'incorrect',
-  ]),
+  verdict: z.enum(['correct', 'partially_correct', 'incorrect']),
   score: z.number().int().min(0).max(100),
   feedback: z.string().trim().min(1),
   correctedAnswer: z.string().trim().min(1),
   keyPoints: z.array(z.string().trim().min(1)).default([]),
-})
+});
 
-export type AnswerVerificationAIResult = z.infer<
-  typeof answerVerificationSchema
->
+export type AnswerVerificationAIResult = z.infer<typeof answerVerificationSchema>;
 
 export const lessonPracticeQuestionsSchema = z.object({
   questions: z.array(z.string().trim().min(1)).min(1).max(10),
-})
+});
 
-export type LessonPracticeQuestionsAIResult = z.infer<
-  typeof lessonPracticeQuestionsSchema
->
+export type LessonPracticeQuestionsAIResult = z.infer<typeof lessonPracticeQuestionsSchema>;
 
 // ============================================================
 // TRACKER VERIFICATION TYPES
@@ -198,19 +167,15 @@ export const trackerTopicVerificationSchema = z.object({
   message: z.string().trim().min(1),
   polishedTitle: z.string().trim().min(1),
   polishedDescription: z.string().trim().default(''),
-})
+});
 
 export const trackerSubtopicVerificationSchema = z.object({
   verified: z.boolean(),
   message: z.string().trim().min(1),
   polishedTitle: z.string().trim().min(1),
   polishedDescription: z.string().trim().default(''),
-})
+});
 
-export type TrackerTopicVerificationResult = z.infer<
-  typeof trackerTopicVerificationSchema
->
+export type TrackerTopicVerificationResult = z.infer<typeof trackerTopicVerificationSchema>;
 
-export type TrackerSubtopicVerificationResult = z.infer<
-  typeof trackerSubtopicVerificationSchema
->
+export type TrackerSubtopicVerificationResult = z.infer<typeof trackerSubtopicVerificationSchema>;

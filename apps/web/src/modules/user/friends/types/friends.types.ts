@@ -1,11 +1,10 @@
-export type FriendsTab = "friends" | "requests";
+export type FriendsTab = 'friends' | 'requests';
 
-export type FriendRelationshipStatus = "none" | "pending" | "friends";
+export type FriendRelationshipStatus = 'none' | 'pending' | 'friends';
 
-export type FriendRequestDirection = "received" | "sent";
+export type FriendRequestDirection = 'received' | 'sent';
 
-export type FriendRequestStatus =
-  "pending" | "accepted" | "rejected" | "cancelled";
+export type FriendRequestStatus = 'pending' | 'accepted' | 'rejected' | 'cancelled';
 
 export interface IFriendRelationship {
   status: FriendRelationshipStatus;
@@ -63,7 +62,7 @@ export interface ISendFriendRequestResponse {
   request: {
     id: string;
     receiverUserId: string;
-    status: "pending";
+    status: 'pending';
     message: string;
     createdAt: string;
   };

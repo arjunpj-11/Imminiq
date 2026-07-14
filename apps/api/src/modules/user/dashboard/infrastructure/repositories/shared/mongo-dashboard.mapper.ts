@@ -1,20 +1,20 @@
 import {
   DASHBOARD_ACTIVE_TRACKERS_LIMIT,
   DASHBOARD_ONLINE_WINDOW_MS,
-} from '../../../domain/dashboard.constants'
-import { DashboardActiveTrackerEntity } from '../../../domain/entities/dashboard-active-tracker.entity'
-import { DashboardActivityIntensityEntity } from '../../../domain/entities/dashboard-activity-intensity.entity'
-import { DashboardBattleEntity } from '../../../domain/entities/dashboard-battle.entity'
-import { DashboardFriendEntity } from '../../../domain/entities/dashboard-friend.entity'
-import { DashboardProfileEntity } from '../../../domain/entities/dashboard-profile.entity'
-import { DashboardRecentActivityEntity } from '../../../domain/entities/dashboard-recent-activity.entity'
-import { DashboardStatsEntity } from '../../../domain/entities/dashboard-stats.entity'
-import { DashboardStreakEntity } from '../../../domain/entities/dashboard-streak.entity'
-import { DashboardTrackerSummaryEntity } from '../../../domain/entities/dashboard-tracker-summary.entity'
-import { DashboardUserEntity } from '../../../domain/entities/dashboard-user.entity'
-import type { DashboardBattleResult } from '../../../domain/value-objects/dashboard-battle-result.vo'
-import type { DashboardIntensityLevel } from '../../../domain/value-objects/dashboard-intensity-level.vo'
-import type { DashboardRecommendationContext } from '../../../domain/value-objects/dashboard-recommendation-context.vo'
+} from '../../../domain/dashboard.constants';
+import { DashboardActiveTrackerEntity } from '../../../domain/entities/dashboard-active-tracker.entity';
+import { DashboardActivityIntensityEntity } from '../../../domain/entities/dashboard-activity-intensity.entity';
+import { DashboardBattleEntity } from '../../../domain/entities/dashboard-battle.entity';
+import { DashboardFriendEntity } from '../../../domain/entities/dashboard-friend.entity';
+import { DashboardProfileEntity } from '../../../domain/entities/dashboard-profile.entity';
+import { DashboardRecentActivityEntity } from '../../../domain/entities/dashboard-recent-activity.entity';
+import { DashboardStatsEntity } from '../../../domain/entities/dashboard-stats.entity';
+import { DashboardStreakEntity } from '../../../domain/entities/dashboard-streak.entity';
+import { DashboardTrackerSummaryEntity } from '../../../domain/entities/dashboard-tracker-summary.entity';
+import { DashboardUserEntity } from '../../../domain/entities/dashboard-user.entity';
+import type { DashboardBattleResult } from '../../../domain/value-objects/dashboard-battle-result.vo';
+import type { DashboardIntensityLevel } from '../../../domain/value-objects/dashboard-intensity-level.vo';
+import type { DashboardRecommendationContext } from '../../../domain/value-objects/dashboard-recommendation-context.vo';
 import type {
   MongoBattleRecord,
   MongoIdLike,
@@ -27,18 +27,16 @@ import type {
   MongoTrackerTitleRecord,
   MongoUserProfileRecord,
   MongoUserRecord,
-} from './mongo-dashboard.types'
+} from './mongo-dashboard.types';
 
 export class MongoDashboardMapper {
   toId(value: MongoIdLike | string): string {
-    return typeof value === 'string' ? value : value.toString()
+    return typeof value === 'string' ? value : value.toString();
   }
 
-  toDashboardUserEntity(
-    user: MongoUserRecord | null,
-  ): DashboardUserEntity | null {
+  toDashboardUserEntity(user: MongoUserRecord | null): DashboardUserEntity | null {
     if (!user) {
-      return null
+      return null;
     }
 
     return new DashboardUserEntity({
@@ -49,38 +47,34 @@ export class MongoDashboardMapper {
       isPremium: Boolean(user.isPremium),
       coins: user.coins,
       lastActiveAt: user.lastActiveAt,
-    })
+    });
   }
 
-  toDashboardProfileEntity(
-    profile: MongoUserProfileRecord | null,
-  ): DashboardProfileEntity | null {
+  toDashboardProfileEntity(profile: MongoUserProfileRecord | null): DashboardProfileEntity | null {
     if (!profile) {
-      return null
+      return null;
     }
 
     return new DashboardProfileEntity({
       userId: this.toId(profile.userId),
       avatarUrl: profile.avatarUrl,
-    })
+    });
   }
 
-  toDashboardStreakEntity(
-    streak: MongoStreakSnapshotRecord | null,
-  ): DashboardStreakEntity {
+  toDashboardStreakEntity(streak: MongoStreakSnapshotRecord | null): DashboardStreakEntity {
     return new DashboardStreakEntity({
       current: streak?.currentStreak ?? 0,
       longest: streak?.longestStreak ?? 0,
       lastActiveAt: streak?.snapshotDate ?? null,
-    })
+    });
   }
 
   toDashboardActiveTrackerEntity(
     tracker: MongoTrackerRecord,
-    progress?: MongoTrackerProgressRecord,
+    progress?: MongoTrackerProgressRecord
   ): DashboardActiveTrackerEntity {
-    const totalTopics = tracker.topicsCount ?? 0
-    const completedTopics = progress?.completedTopics ?? 0
+    const totalTopics = tracker.topicsCount ?? 0;
+    const completedTopics = progress?.completedTopics ?? 0;
 
     return new DashboardActiveTrackerEntity({
       id: this.toId(tracker._id),
@@ -92,27 +86,21 @@ export class MongoDashboardMapper {
       totalTopics,
       completedTopics,
       remainingTopics: Math.max(0, totalTopics - completedTopics),
-    })
+    });
   }
 
   toDashboardTrackerSummaryEntity(
-    trackers: DashboardActiveTrackerEntity[],
+    trackers: DashboardActiveTrackerEntity[]
   ): DashboardTrackerSummaryEntity {
-    const activeTrackerList = trackers.filter(
-      (tracker) => tracker.completionPercentage < 100,
-    )
+    const activeTrackerList = trackers.filter((tracker) => tracker.completionPercentage < 100);
 
-    const completedTrackerList = trackers.filter(
-      (tracker) => tracker.completionPercentage >= 100,
-    )
+    const completedTrackerList = trackers.filter((tracker) => tracker.completionPercentage >= 100);
 
     const activeTrackers = [...activeTrackerList]
       .sort(
-        (first, second) =>
-          this.getTrackerActivityTime(second) -
-          this.getTrackerActivityTime(first),
+        (first, second) => this.getTrackerActivityTime(second) - this.getTrackerActivityTime(first)
       )
-      .slice(0, DASHBOARD_ACTIVE_TRACKERS_LIMIT)
+      .slice(0, DASHBOARD_ACTIVE_TRACKERS_LIMIT);
 
     return new DashboardTrackerSummaryEntity({
       total: trackers.length,
@@ -129,53 +117,50 @@ export class MongoDashboardMapper {
         remainingTopics: tracker.remainingTopics,
         updatedAt: tracker.updatedAt,
       })),
-    })
+    });
   }
 
   toDashboardStatsEntity(
     aggregation: MongoProgressAggregationRecord | undefined,
     publishedTrackers: number,
-    user: Pick<MongoUserRecord, 'coins'> | null,
+    user: Pick<MongoUserRecord, 'coins'> | null
   ): DashboardStatsEntity {
     return new DashboardStatsEntity({
       totalSubtopicsCompleted: aggregation?.totalSubtopicsCompleted ?? 0,
       totalPoints: user?.coins ?? 0,
       publishedTrackers,
-    })
+    });
   }
 
   toDashboardRecentActivityEntity(
-    notification: MongoNotificationRecord,
+    notification: MongoNotificationRecord
   ): DashboardRecentActivityEntity {
     return new DashboardRecentActivityEntity({
       type: notification.type,
       description: notification.message,
       createdAt: notification.createdAt,
-    })
+    });
   }
 
   toDashboardActivityIntensityEntity(
-    entry: MongoStreakHistoryRecord,
+    entry: MongoStreakHistoryRecord
   ): DashboardActivityIntensityEntity {
     return new DashboardActivityIntensityEntity({
       date: new Date(entry.date).toISOString().split('T')[0] ?? '',
       activityCount: entry.activityCount ?? 0,
-      count: this.toIntensityCount(
-        entry.intensityLevel,
-        Boolean(entry.isFrozen),
-      ),
-    })
+      count: this.toIntensityCount(entry.intensityLevel, Boolean(entry.isFrozen)),
+    });
   }
 
   toDashboardBattleEntity(
     battle: MongoBattleRecord,
     userId: string,
     opponentMap: Map<string, MongoUserRecord>,
-    profileMap: Map<string, string>,
+    profileMap: Map<string, string>
   ): DashboardBattleEntity {
-    const opponentId = this.getOpponentId(battle, userId)
-    const opponent = opponentMap.get(opponentId)
-    const isPlayerOne = this.toId(battle.playerOneId) === userId
+    const opponentId = this.getOpponentId(battle, userId);
+    const opponent = opponentMap.get(opponentId);
+    const isPlayerOne = this.toId(battle.playerOneId) === userId;
 
     return new DashboardBattleEntity({
       id: this.toId(battle._id),
@@ -196,27 +181,27 @@ export class MongoDashboardMapper {
       result: this.getBattleResult(battle, userId),
       startedAt: battle.startedAt ?? null,
       completedAt: battle.endedAt ?? battle.updatedAt,
-    })
+    });
   }
 
   toDashboardFriendEntity(
     friend: MongoUserRecord,
-    profileMap: Map<string, string>,
+    profileMap: Map<string, string>
   ): DashboardFriendEntity {
     return new DashboardFriendEntity({
       id: this.toId(friend._id),
       fullName: friend.fullName,
       username: friend.username,
-      avatarUrl: profileMap.get(this.toId(friend._id)) ?? '',
+      avatarUrl: profileMap.get(this.toId(friend._id)) || friend.avatarUrl || '',
       lastActiveAt: friend.lastActiveAt ?? null,
       isOnline: this.isUserOnline(friend.lastActiveAt),
-    })
+    });
   }
 
   toDashboardRecommendationContext(
     totalTrackers: number,
     progress: MongoTrackerProgressRecord | null,
-    tracker: MongoTrackerTitleRecord | null,
+    tracker: MongoTrackerTitleRecord | null
   ): DashboardRecommendationContext {
     return {
       totalTrackers,
@@ -228,50 +213,45 @@ export class MongoDashboardMapper {
               completionPercentage: progress.completionPercentage ?? 0,
             }
           : null,
-    }
+    };
   }
 
   getOpponentId(battle: MongoBattleRecord, userId: string): string {
-    const playerOneId = this.toId(battle.playerOneId)
-    const playerTwoId = this.toId(battle.playerTwoId)
+    const playerOneId = this.toId(battle.playerOneId);
+    const playerTwoId = this.toId(battle.playerTwoId);
 
-    return playerOneId === userId ? playerTwoId : playerOneId
+    return playerOneId === userId ? playerTwoId : playerOneId;
   }
 
-  private getTrackerActivityTime(
-    tracker: DashboardActiveTrackerEntity,
-  ): number {
-    return new Date(tracker.lastStudiedAt ?? tracker.updatedAt ?? 0).getTime()
+  private getTrackerActivityTime(tracker: DashboardActiveTrackerEntity): number {
+    return new Date(tracker.lastStudiedAt ?? tracker.updatedAt ?? 0).getTime();
   }
 
   private toIntensityCount(
     intensityLevel?: DashboardIntensityLevel | null,
-    isFrozen = false,
+    isFrozen = false
   ): number {
-    if (intensityLevel === 'high') return 4
-    if (intensityLevel === 'medium') return 3
-    if (intensityLevel === 'low') return 2
-    if (isFrozen) return 1
+    if (intensityLevel === 'high') return 4;
+    if (intensityLevel === 'medium') return 3;
+    if (intensityLevel === 'low') return 2;
+    if (isFrozen) return 1;
 
-    return 0
+    return 0;
   }
 
-  private getBattleResult(
-    battle: MongoBattleRecord,
-    userId: string,
-  ): DashboardBattleResult {
+  private getBattleResult(battle: MongoBattleRecord, userId: string): DashboardBattleResult {
     if (!battle.winnerId) {
-      return 'draw'
+      return 'draw';
     }
 
-    return this.toId(battle.winnerId) === userId ? 'win' : 'loss'
+    return this.toId(battle.winnerId) === userId ? 'win' : 'loss';
   }
 
   private isUserOnline(lastActiveAt?: Date | null): boolean {
     if (!lastActiveAt) {
-      return false
+      return false;
     }
 
-    return Date.now() - lastActiveAt.getTime() < DASHBOARD_ONLINE_WINDOW_MS
+    return Date.now() - lastActiveAt.getTime() < DASHBOARD_ONLINE_WINDOW_MS;
   }
 }

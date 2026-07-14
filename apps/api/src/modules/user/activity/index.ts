@@ -1,4 +1,4 @@
-export type { IRecordUserActivityUseCase } from './application/use-cases/record-user-activity.usecase'
+export type { IRecordUserActivityUseCase } from './application/use-cases/record-user-activity.usecase';
 
 export type {
   ActivityEventViewDTO,
@@ -8,12 +8,15 @@ export type {
   GetActivityPagePayloadDTO,
   RecordUserActivityPayloadDTO,
   RecordUserActivityResponseDTO,
-} from './application/activity.dto'
+} from './application/activity.dto';
 
 export type {
   ActivityCategory,
   ActivityFeedFilter,
-} from './domain/value-objects/activity-category.vo'
+} from './domain/value-objects/activity-category.vo';
 
-export type { ActivityType } from './domain/value-objects/activity-type.vo'
-export type { ActivityXpBucket } from './domain/value-objects/activity-xp-bucket.vo'
+export type { ActivityType } from './domain/value-objects/activity-type.vo';
+export type { ActivityXpBucket } from './domain/value-objects/activity-xp-bucket.vo';
+
+export { createActivityComposition } from './activity.factory';
+export { createActivityRoutes } from './presentation/activity.routes';

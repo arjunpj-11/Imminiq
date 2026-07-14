@@ -1,1 +1,1 @@
-export type AuthRole = 'user' | 'admin' | 'moderator' | 'superadmin'
+export type AuthRole = 'user' | 'admin' | 'moderator' | 'superadmin';

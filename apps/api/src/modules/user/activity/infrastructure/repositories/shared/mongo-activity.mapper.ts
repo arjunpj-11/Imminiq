@@ -1,42 +1,34 @@
 import {
   UserActivityEntity,
   type ActivityDetails,
-} from '../../../domain/entities/user-activity.entity'
-import { ActivityDomainError } from '../../../domain/activity-domain.error'
+} from '../../../domain/entities/user-activity.entity';
+import { ActivityDomainError } from '../../../domain/activity-domain.error';
 import type {
   MongoIdLike,
   MongoUserActivityRecord,
   MongooseObjectLike,
-} from './mongo-activity.types'
+} from './mongo-activity.types';
 
 export class MongoActivityMapper {
-  toPlainRecord<T>(
-    document: MongooseObjectLike<T>,
-  ): T {
-    return document.toObject()
+  toPlainRecord<T>(document: MongooseObjectLike<T>): T {
+    return document.toObject();
   }
 
   toId(value: MongoIdLike | string): string {
-    return typeof value === 'string'
-      ? value
-      : value.toString()
+    return typeof value === 'string' ? value : value.toString();
   }
 
-  toOptionalId(
-    value?: MongoIdLike | string | null,
-  ): string | null {
+  toOptionalId(value?: MongoIdLike | string | null): string | null {
     if (value === undefined || value === null) {
-      return null
+      return null;
     }
 
-    return this.toId(value)
+    return this.toId(value);
   }
 
-  toEntity(
-    record: MongoUserActivityRecord | null,
-  ): UserActivityEntity | null {
+  toEntity(record: MongoUserActivityRecord | null): UserActivityEntity | null {
     if (!record) {
-      return null
+      return null;
     }
 
     return new UserActivityEntity({
@@ -51,10 +43,7 @@ export class MongoActivityMapper {
 
       xpAwarded: Math.max(0, record.xpAwarded ?? 0),
       xpBucket: record.xpBucket ?? 'none',
-      coinsAwarded: Math.max(
-        0,
-        record.coinsAwarded ?? 0,
-      ),
+      coinsAwarded: Math.max(0, record.coinsAwarded ?? 0),
 
       eventKey: record.eventKey,
 
@@ -63,45 +52,32 @@ export class MongoActivityMapper {
       subtopicId: this.toOptionalId(record.subtopicId),
       mockTestId: this.toOptionalId(record.mockTestId),
       attemptId: this.toOptionalId(record.attemptId),
-      sourceUserId: this.toOptionalId(
-        record.sourceUserId,
-      ),
+      sourceUserId: this.toOptionalId(record.sourceUserId),
 
       details: this.toDetails(record.details),
 
       occurredAt: record.occurredAt,
       deletedAt: record.deletedAt ?? null,
 
-      ...(record.createdAt !== undefined
-        ? { createdAt: record.createdAt }
-        : {}),
+      ...(record.createdAt !== undefined ? { createdAt: record.createdAt } : {}),
 
-      ...(record.updatedAt !== undefined
-        ? { updatedAt: record.updatedAt }
-        : {}),
-    })
+      ...(record.updatedAt !== undefined ? { updatedAt: record.updatedAt } : {}),
+    });
   }
 
-  toEntityOrThrow(
-    record: MongoUserActivityRecord | null,
-  ): UserActivityEntity {
-    const entity = this.toEntity(record)
+  toEntityOrThrow(record: MongoUserActivityRecord | null): UserActivityEntity {
+    const entity = this.toEntity(record);
 
     if (!entity) {
-      throw new ActivityDomainError(
-        'ACTIVITY_MAPPING_FAILED',
-        'Failed to map user activity',
-      )
+      throw new ActivityDomainError('ACTIVITY_MAPPING_FAILED', 'Failed to map user activity');
     }
 
-    return entity
+    return entity;
   }
 
-  private toDetails(
-    details?: MongoUserActivityRecord['details'],
-  ): ActivityDetails {
+  private toDetails(details?: MongoUserActivityRecord['details']): ActivityDetails {
     if (!details) {
-      return {}
+      return {};
     }
 
     return {
@@ -164,6 +140,6 @@ export class MongoActivityMapper {
             difficulty: details.difficulty,
           }
         : {}),
-    }
+    };
   }
 }

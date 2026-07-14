@@ -1,6 +1,6 @@
-import type * as Application from './index'
+import type * as Application from './index';
 export type ActivityUseCases = {
-  getPage: Application.IGetActivityPageUseCase
-  getFeed: Application.IGetActivityFeedUseCase
-  recordActivity: Application.IRecordUserActivityUseCase
-}
+  getPage: Application.IGetActivityPageUseCase;
+  getFeed: Application.IGetActivityFeedUseCase;
+  recordActivity: Application.IRecordUserActivityUseCase;
+};

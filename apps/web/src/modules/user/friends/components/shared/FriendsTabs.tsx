@@ -1,12 +1,12 @@
-import PillTabs from '../../../../../components/navigation/PillTabs'
-import type { FriendsTab } from '../../types/friends.types'
-import { FriendsIcon, UserPlusIcon } from '../icons/FriendsIcons'
+import PillTabs from '../../../../../components/navigation/PillTabs';
+import type { FriendsTab } from '../../types/friends.types';
+import { FriendsIcon, UserPlusIcon } from '../icons/FriendsIcons';
 
 interface IFriendsTabsProps {
-  activeTab: FriendsTab
-  friendsCount: number
-  pendingCount: number
-  onChange: (tab: FriendsTab) => void
+  activeTab: FriendsTab;
+  friendsCount: number;
+  pendingCount: number;
+  onChange: (tab: FriendsTab) => void;
 }
 
 export default function FriendsTabs({
@@ -37,5 +37,5 @@ export default function FriendsTabs({
         },
       ]}
     />
-  )
+  );
 }

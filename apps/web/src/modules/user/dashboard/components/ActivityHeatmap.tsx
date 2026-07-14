@@ -1,15 +1,15 @@
-import { useMemo } from 'react'
+import { useMemo } from 'react';
 
-import type { IDashboardActivityIntensityItem } from '../types/dashboard.types'
-import { themedScrollbar } from '../constants/dashboard-style'
-import { cn } from '../utils/cn'
+import type { IDashboardActivityIntensityItem } from '../types/dashboard.types';
+import { themedScrollbar } from '../constants/dashboard-style';
+import { cn } from '../utils/cn';
 
 type ActivityHeatmapProps = {
-  activity: IDashboardActivityIntensityItem[]
-  months: 6 | 12
-  onMonthsChange: (months: 6 | 12) => void
-  isLoading?: boolean
-}
+  activity: IDashboardActivityIntensityItem[];
+  months: 6 | 12;
+  onMonthsChange: (months: 6 | 12) => void;
+  isLoading?: boolean;
+};
 
 function ActivityHeatmapSkeleton() {
   return (
@@ -61,7 +61,7 @@ function ActivityHeatmapSkeleton() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default function ActivityHeatmap({
@@ -71,81 +71,74 @@ export default function ActivityHeatmap({
   isLoading = false,
 }: ActivityHeatmapProps) {
   const { weeks, monthLabels, activeDays, totalActivities } = useMemo(() => {
-    const endDate = new Date()
-    const startDate = new Date()
-    startDate.setMonth(startDate.getMonth() - months)
+    const endDate = new Date();
+    const startDate = new Date();
+    startDate.setMonth(startDate.getMonth() - months);
 
-    const normalizedStart = new Date(startDate)
-    normalizedStart.setDate(
-      normalizedStart.getDate() - normalizedStart.getDay()
-    )
+    const normalizedStart = new Date(startDate);
+    normalizedStart.setDate(normalizedStart.getDate() - normalizedStart.getDay());
 
-    const normalizedEnd = new Date(endDate)
-    normalizedEnd.setDate(
-      normalizedEnd.getDate() + (6 - normalizedEnd.getDay())
-    )
+    const normalizedEnd = new Date(endDate);
+    normalizedEnd.setDate(normalizedEnd.getDate() + (6 - normalizedEnd.getDay()));
 
-    const intensityMap = new Map(activity.map((item) => [item.date, item]))
+    const intensityMap = new Map(activity.map((item) => [item.date, item]));
 
-    const builtWeeks: Date[][] = []
-    const cursor = new Date(normalizedStart)
+    const builtWeeks: Date[][] = [];
+    const cursor = new Date(normalizedStart);
 
     while (cursor <= normalizedEnd) {
-      const week: Date[] = []
+      const week: Date[] = [];
 
       for (let day = 0; day < 7; day += 1) {
-        week.push(new Date(cursor))
-        cursor.setDate(cursor.getDate() + 1)
+        week.push(new Date(cursor));
+        cursor.setDate(cursor.getDate() + 1);
       }
 
-      builtWeeks.push(week)
+      builtWeeks.push(week);
     }
 
-    const labels: Array<{ label: string; left: number }> = []
-    const seenMonths = new Set<string>()
+    const labels: Array<{ label: string; left: number }> = [];
+    const seenMonths = new Set<string>();
 
     builtWeeks.forEach((week, weekIndex) => {
       week.forEach((date) => {
-        const insideRange = date >= startDate && date <= endDate
+        const insideRange = date >= startDate && date <= endDate;
 
-        if (!insideRange) return
+        if (!insideRange) return;
 
-        const key = `${date.getFullYear()}-${date.getMonth()}`
-        if (seenMonths.has(key)) return
+        const key = `${date.getFullYear()}-${date.getMonth()}`;
+        if (seenMonths.has(key)) return;
 
-        seenMonths.add(key)
+        seenMonths.add(key);
         labels.push({
           label: date.toLocaleDateString(undefined, {
             month: 'short',
           }),
           left: weekIndex * 14,
-        })
-      })
-    })
+        });
+      });
+    });
 
     return {
       weeks: builtWeeks.map((week) =>
         week.map((date) => {
-          const iso = date.toISOString().split('T')[0]
-          const matching = intensityMap.get(iso)
-          const activityCount = matching?.activityCount ?? 0
+          const iso = date.toISOString().split('T')[0];
+          const matching = intensityMap.get(iso);
+          const activityCount = matching?.activityCount ?? 0;
 
           return {
             date,
             intensity: matching?.count ?? 0,
             activityCount,
             insideRange: date >= startDate && date <= endDate,
-          }
+          };
         })
       ),
       monthLabels: labels,
       activeDays: activity.length,
-      totalActivities: activity.reduce(
-        (sum, item) => sum + (item.activityCount ?? 0),
-        0
-      ),
-    }
-  }, [activity, months])
+      totalActivities: activity.reduce((sum, item) => sum + (item.activityCount ?? 0), 0),
+    };
+  }, [activity, months]);
 
   return (
     <section className="rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-6 shadow-(--shadow-1) dark:border-(--border-subtle) dark:bg-(--surface-card) max-[640px]:p-4.5">
@@ -198,16 +191,14 @@ export default function ActivityHeatmap({
               </div>
 
               <div className="col-start-1 row-start-2 grid grid-rows-7 gap-0.75">
-                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(
-                  (day) => (
-                    <span
-                      key={day}
-                      className="h-2.75 font-mono text-[7px] uppercase tracking-[0.08em] leading-2.75 text-(--text-secondary) opacity-58 dark:text-(--text-secondary)"
-                    >
-                      {day}
-                    </span>
-                  )
-                )}
+                {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((day) => (
+                  <span
+                    key={day}
+                    className="h-2.75 font-mono text-[7px] uppercase tracking-[0.08em] leading-2.75 text-(--text-secondary) opacity-58 dark:text-(--text-secondary)"
+                  >
+                    {day}
+                  </span>
+                ))}
               </div>
 
               <div className="col-start-2 row-start-2 flex gap-0.75">
@@ -217,7 +208,7 @@ export default function ActivityHeatmap({
                       const activityText =
                         cell.activityCount === 1
                           ? '1 activity'
-                          : `${cell.activityCount} activities`
+                          : `${cell.activityCount} activities`;
 
                       return (
                         <div
@@ -225,15 +216,10 @@ export default function ActivityHeatmap({
                           title={`${cell.date.toLocaleDateString(undefined, {
                             month: 'short',
                             day: 'numeric',
-                          })} · ${
-                            cell.activityCount > 0
-                              ? activityText
-                              : 'No activity'
-                          }`}
+                          })} · ${cell.activityCount > 0 ? activityText : 'No activity'}`}
                           className={cn(
                             'h-2.75 w-2.75 shrink-0 rounded-xs transition hover:scale-110 hover:opacity-85',
-                            !cell.insideRange &&
-                              'pointer-events-none opacity-0',
+                            !cell.insideRange && 'pointer-events-none opacity-0',
                             cell.insideRange &&
                               cell.intensity === 0 &&
                               'bg-[rgba(26,23,20,0.09)] dark:bg-[rgba(242,240,235,0.07)]',
@@ -243,11 +229,10 @@ export default function ActivityHeatmap({
                               'bg-[rgba(184,76,43,0.38)] dark:bg-[rgba(232,129,106,0.42)]',
                             cell.intensity === 3 &&
                               'bg-[rgba(184,76,43,0.65)] dark:bg-[rgba(232,129,106,0.68)]',
-                            cell.intensity >= 4 &&
-                              'bg-(--brand-500) dark:bg-(--brand-500)'
+                            cell.intensity >= 4 && 'bg-(--brand-500) dark:bg-(--brand-500)'
                           )}
                         />
-                      )
+                      );
                     })}
                   </div>
                 ))}
@@ -277,5 +262,5 @@ export default function ActivityHeatmap({
         </>
       )}
     </section>
-  )
+  );
 }

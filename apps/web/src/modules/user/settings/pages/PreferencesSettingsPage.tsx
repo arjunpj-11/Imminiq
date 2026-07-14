@@ -1,6 +1,6 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
-import SettingsShell from '../components/SettingsShell'
-import SettingsContentLoading from '../components/SettingsContentLoading'
+import { useEffect, useMemo, useRef, useState } from 'react';
+import SettingsShell from '../components/SettingsShell';
+import SettingsContentLoading from '../components/SettingsContentLoading';
 import {
   MonoLabel,
   PillButton,
@@ -9,9 +9,9 @@ import {
   SettingsCard,
   SettingsPageFeedback,
   ToggleRow,
-} from '../components/SettingsUi'
-import { useSettingsToast } from '../hooks/useSettingsToast'
-import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
+} from '../components/SettingsUi';
+import { useSettingsToast } from '../hooks/useSettingsToast';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
 import {
   useResetSettings,
   useSettings,
@@ -21,20 +21,16 @@ import {
   useUpdateCompiler,
   useUpdateGestures,
   useUpdateLearningJourney,
-} from '../hooks/useSettings'
-import type { IUserSettings } from '../types/settings.types'
-import { useThemeStore } from '../../../../store/useThemeStore'
+} from '../hooks/useSettings';
+import type { IUserSettings } from '../types/settings.types';
+import { useThemeStore } from '../../../../store/useThemeStore';
 
-type GestureToggleKey =
-  | 'backGesture'
-  | 'zoomGesture'
-  | 'annotateGesture'
-  | 'scrollGesture'
+type GestureToggleKey = 'backGesture' | 'zoomGesture' | 'annotateGesture' | 'scrollGesture';
 
 const gestureToggleItems: Array<{
-  key: GestureToggleKey
-  icon: string
-  label: string
+  key: GestureToggleKey;
+  icon: string;
+  label: string;
 }> = [
   {
     key: 'backGesture',
@@ -56,10 +52,10 @@ const gestureToggleItems: Array<{
     icon: '🖐️',
     label: 'Scroll',
   },
-]
+];
 
 export default function PreferencesSettingsPage() {
-  const settingsQuery = useSettings()
+  const settingsQuery = useSettings();
 
   if (settingsQuery.isLoading) {
     return (
@@ -73,7 +69,7 @@ export default function PreferencesSettingsPage() {
           description="Fetching your appearance, compiler, editor, and learning-flow settings."
         />
       </SettingsShell>
-    )
+    );
   }
 
   if (!settingsQuery.data) {
@@ -86,41 +82,30 @@ export default function PreferencesSettingsPage() {
           Unable to load preferences.
         </div>
       </SettingsShell>
-    )
+    );
   }
 
   return (
-    <PreferencesSettingsForm
-      key={settingsQuery.dataUpdatedAt}
-      initialForm={settingsQuery.data}
-    />
-  )
+    <PreferencesSettingsForm key={settingsQuery.dataUpdatedAt} initialForm={settingsQuery.data} />
+  );
 }
 
-function PreferencesSettingsForm({
-  initialForm,
-}: {
-  initialForm: IUserSettings
-}) {
-  const updateAppearance = useUpdateAppearance()
-  const updateGestures = useUpdateGestures()
-  const updateCompiler = useUpdateCompiler()
-  const updateCodeEditor = useUpdateCodeEditor()
-  const updateAIBehaviour = useUpdateAIBehaviour()
-  const updateLearningJourney = useUpdateLearningJourney()
-  const resetSettings = useResetSettings()
-  const toast = useSettingsToast()
+function PreferencesSettingsForm({ initialForm }: { initialForm: IUserSettings }) {
+  const updateAppearance = useUpdateAppearance();
+  const updateGestures = useUpdateGestures();
+  const updateCompiler = useUpdateCompiler();
+  const updateCodeEditor = useUpdateCodeEditor();
+  const updateAIBehaviour = useUpdateAIBehaviour();
+  const updateLearningJourney = useUpdateLearningJourney();
+  const resetSettings = useResetSettings();
+  const toast = useSettingsToast();
 
-  const themeMode = useThemeStore((state) => state.mode)
-  const setThemeMode = useThemeStore((state) => state.setMode)
+  const themeMode = useThemeStore((state) => state.mode);
+  const setThemeMode = useThemeStore((state) => state.setMode);
 
-  const previewThemeMode = useThemeStore(
-    (state) => state.previewThemeMode
-  )
+  const previewThemeMode = useThemeStore((state) => state.previewThemeMode);
 
-  const clearThemePreview = useThemeStore(
-    (state) => state.clearThemePreview
-  )
+  const clearThemePreview = useThemeStore((state) => state.clearThemePreview);
 
   const initialFormWithLocalTheme = useMemo<IUserSettings>(
     () => ({
@@ -131,56 +116,52 @@ function PreferencesSettingsForm({
       },
     }),
     [initialForm, themeMode]
-  )
+  );
 
-  const [form, setForm] = useState<IUserSettings>(
-    initialFormWithLocalTheme
-  )
+  const [form, setForm] = useState<IUserSettings>(initialFormWithLocalTheme);
 
-  const [savedForm, setSavedForm] = useState<IUserSettings>(
-    initialFormWithLocalTheme
-  )
+  const [savedForm, setSavedForm] = useState<IUserSettings>(initialFormWithLocalTheme);
 
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(savedForm),
     [form, savedForm]
-  )
+  );
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     when: isDirty,
     onDiscard: () => {
-      setForm(savedForm)
-      clearThemePreview()
+      setForm(savedForm);
+      clearThemePreview();
     },
-  })
+  });
 
-  const skipThemeRestoreOnUnmountRef = useRef(false)
+  const skipThemeRestoreOnUnmountRef = useRef(false);
 
   useEffect(() => {
     return () => {
       if (!skipThemeRestoreOnUnmountRef.current) {
-        clearThemePreview()
+        clearThemePreview();
       }
-    }
-  }, [clearThemePreview])
+    };
+  }, [clearThemePreview]);
 
   const handleSave = async () => {
-    const previouslySavedTheme = useThemeStore.getState().mode
-    const selectedTheme = form.appearance.theme
+    const previouslySavedTheme = useThemeStore.getState().mode;
+    const selectedTheme = form.appearance.theme;
 
     try {
-      toast.showToast('Saving preferences...', 'loading')
+      toast.showToast('Saving preferences...', 'loading');
 
-      skipThemeRestoreOnUnmountRef.current = true
+      skipThemeRestoreOnUnmountRef.current = true;
 
-      setThemeMode(selectedTheme)
+      setThemeMode(selectedTheme);
 
-      await updateAppearance.mutateAsync(form.appearance)
-      await updateGestures.mutateAsync(form.gestures)
-      await updateCompiler.mutateAsync(form.compiler)
-      await updateCodeEditor.mutateAsync(form.codeEditor)
-      await updateAIBehaviour.mutateAsync(form.aiBehaviour)
-      await updateLearningJourney.mutateAsync(form.learningJourney)
+      await updateAppearance.mutateAsync(form.appearance);
+      await updateGestures.mutateAsync(form.gestures);
+      await updateCompiler.mutateAsync(form.compiler);
+      await updateCodeEditor.mutateAsync(form.codeEditor);
+      await updateAIBehaviour.mutateAsync(form.aiBehaviour);
+      await updateLearningJourney.mutateAsync(form.learningJourney);
 
       setSavedForm({
         ...form,
@@ -188,30 +169,30 @@ function PreferencesSettingsForm({
           ...form.appearance,
           theme: selectedTheme,
         },
-      })
+      });
 
-      skipThemeRestoreOnUnmountRef.current = false
+      skipThemeRestoreOnUnmountRef.current = false;
 
-      toast.showToast('Preferences saved.', 'success')
-      return true
+      toast.showToast('Preferences saved.', 'success');
+      return true;
     } catch {
-      skipThemeRestoreOnUnmountRef.current = false
-      setThemeMode(previouslySavedTheme)
+      skipThemeRestoreOnUnmountRef.current = false;
+      setThemeMode(previouslySavedTheme);
 
-      toast.showToast('Unable to save preferences.', 'error')
-      return false
+      toast.showToast('Unable to save preferences.', 'error');
+      return false;
     }
-  }
+  };
 
   const handleReset = async () => {
     try {
-      clearThemePreview()
-      await resetSettings.mutateAsync()
-      toast.showToast('Settings reset to defaults.', 'success')
+      clearThemePreview();
+      await resetSettings.mutateAsync();
+      toast.showToast('Settings reset to defaults.', 'success');
     } catch {
-      toast.showToast('Unable to reset preferences.', 'error')
+      toast.showToast('Unable to reset preferences.', 'error');
     }
-  }
+  };
 
   return (
     <SettingsShell
@@ -239,9 +220,9 @@ function PreferencesSettingsForm({
                       ...current.appearance,
                       theme,
                     },
-                  }))
+                  }));
 
-                  previewThemeMode(theme)
+                  previewThemeMode(theme);
                 }}
               >
                 {theme[0].toUpperCase() + theme.slice(1)}
@@ -266,9 +247,7 @@ function PreferencesSettingsForm({
               />
 
               <div className="mt-4">
-                <MonoLabel>
-                  Sensitivity · {form.gestures.sensitivity}%
-                </MonoLabel>
+                <MonoLabel>Sensitivity · {form.gestures.sensitivity}%</MonoLabel>
 
                 <input
                   type="range"
@@ -282,7 +261,7 @@ function PreferencesSettingsForm({
 
               <div className="mt-5 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                 {gestureToggleItems.map((item) => {
-                  const active = form.gestures[item.key]
+                  const active = form.gestures[item.key];
 
                   return (
                     <button
@@ -301,7 +280,7 @@ function PreferencesSettingsForm({
                         {item.label}
                       </div>
                     </button>
-                  )
+                  );
                 })}
               </div>
 
@@ -342,9 +321,8 @@ function PreferencesSettingsForm({
               </h3>
 
               <p className="mt-3 text-[13px] leading-[1.7] text-(--text-secondary) dark:text-(--text-secondary)">
-                Gesture-based scrolling and navigation are planned for a future
-                Imminiq update. This feature will become available in a later
-                release.
+                Gesture-based scrolling and navigation are planned for a future Imminiq update. This
+                feature will become available in a later release.
               </p>
 
               <div className="mt-5 inline-flex items-center gap-2 rounded-full border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.08)] px-4 py-2 font-mono text-[10px] font-bold uppercase tracking-[0.12em] text-(--brand-500) dark:border-[rgba(232,129,106,0.18)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">
@@ -453,9 +431,7 @@ function PreferencesSettingsForm({
           <div className="mb-5 overflow-hidden rounded-2xl bg-[#1a1714] p-4 font-mono text-[12px] leading-[1.8] text-[#f2f0eb]">
             <div>1&nbsp;&nbsp;class Polymath {'{'}</div>
             <div>2&nbsp;&nbsp;&nbsp;&nbsp;constructor(subject) {'{'}</div>
-            <div>
-              3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// initialise deep learning
-            </div>
+            <div>3&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;// initialise deep learning</div>
             <div>4&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;this.focus = subject;</div>
             <div>5&nbsp;&nbsp;&nbsp;&nbsp;{'}'}</div>
             <div>6&nbsp;&nbsp;{'}'}</div>
@@ -541,9 +517,7 @@ function PreferencesSettingsForm({
                   }))
                 }
               >
-                {style === 'eli5'
-                  ? 'ELI5'
-                  : style[0].toUpperCase() + style.slice(1)}
+                {style === 'eli5' ? 'ELI5' : style[0].toUpperCase() + style.slice(1)}
               </PillButton>
             ))}
           </div>
@@ -705,11 +679,9 @@ function PreferencesSettingsForm({
         isSaving={unsavedChangesGuard.isSavingChanges}
         onStay={unsavedChangesGuard.stayOnPage}
         onDiscard={unsavedChangesGuard.discardAndLeave}
-        onSaveChanges={() =>
-          void unsavedChangesGuard.saveChangesAndLeave(handleSave)
-        }
+        onSaveChanges={() => void unsavedChangesGuard.saveChangesAndLeave(handleSave)}
         toast={toast}
       />
     </SettingsShell>
-  )
+  );
 }

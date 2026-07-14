@@ -1,6 +1,6 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query'
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
-import api from '../../../../lib/axios'
+import api from '../../../../lib/axios';
 import type {
   IApiResponse,
   LessonAnswerAttempt,
@@ -16,43 +16,52 @@ import type {
   ITrackerListResponse,
   ITrackerRoadmapResponse,
   ITrackerSummary,
-} from '../types/tracker.types'
-import { trackerKeys } from './tracker.keys'
+} from '../types/tracker.types';
+import { trackerKeys } from './tracker.keys';
 
-const unwrap = <T>(response: IApiResponse<T>) => response.data
+const unwrap = <T>(response: IApiResponse<T>) => response.data;
 
 export const useTrackerSummary = () => {
   return useQuery({
     queryKey: trackerKeys.summary(),
 
     queryFn: async () => {
-      const response =
-        await api.get<IApiResponse<ITrackerSummary>>('/trackers/summary')
+      const response = await api.get<IApiResponse<ITrackerSummary>>('/trackers/summary');
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
+
+export const useTrackerDomains = (search: string) => {
+  return useQuery({
+    queryKey: trackerKeys.domains(search),
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<string[]>>('/trackers/domains', {
+        params: { search },
+      });
+      return unwrap(response.data);
+    },
+    staleTime: 60_000,
+  });
+};
 
 export const useTrackers = (query: ITrackerListQuery = {}) => {
   return useQuery({
     queryKey: trackerKeys.list(query),
 
     queryFn: async () => {
-      const response = await api.get<IApiResponse<ITrackerListResponse>>(
-        '/trackers',
-        {
-          params: query,
-        }
-      )
+      const response = await api.get<IApiResponse<ITrackerListResponse>>('/trackers', {
+        params: query,
+      });
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
 
     placeholderData: keepPreviousData,
     staleTime: 30_000,
-  })
-}
+  });
+};
 
 export const useTrackerDetails = (trackerId?: string) => {
   return useQuery({
@@ -60,14 +69,12 @@ export const useTrackerDetails = (trackerId?: string) => {
     enabled: Boolean(trackerId),
 
     queryFn: async () => {
-      const response = await api.get<IApiResponse<ITracker>>(
-        `/trackers/${trackerId}`
-      )
+      const response = await api.get<IApiResponse<ITracker>>(`/trackers/${trackerId}`);
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
 export const useTrackerRoadmap = (trackerId?: string) => {
   return useQuery({
@@ -78,12 +85,12 @@ export const useTrackerRoadmap = (trackerId?: string) => {
     queryFn: async () => {
       const response = await api.get<IApiResponse<ITrackerRoadmapResponse>>(
         `/trackers/${trackerId}/roadmap`
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
 export const useTrackerLesson = (trackerId?: string, subtopicId?: string) => {
   return useQuery({
@@ -93,17 +100,14 @@ export const useTrackerLesson = (trackerId?: string, subtopicId?: string) => {
     queryFn: async () => {
       const response = await api.get<IApiResponse<ITrackerLessonResponse>>(
         `/trackers/${trackerId}/lessons/${subtopicId}`
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
-export const useLessonChatHistory = (
-  trackerId?: string,
-  subtopicId?: string
-) => {
+export const useLessonChatHistory = (trackerId?: string, subtopicId?: string) => {
   return useQuery({
     queryKey: trackerKeys.lessonChat(trackerId || '', subtopicId || ''),
     enabled: Boolean(trackerId && subtopicId),
@@ -111,33 +115,27 @@ export const useLessonChatHistory = (
     queryFn: async () => {
       const response = await api.get<IApiResponse<PersistedLessonChatMessage[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/chat`
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
-export const useLessonAnswerAttempts = (
-  trackerId?: string,
-  subtopicId?: string
-) => {
+export const useLessonAnswerAttempts = (trackerId?: string, subtopicId?: string) => {
   return useQuery({
-    queryKey: trackerKeys.lessonAnswerAttempts(
-      trackerId || '',
-      subtopicId || ''
-    ),
+    queryKey: trackerKeys.lessonAnswerAttempts(trackerId || '', subtopicId || ''),
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<LessonAnswerAttempt[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/answer/attempts`
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
 export const useLessonCodeSubmissions = (
   trackerId?: string,
@@ -145,11 +143,7 @@ export const useLessonCodeSubmissions = (
   action?: LessonCodeSubmissionAction
 ) => {
   return useQuery({
-    queryKey: trackerKeys.lessonCodeSubmissions(
-      trackerId || '',
-      subtopicId || '',
-      action
-    ),
+    queryKey: trackerKeys.lessonCodeSubmissions(trackerId || '', subtopicId || '', action),
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
@@ -158,33 +152,27 @@ export const useLessonCodeSubmissions = (
         {
           params: action ? { action } : undefined,
         }
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
-export const useLessonGeneratedQuestions = (
-  trackerId?: string,
-  subtopicId?: string
-) => {
+export const useLessonGeneratedQuestions = (trackerId?: string, subtopicId?: string) => {
   return useQuery({
-    queryKey: trackerKeys.lessonGeneratedQuestions(
-      trackerId || '',
-      subtopicId || ''
-    ),
+    queryKey: trackerKeys.lessonGeneratedQuestions(trackerId || '', subtopicId || ''),
     enabled: Boolean(trackerId && subtopicId),
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<LessonGeneratedQuestion[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/questions`
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
 export const useLessonQuestionSolution = (
   trackerId?: string,
@@ -192,11 +180,7 @@ export const useLessonQuestionSolution = (
   question?: string
 ) => {
   return useQuery({
-    queryKey: trackerKeys.lessonQuestionSolution(
-      trackerId || '',
-      subtopicId || '',
-      question || ''
-    ),
+    queryKey: trackerKeys.lessonQuestionSolution(trackerId || '', subtopicId || '', question || ''),
     enabled: Boolean(trackerId && subtopicId && question),
 
     queryFn: async () => {
@@ -207,12 +191,12 @@ export const useLessonQuestionSolution = (
             question,
           },
         }
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
+  });
+};
 
 export const useLessonQuestionSolutionDoubts = (
   trackerId?: string,
@@ -228,19 +212,16 @@ export const useLessonQuestionSolutionDoubts = (
     enabled: Boolean(trackerId && subtopicId && question),
 
     queryFn: async () => {
-      const response = await api.get<
-        IApiResponse<LessonQuestionSolutionDoubt[]>
-      >(
+      const response = await api.get<IApiResponse<LessonQuestionSolutionDoubt[]>>(
         `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
         {
           params: {
             question,
           },
         }
-      )
+      );
 
-      return unwrap(response.data)
+      return unwrap(response.data);
     },
-  })
-}
-
+  });
+};

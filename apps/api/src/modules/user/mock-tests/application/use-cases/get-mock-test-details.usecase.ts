@@ -1,33 +1,33 @@
-import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface'
-import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface'
-import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface'
-import { MockTestsApplicationError } from '../mock-tests-application.error'
-import type { IMockTestsMapper } from '../mock-tests.mapper'
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
+import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
+import type { IMockTestDetailsDTO } from '../mock-tests.dto';
+import type { IMockTestsMapper } from '../mock-tests.mapper';
 
-type GetMockTestDetailsRepository =
-  IMockTestRepository &
+type GetMockTestDetailsRepository = IMockTestRepository &
   IMockTestQuestionRepository &
-  IMockTestAttemptRepository
+  IMockTestAttemptRepository;
 
 export interface IGetMockTestDetailsUseCase {
-  execute(testId: string, userId: string): Promise<import("..").IMockTestDetailsDTO>
+  execute(testId: string, userId: string): Promise<IMockTestDetailsDTO>;
 }
 
 export class GetMockTestDetailsUseCase implements IGetMockTestDetailsUseCase {
   constructor(
     private readonly _repository: GetMockTestDetailsRepository,
-    private readonly _mapper: IMockTestsMapper,
+    private readonly _mapper: IMockTestsMapper
   ) {}
 
   async execute(testId: string, userId: string) {
-    const test = await this._repository.findTestById(testId)
+    const test = await this._repository.findTestById(testId);
 
     if (!test) {
-      throw MockTestsApplicationError.notFound('Test not found')
+      throw MockTestsApplicationError.notFound('Test not found');
     }
 
     if (test.visibility === 'private' && test.ownerId !== userId) {
-      throw MockTestsApplicationError.forbidden()
+      throw MockTestsApplicationError.forbidden();
     }
 
     const [questions, attempts] = await Promise.all([
@@ -36,15 +36,15 @@ export class GetMockTestDetailsUseCase implements IGetMockTestDetailsUseCase {
         userId,
         testId,
       }),
-    ])
+    ]);
 
-    const ownsTest = test.ownerId === userId
+    const ownsTest = test.ownerId === userId;
 
     return this._mapper.toDetailsDto({
       test,
       questions,
       latestAttempt: attempts[0] || null,
       includeAnswers: ownsTest,
-    })
+    });
   }
 }

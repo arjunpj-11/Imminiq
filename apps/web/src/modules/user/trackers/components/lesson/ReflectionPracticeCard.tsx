@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react'
-import { getUserFacingError } from '../../../../../lib/user-facing-error'
+import { useEffect, useMemo, useState } from 'react';
+import { getUserFacingError } from '../../../../../lib/user-facing-error';
 
 import {
   useAskLessonQuestionSolutionDoubt,
@@ -11,24 +11,21 @@ import {
   useLessonQuestionSolution,
   useLessonQuestionSolutionDoubts,
   useVerifyLessonAnswer,
-} from '../../hooks/useTrackers'
-import type {
-  IGeneratedLesson,
-  VerifyLessonAnswerResponse,
-} from '../../types/tracker.types'
+} from '../../hooks/useTrackers';
+import type { IGeneratedLesson, VerifyLessonAnswerResponse } from '../../types/tracker.types';
 
-import { cn } from '../../utils/tracker-ui'
-import MathText from './MathText'
-import ConfirmDialog from '../ConfirmDialog'
-import { MicButton} from './VoiceInputButton'
-import {useVoiceInput} from '../../hooks/useVoiceInput'
+import { cn } from '../../utils/tracker-ui';
+import MathText from './MathText';
+import ConfirmDialog from '../ConfirmDialog';
+import { MicButton } from '../../../../../components/input/VoiceInputButton';
+import { useVoiceInput } from '../../../../../hooks/useVoiceInput';
 import {
   formatDateTime,
   formatVerdict,
   getAttemptCorrectedAnswer,
   getAttemptFeedback,
   uniqueQuestions,
-} from './reflection-practice.utils'
+} from './reflection-practice.utils';
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
@@ -37,25 +34,18 @@ export default function ReflectionPracticeCard({
   trackerId,
   subtopicId,
 }: {
-  lesson: IGeneratedLesson
-  trackerId: string
-  subtopicId: string
+  lesson: IGeneratedLesson;
+  trackerId: string;
+  subtopicId: string;
 }) {
-  const generatedQuestionsQuery = useLessonGeneratedQuestions(
-    trackerId,
-    subtopicId
-  )
-  const answerAttemptsQuery = useLessonAnswerAttempts(
-    trackerId,
-    subtopicId
-  )
+  const generatedQuestionsQuery = useLessonGeneratedQuestions(trackerId, subtopicId);
+  const answerAttemptsQuery = useLessonAnswerAttempts(trackerId, subtopicId);
 
-  const generateQuestionMutation = useGenerateLessonQuestions()
-  const generateSolutionMutation = useGenerateLessonQuestionSolution()
-  const doubtMutation = useAskLessonQuestionSolutionDoubt()
-  const clearSolutionDoubtsMutation =
-    useClearLessonQuestionSolutionDoubts()
-  const verifyAnswerMutation = useVerifyLessonAnswer()
+  const generateQuestionMutation = useGenerateLessonQuestions();
+  const generateSolutionMutation = useGenerateLessonQuestionSolution();
+  const doubtMutation = useAskLessonQuestionSolutionDoubt();
+  const clearSolutionDoubtsMutation = useClearLessonQuestionSolutionDoubts();
+  const verifyAnswerMutation = useVerifyLessonAnswer();
 
   const baseQuestions = useMemo(() => {
     const qs = [
@@ -65,94 +55,88 @@ export default function ReflectionPracticeCard({
       `Previous-year style question: Why is ${lesson.title} important for ${lesson.lessonType.replace('_', ' ')} preparation?`,
       `Interview-style question: How would you explain ${lesson.title} to a beginner?`,
       `Application question: Where would you use ${lesson.title} in a real project or interview scenario?`,
-    ]
+    ];
 
-    return qs.filter(Boolean) as string[]
-  }, [lesson])
+    return qs.filter(Boolean) as string[];
+  }, [lesson]);
 
   const generatedQuestions = useMemo(() => {
-    return generatedQuestionsQuery.data?.map((item) => item.question) ?? []
-  }, [generatedQuestionsQuery.data])
+    return generatedQuestionsQuery.data?.map((item) => item.question) ?? [];
+  }, [generatedQuestionsQuery.data]);
 
   const questions = useMemo(() => {
-    return uniqueQuestions([...baseQuestions, ...generatedQuestions])
-  }, [baseQuestions, generatedQuestions])
+    return uniqueQuestions([...baseQuestions, ...generatedQuestions]);
+  }, [baseQuestions, generatedQuestions]);
 
-  const [selectedQuestion, setSelectedQuestion] = useState(
-    baseQuestions[0] || ''
-  )
-  const [answer, setAnswer] = useState('')
-  const [verification, setVerification] = useState<
-    VerifyLessonAnswerResponse['data'] | null
-  >(null)
-  const [solution, setSolution] = useState('')
-  const [solutionQuestion, setSolutionQuestion] = useState('')
-  const [solutionOpen, setSolutionOpen] = useState(false)
-  const [doubt, setDoubt] = useState('')
-  const [clearDoubtsConfirmOpen, setClearDoubtsConfirmOpen] = useState(false)
+  const [selectedQuestion, setSelectedQuestion] = useState(baseQuestions[0] || '');
+  const [answer, setAnswer] = useState('');
+  const [verification, setVerification] = useState<VerifyLessonAnswerResponse['data'] | null>(null);
+  const [solution, setSolution] = useState('');
+  const [solutionQuestion, setSolutionQuestion] = useState('');
+  const [solutionOpen, setSolutionOpen] = useState(false);
+  const [doubt, setDoubt] = useState('');
+  const [clearDoubtsConfirmOpen, setClearDoubtsConfirmOpen] = useState(false);
 
   const selectedSolutionQuery = useLessonQuestionSolution(
     trackerId,
     subtopicId,
     solutionQuestion || selectedQuestion
-  )
+  );
 
   const solutionDoubtsQuery = useLessonQuestionSolutionDoubts(
     trackerId,
     subtopicId,
     solutionQuestion || selectedQuestion
-  )
+  );
 
   const answerVoice = useVoiceInput((transcript) =>
     setAnswer((prev) => (prev ? `${prev} ${transcript}` : transcript))
-  )
+  );
 
   const doubtVoice = useVoiceInput((transcript) =>
     setDoubt((prev) => (prev ? `${prev} ${transcript}` : transcript))
-  )
+  );
 
   const selectedQuestionAttempts = useMemo(() => {
     return (
-      answerAttemptsQuery.data?.filter(
-        (attempt) => attempt.question === selectedQuestion
-      ) ?? []
-    )
-  }, [answerAttemptsQuery.data, selectedQuestion])
+      answerAttemptsQuery.data?.filter((attempt) => attempt.question === selectedQuestion) ?? []
+    );
+  }, [answerAttemptsQuery.data, selectedQuestion]);
 
-  const savedSolutionText = selectedSolutionQuery.data?.solution || ''
-  const activeSolution = solution || savedSolutionText
-  const activeSolutionQuestion = solutionQuestion || selectedQuestion
+  const savedSolutionText = selectedSolutionQuery.data?.solution || '';
+  const activeSolution = solution || savedSolutionText;
+  const activeSolutionQuestion = solutionQuestion || selectedQuestion;
 
   const handleSelectQuestion = (q: string) => {
-    setSelectedQuestion(q)
-    setAnswer('')
-    setVerification(null)
-  }
+    setSelectedQuestion(q);
+    setAnswer('');
+    setVerification(null);
+  };
 
   useEffect(() => {
-    if (!solutionOpen) return
+    if (!solutionOpen) return;
 
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setSolutionOpen(false)
-    }
+      if (event.key === 'Escape') setSolutionOpen(false);
+    };
 
-    window.addEventListener('keydown', handleEscape)
+    window.addEventListener('keydown', handleEscape);
 
-    return () => window.removeEventListener('keydown', handleEscape)
-  }, [solutionOpen])
+    return () => window.removeEventListener('keydown', handleEscape);
+  }, [solutionOpen]);
 
   const generateMoreQuestions = () => {
     generateQuestionMutation.mutate({
       trackerId,
       subtopicId,
       count: 5,
-    })
-  }
+    });
+  };
 
   const verifyAnswer = () => {
-    const trimmed = answer.trim()
+    const trimmed = answer.trim();
 
-    if (!trimmed) return
+    if (!trimmed) return;
 
     verifyAnswerMutation.mutate(
       {
@@ -164,15 +148,15 @@ export default function ReflectionPracticeCard({
       {
         onSuccess: (response) => setVerification(response.data),
       }
-    )
-  }
+    );
+  };
 
   const generateSolution = (question: string) => {
-    setSelectedQuestion(question)
-    setSolutionQuestion(question)
-    setSolution('')
-    setDoubt('')
-    setSolutionOpen(true)
+    setSelectedQuestion(question);
+    setSolutionQuestion(question);
+    setSolution('');
+    setDoubt('');
+    setSolutionOpen(true);
 
     generateSolutionMutation.mutate(
       {
@@ -182,20 +166,22 @@ export default function ReflectionPracticeCard({
       },
       {
         onSuccess: (response) => {
-          setSolution(response.data.solution)
+          setSolution(response.data.solution);
         },
 
         onError: (error) => {
-          setSolution(getUserFacingError(error, 'Could not generate the solution. Please try again.'))
+          setSolution(
+            getUserFacingError(error, 'Could not generate the solution. Please try again.')
+          );
         },
       }
-    )
-  }
+    );
+  };
 
   const askDoubtAboutSolution = () => {
-    const trimmed = doubt.trim()
+    const trimmed = doubt.trim();
 
-    if (!trimmed || !activeSolution || !activeSolutionQuestion) return
+    if (!trimmed || !activeSolution || !activeSolutionQuestion) return;
 
     doubtMutation.mutate(
       {
@@ -206,11 +192,11 @@ export default function ReflectionPracticeCard({
       },
       {
         onSuccess: () => {
-          setDoubt('')
+          setDoubt('');
         },
       }
-    )
-  }
+    );
+  };
 
   const clearSolutionDoubts = () => {
     if (
@@ -219,11 +205,11 @@ export default function ReflectionPracticeCard({
       !solutionDoubtsQuery.data ||
       solutionDoubtsQuery.data.length === 0
     ) {
-      return
+      return;
     }
 
-    setClearDoubtsConfirmOpen(true)
-  }
+    setClearDoubtsConfirmOpen(true);
+  };
 
   const confirmClearSolutionDoubts = () => {
     if (
@@ -232,7 +218,7 @@ export default function ReflectionPracticeCard({
       !solutionDoubtsQuery.data ||
       solutionDoubtsQuery.data.length === 0
     ) {
-      return
+      return;
     }
 
     clearSolutionDoubtsMutation.mutate(
@@ -243,23 +229,21 @@ export default function ReflectionPracticeCard({
       },
       {
         onSuccess: async () => {
-          setDoubt('')
-          await solutionDoubtsQuery.refetch()
-          setClearDoubtsConfirmOpen(false)
+          setDoubt('');
+          await solutionDoubtsQuery.refetch();
+          setClearDoubtsConfirmOpen(false);
         },
       }
-    )
-  }
+    );
+  };
 
   const closeClearDoubtsConfirm = () => {
-    if (clearSolutionDoubtsMutation.isPending) return
+    if (clearSolutionDoubtsMutation.isPending) return;
 
-    setClearDoubtsConfirmOpen(false)
-  }
+    setClearDoubtsConfirmOpen(false);
+  };
 
-  const verdictLabel = verification
-    ? formatVerdict(verification.verdict)
-    : ''
+  const verdictLabel = verification ? formatVerdict(verification.verdict) : '';
 
   const renderPreviousAttempts = () => (
     <div className="mt-5 rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-4 dark:border-(--border-subtle) dark:bg-(--surface-card)">
@@ -290,8 +274,8 @@ export default function ReflectionPracticeCard({
       ) : (
         <div className="max-h-90 space-y-3 overflow-y-auto pr-1">
           {selectedQuestionAttempts.map((attempt) => {
-            const feedback = getAttemptFeedback(attempt)
-            const correctedAnswer = getAttemptCorrectedAnswer(attempt)
+            const feedback = getAttemptFeedback(attempt);
+            const correctedAnswer = getAttemptCorrectedAnswer(attempt);
 
             return (
               <article
@@ -355,12 +339,12 @@ export default function ReflectionPracticeCard({
                   </div>
                 )}
               </article>
-            )
+            );
           })}
         </div>
       )}
     </div>
-  )
+  );
 
   return (
     <>
@@ -376,8 +360,8 @@ export default function ReflectionPracticeCard({
             </h2>
 
             <p className="mt-2 max-w-2xl text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-              Select a question, type your answer, and let Scribe AI correct
-              and improve it. Your submitted attempts are saved as history.
+              Select a question, type your answer, and let Scribe AI correct and improve it. Your
+              submitted attempts are saved as history.
             </p>
           </div>
 
@@ -387,9 +371,7 @@ export default function ReflectionPracticeCard({
             disabled={generateQuestionMutation.isPending}
             className="rounded-xl bg-(--brand-500) px-4 py-2.5 text-[12px] font-bold text-[#fdf8f5] shadow-[0_4px_12px_rgba(184,76,43,0.28)] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
-            {generateQuestionMutation.isPending
-              ? 'Generating...'
-              : 'Generate More Questions'}
+            {generateQuestionMutation.isPending ? 'Generating...' : 'Generate More Questions'}
           </button>
         </div>
 
@@ -419,11 +401,10 @@ export default function ReflectionPracticeCard({
 
             <div className="min-h-0 flex-1 space-y-3 overflow-y-auto pr-2">
               {questions.map((question, index) => {
-                const active = selectedQuestion === question
+                const active = selectedQuestion === question;
                 const attemptCount =
-                  answerAttemptsQuery.data?.filter(
-                    (attempt) => attempt.question === question
-                  ).length ?? 0
+                  answerAttemptsQuery.data?.filter((attempt) => attempt.question === question)
+                    .length ?? 0;
 
                 return (
                   <article
@@ -461,7 +442,7 @@ export default function ReflectionPracticeCard({
                       {question}
                     </MathText>
                   </article>
-                )
+                );
               })}
             </div>
           </div>
@@ -504,22 +485,16 @@ export default function ReflectionPracticeCard({
                 disabled={verifyAnswerMutation.isPending || !answer.trim()}
                 className="rounded-md bg-(--brand-500) px-3 py-2 text-[11px] font-bold text-[#fdf8f5] transition hover:bg-(--brand-600) disabled:cursor-wait disabled:opacity-60 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
               >
-                {verifyAnswerMutation.isPending
-                  ? 'Checking...'
-                  : 'Verify Answer'}
+                {verifyAnswerMutation.isPending ? 'Checking...' : 'Verify Answer'}
               </button>
 
               <button
                 type="button"
                 onClick={() => generateSolution(selectedQuestion)}
-                disabled={
-                  generateSolutionMutation.isPending || !selectedQuestion
-                }
+                disabled={generateSolutionMutation.isPending || !selectedQuestion}
                 className="rounded-md border border-(--border-subtle) px-3 py-2 text-[11px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:text-(--brand-500) disabled:cursor-wait disabled:opacity-60 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               >
-                {generateSolutionMutation.isPending
-                  ? 'Opening...'
-                  : 'Generate Solution'}
+                {generateSolutionMutation.isPending ? 'Opening...' : 'Generate Solution'}
               </button>
             </div>
 
@@ -570,8 +545,8 @@ export default function ReflectionPracticeCard({
                     </p>
 
                     <p className="mt-1 max-w-sm text-[12px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-                      Type your answer above and click verify to get score,
-                      correction, and key points.
+                      Type your answer above and click verify to get score, correction, and key
+                      points.
                     </p>
                   </div>
                 </div>
@@ -630,8 +605,7 @@ export default function ReflectionPracticeCard({
                   Solution
                 </h4>
 
-                {(generateSolutionMutation.isPending ||
-                  selectedSolutionQuery.isLoading) &&
+                {(generateSolutionMutation.isPending || selectedSolutionQuery.isLoading) &&
                 !activeSolution ? (
                   <p className="text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
                     Loading a saved solution or generating a new one...
@@ -660,34 +634,27 @@ export default function ReflectionPracticeCard({
                     }
                     className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[8px] font-bold uppercase tracking-[0.08em] text-(--text-secondary) transition hover:border-red-400 hover:bg-red-500/10 hover:text-red-500 disabled:cursor-not-allowed disabled:opacity-40 dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-red-400"
                   >
-                    {clearSolutionDoubtsMutation.isPending
-                      ? 'Clearing'
-                      : 'Clear Doubts'}
+                    {clearSolutionDoubtsMutation.isPending ? 'Clearing' : 'Clear Doubts'}
                   </button>
                 </div>
 
                 <p className="mb-3 text-[12px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-                  These doubts are saved separately for this exact question
-                  solution.
+                  These doubts are saved separately for this exact question solution.
                 </p>
 
                 {solutionDoubtsQuery.isLoading ? (
                   <div className="mb-4 rounded-xl border border-dashed border-(--border-subtle) bg-(--surface-card) px-4 py-3 text-[12px] text-(--text-secondary) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary)">
                     Loading saved solution doubts...
                   </div>
-                ) : solutionDoubtsQuery.data &&
-                  solutionDoubtsQuery.data.length > 0 ? (
+                ) : solutionDoubtsQuery.data && solutionDoubtsQuery.data.length > 0 ? (
                   <div className="mb-4 max-h-72 space-y-3 overflow-y-auto pr-1">
                     {solutionDoubtsQuery.data.map((item) => {
-                      const isUser = item.role === 'user'
+                      const isUser = item.role === 'user';
 
                       return (
                         <div
                           key={item._id}
-                          className={cn(
-                            'flex items-end gap-3',
-                            isUser && 'flex-row-reverse'
-                          )}
+                          className={cn('flex items-end gap-3', isUser && 'flex-row-reverse')}
                         >
                           {!isUser && (
                             <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[rgba(26,23,20,0.09)] text-[12px] text-(--brand-500) dark:bg-white/9 dark:text-(--brand-500)">
@@ -706,7 +673,7 @@ export default function ReflectionPracticeCard({
                             <MathText>{item.content}</MathText>
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 ) : (
@@ -763,5 +730,5 @@ export default function ReflectionPracticeCard({
         </div>
       )}
     </>
-  )
+  );
 }

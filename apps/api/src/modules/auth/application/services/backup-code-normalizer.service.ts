@@ -1,20 +1,15 @@
 export interface IBackupCodeNormalizer {
-  normalize(code: string): string
+  normalize(code: string): string;
 }
 
-export class BackupCodeNormalizer
-  implements IBackupCodeNormalizer {
+export class BackupCodeNormalizer implements IBackupCodeNormalizer {
   normalize(code: string): string {
-    const compact = code
-      .trim()
-      .toUpperCase()
-      .replace(/\s/g, '')
-      .replace(/-/g, '')
+    const compact = code.trim().toUpperCase().replace(/\s/g, '').replace(/-/g, '');
 
     if (compact.length !== 10) {
-      return code.trim().toUpperCase()
+      return code.trim().toUpperCase();
     }
 
-    return `${compact.slice(0, 5)}-${compact.slice(5, 10)}`
+    return `${compact.slice(0, 5)}-${compact.slice(5, 10)}`;
   }
 }

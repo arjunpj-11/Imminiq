@@ -1,6 +1,6 @@
-import { useMemo, useState } from 'react'
-import SettingsShell from '../components/SettingsShell'
-import SettingsContentLoading from '../components/SettingsContentLoading'
+import { useMemo, useState } from 'react';
+import SettingsShell from '../components/SettingsShell';
+import SettingsContentLoading from '../components/SettingsContentLoading';
 import {
   MonoLabel,
   PillButton,
@@ -8,21 +8,14 @@ import {
   SettingsCard,
   SettingsPageFeedback,
   ToggleRow,
-} from '../components/SettingsUi'
-import { useSettingsToast } from '../hooks/useSettingsToast'
-import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard'
-import {
-  usePrivacySettings,
-  useResetSettings,
-  useUpdatePrivacy,
-} from '../hooks/useSettings'
-import type {
-  MessagePermissionType,
-  IPrivacySettings,
-} from '../types/settings.types'
+} from '../components/SettingsUi';
+import { useSettingsToast } from '../hooks/useSettingsToast';
+import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
+import { usePrivacySettings, useResetSettings, useUpdatePrivacy } from '../hooks/useSettings';
+import type { MessagePermissionType, IPrivacySettings } from '../types/settings.types';
 
 export default function PrivacySettingsPage() {
-  const privacyQuery = usePrivacySettings()
+  const privacyQuery = usePrivacySettings();
 
   if (privacyQuery.isLoading) {
     return (
@@ -36,7 +29,7 @@ export default function PrivacySettingsPage() {
           description="Fetching your visibility, interaction, and tracker-sharing preferences."
         />
       </SettingsShell>
-    )
+    );
   }
 
   if (!privacyQuery.data) {
@@ -49,72 +42,59 @@ export default function PrivacySettingsPage() {
           Unable to load privacy settings.
         </div>
       </SettingsShell>
-    )
+    );
   }
 
-  return (
-    <PrivacySettingsForm
-      key={privacyQuery.dataUpdatedAt}
-      initialForm={privacyQuery.data}
-    />
-  )
+  return <PrivacySettingsForm key={privacyQuery.dataUpdatedAt} initialForm={privacyQuery.data} />;
 }
 
-function PrivacySettingsForm({
-  initialForm,
-}: {
-  initialForm: IPrivacySettings
-}) {
-  const updatePrivacy = useUpdatePrivacy()
-  const resetSettings = useResetSettings()
-  const toast = useSettingsToast()
+function PrivacySettingsForm({ initialForm }: { initialForm: IPrivacySettings }) {
+  const updatePrivacy = useUpdatePrivacy();
+  const resetSettings = useResetSettings();
+  const toast = useSettingsToast();
 
-  const [form, setForm] = useState<IPrivacySettings>(initialForm)
-  const [savedForm, setSavedForm] = useState(initialForm)
+  const [form, setForm] = useState<IPrivacySettings>(initialForm);
+  const [savedForm, setSavedForm] = useState(initialForm);
 
   const isDirty = useMemo(
     () => JSON.stringify(form) !== JSON.stringify(savedForm),
     [form, savedForm]
-  )
+  );
 
   const unsavedChangesGuard = useUnsavedChangesGuard({
     when: isDirty,
     onDiscard: () => setForm(savedForm),
-  })
+  });
 
   const privacyScore = useMemo(() => {
-    let score = 100
+    let score = 100;
 
-    if (form.showProfile) score -= 12
-    if (form.showActivity) score -= 10
-    if (form.showStats) score -= 8
-    if (form.allowPublicTrackerView) score -= 12
-    if (form.allowTrackerCloning) score -= 14
-    if (form.showTrackerProgress) score -= 10
-    if (form.allowFriendRequests) score -= 6
-    if (form.allowChallenges) score -= 8
+    if (form.showProfile) score -= 12;
+    if (form.showActivity) score -= 10;
+    if (form.showStats) score -= 8;
+    if (form.allowPublicTrackerView) score -= 12;
+    if (form.allowTrackerCloning) score -= 14;
+    if (form.showTrackerProgress) score -= 10;
+    if (form.allowFriendRequests) score -= 6;
+    if (form.allowChallenges) score -= 8;
 
     if (form.messagePermission === 'everyone') {
-      score -= 16
+      score -= 16;
     }
 
     if (form.messagePermission === 'friends') {
-      score -= 8
+      score -= 8;
     }
 
-    return Math.max(0, score)
-  }, [form])
+    return Math.max(0, score);
+  }, [form]);
 
   const scoreLabel =
-    privacyScore >= 80
-      ? 'Highly Private'
-      : privacyScore >= 55
-        ? 'Balanced'
-        : 'Open'
+    privacyScore >= 80 ? 'Highly Private' : privacyScore >= 55 ? 'Balanced' : 'Open';
 
   const handleSave = async () => {
     try {
-      toast.showToast('Saving privacy settings...', 'loading')
+      toast.showToast('Saving privacy settings...', 'loading');
 
       await updatePrivacy.mutateAsync({
         profileVisibility: form.profileVisibility,
@@ -135,26 +115,26 @@ function PrivacySettingsForm({
         allowPublicTrackerView: form.allowPublicTrackerView,
         allowTrackerCloning: form.allowTrackerCloning,
         showTrackerProgress: form.showTrackerProgress,
-      })
+      });
 
-      setSavedForm(form)
+      setSavedForm(form);
 
-      toast.showToast('Privacy settings saved.', 'success')
-      return true
+      toast.showToast('Privacy settings saved.', 'success');
+      return true;
     } catch {
-      toast.showToast('Unable to save privacy settings.', 'error')
-      return false
+      toast.showToast('Unable to save privacy settings.', 'error');
+      return false;
     }
-  }
+  };
 
   const handleReset = async () => {
     try {
-      await resetSettings.mutateAsync()
-      toast.showToast('Settings reset to defaults.', 'success')
+      await resetSettings.mutateAsync();
+      toast.showToast('Settings reset to defaults.', 'success');
     } catch {
-      toast.showToast('Unable to reset privacy settings.', 'error')
+      toast.showToast('Unable to reset privacy settings.', 'error');
     }
-  }
+  };
 
   const makeProfilePrivate = () => {
     setForm((current) => ({
@@ -177,32 +157,25 @@ function PrivacySettingsForm({
       allowPublicTrackerView: false,
       allowTrackerCloning: false,
       showTrackerProgress: false,
-    }))
+    }));
 
-    toast.showToast(
-      'Private mode prepared. Save changes to apply.',
-      'info'
-    )
-  }
+    toast.showToast('Private mode prepared. Save changes to apply.', 'info');
+  };
 
-  const selectProfileVisibility = (
-    profileVisibility: IPrivacySettings['profileVisibility']
-  ) => {
+  const selectProfileVisibility = (profileVisibility: IPrivacySettings['profileVisibility']) => {
     setForm((current) => ({
       ...current,
       profileVisibility,
-    }))
-  }
+    }));
+  };
 
-  const selectMessagePermission = (
-    messagePermission: MessagePermissionType
-  ) => {
+  const selectMessagePermission = (messagePermission: MessagePermissionType) => {
     setForm((current) => ({
       ...current,
       messagePermission,
       allowMessages: messagePermission !== 'nobody',
-    }))
-  }
+    }));
+  };
 
   return (
     <SettingsShell
@@ -228,9 +201,7 @@ function PrivacySettingsForm({
               </span>
 
               <span className="rounded-full bg-[rgba(59,108,183,0.10)] px-3 py-1 text-[11px] font-semibold text-(--info) dark:text-(--info)">
-                {form.allowTrackerCloning
-                  ? 'Tracker Cloning Allowed'
-                  : 'Tracker Cloning Blocked'}
+                {form.allowTrackerCloning ? 'Tracker Cloning Allowed' : 'Tracker Cloning Blocked'}
               </span>
 
               <span className="rounded-full bg-[rgba(45,106,71,0.10)] px-3 py-1 text-[11px] font-semibold text-(--success) dark:text-(--success)">
@@ -571,11 +542,9 @@ function PrivacySettingsForm({
         isSaving={unsavedChangesGuard.isSavingChanges}
         onStay={unsavedChangesGuard.stayOnPage}
         onDiscard={unsavedChangesGuard.discardAndLeave}
-        onSaveChanges={() =>
-          void unsavedChangesGuard.saveChangesAndLeave(handleSave)
-        }
+        onSaveChanges={() => void unsavedChangesGuard.saveChangesAndLeave(handleSave)}
         toast={toast}
       />
     </SettingsShell>
-  )
+  );
 }

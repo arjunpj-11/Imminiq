@@ -1,5 +1,5 @@
-export { leaderboardComposition } from './leaderboard.factory'
-export type { LeaderboardComposition } from './leaderboard.factory'
+export { leaderboardComposition } from './leaderboard.factory';
+export type { LeaderboardComposition } from './leaderboard.factory';
 
 export type {
   CaptureLeaderboardSnapshotResultViewDTO,
@@ -12,10 +12,12 @@ export type {
   LeaderboardWeeklySummaryViewDTO,
   RecordLeaderboardXpPayloadDTO,
   ReplaceLeaderboardFriendsPayloadDTO,
-} from './application/leaderboard.dto'
+} from './application/leaderboard.dto';
 
 export type {
   LeaderboardScope,
   LeaderboardSection,
   LeaderboardXpActivitySource,
-} from './domain/leaderboard.types'
+} from './domain/leaderboard.types';
+
+export { leaderboardRoutes } from './presentation/leaderboard.routes';

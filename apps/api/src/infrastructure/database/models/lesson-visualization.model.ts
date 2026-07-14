@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/database/models/lesson-visualization.model.ts
 
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 const lessonVisualizationSchema = new Schema(
   {
@@ -57,14 +57,11 @@ const lessonVisualizationSchema = new Schema(
   {
     timestamps: true,
   }
-)
+);
 
 // One visualization per user per subtopic
-lessonVisualizationSchema.index(
-  { trackerId: 1, subtopicId: 1, userId: 1 },
-  { unique: true }
-)
+lessonVisualizationSchema.index({ trackerId: 1, subtopicId: 1, userId: 1 }, { unique: true });
 
 export const LessonVisualization =
   mongoose.models.LessonVisualization ||
-  mongoose.model('LessonVisualization', lessonVisualizationSchema)
+  mongoose.model('LessonVisualization', lessonVisualizationSchema);

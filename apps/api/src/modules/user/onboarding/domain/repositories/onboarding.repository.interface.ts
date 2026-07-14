@@ -1,11 +1,12 @@
-import type { IOnboardingAIJobCommandRepository } from './onboarding-ai-job-command.repository.interface'
-import type { IOnboardingAIJobQueryRepository } from './onboarding-ai-job-query.repository.interface'
-import type { IOnboardingResponseCommandRepository } from './onboarding-response-command.repository.interface'
-import type { IOnboardingResponseQueryRepository } from './onboarding-response-query.repository.interface'
-import type { IOnboardingRoadmapRepository } from './onboarding-roadmap.repository.interface'
+import type { IOnboardingAIJobCommandRepository } from './onboarding-ai-job-command.repository.interface';
+import type { IOnboardingAIJobQueryRepository } from './onboarding-ai-job-query.repository.interface';
+import type { IOnboardingResponseCommandRepository } from './onboarding-response-command.repository.interface';
+import type { IOnboardingResponseQueryRepository } from './onboarding-response-query.repository.interface';
+import type { IOnboardingRoadmapRepository } from './onboarding-roadmap.repository.interface';
 
 export interface IOnboardingRepository
-  extends IOnboardingResponseQueryRepository,
+  extends
+    IOnboardingResponseQueryRepository,
     IOnboardingResponseCommandRepository,
     IOnboardingAIJobQueryRepository,
     IOnboardingAIJobCommandRepository,
@@ -17,11 +18,11 @@ export type {
   CreateRoadmapAIJobInput,
   EvaluationJobInput,
   RoadmapJobInput,
-} from './onboarding-ai-job-command.repository.interface'
+} from './onboarding-ai-job-command.repository.interface';
 
-export type { FindActiveEvaluationJobForRoadmapInput } from './onboarding-ai-job-query.repository.interface'
+export type { FindActiveEvaluationJobForRoadmapInput } from './onboarding-ai-job-query.repository.interface';
 
 export type {
   SaveOnboardingStep1Input,
   SaveOnboardingStep2Input,
-} from './onboarding-response-command.repository.interface'
+} from './onboarding-response-command.repository.interface';

@@ -1,1 +1,1 @@
-export type DashboardBattleResult = 'win' | 'loss' | 'draw'
+export type DashboardBattleResult = 'win' | 'loss' | 'draw';

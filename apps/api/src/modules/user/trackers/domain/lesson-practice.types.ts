@@ -10,4 +10,4 @@ export type {
   OptimizedSolutionResult,
   VerifyLessonAnswerInput,
   VerifyLessonAnswerResult,
-} from './value-objects/lesson-practice.vo'
+} from './value-objects/lesson-practice.vo';

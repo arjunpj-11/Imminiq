@@ -1,48 +1,44 @@
-import { TrackerApplicationError } from '../tracker-application.error'
-import type { ITrackerMapper } from '../tracker.mapper'
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface'
-import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface'
+import { TrackerApplicationError } from '../tracker-application.error';
+import type { ITrackerMapper } from '../tracker.mapper';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { ITrackerAIGateway } from '../../domain/services/tracker-ai.interface';
 
 type ExistingTopic = {
-  id: string
-  title: string
-  description: string
-}
+  id: string;
+  title: string;
+  description: string;
+};
 
 type VerifyTrackerTopicInput = {
-  trackerId: string
-  userId: string
-  trackerTitle: string
-  topicTitle: string
-  topicDescription: string
-  existingTopics: ExistingTopic[]
-}
+  trackerId: string;
+  userId: string;
+  trackerTitle: string;
+  topicTitle: string;
+  topicDescription: string;
+  existingTopics: ExistingTopic[];
+};
 
-type VerifyTrackerTopicResultDTO = ReturnType<
-  ITrackerMapper['toTrackerAIValidationDto']
->
+type VerifyTrackerTopicResultDTO = ReturnType<ITrackerMapper['toTrackerAIValidationDto']>;
 
 export interface IVerifyTrackerTopicUseCase {
-  execute(input: VerifyTrackerTopicInput): Promise<VerifyTrackerTopicResultDTO>
+  execute(input: VerifyTrackerTopicInput): Promise<VerifyTrackerTopicResultDTO>;
 }
 
 export class VerifyTrackerTopicUseCase implements IVerifyTrackerTopicUseCase {
   constructor(
     private readonly _trackerRepository: Pick<ITrackerRepository, 'findOwnedTrackerById'>,
     private readonly _trackerAIGateway: ITrackerAIGateway,
-    private readonly _trackerMapper: ITrackerMapper,
+    private readonly _trackerMapper: ITrackerMapper
   ) {}
 
-  async execute(
-    input: VerifyTrackerTopicInput,
-  ): Promise<VerifyTrackerTopicResultDTO> {
+  async execute(input: VerifyTrackerTopicInput): Promise<VerifyTrackerTopicResultDTO> {
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
-    })
+    });
 
     if (!tracker) {
-      throw TrackerApplicationError.trackerNotFound('Tracker not found')
+      throw TrackerApplicationError.trackerNotFound('Tracker not found');
     }
 
     const result = await this._trackerAIGateway.verifyTrackerTopic({
@@ -50,8 +46,8 @@ export class VerifyTrackerTopicUseCase implements IVerifyTrackerTopicUseCase {
       topicTitle: input.topicTitle,
       topicDescription: input.topicDescription,
       existingTopics: input.existingTopics,
-    })
+    });
 
-    return this._trackerMapper.toTrackerAIValidationDto(result)
+    return this._trackerMapper.toTrackerAIValidationDto(result);
   }
 }

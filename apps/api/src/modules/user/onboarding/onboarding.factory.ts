@@ -1,47 +1,47 @@
-import type { OnboardingUseCases } from './application/onboarding-use-cases.contract'
-import {
-  OnboardingMapper,
-  type IOnboardingMapper,
-} from './application/onboarding.mapper'
+import type { OnboardingUseCases } from './application/onboarding-use-cases.contract';
+import { OnboardingMapper, type IOnboardingMapper } from './application/onboarding.mapper';
 import {
   OnboardingJobOutputReader,
   type IOnboardingJobOutputReader,
-} from './application/services/onboarding-job-output-reader.service'
-import { EvaluateRoadmapUseCase } from './application/use-cases/evaluate-roadmap.usecase'
-import { GenerateRoadmapUseCase } from './application/use-cases/generate-roadmap.usecase'
-import { GetRoadmapEvaluationResultUseCase } from './application/use-cases/get-roadmap-evaluation-result.usecase'
-import { GetRoadmapJobResultUseCase } from './application/use-cases/get-roadmap-job-result.usecase'
-import { GetRoadmapJobStatusUseCase } from './application/use-cases/get-roadmap-job-status.usecase'
-import { SaveOnboardingStepOneUseCase } from './application/use-cases/save-onboarding-step-one.usecase'
-import { SaveOnboardingStepTwoUseCase } from './application/use-cases/save-onboarding-step-two.usecase'
-import type { IAIJobQueueGateway } from './domain/services/ai-job-queue.interface'
-import type { IAIJobQuotaStore } from './domain/services/ai-job-quota-store.interface'
-import { bullMqAIJobQueueGateway } from './infrastructure/gateways/bullmq-ai-job-queue.gateway'
-import { mongoOnboardingRepository } from './infrastructure/repositories/mongo-onboarding.repository'
-import { redisAIJobQuotaStore } from './infrastructure/stores/redis-ai-job-quota.store'
-
+} from './application/services/onboarding-job-output-reader.service';
+import { EvaluateRoadmapUseCase } from './application/use-cases/evaluate-roadmap.usecase';
+import { GenerateRoadmapUseCase } from './application/use-cases/generate-roadmap.usecase';
+import { GetRoadmapEvaluationResultUseCase } from './application/use-cases/get-roadmap-evaluation-result.usecase';
+import { GetRoadmapJobResultUseCase } from './application/use-cases/get-roadmap-job-result.usecase';
+import { GetRoadmapJobStatusUseCase } from './application/use-cases/get-roadmap-job-status.usecase';
+import { GetActiveRoadmapJobUseCase } from './application/use-cases/get-active-roadmap-job.usecase';
+import { SaveOnboardingStepOneUseCase } from './application/use-cases/save-onboarding-step-one.usecase';
+import { SaveOnboardingStepTwoUseCase } from './application/use-cases/save-onboarding-step-two.usecase';
+import { ContinueTrackerIntakeUseCase } from './application/use-cases/continue-tracker-intake.usecase';
+import type { IAIJobQueueGateway } from './domain/services/ai-job-queue.interface';
+import type { IAIJobQuotaStore } from './domain/services/ai-job-quota-store.interface';
+import { bullMqAIJobQueueGateway } from './infrastructure/gateways/bullmq-ai-job-queue.gateway';
+import { mongoOnboardingRepository } from './infrastructure/repositories/mongo-onboarding.repository';
+import { redisAIJobQuotaStore } from './infrastructure/stores/redis-ai-job-quota.store';
+import { langChainTrackerIntakeAgent } from './infrastructure/services/langchain-tracker-intake-agent.service';
 
 export type OnboardingServiceHelpers = {
-  onboardingAIJobQueueGateway: IAIJobQueueGateway
-  onboardingAIJobQuotaStore: IAIJobQuotaStore
-  onboardingMapper: IOnboardingMapper
-  onboardingJobOutputReader: IOnboardingJobOutputReader
-}
+  onboardingAIJobQueueGateway: IAIJobQueueGateway;
+  onboardingAIJobQuotaStore: IAIJobQuotaStore;
+  onboardingMapper: IOnboardingMapper;
+  onboardingJobOutputReader: IOnboardingJobOutputReader;
+};
 
 export type OnboardingComposition = {
-  useCases: OnboardingUseCases
-  helpers: OnboardingServiceHelpers
-}
+  useCases: OnboardingUseCases;
+  helpers: OnboardingServiceHelpers;
+};
 
 export const createOnboardingComposition = (): OnboardingComposition => {
-  const onboardingRepository = mongoOnboardingRepository
-  const onboardingAIJobQueueGateway = bullMqAIJobQueueGateway
-  const onboardingAIJobQuotaStore = redisAIJobQuotaStore
-  const onboardingMapper = new OnboardingMapper()
-  const onboardingJobOutputReader = new OnboardingJobOutputReader()
+  const onboardingRepository = mongoOnboardingRepository;
+  const onboardingAIJobQueueGateway = bullMqAIJobQueueGateway;
+  const onboardingAIJobQuotaStore = redisAIJobQuotaStore;
+  const onboardingMapper = new OnboardingMapper();
+  const onboardingJobOutputReader = new OnboardingJobOutputReader();
 
   return {
     useCases: {
+      continueTrackerIntake: new ContinueTrackerIntakeUseCase(langChainTrackerIntakeAgent),
       saveOnboardingStepOne: new SaveOnboardingStepOneUseCase(
         onboardingRepository,
         onboardingMapper
@@ -57,6 +57,8 @@ export const createOnboardingComposition = (): OnboardingComposition => {
         onboardingAIJobQueueGateway,
         onboardingAIJobQuotaStore
       ),
+
+      getActiveRoadmapJob: new GetActiveRoadmapJobUseCase(onboardingRepository),
 
       getRoadmapJobStatus: new GetRoadmapJobStatusUseCase(
         onboardingRepository,
@@ -77,11 +79,10 @@ export const createOnboardingComposition = (): OnboardingComposition => {
         onboardingJobOutputReader
       ),
 
-      getRoadmapEvaluationResult:
-        new GetRoadmapEvaluationResultUseCase(
-          onboardingRepository,
-          onboardingJobOutputReader
-        ),
+      getRoadmapEvaluationResult: new GetRoadmapEvaluationResultUseCase(
+        onboardingRepository,
+        onboardingJobOutputReader
+      ),
     },
 
     helpers: {
@@ -90,5 +91,5 @@ export const createOnboardingComposition = (): OnboardingComposition => {
       onboardingMapper,
       onboardingJobOutputReader,
     },
-  }
-}
+  };
+};

@@ -1,12 +1,12 @@
-import type mongoose from "mongoose";
+import type mongoose from 'mongoose';
 
-import { LeaderboardAudience } from "../../../../../../infrastructure/database/models/leaderboard-audience.model";
+import { LeaderboardAudience } from '../../../../../../infrastructure/database/models/leaderboard-audience.model';
 
 export class MongoLeaderboardAudienceSynchronizer {
   async addFriendship(
     firstUserId: mongoose.Types.ObjectId,
     secondUserId: mongoose.Types.ObjectId,
-    session: mongoose.ClientSession,
+    session: mongoose.ClientSession
   ): Promise<void> {
     /*
      * MongoDB operations using the same transaction session
@@ -27,7 +27,7 @@ export class MongoLeaderboardAudienceSynchronizer {
       {
         upsert: true,
         session,
-      },
+      }
     );
 
     await LeaderboardAudience.updateOne(
@@ -45,14 +45,14 @@ export class MongoLeaderboardAudienceSynchronizer {
       {
         upsert: true,
         session,
-      },
+      }
     );
   }
 
   async removeFriendship(
     firstUserId: mongoose.Types.ObjectId,
     secondUserId: mongoose.Types.ObjectId,
-    session: mongoose.ClientSession,
+    session: mongoose.ClientSession
   ): Promise<void> {
     await LeaderboardAudience.updateOne(
       {
@@ -65,7 +65,7 @@ export class MongoLeaderboardAudienceSynchronizer {
       },
       {
         session,
-      },
+      }
     );
 
     await LeaderboardAudience.updateOne(
@@ -79,7 +79,7 @@ export class MongoLeaderboardAudienceSynchronizer {
       },
       {
         session,
-      },
+      }
     );
   }
 }

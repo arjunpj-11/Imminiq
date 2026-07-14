@@ -1,11 +1,11 @@
-import type { IDashboardRecentBattle } from '../types/dashboard.types'
-import { cn } from '../utils/cn'
-import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters'
-import EmptyCard from './EmptyCard'
+import type { IDashboardRecentBattle } from '../types/dashboard.types';
+import { cn } from '../utils/cn';
+import { formatRelativeTime, getInitials } from '../utils/dashboard-formatters';
+import EmptyCard from './EmptyCard';
 
 type RecentBattlesProps = {
-  battles: IDashboardRecentBattle[]
-}
+  battles: IDashboardRecentBattle[];
+};
 
 export default function RecentBattles({ battles }: RecentBattlesProps) {
   return (
@@ -34,8 +34,7 @@ export default function RecentBattles({ battles }: RecentBattlesProps) {
 
               <div className="min-w-0 flex-1">
                 <div className="text-[14px] font-bold text-(--text-primary) dark:text-(--text-primary)">
-                  Battle vs{' '}
-                  {battle.opponent?.fullName ?? 'Unknown Opponent'}
+                  Battle vs {battle.opponent?.fullName ?? 'Unknown Opponent'}
                 </div>
                 <div className="mt-0.5 font-mono text-[8.5px] uppercase tracking-[0.08em] text-(--text-secondary) opacity-55 dark:text-(--text-secondary)">
                   Completed {formatRelativeTime(battle.completedAt)}
@@ -52,9 +51,7 @@ export default function RecentBattles({ battles }: RecentBattlesProps) {
                         className="h-full w-full object-cover"
                       />
                     ) : (
-                      getInitials(
-                        battle.opponent?.fullName ?? 'Unknown Opponent'
-                      )
+                      getInitials(battle.opponent?.fullName ?? 'Unknown Opponent')
                     )}
                   </div>
 
@@ -82,5 +79,5 @@ export default function RecentBattles({ battles }: RecentBattlesProps) {
         </div>
       )}
     </section>
-  )
+  );
 }

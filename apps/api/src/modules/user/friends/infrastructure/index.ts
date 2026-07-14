@@ -1,4 +1,4 @@
 export {
   MongoFriendsRepository,
   mongoFriendsRepository,
-} from "./repositories/mongo-friends.repository";
+} from './repositories/mongo-friends.repository';

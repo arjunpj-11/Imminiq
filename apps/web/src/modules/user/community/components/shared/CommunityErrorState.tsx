@@ -1,8 +1,8 @@
 interface ICommunityErrorStateProps {
-  title: string
-  message: string
-  actionLabel?: string
-  onAction?: () => void
+  title: string;
+  message: string;
+  actionLabel?: string;
+  onAction?: () => void;
 }
 
 export default function CommunityErrorState({
@@ -31,5 +31,5 @@ export default function CommunityErrorState({
         )}
       </div>
     </div>
-  )
+  );
 }

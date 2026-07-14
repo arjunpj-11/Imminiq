@@ -1,5 +1,5 @@
 interface IAppNoiseOverlayProps {
-  className?: string
+  className?: string;
 }
 
 export default function AppNoiseOverlay({ className = '' }: IAppNoiseOverlayProps) {
@@ -13,5 +13,5 @@ export default function AppNoiseOverlay({ className = '' }: IAppNoiseOverlayProp
         backgroundSize: '180px',
       }}
     />
-  )
+  );
 }

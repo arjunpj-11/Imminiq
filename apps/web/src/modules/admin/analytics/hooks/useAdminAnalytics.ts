@@ -1,0 +1,11 @@
+import { useQuery } from '@tanstack/react-query';
+import api from '../../../../lib/axios';
+import type { ApiEnvelope } from '../../shared';
+import type { AdminAnalytics } from '../types/admin-analytics.types';
+export const useAdminAnalytics = (range: { from: string; to: string }) =>
+  useQuery({
+    queryKey: ['admin', 'activity', range],
+    queryFn: async () =>
+      (await api.get<ApiEnvelope<AdminAnalytics>>('/admin/analytics', { params: range })).data
+        .data,
+  });

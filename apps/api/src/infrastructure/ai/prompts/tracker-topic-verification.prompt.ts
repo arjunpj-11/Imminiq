@@ -1,26 +1,24 @@
 export const TRACKER_TOPIC_VERIFICATION_SYSTEM_PROMPT =
-  'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.'
+  'You are a strict curriculum reviewer for Imminiq. Return only strict valid JSON. No markdown. No extra explanation.';
 
 export const buildTrackerTopicVerificationPrompt = (input: {
-  trackerTitle: string
-  topicTitle: string
-  topicDescription: string
+  trackerTitle: string;
+  topicTitle: string;
+  topicDescription: string;
   existingTopics: {
-    id: string
-    title: string
-    description: string
-  }[]
+    id: string;
+    title: string;
+    description: string;
+  }[];
 }): string => {
   const existingList = input.existingTopics.length
     ? input.existingTopics
         .map(
           (topic, index) =>
-            `${index + 1}. ${topic.title}${
-              topic.description ? ` — ${topic.description}` : ''
-            }`
+            `${index + 1}. ${topic.title}${topic.description ? ` — ${topic.description}` : ''}`
         )
         .join('\n')
-    : 'None yet'
+    : 'None yet';
 
   return `
 A user wants to add a new topic to their learning tracker.
@@ -51,5 +49,5 @@ Return ONLY valid JSON using this exact structure:
   "polishedTitle": "Fix obvious typos only (e.g. 'Javascrpt' → 'JavaScript'). Otherwise return the title exactly as given.",
   "polishedDescription": "One clear sentence describing what the learner will cover. If user left it empty, write one based on the title and tracker context."
 }
-`.trim()
-}
+`.trim();
+};

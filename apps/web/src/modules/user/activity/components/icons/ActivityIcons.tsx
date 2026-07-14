@@ -1,12 +1,9 @@
 interface IActivityIconProps {
-  size?: number
-  className?: string
+  size?: number;
+  className?: string;
 }
 
-export const FireIcon = ({
-  size = 14,
-  className = '',
-}: IActivityIconProps) => (
+export const FireIcon = ({ size = 14, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -15,10 +12,7 @@ export const FireIcon = ({
     aria-hidden="true"
     className={className}
   >
-    <path
-      d="M12 2s-4.5 4.5-4.5 9a4.5 4.5 0 0 0 9 0C16.5 6.5 12 2 12 2Z"
-      fill="currentColor"
-    />
+    <path d="M12 2s-4.5 4.5-4.5 9a4.5 4.5 0 0 0 9 0C16.5 6.5 12 2 12 2Z" fill="currentColor" />
     <path
       d="M9.5 14.5C9.5 13.12 10.62 12 12 12s2.5 1.12 2.5 2.5c0 .83-.4 1.56-1.01 2.02"
       stroke="currentColor"
@@ -27,12 +21,9 @@ export const FireIcon = ({
       opacity=".5"
     />
   </svg>
-)
+);
 
-export const TrendUpIcon = ({
-  size = 12,
-  className = '',
-}: IActivityIconProps) => (
+export const TrendUpIcon = ({ size = 12, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -56,12 +47,9 @@ export const TrendUpIcon = ({
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-export const TrendDownIcon = ({
-  size = 12,
-  className = '',
-}: IActivityIconProps) => (
+export const TrendDownIcon = ({ size = 12, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -85,12 +73,9 @@ export const TrendDownIcon = ({
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-export const SparklesIcon = ({
-  size = 14,
-  className = '',
-}: IActivityIconProps) => (
+export const SparklesIcon = ({ size = 14, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -99,10 +84,7 @@ export const SparklesIcon = ({
     aria-hidden="true"
     className={className}
   >
-    <path
-      d="M12 2l1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5L12 2Z"
-      fill="currentColor"
-    />
+    <path d="M12 2l1.5 5.5L19 9l-5.5 1.5L12 16l-1.5-5.5L5 9l5.5-1.5L12 2Z" fill="currentColor" />
     <path
       d="M5 15l.9 3.1L9 19l-3.1.9L5 23l-.9-3.1L1 19l3.1-.9L5 15Z"
       fill="currentColor"
@@ -114,12 +96,9 @@ export const SparklesIcon = ({
       opacity=".5"
     />
   </svg>
-)
+);
 
-export const TrophyIcon = ({
-  size = 14,
-  className = '',
-}: IActivityIconProps) => (
+export const TrophyIcon = ({ size = 14, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -134,24 +113,12 @@ export const TrophyIcon = ({
       strokeWidth="1.5"
       strokeLinecap="round"
     />
-    <path
-      d="M6 5h12v5a6 6 0 01-12 0V5z"
-      stroke="currentColor"
-      strokeWidth="1.5"
-    />
-    <path
-      d="M12 16v4M8 20h8"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-    />
+    <path d="M6 5h12v5a6 6 0 01-12 0V5z" stroke="currentColor" strokeWidth="1.5" />
+    <path d="M12 16v4M8 20h8" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
   </svg>
-)
+);
 
-export const GraduationCapIcon = ({
-  size = 15,
-  className = '',
-}: IActivityIconProps) => (
+export const GraduationCapIcon = ({ size = 15, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -175,12 +142,9 @@ export const GraduationCapIcon = ({
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-export const ClipboardCheckIcon = ({
-  size = 15,
-  className = '',
-}: IActivityIconProps) => (
+export const ClipboardCheckIcon = ({ size = 15, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -189,15 +153,7 @@ export const ClipboardCheckIcon = ({
     aria-hidden="true"
     className={className}
   >
-    <rect
-      x="5"
-      y="3"
-      width="14"
-      height="18"
-      rx="2"
-      stroke="currentColor"
-      strokeWidth="1.75"
-    />
+    <rect x="5" y="3" width="14" height="18" rx="2" stroke="currentColor" strokeWidth="1.75" />
     <path
       d="M9 3h6M9 12l2 2 4-4"
       stroke="currentColor"
@@ -206,12 +162,9 @@ export const ClipboardCheckIcon = ({
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-export const UsersIcon = ({
-  size = 15,
-  className = '',
-}: IActivityIconProps) => (
+export const UsersIcon = ({ size = 15, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -226,13 +179,7 @@ export const UsersIcon = ({
       strokeWidth="1.75"
       strokeLinecap="round"
     />
-    <circle
-      cx="9"
-      cy="7"
-      r="4"
-      stroke="currentColor"
-      strokeWidth="1.75"
-    />
+    <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.75" />
     <path
       d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"
       stroke="currentColor"
@@ -240,12 +187,9 @@ export const UsersIcon = ({
       strokeLinecap="round"
     />
   </svg>
-)
+);
 
-export const StarIcon = ({
-  size = 13,
-  className = '',
-}: IActivityIconProps) => (
+export const StarIcon = ({ size = 13, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -256,12 +200,9 @@ export const StarIcon = ({
   >
     <path d="M12 2l2.4 7.4H22l-6.2 4.5 2.4 7.4L12 17l-6.2 4.3 2.4-7.4L2 9.4h7.6L12 2z" />
   </svg>
-)
+);
 
-export const ActivityIcon = ({
-  size = 15,
-  className = '',
-}: IActivityIconProps) => (
+export const ActivityIcon = ({ size = 15, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -278,12 +219,9 @@ export const ActivityIcon = ({
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-export const CalendarIcon = ({
-  size = 16,
-  className = '',
-}: IActivityIconProps) => (
+export const CalendarIcon = ({ size = 16, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -292,28 +230,12 @@ export const CalendarIcon = ({
     aria-hidden="true"
     className={className}
   >
-    <rect
-      x="3"
-      y="4"
-      width="18"
-      height="18"
-      rx="2"
-      stroke="currentColor"
-      strokeWidth="2"
-    />
-    <path
-      d="M16 2v4M8 2v4M3 10h18"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
+    <rect x="3" y="4" width="18" height="18" rx="2" stroke="currentColor" strokeWidth="2" />
+    <path d="M16 2v4M8 2v4M3 10h18" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
   </svg>
-)
+);
 
-export const LightningIcon = ({
-  size = 13,
-  className = '',
-}: IActivityIconProps) => (
+export const LightningIcon = ({ size = 13, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -322,17 +244,11 @@ export const LightningIcon = ({
     aria-hidden="true"
     className={className}
   >
-    <path
-      d="M13 2L4.5 13.5H11V22l8.5-11.5H13V2Z"
-      fill="currentColor"
-    />
+    <path d="M13 2L4.5 13.5H11V22l8.5-11.5H13V2Z" fill="currentColor" />
   </svg>
-)
+);
 
-export const CoinsIcon = ({
-  size = 13,
-  className = '',
-}: IActivityIconProps) => (
+export const CoinsIcon = ({ size = 13, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -341,31 +257,13 @@ export const CoinsIcon = ({
     aria-hidden="true"
     className={className}
   >
-    <ellipse
-      cx="12"
-      cy="6"
-      rx="7"
-      ry="3"
-      stroke="currentColor"
-      strokeWidth="1.7"
-    />
-    <path
-      d="M5 6v6c0 1.66 3.13 3 7 3s7-1.34 7-3V6"
-      stroke="currentColor"
-      strokeWidth="1.7"
-    />
-    <path
-      d="M5 12v6c0 1.66 3.13 3 7 3s7-1.34 7-3v-6"
-      stroke="currentColor"
-      strokeWidth="1.7"
-    />
+    <ellipse cx="12" cy="6" rx="7" ry="3" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M5 6v6c0 1.66 3.13 3 7 3s7-1.34 7-3V6" stroke="currentColor" strokeWidth="1.7" />
+    <path d="M5 12v6c0 1.66 3.13 3 7 3s7-1.34 7-3v-6" stroke="currentColor" strokeWidth="1.7" />
   </svg>
-)
+);
 
-export const CheckIcon = ({
-  size = 13,
-  className = '',
-}: IActivityIconProps) => (
+export const CheckIcon = ({ size = 13, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -382,12 +280,9 @@ export const CheckIcon = ({
       strokeLinejoin="round"
     />
   </svg>
-)
+);
 
-export const RefreshIcon = ({
-  size = 14,
-  className = '',
-}: IActivityIconProps) => (
+export const RefreshIcon = ({ size = 14, className = '' }: IActivityIconProps) => (
   <svg
     width={size}
     height={size}
@@ -410,15 +305,10 @@ export const RefreshIcon = ({
       strokeLinecap="round"
     />
   </svg>
-)
+);
 
 export const LiveDotIcon = () => (
-  <svg
-    width="7"
-    height="7"
-    viewBox="0 0 7 7"
-    aria-hidden="true"
-  >
+  <svg width="7" height="7" viewBox="0 0 7 7" aria-hidden="true">
     <circle cx="3.5" cy="3.5" r="3.5" fill="var(--success)" />
   </svg>
-)
+);

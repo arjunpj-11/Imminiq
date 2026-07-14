@@ -1,1 +1,1 @@
-export type CreationSessionStatus = 'draft' | 'completed' | 'cancelled'
+export type CreationSessionStatus = 'draft' | 'completed' | 'cancelled';

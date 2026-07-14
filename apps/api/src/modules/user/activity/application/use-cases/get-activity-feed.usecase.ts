@@ -2,20 +2,21 @@ import {
   ACTIVITY_DEFAULT_FEED_LIMIT,
   ACTIVITY_MAX_FEED_LIMIT,
   ACTIVITY_MIN_FEED_LIMIT,
-} from '../../domain/activity.constants'
-import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface'
-import { activityCategoriesForFilter } from '../../domain/value-objects/activity-category.vo'
-import type {
-  ActivityFeedResponseDTO,
-  GetActivityFeedPayloadDTO,
-} from '../activity.dto'
-import type { ActivityCursorCodecContract } from '../services/activity-cursor.service'
-import type { ActivityDateRangeContract } from '../services/activity-date-range.service'
-import type { ActivityMapperContract } from '../activity.mapper'
-import type { IClock } from '../../../../../shared/time/clock.interface'
+} from '../../domain/activity.constants';
+import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface';
+import { activityCategoriesForFilter } from '../../domain/value-objects/activity-category.vo';
+import type { ActivityFeedResponseDTO, GetActivityFeedPayloadDTO } from '../activity.dto';
+import type { ActivityCursorCodecContract } from '../services/activity-cursor.service';
+import type { ActivityDateRangeContract } from '../services/activity-date-range.service';
+import type { ActivityMapperContract } from '../activity.mapper';
+import type { IClock } from '../../../../../shared/time/clock.interface';
 
 export interface IGetActivityFeedUseCase {
-  execute(userId: string, payload: GetActivityFeedPayloadDTO, now?: Date): Promise<ActivityFeedResponseDTO>
+  execute(
+    userId: string,
+    payload: GetActivityFeedPayloadDTO,
+    now?: Date
+  ): Promise<ActivityFeedResponseDTO>;
 }
 
 export class GetActivityFeedUseCase implements IGetActivityFeedUseCase {
@@ -24,55 +25,42 @@ export class GetActivityFeedUseCase implements IGetActivityFeedUseCase {
     private readonly _mapper: ActivityMapperContract,
     private readonly _dateRange: ActivityDateRangeContract,
     private readonly _cursorCodec: ActivityCursorCodecContract,
-    private readonly _clock: IClock,
+    private readonly _clock: IClock
   ) {}
 
   async execute(
     userId: string,
     payload: GetActivityFeedPayloadDTO,
-    now = this._clock.now(),
+    now = this._clock.now()
   ): Promise<ActivityFeedResponseDTO> {
-    const filter = payload.filter ?? 'all'
-    const limit = this.normalizeLimit(payload.limit)
-    const cursor = this._cursorCodec.decode(payload.cursor)
-    const categories = activityCategoriesForFilter(filter)
+    const filter = payload.filter ?? 'all';
+    const limit = this.normalizeLimit(payload.limit);
+    const cursor = this._cursorCodec.decode(payload.cursor);
+    const categories = activityCategoriesForFilter(filter);
 
-    const context =
-      this._dateRange.createContext(
-        now,
-        undefined,
-        payload.utcOffsetMinutes ?? 0,
-      )
+    const context = this._dateRange.createContext(now, undefined, payload.utcOffsetMinutes ?? 0);
 
-    const result =
-      await this._activityRepository.findActivityFeed({
-        userId,
+    const result = await this._activityRepository.findActivityFeed({
+      userId,
 
-        ...(categories !== undefined
-          ? { categories }
-          : {}),
+      ...(categories !== undefined ? { categories } : {}),
 
-        limit,
+      limit,
 
-        ...(cursor
-          ? {
-              beforeOccurredAt: cursor.occurredAt,
-              beforeId: cursor.id,
-            }
-          : {}),
-      })
+      ...(cursor
+        ? {
+            beforeOccurredAt: cursor.occurredAt,
+            beforeId: cursor.id,
+          }
+        : {}),
+    });
 
-    const lastActivity =
-      result.activities[result.activities.length - 1]
+    const lastActivity = result.activities[result.activities.length - 1];
 
     return {
       filter,
 
-      groups: this._mapper.toGroupedFeed(
-        result.activities,
-        context,
-        this._dateRange,
-      ),
+      groups: this._mapper.toGroupedFeed(result.activities, context, this._dateRange),
 
       pagination: {
         limit,
@@ -87,15 +75,12 @@ export class GetActivityFeedUseCase implements IGetActivityFeedUseCase {
               })
             : null,
       },
-    }
+    };
   }
 
   private normalizeLimit(limit?: number): number {
-    const value = limit ?? ACTIVITY_DEFAULT_FEED_LIMIT
+    const value = limit ?? ACTIVITY_DEFAULT_FEED_LIMIT;
 
-    return Math.min(
-      ACTIVITY_MAX_FEED_LIMIT,
-      Math.max(ACTIVITY_MIN_FEED_LIMIT, value),
-    )
+    return Math.min(ACTIVITY_MAX_FEED_LIMIT, Math.max(ACTIVITY_MIN_FEED_LIMIT, value));
   }
 }

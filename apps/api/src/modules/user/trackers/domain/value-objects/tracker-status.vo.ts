@@ -1,1 +1,1 @@
-export type TrackerStatus = 'active' | 'stalled' | 'completed' | 'archived'
+export type TrackerStatus = 'active' | 'stalled' | 'completed' | 'archived';

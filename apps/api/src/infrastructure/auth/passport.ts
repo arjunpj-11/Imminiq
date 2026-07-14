@@ -1,12 +1,9 @@
-import passport from 'passport'
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20'
-import {
-  Strategy as GitHubStrategy,
-  Profile as GitHubProfile,
-} from 'passport-github2'
-import type { VerifyCallback } from 'passport-oauth2'
-import { env } from '../../config/env'
-import type { IAuthRepository } from '../../modules/auth'
+import passport from 'passport';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
+import { Strategy as GitHubStrategy, Profile as GitHubProfile } from 'passport-github2';
+import type { VerifyCallback } from 'passport-oauth2';
+import { env } from '../../config/env';
+import type { IAuthRepository } from '../../modules/auth';
 
 const normalizeUsernameBase = (value: string) => {
   return (
@@ -14,25 +11,22 @@ const normalizeUsernameBase = (value: string) => {
       .toLowerCase()
       .replace(/[^a-z0-9_]/g, '')
       .slice(0, 20) || `user${Date.now()}`
-  )
-}
+  );
+};
 
-const generateUniqueUsername = async (
-  authRepository: IAuthRepository,
-  baseValue: string,
-) => {
-  const base = normalizeUsernameBase(baseValue)
+const generateUniqueUsername = async (authRepository: IAuthRepository, baseValue: string) => {
+  const base = normalizeUsernameBase(baseValue);
 
-  let username = base
-  let counter = 1
+  let username = base;
+  let counter = 1;
 
   while (await authRepository.usernameExists(username)) {
-    username = `${base}${counter}`
-    counter += 1
+    username = `${base}${counter}`;
+    counter += 1;
   }
 
-  return username
-}
+  return username;
+};
 
 export const initPassport = (authRepository: IAuthRepository) => {
   passport.use(
@@ -45,23 +39,23 @@ export const initPassport = (authRepository: IAuthRepository) => {
       },
       async (_accessToken, _refreshToken, profile, done) => {
         try {
-          const email = profile.emails?.[0]?.value?.toLowerCase()
-          const avatarUrl = profile.photos?.[0]?.value
-          const fullName = profile.displayName || 'Google User'
+          const email = profile.emails?.[0]?.value?.toLowerCase();
+          const avatarUrl = profile.photos?.[0]?.value;
+          const fullName = profile.displayName || 'Google User';
 
           if (!email) {
             return done(null, false, {
               message: 'Google account does not provide an email address',
-            })
+            });
           }
 
-          let user = await authRepository.findByEmail(email)
+          let user = await authRepository.findByEmail(email);
 
           if (!user) {
             const username = await generateUniqueUsername(
               authRepository,
               profile.displayName || email.split('@')[0]
-            )
+            );
 
             user = await authRepository.createOAuthUser({
               fullName,
@@ -70,16 +64,16 @@ export const initPassport = (authRepository: IAuthRepository) => {
               avatarUrl,
               provider: 'google',
               providerId: profile.id,
-            })
+            });
           }
 
-          return done(null, user as unknown as Express.User)
+          return done(null, user as unknown as Express.User);
         } catch (error) {
-          return done(error)
+          return done(error);
         }
       }
     )
-  )
+  );
 
   passport.use(
     'github',
@@ -97,24 +91,23 @@ export const initPassport = (authRepository: IAuthRepository) => {
         done: VerifyCallback
       ) => {
         try {
-          const email = profile.emails?.[0]?.value?.toLowerCase()
-          const avatarUrl = profile.photos?.[0]?.value
-          const fullName =
-            profile.displayName || profile.username || 'GitHub User'
+          const email = profile.emails?.[0]?.value?.toLowerCase();
+          const avatarUrl = profile.photos?.[0]?.value;
+          const fullName = profile.displayName || profile.username || 'GitHub User';
 
           if (!email) {
             return done(null, false, {
               message: 'GitHub account does not provide an email address',
-            })
+            });
           }
 
-          let user = await authRepository.findByEmail(email)
+          let user = await authRepository.findByEmail(email);
 
           if (!user) {
             const username = await generateUniqueUsername(
               authRepository,
               profile.username || profile.displayName || email.split('@')[0]
-            )
+            );
 
             user = await authRepository.createOAuthUser({
               fullName,
@@ -123,16 +116,16 @@ export const initPassport = (authRepository: IAuthRepository) => {
               avatarUrl,
               provider: 'github',
               providerId: profile.id,
-            })
+            });
           }
 
-          return done(null, user as unknown as Express.User)
+          return done(null, user as unknown as Express.User);
         } catch (error) {
-          return done(error)
+          return done(error);
         }
       }
     )
-  )
-}
+  );
+};
 
-export default passport
+export default passport;

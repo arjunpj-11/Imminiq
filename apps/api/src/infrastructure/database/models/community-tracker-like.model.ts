@@ -1,11 +1,11 @@
-import mongoose, { Schema } from 'mongoose'
+import mongoose, { Schema } from 'mongoose';
 
 export interface ICommunityTrackerLikeDocument {
-  trackerId: mongoose.Types.ObjectId
-  userId: mongoose.Types.ObjectId
-  deletedAt?: Date | null
-  createdAt?: Date
-  updatedAt?: Date
+  trackerId: mongoose.Types.ObjectId;
+  userId: mongoose.Types.ObjectId;
+  deletedAt?: Date | null;
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
 const communityTrackerLikeSchema = new Schema<ICommunityTrackerLikeDocument>(
@@ -31,8 +31,8 @@ const communityTrackerLikeSchema = new Schema<ICommunityTrackerLikeDocument>(
   {
     timestamps: true,
     collection: 'community_tracker_likes',
-  },
-)
+  }
+);
 
 communityTrackerLikeSchema.index(
   {
@@ -44,12 +44,9 @@ communityTrackerLikeSchema.index(
     partialFilterExpression: {
       deletedAt: null,
     },
-  },
-)
+  }
+);
 
 export const CommunityTrackerLike =
   mongoose.models.CommunityTrackerLike ||
-  mongoose.model<ICommunityTrackerLikeDocument>(
-    'CommunityTrackerLike',
-    communityTrackerLikeSchema,
-  )
+  mongoose.model<ICommunityTrackerLikeDocument>('CommunityTrackerLike', communityTrackerLikeSchema);

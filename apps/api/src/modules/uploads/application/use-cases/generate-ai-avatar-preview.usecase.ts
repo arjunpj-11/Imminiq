@@ -1,51 +1,46 @@
 import {
   AI_IMAGE_GENERATION_STEPS,
   AI_IMAGE_SEED_UPPER_BOUND,
-} from '../../domain/uploads.constants'
-import { UploadsDomainError } from '../../domain/uploads-domain.error'
-import type { IAIImageGenerator } from '../../domain/services/ai-image-generation.interface'
-import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface'
-import type { IAIImagePreviewResultDTO } from '../uploads.dto'
-import { UploadsApplicationError } from '../uploads-application.error'
-import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service'
+} from '../../domain/uploads.constants';
+import { UploadsDomainError } from '../../domain/uploads-domain.error';
+import type { IAIImageGenerator } from '../../domain/services/ai-image-generation.interface';
+import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface';
+import type { IAIImagePreviewResultDTO } from '../uploads.dto';
+import { UploadsApplicationError } from '../uploads-application.error';
+import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service';
 
 export interface IGenerateAIAvatarPreviewUseCase {
-  execute(prompt: string): Promise<IAIImagePreviewResultDTO>
+  execute(prompt: string): Promise<IAIImagePreviewResultDTO>;
 }
 
 export class GenerateAIAvatarPreviewUseCase implements IGenerateAIAvatarPreviewUseCase {
   constructor(
     private readonly _aiImageGenerator: IAIImageGenerator,
     private readonly _aiUploadPromptBuilder: IAIUploadPromptBuilder,
-    private readonly _randomSeedGenerator: IRandomSeedGenerator,
+    private readonly _randomSeedGenerator: IRandomSeedGenerator
   ) {}
 
   async execute(prompt: string): Promise<IAIImagePreviewResultDTO> {
-    const cleanedPrompt = prompt.trim()
+    const cleanedPrompt = prompt.trim();
 
     if (!cleanedPrompt) {
-      throw UploadsApplicationError.promptRequired()
+      throw UploadsApplicationError.promptRequired();
     }
 
     try {
       const image = await this._aiImageGenerator.generatePreviewImage({
-        prompt: this._aiUploadPromptBuilder.buildPrompt(
-          'avatar',
-          cleanedPrompt,
-        ),
+        prompt: this._aiUploadPromptBuilder.buildPrompt('avatar', cleanedPrompt),
         steps: AI_IMAGE_GENERATION_STEPS,
-        seed: this._randomSeedGenerator.createSeed(
-          AI_IMAGE_SEED_UPPER_BOUND,
-        ),
-      })
+        seed: this._randomSeedGenerator.createSeed(AI_IMAGE_SEED_UPPER_BOUND),
+      });
 
-      return { imageUrl: image.dataUrl }
+      return { imageUrl: image.dataUrl };
     } catch (error) {
       if (error instanceof UploadsDomainError) {
-        throw UploadsApplicationError.aiImageGenerationFailed()
+        throw UploadsApplicationError.aiImageGenerationFailed();
       }
 
-      throw error
+      throw error;
     }
   }
 }

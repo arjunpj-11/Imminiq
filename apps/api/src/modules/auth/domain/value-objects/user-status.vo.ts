@@ -1,6 +1,1 @@
-export type UserStatus =
-  | 'active'
-  | 'paused'
-  | 'blocked'
-  | 'deactivated'
-  | 'banned'
+export type UserStatus = 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned';

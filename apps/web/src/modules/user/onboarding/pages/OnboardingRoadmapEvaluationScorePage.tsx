@@ -1,14 +1,11 @@
-import {
-  Link,
-  useParams,
-} from 'react-router-dom'
+import { Link, useParams } from 'react-router-dom';
 
-import { useRoadmapEvaluationResult } from '../hooks/useRoadmapEvaluationResult'
-import type { MissingRoadmapTopic } from '../hooks/useRoadmapEvaluationResult'
-import { useAddMissingEvaluationTopic } from '../../trackers'
-import OnboardingBrandLink from '../components/OnboardingBrandLink'
-import { cn } from '../utils/cn'
-import { getUserFacingError } from '../../../../lib/user-facing-error'
+import { useRoadmapEvaluationResult } from '../hooks/useRoadmapEvaluationResult';
+import type { MissingRoadmapTopic } from '../hooks/useRoadmapEvaluationResult';
+import { useAddMissingEvaluationTopic } from '../../trackers';
+import OnboardingBrandLink from '../components/OnboardingBrandLink';
+import { cn } from '../utils/cn';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 
 const PlusIcon = () => {
   return (
@@ -25,8 +22,8 @@ const PlusIcon = () => {
       <line x1="12" y1="5" x2="12" y2="19" />
       <line x1="5" y1="12" x2="19" y2="12" />
     </svg>
-  )
-}
+  );
+};
 
 const CheckIcon = () => {
   return (
@@ -43,8 +40,8 @@ const CheckIcon = () => {
     >
       <polyline points="20 6 9 17 4 12" />
     </svg>
-  )
-}
+  );
+};
 
 const ArrowRightIcon = () => {
   return (
@@ -62,44 +59,35 @@ const ArrowRightIcon = () => {
       <line x1="5" y1="12" x2="19" y2="12" />
       <polyline points="12 5 19 12 12 19" />
     </svg>
-  )
-}
+  );
+};
 
 export default function OnboardingRoadmapEvaluationScorePage() {
-  const { jobId } = useParams<{ jobId: string }>()
+  const { jobId } = useParams<{ jobId: string }>();
 
-  const {
-    data,
-    isLoading,
-    error,
-  } = useRoadmapEvaluationResult(jobId)
+  const { data, isLoading, error } = useRoadmapEvaluationResult(jobId);
 
-  const addMissingTopic =
-    useAddMissingEvaluationTopic()
+  const addMissingTopic = useAddMissingEvaluationTopic();
 
-  const evaluation = data?.data?.evaluation
-  const trackerId = data?.data?.trackerId
+  const evaluation = data?.data?.evaluation;
+  const trackerId = data?.data?.trackerId;
 
-  const handleAddMissingTopic = async (
-    topicIndex: number
-  ) => {
+  const handleAddMissingTopic = async (topicIndex: number) => {
     if (!trackerId || !jobId) {
-      return
+      return;
     }
 
     await addMissingTopic.mutateAsync({
       trackerId,
       evaluationJobId: jobId,
       topicIndex,
-    })
-  }
+    });
+  };
 
   return (
     <div className="min-h-screen bg-(--surface-canvas) font-[DM_Sans,sans-serif] text-(--text-primary) dark:bg-(--surface-canvas) dark:text-(--text-primary)">
       <header className="sticky top-0 z-50 flex h-14 items-center justify-between border-b border-(--border-subtle) bg-(--surface-canvas)/95 px-5 backdrop-blur-xl dark:border-white/15 dark:bg-(--surface-canvas)/95 sm:px-8 md:px-12">
         <OnboardingBrandLink />
-
-        
       </header>
 
       <main className="mx-auto flex w-full max-w-280 flex-col gap-5 px-4 py-6 sm:px-6 sm:py-8 md:px-12 md:py-10">
@@ -108,9 +96,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
             <div className="flex flex-col items-center text-center">
               <div className="mb-4 h-11 w-11 animate-spin rounded-full border-2 border-transparent border-t-(--brand-500) dark:border-t-(--brand-500)" />
 
-              <p className="font-serif text-xl font-bold">
-                Loading AI evaluation report
-              </p>
+              <p className="font-serif text-xl font-bold">Loading AI evaluation report</p>
             </div>
           </div>
         ) : error || !evaluation ? (
@@ -121,8 +107,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
               </h1>
 
               <p className="mt-3 max-w-130 text-sm leading-relaxed text-red-600 dark:text-red-200">
-                {error?.message ||
-                  'The final roadmap evaluation could not be loaded.'}
+                {error?.message || 'The final roadmap evaluation could not be loaded.'}
               </p>
             </div>
           </div>
@@ -138,9 +123,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
 
                 <h1 className="mt-2 max-w-205 font-serif text-[clamp(28px,5vw,44px)] font-extrabold leading-[1.08] tracking-[-1px]">
                   Your roadmap scored{' '}
-                  <span className="text-(--warning)">
-                    {evaluation.score}/100
-                  </span>
+                  <span className="text-(--warning)">{evaluation.score}/100</span>
                 </h1>
 
                 <div className="mt-4 inline-flex rounded-full border border-white/10 bg-white/8 px-4 py-2 text-sm font-bold text-[#fdf8f5]">
@@ -202,7 +185,10 @@ export default function OnboardingRoadmapEvaluationScorePage() {
 
               {addMissingTopic.error && (
                 <div className="mt-5 rounded-md border border-red-300 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-400/30 dark:bg-red-400/10 dark:text-red-300">
-                  {getUserFacingError(addMissingTopic.error, 'Unable to add this topic. Please try again.')}
+                  {getUserFacingError(
+                    addMissingTopic.error,
+                    'Unable to add this topic. Please try again.'
+                  )}
                 </div>
               )}
 
@@ -213,8 +199,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
                       key={`${topic.title}-${index}`}
                       topic={topic}
                       isAdding={
-                        addMissingTopic.isPending &&
-                        addMissingTopic.variables?.topicIndex === index
+                        addMissingTopic.isPending && addMissingTopic.variables?.topicIndex === index
                       }
                       onAdd={() => handleAddMissingTopic(index)}
                     />
@@ -244,7 +229,8 @@ export default function OnboardingRoadmapEvaluationScorePage() {
                 </h2>
 
                 <p className="mt-3 max-w-145 text-sm leading-7 text-(--text-secondary) dark:text-(--text-secondary)">
-                  Your roadmap has been generated, evaluated, and improved with the topics you chose to add.
+                  Your roadmap has been generated, evaluated, and improved with the topics you chose
+                  to add.
                 </p>
 
                 <Link
@@ -260,7 +246,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
         )}
       </main>
     </div>
-  )
+  );
 }
 
 function MissingTopicCard({
@@ -268,13 +254,11 @@ function MissingTopicCard({
   onAdd,
   isAdding,
 }: {
-  topic: MissingRoadmapTopic
-  onAdd: () => void
-  isAdding: boolean
+  topic: MissingRoadmapTopic;
+  onAdd: () => void;
+  isAdding: boolean;
 }) {
-  const isAdded =
-    Boolean(topic.isAdded) ||
-    Boolean(topic.addedSubtopicId)
+  const isAdded = Boolean(topic.isAdded) || Boolean(topic.addedSubtopicId);
 
   return (
     <div className="rounded-lg border border-(--border-subtle) bg-(--surface-canvas)/55 p-5 dark:border-white/15 dark:bg-(--surface-canvas)/45">
@@ -344,5 +328,5 @@ function MissingTopicCard({
         </button>
       </div>
     </div>
-  )
+  );
 }

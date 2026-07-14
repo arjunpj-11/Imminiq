@@ -1,24 +1,24 @@
-import mongoose, { Document, Schema } from 'mongoose'
+import mongoose, { Document, Schema } from 'mongoose';
 
 export interface IModerationAppealDocument extends Document {
-  _id: mongoose.Types.ObjectId
+  _id: mongoose.Types.ObjectId;
 
-  userId: mongoose.Types.ObjectId
-  caseId: string
+  userId: mongoose.Types.ObjectId;
+  caseId: string;
 
-  identifier: string
-  appealReason: string
+  identifier: string;
+  appealReason: string;
 
-  status: 'pending' | 'under_review' | 'approved' | 'rejected'
+  status: 'pending' | 'under_review' | 'approved' | 'rejected';
 
-  reviewedBy?: mongoose.Types.ObjectId | null
-  reviewNote?: string | null
-  reviewedAt?: Date | null
+  reviewedBy?: mongoose.Types.ObjectId | null;
+  reviewNote?: string | null;
+  reviewedAt?: Date | null;
 
-  deletedAt?: Date | null
+  deletedAt?: Date | null;
 
-  createdAt: Date
-  updatedAt: Date
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const moderationAppealSchema = new Schema<IModerationAppealDocument>(
@@ -82,7 +82,7 @@ const moderationAppealSchema = new Schema<IModerationAppealDocument>(
   {
     timestamps: true,
   }
-)
+);
 
 // ─── INDEXES ─────────────────────────────────────
 
@@ -91,28 +91,28 @@ moderationAppealSchema.index(
   {
     unique: true,
   }
-)
+);
 
 moderationAppealSchema.index({
   userId: 1,
   status: 1,
-})
+});
 
 moderationAppealSchema.index({
   status: 1,
   createdAt: -1,
-})
+});
 
 moderationAppealSchema.index({
   reviewedBy: 1,
   reviewedAt: -1,
-})
+});
 
 moderationAppealSchema.index({
   deletedAt: 1,
-})
+});
 
 export const ModerationAppeal = mongoose.model<IModerationAppealDocument>(
   'ModerationAppeal',
   moderationAppealSchema
-)
+);

@@ -1,1 +1,1 @@
-export type TrackerVisibility = 'private' | 'public'
+export type TrackerVisibility = 'private' | 'public';

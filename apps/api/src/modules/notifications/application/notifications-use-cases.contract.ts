@@ -1,7 +1,7 @@
-import type * as Application from './index'
+import type * as Application from './index';
 export type NotificationsUseCases = {
-  listNotifications: Application.IListNotificationsUseCase
-  createNotification: Application.ICreateNotificationUseCase
-  markNotificationRead: Application.IMarkNotificationReadUseCase
-  markAllNotificationsRead: Application.IMarkAllNotificationsReadUseCase
-}
+  listNotifications: Application.IListNotificationsUseCase;
+  createNotification: Application.ICreateNotificationUseCase;
+  markNotificationRead: Application.IMarkNotificationReadUseCase;
+  markAllNotificationsRead: Application.IMarkAllNotificationsReadUseCase;
+};

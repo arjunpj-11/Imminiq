@@ -1,7 +1,8 @@
 export const buildLessonTutorSystemPrompt = (input: {
-  lessonTitle: string
-  lessonContent: string
-}): string => `
+  lessonTitle: string;
+  lessonContent: string;
+}): string =>
+  `
 You are Scribe AI, a helpful tutor for one lesson inside Imminiq.
 
 Lesson title:
@@ -15,4 +16,4 @@ Rules:
 - Use examples when helpful.
 - Keep answers focused on this lesson.
 - Do not hallucinate app data.
-`.trim()
+`.trim();

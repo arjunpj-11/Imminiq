@@ -66,43 +66,33 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
 
   constructor(
     mapper: MongoMockTestsMapper = new MongoMockTestsMapper(),
-    dependencies: Partial<MongoMockTestsRepositoryDependencies> = {},
+    dependencies: Partial<MongoMockTestsRepositoryDependencies> = {}
   ) {
-    this._testRepository =
-      dependencies.testRepository ??
-      new MongoMockTestsTestRepository(mapper);
+    this._testRepository = dependencies.testRepository ?? new MongoMockTestsTestRepository(mapper);
 
     this._sharingRepository =
-      dependencies.sharingRepository ??
-      new MongoMockTestsSharingRepository(mapper);
+      dependencies.sharingRepository ?? new MongoMockTestsSharingRepository(mapper);
 
     this._questionRepository =
-      dependencies.questionRepository ??
-      new MongoMockTestsQuestionRepository(mapper);
+      dependencies.questionRepository ?? new MongoMockTestsQuestionRepository(mapper);
 
     this._attemptRepository =
-      dependencies.attemptRepository ??
-      new MongoMockTestsAttemptRepository(mapper);
+      dependencies.attemptRepository ?? new MongoMockTestsAttemptRepository(mapper);
 
     this._answerRepository =
-      dependencies.answerRepository ??
-      new MongoMockTestsAnswerRepository(mapper);
+      dependencies.answerRepository ?? new MongoMockTestsAnswerRepository(mapper);
 
     this._aiEvaluationRepository =
-      dependencies.aiEvaluationRepository ??
-      new MongoMockTestsAIEvaluationRepository(mapper);
+      dependencies.aiEvaluationRepository ?? new MongoMockTestsAIEvaluationRepository(mapper);
 
     this._reportRepository =
-      dependencies.reportRepository ??
-      new MongoMockTestsReportRepository(mapper);
+      dependencies.reportRepository ?? new MongoMockTestsReportRepository(mapper);
 
     this._analyticsRepository =
-      dependencies.analyticsRepository ??
-      new MongoMockTestsAnalyticsRepository(mapper);
+      dependencies.analyticsRepository ?? new MongoMockTestsAnalyticsRepository(mapper);
 
     this._creationSessionRepository =
-      dependencies.creationSessionRepository ??
-      new MongoMockTestsCreationSessionRepository(mapper);
+      dependencies.creationSessionRepository ?? new MongoMockTestsCreationSessionRepository(mapper);
   }
 
   async findTestById(testId: string) {
@@ -177,10 +167,7 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
     return this._attemptRepository.createAttempt(data);
   }
 
-  async updateAttempt(
-    attemptId: string,
-    data: UpdateMockTestAttemptInput,
-  ) {
+  async updateAttempt(attemptId: string, data: UpdateMockTestAttemptInput) {
     return this._attemptRepository.updateAttempt(attemptId, data);
   }
 
@@ -204,10 +191,7 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
     return this._answerRepository.saveAnswer(data);
   }
 
-  async updateAnswer(
-    answerId: string,
-    data: UpdateMockTestAnswerInput,
-  ) {
+  async updateAnswer(answerId: string, data: UpdateMockTestAnswerInput) {
     return this._answerRepository.updateAnswer(answerId, data);
   }
 
@@ -267,14 +251,8 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
     return this._creationSessionRepository.createCreationSession(data);
   }
 
-  async updateCreationSession(
-    sessionId: string,
-    data: UpdateMockTestCreationSessionInput,
-  ) {
-    return this._creationSessionRepository.updateCreationSession(
-      sessionId,
-      data,
-    );
+  async updateCreationSession(sessionId: string, data: UpdateMockTestCreationSessionInput) {
+    return this._creationSessionRepository.updateCreationSession(sessionId, data);
   }
 
   async cancelCreationSession(sessionId: string) {

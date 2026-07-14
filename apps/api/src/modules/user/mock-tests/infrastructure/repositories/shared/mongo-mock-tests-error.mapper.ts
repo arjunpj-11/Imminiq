@@ -4,9 +4,7 @@ import type { MongoDuplicateKeyError } from './mongo-mock-tests.types';
 export type ErrorMapper = (error: unknown) => MockTestsDomainError | null;
 
 export class MongoMockTestsErrorMapper {
-  static mapDuplicateMockTestRecordError(
-    error: unknown,
-  ): MockTestsDomainError | null {
+  static mapDuplicateMockTestRecordError(error: unknown): MockTestsDomainError | null {
     if (!MongoMockTestsErrorMapper.isDuplicateKeyError(error)) {
       return null;
     }
@@ -16,7 +14,7 @@ export class MongoMockTestsErrorMapper {
     if (MongoMockTestsErrorMapper.hasKey(keyPattern, 'shareToken')) {
       return new MockTestsDomainError(
         'DUPLICATE_SHARE_TOKEN',
-        'Mock test share token already exists',
+        'Mock test share token already exists'
       );
     }
 
@@ -26,7 +24,7 @@ export class MongoMockTestsErrorMapper {
     ) {
       return new MockTestsDomainError(
         'MOCK_TEST_ALREADY_IMPORTED',
-        'This shared mock test is already imported',
+        'This shared mock test is already imported'
       );
     }
 
@@ -36,7 +34,7 @@ export class MongoMockTestsErrorMapper {
     ) {
       return new MockTestsDomainError(
         'DUPLICATE_QUESTION_ORDER',
-        'Mock test question order already exists',
+        'Mock test question order already exists'
       );
     }
 
@@ -46,7 +44,7 @@ export class MongoMockTestsErrorMapper {
     ) {
       return new MockTestsDomainError(
         'DUPLICATE_ATTEMPT_ANSWER',
-        'Answer for this question already exists in this attempt',
+        'Answer for this question already exists in this attempt'
       );
     }
 
@@ -56,19 +54,17 @@ export class MongoMockTestsErrorMapper {
     ) {
       return new MockTestsDomainError(
         'ACTIVE_CREATION_SESSION_EXISTS',
-        'An active mock test creation session already exists',
+        'An active mock test creation session already exists'
       );
     }
 
     return new MockTestsDomainError(
       'DUPLICATE_MOCK_TEST_RECORD',
-      'Mock test record already exists',
+      'Mock test record already exists'
     );
   }
 
-  private static isDuplicateKeyError(
-    error: unknown,
-  ): error is MongoDuplicateKeyError {
+  private static isDuplicateKeyError(error: unknown): error is MongoDuplicateKeyError {
     return (
       typeof error === 'object' &&
       error !== null &&
@@ -77,18 +73,11 @@ export class MongoMockTestsErrorMapper {
     );
   }
 
-  private static getKeyPattern(
-    error: MongoDuplicateKeyError,
-  ): Record<string, unknown> {
-    return error.keyPattern && typeof error.keyPattern === 'object'
-      ? error.keyPattern
-      : {};
+  private static getKeyPattern(error: MongoDuplicateKeyError): Record<string, unknown> {
+    return error.keyPattern && typeof error.keyPattern === 'object' ? error.keyPattern : {};
   }
 
-  private static hasKey(
-    keyPattern: Record<string, unknown>,
-    key: string,
-  ): boolean {
+  private static hasKey(keyPattern: Record<string, unknown>, key: string): boolean {
     return Object.prototype.hasOwnProperty.call(keyPattern, key);
   }
 }
