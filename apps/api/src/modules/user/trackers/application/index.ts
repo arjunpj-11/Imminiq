@@ -27,6 +27,7 @@ export * from './use-cases/get-tracker-lesson.usecase';
 export * from './use-cases/get-tracker-roadmap.usecase';
 export * from './use-cases/get-tracker-summary.usecase';
 export * from './use-cases/list-trackers.usecase';
+export * from './use-cases/list-tracker-domains.usecase';
 export * from './use-cases/publish-tracker.usecase';
 export * from './use-cases/restore-tracker.usecase';
 export * from './use-cases/run-lesson-code.usecase';

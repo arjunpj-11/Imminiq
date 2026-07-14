@@ -1,6 +1,7 @@
 import { cerebrasChat } from './clients/cerebras.client';
 import { gemini31FlashLiteChat, geminiChat, geminiFlashLiteChat } from './clients/gemini.client';
 import { groqChat } from './clients/groq.client';
+import type { AITokenUsageCategory } from './ai-token-usage';
 
 export type AIChatMessage = {
   role: 'user' | 'assistant' | 'system';
@@ -86,7 +87,8 @@ const toPrompt = (messages: AIChatMessage[]) => {
 
 const getEconomyProviders = (
   messages: AIChatMessage[],
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile'
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile',
+  category: AITokenUsageCategory
 ): AIProvider<string>[] => {
   const alternateGroqModel =
     primaryGroqModel === 'llama-3.1-8b-instant'
@@ -95,10 +97,19 @@ const getEconomyProviders = (
   const { prompt, system } = toPrompt(messages);
 
   return [
-    { name: `Groq ${primaryGroqModel}`, generate: () => groqChat(messages, primaryGroqModel) },
-    { name: 'Gemini 3.1 Flash-Lite', generate: () => gemini31FlashLiteChat(prompt, system) },
-    { name: `Groq ${alternateGroqModel}`, generate: () => groqChat(messages, alternateGroqModel) },
-    { name: 'Cerebras Qwen 3', generate: () => cerebrasChat(prompt, system) },
+    {
+      name: `Groq ${primaryGroqModel}`,
+      generate: () => groqChat(messages, primaryGroqModel, category),
+    },
+    {
+      name: 'Gemini 3.1 Flash-Lite',
+      generate: () => gemini31FlashLiteChat(prompt, system, category),
+    },
+    {
+      name: `Groq ${alternateGroqModel}`,
+      generate: () => groqChat(messages, alternateGroqModel, category),
+    },
+    { name: 'Cerebras Qwen 3', generate: () => cerebrasChat(prompt, system, category) },
   ];
 };
 
@@ -108,9 +119,10 @@ const getEconomyProviders = (
  */
 export const economyAIChatWithFallback = async (
   messages: AIChatMessage[],
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant'
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
+  category: AITokenUsageCategory = 'other'
 ): Promise<string> => {
-  return runFallbackChain(getEconomyProviders(messages, primaryGroqModel));
+  return runFallbackChain(getEconomyProviders(messages, primaryGroqModel, category));
 };
 
 /** Validates each model response before accepting it, so invalid JSON/schema
@@ -118,10 +130,11 @@ export const economyAIChatWithFallback = async (
 export const economyAIStructuredWithFallback = async <T>(
   messages: AIChatMessage[],
   parseResponse: (response: string) => T,
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant'
+  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
+  category: AITokenUsageCategory = 'other'
 ): Promise<T> =>
   runFallbackChain(
-    getEconomyProviders(messages, primaryGroqModel).map((provider) => ({
+    getEconomyProviders(messages, primaryGroqModel, category).map((provider) => ({
       name: provider.name,
       generate: async () => {
         const response = await provider.generate();
@@ -140,13 +153,27 @@ export const economyAIStructuredWithFallback = async <T>(
 export const trackerAIChatWithFallback = async (
   prompt: string,
   system: string,
-  cerebrasStructuredFallback: (prompt: string, system?: string) => Promise<string>
+  cerebrasStructuredFallback: (
+    prompt: string,
+    system?: string,
+    category?: AITokenUsageCategory
+  ) => Promise<string>,
+  category: AITokenUsageCategory = 'other'
 ): Promise<string> =>
   runFallbackChain([
-    { name: 'Gemini 2.5 Flash', generate: () => geminiChat(prompt, system) },
-    { name: 'Gemini 2.5 Flash-Lite', generate: () => geminiFlashLiteChat(prompt, system) },
-    { name: 'Gemini 3.1 Flash-Lite', generate: () => gemini31FlashLiteChat(prompt, system) },
-    { name: 'Cerebras Qwen 3', generate: () => cerebrasStructuredFallback(prompt, system) },
+    { name: 'Gemini 2.5 Flash', generate: () => geminiChat(prompt, system, category) },
+    {
+      name: 'Gemini 2.5 Flash-Lite',
+      generate: () => geminiFlashLiteChat(prompt, system, category),
+    },
+    {
+      name: 'Gemini 3.1 Flash-Lite',
+      generate: () => gemini31FlashLiteChat(prompt, system, category),
+    },
+    {
+      name: 'Cerebras Qwen 3',
+      generate: () => cerebrasStructuredFallback(prompt, system, category),
+    },
     {
       name: 'Groq Llama 3.3 70B',
       generate: () =>
@@ -155,7 +182,8 @@ export const trackerAIChatWithFallback = async (
             { role: 'system', content: system },
             { role: 'user', content: prompt },
           ],
-          'llama-3.3-70b-versatile'
+          'llama-3.3-70b-versatile',
+          category
         ),
     },
   ]);

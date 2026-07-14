@@ -1,6 +1,7 @@
 export const TRACKER_ROUTE_PATHS = {
   ROOT: '/',
   SUMMARY: '/summary',
+  DOMAINS: '/domains',
 
   TRACKER_BY_ID: '/:trackerId',
   ARCHIVE_TRACKER: '/:trackerId/archive',

@@ -3,6 +3,8 @@ import { cn } from '../../lib/cn';
 import { Link, NavLink, useLocation } from 'react-router-dom';
 
 import { prefetchRoute } from '../../lib/route-prefetch';
+import { getTemporaryUserNavItem } from '../../lib/current-page-navigation';
+import { refreshCurrentRoute } from '../../lib/refresh-current-route';
 import ImminiqLogo from '../ui/ImminiqLogo';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
 
@@ -179,6 +181,12 @@ export default function Sidebar({
 
   const currentPathWithSearchAndHash = `${location.pathname}${location.search}${location.hash}`;
 
+  const temporaryItem = getTemporaryUserNavItem(
+    location.pathname,
+    location.search,
+    location.hash
+  );
+
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
       'mb-px flex items-center justify-between rounded-[var(--radius-sm)] px-2.5 py-[9px] font-ui text-[13px] font-medium tracking-normal no-underline transition',
@@ -225,6 +233,7 @@ export default function Sidebar({
               key={item.label}
               to={item.to}
               onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
               onMouseEnter={() => prefetchRoute(item.to)}
               onFocus={() => prefetchRoute(item.to)}
               className={navLinkClass}
@@ -260,6 +269,7 @@ export default function Sidebar({
               key={item.label}
               to={item.to}
               onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
               onMouseEnter={() => prefetchRoute(item.to)}
               onFocus={() => prefetchRoute(item.to)}
               className={navLinkClass}
@@ -280,6 +290,7 @@ export default function Sidebar({
               key={item.label}
               to={item.to}
               onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
               onMouseEnter={() => prefetchRoute(item.to)}
               onFocus={() => prefetchRoute(item.to)}
               className={navLinkClass}
@@ -306,6 +317,7 @@ export default function Sidebar({
                 key={item.label}
                 to={target}
                 onClick={onCloseMobile}
+                onDoubleClick={refreshCurrentRoute}
                 onMouseEnter={() => prefetchRoute(target)}
                 onFocus={() => prefetchRoute(target)}
                 className={({ isActive }) =>
@@ -321,6 +333,33 @@ export default function Sidebar({
               </NavLink>
             );
           })}
+
+          {temporaryItem && (
+            <NavLink
+              to={temporaryItem.to}
+              end
+              onClick={onCloseMobile}
+              onDoubleClick={refreshCurrentRoute}
+              className={navLinkClass}
+              aria-label={`${temporaryItem.label}. Double-click to refresh this page.`}
+            >
+              <span className="flex min-w-0 items-center gap-2.5">
+                <svg
+                  width="15"
+                  height="15"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  aria-hidden="true"
+                >
+                  <path d="M3 12a9 9 0 1 0 3-6.7" />
+                  <path d="M3 3v6h6" />
+                </svg>
+                <span className="truncate">{temporaryItem.label}</span>
+              </span>
+            </NavLink>
+          )}
         </nav>
 
         <div className="relative mx-2.5 mb-4 overflow-hidden rounded-md border border-[rgba(184,76,43,0.14)] bg-[rgba(184,76,43,0.07)] p-3.5 dark:border-[rgba(232,129,106,0.16)] dark:bg-[rgba(232,129,106,0.07)]">

@@ -88,6 +88,10 @@ export class MongoTrackerRepository implements ITrackerRepository {
     return this._managementRepository.hasAnyTrackerForUser(userId);
   }
 
+  async listDomains(search: string, limit: number) {
+    return this._managementRepository.listDomains(search, limit);
+  }
+
   async getTrackerSummary(userId: string) {
     return this._managementRepository.getTrackerSummary(userId);
   }

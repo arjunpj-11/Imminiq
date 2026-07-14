@@ -50,6 +50,16 @@ export class TrackerController {
     }
   };
 
+  listDomains = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const query = res.locals.trackerDomainsQuery as { search: string };
+      const result = await this._useCases.listTrackerDomains.execute(query.search);
+      res.json(new ApiResponse('Tracker domains fetched successfully', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   listTrackers = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const query = res.locals.trackerListQuery as TrackerListQuery;

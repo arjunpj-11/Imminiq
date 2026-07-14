@@ -19,7 +19,8 @@ export const generateRoadmap = (goal: string, level: string) =>
         content: `Generate a detailed learning roadmap for ${goal} at ${level} level`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'roadmap_generation'
   );
 
 export const detectMissingTopics = (roadmap: string, targetRole: string) =>
@@ -31,7 +32,8 @@ export const detectMissingTopics = (roadmap: string, targetRole: string) =>
         content: `Compare this roadmap against ${targetRole} requirements and list missing topics: ${roadmap}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'roadmap_evaluation'
   );
 
 export const analyzeTestPerformance = (results: string) =>
@@ -43,7 +45,8 @@ export const analyzeTestPerformance = (results: string) =>
         content: `Analyze this test performance and identify weak areas: ${results}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'mock_test_evaluation'
   );
 
 export const generateDashboardInsights = async (userData: string): Promise<string> => {
@@ -58,7 +61,8 @@ export const generateDashboardInsights = async (userData: string): Promise<strin
         content: buildDashboardInsightPrompt(userData),
       },
     ],
-    'llama-3.1-8b-instant'
+    'llama-3.1-8b-instant',
+    'dashboard_insights'
   );
 
   return (
@@ -76,7 +80,7 @@ export const chatWithTutor = async (
     content: string;
   }[]
 ): Promise<string> => {
-  const response = await groqChat(messages, 'llama-3.3-70b-versatile');
+  const response = await groqChat(messages, 'llama-3.3-70b-versatile', 'ai_tutoring');
 
   if (!response) {
     throw new ApiError(502, 'Groq returned an empty chat response', 'GROQ_EMPTY_CHAT_RESPONSE');
@@ -93,7 +97,8 @@ export const explainTopic = async (topic: string): Promise<string> => {
         content: `Explain this topic clearly with examples: ${topic}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'ai_tutoring'
   );
 
   if (!response) {
@@ -115,7 +120,8 @@ export const explainELI5 = async (topic: string): Promise<string> => {
         content: `Explain this like I am 5 years old: ${topic}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'ai_tutoring'
   );
 
   if (!response) {
@@ -133,7 +139,8 @@ export const generateMockQuestions = async (topic: string, count: number): Promi
         content: `Generate ${count} MCQ questions for: ${topic}. Return as JSON array.`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'mock_test_generation'
   );
 
   if (!response) {

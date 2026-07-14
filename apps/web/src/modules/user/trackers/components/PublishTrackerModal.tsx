@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import Modal from '../../../../components/overlays/Modal';
 import { cn } from '../../../../lib/cn';
 import type { ITracker } from '../types/tracker.types';
+import { useTrackerDomains } from '../hooks/useTrackerQueries';
 
 const CloseIcon = () => (
   <svg
@@ -140,6 +141,172 @@ function DifficultyPicker({ value, disabled = false, onChange }: DifficultyPicke
   );
 }
 
+const useDebouncedValue = (value: string, delay: number) => {
+  const [debouncedValue, setDebouncedValue] = useState(value);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => setDebouncedValue(value), delay);
+    return () => window.clearTimeout(timer);
+  }, [delay, value]);
+
+  return debouncedValue;
+};
+
+type DomainComboboxProps = {
+  value: string;
+  disabled: boolean;
+  onChange: (value: string) => void;
+};
+
+function DomainCombobox({ value, disabled, onChange }: DomainComboboxProps) {
+  const [open, setOpen] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+  const debouncedSearch = useDebouncedValue(value.trim(), 250);
+  const domainsQuery = useTrackerDomains(debouncedSearch);
+  const domains = domainsQuery.data ?? [];
+  const hasExactMatch = domains.some(
+    (domain) => domain.toLocaleLowerCase() === value.trim().toLocaleLowerCase()
+  );
+  const showCustomOption = Boolean(value.trim()) && !hasExactMatch;
+  const optionCount = domains.length + (showCustomOption ? 1 : 0);
+
+  const selectDomain = (domain: string) => {
+    onChange(domain);
+    setOpen(false);
+    setActiveIndex(-1);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLInputElement>) => {
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      setOpen(true);
+      setActiveIndex((index) => Math.min(index + 1, optionCount - 1));
+      return;
+    }
+    if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      setActiveIndex((index) => Math.max(index - 1, 0));
+      return;
+    }
+    if (event.key === 'Escape') {
+      setOpen(false);
+      setActiveIndex(-1);
+      return;
+    }
+    if (event.key === 'Enter' && open) {
+      event.preventDefault();
+      if (showCustomOption && activeIndex === 0) {
+        selectDomain(value.trim());
+        return;
+      }
+      const domainIndex = activeIndex - (showCustomOption ? 1 : 0);
+      if (domainIndex >= 0 && domains[domainIndex]) selectDomain(domains[domainIndex]);
+      else if (value.trim()) selectDomain(value.trim());
+    }
+  };
+
+  return (
+    <div className="relative">
+      <input
+        id="publish-domain"
+        type="text"
+        role="combobox"
+        aria-autocomplete="list"
+        aria-expanded={open}
+        aria-controls="publish-domain-options"
+        autoComplete="off"
+        value={value}
+        disabled={disabled}
+        maxLength={80}
+        onFocus={() => setOpen(true)}
+        onBlur={() => window.setTimeout(() => setOpen(false), 100)}
+        onChange={(event) => {
+          onChange(event.target.value);
+          setOpen(true);
+          setActiveIndex(-1);
+        }}
+        onKeyDown={handleKeyDown}
+        placeholder="Search or type a domain, e.g. English"
+        className={cn(fieldInput, 'pr-9')}
+      />
+      <svg
+        className="pointer-events-none absolute right-3 top-[21px] -translate-y-1/2 text-(--text-secondary)"
+        width="14"
+        height="14"
+        viewBox="0 0 14 14"
+        fill="none"
+        aria-hidden="true"
+      >
+        <circle cx="6" cy="6" r="4" stroke="currentColor" strokeWidth="1.4" />
+        <path d="m9 9 3 3" stroke="currentColor" strokeWidth="1.4" strokeLinecap="round" />
+      </svg>
+
+      {open && (
+        <div
+          id="publish-domain-options"
+          role="listbox"
+          className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-md border border-(--border-subtle) bg-(--surface-card) p-1.5 shadow-[0_12px_36px_rgba(26,23,20,0.18)] dark:bg-[#26231f]"
+          onMouseDown={(event) => event.preventDefault()}
+        >
+          {showCustomOption && (
+            <button
+              type="button"
+              role="option"
+              aria-selected={activeIndex === 0}
+              onClick={() => selectDomain(value.trim())}
+              className={cn(
+                'flex w-full items-center justify-between rounded-sm px-3 py-2 text-left text-[12.5px] transition',
+                activeIndex === 0
+                  ? 'bg-[rgba(184,76,43,0.10)] text-(--brand-500)'
+                  : 'text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)]'
+              )}
+            >
+              <span className="truncate">Use “{value.trim()}”</span>
+              <span className="ml-3 shrink-0 font-mono text-[8px] uppercase tracking-wider text-(--brand-500)">
+                New
+              </span>
+            </button>
+          )}
+
+          {domains.map((domain, index) => {
+            const optionIndex = index + (showCustomOption ? 1 : 0);
+            return (
+              <button
+                key={domain.toLocaleLowerCase()}
+                type="button"
+                role="option"
+                aria-selected={activeIndex === optionIndex}
+                onMouseEnter={() => setActiveIndex(optionIndex)}
+                onClick={() => selectDomain(domain)}
+                className={cn(
+                  'w-full truncate rounded-sm px-3 py-2 text-left text-[12.5px] transition',
+                  activeIndex === optionIndex
+                    ? 'bg-[rgba(184,76,43,0.10)] text-(--brand-500)'
+                    : 'text-(--text-primary) hover:bg-[rgba(184,76,43,0.07)]'
+                )}
+              >
+                {domain}
+              </button>
+            );
+          })}
+
+          {domainsQuery.isFetching && (
+            <div className="px-3 py-2 text-[11px] text-(--text-secondary)">Searching domains…</div>
+          )}
+          {!domainsQuery.isFetching && !domains.length && !showCustomOption && (
+            <div className="px-3 py-2 text-[11px] text-(--text-secondary)">
+              Start typing to add a domain.
+            </div>
+          )}
+        </div>
+      )}
+      <p className="mt-1.5 text-[10.5px] text-(--text-secondary)">
+        Choose a saved domain or type a new one. Up to 10 matching domains are shown.
+      </p>
+    </div>
+  );
+}
+
 export default function PublishTrackerModal({
   tracker,
   isPublishing,
@@ -158,7 +325,7 @@ export default function PublishTrackerModal({
 
   const setField =
     (field: keyof PublishFormData) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
       setForm((prev) => ({ ...prev, [field]: e.target.value }));
 
   const isValid = form.name.trim().length > 0 && form.domain.trim().length > 0;
@@ -280,41 +447,11 @@ export default function PublishTrackerModal({
             <label htmlFor="publish-domain" className={fieldLabel}>
               Domain <span className="text-(--brand-500)">*</span>
             </label>
-            <div className="relative">
-              <select
-                id="publish-domain"
-                value={form.domain}
-                disabled={isPublishing}
-                onChange={setField('domain')}
-                className={cn(fieldInput, 'appearance-none pr-9')}
-              >
-                <option value="">Select a domain</option>
-                <option value="computer_science">Computer Science</option>
-                <option value="mathematics">Mathematics</option>
-                <option value="physics">Physics</option>
-                <option value="chemistry">Chemistry</option>
-                <option value="biology">Biology</option>
-                <option value="history">History</option>
-                <option value="language">Language</option>
-                <option value="other">Other</option>
-              </select>
-              <svg
-                className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-(--text-secondary) dark:text-(--text-secondary)"
-                width="14"
-                height="14"
-                viewBox="0 0 14 14"
-                fill="none"
-                aria-hidden="true"
-              >
-                <path
-                  d="M3 5L7 9L11 5"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-            </div>
+            <DomainCombobox
+              value={form.domain}
+              disabled={isPublishing}
+              onChange={(domain) => setForm((previous) => ({ ...previous, domain }))}
+            />
           </div>
           <div>
             <p className={cn(fieldLabel, 'mb-2')}>Difficulty level</p>

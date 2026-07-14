@@ -16,6 +16,7 @@ import { AdminSystemHealthPage } from '../../modules/admin/system-health';
 import { AdminSupportTicketsPage } from '../../modules/admin/support-tickets';
 import { AdminSettingsPage } from '../../modules/admin/settings';
 import { AdminSubscriptionsPage } from '../../modules/admin/subscriptions';
+import { AdminAITokenSpendPage } from '../../modules/admin/ai-token-spend';
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -40,6 +41,7 @@ export const adminRoutes: RouteObject[] = [
       { path: '/admin/subscriptions', element: <AdminSubscriptionsPage /> },
       { path: '/admin/audit-logs', element: <AdminAuditLogsPage /> },
       { path: '/admin/system-health', element: <AdminSystemHealthPage /> },
+      { path: '/admin/ai-token-spend', element: <AdminAITokenSpendPage /> },
       { path: '/admin/support-tickets', element: <AdminSupportTicketsPage /> },
       { path: '/admin/settings', element: <AdminSettingsPage /> },
       { path: '/admin/support', element: <AdminSupportTicketsPage /> },

@@ -67,7 +67,8 @@ export const generateCodeHint = async (input: {
         }),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_practice'
   );
 
   if (!response) {
@@ -99,7 +100,8 @@ export const generateOptimizedCodeSolution = async (input: {
         content: buildLessonOptimizedSolutionPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_practice'
   );
 
   if (!response) {
@@ -131,7 +133,8 @@ export const verifyNonCodingAnswer = async (input: {
         content: buildLessonAnswerVerificationPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_practice'
   );
 
   if (!response) {
@@ -167,7 +170,8 @@ export const generateLessonPracticeQuestions = async (input: {
         }),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_practice'
   );
 
   if (!response) {
@@ -197,7 +201,8 @@ export const generateLessonQuestionSolution = async (input: {
         content: buildLessonQuestionSolutionPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_practice'
   );
 
   if (!response) {
@@ -238,7 +243,8 @@ export const chatWithLessonQuestionSolutionDoubt = async (input: {
       },
       ...input.messages,
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_practice'
   );
 
   if (!response) {

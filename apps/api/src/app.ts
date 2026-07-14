@@ -79,6 +79,10 @@ import {
   createAdminSubscriptionsRoutes,
 } from './modules/admin/subscriptions';
 import {
+  createAdminAITokenSpendComposition,
+  createAdminAITokenSpendRoutes,
+} from './modules/admin/ai-token-spend';
+import {
   createSubscriptionsComposition,
   createSubscriptionsRoutes,
 } from './modules/user/subscriptions';
@@ -202,6 +206,10 @@ app.use('/api/admin/settings', createAdminSettingsRoutes(createAdminSettingsComp
 app.use(
   '/api/admin/subscriptions',
   createAdminSubscriptionsRoutes(createAdminSubscriptionsComposition().useCase)
+);
+app.use(
+  '/api/admin/ai-token-spend',
+  createAdminAITokenSpendRoutes(createAdminAITokenSpendComposition().useCase)
 );
 app.use(
   '/api/support-tickets',

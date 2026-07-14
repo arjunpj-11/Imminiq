@@ -11,6 +11,7 @@ import { TRACKER_ROUTE_PATHS } from './trackers.route.constants';
 import { enforcePlanLimit } from '../../subscriptions';
 import {
   trackerListQuerySchema,
+  trackerDomainsQuerySchema,
   createTrackerSchema,
   updateTrackerSchema,
   publishTrackerSchema,
@@ -55,6 +56,12 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   // ─── TRACKERS ────────────────────────────────────────────────────────────────
 
   router.get(TRACKER_ROUTE_PATHS.SUMMARY, trackerController.getSummary);
+
+  router.get(
+    TRACKER_ROUTE_PATHS.DOMAINS,
+    validateQuery('trackerDomainsQuery', trackerDomainsQuerySchema),
+    trackerController.listDomains
+  );
 
   router.get(
     TRACKER_ROUTE_PATHS.ROOT,

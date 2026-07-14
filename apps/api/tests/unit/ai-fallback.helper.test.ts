@@ -71,7 +71,8 @@ describe('AI model routing', () => {
         { role: 'system', content: 'return json' },
         { role: 'user', content: 'make tracker' },
       ],
-      'llama-3.3-70b-versatile'
+      'llama-3.3-70b-versatile',
+      'other'
     );
   });
 

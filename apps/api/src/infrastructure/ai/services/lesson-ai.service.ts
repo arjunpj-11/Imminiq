@@ -31,7 +31,8 @@ export const generateLesson = async (input: {
         content: buildLessonGenerationPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_generation'
   );
 
   if (!response) {
@@ -65,7 +66,8 @@ export const chatWithLessonTutor = async (input: {
       },
       ...input.messages,
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'ai_tutoring'
   );
 
   if (!response) {

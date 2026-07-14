@@ -33,6 +33,19 @@ export const useTrackerSummary = () => {
   });
 };
 
+export const useTrackerDomains = (search: string) => {
+  return useQuery({
+    queryKey: trackerKeys.domains(search),
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<string[]>>('/trackers/domains', {
+        params: { search },
+      });
+      return unwrap(response.data);
+    },
+    staleTime: 60_000,
+  });
+};
+
 export const useTrackers = (query: ITrackerListQuery = {}) => {
   return useQuery({
     queryKey: trackerKeys.list(query),

@@ -37,7 +37,7 @@ export interface ITracker {
   _id: string;
   title: string;
   description?: string;
-  domain?: TrackerDomain;
+  domain?: string;
   goal?: string;
   level?: TrackerLevel;
   status?: TrackerStatus;

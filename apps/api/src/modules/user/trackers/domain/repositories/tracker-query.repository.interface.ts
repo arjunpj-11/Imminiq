@@ -44,6 +44,8 @@ export type FindGeneratedLessonBySubtopicInput = {
 };
 
 export interface ITrackerQueryRepository {
+  listDomains(search: string, limit: number): Promise<string[]>;
+
   hasAnyTrackerForUser(userId: string): Promise<boolean>;
 
   getTrackerSummary(userId: string): Promise<TrackerSummaryRecord>;

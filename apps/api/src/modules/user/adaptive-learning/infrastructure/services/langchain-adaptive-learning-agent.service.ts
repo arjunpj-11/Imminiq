@@ -132,7 +132,9 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
               }),
             },
           ],
-          (rawResponse) => parseAIJson(rawResponse, assessmentPlanSchema, { logErrors: false })
+          (rawResponse) => parseAIJson(rawResponse, assessmentPlanSchema, { logErrors: false }),
+          'llama-3.1-8b-instant',
+          'adaptive_learning'
         );
         return { proposedPlan };
       })
@@ -209,7 +211,9 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
             }),
           },
         ],
-        (rawResponse) => parseAIJson(rawResponse, advisorResponseSchema, { logErrors: false })
+        (rawResponse) => parseAIJson(rawResponse, advisorResponseSchema, { logErrors: false }),
+        'llama-3.1-8b-instant',
+        'adaptive_learning'
       );
     } catch (error) {
       console.error('[AdaptiveLearning] All structured advisor responses failed:', error);

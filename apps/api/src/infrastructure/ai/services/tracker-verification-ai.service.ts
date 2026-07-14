@@ -42,7 +42,8 @@ export const verifyTrackerTopic = async (input: {
         content: buildTrackerTopicVerificationPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'tracker_verification'
   );
 
   if (!response) {
@@ -81,7 +82,8 @@ export const verifyTrackerSubtopic = async (input: {
         content: buildTrackerSubtopicVerificationPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'tracker_verification'
   );
 
   if (!response) {

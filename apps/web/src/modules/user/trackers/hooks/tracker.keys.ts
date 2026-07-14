@@ -3,6 +3,7 @@ import type { LessonCodeSubmissionAction, ITrackerListQuery } from '../types/tra
 export const trackerKeys = {
   all: ['trackers'] as const,
   summary: () => [...trackerKeys.all, 'summary'] as const,
+  domains: (search: string) => [...trackerKeys.all, 'domains', search] as const,
   lists: () => [...trackerKeys.all, 'list'] as const,
   list: (query: ITrackerListQuery) => [...trackerKeys.lists(), query] as const,
   details: () => [...trackerKeys.all, 'detail'] as const,

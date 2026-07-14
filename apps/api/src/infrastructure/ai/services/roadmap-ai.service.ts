@@ -48,7 +48,8 @@ export const generateRoadmapStructure = async (
       level,
     }),
     ROADMAP_STRUCTURE_SYSTEM_PROMPT,
-    cerebrasRoadmapStructureChat
+    cerebrasRoadmapStructureChat,
+    'roadmap_generation'
   );
 
   const roadmap = parseAIJson(response, generatedRoadmapStructureSchema);
@@ -63,7 +64,8 @@ export const evaluateRoadmap = async (roadmap: unknown): Promise<RoadmapEvaluati
   const response = await trackerAIChatWithFallback(
     buildRoadmapEvaluationPrompt(roadmap),
     ROADMAP_EVALUATION_SYSTEM_PROMPT,
-    cerebrasRoadmapEvaluationChat
+    cerebrasRoadmapEvaluationChat,
+    'roadmap_evaluation'
   );
 
   return parseAIJson(response, roadmapEvaluationSchema);

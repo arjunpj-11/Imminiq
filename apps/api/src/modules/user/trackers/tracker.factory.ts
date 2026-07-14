@@ -26,6 +26,7 @@ import { GetTrackerLessonUseCase } from './application/use-cases/get-tracker-les
 import { GetTrackerRoadmapUseCase } from './application/use-cases/get-tracker-roadmap.usecase';
 import { GetTrackerSummaryUseCase } from './application/use-cases/get-tracker-summary.usecase';
 import { ListTrackersUseCase } from './application/use-cases/list-trackers.usecase';
+import { ListTrackerDomainsUseCase } from './application/use-cases/list-tracker-domains.usecase';
 import { PublishTrackerUseCase } from './application/use-cases/publish-tracker.usecase';
 import { RestoreTrackerUseCase } from './application/use-cases/restore-tracker.usecase';
 import { RunLessonCodeUseCase } from './application/use-cases/run-lesson-code.usecase';
@@ -133,6 +134,8 @@ export const createTrackerComposition = (
       getTrackerSummary: new GetTrackerSummaryUseCase(trackerRepository, _trackerMapper),
 
       listTrackers: new ListTrackersUseCase(trackerRepository, _trackerMapper),
+
+      listTrackerDomains: new ListTrackerDomainsUseCase(trackerRepository),
 
       createTracker: new CreateTrackerUseCase(trackerRepository, _trackerMapper),
 

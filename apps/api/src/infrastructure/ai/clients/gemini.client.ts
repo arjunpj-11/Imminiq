@@ -1,5 +1,6 @@
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { env } from '../../../config/env';
+import { recordAITokenUsage, type AITokenUsageCategory } from '../ai-token-usage';
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
@@ -8,7 +9,8 @@ type GeminiModel = 'gemini-2.5-flash' | 'gemini-2.5-flash-lite' | 'gemini-3.1-fl
 export const geminiChatWithModel = async (
   modelName: GeminiModel,
   prompt: string,
-  system?: string
+  system?: string,
+  category: AITokenUsageCategory = 'other'
 ) => {
   const model = genAI.getGenerativeModel({
     model: modelName,
@@ -17,19 +19,38 @@ export const geminiChatWithModel = async (
 
   const result = await model.generateContent(prompt);
 
+  const usage = result.response.usageMetadata;
+  recordAITokenUsage('Gemini', modelName, category, {
+    promptTokens: usage?.promptTokenCount,
+    completionTokens: usage?.candidatesTokenCount,
+    totalTokens: usage?.totalTokenCount,
+  });
+
   return result.response.text();
 };
 
-export const geminiChat = async (prompt: string, system?: string) => {
-  return geminiChatWithModel('gemini-2.5-flash', prompt, system);
+export const geminiChat = async (
+  prompt: string,
+  system?: string,
+  category: AITokenUsageCategory = 'other'
+) => {
+  return geminiChatWithModel('gemini-2.5-flash', prompt, system, category);
 };
 
-export const geminiFlashLiteChat = async (prompt: string, system?: string) => {
-  return geminiChatWithModel('gemini-2.5-flash-lite', prompt, system);
+export const geminiFlashLiteChat = async (
+  prompt: string,
+  system?: string,
+  category: AITokenUsageCategory = 'other'
+) => {
+  return geminiChatWithModel('gemini-2.5-flash-lite', prompt, system, category);
 };
 
-export const gemini31FlashLiteChat = async (prompt: string, system?: string) => {
-  return geminiChatWithModel('gemini-3.1-flash-lite', prompt, system);
+export const gemini31FlashLiteChat = async (
+  prompt: string,
+  system?: string,
+  category: AITokenUsageCategory = 'other'
+) => {
+  return geminiChatWithModel('gemini-3.1-flash-lite', prompt, system, category);
 };
 
 export const geminiChatWithHistory = async (

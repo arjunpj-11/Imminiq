@@ -25,6 +25,42 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
     super();
   }
 
+  async listDomains(search: string, limit: number) {
+    return this.execute('TRACKER_DOMAINS_READ_FAILED', 'Failed to read tracker domains', async () => {
+      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const rows = await Tracker.aggregate<{ _id: string; label: string; count: number }>([
+        {
+          $match: {
+            deletedAt: null,
+            category: {
+              $type: 'string',
+              $ne: '',
+              ...(escapedSearch ? { $regex: escapedSearch, $options: 'i' } : {}),
+            },
+          },
+        },
+        {
+          $project: {
+            normalized: { $toLower: { $trim: { input: '$category' } } },
+            label: { $trim: { input: '$category' } },
+          },
+        },
+        { $match: { normalized: { $ne: '' } } },
+        {
+          $group: {
+            _id: '$normalized',
+            label: { $first: '$label' },
+            count: { $sum: 1 },
+          },
+        },
+        { $sort: { count: -1, label: 1 } },
+        { $limit: limit },
+      ]);
+
+      return rows.map((row) => row.label);
+    });
+  }
+
   async hasAnyTrackerForUser(userId: string) {
     return this.execute('TRACKER_READ_FAILED', 'Failed to check user trackers', async () => {
       const tracker = await Tracker.exists(

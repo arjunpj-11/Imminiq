@@ -2,6 +2,7 @@ import type * as Application from './index';
 export type TrackerUseCases = {
   getTrackerSummary: Application.IGetTrackerSummaryUseCase;
   listTrackers: Application.IListTrackersUseCase;
+  listTrackerDomains: Application.IListTrackerDomainsUseCase;
   createTracker: Application.ICreateTrackerUseCase;
   getTrackerDetails: Application.IGetTrackerDetailsUseCase;
   updateTracker: Application.IUpdateTrackerUseCase;

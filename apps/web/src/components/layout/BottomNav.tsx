@@ -1,7 +1,9 @@
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 
 import { cn } from '../../lib/cn';
 import { prefetchRoute } from '../../lib/route-prefetch';
+import { getTemporaryUserNavItem } from '../../lib/current-page-navigation';
+import { refreshCurrentRoute } from '../../lib/refresh-current-route';
 
 interface IBottomNavProps {
   activeTab?: 'home' | 'trackers' | 'tests' | 'adaptive' | 'ranks' | 'community' | 'profile';
@@ -77,17 +79,44 @@ const tabs = [
 ] as const;
 
 export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
+  const location = useLocation();
+  const temporaryItem = getTemporaryUserNavItem(
+    location.pathname,
+    location.search,
+    location.hash
+  );
+  const visibleTabs = temporaryItem
+    ? [
+        ...tabs,
+        {
+          key: 'current',
+          label: temporaryItem.label,
+          to: temporaryItem.to,
+          icon: (
+            <>
+              <path d="M3 12a9 9 0 1 0 3-6.7" />
+              <path d="M3 3v6h6" />
+            </>
+          ),
+        },
+      ]
+    : tabs;
+
   return (
     <nav
       aria-label="Primary mobile navigation"
       className="fixed bottom-0 left-0 right-0 z-40 w-full border-t border-(--border-subtle) bg-[color-mix(in_srgb,var(--surface-elevated)_94%,transparent)] pb-[env(safe-area-inset-bottom,0px)] backdrop-blur-xl lg:hidden"
     >
-      <div className="grid h-16 w-full grid-cols-6 items-stretch">
-        {tabs.map((tab) => (
+      <div
+        className="grid h-16 w-full items-stretch"
+        style={{ gridTemplateColumns: `repeat(${visibleTabs.length}, minmax(0, 1fr))` }}
+      >
+        {visibleTabs.map((tab) => (
           <NavLink
             key={tab.key}
             to={tab.to}
             end={tab.to === '/dashboard'}
+            onDoubleClick={refreshCurrentRoute}
             onMouseEnter={() => prefetchRoute(tab.to)}
             onFocus={() => prefetchRoute(tab.to)}
             className={({ isActive }) =>

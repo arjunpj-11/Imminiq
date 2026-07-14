@@ -69,6 +69,8 @@ export function AppShell({
 
   const toggleSidebarCollapsed = useAppShellStore((state) => state.toggleSidebarCollapsed);
 
+  const routeRefreshVersion = useAppShellStore((state) => state.routeRefreshVersion);
+
   const contextValue = useMemo<IAppShellContextValue>(
     () => ({
       setViewer: setPageViewer,
@@ -150,7 +152,9 @@ export function AppShell({
             )}
 
             <div className="flex min-w-0 flex-1 flex-col">
-              {children}
+              <div key={routeRefreshVersion} className="contents">
+                {children}
+              </div>
 
               {withFooter && <AppFooter />}
             </div>

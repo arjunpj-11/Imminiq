@@ -90,7 +90,8 @@ export const generateMockTestQuestionsAI = async (
 ): Promise<GenerateMockTestQuestionsAIOutput> => {
   const response = await groqChat(
     [{ role: 'user', content: buildMockTestQuestionsPrompt(input) }],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'mock_test_generation'
   );
 
   if (!response) {
@@ -114,7 +115,8 @@ export const evaluateMockTestOpenAnswerAI = async (
         content: buildMockTestAnswerEvaluationPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'mock_test_evaluation'
   );
 
   if (!response) {
@@ -138,7 +140,8 @@ export const generateMockTestPerformanceInsightsAI = async (
         content: buildMockTestPerformanceInsightPrompt(input),
       },
     ],
-    'llama-3.1-8b-instant'
+    'llama-3.1-8b-instant',
+    'mock_test_evaluation'
   );
 
   return response || 'Keep practicing to improve your performance across all topics.';
@@ -154,7 +157,8 @@ export const generateMockTestQuestionsGroqAI = async (
         content: buildMockTestQuestionsPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'mock_test_generation'
   );
 
   if (!response) {

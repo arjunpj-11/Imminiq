@@ -7,6 +7,7 @@ import {
   ClipboardCheck,
   Gauge,
   HeartPulse,
+  Cpu,
   LogOut,
   Menu,
   Megaphone,
@@ -17,10 +18,13 @@ import {
   X,
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
 import { useAuthStore } from '../../store/useAuthStore';
 import api from '../../lib/axios';
+import { getTemporaryAdminNavItem } from '../../lib/current-page-navigation';
+import { refreshCurrentRoute } from '../../lib/refresh-current-route';
+import { useAppShellStore } from '../../store/useAppShellStore';
 
 const links = [
   { to: '/admin', label: 'Dashboard', icon: Gauge, end: true },
@@ -32,6 +36,7 @@ const links = [
   { to: '/admin/subscriptions', label: 'Premium / Subscriptions', icon: ShieldCheck },
   { to: '/admin/audit-logs', label: 'Audit Logs', icon: Activity },
   { to: '/admin/system-health', label: 'System Health', icon: HeartPulse },
+  { to: '/admin/ai-token-spend', label: 'AI Token Spend', icon: Cpu },
   { to: '/admin/support-tickets', label: 'Support Tickets', icon: TicketCheck },
 ];
 
@@ -40,6 +45,13 @@ export default function AdminLayout() {
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const navigate = useNavigate();
+  const location = useLocation();
+  const routeRefreshVersion = useAppShellStore((state) => state.routeRefreshVersion);
+  const temporaryItem = getTemporaryAdminNavItem(
+    location.pathname,
+    location.search,
+    location.hash
+  );
 
   useEffect(() => {
     document.documentElement.classList.add('admin-dark');
@@ -86,6 +98,7 @@ export default function AdminLayout() {
               to={to}
               end={end}
               onClick={() => setOpen(false)}
+              onDoubleClick={refreshCurrentRoute}
               className={({ isActive }) =>
                 `flex items-center gap-4 rounded-md px-5 py-3.5 text-[14px] font-semibold transition ${isActive ? 'bg-[rgba(232,129,106,0.15)] text-[#e8816a]' : 'text-[#aaa59d] hover:bg-[#24211e]'}`
               }
@@ -94,10 +107,24 @@ export default function AdminLayout() {
               {label}
             </NavLink>
           ))}
+          {temporaryItem && (
+            <NavLink
+              to={temporaryItem.to}
+              end
+              onClick={() => setOpen(false)}
+              onDoubleClick={refreshCurrentRoute}
+              className="flex items-center gap-4 rounded-md bg-[rgba(232,129,106,0.15)] px-5 py-3.5 text-[14px] font-semibold text-[#e8816a] transition"
+              aria-label={`${temporaryItem.label}. Double-click to refresh this page.`}
+            >
+              <Activity size={20} strokeWidth={1.8} />
+              <span className="truncate">{temporaryItem.label}</span>
+            </NavLink>
+          )}
         </nav>
         <div className="mt-auto border-t border-[rgba(255,255,255,0.09)] p-3">
           <NavLink
             to="/admin/settings"
+            onDoubleClick={refreshCurrentRoute}
             className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
           >
             <Settings size={18} />
@@ -105,6 +132,7 @@ export default function AdminLayout() {
           </NavLink>
           <NavLink
             to="/admin/support"
+            onDoubleClick={refreshCurrentRoute}
             className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
           >
             <CircleHelp size={18} />
@@ -141,7 +169,9 @@ export default function AdminLayout() {
             </div>
           </div>
         </header>
-        <Outlet />
+        <div key={routeRefreshVersion} className="contents">
+          <Outlet />
+        </div>
       </div>
     </div>
   );

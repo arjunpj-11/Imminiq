@@ -19,7 +19,8 @@ export const generateLessonVisualization = async (
       { role: 'system', content: LESSON_VISUALIZATION_SYSTEM_PROMPT },
       { role: 'user', content: buildVisualizationPrompt(lesson) },
     ],
-    'llama-3.3-70b-versatile'
+    'llama-3.3-70b-versatile',
+    'lesson_generation'
   );
 
   if (!rawText) {
