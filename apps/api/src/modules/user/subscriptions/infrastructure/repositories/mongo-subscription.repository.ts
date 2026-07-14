@@ -90,7 +90,7 @@ export class MongoSubscriptionRepository implements ISubscriptionRepository {
           endsAt,
         },
       },
-      { new: true }
+      { returnDocument: "after" }
     ).lean();
     if (!row) throw new Error('Subscription activation failed');
     await User.updateOne({ _id: row.userId }, { $set: { isPremium: true } });

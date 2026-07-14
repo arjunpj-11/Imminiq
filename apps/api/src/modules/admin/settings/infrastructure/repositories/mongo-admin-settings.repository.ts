@@ -16,7 +16,7 @@ export class MongoAdminSettingsRepository implements IAdminSettingsRepository {
     const settings = await AdminConsoleSettings.findOneAndUpdate(
       { key: 'global' },
       { $setOnInsert: { key: 'global' } },
-      { upsert: true, new: true }
+      { upsert: true, returnDocument: "after" }
     )
       .select(view)
       .lean();
@@ -26,7 +26,7 @@ export class MongoAdminSettingsRepository implements IAdminSettingsRepository {
     const settings = await AdminConsoleSettings.findOneAndUpdate(
       { key: 'global' },
       { $set: { ...input, updatedBy: actor.userId } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
     )
       .select(view)
       .lean();

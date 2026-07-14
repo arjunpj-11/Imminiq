@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import api from '../../../../lib/axios';
+import { COMMUNITY_ENDPOINTS } from '../constants/community.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
@@ -9,7 +10,7 @@ import type {
   IUpsertCommunityTrackerReviewData,
   IUpsertCommunityTrackerReviewPayload,
 } from '../types/community.types';
-import { communityPublicTrackerKeys } from './useCommunityPublicTracker';
+import { communityKeys } from './community.query-keys';
 
 const upsertCommunityTrackerReview = async ({
   trackerId,
@@ -17,7 +18,7 @@ const upsertCommunityTrackerReview = async ({
   comment,
 }: IUpsertCommunityTrackerReviewPayload): Promise<IUpsertCommunityTrackerReviewData> => {
   const response = await api.post<IApiResponse<IUpsertCommunityTrackerReviewData>>(
-    `/community/trackers/${trackerId}/reviews`,
+    COMMUNITY_ENDPOINTS.trackerReviews(trackerId),
     {
       rating,
       comment,
@@ -42,7 +43,7 @@ export const useUpsertCommunityTrackerReview = () => {
     mutationFn: upsertCommunityTrackerReview,
     onSuccess: (data, variables) => {
       queryClient.setQueryData<ICommunityPublicTrackerDetail>(
-        communityPublicTrackerKeys.detail(variables.trackerId),
+        communityKeys.tracker(variables.trackerId),
         (oldData) => {
           if (!oldData) {
             return oldData;
@@ -61,7 +62,7 @@ export const useUpsertCommunityTrackerReview = () => {
         }
       );
 
-      void queryClient.invalidateQueries({ queryKey: ['community', 'browse'] });
+      void queryClient.invalidateQueries({ queryKey: communityKeys.browseRoot() });
     },
   });
 };

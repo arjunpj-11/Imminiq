@@ -3,8 +3,9 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 import type { IApiResponse, ITracker, ITrackerListResponse } from '../types/tracker.types';
-import { trackerKeys } from './useTrackers';
+import { trackerKeys } from './trackers.query-keys';
 
 export type SubmitTrackerForVerificationPayload = {
   trackerId: string;
@@ -65,7 +66,7 @@ export const useSubmitTrackerForVerification = () => {
   >({
     mutationFn: async ({ trackerId, requiredVotes = 10, durationHours = 24, urgent = false }) => {
       const response = await api.post<IApiResponse<SubmitTrackerForVerificationResponse>>(
-        `/community/trackers/${trackerId}/verification`,
+        TRACKER_API_PATHS.communityVerification(trackerId),
         {
           requiredVotes,
           durationHours,

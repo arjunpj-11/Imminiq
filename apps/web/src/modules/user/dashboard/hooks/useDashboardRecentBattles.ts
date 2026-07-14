@@ -2,14 +2,16 @@
 
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { DASHBOARD_API_PATHS } from '../constants/dashboard.constants';
+import { dashboardKeys } from './dashboard.query-keys';
 import type { IApiResponse, IDashboardRecentBattle } from '../types/dashboard.types';
 
 export const useDashboardRecentBattles = (limit = 3) => {
   return useQuery({
-    queryKey: ['dashboard', 'recent-battles', limit],
+    queryKey: dashboardKeys.recentBattles(limit),
     queryFn: async () => {
       const response = await api.get<IApiResponse<IDashboardRecentBattle[]>>(
-        '/dashboard/recent-battles',
+        DASHBOARD_API_PATHS.recentBattles,
         {
           params: { limit },
         }

@@ -1,6 +1,6 @@
-export { default as ActivityPage } from './pages/ActivityPage';
 export { useActivityPage } from './hooks/useActivityPage';
 export { useActivityFeed } from './hooks/useActivityFeed';
+export { activityQueryKeys } from './hooks/activity.query-keys';
 export type {
   ActivityFeedFilter,
   IActivityFeedResponse,

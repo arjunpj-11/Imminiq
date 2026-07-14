@@ -214,7 +214,7 @@ app.use(
 );
 app.use(
   API_ROUTE_PATHS.supportTickets,
-  createSupportTicketsRoutes(createSupportTicketsComposition().useCase)
+  createSupportTicketsRoutes(createSupportTicketsComposition().useCases)
 );
 
 app.get(API_ROUTE_PATHS.healthLive, (_req, res) => {

@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { onboardingKeys } from './onboarding.query-keys';
 
 interface IActiveRoadmapJobResponse {
   success: boolean;
@@ -10,9 +12,11 @@ interface IActiveRoadmapJobResponse {
 
 export const useActiveRoadmapJob = () =>
   useQuery({
-    queryKey: ['active-roadmap-job'],
+    queryKey: onboardingKeys.activeRoadmapJob(),
     queryFn: async () => {
-      const response = await api.get<IActiveRoadmapJobResponse>('/onboarding/roadmap-jobs/active');
+      const response = await api.get<IActiveRoadmapJobResponse>(
+        ONBOARDING_API_PATHS.activeRoadmapJob
+      );
       return response.data.data;
     },
     staleTime: 2_000,

@@ -5,7 +5,7 @@ import type {
   IApiErrorResponse,
   IApiResponse,
   IStreakSummary,
-} from '../../modules/user/users/types/profile.types';
+} from '../../modules/user/users';
 import { streakQueryKeys } from './streak.query-keys';
 
 interface IUseStreakOptions {

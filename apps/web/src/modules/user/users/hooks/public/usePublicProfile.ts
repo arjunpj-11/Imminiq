@@ -1,12 +1,13 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../../lib/axios';
+import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
   IPublicProfilePageData,
 } from '../../types/profile.types';
-import { publicProfileQueryKeys } from './public-profile.query-keys';
+import { profileQueryKeys } from '../profile.query-keys';
 
 export interface IPublicProfileQuery {
   page?: number;
@@ -38,11 +39,11 @@ export const usePublicProfile = (
     AxiosError<IApiErrorResponse>,
     IPublicProfilePageData
   >({
-    queryKey: publicProfileQueryKeys.detail(username, normalizedParams),
+    queryKey: profileQueryKeys.publicProfile(username, normalizedParams),
     enabled: Boolean(username) && (options.enabled ?? true),
     queryFn: async () => {
       const response = await api.get<IApiResponse<IPublicProfilePageData>>(
-        `/users/${username}/public-profile`,
+        PROFILE_API_PATHS.publicProfile(username),
         {
           params: normalizedParams,
         }

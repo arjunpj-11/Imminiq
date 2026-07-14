@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 
 type ExistingTopic = {
   id: string;
@@ -108,7 +109,7 @@ export const useVerifyTrackerTopic = () => {
       const { trackerId, ...body } = payload;
 
       const response = await api.post<ApiVerificationResponse>(
-        `/trackers/${trackerId}/topics/verify`,
+        TRACKER_API_PATHS.verifyTopics(trackerId),
         body
       );
 
@@ -127,7 +128,7 @@ export const useVerifyTrackerSubtopic = () => {
       const { trackerId, topicId, ...body } = payload;
 
       const response = await api.post<ApiVerificationResponse>(
-        `/trackers/${trackerId}/topics/${topicId}/subtopics/verify`,
+        TRACKER_API_PATHS.verifySubtopics(trackerId, topicId),
         body
       );
 

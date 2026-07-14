@@ -1,13 +1,14 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { COMMUNITY_ENDPOINTS } from '../constants/community.constants';
 import type {
   IApiResponse,
   ICommunityPublicTrackerDetail,
   IToggleCommunityTrackerLikeData,
   IToggleCommunityTrackerLikePayload,
 } from '../types/community.types';
-import { communityPublicTrackerKeys } from './useCommunityPublicTracker';
+import { communityKeys } from './community.query-keys';
 
 export const useToggleCommunityTrackerLike = () => {
   const queryClient = useQueryClient();
@@ -19,7 +20,7 @@ export const useToggleCommunityTrackerLike = () => {
   >({
     mutationFn: async ({ trackerId }) => {
       const response = await api.post<IApiResponse<IToggleCommunityTrackerLikeData>>(
-        `/community/trackers/${trackerId}/like`
+        COMMUNITY_ENDPOINTS.likeTracker(trackerId)
       );
 
       return response.data;
@@ -33,7 +34,7 @@ export const useToggleCommunityTrackerLike = () => {
       }
 
       queryClient.setQueryData<ICommunityPublicTrackerDetail>(
-        communityPublicTrackerKeys.detail(variables.trackerId),
+        communityKeys.tracker(variables.trackerId),
         (oldData) => {
           if (!oldData) {
             return oldData;

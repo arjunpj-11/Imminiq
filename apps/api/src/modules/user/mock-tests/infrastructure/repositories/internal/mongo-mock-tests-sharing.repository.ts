@@ -78,7 +78,7 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
             },
           },
           {
-            new: true,
+            returnDocument: "after",
           }
         ).lean();
 

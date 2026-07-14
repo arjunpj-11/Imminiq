@@ -4,6 +4,7 @@ import type { AxiosError } from 'axios';
 import api from '../../../lib/axios';
 import { useAuthStore } from '../store/useAuthStore';
 import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
+import { AUTH_API_PATHS } from '../constants/auth.constants';
 
 interface IVerifyTwoFactorLoginPayload {
   code: string;
@@ -56,7 +57,7 @@ export const useVerifyTwoFactorLogin = () => {
   >({
     mutationFn: async (payload) => {
       const response = await api.post<IVerifyTwoFactorLoginResponse>(
-        '/auth/2fa/verify-login',
+        AUTH_API_PATHS.verifyTwoFactorLogin,
         payload
       );
 

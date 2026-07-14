@@ -7,6 +7,7 @@ import api from '../../../lib/axios';
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeSessionStorage } from '../../../lib/storage/safe-storage';
 import {
+  AUTH_API_PATHS,
   OTP_LENGTH,
   OTP_RESEND_WAIT_SECONDS,
   TOTAL_OTP_SECONDS,
@@ -164,11 +165,11 @@ export default function VerifyAccountPage() {
       let resetToken: string | undefined;
 
       if (isPasswordReset) {
-        const response = await api.post('/auth/verify-reset-code', { identifier, otp });
+        const response = await api.post(AUTH_API_PATHS.verifyResetCode, { identifier, otp });
         resetToken = response.data?.data?.resetToken;
         if (!resetToken) throw new Error('Reset token was not returned');
       } else {
-        await api.post('/auth/verify-account', { identifier, otp });
+        await api.post(AUTH_API_PATHS.verifyAccount, { identifier, otp });
       }
 
       setIsSuccess(true);
@@ -204,7 +205,7 @@ export default function VerifyAccountPage() {
     try {
       setIsResending(true);
       clearError();
-      await api.post('/auth/send-otp', { identifier, method, purpose });
+      await api.post(AUTH_API_PATHS.sendOtp, { identifier, method, purpose });
       const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000;
       const resendExpiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000;
       safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry));

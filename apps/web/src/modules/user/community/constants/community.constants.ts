@@ -4,6 +4,18 @@ export const COMMUNITY_PAGE_LIMIT = 12;
 export const COMMUNITY_VERIFY_PAGE_LIMIT = 8;
 export const COMMUNITY_REVIEW_REWARD_COINS = 50;
 
+export const COMMUNITY_ENDPOINTS = {
+  browse: (query: string) => `/community?${query}`,
+  tracker: (trackerId: string) => `/community/trackers/${trackerId}`,
+  cloneTracker: (trackerId: string) => `/community/trackers/${trackerId}/clone`,
+  likeTracker: (trackerId: string) => `/community/trackers/${trackerId}/like`,
+  trackerReviews: (trackerId: string) => `/community/trackers/${trackerId}/reviews`,
+  reviewHelpful: (reviewId: string) => `/community/reviews/${reviewId}/helpful`,
+  verificationDashboard: (query: string) => `/community/verify/dashboard?${query}`,
+  verificationSubmission: (submissionId: string) => `/community/verify/${submissionId}`,
+  voteVerification: (submissionId: string) => `/community/verify/${submissionId}/vote`,
+} as const;
+
 export const COMMUNITY_SORT_OPTIONS: Array<{
   label: string;
   value: CommunitySort;

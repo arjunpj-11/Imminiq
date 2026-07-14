@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { SUBSCRIPTION_API_PATHS } from '../constants/subscriptions.constants';
+import { subscriptionKeys } from './subscriptions.query-keys';
 import type { ApiEnvelope } from '../../../../lib/api.types';
 import type {
   SubscriptionBillingCycle,
@@ -10,16 +12,16 @@ import type {
 
 export const useSubscriptionPlans = () =>
   useQuery({
-    queryKey: ['subscriptions', 'plans'],
+    queryKey: subscriptionKeys.plans(),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<SubscriptionPlan[]>>('/subscriptions/plans')).data.data,
+      (await api.get<ApiEnvelope<SubscriptionPlan[]>>(SUBSCRIPTION_API_PATHS.plans)).data.data,
   });
 
 export const useCurrentSubscription = () =>
   useQuery({
-    queryKey: ['subscriptions', 'me'],
+    queryKey: subscriptionKeys.current(),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<UserSubscription | null>>('/subscriptions/me')).data.data,
+      (await api.get<ApiEnvelope<UserSubscription | null>>(SUBSCRIPTION_API_PATHS.current)).data.data,
   });
 
 export const useCreateSubscriptionOrder = () =>
@@ -29,7 +31,7 @@ export const useCreateSubscriptionOrder = () =>
       billingCycle: SubscriptionBillingCycle;
     }) =>
       api
-        .post<ApiEnvelope<SubscriptionOrder>>('/subscriptions/orders', input)
+        .post<ApiEnvelope<SubscriptionOrder>>(SUBSCRIPTION_API_PATHS.orders, input)
         .then((response) => response.data.data),
   });
 
@@ -42,8 +44,8 @@ export const useVerifySubscriptionPayment = () => {
       razorpaySignature: string;
     }) =>
       api
-        .post<ApiEnvelope<UserSubscription>>('/subscriptions/verify', input)
+        .post<ApiEnvelope<UserSubscription>>(SUBSCRIPTION_API_PATHS.verify, input)
         .then((response) => response.data.data),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['subscriptions'] }),
+    onSuccess: () => client.invalidateQueries({ queryKey: subscriptionKeys.all }),
   });
 };

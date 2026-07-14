@@ -4,13 +4,14 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import api from '../../../../lib/axios';
-import { COMMUNITY_PAGE_LIMIT } from '../constants/community.constants';
+import { COMMUNITY_ENDPOINTS, COMMUNITY_PAGE_LIMIT } from '../constants/community.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
   ICommunityBrowseData,
   ICommunityBrowseQuery,
 } from '../types/community.types';
+import { communityKeys } from './community.query-keys';
 
 const buildCommunityParams = (query: ICommunityBrowseQuery) => {
   const params = new URLSearchParams();
@@ -34,7 +35,7 @@ const fetchCommunityBrowse = async (
 ): Promise<ICommunityBrowseData> => {
   const params = buildCommunityParams(query);
   const response = await api.get<IApiResponse<ICommunityBrowseData>>(
-    `/community?${params.toString()}`
+    COMMUNITY_ENDPOINTS.browse(params.toString())
   );
 
   if (!response.data.data) {
@@ -46,17 +47,10 @@ const fetchCommunityBrowse = async (
 
 export const useCommunityBrowse = (query: ICommunityBrowseQuery) => {
   return useQuery<ICommunityBrowseData, AxiosError<IApiErrorResponse>>({
-    queryKey: [
-      'community',
-      'browse',
-      query.search?.trim() ?? '',
-      query.topics?.join(',') ?? '',
-      query.minRating ?? 'all',
-      query.verifiedOnly ? 'verified' : 'all',
-      query.sort ?? 'top-rated',
-      query.page ?? 1,
-      query.limit ?? COMMUNITY_PAGE_LIMIT,
-    ],
+    queryKey: communityKeys.browse({
+      ...query,
+      limit: query.limit ?? COMMUNITY_PAGE_LIMIT,
+    }),
     queryFn: () => fetchCommunityBrowse(query),
     placeholderData: keepPreviousData,
     staleTime: 30 * 1000,

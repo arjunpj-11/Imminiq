@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { onboardingKeys } from './onboarding.query-keys';
 
 export type MissingRoadmapTopic = {
   title: string;
@@ -33,11 +35,11 @@ type RoadmapEvaluationResultResponse = {
 
 export const useRoadmapEvaluationResult = (jobId?: string) => {
   return useQuery<RoadmapEvaluationResultResponse>({
-    queryKey: ['roadmap-evaluation-result', jobId],
+    queryKey: onboardingKeys.evaluationResult(jobId || ''),
 
     queryFn: async () => {
       const response = await api.get<RoadmapEvaluationResultResponse>(
-        `/onboarding/jobs/${jobId}/evaluation-result`
+        ONBOARDING_API_PATHS.evaluationResult(jobId || '')
       );
 
       return response.data;

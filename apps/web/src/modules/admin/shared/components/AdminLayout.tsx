@@ -26,6 +26,7 @@ import { getTemporaryAdminNavItem } from '../../../../lib/current-page-navigatio
 import { refreshCurrentRoute } from '../../../../lib/refresh-current-route';
 import { useAppShellStore } from '../../../../store/useAppShellStore';
 import { ADMIN_ROUTES, ROUTES } from '../../../../routes/config/route-paths';
+import { AUTH_API_PATHS } from '../../../auth';
 
 const links = [
   { to: ADMIN_ROUTES.dashboard, label: 'Dashboard', icon: Gauge, end: true },
@@ -61,7 +62,7 @@ export default function AdminLayout() {
 
   const logout = async () => {
     try {
-      await api.post('/auth/logout');
+      await api.post(AUTH_API_PATHS.logout);
     } catch {
       /* Local sign-out still completes. */
     }

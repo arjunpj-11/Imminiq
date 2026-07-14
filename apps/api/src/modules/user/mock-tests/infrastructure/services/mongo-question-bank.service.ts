@@ -71,7 +71,7 @@ export class MongoQuestionBank implements IMockTestQuestionBank {
     const doc = await QuestionBankCounterModel.findByIdAndUpdate(
       'questionBank',
       { $inc: { seq: 1 } },
-      { new: true, upsert: true }
+      { returnDocument: "after", upsert: true }
     );
 
     if (!doc) {

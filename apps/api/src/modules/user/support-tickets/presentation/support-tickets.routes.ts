@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import type { ICreateSupportTicketUseCase } from '../application/use-cases/create-support-ticket.usecase';
+import type { SupportTicketsUseCases } from '../application/support-tickets-use-cases.contract';
 import { SupportTicketsController } from './support-tickets.controller';
-export const createSupportTicketsRoutes = (useCase: ICreateSupportTicketUseCase) => {
+import { SUPPORT_TICKET_ROUTE_PATHS } from './support-tickets.route.constants';
+export const createSupportTicketsRoutes = (useCases: SupportTicketsUseCases) => {
   const router = Router();
-  const controller = new SupportTicketsController(useCase);
+  const controller = new SupportTicketsController(useCases);
   router.use(authenticate);
-  router.post('/', controller.create);
+  router.post(SUPPORT_TICKET_ROUTE_PATHS.ROOT, controller.create);
   return router;
 };

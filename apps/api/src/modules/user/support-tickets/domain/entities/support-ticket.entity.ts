@@ -1,7 +1,19 @@
+import type {
+  SupportTicketCategory,
+  SupportTicketPriority,
+  SupportTicketStatus,
+} from '../support-tickets.types';
+
 export type CreateSupportTicketInput = {
   subject: string;
   description: string;
-  category: 'account' | 'learning' | 'technical' | 'billing' | 'other';
-  priority: 'low' | 'medium' | 'high' | 'urgent';
+  category: SupportTicketCategory;
+  priority: SupportTicketPriority;
 };
-export type SupportTicketCreated = { id: string; subject: string; status: string; createdAt: Date };
+
+export type SupportTicketCreated = {
+  id: string;
+  subject: string;
+  status: SupportTicketStatus;
+  createdAt: Date;
+};

@@ -52,7 +52,7 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
     const review = await CommunityVerificationSubmission.findOneAndUpdate(
       { _id: id, deletedAt: null, status: 'open' },
       { $inc: { [voteField]: 1 } },
-      { new: true }
+      { returnDocument: "after" }
     ).lean();
     if (!review) {
       const exists = await CommunityVerificationSubmission.exists({ _id: id, deletedAt: null });
@@ -80,7 +80,7 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
     const review = await CommunityVerificationSubmission.findOneAndUpdate(
       { _id: id, deletedAt: null },
       { $set: { status, consensusChoice: status === 'approved' ? 'pass' : 'fail' } },
-      { new: true }
+      { returnDocument: "after" }
     ).lean();
     if (!review) return null;
     await Tracker.updateOne(

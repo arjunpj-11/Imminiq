@@ -10,6 +10,7 @@ import { EyeIcon } from '../components/icons/AuthIcons';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { getPasswordStrength, validatePassword } from '../utils/auth-validation';
 import { ROUTES } from '../../../routes/config/route-paths';
+import { AUTH_API_PATHS } from '../constants/auth.constants';
 
 interface IFormState {
   newPassword: string;
@@ -96,7 +97,7 @@ export default function ResetPasswordPage() {
 
     try {
       setIsSubmitting(true);
-      await api.post('/auth/reset-password', {
+      await api.post(AUTH_API_PATHS.resetPassword, {
         resetToken,
         newPassword: form.newPassword,
       });

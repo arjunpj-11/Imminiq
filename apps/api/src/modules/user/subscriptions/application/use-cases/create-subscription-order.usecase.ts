@@ -7,6 +7,7 @@ import type { ISubscriptionRepository } from '../../domain/repositories/subscrip
 import type { ISubscriptionPaymentGateway } from '../../domain/services/subscription-payment-gateway.interface';
 import { SubscriptionsApplicationError } from '../subscriptions-application.error';
 import type { SubscriptionOrderDTO } from '../subscriptions.dto';
+import type { ISubscriptionsMapper } from '../subscriptions.mapper';
 
 export interface ICreateSubscriptionOrderUseCase {
   execute(
@@ -19,7 +20,8 @@ export interface ICreateSubscriptionOrderUseCase {
 export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderUseCase {
   constructor(
     private readonly repository: ISubscriptionRepository,
-    private readonly paymentGateway: ISubscriptionPaymentGateway
+    private readonly paymentGateway: ISubscriptionPaymentGateway,
+    private readonly mapper: ISubscriptionsMapper
   ) {}
 
   async execute(
@@ -42,12 +44,12 @@ export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderU
       razorpayOrderId: order.id,
       limits,
     });
-    return {
+    return this.mapper.toOrderDTO({
       keyId: this.paymentGateway.getPublicKey(),
       orderId: order.id,
       amount: order.amount,
       currency: order.currency,
       planName: plan.name,
-    };
+    });
   }
 }

@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
 import type { OnboardingLevel } from './useSaveOnboardingStepTwo';
 
 interface IGenerateRoadmapPayload {
@@ -30,7 +31,7 @@ export const useGenerateRoadmap = () => {
   >({
     mutationFn: async (payload) => {
       const response = await api.post<IGenerateRoadmapResponse>(
-        '/onboarding/generate-roadmap',
+        ONBOARDING_API_PATHS.generateRoadmap,
         payload
       );
 

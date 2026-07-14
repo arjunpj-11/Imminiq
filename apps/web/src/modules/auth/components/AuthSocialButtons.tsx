@@ -1,4 +1,5 @@
 import { webEnvironment } from '../../../config/env';
+import { AUTH_API_PATHS } from '../constants/auth.constants';
 
 export default function AuthSocialButtons() {
   return (
@@ -8,7 +9,7 @@ export default function AuthSocialButtons() {
         type="button"
         aria-label="Continue with Google"
         onClick={() => {
-          window.location.href = `${webEnvironment.apiUrl}/auth/oauth/google`;
+          window.location.href = `${webEnvironment.apiUrl}${AUTH_API_PATHS.oauthGoogle}`;
         }}
       >
         <svg width="17" height="17" viewBox="0 0 24 24" aria-hidden="true">
@@ -37,7 +38,7 @@ export default function AuthSocialButtons() {
         type="button"
         aria-label="Continue with GitHub"
         onClick={() => {
-          window.location.href = `${webEnvironment.apiUrl}/auth/oauth/github`;
+          window.location.href = `${webEnvironment.apiUrl}${AUTH_API_PATHS.oauthGithub}`;
         }}
       >
         <svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">

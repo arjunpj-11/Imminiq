@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { onboardingKeys } from './onboarding.query-keys';
 
 export type RoadmapJobTerminalStatus = 'completed' | 'failed' | 'success' | 'done' | 'error';
 
@@ -52,10 +54,12 @@ const isTerminalJob = (data?: IRoadmapJobStatusData) => {
 
 export const useRoadmapJobStatus = (jobId?: string) => {
   return useQuery<IRoadmapJobStatusResponse, AxiosError<IApiErrorResponse>>({
-    queryKey: ['roadmap-job-status', jobId],
+    queryKey: onboardingKeys.roadmapJobStatus(jobId || ''),
 
     queryFn: async () => {
-      const response = await api.get<IRoadmapJobStatusResponse>(`/onboarding/jobs/${jobId}/status`);
+      const response = await api.get<IRoadmapJobStatusResponse>(
+        ONBOARDING_API_PATHS.jobStatus(jobId || '')
+      );
 
       return response.data;
     },

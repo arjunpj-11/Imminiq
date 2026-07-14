@@ -63,7 +63,7 @@ const startStep = async (jobId: string, stepNumber: number) => {
         startedAt: new Date(),
       },
       {
-        new: true,
+        returnDocument: "after",
       }
     ),
   ]);
@@ -80,7 +80,7 @@ const completeStep = async (jobId: string, stepNumber: number) => {
       completedAt: new Date(),
     },
     {
-      new: true,
+      returnDocument: "after",
     }
   );
 };

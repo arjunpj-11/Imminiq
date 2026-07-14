@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { SETTINGS_API_PATHS } from '../constants/settings-tabs.constants';
+import { settingsKeys } from './settings.query-keys';
 import type {
   IApiEnvelope,
   IGestureSettings,
@@ -19,8 +21,6 @@ import type {
   IUserSettings,
 } from '../types/settings.types';
 
-const SETTINGS_KEY = ['settings'] as const;
-
 const unwrap = <T>(response: { data: IApiEnvelope<T> }) => {
   return response.data.data;
 };
@@ -30,9 +30,9 @@ const useSettingsMutation = <TPayload>(request: (payload: TPayload) => Promise<I
   return useMutation({
     mutationFn: request,
     onSuccess: async (settings) => {
-      queryClient.setQueryData(SETTINGS_KEY, settings);
+      queryClient.setQueryData(settingsKeys.all, settings);
       await queryClient.invalidateQueries({
-        queryKey: SETTINGS_KEY,
+        queryKey: settingsKeys.all,
         exact: false,
         refetchType: 'active',
       });
@@ -42,9 +42,9 @@ const useSettingsMutation = <TPayload>(request: (payload: TPayload) => Promise<I
 
 export const useSettings = () => {
   return useQuery({
-    queryKey: SETTINGS_KEY,
+    queryKey: settingsKeys.all,
     queryFn: async () => {
-      const response = await api.get<IApiEnvelope<IUserSettings>>('/settings');
+      const response = await api.get<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.root);
 
       return unwrap(response);
     },
@@ -53,10 +53,10 @@ export const useSettings = () => {
 
 export const useAppearanceSettings = () =>
   useQuery({
-    queryKey: ['settings', 'appearance'],
+    queryKey: settingsKeys.appearance(),
     queryFn: async () => {
       const response =
-        await api.get<IApiEnvelope<IUserSettings['appearance']>>('/settings/appearance');
+        await api.get<IApiEnvelope<IUserSettings['appearance']>>(SETTINGS_API_PATHS.appearance);
 
       return unwrap(response);
     },
@@ -64,10 +64,10 @@ export const useAppearanceSettings = () =>
 
 export const useNotificationSettings = () =>
   useQuery({
-    queryKey: ['settings', 'notifications'],
+    queryKey: settingsKeys.notifications(),
     queryFn: async () => {
       const response =
-        await api.get<IApiEnvelope<INotificationSettings>>('/settings/notifications');
+        await api.get<IApiEnvelope<INotificationSettings>>(SETTINGS_API_PATHS.notifications);
 
       return unwrap(response);
     },
@@ -75,9 +75,9 @@ export const useNotificationSettings = () =>
 
 export const usePrivacySettings = () =>
   useQuery({
-    queryKey: ['settings', 'privacy'],
+    queryKey: settingsKeys.privacy(),
     queryFn: async () => {
-      const response = await api.get<IApiEnvelope<IPrivacySettings>>('/settings/privacy');
+      const response = await api.get<IApiEnvelope<IPrivacySettings>>(SETTINGS_API_PATHS.privacy);
 
       return unwrap(response);
     },
@@ -85,9 +85,9 @@ export const usePrivacySettings = () =>
 
 export const useGestureSettings = () =>
   useQuery({
-    queryKey: ['settings', 'gestures'],
+    queryKey: settingsKeys.gestures(),
     queryFn: async () => {
-      const response = await api.get<IApiEnvelope<IGestureSettings>>('/settings/gestures');
+      const response = await api.get<IApiEnvelope<IGestureSettings>>(SETTINGS_API_PATHS.gestures);
 
       return unwrap(response);
     },
@@ -95,14 +95,14 @@ export const useGestureSettings = () =>
 
 export const useUpdateAccountSettings = () =>
   useSettingsMutation<IUpdateAccountSettingsPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>('/settings/account', payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.account, payload);
 
     return unwrap(response);
   });
 
 export const useUpdateAppearance = () =>
   useSettingsMutation<IUpdateAppearancePayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>('/settings/appearance', payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.appearance, payload);
 
     return unwrap(response);
   });
@@ -110,7 +110,7 @@ export const useUpdateAppearance = () =>
 export const useUpdateNotifications = () =>
   useSettingsMutation<IUpdateNotificationsPayload>(async (payload) => {
     const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      '/settings/notifications',
+      SETTINGS_API_PATHS.notifications,
       payload
     );
 
@@ -120,7 +120,7 @@ export const useUpdateNotifications = () =>
 export const useUpdateQuietHours = () =>
   useSettingsMutation<IUpdateQuietHoursPayload>(async (payload) => {
     const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      '/settings/notifications/quiet-hours',
+      SETTINGS_API_PATHS.notificationQuietHours,
       payload
     );
 
@@ -130,7 +130,7 @@ export const useUpdateQuietHours = () =>
 export const useUpdateEmailDigest = () =>
   useSettingsMutation<IUpdateEmailDigestPayload>(async (payload) => {
     const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      '/settings/notifications/email-digest',
+      SETTINGS_API_PATHS.notificationEmailDigest,
       payload
     );
 
@@ -139,28 +139,28 @@ export const useUpdateEmailDigest = () =>
 
 export const useUpdatePrivacy = () =>
   useSettingsMutation<IUpdatePrivacyPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>('/settings/privacy', payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.privacy, payload);
 
     return unwrap(response);
   });
 
 export const useUpdateCodeEditor = () =>
   useSettingsMutation<IUpdateCodeEditorPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>('/settings/code-editor', payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.codeEditor, payload);
 
     return unwrap(response);
   });
 
 export const useUpdateCompiler = () =>
   useSettingsMutation<IUpdateCompilerPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>('/settings/compiler', payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.compiler, payload);
 
     return unwrap(response);
   });
 
 export const useUpdateAIBehaviour = () =>
   useSettingsMutation<IUpdateAIBehaviourPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>('/settings/ai-behavior', payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.aiBehavior, payload);
 
     return unwrap(response);
   });
@@ -168,7 +168,7 @@ export const useUpdateAIBehaviour = () =>
 export const useUpdateLearningJourney = () =>
   useSettingsMutation<IUpdateLearningJourneyPayload>(async (payload) => {
     const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      '/settings/learning-journey',
+      SETTINGS_API_PATHS.learningJourney,
       payload
     );
 
@@ -177,7 +177,7 @@ export const useUpdateLearningJourney = () =>
 
 export const useUpdateGestures = () =>
   useSettingsMutation<IUpdateGesturesPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>('/settings/gestures', payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.gestures, payload);
 
     return unwrap(response);
   });
@@ -186,15 +186,15 @@ export const useResetSettings = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      const response = await api.post<IApiEnvelope<IUserSettings>>('/settings/reset');
+      const response = await api.post<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.reset);
 
       return unwrap(response);
     },
 
     onSuccess: async (settings) => {
-      queryClient.setQueryData(SETTINGS_KEY, settings);
+      queryClient.setQueryData(settingsKeys.all, settings);
       await queryClient.invalidateQueries({
-        queryKey: SETTINGS_KEY,
+        queryKey: settingsKeys.all,
         exact: false,
         refetchType: 'active',
       });

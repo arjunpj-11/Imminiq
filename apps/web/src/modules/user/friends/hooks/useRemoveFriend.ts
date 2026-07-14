@@ -9,7 +9,7 @@ import type {
   IFriendsApiResponse,
   IRemoveFriendInput,
 } from '../types/friends.types';
-import { friendsQueryKeys } from './friends-query-keys';
+import { friendsQueryKeys } from './friends.query-keys';
 
 export const useRemoveFriend = () => {
   const queryClient = useQueryClient();

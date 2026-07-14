@@ -2,6 +2,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { CreateSubscriptionOrderUseCase } from '../../src/modules/user/subscriptions/application/use-cases/create-subscription-order.usecase';
 import { ListSubscriptionPlansUseCase } from '../../src/modules/user/subscriptions/application/use-cases/list-subscription-plans.usecase';
 import { VerifySubscriptionPaymentUseCase } from '../../src/modules/user/subscriptions/application/use-cases/verify-subscription-payment.usecase';
+import { SubscriptionsMapper } from '../../src/modules/user/subscriptions/application/subscriptions.mapper';
 import type {
   PendingSubscriptionInput,
   SubscriptionPlanLimits,
@@ -67,9 +68,10 @@ describe('subscription use cases', () => {
       verifySignature: vi.fn(() => true),
       getPublicKey: vi.fn(() => 'rzp_test_public'),
     };
-    listPlans = new ListSubscriptionPlansUseCase(repository);
-    createOrder = new CreateSubscriptionOrderUseCase(repository, gateway);
-    verifyPayment = new VerifySubscriptionPaymentUseCase(repository, gateway);
+    const mapper = new SubscriptionsMapper();
+    listPlans = new ListSubscriptionPlansUseCase(repository, mapper);
+    createOrder = new CreateSubscriptionOrderUseCase(repository, gateway, mapper);
+    verifyPayment = new VerifySubscriptionPaymentUseCase(repository, gateway, mapper);
   });
 
   it('publishes free, pro and premium plans without exposing mutable feature arrays', async () => {
@@ -130,8 +132,8 @@ describe('subscription use cases', () => {
     });
 
     expect(active.status).toBe('active');
-    expect(active.startsAt?.toISOString()).toBe('2026-07-14T10:00:00.000Z');
-    expect(active.endsAt?.toISOString()).toBe('2026-08-14T10:00:00.000Z');
+    expect(active.startsAt).toBe('2026-07-14T10:00:00.000Z');
+    expect(active.endsAt).toBe('2026-08-14T10:00:00.000Z');
     expect(repository.activate).toHaveBeenCalledOnce();
     vi.useRealTimers();
   });

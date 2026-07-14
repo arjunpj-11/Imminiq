@@ -1,1 +1,1 @@
-export { default as RaiseSupportTicketPage } from './pages/RaiseSupportTicketPage';
+export * from './constants/support-tickets.constants';

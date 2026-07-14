@@ -11,7 +11,7 @@ export class MongoCommunityCoinLedger implements ICommunityCoinLedger {
     const user = await CommunityUserModel.findByIdAndUpdate(
       data.userId,
       { $inc: { coins: data.amount } },
-      { new: true }
+      { returnDocument: "after" }
     ).lean<MongoUserRecord>();
 
     return {

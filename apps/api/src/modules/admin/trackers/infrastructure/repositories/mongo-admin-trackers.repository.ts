@@ -121,7 +121,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
     await CommunityTrackerLike.findOneAndUpdate(
       { trackerId: id, userId: actor.userId, deletedAt: null },
       { $set: { deletedAt: null } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
     );
     const likeCount = await CommunityTrackerLike.countDocuments({ trackerId: id, deletedAt: null });
     await Tracker.updateOne({ _id: id }, { $set: { likeCount } });
@@ -144,7 +144,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
         },
         $setOnInsert: { helpfulUserIds: [], helpfulCount: 0 },
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
     );
     const summary = await CommunityTrackerReview.aggregate<{
       _id: null;

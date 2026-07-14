@@ -9,6 +9,7 @@ import {
   saveBlockedAppealToken,
 } from '../../../lib/blockedAppealSession';
 import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
+import { AUTH_API_PATHS } from '../constants/auth.constants';
 
 interface ILoginPayload {
   identifier: string;
@@ -71,7 +72,7 @@ export const useLogin = () => {
 
   return useMutation<ILoginResponse, AxiosError<IApiErrorResponse>, ILoginPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<ILoginResponse>('/auth/login', payload);
+      const response = await api.post<ILoginResponse>(AUTH_API_PATHS.login, payload);
 
       return response.data;
     },

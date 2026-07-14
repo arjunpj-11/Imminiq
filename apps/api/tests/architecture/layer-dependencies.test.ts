@@ -114,6 +114,72 @@ describe('clean architecture boundaries', () => {
     expect(missing).toEqual([]);
   });
 
+  it('gives every feature a root public API and an explicit composition factory', () => {
+    const violations = moduleRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      const files = readdirSync(moduleRoot, { withFileTypes: true })
+        .filter((entry) => entry.isFile())
+        .map((entry) => entry.name);
+      const factories = files.filter((file) => file.endsWith('.factory.ts'));
+      const expectedFactoryCount = id === 'admin/shared' ? 0 : 1;
+      const issues: string[] = [];
+
+      if (!files.includes('index.ts')) issues.push(`${id}/index.ts`);
+      if (factories.length !== expectedFactoryCount) {
+        issues.push(`${id}: ${factories.length} composition factories`);
+      }
+
+      return issues;
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('maps every feature through an application DTO boundary', () => {
+    const violations = moduleRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      if (id === 'admin/shared') return [];
+
+      const applicationFiles = readdirSync(join(moduleRoot, 'application'));
+      const dtoFiles = applicationFiles.filter((file) => file.endsWith('.dto.ts'));
+      const mapperFiles = applicationFiles.filter((file) => file.endsWith('.mapper.ts'));
+      return dtoFiles.length > 0 && mapperFiles.length > 0
+        ? []
+        : [`${id}: ${dtoFiles.length} DTO, ${mapperFiles.length} mapper`];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps endpoint paths in presentation route constants', () => {
+    const violations = moduleRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      const presentationRoot = join(moduleRoot, 'presentation');
+      const files = readdirSync(presentationRoot).filter((file) => file.endsWith('.ts'));
+      const routeFiles = files.filter((file) => file.endsWith('.routes.ts'));
+      if (routeFiles.length === 0) return [];
+
+      const constantFiles = files.filter((file) => file.endsWith('.route.constants.ts'));
+      const issues = constantFiles.length === 1
+        ? []
+        : [`${id}: ${constantFiles.length} route constant owners`];
+
+      for (const routeFile of routeFiles) {
+        const source = readFileSync(join(presentationRoot, routeFile), 'utf8');
+        if (!/\.route\.constants['"]/.test(source)) {
+          issues.push(`${id}/presentation/${routeFile}: route constants are not imported`);
+        }
+        if (/router\.(?:get|post|put|patch|delete|options|head)\(\s*['"]/.test(source)) {
+          issues.push(`${id}/presentation/${routeFile}: contains inline endpoint paths`);
+        }
+      }
+
+      return issues;
+    });
+
+    expect(violations).toEqual([]);
+  });
+
   it('keeps every admin feature on the canonical entity-repository-use-case layout', () => {
     const violations = adminFeatureRoots().flatMap((moduleRoot) => {
       const id = portable(relative(modulesRoot, moduleRoot));

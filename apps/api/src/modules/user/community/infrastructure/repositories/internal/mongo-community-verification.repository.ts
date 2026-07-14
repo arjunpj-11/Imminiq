@@ -452,7 +452,7 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
             },
           },
           {
-            new: true,
+            returnDocument: "after",
           }
         ).lean<MongoCommunityVoteRecord>();
 

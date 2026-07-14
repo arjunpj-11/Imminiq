@@ -50,7 +50,7 @@ export class MongoOnboardingResponseRepository extends MongoOnboardingBaseReposi
           },
           {
             upsert: true,
-            new: true,
+            returnDocument: "after",
             setDefaultsOnInsert: true,
           }
         ).lean<MongoOnboardingResponseRecord>();
@@ -81,7 +81,7 @@ export class MongoOnboardingResponseRepository extends MongoOnboardingBaseReposi
           },
           {
             upsert: true,
-            new: true,
+            returnDocument: "after",
             setDefaultsOnInsert: true,
           }
         ).lean<MongoOnboardingResponseRecord>();
@@ -109,7 +109,7 @@ export class MongoOnboardingResponseRepository extends MongoOnboardingBaseReposi
             },
           },
           {
-            new: true,
+            returnDocument: "after",
           }
         ).lean<MongoOnboardingResponseRecord>();
 

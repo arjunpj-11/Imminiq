@@ -60,7 +60,7 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
     const ticket = await SupportTicket.findByIdAndUpdate(
       id,
       { $set: update },
-      { new: true }
+      { returnDocument: "after" }
     ).lean();
     if (!ticket) return null;
     const readableStatus = input.status.replace('_', ' ');

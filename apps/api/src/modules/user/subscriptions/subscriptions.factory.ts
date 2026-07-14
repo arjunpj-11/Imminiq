@@ -1,4 +1,5 @@
 import type { SubscriptionsUseCases } from './application/subscriptions-use-cases.contract';
+import { SubscriptionsMapper } from './application/subscriptions.mapper';
 import { CreateSubscriptionOrderUseCase } from './application/use-cases/create-subscription-order.usecase';
 import { GetCurrentSubscriptionUseCase } from './application/use-cases/get-current-subscription.usecase';
 import { ListSubscriptionPlansUseCase } from './application/use-cases/list-subscription-plans.usecase';
@@ -8,17 +9,23 @@ import { razorpaySubscriptionPaymentGateway } from './infrastructure/providers/r
 
 export type SubscriptionsComposition = { useCases: SubscriptionsUseCases };
 
-export const createSubscriptionsComposition = (): SubscriptionsComposition => ({
-  useCases: {
-    listPlans: new ListSubscriptionPlansUseCase(mongoSubscriptionRepository),
-    getCurrent: new GetCurrentSubscriptionUseCase(mongoSubscriptionRepository),
-    createOrder: new CreateSubscriptionOrderUseCase(
-      mongoSubscriptionRepository,
-      razorpaySubscriptionPaymentGateway
-    ),
-    verifyPayment: new VerifySubscriptionPaymentUseCase(
-      mongoSubscriptionRepository,
-      razorpaySubscriptionPaymentGateway
-    ),
-  },
-});
+export const createSubscriptionsComposition = (): SubscriptionsComposition => {
+  const mapper = new SubscriptionsMapper();
+
+  return {
+    useCases: {
+      listPlans: new ListSubscriptionPlansUseCase(mongoSubscriptionRepository, mapper),
+      getCurrent: new GetCurrentSubscriptionUseCase(mongoSubscriptionRepository, mapper),
+      createOrder: new CreateSubscriptionOrderUseCase(
+        mongoSubscriptionRepository,
+        razorpaySubscriptionPaymentGateway,
+        mapper
+      ),
+      verifyPayment: new VerifySubscriptionPaymentUseCase(
+        mongoSubscriptionRepository,
+        razorpaySubscriptionPaymentGateway,
+        mapper
+      ),
+    },
+  };
+};

@@ -9,7 +9,7 @@ import type {
   IActivityPageQueryInput,
   IActivityPageResponse,
 } from '../types/activity.types';
-import { activityQueryKeys } from './activity-query-keys';
+import { activityQueryKeys } from './activity.query-keys';
 
 export const useActivityPage = (input: IActivityPageQueryInput) =>
   useQuery<IActivityPageResponse, AxiosError<IActivityApiErrorResponse>>({

@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../../lib/axios';
+import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
@@ -21,7 +22,7 @@ export const useProfile = (options: IUseProfileOptions = {}) => {
     queryKey: profileQueryKeys.me(),
     enabled: options.enabled ?? true,
     queryFn: async () => {
-      const response = await api.get<IApiResponse<IGetMyProfileResponse>>('/users/me');
+      const response = await api.get<IApiResponse<IGetMyProfileResponse>>(PROFILE_API_PATHS.me);
 
       return response.data;
     },

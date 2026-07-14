@@ -9,7 +9,7 @@ import type {
   IFriendsApiErrorResponse,
   IFriendsApiResponse,
 } from '../types/friends.types';
-import { friendsQueryKeys } from './friends-query-keys';
+import { friendsQueryKeys } from './friends.query-keys';
 
 export const useDeclineFriendRequest = () => {
   const queryClient = useQueryClient();

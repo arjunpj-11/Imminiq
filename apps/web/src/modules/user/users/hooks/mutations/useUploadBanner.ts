@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../../lib/axios';
+import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
@@ -21,7 +22,7 @@ export const useUploadBanner = () => {
       formData.append('file', file);
 
       const response = await api.post<IApiResponse<IProfileImageUploadResponse>>(
-        '/uploads/banner',
+        PROFILE_API_PATHS.banner,
         formData
       );
 

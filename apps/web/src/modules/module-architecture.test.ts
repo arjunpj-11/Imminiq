@@ -23,11 +23,42 @@ const scopedModuleRoots = (scope: 'admin' | 'user') => {
     .map((entry) => join(scopeRoot, entry.name));
 };
 
+const featureModuleRoots = () =>
+  readdirSync(modulesRoot, { withFileTypes: true })
+    .filter((entry) => entry.isDirectory())
+    .flatMap((entry) => {
+      if (entry.name === 'admin' || entry.name === 'user') {
+        return scopedModuleRoots(entry.name);
+      }
+      return [join(modulesRoot, entry.name)];
+    });
+
 const collectFiles = (directory: string): string[] =>
   readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const path = join(directory, entry.name);
     return entry.isDirectory() ? collectFiles(path) : [path];
   });
+
+const containsInlineApiPath = (_file: string, source: string): boolean => {
+  const apiCall = /\bapi\.(?:get|post|put|patch|delete)\b/g;
+
+  while (apiCall.exec(source)) {
+    let angleDepth = 0;
+    for (let index = apiCall.lastIndex; index < source.length; index += 1) {
+      const character = source[index];
+      if (character === '<') angleDepth += 1;
+      else if (character === '>' && angleDepth > 0) angleDepth -= 1;
+      else if (character === '(' && angleDepth === 0) {
+        let argumentIndex = index + 1;
+        while (/\s/.test(source[argumentIndex] ?? '')) argumentIndex += 1;
+        if (["'", '"', '`'].includes(source[argumentIndex] ?? '')) return true;
+        break;
+      }
+    }
+  }
+
+  return /window\.location\.href\s*=\s*`[^`]*\/auth\//.test(source);
+};
 
 describe('frontend feature-module architecture', () => {
   it('keeps scoped modules inside feature directories', () => {
@@ -41,7 +72,7 @@ describe('frontend feature-module architecture', () => {
   });
 
   it('uses the same approved folder vocabulary across feature modules', () => {
-    for (const moduleRoot of [...scopedModuleRoots('admin'), ...scopedModuleRoots('user')]) {
+    for (const moduleRoot of featureModuleRoots()) {
       const unexpectedDirectories = readdirSync(moduleRoot, { withFileTypes: true })
         .filter((entry) => entry.isDirectory() && !allowedModuleDirectories.has(entry.name))
         .map((entry) => entry.name);
@@ -50,8 +81,8 @@ describe('frontend feature-module architecture', () => {
     }
   });
 
-  it('gives every admin feature an explicit public API', () => {
-    const missingPublicApis = scopedModuleRoots('admin')
+  it('gives every feature an explicit public API', () => {
+    const missingPublicApis = featureModuleRoots()
       .filter((moduleRoot) => !existsSync(join(moduleRoot, 'index.ts')))
       .map((moduleRoot) => moduleRoot.replace(`${modulesRoot}/`, ''));
 
@@ -66,6 +97,35 @@ describe('frontend feature-module architecture', () => {
 
       const queryKeyFiles = readdirSync(hooksRoot).filter((file) => file.endsWith('.query-keys.ts'));
       return queryKeyFiles.length === 1 ? [] : [moduleRoot.replace(`${modulesRoot}/`, '')];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('centralizes server-state query keys in every feature', () => {
+    const violations = featureModuleRoots().flatMap((moduleRoot) => {
+      const hooksRoot = join(moduleRoot, 'hooks');
+      if (!existsSync(hooksRoot)) return [];
+
+      const hookFiles = collectFiles(hooksRoot).filter((file) => file.endsWith('.ts'));
+      const usesServerQueries = hookFiles.some((file) =>
+        /\buse(?:Infinite)?Query\b/.test(readFileSync(file, 'utf8'))
+      );
+      if (!usesServerQueries) return [];
+
+      const keyOwners = hookFiles.filter((file) => file.endsWith('.query-keys.ts'));
+      const issues = keyOwners.length === 1
+        ? []
+        : [`${moduleRoot.replace(`${modulesRoot}/`, '')}: ${keyOwners.length} query-key owners`];
+
+      for (const file of hookFiles.filter((file) => !file.endsWith('.query-keys.ts'))) {
+        const source = readFileSync(file, 'utf8');
+        if (/queryKey:\s*\[/.test(source) || /(?:export\s+)?const\s+\w*(?:Keys|KEY)\s*=/.test(source)) {
+          issues.push(file.replace(`${modulesRoot}/`, ''));
+        }
+      }
+
+      return issues;
     });
 
     expect(violations).toEqual([]);
@@ -106,6 +166,16 @@ describe('frontend feature-module architecture', () => {
       .flatMap(collectFiles)
       .filter((file) => /\/hooks\/.*\.ts$/.test(file))
       .filter((file) => /['"]\/admin(?:\/|['"])/.test(readFileSync(file, 'utf8')))
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps every feature API path in feature constants', () => {
+    const violations = featureModuleRoots()
+      .flatMap(collectFiles)
+      .filter((file) => /\.(?:ts|tsx)$/.test(file) && !file.includes('/constants/'))
+      .filter((file) => containsInlineApiPath(file, readFileSync(file, 'utf8')))
       .map((file) => file.replace(`${modulesRoot}/`, ''));
 
     expect(violations).toEqual([]);
