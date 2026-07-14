@@ -69,7 +69,7 @@ export function AdminSearch({
   placeholder?: string;
 }) {
   return (
-    <label className="flex min-w-[250px] items-center gap-3 rounded-full border border-[rgba(255,255,255,0.16)] bg-[#24211e] px-5 py-3">
+    <label className="flex min-w-62.5 items-center gap-3 rounded-full border border-[rgba(255,255,255,0.16)] bg-[#24211e] px-5 py-3">
       <Search size={17} className="text-[#aaa59d]" />
       <input
         value={value}
