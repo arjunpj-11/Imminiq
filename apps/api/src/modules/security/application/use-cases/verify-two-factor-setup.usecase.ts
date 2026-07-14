@@ -3,14 +3,14 @@ import type { ISecurityTwoFactorRepository } from '../../domain/repositories/sec
 import type { ISecurityAttemptStore } from '../../domain/services/security-attempt-store.interface';
 import type { ITwoFactorBackupCodeManager } from '../../domain/services/two-factor-backup-code.interface';
 import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface';
-import type { ITwoFactorVerifyResponseDTO, IVerifyTwoFactorSetupPayloadDTO } from '../security.dto';
+import type { TwoFactorVerifyResponseDTO, VerifyTwoFactorSetupPayloadDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 
 export interface IVerifyTwoFactorSetupUseCase {
   execute(
     userId: string,
-    payload: IVerifyTwoFactorSetupPayloadDTO
-  ): Promise<ITwoFactorVerifyResponseDTO>;
+    payload: VerifyTwoFactorSetupPayloadDTO
+  ): Promise<TwoFactorVerifyResponseDTO>;
 }
 
 export class VerifyTwoFactorSetupUseCase implements IVerifyTwoFactorSetupUseCase {
@@ -23,8 +23,8 @@ export class VerifyTwoFactorSetupUseCase implements IVerifyTwoFactorSetupUseCase
 
   async execute(
     userId: string,
-    payload: IVerifyTwoFactorSetupPayloadDTO
-  ): Promise<ITwoFactorVerifyResponseDTO> {
+    payload: VerifyTwoFactorSetupPayloadDTO
+  ): Promise<TwoFactorVerifyResponseDTO> {
     await this.assertSetupVerificationAllowed(userId);
 
     const twoFactor = await this._twoFactorRepository.findTwoFactorWithSecret(userId);

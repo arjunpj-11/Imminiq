@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 import {
   BodyP,
@@ -56,7 +57,7 @@ export default function TermsPage() {
         >
           <div className="flex min-w-0 items-center gap-4">
             <Link
-              to="/"
+              to={ROUTES.home}
               className="inline-flex shrink-0 items-center gap-2.5 leading-none"
               aria-label="Imminiq home"
             >
@@ -223,7 +224,7 @@ export default function TermsPage() {
                 acknowledge that you have read, understood, and agreed to these Terms and our{' '}
                 <Link
                   className="font-medium text-(--brand-500) underline underline-offset-4 hover:text-[#963d22] dark:text-(--brand-500) dark:hover:text-[#f5a090]"
-                  to="/privacy"
+                  to={ROUTES.privacy}
                 >
                   Scholarly Privacy Policy
                 </Link>
@@ -655,7 +656,7 @@ export default function TermsPage() {
               </p>
 
               <Link
-                to="/register"
+                to={ROUTES.register}
                 className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-6 py-3 text-sm font-semibold text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_20px_rgba(184,76,43,0.30)] active:translate-y-0 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
               >
                 Create Account
@@ -668,13 +669,13 @@ export default function TermsPage() {
 
               <div className="flex flex-wrap gap-x-4 gap-y-2">
                 <Link
-                  to="/privacy"
+                  to={ROUTES.privacy}
                   className="transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
                 >
                   Scholarly Privacy Policy
                 </Link>
                 <Link
-                  to="/terms"
+                  to={ROUTES.terms}
                   className="transition hover:text-(--brand-500) dark:hover:text-(--brand-500)"
                 >
                   Terms of Service

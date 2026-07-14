@@ -2,6 +2,8 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import api from '../../../lib/axios';
+import { ROUTES } from '../../../routes/config/route-paths';
+import { AUTH_API_PATHS } from '../constants/auth.constants';
 
 interface IRegisterPayload {
   fullName: string;
@@ -27,7 +29,7 @@ interface IApiErrorResponse {
 }
 
 const registerUser = async (data: IRegisterPayload): Promise<IRegisterResponse> => {
-  const response = await api.post<IRegisterResponse>('/auth/register', data);
+  const response = await api.post<IRegisterResponse>(AUTH_API_PATHS.register, data);
   return response.data;
 };
 
@@ -38,7 +40,7 @@ export const useRegister = () => {
     mutationFn: registerUser,
 
     onSuccess: (data, variables) => {
-      navigate('/verify-account', {
+      navigate(ROUTES.verifyAccount, {
         replace: true,
         state: {
           identifier: data.data?.verificationTarget || variables.identifier,

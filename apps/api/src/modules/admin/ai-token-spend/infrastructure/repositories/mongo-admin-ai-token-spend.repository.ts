@@ -78,15 +78,13 @@ export class MongoAdminAITokenSpendRepository implements IAdminAITokenSpendRepos
         requests: summary?.requests ?? 0,
         todayTokens: todayRows[0]?.totalTokens ?? 0,
       },
-      daily: dailyRows.map(
-        (row): AdminAITokenSpendPoint => ({
-          date: row._id ?? '',
-          promptTokens: row.promptTokens,
-          completionTokens: row.completionTokens,
-          totalTokens: row.totalTokens,
-          requests: row.requests,
-        })
-      ),
+      daily: dailyRows.map((row): AdminAITokenSpendPoint => ({
+        date: row._id ?? '',
+        promptTokens: row.promptTokens,
+        completionTokens: row.completionTokens,
+        totalTokens: row.totalTokens,
+        requests: row.requests,
+      })),
       byCategory: categoryRows.map(toBreakdown),
       byProvider: providerRows.map(toBreakdown),
     };

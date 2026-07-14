@@ -1,6 +1,8 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
+import { communityKeys } from '../../community';
 import type {
   IApiResponse,
   ICreateSubtopicPayload,
@@ -11,14 +13,14 @@ import type {
   IUpdateSubtopicProgressPayload,
   IUpdateTrackerPayload,
 } from '../types/tracker.types';
-import { trackerKeys } from './tracker.keys';
+import { trackerKeys } from './trackers.query-keys';
 
 export const useCreateTracker = () => {
   const queryClient = useQueryClient();
 
   return useMutation<IApiResponse<ITracker>, Error, ICreateTrackerPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<IApiResponse<ITracker>>('/trackers', payload);
+      const response = await api.post<IApiResponse<ITracker>>(TRACKER_API_PATHS.root, payload);
 
       return response.data;
     },
@@ -36,7 +38,10 @@ export const useUpdateTracker = () => {
 
   return useMutation<IApiResponse<ITracker>, Error, IUpdateTrackerPayload>({
     mutationFn: async ({ trackerId, ...payload }) => {
-      const response = await api.patch<IApiResponse<ITracker>>(`/trackers/${trackerId}`, payload);
+      const response = await api.patch<IApiResponse<ITracker>>(
+        TRACKER_API_PATHS.detail(trackerId),
+        payload
+      );
 
       return response.data;
     },
@@ -58,7 +63,9 @@ export const useDeleteTracker = () => {
 
   return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.delete<IApiResponse<ITracker>>(`/trackers/${trackerId}`);
+      const response = await api.delete<IApiResponse<ITracker>>(
+        TRACKER_API_PATHS.detail(trackerId)
+      );
 
       return response.data;
     },
@@ -71,7 +78,7 @@ export const useDeleteTracker = () => {
         queryKey: trackerKeys.detail(trackerId),
       });
       queryClient.invalidateQueries({
-        queryKey: ['community'],
+        queryKey: communityKeys.all,
       });
     },
   });
@@ -82,7 +89,7 @@ export const useArchiveTracker = () => {
 
   return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<IApiResponse<ITracker>>(`/trackers/${trackerId}/archive`);
+      const response = await api.post<IApiResponse<ITracker>>(TRACKER_API_PATHS.archive(trackerId));
 
       return response.data;
     },
@@ -100,7 +107,7 @@ export const useRestoreTracker = () => {
 
   return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<IApiResponse<ITracker>>(`/trackers/${trackerId}/restore`);
+      const response = await api.post<IApiResponse<ITracker>>(TRACKER_API_PATHS.restore(trackerId));
 
       return response.data;
     },
@@ -119,7 +126,7 @@ export const usePublishTracker = () => {
   return useMutation<IApiResponse<ITracker>, Error, PublishTrackerPayload>({
     mutationFn: async ({ trackerId, ...payload }) => {
       const response = await api.post<IApiResponse<ITracker>>(
-        `/trackers/${trackerId}/publish`,
+        TRACKER_API_PATHS.publish(trackerId),
         payload
       );
 
@@ -147,7 +154,9 @@ export const useUnpublishTracker = () => {
 
   return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<IApiResponse<ITracker>>(`/trackers/${trackerId}/unpublish`);
+      const response = await api.post<IApiResponse<ITracker>>(
+        TRACKER_API_PATHS.unpublish(trackerId)
+      );
 
       return response.data;
     },
@@ -170,7 +179,7 @@ export const useCreateTrackerTopic = () => {
   return useMutation<IApiResponse<unknown>, Error, ICreateTopicPayload>({
     mutationFn: async ({ trackerId, ...payload }) => {
       const response = await api.post<IApiResponse<unknown>>(
-        `/trackers/${trackerId}/topics`,
+        TRACKER_API_PATHS.topics(trackerId),
         payload
       );
 
@@ -199,7 +208,7 @@ export const useCreateTrackerSubtopic = () => {
   return useMutation<IApiResponse<unknown>, Error, ICreateSubtopicPayload>({
     mutationFn: async ({ trackerId, topicId, ...payload }) => {
       const response = await api.post<IApiResponse<unknown>>(
-        `/trackers/${trackerId}/topics/${topicId}/subtopics`,
+        TRACKER_API_PATHS.subtopics(trackerId, topicId),
         payload
       );
 
@@ -228,7 +237,7 @@ export const useUpdateSubtopicProgress = () => {
   return useMutation<IApiResponse<unknown>, Error, IUpdateSubtopicProgressPayload>({
     mutationFn: async ({ trackerId, subtopicId, ...payload }) => {
       const response = await api.patch<IApiResponse<unknown>>(
-        `/trackers/${trackerId}/subtopics/${subtopicId}/progress`,
+        TRACKER_API_PATHS.subtopicProgress(trackerId, subtopicId),
         payload
       );
 

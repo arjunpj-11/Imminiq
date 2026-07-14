@@ -2,6 +2,9 @@ import { cerebrasChat } from './clients/cerebras.client';
 import { gemini31FlashLiteChat, geminiChat, geminiFlashLiteChat } from './clients/gemini.client';
 import { groqChat } from './clients/groq.client';
 import type { AITokenUsageCategory } from './ai-token-usage';
+import { env } from '../../config/env';
+
+export type GroqModelTier = 'fast' | 'quality';
 
 export type AIChatMessage = {
   role: 'user' | 'assistant' | 'system';
@@ -87,19 +90,18 @@ const toPrompt = (messages: AIChatMessage[]) => {
 
 const getEconomyProviders = (
   messages: AIChatMessage[],
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile',
+  primaryGroqModel: GroqModelTier,
   category: AITokenUsageCategory
 ): AIProvider<string>[] => {
+  const primaryModel = primaryGroqModel === 'fast' ? env.GROQ_FAST_MODEL : env.GROQ_DEFAULT_MODEL;
   const alternateGroqModel =
-    primaryGroqModel === 'llama-3.1-8b-instant'
-      ? 'llama-3.3-70b-versatile'
-      : 'llama-3.1-8b-instant';
+    primaryGroqModel === 'fast' ? env.GROQ_DEFAULT_MODEL : env.GROQ_FAST_MODEL;
   const { prompt, system } = toPrompt(messages);
 
   return [
     {
-      name: `Groq ${primaryGroqModel}`,
-      generate: () => groqChat(messages, primaryGroqModel, category),
+      name: `Groq ${primaryModel}`,
+      generate: () => groqChat(messages, primaryModel, category),
     },
     {
       name: 'Gemini 3.1 Flash-Lite',
@@ -119,7 +121,7 @@ const getEconomyProviders = (
  */
 export const economyAIChatWithFallback = async (
   messages: AIChatMessage[],
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
+  primaryGroqModel: GroqModelTier = 'fast',
   category: AITokenUsageCategory = 'other'
 ): Promise<string> => {
   return runFallbackChain(getEconomyProviders(messages, primaryGroqModel, category));
@@ -130,7 +132,7 @@ export const economyAIChatWithFallback = async (
 export const economyAIStructuredWithFallback = async <T>(
   messages: AIChatMessage[],
   parseResponse: (response: string) => T,
-  primaryGroqModel: 'llama-3.1-8b-instant' | 'llama-3.3-70b-versatile' = 'llama-3.1-8b-instant',
+  primaryGroqModel: GroqModelTier = 'fast',
   category: AITokenUsageCategory = 'other'
 ): Promise<T> =>
   runFallbackChain(
@@ -182,7 +184,7 @@ export const trackerAIChatWithFallback = async (
             { role: 'system', content: system },
             { role: 'user', content: prompt },
           ],
-          'llama-3.3-70b-versatile',
+          env.GROQ_DEFAULT_MODEL,
           category
         ),
     },

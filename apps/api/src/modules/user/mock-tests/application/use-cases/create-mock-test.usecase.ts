@@ -1,30 +1,32 @@
 import type { IMockTestRepository } from '../../domain/repositories/mock-test.repository.interface';
 import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
-import type { ICreateMockTestPayloadDTO, IMockTestDTO } from '../mock-tests.dto';
-import { MAX_MANUAL_QUESTIONS } from '../../domain/mock-tests.constants';
+import type { CreateMockTestPayloadDTO, MockTestDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
+import type { IMockTestPolicyReader } from '../../../../../shared/platform-policy';
 
 type CreateMockTestRepository = IMockTestRepository & IMockTestQuestionRepository;
 
 export interface ICreateMockTestUseCase {
-  execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO>;
+  execute(userId: string, payload: CreateMockTestPayloadDTO): Promise<MockTestDTO>;
 }
 
 export class CreateMockTestUseCase implements ICreateMockTestUseCase {
   constructor(
     private readonly _repository: CreateMockTestRepository,
-    private readonly _mapper: IMockTestsMapper
+    private readonly _mapper: IMockTestsMapper,
+    private readonly _policyReader: IMockTestPolicyReader
   ) {}
 
-  async execute(userId: string, payload: ICreateMockTestPayloadDTO): Promise<IMockTestDTO> {
+  async execute(userId: string, payload: CreateMockTestPayloadDTO): Promise<MockTestDTO> {
+    const policy = await this._policyReader.getMockTestPolicy();
     if (!payload.questions?.length) {
       throw MockTestsApplicationError.validation('At least one question is required');
     }
 
-    if (payload.questions.length > MAX_MANUAL_QUESTIONS) {
+    if (payload.questions.length > policy.maxManualQuestions) {
       throw MockTestsApplicationError.validation(
-        `Maximum ${MAX_MANUAL_QUESTIONS} questions allowed`
+        `Maximum ${policy.maxManualQuestions} questions allowed`
       );
     }
 
@@ -34,8 +36,8 @@ export class CreateMockTestUseCase implements ICreateMockTestUseCase {
       description: payload.description || '',
       difficulty: payload.difficulty || 'medium',
       visibility: payload.visibility || 'private',
-      timeLimitMinutes: payload.timeLimitMinutes || 30,
-      passingScore: payload.passingScore || 60,
+      timeLimitMinutes: payload.timeLimitMinutes || policy.defaultTimeLimitMinutes,
+      passingScore: payload.passingScore || policy.defaultPassingScore,
       questionCount: payload.questions.length,
       tags: payload.tags || [],
       trackerId: payload.trackerId,

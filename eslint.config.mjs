@@ -58,6 +58,14 @@ export default tseslint.config(
             match: true,
           },
         },
+        {
+          selector: ['typeAlias', 'class', 'enum'],
+          format: ['PascalCase'],
+          custom: {
+            regex: '^I[A-Z]',
+            match: false,
+          },
+        },
       ],
     },
   },
@@ -71,7 +79,7 @@ export default tseslint.config(
           selector: 'interface',
           format: ['PascalCase'],
           custom: {
-            regex: '^I[A-Z].*DTO$',
+            regex: '^(?!I[A-Z]).*DTO$',
             match: true,
           },
         },
@@ -79,7 +87,7 @@ export default tseslint.config(
           selector: ['typeAlias', 'class'],
           format: ['PascalCase'],
           custom: {
-            regex: 'DTO$',
+            regex: '^(?!I[A-Z]).*DTO$',
             match: true,
           },
         },
@@ -89,7 +97,7 @@ export default tseslint.config(
 
   // Clean Architecture dependency rule: dependencies may only point inward.
   {
-    files: ['apps/api/src/modules/*/domain/**/*.ts'],
+    files: ['apps/api/src/modules/**/domain/**/*.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -118,7 +126,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/src/modules/*/application/**/*.ts'],
+    files: ['apps/api/src/modules/**/application/**/*.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -152,7 +160,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/src/modules/*/presentation/**/*.ts'],
+    files: ['apps/api/src/modules/**/presentation/**/*.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -168,7 +176,7 @@ export default tseslint.config(
     },
   },
   {
-    files: ['apps/api/src/modules/*/presentation/**/*.controller.ts'],
+    files: ['apps/api/src/modules/**/presentation/**/*.controller.ts'],
     rules: {
       'no-restricted-imports': [
         'error',
@@ -238,6 +246,14 @@ export default tseslint.config(
           custom: {
             regex: '^I[A-Z]',
             match: true,
+          },
+        },
+        {
+          selector: ['typeAlias', 'class', 'enum'],
+          format: ['PascalCase'],
+          custom: {
+            regex: '^I[A-Z]',
+            match: false,
           },
         },
       ],

@@ -1,5 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { SETTINGS_API_PATHS } from '../constants/settings-tabs.constants';
+import { settingsKeys } from './settings.query-keys';
 import type {
   IApiEnvelope,
   IChangeEmailPayload,
@@ -13,8 +15,6 @@ import type {
   IVerifyTwoFactorSetupResponse,
   IDeleteAccountResponse,
 } from '../types/settings.types';
-
-const SECURITY_KEY = ['security', 'overview'] as const;
 
 type EmailChangeRequestResponse = {
   pendingEmail: string;
@@ -30,9 +30,11 @@ const unwrap = <T>(response: { data: IApiEnvelope<T> }) => {
 
 export const useSecurityOverview = () =>
   useQuery({
-    queryKey: SECURITY_KEY,
+    queryKey: settingsKeys.securityOverview(),
     queryFn: async () => {
-      const response = await api.get<IApiEnvelope<ISecurityOverview>>('/security/overview');
+      const response = await api.get<IApiEnvelope<ISecurityOverview>>(
+        SETTINGS_API_PATHS.securityOverview
+      );
 
       return unwrap(response);
     },
@@ -47,7 +49,7 @@ export const useChangeEmail = () => {
   return useMutation({
     mutationFn: async (payload: IChangeEmailPayload) => {
       const response = await api.patch<IApiEnvelope<EmailChangeRequestResponse>>(
-        '/security/change-email',
+        SETTINGS_API_PATHS.changeEmail,
         payload
       );
 
@@ -55,7 +57,7 @@ export const useChangeEmail = () => {
     },
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SECURITY_KEY });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.securityOverview() });
     },
   });
 };
@@ -66,7 +68,7 @@ export const useChangePassword = () =>
   useMutation({
     mutationFn: async (payload: IChangePasswordPayload) => {
       const response = await api.patch<IApiEnvelope<{ sessionsRevoked: boolean }>>(
-        '/security/change-password',
+        SETTINGS_API_PATHS.changePassword,
         payload
       );
 
@@ -86,13 +88,13 @@ export const useTerminateSession = () => {
           revoked: boolean;
           sessionId: string;
         }>
-      >(`/security/sessions/${sessionId}`);
+      >(SETTINGS_API_PATHS.session(sessionId));
 
       return unwrap(response);
     },
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SECURITY_KEY });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.securityOverview() });
     },
   });
 };
@@ -102,7 +104,9 @@ export const useTerminateSession = () => {
 export const useSetupTwoFactor = () =>
   useMutation({
     mutationFn: async () => {
-      const response = await api.post<IApiEnvelope<ITwoFactorSetupResponse>>('/security/2fa/setup');
+      const response = await api.post<IApiEnvelope<ITwoFactorSetupResponse>>(
+        SETTINGS_API_PATHS.twoFactorSetup
+      );
 
       return unwrap(response);
     },
@@ -116,7 +120,7 @@ export const useVerifyTwoFactorSetup = () => {
   return useMutation({
     mutationFn: async (payload: IVerifyTwoFactorSetupPayload) => {
       const response = await api.post<IApiEnvelope<IVerifyTwoFactorSetupResponse>>(
-        '/security/2fa/verify',
+        SETTINGS_API_PATHS.twoFactorVerify,
         payload
       );
 
@@ -124,7 +128,7 @@ export const useVerifyTwoFactorSetup = () => {
     },
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SECURITY_KEY });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.securityOverview() });
     },
   });
 };
@@ -137,7 +141,7 @@ export const useDisableTwoFactor = () => {
   return useMutation({
     mutationFn: async (payload: IDisableTwoFactorPayload) => {
       const response = await api.post<IApiEnvelope<IDisableTwoFactorResponse>>(
-        '/security/2fa/disable',
+        SETTINGS_API_PATHS.twoFactorDisable,
         payload
       );
 
@@ -145,7 +149,7 @@ export const useDisableTwoFactor = () => {
     },
 
     onSuccess: async () => {
-      await queryClient.invalidateQueries({ queryKey: SECURITY_KEY });
+      await queryClient.invalidateQueries({ queryKey: settingsKeys.securityOverview() });
     },
   });
 };
@@ -156,7 +160,7 @@ export const useDeleteAccount = () =>
   useMutation({
     mutationFn: async (payload: IDeleteAccountPayload): Promise<IDeleteAccountResponse> => {
       const response = await api.delete<IApiEnvelope<IDeleteAccountResponse>>(
-        '/security/delete-account',
+        SETTINGS_API_PATHS.deleteAccount,
         {
           data: payload,
         }

@@ -9,7 +9,6 @@ import type {
   IJwtPayload,
   TwoFactorChallengeTokenPayload,
 } from '../../domain/value-objects/token-payload.vo';
-import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants';
 
 export class JwtAuthToken implements IAuthToken {
   generateAccessToken(userId: string, role: AuthRole, sessionId?: string): string {
@@ -38,7 +37,7 @@ export class JwtAuthToken implements IAuthToken {
 
   generateTwoFactorChallengeToken(userId: string): string {
     const challengeOptions: SignOptions = {
-      expiresIn: `${TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES}m`,
+      expiresIn: `${env.TWO_FACTOR_CHALLENGE_TTL_MINUTES}m`,
       algorithm: 'HS256',
       issuer: 'imminiq-api',
       audience: 'imminiq-web',

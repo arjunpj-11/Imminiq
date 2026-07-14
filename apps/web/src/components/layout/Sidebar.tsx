@@ -5,6 +5,7 @@ import { Link, NavLink, useLocation } from 'react-router-dom';
 import { prefetchRoute } from '../../lib/route-prefetch';
 import { getTemporaryUserNavItem } from '../../lib/current-page-navigation';
 import { refreshCurrentRoute } from '../../lib/refresh-current-route';
+import { ROUTES } from '../../routes/config/route-paths';
 import ImminiqLogo from '../ui/ImminiqLogo';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
 
@@ -18,7 +19,7 @@ interface ISidebarProps {
 const mainItems = [
   {
     label: 'Dashboard',
-    to: '/dashboard',
+    to: ROUTES.dashboard,
     icon: (
       <svg
         width="15"
@@ -37,7 +38,7 @@ const mainItems = [
   },
   {
     label: 'Trackers',
-    to: '/trackers',
+    to: ROUTES.trackers,
     icon: (
       <svg
         width="15"
@@ -53,7 +54,7 @@ const mainItems = [
   },
   {
     label: 'Mock Tests',
-    to: '/mock-tests',
+    to: ROUTES.mockTests,
     icon: (
       <svg
         width="15"
@@ -73,7 +74,7 @@ const mainItems = [
 const discoverItems = [
   {
     label: 'Community',
-    to: '/community',
+    to: ROUTES.community,
     icon: (
       <svg
         width="15"
@@ -92,7 +93,7 @@ const discoverItems = [
   },
   {
     label: 'Leaderboard',
-    to: '/leaderboard',
+    to: ROUTES.leaderboard,
     icon: (
       <svg
         width="15"
@@ -113,7 +114,7 @@ const discoverItems = [
 const intelligenceItems = [
   {
     label: 'Adaptive Learning',
-    to: '/learning-agent',
+    to: ROUTES.learningAgent,
     icon: (
       <svg
         width="15"
@@ -134,7 +135,7 @@ const intelligenceItems = [
 const personalItems = [
   {
     label: 'Activity',
-    to: '/activity',
+    to: ROUTES.activity,
     icon: (
       <svg
         width="15"
@@ -151,7 +152,7 @@ const personalItems = [
   },
   {
     label: 'Settings',
-    to: '/settings/security',
+    to: ROUTES.settingsSecurity,
     icon: (
       <svg
         width="15"
@@ -177,15 +178,12 @@ export default function Sidebar({
   const location = useLocation();
 
   const isInsideSettings =
-    location.pathname === '/settings' || location.pathname.startsWith('/settings/');
+    location.pathname === ROUTES.settingsRoot ||
+    location.pathname.startsWith(`${ROUTES.settingsRoot}/`);
 
   const currentPathWithSearchAndHash = `${location.pathname}${location.search}${location.hash}`;
 
-  const temporaryItem = getTemporaryUserNavItem(
-    location.pathname,
-    location.search,
-    location.hash
-  );
+  const temporaryItem = getTemporaryUserNavItem(location.pathname, location.search, location.hash);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(
@@ -214,7 +212,7 @@ export default function Sidebar({
         )}
       >
         <Link
-          to="/dashboard"
+          to={ROUTES.dashboard}
           onClick={onCloseMobile}
           className="flex items-center gap-2.5 border-b border-(--border-subtle) px-5 pb-3.5 pt-4.5 no-underline dark:border-(--border-subtle)"
         >
@@ -374,7 +372,7 @@ export default function Sidebar({
           </p>
 
           <Link
-            to="/pricing"
+            to={ROUTES.pricing}
             onClick={onCloseMobile}
             className="relative z-1 block w-full rounded-lg border-none bg-(--brand-500) p-2.25 text-center font-ui text-[12px] font-bold tracking-normal text-[#fdf8f5] no-underline transition hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >

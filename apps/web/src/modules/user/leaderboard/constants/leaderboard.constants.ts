@@ -1,4 +1,5 @@
 import type { LeaderboardScope, LeaderboardSection } from '../types/leaderboard.types';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export const LEADERBOARD_ENDPOINTS = {
   leaderboard: '/leaderboard',
@@ -6,8 +7,8 @@ export const LEADERBOARD_ENDPOINTS = {
 } as const;
 
 export const LEADERBOARD_ROUTES = {
-  leaderboard: '/leaderboard',
-  rewards: '/leaderboard/rewards',
+  leaderboard: ROUTES.leaderboard,
+  rewards: ROUTES.leaderboardRewards,
 } as const;
 
 export const LEADERBOARD_DEFAULT_SECTION: LeaderboardSection = 'students';

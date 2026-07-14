@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import CommunityErrorState from '../components/shared/CommunityErrorState';
 import CommunityLayout from '../components/shared/CommunityLayout';
@@ -184,7 +185,7 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
       <div className={communityPageClass}>
         <button
           type="button"
-          onClick={() => navigate('/community')}
+          onClick={() => navigate(ROUTES.community)}
           className="inline-flex w-fit items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
         >
           <BackIcon />

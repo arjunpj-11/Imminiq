@@ -15,4 +15,4 @@ export type {
 export type { FriendRelationshipStatus } from './domain/friends.types';
 
 export { createFriendsComposition } from './friends.factory';
-export { friendsRoutes } from './presentation/friends.routes';
+export { createFriendsRoutes } from './presentation/friends.routes';

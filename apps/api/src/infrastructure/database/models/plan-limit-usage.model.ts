@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { env } from '../../../config/env';
 
 const planLimitUsageSchema = new Schema(
   {
@@ -15,8 +16,10 @@ const planLimitUsageSchema = new Schema(
 );
 
 planLimitUsageSchema.index({ userId: 1, key: 1, periodStart: 1 }, { unique: true });
-planLimitUsageSchema.index({ periodStart: 1 }, { expireAfterSeconds: 400 * 86400 });
+planLimitUsageSchema.index(
+  { periodStart: 1 },
+  { expireAfterSeconds: env.PLAN_LIMIT_USAGE_TTL_SECONDS }
+);
 
 export const PlanLimitUsage =
-  mongoose.models.PlanLimitUsage ||
-  mongoose.model('PlanLimitUsage', planLimitUsageSchema);
+  mongoose.models.PlanLimitUsage || mongoose.model('PlanLimitUsage', planLimitUsageSchema);

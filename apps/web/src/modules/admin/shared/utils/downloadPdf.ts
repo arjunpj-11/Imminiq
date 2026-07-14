@@ -131,9 +131,14 @@ export const downloadTablePdf = async ({
       document.setFont('helvetica', 'normal');
       document.setFontSize(8);
       document.text('Confidential administrative report', margin, pageHeight - 16);
-      document.text(`Page ${pageNumber} of ${totalPagesToken}`, pageWidth - margin, pageHeight - 16, {
-        align: 'right',
-      });
+      document.text(
+        `Page ${pageNumber} of ${totalPagesToken}`,
+        pageWidth - margin,
+        pageHeight - 16,
+        {
+          align: 'right',
+        }
+      );
     },
   });
 

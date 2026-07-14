@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdateCompilerPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateCompilerPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateCompilerRepository = {
@@ -7,7 +7,7 @@ type UpdateCompilerRepository = {
 };
 
 export interface IUpdateCompilerUseCase {
-  execute(userId: string, payload: IUpdateCompilerPayloadDTO): Promise<UserSettingsViewDTO | null>;
+  execute(userId: string, payload: UpdateCompilerPayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdateCompilerUseCase implements IUpdateCompilerUseCase {
@@ -18,7 +18,7 @@ export class UpdateCompilerUseCase implements IUpdateCompilerUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdateCompilerPayloadDTO
+    payload: UpdateCompilerPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateCompiler({
       userId,

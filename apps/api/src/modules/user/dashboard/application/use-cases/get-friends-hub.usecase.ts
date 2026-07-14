@@ -1,9 +1,9 @@
 import type { IDashboardFriendRepository } from '../../domain/repositories/dashboard-friend.repository.interface';
-import type { IDashboardFriendItemDTO } from '../dashboard.dto';
+import type { DashboardFriendItemDTO } from '../dashboard.dto';
 import type { IDashboardMapper } from '../dashboard.mapper';
 
 export interface IGetFriendsHubUseCase {
-  execute(userId: string, limit?: number): Promise<IDashboardFriendItemDTO[]>;
+  execute(userId: string, limit?: number): Promise<DashboardFriendItemDTO[]>;
 }
 
 export class GetFriendsHubUseCase implements IGetFriendsHubUseCase {
@@ -12,7 +12,7 @@ export class GetFriendsHubUseCase implements IGetFriendsHubUseCase {
     private readonly _dashboardMapper: IDashboardMapper
   ) {}
 
-  async execute(userId: string, limit?: number): Promise<IDashboardFriendItemDTO[]> {
+  async execute(userId: string, limit?: number): Promise<DashboardFriendItemDTO[]> {
     const friends = await this._dashboardRepository.getFriendsHub({
       userId,
       limit,

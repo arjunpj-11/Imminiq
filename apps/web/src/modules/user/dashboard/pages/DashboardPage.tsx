@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import PageContainer from '../../../../components/layout/PageContainer';
@@ -115,7 +116,7 @@ export default function DashboardPage() {
 
             <FriendsCard
               friends={friends}
-              onOpenFriends={() => navigate('/friends')}
+              onOpenFriends={() => navigate(ROUTES.friends)}
               onOpenProfile={(username) => navigate(`/profile/${username}`)}
             />
           </section>

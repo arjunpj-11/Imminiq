@@ -1,9 +1,9 @@
 import type { IMockTestAnalyticsRepository } from '../../domain/repositories/mock-test-analytics.repository.interface';
-import type { IMockTestAttemptHistoryDTO } from '../mock-tests.dto';
+import type { MockTestAttemptHistoryDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
 
 export interface IGetHistoryUseCase {
-  execute(userId: string): Promise<IMockTestAttemptHistoryDTO[]>;
+  execute(userId: string): Promise<MockTestAttemptHistoryDTO[]>;
 }
 
 export class GetHistoryUseCase implements IGetHistoryUseCase {

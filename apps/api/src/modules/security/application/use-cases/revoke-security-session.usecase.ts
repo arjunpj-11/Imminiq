@@ -1,5 +1,5 @@
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
-import type { IRevokeSessionResponseDTO } from '../security.dto';
+import type { RevokeSessionResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 import type { ICurrentSessionResolver } from '../services/current-session.service';
 
@@ -9,7 +9,7 @@ export interface IRevokeSecuritySessionUseCase {
     sessionId: string,
     refreshToken?: string,
     authenticatedSessionId?: string
-  ): Promise<IRevokeSessionResponseDTO>;
+  ): Promise<RevokeSessionResponseDTO>;
 }
 
 export class RevokeSecuritySessionUseCase implements IRevokeSecuritySessionUseCase {
@@ -23,7 +23,7 @@ export class RevokeSecuritySessionUseCase implements IRevokeSecuritySessionUseCa
     sessionId: string,
     refreshToken?: string,
     authenticatedSessionId?: string
-  ): Promise<IRevokeSessionResponseDTO> {
+  ): Promise<RevokeSessionResponseDTO> {
     const currentSessionId = await this._currentSessionResolver.getCurrentSessionId(
       refreshToken,
       authenticatedSessionId

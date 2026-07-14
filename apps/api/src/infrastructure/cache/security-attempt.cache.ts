@@ -1,5 +1,6 @@
 import { createHash } from 'crypto';
 import { redis } from '../../config/redis';
+import { env } from '../../config/env';
 
 export type SecurityAttemptScope =
   | 'auth_login'
@@ -17,21 +18,21 @@ export type SecurityAttemptPolicy = {
 
 export const SECURITY_ATTEMPT_POLICIES = {
   authLogin: {
-    windowSeconds: 15 * 60,
-    maxAttempts: 8,
-    blockSeconds: 15 * 60,
+    windowSeconds: env.AUTH_LOGIN_ATTEMPT_WINDOW_SECONDS,
+    maxAttempts: env.AUTH_LOGIN_MAX_ATTEMPTS,
+    blockSeconds: env.AUTH_LOGIN_BLOCK_SECONDS,
   },
 
   otpVerification: {
-    windowSeconds: 10 * 60,
-    maxAttempts: 5,
-    blockSeconds: 10 * 60,
+    windowSeconds: env.OTP_ATTEMPT_WINDOW_SECONDS,
+    maxAttempts: env.OTP_MAX_ATTEMPTS,
+    blockSeconds: env.OTP_BLOCK_SECONDS,
   },
 
   twoFactorVerification: {
-    windowSeconds: 10 * 60,
-    maxAttempts: 5,
-    blockSeconds: 10 * 60,
+    windowSeconds: env.TWO_FACTOR_ATTEMPT_WINDOW_SECONDS,
+    maxAttempts: env.TWO_FACTOR_MAX_ATTEMPTS,
+    blockSeconds: env.TWO_FACTOR_BLOCK_SECONDS,
   },
 } satisfies Record<string, SecurityAttemptPolicy>;
 

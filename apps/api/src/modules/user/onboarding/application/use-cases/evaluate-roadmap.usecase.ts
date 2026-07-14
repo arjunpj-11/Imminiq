@@ -3,7 +3,7 @@ import type { IOnboardingAIJobCommandRepository } from '../../domain/repositorie
 import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface';
 import type { IAIJobQueueGateway } from '../../domain/services/ai-job-queue.interface';
 import type { IAIJobQuotaStore } from '../../domain/services/ai-job-quota-store.interface';
-import type { IGenerateRoadmapResultDTO } from '../onboarding.dto';
+import type { GenerateRoadmapResultDTO } from '../onboarding.dto';
 import { OnboardingApplicationError } from '../onboarding-application.error';
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service';
 
@@ -11,7 +11,7 @@ type EvaluateRoadmapRepository = IOnboardingAIJobQueryRepository &
   IOnboardingAIJobCommandRepository;
 
 export interface IEvaluateRoadmapUseCase {
-  execute(roadmapJobId: string, userId: string): Promise<IGenerateRoadmapResultDTO>;
+  execute(roadmapJobId: string, userId: string): Promise<GenerateRoadmapResultDTO>;
 }
 
 export class EvaluateRoadmapUseCase implements IEvaluateRoadmapUseCase {
@@ -22,7 +22,7 @@ export class EvaluateRoadmapUseCase implements IEvaluateRoadmapUseCase {
     private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader
   ) {}
 
-  async execute(roadmapJobId: string, userId: string): Promise<IGenerateRoadmapResultDTO> {
+  async execute(roadmapJobId: string, userId: string): Promise<GenerateRoadmapResultDTO> {
     const roadmapJob = await this._onboardingRepository.getJobById(roadmapJobId);
 
     if (!roadmapJob) {

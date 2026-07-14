@@ -1,5 +1,6 @@
 import { AIGenerationJob } from '../../../../../infrastructure/database/models/ai-generation-job.model';
 import { aiQueue } from '../../../../../infrastructure/queue/queues';
+import { env } from '../../../../../config/env';
 import type { AdaptiveAssessmentPlan } from '../../domain/adaptive-learning.types';
 import type { IAdaptiveTestGenerator } from '../../domain/services/adaptive-test-generator.interface';
 
@@ -30,10 +31,10 @@ export class AdaptiveTestGeneratorGateway implements IAdaptiveTestGenerator {
       'generate-mock-test',
       { jobId, userId, payload, adaptiveContext },
       {
-        attempts: 3,
-        backoff: { type: 'exponential', delay: 5000 },
-        removeOnComplete: 100,
-        removeOnFail: 200,
+        attempts: env.QUEUE_JOB_ATTEMPTS,
+        backoff: { type: 'exponential', delay: env.QUEUE_JOB_BACKOFF_MS },
+        removeOnComplete: env.QUEUE_REMOVE_ON_COMPLETE,
+        removeOnFail: env.QUEUE_REMOVE_ON_FAIL,
       }
     );
 

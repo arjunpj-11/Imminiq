@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 import type {
   IApiResponse,
   AskLessonQuestionSolutionDoubtPayload,
@@ -24,7 +25,7 @@ import type {
   VerifyLessonAnswerPayload,
   VerifyLessonAnswerResponse,
 } from '../types/tracker.types';
-import { trackerKeys } from './tracker.keys';
+import { trackerKeys } from './trackers.query-keys';
 
 export const useChatWithLessonTutor = () => {
   const queryClient = useQueryClient();
@@ -32,7 +33,7 @@ export const useChatWithLessonTutor = () => {
   return useMutation<LessonChatResponse, Error, LessonChatPayload>({
     mutationFn: async ({ trackerId, subtopicId, messages }) => {
       const response = await api.post<LessonChatResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/chat`,
+        TRACKER_API_PATHS.lessonChat(trackerId, subtopicId),
         {
           messages,
         }
@@ -55,7 +56,7 @@ export const useGenerateLessonQuestions = () => {
   return useMutation<GenerateLessonQuestionsResponse, Error, GenerateLessonQuestionsPayload>({
     mutationFn: async ({ trackerId, subtopicId, count }) => {
       const response = await api.post<GenerateLessonQuestionsResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/questions/generate`,
+        TRACKER_API_PATHS.generateLessonQuestions(trackerId, subtopicId),
         {
           count,
         }
@@ -82,7 +83,7 @@ export const useGenerateLessonQuestionSolution = () => {
   >({
     mutationFn: async ({ trackerId, subtopicId, question }) => {
       const response = await api.post<GenerateLessonQuestionSolutionResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/generate`,
+        TRACKER_API_PATHS.generateLessonQuestionSolution(trackerId, subtopicId),
         {
           question,
         }
@@ -113,7 +114,7 @@ export const useAskLessonQuestionSolutionDoubt = () => {
   >({
     mutationFn: async ({ trackerId, subtopicId, question, message }) => {
       const response = await api.post<AskLessonQuestionSolutionDoubtResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
+        TRACKER_API_PATHS.lessonQuestionSolutionDoubts(trackerId, subtopicId),
         {
           question,
           message,
@@ -139,7 +140,7 @@ export const useRunLessonCode = () => {
   return useMutation<RunLessonCodeResponse, Error, RunLessonCodePayload>({
     mutationFn: async ({ trackerId, subtopicId, sourceCode, languageId, language, stdin }) => {
       const response = await api.post<RunLessonCodeResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/code/run`,
+        TRACKER_API_PATHS.runLessonCode(trackerId, subtopicId),
         {
           sourceCode,
           languageId,
@@ -159,7 +160,7 @@ export const useSubmitLessonCode = () => {
   return useMutation<SubmitLessonCodeResponse, Error, SubmitLessonCodePayload>({
     mutationFn: async ({ trackerId, subtopicId, sourceCode, languageId, language, stdin }) => {
       const response = await api.post<SubmitLessonCodeResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/code/submit`,
+        TRACKER_API_PATHS.submitLessonCode(trackerId, subtopicId),
         {
           sourceCode,
           languageId,
@@ -198,7 +199,7 @@ export const useGetCodeHint = () => {
       hintCount,
     }) => {
       const response = await api.post<GetCodeHintResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/code/hint`,
+        TRACKER_API_PATHS.lessonCodeHint(trackerId, subtopicId),
         {
           sourceCode,
           actualOutput,
@@ -216,7 +217,7 @@ export const useGetOptimizedSolution = () => {
   return useMutation<GetOptimizedSolutionResponse, Error, GetOptimizedSolutionPayload>({
     mutationFn: async ({ trackerId, subtopicId, sourceCode, language }) => {
       const response = await api.post<GetOptimizedSolutionResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/code/optimized-solution`,
+        TRACKER_API_PATHS.optimizedLessonSolution(trackerId, subtopicId),
         {
           sourceCode,
           language,
@@ -234,7 +235,7 @@ export const useVerifyLessonAnswer = () => {
   return useMutation<VerifyLessonAnswerResponse, Error, VerifyLessonAnswerPayload>({
     mutationFn: async ({ trackerId, subtopicId, question, answer }) => {
       const response = await api.post<VerifyLessonAnswerResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/answer/verify`,
+        TRACKER_API_PATHS.verifyLessonAnswer(trackerId, subtopicId),
         {
           question,
           answer,
@@ -265,7 +266,7 @@ export const useClearLessonChatHistory = () => {
   >({
     mutationFn: async ({ trackerId, subtopicId }) => {
       const response = await api.delete<IApiResponse<unknown>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/chat`
+        TRACKER_API_PATHS.lessonChat(trackerId, subtopicId)
       );
 
       return response.data;
@@ -293,7 +294,7 @@ export const useClearLessonQuestionSolutionDoubts = () => {
   >({
     mutationFn: async ({ trackerId, subtopicId, question }) => {
       const response = await api.delete<IApiResponse<unknown>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
+        TRACKER_API_PATHS.lessonQuestionSolutionDoubts(trackerId, subtopicId),
         {
           params: {
             question,
@@ -324,7 +325,7 @@ export const useGenerateLessonVisualization = () => {
   >({
     mutationFn: async ({ trackerId, subtopicId, regenerate }) => {
       const response = await api.post<GenerateLessonVisualizationResponse>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/visualize`,
+        TRACKER_API_PATHS.lessonVisualization(trackerId, subtopicId),
         {},
         { params: regenerate ? { regenerate: 'true' } : undefined }
       );

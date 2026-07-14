@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 
 import type { ActivityChip } from '../types/onboarding.types';
 import { cn } from '../utils/cn';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 interface IOnboardingProgressStatusCardProps {
   logMessage: string;
@@ -133,13 +134,13 @@ export function OnboardingWorkflowFooter() {
 
       <div className="flex items-center gap-4">
         <Link
-          to="/privacy"
+          to={ROUTES.privacy}
           className="font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/50 transition hover:text-(--brand-500) hover:opacity-100 dark:text-(--text-secondary)/50 dark:hover:text-(--brand-500)"
         >
           Privacy
         </Link>
         <Link
-          to="/terms"
+          to={ROUTES.terms}
           className="font-mono text-[8.5px] uppercase tracking-widest text-(--text-secondary)/50 transition hover:text-(--brand-500) hover:opacity-100 dark:text-(--text-secondary)/50 dark:hover:text-(--brand-500)"
         >
           Terms

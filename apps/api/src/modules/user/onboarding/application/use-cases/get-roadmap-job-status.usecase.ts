@@ -1,11 +1,11 @@
 import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface';
-import type { IGetJobStatusResultDTO } from '../onboarding.dto';
+import type { GetJobStatusResultDTO } from '../onboarding.dto';
 import { OnboardingApplicationError } from '../onboarding-application.error';
 import type { IOnboardingMapper } from '../onboarding.mapper';
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service';
 
 export interface IGetRoadmapJobStatusUseCase {
-  execute(jobId: string, userId: string): Promise<IGetJobStatusResultDTO>;
+  execute(jobId: string, userId: string): Promise<GetJobStatusResultDTO>;
 }
 
 export class GetRoadmapJobStatusUseCase implements IGetRoadmapJobStatusUseCase {
@@ -15,7 +15,7 @@ export class GetRoadmapJobStatusUseCase implements IGetRoadmapJobStatusUseCase {
     private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader
   ) {}
 
-  async execute(jobId: string, userId: string): Promise<IGetJobStatusResultDTO> {
+  async execute(jobId: string, userId: string): Promise<GetJobStatusResultDTO> {
     const job = await this._onboardingRepository.getJobById(jobId);
 
     if (!job) {

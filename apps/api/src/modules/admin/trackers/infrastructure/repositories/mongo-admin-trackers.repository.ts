@@ -5,10 +5,9 @@ import { TrackerSubtopic } from '../../../../../infrastructure/database/models/t
 import { TrackerLesson } from '../../../../../infrastructure/database/models/tracker-lesson.model';
 import { CommunityTrackerLike } from '../../../../../infrastructure/database/models/community-tracker-like.model';
 import { CommunityTrackerReview } from '../../../../../infrastructure/database/models/community-tracker-review.model';
-import { ApiError } from '../../../../../shared/utils/ApiError';
-import { recordAdminAction } from '../../../shared';
-import { createAdminPage, escapeAdminSearch } from '../../../shared';
-import type { AdminActor, AdminListQuery } from '../../../shared';
+import { recordAdminAction } from '../../../shared/infrastructure';
+import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
+import type { AdminActor, AdminListQuery } from '../../../shared/domain';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
   async list(query: AdminListQuery) {
@@ -118,11 +117,11 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
     });
   }
   async likePublished(id: string, actor: AdminActor) {
-    await this.ensurePublishedTracker(id);
+    if (!(await this.isPublishedTracker(id))) return null;
     await CommunityTrackerLike.findOneAndUpdate(
       { trackerId: id, userId: actor.userId, deletedAt: null },
       { $set: { deletedAt: null } },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     );
     const likeCount = await CommunityTrackerLike.countDocuments({ trackerId: id, deletedAt: null });
     await Tracker.updateOne({ _id: id }, { $set: { likeCount } });
@@ -134,7 +133,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
     return this.getPublishedEngagement(id, actor, { likeCount });
   }
   async ratePublished(id: string, rating: number, actor: AdminActor) {
-    await this.ensurePublishedTracker(id);
+    if (!(await this.isPublishedTracker(id))) return null;
     await CommunityTrackerReview.findOneAndUpdate(
       { trackerId: id, userId: actor.userId, deletedAt: null },
       {
@@ -145,7 +144,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
         },
         $setOnInsert: { helpfulUserIds: [], helpfulCount: 0 },
       },
-      { upsert: true, new: true, setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     );
     const summary = await CommunityTrackerReview.aggregate<{
       _id: null;
@@ -224,7 +223,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
     const tracker = await Tracker.findOne({ _id: id, deletedAt: null })
       .populate('ownerId', 'fullName username email')
       .lean();
-    if (!tracker) throw new ApiError(404, 'Tracker not found', 'TRACKER_NOT_FOUND');
+    if (!tracker) return null;
     const deletedAt = new Date();
     await Promise.all([
       Tracker.updateOne({ _id: id }, { $set: { deletedAt, status: 'archived' } }),
@@ -250,18 +249,19 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
     return {
       id,
       title: tracker.title,
+      owner: owner?.fullName ?? owner?.username ?? 'Unknown',
       ...(owner?.email ? { ownerEmail: owner.email } : {}),
       deletedAt,
     };
   }
-  private async ensurePublishedTracker(id: string) {
+  private async isPublishedTracker(id: string) {
     const tracker = await Tracker.exists({
       _id: id,
       deletedAt: null,
       visibility: 'public',
       publishedAt: { $ne: null },
     });
-    if (!tracker) throw new ApiError(404, 'Published tracker not found', 'PUBLISHED_TRACKER_NOT_FOUND');
+    return Boolean(tracker);
   }
   private async getPublishedEngagement(
     id: string,

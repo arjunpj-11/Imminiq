@@ -1,4 +1,4 @@
-export interface IAdminDashboardDTO {
+export interface AdminDashboardDTO {
   metrics: {
     totalUsers: number;
     activeToday: number;

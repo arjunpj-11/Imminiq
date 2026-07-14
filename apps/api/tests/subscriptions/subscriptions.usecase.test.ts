@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { SubscriptionsUseCase } from '../../src/modules/user/subscriptions/application/subscriptions.usecase';
+import { CreateSubscriptionOrderUseCase } from '../../src/modules/user/subscriptions/application/use-cases/create-subscription-order.usecase';
+import { ListSubscriptionPlansUseCase } from '../../src/modules/user/subscriptions/application/use-cases/list-subscription-plans.usecase';
+import { VerifySubscriptionPaymentUseCase } from '../../src/modules/user/subscriptions/application/use-cases/verify-subscription-payment.usecase';
+import { SubscriptionsMapper } from '../../src/modules/user/subscriptions/application/subscriptions.mapper';
 import type {
   PendingSubscriptionInput,
+  SubscriptionPlan,
   SubscriptionPlanLimits,
   UserSubscription,
-} from '../../src/modules/user/subscriptions/domain/subscription.entity';
+} from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
+import { SUBSCRIPTION_PLANS } from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
 import type { ISubscriptionRepository } from '../../src/modules/user/subscriptions/domain/repositories/subscription.repository.interface';
 import type { ISubscriptionPaymentGateway } from '../../src/modules/user/subscriptions/domain/services/subscription-payment-gateway.interface';
 import { adminPlanLimitsSchema } from '../../src/modules/admin/subscriptions/presentation/admin-subscriptions.schema';
@@ -33,14 +38,30 @@ const subscription: UserSubscription & { userId: string } = {
   limits,
 };
 
-describe('SubscriptionsUseCase', () => {
+describe('subscription use cases', () => {
   let repository: ISubscriptionRepository;
   let gateway: ISubscriptionPaymentGateway;
-  let useCase: SubscriptionsUseCase;
+  let listPlans: ListSubscriptionPlansUseCase;
+  let createOrder: CreateSubscriptionOrderUseCase;
+  let verifyPayment: VerifySubscriptionPaymentUseCase;
 
   beforeEach(() => {
     repository = {
-      getPlanLimits: vi.fn(async () => ({ ...limits })),
+      getPlans: vi.fn(async () =>
+        SUBSCRIPTION_PLANS.map((plan) => ({
+          ...plan,
+          features: [...plan.features],
+          limits: { ...plan.limits },
+        }))
+      ),
+      getPlan: vi.fn(async (planId) => {
+        const plan = SUBSCRIPTION_PLANS.find((candidate) => candidate.id === planId);
+        return {
+          ...plan,
+          features: [...(plan?.features ?? [])],
+          limits: planId === 'pro' ? { ...limits } : { ...(plan?.limits ?? limits) },
+        } as SubscriptionPlan;
+      }),
       createPending: vi.fn(async (input: PendingSubscriptionInput) => ({
         ...subscription,
         planId: input.planId,
@@ -63,20 +84,23 @@ describe('SubscriptionsUseCase', () => {
       verifySignature: vi.fn(() => true),
       getPublicKey: vi.fn(() => 'rzp_test_public'),
     };
-    useCase = new SubscriptionsUseCase(repository, gateway);
+    const mapper = new SubscriptionsMapper();
+    listPlans = new ListSubscriptionPlansUseCase(repository, mapper);
+    createOrder = new CreateSubscriptionOrderUseCase(repository, gateway, mapper);
+    verifyPayment = new VerifySubscriptionPaymentUseCase(repository, gateway, mapper);
   });
 
   it('publishes free, pro and premium plans without exposing mutable feature arrays', async () => {
-    const first = await useCase.listPlans();
+    const first = await listPlans.execute();
     first[0].features.push('changed');
-    const second = await useCase.listPlans();
+    const second = await listPlans.execute();
 
     expect(second.map((plan) => plan.id)).toEqual(['free', 'pro', 'premium']);
     expect(second[0].features).not.toContain('changed');
   });
 
   it('creates the Razorpay order for the server-owned annual price', async () => {
-    const order = await useCase.createOrder('user-12345678', 'pro', 'annual');
+    const order = await createOrder.execute('user-12345678', 'pro', 'annual');
 
     expect(gateway.createOrder).toHaveBeenCalledWith(499_900, expect.stringMatching(/^sub_/));
     expect(repository.createPending).toHaveBeenCalledWith(
@@ -102,7 +126,7 @@ describe('SubscriptionsUseCase', () => {
     vi.mocked(gateway.verifySignature).mockReturnValue(false);
 
     await expect(
-      useCase.verifyPayment({
+      verifyPayment.execute({
         userId: subscription.userId,
         razorpayOrderId: 'order_test_1',
         razorpayPaymentId: 'pay_test_1',
@@ -116,7 +140,7 @@ describe('SubscriptionsUseCase', () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date('2026-07-14T10:00:00.000Z'));
 
-    const active = await useCase.verifyPayment({
+    const active = await verifyPayment.execute({
       userId: subscription.userId,
       razorpayOrderId: 'order_test_1',
       razorpayPaymentId: 'pay_test_1',
@@ -124,8 +148,8 @@ describe('SubscriptionsUseCase', () => {
     });
 
     expect(active.status).toBe('active');
-    expect(active.startsAt?.toISOString()).toBe('2026-07-14T10:00:00.000Z');
-    expect(active.endsAt?.toISOString()).toBe('2026-08-14T10:00:00.000Z');
+    expect(active.startsAt).toBe('2026-07-14T10:00:00.000Z');
+    expect(active.endsAt).toBe('2026-08-14T10:00:00.000Z');
     expect(repository.activate).toHaveBeenCalledOnce();
     vi.useRealTimers();
   });

@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { ApiResponse } from '../../../../shared/utils/ApiResponse';
+import { adminOutputMapper } from '../application/admin-output.mapper';
 import type { AdminActor } from '../domain/admin-shared.types';
 
 export const getAdminActor = (req: Request): AdminActor => ({
@@ -16,5 +17,5 @@ export const sendAdminResult = (
   message: string
 ) =>
   task()
-    .then((data) => res.json(new ApiResponse(message, data)))
+    .then((data) => res.json(new ApiResponse(message, adminOutputMapper.toResponseDTO(data))))
     .catch(next);

@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdateEmailDigestPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateEmailDigestPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateEmailDigestRepository = {
@@ -9,7 +9,7 @@ type UpdateEmailDigestRepository = {
 export interface IUpdateEmailDigestUseCase {
   execute(
     userId: string,
-    payload: IUpdateEmailDigestPayloadDTO
+    payload: UpdateEmailDigestPayloadDTO
   ): Promise<UserSettingsViewDTO | null>;
 }
 
@@ -21,7 +21,7 @@ export class UpdateEmailDigestUseCase implements IUpdateEmailDigestUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdateEmailDigestPayloadDTO
+    payload: UpdateEmailDigestPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateEmailDigest({
       userId,

@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
 
 type RunRoadmapEvaluationResponse = {
   success: boolean;
@@ -13,7 +14,7 @@ export const useRunRoadmapEvaluation = () => {
   return useMutation<RunRoadmapEvaluationResponse, Error, string>({
     mutationFn: async (roadmapJobId: string) => {
       const response = await api.post<RunRoadmapEvaluationResponse>(
-        `/onboarding/jobs/${roadmapJobId}/evaluate`
+        ONBOARDING_API_PATHS.evaluateJob(roadmapJobId)
       );
 
       return response.data;

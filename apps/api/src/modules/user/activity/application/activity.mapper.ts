@@ -12,6 +12,7 @@ import { ACTIVITY_FEED_ICON_BY_CATEGORY } from './activity.constants';
 import type { ActivityDateContext } from './services/activity-date-range.service';
 import type { ActivityDateRangeContract } from './services/activity-date-range.service';
 import type { ActivityAnalyticsContract } from './services/activity-analytics.service';
+import type { ActivityPolicy } from '../../../../shared/platform-policy';
 
 export class ActivityMapper {
   toEventView(
@@ -76,8 +77,9 @@ export class ActivityMapper {
     feed: ActivityPageResponseDTO['feed'];
     analyticsCalculator: ActivityAnalyticsContract;
     dateRange: ActivityDateRangeContract;
+    policy: ActivityPolicy;
   }): ActivityPageResponseDTO {
-    const { analyticsCalculator, context, feed, analytics, dateRange } = input;
+    const { analyticsCalculator, context, feed, analytics, dateRange, policy } = input;
 
     if (!analytics.user) {
       throw ActivityApplicationError.userNotFound();
@@ -98,9 +100,9 @@ export class ActivityMapper {
 
     const currentXp = analyticsCalculator.sumXp(analytics.currentWeekDays);
 
-    const progress = analyticsCalculator.weeklyProgress(currentXp);
+    const progress = analyticsCalculator.weeklyProgress(currentXp, policy.weeklyXpTarget);
 
-    const dailyGoal = analyticsCalculator.dailyGoal(analytics.dailyGoal);
+    const dailyGoal = analyticsCalculator.dailyGoal(analytics.dailyGoal, policy.dailyGoalRewardXp);
 
     return {
       generatedAt: context.now.toISOString(),

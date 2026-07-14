@@ -1,14 +1,14 @@
-import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared';
+import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared/domain';
 import type {
   AdminSupportTicket,
   AdminSupportTicketResult,
   AdminSupportTicketUpdate,
-} from '../admin-support-ticket.entity';
+} from '../entities/admin-support-ticket.entity';
 export interface IAdminSupportTicketsRepository {
   list(query: AdminListQuery): Promise<AdminPage<AdminSupportTicket>>;
   update(
     id: string,
     input: AdminSupportTicketUpdate,
     actor: AdminActor
-  ): Promise<AdminSupportTicketResult>;
+  ): Promise<AdminSupportTicketResult | null>;
 }

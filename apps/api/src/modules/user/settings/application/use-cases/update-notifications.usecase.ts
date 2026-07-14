@@ -1,6 +1,6 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
 import type { ISettingsQueryRepository } from '../../domain/repositories/settings-query.repository.interface';
-import type { IUpdateNotificationsPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateNotificationsPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateNotificationsRepository = {
@@ -10,7 +10,7 @@ type UpdateNotificationsRepository = {
 };
 
 export interface IUpdateNotificationsUseCase {
-  execute(userId: string, payload: IUpdateNotificationsPayloadDTO): Promise<UserSettingsViewDTO>;
+  execute(userId: string, payload: UpdateNotificationsPayloadDTO): Promise<UserSettingsViewDTO>;
 }
 
 export class UpdateNotificationsUseCase implements IUpdateNotificationsUseCase {
@@ -21,7 +21,7 @@ export class UpdateNotificationsUseCase implements IUpdateNotificationsUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdateNotificationsPayloadDTO
+    payload: UpdateNotificationsPayloadDTO
   ): Promise<UserSettingsViewDTO> {
     const { types, ...rest } = payload;
 

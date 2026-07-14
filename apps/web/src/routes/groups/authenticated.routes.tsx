@@ -30,125 +30,126 @@ import {
   RaiseSupportTicketPage,
   SubscriptionPlansPage,
 } from '../config/authenticated-pages';
+import { ROUTES } from '../config/route-paths';
 
 export const authenticatedRoutes: RouteObject[] = [
   {
-    path: '/dashboard',
+    path: ROUTES.dashboard,
     element: <DashboardPage />,
   },
   {
-    path: '/profile',
+    path: ROUTES.profile,
     element: <ProfilePage />,
   },
   {
-    path: '/learning-agent',
+    path: ROUTES.learningAgent,
     element: <AdaptiveLearningPage />,
   },
 
   {
-    path: '/settings/security',
+    path: ROUTES.settingsSecurity,
     element: <AccountSecuritySettingsPage />,
   },
   {
-    path: '/settings/notifications',
+    path: ROUTES.settingsNotifications,
     element: <NotificationSettingsPage />,
   },
   {
-    path: '/notifications',
+    path: ROUTES.notifications,
     element: <NotificationsPage />,
   },
   {
-    path: '/settings/preferences',
+    path: ROUTES.settingsPreferences,
     element: <PreferencesSettingsPage />,
   },
   {
-    path: '/settings/privacy',
+    path: ROUTES.settingsPrivacy,
     element: <PrivacySettingsPage />,
   },
 
   {
-    path: '/trackers',
+    path: ROUTES.trackers,
     element: <MyTrackersPage />,
   },
   {
-    path: '/trackers/published',
+    path: ROUTES.publishedTrackers,
     element: <MyPublishedTrackersPage />,
   },
   {
-    path: '/trackers/:trackerId/manage',
+    path: ROUTES.trackerManagePattern,
     element: <TrackerManagePage />,
   },
   {
-    path: '/trackers/:trackerId/roadmap',
+    path: ROUTES.trackerRoadmapPattern,
     element: <TrackerRoadmapPage />,
   },
 
   {
-    path: '/community',
+    path: ROUTES.community,
     element: <CommunityBrowsePage />,
   },
   {
-    path: '/community/trackers/:trackerId',
+    path: ROUTES.communityTrackerPattern,
     element: <CommunityPublicTrackerPage />,
   },
   {
-    path: '/community/verify/:submissionId',
+    path: ROUTES.communityVerificationPattern,
     element: <CommunityVerifySubmissionPage />,
   },
   {
-    path: '/verify-and-earn',
+    path: ROUTES.verifyAndEarn,
     element: <VerifyAndEarnPage />,
   },
 
   {
-    path: '/leaderboard',
+    path: ROUTES.leaderboard,
     element: <LeaderboardPage />,
   },
   {
-    path: '/leaderboard/rewards',
+    path: ROUTES.leaderboardRewards,
     element: <LeaderboardRewardsPage />,
   },
 
   {
-    path: '/activity',
+    path: ROUTES.activity,
     element: <ActivityPage />,
   },
   {
-    path: '/pricing',
+    path: ROUTES.pricing,
     element: <SubscriptionPlansPage />,
   },
   {
-    path: '/support',
+    path: ROUTES.support,
     element: <RaiseSupportTicketPage />,
   },
 
   {
-    path: '/friends',
+    path: ROUTES.friends,
     element: <FriendsPage />,
   },
   {
-    path: '/friends/search',
+    path: ROUTES.friendsSearch,
     element: <FriendsSearchPage />,
   },
 
   {
-    path: '/mock-tests',
+    path: ROUTES.mockTests,
     element: <MockTestsPage />,
   },
   {
-    path: '/mock-tests/generating/:jobId',
+    path: ROUTES.mockTestGeneratingPattern,
     element: <MockTestGeneratingPage />,
   },
   {
-    path: '/mock-tests/attempts/:attemptId/result',
+    path: ROUTES.mockTestResultPattern,
     element: <MockTestResultPage />,
   },
   {
-    path: '/mock-tests/attempts/:attemptId/analysis',
+    path: ROUTES.mockTestAnalysisPattern,
     element: <MockTestAnalysisPage />,
   },
   {
-    path: '/mock-tests/:testId',
+    path: ROUTES.mockTestDetailPattern,
     element: <MockTestDetailsPage />,
   },
 ];

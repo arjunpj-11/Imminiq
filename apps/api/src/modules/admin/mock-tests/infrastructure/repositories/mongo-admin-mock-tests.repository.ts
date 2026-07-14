@@ -1,8 +1,8 @@
 import { MockTestModel } from '../../../../../infrastructure/database/models/mock-test.model';
 import { MockTestAttemptModel } from '../../../../../infrastructure/database/models/mock-test-attempt.model';
 import { MockTestQuestionModel } from '../../../../../infrastructure/database/models/mock-test-question.model';
-import type { AdminListQuery } from '../../../shared';
-import { createAdminPage, escapeAdminSearch } from '../../../shared';
+import type { AdminListQuery } from '../../../shared/domain';
+import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
 import type { IAdminMockTestsRepository } from '../../domain/repositories/admin-mock-tests.repository.interface';
 export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository {
   async list(query: AdminListQuery) {

@@ -1,15 +1,15 @@
 import type { NextFunction, Request, Response } from 'express';
-import { getAdminActor, sendAdminResult } from '../../shared';
-import type { IAdminSettingsUseCase } from '../application/use-cases/admin-settings.usecase';
+import { getAdminActor, sendAdminResult } from '../../shared/presentation';
+import type { AdminSettingsUseCases } from '../application/admin-settings-use-cases.contract';
 import { adminSettingsSchema } from './admin-settings.schema';
 export class AdminSettingsController {
-  constructor(private readonly useCase: IAdminSettingsUseCase) {}
+  constructor(private readonly useCases: AdminSettingsUseCases) {}
   get = (_req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this.useCase.get(), res, 'Admin settings fetched');
+    sendAdminResult(next, () => this.useCases.get.execute(), res, 'Admin settings fetched');
   update = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCase.update(adminSettingsSchema.parse(req.body), getAdminActor(req)),
+      () => this.useCases.update.execute(adminSettingsSchema.parse(req.body), getAdminActor(req)),
       res,
       'Admin settings updated'
     );

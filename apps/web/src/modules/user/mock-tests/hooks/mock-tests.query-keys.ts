@@ -1,0 +1,21 @@
+export const mockTestKeys = {
+  all: ['mock-tests'] as const,
+  lists: () => [...mockTestKeys.all, 'list'] as const,
+  list: (page = 1, limit = 6) => [...mockTestKeys.lists(), { page, limit }] as const,
+  details: () => [...mockTestKeys.all, 'detail'] as const,
+  detail: (testId: string) => [...mockTestKeys.details(), testId] as const,
+  share: (testId: string) => [...mockTestKeys.detail(testId), 'share'] as const,
+  sharedImport: (shareToken: string) => [...mockTestKeys.all, 'shared-import', shareToken] as const,
+  history: () => [...mockTestKeys.all, 'history'] as const,
+  analytics: () => [...mockTestKeys.all, 'analytics'] as const,
+  analyticsTrends: () => [...mockTestKeys.analytics(), 'trends'] as const,
+  aiInsights: () => [...mockTestKeys.analytics(), 'ai-insights'] as const,
+  topicBreakdown: () => [...mockTestKeys.analytics(), 'topic-breakdown'] as const,
+  activeGeneration: () => [...mockTestKeys.all, 'active-generation'] as const,
+  attempts: () => [...mockTestKeys.all, 'attempts'] as const,
+  attempt: (attemptId: string) => [...mockTestKeys.attempts(), attemptId] as const,
+  attemptQuestions: (attemptId: string) =>
+    [...mockTestKeys.attempt(attemptId), 'questions'] as const,
+  attemptResult: (attemptId: string) => [...mockTestKeys.attempt(attemptId), 'result'] as const,
+  attemptAnalysis: (attemptId: string) => [...mockTestKeys.attempt(attemptId), 'analysis'] as const,
+};

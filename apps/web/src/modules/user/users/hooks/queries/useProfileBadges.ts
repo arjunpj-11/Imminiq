@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../../lib/axios';
+import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
@@ -23,7 +24,7 @@ export const useProfileBadges = (page = 1, limit = 12, options: IUseProfileBadge
     enabled: options.enabled ?? true,
     queryFn: async () => {
       const response = await api.get<IApiResponse<IPaginatedResult<IProfileBadge>>>(
-        '/users/me/badges',
+        PROFILE_API_PATHS.badges,
         {
           params: { page, limit },
         }

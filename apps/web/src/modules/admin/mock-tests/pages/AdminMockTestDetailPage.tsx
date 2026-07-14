@@ -7,17 +7,18 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
-import { useAdminMockTestDetail } from '../hooks/useAdminMockTests';
+} from '../../shared';
+import { useAdminMockTestDetail } from '../hooks/useAdminMockTestDetail';
+import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants';
 export default function AdminMockTestDetailPage() {
   const { testId } = useParams();
-  const { data, isLoading, isError } = useAdminMockTestDetail(testId);
+  const { data, isLoading, isError, error } = useAdminMockTestDetail(testId);
   if (isLoading) return <AdminLoading />;
-  if (isError || !data) return <AdminError />;
+  if (isError || !data) return <AdminError error={error} />;
   return (
     <main className="mx-auto max-w-[1050px] px-5 py-8 sm:px-8">
       <Link
-        to="/admin/mock-tests"
+        to={ADMIN_MOCK_TESTS_ROUTES.list}
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
       >
         <ArrowLeft size={16} />

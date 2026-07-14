@@ -1,9 +1,9 @@
 import type { IAdaptiveLearningRepository } from '../../domain/repositories/adaptive-learning.repository.interface';
-import type { IAdaptiveLearningDashboardDTO } from '../adaptive-learning.dto';
+import type { AdaptiveLearningDashboardDTO } from '../adaptive-learning.dto';
 import type { IAdaptiveLearningMapper } from '../adaptive-learning.mapper';
 
 export interface IGetAdaptiveLearningDashboardUseCase {
-  execute(userId: string): Promise<IAdaptiveLearningDashboardDTO>;
+  execute(userId: string): Promise<AdaptiveLearningDashboardDTO>;
 }
 
 export class GetAdaptiveLearningDashboardUseCase implements IGetAdaptiveLearningDashboardUseCase {
@@ -12,7 +12,7 @@ export class GetAdaptiveLearningDashboardUseCase implements IGetAdaptiveLearning
     private readonly _mapper: IAdaptiveLearningMapper
   ) {}
 
-  async execute(userId: string): Promise<IAdaptiveLearningDashboardDTO> {
+  async execute(userId: string): Promise<AdaptiveLearningDashboardDTO> {
     const [snapshot, profile, assessments, messages] = await Promise.all([
       this._repository.getLearnerSnapshot(userId),
       this._repository.getOrCreateProfile(userId),

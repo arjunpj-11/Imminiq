@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import CommunityErrorState from '../components/shared/CommunityErrorState';
 import CommunityLayout from '../components/shared/CommunityLayout';
@@ -96,7 +97,7 @@ export default function CommunityVerifySubmissionPage() {
             title="Submission not found"
             message="The verification submission id is missing from the route."
             actionLabel="Back to verify queue"
-            onAction={() => navigate('/verify-and-earn')}
+            onAction={() => navigate(ROUTES.verifyAndEarn)}
           />
         </div>
       </CommunityLayout>
@@ -118,13 +119,13 @@ export default function CommunityVerifySubmissionPage() {
               submissionQuery.error?.response?.data?.message
             )}
             actionLabel="Back to verify queue"
-            onAction={() => navigate('/verify-and-earn')}
+            onAction={() => navigate(ROUTES.verifyAndEarn)}
           />
         ) : (
           <>
             <button
               type="button"
-              onClick={() => navigate('/verify-and-earn')}
+              onClick={() => navigate(ROUTES.verifyAndEarn)}
               className="inline-flex w-fit items-center gap-2 rounded-full border border-(--border-subtle) bg-(--surface-card) px-3 py-1.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.24)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
             >
               <ArrowLeftIcon /> Back to queue

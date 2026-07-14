@@ -9,19 +9,19 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminSearch,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
-import {
-  useAdminPublishedTrackers,
-  useLikeAdminPublishedTracker,
-  useRateAdminPublishedTracker,
-} from '../hooks/useAdminTrackers';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { useAdminPublishedTrackers } from '../hooks/useAdminPublishedTrackers';
+import { useLikeAdminPublishedTracker } from '../hooks/useLikeAdminPublishedTracker';
+import { useRateAdminPublishedTracker } from '../hooks/useRateAdminPublishedTracker';
+import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 
 export default function AdminPublishedTrackersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useAdminPublishedTrackers({
+  const { data, isLoading, isError, error } = useAdminPublishedTrackers({
     search: useDebouncedValue(search, 300),
     page,
   });
@@ -30,7 +30,7 @@ export default function AdminPublishedTrackersPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <Link
-        to="/admin/trackers"
+        to={ADMIN_TRACKERS_ROUTES.list}
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
       >
         <ArrowLeft size={16} /> Back to tracker management
@@ -62,7 +62,7 @@ export default function AdminPublishedTrackersPage() {
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
-          <AdminError />
+          <AdminError error={error} />
         ) : !data?.items.length ? (
           <AdminEmpty>No published trackers match this search.</AdminEmpty>
         ) : (
@@ -116,7 +116,11 @@ export default function AdminPublishedTrackersPage() {
                                   { id: item.id, rating },
                                   {
                                     onSuccess: () => toast.success(`${rating}-star rating saved`),
-                                    onError: () => toast.error('Could not save the rating'),
+                                    onError: (error) =>
+                                      toast.error(
+                                        'Could not save the rating',
+                                        getUserFacingError(error)
+                                      ),
                                   }
                                 )
                               }
@@ -142,7 +146,11 @@ export default function AdminPublishedTrackersPage() {
                             onClick={() =>
                               like.mutate(item.id, {
                                 onSuccess: () => toast.success('Published tracker liked'),
-                                onError: () => toast.error('Could not like the tracker'),
+                                onError: (error) =>
+                                  toast.error(
+                                    'Could not like the tracker',
+                                    getUserFacingError(error)
+                                  ),
                               })
                             }
                             className="admin-button inline-flex items-center gap-2"
@@ -151,7 +159,7 @@ export default function AdminPublishedTrackersPage() {
                             {item.adminLiked ? 'Liked' : 'Like'}
                           </button>
                           <Link
-                            to={`/admin/trackers/${item.id}`}
+                            to={ADMIN_TRACKERS_ROUTES.detail(item.id)}
                             className="admin-button inline-flex items-center gap-2"
                           >
                             <Eye size={14} /> View

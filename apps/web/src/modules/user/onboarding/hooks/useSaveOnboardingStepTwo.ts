@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
 
 export type OnboardingLevel = 'beginner' | 'intermediate' | 'advanced';
 
@@ -32,7 +33,7 @@ export const useSaveOnboardingStepTwo = () => {
   >({
     mutationFn: async (payload) => {
       const response = await api.post<ISaveOnboardingStepTwoResponse>(
-        '/onboarding/step-2',
+        ONBOARDING_API_PATHS.stepTwo,
         payload
       );
 

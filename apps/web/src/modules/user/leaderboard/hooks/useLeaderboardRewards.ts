@@ -11,7 +11,7 @@ import type {
   ILeaderboardApiResponse,
   ILeaderboardRewardsResponse,
 } from '../types/leaderboard.types';
-import { leaderboardQueryKeys } from './useLeaderboard';
+import { leaderboardQueryKeys } from './leaderboard.query-keys';
 
 export const useLeaderboardRewards = () =>
   useQuery<ILeaderboardRewardsResponse, AxiosError<ILeaderboardApiErrorResponse>>({

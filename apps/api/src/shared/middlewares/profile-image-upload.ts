@@ -1,10 +1,11 @@
 import { extname } from 'node:path';
 import multer from 'multer';
+import { env } from '../../config/env';
 
 import { ApiError } from '../utils/ApiError';
 
-const MAX_AVATAR_SIZE = 5 * 1024 * 1024;
-const MAX_BANNER_SIZE = 8 * 1024 * 1024;
+const MAX_AVATAR_SIZE = env.UPLOAD_AVATAR_MAX_BYTES;
+const MAX_BANNER_SIZE = env.UPLOAD_BANNER_MAX_BYTES;
 
 const imageMimeTypes = new Set(['image/jpeg', 'image/jpg', 'image/png', 'image/webp']);
 

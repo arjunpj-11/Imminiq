@@ -1,16 +1,18 @@
 import type {
   AdminSubscriptionOverview,
   AdminSubscriptionQuery,
-  AdminPlanLimits,
+  AdminPlanLimitField,
   AdminSubscriptionPlan,
-} from '../admin-subscription.entity';
-import type { AdminActor } from '../../../shared';
+  AdminSubscriptionPlanInput,
+} from '../entities/admin-subscription.entity';
+import type { AdminActor } from '../../../shared/domain';
 
 export interface IAdminSubscriptionsRepository {
   getOverview(query: AdminSubscriptionQuery): Promise<AdminSubscriptionOverview>;
-  updatePlanLimits(
+  updatePlan(
     planId: AdminSubscriptionPlan['planId'],
-    limits: AdminPlanLimits,
+    plan: AdminSubscriptionPlanInput,
+    propagateLimitFields: AdminPlanLimitField[],
     actor: AdminActor
   ): Promise<AdminSubscriptionPlan>;
 }

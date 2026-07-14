@@ -7,13 +7,13 @@ import type {
   IMockTestQuestionBank,
   QuestionBankItem,
 } from '../../domain/services/mock-test-question-bank.interface';
-import type { IGenerateMockTestPayloadDTO, IMockTestDTO } from '../mock-tests.dto';
+import type { GenerateMockTestPayloadDTO, MockTestDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 
 type GenerateMockTestRepository = IMockTestRepository & IMockTestQuestionRepository;
 
 export interface IGenerateMockTestUseCase {
-  execute(userId: string, payload: IGenerateMockTestPayloadDTO): Promise<IMockTestDTO>;
+  execute(userId: string, payload: GenerateMockTestPayloadDTO): Promise<MockTestDTO>;
 }
 
 export class GenerateMockTestUseCase implements IGenerateMockTestUseCase {
@@ -28,7 +28,7 @@ export class GenerateMockTestUseCase implements IGenerateMockTestUseCase {
     private readonly _mapper: IMockTestsMapper
   ) {}
 
-  async execute(userId: string, payload: IGenerateMockTestPayloadDTO): Promise<IMockTestDTO> {
+  async execute(userId: string, payload: GenerateMockTestPayloadDTO): Promise<MockTestDTO> {
     const topic = payload.topic?.trim();
 
     if (!topic || topic.length < 2) {

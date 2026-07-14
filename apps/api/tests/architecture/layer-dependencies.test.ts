@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -68,6 +68,14 @@ const moduleRoots = () =>
         .map((child) => join(path, child.name));
     });
 
+const adminFeatureRoots = () =>
+  moduleRoots().filter((moduleRoot) => {
+    const id = portable(relative(modulesRoot, moduleRoot));
+    return id.startsWith('admin/') && id !== 'admin/shared';
+  });
+
+const adminSharedRoot = join(modulesRoot, 'admin', 'shared');
+
 const moduleLocation = (path: string) => {
   if (!path.startsWith(`${modulesRoot}${sep}`)) return null;
 
@@ -96,6 +104,202 @@ describe('clean architecture boundaries', () => {
         new Set(layers)
       );
     }
+  });
+
+  it('gives every layer a public API barrel', () => {
+    const missing = moduleRoots().flatMap((moduleRoot) =>
+      layers
+        .filter((layer) => !existsSync(join(moduleRoot, layer, 'index.ts')))
+        .map((layer) => `${portable(relative(modulesRoot, moduleRoot))}/${layer}/index.ts`)
+    );
+
+    expect(missing).toEqual([]);
+  });
+
+  it('gives every feature a root public API and an explicit composition factory', () => {
+    const violations = moduleRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      if (id === 'admin/shared') return [];
+
+      const files = readdirSync(moduleRoot, { withFileTypes: true })
+        .filter((entry) => entry.isFile())
+        .map((entry) => entry.name);
+      const factories = files.filter((file) => file.endsWith('.factory.ts'));
+      const issues: string[] = [];
+
+      if (!files.includes('index.ts')) issues.push(`${id}/index.ts`);
+      if (factories.length !== 1) {
+        issues.push(`${id}: ${factories.length} composition factories`);
+      }
+
+      return issues;
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('maps every feature through an application DTO boundary', () => {
+    const violations = moduleRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      if (id === 'admin/shared') return [];
+
+      const applicationFiles = readdirSync(join(moduleRoot, 'application'));
+      const dtoFiles = applicationFiles.filter((file) => file.endsWith('.dto.ts'));
+      const mapperFiles = applicationFiles.filter((file) => file.endsWith('.mapper.ts'));
+      return dtoFiles.length > 0 && mapperFiles.length > 0
+        ? []
+        : [`${id}: ${dtoFiles.length} DTO, ${mapperFiles.length} mapper`];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps endpoint paths in presentation route constants', () => {
+    const violations = moduleRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      const presentationRoot = join(moduleRoot, 'presentation');
+      const files = readdirSync(presentationRoot).filter((file) => file.endsWith('.ts'));
+      const routeFiles = files.filter((file) => file.endsWith('.routes.ts'));
+      if (routeFiles.length === 0) return [];
+
+      const constantFiles = files.filter((file) => file.endsWith('.route.constants.ts'));
+      const issues =
+        constantFiles.length === 1 ? [] : [`${id}: ${constantFiles.length} route constant owners`];
+
+      for (const routeFile of routeFiles) {
+        const source = readFileSync(join(presentationRoot, routeFile), 'utf8');
+        if (!/\.route\.constants['"]/.test(source)) {
+          issues.push(`${id}/presentation/${routeFile}: route constants are not imported`);
+        }
+        if (/router\.(?:get|post|put|patch|delete|options|head)\(\s*['"]/.test(source)) {
+          issues.push(`${id}/presentation/${routeFile}: contains inline endpoint paths`);
+        }
+      }
+
+      return issues;
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps every admin feature on the canonical entity-repository-use-case layout', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      const required = [
+        join(moduleRoot, 'domain', 'entities'),
+        join(moduleRoot, 'domain', 'repositories'),
+        join(moduleRoot, 'infrastructure', 'repositories'),
+        join(moduleRoot, 'application', 'use-cases'),
+      ];
+      const missing = required.filter((path) => !existsSync(path));
+      return missing.map((path) => `${id}/${portable(relative(moduleRoot, path))}`);
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('maps every admin feature through an application DTO boundary', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const applicationFiles = readdirSync(join(moduleRoot, 'application'));
+      const dtoFiles = applicationFiles.filter((file) => file.endsWith('.dto.ts'));
+      const mapperFiles = applicationFiles.filter((file) => file.endsWith('.mapper.ts'));
+      return dtoFiles.length === 1 && mapperFiles.length === 1
+        ? []
+        : [
+            `${portable(relative(modulesRoot, moduleRoot))}: ${dtoFiles.length} DTO, ${mapperFiles.length} mapper`,
+          ];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('uses the shared admin response adapter in every admin controller', () => {
+    const violations = adminFeatureRoots()
+      .flatMap((moduleRoot) => collectFiles(join(moduleRoot, 'presentation')))
+      .filter((file) => file.endsWith('.controller.ts'))
+      .filter((file) => !/sendAdminResult/.test(readFileSync(file, 'utf8')))
+      .map((file) => portable(relative(modulesRoot, file)));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('centralizes API mount paths in the bootstrap route registry', () => {
+    const appSource = readFileSync(join(sourceRoot, 'app.ts'), 'utf8');
+    expect(appSource).not.toMatch(/app\.(?:use|get|post|put|patch|delete)\(\s*['"]\/api/);
+  });
+
+  it('composes every admin feature through an explicit use-case map', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const factories = readdirSync(moduleRoot).filter((file) => file.endsWith('.factory.ts'));
+      if (factories.length !== 1) return [portable(relative(modulesRoot, moduleRoot))];
+      const source = readFileSync(join(moduleRoot, factories[0]), 'utf8');
+      return /Composition\s*=\s*\{\s*useCases:/.test(source) && /useCases\s*:/.test(source)
+        ? []
+        : [portable(relative(modulesRoot, join(moduleRoot, factories[0])))];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps admin workflows focused and free of HTTP utility errors', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const useCasesRoot = join(moduleRoot, 'application', 'use-cases');
+      return collectFiles(useCasesRoot)
+        .filter((file) => file.endsWith('.usecase.ts'))
+        .filter((file) => {
+          const source = readFileSync(file, 'utf8');
+          return (
+            !/export class \w+UseCase/.test(source) ||
+            !/\bexecute\s*\(/.test(source) ||
+            /ApiError/.test(source)
+          );
+        })
+        .map((file) => portable(relative(modulesRoot, file)));
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps HTTP utility errors out of admin domain, application, and infrastructure', () => {
+    const violations = adminFeatureRoots()
+      .flatMap((moduleRoot) =>
+        layers
+          .filter((layer) => layer !== 'presentation')
+          .flatMap((layer) => collectFiles(join(moduleRoot, layer)))
+      )
+      .filter((file) => /ApiError/.test(readFileSync(file, 'utf8')))
+      .map((file) => portable(relative(modulesRoot, file)));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('exposes the admin shared kernel only through inward-safe layer APIs', () => {
+    const allowedSharedLayers: Record<string, Set<string>> = {
+      domain: new Set(['domain']),
+      application: new Set(['domain', 'application']),
+      infrastructure: new Set(['domain', 'application', 'infrastructure']),
+      presentation: new Set(['domain', 'application', 'presentation']),
+    };
+    const violations = adminFeatureRoots().flatMap((moduleRoot) =>
+      collectFiles(moduleRoot).flatMap((source) => {
+        const sourceLayer = moduleLocation(source)?.parts[0] ?? '';
+        return moduleImports(source)
+          .filter((target) => moduleLocation(target)?.id === 'admin/shared')
+          .filter((target) => {
+            const targetParts = moduleLocation(target)?.parts ?? [];
+            return (
+              targetParts.length !== 1 || !allowedSharedLayers[sourceLayer]?.has(targetParts[0])
+            );
+          })
+          .map(
+            (target) =>
+              `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`
+          );
+      })
+    );
+
+    expect(existsSync(join(adminSharedRoot, 'index.ts'))).toBe(false);
+    expect(violations).toEqual([]);
   });
 
   it('does not recreate flattened one-file category directories', () => {
@@ -177,10 +381,16 @@ describe('clean architecture boundaries', () => {
           const targetLocation = moduleLocation(target);
           if (!targetLocation) return false;
 
+          const isAdminSharedLayerApi =
+            targetLocation.id === 'admin/shared' &&
+            targetLocation.parts.length === 1 &&
+            layers.some((layer) => layer === targetLocation.parts[0]);
+
           return (
             targetLocation.id !== sourceModule &&
             targetLocation.parts.length > 0 &&
-            targetLocation.parts.join('/') !== 'index'
+            targetLocation.parts.join('/') !== 'index' &&
+            !isAdminSharedLayerApi
           );
         })
         .map(
@@ -202,10 +412,7 @@ describe('clean architecture boundaries', () => {
             const targetLocation = moduleLocation(target);
             if (!targetLocation) return false;
 
-            return (
-              targetLocation.parts.length > 0 &&
-              targetLocation.parts.join('/') !== 'index'
-            );
+            return targetLocation.parts.length > 0 && targetLocation.parts.join('/') !== 'index';
           })
           .map(
             (target) =>

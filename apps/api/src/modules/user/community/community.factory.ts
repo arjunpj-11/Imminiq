@@ -27,6 +27,7 @@ import {
   mongoCommunityRepository,
   mongoCommunityReviewRepository,
 } from './infrastructure';
+import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 
 export type CommunityServiceHelpers = {
   mapper: ICommunityMapper;
@@ -64,7 +65,11 @@ export const createCommunityComposition = (
 
   return {
     useCases: {
-      getBrowse: new GetCommunityBrowseUseCase(communityRepository, mapper),
+      getBrowse: new GetCommunityBrowseUseCase(
+        communityRepository,
+        mapper,
+        mongoPlatformPolicyReader
+      ),
 
       getPublicTrackerDetail: new GetCommunityPublicTrackerUseCase(
         communityReviewRepository,
@@ -79,7 +84,8 @@ export const createCommunityComposition = (
 
       submitTrackerForVerification: new SubmitTrackerForVerificationUseCase(
         communityRepository,
-        mapper
+        mapper,
+        mongoPlatformPolicyReader
       ),
 
       upsertTrackerReview: new UpsertCommunityTrackerReviewUseCase(
@@ -94,7 +100,11 @@ export const createCommunityComposition = (
 
       toggleTrackerLike: new ToggleCommunityTrackerLikeUseCase(communityReviewRepository),
 
-      getVerificationDashboard: new GetVerificationDashboardUseCase(communityRepository, mapper),
+      getVerificationDashboard: new GetVerificationDashboardUseCase(
+        communityRepository,
+        mapper,
+        mongoPlatformPolicyReader
+      ),
 
       getVerificationSubmission: new GetVerificationSubmissionUseCase(communityRepository, mapper),
 
@@ -102,7 +112,8 @@ export const createCommunityComposition = (
         communityRepository,
         verificationPolicy,
         communityActivityRecorder,
-        mapper
+        mapper,
+        mongoPlatformPolicyReader
       ),
     },
 

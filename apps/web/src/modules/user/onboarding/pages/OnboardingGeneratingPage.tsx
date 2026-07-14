@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 import { useOnboardingStore } from '../store/useOnboardingStore';
 import { useRoadmapJobStatus } from '../hooks/useRoadmapJobStatus';
 import OnboardingBrandLink from '../components/OnboardingBrandLink';
@@ -510,7 +511,7 @@ export default function OnboardingGeneratingPage() {
         {jobStatus.terminalState === 'failed' && (
           <button
             type="button"
-            onClick={() => navigate('/onboarding/step-1', { replace: true })}
+            onClick={() => navigate(ROUTES.onboardingStepOne, { replace: true })}
             className="rounded-xl bg-(--brand-500) px-5 py-3 text-sm font-bold text-[#fff8ed] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_6px_22px_rgba(184,76,43,0.30)] active:translate-y-0 active:shadow-none dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
           >
             Return to tracker conversation
@@ -520,7 +521,7 @@ export default function OnboardingGeneratingPage() {
         {jobStatus.terminalState === null ? (
           <button
             type="button"
-            onClick={() => navigate('/dashboard', { replace: true })}
+            onClick={() => navigate(ROUTES.dashboard, { replace: true })}
             className="group relative flex w-full max-w-160 items-center gap-4 overflow-hidden rounded-2xl border border-[rgba(184,76,43,0.25)] bg-[linear-gradient(135deg,var(--surface-card),rgba(184,76,43,0.08))] px-5 py-4 text-left shadow-[0_10px_34px_rgba(26,23,20,0.08)] transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:shadow-[0_14px_42px_rgba(184,76,43,0.15)] dark:bg-[linear-gradient(135deg,var(--surface-card),rgba(232,129,106,0.08))]"
           >
             <span className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-(--brand-500) text-lg text-white shadow-[0_6px_18px_rgba(184,76,43,0.25)]">

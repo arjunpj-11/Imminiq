@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../../lib/axios';
+import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 
 interface IGenerateAiAvatarPreviewPayload {
   prompt: string;
@@ -28,7 +29,7 @@ export const useGenerateAiAvatarPreview = () => {
   >({
     mutationFn: async (payload) => {
       const response = await api.post<IGenerateAiAvatarPreviewResponse>(
-        '/uploads/avatar/ai-preview',
+        PROFILE_API_PATHS.avatarAiPreview,
         payload
       );
 

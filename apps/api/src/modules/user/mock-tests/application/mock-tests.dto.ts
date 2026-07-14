@@ -16,7 +16,7 @@ export type {
   TestVisibility,
 };
 
-export interface IMockTestDTO {
+export interface MockTestDTO {
   _id: string;
   ownerId: string;
   trackerId?: string;
@@ -39,7 +39,7 @@ export interface IMockTestDTO {
   updatedAt: Date;
 }
 
-export interface IMockTestQuestionDTO {
+export interface MockTestQuestionDTO {
   _id: string;
   testId: string;
   type: QuestionType;
@@ -53,11 +53,11 @@ export interface IMockTestQuestionDTO {
   coding?: MockTestCodingDetails;
 }
 
-export type PublicMockTestQuestionDTO = Omit<IMockTestQuestionDTO, 'correctAnswer' | 'explanation'>;
+export type PublicMockTestQuestionDTO = Omit<MockTestQuestionDTO, 'correctAnswer' | 'explanation'>;
 
-export type PublicMockTestDTO = Omit<IMockTestDTO, 'shareToken'>;
+export type PublicMockTestDTO = Omit<MockTestDTO, 'shareToken'>;
 
-export interface IMockTestAttemptDTO {
+export interface MockTestAttemptDTO {
   _id: string;
   testId: string;
   userId: string;
@@ -74,7 +74,7 @@ export interface IMockTestAttemptDTO {
   createdAt: Date;
 }
 
-export interface IMockTestAnswerDTO {
+export interface MockTestAnswerDTO {
   _id: string;
   attemptId: string;
   questionId: string;
@@ -85,7 +85,7 @@ export interface IMockTestAnswerDTO {
   submittedAt: Date;
 }
 
-export interface IMockTestAIEvaluationDTO {
+export interface MockTestAIEvaluationDTO {
   _id: string;
   attemptId: string;
   questionId: string;
@@ -97,7 +97,7 @@ export interface IMockTestAIEvaluationDTO {
   createdAt: Date;
 }
 
-export interface IMockTestReportDTO {
+export interface MockTestReportDTO {
   _id: string;
   attemptId: string;
   userId: string;
@@ -116,7 +116,7 @@ export interface IMockTestReportDTO {
   createdAt: Date;
 }
 
-export interface IMockTestCreationSessionDTO {
+export interface MockTestCreationSessionDTO {
   _id: string;
   userId: string;
   status: CreationSessionStatus;
@@ -126,7 +126,7 @@ export interface IMockTestCreationSessionDTO {
   updatedAt: Date;
 }
 
-export interface ICreateMockTestPayloadDTO {
+export interface CreateMockTestPayloadDTO {
   title: string;
   description?: string;
   difficulty?: DifficultyLevel;
@@ -147,7 +147,7 @@ export interface ICreateMockTestPayloadDTO {
   }[];
 }
 
-export interface IGenerateMockTestPayloadDTO {
+export interface GenerateMockTestPayloadDTO {
   topic: string;
   difficulty?: DifficultyLevel;
   questionCount?: number;
@@ -160,25 +160,25 @@ export interface IGenerateMockTestPayloadDTO {
   runInBackground?: boolean;
 }
 
-export interface IMockTestGenerationJobDTO {
+export interface MockTestGenerationJobDTO {
   jobId: string;
   status: 'pending' | 'processing' | 'completed' | 'failed';
 }
 
-export interface ISubmitAnswerPayloadDTO {
+export interface SubmitAnswerPayloadDTO {
   questionId: string;
   answer: string;
 }
 
-export interface IRunMockTestCodePayloadDTO {
+export interface RunMockTestCodePayloadDTO {
   sourceCode: string;
   language?: MockTestCodingLanguage;
   languageId?: number;
 }
 
-export type SubmitMockTestCodePayloadDTO = IRunMockTestCodePayloadDTO;
+export type SubmitMockTestCodePayloadDTO = RunMockTestCodePayloadDTO;
 
-export interface IMockTestSummaryDTO {
+export interface MockTestSummaryDTO {
   totalTests: number;
   completedAttempts: number;
   averageScore: number;
@@ -187,22 +187,22 @@ export interface IMockTestSummaryDTO {
   passedAttempts: number;
 }
 
-export interface ITestAttemptResultDTO {
-  attempt: IMockTestAttemptDTO;
-  report: IMockTestReportDTO | null;
-  answers: (IMockTestAnswerDTO & {
-    question?: IMockTestQuestionDTO;
-    aiEvaluation?: IMockTestAIEvaluationDTO;
+export interface TestAttemptResultDTO {
+  attempt: MockTestAttemptDTO;
+  report: MockTestReportDTO | null;
+  answers: (MockTestAnswerDTO & {
+    question?: MockTestQuestionDTO;
+    aiEvaluation?: MockTestAIEvaluationDTO;
   })[];
 }
 
-export interface ITestAnalyticsDTO {
+export interface TestAnalyticsDTO {
   trends: { date: string; averageScore: number; attempts: number }[];
   topicBreakdown: { topic: string; averageScore: number; totalAttempts: number }[];
   aiInsights: string;
 }
 
-export interface IAttemptAnalysisDTO {
+export interface AttemptAnalysisDTO {
   score: number;
   scorePercentage: number;
   passed: boolean;
@@ -221,30 +221,30 @@ export interface IAttemptAnalysisDTO {
   }[];
 }
 
-export interface IMockTestListDTO {
-  tests: IMockTestDTO[];
+export interface MockTestListDTO {
+  tests: MockTestDTO[];
   total: number;
 }
 
-export interface IPublicMockTestListDTO {
+export interface PublicMockTestListDTO {
   tests: PublicMockTestDTO[];
   total: number;
 }
 
-export interface IMockTestDetailsDTO {
-  test: IMockTestDTO | PublicMockTestDTO;
-  questions: IMockTestQuestionDTO[] | PublicMockTestQuestionDTO[];
-  latestAttempt: IMockTestAttemptDTO | null;
+export interface MockTestDetailsDTO {
+  test: MockTestDTO | PublicMockTestDTO;
+  questions: MockTestQuestionDTO[] | PublicMockTestQuestionDTO[];
+  latestAttempt: MockTestAttemptDTO | null;
 }
 
-export interface IMockTestAttemptSessionDTO {
-  attempt: IMockTestAttemptDTO;
+export interface MockTestAttemptSessionDTO {
+  attempt: MockTestAttemptDTO;
   questions: PublicMockTestQuestionDTO[];
 }
 
-export interface IFinishMockTestAttemptDTO {
-  attempt: IMockTestAttemptDTO;
-  report: IMockTestReportDTO;
+export interface FinishMockTestAttemptDTO {
+  attempt: MockTestAttemptDTO;
+  report: MockTestReportDTO;
   scoreResult: {
     totalPoints: number;
     earnedPoints: number;
@@ -256,12 +256,12 @@ export interface IFinishMockTestAttemptDTO {
   };
 }
 
-export interface IImportSharedMockTestDTO {
-  test: IMockTestDTO;
+export interface ImportSharedMockTestDTO {
+  test: MockTestDTO;
   imported: boolean;
   alreadyImported: boolean;
 }
 
-export interface IMockTestAttemptHistoryDTO extends IMockTestAttemptDTO {
-  test: IMockTestDTO | null;
+export interface MockTestAttemptHistoryDTO extends MockTestAttemptDTO {
+  test: MockTestDTO | null;
 }

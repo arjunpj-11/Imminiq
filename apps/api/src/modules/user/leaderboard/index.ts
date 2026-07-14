@@ -1,4 +1,4 @@
-export { leaderboardComposition } from './leaderboard.factory';
+export { createLeaderboardComposition } from './leaderboard.factory';
 export type { LeaderboardComposition } from './leaderboard.factory';
 
 export type {
@@ -20,4 +20,4 @@ export type {
   LeaderboardXpActivitySource,
 } from './domain/leaderboard.types';
 
-export { leaderboardRoutes } from './presentation/leaderboard.routes';
+export { createLeaderboardRoutes } from './presentation/leaderboard.routes';

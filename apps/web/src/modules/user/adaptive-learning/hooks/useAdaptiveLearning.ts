@@ -1,25 +1,24 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { ADAPTIVE_LEARNING_API_PATHS } from '../constants/adaptive-learning.constants';
+import { adaptiveLearningKeys } from './adaptive-learning.query-keys';
+import { mockTestKeys } from '../../mock-tests';
 import type {
   IAdaptiveAdvisorMessage,
-  IAdaptiveAdvisorAction,
+  AdaptiveAdvisorAction,
   IAdaptiveApiResponse,
   IAdaptiveDashboard,
 } from '../types/adaptive-learning.types';
-
-export const adaptiveLearningKeys = {
-  all: ['adaptive-learning'] as const,
-  dashboard: () => [...adaptiveLearningKeys.all, 'dashboard'] as const,
-};
 
 export const useAdaptiveLearningDashboard = (enabled = true) =>
   useQuery({
     queryKey: adaptiveLearningKeys.dashboard(),
     enabled,
     queryFn: async () => {
-      const response =
-        await api.get<IAdaptiveApiResponse<IAdaptiveDashboard>>('/adaptive-learning');
+      const response = await api.get<IAdaptiveApiResponse<IAdaptiveDashboard>>(
+        ADAPTIVE_LEARNING_API_PATHS.root
+      );
       return response.data.data;
     },
     staleTime: 15_000,
@@ -34,12 +33,12 @@ export const useGenerateAdaptiveAssessment = () => {
           jobId: string;
           status: 'pending';
         }>
-      >('/adaptive-learning/assessments/generate');
+      >(ADAPTIVE_LEARNING_API_PATHS.generateAssessment);
       return response.data.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: adaptiveLearningKeys.all });
-      queryClient.invalidateQueries({ queryKey: ['mock-tests'] });
+      queryClient.invalidateQueries({ queryKey: mockTestKeys.all });
     },
   });
 };
@@ -51,9 +50,9 @@ export const useAdaptiveAdvisorChat = () => {
       const response = await api.post<
         IAdaptiveApiResponse<{
           message: IAdaptiveAdvisorMessage;
-          action?: IAdaptiveAdvisorAction;
+          action?: AdaptiveAdvisorAction;
         }>
-      >('/adaptive-learning/advisor/chat', { question });
+      >(ADAPTIVE_LEARNING_API_PATHS.advisorChat, { question });
       return response.data.data;
     },
     onSuccess: () => {
@@ -66,7 +65,7 @@ export const useClearAdaptiveAdvisorChat = () => {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async () => {
-      await api.delete('/adaptive-learning/advisor/messages');
+      await api.delete(ADAPTIVE_LEARNING_API_PATHS.advisorMessages);
     },
     onSuccess: () => {
       queryClient.setQueryData<IAdaptiveDashboard>(adaptiveLearningKeys.dashboard(), (current) =>

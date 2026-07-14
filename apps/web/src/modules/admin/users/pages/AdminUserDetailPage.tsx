@@ -13,22 +13,25 @@ import {
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
+import { AdminError } from '../../shared';
 import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useState } from 'react';
 import { useAdminUserDetail } from '../hooks/useAdminUserDetail';
 import { useSetAdminUserStatus } from '../hooks/useSetAdminUserStatus';
+import { ADMIN_USERS_ROUTES } from '../constants/admin-users.constants';
 
 export default function AdminUserDetailPage() {
   const { userId = '' } = useParams();
   const [confirmOpen, setConfirmOpen] = useState(false);
-  const { data, isLoading, isError } = useAdminUserDetail(userId);
+  const { data, isLoading, isError, error } = useAdminUserDetail(userId);
   const statusMutation = useSetAdminUserStatus(userId);
   if (isLoading) return <div className="p-10 text-sm">Loading user profile…</div>;
   if (isError || !data)
     return (
       <div className="p-10">
-        <p className="text-[#e26767]">This user could not be loaded.</p>
-        <Link className="mt-4 inline-block text-sm text-[#e8816a]" to="/admin/users">
+        <AdminError error={error} />
+        <Link className="mt-4 inline-block text-sm text-[#e8816a]" to={ADMIN_USERS_ROUTES.list}>
           Return to users
         </Link>
       </div>
@@ -52,7 +55,7 @@ export default function AdminUserDetailPage() {
   return (
     <main className="mx-auto max-w-[1240px] px-5 py-7 sm:px-8">
       <Link
-        to="/admin/users"
+        to={ADMIN_USERS_ROUTES.list}
         className="mb-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#aaa59d]"
       >
         <ArrowLeft size={15} />
@@ -240,8 +243,11 @@ export default function AdminUserDetailPage() {
                 'The account status was updated and added to the audit log.'
               );
             },
-            onError: () =>
-              toast.error('Status update failed', 'Please check your permissions and try again.'),
+            onError: (error) =>
+              toast.error(
+                'Status update failed',
+                getUserFacingError(error, 'Please check your permissions and try again.')
+              ),
           })
         }
       />

@@ -1,12 +1,12 @@
 import type { AuthUserEntity } from '../domain/entities/auth-user.entity';
-import type { IAuthUserDTO } from './auth.dto';
+import type { AuthUserDTO } from './auth.dto';
 
 export interface IAuthUserMapper {
-  toAuthUser(user: AuthUserEntity): IAuthUserDTO;
+  toAuthUser(user: AuthUserEntity): AuthUserDTO;
 }
 
 export class AuthUserMapper implements IAuthUserMapper {
-  toAuthUser(user: AuthUserEntity): IAuthUserDTO {
+  toAuthUser(user: AuthUserEntity): AuthUserDTO {
     return {
       _id: user.id,
       fullName: user.fullName,

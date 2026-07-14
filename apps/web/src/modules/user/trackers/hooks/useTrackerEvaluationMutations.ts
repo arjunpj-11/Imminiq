@@ -1,11 +1,13 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
+import { onboardingKeys } from '../../onboarding';
 import type {
   AddMissingEvaluationTopicPayload,
   AddMissingEvaluationTopicResponse,
 } from '../types/tracker.types';
-import { trackerKeys } from './tracker.keys';
+import { trackerKeys } from './trackers.query-keys';
 
 export const useAddMissingEvaluationTopic = () => {
   const queryClient = useQueryClient();
@@ -13,7 +15,7 @@ export const useAddMissingEvaluationTopic = () => {
   return useMutation<AddMissingEvaluationTopicResponse, Error, AddMissingEvaluationTopicPayload>({
     mutationFn: async ({ trackerId, evaluationJobId, topicIndex }) => {
       const response = await api.post<AddMissingEvaluationTopicResponse>(
-        `/trackers/${trackerId}/evaluation-jobs/${evaluationJobId}/missing-topics/${topicIndex}/add`
+        TRACKER_API_PATHS.addMissingEvaluationTopic(trackerId, evaluationJobId, topicIndex)
       );
 
       return response.data;
@@ -22,7 +24,7 @@ export const useAddMissingEvaluationTopic = () => {
     onSuccess: async (_response, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: ['roadmap-evaluation-result', variables.evaluationJobId],
+          queryKey: onboardingKeys.evaluationResult(variables.evaluationJobId),
         }),
         queryClient.invalidateQueries({
           queryKey: trackerKeys.roadmap(variables.trackerId),

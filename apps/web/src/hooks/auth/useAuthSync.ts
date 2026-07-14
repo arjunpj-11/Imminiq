@@ -3,6 +3,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../../store/useAuthStore';
+import { ROUTES } from '../../routes/config/route-paths';
 
 type AuthSyncPayload = {
   type?: 'EMAIL_CHANGED_LOGOUT';
@@ -24,7 +25,7 @@ export const useAuthSync = () => {
 
         if (payload.type === 'EMAIL_CHANGED_LOGOUT') {
           clearAuth();
-          navigate('/login', { replace: true });
+          navigate(ROUTES.login, { replace: true });
         }
       } catch {
         // ignore malformed sync event

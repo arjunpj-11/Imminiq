@@ -9,12 +9,11 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
-import {
-  useAdminSupportTickets,
-  useUpdateAdminSupportTicket,
-} from '../hooks/useAdminSupportTickets';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { useAdminSupportTickets } from '../hooks/useAdminSupportTickets';
+import { useUpdateAdminSupportTicket } from '../hooks/useUpdateAdminSupportTicket';
 import type { AdminSupportTicket } from '../types/admin-support-tickets.types';
 
 export default function AdminSupportTicketsPage() {
@@ -22,7 +21,7 @@ export default function AdminSupportTicketsPage() {
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
   const [selected, setSelected] = useState<AdminSupportTicket | null>(null);
-  const { data, isLoading, isError } = useAdminSupportTickets({
+  const { data, isLoading, isError, error } = useAdminSupportTickets({
     search: useDebouncedValue(search, 300),
     status,
     page,
@@ -72,7 +71,7 @@ export default function AdminSupportTicketsPage() {
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
-          <AdminError />
+          <AdminError error={error} />
         ) : !data?.items.length ? (
           <AdminEmpty>No support tickets have been submitted.</AdminEmpty>
         ) : (
@@ -236,7 +235,10 @@ function TicketDetail({ ticket, close }: { ticket: AdminSupportTicket; close: ()
             </p>
             {update.isError && (
               <p className="text-sm text-[#e26767]">
-                The ticket could not be updated or the notification could not be sent.
+                {getUserFacingError(
+                  update.error,
+                  'The ticket could not be updated or the notification could not be sent.'
+                )}
               </p>
             )}
             <div className="flex justify-end gap-3">

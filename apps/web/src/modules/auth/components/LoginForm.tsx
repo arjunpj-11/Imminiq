@@ -11,6 +11,7 @@ import { ApiErrorBanner, FieldError } from './AuthError';
 import { EyeIcon } from './icons/AuthIcons';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { validateIdentifier } from '../utils/auth-validation';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 interface IFormState {
   identifier: string;
@@ -118,7 +119,7 @@ export default function LoginForm() {
           <div className="mb-1.5 flex items-center justify-between">
             <span className={authLabelClass}>Password</span>
             <Link
-              to="/forgot-password"
+              to={ROUTES.forgotPassword}
               className="font-mono text-[9.5px] uppercase tracking-widest text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"
             >
               Forgot?
@@ -172,7 +173,7 @@ export default function LoginForm() {
       <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
         New to Imminiq?{' '}
         <Link
-          to="/register"
+          to={ROUTES.register}
           className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"
         >
           Create account

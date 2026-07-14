@@ -29,13 +29,13 @@ const CROSS_SITE_COOKIE_OPTIONS: Pick<CookieOptions, 'secure' | 'sameSite' | 'pa
 const COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   ...CROSS_SITE_COOKIE_OPTIONS,
-  maxAge: env.REFRESH_COOKIE_MAX_AGE_MS,
+  maxAge: env.REFRESH_TOKEN_TTL_MS,
 };
 
 const TWO_FACTOR_COOKIE_OPTIONS: CookieOptions = {
   httpOnly: true,
   ...CROSS_SITE_COOKIE_OPTIONS,
-  maxAge: env.TWO_FACTOR_COOKIE_MAX_AGE_MS,
+  maxAge: env.TWO_FACTOR_CHALLENGE_TTL_MINUTES * 60 * 1000,
 };
 
 const LEGACY_ROOT_COOKIE_OPTIONS: CookieOptions = {

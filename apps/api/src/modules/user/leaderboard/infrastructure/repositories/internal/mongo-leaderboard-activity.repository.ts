@@ -20,8 +20,7 @@ import type {
   MongoLeaderboardXpEventRecord,
   MongoSnapshotCaptureRecord,
 } from '../shared/mongo-leaderboard.types';
-
-const SNAPSHOT_WRITE_BATCH_SIZE = 1000;
+import { env } from '../../../../../../config/env';
 
 export class MongoLeaderboardActivityRepository
   extends MongoLeaderboardBaseRepository
@@ -195,8 +194,12 @@ export class MongoLeaderboardActivityRepository
 
         const records = await User.aggregate<MongoSnapshotCaptureRecord>(pipeline);
 
-        for (let offset = 0; offset < records.length; offset += SNAPSHOT_WRITE_BATCH_SIZE) {
-          const batch = records.slice(offset, offset + SNAPSHOT_WRITE_BATCH_SIZE);
+        for (
+          let offset = 0;
+          offset < records.length;
+          offset += env.LEADERBOARD_SNAPSHOT_BATCH_SIZE
+        ) {
+          const batch = records.slice(offset, offset + env.LEADERBOARD_SNAPSHOT_BATCH_SIZE);
 
           await LeaderboardRankSnapshot.bulkWrite(
             batch.map((record) => ({

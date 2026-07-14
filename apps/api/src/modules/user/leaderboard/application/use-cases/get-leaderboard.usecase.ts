@@ -3,11 +3,9 @@ import {
   LEADERBOARD_MAX_LIMIT,
   LEADERBOARD_MIN_LIMIT,
   LEADERBOARD_STREAK_CHAMPION_LIMIT,
-  LEADERBOARD_TARGET_RANK,
-  LEADERBOARD_WEEKLY_TIER_XP,
 } from '../../domain/leaderboard.constants';
 import type { ILeaderboardQueryRepository } from '../../domain/repositories/leaderboard-query.repository.interface';
-import { LEADERBOARD_REWARDS, LEADERBOARD_SCORING_RULES } from '../leaderboard.constants';
+import { LEADERBOARD_SCORING_RULES, type LeaderboardReward } from '../leaderboard.constants';
 import type {
   GetLeaderboardPayloadDTO,
   LeaderboardCurrentUserViewDTO,
@@ -17,6 +15,11 @@ import { LeaderboardApplicationError } from '../leaderboard-application.error';
 import type { ILeaderboardMapper } from '../leaderboard.mapper';
 import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service';
 import type { IClock } from '../../../../../shared/time/clock.interface';
+import type {
+  ILeaderboardPolicyReader,
+  LeaderboardPolicy,
+} from '../../../../../shared/platform-policy';
+import type { LeaderboardSection } from '../../domain/value-objects/leaderboard-section.vo';
 
 export interface IGetLeaderboardUseCase {
   execute(viewerUserId: string, payload: GetLeaderboardPayloadDTO): Promise<LeaderboardResponseDTO>;
@@ -27,7 +30,8 @@ export class GetLeaderboardUseCase implements IGetLeaderboardUseCase {
     private readonly _leaderboardRepository: ILeaderboardQueryRepository,
     private readonly _leaderboardMapper: ILeaderboardMapper,
     private readonly _dateRange: ILeaderboardDateRange,
-    private readonly _clock: IClock
+    private readonly _clock: IClock,
+    private readonly _policyReader: ILeaderboardPolicyReader
   ) {}
 
   async execute(
@@ -48,6 +52,7 @@ export class GetLeaderboardUseCase implements IGetLeaderboardUseCase {
 
     const now = this._clock.now();
     const periods = this._dateRange.getPeriods(now);
+    const policy = await this._policyReader.getLeaderboardPolicy();
 
     const result = await this._leaderboardRepository.findLeaderboard({
       viewerUserId,
@@ -57,7 +62,7 @@ export class GetLeaderboardUseCase implements IGetLeaderboardUseCase {
       currentPeriod: periods.current,
       previousPeriod: periods.previous,
       previousSnapshotBefore: periods.previousSnapshotBefore,
-      targetRank: LEADERBOARD_TARGET_RANK,
+      targetRank: policy.targetRank,
       streakChampionLimit: LEADERBOARD_STREAK_CHAMPION_LIMIT,
     });
 
@@ -70,7 +75,12 @@ export class GetLeaderboardUseCase implements IGetLeaderboardUseCase {
       .map((entry) => this._leaderboardMapper.toEntryView(entry, viewerUserId));
 
     const currentUser = result.viewerEntry
-      ? this.toCurrentUserView(result.viewerEntry, viewerUserId, result.targetRankScore)
+      ? this.toCurrentUserView(
+          result.viewerEntry,
+          viewerUserId,
+          result.targetRankScore,
+          policy.targetRank
+        )
       : null;
 
     const growthPercent = this.calculateGrowthPercent(
@@ -100,15 +110,15 @@ export class GetLeaderboardUseCase implements IGetLeaderboardUseCase {
         currentXp: result.weeklyScore,
         previousXp: result.previousWeeklyScore,
         growthPercent,
-        tierTargetXp: LEADERBOARD_WEEKLY_TIER_XP,
-        xpToNextTier: Math.max(0, LEADERBOARD_WEEKLY_TIER_XP - result.weeklyScore),
+        tierTargetXp: policy.weeklyTierXp,
+        xpToNextTier: Math.max(0, policy.weeklyTierXp - result.weeklyScore),
         progressPercent: Math.min(
           100,
-          Math.round((result.weeklyScore / LEADERBOARD_WEEKLY_TIER_XP) * 100)
+          Math.round((result.weeklyScore / policy.weeklyTierXp) * 100)
         ),
       },
       scoringRules: LEADERBOARD_SCORING_RULES[payload.section],
-      reward: LEADERBOARD_REWARDS[payload.section],
+      reward: this.getReward(payload.section, policy),
       pagination: {
         limit,
         returned: result.topEntries.length,
@@ -120,19 +130,33 @@ export class GetLeaderboardUseCase implements IGetLeaderboardUseCase {
   private toCurrentUserView(
     entry: Parameters<ILeaderboardMapper['toEntryView']>[0],
     viewerUserId: string,
-    targetRankScore: number | null
+    targetRankScore: number | null,
+    targetRank: number
   ): LeaderboardCurrentUserViewDTO {
     const view = this._leaderboardMapper.toEntryView(entry, viewerUserId);
 
     return {
       ...view,
       xpToTargetRank:
-        targetRankScore === null || entry.rank <= LEADERBOARD_TARGET_RANK
-          ? entry.rank <= LEADERBOARD_TARGET_RANK
+        targetRankScore === null || entry.rank <= targetRank
+          ? entry.rank <= targetRank
             ? 0
             : null
           : Math.max(0, targetRankScore - entry.score + 1),
-      targetRank: LEADERBOARD_TARGET_RANK,
+      targetRank,
+    };
+  }
+
+  private getReward(section: LeaderboardSection, policy: LeaderboardPolicy): LeaderboardReward {
+    const badgeName = section === 'students' ? policy.studentBadgeName : policy.trainerBadgeName;
+    const coins = section === 'students' ? policy.studentRewardCoins : policy.trainerRewardCoins;
+
+    return {
+      title: 'Elite Distinction',
+      description: `Reach the Top ${policy.targetRank} this week to unlock the ${badgeName} badge and ${coins} gold coins.`,
+      targetRank: policy.targetRank,
+      badgeName,
+      coins,
     };
   }
 

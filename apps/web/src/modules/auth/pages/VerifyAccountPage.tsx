@@ -7,6 +7,7 @@ import api from '../../../lib/axios';
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeSessionStorage } from '../../../lib/storage/safe-storage';
 import {
+  AUTH_API_PATHS,
   OTP_LENGTH,
   OTP_RESEND_WAIT_SECONDS,
   TOTAL_OTP_SECONDS,
@@ -15,6 +16,7 @@ import type { VerifyPurpose, VerifyState } from '../types/auth.types';
 import { maskIdentifier, formatTime } from '../utils/auth-formatters';
 import { cn } from '../utils/auth-ui';
 import { LogoIcon } from '../components/icons/AuthIcons';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 export default function VerifyAccountPage() {
   const navigate = useNavigate();
@@ -163,11 +165,11 @@ export default function VerifyAccountPage() {
       let resetToken: string | undefined;
 
       if (isPasswordReset) {
-        const response = await api.post('/auth/verify-reset-code', { identifier, otp });
+        const response = await api.post(AUTH_API_PATHS.verifyResetCode, { identifier, otp });
         resetToken = response.data?.data?.resetToken;
         if (!resetToken) throw new Error('Reset token was not returned');
       } else {
-        await api.post('/auth/verify-account', { identifier, otp });
+        await api.post(AUTH_API_PATHS.verifyAccount, { identifier, otp });
       }
 
       setIsSuccess(true);
@@ -176,10 +178,10 @@ export default function VerifyAccountPage() {
 
       window.setTimeout(() => {
         if (isPasswordReset) {
-          navigate('/reset-password', { replace: true, state: { resetToken } });
+          navigate(ROUTES.resetPassword, { replace: true, state: { resetToken } });
           return;
         }
-        navigate('/login', {
+        navigate(ROUTES.login, {
           replace: true,
           state: { message: 'Account verified successfully. Please sign in.' },
         });
@@ -203,7 +205,7 @@ export default function VerifyAccountPage() {
     try {
       setIsResending(true);
       clearError();
-      await api.post('/auth/send-otp', { identifier, method, purpose });
+      await api.post(AUTH_API_PATHS.sendOtp, { identifier, method, purpose });
       const expiry = Date.now() + TOTAL_OTP_SECONDS * 1000;
       const resendExpiry = Date.now() + OTP_RESEND_WAIT_SECONDS * 1000;
       safeSessionStorage.set(STORAGE_KEYS.otpExpiry, String(expiry));
@@ -239,7 +241,7 @@ export default function VerifyAccountPage() {
       <div className="relative w-full max-w-115 overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
         <div className="h-1.25 bg-(--brand-500) dark:bg-(--brand-500)" />
         <main className="px-5 py-8 text-center sm:px-8">
-          <Link to="/" className="mb-6 inline-flex items-center justify-center gap-2">
+          <Link to={ROUTES.home} className="mb-6 inline-flex items-center justify-center gap-2">
             <LogoIcon className="h-10 w-10" />
             <span className="text-[24px] font-black tracking-[-0.8px]">
               immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>

@@ -1,6 +1,7 @@
 import { keepPreviousData, useQuery } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
+import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
 import type {
   IApiResponse,
   LessonAnswerAttempt,
@@ -17,7 +18,7 @@ import type {
   ITrackerRoadmapResponse,
   ITrackerSummary,
 } from '../types/tracker.types';
-import { trackerKeys } from './tracker.keys';
+import { trackerKeys } from './trackers.query-keys';
 
 const unwrap = <T>(response: IApiResponse<T>) => response.data;
 
@@ -26,7 +27,7 @@ export const useTrackerSummary = () => {
     queryKey: trackerKeys.summary(),
 
     queryFn: async () => {
-      const response = await api.get<IApiResponse<ITrackerSummary>>('/trackers/summary');
+      const response = await api.get<IApiResponse<ITrackerSummary>>(TRACKER_API_PATHS.summary);
 
       return unwrap(response.data);
     },
@@ -37,7 +38,7 @@ export const useTrackerDomains = (search: string) => {
   return useQuery({
     queryKey: trackerKeys.domains(search),
     queryFn: async () => {
-      const response = await api.get<IApiResponse<string[]>>('/trackers/domains', {
+      const response = await api.get<IApiResponse<string[]>>(TRACKER_API_PATHS.domains, {
         params: { search },
       });
       return unwrap(response.data);
@@ -51,7 +52,7 @@ export const useTrackers = (query: ITrackerListQuery = {}) => {
     queryKey: trackerKeys.list(query),
 
     queryFn: async () => {
-      const response = await api.get<IApiResponse<ITrackerListResponse>>('/trackers', {
+      const response = await api.get<IApiResponse<ITrackerListResponse>>(TRACKER_API_PATHS.root, {
         params: query,
       });
 
@@ -69,7 +70,9 @@ export const useTrackerDetails = (trackerId?: string) => {
     enabled: Boolean(trackerId),
 
     queryFn: async () => {
-      const response = await api.get<IApiResponse<ITracker>>(`/trackers/${trackerId}`);
+      const response = await api.get<IApiResponse<ITracker>>(
+        TRACKER_API_PATHS.detail(trackerId || '')
+      );
 
       return unwrap(response.data);
     },
@@ -84,7 +87,7 @@ export const useTrackerRoadmap = (trackerId?: string) => {
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<ITrackerRoadmapResponse>>(
-        `/trackers/${trackerId}/roadmap`
+        TRACKER_API_PATHS.roadmap(trackerId || '')
       );
 
       return unwrap(response.data);
@@ -99,7 +102,7 @@ export const useTrackerLesson = (trackerId?: string, subtopicId?: string) => {
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<ITrackerLessonResponse>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}`
+        TRACKER_API_PATHS.lesson(trackerId || '', subtopicId || '')
       );
 
       return unwrap(response.data);
@@ -114,7 +117,7 @@ export const useLessonChatHistory = (trackerId?: string, subtopicId?: string) =>
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<PersistedLessonChatMessage[]>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/chat`
+        TRACKER_API_PATHS.lessonChat(trackerId || '', subtopicId || '')
       );
 
       return unwrap(response.data);
@@ -129,7 +132,7 @@ export const useLessonAnswerAttempts = (trackerId?: string, subtopicId?: string)
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<LessonAnswerAttempt[]>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/answer/attempts`
+        TRACKER_API_PATHS.lessonAnswerAttempts(trackerId || '', subtopicId || '')
       );
 
       return unwrap(response.data);
@@ -148,7 +151,7 @@ export const useLessonCodeSubmissions = (
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<LessonCodeSubmission[]>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/code/submissions`,
+        TRACKER_API_PATHS.lessonCodeSubmissions(trackerId || '', subtopicId || ''),
         {
           params: action ? { action } : undefined,
         }
@@ -166,7 +169,7 @@ export const useLessonGeneratedQuestions = (trackerId?: string, subtopicId?: str
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<LessonGeneratedQuestion[]>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/questions`
+        TRACKER_API_PATHS.lessonQuestions(trackerId || '', subtopicId || '')
       );
 
       return unwrap(response.data);
@@ -185,7 +188,7 @@ export const useLessonQuestionSolution = (
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<LessonQuestionSolution | null>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution`,
+        TRACKER_API_PATHS.lessonQuestionSolution(trackerId || '', subtopicId || ''),
         {
           params: {
             question,
@@ -213,7 +216,7 @@ export const useLessonQuestionSolutionDoubts = (
 
     queryFn: async () => {
       const response = await api.get<IApiResponse<LessonQuestionSolutionDoubt[]>>(
-        `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
+        TRACKER_API_PATHS.lessonQuestionSolutionDoubts(trackerId || '', subtopicId || ''),
         {
           params: {
             question,

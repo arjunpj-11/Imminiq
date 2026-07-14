@@ -9,16 +9,18 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import {
   AdminDateRangeFilter,
   downloadCsv,
   downloadTablePdf,
   useAdminDateRange,
 } from '../../shared';
-import { useAdminAuditLogs, useExportAdminAuditLogs } from '../hooks/useAdminAuditLogs';
+import { useAdminAuditLogs } from '../hooks/useAdminAuditLogs';
+import { useExportAdminAuditLogs } from '../hooks/useExportAdminAuditLogs';
 import type { AdminAuditLog } from '../types/admin-audit-logs.types';
 
 export default function AdminAuditLogsPage() {
@@ -28,7 +30,7 @@ export default function AdminAuditLogsPage() {
   const filteredSearch = useDebouncedValue(search, 300);
   const dateRange = useAdminDateRange(30);
   const exportLogs = useExportAdminAuditLogs();
-  const { data, isLoading, isError } = useAdminAuditLogs({
+  const { data, isLoading, isError, error } = useAdminAuditLogs({
     search: filteredSearch,
     ...dateRange.range,
     page,
@@ -114,8 +116,8 @@ export default function AdminAuditLogsPage() {
         `Audit log ${format.toUpperCase()} downloaded`,
         `${items.length} matching events exported.`
       );
-    } catch {
-      toast.error('Audit export failed', 'Please try again.');
+    } catch (error) {
+      toast.error('Audit export failed', getUserFacingError(error));
     }
   };
   return (
@@ -184,7 +186,7 @@ export default function AdminAuditLogsPage() {
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
-          <AdminError />
+          <AdminError error={error} />
         ) : !data?.items.length ? (
           <AdminEmpty />
         ) : (

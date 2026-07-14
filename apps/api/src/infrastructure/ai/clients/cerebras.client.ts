@@ -48,14 +48,12 @@ const getResponseText = (response: unknown) => {
   throw new Error('Cerebras returned an empty response');
 };
 
-const recordCerebrasUsage = (
-  response: unknown,
-  category: AITokenUsageCategory,
-  model: string
-) => {
-  const usage = (response as {
-    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
-  }).usage;
+const recordCerebrasUsage = (response: unknown, category: AITokenUsageCategory, model: string) => {
+  const usage = (
+    response as {
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+    }
+  ).usage;
   recordAITokenUsage('Cerebras', model, category, {
     promptTokens: usage?.prompt_tokens,
     completionTokens: usage?.completion_tokens,
@@ -72,7 +70,7 @@ export const cerebrasChat = async (
   system?: string,
   category: AITokenUsageCategory = 'other'
 ) => {
-  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const model = env.CEREBRAS_MODEL;
   const response = await cerebras.chat.completions.create({
     model,
 
@@ -241,7 +239,7 @@ export const cerebrasRoadmapStructureChat = async (
   system?: string,
   category: AITokenUsageCategory = 'roadmap_generation'
 ) => {
-  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const model = env.CEREBRAS_MODEL;
   const response = await cerebras.chat.completions.create({
     model,
 
@@ -283,7 +281,7 @@ export const cerebrasRoadmapEvaluationChat = async (
   system?: string,
   category: AITokenUsageCategory = 'roadmap_evaluation'
 ) => {
-  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const model = env.CEREBRAS_MODEL;
   const response = await cerebras.chat.completions.create({
     model,
 

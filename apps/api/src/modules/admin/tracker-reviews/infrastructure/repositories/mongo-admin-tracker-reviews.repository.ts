@@ -1,11 +1,10 @@
 import { CommunityVerificationSubmission } from '../../../../../infrastructure/database/models/community-verification-submission.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
-import { ApiError } from '../../../../../shared/utils/ApiError';
-import type { AdminActor, AdminListQuery } from '../../../shared';
-import { recordAdminAction } from '../../../shared';
-import { createAdminPage, escapeAdminSearch } from '../../../shared';
+import type { AdminActor, AdminListQuery } from '../../../shared/domain';
+import { recordAdminAction } from '../../../shared/infrastructure';
+import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
 import type { IAdminTrackerReviewsRepository } from '../../domain/repositories/admin-tracker-reviews.repository.interface';
-import type { AdminTrackerReviewConsensusChoice } from '../../domain/admin-tracker-review.entity';
+import type { AdminTrackerReviewConsensusChoice } from '../../domain/entities/admin-tracker-review.entity';
 export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsRepository {
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> = { deletedAt: null };
@@ -44,49 +43,47 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
     });
     return createAdminPage(items, query, total, { open, approved, rejected });
   }
-  async addConsensusVote(
-    id: string,
-    choice: AdminTrackerReviewConsensusChoice,
-    actor: AdminActor
-  ) {
+  async addConsensusVote(id: string, choice: AdminTrackerReviewConsensusChoice, actor: AdminActor) {
     const voteField = choice === 'pass' ? 'passVotes' : 'failVotes';
     const review = await CommunityVerificationSubmission.findOneAndUpdate(
       { _id: id, deletedAt: null, status: 'open' },
       { $inc: { [voteField]: 1 } },
-      { new: true }
+      { returnDocument: 'after' }
     ).lean();
     if (!review) {
       const exists = await CommunityVerificationSubmission.exists({ _id: id, deletedAt: null });
-      if (!exists) {
-        throw new ApiError(404, 'Tracker review not found', 'TRACKER_REVIEW_NOT_FOUND');
-      }
-      throw new ApiError(
-        409,
-        'Consensus can only be changed while a review is open',
-        'TRACKER_REVIEW_NOT_OPEN'
-      );
+      if (!exists) return { kind: 'not_found' as const };
+      return { kind: 'not_open' as const };
     }
     const progress = Math.min(
       100,
       Math.round(((review.passVotes + review.failVotes) / review.requiredVotes) * 100)
     );
     await CommunityVerificationSubmission.updateOne({ _id: id }, { $set: { progress } });
-    await recordAdminAction(actor, 'admin_tracker_review_consensus_vote_added', 'admin.tracker-reviews', {
-      reviewId: id,
-      trackerId: String(review.trackerId),
-      choice,
-      passVotes: review.passVotes,
-      failVotes: review.failVotes,
-    });
-    return { id, passVotes: review.passVotes, failVotes: review.failVotes };
+    await recordAdminAction(
+      actor,
+      'admin_tracker_review_consensus_vote_added',
+      'admin.tracker-reviews',
+      {
+        reviewId: id,
+        trackerId: String(review.trackerId),
+        choice,
+        passVotes: review.passVotes,
+        failVotes: review.failVotes,
+      }
+    );
+    return {
+      kind: 'success' as const,
+      value: { id, passVotes: review.passVotes, failVotes: review.failVotes },
+    };
   }
   async resolve(id: string, status: string, actor: AdminActor) {
     const review = await CommunityVerificationSubmission.findOneAndUpdate(
       { _id: id, deletedAt: null },
       { $set: { status, consensusChoice: status === 'approved' ? 'pass' : 'fail' } },
-      { new: true }
+      { returnDocument: 'after' }
     ).lean();
-    if (!review) throw new ApiError(404, 'Tracker review not found', 'TRACKER_REVIEW_NOT_FOUND');
+    if (!review) return null;
     await Tracker.updateOne(
       { _id: review.trackerId },
       {

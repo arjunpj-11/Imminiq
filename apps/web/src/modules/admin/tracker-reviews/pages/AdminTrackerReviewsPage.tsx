@@ -10,14 +10,14 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
-import {
-  useAddAdminTrackerReviewConsensus,
-  useAdminTrackerReviews,
-  useResolveAdminTrackerReview,
-} from '../hooks/useAdminTrackerReviews';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { useAdminTrackerReviews } from '../hooks/useAdminTrackerReviews';
+import { useAddAdminTrackerReviewConsensus } from '../hooks/useAddAdminTrackerReviewConsensus';
+import { useResolveAdminTrackerReview } from '../hooks/useResolveAdminTrackerReview';
+import { ADMIN_TRACKER_REVIEWS_ROUTES } from '../constants/admin-tracker-reviews.constants';
 
 export default function AdminTrackerReviewsPage() {
   const [search, setSearch] = useState('');
@@ -30,7 +30,7 @@ export default function AdminTrackerReviewsPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <Link
-        to="/admin/trackers"
+        to={ADMIN_TRACKER_REVIEWS_ROUTES.trackers}
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
       >
         <ArrowLeft size={16} /> Back to tracker management
@@ -77,7 +77,7 @@ export default function AdminTrackerReviewsPage() {
         {query.isLoading ? (
           <AdminLoading />
         ) : query.isError ? (
-          <AdminError />
+          <AdminError error={query.error} />
         ) : !data?.items.length ? (
           <AdminEmpty>No tracker reviews match this view.</AdminEmpty>
         ) : (
@@ -119,7 +119,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, choice: 'pass' },
                                 {
                                   onSuccess: () => toast.success('Pass vote added'),
-                                  onError: () => toast.error('Could not add the pass vote'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not add the pass vote',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }
@@ -135,7 +139,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, choice: 'fail' },
                                 {
                                   onSuccess: () => toast.success('Fail vote added'),
-                                  onError: () => toast.error('Could not add the fail vote'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not add the fail vote',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }
@@ -152,7 +160,7 @@ export default function AdminTrackerReviewsPage() {
                     </td>
                     <td>
                       <Link
-                        to={`/admin/trackers/${item.trackerId}`}
+                        to={ADMIN_TRACKER_REVIEWS_ROUTES.trackerDetail(item.trackerId)}
                         state={{ fromTrackerReview: true }}
                         className="admin-button inline-flex items-center gap-2"
                       >
@@ -170,7 +178,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, status: 'approved' },
                                 {
                                   onSuccess: () => toast.success('Tracker review approved'),
-                                  onError: () => toast.error('Could not approve the tracker review'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not approve the tracker review',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }
@@ -186,7 +198,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, status: 'rejected' },
                                 {
                                   onSuccess: () => toast.success('Tracker review rejected'),
-                                  onError: () => toast.error('Could not reject the tracker review'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not reject the tracker review',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }

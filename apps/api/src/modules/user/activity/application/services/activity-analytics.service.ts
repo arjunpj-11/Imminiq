@@ -1,7 +1,3 @@
-import {
-  ACTIVITY_DAILY_GOAL_REWARD_XP,
-  ACTIVITY_WEEKLY_XP_TARGET,
-} from '../../domain/activity.constants';
 import type {
   ActivityDailyGoalState,
   ActivityDayAggregateRecord,
@@ -101,19 +97,25 @@ export class ActivityAnalytics {
     return Math.round(((current - previous) / previous) * 100);
   }
 
-  weeklyProgress(currentXp: number): {
+  weeklyProgress(
+    currentXp: number,
+    targetXp: number
+  ): {
     targetXp: number;
     xpToTarget: number;
     progressPercent: number;
   } {
     return {
-      targetXp: ACTIVITY_WEEKLY_XP_TARGET,
-      xpToTarget: Math.max(0, ACTIVITY_WEEKLY_XP_TARGET - currentXp),
-      progressPercent: Math.min(100, Math.round((currentXp / ACTIVITY_WEEKLY_XP_TARGET) * 100)),
+      targetXp,
+      xpToTarget: Math.max(0, targetXp - currentXp),
+      progressPercent: Math.min(100, Math.round((currentXp / targetXp) * 100)),
     };
   }
 
-  dailyGoal(state: ActivityDailyGoalState): {
+  dailyGoal(
+    state: ActivityDailyGoalState,
+    rewardXp: number
+  ): {
     completedTasks: number;
     totalTasks: number;
     completed: boolean;
@@ -131,7 +133,7 @@ export class ActivityAnalytics {
       totalTasks,
       completed: completedTasks === totalTasks,
       progressPercent: Math.round((completedTasks / totalTasks) * 100),
-      rewardXp: ACTIVITY_DAILY_GOAL_REWARD_XP,
+      rewardXp,
     };
   }
 

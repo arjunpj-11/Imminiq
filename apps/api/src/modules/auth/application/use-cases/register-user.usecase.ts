@@ -4,12 +4,12 @@ import type { IAuthNotification } from '../../domain/services/auth-notification.
 import type { IPasswordHasher } from '../../domain/services/password-hasher.interface';
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface';
 import type { VerificationMethod } from '../../domain/value-objects/verification-method.vo';
-import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/auth.constants';
-import type { IRegisterPayloadDTO } from '../auth.dto';
+import type { RegisterPayloadDTO } from '../auth.dto';
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
+import type { AuthRuntimePolicy } from '../../domain/auth-runtime-policy';
 
 export interface IRegisterUserUseCase {
-  execute(payload: IRegisterPayloadDTO): Promise<{
+  execute(payload: RegisterPayloadDTO): Promise<{
     verificationTarget: string;
     verificationMethod: VerificationMethod;
   }>;
@@ -21,10 +21,11 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
     private readonly _authNotification: IAuthNotification,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
     private readonly _passwordHasher: IPasswordHasher,
-    private readonly _pendingRegistrationStore: IPendingRegistrationStore
+    private readonly _pendingRegistrationStore: IPendingRegistrationStore,
+    private readonly _runtimePolicy: Pick<AuthRuntimePolicy, 'pendingRegistrationTtlSeconds'>
   ) {}
 
-  async execute(payload: IRegisterPayloadDTO): Promise<{
+  async execute(payload: RegisterPayloadDTO): Promise<{
     verificationTarget: string;
     verificationMethod: VerificationMethod;
   }> {
@@ -82,7 +83,7 @@ export class RegisterUserUseCase implements IRegisterUserUseCase {
         phone: parsedIdentifier.phone,
         passwordHash,
       },
-      PENDING_REGISTRATION_EXPIRES_SECONDS
+      this._runtimePolicy.pendingRegistrationTtlSeconds
     );
 
     try {

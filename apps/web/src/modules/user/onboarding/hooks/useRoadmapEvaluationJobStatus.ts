@@ -1,5 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { onboardingKeys } from './onboarding.query-keys';
 
 export type EvaluationJobStep = {
   stepNumber: number;
@@ -30,11 +32,11 @@ type EvaluationJobStatusResponse = {
 
 export const useRoadmapEvaluationJobStatus = (jobId?: string) => {
   return useQuery<EvaluationJobStatusResponse>({
-    queryKey: ['roadmap-evaluation-job-status', jobId],
+    queryKey: onboardingKeys.evaluationJobStatus(jobId || ''),
 
     queryFn: async () => {
       const response = await api.get<EvaluationJobStatusResponse>(
-        `/onboarding/jobs/${jobId}/status`
+        ONBOARDING_API_PATHS.jobStatus(jobId || '')
       );
 
       return response.data;

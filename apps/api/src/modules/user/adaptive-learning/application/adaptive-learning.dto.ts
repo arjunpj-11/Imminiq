@@ -5,7 +5,7 @@ import type {
   AdaptiveProfile,
 } from '../domain/adaptive-learning.types';
 
-export interface IAdaptiveLearningDashboardDTO {
+export interface AdaptiveLearningDashboardDTO {
   profile: AdaptiveProfile;
   latestAssessment: AdaptiveAssessment | null;
   assessments: AdaptiveAssessment[];
@@ -19,12 +19,12 @@ export interface IAdaptiveLearningDashboardDTO {
   };
 }
 
-export interface IAdaptiveAssessmentGenerationDTO {
+export interface AdaptiveAssessmentGenerationDTO {
   jobId: string;
   status: 'pending';
 }
 
-export interface IAdaptiveAdvisorChatDTO {
+export interface AdaptiveAdvisorChatDTO {
   message: AdaptiveAdvisorMessage;
   action?: AdaptiveAdvisorAction;
 }

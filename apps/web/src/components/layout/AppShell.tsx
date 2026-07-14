@@ -4,7 +4,7 @@ import { useStreak } from '../../hooks/progress/useStreak';
 import { cn } from '../../lib/cn';
 import { useAppShellStore } from '../../store/useAppShellStore';
 import { useAuthStore } from '../../store/useAuthStore';
-import { useNotifications } from '../../modules/notifications/hooks/useNotifications';
+import { useNotifications } from '../../modules/notifications';
 import AppNoiseOverlay from './AppNoiseOverlay';
 import {
   AppShellContext,

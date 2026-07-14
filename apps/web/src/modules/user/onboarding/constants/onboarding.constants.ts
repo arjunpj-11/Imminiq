@@ -5,6 +5,18 @@ import type {
   PreviewItem,
 } from '../types/onboarding.types';
 
+export const ONBOARDING_API_PATHS = {
+  trackerIntake: '/onboarding/tracker-intake',
+  stepOne: '/onboarding/step-1',
+  stepTwo: '/onboarding/step-2',
+  generateRoadmap: '/onboarding/generate-roadmap',
+  activeRoadmapJob: '/onboarding/roadmap-jobs/active',
+  jobStatus: (jobId: string) => `/onboarding/jobs/${jobId}/status`,
+  jobResult: (jobId: string) => `/onboarding/jobs/${jobId}/result`,
+  evaluateJob: (jobId: string) => `/onboarding/jobs/${jobId}/evaluate`,
+  evaluationResult: (jobId: string) => `/onboarding/jobs/${jobId}/evaluation-result`,
+} as const;
+
 export const topicChips = [
   'MERN interviews',
   'System Design',

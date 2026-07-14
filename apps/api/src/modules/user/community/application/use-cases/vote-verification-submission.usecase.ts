@@ -1,22 +1,21 @@
-import {
-  COMMUNITY_REVIEW_REWARD_COINS,
-  COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
-  COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
-} from '../../domain/community.constants';
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface';
 import type {
-  IVoteVerificationSubmissionPayloadDTO,
-  IVoteVerificationSubmissionViewDTO,
+  VoteVerificationSubmissionPayloadDTO,
+  VoteVerificationSubmissionViewDTO,
 } from '../community.dto';
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
 import type { ICommunityVerificationPolicy } from '../community-verification.policy';
+import type {
+  CommunityPolicy,
+  ICommunityPolicyReader,
+} from '../../../../../shared/platform-policy';
 
 export interface IVoteVerificationSubmissionUseCase {
   execute(
-    payload: IVoteVerificationSubmissionPayloadDTO
-  ): Promise<IVoteVerificationSubmissionViewDTO>;
+    payload: VoteVerificationSubmissionPayloadDTO
+  ): Promise<VoteVerificationSubmissionViewDTO>;
 }
 
 export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmissionUseCase {
@@ -24,12 +23,14 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
     private readonly _repository: ICommunityRepository,
     private readonly _policy: ICommunityVerificationPolicy,
     private readonly _activityRecorder: ICommunityActivityRecorder,
-    private readonly _mapper: ICommunityMapper
+    private readonly _mapper: ICommunityMapper,
+    private readonly _policyReader: ICommunityPolicyReader
   ) {}
 
   async execute(
-    payload: IVoteVerificationSubmissionPayloadDTO
-  ): Promise<IVoteVerificationSubmissionViewDTO> {
+    payload: VoteVerificationSubmissionPayloadDTO
+  ): Promise<VoteVerificationSubmissionViewDTO> {
+    const policy = await this._policyReader.getCommunityPolicy();
     const submission = await this._repository.findVerificationSubmissionById(
       payload.submissionId,
       payload.userId
@@ -77,7 +78,7 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
       submissionId: submission.id,
       voteId: vote.id,
       trackerTitle: submission.title,
-      xpAwarded: COMMUNITY_VERIFICATION_VOTE_TEACHER_XP,
+      xpAwarded: policy.voteTeacherXp,
 
       ...(vote.createdAt
         ? {
@@ -111,6 +112,7 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
       trackerId: updatedSubmission.trackerId,
       ownerId: updatedSubmission.ownerId,
       trackerTitle: updatedSubmission.title,
+      policy,
     });
 
     const voteView = this._mapper.toVoteView(vote);
@@ -136,6 +138,7 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
     trackerId: string;
     ownerId: string;
     trackerTitle: string;
+    policy: CommunityPolicy;
   }): Promise<{
     currentUserAwarded: boolean;
     currentUserRewardCoins: number;
@@ -162,13 +165,13 @@ export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmi
           submissionId: data.submissionId,
           voteId: rewardableVote.id,
           trackerTitle: data.trackerTitle,
-          xpAwarded: COMMUNITY_VERIFICATION_MAJORITY_TEACHER_XP,
-          coinsAwarded: COMMUNITY_REVIEW_REWARD_COINS,
+          xpAwarded: data.policy.majorityTeacherXp,
+          coinsAwarded: data.policy.reviewRewardCoins,
         });
 
         await this._repository.markVerificationVoteRewarded(
           rewardableVote.id,
-          COMMUNITY_REVIEW_REWARD_COINS
+          data.policy.reviewRewardCoins
         );
       }
     }

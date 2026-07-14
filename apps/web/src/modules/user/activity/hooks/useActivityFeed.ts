@@ -9,7 +9,7 @@ import type {
   IActivityFeedQueryInput,
   IActivityFeedResponse,
 } from '../types/activity.types';
-import { activityQueryKeys } from './activity-query-keys';
+import { activityQueryKeys } from './activity.query-keys';
 
 interface IUseActivityFeedOptions extends IActivityFeedQueryInput {
   /**

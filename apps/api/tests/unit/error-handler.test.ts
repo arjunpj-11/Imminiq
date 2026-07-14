@@ -71,7 +71,9 @@ describe('API error boundary', () => {
   });
 
   it('maps duplicate database records to a conflict without leaking details', () => {
-    const { status, json } = handle(Object.assign(new Error('duplicate key secret'), { code: 11000 }));
+    const { status, json } = handle(
+      Object.assign(new Error('duplicate key secret'), { code: 11000 })
+    );
 
     expect(status).toHaveBeenCalledWith(409);
     expect(json).toHaveBeenCalledWith({

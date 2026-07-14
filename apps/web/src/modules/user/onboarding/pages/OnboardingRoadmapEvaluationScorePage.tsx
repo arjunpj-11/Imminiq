@@ -1,4 +1,5 @@
 import { Link, useParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { useRoadmapEvaluationResult } from '../hooks/useRoadmapEvaluationResult';
 import type { MissingRoadmapTopic } from '../hooks/useRoadmapEvaluationResult';
@@ -234,7 +235,7 @@ export default function OnboardingRoadmapEvaluationScorePage() {
                 </p>
 
                 <Link
-                  to="/dashboard"
+                  to={ROUTES.dashboard}
                   className="mt-5 inline-flex items-center justify-center gap-2 rounded-xl bg-(--brand-500) px-6 py-3.5 text-sm font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) hover:shadow-[0_8px_24px_rgba(184,76,43,0.24)] active:translate-y-0 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
                 >
                   Go to Dashboard

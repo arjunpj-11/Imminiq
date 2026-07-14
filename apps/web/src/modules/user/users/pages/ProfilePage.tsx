@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { isAxiosError } from 'axios';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import HeapTile from '../../../../components/layout/HeapTile';
@@ -218,7 +219,7 @@ export default function ProfilePage() {
   ]);
 
   const redirectGuestToLogin = () => {
-    navigate(`/login?redirect=${encodeURIComponent(location.pathname)}`);
+    navigate(`${ROUTES.login}?redirect=${encodeURIComponent(location.pathname)}`);
   };
 
   const handleSendFriendRequest = async () => {
@@ -228,7 +229,7 @@ export default function ProfilePage() {
     }
 
     if (relationship === 'request_received') {
-      navigate('/friends?tab=requests');
+      navigate(`${ROUTES.friends}?tab=requests`);
       return;
     }
 
@@ -265,15 +266,6 @@ export default function ProfilePage() {
     } finally {
       submitRateLimit.finish('friend-request');
     }
-  };
-
-  const handleOpenChats = () => {
-    if (!isAuthenticated) {
-      redirectGuestToLogin();
-      return;
-    }
-
-    navigate('/chats');
   };
 
   const handleSave = async (data: Partial<IProfileData>) => {
@@ -395,7 +387,6 @@ export default function ProfilePage() {
             onChangeAvatar={openAvatarCropModal}
             onEdit={openEditPanel}
             onSendFriendRequest={handleSendFriendRequest}
-            onMessage={handleOpenChats}
             onCopyProfileLink={copyProfileLink}
           />
 

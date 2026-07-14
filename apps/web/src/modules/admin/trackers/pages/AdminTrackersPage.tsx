@@ -11,17 +11,19 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
-import { useAdminTrackers, useDeleteAdminTracker } from '../hooks/useAdminTrackers';
+import { useAdminTrackers } from '../hooks/useAdminTrackers';
+import { useDeleteAdminTracker } from '../hooks/useDeleteAdminTracker';
 import type { AdminTracker } from '../types/admin-trackers.types';
+import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 
 export default function AdminTrackersPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState<AdminTracker | null>(null);
-  const { data, isLoading, isError } = useAdminTrackers({
+  const { data, isLoading, isError, error } = useAdminTrackers({
     search: useDebouncedValue(search, 300),
     status,
     page,
@@ -35,13 +37,13 @@ export default function AdminTrackersPage() {
         action={
           <div className="flex flex-wrap gap-2">
             <Link
-              to="/admin/trackers/reviews"
+              to={ADMIN_TRACKERS_ROUTES.reviews}
               className="admin-button inline-flex items-center gap-2"
             >
               <FileBarChart size={16} /> Tracker reviews
             </Link>
             <Link
-              to="/admin/trackers/published"
+              to={ADMIN_TRACKERS_ROUTES.published}
               className="admin-primary-button inline-flex items-center gap-2"
             >
               <Globe2 size={16} /> Published trackers
@@ -88,7 +90,7 @@ export default function AdminTrackersPage() {
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
-          <AdminError />
+          <AdminError error={error} />
         ) : !data?.items.length ? (
           <AdminEmpty />
         ) : (
@@ -125,7 +127,7 @@ export default function AdminTrackersPage() {
                       <td>
                         <div className="flex gap-2">
                           <Link
-                            to={`/admin/trackers/${item.id}`}
+                            to={ADMIN_TRACKERS_ROUTES.detail(item.id)}
                             className="admin-button inline-flex items-center gap-2"
                           >
                             <Eye size={14} />
@@ -158,7 +160,10 @@ export default function AdminTrackersPage() {
         isLoading={remove.isPending}
         onClose={() => setDeleting(null)}
         onConfirm={() =>
-          deleting && remove.mutate(deleting.id, { onSuccess: () => setDeleting(null) })
+          deleting &&
+          remove.mutate(deleting.id, {
+            onSuccess: () => setDeleting(null),
+          })
         }
       />
     </main>

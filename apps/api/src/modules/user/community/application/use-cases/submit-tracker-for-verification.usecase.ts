@@ -1,37 +1,44 @@
 import {
-  COMMUNITY_VERIFICATION_DEFAULT_DURATION_HOURS,
-  COMMUNITY_VERIFICATION_DEFAULT_REQUIRED_VOTES,
   COMMUNITY_VERIFICATION_MAX_DURATION_HOURS,
   COMMUNITY_VERIFICATION_MAX_REQUIRED_VOTES,
 } from '../../domain/community.constants';
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
 import type {
-  ICommunityVerificationSubmissionViewDTO,
-  ISubmitTrackerForVerificationPayloadDTO,
+  CommunityVerificationSubmissionViewDTO,
+  SubmitTrackerForVerificationPayloadDTO,
 } from '../community.dto';
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
+import type { ICommunityPolicyReader } from '../../../../../shared/platform-policy';
 
 export interface ISubmitTrackerForVerificationUseCase {
   execute(
-    payload: ISubmitTrackerForVerificationPayloadDTO
-  ): Promise<ICommunityVerificationSubmissionViewDTO>;
+    payload: SubmitTrackerForVerificationPayloadDTO
+  ): Promise<CommunityVerificationSubmissionViewDTO>;
 }
 
 export class SubmitTrackerForVerificationUseCase implements ISubmitTrackerForVerificationUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
-    private readonly _mapper: ICommunityMapper
+    private readonly _mapper: ICommunityMapper,
+    private readonly _policyReader: ICommunityPolicyReader
   ) {}
 
   async execute(
-    payload: ISubmitTrackerForVerificationPayloadDTO
-  ): Promise<ICommunityVerificationSubmissionViewDTO> {
+    payload: SubmitTrackerForVerificationPayloadDTO
+  ): Promise<CommunityVerificationSubmissionViewDTO> {
+    const policy = await this._policyReader.getCommunityPolicy();
     const submission = await this._repository.submitTrackerForVerification({
       trackerId: payload.trackerId,
       userId: payload.userId,
-      requiredVotes: this.normalizeRequiredVotes(payload.requiredVotes),
-      durationHours: this.normalizeDurationHours(payload.durationHours),
+      requiredVotes: this.normalizeRequiredVotes(
+        payload.requiredVotes,
+        policy.verificationRequiredVotes
+      ),
+      durationHours: this.normalizeDurationHours(
+        payload.durationHours,
+        policy.verificationDurationHours
+      ),
       urgent: Boolean(payload.urgent),
     });
 
@@ -44,17 +51,17 @@ export class SubmitTrackerForVerificationUseCase implements ISubmitTrackerForVer
     return this._mapper.toVerificationSubmissionView(submission);
   }
 
-  private normalizeRequiredVotes(value?: number): number {
+  private normalizeRequiredVotes(value: number | undefined, defaultValue: number): number {
     if (!value || value < 1) {
-      return COMMUNITY_VERIFICATION_DEFAULT_REQUIRED_VOTES;
+      return defaultValue;
     }
 
     return Math.min(Math.floor(value), COMMUNITY_VERIFICATION_MAX_REQUIRED_VOTES);
   }
 
-  private normalizeDurationHours(value?: number): number {
+  private normalizeDurationHours(value: number | undefined, defaultValue: number): number {
     if (!value || value < 1) {
-      return COMMUNITY_VERIFICATION_DEFAULT_DURATION_HOURS;
+      return defaultValue;
     }
 
     return Math.min(Math.floor(value), COMMUNITY_VERIFICATION_MAX_DURATION_HOURS);

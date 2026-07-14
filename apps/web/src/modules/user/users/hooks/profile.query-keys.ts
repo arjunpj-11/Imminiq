@@ -7,4 +7,7 @@ export const profileQueryKeys = {
   trackers: (params: Record<string, unknown>) =>
     [...profileQueryKeys.all, 'published-trackers', params] as const,
   uploadState: () => [...profileQueryKeys.all, 'upload-state'] as const,
+  publicProfiles: () => [...profileQueryKeys.all, 'public-profile'] as const,
+  publicProfile: (username: string, params?: Record<string, unknown>) =>
+    [...profileQueryKeys.publicProfiles(), username, params ?? {}] as const,
 };

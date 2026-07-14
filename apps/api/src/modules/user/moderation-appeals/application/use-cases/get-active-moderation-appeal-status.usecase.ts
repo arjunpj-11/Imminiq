@@ -1,14 +1,14 @@
 import type { IModerationAppealQueryRepository } from '../../domain/repositories/moderation-appeal-query.repository.interface';
 import type {
-  IGetActiveModerationAppealStatusResultDTO,
-  IGetModerationAppealStatusPayloadDTO,
+  GetActiveModerationAppealStatusResultDTO,
+  GetModerationAppealStatusPayloadDTO,
 } from '../moderation-appeal.dto';
 import type { IModerationAppealMapper } from '../moderation-appeal.mapper';
 
 export interface IGetActiveModerationAppealStatusUseCase {
   execute(
-    payload: IGetModerationAppealStatusPayloadDTO
-  ): Promise<IGetActiveModerationAppealStatusResultDTO>;
+    payload: GetModerationAppealStatusPayloadDTO
+  ): Promise<GetActiveModerationAppealStatusResultDTO>;
 }
 
 export class GetActiveModerationAppealStatusUseCase implements IGetActiveModerationAppealStatusUseCase {
@@ -18,8 +18,8 @@ export class GetActiveModerationAppealStatusUseCase implements IGetActiveModerat
   ) {}
 
   async execute(
-    payload: IGetModerationAppealStatusPayloadDTO
-  ): Promise<IGetActiveModerationAppealStatusResultDTO> {
+    payload: GetModerationAppealStatusPayloadDTO
+  ): Promise<GetActiveModerationAppealStatusResultDTO> {
     const appeal = await this._moderationAppealRepository.findActiveAppealForUser(payload.userId);
 
     return this._moderationAppealMapper.toActiveStatusResult(appeal);

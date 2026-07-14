@@ -39,6 +39,7 @@ import { geminiGroqMockTestAIGateway } from './infrastructure/services/gemini-gr
 import { mongoQuestionBank } from './infrastructure/services/mongo-question-bank.service';
 import { pistonMockTestCodeRunner } from './infrastructure/services/piston-mock-test-code-runner.service';
 import type { IMockTestCompletionObserver } from './domain/services/mock-test-completion-observer.interface';
+import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 
 export type MockTestsServiceHelpers = {
   mockTestsMapper: IMockTestsMapper;
@@ -85,7 +86,11 @@ export const createMockTestsComposition = (
 
       getMockTestDetails: new GetMockTestDetailsUseCase(mockTestsRepository, mockTestsMapper),
 
-      createMockTest: new CreateMockTestUseCase(mockTestsRepository, mockTestsMapper),
+      createMockTest: new CreateMockTestUseCase(
+        mockTestsRepository,
+        mockTestsMapper,
+        mongoPlatformPolicyReader
+      ),
 
       generateMockTest: new GenerateMockTestUseCase(
         mockTestsRepository,
@@ -122,6 +127,7 @@ export const createMockTestsComposition = (
         mockTestActivityRecorder,
         mockTestsMapper,
         systemClock,
+        mongoPlatformPolicyReader,
         completionObserver
       ),
 

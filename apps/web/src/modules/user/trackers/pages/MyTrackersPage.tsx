@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import SkeletonBlock from '../../../../components/feedback/SkeletonBlock';
 import TrackerCard, { type PublishFormData } from '../components/TrackerCard';
@@ -203,14 +204,14 @@ export default function MyTrackersPage() {
         <div className="flex items-center gap-2 max-[560px]:w-full max-[560px]:flex-col">
           <button
             type="button"
-            onClick={() => navigate('/trackers/published')}
+            onClick={() => navigate(ROUTES.publishedTrackers)}
             className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.06)] px-4 py-2.5 text-[13px] font-bold text-(--success) transition hover:-translate-y-px dark:text-(--success) max-[560px]:w-full max-[560px]:justify-center"
           >
             <GlobeIcon /> Published
           </button>
           <button
             type="button"
-            onClick={() => navigate('/onboarding/step-1')}
+            onClick={() => navigate(ROUTES.onboardingStepOne)}
             className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] max-[560px]:w-full max-[560px]:justify-center"
           >
             <PlusIcon /> Create Tracker
@@ -279,7 +280,7 @@ export default function MyTrackersPage() {
           </p>
           <button
             type="button"
-            onClick={() => navigate('/onboarding/step-1')}
+            onClick={() => navigate(ROUTES.onboardingStepOne)}
             className="mt-5 inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] dark:bg-(--brand-500) dark:text-[#141412]"
           >
             <PlusIcon /> Create Tracker

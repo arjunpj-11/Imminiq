@@ -5,7 +5,11 @@ import { Tracker } from '../../../../../infrastructure/database/models/tracker.m
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import type { IAdminAnalyticsRepository } from '../../domain/repositories/admin-analytics.repository.interface';
 export class MongoAdminAnalyticsRepository implements IAdminAnalyticsRepository {
-  async get({ from, to, days }: import('../../domain/admin-analytics.entity').AdminAnalyticsRange) {
+  async get({
+    from,
+    to,
+    days,
+  }: import('../../domain/entities/admin-analytics.entity').AdminAnalyticsRange) {
     const createdAt = { $gte: from, $lte: to };
     const verified = { deletedAt: null, $or: [{ emailVerified: true }, { phoneVerified: true }] };
     const [users, activeUsers, trackers, tests, attempts, dailyUsers, dailyActivity] =

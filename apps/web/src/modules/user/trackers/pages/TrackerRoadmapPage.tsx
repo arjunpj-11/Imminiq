@@ -1,6 +1,7 @@
 import { cn } from '../../../../lib/cn';
 import { useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { useTrackerRoadmap } from '../hooks/useTrackers';
@@ -164,7 +165,7 @@ export default function TrackerRoadmapPage() {
             <div className="mb-3 flex flex-wrap items-center gap-2">
               <button
                 type="button"
-                onClick={() => navigate('/trackers')}
+                onClick={() => navigate(ROUTES.trackers)}
                 className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               >
                 Trackers

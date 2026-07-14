@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from 'express';
 
-import { sendAdminResult } from '../../shared';
-import type { IGetAdminAITokenSpendUseCase } from '../application/use-cases/get-admin-ai-token-spend.usecase';
+import { sendAdminResult } from '../../shared/presentation';
+import type { AdminAITokenSpendUseCases } from '../application/admin-ai-token-spend-use-cases.contract';
 import { adminAITokenSpendQuerySchema } from './admin-ai-token-spend.schema';
 
 const DAY_IN_MILLISECONDS = 86_400_000;
 
 export class AdminAITokenSpendController {
-  constructor(private readonly useCase: IGetAdminAITokenSpendUseCase) {}
+  constructor(private readonly useCases: AdminAITokenSpendUseCases) {}
 
   get = (req: Request, res: Response, next: NextFunction) => {
     const input = adminAITokenSpendQuerySchema.parse(req.query);
@@ -19,7 +19,7 @@ export class AdminAITokenSpendController {
 
     return sendAdminResult(
       next,
-      () => this.useCase.execute({ from, to, days }),
+      () => this.useCases.get.execute({ from, to, days }),
       res,
       'AI token spend fetched'
     );

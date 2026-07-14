@@ -8,6 +8,7 @@ import { useAppShellStore } from '../../store/useAppShellStore';
 import ImminiqLogo from '../ui/ImminiqLogo';
 import ImminiqWordmark from '../ui/ImminiqWordmark';
 import ConfirmDialog from '../overlays/ConfirmDialog';
+import { ROUTES } from '../../routes/config/route-paths';
 
 interface ITopBarProps {
   onMenuClick?: () => void;
@@ -22,23 +23,26 @@ interface ITopBarProps {
   friendRequestCount?: number;
 }
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const beginsWith = (path: string, suffix = '') => new RegExp(`^${escapeRegExp(path)}${suffix}`);
+
 const routeLabels: Array<[RegExp, string]> = [
-  [/^\/dashboard/, 'Dashboard'],
-  [/^\/trackers\/[^/]+\/lessons/, 'Lesson'],
-  [/^\/trackers\/[^/]+\/roadmap/, 'Roadmap'],
-  [/^\/trackers\/[^/]+\/manage/, 'Manage tracker'],
-  [/^\/trackers/, 'Trackers'],
-  [/^\/mock-tests\/attempts\/.+\/analysis/, 'Test analysis'],
-  [/^\/mock-tests\/attempts\/.+\/result/, 'Test result'],
-  [/^\/mock-tests/, 'Mock tests'],
-  [/^\/learning-agent/, 'Learning agent'],
-  [/^\/community/, 'Community'],
-  [/^\/leaderboard/, 'Leaderboard'],
-  [/^\/activity/, 'Activity'],
-  [/^\/friends\/search/, 'Find people'],
-  [/^\/friends/, 'Friends'],
-  [/^\/settings/, 'Settings'],
-  [/^\/profile/, 'Profile'],
+  [beginsWith(ROUTES.dashboard), 'Dashboard'],
+  [beginsWith(ROUTES.trackers, '/[^/]+/lessons'), 'Lesson'],
+  [beginsWith(ROUTES.trackers, '/[^/]+/roadmap'), 'Roadmap'],
+  [beginsWith(ROUTES.trackers, '/[^/]+/manage'), 'Manage tracker'],
+  [beginsWith(ROUTES.trackers), 'Trackers'],
+  [beginsWith(ROUTES.mockTests, '/attempts/.+/analysis'), 'Test analysis'],
+  [beginsWith(ROUTES.mockTests, '/attempts/.+/result'), 'Test result'],
+  [beginsWith(ROUTES.mockTests), 'Mock tests'],
+  [beginsWith(ROUTES.learningAgent), 'Learning agent'],
+  [beginsWith(ROUTES.community), 'Community'],
+  [beginsWith(ROUTES.leaderboard), 'Leaderboard'],
+  [beginsWith(ROUTES.activity), 'Activity'],
+  [beginsWith(ROUTES.friendsSearch), 'Find people'],
+  [beginsWith(ROUTES.friends), 'Friends'],
+  [beginsWith(ROUTES.settingsRoot), 'Settings'],
+  [beginsWith(ROUTES.profile), 'Profile'],
 ];
 
 const iconClass =
@@ -71,20 +75,6 @@ const BellIcon = () => (
   >
     <path d="M18 8a6 6 0 00-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9" />
     <path d="M13.73 21a2 2 0 01-3.46 0" />
-  </svg>
-);
-
-const MessageIcon = () => (
-  <svg
-    width="15"
-    height="15"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    aria-hidden="true"
-  >
-    <path d="M21 15a2 2 0 01-2 2H8l-5 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
   </svg>
 );
 
@@ -122,7 +112,6 @@ export default function TopBar({
   userLevel = 'Free Scholar',
   isGuest = false,
   notificationCount = 0,
-  messageCount = 0,
   friendRequestCount = 0,
 }: ITopBarProps) {
   const location = useLocation();
@@ -186,7 +175,7 @@ export default function TopBar({
       console.error('Logout request failed:', error);
     } finally {
       clearAuth();
-      navigate('/login', { replace: true });
+      navigate(ROUTES.login, { replace: true });
       setIsSigningOut(false);
     }
   };
@@ -201,7 +190,7 @@ export default function TopBar({
       <header className="sticky top-0 z-20 flex h-(--topbar-height) items-center gap-4 border-b border-(--border-subtle) bg-[color-mix(in_srgb,var(--surface-canvas)_90%,transparent)] px-6 backdrop-blur-xl max-[640px]:gap-2.5 max-[640px]:px-3.5">
         <div className="flex min-w-0 items-center gap-3">
           <Link
-            to={isGuest ? '/' : '/dashboard'}
+            to={isGuest ? ROUTES.home : ROUTES.dashboard}
             aria-label={isGuest ? 'Go to Imminiq home' : 'Go to dashboard'}
             className="flex shrink-0 items-center gap-2 rounded-md no-underline"
           >
@@ -237,13 +226,13 @@ export default function TopBar({
           {isGuest ? (
             <>
               <Link
-                to="/login"
+                to={ROUTES.login}
                 className="rounded-sm px-3 py-2 text-[12px] font-semibold text-(--text-secondary) no-underline hover:text-(--brand-500)"
               >
                 Sign in
               </Link>
               <Link
-                to="/register"
+                to={ROUTES.register}
                 className="rounded-md bg-(--brand-500) px-3.5 py-2 text-[12px] font-bold text-(--brand-contrast) no-underline transition hover:bg-(--brand-600)"
               >
                 Join
@@ -298,7 +287,7 @@ export default function TopBar({
                       />
                     </div>
                     <Link
-                      to="/activity"
+                      to={ROUTES.activity}
                       onClick={() => setStreakOpen(false)}
                       className="mt-4 block text-[12px] font-semibold text-(--brand-500) no-underline hover:underline"
                     >
@@ -309,7 +298,7 @@ export default function TopBar({
               </div>
 
               <Link
-                to="/friends"
+                to={ROUTES.friends}
                 className={cn(iconClass, 'max-[520px]:hidden')}
                 aria-label={
                   friendRequestCount
@@ -321,15 +310,7 @@ export default function TopBar({
                 <CountBadge count={friendRequestCount} />
               </Link>
               <Link
-                to="/chats"
-                className={cn(iconClass, 'max-[760px]:hidden')}
-                aria-label={messageCount ? `${messageCount} unread messages` : 'Open messages'}
-              >
-                <MessageIcon />
-                <CountBadge count={messageCount} />
-              </Link>
-              <Link
-                to="/notifications"
+                to={ROUTES.notifications}
                 className={cn(iconClass, 'max-[640px]:hidden')}
                 aria-label={
                   notificationCount
@@ -377,11 +358,11 @@ export default function TopBar({
                     </div>
                     <div className="p-1.5">
                       {[
-                        ['/profile', 'Profile'],
-                        ['/activity', 'Activity'],
-                        ['/settings/preferences', 'Preferences'],
-                        ['/settings/security', 'Account security'],
-                        ['/support', 'Raise a support ticket'],
+                        [ROUTES.profile, 'Profile'],
+                        [ROUTES.activity, 'Activity'],
+                        [ROUTES.settingsPreferences, 'Preferences'],
+                        [ROUTES.settingsSecurity, 'Account security'],
+                        [ROUTES.support, 'Raise a support ticket'],
                       ].map(([to, label]) => (
                         <Link
                           key={to}

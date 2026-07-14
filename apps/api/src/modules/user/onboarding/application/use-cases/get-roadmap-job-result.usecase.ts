@@ -1,6 +1,6 @@
 import type { IOnboardingAIJobQueryRepository } from '../../domain/repositories/onboarding-ai-job-query.repository.interface';
 import type { IOnboardingRoadmapRepository } from '../../domain/repositories/onboarding-roadmap.repository.interface';
-import type { IRoadmapTreeResultDTO } from '../onboarding.dto';
+import type { RoadmapTreeResultDTO } from '../onboarding.dto';
 import { OnboardingApplicationError } from '../onboarding-application.error';
 import type { IOnboardingMapper } from '../onboarding.mapper';
 import type { IOnboardingJobOutputReader } from '../services/onboarding-job-output-reader.service';
@@ -8,7 +8,7 @@ import type { IOnboardingJobOutputReader } from '../services/onboarding-job-outp
 type RoadmapJobResultRepository = IOnboardingAIJobQueryRepository & IOnboardingRoadmapRepository;
 
 export interface IGetRoadmapJobResultUseCase {
-  execute(jobId: string, userId: string): Promise<IRoadmapTreeResultDTO>;
+  execute(jobId: string, userId: string): Promise<RoadmapTreeResultDTO>;
 }
 
 export class GetRoadmapJobResultUseCase implements IGetRoadmapJobResultUseCase {
@@ -18,7 +18,7 @@ export class GetRoadmapJobResultUseCase implements IGetRoadmapJobResultUseCase {
     private readonly _onboardingJobOutputReader: IOnboardingJobOutputReader
   ) {}
 
-  async execute(jobId: string, userId: string): Promise<IRoadmapTreeResultDTO> {
+  async execute(jobId: string, userId: string): Promise<RoadmapTreeResultDTO> {
     const job = await this._onboardingRepository.getJobById(jobId);
 
     if (!job) {

@@ -1,8 +1,8 @@
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
 import { SecurityAuditEvent } from '../../../../../infrastructure/database/models/security-audit-event.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
-import type { AdminListQuery } from '../../../shared';
-import { createAdminPage } from '../../../shared';
+import type { AdminListQuery } from '../../../shared/domain';
+import { createAdminPage } from '../../../shared/infrastructure';
 import type { IAdminAuditLogsRepository } from '../../domain/repositories/admin-audit-logs.repository.interface';
 export class MongoAdminAuditLogsRepository implements IAdminAuditLogsRepository {
   async list(query: AdminListQuery) {

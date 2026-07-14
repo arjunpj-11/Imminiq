@@ -1,3 +1,5 @@
+import { ADMIN_ROUTES, ROUTES } from '../routes/config/route-paths';
+
 export interface ICurrentPageNavItem {
   label: string;
   to: string;
@@ -9,53 +11,56 @@ interface IRegisteredNavItem {
 }
 
 const userNavItems: IRegisteredNavItem[] = [
-  { to: '/dashboard', end: true },
-  { to: '/trackers' },
-  { to: '/mock-tests' },
-  { to: '/learning-agent' },
-  { to: '/community' },
-  { to: '/leaderboard' },
-  { to: '/activity' },
+  { to: ROUTES.dashboard, end: true },
+  { to: ROUTES.trackers },
+  { to: ROUTES.mockTests },
+  { to: ROUTES.learningAgent },
+  { to: ROUTES.community },
+  { to: ROUTES.leaderboard },
+  { to: ROUTES.activity },
 ];
 
 const adminNavItems: IRegisteredNavItem[] = [
-  { to: '/admin', end: true },
-  { to: '/admin/users' },
-  { to: '/admin/trackers' },
-  { to: '/admin/mock-tests' },
-  { to: '/admin/activity' },
-  { to: '/admin/broadcast' },
-  { to: '/admin/subscriptions' },
-  { to: '/admin/audit-logs' },
-  { to: '/admin/system-health' },
-  { to: '/admin/ai-token-spend' },
-  { to: '/admin/support-tickets' },
-  { to: '/admin/support' },
+  { to: ADMIN_ROUTES.dashboard, end: true },
+  { to: ADMIN_ROUTES.users },
+  { to: ADMIN_ROUTES.trackers },
+  { to: ADMIN_ROUTES.mockTests },
+  { to: ADMIN_ROUTES.activity },
+  { to: ADMIN_ROUTES.broadcast },
+  { to: ADMIN_ROUTES.subscriptions },
+  { to: ADMIN_ROUTES.auditLogs },
+  { to: ADMIN_ROUTES.systemHealth },
+  { to: ADMIN_ROUTES.aiTokenSpend },
+  { to: ADMIN_ROUTES.supportTickets },
+  { to: ADMIN_ROUTES.legacySupport },
 ];
 
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+const nestedRoute = (route: string, suffix = '') => new RegExp(`^${escapeRegExp(route)}${suffix}`);
+
 const routeLabels: Array<[RegExp, string]> = [
-  [/^\/admin\/users\/[^/]+/, 'User details'],
-  [/^\/admin\/trackers\/reviews/, 'Tracker reviews'],
-  [/^\/admin\/trackers\/published/, 'Published trackers'],
-  [/^\/admin\/trackers\/[^/]+/, 'Tracker details'],
-  [/^\/admin\/mock-tests\/[^/]+/, 'Mock test details'],
-  [/^\/notifications/, 'Notifications'],
-  [/^\/profile(?:\/|$)/, 'Profile'],
-  [/^\/verify-and-earn/, 'Verify and earn'],
-  [/^\/pricing/, 'Plans'],
-  [/^\/support/, 'Support'],
-  [/^\/friends\/search/, 'Find people'],
-  [/^\/friends/, 'Friends'],
-  [/^\/trackers\/published/, 'Published trackers'],
-  [/^\/trackers\/[^/]+\/manage/, 'Manage tracker'],
-  [/^\/trackers\/[^/]+\/roadmap/, 'Tracker roadmap'],
-  [/^\/community\/verify/, 'Verify submission'],
-  [/^\/community\/trackers/, 'Community tracker'],
-  [/^\/leaderboard\/rewards/, 'Rewards'],
-  [/^\/mock-tests\/generating/, 'Generating mock test'],
-  [/^\/mock-tests\/attempts\/.+\/result/, 'Test result'],
-  [/^\/mock-tests\/attempts\/.+\/analysis/, 'Test analysis'],
-  [/^\/mock-tests\/[^/]+/, 'Mock test details'],
+  [nestedRoute(ADMIN_ROUTES.users, '/[^/]+'), 'User details'],
+  [nestedRoute(ADMIN_ROUTES.trackerReviews), 'Tracker reviews'],
+  [nestedRoute(ADMIN_ROUTES.publishedTrackers), 'Published trackers'],
+  [nestedRoute(ADMIN_ROUTES.trackers, '/[^/]+'), 'Tracker details'],
+  [nestedRoute(ADMIN_ROUTES.mockTests, '/[^/]+'), 'Mock test details'],
+  [nestedRoute(ROUTES.notifications), 'Notifications'],
+  [nestedRoute(ROUTES.profile, '(?:/|$)'), 'Profile'],
+  [nestedRoute(ROUTES.verifyAndEarn), 'Verify and earn'],
+  [nestedRoute(ROUTES.pricing), 'Plans'],
+  [nestedRoute(ROUTES.support), 'Support'],
+  [nestedRoute(ROUTES.friendsSearch), 'Find people'],
+  [nestedRoute(ROUTES.friends), 'Friends'],
+  [nestedRoute(ROUTES.publishedTrackers), 'Published trackers'],
+  [nestedRoute(ROUTES.trackers, '/[^/]+/manage'), 'Manage tracker'],
+  [nestedRoute(ROUTES.trackers, '/[^/]+/roadmap'), 'Tracker roadmap'],
+  [nestedRoute(ROUTES.community, '/verify'), 'Verify submission'],
+  [nestedRoute(ROUTES.community, '/trackers'), 'Community tracker'],
+  [nestedRoute(ROUTES.leaderboardRewards), 'Rewards'],
+  [nestedRoute(ROUTES.mockTests, '/generating'), 'Generating mock test'],
+  [nestedRoute(ROUTES.mockTests, '/attempts/.+/result'), 'Test result'],
+  [nestedRoute(ROUTES.mockTests, '/attempts/.+/analysis'), 'Test analysis'],
+  [nestedRoute(ROUTES.mockTests, '/[^/]+'), 'Mock test details'],
 ];
 
 const isRepresentedBy = (pathname: string, item: IRegisteredNavItem) =>
@@ -82,12 +87,16 @@ const getTemporaryItem = (
   hash: string,
   registeredItems: IRegisteredNavItem[]
 ): ICurrentPageNavItem | null => {
-  if (pathname === '/settings' || pathname.startsWith('/settings/')) return null;
-  if (pathname === '/admin/settings' || pathname.startsWith('/admin/settings/')) return null;
+  if (pathname === ROUTES.settingsRoot || pathname.startsWith(`${ROUTES.settingsRoot}/`)) {
+    return null;
+  }
+  if (pathname === ADMIN_ROUTES.settings || pathname.startsWith(`${ADMIN_ROUTES.settings}/`))
+    return null;
   if (registeredItems.some((item) => isRepresentedBy(pathname, item))) return null;
 
   return {
-    label: routeLabels.find(([pattern]) => pattern.test(pathname))?.[1] ?? getFallbackLabel(pathname),
+    label:
+      routeLabels.find(([pattern]) => pattern.test(pathname))?.[1] ?? getFallbackLabel(pathname),
     to: `${pathname}${search}${hash}`,
   };
 };

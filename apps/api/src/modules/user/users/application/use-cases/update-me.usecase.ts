@@ -12,8 +12,8 @@ export interface IUpdateMeUseCase {
     userId: string,
     payload: UpdateMyProfileInputDTO
   ): Promise<{
-    user: import('../users.dto').ICurrentUserViewDTO;
-    profile: import('../users.dto').IEditableProfileViewDTO;
+    user: import('../users.dto').CurrentUserViewDTO;
+    profile: import('../users.dto').EditableProfileViewDTO;
   }>;
 }
 

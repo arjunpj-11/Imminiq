@@ -1,11 +1,15 @@
-import type { AdminSystemHealth } from '../../domain/admin-system-health.entity';
 import type { IAdminSystemHealthRepository } from '../../domain/repositories/admin-system-health.repository.interface';
+import type { AdminSystemHealthDTO } from '../admin-system-health.dto';
+import type { IAdminSystemHealthMapper } from '../admin-system-health.mapper';
 export interface IGetAdminSystemHealthUseCase {
-  execute(): Promise<AdminSystemHealth>;
+  execute(): Promise<AdminSystemHealthDTO>;
 }
 export class GetAdminSystemHealthUseCase implements IGetAdminSystemHealthUseCase {
-  constructor(private readonly repository: IAdminSystemHealthRepository) {}
-  execute() {
-    return this.repository.inspect();
+  constructor(
+    private readonly repository: IAdminSystemHealthRepository,
+    private readonly mapper: IAdminSystemHealthMapper
+  ) {}
+  async execute(): Promise<AdminSystemHealthDTO> {
+    return this.mapper.toDTO(await this.repository.inspect());
   }
 }

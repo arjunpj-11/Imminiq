@@ -8,12 +8,14 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
-import { useAdminBroadcasts, useCreateAdminBroadcast } from '../hooks/useAdminBroadcasts';
+} from '../../shared';
+import { useAdminBroadcasts } from '../hooks/useAdminBroadcasts';
+import { useCreateAdminBroadcast } from '../hooks/useCreateAdminBroadcast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 
 export default function AdminBroadcastPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, isFetching } = useAdminBroadcasts(page);
+  const { data, isLoading, isError, isFetching, error } = useAdminBroadcasts(page);
   const create = useCreateAdminBroadcast();
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
@@ -78,7 +80,9 @@ export default function AdminBroadcastPage() {
               </select>
             </label>
             {create.isError && (
-              <p className="text-sm text-[#e26767]">The broadcast could not be sent.</p>
+              <p className="text-sm text-[#e26767]">
+                {getUserFacingError(create.error, 'The broadcast could not be sent.')}
+              </p>
             )}
             <div className="flex justify-end border-t border-white/10 pt-4">
               <button
@@ -104,7 +108,7 @@ export default function AdminBroadcastPage() {
           {isLoading ? (
             <AdminLoading />
           ) : isError ? (
-            <AdminError />
+            <AdminError error={error} />
           ) : !data?.items.length ? (
             <AdminEmpty>No broadcasts have been sent.</AdminEmpty>
           ) : (

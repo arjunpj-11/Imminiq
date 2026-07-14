@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdateGesturesPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateGesturesPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateGesturesRepository = {
@@ -7,7 +7,7 @@ type UpdateGesturesRepository = {
 };
 
 export interface IUpdateGesturesUseCase {
-  execute(userId: string, payload: IUpdateGesturesPayloadDTO): Promise<UserSettingsViewDTO | null>;
+  execute(userId: string, payload: UpdateGesturesPayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdateGesturesUseCase implements IUpdateGesturesUseCase {
@@ -18,7 +18,7 @@ export class UpdateGesturesUseCase implements IUpdateGesturesUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdateGesturesPayloadDTO
+    payload: UpdateGesturesPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateGestures({
       userId,

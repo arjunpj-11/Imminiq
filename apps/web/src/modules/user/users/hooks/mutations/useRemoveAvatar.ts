@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../../lib/axios';
+import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import { useAuthStore } from '../../../../../store/useAuthStore';
 import type {
   IApiErrorResponse,
@@ -16,7 +17,9 @@ export const useRemoveAvatar = () => {
 
   return useMutation<IApiResponse<IRemoveAvatarResponse>, AxiosError<IApiErrorResponse>, void>({
     mutationFn: async () => {
-      const response = await api.delete<IApiResponse<IRemoveAvatarResponse>>('/uploads/avatar');
+      const response = await api.delete<IApiResponse<IRemoveAvatarResponse>>(
+        PROFILE_API_PATHS.avatar
+      );
 
       return response.data;
     },

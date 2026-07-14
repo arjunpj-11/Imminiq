@@ -9,7 +9,7 @@ import type {
   IFriendsApiResponse,
   IFriendsListQueryInput,
 } from '../types/friends.types';
-import { friendsQueryKeys } from './friends-query-keys';
+import { friendsQueryKeys } from './friends.query-keys';
 
 export const useFriends = (input: IFriendsListQueryInput) =>
   useInfiniteQuery<IFriendUsersPage, AxiosError<IFriendsApiErrorResponse>>({

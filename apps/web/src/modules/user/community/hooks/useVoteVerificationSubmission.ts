@@ -2,18 +2,20 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import api from '../../../../lib/axios';
+import { COMMUNITY_ENDPOINTS } from '../constants/community.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
   IVoteVerificationSubmissionData,
   IVoteVerificationSubmissionPayload,
 } from '../types/community.types';
+import { communityKeys } from './community.query-keys';
 
 const voteVerificationSubmission = async (
   payload: IVoteVerificationSubmissionPayload
 ): Promise<IVoteVerificationSubmissionData> => {
   const response = await api.post<IApiResponse<IVoteVerificationSubmissionData>>(
-    `/community/verify/${payload.submissionId}/vote`,
+    COMMUNITY_ENDPOINTS.voteVerification(payload.submissionId),
     {
       vote: payload.vote,
       reason: payload.reason || undefined,
@@ -37,9 +39,9 @@ export const useVoteVerificationSubmission = () => {
   >({
     mutationFn: voteVerificationSubmission,
     onSuccess: (_data, payload) => {
-      void queryClient.invalidateQueries({ queryKey: ['community', 'verify'] });
+      void queryClient.invalidateQueries({ queryKey: communityKeys.verification() });
       void queryClient.invalidateQueries({
-        queryKey: ['community', 'verify', 'submission', payload.submissionId],
+        queryKey: communityKeys.verificationSubmission(payload.submissionId),
       });
     },
   });

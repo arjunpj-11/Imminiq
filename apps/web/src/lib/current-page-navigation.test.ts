@@ -1,9 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import {
-  getTemporaryAdminNavItem,
-  getTemporaryUserNavItem,
-} from './current-page-navigation';
+import { getTemporaryAdminNavItem, getTemporaryUserNavItem } from './current-page-navigation';
 
 describe('temporary current-page navigation', () => {
   it('adds user pages that are not represented in the standard navigation', () => {

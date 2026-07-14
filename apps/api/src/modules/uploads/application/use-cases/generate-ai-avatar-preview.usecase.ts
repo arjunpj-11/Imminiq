@@ -5,12 +5,12 @@ import {
 import { UploadsDomainError } from '../../domain/uploads-domain.error';
 import type { IAIImageGenerator } from '../../domain/services/ai-image-generation.interface';
 import type { IRandomSeedGenerator } from '../../domain/services/random-seed.interface';
-import type { IAIImagePreviewResultDTO } from '../uploads.dto';
+import type { AIImagePreviewResultDTO } from '../uploads.dto';
 import { UploadsApplicationError } from '../uploads-application.error';
 import type { IAIUploadPromptBuilder } from '../services/ai-upload-prompt.service';
 
 export interface IGenerateAIAvatarPreviewUseCase {
-  execute(prompt: string): Promise<IAIImagePreviewResultDTO>;
+  execute(prompt: string): Promise<AIImagePreviewResultDTO>;
 }
 
 export class GenerateAIAvatarPreviewUseCase implements IGenerateAIAvatarPreviewUseCase {
@@ -20,7 +20,7 @@ export class GenerateAIAvatarPreviewUseCase implements IGenerateAIAvatarPreviewU
     private readonly _randomSeedGenerator: IRandomSeedGenerator
   ) {}
 
-  async execute(prompt: string): Promise<IAIImagePreviewResultDTO> {
+  async execute(prompt: string): Promise<AIImagePreviewResultDTO> {
     const cleanedPrompt = prompt.trim();
 
     if (!cleanedPrompt) {

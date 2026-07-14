@@ -67,7 +67,9 @@ const malformedJsonResponse = (): ErrorResponse => ({
   code: 'MALFORMED_JSON',
 });
 
-const mongooseErrorResponse = (error: unknown): { statusCode: number; body: ErrorResponse } | null => {
+const mongooseErrorResponse = (
+  error: unknown
+): { statusCode: number; body: ErrorResponse } | null => {
   const record = errorRecord(error);
 
   if (record.name === 'ValidationError' && record.errors) {

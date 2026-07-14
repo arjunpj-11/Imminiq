@@ -1,17 +1,17 @@
 export type {
-  IDashboardActivityIntensityItemDTO,
-  IDashboardActiveTrackerDTO,
-  IDashboardAIInsightResultDTO,
-  IDashboardBattleItemDTO,
-  IDashboardFriendItemDTO,
-  IDashboardNotificationMetaDTO,
-  IDashboardRecentActivityDTO,
-  IDashboardRecommendedActionDTO,
-  IDashboardStatsDTO,
-  IDashboardStreakSummaryDTO,
-  IDashboardSummaryDTO,
-  IDashboardTrackerSummaryDTO,
-  IDashboardUserSummaryDTO,
+  DashboardActivityIntensityItemDTO,
+  DashboardActiveTrackerDTO,
+  DashboardAIInsightResultDTO,
+  DashboardBattleItemDTO,
+  DashboardFriendItemDTO,
+  DashboardNotificationMetaDTO,
+  DashboardRecentActivityDTO,
+  DashboardRecommendedActionDTO,
+  DashboardStatsDTO,
+  DashboardStreakSummaryDTO,
+  DashboardSummaryDTO,
+  DashboardTrackerSummaryDTO,
+  DashboardUserSummaryDTO,
 } from './application/dashboard.dto';
 
 export type {
@@ -21,4 +21,4 @@ export type {
 } from './domain/dashboard.types';
 
 export { createDashboardComposition } from './dashboard.factory';
-export { dashboardRoutes } from './presentation/dashboard.routes';
+export { createDashboardRoutes } from './presentation/dashboard.routes';

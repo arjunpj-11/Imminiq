@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import api from '../../../../lib/axios';
+import { COMMUNITY_ENDPOINTS } from '../constants/community.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
@@ -9,13 +10,13 @@ import type {
   IToggleCommunityReviewHelpfulData,
   IToggleCommunityReviewHelpfulPayload,
 } from '../types/community.types';
-import { communityPublicTrackerKeys } from './useCommunityPublicTracker';
+import { communityKeys } from './community.query-keys';
 
 const toggleCommunityReviewHelpful = async ({
   reviewId,
 }: IToggleCommunityReviewHelpfulPayload): Promise<IToggleCommunityReviewHelpfulData> => {
   const response = await api.post<IApiResponse<IToggleCommunityReviewHelpfulData>>(
-    `/community/reviews/${reviewId}/helpful`
+    COMMUNITY_ENDPOINTS.reviewHelpful(reviewId)
   );
 
   if (!response.data.data) {
@@ -36,7 +37,7 @@ export const useToggleCommunityReviewHelpful = () => {
     mutationFn: toggleCommunityReviewHelpful,
     onSuccess: (data, variables) => {
       queryClient.setQueryData<ICommunityPublicTrackerDetail>(
-        communityPublicTrackerKeys.detail(variables.trackerId),
+        communityKeys.tracker(variables.trackerId),
         (oldData) => {
           if (!oldData) {
             return oldData;

@@ -2,17 +2,18 @@ import { describe, expect, it, vi } from 'vitest';
 
 import { adminAnalyticsQuerySchema } from '../../src/modules/admin/analytics/presentation/admin-analytics.schema';
 import { adminAuditLogsQuerySchema } from '../../src/modules/admin/audit-logs/presentation/admin-audit-logs.schema';
-import { AdminTrackersUseCase } from '../../src/modules/admin/trackers/application/use-cases/admin-trackers.usecase';
+import { LikeAdminPublishedTrackerUseCase } from '../../src/modules/admin/trackers/application/use-cases/like-admin-published-tracker.usecase';
+import { RateAdminPublishedTrackerUseCase } from '../../src/modules/admin/trackers/application/use-cases/rate-admin-published-tracker.usecase';
 import type { IAdminTrackersRepository } from '../../src/modules/admin/trackers/domain/repositories/admin-trackers.repository.interface';
-import type { IAdminTrackerEmailProvider } from '../../src/modules/admin/trackers/domain/services/admin-tracker-email-provider.interface';
 import { adminPublishedTrackerRatingSchema } from '../../src/modules/admin/trackers/presentation/admin-trackers.schema';
+import { AdminTrackersMapper } from '../../src/modules/admin/trackers/application/admin-trackers.mapper';
 
 describe('admin report date filters', () => {
   it('supports the four-day activity preset and custom dates', () => {
     expect(adminAnalyticsQuerySchema.parse({ days: '4' }).days).toBe(4);
-    expect(
-      adminAnalyticsQuerySchema.parse({ from: '2026-07-01', to: '2026-07-14' })
-    ).toMatchObject({ from: '2026-07-01', to: '2026-07-14' });
+    expect(adminAnalyticsQuerySchema.parse({ from: '2026-07-01', to: '2026-07-14' })).toMatchObject(
+      { from: '2026-07-01', to: '2026-07-14' }
+    );
   });
 
   it('rejects reversed audit and activity date ranges', () => {
@@ -56,12 +57,31 @@ describe('published tracker administration', () => {
       getDetail: vi.fn(),
       delete: vi.fn(),
     } as unknown as IAdminTrackersRepository;
-    const email = { sendTrackerDeleted: vi.fn() } as IAdminTrackerEmailProvider;
-    const useCase = new AdminTrackersUseCase(repository, email);
+    const mapper = new AdminTrackersMapper();
+    const likeUseCase = new LikeAdminPublishedTrackerUseCase(repository, mapper);
+    const rateUseCase = new RateAdminPublishedTrackerUseCase(repository, mapper);
 
-    await expect(useCase.likePublished('tracker-id', actor)).resolves.toEqual(engagement);
-    await expect(useCase.ratePublished('tracker-id', 5, actor)).resolves.toEqual(engagement);
+    await expect(likeUseCase.execute('tracker-id', actor)).resolves.toEqual(engagement);
+    await expect(rateUseCase.execute('tracker-id', 5, actor)).resolves.toEqual(engagement);
     expect(repository.likePublished).toHaveBeenCalledWith('tracker-id', actor);
     expect(repository.ratePublished).toHaveBeenCalledWith('tracker-id', 5, actor);
+  });
+
+  it('maps a missing published tracker to a safe not-found error', async () => {
+    const repository = {
+      list: vi.fn(),
+      listPublished: vi.fn(),
+      likePublished: vi.fn().mockResolvedValue(null),
+      ratePublished: vi.fn(),
+      getDetail: vi.fn(),
+      delete: vi.fn(),
+    } as unknown as IAdminTrackersRepository;
+
+    await expect(
+      new LikeAdminPublishedTrackerUseCase(repository, new AdminTrackersMapper()).execute(
+        'missing-id',
+        actor
+      )
+    ).rejects.toMatchObject({ statusCode: 404, code: 'PUBLISHED_TRACKER_NOT_FOUND' });
   });
 });

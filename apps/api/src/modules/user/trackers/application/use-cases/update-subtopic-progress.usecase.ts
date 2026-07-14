@@ -3,10 +3,7 @@ import type { ITrackerMapper } from '../tracker.mapper';
 import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { ITrackerActivityRecorder } from '../../domain/services/tracker-activity.interface';
 import type { UpdateSubtopicProgressInput } from '../../domain/trackers.types';
-
-const SUBTOPIC_COMPLETION_XP = 30;
-const TOPIC_COMPLETION_XP = 50;
-const TRACKER_COMPLETION_XP = 0;
+import type { ITrackerPolicyReader } from '../../../../../shared/platform-policy';
 
 type UpdateSubtopicProgressResultDTO = ReturnType<ITrackerMapper['toSubtopicProgressResultDto']>;
 
@@ -52,10 +49,12 @@ export class UpdateSubtopicProgressUseCase implements IUpdateSubtopicProgressUse
   constructor(
     private readonly _trackerRepository: UpdateSubtopicProgressRepository,
     private readonly _trackerActivityRecorder: ITrackerActivityRecorder,
-    private readonly _trackerMapper: ITrackerMapper
+    private readonly _trackerMapper: ITrackerMapper,
+    private readonly _policyReader: ITrackerPolicyReader
   ) {}
 
   async execute(input: UpdateSubtopicProgressInput): Promise<UpdateSubtopicProgressResultDTO> {
+    const policy = await this._policyReader.getTrackerPolicy();
     const tracker = await this._trackerRepository.findOwnedTrackerById({
       trackerId: input.trackerId,
       userId: input.userId,
@@ -152,7 +151,7 @@ export class UpdateSubtopicProgressUseCase implements IUpdateSubtopicProgressUse
         trackerTitle,
         subtopicTitle,
 
-        xpAwarded: SUBTOPIC_COMPLETION_XP,
+        xpAwarded: policy.subtopicCompletionXp,
 
         ...(utcOffsetMinutes !== undefined
           ? {
@@ -173,7 +172,7 @@ export class UpdateSubtopicProgressUseCase implements IUpdateSubtopicProgressUse
         trackerTitle,
         topicTitle,
 
-        xpAwarded: TOPIC_COMPLETION_XP,
+        xpAwarded: policy.topicCompletionXp,
 
         ...(utcOffsetMinutes !== undefined
           ? {
@@ -190,7 +189,7 @@ export class UpdateSubtopicProgressUseCase implements IUpdateSubtopicProgressUse
 
         trackerTitle,
 
-        xpAwarded: TRACKER_COMPLETION_XP,
+        xpAwarded: policy.trackerCompletionXp,
 
         ...(utcOffsetMinutes !== undefined
           ? {

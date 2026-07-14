@@ -21,7 +21,6 @@ interface IProfileHeaderProps {
   onChangeAvatar: () => void;
   onEdit: () => void;
   onSendFriendRequest: () => void;
-  onMessage: () => void;
   onCopyProfileLink: () => void;
 }
 
@@ -114,7 +113,6 @@ function ProfileActions({
   relationship,
   isSendingFriendRequest,
   onSendFriendRequest,
-  onMessage,
   onEdit,
   onCopyProfileLink,
 }: Omit<
@@ -168,25 +166,6 @@ function ProfileActions({
                   : relationship === 'request_sent'
                     ? 'Request Sent'
                     : 'Send Request'}
-          </button>
-
-          <button
-            type="button"
-            onClick={onMessage}
-            className="inline-flex items-center gap-1.75 whitespace-nowrap rounded-md border-[1.5px] border-(--border-subtle) px-5.5 py-2.5 text-[13px] font-semibold text-(--text-primary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-primary) max-[640px]:flex-[1_1_150px] max-[640px]:justify-center"
-          >
-            <svg
-              width="13"
-              height="13"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              aria-hidden="true"
-            >
-              <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
-            </svg>
-            Message
           </button>
         </>
       ) : (
@@ -294,7 +273,6 @@ export default function ProfileHeader({
   onChangeAvatar,
   onEdit,
   onSendFriendRequest,
-  onMessage,
   onCopyProfileLink,
 }: IProfileHeaderProps) {
   return (
@@ -369,7 +347,6 @@ export default function ProfileHeader({
             relationship={relationship}
             isSendingFriendRequest={isSendingFriendRequest}
             onSendFriendRequest={onSendFriendRequest}
-            onMessage={onMessage}
             onEdit={onEdit}
             onCopyProfileLink={onCopyProfileLink}
           />

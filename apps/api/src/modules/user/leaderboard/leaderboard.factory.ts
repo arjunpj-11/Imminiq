@@ -8,6 +8,7 @@ import { RecordLeaderboardXpUseCase } from './application/use-cases/record-leade
 import { ReplaceLeaderboardFriendsUseCase } from './application/use-cases/replace-leaderboard-friends.usecase';
 import { mongoLeaderboardRepository } from './infrastructure/repositories/mongo-leaderboard.repository';
 import { systemClock } from '../../../infrastructure/time/system-clock';
+import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 
 export type LeaderboardComposition = {
   useCases: LeaderboardUseCases;
@@ -24,9 +25,10 @@ export const createLeaderboardComposition = (): LeaderboardComposition => {
         leaderboardRepository,
         leaderboardMapper,
         dateRange,
-        systemClock
+        systemClock,
+        mongoPlatformPolicyReader
       ),
-      getRewards: new GetLeaderboardRewardsUseCase(),
+      getRewards: new GetLeaderboardRewardsUseCase(mongoPlatformPolicyReader),
       recordXp: new RecordLeaderboardXpUseCase(leaderboardRepository, systemClock),
       replaceFriends: new ReplaceLeaderboardFriendsUseCase(leaderboardRepository),
       captureSnapshot: new CaptureLeaderboardSnapshotUseCase(
@@ -37,5 +39,3 @@ export const createLeaderboardComposition = (): LeaderboardComposition => {
     },
   };
 };
-
-export const leaderboardComposition = createLeaderboardComposition();

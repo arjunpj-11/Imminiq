@@ -2,6 +2,10 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import api from '../../../../lib/axios';
+import { COMMUNITY_ENDPOINTS } from '../constants/community.constants';
+import { dashboardKeys } from '../../dashboard';
+import { trackerKeys } from '../../trackers';
+import { communityKeys } from './community.query-keys';
 import type { IApiErrorResponse, IApiResponse, ICommunityTracker } from '../types/community.types';
 
 interface ICloneCommunityTrackerPayload {
@@ -16,7 +20,7 @@ const cloneCommunityTracker = async (
   payload: ICloneCommunityTrackerPayload
 ): Promise<ICloneCommunityTrackerData> => {
   const response = await api.post<IApiResponse<ICloneCommunityTrackerData>>(
-    `/community/trackers/${payload.trackerId}/clone`
+    COMMUNITY_ENDPOINTS.cloneTracker(payload.trackerId)
   );
 
   if (!response.data.data) {
@@ -36,9 +40,9 @@ export const useCloneCommunityTracker = () => {
   >({
     mutationFn: cloneCommunityTracker,
     onSuccess: () => {
-      void queryClient.invalidateQueries({ queryKey: ['community'] });
-      void queryClient.invalidateQueries({ queryKey: ['trackers'] });
-      void queryClient.invalidateQueries({ queryKey: ['dashboard'] });
+      void queryClient.invalidateQueries({ queryKey: communityKeys.all });
+      void queryClient.invalidateQueries({ queryKey: trackerKeys.all });
+      void queryClient.invalidateQueries({ queryKey: dashboardKeys.all });
     },
   });
 };

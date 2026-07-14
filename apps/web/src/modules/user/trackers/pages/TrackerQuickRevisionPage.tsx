@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { useTrackerRoadmap, useTrackerLesson } from '../hooks/useTrackers';
@@ -390,7 +391,7 @@ export default function TrackerQuickRevisionPage() {
             <div className="mb-3 flex items-center gap-2">
               <button
                 type="button"
-                onClick={() => navigate('/trackers')}
+                onClick={() => navigate(ROUTES.trackers)}
                 className="font-mono text-[8.5px] uppercase tracking-[0.14em] text-(--text-secondary) transition hover:text-(--brand-500) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
               >
                 Trackers

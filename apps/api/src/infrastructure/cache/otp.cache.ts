@@ -1,6 +1,5 @@
 import { redis } from './redis.client';
-
-const OTP_TTL_SECONDS = 10 * 60; // 10 minutes
+import { env } from '../../config/env';
 
 export type OtpPurpose = 'email_verification' | 'phone_verification' | 'password_reset';
 
@@ -16,7 +15,7 @@ export const otpCache = {
   save: async (identifier: string, purpose: OtpPurpose, otpHash: string) => {
     const key = getKey(identifier, purpose);
 
-    await redis.set(key, otpHash, 'EX', OTP_TTL_SECONDS);
+    await redis.set(key, otpHash, 'EX', env.OTP_EXPIRES_MINUTES * 60);
   },
 
   get: async (identifier: string, purpose: OtpPurpose) => {

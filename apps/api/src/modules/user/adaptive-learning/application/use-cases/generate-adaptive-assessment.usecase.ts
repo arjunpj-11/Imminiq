@@ -2,11 +2,11 @@ import type { IAdaptiveLearningRepository } from '../../domain/repositories/adap
 import type { IAdaptiveLearningAgent } from '../../domain/services/adaptive-learning-agent.interface';
 import type { IAdaptiveTestGenerator } from '../../domain/services/adaptive-test-generator.interface';
 import { AdaptiveLearningApplicationError } from '../adaptive-learning-application.error';
-import type { IAdaptiveAssessmentGenerationDTO } from '../adaptive-learning.dto';
+import type { AdaptiveAssessmentGenerationDTO } from '../adaptive-learning.dto';
 import type { IAdaptiveLearningMapper } from '../adaptive-learning.mapper';
 
 export interface IGenerateAdaptiveAssessmentUseCase {
-  execute(userId: string): Promise<IAdaptiveAssessmentGenerationDTO>;
+  execute(userId: string): Promise<AdaptiveAssessmentGenerationDTO>;
 }
 
 export class GenerateAdaptiveAssessmentUseCase implements IGenerateAdaptiveAssessmentUseCase {
@@ -17,7 +17,7 @@ export class GenerateAdaptiveAssessmentUseCase implements IGenerateAdaptiveAsses
     private readonly _mapper: IAdaptiveLearningMapper
   ) {}
 
-  async execute(userId: string): Promise<IAdaptiveAssessmentGenerationDTO> {
+  async execute(userId: string): Promise<AdaptiveAssessmentGenerationDTO> {
     const [snapshot, profile] = await Promise.all([
       this._repository.getLearnerSnapshot(userId),
       this._repository.getOrCreateProfile(userId),

@@ -1,17 +1,18 @@
 import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { requireAdmin } from '../../../../shared/middlewares/admin.middleware';
-import type { IAdminTrackersUseCase } from '../application/use-cases/admin-trackers.usecase';
+import type { AdminTrackersUseCases } from '../application/admin-trackers-use-cases.contract';
 import { AdminTrackersController } from './admin-trackers.controller';
-export const createAdminTrackersRoutes = (useCase: IAdminTrackersUseCase) => {
+import { ADMIN_TRACKERS_ROUTE_PATHS } from './admin-trackers.route.constants';
+export const createAdminTrackersRoutes = (useCases: AdminTrackersUseCases) => {
   const router = Router();
-  const controller = new AdminTrackersController(useCase);
+  const controller = new AdminTrackersController(useCases);
   router.use(authenticate, requireAdmin);
-  router.get('/', controller.list);
-  router.get('/published', controller.listPublished);
-  router.post('/published/:id/like', controller.likePublished);
-  router.put('/published/:id/rating', controller.ratePublished);
-  router.get('/:id', controller.getDetail);
-  router.delete('/:id', controller.delete);
+  router.get(ADMIN_TRACKERS_ROUTE_PATHS.ROOT, controller.list);
+  router.get(ADMIN_TRACKERS_ROUTE_PATHS.PUBLISHED, controller.listPublished);
+  router.post(ADMIN_TRACKERS_ROUTE_PATHS.PUBLISHED_LIKE, controller.likePublished);
+  router.put(ADMIN_TRACKERS_ROUTE_PATHS.PUBLISHED_RATING, controller.ratePublished);
+  router.get(ADMIN_TRACKERS_ROUTE_PATHS.DETAIL, controller.getDetail);
+  router.delete(ADMIN_TRACKERS_ROUTE_PATHS.DETAIL, controller.delete);
   return router;
 };

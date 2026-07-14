@@ -5,6 +5,7 @@ import axios from 'axios';
 import { useVerifyTwoFactorLogin } from '../hooks/useVerifyTwoFactorLogin';
 import { AlertIcon, LogoIcon } from '../components/icons/AuthIcons';
 import { cn } from '../utils/auth-ui';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 const ShieldIcon = () => {
   return (
@@ -113,7 +114,7 @@ export default function TwoFactorChallengePage() {
         <main className="flex flex-1 items-center justify-center px-4 py-8 sm:px-8 lg:px-14">
           <div className="w-full max-w-120">
             <div className="mb-8 flex items-center justify-between lg:hidden">
-              <Link to="/" className="inline-flex items-center gap-2.5">
+              <Link to={ROUTES.home} className="inline-flex items-center gap-2.5">
                 <LogoIcon className="h-10 w-10" />
 
                 <span className="text-[23px] font-bold tracking-[-0.5px]">
@@ -211,7 +212,7 @@ export default function TwoFactorChallengePage() {
                 <p>Lost access to your authenticator? Use a saved backup code.</p>
 
                 <Link
-                  to="/login"
+                  to={ROUTES.login}
                   className="font-medium text-(--brand-500) transition hover:underline dark:text-(--brand-500)"
                 >
                   Back to sign in

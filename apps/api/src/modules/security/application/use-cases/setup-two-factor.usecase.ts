@@ -2,13 +2,13 @@ import { TWO_FACTOR_ISSUER } from '../../domain/security.constants';
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
 import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface';
-import type { ITwoFactorSetupResponseDTO } from '../security.dto';
+import type { TwoFactorSetupResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 
 type SetupTwoFactorRepository = ISecurityUserRepository & ISecurityTwoFactorRepository;
 
 export interface ISetupTwoFactorUseCase {
-  execute(userId: string): Promise<ITwoFactorSetupResponseDTO>;
+  execute(userId: string): Promise<TwoFactorSetupResponseDTO>;
 }
 
 export class SetupTwoFactorUseCase implements ISetupTwoFactorUseCase {
@@ -17,7 +17,7 @@ export class SetupTwoFactorUseCase implements ISetupTwoFactorUseCase {
     private readonly _twoFactorGateway: ITwoFactorGateway
   ) {}
 
-  async execute(userId: string): Promise<ITwoFactorSetupResponseDTO> {
+  async execute(userId: string): Promise<TwoFactorSetupResponseDTO> {
     const user = await this._securityRepository.findUserById(userId);
 
     if (!user) {

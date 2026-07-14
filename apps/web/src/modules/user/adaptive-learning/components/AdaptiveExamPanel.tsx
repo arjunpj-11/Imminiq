@@ -6,6 +6,7 @@ import {
   useGenerateAdaptiveAssessment,
 } from '../hooks/useAdaptiveLearning';
 import { useActiveMockTestGeneration } from '../../mock-tests/hooks/useMockTests';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function AdaptiveExamPanel() {
   const navigate = useNavigate();
@@ -49,7 +50,7 @@ export default function AdaptiveExamPanel() {
         <div className="flex shrink-0 flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => navigate('/learning-agent')}
+            onClick={() => navigate(ROUTES.learningAgent)}
             className="rounded-xl border border-(--border-subtle) bg-(--surface-card) px-4 py-2.5 text-[12px] font-bold text-(--text-primary)"
           >
             Ask the agent

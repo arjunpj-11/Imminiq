@@ -1,12 +1,12 @@
 import type { AdminDashboardEntity } from '../domain/entities/admin-dashboard.entity';
-import type { IAdminDashboardDTO } from './admin-dashboard.dto';
+import type { AdminDashboardDTO } from './admin-dashboard.dto';
 
 export interface IAdminDashboardMapper {
-  toDTO(entity: AdminDashboardEntity): IAdminDashboardDTO;
+  toDTO(entity: AdminDashboardEntity): AdminDashboardDTO;
 }
 
 export class AdminDashboardMapper implements IAdminDashboardMapper {
-  toDTO(entity: AdminDashboardEntity): IAdminDashboardDTO {
+  toDTO(entity: AdminDashboardEntity): AdminDashboardDTO {
     return {
       metrics: { ...entity.metrics },
       weeklyActivity: [...entity.weeklyActivity],

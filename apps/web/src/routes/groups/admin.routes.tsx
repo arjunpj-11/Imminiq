@@ -1,5 +1,5 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
-import AdminLayout from '../../components/admin/AdminLayout';
+import { AdminLayout } from '../../modules/admin/shared';
 import { AdminDashboardPage } from '../../modules/admin/dashboard';
 import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
 import {
@@ -17,34 +17,38 @@ import { AdminSupportTicketsPage } from '../../modules/admin/support-tickets';
 import { AdminSettingsPage } from '../../modules/admin/settings';
 import { AdminSubscriptionsPage } from '../../modules/admin/subscriptions';
 import { AdminAITokenSpendPage } from '../../modules/admin/ai-token-spend';
+import { ADMIN_ROUTES } from '../config/route-paths';
 
 export const adminRoutes: RouteObject[] = [
   {
     element: <AdminLayout />,
     children: [
-      { path: '/admin', element: <AdminDashboardPage /> },
-      { path: '/admin/users', element: <AdminUsersPage /> },
-      { path: '/admin/users/:userId', element: <AdminUserDetailPage /> },
-      { path: '/admin/trackers', element: <AdminTrackersPage /> },
-      { path: '/admin/trackers/reviews', element: <AdminTrackerReviewsPage /> },
-      { path: '/admin/trackers/published', element: <AdminPublishedTrackersPage /> },
-      { path: '/admin/trackers/:trackerId', element: <AdminTrackerDetailPage /> },
-      { path: '/admin/mock-tests', element: <AdminMockTestsPage /> },
-      { path: '/admin/mock-tests/:testId', element: <AdminMockTestDetailPage /> },
+      { path: ADMIN_ROUTES.dashboard, element: <AdminDashboardPage /> },
+      { path: ADMIN_ROUTES.users, element: <AdminUsersPage /> },
+      { path: ADMIN_ROUTES.userDetailPattern, element: <AdminUserDetailPage /> },
+      { path: ADMIN_ROUTES.trackers, element: <AdminTrackersPage /> },
+      { path: ADMIN_ROUTES.trackerReviews, element: <AdminTrackerReviewsPage /> },
+      { path: ADMIN_ROUTES.publishedTrackers, element: <AdminPublishedTrackersPage /> },
+      { path: ADMIN_ROUTES.trackerDetailPattern, element: <AdminTrackerDetailPage /> },
+      { path: ADMIN_ROUTES.mockTests, element: <AdminMockTestsPage /> },
+      { path: ADMIN_ROUTES.mockTestDetailPattern, element: <AdminMockTestDetailPage /> },
       {
-        path: '/admin/tracker-reviews',
-        element: <Navigate to="/admin/trackers/reviews" replace />,
+        path: ADMIN_ROUTES.legacyTrackerReviews,
+        element: <Navigate to={ADMIN_ROUTES.trackerReviews} replace />,
       },
-      { path: '/admin/activity', element: <AdminAnalyticsPage /> },
-      { path: '/admin/analytics', element: <Navigate to="/admin/activity" replace /> },
-      { path: '/admin/broadcast', element: <AdminBroadcastPage /> },
-      { path: '/admin/subscriptions', element: <AdminSubscriptionsPage /> },
-      { path: '/admin/audit-logs', element: <AdminAuditLogsPage /> },
-      { path: '/admin/system-health', element: <AdminSystemHealthPage /> },
-      { path: '/admin/ai-token-spend', element: <AdminAITokenSpendPage /> },
-      { path: '/admin/support-tickets', element: <AdminSupportTicketsPage /> },
-      { path: '/admin/settings', element: <AdminSettingsPage /> },
-      { path: '/admin/support', element: <AdminSupportTicketsPage /> },
+      { path: ADMIN_ROUTES.activity, element: <AdminAnalyticsPage /> },
+      {
+        path: ADMIN_ROUTES.legacyAnalytics,
+        element: <Navigate to={ADMIN_ROUTES.activity} replace />,
+      },
+      { path: ADMIN_ROUTES.broadcast, element: <AdminBroadcastPage /> },
+      { path: ADMIN_ROUTES.subscriptions, element: <AdminSubscriptionsPage /> },
+      { path: ADMIN_ROUTES.auditLogs, element: <AdminAuditLogsPage /> },
+      { path: ADMIN_ROUTES.systemHealth, element: <AdminSystemHealthPage /> },
+      { path: ADMIN_ROUTES.aiTokenSpend, element: <AdminAITokenSpendPage /> },
+      { path: ADMIN_ROUTES.supportTickets, element: <AdminSupportTicketsPage /> },
+      { path: ADMIN_ROUTES.settings, element: <AdminSettingsPage /> },
+      { path: ADMIN_ROUTES.legacySupport, element: <AdminSupportTicketsPage /> },
     ],
   },
 ];

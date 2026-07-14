@@ -1,15 +1,15 @@
 export type {
-  IUpdateAccountPayloadDTO,
-  IUpdateAIBehaviourPayloadDTO,
-  IUpdateAppearancePayloadDTO,
-  IUpdateCodeEditorPayloadDTO,
-  IUpdateCompilerPayloadDTO,
-  IUpdateEmailDigestPayloadDTO,
-  IUpdateGesturesPayloadDTO,
-  IUpdateLearningJourneyPayloadDTO,
-  IUpdateNotificationsPayloadDTO,
-  IUpdatePrivacyPayloadDTO,
-  IUpdateQuietHoursPayloadDTO,
+  UpdateAccountPayloadDTO,
+  UpdateAIBehaviourPayloadDTO,
+  UpdateAppearancePayloadDTO,
+  UpdateCodeEditorPayloadDTO,
+  UpdateCompilerPayloadDTO,
+  UpdateEmailDigestPayloadDTO,
+  UpdateGesturesPayloadDTO,
+  UpdateLearningJourneyPayloadDTO,
+  UpdateNotificationsPayloadDTO,
+  UpdatePrivacyPayloadDTO,
+  UpdateQuietHoursPayloadDTO,
   UserSettingsViewDTO,
 } from './application/settings.dto';
 
@@ -23,4 +23,4 @@ export type {
 } from './domain/settings.types';
 
 export { createSettingsComposition } from './settings.factory';
-export { settingsRoutes } from './presentation/settings.routes';
+export { createSettingsRoutes } from './presentation/settings.routes';

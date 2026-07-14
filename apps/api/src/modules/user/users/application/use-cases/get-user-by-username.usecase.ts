@@ -1,10 +1,10 @@
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
 import { UsersApplicationError } from '../users-application.error';
-import type { ICurrentUserViewDTO } from '../users.dto';
+import type { CurrentUserViewDTO } from '../users.dto';
 import type { IUsersMapper } from '../users.mapper';
 
 export interface IGetUserByUsernameUseCase {
-  execute(username: string): Promise<ICurrentUserViewDTO>;
+  execute(username: string): Promise<CurrentUserViewDTO>;
 }
 
 export class GetUserByUsernameUseCase implements IGetUserByUsernameUseCase {

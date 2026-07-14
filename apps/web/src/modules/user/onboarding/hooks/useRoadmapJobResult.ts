@@ -1,6 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../lib/axios';
+import { ONBOARDING_API_PATHS } from '../constants/onboarding.constants';
+import { onboardingKeys } from './onboarding.query-keys';
 
 export interface IRoadmapSubtopic {
   _id?: string;
@@ -63,10 +65,12 @@ interface IApiErrorResponse {
 
 export const useRoadmapJobResult = (jobId?: string) => {
   return useQuery<IRoadmapJobResultResponse, AxiosError<IApiErrorResponse>>({
-    queryKey: ['roadmap-job-result', jobId],
+    queryKey: onboardingKeys.roadmapJobResult(jobId || ''),
 
     queryFn: async () => {
-      const response = await api.get<IRoadmapJobResultResponse>(`/onboarding/jobs/${jobId}/result`);
+      const response = await api.get<IRoadmapJobResultResponse>(
+        ONBOARDING_API_PATHS.jobResult(jobId || '')
+      );
 
       return response.data;
     },

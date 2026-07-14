@@ -7,9 +7,10 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
-import { useAdminTrackerDetail } from '../hooks/useAdminTrackers';
+} from '../../shared';
+import { useAdminTrackerDetail } from '../hooks/useAdminTrackerDetail';
 import type { AdminTrackerSubtopic } from '../types/admin-trackers.types';
+import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 
 export default function AdminTrackerDetailPage() {
   const { trackerId } = useParams();
@@ -17,13 +18,13 @@ export default function AdminTrackerDetailPage() {
   const fromTrackerReview = Boolean(
     (location.state as { fromTrackerReview?: boolean } | null)?.fromTrackerReview
   );
-  const { data, isLoading, isError } = useAdminTrackerDetail(trackerId);
+  const { data, isLoading, isError, error } = useAdminTrackerDetail(trackerId);
   if (isLoading) return <AdminLoading />;
-  if (isError || !data) return <AdminError />;
+  if (isError || !data) return <AdminError error={error} />;
   return (
     <main className="mx-auto max-w-275 px-5 py-8 sm:px-8">
       <Link
-        to={fromTrackerReview ? '/admin/trackers/reviews' : '/admin/trackers'}
+        to={fromTrackerReview ? ADMIN_TRACKERS_ROUTES.reviews : ADMIN_TRACKERS_ROUTES.list}
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
       >
         <ArrowLeft size={16} />

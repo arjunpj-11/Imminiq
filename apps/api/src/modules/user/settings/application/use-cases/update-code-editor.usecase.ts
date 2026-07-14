@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdateCodeEditorPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateCodeEditorPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateCodeEditorRepository = {
@@ -7,10 +7,7 @@ type UpdateCodeEditorRepository = {
 };
 
 export interface IUpdateCodeEditorUseCase {
-  execute(
-    userId: string,
-    payload: IUpdateCodeEditorPayloadDTO
-  ): Promise<UserSettingsViewDTO | null>;
+  execute(userId: string, payload: UpdateCodeEditorPayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdateCodeEditorUseCase implements IUpdateCodeEditorUseCase {
@@ -21,7 +18,7 @@ export class UpdateCodeEditorUseCase implements IUpdateCodeEditorUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdateCodeEditorPayloadDTO
+    payload: UpdateCodeEditorPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateCodeEditor({
       userId,

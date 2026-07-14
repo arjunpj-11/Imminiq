@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import FriendRequestsView from '../components/requests/FriendRequestsView';
 import FriendsAppShell from '../components/shared/FriendsAppShell';
@@ -182,7 +183,7 @@ export default function FriendsPage() {
 
           <button
             type="button"
-            onClick={() => navigate('/friends/search')}
+            onClick={() => navigate(ROUTES.friendsSearch)}
             className={`inline-flex min-h-11 shrink-0 items-center justify-center gap-2 rounded-md bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white transition hover:-translate-y-px hover:bg-(--brand-600) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/30 dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600) ${activeTab === 'requests' ? 'sm:ml-auto' : ''}`}
           >
             <UserPlusIcon />

@@ -8,13 +8,16 @@ import {
   saveBlockedAppealIdentifier,
   saveBlockedAppealToken,
 } from '../../../lib/blockedAppealSession';
+import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
+import { AUTH_API_PATHS } from '../constants/auth.constants';
 
 interface ILoginPayload {
   identifier: string;
   password: string;
 }
 
-type LoginRedirectPath = '/dashboard' | '/onboarding/step-1' | '/admin';
+type LoginRedirectPath =
+  typeof ROUTES.dashboard | typeof ROUTES.onboardingStepOne | typeof ADMIN_ROUTES.dashboard;
 
 interface IStandardLoginData {
   accessToken?: string;
@@ -67,7 +70,7 @@ export const useLogin = () => {
 
   return useMutation<ILoginResponse, AxiosError<IApiErrorResponse>, ILoginPayload>({
     mutationFn: async (payload) => {
-      const response = await api.post<ILoginResponse>('/auth/login', payload);
+      const response = await api.post<ILoginResponse>(AUTH_API_PATHS.login, payload);
 
       return response.data;
     },
@@ -76,7 +79,7 @@ export const useLogin = () => {
       const data = response.data;
 
       if (isTwoFactorRequired(data)) {
-        navigate('/two-factor-challenge', {
+        navigate(ROUTES.twoFactorChallenge, {
           replace: true,
         });
 
@@ -86,8 +89,8 @@ export const useLogin = () => {
       const user = data?.user;
       const accessToken = data?.accessToken;
       const redirectPath = ['admin', 'superadmin'].includes(user?.role || '')
-        ? '/admin'
-        : data?.redirectPath || '/dashboard';
+        ? ADMIN_ROUTES.dashboard
+        : data?.redirectPath || ROUTES.dashboard;
 
       if (!user) {
         console.error('Login succeeded, but user was not returned from backend.');
@@ -121,7 +124,7 @@ export const useLogin = () => {
         saveBlockedAppealIdentifier(payload.identifier);
         saveBlockedAppealToken(appealToken);
 
-        navigate('/blocked', {
+        navigate(ROUTES.blocked, {
           replace: true,
         });
 

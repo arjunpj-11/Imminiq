@@ -1,34 +1,22 @@
-import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../shared';
+import type { AdminListQuery, AdminPageData } from '../../shared';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 import type { AdminAuditLog } from '../types/admin-audit-logs.types';
+import { adminAuditLogsKeys } from './admin-audit-logs.query-keys';
+import {
+  ADMIN_AUDIT_LOGS_ENDPOINTS,
+  ADMIN_AUDIT_LOGS_STALE_TIME_MS,
+} from '../constants/admin-audit-logs.constants';
 export const useAdminAuditLogs = (query: AdminListQuery) =>
   useQuery({
-    queryKey: ['admin', 'audit-logs', query],
+    queryKey: adminAuditLogsKeys.list(query),
     queryFn: async () =>
       (
-        await api.get<ApiEnvelope<AdminPageData<AdminAuditLog>>>('/admin/audit-logs', {
+        await api.get<ApiEnvelope<AdminPageData<AdminAuditLog>>>(ADMIN_AUDIT_LOGS_ENDPOINTS.list, {
           params: query,
         })
       ).data.data,
     placeholderData: keepPreviousData,
-  });
-
-export const useExportAdminAuditLogs = () =>
-  useMutation({
-    mutationFn: async (query: Pick<AdminListQuery, 'search' | 'status' | 'from' | 'to'>) => {
-      const items: AdminAuditLog[] = [];
-      let page = 1;
-      while (true) {
-        const result = (
-          await api.get<ApiEnvelope<AdminPageData<AdminAuditLog>>>('/admin/audit-logs', {
-            params: { ...query, page, limit: 100 },
-          })
-        ).data.data;
-        items.push(...result.items);
-        if (!result.items.length || page >= result.pagination.pages) break;
-        page += 1;
-      }
-      return items;
-    },
+    staleTime: ADMIN_AUDIT_LOGS_STALE_TIME_MS,
   });

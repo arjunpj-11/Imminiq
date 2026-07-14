@@ -1,8 +1,8 @@
 import type { IUsersProfileDataReader } from '../services/users-profile-data.service';
-import type { IStreakSummaryViewDTO } from '../users.dto';
+import type { StreakSummaryViewDTO } from '../users.dto';
 
 export interface IGetMyStreakUseCase {
-  execute(userId: string, year?: number): Promise<IStreakSummaryViewDTO>;
+  execute(userId: string, year?: number): Promise<StreakSummaryViewDTO>;
 }
 
 export class GetMyStreakUseCase implements IGetMyStreakUseCase {

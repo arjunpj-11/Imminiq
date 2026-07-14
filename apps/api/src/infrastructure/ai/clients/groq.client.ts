@@ -6,14 +6,14 @@ export const groq = new Groq({ apiKey: env.GROQ_API_KEY });
 
 export const groqChat = async (
   messages: { role: 'user' | 'assistant' | 'system'; content: string }[],
-  model = 'llama-3.3-70b-versatile',
+  model = env.GROQ_DEFAULT_MODEL,
   category: AITokenUsageCategory = 'other'
 ) => {
   const response = await groq.chat.completions.create({
     model,
     messages,
     temperature: 0.7,
-    max_tokens: 2048,
+    max_tokens: env.GROQ_MAX_TOKENS,
   });
 
   recordAITokenUsage('Groq', model, category, {

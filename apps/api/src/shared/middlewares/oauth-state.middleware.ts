@@ -4,8 +4,6 @@ import type { NextFunction, Request, Response } from 'express';
 import { env } from '../../config/env';
 import { oauthStateCache, type OAuthProvider } from '../../infrastructure/cache/oauth-state.cache';
 
-const OAUTH_STATE_TTL_SECONDS = 10 * 60;
-
 const cookieNameFor = (provider: OAuthProvider) => {
   return `imminiq_oauth_state_${provider}`;
 };
@@ -15,7 +13,7 @@ const getCookieOptions = () => ({
   secure: env.NODE_ENV === 'production',
   sameSite: 'lax' as const,
   path: '/api/auth/oauth',
-  maxAge: OAUTH_STATE_TTL_SECONDS * 1000,
+  maxAge: env.OAUTH_STATE_TTL_SECONDS * 1000,
 });
 
 const safeEquals = (left: string, right: string): boolean => {
@@ -38,7 +36,7 @@ export const issueOAuthState =
     try {
       const state = randomBytes(32).toString('hex');
 
-      await oauthStateCache.save(provider, state, OAUTH_STATE_TTL_SECONDS);
+      await oauthStateCache.save(provider, state, env.OAUTH_STATE_TTL_SECONDS);
 
       res.cookie(cookieNameFor(provider), state, getCookieOptions());
 

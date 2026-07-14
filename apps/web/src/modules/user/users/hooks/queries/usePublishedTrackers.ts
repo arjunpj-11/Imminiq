@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../../../../lib/axios';
+import { PROFILE_API_PATHS } from '../../constants/profile-api.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
@@ -42,7 +43,7 @@ export const usePublishedTrackers = (
     enabled: options.enabled ?? true,
     queryFn: async () => {
       const response = await api.get<IApiResponse<IPaginatedResult<IPublishedTracker>>>(
-        '/users/me/published-trackers',
+        PROFILE_API_PATHS.publishedTrackers,
         {
           params: normalizedParams,
         }

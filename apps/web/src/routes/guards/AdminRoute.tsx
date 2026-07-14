@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import AuthLoadingScreen from '../../components/ui/AuthLoadingScreen';
 import { useAuthStore } from '../../store/useAuthStore';
+import { ROUTES } from '../config/route-paths';
 
 interface IAdminRouteProps {
   children?: ReactNode;
@@ -14,7 +15,7 @@ export function AdminRoute({ children }: IAdminRouteProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
 
   if (!authReady) return <AuthLoadingScreen />;
-  if (!isAuthenticated || !user) return <Navigate to="/login" replace />;
+  if (!isAuthenticated || !user) return <Navigate to={ROUTES.login} replace />;
 
   if (
     user.status === 'blocked' ||
@@ -22,11 +23,11 @@ export function AdminRoute({ children }: IAdminRouteProps) {
     user.status === 'deactivated' ||
     user.status === 'paused'
   ) {
-    return <Navigate to="/blocked" replace />;
+    return <Navigate to={ROUTES.blocked} replace />;
   }
 
   if (!['admin', 'superadmin'].includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={ROUTES.dashboard} replace />;
   }
 
   return children ? <>{children}</> : <Outlet />;

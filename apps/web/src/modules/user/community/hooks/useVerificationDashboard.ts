@@ -2,12 +2,13 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import api from '../../../../lib/axios';
-import { COMMUNITY_VERIFY_PAGE_LIMIT } from '../constants/community.constants';
+import { COMMUNITY_ENDPOINTS, COMMUNITY_VERIFY_PAGE_LIMIT } from '../constants/community.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,
   ICommunityVerificationDashboardData,
 } from '../types/community.types';
+import { communityKeys } from './community.query-keys';
 
 interface IVerificationDashboardQuery {
   page?: number;
@@ -23,7 +24,7 @@ const fetchVerificationDashboard = async (
   params.set('limit', String(query.limit ?? COMMUNITY_VERIFY_PAGE_LIMIT));
 
   const response = await api.get<IApiResponse<ICommunityVerificationDashboardData>>(
-    `/community/verify/dashboard?${params.toString()}`
+    COMMUNITY_ENDPOINTS.verificationDashboard(params.toString())
   );
 
   if (!response.data.data) {
@@ -35,7 +36,7 @@ const fetchVerificationDashboard = async (
 
 export const useVerificationDashboard = (query: IVerificationDashboardQuery) => {
   return useQuery<ICommunityVerificationDashboardData, AxiosError<IApiErrorResponse>>({
-    queryKey: ['community', 'verify', 'dashboard', query],
+    queryKey: communityKeys.verificationDashboard(query),
     queryFn: () => fetchVerificationDashboard(query),
     staleTime: 30 * 1000,
   });

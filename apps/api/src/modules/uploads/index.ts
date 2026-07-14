@@ -1,10 +1,10 @@
 export type {
-  IAIImagePreviewResultDTO,
-  IGenerateAIImagePreviewInputDTO,
-  IRemoveAvatarResultDTO,
-  IRemoveBannerResultDTO,
-  IUploadProfileImageInputDTO,
-  IUploadProfileImageResultDTO,
+  AIImagePreviewResultDTO,
+  GenerateAIImagePreviewInputDTO,
+  RemoveAvatarResultDTO,
+  RemoveBannerResultDTO,
+  UploadProfileImageInputDTO,
+  UploadProfileImageResultDTO,
 } from './application/uploads.dto';
 
 export type {

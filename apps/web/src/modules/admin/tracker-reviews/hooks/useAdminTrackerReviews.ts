@@ -1,31 +1,25 @@
-import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../shared';
+import type { AdminListQuery, AdminPageData } from '../../shared';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 import type { AdminTrackerReview } from '../types/admin-tracker-reviews.types';
+import { adminTrackerReviewsKeys } from './admin-tracker-reviews.query-keys';
+import {
+  ADMIN_TRACKER_REVIEWS_ENDPOINTS,
+  ADMIN_TRACKER_REVIEWS_STALE_TIME_MS,
+} from '../constants/admin-tracker-reviews.constants';
 export const useAdminTrackerReviews = (query: AdminListQuery) =>
   useQuery({
-    queryKey: ['admin', 'tracker-reviews', query],
+    queryKey: adminTrackerReviewsKeys.list(query),
     queryFn: async () =>
       (
-        await api.get<ApiEnvelope<AdminPageData<AdminTrackerReview>>>('/admin/tracker-reviews', {
-          params: query,
-        })
+        await api.get<ApiEnvelope<AdminPageData<AdminTrackerReview>>>(
+          ADMIN_TRACKER_REVIEWS_ENDPOINTS.list,
+          {
+            params: query,
+          }
+        )
       ).data.data,
     placeholderData: keepPreviousData,
+    staleTime: ADMIN_TRACKER_REVIEWS_STALE_TIME_MS,
   });
-export const useResolveAdminTrackerReview = () => {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, status }: { id: string; status: 'approved' | 'rejected' }) =>
-      api.patch(`/admin/tracker-reviews/${id}/status`, { status }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'tracker-reviews'] }),
-  });
-};
-export const useAddAdminTrackerReviewConsensus = () => {
-  const client = useQueryClient();
-  return useMutation({
-    mutationFn: ({ id, choice }: { id: string; choice: 'pass' | 'fail' }) =>
-      api.patch(`/admin/tracker-reviews/${id}/consensus`, { choice }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'tracker-reviews'] }),
-  });
-};

@@ -2,6 +2,7 @@ import mongoose from 'mongoose';
 import { randomBytes } from 'crypto';
 import { Worker } from 'bullmq';
 import { redis } from '../../../config/redis';
+import { env } from '../../../config/env';
 
 import { AIGenerationJob } from '../../database/models/ai-generation-job.model';
 import { AIGenerationStep } from '../../database/models/ai-generation-step.model';
@@ -25,7 +26,6 @@ import {
 // GEMINI RATE-LIMIT SETTINGS
 // ============================================================
 
-const GEMINI_AI_REQUESTS_PER_MINUTE = 2;
 const ONE_MINUTE_MS = 60_000;
 
 // ============================================================
@@ -63,7 +63,7 @@ const startStep = async (jobId: string, stepNumber: number) => {
         startedAt: new Date(),
       },
       {
-        new: true,
+        returnDocument: 'after',
       }
     ),
   ]);
@@ -80,7 +80,7 @@ const completeStep = async (jobId: string, stepNumber: number) => {
       completedAt: new Date(),
     },
     {
-      new: true,
+      returnDocument: 'after',
     }
   );
 };
@@ -693,10 +693,10 @@ export const aiWorker = new Worker(
     connection: redis,
     autorun: false,
 
-    concurrency: 1,
+    concurrency: env.AI_WORKER_CONCURRENCY,
 
     limiter: {
-      max: GEMINI_AI_REQUESTS_PER_MINUTE,
+      max: env.AI_WORKER_REQUESTS_PER_MINUTE,
       duration: ONE_MINUTE_MS,
     },
   }

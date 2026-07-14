@@ -1,7 +1,5 @@
-import {
-  DASHBOARD_ACTIVE_TRACKERS_LIMIT,
-  DASHBOARD_ONLINE_WINDOW_MS,
-} from '../../../domain/dashboard.constants';
+import { DASHBOARD_ACTIVE_TRACKERS_LIMIT } from '../../../domain/dashboard.constants';
+import { env } from '../../../../../../config/env';
 import { DashboardActiveTrackerEntity } from '../../../domain/entities/dashboard-active-tracker.entity';
 import { DashboardActivityIntensityEntity } from '../../../domain/entities/dashboard-activity-intensity.entity';
 import { DashboardBattleEntity } from '../../../domain/entities/dashboard-battle.entity';
@@ -252,6 +250,6 @@ export class MongoDashboardMapper {
       return false;
     }
 
-    return Date.now() - lastActiveAt.getTime() < DASHBOARD_ONLINE_WINDOW_MS;
+    return Date.now() - lastActiveAt.getTime() < env.DASHBOARD_ONLINE_WINDOW_MS;
   }
 }

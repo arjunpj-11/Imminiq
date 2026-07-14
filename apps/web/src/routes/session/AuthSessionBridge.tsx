@@ -2,7 +2,7 @@ import { useLocation } from 'react-router-dom';
 
 import { useAuthSync } from '../../hooks/auth/useAuthSync';
 import { useRestoreSession } from '../../hooks/auth/useRestoreSession';
-import { isPublicRoute } from '../config/route-paths';
+import { isPublicRoute, ROUTES } from '../config/route-paths';
 
 function AuthSessionSync() {
   useRestoreSession();
@@ -12,7 +12,7 @@ function AuthSessionSync() {
 
 export default function AuthSessionBridge() {
   const location = useLocation();
-  const isPublicProfile = location.pathname.startsWith('/profile/');
+  const isPublicProfile = location.pathname.startsWith(`${ROUTES.profile}/`);
 
   return isPublicRoute(location.pathname) && !isPublicProfile ? null : <AuthSessionSync />;
 }

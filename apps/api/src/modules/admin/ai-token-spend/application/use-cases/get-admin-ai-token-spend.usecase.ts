@@ -1,17 +1,19 @@
-import type {
-  AdminAITokenSpend,
-  AdminAITokenSpendRange,
-} from '../../domain/entities/admin-ai-token-spend.entity';
+import type { AdminAITokenSpendRange } from '../../domain/entities/admin-ai-token-spend.entity';
 import type { IAdminAITokenSpendRepository } from '../../domain/repositories/admin-ai-token-spend.repository.interface';
+import type { AdminAITokenSpendDTO } from '../admin-ai-token-spend.dto';
+import type { IAdminAITokenSpendMapper } from '../admin-ai-token-spend.mapper';
 
 export interface IGetAdminAITokenSpendUseCase {
-  execute(range: AdminAITokenSpendRange): Promise<AdminAITokenSpend>;
+  execute(range: AdminAITokenSpendRange): Promise<AdminAITokenSpendDTO>;
 }
 
 export class GetAdminAITokenSpendUseCase implements IGetAdminAITokenSpendUseCase {
-  constructor(private readonly repository: IAdminAITokenSpendRepository) {}
+  constructor(
+    private readonly repository: IAdminAITokenSpendRepository,
+    private readonly mapper: IAdminAITokenSpendMapper
+  ) {}
 
-  execute(range: AdminAITokenSpendRange): Promise<AdminAITokenSpend> {
-    return this.repository.get(range);
+  async execute(range: AdminAITokenSpendRange): Promise<AdminAITokenSpendDTO> {
+    return this.mapper.toDTO(await this.repository.get(range));
   }
 }

@@ -1,5 +1,3 @@
 export const DEFAULT_TRACKER_PAGE = 1;
 export const DEFAULT_TRACKER_LIMIT = 12;
 export const MAX_TRACKER_LIMIT = 50;
-export const DEFAULT_LESSON_QUESTION_COUNT = 5;
-export const MAX_LESSON_QUESTION_COUNT = 10;

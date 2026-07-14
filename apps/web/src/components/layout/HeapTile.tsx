@@ -1,10 +1,7 @@
 import { cn } from '../../lib/cn';
 
 import { useEffect, useMemo, useRef } from 'react';
-import type {
-  HeatmapIntensity,
-  IStreakSummary,
-} from '../../modules/user/users/types/profile.types';
+import type { HeatmapIntensity, IStreakSummary } from '../../modules/user/users';
 
 interface IHeapTileProps {
   streak?: IStreakSummary;

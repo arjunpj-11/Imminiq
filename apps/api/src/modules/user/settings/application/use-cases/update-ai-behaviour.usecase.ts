@@ -1,5 +1,5 @@
 import type { ISettingsCommandRepository } from '../../domain/repositories/settings-command.repository.interface';
-import type { IUpdateAIBehaviourPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
+import type { UpdateAIBehaviourPayloadDTO, UserSettingsViewDTO } from '../settings.dto';
 import type { ISettingsMapper } from '../settings.mapper';
 
 type UpdateAIBehaviourRepository = {
@@ -9,7 +9,7 @@ type UpdateAIBehaviourRepository = {
 export interface IUpdateAIBehaviourUseCase {
   execute(
     userId: string,
-    payload: IUpdateAIBehaviourPayloadDTO
+    payload: UpdateAIBehaviourPayloadDTO
   ): Promise<UserSettingsViewDTO | null>;
 }
 
@@ -21,7 +21,7 @@ export class UpdateAIBehaviourUseCase implements IUpdateAIBehaviourUseCase {
 
   async execute(
     userId: string,
-    payload: IUpdateAIBehaviourPayloadDTO
+    payload: UpdateAIBehaviourPayloadDTO
   ): Promise<UserSettingsViewDTO | null> {
     const settings = await this._settingsRepository.updateAIBehaviour({
       userId,

@@ -115,7 +115,7 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
           },
           update,
           {
-            new: true,
+            returnDocument: 'after',
           }
         ).lean();
 

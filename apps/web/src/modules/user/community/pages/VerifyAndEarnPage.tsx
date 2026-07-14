@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import CommunityErrorState from '../components/shared/CommunityErrorState';
 import CommunityLayout from '../components/shared/CommunityLayout';
@@ -52,7 +53,7 @@ export default function VerifyAndEarnPage() {
           <>
             <button
               type="button"
-              onClick={() => navigate('/community')}
+              onClick={() => navigate(ROUTES.community)}
               className="inline-flex w-fit items-center gap-2 rounded-full border border-(--border-subtle) bg-(--surface-card) px-3 py-1.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.24)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
             >
               <ArrowLeftIcon /> Back to community
@@ -120,7 +121,6 @@ export default function VerifyAndEarnPage() {
                 // action={
                 //   <button
                 //     type="button"
-                //     onClick={() => navigate('/store')}
                 //     className="inline-flex w-full items-center justify-center gap-1.5 rounded-lg border-[1.5px] border-[rgba(107,70,193,0.28)] bg-[rgba(107,70,193,0.07)] px-3 py-1.5 font-mono text-[9px] font-bold uppercase tracking-[0.08em] text-[#6b46c1] transition hover:border-[rgba(107,70,193,0.45)] hover:bg-[rgba(107,70,193,0.13)] dark:border-[rgba(167,139,250,0.3)] dark:bg-[rgba(167,139,250,0.08)] dark:text-[#a78bfa] dark:hover:bg-[rgba(167,139,250,0.15)]"
                 //   >
                 //     <CoinsIcon /> Redeem store <ArrowRightIcon />
