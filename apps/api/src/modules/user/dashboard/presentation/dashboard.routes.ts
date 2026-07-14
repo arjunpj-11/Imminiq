@@ -3,14 +3,15 @@ import { Router, type RequestHandler } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { DashboardController } from './dashboard.controller';
-import { createDashboardComposition } from '../dashboard.factory';
+import type { DashboardUseCases } from '../application/dashboard-use-cases.contract';
 import { DASHBOARD_ROUTE_PATHS } from './dashboard.route.constants';
 import {
   dashboardActivityIntensityQuerySchema,
   dashboardRecentItemsQuerySchema,
 } from './dashboard.schema';
 
-const dashboardController = new DashboardController(createDashboardComposition().useCases);
+export const createDashboardRoutes = (useCases: DashboardUseCases) => {
+const dashboardController = new DashboardController(useCases);
 const router = Router();
 
 const validateActivityIntensityQuery: RequestHandler = (req, res, next) => {
@@ -65,5 +66,5 @@ router.get(DASHBOARD_ROUTE_PATHS.RECOMMENDED_ACTIONS, dashboardController.getRec
 
 router.get(DASHBOARD_ROUTE_PATHS.AI_INSIGHTS, dashboardController.getAIInsights);
 
-export default router;
-export { router as dashboardRoutes };
+  return router;
+};

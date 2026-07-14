@@ -3,10 +3,11 @@ import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { FriendsController } from './friends.controller';
-import { createFriendsComposition } from '../friends.factory';
+import type { FriendsUseCases } from '../application/friends-use-cases.contract';
 import { FRIENDS_ROUTE_PATHS } from './friends.route.constants';
 
-const friendsController = new FriendsController(createFriendsComposition().useCases);
+export const createFriendsRoutes = (useCases: FriendsUseCases) => {
+const friendsController = new FriendsController(useCases);
 const router = Router();
 
 router.get(
@@ -65,5 +66,5 @@ router.delete(
   friendsController.removeFriend
 );
 
-export default router;
-export { router as friendsRoutes };
+  return router;
+};

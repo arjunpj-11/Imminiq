@@ -13,4 +13,4 @@ export type {
 } from './domain/moderation-appeal.types';
 
 export { createModerationAppealComposition } from './moderation-appeal.factory';
-export { moderationAppealRoutes } from './presentation/moderation-appeal.routes';
+export { createModerationAppealRoutes } from './presentation/moderation-appeal.routes';

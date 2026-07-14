@@ -21,4 +21,4 @@ export type {
 export type { AuthProvider, TwoFactorStatus } from './domain/security.types';
 
 export { createSecurityComposition } from './security.factory';
-export { securityRoutes } from './presentation/security.routes';
+export { createSecurityRoutes } from './presentation/security.routes';

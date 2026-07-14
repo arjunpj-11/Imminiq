@@ -3,10 +3,11 @@ import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { LeaderboardController } from './leaderboard.controller';
-import { leaderboardComposition } from '../leaderboard.factory';
+import type { LeaderboardUseCases } from '../application/leaderboard-use-cases.contract';
 import { LEADERBOARD_ROUTE_PATHS } from './leaderboard.route.constants';
 
-const leaderboardController = new LeaderboardController(leaderboardComposition.useCases);
+export const createLeaderboardRoutes = (useCases: LeaderboardUseCases) => {
+const leaderboardController = new LeaderboardController(useCases);
 const router = Router();
 
 router.get(
@@ -23,5 +24,5 @@ router.get(
   leaderboardController.getRewards
 );
 
-export default router;
-export { router as leaderboardRoutes };
+  return router;
+};

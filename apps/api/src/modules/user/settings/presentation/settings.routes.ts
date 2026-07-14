@@ -4,7 +4,7 @@ import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { validate } from '../../../../shared/middlewares/validate';
 import { SettingsController } from './settings.controller';
-import { createSettingsComposition } from '../settings.factory';
+import type { SettingsUseCases } from '../application/settings-use-cases.contract';
 import { SETTINGS_ROUTE_PATHS } from './settings.route.constants';
 import {
   updateAccountSettingsSchema,
@@ -20,7 +20,8 @@ import {
   updateQuietHoursSchema,
 } from './settings.schema';
 
-const settingsController = new SettingsController(createSettingsComposition().useCases);
+export const createSettingsRoutes = (useCases: SettingsUseCases) => {
+const settingsController = new SettingsController(useCases);
 const router = Router();
 
 router.use(authenticatedApiIpLimiter, authenticate);
@@ -109,5 +110,5 @@ router.patch(
 
 router.post(SETTINGS_ROUTE_PATHS.RESET, settingsController.resetToDefaults);
 
-export default router;
-export { router as settingsRoutes };
+  return router;
+};

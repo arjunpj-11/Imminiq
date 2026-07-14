@@ -4,7 +4,7 @@ import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate';
 import { OnboardingController } from './onboarding.controller';
-import { createOnboardingComposition } from '../onboarding.factory';
+import type { OnboardingUseCases } from '../application/onboarding-use-cases.contract';
 import { ONBOARDING_ROUTE_PATHS } from './onboarding.route.constants';
 import { enforcePlanLimit } from '../../subscriptions';
 import {
@@ -14,7 +14,8 @@ import {
   trackerIntakeSchema,
 } from './onboarding.schema';
 
-const onboardingController = new OnboardingController(createOnboardingComposition().useCases);
+export const createOnboardingRoutes = (useCases: OnboardingUseCases) => {
+const onboardingController = new OnboardingController(useCases);
 const router = Router();
 router.param('jobId', validateIdentifierParam);
 
@@ -53,5 +54,5 @@ router.post(
 
 router.get(ONBOARDING_ROUTE_PATHS.EVALUATION_RESULT, onboardingController.getEvaluationResult);
 
-export default router;
-export { router as onboardingRoutes };
+  return router;
+};

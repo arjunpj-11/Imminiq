@@ -62,16 +62,25 @@ import {
   createAdaptiveLearningRoutes,
 } from '../modules/user/adaptive-learning';
 import { createCommunityComposition, createCommunityRoutes } from '../modules/user/community';
-import { dashboardRoutes } from '../modules/user/dashboard';
-import { friendsRoutes } from '../modules/user/friends';
-import { leaderboardRoutes } from '../modules/user/leaderboard';
+import {
+  createDashboardComposition,
+  createDashboardRoutes,
+} from '../modules/user/dashboard';
+import { createFriendsComposition, createFriendsRoutes } from '../modules/user/friends';
+import {
+  createLeaderboardComposition,
+  createLeaderboardRoutes,
+} from '../modules/user/leaderboard';
 import {
   createMockTestsComposition,
   createMockTestsRoutes,
 } from '../modules/user/mock-tests';
-import { moderationAppealRoutes } from '../modules/user/moderation-appeals';
-import { onboardingRoutes } from '../modules/user/onboarding';
-import { settingsRoutes } from '../modules/user/settings';
+import {
+  createModerationAppealComposition,
+  createModerationAppealRoutes,
+} from '../modules/user/moderation-appeals';
+import { createOnboardingComposition, createOnboardingRoutes } from '../modules/user/onboarding';
+import { createSettingsComposition, createSettingsRoutes } from '../modules/user/settings';
 import {
   createSubscriptionsComposition,
   createSubscriptionsRoutes,
@@ -82,7 +91,7 @@ import {
 } from '../modules/user/support-tickets';
 import { createTrackerComposition, createTrackerRoutes } from '../modules/user/trackers';
 import { createUsersComposition, createUsersRoutes } from '../modules/user/users';
-import { securityRoutes } from '../modules/security';
+import { createSecurityComposition, createSecurityRoutes } from '../modules/security';
 import { API_ROUTE_PATHS } from '../shared/constants/api-route-paths';
 
 /** Builds feature dependencies once and exposes the complete application router. */
@@ -94,6 +103,13 @@ export const createApiRouter = () => {
   const usersComposition = createUsersComposition();
   const activityRecorder = activityComposition.useCases.recordActivity;
   const adaptiveCompletionObserver = createAdaptiveAssessmentCompletionObserver();
+  const dashboardComposition = createDashboardComposition();
+  const friendsComposition = createFriendsComposition();
+  const leaderboardComposition = createLeaderboardComposition();
+  const moderationAppealComposition = createModerationAppealComposition();
+  const onboardingComposition = createOnboardingComposition();
+  const settingsComposition = createSettingsComposition();
+  const securityComposition = createSecurityComposition();
 
   const authRouter = createAuthRoutes(authComposition.useCases);
   const activityRouter = createActivityRoutes(activityComposition.useCases);
@@ -113,16 +129,16 @@ export const createApiRouter = () => {
   );
 
   router.use(API_ROUTE_PATHS.auth, authRouter);
-  router.use(API_ROUTE_PATHS.onboarding, onboardingRoutes);
+  router.use(API_ROUTE_PATHS.onboarding, createOnboardingRoutes(onboardingComposition.useCases));
   router.use(API_ROUTE_PATHS.trackers, trackerRouter);
   router.use(API_ROUTE_PATHS.users, usersRouter);
   router.use(API_ROUTE_PATHS.uploads, uploadsRouter);
-  router.use(API_ROUTE_PATHS.settings, settingsRoutes);
+  router.use(API_ROUTE_PATHS.settings, createSettingsRoutes(settingsComposition.useCases));
   router.use(
     API_ROUTE_PATHS.subscriptions,
     createSubscriptionsRoutes(createSubscriptionsComposition().useCases)
   );
-  router.use(API_ROUTE_PATHS.dashboard, dashboardRoutes);
+  router.use(API_ROUTE_PATHS.dashboard, createDashboardRoutes(dashboardComposition.useCases));
   router.use(
     API_ROUTE_PATHS.admin.dashboard,
     createAdminDashboardRoutes(createAdminDashboardComposition().useCases)
@@ -176,14 +192,17 @@ export const createApiRouter = () => {
     API_ROUTE_PATHS.supportTickets,
     createSupportTicketsRoutes(createSupportTicketsComposition().useCases)
   );
-  router.use(API_ROUTE_PATHS.security, securityRoutes);
+  router.use(API_ROUTE_PATHS.security, createSecurityRoutes(securityComposition.useCases));
   router.use(API_ROUTE_PATHS.mockTests, mockTestsRouter);
   router.use(API_ROUTE_PATHS.adaptiveLearning, adaptiveLearningRouter);
   router.use(API_ROUTE_PATHS.community, communityRouter);
-  router.use(API_ROUTE_PATHS.moderationAppeals, moderationAppealRoutes);
-  router.use(API_ROUTE_PATHS.leaderboard, leaderboardRoutes);
+  router.use(
+    API_ROUTE_PATHS.moderationAppeals,
+    createModerationAppealRoutes(moderationAppealComposition.useCases)
+  );
+  router.use(API_ROUTE_PATHS.leaderboard, createLeaderboardRoutes(leaderboardComposition.useCases));
   router.use(API_ROUTE_PATHS.activity, activityRouter);
-  router.use(API_ROUTE_PATHS.friends, friendsRoutes);
+  router.use(API_ROUTE_PATHS.friends, createFriendsRoutes(friendsComposition.useCases));
   router.use(
     API_ROUTE_PATHS.notifications,
     createNotificationsRoutes(createNotificationsComposition().useCases)

@@ -39,5 +39,3 @@ export const createLeaderboardComposition = (): LeaderboardComposition => {
     },
   };
 };
-
-export const leaderboardComposition = createLeaderboardComposition();

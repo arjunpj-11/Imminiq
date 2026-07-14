@@ -7,7 +7,7 @@ import {
 } from '../../../shared/middlewares/security-rate-limit.middleware';
 import { validate, validateIdentifierParam } from '../../../shared/middlewares/validate';
 import { SecurityController } from './security.controller';
-import { createSecurityComposition } from '../security.factory';
+import type { SecurityUseCases } from '../application/security-use-cases.contract';
 import { SECURITY_ROUTE_PATHS } from './security.route.constants';
 import {
   changeEmailSchema,
@@ -18,7 +18,8 @@ import {
   verifyTwoFactorSetupSchema,
 } from './security.schema';
 
-const securityController = new SecurityController(createSecurityComposition().useCases);
+export const createSecurityRoutes = (useCases: SecurityUseCases) => {
+const securityController = new SecurityController(useCases);
 const router = Router();
 router.param('sessionId', validateIdentifierParam);
 
@@ -73,5 +74,5 @@ router.delete(
   securityController.deleteAccount
 );
 
-export default router;
-export { router as securityRoutes };
+  return router;
+};

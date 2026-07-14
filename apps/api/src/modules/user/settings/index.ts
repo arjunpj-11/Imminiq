@@ -23,4 +23,4 @@ export type {
 } from './domain/settings.types';
 
 export { createSettingsComposition } from './settings.factory';
-export { settingsRoutes } from './presentation/settings.routes';
+export { createSettingsRoutes } from './presentation/settings.routes';
