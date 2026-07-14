@@ -3,7 +3,6 @@ import {
   BarChart3,
   Bell,
   BookOpenCheck,
-  CircleHelp,
   ClipboardCheck,
   Gauge,
   HeartPulse,
@@ -19,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
+import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import ImminiqWordmark from '../../../../components/ui/ImminiqWordmark';
 import { useAuthStore } from '../../../../store/useAuthStore';
 import api from '../../../../lib/axios';
@@ -44,6 +44,7 @@ const links = [
 
 export default function AdminLayout() {
   const [open, setOpen] = useState(false);
+  const [signOutConfirmOpen, setSignOutConfirmOpen] = useState(false);
   const user = useAuthStore((state) => state.user);
   const clearAuth = useAuthStore((state) => state.clearAuth);
   const navigate = useNavigate();
@@ -76,9 +77,9 @@ export default function AdminLayout() {
         />
       )}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[252px] flex-col border-r border-[rgba(255,255,255,0.09)] bg-[#18100e] transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
+        className={`fixed inset-y-0 left-0 z-40 flex w-63 flex-col border-r border-[rgba(255,255,255,0.09)] bg-[#18100e] transition-transform lg:translate-x-0 ${open ? 'translate-x-0' : '-translate-x-full'}`}
       >
-        <div className="flex h-[86px] items-center justify-between px-8">
+        <div className="flex h-21.5 items-center justify-between px-8">
           <div className="flex items-center gap-3">
             <ImminiqWordmark />
             <span className="rounded border border-[rgba(255,255,255,0.16)] px-1.5 py-0.5 text-[9px] font-bold text-[#e8816a]">
@@ -128,25 +129,17 @@ export default function AdminLayout() {
             <Settings size={18} />
             Settings
           </NavLink>
-          <NavLink
-            to={ADMIN_ROUTES.legacySupport}
-            onDoubleClick={refreshCurrentRoute}
-            className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
-          >
-            <CircleHelp size={18} />
-            Support
-          </NavLink>
           <button
             className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
-            onClick={() => void logout()}
+            onClick={() => setSignOutConfirmOpen(true)}
           >
             <LogOut size={18} />
             Sign out
           </button>
         </div>
       </aside>
-      <div className="lg:pl-[252px]">
-        <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between border-b border-[rgba(255,255,255,0.09)] bg-[#1c1a18]/95 px-4 backdrop-blur sm:px-8">
+      <div className="lg:pl-63">
+        <header className="sticky top-0 z-20 flex h-17 items-center justify-between border-b border-[rgba(255,255,255,0.09)] bg-[#1c1a18]/95 px-4 backdrop-blur sm:px-8">
           <button className="lg:hidden" onClick={() => setOpen(true)} aria-label="Open navigation">
             <Menu size={22} />
           </button>
@@ -171,6 +164,14 @@ export default function AdminLayout() {
           <Outlet />
         </div>
       </div>
+      <ConfirmDialog
+        open={signOutConfirmOpen}
+        title="Sign out of the admin console?"
+        description="Are you sure you want to sign out? You’ll need to sign in again to continue."
+        confirmText="Sign out"
+        onClose={() => setSignOutConfirmOpen(false)}
+        onConfirm={() => void logout()}
+      />
     </div>
   );
 }
