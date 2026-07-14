@@ -48,7 +48,7 @@ describe('use-case input ports', () => {
   it('requires controller contracts to reference interfaces, not concrete classes', () => {
     for (const path of controllerContractFiles) {
       const source = readFileSync(path, 'utf8');
-      expect(source, path).not.toMatch(/Application\.(?!I)\w+UseCase/);
+      expect(source, path).not.toMatch(/Application\.(?!I[A-Z])\w+UseCase/);
     }
   });
 

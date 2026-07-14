@@ -12,6 +12,7 @@ import type {
 import { SUBSCRIPTION_PLANS } from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
 import type { ISubscriptionRepository } from '../../src/modules/user/subscriptions/domain/repositories/subscription.repository.interface';
 import type { ISubscriptionPaymentGateway } from '../../src/modules/user/subscriptions/domain/services/subscription-payment-gateway.interface';
+import type { IClock } from '../../src/shared/time/clock.interface';
 import { adminPlanLimitsSchema } from '../../src/modules/admin/subscriptions/presentation/admin-subscriptions.schema';
 import { generateMockTestSchema } from '../../src/modules/user/mock-tests/presentation/mock-tests.schema';
 
@@ -44,6 +45,7 @@ describe('subscription use cases', () => {
   let listPlans: ListSubscriptionPlansUseCase;
   let createOrder: CreateSubscriptionOrderUseCase;
   let verifyPayment: VerifySubscriptionPaymentUseCase;
+  let clock: IClock;
 
   beforeEach(() => {
     repository = {
@@ -85,9 +87,10 @@ describe('subscription use cases', () => {
       getPublicKey: vi.fn(() => 'rzp_test_public'),
     };
     const mapper = new SubscriptionsMapper();
+    clock = { now: () => new Date('2026-07-14T10:00:00.000Z') };
     listPlans = new ListSubscriptionPlansUseCase(repository, mapper);
-    createOrder = new CreateSubscriptionOrderUseCase(repository, gateway, mapper);
-    verifyPayment = new VerifySubscriptionPaymentUseCase(repository, gateway, mapper);
+    createOrder = new CreateSubscriptionOrderUseCase(repository, gateway, mapper, clock);
+    verifyPayment = new VerifySubscriptionPaymentUseCase(repository, gateway, mapper, clock);
   });
 
   it('publishes free, pro and premium plans without exposing mutable feature arrays', async () => {
@@ -137,9 +140,6 @@ describe('subscription use cases', () => {
   });
 
   it('activates a verified monthly subscription for one billing month', async () => {
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date('2026-07-14T10:00:00.000Z'));
-
     const active = await verifyPayment.execute({
       userId: subscription.userId,
       razorpayOrderId: 'order_test_1',
@@ -151,7 +151,6 @@ describe('subscription use cases', () => {
     expect(active.startsAt).toBe('2026-07-14T10:00:00.000Z');
     expect(active.endsAt).toBe('2026-08-14T10:00:00.000Z');
     expect(repository.activate).toHaveBeenCalledOnce();
-    vi.useRealTimers();
   });
 
   it('allows admins to use zero as an unlimited request allowance', () => {

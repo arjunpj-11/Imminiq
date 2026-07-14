@@ -4,6 +4,7 @@ import type { ISubscriptionPaymentGateway } from '../../domain/services/subscrip
 import { SubscriptionsApplicationError } from '../subscriptions-application.error';
 import type { UserSubscriptionDTO } from '../subscriptions.dto';
 import type { ISubscriptionsMapper } from '../subscriptions.mapper';
+import type { IClock } from '../../../../../shared/time/clock.interface';
 
 export interface IVerifySubscriptionPaymentUseCase {
   execute(input: PaymentVerificationInput): Promise<UserSubscriptionDTO>;
@@ -13,7 +14,8 @@ export class VerifySubscriptionPaymentUseCase implements IVerifySubscriptionPaym
   constructor(
     private readonly repository: ISubscriptionRepository,
     private readonly paymentGateway: ISubscriptionPaymentGateway,
-    private readonly mapper: ISubscriptionsMapper
+    private readonly mapper: ISubscriptionsMapper,
+    private readonly clock: IClock
   ) {}
 
   async execute(input: PaymentVerificationInput) {
@@ -31,7 +33,7 @@ export class VerifySubscriptionPaymentUseCase implements IVerifySubscriptionPaym
     ) {
       throw SubscriptionsApplicationError.invalidPaymentSignature();
     }
-    const startsAt = new Date();
+    const startsAt = this.clock.now();
     const endsAt = new Date(startsAt);
     if (subscription.billingCycle === 'annual') endsAt.setFullYear(endsAt.getFullYear() + 1);
     else endsAt.setMonth(endsAt.getMonth() + 1);

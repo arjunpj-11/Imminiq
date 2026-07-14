@@ -38,3 +38,52 @@ export type TrackerUseCases = {
   clearLessonChatHistory: Application.IClearLessonChatHistoryUseCase;
   clearLessonQuestionSolutionDoubts: Application.IClearLessonQuestionSolutionDoubtsUseCase;
 };
+
+export type TrackerManagementUseCases = Pick<
+  TrackerUseCases,
+  | 'getTrackerSummary'
+  | 'listTrackers'
+  | 'listTrackerDomains'
+  | 'createTracker'
+  | 'getTrackerDetails'
+  | 'updateTracker'
+  | 'deleteTracker'
+  | 'archiveTracker'
+  | 'restoreTracker'
+  | 'publishTracker'
+  | 'unpublishTracker'
+  | 'getTrackerRoadmap'
+  | 'createTrackerTopic'
+  | 'createTrackerSubtopic'
+  | 'updateSubtopicProgress'
+  | 'verifyTrackerTopic'
+  | 'verifyTrackerSubtopic'
+  | 'addMissingEvaluationTopic'
+>;
+
+export type TrackerLessonUseCases = Pick<
+  TrackerUseCases,
+  | 'getTrackerLesson'
+  | 'chatWithLessonTutor'
+  | 'generateLessonQuestions'
+  | 'generateLessonQuestionSolution'
+  | 'generateLessonVisualization'
+  | 'getLessonChatHistory'
+  | 'getLessonGeneratedQuestions'
+  | 'getLessonQuestionSolution'
+  | 'getLessonQuestionSolutionDoubts'
+  | 'askLessonQuestionSolutionDoubt'
+  | 'clearLessonChatHistory'
+  | 'clearLessonQuestionSolutionDoubts'
+>;
+
+export type TrackerPracticeUseCases = Pick<
+  TrackerUseCases,
+  | 'getLessonAnswerAttempts'
+  | 'verifyLessonAnswer'
+  | 'getLessonCodeSubmissions'
+  | 'runLessonCode'
+  | 'submitLessonCode'
+  | 'getCodeHint'
+  | 'getOptimizedSolution'
+>;
