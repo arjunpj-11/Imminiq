@@ -4,6 +4,7 @@ export const MOCK_TEST_FILTERS = ['All', 'Passed', 'High score', 'In progress'] 
 export type MockTestFilter = (typeof MOCK_TEST_FILTERS)[number];
 export const DIFFICULTY_OPTIONS: DifficultyLevel[] = ['easy', 'medium', 'hard'];
 export const QUESTION_TYPE_OPTIONS: QuestionType[] = ['mcq', 'short_answer', 'coding'];
+export const MAX_MOCK_TEST_QUESTIONS = 50;
 export const DEFAULT_GENERATE_FORM = {
   topic: '',
   difficulty: 'medium' as DifficultyLevel,

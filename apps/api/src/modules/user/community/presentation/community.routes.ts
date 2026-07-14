@@ -10,6 +10,7 @@ import {
 import { CommunityController } from './community.controller';
 import type { CommunityUseCases } from '../application/community-use-cases.contract';
 import { COMMUNITY_ROUTE_PATHS } from './community.route.constants';
+import { enforcePlanLimit } from '../../subscriptions';
 import {
   sendTrackerForVerificationSchema,
   upsertCommunityTrackerReviewSchema,
@@ -35,7 +36,11 @@ export const createCommunityRoutes = (useCases: CommunityUseCases) => {
     communityController.getBrowse
   );
   router.get(COMMUNITY_ROUTE_PATHS.TRACKER_DETAIL, communityController.getPublicTrackerDetail);
-  router.post(COMMUNITY_ROUTE_PATHS.CLONE_TRACKER, communityController.cloneTracker);
+  router.post(
+    COMMUNITY_ROUTE_PATHS.CLONE_TRACKER,
+    enforcePlanLimit('tracker_capacity'),
+    communityController.cloneTracker
+  );
 
   router.post(
     COMMUNITY_ROUTE_PATHS.SUBMIT_TRACKER_VERIFICATION,

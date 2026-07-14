@@ -5,6 +5,7 @@ import {
   AdminPageHeader,
   AdminPanel,
 } from '../../../../components/admin/AdminPage';
+import { boundedInteger } from '../../../../lib/bounded-number';
 import { useAdminSettings, useUpdateAdminSettings } from '../hooks/useAdminSettings';
 import type { AdminSettings } from '../types/admin-settings.types';
 export default function AdminSettingsPage() {
@@ -69,7 +70,12 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
             min={30}
             max={3650}
             value={form.auditRetentionDays}
-            onChange={(e) => setForm((x) => ({ ...x, auditRetentionDays: Number(e.target.value) }))}
+            onChange={(e) =>
+              setForm((x) => ({
+                ...x,
+                auditRetentionDays: boundedInteger(e.target.value, 30, 3650),
+              }))
+            }
           />
         </label>
         {update.isSuccess && (

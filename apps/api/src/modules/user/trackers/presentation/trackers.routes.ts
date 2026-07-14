@@ -8,6 +8,7 @@ import { validate, validateIdentifierParam } from '../../../../shared/middleware
 import { TrackerController } from './trackers.controller';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 import { TRACKER_ROUTE_PATHS } from './trackers.route.constants';
+import { enforcePlanLimit } from '../../subscriptions';
 import {
   trackerListQuerySchema,
   createTrackerSchema,
@@ -64,6 +65,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.post(
     TRACKER_ROUTE_PATHS.ROOT,
     validate(createTrackerSchema),
+    enforcePlanLimit('tracker_capacity'),
     trackerController.createTracker
   );
 
@@ -114,12 +116,14 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.post(
     TRACKER_ROUTE_PATHS.VERIFY_TOPIC,
     validate(verifyTopicSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.verifyTopic
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.VERIFY_SUBTOPIC,
     validate(verifySubtopicSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.verifySubtopic
   );
 
@@ -130,13 +134,18 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
 
   // ─── LESSONS ─────────────────────────────────────────────────────────────────
 
-  router.get(TRACKER_ROUTE_PATHS.LESSON, trackerController.getLesson);
+  router.get(
+    TRACKER_ROUTE_PATHS.LESSON,
+    enforcePlanLimit('lesson_generation'),
+    trackerController.getLesson
+  );
 
   router.get(TRACKER_ROUTE_PATHS.LESSON_CHAT, trackerController.getLessonChatHistory);
 
   router.post(
     TRACKER_ROUTE_PATHS.LESSON_CHAT,
     validate(lessonChatSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.chatWithLessonTutor
   );
 
@@ -147,6 +156,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.post(
     TRACKER_ROUTE_PATHS.GENERATE_LESSON_QUESTIONS,
     validate(generateLessonQuestionsSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.generateLessonQuestions
   );
 
@@ -159,6 +169,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.post(
     TRACKER_ROUTE_PATHS.GENERATE_LESSON_QUESTION_SOLUTION,
     validate(lessonQuestionSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.generateLessonQuestionSolution
   );
 
@@ -171,6 +182,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.post(
     TRACKER_ROUTE_PATHS.LESSON_QUESTION_SOLUTION_DOUBTS,
     validate(askLessonQuestionSolutionDoubtSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.askLessonQuestionSolutionDoubt
   );
 
@@ -182,6 +194,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
 
   router.post(
     TRACKER_ROUTE_PATHS.LESSON_VISUALIZATION,
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.generateLessonVisualization
   );
 
@@ -192,6 +205,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.post(
     TRACKER_ROUTE_PATHS.VERIFY_LESSON_ANSWER,
     validate(verifyLessonAnswerSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.verifyLessonAnswer
   );
 
@@ -215,12 +229,14 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.post(
     TRACKER_ROUTE_PATHS.CODE_HINT,
     validate(getCodeHintSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.getCodeHint
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.OPTIMIZED_SOLUTION,
     validate(getOptimizedSolutionSchema),
+    enforcePlanLimit('ai_tutor_request'),
     trackerController.getOptimizedSolution
   );
 

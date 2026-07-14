@@ -75,6 +75,14 @@ import {
   createAdminSettingsRoutes,
 } from './modules/admin/settings';
 import {
+  createAdminSubscriptionsComposition,
+  createAdminSubscriptionsRoutes,
+} from './modules/admin/subscriptions';
+import {
+  createSubscriptionsComposition,
+  createSubscriptionsRoutes,
+} from './modules/user/subscriptions';
+import {
   createSupportTicketsComposition,
   createSupportTicketsRoutes,
 } from './modules/user/support-tickets';
@@ -150,6 +158,10 @@ app.use('/api/uploads', uploadsRouter);
 
 /* User settings routes */
 app.use('/api/settings', settingsRouter);
+app.use(
+  '/api/subscriptions',
+  createSubscriptionsRoutes(createSubscriptionsComposition().useCase)
+);
 
 app.use('/api/dashboard', dashboardRoutes);
 app.use(
@@ -187,6 +199,10 @@ app.use(
   createAdminSupportTicketsRoutes(createAdminSupportTicketsComposition().useCase)
 );
 app.use('/api/admin/settings', createAdminSettingsRoutes(createAdminSettingsComposition().useCase));
+app.use(
+  '/api/admin/subscriptions',
+  createAdminSubscriptionsRoutes(createAdminSubscriptionsComposition().useCase)
+);
 app.use(
   '/api/support-tickets',
   createSupportTicketsRoutes(createSupportTicketsComposition().useCase)

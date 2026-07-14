@@ -2,13 +2,18 @@
 // GenerateMockTestPanel.tsx — aligned with Trackers card style
 // ============================================================
 
-import { DIFFICULTY_OPTIONS, QUESTION_TYPE_OPTIONS } from '../constants/mock-tests.constants';
+import {
+  DIFFICULTY_OPTIONS,
+  MAX_MOCK_TEST_QUESTIONS,
+  QUESTION_TYPE_OPTIONS,
+} from '../constants/mock-tests.constants';
 import { useGenerateMockTest } from '../hooks/useMockTests';
 import { useMockTestsStore } from '../store/mockTests.store';
 import { cn } from '../utils/mock-tests-formatters';
 import { SparklesIcon } from './MockTestIcons';
 import type { QuestionType } from '../types/mock-tests.types';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { boundedInteger } from '../../../../lib/bounded-number';
 
 export function GenerateMockTestPanel() {
   const { generateDraft, updateGenerateDraft, resetGenerateDraft } = useMockTestsStore();
@@ -74,9 +79,13 @@ export function GenerateMockTestPanel() {
           <input
             type="number"
             min={1}
-            max={50}
+            max={MAX_MOCK_TEST_QUESTIONS}
             value={generateDraft.questionCount}
-            onChange={(e) => updateGenerateDraft({ questionCount: Number(e.target.value) })}
+            onChange={(e) =>
+              updateGenerateDraft({
+                questionCount: boundedInteger(e.target.value, 1, MAX_MOCK_TEST_QUESTIONS),
+              })
+            }
             className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-3 py-3 text-sm text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500)"
           />
         </div>

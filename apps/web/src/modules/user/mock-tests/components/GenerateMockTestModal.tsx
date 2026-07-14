@@ -2,8 +2,13 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
+import { boundedInteger } from '../../../../lib/bounded-number';
 
-import { DIFFICULTY_OPTIONS, QUESTION_TYPE_OPTIONS } from '../constants/mock-tests.constants';
+import {
+  DIFFICULTY_OPTIONS,
+  MAX_MOCK_TEST_QUESTIONS,
+  QUESTION_TYPE_OPTIONS,
+} from '../constants/mock-tests.constants';
 import { useTrackerRoadmap, useTrackers } from '../../trackers';
 import { useGenerateMockTest } from '../hooks/useMockTests';
 import { useMockTestsStore } from '../store/mockTests.store';
@@ -451,11 +456,15 @@ export function GenerateMockTestModal({
                 <input
                   type="number"
                   min={1}
-                  max={50}
+                  max={MAX_MOCK_TEST_QUESTIONS}
                   value={generateDraft.questionCount}
                   onChange={(event) =>
                     updateGenerateDraft({
-                      questionCount: Number(event.target.value),
+                      questionCount: boundedInteger(
+                        event.target.value,
+                        1,
+                        MAX_MOCK_TEST_QUESTIONS
+                      ),
                     })
                   }
                   className="w-full rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"

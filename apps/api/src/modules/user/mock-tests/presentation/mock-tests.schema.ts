@@ -88,8 +88,8 @@ export const createMockTestSchema = z.object({
   description: z.string().trim().max(500).optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
   visibility: z.enum(['private', 'public']).optional(),
-  timeLimitMinutes: z.number().min(5).max(180).optional(),
-  passingScore: z.number().min(1).max(100).optional(),
+  timeLimitMinutes: z.number().int().min(5).max(180).optional(),
+  passingScore: z.number().int().min(1).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(10).optional(),
   trackerId: z.string().trim().optional(),
   questions: z.array(questionSchema).min(1).max(100),
@@ -98,15 +98,15 @@ export const createMockTestSchema = z.object({
 export const generateMockTestSchema = z.object({
   topic: z.string().trim().min(2).max(200),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
-  questionCount: z.number().min(1).max(50).optional(),
+  questionCount: z.number().int().min(1).max(50).optional(),
   questionTypes: z
     .array(z.enum(['mcq', 'short_answer', 'coding']))
     .min(1)
     .optional(),
   trackerId: z.string().trim().optional(),
   topicId: z.string().trim().optional(),
-  timeLimitMinutes: z.number().min(5).max(180).optional(),
-  passingScore: z.number().min(1).max(100).optional(),
+  timeLimitMinutes: z.number().int().min(5).max(180).optional(),
+  passingScore: z.number().int().min(1).max(100).optional(),
   visibility: z.enum(['private', 'public']).optional(),
   runInBackground: z.boolean().optional(),
 });

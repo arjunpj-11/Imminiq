@@ -6,6 +6,7 @@ import { validate, validateIdentifierParam } from '../../../../shared/middleware
 import { OnboardingController } from './onboarding.controller';
 import { createOnboardingComposition } from '../onboarding.factory';
 import { ONBOARDING_ROUTE_PATHS } from './onboarding.route.constants';
+import { enforcePlanLimit } from '../../subscriptions';
 import {
   generateRoadmapSchema,
   step1Schema,
@@ -34,6 +35,7 @@ router.post(ONBOARDING_ROUTE_PATHS.STEP_2, validate(step2Schema), onboardingCont
 router.post(
   ONBOARDING_ROUTE_PATHS.GENERATE_ROADMAP,
   validate(generateRoadmapSchema),
+  enforcePlanLimit('tracker_generation'),
   onboardingController.generateRoadmap
 );
 
@@ -43,7 +45,11 @@ router.get(ONBOARDING_ROUTE_PATHS.JOB_STATUS, onboardingController.getJobStatus)
 
 router.get(ONBOARDING_ROUTE_PATHS.JOB_RESULT, onboardingController.getJobResult);
 
-router.post(ONBOARDING_ROUTE_PATHS.EVALUATE_ROADMAP, onboardingController.evaluateRoadmap);
+router.post(
+  ONBOARDING_ROUTE_PATHS.EVALUATE_ROADMAP,
+  enforcePlanLimit('ai_tutor_request'),
+  onboardingController.evaluateRoadmap
+);
 
 router.get(ONBOARDING_ROUTE_PATHS.EVALUATION_RESULT, onboardingController.getEvaluationResult);
 

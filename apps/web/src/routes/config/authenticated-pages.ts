@@ -58,6 +58,10 @@ export const VerifyAndEarnPage = lazy(
 
 export const ActivityPage = lazy(() => import('../../modules/user/activity/pages/ActivityPage'));
 
+export const SubscriptionPlansPage = lazy(
+  () => import('../../modules/user/subscriptions/pages/SubscriptionPlansPage')
+);
+
 export const FriendsPage = lazy(() => import('../../modules/user/friends/pages/FriendsPage'));
 
 export const FriendsSearchPage = lazy(

@@ -1,6 +1,5 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import AdminLayout from '../../components/admin/AdminLayout';
-import AdminComingSoonPage from '../../components/admin/AdminComingSoonPage';
 import { AdminDashboardPage } from '../../modules/admin/dashboard';
 import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
 import {
@@ -16,6 +15,7 @@ import { AdminAuditLogsPage } from '../../modules/admin/audit-logs';
 import { AdminSystemHealthPage } from '../../modules/admin/system-health';
 import { AdminSupportTicketsPage } from '../../modules/admin/support-tickets';
 import { AdminSettingsPage } from '../../modules/admin/settings';
+import { AdminSubscriptionsPage } from '../../modules/admin/subscriptions';
 
 export const adminRoutes: RouteObject[] = [
   {
@@ -37,7 +37,7 @@ export const adminRoutes: RouteObject[] = [
       { path: '/admin/activity', element: <AdminAnalyticsPage /> },
       { path: '/admin/analytics', element: <Navigate to="/admin/activity" replace /> },
       { path: '/admin/broadcast', element: <AdminBroadcastPage /> },
-      { path: '/admin/subscriptions', element: <AdminComingSoonPage /> },
+      { path: '/admin/subscriptions', element: <AdminSubscriptionsPage /> },
       { path: '/admin/audit-logs', element: <AdminAuditLogsPage /> },
       { path: '/admin/system-health', element: <AdminSystemHealthPage /> },
       { path: '/admin/support-tickets', element: <AdminSupportTicketsPage /> },

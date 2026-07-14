@@ -10,6 +10,7 @@ import {
 import { MockTestsController } from './mock-tests.controller';
 import type { MockTestsUseCases } from '../application/mock-tests-use-cases.contract';
 import { MOCK_TEST_ROUTE_PATHS } from './mock-tests.route.constants';
+import { enforcePlanLimit } from '../../subscriptions';
 import {
   createMockTestSchema,
   flagQuestionSchema,
@@ -47,6 +48,7 @@ export const createMockTestsRoutes = (useCases: MockTestsUseCases) => {
   router.post(
     MOCK_TEST_ROUTE_PATHS.GENERATE,
     validate(generateMockTestSchema),
+    enforcePlanLimit('mock_test_generation'),
     mockTestsController.generateTest
   );
 
@@ -70,7 +72,11 @@ export const createMockTestsRoutes = (useCases: MockTestsUseCases) => {
 
   router.get(MOCK_TEST_ROUTE_PATHS.ANALYTICS_TRENDS, mockTestsController.getAnalytics);
 
-  router.get(MOCK_TEST_ROUTE_PATHS.ANALYTICS_AI_INSIGHTS, mockTestsController.getAIInsights);
+  router.get(
+    MOCK_TEST_ROUTE_PATHS.ANALYTICS_AI_INSIGHTS,
+    enforcePlanLimit('ai_tutor_request'),
+    mockTestsController.getAIInsights
+  );
 
   router.get(
     MOCK_TEST_ROUTE_PATHS.ANALYTICS_TOPIC_BREAKDOWN,

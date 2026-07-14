@@ -11,6 +11,7 @@ import { TrackerSubtopic } from '../../database/models/tracker-subtopic.model';
 import { createActivityComposition } from '../../../modules/user/activity/activity.factory';
 import { createMockTestsComposition } from '../../../modules/user/mock-tests/mock-tests.factory';
 import { createNotificationsComposition } from '../../../modules/notifications/notifications.factory';
+import { subscriptionLimitService } from '../../../modules/user/subscriptions';
 
 import { generateRoadmapStructure, evaluateRoadmap, RoadmapNestedNode } from '../../ai/ai.service';
 import {
@@ -364,6 +365,8 @@ const processRoadmapGeneration = async (
 
   // Step 4 — Save tracker tree to MongoDB
   await startStep(jobId, 4);
+
+  await subscriptionLimitService.enforce(userId, 'tracker_capacity');
 
   const session = await mongoose.startSession();
 

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Download, Eye, FileText, X } from 'lucide-react';
 import {
   AdminEmpty,
@@ -32,7 +32,6 @@ export default function AdminAuditLogsPage() {
     page,
     limit: 25,
   });
-  useEffect(() => setPage(1), [dateRange.range.from, dateRange.range.to]);
   const downloadAuditReport = async (format: 'csv' | 'pdf') => {
     try {
       const items = await exportLogs.mutateAsync({
@@ -154,7 +153,21 @@ export default function AdminAuditLogsPage() {
         title="Event stream"
         toolbar={
           <div className="flex flex-wrap items-center gap-3">
-            <AdminDateRangeFilter {...dateRange} />
+            <AdminDateRangeFilter
+              {...dateRange}
+              setPreset={(value) => {
+                dateRange.setPreset(value);
+                setPage(1);
+              }}
+              setFrom={(value) => {
+                dateRange.setFrom(value);
+                setPage(1);
+              }}
+              setTo={(value) => {
+                dateRange.setTo(value);
+                setPage(1);
+              }}
+            />
             <AdminSearch
               value={search}
               onChange={(v) => {
