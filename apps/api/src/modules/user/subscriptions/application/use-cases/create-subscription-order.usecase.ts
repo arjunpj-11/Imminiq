@@ -7,6 +7,7 @@ import type { ISubscriptionPaymentGateway } from '../../domain/services/subscrip
 import { SubscriptionsApplicationError } from '../subscriptions-application.error';
 import type { SubscriptionOrderDTO } from '../subscriptions.dto';
 import type { ISubscriptionsMapper } from '../subscriptions.mapper';
+import type { IClock } from '../../../../../shared/time/clock.interface';
 
 export interface ICreateSubscriptionOrderUseCase {
   execute(
@@ -20,7 +21,8 @@ export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderU
   constructor(
     private readonly repository: ISubscriptionRepository,
     private readonly paymentGateway: ISubscriptionPaymentGateway,
-    private readonly mapper: ISubscriptionsMapper
+    private readonly mapper: ISubscriptionsMapper,
+    private readonly clock: IClock
   ) {}
 
   async execute(
@@ -31,7 +33,10 @@ export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderU
     const plan = await this.repository.getPlan(planId);
     if (!plan || plan.id === 'free') throw SubscriptionsApplicationError.invalidPlan();
     const amount = billingCycle === 'annual' ? plan.annualAmount : plan.monthlyAmount;
-    const receipt = `sub_${userId.slice(-8)}_${Date.now().toString(36)}`.slice(0, 40);
+    const receipt = `sub_${userId.slice(-8)}_${this.clock.now().getTime().toString(36)}`.slice(
+      0,
+      40
+    );
     const order = await this.paymentGateway.createOrder(amount, receipt);
     await this.repository.createPending({
       userId,

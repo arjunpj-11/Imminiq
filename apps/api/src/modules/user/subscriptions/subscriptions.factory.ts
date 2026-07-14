@@ -8,6 +8,7 @@ import { mongoSubscriptionRepository } from './infrastructure/repositories/mongo
 import { razorpaySubscriptionPaymentGateway } from './infrastructure/providers/razorpay-subscription-payment.gateway';
 import { SubscriptionLimitService } from './infrastructure/services/subscription-limit.service';
 import { createPlanLimitMiddleware } from './presentation/plan-limit.middleware';
+import { systemClock } from '../../../infrastructure/time/system-clock';
 
 export type SubscriptionsComposition = { useCases: SubscriptionsUseCases };
 
@@ -20,16 +21,18 @@ export const createSubscriptionsComposition = (): SubscriptionsComposition => {
   return {
     useCases: {
       listPlans: new ListSubscriptionPlansUseCase(mongoSubscriptionRepository, mapper),
-      getCurrent: new GetCurrentSubscriptionUseCase(mongoSubscriptionRepository, mapper),
+      getCurrent: new GetCurrentSubscriptionUseCase(mongoSubscriptionRepository, mapper, systemClock),
       createOrder: new CreateSubscriptionOrderUseCase(
         mongoSubscriptionRepository,
         razorpaySubscriptionPaymentGateway,
-        mapper
+        mapper,
+        systemClock
       ),
       verifyPayment: new VerifySubscriptionPaymentUseCase(
         mongoSubscriptionRepository,
         razorpaySubscriptionPaymentGateway,
-        mapper
+        mapper,
+        systemClock
       ),
     },
   };

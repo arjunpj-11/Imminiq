@@ -19,7 +19,7 @@ export type MockTestsUseCases = {
   getHistory: Application.IGetHistoryUseCase;
   getTopicBreakdown: Application.IGetTopicBreakdownUseCase;
   shareMockTest: Application.IShareMockTestUseCase;
-  importSharedMockTest: Application.ImportSharedMockTestUseCase;
+  importSharedMockTest: Application.IImportSharedMockTestUseCase;
   runMockTestCode: Application.IRunMockTestCodeUseCase;
   submitMockTestCode: Application.ISubmitMockTestCodeUseCase;
 };
