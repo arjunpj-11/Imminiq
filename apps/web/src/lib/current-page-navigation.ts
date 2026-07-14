@@ -36,8 +36,7 @@ const adminNavItems: IRegisteredNavItem[] = [
 ];
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const nestedRoute = (route: string, suffix = '') =>
-  new RegExp(`^${escapeRegExp(route)}${suffix}`);
+const nestedRoute = (route: string, suffix = '') => new RegExp(`^${escapeRegExp(route)}${suffix}`);
 
 const routeLabels: Array<[RegExp, string]> = [
   [nestedRoute(ADMIN_ROUTES.users, '/[^/]+'), 'User details'],
@@ -91,11 +90,13 @@ const getTemporaryItem = (
   if (pathname === ROUTES.settingsRoot || pathname.startsWith(`${ROUTES.settingsRoot}/`)) {
     return null;
   }
-  if (pathname === ADMIN_ROUTES.settings || pathname.startsWith(`${ADMIN_ROUTES.settings}/`)) return null;
+  if (pathname === ADMIN_ROUTES.settings || pathname.startsWith(`${ADMIN_ROUTES.settings}/`))
+    return null;
   if (registeredItems.some((item) => isRepresentedBy(pathname, item))) return null;
 
   return {
-    label: routeLabels.find(([pattern]) => pattern.test(pathname))?.[1] ?? getFallbackLabel(pathname),
+    label:
+      routeLabels.find(([pattern]) => pattern.test(pathname))?.[1] ?? getFallbackLabel(pathname),
     to: `${pathname}${search}${hash}`,
   };
 };

@@ -141,7 +141,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
           },
           update,
           {
-            returnDocument: "after",
+            returnDocument: 'after',
           }
         ).lean();
 

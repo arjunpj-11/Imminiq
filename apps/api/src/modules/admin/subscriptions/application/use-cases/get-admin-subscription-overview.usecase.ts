@@ -7,9 +7,7 @@ export interface IGetAdminSubscriptionOverviewUseCase {
   execute(query: AdminSubscriptionQuery): Promise<AdminSubscriptionOverviewDTO>;
 }
 
-export class GetAdminSubscriptionOverviewUseCase
-  implements IGetAdminSubscriptionOverviewUseCase
-{
+export class GetAdminSubscriptionOverviewUseCase implements IGetAdminSubscriptionOverviewUseCase {
   constructor(
     private readonly repository: IAdminSubscriptionsRepository,
     private readonly mapper: IAdminSubscriptionsMapper

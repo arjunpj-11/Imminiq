@@ -1,6 +1,4 @@
-import {
-  DASHBOARD_ACTIVE_TRACKERS_LIMIT,
-} from '../../../domain/dashboard.constants';
+import { DASHBOARD_ACTIVE_TRACKERS_LIMIT } from '../../../domain/dashboard.constants';
 import { env } from '../../../../../../config/env';
 import { DashboardActiveTrackerEntity } from '../../../domain/entities/dashboard-active-tracker.entity';
 import { DashboardActivityIntensityEntity } from '../../../domain/entities/dashboard-activity-intensity.entity';

@@ -11,8 +11,7 @@ const routeLoaders: Record<string, () => Promise<unknown>> = {
   [ROUTES.activity]: () => import('../modules/user/activity/pages/ActivityPage'),
   [ROUTES.friends]: () => import('../modules/user/friends/pages/FriendsPage'),
   [ROUTES.profile]: () => import('../modules/user/users/pages/ProfilePage'),
-  [ROUTES.settingsRoot]: () =>
-    import('../modules/user/settings/pages/PreferencesSettingsPage'),
+  [ROUTES.settingsRoot]: () => import('../modules/user/settings/pages/PreferencesSettingsPage'),
 };
 
 const prefetched = new Set<string>();

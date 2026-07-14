@@ -460,11 +460,7 @@ export function GenerateMockTestModal({
                   value={generateDraft.questionCount}
                   onChange={(event) =>
                     updateGenerateDraft({
-                      questionCount: boundedInteger(
-                        event.target.value,
-                        1,
-                        MAX_MOCK_TEST_QUESTIONS
-                      ),
+                      questionCount: boundedInteger(event.target.value, 1, MAX_MOCK_TEST_QUESTIONS),
                     })
                   }
                   className="w-full rounded-md border border-(--border-subtle) bg-(--surface-canvas) px-4 py-3.5 text-[14px] text-(--text-primary) outline-none transition focus:border-(--brand-500) focus:bg-(--surface-card) dark:border-(--border-subtle) dark:bg-(--surface-canvas) dark:text-(--text-primary) dark:focus:border-(--brand-500) dark:focus:bg-[#161410]"

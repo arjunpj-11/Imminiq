@@ -16,9 +16,12 @@ export const useAdminSubscriptions = (query: AdminSubscriptionsQuery) =>
     queryKey: adminSubscriptionsKeys.overview(query),
     queryFn: async () =>
       (
-        await api.get<ApiEnvelope<AdminSubscriptionOverview>>(ADMIN_SUBSCRIPTIONS_ENDPOINTS.overview, {
-          params: query,
-        })
+        await api.get<ApiEnvelope<AdminSubscriptionOverview>>(
+          ADMIN_SUBSCRIPTIONS_ENDPOINTS.overview,
+          {
+            params: query,
+          }
+        )
       ).data.data,
     staleTime: ADMIN_SUBSCRIPTIONS_STALE_TIME_MS,
   });

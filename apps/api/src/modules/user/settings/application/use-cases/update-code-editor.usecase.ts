@@ -7,10 +7,7 @@ type UpdateCodeEditorRepository = {
 };
 
 export interface IUpdateCodeEditorUseCase {
-  execute(
-    userId: string,
-    payload: UpdateCodeEditorPayloadDTO
-  ): Promise<UserSettingsViewDTO | null>;
+  execute(userId: string, payload: UpdateCodeEditorPayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdateCodeEditorUseCase implements IUpdateCodeEditorUseCase {

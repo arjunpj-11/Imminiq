@@ -26,7 +26,10 @@ export const useUpdateAdminSupportTicket = () => {
         notificationMessage,
       }),
     onMutate: () => ({
-      toastId: toast.loading('Updating support ticket…', 'Saving the status and notifying the user.'),
+      toastId: toast.loading(
+        'Updating support ticket…',
+        'Saving the status and notifying the user.'
+      ),
     }),
     onSuccess: async (_data, _input, context) => {
       toast.update(context.toastId, {

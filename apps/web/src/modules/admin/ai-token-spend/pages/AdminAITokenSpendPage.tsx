@@ -39,14 +39,15 @@ export default function AdminAITokenSpendPage() {
   const { data, isLoading, isError, error } = useAdminAITokenSpend(dateRange.range);
   const daily = useMemo(() => {
     const values = new Map(data?.daily.map((point) => [point.date, point]) ?? []);
-    return enumerateDateRange(dateRange.range).map((date) =>
-      values.get(date) ?? {
-        date,
-        promptTokens: 0,
-        completionTokens: 0,
-        totalTokens: 0,
-        requests: 0,
-      }
+    return enumerateDateRange(dateRange.range).map(
+      (date) =>
+        values.get(date) ?? {
+          date,
+          promptTokens: 0,
+          completionTokens: 0,
+          totalTokens: 0,
+          requests: 0,
+        }
     );
   }, [data, dateRange.range]);
   const maxDaily = Math.max(1, ...daily.map((point) => point.totalTokens));
@@ -169,7 +170,10 @@ export default function AdminAITokenSpendPage() {
               <div className="overflow-x-auto p-7">
                 <div className="flex h-64 min-w-max items-end gap-2 border-b border-white/10 px-2">
                   {daily.map((point) => (
-                    <div key={point.date} className="group flex h-full w-7 shrink-0 flex-col justify-end">
+                    <div
+                      key={point.date}
+                      className="group flex h-full w-7 shrink-0 flex-col justify-end"
+                    >
                       <div
                         title={`${point.date}: ${formatTokens(point.totalTokens)} tokens`}
                         className={`w-full rounded-t transition ${point.totalTokens ? 'bg-[#e8816a] hover:bg-[#d4705a]' : 'bg-[#2a2723]'}`}
@@ -208,9 +212,15 @@ export default function AdminAITokenSpendPage() {
                           <td className="px-6 py-4 font-semibold text-[#f2f0eb]">
                             {categoryLabels[row.key] ?? row.key}
                           </td>
-                          <td className="px-6 py-4 text-[#aaa59d]">{formatTokens(row.promptTokens)}</td>
-                          <td className="px-6 py-4 text-[#aaa59d]">{formatTokens(row.completionTokens)}</td>
-                          <td className="px-6 py-4 font-semibold text-[#e8816a]">{formatTokens(row.totalTokens)}</td>
+                          <td className="px-6 py-4 text-[#aaa59d]">
+                            {formatTokens(row.promptTokens)}
+                          </td>
+                          <td className="px-6 py-4 text-[#aaa59d]">
+                            {formatTokens(row.completionTokens)}
+                          </td>
+                          <td className="px-6 py-4 font-semibold text-[#e8816a]">
+                            {formatTokens(row.totalTokens)}
+                          </td>
                           <td className="px-6 py-4 text-[#aaa59d]">{formatTokens(row.requests)}</td>
                           <td className="px-6 py-4 text-[#52c58c]">
                             {data.summary.totalTokens

@@ -19,60 +19,60 @@ import {
 } from './security.schema';
 
 export const createSecurityRoutes = (useCases: SecurityUseCases) => {
-const securityController = new SecurityController(useCases);
-const router = Router();
-router.param('sessionId', validateIdentifierParam);
+  const securityController = new SecurityController(useCases);
+  const router = Router();
+  router.param('sessionId', validateIdentifierParam);
 
-// ─── PUBLIC ──────────────────────────────────────────────────
+  // ─── PUBLIC ──────────────────────────────────────────────────
 
-router.post(
-  SECURITY_ROUTE_PATHS.VERIFY_EMAIL_CHANGE,
-  publicEmailChangeVerifyIpLimiter,
-  validate(verifyEmailChangeSchema),
-  securityController.verifyEmailChange
-);
+  router.post(
+    SECURITY_ROUTE_PATHS.VERIFY_EMAIL_CHANGE,
+    publicEmailChangeVerifyIpLimiter,
+    validate(verifyEmailChangeSchema),
+    securityController.verifyEmailChange
+  );
 
-// ─── PROTECTED ───────────────────────────────────────────────
+  // ─── PROTECTED ───────────────────────────────────────────────
 
-router.use(authenticate);
+  router.use(authenticate);
 
-router.get(SECURITY_ROUTE_PATHS.OVERVIEW, securityController.getOverview);
+  router.get(SECURITY_ROUTE_PATHS.OVERVIEW, securityController.getOverview);
 
-router.patch(
-  SECURITY_ROUTE_PATHS.CHANGE_EMAIL,
-  validate(changeEmailSchema),
-  securityController.requestEmailChange
-);
+  router.patch(
+    SECURITY_ROUTE_PATHS.CHANGE_EMAIL,
+    validate(changeEmailSchema),
+    securityController.requestEmailChange
+  );
 
-router.patch(
-  SECURITY_ROUTE_PATHS.CHANGE_PASSWORD,
-  validate(changePasswordSchema),
-  securityController.changePassword
-);
+  router.patch(
+    SECURITY_ROUTE_PATHS.CHANGE_PASSWORD,
+    validate(changePasswordSchema),
+    securityController.changePassword
+  );
 
-router.delete(SECURITY_ROUTE_PATHS.SESSION_BY_ID, securityController.revokeSession);
+  router.delete(SECURITY_ROUTE_PATHS.SESSION_BY_ID, securityController.revokeSession);
 
-router.post(SECURITY_ROUTE_PATHS.TWO_FACTOR_SETUP, securityController.setupTwoFactor);
+  router.post(SECURITY_ROUTE_PATHS.TWO_FACTOR_SETUP, securityController.setupTwoFactor);
 
-router.post(
-  SECURITY_ROUTE_PATHS.TWO_FACTOR_VERIFY,
-  securityTwoFactorIpLimiter,
-  validate(verifyTwoFactorSetupSchema),
-  securityController.verifyTwoFactorSetup
-);
+  router.post(
+    SECURITY_ROUTE_PATHS.TWO_FACTOR_VERIFY,
+    securityTwoFactorIpLimiter,
+    validate(verifyTwoFactorSetupSchema),
+    securityController.verifyTwoFactorSetup
+  );
 
-router.post(
-  SECURITY_ROUTE_PATHS.TWO_FACTOR_DISABLE,
-  securityTwoFactorIpLimiter,
-  validate(disableTwoFactorSchema),
-  securityController.disableTwoFactor
-);
+  router.post(
+    SECURITY_ROUTE_PATHS.TWO_FACTOR_DISABLE,
+    securityTwoFactorIpLimiter,
+    validate(disableTwoFactorSchema),
+    securityController.disableTwoFactor
+  );
 
-router.delete(
-  SECURITY_ROUTE_PATHS.DELETE_ACCOUNT,
-  validate(deleteAccountSchema),
-  securityController.deleteAccount
-);
+  router.delete(
+    SECURITY_ROUTE_PATHS.DELETE_ACCOUNT,
+    validate(deleteAccountSchema),
+    securityController.deleteAccount
+  );
 
   return router;
 };

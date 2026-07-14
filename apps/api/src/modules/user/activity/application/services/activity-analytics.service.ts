@@ -97,7 +97,10 @@ export class ActivityAnalytics {
     return Math.round(((current - previous) / previous) * 100);
   }
 
-  weeklyProgress(currentXp: number, targetXp: number): {
+  weeklyProgress(
+    currentXp: number,
+    targetXp: number
+  ): {
     targetXp: number;
     xpToTarget: number;
     progressPercent: number;
@@ -109,7 +112,10 @@ export class ActivityAnalytics {
     };
   }
 
-  dailyGoal(state: ActivityDailyGoalState, rewardXp: number): {
+  dailyGoal(
+    state: ActivityDailyGoalState,
+    rewardXp: number
+  ): {
     completedTasks: number;
     totalTasks: number;
     completed: boolean;

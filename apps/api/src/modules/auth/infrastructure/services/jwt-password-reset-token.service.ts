@@ -28,11 +28,7 @@ export class JwtPasswordResetToken implements IPasswordResetToken {
       resetTokenOptions
     );
 
-    await this._passwordResetSessionStore.save(
-      jti,
-      userId,
-      env.PASSWORD_RESET_TOKEN_TTL_SECONDS
-    );
+    await this._passwordResetSessionStore.save(jti, userId, env.PASSWORD_RESET_TOKEN_TTL_SECONDS);
 
     return token;
   }

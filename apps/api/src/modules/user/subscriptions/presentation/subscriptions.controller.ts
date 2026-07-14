@@ -8,7 +8,9 @@ export class SubscriptionsController {
 
   listPlans = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      res.json(new ApiResponse('Subscription plans fetched', await this.useCases.listPlans.execute()));
+      res.json(
+        new ApiResponse('Subscription plans fetched', await this.useCases.listPlans.execute())
+      );
     } catch (error) {
       next(error);
     }
@@ -33,7 +35,11 @@ export class SubscriptionsController {
       res.json(
         new ApiResponse(
           'Subscription order created',
-          await this.useCases.createOrder.execute(req.user!.userId, input.planId, input.billingCycle)
+          await this.useCases.createOrder.execute(
+            req.user!.userId,
+            input.planId,
+            input.billingCycle
+          )
         )
       );
     } catch (error) {

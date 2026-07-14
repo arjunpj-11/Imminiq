@@ -15,7 +15,10 @@ export const useCreateAdminBroadcast = () => {
       deepLink?: string;
     }) => api.post(ADMIN_BROADCAST_ENDPOINTS.create, input),
     onMutate: () => ({
-      toastId: toast.loading('Sending broadcast…', 'Creating notifications for the selected audience.'),
+      toastId: toast.loading(
+        'Sending broadcast…',
+        'Creating notifications for the selected audience.'
+      ),
     }),
     onSuccess: async (_data, _input, context) => {
       toast.update(context.toastId, {
@@ -29,7 +32,10 @@ export const useCreateAdminBroadcast = () => {
       if (!context) return;
       toast.update(context.toastId, {
         title: 'Broadcast could not be sent',
-        description: getUserFacingError(error, 'Please check the audience and message, then retry.'),
+        description: getUserFacingError(
+          error,
+          'Please check the audience and message, then retry.'
+        ),
         tone: 'error',
         duration: 5600,
       });

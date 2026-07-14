@@ -83,7 +83,8 @@ export class LangChainTrackerIntakeAgent implements ITrackerIntakeAgent {
             content: message.content,
           })),
         ],
-        (rawResponse) => parseAIJson(rawResponse, trackerIntakeResponseSchema, { logErrors: false }),
+        (rawResponse) =>
+          parseAIJson(rawResponse, trackerIntakeResponseSchema, { logErrors: false }),
         'fast',
         'roadmap_generation'
       );

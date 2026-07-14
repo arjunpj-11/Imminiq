@@ -194,7 +194,11 @@ export class MongoLeaderboardActivityRepository
 
         const records = await User.aggregate<MongoSnapshotCaptureRecord>(pipeline);
 
-        for (let offset = 0; offset < records.length; offset += env.LEADERBOARD_SNAPSHOT_BATCH_SIZE) {
+        for (
+          let offset = 0;
+          offset < records.length;
+          offset += env.LEADERBOARD_SNAPSHOT_BATCH_SIZE
+        ) {
           const batch = records.slice(offset, offset + env.LEADERBOARD_SNAPSHOT_BATCH_SIZE);
 
           await LeaderboardRankSnapshot.bulkWrite(

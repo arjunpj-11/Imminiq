@@ -1,7 +1,5 @@
 import type { AdminActor } from '../../../shared/domain';
-import type {
-  AdminTrackerReviewConsensusChoice,
-} from '../../domain/entities/admin-tracker-review.entity';
+import type { AdminTrackerReviewConsensusChoice } from '../../domain/entities/admin-tracker-review.entity';
 import type { IAdminTrackerReviewsRepository } from '../../domain/repositories/admin-tracker-reviews.repository.interface';
 import { AdminTrackerReviewsApplicationError } from '../admin-tracker-reviews-application.error';
 import type { AdminTrackerReviewConsensusResultDTO } from '../admin-tracker-reviews.dto';
@@ -15,9 +13,7 @@ export interface IAddAdminTrackerReviewConsensusUseCase {
   ): Promise<AdminTrackerReviewConsensusResultDTO>;
 }
 
-export class AddAdminTrackerReviewConsensusUseCase
-  implements IAddAdminTrackerReviewConsensusUseCase
-{
+export class AddAdminTrackerReviewConsensusUseCase implements IAddAdminTrackerReviewConsensusUseCase {
   constructor(
     private readonly repository: IAdminTrackerReviewsRepository,
     private readonly mapper: IAdminTrackerReviewsMapper

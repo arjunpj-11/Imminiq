@@ -94,8 +94,7 @@ export const validateCsrfToken = (req: Request, _res: Response, next: NextFuncti
   // Keep the cookie property read in this middleware. Besides making the
   // security boundary explicit, this lets CodeQL follow the CSRF token from
   // req.cookies.csrfToken into the timing-safe comparison below.
-  const csrfCookie =
-    typeof req.cookies?.csrfToken === 'string' ? req.cookies.csrfToken : '';
+  const csrfCookie = typeof req.cookies?.csrfToken === 'string' ? req.cookies.csrfToken : '';
   const csrfHeader = readCsrfHeader(req);
 
   if (!csrfCookie || !csrfHeader || !safeEquals(csrfCookie, csrfHeader)) {

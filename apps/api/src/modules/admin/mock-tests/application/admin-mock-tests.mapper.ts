@@ -1,8 +1,5 @@
 import type { AdminPage } from '../../shared/domain';
-import type {
-  AdminMockTest,
-  AdminMockTestDetail,
-} from '../domain/entities/admin-mock-test.entity';
+import type { AdminMockTest, AdminMockTestDetail } from '../domain/entities/admin-mock-test.entity';
 import type { AdminMockTestDetailDTO, AdminMockTestDTO } from './admin-mock-tests.dto';
 
 export interface IAdminMockTestsMapper {

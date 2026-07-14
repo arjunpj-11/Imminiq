@@ -146,7 +146,7 @@ export class MongoCommunityReviewRepository
           },
           {
             upsert: true,
-            returnDocument: "after",
+            returnDocument: 'after',
           }
         ).lean<MongoCommunityTrackerReviewRecord>();
 
@@ -198,7 +198,7 @@ export class MongoCommunityReviewRepository
                 $inc: { helpfulCount: 1 },
               },
           {
-            returnDocument: "after",
+            returnDocument: 'after',
           }
         ).lean<MongoCommunityTrackerReviewRecord>();
 

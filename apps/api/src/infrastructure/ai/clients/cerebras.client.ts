@@ -48,14 +48,12 @@ const getResponseText = (response: unknown) => {
   throw new Error('Cerebras returned an empty response');
 };
 
-const recordCerebrasUsage = (
-  response: unknown,
-  category: AITokenUsageCategory,
-  model: string
-) => {
-  const usage = (response as {
-    usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
-  }).usage;
+const recordCerebrasUsage = (response: unknown, category: AITokenUsageCategory, model: string) => {
+  const usage = (
+    response as {
+      usage?: { prompt_tokens?: number; completion_tokens?: number; total_tokens?: number };
+    }
+  ).usage;
   recordAITokenUsage('Cerebras', model, category, {
     promptTokens: usage?.prompt_tokens,
     completionTokens: usage?.completion_tokens,

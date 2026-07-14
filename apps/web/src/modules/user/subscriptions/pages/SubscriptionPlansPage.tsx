@@ -8,10 +8,7 @@ import {
   useSubscriptionPlans,
   useVerifySubscriptionPayment,
 } from '../hooks/useSubscriptions';
-import type {
-  SubscriptionBillingCycle,
-  SubscriptionPlan,
-} from '../types/subscription.types';
+import type { SubscriptionBillingCycle, SubscriptionPlan } from '../types/subscription.types';
 
 type RazorpaySuccess = {
   razorpay_order_id: string;
@@ -56,9 +53,11 @@ const loadRazorpay = async () => {
 };
 
 const formatPrice = (amount: number) =>
-  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(
-    amount / 100
-  );
+  new Intl.NumberFormat('en-IN', {
+    style: 'currency',
+    currency: 'INR',
+    maximumFractionDigits: 0,
+  }).format(amount / 100);
 
 export default function SubscriptionPlansPage() {
   const [billingCycle, setBillingCycle] = useState<SubscriptionBillingCycle>('monthly');
@@ -98,7 +97,9 @@ export default function SubscriptionPlansPage() {
               if (user) setUser({ ...user, isPremium: true });
               toast.success('Premium activated', `${plan.name} is now active on your account.`);
             })
-            .catch(() => toast.error('Payment verification failed', 'Contact support if you were charged.'));
+            .catch(() =>
+              toast.error('Payment verification failed', 'Contact support if you were charged.')
+            );
         },
         modal: { ondismiss: () => toast.info('Checkout closed') },
       }).open();
@@ -114,9 +115,12 @@ export default function SubscriptionPlansPage() {
           <div className="mx-auto mb-5 grid h-14 w-14 place-items-center rounded-2xl bg-[rgba(184,76,43,0.12)] text-(--brand-500)">
             <Crown size={28} />
           </div>
-          <h1 className="font-editorial text-4xl font-bold sm:text-5xl">Choose your Imminiq plan</h1>
+          <h1 className="font-editorial text-4xl font-bold sm:text-5xl">
+            Choose your Imminiq plan
+          </h1>
           <p className="mx-auto mt-4 max-w-2xl text-(--text-secondary)">
-            Increase your AI capacity, unlock advanced evaluations, and choose monthly or annual billing through Razorpay test checkout.
+            Increase your AI capacity, unlock advanced evaluations, and choose monthly or annual
+            billing through Razorpay test checkout.
           </p>
           <div className="mx-auto mt-7 inline-flex rounded-xl border border-(--border-subtle) bg-(--surface-muted) p-1">
             {(['monthly', 'annual'] as const).map((cycle) => (
@@ -183,7 +187,12 @@ export default function SubscriptionPlansPage() {
                 <p className="mt-2 min-h-12 text-sm text-(--text-secondary)">{plan.description}</p>
                 <div className="mt-6">
                   <span className="font-editorial text-4xl font-bold">{formatPrice(amount)}</span>
-                  {amount > 0 && <span className="text-sm text-(--text-secondary)"> / {billingCycle === 'annual' ? 'year' : 'month'}</span>}
+                  {amount > 0 && (
+                    <span className="text-sm text-(--text-secondary)">
+                      {' '}
+                      / {billingCycle === 'annual' ? 'year' : 'month'}
+                    </span>
+                  )}
                 </div>
                 <div className="mt-5 grid grid-cols-2 gap-2 text-xs">
                   <Limit label="Total trackers" value={limits.maxTrackers} />
@@ -200,11 +209,19 @@ export default function SubscriptionPlansPage() {
                   ))}
                 </ul>
                 <button
-                  disabled={plan.id === 'free' || isCurrent || createOrder.isPending || verify.isPending}
+                  disabled={
+                    plan.id === 'free' || isCurrent || createOrder.isPending || verify.isPending
+                  }
                   onClick={() => void purchase(plan)}
                   className={`mt-7 w-full rounded-xl px-4 py-3 text-sm font-bold ${plan.highlighted ? 'bg-(--brand-500) text-white' : 'border border-(--border-subtle) bg-(--surface-card)'} disabled:cursor-not-allowed disabled:opacity-55`}
                 >
-                  {isCurrent ? 'Current plan' : plan.id === 'free' ? 'Included for everyone' : createOrder.isPending ? 'Starting checkout…' : `Choose ${plan.name}`}
+                  {isCurrent
+                    ? 'Current plan'
+                    : plan.id === 'free'
+                      ? 'Included for everyone'
+                      : createOrder.isPending
+                        ? 'Starting checkout…'
+                        : `Choose ${plan.name}`}
                 </button>
               </article>
             );

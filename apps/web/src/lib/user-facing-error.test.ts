@@ -1,7 +1,11 @@
 import { AxiosError, type AxiosResponse } from 'axios';
 import { describe, expect, it } from 'vitest';
 
-import { getUserFacingError, getValidationErrors, type IApiErrorPayload } from './user-facing-error';
+import {
+  getUserFacingError,
+  getValidationErrors,
+  type IApiErrorPayload,
+} from './user-facing-error';
 
 const apiError = (status: number, data: unknown) => {
   const response = {
@@ -37,7 +41,10 @@ describe('user-facing API errors', () => {
   it('keeps authored operational messages for specific client errors', () => {
     expect(
       getUserFacingError(
-        apiError(409, { code: 'FRIEND_REQUEST_EXISTS', message: 'A friend request is already pending.' })
+        apiError(409, {
+          code: 'FRIEND_REQUEST_EXISTS',
+          message: 'A friend request is already pending.',
+        })
       )
     ).toBe('A friend request is already pending.');
   });

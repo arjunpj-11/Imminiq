@@ -32,5 +32,7 @@ export const adminSubscriptionPlanSchema = z.object({
 
 export const adminSubscriptionPlanUpdateSchema = z.object({
   plan: adminSubscriptionPlanSchema,
-  propagateLimitFields: z.array(z.enum(ADMIN_PLAN_LIMIT_FIELDS)).max(ADMIN_PLAN_LIMIT_FIELDS.length),
+  propagateLimitFields: z
+    .array(z.enum(ADMIN_PLAN_LIMIT_FIELDS))
+    .max(ADMIN_PLAN_LIMIT_FIELDS.length),
 });

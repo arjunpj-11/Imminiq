@@ -21,15 +21,13 @@ export const useCurrentSubscription = () =>
   useQuery({
     queryKey: subscriptionKeys.current(),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<UserSubscription | null>>(SUBSCRIPTION_API_PATHS.current)).data.data,
+      (await api.get<ApiEnvelope<UserSubscription | null>>(SUBSCRIPTION_API_PATHS.current)).data
+        .data,
   });
 
 export const useCreateSubscriptionOrder = () =>
   useMutation({
-    mutationFn: (input: {
-      planId: 'pro' | 'premium';
-      billingCycle: SubscriptionBillingCycle;
-    }) =>
+    mutationFn: (input: { planId: 'pro' | 'premium'; billingCycle: SubscriptionBillingCycle }) =>
       api
         .post<ApiEnvelope<SubscriptionOrder>>(SUBSCRIPTION_API_PATHS.orders, input)
         .then((response) => response.data.data),

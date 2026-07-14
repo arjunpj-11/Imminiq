@@ -106,7 +106,7 @@ export class MongoMockTestsAnswerRepository extends MongoMockTestsBaseRepository
           },
           update,
           {
-            returnDocument: "after",
+            returnDocument: 'after',
           }
         ).lean();
 

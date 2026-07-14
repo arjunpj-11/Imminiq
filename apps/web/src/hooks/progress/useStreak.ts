@@ -1,11 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../lib/axios';
-import type {
-  IApiErrorResponse,
-  IApiResponse,
-  IStreakSummary,
-} from '../../modules/user/users';
+import type { IApiErrorResponse, IApiResponse, IStreakSummary } from '../../modules/user/users';
 import { streakQueryKeys } from './streak.query-keys';
 
 interface IUseStreakOptions {

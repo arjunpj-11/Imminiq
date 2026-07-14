@@ -33,7 +33,10 @@ interface IApiErrorResponse {
 const saveOnboardingStepOne = async (
   payload: ISaveOnboardingStepOnePayload
 ): Promise<ISaveOnboardingStepOneResponse> => {
-  const response = await api.post<ISaveOnboardingStepOneResponse>(ONBOARDING_API_PATHS.stepOne, payload);
+  const response = await api.post<ISaveOnboardingStepOneResponse>(
+    ONBOARDING_API_PATHS.stepOne,
+    payload
+  );
 
   return response.data;
 };

@@ -11,7 +11,10 @@ export const useAdminAnalytics = (range: { from: string; to: string }) =>
   useQuery({
     queryKey: adminAnalyticsKeys.range(range),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<AdminAnalytics>>(ADMIN_ANALYTICS_ENDPOINTS.overview, { params: range }))
-        .data.data,
+      (
+        await api.get<ApiEnvelope<AdminAnalytics>>(ADMIN_ANALYTICS_ENDPOINTS.overview, {
+          params: range,
+        })
+      ).data.data,
     staleTime: ADMIN_ANALYTICS_STALE_TIME_MS,
   });

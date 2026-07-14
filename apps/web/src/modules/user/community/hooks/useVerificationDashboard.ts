@@ -2,10 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 
 import api from '../../../../lib/axios';
-import {
-  COMMUNITY_ENDPOINTS,
-  COMMUNITY_VERIFY_PAGE_LIMIT,
-} from '../constants/community.constants';
+import { COMMUNITY_ENDPOINTS, COMMUNITY_VERIFY_PAGE_LIMIT } from '../constants/community.constants';
 import type {
   IApiErrorResponse,
   IApiResponse,

@@ -447,7 +447,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
           completedAt: null,
         },
       },
-      { upsert: true, returnDocument: "after" }
+      { upsert: true, returnDocument: 'after' }
     );
   }
 

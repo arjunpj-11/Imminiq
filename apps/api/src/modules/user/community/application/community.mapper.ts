@@ -27,9 +27,7 @@ export interface ICommunityMapper {
     entity: CommunityVerificationSubmissionEntity
   ): CommunityVerificationSubmissionViewDTO;
   toVerificationQueueView(page: VerificationQueueResult): CommunityVerificationQueueViewDTO;
-  toLeaderboardEntryView(
-    entity: CommunityLeaderboardEntryEntity
-  ): CommunityLeaderboardEntryViewDTO;
+  toLeaderboardEntryView(entity: CommunityLeaderboardEntryEntity): CommunityLeaderboardEntryViewDTO;
   toVoteView(entity: CommunityReviewVoteEntity): {
     _id: string;
     submissionId: string;

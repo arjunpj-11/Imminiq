@@ -26,7 +26,13 @@ const globalApiLimiter = rateLimit({
   standardHeaders: 'draft-8',
   legacyHeaders: false,
   handler: (_req, _res, next) => {
-    next(new ApiError(429, 'Too many requests. Please wait a moment and try again.', 'GLOBAL_RATE_LIMITED'));
+    next(
+      new ApiError(
+        429,
+        'Too many requests. Please wait a moment and try again.',
+        'GLOBAL_RATE_LIMITED'
+      )
+    );
   },
 });
 

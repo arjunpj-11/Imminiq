@@ -15,9 +15,7 @@ export class CryptoSecurityEmailChangeToken implements ISecurityEmailChangeToken
       return {
         rawToken,
         tokenHash: this.hash(rawToken),
-        expiresAt: new Date(
-          Date.now() + env.SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES * 60 * 1000
-        ),
+        expiresAt: new Date(Date.now() + env.SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES * 60 * 1000),
       };
     } catch (error) {
       if (error instanceof SecurityDomainError) {

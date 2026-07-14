@@ -16,8 +16,9 @@ export const useAdaptiveLearningDashboard = (enabled = true) =>
     queryKey: adaptiveLearningKeys.dashboard(),
     enabled,
     queryFn: async () => {
-      const response =
-        await api.get<IAdaptiveApiResponse<IAdaptiveDashboard>>(ADAPTIVE_LEARNING_API_PATHS.root);
+      const response = await api.get<IAdaptiveApiResponse<IAdaptiveDashboard>>(
+        ADAPTIVE_LEARNING_API_PATHS.root
+      );
       return response.data.data;
     },
     staleTime: 15_000,

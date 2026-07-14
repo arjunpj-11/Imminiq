@@ -81,11 +81,7 @@ const tabs = [
 
 export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
   const location = useLocation();
-  const temporaryItem = getTemporaryUserNavItem(
-    location.pathname,
-    location.search,
-    location.hash
-  );
+  const temporaryItem = getTemporaryUserNavItem(location.pathname, location.search, location.hash);
   const visibleTabs = temporaryItem
     ? [
         ...tabs,

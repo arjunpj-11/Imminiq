@@ -18,8 +18,7 @@ export const TRACKER_API_PATHS = {
     `/trackers/${trackerId}/topics/${topicId}/subtopics/verify`,
   addMissingEvaluationTopic: (trackerId: string, evaluationJobId: string, topicIndex: number) =>
     `/trackers/${trackerId}/evaluation-jobs/${evaluationJobId}/missing-topics/${topicIndex}/add`,
-  lesson: (trackerId: string, subtopicId: string) =>
-    `/trackers/${trackerId}/lessons/${subtopicId}`,
+  lesson: (trackerId: string, subtopicId: string) => `/trackers/${trackerId}/lessons/${subtopicId}`,
   lessonChat: (trackerId: string, subtopicId: string) =>
     `/trackers/${trackerId}/lessons/${subtopicId}/chat`,
   lessonAnswerAttempts: (trackerId: string, subtopicId: string) =>
@@ -48,6 +47,5 @@ export const TRACKER_API_PATHS = {
     `/trackers/${trackerId}/lessons/${subtopicId}/question-solution/doubts`,
   lessonVisualization: (trackerId: string, subtopicId: string) =>
     `/trackers/${trackerId}/lessons/${subtopicId}/visualize`,
-  communityVerification: (trackerId: string) =>
-    `/community/trackers/${trackerId}/verification`,
+  communityVerification: (trackerId: string) => `/community/trackers/${trackerId}/verification`,
 } as const;

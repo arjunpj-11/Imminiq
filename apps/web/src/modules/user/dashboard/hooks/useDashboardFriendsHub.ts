@@ -13,7 +13,7 @@ export const useDashboardFriendsHub = (limit = 4) => {
       const response = await api.get<IApiResponse<IDashboardFriend[]>>(
         DASHBOARD_API_PATHS.friendsHub,
         {
-        params: { limit },
+          params: { limit },
         }
       );
 

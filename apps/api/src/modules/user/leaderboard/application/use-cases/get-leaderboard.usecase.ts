@@ -15,7 +15,10 @@ import { LeaderboardApplicationError } from '../leaderboard-application.error';
 import type { ILeaderboardMapper } from '../leaderboard.mapper';
 import type { ILeaderboardDateRange } from '../services/leaderboard-date-range.service';
 import type { IClock } from '../../../../../shared/time/clock.interface';
-import type { ILeaderboardPolicyReader, LeaderboardPolicy } from '../../../../../shared/platform-policy';
+import type {
+  ILeaderboardPolicyReader,
+  LeaderboardPolicy,
+} from '../../../../../shared/platform-policy';
 import type { LeaderboardSection } from '../../domain/value-objects/leaderboard-section.vo';
 
 export interface IGetLeaderboardUseCase {

@@ -1,7 +1,4 @@
-import {
-  AITokenUsage,
-  type AITokenUsageCategory,
-} from '../database/models/ai-token-usage.model';
+import { AITokenUsage, type AITokenUsageCategory } from '../database/models/ai-token-usage.model';
 
 export type { AITokenUsageCategory };
 

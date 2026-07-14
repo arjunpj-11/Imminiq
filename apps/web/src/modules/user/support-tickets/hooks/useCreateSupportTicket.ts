@@ -9,5 +9,6 @@ type ApiEnvelope<T> = { data: T };
 export const useCreateSupportTicket = () =>
   useMutation({
     mutationFn: async (input: CreateSupportTicketInput) =>
-      (await api.post<ApiEnvelope<SupportTicketCreated>>(SUPPORT_TICKET_API_PATHS.root, input)).data.data,
+      (await api.post<ApiEnvelope<SupportTicketCreated>>(SUPPORT_TICKET_API_PATHS.root, input)).data
+        .data,
   });

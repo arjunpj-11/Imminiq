@@ -95,7 +95,9 @@ describe('frontend feature-module architecture', () => {
       const hooksRoot = join(moduleRoot, 'hooks');
       if (!existsSync(hooksRoot)) return [];
 
-      const queryKeyFiles = readdirSync(hooksRoot).filter((file) => file.endsWith('.query-keys.ts'));
+      const queryKeyFiles = readdirSync(hooksRoot).filter((file) =>
+        file.endsWith('.query-keys.ts')
+      );
       return queryKeyFiles.length === 1 ? [] : [moduleRoot.replace(`${modulesRoot}/`, '')];
     });
 
@@ -114,13 +116,17 @@ describe('frontend feature-module architecture', () => {
       if (!usesServerQueries) return [];
 
       const keyOwners = hookFiles.filter((file) => file.endsWith('.query-keys.ts'));
-      const issues = keyOwners.length === 1
-        ? []
-        : [`${moduleRoot.replace(`${modulesRoot}/`, '')}: ${keyOwners.length} query-key owners`];
+      const issues =
+        keyOwners.length === 1
+          ? []
+          : [`${moduleRoot.replace(`${modulesRoot}/`, '')}: ${keyOwners.length} query-key owners`];
 
       for (const file of hookFiles.filter((file) => !file.endsWith('.query-keys.ts'))) {
         const source = readFileSync(file, 'utf8');
-        if (/queryKey:\s*\[/.test(source) || /(?:export\s+)?const\s+\w*(?:Keys|KEY)\s*=/.test(source)) {
+        if (
+          /queryKey:\s*\[/.test(source) ||
+          /(?:export\s+)?const\s+\w*(?:Keys|KEY)\s*=/.test(source)
+        ) {
           issues.push(file.replace(`${modulesRoot}/`, ''));
         }
       }
@@ -211,8 +217,10 @@ describe('frontend feature-module architecture', () => {
       .filter((file) => file.endsWith('.tsx'))
       .filter((file) => {
         const source = readFileSync(file, 'utf8');
-        return /(?:navigate|onNavigate)\(\s*['"]\//.test(source) ||
-          /(?:to|brandTo|actionTo)=['"]\//.test(source);
+        return (
+          /(?:navigate|onNavigate)\(\s*['"]\//.test(source) ||
+          /(?:to|brandTo|actionTo)=['"]\//.test(source)
+        );
       })
       .map((file) => file.replace(`${sourceRoot}/`, ''));
 

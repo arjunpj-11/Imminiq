@@ -12,23 +12,23 @@ import {
 } from './moderation-appeal.schema';
 
 export const createModerationAppealRoutes = (useCases: ModerationAppealUseCases) => {
-const moderationAppealController = new ModerationAppealController(useCases);
-const router = Router();
-router.use(moderationAppealIpLimiter, authenticateModerationAppeal);
+  const moderationAppealController = new ModerationAppealController(useCases);
+  const router = Router();
+  router.use(moderationAppealIpLimiter, authenticateModerationAppeal);
 
-// ─── PUBLIC ──────────────────────────────────────────────────
+  // ─── PUBLIC ──────────────────────────────────────────────────
 
-router.post(
-  MODERATION_APPEAL_ROUTE_PATHS.ROOT,
-  validate(submitModerationAppealSchema),
-  moderationAppealController.submitAppeal
-);
+  router.post(
+    MODERATION_APPEAL_ROUTE_PATHS.ROOT,
+    validate(submitModerationAppealSchema),
+    moderationAppealController.submitAppeal
+  );
 
-router.post(
-  MODERATION_APPEAL_ROUTE_PATHS.STATUS,
-  validate(getModerationAppealStatusSchema),
-  moderationAppealController.getAppealStatus
-);
+  router.post(
+    MODERATION_APPEAL_ROUTE_PATHS.STATUS,
+    validate(getModerationAppealStatusSchema),
+    moderationAppealController.getAppealStatus
+  );
 
   return router;
 };

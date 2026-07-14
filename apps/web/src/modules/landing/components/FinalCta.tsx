@@ -59,13 +59,22 @@ export default function FinalCta() {
         </div>
 
         <div className="flex flex-col gap-3 text-[14px] text-[#6b5f58] dark:text-[#b8b4aa]">
-          <Link to={ROUTES.privacy} className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">
+          <Link
+            to={ROUTES.privacy}
+            className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+          >
             Privacy
           </Link>
-          <Link to={ROUTES.terms} className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">
+          <Link
+            to={ROUTES.terms}
+            className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+          >
             Terms
           </Link>
-          <Link to={ROUTES.login} className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]">
+          <Link
+            to={ROUTES.login}
+            className="transition hover:text-[#b84c2b] dark:hover:text-[#e8816a]"
+          >
             Sign in
           </Link>
         </div>

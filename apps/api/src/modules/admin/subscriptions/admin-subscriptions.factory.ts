@@ -14,10 +14,7 @@ export const createAdminSubscriptionsComposition = (): AdminSubscriptionsComposi
         mongoAdminSubscriptionsRepository,
         mapper
       ),
-      updatePlan: new UpdateAdminPlanUseCase(
-        mongoAdminSubscriptionsRepository,
-        mapper
-      ),
+      updatePlan: new UpdateAdminPlanUseCase(mongoAdminSubscriptionsRepository, mapper),
     },
   };
 };

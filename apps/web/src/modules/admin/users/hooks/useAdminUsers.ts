@@ -13,7 +13,8 @@ export const useAdminUsers = (query: AdminUsersQuery) =>
   useQuery({
     queryKey: adminUsersKeys.list(query),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<AdminUsersData>>(ADMIN_USERS_ENDPOINTS.list, { params: query })).data.data,
+      (await api.get<ApiEnvelope<AdminUsersData>>(ADMIN_USERS_ENDPOINTS.list, { params: query }))
+        .data.data,
     placeholderData: keepPreviousData,
     staleTime: ADMIN_USERS_STALE_TIME_MS,
   });

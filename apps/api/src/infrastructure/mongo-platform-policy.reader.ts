@@ -16,13 +16,12 @@ import {
   type TrackerPolicy,
 } from '../shared/platform-policy';
 
-type PlatformPolicyReader =
-  & IActivityPolicyReader
-  & ICommunityPolicyReader
-  & ILeaderboardPolicyReader
-  & IMockTestPolicyReader
-  & ITrackerPolicyReader
-  & ISecurityProductPolicyReader;
+type PlatformPolicyReader = IActivityPolicyReader &
+  ICommunityPolicyReader &
+  ILeaderboardPolicyReader &
+  IMockTestPolicyReader &
+  ITrackerPolicyReader &
+  ISecurityProductPolicyReader;
 
 /** Mongo-backed adapter for product policy ports owned by the application modules. */
 export class MongoPlatformPolicyReader implements PlatformPolicyReader {

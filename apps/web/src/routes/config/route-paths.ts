@@ -64,8 +64,7 @@ export const ROUTES = {
   onboardingEvaluationPattern: '/onboarding/roadmap-evaluation/:jobId',
   onboardingEvaluation: (jobId: string) => `/onboarding/roadmap-evaluation/${jobId}`,
   onboardingEvaluationScorePattern: '/onboarding/roadmap-evaluation/:jobId/score',
-  onboardingEvaluationScore: (jobId: string) =>
-    `/onboarding/roadmap-evaluation/${jobId}/score`,
+  onboardingEvaluationScore: (jobId: string) => `/onboarding/roadmap-evaluation/${jobId}/score`,
 } as const;
 
 export const ADMIN_ROUTES = {

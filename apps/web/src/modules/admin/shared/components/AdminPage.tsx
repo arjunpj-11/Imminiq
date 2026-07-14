@@ -166,7 +166,10 @@ export function AdminLoading() {
       <span className="sr-only">Loading current data…</span>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[0, 1, 2, 3].map((item) => (
-          <div key={item} className="h-28 animate-pulse rounded-xl border border-white/9 bg-[#1c1a18]" />
+          <div
+            key={item}
+            className="h-28 animate-pulse rounded-xl border border-white/9 bg-[#1c1a18]"
+          />
         ))}
       </div>
       <div className="h-72 animate-pulse rounded-xl border border-white/9 bg-[#1c1a18]" />

@@ -26,9 +26,7 @@ export class AdminSubscriptionsMapper implements IAdminSubscriptionsMapper {
         ...entity.subscriptions,
         items: entity.subscriptions.items.map((item) => ({ ...item })),
         pagination: { ...entity.subscriptions.pagination },
-        ...(entity.subscriptions.stats
-          ? { stats: { ...entity.subscriptions.stats } }
-          : {}),
+        ...(entity.subscriptions.stats ? { stats: { ...entity.subscriptions.stats } } : {}),
       },
       plans: entity.plans.map((plan) => this.toPlanDTO(plan)),
     };

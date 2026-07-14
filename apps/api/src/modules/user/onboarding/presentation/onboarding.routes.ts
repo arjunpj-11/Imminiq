@@ -15,44 +15,44 @@ import {
 } from './onboarding.schema';
 
 export const createOnboardingRoutes = (useCases: OnboardingUseCases) => {
-const onboardingController = new OnboardingController(useCases);
-const router = Router();
-router.param('jobId', validateIdentifierParam);
+  const onboardingController = new OnboardingController(useCases);
+  const router = Router();
+  router.param('jobId', validateIdentifierParam);
 
-// ─── PROTECTED ────────────────────────────────────────────────
+  // ─── PROTECTED ────────────────────────────────────────────────
 
-router.use(authenticatedApiIpLimiter, authenticate);
+  router.use(authenticatedApiIpLimiter, authenticate);
 
-router.post(
-  ONBOARDING_ROUTE_PATHS.TRACKER_INTAKE,
-  validate(trackerIntakeSchema),
-  onboardingController.continueTrackerIntake
-);
+  router.post(
+    ONBOARDING_ROUTE_PATHS.TRACKER_INTAKE,
+    validate(trackerIntakeSchema),
+    onboardingController.continueTrackerIntake
+  );
 
-router.post(ONBOARDING_ROUTE_PATHS.STEP_1, validate(step1Schema), onboardingController.saveStep1);
+  router.post(ONBOARDING_ROUTE_PATHS.STEP_1, validate(step1Schema), onboardingController.saveStep1);
 
-router.post(ONBOARDING_ROUTE_PATHS.STEP_2, validate(step2Schema), onboardingController.saveStep2);
+  router.post(ONBOARDING_ROUTE_PATHS.STEP_2, validate(step2Schema), onboardingController.saveStep2);
 
-router.post(
-  ONBOARDING_ROUTE_PATHS.GENERATE_ROADMAP,
-  validate(generateRoadmapSchema),
-  enforcePlanLimit('tracker_generation'),
-  onboardingController.generateRoadmap
-);
+  router.post(
+    ONBOARDING_ROUTE_PATHS.GENERATE_ROADMAP,
+    validate(generateRoadmapSchema),
+    enforcePlanLimit('tracker_generation'),
+    onboardingController.generateRoadmap
+  );
 
-router.get(ONBOARDING_ROUTE_PATHS.ACTIVE_ROADMAP_JOB, onboardingController.getActiveRoadmapJob);
+  router.get(ONBOARDING_ROUTE_PATHS.ACTIVE_ROADMAP_JOB, onboardingController.getActiveRoadmapJob);
 
-router.get(ONBOARDING_ROUTE_PATHS.JOB_STATUS, onboardingController.getJobStatus);
+  router.get(ONBOARDING_ROUTE_PATHS.JOB_STATUS, onboardingController.getJobStatus);
 
-router.get(ONBOARDING_ROUTE_PATHS.JOB_RESULT, onboardingController.getJobResult);
+  router.get(ONBOARDING_ROUTE_PATHS.JOB_RESULT, onboardingController.getJobResult);
 
-router.post(
-  ONBOARDING_ROUTE_PATHS.EVALUATE_ROADMAP,
-  enforcePlanLimit('ai_tutor_request'),
-  onboardingController.evaluateRoadmap
-);
+  router.post(
+    ONBOARDING_ROUTE_PATHS.EVALUATE_ROADMAP,
+    enforcePlanLimit('ai_tutor_request'),
+    onboardingController.evaluateRoadmap
+  );
 
-router.get(ONBOARDING_ROUTE_PATHS.EVALUATION_RESULT, onboardingController.getEvaluationResult);
+  router.get(ONBOARDING_ROUTE_PATHS.EVALUATION_RESULT, onboardingController.getEvaluationResult);
 
   return router;
 };

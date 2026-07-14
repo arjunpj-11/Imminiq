@@ -2,10 +2,7 @@ import type {
   CreateSupportTicketInput,
   SupportTicketCreated,
 } from '../domain/entities/support-ticket.entity';
-import type {
-  CreateSupportTicketDTO,
-  SupportTicketCreatedDTO,
-} from './support-tickets.dto';
+import type { CreateSupportTicketDTO, SupportTicketCreatedDTO } from './support-tickets.dto';
 
 export interface ISupportTicketsMapper {
   toCreateInput(dto: CreateSupportTicketDTO): CreateSupportTicketInput;

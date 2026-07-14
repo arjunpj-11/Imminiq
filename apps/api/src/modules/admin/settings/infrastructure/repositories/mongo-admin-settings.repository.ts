@@ -22,22 +22,26 @@ export class MongoAdminSettingsRepository implements IAdminSettingsRepository {
     const settings = await AdminConsoleSettings.findOneAndUpdate(
       { key: 'global' },
       { $setOnInsert: { key: 'global' } },
-      { upsert: true, returnDocument: "after" }
+      { upsert: true, returnDocument: 'after' }
     )
       .select(view)
       .lean();
-    return normalizeSettings(settings ?? {}) as Awaited<ReturnType<IAdminSettingsRepository['get']>>;
+    return normalizeSettings(settings ?? {}) as Awaited<
+      ReturnType<IAdminSettingsRepository['get']>
+    >;
   }
   async update(input: AdminSettingsInput, actor: AdminActor) {
     const settings = await AdminConsoleSettings.findOneAndUpdate(
       { key: 'global' },
       { $set: { ...input, updatedBy: actor.userId } },
-      { upsert: true, returnDocument: "after", setDefaultsOnInsert: true }
+      { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     )
       .select(view)
       .lean();
     await recordAdminAction(actor, 'admin_console_settings_updated', 'admin.settings', input);
-    return normalizeSettings(settings ?? {}) as Awaited<ReturnType<IAdminSettingsRepository['update']>>;
+    return normalizeSettings(settings ?? {}) as Awaited<
+      ReturnType<IAdminSettingsRepository['update']>
+    >;
   }
 }
 export const mongoAdminSettingsRepository = new MongoAdminSettingsRepository();

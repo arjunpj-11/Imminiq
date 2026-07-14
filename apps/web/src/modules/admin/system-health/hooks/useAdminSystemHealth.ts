@@ -11,6 +11,7 @@ export const useAdminSystemHealth = () =>
   useQuery({
     queryKey: adminSystemHealthKeys.status(),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<AdminSystemHealth>>(ADMIN_SYSTEM_HEALTH_ENDPOINTS.overview)).data.data,
+      (await api.get<ApiEnvelope<AdminSystemHealth>>(ADMIN_SYSTEM_HEALTH_ENDPOINTS.overview)).data
+        .data,
     refetchInterval: ADMIN_SYSTEM_HEALTH_REFETCH_INTERVAL_MS,
   });

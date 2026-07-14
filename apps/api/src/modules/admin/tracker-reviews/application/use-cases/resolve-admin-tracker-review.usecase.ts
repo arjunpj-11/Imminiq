@@ -5,7 +5,11 @@ import type { AdminTrackerReviewStatusResultDTO } from '../admin-tracker-reviews
 import type { IAdminTrackerReviewsMapper } from '../admin-tracker-reviews.mapper';
 
 export interface IResolveAdminTrackerReviewUseCase {
-  execute(id: string, status: string, actor: AdminActor): Promise<AdminTrackerReviewStatusResultDTO>;
+  execute(
+    id: string,
+    status: string,
+    actor: AdminActor
+  ): Promise<AdminTrackerReviewStatusResultDTO>;
 }
 
 export class ResolveAdminTrackerReviewUseCase implements IResolveAdminTrackerReviewUseCase {

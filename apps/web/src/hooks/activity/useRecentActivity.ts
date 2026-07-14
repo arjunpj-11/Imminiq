@@ -1,11 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import type { AxiosError } from 'axios';
 import api from '../../lib/axios';
-import type {
-  IActivityFeedItem,
-  IApiErrorResponse,
-  IApiResponse,
-} from '../../modules/user/users';
+import type { IActivityFeedItem, IApiErrorResponse, IApiResponse } from '../../modules/user/users';
 import { activityQueryKeys } from './activity.query-keys';
 
 interface IRecentActivityResponse {

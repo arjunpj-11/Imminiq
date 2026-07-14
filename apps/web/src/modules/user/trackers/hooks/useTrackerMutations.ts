@@ -89,9 +89,7 @@ export const useArchiveTracker = () => {
 
   return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<IApiResponse<ITracker>>(
-        TRACKER_API_PATHS.archive(trackerId)
-      );
+      const response = await api.post<IApiResponse<ITracker>>(TRACKER_API_PATHS.archive(trackerId));
 
       return response.data;
     },
@@ -109,9 +107,7 @@ export const useRestoreTracker = () => {
 
   return useMutation<IApiResponse<ITracker>, Error, string>({
     mutationFn: async (trackerId) => {
-      const response = await api.post<IApiResponse<ITracker>>(
-        TRACKER_API_PATHS.restore(trackerId)
-      );
+      const response = await api.post<IApiResponse<ITracker>>(TRACKER_API_PATHS.restore(trackerId));
 
       return response.data;
     },

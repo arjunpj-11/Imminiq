@@ -13,7 +13,8 @@ export const useAdminUserDetail = (userId: string) =>
   useQuery({
     queryKey: adminUsersKeys.detail(userId),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<AdminUserDetailData>>(ADMIN_USERS_ENDPOINTS.detail(userId))).data.data,
+      (await api.get<ApiEnvelope<AdminUserDetailData>>(ADMIN_USERS_ENDPOINTS.detail(userId))).data
+        .data,
     enabled: Boolean(userId),
     staleTime: ADMIN_USERS_STALE_TIME_MS,
   });

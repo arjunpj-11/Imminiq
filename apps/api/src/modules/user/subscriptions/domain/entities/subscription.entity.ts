@@ -86,7 +86,12 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       aiTutorRequestsPerDay: 150,
     },
     highlighted: true,
-    features: ['Everything in Free', 'Expanded generation limits', 'Advanced evaluations', 'Unlimited tracker sharing'],
+    features: [
+      'Everything in Free',
+      'Expanded generation limits',
+      'Advanced evaluations',
+      'Unlimited tracker sharing',
+    ],
   },
   {
     id: 'premium',
@@ -103,7 +108,12 @@ export const SUBSCRIPTION_PLANS: SubscriptionPlan[] = [
       aiTutorRequestsPerDay: 500,
     },
     highlighted: false,
-    features: ['Everything in Pro', 'Maximum request limits', 'Priority generation', 'Premium learning access'],
+    features: [
+      'Everything in Pro',
+      'Maximum request limits',
+      'Priority generation',
+      'Premium learning access',
+    ],
   },
 ];
 

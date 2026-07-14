@@ -183,11 +183,7 @@ export default function Sidebar({
 
   const currentPathWithSearchAndHash = `${location.pathname}${location.search}${location.hash}`;
 
-  const temporaryItem = getTemporaryUserNavItem(
-    location.pathname,
-    location.search,
-    location.hash
-  );
+  const temporaryItem = getTemporaryUserNavItem(location.pathname, location.search, location.hash);
 
   const navLinkClass = ({ isActive }: { isActive: boolean }) =>
     cn(

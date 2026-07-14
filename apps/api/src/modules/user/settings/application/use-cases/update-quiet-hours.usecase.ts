@@ -7,10 +7,7 @@ type UpdateQuietHoursRepository = {
 };
 
 export interface IUpdateQuietHoursUseCase {
-  execute(
-    userId: string,
-    payload: UpdateQuietHoursPayloadDTO
-  ): Promise<UserSettingsViewDTO | null>;
+  execute(userId: string, payload: UpdateQuietHoursPayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdateQuietHoursUseCase implements IUpdateQuietHoursUseCase {

@@ -24,8 +24,7 @@ interface ITopBarProps {
 }
 
 const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-const beginsWith = (path: string, suffix = '') =>
-  new RegExp(`^${escapeRegExp(path)}${suffix}`);
+const beginsWith = (path: string, suffix = '') => new RegExp(`^${escapeRegExp(path)}${suffix}`);
 
 const routeLabels: Array<[RegExp, string]> = [
   [beginsWith(ROUTES.dashboard), 'Dashboard'],

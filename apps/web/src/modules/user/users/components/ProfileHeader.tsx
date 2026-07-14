@@ -167,7 +167,6 @@ function ProfileActions({
                     ? 'Request Sent'
                     : 'Send Request'}
           </button>
-
         </>
       ) : (
         <button

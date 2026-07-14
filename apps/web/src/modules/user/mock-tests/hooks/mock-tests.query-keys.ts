@@ -14,7 +14,8 @@ export const mockTestKeys = {
   activeGeneration: () => [...mockTestKeys.all, 'active-generation'] as const,
   attempts: () => [...mockTestKeys.all, 'attempts'] as const,
   attempt: (attemptId: string) => [...mockTestKeys.attempts(), attemptId] as const,
-  attemptQuestions: (attemptId: string) => [...mockTestKeys.attempt(attemptId), 'questions'] as const,
+  attemptQuestions: (attemptId: string) =>
+    [...mockTestKeys.attempt(attemptId), 'questions'] as const,
   attemptResult: (attemptId: string) => [...mockTestKeys.attempt(attemptId), 'result'] as const,
   attemptAnalysis: (attemptId: string) => [...mockTestKeys.attempt(attemptId), 'analysis'] as const,
 };

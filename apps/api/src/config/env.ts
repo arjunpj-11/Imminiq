@@ -95,10 +95,26 @@ const envSchema = z
       .positive()
       .default(RUNTIME_DEFAULTS.TWO_FACTOR_CHALLENGE_TTL_MINUTES),
 
-    PASSWORD_RESET_TOKEN_TTL_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.PASSWORD_RESET_TOKEN_TTL_SECONDS),
-    PENDING_REGISTRATION_TTL_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.PENDING_REGISTRATION_TTL_SECONDS),
-    OAUTH_STATE_TTL_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.OAUTH_STATE_TTL_SECONDS),
-    SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES),
+    PASSWORD_RESET_TOKEN_TTL_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.PASSWORD_RESET_TOKEN_TTL_SECONDS),
+    PENDING_REGISTRATION_TTL_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.PENDING_REGISTRATION_TTL_SECONDS),
+    OAUTH_STATE_TTL_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.OAUTH_STATE_TTL_SECONDS),
+    SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES),
 
     BCRYPT_ROUNDS: z.coerce.number().int().min(10).max(16).default(RUNTIME_DEFAULTS.BCRYPT_ROUNDS),
 
@@ -108,46 +124,195 @@ const envSchema = z
       .positive()
       .default(RUNTIME_DEFAULTS.OTP_EXPIRES_MINUTES),
 
-    AUTH_LOGIN_ATTEMPT_WINDOW_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.AUTH_LOGIN_ATTEMPT_WINDOW_SECONDS),
-    AUTH_LOGIN_MAX_ATTEMPTS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.AUTH_LOGIN_MAX_ATTEMPTS),
-    AUTH_LOGIN_BLOCK_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.AUTH_LOGIN_BLOCK_SECONDS),
-    OTP_ATTEMPT_WINDOW_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.OTP_ATTEMPT_WINDOW_SECONDS),
+    AUTH_LOGIN_ATTEMPT_WINDOW_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.AUTH_LOGIN_ATTEMPT_WINDOW_SECONDS),
+    AUTH_LOGIN_MAX_ATTEMPTS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.AUTH_LOGIN_MAX_ATTEMPTS),
+    AUTH_LOGIN_BLOCK_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.AUTH_LOGIN_BLOCK_SECONDS),
+    OTP_ATTEMPT_WINDOW_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.OTP_ATTEMPT_WINDOW_SECONDS),
     OTP_MAX_ATTEMPTS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.OTP_MAX_ATTEMPTS),
-    OTP_BLOCK_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.OTP_BLOCK_SECONDS),
-    TWO_FACTOR_ATTEMPT_WINDOW_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.TWO_FACTOR_ATTEMPT_WINDOW_SECONDS),
-    TWO_FACTOR_MAX_ATTEMPTS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.TWO_FACTOR_MAX_ATTEMPTS),
-    TWO_FACTOR_BLOCK_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.TWO_FACTOR_BLOCK_SECONDS),
+    OTP_BLOCK_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.OTP_BLOCK_SECONDS),
+    TWO_FACTOR_ATTEMPT_WINDOW_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.TWO_FACTOR_ATTEMPT_WINDOW_SECONDS),
+    TWO_FACTOR_MAX_ATTEMPTS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.TWO_FACTOR_MAX_ATTEMPTS),
+    TWO_FACTOR_BLOCK_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.TWO_FACTOR_BLOCK_SECONDS),
 
-    RATE_LIMIT_AUTHENTICATED_API_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTHENTICATED_API_WINDOW_MS),
-    RATE_LIMIT_AUTHENTICATED_API_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTHENTICATED_API_MAX),
-    RATE_LIMIT_AUTH_SESSION_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTH_SESSION_WINDOW_MS),
-    RATE_LIMIT_AUTH_SESSION_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTH_SESSION_MAX),
-    RATE_LIMIT_PUBLIC_LOOKUP_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_PUBLIC_LOOKUP_WINDOW_MS),
-    RATE_LIMIT_PUBLIC_LOOKUP_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_PUBLIC_LOOKUP_MAX),
-    RATE_LIMIT_OAUTH_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_OAUTH_WINDOW_MS),
-    RATE_LIMIT_OAUTH_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_OAUTH_MAX),
-    RATE_LIMIT_REGISTER_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_REGISTER_WINDOW_MS),
-    RATE_LIMIT_REGISTER_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_REGISTER_MAX),
-    RATE_LIMIT_LOGIN_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_LOGIN_WINDOW_MS),
-    RATE_LIMIT_LOGIN_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_LOGIN_MAX),
-    RATE_LIMIT_SENSITIVE_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_SENSITIVE_WINDOW_MS),
-    RATE_LIMIT_SENSITIVE_DEFAULT_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_SENSITIVE_DEFAULT_MAX),
-    RATE_LIMIT_OTP_SEND_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_OTP_SEND_MAX),
-    RATE_LIMIT_FORGOT_PASSWORD_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_FORGOT_PASSWORD_MAX),
-    RATE_LIMIT_RESET_PASSWORD_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_RESET_PASSWORD_MAX),
-    RATE_LIMIT_MODERATION_APPEAL_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_MODERATION_APPEAL_WINDOW_MS),
-    RATE_LIMIT_MODERATION_APPEAL_MAX: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.RATE_LIMIT_MODERATION_APPEAL_MAX),
+    RATE_LIMIT_AUTHENTICATED_API_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTHENTICATED_API_WINDOW_MS),
+    RATE_LIMIT_AUTHENTICATED_API_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTHENTICATED_API_MAX),
+    RATE_LIMIT_AUTH_SESSION_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTH_SESSION_WINDOW_MS),
+    RATE_LIMIT_AUTH_SESSION_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_AUTH_SESSION_MAX),
+    RATE_LIMIT_PUBLIC_LOOKUP_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_PUBLIC_LOOKUP_WINDOW_MS),
+    RATE_LIMIT_PUBLIC_LOOKUP_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_PUBLIC_LOOKUP_MAX),
+    RATE_LIMIT_OAUTH_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_OAUTH_WINDOW_MS),
+    RATE_LIMIT_OAUTH_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_OAUTH_MAX),
+    RATE_LIMIT_REGISTER_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_REGISTER_WINDOW_MS),
+    RATE_LIMIT_REGISTER_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_REGISTER_MAX),
+    RATE_LIMIT_LOGIN_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_LOGIN_WINDOW_MS),
+    RATE_LIMIT_LOGIN_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_LOGIN_MAX),
+    RATE_LIMIT_SENSITIVE_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_SENSITIVE_WINDOW_MS),
+    RATE_LIMIT_SENSITIVE_DEFAULT_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_SENSITIVE_DEFAULT_MAX),
+    RATE_LIMIT_OTP_SEND_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_OTP_SEND_MAX),
+    RATE_LIMIT_FORGOT_PASSWORD_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_FORGOT_PASSWORD_MAX),
+    RATE_LIMIT_RESET_PASSWORD_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_RESET_PASSWORD_MAX),
+    RATE_LIMIT_MODERATION_APPEAL_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_MODERATION_APPEAL_WINDOW_MS),
+    RATE_LIMIT_MODERATION_APPEAL_MAX: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.RATE_LIMIT_MODERATION_APPEAL_MAX),
 
-    UPLOAD_IMAGE_MAX_BYTES: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.UPLOAD_IMAGE_MAX_BYTES),
-    UPLOAD_AVATAR_MAX_BYTES: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.UPLOAD_AVATAR_MAX_BYTES),
-    UPLOAD_BANNER_MAX_BYTES: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.UPLOAD_BANNER_MAX_BYTES),
-    MOCK_TEST_AI_GENERATION_ENABLED: booleanFromString.default(RUNTIME_DEFAULTS.MOCK_TEST_AI_GENERATION_ENABLED),
-    QUEUE_JOB_ATTEMPTS: z.coerce.number().int().min(1).max(10).default(RUNTIME_DEFAULTS.QUEUE_JOB_ATTEMPTS),
-    QUEUE_JOB_BACKOFF_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.QUEUE_JOB_BACKOFF_MS),
-    AI_WORKER_CONCURRENCY: z.coerce.number().int().min(1).max(20).default(RUNTIME_DEFAULTS.AI_WORKER_CONCURRENCY),
-    AI_WORKER_REQUESTS_PER_MINUTE: z.coerce.number().int().min(1).max(1_000).default(RUNTIME_DEFAULTS.AI_WORKER_REQUESTS_PER_MINUTE),
-    QUEUE_REMOVE_ON_COMPLETE: z.coerce.number().int().min(0).default(RUNTIME_DEFAULTS.QUEUE_REMOVE_ON_COMPLETE),
-    QUEUE_REMOVE_ON_FAIL: z.coerce.number().int().min(0).default(RUNTIME_DEFAULTS.QUEUE_REMOVE_ON_FAIL),
+    UPLOAD_IMAGE_MAX_BYTES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.UPLOAD_IMAGE_MAX_BYTES),
+    UPLOAD_AVATAR_MAX_BYTES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.UPLOAD_AVATAR_MAX_BYTES),
+    UPLOAD_BANNER_MAX_BYTES: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.UPLOAD_BANNER_MAX_BYTES),
+    MOCK_TEST_AI_GENERATION_ENABLED: booleanFromString.default(
+      RUNTIME_DEFAULTS.MOCK_TEST_AI_GENERATION_ENABLED
+    ),
+    QUEUE_JOB_ATTEMPTS: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(10)
+      .default(RUNTIME_DEFAULTS.QUEUE_JOB_ATTEMPTS),
+    QUEUE_JOB_BACKOFF_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.QUEUE_JOB_BACKOFF_MS),
+    AI_WORKER_CONCURRENCY: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(20)
+      .default(RUNTIME_DEFAULTS.AI_WORKER_CONCURRENCY),
+    AI_WORKER_REQUESTS_PER_MINUTE: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(1_000)
+      .default(RUNTIME_DEFAULTS.AI_WORKER_REQUESTS_PER_MINUTE),
+    QUEUE_REMOVE_ON_COMPLETE: z.coerce
+      .number()
+      .int()
+      .min(0)
+      .default(RUNTIME_DEFAULTS.QUEUE_REMOVE_ON_COMPLETE),
+    QUEUE_REMOVE_ON_FAIL: z.coerce
+      .number()
+      .int()
+      .min(0)
+      .default(RUNTIME_DEFAULTS.QUEUE_REMOVE_ON_FAIL),
     GROQ_DEFAULT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GROQ_DEFAULT_MODEL),
     GROQ_FAST_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GROQ_FAST_MODEL),
     GROQ_MAX_TOKENS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.GROQ_MAX_TOKENS),
@@ -156,11 +321,32 @@ const envSchema = z
     GEMINI_NEXT_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_NEXT_MODEL),
     GEMINI_HISTORY_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.GEMINI_HISTORY_MODEL),
     CEREBRAS_MODEL: z.string().min(1).default(RUNTIME_DEFAULTS.CEREBRAS_MODEL),
-    YOUTUBE_REQUEST_TIMEOUT_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.YOUTUBE_REQUEST_TIMEOUT_MS),
-    YOUTUBE_MAX_RESULTS: z.coerce.number().int().min(1).max(50).default(RUNTIME_DEFAULTS.YOUTUBE_MAX_RESULTS),
-    LEADERBOARD_SNAPSHOT_BATCH_SIZE: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.LEADERBOARD_SNAPSHOT_BATCH_SIZE),
-    PLAN_LIMIT_USAGE_TTL_SECONDS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.PLAN_LIMIT_USAGE_TTL_SECONDS),
-    DASHBOARD_ONLINE_WINDOW_MS: z.coerce.number().int().positive().default(RUNTIME_DEFAULTS.DASHBOARD_ONLINE_WINDOW_MS),
+    YOUTUBE_REQUEST_TIMEOUT_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.YOUTUBE_REQUEST_TIMEOUT_MS),
+    YOUTUBE_MAX_RESULTS: z.coerce
+      .number()
+      .int()
+      .min(1)
+      .max(50)
+      .default(RUNTIME_DEFAULTS.YOUTUBE_MAX_RESULTS),
+    LEADERBOARD_SNAPSHOT_BATCH_SIZE: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.LEADERBOARD_SNAPSHOT_BATCH_SIZE),
+    PLAN_LIMIT_USAGE_TTL_SECONDS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.PLAN_LIMIT_USAGE_TTL_SECONDS),
+    DASHBOARD_ONLINE_WINDOW_MS: z.coerce
+      .number()
+      .int()
+      .positive()
+      .default(RUNTIME_DEFAULTS.DASHBOARD_ONLINE_WINDOW_MS),
   })
   .refine((value) => value.JWT_SECRET !== value.JWT_REFRESH_SECRET, {
     message: 'JWT secrets must be different',

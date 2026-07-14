@@ -8,5 +8,8 @@ export const subscriptionOrderSchema = z.object({
 export const subscriptionVerificationSchema = z.object({
   razorpayOrderId: z.string().trim().min(1).max(120),
   razorpayPaymentId: z.string().trim().min(1).max(120),
-  razorpaySignature: z.string().trim().regex(/^[a-f0-9]{64}$/i),
+  razorpaySignature: z
+    .string()
+    .trim()
+    .regex(/^[a-f0-9]{64}$/i),
 });

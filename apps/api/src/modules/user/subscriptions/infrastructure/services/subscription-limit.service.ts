@@ -83,7 +83,7 @@ export class SubscriptionLimitService implements ISubscriptionLimitEnforcer {
     const incremented = await PlanLimitUsage.findOneAndUpdate(
       { ...query, count: { $lt: limit } },
       { $inc: { count: 1 } },
-      { returnDocument: "after" }
+      { returnDocument: 'after' }
     );
     if (incremented) return;
     const existing = await PlanLimitUsage.findOne(query).select('_id count').lean();
@@ -95,7 +95,7 @@ export class SubscriptionLimitService implements ISubscriptionLimitEnforcer {
         const retried = await PlanLimitUsage.findOneAndUpdate(
           { ...query, count: { $lt: limit } },
           { $inc: { count: 1 } },
-          { returnDocument: "after" }
+          { returnDocument: 'after' }
         );
         if (!retried) this.exceeded(kind, limit);
         return;

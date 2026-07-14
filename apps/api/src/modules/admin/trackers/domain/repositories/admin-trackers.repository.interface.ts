@@ -8,7 +8,10 @@ import type {
 } from '../entities/admin-tracker.entity';
 export interface IAdminTrackersRepository {
   list(query: AdminListQuery): Promise<AdminPage<AdminTracker>>;
-  listPublished(query: AdminListQuery, actor: AdminActor): Promise<AdminPage<AdminPublishedTracker>>;
+  listPublished(
+    query: AdminListQuery,
+    actor: AdminActor
+  ): Promise<AdminPage<AdminPublishedTracker>>;
   likePublished(
     id: string,
     actor: AdminActor

@@ -93,8 +93,7 @@ const getEconomyProviders = (
   primaryGroqModel: GroqModelTier,
   category: AITokenUsageCategory
 ): AIProvider<string>[] => {
-  const primaryModel =
-    primaryGroqModel === 'fast' ? env.GROQ_FAST_MODEL : env.GROQ_DEFAULT_MODEL;
+  const primaryModel = primaryGroqModel === 'fast' ? env.GROQ_FAST_MODEL : env.GROQ_DEFAULT_MODEL;
   const alternateGroqModel =
     primaryGroqModel === 'fast' ? env.GROQ_DEFAULT_MODEL : env.GROQ_FAST_MODEL;
   const { prompt, system } = toPrompt(messages);

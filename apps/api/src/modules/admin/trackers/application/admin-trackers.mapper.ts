@@ -23,9 +23,7 @@ export interface IAdminTrackersMapper {
     result: AdminPublishedTrackerEngagementResult
   ): AdminPublishedTrackerEngagementResultDTO;
   toPageDTO(page: AdminPage<AdminTracker>): AdminPage<AdminTrackerDTO>;
-  toPublishedPageDTO(
-    page: AdminPage<AdminPublishedTracker>
-  ): AdminPage<AdminPublishedTrackerDTO>;
+  toPublishedPageDTO(page: AdminPage<AdminPublishedTracker>): AdminPage<AdminPublishedTrackerDTO>;
 }
 
 export class AdminTrackersMapper implements IAdminTrackersMapper {
@@ -55,9 +53,7 @@ export class AdminTrackersMapper implements IAdminTrackersMapper {
   toPageDTO(page: AdminPage<AdminTracker>): AdminPage<AdminTrackerDTO> {
     return this.mapPage(page, (item) => this.toDTO(item));
   }
-  toPublishedPageDTO(
-    page: AdminPage<AdminPublishedTracker>
-  ): AdminPage<AdminPublishedTrackerDTO> {
+  toPublishedPageDTO(page: AdminPage<AdminPublishedTracker>): AdminPage<AdminPublishedTrackerDTO> {
     return this.mapPage(page, (item) => this.toPublishedDTO(item));
   }
   private mapPage<TEntity, TDTO>(

@@ -14,7 +14,8 @@ export const useAdminDashboard = () =>
   useQuery({
     queryKey: adminDashboardKeys.overview(),
     queryFn: async () =>
-      (await api.get<ApiEnvelope<AdminDashboardData>>(ADMIN_DASHBOARD_ENDPOINTS.overview)).data.data,
+      (await api.get<ApiEnvelope<AdminDashboardData>>(ADMIN_DASHBOARD_ENDPOINTS.overview)).data
+        .data,
     staleTime: ADMIN_DASHBOARD_STALE_TIME_MS,
     refetchInterval: ADMIN_DASHBOARD_REFETCH_INTERVAL_MS,
   });

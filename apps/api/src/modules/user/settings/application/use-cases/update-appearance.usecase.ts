@@ -7,10 +7,7 @@ type UpdateAppearanceRepository = {
 };
 
 export interface IUpdateAppearanceUseCase {
-  execute(
-    userId: string,
-    payload: UpdateAppearancePayloadDTO
-  ): Promise<UserSettingsViewDTO | null>;
+  execute(userId: string, payload: UpdateAppearancePayloadDTO): Promise<UserSettingsViewDTO | null>;
 }
 
 export class UpdateAppearanceUseCase implements IUpdateAppearanceUseCase {

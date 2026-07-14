@@ -264,7 +264,7 @@ export class MongoMockTestsAnalyticsRepository extends MongoMockTestsBaseReposit
           },
           {
             upsert: true,
-            returnDocument: "after",
+            returnDocument: 'after',
           }
         );
 

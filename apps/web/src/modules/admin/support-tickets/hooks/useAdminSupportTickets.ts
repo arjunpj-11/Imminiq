@@ -13,9 +13,12 @@ export const useAdminSupportTickets = (query: AdminListQuery) =>
     queryKey: adminSupportTicketsKeys.list(query),
     queryFn: async () =>
       (
-        await api.get<ApiEnvelope<AdminPageData<AdminSupportTicket>>>(ADMIN_SUPPORT_TICKETS_ENDPOINTS.list, {
-          params: query,
-        })
+        await api.get<ApiEnvelope<AdminPageData<AdminSupportTicket>>>(
+          ADMIN_SUPPORT_TICKETS_ENDPOINTS.list,
+          {
+            params: query,
+          }
+        )
       ).data.data,
     placeholderData: keepPreviousData,
     staleTime: ADMIN_SUPPORT_TICKETS_STALE_TIME_MS,

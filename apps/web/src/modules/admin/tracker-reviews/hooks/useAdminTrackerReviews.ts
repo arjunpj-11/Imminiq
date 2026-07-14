@@ -13,9 +13,12 @@ export const useAdminTrackerReviews = (query: AdminListQuery) =>
     queryKey: adminTrackerReviewsKeys.list(query),
     queryFn: async () =>
       (
-        await api.get<ApiEnvelope<AdminPageData<AdminTrackerReview>>>(ADMIN_TRACKER_REVIEWS_ENDPOINTS.list, {
-          params: query,
-        })
+        await api.get<ApiEnvelope<AdminPageData<AdminTrackerReview>>>(
+          ADMIN_TRACKER_REVIEWS_ENDPOINTS.list,
+          {
+            params: query,
+          }
+        )
       ).data.data,
     placeholderData: keepPreviousData,
     staleTime: ADMIN_TRACKER_REVIEWS_STALE_TIME_MS,

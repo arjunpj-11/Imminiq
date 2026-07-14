@@ -5,11 +5,7 @@ import type { IUserProfileRepository } from '../../domain/repositories/user-prof
 import type { IUserStreakRepository } from '../../domain/repositories/user-streak.repository.interface';
 import type { IUserTrackerRepository } from '../../domain/repositories/user-tracker.repository.interface';
 import type { IUserRepository } from '../../domain/repositories/user.repository.interface';
-import type {
-  BadgeShowcaseViewDTO,
-  ProfileStatsViewDTO,
-  StreakSummaryViewDTO,
-} from '../users.dto';
+import type { BadgeShowcaseViewDTO, ProfileStatsViewDTO, StreakSummaryViewDTO } from '../users.dto';
 import { UsersApplicationError } from '../users-application.error';
 import type { IUsersMapper } from '../users.mapper';
 import type { IClock } from '../../../../../shared/time/clock.interface';

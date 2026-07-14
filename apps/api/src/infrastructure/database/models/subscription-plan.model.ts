@@ -29,5 +29,4 @@ const subscriptionPlanSchema = new Schema(
 );
 
 export const SubscriptionPlan =
-  mongoose.models.SubscriptionPlan ||
-  mongoose.model('SubscriptionPlan', subscriptionPlanSchema);
+  mongoose.models.SubscriptionPlan || mongoose.model('SubscriptionPlan', subscriptionPlanSchema);

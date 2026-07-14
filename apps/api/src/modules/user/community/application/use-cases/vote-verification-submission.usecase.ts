@@ -7,7 +7,10 @@ import type {
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
 import type { ICommunityVerificationPolicy } from '../community-verification.policy';
-import type { CommunityPolicy, ICommunityPolicyReader } from '../../../../../shared/platform-policy';
+import type {
+  CommunityPolicy,
+  ICommunityPolicyReader,
+} from '../../../../../shared/platform-policy';
 
 export interface IVoteVerificationSubmissionUseCase {
   execute(

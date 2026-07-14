@@ -38,12 +38,15 @@ export const useMockTests = (page = 1, limit = 6) => {
     queryKey: mockTestKeys.list(page, limit),
 
     queryFn: async () => {
-      const response = await api.get<IApiResponse<IListMockTestsResponse>>(MOCK_TEST_API_PATHS.root, {
-        params: {
-          page,
-          limit,
-        },
-      });
+      const response = await api.get<IApiResponse<IListMockTestsResponse>>(
+        MOCK_TEST_API_PATHS.root,
+        {
+          params: {
+            page,
+            limit,
+          },
+        }
+      );
 
       return unwrap(response.data);
     },

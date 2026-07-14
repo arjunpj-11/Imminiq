@@ -43,16 +43,12 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
     });
     return createAdminPage(items, query, total, { open, approved, rejected });
   }
-  async addConsensusVote(
-    id: string,
-    choice: AdminTrackerReviewConsensusChoice,
-    actor: AdminActor
-  ) {
+  async addConsensusVote(id: string, choice: AdminTrackerReviewConsensusChoice, actor: AdminActor) {
     const voteField = choice === 'pass' ? 'passVotes' : 'failVotes';
     const review = await CommunityVerificationSubmission.findOneAndUpdate(
       { _id: id, deletedAt: null, status: 'open' },
       { $inc: { [voteField]: 1 } },
-      { returnDocument: "after" }
+      { returnDocument: 'after' }
     ).lean();
     if (!review) {
       const exists = await CommunityVerificationSubmission.exists({ _id: id, deletedAt: null });
@@ -64,13 +60,18 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
       Math.round(((review.passVotes + review.failVotes) / review.requiredVotes) * 100)
     );
     await CommunityVerificationSubmission.updateOne({ _id: id }, { $set: { progress } });
-    await recordAdminAction(actor, 'admin_tracker_review_consensus_vote_added', 'admin.tracker-reviews', {
-      reviewId: id,
-      trackerId: String(review.trackerId),
-      choice,
-      passVotes: review.passVotes,
-      failVotes: review.failVotes,
-    });
+    await recordAdminAction(
+      actor,
+      'admin_tracker_review_consensus_vote_added',
+      'admin.tracker-reviews',
+      {
+        reviewId: id,
+        trackerId: String(review.trackerId),
+        choice,
+        passVotes: review.passVotes,
+        failVotes: review.failVotes,
+      }
+    );
     return {
       kind: 'success' as const,
       value: { id, passVotes: review.passVotes, failVotes: review.failVotes },
@@ -80,7 +81,7 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
     const review = await CommunityVerificationSubmission.findOneAndUpdate(
       { _id: id, deletedAt: null },
       { $set: { status, consensusChoice: status === 'approved' ? 'pass' : 'fail' } },
-      { returnDocument: "after" }
+      { returnDocument: 'after' }
     ).lean();
     if (!review) return null;
     await Tracker.updateOne(

@@ -102,10 +102,7 @@ export class ActivityMapper {
 
     const progress = analyticsCalculator.weeklyProgress(currentXp, policy.weeklyXpTarget);
 
-    const dailyGoal = analyticsCalculator.dailyGoal(
-      analytics.dailyGoal,
-      policy.dailyGoalRewardXp
-    );
+    const dailyGoal = analyticsCalculator.dailyGoal(analytics.dailyGoal, policy.dailyGoalRewardXp);
 
     return {
       generatedAt: context.now.toISOString(),

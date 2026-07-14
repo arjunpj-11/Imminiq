@@ -48,8 +48,7 @@ export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository 
   }
   async send(input: AdminBroadcastInput, actor: AdminActor) {
     const settings = await AdminConsoleSettings.findOne({ key: 'global' }).lean();
-    if (settings?.allowBroadcasts === false)
-      return null;
+    if (settings?.allowBroadcasts === false) return null;
     const since = new Date(Date.now() - 30 * 86400000);
     const userFilter: Record<string, unknown> = {
       deletedAt: null,

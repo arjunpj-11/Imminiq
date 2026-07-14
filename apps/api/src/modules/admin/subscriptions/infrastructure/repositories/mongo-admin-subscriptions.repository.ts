@@ -1,7 +1,11 @@
 import { Subscription } from '../../../../../infrastructure/database/models/subscription.model';
 import { SubscriptionPlan as SubscriptionPlanModel } from '../../../../../infrastructure/database/models/subscription-plan.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
-import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../shared/infrastructure';
+import {
+  createAdminPage,
+  escapeAdminSearch,
+  recordAdminAction,
+} from '../../../shared/infrastructure';
 import type { AdminActor } from '../../../shared/domain';
 import {
   getDefaultSubscriptionPlan,
@@ -43,49 +47,46 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       filter.userId = { $in: users.map((user) => user._id) };
     }
     const now = new Date();
-    const [rows, total, metrics, planBreakdown, revenueByMonth, activeUsers, planRows] = await Promise.all([
-      Subscription.find(filter)
-        .sort({ createdAt: -1 })
-        .skip((query.page - 1) * query.limit)
-        .limit(query.limit)
-        .populate('userId', 'fullName username email')
-        .lean(),
-      Subscription.countDocuments(filter),
-      Subscription.aggregate<{ _id: null; revenue: number; count: number }>([
-        { $match: { status: { $in: successfulStatuses } } },
-        { $group: { _id: null, revenue: { $sum: '$amount' }, count: { $sum: 1 } } },
-      ]),
-      Subscription.aggregate<{ _id: string; count: number; revenue: number }>([
-        { $match: { status: { $in: successfulStatuses } } },
-        { $group: { _id: '$planName', count: { $sum: 1 }, revenue: { $sum: '$amount' } } },
-        { $sort: { count: -1 } },
-      ]),
-      Subscription.aggregate<{
-        _id: string;
-        revenue: number;
-        subscriptions: number;
-      }>([
-        { $match: { status: { $in: successfulStatuses } } },
-        {
-          $group: {
-            _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
-            revenue: { $sum: '$amount' },
-            subscriptions: { $sum: 1 },
+    const [rows, total, metrics, planBreakdown, revenueByMonth, activeUsers, planRows] =
+      await Promise.all([
+        Subscription.find(filter)
+          .sort({ createdAt: -1 })
+          .skip((query.page - 1) * query.limit)
+          .limit(query.limit)
+          .populate('userId', 'fullName username email')
+          .lean(),
+        Subscription.countDocuments(filter),
+        Subscription.aggregate<{ _id: null; revenue: number; count: number }>([
+          { $match: { status: { $in: successfulStatuses } } },
+          { $group: { _id: null, revenue: { $sum: '$amount' }, count: { $sum: 1 } } },
+        ]),
+        Subscription.aggregate<{ _id: string; count: number; revenue: number }>([
+          { $match: { status: { $in: successfulStatuses } } },
+          { $group: { _id: '$planName', count: { $sum: 1 }, revenue: { $sum: '$amount' } } },
+          { $sort: { count: -1 } },
+        ]),
+        Subscription.aggregate<{
+          _id: string;
+          revenue: number;
+          subscriptions: number;
+        }>([
+          { $match: { status: { $in: successfulStatuses } } },
+          {
+            $group: {
+              _id: { $dateToString: { format: '%Y-%m', date: '$createdAt' } },
+              revenue: { $sum: '$amount' },
+              subscriptions: { $sum: 1 },
+            },
           },
-        },
-        { $sort: { _id: -1 } },
-        { $limit: 24 },
-      ]),
-      Subscription.distinct('userId', {
-        status: { $in: ['active', 'canceled'] },
-        endsAt: { $gt: now },
-      }),
-      Promise.all(
-        (['free', 'pro', 'premium'] as const).map((planId) =>
-          findPlan(planId)
-        )
-      ),
-    ]);
+          { $sort: { _id: -1 } },
+          { $limit: 24 },
+        ]),
+        Subscription.distinct('userId', {
+          status: { $in: ['active', 'canceled'] },
+          endsAt: { $gt: now },
+        }),
+        Promise.all((['free', 'pro', 'premium'] as const).map((planId) => findPlan(planId))),
+      ]);
     const active = await Subscription.find({
       status: { $in: ['active', 'canceled'] },
       endsAt: { $gt: now },
@@ -180,9 +181,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     ).lean();
-    const eligibleFields = planId === 'free'
-      ? []
-      : [...new Set(propagateLimitFields)];
+    const eligibleFields = planId === 'free' ? [] : [...new Set(propagateLimitFields)];
     const activeFilter = {
       planId,
       status: { $in: ['active', 'canceled'] },
@@ -193,9 +192,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       await Subscription.updateMany(
         {
           ...activeFilter,
-          [`limits.${field}`]: next === 0
-            ? { $ne: 0 }
-            : { $ne: 0, $lt: next },
+          [`limits.${field}`]: next === 0 ? { $ne: 0 } : { $ne: 0, $lt: next },
         },
         { $set: { [`limits.${field}`]: next } }
       );
@@ -219,7 +216,6 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       updatedAt: updated?.updatedAt ?? new Date(),
     };
   }
-
 }
 
 export const mongoAdminSubscriptionsRepository = new MongoAdminSubscriptionsRepository();

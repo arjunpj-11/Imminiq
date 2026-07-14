@@ -11,9 +11,9 @@ import { AdminTrackersMapper } from '../../src/modules/admin/trackers/applicatio
 describe('admin report date filters', () => {
   it('supports the four-day activity preset and custom dates', () => {
     expect(adminAnalyticsQuerySchema.parse({ days: '4' }).days).toBe(4);
-    expect(
-      adminAnalyticsQuerySchema.parse({ from: '2026-07-01', to: '2026-07-14' })
-    ).toMatchObject({ from: '2026-07-01', to: '2026-07-14' });
+    expect(adminAnalyticsQuerySchema.parse({ from: '2026-07-01', to: '2026-07-14' })).toMatchObject(
+      { from: '2026-07-01', to: '2026-07-14' }
+    );
   });
 
   it('rejects reversed audit and activity date ranges', () => {

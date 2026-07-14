@@ -55,8 +55,9 @@ export const useAppearanceSettings = () =>
   useQuery({
     queryKey: settingsKeys.appearance(),
     queryFn: async () => {
-      const response =
-        await api.get<IApiEnvelope<IUserSettings['appearance']>>(SETTINGS_API_PATHS.appearance);
+      const response = await api.get<IApiEnvelope<IUserSettings['appearance']>>(
+        SETTINGS_API_PATHS.appearance
+      );
 
       return unwrap(response);
     },
@@ -66,8 +67,9 @@ export const useNotificationSettings = () =>
   useQuery({
     queryKey: settingsKeys.notifications(),
     queryFn: async () => {
-      const response =
-        await api.get<IApiEnvelope<INotificationSettings>>(SETTINGS_API_PATHS.notifications);
+      const response = await api.get<IApiEnvelope<INotificationSettings>>(
+        SETTINGS_API_PATHS.notifications
+      );
 
       return unwrap(response);
     },
@@ -95,14 +97,20 @@ export const useGestureSettings = () =>
 
 export const useUpdateAccountSettings = () =>
   useSettingsMutation<IUpdateAccountSettingsPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.account, payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
+      SETTINGS_API_PATHS.account,
+      payload
+    );
 
     return unwrap(response);
   });
 
 export const useUpdateAppearance = () =>
   useSettingsMutation<IUpdateAppearancePayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.appearance, payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
+      SETTINGS_API_PATHS.appearance,
+      payload
+    );
 
     return unwrap(response);
   });
@@ -139,28 +147,40 @@ export const useUpdateEmailDigest = () =>
 
 export const useUpdatePrivacy = () =>
   useSettingsMutation<IUpdatePrivacyPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.privacy, payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
+      SETTINGS_API_PATHS.privacy,
+      payload
+    );
 
     return unwrap(response);
   });
 
 export const useUpdateCodeEditor = () =>
   useSettingsMutation<IUpdateCodeEditorPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.codeEditor, payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
+      SETTINGS_API_PATHS.codeEditor,
+      payload
+    );
 
     return unwrap(response);
   });
 
 export const useUpdateCompiler = () =>
   useSettingsMutation<IUpdateCompilerPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.compiler, payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
+      SETTINGS_API_PATHS.compiler,
+      payload
+    );
 
     return unwrap(response);
   });
 
 export const useUpdateAIBehaviour = () =>
   useSettingsMutation<IUpdateAIBehaviourPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.aiBehavior, payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
+      SETTINGS_API_PATHS.aiBehavior,
+      payload
+    );
 
     return unwrap(response);
   });
@@ -177,7 +197,10 @@ export const useUpdateLearningJourney = () =>
 
 export const useUpdateGestures = () =>
   useSettingsMutation<IUpdateGesturesPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(SETTINGS_API_PATHS.gestures, payload);
+    const response = await api.patch<IApiEnvelope<IUserSettings>>(
+      SETTINGS_API_PATHS.gestures,
+      payload
+    );
 
     return unwrap(response);
   });

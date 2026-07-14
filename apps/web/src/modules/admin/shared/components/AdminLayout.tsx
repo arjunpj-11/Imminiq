@@ -49,11 +49,7 @@ export default function AdminLayout() {
   const navigate = useNavigate();
   const location = useLocation();
   const routeRefreshVersion = useAppShellStore((state) => state.routeRefreshVersion);
-  const temporaryItem = getTemporaryAdminNavItem(
-    location.pathname,
-    location.search,
-    location.hash
-  );
+  const temporaryItem = getTemporaryAdminNavItem(location.pathname, location.search, location.hash);
 
   useEffect(() => {
     document.documentElement.classList.add('admin-dark');

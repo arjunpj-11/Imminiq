@@ -163,9 +163,8 @@ describe('clean architecture boundaries', () => {
       if (routeFiles.length === 0) return [];
 
       const constantFiles = files.filter((file) => file.endsWith('.route.constants.ts'));
-      const issues = constantFiles.length === 1
-        ? []
-        : [`${id}: ${constantFiles.length} route constant owners`];
+      const issues =
+        constantFiles.length === 1 ? [] : [`${id}: ${constantFiles.length} route constant owners`];
 
       for (const routeFile of routeFiles) {
         const source = readFileSync(join(presentationRoot, routeFile), 'utf8');
@@ -249,7 +248,11 @@ describe('clean architecture boundaries', () => {
         .filter((file) => file.endsWith('.usecase.ts'))
         .filter((file) => {
           const source = readFileSync(file, 'utf8');
-          return !/export class \w+UseCase/.test(source) || !/\bexecute\s*\(/.test(source) || /ApiError/.test(source);
+          return (
+            !/export class \w+UseCase/.test(source) ||
+            !/\bexecute\s*\(/.test(source) ||
+            /ApiError/.test(source)
+          );
         })
         .map((file) => portable(relative(modulesRoot, file)));
     });
@@ -285,8 +288,7 @@ describe('clean architecture boundaries', () => {
           .filter((target) => {
             const targetParts = moduleLocation(target)?.parts ?? [];
             return (
-              targetParts.length !== 1 ||
-              !allowedSharedLayers[sourceLayer]?.has(targetParts[0])
+              targetParts.length !== 1 || !allowedSharedLayers[sourceLayer]?.has(targetParts[0])
             );
           })
           .map(
@@ -410,10 +412,7 @@ describe('clean architecture boundaries', () => {
             const targetLocation = moduleLocation(target);
             if (!targetLocation) return false;
 
-            return (
-              targetLocation.parts.length > 0 &&
-              targetLocation.parts.join('/') !== 'index'
-            );
+            return targetLocation.parts.length > 0 && targetLocation.parts.join('/') !== 'index';
           })
           .map(
             (target) =>

@@ -13,10 +13,24 @@ import { adminSubscriptionsKeys } from './admin-subscriptions.query-keys';
 export const useUpdateAdminPlan = () => {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: async ({ planId, input }: { planId: string; input: AdminSubscriptionPlanUpdateInput }) =>
-      (await api.put<ApiEnvelope<AdminSubscriptionPlan>>(ADMIN_SUBSCRIPTIONS_ENDPOINTS.plan(planId), input)).data.data,
+    mutationFn: async ({
+      planId,
+      input,
+    }: {
+      planId: string;
+      input: AdminSubscriptionPlanUpdateInput;
+    }) =>
+      (
+        await api.put<ApiEnvelope<AdminSubscriptionPlan>>(
+          ADMIN_SUBSCRIPTIONS_ENDPOINTS.plan(planId),
+          input
+        )
+      ).data.data,
     onMutate: ({ planId }) => ({
-      toastId: toast.loading(`Saving ${planId} plan…`, 'Validating the plan and selected subscriber upgrades.'),
+      toastId: toast.loading(
+        `Saving ${planId} plan…`,
+        'Validating the plan and selected subscriber upgrades.'
+      ),
     }),
     onSuccess: async (_plan, { planId, input }, context) => {
       toast.update(context.toastId, {

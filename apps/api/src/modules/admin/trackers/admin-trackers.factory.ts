@@ -14,10 +14,7 @@ export const createAdminTrackersComposition = (): AdminTrackersComposition => {
   return {
     useCases: {
       list: new ListAdminTrackersUseCase(mongoAdminTrackersRepository, mapper),
-      listPublished: new ListAdminPublishedTrackersUseCase(
-        mongoAdminTrackersRepository,
-        mapper
-      ),
+      listPublished: new ListAdminPublishedTrackersUseCase(mongoAdminTrackersRepository, mapper),
       likePublished: new LikeAdminPublishedTrackerUseCase(mongoAdminTrackersRepository, mapper),
       ratePublished: new RateAdminPublishedTrackerUseCase(mongoAdminTrackersRepository, mapper),
       getDetail: new GetAdminTrackerDetailUseCase(mongoAdminTrackersRepository, mapper),

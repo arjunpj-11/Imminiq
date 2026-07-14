@@ -17,9 +17,12 @@ interface ITrackerIntakeApiResponse {
 export const useTrackerIntake = () =>
   useMutation({
     mutationFn: async (messages: ITrackerIntakeMessage[]) => {
-      const response = await api.post<ITrackerIntakeApiResponse>(ONBOARDING_API_PATHS.trackerIntake, {
-        messages,
-      });
+      const response = await api.post<ITrackerIntakeApiResponse>(
+        ONBOARDING_API_PATHS.trackerIntake,
+        {
+          messages,
+        }
+      );
       return response.data.data;
     },
   });

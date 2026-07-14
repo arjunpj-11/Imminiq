@@ -39,7 +39,10 @@ const mapSubscription = (row: {
 });
 
 export class MongoSubscriptionRepository implements ISubscriptionRepository {
-  private mapPlan(planId: SubscriptionPlanId, row?: Partial<SubscriptionPlan> | null): SubscriptionPlan {
+  private mapPlan(
+    planId: SubscriptionPlanId,
+    row?: Partial<SubscriptionPlan> | null
+  ): SubscriptionPlan {
     const fallback = getDefaultSubscriptionPlan(planId);
     return {
       id: planId,
@@ -59,7 +62,9 @@ export class MongoSubscriptionRepository implements ISubscriptionRepository {
       $or: [{ planId }, { code: planId }],
     })
       .sort({ updatedAt: -1, _id: -1 })
-      .select('-_id name description monthlyAmount annualAmount currency features limits highlighted')
+      .select(
+        '-_id name description monthlyAmount annualAmount currency features limits highlighted'
+      )
       .lean();
     return this.mapPlan(planId, row as Partial<SubscriptionPlan> | null);
   }
@@ -69,7 +74,9 @@ export class MongoSubscriptionRepository implements ISubscriptionRepository {
   }
 
   async createPending(input: Parameters<ISubscriptionRepository['createPending']>[0]) {
-    return mapSubscription(await Subscription.create({ ...input, currency: 'INR', status: 'pending' }));
+    return mapSubscription(
+      await Subscription.create({ ...input, currency: 'INR', status: 'pending' })
+    );
   }
 
   async findByOrderId(orderId: string) {
@@ -113,7 +120,7 @@ export class MongoSubscriptionRepository implements ISubscriptionRepository {
           endsAt,
         },
       },
-      { returnDocument: "after" }
+      { returnDocument: 'after' }
     ).lean();
     if (!row) throw new Error('Subscription activation failed');
     await User.updateOne({ _id: row.userId }, { $set: { isPremium: true } });

@@ -98,28 +98,38 @@ describe('subscription page data repositories', () => {
     const premiumPlan = { ...SUBSCRIPTION_PLANS[2], limits: premiumLimits };
 
     await expect(
-      mongoAdminSubscriptionsRepository.updatePlan('free', {
-        name: freePlan.name,
-        description: freePlan.description,
-        monthlyAmount: freePlan.monthlyAmount,
-        annualAmount: freePlan.annualAmount,
-        currency: freePlan.currency,
-        features: freePlan.features,
-        highlighted: freePlan.highlighted,
-        limits: freePlan.limits,
-      }, [], actor)
+      mongoAdminSubscriptionsRepository.updatePlan(
+        'free',
+        {
+          name: freePlan.name,
+          description: freePlan.description,
+          monthlyAmount: freePlan.monthlyAmount,
+          annualAmount: freePlan.annualAmount,
+          currency: freePlan.currency,
+          features: freePlan.features,
+          highlighted: freePlan.highlighted,
+          limits: freePlan.limits,
+        },
+        [],
+        actor
+      )
     ).resolves.toMatchObject({ planId: 'free', limits: freeLimits });
     await expect(
-      mongoAdminSubscriptionsRepository.updatePlan('premium', {
-        name: premiumPlan.name,
-        description: premiumPlan.description,
-        monthlyAmount: premiumPlan.monthlyAmount,
-        annualAmount: premiumPlan.annualAmount,
-        currency: premiumPlan.currency,
-        features: premiumPlan.features,
-        highlighted: premiumPlan.highlighted,
-        limits: premiumPlan.limits,
-      }, [], actor)
+      mongoAdminSubscriptionsRepository.updatePlan(
+        'premium',
+        {
+          name: premiumPlan.name,
+          description: premiumPlan.description,
+          monthlyAmount: premiumPlan.monthlyAmount,
+          annualAmount: premiumPlan.annualAmount,
+          currency: premiumPlan.currency,
+          features: premiumPlan.features,
+          highlighted: premiumPlan.highlighted,
+          limits: premiumPlan.limits,
+        },
+        [],
+        actor
+      )
     ).resolves.toMatchObject({ planId: 'premium', limits: premiumLimits });
 
     expect(await SubscriptionPlanModel.findOne({ code: 'free' }).lean()).toMatchObject({
@@ -188,7 +198,9 @@ describe('subscription page data repositories', () => {
     expect(
       await Subscription.findOne({ userId: paidUserId }).select('limits.maxTrackers').lean()
     ).toMatchObject({ limits: { maxTrackers: 5 } });
-    await expect(mongoSubscriptionRepository.findCurrent(paidUserId.toString())).resolves.toMatchObject({
+    await expect(
+      mongoSubscriptionRepository.findCurrent(paidUserId.toString())
+    ).resolves.toMatchObject({
       planId: 'premium',
       limits: { maxTrackers: 5 },
     });
@@ -206,10 +218,13 @@ describe('subscription page data repositories', () => {
       ['maxTrackers'],
       actor
     );
-    await expect(mongoSubscriptionRepository.findCurrent(paidUserId.toString())).resolves.toMatchObject({
+    await expect(
+      mongoSubscriptionRepository.findCurrent(paidUserId.toString())
+    ).resolves.toMatchObject({
       limits: {
         maxTrackers: 5,
-        trackerGenerationsPerMonth: getDefaultSubscriptionPlan('premium').limits.trackerGenerationsPerMonth,
+        trackerGenerationsPerMonth:
+          getDefaultSubscriptionPlan('premium').limits.trackerGenerationsPerMonth,
       },
     });
     await expect(mongoSubscriptionRepository.getPlan('premium')).resolves.toMatchObject({

@@ -26,39 +26,43 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
   }
 
   async listDomains(search: string, limit: number) {
-    return this.execute('TRACKER_DOMAINS_READ_FAILED', 'Failed to read tracker domains', async () => {
-      const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-      const rows = await Tracker.aggregate<{ _id: string; label: string; count: number }>([
-        {
-          $match: {
-            deletedAt: null,
-            category: {
-              $type: 'string',
-              $ne: '',
-              ...(escapedSearch ? { $regex: escapedSearch, $options: 'i' } : {}),
+    return this.execute(
+      'TRACKER_DOMAINS_READ_FAILED',
+      'Failed to read tracker domains',
+      async () => {
+        const escapedSearch = search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        const rows = await Tracker.aggregate<{ _id: string; label: string; count: number }>([
+          {
+            $match: {
+              deletedAt: null,
+              category: {
+                $type: 'string',
+                $ne: '',
+                ...(escapedSearch ? { $regex: escapedSearch, $options: 'i' } : {}),
+              },
             },
           },
-        },
-        {
-          $project: {
-            normalized: { $toLower: { $trim: { input: '$category' } } },
-            label: { $trim: { input: '$category' } },
+          {
+            $project: {
+              normalized: { $toLower: { $trim: { input: '$category' } } },
+              label: { $trim: { input: '$category' } },
+            },
           },
-        },
-        { $match: { normalized: { $ne: '' } } },
-        {
-          $group: {
-            _id: '$normalized',
-            label: { $first: '$label' },
-            count: { $sum: 1 },
+          { $match: { normalized: { $ne: '' } } },
+          {
+            $group: {
+              _id: '$normalized',
+              label: { $first: '$label' },
+              count: { $sum: 1 },
+            },
           },
-        },
-        { $sort: { count: -1, label: 1 } },
-        { $limit: limit },
-      ]);
+          { $sort: { count: -1, label: 1 } },
+          { $limit: limit },
+        ]);
 
-      return rows.map((row) => row.label);
-    });
+        return rows.map((row) => row.label);
+      }
+    );
   }
 
   async hasAnyTrackerForUser(userId: string) {
