@@ -56,6 +56,27 @@ describe('validateCsrfToken', () => {
     });
   });
 
+  it('protects every unsafe cookie-authenticated API route', async () => {
+    const response = await request(createApp())
+      .patch('/api/security/change-email')
+      .set('Cookie', 'refreshToken=active-token; csrfToken=matching-token')
+      .set('X-CSRF-Token', 'different-token');
+
+    expect(response.status).toBe(403);
+    expect(response.body).toMatchObject({
+      success: false,
+      code: 'CSRF_TOKEN_INVALID',
+    });
+  });
+
+  it('allows unsafe requests authenticated only with a bearer token', async () => {
+    const response = await request(createApp())
+      .post('/api/trackers')
+      .set('Authorization', 'Bearer test-token');
+
+    expect(response.status).toBe(204);
+  });
+
   it('accepts a matching CSRF cookie and header on cookie-backed routes', async () => {
     const response = await request(createApp())
       .post('/api/auth/refresh-token')

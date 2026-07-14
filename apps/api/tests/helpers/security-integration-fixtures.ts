@@ -1,4 +1,5 @@
 import bcrypt from 'bcryptjs';
+import { randomBytes } from 'crypto';
 import request from 'supertest';
 import type { Express } from 'express';
 
@@ -44,7 +45,7 @@ const readCookieValue = (cookies: string[], cookieName: string): string => {
 export const createVerifiedLocalUser = async (
   input?: Partial<Pick<TestUserFixture, 'email' | 'username' | 'password'>>
 ): Promise<TestUserFixture> => {
-  const suffix = `${Date.now()}_${Math.random().toString(16).slice(2, 8)}`;
+  const suffix = `${Date.now()}_${randomBytes(3).toString('hex')}`;
 
   const email = input?.email ?? `security_${suffix}@example.com`;
 

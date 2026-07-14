@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import { randomBytes } from 'crypto';
 import { Worker } from 'bullmq';
 import { redis } from '../../../config/redis';
 
@@ -39,7 +40,7 @@ const createSlug = (title: string) => {
     .replace(/^-+|-+$/g, '')
     .slice(0, 60);
 
-  const suffix = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+  const suffix = `${Date.now()}-${randomBytes(4).toString('hex')}`;
 
   return `${base}-${suffix}`;
 };
