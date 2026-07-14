@@ -192,6 +192,30 @@ describe('clean architecture boundaries', () => {
     expect(violations).toEqual([]);
   });
 
+  it('keeps application bootstrap and infrastructure imports behind module public APIs', () => {
+    const violations = collectFiles(sourceRoot)
+      .filter((source) => !source.startsWith(`${modulesRoot}${sep}`))
+      .filter((source) => !portable(source).includes('/src/scripts/'))
+      .flatMap((source) =>
+        moduleImports(source)
+          .filter((target) => {
+            const targetLocation = moduleLocation(target);
+            if (!targetLocation) return false;
+
+            return (
+              targetLocation.parts.length > 0 &&
+              targetLocation.parts.join('/') !== 'index'
+            );
+          })
+          .map(
+            (target) =>
+              `${portable(relative(sourceRoot, source))} -> ${portable(relative(sourceRoot, target))}`
+          )
+      );
+
+    expect(violations).toEqual([]);
+  });
+
   it('prevents code from importing its own layer barrel', () => {
     const violations = collectFiles(modulesRoot).flatMap((source) => {
       const sourceLocation = moduleLocation(source);

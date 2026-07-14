@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../admin-api.types';
+import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../shared';
 import type { AdminAuditLog } from '../types/admin-audit-logs.types';
 export const useAdminAuditLogs = (query: AdminListQuery) =>
   useQuery({

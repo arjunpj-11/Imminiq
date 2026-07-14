@@ -1,5 +1,5 @@
-import type { AdminDatePreset } from './dateRange';
-import { useAdminDateRange } from './dateRange';
+import type { AdminDatePreset } from '../hooks/useAdminDateRange';
+import { useAdminDateRange } from '../hooks/useAdminDateRange';
 
 export function AdminDateRangeFilter({
   preset,

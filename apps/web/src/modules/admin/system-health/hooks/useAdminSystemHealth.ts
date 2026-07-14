@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { ApiEnvelope } from '../../admin-api.types';
+import type { ApiEnvelope } from '../../shared';
 import type { AdminSystemHealth } from '../types/admin-system-health.types';
 export const useAdminSystemHealth = () =>
   useQuery({

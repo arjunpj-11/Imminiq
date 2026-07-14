@@ -17,3 +17,6 @@ export type {
 
 export type { ActivityType } from './domain/value-objects/activity-type.vo';
 export type { ActivityXpBucket } from './domain/value-objects/activity-xp-bucket.vo';
+
+export { createActivityComposition } from './activity.factory';
+export { createActivityRoutes } from './presentation/activity.routes';

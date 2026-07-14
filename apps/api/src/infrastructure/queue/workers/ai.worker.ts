@@ -9,9 +9,9 @@ import { AdaptiveAssessmentModel } from '../../database/models/adaptive-assessme
 import { Tracker } from '../../database/models/tracker.model';
 import { TrackerTopic } from '../../database/models/tracker-topic.model';
 import { TrackerSubtopic } from '../../database/models/tracker-subtopic.model';
-import { createActivityComposition } from '../../../modules/user/activity/activity.factory';
-import { createMockTestsComposition } from '../../../modules/user/mock-tests/mock-tests.factory';
-import { createNotificationsComposition } from '../../../modules/notifications/notifications.factory';
+import { createActivityComposition } from '../../../modules/user/activity';
+import { createMockTestsComposition } from '../../../modules/user/mock-tests';
+import { createNotificationsComposition } from '../../../modules/notifications';
 import { subscriptionLimitService } from '../../../modules/user/subscriptions';
 
 import { generateRoadmapStructure, evaluateRoadmap, RoadmapNestedNode } from '../../ai/ai.service';

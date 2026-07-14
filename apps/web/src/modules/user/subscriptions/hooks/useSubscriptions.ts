@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { ApiEnvelope } from '../../../admin/admin-api.types';
+import type { ApiEnvelope } from '../../../../lib/api.types';
 import type {
   SubscriptionBillingCycle,
   SubscriptionOrder,

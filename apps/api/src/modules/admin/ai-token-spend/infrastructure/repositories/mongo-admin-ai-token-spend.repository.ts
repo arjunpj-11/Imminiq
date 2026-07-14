@@ -1,11 +1,11 @@
-import { AITokenUsage } from '../../../../infrastructure/database/models/ai-token-usage.model';
+import { AITokenUsage } from '../../../../../infrastructure/database/models/ai-token-usage.model';
 import type {
   AdminAITokenSpend,
   AdminAITokenSpendBreakdown,
   AdminAITokenSpendPoint,
   AdminAITokenSpendRange,
-} from '../domain/ai-token-spend.entity';
-import type { IAdminAITokenSpendRepository } from '../domain/ai-token-spend.repository.interface';
+} from '../../domain/entities/admin-ai-token-spend.entity';
+import type { IAdminAITokenSpendRepository } from '../../domain/repositories/admin-ai-token-spend.repository.interface';
 
 type AggregateRow = {
   _id: string | null;

@@ -19,3 +19,5 @@ export type {
   LeaderboardSection,
   LeaderboardXpActivitySource,
 } from './domain/leaderboard.types';
+
+export { leaderboardRoutes } from './presentation/leaderboard.routes';

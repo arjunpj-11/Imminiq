@@ -19,3 +19,6 @@ export type {
   DashboardIntensityLevel,
   DashboardRecommendedActionType,
 } from './domain/dashboard.types';
+
+export { createDashboardComposition } from './dashboard.factory';
+export { dashboardRoutes } from './presentation/dashboard.routes';

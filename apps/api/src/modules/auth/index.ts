@@ -21,3 +21,6 @@ export type {
 } from './domain/auth.types';
 
 export type { IAuthRepository } from './domain/repositories/auth.repository.interface';
+
+export { createAuthComposition } from './auth.factory';
+export { createAuthRoutes } from './presentation/auth.routes';

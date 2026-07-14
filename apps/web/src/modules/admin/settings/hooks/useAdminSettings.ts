@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { ApiEnvelope } from '../../admin-api.types';
+import type { ApiEnvelope } from '../../shared';
 import type { AdminSettings } from '../types/admin-settings.types';
 export const useAdminSettings = () =>
   useQuery({

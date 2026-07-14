@@ -13,3 +13,6 @@ export type {
 } from './application/friends.dto';
 
 export type { FriendRelationshipStatus } from './domain/friends.types';
+
+export { createFriendsComposition } from './friends.factory';
+export { friendsRoutes } from './presentation/friends.routes';

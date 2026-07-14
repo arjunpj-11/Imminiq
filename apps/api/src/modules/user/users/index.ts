@@ -24,3 +24,6 @@ export type {
   RelationshipState,
   StreakIntensity,
 } from './domain/users.types';
+
+export { createUsersComposition } from './users.factory';
+export { createUsersRoutes } from './presentation/users.routes';

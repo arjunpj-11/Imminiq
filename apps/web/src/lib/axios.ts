@@ -14,9 +14,10 @@ interface IRefreshTokenResponse {
 }
 
 interface IApiErrorResponse {
-  success?: boolean;
+  success?: false;
   message?: string;
   code?: string;
+  errors?: Record<string, string[]>;
 }
 
 interface IRetryableRequestConfig extends InternalAxiosRequestConfig {
@@ -54,6 +55,27 @@ const isRestrictedAccountError = (status?: number, code?: string) => {
       code === 'ACCOUNT_DEACTIVATED' ||
       code === 'ACCOUNT_PAUSED')
   );
+};
+
+const normalizeApiError = (error: AxiosError<IApiErrorResponse>) => {
+  const userMessage = getUserFacingError(error);
+  error.message = userMessage;
+
+  if (error.response) {
+    const responseData =
+      typeof error.response.data === 'object' && error.response.data !== null
+        ? error.response.data
+        : {};
+
+    error.response.data = {
+      ...responseData,
+      success: false,
+      message: userMessage,
+      code: responseData.code ?? `HTTP_${error.response.status}`,
+    };
+  }
+
+  return error;
 };
 
 /**
@@ -94,12 +116,7 @@ api.interceptors.response.use(
   (response) => response,
 
   async (error: AxiosError<IApiErrorResponse>) => {
-    if (error.response?.data) {
-      error.response.data = {
-        ...error.response.data,
-        message: getUserFacingError(error),
-      };
-    }
+    normalizeApiError(error);
 
     const originalRequest = error.config as IRetryableRequestConfig | undefined;
 
@@ -185,7 +202,7 @@ api.interceptors.response.use(
 
       return api(originalRequest);
     } catch (refreshError) {
-      const axiosRefreshError = refreshError as AxiosError<IApiErrorResponse>;
+      const axiosRefreshError = normalizeApiError(refreshError as AxiosError<IApiErrorResponse>);
 
       const refreshStatus = axiosRefreshError.response?.status;
       const refreshErrorCode = axiosRefreshError.response?.data?.code;
@@ -204,10 +221,10 @@ api.interceptors.response.use(
           window.location.replace('/blocked');
         }
 
-        return Promise.reject(refreshError);
+        return Promise.reject(axiosRefreshError);
       }
 
-      return Promise.reject(refreshError);
+      return Promise.reject(axiosRefreshError);
     }
   }
 );

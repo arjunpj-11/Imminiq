@@ -9,10 +9,13 @@ import {
   AdminPageHeader,
   AdminPanel,
 } from '../../../../components/admin/AdminPage';
-import { AdminDateRangeFilter } from '../../AdminDateRangeFilter';
-import { enumerateDateRange, useAdminDateRange } from '../../dateRange';
-import { downloadCsv } from '../../downloadCsv';
-import { downloadTablePdf } from '../../downloadPdf';
+import {
+  AdminDateRangeFilter,
+  downloadCsv,
+  downloadTablePdf,
+  enumerateDateRange,
+  useAdminDateRange,
+} from '../../shared';
 import { useAdminAITokenSpend } from '../hooks/useAdminAITokenSpend';
 
 const categoryLabels: Record<string, string> = {

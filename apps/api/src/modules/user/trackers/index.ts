@@ -39,3 +39,6 @@ export type {
   TrackerStatus,
   TrackerVisibility,
 } from './domain/trackers.types';
+
+export { createTrackerComposition } from './tracker.factory';
+export { createTrackerRoutes } from './presentation/trackers.routes';

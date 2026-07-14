@@ -21,3 +21,6 @@ export type {
   QuietHoursDayType,
   ThemeType,
 } from './domain/settings.types';
+
+export { createSettingsComposition } from './settings.factory';
+export { settingsRoutes } from './presentation/settings.routes';

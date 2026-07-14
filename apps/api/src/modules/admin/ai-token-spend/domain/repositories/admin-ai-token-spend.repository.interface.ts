@@ -1,7 +1,7 @@
 import type {
   AdminAITokenSpend,
   AdminAITokenSpendRange,
-} from './ai-token-spend.entity';
+} from '../entities/admin-ai-token-spend.entity';
 
 export interface IAdminAITokenSpendRepository {
   get(range: AdminAITokenSpendRange): Promise<AdminAITokenSpend>;

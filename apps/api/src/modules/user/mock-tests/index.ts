@@ -24,3 +24,6 @@ export type { DifficultyLevel, QuestionType, TestVisibility } from './domain/moc
 
 export type { IGenerateMockTestUseCase } from './application/use-cases/generate-mock-test.usecase';
 export type { IMockTestCompletionObserver } from './domain/services/mock-test-completion-observer.interface';
+
+export { createMockTestsComposition } from './mock-tests.factory';
+export { createMockTestsRoutes } from './presentation/mock-tests.routes';

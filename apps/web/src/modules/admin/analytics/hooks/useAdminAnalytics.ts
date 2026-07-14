@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { ApiEnvelope } from '../../admin-api.types';
+import type { ApiEnvelope } from '../../shared';
 import type { AdminAnalytics } from '../types/admin-analytics.types';
 export const useAdminAnalytics = (range: { from: string; to: string }) =>
   useQuery({

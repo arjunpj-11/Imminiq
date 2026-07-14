@@ -8,10 +8,13 @@ import {
   AdminPanel,
 } from '../../../../components/admin/AdminPage';
 import { useAdminAnalytics } from '../hooks/useAdminAnalytics';
-import { downloadCsv } from '../../downloadCsv';
-import { downloadTablePdf } from '../../downloadPdf';
-import { AdminDateRangeFilter } from '../../AdminDateRangeFilter';
-import { enumerateDateRange, useAdminDateRange } from '../../dateRange';
+import {
+  AdminDateRangeFilter,
+  downloadCsv,
+  downloadTablePdf,
+  enumerateDateRange,
+  useAdminDateRange,
+} from '../../shared';
 
 export default function AdminAnalyticsPage() {
   const dateRange = useAdminDateRange(30);

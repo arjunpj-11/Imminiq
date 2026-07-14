@@ -1,6 +1,6 @@
 import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
-import type { AdminPageData, ApiEnvelope } from '../../admin-api.types';
+import type { AdminPageData, ApiEnvelope } from '../../shared';
 import type { AdminBroadcast } from '../types/admin-broadcast.types';
 export const useAdminBroadcasts = (page: number) =>
   useQuery({

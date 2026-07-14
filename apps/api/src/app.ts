@@ -7,32 +7,25 @@ import passport from 'passport';
 import { rateLimit } from 'express-rate-limit';
 
 import { env } from './config/env';
-import { errorHandler } from './shared/middlewares/errorHandler';
+import { apiNotFoundHandler, errorHandler } from './shared/middlewares/errorHandler';
+import { ApiError } from './shared/utils/ApiError';
 import { verifyBrowserRequestOrigin } from './shared/middlewares/request-origin.middleware';
 import { validateCsrfToken } from './shared/middlewares/csrf-token.middleware';
 import { initPassport } from './infrastructure/auth/passport';
 
-import { createAuthComposition } from './modules/auth/auth.factory';
-import { createAuthRoutes } from './modules/auth/presentation/auth.routes';
-import onboardingRouter from './modules/user/onboarding/presentation/onboarding.routes';
-import { createTrackerComposition } from './modules/user/trackers/tracker.factory';
-import { createTrackerRoutes } from './modules/user/trackers/presentation/trackers.routes';
-import { createUsersComposition } from './modules/user/users/users.factory';
-import { createUsersRoutes } from './modules/user/users/presentation/users.routes';
-import { createUploadsComposition } from './modules/uploads/uploads.factory';
-import { createUploadsRoutes } from './modules/uploads/presentation/uploads.routes';
-import settingsRouter from './modules/user/settings/presentation/settings.routes';
-import { securityRoutes } from './modules/security/presentation/security.routes';
-import dashboardRoutes from './modules/user/dashboard/presentation/dashboard.routes';
-import moderationAppealRoutes from './modules/user/moderation-appeals/presentation/moderation-appeal.routes';
-import { createMockTestsComposition } from './modules/user/mock-tests/mock-tests.factory';
-import { createMockTestsRoutes } from './modules/user/mock-tests/presentation/mock-tests.routes';
-import { createCommunityComposition } from './modules/user/community/community.factory';
-import { createCommunityRoutes } from './modules/user/community/presentation/community.routes';
-import leaderBoardRouter from './modules/user/leaderboard/presentation/leaderboard.routes';
-import { createActivityComposition } from './modules/user/activity/activity.factory';
-import { createActivityRoutes } from './modules/user/activity/presentation/activity.routes';
-import { friendsRoutes } from './modules/user/friends/presentation/friends.routes';
+import { createAuthComposition, createAuthRoutes } from './modules/auth';
+import { createTrackerComposition, createTrackerRoutes } from './modules/user/trackers';
+import { createUsersComposition, createUsersRoutes } from './modules/user/users';
+import { createUploadsComposition, createUploadsRoutes } from './modules/uploads';
+import { settingsRoutes } from './modules/user/settings';
+import { securityRoutes } from './modules/security';
+import { dashboardRoutes } from './modules/user/dashboard';
+import { moderationAppealRoutes } from './modules/user/moderation-appeals';
+import { createMockTestsComposition, createMockTestsRoutes } from './modules/user/mock-tests';
+import { createCommunityComposition, createCommunityRoutes } from './modules/user/community';
+import { leaderboardRoutes } from './modules/user/leaderboard';
+import { createActivityComposition, createActivityRoutes } from './modules/user/activity';
+import { friendsRoutes } from './modules/user/friends';
 import {
   createAdminDashboardComposition,
   createAdminDashboardRoutes,
@@ -91,12 +84,12 @@ import {
   createSupportTicketsRoutes,
 } from './modules/user/support-tickets';
 import { createNotificationsComposition, createNotificationsRoutes } from './modules/notifications';
-import { createAdaptiveLearningComposition } from './modules/user/adaptive-learning/adaptive-learning.factory';
-import { createAdaptiveLearningRoutes } from './modules/user/adaptive-learning/presentation/adaptive-learning.routes';
 import {
-  AdaptiveAssessmentCompletionObserver,
-  mongoAdaptiveLearningRepository,
-} from './modules/user/adaptive-learning/infrastructure';
+  createAdaptiveAssessmentCompletionObserver,
+  createAdaptiveLearningComposition,
+  createAdaptiveLearningRoutes,
+} from './modules/user/adaptive-learning';
+import { onboardingRoutes } from './modules/user/onboarding';
 import mongoose from 'mongoose';
 import { redis } from './config/redis';
 
@@ -117,9 +110,7 @@ const trackerRoutes = createTrackerRoutes(createTrackerComposition(activityRecor
 const communityRouter = createCommunityRoutes(
   createCommunityComposition(activityRecorder).useCases
 );
-const adaptiveCompletionObserver = new AdaptiveAssessmentCompletionObserver(
-  mongoAdaptiveLearningRepository
-);
+const adaptiveCompletionObserver = createAdaptiveAssessmentCompletionObserver();
 const mockTestsComposition = createMockTestsComposition(
   activityRecorder,
   adaptiveCompletionObserver
@@ -134,6 +125,9 @@ const globalApiLimiter = rateLimit({
   limit: 1000,
   standardHeaders: 'draft-8',
   legacyHeaders: false,
+  handler: (_req, _res, next) => {
+    next(new ApiError(429, 'Too many requests. Please wait a moment and try again.', 'GLOBAL_RATE_LIMITED'));
+  },
 });
 
 app.use(helmet());
@@ -151,7 +145,7 @@ initPassport(authComposition.helpers.authRepository);
 app.use(passport.initialize());
 
 app.use('/api/auth', authRouter);
-app.use('/api/onboarding', onboardingRouter);
+app.use('/api/onboarding', onboardingRoutes);
 app.use('/api/trackers', trackerRoutes);
 
 /* Profile & account routes */
@@ -161,7 +155,7 @@ app.use('/api/users', usersRouter);
 app.use('/api/uploads', uploadsRouter);
 
 /* User settings routes */
-app.use('/api/settings', settingsRouter);
+app.use('/api/settings', settingsRoutes);
 app.use(
   '/api/subscriptions',
   createSubscriptionsRoutes(createSubscriptionsComposition().useCase)
@@ -248,11 +242,12 @@ app.use('/api/mock-tests', mockTestsRouter);
 app.use('/api/adaptive-learning', adaptiveLearningRouter);
 app.use('/api/community', communityRouter);
 app.use('/api/moderation-appeals', moderationAppealRoutes);
-app.use('/api/leaderboard', leaderBoardRouter);
+app.use('/api/leaderboard', leaderboardRoutes);
 app.use('/api/activity', activityRouter);
 app.use('/api/friends', friendsRoutes);
 app.use('/api/notifications', createNotificationsRoutes(createNotificationsComposition().useCases));
 
+app.use(apiNotFoundHandler);
 app.use(errorHandler);
 
 export default app;

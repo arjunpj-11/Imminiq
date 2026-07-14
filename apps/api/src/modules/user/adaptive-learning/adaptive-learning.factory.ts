@@ -6,6 +6,7 @@ import { GenerateAdaptiveAssessmentUseCase } from './application/use-cases/gener
 import { GetAdaptiveLearningDashboardUseCase } from './application/use-cases/get-adaptive-learning-dashboard.usecase';
 import type { IAdaptiveLearningRepository } from './domain/repositories/adaptive-learning.repository.interface';
 import { AdaptiveTestGeneratorGateway } from './infrastructure/gateways/adaptive-test-generator.gateway';
+import { AdaptiveAssessmentCompletionObserver } from './infrastructure/gateways/adaptive-assessment-completion.observer';
 import { mongoAdaptiveLearningRepository } from './infrastructure/repositories/internal/mongo-adaptive-learning.repository';
 import { LangChainAdaptiveLearningAgent } from './infrastructure/services/langchain-adaptive-learning-agent.service';
 
@@ -39,3 +40,6 @@ export const createAdaptiveLearningComposition = (): AdaptiveLearningComposition
     helpers: { adaptiveLearningRepository: repository },
   };
 };
+
+export const createAdaptiveAssessmentCompletionObserver = () =>
+  new AdaptiveAssessmentCompletionObserver(mongoAdaptiveLearningRepository);

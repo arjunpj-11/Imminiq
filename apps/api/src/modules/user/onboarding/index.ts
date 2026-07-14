@@ -12,3 +12,6 @@ export type {
 } from './application/onboarding.dto';
 
 export type { RoadmapLevel } from './domain/onboarding.types';
+
+export { createOnboardingComposition } from './onboarding.factory';
+export { onboardingRoutes } from './presentation/onboarding.routes';

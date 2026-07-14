@@ -1,7 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
-import type { ApiEnvelope } from '../../admin-api.types';
+import type { ApiEnvelope } from '../../shared';
 import type { AdminAITokenSpend } from '../types/admin-ai-token-spend.types';
 
 export const useAdminAITokenSpend = (range: { from: string; to: string }) =>

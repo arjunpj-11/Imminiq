@@ -1,4 +1,6 @@
-export type ApiEnvelope<T> = { data: T };
+import type { ApiEnvelope } from '../../../../lib/api.types';
+
+export type { ApiEnvelope };
 export type AdminPagination = { page: number; limit: number; total: number; pages: number };
 export type AdminPageData<T> = {
   items: T[];

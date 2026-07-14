@@ -21,3 +21,6 @@ export type {
   VerificationSubmissionStatus,
   VerificationVoteChoice,
 } from './domain/community.types';
+
+export { createCommunityComposition } from './community.factory';
+export { createCommunityRoutes } from './presentation/community.routes';

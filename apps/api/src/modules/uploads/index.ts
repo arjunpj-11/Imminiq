@@ -14,3 +14,6 @@ export type {
   UploadModule,
   UploadReferenceType,
 } from './domain/uploads.types';
+
+export { createUploadsComposition } from './uploads.factory';
+export { createUploadsRoutes } from './presentation/uploads.routes';
