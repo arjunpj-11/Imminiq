@@ -58,6 +58,7 @@ export class MongoSubscriptionRepository implements ISubscriptionRepository {
     const row = await SubscriptionPlanModel.findOne({
       $or: [{ planId }, { code: planId }],
     })
+      .sort({ updatedAt: -1, _id: -1 })
       .select('-_id name description monthlyAmount annualAmount currency features limits highlighted')
       .lean();
     return this.mapPlan(planId, row as Partial<SubscriptionPlan> | null);
@@ -84,7 +85,8 @@ export class MongoSubscriptionRepository implements ISubscriptionRepository {
     })
       .sort({ endsAt: -1 })
       .lean();
-    return row ? mapSubscription(row) : null;
+    if (!row) return null;
+    return mapSubscription(row);
   }
 
   async activate(

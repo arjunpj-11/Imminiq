@@ -13,8 +13,6 @@ import {
   AdminStatusBadge,
 } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
-import { toast } from '../../../../lib/toast';
-import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useAdminTrackers } from '../hooks/useAdminTrackers';
 import { useDeleteAdminTracker } from '../hooks/useDeleteAdminTracker';
 import type { AdminTracker } from '../types/admin-trackers.types';
@@ -165,7 +163,6 @@ export default function AdminTrackersPage() {
           deleting &&
           remove.mutate(deleting.id, {
             onSuccess: () => setDeleting(null),
-            onError: (error) => toast.error('Tracker deletion failed', getUserFacingError(error)),
           })
         }
       />

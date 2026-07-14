@@ -6,10 +6,10 @@ import type { AdminActor } from '../../../shared/domain';
 import {
   getDefaultSubscriptionPlan,
   type SubscriptionPlanId,
-  type SubscriptionPlanLimits,
 } from '../../../../user/subscriptions';
 import type {
   AdminSubscriptionPlan,
+  AdminPlanLimitField,
   AdminSubscriptionPlanInput,
   AdminSubscriptionItem,
   AdminSubscriptionOverview,
@@ -18,9 +18,13 @@ import type {
 import type { IAdminSubscriptionsRepository } from '../../domain/repositories/admin-subscriptions.repository.interface';
 
 const successfulStatuses = ['active', 'canceled', 'expired', 'replaced'];
-const planLookup = (planId: SubscriptionPlanId) => ({
-  $or: [{ planId }, { code: planId }],
-});
+const findPlan = async (planId: SubscriptionPlanId) => {
+  return SubscriptionPlanModel.findOne({
+    $or: [{ planId }, { code: planId }],
+  })
+    .sort({ updatedAt: -1, _id: -1 })
+    .lean();
+};
 
 export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRepository {
   async getOverview(query: AdminSubscriptionQuery): Promise<AdminSubscriptionOverview> {
@@ -78,7 +82,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       }),
       Promise.all(
         (['free', 'pro', 'premium'] as const).map((planId) =>
-          SubscriptionPlanModel.findOne(planLookup(planId)).select('-_id -updatedBy -createdAt -__v').lean()
+          findPlan(planId)
         )
       ),
     ]);
@@ -157,22 +161,17 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
   async updatePlan(
     planId: AdminSubscriptionPlan['planId'],
     input: AdminSubscriptionPlanInput,
+    propagateLimitFields: AdminPlanLimitField[],
     actor: AdminActor
   ): Promise<AdminSubscriptionPlan> {
-    const filter = planLookup(planId);
-    const existing = await SubscriptionPlanModel.findOne(filter).lean();
+    const existing = await findPlan(planId);
+    const filter = existing?._id ? { _id: existing._id } : { planId };
     const fallback = getDefaultSubscriptionPlan(planId as SubscriptionPlanId);
-    const previousLimits = { ...(existing?.limits ?? fallback.limits) } as SubscriptionPlanLimits;
-    if (planId !== 'free') {
-      await Subscription.updateMany(
-        {
-          planId,
-          status: { $in: ['active', 'canceled'] },
-          endsAt: { $gt: new Date() },
-          'limits.maxTrackers': { $exists: false },
-        },
-        { $set: { limits: previousLimits } }
-      );
+    if (existing?._id) {
+      await SubscriptionPlanModel.deleteMany({
+        _id: { $ne: existing._id },
+        $or: [{ planId }, { code: planId }],
+      });
     }
     const updated = await SubscriptionPlanModel.findOneAndUpdate(
       filter,
@@ -181,10 +180,31 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     ).lean();
+    const eligibleFields = planId === 'free'
+      ? []
+      : [...new Set(propagateLimitFields)];
+    const activeFilter = {
+      planId,
+      status: { $in: ['active', 'canceled'] },
+      endsAt: { $gt: new Date() },
+    };
+    for (const field of eligibleFields) {
+      const next = input.limits[field];
+      await Subscription.updateMany(
+        {
+          ...activeFilter,
+          [`limits.${field}`]: next === 0
+            ? { $ne: 0 }
+            : { $ne: 0, $lt: next },
+        },
+        { $set: { [`limits.${field}`]: next } }
+      );
+    }
     await recordAdminAction(actor, 'subscription_plan_updated', 'admin.subscriptions', {
       planId,
       previous: existing ?? fallback,
       current: input,
+      propagatedUpgradeFields: eligibleFields,
     });
     return {
       planId,

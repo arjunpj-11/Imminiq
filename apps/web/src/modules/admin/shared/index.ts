@@ -4,6 +4,7 @@ export {
   AdminEmpty,
   AdminError,
   AdminLoading,
+  AdminNumberInput,
   AdminMetricGrid,
   AdminPageHeader,
   AdminPanel,

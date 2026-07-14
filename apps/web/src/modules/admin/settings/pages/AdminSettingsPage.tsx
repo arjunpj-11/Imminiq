@@ -1,11 +1,12 @@
 import { useState, type FormEvent, type ReactNode } from 'react';
+import { LoaderCircle } from 'lucide-react';
 import {
   AdminError,
   AdminLoading,
+  AdminNumberInput,
   AdminPageHeader,
   AdminPanel,
 } from '../../shared';
-import { boundedInteger } from '../../../../lib/bounded-number';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useAdminSettings } from '../hooks/useAdminSettings';
 import { useUpdateAdminSettings } from '../hooks/useUpdateAdminSettings';
@@ -31,7 +32,6 @@ export default function AdminSettingsPage() {
 function SettingsForm({ initial }: { initial: AdminSettings }) {
   const update = useUpdateAdminSettings();
   const [form, setForm] = useState({
-    maintenanceMode: initial.maintenanceMode,
     allowBroadcasts: initial.allowBroadcasts,
     supportEmail: initial.supportEmail,
     auditRetentionDays: initial.auditRetentionDays,
@@ -44,12 +44,6 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
   return (
     <AdminPanel title="Platform controls">
       <form onSubmit={submit} className="space-y-6 p-6">
-        <Toggle
-          label="Maintenance mode"
-          description="Record whether the platform is in a planned maintenance window."
-          checked={form.maintenanceMode}
-          setChecked={(value) => setForm((x) => ({ ...x, maintenanceMode: value }))}
-        />
         <Toggle
           label="Allow broadcasts"
           description="Permit admins to send new user notifications from Broadcast Centre."
@@ -102,16 +96,15 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
         </PolicySection>
         <label className="admin-field">
           <span>Audit retention (days)</span>
-          <input
+          <AdminNumberInput
             required
-            type="number"
             min={30}
             max={3650}
             value={form.auditRetentionDays}
-            onChange={(e) =>
+            onValueChange={(auditRetentionDays) =>
               setForm((x) => ({
                 ...x,
-                auditRetentionDays: boundedInteger(e.target.value, 30, 3650),
+                auditRetentionDays,
               }))
             }
           />
@@ -125,7 +118,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
           </p>
         )}
         <button disabled={update.isPending} className="admin-primary-button">
-          {update.isPending ? 'Saving…' : 'Save settings'}
+          {update.isPending ? <><LoaderCircle size={15} className="animate-spin" /> Saving…</> : 'Save settings'}
         </button>
       </form>
     </AdminPanel>
@@ -145,7 +138,7 @@ function PolicyNumberField({ label, value, min, max, onChange }: { label: string
   return (
     <label className="admin-field">
       <span>{label}</span>
-      <input required type="number" min={min} max={max} value={value} onChange={(event) => onChange(boundedInteger(event.target.value, min, max))} />
+      <AdminNumberInput required min={min} max={max} value={value} onValueChange={onChange} />
     </label>
   );
 }

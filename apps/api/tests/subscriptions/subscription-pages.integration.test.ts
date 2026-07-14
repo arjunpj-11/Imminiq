@@ -1,10 +1,27 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { afterAll, beforeAll, describe, expect, it } from 'vitest';
+import { afterAll, beforeAll, describe, expect, it, vi } from 'vitest';
 import { mongoAdminSubscriptionsRepository } from '../../src/modules/admin/subscriptions/infrastructure/repositories/mongo-admin-subscriptions.repository';
-import { SUBSCRIPTION_PLANS } from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
+import {
+  getDefaultSubscriptionPlan,
+  SUBSCRIPTION_PLANS,
+} from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
 import { mongoSubscriptionRepository } from '../../src/modules/user/subscriptions/infrastructure/repositories/mongo-subscription.repository';
+import { SubscriptionLimitService } from '../../src/modules/user/subscriptions/infrastructure/services/subscription-limit.service';
 import { SubscriptionPlan as SubscriptionPlanModel } from '../../src/infrastructure/database/models/subscription-plan.model';
+import { Subscription } from '../../src/infrastructure/database/models/subscription.model';
+import { Tracker } from '../../src/infrastructure/database/models/tracker.model';
+
+const toAdminInput = (plan: ReturnType<typeof getDefaultSubscriptionPlan>) => ({
+  name: plan.name,
+  description: plan.description,
+  monthlyAmount: plan.monthlyAmount,
+  annualAmount: plan.annualAmount,
+  currency: plan.currency,
+  features: plan.features,
+  highlighted: plan.highlighted,
+  limits: plan.limits,
+});
 
 describe('subscription page data repositories', () => {
   let mongo: MongoMemoryServer;
@@ -90,7 +107,7 @@ describe('subscription page data repositories', () => {
         features: freePlan.features,
         highlighted: freePlan.highlighted,
         limits: freePlan.limits,
-      }, actor)
+      }, [], actor)
     ).resolves.toMatchObject({ planId: 'free', limits: freeLimits });
     await expect(
       mongoAdminSubscriptionsRepository.updatePlan('premium', {
@@ -102,7 +119,7 @@ describe('subscription page data repositories', () => {
         features: premiumPlan.features,
         highlighted: premiumPlan.highlighted,
         limits: premiumPlan.limits,
-      }, actor)
+      }, [], actor)
     ).resolves.toMatchObject({ planId: 'premium', limits: premiumLimits });
 
     expect(await SubscriptionPlanModel.findOne({ code: 'free' }).lean()).toMatchObject({
@@ -113,5 +130,94 @@ describe('subscription page data repositories', () => {
       planId: 'premium',
       limits: premiumLimits,
     });
+  });
+
+  it('applies current free limits and only selected paid-plan upgrades', async () => {
+    const actor = {
+      userId: new mongoose.Types.ObjectId().toString(),
+      role: 'admin' as const,
+      ipAddress: '127.0.0.1',
+      userAgent: 'vitest',
+    };
+    const service = new SubscriptionLimitService();
+    const trackerCount = vi.spyOn(Tracker, 'countDocuments').mockResolvedValue(3);
+
+    const freePlan = getDefaultSubscriptionPlan('free');
+    freePlan.limits.maxTrackers = 5;
+    await mongoAdminSubscriptionsRepository.updatePlan('free', toAdminInput(freePlan), [], actor);
+    await expect(
+      service.enforce(new mongoose.Types.ObjectId().toString(), 'tracker_capacity')
+    ).resolves.toBeUndefined();
+
+    freePlan.limits.maxTrackers = 3;
+    await mongoAdminSubscriptionsRepository.updatePlan('free', toAdminInput(freePlan), [], actor);
+    await expect(
+      service.enforce(new mongoose.Types.ObjectId().toString(), 'tracker_capacity')
+    ).rejects.toThrow('limit of 3');
+
+    const paidUserId = new mongoose.Types.ObjectId();
+    const premiumPlan = getDefaultSubscriptionPlan('premium');
+    premiumPlan.limits.maxTrackers = 100;
+    await mongoAdminSubscriptionsRepository.updatePlan(
+      'premium',
+      toAdminInput(premiumPlan),
+      [],
+      actor
+    );
+    await Subscription.create({
+      userId: paidUserId,
+      planId: 'premium',
+      planName: premiumPlan.name,
+      billingCycle: 'monthly',
+      amount: premiumPlan.monthlyAmount,
+      currency: 'INR',
+      status: 'active',
+      limits: { ...premiumPlan.limits, maxTrackers: 3 },
+      razorpayOrderId: `order_${paidUserId.toString()}`,
+      startsAt: new Date(),
+      endsAt: new Date(Date.now() + 86_400_000),
+    });
+
+    premiumPlan.limits.maxTrackers = 5;
+    await mongoAdminSubscriptionsRepository.updatePlan(
+      'premium',
+      toAdminInput(premiumPlan),
+      ['maxTrackers'],
+      actor
+    );
+    expect(
+      await Subscription.findOne({ userId: paidUserId }).select('limits.maxTrackers').lean()
+    ).toMatchObject({ limits: { maxTrackers: 5 } });
+    await expect(mongoSubscriptionRepository.findCurrent(paidUserId.toString())).resolves.toMatchObject({
+      planId: 'premium',
+      limits: { maxTrackers: 5 },
+    });
+
+    trackerCount.mockResolvedValue(4);
+    await expect(
+      service.enforce(paidUserId.toString(), 'tracker_capacity')
+    ).resolves.toBeUndefined();
+
+    premiumPlan.limits.maxTrackers = 2;
+    premiumPlan.limits.trackerGenerationsPerMonth += 10;
+    await mongoAdminSubscriptionsRepository.updatePlan(
+      'premium',
+      toAdminInput(premiumPlan),
+      ['maxTrackers'],
+      actor
+    );
+    await expect(mongoSubscriptionRepository.findCurrent(paidUserId.toString())).resolves.toMatchObject({
+      limits: {
+        maxTrackers: 5,
+        trackerGenerationsPerMonth: getDefaultSubscriptionPlan('premium').limits.trackerGenerationsPerMonth,
+      },
+    });
+    await expect(mongoSubscriptionRepository.getPlan('premium')).resolves.toMatchObject({
+      limits: {
+        maxTrackers: 2,
+        trackerGenerationsPerMonth: premiumPlan.limits.trackerGenerationsPerMonth,
+      },
+    });
+    trackerCount.mockRestore();
   });
 });

@@ -1,6 +1,7 @@
 import type { AdminActor } from '../../../shared/domain';
 import type {
   AdminSubscriptionPlan,
+  AdminPlanLimitField,
   AdminSubscriptionPlanInput,
 } from '../../domain/entities/admin-subscription.entity';
 import type { IAdminSubscriptionsRepository } from '../../domain/repositories/admin-subscriptions.repository.interface';
@@ -10,10 +11,15 @@ import type { IAdminSubscriptionsMapper } from '../admin-subscriptions.mapper';
 export interface IUpdateAdminPlanUseCase {
   execute(
     planId: AdminSubscriptionPlan['planId'],
-    input: AdminSubscriptionPlanInput,
+    input: AdminSubscriptionPlanUpdateInput,
     actor: AdminActor
   ): Promise<AdminSubscriptionPlanDTO>;
 }
+
+export type AdminSubscriptionPlanUpdateInput = {
+  plan: AdminSubscriptionPlanInput;
+  propagateLimitFields: AdminPlanLimitField[];
+};
 
 export class UpdateAdminPlanUseCase implements IUpdateAdminPlanUseCase {
   constructor(
@@ -23,11 +29,11 @@ export class UpdateAdminPlanUseCase implements IUpdateAdminPlanUseCase {
 
   execute(
     planId: AdminSubscriptionPlan['planId'],
-    input: AdminSubscriptionPlanInput,
+    input: AdminSubscriptionPlanUpdateInput,
     actor: AdminActor
   ): Promise<AdminSubscriptionPlanDTO> {
     return this.repository
-      .updatePlan(planId, input, actor)
+      .updatePlan(planId, input.plan, input.propagateLimitFields, actor)
       .then((plan) => this.mapper.toPlanDTO(plan));
   }
 }

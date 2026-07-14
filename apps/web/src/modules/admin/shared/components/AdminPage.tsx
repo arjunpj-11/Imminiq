@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type InputHTMLAttributes, type ReactNode } from 'react';
 import { Search } from 'lucide-react';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 
@@ -81,6 +81,41 @@ export function AdminSearch({
   );
 }
 
+export function AdminNumberInput({
+  value,
+  min,
+  max,
+  onValueChange,
+  ...inputProps
+}: Omit<InputHTMLAttributes<HTMLInputElement>, 'type' | 'value' | 'min' | 'max' | 'onChange'> & {
+  value: number;
+  min: number;
+  max: number;
+  onValueChange: (value: number) => void;
+}) {
+  const [draft, setDraft] = useState(String(value));
+
+  const commit = (rawValue: string) => {
+    setDraft(rawValue);
+    if (rawValue.trim() === '') return;
+    const parsed = Number(rawValue);
+    if (!Number.isFinite(parsed)) return;
+    onValueChange(Math.min(max, Math.max(min, Math.trunc(parsed))));
+  };
+
+  return (
+    <input
+      {...inputProps}
+      type="number"
+      min={min}
+      max={max}
+      value={draft}
+      onChange={(event) => commit(event.target.value)}
+      onBlur={() => setDraft(String(value))}
+    />
+  );
+}
+
 export function AdminStatusBadge({ value }: { value: string }) {
   const normalized = value.toLowerCase();
   const tone = ['active', 'public', 'approved', 'resolved', 'healthy', 'success', 'sent'].includes(
@@ -126,7 +161,17 @@ export function AdminEmpty({ children = 'No records found.' }: { children?: Reac
   return <div className="p-12 text-center text-sm text-[#aaa59d]">{children}</div>;
 }
 export function AdminLoading() {
-  return <div className="p-12 text-center text-sm text-[#aaa59d]">Loading current data…</div>;
+  return (
+    <div aria-label="Loading current data" aria-busy="true" className="mt-7 space-y-4">
+      <span className="sr-only">Loading current data…</span>
+      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        {[0, 1, 2, 3].map((item) => (
+          <div key={item} className="h-28 animate-pulse rounded-xl border border-white/9 bg-[#1c1a18]" />
+        ))}
+      </div>
+      <div className="h-72 animate-pulse rounded-xl border border-white/9 bg-[#1c1a18]" />
+    </div>
+  );
 }
 export function AdminError({ error }: { error?: unknown }) {
   return (

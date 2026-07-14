@@ -1,5 +1,6 @@
 import { useMutation } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
+import { toast } from '../../../../lib/toast';
 import type { AdminListQuery, AdminPageData } from '../../shared';
 import type { ApiEnvelope } from '../../../../lib/api.types';
 import type { AdminAuditLog } from '../types/admin-audit-logs.types';
@@ -26,4 +27,8 @@ export const useExportAdminAuditLogs = () =>
       }
       return items;
     },
+    onMutate: () => ({
+      toastId: toast.loading('Preparing audit export…', 'Collecting every matching audit event.'),
+    }),
+    onSettled: (_data, _error, _input, context) => context && toast.dismiss(context.toastId),
   });

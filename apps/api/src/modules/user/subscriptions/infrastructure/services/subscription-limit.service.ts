@@ -38,6 +38,18 @@ const periodStart = (kind: Exclude<PlanLimitKind, 'tracker_capacity'>, now: Date
 };
 
 export class SubscriptionLimitService implements ISubscriptionLimitEnforcer {
+  private async findCurrentPlanLimits(
+    planId: SubscriptionPlanId
+  ): Promise<SubscriptionPlanLimits | null> {
+    const row = await SubscriptionPlanModel.findOne({
+      $or: [{ planId }, { code: planId }],
+    })
+      .sort({ updatedAt: -1, _id: -1 })
+      .select('limits')
+      .lean();
+    return row?.limits ? ({ ...row.limits } as SubscriptionPlanLimits) : null;
+  }
+
   private async resolveLimits(userId: string): Promise<SubscriptionPlanLimits> {
     const active = await Subscription.findOne({
       userId,
@@ -48,17 +60,10 @@ export class SubscriptionLimitService implements ISubscriptionLimitEnforcer {
       .select('planId limits')
       .lean();
     if (active) {
-      return {
-        ...(active.limits ?? getDefaultPlanLimits(active.planId as SubscriptionPlanId)),
-      } as SubscriptionPlanLimits;
+      const planId = active.planId as SubscriptionPlanId;
+      return { ...(active.limits ?? getDefaultPlanLimits(planId)) } as SubscriptionPlanLimits;
     }
-    const defaults = getDefaultPlanLimits('free');
-    const free = await SubscriptionPlanModel.findOne({
-      $or: [{ planId: 'free' }, { code: 'free' }],
-    })
-      .select('limits')
-      .lean();
-    return { ...(free?.limits ?? defaults) } as SubscriptionPlanLimits;
+    return (await this.findCurrentPlanLimits('free')) ?? getDefaultPlanLimits('free');
   }
 
   private exceeded(kind: PlanLimitKind, limit: number) {

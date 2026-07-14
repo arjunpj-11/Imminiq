@@ -43,7 +43,6 @@ const productPolicySchema = new Schema(
 const adminConsoleSettingsSchema = new Schema(
   {
     key: { type: String, default: 'global', unique: true, immutable: true },
-    maintenanceMode: { type: Boolean, default: false },
     allowBroadcasts: { type: Boolean, default: true },
     supportEmail: { type: String, trim: true, lowercase: true, default: 'support@imminiq.com' },
     auditRetentionDays: { type: Number, min: 30, max: 3650, default: 365 },

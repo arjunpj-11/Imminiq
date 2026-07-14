@@ -4,7 +4,7 @@ import type { AdminSubscriptionsUseCases } from '../application/admin-subscripti
 import {
   adminSubscriptionsQuerySchema,
   adminPlanIdSchema,
-  adminSubscriptionPlanSchema,
+  adminSubscriptionPlanUpdateSchema,
 } from './admin-subscriptions.schema';
 
 export class AdminSubscriptionsController {
@@ -24,7 +24,7 @@ export class AdminSubscriptionsController {
       () =>
         this.useCases.updatePlan.execute(
           adminPlanIdSchema.parse(req.params.planId),
-          adminSubscriptionPlanSchema.parse(req.body),
+          adminSubscriptionPlanUpdateSchema.parse(req.body),
           getAdminActor(req)
         ),
       res,

@@ -26,7 +26,6 @@ describe('admin-managed platform policy', () => {
   it('rejects unsafe policy values at the admin boundary', () => {
     expect(() =>
       adminSettingsSchema.parse({
-        maintenanceMode: false,
         allowBroadcasts: true,
         supportEmail: 'support@imminiq.com',
         auditRetentionDays: 365,

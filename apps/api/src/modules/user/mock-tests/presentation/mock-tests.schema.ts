@@ -92,7 +92,8 @@ export const createMockTestSchema = z.object({
   passingScore: z.number().int().min(1).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(10).optional(),
   trackerId: z.string().trim().optional(),
-  questions: z.array(questionSchema).min(1).max(100),
+  // Product policy applies the admin-managed limit; this is only a hard safety ceiling.
+  questions: z.array(questionSchema).min(1).max(500),
 });
 
 export const generateMockTestSchema = z.object({

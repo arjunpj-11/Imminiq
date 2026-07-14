@@ -37,6 +37,16 @@ export type AdminPlanLimits = {
   aiTutorRequestsPerDay: number;
 };
 
+export const ADMIN_PLAN_LIMIT_FIELDS = [
+  'maxTrackers',
+  'trackerGenerationsPerMonth',
+  'lessonGenerationsPerDay',
+  'mockTestGenerationsPerMonth',
+  'aiTutorRequestsPerDay',
+] as const satisfies readonly (keyof AdminPlanLimits)[];
+
+export type AdminPlanLimitField = (typeof ADMIN_PLAN_LIMIT_FIELDS)[number];
+
 export type AdminSubscriptionPlan = {
   planId: 'free' | 'pro' | 'premium';
   name: string;

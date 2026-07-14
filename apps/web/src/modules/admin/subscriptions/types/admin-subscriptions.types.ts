@@ -36,6 +36,7 @@ export type AdminPlanLimits = {
   mockTestGenerationsPerMonth: number;
   aiTutorRequestsPerDay: number;
 };
+export type AdminPlanLimitField = keyof AdminPlanLimits;
 export type AdminSubscriptionPlan = {
   planId: 'free' | 'pro' | 'premium';
   name: string;
@@ -50,3 +51,7 @@ export type AdminSubscriptionPlan = {
 };
 
 export type AdminSubscriptionPlanInput = Omit<AdminSubscriptionPlan, 'planId' | 'updatedAt'>;
+export type AdminSubscriptionPlanUpdateInput = {
+  plan: AdminSubscriptionPlanInput;
+  propagateLimitFields: AdminPlanLimitField[];
+};

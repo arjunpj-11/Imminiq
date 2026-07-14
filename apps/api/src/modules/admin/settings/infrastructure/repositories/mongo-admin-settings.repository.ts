@@ -6,7 +6,6 @@ import type { IAdminSettingsRepository } from '../../domain/repositories/admin-s
 import { resolvePlatformPolicy, type PlatformPolicy } from '../../../../../shared/platform-policy';
 const view = {
   _id: 0,
-  maintenanceMode: 1,
   allowBroadcasts: 1,
   supportEmail: 1,
   auditRetentionDays: 1,

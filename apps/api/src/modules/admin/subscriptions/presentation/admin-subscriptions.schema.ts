@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { ADMIN_PLAN_LIMIT_FIELDS } from '../domain/entities/admin-subscription.entity';
 
 export const adminSubscriptionsQuerySchema = z.object({
   search: z.string().trim().max(120).optional(),
@@ -27,4 +28,9 @@ export const adminSubscriptionPlanSchema = z.object({
   features: z.array(z.string().trim().min(1).max(120)).min(1).max(30),
   highlighted: z.boolean(),
   limits: adminPlanLimitsSchema,
+});
+
+export const adminSubscriptionPlanUpdateSchema = z.object({
+  plan: adminSubscriptionPlanSchema,
+  propagateLimitFields: z.array(z.enum(ADMIN_PLAN_LIMIT_FIELDS)).max(ADMIN_PLAN_LIMIT_FIELDS.length),
 });
