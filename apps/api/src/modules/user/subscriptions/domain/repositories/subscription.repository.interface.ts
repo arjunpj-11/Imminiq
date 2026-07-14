@@ -3,7 +3,7 @@ import type {
   SubscriptionPlanId,
   SubscriptionPlanLimits,
   UserSubscription,
-} from '../subscription.entity';
+} from '../entities/subscription.entity';
 
 export interface ISubscriptionRepository {
   getPlanLimits(planId: SubscriptionPlanId): Promise<SubscriptionPlanLimits>;

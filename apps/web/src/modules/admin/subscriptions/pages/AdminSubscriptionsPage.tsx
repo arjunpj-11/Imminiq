@@ -13,6 +13,7 @@ import {
 } from '../../../../components/admin/AdminPage';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { boundedInteger } from '../../../../lib/bounded-number';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import {
   useAdminSubscriptions,
   useUpdateAdminPlanLimits,
@@ -80,7 +81,7 @@ function SubscriptionView({
   setPage: (value: number) => void;
 }) {
   if (query.isLoading) return <AdminLoading />;
-  if (query.isError || !query.data) return <AdminError />;
+  if (query.isError || !query.data) return <AdminError error={query.error} />;
   const data = query.data;
   const pagination = data.subscriptions.pagination;
 
@@ -213,7 +214,11 @@ function PlanLimitsForm({ plan }: { plan: AdminSubscriptionPlan }) {
         ))}
       </div>
       {update.isSuccess && <div className="mt-3 text-xs text-[#52c58c]">Limits saved.</div>}
-      {update.isError && <div className="mt-3 text-xs text-[#e26767]">Limits could not be saved.</div>}
+      {update.isError && (
+        <div className="mt-3 text-xs text-[#e26767]">
+          {getUserFacingError(update.error, 'Limits could not be saved.')}
+        </div>
+      )}
       <button type="submit" disabled={update.isPending} className="admin-primary-button mt-5 w-full">
         {update.isPending ? 'Saving…' : `Save ${plan.planId} limits`}
       </button>

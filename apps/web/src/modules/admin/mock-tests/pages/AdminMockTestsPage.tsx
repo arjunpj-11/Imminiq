@@ -18,7 +18,7 @@ export default function AdminMockTestsPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useAdminMockTests({
+  const { data, isLoading, isError, error } = useAdminMockTests({
     search: useDebouncedValue(search, 300),
     status,
     page,
@@ -67,7 +67,7 @@ export default function AdminMockTestsPage() {
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
-          <AdminError />
+          <AdminError error={error} />
         ) : !data?.items.length ? (
           <AdminEmpty />
         ) : (

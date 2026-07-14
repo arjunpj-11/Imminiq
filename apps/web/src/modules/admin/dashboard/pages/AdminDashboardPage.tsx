@@ -14,9 +14,9 @@ import AdminDashboardState from '../components/AdminDashboardState';
 const number = new Intl.NumberFormat('en-US');
 
 export default function AdminDashboardPage() {
-  const { data, isLoading, isError, isFetching, refetch } = useAdminDashboard();
+  const { data, isLoading, isError, error, isFetching, refetch } = useAdminDashboard();
   if (isLoading) return <AdminDashboardState tone="loading" />;
-  if (isError || !data) return <AdminDashboardState tone="error" />;
+  if (isError || !data) return <AdminDashboardState tone="error" error={error} />;
 
   const metrics = [
     ['Total users', data.metrics.totalUsers, CircleUserRound, '#e8816a'],

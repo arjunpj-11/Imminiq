@@ -1,11 +1,10 @@
 import { CommunityVerificationSubmission } from '../../../../../infrastructure/database/models/community-verification-submission.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
-import { ApiError } from '../../../../../shared/utils/ApiError';
 import type { AdminActor, AdminListQuery } from '../../../shared';
 import { recordAdminAction } from '../../../shared';
 import { createAdminPage, escapeAdminSearch } from '../../../shared';
 import type { IAdminTrackerReviewsRepository } from '../../domain/repositories/admin-tracker-reviews.repository.interface';
-import type { AdminTrackerReviewConsensusChoice } from '../../domain/admin-tracker-review.entity';
+import type { AdminTrackerReviewConsensusChoice } from '../../domain/entities/admin-tracker-review.entity';
 export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsRepository {
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> = { deletedAt: null };
@@ -57,14 +56,8 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
     ).lean();
     if (!review) {
       const exists = await CommunityVerificationSubmission.exists({ _id: id, deletedAt: null });
-      if (!exists) {
-        throw new ApiError(404, 'Tracker review not found', 'TRACKER_REVIEW_NOT_FOUND');
-      }
-      throw new ApiError(
-        409,
-        'Consensus can only be changed while a review is open',
-        'TRACKER_REVIEW_NOT_OPEN'
-      );
+      if (!exists) return { kind: 'not_found' as const };
+      return { kind: 'not_open' as const };
     }
     const progress = Math.min(
       100,
@@ -78,7 +71,10 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
       passVotes: review.passVotes,
       failVotes: review.failVotes,
     });
-    return { id, passVotes: review.passVotes, failVotes: review.failVotes };
+    return {
+      kind: 'success' as const,
+      value: { id, passVotes: review.passVotes, failVotes: review.failVotes },
+    };
   }
   async resolve(id: string, status: string, actor: AdminActor) {
     const review = await CommunityVerificationSubmission.findOneAndUpdate(
@@ -86,7 +82,7 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
       { $set: { status, consensusChoice: status === 'approved' ? 'pass' : 'fail' } },
       { new: true }
     ).lean();
-    if (!review) throw new ApiError(404, 'Tracker review not found', 'TRACKER_REVIEW_NOT_FOUND');
+    if (!review) return null;
     await Tracker.updateOne(
       { _id: review.trackerId },
       {

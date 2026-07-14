@@ -2,9 +2,10 @@ import { keepPreviousData, useQuery } from '@tanstack/react-query';
 import api from '../../../../lib/axios';
 import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../shared';
 import type { AdminMockTest, AdminMockTestDetail } from '../types/admin-mock-tests.types';
+import { adminMockTestsKeys } from './admin-mock-tests.query-keys';
 export const useAdminMockTests = (query: AdminListQuery) =>
   useQuery({
-    queryKey: ['admin', 'mock-tests', query],
+    queryKey: adminMockTestsKeys.list(query),
     queryFn: async () =>
       (
         await api.get<ApiEnvelope<AdminPageData<AdminMockTest>>>('/admin/mock-tests', {
@@ -15,7 +16,7 @@ export const useAdminMockTests = (query: AdminListQuery) =>
   });
 export const useAdminMockTestDetail = (id?: string) =>
   useQuery({
-    queryKey: ['admin', 'mock-tests', 'detail', id],
+    queryKey: adminMockTestsKeys.detail(id),
     queryFn: async () =>
       (await api.get<ApiEnvelope<AdminMockTestDetail>>(`/admin/mock-tests/${id}`)).data.data,
     enabled: Boolean(id),

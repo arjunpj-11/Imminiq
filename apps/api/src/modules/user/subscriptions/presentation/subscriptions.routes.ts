@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
-import type { ISubscriptionsUseCase } from '../application/subscriptions.usecase';
+import type { SubscriptionsUseCases } from '../application/subscriptions-use-cases.contract';
 import { SubscriptionsController } from './subscriptions.controller';
 
-export const createSubscriptionsRoutes = (useCase: ISubscriptionsUseCase) => {
+export const createSubscriptionsRoutes = (useCases: SubscriptionsUseCases) => {
   const router = Router();
-  const controller = new SubscriptionsController(useCase);
+  const controller = new SubscriptionsController(useCases);
   router.get('/plans', controller.listPlans);
   router.use(authenticate);
   router.get('/me', controller.getMine);

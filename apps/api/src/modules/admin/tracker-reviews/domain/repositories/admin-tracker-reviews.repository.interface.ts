@@ -2,15 +2,19 @@ import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared';
 import type {
   AdminTrackerReview,
   AdminTrackerReviewConsensusChoice,
-  AdminTrackerReviewConsensusResult,
+  AdminTrackerReviewConsensusRepositoryResult,
   AdminTrackerReviewStatusResult,
-} from '../admin-tracker-review.entity';
+} from '../entities/admin-tracker-review.entity';
 export interface IAdminTrackerReviewsRepository {
   list(query: AdminListQuery): Promise<AdminPage<AdminTrackerReview>>;
   addConsensusVote(
     id: string,
     choice: AdminTrackerReviewConsensusChoice,
     actor: AdminActor
-  ): Promise<AdminTrackerReviewConsensusResult>;
-  resolve(id: string, status: string, actor: AdminActor): Promise<AdminTrackerReviewStatusResult>;
+  ): Promise<AdminTrackerReviewConsensusRepositoryResult>;
+  resolve(
+    id: string,
+    status: string,
+    actor: AdminActor
+  ): Promise<AdminTrackerReviewStatusResult | null>;
 }

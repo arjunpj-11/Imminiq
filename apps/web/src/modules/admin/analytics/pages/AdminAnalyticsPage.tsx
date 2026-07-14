@@ -18,7 +18,7 @@ import {
 
 export default function AdminAnalyticsPage() {
   const dateRange = useAdminDateRange(30);
-  const { data, isLoading, isError } = useAdminAnalytics(dateRange.range);
+  const { data, isLoading, isError, error } = useAdminAnalytics(dateRange.range);
   const activity = useMemo(() => {
     const values = new Map(data?.dailyActivity.map((point) => [point.date, point.value]) ?? []);
     return enumerateDateRange(dateRange.range).map((date) => ({
@@ -105,7 +105,7 @@ export default function AdminAnalyticsPage() {
       {isLoading ? (
         <AdminLoading />
       ) : isError ? (
-        <AdminError />
+        <AdminError error={error} />
       ) : (
         data && (
           <>

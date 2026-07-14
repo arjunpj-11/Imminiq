@@ -1,0 +1,53 @@
+import type {
+  PaidSubscriptionPlanId,
+  SubscriptionBillingCycle,
+} from '../../domain/entities/subscription.entity';
+import { SUBSCRIPTION_PLANS } from '../../domain/entities/subscription.entity';
+import type { ISubscriptionRepository } from '../../domain/repositories/subscription.repository.interface';
+import type { ISubscriptionPaymentGateway } from '../../domain/services/subscription-payment-gateway.interface';
+import { SubscriptionsApplicationError } from '../subscriptions-application.error';
+import type { SubscriptionOrderDTO } from '../subscriptions.dto';
+
+export interface ICreateSubscriptionOrderUseCase {
+  execute(
+    userId: string,
+    planId: PaidSubscriptionPlanId,
+    billingCycle: SubscriptionBillingCycle
+  ): Promise<SubscriptionOrderDTO>;
+}
+
+export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderUseCase {
+  constructor(
+    private readonly repository: ISubscriptionRepository,
+    private readonly paymentGateway: ISubscriptionPaymentGateway
+  ) {}
+
+  async execute(
+    userId: string,
+    planId: PaidSubscriptionPlanId,
+    billingCycle: SubscriptionBillingCycle
+  ) {
+    const plan = SUBSCRIPTION_PLANS.find((candidate) => candidate.id === planId);
+    if (!plan || plan.id === 'free') throw SubscriptionsApplicationError.invalidPlan();
+    const amount = billingCycle === 'annual' ? plan.annualAmount : plan.monthlyAmount;
+    const limits = await this.repository.getPlanLimits(planId);
+    const receipt = `sub_${userId.slice(-8)}_${Date.now().toString(36)}`.slice(0, 40);
+    const order = await this.paymentGateway.createOrder(amount, receipt);
+    await this.repository.createPending({
+      userId,
+      planId,
+      planName: plan.name,
+      billingCycle,
+      amount,
+      razorpayOrderId: order.id,
+      limits,
+    });
+    return {
+      keyId: this.paymentGateway.getPublicKey(),
+      orderId: order.id,
+      amount: order.amount,
+      currency: order.currency,
+      planName: plan.name,
+    };
+  }
+}

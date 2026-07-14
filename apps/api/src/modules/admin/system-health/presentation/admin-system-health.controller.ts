@@ -1,8 +1,8 @@
 import type { NextFunction, Request, Response } from 'express';
 import { sendAdminResult } from '../../shared';
-import type { IGetAdminSystemHealthUseCase } from '../application/use-cases/get-admin-system-health.usecase';
+import type { AdminSystemHealthUseCases } from '../application/admin-system-health-use-cases.contract';
 export class AdminSystemHealthController {
-  constructor(private readonly useCase: IGetAdminSystemHealthUseCase) {}
+  constructor(private readonly useCases: AdminSystemHealthUseCases) {}
   get = (_req: Request, res: Response, next: NextFunction) =>
-    sendAdminResult(next, () => this.useCase.execute(), res, 'System health fetched');
+    sendAdminResult(next, () => this.useCases.get.execute(), res, 'System health fetched');
 }

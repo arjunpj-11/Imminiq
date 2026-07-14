@@ -1,5 +1,5 @@
 import type { AdminListQuery, AdminPage } from '../../../shared';
-import type { AdminAuditLog } from '../../domain/admin-audit-log.entity';
+import type { AdminAuditLog } from '../../domain/entities/admin-audit-log.entity';
 import type { IAdminAuditLogsRepository } from '../../domain/repositories/admin-audit-logs.repository.interface';
 export interface IListAdminAuditLogsUseCase {
   execute(query: AdminListQuery): Promise<AdminPage<AdminAuditLog>>;

@@ -2,9 +2,10 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import api from '../../../../lib/axios';
 import type { AdminPageData, ApiEnvelope } from '../../shared';
 import type { AdminBroadcast } from '../types/admin-broadcast.types';
+import { adminBroadcastKeys } from './admin-broadcast.query-keys';
 export const useAdminBroadcasts = (page: number) =>
   useQuery({
-    queryKey: ['admin', 'broadcasts', page],
+    queryKey: adminBroadcastKeys.list(page),
     queryFn: async () =>
       (
         await api.get<ApiEnvelope<AdminPageData<AdminBroadcast>>>('/admin/broadcasts', {
@@ -22,6 +23,6 @@ export const useCreateAdminBroadcast = () => {
       audience: 'all' | 'active';
       deepLink?: string;
     }) => api.post('/admin/broadcasts', input),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'broadcasts'] }),
+    onSuccess: () => client.invalidateQueries({ queryKey: adminBroadcastKeys.all }),
   });
 };

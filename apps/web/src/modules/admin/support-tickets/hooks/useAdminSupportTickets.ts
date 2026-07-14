@@ -2,9 +2,10 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import api from '../../../../lib/axios';
 import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../shared';
 import type { AdminSupportTicket } from '../types/admin-support-tickets.types';
+import { adminSupportTicketsKeys } from './admin-support-tickets.query-keys';
 export const useAdminSupportTickets = (query: AdminListQuery) =>
   useQuery({
-    queryKey: ['admin', 'support-tickets', query],
+    queryKey: adminSupportTicketsKeys.list(query),
     queryFn: async () =>
       (
         await api.get<ApiEnvelope<AdminPageData<AdminSupportTicket>>>('/admin/support-tickets', {
@@ -28,6 +29,6 @@ export const useUpdateAdminSupportTicket = () => {
       notificationMessage?: string;
     }) =>
       api.patch(`/admin/support-tickets/${id}`, { status, resolutionNote, notificationMessage }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'support-tickets'] }),
+    onSuccess: () => client.invalidateQueries({ queryKey: adminSupportTicketsKeys.all }),
   });
 };

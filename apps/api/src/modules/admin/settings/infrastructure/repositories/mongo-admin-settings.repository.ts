@@ -1,7 +1,7 @@
 import { AdminConsoleSettings } from '../../../../../infrastructure/database/models/admin-console-settings.model';
 import type { AdminActor } from '../../../shared';
 import { recordAdminAction } from '../../../shared';
-import type { AdminSettingsInput } from '../../domain/admin-settings.entity';
+import type { AdminSettingsInput } from '../../domain/entities/admin-settings.entity';
 import type { IAdminSettingsRepository } from '../../domain/repositories/admin-settings.repository.interface';
 const view = {
   _id: 0,

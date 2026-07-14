@@ -1,7 +1,7 @@
 import type {
   CreateSupportTicketInput,
   SupportTicketCreated,
-} from '../../domain/support-ticket.entity';
+} from '../../domain/entities/support-ticket.entity';
 import type { ISupportTicketsRepository } from '../../domain/repositories/support-tickets.repository.interface';
 export interface ICreateSupportTicketUseCase {
   execute(userId: string, input: CreateSupportTicketInput): Promise<SupportTicketCreated>;

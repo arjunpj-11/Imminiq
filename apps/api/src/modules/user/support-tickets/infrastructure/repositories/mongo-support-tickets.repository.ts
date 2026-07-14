@@ -1,6 +1,6 @@
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
 import { SupportTicket } from '../../../../../infrastructure/database/models/support-ticket.model';
-import type { CreateSupportTicketInput } from '../../domain/support-ticket.entity';
+import type { CreateSupportTicketInput } from '../../domain/entities/support-ticket.entity';
 import type { ISupportTicketsRepository } from '../../domain/repositories/support-tickets.repository.interface';
 export class MongoSupportTicketsRepository implements ISupportTicketsRepository {
   async create(userId: string, input: CreateSupportTicketInput) {

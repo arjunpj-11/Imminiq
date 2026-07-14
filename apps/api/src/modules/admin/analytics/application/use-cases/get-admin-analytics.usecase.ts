@@ -1,4 +1,4 @@
-import type { AdminAnalytics, AdminAnalyticsRange } from '../../domain/admin-analytics.entity';
+import type { AdminAnalytics, AdminAnalyticsRange } from '../../domain/entities/admin-analytics.entity';
 import type { IAdminAnalyticsRepository } from '../../domain/repositories/admin-analytics.repository.interface';
 export interface IGetAdminAnalyticsUseCase {
   execute(range: AdminAnalyticsRange): Promise<AdminAnalytics>;

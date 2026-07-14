@@ -5,14 +5,14 @@ import type {
   AdminPlanLimits,
   AdminSubscriptionOverview,
 } from '../types/admin-subscriptions.types';
+import {
+  adminSubscriptionsKeys,
+  type AdminSubscriptionsQuery,
+} from './admin-subscriptions.query-keys';
 
-export const useAdminSubscriptions = (query: {
-  search?: string;
-  status?: string;
-  page?: number;
-}) =>
+export const useAdminSubscriptions = (query: AdminSubscriptionsQuery) =>
   useQuery({
-    queryKey: ['admin', 'subscriptions', query],
+    queryKey: adminSubscriptionsKeys.overview(query),
     queryFn: async () =>
       (
         await api.get<ApiEnvelope<AdminSubscriptionOverview>>('/admin/subscriptions', {
@@ -26,6 +26,6 @@ export const useUpdateAdminPlanLimits = () => {
   return useMutation({
     mutationFn: ({ planId, limits }: { planId: string; limits: AdminPlanLimits }) =>
       api.put(`/admin/subscriptions/plans/${planId}/limits`, limits),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'subscriptions'] }),
+    onSuccess: () => client.invalidateQueries({ queryKey: adminSubscriptionsKeys.all }),
   });
 };

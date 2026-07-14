@@ -6,10 +6,11 @@ import {
   AdminPanel,
 } from '../../../../components/admin/AdminPage';
 import { boundedInteger } from '../../../../lib/bounded-number';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useAdminSettings, useUpdateAdminSettings } from '../hooks/useAdminSettings';
 import type { AdminSettings } from '../types/admin-settings.types';
 export default function AdminSettingsPage() {
-  const { data, isLoading, isError } = useAdminSettings();
+  const { data, isLoading, isError, error } = useAdminSettings();
   return (
     <main className="mx-auto max-w-225 px-5 py-8 sm:px-8">
       <AdminPageHeader
@@ -19,7 +20,7 @@ export default function AdminSettingsPage() {
       {isLoading ? (
         <AdminLoading />
       ) : isError || !data ? (
-        <AdminError />
+        <AdminError error={error} />
       ) : (
         <SettingsForm key={data.updatedAt} initial={data} />
       )}
@@ -81,7 +82,11 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
         {update.isSuccess && (
           <p className="text-sm text-[#52c58c]">Settings saved and added to the audit log.</p>
         )}
-        {update.isError && <p className="text-sm text-[#e26767]">Settings could not be saved.</p>}
+        {update.isError && (
+          <p className="text-sm text-[#e26767]">
+            {getUserFacingError(update.error, 'Settings could not be saved.')}
+          </p>
+        )}
         <button disabled={update.isPending} className="admin-primary-button">
           {update.isPending ? 'Saving…' : 'Save settings'}
         </button>

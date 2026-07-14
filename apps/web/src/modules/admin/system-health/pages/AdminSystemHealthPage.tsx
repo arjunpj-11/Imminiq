@@ -9,7 +9,7 @@ import {
 } from '../../../../components/admin/AdminPage';
 import { useAdminSystemHealth } from '../hooks/useAdminSystemHealth';
 export default function AdminSystemHealthPage() {
-  const { data, isLoading, isError, refetch, isFetching } = useAdminSystemHealth();
+  const { data, isLoading, isError, error, refetch, isFetching } = useAdminSystemHealth();
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
@@ -24,7 +24,7 @@ export default function AdminSystemHealthPage() {
       {isLoading ? (
         <AdminLoading />
       ) : isError ? (
-        <AdminError />
+        <AdminError error={error} />
       ) : (
         data && (
           <>

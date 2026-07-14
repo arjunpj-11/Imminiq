@@ -12,6 +12,7 @@ import {
 } from '../../../../components/admin/AdminPage';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import {
   useAdminPublishedTrackers,
   useLikeAdminPublishedTracker,
@@ -21,7 +22,7 @@ import {
 export default function AdminPublishedTrackersPage() {
   const [search, setSearch] = useState('');
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError } = useAdminPublishedTrackers({
+  const { data, isLoading, isError, error } = useAdminPublishedTrackers({
     search: useDebouncedValue(search, 300),
     page,
   });
@@ -62,7 +63,7 @@ export default function AdminPublishedTrackersPage() {
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
-          <AdminError />
+          <AdminError error={error} />
         ) : !data?.items.length ? (
           <AdminEmpty>No published trackers match this search.</AdminEmpty>
         ) : (
@@ -116,7 +117,11 @@ export default function AdminPublishedTrackersPage() {
                                   { id: item.id, rating },
                                   {
                                     onSuccess: () => toast.success(`${rating}-star rating saved`),
-                                    onError: () => toast.error('Could not save the rating'),
+                                    onError: (error) =>
+                                      toast.error(
+                                        'Could not save the rating',
+                                        getUserFacingError(error)
+                                      ),
                                   }
                                 )
                               }
@@ -142,7 +147,11 @@ export default function AdminPublishedTrackersPage() {
                             onClick={() =>
                               like.mutate(item.id, {
                                 onSuccess: () => toast.success('Published tracker liked'),
-                                onError: () => toast.error('Could not like the tracker'),
+                                onError: (error) =>
+                                  toast.error(
+                                    'Could not like the tracker',
+                                    getUserFacingError(error)
+                                  ),
                               })
                             }
                             className="admin-button inline-flex items-center gap-2"

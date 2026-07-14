@@ -3,7 +3,7 @@ import type {
   AdminSubscriptionQuery,
   AdminPlanLimits,
   AdminSubscriptionPlan,
-} from '../admin-subscription.entity';
+} from '../entities/admin-subscription.entity';
 import type { AdminActor } from '../../../shared';
 
 export interface IAdminSubscriptionsRepository {

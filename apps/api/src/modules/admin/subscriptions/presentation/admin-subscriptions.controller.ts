@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from 'express';
 import { getAdminActor, sendAdminResult } from '../../shared';
-import type { IAdminSubscriptionsUseCase } from '../application/admin-subscriptions.usecase';
+import type { AdminSubscriptionsUseCases } from '../application/admin-subscriptions-use-cases.contract';
 import {
   adminSubscriptionsQuerySchema,
   adminPlanIdSchema,
@@ -8,12 +8,12 @@ import {
 } from './admin-subscriptions.schema';
 
 export class AdminSubscriptionsController {
-  constructor(private readonly useCase: IAdminSubscriptionsUseCase) {}
+  constructor(private readonly useCases: AdminSubscriptionsUseCases) {}
 
   overview = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCase.getOverview(adminSubscriptionsQuerySchema.parse(req.query)),
+      () => this.useCases.getOverview.execute(adminSubscriptionsQuerySchema.parse(req.query)),
       res,
       'Subscription overview fetched'
     );
@@ -22,7 +22,7 @@ export class AdminSubscriptionsController {
     sendAdminResult(
       next,
       () =>
-        this.useCase.updatePlanLimits(
+        this.useCases.updatePlanLimits.execute(
           adminPlanIdSchema.parse(req.params.planId),
           adminPlanLimitsSchema.parse(req.body),
           getAdminActor(req)

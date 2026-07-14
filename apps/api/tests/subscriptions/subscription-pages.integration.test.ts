@@ -1,9 +1,9 @@
 import mongoose from 'mongoose';
 import { MongoMemoryServer } from 'mongodb-memory-server';
 import { afterAll, beforeAll, describe, expect, it } from 'vitest';
-import { mongoAdminSubscriptionsRepository } from '../../src/modules/admin/subscriptions/infrastructure/mongo-admin-subscriptions.repository';
-import { SUBSCRIPTION_PLANS } from '../../src/modules/user/subscriptions/domain/subscription.entity';
-import { mongoSubscriptionRepository } from '../../src/modules/user/subscriptions/infrastructure/mongo-subscription.repository';
+import { mongoAdminSubscriptionsRepository } from '../../src/modules/admin/subscriptions/infrastructure/repositories/mongo-admin-subscriptions.repository';
+import { SUBSCRIPTION_PLANS } from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
+import { mongoSubscriptionRepository } from '../../src/modules/user/subscriptions/infrastructure/repositories/mongo-subscription.repository';
 import { SubscriptionPlan as SubscriptionPlanModel } from '../../src/infrastructure/database/models/subscription-plan.model';
 
 describe('subscription page data repositories', () => {

@@ -13,6 +13,8 @@ import {
   AdminStatusBadge,
 } from '../../../../components/admin/AdminPage';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useAdminTrackers, useDeleteAdminTracker } from '../hooks/useAdminTrackers';
 import type { AdminTracker } from '../types/admin-trackers.types';
 
@@ -21,7 +23,7 @@ export default function AdminTrackersPage() {
   const [status, setStatus] = useState('all');
   const [page, setPage] = useState(1);
   const [deleting, setDeleting] = useState<AdminTracker | null>(null);
-  const { data, isLoading, isError } = useAdminTrackers({
+  const { data, isLoading, isError, error } = useAdminTrackers({
     search: useDebouncedValue(search, 300),
     status,
     page,
@@ -88,7 +90,7 @@ export default function AdminTrackersPage() {
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
-          <AdminError />
+          <AdminError error={error} />
         ) : !data?.items.length ? (
           <AdminEmpty />
         ) : (
@@ -158,7 +160,11 @@ export default function AdminTrackersPage() {
         isLoading={remove.isPending}
         onClose={() => setDeleting(null)}
         onConfirm={() =>
-          deleting && remove.mutate(deleting.id, { onSuccess: () => setDeleting(null) })
+          deleting &&
+          remove.mutate(deleting.id, {
+            onSuccess: () => setDeleting(null),
+            onError: (error) => toast.error('Tracker deletion failed', getUserFacingError(error)),
+          })
         }
       />
     </main>

@@ -158,7 +158,7 @@ app.use('/api/uploads', uploadsRouter);
 app.use('/api/settings', settingsRoutes);
 app.use(
   '/api/subscriptions',
-  createSubscriptionsRoutes(createSubscriptionsComposition().useCase)
+  createSubscriptionsRoutes(createSubscriptionsComposition().useCases)
 );
 
 app.use('/api/dashboard', dashboardRoutes);
@@ -167,43 +167,43 @@ app.use(
   createAdminDashboardRoutes(createAdminDashboardComposition().useCases)
 );
 app.use('/api/admin/users', createAdminUsersRoutes(createAdminUsersComposition().useCases));
-app.use('/api/admin/trackers', createAdminTrackersRoutes(createAdminTrackersComposition().useCase));
+app.use('/api/admin/trackers', createAdminTrackersRoutes(createAdminTrackersComposition().useCases));
 app.use(
   '/api/admin/mock-tests',
-  createAdminMockTestsRoutes(createAdminMockTestsComposition().useCase)
+  createAdminMockTestsRoutes(createAdminMockTestsComposition().useCases)
 );
 app.use(
   '/api/admin/tracker-reviews',
-  createAdminTrackerReviewsRoutes(createAdminTrackerReviewsComposition().useCase)
+  createAdminTrackerReviewsRoutes(createAdminTrackerReviewsComposition().useCases)
 );
 app.use(
   '/api/admin/analytics',
-  createAdminAnalyticsRoutes(createAdminAnalyticsComposition().useCase)
+  createAdminAnalyticsRoutes(createAdminAnalyticsComposition().useCases)
 );
 app.use(
   '/api/admin/broadcasts',
-  createAdminBroadcastRoutes(createAdminBroadcastComposition().useCase)
+  createAdminBroadcastRoutes(createAdminBroadcastComposition().useCases)
 );
 app.use(
   '/api/admin/audit-logs',
-  createAdminAuditLogsRoutes(createAdminAuditLogsComposition().useCase)
+  createAdminAuditLogsRoutes(createAdminAuditLogsComposition().useCases)
 );
 app.use(
   '/api/admin/system-health',
-  createAdminSystemHealthRoutes(createAdminSystemHealthComposition().useCase)
+  createAdminSystemHealthRoutes(createAdminSystemHealthComposition().useCases)
 );
 app.use(
   '/api/admin/support-tickets',
-  createAdminSupportTicketsRoutes(createAdminSupportTicketsComposition().useCase)
+  createAdminSupportTicketsRoutes(createAdminSupportTicketsComposition().useCases)
 );
-app.use('/api/admin/settings', createAdminSettingsRoutes(createAdminSettingsComposition().useCase));
+app.use('/api/admin/settings', createAdminSettingsRoutes(createAdminSettingsComposition().useCases));
 app.use(
   '/api/admin/subscriptions',
-  createAdminSubscriptionsRoutes(createAdminSubscriptionsComposition().useCase)
+  createAdminSubscriptionsRoutes(createAdminSubscriptionsComposition().useCases)
 );
 app.use(
   '/api/admin/ai-token-spend',
-  createAdminAITokenSpendRoutes(createAdminAITokenSpendComposition().useCase)
+  createAdminAITokenSpendRoutes(createAdminAITokenSpendComposition().useCases)
 );
 app.use(
   '/api/support-tickets',

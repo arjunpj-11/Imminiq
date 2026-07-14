@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import { Search } from 'lucide-react';
+import { getUserFacingError } from '../../lib/user-facing-error';
 
 export type AdminMetric = {
   label: string;
@@ -127,10 +128,10 @@ export function AdminEmpty({ children = 'No records found.' }: { children?: Reac
 export function AdminLoading() {
   return <div className="p-12 text-center text-sm text-[#aaa59d]">Loading current data…</div>;
 }
-export function AdminError() {
+export function AdminError({ error }: { error?: unknown }) {
   return (
     <div className="p-12 text-center text-sm text-[#e26767]">
-      This admin data could not be loaded. Please retry.
+      {getUserFacingError(error, 'This admin data could not be loaded. Please retry.')}
     </div>
   );
 }

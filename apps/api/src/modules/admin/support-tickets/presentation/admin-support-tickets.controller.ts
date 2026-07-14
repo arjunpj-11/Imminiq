@@ -1,16 +1,16 @@
 import type { NextFunction, Request, Response } from 'express';
 import { getAdminActor, sendAdminResult } from '../../shared';
-import type { IAdminSupportTicketsUseCase } from '../application/use-cases/admin-support-tickets.usecase';
+import type { AdminSupportTicketsUseCases } from '../application/admin-support-tickets-use-cases.contract';
 import {
   adminSupportTicketsQuerySchema,
   adminSupportTicketUpdateSchema,
 } from './admin-support-tickets.schema';
 export class AdminSupportTicketsController {
-  constructor(private readonly useCase: IAdminSupportTicketsUseCase) {}
+  constructor(private readonly useCases: AdminSupportTicketsUseCases) {}
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCase.list(adminSupportTicketsQuerySchema.parse(req.query)),
+      () => this.useCases.list.execute(adminSupportTicketsQuerySchema.parse(req.query)),
       res,
       'Support tickets fetched'
     );
@@ -18,7 +18,7 @@ export class AdminSupportTicketsController {
     sendAdminResult(
       next,
       () =>
-        this.useCase.update(
+        this.useCases.update.execute(
           String(req.params.id),
           adminSupportTicketUpdateSchema.parse(req.body),
           getAdminActor(req)

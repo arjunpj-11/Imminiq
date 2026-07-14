@@ -2,7 +2,7 @@ import type { NextFunction, Request, Response } from 'express';
 import {
   subscriptionLimitService,
   type PlanLimitKind,
-} from '../infrastructure/subscription-limit.service';
+} from '../infrastructure/services/subscription-limit.service';
 
 export const enforcePlanLimit = (kind: PlanLimitKind) =>
   async (req: Request, _res: Response, next: NextFunction) => {

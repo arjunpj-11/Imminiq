@@ -11,6 +11,7 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
+import { AdminError } from '../../../../components/admin/AdminPage';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminUsers } from '../hooks/useAdminUsers';
 import {
@@ -25,7 +26,7 @@ export default function AdminUsersPage() {
   const [status, setStatus] = useState<(typeof ADMIN_USER_FILTERS)[number]>('all');
   const [page, setPage] = useState(1);
   const debouncedSearch = useDebouncedValue(search, ADMIN_USERS_SEARCH_DEBOUNCE_MS);
-  const { data, isLoading, isError, isFetching } = useAdminUsers({
+  const { data, isLoading, isError, error, isFetching } = useAdminUsers({
     search: debouncedSearch,
     status,
     page,
@@ -100,9 +101,7 @@ export default function AdminUsersPage() {
         {!isLoading && isFetching && (
           <div className="h-px animate-pulse bg-[#e8816a]" aria-label="Refreshing users" />
         )}
-        {isError && (
-          <div className="p-10 text-center text-sm text-[#e26767]">Users could not be loaded.</div>
-        )}
+        {isError && <AdminError error={error} />}
         {data && (
           <>
             <div className="overflow-x-auto">

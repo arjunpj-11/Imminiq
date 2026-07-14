@@ -1,4 +1,4 @@
-import type { AdminSystemHealth } from '../../domain/admin-system-health.entity';
+import type { AdminSystemHealth } from '../../domain/entities/admin-system-health.entity';
 import type { IAdminSystemHealthRepository } from '../../domain/repositories/admin-system-health.repository.interface';
 export interface IGetAdminSystemHealthUseCase {
   execute(): Promise<AdminSystemHealth>;

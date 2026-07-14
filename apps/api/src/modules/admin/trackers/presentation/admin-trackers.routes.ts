@@ -1,11 +1,11 @@
 import { Router } from 'express';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { requireAdmin } from '../../../../shared/middlewares/admin.middleware';
-import type { IAdminTrackersUseCase } from '../application/use-cases/admin-trackers.usecase';
+import type { AdminTrackersUseCases } from '../application/admin-trackers-use-cases.contract';
 import { AdminTrackersController } from './admin-trackers.controller';
-export const createAdminTrackersRoutes = (useCase: IAdminTrackersUseCase) => {
+export const createAdminTrackersRoutes = (useCases: AdminTrackersUseCases) => {
   const router = Router();
-  const controller = new AdminTrackersController(useCase);
+  const controller = new AdminTrackersController(useCases);
   router.use(authenticate, requireAdmin);
   router.get('/', controller.list);
   router.get('/published', controller.listPublished);

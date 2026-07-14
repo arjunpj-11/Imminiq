@@ -13,6 +13,7 @@ import {
 } from '../../../../components/admin/AdminPage';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 import {
   useAddAdminTrackerReviewConsensus,
   useAdminTrackerReviews,
@@ -77,7 +78,7 @@ export default function AdminTrackerReviewsPage() {
         {query.isLoading ? (
           <AdminLoading />
         ) : query.isError ? (
-          <AdminError />
+          <AdminError error={query.error} />
         ) : !data?.items.length ? (
           <AdminEmpty>No tracker reviews match this view.</AdminEmpty>
         ) : (
@@ -119,7 +120,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, choice: 'pass' },
                                 {
                                   onSuccess: () => toast.success('Pass vote added'),
-                                  onError: () => toast.error('Could not add the pass vote'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not add the pass vote',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }
@@ -135,7 +140,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, choice: 'fail' },
                                 {
                                   onSuccess: () => toast.success('Fail vote added'),
-                                  onError: () => toast.error('Could not add the fail vote'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not add the fail vote',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }
@@ -170,7 +179,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, status: 'approved' },
                                 {
                                   onSuccess: () => toast.success('Tracker review approved'),
-                                  onError: () => toast.error('Could not approve the tracker review'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not approve the tracker review',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }
@@ -186,7 +199,11 @@ export default function AdminTrackerReviewsPage() {
                                 { id: item.id, status: 'rejected' },
                                 {
                                   onSuccess: () => toast.success('Tracker review rejected'),
-                                  onError: () => toast.error('Could not reject the tracker review'),
+                                  onError: (error) =>
+                                    toast.error(
+                                      'Could not reject the tracker review',
+                                      getUserFacingError(error)
+                                    ),
                                 }
                               )
                             }

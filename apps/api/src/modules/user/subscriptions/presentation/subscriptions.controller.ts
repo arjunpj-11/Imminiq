@@ -1,14 +1,14 @@
 import type { NextFunction, Request, Response } from 'express';
 import { ApiResponse } from '../../../../shared/utils/ApiResponse';
-import type { ISubscriptionsUseCase } from '../application/subscriptions.usecase';
+import type { SubscriptionsUseCases } from '../application/subscriptions-use-cases.contract';
 import { subscriptionOrderSchema, subscriptionVerificationSchema } from './subscriptions.schema';
 
 export class SubscriptionsController {
-  constructor(private readonly useCase: ISubscriptionsUseCase) {}
+  constructor(private readonly useCases: SubscriptionsUseCases) {}
 
   listPlans = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      res.json(new ApiResponse('Subscription plans fetched', await this.useCase.listPlans()));
+      res.json(new ApiResponse('Subscription plans fetched', await this.useCases.listPlans.execute()));
     } catch (error) {
       next(error);
     }
@@ -17,7 +17,10 @@ export class SubscriptionsController {
   getMine = async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.json(
-        new ApiResponse('Current subscription fetched', await this.useCase.getMine(req.user!.userId))
+        new ApiResponse(
+          'Current subscription fetched',
+          await this.useCases.getCurrent.execute(req.user!.userId)
+        )
       );
     } catch (error) {
       next(error);
@@ -30,7 +33,7 @@ export class SubscriptionsController {
       res.json(
         new ApiResponse(
           'Subscription order created',
-          await this.useCase.createOrder(req.user!.userId, input.planId, input.billingCycle)
+          await this.useCases.createOrder.execute(req.user!.userId, input.planId, input.billingCycle)
         )
       );
     } catch (error) {
@@ -44,7 +47,7 @@ export class SubscriptionsController {
       res.json(
         new ApiResponse(
           'Payment verified and premium activated',
-          await this.useCase.verifyPayment({ userId: req.user!.userId, ...input })
+          await this.useCases.verifyPayment.execute({ userId: req.user!.userId, ...input })
         )
       );
     } catch (error) {

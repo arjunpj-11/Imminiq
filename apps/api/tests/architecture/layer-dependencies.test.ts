@@ -1,4 +1,4 @@
-import { readdirSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { dirname, join, relative, resolve, sep } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -68,6 +68,12 @@ const moduleRoots = () =>
         .map((child) => join(path, child.name));
     });
 
+const adminFeatureRoots = () =>
+  moduleRoots().filter((moduleRoot) => {
+    const id = portable(relative(modulesRoot, moduleRoot));
+    return id.startsWith('admin/') && id !== 'admin/shared';
+  });
+
 const moduleLocation = (path: string) => {
   if (!path.startsWith(`${modulesRoot}${sep}`)) return null;
 
@@ -96,6 +102,73 @@ describe('clean architecture boundaries', () => {
         new Set(layers)
       );
     }
+  });
+
+  it('gives every layer a public API barrel', () => {
+    const missing = moduleRoots().flatMap((moduleRoot) =>
+      layers
+        .filter((layer) => !existsSync(join(moduleRoot, layer, 'index.ts')))
+        .map((layer) => `${portable(relative(modulesRoot, moduleRoot))}/${layer}/index.ts`)
+    );
+
+    expect(missing).toEqual([]);
+  });
+
+  it('keeps every admin feature on the canonical entity-repository-use-case layout', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const id = portable(relative(modulesRoot, moduleRoot));
+      const required = [
+        join(moduleRoot, 'domain', 'entities'),
+        join(moduleRoot, 'domain', 'repositories'),
+        join(moduleRoot, 'infrastructure', 'repositories'),
+        join(moduleRoot, 'application', 'use-cases'),
+      ];
+      const missing = required.filter((path) => !existsSync(path));
+      return missing.map((path) => `${id}/${portable(relative(moduleRoot, path))}`);
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('composes every admin feature through an explicit use-case map', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const factories = readdirSync(moduleRoot).filter((file) => file.endsWith('.factory.ts'));
+      if (factories.length !== 1) return [portable(relative(modulesRoot, moduleRoot))];
+      const source = readFileSync(join(moduleRoot, factories[0]), 'utf8');
+      return /Composition\s*=\s*\{\s*useCases:/.test(source) && /useCases\s*:/.test(source)
+        ? []
+        : [portable(relative(modulesRoot, join(moduleRoot, factories[0])))];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps admin workflows focused and free of HTTP utility errors', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const useCasesRoot = join(moduleRoot, 'application', 'use-cases');
+      return collectFiles(useCasesRoot)
+        .filter((file) => file.endsWith('.usecase.ts'))
+        .filter((file) => {
+          const source = readFileSync(file, 'utf8');
+          return !/export class \w+UseCase/.test(source) || !/\bexecute\s*\(/.test(source) || /ApiError/.test(source);
+        })
+        .map((file) => portable(relative(modulesRoot, file)));
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps HTTP utility errors out of admin domain, application, and infrastructure', () => {
+    const violations = adminFeatureRoots()
+      .flatMap((moduleRoot) =>
+        layers
+          .filter((layer) => layer !== 'presentation')
+          .flatMap((layer) => collectFiles(join(moduleRoot, layer)))
+      )
+      .filter((file) => /ApiError/.test(readFileSync(file, 'utf8')))
+      .map((file) => portable(relative(modulesRoot, file)));
+
+    expect(violations).toEqual([]);
   });
 
   it('does not recreate flattened one-file category directories', () => {

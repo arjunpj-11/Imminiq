@@ -11,9 +11,9 @@ import {
 import { useAdminMockTestDetail } from '../hooks/useAdminMockTests';
 export default function AdminMockTestDetailPage() {
   const { testId } = useParams();
-  const { data, isLoading, isError } = useAdminMockTestDetail(testId);
+  const { data, isLoading, isError, error } = useAdminMockTestDetail(testId);
   if (isLoading) return <AdminLoading />;
-  if (isError || !data) return <AdminError />;
+  if (isError || !data) return <AdminError error={error} />;
   return (
     <main className="mx-auto max-w-[1050px] px-5 py-8 sm:px-8">
       <Link

@@ -1,6 +1,6 @@
 /// <reference types="node" />
 
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
@@ -21,6 +21,12 @@ const scopedModuleRoots = (scope: 'admin' | 'user') => {
     .filter((entry) => entry.isDirectory())
     .map((entry) => join(scopeRoot, entry.name));
 };
+
+const collectFiles = (directory: string): string[] =>
+  readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
+    const path = join(directory, entry.name);
+    return entry.isDirectory() ? collectFiles(path) : [path];
+  });
 
 describe('frontend feature-module architecture', () => {
   it('keeps scoped modules inside feature directories', () => {
@@ -49,5 +55,28 @@ describe('frontend feature-module architecture', () => {
       .map((moduleRoot) => moduleRoot.replace(`${modulesRoot}/`, ''));
 
     expect(missingPublicApis).toEqual([]);
+  });
+
+  it('centralizes every admin feature query key', () => {
+    const violations = scopedModuleRoots('admin').flatMap((moduleRoot) => {
+      if (moduleRoot === join(modulesRoot, 'admin', 'shared')) return [];
+      const hooksRoot = join(moduleRoot, 'hooks');
+      if (!existsSync(hooksRoot)) return [];
+
+      const queryKeyFiles = readdirSync(hooksRoot).filter((file) => file.endsWith('.query-keys.ts'));
+      return queryKeyFiles.length === 1 ? [] : [moduleRoot.replace(`${modulesRoot}/`, '')];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('passes server errors into admin error states', () => {
+    const violations = scopedModuleRoots('admin')
+      .flatMap(collectFiles)
+      .filter((file) => file.endsWith('.tsx'))
+      .filter((file) => /<AdminError\s*\/>/.test(readFileSync(file, 'utf8')))
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(violations).toEqual([]);
   });
 });

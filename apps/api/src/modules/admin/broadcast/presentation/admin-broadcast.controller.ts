@@ -1,20 +1,20 @@
 import type { NextFunction, Request, Response } from 'express';
 import { getAdminActor, sendAdminResult } from '../../shared';
-import type { IAdminBroadcastsUseCase } from '../application/use-cases/admin-broadcasts.usecase';
+import type { AdminBroadcastUseCases } from '../application/admin-broadcast-use-cases.contract';
 import { adminBroadcastSchema, adminBroadcastsQuerySchema } from './admin-broadcast.schema';
 export class AdminBroadcastController {
-  constructor(private readonly useCase: IAdminBroadcastsUseCase) {}
+  constructor(private readonly useCases: AdminBroadcastUseCases) {}
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCase.list(adminBroadcastsQuerySchema.parse(req.query)),
+      () => this.useCases.list.execute(adminBroadcastsQuerySchema.parse(req.query)),
       res,
       'Broadcasts fetched'
     );
   send = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCase.send(adminBroadcastSchema.parse(req.body), getAdminActor(req)),
+      () => this.useCases.send.execute(adminBroadcastSchema.parse(req.body), getAdminActor(req)),
       res,
       'Broadcast sent'
     );

@@ -2,9 +2,10 @@ import { keepPreviousData, useMutation, useQuery, useQueryClient } from '@tansta
 import api from '../../../../lib/axios';
 import type { AdminListQuery, AdminPageData, ApiEnvelope } from '../../shared';
 import type { AdminTrackerReview } from '../types/admin-tracker-reviews.types';
+import { adminTrackerReviewsKeys } from './admin-tracker-reviews.query-keys';
 export const useAdminTrackerReviews = (query: AdminListQuery) =>
   useQuery({
-    queryKey: ['admin', 'tracker-reviews', query],
+    queryKey: adminTrackerReviewsKeys.list(query),
     queryFn: async () =>
       (
         await api.get<ApiEnvelope<AdminPageData<AdminTrackerReview>>>('/admin/tracker-reviews', {
@@ -18,7 +19,7 @@ export const useResolveAdminTrackerReview = () => {
   return useMutation({
     mutationFn: ({ id, status }: { id: string; status: 'approved' | 'rejected' }) =>
       api.patch(`/admin/tracker-reviews/${id}/status`, { status }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'tracker-reviews'] }),
+    onSuccess: () => client.invalidateQueries({ queryKey: adminTrackerReviewsKeys.all }),
   });
 };
 export const useAddAdminTrackerReviewConsensus = () => {
@@ -26,6 +27,6 @@ export const useAddAdminTrackerReviewConsensus = () => {
   return useMutation({
     mutationFn: ({ id, choice }: { id: string; choice: 'pass' | 'fail' }) =>
       api.patch(`/admin/tracker-reviews/${id}/consensus`, { choice }),
-    onSuccess: () => client.invalidateQueries({ queryKey: ['admin', 'tracker-reviews'] }),
+    onSuccess: () => client.invalidateQueries({ queryKey: adminTrackerReviewsKeys.all }),
   });
 };

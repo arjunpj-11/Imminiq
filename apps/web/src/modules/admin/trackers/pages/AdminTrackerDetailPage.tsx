@@ -17,9 +17,9 @@ export default function AdminTrackerDetailPage() {
   const fromTrackerReview = Boolean(
     (location.state as { fromTrackerReview?: boolean } | null)?.fromTrackerReview
   );
-  const { data, isLoading, isError } = useAdminTrackerDetail(trackerId);
+  const { data, isLoading, isError, error } = useAdminTrackerDetail(trackerId);
   if (isLoading) return <AdminLoading />;
-  if (isError || !data) return <AdminError />;
+  if (isError || !data) return <AdminError error={error} />;
   return (
     <main className="mx-auto max-w-275 px-5 py-8 sm:px-8">
       <Link

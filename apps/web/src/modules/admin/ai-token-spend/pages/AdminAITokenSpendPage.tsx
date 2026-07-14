@@ -36,7 +36,7 @@ const formatTokens = (value: number) => value.toLocaleString();
 
 export default function AdminAITokenSpendPage() {
   const dateRange = useAdminDateRange(30);
-  const { data, isLoading, isError } = useAdminAITokenSpend(dateRange.range);
+  const { data, isLoading, isError, error } = useAdminAITokenSpend(dateRange.range);
   const daily = useMemo(() => {
     const values = new Map(data?.daily.map((point) => [point.date, point]) ?? []);
     return enumerateDateRange(dateRange.range).map((date) =>
@@ -152,7 +152,7 @@ export default function AdminAITokenSpendPage() {
       {isLoading ? (
         <AdminLoading />
       ) : isError ? (
-        <AdminError />
+        <AdminError error={error} />
       ) : (
         data && (
           <>

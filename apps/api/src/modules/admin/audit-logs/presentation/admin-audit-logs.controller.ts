@@ -1,13 +1,13 @@
 import type { NextFunction, Request, Response } from 'express';
 import { sendAdminResult } from '../../shared';
-import type { IListAdminAuditLogsUseCase } from '../application/use-cases/list-admin-audit-logs.usecase';
+import type { AdminAuditLogsUseCases } from '../application/admin-audit-logs-use-cases.contract';
 import { adminAuditLogsQuerySchema } from './admin-audit-logs.schema';
 export class AdminAuditLogsController {
-  constructor(private readonly useCase: IListAdminAuditLogsUseCase) {}
+  constructor(private readonly useCases: AdminAuditLogsUseCases) {}
   list = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCase.execute(adminAuditLogsQuerySchema.parse(req.query)),
+      () => this.useCases.list.execute(adminAuditLogsQuerySchema.parse(req.query)),
       res,
       'Audit logs fetched'
     );

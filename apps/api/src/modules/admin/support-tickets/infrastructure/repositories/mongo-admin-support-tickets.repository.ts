@@ -1,10 +1,9 @@
 import { SupportTicket } from '../../../../../infrastructure/database/models/support-ticket.model';
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
-import { ApiError } from '../../../../../shared/utils/ApiError';
 import type { AdminActor, AdminListQuery } from '../../../shared';
 import { recordAdminAction } from '../../../shared';
 import { createAdminPage, escapeAdminSearch } from '../../../shared';
-import type { AdminSupportTicketUpdate } from '../../domain/admin-support-ticket.entity';
+import type { AdminSupportTicketUpdate } from '../../domain/entities/admin-support-ticket.entity';
 import type { IAdminSupportTicketsRepository } from '../../domain/repositories/admin-support-tickets.repository.interface';
 export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsRepository {
   async list(query: AdminListQuery) {
@@ -50,7 +49,7 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
   }
   async update(id: string, input: AdminSupportTicketUpdate, actor: AdminActor) {
     const current = await SupportTicket.findById(id).lean();
-    if (!current) throw new ApiError(404, 'Support ticket not found', 'SUPPORT_TICKET_NOT_FOUND');
+    if (!current) return null;
     const update: Record<string, unknown> = {
       status: input.status,
       assignedTo: actor.userId,
@@ -63,7 +62,7 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
       { $set: update },
       { new: true }
     ).lean();
-    if (!ticket) throw new ApiError(404, 'Support ticket not found', 'SUPPORT_TICKET_NOT_FOUND');
+    if (!ticket) return null;
     const readableStatus = input.status.replace('_', ' ');
     const message =
       input.notificationMessage?.trim() ||

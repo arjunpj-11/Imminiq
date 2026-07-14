@@ -3,11 +3,10 @@ import { AdminConsoleSettings } from '../../../../../infrastructure/database/mod
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
 import { UserSettings } from '../../../../../infrastructure/database/models/user-settings.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
-import { ApiError } from '../../../../../shared/utils/ApiError';
 import type { AdminActor, AdminListQuery } from '../../../shared';
 import { recordAdminAction } from '../../../shared';
 import { createAdminPage, escapeAdminSearch } from '../../../shared';
-import type { AdminBroadcastInput } from '../../domain/admin-broadcast.entity';
+import type { AdminBroadcastInput } from '../../domain/entities/admin-broadcast.entity';
 import type { IAdminBroadcastRepository } from '../../domain/repositories/admin-broadcast.repository.interface';
 export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository {
   async list(query: AdminListQuery) {
@@ -50,7 +49,7 @@ export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository 
   async send(input: AdminBroadcastInput, actor: AdminActor) {
     const settings = await AdminConsoleSettings.findOne({ key: 'global' }).lean();
     if (settings?.allowBroadcasts === false)
-      throw new ApiError(409, 'Broadcasts are disabled in admin settings', 'BROADCASTS_DISABLED');
+      return null;
     const since = new Date(Date.now() - 30 * 86400000);
     const userFilter: Record<string, unknown> = {
       deletedAt: null,
