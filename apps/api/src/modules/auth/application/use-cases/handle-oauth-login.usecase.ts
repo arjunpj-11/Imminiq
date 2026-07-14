@@ -4,7 +4,7 @@ import type { IAuthTwoFactorRepository } from '../../domain/repositories/auth-tw
 import type { IAuthRedirectResolver } from '../../domain/services/auth-redirect.interface';
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { AuthLoginResultDTO, OAuthLoginUserDTO, RequestMetaDTO } from '../auth.dto';
-import { TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES } from '../../domain/auth.constants';
+import type { AuthRuntimePolicy } from '../../domain/auth-runtime-policy';
 import type { IAuthUserMapper } from '../auth-user.mapper';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IAuthSessionIssuer } from '../services/auth-session.service';
@@ -22,7 +22,8 @@ export class HandleOAuthLoginUseCase implements IHandleOAuthLoginUseCase {
     private readonly _authToken: IAuthToken,
     private readonly _authAccountPolicy: IAuthAccountPolicy,
     private readonly _authSessionIssuer: IAuthSessionIssuer,
-    private readonly _authUserMapper: IAuthUserMapper
+    private readonly _authUserMapper: IAuthUserMapper,
+    private readonly _runtimePolicy: Pick<AuthRuntimePolicy, 'twoFactorChallengeTtlMinutes'>
   ) {}
 
   async execute(user: OAuthLoginUserDTO, meta?: RequestMetaDTO): Promise<AuthLoginResultDTO> {
@@ -42,7 +43,7 @@ export class HandleOAuthLoginUseCase implements IHandleOAuthLoginUseCase {
       return {
         requiresTwoFactor: true,
         challengeToken: this._authToken.generateTwoFactorChallengeToken(userId),
-        challengeExpiresInMinutes: TWO_FACTOR_CHALLENGE_EXPIRES_MINUTES,
+        challengeExpiresInMinutes: this._runtimePolicy.twoFactorChallengeTtlMinutes,
       };
     }
 

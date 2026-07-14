@@ -23,6 +23,8 @@ import { cryptoTwoFactorBackupCodeManager } from './infrastructure/services/cryp
 import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store';
 import { systemClock } from '../../infrastructure/time/system-clock';
 import { sha256RefreshTokenHasher } from '../../infrastructure/security/sha256-refresh-token-hasher';
+import { mongoPlatformPolicyReader } from '../../infrastructure/mongo-platform-policy.reader';
+import { env } from '../../config/env';
 
 export type SecurityServiceHelpers = {
   securityMapper: ISecurityMapper;
@@ -34,6 +36,9 @@ export type SecurityComposition = {
 };
 
 export const createSecurityComposition = (): SecurityComposition => {
+  const runtimePolicy = {
+    emailChangeTokenTtlMinutes: env.SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES,
+  };
   const securityRepository = mongoSecurityRepository;
   const securityEmailProvider = sharedSecurityEmailProvider;
   const securityPasswordHasher = bcryptSecurityPasswordHasher;
@@ -71,7 +76,8 @@ export const createSecurityComposition = (): SecurityComposition => {
         sensitiveActionAuthorizer,
         emailChangeToken,
         emailChangeUrlBuilder,
-        auditLogger
+        auditLogger,
+        runtimePolicy
       ),
 
       verifyEmailChange: new VerifyEmailChangeUseCase(
@@ -109,7 +115,8 @@ export const createSecurityComposition = (): SecurityComposition => {
         securityRepository,
         sensitiveActionAuthorizer,
         auditLogger,
-        systemClock
+        systemClock,
+        mongoPlatformPolicyReader
       ),
     },
 

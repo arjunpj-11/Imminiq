@@ -4,7 +4,7 @@ import type { AdminSubscriptionsUseCases } from '../application/admin-subscripti
 import {
   adminSubscriptionsQuerySchema,
   adminPlanIdSchema,
-  adminPlanLimitsSchema,
+  adminSubscriptionPlanSchema,
 } from './admin-subscriptions.schema';
 
 export class AdminSubscriptionsController {
@@ -18,16 +18,16 @@ export class AdminSubscriptionsController {
       'Subscription overview fetched'
     );
 
-  updatePlanLimits = (req: Request, res: Response, next: NextFunction) =>
+  updatePlan = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
       () =>
-        this.useCases.updatePlanLimits.execute(
+        this.useCases.updatePlan.execute(
           adminPlanIdSchema.parse(req.params.planId),
-          adminPlanLimitsSchema.parse(req.body),
+          adminSubscriptionPlanSchema.parse(req.body),
           getAdminActor(req)
         ),
       res,
-      'Subscription plan limits updated'
+      'Subscription plan updated'
     );
 }

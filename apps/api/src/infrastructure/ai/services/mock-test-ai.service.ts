@@ -90,7 +90,7 @@ export const generateMockTestQuestionsAI = async (
 ): Promise<GenerateMockTestQuestionsAIOutput> => {
   const response = await groqChat(
     [{ role: 'user', content: buildMockTestQuestionsPrompt(input) }],
-    'llama-3.3-70b-versatile',
+    'quality',
     'mock_test_generation'
   );
 
@@ -115,7 +115,7 @@ export const evaluateMockTestOpenAnswerAI = async (
         content: buildMockTestAnswerEvaluationPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'mock_test_evaluation'
   );
 
@@ -140,7 +140,7 @@ export const generateMockTestPerformanceInsightsAI = async (
         content: buildMockTestPerformanceInsightPrompt(input),
       },
     ],
-    'llama-3.1-8b-instant',
+    'fast',
     'mock_test_evaluation'
   );
 
@@ -157,7 +157,7 @@ export const generateMockTestQuestionsGroqAI = async (
         content: buildMockTestQuestionsPrompt(input),
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'mock_test_generation'
   );
 

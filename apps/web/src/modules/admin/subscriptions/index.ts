@@ -2,7 +2,7 @@ export { default as AdminSubscriptionsPage } from './pages/AdminSubscriptionsPag
 export {
   useAdminSubscriptions,
 } from './hooks/useAdminSubscriptions';
-export { useUpdateAdminPlanLimits } from './hooks/useUpdateAdminPlanLimits';
+export { useUpdateAdminPlan } from './hooks/useUpdateAdminPlan';
 export {
   adminSubscriptionsKeys,
   type AdminSubscriptionsQuery,

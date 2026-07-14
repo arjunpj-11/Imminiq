@@ -60,22 +60,3 @@ export const LEADERBOARD_SCORING_RULES: Record<LeaderboardSection, LeaderboardSc
     },
   ],
 };
-
-export const LEADERBOARD_REWARDS: Record<LeaderboardSection, LeaderboardReward> = {
-  students: {
-    title: 'Elite Distinction',
-    description:
-      'Reach the Top 100 this week to unlock the Centurion Scholar badge and 500 gold coins.',
-    targetRank: 100,
-    badgeName: 'Centurion Scholar',
-    coins: 500,
-  },
-  trainers: {
-    title: 'Elite Distinction',
-    description:
-      'Reach the Top 100 this week to unlock the Centurion Mentor badge and 500 gold coins.',
-    targetRank: 100,
-    badgeName: 'Centurion Mentor',
-    coins: 500,
-  },
-};

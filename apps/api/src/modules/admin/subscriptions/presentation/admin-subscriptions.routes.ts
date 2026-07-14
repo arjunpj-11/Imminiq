@@ -10,6 +10,6 @@ export const createAdminSubscriptionsRoutes = (useCases: AdminSubscriptionsUseCa
   const controller = new AdminSubscriptionsController(useCases);
   router.use(authenticate, requireAdmin);
   router.get(ADMIN_SUBSCRIPTIONS_ROUTE_PATHS.ROOT, controller.overview);
-  router.put(ADMIN_SUBSCRIPTIONS_ROUTE_PATHS.PLAN_LIMITS, controller.updatePlanLimits);
+  router.put(ADMIN_SUBSCRIPTIONS_ROUTE_PATHS.PLAN, controller.updatePlan);
   return router;
 };

@@ -1,4 +1,4 @@
-import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/security.constants';
+import type { SecurityRuntimePolicy } from '../../domain/security-runtime-policy';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface';
@@ -19,7 +19,8 @@ export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
     private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
     private readonly _emailChangeToken: ISecurityEmailChangeToken,
     private readonly _emailChangeUrlBuilder: ISecurityEmailChangeUrlBuilder,
-    private readonly _securityAuditLogger: ISecurityAuditLogger
+    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _runtimePolicy: SecurityRuntimePolicy
   ) {}
 
   async execute(
@@ -73,7 +74,7 @@ export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
       fullName: user.fullName,
       newEmail: normalizedEmail,
       verificationUrl,
-      expiresMinutes: EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES,
+      expiresMinutes: this._runtimePolicy.emailChangeTokenTtlMinutes,
     });
 
     if (user.email) {
@@ -93,7 +94,7 @@ export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
     return {
       pendingEmail: normalizedEmail,
       verificationSent: true,
-      expiresInMinutes: EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES,
+      expiresInMinutes: this._runtimePolicy.emailChangeTokenTtlMinutes,
     };
   }
 }

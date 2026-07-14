@@ -1,4 +1,5 @@
 import { aiQueue } from '../../../../../infrastructure/queue/queues';
+import { env } from '../../../../../config/env';
 import { OnboardingDomainError } from '../../domain/onboarding-domain.error';
 import type {
   IAIJobQueueGateway,
@@ -28,12 +29,12 @@ export class BullMqAIJobQueueGateway implements IAIJobQueueGateway {
 
   private getQueueOptions() {
     return {
-      removeOnComplete: 100,
-      removeOnFail: 100,
-      attempts: 3,
+      removeOnComplete: env.QUEUE_REMOVE_ON_COMPLETE,
+      removeOnFail: env.QUEUE_REMOVE_ON_FAIL,
+      attempts: env.QUEUE_JOB_ATTEMPTS,
       backoff: {
         type: 'exponential',
-        delay: 30_000,
+        delay: env.QUEUE_JOB_BACKOFF_MS,
       },
     };
   }

@@ -36,7 +36,7 @@ export class LeaderboardController {
 
   getRewards = async (_req: Request, res: Response, next: NextFunction) => {
     try {
-      const rewards = this._useCases.getRewards.execute();
+      const rewards = await this._useCases.getRewards.execute();
 
       res.json(new ApiResponse('Leaderboard rewards fetched', rewards));
     } catch (error) {

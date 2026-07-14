@@ -7,11 +7,11 @@ import type {
 } from '../../domain/services/mock-test-question-bank.interface';
 import type { DifficultyLevel } from '../../domain/value-objects/difficulty-level.vo';
 
-const USE_AI_GENERATION = true;
+import { env } from '../../../../../config/env';
 
 export class MongoQuestionBank implements IMockTestQuestionBank {
   shouldUseAI(): boolean {
-    return USE_AI_GENERATION;
+    return env.MOCK_TEST_AI_GENERATION_ENABLED;
   }
 
   async saveToQuestionBank(

@@ -1,21 +1,21 @@
 import type { AdminActor } from '../../../shared/domain';
 import type {
-  AdminPlanLimits,
   AdminSubscriptionPlan,
+  AdminSubscriptionPlanInput,
 } from '../../domain/entities/admin-subscription.entity';
 import type { IAdminSubscriptionsRepository } from '../../domain/repositories/admin-subscriptions.repository.interface';
 import type { AdminSubscriptionPlanDTO } from '../admin-subscriptions.dto';
 import type { IAdminSubscriptionsMapper } from '../admin-subscriptions.mapper';
 
-export interface IUpdateAdminPlanLimitsUseCase {
+export interface IUpdateAdminPlanUseCase {
   execute(
     planId: AdminSubscriptionPlan['planId'],
-    limits: AdminPlanLimits,
+    input: AdminSubscriptionPlanInput,
     actor: AdminActor
   ): Promise<AdminSubscriptionPlanDTO>;
 }
 
-export class UpdateAdminPlanLimitsUseCase implements IUpdateAdminPlanLimitsUseCase {
+export class UpdateAdminPlanUseCase implements IUpdateAdminPlanUseCase {
   constructor(
     private readonly repository: IAdminSubscriptionsRepository,
     private readonly mapper: IAdminSubscriptionsMapper
@@ -23,11 +23,11 @@ export class UpdateAdminPlanLimitsUseCase implements IUpdateAdminPlanLimitsUseCa
 
   execute(
     planId: AdminSubscriptionPlan['planId'],
-    limits: AdminPlanLimits,
+    input: AdminSubscriptionPlanInput,
     actor: AdminActor
   ): Promise<AdminSubscriptionPlanDTO> {
     return this.repository
-      .updatePlanLimits(planId, limits, actor)
+      .updatePlan(planId, input, actor)
       .then((plan) => this.mapper.toPlanDTO(plan));
   }
 }

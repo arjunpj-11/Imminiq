@@ -1,6 +1,6 @@
 import type { AdminSubscriptionsUseCases } from './application/admin-subscriptions-use-cases.contract';
 import { GetAdminSubscriptionOverviewUseCase } from './application/use-cases/get-admin-subscription-overview.usecase';
-import { UpdateAdminPlanLimitsUseCase } from './application/use-cases/update-admin-plan-limits.usecase';
+import { UpdateAdminPlanUseCase } from './application/use-cases/update-admin-plan.usecase';
 import { mongoAdminSubscriptionsRepository } from './infrastructure/repositories/mongo-admin-subscriptions.repository';
 import { AdminSubscriptionsMapper } from './application/admin-subscriptions.mapper';
 
@@ -14,7 +14,7 @@ export const createAdminSubscriptionsComposition = (): AdminSubscriptionsComposi
         mongoAdminSubscriptionsRepository,
         mapper
       ),
-      updatePlanLimits: new UpdateAdminPlanLimitsUseCase(
+      updatePlan: new UpdateAdminPlanUseCase(
         mongoAdminSubscriptionsRepository,
         mapper
       ),

@@ -3,14 +3,21 @@ import type { AdminActor } from '../../../shared/domain';
 import { recordAdminAction } from '../../../shared/infrastructure';
 import type { AdminSettingsInput } from '../../domain/entities/admin-settings.entity';
 import type { IAdminSettingsRepository } from '../../domain/repositories/admin-settings.repository.interface';
+import { resolvePlatformPolicy, type PlatformPolicy } from '../../../../../shared/platform-policy';
 const view = {
   _id: 0,
   maintenanceMode: 1,
   allowBroadcasts: 1,
   supportEmail: 1,
   auditRetentionDays: 1,
+  productPolicy: 1,
   updatedAt: 1,
 };
+
+const normalizeSettings = <T extends { productPolicy?: Partial<PlatformPolicy> }>(settings: T) => ({
+  ...settings,
+  productPolicy: resolvePlatformPolicy(settings.productPolicy),
+});
 export class MongoAdminSettingsRepository implements IAdminSettingsRepository {
   async get() {
     const settings = await AdminConsoleSettings.findOneAndUpdate(
@@ -20,7 +27,7 @@ export class MongoAdminSettingsRepository implements IAdminSettingsRepository {
     )
       .select(view)
       .lean();
-    return settings as unknown as Awaited<ReturnType<IAdminSettingsRepository['get']>>;
+    return normalizeSettings(settings ?? {}) as Awaited<ReturnType<IAdminSettingsRepository['get']>>;
   }
   async update(input: AdminSettingsInput, actor: AdminActor) {
     const settings = await AdminConsoleSettings.findOneAndUpdate(
@@ -31,7 +38,7 @@ export class MongoAdminSettingsRepository implements IAdminSettingsRepository {
       .select(view)
       .lean();
     await recordAdminAction(actor, 'admin_console_settings_updated', 'admin.settings', input);
-    return settings as unknown as Awaited<ReturnType<IAdminSettingsRepository['update']>>;
+    return normalizeSettings(settings ?? {}) as Awaited<ReturnType<IAdminSettingsRepository['update']>>;
   }
 }
 export const mongoAdminSettingsRepository = new MongoAdminSettingsRepository();

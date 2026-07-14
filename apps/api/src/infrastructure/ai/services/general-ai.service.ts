@@ -19,7 +19,7 @@ export const generateRoadmap = (goal: string, level: string) =>
         content: `Generate a detailed learning roadmap for ${goal} at ${level} level`,
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'roadmap_generation'
   );
 
@@ -32,7 +32,7 @@ export const detectMissingTopics = (roadmap: string, targetRole: string) =>
         content: `Compare this roadmap against ${targetRole} requirements and list missing topics: ${roadmap}`,
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'roadmap_evaluation'
   );
 
@@ -45,7 +45,7 @@ export const analyzeTestPerformance = (results: string) =>
         content: `Analyze this test performance and identify weak areas: ${results}`,
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'mock_test_evaluation'
   );
 
@@ -61,7 +61,7 @@ export const generateDashboardInsights = async (userData: string): Promise<strin
         content: buildDashboardInsightPrompt(userData),
       },
     ],
-    'llama-3.1-8b-instant',
+    'fast',
     'dashboard_insights'
   );
 
@@ -80,7 +80,7 @@ export const chatWithTutor = async (
     content: string;
   }[]
 ): Promise<string> => {
-  const response = await groqChat(messages, 'llama-3.3-70b-versatile', 'ai_tutoring');
+  const response = await groqChat(messages, 'quality', 'ai_tutoring');
 
   if (!response) {
     throw new ApiError(502, 'Groq returned an empty chat response', 'GROQ_EMPTY_CHAT_RESPONSE');
@@ -97,7 +97,7 @@ export const explainTopic = async (topic: string): Promise<string> => {
         content: `Explain this topic clearly with examples: ${topic}`,
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'ai_tutoring'
   );
 
@@ -120,7 +120,7 @@ export const explainELI5 = async (topic: string): Promise<string> => {
         content: `Explain this like I am 5 years old: ${topic}`,
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'ai_tutoring'
   );
 
@@ -139,7 +139,7 @@ export const generateMockQuestions = async (topic: string, count: number): Promi
         content: `Generate ${count} MCQ questions for: ${topic}. Return as JSON array.`,
       },
     ],
-    'llama-3.3-70b-versatile',
+    'quality',
     'mock_test_generation'
   );
 
@@ -158,7 +158,7 @@ export const reviewCode = async (code: string, language: string): Promise<string
         content: `Review this ${language} code and suggest improvements: ${code}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'quality'
   );
 
   if (!response) {
@@ -176,7 +176,7 @@ export const optimizeCode = async (code: string, language: string): Promise<stri
         content: `Optimize this ${language} code: ${code}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'quality'
   );
 
   if (!response) {
@@ -198,7 +198,7 @@ export const simplifyLesson = async (content: string): Promise<string> => {
         content: `Simplify this lesson in plain simple English: ${content}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'quality'
   );
 
   if (!response) {
@@ -220,7 +220,7 @@ export const generateCodeExample = async (topic: string, language: string): Prom
         content: `Generate a clear code example for ${topic} in ${language}`,
       },
     ],
-    'llama-3.3-70b-versatile'
+    'quality'
   );
 
   if (!response) {
@@ -242,7 +242,7 @@ export const quickSummary = async (content: string): Promise<string> => {
         content: `Summarize this in 2-3 sentences: ${content}`,
       },
     ],
-    'llama-3.1-8b-instant'
+    'fast'
   );
 
   if (!response) {
@@ -260,7 +260,7 @@ export const generateTopicTags = async (content: string): Promise<string> => {
         content: `Extract 5 relevant tags from this content as JSON array: ${content}`,
       },
     ],
-    'llama-3.1-8b-instant'
+    'fast'
   );
 
   if (!response) {

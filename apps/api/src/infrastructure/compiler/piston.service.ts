@@ -1,6 +1,7 @@
 // apps/api/src/infrastructure/compiler/piston.service.ts
 
 import { ApiError } from '../../shared/utils/ApiError';
+import { env } from '../../config/env';
 
 type PistonRuntime = {
   language: string;
@@ -46,14 +47,11 @@ export type ExecuteCodeResult = {
 };
 
 const getPistonBaseUrl = () => {
-  return (process.env.PISTON_API_URL?.trim() || 'https://emkc.org/api/v2/piston').replace(
-    /\/$/,
-    ''
-  );
+  return env.PISTON_API_URL.trim().replace(/\/$/, '');
 };
 
 const getPistonHeaders = () => {
-  const apiKey = process.env.PISTON_API_KEY?.trim();
+  const apiKey = env.PISTON_API_KEY.trim();
 
   const headers: Record<string, string> = {
     'content-type': 'application/json',

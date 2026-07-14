@@ -1,4 +1,3 @@
-import { COMMUNITY_REVIEW_REWARD_COINS } from '../../../domain/community.constants';
 import { CommunityDomainError } from '../../../domain/community-domain.error';
 import type {
   CreateCommunityReviewVoteInput,
@@ -174,7 +173,8 @@ export class MongoCommunityVerificationRepository extends MongoCommunityBaseRepo
           totalEarnedCoins: rewardResult[0]?.total ?? 0,
           coinBalance: Number(user?.coins ?? 0),
           queueCount: awaiting,
-          rewardCoins: COMMUNITY_REVIEW_REWARD_COINS,
+          // The application overlays the current admin-managed reward policy.
+          rewardCoins: 0,
           activeReviewersThisWeek: activeReviewers.length,
         };
       }

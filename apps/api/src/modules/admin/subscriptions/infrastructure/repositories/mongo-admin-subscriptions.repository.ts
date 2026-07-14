@@ -4,13 +4,13 @@ import { User } from '../../../../../infrastructure/database/models/user.model';
 import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../shared/infrastructure';
 import type { AdminActor } from '../../../shared/domain';
 import {
-  getDefaultPlanLimits,
+  getDefaultSubscriptionPlan,
   type SubscriptionPlanId,
   type SubscriptionPlanLimits,
 } from '../../../../user/subscriptions';
 import type {
-  AdminPlanLimits,
   AdminSubscriptionPlan,
+  AdminSubscriptionPlanInput,
   AdminSubscriptionItem,
   AdminSubscriptionOverview,
   AdminSubscriptionQuery,
@@ -78,7 +78,7 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
       }),
       Promise.all(
         (['free', 'pro', 'premium'] as const).map((planId) =>
-          SubscriptionPlanModel.findOne(planLookup(planId)).select('limits updatedAt').lean()
+          SubscriptionPlanModel.findOne(planLookup(planId)).select('-_id -updatedBy -createdAt -__v').lean()
         )
       ),
     ]);
@@ -135,24 +135,34 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
         }))
         .reverse(),
       subscriptions: createAdminPage(items, query, total),
-      plans: planRows.map((row, index) => ({
-        planId: (['free', 'pro', 'premium'] as const)[index],
-        limits: { ...(row?.limits ?? getDefaultPlanLimits((['free', 'pro', 'premium'] as const)[index])) },
-        updatedAt: row?.updatedAt ?? null,
-      })) as AdminSubscriptionPlan[],
+      plans: planRows.map((row, index) => {
+        const planId = (['free', 'pro', 'premium'] as const)[index];
+        const fallback = getDefaultSubscriptionPlan(planId);
+        return {
+          planId,
+          name: row?.name ?? fallback.name,
+          description: row?.description ?? fallback.description,
+          monthlyAmount: row?.monthlyAmount ?? fallback.monthlyAmount,
+          annualAmount: row?.annualAmount ?? fallback.annualAmount,
+          currency: 'INR',
+          features: row?.features?.length ? [...row.features] : [...fallback.features],
+          highlighted: row?.highlighted ?? fallback.highlighted,
+          limits: { ...(row?.limits ?? fallback.limits) },
+          updatedAt: row?.updatedAt ?? null,
+        };
+      }) as AdminSubscriptionPlan[],
     };
   }
 
-  async updatePlanLimits(
+  async updatePlan(
     planId: AdminSubscriptionPlan['planId'],
-    limits: AdminPlanLimits,
+    input: AdminSubscriptionPlanInput,
     actor: AdminActor
   ): Promise<AdminSubscriptionPlan> {
     const filter = planLookup(planId);
     const existing = await SubscriptionPlanModel.findOne(filter).lean();
-    const previousLimits = {
-      ...(existing?.limits ?? getDefaultPlanLimits(planId as SubscriptionPlanId)),
-    } as SubscriptionPlanLimits;
+    const fallback = getDefaultSubscriptionPlan(planId as SubscriptionPlanId);
+    const previousLimits = { ...(existing?.limits ?? fallback.limits) } as SubscriptionPlanLimits;
     if (planId !== 'free') {
       await Subscription.updateMany(
         {
@@ -167,18 +177,25 @@ export class MongoAdminSubscriptionsRepository implements IAdminSubscriptionsRep
     const updated = await SubscriptionPlanModel.findOneAndUpdate(
       filter,
       {
-        $set: { code: planId, planId, limits, updatedBy: actor.userId },
+        $set: { code: planId, planId, ...input, updatedBy: actor.userId },
       },
       { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
     ).lean();
-    await recordAdminAction(actor, 'subscription_plan_limits_updated', 'admin.subscriptions', {
+    await recordAdminAction(actor, 'subscription_plan_updated', 'admin.subscriptions', {
       planId,
-      previousLimits,
-      limits,
+      previous: existing ?? fallback,
+      current: input,
     });
     return {
       planId,
-      limits: { ...(updated?.limits ?? limits) } as AdminPlanLimits,
+      name: updated?.name ?? input.name,
+      description: updated?.description ?? input.description,
+      monthlyAmount: updated?.monthlyAmount ?? input.monthlyAmount,
+      annualAmount: updated?.annualAmount ?? input.annualAmount,
+      currency: 'INR',
+      features: [...(updated?.features ?? input.features)],
+      highlighted: updated?.highlighted ?? input.highlighted,
+      limits: { ...(updated?.limits ?? input.limits) },
       updatedAt: updated?.updatedAt ?? new Date(),
     };
   }

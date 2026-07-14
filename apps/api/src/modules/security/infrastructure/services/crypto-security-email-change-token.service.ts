@@ -1,6 +1,6 @@
 import { createHash, randomBytes } from 'crypto';
 
-import { EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES } from '../../domain/security.constants';
+import { env } from '../../../../config/env';
 import { SecurityDomainError } from '../../domain/security-domain.error';
 import type {
   IEmailChangeTokenResult,
@@ -15,7 +15,9 @@ export class CryptoSecurityEmailChangeToken implements ISecurityEmailChangeToken
       return {
         rawToken,
         tokenHash: this.hash(rawToken),
-        expiresAt: new Date(Date.now() + EMAIL_CHANGE_TOKEN_EXPIRES_MINUTES * 60 * 1000),
+        expiresAt: new Date(
+          Date.now() + env.SECURITY_EMAIL_CHANGE_TOKEN_TTL_MINUTES * 60 * 1000
+        ),
       };
     } catch (error) {
       if (error instanceof SecurityDomainError) {

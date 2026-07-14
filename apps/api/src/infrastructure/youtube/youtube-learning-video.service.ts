@@ -92,7 +92,7 @@ const parseIsoDuration = (value = '') => {
 
 const fetchYouTubeJson = async <T>(url: URL): Promise<T> => {
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8_000);
+  const timeout = setTimeout(() => controller.abort(), env.YOUTUBE_REQUEST_TIMEOUT_MS);
 
   try {
     const response = await fetch(url, { signal: controller.signal });
@@ -121,7 +121,7 @@ const findTopicLearningVideo = async (
       .trim(),
     type: 'video',
     order: 'relevance',
-    maxResults: '5',
+    maxResults: String(env.YOUTUBE_MAX_RESULTS),
     safeSearch: 'strict',
     videoEmbeddable: 'true',
     relevanceLanguage: 'en',

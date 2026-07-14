@@ -2,8 +2,6 @@ import axios from 'axios';
 import { env } from '../../config/env';
 import { ApiError } from '../../shared/utils/ApiError';
 
-const MESSAGE_CENTRAL_BASE_URL = 'https://cpaas.messagecentral.com';
-
 type MessageCentralTokenResponse = {
   token?: string;
 };
@@ -39,7 +37,7 @@ const getProviderErrorDetails = (error: unknown): unknown => {
 const generateMessageCentralToken = async () => {
   try {
     const response = await axios.get<MessageCentralTokenResponse>(
-      `${MESSAGE_CENTRAL_BASE_URL}/auth/v1/authentication/token`,
+      `${env.MESSAGE_CENTRAL_BASE_URL}/auth/v1/authentication/token`,
       {
         params: {
           customerId: env.MESSAGE_CENTRAL_CUSTOMER_ID,
@@ -70,7 +68,7 @@ export const sendPhoneOtp = async (phone: string) => {
     const authToken = await generateMessageCentralToken();
 
     const response = await axios.post<MessageCentralSendOtpResponse>(
-      `${MESSAGE_CENTRAL_BASE_URL}/verification/v3/send`,
+      `${env.MESSAGE_CENTRAL_BASE_URL}/verification/v3/send`,
       null,
       {
         params: {
@@ -107,7 +105,7 @@ export const verifyPhoneOtp = async (verificationId: string, otp: string) => {
     const authToken = await generateMessageCentralToken();
 
     const response = await axios.get<MessageCentralVerifyOtpResponse>(
-      `${MESSAGE_CENTRAL_BASE_URL}/verification/v3/validateOtp`,
+      `${env.MESSAGE_CENTRAL_BASE_URL}/verification/v3/validateOtp`,
       {
         params: {
           verificationId,

@@ -11,8 +11,7 @@ import type { IMockTestsMapper } from '../mock-tests.mapper';
 import type { IClock } from '../../../../../shared/time/clock.interface';
 import type { IMockTestCompletionObserver } from '../../domain/services/mock-test-completion-observer.interface';
 import type { FinishMockTestAttemptDTO } from '../mock-tests.dto';
-
-const MOCK_TEST_COMPLETION_XP = 50;
+import type { IMockTestPolicyReader } from '../../../../../shared/platform-policy';
 
 type FinishTestAttemptRepository = IMockTestRepository &
   IMockTestQuestionRepository &
@@ -40,10 +39,12 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
     private readonly _mapper: IMockTestsMapper,
 
     private readonly _clock: IClock,
+    private readonly _policyReader: IMockTestPolicyReader,
     private readonly _completionObserver?: IMockTestCompletionObserver
   ) {}
 
   async execute(attemptId: string, userId: string) {
+    const policy = await this._policyReader.getMockTestPolicy();
     const attempt = await this._repository.findAttemptById(attemptId);
 
     if (!attempt) {
@@ -226,7 +227,7 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
 
       passed: report.passed,
 
-      xpAwarded: MOCK_TEST_COMPLETION_XP,
+      xpAwarded: policy.completionXp,
     });
 
     await this._completionObserver?.onCompleted({

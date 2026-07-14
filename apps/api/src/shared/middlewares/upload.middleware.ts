@@ -1,5 +1,6 @@
 import { extname } from 'node:path';
 import multer from 'multer';
+import { env } from '../../config/env';
 
 import { ApiError } from '../utils/ApiError';
 
@@ -12,7 +13,7 @@ const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp']);
 export const uploadMiddleware = multer({
   storage,
   limits: {
-    fileSize: 5 * 1024 * 1024,
+    fileSize: env.UPLOAD_IMAGE_MAX_BYTES,
     files: 1,
   },
   fileFilter: (_req, file, callback) => {

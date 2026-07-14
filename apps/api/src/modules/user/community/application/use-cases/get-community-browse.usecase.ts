@@ -6,6 +6,7 @@ import {
 import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
 import type { CommunityBrowseViewDTO, CommunityTrackerListPayloadDTO } from '../community.dto';
 import type { ICommunityMapper } from '../community.mapper';
+import type { ICommunityPolicyReader } from '../../../../../shared/platform-policy';
 
 export interface IGetCommunityBrowseUseCase {
   execute(payload: CommunityTrackerListPayloadDTO): Promise<CommunityBrowseViewDTO>;
@@ -14,14 +15,15 @@ export interface IGetCommunityBrowseUseCase {
 export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
-    private readonly _mapper: ICommunityMapper
+    private readonly _mapper: ICommunityMapper,
+    private readonly _policyReader: ICommunityPolicyReader
   ) {}
 
   async execute(payload: CommunityTrackerListPayloadDTO): Promise<CommunityBrowseViewDTO> {
     const page = this.normalizePage(payload.page);
     const limit = this.normalizeLimit(payload.limit);
 
-    const [trackers, stats, topics, verifyStats] = await Promise.all([
+    const [trackers, stats, topics, verifyStats, policy] = await Promise.all([
       this._repository.findPublicTrackers({
         userId: payload.userId,
         search: payload.search,
@@ -35,6 +37,7 @@ export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
       this._repository.getPersonalStats(payload.userId),
       this._repository.findAvailableTopics(),
       this._repository.getVerificationStats(payload.userId),
+      this._policyReader.getCommunityPolicy(),
     ]);
 
     const trackerList = this._mapper.toTrackerListView(trackers);
@@ -45,7 +48,7 @@ export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
       topics,
       verifyBanner: {
         queueCount: verifyStats.queueCount,
-        rewardCoins: verifyStats.rewardCoins,
+        rewardCoins: policy.reviewRewardCoins,
         activeReviewersThisWeek: verifyStats.activeReviewersThisWeek,
       },
     };

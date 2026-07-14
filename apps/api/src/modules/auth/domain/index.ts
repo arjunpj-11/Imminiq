@@ -1,4 +1,4 @@
-export * from './auth.constants';
+export * from './auth-runtime-policy';
 
 export * from './entities/auth-session.entity';
 export * from './entities/auth-user.entity';

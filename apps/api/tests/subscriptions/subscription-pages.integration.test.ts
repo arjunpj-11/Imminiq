@@ -21,12 +21,7 @@ describe('subscription page data repositories', () => {
   });
 
   it('loads all user plan cards from an empty database', async () => {
-    const plans = await Promise.all(
-      SUBSCRIPTION_PLANS.map(async (plan) => ({
-        ...plan,
-        limits: await mongoSubscriptionRepository.getPlanLimits(plan.id),
-      }))
-    );
+    const plans = await mongoSubscriptionRepository.getPlans();
 
     expect(plans.map((plan) => plan.id)).toEqual(['free', 'pro', 'premium']);
     expect(plans.every((plan) => plan.limits.maxTrackers >= 0)).toBe(true);
@@ -82,12 +77,32 @@ describe('subscription page data repositories', () => {
     };
     const freeLimits = { ...legacyLimits, maxTrackers: 12 };
     const premiumLimits = { ...legacyLimits, maxTrackers: 100 };
+    const freePlan = { ...SUBSCRIPTION_PLANS[0], limits: freeLimits };
+    const premiumPlan = { ...SUBSCRIPTION_PLANS[2], limits: premiumLimits };
 
     await expect(
-      mongoAdminSubscriptionsRepository.updatePlanLimits('free', freeLimits, actor)
+      mongoAdminSubscriptionsRepository.updatePlan('free', {
+        name: freePlan.name,
+        description: freePlan.description,
+        monthlyAmount: freePlan.monthlyAmount,
+        annualAmount: freePlan.annualAmount,
+        currency: freePlan.currency,
+        features: freePlan.features,
+        highlighted: freePlan.highlighted,
+        limits: freePlan.limits,
+      }, actor)
     ).resolves.toMatchObject({ planId: 'free', limits: freeLimits });
     await expect(
-      mongoAdminSubscriptionsRepository.updatePlanLimits('premium', premiumLimits, actor)
+      mongoAdminSubscriptionsRepository.updatePlan('premium', {
+        name: premiumPlan.name,
+        description: premiumPlan.description,
+        monthlyAmount: premiumPlan.monthlyAmount,
+        annualAmount: premiumPlan.annualAmount,
+        currency: premiumPlan.currency,
+        features: premiumPlan.features,
+        highlighted: premiumPlan.highlighted,
+        limits: premiumPlan.limits,
+      }, actor)
     ).resolves.toMatchObject({ planId: 'premium', limits: premiumLimits });
 
     expect(await SubscriptionPlanModel.findOne({ code: 'free' }).lean()).toMatchObject({

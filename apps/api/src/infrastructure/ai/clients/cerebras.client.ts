@@ -72,7 +72,7 @@ export const cerebrasChat = async (
   system?: string,
   category: AITokenUsageCategory = 'other'
 ) => {
-  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const model = env.CEREBRAS_MODEL;
   const response = await cerebras.chat.completions.create({
     model,
 
@@ -241,7 +241,7 @@ export const cerebrasRoadmapStructureChat = async (
   system?: string,
   category: AITokenUsageCategory = 'roadmap_generation'
 ) => {
-  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const model = env.CEREBRAS_MODEL;
   const response = await cerebras.chat.completions.create({
     model,
 
@@ -283,7 +283,7 @@ export const cerebrasRoadmapEvaluationChat = async (
   system?: string,
   category: AITokenUsageCategory = 'roadmap_evaluation'
 ) => {
-  const model = 'qwen-3-235b-a22b-instruct-2507';
+  const model = env.CEREBRAS_MODEL;
   const response = await cerebras.chat.completions.create({
     model,
 

@@ -1,12 +1,13 @@
 import type {
   PendingSubscriptionInput,
   SubscriptionPlanId,
-  SubscriptionPlanLimits,
+  SubscriptionPlan,
   UserSubscription,
 } from '../entities/subscription.entity';
 
 export interface ISubscriptionRepository {
-  getPlanLimits(planId: SubscriptionPlanId): Promise<SubscriptionPlanLimits>;
+  getPlans(): Promise<SubscriptionPlan[]>;
+  getPlan(planId: SubscriptionPlanId): Promise<SubscriptionPlan>;
   createPending(input: PendingSubscriptionInput): Promise<UserSubscription>;
   findByOrderId(orderId: string): Promise<(UserSubscription & { userId: string }) | null>;
   findCurrent(userId: string): Promise<UserSubscription | null>;

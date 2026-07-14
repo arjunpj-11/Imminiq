@@ -6,8 +6,7 @@ import type {
 import { MongoAuthBaseRepository } from '../shared/mongo-auth-base.repository';
 import { MongoAuthMapper } from '../shared/mongo-auth.mapper';
 import type { MongoAuthSessionRecord } from '../shared/mongo-auth.types';
-
-const REFRESH_TOKEN_EXPIRES_MS = 7 * 24 * 60 * 60 * 1000;
+import { env } from '../../../../../config/env';
 
 export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
   constructor(private readonly _mapper = new MongoAuthMapper()) {
@@ -16,7 +15,7 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
 
   async saveSession(data: SaveAuthSessionInput) {
     return this.execute('AUTH_SESSION_WRITE_FAILED', 'Failed to save auth session', async () => {
-      const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_MS);
+      const expiresAt = new Date(Date.now() + env.REFRESH_TOKEN_TTL_MS);
 
       const session = await AuthToken.create({
         userId: data.userId,
@@ -57,7 +56,7 @@ export class MongoAuthSessionRepository extends MongoAuthBaseRepository {
       'AUTH_SESSION_WRITE_FAILED',
       'Failed to rotate refresh token session',
       async () => {
-        const expiresAt = new Date(Date.now() + REFRESH_TOKEN_EXPIRES_MS);
+        const expiresAt = new Date(Date.now() + env.REFRESH_TOKEN_TTL_MS);
         const sessionMetaUpdate = {
           ...(data.meta?.device ? { device: data.meta.device } : {}),
           ...(data.meta?.ipAddress ? { ipAddress: data.meta.ipAddress } : {}),

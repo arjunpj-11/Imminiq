@@ -2,7 +2,7 @@ import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 
 export const ADMIN_SUBSCRIPTIONS_ENDPOINTS = {
   overview: '/admin/subscriptions',
-  planLimits: (planId: string) => `/admin/subscriptions/plans/${planId}/limits`,
+  plan: (planId: string) => `/admin/subscriptions/plans/${planId}`,
 } as const;
 
 export const ADMIN_SUBSCRIPTIONS_ROUTES = {

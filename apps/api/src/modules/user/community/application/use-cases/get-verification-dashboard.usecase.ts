@@ -10,6 +10,7 @@ import type {
 } from '../community.dto';
 import { COMMUNITY_DEFAULT_LEADERBOARD_LIMIT } from '../../domain/community.constants';
 import type { ICommunityMapper } from '../community.mapper';
+import type { ICommunityPolicyReader } from '../../../../../shared/platform-policy';
 
 export interface IGetVerificationDashboardUseCase {
   execute(payload: VerificationQueuePayloadDTO): Promise<CommunityVerificationDashboardViewDTO>;
@@ -18,7 +19,8 @@ export interface IGetVerificationDashboardUseCase {
 export class GetVerificationDashboardUseCase implements IGetVerificationDashboardUseCase {
   constructor(
     private readonly _repository: ICommunityRepository,
-    private readonly _mapper: ICommunityMapper
+    private readonly _mapper: ICommunityMapper,
+    private readonly _policyReader: ICommunityPolicyReader
   ) {}
 
   async execute(
@@ -27,7 +29,7 @@ export class GetVerificationDashboardUseCase implements IGetVerificationDashboar
     const page = this.normalizePage(payload.page);
     const limit = this.normalizeLimit(payload.limit);
 
-    const [stats, queue, leaderboard] = await Promise.all([
+    const [stats, queue, leaderboard, policy] = await Promise.all([
       this._repository.getVerificationStats(payload.userId),
       this._repository.findVerificationQueue({
         userId: payload.userId,
@@ -38,19 +40,23 @@ export class GetVerificationDashboardUseCase implements IGetVerificationDashboar
         payload.userId,
         COMMUNITY_DEFAULT_LEADERBOARD_LIMIT
       ),
+      this._policyReader.getCommunityPolicy(),
     ]);
 
     const queueView = this._mapper.toVerificationQueueView(queue);
 
     return {
       ...queueView,
-      stats: this._mapper.toVerificationStatsView(stats),
+      stats: this._mapper.toVerificationStatsView({
+        ...stats,
+        rewardCoins: policy.reviewRewardCoins,
+      }),
       leaderboard: leaderboard.map((entry) => this._mapper.toLeaderboardEntryView(entry)),
       howItWorks: [
         'Pick a tracker from the queue',
         'Preview the submitted changes',
         'Vote Pass or Fail',
-        `Earn +${stats.rewardCoins} coins if in majority`,
+        `Earn +${policy.reviewRewardCoins} coins if in majority`,
       ],
     };
   }

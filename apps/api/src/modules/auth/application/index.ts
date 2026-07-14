@@ -1,4 +1,3 @@
-export * from './auth.constants';
 
 export * from './auth-application.error';
 export * from './auth.dto';

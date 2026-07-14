@@ -18,7 +18,7 @@ import { ADMIN_SUBSCRIPTION_STATUS_OPTIONS } from '../constants/admin-subscripti
 import {
   useAdminSubscriptions,
 } from '../hooks/useAdminSubscriptions';
-import { useUpdateAdminPlanLimits } from '../hooks/useUpdateAdminPlanLimits';
+import { useUpdateAdminPlan } from '../hooks/useUpdateAdminPlan';
 import type {
   AdminSubscriptionPlan,
   AdminSubscriptionOverview,
@@ -42,7 +42,7 @@ export default function AdminSubscriptionsPage() {
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Premium & Limits"
-        description="Track premium purchases and customize request-based allowances for every plan."
+        description="Track purchases and manage every customer-visible plan, price, feature, and allowance."
       />
       <SubscriptionView
         query={subscriptions}
@@ -99,12 +99,12 @@ function SubscriptionView({
           { label: 'Monthly recurring revenue', value: formatMoney(data.metrics.monthlyRecurringRevenue), tone: 'warning' },
         ]}
       />
-      <AdminPanel title="Plan request limits">
+      <AdminPanel title="Subscription plans">
         <div className="border-b border-[rgba(255,255,255,0.09)] px-6 py-4 text-xs text-[#aaa59d]">
-          Set 0 for unlimited. Changes apply to Free users and future purchases. Existing paid subscriptions keep their purchased limits until expiration.
+          Prices are stored in paise. Set a request limit to 0 for unlimited. Existing paid subscriptions keep their purchased limits until expiration.
         </div>
         <div className="grid gap-4 p-6 xl:grid-cols-3">
-          {data.plans.map((plan) => <PlanLimitsForm key={plan.planId} plan={plan} />)}
+          {data.plans.map((plan) => <PlanForm key={plan.planId} plan={plan} />)}
         </div>
       </AdminPanel>
       <section className="mt-7 grid gap-6 lg:grid-cols-2">
@@ -175,10 +175,19 @@ function SubscriptionView({
   );
 }
 
-function PlanLimitsForm({ plan }: { plan: AdminSubscriptionPlan }) {
-  const update = useUpdateAdminPlanLimits();
-  const [limits, setLimits] = useState(plan.limits);
-  const fields: Array<[keyof typeof limits, string, number]> = [
+function PlanForm({ plan }: { plan: AdminSubscriptionPlan }) {
+  const update = useUpdateAdminPlan();
+  const [form, setForm] = useState({
+    name: plan.name,
+    description: plan.description,
+    monthlyAmount: plan.monthlyAmount,
+    annualAmount: plan.annualAmount,
+    currency: plan.currency,
+    features: plan.features,
+    highlighted: plan.highlighted,
+    limits: plan.limits,
+  });
+  const fields: Array<[keyof typeof form.limits, string, number]> = [
     ['maxTrackers', 'Maximum trackers', 1_000],
     ['trackerGenerationsPerMonth', 'Generated trackers / month', 500],
     ['lessonGenerationsPerDay', 'Generated lessons / day', 500],
@@ -187,11 +196,26 @@ function PlanLimitsForm({ plan }: { plan: AdminSubscriptionPlan }) {
   ];
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    update.mutate({ planId: plan.planId, limits });
+    update.mutate({ planId: plan.planId, input: form });
   };
   return (
     <form onSubmit={submit} className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#24211e] p-5">
       <div className="font-editorial text-xl font-bold capitalize">{plan.planId}</div>
+      <div className="mt-4 space-y-3">
+        <PlanTextField label="Display name" value={form.name} maxLength={80} onChange={(name) => setForm((current) => ({ ...current, name }))} />
+        <label className="block">
+          <span className="mb-1 block text-[10px] uppercase tracking-wide text-[#aaa59d]">Description</span>
+          <textarea required maxLength={300} rows={3} value={form.description} onChange={(event) => setForm((current) => ({ ...current, description: event.target.value }))} className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#1c1a18] px-3 py-2 text-sm outline-none focus:border-[#e8816a]" />
+        </label>
+        <PlanNumberField label="Monthly price (paise)" value={form.monthlyAmount} maximum={100_000_000} onChange={(monthlyAmount) => setForm((current) => ({ ...current, monthlyAmount }))} />
+        <PlanNumberField label="Annual price (paise)" value={form.annualAmount} maximum={1_000_000_000} onChange={(annualAmount) => setForm((current) => ({ ...current, annualAmount }))} />
+        <label className="block">
+          <span className="mb-1 block text-[10px] uppercase tracking-wide text-[#aaa59d]">Features (one per line)</span>
+          <textarea required rows={5} value={form.features.join('\n')} onChange={(event) => setForm((current) => ({ ...current, features: event.target.value.split('\n').map((value) => value.trim()).filter(Boolean).slice(0, 30) }))} className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#1c1a18] px-3 py-2 text-sm outline-none focus:border-[#e8816a]" />
+        </label>
+        <label className="flex items-center gap-2 text-xs"><input type="checkbox" checked={form.highlighted} onChange={(event) => setForm((current) => ({ ...current, highlighted: event.target.checked }))} className="accent-[#e8816a]" /> Highlight this plan</label>
+      </div>
+      <div className="mt-5 border-t border-white/10 pt-4 text-xs font-semibold uppercase tracking-wide text-[#aaa59d]">Usage limits</div>
       <div className="mt-4 space-y-3">
         {fields.map(([key, label, maximum]) => (
           <label key={key} className="block">
@@ -201,11 +225,11 @@ function PlanLimitsForm({ plan }: { plan: AdminSubscriptionPlan }) {
               type="number"
               min={0}
               max={maximum}
-              value={limits[key]}
+              value={form.limits[key]}
               onChange={(event) =>
-                setLimits((current) => ({
+                setForm((current) => ({
                   ...current,
-                  [key]: boundedInteger(event.target.value, 0, maximum),
+                  limits: { ...current.limits, [key]: boundedInteger(event.target.value, 0, maximum) },
                 }))
               }
               className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#1c1a18] px-3 py-2 text-sm outline-none focus:border-[#e8816a]"
@@ -213,17 +237,25 @@ function PlanLimitsForm({ plan }: { plan: AdminSubscriptionPlan }) {
           </label>
         ))}
       </div>
-      {update.isSuccess && <div className="mt-3 text-xs text-[#52c58c]">Limits saved.</div>}
+      {update.isSuccess && <div className="mt-3 text-xs text-[#52c58c]">Plan saved.</div>}
       {update.isError && (
         <div className="mt-3 text-xs text-[#e26767]">
-          {getUserFacingError(update.error, 'Limits could not be saved.')}
+          {getUserFacingError(update.error, 'Plan could not be saved.')}
         </div>
       )}
       <button type="submit" disabled={update.isPending} className="admin-primary-button mt-5 w-full">
-        {update.isPending ? 'Saving…' : `Save ${plan.planId} limits`}
+        {update.isPending ? 'Saving…' : `Save ${plan.planId} plan`}
       </button>
     </form>
   );
+}
+
+function PlanTextField({ label, value, maxLength, onChange }: { label: string; value: string; maxLength: number; onChange: (value: string) => void }) {
+  return <label className="block"><span className="mb-1 block text-[10px] uppercase tracking-wide text-[#aaa59d]">{label}</span><input required maxLength={maxLength} value={value} onChange={(event) => onChange(event.target.value)} className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#1c1a18] px-3 py-2 text-sm outline-none focus:border-[#e8816a]" /></label>;
+}
+
+function PlanNumberField({ label, value, maximum, onChange }: { label: string; value: number; maximum: number; onChange: (value: number) => void }) {
+  return <label className="block"><span className="mb-1 block text-[10px] uppercase tracking-wide text-[#aaa59d]">{label}</span><input required type="number" min={0} max={maximum} value={value} onChange={(event) => onChange(boundedInteger(event.target.value, 0, maximum))} className="w-full rounded-lg border border-[rgba(255,255,255,0.12)] bg-[#1c1a18] px-3 py-2 text-sm outline-none focus:border-[#e8816a]" /></label>;
 }
 
 function SummaryPanel({ title, rows }: { title: string; rows: string[][] }) {

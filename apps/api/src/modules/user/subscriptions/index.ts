@@ -4,7 +4,10 @@ export {
   subscriptionLimitService,
 } from './subscriptions.factory';
 export { createSubscriptionsRoutes } from './presentation/subscriptions.routes';
-export { getDefaultPlanLimits } from './domain/entities/subscription.entity';
+export {
+  getDefaultPlanLimits,
+  getDefaultSubscriptionPlan,
+} from './domain/entities/subscription.entity';
 export type {
   SubscriptionPlanId,
   SubscriptionPlanLimits,

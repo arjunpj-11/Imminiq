@@ -9,6 +9,7 @@ import { GetActivityPageUseCase } from './application/use-cases/get-activity-pag
 import { RecordUserActivityUseCase } from './application/use-cases/record-user-activity.usecase';
 import { mongoActivityRepository } from './infrastructure/repositories/mongo-activity.repository';
 import { systemClock } from '../../../infrastructure/time/system-clock';
+import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 
 export type ActivityComposition = {
   useCases: ActivityUseCases;
@@ -41,7 +42,8 @@ export const createActivityComposition = (): ActivityComposition => {
         mapper,
         analyticsCalculator,
         dateRange,
-        systemClock
+        systemClock,
+        mongoPlatformPolicyReader
       ),
 
       recordActivity: new RecordUserActivityUseCase(
@@ -49,7 +51,8 @@ export const createActivityComposition = (): ActivityComposition => {
         eventPolicy,
         mapper,
         dateRange,
-        systemClock
+        systemClock,
+        mongoPlatformPolicyReader
       ),
     },
   };

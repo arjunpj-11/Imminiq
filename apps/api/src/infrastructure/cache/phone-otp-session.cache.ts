@@ -1,6 +1,5 @@
 import { redis } from './redis.client';
-
-const PHONE_OTP_SESSION_TTL_SECONDS = 10 * 60;
+import { env } from '../../config/env';
 
 export type PhoneOtpPurpose = 'phone_verification' | 'password_reset';
 
@@ -16,7 +15,7 @@ export const phoneOtpSessionCache = {
   saveVerificationId: async (phone: string, purpose: PhoneOtpPurpose, verificationId: string) => {
     const key = getKey(phone, purpose);
 
-    await redis.set(key, verificationId, 'EX', PHONE_OTP_SESSION_TTL_SECONDS);
+    await redis.set(key, verificationId, 'EX', env.OTP_EXPIRES_MINUTES * 60);
   },
 
   getVerificationId: async (phone: string, purpose: PhoneOtpPurpose) => {

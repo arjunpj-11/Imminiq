@@ -26,6 +26,13 @@ export interface AdminPlanLimitsDTO {
 
 export interface AdminSubscriptionPlanDTO {
   planId: 'free' | 'pro' | 'premium';
+  name: string;
+  description: string;
+  monthlyAmount: number;
+  annualAmount: number;
+  currency: 'INR';
+  features: string[];
+  highlighted: boolean;
   limits: AdminPlanLimitsDTO;
   updatedAt: Date | null;
 }

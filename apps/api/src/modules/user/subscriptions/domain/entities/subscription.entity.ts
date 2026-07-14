@@ -112,3 +112,9 @@ export const getDefaultPlanLimits = (planId: SubscriptionPlanId): SubscriptionPl
   if (!limits) throw new Error(`Unknown subscription plan: ${planId}`);
   return { ...limits };
 };
+
+export const getDefaultSubscriptionPlan = (planId: SubscriptionPlanId): SubscriptionPlan => {
+  const plan = SUBSCRIPTION_PLANS.find((candidate) => candidate.id === planId);
+  if (!plan) throw new Error(`Unknown subscription plan: ${planId}`);
+  return { ...plan, features: [...plan.features], limits: { ...plan.limits } };
+};

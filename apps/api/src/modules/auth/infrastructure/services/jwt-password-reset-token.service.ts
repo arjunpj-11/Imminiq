@@ -3,7 +3,6 @@ import jwt, { SignOptions } from 'jsonwebtoken';
 
 import { env } from '../../../../config/env';
 import { AuthDomainError } from '../../domain/auth-domain.error';
-import { PASSWORD_RESET_TOKEN_EXPIRES_SECONDS } from '../../domain/auth.constants';
 import type { IPasswordResetSessionStore } from '../../domain/services/password-reset-session-store.interface';
 import type { IPasswordResetToken } from '../../domain/services/password-reset-token.interface';
 import type { ResetTokenPayload } from '../../domain/value-objects/token-payload.vo';
@@ -16,7 +15,7 @@ export class JwtPasswordResetToken implements IPasswordResetToken {
     const jti = randomUUID();
 
     const resetTokenOptions: SignOptions = {
-      expiresIn: '10m',
+      expiresIn: env.PASSWORD_RESET_TOKEN_TTL_SECONDS,
     };
 
     const token = jwt.sign(
@@ -29,7 +28,11 @@ export class JwtPasswordResetToken implements IPasswordResetToken {
       resetTokenOptions
     );
 
-    await this._passwordResetSessionStore.save(jti, userId, PASSWORD_RESET_TOKEN_EXPIRES_SECONDS);
+    await this._passwordResetSessionStore.save(
+      jti,
+      userId,
+      env.PASSWORD_RESET_TOKEN_TTL_SECONDS
+    );
 
     return token;
   }

@@ -38,6 +38,7 @@ import { VerifyLessonAnswerUseCase } from './application/use-cases/verify-lesson
 import { VerifyTrackerSubtopicUseCase } from './application/use-cases/verify-tracker-subtopic.usecase';
 import { VerifyTrackerTopicUseCase } from './application/use-cases/verify-tracker-topic.usecase';
 import type { ITrackerRepository } from './domain/repositories/tracker.repository.interface';
+import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 import { ActivityTrackerGateway } from './infrastructure/gateways/activity-tracker.gateway';
 import type { IRecordUserActivityUseCase } from '../activity';
 import { aiTrackerGateway } from './infrastructure/gateways/ai-tracker.gateway';
@@ -162,7 +163,8 @@ export const createTrackerComposition = (
       updateSubtopicProgress: new UpdateSubtopicProgressUseCase(
         trackerRepository,
         trackerActivityRecorder,
-        _trackerMapper
+        _trackerMapper,
+        mongoPlatformPolicyReader
       ),
 
       addMissingEvaluationTopic: new AddMissingEvaluationTopicUseCase(

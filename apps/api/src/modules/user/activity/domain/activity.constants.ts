@@ -8,10 +8,6 @@ export const ACTIVITY_MIN_YEAR = 2000;
 export const ACTIVITY_MAX_UTC_OFFSET_MINUTES = 14 * 60;
 export const ACTIVITY_MIN_UTC_OFFSET_MINUTES = -12 * 60;
 
-export const ACTIVITY_WEEKLY_XP_TARGET = 5000;
-
-export const ACTIVITY_DAILY_GOAL_REWARD_XP = 50;
-
 export const ACTIVITY_DAILY_GOAL_TASK_TYPES = [
   'subtopic_completed',
   'mock_test_completed',

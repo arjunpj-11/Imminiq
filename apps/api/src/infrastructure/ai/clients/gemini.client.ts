@@ -4,7 +4,7 @@ import { recordAITokenUsage, type AITokenUsageCategory } from '../ai-token-usage
 
 const genAI = new GoogleGenerativeAI(env.GEMINI_API_KEY);
 
-type GeminiModel = 'gemini-2.5-flash' | 'gemini-2.5-flash-lite' | 'gemini-3.1-flash-lite';
+type GeminiModel = string;
 
 export const geminiChatWithModel = async (
   modelName: GeminiModel,
@@ -34,7 +34,7 @@ export const geminiChat = async (
   system?: string,
   category: AITokenUsageCategory = 'other'
 ) => {
-  return geminiChatWithModel('gemini-2.5-flash', prompt, system, category);
+  return geminiChatWithModel(env.GEMINI_DEFAULT_MODEL, prompt, system, category);
 };
 
 export const geminiFlashLiteChat = async (
@@ -42,7 +42,7 @@ export const geminiFlashLiteChat = async (
   system?: string,
   category: AITokenUsageCategory = 'other'
 ) => {
-  return geminiChatWithModel('gemini-2.5-flash-lite', prompt, system, category);
+  return geminiChatWithModel(env.GEMINI_FAST_MODEL, prompt, system, category);
 };
 
 export const gemini31FlashLiteChat = async (
@@ -50,7 +50,7 @@ export const gemini31FlashLiteChat = async (
   system?: string,
   category: AITokenUsageCategory = 'other'
 ) => {
-  return geminiChatWithModel('gemini-3.1-flash-lite', prompt, system, category);
+  return geminiChatWithModel(env.GEMINI_NEXT_MODEL, prompt, system, category);
 };
 
 export const geminiChatWithHistory = async (
@@ -58,7 +58,7 @@ export const geminiChatWithHistory = async (
   system?: string
 ) => {
   const model = genAI.getGenerativeModel({
-    model: 'gemini-1.5-pro',
+    model: env.GEMINI_HISTORY_MODEL,
     systemInstruction: system,
   });
 

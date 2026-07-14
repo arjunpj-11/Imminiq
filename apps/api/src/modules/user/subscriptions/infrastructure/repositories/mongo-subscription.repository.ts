@@ -3,6 +3,9 @@ import { SubscriptionPlan as SubscriptionPlanModel } from '../../../../../infras
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import {
   getDefaultPlanLimits,
+  getDefaultSubscriptionPlan,
+  SUBSCRIPTION_PLANS,
+  type SubscriptionPlan,
   type SubscriptionPlanId,
   type SubscriptionPlanLimits,
   type UserSubscription,
@@ -36,14 +39,32 @@ const mapSubscription = (row: {
 });
 
 export class MongoSubscriptionRepository implements ISubscriptionRepository {
-  async getPlanLimits(planId: SubscriptionPlanId) {
-    const defaults = getDefaultPlanLimits(planId);
+  private mapPlan(planId: SubscriptionPlanId, row?: Partial<SubscriptionPlan> | null): SubscriptionPlan {
+    const fallback = getDefaultSubscriptionPlan(planId);
+    return {
+      id: planId,
+      name: row?.name ?? fallback.name,
+      description: row?.description ?? fallback.description,
+      monthlyAmount: row?.monthlyAmount ?? fallback.monthlyAmount,
+      annualAmount: row?.annualAmount ?? fallback.annualAmount,
+      currency: 'INR',
+      features: row?.features?.length ? [...row.features] : [...fallback.features],
+      limits: { ...(row?.limits ?? fallback.limits) },
+      highlighted: row?.highlighted ?? fallback.highlighted,
+    };
+  }
+
+  async getPlan(planId: SubscriptionPlanId): Promise<SubscriptionPlan> {
     const row = await SubscriptionPlanModel.findOne({
       $or: [{ planId }, { code: planId }],
     })
-      .select('limits')
+      .select('-_id name description monthlyAmount annualAmount currency features limits highlighted')
       .lean();
-    return { ...(row?.limits ?? defaults) } as SubscriptionPlanLimits;
+    return this.mapPlan(planId, row as Partial<SubscriptionPlan> | null);
+  }
+
+  async getPlans(): Promise<SubscriptionPlan[]> {
+    return Promise.all(SUBSCRIPTION_PLANS.map((plan) => this.getPlan(plan.id)));
   }
 
   async createPending(input: Parameters<ISubscriptionRepository['createPending']>[0]) {

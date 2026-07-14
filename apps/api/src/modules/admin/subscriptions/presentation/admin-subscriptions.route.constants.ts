@@ -1,6 +1,6 @@
 export const ADMIN_SUBSCRIPTIONS_ROUTE_PATHS = {
   ROOT: '/',
-  PLAN_LIMITS: '/plans/:planId/limits',
+  PLAN: '/plans/:planId',
 } as const;
 
 export type AdminSubscriptionsRoutePath =

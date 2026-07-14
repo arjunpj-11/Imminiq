@@ -1,6 +1,6 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../src/modules/auth/domain/auth.constants';
+import { RUNTIME_DEFAULTS } from '../../src/config/constants';
 import { AuthUserEntity } from '../../src/modules/auth/domain/entities/auth-user.entity';
 import type { IAuthUserRepository } from '../../src/modules/auth/domain/repositories/auth-user.repository.interface';
 import type { IAuthNotification } from '../../src/modules/auth/domain/services/auth-notification.interface';
@@ -116,7 +116,8 @@ describe('pending registration flow', () => {
       notification,
       new IdentifierNormalizer(),
       passwordHasher,
-      store
+      store,
+      { pendingRegistrationTtlSeconds: RUNTIME_DEFAULTS.PENDING_REGISTRATION_TTL_SECONDS }
     );
 
     const result = await useCase.execute({
@@ -134,7 +135,7 @@ describe('pending registration flow', () => {
         phone: undefined,
         passwordHash: 'secure-password-hash',
       },
-      PENDING_REGISTRATION_EXPIRES_SECONDS
+      RUNTIME_DEFAULTS.PENDING_REGISTRATION_TTL_SECONDS
     );
     expect(sendVerificationOtp).toHaveBeenCalledOnce();
     expect(result).toEqual({

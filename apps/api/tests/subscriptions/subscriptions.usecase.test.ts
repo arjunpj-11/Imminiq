@@ -5,9 +5,11 @@ import { VerifySubscriptionPaymentUseCase } from '../../src/modules/user/subscri
 import { SubscriptionsMapper } from '../../src/modules/user/subscriptions/application/subscriptions.mapper';
 import type {
   PendingSubscriptionInput,
+  SubscriptionPlan,
   SubscriptionPlanLimits,
   UserSubscription,
 } from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
+import { SUBSCRIPTION_PLANS } from '../../src/modules/user/subscriptions/domain/entities/subscription.entity';
 import type { ISubscriptionRepository } from '../../src/modules/user/subscriptions/domain/repositories/subscription.repository.interface';
 import type { ISubscriptionPaymentGateway } from '../../src/modules/user/subscriptions/domain/services/subscription-payment-gateway.interface';
 import { adminPlanLimitsSchema } from '../../src/modules/admin/subscriptions/presentation/admin-subscriptions.schema';
@@ -45,7 +47,21 @@ describe('subscription use cases', () => {
 
   beforeEach(() => {
     repository = {
-      getPlanLimits: vi.fn(async () => ({ ...limits })),
+      getPlans: vi.fn(async () =>
+        SUBSCRIPTION_PLANS.map((plan) => ({
+          ...plan,
+          features: [...plan.features],
+          limits: { ...plan.limits },
+        }))
+      ),
+      getPlan: vi.fn(async (planId) => {
+        const plan = SUBSCRIPTION_PLANS.find((candidate) => candidate.id === planId);
+        return {
+          ...plan,
+          features: [...(plan?.features ?? [])],
+          limits: planId === 'pro' ? { ...limits } : { ...(plan?.limits ?? limits) },
+        } as SubscriptionPlan;
+      }),
       createPending: vi.fn(async (input: PendingSubscriptionInput) => ({
         ...subscription,
         planId: input.planId,

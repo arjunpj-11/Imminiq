@@ -133,7 +133,7 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
             },
           ],
           (rawResponse) => parseAIJson(rawResponse, assessmentPlanSchema, { logErrors: false }),
-          'llama-3.1-8b-instant',
+          'fast',
           'adaptive_learning'
         );
         return { proposedPlan };
@@ -212,7 +212,7 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
           },
         ],
         (rawResponse) => parseAIJson(rawResponse, advisorResponseSchema, { logErrors: false }),
-        'llama-3.1-8b-instant',
+        'fast',
         'adaptive_learning'
       );
     } catch (error) {

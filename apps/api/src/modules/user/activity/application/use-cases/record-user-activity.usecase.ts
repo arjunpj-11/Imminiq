@@ -1,4 +1,3 @@
-import { ACTIVITY_DAILY_GOAL_REWARD_XP } from '../../domain/activity.constants';
 import { ActivityDomainError } from '../../domain/activity-domain.error';
 import type { IActivityCommandRepository } from '../../domain/repositories/activity-command.repository.interface';
 import type { IActivityQueryRepository } from '../../domain/repositories/activity-query.repository.interface';
@@ -8,6 +7,7 @@ import type { ActivityMapperContract } from '../activity.mapper';
 import { ActivityEventPolicy } from '../activity-event.policy';
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service';
 import type { IClock } from '../../../../../shared/time/clock.interface';
+import type { IActivityPolicyReader } from '../../../../../shared/platform-policy';
 
 const DAY_IN_MS = 86_400_000;
 
@@ -23,7 +23,8 @@ export class RecordUserActivityUseCase implements IRecordUserActivityUseCase {
     private readonly _eventPolicy: ActivityEventPolicy,
     private readonly _mapper: ActivityMapperContract,
     private readonly _dateRange: ActivityDateRangeContract,
-    private readonly _clock: IClock
+    private readonly _clock: IClock,
+    private readonly _policyReader: IActivityPolicyReader
   ) {}
 
   async execute(payload: RecordUserActivityPayloadDTO): Promise<RecordUserActivityResponseDTO> {
@@ -129,6 +130,8 @@ export class RecordUserActivityUseCase implements IRecordUserActivityUseCase {
       return null;
     }
 
+    const policy = await this._policyReader.getActivityPolicy();
+
     return this._activityRepository.recordActivityAndApplyReward({
       userId: input.userId,
 
@@ -138,7 +141,7 @@ export class RecordUserActivityUseCase implements IRecordUserActivityUseCase {
       title: 'Daily goal completed',
       subtitle: 'Completed one subtopic and one mock test today',
 
-      xpAwarded: ACTIVITY_DAILY_GOAL_REWARD_XP,
+      xpAwarded: policy.dailyGoalRewardXp,
       xpBucket: 'learning',
       coinsAwarded: 0,
 

@@ -2,7 +2,6 @@ import type {
   PaidSubscriptionPlanId,
   SubscriptionBillingCycle,
 } from '../../domain/entities/subscription.entity';
-import { SUBSCRIPTION_PLANS } from '../../domain/entities/subscription.entity';
 import type { ISubscriptionRepository } from '../../domain/repositories/subscription.repository.interface';
 import type { ISubscriptionPaymentGateway } from '../../domain/services/subscription-payment-gateway.interface';
 import { SubscriptionsApplicationError } from '../subscriptions-application.error';
@@ -29,10 +28,9 @@ export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderU
     planId: PaidSubscriptionPlanId,
     billingCycle: SubscriptionBillingCycle
   ) {
-    const plan = SUBSCRIPTION_PLANS.find((candidate) => candidate.id === planId);
+    const plan = await this.repository.getPlan(planId);
     if (!plan || plan.id === 'free') throw SubscriptionsApplicationError.invalidPlan();
     const amount = billingCycle === 'annual' ? plan.annualAmount : plan.monthlyAmount;
-    const limits = await this.repository.getPlanLimits(planId);
     const receipt = `sub_${userId.slice(-8)}_${Date.now().toString(36)}`.slice(0, 40);
     const order = await this.paymentGateway.createOrder(amount, receipt);
     await this.repository.createPending({
@@ -42,7 +40,7 @@ export class CreateSubscriptionOrderUseCase implements ICreateSubscriptionOrderU
       billingCycle,
       amount,
       razorpayOrderId: order.id,
-      limits,
+      limits: plan.limits,
     });
     return this.mapper.toOrderDTO({
       keyId: this.paymentGateway.getPublicKey(),

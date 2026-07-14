@@ -1,7 +1,3 @@
-import {
-  ACCOUNT_DELETION_RECOVERY_DAYS,
-  ACCOUNT_DELETION_RECOVERY_MS,
-} from '../../domain/security.constants';
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
 import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
@@ -9,6 +5,7 @@ import type { DeleteAccountPayloadDTO, DeleteAccountResponseDTO } from '../secur
 import { SecurityApplicationError } from '../security-application.error';
 import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service';
 import type { IClock } from '../../../../shared/time/clock.interface';
+import type { ISecurityProductPolicyReader } from '../../../../shared/platform-policy';
 
 type DeleteSecurityAccountRepository = ISecurityUserRepository & ISecuritySessionRepository;
 
@@ -21,13 +18,15 @@ export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCa
     private readonly _securityRepository: DeleteSecurityAccountRepository,
     private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
     private readonly _securityAuditLogger: ISecurityAuditLogger,
-    private readonly _clock: IClock
+    private readonly _clock: IClock,
+    private readonly _policyReader: ISecurityProductPolicyReader
   ) {}
 
   async execute(
     userId: string,
     payload: DeleteAccountPayloadDTO
   ): Promise<DeleteAccountResponseDTO> {
+    const policy = await this._policyReader.getSecurityProductPolicy();
     if (payload.confirmation !== 'DELETE') {
       throw SecurityApplicationError.invalidDeleteConfirmation();
     }
@@ -47,7 +46,7 @@ export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCa
     await this._securityRepository.revokeAllSessions(userId);
 
     const scheduledDeletionAt = new Date(
-      this._clock.now().getTime() + ACCOUNT_DELETION_RECOVERY_MS
+      this._clock.now().getTime() + policy.accountDeletionRecoveryDays * 24 * 60 * 60 * 1000
     );
 
     const scheduledUser = await this._securityRepository.scheduleAccountDeletion({
@@ -69,7 +68,7 @@ export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCa
       deleted: true,
       deletionScheduled: true,
       scheduledDeletionAt: scheduledDeletionAt.toISOString(),
-      recoveryWindowDays: ACCOUNT_DELETION_RECOVERY_DAYS,
+      recoveryWindowDays: policy.accountDeletionRecoveryDays,
     };
   }
 }

@@ -50,6 +50,7 @@ import { redisPasswordResetSessionStore } from './infrastructure/stores/redis-pa
 import { redisPhoneOtpSessionStore } from './infrastructure/stores/redis-phone-otp-session.store';
 import { redisRetiredRefreshTokenStore } from './infrastructure/stores/redis-retired-refresh-token.store';
 import { redisSecurityAttemptStore } from './infrastructure/stores/redis-security-attempt.store';
+import { env } from '../../config/env';
 
 export type AuthServiceHelpers = {
   authUserMapper: IAuthUserMapper;
@@ -68,6 +69,10 @@ export type AuthComposition = {
 };
 
 export const createAuthComposition = (): AuthComposition => {
+  const runtimePolicy = {
+    pendingRegistrationTtlSeconds: env.PENDING_REGISTRATION_TTL_SECONDS,
+    twoFactorChallengeTtlMinutes: env.TWO_FACTOR_CHALLENGE_TTL_MINUTES,
+  };
   const authRepository = mongoAuthRepository;
 
   const authUserMapper = new AuthUserMapper();
@@ -116,7 +121,8 @@ export const createAuthComposition = (): AuthComposition => {
         authNotification,
         identifierNormalizer,
         passwordHasher,
-        pendingRegistrationStore
+        pendingRegistrationStore,
+        runtimePolicy
       ),
 
       loginUser: new LoginUserUseCase(
@@ -130,7 +136,8 @@ export const createAuthComposition = (): AuthComposition => {
         passwordHasher,
         securityAttemptStore,
         authUserMapper,
-        jwtModerationAppealToken
+        jwtModerationAppealToken,
+        runtimePolicy
       ),
 
       handleOAuthLogin: new HandleOAuthLoginUseCase(
@@ -139,7 +146,8 @@ export const createAuthComposition = (): AuthComposition => {
         authToken,
         authAccountPolicy,
         authSessionIssuer,
-        authUserMapper
+        authUserMapper,
+        runtimePolicy
       ),
 
       verifyTwoFactorLogin: new VerifyTwoFactorLoginUseCase(
@@ -183,7 +191,8 @@ export const createAuthComposition = (): AuthComposition => {
         authRepository,
         authNotification,
         identifierNormalizer,
-        pendingRegistrationStore
+        pendingRegistrationStore,
+        runtimePolicy
       ),
 
       forgotPassword: new ForgotPasswordUseCase(

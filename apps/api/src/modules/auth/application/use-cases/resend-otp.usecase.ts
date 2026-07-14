@@ -4,7 +4,7 @@ import type { IAuthNotification } from '../../domain/services/auth-notification.
 import type { OtpPurpose } from '../../domain/value-objects/otp-purpose.vo';
 import type { IIdentifierNormalizer } from '../../domain/services/identifier-normalizer.interface';
 import type { IPendingRegistrationStore } from '../../domain/services/pending-registration-store.interface';
-import { PENDING_REGISTRATION_EXPIRES_SECONDS } from '../../domain/auth.constants';
+import type { AuthRuntimePolicy } from '../../domain/auth-runtime-policy';
 
 export interface IResendOtpUseCase {
   execute(identifier: string, purpose: OtpPurpose): Promise<void>;
@@ -15,7 +15,8 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
     private readonly _authRepository: IAuthUserRepository,
     private readonly _authNotification: IAuthNotification,
     private readonly _identifierNormalizer: IIdentifierNormalizer,
-    private readonly _pendingRegistrationStore: IPendingRegistrationStore
+    private readonly _pendingRegistrationStore: IPendingRegistrationStore,
+    private readonly _runtimePolicy: Pick<AuthRuntimePolicy, 'pendingRegistrationTtlSeconds'>
   ) {}
 
   async execute(identifier: string, purpose: OtpPurpose): Promise<void> {
@@ -40,7 +41,7 @@ export class ResendOtpUseCase implements IResendOtpUseCase {
       await this._pendingRegistrationStore.save(
         parsedIdentifier.value,
         pendingRegistration,
-        PENDING_REGISTRATION_EXPIRES_SECONDS
+        this._runtimePolicy.pendingRegistrationTtlSeconds
       );
     }
 

@@ -1,4 +1,3 @@
-import { SUBSCRIPTION_PLANS } from '../../domain/entities/subscription.entity';
 import type { ISubscriptionRepository } from '../../domain/repositories/subscription.repository.interface';
 import type { SubscriptionPlanDTO } from '../subscriptions.dto';
 import type { ISubscriptionsMapper } from '../subscriptions.mapper';
@@ -13,14 +12,7 @@ export class ListSubscriptionPlansUseCase implements IListSubscriptionPlansUseCa
     private readonly mapper: ISubscriptionsMapper
   ) {}
 
-  execute() {
-    return Promise.all(
-      SUBSCRIPTION_PLANS.map(async (plan) =>
-        this.mapper.toPlanDTO({
-          ...plan,
-          limits: await this.repository.getPlanLimits(plan.id),
-        })
-      )
-    );
+  async execute() {
+    return (await this.repository.getPlans()).map((plan) => this.mapper.toPlanDTO(plan));
   }
 }

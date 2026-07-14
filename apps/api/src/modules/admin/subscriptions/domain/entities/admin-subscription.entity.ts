@@ -39,8 +39,17 @@ export type AdminPlanLimits = {
 
 export type AdminSubscriptionPlan = {
   planId: 'free' | 'pro' | 'premium';
+  name: string;
+  description: string;
+  monthlyAmount: number;
+  annualAmount: number;
+  currency: 'INR';
+  features: string[];
+  highlighted: boolean;
   limits: AdminPlanLimits;
   updatedAt: Date | null;
 };
+
+export type AdminSubscriptionPlanInput = Omit<AdminSubscriptionPlan, 'planId' | 'updatedAt'>;
 
 export type AdminSubscriptionQuery = AdminListQuery;

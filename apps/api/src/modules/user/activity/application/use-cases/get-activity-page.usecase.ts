@@ -6,6 +6,7 @@ import type { ActivityAnalyticsContract } from '../services/activity-analytics.s
 import type { ActivityDateRangeContract } from '../services/activity-date-range.service';
 import { GetActivityFeedUseCase } from './get-activity-feed.usecase';
 import type { IClock } from '../../../../../shared/time/clock.interface';
+import type { IActivityPolicyReader } from '../../../../../shared/platform-policy';
 
 export interface IGetActivityPageUseCase {
   execute(
@@ -22,7 +23,8 @@ export class GetActivityPageUseCase implements IGetActivityPageUseCase {
     private readonly _mapper: ActivityMapperContract,
     private readonly _analyticsCalculator: ActivityAnalyticsContract,
     private readonly _dateRange: ActivityDateRangeContract,
-    private readonly _clock: IClock
+    private readonly _clock: IClock,
+    private readonly _policyReader: IActivityPolicyReader
   ) {}
 
   async execute(
@@ -32,7 +34,7 @@ export class GetActivityPageUseCase implements IGetActivityPageUseCase {
   ): Promise<ActivityPageResponseDTO> {
     const context = this._dateRange.createContext(now, payload.year, payload.utcOffsetMinutes ?? 0);
 
-    const [analytics, feed] = await Promise.all([
+    const [analytics, feed, policy] = await Promise.all([
       this._activityRepository.findActivityAnalytics({
         userId,
         year: context.year,
@@ -62,6 +64,7 @@ export class GetActivityPageUseCase implements IGetActivityPageUseCase {
         },
         now
       ),
+      this._policyReader.getActivityPolicy(),
     ]);
 
     if (!analytics.user) {
@@ -74,6 +77,7 @@ export class GetActivityPageUseCase implements IGetActivityPageUseCase {
       feed,
       analyticsCalculator: this._analyticsCalculator,
       dateRange: this._dateRange,
+      policy,
     });
   }
 }
