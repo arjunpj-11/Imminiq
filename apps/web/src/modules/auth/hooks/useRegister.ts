@@ -2,6 +2,7 @@ import { useMutation } from '@tanstack/react-query';
 import { useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import api from '../../../lib/axios';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 interface IRegisterPayload {
   fullName: string;
@@ -38,7 +39,7 @@ export const useRegister = () => {
     mutationFn: registerUser,
 
     onSuccess: (data, variables) => {
-      navigate('/verify-account', {
+      navigate(ROUTES.verifyAccount, {
         replace: true,
         state: {
           identifier: data.data?.verificationTarget || variables.identifier,

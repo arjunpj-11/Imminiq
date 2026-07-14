@@ -4,6 +4,7 @@ import { cn } from '../../../../lib/cn';
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { useTrackers, useUnpublishTracker } from '../hooks/useTrackers';
@@ -634,7 +635,7 @@ export default function MyPublishedTrackersPage() {
 
             <button
               type="button"
-              onClick={() => navigate('/trackers')}
+              onClick={() => navigate(ROUTES.trackers)}
               className="mt-5 inline-flex items-center gap-2 rounded-md bg-(--success) px-5 py-2.5 text-[13px] font-bold text-white transition hover:-translate-y-px hover:bg-[#245638] dark:bg-(--success) dark:text-[#141412]"
             >
               Go to My Trackers

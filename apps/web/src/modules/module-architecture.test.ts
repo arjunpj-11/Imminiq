@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { describe, expect, it } from 'vitest';
 
 const modulesRoot = join(process.cwd(), 'src', 'modules');
+const sourceRoot = join(process.cwd(), 'src');
 const allowedModuleDirectories = new Set([
   'components',
   'constants',
@@ -66,6 +67,68 @@ describe('frontend feature-module architecture', () => {
       const queryKeyFiles = readdirSync(hooksRoot).filter((file) => file.endsWith('.query-keys.ts'));
       return queryKeyFiles.length === 1 ? [] : [moduleRoot.replace(`${modulesRoot}/`, '')];
     });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('gives every admin feature one constants owner', () => {
+    const violations = scopedModuleRoots('admin').flatMap((moduleRoot) => {
+      if (moduleRoot === join(modulesRoot, 'admin', 'shared')) return [];
+      const constantsRoot = join(moduleRoot, 'constants');
+      if (!existsSync(constantsRoot)) return [moduleRoot.replace(`${modulesRoot}/`, '')];
+
+      const constantsFiles = readdirSync(constantsRoot).filter((file) =>
+        file.endsWith('.constants.ts')
+      );
+      return constantsFiles.length === 1
+        ? []
+        : [`${moduleRoot.replace(`${modulesRoot}/`, '')}: ${constantsFiles.length}`];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps each admin hook focused on one exported operation', () => {
+    const violations = scopedModuleRoots('admin')
+      .flatMap(collectFiles)
+      .filter((file) => /\/hooks\/use[^/]+\.ts$/.test(file))
+      .filter((file) => {
+        const source = readFileSync(file, 'utf8');
+        return [...source.matchAll(/export const (use[A-Z]\w*)/g)].length !== 1;
+      })
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps admin API paths in feature constants instead of hooks', () => {
+    const violations = scopedModuleRoots('admin')
+      .flatMap(collectFiles)
+      .filter((file) => /\/hooks\/.*\.ts$/.test(file))
+      .filter((file) => /['"]\/admin(?:\/|['"])/.test(readFileSync(file, 'utf8')))
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps shared admin UI inside the admin module boundary', () => {
+    const violations = scopedModuleRoots('admin')
+      .flatMap(collectFiles)
+      .filter((file) => /components\/admin\//.test(readFileSync(file, 'utf8')))
+      .map((file) => file.replace(`${modulesRoot}/`, ''));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('uses the central route registry for component navigation', () => {
+    const violations = collectFiles(sourceRoot)
+      .filter((file) => file.endsWith('.tsx'))
+      .filter((file) => {
+        const source = readFileSync(file, 'utf8');
+        return /(?:navigate|onNavigate)\(\s*['"]\//.test(source) ||
+          /(?:to|brandTo|actionTo)=['"]\//.test(source);
+      })
+      .map((file) => file.replace(`${sourceRoot}/`, ''));
 
     expect(violations).toEqual([]);
   });

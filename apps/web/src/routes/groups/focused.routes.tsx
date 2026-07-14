@@ -5,18 +5,19 @@ import {
   TrackerLessonPage,
   TrackerQuickRevisionPage,
 } from '../config/focused-pages';
+import { ROUTES } from '../config/route-paths';
 
 export const focusedRoutes: RouteObject[] = [
   {
-    path: '/mock-tests/attempts/:attemptId',
+    path: ROUTES.mockTestAttemptPattern,
     element: <MockTestAttemptPage />,
   },
   {
-    path: '/trackers/:trackerId/lessons/:subtopicId',
+    path: ROUTES.trackerLessonPattern,
     element: <TrackerLessonPage />,
   },
   {
-    path: '/trackers/:trackerId/revision',
+    path: ROUTES.trackerRevisionPattern,
     element: <TrackerQuickRevisionPage />,
   },
 ];

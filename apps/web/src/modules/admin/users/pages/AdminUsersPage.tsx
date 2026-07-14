@@ -11,11 +11,12 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
-import { AdminError } from '../../../../components/admin/AdminPage';
+import { AdminError } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminUsers } from '../hooks/useAdminUsers';
 import {
   ADMIN_USER_FILTERS,
+  ADMIN_USERS_ROUTES,
   ADMIN_USERS_SEARCH_DEBOUNCE_MS,
 } from '../constants/admin-users.constants';
 
@@ -166,7 +167,7 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4 text-right">
                         <Link
-                          to={`/admin/users/${user._id}`}
+                          to={ADMIN_USERS_ROUTES.detail(user._id)}
                           className="inline-flex items-center gap-2 rounded-md border border-[rgba(255,255,255,0.09)] px-3 py-2 text-xs font-bold hover:bg-[#24211e]"
                         >
                           <Eye size={15} />

@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import {
   useRoadmapJobResult,
@@ -555,7 +556,7 @@ export default function OnboardingRoadmapReadyPage() {
 
             <button
               type="button"
-              onClick={() => navigate('/dashboard')}
+              onClick={() => navigate(ROUTES.dashboard)}
               className="flex w-full items-center justify-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-3.5 text-sm font-bold text-(--text-secondary) transition hover:-translate-y-px hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-[0_6px_24px_rgba(184,76,43,0.10)] dark:border-white/15 dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:text-(--brand-500)"
             >
               <span className="flex h-5 w-5 items-center justify-center rounded-[5px] border border-[rgba(184,76,43,0.20)] bg-[rgba(184,76,43,0.08)] text-(--brand-500) dark:border-[rgba(232,129,106,0.22)] dark:bg-[rgba(232,129,106,0.10)] dark:text-(--brand-500)">

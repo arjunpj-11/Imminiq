@@ -92,6 +92,7 @@ import {
 import { onboardingRoutes } from './modules/user/onboarding';
 import mongoose from 'mongoose';
 import { redis } from './config/redis';
+import { API_ROUTE_PATHS } from './shared/constants/api-route-paths';
 
 const app = express();
 
@@ -144,77 +145,83 @@ app.use(validateCsrfToken);
 initPassport(authComposition.helpers.authRepository);
 app.use(passport.initialize());
 
-app.use('/api/auth', authRouter);
-app.use('/api/onboarding', onboardingRoutes);
-app.use('/api/trackers', trackerRoutes);
+app.use(API_ROUTE_PATHS.auth, authRouter);
+app.use(API_ROUTE_PATHS.onboarding, onboardingRoutes);
+app.use(API_ROUTE_PATHS.trackers, trackerRoutes);
 
 /* Profile & account routes */
-app.use('/api/users', usersRouter);
+app.use(API_ROUTE_PATHS.users, usersRouter);
 
 /* Avatar and banner upload routes */
-app.use('/api/uploads', uploadsRouter);
+app.use(API_ROUTE_PATHS.uploads, uploadsRouter);
 
 /* User settings routes */
-app.use('/api/settings', settingsRoutes);
+app.use(API_ROUTE_PATHS.settings, settingsRoutes);
 app.use(
-  '/api/subscriptions',
+  API_ROUTE_PATHS.subscriptions,
   createSubscriptionsRoutes(createSubscriptionsComposition().useCases)
 );
 
-app.use('/api/dashboard', dashboardRoutes);
+app.use(API_ROUTE_PATHS.dashboard, dashboardRoutes);
 app.use(
-  '/api/admin/dashboard',
+  API_ROUTE_PATHS.admin.dashboard,
   createAdminDashboardRoutes(createAdminDashboardComposition().useCases)
 );
-app.use('/api/admin/users', createAdminUsersRoutes(createAdminUsersComposition().useCases));
-app.use('/api/admin/trackers', createAdminTrackersRoutes(createAdminTrackersComposition().useCases));
+app.use(API_ROUTE_PATHS.admin.users, createAdminUsersRoutes(createAdminUsersComposition().useCases));
 app.use(
-  '/api/admin/mock-tests',
+  API_ROUTE_PATHS.admin.trackers,
+  createAdminTrackersRoutes(createAdminTrackersComposition().useCases)
+);
+app.use(
+  API_ROUTE_PATHS.admin.mockTests,
   createAdminMockTestsRoutes(createAdminMockTestsComposition().useCases)
 );
 app.use(
-  '/api/admin/tracker-reviews',
+  API_ROUTE_PATHS.admin.trackerReviews,
   createAdminTrackerReviewsRoutes(createAdminTrackerReviewsComposition().useCases)
 );
 app.use(
-  '/api/admin/analytics',
+  API_ROUTE_PATHS.admin.analytics,
   createAdminAnalyticsRoutes(createAdminAnalyticsComposition().useCases)
 );
 app.use(
-  '/api/admin/broadcasts',
+  API_ROUTE_PATHS.admin.broadcasts,
   createAdminBroadcastRoutes(createAdminBroadcastComposition().useCases)
 );
 app.use(
-  '/api/admin/audit-logs',
+  API_ROUTE_PATHS.admin.auditLogs,
   createAdminAuditLogsRoutes(createAdminAuditLogsComposition().useCases)
 );
 app.use(
-  '/api/admin/system-health',
+  API_ROUTE_PATHS.admin.systemHealth,
   createAdminSystemHealthRoutes(createAdminSystemHealthComposition().useCases)
 );
 app.use(
-  '/api/admin/support-tickets',
+  API_ROUTE_PATHS.admin.supportTickets,
   createAdminSupportTicketsRoutes(createAdminSupportTicketsComposition().useCases)
 );
-app.use('/api/admin/settings', createAdminSettingsRoutes(createAdminSettingsComposition().useCases));
 app.use(
-  '/api/admin/subscriptions',
+  API_ROUTE_PATHS.admin.settings,
+  createAdminSettingsRoutes(createAdminSettingsComposition().useCases)
+);
+app.use(
+  API_ROUTE_PATHS.admin.subscriptions,
   createAdminSubscriptionsRoutes(createAdminSubscriptionsComposition().useCases)
 );
 app.use(
-  '/api/admin/ai-token-spend',
+  API_ROUTE_PATHS.admin.aiTokenSpend,
   createAdminAITokenSpendRoutes(createAdminAITokenSpendComposition().useCases)
 );
 app.use(
-  '/api/support-tickets',
+  API_ROUTE_PATHS.supportTickets,
   createSupportTicketsRoutes(createSupportTicketsComposition().useCase)
 );
 
-app.get('/api/health/live', (_req, res) => {
+app.get(API_ROUTE_PATHS.healthLive, (_req, res) => {
   res.json({ status: 'ok', uptimeSeconds: Math.floor(process.uptime()) });
 });
 
-app.get('/api/health/ready', async (_req, res) => {
+app.get(API_ROUTE_PATHS.healthReady, async (_req, res) => {
   const mongoReady = mongoose.connection.readyState === 1;
   let redisReady: boolean;
 
@@ -231,21 +238,24 @@ app.get('/api/health/ready', async (_req, res) => {
   });
 });
 
-app.get('/api/health', (_req, res) => {
+app.get(API_ROUTE_PATHS.health, (_req, res) => {
   res.json({ status: 'ok', uptimeSeconds: Math.floor(process.uptime()) });
 });
 
 // module routers will be registered here later
 
-app.use('/api/security', securityRoutes);
-app.use('/api/mock-tests', mockTestsRouter);
-app.use('/api/adaptive-learning', adaptiveLearningRouter);
-app.use('/api/community', communityRouter);
-app.use('/api/moderation-appeals', moderationAppealRoutes);
-app.use('/api/leaderboard', leaderboardRoutes);
-app.use('/api/activity', activityRouter);
-app.use('/api/friends', friendsRoutes);
-app.use('/api/notifications', createNotificationsRoutes(createNotificationsComposition().useCases));
+app.use(API_ROUTE_PATHS.security, securityRoutes);
+app.use(API_ROUTE_PATHS.mockTests, mockTestsRouter);
+app.use(API_ROUTE_PATHS.adaptiveLearning, adaptiveLearningRouter);
+app.use(API_ROUTE_PATHS.community, communityRouter);
+app.use(API_ROUTE_PATHS.moderationAppeals, moderationAppealRoutes);
+app.use(API_ROUTE_PATHS.leaderboard, leaderboardRoutes);
+app.use(API_ROUTE_PATHS.activity, activityRouter);
+app.use(API_ROUTE_PATHS.friends, friendsRoutes);
+app.use(
+  API_ROUTE_PATHS.notifications,
+  createNotificationsRoutes(createNotificationsComposition().useCases)
+);
 
 app.use(apiNotFoundHandler);
 app.use(errorHandler);

@@ -2,6 +2,7 @@
 import EmptyCard from './EmptyCard';
 import { formatRelativeTime } from '../utils/dashboard-formatters';
 import type { ReactElement } from 'react';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 type CurrentRoadmap = {
   _id: string;
@@ -260,7 +261,7 @@ export default function CurrentRoadmapCard({
           </div>
           <button
             type="button"
-            onClick={() => onNavigate('/onboarding/step-1')}
+            onClick={() => onNavigate(ROUTES.onboardingStepOne)}
             className="mt-4 inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412]"
           >
             Create Tracker

@@ -9,15 +9,14 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminSearch,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
-import {
-  useAdminPublishedTrackers,
-  useLikeAdminPublishedTracker,
-  useRateAdminPublishedTracker,
-} from '../hooks/useAdminTrackers';
+import { useAdminPublishedTrackers } from '../hooks/useAdminPublishedTrackers';
+import { useLikeAdminPublishedTracker } from '../hooks/useLikeAdminPublishedTracker';
+import { useRateAdminPublishedTracker } from '../hooks/useRateAdminPublishedTracker';
+import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 
 export default function AdminPublishedTrackersPage() {
   const [search, setSearch] = useState('');
@@ -31,7 +30,7 @@ export default function AdminPublishedTrackersPage() {
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <Link
-        to="/admin/trackers"
+        to={ADMIN_TRACKERS_ROUTES.list}
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
       >
         <ArrowLeft size={16} /> Back to tracker management
@@ -160,7 +159,7 @@ export default function AdminPublishedTrackersPage() {
                             {item.adminLiked ? 'Liked' : 'Like'}
                           </button>
                           <Link
-                            to={`/admin/trackers/${item.id}`}
+                            to={ADMIN_TRACKERS_ROUTES.detail(item.id)}
                             className="admin-button inline-flex items-center gap-2"
                           >
                             <Eye size={14} /> View

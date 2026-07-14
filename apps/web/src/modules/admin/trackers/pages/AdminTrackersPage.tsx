@@ -11,12 +11,14 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
-import { useAdminTrackers, useDeleteAdminTracker } from '../hooks/useAdminTrackers';
+import { useAdminTrackers } from '../hooks/useAdminTrackers';
+import { useDeleteAdminTracker } from '../hooks/useDeleteAdminTracker';
 import type { AdminTracker } from '../types/admin-trackers.types';
+import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 
 export default function AdminTrackersPage() {
   const [search, setSearch] = useState('');
@@ -37,13 +39,13 @@ export default function AdminTrackersPage() {
         action={
           <div className="flex flex-wrap gap-2">
             <Link
-              to="/admin/trackers/reviews"
+              to={ADMIN_TRACKERS_ROUTES.reviews}
               className="admin-button inline-flex items-center gap-2"
             >
               <FileBarChart size={16} /> Tracker reviews
             </Link>
             <Link
-              to="/admin/trackers/published"
+              to={ADMIN_TRACKERS_ROUTES.published}
               className="admin-primary-button inline-flex items-center gap-2"
             >
               <Globe2 size={16} /> Published trackers
@@ -127,7 +129,7 @@ export default function AdminTrackersPage() {
                       <td>
                         <div className="flex gap-2">
                           <Link
-                            to={`/admin/trackers/${item.id}`}
+                            to={ADMIN_TRACKERS_ROUTES.detail(item.id)}
                             className="admin-button inline-flex items-center gap-2"
                           >
                             <Eye size={14} />

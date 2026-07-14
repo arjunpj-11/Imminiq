@@ -1,17 +1,19 @@
 import type { AdminActor } from '../../../shared';
-import type { AdminTrackerDeleteResult } from '../../domain/entities/admin-tracker.entity';
 import type { IAdminTrackersRepository } from '../../domain/repositories/admin-trackers.repository.interface';
 import type { IAdminTrackerEmailProvider } from '../../domain/services/admin-tracker-email-provider.interface';
 import { AdminTrackersApplicationError } from '../admin-trackers-application.error';
+import type { IAdminTrackerDeleteResultDTO } from '../admin-trackers.dto';
+import type { IAdminTrackersMapper } from '../admin-trackers.mapper';
 
 export interface IDeleteAdminTrackerUseCase {
-  execute(id: string, actor: AdminActor): Promise<AdminTrackerDeleteResult>;
+  execute(id: string, actor: AdminActor): Promise<IAdminTrackerDeleteResultDTO>;
 }
 
 export class DeleteAdminTrackerUseCase implements IDeleteAdminTrackerUseCase {
   constructor(
     private readonly repository: IAdminTrackersRepository,
-    private readonly emailProvider: IAdminTrackerEmailProvider
+    private readonly emailProvider: IAdminTrackerEmailProvider,
+    private readonly mapper: IAdminTrackersMapper
   ) {}
 
   async execute(id: string, actor: AdminActor) {
@@ -23,6 +25,6 @@ export class DeleteAdminTrackerUseCase implements IDeleteAdminTrackerUseCase {
         trackerTitle: result.title,
       });
     }
-    return result;
+    return this.mapper.toDeleteResultDTO(result);
   }
 }

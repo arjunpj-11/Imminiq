@@ -12,6 +12,7 @@ import { Navigate } from 'react-router-dom';
 import { useSubmitModerationAppeal } from '../hooks/moderation/useSubmitModerationAppeal';
 import { useGetModerationAppealStatus } from '../hooks/moderation/useGetModerationAppealStatus';
 import { useAuthStore } from '../store/useAuthStore';
+import { ROUTES } from '../routes/config/route-paths';
 import {
   getBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
@@ -292,7 +293,7 @@ export default function BlockedPage() {
     user?.status === 'paused';
 
   if (isAuthenticated && user && !isRestrictedUser) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={ROUTES.dashboard} replace />;
   }
 
   const submittedAppeal = submittedAppealResponse?.data;
@@ -392,8 +393,8 @@ export default function BlockedPage() {
       <SystemToast message={toast} visible={isToastVisible} />
 
       <SystemPageHeader
-        brandTo="/login"
-        actionTo="/login"
+        brandTo={ROUTES.login}
+        actionTo={ROUTES.login}
         actionLabel="Back to Login"
         actionIcon={<LoginIcon />}
         onUnavailableLink={showToast}

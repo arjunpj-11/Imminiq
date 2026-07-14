@@ -4,6 +4,7 @@ import { cn } from '../../lib/cn';
 import { prefetchRoute } from '../../lib/route-prefetch';
 import { getTemporaryUserNavItem } from '../../lib/current-page-navigation';
 import { refreshCurrentRoute } from '../../lib/refresh-current-route';
+import { ROUTES } from '../../routes/config/route-paths';
 
 interface IBottomNavProps {
   activeTab?: 'home' | 'trackers' | 'tests' | 'adaptive' | 'ranks' | 'community' | 'profile';
@@ -13,7 +14,7 @@ const tabs = [
   {
     key: 'home',
     label: 'Home',
-    to: '/dashboard',
+    to: ROUTES.dashboard,
     icon: (
       <>
         <rect x="3" y="3" width="7" height="7" />
@@ -26,13 +27,13 @@ const tabs = [
   {
     key: 'trackers',
     label: 'Trackers',
-    to: '/trackers',
+    to: ROUTES.trackers,
     icon: <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />,
   },
   {
     key: 'tests',
     label: 'Tests',
-    to: '/mock-tests',
+    to: ROUTES.mockTests,
     icon: (
       <>
         <path d="M9 11l3 3L22 4" />
@@ -43,7 +44,7 @@ const tabs = [
   {
     key: 'adaptive',
     label: 'Adaptive',
-    to: '/learning-agent',
+    to: ROUTES.learningAgent,
     icon: (
       <>
         <path d="M12 2l1.4 5.1L18 9l-4.6 1.9L12 16l-1.4-5.1L6 9l4.6-1.9L12 2Z" />
@@ -54,7 +55,7 @@ const tabs = [
   {
     key: 'ranks',
     label: 'Ranks',
-    to: '/leaderboard',
+    to: ROUTES.leaderboard,
     icon: (
       <>
         <line x1="18" y1="20" x2="18" y2="10" />
@@ -66,7 +67,7 @@ const tabs = [
   {
     key: 'community',
     label: 'Community',
-    to: '/community',
+    to: ROUTES.community,
     icon: (
       <>
         <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2" />
@@ -115,7 +116,7 @@ export default function BottomNav({ activeTab: _activeTab }: IBottomNavProps) {
           <NavLink
             key={tab.key}
             to={tab.to}
-            end={tab.to === '/dashboard'}
+            end={tab.to === ROUTES.dashboard}
             onDoubleClick={refreshCurrentRoute}
             onMouseEnter={() => prefetchRoute(tab.to)}
             onFocus={() => prefetchRoute(tab.to)}

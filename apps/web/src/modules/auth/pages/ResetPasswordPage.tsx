@@ -9,6 +9,7 @@ import { ApiErrorBanner, FieldError } from '../components/AuthError';
 import { EyeIcon } from '../components/icons/AuthIcons';
 import { authInputClass, authLabelClass, cn } from '../utils/auth-ui';
 import { getPasswordStrength, validatePassword } from '../utils/auth-validation';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 interface IFormState {
   newPassword: string;
@@ -124,7 +125,7 @@ export default function ResetPasswordPage() {
           </p>
           <button
             type="button"
-            onClick={() => navigate('/login', { replace: true })}
+            onClick={() => navigate(ROUTES.login, { replace: true })}
             className="mt-6 w-full rounded-md bg-(--brand-500) p-3 text-[14px] font-bold text-[#f5ede4] dark:bg-(--brand-500) dark:text-[#141412]"
           >
             Go to login
@@ -232,7 +233,7 @@ export default function ResetPasswordPage() {
 
       <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
         Need a new code?{' '}
-        <Link to="/forgot-password" className="text-(--brand-500) dark:text-(--brand-500)">
+        <Link to={ROUTES.forgotPassword} className="text-(--brand-500) dark:text-(--brand-500)">
           Request again
         </Link>
       </p>

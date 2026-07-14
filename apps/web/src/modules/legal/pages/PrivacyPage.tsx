@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 import {
   BodyP,
@@ -58,7 +59,7 @@ export default function PrivacyPage() {
         >
           <div className="flex min-w-0 items-center gap-4">
             <Link
-              to="/"
+              to={ROUTES.home}
               className="inline-flex shrink-0 items-center gap-2.5 leading-none"
               aria-label="Imminiq home"
             >

@@ -6,19 +6,27 @@ import { ListAdminTrackersUseCase } from './application/use-cases/list-admin-tra
 import { RateAdminPublishedTrackerUseCase } from './application/use-cases/rate-admin-published-tracker.usecase';
 import { mongoAdminTrackersRepository } from './infrastructure/repositories/mongo-admin-trackers.repository';
 import { nodemailerAdminTrackerEmailProvider } from './infrastructure/providers/nodemailer-admin-tracker-email.provider';
+import { AdminTrackersMapper } from './application/admin-trackers.mapper';
 export type AdminTrackersComposition = { useCases: AdminTrackersUseCases };
 
-export const createAdminTrackersComposition = (): AdminTrackersComposition => ({
-  useCases: {
-    list: new ListAdminTrackersUseCase(mongoAdminTrackersRepository),
-    listPublished: new ListAdminPublishedTrackersUseCase(mongoAdminTrackersRepository),
-    likePublished: new LikeAdminPublishedTrackerUseCase(mongoAdminTrackersRepository),
-    ratePublished: new RateAdminPublishedTrackerUseCase(mongoAdminTrackersRepository),
-    getDetail: new GetAdminTrackerDetailUseCase(mongoAdminTrackersRepository),
-    delete: new DeleteAdminTrackerUseCase(
-      mongoAdminTrackersRepository,
-      nodemailerAdminTrackerEmailProvider
-    ),
-  },
-});
+export const createAdminTrackersComposition = (): AdminTrackersComposition => {
+  const mapper = new AdminTrackersMapper();
+  return {
+    useCases: {
+      list: new ListAdminTrackersUseCase(mongoAdminTrackersRepository, mapper),
+      listPublished: new ListAdminPublishedTrackersUseCase(
+        mongoAdminTrackersRepository,
+        mapper
+      ),
+      likePublished: new LikeAdminPublishedTrackerUseCase(mongoAdminTrackersRepository, mapper),
+      ratePublished: new RateAdminPublishedTrackerUseCase(mongoAdminTrackersRepository, mapper),
+      getDetail: new GetAdminTrackerDetailUseCase(mongoAdminTrackersRepository, mapper),
+      delete: new DeleteAdminTrackerUseCase(
+        mongoAdminTrackersRepository,
+        nodemailerAdminTrackerEmailProvider,
+        mapper
+      ),
+    },
+  };
+};
 import type { AdminTrackersUseCases } from './application/admin-trackers-use-cases.contract';

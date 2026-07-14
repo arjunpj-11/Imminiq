@@ -1,21 +1,25 @@
 import type { AdminActor } from '../../../shared';
 import type {
   AdminBroadcastInput,
-  AdminBroadcastResult,
 } from '../../domain/entities/admin-broadcast.entity';
 import type { IAdminBroadcastRepository } from '../../domain/repositories/admin-broadcast.repository.interface';
 import { AdminBroadcastApplicationError } from '../admin-broadcast-application.error';
+import type { IAdminBroadcastResultDTO } from '../admin-broadcast.dto';
+import type { IAdminBroadcastMapper } from '../admin-broadcast.mapper';
 
 export interface ISendAdminBroadcastUseCase {
-  execute(input: AdminBroadcastInput, actor: AdminActor): Promise<AdminBroadcastResult>;
+  execute(input: AdminBroadcastInput, actor: AdminActor): Promise<IAdminBroadcastResultDTO>;
 }
 
 export class SendAdminBroadcastUseCase implements ISendAdminBroadcastUseCase {
-  constructor(private readonly repository: IAdminBroadcastRepository) {}
+  constructor(
+    private readonly repository: IAdminBroadcastRepository,
+    private readonly mapper: IAdminBroadcastMapper
+  ) {}
 
-  async execute(input: AdminBroadcastInput, actor: AdminActor): Promise<AdminBroadcastResult> {
+  async execute(input: AdminBroadcastInput, actor: AdminActor): Promise<IAdminBroadcastResultDTO> {
     const result = await this.repository.send(input, actor);
     if (!result) throw AdminBroadcastApplicationError.disabled();
-    return result;
+    return this.mapper.toResultDTO(result);
   }
 }

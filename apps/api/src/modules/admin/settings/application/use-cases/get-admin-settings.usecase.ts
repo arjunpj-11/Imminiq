@@ -1,14 +1,18 @@
-import type { AdminSettings } from '../../domain/entities/admin-settings.entity';
 import type { IAdminSettingsRepository } from '../../domain/repositories/admin-settings.repository.interface';
+import type { IAdminSettingsDTO } from '../admin-settings.dto';
+import type { IAdminSettingsMapper } from '../admin-settings.mapper';
 
 export interface IGetAdminSettingsUseCase {
-  execute(): Promise<AdminSettings>;
+  execute(): Promise<IAdminSettingsDTO>;
 }
 
 export class GetAdminSettingsUseCase implements IGetAdminSettingsUseCase {
-  constructor(private readonly repository: IAdminSettingsRepository) {}
+  constructor(
+    private readonly repository: IAdminSettingsRepository,
+    private readonly mapper: IAdminSettingsMapper
+  ) {}
 
-  execute(): Promise<AdminSettings> {
-    return this.repository.get();
+  async execute(): Promise<IAdminSettingsDTO> {
+    return this.mapper.toDTO(await this.repository.get());
   }
 }

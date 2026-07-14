@@ -2,6 +2,7 @@ import { useCallback, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useHeroTrail } from '../hooks/useHeroTrail';
 import ScrambleWord from './ScrambleWord';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 const WORD_PAUSE_MS = 380;
 
@@ -110,13 +111,13 @@ export default function LandingHero({ skipIntro = false }: { skipIntro?: boolean
           style={{ opacity: showBtns ? 1 : 0, transform: showBtns ? 'none' : 'translateY(16px)' }}
         >
           <Link
-            to="/register"
+            to={ROUTES.register}
             className="rounded-full bg-[#b84c2b] px-6 py-3 text-[13px] font-extrabold text-[#fdf8f5] shadow-[0_20px_50px_rgba(184,76,43,0.18)] transition hover:-translate-y-1 hover:bg-[#963d22] dark:bg-[#e8816a] dark:text-[#141412] dark:shadow-[0_20px_50px_rgba(232,129,106,0.24)] dark:hover:bg-[#f09a84]"
           >
             Join early access
           </Link>
           <Link
-            to="/login"
+            to={ROUTES.login}
             className="rounded-full border border-[#d8c7bc] bg-[#fdf8f5]/70 px-6 py-3 text-[13px] font-bold text-[#1a1714] backdrop-blur transition hover:-translate-y-1 hover:border-[#b84c2b]/45 hover:text-[#b84c2b] dark:border-white/14 dark:bg-white/6 dark:text-[#f2f0eb] dark:hover:border-[#e8816a]/45 dark:hover:text-[#e8816a]"
           >
             Sign in

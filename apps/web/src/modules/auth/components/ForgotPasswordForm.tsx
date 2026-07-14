@@ -9,6 +9,7 @@ import AuthLayout from './AuthLayout';
 import AuthIdentifierField from './AuthIdentifierField';
 import { ApiErrorBanner } from './AuthError';
 import { validateIdentifier } from '../utils/auth-validation';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 interface IFormState {
   identifier: string;
@@ -61,7 +62,7 @@ export default function ForgotPasswordForm() {
       { identifier: trimmedIdentifier },
       {
         onSuccess: (data) => {
-          navigate('/verify-account', {
+          navigate(ROUTES.verifyAccount, {
             replace: true,
             state: {
               identifier: data.data?.verificationTarget || trimmedIdentifier,
@@ -104,7 +105,7 @@ export default function ForgotPasswordForm() {
       <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
         Remembered it?{' '}
         <Link
-          to="/login"
+          to={ROUTES.login}
           className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"
         >
           Back to login

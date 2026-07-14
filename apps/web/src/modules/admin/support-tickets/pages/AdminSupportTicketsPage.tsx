@@ -9,13 +9,13 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import {
   useAdminSupportTickets,
-  useUpdateAdminSupportTicket,
 } from '../hooks/useAdminSupportTickets';
+import { useUpdateAdminSupportTicket } from '../hooks/useUpdateAdminSupportTicket';
 import type { AdminSupportTicket } from '../types/admin-support-tickets.types';
 
 export default function AdminSupportTicketsPage() {

@@ -3,6 +3,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 
 import AuthLoadingScreen from '../../components/ui/AuthLoadingScreen';
 import { useAuthStore } from '../../store/useAuthStore';
+import { ROUTES } from '../config/route-paths';
 
 interface IProtectedRouteProps {
   children?: ReactNode;
@@ -17,8 +18,8 @@ export function ProtectedRoute({ children }: IProtectedRouteProps) {
   const authReady = useAuthStore((state) => state.authReady);
 
   if (!authReady) return <AuthLoadingScreen />;
-  if (isRestrictedStatus(user?.status)) return <Navigate to="/blocked" replace />;
-  if (!user || !isAuthenticated) return <Navigate to="/login" replace />;
+  if (isRestrictedStatus(user?.status)) return <Navigate to={ROUTES.blocked} replace />;
+  if (!user || !isAuthenticated) return <Navigate to={ROUTES.login} replace />;
 
   return children ? <>{children}</> : <Outlet />;
 }

@@ -19,25 +19,26 @@ import {
 } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
-import ImminiqWordmark from '../ui/ImminiqWordmark';
-import { useAuthStore } from '../../store/useAuthStore';
-import api from '../../lib/axios';
-import { getTemporaryAdminNavItem } from '../../lib/current-page-navigation';
-import { refreshCurrentRoute } from '../../lib/refresh-current-route';
-import { useAppShellStore } from '../../store/useAppShellStore';
+import ImminiqWordmark from '../../../../components/ui/ImminiqWordmark';
+import { useAuthStore } from '../../../../store/useAuthStore';
+import api from '../../../../lib/axios';
+import { getTemporaryAdminNavItem } from '../../../../lib/current-page-navigation';
+import { refreshCurrentRoute } from '../../../../lib/refresh-current-route';
+import { useAppShellStore } from '../../../../store/useAppShellStore';
+import { ADMIN_ROUTES, ROUTES } from '../../../../routes/config/route-paths';
 
 const links = [
-  { to: '/admin', label: 'Dashboard', icon: Gauge, end: true },
-  { to: '/admin/users', label: 'Users', icon: Users },
-  { to: '/admin/trackers', label: 'Trackers', icon: BookOpenCheck },
-  { to: '/admin/mock-tests', label: 'Mock Tests', icon: ClipboardCheck },
-  { to: '/admin/activity', label: 'Activity', icon: BarChart3 },
-  { to: '/admin/broadcast', label: 'Broadcast', icon: Megaphone },
-  { to: '/admin/subscriptions', label: 'Premium / Subscriptions', icon: ShieldCheck },
-  { to: '/admin/audit-logs', label: 'Audit Logs', icon: Activity },
-  { to: '/admin/system-health', label: 'System Health', icon: HeartPulse },
-  { to: '/admin/ai-token-spend', label: 'AI Token Spend', icon: Cpu },
-  { to: '/admin/support-tickets', label: 'Support Tickets', icon: TicketCheck },
+  { to: ADMIN_ROUTES.dashboard, label: 'Dashboard', icon: Gauge, end: true },
+  { to: ADMIN_ROUTES.users, label: 'Users', icon: Users },
+  { to: ADMIN_ROUTES.trackers, label: 'Trackers', icon: BookOpenCheck },
+  { to: ADMIN_ROUTES.mockTests, label: 'Mock Tests', icon: ClipboardCheck },
+  { to: ADMIN_ROUTES.activity, label: 'Activity', icon: BarChart3 },
+  { to: ADMIN_ROUTES.broadcast, label: 'Broadcast', icon: Megaphone },
+  { to: ADMIN_ROUTES.subscriptions, label: 'Premium / Subscriptions', icon: ShieldCheck },
+  { to: ADMIN_ROUTES.auditLogs, label: 'Audit Logs', icon: Activity },
+  { to: ADMIN_ROUTES.systemHealth, label: 'System Health', icon: HeartPulse },
+  { to: ADMIN_ROUTES.aiTokenSpend, label: 'AI Token Spend', icon: Cpu },
+  { to: ADMIN_ROUTES.supportTickets, label: 'Support Tickets', icon: TicketCheck },
 ];
 
 export default function AdminLayout() {
@@ -65,7 +66,7 @@ export default function AdminLayout() {
       /* Local sign-out still completes. */
     }
     clearAuth();
-    navigate('/login', { replace: true });
+    navigate(ROUTES.login, { replace: true });
   };
 
   return (
@@ -123,7 +124,7 @@ export default function AdminLayout() {
         </nav>
         <div className="mt-auto border-t border-[rgba(255,255,255,0.09)] p-3">
           <NavLink
-            to="/admin/settings"
+            to={ADMIN_ROUTES.settings}
             onDoubleClick={refreshCurrentRoute}
             className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
           >
@@ -131,7 +132,7 @@ export default function AdminLayout() {
             Settings
           </NavLink>
           <NavLink
-            to="/admin/support"
+            to={ADMIN_ROUTES.legacySupport}
             onDoubleClick={refreshCurrentRoute}
             className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
           >

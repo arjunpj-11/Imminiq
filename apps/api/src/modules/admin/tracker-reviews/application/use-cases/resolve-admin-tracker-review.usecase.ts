@@ -1,18 +1,22 @@
 import type { AdminActor } from '../../../shared';
-import type { AdminTrackerReviewStatusResult } from '../../domain/entities/admin-tracker-review.entity';
 import type { IAdminTrackerReviewsRepository } from '../../domain/repositories/admin-tracker-reviews.repository.interface';
 import { AdminTrackerReviewsApplicationError } from '../admin-tracker-reviews-application.error';
+import type { IAdminTrackerReviewStatusResultDTO } from '../admin-tracker-reviews.dto';
+import type { IAdminTrackerReviewsMapper } from '../admin-tracker-reviews.mapper';
 
 export interface IResolveAdminTrackerReviewUseCase {
-  execute(id: string, status: string, actor: AdminActor): Promise<AdminTrackerReviewStatusResult>;
+  execute(id: string, status: string, actor: AdminActor): Promise<IAdminTrackerReviewStatusResultDTO>;
 }
 
 export class ResolveAdminTrackerReviewUseCase implements IResolveAdminTrackerReviewUseCase {
-  constructor(private readonly repository: IAdminTrackerReviewsRepository) {}
+  constructor(
+    private readonly repository: IAdminTrackerReviewsRepository,
+    private readonly mapper: IAdminTrackerReviewsMapper
+  ) {}
 
   async execute(id: string, status: string, actor: AdminActor) {
     const result = await this.repository.resolve(id, status, actor);
     if (!result) throw AdminTrackerReviewsApplicationError.notFound();
-    return result;
+    return this.mapper.toStatusResultDTO(result);
   }
 }

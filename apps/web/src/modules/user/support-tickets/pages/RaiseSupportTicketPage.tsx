@@ -3,6 +3,7 @@ import { CheckCircle2, LifeBuoy, Send } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useCreateSupportTicket } from '../hooks/useCreateSupportTicket';
 import type { CreateSupportTicketInput } from '../types/support-tickets.types';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 const initial: CreateSupportTicketInput = {
   subject: '',
@@ -110,7 +111,7 @@ export default function RaiseSupportTicketPage() {
               </p>
             )}
             <div className="flex flex-wrap items-center justify-between gap-4">
-              <Link to="/dashboard" className="text-sm text-(--text-secondary)">
+              <Link to={ROUTES.dashboard} className="text-sm text-(--text-secondary)">
                 Cancel
               </Link>
               <button

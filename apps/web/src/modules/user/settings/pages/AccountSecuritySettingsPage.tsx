@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import SettingsShell from '../components/SettingsShell';
 import SettingsContentLoading from '../components/SettingsContentLoading';
@@ -292,7 +293,7 @@ export default function AccountSecuritySettingsPage() {
       resetDeleteModal();
       clearAuth();
 
-      navigate('/login', {
+      navigate(ROUTES.login, {
         replace: true,
       });
     } catch (error) {

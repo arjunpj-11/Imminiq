@@ -9,7 +9,7 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { toast } from '../../../../lib/toast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
@@ -19,7 +19,8 @@ import {
   downloadTablePdf,
   useAdminDateRange,
 } from '../../shared';
-import { useAdminAuditLogs, useExportAdminAuditLogs } from '../hooks/useAdminAuditLogs';
+import { useAdminAuditLogs } from '../hooks/useAdminAuditLogs';
+import { useExportAdminAuditLogs } from '../hooks/useExportAdminAuditLogs';
 import type { AdminAuditLog } from '../types/admin-audit-logs.types';
 
 export default function AdminAuditLogsPage() {

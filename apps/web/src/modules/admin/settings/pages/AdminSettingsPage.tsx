@@ -4,10 +4,11 @@ import {
   AdminLoading,
   AdminPageHeader,
   AdminPanel,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { boundedInteger } from '../../../../lib/bounded-number';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
-import { useAdminSettings, useUpdateAdminSettings } from '../hooks/useAdminSettings';
+import { useAdminSettings } from '../hooks/useAdminSettings';
+import { useUpdateAdminSettings } from '../hooks/useUpdateAdminSettings';
 import type { AdminSettings } from '../types/admin-settings.types';
 export default function AdminSettingsPage() {
   const { data, isLoading, isError, error } = useAdminSettings();

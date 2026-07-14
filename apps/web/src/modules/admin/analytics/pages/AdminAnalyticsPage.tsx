@@ -6,7 +6,7 @@ import {
   AdminMetricGrid,
   AdminPageHeader,
   AdminPanel,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useAdminAnalytics } from '../hooks/useAdminAnalytics';
 import {
   AdminDateRangeFilter,

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Search } from 'lucide-react';
-import { getUserFacingError } from '../../lib/user-facing-error';
+import { getUserFacingError } from '../../../../lib/user-facing-error';
 
 export type AdminMetric = {
   label: string;

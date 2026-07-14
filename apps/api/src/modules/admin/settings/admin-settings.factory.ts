@@ -2,11 +2,15 @@ import type { AdminSettingsUseCases } from './application/admin-settings-use-cas
 import { GetAdminSettingsUseCase } from './application/use-cases/get-admin-settings.usecase';
 import { UpdateAdminSettingsUseCase } from './application/use-cases/update-admin-settings.usecase';
 import { mongoAdminSettingsRepository } from './infrastructure/repositories/mongo-admin-settings.repository';
+import { AdminSettingsMapper } from './application/admin-settings.mapper';
 export type AdminSettingsComposition = { useCases: AdminSettingsUseCases };
 
-export const createAdminSettingsComposition = (): AdminSettingsComposition => ({
-  useCases: {
-    get: new GetAdminSettingsUseCase(mongoAdminSettingsRepository),
-    update: new UpdateAdminSettingsUseCase(mongoAdminSettingsRepository),
-  },
-});
+export const createAdminSettingsComposition = (): AdminSettingsComposition => {
+  const mapper = new AdminSettingsMapper();
+  return {
+    useCases: {
+      get: new GetAdminSettingsUseCase(mongoAdminSettingsRepository, mapper),
+      update: new UpdateAdminSettingsUseCase(mongoAdminSettingsRepository, mapper),
+    },
+  };
+};

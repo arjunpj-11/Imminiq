@@ -130,6 +130,36 @@ describe('clean architecture boundaries', () => {
     expect(violations).toEqual([]);
   });
 
+  it('maps every admin feature through an application DTO boundary', () => {
+    const violations = adminFeatureRoots().flatMap((moduleRoot) => {
+      const applicationFiles = readdirSync(join(moduleRoot, 'application'));
+      const dtoFiles = applicationFiles.filter((file) => file.endsWith('.dto.ts'));
+      const mapperFiles = applicationFiles.filter((file) => file.endsWith('.mapper.ts'));
+      return dtoFiles.length === 1 && mapperFiles.length === 1
+        ? []
+        : [
+            `${portable(relative(modulesRoot, moduleRoot))}: ${dtoFiles.length} DTO, ${mapperFiles.length} mapper`,
+          ];
+    });
+
+    expect(violations).toEqual([]);
+  });
+
+  it('uses the shared admin response adapter in every admin controller', () => {
+    const violations = adminFeatureRoots()
+      .flatMap((moduleRoot) => collectFiles(join(moduleRoot, 'presentation')))
+      .filter((file) => file.endsWith('.controller.ts'))
+      .filter((file) => !/sendAdminResult/.test(readFileSync(file, 'utf8')))
+      .map((file) => portable(relative(modulesRoot, file)));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('centralizes API mount paths in the bootstrap route registry', () => {
+    const appSource = readFileSync(join(sourceRoot, 'app.ts'), 'utf8');
+    expect(appSource).not.toMatch(/app\.(?:use|get|post|put|patch|delete)\(\s*['"]\/api/);
+  });
+
   it('composes every admin feature through an explicit use-case map', () => {
     const violations = adminFeatureRoots().flatMap((moduleRoot) => {
       const factories = readdirSync(moduleRoot).filter((file) => file.endsWith('.factory.ts'));

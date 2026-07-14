@@ -10,6 +10,7 @@ import {
 import { Link } from 'react-router-dom';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import AdminDashboardState from '../components/AdminDashboardState';
+import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 
 const number = new Intl.NumberFormat('en-US');
 
@@ -91,7 +92,7 @@ export default function AdminDashboardPage() {
         <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="font-editorial text-2xl font-bold">User Health</h2>
-            <Link to="/admin/users" className="text-[10px] font-bold uppercase text-[#e8816a]">
+            <Link to={ADMIN_ROUTES.users} className="text-[10px] font-bold uppercase text-[#e8816a]">
               View all
             </Link>
           </div>

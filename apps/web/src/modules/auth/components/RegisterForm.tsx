@@ -16,6 +16,7 @@ import {
   validateIdentifier,
   validatePassword,
 } from '../utils/auth-validation';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 interface IFormState {
   fullName: string;
@@ -279,11 +280,11 @@ export default function RegisterForm() {
           />
           <span>
             I agree to the{' '}
-            <Link to="/terms" className="text-(--brand-500) dark:text-(--brand-500)">
+            <Link to={ROUTES.terms} className="text-(--brand-500) dark:text-(--brand-500)">
               Terms
             </Link>{' '}
             and{' '}
-            <Link to="/privacy" className="text-(--brand-500) dark:text-(--brand-500)">
+            <Link to={ROUTES.privacy} className="text-(--brand-500) dark:text-(--brand-500)">
               Privacy Policy
             </Link>
             .
@@ -312,7 +313,7 @@ export default function RegisterForm() {
       <p className="mt-6 text-center text-[13px] text-(--text-secondary) dark:text-(--text-secondary)">
         Already have an account?{' '}
         <Link
-          to="/login"
+          to={ROUTES.login}
           className="font-semibold text-(--brand-500) hover:opacity-70 dark:text-(--brand-500)"
         >
           Sign in

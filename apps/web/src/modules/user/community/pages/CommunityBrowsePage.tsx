@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import CommunityErrorState from '../components/shared/CommunityErrorState';
 import CommunityFilters from '../components/browse/CommunityFilters';
@@ -132,7 +133,7 @@ export default function CommunityBrowsePage() {
 
               <button
                 type="button"
-                onClick={() => navigate('/trackers/published')}
+                onClick={() => navigate(ROUTES.publishedTrackers)}
                 className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.07)] px-5 py-2.5 text-[13px] font-bold text-(--brand-500) transition hover:-translate-y-px hover:border-[rgba(184,76,43,0.35)] hover:bg-[rgba(184,76,43,0.12)] dark:border-[rgba(232,129,106,0.25)] dark:bg-[rgba(232,129,106,0.08)] dark:text-(--brand-500) max-[560px]:w-full max-[560px]:justify-center"
               >
                 <BookOpenIcon />
@@ -164,7 +165,7 @@ export default function CommunityBrowsePage() {
 
             <VerifyEarnBanner
               banner={browse.data.verifyBanner}
-              onGo={() => navigate('/verify-and-earn')}
+              onGo={() => navigate(ROUTES.verifyAndEarn)}
             />
 
             <CommunityFilters

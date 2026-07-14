@@ -15,6 +15,7 @@ import type { VerifyPurpose, VerifyState } from '../types/auth.types';
 import { maskIdentifier, formatTime } from '../utils/auth-formatters';
 import { cn } from '../utils/auth-ui';
 import { LogoIcon } from '../components/icons/AuthIcons';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 export default function VerifyAccountPage() {
   const navigate = useNavigate();
@@ -176,10 +177,10 @@ export default function VerifyAccountPage() {
 
       window.setTimeout(() => {
         if (isPasswordReset) {
-          navigate('/reset-password', { replace: true, state: { resetToken } });
+          navigate(ROUTES.resetPassword, { replace: true, state: { resetToken } });
           return;
         }
-        navigate('/login', {
+        navigate(ROUTES.login, {
           replace: true,
           state: { message: 'Account verified successfully. Please sign in.' },
         });
@@ -239,7 +240,7 @@ export default function VerifyAccountPage() {
       <div className="relative w-full max-w-115 overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_24px_80px_rgba(26,23,20,0.14)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
         <div className="h-1.25 bg-(--brand-500) dark:bg-(--brand-500)" />
         <main className="px-5 py-8 text-center sm:px-8">
-          <Link to="/" className="mb-6 inline-flex items-center justify-center gap-2">
+          <Link to={ROUTES.home} className="mb-6 inline-flex items-center justify-center gap-2">
             <LogoIcon className="h-10 w-10" />
             <span className="text-[24px] font-black tracking-[-0.8px]">
               immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>

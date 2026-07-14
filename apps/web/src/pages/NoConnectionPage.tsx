@@ -7,6 +7,7 @@ import ImminiqWordmark from '../components/ui/ImminiqWordmark';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../routes/config/route-paths';
 
 const RefreshIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -151,7 +152,7 @@ export default function NoConnectionPage() {
     redirectStartedRef.current = true;
     setHasRedirectStarted(true);
 
-    const previousPath = safeSessionStorage.get(STORAGE_KEYS.lastOnlinePath) || '/dashboard';
+    const previousPath = safeSessionStorage.get(STORAGE_KEYS.lastOnlinePath) || ROUTES.dashboard;
 
     safeSessionStorage.remove(STORAGE_KEYS.lastOnlinePath);
 

@@ -8,7 +8,7 @@ import {
   AdminMetricGrid,
   AdminPageHeader,
   AdminPanel,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import {
   AdminDateRangeFilter,
   downloadCsv,

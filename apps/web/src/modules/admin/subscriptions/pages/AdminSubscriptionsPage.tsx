@@ -10,14 +10,15 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { boundedInteger } from '../../../../lib/bounded-number';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import { ADMIN_SUBSCRIPTION_STATUS_OPTIONS } from '../constants/admin-subscriptions.constants';
 import {
   useAdminSubscriptions,
-  useUpdateAdminPlanLimits,
 } from '../hooks/useAdminSubscriptions';
+import { useUpdateAdminPlanLimits } from '../hooks/useUpdateAdminPlanLimits';
 import type {
   AdminSubscriptionPlan,
   AdminSubscriptionOverview,
@@ -30,7 +31,6 @@ const money = new Intl.NumberFormat('en-IN', {
   maximumFractionDigits: 0,
 });
 const formatMoney = (paise: number) => money.format(paise / 100);
-const statusOptions = ['all', 'active', 'pending', 'expired', 'canceled', 'failed'];
 export default function AdminSubscriptionsPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('all');
@@ -128,7 +128,7 @@ function SubscriptionView({
               onChange={(event) => setStatus(event.target.value)}
               className="rounded-lg border border-[rgba(255,255,255,0.16)] bg-[#24211e] px-4 py-3 text-xs capitalize outline-none"
             >
-              {statusOptions.map((item) => <option key={item}>{item}</option>)}
+              {ADMIN_SUBSCRIPTION_STATUS_OPTIONS.map((item) => <option key={item}>{item}</option>)}
             </select>
             <AdminSearch value={search} onChange={setSearch} placeholder="Search buyer or payment…" />
           </div>

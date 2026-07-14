@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 
 import { cn } from '../../../../lib/cn';
 import { OnboardingLogoIcon } from './OnboardingLogoIcon';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 interface IOnboardingBrandLinkProps {
   className?: string;
@@ -18,7 +19,7 @@ export default function OnboardingBrandLink({
 }: IOnboardingBrandLinkProps) {
   return (
     <Link
-      to="/"
+      to={ROUTES.home}
       aria-label="Go to home page"
       className={cn('inline-flex items-center gap-2.5 leading-none', className)}
     >

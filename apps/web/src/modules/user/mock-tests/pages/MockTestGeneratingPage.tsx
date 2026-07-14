@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { useRoadmapJobStatus } from '../../onboarding/hooks/useRoadmapJobStatus';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function MockTestGeneratingPage() {
   const navigate = useNavigate();
@@ -57,7 +58,7 @@ export default function MockTestGeneratingPage() {
             {!failed && status !== 'completed' ? (
               <button
                 type="button"
-                onClick={() => navigate('/dashboard')}
+                onClick={() => navigate(ROUTES.dashboard)}
                 className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-5 py-3 text-[12px] font-bold text-(--text-primary) transition hover:border-(--brand-500)"
               >
                 Continue in background
@@ -66,7 +67,7 @@ export default function MockTestGeneratingPage() {
             {failed ? (
               <button
                 type="button"
-                onClick={() => navigate('/learning-agent')}
+                onClick={() => navigate(ROUTES.learningAgent)}
                 className="rounded-xl bg-(--brand-500) px-5 py-3 text-[12px] font-bold text-white"
               >
                 Return to Immi

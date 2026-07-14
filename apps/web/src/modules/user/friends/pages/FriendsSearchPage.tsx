@@ -1,5 +1,6 @@
 import { useMemo, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import FriendSearchResults from '../components/search/FriendSearchResults';
 import FriendsAppShell from '../components/shared/FriendsAppShell';
@@ -108,7 +109,7 @@ function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps
       <div className="mx-auto flex w-full max-w-4xl flex-1 flex-col gap-6 px-4 py-7 pb-24 sm:px-6 min-[901px]:pb-8">
         <button
           type="button"
-          onClick={() => navigate('/friends')}
+          onClick={() => navigate(ROUTES.friends)}
           className="inline-flex w-fit items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2.5 text-[12px] font-bold text-(--text-secondary) transition hover:border-[rgba(184,76,43,0.25)] hover:bg-[rgba(184,76,43,0.07)] hover:text-(--brand-500) focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-(--brand-500)/20 dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
         >
           <BackIcon />
@@ -147,7 +148,7 @@ function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps
               hasMore={false}
               loadingMore={false}
               onSendRequest={handleSendRequest}
-              onOpenRequests={() => navigate('/friends?tab=requests')}
+              onOpenRequests={() => navigate(`${ROUTES.friends}?tab=requests`)}
               onLoadMore={() => undefined}
             />
           ) : searchQuery.isPending ? (
@@ -172,7 +173,7 @@ function FriendsSearchPageContent({ activeQuery }: FriendsSearchPageContentProps
                   }
                 : {})}
               onSendRequest={handleSendRequest}
-              onOpenRequests={() => navigate('/friends?tab=requests')}
+              onOpenRequests={() => navigate(`${ROUTES.friends}?tab=requests`)}
               onLoadMore={() => {
                 void searchQuery.fetchNextPage();
               }}

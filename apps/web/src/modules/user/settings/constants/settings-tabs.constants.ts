@@ -1,18 +1,20 @@
+import { ROUTES } from '../../../../routes/config/route-paths';
+
 export const SETTINGS_TABS = [
   {
     label: 'Account Security',
-    to: '/settings/security',
+    to: ROUTES.settingsSecurity,
   },
   {
     label: 'Notifications',
-    to: '/settings/notifications',
+    to: ROUTES.settingsNotifications,
   },
   {
     label: 'Preferences',
-    to: '/settings/preferences',
+    to: ROUTES.settingsPreferences,
   },
   {
     label: 'Privacy',
-    to: '/settings/privacy',
+    to: ROUTES.settingsPrivacy,
   },
 ] as const;

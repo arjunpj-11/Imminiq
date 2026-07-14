@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { LogoIcon } from './icons/AuthIcons';
 import { cn } from '../utils/auth-ui';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 interface IAuthLayoutProps {
   badge: string;
@@ -20,7 +21,7 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
       )}
     >
       <div className="flex shrink-0 items-center justify-between px-4 pt-5 sm:px-8 sm:pt-7 lg:hidden">
-        <Link to="/" className="inline-flex items-center gap-2.5 leading-none">
+        <Link to={ROUTES.home} className="inline-flex items-center gap-2.5 leading-none">
           <LogoIcon className="h-9 w-9 rounded-md sm:h-10 sm:w-10" />
           <span className="text-[22px] font-bold leading-none tracking-[-0.5px] text-(--text-primary) dark:text-(--text-primary) sm:text-2xl">
             immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>
@@ -39,7 +40,7 @@ export default function AuthLayout({ badge, title, subtitle, children }: IAuthLa
           aria-hidden="true"
         >
           <div className="pointer-events-none absolute -right-20 -top-20 h-80 w-80 rounded-full bg-[radial-gradient(circle,rgba(184,76,43,0.09)_0%,transparent_70%)] dark:bg-[radial-gradient(circle,rgba(232,129,106,0.13)_0%,transparent_70%)]" />
-          <Link to="/" className="relative z-1 inline-flex items-center gap-3 leading-none">
+          <Link to={ROUTES.home} className="relative z-1 inline-flex items-center gap-3 leading-none">
             <LogoIcon className="h-11 w-11" />
             <span className="text-[27px] font-bold tracking-[-0.7px]">
               immin<span className="text-(--brand-500) dark:text-(--brand-500)">iq</span>

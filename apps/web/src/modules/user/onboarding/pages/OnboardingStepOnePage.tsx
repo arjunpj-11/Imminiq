@@ -1,5 +1,6 @@
 import { type FormEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../../routes/config/route-paths';
 
 import { MicButton } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
@@ -258,7 +259,7 @@ export default function OnboardingStepOnePage() {
                 </button>
                 <button
                   type="button"
-                  onClick={() => navigate('/dashboard')}
+                  onClick={() => navigate(ROUTES.dashboard)}
                   className="rounded-xl border border-(--border-subtle) bg-(--surface-canvas) px-6 py-3.5 text-[12px] font-bold text-(--text-primary) transition hover:border-(--brand-500)"
                 >
                   Return to dashboard

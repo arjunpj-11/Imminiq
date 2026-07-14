@@ -6,6 +6,7 @@ import { useVerifyEmailChange } from '../hooks/useVerifyEmailChange';
 import type { AuthApiErrorResponse, VerificationStatus } from '../types/auth.types';
 import { STORAGE_KEYS } from '../../../lib/storage/storage-keys';
 import { safeLocalStorage } from '../../../lib/storage/safe-storage';
+import { ROUTES } from '../../../routes/config/route-paths';
 
 export default function VerifyEmailChangePage() {
   const navigate = useNavigate();
@@ -110,7 +111,7 @@ export default function VerifyEmailChangePage() {
           {status !== 'loading' && (
             <button
               type="button"
-              onClick={() => navigate('/login', { replace: true })}
+              onClick={() => navigate(ROUTES.login, { replace: true })}
               className="mt-7 rounded-md bg-(--brand-500) px-6 py-3 text-[14px] font-bold text-[#f5ede4] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:bg-(--brand-600)"
             >
               Go to login

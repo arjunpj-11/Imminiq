@@ -7,26 +7,27 @@ import {
   OnboardingRoadmapReadyPage,
   OnboardingStepOnePage,
 } from '../config/onboarding-pages';
+import { ROUTES } from '../config/route-paths';
 
 export const onboardingRoutes: RouteObject[] = [
   {
-    path: '/onboarding/step-1',
+    path: ROUTES.onboardingStepOne,
     element: <OnboardingStepOnePage />,
   },
   {
-    path: '/onboarding/generating/:jobId',
+    path: ROUTES.onboardingGeneratingPattern,
     element: <OnboardingGeneratingPage />,
   },
   {
-    path: '/onboarding/roadmap-ready/:jobId',
+    path: ROUTES.onboardingRoadmapReadyPattern,
     element: <OnboardingRoadmapReadyPage />,
   },
   {
-    path: '/onboarding/roadmap-evaluation/:jobId',
+    path: ROUTES.onboardingEvaluationPattern,
     element: <OnboardingRoadmapEvaluationLoadingPage />,
   },
   {
-    path: '/onboarding/roadmap-evaluation/:jobId/score',
+    path: ROUTES.onboardingEvaluationScorePattern,
     element: <OnboardingRoadmapEvaluationScorePage />,
   },
 ];

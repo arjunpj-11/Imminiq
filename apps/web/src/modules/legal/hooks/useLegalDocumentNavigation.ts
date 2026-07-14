@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { ROUTES } from '../../../routes/config/route-paths';
 
-export function useLegalDocumentNavigation(defaultBackPath = '/register') {
+export function useLegalDocumentNavigation(defaultBackPath = ROUTES.register) {
   const navigate = useNavigate();
   const location = useLocation();
   const scrollAreaRef = useRef<HTMLElement | null>(null);

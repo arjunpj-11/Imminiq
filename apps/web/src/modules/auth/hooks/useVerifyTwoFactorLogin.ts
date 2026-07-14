@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import type { AxiosError } from 'axios';
 import api from '../../../lib/axios';
 import { useAuthStore } from '../store/useAuthStore';
+import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
 
 interface IVerifyTwoFactorLoginPayload {
   code: string;
@@ -22,7 +23,10 @@ interface IUser {
   onboardingCompleted?: boolean;
 }
 
-type LoginRedirectPath = '/dashboard' | '/onboarding/step-1' | '/admin';
+type LoginRedirectPath =
+  | typeof ROUTES.dashboard
+  | typeof ROUTES.onboardingStepOne
+  | typeof ADMIN_ROUTES.dashboard;
 
 interface IVerifyTwoFactorLoginResponse {
   success: boolean;
@@ -63,8 +67,8 @@ export const useVerifyTwoFactorLogin = () => {
       const user = response.data?.user;
       const accessToken = response.data?.accessToken;
       const redirectPath = ['admin', 'superadmin'].includes(user?.role || '')
-        ? '/admin'
-        : response.data?.redirectPath || '/dashboard';
+        ? ADMIN_ROUTES.dashboard
+        : response.data?.redirectPath || ROUTES.dashboard;
 
       if (!user) {
         console.error('2FA verification succeeded, but user was not returned.');

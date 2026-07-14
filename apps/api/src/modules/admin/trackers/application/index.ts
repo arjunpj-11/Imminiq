@@ -6,3 +6,5 @@ export * from './use-cases/like-admin-published-tracker.usecase';
 export * from './use-cases/list-admin-published-trackers.usecase';
 export * from './use-cases/list-admin-trackers.usecase';
 export * from './use-cases/rate-admin-published-tracker.usecase';
+export * from './admin-trackers.dto';
+export * from './admin-trackers.mapper';

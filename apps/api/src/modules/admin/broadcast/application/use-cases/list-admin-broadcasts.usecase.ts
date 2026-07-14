@@ -1,15 +1,19 @@
 import type { AdminListQuery, AdminPage } from '../../../shared';
-import type { AdminBroadcast } from '../../domain/entities/admin-broadcast.entity';
 import type { IAdminBroadcastRepository } from '../../domain/repositories/admin-broadcast.repository.interface';
+import type { IAdminBroadcastDTO } from '../admin-broadcast.dto';
+import type { IAdminBroadcastMapper } from '../admin-broadcast.mapper';
 
 export interface IListAdminBroadcastsUseCase {
-  execute(query: AdminListQuery): Promise<AdminPage<AdminBroadcast>>;
+  execute(query: AdminListQuery): Promise<AdminPage<IAdminBroadcastDTO>>;
 }
 
 export class ListAdminBroadcastsUseCase implements IListAdminBroadcastsUseCase {
-  constructor(private readonly repository: IAdminBroadcastRepository) {}
+  constructor(
+    private readonly repository: IAdminBroadcastRepository,
+    private readonly mapper: IAdminBroadcastMapper
+  ) {}
 
-  execute(query: AdminListQuery): Promise<AdminPage<AdminBroadcast>> {
-    return this.repository.list(query);
+  async execute(query: AdminListQuery): Promise<AdminPage<IAdminBroadcastDTO>> {
+    return this.mapper.toPageDTO(await this.repository.list(query));
   }
 }

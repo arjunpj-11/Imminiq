@@ -1,14 +1,18 @@
+import { ROUTES } from '../routes/config/route-paths';
+
 const routeLoaders: Record<string, () => Promise<unknown>> = {
-  '/dashboard': () => import('../modules/user/dashboard/pages/DashboardPage'),
-  '/trackers': () => import('../modules/user/trackers/pages/MyTrackersPage'),
-  '/mock-tests': () => import('../modules/user/mock-tests/pages/MockTestsPage'),
-  '/learning-agent': () => import('../modules/user/adaptive-learning/pages/AdaptiveLearningPage'),
-  '/community': () => import('../modules/user/community/pages/CommunityBrowsePage'),
-  '/leaderboard': () => import('../modules/user/leaderboard/pages/LeaderboardPage'),
-  '/activity': () => import('../modules/user/activity/pages/ActivityPage'),
-  '/friends': () => import('../modules/user/friends/pages/FriendsPage'),
-  '/profile': () => import('../modules/user/users/pages/ProfilePage'),
-  '/settings': () => import('../modules/user/settings/pages/PreferencesSettingsPage'),
+  [ROUTES.dashboard]: () => import('../modules/user/dashboard/pages/DashboardPage'),
+  [ROUTES.trackers]: () => import('../modules/user/trackers/pages/MyTrackersPage'),
+  [ROUTES.mockTests]: () => import('../modules/user/mock-tests/pages/MockTestsPage'),
+  [ROUTES.learningAgent]: () =>
+    import('../modules/user/adaptive-learning/pages/AdaptiveLearningPage'),
+  [ROUTES.community]: () => import('../modules/user/community/pages/CommunityBrowsePage'),
+  [ROUTES.leaderboard]: () => import('../modules/user/leaderboard/pages/LeaderboardPage'),
+  [ROUTES.activity]: () => import('../modules/user/activity/pages/ActivityPage'),
+  [ROUTES.friends]: () => import('../modules/user/friends/pages/FriendsPage'),
+  [ROUTES.profile]: () => import('../modules/user/users/pages/ProfilePage'),
+  [ROUTES.settingsRoot]: () =>
+    import('../modules/user/settings/pages/PreferencesSettingsPage'),
 };
 
 const prefetched = new Set<string>();

@@ -6,6 +6,7 @@ import { LikeAdminPublishedTrackerUseCase } from '../../src/modules/admin/tracke
 import { RateAdminPublishedTrackerUseCase } from '../../src/modules/admin/trackers/application/use-cases/rate-admin-published-tracker.usecase';
 import type { IAdminTrackersRepository } from '../../src/modules/admin/trackers/domain/repositories/admin-trackers.repository.interface';
 import { adminPublishedTrackerRatingSchema } from '../../src/modules/admin/trackers/presentation/admin-trackers.schema';
+import { AdminTrackersMapper } from '../../src/modules/admin/trackers/application/admin-trackers.mapper';
 
 describe('admin report date filters', () => {
   it('supports the four-day activity preset and custom dates', () => {
@@ -56,8 +57,9 @@ describe('published tracker administration', () => {
       getDetail: vi.fn(),
       delete: vi.fn(),
     } as unknown as IAdminTrackersRepository;
-    const likeUseCase = new LikeAdminPublishedTrackerUseCase(repository);
-    const rateUseCase = new RateAdminPublishedTrackerUseCase(repository);
+    const mapper = new AdminTrackersMapper();
+    const likeUseCase = new LikeAdminPublishedTrackerUseCase(repository, mapper);
+    const rateUseCase = new RateAdminPublishedTrackerUseCase(repository, mapper);
 
     await expect(likeUseCase.execute('tracker-id', actor)).resolves.toEqual(engagement);
     await expect(rateUseCase.execute('tracker-id', 5, actor)).resolves.toEqual(engagement);
@@ -76,7 +78,10 @@ describe('published tracker administration', () => {
     } as unknown as IAdminTrackersRepository;
 
     await expect(
-      new LikeAdminPublishedTrackerUseCase(repository).execute('missing-id', actor)
+      new LikeAdminPublishedTrackerUseCase(repository, new AdminTrackersMapper()).execute(
+        'missing-id',
+        actor
+      )
     ).rejects.toMatchObject({ statusCode: 404, code: 'PUBLISHED_TRACKER_NOT_FOUND' });
   });
 });

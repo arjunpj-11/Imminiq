@@ -8,8 +8,9 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
-import { useAdminBroadcasts, useCreateAdminBroadcast } from '../hooks/useAdminBroadcasts';
+} from '../../shared';
+import { useAdminBroadcasts } from '../hooks/useAdminBroadcasts';
+import { useCreateAdminBroadcast } from '../hooks/useCreateAdminBroadcast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 
 export default function AdminBroadcastPage() {

@@ -1,15 +1,19 @@
 import type { AdminListQuery, AdminPage } from '../../../shared';
-import type { AdminSupportTicket } from '../../domain/entities/admin-support-ticket.entity';
 import type { IAdminSupportTicketsRepository } from '../../domain/repositories/admin-support-tickets.repository.interface';
+import type { IAdminSupportTicketDTO } from '../admin-support-tickets.dto';
+import type { IAdminSupportTicketsMapper } from '../admin-support-tickets.mapper';
 
 export interface IListAdminSupportTicketsUseCase {
-  execute(query: AdminListQuery): Promise<AdminPage<AdminSupportTicket>>;
+  execute(query: AdminListQuery): Promise<AdminPage<IAdminSupportTicketDTO>>;
 }
 
 export class ListAdminSupportTicketsUseCase implements IListAdminSupportTicketsUseCase {
-  constructor(private readonly repository: IAdminSupportTicketsRepository) {}
+  constructor(
+    private readonly repository: IAdminSupportTicketsRepository,
+    private readonly mapper: IAdminSupportTicketsMapper
+  ) {}
 
-  execute(query: AdminListQuery): Promise<AdminPage<AdminSupportTicket>> {
-    return this.repository.list(query);
+  async execute(query: AdminListQuery): Promise<AdminPage<IAdminSupportTicketDTO>> {
+    return this.mapper.toPageDTO(await this.repository.list(query));
   }
 }

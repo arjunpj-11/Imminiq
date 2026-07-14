@@ -6,7 +6,7 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useAdminSystemHealth } from '../hooks/useAdminSystemHealth';
 export default function AdminSystemHealthPage() {
   const { data, isLoading, isError, error, refetch, isFetching } = useAdminSystemHealth();

@@ -7,6 +7,7 @@ import {
 
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { ROUTES } from '../routes/config/route-paths';
 
 const HomeIcon = ({ className = '' }: { className?: string }) => {
   return (
@@ -155,8 +156,8 @@ export default function NotFoundPage() {
       <SystemToast message={toast} visible={isToastVisible} />
 
       <SystemPageHeader
-        brandTo="/"
-        actionTo="/dashboard"
+        brandTo={ROUTES.home}
+        actionTo={ROUTES.dashboard}
         actionLabel="Go home"
         actionIcon={<HomeIcon />}
         onUnavailableLink={showToast}
@@ -207,7 +208,7 @@ export default function NotFoundPage() {
         {/* Quick Links */}
         <div className="flex flex-wrap justify-center gap-2">
           <Link
-            to="/dashboard"
+            to={ROUTES.dashboard}
             className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--brand-500) bg-(--brand-500) px-4 py-2 text-[12.5px] font-semibold text-[#fdf8f5] shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[#963d22] hover:bg-(--brand-600) hover:shadow-(--shadow-2) dark:border-(--brand-500) dark:bg-(--brand-500) dark:text-[#141412] dark:hover:border-[#d4705a] dark:hover:bg-(--brand-600)"
           >
             <DashboardIcon />
@@ -215,7 +216,7 @@ export default function NotFoundPage() {
           </Link>
 
           <Link
-            to="/community"
+            to={ROUTES.community}
             className="inline-flex items-center gap-1.5 rounded-md border-[1.5px] border-(--border-subtle) bg-(--surface-card) px-4 py-2 text-[12.5px] font-semibold text-(--text-secondary) shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) hover:shadow-(--shadow-2) dark:border-(--border-subtle) dark:bg-(--surface-card) dark:text-(--text-secondary) dark:hover:border-(--brand-500) dark:hover:bg-[rgba(232,129,106,0.10)] dark:hover:text-(--brand-500)"
           >
             <CommunityIcon />

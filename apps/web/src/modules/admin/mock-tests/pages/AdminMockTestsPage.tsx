@@ -10,9 +10,10 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
-} from '../../../../components/admin/AdminPage';
+} from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminMockTests } from '../hooks/useAdminMockTests';
+import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants';
 
 export default function AdminMockTestsPage() {
   const [search, setSearch] = useState('');
@@ -105,7 +106,7 @@ export default function AdminMockTestsPage() {
                       </td>
                       <td>
                         <Link
-                          to={`/admin/mock-tests/${item.id}`}
+                          to={ADMIN_MOCK_TESTS_ROUTES.detail(item.id)}
                           className="admin-button inline-flex items-center gap-2"
                         >
                           <Eye size={14} />
