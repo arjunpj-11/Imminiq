@@ -14,6 +14,8 @@ const overview = {
     reviewingQuestionReports: 2,
     urgentSupportTickets: 1,
     suspendedMockTests: 4,
+    openTrackerReports: 5,
+    suspendedTrackers: 2,
   },
   weeklyActivity: [1, 2, 3, 4, 5, 6, 7],
   recentActivity: [

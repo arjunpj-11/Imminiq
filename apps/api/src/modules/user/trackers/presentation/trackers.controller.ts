@@ -112,6 +112,20 @@ export class TrackerController {
     }
   };
 
+  reportTracker = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
+    try {
+      const result = await this._useCases.reportTracker.execute({
+        trackerId: req.params.trackerId,
+        userId: getAuthUser(req).userId,
+        reason: req.body.reason,
+        details: req.body.details,
+      });
+      res.status(HttpStatusCode.CREATED).json(new ApiResponse('Tracker report submitted', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   updateTracker = async (req: Request<TrackerParams>, res: Response, next: NextFunction) => {
     try {
       const result = await this._useCases.updateTracker.execute({

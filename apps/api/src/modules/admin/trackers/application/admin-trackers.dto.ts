@@ -6,10 +6,14 @@ export interface AdminTrackerDTO {
   level: string;
   visibility: string;
   status: string;
+  moderationStatus: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   verificationStatus: string | null;
   topicsCount: number;
   cloneCount: number;
   createdAt: Date;
+  reportCount: number;
+  openReportCount: number;
 }
 
 export interface AdminTrackerSubtopicDTO {
@@ -39,13 +43,11 @@ export interface AdminTrackerDetailDTO extends AdminTrackerDTO {
   topics: AdminTrackerTopicDTO[];
 }
 
-export interface AdminTrackerDeleteResultDTO {
-  id: string;
-  title: string;
-  owner: string;
-  ownerEmail?: string;
-  deletedAt: Date;
-}
+export type AdminTrackerReportDTO = import('../domain/entities/admin-tracker.entity').AdminTrackerReport;
+export type AdminTrackerLifecycleResultDTO = Omit<
+  import('../domain/entities/admin-tracker.entity').AdminTrackerLifecycleResult,
+  'owner' | 'ownerEmail'
+> & { notificationQueued: boolean };
 
 export interface AdminPublishedTrackerDTO {
   id: string;

@@ -7,6 +7,8 @@ export type AdminDashboardMetrics = {
   reviewingQuestionReports: number;
   urgentSupportTickets: number;
   suspendedMockTests: number;
+  openTrackerReports: number;
+  suspendedTrackers: number;
 };
 
 export type AdminDashboardActivity = {

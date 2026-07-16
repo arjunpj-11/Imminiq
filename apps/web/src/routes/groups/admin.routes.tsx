@@ -5,6 +5,7 @@ import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
 import {
   AdminPublishedTrackersPage,
   AdminTrackerDetailPage,
+  AdminTrackerReportsPage,
   AdminTrackersPage,
 } from '../../modules/admin/trackers';
 import {
@@ -31,6 +32,7 @@ export const adminRoutes: RouteObject[] = [
       { path: ADMIN_ROUTES.users, element: <AdminUsersPage /> },
       { path: ADMIN_ROUTES.userDetailPattern, element: <AdminUserDetailPage /> },
       { path: ADMIN_ROUTES.trackers, element: <AdminTrackersPage /> },
+      { path: ADMIN_ROUTES.trackerReports, element: <AdminTrackerReportsPage /> },
       { path: ADMIN_ROUTES.trackerReviews, element: <AdminTrackerReviewsPage /> },
       { path: ADMIN_ROUTES.publishedTrackers, element: <AdminPublishedTrackersPage /> },
       { path: ADMIN_ROUTES.trackerDetailPattern, element: <AdminTrackerDetailPage /> },

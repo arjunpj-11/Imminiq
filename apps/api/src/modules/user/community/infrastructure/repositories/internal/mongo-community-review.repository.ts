@@ -57,6 +57,7 @@ export class MongoCommunityReviewRepository
           deletedAt: null,
           status: { $ne: 'archived' },
           $or: [{ visibility: 'public' }, { publishedAt: { $ne: null } }],
+          moderationStatus: { $in: ['active', null] },
         }).lean<MongoCommunityTrackerRecord>();
 
         if (!tracker) {
@@ -119,6 +120,7 @@ export class MongoCommunityReviewRepository
           deletedAt: null,
           status: { $ne: 'archived' },
           $or: [{ visibility: 'public' }, { publishedAt: { $ne: null } }],
+          moderationStatus: { $in: ['active', null] },
         }).lean<MongoCommunityTrackerRecord>();
 
         if (!tracker) {
@@ -230,6 +232,7 @@ export class MongoCommunityReviewRepository
           deletedAt: null,
           status: { $ne: 'archived' },
           $or: [{ visibility: 'public' }, { publishedAt: { $ne: null } }],
+          moderationStatus: { $in: ['active', null] },
         }).lean<MongoCommunityTrackerRecord>();
 
         if (!tracker) {

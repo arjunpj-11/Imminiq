@@ -3,6 +3,8 @@ import { getAdminActor, sendAdminResult } from '../../shared/presentation';
 import type { AdminTrackersUseCases } from '../application/admin-trackers-use-cases.contract';
 import {
   adminPublishedTrackerRatingSchema,
+  adminTrackerLifecycleSchema,
+  adminTrackerReportUpdateSchema,
   adminTrackersQuerySchema,
 } from './admin-trackers.schema';
 export class AdminTrackersController {
@@ -53,11 +55,35 @@ export class AdminTrackersController {
       res,
       'Tracker fetched'
     );
-  delete = (req: Request, res: Response, next: NextFunction) =>
+  listReports = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this.useCases.delete.execute(String(req.params.id), getAdminActor(req)),
+      () => this.useCases.listReports.execute(adminTrackersQuerySchema.parse(req.query)),
       res,
-      'Tracker deleted and owner notified'
+      'Tracker reports fetched'
+    );
+  updateReport = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this.useCases.updateReport.execute(
+          String(req.params.reportId),
+          adminTrackerReportUpdateSchema.parse(req.body),
+          getAdminActor(req)
+        ),
+      res,
+      'Tracker report updated'
+    );
+  updateLifecycle = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () =>
+        this.useCases.updateLifecycle.execute(
+          String(req.params.id),
+          adminTrackerLifecycleSchema.parse(req.body),
+          getAdminActor(req)
+        ),
+      res,
+      'Tracker moderation updated'
     );
 }

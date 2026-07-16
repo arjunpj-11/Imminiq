@@ -8,4 +8,6 @@ export const adminTrackersKeys = {
   detail: (id?: string) => [...adminTrackersKeys.details(), id] as const,
   published: () => [...adminTrackersKeys.all, 'published'] as const,
   publishedList: (query: AdminListQuery) => [...adminTrackersKeys.published(), query] as const,
+  reports: () => [...adminTrackersKeys.all, 'reports'] as const,
+  reportList: (query: AdminListQuery) => [...adminTrackersKeys.reports(), query] as const,
 };

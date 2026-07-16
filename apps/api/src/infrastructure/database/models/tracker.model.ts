@@ -7,6 +7,7 @@ export type TrackerVisibility = 'private' | 'public' | 'unlisted';
 export type TrackerStatus = 'draft' | 'active' | 'archived';
 
 export type TrackerVerificationStatus = 'pending' | 'verified' | 'rejected';
+export type TrackerModerationStatus = 'active' | 'suspended' | 'deleted';
 
 export interface ITrackerDocument extends Document {
   ownerId: mongoose.Types.ObjectId;
@@ -30,6 +31,11 @@ export interface ITrackerDocument extends Document {
 
   verificationStatus?: TrackerVerificationStatus | null;
   verifiedAt?: Date | null;
+  moderationStatus: TrackerModerationStatus;
+  moderationReason?: string | null;
+  moderationReasonCode?: string | null;
+  moderatedBy?: mongoose.Types.ObjectId | null;
+  suspendedAt?: Date | null;
 
   isAIGenerated: boolean;
   aiJobId?: mongoose.Types.ObjectId;
@@ -151,6 +157,18 @@ const trackerSchema = new Schema<ITrackerDocument>(
       default: null,
     },
 
+    moderationStatus: {
+      type: String,
+      enum: ['active', 'suspended', 'deleted'],
+      default: 'active',
+      index: true,
+    },
+
+    moderationReason: { type: String, trim: true, maxlength: 1000, default: null },
+    moderationReasonCode: { type: String, trim: true, maxlength: 80, default: null },
+    moderatedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    suspendedAt: { type: Date, default: null },
+
     isAIGenerated: {
       type: Boolean,
       default: false,
@@ -240,6 +258,7 @@ trackerSchema.index({ level: 1 });
 trackerSchema.index({ tags: 1 });
 trackerSchema.index({ sourceTrackerId: 1 });
 trackerSchema.index({ verificationStatus: 1, visibility: 1 });
+trackerSchema.index({ moderationStatus: 1, deletedAt: 1 });
 trackerSchema.index(
   { ownerId: 1, sourceTrackerId: 1 },
   {

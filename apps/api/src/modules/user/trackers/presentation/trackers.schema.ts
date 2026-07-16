@@ -1,5 +1,18 @@
 import { z } from 'zod';
 
+export const reportTrackerSchema = z.object({
+  reason: z.enum([
+    'incorrect_or_misleading',
+    'unsafe_or_offensive',
+    'spam_or_low_quality',
+    'copyright_or_plagiarism',
+    'broken_learning_path',
+    'privacy_concern',
+    'other',
+  ]),
+  details: z.string().trim().max(1500).optional().default(''),
+});
+
 const optionalTrimmedStringSchema = (maxLength: number, maxMessage: string) =>
   z.preprocess((value) => {
     if (typeof value !== 'string') {

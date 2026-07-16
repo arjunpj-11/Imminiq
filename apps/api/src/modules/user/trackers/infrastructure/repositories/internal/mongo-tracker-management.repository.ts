@@ -2,6 +2,7 @@ import { CommunityVerificationSubmission } from '../../../../../../infrastructur
 import { Tracker } from '../../../../../../infrastructure/database/models/tracker.model';
 import { TrackerProgress } from '../../../../../../infrastructure/database/models/tracker-progress.model';
 import { User } from '../../../../../../infrastructure/database/models/user.model';
+import { TrackerReport } from '../../../../../../infrastructure/database/models/tracker-report.model';
 import type {
   ArchiveOwnedTrackerInput,
   FindOwnedTrackerByIdInput,
@@ -26,6 +27,57 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
     super();
   }
 
+  async findReportableTrackerById(trackerId: string) {
+    return this.execute('TRACKER_READ_FAILED', 'Failed to read tracker', async () => {
+      const tracker = await Tracker.findOne({
+        _id: this.mapper.toObjectId(trackerId),
+        deletedAt: null,
+        visibility: 'public',
+        publishedAt: { $ne: null },
+        moderationStatus: { $in: ['active', null] },
+      }).lean();
+      return tracker ? this.mapper.toDomainRecord<TrackerRecord>(tracker) : null;
+    });
+  }
+
+  async createOrReopenTrackerReport(input: {
+    trackerId: string;
+    reporterId: string;
+    reason: string;
+    details: string;
+  }) {
+    return this.execute('TRACKER_REPORT_WRITE_FAILED', 'Failed to report tracker', async () => {
+      const now = new Date();
+      const report = await TrackerReport.findOneAndUpdate(
+        {
+          trackerId: this.mapper.toObjectId(input.trackerId),
+          reporterId: this.mapper.toObjectId(input.reporterId),
+        },
+        {
+          $set: {
+            reason: input.reason,
+            details: input.details,
+            status: 'open',
+            assignedTo: null,
+            resolutionAction: 'none',
+            resolutionNote: '',
+            resolvedBy: null,
+            resolvedAt: null,
+            updatedAt: now,
+          },
+          $setOnInsert: { createdAt: now },
+        },
+        { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
+      ).lean();
+      return {
+        id: String(report!._id),
+        status: String(report!.status),
+        createdAt: report!.createdAt,
+        updatedAt: report!.updatedAt,
+      };
+    });
+  }
+
   async listDomains(search: string, limit: number) {
     return this.execute(
       'TRACKER_DOMAINS_READ_FAILED',
@@ -36,6 +88,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           {
             $match: {
               deletedAt: null,
+              moderationStatus: { $in: ['active', null] },
               category: {
                 $type: 'string',
                 $ne: '',
@@ -285,6 +338,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             _id: this.mapper.toObjectId(data.trackerId),
             ownerId: this.mapper.toObjectId(data.userId),
             deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
           }),
           this.mapper.asMongoUpdate({
             $set: update,
@@ -308,6 +362,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {
@@ -348,6 +403,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         })
       ).lean();
 
@@ -366,6 +422,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {
@@ -388,6 +445,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {
@@ -447,6 +505,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             _id: this.mapper.toObjectId(data.trackerId),
             ownerId: this.mapper.toObjectId(data.userId),
             deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
           }),
           this.mapper.asMongoUpdate({
             $set: update,
@@ -469,6 +528,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {

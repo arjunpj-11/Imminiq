@@ -42,6 +42,8 @@ export interface ITracker {
   level?: TrackerLevel;
   status?: TrackerStatus;
   visibility?: TrackerVisibility;
+  moderationStatus?: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string | null;
   progressPercent?: number;
   topicsCount?: number;
   subtopicsCount?: number;

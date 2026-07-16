@@ -20,4 +20,12 @@ export class AdminTrackersApplicationError extends Error {
       'Published tracker not found'
     );
   }
+
+  static reportNotFound() {
+    return new AdminTrackersApplicationError(
+      404,
+      'TRACKER_REPORT_NOT_FOUND',
+      'Tracker report not found'
+    );
+  }
 }

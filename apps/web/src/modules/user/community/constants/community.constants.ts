@@ -10,6 +10,7 @@ export const COMMUNITY_ENDPOINTS = {
   cloneTracker: (trackerId: string) => `/community/trackers/${trackerId}/clone`,
   likeTracker: (trackerId: string) => `/community/trackers/${trackerId}/like`,
   trackerReviews: (trackerId: string) => `/community/trackers/${trackerId}/reviews`,
+  reportTracker: (trackerId: string) => `/trackers/${trackerId}/report`,
   reviewHelpful: (reviewId: string) => `/community/reviews/${reviewId}/helpful`,
   verificationDashboard: (query: string) => `/community/verify/dashboard?${query}`,
   verificationSubmission: (submissionId: string) => `/community/verify/${submissionId}`,

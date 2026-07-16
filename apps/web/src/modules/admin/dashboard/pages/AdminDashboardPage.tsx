@@ -1,4 +1,4 @@
-import { CheckCircle2, RefreshCw, ShieldAlert, TicketCheck } from 'lucide-react';
+import { CheckCircle2, Flag, RefreshCw, ShieldAlert, TicketCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import AdminDashboardState from '../components/AdminDashboardState';
@@ -41,7 +41,7 @@ export default function AdminDashboardPage() {
                 { label: 'Open reports', value: data.metrics.openQuestionReports, tone: 'error' },
                 { label: 'In review', value: data.metrics.reviewingQuestionReports, tone: 'warning' },
                 { label: 'Urgent support', value: data.metrics.urgentSupportTickets, tone: 'accent' },
-                { label: 'Suspended tests', value: data.metrics.suspendedMockTests, tone: 'info' },
+                { label: 'Tracker reports', value: data.metrics.openTrackerReports, tone: 'error' },
               ]
             : [
                 { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
@@ -51,7 +51,7 @@ export default function AdminDashboardPage() {
               ]
         }
       />
-      <section className="mt-7 grid gap-4 lg:grid-cols-3">
+      <section className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <Link
           to={ADMIN_ROUTES.mockTestReports}
           className="rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-5 transition hover:-translate-y-0.5"
@@ -74,6 +74,22 @@ export default function AdminDashboardPage() {
         >
           <div className="flex items-center gap-2 font-semibold text-[#6aa9ff]"><ShieldAlert size={18} /> Suspended tests</div>
           <div className="font-editorial mt-3 text-3xl">{data.metrics.suspendedMockTests}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Awaiting correction, appeal, or deletion</p>
+        </Link>
+        <Link
+          to={ADMIN_ROUTES.trackerReports}
+          className="rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#e26767]"><Flag size={18} /> Tracker reports</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.openTrackerReports}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Open or currently under review</p>
+        </Link>
+        <Link
+          to={`${ADMIN_ROUTES.trackers}?status=suspended`}
+          className="rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#f0a842]"><ShieldAlert size={18} /> Suspended trackers</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.suspendedTrackers}</div>
           <p className="mt-1 text-xs text-[#aaa59d]">Awaiting correction, appeal, or deletion</p>
         </Link>
       </section>

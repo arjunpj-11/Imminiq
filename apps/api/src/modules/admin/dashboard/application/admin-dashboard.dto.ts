@@ -9,6 +9,8 @@ export interface AdminDashboardDTO {
     reviewingQuestionReports: number;
     urgentSupportTickets: number;
     suspendedMockTests: number;
+    openTrackerReports: number;
+    suspendedTrackers: number;
   };
   weeklyActivity: number[];
   recentActivity: Array<{

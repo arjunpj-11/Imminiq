@@ -74,6 +74,7 @@ export const ADMIN_ROUTES = {
   userDetail: (userId: string) => `/admin/users/${userId}`,
   trackers: '/admin/trackers',
   trackerReviews: '/admin/trackers/reviews',
+  trackerReports: '/admin/trackers/reports',
   publishedTrackers: '/admin/trackers/published',
   trackerDetailPattern: '/admin/trackers/:trackerId',
   trackerDetail: (trackerId: string) => `/admin/trackers/${trackerId}`,

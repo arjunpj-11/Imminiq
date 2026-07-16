@@ -41,3 +41,4 @@ export * from './use-cases/update-tracker.usecase';
 export * from './use-cases/verify-lesson-answer.usecase';
 export * from './use-cases/verify-tracker-subtopic.usecase';
 export * from './use-cases/verify-tracker-topic.usecase';
+export * from './use-cases/report-tracker.usecase';

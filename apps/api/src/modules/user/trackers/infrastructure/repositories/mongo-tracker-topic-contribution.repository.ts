@@ -70,6 +70,7 @@ export class MongoTrackerTopicContributionRepository
       _id: clone.sourceTrackerId,
       deletedAt: null,
       $or: [{ visibility: 'public' }, { publishedAt: { $ne: null } }],
+      moderationStatus: { $in: ['active', null] },
     }).lean();
     if (!source) return { ok: false as const, reason: 'source-unavailable' as const };
 

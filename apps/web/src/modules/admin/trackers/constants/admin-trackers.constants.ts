@@ -4,6 +4,9 @@ export const ADMIN_TRACKERS_ENDPOINTS = {
   list: '/admin/trackers',
   detail: (trackerId: string) => `/admin/trackers/${trackerId}`,
   published: '/admin/trackers/published',
+  reports: '/admin/trackers/reports',
+  updateReport: (reportId: string) => `/admin/trackers/reports/${reportId}`,
+  lifecycle: (trackerId: string) => `/admin/trackers/${trackerId}/lifecycle`,
   likePublished: (trackerId: string) => `/admin/trackers/published/${trackerId}/like`,
   ratePublished: (trackerId: string) => `/admin/trackers/published/${trackerId}/rating`,
 } as const;
@@ -13,6 +16,7 @@ export const ADMIN_TRACKERS_ROUTES = {
   detail: ADMIN_ROUTES.trackerDetail,
   reviews: ADMIN_ROUTES.trackerReviews,
   published: ADMIN_ROUTES.publishedTrackers,
+  reports: ADMIN_ROUTES.trackerReports,
 } as const;
 
 export const ADMIN_TRACKERS_STALE_TIME_MS = 30_000;

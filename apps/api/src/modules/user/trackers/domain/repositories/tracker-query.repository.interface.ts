@@ -44,6 +44,15 @@ export type FindGeneratedLessonBySubtopicInput = {
 };
 
 export interface ITrackerQueryRepository {
+  findReportableTrackerById(trackerId: string): Promise<TrackerRecord | null>;
+
+  createOrReopenTrackerReport(input: {
+    trackerId: string;
+    reporterId: string;
+    reason: string;
+    details: string;
+  }): Promise<{ id: string; status: string; createdAt: Date; updatedAt: Date }>;
+
   listDomains(search: string, limit: number): Promise<string[]>;
 
   hasAnyTrackerForUser(userId: string): Promise<boolean>;

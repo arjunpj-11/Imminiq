@@ -40,6 +40,8 @@ export type CreateTrackerInput = {
   goal?: string;
   level?: TrackerLevel;
   visibility?: TrackerVisibility;
+  moderationStatus?: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string | null;
 };
 
 export type PublishTrackerInput = {

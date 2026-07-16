@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Flag } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
@@ -31,6 +32,9 @@ import { useUpsertCommunityTrackerReview } from '../hooks/useUpsertCommunityTrac
 import type { ICommunityPublicTrackerDetail } from '../types/community.types';
 import { getApiErrorMessage } from '../utils/community-formatters';
 import { cn, communityPageClass } from '../utils/community-ui';
+import Modal from '../../../../components/overlays/Modal';
+import { useReportCommunityTracker, type ReportTrackerReason } from '../hooks/useReportCommunityTracker';
+import { useAuthStore } from '../../../../store/useAuthStore';
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -71,6 +75,8 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const upsertReview = useUpsertCommunityTrackerReview();
   const toggleHelpful = useToggleCommunityReviewHelpful();
   const toggleLike = useToggleCommunityTrackerLike();
+  const reportTracker = useReportCommunityTracker();
+  const currentUserId = useAuthStore((state) => state.user?._id);
 
   const [cloned, setCloned] = useState(false);
   const [cloneConfirmOpen, setCloneConfirmOpen] = useState(false);
@@ -79,6 +85,9 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
   const [myRating, setMyRating] = useState(() => tracker.myReview?.rating ?? 0);
   const [sortBy, setSortBy] = useState<'top' | 'new'>('top');
   const [activeHelpfulReviewId, setActiveHelpfulReviewId] = useState<string | null>(null);
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] = useState<ReportTrackerReason>('incorrect_or_misleading');
+  const [reportDetails, setReportDetails] = useState('');
 
   const totalSubtopics = useMemo(() => getTotalSubtopics(tracker), [tracker]);
 
@@ -252,6 +261,16 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
                     <HeartIcon filled={tracker.likedByMe} />
                     {toggleLike.isPending ? 'Saving...' : tracker.likedByMe ? 'Liked' : 'Like'}
                   </button>
+
+                  {currentUserId !== tracker.ownerId && (
+                    <button
+                      type="button"
+                      onClick={() => setReportOpen(true)}
+                      className="inline-flex items-center gap-2 rounded-md border-[1.5px] border-(--border-subtle) bg-white/60 px-4 py-2.5 text-[13px] font-bold text-(--text-secondary) transition hover:border-red-500/30 hover:text-red-600 dark:border-(--border-subtle) dark:bg-white/4"
+                    >
+                      <Flag size={14} /> Report
+                    </button>
+                  )}
 
                   <button
                     type="button"
@@ -642,6 +661,85 @@ function CommunityPublicTrackerLoaded({ tracker }: { tracker: ICommunityPublicTr
           if (!cloneTracker.isPending) setCloneConfirmOpen(false);
         }}
       />
+      <Modal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        preventClose={reportTracker.isPending}
+        ariaLabel="Report tracker"
+        contentClassName="max-w-lg"
+      >
+        <h2 className="font-ui text-2xl font-black text-(--text-primary)">Report this tracker</h2>
+        <p className="mt-2 text-sm leading-6 text-(--text-secondary)">
+          Choose the closest reason and add evidence that will help the moderation team review it.
+          Reports do not automatically remove content.
+        </p>
+        <label className="mt-5 block text-sm font-bold text-(--text-primary)">
+          Reason
+          <select
+            value={reportReason}
+            onChange={(event) => setReportReason(event.target.value as ReportTrackerReason)}
+            className="mt-2 w-full rounded-lg border border-(--border-subtle) bg-(--surface-card) px-3 py-2"
+          >
+            <option value="incorrect_or_misleading">Incorrect or misleading content</option>
+            <option value="unsafe_or_offensive">Unsafe or offensive content</option>
+            <option value="spam_or_low_quality">Spam or very low quality</option>
+            <option value="copyright_or_plagiarism">Copyright or plagiarism</option>
+            <option value="broken_learning_path">Broken learning path</option>
+            <option value="privacy_concern">Privacy concern</option>
+            <option value="other">Other</option>
+          </select>
+        </label>
+        <label className="mt-4 block text-sm font-bold text-(--text-primary)">
+          Details
+          <textarea
+            rows={5}
+            maxLength={1500}
+            value={reportDetails}
+            onChange={(event) => setReportDetails(event.target.value)}
+            placeholder="Describe the affected topic, lesson, or problem…"
+            className="mt-2 w-full rounded-lg border border-(--border-subtle) bg-(--surface-card) px-3 py-2"
+          />
+        </label>
+        {reportTracker.isError && (
+          <p className="mt-3 text-sm text-red-600">
+            {getApiErrorMessage(
+              'Unable to submit this report. Please try again.',
+              reportTracker.error
+            )}
+          </p>
+        )}
+        <div className="mt-6 flex justify-end gap-2">
+          <button
+            type="button"
+            className="rounded-md border border-(--border-subtle) px-4 py-2 text-sm font-bold"
+            onClick={() => setReportOpen(false)}
+          >
+            Cancel
+          </button>
+          <button
+            type="button"
+            className="rounded-md bg-(--brand-500) px-4 py-2 text-sm font-bold text-white disabled:opacity-50"
+            disabled={reportTracker.isPending}
+            onClick={() =>
+              reportTracker.mutate(
+                {
+                  trackerId: tracker._id,
+                  reason: reportReason,
+                  details: reportDetails.trim(),
+                },
+                {
+                  onSuccess: () => {
+                    setReportOpen(false);
+                    setReportDetails('');
+                  },
+                }
+              )
+            }
+          >
+            {reportTracker.isPending ? 'Submitting…' : 'Submit report'}
+          </button>
+        </div>
+      </Modal>
     </CommunityLayout>
   );
 }

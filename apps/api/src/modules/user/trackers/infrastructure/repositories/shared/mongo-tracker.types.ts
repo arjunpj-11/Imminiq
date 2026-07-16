@@ -13,7 +13,7 @@ export type MongoOperatorValue = {
   $gt?: string | number | Date;
   $gte?: string | number | Date;
   $lte?: string | number | Date;
-  $in?: Array<string | number | Types.ObjectId>;
+  $in?: Array<string | number | null | Types.ObjectId>;
 };
 
 export type MongoValue = MongoPrimitive | MongoPrimitive[] | MongoOperatorValue;

@@ -33,6 +33,7 @@ import { ListTopicContributionsUseCase } from './application/use-cases/list-topi
 import { PublishTrackerUseCase } from './application/use-cases/publish-tracker.usecase';
 import { RestoreTrackerUseCase } from './application/use-cases/restore-tracker.usecase';
 import { ReviewTopicContributionUseCase } from './application/use-cases/review-topic-contribution.usecase';
+import { ReportTrackerUseCase } from './application/use-cases/report-tracker.usecase';
 import { RunLessonCodeUseCase } from './application/use-cases/run-lesson-code.usecase';
 import { SubmitLessonCodeUseCase } from './application/use-cases/submit-lesson-code.usecase';
 import { UnpublishTrackerUseCase } from './application/use-cases/unpublish-tracker.usecase';
@@ -165,6 +166,8 @@ export const createTrackerComposition = (
       publishTracker: new PublishTrackerUseCase(trackerRepository, _trackerMapper),
 
       unpublishTracker: new UnpublishTrackerUseCase(trackerRepository, _trackerMapper),
+
+      reportTracker: new ReportTrackerUseCase(trackerRepository),
 
       getTrackerRoadmap: new GetTrackerRoadmapUseCase(trackerRepository, _trackerMapper),
 

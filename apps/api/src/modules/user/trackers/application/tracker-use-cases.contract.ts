@@ -40,6 +40,7 @@ export type TrackerUseCases = {
   getLessonQuestionSolutionDoubts: Application.IGetLessonQuestionSolutionDoubtsUseCase;
   clearLessonChatHistory: Application.IClearLessonChatHistoryUseCase;
   clearLessonQuestionSolutionDoubts: Application.IClearLessonQuestionSolutionDoubtsUseCase;
+  reportTracker: Application.IReportTrackerUseCase;
 };
 
 export type TrackerManagementUseCases = Pick<

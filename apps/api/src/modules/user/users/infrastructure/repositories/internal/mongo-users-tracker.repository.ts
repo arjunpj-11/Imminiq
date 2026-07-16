@@ -25,6 +25,7 @@ export class MongoUsersTrackerRepository extends MongoUsersBaseRepository {
           ownerId: MongoUsersObjectId.from(ownerId),
           deletedAt: null,
           status: query.status ?? 'active',
+          moderationStatus: { $in: ['active', null] },
         };
 
         if (!includePrivate) {
@@ -85,6 +86,7 @@ export class MongoUsersTrackerRepository extends MongoUsersBaseRepository {
           ownerId: MongoUsersObjectId.from(ownerId),
           deletedAt: null,
           visibility: 'public',
+          moderationStatus: { $in: ['active', null] },
         },
       },
       {

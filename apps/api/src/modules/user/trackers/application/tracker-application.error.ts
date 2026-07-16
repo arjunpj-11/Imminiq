@@ -24,6 +24,7 @@ export type TrackerApplicationErrorCode =
   | 'TOPIC_CONTRIBUTION_NOT_A_CHANGE'
   | 'TOPIC_CONTRIBUTION_REQUIRES_CLONE'
   | 'TOPIC_CONTRIBUTION_SOURCE_UNAVAILABLE'
+  | 'FORBIDDEN'
   | 'TRACKER_NOT_FOUND';
 
 export class TrackerApplicationError extends TrackerDomainError {
@@ -37,6 +38,10 @@ export class TrackerApplicationError extends TrackerDomainError {
 
   static trackerNotFound(message = 'Tracker not found'): TrackerApplicationError {
     return new TrackerApplicationError(404, 'TRACKER_NOT_FOUND', message);
+  }
+
+  static forbidden(message = 'Forbidden'): TrackerApplicationError {
+    return new TrackerApplicationError(403, 'FORBIDDEN', message);
   }
 
   static clonedTrackerCannotBePublished(): TrackerApplicationError {

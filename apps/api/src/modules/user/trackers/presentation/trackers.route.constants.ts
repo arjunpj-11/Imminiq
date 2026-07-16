@@ -4,6 +4,7 @@ export const TRACKER_ROUTE_PATHS = {
   DOMAINS: '/domains',
 
   TRACKER_BY_ID: '/:trackerId',
+  REPORT_TRACKER: '/:trackerId/report',
   ARCHIVE_TRACKER: '/:trackerId/archive',
   RESTORE_TRACKER: '/:trackerId/restore',
   PUBLISH_TRACKER: '/:trackerId/publish',

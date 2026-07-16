@@ -4,6 +4,7 @@ import { ActivityLog } from '../../../../../infrastructure/database/models/activ
 import { MockTestQuestionIssueModel } from '../../../../../infrastructure/database/models/mock-test-question-issue.model';
 import { MockTestModel } from '../../../../../infrastructure/database/models/mock-test.model';
 import { SupportTicket } from '../../../../../infrastructure/database/models/support-ticket.model';
+import { TrackerReport } from '../../../../../infrastructure/database/models/tracker-report.model';
 import type { AdminDashboardEntity } from '../../domain/entities/admin-dashboard.entity';
 import type { IAdminDashboardRepository } from '../../domain/repositories/admin-dashboard.repository.interface';
 
@@ -22,6 +23,8 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
       reviewingQuestionReports,
       urgentSupportTickets,
       suspendedMockTests,
+      openTrackerReports,
+      suspendedTrackers,
       recentActivity,
       weeklyActivity,
     ] =
@@ -37,6 +40,8 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
           status: { $in: ['open', 'in_progress'] },
         }),
         MockTestModel.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
+        TrackerReport.countDocuments({ status: { $in: ['open', 'reviewing'] } }),
+        Tracker.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
         ActivityLog.find({ deletedAt: null }).sort({ createdAt: -1 }).limit(8).lean(),
         ActivityLog.aggregate<{ _id: number; count: number }>([
           { $match: { deletedAt: null, createdAt: { $gte: sinceWeek } } },
@@ -65,6 +70,8 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
         reviewingQuestionReports,
         urgentSupportTickets,
         suspendedMockTests,
+        openTrackerReports,
+        suspendedTrackers,
       },
       weeklyActivity: [2, 3, 4, 5, 6, 7, 1].map((day) => weeklyMap.get(day) ?? 0),
       recentActivity: recentActivity.map((item) => ({

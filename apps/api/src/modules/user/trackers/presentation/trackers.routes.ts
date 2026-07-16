@@ -30,6 +30,7 @@ import {
   verifyTopicSchema,
   verifySubtopicSchema,
   reviewTopicContributionSchema,
+  reportTrackerSchema,
 } from './trackers.schema';
 
 export const createTrackerRoutes = (useCases: TrackerUseCases) => {
@@ -79,6 +80,12 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   );
 
   router.get(TRACKER_ROUTE_PATHS.TRACKER_BY_ID, trackerController.getTrackerDetails);
+
+  router.post(
+    TRACKER_ROUTE_PATHS.REPORT_TRACKER,
+    validate(reportTrackerSchema),
+    trackerController.reportTracker
+  );
 
   router.patch(
     TRACKER_ROUTE_PATHS.TRACKER_BY_ID,

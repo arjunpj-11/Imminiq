@@ -14,6 +14,7 @@ export class MongoCommunityQueryUtils {
       deletedAt: null,
       visibility: 'public',
       publishedAt: { $ne: null },
+      moderationStatus: { $in: ['active', null] },
     };
   }
 }

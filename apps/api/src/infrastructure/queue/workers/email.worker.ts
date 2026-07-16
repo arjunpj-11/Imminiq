@@ -11,6 +11,15 @@ type MockTestModerationEmailJob = {
   reason: string;
 };
 
+type TrackerModerationEmailJob = {
+  kind: 'tracker_moderation';
+  to: string;
+  ownerName: string;
+  trackerTitle: string;
+  action: 'suspended' | 'deleted' | 'restored';
+  reason: string;
+};
+
 const escapeHtml = (value: string) =>
   value
     .replaceAll('&', '&amp;')
@@ -19,10 +28,19 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 
-export const emailWorker = new Worker<MockTestModerationEmailJob>(
+export const emailWorker = new Worker<MockTestModerationEmailJob | TrackerModerationEmailJob>(
   'email',
   async (job) => {
-    if (job.data.kind !== 'mock_test_moderation') return;
+    if (job.data.kind === 'tracker_moderation') {
+      const { to, ownerName, trackerTitle, action, reason } = job.data;
+      const actionLabel = action === 'deleted' ? 'removed' : action;
+      await sendMail(
+        to,
+        `Your tracker “${trackerTitle}” was ${actionLabel}`,
+        `<div style="font-family:Arial,sans-serif;line-height:1.65;color:#25211f"><h2>Tracker ${escapeHtml(actionLabel)} by Imminiq administration</h2><p>Hello ${escapeHtml(ownerName)},</p><p>Your tracker <strong>${escapeHtml(trackerTitle)}</strong> was ${escapeHtml(actionLabel)} after an administrative review.</p><p><strong>Reason:</strong> ${escapeHtml(reason)}</p><p>If you disagree with this decision, raise a support ticket from your account and include the tracker title.</p><p>— Imminiq Support</p></div>`
+      );
+      return;
+    }
     const { to, ownerName, testTitle, action, reason } = job.data;
     const actionLabel =
       action === 'restored' ? 'restored' : action === 'suspended' ? 'suspended' : 'removed';

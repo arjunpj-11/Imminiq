@@ -6,10 +6,14 @@ export type AdminTracker = {
   level: string;
   visibility: string;
   status: 'draft' | 'active' | 'archived';
+  moderationStatus: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   verificationStatus: string | null;
   topicsCount: number;
   cloneCount: number;
   createdAt: string;
+  reportCount: number;
+  openReportCount: number;
 };
 export type AdminTrackerSubtopic = {
   id: string;
@@ -49,4 +53,40 @@ export type AdminPublishedTracker = {
   publishedAt: string;
   adminLiked: boolean;
   adminRating: number | null;
+};
+export type AdminTrackerReport = {
+  id: string;
+  trackerId: string;
+  trackerTitle: string;
+  trackerOwner: string;
+  reporterId: string;
+  reporter: string;
+  reporterEmail?: string;
+  reason: string;
+  details: string;
+  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
+  resolutionAction: 'none' | 'tracker_suspended' | 'tracker_deleted' | 'tracker_restored';
+  resolutionNote: string;
+  assignedTo?: string;
+  createdAt: string;
+  updatedAt: string;
+  resolvedAt?: string;
+};
+export type AdminTrackerLifecyclePayload = {
+  action: 'suspend' | 'delete' | 'restore';
+  reasonCode:
+    | 'incorrect_content'
+    | 'unsafe_content'
+    | 'copyright'
+    | 'spam_or_abuse'
+    | 'broken_learning_path'
+    | 'owner_request'
+    | 'appeal_accepted'
+    | 'other';
+  reason: string;
+  notifyOwner: boolean;
+};
+export type AdminTrackerReportUpdatePayload = {
+  status: 'reviewing' | 'resolved' | 'dismissed';
+  resolutionNote: string;
 };

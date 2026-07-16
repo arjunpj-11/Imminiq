@@ -1,10 +1,13 @@
 import type { AdminActor, AdminListQuery, AdminPage } from '../../../shared/domain';
 import type {
   AdminTracker,
-  AdminTrackerDeleteResult,
   AdminTrackerDetail,
   AdminPublishedTracker,
   AdminPublishedTrackerEngagementResult,
+  AdminTrackerReport,
+  AdminTrackerLifecycleInput,
+  AdminTrackerLifecycleResult,
+  AdminTrackerReportUpdateInput,
 } from '../entities/admin-tracker.entity';
 export interface IAdminTrackersRepository {
   list(query: AdminListQuery): Promise<AdminPage<AdminTracker>>;
@@ -22,5 +25,15 @@ export interface IAdminTrackersRepository {
     actor: AdminActor
   ): Promise<AdminPublishedTrackerEngagementResult | null>;
   getDetail(id: string): Promise<AdminTrackerDetail | null>;
-  delete(id: string, actor: AdminActor): Promise<AdminTrackerDeleteResult | null>;
+  listReports(query: AdminListQuery): Promise<AdminPage<AdminTrackerReport>>;
+  updateReport(
+    id: string,
+    input: AdminTrackerReportUpdateInput,
+    actor: AdminActor
+  ): Promise<AdminTrackerReport | null>;
+  updateLifecycle(
+    id: string,
+    input: AdminTrackerLifecycleInput,
+    actor: AdminActor
+  ): Promise<AdminTrackerLifecycleResult | null>;
 }

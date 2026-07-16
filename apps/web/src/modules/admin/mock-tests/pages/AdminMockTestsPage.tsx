@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { Eye, ShieldAlert } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AdminEmpty,
@@ -14,20 +14,12 @@ import {
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminMockTests } from '../hooks/useAdminMockTests';
 import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants';
-import type { AdminMockTest, AdminMockTestLifecyclePayload } from '../types/admin-mock-tests.types';
-import AdminMockTestModerationDialog from '../components/AdminMockTestModerationDialog';
-import { useAuthStore } from '../../../../store/useAuthStore';
 
 export default function AdminMockTestsPage() {
-  const canManageLifecycle = useAuthStore((state) => state.user?.role !== 'moderator');
   const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(() => searchParams.get('status') || 'all');
   const [page, setPage] = useState(1);
-  const [moderating, setModerating] = useState<{
-    test: AdminMockTest;
-    action: AdminMockTestLifecyclePayload['action'];
-  } | null>(null);
   const { data, isLoading, isError, error } = useAdminMockTests({
     search: useDebouncedValue(search, 300),
     status,
@@ -147,33 +139,6 @@ export default function AdminMockTestsPage() {
                           >
                             <Eye size={14} /> View
                           </Link>
-                          {canManageLifecycle && item.moderationStatus === 'active' && (
-                            <button
-                              onClick={() => setModerating({ test: item, action: 'suspend' })}
-                              className="admin-icon-button text-[#f0a842]"
-                              title="Suspend mock test"
-                            >
-                              <ShieldAlert size={15} />
-                            </button>
-                          )}
-                          {canManageLifecycle && item.moderationStatus !== 'deleted' && (
-                            <button
-                              onClick={() => setModerating({ test: item, action: 'delete' })}
-                              className="admin-icon-button text-[#e26767]"
-                              title="Delete mock test"
-                            >
-                              <Trash2 size={15} />
-                            </button>
-                          )}
-                          {canManageLifecycle && item.moderationStatus !== 'active' && (
-                            <button
-                              onClick={() => setModerating({ test: item, action: 'restore' })}
-                              className="admin-icon-button text-[#52c58c]"
-                              title="Restore mock test"
-                            >
-                              <RotateCcw size={15} />
-                            </button>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -203,12 +168,6 @@ export default function AdminMockTestsPage() {
           </>
         )}
       </AdminPanel>
-      <AdminMockTestModerationDialog
-        key={`${moderating?.test.id ?? 'closed'}-${moderating?.action ?? 'suspend'}`}
-        test={moderating?.test ?? null}
-        action={moderating?.action ?? 'suspend'}
-        onClose={() => setModerating(null)}
-      />
     </main>
   );
 }

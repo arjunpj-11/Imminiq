@@ -237,6 +237,7 @@ export default function TrackerCard({
   const progress = Math.min(100, Math.max(0, Number(tracker.progressPercent ?? 0)));
   const tone = getTone(tracker.status);
   const isPublished = tracker.visibility === 'public' || Boolean(tracker.publishedAt);
+  const isUnavailable = tracker.moderationStatus && tracker.moderationStatus !== 'active';
   const isArchived = tracker.status === 'archived';
   const cloneSource = tracker.clonedFrom;
   const verificationStatus =
@@ -359,9 +360,9 @@ export default function TrackerCard({
       <article
         role="button"
         tabIndex={0}
-        onClick={() => onOpenStudy(tracker._id)}
+        onClick={() => { if (!isUnavailable) onOpenStudy(tracker._id); }}
         onKeyDown={(event) => {
-          if (event.key === 'Enter') onOpenStudy(tracker._id);
+          if (event.key === 'Enter' && !isUnavailable) onOpenStudy(tracker._id);
         }}
         className="render-lazy group relative min-h-72 cursor-pointer overflow-visible rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) transition hover:-translate-y-1 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) focus:outline-none focus:ring-3 focus:ring-[rgba(184,76,43,0.18)] dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-[rgba(232,129,106,0.24)]"
       >
@@ -393,6 +394,7 @@ export default function TrackerCard({
                 Archived
               </span>
             )}
+            {isUnavailable && <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-3 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-amber-700 dark:text-amber-300">Under admin review</span>}
             {isVerificationPending && (
               <span className="rounded-full border border-[rgba(138,98,0,0.22)] bg-[rgba(138,98,0,0.08)] px-3 py-1 font-mono text-[8px] uppercase tracking-[0.12em] text-[#8a6200] dark:border-[rgba(240,168,66,0.24)] dark:bg-[rgba(240,168,66,0.10)] dark:text-(--warning)">
                 Pending Review
@@ -408,6 +410,7 @@ export default function TrackerCard({
           <div ref={menuRef} className="relative">
             <button
               type="button"
+              disabled={Boolean(isUnavailable)}
               aria-label="Tracker actions"
               onClick={(event) => {
                 event.stopPropagation();
@@ -508,6 +511,7 @@ export default function TrackerCard({
         <p className="mt-2 line-clamp-2 min-h-10 text-[12.5px] leading-[1.55] text-(--text-secondary) dark:text-(--text-secondary)">
           {tracker.description ?? tracker.goal ?? 'Personalized learning tracker'}
         </p>
+        {isUnavailable && tracker.moderationReason && <p className="mt-3 rounded-lg border border-amber-500/25 bg-amber-500/10 p-3 text-[12px] font-semibold leading-5 text-amber-800 dark:text-amber-200">Admin note: {tracker.moderationReason}</p>}
 
         {/* ── Progress bar ── */}
         <div className="mt-6">
@@ -568,7 +572,9 @@ export default function TrackerCard({
                 : `Active ${formatRelativeTime(tracker.lastActiveAt)}`}
           </span>
 
-          {cloneSource ? (
+          {isUnavailable ? (
+            <span className="rounded-sm border border-amber-500/25 px-3.5 py-2 text-[12px] font-bold text-amber-700 dark:text-amber-300">Unavailable</span>
+          ) : cloneSource ? (
             <button
               type="button"
               onClick={(event) => {
