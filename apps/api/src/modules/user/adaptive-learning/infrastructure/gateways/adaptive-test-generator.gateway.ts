@@ -14,7 +14,6 @@ export class AdaptiveTestGeneratorGateway implements IAdaptiveTestGenerator {
       trackerId: plan.trackerId,
       timeLimitMinutes: Math.max(10, plan.questionCount * 2),
       passingScore: Math.max(45, Math.min(80, plan.predictedScore)),
-      visibility: 'private',
     } as const;
     const adaptiveContext = { plan, baselineMasteryScore };
     const job = await AIGenerationJob.create({

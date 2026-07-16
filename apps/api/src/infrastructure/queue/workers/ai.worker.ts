@@ -409,7 +409,6 @@ const processRoadmapGeneration = async (
 
             level,
 
-            visibility: 'private',
             status: 'draft',
 
             isAIGenerated: true,

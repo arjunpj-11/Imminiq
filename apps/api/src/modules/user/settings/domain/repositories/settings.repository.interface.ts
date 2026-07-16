@@ -6,28 +6,11 @@ export interface ISettingsRepository extends ISettingsQueryRepository, ISettings
 export type SettingsRepository = ISettingsRepository;
 
 export type {
-  SettingsAIBehaviourUpdateInput,
-  SettingsAccountUpdateInput,
   SettingsAppearanceUpdateInput,
-  SettingsCodeEditorUpdateInput,
-  SettingsCompilerUpdateInput,
-  SettingsEmailDigestUpdateInput,
-  SettingsGesturesUpdateInput,
-  SettingsLearningJourneyUpdateInput,
-  SettingsNotificationTypesUpdateInput,
   SettingsNotificationsUpdateInput,
   SettingsPrivacyUpdateInput,
-  SettingsQuietHoursUpdateInput,
-  UpdateSettingsAIBehaviourInput,
-  UpdateSettingsAccountInput,
   UpdateSettingsAppearanceInput,
-  UpdateSettingsCodeEditorInput,
-  UpdateSettingsCompilerInput,
-  UpdateSettingsEmailDigestInput,
-  UpdateSettingsGesturesInput,
-  UpdateSettingsLearningJourneyInput,
   UpdateSettingsNotificationTypesInput,
   UpdateSettingsNotificationsInput,
   UpdateSettingsPrivacyInput,
-  UpdateSettingsQuietHoursInput,
 } from './settings-command.repository.interface';

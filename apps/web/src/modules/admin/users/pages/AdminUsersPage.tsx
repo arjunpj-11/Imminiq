@@ -3,19 +3,12 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  PauseCircle,
-  Search,
-  UserCheck,
-  UserCog,
-  UserRoundX,
-  Users,
   Scale,
   Download,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { LucideIcon } from 'lucide-react';
-import { AdminBulkActionBar, AdminError } from '../../shared';
+import { AdminBulkActionBar, AdminError, AdminMetricGrid, AdminPageHeader, AdminSearch } from '../../shared';
 import { downloadServerCsv } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminUsers } from '../hooks/useAdminUsers';
@@ -38,61 +31,21 @@ export default function AdminUsersPage() {
     status,
     page,
   });
-  const statCards: Array<{ label: string; value: number; icon: LucideIcon; color: string }> = data
-    ? [
-        { label: 'Total users', value: data.stats.total, icon: Users, color: '#e8816a' },
-        { label: 'Active accounts', value: data.stats.active, icon: UserCheck, color: '#52c58c' },
-        { label: 'Suspended', value: data.stats.paused, icon: PauseCircle, color: '#f0a842' },
-        { label: 'Blocked', value: data.stats.blocked, icon: UserRoundX, color: '#e26767' },
-        { label: 'Unverified', value: data.stats.unverified, icon: UserCog, color: '#6aa9ff' },
-      ]
-    : [];
   const exportCurrentView = () => void downloadServerCsv('/admin/users/export.csv', `imminiq-users-${status}.csv`, { search: debouncedSearch, status });
 
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-5">
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-[.18em] text-[#e8816a]">
-            Administration
-          </div>
-          <h1 className="font-editorial mt-1 text-4xl font-bold">User Management</h1>
-        </div>
-        <div className="flex flex-1 items-center justify-end gap-3">
-        <button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button>
-        <Link to={ADMIN_USERS_ROUTES.appeals} className="admin-button inline-flex items-center gap-2"><Scale size={16} /> Account appeals</Link>
-        <label className="flex min-w-[280px] flex-1 items-center gap-3 rounded-full border border-[rgba(255,255,255,0.16)] bg-[#24211e] px-5 py-3 md:max-w-[390px]">
-          <Search size={18} />
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            className="w-full bg-transparent text-sm outline-none"
-            placeholder="Search users, names, emails…"
-          />
-        </label>
-        </div>
-      </div>
-      {data && (
-        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-          {statCards.map(({ label, value, icon: Icon, color }) => (
-            <div
-              key={label}
-              className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6"
-            >
-              <div className="flex justify-between text-[10px] uppercase tracking-wide text-[#aaa59d]">
-                <span>{label}</span>
-                <Icon size={18} style={{ color }} />
-              </div>
-              <div className="font-editorial mt-6 text-2xl" style={{ color }}>
-                {number.format(value)}
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
+    <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
+      <AdminPageHeader
+        title="User Management"
+        description="Manage account access, user history, privacy requests, appeals, and internal support context."
+        action={<div className="flex flex-wrap gap-2"><button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button><Link to={ADMIN_USERS_ROUTES.appeals} className="admin-button inline-flex items-center gap-2"><Scale size={16} /> Account appeals</Link></div>}
+      />
+      <AdminMetricGrid metrics={[
+        { label: 'Total users', value: data?.stats.total ?? 0 },
+        { label: 'Active accounts', value: data?.stats.active ?? 0, tone: 'success' },
+        { label: 'Suspended', value: data?.stats.paused ?? 0, tone: 'warning' },
+        { label: 'Blocked', value: data?.stats.blocked ?? 0, tone: 'error' },
+      ]} />
       <section className="mt-8 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18]">
         <div className="flex flex-wrap items-center gap-5 border-b border-[rgba(255,255,255,0.09)] px-6 py-5">
           <h2 className="font-editorial mr-2 text-xl font-bold">All Users</h2>
@@ -110,6 +63,7 @@ export default function AdminUsersPage() {
               </button>
             ))}
           </div>
+          <div className="ml-auto"><AdminSearch value={search} onChange={(value) => { setSearch(value); setPage(1); }} placeholder="Search users, names, emails…" /></div>
         </div>
         <div className="px-6 pt-4"><AdminBulkActionBar kind="users" selected={selected} onClear={() => setSelected([])} /></div>
         {isLoading && <div className="p-10 text-center text-sm text-[#aaa59d]">Loading users…</div>}

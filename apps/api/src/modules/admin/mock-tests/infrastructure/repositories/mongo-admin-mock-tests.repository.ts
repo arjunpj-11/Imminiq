@@ -31,17 +31,14 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> = {};
     if (query.status && query.status !== 'all') {
-      if (['public', 'private'].includes(query.status)) filter.visibility = query.status;
-      if (['active', 'suspended', 'deleted'].includes(query.status)) {
-        filter.moderationStatus = query.status;
-      }
+      if (['active', 'suspended', 'deleted'].includes(query.status)) filter.moderationStatus = query.status;
     }
     if (query.search) {
       const search = new RegExp(escapeAdminSearch(query.search), 'i');
       filter.$or = [{ title: search }, { description: search }, { tags: search }];
     }
 
-    const [rows, total, publicCount, privateCount, attempts, suspended, deleted, issueTotals, flagTotals] =
+    const [rows, total, attempts, suspended, deleted, issueTotals, flagTotals] =
       await Promise.all([
         MockTestModel.find(filter)
           .sort({ createdAt: -1 })
@@ -50,8 +47,6 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
           .populate('ownerId', 'fullName username email')
           .lean(),
         MockTestModel.countDocuments(filter),
-        MockTestModel.countDocuments({ visibility: 'public', deletedAt: null }),
-        MockTestModel.countDocuments({ visibility: 'private', deletedAt: null }),
         MockTestAttemptModel.countDocuments(),
         MockTestModel.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
         MockTestModel.countDocuments({ moderationStatus: 'deleted' }),
@@ -88,7 +83,6 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
         title: row.title,
         owner: displayName(owner),
         difficulty: row.difficulty,
-        visibility: row.visibility,
         moderationStatus: (row.moderationStatus ?? 'active') as 'active' | 'suspended' | 'deleted',
         ...(row.moderationReason ? { moderationReason: row.moderationReason } : {}),
         questionCount: row.questionCount,
@@ -103,8 +97,6 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
       };
     });
     return createAdminPage(items, query, total, {
-      public: publicCount,
-      private: privateCount,
       attempts,
       suspended,
       deleted,
@@ -193,7 +185,6 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
       ownerId: String(owner?._id ?? ''),
       ...(owner?.email ? { ownerEmail: owner.email } : {}),
       difficulty: test.difficulty,
-      visibility: test.visibility,
       moderationStatus: (test.moderationStatus ?? 'active') as 'active' | 'suspended' | 'deleted',
       ...(test.moderationReason ? { moderationReason: test.moderationReason } : {}),
       questionCount: test.questionCount,
@@ -532,7 +523,6 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
                 suspendedAt: now,
                 deletedAt: input.action === 'delete' ? now : null,
                 isShareEnabled: false,
-                ...(input.action === 'delete' ? { visibility: 'private' } : {}),
               };
 
         await MockTestModel.updateOne(

@@ -3,8 +3,6 @@ export type AdminDashboardData = {
   generatedAt: string;
   metrics: {
     totalUsers: number;
-    verifiedUsers: number;
-    unverifiedUsers: number;
     activeToday: number;
     blockedUsers: number;
     suspendedUsers: number;

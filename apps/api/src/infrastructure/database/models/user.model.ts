@@ -24,9 +24,6 @@ export interface IUserDocument extends Document {
   emailVerified: boolean;
   phoneVerified: boolean;
 
-  // Used to auto-delete unverified accounts
-  verificationExpiresAt?: Date | null;
-
   // Pending email change verification
   pendingEmail?: string | null;
   pendingEmailChangeTokenHash?: string | null;
@@ -169,11 +166,6 @@ const userSchema = new Schema<IUserDocument>(
     phoneVerified: {
       type: Boolean,
       default: false,
-    },
-
-    verificationExpiresAt: {
-      type: Date,
-      default: null,
     },
 
     // ─── PENDING EMAIL CHANGE ─────────────────────────────
@@ -356,19 +348,6 @@ userSchema.index(
       referralCode: {
         $type: 'string',
       },
-    },
-  }
-);
-
-userSchema.index(
-  { verificationExpiresAt: 1 },
-  {
-    expireAfterSeconds: 0,
-    partialFilterExpression: {
-      provider: 'local',
-      emailVerified: false,
-      phoneVerified: false,
-      deletedAt: null,
     },
   }
 );

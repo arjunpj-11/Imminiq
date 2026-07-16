@@ -7,8 +7,8 @@ import { resolvePlatformPolicy, type PlatformPolicy } from '../../../../../share
 const view = {
   _id: 0,
   allowBroadcasts: 1,
-  supportEmail: 1,
-  auditRetentionDays: 1,
+  aiMonthlyTokenBudget: 1,
+  aiBudgetWarningPercent: 1,
   productPolicy: 1,
   updatedAt: 1,
 };

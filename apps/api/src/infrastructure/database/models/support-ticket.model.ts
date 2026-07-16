@@ -24,6 +24,7 @@ const supportTicketSchema = new Schema(
       index: true,
     },
     assignedTo: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+    firstRespondedAt: { type: Date, default: null },
     resolutionNote: { type: String, trim: true, maxlength: 2000, default: '' },
     resolvedAt: { type: Date, default: null },
   },
@@ -31,6 +32,7 @@ const supportTicketSchema = new Schema(
 );
 
 supportTicketSchema.index({ status: 1, priority: 1, createdAt: -1 });
+supportTicketSchema.index({ assignedTo: 1, status: 1, updatedAt: -1 });
 supportTicketSchema.index({ subject: 'text', description: 'text' });
 
 export type SupportTicketDocument = InferSchemaType<typeof supportTicketSchema>;

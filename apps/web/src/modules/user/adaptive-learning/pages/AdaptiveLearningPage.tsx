@@ -109,7 +109,6 @@ export default function AdaptiveLearningPage() {
         questionTypes: ['mcq'],
         trackerId: advisorAction.trackerId,
         timeLimitMinutes: Math.max(10, advisorAction.questionCount * 2),
-        visibility: 'private',
         runInBackground: true,
       });
       const jobId = 'jobId' in response.data ? response.data.jobId : undefined;

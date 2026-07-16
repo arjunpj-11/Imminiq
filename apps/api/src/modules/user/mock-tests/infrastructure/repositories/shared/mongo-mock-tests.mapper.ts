@@ -72,7 +72,6 @@ export class MongoMockTestsMapper {
       title: doc.title || '',
       description: doc.description || '',
       difficulty: doc.difficulty || 'easy',
-      visibility: doc.visibility || 'private',
       moderationStatus: doc.moderationStatus || 'active',
       moderationReason: doc.moderationReason,
       questionCount: this.numberOrZero(doc.questionCount),

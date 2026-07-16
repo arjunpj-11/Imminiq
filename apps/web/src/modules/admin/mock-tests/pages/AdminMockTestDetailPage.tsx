@@ -41,7 +41,6 @@ export default function AdminMockTestDetailPage() {
           <div className="flex flex-wrap justify-end gap-2">
             <button className="admin-button inline-flex items-center gap-2" onClick={() => setLearnerPreview((value) => !value)}>{learnerPreview ? <EyeOff size={15} /> : <Eye size={15} />}{learnerPreview ? 'Exit learner preview' : 'Learner preview'}</button>
             <AdminStatusBadge value={data.difficulty} />
-            <AdminStatusBadge value={data.visibility} />
             <AdminStatusBadge value={data.moderationStatus} />
             {canManageLifecycle && data.moderationStatus === 'active' && (
               <button className="admin-button inline-flex items-center gap-2 text-[#f0a842]" onClick={() => setModerating('suspend')}><ShieldAlert size={15} /> Suspend</button>

@@ -4,7 +4,7 @@ import type { AdminUserAppealsListResult } from '../domain/repositories/admin-us
 export type AdminUserDTO = Omit<AdminUserEntity, 'id'> & { _id: string };
 export type AdminUsersListDTO = {
   users: AdminUserDTO[];
-  stats: { total: number; active: number; paused: number; blocked: number; unverified: number };
+  stats: { total: number; active: number; paused: number; blocked: number };
   pagination: { page: number; limit: number; total: number; pages: number };
 };
 export type AdminUserDetailDTO = Omit<AdminUserDetailEntity, 'user'> & { user: AdminUserDTO };

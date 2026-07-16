@@ -3,7 +3,7 @@ import { z } from 'zod';
 export const adminUsersQuerySchema = z.object({
   search: z.string().trim().max(120).optional().default(''),
   status: z
-    .enum(['all', 'active', 'paused', 'blocked', 'deactivated', 'banned', 'unverified'])
+    .enum(['all', 'active', 'paused', 'blocked', 'deactivated', 'banned'])
     .optional()
     .default('all'),
   page: z.coerce.number().int().min(1).optional().default(1),

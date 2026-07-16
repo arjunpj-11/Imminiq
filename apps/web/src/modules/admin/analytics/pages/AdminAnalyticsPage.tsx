@@ -37,7 +37,7 @@ export default function AdminAnalyticsPage() {
         ['Generated', new Date().toLocaleString()],
         [],
         ['SUMMARY METRICS'],
-        ['Verified users', 'Active users', 'Trackers', 'Tests', 'Test attempts'],
+        ['Registered users', 'Active users', 'Trackers', 'Tests', 'Test attempts'],
         [
           data.metrics.users,
           data.metrics.activeUsers,
@@ -58,7 +58,7 @@ export default function AdminAnalyticsPage() {
       description: 'Adoption and engagement signals for the selected reporting period.',
       filters: [`Date range: ${dateRange.range.from} to ${dateRange.range.to}`],
       summary: [
-        { label: 'Verified users', value: data.metrics.users },
+        { label: 'Registered users', value: data.metrics.users },
         { label: 'Active users', value: data.metrics.activeUsers },
         { label: 'Trackers', value: data.metrics.trackers },
         { label: 'Tests', value: data.metrics.tests },
@@ -111,7 +111,7 @@ export default function AdminAnalyticsPage() {
           <>
             <AdminMetricGrid
               metrics={[
-                { label: 'Verified users', value: data.metrics.users },
+                { label: 'Registered users', value: data.metrics.users },
                 {
                   label: `Active (${data.rangeDays}d)`,
                   value: data.metrics.activeUsers,

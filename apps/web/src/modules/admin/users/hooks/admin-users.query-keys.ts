@@ -1,6 +1,6 @@
 export type AdminUsersQuery = {
   search?: string;
-  status?: 'all' | 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned' | 'unverified';
+  status?: 'all' | 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned';
   page?: number;
 };
 

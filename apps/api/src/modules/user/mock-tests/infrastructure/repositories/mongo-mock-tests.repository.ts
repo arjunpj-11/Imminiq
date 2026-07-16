@@ -27,7 +27,6 @@ import type {
 import type {
   CreateMockTestInput,
   FindMockTestsByOwnerInput,
-  FindPublicMockTestsInput,
   UpdateMockTestInput,
 } from '../../domain/repositories/mock-test.repository.interface';
 import type { IMockTestsRepository } from '../../domain/repositories/mock-tests.repository.interface';
@@ -108,10 +107,6 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
 
   async findTestsByOwner(input: FindMockTestsByOwnerInput) {
     return this._testRepository.findTestsByOwner(input);
-  }
-
-  async findPublicTests(input: FindPublicMockTestsInput) {
-    return this._testRepository.findPublicTests(input);
   }
 
   async findSharedTestByToken(shareToken: string) {

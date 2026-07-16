@@ -74,10 +74,10 @@ export class MongoUsersMapper {
 
   toPrivacySettingsEntity(settings: MongoPrivacySettingsRecord): UserPrivacySettingsEntity {
     return new UserPrivacySettingsEntity({
-      showProfile: settings.privacyShowProfile ?? true,
-      showStats: settings.privacyShowStats ?? true,
-      showTrackers: settings.privacyShowTrackers ?? true,
-      showActivity: settings.privacyShowActivity ?? true,
+      showProfile: settings.privacy?.showProfile ?? true,
+      showStats: settings.privacy?.showStats ?? true,
+      showTrackers: true,
+      showActivity: settings.privacy?.showActivity ?? true,
     });
   }
 

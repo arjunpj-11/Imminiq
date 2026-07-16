@@ -26,7 +26,7 @@ export class GetMockTestDetailsUseCase implements IGetMockTestDetailsUseCase {
       throw MockTestsApplicationError.notFound('Test not found');
     }
 
-    if (test.visibility === 'private' && test.ownerId !== userId) {
+    if (test.ownerId !== userId) {
       throw MockTestsApplicationError.forbidden();
     }
 

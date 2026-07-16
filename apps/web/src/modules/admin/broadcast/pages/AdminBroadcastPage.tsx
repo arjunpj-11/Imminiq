@@ -12,22 +12,36 @@ import {
 import { useAdminBroadcasts } from '../hooks/useAdminBroadcasts';
 import { useCreateAdminBroadcast } from '../hooks/useCreateAdminBroadcast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
+import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
+import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
+import { AdminSearch } from '../../shared';
 
 export default function AdminBroadcastPage() {
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, isFetching, error } = useAdminBroadcasts(page);
+  const [search, setSearch] = useState('');
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const { data, isLoading, isError, isFetching, error } = useAdminBroadcasts(
+    page,
+    useDebouncedValue(search, 300)
+  );
   const create = useCreateAdminBroadcast();
   const [title, setTitle] = useState('');
   const [message, setMessage] = useState('');
   const [audience, setAudience] = useState<'all' | 'active'>('all');
+  const [deepLink, setDeepLink] = useState('');
   const submit = (event: FormEvent) => {
     event.preventDefault();
+    setConfirmOpen(true);
+  };
+  const send = () => {
     create.mutate(
-      { title, message, audience },
+      { title, message, audience, deepLink: deepLink.trim() || undefined },
       {
         onSuccess: () => {
           setTitle('');
           setMessage('');
+          setDeepLink('');
+          setConfirmOpen(false);
           setPage(1);
         },
       }
@@ -37,7 +51,7 @@ export default function AdminBroadcastPage() {
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Broadcast Centre"
-        description="Send in-app announcements to verified users who have admin broadcasts enabled."
+        description="Send in-app announcements to registered users who have platform announcements enabled."
       />
       <AdminMetricGrid
         metrics={[
@@ -75,9 +89,20 @@ export default function AdminBroadcastPage() {
                 value={audience}
                 onChange={(e) => setAudience(e.target.value as typeof audience)}
               >
-                <option value="all">All verified users</option>
+                <option value="all">All registered users</option>
                 <option value="active">Active in last 30 days</option>
               </select>
+            </label>
+            <label className="admin-field">
+              <span>Open destination (optional)</span>
+              <input
+                pattern="/(?!/).*"
+                maxLength={300}
+                placeholder="/notifications"
+                value={deepLink}
+                onChange={(e) => setDeepLink(e.target.value)}
+              />
+              <small>Internal path opened when a user selects the notification.</small>
             </label>
             {create.isError && (
               <p className="text-sm text-[#e26767]">
@@ -98,11 +123,21 @@ export default function AdminBroadcastPage() {
         <AdminPanel
           title="Delivery history"
           toolbar={
-            data ? (
-              <span className="text-xs text-[#817c75]">
-                {data.pagination.total.toLocaleString()} broadcasts
-              </span>
-            ) : undefined
+            <div className="flex flex-wrap items-center gap-3">
+              {data && (
+                <span className="text-xs text-[#817c75]">
+                  {data.pagination.total.toLocaleString()} broadcasts
+                </span>
+              )}
+              <AdminSearch
+                value={search}
+                onChange={(value) => {
+                  setSearch(value);
+                  setPage(1);
+                }}
+                placeholder="Search broadcasts…"
+              />
+            </div>
           }
         >
           {isLoading ? (
@@ -135,6 +170,12 @@ export default function AdminBroadcastPage() {
                       <span className="capitalize">{item.audience}</span>
                       <span>·</span>
                       <span>{new Date(item.sentAt).toLocaleString()}</span>
+                      {item.deepLink && (
+                        <>
+                          <span>·</span>
+                          <span>{item.deepLink}</span>
+                        </>
+                      )}
                     </div>
                   </article>
                 ))}
@@ -168,6 +209,15 @@ export default function AdminBroadcastPage() {
           )}
         </AdminPanel>
       </div>
+      <ConfirmDialog
+        open={confirmOpen}
+        title="Send this broadcast now?"
+        description={`This immediately creates an in-app notification for ${audience === 'all' ? 'all eligible registered users' : 'eligible users active in the last 30 days'}. This cannot be recalled.`}
+        confirmText="Send now"
+        isLoading={create.isPending}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={send}
+      />
     </main>
   );
 }

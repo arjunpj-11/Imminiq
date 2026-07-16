@@ -24,7 +24,7 @@ export type AdminUser = {
 };
 export type AdminUsersData = {
   users: AdminUser[];
-  stats: { total: number; active: number; paused: number; blocked: number; unverified: number };
+  stats: { total: number; active: number; paused: number; blocked: number };
   pagination: { page: number; limit: number; total: number; pages: number };
 };
 export type AdminUserStatusPayload = {

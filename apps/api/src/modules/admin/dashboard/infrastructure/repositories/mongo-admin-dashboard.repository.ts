@@ -17,11 +17,8 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
     sinceToday.setHours(0, 0, 0, 0);
     const sinceWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const moderationSlaCutoff = new Date(Date.now() - 24 * 60 * 60 * 1000);
-    const verified = { $or: [{ emailVerified: true }, { phoneVerified: true }] };
     const [
       totalUsers,
-      verifiedUsers,
-      unverifiedUsers,
       activeToday,
       blockedUsers,
       suspendedUsers,
@@ -43,15 +40,9 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
     ] =
       await Promise.all([
         User.countDocuments({ deletedAt: null }),
-        User.countDocuments({ deletedAt: null, ...verified }),
-        User.countDocuments({
-          deletedAt: null,
-          emailVerified: { $ne: true },
-          phoneVerified: { $ne: true },
-        }),
-        User.countDocuments({ deletedAt: null, lastActiveAt: { $gte: sinceToday }, ...verified }),
-        User.countDocuments({ deletedAt: null, status: 'blocked', ...verified }),
-        User.countDocuments({ deletedAt: null, status: 'paused', ...verified }),
+        User.countDocuments({ deletedAt: null, lastActiveAt: { $gte: sinceToday } }),
+        User.countDocuments({ deletedAt: null, status: 'blocked' }),
+        User.countDocuments({ deletedAt: null, status: 'paused' }),
         Tracker.countDocuments({ deletedAt: null }),
         MockTestQuestionIssueModel.countDocuments({ status: 'open' }),
         MockTestQuestionIssueModel.countDocuments({ status: 'reviewing' }),
@@ -116,8 +107,6 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
       generatedAt: new Date(),
       metrics: {
         totalUsers,
-        verifiedUsers,
-        unverifiedUsers,
         activeToday,
         blockedUsers,
         suspendedUsers,

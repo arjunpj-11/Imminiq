@@ -2,8 +2,8 @@ import type { PlatformPolicy } from '../../../../shared/platform-policy';
 
 export interface AdminSettingsDTO {
   allowBroadcasts: boolean;
-  supportEmail: string;
-  auditRetentionDays: number;
+  aiMonthlyTokenBudget: number;
+  aiBudgetWarningPercent: number;
   productPolicy: PlatformPolicy;
   updatedAt: Date;
 }

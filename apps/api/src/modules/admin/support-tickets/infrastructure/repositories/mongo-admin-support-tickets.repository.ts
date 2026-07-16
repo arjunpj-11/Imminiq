@@ -5,6 +5,13 @@ import { recordAdminAction } from '../../../shared/infrastructure';
 import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
 import type { AdminSupportTicketUpdate } from '../../domain/entities/admin-support-ticket.entity';
 import type { IAdminSupportTicketsRepository } from '../../domain/repositories/admin-support-tickets.repository.interface';
+const SLA_HOURS: Record<string, { firstResponse: number; resolution: number }> = {
+  urgent: { firstResponse: 1, resolution: 8 },
+  high: { firstResponse: 4, resolution: 24 },
+  medium: { firstResponse: 8, resolution: 72 },
+  low: { firstResponse: 24, resolution: 120 },
+};
+const addHours = (date: Date, hours: number) => new Date(date.getTime() + hours * 3_600_000);
 export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsRepository {
   async list(query: AdminListQuery) {
     const filter: Record<string, unknown> = {};
@@ -14,17 +21,26 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
         { subject: new RegExp(escapeAdminSearch(query.search), 'i') },
         { description: new RegExp(escapeAdminSearch(query.search), 'i') },
       ];
-    const [rows, total, open, inProgress, resolved] = await Promise.all([
+    const now = Date.now();
+    const [rows, total, open, inProgress, resolved, overdue] = await Promise.all([
       SupportTicket.find(filter)
         .sort({ createdAt: -1 })
         .skip((query.page - 1) * query.limit)
         .limit(query.limit)
         .populate('userId', 'fullName username email')
+        .populate('assignedTo', 'fullName username email')
         .lean(),
       SupportTicket.countDocuments(filter),
       SupportTicket.countDocuments({ status: 'open' }),
       SupportTicket.countDocuments({ status: 'in_progress' }),
       SupportTicket.countDocuments({ status: { $in: ['resolved', 'closed'] } }),
+      SupportTicket.countDocuments({
+        status: { $in: ['open', 'in_progress'] },
+        $or: Object.entries(SLA_HOURS).map(([priority, sla]) => ({
+          priority,
+          createdAt: { $lt: new Date(now - sla.resolution * 3_600_000) },
+        })),
+      }),
     ]);
     const items = rows.map((row) => {
       const user = row.userId as unknown as {
@@ -32,6 +48,15 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
         username?: string;
         email?: string;
       };
+      const assignee = row.assignedTo as unknown as {
+        fullName?: string;
+        username?: string;
+        email?: string;
+      } | null;
+      const sla = SLA_HOURS[row.priority] ?? SLA_HOURS.medium;
+      const firstResponseDueAt = addHours(row.createdAt, sla.firstResponse);
+      const resolutionDueAt = addHours(row.createdAt, sla.resolution);
+      const isOverdue = !['resolved', 'closed'].includes(row.status) && resolutionDueAt < new Date();
       return {
         id: String(row._id),
         subject: row.subject,
@@ -40,12 +65,17 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
         priority: row.priority,
         status: row.status,
         requester: user?.fullName ?? user?.username ?? user?.email ?? 'Unknown',
+        assignedTo: assignee?.fullName ?? assignee?.username ?? assignee?.email ?? 'Unassigned',
         resolutionNote: row.resolutionNote,
+        firstRespondedAt: row.firstRespondedAt ?? null,
+        firstResponseDueAt,
+        resolutionDueAt,
+        isOverdue,
         createdAt: row.createdAt,
         updatedAt: row.updatedAt,
       };
     });
-    return createAdminPage(items, query, total, { open, inProgress, resolved });
+    return createAdminPage(items, query, total, { open, inProgress, resolved, overdue });
   }
   async update(id: string, input: AdminSupportTicketUpdate, actor: AdminActor) {
     const current = await SupportTicket.findById(id).lean();
@@ -55,6 +85,7 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
       assignedTo: actor.userId,
       resolutionNote: input.resolutionNote ?? '',
     };
+    if (!current.firstRespondedAt) update.firstRespondedAt = new Date();
     if (input.status === 'resolved' || input.status === 'closed') update.resolvedAt = new Date();
     else update.resolvedAt = null;
     const ticket = await SupportTicket.findByIdAndUpdate(

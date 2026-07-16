@@ -3,7 +3,6 @@ export interface AdminMockTestDTO {
   title: string;
   owner: string;
   difficulty: string;
-  visibility: string;
   moderationStatus: 'active' | 'suspended' | 'deleted';
   moderationReason?: string;
   questionCount: number;

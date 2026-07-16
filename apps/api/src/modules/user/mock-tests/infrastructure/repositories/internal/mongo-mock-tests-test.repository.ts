@@ -3,10 +3,8 @@ import { MockTestModel } from '../../../../../../infrastructure/database/models/
 import type {
   CreateMockTestInput,
   FindMockTestsByOwnerInput,
-  FindPublicMockTestsInput,
   UpdateMockTestInput,
 } from '../../../domain/repositories/mock-test.repository.interface';
-import type { DifficultyLevel } from '../../../domain/value-objects/difficulty-level.vo';
 import { MongoMockTestsBaseRepository } from '../shared/mongo-mock-tests-base.repository';
 import { MongoMockTestsErrorMapper } from '../shared/mongo-mock-tests-error.mapper';
 import { MongoMockTestsMapper } from '../shared/mongo-mock-tests.mapper';
@@ -66,35 +64,6 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
       return {
         tests: docs.map((doc) => this._mapper.toMockTestEntity(doc as RawMockTestDoc)),
         total,
-      };
-    });
-  }
-
-  async findPublicTests(input: FindPublicMockTestsInput) {
-    return this.execute('MOCK_TEST_READ_FAILED', 'Failed to read public mock tests', async () => {
-      const { difficulty, tags, page = 1, limit = 20 } = input;
-
-      const safeDifficulty = MongoMockTestsQueryUtils.sanitizeDifficulty(difficulty);
-      const safeTags = MongoMockTestsQueryUtils.sanitizeTags(tags);
-      const safePage = MongoMockTestsQueryUtils.sanitizePage(page);
-      const safeLimit = MongoMockTestsQueryUtils.sanitizeLimit(limit);
-      const skip = (safePage - 1) * safeLimit;
-
-      const docs = await this.findPublicTestDocsByDifficulty(safeDifficulty);
-
-      const filteredDocs = safeTags.length
-        ? docs.filter((doc) => {
-            const docTags = Array.isArray(doc.tags) ? doc.tags : [];
-
-            return safeTags.some((tag) => docTags.includes(tag));
-          })
-        : docs;
-
-      const paginatedDocs = filteredDocs.slice(skip, skip + safeLimit);
-
-      return {
-        tests: paginatedDocs.map((doc) => this._mapper.toMockTestEntity(doc)),
-        total: filteredDocs.length,
       };
     });
   }
@@ -178,7 +147,6 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
     MongoMockTestsUpdateUtils.setIfDefined($set, data, 'title');
     MongoMockTestsUpdateUtils.setIfDefined($set, data, 'description');
     MongoMockTestsUpdateUtils.setIfDefined($set, data, 'difficulty');
-    MongoMockTestsUpdateUtils.setIfDefined($set, data, 'visibility');
     MongoMockTestsUpdateUtils.setIfDefined($set, data, 'timeLimitMinutes');
     MongoMockTestsUpdateUtils.setIfDefined($set, data, 'passingScore');
     MongoMockTestsUpdateUtils.setIfDefined($set, data, 'questionCount');
@@ -193,51 +161,6 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
     return {
       $set,
     };
-  }
-
-  private async findPublicTestDocsByDifficulty(
-    difficulty?: DifficultyLevel
-  ): Promise<RawMockTestDoc[]> {
-    if (difficulty === 'easy') {
-      return (await MockTestModel.find({
-        visibility: 'public',
-        difficulty: 'easy',
-        moderationStatus: { $in: ['active', null] },
-        deletedAt: null,
-      })
-        .sort({ createdAt: -1 })
-        .lean()) as RawMockTestDoc[];
-    }
-
-    if (difficulty === 'medium') {
-      return (await MockTestModel.find({
-        visibility: 'public',
-        difficulty: 'medium',
-        moderationStatus: { $in: ['active', null] },
-        deletedAt: null,
-      })
-        .sort({ createdAt: -1 })
-        .lean()) as RawMockTestDoc[];
-    }
-
-    if (difficulty === 'hard') {
-      return (await MockTestModel.find({
-        visibility: 'public',
-        difficulty: 'hard',
-        moderationStatus: { $in: ['active', null] },
-        deletedAt: null,
-      })
-        .sort({ createdAt: -1 })
-        .lean()) as RawMockTestDoc[];
-    }
-
-    return (await MockTestModel.find({
-      visibility: 'public',
-      moderationStatus: { $in: ['active', null] },
-      deletedAt: null,
-    })
-      .sort({ createdAt: -1 })
-      .lean()) as RawMockTestDoc[];
   }
 }
 

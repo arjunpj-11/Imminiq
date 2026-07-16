@@ -38,6 +38,7 @@ export default function AdminSupportTicketsPage() {
           { label: 'Open', value: data?.stats?.open ?? 0, tone: 'warning' },
           { label: 'In progress', value: data?.stats?.inProgress ?? 0, tone: 'info' },
           { label: 'Resolved', value: data?.stats?.resolved ?? 0, tone: 'success' },
+          { label: 'SLA overdue', value: data?.stats?.overdue ?? 0, tone: 'error' },
         ]}
       />
       <AdminPanel
@@ -85,6 +86,8 @@ export default function AdminSupportTicketsPage() {
                     <th>Category</th>
                     <th>Priority</th>
                     <th>Status</th>
+                    <th>Assignee</th>
+                    <th>Resolution SLA</th>
                     <th>Created</th>
                     <th>Action</th>
                   </tr>
@@ -100,6 +103,13 @@ export default function AdminSupportTicketsPage() {
                       </td>
                       <td>
                         <AdminStatusBadge value={item.status} />
+                      </td>
+                      <td>{item.assignedTo}</td>
+                      <td>
+                        <AdminStatusBadge value={item.isOverdue ? 'overdue' : 'on_track'} />
+                        <div className="mt-1 text-xs text-[#817c75]">
+                          {new Date(item.resolutionDueAt).toLocaleString()}
+                        </div>
                       </td>
                       <td>{new Date(item.createdAt).toLocaleDateString()}</td>
                       <td>
@@ -184,6 +194,15 @@ function TicketDetail({ ticket, close }: { ticket: AdminSupportTicket; close: ()
             <Info label="Requester" value={ticket.requester} />
             <Info label="Category" value={ticket.category} />
             <Info label="Submitted" value={new Date(ticket.createdAt).toLocaleString()} />
+            <Info label="Assignee" value={ticket.assignedTo} />
+            <Info
+              label="First response"
+              value={ticket.firstRespondedAt ? new Date(ticket.firstRespondedAt).toLocaleString() : `Due ${new Date(ticket.firstResponseDueAt).toLocaleString()}`}
+            />
+            <Info
+              label="Resolution SLA"
+              value={`${ticket.isOverdue ? 'Overdue · ' : 'Due '}${new Date(ticket.resolutionDueAt).toLocaleString()}`}
+            />
           </div>
           <section className="rounded-xl border border-white/10 bg-[#24211e] p-5">
             <div className="text-[10px] uppercase tracking-wider text-[#817c75]">

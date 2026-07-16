@@ -22,8 +22,6 @@ export class GetAdminDashboardUseCase implements IGetAdminDashboardUseCase {
       metrics: {
         ...dto.metrics,
         totalUsers: 0,
-        verifiedUsers: 0,
-        unverifiedUsers: 0,
         activeToday: 0,
         blockedUsers: 0,
         suspendedUsers: 0,

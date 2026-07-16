@@ -92,7 +92,6 @@ export class MockTestsMapper implements IMockTestsMapper {
       title: test.title,
       description: test.description,
       difficulty: test.difficulty,
-      visibility: test.visibility,
       moderationStatus: test.moderationStatus,
       moderationReason: test.moderationReason,
       questionCount: test.questionCount,

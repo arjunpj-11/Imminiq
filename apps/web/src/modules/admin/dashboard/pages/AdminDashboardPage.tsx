@@ -50,7 +50,7 @@ export default function AdminDashboardPage() {
               ]
             : [
                 { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
-                { label: 'Unverified users', value: data.metrics.unverifiedUsers, tone: 'warning' },
+                { label: 'Active today', value: data.metrics.activeToday, tone: 'success' },
                 { label: 'Total trackers', value: data.metrics.totalTrackers, tone: 'info' },
                 { label: 'Blocked users', value: data.metrics.blockedUsers, tone: 'error' },
                 { label: 'Privacy requests', value: data.metrics.pendingPrivacyRequests, tone: 'warning' },

@@ -9,6 +9,7 @@ export type AdminBroadcast = {
   title: string;
   message: string;
   audience: string;
+  deepLink: string;
   sender: string;
   recipientCount: number;
   status: string;

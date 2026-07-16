@@ -20,7 +20,6 @@ const mockTestCreationSessionSchema = new Schema(
       tags: [String],
       trackerId: { type: Schema.Types.ObjectId, ref: 'Tracker' },
       topicId: String,
-      visibility: { type: String, enum: ['private', 'public'] },
       questionTypes: [{ type: String, enum: ['mcq', 'short_answer', 'coding'] }],
     },
   },

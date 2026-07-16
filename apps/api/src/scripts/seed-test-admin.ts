@@ -34,7 +34,6 @@ const run = async () => {
     existing.provider = 'local';
     existing.emailVerified = true;
     existing.phoneVerified = false;
-    existing.verificationExpiresAt = null;
     existing.deletedAt = null;
     existing.onboardingCompleted = true;
     await existing.save();
@@ -50,7 +49,6 @@ const run = async () => {
       provider: 'local',
       emailVerified: true,
       phoneVerified: false,
-      verificationExpiresAt: null,
       onboardingCompleted: true,
     });
     console.log(`Test admin created: ${user.id} (${email})`);

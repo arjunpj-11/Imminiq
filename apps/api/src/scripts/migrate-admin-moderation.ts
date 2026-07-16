@@ -11,6 +11,9 @@ import { AdminUserNote } from '../infrastructure/database/models/admin-user-note
 import { MockTestAttemptModel } from '../infrastructure/database/models/mock-test-attempt.model';
 import { CommunityVerificationSubmission } from '../infrastructure/database/models/community-verification-submission.model';
 import { User } from '../infrastructure/database/models/user.model';
+import { MockTestCreationSessionModel } from '../infrastructure/database/models/mock-test-creation-session.model';
+import { UserSettings } from '../infrastructure/database/models/user-settings.model';
+import { AdminConsoleSettings } from '../infrastructure/database/models/admin-console-settings.model';
 
 const migrate = async () => {
   await connectDB();
@@ -34,6 +37,39 @@ const migrate = async () => {
   ]);
 
   await Promise.all([
+    MockTestModel.updateMany({}, { $unset: { visibility: '' } }),
+    MockTestCreationSessionModel.updateMany({}, { $unset: { 'draftData.visibility': '' } }),
+    User.updateMany({}, { $unset: { verificationExpiresAt: '' } }),
+    AdminConsoleSettings.updateMany({}, { $unset: { supportEmail: '', auditRetentionDays: '' } }),
+    UserSettings.updateMany({}, {
+      $unset: {
+        account: '',
+        email: '',
+        push: '',
+        editor: '',
+        compiler: '',
+        aiBehaviour: '',
+        learningJourney: '',
+        gestures: '',
+        cookieConsent: '',
+        termsAcceptedAt: '',
+        'notifications.emailDigest': '',
+        'notifications.quietHours': '',
+        'notifications.marketing': '',
+        'privacy.profileVisibility': '',
+        'privacy.allowMessages': '',
+      },
+    }),
+  ]);
+
+  await Promise.all([
+    User.collection.dropIndex('verificationExpiresAt_1').catch(() => undefined),
+    MockTestModel.collection
+      .dropIndex('visibility_1_difficulty_1_createdAt_-1')
+      .catch(() => undefined),
+  ]);
+
+  await Promise.all([
     MockTestModel.createIndexes(),
     MockTestQuestionIssueModel.createIndexes(),
     Tracker.createIndexes(),
@@ -46,6 +82,9 @@ const migrate = async () => {
     MockTestAttemptModel.createIndexes(),
     CommunityVerificationSubmission.createIndexes(),
     User.createIndexes(),
+    MockTestCreationSessionModel.createIndexes(),
+    UserSettings.createIndexes(),
+    AdminConsoleSettings.createIndexes(),
   ]);
 
   console.log(

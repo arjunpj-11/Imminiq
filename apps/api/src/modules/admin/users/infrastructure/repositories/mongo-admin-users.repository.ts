@@ -84,11 +84,8 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
     if (input.status === 'blocked') conditions.push({ status: 'blocked' });
     if (input.status === 'deactivated') conditions.push({ status: 'deactivated' });
     if (input.status === 'banned') conditions.push({ status: 'banned' });
-    if (input.status === 'unverified') {
-      conditions.push({ emailVerified: { $ne: true }, phoneVerified: { $ne: true } });
-    }
     const filter = { $and: conditions };
-    const [records, total, allTotal, active, paused, blocked, unverified] = await Promise.all([
+    const [records, total, allTotal, active, paused, blocked] = await Promise.all([
       User.find(filter)
         .select(
           'fullName username email phone avatarUrl role status adminStatusReason adminStatusReasonCode adminStatusChangedAt emailVerified phoneVerified isPremium coins xp level streakCount lastActiveAt createdAt provider'
@@ -102,15 +99,10 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
       User.countDocuments({ deletedAt: null, status: 'active' }),
       User.countDocuments({ deletedAt: null, status: 'paused' }),
       User.countDocuments({ deletedAt: null, status: 'blocked' }),
-      User.countDocuments({
-        deletedAt: null,
-        emailVerified: { $ne: true },
-        phoneVerified: { $ne: true },
-      }),
     ]);
     return {
       users: records.map((record) => toEntity(record)),
-      stats: { total: allTotal, active, paused, blocked, unverified },
+      stats: { total: allTotal, active, paused, blocked },
       pagination: {
         page: input.page,
         limit: input.limit,

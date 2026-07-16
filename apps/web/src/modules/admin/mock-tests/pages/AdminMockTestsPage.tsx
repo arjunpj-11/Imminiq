@@ -69,9 +69,7 @@ export default function AdminMockTestsPage() {
               }}
               className="admin-select"
             >
-              <option value="all">All visibility</option>
-              <option value="public">Public</option>
-              <option value="private">Private</option>
+              <option value="all">All statuses</option>
               <option value="active">Active</option>
               <option value="suspended">Suspended</option>
               <option value="deleted">Deleted</option>
@@ -108,7 +106,6 @@ export default function AdminMockTestsPage() {
                     <th>Attempts</th>
                     <th>Average</th>
                     <th>Reports / flags</th>
-                    <th>Visibility</th>
                     <th>Status</th>
                     <th>Actions</th>
                   </tr>
@@ -133,9 +130,6 @@ export default function AdminMockTestsPage() {
                           {item.openReportCount} open / {item.reportCount} reports
                           <div className="mt-1 text-[10px] text-[#817c75]">{item.flagCount} review flags</div>
                         </span>
-                      </td>
-                      <td>
-                        <AdminStatusBadge value={item.visibility} />
                       </td>
                       <td>
                         <AdminStatusBadge value={item.moderationStatus} />

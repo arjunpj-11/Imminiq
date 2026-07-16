@@ -1,6 +1,5 @@
 import type { DifficultyLevel } from './difficulty-level.vo';
 import type { QuestionType } from './question-type.vo';
-import type { TestVisibility } from './test-visibility.vo';
 
 export type MockTestCreationDraft = {
   title?: string;
@@ -12,6 +11,5 @@ export type MockTestCreationDraft = {
   tags?: string[];
   trackerId?: string;
   topicId?: string;
-  visibility?: TestVisibility;
   questionTypes?: QuestionType[];
 };

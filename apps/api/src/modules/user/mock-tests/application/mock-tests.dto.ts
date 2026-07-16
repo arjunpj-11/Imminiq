@@ -6,14 +6,12 @@ import type { MockTestCodingDetails } from '../domain/value-objects/mock-test-co
 import type { MockTestCreationDraft } from '../domain/value-objects/mock-test-creation-draft.vo';
 import type { MockTestCodingLanguage } from '../domain/value-objects/coding-language.vo';
 import type { QuestionType } from '../domain/value-objects/question-type.vo';
-import type { TestVisibility } from '../domain/value-objects/test-visibility.vo';
 
 export type {
   DifficultyLevel,
   MockTestCodingDetails,
   MockTestCodingLanguage,
   QuestionType,
-  TestVisibility,
 };
 
 export interface MockTestDTO {
@@ -24,7 +22,6 @@ export interface MockTestDTO {
   title: string;
   description: string;
   difficulty: DifficultyLevel;
-  visibility: TestVisibility;
   moderationStatus: 'active' | 'suspended' | 'deleted';
   moderationReason?: string;
   questionCount: number;
@@ -132,7 +129,6 @@ export interface CreateMockTestPayloadDTO {
   title: string;
   description?: string;
   difficulty?: DifficultyLevel;
-  visibility?: TestVisibility;
   timeLimitMinutes?: number;
   passingScore?: number;
   tags?: string[];
@@ -158,7 +154,6 @@ export interface GenerateMockTestPayloadDTO {
   topicId?: string;
   timeLimitMinutes?: number;
   passingScore?: number;
-  visibility?: TestVisibility;
   runInBackground?: boolean;
 }
 

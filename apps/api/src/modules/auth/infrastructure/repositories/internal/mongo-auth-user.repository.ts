@@ -1,4 +1,3 @@
-import { env } from '../../../../../config/env';
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import type {
   CreateAuthUserInput,
@@ -150,10 +149,6 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           provider: 'local',
           emailVerified: data.emailVerified ?? false,
           phoneVerified: data.phoneVerified ?? false,
-          verificationExpiresAt:
-            data.emailVerified || data.phoneVerified
-              ? null
-              : new Date(Date.now() + env.OTP_EXPIRES_MINUTES * 60 * 1000),
         });
 
         return this._mapper.toAuthUserEntityOrThrow(
@@ -187,7 +182,6 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
                 provider: existingUser.provider || data.provider,
                 providerId: existingUser.providerId || data.providerId,
                 emailVerified: true,
-                verificationExpiresAt: null,
                 deletedAt: null,
               },
             },
@@ -215,7 +209,6 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
           emailVerified: true,
           phoneVerified: false,
           passwordHash: null,
-          verificationExpiresAt: null,
         });
 
         const plainUser = this._mapper.toPlainRecord<MongoAuthUserRecord>(user);
@@ -299,7 +292,6 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
         {
           $set: {
             emailVerified: true,
-            verificationExpiresAt: null,
           },
         },
         {
@@ -325,7 +317,6 @@ export class MongoAuthUserRepository extends MongoAuthBaseRepository {
         {
           $set: {
             phoneVerified: true,
-            verificationExpiresAt: null,
           },
         },
         {

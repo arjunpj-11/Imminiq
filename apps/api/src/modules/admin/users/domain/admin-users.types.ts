@@ -4,8 +4,7 @@ export type AdminUserFilter =
   | 'paused'
   | 'blocked'
   | 'deactivated'
-  | 'banned'
-  | 'unverified';
+  | 'banned';
 export type AdminManagedUserStatus = 'active' | 'paused' | 'blocked';
 export type AdminActor = { userId: string; role: 'admin' | 'superadmin' };
 export type AdminActionMeta = {

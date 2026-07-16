@@ -87,7 +87,6 @@ export const createMockTestSchema = z.object({
   title: z.string().trim().min(3).max(200),
   description: z.string().trim().max(500).optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
-  visibility: z.enum(['private', 'public']).optional(),
   timeLimitMinutes: z.number().int().min(5).max(180).optional(),
   passingScore: z.number().int().min(1).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(10).optional(),
@@ -108,7 +107,6 @@ export const generateMockTestSchema = z.object({
   topicId: z.string().trim().optional(),
   timeLimitMinutes: z.number().int().min(5).max(180).optional(),
   passingScore: z.number().int().min(1).max(100).optional(),
-  visibility: z.enum(['private', 'public']).optional(),
   runInBackground: z.boolean().optional(),
 });
 

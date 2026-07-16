@@ -6,7 +6,12 @@ export type AdminSupportTicket = {
   priority: string;
   status: string;
   requester: string;
+  assignedTo: string;
   resolutionNote: string;
+  firstRespondedAt: Date | null;
+  firstResponseDueAt: Date;
+  resolutionDueAt: Date;
+  isOverdue: boolean;
   createdAt: Date;
   updatedAt: Date;
 };

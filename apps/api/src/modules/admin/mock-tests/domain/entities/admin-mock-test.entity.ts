@@ -3,7 +3,6 @@ export type AdminMockTest = {
   title: string;
   owner: string;
   difficulty: string;
-  visibility: string;
   moderationStatus: 'active' | 'suspended' | 'deleted';
   moderationReason?: string;
   questionCount: number;
@@ -16,7 +15,6 @@ export type AdminMockTest = {
   openReportCount: number;
   flagCount: number;
 };
-export type AdminMockTestVisibilityResult = { id: string; visibility: string };
 export type AdminMockTestQuestion = {
   id: string;
   order: number;

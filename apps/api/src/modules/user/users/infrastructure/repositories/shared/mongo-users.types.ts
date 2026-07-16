@@ -50,10 +50,11 @@ export type MongoProfileRecord = {
 };
 
 export type MongoPrivacySettingsRecord = {
-  privacyShowProfile?: boolean | null;
-  privacyShowStats?: boolean | null;
-  privacyShowTrackers?: boolean | null;
-  privacyShowActivity?: boolean | null;
+  privacy?: {
+    showProfile?: boolean | null;
+    showStats?: boolean | null;
+    showActivity?: boolean | null;
+  } | null;
 };
 
 export type MongoStreakSnapshotRecord = {

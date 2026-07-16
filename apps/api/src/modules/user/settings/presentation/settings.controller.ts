@@ -68,29 +68,6 @@ export class SettingsController {
     }
   };
 
-  getGestureSettings = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.getGestureSettings.execute(getAuthUser(req).userId);
-
-      res.json(new ApiResponse('Gesture settings fetched', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateAccountSettings = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateAccountSettings.execute(
-        getAuthUser(req).userId,
-        req.body
-      );
-
-      res.json(new ApiResponse('Account settings updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
   updateAppearance = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this._useCases.updateAppearance.execute(getAuthUser(req).userId, req.body);
@@ -114,90 +91,11 @@ export class SettingsController {
     }
   };
 
-  updateQuietHours = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateQuietHours.execute(getAuthUser(req).userId, req.body);
-
-      res.json(new ApiResponse('Quiet hours updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateEmailDigest = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateEmailDigest.execute(
-        getAuthUser(req).userId,
-        req.body
-      );
-
-      res.json(new ApiResponse('Email digest updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
   updatePrivacy = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this._useCases.updatePrivacy.execute(getAuthUser(req).userId, req.body);
 
       res.json(new ApiResponse('Privacy settings updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateCodeEditor = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateCodeEditor.execute(getAuthUser(req).userId, req.body);
-
-      res.json(new ApiResponse('Code editor settings updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateCompiler = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateCompiler.execute(getAuthUser(req).userId, req.body);
-
-      res.json(new ApiResponse('Compiler settings updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateAIBehaviour = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateAIBehaviour.execute(
-        getAuthUser(req).userId,
-        req.body
-      );
-
-      res.json(new ApiResponse('AI behaviour updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateLearningJourney = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateLearningJourney.execute(
-        getAuthUser(req).userId,
-        req.body
-      );
-
-      res.json(new ApiResponse('Learning journey updated', data));
-    } catch (error) {
-      next(error);
-    }
-  };
-
-  updateGestures = async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      const data = await this._useCases.updateGestures.execute(getAuthUser(req).userId, req.body);
-
-      res.json(new ApiResponse('Gesture settings updated', data));
     } catch (error) {
       next(error);
     }

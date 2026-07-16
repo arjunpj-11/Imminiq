@@ -1,7 +1,5 @@
 export type AdminDashboardMetrics = {
   totalUsers: number;
-  verifiedUsers: number;
-  unverifiedUsers: number;
   activeToday: number;
   blockedUsers: number;
   suspendedUsers: number;

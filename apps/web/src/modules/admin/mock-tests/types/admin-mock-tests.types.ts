@@ -3,7 +3,6 @@ export type AdminMockTest = {
   title: string;
   owner: string;
   difficulty: string;
-  visibility: 'private' | 'public';
   moderationStatus: 'active' | 'suspended' | 'deleted';
   moderationReason?: string;
   questionCount: number;

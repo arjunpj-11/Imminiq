@@ -3,8 +3,6 @@ export interface AdminDashboardDTO {
   generatedAt: Date;
   metrics: {
     totalUsers: number;
-    verifiedUsers: number;
-    unverifiedUsers: number;
     activeToday: number;
     blockedUsers: number;
     suspendedUsers: number;

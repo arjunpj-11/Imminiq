@@ -1,6 +1,5 @@
 export type QuestionType = 'mcq' | 'short_answer' | 'coding';
 export type DifficultyLevel = 'easy' | 'medium' | 'hard';
-export type TestVisibility = 'private' | 'public';
 export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned';
 export type EvaluationStatus = 'pending' | 'completed' | 'failed';
 export type MockTestQuestionIssueReason =
@@ -54,7 +53,6 @@ export interface IMockTest {
   title: string;
   description: string;
   difficulty: DifficultyLevel;
-  visibility: TestVisibility;
   moderationStatus: 'active' | 'suspended' | 'deleted';
   moderationReason?: string;
   questionCount: number;
@@ -261,7 +259,6 @@ export interface ICreateMockTestPayload {
   title: string;
   description?: string;
   difficulty?: DifficultyLevel;
-  visibility?: TestVisibility;
   timeLimitMinutes?: number;
   passingScore?: number;
   tags?: string[];
@@ -287,7 +284,6 @@ export interface IGenerateMockTestPayload {
   topicId?: string;
   timeLimitMinutes?: number;
   passingScore?: number;
-  visibility?: TestVisibility;
   runInBackground?: boolean;
 }
 

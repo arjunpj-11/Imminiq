@@ -7,7 +7,6 @@ export * from './value-objects/mock-test-analytics.vo';
 export * from './value-objects/mock-test-coding.vo';
 export * from './value-objects/mock-test-creation-draft.vo';
 export * from './value-objects/question-type.vo';
-export * from './value-objects/test-visibility.vo';
 export * from './entities/mock-test-ai-evaluation.entity';
 export * from './entities/mock-test-answer.entity';
 export * from './entities/mock-test-attempt.entity';

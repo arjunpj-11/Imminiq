@@ -1,4 +1,5 @@
 import { AITokenUsage } from '../../../../../infrastructure/database/models/ai-token-usage.model';
+import { AdminConsoleSettings } from '../../../../../infrastructure/database/models/admin-console-settings.model';
 import type {
   AdminAITokenSpend,
   AdminAITokenSpendBreakdown,
@@ -35,7 +36,13 @@ export class MongoAdminAITokenSpendRepository implements IAdminAITokenSpendRepos
     const createdAt = { $gte: from, $lte: to };
     const todayStart = new Date();
     todayStart.setUTCHours(0, 0, 0, 0);
-    const [summaryRows, dailyRows, categoryRows, providerRows, todayRows] = await Promise.all([
+    const monthStart = new Date();
+    monthStart.setUTCDate(1);
+    monthStart.setUTCHours(0, 0, 0, 0);
+    const periodMs = to.getTime() - from.getTime() + 1;
+    const previousTo = new Date(from.getTime() - 1);
+    const previousFrom = new Date(previousTo.getTime() - periodMs + 1);
+    const [summaryRows, dailyRows, categoryRows, providerRows, todayRows, previousRows, monthRows, settings] = await Promise.all([
       AITokenUsage.aggregate<AggregateRow>([
         { $match: { createdAt } },
         { $group: { _id: null, ...totalsStage } },
@@ -64,19 +71,53 @@ export class MongoAdminAITokenSpendRepository implements IAdminAITokenSpendRepos
         { $match: { createdAt: { $gte: todayStart } } },
         { $group: { _id: null, totalTokens: { $sum: '$totalTokens' } } },
       ]),
+      AITokenUsage.aggregate<{ _id: null; totalTokens: number }>([
+        { $match: { createdAt: { $gte: previousFrom, $lte: previousTo } } },
+        { $group: { _id: null, totalTokens: { $sum: '$totalTokens' } } },
+      ]),
+      AITokenUsage.aggregate<{ _id: null; totalTokens: number }>([
+        { $match: { createdAt: { $gte: monthStart } } },
+        { $group: { _id: null, totalTokens: { $sum: '$totalTokens' } } },
+      ]),
+      AdminConsoleSettings.findOne({ key: 'global' })
+        .select({ aiMonthlyTokenBudget: 1, aiBudgetWarningPercent: 1, _id: 0 })
+        .lean(),
     ]);
 
     const summary = summaryRows[0];
+    const totalTokens = summary?.totalTokens ?? 0;
+    const previousPeriodTokens = previousRows[0]?.totalTokens ?? 0;
+    const monthlyLimit = settings?.aiMonthlyTokenBudget ?? 10_000_000;
+    const warningPercent = settings?.aiBudgetWarningPercent ?? 80;
+    const monthTokens = monthRows[0]?.totalTokens ?? 0;
+    const utilizationPercent = Number(((monthTokens / monthlyLimit) * 100).toFixed(1));
     return {
       rangeDays: days,
       rangeFrom: from.toISOString().slice(0, 10),
       rangeTo: to.toISOString().slice(0, 10),
       summary: {
-        totalTokens: summary?.totalTokens ?? 0,
+        totalTokens,
         promptTokens: summary?.promptTokens ?? 0,
         completionTokens: summary?.completionTokens ?? 0,
         requests: summary?.requests ?? 0,
         todayTokens: todayRows[0]?.totalTokens ?? 0,
+        previousPeriodTokens,
+        changePercent:
+          previousPeriodTokens > 0
+            ? Number((((totalTokens - previousPeriodTokens) / previousPeriodTokens) * 100).toFixed(1))
+            : null,
+      },
+      budget: {
+        monthlyLimit,
+        monthTokens,
+        utilizationPercent,
+        warningPercent,
+        status:
+          monthTokens >= monthlyLimit
+            ? 'exceeded'
+            : utilizationPercent >= warningPercent
+              ? 'warning'
+              : 'within_budget',
       },
       daily: dailyRows.map((row): AdminAITokenSpendPoint => ({
         date: row._id ?? '',

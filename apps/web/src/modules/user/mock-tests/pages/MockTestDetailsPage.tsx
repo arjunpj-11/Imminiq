@@ -118,7 +118,6 @@ export default function MockTestDetailsPage() {
         {/* tags */}
         <div className="mt-5 flex flex-wrap gap-2">
           <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
-            {data.test.visibility}
           </span>
 
           <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
