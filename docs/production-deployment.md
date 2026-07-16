@@ -21,6 +21,9 @@ Create a Render environment group named `imminiq-production` and populate every 
 - generate `TOTP_ENCRYPTION_KEY` as exactly 32 random bytes encoded as 64 hexadecimal characters;
 - use TLS-backed MongoDB and Redis connections;
 - set `CLIENT_URL` to the exact public frontend origin and `SERVER_URL` to the exact API origin;
+- register `${SERVER_URL}/api/auth/oauth/google/callback` and the equivalent GitHub URL with each
+  OAuth provider; OAuth starts received through the frontend rewrite are redirected to this
+  canonical API origin before the host-only state cookie is issued;
 - restrict OAuth callback URLs, Cloudinary credentials, payment webhooks, and provider keys to production domains;
 - keep Piston isolated from the API network and never expose a privileged executor directly to the public internet.
 

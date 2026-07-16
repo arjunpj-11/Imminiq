@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ApiError } from '../../shared/utils/ApiError';
+import { dependencyFailure } from '../../shared/errors/service.error';
 
 // ============================================================
 // JSON PARSER HELPER
@@ -27,7 +27,7 @@ export const parseAIJson = <T>(
       });
     }
 
-    throw new ApiError(502, 'AI returned invalid JSON', 'AI_INVALID_JSON');
+    throw dependencyFailure('AI returned invalid JSON', 'AI_INVALID_JSON');
   }
 
   let parsed: unknown;
@@ -43,7 +43,7 @@ export const parseAIJson = <T>(
       });
     }
 
-    throw new ApiError(502, 'AI returned malformed JSON', 'AI_INVALID_JSON');
+    throw dependencyFailure('AI returned malformed JSON', 'AI_INVALID_JSON');
   }
 
   const validationResult = schema.safeParse(parsed);
@@ -56,8 +56,7 @@ export const parseAIJson = <T>(
       });
     }
 
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'AI returned JSON with an invalid structure',
       'AI_INVALID_JSON_STRUCTURE'
     );

@@ -1,4 +1,4 @@
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import { generatedLessonSchema, type GeneratedLesson } from '../ai.schemas';
 import { parseAIJson } from '../ai-json.parser';
@@ -36,7 +36,7 @@ export const generateLesson = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned an empty lesson response', 'GROQ_EMPTY_LESSON_RESPONSE');
+    throw dependencyFailure('Groq returned an empty lesson response', 'GROQ_EMPTY_LESSON_RESPONSE');
   }
 
   const lesson = parseAIJson(response, generatedLessonSchema);
@@ -71,7 +71,7 @@ export const chatWithLessonTutor = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned an empty tutor response', 'GROQ_EMPTY_TUTOR_RESPONSE');
+    throw dependencyFailure('Groq returned an empty tutor response', 'GROQ_EMPTY_TUTOR_RESPONSE');
   }
 
   return response;

@@ -1,4 +1,4 @@
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import { economyAIChatWithFallback } from '../ai-fallback.helper';
 import type { LessonVisualizationResult, IVisualizationInput } from '../ai.schemas';
@@ -24,7 +24,7 @@ export const generateLessonVisualization = async (
   );
 
   if (!rawText) {
-    throw new ApiError(502, 'AI returned an empty response', 'VISUALIZATION_EMPTY_RESPONSE');
+    throw dependencyFailure('AI returned an empty response', 'VISUALIZATION_EMPTY_RESPONSE');
   }
 
   let html = rawText
@@ -40,8 +40,7 @@ export const generateLessonVisualization = async (
   }
 
   if (!html.toLowerCase().includes('<canvas')) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'AI did not return a canvas visualization. Please try regenerating.',
       'VISUALIZATION_NO_CANVAS'
     );

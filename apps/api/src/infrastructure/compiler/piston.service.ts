@@ -1,6 +1,6 @@
 // apps/api/src/infrastructure/compiler/piston.service.ts
 
-import { ApiError } from '../../shared/utils/ApiError';
+import { dependencyFailure, invalidServiceInput } from '../../shared/errors/service.error';
 import { env } from '../../config/env';
 
 type PistonRuntime = {
@@ -153,8 +153,7 @@ const getRuntimes = async () => {
   const data = await parseJsonResponse<PistonRuntime[]>(response);
 
   if (!response.ok || !Array.isArray(data)) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       data?.raw ||
         'Could not fetch Piston runtimes. Public Piston may require authorization or self-hosting.',
       'PISTON_RUNTIMES_FAILED'
@@ -193,8 +192,7 @@ const findRuntime = async (language: string) => {
 
   if (softMatch) return softMatch;
 
-  throw new ApiError(
-    400,
+  throw invalidServiceInput(
     `Language "${language}" is not available in Piston runtimes`,
     'PISTON_LANGUAGE_NOT_AVAILABLE'
   );
@@ -207,7 +205,7 @@ export const executeCodeWithPiston = async ({
   stdin = '',
 }: ExecuteCodeInput): Promise<ExecuteCodeResult> => {
   if (!sourceCode?.trim()) {
-    throw new ApiError(400, 'Source code is required', 'SOURCE_CODE_REQUIRED');
+    throw invalidServiceInput('Source code is required', 'SOURCE_CODE_REQUIRED');
   }
 
   const pistonLanguage = normalizeLanguage(language, languageId);
@@ -250,8 +248,7 @@ export const executeCodeWithPiston = async ({
   });
 
   if (!response.ok) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       data.message || data.error || data.raw || 'Piston code execution failed',
       'PISTON_EXECUTION_FAILED'
     );
@@ -260,8 +257,7 @@ export const executeCodeWithPiston = async ({
   const run = data.run;
 
   if (!run) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       data.message || data.error || data.raw || 'Piston returned an invalid response',
       'PISTON_INVALID_RESPONSE'
     );

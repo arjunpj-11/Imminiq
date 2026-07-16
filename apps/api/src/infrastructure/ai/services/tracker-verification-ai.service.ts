@@ -1,4 +1,4 @@
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import {
   trackerSubtopicVerificationSchema,
@@ -47,8 +47,7 @@ export const verifyTrackerTopic = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty topic verification response',
       'GROQ_EMPTY_TOPIC_VERIFICATION_RESPONSE'
     );
@@ -87,8 +86,7 @@ export const verifyTrackerSubtopic = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty subtopic verification response',
       'GROQ_EMPTY_SUBTOPIC_VERIFICATION_RESPONSE'
     );

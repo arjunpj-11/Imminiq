@@ -1,4 +1,4 @@
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
 import {
@@ -83,7 +83,7 @@ export const chatWithTutor = async (
   const response = await groqChat(messages, 'quality', 'ai_tutoring');
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned an empty chat response', 'GROQ_EMPTY_CHAT_RESPONSE');
+    throw dependencyFailure('Groq returned an empty chat response', 'GROQ_EMPTY_CHAT_RESPONSE');
   }
 
   return response;
@@ -102,8 +102,7 @@ export const explainTopic = async (topic: string): Promise<string> => {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty topic explanation',
       'GROQ_EMPTY_TOPIC_EXPLANATION'
     );
@@ -125,7 +124,7 @@ export const explainELI5 = async (topic: string): Promise<string> => {
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned an empty ELI5 explanation', 'GROQ_EMPTY_ELI5_RESPONSE');
+    throw dependencyFailure('Groq returned an empty ELI5 explanation', 'GROQ_EMPTY_ELI5_RESPONSE');
   }
 
   return response;
@@ -144,7 +143,7 @@ export const generateMockQuestions = async (topic: string, count: number): Promi
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned empty mock questions', 'GROQ_EMPTY_MOCK_QUESTIONS');
+    throw dependencyFailure('Groq returned empty mock questions', 'GROQ_EMPTY_MOCK_QUESTIONS');
   }
 
   return response;
@@ -162,7 +161,7 @@ export const reviewCode = async (code: string, language: string): Promise<string
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned an empty code review', 'GROQ_EMPTY_CODE_REVIEW');
+    throw dependencyFailure('Groq returned an empty code review', 'GROQ_EMPTY_CODE_REVIEW');
   }
 
   return response;
@@ -180,8 +179,7 @@ export const optimizeCode = async (code: string, language: string): Promise<stri
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty optimized code response',
       'GROQ_EMPTY_OPTIMIZE_RESPONSE'
     );
@@ -202,8 +200,7 @@ export const simplifyLesson = async (content: string): Promise<string> => {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty simplified lesson',
       'GROQ_EMPTY_SIMPLIFY_RESPONSE'
     );
@@ -224,7 +221,7 @@ export const generateCodeExample = async (topic: string, language: string): Prom
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned an empty code example', 'GROQ_EMPTY_CODE_EXAMPLE');
+    throw dependencyFailure('Groq returned an empty code example', 'GROQ_EMPTY_CODE_EXAMPLE');
   }
 
   return response;
@@ -246,7 +243,7 @@ export const quickSummary = async (content: string): Promise<string> => {
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned an empty summary', 'GROQ_EMPTY_SUMMARY');
+    throw dependencyFailure('Groq returned an empty summary', 'GROQ_EMPTY_SUMMARY');
   }
 
   return response;
@@ -264,7 +261,7 @@ export const generateTopicTags = async (content: string): Promise<string> => {
   );
 
   if (!response) {
-    throw new ApiError(502, 'Groq returned empty topic tags', 'GROQ_EMPTY_TOPIC_TAGS');
+    throw dependencyFailure('Groq returned empty topic tags', 'GROQ_EMPTY_TOPIC_TAGS');
   }
 
   return response;

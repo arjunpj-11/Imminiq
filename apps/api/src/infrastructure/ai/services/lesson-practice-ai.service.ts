@@ -1,4 +1,4 @@
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import {
   answerVerificationSchema,
@@ -72,8 +72,7 @@ export const generateCodeHint = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty code hint response',
       'GROQ_EMPTY_CODE_HINT_RESPONSE'
     );
@@ -105,8 +104,7 @@ export const generateOptimizedCodeSolution = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty optimized solution response',
       'GROQ_EMPTY_OPTIMIZED_SOLUTION_RESPONSE'
     );
@@ -138,8 +136,7 @@ export const verifyNonCodingAnswer = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned an empty answer verification response',
       'GROQ_EMPTY_ANSWER_VERIFICATION_RESPONSE'
     );
@@ -175,8 +172,7 @@ export const generateLessonPracticeQuestions = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned empty lesson practice questions',
       'GROQ_EMPTY_LESSON_PRACTICE_QUESTIONS'
     );
@@ -206,8 +202,7 @@ export const generateLessonQuestionSolution = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned empty question solution',
       'GROQ_EMPTY_QUESTION_SOLUTION'
     );
@@ -248,8 +243,7 @@ export const chatWithLessonQuestionSolutionDoubt = async (input: {
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned empty solution doubt response',
       'GROQ_EMPTY_SOLUTION_DOUBT_RESPONSE'
     );

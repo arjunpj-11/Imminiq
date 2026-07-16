@@ -1,5 +1,6 @@
 import type { TrackerUseCases } from './application/tracker-use-cases.contract';
 import { TrackerMapper } from './application/tracker.mapper';
+import { MissingEvaluationTopicPlacementService } from './application/services/missing-evaluation-topic-placement.service';
 import { AddMissingEvaluationTopicUseCase } from './application/use-cases/add-missing-evaluation-topic.usecase';
 import { ArchiveTrackerUseCase } from './application/use-cases/archive-tracker.usecase';
 import { AskLessonQuestionSolutionDoubtUseCase } from './application/use-cases/ask-lesson-question-solution-doubt.usecase';
@@ -129,6 +130,9 @@ export const createTrackerComposition = (
   const trackerQuestionHasher = cryptoQuestionHasher;
 
   const _trackerMapper = new TrackerMapper();
+  const missingEvaluationTopicPlacement = new MissingEvaluationTopicPlacementService(
+    trackerRepository
+  );
 
   return {
     useCases: {
@@ -169,6 +173,7 @@ export const createTrackerComposition = (
 
       addMissingEvaluationTopic: new AddMissingEvaluationTopicUseCase(
         trackerRepository,
+        missingEvaluationTopicPlacement,
         _trackerMapper
       ),
 

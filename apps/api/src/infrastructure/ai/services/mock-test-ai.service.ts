@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import { parseAIJson } from '../ai-json.parser';
 import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
@@ -95,8 +95,7 @@ export const generateMockTestQuestionsAI = async (
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Mock test question generation returned an empty response',
       'MOCK_TEST_AI_EMPTY_GENERATION_RESPONSE'
     );
@@ -120,8 +119,7 @@ export const evaluateMockTestOpenAnswerAI = async (
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Mock test answer evaluation returned an empty response',
       'MOCK_TEST_AI_EMPTY_EVALUATION_RESPONSE'
     );
@@ -162,8 +160,7 @@ export const generateMockTestQuestionsGroqAI = async (
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Mock test question generation (Groq) returned an empty response',
       'MOCK_TEST_AI_EMPTY_GENERATION_RESPONSE'
     );

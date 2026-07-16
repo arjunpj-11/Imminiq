@@ -2,6 +2,8 @@ import { Router } from 'express';
 import passport from 'passport';
 
 import { AuthController } from './auth.controller';
+import { AuthSessionCookieService } from './internal/auth-session-cookie.service';
+import { useCanonicalOAuthOrigin } from './internal/canonical-oauth-origin.middleware';
 import type { AuthUseCases } from '../application/auth-use-cases.contract';
 import { AUTH_ROUTE_PATHS } from './auth.route.constants';
 import { validate } from '../../../shared/middlewares/validate';
@@ -36,7 +38,7 @@ import {
 } from './auth.schema';
 
 export const createAuthRoutes = (useCases: AuthUseCases) => {
-  const authController = new AuthController(useCases);
+  const authController = new AuthController(useCases, new AuthSessionCookieService());
   const router = Router();
 
   // ─── PUBLIC ROUTES ───────────────────────────────
@@ -108,6 +110,7 @@ export const createAuthRoutes = (useCases: AuthUseCases) => {
 
   router.get(
     AUTH_ROUTE_PATHS.OAUTH_GOOGLE,
+    useCanonicalOAuthOrigin,
     oauthFlowIpLimiter,
     issueOAuthState('google'),
     (req, res, next) => {
@@ -132,6 +135,7 @@ export const createAuthRoutes = (useCases: AuthUseCases) => {
 
   router.get(
     AUTH_ROUTE_PATHS.OAUTH_GITHUB,
+    useCanonicalOAuthOrigin,
     oauthFlowIpLimiter,
     issueOAuthState('github'),
     (req, res, next) => {
