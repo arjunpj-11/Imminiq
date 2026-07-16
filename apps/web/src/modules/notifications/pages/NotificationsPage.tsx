@@ -1,4 +1,5 @@
 import { Bell, CheckCheck, CircleAlert, Sparkles } from 'lucide-react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageContainer from '../../../components/layout/PageContainer';
 import PageHeader from '../../../components/layout/PageHeader';
@@ -6,6 +7,7 @@ import { cn } from '../../../lib/cn';
 import { useNotifications } from '../hooks/useNotifications';
 import { useMarkNotificationRead } from '../hooks/useMarkNotificationRead';
 import { useMarkAllNotificationsRead } from '../hooks/useMarkAllNotificationsRead';
+import { useVoteNotificationPoll } from '../hooks/useVoteNotificationPoll';
 import { formatNotificationDate, isFailureNotification } from '../utils/notification-formatters';
 
 export default function NotificationsPage() {
@@ -43,12 +45,20 @@ export default function NotificationsPage() {
         {query.data?.notifications.map((notification) => {
           const failed = isFailureNotification(notification.type);
           return (
-            <button
+            <div
               key={notification.id}
-              type="button"
+              role="button"
+              tabIndex={0}
               onClick={() => {
                 if (!notification.isRead) markRead.mutate(notification.id);
                 if (notification.deepLink) navigate(notification.deepLink);
+              }}
+              onKeyDown={(event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  if (!notification.isRead) markRead.mutate(notification.id);
+                  if (notification.deepLink) navigate(notification.deepLink);
+                }
               }}
               className={cn(
                 'flex w-full items-start gap-4 border-b border-(--border-subtle) p-5 text-left last:border-b-0 hover:bg-(--surface-canvas)',
@@ -72,14 +82,37 @@ export default function NotificationsPage() {
                 <span className="mt-1 block text-[11px] text-(--text-secondary)">
                   {formatNotificationDate(notification.createdAt)}
                 </span>
+                {isBroadcastPoll(notification.metadata) && (
+                  <PollVoteControls notificationId={notification.id} poll={notification.metadata.poll} />
+                )}
               </span>
               {!notification.isRead && (
                 <span className="mt-2 h-2 w-2 rounded-full bg-(--brand-500)" aria-label="Unread" />
               )}
-            </button>
+            </div>
           );
         })}
       </section>
     </PageContainer>
+  );
+}
+
+type NotificationPoll = { question: string; options: string[] };
+
+function isBroadcastPoll(metadata: Record<string, unknown> | undefined): metadata is { poll: NotificationPoll } {
+  const poll = metadata?.poll as Partial<NotificationPoll> | undefined;
+  return Boolean(poll?.question && Array.isArray(poll.options) && poll.options.length > 1);
+}
+
+function PollVoteControls({ notificationId, poll }: { notificationId: string; poll: NotificationPoll }) {
+  const vote = useVoteNotificationPoll();
+  const [selected, setSelected] = useState<number | null>(null);
+  return (
+    <span className="mt-4 block rounded-xl border border-[rgba(184,76,43,0.18)] bg-[rgba(184,76,43,0.05)] p-3" onClick={(event) => event.stopPropagation()}>
+      <span className="block text-xs font-semibold text-(--text-primary)">{poll.question}</span>
+      <span className="mt-2 grid gap-2">
+        {poll.options.map((option, index) => <button key={option} type="button" disabled={vote.isPending || selected !== null} onClick={() => vote.mutate({ notificationId, optionIndex: index }, { onSuccess: () => setSelected(index) })} className={`rounded-lg border px-3 py-2 text-left text-xs font-semibold transition disabled:cursor-default ${selected === index ? 'border-(--brand-500) bg-[rgba(184,76,43,0.12)] text-(--brand-500)' : 'border-(--border-subtle) hover:border-(--brand-500)'}`}>{selected === index ? 'Vote recorded · ' : ''}{option}</button>)}
+      </span>
+    </span>
   );
 }
