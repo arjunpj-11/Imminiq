@@ -3,6 +3,7 @@ import { Tracker } from '../../../../../../infrastructure/database/models/tracke
 import { TrackerProgress } from '../../../../../../infrastructure/database/models/tracker-progress.model';
 import { User } from '../../../../../../infrastructure/database/models/user.model';
 import { TrackerReport } from '../../../../../../infrastructure/database/models/tracker-report.model';
+import { TrackerVersion } from '../../../../../../infrastructure/database/models/tracker-version.model';
 import type {
   ArchiveOwnedTrackerInput,
   FindOwnedTrackerByIdInput,
@@ -311,6 +312,24 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       'TRACKER_UPDATE_FAILED',
       'Failed to update owned tracker',
       async () => {
+        const current = await Tracker.findOne({
+          _id: this.mapper.toObjectId(data.trackerId),
+          ownerId: this.mapper.toObjectId(data.userId),
+          deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
+        }).lean();
+        if (!current) return null;
+        await TrackerVersion.updateOne(
+          { trackerId: current._id, version: current.version ?? 1 },
+          {
+            $setOnInsert: {
+              snapshot: current,
+              changedBy: this.mapper.toObjectId(data.userId),
+              reason: 'Owner edited tracker metadata',
+            },
+          },
+          { upsert: true }
+        );
         const update: MongoUpdate = {};
 
         if (data.title !== undefined) {
@@ -342,6 +361,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           }),
           this.mapper.asMongoUpdate({
             $set: update,
+            $inc: { version: 1 },
           }),
           {
             returnDocument: 'after',

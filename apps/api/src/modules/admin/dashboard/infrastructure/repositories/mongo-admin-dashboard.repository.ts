@@ -6,6 +6,8 @@ import { MockTestModel } from '../../../../../infrastructure/database/models/moc
 import { SupportTicket } from '../../../../../infrastructure/database/models/support-ticket.model';
 import { TrackerReport } from '../../../../../infrastructure/database/models/tracker-report.model';
 import { SecurityAuditEvent } from '../../../../../infrastructure/database/models/security-audit-event.model';
+import { ContentModerationAppeal } from '../../../../../infrastructure/database/models/content-moderation-appeal.model';
+import { DataPrivacyRequest } from '../../../../../infrastructure/database/models/data-privacy-request.model';
 import type { AdminDashboardEntity } from '../../domain/entities/admin-dashboard.entity';
 import type { IAdminDashboardRepository } from '../../domain/repositories/admin-dashboard.repository.interface';
 
@@ -32,6 +34,9 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
       suspendedTrackers,
       overdueQuestionReports,
       overdueTrackerReports,
+      pendingContentAppeals,
+      pendingPrivacyRequests,
+      overduePrivacyRequests,
       recentActivity,
       recentSecurityActivity,
       weeklyActivity,
@@ -65,6 +70,9 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
           status: { $in: ['open', 'reviewing'] },
           createdAt: { $lt: moderationSlaCutoff },
         }),
+        ContentModerationAppeal.countDocuments({ status: { $in: ['pending', 'under_review'] }, deletedAt: null }),
+        DataPrivacyRequest.countDocuments({ status: { $in: ['pending', 'in_progress'] } }),
+        DataPrivacyRequest.countDocuments({ status: { $in: ['pending', 'in_progress'] }, dueAt: { $lt: new Date() } }),
         ActivityLog.find({ deletedAt: null }).sort({ createdAt: -1 }).limit(8).lean(),
         SecurityAuditEvent.find({}).sort({ createdAt: -1 }).limit(8).lean(),
         ActivityLog.aggregate<{ _id: number; count: number }>([
@@ -122,6 +130,9 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
         suspendedTrackers,
         overdueQuestionReports,
         overdueTrackerReports,
+        pendingContentAppeals,
+        pendingPrivacyRequests,
+        overduePrivacyRequests,
       },
       weeklyActivity: [2, 3, 4, 5, 6, 7, 1].map((day) => weeklyMap.get(day) ?? 0),
       recentActivity: mergedActivity.map((item) => ({

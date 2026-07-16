@@ -1,5 +1,6 @@
 import type * as Application from './index';
 export type SettingsUseCases = {
+  dataPrivacyRequests: import('./data-privacy-request.service').IDataPrivacyRequestService;
   getAllSettings: Application.IGetAllSettingsUseCase;
   getAppearanceSettings: Application.IGetAppearanceSettingsUseCase;
   getNotificationSettings: Application.IGetNotificationSettingsUseCase;

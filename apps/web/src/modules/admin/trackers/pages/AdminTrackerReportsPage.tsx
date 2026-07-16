@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ArrowLeft, Eye, ShieldAlert } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import Modal from '../../../../components/overlays/Modal';
-import { AdminEmpty, AdminError, AdminLoading, AdminMetricGrid, AdminPageHeader, AdminPanel, AdminStatusBadge } from '../../shared';
+import { AdminContentAppealsPanel, AdminEmpty, AdminError, AdminLoading, AdminMetricGrid, AdminPageHeader, AdminPanel, AdminStatusBadge } from '../../shared';
 import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 import { useAdminTrackerReports } from '../hooks/useAdminTrackerReports';
 import { useUpdateAdminTrackerReport } from '../hooks/useUpdateAdminTrackerReport';
@@ -24,6 +24,7 @@ export default function AdminTrackerReportsPage() {
         {isLoading ? <AdminLoading /> : isError ? <AdminError error={error} /> : !data?.items.length ? <AdminEmpty>No tracker reports match this view.</AdminEmpty> : <><div className="overflow-x-auto"><table className="admin-table w-full min-w-225 text-left text-sm"><thead><tr><th>Reported</th><th>Tracker</th><th>Reporter</th><th>Reason</th><th>Status</th><th>Action</th></tr></thead><tbody>{data.items.map((report) => <tr key={report.id}><td>{new Date(report.createdAt).toLocaleDateString()}</td><td><div className="font-semibold">{report.trackerTitle}</div><div className="text-xs text-[#817c75]">Owner: {report.trackerOwner}</div></td><td>{report.reporter}</td><td className="capitalize">{label(report.reason)}</td><td><AdminStatusBadge value={report.status} /></td><td><button className="admin-button inline-flex items-center gap-2" onClick={() => setSelected(report)}><Eye size={14} /> Review</button></td></tr>)}</tbody></table></div><div className="flex justify-end gap-2 border-t border-white/10 p-4"><button className="admin-button" disabled={page <= 1} onClick={() => setPage(page - 1)}>Previous</button><span className="px-3 py-2 text-xs text-[#aaa59d]">{page} / {data.pagination.pages}</span><button className="admin-button" disabled={page >= data.pagination.pages} onClick={() => setPage(page + 1)}>Next</button></div></>}
       </AdminPanel>
       <ReportDialog key={selected?.id ?? 'closed'} report={selected} onClose={() => setSelected(null)} />
+      <AdminContentAppealsPanel kind="trackers" />
     </main>
   );
 }

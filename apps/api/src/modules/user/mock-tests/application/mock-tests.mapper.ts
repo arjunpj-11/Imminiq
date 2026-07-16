@@ -325,7 +325,7 @@ export class MockTestsMapper implements IMockTestsMapper {
 
   toAttemptHistoryDto(item: MockTestAttemptHistoryItem): MockTestAttemptHistoryDTO {
     return {
-      ...this.toAttempt(new MockTestAttemptEntity(item)),
+      ...this.toAttempt(new MockTestAttemptEntity({ ...item, questionSnapshot: [] })),
       test: item.test
         ? this.toMockTest(
             new MockTestEntity({

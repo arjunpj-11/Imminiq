@@ -16,6 +16,8 @@ import {
   ResolveAdminTrackerReviewUseCase,
 } from './application/admin-tracker-reviews';
 import { mongoAdminTrackerReviewsRepository } from './infrastructure/repositories/mongo-admin-tracker-reviews.repository';
+import { AdminContentAppealService, AdminExportService } from './infrastructure';
+import { AdminTrackerVersionService } from './infrastructure/services/mongo-admin-tracker-version.service';
 export type AdminTrackersComposition = { useCases: AdminTrackersUseCases };
 
 export const createAdminTrackersComposition = (): AdminTrackersComposition => {
@@ -23,6 +25,9 @@ export const createAdminTrackersComposition = (): AdminTrackersComposition => {
   const reviewsMapper = new AdminTrackerReviewsMapper();
   return {
     useCases: {
+      exports: new AdminExportService(),
+      contentAppeals: new AdminContentAppealService(),
+      versions: new AdminTrackerVersionService(),
       list: new ListAdminTrackersUseCase(mongoAdminTrackersRepository, mapper),
       listPublished: new ListAdminPublishedTrackersUseCase(mongoAdminTrackersRepository, mapper),
       likePublished: new LikeAdminPublishedTrackerUseCase(mongoAdminTrackersRepository, mapper),

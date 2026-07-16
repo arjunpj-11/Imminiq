@@ -7,12 +7,16 @@ import { ListAdminMockTestQuestionIssuesUseCase } from './application/use-cases/
 import { UpdateAdminMockTestLifecycleUseCase } from './application/use-cases/update-admin-mock-test-lifecycle.usecase';
 import { UpdateAdminMockTestQuestionIssueUseCase } from './application/use-cases/update-admin-mock-test-question-issue.usecase';
 import { bullMqAdminMockTestEmailProvider } from './infrastructure/providers/bullmq-admin-mock-test-email.provider';
+import { AdminMockTestQuestionVersionService } from './application/admin-mock-test-question-version.service';
+import { AdminContentAppealService, AdminExportService } from './infrastructure';
 export type AdminMockTestsComposition = { useCases: AdminMockTestsUseCases };
 
 export const createAdminMockTestsComposition = (): AdminMockTestsComposition => {
   const mapper = new AdminMockTestsMapper();
   return {
     useCases: {
+      exports: new AdminExportService(),
+      contentAppeals: new AdminContentAppealService(),
       list: new ListAdminMockTestsUseCase(mongoAdminMockTestsRepository, mapper),
       getDetail: new GetAdminMockTestDetailUseCase(mongoAdminMockTestsRepository, mapper),
       listQuestionIssues: new ListAdminMockTestQuestionIssuesUseCase(
@@ -28,6 +32,7 @@ export const createAdminMockTestsComposition = (): AdminMockTestsComposition => 
         mongoAdminMockTestsRepository,
         bullMqAdminMockTestEmailProvider
       ),
+      questionVersions: new AdminMockTestQuestionVersionService(mongoAdminMockTestsRepository),
     },
   };
 };

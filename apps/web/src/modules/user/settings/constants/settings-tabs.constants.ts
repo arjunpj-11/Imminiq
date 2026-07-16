@@ -8,6 +8,8 @@ export const SETTINGS_API_PATHS = {
   notificationQuietHours: '/settings/notifications/quiet-hours',
   notificationEmailDigest: '/settings/notifications/email-digest',
   privacy: '/settings/privacy',
+  privacyRequests: '/settings/privacy/requests',
+  privacyRequest: (requestId: string) => `/settings/privacy/requests/${requestId}`,
   codeEditor: '/settings/code-editor',
   compiler: '/settings/compiler',
   aiBehavior: '/settings/ai-behavior',

@@ -40,4 +40,25 @@ export class ModerationAppealController {
       next(error);
     }
   };
+
+  listContentAppeals = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this._useCases.contentAppeals.list(String(req.user?.userId));
+      res.json(new ApiResponse('Content appeals fetched', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  submitContentAppeal = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const result = await this._useCases.contentAppeals.submit({
+        userId: String(req.user?.userId),
+        ...req.body,
+      });
+      res.status(HttpStatusCode.CREATED).json(new ApiResponse('Content appeal submitted', result));
+    } catch (error) {
+      next(error);
+    }
+  };
 }

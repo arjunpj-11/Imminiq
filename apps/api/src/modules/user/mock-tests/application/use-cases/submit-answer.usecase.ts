@@ -7,6 +7,7 @@ import type { SubmitAnswerPayloadDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { IMockTestScorer } from '../services/test-scorer.service';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
+import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type SubmitAnswerRepository = IMockTestAttemptRepository &
   IMockTestQuestionRepository &
@@ -44,7 +45,8 @@ export class SubmitAnswerUseCase implements ISubmitAnswerUseCase {
       throw MockTestsApplicationError.testNotActive();
     }
 
-    const question = await this._repository.findQuestionById(payload.questionId);
+    const liveQuestion = await this._repository.findQuestionById(payload.questionId);
+    const question = attemptQuestionSnapshotService.find(attempt, payload.questionId, liveQuestion);
 
     if (!question || question.testId !== attempt.testId) {
       throw MockTestsApplicationError.notFound('Question not found');

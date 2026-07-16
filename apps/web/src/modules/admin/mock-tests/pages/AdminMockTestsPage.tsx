@@ -10,6 +10,8 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
+  downloadServerCsv,
+  AdminBulkActionBar,
 } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminMockTests } from '../hooks/useAdminMockTests';
@@ -20,25 +22,20 @@ export default function AdminMockTestsPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState(() => searchParams.get('status') || 'all');
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
   const { data, isLoading, isError, error } = useAdminMockTests({
     search: useDebouncedValue(search, 300),
     status,
     page,
   });
-  const exportCurrentView = () => {
-    if (!data?.items.length) return;
-    const escape = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`;
-    const rows = [['ID', 'Title', 'Owner', 'Difficulty', 'Questions', 'Attempts', 'Average score', 'Visibility', 'Moderation', 'Open reports'], ...data.items.map((item) => [item.id, item.title, item.owner, item.difficulty, item.questionCount, item.attemptCount, item.averageScore, item.visibility, item.moderationStatus, item.openReportCount])];
-    const url = URL.createObjectURL(new Blob([rows.map((row) => row.map(escape).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
-    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `imminiq-mock-tests-${status}-page-${page}.csv`; anchor.click(); URL.revokeObjectURL(url);
-  };
+  const exportCurrentView = () => void downloadServerCsv('/admin/mock-tests/export.csv', `imminiq-mock-tests-${status}.csv`, { search, status });
   return (
     <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Mock Test Management"
         description="Inspect assessment contents, questions, correct answers, and test configuration."
         action={
-          <div className="flex gap-2"><button type="button" onClick={exportCurrentView} disabled={!data?.items.length} className="admin-button inline-flex items-center gap-2 disabled:opacity-40"><Download size={16} /> Export CSV</button><Link
+          <div className="flex gap-2"><button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button><Link
             to={ADMIN_MOCK_TESTS_ROUTES.reports}
             className="admin-primary-button inline-flex items-center gap-2"
           >
@@ -50,6 +47,7 @@ export default function AdminMockTestsPage() {
         metrics={[
           { label: 'All tests', value: data?.pagination.total ?? 0 },
           { label: 'Open reports', value: data?.stats?.openReports ?? 0, tone: 'error' },
+          { label: 'Learner flags', value: data?.stats?.flags ?? 0, tone: 'info' },
           { label: 'Suspended', value: data?.stats?.suspended ?? 0, tone: 'warning' },
           { label: 'Attempts', value: data?.stats?.attempts ?? 0, tone: 'accent' },
         ]}
@@ -89,6 +87,7 @@ export default function AdminMockTestsPage() {
           </div>
         }
       >
+        <div className="px-5 pt-4"><AdminBulkActionBar kind="mock-tests" selected={selected} onClear={() => setSelected([])} /></div>
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
@@ -101,13 +100,14 @@ export default function AdminMockTestsPage() {
               <table className="admin-table w-full min-w-[900px] text-left text-sm">
                 <thead>
                   <tr>
+                    <th><input aria-label="Select visible mock tests" type="checkbox" checked={data.items.every((item) => selected.includes(item.id))} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...data.items.map((item) => item.id)])) : selected.filter((id) => !data.items.some((item) => item.id === id)))} /></th>
                     <th>Test</th>
                     <th>Owner</th>
                     <th>Difficulty</th>
                     <th>Questions</th>
                     <th>Attempts</th>
                     <th>Average</th>
-                    <th>Reports</th>
+                    <th>Reports / flags</th>
                     <th>Visibility</th>
                     <th>Status</th>
                     <th>Actions</th>
@@ -116,6 +116,7 @@ export default function AdminMockTestsPage() {
                 <tbody>
                   {data.items.map((item) => (
                     <tr key={item.id}>
+                      <td><input aria-label={`Select ${item.title}`} type="checkbox" checked={selected.includes(item.id)} onChange={(event) => setSelected(event.target.checked ? [...selected, item.id] : selected.filter((id) => id !== item.id))} /></td>
                       <td>
                         <div className="font-semibold">{item.title}</div>
                         {item.isAIGenerated && (
@@ -129,7 +130,8 @@ export default function AdminMockTestsPage() {
                       <td>{Math.round(item.averageScore)}%</td>
                       <td>
                         <span className={item.openReportCount ? 'font-bold text-[#e26767]' : ''}>
-                          {item.openReportCount} open / {item.reportCount}
+                          {item.openReportCount} open / {item.reportCount} reports
+                          <div className="mt-1 text-[10px] text-[#817c75]">{item.flagCount} review flags</div>
                         </span>
                       </td>
                       <td>

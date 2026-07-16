@@ -14,6 +14,7 @@ export type AdminMockTest = {
   deletedAt?: string | null;
   reportCount: number;
   openReportCount: number;
+  flagCount: number;
 };
 export type AdminMockTestQuestion = {
   id: string;
@@ -30,6 +31,7 @@ export type AdminMockTestQuestion = {
   version: number;
   reportCount: number;
   openReportCount: number;
+  flagCount: number;
   answerCount: number;
   correctRate: number;
   skipRate: number;
@@ -70,6 +72,10 @@ export type AdminMockTestQuestionIssue = {
   questionType: string;
   questionAnswer?: string;
   questionExplanation?: string;
+  questionOptions?: string[];
+  questionDifficulty?: string;
+  questionPoints?: number;
+  questionCoding?: Record<string, unknown>;
   attemptId: string;
   reporterId: string;
   reporter: string;
@@ -113,5 +119,20 @@ export type AdminMockTestIssueUpdatePayload = {
   correctedQuestion?: string;
   correctedAnswer?: string;
   correctedExplanation?: string;
+  correctedOptions?: string[];
+  correctedDifficulty?: 'easy' | 'medium' | 'hard';
+  correctedPoints?: number;
+  correctedCoding?: Record<string, unknown>;
   mfaCode?: string;
+};
+
+export type AdminMockTestQuestionVersion = {
+  id: string;
+  questionId: string;
+  testId: string;
+  version: number;
+  snapshot: Record<string, unknown>;
+  changedBy: string;
+  reason: string;
+  createdAt: string;
 };

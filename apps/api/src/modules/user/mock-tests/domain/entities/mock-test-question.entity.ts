@@ -14,6 +14,7 @@ export type MockTestQuestionEntityProps = {
   order: number;
   points: number;
   coding?: MockTestCodingDetails;
+  version?: number;
 };
 
 export class MockTestQuestionEntity {
@@ -28,6 +29,7 @@ export class MockTestQuestionEntity {
   readonly order: number;
   readonly points: number;
   readonly coding?: MockTestCodingDetails;
+  readonly version: number;
 
   constructor(props: MockTestQuestionEntityProps) {
     this._id = props._id;
@@ -41,5 +43,6 @@ export class MockTestQuestionEntity {
     this.order = props.order;
     this.points = props.points;
     this.coding = props.coding;
+    this.version = props.version ?? 1;
   }
 }

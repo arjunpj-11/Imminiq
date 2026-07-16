@@ -14,6 +14,7 @@ export interface AdminMockTestDTO {
   deletedAt?: Date | null;
   reportCount: number;
   openReportCount: number;
+  flagCount: number;
 }
 
 export interface AdminMockTestQuestionDTO {
@@ -31,6 +32,7 @@ export interface AdminMockTestQuestionDTO {
   version: number;
   reportCount: number;
   openReportCount: number;
+  flagCount: number;
   answerCount: number;
   correctRate: number;
   skipRate: number;
@@ -72,6 +74,10 @@ export interface AdminMockTestQuestionIssueDTO {
   questionType: string;
   questionAnswer?: string;
   questionExplanation?: string;
+  questionOptions?: string[];
+  questionDifficulty?: string;
+  questionPoints?: number;
+  questionCoding?: Record<string, unknown>;
   attemptId: string;
   reporterId: string;
   reporter: string;

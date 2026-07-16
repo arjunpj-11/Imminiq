@@ -1,5 +1,10 @@
 import { z } from 'zod';
 
+export const submitDataPrivacyRequestSchema = z.object({
+  type: z.enum(['access', 'export', 'delete', 'correction']),
+  details: z.string().trim().min(10).max(3000),
+});
+
 const optionalTrimmedStringSchema = (maxLength: number, maxMessage: string) =>
   z.preprocess((value) => {
     if (typeof value !== 'string') {

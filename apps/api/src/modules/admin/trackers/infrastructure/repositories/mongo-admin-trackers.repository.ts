@@ -411,114 +411,143 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
   }
 
   async updateLifecycle(id: string, input: AdminTrackerLifecycleInput, actor: AdminActor) {
-    const tracker = await Tracker.findById(id).populate('ownerId', 'fullName username email').lean();
-    if (!tracker) return null;
-    const owner = tracker.ownerId as unknown as { _id?: unknown; fullName?: string; username?: string; email?: string };
-    const now = new Date();
-    const moderationStatus: AdminTrackerLifecycleResult['moderationStatus'] =
-      input.action === 'restore' ? 'active' : input.action === 'suspend' ? 'suspended' : 'deleted';
-    const affectedReporterIds =
-      input.action === 'restore'
-        ? []
-        : await TrackerReport.distinct('reporterId', {
-            trackerId: id,
-            status: { $in: ['open', 'reviewing'] },
-          });
-    const update =
-      input.action === 'restore'
-        ? {
-            moderationStatus,
-            moderatedBy: actor.userId,
-            suspendedAt: null,
-            deletedAt: null,
-          }
-        : {
-            moderationStatus,
-            moderationReason: input.reason,
-            moderationReasonCode: input.reasonCode,
-            moderatedBy: actor.userId,
-            suspendedAt: now,
-            deletedAt: input.action === 'delete' ? now : null,
-            visibility: 'private',
-            publishedAt: null,
-            allowClone: false,
-          };
-    await Tracker.updateOne(
-      { _id: id },
-      input.action === 'restore'
-        ? { $set: update, $unset: { moderationReason: 1, moderationReasonCode: 1 } }
-        : { $set: update }
-    );
-    if (input.action !== 'restore') {
-      await TrackerReport.updateMany(
-        { trackerId: id, status: { $in: ['open', 'reviewing'] } },
-        {
-          $set: {
-            status: 'resolved',
-            resolutionAction: input.action === 'delete' ? 'tracker_deleted' : 'tracker_suspended',
-            resolutionNote: input.reason,
-            resolvedBy: actor.userId,
-            resolvedAt: now,
-            assignedTo: null,
-          },
-        }
-      );
-      if (affectedReporterIds.length) {
-        await Notification.insertMany(
-          affectedReporterIds.map((reporterId) => ({
-            userId: reporterId,
-            type: 'tracker_report_resolved',
-            message: `A tracker you reported was ${moderationStatus}. The moderation note was: ${input.reason}`.slice(
-              0,
-              500
-            ),
-            deepLink: '/community',
-            metadata: {
-              trackerId: id,
-              moderationStatus,
-              reasonCode: input.reasonCode,
-            },
-          }))
+    const session = await mongoose.startSession();
+    let result: AdminTrackerLifecycleResult | null = null;
+    try {
+      await session.withTransaction(async () => {
+        const tracker = await Tracker.findById(id)
+          .session(session)
+          .populate('ownerId', 'fullName username email')
+          .lean();
+        if (!tracker) return;
+
+        const owner = tracker.ownerId as unknown as {
+          _id?: unknown;
+          fullName?: string;
+          username?: string;
+          email?: string;
+        };
+        const now = new Date();
+        const moderationStatus: AdminTrackerLifecycleResult['moderationStatus'] =
+          input.action === 'restore'
+            ? 'active'
+            : input.action === 'suspend'
+              ? 'suspended'
+              : 'deleted';
+        const affectedReporterIds =
+          input.action === 'restore'
+            ? []
+            : await TrackerReport.distinct('reporterId', {
+                trackerId: id,
+                status: { $in: ['open', 'reviewing'] },
+              }).session(session);
+        const update =
+          input.action === 'restore'
+            ? {
+                moderationStatus,
+                moderatedBy: actor.userId,
+                suspendedAt: null,
+                deletedAt: null,
+              }
+            : {
+                moderationStatus,
+                moderationReason: input.reason,
+                moderationReasonCode: input.reasonCode,
+                moderatedBy: actor.userId,
+                suspendedAt: now,
+                deletedAt: input.action === 'delete' ? now : null,
+                visibility: 'private',
+                publishedAt: null,
+                allowClone: false,
+              };
+        await Tracker.updateOne(
+          { _id: id },
+          input.action === 'restore'
+            ? { $set: update, $unset: { moderationReason: 1, moderationReasonCode: 1 } }
+            : { $set: update },
+          { session }
         );
-      }
+        if (input.action !== 'restore') {
+          await TrackerReport.updateMany(
+            { trackerId: id, status: { $in: ['open', 'reviewing'] } },
+            {
+              $set: {
+                status: 'resolved',
+                resolutionAction:
+                  input.action === 'delete' ? 'tracker_deleted' : 'tracker_suspended',
+                resolutionNote: input.reason,
+                resolvedBy: actor.userId,
+                resolvedAt: now,
+                assignedTo: null,
+              },
+            },
+            { session }
+          );
+          if (affectedReporterIds.length) {
+            await Notification.insertMany(
+              affectedReporterIds.map((reporterId) => ({
+                userId: reporterId,
+                type: 'tracker_report_resolved',
+                message: `A tracker you reported was ${moderationStatus}. The moderation note was: ${input.reason}`.slice(
+                  0,
+                  500
+                ),
+                deepLink: '/community',
+                metadata: { trackerId: id, moderationStatus, reasonCode: input.reasonCode },
+              })),
+              { session }
+            );
+          }
+        }
+        if (owner?._id) {
+          await Notification.create(
+            [
+              {
+                userId: new mongoose.Types.ObjectId(String(owner._id)),
+                type: 'tracker_moderation_updated',
+                message:
+                  input.action === 'restore'
+                    ? `Your tracker “${tracker.title}” was restored.`
+                    : `Your tracker “${tracker.title}” was ${moderationStatus}. Reason: ${input.reason}`.slice(
+                        0,
+                        500
+                      ),
+                deepLink: '/trackers',
+                metadata: { trackerId: id, moderationStatus, reasonCode: input.reasonCode },
+              },
+            ],
+            { session }
+          );
+        }
+        await recordAdminAction(
+          actor,
+          `admin_tracker_${input.action}d`,
+          'admin.trackers',
+          {
+            targetType: 'tracker',
+            targetId: id,
+            targetTitle: tracker.title,
+            reasonCode: input.reasonCode,
+            reason: input.reason,
+            previousStatus: tracker.moderationStatus ?? 'active',
+            moderationStatus,
+          },
+          session
+        );
+        result = {
+          id,
+          title: tracker.title,
+          owner: owner?.fullName ?? owner?.username ?? 'Unknown',
+          ...(owner?.email ? { ownerEmail: owner.email } : {}),
+          moderationStatus,
+          reason: input.reason,
+          updatedAt: now,
+        };
+      });
+      return result;
+    } finally {
+      await session.endSession();
     }
-    await Promise.all([
-      ...(owner?._id
-        ? [
-            Notification.create({
-              userId: new mongoose.Types.ObjectId(String(owner._id)),
-              type: 'tracker_moderation_updated',
-              message:
-                input.action === 'restore'
-                  ? `Your tracker “${tracker.title}” was restored.`
-                  : `Your tracker “${tracker.title}” was ${moderationStatus}. Reason: ${input.reason}`.slice(
-                      0,
-                      500
-                    ),
-              deepLink: '/trackers',
-              metadata: { trackerId: id, moderationStatus, reasonCode: input.reasonCode },
-            }),
-          ]
-        : []),
-      recordAdminAction(actor, `admin_tracker_${input.action}d`, 'admin.trackers', {
-        targetType: 'tracker',
-        targetId: id,
-        targetTitle: tracker.title,
-        reasonCode: input.reasonCode,
-        reason: input.reason,
-        previousStatus: tracker.moderationStatus ?? 'active',
-        moderationStatus,
-      }),
-    ]);
-    return {
-      id,
-      title: tracker.title,
-      owner: owner?.fullName ?? owner?.username ?? 'Unknown',
-      ...(owner?.email ? { ownerEmail: owner.email } : {}),
-      moderationStatus,
-      reason: input.reason,
-      updatedAt: now,
-    };
   }
   private async isPublishedTracker(id: string) {
     const tracker = await Tracker.exists({

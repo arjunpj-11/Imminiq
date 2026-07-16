@@ -1,10 +1,12 @@
 import type { MockTestAttemptEntity } from '../entities/mock-test-attempt.entity';
 import type { AttemptStatus } from '../value-objects/attempt-status.vo';
+import type { MockTestAttemptQuestionSnapshot } from '../entities/mock-test-attempt.entity';
 
 export type CreateMockTestAttemptInput = {
   testId: string;
   userId: string;
   totalQuestions: number;
+  questionSnapshot: MockTestAttemptQuestionSnapshot[];
 };
 
 export type FindMockTestAttemptsByUserInput = {

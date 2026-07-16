@@ -18,6 +18,7 @@ import {
   updateNotificationsSchema,
   updatePrivacySchema,
   updateQuietHoursSchema,
+  submitDataPrivacyRequestSchema,
 } from './settings.schema';
 
 export const createSettingsRoutes = (useCases: SettingsUseCases) => {
@@ -44,6 +45,17 @@ export const createSettingsRoutes = (useCases: SettingsUseCases) => {
     SETTINGS_ROUTE_PATHS.ACCOUNT,
     validate(updateAccountSettingsSchema),
     settingsController.updateAccountSettings
+  );
+
+  router.get(SETTINGS_ROUTE_PATHS.PRIVACY_REQUESTS, settingsController.listPrivacyRequests);
+  router.post(
+    SETTINGS_ROUTE_PATHS.PRIVACY_REQUESTS,
+    validate(submitDataPrivacyRequestSchema),
+    settingsController.submitPrivacyRequest
+  );
+  router.delete(
+    SETTINGS_ROUTE_PATHS.PRIVACY_REQUEST_DETAIL,
+    settingsController.cancelPrivacyRequest
   );
 
   router.patch(

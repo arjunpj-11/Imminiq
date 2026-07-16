@@ -18,6 +18,7 @@ import { UpdateNotificationsUseCase } from './application/use-cases/update-notif
 import { UpdatePrivacyUseCase } from './application/use-cases/update-privacy.usecase';
 import { UpdateQuietHoursUseCase } from './application/use-cases/update-quiet-hours.usecase';
 import { mongoSettingsRepository } from './infrastructure/repositories/internal/mongo-settings-user.repository';
+import { DataPrivacyRequestService } from './infrastructure/services/mongo-data-privacy-request.service';
 
 export type SettingsServiceHelpers = {
   settingsMapper: ISettingsMapper;
@@ -34,6 +35,7 @@ export const createSettingsComposition = (): SettingsComposition => {
 
   return {
     useCases: {
+      dataPrivacyRequests: new DataPrivacyRequestService(),
       getAllSettings: new GetAllSettingsUseCase(settingsRepository, settingsMapper),
 
       getAppearanceSettings: new GetAppearanceSettingsUseCase(settingsRepository, settingsMapper),

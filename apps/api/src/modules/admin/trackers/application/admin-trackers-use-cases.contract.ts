@@ -9,6 +9,8 @@ import type { IUpdateAdminTrackerLifecycleUseCase } from './use-cases/update-adm
 import type { AdminTrackerReviewsUseCases } from './admin-tracker-reviews';
 
 export type AdminTrackersUseCases = {
+  exports: import('../../shared/application').IAdminExportService;
+  contentAppeals: import('../../shared/application').IAdminContentAppealService;
   list: IListAdminTrackersUseCase;
   listPublished: IListAdminPublishedTrackersUseCase;
   likePublished: ILikeAdminPublishedTrackerUseCase;
@@ -18,4 +20,5 @@ export type AdminTrackersUseCases = {
   updateReport: IUpdateAdminTrackerReportUseCase;
   updateLifecycle: IUpdateAdminTrackerLifecycleUseCase;
   reviews: AdminTrackerReviewsUseCases;
+  versions: import('./admin-tracker-version.service').IAdminTrackerVersionService;
 };

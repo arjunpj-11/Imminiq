@@ -45,12 +45,15 @@ export default function AdminDashboardPage() {
                 { label: 'In review', value: data.metrics.reviewingQuestionReports, tone: 'warning' },
                 { label: 'Question SLA overdue', value: data.metrics.overdueQuestionReports, tone: 'error' },
                 { label: 'Tracker SLA overdue', value: data.metrics.overdueTrackerReports, tone: 'error' },
+                { label: 'Content appeals', value: data.metrics.pendingContentAppeals, tone: 'warning' },
+                { label: 'Privacy SLA overdue', value: data.metrics.overduePrivacyRequests, tone: 'error' },
               ]
             : [
                 { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
                 { label: 'Unverified users', value: data.metrics.unverifiedUsers, tone: 'warning' },
                 { label: 'Total trackers', value: data.metrics.totalTrackers, tone: 'info' },
                 { label: 'Blocked users', value: data.metrics.blockedUsers, tone: 'error' },
+                { label: 'Privacy requests', value: data.metrics.pendingPrivacyRequests, tone: 'warning' },
               ]
         }
       />

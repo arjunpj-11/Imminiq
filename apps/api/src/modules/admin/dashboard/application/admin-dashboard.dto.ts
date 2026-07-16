@@ -17,6 +17,9 @@ export interface AdminDashboardDTO {
     suspendedTrackers: number;
     overdueQuestionReports: number;
     overdueTrackerReports: number;
+    pendingContentAppeals: number;
+    pendingPrivacyRequests: number;
+    overduePrivacyRequests: number;
   };
   weeklyActivity: number[];
   recentActivity: Array<{

@@ -4,6 +4,8 @@ export const SETTINGS_ROUTE_PATHS = {
   APPEARANCE: '/appearance',
   NOTIFICATIONS: '/notifications',
   PRIVACY: '/privacy',
+  PRIVACY_REQUESTS: '/privacy/requests',
+  PRIVACY_REQUEST_DETAIL: '/privacy/requests/:requestId',
   GESTURES: '/gestures',
 
   ACCOUNT: '/account',

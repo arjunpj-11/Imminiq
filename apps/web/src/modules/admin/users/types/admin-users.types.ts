@@ -71,6 +71,18 @@ export type AdminUserAppealUpdatePayload = {
   notifyEmail: boolean;
   mfaCode?: string;
 };
+export type AdminPrivacyRequest = {
+  id: string; userId: string; userName: string; identifier: string;
+  type: 'access' | 'export' | 'delete' | 'correction'; details: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'rejected' | 'cancelled';
+  assignedTo?: string; resolutionNote?: string; downloadUrl?: string;
+  dueAt: string; completedAt?: string; createdAt: string; updatedAt: string;
+};
+export type AdminPrivacyRequestsData = {
+  items: AdminPrivacyRequest[];
+  stats: { pending: number; inProgress: number; completed: number; overdue: number };
+  pagination: { page: number; limit: number; total: number; pages: number };
+};
 export type AdminUserDetailData = {
   user: AdminUser;
   stats: { trackers: number; reports: number; trustScore: number; failedSecurityEvents: number };

@@ -3,11 +3,19 @@ import { MockTestModel } from '../infrastructure/database/models/mock-test.model
 import { MockTestQuestionIssueModel } from '../infrastructure/database/models/mock-test-question-issue.model';
 import { TrackerReport } from '../infrastructure/database/models/tracker-report.model';
 import { Tracker } from '../infrastructure/database/models/tracker.model';
+import { TrackerVersion } from '../infrastructure/database/models/tracker-version.model';
+import { MockTestQuestionVersionModel } from '../infrastructure/database/models/mock-test-question-version.model';
+import { ContentModerationAppeal } from '../infrastructure/database/models/content-moderation-appeal.model';
+import { DataPrivacyRequest } from '../infrastructure/database/models/data-privacy-request.model';
+import { AdminUserNote } from '../infrastructure/database/models/admin-user-note.model';
+import { MockTestAttemptModel } from '../infrastructure/database/models/mock-test-attempt.model';
+import { CommunityVerificationSubmission } from '../infrastructure/database/models/community-verification-submission.model';
+import { User } from '../infrastructure/database/models/user.model';
 
 const migrate = async () => {
   await connectDB();
 
-  const [mockTestBackfill, trackerBackfill] = await Promise.all([
+  const [mockTestBackfill, trackerBackfill, trackerVersionBackfill, userTagBackfill, voteBackfill] = await Promise.all([
     MockTestModel.updateMany(
       {
         $or: [{ moderationStatus: { $exists: false } }, { moderationStatus: null }],
@@ -20,6 +28,9 @@ const migrate = async () => {
       },
       { $set: { moderationStatus: 'active' } }
     ),
+    Tracker.updateMany({ $or: [{ version: { $exists: false } }, { version: null }] }, { $set: { version: 1 } }),
+    User.updateMany({ adminTags: { $exists: false } }, { $set: { adminTags: [] } }),
+    CommunityVerificationSubmission.updateMany({ adminVotes: { $exists: false } }, { $set: { adminVotes: [] } }),
   ]);
 
   await Promise.all([
@@ -27,10 +38,18 @@ const migrate = async () => {
     MockTestQuestionIssueModel.createIndexes(),
     Tracker.createIndexes(),
     TrackerReport.createIndexes(),
+    TrackerVersion.createIndexes(),
+    MockTestQuestionVersionModel.createIndexes(),
+    ContentModerationAppeal.createIndexes(),
+    DataPrivacyRequest.createIndexes(),
+    AdminUserNote.createIndexes(),
+    MockTestAttemptModel.createIndexes(),
+    CommunityVerificationSubmission.createIndexes(),
+    User.createIndexes(),
   ]);
 
   console.log(
-    `Admin moderation migration complete; ${mockTestBackfill.modifiedCount} mock tests and ${trackerBackfill.modifiedCount} trackers backfilled.`
+    `Admin moderation migration complete; ${mockTestBackfill.modifiedCount} mock tests, ${trackerBackfill.modifiedCount} tracker moderation states, ${trackerVersionBackfill.modifiedCount} tracker versions, ${userTagBackfill.modifiedCount} user tag arrays, and ${voteBackfill.modifiedCount} review vote arrays backfilled.`
   );
 };
 

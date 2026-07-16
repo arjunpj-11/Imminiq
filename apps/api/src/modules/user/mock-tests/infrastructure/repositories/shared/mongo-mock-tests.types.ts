@@ -46,6 +46,7 @@ export type RawMockTestQuestionDoc = {
   order?: number;
   points?: number;
   coding?: MockTestCodingDetails;
+  version?: number;
 };
 
 export type RawMockTestAttemptDoc = {
@@ -62,6 +63,20 @@ export type RawMockTestAttemptDoc = {
   flaggedQuestions?: unknown[];
   totalQuestions?: number;
   answeredQuestions?: number;
+  questionSnapshot?: Array<{
+    _id: string;
+    testId: string;
+    type: QuestionType;
+    question: string;
+    options?: string[];
+    correctAnswer?: string;
+    explanation?: string;
+    difficulty: DifficultyLevel;
+    order: number;
+    points: number;
+    coding?: MockTestCodingDetails;
+    version: number;
+  }>;
   createdAt?: Date;
 };
 

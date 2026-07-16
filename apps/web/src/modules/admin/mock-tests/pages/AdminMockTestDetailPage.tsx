@@ -1,4 +1,4 @@
-import { ArrowLeft, Braces, CheckCircle2, Eye, EyeOff, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { ArrowLeft, Braces, CheckCircle2, Eye, EyeOff, History, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -14,12 +14,15 @@ import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants
 import AdminMockTestModerationDialog from '../components/AdminMockTestModerationDialog';
 import type { AdminMockTestLifecyclePayload } from '../types/admin-mock-tests.types';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import AdminMockTestQuestionVersionsDialog from '../components/AdminMockTestQuestionVersionsDialog';
+import type { AdminMockTestQuestion } from '../types/admin-mock-tests.types';
 export default function AdminMockTestDetailPage() {
   const canManageLifecycle = useAuthStore((state) => state.user?.role !== 'moderator');
   const { testId } = useParams();
   const { data, isLoading, isError, error, refetch } = useAdminMockTestDetail(testId);
   const [moderating, setModerating] = useState<AdminMockTestLifecyclePayload['action'] | null>(null);
   const [learnerPreview, setLearnerPreview] = useState(false);
+  const [versionQuestion, setVersionQuestion] = useState<AdminMockTestQuestion | null>(null);
   if (isLoading) return <AdminLoading />;
   if (isError || !data) return <AdminError error={error} />;
   return (
@@ -59,6 +62,7 @@ export default function AdminMockTestDetailPage() {
           ['Time limit', `${data.timeLimitMinutes} min`],
           ['Passing score', `${data.passingScore}%`],
           ['Open reports', data.openReportCount],
+          ['Learner flags', data.flagCount],
           ['Active attempts', data.activeAttemptCount],
         ].map(([label, value]) => (
           <div key={label} className="rounded-xl border border-white/10 bg-[#1c1a18] p-5">
@@ -92,9 +96,15 @@ export default function AdminMockTestDetailPage() {
                         {question.openReportCount} open reports
                       </span>
                     )}
+                    {question.flagCount > 0 && (
+                      <span className="rounded-full bg-[#6aa9ff]/15 px-2 py-1 text-xs text-[#6aa9ff]">
+                        {question.flagCount} learner flags
+                      </span>
+                    )}
                     <AdminStatusBadge value={question.difficulty} />
                     <AdminStatusBadge value={question.moderationStatus} />
                     <span className="text-[10px] text-[#817c75]">v{question.version}</span>
+                    {!learnerPreview && <button type="button" className="admin-icon-button" aria-label={`View version history for question ${question.order}`} onClick={() => setVersionQuestion(question)}><History size={14} /></button>}
                   </div>
                 </div>
                 <h3 className="mt-3 font-semibold leading-6">{question.question}</h3>
@@ -138,11 +148,12 @@ export default function AdminMockTestDetailPage() {
                   </p>
                 )}
                 {question.moderationReason && <p className="mt-3 rounded-lg border border-[#f0a842]/20 bg-[#f0a842]/5 p-3 text-xs text-[#f0c060]"><strong>Moderation note:</strong> {question.moderationReason}</p>}
-                <div className="mt-4 grid gap-2 border-t border-white/10 pt-4 text-xs text-[#aaa59d] sm:grid-cols-4">
+                <div className="mt-4 grid gap-2 border-t border-white/10 pt-4 text-xs text-[#aaa59d] sm:grid-cols-5">
                   <span>{question.answerCount} answers</span>
                   <span>{Math.round(question.correctRate)}% correct</span>
                   <span>{Math.round(question.skipRate)}% skipped</span>
                   <span>{question.reportCount} total reports</span>
+                  <span>{question.flagCount} learner flags</span>
                 </div>
               </article>
             ))}
@@ -161,6 +172,11 @@ export default function AdminMockTestDetailPage() {
           setModerating(null);
           void refetch();
         }}
+      />
+      <AdminMockTestQuestionVersionsDialog
+        key={versionQuestion?.id ?? 'closed-question-versions'}
+        question={versionQuestion}
+        onClose={() => setVersionQuestion(null)}
       />
     </main>
   );

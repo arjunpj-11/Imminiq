@@ -9,11 +9,24 @@ import { MODERATION_APPEAL_ROUTE_PATHS } from './moderation-appeal.route.constan
 import {
   getModerationAppealStatusSchema,
   submitModerationAppealSchema,
+  submitContentModerationAppealSchema,
 } from './moderation-appeal.schema';
+import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 
 export const createModerationAppealRoutes = (useCases: ModerationAppealUseCases) => {
   const moderationAppealController = new ModerationAppealController(useCases);
   const router = Router();
+  router.get(
+    MODERATION_APPEAL_ROUTE_PATHS.CONTENT,
+    authenticate,
+    moderationAppealController.listContentAppeals
+  );
+  router.post(
+    MODERATION_APPEAL_ROUTE_PATHS.CONTENT,
+    authenticate,
+    validate(submitContentModerationAppealSchema),
+    moderationAppealController.submitContentAppeal
+  );
   router.use(moderationAppealIpLimiter, authenticateModerationAppeal);
 
   // ─── PUBLIC ──────────────────────────────────────────────────

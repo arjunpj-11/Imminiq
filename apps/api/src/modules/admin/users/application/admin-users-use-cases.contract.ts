@@ -8,6 +8,9 @@ import type { IRevokeAdminUserSessionUseCase } from './use-cases/revoke-admin-us
 import type { IUpdateAdminUserRoleUseCase } from './use-cases/update-admin-user-role.usecase';
 
 export type AdminUsersUseCases = {
+  notes: import('./admin-user-notes.service').IAdminUserNotesService;
+  exports: import('../../shared/application').IAdminExportService;
+  privacyRequests: import('./admin-data-privacy-request.service').IAdminDataPrivacyRequestService;
   list: IListAdminUsersUseCase;
   getDetail: IGetAdminUserDetailUseCase;
   setStatus: ISetAdminUserStatusUseCase;

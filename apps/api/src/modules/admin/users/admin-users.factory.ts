@@ -10,12 +10,18 @@ import { ListAdminUserAppealsUseCase } from './application/use-cases/list-admin-
 import { UpdateAdminUserAppealUseCase } from './application/use-cases/update-admin-user-appeal.usecase';
 import { RevokeAdminUserSessionUseCase } from './application/use-cases/revoke-admin-user-session.usecase';
 import { UpdateAdminUserRoleUseCase } from './application/use-cases/update-admin-user-role.usecase';
+import { AdminDataPrivacyRequestService } from './infrastructure/services/mongo-admin-data-privacy-request.service';
+import { AdminExportService } from './infrastructure';
+import { AdminUserNotesService } from './infrastructure/services/mongo-admin-user-notes.service';
 
 export type AdminUsersComposition = { useCases: AdminUsersUseCases };
 export const createAdminUsersComposition = (): AdminUsersComposition => {
   const mapper = new AdminUsersMapper();
   return {
     useCases: {
+      notes: new AdminUserNotesService(),
+      exports: new AdminExportService(),
+      privacyRequests: new AdminDataPrivacyRequestService(),
       list: new ListAdminUsersUseCase(mongoAdminUsersRepository, mapper),
       getDetail: new GetAdminUserDetailUseCase(mongoAdminUsersRepository, mapper),
       setStatus: new SetAdminUserStatusUseCase(

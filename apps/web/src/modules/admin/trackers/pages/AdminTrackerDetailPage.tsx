@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ArrowLeft, Clock3, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { ArrowLeft, Clock3, History, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
 import { Link, useLocation, useParams } from 'react-router-dom';
 import {
   AdminEmpty,
@@ -14,9 +14,11 @@ import type { AdminTrackerLifecyclePayload, AdminTrackerSubtopic } from '../type
 import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 import AdminTrackerModerationDialog from '../components/AdminTrackerModerationDialog';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import AdminTrackerVersionsDialog from '../components/AdminTrackerVersionsDialog';
 
 export default function AdminTrackerDetailPage() {
   const [moderating, setModerating] = useState<AdminTrackerLifecyclePayload['action'] | null>(null);
+  const [versionsOpen, setVersionsOpen] = useState(false);
   const canManageLifecycle = useAuthStore((state) => state.user?.role !== 'moderator');
   const { trackerId } = useParams();
   const location = useLocation();
@@ -43,6 +45,7 @@ export default function AdminTrackerDetailPage() {
             <AdminStatusBadge value={data.status} />
             <AdminStatusBadge value={data.visibility} />
             <AdminStatusBadge value={data.moderationStatus} />
+            <button type="button" onClick={() => setVersionsOpen(true)} className="admin-button inline-flex items-center gap-2"><History size={15}/> History</button>
             {canManageLifecycle && data.moderationStatus === 'active' && <button type="button" onClick={() => setModerating('suspend')} className="admin-button inline-flex items-center gap-2 text-[#f0a842]"><ShieldAlert size={15} /> Suspend</button>}
             {canManageLifecycle && data.moderationStatus !== 'deleted' && <button type="button" onClick={() => setModerating('delete')} className="admin-button inline-flex items-center gap-2 text-[#e26767]"><Trash2 size={15} /> Delete</button>}
             {canManageLifecycle && data.moderationStatus !== 'active' && <button type="button" onClick={() => setModerating('restore')} className="admin-button inline-flex items-center gap-2 text-[#52c58c]"><RotateCcw size={15} /> Restore</button>}
@@ -104,6 +107,7 @@ export default function AdminTrackerDetailPage() {
         onClose={() => setModerating(null)}
         onComplete={() => { setModerating(null); void refetch(); }}
       />
+      <AdminTrackerVersionsDialog trackerId={versionsOpen ? data.id : null} onClose={() => setVersionsOpen(false)} />
     </main>
   );
 }

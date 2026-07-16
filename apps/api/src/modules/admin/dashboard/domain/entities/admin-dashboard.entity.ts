@@ -14,6 +14,9 @@ export type AdminDashboardMetrics = {
   suspendedTrackers: number;
   overdueQuestionReports: number;
   overdueTrackerReports: number;
+  pendingContentAppeals: number;
+  pendingPrivacyRequests: number;
+  overduePrivacyRequests: number;
 };
 
 export type AdminDashboardActivity = {

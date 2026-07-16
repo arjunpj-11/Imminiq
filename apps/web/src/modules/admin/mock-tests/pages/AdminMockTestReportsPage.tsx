@@ -10,6 +10,7 @@ import {
   AdminPageHeader,
   AdminPanel,
   AdminStatusBadge,
+  AdminContentAppealsPanel,
 } from '../../shared';
 import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants';
 import { useAdminMockTestReports } from '../hooks/useAdminMockTestReports';
@@ -128,6 +129,7 @@ export default function AdminMockTestReportsPage() {
         issue={selected}
         onClose={() => setSelected(null)}
       />
+      <AdminContentAppealsPanel kind="mock-tests" />
     </main>
   );
 }
@@ -149,6 +151,19 @@ function ReportReviewDialog({
   const [correctedExplanation, setCorrectedExplanation] = useState(
     issue?.questionExplanation ?? ''
   );
+  const [correctedOptions, setCorrectedOptions] = useState(
+    (issue?.questionOptions ?? []).join('\n')
+  );
+  const [correctedDifficulty, setCorrectedDifficulty] = useState<'easy' | 'medium' | 'hard'>(
+    issue?.questionDifficulty === 'hard' || issue?.questionDifficulty === 'medium'
+      ? issue.questionDifficulty
+      : 'easy'
+  );
+  const [correctedPoints, setCorrectedPoints] = useState(issue?.questionPoints ?? 1);
+  const [correctedCoding, setCorrectedCoding] = useState(
+    issue?.questionCoding ? JSON.stringify(issue.questionCoding, null, 2) : ''
+  );
+  const [correctionError, setCorrectionError] = useState('');
   const [mfaCode, setMfaCode] = useState('');
   const submit = () => {
     if (
@@ -156,6 +171,17 @@ function ReportReviewDialog({
       resolutionNote.trim().length < 10 ||
       (resolutionAction === 'question_corrected' && correctedQuestion.trim().length < 10)
     ) return;
+    let coding: Record<string, unknown> | undefined;
+    if (resolutionAction === 'question_corrected' && issue.questionType === 'coding' && correctedCoding.trim()) {
+      try {
+        coding = JSON.parse(correctedCoding) as Record<string, unknown>;
+        setCorrectionError('');
+      } catch {
+        setCorrectionError('Coding configuration must be valid JSON.');
+        return;
+      }
+    }
+    const options = correctedOptions.split('\n').map((value) => value.trim()).filter(Boolean);
     update.mutate(
       {
         id: issue.id,
@@ -169,6 +195,10 @@ function ReportReviewDialog({
                 correctedQuestion: correctedQuestion.trim(),
                 correctedAnswer: correctedAnswer.trim(),
                 correctedExplanation: correctedExplanation.trim(),
+                ...(options.length ? { correctedOptions: options } : {}),
+                correctedDifficulty,
+                correctedPoints,
+                ...(coding ? { correctedCoding: coding } : {}),
               }
             : {}),
         },
@@ -212,6 +242,10 @@ function ReportReviewDialog({
           <label className="admin-field"><span>Corrected question</span><textarea rows={4} maxLength={5000} value={correctedQuestion} onChange={(event) => setCorrectedQuestion(event.target.value)} /></label>
           <label className="admin-field"><span>Corrected answer (optional)</span><textarea rows={2} maxLength={5000} value={correctedAnswer} onChange={(event) => setCorrectedAnswer(event.target.value)} /></label>
           <label className="admin-field"><span>Corrected explanation (optional)</span><textarea rows={3} maxLength={5000} value={correctedExplanation} onChange={(event) => setCorrectedExplanation(event.target.value)} /></label>
+          {issue?.questionType === 'mcq' && <label className="admin-field"><span>Options (one per line)</span><textarea rows={5} value={correctedOptions} onChange={(event) => setCorrectedOptions(event.target.value)} /></label>}
+          <div className="grid gap-4 sm:grid-cols-2"><label className="admin-field"><span>Difficulty</span><select value={correctedDifficulty} onChange={(event) => setCorrectedDifficulty(event.target.value as 'easy' | 'medium' | 'hard')}><option value="easy">Easy</option><option value="medium">Medium</option><option value="hard">Hard</option></select></label><label className="admin-field"><span>Points</span><input type="number" min={1} max={100} value={correctedPoints} onChange={(event) => setCorrectedPoints(Math.max(1, Math.min(100, Number(event.target.value) || 1)))} /></label></div>
+          {issue?.questionType === 'coding' && <label className="admin-field"><span>Coding configuration (JSON)</span><textarea rows={10} className="font-mono text-xs" value={correctedCoding} onChange={(event) => setCorrectedCoding(event.target.value)} /></label>}
+          {correctionError && <p className="text-sm text-[#e26767]">{correctionError}</p>}
         </div>
       )}
       {status !== 'reviewing' && ['question_disabled', 'test_suspended', 'test_deleted'].includes(resolutionAction) && (

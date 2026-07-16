@@ -26,6 +26,7 @@ import AdminUserSessionDialog from '../components/AdminUserSessionDialog';
 import AdminUserRoleDialog from '../components/AdminUserRoleDialog';
 import type { AdminUserDetailData } from '../types/admin-users.types';
 import { useAuthStore } from '../../../../store/useAuthStore';
+import AdminUserNotesPanel from '../components/AdminUserNotesPanel';
 
 type UserStatusAction = 'suspend' | 'block' | 'restore';
 
@@ -177,6 +178,7 @@ export default function AdminUserDetailPage() {
       </section>
       <section className="mt-7 grid items-start gap-6 lg:grid-cols-[1.55fr_1fr]">
         <div className="space-y-6">
+          <AdminUserNotesPanel userId={user._id} />
           <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6">
             <div className="flex items-center justify-between">
               <h2 className="font-editorial text-2xl font-bold">Recent Activity Timeline</h2>

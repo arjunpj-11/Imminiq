@@ -12,6 +12,8 @@ export const ADMIN_TRACKERS_ENDPOINTS = {
   lifecycle: (trackerId: string) => `/admin/trackers/${trackerId}/lifecycle`,
   likePublished: (trackerId: string) => `/admin/trackers/published/${trackerId}/like`,
   ratePublished: (trackerId: string) => `/admin/trackers/published/${trackerId}/rating`,
+  versions: (trackerId: string) => `/admin/trackers/${trackerId}/versions`,
+  restoreVersion: (trackerId: string, version: number) => `/admin/trackers/${trackerId}/versions/${version}/restore`,
 } as const;
 
 export const ADMIN_TRACKERS_ROUTES = {

@@ -111,3 +111,4 @@ export type AdminTrackerReportUpdatePayload = {
   resolutionNote: string;
   mfaCode?: string;
 };
+export type AdminTrackerVersion = { id: string; trackerId: string; version: number; snapshot: Record<string, unknown>; changedBy: string; reason: string; createdAt: string };

@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { CommunityVerificationSubmission } from '../../../../../infrastructure/database/models/community-verification-submission.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
 import type { AdminActor, AdminListQuery } from '../../../shared/domain';
@@ -25,28 +26,83 @@ export class MongoAdminTrackerReviewsRepository implements IAdminTrackerReviewsR
   }
 
   async addConsensusVote(id: string, choice: AdminTrackerReviewConsensusChoice, actor: AdminActor) {
-    const voteField = choice === 'pass' ? 'passVotes' : 'failVotes';
-    const review = await CommunityVerificationSubmission.findOneAndUpdate({ _id: id, deletedAt: null, status: 'open' }, { $inc: { [voteField]: 1 } }, { returnDocument: 'after' }).lean();
-    if (!review) {
-      const exists = await CommunityVerificationSubmission.exists({ _id: id, deletedAt: null });
-      return exists ? { kind: 'not_open' as const } : { kind: 'not_found' as const };
+    const session = await mongoose.startSession();
+    try {
+      let response:
+        | { kind: 'success'; value: { id: string; passVotes: number; failVotes: number } }
+        | { kind: 'not_open' }
+        | { kind: 'not_found' } = { kind: 'not_found' };
+      await session.withTransaction(async () => {
+        const review = await CommunityVerificationSubmission.findOne({ _id: id, deletedAt: null })
+          .session(session);
+        if (!review) return;
+        if (review.status !== 'open') {
+          response = { kind: 'not_open' };
+          return;
+        }
+        const existing = review.adminVotes.find(
+          (vote: { userId: unknown }) => String(vote.userId) === actor.userId
+        );
+        if (existing?.choice === choice) {
+          response = {
+            kind: 'success',
+            value: { id, passVotes: review.passVotes, failVotes: review.failVotes },
+          };
+          return;
+        }
+        if (existing) {
+          if (existing.choice === 'pass') review.passVotes = Math.max(0, review.passVotes - 1);
+          else review.failVotes = Math.max(0, review.failVotes - 1);
+          existing.choice = choice;
+          existing.votedAt = new Date();
+        } else {
+          review.adminVotes.push({ userId: new mongoose.Types.ObjectId(actor.userId), choice, votedAt: new Date() });
+        }
+        if (choice === 'pass') review.passVotes += 1;
+        else review.failVotes += 1;
+        review.progress = Math.min(
+          100,
+          Math.round(((review.passVotes + review.failVotes) / review.requiredVotes) * 100)
+        );
+        await review.save({ session });
+        await recordAdminAction(
+          actor,
+          existing ? 'admin_tracker_review_consensus_vote_changed' : 'admin_tracker_review_consensus_vote_added',
+          'admin.trackers',
+          { reviewId: id, trackerId: String(review.trackerId), choice, passVotes: review.passVotes, failVotes: review.failVotes },
+          session
+        );
+        response = { kind: 'success', value: { id, passVotes: review.passVotes, failVotes: review.failVotes } };
+      });
+      return response;
+    } finally {
+      await session.endSession();
     }
-    const progress = Math.min(100, Math.round(((review.passVotes + review.failVotes) / review.requiredVotes) * 100));
-    await Promise.all([
-      CommunityVerificationSubmission.updateOne({ _id: id }, { $set: { progress } }),
-      recordAdminAction(actor, 'admin_tracker_review_consensus_vote_added', 'admin.trackers', { reviewId: id, trackerId: String(review.trackerId), choice, passVotes: review.passVotes, failVotes: review.failVotes }),
-    ]);
-    return { kind: 'success' as const, value: { id, passVotes: review.passVotes, failVotes: review.failVotes } };
   }
 
   async resolve(id: string, status: string, actor: AdminActor) {
-    const review = await CommunityVerificationSubmission.findOneAndUpdate({ _id: id, deletedAt: null }, { $set: { status, consensusChoice: status === 'approved' ? 'pass' : 'fail' } }, { returnDocument: 'after' }).lean();
-    if (!review) return null;
-    await Promise.all([
-      Tracker.updateOne({ _id: review.trackerId }, { $set: { verificationStatus: status === 'approved' ? 'verified' : 'rejected', verifiedAt: status === 'approved' ? new Date() : null } }),
-      recordAdminAction(actor, 'admin_tracker_review_resolved', 'admin.trackers', { reviewId: id, status, trackerId: String(review.trackerId) }),
-    ]);
-    return { id, status: review.status };
+    const session = await mongoose.startSession();
+    try {
+      let result: { id: string; status: string } | null = null;
+      await session.withTransaction(async () => {
+        const review = await CommunityVerificationSubmission.findOneAndUpdate(
+          { _id: id, deletedAt: null, status: 'open' },
+          { $set: { status, consensusChoice: status === 'approved' ? 'pass' : 'fail' } },
+          { returnDocument: 'after', session }
+        );
+        if (!review) return;
+        await Tracker.updateOne(
+          { _id: review.trackerId },
+          { $set: { verificationStatus: status === 'approved' ? 'verified' : 'rejected', verifiedAt: status === 'approved' ? new Date() : null } },
+          { session }
+        );
+        await recordAdminAction(actor, 'admin_tracker_review_resolved', 'admin.trackers', { reviewId: id, status, trackerId: String(review.trackerId) }, session);
+        result = { id, status: review.status };
+      });
+      return result;
+    } finally {
+      await session.endSession();
+    }
   }
 }
 

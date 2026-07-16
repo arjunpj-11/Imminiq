@@ -6,6 +6,7 @@ import type { ReactNode } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import { ContentModerationAppealPanel } from '../../../../components/moderation/ContentModerationAppealPanel';
 
 import { useMockTestDetails, useStartMockTestAttempt } from '../hooks/useMockTests';
 
@@ -153,6 +154,8 @@ export default function MockTestDetailsPage() {
               : 'Start test'}
         </button>
       </section>
+
+      {isUnavailable && <ContentModerationAppealPanel targetType="mock_test" targetId={testId} />}
 
       {/* ── question preview list ── */}
       <section className="space-y-3">

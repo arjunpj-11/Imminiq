@@ -4,6 +4,7 @@ import type { IMockTestQuestionRepository } from '../../domain/repositories/mock
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface';
 import type { AttemptAnalysisDTO } from '../mock-tests.dto';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
+import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type GetAttemptAnalysisRepository = IMockTestAttemptRepository &
   IMockTestAnswerRepository &
@@ -43,6 +44,7 @@ export class GetAttemptAnalysisUseCase implements IGetAttemptAnalysisUseCase {
       this._repository.findQuestionsByTest(attempt.testId),
     ]);
 
+    const attemptQuestions = attemptQuestionSnapshotService.all(attempt, questions);
     const answerMap = new Map(answers.map((answer) => [answer.questionId, answer]));
 
     return {
@@ -52,7 +54,7 @@ export class GetAttemptAnalysisUseCase implements IGetAttemptAnalysisUseCase {
       strongTopics: report.strongTopics,
       weakTopics: report.weakTopics,
       recommendations: report.recommendations,
-      questionBreakdown: questions.map((question) => {
+      questionBreakdown: attemptQuestions.map((question) => {
         const answer = answerMap.get(question._id);
 
         return {

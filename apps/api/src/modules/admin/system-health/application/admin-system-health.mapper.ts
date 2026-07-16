@@ -15,6 +15,8 @@ export class AdminSystemHealthMapper implements IAdminSystemHealthMapper {
         redis: { ...entity.services.redis },
       },
       memory: { ...entity.memory },
+      queues: entity.queues.map((queue) => ({ ...queue })),
+      alerts: entity.alerts.map((alert) => ({ ...alert })),
     };
   }
 }

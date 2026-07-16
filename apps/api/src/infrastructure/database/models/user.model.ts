@@ -19,6 +19,7 @@ export interface IUserDocument extends Document {
   adminStatusReasonCode?: string | null;
   adminStatusChangedAt?: Date | null;
   adminStatusChangedBy?: mongoose.Types.ObjectId | null;
+  adminTags?: string[];
 
   emailVerified: boolean;
   phoneVerified: boolean;
@@ -156,6 +157,7 @@ const userSchema = new Schema<IUserDocument>(
 
     adminStatusReason: { type: String, trim: true, maxlength: 1000, default: null },
     adminStatusReasonCode: { type: String, trim: true, maxlength: 80, default: null },
+    adminTags: { type: [String], default: [], select: false },
     adminStatusChangedAt: { type: Date, default: null },
     adminStatusChangedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
 

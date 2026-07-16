@@ -6,6 +6,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
+import { ContentModerationAppealPanel } from '../../../../components/moderation/ContentModerationAppealPanel';
 import { useUnsavedChangesGuard } from '../../../../hooks/useUnsavedChangesGuard';
 import SubtopicTreeNode from '../components/manage/SubtopicTreeNode';
 import {
@@ -552,6 +553,9 @@ export default function TrackerManagePage() {
             </div>
           </div>
         </section>
+        {tracker.moderationStatus && tracker.moderationStatus !== 'active' && trackerId && (
+          <ContentModerationAppealPanel targetType="tracker" targetId={trackerId} />
+        )}
 
         {(statusMessage || errorMessage) && (
           <div

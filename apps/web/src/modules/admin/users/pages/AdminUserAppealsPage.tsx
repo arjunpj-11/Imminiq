@@ -20,6 +20,7 @@ import type {
   AdminUserAppeal,
   AdminUserAppealUpdatePayload,
 } from '../types/admin-users.types';
+import { AdminPrivacyRequestsPanel } from '../components/AdminPrivacyRequestsPanel';
 
 export default function AdminUserAppealsPage() {
   const [search, setSearch] = useState('');
@@ -110,6 +111,7 @@ export default function AdminUserAppealsPage() {
         )}
       </AdminPanel>
       <AppealDecisionDialog key={selected?.id ?? 'closed'} appeal={selected} onClose={() => setSelected(null)} />
+      <AdminPrivacyRequestsPanel />
     </main>
   );
 }

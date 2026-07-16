@@ -59,6 +59,7 @@ export interface ITrackerDocument extends Document {
 
   createdAt: Date;
   updatedAt: Date;
+  version: number;
 }
 
 const trackerSchema = new Schema<ITrackerDocument>(
@@ -144,6 +145,7 @@ const trackerSchema = new Schema<ITrackerDocument>(
       enum: ['draft', 'active', 'archived'],
       default: 'draft',
     },
+    version: { type: Number, default: 1, min: 1 },
 
     verificationStatus: {
       type: String,

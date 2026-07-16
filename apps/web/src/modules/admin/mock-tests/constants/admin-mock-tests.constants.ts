@@ -6,6 +6,9 @@ export const ADMIN_MOCK_TESTS_ENDPOINTS = {
   reports: '/admin/mock-tests/issues',
   report: (issueId: string) => `/admin/mock-tests/issues/${issueId}`,
   lifecycle: (testId: string) => `/admin/mock-tests/${testId}/lifecycle`,
+  questionVersions: (questionId: string) => `/admin/mock-tests/questions/${questionId}/versions`,
+  restoreQuestionVersion: (questionId: string, version: number) =>
+    `/admin/mock-tests/questions/${questionId}/versions/${version}/restore`,
 } as const;
 
 export const ADMIN_MOCK_TESTS_ROUTES = {

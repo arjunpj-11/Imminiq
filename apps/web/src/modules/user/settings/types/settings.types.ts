@@ -316,3 +316,15 @@ export interface IDisableTwoFactorPayload {
 export interface IDisableTwoFactorResponse {
   disabled: boolean;
 }
+export type DataPrivacyRequest = {
+  id: string;
+  type: 'access' | 'export' | 'delete' | 'correction';
+  details: string;
+  status: 'pending' | 'in_progress' | 'completed' | 'rejected' | 'cancelled';
+  resolutionNote?: string;
+  downloadUrl?: string;
+  dueAt: string;
+  completedAt?: string;
+  createdAt: string;
+  updatedAt: string;
+};

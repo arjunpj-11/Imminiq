@@ -15,7 +15,8 @@ import {
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
-import { AdminError } from '../../shared';
+import { AdminBulkActionBar, AdminError } from '../../shared';
+import { downloadServerCsv } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminUsers } from '../hooks/useAdminUsers';
 import {
@@ -30,6 +31,7 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof ADMIN_USER_FILTERS)[number]>('all');
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
   const debouncedSearch = useDebouncedValue(search, ADMIN_USERS_SEARCH_DEBOUNCE_MS);
   const { data, isLoading, isError, error, isFetching } = useAdminUsers({
     search: debouncedSearch,
@@ -45,30 +47,7 @@ export default function AdminUsersPage() {
         { label: 'Unverified', value: data.stats.unverified, icon: UserCog, color: '#6aa9ff' },
       ]
     : [];
-  const exportCurrentView = () => {
-    if (!data?.users.length) return;
-    const escape = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`;
-    const rows = [
-      ['ID', 'Name', 'Username', 'Email or phone', 'Role', 'Status', 'Verified', 'Created', 'Last active'],
-      ...data.users.map((user) => [
-        user._id,
-        user.fullName,
-        user.username,
-        user.email ?? user.phone ?? '',
-        user.role,
-        user.status,
-        user.emailVerified || user.phoneVerified ? 'yes' : 'no',
-        user.createdAt,
-        user.lastActiveAt,
-      ]),
-    ];
-    const url = URL.createObjectURL(new Blob([rows.map((row) => row.map(escape).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = `imminiq-users-${status}-page-${page}.csv`;
-    anchor.click();
-    URL.revokeObjectURL(url);
-  };
+  const exportCurrentView = () => void downloadServerCsv('/admin/users/export.csv', `imminiq-users-${status}.csv`, { search: debouncedSearch, status });
 
   return (
     <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
@@ -80,7 +59,7 @@ export default function AdminUsersPage() {
           <h1 className="font-editorial mt-1 text-4xl font-bold">User Management</h1>
         </div>
         <div className="flex flex-1 items-center justify-end gap-3">
-        <button type="button" onClick={exportCurrentView} disabled={!data?.users.length} className="admin-button inline-flex items-center gap-2 disabled:opacity-40"><Download size={16} /> Export CSV</button>
+        <button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button>
         <Link to={ADMIN_USERS_ROUTES.appeals} className="admin-button inline-flex items-center gap-2"><Scale size={16} /> Account appeals</Link>
         <label className="flex min-w-[280px] flex-1 items-center gap-3 rounded-full border border-[rgba(255,255,255,0.16)] bg-[#24211e] px-5 py-3 md:max-w-[390px]">
           <Search size={18} />
@@ -132,6 +111,7 @@ export default function AdminUsersPage() {
             ))}
           </div>
         </div>
+        <div className="px-6 pt-4"><AdminBulkActionBar kind="users" selected={selected} onClear={() => setSelected([])} /></div>
         {isLoading && <div className="p-10 text-center text-sm text-[#aaa59d]">Loading users…</div>}
         {!isLoading && isFetching && (
           <div className="h-px animate-pulse bg-[#e8816a]" aria-label="Refreshing users" />
@@ -143,6 +123,7 @@ export default function AdminUsersPage() {
               <table className="w-full min-w-[850px] text-left">
                 <thead className="border-b border-[rgba(255,255,255,0.16)] bg-[#141412] text-[9px] uppercase tracking-wider text-[#aaa59d]">
                   <tr>
+                    <th className="px-6 py-4"><input aria-label="Select visible users" type="checkbox" checked={Boolean(data.users.length) && data.users.every((item) => selected.includes(item._id))} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...data.users.map((item) => item._id)])) : selected.filter((id) => !data.users.some((item) => item._id === id)))} /></th>
                     <th className="px-6 py-4">User</th>
                     <th className="px-6 py-4">Role</th>
                     <th className="px-6 py-4">Email</th>
@@ -157,6 +138,7 @@ export default function AdminUsersPage() {
                       key={user._id}
                       className={`border-t border-[rgba(255,255,255,0.09)] text-sm ${user.status === 'blocked' ? 'bg-[rgba(226,103,103,0.08)]' : user.status === 'paused' ? 'bg-[rgba(240,168,66,0.06)]' : ''}`}
                     >
+                      <td className="px-6 py-4"><input aria-label={`Select ${user.fullName}`} type="checkbox" checked={selected.includes(user._id)} onChange={(event) => setSelected(event.target.checked ? [...selected, user._id] : selected.filter((id) => id !== user._id))} /></td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {user.avatarUrl ? (

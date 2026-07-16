@@ -1,8 +1,14 @@
 export const ADMIN_MOCK_TESTS_ROUTE_PATHS = {
   ROOT: '/',
+  EXPORT: '/export.csv',
+  BULK_LIFECYCLE: '/bulk/lifecycle',
   ISSUES: '/issues',
   ISSUE_DETAIL: '/issues/:issueId',
+  APPEALS: '/appeals',
+  APPEAL_DETAIL: '/appeals/:appealId',
   LIFECYCLE: '/:id/lifecycle',
+  QUESTION_VERSIONS: '/questions/:questionId/versions',
+  QUESTION_VERSION_RESTORE: '/questions/:questionId/versions/:version/restore',
   DETAIL: '/:id',
 } as const;
 

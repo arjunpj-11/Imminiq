@@ -10,6 +10,8 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
+  downloadServerCsv,
+  AdminBulkActionBar,
 } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminTrackers } from '../hooks/useAdminTrackers';
@@ -30,18 +32,13 @@ export default function AdminTrackersPage() {
   const requestedStatus = searchParams.get('status') ?? 'all';
   const status = trackerStatusFilters.has(requestedStatus) ? requestedStatus : 'all';
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
   const { data, isLoading, isError, error } = useAdminTrackers({
     search: useDebouncedValue(search, 300),
     status,
     page,
   });
-  const exportCurrentView = () => {
-    if (!data?.items.length) return;
-    const escape = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`;
-    const rows = [['ID', 'Title', 'Owner', 'Category', 'Level', 'Visibility', 'Status', 'Moderation', 'Open reports', 'Topics'], ...data.items.map((item) => [item.id, item.title, item.owner, item.category, item.level, item.visibility, item.status, item.moderationStatus, item.openReportCount, item.topicsCount])];
-    const url = URL.createObjectURL(new Blob([rows.map((row) => row.map(escape).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
-    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `imminiq-trackers-${status}-page-${page}.csv`; anchor.click(); URL.revokeObjectURL(url);
-  };
+  const exportCurrentView = () => void downloadServerCsv('/admin/trackers/export.csv', `imminiq-trackers-${status}.csv`, { search, status });
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
@@ -49,7 +46,7 @@ export default function AdminTrackersPage() {
         description="Inspect learning structures, review community reports, and manage tracker access with documented reasons."
         action={
           <div className="flex flex-wrap gap-2">
-            <button type="button" onClick={exportCurrentView} disabled={!data?.items.length} className="admin-button inline-flex items-center gap-2 disabled:opacity-40"><Download size={16} /> Export CSV</button>
+            <button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button>
             <Link to={ADMIN_TRACKERS_ROUTES.reports} className="admin-button inline-flex items-center gap-2"><Flag size={16} /> Tracker reports</Link>
             <Link to={ADMIN_TRACKERS_ROUTES.reviews} className="admin-button inline-flex items-center gap-2"><FileBarChart size={16} /> Community reviews</Link>
             <Link
@@ -100,6 +97,7 @@ export default function AdminTrackersPage() {
           </div>
         }
       >
+        <div className="px-5 pt-4"><AdminBulkActionBar kind="trackers" selected={selected} onClear={() => setSelected([])} /></div>
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
@@ -112,6 +110,7 @@ export default function AdminTrackersPage() {
               <table className="admin-table w-full min-w-225 text-left text-sm">
                 <thead>
                   <tr>
+                    <th><input aria-label="Select visible trackers" type="checkbox" checked={data.items.every((item) => selected.includes(item.id))} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...data.items.map((item) => item.id)])) : selected.filter((id) => !data.items.some((item) => item.id === id)))} /></th>
                     <th>Tracker</th>
                     <th>Owner</th>
                     <th>Category</th>
@@ -126,6 +125,7 @@ export default function AdminTrackersPage() {
                 <tbody>
                   {data.items.map((item) => (
                     <tr key={item.id}>
+                      <td><input aria-label={`Select ${item.title}`} type="checkbox" checked={selected.includes(item.id)} onChange={(event) => setSelected(event.target.checked ? [...selected, item.id] : selected.filter((id) => id !== item.id))} /></td>
                       <td>
                         <div className="font-semibold">{item.title}</div>
                         <div className="text-xs text-[#817c75]">{item.level}</div>

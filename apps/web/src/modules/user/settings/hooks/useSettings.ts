@@ -19,6 +19,7 @@ import type {
   IUpdatePrivacyPayload,
   IUpdateQuietHoursPayload,
   IUserSettings,
+  DataPrivacyRequest,
 } from '../types/settings.types';
 
 const unwrap = <T>(response: { data: IApiEnvelope<T> }) => {
@@ -84,6 +85,30 @@ export const usePrivacySettings = () =>
       return unwrap(response);
     },
   });
+
+export const useDataPrivacyRequests = () =>
+  useQuery({
+    queryKey: settingsKeys.privacyRequests(),
+    queryFn: async () => unwrap((await api.get<IApiEnvelope<DataPrivacyRequest[]>>(SETTINGS_API_PATHS.privacyRequests))),
+  });
+
+export const useSubmitDataPrivacyRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { type: DataPrivacyRequest['type']; details: string }) =>
+      unwrap(await api.post<IApiEnvelope<DataPrivacyRequest>>(SETTINGS_API_PATHS.privacyRequests, payload)),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: settingsKeys.privacyRequests() }),
+  });
+};
+
+export const useCancelDataPrivacyRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (requestId: string) =>
+      unwrap(await api.delete<IApiEnvelope<DataPrivacyRequest>>(SETTINGS_API_PATHS.privacyRequest(requestId))),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: settingsKeys.privacyRequests() }),
+  });
+};
 
 export const useGestureSettings = () =>
   useQuery({

@@ -11,7 +11,15 @@ import {
 } from '../components/SettingsUi';
 import { useSettingsToast } from '../hooks/useSettingsToast';
 import { useUnsavedChangesGuard } from '../hooks/useUnsavedChangesGuard';
-import { usePrivacySettings, useResetSettings, useUpdatePrivacy } from '../hooks/useSettings';
+import {
+  useCancelDataPrivacyRequest,
+  useDataPrivacyRequests,
+  usePrivacySettings,
+  useResetSettings,
+  useSubmitDataPrivacyRequest,
+  useUpdatePrivacy,
+} from '../hooks/useSettings';
+import type { DataPrivacyRequest } from '../types/settings.types';
 import type { MessagePermissionType, IPrivacySettings } from '../types/settings.types';
 
 export default function PrivacySettingsPage() {
@@ -457,6 +465,7 @@ function PrivacySettingsForm({ initialForm }: { initialForm: IPrivacySettings })
             onSave={handleSave}
             onReset={handleReset}
           />
+          <DataRightsPanel />
         </div>
 
         {/* ─── RIGHT SIDE SUMMARY ───────────────────── */}
@@ -546,5 +555,50 @@ function PrivacySettingsForm({ initialForm }: { initialForm: IPrivacySettings })
         toast={toast}
       />
     </SettingsShell>
+  );
+}
+
+function DataRightsPanel() {
+  const query = useDataPrivacyRequests();
+  const submit = useSubmitDataPrivacyRequest();
+  const cancel = useCancelDataPrivacyRequest();
+  const [type, setType] = useState<DataPrivacyRequest['type']>('export');
+  const [details, setDetails] = useState('Please process this request for my Imminiq account.');
+  const active = query.data?.some((item) => item.type === type && ['pending', 'in_progress'].includes(item.status));
+
+  return (
+    <SettingsCard
+      title="Your data rights"
+      description="Submit and track access, portable export, correction, or deletion requests. Requests are due within 30 days."
+      icon="📁"
+    >
+      <div className="grid gap-3 sm:grid-cols-[180px_1fr]">
+        <label className="text-xs font-semibold text-(--text-secondary)">
+          Request type
+          <select className="mt-2 w-full rounded-md border border-(--border-subtle) bg-(--surface-card) px-3 py-2 text-(--text-primary)" value={type} onChange={(event) => setType(event.target.value as DataPrivacyRequest['type'])}>
+            <option value="export">Portable data export</option>
+            <option value="access">Data access report</option>
+            <option value="correction">Correct personal data</option>
+            <option value="delete">Delete personal data</option>
+          </select>
+        </label>
+        <label className="text-xs font-semibold text-(--text-secondary)">
+          Details
+          <textarea className="mt-2 min-h-22 w-full rounded-md border border-(--border-subtle) bg-(--surface-card) px-3 py-2 text-(--text-primary)" maxLength={3000} value={details} onChange={(event) => setDetails(event.target.value)} />
+        </label>
+      </div>
+      <button type="button" className="mt-3 rounded-md bg-(--brand-500) px-4 py-2 text-sm font-bold text-white disabled:opacity-50" disabled={details.trim().length < 10 || active || submit.isPending} onClick={() => submit.mutate({ type, details: details.trim() })}>
+        {active ? 'Request already active' : submit.isPending ? 'Submitting…' : 'Submit request'}
+      </button>
+      <div className="mt-5 space-y-2" aria-live="polite">
+        {query.isLoading && <p className="text-sm text-(--text-secondary)">Loading requests…</p>}
+        {query.data?.map((item) => (
+          <div key={item.id} className="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-(--border-subtle) p-3 text-sm">
+            <div><strong className="capitalize">{item.type}</strong><div className="text-xs text-(--text-secondary)">Submitted {new Date(item.createdAt).toLocaleDateString()} · Due {new Date(item.dueAt).toLocaleDateString()}</div>{item.resolutionNote && <p className="mt-1 text-xs">{item.resolutionNote}</p>}</div>
+            <div className="flex items-center gap-2"><span className="rounded-full bg-black/5 px-2 py-1 text-xs font-semibold capitalize dark:bg-white/10">{item.status.replace('_', ' ')}</span>{item.downloadUrl && <a className="text-xs font-bold text-(--brand-500)" href={item.downloadUrl} rel="noreferrer">Open export</a>}{item.status === 'pending' && <button className="text-xs font-bold text-(--danger)" onClick={() => cancel.mutate(item.id)}>Cancel</button>}</div>
+          </div>
+        ))}
+      </div>
+    </SettingsCard>
   );
 }

@@ -17,7 +17,13 @@ export const createAdminUsersRoutes = (useCases: AdminUsersUseCases) => {
   router.param('userId', validateIdentifierParam);
   router.param('appealId', validateIdentifierParam);
   router.param('sessionId', validateIdentifierParam);
+  router.param('requestId', validateIdentifierParam);
+  router.param('noteId', validateIdentifierParam);
   router.get(ADMIN_USERS_ROUTE_PATHS.ROOT, controller.list);
+  router.get(ADMIN_USERS_ROUTE_PATHS.EXPORT, controller.exportCsv);
+  router.post(ADMIN_USERS_ROUTE_PATHS.BULK_STATUS, requirePrivilegedMfa, controller.bulkStatus);
+  router.get(ADMIN_USERS_ROUTE_PATHS.PRIVACY_REQUESTS, controller.listPrivacyRequests);
+  router.patch(ADMIN_USERS_ROUTE_PATHS.PRIVACY_REQUEST_DETAIL, requirePrivilegedMfa, controller.updatePrivacyRequest);
   router.get(ADMIN_USERS_ROUTE_PATHS.APPEALS, controller.listAppeals);
   router.patch(
     ADMIN_USERS_ROUTE_PATHS.APPEAL_DETAIL,
@@ -25,6 +31,10 @@ export const createAdminUsersRoutes = (useCases: AdminUsersUseCases) => {
     controller.updateAppeal
   );
   router.get(ADMIN_USERS_ROUTE_PATHS.DETAIL, controller.getDetail);
+  router.get(ADMIN_USERS_ROUTE_PATHS.NOTES, controller.listNotes);
+  router.post(ADMIN_USERS_ROUTE_PATHS.NOTES, controller.addNote);
+  router.delete(ADMIN_USERS_ROUTE_PATHS.NOTE_DETAIL, controller.removeNote);
+  router.put(ADMIN_USERS_ROUTE_PATHS.TAGS, controller.updateTags);
   router.patch(ADMIN_USERS_ROUTE_PATHS.STATUS, requirePrivilegedMfa, controller.setStatus);
   router.post(ADMIN_USERS_ROUTE_PATHS.MESSAGE, controller.sendMessage);
   router.delete(

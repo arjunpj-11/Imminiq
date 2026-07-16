@@ -6,6 +6,7 @@ import type {
   AdminMockTestLifecycleInput,
   AdminMockTestLifecycleResult,
   AdminMockTestQuestionIssue,
+  AdminMockTestQuestionVersion,
 } from '../entities/admin-mock-test.entity';
 export interface IAdminMockTestsRepository {
   list(query: AdminListQuery): Promise<AdminPage<AdminMockTest>>;
@@ -21,4 +22,11 @@ export interface IAdminMockTestsRepository {
     input: AdminMockTestLifecycleInput,
     actor: AdminActor
   ): Promise<AdminMockTestLifecycleResult | null>;
+  listQuestionVersions(questionId: string): Promise<AdminMockTestQuestionVersion[]>;
+  restoreQuestionVersion(
+    questionId: string,
+    version: number,
+    reason: string,
+    actor: AdminActor
+  ): Promise<{ questionId: string; version: number } | null>;
 }
