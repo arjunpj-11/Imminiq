@@ -3,21 +3,18 @@ import type {
   AdminPublishedTracker,
   AdminPublishedTrackerEngagementResult,
   AdminTracker,
-  AdminTrackerDeleteResult,
   AdminTrackerDetail,
 } from '../domain/entities/admin-tracker.entity';
 import type {
   AdminPublishedTrackerDTO,
   AdminPublishedTrackerEngagementResultDTO,
   AdminTrackerDTO,
-  AdminTrackerDeleteResultDTO,
   AdminTrackerDetailDTO,
 } from './admin-trackers.dto';
 
 export interface IAdminTrackersMapper {
   toDTO(entity: AdminTracker): AdminTrackerDTO;
   toDetailDTO(entity: AdminTrackerDetail): AdminTrackerDetailDTO;
-  toDeleteResultDTO(result: AdminTrackerDeleteResult): AdminTrackerDeleteResultDTO;
   toPublishedDTO(entity: AdminPublishedTracker): AdminPublishedTrackerDTO;
   toEngagementResultDTO(
     result: AdminPublishedTrackerEngagementResult
@@ -38,9 +35,6 @@ export class AdminTrackersMapper implements IAdminTrackersMapper {
         subtopics: topic.subtopics.map((subtopic) => ({ ...subtopic })),
       })),
     };
-  }
-  toDeleteResultDTO(result: AdminTrackerDeleteResult): AdminTrackerDeleteResultDTO {
-    return { ...result };
   }
   toPublishedDTO(entity: AdminPublishedTracker): AdminPublishedTrackerDTO {
     return { ...entity };

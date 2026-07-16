@@ -1,5 +1,6 @@
 import type { TrackerUseCases } from './application/tracker-use-cases.contract';
 import { TrackerMapper } from './application/tracker.mapper';
+import { MissingEvaluationTopicPlacementService } from './application/services/missing-evaluation-topic-placement.service';
 import { AddMissingEvaluationTopicUseCase } from './application/use-cases/add-missing-evaluation-topic.usecase';
 import { ArchiveTrackerUseCase } from './application/use-cases/archive-tracker.usecase';
 import { AskLessonQuestionSolutionDoubtUseCase } from './application/use-cases/ask-lesson-question-solution-doubt.usecase';
@@ -9,6 +10,7 @@ import { ClearLessonQuestionSolutionDoubtsUseCase } from './application/use-case
 import { CreateTrackerSubtopicUseCase } from './application/use-cases/create-tracker-subtopic.usecase';
 import { CreateTrackerTopicUseCase } from './application/use-cases/create-tracker-topic.usecase';
 import { CreateTrackerUseCase } from './application/use-cases/create-tracker.usecase';
+import { CreateTopicContributionUseCase } from './application/use-cases/create-topic-contribution.usecase';
 import { DeleteTrackerUseCase } from './application/use-cases/delete-tracker.usecase';
 import { GenerateLessonQuestionSolutionUseCase } from './application/use-cases/generate-lesson-question-solution.usecase';
 import { GenerateLessonQuestionsUseCase } from './application/use-cases/generate-lesson-questions.usecase';
@@ -27,8 +29,11 @@ import { GetTrackerRoadmapUseCase } from './application/use-cases/get-tracker-ro
 import { GetTrackerSummaryUseCase } from './application/use-cases/get-tracker-summary.usecase';
 import { ListTrackersUseCase } from './application/use-cases/list-trackers.usecase';
 import { ListTrackerDomainsUseCase } from './application/use-cases/list-tracker-domains.usecase';
+import { ListTopicContributionsUseCase } from './application/use-cases/list-topic-contributions.usecase';
 import { PublishTrackerUseCase } from './application/use-cases/publish-tracker.usecase';
 import { RestoreTrackerUseCase } from './application/use-cases/restore-tracker.usecase';
+import { ReviewTopicContributionUseCase } from './application/use-cases/review-topic-contribution.usecase';
+import { ReportTrackerUseCase } from './application/use-cases/report-tracker.usecase';
 import { RunLessonCodeUseCase } from './application/use-cases/run-lesson-code.usecase';
 import { SubmitLessonCodeUseCase } from './application/use-cases/submit-lesson-code.usecase';
 import { UnpublishTrackerUseCase } from './application/use-cases/unpublish-tracker.usecase';
@@ -41,10 +46,13 @@ import type { ITrackerRepository } from './domain/repositories/tracker.repositor
 import { mongoPlatformPolicyReader } from '../../../infrastructure/mongo-platform-policy.reader';
 import { ActivityTrackerGateway } from './infrastructure/gateways/activity-tracker.gateway';
 import type { IRecordUserActivityUseCase } from '../activity';
+import type { ICreateNotificationUseCase } from '../../notifications';
 import { aiTrackerGateway } from './infrastructure/gateways/ai-tracker.gateway';
 import { pistonCodeExecutionGateway } from './infrastructure/gateways/piston-code-execution.gateway';
 import { mongoTrackerRepository } from './infrastructure/repositories/mongo-tracker.repository';
 import { cryptoQuestionHasher } from './infrastructure/services/crypto-question-hasher.service';
+import { mongoTrackerTopicContributionRepository } from './infrastructure/repositories/mongo-tracker-topic-contribution.repository';
+import { TrackerContributionNotificationGateway } from './infrastructure/gateways/tracker-contribution-notification.gateway';
 
 export type TrackerListInput = Parameters<ListTrackersUseCase['execute']>[0];
 
@@ -116,7 +124,8 @@ export type TrackerComposition = {
 };
 
 export const createTrackerComposition = (
-  activityRecorder: IRecordUserActivityUseCase
+  activityRecorder: IRecordUserActivityUseCase,
+  notificationCreator: ICreateNotificationUseCase
 ): TrackerComposition => {
   const trackerRepository = mongoTrackerRepository;
 
@@ -127,8 +136,12 @@ export const createTrackerComposition = (
   const trackerCodeExecutor = pistonCodeExecutionGateway;
 
   const trackerQuestionHasher = cryptoQuestionHasher;
+  const contributionNotifier = new TrackerContributionNotificationGateway(notificationCreator);
 
   const _trackerMapper = new TrackerMapper();
+  const missingEvaluationTopicPlacement = new MissingEvaluationTopicPlacementService(
+    trackerRepository
+  );
 
   return {
     useCases: {
@@ -154,11 +167,27 @@ export const createTrackerComposition = (
 
       unpublishTracker: new UnpublishTrackerUseCase(trackerRepository, _trackerMapper),
 
+      reportTracker: new ReportTrackerUseCase(trackerRepository),
+
       getTrackerRoadmap: new GetTrackerRoadmapUseCase(trackerRepository, _trackerMapper),
 
       createTrackerTopic: new CreateTrackerTopicUseCase(trackerRepository, _trackerMapper),
 
       createTrackerSubtopic: new CreateTrackerSubtopicUseCase(trackerRepository, _trackerMapper),
+
+      createTopicContribution: new CreateTopicContributionUseCase(
+        mongoTrackerTopicContributionRepository,
+        contributionNotifier
+      ),
+
+      listTopicContributions: new ListTopicContributionsUseCase(
+        mongoTrackerTopicContributionRepository
+      ),
+
+      reviewTopicContribution: new ReviewTopicContributionUseCase(
+        mongoTrackerTopicContributionRepository,
+        contributionNotifier
+      ),
 
       updateSubtopicProgress: new UpdateSubtopicProgressUseCase(
         trackerRepository,
@@ -169,6 +198,7 @@ export const createTrackerComposition = (
 
       addMissingEvaluationTopic: new AddMissingEvaluationTopicUseCase(
         trackerRepository,
+        missingEvaluationTopicPlacement,
         _trackerMapper
       ),
 

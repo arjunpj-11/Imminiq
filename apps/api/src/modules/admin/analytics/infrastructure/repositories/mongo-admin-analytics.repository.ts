@@ -11,16 +11,16 @@ export class MongoAdminAnalyticsRepository implements IAdminAnalyticsRepository 
     days,
   }: import('../../domain/entities/admin-analytics.entity').AdminAnalyticsRange) {
     const createdAt = { $gte: from, $lte: to };
-    const verified = { deletedAt: null, $or: [{ emailVerified: true }, { phoneVerified: true }] };
+    const registered = { deletedAt: null };
     const [users, activeUsers, trackers, tests, attempts, dailyUsers, dailyActivity] =
       await Promise.all([
-        User.countDocuments(verified),
-        User.countDocuments({ ...verified, lastActiveAt: createdAt }),
+        User.countDocuments(registered),
+        User.countDocuments({ ...registered, lastActiveAt: createdAt }),
         Tracker.countDocuments({ deletedAt: null }),
         MockTestModel.countDocuments(),
         MockTestAttemptModel.countDocuments({ createdAt }),
         User.aggregate<{ _id: string; value: number }>([
-          { $match: { ...verified, createdAt } },
+          { $match: { ...registered, createdAt } },
           {
             $group: {
               _id: { $dateToString: { format: '%Y-%m-%d', date: '$createdAt' } },

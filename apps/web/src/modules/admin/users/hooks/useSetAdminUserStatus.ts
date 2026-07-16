@@ -5,15 +5,28 @@ import { toast } from '../../../../lib/toast';
 import { adminDashboardKeys } from '../../dashboard';
 import { adminUsersKeys } from './admin-users.query-keys';
 import { ADMIN_USERS_ENDPOINTS } from '../constants/admin-users.constants';
+import type { AdminUserStatusPayload } from '../types/admin-users.types';
 
 export const useSetAdminUserStatus = (userId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (status: 'active' | 'blocked') =>
-      (await api.patch(ADMIN_USERS_ENDPOINTS.status(userId), { status })).data,
-    onMutate: (status) => ({
-      toastId: toast.loading(status === 'blocked' ? 'Blocking user…' : 'Unblocking user…'),
+    mutationFn: async (input: AdminUserStatusPayload) => {
+      const { mfaCode, ...payload } = input;
+      return (
+        await api.patch(ADMIN_USERS_ENDPOINTS.status(userId), payload, {
+          headers: mfaCode ? { 'X-Admin-MFA-Code': mfaCode } : undefined,
+        })
+      ).data;
+    },
+    onMutate: (input) => ({
+      toastId: toast.loading(
+        input.status === 'blocked'
+          ? 'Blocking user…'
+          : input.status === 'paused'
+            ? 'Suspending user…'
+            : 'Restoring user…'
+      ),
     }),
     onSuccess: async () => {
       await Promise.all([

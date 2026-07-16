@@ -62,14 +62,20 @@ export default function AdminAITokenSpendPage() {
         ['Generated', new Date().toLocaleString()],
         [],
         ['SUMMARY'],
-        ['Today tokens', 'Period tokens', 'Prompt tokens', 'Completion tokens', 'AI requests'],
+        ['Today tokens', 'Period tokens', 'Previous period', 'Change %', 'Prompt tokens', 'Completion tokens', 'AI requests'],
         [
           data.summary.todayTokens,
           data.summary.totalTokens,
+          data.summary.previousPeriodTokens,
+          data.summary.changePercent ?? 'No baseline',
           data.summary.promptTokens,
           data.summary.completionTokens,
           data.summary.requests,
         ],
+        ['Monthly budget', data.budget.monthlyLimit],
+        ['Month-to-date tokens', data.budget.monthTokens],
+        ['Budget utilization %', data.budget.utilizationPercent],
+        ['Budget state', data.budget.status],
         [],
         ['FEATURE BREAKDOWN'],
         ['Feature', 'Prompt tokens', 'Completion tokens', 'Total tokens', 'Requests'],
@@ -105,6 +111,7 @@ export default function AdminAITokenSpendPage() {
         { label: 'Prompt tokens', value: formatTokens(data.summary.promptTokens) },
         { label: 'Completion tokens', value: formatTokens(data.summary.completionTokens) },
         { label: 'AI requests', value: formatTokens(data.summary.requests) },
+        { label: 'Monthly budget used', value: `${data.budget.utilizationPercent}%` },
       ],
       columns: [
         { header: 'Feature', key: 'feature' },
@@ -165,6 +172,28 @@ export default function AdminAITokenSpendPage() {
                 { label: 'AI requests', value: data.summary.requests, tone: 'success' },
               ]}
             />
+
+            <AdminPanel title="Monthly budget guardrail">
+              <div className="p-6">
+                <div className="mb-3 flex flex-wrap items-center justify-between gap-2 text-sm">
+                  <span>
+                    {formatTokens(data.budget.monthTokens)} of {formatTokens(data.budget.monthlyLimit)} tokens used
+                  </span>
+                  <span className={data.budget.status === 'exceeded' ? 'text-[#e26767]' : data.budget.status === 'warning' ? 'text-amber-300' : 'text-[#52c58c]'}>
+                    {data.budget.utilizationPercent}% · {data.budget.status.replace('_', ' ')}
+                  </span>
+                </div>
+                <div className="h-3 overflow-hidden rounded-full bg-[#11110f]">
+                  <div
+                    className={data.budget.status === 'exceeded' ? 'h-full bg-[#e26767]' : data.budget.status === 'warning' ? 'h-full bg-amber-400' : 'h-full bg-[#52c58c]'}
+                    style={{ width: `${Math.min(100, data.budget.utilizationPercent)}%` }}
+                  />
+                </div>
+                <p className="mt-3 text-xs text-[#817c75]">
+                  Warning begins at {data.budget.warningPercent}%. Selected-period usage is {data.summary.changePercent === null ? 'waiting for a comparison baseline' : `${Math.abs(data.summary.changePercent)}% ${data.summary.changePercent >= 0 ? 'higher' : 'lower'} than the previous equivalent period`}.
+                </p>
+              </div>
+            </AdminPanel>
 
             <AdminPanel title="Daily token spend">
               <div className="overflow-x-auto p-7">

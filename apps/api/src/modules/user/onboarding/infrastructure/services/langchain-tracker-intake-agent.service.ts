@@ -1,6 +1,6 @@
 import { z } from 'zod';
 
-import { economyAIStructuredWithFallback } from '../../../../../infrastructure/ai/ai-fallback.helper';
+import { economyAIStructuredWithFallback } from '../../../../../infrastructure/ai/ai.service';
 import { parseAIJson } from '../../../../../infrastructure/ai/ai-json.parser';
 import { MockTestReportModel } from '../../../../../infrastructure/database/models/mock-test-report.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
@@ -83,10 +83,10 @@ export class LangChainTrackerIntakeAgent implements ITrackerIntakeAgent {
             content: message.content,
           })),
         ],
-        (rawResponse) =>
-          parseAIJson(rawResponse, trackerIntakeResponseSchema, { logErrors: false }),
+        (rawResponse) => parseAIJson(rawResponse, trackerIntakeResponseSchema),
         'fast',
-        'roadmap_generation'
+        'roadmap_generation',
+        { operation: 'tracker-intake-agent', temperature: 0.3 }
       );
 
       if (response.isComplete && !response.profile) {

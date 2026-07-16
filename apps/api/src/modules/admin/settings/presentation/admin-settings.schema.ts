@@ -1,8 +1,8 @@
 import { z } from 'zod';
 export const adminSettingsSchema = z.object({
   allowBroadcasts: z.boolean(),
-  supportEmail: z.email(),
-  auditRetentionDays: z.number().int().min(30).max(3650),
+  aiMonthlyTokenBudget: z.number().int().min(1).max(10_000_000_000),
+  aiBudgetWarningPercent: z.number().int().min(1).max(100),
   productPolicy: z.object({
     activity: z.object({
       weeklyXpTarget: z.number().int().min(1).max(1_000_000),

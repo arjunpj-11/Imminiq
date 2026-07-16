@@ -5,14 +5,18 @@ import { type ChangeEvent, useCallback, useMemo, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
+import Modal from '../../../../components/overlays/Modal';
+import { toast } from '../../../../lib/toast';
 import { CheckCircleIcon, HintIcon } from '../components/MockTestAttemptIcons';
 import { MockTestAttemptFooter, MockTestAttemptHeader } from '../components/MockTestAttemptChrome';
 import { useCountdown } from '../hooks/useCountdown';
 
 import {
   useFinishMockTestAttempt,
+  useFlagMockTestQuestion,
   useMockTestAttemptQuestions,
   useRunMockTestCode,
+  useReportMockTestQuestion,
   useSubmitMockTestAnswer,
   useSubmitMockTestCode,
 } from '../hooks/useMockTests';
@@ -31,6 +35,7 @@ import type {
   MockTestCodingLanguage,
   IPublicMockTestQuestion,
   IStartAttemptResponse,
+  MockTestQuestionIssueReason,
 } from '../types/mock-tests.types';
 
 export default function MockTestAttemptPage() {
@@ -52,7 +57,18 @@ export default function MockTestAttemptPage() {
   const [visited, setVisited] = useState<Set<number>>(new Set([0]));
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [confidence, setConfidence] = useState<Record<number, Confidence>>({});
-  const [flagged, setFlagged] = useState<Set<number>>(new Set());
+  const [flagged, setFlagged] = useState<Set<number>>(
+    () =>
+      new Set(
+        questions.flatMap((item, index) =>
+          initial?.attempt.flaggedQuestions.includes(item._id) ? [index] : []
+        )
+      )
+  );
+  const [reportOpen, setReportOpen] = useState(false);
+  const [reportReason, setReportReason] =
+    useState<MockTestQuestionIssueReason>('incorrect_answer');
+  const [reportDetails, setReportDetails] = useState('');
 
   const [languageByQuestion, setLanguageByQuestion] = useState<
     Record<string, MockTestCodingLanguage>
@@ -68,6 +84,8 @@ export default function MockTestAttemptPage() {
   const runCodeMutation = useRunMockTestCode();
   const submitCodeMutation = useSubmitMockTestCode();
   const finishMutation = useFinishMockTestAttempt();
+  const flagMutation = useFlagMockTestQuestion();
+  const reportMutation = useReportMockTestQuestion();
   const timerDisplay = useCountdown(3600);
 
   const totalQuestions = questions.length || 15;
@@ -209,6 +227,8 @@ export default function MockTestAttemptPage() {
   };
 
   const toggleFlag = () => {
+    if (!question?._id || !attemptId || flagMutation.isPending) return;
+    const wasFlagged = flagged.has(currentIndex);
     setFlagged((prev) => {
       const next = new Set(prev);
 
@@ -220,6 +240,44 @@ export default function MockTestAttemptPage() {
 
       return next;
     });
+    flagMutation.mutate(
+      { attemptId, questionId: question._id },
+      {
+        onError: (error) => {
+          setFlagged((prev) => {
+            const next = new Set(prev);
+            if (wasFlagged) next.add(currentIndex);
+            else next.delete(currentIndex);
+            return next;
+          });
+          toast.error('Could not save review flag', getUserFacingError(error));
+        },
+      }
+    );
+  };
+
+  const submitQuestionReport = () => {
+    if (!question?._id || !attemptId) return;
+    reportMutation.mutate(
+      {
+        attemptId,
+        questionId: question._id,
+        reason: reportReason,
+        details: reportDetails,
+      },
+      {
+        onSuccess: () => {
+          setReportOpen(false);
+          setReportDetails('');
+          toast.success(
+            'Question reported',
+            'The moderation team can now review this question and its test context.'
+          );
+        },
+        onError: (error) =>
+          toast.error('Could not report question', getUserFacingError(error)),
+      }
+    );
   };
 
   const handleLanguageChange = (event: ChangeEvent<HTMLSelectElement>) => {
@@ -319,6 +377,14 @@ export default function MockTestAttemptPage() {
                     <h2 className="font-ui text-[26px] font-black leading-snug text-(--text-primary) max-[640px]:text-[22px] dark:text-(--text-primary)">
                       {question.question}
                     </h2>
+
+                    <button
+                      type="button"
+                      onClick={() => setReportOpen(true)}
+                      className="mt-3 text-xs font-semibold text-(--text-secondary) underline-offset-4 hover:text-(--brand-500) hover:underline"
+                    >
+                      Report a problem with this question
+                    </button>
 
                     {isCoding && question.coding && (
                       <div className="mt-5 rounded-md border border-(--border-subtle) bg-(--surface-canvas) p-5 dark:border-(--border-subtle) dark:bg-(--surface-elevated)">
@@ -722,6 +788,65 @@ export default function MockTestAttemptPage() {
           answers={answers}
           onGoTo={goTo}
         />
+        <Modal
+          open={reportOpen}
+          onClose={() => setReportOpen(false)}
+          preventClose={reportMutation.isPending}
+          ariaLabel="Report a mock test question"
+        >
+          <h2 className="text-lg font-bold">Report a problem</h2>
+          <p className="mt-1 text-sm text-(--text-secondary)">
+            This creates a moderation report. Use the Flag button only to mark a question for
+            review during your attempt.
+          </p>
+          <label className="mt-5 block text-sm font-semibold">
+            Problem type
+            <select
+              value={reportReason}
+              onChange={(event) =>
+                setReportReason(event.target.value as MockTestQuestionIssueReason)
+              }
+              className="mt-2 w-full rounded-lg border border-(--border-subtle) bg-(--surface-card) p-3"
+            >
+              <option value="incorrect_answer">Incorrect answer</option>
+              <option value="ambiguous_question">Ambiguous question</option>
+              <option value="duplicate_question">Duplicate question</option>
+              <option value="broken_code_or_test_case">Broken code or test case</option>
+              <option value="formatting_problem">Formatting problem</option>
+              <option value="unsafe_or_offensive">Unsafe or offensive content</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label className="mt-4 block text-sm font-semibold">
+            What should the moderation team know? <span className="font-normal">(optional)</span>
+            <textarea
+              value={reportDetails}
+              onChange={(event) => setReportDetails(event.target.value)}
+              maxLength={1500}
+              rows={4}
+              className="mt-2 w-full resize-y rounded-lg border border-(--border-subtle) bg-(--surface-card) p-3"
+              placeholder="Describe what looks wrong…"
+            />
+          </label>
+          <div className="mt-5 flex justify-end gap-2">
+            <button
+              type="button"
+              onClick={() => setReportOpen(false)}
+              disabled={reportMutation.isPending}
+              className="rounded-lg border border-(--border-subtle) px-4 py-2 text-sm font-semibold"
+            >
+              Cancel
+            </button>
+            <button
+              type="button"
+              onClick={submitQuestionReport}
+              disabled={reportMutation.isPending}
+              className="rounded-lg bg-(--brand-500) px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            >
+              {reportMutation.isPending ? 'Submitting…' : 'Submit report'}
+            </button>
+          </div>
+        </Modal>
       </div>
     </AppShellBoundary>
   );

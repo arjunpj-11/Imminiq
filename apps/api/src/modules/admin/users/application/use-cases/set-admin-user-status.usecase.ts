@@ -7,6 +7,7 @@ import { AdminUsersDomainError } from '../../domain/admin-users-domain.error';
 import type { IAdminUsersRepository } from '../../domain/repositories/admin-users.repository.interface';
 import type { AdminStatusResultDTO } from '../admin-users.dto';
 import { AdminUsersApplicationError } from '../admin-users-application.error';
+import type { IAdminUserEmailProvider } from '../../domain/services/admin-user-email-provider.interface';
 
 export interface ISetAdminUserStatusUseCase {
   execute(
@@ -17,7 +18,10 @@ export interface ISetAdminUserStatusUseCase {
   ): Promise<AdminStatusResultDTO>;
 }
 export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
-  constructor(private readonly _repository: IAdminUsersRepository) {}
+  constructor(
+    private readonly _repository: IAdminUsersRepository,
+    private readonly _emailProvider: IAdminUserEmailProvider
+  ) {}
   async execute(
     userId: string,
     status: AdminManagedUserStatus,
@@ -30,13 +34,17 @@ export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
     const target = await this._repository.findById(userId);
     if (!target) throw AdminUsersApplicationError.userNotFound();
     if (target.role === 'superadmin')
-      throw AdminUsersApplicationError.protectedAdmin('A super admin cannot be blocked');
+      throw AdminUsersApplicationError.protectedAdmin('A super admin account status cannot be changed');
     if (target.role === 'admin' && actor.role !== 'superadmin')
       throw AdminUsersApplicationError.protectedAdmin(
         'Only a super admin can change another admin'
       );
-    await this._repository.updateStatus(userId, status);
-    if (status === 'blocked') await this._repository.revokeSessions(userId);
+    await this._repository.updateStatus(userId, status, {
+      actorId: actor.userId,
+      reason: meta.reason,
+      reasonCode: meta.reasonCode,
+    });
+    if (status === 'blocked' || status === 'paused') await this._repository.revokeSessions(userId);
     await this._repository.recordStatusChange({
       ...meta,
       actorId: actor.userId,
@@ -46,6 +54,20 @@ export class SetAdminUserStatusUseCase implements ISetAdminUserStatusUseCase {
       targetName: target.fullName,
       targetUsername: target.username,
     });
-    return { userId, status };
+    let emailQueued = false;
+    if (meta.notifyEmail && target.email) {
+      try {
+        await this._emailProvider.queueStatusEmail({
+          to: target.email,
+          userName: target.fullName,
+          status,
+          reason: meta.reason,
+        });
+        emailQueued = true;
+      } catch {
+        // The database decision and in-app notification remain authoritative.
+      }
+    }
+    return { userId, status, emailQueued };
   }
 }

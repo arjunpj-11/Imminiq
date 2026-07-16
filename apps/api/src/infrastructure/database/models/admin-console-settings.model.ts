@@ -151,8 +151,8 @@ const adminConsoleSettingsSchema = new Schema(
   {
     key: { type: String, default: 'global', unique: true, immutable: true },
     allowBroadcasts: { type: Boolean, default: true },
-    supportEmail: { type: String, trim: true, lowercase: true, default: 'support@imminiq.com' },
-    auditRetentionDays: { type: Number, min: 30, max: 3650, default: 365 },
+    aiMonthlyTokenBudget: { type: Number, min: 1, max: 10_000_000_000, default: 10_000_000 },
+    aiBudgetWarningPercent: { type: Number, min: 1, max: 100, default: 80 },
     productPolicy: { type: productPolicySchema, default: () => ({}) },
     updatedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
   },

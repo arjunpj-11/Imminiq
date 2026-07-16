@@ -54,6 +54,18 @@ const activityLogSchema = new Schema(
 activityLogSchema.index({ userId: 1, createdAt: -1 });
 activityLogSchema.index({ module: 1, action: 1 });
 
+// Audit entries are append-only. Corrections must be represented by a new compensating entry,
+// preserving the original evidence for investigations and compliance exports.
+const rejectAuditMutation = () => {
+  throw new Error('Activity logs are append-only');
+};
+activityLogSchema.pre('updateOne', rejectAuditMutation);
+activityLogSchema.pre('updateMany', rejectAuditMutation);
+activityLogSchema.pre('findOneAndUpdate', rejectAuditMutation);
+activityLogSchema.pre('deleteOne', rejectAuditMutation);
+activityLogSchema.pre('deleteMany', rejectAuditMutation);
+activityLogSchema.pre('findOneAndDelete', rejectAuditMutation);
+
 export type ActivityLogDocument = InferSchemaType<typeof activityLogSchema>;
 
 export const ActivityLog = mongoose.models.ActivityLog || model('ActivityLog', activityLogSchema);

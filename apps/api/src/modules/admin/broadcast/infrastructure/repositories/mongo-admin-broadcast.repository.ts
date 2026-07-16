@@ -35,6 +35,7 @@ export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository 
         title: row.title,
         message: row.message,
         audience: row.audience,
+        deepLink: row.deepLink,
         sender: sender?.fullName ?? sender?.username ?? 'Admin',
         recipientCount: row.recipientCount,
         status: row.status,
@@ -53,12 +54,16 @@ export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository 
     const userFilter: Record<string, unknown> = {
       deletedAt: null,
       status: 'active',
-      $or: [{ emailVerified: true }, { phoneVerified: true }],
     };
     if (input.audience === 'active') userFilter.lastActiveAt = { $gte: since };
     const [users, optedOut] = await Promise.all([
       User.find(userFilter).select('_id').lean(),
-      UserSettings.distinct('userId', { 'notifications.types.adminBroadcasts': false }),
+      UserSettings.distinct('userId', {
+        $or: [
+          { 'notifications.globalEnabled': false },
+          { 'notifications.types.adminBroadcasts': false },
+        ],
+      }),
     ]);
     const optedOutIds = new Set(optedOut.map(String));
     const recipients = users.filter((user) => !optedOutIds.has(String(user._id)));

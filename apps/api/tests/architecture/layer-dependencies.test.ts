@@ -273,6 +273,52 @@ describe('clean architecture boundaries', () => {
     expect(violations).toEqual([]);
   });
 
+  it('keeps HTTP utility errors out of every infrastructure adapter', () => {
+    const violations = collectFiles(sourceRoot)
+      .filter((file) => portable(file).includes('/infrastructure/'))
+      .filter((file) => /ApiError/.test(readFileSync(file, 'utf8')))
+      .map((file) => portable(relative(sourceRoot, file)));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps HTTP status metadata out of auth application errors', () => {
+    const errorSource = readFileSync(
+      join(modulesRoot, 'auth', 'application', 'auth-application.error.ts'),
+      'utf8'
+    );
+
+    expect(errorSource).not.toMatch(/statusCode|HttpStatusCode|ApiError/);
+  });
+
+  it('keeps auth cookie security and error policy out of the controller', () => {
+    const controllerSource = readFileSync(
+      join(modulesRoot, 'auth', 'presentation', 'auth.controller.ts'),
+      'utf8'
+    );
+
+    expect(controllerSource).not.toMatch(
+      /ApiError|decryptAuthCookieToken|encryptAuthCookieToken|CookieOptions/
+    );
+  });
+
+  it('keeps the auth presentation public surface consistent with other modules', () => {
+    const presentationRoot = join(modulesRoot, 'auth', 'presentation');
+    const topLevelFiles = readdirSync(presentationRoot, { withFileTypes: true })
+      .filter((entry) => entry.isFile())
+      .map((entry) => entry.name)
+      .sort();
+
+    expect(topLevelFiles).toEqual([
+      'auth.controller.ts',
+      'auth.route.constants.ts',
+      'auth.routes.ts',
+      'auth.schema.ts',
+      'index.ts',
+    ]);
+    expect(readFileSync(join(presentationRoot, 'index.ts'), 'utf8')).not.toMatch(/internal/);
+  });
+
   it('exposes the admin shared kernel only through inward-safe layer APIs', () => {
     const allowedSharedLayers: Record<string, Set<string>> = {
       domain: new Set(['domain']),
@@ -460,6 +506,15 @@ describe('clean architecture boundaries', () => {
     const violations = collectFiles(trackerUseCasesRoot)
       .filter((path) => path.endsWith('.usecase.ts'))
       .filter((path) => /:\s*ITrackerRepository\b/.test(readFileSync(path, 'utf8')))
+      .map((path) => portable(relative(sourceRoot, path)));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps use-case coordinators below the oversized-workflow threshold', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter((path) => path.endsWith('.usecase.ts'))
+      .filter((path) => readFileSync(path, 'utf8').trimEnd().split(/\r?\n/).length > 250)
       .map((path) => portable(relative(sourceRoot, path)));
 
     expect(violations).toEqual([]);

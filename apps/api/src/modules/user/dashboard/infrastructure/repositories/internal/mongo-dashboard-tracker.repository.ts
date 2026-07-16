@@ -88,6 +88,7 @@ export class MongoDashboardTrackerRepository extends MongoDashboardBaseRepositor
             ownerId: userId,
             visibility: 'public',
             deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
           }),
           User.findOne({
             _id: userId,

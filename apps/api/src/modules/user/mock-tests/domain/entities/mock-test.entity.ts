@@ -1,5 +1,4 @@
 import type { DifficultyLevel } from '../value-objects/difficulty-level.vo';
-import type { TestVisibility } from '../value-objects/test-visibility.vo';
 
 export type MockTestEntityProps = {
   _id: string;
@@ -9,7 +8,8 @@ export type MockTestEntityProps = {
   title: string;
   description: string;
   difficulty: DifficultyLevel;
-  visibility: TestVisibility;
+  moderationStatus: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   questionCount: number;
   timeLimitMinutes: number;
   passingScore: number;
@@ -32,7 +32,8 @@ export class MockTestEntity {
   readonly title: string;
   readonly description: string;
   readonly difficulty: DifficultyLevel;
-  readonly visibility: TestVisibility;
+  readonly moderationStatus: 'active' | 'suspended' | 'deleted';
+  readonly moderationReason?: string;
   readonly questionCount: number;
   readonly timeLimitMinutes: number;
   readonly passingScore: number;
@@ -54,7 +55,8 @@ export class MockTestEntity {
     this.title = props.title;
     this.description = props.description;
     this.difficulty = props.difficulty;
-    this.visibility = props.visibility;
+    this.moderationStatus = props.moderationStatus;
+    this.moderationReason = props.moderationReason;
     this.questionCount = props.questionCount;
     this.timeLimitMinutes = props.timeLimitMinutes;
     this.passingScore = props.passingScore;

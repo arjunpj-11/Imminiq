@@ -42,6 +42,8 @@ export interface ITracker {
   level?: TrackerLevel;
   status?: TrackerStatus;
   visibility?: TrackerVisibility;
+  moderationStatus?: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string | null;
   progressPercent?: number;
   topicsCount?: number;
   subtopicsCount?: number;
@@ -52,6 +54,37 @@ export interface ITracker {
   publishedAt?: string | null;
   createdAt?: string;
   updatedAt?: string;
+  sourceTrackerId?: string | null;
+  clonedFrom?: {
+    trackerId: string;
+    ownerId: string;
+    name: string;
+    username: string;
+    avatarUrl?: string | null;
+  } | null;
+}
+
+export type TrackerTopicContributionStatus = 'pending' | 'approved' | 'rejected';
+
+export interface ITrackerTopicContribution {
+  id: string;
+  sourceTrackerId: string;
+  cloneTrackerId: string;
+  cloneTopicId: string;
+  requesterId: string;
+  ownerId: string;
+  requester: { name: string; username: string; avatarUrl?: string | null };
+  title: string;
+  description: string;
+  subtopicsCount: number;
+  subtopics: Array<{ title: string; description: string; depth: number; order: number }>;
+  status: TrackerTopicContributionStatus;
+  createdAt: string;
+  reviewedAt?: string | null;
+  mergedTopicId?: string | null;
+  reviewNote?: string | null;
+  /** @deprecated Legacy rejection-only field. */
+  rejectionReason?: string | null;
 }
 
 export interface ITrackerSummary {
@@ -117,6 +150,8 @@ export interface IRoadmapSubtopic {
 
 export interface IRoadmapTopic {
   _id: string;
+  sourceTopicId?: string | null;
+  isCloneAddition?: boolean;
   title: string;
   description?: string;
   order: number;

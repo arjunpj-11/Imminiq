@@ -11,6 +11,11 @@ export const TRACKER_API_PATHS = {
   topics: (trackerId: string) => `/trackers/${trackerId}/topics`,
   subtopics: (trackerId: string, topicId: string) =>
     `/trackers/${trackerId}/topics/${topicId}/subtopics`,
+  createTopicContribution: (trackerId: string, topicId: string) =>
+    `/trackers/${trackerId}/topics/${topicId}/contributions`,
+  topicContributions: (trackerId: string) => `/trackers/${trackerId}/topic-contributions`,
+  reviewTopicContribution: (trackerId: string, contributionId: string) =>
+    `/trackers/${trackerId}/topic-contributions/${contributionId}`,
   subtopicProgress: (trackerId: string, subtopicId: string) =>
     `/trackers/${trackerId}/subtopics/${subtopicId}/progress`,
   verifyTopics: (trackerId: string) => `/trackers/${trackerId}/topics/verify`,

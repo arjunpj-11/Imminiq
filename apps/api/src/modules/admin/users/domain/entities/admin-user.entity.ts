@@ -10,6 +10,9 @@ export type AdminUserEntity = {
   avatarUrl?: string;
   role: AdminUserRole;
   status: AdminUserStatus;
+  adminStatusReason?: string;
+  adminStatusReasonCode?: string;
+  adminStatusChangedAt?: Date;
   emailVerified: boolean;
   phoneVerified: boolean;
   isPremium: boolean;
@@ -20,6 +23,28 @@ export type AdminUserEntity = {
   lastActiveAt: Date;
   createdAt: Date;
   provider: string;
+};
+
+export type AdminUserMessageInput = {
+  subject: string;
+  message: string;
+  notifyEmail: boolean;
+};
+
+export type AdminUserAppealEntity = {
+  id: string;
+  caseId: string;
+  userId: string;
+  userName: string;
+  identifier: string;
+  appealReason: string;
+  originalReason?: string;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  reviewedBy?: string;
+  reviewNote?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  reviewedAt?: Date;
 };
 
 export type AdminUserActivityEntity = {
@@ -36,9 +61,19 @@ export type AdminSecurityEventEntity = {
   createdAt: Date;
   ipAddress: string;
 };
+export type AdminUserSessionEntity = {
+  id: string;
+  device: string;
+  ipAddress: string;
+  userAgent: string;
+  createdAt: Date;
+  lastActiveAt: Date;
+  expiresAt: Date;
+};
 export type AdminUserDetailEntity = {
   user: AdminUserEntity;
   stats: { trackers: number; reports: number; trustScore: number; failedSecurityEvents: number };
   activity: AdminUserActivityEntity[];
   securityEvents: AdminSecurityEventEntity[];
+  sessions: AdminUserSessionEntity[];
 };

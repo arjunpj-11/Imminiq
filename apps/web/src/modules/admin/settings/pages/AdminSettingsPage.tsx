@@ -33,8 +33,8 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
   const update = useUpdateAdminSettings();
   const [form, setForm] = useState({
     allowBroadcasts: initial.allowBroadcasts,
-    supportEmail: initial.supportEmail,
-    auditRetentionDays: initial.auditRetentionDays,
+    aiMonthlyTokenBudget: initial.aiMonthlyTokenBudget,
+    aiBudgetWarningPercent: initial.aiBudgetWarningPercent,
     productPolicy: initial.productPolicy,
   });
   const submit = (e: FormEvent) => {
@@ -50,15 +50,22 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
           checked={form.allowBroadcasts}
           setChecked={(value) => setForm((x) => ({ ...x, allowBroadcasts: value }))}
         />
-        <label className="admin-field">
-          <span>Support email</span>
-          <input
-            required
-            type="email"
-            value={form.supportEmail}
-            onChange={(e) => setForm((x) => ({ ...x, supportEmail: e.target.value }))}
+        <PolicySection title="AI usage guardrails">
+          <PolicyNumberField
+            label="Monthly token budget"
+            value={form.aiMonthlyTokenBudget}
+            min={1}
+            max={10_000_000_000}
+            onChange={(aiMonthlyTokenBudget) => setForm((x) => ({ ...x, aiMonthlyTokenBudget }))}
           />
-        </label>
+          <PolicyNumberField
+            label="Budget warning threshold (%)"
+            value={form.aiBudgetWarningPercent}
+            min={1}
+            max={100}
+            onChange={(aiBudgetWarningPercent) => setForm((x) => ({ ...x, aiBudgetWarningPercent }))}
+          />
+        </PolicySection>
         <PolicySection title="Activity and goals">
           <PolicyNumberField
             label="Weekly XP target"
@@ -384,21 +391,6 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
             }
           />
         </PolicySection>
-        <label className="admin-field">
-          <span>Audit retention (days)</span>
-          <AdminNumberInput
-            required
-            min={30}
-            max={3650}
-            value={form.auditRetentionDays}
-            onValueChange={(auditRetentionDays) =>
-              setForm((x) => ({
-                ...x,
-                auditRetentionDays,
-              }))
-            }
-          />
-        </label>
         {update.isSuccess && (
           <p className="text-sm text-[#52c58c]">Settings saved and added to the audit log.</p>
         )}

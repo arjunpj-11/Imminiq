@@ -1,17 +1,9 @@
 import { UserSettings } from '../../../../../../infrastructure/database/models/user-settings.model';
 import type {
-  UpdateSettingsAIBehaviourInput,
-  UpdateSettingsAccountInput,
   UpdateSettingsAppearanceInput,
-  UpdateSettingsCodeEditorInput,
-  UpdateSettingsCompilerInput,
-  UpdateSettingsEmailDigestInput,
-  UpdateSettingsGesturesInput,
-  UpdateSettingsLearningJourneyInput,
   UpdateSettingsNotificationTypesInput,
   UpdateSettingsNotificationsInput,
   UpdateSettingsPrivacyInput,
-  UpdateSettingsQuietHoursInput,
 } from '../../../domain/repositories/settings-command.repository.interface';
 import type { ISettingsRepository } from '../../../domain/repositories/settings.repository.interface';
 import { MongoSettingsBaseRepository } from '../shared/mongo-settings-base.repository';
@@ -82,38 +74,6 @@ export class MongoSettingsRepository
 
   async updatePrivacy(input: UpdateSettingsPrivacyInput) {
     return this.updateWithSet(input.userId, this._mapper.toPrivacyUpdate(input.data));
-  }
-
-  async updateCodeEditor(input: UpdateSettingsCodeEditorInput) {
-    return this.updateWithSet(input.userId, this._mapper.toCodeEditorUpdate(input.data));
-  }
-
-  async updateCompiler(input: UpdateSettingsCompilerInput) {
-    return this.updateWithSet(input.userId, this._mapper.toCompilerUpdate(input.data));
-  }
-
-  async updateAIBehaviour(input: UpdateSettingsAIBehaviourInput) {
-    return this.updateWithSet(input.userId, this._mapper.toAIBehaviourUpdate(input.data));
-  }
-
-  async updateLearningJourney(input: UpdateSettingsLearningJourneyInput) {
-    return this.updateWithSet(input.userId, this._mapper.toLearningJourneyUpdate(input.data));
-  }
-
-  async updateGestures(input: UpdateSettingsGesturesInput) {
-    return this.updateWithSet(input.userId, this._mapper.toGesturesUpdate(input.data));
-  }
-
-  async updateQuietHours(input: UpdateSettingsQuietHoursInput) {
-    return this.updateWithSet(input.userId, this._mapper.toQuietHoursUpdate(input.data));
-  }
-
-  async updateEmailDigest(input: UpdateSettingsEmailDigestInput) {
-    return this.updateWithSet(input.userId, this._mapper.toEmailDigestUpdate(input.data));
-  }
-
-  async updateAccountSettings(input: UpdateSettingsAccountInput) {
-    return this.updateWithSet(input.userId, this._mapper.toAccountSettingsUpdate(input.data));
   }
 
   async resetToDefaults(userId: string) {

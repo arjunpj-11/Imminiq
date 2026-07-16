@@ -14,6 +14,7 @@ export const saveBlockedAppealIdentifier = (identifier: string) => {
 export const clearBlockedAppealIdentifier = () => {
   safeSessionStorage.remove(STORAGE_KEYS.blockedAppealIdentifier);
   safeSessionStorage.remove(STORAGE_KEYS.blockedAppealToken);
+  safeSessionStorage.remove(STORAGE_KEYS.blockedModerationMessage);
 };
 
 export const getBlockedAppealToken = () =>
@@ -21,4 +22,12 @@ export const getBlockedAppealToken = () =>
 
 export const saveBlockedAppealToken = (token: string) => {
   if (token) safeSessionStorage.set(STORAGE_KEYS.blockedAppealToken, token);
+};
+
+export const getBlockedModerationMessage = () =>
+  safeSessionStorage.get(STORAGE_KEYS.blockedModerationMessage) || '';
+
+export const saveBlockedModerationMessage = (message: string) => {
+  const normalized = message.trim();
+  if (normalized) safeSessionStorage.set(STORAGE_KEYS.blockedModerationMessage, normalized);
 };

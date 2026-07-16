@@ -19,6 +19,7 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
       const doc = await MockTestModel.findOne({
         shareToken,
         isShareEnabled: true,
+        moderationStatus: { $in: ['active', null] },
         deletedAt: null,
       }).lean();
 
@@ -70,6 +71,7 @@ export class MongoMockTestsSharingRepository extends MongoMockTestsBaseRepositor
             _id: safeTestId,
             ownerId: safeOwnerId,
             deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
           },
           {
             $set: {

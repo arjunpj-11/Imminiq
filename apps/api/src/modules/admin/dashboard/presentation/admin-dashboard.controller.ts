@@ -5,10 +5,13 @@ import { sendAdminResult } from '../../shared/presentation';
 export class AdminDashboardController {
   constructor(private readonly _useCases: AdminDashboardUseCases) {}
 
-  getOverview = (_req: Request, res: Response, next: NextFunction) =>
+  getOverview = (req: Request, res: Response, next: NextFunction) =>
     sendAdminResult(
       next,
-      () => this._useCases.getOverview.execute(),
+      () =>
+        this._useCases.getOverview.execute(
+          req.user!.role as 'moderator' | 'admin' | 'superadmin'
+        ),
       res,
       'Admin dashboard fetched'
     );

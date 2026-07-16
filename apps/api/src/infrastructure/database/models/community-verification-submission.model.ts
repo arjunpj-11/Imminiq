@@ -21,6 +21,11 @@ export interface ICommunityVerificationSubmissionDocument extends Document {
   status: CommunityVerificationSubmissionStatus;
   urgent: boolean;
   consensusChoice?: CommunityVerificationConsensusChoice | null;
+  adminVotes: Array<{
+    userId: mongoose.Types.ObjectId;
+    choice: CommunityVerificationConsensusChoice;
+    votedAt: Date;
+  }>;
 
   expiresAt?: Date | null;
   deletedAt?: Date | null;
@@ -111,6 +116,20 @@ const communityVerificationSubmissionSchema = new Schema<ICommunityVerificationS
       default: null,
     },
 
+    adminVotes: {
+      type: [
+        new Schema(
+          {
+            userId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+            choice: { type: String, enum: ['pass', 'fail'], required: true },
+            votedAt: { type: Date, required: true, default: Date.now },
+          },
+          { _id: false }
+        ),
+      ],
+      default: [],
+    },
+
     expiresAt: {
       type: Date,
       default: null,
@@ -132,6 +151,7 @@ const communityVerificationSubmissionSchema = new Schema<ICommunityVerificationS
 communityVerificationSubmissionSchema.index({ status: 1, expiresAt: 1 });
 communityVerificationSubmissionSchema.index({ ownerId: 1, status: 1 });
 communityVerificationSubmissionSchema.index({ category: 1, status: 1 });
+communityVerificationSubmissionSchema.index({ 'adminVotes.userId': 1, status: 1 });
 
 communityVerificationSubmissionSchema.index(
   { trackerId: 1, status: 1 },

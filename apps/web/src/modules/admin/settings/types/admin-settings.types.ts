@@ -1,7 +1,7 @@
 export type AdminSettings = {
   allowBroadcasts: boolean;
-  supportEmail: string;
-  auditRetentionDays: number;
+  aiMonthlyTokenBudget: number;
+  aiBudgetWarningPercent: number;
   productPolicy: {
     activity: {
       weeklyXpTarget: number;

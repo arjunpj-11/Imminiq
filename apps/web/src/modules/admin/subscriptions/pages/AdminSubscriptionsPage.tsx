@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, LoaderCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, LoaderCircle } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import type { UseQueryResult } from '@tanstack/react-query';
 import {
@@ -11,16 +11,24 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
+  downloadCsv,
 } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
-import { ADMIN_SUBSCRIPTION_STATUS_OPTIONS } from '../constants/admin-subscriptions.constants';
+import api from '../../../../lib/axios';
+import type { ApiEnvelope } from '../../../../lib/api.types';
+import { toast } from '../../../../lib/toast';
+import {
+  ADMIN_SUBSCRIPTIONS_ENDPOINTS,
+  ADMIN_SUBSCRIPTION_STATUS_OPTIONS,
+} from '../constants/admin-subscriptions.constants';
 import { useAdminSubscriptions } from '../hooks/useAdminSubscriptions';
 import { useUpdateAdminPlan } from '../hooks/useUpdateAdminPlan';
 import type {
   AdminSubscriptionPlan,
   AdminSubscriptionOverview,
   AdminPlanLimitField,
+  AdminSubscriptionItem,
 } from '../types/admin-subscriptions.types';
 
 const number = new Intl.NumberFormat('en-IN');
@@ -79,10 +87,37 @@ function SubscriptionView({
   setStatus: (value: string) => void;
   setPage: (value: number) => void;
 }) {
+  const [isExporting, setIsExporting] = useState(false);
   if (query.isLoading) return <AdminLoading />;
   if (query.isError || !query.data) return <AdminError error={query.error} />;
   const data = query.data;
   const pagination = data.subscriptions.pagination;
+  const exportLedger = async () => {
+    setIsExporting(true);
+    try {
+      const rows: AdminSubscriptionItem[] = [];
+      let nextPage = 1;
+      let pages = 1;
+      do {
+        const response = await api.get<ApiEnvelope<AdminSubscriptionOverview>>(
+          ADMIN_SUBSCRIPTIONS_ENDPOINTS.overview,
+          { params: { search: search || undefined, status, page: nextPage, limit: 100 } }
+        );
+        rows.push(...response.data.data.subscriptions.items);
+        pages = response.data.data.subscriptions.pagination.pages;
+        nextPage += 1;
+      } while (nextPage <= pages);
+      downloadCsv(`subscription-ledger-${new Date().toISOString().slice(0, 10)}.csv`, [
+        ['Buyer', 'Email', 'Plan', 'Billing cycle', 'Amount (paise)', 'Currency', 'Status', 'Payment ID', 'Purchased', 'Valid until'],
+        ...rows.map((item) => [item.userName, item.userEmail, item.planName, item.billingCycle, item.amount, item.currency, item.status, item.paymentId ?? '', item.purchasedAt, item.endsAt ?? '']),
+      ]);
+      toast.success('Subscription ledger exported', `${rows.length} matching purchases downloaded.`);
+    } catch (error) {
+      toast.error('Subscription export failed', getUserFacingError(error));
+    } finally {
+      setIsExporting(false);
+    }
+  };
 
   return (
     <>
@@ -154,6 +189,9 @@ function SubscriptionView({
               onChange={setSearch}
               placeholder="Search buyer or payment…"
             />
+            <button className="admin-button inline-flex items-center gap-2" disabled={isExporting} onClick={() => void exportLedger()}>
+              <Download size={15} /> {isExporting ? 'Exporting…' : 'Export ledger'}
+            </button>
           </div>
         }
       >

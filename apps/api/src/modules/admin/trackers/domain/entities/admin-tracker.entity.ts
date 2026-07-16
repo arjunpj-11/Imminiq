@@ -6,10 +6,14 @@ export type AdminTracker = {
   level: string;
   visibility: string;
   status: string;
+  moderationStatus: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   verificationStatus: string | null;
   topicsCount: number;
   cloneCount: number;
   createdAt: Date;
+  reportCount: number;
+  openReportCount: number;
 };
 export type AdminTrackerStatusResult = { id: string; status: string };
 export type AdminTrackerSubtopic = {
@@ -35,13 +39,50 @@ export type AdminTrackerDetail = AdminTracker & {
   ownerId: string;
   ownerEmail?: string;
   topics: AdminTrackerTopic[];
+  moderationHistory: Array<{
+    id: string;
+    action: string;
+    actor: string;
+    reason?: string;
+    createdAt: Date;
+  }>;
 };
-export type AdminTrackerDeleteResult = {
+export type AdminTrackerReport = {
+  id: string;
+  trackerId: string;
+  trackerTitle: string;
+  trackerOwner: string;
+  reporterId: string;
+  reporter: string;
+  reporterEmail?: string;
+  reason: string;
+  details: string;
+  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
+  resolutionAction: string;
+  resolutionNote: string;
+  assignedTo?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  resolvedAt?: Date;
+};
+export type AdminTrackerLifecycleInput = {
+  action: 'suspend' | 'delete' | 'restore';
+  reasonCode: string;
+  reason: string;
+  notifyOwner: boolean;
+};
+export type AdminTrackerLifecycleResult = {
   id: string;
   title: string;
   owner: string;
   ownerEmail?: string;
-  deletedAt: Date;
+  moderationStatus: 'active' | 'suspended' | 'deleted';
+  reason: string;
+  updatedAt: Date;
+};
+export type AdminTrackerReportUpdateInput = {
+  status: 'reviewing' | 'resolved' | 'dismissed';
+  resolutionNote: string;
 };
 export type AdminPublishedTracker = {
   id: string;

@@ -17,6 +17,14 @@ export type TrackerApplicationErrorCode =
   | 'SUGGESTED_PARENT_NOT_FOUND'
   | 'TOPIC_NOT_FOUND'
   | 'TRACKER_EVALUATION_MISMATCH'
+  | 'CLONED_TRACKER_CANNOT_BE_PUBLISHED'
+  | 'TOPIC_CONTRIBUTION_ALREADY_EXISTS'
+  | 'TOPIC_CONTRIBUTION_ALREADY_REVIEWED'
+  | 'TOPIC_CONTRIBUTION_NOT_FOUND'
+  | 'TOPIC_CONTRIBUTION_NOT_A_CHANGE'
+  | 'TOPIC_CONTRIBUTION_REQUIRES_CLONE'
+  | 'TOPIC_CONTRIBUTION_SOURCE_UNAVAILABLE'
+  | 'FORBIDDEN'
   | 'TRACKER_NOT_FOUND';
 
 export class TrackerApplicationError extends TrackerDomainError {
@@ -30,6 +38,66 @@ export class TrackerApplicationError extends TrackerDomainError {
 
   static trackerNotFound(message = 'Tracker not found'): TrackerApplicationError {
     return new TrackerApplicationError(404, 'TRACKER_NOT_FOUND', message);
+  }
+
+  static forbidden(message = 'Forbidden'): TrackerApplicationError {
+    return new TrackerApplicationError(403, 'FORBIDDEN', message);
+  }
+
+  static clonedTrackerCannotBePublished(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      409,
+      'CLONED_TRACKER_CANNOT_BE_PUBLISHED',
+      'Cloned trackers cannot be published. Contribute improvements to the original tracker instead.'
+    );
+  }
+
+  static contributionRequiresClone(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      400,
+      'TOPIC_CONTRIBUTION_REQUIRES_CLONE',
+      'Topic contributions can only be sent from a cloned tracker.'
+    );
+  }
+
+  static contributionSourceUnavailable(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      409,
+      'TOPIC_CONTRIBUTION_SOURCE_UNAVAILABLE',
+      'The original tracker is no longer available for contributions.'
+    );
+  }
+
+  static contributionAlreadyExists(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      409,
+      'TOPIC_CONTRIBUTION_ALREADY_EXISTS',
+      'This topic already has an open or approved contribution request.'
+    );
+  }
+
+  static contributionNotAChange(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      409,
+      'TOPIC_CONTRIBUTION_NOT_A_CHANGE',
+      'Only topics added after cloning can be proposed to the original tracker.'
+    );
+  }
+
+  static contributionNotFound(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      404,
+      'TOPIC_CONTRIBUTION_NOT_FOUND',
+      'Topic contribution request not found.'
+    );
+  }
+
+  static contributionAlreadyReviewed(): TrackerApplicationError {
+    return new TrackerApplicationError(
+      409,
+      'TOPIC_CONTRIBUTION_ALREADY_REVIEWED',
+      'This topic contribution has already been reviewed.'
+    );
   }
 
   static lessonNotGenerated(

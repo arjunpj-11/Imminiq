@@ -72,7 +72,8 @@ export class MongoMockTestsMapper {
       title: doc.title || '',
       description: doc.description || '',
       difficulty: doc.difficulty || 'easy',
-      visibility: doc.visibility || 'private',
+      moderationStatus: doc.moderationStatus || 'active',
+      moderationReason: doc.moderationReason,
       questionCount: this.numberOrZero(doc.questionCount),
       timeLimitMinutes: this.numberOrZero(doc.timeLimitMinutes),
       passingScore: this.numberOrZero(doc.passingScore),
@@ -101,6 +102,7 @@ export class MongoMockTestsMapper {
       order: this.numberOrZero(doc.order),
       points: this.numberOrZero(doc.points),
       coding: doc.coding,
+      version: doc.version ?? 1,
     });
   }
 
@@ -119,6 +121,12 @@ export class MongoMockTestsMapper {
       flaggedQuestions: doc.flaggedQuestions?.map((item) => this.toId(item)) || [],
       totalQuestions: this.numberOrZero(doc.totalQuestions),
       answeredQuestions: this.numberOrZero(doc.answeredQuestions),
+      questionSnapshot: (doc.questionSnapshot ?? []).map((question) => ({
+        ...question,
+        _id: this.toId(question._id),
+        testId: this.toId(question.testId),
+        version: question.version ?? 1,
+      })),
       createdAt: this.dateOrNow(doc.createdAt),
     });
   }

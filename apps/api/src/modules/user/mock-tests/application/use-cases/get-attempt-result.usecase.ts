@@ -6,6 +6,7 @@ import { MockTestsApplicationError } from '../mock-tests-application.error';
 import type { IMockTestReportRepository } from '../../domain/repositories/mock-test-report.repository.interface';
 import type { TestAttemptResultDTO } from '../mock-tests.dto';
 import type { IMockTestsMapper } from '../mock-tests.mapper';
+import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type GetAttemptResultRepository = IMockTestAttemptRepository &
   IMockTestAnswerRepository &
@@ -45,7 +46,9 @@ export class GetAttemptResultUseCase implements IGetAttemptResultUseCase {
       this._repository.findAIEvaluationsByAttempt(attemptId),
     ]);
 
-    const questionMap = new Map(questions.map((question) => [question._id, question]));
+    const questionMap = new Map(
+      attemptQuestionSnapshotService.all(attempt, questions).map((question) => [question._id, question])
+    );
     const aiEvalMap = new Map(aiEvaluations.map((evaluation) => [evaluation.answerId, evaluation]));
 
     return this._mapper.toAttemptResult({

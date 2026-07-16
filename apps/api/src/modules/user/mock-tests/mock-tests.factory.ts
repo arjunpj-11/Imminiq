@@ -17,6 +17,7 @@ import { GetTopicBreakdownUseCase } from './application/use-cases/get-topic-brea
 import { ImportSharedMockTestUseCase } from './application/use-cases/import-shared-mock-test.usecase';
 import { ListMockTestsUseCase } from './application/use-cases/list-mock-tests.usecase';
 import { RetakeTestUseCase } from './application/use-cases/retake-test.usecase';
+import { ReportQuestionIssueUseCase } from './application/use-cases/report-question-issue.usecase';
 import { RunMockTestCodeUseCase } from './application/use-cases/run-mock-test-code.usecase';
 import { ShareMockTestUseCase } from './application/use-cases/share-mock-test.usecase';
 import { StartTestAttemptUseCase } from './application/use-cases/start-test-attempt.usecase';
@@ -120,6 +121,8 @@ export const createMockTestsComposition = (
       ),
 
       flagQuestion: new FlagQuestionUseCase(mockTestsRepository),
+
+      reportQuestionIssue: new ReportQuestionIssueUseCase(mockTestsRepository),
 
       finishTestAttempt: new FinishTestAttemptUseCase(
         mockTestsRepository,

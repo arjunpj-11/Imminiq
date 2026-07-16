@@ -29,6 +29,8 @@ import {
   getOptimizedSolutionSchema,
   verifyTopicSchema,
   verifySubtopicSchema,
+  reviewTopicContributionSchema,
+  reportTrackerSchema,
 } from './trackers.schema';
 
 export const createTrackerRoutes = (useCases: TrackerUseCases) => {
@@ -38,6 +40,7 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.param('topicId', validateIdentifierParam);
   router.param('subtopicId', validateIdentifierParam);
   router.param('evaluationJobId', validateIdentifierParam);
+  router.param('contributionId', validateIdentifierParam);
 
   const validateQuery =
     (localKey: string, schema: ZodTypeAny) => (req: Request, res: Response, next: NextFunction) => {
@@ -78,6 +81,12 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
 
   router.get(TRACKER_ROUTE_PATHS.TRACKER_BY_ID, trackerController.getTrackerDetails);
 
+  router.post(
+    TRACKER_ROUTE_PATHS.REPORT_TRACKER,
+    validate(reportTrackerSchema),
+    trackerController.reportTracker
+  );
+
   router.patch(
     TRACKER_ROUTE_PATHS.TRACKER_BY_ID,
     validate(updateTrackerSchema),
@@ -112,6 +121,19 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
     TRACKER_ROUTE_PATHS.SUBTOPICS,
     validate(createSubtopicSchema),
     trackerController.createSubtopic
+  );
+
+  router.post(
+    TRACKER_ROUTE_PATHS.CREATE_TOPIC_CONTRIBUTION,
+    trackerController.createTopicContribution
+  );
+
+  router.get(TRACKER_ROUTE_PATHS.TOPIC_CONTRIBUTIONS, trackerController.listTopicContributions);
+
+  router.patch(
+    TRACKER_ROUTE_PATHS.REVIEW_TOPIC_CONTRIBUTION,
+    validate(reviewTopicContributionSchema),
+    trackerController.reviewTopicContribution
   );
 
   router.patch(

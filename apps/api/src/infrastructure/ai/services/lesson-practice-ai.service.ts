@@ -1,4 +1,4 @@
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import {
   answerVerificationSchema,
@@ -11,7 +11,10 @@ import {
   type OptimizedSolutionAIResult,
 } from '../ai.schemas';
 import { parseAIJson } from '../ai-json.parser';
-import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
+import {
+  economyAIChatWithFallback as groqChat,
+  economyAIStructuredWithFallback,
+} from '../ai-fallback.helper';
 import {
   buildLessonAnswerVerificationPrompt,
   LESSON_ANSWER_VERIFICATION_SYSTEM_PROMPT,
@@ -53,7 +56,7 @@ export const generateCodeHint = async (input: {
 }): Promise<CodeHintAIResult> => {
   const revealIssue = input.hintCount >= 3;
 
-  const response = await groqChat(
+  return economyAIStructuredWithFallback(
     [
       {
         role: 'system',
@@ -67,19 +70,11 @@ export const generateCodeHint = async (input: {
         }),
       },
     ],
+    (response) => parseAIJson(response, codeHintSchema),
     'quality',
-    'lesson_practice'
+    'lesson_practice',
+    { operation: 'lesson-code-hint', temperature: 0.3 }
   );
-
-  if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty code hint response',
-      'GROQ_EMPTY_CODE_HINT_RESPONSE'
-    );
-  }
-
-  return parseAIJson(response, codeHintSchema);
 };
 
 export const generateOptimizedCodeSolution = async (input: {
@@ -89,7 +84,7 @@ export const generateOptimizedCodeSolution = async (input: {
   sourceCode: string;
   language?: string;
 }): Promise<OptimizedSolutionAIResult> => {
-  const response = await groqChat(
+  return economyAIStructuredWithFallback(
     [
       {
         role: 'system',
@@ -100,19 +95,11 @@ export const generateOptimizedCodeSolution = async (input: {
         content: buildLessonOptimizedSolutionPrompt(input),
       },
     ],
+    (response) => parseAIJson(response, optimizedSolutionSchema),
     'quality',
-    'lesson_practice'
+    'lesson_practice',
+    { operation: 'lesson-optimized-solution', groqMaxTokens: 4096, temperature: 0.2 }
   );
-
-  if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty optimized solution response',
-      'GROQ_EMPTY_OPTIMIZED_SOLUTION_RESPONSE'
-    );
-  }
-
-  return parseAIJson(response, optimizedSolutionSchema);
 };
 
 export const verifyNonCodingAnswer = async (input: {
@@ -122,7 +109,7 @@ export const verifyNonCodingAnswer = async (input: {
   expectedAnswer?: string;
   userAnswer: string;
 }): Promise<AnswerVerificationAIResult> => {
-  const response = await groqChat(
+  return economyAIStructuredWithFallback(
     [
       {
         role: 'system',
@@ -133,19 +120,11 @@ export const verifyNonCodingAnswer = async (input: {
         content: buildLessonAnswerVerificationPrompt(input),
       },
     ],
+    (response) => parseAIJson(response, answerVerificationSchema),
     'quality',
-    'lesson_practice'
+    'lesson_practice',
+    { operation: 'lesson-answer-verification', temperature: 0.1 }
   );
-
-  if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty answer verification response',
-      'GROQ_EMPTY_ANSWER_VERIFICATION_RESPONSE'
-    );
-  }
-
-  return parseAIJson(response, answerVerificationSchema);
 };
 
 export const generateLessonPracticeQuestions = async (input: {
@@ -156,7 +135,7 @@ export const generateLessonPracticeQuestions = async (input: {
 }): Promise<LessonPracticeQuestionsAIResult> => {
   const count = input.count || 5;
 
-  const response = await groqChat(
+  return economyAIStructuredWithFallback(
     [
       {
         role: 'system',
@@ -170,19 +149,11 @@ export const generateLessonPracticeQuestions = async (input: {
         }),
       },
     ],
+    (response) => parseAIJson(response, lessonPracticeQuestionsSchema),
     'quality',
-    'lesson_practice'
+    'lesson_practice',
+    { operation: 'lesson-practice-questions', groqMaxTokens: 4096, temperature: 0.4 }
   );
-
-  if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned empty lesson practice questions',
-      'GROQ_EMPTY_LESSON_PRACTICE_QUESTIONS'
-    );
-  }
-
-  return parseAIJson(response, lessonPracticeQuestionsSchema);
 };
 
 export const generateLessonQuestionSolution = async (input: {
@@ -202,12 +173,12 @@ export const generateLessonQuestionSolution = async (input: {
       },
     ],
     'quality',
-    'lesson_practice'
+    'lesson_practice',
+    { operation: 'lesson-question-solution' }
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned empty question solution',
       'GROQ_EMPTY_QUESTION_SOLUTION'
     );
@@ -244,12 +215,12 @@ export const chatWithLessonQuestionSolutionDoubt = async (input: {
       ...input.messages,
     ],
     'quality',
-    'lesson_practice'
+    'lesson_practice',
+    { operation: 'lesson-solution-doubt-chat' }
   );
 
   if (!response) {
-    throw new ApiError(
-      502,
+    throw dependencyFailure(
       'Groq returned empty solution doubt response',
       'GROQ_EMPTY_SOLUTION_DOUBT_RESPONSE'
     );

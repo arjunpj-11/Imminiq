@@ -9,5 +9,5 @@ export const adminBroadcastSchema = z.object({
   title: z.string().trim().min(3).max(120),
   message: z.string().trim().min(3).max(500),
   audience: z.enum(['all', 'active']).default('all'),
-  deepLink: z.string().trim().max(300).optional(),
+  deepLink: z.string().trim().regex(/^\/(?!\/)/, 'Use an internal application path').max(300).optional(),
 });

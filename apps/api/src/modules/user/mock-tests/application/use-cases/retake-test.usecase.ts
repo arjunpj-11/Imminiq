@@ -41,13 +41,28 @@ export class RetakeTestUseCase implements IRetakeTestUseCase {
       testId: attempt.testId,
     });
 
+    const questions = await this._repository.findQuestionsByTest(attempt.testId);
+    if (!questions.length) throw MockTestsApplicationError.emptyTest();
+
     const newAttempt = await this._repository.createAttempt({
       testId: attempt.testId,
       userId,
-      totalQuestions: test.questionCount,
+      totalQuestions: questions.length,
+      questionSnapshot: questions.map((question) => ({
+        _id: question._id,
+        testId: question.testId,
+        type: question.type,
+        question: question.question,
+        options: question.options ? [...question.options] : undefined,
+        correctAnswer: question.correctAnswer,
+        explanation: question.explanation,
+        difficulty: question.difficulty,
+        order: question.order,
+        points: question.points,
+        coding: question.coding,
+        version: question.version,
+      })),
     });
-
-    const questions = await this._repository.findQuestionsByTest(attempt.testId);
 
     return this._mapper.toAttemptSessionDto(newAttempt, questions);
   }

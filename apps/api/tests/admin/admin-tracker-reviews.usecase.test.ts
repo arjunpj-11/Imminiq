@@ -1,9 +1,11 @@
 import { describe, expect, it, vi } from 'vitest';
 
-import { AddAdminTrackerReviewConsensusUseCase } from '../../src/modules/admin/tracker-reviews/application/use-cases/add-admin-tracker-review-consensus.usecase';
-import type { IAdminTrackerReviewsRepository } from '../../src/modules/admin/tracker-reviews/domain/repositories/admin-tracker-reviews.repository.interface';
-import { adminTrackerReviewConsensusSchema } from '../../src/modules/admin/tracker-reviews/presentation/admin-tracker-reviews.schema';
-import { AdminTrackerReviewsMapper } from '../../src/modules/admin/tracker-reviews/application/admin-tracker-reviews.mapper';
+import {
+  AddAdminTrackerReviewConsensusUseCase,
+  AdminTrackerReviewsMapper,
+} from '../../src/modules/admin/trackers/application/admin-tracker-reviews';
+import type { IAdminTrackerReviewsRepository } from '../../src/modules/admin/trackers/domain/repositories/admin-tracker-reviews.repository.interface';
+import { adminTrackerReviewConsensusSchema } from '../../src/modules/admin/trackers/presentation/admin-trackers.schema';
 
 describe('AdminTrackerReviewsUseCase', () => {
   it('records the selected administrator consensus vote', async () => {

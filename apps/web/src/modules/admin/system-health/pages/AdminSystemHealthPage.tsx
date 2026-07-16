@@ -105,6 +105,10 @@ export default function AdminSystemHealthPage() {
                 </p>
               </div>
             </AdminPanel>
+            <AdminPanel title="Background queues">
+              <div className="overflow-x-auto"><table className="admin-table w-full min-w-180 text-left text-sm"><thead><tr><th>Queue</th><th>Waiting</th><th>Active</th><th>Delayed</th><th>Failed</th><th>State</th></tr></thead><tbody>{data.queues.map((queue) => <tr key={queue.name}><td className="font-semibold capitalize">{queue.name}</td><td>{queue.waiting}</td><td>{queue.active}</td><td>{queue.delayed}</td><td>{queue.failed}</td><td><AdminStatusBadge value={queue.status}/></td></tr>)}</tbody></table></div>
+            </AdminPanel>
+            {data.alerts.length > 0 && <AdminPanel title="Operational alerts"><div className="space-y-3 p-6">{data.alerts.map((alert) => <div key={alert.code} className={`rounded-lg border p-4 text-sm ${alert.severity === 'critical' ? 'border-red-500/40 bg-red-500/10 text-red-200' : 'border-amber-400/40 bg-amber-400/10 text-amber-100'}`}><strong>{alert.code.replaceAll('_', ' ')}</strong><p className="mt-1 opacity-80">{alert.message}</p></div>)}</div></AdminPanel>}
           </>
         )
       )}

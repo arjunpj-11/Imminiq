@@ -35,7 +35,6 @@ export class CreateMockTestUseCase implements ICreateMockTestUseCase {
       title: payload.title,
       description: payload.description || '',
       difficulty: payload.difficulty || 'medium',
-      visibility: payload.visibility || 'private',
       timeLimitMinutes: payload.timeLimitMinutes || policy.defaultTimeLimitMinutes,
       passingScore: payload.passingScore || policy.defaultPassingScore,
       questionCount: payload.questions.length,

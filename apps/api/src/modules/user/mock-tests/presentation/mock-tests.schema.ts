@@ -87,7 +87,6 @@ export const createMockTestSchema = z.object({
   title: z.string().trim().min(3).max(200),
   description: z.string().trim().max(500).optional(),
   difficulty: z.enum(['easy', 'medium', 'hard']).optional(),
-  visibility: z.enum(['private', 'public']).optional(),
   timeLimitMinutes: z.number().int().min(5).max(180).optional(),
   passingScore: z.number().int().min(1).max(100).optional(),
   tags: z.array(z.string().trim().min(1).max(40)).max(10).optional(),
@@ -108,7 +107,6 @@ export const generateMockTestSchema = z.object({
   topicId: z.string().trim().optional(),
   timeLimitMinutes: z.number().int().min(5).max(180).optional(),
   passingScore: z.number().int().min(1).max(100).optional(),
-  visibility: z.enum(['private', 'public']).optional(),
   runInBackground: z.boolean().optional(),
 });
 
@@ -127,6 +125,19 @@ export const submitMockTestCodeSchema = runMockTestCodeSchema;
 
 export const flagQuestionSchema = z.object({
   questionId: objectIdSchema,
+});
+
+export const reportQuestionIssueSchema = z.object({
+  reason: z.enum([
+    'incorrect_answer',
+    'ambiguous_question',
+    'duplicate_question',
+    'broken_code_or_test_case',
+    'formatting_problem',
+    'unsafe_or_offensive',
+    'other',
+  ]),
+  details: z.string().trim().max(1500).optional().default(''),
 });
 
 export type CreateMockTestInput = z.infer<typeof createMockTestSchema>;

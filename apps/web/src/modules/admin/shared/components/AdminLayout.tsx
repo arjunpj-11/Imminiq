@@ -29,17 +29,17 @@ import { ADMIN_ROUTES, ROUTES } from '../../../../routes/config/route-paths';
 import { AUTH_API_PATHS } from '../../../auth';
 
 const links = [
-  { to: ADMIN_ROUTES.dashboard, label: 'Dashboard', icon: Gauge, end: true },
-  { to: ADMIN_ROUTES.users, label: 'Users', icon: Users },
-  { to: ADMIN_ROUTES.trackers, label: 'Trackers', icon: BookOpenCheck },
-  { to: ADMIN_ROUTES.mockTests, label: 'Mock Tests', icon: ClipboardCheck },
-  { to: ADMIN_ROUTES.activity, label: 'Activity', icon: BarChart3 },
-  { to: ADMIN_ROUTES.broadcast, label: 'Broadcast', icon: Megaphone },
-  { to: ADMIN_ROUTES.subscriptions, label: 'Premium / Subscriptions', icon: ShieldCheck },
-  { to: ADMIN_ROUTES.auditLogs, label: 'Audit Logs', icon: Activity },
-  { to: ADMIN_ROUTES.systemHealth, label: 'System Health', icon: HeartPulse },
-  { to: ADMIN_ROUTES.aiTokenSpend, label: 'AI Token Spend', icon: Cpu },
-  { to: ADMIN_ROUTES.supportTickets, label: 'Support Tickets', icon: TicketCheck },
+  { to: ADMIN_ROUTES.dashboard, label: 'Dashboard', icon: Gauge, end: true, moderator: true },
+  { to: ADMIN_ROUTES.users, label: 'Users', icon: Users, moderator: false },
+  { to: ADMIN_ROUTES.trackers, label: 'Trackers', icon: BookOpenCheck, moderator: true },
+  { to: ADMIN_ROUTES.mockTests, label: 'Mock Tests', icon: ClipboardCheck, moderator: true },
+  { to: ADMIN_ROUTES.activity, label: 'Activity', icon: BarChart3, moderator: false },
+  { to: ADMIN_ROUTES.broadcast, label: 'Broadcast', icon: Megaphone, moderator: false },
+  { to: ADMIN_ROUTES.subscriptions, label: 'Premium / Subscriptions', icon: ShieldCheck, moderator: false },
+  { to: ADMIN_ROUTES.auditLogs, label: 'Audit Logs', icon: Activity, moderator: false },
+  { to: ADMIN_ROUTES.systemHealth, label: 'System Health', icon: HeartPulse, moderator: false },
+  { to: ADMIN_ROUTES.aiTokenSpend, label: 'AI Token Spend', icon: Cpu, moderator: false },
+  { to: ADMIN_ROUTES.supportTickets, label: 'Support Tickets', icon: TicketCheck, moderator: true },
 ];
 
 export default function AdminLayout() {
@@ -91,7 +91,9 @@ export default function AdminLayout() {
           </button>
         </div>
         <nav className="mt-5 space-y-1 px-3">
-          {links.map(({ to, label, icon: Icon, end }) => (
+          {links
+            .filter((item) => user?.role !== 'moderator' || item.moderator)
+            .map(({ to, label, icon: Icon, end }) => (
             <NavLink
               key={label}
               to={to}
@@ -121,14 +123,16 @@ export default function AdminLayout() {
           )}
         </nav>
         <div className="mt-auto border-t border-[rgba(255,255,255,0.09)] p-3">
-          <NavLink
-            to={ADMIN_ROUTES.settings}
-            onDoubleClick={refreshCurrentRoute}
-            className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
-          >
-            <Settings size={18} />
-            Settings
-          </NavLink>
+          {user?.role !== 'moderator' && (
+            <NavLink
+              to={ADMIN_ROUTES.settings}
+              onDoubleClick={refreshCurrentRoute}
+              className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
+            >
+              <Settings size={18} />
+              Settings
+            </NavLink>
+          )}
           <button
             className="flex w-full items-center gap-4 rounded-md px-5 py-3 text-sm text-[#aaa59d] hover:bg-[#2a2723]"
             onClick={() => setSignOutConfirmOpen(true)}

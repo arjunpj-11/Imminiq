@@ -67,7 +67,6 @@ export class ImportSharedMockTestUseCase implements IImportSharedMockTestUseCase
       title: sourceTest.title,
       description: sourceTest.description,
       difficulty: sourceTest.difficulty,
-      visibility: 'private',
       timeLimitMinutes: sourceTest.timeLimitMinutes,
       passingScore: sourceTest.passingScore,
       questionCount: sourceTest.questionCount,

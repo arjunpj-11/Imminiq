@@ -11,4 +11,3 @@ export type {
   MockTestCodingTestCase,
 } from './value-objects/mock-test-coding.vo';
 export type { QuestionType } from './value-objects/question-type.vo';
-export type { TestVisibility } from './value-objects/test-visibility.vo';

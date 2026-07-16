@@ -14,6 +14,7 @@ export * from './use-cases/get-topic-breakdown.usecase';
 export * from './use-cases/import-shared-mock-test.usecase';
 export * from './use-cases/list-mock-tests.usecase';
 export * from './use-cases/retake-test.usecase';
+export * from './use-cases/report-question-issue.usecase';
 export * from './use-cases/run-mock-test-code.usecase';
 export * from './use-cases/share-mock-test.usecase';
 export * from './use-cases/start-test-attempt.usecase';

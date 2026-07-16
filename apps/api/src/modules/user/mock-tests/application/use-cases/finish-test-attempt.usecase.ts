@@ -12,6 +12,7 @@ import type { IClock } from '../../../../../shared/time/clock.interface';
 import type { IMockTestCompletionObserver } from '../../domain/services/mock-test-completion-observer.interface';
 import type { FinishMockTestAttemptDTO } from '../mock-tests.dto';
 import type { IMockTestPolicyReader } from '../../../../../shared/platform-policy';
+import { attemptQuestionSnapshotService } from '../services/attempt-question-snapshot.service';
 
 type FinishTestAttemptRepository = IMockTestRepository &
   IMockTestQuestionRepository &
@@ -76,11 +77,12 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
       throw MockTestsApplicationError.notFound('Test not found');
     }
 
-    const [questions, answers] = await Promise.all([
+    const [liveQuestions, answers] = await Promise.all([
       this._repository.findQuestionsByTest(attempt.testId),
 
       this._repository.findAnswersByAttempt(attemptId),
     ]);
+    const questions = attemptQuestionSnapshotService.all(attempt, liveQuestions);
 
     const completedAt = attempt.completedAt ?? this._clock.now();
 
@@ -97,10 +99,7 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
 
     const totalQuestions = questions.length;
 
-    /*
-     * findAnswersByAttempt() should return one answer for each
-     * answered question.
-     */
+    // The answer repository returns at most one answer per question.
     const answeredQuestions = Math.min(totalQuestions, answers.length);
 
     const correctAnswers = Math.min(answeredQuestions, Math.max(0, scoreResult.correctCount));
@@ -120,13 +119,7 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
       scoreResult.passed
     );
 
-    /*
-     * Reuse the existing report during a retry.
-     *
-     * If report creation previously succeeded but attempt or
-     * activity updating failed, a duplicate report will not be
-     * created.
-     */
+    // Reuse the report when a client retries after a partial downstream failure.
     const existingReport = await this._repository.findReportByAttempt(attemptId);
 
     const report =
@@ -159,11 +152,7 @@ export class FinishTestAttemptUseCase implements IFinishTestAttemptUseCase {
 
     let completedAttempt = attempt;
 
-    /*
-     * Do not rewrite an attempt that is already completed.
-     * That state can occur when only the activity call failed
-     * in a previous request.
-     */
+    // A completed attempt may be a retry whose activity call previously failed.
     if (attempt.status === 'in_progress') {
       const updatedAttempt = await this._repository.updateAttempt(attemptId, {
         status: 'completed',

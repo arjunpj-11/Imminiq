@@ -10,8 +10,9 @@ export class AuthAccountPolicy implements IAuthAccountPolicy {
   constructor(private readonly clock: IClock) {}
 
   ensureUserCanAuthenticate(user: AuthUserEntity): void {
+    const reason = user.adminStatusReason ? ` Reason: ${user.adminStatusReason}` : '';
     if (user.status === 'blocked' || user.status === 'banned') {
-      throw AuthApplicationError.accountBlocked('Account blocked');
+      throw AuthApplicationError.accountBlocked(`Account blocked.${reason}`);
     }
 
     if (user.status === 'deactivated') {
@@ -23,7 +24,7 @@ export class AuthAccountPolicy implements IAuthAccountPolicy {
     }
 
     if (user.status === 'paused') {
-      throw AuthApplicationError.accountPaused('Account paused');
+      throw AuthApplicationError.accountPaused(`Account suspended.${reason}`);
     }
   }
 

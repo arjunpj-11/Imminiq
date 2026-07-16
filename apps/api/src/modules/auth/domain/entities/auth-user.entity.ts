@@ -16,6 +16,7 @@ export type AuthUserEntityProps = {
   onboardingCompleted: boolean;
   passwordHash?: string | null;
   scheduledDeletionAt?: Date | string | null;
+  adminStatusReason?: string | null;
 };
 
 export class AuthUserEntity {
@@ -33,6 +34,7 @@ export class AuthUserEntity {
   readonly onboardingCompleted: boolean;
   readonly passwordHash?: string | null;
   readonly scheduledDeletionAt?: Date | string | null;
+  readonly adminStatusReason?: string | null;
 
   constructor(props: AuthUserEntityProps) {
     this.id = props.id;
@@ -49,5 +51,6 @@ export class AuthUserEntity {
     this.onboardingCompleted = props.onboardingCompleted;
     this.passwordHash = props.passwordHash;
     this.scheduledDeletionAt = props.scheduledDeletionAt;
+    this.adminStatusReason = props.adminStatusReason;
   }
 }

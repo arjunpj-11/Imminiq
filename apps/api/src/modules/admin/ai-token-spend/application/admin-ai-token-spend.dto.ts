@@ -8,6 +8,15 @@ export interface AdminAITokenSpendDTO {
     completionTokens: number;
     requests: number;
     todayTokens: number;
+    previousPeriodTokens: number;
+    changePercent: number | null;
+  };
+  budget: {
+    monthlyLimit: number;
+    monthTokens: number;
+    utilizationPercent: number;
+    warningPercent: number;
+    status: 'within_budget' | 'warning' | 'exceeded';
   };
   daily: Array<{
     date: string;

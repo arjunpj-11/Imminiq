@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { env } from '../../config/env';
-import { ApiError } from '../../shared/utils/ApiError';
+import { dependencyUnavailable } from '../../shared/errors/service.error';
 
 type MessageCentralTokenResponse = {
   token?: string;
@@ -59,7 +59,11 @@ const generateMessageCentralToken = async () => {
   } catch (error: unknown) {
     console.error('Message Central auth token error:', getProviderErrorDetails(error));
 
-    throw new ApiError(500, 'Failed to authenticate SMS provider', 'SMS_PROVIDER_AUTH_FAILED');
+    throw dependencyUnavailable(
+      'Failed to authenticate SMS provider',
+      'SMS_PROVIDER_AUTH_FAILED',
+      error
+    );
   }
 };
 
@@ -96,7 +100,7 @@ export const sendPhoneOtp = async (phone: string) => {
   } catch (error: unknown) {
     console.error('Message Central send OTP error:', getProviderErrorDetails(error));
 
-    throw new ApiError(500, 'Failed to send OTP SMS', 'OTP_SMS_SEND_FAILED');
+    throw dependencyUnavailable('Failed to send OTP SMS', 'OTP_SMS_SEND_FAILED', error);
   }
 };
 

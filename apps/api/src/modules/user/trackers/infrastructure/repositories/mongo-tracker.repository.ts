@@ -100,6 +100,19 @@ export class MongoTrackerRepository implements ITrackerRepository {
     return this._managementRepository.listOwnedTrackers(filter);
   }
 
+  async findReportableTrackerById(trackerId: string) {
+    return this._managementRepository.findReportableTrackerById(trackerId);
+  }
+
+  async createOrReopenTrackerReport(input: {
+    trackerId: string;
+    reporterId: string;
+    reason: string;
+    details: string;
+  }) {
+    return this._managementRepository.createOrReopenTrackerReport(input);
+  }
+
   async createTracker(data: CreateTrackerInput) {
     return this._managementRepository.createTracker(data);
   }

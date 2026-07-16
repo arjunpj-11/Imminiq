@@ -19,12 +19,14 @@ import type {
   IMockTestCodeSubmitResponse,
   IMockTestDetailsResponse,
   IMockTestQuestion,
+  IMockTestQuestionIssueResponse,
   IMockTestShareResponse,
   IRunMockTestCodePayload,
   IStartAttemptResponse,
   ISubmitAnswerPayload,
   ISubmitMockTestCodePayload,
   ITestAnalytics,
+  MockTestQuestionIssueReason,
 } from '../types/mock-tests.types';
 
 const unwrap = <T>(response: IApiResponse<T>) => {
@@ -270,6 +272,26 @@ export const useFlagMockTestQuestion = () => {
     },
   });
 };
+
+export const useReportMockTestQuestion = () =>
+  useMutation<
+    IApiResponse<IMockTestQuestionIssueResponse>,
+    Error,
+    {
+      attemptId: string;
+      questionId: string;
+      reason: MockTestQuestionIssueReason;
+      details: string;
+    }
+  >({
+    mutationFn: async ({ attemptId, questionId, reason, details }) => {
+      const response = await api.post<IApiResponse<IMockTestQuestionIssueResponse>>(
+        MOCK_TEST_API_PATHS.reportQuestion(attemptId, questionId),
+        { reason, details }
+      );
+      return response.data;
+    },
+  });
 
 export const useFinishMockTestAttempt = () => {
   const queryClient = useQueryClient();

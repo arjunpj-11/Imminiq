@@ -1,3 +1,9 @@
 export interface IAdminTrackerEmailProvider {
-  sendTrackerDeleted(to: string, input: { ownerName: string; trackerTitle: string }): Promise<void>;
+  queueTrackerModeration(input: {
+    to: string;
+    ownerName: string;
+    trackerTitle: string;
+    action: 'suspended' | 'deleted' | 'restored';
+    reason: string;
+  }): Promise<void>;
 }

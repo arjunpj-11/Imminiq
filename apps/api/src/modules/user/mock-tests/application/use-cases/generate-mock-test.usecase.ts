@@ -80,8 +80,6 @@ export class GenerateMockTestUseCase implements IGenerateMockTestUseCase {
       description,
       difficulty,
 
-      visibility: payload.visibility || 'private',
-
       timeLimitMinutes: payload.timeLimitMinutes || 30,
 
       passingScore: payload.passingScore || 60,

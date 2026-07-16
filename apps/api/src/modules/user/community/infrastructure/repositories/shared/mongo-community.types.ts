@@ -65,6 +65,7 @@ export type MongoTrackerProgressRecord = {
 export type MongoTrackerTopicRecord = {
   _id: MongoIdLike;
   trackerId: MongoIdLike;
+  sourceTopicId?: MongoIdLike | null;
   title: string;
   description?: string;
   order: number;
@@ -81,6 +82,7 @@ export type MongoTrackerSubtopicRecord = {
   _id: MongoIdLike;
   trackerId: MongoIdLike;
   topicId: MongoIdLike;
+  sourceSubtopicId?: MongoIdLike | null;
   parentSubtopicId?: MongoIdLike | null;
   title: string;
   description?: string;

@@ -28,6 +28,8 @@ export const MOCK_TEST_API_PATHS = {
   attemptQuestions: (attemptId: string) => `/mock-tests/attempts/${attemptId}/questions`,
   submitAnswer: (attemptId: string) => `/mock-tests/attempts/${attemptId}/answers`,
   flagQuestion: (attemptId: string) => `/mock-tests/attempts/${attemptId}/flag`,
+  reportQuestion: (attemptId: string, questionId: string) =>
+    `/mock-tests/attempts/${attemptId}/questions/${questionId}/report`,
   finishAttempt: (attemptId: string) => `/mock-tests/attempts/${attemptId}/finish`,
   attemptResult: (attemptId: string) => `/mock-tests/attempts/${attemptId}/result`,
   attemptAnalysis: (attemptId: string) => `/mock-tests/attempts/${attemptId}/analysis`,

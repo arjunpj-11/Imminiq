@@ -1,4 +1,5 @@
 import type React from 'react';
+import { createPortal } from 'react-dom';
 import { useBodyScrollLock } from '../../../../hooks/useBodyScrollLock';
 import { cn } from '../utils/profile-ui.utils';
 import { useImageCropControls } from '../hooks/ui/useImageCropControls';
@@ -73,7 +74,10 @@ export default function AvatarCropModal({
     }
   };
 
-  return (
+  // Don't render (or hold the portal alive) when fully closed and not animating out.
+  if (!open) return null;
+
+  const modal = (
     <div
       onMouseDown={(event) => event.target === event.currentTarget && onClose()}
       className={cn(
@@ -81,7 +85,7 @@ export default function AvatarCropModal({
         open ? 'pointer-events-auto opacity-100' : 'pointer-events-none opacity-0'
       )}
     >
-      <div className="w-[min(620px,100%)] overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_20px_70px_rgba(0,0,0,0.32)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
+      <div className="mx-auto my-auto flex max-h-[90vh] w-[min(620px,100%)] flex-col overflow-hidden rounded-xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) shadow-[0_20px_70px_rgba(0,0,0,0.32)] dark:border-(--border-subtle) dark:bg-(--surface-card)">
         <div className="flex items-center justify-between border-b border-(--border-subtle) px-6 py-5 dark:border-(--border-subtle)">
           <div>
             <h2 className="font-ui text-[22px] font-extrabold tracking-[-0.4px] text-(--text-primary) dark:text-(--text-primary)">
@@ -110,7 +114,7 @@ export default function AvatarCropModal({
           </button>
         </div>
 
-        <div className="flex flex-col gap-5 p-6">
+        <div className="flex flex-col gap-5 overflow-y-auto p-6">
           <label className="flex cursor-pointer flex-col items-center justify-center gap-2 rounded-lg border-[1.5px] border-dashed border-(--border-subtle) bg-white/65 px-6 py-6 text-center transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.04)] dark:border-white/12 dark:bg-(--surface-elevated)/55">
             <svg
               width="24"
@@ -200,4 +204,6 @@ export default function AvatarCropModal({
       </div>
     </div>
   );
+
+  return createPortal(modal, document.body);
 }

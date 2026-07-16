@@ -11,4 +11,12 @@ export class AdminMockTestsApplicationError extends Error {
   static notFound() {
     return new AdminMockTestsApplicationError(404, 'MOCK_TEST_NOT_FOUND', 'Mock test not found');
   }
+
+  static issueNotFound() {
+    return new AdminMockTestsApplicationError(
+      404,
+      'MOCK_TEST_QUESTION_ISSUE_NOT_FOUND',
+      'Mock test question report not found'
+    );
+  }
 }

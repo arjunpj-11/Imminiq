@@ -1,6 +1,6 @@
-import { ApiError } from '../../../shared/utils/ApiError';
+import { dependencyFailure } from '../../../shared/errors/service.error';
 
-import { economyAIChatWithFallback } from '../ai-fallback.helper';
+import { economyAIStructuredWithFallback } from '../ai-fallback.helper';
 import type { LessonVisualizationResult, IVisualizationInput } from '../ai.schemas';
 import {
   buildVisualizationPrompt,
@@ -14,38 +14,33 @@ import {
 export const generateLessonVisualization = async (
   lesson: IVisualizationInput
 ): Promise<LessonVisualizationResult> => {
-  const rawText = await economyAIChatWithFallback(
+  const html = await economyAIStructuredWithFallback(
     [
       { role: 'system', content: LESSON_VISUALIZATION_SYSTEM_PROMPT },
       { role: 'user', content: buildVisualizationPrompt(lesson) },
     ],
+    (rawText) => {
+      let parsedHtml = rawText
+        .replace(/^```html\s*/i, '')
+        .replace(/^```\s*/i, '')
+        .replace(/\s*```$/i, '')
+        .trim();
+
+      const doctypeIndex = parsedHtml.search(/<!doctype html>/i);
+      if (doctypeIndex > 0) parsedHtml = parsedHtml.slice(doctypeIndex);
+
+      if (!parsedHtml.toLowerCase().includes('<canvas')) {
+        throw dependencyFailure(
+          'AI did not return a canvas visualization',
+          'VISUALIZATION_NO_CANVAS'
+        );
+      }
+      return parsedHtml;
+    },
     'quality',
-    'lesson_generation'
+    'lesson_generation',
+    { operation: 'lesson-visualization', groqMaxTokens: 8192, temperature: 0.4 }
   );
-
-  if (!rawText) {
-    throw new ApiError(502, 'AI returned an empty response', 'VISUALIZATION_EMPTY_RESPONSE');
-  }
-
-  let html = rawText
-    .replace(/^```html\s*/i, '')
-    .replace(/^```\s*/i, '')
-    .replace(/\s*```$/i, '')
-    .trim();
-
-  const doctypeIndex = html.search(/<!doctype html>/i);
-
-  if (doctypeIndex > 0) {
-    html = html.slice(doctypeIndex);
-  }
-
-  if (!html.toLowerCase().includes('<canvas')) {
-    throw new ApiError(
-      502,
-      'AI did not return a canvas visualization. Please try regenerating.',
-      'VISUALIZATION_NO_CANVAS'
-    );
-  }
 
   return {
     html,

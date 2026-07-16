@@ -1,4 +1,9 @@
 import type { AttemptStatus } from '../value-objects/attempt-status.vo';
+import type { MockTestQuestionEntityProps } from './mock-test-question.entity';
+
+export type MockTestAttemptQuestionSnapshot = MockTestQuestionEntityProps & {
+  version: number;
+};
 
 export type MockTestAttemptEntityProps = {
   _id: string;
@@ -14,6 +19,7 @@ export type MockTestAttemptEntityProps = {
   flaggedQuestions: string[];
   totalQuestions: number;
   answeredQuestions: number;
+  questionSnapshot?: MockTestAttemptQuestionSnapshot[];
   createdAt: Date;
 };
 
@@ -31,6 +37,7 @@ export class MockTestAttemptEntity {
   readonly flaggedQuestions: string[];
   readonly totalQuestions: number;
   readonly answeredQuestions: number;
+  readonly questionSnapshot: MockTestAttemptQuestionSnapshot[];
   readonly createdAt: Date;
 
   constructor(props: MockTestAttemptEntityProps) {
@@ -47,6 +54,18 @@ export class MockTestAttemptEntity {
     this.flaggedQuestions = props.flaggedQuestions;
     this.totalQuestions = props.totalQuestions;
     this.answeredQuestions = props.answeredQuestions;
+    this.questionSnapshot = (props.questionSnapshot ?? []).map((question) => ({
+      ...question,
+      options: question.options ? [...question.options] : undefined,
+      coding: question.coding
+        ? {
+            ...question.coding,
+            inputTypes: [...question.coding.inputTypes],
+            templates: question.coding.templates ? { ...question.coding.templates } : undefined,
+            testCases: question.coding.testCases.map((testCase) => ({ ...testCase })),
+          }
+        : undefined,
+    }));
     this.createdAt = props.createdAt;
   }
 }

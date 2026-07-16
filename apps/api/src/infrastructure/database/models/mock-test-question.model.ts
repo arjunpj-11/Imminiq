@@ -174,11 +174,48 @@ const mockTestQuestionSchema = new Schema(
       type: mockTestCodingSchema,
       default: undefined,
     },
+
+    moderationStatus: {
+      type: String,
+      enum: ['active', 'disabled'],
+      default: 'active',
+      index: true,
+    },
+
+    moderationReason: {
+      type: String,
+      default: undefined,
+      maxlength: 1500,
+    },
+
+    moderatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+
+    disabledAt: {
+      type: Date,
+      default: null,
+    },
+
+    version: {
+      type: Number,
+      default: 1,
+      min: 1,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
+      index: true,
+    },
   },
   { timestamps: true }
 );
 
 mockTestQuestionSchema.index({ testId: 1, order: 1 }, { unique: true });
+mockTestQuestionSchema.index({ testId: 1, moderationStatus: 1, order: 1 });
 
 export const MockTestQuestionModel =
   mongoose.models.MockTestQuestion || mongoose.model('MockTestQuestion', mockTestQuestionSchema);

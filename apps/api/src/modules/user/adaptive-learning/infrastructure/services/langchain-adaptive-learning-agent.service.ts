@@ -1,7 +1,7 @@
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph';
 import { z } from 'zod';
 
-import { economyAIStructuredWithFallback } from '../../../../../infrastructure/ai/ai-fallback.helper';
+import { economyAIStructuredWithFallback } from '../../../../../infrastructure/ai/ai.service';
 import { parseAIJson } from '../../../../../infrastructure/ai/ai-json.parser';
 import type {
   AdaptiveAdvisorAnswer,
@@ -132,9 +132,10 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
               }),
             },
           ],
-          (rawResponse) => parseAIJson(rawResponse, assessmentPlanSchema, { logErrors: false }),
+          (rawResponse) => parseAIJson(rawResponse, assessmentPlanSchema),
           'fast',
-          'adaptive_learning'
+          'adaptive_learning',
+          { operation: 'adaptive-assessment-plan', temperature: 0.2 }
         );
         return { proposedPlan };
       })
@@ -211,9 +212,10 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
             }),
           },
         ],
-        (rawResponse) => parseAIJson(rawResponse, advisorResponseSchema, { logErrors: false }),
+        (rawResponse) => parseAIJson(rawResponse, advisorResponseSchema),
         'fast',
-        'adaptive_learning'
+        'adaptive_learning',
+        { operation: 'adaptive-learning-advisor', temperature: 0.3 }
       );
     } catch (error) {
       console.error('[AdaptiveLearning] All structured advisor responses failed:', error);

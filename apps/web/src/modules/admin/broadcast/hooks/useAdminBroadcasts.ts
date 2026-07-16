@@ -9,13 +9,13 @@ import {
   ADMIN_BROADCAST_PAGE_SIZE,
   ADMIN_BROADCAST_STALE_TIME_MS,
 } from '../constants/admin-broadcast.constants';
-export const useAdminBroadcasts = (page: number) =>
+export const useAdminBroadcasts = (page: number, search = '') =>
   useQuery({
-    queryKey: adminBroadcastKeys.list(page),
+    queryKey: adminBroadcastKeys.list(page, search),
     queryFn: async () =>
       (
         await api.get<ApiEnvelope<AdminPageData<AdminBroadcast>>>(ADMIN_BROADCAST_ENDPOINTS.list, {
-          params: { page, limit: ADMIN_BROADCAST_PAGE_SIZE },
+          params: { page, search: search || undefined, limit: ADMIN_BROADCAST_PAGE_SIZE },
         })
       ).data.data,
     placeholderData: keepPreviousData,

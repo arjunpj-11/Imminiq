@@ -163,7 +163,6 @@ export class MongoMockTestsCreationSessionRepository extends MongoMockTestsBaseR
     MongoMockTestsUpdateUtils.setIfDefined($set, source, 'title');
     MongoMockTestsUpdateUtils.setIfDefined($set, source, 'description');
     MongoMockTestsUpdateUtils.setIfDefined($set, source, 'difficulty');
-    MongoMockTestsUpdateUtils.setIfDefined($set, source, 'visibility');
     MongoMockTestsUpdateUtils.setIfDefined($set, source, 'timeLimitMinutes');
     MongoMockTestsUpdateUtils.setIfDefined($set, source, 'passingScore');
     MongoMockTestsUpdateUtils.setIfDefined($set, source, 'questionCount');

@@ -4,21 +4,13 @@ import { SETTINGS_API_PATHS } from '../constants/settings-tabs.constants';
 import { settingsKeys } from './settings.query-keys';
 import type {
   IApiEnvelope,
-  IGestureSettings,
   INotificationSettings,
   IPrivacySettings,
-  IUpdateAccountSettingsPayload,
-  IUpdateAIBehaviourPayload,
   IUpdateAppearancePayload,
-  IUpdateCodeEditorPayload,
-  IUpdateCompilerPayload,
-  IUpdateEmailDigestPayload,
-  IUpdateGesturesPayload,
-  IUpdateLearningJourneyPayload,
   IUpdateNotificationsPayload,
   IUpdatePrivacyPayload,
-  IUpdateQuietHoursPayload,
   IUserSettings,
+  DataPrivacyRequest,
 } from '../types/settings.types';
 
 const unwrap = <T>(response: { data: IApiEnvelope<T> }) => {
@@ -85,25 +77,29 @@ export const usePrivacySettings = () =>
     },
   });
 
-export const useGestureSettings = () =>
+export const useDataPrivacyRequests = () =>
   useQuery({
-    queryKey: settingsKeys.gestures(),
-    queryFn: async () => {
-      const response = await api.get<IApiEnvelope<IGestureSettings>>(SETTINGS_API_PATHS.gestures);
-
-      return unwrap(response);
-    },
+    queryKey: settingsKeys.privacyRequests(),
+    queryFn: async () => unwrap((await api.get<IApiEnvelope<DataPrivacyRequest[]>>(SETTINGS_API_PATHS.privacyRequests))),
   });
 
-export const useUpdateAccountSettings = () =>
-  useSettingsMutation<IUpdateAccountSettingsPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.account,
-      payload
-    );
-
-    return unwrap(response);
+export const useSubmitDataPrivacyRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (payload: { type: DataPrivacyRequest['type']; details: string }) =>
+      unwrap(await api.post<IApiEnvelope<DataPrivacyRequest>>(SETTINGS_API_PATHS.privacyRequests, payload)),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: settingsKeys.privacyRequests() }),
   });
+};
+
+export const useCancelDataPrivacyRequest = () => {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (requestId: string) =>
+      unwrap(await api.delete<IApiEnvelope<DataPrivacyRequest>>(SETTINGS_API_PATHS.privacyRequest(requestId))),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: settingsKeys.privacyRequests() }),
+  });
+};
 
 export const useUpdateAppearance = () =>
   useSettingsMutation<IUpdateAppearancePayload>(async (payload) => {
@@ -125,80 +121,10 @@ export const useUpdateNotifications = () =>
     return unwrap(response);
   });
 
-export const useUpdateQuietHours = () =>
-  useSettingsMutation<IUpdateQuietHoursPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.notificationQuietHours,
-      payload
-    );
-
-    return unwrap(response);
-  });
-
-export const useUpdateEmailDigest = () =>
-  useSettingsMutation<IUpdateEmailDigestPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.notificationEmailDigest,
-      payload
-    );
-
-    return unwrap(response);
-  });
-
 export const useUpdatePrivacy = () =>
   useSettingsMutation<IUpdatePrivacyPayload>(async (payload) => {
     const response = await api.patch<IApiEnvelope<IUserSettings>>(
       SETTINGS_API_PATHS.privacy,
-      payload
-    );
-
-    return unwrap(response);
-  });
-
-export const useUpdateCodeEditor = () =>
-  useSettingsMutation<IUpdateCodeEditorPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.codeEditor,
-      payload
-    );
-
-    return unwrap(response);
-  });
-
-export const useUpdateCompiler = () =>
-  useSettingsMutation<IUpdateCompilerPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.compiler,
-      payload
-    );
-
-    return unwrap(response);
-  });
-
-export const useUpdateAIBehaviour = () =>
-  useSettingsMutation<IUpdateAIBehaviourPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.aiBehavior,
-      payload
-    );
-
-    return unwrap(response);
-  });
-
-export const useUpdateLearningJourney = () =>
-  useSettingsMutation<IUpdateLearningJourneyPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.learningJourney,
-      payload
-    );
-
-    return unwrap(response);
-  });
-
-export const useUpdateGestures = () =>
-  useSettingsMutation<IUpdateGesturesPayload>(async (payload) => {
-    const response = await api.patch<IApiEnvelope<IUserSettings>>(
-      SETTINGS_API_PATHS.gestures,
       payload
     );
 

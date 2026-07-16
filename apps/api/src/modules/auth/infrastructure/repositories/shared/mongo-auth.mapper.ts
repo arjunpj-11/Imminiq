@@ -41,6 +41,9 @@ export class MongoAuthMapper {
       ...(user.scheduledDeletionAt !== undefined
         ? { scheduledDeletionAt: user.scheduledDeletionAt }
         : {}),
+      ...(user.adminStatusReason !== undefined
+        ? { adminStatusReason: user.adminStatusReason }
+        : {}),
     });
   }
 

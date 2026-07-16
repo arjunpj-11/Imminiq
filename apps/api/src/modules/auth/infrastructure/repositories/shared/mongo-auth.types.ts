@@ -21,6 +21,7 @@ export type MongoAuthUserRecord = {
   onboardingCompleted?: boolean;
   passwordHash?: string | null;
   scheduledDeletionAt?: Date | string | null;
+  adminStatusReason?: string | null;
 };
 
 export type MongoOAuthAuthUserRecord = MongoAuthUserRecord & {

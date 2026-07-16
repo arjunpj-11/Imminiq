@@ -3,15 +3,13 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
-  Search,
-  UserCheck,
-  UserRoundX,
-  Users,
+  Scale,
+  Download,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import type { LucideIcon } from 'lucide-react';
-import { AdminError } from '../../shared';
+import { AdminBulkActionBar, AdminError, AdminMetricGrid, AdminPageHeader, AdminSearch } from '../../shared';
+import { downloadServerCsv } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminUsers } from '../hooks/useAdminUsers';
 import {
@@ -26,60 +24,28 @@ export default function AdminUsersPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<(typeof ADMIN_USER_FILTERS)[number]>('all');
   const [page, setPage] = useState(1);
+  const [selected, setSelected] = useState<string[]>([]);
   const debouncedSearch = useDebouncedValue(search, ADMIN_USERS_SEARCH_DEBOUNCE_MS);
   const { data, isLoading, isError, error, isFetching } = useAdminUsers({
     search: debouncedSearch,
     status,
     page,
   });
-  const statCards: Array<{ label: string; value: number; icon: LucideIcon; color: string }> = data
-    ? [
-        { label: 'Total users', value: data.stats.total, icon: Users, color: '#e8816a' },
-        { label: 'Active now', value: data.stats.active, icon: UserCheck, color: '#52c58c' },
-        { label: 'Blocked', value: data.stats.blocked, icon: UserRoundX, color: '#e26767' },
-      ]
-    : [];
+  const exportCurrentView = () => void downloadServerCsv('/admin/users/export.csv', `imminiq-users-${status}.csv`, { search: debouncedSearch, status });
 
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
-      <div className="flex flex-wrap items-center justify-between gap-5">
-        <div>
-          <div className="text-[10px] font-bold uppercase tracking-[.18em] text-[#e8816a]">
-            Administration
-          </div>
-          <h1 className="font-editorial mt-1 text-4xl font-bold">User Management</h1>
-        </div>
-        <label className="flex min-w-[280px] flex-1 items-center gap-3 rounded-full border border-[rgba(255,255,255,0.16)] bg-[#24211e] px-5 py-3 md:max-w-[390px]">
-          <Search size={18} />
-          <input
-            value={search}
-            onChange={(event) => {
-              setSearch(event.target.value);
-              setPage(1);
-            }}
-            className="w-full bg-transparent text-sm outline-none"
-            placeholder="Search users, names, emails…"
-          />
-        </label>
-      </div>
-      {data && (
-        <section className="mt-8 grid gap-4 sm:grid-cols-3">
-          {statCards.map(({ label, value, icon: Icon, color }) => (
-            <div
-              key={label}
-              className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6"
-            >
-              <div className="flex justify-between text-[10px] uppercase tracking-wide text-[#aaa59d]">
-                <span>{label}</span>
-                <Icon size={18} style={{ color }} />
-              </div>
-              <div className="font-editorial mt-6 text-2xl" style={{ color }}>
-                {number.format(value)}
-              </div>
-            </div>
-          ))}
-        </section>
-      )}
+    <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
+      <AdminPageHeader
+        title="User Management"
+        description="Manage account access, user history, privacy requests, appeals, and internal support context."
+        action={<div className="flex flex-wrap gap-2"><button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button><Link to={ADMIN_USERS_ROUTES.appeals} className="admin-button inline-flex items-center gap-2"><Scale size={16} /> Account appeals</Link></div>}
+      />
+      <AdminMetricGrid metrics={[
+        { label: 'Total users', value: data?.stats.total ?? 0 },
+        { label: 'Active accounts', value: data?.stats.active ?? 0, tone: 'success' },
+        { label: 'Suspended', value: data?.stats.paused ?? 0, tone: 'warning' },
+        { label: 'Blocked', value: data?.stats.blocked ?? 0, tone: 'error' },
+      ]} />
       <section className="mt-8 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18]">
         <div className="flex flex-wrap items-center gap-5 border-b border-[rgba(255,255,255,0.09)] px-6 py-5">
           <h2 className="font-editorial mr-2 text-xl font-bold">All Users</h2>
@@ -97,7 +63,9 @@ export default function AdminUsersPage() {
               </button>
             ))}
           </div>
+          <div className="ml-auto"><AdminSearch value={search} onChange={(value) => { setSearch(value); setPage(1); }} placeholder="Search users, names, emails…" /></div>
         </div>
+        <div className="px-6 pt-4"><AdminBulkActionBar kind="users" selected={selected} onClear={() => setSelected([])} /></div>
         {isLoading && <div className="p-10 text-center text-sm text-[#aaa59d]">Loading users…</div>}
         {!isLoading && isFetching && (
           <div className="h-px animate-pulse bg-[#e8816a]" aria-label="Refreshing users" />
@@ -109,6 +77,7 @@ export default function AdminUsersPage() {
               <table className="w-full min-w-[850px] text-left">
                 <thead className="border-b border-[rgba(255,255,255,0.16)] bg-[#141412] text-[9px] uppercase tracking-wider text-[#aaa59d]">
                   <tr>
+                    <th className="px-6 py-4"><input aria-label="Select visible users" type="checkbox" checked={Boolean(data.users.length) && data.users.every((item) => selected.includes(item._id))} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...data.users.map((item) => item._id)])) : selected.filter((id) => !data.users.some((item) => item._id === id)))} /></th>
                     <th className="px-6 py-4">User</th>
                     <th className="px-6 py-4">Role</th>
                     <th className="px-6 py-4">Email</th>
@@ -121,8 +90,9 @@ export default function AdminUsersPage() {
                   {data.users.map((user) => (
                     <tr
                       key={user._id}
-                      className={`border-t border-[rgba(255,255,255,0.09)] text-sm ${user.status === 'blocked' ? 'bg-[rgba(226,103,103,0.08)]' : ''}`}
+                      className={`border-t border-[rgba(255,255,255,0.09)] text-sm ${user.status === 'blocked' ? 'bg-[rgba(226,103,103,0.08)]' : user.status === 'paused' ? 'bg-[rgba(240,168,66,0.06)]' : ''}`}
                     >
+                      <td className="px-6 py-4"><input aria-label={`Select ${user.fullName}`} type="checkbox" checked={selected.includes(user._id)} onChange={(event) => setSelected(event.target.checked ? [...selected, user._id] : selected.filter((id) => id !== user._id))} /></td>
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
                           {user.avatarUrl ? (
@@ -156,7 +126,7 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 font-semibold ${user.status === 'blocked' ? 'text-[#e26767]' : 'text-[#52c58c]'}`}
+                          className={`inline-flex items-center gap-1.5 font-semibold ${user.status === 'blocked' ? 'text-[#e26767]' : user.status === 'paused' ? 'text-[#f0a842]' : 'text-[#52c58c]'}`}
                         >
                           <span className="h-1.5 w-1.5 rounded-full bg-current" />
                           {user.status}

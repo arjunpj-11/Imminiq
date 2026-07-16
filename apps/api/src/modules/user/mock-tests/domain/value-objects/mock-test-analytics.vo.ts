@@ -1,6 +1,5 @@
 import type { AttemptStatus } from './attempt-status.vo';
 import type { DifficultyLevel } from './difficulty-level.vo';
-import type { TestVisibility } from './test-visibility.vo';
 
 export type MockTestHistoryTest = {
   _id: string;
@@ -10,7 +9,8 @@ export type MockTestHistoryTest = {
   title: string;
   description: string;
   difficulty: DifficultyLevel;
-  visibility: TestVisibility;
+  moderationStatus?: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   questionCount: number;
   timeLimitMinutes: number;
   passingScore: number;

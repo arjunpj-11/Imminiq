@@ -5,7 +5,6 @@ import type { EvaluationStatus } from '../../../domain/value-objects/evaluation-
 import type { MockTestCodingDetails } from '../../../domain/value-objects/mock-test-coding.vo';
 import type { MockTestCreationDraft } from '../../../domain/value-objects/mock-test-creation-draft.vo';
 import type { QuestionType } from '../../../domain/value-objects/question-type.vo';
-import type { TestVisibility } from '../../../domain/value-objects/test-visibility.vo';
 
 export type RawRecord = Record<string, unknown>;
 
@@ -17,7 +16,8 @@ export type RawMockTestDoc = {
   title?: string;
   description?: string;
   difficulty?: DifficultyLevel;
-  visibility?: TestVisibility;
+  moderationStatus?: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   questionCount?: number;
   timeLimitMinutes?: number;
   passingScore?: number;
@@ -44,6 +44,7 @@ export type RawMockTestQuestionDoc = {
   order?: number;
   points?: number;
   coding?: MockTestCodingDetails;
+  version?: number;
 };
 
 export type RawMockTestAttemptDoc = {
@@ -60,6 +61,20 @@ export type RawMockTestAttemptDoc = {
   flaggedQuestions?: unknown[];
   totalQuestions?: number;
   answeredQuestions?: number;
+  questionSnapshot?: Array<{
+    _id: string;
+    testId: string;
+    type: QuestionType;
+    question: string;
+    options?: string[];
+    correctAnswer?: string;
+    explanation?: string;
+    difficulty: DifficultyLevel;
+    order: number;
+    points: number;
+    coding?: MockTestCodingDetails;
+    version: number;
+  }>;
   createdAt?: Date;
 };
 

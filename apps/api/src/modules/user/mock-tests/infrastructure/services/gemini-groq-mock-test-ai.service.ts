@@ -2,7 +2,7 @@ import {
   evaluateMockTestOpenAnswerAI,
   generateMockTestPerformanceInsightsAI,
   generateMockTestQuestionsAI,
-  generateMockTestQuestionsGroqAI,
+  getAIUserMessage,
 } from '../../../../../infrastructure/ai/ai.service';
 import { MockTestsDomainError } from '../../domain/mock-tests-domain.error';
 import type {
@@ -12,15 +12,6 @@ import type {
   IGenerateQuestionsInput,
   IMockTestAIGateway,
 } from '../../domain/services/mock-test-ai.interface';
-
-function isServiceUnavailable(error: unknown): boolean {
-  return (
-    typeof error === 'object' &&
-    error !== null &&
-    'status' in error &&
-    (error as { status: number }).status === 503
-  );
-}
 
 type GenerateQuestionsOutput = Awaited<ReturnType<IMockTestAIGateway['generateQuestions']>>;
 
@@ -35,28 +26,9 @@ export class GeminiGroqMockTestAIGateway implements IMockTestAIGateway {
       });
       return result as GenerateQuestionsOutput;
     } catch (error) {
-      console.error('[GeminiGroq] generateQuestions Gemini failed:', error);
+      console.error('[Mock test AI] generateQuestions failed after provider fallbacks:', error);
 
-      if (isServiceUnavailable(error)) {
-        console.warn('[GeminiGroq] Gemini 503 — falling back to Groq...');
-        try {
-          const safeTypes = input.questionTypes.filter((t) => t !== 'coding');
-          const result = await generateMockTestQuestionsGroqAI({
-            topic: input.topic,
-            difficulty: input.difficulty,
-            questionCount: input.questionCount,
-            questionTypes: safeTypes.length > 0 ? safeTypes : ['mcq'],
-          });
-          return result as GenerateQuestionsOutput;
-        } catch (groqError) {
-          console.error('[GeminiGroq] Groq fallback also failed:', groqError);
-        }
-      }
-
-      throw new MockTestsDomainError(
-        'AI_GENERATION_FAILED',
-        'Mock test question generation failed'
-      );
+      throw new MockTestsDomainError('AI_GENERATION_FAILED', getAIUserMessage(error));
     }
   }
 
@@ -71,7 +43,7 @@ export class GeminiGroqMockTestAIGateway implements IMockTestAIGateway {
       return result as IEvaluateAnswerOutput;
     } catch (error) {
       console.error('[GeminiGroq] evaluateOpenAnswer failed:', error);
-      throw new MockTestsDomainError('AI_EVALUATION_FAILED', 'Mock test answer evaluation failed');
+      throw new MockTestsDomainError('AI_EVALUATION_FAILED', getAIUserMessage(error));
     }
   }
 

@@ -6,6 +6,14 @@ import type { TrackerVisibility } from '../value-objects/tracker-visibility.vo';
 export type TrackerEntityProps = {
   id: string;
   ownerId?: string;
+  sourceTrackerId?: string | null;
+  clonedFrom?: {
+    trackerId: string;
+    ownerId: string;
+    name: string;
+    username: string;
+    avatarUrl?: string | null;
+  } | null;
   title?: string;
   description?: string;
   domain?: TrackerDomain | string;
@@ -29,6 +37,8 @@ export type TrackerEntityProps = {
 export class TrackerEntity {
   readonly id: string;
   readonly ownerId?: string;
+  readonly sourceTrackerId?: string | null;
+  readonly clonedFrom?: TrackerEntityProps['clonedFrom'];
   readonly title?: string;
   readonly description?: string;
   readonly domain?: TrackerDomain | string;
@@ -51,6 +61,8 @@ export class TrackerEntity {
   constructor(props: TrackerEntityProps) {
     this.id = props.id;
     this.ownerId = props.ownerId;
+    this.sourceTrackerId = props.sourceTrackerId;
+    this.clonedFrom = props.clonedFrom;
     this.title = props.title;
     this.description = props.description;
     this.domain = props.domain;

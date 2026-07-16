@@ -136,35 +136,48 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           );
         }
 
-        await TrackerProgress.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            userId: userObjId,
-            trackerId: trackerObjId,
-          }),
-          this.mapper.asMongoUpdate({
-            $setOnInsert: {
+        const now = new Date();
+        await Promise.all([
+          TrackerProgress.findOneAndUpdate(
+            this.mapper.asMongoFilter({
               userId: userObjId,
               trackerId: trackerObjId,
-              completedTopics: 0,
-              completedSubtopics: 0,
-              completionPercentage: 0,
-              lastStudiedAt: null,
-              startedAt: new Date(),
-              completedAt: null,
-            },
+            }),
+            this.mapper.asMongoUpdate({
+              $setOnInsert: {
+                userId: userObjId,
+                trackerId: trackerObjId,
+                completedTopics: 0,
+                completedSubtopics: 0,
+                completionPercentage: 0,
+                lastStudiedAt: null,
+                startedAt: now,
+                completedAt: null,
+              },
 
-            $set: {
-              totalTopics: topics.length,
-              totalSubtopics: subtopics.length,
+              $set: {
+                totalTopics: topics.length,
+                totalSubtopics: subtopics.length,
+              },
+            }),
+            {
+              upsert: true,
+              returnDocument: 'after',
+              runValidators: true,
+              setDefaultsOnInsert: true,
+            }
+          ),
+          Tracker.updateOne(
+            {
+              _id: trackerObjId,
+              ownerId: userObjId,
+              status: 'draft',
+              deletedAt: null,
+              moderationStatus: { $in: ['active', null] },
             },
-          }),
-          {
-            upsert: true,
-            returnDocument: 'after',
-            runValidators: true,
-            setDefaultsOnInsert: true,
-          }
-        );
+            { $set: { status: 'active', lastActiveAt: now } }
+          ),
+        ]);
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError
     );
@@ -254,7 +267,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
 
         const userObjId = this.mapper.toObjectId(data.userId);
 
-        const [topics, userProgress] = await Promise.all([
+        const [topics, userProgress, tracker] = await Promise.all([
           TrackerTopic.find(
             this.mapper.asMongoFilter({
               trackerId: trackerObjId,
@@ -272,15 +285,42 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               trackerId: trackerObjId,
             })
           ).lean<MongoTopicProgressRecord[]>(),
+          Tracker.findById(trackerObjId).select('sourceTrackerId').lean(),
         ]);
+
+        const sourceTopics = tracker?.sourceTrackerId
+          ? await TrackerTopic.find({ trackerId: tracker.sourceTrackerId, deletedAt: null })
+              .select('_id title description')
+              .lean<MongoTopicContentRecord[]>()
+          : [];
+        const sourceSignatures = new Set(
+          sourceTopics.map((topic) =>
+            `${topic.title.trim().toLowerCase()}\u0000${(topic.description ?? '').trim().toLowerCase()}`
+          )
+        );
 
         const progressMap = new Map(
           userProgress.map((progress) => [progress.topicId?.toString?.() ?? '', progress])
         );
 
-        return topics.map((topic) =>
-          this.mapper.toTopicWithProgress(topic, progressMap.get(topic._id.toString()))
-        ) as TopicWithProgressRecord[];
+        return topics.map((topic) => {
+          const mapped = this.mapper.toTopicWithProgress(
+            topic,
+            progressMap.get(topic._id.toString())
+          );
+          const sourceTopicId = topic.sourceTopicId ? String(topic.sourceTopicId) : null;
+          const signature = `${topic.title.trim().toLowerCase()}\u0000${(topic.description ?? '')
+            .trim()
+            .toLowerCase()}`;
+
+          return {
+            ...mapped,
+            sourceTopicId,
+            isCloneAddition: Boolean(
+              tracker?.sourceTrackerId && !sourceTopicId && !sourceSignatures.has(signature)
+            ),
+          };
+        }) as TopicWithProgressRecord[];
       }
     );
   }
@@ -400,21 +440,16 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
             ? Math.min(100, Math.round((completedSubtopics / totalSubtopics) * 100))
             : 0;
 
-        const activateDraftTrackerPromise =
-          data.status === 'completed'
-            ? Tracker.updateOne(
-                this.mapper.asMongoFilter({
-                  _id: trackerObjId,
-                  status: 'draft',
-                  deletedAt: null,
-                }),
-                this.mapper.asMongoUpdate({
-                  $set: {
-                    status: 'active',
-                  },
-                })
-              )
-            : Promise.resolve();
+        const activateDraftTrackerPromise = Tracker.updateOne(
+          {
+            _id: trackerObjId,
+            ownerId: userObjId,
+            status: 'draft',
+            deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
+          },
+          { $set: { status: 'active' } }
+        );
 
         await Promise.all([
           Tracker.findOneAndUpdate(

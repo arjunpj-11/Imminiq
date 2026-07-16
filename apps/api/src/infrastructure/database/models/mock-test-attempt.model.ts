@@ -19,6 +19,9 @@ const mockTestAttemptSchema = new Schema(
     flaggedQuestions: [{ type: Schema.Types.ObjectId, ref: 'MockTestQuestion' }],
     totalQuestions: { type: Number, required: true },
     answeredQuestions: { type: Number, default: 0 },
+    // Immutable assessment manifest captured when the attempt starts. Historical
+    // scoring and result views must never depend on subsequently moderated content.
+    questionSnapshot: { type: [Schema.Types.Mixed], default: [] },
   },
   { timestamps: true }
 );

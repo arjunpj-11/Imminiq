@@ -55,7 +55,6 @@ describe('published tracker administration', () => {
       likePublished: vi.fn().mockResolvedValue(engagement),
       ratePublished: vi.fn().mockResolvedValue(engagement),
       getDetail: vi.fn(),
-      delete: vi.fn(),
     } as unknown as IAdminTrackersRepository;
     const mapper = new AdminTrackersMapper();
     const likeUseCase = new LikeAdminPublishedTrackerUseCase(repository, mapper);
@@ -74,7 +73,6 @@ describe('published tracker administration', () => {
       likePublished: vi.fn().mockResolvedValue(null),
       ratePublished: vi.fn(),
       getDetail: vi.fn(),
-      delete: vi.fn(),
     } as unknown as IAdminTrackersRepository;
 
     await expect(

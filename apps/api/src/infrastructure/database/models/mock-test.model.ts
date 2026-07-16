@@ -44,10 +44,39 @@ const mockTestSchema = new Schema(
       index: true,
     },
 
-    visibility: {
+    moderationStatus: {
       type: String,
-      enum: ['private', 'public'],
-      default: 'private',
+      enum: ['active', 'suspended', 'deleted'],
+      default: 'active',
+      index: true,
+    },
+
+    moderationReason: {
+      type: String,
+      default: undefined,
+      maxlength: 1000,
+    },
+
+    moderationReasonCode: {
+      type: String,
+      default: undefined,
+      maxlength: 80,
+    },
+
+    moderatedBy: {
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+      default: null,
+    },
+
+    suspendedAt: {
+      type: Date,
+      default: null,
+    },
+
+    deletedAt: {
+      type: Date,
+      default: null,
       index: true,
     },
 
@@ -116,7 +145,8 @@ const mockTestSchema = new Schema(
 );
 
 mockTestSchema.index({ ownerId: 1, createdAt: -1 });
-mockTestSchema.index({ visibility: 1, difficulty: 1, createdAt: -1 });
+mockTestSchema.index({ difficulty: 1, createdAt: -1 });
+mockTestSchema.index({ moderationStatus: 1, deletedAt: 1, createdAt: -1 });
 mockTestSchema.index({ title: 'text', description: 'text', tags: 'text' });
 
 mockTestSchema.index(

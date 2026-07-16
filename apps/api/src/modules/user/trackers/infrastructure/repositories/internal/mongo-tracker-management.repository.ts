@@ -1,6 +1,9 @@
 import { CommunityVerificationSubmission } from '../../../../../../infrastructure/database/models/community-verification-submission.model';
 import { Tracker } from '../../../../../../infrastructure/database/models/tracker.model';
 import { TrackerProgress } from '../../../../../../infrastructure/database/models/tracker-progress.model';
+import { User } from '../../../../../../infrastructure/database/models/user.model';
+import { TrackerReport } from '../../../../../../infrastructure/database/models/tracker-report.model';
+import { TrackerVersion } from '../../../../../../infrastructure/database/models/tracker-version.model';
 import type {
   ArchiveOwnedTrackerInput,
   FindOwnedTrackerByIdInput,
@@ -25,6 +28,57 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
     super();
   }
 
+  async findReportableTrackerById(trackerId: string) {
+    return this.execute('TRACKER_READ_FAILED', 'Failed to read tracker', async () => {
+      const tracker = await Tracker.findOne({
+        _id: this.mapper.toObjectId(trackerId),
+        deletedAt: null,
+        visibility: 'public',
+        publishedAt: { $ne: null },
+        moderationStatus: { $in: ['active', null] },
+      }).lean();
+      return tracker ? this.mapper.toDomainRecord<TrackerRecord>(tracker) : null;
+    });
+  }
+
+  async createOrReopenTrackerReport(input: {
+    trackerId: string;
+    reporterId: string;
+    reason: string;
+    details: string;
+  }) {
+    return this.execute('TRACKER_REPORT_WRITE_FAILED', 'Failed to report tracker', async () => {
+      const now = new Date();
+      const report = await TrackerReport.findOneAndUpdate(
+        {
+          trackerId: this.mapper.toObjectId(input.trackerId),
+          reporterId: this.mapper.toObjectId(input.reporterId),
+        },
+        {
+          $set: {
+            reason: input.reason,
+            details: input.details,
+            status: 'open',
+            assignedTo: null,
+            resolutionAction: 'none',
+            resolutionNote: '',
+            resolvedBy: null,
+            resolvedAt: null,
+            updatedAt: now,
+          },
+          $setOnInsert: { createdAt: now },
+        },
+        { upsert: true, returnDocument: 'after', setDefaultsOnInsert: true }
+      ).lean();
+      return {
+        id: String(report!._id),
+        status: String(report!.status),
+        createdAt: report!.createdAt,
+        updatedAt: report!.updatedAt,
+      };
+    });
+  }
+
   async listDomains(search: string, limit: number) {
     return this.execute(
       'TRACKER_DOMAINS_READ_FAILED',
@@ -35,6 +89,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           {
             $match: {
               deletedAt: null,
+              moderationStatus: { $in: ['active', null] },
               category: {
                 $type: 'string',
                 $ne: '',
@@ -206,8 +261,12 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
         };
       });
 
+      const trackersWithSources = await this.enrichCloneSources(
+        enrichedTrackers as unknown as TrackerRecord[]
+      );
+
       return {
-        trackers: enrichedTrackers as TrackerRecord[],
+        trackers: trackersWithSources,
         total,
         page,
         limit,
@@ -253,6 +312,24 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       'TRACKER_UPDATE_FAILED',
       'Failed to update owned tracker',
       async () => {
+        const current = await Tracker.findOne({
+          _id: this.mapper.toObjectId(data.trackerId),
+          ownerId: this.mapper.toObjectId(data.userId),
+          deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
+        }).lean();
+        if (!current) return null;
+        await TrackerVersion.updateOne(
+          { trackerId: current._id, version: current.version ?? 1 },
+          {
+            $setOnInsert: {
+              snapshot: current,
+              changedBy: this.mapper.toObjectId(data.userId),
+              reason: 'Owner edited tracker metadata',
+            },
+          },
+          { upsert: true }
+        );
         const update: MongoUpdate = {};
 
         if (data.title !== undefined) {
@@ -280,9 +357,11 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             _id: this.mapper.toObjectId(data.trackerId),
             ownerId: this.mapper.toObjectId(data.userId),
             deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
           }),
           this.mapper.asMongoUpdate({
             $set: update,
+            $inc: { version: 1 },
           }),
           {
             returnDocument: 'after',
@@ -303,6 +382,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {
@@ -343,10 +423,15 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         })
-      );
+      ).lean();
 
-      return tracker as TrackerRecord | null;
+      if (!tracker) return null;
+      const [trackerWithSource] = await this.enrichCloneSources([
+        tracker as unknown as TrackerRecord,
+      ]);
+      return trackerWithSource ?? null;
     });
   }
 
@@ -357,6 +442,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {
@@ -379,6 +465,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {
@@ -438,6 +525,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
             _id: this.mapper.toObjectId(data.trackerId),
             ownerId: this.mapper.toObjectId(data.userId),
             deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
           }),
           this.mapper.asMongoUpdate({
             $set: update,
@@ -460,6 +548,7 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
           _id: this.mapper.toObjectId(data.trackerId),
           ownerId: this.mapper.toObjectId(data.userId),
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }),
         this.mapper.asMongoUpdate({
           $set: {
@@ -473,6 +562,55 @@ export class MongoTrackerManagementRepository extends MongoTrackerBaseRepository
       );
 
       return tracker as TrackerRecord | null;
+    });
+  }
+
+  private async enrichCloneSources(trackers: TrackerRecord[]): Promise<TrackerRecord[]> {
+    const sourceIds = [
+      ...new Set(
+        trackers
+          .map((tracker) => tracker.sourceTrackerId)
+          .filter((value): value is string => Boolean(value))
+          .map(String)
+      ),
+    ];
+
+    if (sourceIds.length === 0) return trackers;
+
+    const sourceTrackers = await Tracker.find({ _id: { $in: sourceIds } })
+      .select('_id ownerId')
+      .lean<Array<{ _id: unknown; ownerId: unknown }>>();
+    const ownerIds = [...new Set(sourceTrackers.map((source) => String(source.ownerId)))];
+    const owners = await User.find({ _id: { $in: ownerIds }, deletedAt: null })
+      .select('_id fullName username avatarUrl')
+      .lean<Array<{
+        _id: unknown;
+        fullName?: string;
+        username?: string;
+        avatarUrl?: string | null;
+      }>>();
+    const ownerMap = new Map(owners.map((owner) => [String(owner._id), owner]));
+    const sourceMap = new Map(sourceTrackers.map((source) => [String(source._id), source]));
+
+    return trackers.map((tracker) => {
+      const sourceTrackerId = tracker.sourceTrackerId ? String(tracker.sourceTrackerId) : null;
+      if (!sourceTrackerId) return { ...tracker, sourceTrackerId: null, clonedFrom: null };
+
+      const source = sourceMap.get(sourceTrackerId);
+      const owner = source ? ownerMap.get(String(source.ownerId)) : undefined;
+      if (!source || !owner?.username) return { ...tracker, sourceTrackerId, clonedFrom: null };
+
+      return {
+        ...tracker,
+        sourceTrackerId,
+        clonedFrom: {
+          trackerId: sourceTrackerId,
+          ownerId: String(source.ownerId),
+          name: owner.fullName?.trim() || owner.username,
+          username: owner.username,
+          avatarUrl: owner.avatarUrl ?? null,
+        },
+      };
     });
   }
 }

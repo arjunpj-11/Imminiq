@@ -15,12 +15,14 @@ export interface IUserDocument extends Document {
 
   role: 'user' | 'admin' | 'moderator' | 'superadmin';
   status: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned';
+  adminStatusReason?: string | null;
+  adminStatusReasonCode?: string | null;
+  adminStatusChangedAt?: Date | null;
+  adminStatusChangedBy?: mongoose.Types.ObjectId | null;
+  adminTags?: string[];
 
   emailVerified: boolean;
   phoneVerified: boolean;
-
-  // Used to auto-delete unverified accounts
-  verificationExpiresAt?: Date | null;
 
   // Pending email change verification
   pendingEmail?: string | null;
@@ -150,6 +152,12 @@ const userSchema = new Schema<IUserDocument>(
       default: 'active',
     },
 
+    adminStatusReason: { type: String, trim: true, maxlength: 1000, default: null },
+    adminStatusReasonCode: { type: String, trim: true, maxlength: 80, default: null },
+    adminTags: { type: [String], default: [], select: false },
+    adminStatusChangedAt: { type: Date, default: null },
+    adminStatusChangedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
+
     emailVerified: {
       type: Boolean,
       default: false,
@@ -158,11 +166,6 @@ const userSchema = new Schema<IUserDocument>(
     phoneVerified: {
       type: Boolean,
       default: false,
-    },
-
-    verificationExpiresAt: {
-      type: Date,
-      default: null,
     },
 
     // ─── PENDING EMAIL CHANGE ─────────────────────────────
@@ -345,19 +348,6 @@ userSchema.index(
       referralCode: {
         $type: 'string',
       },
-    },
-  }
-);
-
-userSchema.index(
-  { verificationExpiresAt: 1 },
-  {
-    expireAfterSeconds: 0,
-    partialFilterExpression: {
-      provider: 'local',
-      emailVerified: false,
-      phoneVerified: false,
-      deletedAt: null,
     },
   }
 );

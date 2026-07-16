@@ -1,44 +1,29 @@
-import {
-  Activity,
-  CheckCircle2,
-  CircleUserRound,
-  Radio,
-  RefreshCw,
-  ShieldBan,
-  Target,
-} from 'lucide-react';
+import { CheckCircle2, Flag, RefreshCw, ShieldAlert, TicketCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import AdminDashboardState from '../components/AdminDashboardState';
 import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
-
-const number = new Intl.NumberFormat('en-US');
+import { AdminMetricGrid, AdminPageHeader } from '../../shared';
 
 export default function AdminDashboardPage() {
+  const [metricView, setMetricView] = useState<'platform' | 'moderation'>('platform');
   const { data, isLoading, isError, error, isFetching, refetch } = useAdminDashboard();
   if (isLoading) return <AdminDashboardState tone="loading" />;
   if (isError || !data) return <AdminDashboardState tone="error" error={error} />;
 
-  const metrics = [
-    ['Total users', data.metrics.totalUsers, CircleUserRound, '#e8816a'],
-    ['Active today', data.metrics.activeToday, Activity, '#52c58c'],
-    ['Total trackers', data.metrics.totalTrackers, Target, '#6aa9ff'],
-    ['Blocked users', data.metrics.blockedUsers, ShieldBan, '#e26767'],
-  ] as const;
   const peak = Math.max(...data.weeklyActivity, 1);
 
   return (
     <main className="mx-auto max-w-310 px-5 py-9 sm:px-8">
-      <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#e8816a]">
-            Admin console <Radio size={12} className="text-[#52c58c]" /> Live data
-          </div>
-          <h1 className="font-editorial text-4xl font-bold sm:text-5xl">Performance Overview</h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <AdminPageHeader
+        title="Performance Overview"
+        description="Live platform health, usage, and moderation signals."
+        action={
+          <div className="flex items-center gap-3">
+          {data.accessScope === 'full' && <div className="flex rounded-lg bg-[#24211e] p-1"><button className={`rounded-md px-3 py-1.5 text-xs ${metricView === 'platform' ? 'bg-[#e8816a]/15 text-[#e8816a]' : 'text-[#aaa59d]'}`} onClick={() => setMetricView('platform')}>Platform</button><button className={`rounded-md px-3 py-1.5 text-xs ${metricView === 'moderation' ? 'bg-[#e8816a]/15 text-[#e8816a]' : 'text-[#aaa59d]'}`} onClick={() => setMetricView('moderation')}>Moderation</button></div>}
           <div className="text-right font-mono text-xs text-[#aaa59d]">
-            {new Date().toLocaleString()}
+            Updated {new Date(data.generatedAt).toLocaleString()}
           </div>
           <button
             type="button"
@@ -49,25 +34,73 @@ export default function AdminDashboardPage() {
           >
             <RefreshCw size={15} className={isFetching ? 'animate-spin' : ''} />
           </button>
-        </div>
-      </div>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map(([label, value, Icon, color]) => (
-          <div
-            key={label}
-            className="relative overflow-hidden rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6"
-          >
-            <span className="absolute inset-y-0 left-0 w-1" style={{ background: color }} />
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-[#aaa59d]">
-              {label}
-              <Icon size={17} style={{ color }} />
-            </div>
-            <div className="font-editorial mt-5 text-3xl font-bold">{number.format(value)}</div>
           </div>
-        ))}
+        }
+      />
+      <AdminMetricGrid
+        metrics={
+          data.accessScope === 'moderation' || metricView === 'moderation'
+            ? [
+                { label: 'Open reports', value: data.metrics.openQuestionReports, tone: 'error' },
+                { label: 'In review', value: data.metrics.reviewingQuestionReports, tone: 'warning' },
+                { label: 'Question SLA overdue', value: data.metrics.overdueQuestionReports, tone: 'error' },
+                { label: 'Tracker SLA overdue', value: data.metrics.overdueTrackerReports, tone: 'error' },
+                { label: 'Content appeals', value: data.metrics.pendingContentAppeals, tone: 'warning' },
+                { label: 'Privacy SLA overdue', value: data.metrics.overduePrivacyRequests, tone: 'error' },
+              ]
+            : [
+                { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
+                { label: 'Active today', value: data.metrics.activeToday, tone: 'success' },
+                { label: 'Total trackers', value: data.metrics.totalTrackers, tone: 'info' },
+                { label: 'Blocked users', value: data.metrics.blockedUsers, tone: 'error' },
+                { label: 'Privacy requests', value: data.metrics.pendingPrivacyRequests, tone: 'warning' },
+              ]
+        }
+      />
+      <section className="mt-7 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+        <Link
+          to={ADMIN_ROUTES.mockTestReports}
+          className="rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#e26767]"><ShieldAlert size={18} /> Question reports</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.openQuestionReports}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">{data.metrics.reviewingQuestionReports} currently under review</p>
+        </Link>
+        <Link
+          to={ADMIN_ROUTES.supportTickets}
+          className="rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#f0a842]"><TicketCheck size={18} /> Urgent support</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.urgentSupportTickets}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Open or in-progress urgent tickets</p>
+        </Link>
+        <Link
+          to={`${ADMIN_ROUTES.mockTests}?status=suspended`}
+          className="rounded-xl border border-[#6aa9ff]/30 bg-[#6aa9ff]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#6aa9ff]"><ShieldAlert size={18} /> Suspended tests</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.suspendedMockTests}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Awaiting correction, appeal, or deletion</p>
+        </Link>
+        <Link
+          to={ADMIN_ROUTES.trackerReports}
+          className="rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#e26767]"><Flag size={18} /> Tracker reports</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.openTrackerReports}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Open or currently under review</p>
+        </Link>
+        <Link
+          to={`${ADMIN_ROUTES.trackers}?status=suspended`}
+          className="rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#f0a842]"><ShieldAlert size={18} /> Suspended trackers</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.suspendedTrackers}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Awaiting correction, appeal, or deletion</p>
+        </Link>
       </section>
-      <section className="mt-7 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
-        <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
+      <section className={`mt-7 grid gap-6 ${data.accessScope === 'full' ? 'lg:grid-cols-[1.55fr_1fr]' : ''}`}>
+        {data.accessScope === 'full' && <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
           <div className="flex items-center justify-between">
             <h2 className="font-editorial text-2xl font-bold">Platform Activity</h2>
             <span className="rounded-md bg-[#1c1a18] px-3 py-1.5 text-xs">7D</span>
@@ -88,7 +121,7 @@ export default function AdminDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+        </div>}
         <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="font-editorial text-2xl font-bold">User Health</h2>
@@ -110,6 +143,14 @@ export default function AdminDashboardPage() {
                 <div className="font-bold">Blocked accounts</div>
                 <div className="mt-1 text-xs text-[#aaa59d]">
                   {data.metrics.blockedUsers} accounts currently cannot sign in.
+                </div>
+              </div>
+            )}
+            {data.metrics.suspendedUsers > 0 && (
+              <div className="rounded-lg bg-[#1c1a18] p-4">
+                <div className="font-bold">Suspended accounts</div>
+                <div className="mt-1 text-xs text-[#aaa59d]">
+                  {data.metrics.suspendedUsers} accounts are temporarily restricted.
                 </div>
               </div>
             )}

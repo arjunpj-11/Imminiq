@@ -15,6 +15,7 @@ import { GetActiveModerationAppealStatusUseCase } from './application/use-cases/
 import { SubmitModerationAppealUseCase } from './application/use-cases/submit-moderation-appeal.usecase';
 import { mongoModerationAppealRepository } from './infrastructure/repositories/mongo-moderation-appeal.repository';
 import { cryptoModerationAppealCaseIdGenerator } from './infrastructure/services/crypto-moderation-appeal-case-id-generator.service';
+import { ContentModerationAppealService } from './infrastructure/services/mongo-content-moderation-appeal.service';
 
 export type ModerationAppealServiceHelpers = {
   moderationAppealMapper: IModerationAppealMapper;
@@ -54,6 +55,7 @@ export const createModerationAppealComposition = (): ModerationAppealComposition
         moderationAppealRepository,
         moderationAppealMapper
       ),
+      contentAppeals: new ContentModerationAppealService(),
     },
 
     helpers: {

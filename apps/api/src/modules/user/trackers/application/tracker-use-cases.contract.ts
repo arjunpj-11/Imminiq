@@ -14,6 +14,9 @@ export type TrackerUseCases = {
   getTrackerRoadmap: Application.IGetTrackerRoadmapUseCase;
   createTrackerTopic: Application.ICreateTrackerTopicUseCase;
   createTrackerSubtopic: Application.ICreateTrackerSubtopicUseCase;
+  createTopicContribution: Application.ICreateTopicContributionUseCase;
+  listTopicContributions: Application.IListTopicContributionsUseCase;
+  reviewTopicContribution: Application.IReviewTopicContributionUseCase;
   updateSubtopicProgress: Application.IUpdateSubtopicProgressUseCase;
   addMissingEvaluationTopic: Application.IAddMissingEvaluationTopicUseCase;
   getTrackerLesson: Application.IGetTrackerLessonUseCase;
@@ -37,6 +40,7 @@ export type TrackerUseCases = {
   getLessonQuestionSolutionDoubts: Application.IGetLessonQuestionSolutionDoubtsUseCase;
   clearLessonChatHistory: Application.IClearLessonChatHistoryUseCase;
   clearLessonQuestionSolutionDoubts: Application.IClearLessonQuestionSolutionDoubtsUseCase;
+  reportTracker: Application.IReportTrackerUseCase;
 };
 
 export type TrackerManagementUseCases = Pick<
@@ -55,6 +59,9 @@ export type TrackerManagementUseCases = Pick<
   | 'getTrackerRoadmap'
   | 'createTrackerTopic'
   | 'createTrackerSubtopic'
+  | 'createTopicContribution'
+  | 'listTopicContributions'
+  | 'reviewTopicContribution'
   | 'updateSubtopicProgress'
   | 'verifyTrackerTopic'
   | 'verifyTrackerSubtopic'

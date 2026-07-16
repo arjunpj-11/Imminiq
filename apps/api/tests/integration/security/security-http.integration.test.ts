@@ -160,6 +160,18 @@ describe('security HTTP integration flows', () => {
     expect(cookies.some((cookie) => String(cookie).toLowerCase().includes('httponly'))).toBe(true);
   });
 
+  it('hands a frontend-proxied Google OAuth start to the canonical API origin', async () => {
+    const response = await request(app)
+      .get('/api/auth/oauth/google')
+      .set('X-Forwarded-Host', new URL(TRUSTED_ORIGIN).host);
+
+    expect(response.status).toBe(302);
+    expect(response.headers.location).toBe(
+      `${process.env.SERVER_URL}/api/auth/oauth/google`
+    );
+    expect(response.headers['set-cookie']).toBeUndefined();
+  });
+
   it('rejects a Google OAuth callback that has no state parameter', async () => {
     const response = await request(app).get('/api/auth/oauth/google/callback');
 

@@ -374,6 +374,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
     for (const topic of sourceTopics) {
       const createdTopic = await CommunityTrackerTopicModel.create({
         trackerId: clonedTrackerObjectId,
+        sourceTopicId: MongoCommunityObjectId.toExistingObjectId(topic._id),
         title: topic.title,
         description: topic.description ?? '',
         order: topic.order,
@@ -409,6 +410,7 @@ export class MongoCommunityTrackerRepository extends MongoCommunityBaseRepositor
       const createdSubtopic = await CommunityTrackerSubtopicModel.create({
         trackerId: clonedTrackerObjectId,
         topicId: MongoCommunityObjectId.toExistingObjectId(mappedTopicId),
+        sourceSubtopicId: MongoCommunityObjectId.toExistingObjectId(subtopic._id),
         parentSubtopicId: mappedParentId
           ? MongoCommunityObjectId.toExistingObjectId(mappedParentId)
           : null,

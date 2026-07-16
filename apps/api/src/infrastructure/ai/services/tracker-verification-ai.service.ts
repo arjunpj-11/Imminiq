@@ -1,5 +1,3 @@
-import { ApiError } from '../../../shared/utils/ApiError';
-
 import {
   trackerSubtopicVerificationSchema,
   trackerTopicVerificationSchema,
@@ -7,7 +5,7 @@ import {
   type TrackerTopicVerificationResult,
 } from '../ai.schemas';
 import { parseAIJson } from '../ai-json.parser';
-import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
+import { economyAIStructuredWithFallback } from '../ai-fallback.helper';
 import {
   buildTrackerSubtopicVerificationPrompt,
   TRACKER_SUBTOPIC_VERIFICATION_SYSTEM_PROMPT,
@@ -31,7 +29,7 @@ export const verifyTrackerTopic = async (input: {
     description: string;
   }[];
 }): Promise<TrackerTopicVerificationResult> => {
-  const response = await groqChat(
+  return economyAIStructuredWithFallback(
     [
       {
         role: 'system',
@@ -42,19 +40,11 @@ export const verifyTrackerTopic = async (input: {
         content: buildTrackerTopicVerificationPrompt(input),
       },
     ],
+    (response) => parseAIJson(response, trackerTopicVerificationSchema),
     'quality',
-    'tracker_verification'
+    'tracker_verification',
+    { operation: 'tracker-topic-verification', temperature: 0.2 }
   );
-
-  if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty topic verification response',
-      'GROQ_EMPTY_TOPIC_VERIFICATION_RESPONSE'
-    );
-  }
-
-  return parseAIJson(response, trackerTopicVerificationSchema);
 };
 
 export const verifyTrackerSubtopic = async (input: {
@@ -71,7 +61,7 @@ export const verifyTrackerSubtopic = async (input: {
     difficulty: string;
   }[];
 }): Promise<TrackerSubtopicVerificationResult> => {
-  const response = await groqChat(
+  return economyAIStructuredWithFallback(
     [
       {
         role: 'system',
@@ -82,17 +72,9 @@ export const verifyTrackerSubtopic = async (input: {
         content: buildTrackerSubtopicVerificationPrompt(input),
       },
     ],
+    (response) => parseAIJson(response, trackerSubtopicVerificationSchema),
     'quality',
-    'tracker_verification'
+    'tracker_verification',
+    { operation: 'tracker-subtopic-verification', temperature: 0.2 }
   );
-
-  if (!response) {
-    throw new ApiError(
-      502,
-      'Groq returned an empty subtopic verification response',
-      'GROQ_EMPTY_SUBTOPIC_VERIFICATION_RESPONSE'
-    );
-  }
-
-  return parseAIJson(response, trackerSubtopicVerificationSchema);
 };

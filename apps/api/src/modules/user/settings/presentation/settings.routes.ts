@@ -7,17 +7,10 @@ import { SettingsController } from './settings.controller';
 import type { SettingsUseCases } from '../application/settings-use-cases.contract';
 import { SETTINGS_ROUTE_PATHS } from './settings.route.constants';
 import {
-  updateAccountSettingsSchema,
-  updateAIBehaviourSchema,
   updateAppearanceSchema,
-  updateCodeEditorSchema,
-  updateCompilerSchema,
-  updateEmailDigestSchema,
-  updateGesturesSchema,
-  updateLearningJourneySchema,
   updateNotificationsSchema,
   updatePrivacySchema,
-  updateQuietHoursSchema,
+  submitDataPrivacyRequestSchema,
 } from './settings.schema';
 
 export const createSettingsRoutes = (useCases: SettingsUseCases) => {
@@ -36,14 +29,17 @@ export const createSettingsRoutes = (useCases: SettingsUseCases) => {
 
   router.get(SETTINGS_ROUTE_PATHS.PRIVACY, settingsController.getPrivacySettings);
 
-  router.get(SETTINGS_ROUTE_PATHS.GESTURES, settingsController.getGestureSettings);
-
   // ─── UPDATE SETTINGS ─────────────────────────────────────────
 
-  router.patch(
-    SETTINGS_ROUTE_PATHS.ACCOUNT,
-    validate(updateAccountSettingsSchema),
-    settingsController.updateAccountSettings
+  router.get(SETTINGS_ROUTE_PATHS.PRIVACY_REQUESTS, settingsController.listPrivacyRequests);
+  router.post(
+    SETTINGS_ROUTE_PATHS.PRIVACY_REQUESTS,
+    validate(submitDataPrivacyRequestSchema),
+    settingsController.submitPrivacyRequest
+  );
+  router.delete(
+    SETTINGS_ROUTE_PATHS.PRIVACY_REQUEST_DETAIL,
+    settingsController.cancelPrivacyRequest
   );
 
   router.patch(
@@ -59,51 +55,9 @@ export const createSettingsRoutes = (useCases: SettingsUseCases) => {
   );
 
   router.patch(
-    SETTINGS_ROUTE_PATHS.NOTIFICATION_QUIET_HOURS,
-    validate(updateQuietHoursSchema),
-    settingsController.updateQuietHours
-  );
-
-  router.patch(
-    SETTINGS_ROUTE_PATHS.NOTIFICATION_EMAIL_DIGEST,
-    validate(updateEmailDigestSchema),
-    settingsController.updateEmailDigest
-  );
-
-  router.patch(
     SETTINGS_ROUTE_PATHS.PRIVACY,
     validate(updatePrivacySchema),
     settingsController.updatePrivacy
-  );
-
-  router.patch(
-    SETTINGS_ROUTE_PATHS.CODE_EDITOR,
-    validate(updateCodeEditorSchema),
-    settingsController.updateCodeEditor
-  );
-
-  router.patch(
-    SETTINGS_ROUTE_PATHS.COMPILER,
-    validate(updateCompilerSchema),
-    settingsController.updateCompiler
-  );
-
-  router.patch(
-    SETTINGS_ROUTE_PATHS.AI_BEHAVIOR,
-    validate(updateAIBehaviourSchema),
-    settingsController.updateAIBehaviour
-  );
-
-  router.patch(
-    SETTINGS_ROUTE_PATHS.LEARNING_JOURNEY,
-    validate(updateLearningJourneySchema),
-    settingsController.updateLearningJourney
-  );
-
-  router.patch(
-    SETTINGS_ROUTE_PATHS.GESTURES,
-    validate(updateGesturesSchema),
-    settingsController.updateGestures
   );
 
   // ─── ACCOUNT AGREEMENTS / RESET ──────────────────────────────

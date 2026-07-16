@@ -9,6 +9,7 @@ export const STORAGE_KEYS = {
   pendingEmailChangeTimer: 'imminiq_pending_email_change_timer',
   blockedAppealIdentifier: 'blocked_appeal_identifier',
   blockedAppealToken: 'blocked_appeal_token',
+  blockedModerationMessage: 'blocked_moderation_message',
   authSync: 'imminiq-auth-sync',
   otpExpiry: 'otp_expiry',
   otpResendExpiry: 'otp_resend_expiry',

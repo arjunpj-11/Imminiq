@@ -2,6 +2,7 @@ import type { ErrorRequestHandler, NextFunction, Request, RequestHandler, Respon
 import { MulterError } from 'multer';
 import { ZodError } from 'zod';
 
+import type { ErrorKind, IKindedError } from '../errors/error-kind';
 import { ApiError } from '../utils/ApiError';
 
 type ErrorDetails = Record<string, string[]>;
@@ -60,6 +61,29 @@ const isHttpOperationalError = (error: unknown): error is HttpOperationalError =
 
 const safeOperationalMessage = (statusCode: number, message: string): string =>
   statusCode >= 500 ? 'Something went wrong on our side. Please try again.' : message;
+
+const ERROR_KIND_STATUS: Record<ErrorKind, number> = {
+  'invalid-input': 400,
+  unauthenticated: 401,
+  forbidden: 403,
+  'missing-resource': 404,
+  conflict: 409,
+  'rate-limited': 429,
+  'dependency-failure': 502,
+  'dependency-unavailable': 503,
+  internal: 500,
+};
+
+const isKindedError = (error: unknown): error is IKindedError => {
+  if (!(error instanceof Error)) return false;
+  const possibleError = error as Partial<IKindedError>;
+
+  return (
+    typeof possibleError.code === 'string' &&
+    typeof possibleError.kind === 'string' &&
+    Object.hasOwn(ERROR_KIND_STATUS, possibleError.kind)
+  );
+};
 
 const malformedJsonResponse = (): ErrorResponse => ({
   success: false,
@@ -222,6 +246,18 @@ export const errorHandler: ErrorRequestHandler = (
   if (error instanceof MulterError) {
     const mapped = multerErrorResponse(error);
     res.status(mapped.statusCode).json(mapped.body);
+    return;
+  }
+
+  if (isKindedError(error)) {
+    const statusCode = ERROR_KIND_STATUS[error.kind];
+    if (statusCode >= 500) console.error(error);
+    res.status(statusCode).json({
+      success: false,
+      message: error.publicMessage ?? safeOperationalMessage(statusCode, error.message),
+      code: error.code,
+      ...(error.data ? { data: error.data } : {}),
+    } satisfies ErrorResponse);
     return;
   }
 

@@ -1,14 +1,19 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { AdminLayout } from '../../modules/admin/shared';
 import { AdminDashboardPage } from '../../modules/admin/dashboard';
-import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
+import { AdminUserAppealsPage, AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
 import {
   AdminPublishedTrackersPage,
   AdminTrackerDetailPage,
+  AdminTrackerReportsPage,
+  AdminTrackerReviewsPage,
   AdminTrackersPage,
 } from '../../modules/admin/trackers';
-import { AdminMockTestDetailPage, AdminMockTestsPage } from '../../modules/admin/mock-tests';
-import { AdminTrackerReviewsPage } from '../../modules/admin/tracker-reviews';
+import {
+  AdminMockTestDetailPage,
+  AdminMockTestReportsPage,
+  AdminMockTestsPage,
+} from '../../modules/admin/mock-tests';
 import { AdminAnalyticsPage } from '../../modules/admin/analytics';
 import { AdminBroadcastPage } from '../../modules/admin/broadcast';
 import { AdminAuditLogsPage } from '../../modules/admin/audit-logs';
@@ -25,12 +30,15 @@ export const adminRoutes: RouteObject[] = [
     children: [
       { path: ADMIN_ROUTES.dashboard, element: <AdminDashboardPage /> },
       { path: ADMIN_ROUTES.users, element: <AdminUsersPage /> },
+      { path: ADMIN_ROUTES.userAppeals, element: <AdminUserAppealsPage /> },
       { path: ADMIN_ROUTES.userDetailPattern, element: <AdminUserDetailPage /> },
       { path: ADMIN_ROUTES.trackers, element: <AdminTrackersPage /> },
+      { path: ADMIN_ROUTES.trackerReports, element: <AdminTrackerReportsPage /> },
       { path: ADMIN_ROUTES.trackerReviews, element: <AdminTrackerReviewsPage /> },
       { path: ADMIN_ROUTES.publishedTrackers, element: <AdminPublishedTrackersPage /> },
       { path: ADMIN_ROUTES.trackerDetailPattern, element: <AdminTrackerDetailPage /> },
       { path: ADMIN_ROUTES.mockTests, element: <AdminMockTestsPage /> },
+      { path: ADMIN_ROUTES.mockTestReports, element: <AdminMockTestReportsPage /> },
       { path: ADMIN_ROUTES.mockTestDetailPattern, element: <AdminMockTestDetailPage /> },
       {
         path: ADMIN_ROUTES.legacyTrackerReviews,

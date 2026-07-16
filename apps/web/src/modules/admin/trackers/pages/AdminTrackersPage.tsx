@@ -1,7 +1,6 @@
 import { useState } from 'react';
-import { Eye, FileBarChart, Globe2, Trash2 } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
+import { Download, Eye, FileBarChart, Flag, Globe2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   AdminEmpty,
   AdminError,
@@ -11,37 +10,45 @@ import {
   AdminPanel,
   AdminSearch,
   AdminStatusBadge,
+  downloadServerCsv,
+  AdminBulkActionBar,
 } from '../../shared';
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminTrackers } from '../hooks/useAdminTrackers';
-import { useDeleteAdminTracker } from '../hooks/useDeleteAdminTracker';
-import type { AdminTracker } from '../types/admin-trackers.types';
 import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
 
+const trackerStatusFilters = new Set([
+  'all',
+  'active',
+  'draft',
+  'archived',
+  'suspended',
+  'deleted',
+]);
+
 export default function AdminTrackersPage() {
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
+  const requestedStatus = searchParams.get('status') ?? 'all';
+  const status = trackerStatusFilters.has(requestedStatus) ? requestedStatus : 'all';
   const [page, setPage] = useState(1);
-  const [deleting, setDeleting] = useState<AdminTracker | null>(null);
+  const [selected, setSelected] = useState<string[]>([]);
   const { data, isLoading, isError, error } = useAdminTrackers({
     search: useDebouncedValue(search, 300),
     status,
     page,
   });
-  const remove = useDeleteAdminTracker();
+  const exportCurrentView = () => void downloadServerCsv('/admin/trackers/export.csv', `imminiq-trackers-${status}.csv`, { search, status });
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Tracker Management"
-        description="Inspect tracker learning structures and remove policy-violating trackers when necessary."
+        description="Inspect learning structures, review community reports, and manage tracker access with documented reasons."
         action={
           <div className="flex flex-wrap gap-2">
-            <Link
-              to={ADMIN_TRACKERS_ROUTES.reviews}
-              className="admin-button inline-flex items-center gap-2"
-            >
-              <FileBarChart size={16} /> Tracker reviews
-            </Link>
+            <button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button>
+            <Link to={ADMIN_TRACKERS_ROUTES.reports} className="admin-button inline-flex items-center gap-2"><Flag size={16} /> Tracker reports</Link>
+            <Link to={ADMIN_TRACKERS_ROUTES.reviews} className="admin-button inline-flex items-center gap-2"><FileBarChart size={16} /> Community reviews</Link>
             <Link
               to={ADMIN_TRACKERS_ROUTES.published}
               className="admin-primary-button inline-flex items-center gap-2"
@@ -53,10 +60,11 @@ export default function AdminTrackersPage() {
       />
       <AdminMetricGrid
         metrics={[
-          { label: 'All trackers', value: data?.pagination.total ?? 0 },
+          { label: 'All trackers', value: data?.stats?.total ?? 0 },
           { label: 'Active', value: data?.stats?.active ?? 0, tone: 'success' },
           { label: 'Draft', value: data?.stats?.draft ?? 0, tone: 'warning' },
-          { label: 'Archived', value: data?.stats?.archived ?? 0, tone: 'info' },
+          { label: 'Open reports', value: data?.stats?.openReports ?? 0, tone: 'error' },
+          { label: 'Suspended', value: data?.stats?.suspended ?? 0, tone: 'warning' },
         ]}
       />
       <AdminPanel
@@ -66,7 +74,7 @@ export default function AdminTrackersPage() {
             <select
               value={status}
               onChange={(e) => {
-                setStatus(e.target.value);
+                setSearchParams(e.target.value === 'all' ? {} : { status: e.target.value });
                 setPage(1);
               }}
               className="admin-select"
@@ -75,6 +83,8 @@ export default function AdminTrackersPage() {
               <option value="active">Active</option>
               <option value="draft">Draft</option>
               <option value="archived">Archived</option>
+              <option value="suspended">Suspended</option>
+              <option value="deleted">Deleted</option>
             </select>
             <AdminSearch
               value={search}
@@ -87,6 +97,7 @@ export default function AdminTrackersPage() {
           </div>
         }
       >
+        <div className="px-5 pt-4"><AdminBulkActionBar kind="trackers" selected={selected} onClear={() => setSelected([])} /></div>
         {isLoading ? (
           <AdminLoading />
         ) : isError ? (
@@ -99,11 +110,14 @@ export default function AdminTrackersPage() {
               <table className="admin-table w-full min-w-225 text-left text-sm">
                 <thead>
                   <tr>
+                    <th><input aria-label="Select visible trackers" type="checkbox" checked={data.items.every((item) => selected.includes(item.id))} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...data.items.map((item) => item.id)])) : selected.filter((id) => !data.items.some((item) => item.id === id)))} /></th>
                     <th>Tracker</th>
                     <th>Owner</th>
                     <th>Category</th>
                     <th>Visibility</th>
                     <th>Status</th>
+                    <th>Moderation</th>
+                    <th>Reports</th>
                     <th>Topics</th>
                     <th>Actions</th>
                   </tr>
@@ -111,6 +125,7 @@ export default function AdminTrackersPage() {
                 <tbody>
                   {data.items.map((item) => (
                     <tr key={item.id}>
+                      <td><input aria-label={`Select ${item.title}`} type="checkbox" checked={selected.includes(item.id)} onChange={(event) => setSelected(event.target.checked ? [...selected, item.id] : selected.filter((id) => id !== item.id))} /></td>
                       <td>
                         <div className="font-semibold">{item.title}</div>
                         <div className="text-xs text-[#817c75]">{item.level}</div>
@@ -123,6 +138,8 @@ export default function AdminTrackersPage() {
                       <td>
                         <AdminStatusBadge value={item.status} />
                       </td>
+                      <td><AdminStatusBadge value={item.moderationStatus} /></td>
+                      <td><span className={item.openReportCount ? 'font-bold text-[#e26767]' : ''}>{item.openReportCount} open / {item.reportCount}</span></td>
                       <td>{item.topicsCount}</td>
                       <td>
                         <div className="flex gap-2">
@@ -133,13 +150,6 @@ export default function AdminTrackersPage() {
                             <Eye size={14} />
                             View
                           </Link>
-                          <button
-                            onClick={() => setDeleting(item)}
-                            className="admin-icon-button text-[#e26767]"
-                            title="Delete tracker"
-                          >
-                            <Trash2 size={15} />
-                          </button>
                         </div>
                       </td>
                     </tr>
@@ -151,21 +161,6 @@ export default function AdminTrackersPage() {
           </>
         )}
       </AdminPanel>
-      <ConfirmDialog
-        open={Boolean(deleting)}
-        title={`Delete ${deleting?.title ?? 'tracker'}?`}
-        description="The tracker and its learning structure will be removed. Its owner will receive an email explaining the administrative removal."
-        confirmText="Delete tracker"
-        variant="danger"
-        isLoading={remove.isPending}
-        onClose={() => setDeleting(null)}
-        onConfirm={() =>
-          deleting &&
-          remove.mutate(deleting.id, {
-            onSuccess: () => setDeleting(null),
-          })
-        }
-      />
     </main>
   );
 }
