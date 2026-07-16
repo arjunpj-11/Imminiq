@@ -254,7 +254,7 @@ export const errorHandler: ErrorRequestHandler = (
     if (statusCode >= 500) console.error(error);
     res.status(statusCode).json({
       success: false,
-      message: safeOperationalMessage(statusCode, error.message),
+      message: error.publicMessage ?? safeOperationalMessage(statusCode, error.message),
       code: error.code,
       ...(error.data ? { data: error.data } : {}),
     } satisfies ErrorResponse);

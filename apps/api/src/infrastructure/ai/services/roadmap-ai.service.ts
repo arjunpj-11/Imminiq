@@ -4,7 +4,7 @@ import {
   type GeneratedRoadmapStructure,
   type RoadmapEvaluation,
 } from '../ai.schemas';
-import { trackerAIChatWithFallback } from '../ai-fallback.helper';
+import { trackerAIStructuredWithFallback } from '../ai-fallback.helper';
 import { parseAIJson } from '../ai-json.parser';
 import {
   cerebrasRoadmapEvaluationChat,
@@ -41,7 +41,7 @@ export const generateRoadmapStructure = async (
   goal: string | undefined,
   level: 'beginner' | 'intermediate' | 'advanced'
 ): Promise<GeneratedRoadmapStructure> => {
-  const response = await trackerAIChatWithFallback(
+  const roadmap = await trackerAIStructuredWithFallback(
     buildRoadmapStructurePrompt({
       topic,
       goal,
@@ -49,10 +49,10 @@ export const generateRoadmapStructure = async (
     }),
     ROADMAP_STRUCTURE_SYSTEM_PROMPT,
     cerebrasRoadmapStructureChat,
-    'roadmap_generation'
+    (response) => parseAIJson(response, generatedRoadmapStructureSchema),
+    'roadmap_generation',
+    { operation: 'roadmap-generation', groqMaxTokens: 8192, temperature: 0.4 }
   );
-
-  const roadmap = parseAIJson(response, generatedRoadmapStructureSchema);
 
   return {
     ...roadmap,
@@ -61,12 +61,12 @@ export const generateRoadmapStructure = async (
 };
 
 export const evaluateRoadmap = async (roadmap: unknown): Promise<RoadmapEvaluation> => {
-  const response = await trackerAIChatWithFallback(
+  return trackerAIStructuredWithFallback(
     buildRoadmapEvaluationPrompt(roadmap),
     ROADMAP_EVALUATION_SYSTEM_PROMPT,
     cerebrasRoadmapEvaluationChat,
-    'roadmap_evaluation'
+    (response) => parseAIJson(response, roadmapEvaluationSchema),
+    'roadmap_evaluation',
+    { operation: 'roadmap-evaluation', groqMaxTokens: 4096, temperature: 0.2 }
   );
-
-  return parseAIJson(response, roadmapEvaluationSchema);
 };

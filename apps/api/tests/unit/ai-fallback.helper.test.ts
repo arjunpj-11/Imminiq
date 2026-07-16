@@ -27,6 +27,7 @@ import {
   economyAIStructuredWithFallback,
   trackerAIChatWithFallback,
 } from '../../src/infrastructure/ai/ai-fallback.helper';
+import { ServiceError } from '../../src/shared/errors/service.error';
 
 describe('AI model routing', () => {
   beforeEach(() => {
@@ -72,7 +73,8 @@ describe('AI model routing', () => {
         { role: 'user', content: 'make tracker' },
       ],
       'llama-3.3-70b-versatile',
-      'other'
+      'other',
+      { maxTokens: undefined, temperature: undefined }
     );
   });
 
@@ -98,7 +100,7 @@ describe('AI model routing', () => {
     mocks.gemini31FlashLiteChat.mockResolvedValueOnce('{"answer":"valid"}');
     const parseResponse = vi.fn((response: string) => {
       if (!response.startsWith('{')) {
-        throw Object.assign(new Error('AI returned invalid JSON'), { statusCode: 502 });
+        throw ServiceError.dependencyFailure('AI_INVALID_JSON', 'AI returned invalid JSON');
       }
       return JSON.parse(response) as { answer: string };
     });
@@ -112,5 +114,43 @@ describe('AI model routing', () => {
     expect(parseResponse).toHaveBeenCalledTimes(2);
     expect(mocks.geminiChat).not.toHaveBeenCalled();
     expect(mocks.geminiFlashLiteChat).not.toHaveBeenCalled();
+  });
+
+  it('returns a safe quota message only after every provider is exhausted', async () => {
+    const quotaError = Object.assign(new Error('provider quota exceeded'), { status: 429 });
+    mocks.groqChat.mockRejectedValue(quotaError);
+    mocks.gemini31FlashLiteChat.mockRejectedValue(quotaError);
+    mocks.cerebrasChat.mockRejectedValue(quotaError);
+
+    await expect(
+      economyAIChatWithFallback([{ role: 'user', content: 'generate a lesson' }])
+    ).rejects.toMatchObject({
+      code: 'AI_QUOTA_EXHAUSTED',
+      kind: 'dependency-unavailable',
+      publicMessage: 'AI generation capacity is temporarily exhausted. Please try again later.',
+    });
+
+    expect(mocks.groqChat).toHaveBeenCalledTimes(2);
+    expect(mocks.gemini31FlashLiteChat).toHaveBeenCalledTimes(1);
+    expect(mocks.cerebrasChat).toHaveBeenCalledTimes(1);
+  });
+
+  it('reports repeated invalid structured responses distinctly from outages', async () => {
+    mocks.groqChat.mockResolvedValue('not-json');
+    mocks.gemini31FlashLiteChat.mockResolvedValue('not-json');
+    mocks.cerebrasChat.mockResolvedValue('not-json');
+
+    await expect(
+      economyAIStructuredWithFallback(
+        [{ role: 'user', content: 'return json' }],
+        () => {
+          throw ServiceError.dependencyFailure('AI_INVALID_JSON', 'malformed JSON');
+        }
+      )
+    ).rejects.toMatchObject({
+      code: 'AI_PROVIDERS_INVALID_RESPONSE',
+      kind: 'dependency-failure',
+      publicMessage: 'AI generated an invalid response after several attempts. Please try again.',
+    });
   });
 });

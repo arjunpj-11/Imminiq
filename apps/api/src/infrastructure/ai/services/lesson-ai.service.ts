@@ -2,7 +2,10 @@ import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import { generatedLessonSchema, type GeneratedLesson } from '../ai.schemas';
 import { parseAIJson } from '../ai-json.parser';
-import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
+import {
+  economyAIChatWithFallback as groqChat,
+  economyAIStructuredWithFallback,
+} from '../ai-fallback.helper';
 import {
   buildLessonGenerationPrompt,
   LESSON_GENERATION_SYSTEM_PROMPT,
@@ -20,7 +23,7 @@ export const generateLesson = async (input: {
   subtopicDescription?: string;
   level?: 'beginner' | 'intermediate' | 'advanced';
 }): Promise<GeneratedLesson> => {
-  const response = await groqChat(
+  const lesson = await economyAIStructuredWithFallback(
     [
       {
         role: 'system',
@@ -31,15 +34,11 @@ export const generateLesson = async (input: {
         content: buildLessonGenerationPrompt(input),
       },
     ],
+    (response) => parseAIJson(response, generatedLessonSchema),
     'quality',
-    'lesson_generation'
+    'lesson_generation',
+    { operation: 'lesson-generation', groqMaxTokens: 8192, temperature: 0.4 }
   );
-
-  if (!response) {
-    throw dependencyFailure('Groq returned an empty lesson response', 'GROQ_EMPTY_LESSON_RESPONSE');
-  }
-
-  const lesson = parseAIJson(response, generatedLessonSchema);
 
   return {
     ...lesson,
@@ -67,7 +66,8 @@ export const chatWithLessonTutor = async (input: {
       ...input.messages,
     ],
     'quality',
-    'ai_tutoring'
+    'ai_tutoring',
+    { operation: 'lesson-tutor-chat' }
   );
 
   if (!response) {

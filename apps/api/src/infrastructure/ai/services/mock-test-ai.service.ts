@@ -3,7 +3,10 @@ import { z } from 'zod';
 import { dependencyFailure } from '../../../shared/errors/service.error';
 
 import { parseAIJson } from '../ai-json.parser';
-import { economyAIChatWithFallback as groqChat } from '../ai-fallback.helper';
+import {
+  economyAIChatWithFallback as groqChat,
+  economyAIStructuredWithFallback,
+} from '../ai-fallback.helper';
 import { buildMockTestAnswerEvaluationPrompt } from '../prompts/mock-test-answer-evaluation.prompt';
 import { buildMockTestPerformanceInsightPrompt } from '../prompts/mock-test-performance-insight.prompt';
 import { buildMockTestQuestionsPrompt } from '../prompts/mock-test-questions.prompt';
@@ -85,47 +88,74 @@ export type GenerateMockTestQuestionsAIOutput = z.infer<typeof generateMockTestQ
 
 export type EvaluateMockTestOpenAnswerAIOutput = z.infer<typeof evaluateMockTestOpenAnswerSchema>;
 
+const STANDARD_QUESTION_BATCH_SIZE = 8;
+const CODING_QUESTION_BATCH_SIZE = 2;
+
 export const generateMockTestQuestionsAI = async (
   input: GenerateMockTestQuestionsAIInput
 ): Promise<GenerateMockTestQuestionsAIOutput> => {
-  const response = await groqChat(
-    [{ role: 'user', content: buildMockTestQuestionsPrompt(input) }],
-    'quality',
-    'mock_test_generation'
-  );
+  const containsCoding = input.questionTypes.includes('coding');
+  const batchSize = containsCoding ? CODING_QUESTION_BATCH_SIZE : STANDARD_QUESTION_BATCH_SIZE;
+  const batches: GenerateMockTestQuestionsAIOutput[] = [];
 
-  if (!response) {
+  for (let generatedCount = 0; generatedCount < input.questionCount; generatedCount += batchSize) {
+    const questionCount = Math.min(batchSize, input.questionCount - generatedCount);
+    const batchInput = { ...input, questionCount };
+    const batchNumber = batches.length + 1;
+
+    const batch = await economyAIStructuredWithFallback(
+      [{ role: 'user', content: buildMockTestQuestionsPrompt(batchInput) }],
+      (response) => {
+        const parsed = parseAIJson(response, generateMockTestQuestionsSchema);
+        if (parsed.questions.length !== questionCount) {
+          throw dependencyFailure(
+            `AI returned ${parsed.questions.length} questions instead of ${questionCount}`,
+            'AI_INVALID_JSON_STRUCTURE'
+          );
+        }
+        return parsed;
+      },
+      'quality',
+      'mock_test_generation',
+      {
+        operation: `mock-test-generation-batch-${batchNumber}`,
+        groqMaxTokens: containsCoding ? 8192 : 4096,
+        temperature: 0.5,
+      }
+    );
+    batches.push(batch);
+  }
+
+  const firstBatch = batches[0];
+  if (!firstBatch) {
     throw dependencyFailure(
-      'Mock test question generation returned an empty response',
-      'MOCK_TEST_AI_EMPTY_GENERATION_RESPONSE'
+      'Mock test generation received an invalid zero question count',
+      'MOCK_TEST_AI_INVALID_QUESTION_COUNT'
     );
   }
 
-  return parseAIJson(response, generateMockTestQuestionsSchema);
+  return {
+    title: firstBatch.title,
+    description: firstBatch.description,
+    questions: batches.flatMap((batch) => batch.questions),
+  };
 };
 
 export const evaluateMockTestOpenAnswerAI = async (
   input: EvaluateMockTestOpenAnswerAIInput
 ): Promise<EvaluateMockTestOpenAnswerAIOutput> => {
-  const response = await groqChat(
+  return economyAIStructuredWithFallback(
     [
       {
         role: 'user',
         content: buildMockTestAnswerEvaluationPrompt(input),
       },
     ],
+    (response) => parseAIJson(response, evaluateMockTestOpenAnswerSchema),
     'quality',
-    'mock_test_evaluation'
+    'mock_test_evaluation',
+    { operation: 'mock-test-answer-evaluation', temperature: 0.1 }
   );
-
-  if (!response) {
-    throw dependencyFailure(
-      'Mock test answer evaluation returned an empty response',
-      'MOCK_TEST_AI_EMPTY_EVALUATION_RESPONSE'
-    );
-  }
-
-  return parseAIJson(response, evaluateMockTestOpenAnswerSchema);
 };
 
 export const generateMockTestPerformanceInsightsAI = async (
@@ -139,32 +169,13 @@ export const generateMockTestPerformanceInsightsAI = async (
       },
     ],
     'fast',
-    'mock_test_evaluation'
+    'mock_test_evaluation',
+    { operation: 'mock-test-performance-insights' }
   );
 
   return response || 'Keep practicing to improve your performance across all topics.';
 };
 
-export const generateMockTestQuestionsGroqAI = async (
-  input: GenerateMockTestQuestionsAIInput
-): Promise<GenerateMockTestQuestionsAIOutput> => {
-  const response = await groqChat(
-    [
-      {
-        role: 'user',
-        content: buildMockTestQuestionsPrompt(input),
-      },
-    ],
-    'quality',
-    'mock_test_generation'
-  );
-
-  if (!response) {
-    throw dependencyFailure(
-      'Mock test question generation (Groq) returned an empty response',
-      'MOCK_TEST_AI_EMPTY_GENERATION_RESPONSE'
-    );
-  }
-
-  return parseAIJson(response, generateMockTestQuestionsSchema);
-};
+// Kept for callers compiled against the old name. Generation now always uses
+// the complete validated provider chain instead of a second Groq-only path.
+export const generateMockTestQuestionsGroqAI = generateMockTestQuestionsAI;

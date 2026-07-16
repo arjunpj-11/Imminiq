@@ -15,7 +15,12 @@ import { createMockTestsComposition } from '../../../modules/user/mock-tests';
 import { createNotificationsComposition } from '../../../modules/notifications';
 import { subscriptionLimitService } from '../../../modules/user/subscriptions';
 
-import { generateRoadmapStructure, evaluateRoadmap, RoadmapNestedNode } from '../../ai/ai.service';
+import {
+  generateRoadmapStructure,
+  evaluateRoadmap,
+  getAIUserMessage,
+  RoadmapNestedNode,
+} from '../../ai/ai.service';
 import {
   findTrackerSubtopicLearningVideos,
   findTrackerTopicLearningVideos,
@@ -283,8 +288,16 @@ const isGeminiTemporaryError = (error: unknown): boolean => {
   const possibleError = error as {
     status?: number;
     statusCode?: number;
+    code?: string;
     message?: string;
   };
+
+  if (
+    possibleError.code === 'AI_QUOTA_EXHAUSTED' ||
+    possibleError.code === 'AI_PROVIDERS_UNAVAILABLE'
+  ) {
+    return false;
+  }
 
   const message = possibleError.message?.toLowerCase() || '';
 
@@ -665,7 +678,15 @@ export const aiWorker = new Worker(
         throw Worker.RateLimitError();
       }
 
-      const errorMessage = error instanceof Error ? error.message : 'Unknown AI job failure';
+      const errorMessage = getAIUserMessage(error);
+      const internalCode =
+        error && typeof error === 'object' && 'code' in error
+          ? String((error as { code?: unknown }).code ?? 'UNKNOWN')
+          : 'UNKNOWN';
+      console.error(
+        `[AI job failed] jobId=${jobId} jobName=${job.name} code=${internalCode} ` +
+          `message="${error instanceof Error ? error.message : String(error)}"`
+      );
 
       await failCurrentStep(jobId);
 
@@ -680,7 +701,7 @@ export const aiWorker = new Worker(
         await createNotificationsComposition().useCases.createNotification.execute({
           userId: failedJob.userId.toString(),
           type: 'mock_test_generation_failed',
-          message: 'We could not generate your mock test. Please try again.',
+          message: errorMessage,
           deepLink: '/mock-tests',
           metadata: { jobId },
         });

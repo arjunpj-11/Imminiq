@@ -22,8 +22,7 @@ export const parseAIJson = <T>(
     if (logErrors) {
       console.error('AI JSON extraction failed:', {
         responseLength: normalizedResponse.length,
-        responsePreview: normalizedResponse.slice(0, 500),
-        error,
+        reason: error instanceof Error ? error.message : String(error),
       });
     }
 
@@ -38,8 +37,7 @@ export const parseAIJson = <T>(
     if (logErrors) {
       console.error('AI JSON parse failed:', {
         jsonLength: jsonContent.length,
-        errorContext: getJsonErrorContext(jsonContent, error),
-        error,
+        reason: error instanceof Error ? error.message : String(error),
       });
     }
 
@@ -51,8 +49,12 @@ export const parseAIJson = <T>(
   if (!validationResult.success) {
     if (logErrors) {
       console.error('AI JSON schema validation failed:', {
-        issues: validationResult.error.issues,
-        jsonPreview: jsonContent.slice(0, 500),
+        issues: validationResult.error.issues.map((issue) => ({
+          path: issue.path.map(String).join('.') || '_root',
+          code: issue.code,
+          message: issue.message,
+        })),
+        jsonLength: jsonContent.length,
       });
     }
 
@@ -136,7 +138,6 @@ const extractFirstJsonValue = (response: string): string => {
       if (trailingContent.length > 0 && trailingContent !== '```') {
         console.warn('AI response contained trailing content after JSON:', {
           trailingLength: trailingContent.length,
-          trailingPreview: trailingContent.slice(0, 500),
         });
       }
 
@@ -160,25 +161,4 @@ const findJsonStart = (response: string): number => {
   }
 
   return Math.min(objectStartIndex, arrayStartIndex);
-};
-
-const getJsonErrorContext = (content: string, error: unknown): string => {
-  if (!(error instanceof SyntaxError)) {
-    return content.slice(0, 500);
-  }
-
-  const positionMatch = error.message.match(/position\s+(\d+)/i);
-
-  if (!positionMatch) {
-    return content.slice(0, 500);
-  }
-
-  const position = Number(positionMatch[1]);
-  const contextSize = 200;
-
-  const startIndex = Math.max(0, position - contextSize);
-
-  const endIndex = Math.min(content.length, position + contextSize);
-
-  return content.slice(startIndex, endIndex);
 };

@@ -101,6 +101,25 @@ describe('API error boundary', () => {
     consoleError.mockRestore();
   });
 
+  it('returns an explicitly safe AI exhaustion message without exposing diagnostics', () => {
+    const consoleError = vi.spyOn(console, 'error').mockImplementation(() => undefined);
+    const error = ServiceError.dependencyUnavailable(
+      'AI_QUOTA_EXHAUSTED',
+      'Provider keys and internal quota diagnostics',
+      undefined,
+      'AI generation capacity is temporarily exhausted. Please try again later.'
+    );
+    const { status, json } = handle(error);
+
+    expect(status).toHaveBeenCalledWith(503);
+    expect(json).toHaveBeenCalledWith({
+      success: false,
+      message: 'AI generation capacity is temporarily exhausted. Please try again later.',
+      code: 'AI_QUOTA_EXHAUSTED',
+    });
+    consoleError.mockRestore();
+  });
+
   it('maps duplicate database records to a conflict without leaking details', () => {
     const { status, json } = handle(
       Object.assign(new Error('duplicate key secret'), { code: 11000 })
