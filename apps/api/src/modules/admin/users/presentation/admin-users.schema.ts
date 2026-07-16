@@ -8,5 +8,9 @@ export const adminUsersQuerySchema = z.object({
 });
 export const adminUserStatusSchema = z.object({
   status: z.enum(['active', 'blocked']),
-  reason: z.string().trim().max(300).optional(),
+  reason: z.string().trim().max(500).optional(),
+}).superRefine((value, context) => {
+  if (value.status === 'blocked' && (!value.reason || value.reason.length < 10)) {
+    context.addIssue({ code: 'custom', path: ['reason'], message: 'A clear blocking reason is required' });
+  }
 });

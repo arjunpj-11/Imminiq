@@ -9,7 +9,7 @@ export type AdminListQuery = {
 
 export type AdminActor = {
   userId: string;
-  role: 'admin' | 'superadmin';
+  role: 'moderator' | 'admin' | 'superadmin';
   ipAddress: string;
   userAgent: string;
 };

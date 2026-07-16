@@ -93,6 +93,8 @@ export class MockTestsMapper implements IMockTestsMapper {
       description: test.description,
       difficulty: test.difficulty,
       visibility: test.visibility,
+      moderationStatus: test.moderationStatus,
+      moderationReason: test.moderationReason,
       questionCount: test.questionCount,
       timeLimitMinutes: test.timeLimitMinutes,
       passingScore: test.passingScore,
@@ -324,7 +326,14 @@ export class MockTestsMapper implements IMockTestsMapper {
   toAttemptHistoryDto(item: MockTestAttemptHistoryItem): MockTestAttemptHistoryDTO {
     return {
       ...this.toAttempt(new MockTestAttemptEntity(item)),
-      test: item.test ? this.toMockTest(new MockTestEntity(item.test)) : null,
+      test: item.test
+        ? this.toMockTest(
+            new MockTestEntity({
+              ...item.test,
+              moderationStatus: item.test.moderationStatus ?? 'active',
+            })
+          )
+        : null,
     };
   }
 

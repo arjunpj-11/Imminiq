@@ -76,6 +76,7 @@ export default function MockTestDetailsPage() {
   }
 
   const isContinuing = data.latestAttempt?.status === 'in_progress';
+  const isUnavailable = data.test.moderationStatus !== 'active';
 
   return (
     <PageShell>
@@ -99,6 +100,20 @@ export default function MockTestDetailsPage() {
           </p>
         )}
 
+        {isUnavailable ? (
+          <div className="mt-5 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-800 dark:text-amber-200" role="status">
+            <strong>
+              {data.test.moderationStatus === 'deleted'
+                ? 'This mock test was removed by an administrator.'
+                : 'This mock test is temporarily under review.'}
+            </strong>
+            {data.test.moderationReason ? (
+              <span className="mt-1 block">Reason: {data.test.moderationReason}</span>
+            ) : null}
+            <span className="mt-1 block">Starting and sharing this test are disabled.</span>
+          </div>
+        ) : null}
+
         {/* tags */}
         <div className="mt-5 flex flex-wrap gap-2">
           <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
@@ -107,6 +122,10 @@ export default function MockTestDetailsPage() {
 
           <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
             {data.test.isAIGenerated ? 'AI generated' : 'Manual'}
+          </span>
+
+          <span className="rounded-full border border-(--border-subtle) bg-(--surface-canvas) px-3 py-1 font-mono text-[10px] uppercase tracking-widest text-(--text-secondary) dark:border-(--border-subtle) dark:bg-white/5 dark:text-(--text-secondary)">
+            {data.test.moderationStatus}
           </span>
 
           {data.test.tags.map((tag) => (
@@ -122,10 +141,12 @@ export default function MockTestDetailsPage() {
         <button
           type="button"
           onClick={start}
-          disabled={startMutation.isPending}
+          disabled={startMutation.isPending || isUnavailable}
           className="mt-6 rounded-md bg-(--brand-500) px-5 py-3 font-ui text-[15px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-60 dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
         >
-          {startMutation.isPending
+          {isUnavailable
+            ? 'Unavailable after admin review'
+            : startMutation.isPending
             ? 'Preparing...'
             : isContinuing
               ? 'Continue attempt'

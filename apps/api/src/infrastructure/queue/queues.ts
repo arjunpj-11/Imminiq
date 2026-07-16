@@ -7,3 +7,4 @@ export const aiQueue = new Queue('ai', connection);
 export const streakQueue = new Queue('streak', connection);
 export const analyticsQueue = new Queue('analytics', connection);
 export const notificationQueue = new Queue('notification', connection);
+export const emailQueue = new Queue('email', connection);

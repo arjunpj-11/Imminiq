@@ -24,6 +24,7 @@ import { ADMIN_USERS_ROUTES } from '../constants/admin-users.constants';
 export default function AdminUserDetailPage() {
   const { userId = '' } = useParams();
   const [confirmOpen, setConfirmOpen] = useState(false);
+  const [statusReason, setStatusReason] = useState('');
   const { data, isLoading, isError, error } = useAdminUserDetail(userId);
   const statusMutation = useSetAdminUserStatus(userId);
   if (isLoading) return <div className="p-10 text-sm">Loading user profile…</div>;
@@ -226,20 +227,40 @@ export default function AdminUserDetailPage() {
         open={confirmOpen}
         title={`${blocked ? 'Unblock' : 'Block'} ${user.fullName}?`}
         description={
-          blocked
-            ? 'This user will regain access immediately and can sign in again.'
-            : 'This user will be denied access on their next authenticated request and cannot sign in until unblocked.'
+          <div>
+            <p>{blocked
+              ? 'This user will regain access immediately and can sign in again.'
+              : 'All sessions will be revoked and the user will receive the reason in an in-app notification.'}</p>
+            {!blocked && (
+              <label className="mt-4 block text-left text-xs font-semibold">
+                User-facing reason
+                <textarea
+                  value={statusReason}
+                  onChange={(event) => setStatusReason(event.target.value)}
+                  rows={4}
+                  maxLength={500}
+                  className="mt-2 w-full rounded-lg border border-white/10 bg-[#24211e] p-3 text-sm text-[#f2f0eb]"
+                  placeholder="Explain the policy or security reason…"
+                />
+              </label>
+            )}
+          </div>
         }
         confirmText={blocked ? 'Unblock user' : 'Block user'}
         variant={blocked ? 'default' : 'danger'}
         isLoading={statusMutation.isPending}
         onClose={() => setConfirmOpen(false)}
-        onConfirm={() =>
-          statusMutation.mutate(blocked ? 'active' : 'blocked', {
-            onSuccess: (_, status) => {
+        onConfirm={() => {
+          if (!blocked && statusReason.trim().length < 10) {
+            toast.error('Reason required', 'Enter at least 10 characters explaining the block.');
+            return;
+          }
+          statusMutation.mutate({ status: blocked ? 'active' : 'blocked', reason: statusReason.trim() || undefined }, {
+            onSuccess: (_, input) => {
               setConfirmOpen(false);
+              setStatusReason('');
               toast.success(
-                status === 'blocked' ? 'User blocked' : 'User unblocked',
+                input.status === 'blocked' ? 'User blocked' : 'User unblocked',
                 'The account status was updated and added to the audit log.'
               );
             },
@@ -248,8 +269,8 @@ export default function AdminUserDetailPage() {
                 'Status update failed',
                 getUserFacingError(error, 'Please check your permissions and try again.')
               ),
-          })
-        }
+          });
+        }}
       />
     </main>
   );

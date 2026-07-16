@@ -26,6 +26,10 @@ export class StartTestAttemptUseCase implements IStartTestAttemptUseCase {
       throw MockTestsApplicationError.notFound('Test not found');
     }
 
+    if (test.moderationStatus !== 'active') {
+      throw MockTestsApplicationError.forbidden('This mock test is unavailable after an administrative review.');
+    }
+
     if (test.visibility === 'private' && test.ownerId !== userId) {
       throw MockTestsApplicationError.forbidden();
     }

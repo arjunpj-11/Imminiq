@@ -4,6 +4,7 @@ import { ActivityLog } from '../../../../../infrastructure/database/models/activ
 import { SecurityAuditEvent } from '../../../../../infrastructure/database/models/security-audit-event.model';
 import { MockTestReportModel } from '../../../../../infrastructure/database/models/mock-test-report.model';
 import { AuthToken } from '../../../../../infrastructure/database/models/auth-token.model';
+import { Notification } from '../../../../../infrastructure/database/models/notification.model';
 import type {
   AdminUserDetailEntity,
   AdminUserEntity,
@@ -162,7 +163,7 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
   }
 
   async recordStatusChange(input: RecordAdminStatusChangeInput): Promise<void> {
-    await SecurityAuditEvent.create({
+    await Promise.all([SecurityAuditEvent.create({
       userId: input.userId,
       eventType: input.status === 'blocked' ? 'admin_user_blocked' : 'admin_user_unblocked',
       outcome: 'success',
@@ -178,7 +179,16 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
         newStatus: input.status,
         changes: { status: { from: input.previousStatus, to: input.status } },
       },
-    });
+    }), Notification.create({
+      userId: input.userId,
+      type: 'account_status_updated',
+      message:
+        input.status === 'blocked'
+          ? `Your account was blocked by Imminiq administration. Reason: ${input.reason ?? 'Administrative review'}`.slice(0, 500)
+          : 'Your account access was restored by Imminiq administration.',
+      deepLink: input.status === 'blocked' ? '/blocked' : '/dashboard',
+      metadata: { status: input.status, reason: input.reason ?? '' },
+    })]);
   }
 }
 

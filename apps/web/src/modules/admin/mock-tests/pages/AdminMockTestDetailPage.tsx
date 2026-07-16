@@ -1,4 +1,5 @@
-import { ArrowLeft, Braces, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, Braces, CheckCircle2, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
   AdminEmpty,
@@ -10,9 +11,14 @@ import {
 } from '../../shared';
 import { useAdminMockTestDetail } from '../hooks/useAdminMockTestDetail';
 import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants';
+import AdminMockTestModerationDialog from '../components/AdminMockTestModerationDialog';
+import type { AdminMockTestLifecyclePayload } from '../types/admin-mock-tests.types';
+import { useAuthStore } from '../../../../store/useAuthStore';
 export default function AdminMockTestDetailPage() {
+  const canManageLifecycle = useAuthStore((state) => state.user?.role !== 'moderator');
   const { testId } = useParams();
-  const { data, isLoading, isError, error } = useAdminMockTestDetail(testId);
+  const { data, isLoading, isError, error, refetch } = useAdminMockTestDetail(testId);
+  const [moderating, setModerating] = useState<AdminMockTestLifecyclePayload['action'] | null>(null);
   if (isLoading) return <AdminLoading />;
   if (isError || !data) return <AdminError error={error} />;
   return (
@@ -28,9 +34,19 @@ export default function AdminMockTestDetailPage() {
         title={data.title}
         description={data.description || 'No test description provided.'}
         action={
-          <div className="flex gap-2">
+          <div className="flex flex-wrap justify-end gap-2">
             <AdminStatusBadge value={data.difficulty} />
             <AdminStatusBadge value={data.visibility} />
+            <AdminStatusBadge value={data.moderationStatus} />
+            {canManageLifecycle && data.moderationStatus === 'active' && (
+              <button className="admin-button inline-flex items-center gap-2 text-[#f0a842]" onClick={() => setModerating('suspend')}><ShieldAlert size={15} /> Suspend</button>
+            )}
+            {canManageLifecycle && data.moderationStatus !== 'deleted' && (
+              <button className="admin-button inline-flex items-center gap-2 text-[#e26767]" onClick={() => setModerating('delete')}><Trash2 size={15} /> Delete</button>
+            )}
+            {canManageLifecycle && data.moderationStatus !== 'active' && (
+              <button className="admin-button inline-flex items-center gap-2 text-[#52c58c]" onClick={() => setModerating('restore')}><RotateCcw size={15} /> Restore</button>
+            )}
           </div>
         }
       />
@@ -40,6 +56,8 @@ export default function AdminMockTestDetailPage() {
           ['Questions', data.questions.length],
           ['Time limit', `${data.timeLimitMinutes} min`],
           ['Passing score', `${data.passingScore}%`],
+          ['Open reports', data.openReportCount],
+          ['Active attempts', data.activeAttemptCount],
         ].map(([label, value]) => (
           <div key={label} className="rounded-xl border border-white/10 bg-[#1c1a18] p-5">
             <div className="text-[10px] uppercase text-[#817c75]">{label}</div>
@@ -47,6 +65,11 @@ export default function AdminMockTestDetailPage() {
           </div>
         ))}
       </div>
+      {data.moderationReason && (
+        <div className="mt-5 rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-4 text-sm text-[#f0c060]">
+          <strong>Moderation reason:</strong> {data.moderationReason}
+        </div>
+      )}
       <AdminPanel title="Questions">
         {!data.questions.length ? (
           <AdminEmpty>This test does not contain questions.</AdminEmpty>
@@ -61,7 +84,14 @@ export default function AdminMockTestDetailPage() {
                   <div className="text-[10px] uppercase tracking-wider text-[#e8816a]">
                     Question {question.order} · {question.type.replace('_', ' ')}
                   </div>
-                  <AdminStatusBadge value={question.difficulty} />
+                  <div className="flex items-center gap-2">
+                    {question.openReportCount > 0 && (
+                      <span className="rounded-full bg-[#e26767]/15 px-2 py-1 text-xs text-[#e26767]">
+                        {question.openReportCount} open reports
+                      </span>
+                    )}
+                    <AdminStatusBadge value={question.difficulty} />
+                  </div>
                 </div>
                 <h3 className="mt-3 font-semibold leading-6">{question.question}</h3>
                 {question.options?.length ? (
@@ -103,11 +133,27 @@ export default function AdminMockTestDetailPage() {
                     <strong className="text-[#f2f0eb]">Explanation:</strong> {question.explanation}
                   </p>
                 )}
+                <div className="mt-4 grid gap-2 border-t border-white/10 pt-4 text-xs text-[#aaa59d] sm:grid-cols-4">
+                  <span>{question.answerCount} answers</span>
+                  <span>{Math.round(question.correctRate)}% correct</span>
+                  <span>{Math.round(question.skipRate)}% skipped</span>
+                  <span>{question.reportCount} total reports</span>
+                </div>
               </article>
             ))}
           </div>
         )}
       </AdminPanel>
+      <AdminMockTestModerationDialog
+        key={`${data.id}-${moderating ?? 'closed'}`}
+        test={moderating ? data : null}
+        action={moderating ?? 'suspend'}
+        onClose={() => setModerating(null)}
+        onComplete={() => {
+          setModerating(null);
+          void refetch();
+        }}
+      />
     </main>
   );
 }

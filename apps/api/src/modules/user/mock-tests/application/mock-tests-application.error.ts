@@ -36,8 +36,8 @@ export class MockTestsApplicationError extends MockTestsDomainError {
     return new MockTestsApplicationError(404, 'NOT_FOUND', message);
   }
 
-  static forbidden(): MockTestsApplicationError {
-    return new MockTestsApplicationError(403, 'FORBIDDEN', 'Forbidden');
+  static forbidden(message = 'Forbidden'): MockTestsApplicationError {
+    return new MockTestsApplicationError(403, 'FORBIDDEN', message);
   }
 
   static testNotActive(message = 'Test is not in progress'): MockTestsApplicationError {

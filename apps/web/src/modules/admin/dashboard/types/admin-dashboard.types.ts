@@ -1,5 +1,15 @@
 export type AdminDashboardData = {
-  metrics: { totalUsers: number; activeToday: number; blockedUsers: number; totalTrackers: number };
+  accessScope: 'full' | 'moderation';
+  metrics: {
+    totalUsers: number;
+    activeToday: number;
+    blockedUsers: number;
+    totalTrackers: number;
+    openQuestionReports: number;
+    reviewingQuestionReports: number;
+    urgentSupportTickets: number;
+    suspendedMockTests: number;
+  };
   weeklyActivity: number[];
   recentActivity: Array<{
     id: string;

@@ -26,7 +26,7 @@ export function AdminRoute({ children }: IAdminRouteProps) {
     return <Navigate to={ROUTES.blocked} replace />;
   }
 
-  if (!['admin', 'superadmin'].includes(user.role)) {
+  if (!['moderator', 'admin', 'superadmin'].includes(user.role)) {
     return <Navigate to={ROUTES.dashboard} replace />;
   }
 

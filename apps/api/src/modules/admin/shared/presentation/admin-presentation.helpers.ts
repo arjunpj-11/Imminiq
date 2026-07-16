@@ -5,7 +5,7 @@ import type { AdminActor } from '../domain/admin-shared.types';
 
 export const getAdminActor = (req: Request): AdminActor => ({
   userId: req.user!.userId,
-  role: req.user!.role as 'admin' | 'superadmin',
+  role: req.user!.role as 'moderator' | 'admin' | 'superadmin',
   ipAddress: req.ip ?? '',
   userAgent: req.get('user-agent') ?? '',
 });

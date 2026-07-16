@@ -1,0 +1,48 @@
+import type { IMockTestsRepository } from '../../domain/repositories/mock-tests.repository.interface';
+import type { MockTestQuestionIssueReason } from '../../domain/repositories/mock-test-question-issue.repository.interface';
+import { MockTestsApplicationError } from '../mock-tests-application.error';
+
+export type ReportQuestionIssueInput = {
+  reason: MockTestQuestionIssueReason;
+  details?: string;
+};
+
+export interface IReportQuestionIssueUseCase {
+  execute(
+    attemptId: string,
+    questionId: string,
+    userId: string,
+    input: ReportQuestionIssueInput
+  ): Promise<{ id: string; status: string; reason: string; createdAt: Date; updatedAt: Date }>;
+}
+
+export class ReportQuestionIssueUseCase implements IReportQuestionIssueUseCase {
+  constructor(private readonly repository: IMockTestsRepository) {}
+
+  async execute(
+    attemptId: string,
+    questionId: string,
+    userId: string,
+    input: ReportQuestionIssueInput
+  ) {
+    const [attempt, question] = await Promise.all([
+      this.repository.findAttemptById(attemptId),
+      this.repository.findQuestionById(questionId),
+    ]);
+
+    if (!attempt) throw MockTestsApplicationError.notFound('Attempt not found');
+    if (attempt.userId !== userId) throw MockTestsApplicationError.forbidden();
+    if (!question || question.testId !== attempt.testId) {
+      throw MockTestsApplicationError.notFound('Question not found in this attempt');
+    }
+
+    return this.repository.createOrReopenQuestionIssue({
+      testId: attempt.testId,
+      questionId,
+      attemptId,
+      reporterId: userId,
+      reason: input.reason,
+      details: input.details?.trim() ?? '',
+    });
+  }
+}

@@ -36,6 +36,7 @@ export function MockTestRow({
   onStart: () => void;
 }) {
   const score = getTestScore(test);
+  const isUnavailable = test.moderationStatus !== 'active';
 
   return (
     <div className="render-lazy group flex flex-col gap-4 rounded-2xl border border-(--border-subtle) bg-(--surface-card) p-4 shadow-(--shadow-1) transition hover:-translate-y-0.5 hover:border-[rgba(184,76,43,0.22)] hover:shadow-(--shadow-2) sm:flex-row sm:items-center dark:border-(--border-subtle) dark:bg-(--surface-card) dark:hover:border-white/20">
@@ -59,6 +60,12 @@ export function MockTestRow({
             </span>
           ) : null}
 
+          {isUnavailable ? (
+            <span className="rounded-full border border-amber-500/25 bg-amber-500/10 px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-amber-700 dark:text-amber-300">
+              {test.moderationStatus === 'deleted' ? 'Removed by admin' : 'Under review'}
+            </span>
+          ) : null}
+
           {isHighScore(score) && (
             <span className="rounded-full border border-[rgba(45,106,71,0.22)] bg-[rgba(45,106,71,0.10)] px-2.5 py-0.5 font-mono text-[9px] uppercase tracking-widest text-(--success) dark:border-(--success)/30 dark:bg-(--success)/10 dark:text-(--success)">
               High score
@@ -70,6 +77,11 @@ export function MockTestRow({
           {test.description || 'No description added'} · {test.questionCount} questions ·{' '}
           {test.timeLimitMinutes} min · {formatDate(test.createdAt)}
         </p>
+        {isUnavailable && test.moderationReason ? (
+          <p className="mt-1 line-clamp-2 text-[12px] font-semibold text-amber-700 dark:text-amber-300">
+            Admin note: {test.moderationReason}
+          </p>
+        ) : null}
       </div>
 
       <div className="flex flex-wrap items-center justify-between gap-3 sm:justify-end">
@@ -94,7 +106,9 @@ export function MockTestRow({
         <button
           type="button"
           onClick={onShare}
-          className="inline-flex items-center gap-2 rounded-md border border-(--border-subtle) bg-white/35 px-3 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
+          disabled={isUnavailable}
+          title={isUnavailable ? 'Sharing is disabled while this test is under moderation.' : undefined}
+          className="inline-flex items-center gap-2 rounded-md border border-(--border-subtle) bg-white/35 px-3 py-2 text-[12px] font-bold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) disabled:cursor-not-allowed disabled:opacity-50 dark:border-(--border-subtle) dark:bg-transparent dark:text-(--text-secondary) dark:hover:border-white/20 dark:hover:text-[#f2f0eb]"
         >
           <ShareIcon />
           Share
@@ -103,9 +117,11 @@ export function MockTestRow({
         <button
           type="button"
           onClick={onStart}
-          className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-4 py-2 text-[12px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
+          disabled={isUnavailable}
+          title={isUnavailable ? 'This test is unavailable following an admin review.' : undefined}
+          className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-4 py-2 text-[12px] font-bold text-white shadow-[0_2px_12px_rgba(184,76,43,0.22)] transition hover:-translate-y-px hover:bg-(--brand-600) disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:translate-y-0 dark:bg-(--brand-500) dark:shadow-none dark:hover:bg-[#d9522d]"
         >
-          {getProgressLabel(test)} <ArrowRightIcon />
+          {isUnavailable ? 'Unavailable' : getProgressLabel(test)} <ArrowRightIcon />
         </button>
       </div>
     </div>

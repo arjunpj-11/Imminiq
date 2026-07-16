@@ -21,6 +21,7 @@ export * from './repositories/mock-test-answer.repository.interface';
 export * from './repositories/mock-test-attempt.repository.interface';
 export * from './repositories/mock-test-creation-session.repository.interface';
 export * from './repositories/mock-test-question.repository.interface';
+export * from './repositories/mock-test-question-issue.repository.interface';
 export * from './repositories/mock-test-report.repository.interface';
 export * from './repositories/mock-test-sharing.repository.interface';
 export * from './repositories/mock-test.repository.interface';

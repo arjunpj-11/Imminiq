@@ -1,0 +1,38 @@
+import { Worker } from 'bullmq';
+import { redis } from '../../cache/redis.client';
+import { sendMail } from '../../email/email.client';
+
+type MockTestModerationEmailJob = {
+  kind: 'mock_test_moderation';
+  to: string;
+  ownerName: string;
+  testTitle: string;
+  action: 'suspended' | 'deleted' | 'restored';
+  reason: string;
+};
+
+const escapeHtml = (value: string) =>
+  value
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#039;');
+
+export const emailWorker = new Worker<MockTestModerationEmailJob>(
+  'email',
+  async (job) => {
+    if (job.data.kind !== 'mock_test_moderation') return;
+    const { to, ownerName, testTitle, action, reason } = job.data;
+    const actionLabel =
+      action === 'restored' ? 'restored' : action === 'suspended' ? 'suspended' : 'removed';
+    const subject = `Your mock test “${testTitle}” was ${actionLabel}`;
+    const html = `<div style="font-family:Arial,sans-serif;line-height:1.65;color:#25211f"><h2>Mock test ${actionLabel} by Imminiq administration</h2><p>Hello ${escapeHtml(ownerName)},</p><p>Your mock test <strong>${escapeHtml(testTitle)}</strong> was ${actionLabel} after an administrative review.</p><p><strong>Reason:</strong> ${escapeHtml(reason)}</p><p>If you believe this decision was incorrect, please raise a support ticket from your Imminiq account and include the mock test title.</p><p>— Imminiq Support</p></div>`;
+    await sendMail(to, subject, html);
+  },
+  { connection: redis, concurrency: 5 }
+);
+
+export const startEmailWorker = async () => {
+  await emailWorker.waitUntilReady();
+};

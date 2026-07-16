@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Eye } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Eye, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { Link, useSearchParams } from 'react-router-dom';
 import {
   AdminEmpty,
   AdminError,
@@ -14,11 +14,20 @@ import {
 import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
 import { useAdminMockTests } from '../hooks/useAdminMockTests';
 import { ADMIN_MOCK_TESTS_ROUTES } from '../constants/admin-mock-tests.constants';
+import type { AdminMockTest, AdminMockTestLifecyclePayload } from '../types/admin-mock-tests.types';
+import AdminMockTestModerationDialog from '../components/AdminMockTestModerationDialog';
+import { useAuthStore } from '../../../../store/useAuthStore';
 
 export default function AdminMockTestsPage() {
+  const canManageLifecycle = useAuthStore((state) => state.user?.role !== 'moderator');
+  const [searchParams, setSearchParams] = useSearchParams();
   const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
+  const [status, setStatus] = useState(() => searchParams.get('status') || 'all');
   const [page, setPage] = useState(1);
+  const [moderating, setModerating] = useState<{
+    test: AdminMockTest;
+    action: AdminMockTestLifecyclePayload['action'];
+  } | null>(null);
   const { data, isLoading, isError, error } = useAdminMockTests({
     search: useDebouncedValue(search, 300),
     status,
@@ -29,12 +38,20 @@ export default function AdminMockTestsPage() {
       <AdminPageHeader
         title="Mock Test Management"
         description="Inspect assessment contents, questions, correct answers, and test configuration."
+        action={
+          <Link
+            to={ADMIN_MOCK_TESTS_ROUTES.reports}
+            className="admin-primary-button inline-flex items-center gap-2"
+          >
+            <ShieldAlert size={16} /> Question reports
+          </Link>
+        }
       />
       <AdminMetricGrid
         metrics={[
           { label: 'All tests', value: data?.pagination.total ?? 0 },
-          { label: 'Public', value: data?.stats?.public ?? 0, tone: 'success' },
-          { label: 'Private', value: data?.stats?.private ?? 0, tone: 'info' },
+          { label: 'Open reports', value: data?.stats?.openReports ?? 0, tone: 'error' },
+          { label: 'Suspended', value: data?.stats?.suspended ?? 0, tone: 'warning' },
           { label: 'Attempts', value: data?.stats?.attempts ?? 0, tone: 'accent' },
         ]}
       />
@@ -45,7 +62,12 @@ export default function AdminMockTestsPage() {
             <select
               value={status}
               onChange={(e) => {
-                setStatus(e.target.value);
+                const nextStatus = e.target.value;
+                setStatus(nextStatus);
+                const next = new URLSearchParams(searchParams);
+                if (nextStatus === 'all') next.delete('status');
+                else next.set('status', nextStatus);
+                setSearchParams(next, { replace: true });
                 setPage(1);
               }}
               className="admin-select"
@@ -53,6 +75,9 @@ export default function AdminMockTestsPage() {
               <option value="all">All visibility</option>
               <option value="public">Public</option>
               <option value="private">Private</option>
+              <option value="active">Active</option>
+              <option value="suspended">Suspended</option>
+              <option value="deleted">Deleted</option>
             </select>
             <AdminSearch
               value={search}
@@ -83,8 +108,10 @@ export default function AdminMockTestsPage() {
                     <th>Questions</th>
                     <th>Attempts</th>
                     <th>Average</th>
+                    <th>Reports</th>
                     <th>Visibility</th>
-                    <th>Action</th>
+                    <th>Status</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -102,16 +129,52 @@ export default function AdminMockTestsPage() {
                       <td>{item.attemptCount}</td>
                       <td>{Math.round(item.averageScore)}%</td>
                       <td>
+                        <span className={item.openReportCount ? 'font-bold text-[#e26767]' : ''}>
+                          {item.openReportCount} open / {item.reportCount}
+                        </span>
+                      </td>
+                      <td>
                         <AdminStatusBadge value={item.visibility} />
                       </td>
                       <td>
-                        <Link
-                          to={ADMIN_MOCK_TESTS_ROUTES.detail(item.id)}
-                          className="admin-button inline-flex items-center gap-2"
-                        >
-                          <Eye size={14} />
-                          View
-                        </Link>
+                        <AdminStatusBadge value={item.moderationStatus} />
+                      </td>
+                      <td>
+                        <div className="flex gap-2">
+                          <Link
+                            to={ADMIN_MOCK_TESTS_ROUTES.detail(item.id)}
+                            className="admin-button inline-flex items-center gap-2"
+                          >
+                            <Eye size={14} /> View
+                          </Link>
+                          {canManageLifecycle && item.moderationStatus === 'active' && (
+                            <button
+                              onClick={() => setModerating({ test: item, action: 'suspend' })}
+                              className="admin-icon-button text-[#f0a842]"
+                              title="Suspend mock test"
+                            >
+                              <ShieldAlert size={15} />
+                            </button>
+                          )}
+                          {canManageLifecycle && item.moderationStatus !== 'deleted' && (
+                            <button
+                              onClick={() => setModerating({ test: item, action: 'delete' })}
+                              className="admin-icon-button text-[#e26767]"
+                              title="Delete mock test"
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          )}
+                          {canManageLifecycle && item.moderationStatus !== 'active' && (
+                            <button
+                              onClick={() => setModerating({ test: item, action: 'restore' })}
+                              className="admin-icon-button text-[#52c58c]"
+                              title="Restore mock test"
+                            >
+                              <RotateCcw size={15} />
+                            </button>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -140,6 +203,12 @@ export default function AdminMockTestsPage() {
           </>
         )}
       </AdminPanel>
+      <AdminMockTestModerationDialog
+        key={`${moderating?.test.id ?? 'closed'}-${moderating?.action ?? 'suspend'}`}
+        test={moderating?.test ?? null}
+        action={moderating?.action ?? 'suspend'}
+        onClose={() => setModerating(null)}
+      />
     </main>
   );
 }

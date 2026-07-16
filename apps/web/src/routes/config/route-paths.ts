@@ -78,6 +78,7 @@ export const ADMIN_ROUTES = {
   trackerDetailPattern: '/admin/trackers/:trackerId',
   trackerDetail: (trackerId: string) => `/admin/trackers/${trackerId}`,
   mockTests: '/admin/mock-tests',
+  mockTestReports: '/admin/mock-tests/reports',
   mockTestDetailPattern: '/admin/mock-tests/:testId',
   mockTestDetail: (testId: string) => `/admin/mock-tests/${testId}`,
   legacyTrackerReviews: '/admin/tracker-reviews',

@@ -129,6 +129,19 @@ export const flagQuestionSchema = z.object({
   questionId: objectIdSchema,
 });
 
+export const reportQuestionIssueSchema = z.object({
+  reason: z.enum([
+    'incorrect_answer',
+    'ambiguous_question',
+    'duplicate_question',
+    'broken_code_or_test_case',
+    'formatting_problem',
+    'unsafe_or_offensive',
+    'other',
+  ]),
+  details: z.string().trim().max(1500).optional().default(''),
+});
+
 export type CreateMockTestInput = z.infer<typeof createMockTestSchema>;
 
 export type GenerateMockTestInput = z.infer<typeof generateMockTestSchema>;

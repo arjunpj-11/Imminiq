@@ -10,6 +10,7 @@ export type MockTestsUseCases = {
   getAttemptQuestions: Application.IGetAttemptQuestionsUseCase;
   submitAnswer: Application.ISubmitAnswerUseCase;
   flagQuestion: Application.IFlagQuestionUseCase;
+  reportQuestionIssue: Application.IReportQuestionIssueUseCase;
   finishTestAttempt: Application.IFinishTestAttemptUseCase;
   getAttemptResult: Application.IGetAttemptResultUseCase;
   getAttemptAnalysis: Application.IGetAttemptAnalysisUseCase;

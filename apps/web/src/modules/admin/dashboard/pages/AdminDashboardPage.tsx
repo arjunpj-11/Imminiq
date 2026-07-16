@@ -1,4 +1,4 @@
-import { CheckCircle2, RefreshCw } from 'lucide-react';
+import { CheckCircle2, RefreshCw, ShieldAlert, TicketCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import AdminDashboardState from '../components/AdminDashboardState';
@@ -35,15 +35,50 @@ export default function AdminDashboardPage() {
         }
       />
       <AdminMetricGrid
-        metrics={[
-          { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
-          { label: 'Active today', value: data.metrics.activeToday, tone: 'success' },
-          { label: 'Total trackers', value: data.metrics.totalTrackers, tone: 'info' },
-          { label: 'Blocked users', value: data.metrics.blockedUsers, tone: 'error' },
-        ]}
+        metrics={
+          data.accessScope === 'moderation'
+            ? [
+                { label: 'Open reports', value: data.metrics.openQuestionReports, tone: 'error' },
+                { label: 'In review', value: data.metrics.reviewingQuestionReports, tone: 'warning' },
+                { label: 'Urgent support', value: data.metrics.urgentSupportTickets, tone: 'accent' },
+                { label: 'Suspended tests', value: data.metrics.suspendedMockTests, tone: 'info' },
+              ]
+            : [
+                { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
+                { label: 'Active today', value: data.metrics.activeToday, tone: 'success' },
+                { label: 'Total trackers', value: data.metrics.totalTrackers, tone: 'info' },
+                { label: 'Blocked users', value: data.metrics.blockedUsers, tone: 'error' },
+              ]
+        }
       />
-      <section className="mt-7 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
-        <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
+      <section className="mt-7 grid gap-4 lg:grid-cols-3">
+        <Link
+          to={ADMIN_ROUTES.mockTestReports}
+          className="rounded-xl border border-[#e26767]/30 bg-[#e26767]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#e26767]"><ShieldAlert size={18} /> Question reports</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.openQuestionReports}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">{data.metrics.reviewingQuestionReports} currently under review</p>
+        </Link>
+        <Link
+          to={ADMIN_ROUTES.supportTickets}
+          className="rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#f0a842]"><TicketCheck size={18} /> Urgent support</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.urgentSupportTickets}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Open or in-progress urgent tickets</p>
+        </Link>
+        <Link
+          to={`${ADMIN_ROUTES.mockTests}?status=suspended`}
+          className="rounded-xl border border-[#6aa9ff]/30 bg-[#6aa9ff]/10 p-5 transition hover:-translate-y-0.5"
+        >
+          <div className="flex items-center gap-2 font-semibold text-[#6aa9ff]"><ShieldAlert size={18} /> Suspended tests</div>
+          <div className="font-editorial mt-3 text-3xl">{data.metrics.suspendedMockTests}</div>
+          <p className="mt-1 text-xs text-[#aaa59d]">Awaiting correction, appeal, or deletion</p>
+        </Link>
+      </section>
+      <section className={`mt-7 grid gap-6 ${data.accessScope === 'full' ? 'lg:grid-cols-[1.55fr_1fr]' : ''}`}>
+        {data.accessScope === 'full' && <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
           <div className="flex items-center justify-between">
             <h2 className="font-editorial text-2xl font-bold">Platform Activity</h2>
             <span className="rounded-md bg-[#1c1a18] px-3 py-1.5 text-xs">7D</span>
@@ -64,7 +99,7 @@ export default function AdminDashboardPage() {
               </div>
             ))}
           </div>
-        </div>
+        </div>}
         <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
           <div className="mb-6 flex items-center justify-between">
             <h2 className="font-editorial text-2xl font-bold">User Health</h2>

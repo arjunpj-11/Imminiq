@@ -1,6 +1,9 @@
 import { User } from '../../../../../infrastructure/database/models/user.model';
 import { Tracker } from '../../../../../infrastructure/database/models/tracker.model';
 import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
+import { MockTestQuestionIssueModel } from '../../../../../infrastructure/database/models/mock-test-question-issue.model';
+import { MockTestModel } from '../../../../../infrastructure/database/models/mock-test.model';
+import { SupportTicket } from '../../../../../infrastructure/database/models/support-ticket.model';
 import type { AdminDashboardEntity } from '../../domain/entities/admin-dashboard.entity';
 import type { IAdminDashboardRepository } from '../../domain/repositories/admin-dashboard.repository.interface';
 
@@ -10,12 +13,30 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
     sinceToday.setHours(0, 0, 0, 0);
     const sinceWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
     const verified = { $or: [{ emailVerified: true }, { phoneVerified: true }] };
-    const [totalUsers, activeToday, blockedUsers, totalTrackers, recentActivity, weeklyActivity] =
+    const [
+      totalUsers,
+      activeToday,
+      blockedUsers,
+      totalTrackers,
+      openQuestionReports,
+      reviewingQuestionReports,
+      urgentSupportTickets,
+      suspendedMockTests,
+      recentActivity,
+      weeklyActivity,
+    ] =
       await Promise.all([
         User.countDocuments({ deletedAt: null, ...verified }),
         User.countDocuments({ deletedAt: null, lastActiveAt: { $gte: sinceToday }, ...verified }),
         User.countDocuments({ deletedAt: null, status: 'blocked', ...verified }),
         Tracker.countDocuments({ deletedAt: null }),
+        MockTestQuestionIssueModel.countDocuments({ status: 'open' }),
+        MockTestQuestionIssueModel.countDocuments({ status: 'reviewing' }),
+        SupportTicket.countDocuments({
+          priority: 'urgent',
+          status: { $in: ['open', 'in_progress'] },
+        }),
+        MockTestModel.countDocuments({ moderationStatus: 'suspended', deletedAt: null }),
         ActivityLog.find({ deletedAt: null }).sort({ createdAt: -1 }).limit(8).lean(),
         ActivityLog.aggregate<{ _id: number; count: number }>([
           { $match: { deletedAt: null, createdAt: { $gte: sinceWeek } } },
@@ -35,7 +56,16 @@ export class MongoAdminDashboardRepository implements IAdminDashboardRepository 
     );
     const weeklyMap = new Map(weeklyActivity.map((item) => [item._id, item.count]));
     return {
-      metrics: { totalUsers, activeToday, blockedUsers, totalTrackers },
+      metrics: {
+        totalUsers,
+        activeToday,
+        blockedUsers,
+        totalTrackers,
+        openQuestionReports,
+        reviewingQuestionReports,
+        urgentSupportTickets,
+        suspendedMockTests,
+      },
       weeklyActivity: [2, 3, 4, 5, 6, 7, 1].map((day) => weeklyMap.get(day) ?? 0),
       recentActivity: recentActivity.map((item) => ({
         id: String(item._id),

@@ -25,6 +25,8 @@ export interface MockTestDTO {
   description: string;
   difficulty: DifficultyLevel;
   visibility: TestVisibility;
+  moderationStatus: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   questionCount: number;
   timeLimitMinutes: number;
   passingScore: number;

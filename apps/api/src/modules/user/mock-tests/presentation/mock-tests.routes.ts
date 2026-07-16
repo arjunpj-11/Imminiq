@@ -14,6 +14,7 @@ import { enforcePlanLimit } from '../../subscriptions';
 import {
   createMockTestSchema,
   flagQuestionSchema,
+  reportQuestionIssueSchema,
   generateMockTestSchema,
   runMockTestCodeSchema,
   submitAnswerSchema,
@@ -95,6 +96,12 @@ export const createMockTestsRoutes = (useCases: MockTestsUseCases) => {
     MOCK_TEST_ROUTE_PATHS.ATTEMPT_FLAG,
     validate(flagQuestionSchema),
     mockTestsController.flagQuestion
+  );
+
+  router.post(
+    MOCK_TEST_ROUTE_PATHS.ATTEMPT_REPORT_QUESTION,
+    validate(reportQuestionIssueSchema),
+    mockTestsController.reportQuestionIssue
   );
 
   router.post(MOCK_TEST_ROUTE_PATHS.ATTEMPT_FINISH, mockTestsController.finishAttempt);

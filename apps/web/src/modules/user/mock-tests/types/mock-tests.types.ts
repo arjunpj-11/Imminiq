@@ -3,6 +3,14 @@ export type DifficultyLevel = 'easy' | 'medium' | 'hard';
 export type TestVisibility = 'private' | 'public';
 export type AttemptStatus = 'in_progress' | 'completed' | 'abandoned';
 export type EvaluationStatus = 'pending' | 'completed' | 'failed';
+export type MockTestQuestionIssueReason =
+  | 'incorrect_answer'
+  | 'ambiguous_question'
+  | 'duplicate_question'
+  | 'broken_code_or_test_case'
+  | 'formatting_problem'
+  | 'unsafe_or_offensive'
+  | 'other';
 
 export interface IMockTestGenerationJob {
   jobId: string;
@@ -47,6 +55,8 @@ export interface IMockTest {
   description: string;
   difficulty: DifficultyLevel;
   visibility: TestVisibility;
+  moderationStatus: 'active' | 'suspended' | 'deleted';
+  moderationReason?: string;
   questionCount: number;
   timeLimitMinutes: number;
   passingScore: number;
@@ -123,6 +133,14 @@ export interface IMockTestAnswer {
   pointsEarned?: number;
   aiEvaluationId?: string;
   submittedAt: string;
+}
+
+export interface IMockTestQuestionIssueResponse {
+  id: string;
+  status: string;
+  reason: MockTestQuestionIssueReason;
+  createdAt: string;
+  updatedAt: string;
 }
 
 export interface IMockTestAIEvaluation {

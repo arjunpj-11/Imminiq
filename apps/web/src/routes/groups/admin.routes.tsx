@@ -7,7 +7,11 @@ import {
   AdminTrackerDetailPage,
   AdminTrackersPage,
 } from '../../modules/admin/trackers';
-import { AdminMockTestDetailPage, AdminMockTestsPage } from '../../modules/admin/mock-tests';
+import {
+  AdminMockTestDetailPage,
+  AdminMockTestReportsPage,
+  AdminMockTestsPage,
+} from '../../modules/admin/mock-tests';
 import { AdminTrackerReviewsPage } from '../../modules/admin/tracker-reviews';
 import { AdminAnalyticsPage } from '../../modules/admin/analytics';
 import { AdminBroadcastPage } from '../../modules/admin/broadcast';
@@ -31,6 +35,7 @@ export const adminRoutes: RouteObject[] = [
       { path: ADMIN_ROUTES.publishedTrackers, element: <AdminPublishedTrackersPage /> },
       { path: ADMIN_ROUTES.trackerDetailPattern, element: <AdminTrackerDetailPage /> },
       { path: ADMIN_ROUTES.mockTests, element: <AdminMockTestsPage /> },
+      { path: ADMIN_ROUTES.mockTestReports, element: <AdminMockTestReportsPage /> },
       { path: ADMIN_ROUTES.mockTestDetailPattern, element: <AdminMockTestDetailPage /> },
       {
         path: ADMIN_ROUTES.legacyTrackerReviews,

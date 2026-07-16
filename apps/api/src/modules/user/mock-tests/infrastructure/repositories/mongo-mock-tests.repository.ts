@@ -18,6 +18,7 @@ import type {
   UpdateMockTestCreationSessionInput,
 } from '../../domain/repositories/mock-test-creation-session.repository.interface';
 import type { CreateMockTestQuestionInput } from '../../domain/repositories/mock-test-question.repository.interface';
+import type { CreateMockTestQuestionIssueInput } from '../../domain/repositories/mock-test-question-issue.repository.interface';
 import type { CreateMockTestReportInput } from '../../domain/repositories/mock-test-report.repository.interface';
 import type {
   EnableMockTestSharingInput,
@@ -36,6 +37,7 @@ import { MongoMockTestsAnswerRepository } from './internal/mongo-mock-tests-answ
 import { MongoMockTestsAttemptRepository } from './internal/mongo-mock-tests-attempt.repository';
 import { MongoMockTestsCreationSessionRepository } from './internal/mongo-mock-tests-creation-session.repository';
 import { MongoMockTestsQuestionRepository } from './internal/mongo-mock-tests-question.repository';
+import { MongoMockTestsQuestionIssueRepository } from './internal/mongo-mock-tests-question-issue.repository';
 import { MongoMockTestsReportRepository } from './internal/mongo-mock-tests-report.repository';
 import { MongoMockTestsSharingRepository } from './internal/mongo-mock-tests-sharing.repository';
 import { MongoMockTestsTestRepository } from './internal/mongo-mock-tests-test.repository';
@@ -45,6 +47,7 @@ type MongoMockTestsRepositoryDependencies = {
   testRepository: MongoMockTestsTestRepository;
   sharingRepository: MongoMockTestsSharingRepository;
   questionRepository: MongoMockTestsQuestionRepository;
+  questionIssueRepository: MongoMockTestsQuestionIssueRepository;
   attemptRepository: MongoMockTestsAttemptRepository;
   answerRepository: MongoMockTestsAnswerRepository;
   aiEvaluationRepository: MongoMockTestsAIEvaluationRepository;
@@ -57,6 +60,7 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
   private readonly _testRepository: MongoMockTestsTestRepository;
   private readonly _sharingRepository: MongoMockTestsSharingRepository;
   private readonly _questionRepository: MongoMockTestsQuestionRepository;
+  private readonly _questionIssueRepository: MongoMockTestsQuestionIssueRepository;
   private readonly _attemptRepository: MongoMockTestsAttemptRepository;
   private readonly _answerRepository: MongoMockTestsAnswerRepository;
   private readonly _aiEvaluationRepository: MongoMockTestsAIEvaluationRepository;
@@ -75,6 +79,9 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
 
     this._questionRepository =
       dependencies.questionRepository ?? new MongoMockTestsQuestionRepository(mapper);
+
+    this._questionIssueRepository =
+      dependencies.questionIssueRepository ?? new MongoMockTestsQuestionIssueRepository();
 
     this._attemptRepository =
       dependencies.attemptRepository ?? new MongoMockTestsAttemptRepository(mapper);
@@ -145,6 +152,10 @@ export class MongoMockTestsRepository implements IMockTestsRepository {
 
   async createQuestions(questions: CreateMockTestQuestionInput[]) {
     return this._questionRepository.createQuestions(questions);
+  }
+
+  async createOrReopenQuestionIssue(input: CreateMockTestQuestionIssueInput) {
+    return this._questionIssueRepository.createOrReopenQuestionIssue(input);
   }
 
   async findAttemptById(attemptId: string) {

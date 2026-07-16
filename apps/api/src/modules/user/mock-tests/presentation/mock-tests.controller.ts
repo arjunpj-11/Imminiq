@@ -134,6 +134,21 @@ export class MockTestsController {
     }
   };
 
+  reportQuestionIssue = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this._useCases.reportQuestionIssue.execute(
+        this.getParam(req.params.attemptId, 'attemptId'),
+        this.getParam(req.params.questionId, 'questionId'),
+        getAuthUser(req).userId,
+        req.body
+      );
+
+      res.status(201).json(new ApiResponse('Question report submitted', data));
+    } catch (error) {
+      next(error);
+    }
+  };
+
   finishAttempt = async (req: Request, res: Response, next: NextFunction) => {
     try {
       const data = await this._useCases.finishTestAttempt.execute(

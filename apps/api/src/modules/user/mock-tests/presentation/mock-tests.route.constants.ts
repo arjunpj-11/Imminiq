@@ -17,6 +17,7 @@ export const MOCK_TEST_ROUTE_PATHS = {
   ATTEMPT_QUESTIONS: '/attempts/:attemptId/questions',
   ATTEMPT_ANSWERS: '/attempts/:attemptId/answers',
   ATTEMPT_FLAG: '/attempts/:attemptId/flag',
+  ATTEMPT_REPORT_QUESTION: '/attempts/:attemptId/questions/:questionId/report',
   ATTEMPT_FINISH: '/attempts/:attemptId/finish',
   ATTEMPT_RESULT: '/attempts/:attemptId/result',
   ATTEMPT_ANALYSIS: '/attempts/:attemptId/analysis',

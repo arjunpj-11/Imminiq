@@ -202,6 +202,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
       return (await MockTestModel.find({
         visibility: 'public',
         difficulty: 'easy',
+        moderationStatus: { $in: ['active', null] },
         deletedAt: null,
       })
         .sort({ createdAt: -1 })
@@ -212,6 +213,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
       return (await MockTestModel.find({
         visibility: 'public',
         difficulty: 'medium',
+        moderationStatus: { $in: ['active', null] },
         deletedAt: null,
       })
         .sort({ createdAt: -1 })
@@ -222,6 +224,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
       return (await MockTestModel.find({
         visibility: 'public',
         difficulty: 'hard',
+        moderationStatus: { $in: ['active', null] },
         deletedAt: null,
       })
         .sort({ createdAt: -1 })
@@ -230,6 +233,7 @@ export class MongoMockTestsTestRepository extends MongoMockTestsBaseRepository {
 
     return (await MockTestModel.find({
       visibility: 'public',
+      moderationStatus: { $in: ['active', null] },
       deletedAt: null,
     })
       .sort({ createdAt: -1 })

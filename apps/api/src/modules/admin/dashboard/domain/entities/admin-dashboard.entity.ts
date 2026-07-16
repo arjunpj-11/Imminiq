@@ -3,6 +3,10 @@ export type AdminDashboardMetrics = {
   activeToday: number;
   blockedUsers: number;
   totalTrackers: number;
+  openQuestionReports: number;
+  reviewingQuestionReports: number;
+  urgentSupportTickets: number;
+  suspendedMockTests: number;
 };
 
 export type AdminDashboardActivity = {
