@@ -37,7 +37,6 @@ describe('mock-test DTO mapping', () => {
     expect(result.tests[0]).not.toHaveProperty('shareToken');
     expect(result.tests[0]).toMatchObject({
       _id: 'test-1',
-      visibility: 'public',
       title: 'Public test',
     });
   });

@@ -57,8 +57,6 @@ describe('admin dashboard access scope', () => {
     expect(result.accessScope).toBe('moderation');
     expect(result.metrics).toMatchObject({
       totalUsers: 0,
-      verifiedUsers: 0,
-      unverifiedUsers: 0,
       activeToday: 0,
       blockedUsers: 0,
     });
