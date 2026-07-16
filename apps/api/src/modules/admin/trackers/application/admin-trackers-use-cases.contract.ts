@@ -6,6 +6,7 @@ import type { IRateAdminPublishedTrackerUseCase } from './use-cases/rate-admin-p
 import type { IListAdminTrackerReportsUseCase } from './use-cases/list-admin-tracker-reports.usecase';
 import type { IUpdateAdminTrackerReportUseCase } from './use-cases/update-admin-tracker-report.usecase';
 import type { IUpdateAdminTrackerLifecycleUseCase } from './use-cases/update-admin-tracker-lifecycle.usecase';
+import type { AdminTrackerReviewsUseCases } from './admin-tracker-reviews';
 
 export type AdminTrackersUseCases = {
   list: IListAdminTrackersUseCase;
@@ -16,4 +17,5 @@ export type AdminTrackersUseCases = {
   listReports: IListAdminTrackerReportsUseCase;
   updateReport: IUpdateAdminTrackerReportUseCase;
   updateLifecycle: IUpdateAdminTrackerLifecycleUseCase;
+  reviews: AdminTrackerReviewsUseCases;
 };

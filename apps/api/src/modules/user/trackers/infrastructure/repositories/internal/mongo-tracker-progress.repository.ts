@@ -136,35 +136,48 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
           );
         }
 
-        await TrackerProgress.findOneAndUpdate(
-          this.mapper.asMongoFilter({
-            userId: userObjId,
-            trackerId: trackerObjId,
-          }),
-          this.mapper.asMongoUpdate({
-            $setOnInsert: {
+        const now = new Date();
+        await Promise.all([
+          TrackerProgress.findOneAndUpdate(
+            this.mapper.asMongoFilter({
               userId: userObjId,
               trackerId: trackerObjId,
-              completedTopics: 0,
-              completedSubtopics: 0,
-              completionPercentage: 0,
-              lastStudiedAt: null,
-              startedAt: new Date(),
-              completedAt: null,
-            },
+            }),
+            this.mapper.asMongoUpdate({
+              $setOnInsert: {
+                userId: userObjId,
+                trackerId: trackerObjId,
+                completedTopics: 0,
+                completedSubtopics: 0,
+                completionPercentage: 0,
+                lastStudiedAt: null,
+                startedAt: now,
+                completedAt: null,
+              },
 
-            $set: {
-              totalTopics: topics.length,
-              totalSubtopics: subtopics.length,
+              $set: {
+                totalTopics: topics.length,
+                totalSubtopics: subtopics.length,
+              },
+            }),
+            {
+              upsert: true,
+              returnDocument: 'after',
+              runValidators: true,
+              setDefaultsOnInsert: true,
+            }
+          ),
+          Tracker.updateOne(
+            {
+              _id: trackerObjId,
+              ownerId: userObjId,
+              status: 'draft',
+              deletedAt: null,
+              moderationStatus: { $in: ['active', null] },
             },
-          }),
-          {
-            upsert: true,
-            returnDocument: 'after',
-            runValidators: true,
-            setDefaultsOnInsert: true,
-          }
-        );
+            { $set: { status: 'active', lastActiveAt: now } }
+          ),
+        ]);
       },
       MongoTrackerErrorMapper.mapDuplicateTrackerRecordError
     );
@@ -427,21 +440,16 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
             ? Math.min(100, Math.round((completedSubtopics / totalSubtopics) * 100))
             : 0;
 
-        const activateDraftTrackerPromise =
-          data.status === 'completed'
-            ? Tracker.updateOne(
-                this.mapper.asMongoFilter({
-                  _id: trackerObjId,
-                  status: 'draft',
-                  deletedAt: null,
-                }),
-                this.mapper.asMongoUpdate({
-                  $set: {
-                    status: 'active',
-                  },
-                })
-              )
-            : Promise.resolve();
+        const activateDraftTrackerPromise = Tracker.updateOne(
+          {
+            _id: trackerObjId,
+            ownerId: userObjId,
+            status: 'draft',
+            deletedAt: null,
+            moderationStatus: { $in: ['active', null] },
+          },
+          { $set: { status: 'active' } }
+        );
 
         await Promise.all([
           Tracker.findOneAndUpdate(

@@ -47,10 +47,6 @@ import {
   createAdminSystemHealthRoutes,
 } from '../modules/admin/system-health';
 import {
-  createAdminTrackerReviewsComposition,
-  createAdminTrackerReviewsRoutes,
-} from '../modules/admin/tracker-reviews';
-import {
   createAdminTrackersComposition,
   createAdminTrackersRoutes,
 } from '../modules/admin/trackers';
@@ -125,7 +121,6 @@ export const createApiRouter = () => {
   const adminUsersComposition = createAdminUsersComposition();
   const adminTrackersComposition = createAdminTrackersComposition();
   const adminMockTestsComposition = createAdminMockTestsComposition();
-  const adminTrackerReviewsComposition = createAdminTrackerReviewsComposition();
   const adminAnalyticsComposition = createAdminAnalyticsComposition();
   const adminBroadcastComposition = createAdminBroadcastComposition();
   const adminAuditLogsComposition = createAdminAuditLogsComposition();
@@ -161,10 +156,6 @@ export const createApiRouter = () => {
   router.use(
     API_ROUTE_PATHS.admin.mockTests,
     createAdminMockTestsRoutes(adminMockTestsComposition.useCases)
-  );
-  router.use(
-    API_ROUTE_PATHS.admin.trackerReviews,
-    createAdminTrackerReviewsRoutes(adminTrackerReviewsComposition.useCases)
   );
   router.use(
     API_ROUTE_PATHS.admin.analytics,

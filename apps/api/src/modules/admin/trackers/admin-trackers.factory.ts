@@ -9,10 +9,18 @@ import { UpdateAdminTrackerLifecycleUseCase } from './application/use-cases/upda
 import { mongoAdminTrackersRepository } from './infrastructure/repositories/mongo-admin-trackers.repository';
 import { nodemailerAdminTrackerEmailProvider } from './infrastructure/providers/nodemailer-admin-tracker-email.provider';
 import { AdminTrackersMapper } from './application/admin-trackers.mapper';
+import {
+  AddAdminTrackerReviewConsensusUseCase,
+  AdminTrackerReviewsMapper,
+  ListAdminTrackerReviewsUseCase,
+  ResolveAdminTrackerReviewUseCase,
+} from './application/admin-tracker-reviews';
+import { mongoAdminTrackerReviewsRepository } from './infrastructure/repositories/mongo-admin-tracker-reviews.repository';
 export type AdminTrackersComposition = { useCases: AdminTrackersUseCases };
 
 export const createAdminTrackersComposition = (): AdminTrackersComposition => {
   const mapper = new AdminTrackersMapper();
+  const reviewsMapper = new AdminTrackerReviewsMapper();
   return {
     useCases: {
       list: new ListAdminTrackersUseCase(mongoAdminTrackersRepository, mapper),
@@ -26,6 +34,20 @@ export const createAdminTrackersComposition = (): AdminTrackersComposition => {
         mongoAdminTrackersRepository,
         nodemailerAdminTrackerEmailProvider
       ),
+      reviews: {
+        list: new ListAdminTrackerReviewsUseCase(
+          mongoAdminTrackerReviewsRepository,
+          reviewsMapper
+        ),
+        addConsensus: new AddAdminTrackerReviewConsensusUseCase(
+          mongoAdminTrackerReviewsRepository,
+          reviewsMapper
+        ),
+        resolve: new ResolveAdminTrackerReviewUseCase(
+          mongoAdminTrackerReviewsRepository,
+          reviewsMapper
+        ),
+      },
     },
   };
 };

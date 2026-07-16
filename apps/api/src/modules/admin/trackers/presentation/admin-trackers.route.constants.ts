@@ -7,6 +7,9 @@ export const ADMIN_TRACKERS_ROUTE_PATHS = {
   REPORTS: '/reports',
   REPORT_DETAIL: '/reports/:reportId',
   LIFECYCLE: '/:id/lifecycle',
+  REVIEWS: '/reviews',
+  REVIEW_CONSENSUS: '/reviews/:reviewId/consensus',
+  REVIEW_STATUS: '/reviews/:reviewId/status',
 } as const;
 
 export type AdminTrackersRoutePath =

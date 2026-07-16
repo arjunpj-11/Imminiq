@@ -20,6 +20,22 @@ type TrackerModerationEmailJob = {
   reason: string;
 };
 
+type AdminUserStatusEmailJob = {
+  kind: 'admin_user_status';
+  to: string;
+  userName: string;
+  status: 'active' | 'paused' | 'blocked';
+  reason: string;
+};
+
+type AdminUserMessageEmailJob = {
+  kind: 'admin_user_message';
+  to: string;
+  userName: string;
+  subject: string;
+  message: string;
+};
+
 const escapeHtml = (value: string) =>
   value
     .replaceAll('&', '&amp;')
@@ -28,9 +44,33 @@ const escapeHtml = (value: string) =>
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
 
-export const emailWorker = new Worker<MockTestModerationEmailJob | TrackerModerationEmailJob>(
+export const emailWorker = new Worker<
+  | MockTestModerationEmailJob
+  | TrackerModerationEmailJob
+  | AdminUserStatusEmailJob
+  | AdminUserMessageEmailJob
+>(
   'email',
   async (job) => {
+    if (job.data.kind === 'admin_user_status') {
+      const { to, userName, status, reason } = job.data;
+      const action = status === 'active' ? 'restored' : status === 'paused' ? 'suspended' : 'blocked';
+      await sendMail(
+        to,
+        `Your Imminiq account access was ${action}`,
+        `<div style="font-family:Arial,sans-serif;line-height:1.65;color:#25211f"><h2>Account access ${escapeHtml(action)}</h2><p>Hello ${escapeHtml(userName)},</p><p>Your Imminiq account access was <strong>${escapeHtml(action)}</strong> by an administrator.</p><p><strong>Reason:</strong> ${escapeHtml(reason)}</p><p>If you disagree with this decision, use the appeal form shown on the restricted-account page.</p><p>— Imminiq Support</p></div>`
+      );
+      return;
+    }
+    if (job.data.kind === 'admin_user_message') {
+      const { to, userName, subject, message } = job.data;
+      await sendMail(
+        to,
+        subject,
+        `<div style="font-family:Arial,sans-serif;line-height:1.65;color:#25211f"><h2>${escapeHtml(subject)}</h2><p>Hello ${escapeHtml(userName)},</p><p>${escapeHtml(message).replaceAll('\n', '<br>')}</p><p>— Imminiq Administration</p></div>`
+      );
+      return;
+    }
     if (job.data.kind === 'tracker_moderation') {
       const { to, ownerName, trackerTitle, action, reason } = job.data;
       const actionLabel = action === 'deleted' ? 'removed' : action;

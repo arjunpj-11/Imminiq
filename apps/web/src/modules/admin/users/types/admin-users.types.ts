@@ -8,6 +8,9 @@ export type AdminUser = {
   avatarUrl?: string;
   role: string;
   status: AdminUserStatus;
+  adminStatusReason?: string;
+  adminStatusReasonCode?: string;
+  adminStatusChangedAt?: string;
   emailVerified: boolean;
   phoneVerified: boolean;
   isPremium?: boolean;
@@ -21,8 +24,52 @@ export type AdminUser = {
 };
 export type AdminUsersData = {
   users: AdminUser[];
-  stats: { total: number; active: number; blocked: number };
+  stats: { total: number; active: number; paused: number; blocked: number; unverified: number };
   pagination: { page: number; limit: number; total: number; pages: number };
+};
+export type AdminUserStatusPayload = {
+  status: 'active' | 'paused' | 'blocked';
+  reasonCode:
+    | 'policy_violation'
+    | 'security_risk'
+    | 'spam_or_abuse'
+    | 'payment_or_fraud'
+    | 'appeal_accepted'
+    | 'other';
+  reason: string;
+  notifyEmail: boolean;
+  mfaCode?: string;
+};
+export type AdminUserMessagePayload = {
+  subject: string;
+  message: string;
+  notifyEmail: boolean;
+};
+export type AdminUserAppeal = {
+  id: string;
+  caseId: string;
+  userId: string;
+  userName: string;
+  identifier: string;
+  appealReason: string;
+  originalReason?: string;
+  status: 'pending' | 'under_review' | 'approved' | 'rejected';
+  reviewedBy?: string;
+  reviewNote?: string;
+  createdAt: string;
+  updatedAt: string;
+  reviewedAt?: string;
+};
+export type AdminUserAppealsData = {
+  items: AdminUserAppeal[];
+  stats: { pending: number; underReview: number; approved: number; rejected: number };
+  pagination: { page: number; limit: number; total: number; pages: number };
+};
+export type AdminUserAppealUpdatePayload = {
+  status: 'under_review' | 'approved' | 'rejected';
+  reviewNote: string;
+  notifyEmail: boolean;
+  mfaCode?: string;
 };
 export type AdminUserDetailData = {
   user: AdminUser;
@@ -40,5 +87,14 @@ export type AdminUserDetailData = {
     outcome: string;
     createdAt: string;
     ipAddress: string;
+  }>;
+  sessions: Array<{
+    id: string;
+    device: string;
+    ipAddress: string;
+    userAgent: string;
+    createdAt: string;
+    lastActiveAt: string;
+    expiresAt: string;
   }>;
 };

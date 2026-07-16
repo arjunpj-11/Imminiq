@@ -70,6 +70,7 @@ export const ROUTES = {
 export const ADMIN_ROUTES = {
   dashboard: '/admin',
   users: '/admin/users',
+  userAppeals: '/admin/users/appeals',
   userDetailPattern: '/admin/users/:userId',
   userDetail: (userId: string) => `/admin/users/${userId}`,
   trackers: '/admin/trackers',

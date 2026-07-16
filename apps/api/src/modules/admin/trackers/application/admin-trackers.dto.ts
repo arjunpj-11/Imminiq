@@ -41,6 +41,13 @@ export interface AdminTrackerDetailDTO extends AdminTrackerDTO {
   ownerId: string;
   ownerEmail?: string;
   topics: AdminTrackerTopicDTO[];
+  moderationHistory: Array<{
+    id: string;
+    action: string;
+    actor: string;
+    reason?: string;
+    createdAt: Date;
+  }>;
 }
 
 export type AdminTrackerReportDTO = import('../domain/entities/admin-tracker.entity').AdminTrackerReport;

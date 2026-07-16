@@ -7,6 +7,7 @@ import {
   clearBlockedAppealIdentifier,
   saveBlockedAppealIdentifier,
   saveBlockedAppealToken,
+  saveBlockedModerationMessage,
 } from '../../../lib/blockedAppealSession';
 import { ADMIN_ROUTES, ROUTES } from '../../../routes/config/route-paths';
 import { AUTH_API_PATHS } from '../constants/auth.constants';
@@ -123,6 +124,9 @@ export const useLogin = () => {
         clearAuth();
         saveBlockedAppealIdentifier(payload.identifier);
         saveBlockedAppealToken(appealToken);
+        saveBlockedModerationMessage(
+          error.response?.data?.message || 'Your account access is currently restricted.'
+        );
 
         navigate(ROUTES.blocked, {
           replace: true,

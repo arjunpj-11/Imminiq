@@ -33,7 +33,7 @@ export default function AdminTrackerDetailPage() {
         className="mb-5 inline-flex items-center gap-2 text-sm text-[#aaa59d] hover:text-[#e8816a]"
       >
         <ArrowLeft size={16} />
-        {fromTrackerReview ? 'Back to tracker reviews' : 'Back to trackers'}
+        {fromTrackerReview ? 'Back to community reviews' : 'Back to trackers'}
       </Link>
       <AdminPageHeader
         title={data.title}
@@ -93,6 +93,9 @@ export default function AdminTrackerDetailPage() {
             ))}
           </div>
         )}
+      </AdminPanel>
+      <AdminPanel title="Moderation history">
+        {!data.moderationHistory.length ? <AdminEmpty>No administrative changes have been recorded for this tracker.</AdminEmpty> : <div className="divide-y divide-white/10">{data.moderationHistory.map((item) => <div key={item.id} className="flex flex-wrap justify-between gap-3 p-5 text-sm"><div><div className="font-semibold">{item.action.replaceAll('_', ' ')}</div><div className="mt-1 text-xs text-[#aaa59d]">By {item.actor}{item.reason ? ` · ${item.reason}` : ''}</div></div><time className="text-xs text-[#817c75]">{new Date(item.createdAt).toLocaleString()}</time></div>)}</div>}
       </AdminPanel>
       <AdminTrackerModerationDialog
         key={`${data.id}-${moderating ?? 'closed'}`}

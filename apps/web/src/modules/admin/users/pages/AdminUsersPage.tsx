@@ -3,10 +3,14 @@ import {
   ChevronLeft,
   ChevronRight,
   Eye,
+  PauseCircle,
   Search,
   UserCheck,
+  UserCog,
   UserRoundX,
   Users,
+  Scale,
+  Download,
 } from 'lucide-react';
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
@@ -35,10 +39,36 @@ export default function AdminUsersPage() {
   const statCards: Array<{ label: string; value: number; icon: LucideIcon; color: string }> = data
     ? [
         { label: 'Total users', value: data.stats.total, icon: Users, color: '#e8816a' },
-        { label: 'Active now', value: data.stats.active, icon: UserCheck, color: '#52c58c' },
+        { label: 'Active accounts', value: data.stats.active, icon: UserCheck, color: '#52c58c' },
+        { label: 'Suspended', value: data.stats.paused, icon: PauseCircle, color: '#f0a842' },
         { label: 'Blocked', value: data.stats.blocked, icon: UserRoundX, color: '#e26767' },
+        { label: 'Unverified', value: data.stats.unverified, icon: UserCog, color: '#6aa9ff' },
       ]
     : [];
+  const exportCurrentView = () => {
+    if (!data?.users.length) return;
+    const escape = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+    const rows = [
+      ['ID', 'Name', 'Username', 'Email or phone', 'Role', 'Status', 'Verified', 'Created', 'Last active'],
+      ...data.users.map((user) => [
+        user._id,
+        user.fullName,
+        user.username,
+        user.email ?? user.phone ?? '',
+        user.role,
+        user.status,
+        user.emailVerified || user.phoneVerified ? 'yes' : 'no',
+        user.createdAt,
+        user.lastActiveAt,
+      ]),
+    ];
+    const url = URL.createObjectURL(new Blob([rows.map((row) => row.map(escape).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = `imminiq-users-${status}-page-${page}.csv`;
+    anchor.click();
+    URL.revokeObjectURL(url);
+  };
 
   return (
     <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
@@ -49,6 +79,9 @@ export default function AdminUsersPage() {
           </div>
           <h1 className="font-editorial mt-1 text-4xl font-bold">User Management</h1>
         </div>
+        <div className="flex flex-1 items-center justify-end gap-3">
+        <button type="button" onClick={exportCurrentView} disabled={!data?.users.length} className="admin-button inline-flex items-center gap-2 disabled:opacity-40"><Download size={16} /> Export CSV</button>
+        <Link to={ADMIN_USERS_ROUTES.appeals} className="admin-button inline-flex items-center gap-2"><Scale size={16} /> Account appeals</Link>
         <label className="flex min-w-[280px] flex-1 items-center gap-3 rounded-full border border-[rgba(255,255,255,0.16)] bg-[#24211e] px-5 py-3 md:max-w-[390px]">
           <Search size={18} />
           <input
@@ -61,9 +94,10 @@ export default function AdminUsersPage() {
             placeholder="Search users, names, emails…"
           />
         </label>
+        </div>
       </div>
       {data && (
-        <section className="mt-8 grid gap-4 sm:grid-cols-3">
+        <section className="mt-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
           {statCards.map(({ label, value, icon: Icon, color }) => (
             <div
               key={label}
@@ -121,7 +155,7 @@ export default function AdminUsersPage() {
                   {data.users.map((user) => (
                     <tr
                       key={user._id}
-                      className={`border-t border-[rgba(255,255,255,0.09)] text-sm ${user.status === 'blocked' ? 'bg-[rgba(226,103,103,0.08)]' : ''}`}
+                      className={`border-t border-[rgba(255,255,255,0.09)] text-sm ${user.status === 'blocked' ? 'bg-[rgba(226,103,103,0.08)]' : user.status === 'paused' ? 'bg-[rgba(240,168,66,0.06)]' : ''}`}
                     >
                       <td className="px-6 py-4">
                         <div className="flex items-center gap-3">
@@ -156,7 +190,7 @@ export default function AdminUsersPage() {
                       </td>
                       <td className="px-6 py-4">
                         <span
-                          className={`inline-flex items-center gap-1.5 font-semibold ${user.status === 'blocked' ? 'text-[#e26767]' : 'text-[#52c58c]'}`}
+                          className={`inline-flex items-center gap-1.5 font-semibold ${user.status === 'blocked' ? 'text-[#e26767]' : user.status === 'paused' ? 'text-[#f0a842]' : 'text-[#52c58c]'}`}
                         >
                           <span className="h-1.5 w-1.5 rounded-full bg-current" />
                           {user.status}

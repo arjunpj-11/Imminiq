@@ -7,8 +7,11 @@ import type { IAdminDashboardRepository } from '../../src/modules/admin/dashboar
 const overview = {
   metrics: {
     totalUsers: 120,
+    verifiedUsers: 110,
+    unverifiedUsers: 10,
     activeToday: 45,
     blockedUsers: 3,
+    suspendedUsers: 2,
     totalTrackers: 80,
     openQuestionReports: 7,
     reviewingQuestionReports: 2,
@@ -16,7 +19,10 @@ const overview = {
     suspendedMockTests: 4,
     openTrackerReports: 5,
     suspendedTrackers: 2,
+    overdueQuestionReports: 3,
+    overdueTrackerReports: 1,
   },
+  generatedAt: new Date(),
   weeklyActivity: [1, 2, 3, 4, 5, 6, 7],
   recentActivity: [
     {
@@ -49,7 +55,13 @@ describe('admin dashboard access scope', () => {
     const result = await createUseCase().execute('moderator');
 
     expect(result.accessScope).toBe('moderation');
-    expect(result.metrics).toMatchObject({ totalUsers: 0, activeToday: 0, blockedUsers: 0 });
+    expect(result.metrics).toMatchObject({
+      totalUsers: 0,
+      verifiedUsers: 0,
+      unverifiedUsers: 0,
+      activeToday: 0,
+      blockedUsers: 0,
+    });
     expect(result.recentActivity.map((item) => item.id)).toEqual(['moderation-event']);
   });
 

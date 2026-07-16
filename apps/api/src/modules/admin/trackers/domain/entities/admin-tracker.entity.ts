@@ -39,6 +39,13 @@ export type AdminTrackerDetail = AdminTracker & {
   ownerId: string;
   ownerEmail?: string;
   topics: AdminTrackerTopic[];
+  moderationHistory: Array<{
+    id: string;
+    action: string;
+    actor: string;
+    reason?: string;
+    createdAt: Date;
+  }>;
 };
 export type AdminTrackerReport = {
   id: string;

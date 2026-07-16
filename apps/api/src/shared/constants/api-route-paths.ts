@@ -25,7 +25,6 @@ export const API_ROUTE_PATHS = {
     users: '/api/admin/users',
     trackers: '/api/admin/trackers',
     mockTests: '/api/admin/mock-tests',
-    trackerReviews: '/api/admin/tracker-reviews',
     analytics: '/api/admin/analytics',
     broadcasts: '/api/admin/broadcasts',
     auditLogs: '/api/admin/audit-logs',

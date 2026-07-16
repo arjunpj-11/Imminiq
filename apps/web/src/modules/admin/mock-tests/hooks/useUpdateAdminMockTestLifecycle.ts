@@ -9,8 +9,12 @@ import { adminMockTestsKeys } from './admin-mock-tests.query-keys';
 export const useUpdateAdminMockTestLifecycle = () => {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: AdminMockTestLifecyclePayload }) =>
-      api.patch(ADMIN_MOCK_TESTS_ENDPOINTS.lifecycle(id), payload),
+    mutationFn: ({ id, payload }: { id: string; payload: AdminMockTestLifecyclePayload }) => {
+      const { mfaCode, ...body } = payload;
+      return api.patch(ADMIN_MOCK_TESTS_ENDPOINTS.lifecycle(id), body, {
+        headers: mfaCode ? { 'X-Admin-MFA-Code': mfaCode } : undefined,
+      });
+    },
     onSuccess: async (_response, variables) => {
       toast.success(
         'Mock test updated',

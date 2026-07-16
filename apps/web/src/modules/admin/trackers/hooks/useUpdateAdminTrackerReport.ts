@@ -9,8 +9,12 @@ import { adminTrackersKeys } from './admin-trackers.query-keys';
 export const useUpdateAdminTrackerReport = () => {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: AdminTrackerReportUpdatePayload }) =>
-      api.patch(ADMIN_TRACKERS_ENDPOINTS.updateReport(id), payload),
+    mutationFn: ({ id, payload }: { id: string; payload: AdminTrackerReportUpdatePayload }) => {
+      const { mfaCode, ...body } = payload;
+      return api.patch(ADMIN_TRACKERS_ENDPOINTS.updateReport(id), body, {
+        headers: mfaCode ? { 'X-Admin-MFA-Code': mfaCode } : undefined,
+      });
+    },
     onSuccess: async () => {
       toast.success('Report updated', 'The reporter received an in-app notification.');
       await client.invalidateQueries({ queryKey: adminTrackersKeys.all });

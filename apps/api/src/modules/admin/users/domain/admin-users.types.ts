@@ -1,4 +1,17 @@
-export type AdminUserFilter = 'all' | 'active' | 'blocked';
-export type AdminManagedUserStatus = 'active' | 'blocked';
+export type AdminUserFilter =
+  | 'all'
+  | 'active'
+  | 'paused'
+  | 'blocked'
+  | 'deactivated'
+  | 'banned'
+  | 'unverified';
+export type AdminManagedUserStatus = 'active' | 'paused' | 'blocked';
 export type AdminActor = { userId: string; role: 'admin' | 'superadmin' };
-export type AdminActionMeta = { ipAddress: string; userAgent: string; reason?: string };
+export type AdminActionMeta = {
+  ipAddress: string;
+  userAgent: string;
+  reason: string;
+  reasonCode: string;
+  notifyEmail: boolean;
+};

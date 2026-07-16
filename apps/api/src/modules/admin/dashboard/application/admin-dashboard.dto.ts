@@ -1,9 +1,13 @@
 export interface AdminDashboardDTO {
   accessScope: 'full' | 'moderation';
+  generatedAt: Date;
   metrics: {
     totalUsers: number;
+    verifiedUsers: number;
+    unverifiedUsers: number;
     activeToday: number;
     blockedUsers: number;
+    suspendedUsers: number;
     totalTrackers: number;
     openQuestionReports: number;
     reviewingQuestionReports: number;
@@ -11,6 +15,8 @@ export interface AdminDashboardDTO {
     suspendedMockTests: number;
     openTrackerReports: number;
     suspendedTrackers: number;
+    overdueQuestionReports: number;
+    overdueTrackerReports: number;
   };
   weeklyActivity: number[];
   recentActivity: Array<{

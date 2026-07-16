@@ -25,11 +25,12 @@ export default function AdminMockTestModerationDialog({
   );
   const [reason, setReason] = useState('');
   const [notifyOwner, setNotifyOwner] = useState(true);
+  const [mfaCode, setMfaCode] = useState('');
 
   const submit = () => {
     if (!test || reason.trim().length < 15) return;
     mutation.mutate(
-      { id: test.id, payload: { action, reasonCode, reason: reason.trim(), notifyOwner } },
+      { id: test.id, payload: { action, reasonCode, reason: reason.trim(), notifyOwner, mfaCode: mfaCode.trim() } },
       { onSuccess: () => (onComplete ? onComplete() : onClose()) }
     );
   };
@@ -92,6 +93,10 @@ export default function AdminMockTestModerationDialog({
           className="mt-1"
         />
         Queue an email containing this explanation. An in-app notification is always sent.
+      </label>
+      <label className="admin-field mt-4 block">
+        <span>Authenticator code</span>
+        <input inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={mfaCode} onChange={(event) => setMfaCode(event.target.value.replace(/\D/g, ''))} placeholder="Required in production" />
       </label>
       <div className="mt-6 flex justify-end gap-2">
         <button className="admin-button" onClick={onClose} disabled={mutation.isPending}>

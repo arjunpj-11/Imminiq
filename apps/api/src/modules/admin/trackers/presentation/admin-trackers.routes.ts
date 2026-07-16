@@ -14,12 +14,25 @@ export const createAdminTrackersRoutes = (useCases: AdminTrackersUseCases) => {
   router.use(authenticate, requireAdminPermission('content:read'));
   router.param('id', validateIdentifierParam);
   router.param('reportId', validateIdentifierParam);
+  router.param('reviewId', validateIdentifierParam);
   router.get(ADMIN_TRACKERS_ROUTE_PATHS.ROOT, controller.list);
   router.get(ADMIN_TRACKERS_ROUTE_PATHS.PUBLISHED, controller.listPublished);
   router.get(ADMIN_TRACKERS_ROUTE_PATHS.REPORTS, controller.listReports);
+  router.get(ADMIN_TRACKERS_ROUTE_PATHS.REVIEWS, controller.listReviews);
+  router.patch(
+    ADMIN_TRACKERS_ROUTE_PATHS.REVIEW_CONSENSUS,
+    requireAdminPermission('content:moderate'),
+    controller.addReviewConsensus
+  );
+  router.patch(
+    ADMIN_TRACKERS_ROUTE_PATHS.REVIEW_STATUS,
+    requireAdminPermission('content:moderate'),
+    controller.resolveReview
+  );
   router.patch(
     ADMIN_TRACKERS_ROUTE_PATHS.REPORT_DETAIL,
     requireAdminPermission('content:moderate'),
+    requirePrivilegedMfa,
     controller.updateReport
   );
   router.post(ADMIN_TRACKERS_ROUTE_PATHS.PUBLISHED_LIKE, controller.likePublished);

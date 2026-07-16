@@ -1,4 +1,4 @@
-import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
+import type { ITrackerQueryRepository } from '../../domain/repositories/tracker-query.repository.interface';
 import { TrackerApplicationError } from '../tracker-application.error';
 
 export type ReportTrackerInput = {
@@ -18,7 +18,7 @@ export interface IReportTrackerUseCase {
 }
 
 export class ReportTrackerUseCase implements IReportTrackerUseCase {
-  constructor(private readonly repository: ITrackerRepository) {}
+  constructor(private readonly repository: ITrackerQueryRepository) {}
 
   async execute(input: ReportTrackerInput) {
     const tracker = await this.repository.findReportableTrackerById(input.trackerId);

@@ -1,7 +1,10 @@
 import axios from 'axios';
 import type { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import { useAuthStore } from '../store/useAuthStore';
-import { saveBlockedAppealIdentifier } from './blockedAppealSession';
+import {
+  saveBlockedAppealIdentifier,
+  saveBlockedModerationMessage,
+} from './blockedAppealSession';
 import { getUserFacingError } from './user-facing-error';
 import { webEnvironment } from '../config/env';
 
@@ -137,6 +140,9 @@ api.interceptors.response.use(
     const shouldLetCallerHandleRestrictedError = isLoginRequest || isTwoFactorVerifyLoginRequest;
 
     if (isRestrictedAccountError(status, errorCode)) {
+      saveBlockedModerationMessage(
+        error.response?.data?.message || 'Your account access is currently restricted.'
+      );
       if (shouldLetCallerHandleRestrictedError) {
         return Promise.reject(error);
       }
@@ -212,6 +218,13 @@ api.interceptors.response.use(
 
       if (isRestrictedAccountError(refreshStatus, refreshErrorCode) && restrictedIdentifier) {
         saveBlockedAppealIdentifier(restrictedIdentifier);
+      }
+
+      if (isRestrictedAccountError(refreshStatus, refreshErrorCode)) {
+        saveBlockedModerationMessage(
+          axiosRefreshError.response?.data?.message ||
+            'Your account access is currently restricted.'
+        );
       }
 
       useAuthStore.getState().clearAuth();

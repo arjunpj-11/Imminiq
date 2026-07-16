@@ -19,6 +19,7 @@ export const createAdminMockTestsRoutes = (useCases: AdminMockTestsUseCases) => 
   router.patch(
     ADMIN_MOCK_TESTS_ROUTE_PATHS.ISSUE_DETAIL,
     requireAdminPermission('content:moderate'),
+    requirePrivilegedMfa,
     controller.updateQuestionIssue
   );
   router.patch(

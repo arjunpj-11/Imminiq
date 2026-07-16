@@ -1,7 +1,10 @@
 export type AdminDashboardMetrics = {
   totalUsers: number;
+  verifiedUsers: number;
+  unverifiedUsers: number;
   activeToday: number;
   blockedUsers: number;
+  suspendedUsers: number;
   totalTrackers: number;
   openQuestionReports: number;
   reviewingQuestionReports: number;
@@ -9,6 +12,8 @@ export type AdminDashboardMetrics = {
   suspendedMockTests: number;
   openTrackerReports: number;
   suspendedTrackers: number;
+  overdueQuestionReports: number;
+  overdueTrackerReports: number;
 };
 
 export type AdminDashboardActivity = {
@@ -21,6 +26,7 @@ export type AdminDashboardActivity = {
 };
 
 export type AdminDashboardEntity = {
+  generatedAt: Date;
   metrics: AdminDashboardMetrics;
   weeklyActivity: number[];
   recentActivity: AdminDashboardActivity[];

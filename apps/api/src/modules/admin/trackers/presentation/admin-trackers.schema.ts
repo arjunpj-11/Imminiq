@@ -27,3 +27,9 @@ export const adminTrackerReportUpdateSchema = z.object({
   status: z.enum(['reviewing', 'resolved', 'dismissed']),
   resolutionNote: z.string().trim().min(10).max(1500),
 });
+export const adminTrackerReviewStatusSchema = z.object({
+  status: z.enum(['approved', 'rejected']),
+});
+export const adminTrackerReviewConsensusSchema = z.object({
+  choice: z.enum(['pass', 'fail']),
+});

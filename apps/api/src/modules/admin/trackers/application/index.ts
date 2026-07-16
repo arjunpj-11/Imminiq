@@ -10,3 +10,4 @@ export * from './use-cases/update-admin-tracker-lifecycle.usecase';
 export * from './use-cases/update-admin-tracker-report.usecase';
 export * from './admin-trackers.dto';
 export * from './admin-trackers.mapper';
+export * from './admin-tracker-reviews';

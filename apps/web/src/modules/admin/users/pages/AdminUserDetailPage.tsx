@@ -7,26 +7,39 @@ import {
   Coins,
   FileText,
   Flame,
+  MessageCircle,
+  MonitorSmartphone,
+  PauseCircle,
   ShieldCheck,
   Unlock,
   UserRound,
+  UserCog,
 } from 'lucide-react';
 import { Link, useParams } from 'react-router-dom';
-import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { AdminError } from '../../shared';
-import { toast } from '../../../../lib/toast';
-import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { useState } from 'react';
 import { useAdminUserDetail } from '../hooks/useAdminUserDetail';
-import { useSetAdminUserStatus } from '../hooks/useSetAdminUserStatus';
 import { ADMIN_USERS_ROUTES } from '../constants/admin-users.constants';
+import AdminUserStatusDialog from '../components/AdminUserStatusDialog';
+import AdminUserMessageDialog from '../components/AdminUserMessageDialog';
+import AdminUserSessionDialog from '../components/AdminUserSessionDialog';
+import AdminUserRoleDialog from '../components/AdminUserRoleDialog';
+import type { AdminUserDetailData } from '../types/admin-users.types';
+import { useAuthStore } from '../../../../store/useAuthStore';
+
+type UserStatusAction = 'suspend' | 'block' | 'restore';
 
 export default function AdminUserDetailPage() {
   const { userId = '' } = useParams();
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [statusReason, setStatusReason] = useState('');
+  const [statusAction, setStatusAction] = useState<UserStatusAction | null>(null);
+  const [messageOpen, setMessageOpen] = useState(false);
+  const [selectedSession, setSelectedSession] = useState<
+    AdminUserDetailData['sessions'][number] | null
+  >(null);
+  const [roleOpen, setRoleOpen] = useState(false);
+  const currentUserId = useAuthStore((state) => state.user?._id);
+  const currentUserRole = useAuthStore((state) => state.user?.role);
   const { data, isLoading, isError, error } = useAdminUserDetail(userId);
-  const statusMutation = useSetAdminUserStatus(userId);
   if (isLoading) return <div className="p-10 text-sm">Loading user profile…</div>;
   if (isError || !data)
     return (
@@ -39,6 +52,8 @@ export default function AdminUserDetailPage() {
     );
   const { user, stats } = data;
   const blocked = user.status === 'blocked';
+  const paused = user.status === 'paused';
+  const canChangeStatus = currentUserId !== user._id;
   const initials = user.fullName
     .split(' ')
     .map((part) => part[0])
@@ -75,7 +90,7 @@ export default function AdminUserDetailPage() {
             <div className="flex flex-wrap items-center gap-3">
               <h1 className="font-editorial text-4xl font-bold">{user.fullName}</h1>
               <span
-                className={`rounded-full px-3 py-1 text-xs ${blocked ? 'bg-[rgba(226,103,103,0.15)] text-[#e26767]' : 'bg-[rgba(82,197,140,0.15)] text-[#52c58c]'}`}
+                className={`rounded-full px-3 py-1 text-xs ${blocked ? 'bg-[rgba(226,103,103,0.15)] text-[#e26767]' : paused ? 'bg-[rgba(240,168,66,0.15)] text-[#f0a842]' : 'bg-[rgba(82,197,140,0.15)] text-[#52c58c]'}`}
               >
                 {user.status}
               </span>
@@ -96,14 +111,56 @@ export default function AdminUserDetailPage() {
             </div>
           </div>
         </div>
-        <button
-          onClick={() => setConfirmOpen(true)}
-          className={`inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-bold text-white ${blocked ? 'bg-[#52c58c]' : 'bg-[#e26767]'}`}
-        >
-          {blocked ? <Unlock size={17} /> : <Ban size={17} />}
-          {blocked ? 'Unblock User' : 'Block User'}
-        </button>
+        <div className="flex flex-wrap gap-2">
+          {currentUserRole === 'superadmin' && currentUserId !== user._id && user.role !== 'superadmin' && (
+            <button type="button" onClick={() => setRoleOpen(true)} className="admin-button inline-flex items-center gap-2"><UserCog size={17} /> Change role</button>
+          )}
+          <button
+            type="button"
+            onClick={() => setMessageOpen(true)}
+            className="admin-button inline-flex items-center gap-2"
+          >
+            <MessageCircle size={17} /> Message
+          </button>
+          {canChangeStatus && user.status === 'active' && (
+            <button
+              type="button"
+              onClick={() => setStatusAction('suspend')}
+              className="admin-button inline-flex items-center gap-2 text-[#f0a842]"
+            >
+              <PauseCircle size={17} /> Suspend
+            </button>
+          )}
+          {canChangeStatus && user.status !== 'blocked' && (
+            <button
+              type="button"
+              onClick={() => setStatusAction('block')}
+              className="admin-button inline-flex items-center gap-2 text-[#e26767]"
+            >
+              <Ban size={17} /> Block
+            </button>
+          )}
+          {canChangeStatus && user.status !== 'active' && (
+            <button
+              type="button"
+              onClick={() => setStatusAction('restore')}
+              className="admin-primary-button inline-flex items-center gap-2"
+            >
+              <Unlock size={17} /> Restore
+            </button>
+          )}
+        </div>
       </section>
+      {user.adminStatusReason && (
+        <section className="mt-5 rounded-xl border border-[#f0a842]/30 bg-[#f0a842]/10 p-4 text-sm leading-6 text-[#f0c060]">
+          <strong>Latest administrative reason:</strong> {user.adminStatusReason}
+          {user.adminStatusChangedAt && (
+            <span className="ml-2 text-xs text-[#aaa59d]">
+              · {new Date(user.adminStatusChangedAt).toLocaleString()}
+            </span>
+          )}
+        </section>
+      )}
       <section className="mt-7 grid gap-4 sm:grid-cols-2 lg:grid-cols-6">
         {metricCards.map(([label, value, Icon]) => (
           <div
@@ -144,6 +201,18 @@ export default function AdminUserDetailPage() {
               ) : (
                 <p className="text-sm text-[#aaa59d]">No recorded activity yet.</p>
               )}
+            </div>
+          </div>
+          <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6">
+            <div className="flex items-center justify-between"><h2 className="font-editorial text-2xl font-bold">Active Sessions</h2><span className="text-xs text-[#aaa59d]">{data.sessions.length} devices</span></div>
+            <div className="mt-5 space-y-3">
+              {data.sessions.map((session) => (
+                <div key={session.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#24211e] p-4">
+                  <div className="flex min-w-0 gap-3"><MonitorSmartphone size={18} className="mt-1 shrink-0 text-[#e8816a]" /><div className="min-w-0"><div className="font-semibold">{session.device}</div><div className="mt-1 truncate text-xs text-[#aaa59d]">{session.ipAddress} · {session.userAgent}</div><div className="mt-1 text-[10px] text-[#817c75]">Last active {new Date(session.lastActiveAt).toLocaleString()}</div></div></div>
+                  <button className="admin-button text-[#e26767]" onClick={() => setSelectedSession(session)}>Revoke</button>
+                </div>
+              ))}
+              {!data.sessions.length && <p className="text-sm text-[#aaa59d]">No active sessions.</p>}
             </div>
           </div>
           <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6">
@@ -223,55 +292,24 @@ export default function AdminUserDetailPage() {
           </div>
         </aside>
       </section>
-      <ConfirmDialog
-        open={confirmOpen}
-        title={`${blocked ? 'Unblock' : 'Block'} ${user.fullName}?`}
-        description={
-          <div>
-            <p>{blocked
-              ? 'This user will regain access immediately and can sign in again.'
-              : 'All sessions will be revoked and the user will receive the reason in an in-app notification.'}</p>
-            {!blocked && (
-              <label className="mt-4 block text-left text-xs font-semibold">
-                User-facing reason
-                <textarea
-                  value={statusReason}
-                  onChange={(event) => setStatusReason(event.target.value)}
-                  rows={4}
-                  maxLength={500}
-                  className="mt-2 w-full rounded-lg border border-white/10 bg-[#24211e] p-3 text-sm text-[#f2f0eb]"
-                  placeholder="Explain the policy or security reason…"
-                />
-              </label>
-            )}
-          </div>
-        }
-        confirmText={blocked ? 'Unblock user' : 'Block user'}
-        variant={blocked ? 'default' : 'danger'}
-        isLoading={statusMutation.isPending}
-        onClose={() => setConfirmOpen(false)}
-        onConfirm={() => {
-          if (!blocked && statusReason.trim().length < 10) {
-            toast.error('Reason required', 'Enter at least 10 characters explaining the block.');
-            return;
-          }
-          statusMutation.mutate({ status: blocked ? 'active' : 'blocked', reason: statusReason.trim() || undefined }, {
-            onSuccess: (_, input) => {
-              setConfirmOpen(false);
-              setStatusReason('');
-              toast.success(
-                input.status === 'blocked' ? 'User blocked' : 'User unblocked',
-                'The account status was updated and added to the audit log.'
-              );
-            },
-            onError: (error) =>
-              toast.error(
-                'Status update failed',
-                getUserFacingError(error, 'Please check your permissions and try again.')
-              ),
-          });
-        }}
+      <AdminUserStatusDialog
+        key={`${user._id}-${statusAction ?? 'closed'}`}
+        user={statusAction ? user : null}
+        action={statusAction ?? 'suspend'}
+        onClose={() => setStatusAction(null)}
       />
+      <AdminUserMessageDialog
+        key={`${user._id}-${messageOpen ? 'message' : 'closed-message'}`}
+        user={messageOpen ? user : null}
+        onClose={() => setMessageOpen(false)}
+      />
+      <AdminUserSessionDialog
+        key={selectedSession?.id ?? 'closed-session'}
+        userId={user._id}
+        session={selectedSession}
+        onClose={() => setSelectedSession(null)}
+      />
+      <AdminUserRoleDialog key={roleOpen ? `${user._id}-role` : 'closed-role'} user={roleOpen ? user : null} onClose={() => setRoleOpen(false)} />
     </main>
   );
 }

@@ -1,11 +1,13 @@
 import { CheckCircle2, Flag, RefreshCw, ShieldAlert, TicketCheck } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import AdminDashboardState from '../components/AdminDashboardState';
 import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
 import { AdminMetricGrid, AdminPageHeader } from '../../shared';
 
 export default function AdminDashboardPage() {
+  const [metricView, setMetricView] = useState<'platform' | 'moderation'>('platform');
   const { data, isLoading, isError, error, isFetching, refetch } = useAdminDashboard();
   if (isLoading) return <AdminDashboardState tone="loading" />;
   if (isError || !data) return <AdminDashboardState tone="error" error={error} />;
@@ -19,8 +21,9 @@ export default function AdminDashboardPage() {
         description="Live platform health, usage, and moderation signals."
         action={
           <div className="flex items-center gap-3">
+          {data.accessScope === 'full' && <div className="flex rounded-lg bg-[#24211e] p-1"><button className={`rounded-md px-3 py-1.5 text-xs ${metricView === 'platform' ? 'bg-[#e8816a]/15 text-[#e8816a]' : 'text-[#aaa59d]'}`} onClick={() => setMetricView('platform')}>Platform</button><button className={`rounded-md px-3 py-1.5 text-xs ${metricView === 'moderation' ? 'bg-[#e8816a]/15 text-[#e8816a]' : 'text-[#aaa59d]'}`} onClick={() => setMetricView('moderation')}>Moderation</button></div>}
           <div className="text-right font-mono text-xs text-[#aaa59d]">
-            {new Date().toLocaleString()}
+            Updated {new Date(data.generatedAt).toLocaleString()}
           </div>
           <button
             type="button"
@@ -36,16 +39,16 @@ export default function AdminDashboardPage() {
       />
       <AdminMetricGrid
         metrics={
-          data.accessScope === 'moderation'
+          data.accessScope === 'moderation' || metricView === 'moderation'
             ? [
                 { label: 'Open reports', value: data.metrics.openQuestionReports, tone: 'error' },
                 { label: 'In review', value: data.metrics.reviewingQuestionReports, tone: 'warning' },
-                { label: 'Urgent support', value: data.metrics.urgentSupportTickets, tone: 'accent' },
-                { label: 'Tracker reports', value: data.metrics.openTrackerReports, tone: 'error' },
+                { label: 'Question SLA overdue', value: data.metrics.overdueQuestionReports, tone: 'error' },
+                { label: 'Tracker SLA overdue', value: data.metrics.overdueTrackerReports, tone: 'error' },
               ]
             : [
                 { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
-                { label: 'Active today', value: data.metrics.activeToday, tone: 'success' },
+                { label: 'Unverified users', value: data.metrics.unverifiedUsers, tone: 'warning' },
                 { label: 'Total trackers', value: data.metrics.totalTrackers, tone: 'info' },
                 { label: 'Blocked users', value: data.metrics.blockedUsers, tone: 'error' },
               ]
@@ -137,6 +140,14 @@ export default function AdminDashboardPage() {
                 <div className="font-bold">Blocked accounts</div>
                 <div className="mt-1 text-xs text-[#aaa59d]">
                   {data.metrics.blockedUsers} accounts currently cannot sign in.
+                </div>
+              </div>
+            )}
+            {data.metrics.suspendedUsers > 0 && (
+              <div className="rounded-lg bg-[#1c1a18] p-4">
+                <div className="font-bold">Suspended accounts</div>
+                <div className="mt-1 text-xs text-[#aaa59d]">
+                  {data.metrics.suspendedUsers} accounts are temporarily restricted.
                 </div>
               </div>
             )}

@@ -144,10 +144,35 @@ function ReportReviewDialog({
   const [resolutionAction, setResolutionAction] =
     useState<AdminMockTestIssueUpdatePayload['resolutionAction']>('none');
   const [resolutionNote, setResolutionNote] = useState('');
+  const [correctedQuestion, setCorrectedQuestion] = useState(issue?.question ?? '');
+  const [correctedAnswer, setCorrectedAnswer] = useState(issue?.questionAnswer ?? '');
+  const [correctedExplanation, setCorrectedExplanation] = useState(
+    issue?.questionExplanation ?? ''
+  );
+  const [mfaCode, setMfaCode] = useState('');
   const submit = () => {
-    if (!issue || resolutionNote.trim().length < 10) return;
+    if (
+      !issue ||
+      resolutionNote.trim().length < 10 ||
+      (resolutionAction === 'question_corrected' && correctedQuestion.trim().length < 10)
+    ) return;
     update.mutate(
-      { id: issue.id, payload: { status, resolutionAction, resolutionNote: resolutionNote.trim() } },
+      {
+        id: issue.id,
+        payload: {
+          status,
+          resolutionAction: status === 'reviewing' ? 'none' : resolutionAction,
+          resolutionNote: resolutionNote.trim(),
+          mfaCode: mfaCode.trim(),
+          ...(resolutionAction === 'question_corrected'
+            ? {
+                correctedQuestion: correctedQuestion.trim(),
+                correctedAnswer: correctedAnswer.trim(),
+                correctedExplanation: correctedExplanation.trim(),
+              }
+            : {}),
+        },
+      },
       { onSuccess: onClose }
     );
   };
@@ -178,13 +203,29 @@ function ReportReviewDialog({
         {issue?.details || 'The reporter did not add further details.'}
       </div>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label className="admin-field"><span>Decision</span><select value={status} onChange={(event) => setStatus(event.target.value as AdminMockTestIssueUpdatePayload['status'])}><option value="reviewing">Start reviewing</option><option value="resolved">Resolve</option><option value="dismissed">Dismiss</option></select></label>
-        <label className="admin-field"><span>Resolution classification</span><select value={resolutionAction} onChange={(event) => setResolutionAction(event.target.value as AdminMockTestIssueUpdatePayload['resolutionAction'])}><option value="none">No linked content action</option><option value="question_corrected">Question correction recorded</option><option value="question_disabled">Question disabled / retired</option><option value="test_suspended">Test suspension recorded</option><option value="test_deleted">Test deletion recorded</option></select></label>
+        <label className="admin-field"><span>Decision</span><select value={status} onChange={(event) => { const next = event.target.value as AdminMockTestIssueUpdatePayload['status']; setStatus(next); if (next === 'reviewing') setResolutionAction('none'); }}><option value="reviewing">Start reviewing</option><option value="resolved">Resolve</option><option value="dismissed">Dismiss</option></select></label>
+        <label className="admin-field"><span>Content action</span><select disabled={status === 'reviewing'} value={resolutionAction} onChange={(event) => setResolutionAction(event.target.value as AdminMockTestIssueUpdatePayload['resolutionAction'])}><option value="none">No linked content action</option><option value="question_corrected">Correct the live question</option><option value="question_disabled">Disable the live question</option><option value="test_suspended">Suspend the full test</option><option value="test_deleted">Delete the full test</option></select></label>
       </div>
+      {resolutionAction === 'question_corrected' && status !== 'reviewing' && (
+        <div className="mt-4 grid gap-4 rounded-xl border border-[#e8816a]/30 bg-[#e8816a]/5 p-4">
+          <p className="text-sm text-[#d9b4a8]">This creates a version snapshot before updating the question shown to learners. Completed attempt scores are preserved.</p>
+          <label className="admin-field"><span>Corrected question</span><textarea rows={4} maxLength={5000} value={correctedQuestion} onChange={(event) => setCorrectedQuestion(event.target.value)} /></label>
+          <label className="admin-field"><span>Corrected answer (optional)</span><textarea rows={2} maxLength={5000} value={correctedAnswer} onChange={(event) => setCorrectedAnswer(event.target.value)} /></label>
+          <label className="admin-field"><span>Corrected explanation (optional)</span><textarea rows={3} maxLength={5000} value={correctedExplanation} onChange={(event) => setCorrectedExplanation(event.target.value)} /></label>
+        </div>
+      )}
+      {status !== 'reviewing' && ['question_disabled', 'test_suspended', 'test_deleted'].includes(resolutionAction) && (
+        <div className="mt-4 rounded-xl border border-amber-400/30 bg-amber-400/5 p-4 text-sm text-amber-100">
+          {resolutionAction === 'question_disabled'
+            ? 'The question will immediately stop appearing in new and active learner sessions.'
+            : `The test will be ${resolutionAction === 'test_deleted' ? 'deleted' : 'suspended'}, active attempts will be abandoned, sharing will be disabled, and the owner will be notified.`}
+        </div>
+      )}
       <label className="admin-field mt-4 block"><span>Resolution note sent to reporter</span><textarea rows={4} maxLength={1500} value={resolutionNote} onChange={(event) => setResolutionNote(event.target.value)} placeholder="Explain what was reviewed and why this decision was made…" /></label>
+      <label className="admin-field mt-4 block"><span>Authenticator code</span><input inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={mfaCode} onChange={(event) => setMfaCode(event.target.value.replace(/\D/g, ''))} placeholder="Required in production" /></label>
       <div className="mt-6 flex flex-wrap justify-between gap-2">
         {issue && <Link to={ADMIN_MOCK_TESTS_ROUTES.detail(issue.testId)} className="admin-button">Open full test</Link>}
-        <div className="flex gap-2"><button className="admin-button" onClick={onClose}>Cancel</button><button className="admin-primary-button" disabled={resolutionNote.trim().length < 10 || update.isPending} onClick={submit}>{update.isPending ? 'Saving…' : 'Save decision'}</button></div>
+        <div className="flex gap-2"><button className="admin-button" onClick={onClose}>Cancel</button><button className="admin-primary-button" disabled={resolutionNote.trim().length < 10 || (resolutionAction === 'question_corrected' && correctedQuestion.trim().length < 10) || update.isPending} onClick={submit}>{update.isPending ? 'Applying…' : 'Apply decision'}</button></div>
       </div>
     </Modal>
   );

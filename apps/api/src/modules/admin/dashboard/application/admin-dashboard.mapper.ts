@@ -9,6 +9,7 @@ export class AdminDashboardMapper implements IAdminDashboardMapper {
   toDTO(entity: AdminDashboardEntity): AdminDashboardDTO {
     return {
       accessScope: 'full',
+      generatedAt: entity.generatedAt,
       metrics: { ...entity.metrics },
       weeklyActivity: [...entity.weeklyActivity],
       recentActivity: entity.recentActivity.map((activity) => ({

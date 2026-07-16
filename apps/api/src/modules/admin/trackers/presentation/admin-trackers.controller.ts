@@ -5,6 +5,8 @@ import {
   adminPublishedTrackerRatingSchema,
   adminTrackerLifecycleSchema,
   adminTrackerReportUpdateSchema,
+  adminTrackerReviewConsensusSchema,
+  adminTrackerReviewStatusSchema,
   adminTrackersQuerySchema,
 } from './admin-trackers.schema';
 export class AdminTrackersController {
@@ -86,4 +88,39 @@ export class AdminTrackersController {
       res,
       'Tracker moderation updated'
     );
+  listReviews = (req: Request, res: Response, next: NextFunction) =>
+    sendAdminResult(
+      next,
+      () => this.useCases.reviews.list.execute(adminTrackersQuerySchema.parse(req.query)),
+      res,
+      'Tracker reviews fetched'
+    );
+  addReviewConsensus = (req: Request, res: Response, next: NextFunction) => {
+    const input = adminTrackerReviewConsensusSchema.parse(req.body);
+    return sendAdminResult(
+      next,
+      () =>
+        this.useCases.reviews.addConsensus.execute(
+          String(req.params.reviewId),
+          input.choice,
+          getAdminActor(req)
+        ),
+      res,
+      'Consensus vote added'
+    );
+  };
+  resolveReview = (req: Request, res: Response, next: NextFunction) => {
+    const input = adminTrackerReviewStatusSchema.parse(req.body);
+    return sendAdminResult(
+      next,
+      () =>
+        this.useCases.reviews.resolve.execute(
+          String(req.params.reviewId),
+          input.status,
+          getAdminActor(req)
+        ),
+      res,
+      'Tracker review resolved'
+    );
+  };
 }

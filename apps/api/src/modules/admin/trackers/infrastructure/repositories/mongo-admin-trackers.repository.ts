@@ -7,6 +7,7 @@ import { CommunityTrackerReview } from '../../../../../infrastructure/database/m
 import { TrackerReport } from '../../../../../infrastructure/database/models/tracker-report.model';
 import { Notification } from '../../../../../infrastructure/database/models/notification.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
+import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
 import { recordAdminAction } from '../../../shared/infrastructure';
 import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
 import type { AdminActor, AdminListQuery } from '../../../shared/domain';
@@ -82,7 +83,7 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
       };
     });
     return createAdminPage(items, query, total, {
-      total: await Tracker.countDocuments({}),
+      total: await Tracker.countDocuments({ deletedAt: null }),
       active,
       draft,
       archived,
@@ -214,13 +215,22 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
       .populate('ownerId', 'fullName username email')
       .lean();
     if (!tracker) return null;
-    const [topics, subtopics, reportCount, openReportCount] = await Promise.all([
+    const [topics, subtopics, reportCount, openReportCount, history] = await Promise.all([
       TrackerTopic.find({ trackerId: id, deletedAt: null }).sort({ order: 1 }).lean(),
       TrackerSubtopic.find({ trackerId: id, deletedAt: null })
         .sort({ topicId: 1, order: 1 })
         .lean(),
       TrackerReport.countDocuments({ trackerId: id }),
       TrackerReport.countDocuments({ trackerId: id, status: { $in: ['open', 'reviewing'] } }),
+      ActivityLog.find({
+        module: 'admin.trackers',
+        deletedAt: null,
+        $or: [{ 'metadata.targetId': id }, { 'metadata.trackerId': id }],
+      })
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .populate('userId', 'fullName username')
+        .lean(),
     ]);
     const owner = tracker.ownerId as unknown as {
       _id?: unknown;
@@ -266,6 +276,17 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
             estimatedMinutes: subtopic.estimatedMinutes,
           })),
       })),
+      moderationHistory: history.map((item) => {
+        const actor = item.userId as unknown as { fullName?: string; username?: string };
+        const metadata = item.metadata as Record<string, unknown>;
+        return {
+          id: String(item._id),
+          action: item.action,
+          actor: actor?.fullName ?? actor?.username ?? 'System',
+          ...(typeof metadata.reason === 'string' ? { reason: metadata.reason } : {}),
+          createdAt: item.createdAt,
+        };
+      }),
     };
   }
   async listReports(query: AdminListQuery) {
@@ -321,8 +342,14 @@ export class MongoAdminTrackersRepository implements IAdminTrackersRepository {
   }
 
   async updateReport(id: string, input: AdminTrackerReportUpdateInput, actor: AdminActor) {
-    const report = await TrackerReport.findByIdAndUpdate(
-      id,
+    const report = await TrackerReport.findOneAndUpdate(
+      {
+        _id: id,
+        $or: [
+          { status: 'open' },
+          { status: 'reviewing', assignedTo: actor.userId },
+        ],
+      },
       {
         $set: {
           status: input.status,

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, FileBarChart, Flag, Globe2 } from 'lucide-react';
+import { Download, Eye, FileBarChart, Flag, Globe2 } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AdminEmpty,
@@ -35,6 +35,13 @@ export default function AdminTrackersPage() {
     status,
     page,
   });
+  const exportCurrentView = () => {
+    if (!data?.items.length) return;
+    const escape = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+    const rows = [['ID', 'Title', 'Owner', 'Category', 'Level', 'Visibility', 'Status', 'Moderation', 'Open reports', 'Topics'], ...data.items.map((item) => [item.id, item.title, item.owner, item.category, item.level, item.visibility, item.status, item.moderationStatus, item.openReportCount, item.topicsCount])];
+    const url = URL.createObjectURL(new Blob([rows.map((row) => row.map(escape).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `imminiq-trackers-${status}-page-${page}.csv`; anchor.click(); URL.revokeObjectURL(url);
+  };
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
@@ -42,13 +49,9 @@ export default function AdminTrackersPage() {
         description="Inspect learning structures, review community reports, and manage tracker access with documented reasons."
         action={
           <div className="flex flex-wrap gap-2">
+            <button type="button" onClick={exportCurrentView} disabled={!data?.items.length} className="admin-button inline-flex items-center gap-2 disabled:opacity-40"><Download size={16} /> Export CSV</button>
             <Link to={ADMIN_TRACKERS_ROUTES.reports} className="admin-button inline-flex items-center gap-2"><Flag size={16} /> Tracker reports</Link>
-            <Link
-              to={ADMIN_TRACKERS_ROUTES.reviews}
-              className="admin-button inline-flex items-center gap-2"
-            >
-              <FileBarChart size={16} /> Tracker reviews
-            </Link>
+            <Link to={ADMIN_TRACKERS_ROUTES.reviews} className="admin-button inline-flex items-center gap-2"><FileBarChart size={16} /> Community reviews</Link>
             <Link
               to={ADMIN_TRACKERS_ROUTES.published}
               className="admin-primary-button inline-flex items-center gap-2"

@@ -21,7 +21,8 @@ export const createAdminMockTestsComposition = (): AdminMockTestsComposition => 
       ),
       updateQuestionIssue: new UpdateAdminMockTestQuestionIssueUseCase(
         mongoAdminMockTestsRepository,
-        mapper
+        mapper,
+        bullMqAdminMockTestEmailProvider
       ),
       updateLifecycle: new UpdateAdminMockTestLifecycleUseCase(
         mongoAdminMockTestsRepository,

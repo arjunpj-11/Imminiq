@@ -20,11 +20,12 @@ export default function AdminTrackerModerationDialog({
   );
   const [reason, setReason] = useState('');
   const [notifyOwner, setNotifyOwner] = useState(true);
+  const [mfaCode, setMfaCode] = useState('');
   const label = action === 'delete' ? 'Delete' : action === 'suspend' ? 'Suspend' : 'Restore';
   const submit = () => {
     if (!tracker || reason.trim().length < 15) return;
     mutation.mutate(
-      { id: tracker.id, payload: { action, reasonCode, reason: reason.trim(), notifyOwner } },
+      { id: tracker.id, payload: { action, reasonCode, reason: reason.trim(), notifyOwner, mfaCode: mfaCode.trim() } },
       { onSuccess: () => (onComplete ? onComplete() : onClose()) }
     );
   };
@@ -42,6 +43,7 @@ export default function AdminTrackerModerationDialog({
       <label className="admin-field mt-4 block"><span>User-facing explanation</span><textarea rows={5} maxLength={1000} value={reason} onChange={(event) => setReason(event.target.value)} placeholder="Explain the evidence and exact reason for this decision…" /></label>
       <div className="mt-1 text-right text-xs text-[#817c75]">{reason.trim().length}/1000 · minimum 15 characters</div>
       <label className="mt-4 flex items-start gap-3 text-sm text-[#aaa59d]"><input type="checkbox" checked={notifyOwner} onChange={(event) => setNotifyOwner(event.target.checked)} className="mt-1" />Queue an email with this explanation. An in-app notification is always sent.</label>
+      <label className="admin-field mt-4 block"><span>Authenticator code</span><input inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={mfaCode} onChange={(event) => setMfaCode(event.target.value.replace(/\D/g, ''))} placeholder="Required in production" /></label>
       <div className="mt-6 flex justify-end gap-2"><button className="admin-button" onClick={onClose} disabled={mutation.isPending}>Cancel</button><button className={action === 'restore' ? 'admin-primary-button' : 'admin-button text-[#e26767]'} disabled={reason.trim().length < 15 || mutation.isPending} onClick={submit}>{mutation.isPending ? 'Applying…' : `${label} tracker`}</button></div>
     </Modal>
   );

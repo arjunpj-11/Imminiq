@@ -1,9 +1,13 @@
 export type AdminDashboardData = {
   accessScope: 'full' | 'moderation';
+  generatedAt: string;
   metrics: {
     totalUsers: number;
+    verifiedUsers: number;
+    unverifiedUsers: number;
     activeToday: number;
     blockedUsers: number;
+    suspendedUsers: number;
     totalTrackers: number;
     openQuestionReports: number;
     reviewingQuestionReports: number;
@@ -11,6 +15,8 @@ export type AdminDashboardData = {
     suspendedMockTests: number;
     openTrackerReports: number;
     suspendedTrackers: number;
+    overdueQuestionReports: number;
+    overdueTrackerReports: number;
   };
   weeklyActivity: number[];
   recentActivity: Array<{

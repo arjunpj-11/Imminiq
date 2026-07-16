@@ -1,11 +1,12 @@
 import { Navigate, type RouteObject } from 'react-router-dom';
 import { AdminLayout } from '../../modules/admin/shared';
 import { AdminDashboardPage } from '../../modules/admin/dashboard';
-import { AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
+import { AdminUserAppealsPage, AdminUserDetailPage, AdminUsersPage } from '../../modules/admin/users';
 import {
   AdminPublishedTrackersPage,
   AdminTrackerDetailPage,
   AdminTrackerReportsPage,
+  AdminTrackerReviewsPage,
   AdminTrackersPage,
 } from '../../modules/admin/trackers';
 import {
@@ -13,7 +14,6 @@ import {
   AdminMockTestReportsPage,
   AdminMockTestsPage,
 } from '../../modules/admin/mock-tests';
-import { AdminTrackerReviewsPage } from '../../modules/admin/tracker-reviews';
 import { AdminAnalyticsPage } from '../../modules/admin/analytics';
 import { AdminBroadcastPage } from '../../modules/admin/broadcast';
 import { AdminAuditLogsPage } from '../../modules/admin/audit-logs';
@@ -30,6 +30,7 @@ export const adminRoutes: RouteObject[] = [
     children: [
       { path: ADMIN_ROUTES.dashboard, element: <AdminDashboardPage /> },
       { path: ADMIN_ROUTES.users, element: <AdminUsersPage /> },
+      { path: ADMIN_ROUTES.userAppeals, element: <AdminUserAppealsPage /> },
       { path: ADMIN_ROUTES.userDetailPattern, element: <AdminUserDetailPage /> },
       { path: ADMIN_ROUTES.trackers, element: <AdminTrackersPage /> },
       { path: ADMIN_ROUTES.trackerReports, element: <AdminTrackerReportsPage /> },

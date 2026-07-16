@@ -25,6 +25,7 @@ export class MongoMockTestsQuestionRepository extends MongoMockTestsBaseReposito
         const docs = await MockTestQuestionModel.find({
           testId: safeTestId,
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         })
           .sort({ order: 1 })
           .lean();
@@ -50,6 +51,7 @@ export class MongoMockTestsQuestionRepository extends MongoMockTestsBaseReposito
         const doc = await MockTestQuestionModel.findOne({
           _id: safeQuestionId,
           deletedAt: null,
+          moderationStatus: { $in: ['active', null] },
         }).lean();
 
         return doc ? this._mapper.toMockTestQuestionEntity(doc as RawMockTestQuestionDoc) : null;

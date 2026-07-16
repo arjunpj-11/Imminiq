@@ -1,4 +1,4 @@
-import { ArrowLeft, Braces, CheckCircle2, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
+import { ArrowLeft, Braces, CheckCircle2, Eye, EyeOff, RotateCcw, ShieldAlert, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import {
@@ -19,6 +19,7 @@ export default function AdminMockTestDetailPage() {
   const { testId } = useParams();
   const { data, isLoading, isError, error, refetch } = useAdminMockTestDetail(testId);
   const [moderating, setModerating] = useState<AdminMockTestLifecyclePayload['action'] | null>(null);
+  const [learnerPreview, setLearnerPreview] = useState(false);
   if (isLoading) return <AdminLoading />;
   if (isError || !data) return <AdminError error={error} />;
   return (
@@ -35,6 +36,7 @@ export default function AdminMockTestDetailPage() {
         description={data.description || 'No test description provided.'}
         action={
           <div className="flex flex-wrap justify-end gap-2">
+            <button className="admin-button inline-flex items-center gap-2" onClick={() => setLearnerPreview((value) => !value)}>{learnerPreview ? <EyeOff size={15} /> : <Eye size={15} />}{learnerPreview ? 'Exit learner preview' : 'Learner preview'}</button>
             <AdminStatusBadge value={data.difficulty} />
             <AdminStatusBadge value={data.visibility} />
             <AdminStatusBadge value={data.moderationStatus} />
@@ -78,7 +80,7 @@ export default function AdminMockTestDetailPage() {
             {data.questions.map((question) => (
               <article
                 key={question.id}
-                className="rounded-xl border border-white/10 bg-[#24211e] p-5"
+                className={`rounded-xl border p-5 ${question.moderationStatus === 'disabled' ? 'border-[#e26767]/30 bg-[#e26767]/5 opacity-75' : 'border-white/10 bg-[#24211e]'}`}
               >
                 <div className="flex justify-between gap-3">
                   <div className="text-[10px] uppercase tracking-wider text-[#e8816a]">
@@ -91,6 +93,8 @@ export default function AdminMockTestDetailPage() {
                       </span>
                     )}
                     <AdminStatusBadge value={question.difficulty} />
+                    <AdminStatusBadge value={question.moderationStatus} />
+                    <span className="text-[10px] text-[#817c75]">v{question.version}</span>
                   </div>
                 </div>
                 <h3 className="mt-3 font-semibold leading-6">{question.question}</h3>
@@ -99,9 +103,9 @@ export default function AdminMockTestDetailPage() {
                     {question.options.map((option) => (
                       <div
                         key={option}
-                        className={`rounded-lg border p-3 text-sm ${option === question.correctAnswer ? 'border-[#52c58c]/50 bg-[#52c58c]/10 text-[#52c58c]' : 'border-white/10 bg-[#1c1a18]'}`}
+                        className={`rounded-lg border p-3 text-sm ${!learnerPreview && option === question.correctAnswer ? 'border-[#52c58c]/50 bg-[#52c58c]/10 text-[#52c58c]' : 'border-white/10 bg-[#1c1a18]'}`}
                       >
-                        {option === question.correctAnswer && (
+                        {!learnerPreview && option === question.correctAnswer && (
                           <CheckCircle2 size={14} className="mr-2 inline" />
                         )}
                         {option}
@@ -109,7 +113,7 @@ export default function AdminMockTestDetailPage() {
                     ))}
                   </div>
                 ) : null}
-                {question.correctAnswer && !question.options?.length && (
+                {!learnerPreview && question.correctAnswer && !question.options?.length && (
                   <div className="mt-4 rounded-lg bg-[#52c58c]/10 p-3 text-sm text-[#52c58c]">
                     <strong>Correct answer:</strong> {question.correctAnswer}
                   </div>
@@ -128,11 +132,12 @@ export default function AdminMockTestDetailPage() {
                     )}
                   </div>
                 )}
-                {question.explanation && (
+                {!learnerPreview && question.explanation && (
                   <p className="mt-4 text-sm text-[#aaa59d]">
                     <strong className="text-[#f2f0eb]">Explanation:</strong> {question.explanation}
                   </p>
                 )}
+                {question.moderationReason && <p className="mt-3 rounded-lg border border-[#f0a842]/20 bg-[#f0a842]/5 p-3 text-xs text-[#f0c060]"><strong>Moderation note:</strong> {question.moderationReason}</p>}
                 <div className="mt-4 grid gap-2 border-t border-white/10 pt-4 text-xs text-[#aaa59d] sm:grid-cols-4">
                   <span>{question.answerCount} answers</span>
                   <span>{Math.round(question.correctRate)}% correct</span>
@@ -143,6 +148,9 @@ export default function AdminMockTestDetailPage() {
             ))}
           </div>
         )}
+      </AdminPanel>
+      <AdminPanel title="Moderation history">
+        {!data.moderationHistory.length ? <AdminEmpty>No administrative changes have been recorded for this test.</AdminEmpty> : <div className="divide-y divide-white/10">{data.moderationHistory.map((item) => <div key={item.id} className="flex flex-wrap justify-between gap-3 p-5 text-sm"><div><div className="font-semibold">{item.action.replaceAll('_', ' ')}</div><div className="mt-1 text-xs text-[#aaa59d]">By {item.actor}{item.reason ? ` · ${item.reason}` : ''}</div></div><time className="text-xs text-[#817c75]">{new Date(item.createdAt).toLocaleString()}</time></div>)}</div>}
       </AdminPanel>
       <AdminMockTestModerationDialog
         key={`${data.id}-${moderating ?? 'closed'}`}

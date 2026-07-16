@@ -5,7 +5,9 @@ import { MockTestAttemptModel } from '../../../../../infrastructure/database/mod
 import { MockTestModel } from '../../../../../infrastructure/database/models/mock-test.model';
 import { MockTestQuestionIssueModel } from '../../../../../infrastructure/database/models/mock-test-question-issue.model';
 import { MockTestQuestionModel } from '../../../../../infrastructure/database/models/mock-test-question.model';
+import { MockTestQuestionVersionModel } from '../../../../../infrastructure/database/models/mock-test-question-version.model';
 import { User } from '../../../../../infrastructure/database/models/user.model';
+import { ActivityLog } from '../../../../../infrastructure/database/models/activity-log.model';
 import type { AdminActor, AdminListQuery } from '../../../shared/domain';
 import { createAdminPage, escapeAdminSearch, recordAdminAction } from '../../../shared/infrastructure';
 import type {
@@ -105,7 +107,7 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
   }
 
   async getDetail(id: string) {
-    const [test, questions, attempts, activeAttemptCount, questionIssues, answerStats] =
+    const [test, questions, attempts, activeAttemptCount, questionIssues, answerStats, history] =
       await Promise.all([
         MockTestModel.findById(id).populate('ownerId', 'fullName username email').lean(),
         MockTestQuestionModel.find({ testId: id }).sort({ order: 1 }).lean(),
@@ -150,6 +152,15 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
             },
           },
         ]),
+        ActivityLog.find({
+          module: 'admin.mock-tests',
+          deletedAt: null,
+          $or: [{ 'metadata.targetId': id }, { 'metadata.testId': id }],
+        })
+          .sort({ createdAt: -1 })
+          .limit(20)
+          .populate('userId', 'fullName username')
+          .lean(),
       ]);
     if (!test) return null;
 
@@ -198,6 +209,11 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
           ...(question.explanation ? { explanation: question.explanation } : {}),
           difficulty: question.difficulty,
           points: question.points,
+          moderationStatus: (question.moderationStatus ?? 'active') as 'active' | 'disabled',
+          ...(question.moderationReason
+            ? { moderationReason: question.moderationReason }
+            : {}),
+          version: question.version ?? 1,
           reportCount: issues?.reportCount ?? 0,
           openReportCount: issues?.openReportCount ?? 0,
           answerCount,
@@ -213,6 +229,17 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
                 },
               }
             : {}),
+        };
+      }),
+      moderationHistory: history.map((item) => {
+        const actor = item.userId as unknown as { fullName?: string; username?: string };
+        const metadata = item.metadata as Record<string, unknown>;
+        return {
+          id: String(item._id),
+          action: item.action,
+          actor: actor?.fullName ?? actor?.username ?? 'System',
+          ...(typeof metadata.reason === 'string' ? { reason: metadata.reason } : {}),
+          createdAt: item.createdAt,
         };
       }),
     };
@@ -231,7 +258,7 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
         .skip((query.page - 1) * query.limit)
         .limit(query.limit)
         .populate('testId', 'title ownerId')
-        .populate('questionId', 'question order type')
+        .populate('questionId', 'question order type correctAnswer explanation')
         .populate('reporterId', 'fullName username email')
         .populate('assignedTo', 'fullName username')
         .lean(),
@@ -255,6 +282,8 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
         question?: string;
         order?: number;
         type?: string;
+        correctAnswer?: string;
+        explanation?: string;
       };
       const reporter = issue.reporterId as unknown as PopulatedUser;
       const assigned = issue.assignedTo as unknown as PopulatedUser | null;
@@ -267,6 +296,8 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
         questionOrder: question?.order ?? 0,
         question: question?.question ?? 'Deleted question',
         questionType: question?.type ?? 'unknown',
+        ...(question?.correctAnswer ? { questionAnswer: question.correctAnswer } : {}),
+        ...(question?.explanation ? { questionExplanation: question.explanation } : {}),
         attemptId: String(issue.attemptId),
         reporterId: String(reporter?._id ?? ''),
         reporter: displayName(reporter),
@@ -290,8 +321,14 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
     input: AdminMockTestIssueUpdateInput,
     actor: AdminActor
   ) {
-    const issue = await MockTestQuestionIssueModel.findByIdAndUpdate(
-      id,
+    let issue = await MockTestQuestionIssueModel.findOneAndUpdate(
+      {
+        _id: id,
+        $or: [
+          { status: 'open' },
+          { status: 'reviewing', assignedTo: actor.userId },
+        ],
+      },
       {
         $set: {
           status: input.status,
@@ -305,11 +342,60 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
       { returnDocument: 'after' }
     )
       .populate('testId', 'title ownerId')
-      .populate('questionId', 'question order type')
+      .populate('questionId', 'question order type correctAnswer explanation')
       .populate('reporterId', 'fullName username email')
       .populate('assignedTo', 'fullName username')
       .lean();
     if (!issue) return null;
+
+    const action = input.resolutionAction ?? 'none';
+    if (input.status !== 'reviewing' && action !== 'none') {
+      try {
+        const testId = String(
+          (issue.testId as unknown as { _id?: unknown })?._id ?? issue.testId
+        );
+        const questionId = String(
+          (issue.questionId as unknown as { _id?: unknown })?._id ?? issue.questionId
+        );
+        if (action === 'question_corrected' || action === 'question_disabled') {
+          await this.applyQuestionAction(questionId, testId, action, input, actor);
+        } else {
+          await this.updateLifecycle(
+            testId,
+            {
+              action: action === 'test_deleted' ? 'delete' : 'suspend',
+              reasonCode: 'incorrect_content',
+              reason: input.resolutionNote,
+              notifyOwner: true,
+            },
+            actor
+          );
+        }
+
+        const refreshed = await MockTestQuestionIssueModel.findById(id)
+          .populate('testId', 'title ownerId')
+          .populate('questionId', 'question order type correctAnswer explanation')
+          .populate('reporterId', 'fullName username email')
+          .populate('assignedTo', 'fullName username')
+          .lean();
+        if (refreshed) issue = refreshed;
+      } catch (error) {
+        await MockTestQuestionIssueModel.updateOne(
+          { _id: id, resolvedBy: actor.userId },
+          {
+            $set: {
+              status: 'reviewing',
+              assignedTo: actor.userId,
+              resolutionAction: 'none',
+              resolutionNote: 'Content action failed; the case remains under review.',
+              resolvedBy: null,
+              resolvedAt: null,
+            },
+          }
+        );
+        throw error;
+      }
+    }
 
     await Promise.all([
       Notification.create({
@@ -329,7 +415,7 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
         targetType: 'mock_test_question_issue',
         targetId: id,
         status: input.status,
-        resolutionAction: input.resolutionAction ?? 'none',
+        resolutionAction: action,
         resolutionNote: input.resolutionNote,
       }),
     ]);
@@ -340,21 +426,26 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
       question?: string;
       order?: number;
       type?: string;
+      correctAnswer?: string;
+      explanation?: string;
     };
     const reporter = issue.reporterId as unknown as PopulatedUser;
     const assigned = issue.assignedTo as unknown as PopulatedUser | null;
     const owner = test?.ownerId
-      ? await User.findById(test.ownerId).select('fullName username').lean()
+      ? await User.findById(test.ownerId).select('fullName username email').lean()
       : null;
     return {
       id: String(issue._id),
       testId: String(test?._id ?? ''),
       testTitle: test?.title ?? 'Deleted test',
       testOwner: displayName(owner),
+      ...(owner?.email ? { testOwnerEmail: owner.email } : {}),
       questionId: String(question?._id ?? ''),
       questionOrder: question?.order ?? 0,
       question: question?.question ?? 'Deleted question',
       questionType: question?.type ?? 'unknown',
+      ...(question?.correctAnswer ? { questionAnswer: question.correctAnswer } : {}),
+      ...(question?.explanation ? { questionExplanation: question.explanation } : {}),
       attemptId: String(issue.attemptId),
       reporterId: String(reporter?._id ?? ''),
       reporter: displayName(reporter),
@@ -477,6 +568,92 @@ export class MongoAdminMockTestsRepository implements IAdminMockTestsRepository 
 
   private objectId(id: string) {
     return new mongoose.Types.ObjectId(id);
+  }
+
+  private async applyQuestionAction(
+    questionId: string,
+    testId: string,
+    action: 'question_corrected' | 'question_disabled',
+    input: AdminMockTestIssueUpdateInput,
+    actor: AdminActor
+  ) {
+    const question = await MockTestQuestionModel.findOne({
+      _id: questionId,
+      testId,
+      deletedAt: null,
+    }).lean();
+    if (!question) throw new Error('The reported question no longer exists.');
+
+    const version = question.version ?? 1;
+    await MockTestQuestionVersionModel.updateOne(
+      { questionId: question._id, version },
+      {
+        $setOnInsert: {
+          questionId: question._id,
+          testId: question.testId,
+          version,
+          snapshot: question,
+          changedBy: actor.userId,
+          reason: input.resolutionNote,
+        },
+      },
+      { upsert: true }
+    );
+
+    const now = new Date();
+    const update =
+      action === 'question_corrected'
+        ? {
+            question: input.correctedQuestion,
+            ...(input.correctedAnswer !== undefined
+              ? { correctAnswer: input.correctedAnswer }
+              : {}),
+            ...(input.correctedExplanation !== undefined
+              ? { explanation: input.correctedExplanation }
+              : {}),
+            moderationStatus: 'active',
+            moderationReason: input.resolutionNote,
+            moderatedBy: actor.userId,
+            disabledAt: null,
+            version: version + 1,
+          }
+        : {
+            moderationStatus: 'disabled',
+            moderationReason: input.resolutionNote,
+            moderatedBy: actor.userId,
+            disabledAt: now,
+            version: version + 1,
+          };
+
+    await MockTestQuestionModel.updateOne({ _id: questionId }, { $set: update });
+    const activeQuestionCount = await MockTestQuestionModel.countDocuments({
+      testId,
+      deletedAt: null,
+      moderationStatus: { $in: ['active', null] },
+    });
+    await MockTestModel.updateOne({ _id: testId }, { $set: { questionCount: activeQuestionCount } });
+
+    const test = await MockTestModel.findById(testId).select('ownerId title').lean();
+    if (test?.ownerId) {
+      await Notification.create({
+        userId: test.ownerId,
+        type: 'mock_test_question_moderated',
+        message: `Question ${question.order} in “${test.title}” was ${
+          action === 'question_corrected' ? 'corrected' : 'disabled'
+        }. Reason: ${input.resolutionNote}`.slice(0, 500),
+        deepLink: `/mock-tests/${testId}`,
+        metadata: { testId, questionId, action, version: version + 1 },
+      });
+    }
+
+    await recordAdminAction(actor, `admin_mock_test_${action}`, 'admin.mock-tests', {
+      targetType: 'mock_test_question',
+      targetId: questionId,
+      testId,
+      previousVersion: version,
+      version: version + 1,
+      reason: input.resolutionNote,
+    });
   }
 }
 

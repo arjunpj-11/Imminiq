@@ -26,6 +26,9 @@ export type AdminMockTestQuestion = {
   explanation?: string;
   difficulty: string;
   points: number;
+  moderationStatus: 'active' | 'disabled';
+  moderationReason?: string;
+  version: number;
   reportCount: number;
   openReportCount: number;
   answerCount: number;
@@ -47,6 +50,13 @@ export type AdminMockTestDetail = AdminMockTest & {
   ownerId: string;
   ownerEmail?: string;
   activeAttemptCount: number;
+  moderationHistory: Array<{
+    id: string;
+    action: string;
+    actor: string;
+    reason?: string;
+    createdAt: Date;
+  }>;
 };
 
 export type AdminMockTestQuestionIssue = {
@@ -54,10 +64,13 @@ export type AdminMockTestQuestionIssue = {
   testId: string;
   testTitle: string;
   testOwner: string;
+  testOwnerEmail?: string;
   questionId: string;
   questionOrder: number;
   question: string;
   questionType: string;
+  questionAnswer?: string;
+  questionExplanation?: string;
   attemptId: string;
   reporterId: string;
   reporter: string;
@@ -101,4 +114,7 @@ export type AdminMockTestIssueUpdateInput = {
     | 'test_suspended'
     | 'test_deleted';
   resolutionNote: string;
+  correctedQuestion?: string;
+  correctedAnswer?: string;
+  correctedExplanation?: string;
 };

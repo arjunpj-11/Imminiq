@@ -6,6 +6,9 @@ import { SetAdminUserStatusUseCase } from '../../src/modules/admin/users/applica
 import type { IAdminUsersMapper } from '../../src/modules/admin/users/application/admin-users.mapper';
 import type { AdminUserEntity } from '../../src/modules/admin/users/domain/entities/admin-user.entity';
 import type { IAdminUsersRepository } from '../../src/modules/admin/users/domain/repositories/admin-users.repository.interface';
+import type { IAdminUserEmailProvider } from '../../src/modules/admin/users/domain/services/admin-user-email-provider.interface';
+import { SendAdminUserMessageUseCase } from '../../src/modules/admin/users/application/use-cases/send-admin-user-message.usecase';
+import { adminUserMessageSchema, adminUserStatusSchema } from '../../src/modules/admin/users/presentation/admin-users.schema';
 
 const userId = '64b000000000000000000001';
 const actorId = '64b000000000000000000002';
@@ -37,34 +40,63 @@ const makeRepository = (user: AdminUserEntity | null = makeUser()): IAdminUsersR
   updateStatus: vi.fn().mockResolvedValue(undefined),
   revokeSessions: vi.fn().mockResolvedValue(undefined),
   recordStatusChange: vi.fn().mockResolvedValue(undefined),
+  recordAdminMessage: vi.fn().mockResolvedValue(undefined),
 });
+
+const makeEmailProvider = (): IAdminUserEmailProvider => ({
+  queueStatusEmail: vi.fn().mockResolvedValue(undefined),
+  queueDirectMessage: vi.fn().mockResolvedValue(undefined),
+});
+
+const meta = {
+  ipAddress: '127.0.0.1',
+  userAgent: 'test',
+  reason: 'Repeated automated spam was confirmed by the moderation team.',
+  reasonCode: 'spam_or_abuse',
+  notifyEmail: true,
+};
 
 describe('SetAdminUserStatusUseCase', () => {
   it('blocks a user, revokes sessions, and records the actor', async () => {
     const repository = makeRepository();
-    const useCase = new SetAdminUserStatusUseCase(repository);
+    const emailProvider = makeEmailProvider();
+    const useCase = new SetAdminUserStatusUseCase(repository, emailProvider);
     await expect(
       useCase.execute(
         userId,
         'blocked',
         { userId: actorId, role: 'admin' },
-        { ipAddress: '127.0.0.1', userAgent: 'test' }
+        meta
       )
-    ).resolves.toEqual({ userId, status: 'blocked' });
-    expect(repository.updateStatus).toHaveBeenCalledWith(userId, 'blocked');
+    ).resolves.toEqual({ userId, status: 'blocked', emailQueued: true });
+    expect(repository.updateStatus).toHaveBeenCalledWith(userId, 'blocked', {
+      actorId,
+      reason: meta.reason,
+      reasonCode: meta.reasonCode,
+    });
     expect(repository.revokeSessions).toHaveBeenCalledWith(userId);
     expect(repository.recordStatusChange).toHaveBeenCalledWith(
       expect.objectContaining({ actorId, userId, previousStatus: 'active', status: 'blocked' })
     );
+    expect(emailProvider.queueStatusEmail).toHaveBeenCalled();
   });
 
-  it('does not revoke sessions when unblocking', async () => {
+  it('revokes sessions when suspending and not when restoring', async () => {
+    const suspendedRepository = makeRepository();
+    await new SetAdminUserStatusUseCase(suspendedRepository, makeEmailProvider()).execute(
+      userId,
+      'paused',
+      { userId: actorId, role: 'admin' },
+      meta
+    );
+    expect(suspendedRepository.revokeSessions).toHaveBeenCalledWith(userId);
+
     const repository = makeRepository(makeUser({ status: 'blocked' }));
-    await new SetAdminUserStatusUseCase(repository).execute(
+    await new SetAdminUserStatusUseCase(repository, makeEmailProvider()).execute(
       userId,
       'active',
       { userId: actorId, role: 'admin' },
-      { ipAddress: '', userAgent: '' }
+      { ...meta, reason: 'The appeal was reviewed and account access can now be restored.' }
     );
     expect(repository.revokeSessions).not.toHaveBeenCalled();
   });
@@ -72,11 +104,11 @@ describe('SetAdminUserStatusUseCase', () => {
   it('rejects self status changes', async () => {
     const repository = makeRepository();
     await expect(
-      new SetAdminUserStatusUseCase(repository).execute(
+      new SetAdminUserStatusUseCase(repository, makeEmailProvider()).execute(
         userId,
         'blocked',
         { userId, role: 'admin' },
-        { ipAddress: '', userAgent: '' }
+        meta
       )
     ).rejects.toMatchObject({ code: 'SELF_STATUS_CHANGE', statusCode: 400 });
   });
@@ -84,20 +116,20 @@ describe('SetAdminUserStatusUseCase', () => {
   it('protects superadmins and protects admins from non-superadmins', async () => {
     const superRepository = makeRepository(makeUser({ role: 'superadmin' }));
     await expect(
-      new SetAdminUserStatusUseCase(superRepository).execute(
+      new SetAdminUserStatusUseCase(superRepository, makeEmailProvider()).execute(
         userId,
         'blocked',
         { userId: actorId, role: 'superadmin' },
-        { ipAddress: '', userAgent: '' }
+        meta
       )
     ).rejects.toBeInstanceOf(AdminUsersApplicationError);
     const adminRepository = makeRepository(makeUser({ role: 'admin' }));
     await expect(
-      new SetAdminUserStatusUseCase(adminRepository).execute(
+      new SetAdminUserStatusUseCase(adminRepository, makeEmailProvider()).execute(
         userId,
         'blocked',
         { userId: actorId, role: 'admin' },
-        { ipAddress: '', userAgent: '' }
+        meta
       )
     ).rejects.toMatchObject({ code: 'PROTECTED_ADMIN', statusCode: 403 });
   });
@@ -105,14 +137,54 @@ describe('SetAdminUserStatusUseCase', () => {
   it('returns not found without attempting a write', async () => {
     const repository = makeRepository(null);
     await expect(
-      new SetAdminUserStatusUseCase(repository).execute(
+      new SetAdminUserStatusUseCase(repository, makeEmailProvider()).execute(
         userId,
         'blocked',
         { userId: actorId, role: 'admin' },
-        { ipAddress: '', userAgent: '' }
+        meta
       )
     ).rejects.toMatchObject({ code: 'USER_NOT_FOUND', statusCode: 404 });
     expect(repository.updateStatus).not.toHaveBeenCalled();
+  });
+});
+
+describe('SendAdminUserMessageUseCase', () => {
+  it('records an in-app message and queues optional email', async () => {
+    const repository = makeRepository();
+    const emailProvider = makeEmailProvider();
+    await expect(
+      new SendAdminUserMessageUseCase(repository, emailProvider).execute(
+        userId,
+        {
+          subject: 'Account review update',
+          message: 'We completed the review you requested and no action is required.',
+          notifyEmail: true,
+        },
+        { userId: actorId, role: 'admin' },
+        { ipAddress: '127.0.0.1', userAgent: 'test' }
+      )
+    ).resolves.toEqual({ userId, emailQueued: true });
+    expect(repository.recordAdminMessage).toHaveBeenCalledWith(
+      expect.objectContaining({ actorId, userId, subject: 'Account review update' })
+    );
+    expect(emailProvider.queueDirectMessage).toHaveBeenCalled();
+  });
+
+  it('validates status explanations and direct messages', () => {
+    expect(() =>
+      adminUserStatusSchema.parse({
+        status: 'paused',
+        reasonCode: 'security_risk',
+        reason: 'too short',
+        notifyEmail: true,
+      })
+    ).toThrow();
+    expect(
+      adminUserMessageSchema.parse({
+        subject: 'Important update',
+        message: 'Please review the latest account notification.',
+      })
+    ).toMatchObject({ notifyEmail: true });
   });
 });
 

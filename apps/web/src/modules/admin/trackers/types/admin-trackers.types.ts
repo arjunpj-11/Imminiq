@@ -15,6 +15,18 @@ export type AdminTracker = {
   reportCount: number;
   openReportCount: number;
 };
+export type AdminTrackerReview = {
+  id: string;
+  trackerId: string;
+  title: string;
+  owner: string;
+  category: string;
+  status: string;
+  urgent: boolean;
+  passVotes: number;
+  failVotes: number;
+  createdAt: string;
+};
 export type AdminTrackerSubtopic = {
   id: string;
   title: string;
@@ -38,6 +50,13 @@ export type AdminTrackerDetail = AdminTracker & {
   ownerId: string;
   ownerEmail?: string;
   topics: AdminTrackerTopic[];
+  moderationHistory: Array<{
+    id: string;
+    action: string;
+    actor: string;
+    reason?: string;
+    createdAt: string;
+  }>;
 };
 export type AdminPublishedTracker = {
   id: string;
@@ -85,8 +104,10 @@ export type AdminTrackerLifecyclePayload = {
     | 'other';
   reason: string;
   notifyOwner: boolean;
+  mfaCode?: string;
 };
 export type AdminTrackerReportUpdatePayload = {
   status: 'reviewing' | 'resolved' | 'dismissed';
   resolutionNote: string;
+  mfaCode?: string;
 };

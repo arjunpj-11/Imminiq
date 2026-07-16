@@ -15,6 +15,7 @@ import { useAuthStore } from '../store/useAuthStore';
 import { ROUTES } from '../routes/config/route-paths';
 import {
   getBlockedAppealIdentifier,
+  getBlockedModerationMessage,
   saveBlockedAppealIdentifier,
 } from '../lib/blockedAppealSession';
 
@@ -307,6 +308,7 @@ export default function BlockedPage() {
   const appealStatusExists = fetchedAppealStatusResponse?.data?.exists === true;
 
   const displayedAppealReason = activeAppeal?.appealReason || form.appealReason;
+  const moderationMessage = getBlockedModerationMessage();
 
   const apiError = submitAppealError?.response?.data?.message;
   const statusError = appealStatusError?.response?.data?.message;
@@ -490,6 +492,15 @@ export default function BlockedPage() {
                   </div>
                 ))}
               </div>
+
+              {moderationMessage && (
+                <div className="mb-7 rounded-xl border border-[rgba(184,76,43,0.22)] bg-[rgba(184,76,43,0.08)] p-4 text-[13px] leading-6 text-(--text-primary) dark:text-(--text-primary)">
+                  <div className="mb-1 font-mono text-[9px] uppercase tracking-[0.12em] text-(--brand-500)">
+                    Administrative explanation
+                  </div>
+                  {moderationMessage}
+                </div>
+              )}
 
               {/* Common Restriction Reasons */}
               <h2 className="mb-4 font-serif text-lg font-extrabold tracking-[-0.3px] text-(--text-primary) dark:text-(--text-primary)">

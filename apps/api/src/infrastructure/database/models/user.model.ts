@@ -15,6 +15,10 @@ export interface IUserDocument extends Document {
 
   role: 'user' | 'admin' | 'moderator' | 'superadmin';
   status: 'active' | 'paused' | 'blocked' | 'deactivated' | 'banned';
+  adminStatusReason?: string | null;
+  adminStatusReasonCode?: string | null;
+  adminStatusChangedAt?: Date | null;
+  adminStatusChangedBy?: mongoose.Types.ObjectId | null;
 
   emailVerified: boolean;
   phoneVerified: boolean;
@@ -149,6 +153,11 @@ const userSchema = new Schema<IUserDocument>(
       enum: ['active', 'paused', 'blocked', 'deactivated', 'banned'],
       default: 'active',
     },
+
+    adminStatusReason: { type: String, trim: true, maxlength: 1000, default: null },
+    adminStatusReasonCode: { type: String, trim: true, maxlength: 80, default: null },
+    adminStatusChangedAt: { type: Date, default: null },
+    adminStatusChangedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
 
     emailVerified: {
       type: Boolean,

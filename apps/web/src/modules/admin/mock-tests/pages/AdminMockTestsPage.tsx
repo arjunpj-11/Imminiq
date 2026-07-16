@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Eye, ShieldAlert } from 'lucide-react';
+import { Download, Eye, ShieldAlert } from 'lucide-react';
 import { Link, useSearchParams } from 'react-router-dom';
 import {
   AdminEmpty,
@@ -25,18 +25,25 @@ export default function AdminMockTestsPage() {
     status,
     page,
   });
+  const exportCurrentView = () => {
+    if (!data?.items.length) return;
+    const escape = (value: unknown) => `"${String(value ?? '').replaceAll('"', '""')}"`;
+    const rows = [['ID', 'Title', 'Owner', 'Difficulty', 'Questions', 'Attempts', 'Average score', 'Visibility', 'Moderation', 'Open reports'], ...data.items.map((item) => [item.id, item.title, item.owner, item.difficulty, item.questionCount, item.attemptCount, item.averageScore, item.visibility, item.moderationStatus, item.openReportCount])];
+    const url = URL.createObjectURL(new Blob([rows.map((row) => row.map(escape).join(',')).join('\n')], { type: 'text/csv;charset=utf-8' }));
+    const anchor = document.createElement('a'); anchor.href = url; anchor.download = `imminiq-mock-tests-${status}-page-${page}.csv`; anchor.click(); URL.revokeObjectURL(url);
+  };
   return (
     <main className="mx-auto max-w-[1240px] px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="Mock Test Management"
         description="Inspect assessment contents, questions, correct answers, and test configuration."
         action={
-          <Link
+          <div className="flex gap-2"><button type="button" onClick={exportCurrentView} disabled={!data?.items.length} className="admin-button inline-flex items-center gap-2 disabled:opacity-40"><Download size={16} /> Export CSV</button><Link
             to={ADMIN_MOCK_TESTS_ROUTES.reports}
             className="admin-primary-button inline-flex items-center gap-2"
           >
             <ShieldAlert size={16} /> Question reports
-          </Link>
+          </Link></div>
         }
       />
       <AdminMetricGrid

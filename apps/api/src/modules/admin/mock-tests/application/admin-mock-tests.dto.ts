@@ -26,6 +26,9 @@ export interface AdminMockTestQuestionDTO {
   explanation?: string;
   difficulty: string;
   points: number;
+  moderationStatus: 'active' | 'disabled';
+  moderationReason?: string;
+  version: number;
   reportCount: number;
   openReportCount: number;
   answerCount: number;
@@ -48,6 +51,13 @@ export interface AdminMockTestDetailDTO extends AdminMockTestDTO {
   ownerId: string;
   ownerEmail?: string;
   activeAttemptCount: number;
+  moderationHistory: Array<{
+    id: string;
+    action: string;
+    actor: string;
+    reason?: string;
+    createdAt: Date;
+  }>;
 }
 
 export interface AdminMockTestQuestionIssueDTO {
@@ -55,10 +65,13 @@ export interface AdminMockTestQuestionIssueDTO {
   testId: string;
   testTitle: string;
   testOwner: string;
+  testOwnerEmail?: string;
   questionId: string;
   questionOrder: number;
   question: string;
   questionType: string;
+  questionAnswer?: string;
+  questionExplanation?: string;
   attemptId: string;
   reporterId: string;
   reporter: string;

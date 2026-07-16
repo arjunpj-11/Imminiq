@@ -9,8 +9,12 @@ import { adminTrackersKeys } from './admin-trackers.query-keys';
 export const useUpdateAdminTrackerLifecycle = () => {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, payload }: { id: string; payload: AdminTrackerLifecyclePayload }) =>
-      api.patch(ADMIN_TRACKERS_ENDPOINTS.lifecycle(id), payload),
+    mutationFn: ({ id, payload }: { id: string; payload: AdminTrackerLifecyclePayload }) => {
+      const { mfaCode, ...body } = payload;
+      return api.patch(ADMIN_TRACKERS_ENDPOINTS.lifecycle(id), body, {
+        headers: mfaCode ? { 'X-Admin-MFA-Code': mfaCode } : undefined,
+      });
+    },
     onSuccess: async () => {
       toast.success('Tracker moderation updated', 'The owner received the decision and reason.');
       await client.invalidateQueries({ queryKey: adminTrackersKeys.all });
