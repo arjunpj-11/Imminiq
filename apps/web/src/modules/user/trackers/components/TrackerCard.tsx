@@ -2,6 +2,7 @@ import { cn } from '../../../../lib/cn';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { ITracker } from '../types/tracker.types';
 import ConfirmDialog from './ConfirmDialog';
 import PublishTrackerModal, { type PublishFormData } from './PublishTrackerModal';
@@ -217,6 +218,7 @@ export default function TrackerCard({
   onQuickRevision,
   onSendForVerification,
 }: TrackerCardProps) {
+  const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
   const [publishModalOpen, setPublishModalOpen] = useState(false);
   const [isPublishing, setIsPublishing] = useState(false);
@@ -236,6 +238,7 @@ export default function TrackerCard({
   const tone = getTone(tracker.status);
   const isPublished = tracker.visibility === 'public' || Boolean(tracker.publishedAt);
   const isArchived = tracker.status === 'archived';
+  const cloneSource = tracker.clonedFrom;
   const verificationStatus =
     (
       tracker as ITracker & {
@@ -248,7 +251,7 @@ export default function TrackerCard({
 
   // must be published + not archived/pending/verified
   const canSendForVerification =
-    isPublished && !isArchived && !isVerificationPending && !isVerificationVerified;
+    !cloneSource && isPublished && !isArchived && !isVerificationPending && !isVerificationVerified;
 
   const totalTopics = Number(tracker.topicsCount ?? 0);
   const completedTopics = Number(tracker.completedTopics ?? 0);
@@ -565,7 +568,19 @@ export default function TrackerCard({
                 : `Active ${formatRelativeTime(tracker.lastActiveAt)}`}
           </span>
 
-          {isPublished ? (
+          {cloneSource ? (
+            <button
+              type="button"
+              onClick={(event) => {
+                event.stopPropagation();
+                navigate(`/community/trackers/${cloneSource.trackerId}`);
+              }}
+              className="cursor-pointer text-[12px] font-semibold text-(--text-secondary) transition hover:text-(--text-primary) hover:underline"
+              title="Open the original published tracker"
+            >
+              Cloned
+            </button>
+          ) : isPublished ? (
             <button
               type="button"
               onClick={(e) => {
@@ -612,7 +627,7 @@ export default function TrackerCard({
         )}
       </article>
 
-      {publishModalOpen && (
+      {publishModalOpen && !cloneSource && (
         <PublishTrackerModal
           tracker={tracker}
           isPublishing={isPublishing}

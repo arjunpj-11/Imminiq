@@ -1,42 +1,24 @@
-import {
-  Activity,
-  CheckCircle2,
-  CircleUserRound,
-  Radio,
-  RefreshCw,
-  ShieldBan,
-  Target,
-} from 'lucide-react';
+import { CheckCircle2, RefreshCw } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAdminDashboard } from '../hooks/useAdminDashboard';
 import AdminDashboardState from '../components/AdminDashboardState';
 import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
-
-const number = new Intl.NumberFormat('en-US');
+import { AdminMetricGrid, AdminPageHeader } from '../../shared';
 
 export default function AdminDashboardPage() {
   const { data, isLoading, isError, error, isFetching, refetch } = useAdminDashboard();
   if (isLoading) return <AdminDashboardState tone="loading" />;
   if (isError || !data) return <AdminDashboardState tone="error" error={error} />;
 
-  const metrics = [
-    ['Total users', data.metrics.totalUsers, CircleUserRound, '#e8816a'],
-    ['Active today', data.metrics.activeToday, Activity, '#52c58c'],
-    ['Total trackers', data.metrics.totalTrackers, Target, '#6aa9ff'],
-    ['Blocked users', data.metrics.blockedUsers, ShieldBan, '#e26767'],
-  ] as const;
   const peak = Math.max(...data.weeklyActivity, 1);
 
   return (
     <main className="mx-auto max-w-310 px-5 py-9 sm:px-8">
-      <div className="mb-9 flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <div className="mb-2 flex items-center gap-2 text-[10px] font-bold uppercase tracking-[.18em] text-[#e8816a]">
-            Admin console <Radio size={12} className="text-[#52c58c]" /> Live data
-          </div>
-          <h1 className="font-editorial text-4xl font-bold sm:text-5xl">Performance Overview</h1>
-        </div>
-        <div className="flex items-center gap-3">
+      <AdminPageHeader
+        title="Performance Overview"
+        description="Live platform health, usage, and moderation signals."
+        action={
+          <div className="flex items-center gap-3">
           <div className="text-right font-mono text-xs text-[#aaa59d]">
             {new Date().toLocaleString()}
           </div>
@@ -49,23 +31,17 @@ export default function AdminDashboardPage() {
           >
             <RefreshCw size={15} className={isFetching ? 'animate-spin' : ''} />
           </button>
-        </div>
-      </div>
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        {metrics.map(([label, value, Icon, color]) => (
-          <div
-            key={label}
-            className="relative overflow-hidden rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6"
-          >
-            <span className="absolute inset-y-0 left-0 w-1" style={{ background: color }} />
-            <div className="flex items-center justify-between text-[10px] uppercase tracking-wider text-[#aaa59d]">
-              {label}
-              <Icon size={17} style={{ color }} />
-            </div>
-            <div className="font-editorial mt-5 text-3xl font-bold">{number.format(value)}</div>
           </div>
-        ))}
-      </section>
+        }
+      />
+      <AdminMetricGrid
+        metrics={[
+          { label: 'Total users', value: data.metrics.totalUsers, tone: 'accent' },
+          { label: 'Active today', value: data.metrics.activeToday, tone: 'success' },
+          { label: 'Total trackers', value: data.metrics.totalTrackers, tone: 'info' },
+          { label: 'Blocked users', value: data.metrics.blockedUsers, tone: 'error' },
+        ]}
+      />
       <section className="mt-7 grid gap-6 lg:grid-cols-[1.55fr_1fr]">
         <div className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18] p-6 sm:p-8">
           <div className="flex items-center justify-between">

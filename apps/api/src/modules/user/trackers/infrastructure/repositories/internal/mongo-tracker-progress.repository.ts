@@ -254,7 +254,7 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
 
         const userObjId = this.mapper.toObjectId(data.userId);
 
-        const [topics, userProgress] = await Promise.all([
+        const [topics, userProgress, tracker] = await Promise.all([
           TrackerTopic.find(
             this.mapper.asMongoFilter({
               trackerId: trackerObjId,
@@ -272,15 +272,42 @@ export class MongoTrackerProgressRepository extends MongoTrackerBaseRepository {
               trackerId: trackerObjId,
             })
           ).lean<MongoTopicProgressRecord[]>(),
+          Tracker.findById(trackerObjId).select('sourceTrackerId').lean(),
         ]);
+
+        const sourceTopics = tracker?.sourceTrackerId
+          ? await TrackerTopic.find({ trackerId: tracker.sourceTrackerId, deletedAt: null })
+              .select('_id title description')
+              .lean<MongoTopicContentRecord[]>()
+          : [];
+        const sourceSignatures = new Set(
+          sourceTopics.map((topic) =>
+            `${topic.title.trim().toLowerCase()}\u0000${(topic.description ?? '').trim().toLowerCase()}`
+          )
+        );
 
         const progressMap = new Map(
           userProgress.map((progress) => [progress.topicId?.toString?.() ?? '', progress])
         );
 
-        return topics.map((topic) =>
-          this.mapper.toTopicWithProgress(topic, progressMap.get(topic._id.toString()))
-        ) as TopicWithProgressRecord[];
+        return topics.map((topic) => {
+          const mapped = this.mapper.toTopicWithProgress(
+            topic,
+            progressMap.get(topic._id.toString())
+          );
+          const sourceTopicId = topic.sourceTopicId ? String(topic.sourceTopicId) : null;
+          const signature = `${topic.title.trim().toLowerCase()}\u0000${(topic.description ?? '')
+            .trim()
+            .toLowerCase()}`;
+
+          return {
+            ...mapped,
+            sourceTopicId,
+            isCloneAddition: Boolean(
+              tracker?.sourceTrackerId && !sourceTopicId && !sourceSignatures.has(signature)
+            ),
+          };
+        }) as TopicWithProgressRecord[];
       }
     );
   }

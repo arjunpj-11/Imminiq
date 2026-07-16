@@ -4,6 +4,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ITrackerTopicDocument extends Document {
   trackerId: mongoose.Types.ObjectId;
+  sourceTopicId?: mongoose.Types.ObjectId | null;
   title: string;
   description: string;
   order: number;
@@ -29,6 +30,11 @@ const trackerTopicSchema = new Schema<ITrackerTopicDocument>(
       type: Schema.Types.ObjectId,
       ref: 'Tracker',
       required: true,
+    },
+    sourceTopicId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TrackerTopic',
+      default: null,
     },
     title: {
       type: String,
@@ -84,6 +90,7 @@ const trackerTopicSchema = new Schema<ITrackerTopicDocument>(
 );
 
 trackerTopicSchema.index({ trackerId: 1, order: 1 });
+trackerTopicSchema.index({ trackerId: 1, sourceTopicId: 1 });
 
 export const TrackerTopic = mongoose.model<ITrackerTopicDocument>(
   'TrackerTopic',

@@ -226,15 +226,29 @@ export default function TrackerRoadmapPage() {
                 </p>
               </div>
 
-              {syncedBreadcrumbStack.length > 0 && (
-                <button
-                  type="button"
-                  onClick={goBackOneLevel}
-                  className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[12.5px] font-semibold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
-                >
-                  ← Back
-                </button>
-              )}
+              <div className="flex flex-wrap items-center gap-2">
+                {roadmapData.tracker.clonedFrom && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      navigate(`/community/trackers/${roadmapData.tracker.clonedFrom?.trackerId}`)
+                    }
+                    className="cursor-pointer text-[12.5px] font-semibold text-(--text-secondary) transition hover:text-(--text-primary) hover:underline"
+                    title="Open the original published tracker"
+                  >
+                    Cloned
+                  </button>
+                )}
+                {syncedBreadcrumbStack.length > 0 && (
+                  <button
+                    type="button"
+                    onClick={goBackOneLevel}
+                    className="rounded-md border-[1.5px] border-(--border-subtle) px-4 py-2.5 text-[12.5px] font-semibold text-(--text-secondary) transition hover:border-(--brand-500) hover:bg-[rgba(184,76,43,0.08)] hover:text-(--brand-500) dark:border-(--border-subtle) dark:text-(--text-secondary) dark:hover:text-(--brand-500)"
+                  >
+                    ← Back
+                  </button>
+                )}
+              </div>
             </div>
           </section>
 

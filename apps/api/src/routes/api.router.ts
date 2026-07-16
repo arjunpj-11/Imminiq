@@ -99,6 +99,7 @@ export const createApiRouter = () => {
   const friendsComposition = createFriendsComposition();
   const leaderboardComposition = createLeaderboardComposition();
   const moderationAppealComposition = createModerationAppealComposition();
+  const notificationsComposition = createNotificationsComposition();
 
   // 🔹 Derived dependencies
   const activityRecorder = activityComposition.useCases.recordActivity;
@@ -106,7 +107,10 @@ export const createApiRouter = () => {
 
   // 🔹 Feature compositions
   const uploadsComposition = createUploadsComposition(usersComposition.useCases.getMe);
-  const trackerComposition = createTrackerComposition(activityRecorder);
+  const trackerComposition = createTrackerComposition(
+    activityRecorder,
+    notificationsComposition.useCases.createNotification
+  );
   const communityComposition = createCommunityComposition(activityRecorder);
   const mockTestsComposition = createMockTestsComposition(
     activityRecorder,
@@ -115,7 +119,6 @@ export const createApiRouter = () => {
   const adaptiveLearningComposition = createAdaptiveLearningComposition();
   const subscriptionsComposition = createSubscriptionsComposition();
   const supportTicketsComposition = createSupportTicketsComposition();
-  const notificationsComposition = createNotificationsComposition();
 
   // 🔹 Admin compositions
   const adminDashboardComposition = createAdminDashboardComposition();

@@ -12,6 +12,9 @@ export const TRACKER_ROUTE_PATHS = {
 
   TOPICS: '/:trackerId/topics',
   SUBTOPICS: '/:trackerId/topics/:topicId/subtopics',
+  CREATE_TOPIC_CONTRIBUTION: '/:trackerId/topics/:topicId/contributions',
+  TOPIC_CONTRIBUTIONS: '/:trackerId/topic-contributions',
+  REVIEW_TOPIC_CONTRIBUTION: '/:trackerId/topic-contributions/:contributionId',
   SUBTOPIC_PROGRESS: '/:trackerId/subtopics/:subtopicId/progress',
   VERIFY_TOPIC: '/:trackerId/topics/verify',
   VERIFY_SUBTOPIC: '/:trackerId/topics/:topicId/subtopics/verify',

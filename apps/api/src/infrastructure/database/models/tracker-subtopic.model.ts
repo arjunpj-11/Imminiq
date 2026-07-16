@@ -5,6 +5,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 export interface ITrackerSubtopicDocument extends Document {
   trackerId: mongoose.Types.ObjectId;
   topicId: mongoose.Types.ObjectId;
+  sourceSubtopicId?: mongoose.Types.ObjectId | null;
   parentSubtopicId?: mongoose.Types.ObjectId | null;
   title: string;
   description: string;
@@ -36,6 +37,11 @@ const trackerSubtopicSchema = new Schema<ITrackerSubtopicDocument>(
       type: Schema.Types.ObjectId,
       ref: 'TrackerTopic',
       required: true,
+    },
+    sourceSubtopicId: {
+      type: Schema.Types.ObjectId,
+      ref: 'TrackerSubtopic',
+      default: null,
     },
     parentSubtopicId: {
       type: Schema.Types.ObjectId,

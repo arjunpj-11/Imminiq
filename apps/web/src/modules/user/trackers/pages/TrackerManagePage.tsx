@@ -16,8 +16,11 @@ import {
 import {
   useCreateTrackerSubtopic,
   useCreateTrackerTopic,
+  useCreateTopicContribution,
+  useReviewTopicContribution,
   useTrackerDetails,
   useTrackerRoadmap,
+  useTrackerTopicContributions,
   useUpdateTracker,
 } from '../hooks/useTrackers';
 
@@ -64,9 +67,16 @@ export default function TrackerManagePage() {
   const createSubtopicMutation = useCreateTrackerSubtopic();
   const verifyTopicMutation = useVerifyTrackerTopic();
   const verifySubtopicMutation = useVerifyTrackerSubtopic();
+  const createContributionMutation = useCreateTopicContribution();
+  const reviewContributionMutation = useReviewTopicContribution();
 
   const roadmapData = roadmapQuery.data as TrackerRoadmapLike | undefined;
   const tracker = trackerDetailsQuery.data || extractRoadmapTracker(roadmapData);
+  const isClonedTracker = Boolean(tracker?.sourceTrackerId);
+  const contributionsQuery = useTrackerTopicContributions(
+    trackerId,
+    Boolean(tracker)
+  );
 
   const topics = useMemo(() => extractRoadmapTopics(roadmapData), [roadmapData]);
 
@@ -75,6 +85,8 @@ export default function TrackerManagePage() {
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [trackerTitleDraft, setTrackerTitleDraft] = useState<string | null>(null);
+  const [submittedTopicIds, setSubmittedTopicIds] = useState<Set<string>>(() => new Set());
+  const [reviewNotes, setReviewNotes] = useState<Record<string, string>>({});
 
   const [newTopicTitle, setNewTopicTitle] = useState('');
   const [newTopicDescription, setNewTopicDescription] = useState('');
@@ -113,6 +125,22 @@ export default function TrackerManagePage() {
   const totalSubtopics = useMemo(
     () => topics.reduce((total, topic) => total + countNestedSubtopics(getChildren(topic)), 0),
     [topics]
+  );
+
+  const cloneAdditions = useMemo(
+    () => topics.filter((topic) => Boolean(topic.isCloneAddition)),
+    [topics]
+  );
+
+  const contributionByTopicId = useMemo(
+    () =>
+      new Map(
+        (contributionsQuery.data ?? []).map((contribution) => [
+          contribution.cloneTopicId,
+          contribution,
+        ])
+      ),
+    [contributionsQuery.data]
   );
 
   const trackerTitle = trackerTitleDraft ?? tracker?.title ?? '';
@@ -396,6 +424,44 @@ export default function TrackerManagePage() {
     }
   };
 
+  const handleCreateContribution = async (topicId: string, topicTitle: string) => {
+    if (!trackerId || !topicId || createContributionMutation.isPending) return;
+    clearMessages();
+    try {
+      await createContributionMutation.mutateAsync({ trackerId, topicId });
+      setSubmittedTopicIds((current) => new Set(current).add(topicId));
+      setStatusMessage(
+        `“${topicTitle}” was sent to ${tracker?.clonedFrom?.name ?? 'the original author'} for review.`
+      );
+    } catch (error) {
+      setErrorMessage(getUserFacingError(error, 'Unable to send this topic for review.'));
+    }
+  };
+
+  const handleReviewContribution = async (
+    contributionId: string,
+    action: 'approve' | 'reject',
+    reviewNote?: string
+  ) => {
+    if (!trackerId || reviewContributionMutation.isPending) return;
+    clearMessages();
+    try {
+      await reviewContributionMutation.mutateAsync({
+        trackerId,
+        contributionId,
+        action,
+        reviewNote,
+      });
+      setStatusMessage(
+        action === 'approve'
+          ? 'Topic contribution approved and merged into this tracker.'
+          : 'Topic contribution rejected.'
+      );
+    } catch (error) {
+      setErrorMessage(getUserFacingError(error, 'Unable to review this contribution.'));
+    }
+  };
+
   // ── Loading / error flags ──
   const isLoading = trackerDetailsQuery.isLoading || roadmapQuery.isLoading;
 
@@ -453,7 +519,19 @@ export default function TrackerManagePage() {
               </p>
             </div>
 
-            <div className="flex shrink-0 gap-5">
+            <div className="flex shrink-0 items-start gap-5">
+              {tracker.clonedFrom && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    navigate(`/community/trackers/${tracker.clonedFrom?.trackerId}`)
+                  }
+                  className="cursor-pointer pt-1 text-xs font-semibold text-[#f2f0eb]/70 transition hover:text-[#fdf8f5] hover:underline"
+                  title="Open the original published tracker"
+                >
+                  Cloned
+                </button>
+              )}
               <div className="flex flex-col sm:items-end">
                 <span className="font-mono text-[8px] uppercase tracking-[0.13em] text-[#f2f0eb]/40">
                   Topics
@@ -487,6 +565,212 @@ export default function TrackerManagePage() {
           >
             {statusMessage || errorMessage}
           </div>
+        )}
+
+        {isClonedTracker && (
+          <section className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-white/15 dark:bg-(--surface-card) sm:p-6">
+            <div className="flex flex-wrap items-start justify-between gap-3">
+              <div>
+                <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
+                  Clone changes
+                </p>
+                <h2 className="mt-1 font-serif text-2xl font-extrabold">
+                  Changes after cloning
+                </h2>
+                <p className="mt-2 text-[13px] text-(--text-secondary)">
+                  Only topics added to your copy can be proposed to the original tracker.
+                </p>
+              </div>
+              <span className="rounded-full border border-(--border-subtle) px-3 py-1.5 font-mono text-[9px] uppercase tracking-wider text-(--text-secondary)">
+                {cloneAdditions.length} added topic{cloneAdditions.length === 1 ? '' : 's'}
+              </span>
+            </div>
+
+            {cloneAdditions.length === 0 ? (
+              <div className="mt-5 rounded-lg border border-dashed border-(--border-subtle) px-4 py-6 text-center text-[13px] text-(--text-secondary)">
+                Topics you add after cloning will appear here.
+              </div>
+            ) : (
+              <div className="mt-5 grid gap-3">
+                {cloneAdditions.map((topic) => {
+                  const contribution = contributionByTopicId.get(topic._id);
+                  const requestSent = submittedTopicIds.has(topic._id) || Boolean(contribution);
+                  const nestedCount = countNestedSubtopics(getChildren(topic));
+
+                  return (
+                    <article
+                      key={topic._id}
+                      className="rounded-lg border border-(--border-subtle) bg-(--surface-canvas) p-4 dark:border-white/10"
+                    >
+                      <div className="flex flex-wrap items-start justify-between gap-3">
+                        <div>
+                          <h3 className="font-semibold text-(--text-primary)">{topic.title}</h3>
+                          {topic.description && (
+                            <p className="mt-1 text-[12px] text-(--text-secondary)">
+                              {topic.description}
+                            </p>
+                          )}
+                          <p className="mt-2 font-mono text-[8px] uppercase tracking-wider text-(--text-secondary)/70">
+                            {nestedCount} nested subtopic{nestedCount === 1 ? '' : 's'}
+                          </p>
+                        </div>
+                        {contribution && (
+                          <span className="rounded-full border border-(--border-subtle) px-2.5 py-1 font-mono text-[8px] uppercase tracking-wider text-(--text-secondary)">
+                            {contribution.status === 'pending'
+                              ? 'Awaiting review'
+                              : contribution.status}
+                          </span>
+                        )}
+                      </div>
+
+                      {contribution?.reviewNote && (
+                        <div className="mt-3 rounded-md border border-(--border-subtle) bg-(--surface-card) px-3 py-2 text-[12px] text-(--text-secondary) dark:border-white/10">
+                          <span className="font-semibold text-(--text-primary)">Owner review:</span>{' '}
+                          {contribution.reviewNote}
+                        </div>
+                      )}
+
+                      {!requestSent && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            void handleCreateContribution(topic._id, topic.title)
+                          }
+                          disabled={createContributionMutation.isPending}
+                          className={cn(buttonClass, 'mt-4')}
+                        >
+                          {createContributionMutation.isPending
+                            ? 'Sending request...'
+                            : 'Send topic request'}
+                        </button>
+                      )}
+                    </article>
+                  );
+                })}
+              </div>
+            )}
+          </section>
+        )}
+
+        {!isClonedTracker && Boolean(contributionsQuery.data?.length) && (
+          <section className="rounded-2xl border-[1.5px] border-(--border-subtle) bg-(--surface-card) p-5 shadow-(--shadow-1) dark:border-white/15 dark:bg-(--surface-card) sm:p-6">
+            <p className="font-mono text-[9px] uppercase tracking-[0.14em] text-(--brand-500)">
+              Community contributions
+            </p>
+            <h2 className="mt-1 font-serif text-2xl font-extrabold">Topic requests</h2>
+            <p className="mt-2 text-[13px] text-(--text-secondary)">
+              Review topic snapshots proposed by learners who cloned this tracker.
+            </p>
+            <div className="mt-5 grid gap-3">
+              {contributionsQuery.data?.map((contribution) => (
+                <article
+                  key={contribution.id}
+                  className="rounded-lg border border-(--border-subtle) bg-(--surface-canvas) p-4 dark:border-white/10"
+                >
+                  <div className="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                      <h3 className="font-semibold text-(--text-primary)">{contribution.title}</h3>
+                      <button
+                        type="button"
+                        onClick={() => navigate(`/profile/${contribution.requester.username}`)}
+                        className="mt-1 text-xs text-[#4c82c8] hover:underline dark:text-[#7fb4ff]"
+                      >
+                        Proposed by {contribution.requester.name}
+                      </button>
+                    </div>
+                    <span className="rounded-full border border-(--border-subtle) px-2.5 py-1 font-mono text-[8px] uppercase tracking-wider text-(--text-secondary)">
+                      {contribution.status}
+                    </span>
+                  </div>
+                  {contribution.description && (
+                    <p className="mt-3 text-[12.5px] leading-relaxed text-(--text-secondary)">
+                      {contribution.description}
+                    </p>
+                  )}
+                  <p className="mt-2 font-mono text-[9px] uppercase tracking-wider text-(--text-secondary)/70">
+                    {contribution.subtopicsCount} nested subtopic
+                    {contribution.subtopicsCount === 1 ? '' : 's'} included
+                  </p>
+                  {contribution.subtopics.length > 0 && (
+                    <div className="mt-3 rounded-md border border-(--border-subtle) bg-(--surface-card) p-3 dark:border-white/10">
+                      <p className="font-mono text-[8px] uppercase tracking-wider text-(--text-secondary)/70">
+                        Included roadmap
+                      </p>
+                      <ul className="mt-2 space-y-2">
+                        {contribution.subtopics.map((subtopic, index) => (
+                          <li
+                            key={`${subtopic.title}-${index}`}
+                            className="text-[12px] text-(--text-secondary)"
+                            style={{ paddingLeft: `${Math.max(0, subtopic.depth - 1) * 14}px` }}
+                          >
+                            <span className="font-semibold text-(--text-primary)">
+                              {subtopic.depth > 1 ? '↳ ' : ''}
+                              {subtopic.title}
+                            </span>
+                            {subtopic.description && (
+                              <span className="ml-1">— {subtopic.description}</span>
+                            )}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {contribution.status !== 'pending' && contribution.reviewNote && (
+                    <p className="mt-3 rounded-md border border-(--border-subtle) bg-(--surface-card) px-3 py-2 text-[12px] text-(--text-secondary) dark:border-white/10">
+                      Review sent: {contribution.reviewNote}
+                    </p>
+                  )}
+                  {contribution.status === 'pending' && (
+                    <div className="mt-4">
+                      <label className={labelClass}>Response to contributor (optional)</label>
+                      <input
+                        value={reviewNotes[contribution.id] ?? ''}
+                        onChange={(event) =>
+                          setReviewNotes((current) => ({
+                            ...current,
+                            [contribution.id]: event.target.value,
+                          }))
+                        }
+                        maxLength={500}
+                        placeholder="Share feedback with the contributor"
+                        className={inputClass}
+                      />
+                      <div className="mt-3 flex flex-wrap gap-2">
+                        <button
+                          type="button"
+                          disabled={reviewContributionMutation.isPending}
+                          onClick={() =>
+                            void handleReviewContribution(
+                              contribution.id,
+                              'approve',
+                              reviewNotes[contribution.id]
+                            )
+                          }
+                          className={buttonClass}
+                        >
+                          Approve &amp; merge
+                        </button>
+                        <button
+                          type="button"
+                          disabled={reviewContributionMutation.isPending}
+                          onClick={() =>
+                            void handleReviewContribution(
+                              contribution.id,
+                              'reject',
+                              reviewNotes[contribution.id]
+                            )
+                          }
+                          className={subtleButtonClass}
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </article>
+              ))}
+            </div>
+          </section>
         )}
 
         <section className="grid gap-5 lg:grid-cols-[1fr_330px]">

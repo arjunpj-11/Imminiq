@@ -91,6 +91,11 @@ export const createSubtopicSchema = z.object({
   estimatedMinutes: z.coerce.number().int().min(0).max(1440).optional(),
 });
 
+export const reviewTopicContributionSchema = z.object({
+  action: z.enum(['approve', 'reject']),
+  reviewNote: optionalTrimmedStringSchema(500, 'Review note is too long'),
+});
+
 export const updateSubtopicProgressSchema = z.object({
   status: z.enum(['in_progress', 'completed']),
 });

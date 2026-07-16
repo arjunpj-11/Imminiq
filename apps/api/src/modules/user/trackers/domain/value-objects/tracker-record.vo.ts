@@ -141,6 +141,14 @@ export type EvaluationOutputData = {
 export type TrackerRecord = {
   _id: ObjectIdLike;
   ownerId?: ObjectIdLike | string;
+  sourceTrackerId?: ObjectIdLike | null;
+  clonedFrom?: {
+    trackerId: ObjectIdLike;
+    ownerId: ObjectIdLike;
+    name: string;
+    username: string;
+    avatarUrl?: string | null;
+  } | null;
   title?: string;
   description?: string;
   domain?: TrackerDomain | string;
@@ -172,6 +180,8 @@ export type EvaluationJobRecord = {
 export type TrackerTopicRecord = {
   _id: ObjectIdLike;
   trackerId?: ObjectIdLike;
+  sourceTopicId?: ObjectIdLike | null;
+  isCloneAddition?: boolean;
   title: string;
   description?: string;
   order: number;
@@ -308,6 +318,8 @@ export type RoadmapSubtopicNode = {
 
 export type RoadmapTopicNode = {
   _id: string;
+  sourceTopicId: string | null;
+  isCloneAddition: boolean;
   title: string;
   description: string;
   order: number;

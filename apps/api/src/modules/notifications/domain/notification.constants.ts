@@ -8,4 +8,7 @@ export const NOTIFICATION_TYPES = [
   'tracker_generation_failed',
   'mock_test_generation_completed',
   'mock_test_generation_failed',
+  'tracker_topic_contribution_requested',
+  'tracker_topic_contribution_approved',
+  'tracker_topic_contribution_rejected',
 ] as const;

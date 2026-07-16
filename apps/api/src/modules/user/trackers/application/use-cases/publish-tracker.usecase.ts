@@ -1,6 +1,6 @@
 import { TrackerApplicationError } from '../tracker-application.error';
 import type { ITrackerMapper } from '../tracker.mapper';
-import type { ITrackerCommandRepository } from '../../domain/repositories/tracker-command.repository.interface';
+import type { ITrackerRepository } from '../../domain/repositories/tracker.repository.interface';
 import type { PublishTrackerInput } from '../../domain/trackers.types';
 
 type PublishTrackerResultDTO = ReturnType<ITrackerMapper['toTrackerDto']>;
@@ -11,11 +11,27 @@ export interface IPublishTrackerUseCase {
 
 export class PublishTrackerUseCase implements IPublishTrackerUseCase {
   constructor(
-    private readonly _trackerRepository: Pick<ITrackerCommandRepository, 'publishOwnedTracker'>,
+    private readonly _trackerRepository: Pick<
+      ITrackerRepository,
+      'findOwnedTrackerById' | 'publishOwnedTracker'
+    >,
     private readonly _trackerMapper: ITrackerMapper
   ) {}
 
   async execute(input: PublishTrackerInput): Promise<PublishTrackerResultDTO> {
+    const ownedTracker = await this._trackerRepository.findOwnedTrackerById({
+      trackerId: input.trackerId,
+      userId: input.userId,
+    });
+
+    if (!ownedTracker) {
+      throw TrackerApplicationError.trackerNotFound('Tracker not found');
+    }
+
+    if (ownedTracker.sourceTrackerId) {
+      throw TrackerApplicationError.clonedTrackerCannotBePublished();
+    }
+
     const tracker = await this._trackerRepository.publishOwnedTracker(input);
 
     if (!tracker) {

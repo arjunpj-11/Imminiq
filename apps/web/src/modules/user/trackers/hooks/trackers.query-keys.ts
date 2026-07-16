@@ -9,6 +9,8 @@ export const trackerKeys = {
   details: () => [...trackerKeys.all, 'detail'] as const,
   detail: (trackerId: string) => [...trackerKeys.details(), trackerId] as const,
   roadmap: (trackerId: string) => [...trackerKeys.detail(trackerId), 'roadmap'] as const,
+  contributions: (trackerId: string) =>
+    [...trackerKeys.detail(trackerId), 'topic-contributions'] as const,
   lesson: (trackerId: string, subtopicId: string) =>
     [...trackerKeys.detail(trackerId), 'lesson', subtopicId] as const,
   lessonChat: (trackerId: string, subtopicId: string) =>

@@ -24,6 +24,9 @@ export * from './repositories/tracker-lesson.repository.interface';
 export * from './services/tracker-ai.interface';
 export * from './services/code-execution.interface';
 export * from './services/question-hasher.interface';
+export * from './services/tracker-contribution-notifier.interface';
+export * from './repositories/tracker-topic-contribution.repository.interface';
+export * from './tracker-topic-contribution.types';
 
 export type {
   ObjectIdLike,

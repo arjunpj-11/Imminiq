@@ -61,6 +61,8 @@ const buildRoadmapTree = ({
 
       return {
         _id: topic._id.toString(),
+        sourceTopicId: topic.sourceTopicId?.toString() ?? null,
+        isCloneAddition: Boolean(topic.isCloneAddition),
         title: topic.title,
         description: topic.description || '',
         order: topic.order,

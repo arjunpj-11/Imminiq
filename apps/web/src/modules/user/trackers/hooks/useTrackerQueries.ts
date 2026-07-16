@@ -17,6 +17,7 @@ import type {
   ITrackerListResponse,
   ITrackerRoadmapResponse,
   ITrackerSummary,
+  ITrackerTopicContribution,
 } from '../types/tracker.types';
 import { trackerKeys } from './trackers.query-keys';
 
@@ -90,6 +91,19 @@ export const useTrackerRoadmap = (trackerId?: string) => {
         TRACKER_API_PATHS.roadmap(trackerId || '')
       );
 
+      return unwrap(response.data);
+    },
+  });
+};
+
+export const useTrackerTopicContributions = (trackerId?: string, enabled = true) => {
+  return useQuery({
+    queryKey: trackerKeys.contributions(trackerId || ''),
+    enabled: Boolean(trackerId) && enabled,
+    queryFn: async () => {
+      const response = await api.get<IApiResponse<ITrackerTopicContribution[]>>(
+        TRACKER_API_PATHS.topicContributions(trackerId || '')
+      );
       return unwrap(response.data);
     },
   });

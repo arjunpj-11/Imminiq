@@ -16,6 +16,8 @@ export type RoadmapSubtopicNode = {
 
 export type RoadmapTopicNode = {
   _id: string;
+  sourceTopicId?: string | null;
+  isCloneAddition?: boolean;
   title: string;
   description?: string;
   order?: number;
@@ -148,6 +150,8 @@ const normalizeTopicNode = (value: unknown, fallbackIndex: number): RoadmapTopic
 
   return {
     _id: id,
+    sourceTopicId: getRawText(source, ['sourceTopicId']) || null,
+    isCloneAddition: source.isCloneAddition === true,
     title: getRawText(source, ['title', 'name'], `Topic ${fallbackIndex + 1}`),
     description: getRawText(source, ['description', 'summary']),
     order: getRawNumber(source, 'order') ?? getRawNumber(value, 'order'),

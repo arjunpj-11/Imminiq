@@ -14,6 +14,11 @@ type TopicParams = {
   topicId: string;
 };
 
+type ContributionParams = {
+  trackerId: string;
+  contributionId: string;
+};
+
 type LessonParams = {
   trackerId: string;
   subtopicId: string;
@@ -239,6 +244,60 @@ export class TrackerController {
       res
         .status(HttpStatusCode.CREATED)
         .json(new ApiResponse('Subtopic created successfully', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  createTopicContribution = async (
+    req: Request<TopicParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result = await this._useCases.createTopicContribution.execute({
+        trackerId: req.params.trackerId,
+        topicId: req.params.topicId,
+        userId: getAuthUser(req).userId,
+      });
+      res
+        .status(HttpStatusCode.CREATED)
+        .json(new ApiResponse('Topic contribution request sent successfully', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  listTopicContributions = async (
+    req: Request<TrackerParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result = await this._useCases.listTopicContributions.execute({
+        trackerId: req.params.trackerId,
+        userId: getAuthUser(req).userId,
+      });
+      res.json(new ApiResponse('Topic contribution requests fetched successfully', result));
+    } catch (error) {
+      next(error);
+    }
+  };
+
+  reviewTopicContribution = async (
+    req: Request<ContributionParams>,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const result = await this._useCases.reviewTopicContribution.execute({
+        trackerId: req.params.trackerId,
+        contributionId: req.params.contributionId,
+        userId: getAuthUser(req).userId,
+        action: req.body.action,
+        reviewNote: req.body.reviewNote,
+      });
+      res.json(new ApiResponse('Topic contribution reviewed successfully', result));
     } catch (error) {
       next(error);
     }

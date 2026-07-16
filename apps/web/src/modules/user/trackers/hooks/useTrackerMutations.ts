@@ -10,6 +10,7 @@ import type {
   ICreateTrackerPayload,
   PublishTrackerPayload,
   ITracker,
+  ITrackerTopicContribution,
   IUpdateSubtopicProgressPayload,
   IUpdateTrackerPayload,
 } from '../types/tracker.types';
@@ -227,6 +228,53 @@ export const useCreateTrackerSubtopic = () => {
       queryClient.invalidateQueries({
         queryKey: trackerKeys.all,
       });
+    },
+  });
+};
+
+export const useCreateTopicContribution = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    IApiResponse<ITrackerTopicContribution>,
+    Error,
+    { trackerId: string; topicId: string }
+  >({
+    mutationFn: async ({ trackerId, topicId }) => {
+      const response = await api.post<IApiResponse<ITrackerTopicContribution>>(
+        TRACKER_API_PATHS.createTopicContribution(trackerId, topicId)
+      );
+      return response.data;
+    },
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({ queryKey: trackerKeys.contributions(variables.trackerId) });
+    },
+  });
+};
+
+export const useReviewTopicContribution = () => {
+  const queryClient = useQueryClient();
+  return useMutation<
+    IApiResponse<ITrackerTopicContribution>,
+    Error,
+    {
+      trackerId: string;
+      contributionId: string;
+      action: 'approve' | 'reject';
+      reviewNote?: string;
+    }
+  >({
+    mutationFn: async ({ trackerId, contributionId, ...payload }) => {
+      const response = await api.patch<IApiResponse<ITrackerTopicContribution>>(
+        TRACKER_API_PATHS.reviewTopicContribution(trackerId, contributionId),
+        payload
+      );
+      return response.data;
+    },
+    onSuccess: (_response, variables) => {
+      queryClient.invalidateQueries({ queryKey: trackerKeys.contributions(variables.trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.roadmap(variables.trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.detail(variables.trackerId) });
+      queryClient.invalidateQueries({ queryKey: trackerKeys.all });
     },
   });
 };
