@@ -192,6 +192,33 @@ export default tseslint.config(
       ],
     },
   },
+  // Prevent accidental re-exporting of infrastructure from module index files.
+  {
+    // Only apply to module root index files (e.g. src/modules/<module>/index.ts)
+    files: ['apps/api/src/modules/*/index.ts'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          // Disallow importing infrastructure from other modules via parent-relative paths
+          patterns: [
+            {
+              group: [
+                '../**/infrastructure',
+                '../**/infrastructure/**',
+                '../../**/infrastructure',
+                '../../**/infrastructure/**',
+                '../../../**/infrastructure',
+                '../../../**/infrastructure/**',
+              ],
+              message:
+                "Module root index files must not import or re-export another module's infrastructure — re-export only own './infrastructure' through the module public API.",
+            },
+          ],
+        },
+      ],
+    },
+  },
 
   /**
    * Test files are intentionally outside the main API tsconfig project.
