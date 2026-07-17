@@ -130,69 +130,6 @@ const failCurrentStep = async (jobId: string) => {
   );
 };
 
-const countNestedNodes = (nodes: RoadmapNestedNode[]): number => {
-  return nodes.reduce((total, node) => {
-    return total + 1 + countNestedNodes(node.children || []);
-  }, 0);
-};
-
-const saveNestedSubtopics = async ({
-  trackerId,
-  topicId,
-  parentSubtopicId,
-  nodes,
-  depth,
-  topicOrder,
-  learningVideos,
-  session,
-}: {
-  trackerId: mongoose.Types.ObjectId;
-  topicId: mongoose.Types.ObjectId;
-  parentSubtopicId: mongoose.Types.ObjectId | null;
-  nodes: RoadmapNestedNode[];
-  depth: number;
-  topicOrder: number;
-  learningVideos: Map<string, LearningVideoRecommendation>;
-  session: mongoose.ClientSession;
-}) => {
-  for (const node of nodes) {
-    const createdSubtopics = await TrackerSubtopic.create(
-      [
-        {
-          trackerId,
-          topicId,
-          parentSubtopicId,
-          title: node.title,
-          description: node.description || '',
-          order: node.order,
-          depth,
-          isLocked: true,
-          estimatedMinutes: 0,
-          learningVideo:
-            depth === 1 ? learningVideos.get(`${topicOrder}:${node.order}`) || null : null,
-        },
-      ],
-      {
-        session,
-      }
-    );
-
-    const createdSubtopic = createdSubtopics[0];
-
-    if (node.children?.length) {
-      await saveNestedSubtopics({
-        trackerId,
-        topicId,
-        parentSubtopicId: createdSubtopic._id as mongoose.Types.ObjectId,
-        nodes: node.children,
-        depth: depth + 1,
-        topicOrder,
-        learningVideos,
-        session,
-      });
-    }
-  }
-};
 
 type EvaluationSubtopicNode = {
   _id: string;
@@ -380,60 +317,55 @@ const processRoadmapGeneration = async (
   // Step 4 — Save tracker tree to MongoDB (delegated to use-case)
   await startStep(jobId, 4);
 
-  try {
-    const onboarding = createOnboardingComposition();
+  const onboarding = createOnboardingComposition();
 
-    const topicsPayload = roadmap.topics.map((t) => ({
-      order: t.order,
-      title: t.title,
-      description: t.description || '',
-      learningVideo: learningVideos.get(t.order) || null,
-      children: t.children || [],
-      // subtopicLearningVideos map will be passed at top-level; the repository expects a Map on each topic if needed
-      subtopicLearningVideos: subtopicLearningVideos,
-    }));
+  const topicsPayload = roadmap.topics.map((t) => ({
+    order: t.order,
+    title: t.title,
+    description: t.description || '',
+    learningVideo: learningVideos.get(t.order) || null,
+    children: t.children || [],
+    // subtopicLearningVideos map will be passed at top-level; the repository expects a Map on each topic if needed
+    subtopicLearningVideos: subtopicLearningVideos,
+  }));
 
-    await onboarding.useCases.saveGeneratedRoadmap.execute({
-      userId,
-      title: roadmap.title,
-      slug: createSlug(roadmap.title),
-      description: roadmap.description,
-      domain: topic,
-      goal: goal || '',
-      level,
-      isAIGenerated: true,
-      aiJobId: jobId,
-      topics: topicsPayload,
-      jobId,
-    });
+  await onboarding.useCases.saveGeneratedRoadmap.execute({
+    userId,
+    title: roadmap.title,
+    slug: createSlug(roadmap.title),
+    description: roadmap.description,
+    domain: topic,
+    goal: goal || '',
+    level,
+    isAIGenerated: true,
+    aiJobId: jobId,
+    topics: topicsPayload,
+    jobId,
+  });
 
-    await completeStep(jobId, 4);
+  await completeStep(jobId, 4);
 
-    // Step 5 — Finalise
-    await startStep(jobId, 5);
+  // Step 5 — Finalise
+  await startStep(jobId, 5);
 
-    await AIGenerationJob.findByIdAndUpdate(jobId, {
-      status: 'completed',
-      currentStep: 5,
-      completedAt: new Date(),
-      outputData: {
-        trackerId: null,
-      },
-    });
+  await AIGenerationJob.findByIdAndUpdate(jobId, {
+    status: 'completed',
+    currentStep: 5,
+    completedAt: new Date(),
+    outputData: {
+      trackerId: null,
+    },
+  });
 
-    await completeStep(jobId, 5);
+  await completeStep(jobId, 5);
 
-    await createNotificationsComposition().useCases.createNotification.execute({
-      userId,
-      type: 'tracker_generation_completed',
-      message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
-      deepLink: `/onboarding/roadmap-ready/${jobId}`,
-      metadata: { jobId },
-    });
-  } catch (err) {
-    // Re-throw to be handled by outer catch
-    throw err;
-  }
+  await createNotificationsComposition().useCases.createNotification.execute({
+    userId,
+    type: 'tracker_generation_completed',
+    message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
+    deepLink: `/onboarding/roadmap-ready/${jobId}`,
+    metadata: { jobId },
+  });
 };
 
 // ============================================================
