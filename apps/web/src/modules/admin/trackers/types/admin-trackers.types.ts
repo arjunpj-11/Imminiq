@@ -5,8 +5,8 @@ export type AdminTracker = {
   category: string;
   level: string;
   visibility: string;
-  status: 'draft' | 'active' | 'archived';
-  moderationStatus: 'active' | 'suspended' | 'deleted';
+  status: "draft" | "active" | "archived";
+  moderationStatus: "active" | "suspended" | "deleted";
   moderationReason?: string;
   verificationStatus: string | null;
   topicsCount: number;
@@ -83,8 +83,9 @@ export type AdminTrackerReport = {
   reporterEmail?: string;
   reason: string;
   details: string;
-  status: 'open' | 'reviewing' | 'resolved' | 'dismissed';
-  resolutionAction: 'none' | 'tracker_suspended' | 'tracker_deleted' | 'tracker_restored';
+  status: "open" | "reviewing" | "resolved" | "dismissed";
+  resolutionAction:
+    "none" | "tracker_suspended" | "tracker_deleted" | "tracker_restored";
   resolutionNote: string;
   assignedTo?: string;
   createdAt: string;
@@ -92,23 +93,31 @@ export type AdminTrackerReport = {
   resolvedAt?: string;
 };
 export type AdminTrackerLifecyclePayload = {
-  action: 'suspend' | 'delete' | 'restore';
+  action: "suspend" | "delete" | "restore";
   reasonCode:
-    | 'incorrect_content'
-    | 'unsafe_content'
-    | 'copyright'
-    | 'spam_or_abuse'
-    | 'broken_learning_path'
-    | 'owner_request'
-    | 'appeal_accepted'
-    | 'other';
+    | "incorrect_content"
+    | "unsafe_content"
+    | "copyright"
+    | "spam_or_abuse"
+    | "broken_learning_path"
+    | "owner_request"
+    | "appeal_accepted"
+    | "other";
   reason: string;
   notifyOwner: boolean;
   mfaCode?: string;
 };
 export type AdminTrackerReportUpdatePayload = {
-  status: 'reviewing' | 'resolved' | 'dismissed';
+  status: "reviewing" | "resolved" | "dismissed";
   resolutionNote: string;
   mfaCode?: string;
 };
-export type AdminTrackerVersion = { id: string; trackerId: string; version: number; snapshot: Record<string, unknown>; changedBy: string; reason: string; createdAt: string };
+export type AdminTrackerVersion = {
+  id: string;
+  trackerId: string;
+  version: number;
+  snapshot: Record<string, unknown>;
+  changedBy: string;
+  reason: string;
+  createdAt: string;
+};

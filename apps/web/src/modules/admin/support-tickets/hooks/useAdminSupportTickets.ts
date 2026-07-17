@@ -1,13 +1,13 @@
-import { keepPreviousData, useQuery } from '@tanstack/react-query';
-import api from '../../../../lib/axios';
-import type { AdminListQuery, AdminPageData } from '../../shared';
-import type { ApiEnvelope } from '../../../../lib/api.types';
-import type { AdminSupportTicket } from '../types/admin-support-tickets.types';
-import { adminSupportTicketsKeys } from './admin-support-tickets.query-keys';
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
+import api from "../../../../lib/axios";
+import type { AdminListQuery, AdminPageData } from "../../shared";
+import type { ApiEnvelope } from "../../../../lib/api.types";
+import type { AdminSupportTicket } from "../types/admin-support-tickets.types";
+import { adminSupportTicketsKeys } from "./admin-support-tickets.query-keys";
 import {
   ADMIN_SUPPORT_TICKETS_ENDPOINTS,
   ADMIN_SUPPORT_TICKETS_STALE_TIME_MS,
-} from '../constants/admin-support-tickets.constants';
+} from "../constants/admin-support-tickets.constants";
 export const useAdminSupportTickets = (query: AdminListQuery) =>
   useQuery({
     queryKey: adminSupportTicketsKeys.list(query),
@@ -17,7 +17,7 @@ export const useAdminSupportTickets = (query: AdminListQuery) =>
           ADMIN_SUPPORT_TICKETS_ENDPOINTS.list,
           {
             params: query,
-          }
+          },
         )
       ).data.data,
     placeholderData: keepPreviousData,

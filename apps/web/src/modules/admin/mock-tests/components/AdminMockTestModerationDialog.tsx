@@ -1,14 +1,17 @@
-import { useState } from 'react';
-import Modal from '../../../../components/overlays/Modal';
+import { useState } from "react";
+import Modal from "../../shared/components/AdminModal";
 import type {
   AdminMockTestLifecyclePayload,
   AdminMockTest,
-} from '../types/admin-mock-tests.types';
-import { useUpdateAdminMockTestLifecycle } from '../hooks/useUpdateAdminMockTestLifecycle';
+} from "../types/admin-mock-tests.types";
+import { useUpdateAdminMockTestLifecycle } from "../hooks/useUpdateAdminMockTestLifecycle";
 
 type Props = {
-  test: Pick<AdminMockTest, 'id' | 'title' | 'attemptCount' | 'moderationStatus'> | null;
-  action: AdminMockTestLifecyclePayload['action'];
+  test: Pick<
+    AdminMockTest,
+    "id" | "title" | "attemptCount" | "moderationStatus"
+  > | null;
+  action: AdminMockTestLifecyclePayload["action"];
   onClose: () => void;
   onComplete?: () => void;
 };
@@ -20,22 +23,36 @@ export default function AdminMockTestModerationDialog({
   onComplete,
 }: Props) {
   const mutation = useUpdateAdminMockTestLifecycle();
-  const [reasonCode, setReasonCode] = useState<AdminMockTestLifecyclePayload['reasonCode']>(
-    action === 'restore' ? 'appeal_accepted' : 'broken_assessment'
-  );
-  const [reason, setReason] = useState('');
+  const [reasonCode, setReasonCode] = useState<
+    AdminMockTestLifecyclePayload["reasonCode"]
+  >(action === "restore" ? "appeal_accepted" : "broken_assessment");
+  const [reason, setReason] = useState("");
   const [notifyOwner, setNotifyOwner] = useState(true);
-  const [mfaCode, setMfaCode] = useState('');
+  const [mfaCode, setMfaCode] = useState("");
 
   const submit = () => {
     if (!test || reason.trim().length < 15) return;
     mutation.mutate(
-      { id: test.id, payload: { action, reasonCode, reason: reason.trim(), notifyOwner, mfaCode: mfaCode.trim() } },
-      { onSuccess: () => (onComplete ? onComplete() : onClose()) }
+      {
+        id: test.id,
+        payload: {
+          action,
+          reasonCode,
+          reason: reason.trim(),
+          notifyOwner,
+          mfaCode: mfaCode.trim(),
+        },
+      },
+      { onSuccess: () => (onComplete ? onComplete() : onClose()) },
     );
   };
 
-  const actionLabel = action === 'delete' ? 'Delete' : action === 'suspend' ? 'Suspend' : 'Restore';
+  const actionLabel =
+    action === "delete"
+      ? "Delete"
+      : action === "suspend"
+        ? "Suspend"
+        : "Restore";
   return (
     <Modal
       open={Boolean(test)}
@@ -45,21 +62,23 @@ export default function AdminMockTestModerationDialog({
       contentClassName="max-w-xl bg-[#1c1a18] text-[#f2f0eb]"
     >
       <h2 className="font-editorial text-2xl font-bold">
-        {actionLabel} {test?.title ?? 'mock test'}?
+        {actionLabel} {test?.title ?? "mock test"}?
       </h2>
       <p className="mt-2 text-sm leading-6 text-[#aaa59d]">
-        {action === 'delete'
+        {action === "delete"
           ? `The test will disappear from the user experience, sharing will stop, and active attempts will be abandoned. ${test?.attemptCount ?? 0} historical attempts will remain available for audit and results.`
-          : action === 'suspend'
-            ? 'New attempts and sharing will stop while the content remains recoverable for review.'
-            : 'The test will become available again. It remains private until its owner republishes it.'}
+          : action === "suspend"
+            ? "New attempts and sharing will stop while the content remains recoverable for review."
+            : "The test will become available again. It remains private until its owner republishes it."}
       </p>
       <label className="admin-field mt-5 block">
         <span>Reason category</span>
         <select
           value={reasonCode}
           onChange={(event) =>
-            setReasonCode(event.target.value as AdminMockTestLifecyclePayload['reasonCode'])
+            setReasonCode(
+              event.target.value as AdminMockTestLifecyclePayload["reasonCode"],
+            )
           }
         >
           <option value="incorrect_content">Incorrect content</option>
@@ -92,22 +111,44 @@ export default function AdminMockTestModerationDialog({
           onChange={(event) => setNotifyOwner(event.target.checked)}
           className="mt-1"
         />
-        Queue an email containing this explanation. An in-app notification is always sent.
+        Queue an email containing this explanation. An in-app notification is
+        always sent.
       </label>
       <label className="admin-field mt-4 block">
-        <span>Authenticator code</span>
-        <input inputMode="numeric" autoComplete="one-time-code" maxLength={8} value={mfaCode} onChange={(event) => setMfaCode(event.target.value.replace(/\D/g, ''))} placeholder="Required in production" />
+        <span>6-digit authenticator code</span>
+        <input
+          inputMode="numeric"
+          autoComplete="one-time-code"
+          maxLength={6}
+          value={mfaCode}
+          onChange={(event) =>
+            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
+          }
+          placeholder="000000"
+        />
       </label>
       <div className="mt-6 flex justify-end gap-2">
-        <button className="admin-button" onClick={onClose} disabled={mutation.isPending}>
+        <button
+          className="admin-button"
+          onClick={onClose}
+          disabled={mutation.isPending}
+        >
           Cancel
         </button>
         <button
-          className={action === 'restore' ? 'admin-primary-button' : 'admin-button text-[#e26767]'}
-          disabled={reason.trim().length < 15 || mutation.isPending}
+          className={
+            action === "restore"
+              ? "admin-primary-button"
+              : "admin-button text-[#e26767]"
+          }
+          disabled={
+            reason.trim().length < 15 ||
+            mfaCode.length !== 6 ||
+            mutation.isPending
+          }
           onClick={submit}
         >
-          {mutation.isPending ? 'Applying…' : `${actionLabel} test`}
+          {mutation.isPending ? "Applying…" : `${actionLabel} test`}
         </button>
       </div>
     </Modal>

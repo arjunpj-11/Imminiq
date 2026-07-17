@@ -1,7 +1,7 @@
-import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
+import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
 
 export const ADMIN_SYSTEM_HEALTH_ENDPOINTS = {
-  overview: '/admin/system-health',
+  overview: "/admin/system-health",
 } as const;
 
 export const ADMIN_SYSTEM_HEALTH_ROUTES = {

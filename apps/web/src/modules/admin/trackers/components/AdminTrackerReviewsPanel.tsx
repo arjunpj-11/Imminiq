@@ -1,42 +1,62 @@
-import { useState } from 'react';
-import { Check, Eye, ThumbsDown, ThumbsUp, X } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { Check, Eye, ThumbsDown, ThumbsUp, X } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
+  AdminCardSkeleton,
   AdminEmpty,
   AdminError,
-  AdminLoading,
+  AdminTableSkeleton,
   AdminMetricGrid,
   AdminPanel,
+  AdminPaginationControls,
   AdminSearch,
   AdminStatusBadge,
-} from '../../shared';
-import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
-import { toast } from '../../../../lib/toast';
-import { getUserFacingError } from '../../../../lib/user-facing-error';
-import { useAdminTrackerReviews } from '../hooks/useAdminTrackerReviews';
-import { useAddAdminTrackerReviewConsensus } from '../hooks/useAddAdminTrackerReviewConsensus';
-import { useResolveAdminTrackerReview } from '../hooks/useResolveAdminTrackerReview';
-import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
+} from "../../shared";
+import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
+import { toast } from "../../../../lib/toast";
+import { getUserFacingError } from "../../../../lib/user-facing-error";
+import { useAdminTrackerReviews } from "../hooks/useAdminTrackerReviews";
+import { useAddAdminTrackerReviewConsensus } from "../hooks/useAddAdminTrackerReviewConsensus";
+import { useResolveAdminTrackerReview } from "../hooks/useResolveAdminTrackerReview";
+import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
 
 export default function AdminTrackerReviewsPanel() {
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('all');
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
-  const query = useAdminTrackerReviews({ search: useDebouncedValue(search, 300), status, page });
+  const query = useAdminTrackerReviews({
+    search: useDebouncedValue(search, 300),
+    status,
+    page,
+  });
   const resolve = useResolveAdminTrackerReview();
   const consensus = useAddAdminTrackerReviewConsensus();
   const data = query.data;
 
   return (
     <>
-      <AdminMetricGrid
-        metrics={[
-          { label: 'All reviews', value: data?.pagination.total ?? 0 },
-          { label: 'Open', value: data?.stats?.open ?? 0, tone: 'warning' },
-          { label: 'Approved', value: data?.stats?.approved ?? 0, tone: 'success' },
-          { label: 'Rejected', value: data?.stats?.rejected ?? 0, tone: 'error' },
+      {query.isLoading ? (
+        <div className="mt-7">
+          <AdminCardSkeleton cards={4} label="Loading tracker review metrics" />
+        </div>
+      ) : (
+        <AdminMetricGrid
+          metrics={[
+          { label: "All reviews", value: data?.pagination.total ?? 0 },
+          { label: "Open", value: data?.stats?.open ?? 0, tone: "warning" },
+          {
+            label: "Approved",
+            value: data?.stats?.approved ?? 0,
+            tone: "success",
+          },
+          {
+            label: "Rejected",
+            value: data?.stats?.rejected ?? 0,
+            tone: "error",
+          },
         ]}
-      />
+        />
+      )}
       <AdminPanel
         title="Community verification queue"
         toolbar={
@@ -48,6 +68,7 @@ export default function AdminTrackerReviewsPanel() {
                 setPage(1);
               }}
               className="admin-select"
+              aria-label="Filter tracker reviews by status"
             >
               <option value="all">All statuses</option>
               <option value="open">Open</option>
@@ -65,25 +86,33 @@ export default function AdminTrackerReviewsPanel() {
           </div>
         }
       >
-        {query.isLoading ? (
-          <AdminLoading />
+        {query.isLoading || query.isPlaceholderData ? (
+          <div className="admin-table-scroll overflow-x-auto">
+            <AdminTableSkeleton columns={7} rows={7} label="Loading tracker reviews" />
+          </div>
         ) : query.isError ? (
-          <AdminError error={query.error} />
+          <AdminError
+            error={query.error}
+            onRetry={() => void query.refetch()}
+          />
         ) : !data?.items.length ? (
           <AdminEmpty>No community reviews match this view.</AdminEmpty>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <div className="admin-table-scroll overflow-x-auto">
               <table className="admin-table w-full min-w-275 text-left text-sm">
+                <caption className="sr-only">
+                  Tracker publication review queue
+                </caption>
                 <thead>
                   <tr>
-                    <th>Tracker</th>
-                    <th>Owner</th>
-                    <th>Category</th>
-                    <th>Consensus</th>
-                    <th>Status</th>
-                    <th>Content</th>
-                    <th>Final decision</th>
+                    <th scope="col">Tracker</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col">Category</th>
+                    <th scope="col">Consensus</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Content</th>
+                    <th scope="col">Final decision</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -92,31 +121,39 @@ export default function AdminTrackerReviewsPanel() {
                       <td>
                         <div className="font-semibold">{item.title}</div>
                         {item.urgent && (
-                          <span className="text-[10px] font-bold text-[#e26767]">URGENT</span>
+                          <span className="text-[10px] font-bold text-[#e26767]">
+                            URGENT
+                          </span>
                         )}
                       </td>
                       <td>{item.owner}</td>
                       <td>{item.category}</td>
                       <td>
                         <div>
-                          <span className="text-[#52c58c]">{item.passVotes} pass</span> ·{' '}
-                          <span className="text-[#e26767]">{item.failVotes} fail</span>
+                          <span className="text-[#52c58c]">
+                            {item.passVotes} pass
+                          </span>{" "}
+                          ·{" "}
+                          <span className="text-[#e26767]">
+                            {item.failVotes} fail
+                          </span>
                         </div>
-                        {item.status === 'open' && (
+                        {item.status === "open" && (
                           <div className="mt-2 flex gap-2">
                             <button
                               disabled={consensus.isPending}
                               onClick={() =>
                                 consensus.mutate(
-                                  { id: item.id, choice: 'pass' },
+                                  { id: item.id, choice: "pass" },
                                   {
-                                    onSuccess: () => toast.success('Pass vote added'),
+                                    onSuccess: () =>
+                                      toast.success("Pass vote added"),
                                     onError: (error) =>
                                       toast.error(
-                                        'Could not add the pass vote',
-                                        getUserFacingError(error)
+                                        "Could not add the pass vote",
+                                        getUserFacingError(error),
                                       ),
-                                  }
+                                  },
                                 )
                               }
                               className="admin-button inline-flex items-center gap-1 text-[#52c58c]"
@@ -128,15 +165,16 @@ export default function AdminTrackerReviewsPanel() {
                               disabled={consensus.isPending}
                               onClick={() =>
                                 consensus.mutate(
-                                  { id: item.id, choice: 'fail' },
+                                  { id: item.id, choice: "fail" },
                                   {
-                                    onSuccess: () => toast.success('Fail vote added'),
+                                    onSuccess: () =>
+                                      toast.success("Fail vote added"),
                                     onError: (error) =>
                                       toast.error(
-                                        'Could not add the fail vote',
-                                        getUserFacingError(error)
+                                        "Could not add the fail vote",
+                                        getUserFacingError(error),
                                       ),
-                                  }
+                                  },
                                 )
                               }
                               className="admin-button inline-flex items-center gap-1 text-[#e26767]"
@@ -160,25 +198,29 @@ export default function AdminTrackerReviewsPanel() {
                         </Link>
                       </td>
                       <td>
-                        {item.status === 'open' ? (
+                        {item.status === "open" ? (
                           <div className="flex gap-2">
                             <button
                               disabled={resolve.isPending}
                               onClick={() =>
                                 resolve.mutate(
-                                  { id: item.id, status: 'approved' },
+                                  { id: item.id, status: "approved" },
                                   {
-                                    onSuccess: () => toast.success('Community review approved'),
+                                    onSuccess: () =>
+                                      toast.success(
+                                        "Community review approved",
+                                      ),
                                     onError: (error) =>
                                       toast.error(
-                                        'Could not approve the community review',
-                                        getUserFacingError(error)
+                                        "Could not approve the community review",
+                                        getUserFacingError(error),
                                       ),
-                                  }
+                                  },
                                 )
                               }
                               className="admin-icon-button text-[#52c58c]"
                               title="Approve"
+                              aria-label={`Approve review for ${item.title}`}
                             >
                               <Check size={16} />
                             </button>
@@ -186,25 +228,29 @@ export default function AdminTrackerReviewsPanel() {
                               disabled={resolve.isPending}
                               onClick={() =>
                                 resolve.mutate(
-                                  { id: item.id, status: 'rejected' },
+                                  { id: item.id, status: "rejected" },
                                   {
-                                    onSuccess: () => toast.success('Community review rejected'),
+                                    onSuccess: () =>
+                                      toast.success(
+                                        "Community review rejected",
+                                      ),
                                     onError: (error) =>
                                       toast.error(
-                                        'Could not reject the community review',
-                                        getUserFacingError(error)
+                                        "Could not reject the community review",
+                                        getUserFacingError(error),
                                       ),
-                                  }
+                                  },
                                 )
                               }
                               className="admin-icon-button text-[#e26767]"
                               title="Reject"
+                              aria-label={`Reject review for ${item.title}`}
                             >
                               <X size={16} />
                             </button>
                           </div>
                         ) : (
-                          '—'
+                          "—"
                         )}
                       </td>
                     </tr>
@@ -212,25 +258,12 @@ export default function AdminTrackerReviewsPanel() {
                 </tbody>
               </table>
             </div>
-            <div className="flex justify-end gap-2 border-t border-white/10 p-4">
-              <button
-                disabled={page <= 1}
-                onClick={() => setPage(page - 1)}
-                className="admin-button"
-              >
-                Previous
-              </button>
-              <span className="px-3 py-2 text-xs text-[#aaa59d]">
-                {page} / {data.pagination.pages}
-              </span>
-              <button
-                disabled={page >= data.pagination.pages}
-                onClick={() => setPage(page + 1)}
-                className="admin-button"
-              >
-                Next
-              </button>
-            </div>
+            <AdminPaginationControls
+              page={page}
+              pages={data.pagination.pages}
+              label="tracker reviews"
+              onPageChange={setPage}
+            />
           </>
         )}
       </AdminPanel>

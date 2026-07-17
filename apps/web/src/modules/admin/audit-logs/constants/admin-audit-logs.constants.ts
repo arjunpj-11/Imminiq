@@ -1,7 +1,7 @@
-import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
+import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
 
 export const ADMIN_AUDIT_LOGS_ENDPOINTS = {
-  list: '/admin/audit-logs',
+  list: "/admin/audit-logs",
 } as const;
 
 export const ADMIN_AUDIT_LOGS_ROUTES = {
