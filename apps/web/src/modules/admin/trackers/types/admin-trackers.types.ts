@@ -105,12 +105,12 @@ export type AdminTrackerLifecyclePayload = {
     | "other";
   reason: string;
   notifyOwner: boolean;
-  mfaCode?: string;
+  actionPassword?: string;
 };
 export type AdminTrackerReportUpdatePayload = {
   status: "reviewing" | "resolved" | "dismissed";
   resolutionNote: string;
-  mfaCode?: string;
+  actionPassword?: string;
 };
 export type AdminTrackerVersion = {
   id: string;

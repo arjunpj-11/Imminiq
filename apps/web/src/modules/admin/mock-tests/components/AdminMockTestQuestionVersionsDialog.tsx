@@ -3,6 +3,8 @@ import Modal from "../../shared/components/AdminModal";
 import type { AdminMockTestQuestion } from "../types/admin-mock-tests.types";
 import { useAdminMockTestQuestionVersions } from "../hooks/useAdminMockTestQuestionVersions";
 import { useRestoreAdminMockTestQuestionVersion } from "../hooks/useRestoreAdminMockTestQuestionVersion";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 export default function AdminMockTestQuestionVersionsDialog({
   question,
@@ -15,7 +17,7 @@ export default function AdminMockTestQuestionVersionsDialog({
   const restore = useRestoreAdminMockTestQuestionVersion();
   const [selected, setSelected] = useState<number | null>(null);
   const [reason, setReason] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const submit = () => {
     if (!question || selected === null || reason.trim().length < 10) return;
     restore.mutate(
@@ -23,7 +25,7 @@ export default function AdminMockTestQuestionVersionsDialog({
         questionId: question.id,
         version: selected,
         reason: reason.trim(),
-        mfaCode,
+        actionPassword,
       },
       { onSuccess: onClose },
     );
@@ -85,18 +87,11 @@ export default function AdminMockTestQuestionVersionsDialog({
               maxLength={1000}
             />
           </label>
-          <label className="admin-field">
-            <span>6-digit authenticator code</span>
-            <input
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              value={mfaCode}
-              onChange={(event) =>
-                setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-              }
-            />
-          </label>
+          <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field"
+      />
         </div>
       )}
       <div className="mt-6 flex justify-end gap-2">
@@ -108,7 +103,7 @@ export default function AdminMockTestQuestionVersionsDialog({
           disabled={
             selected === null ||
             reason.trim().length < 10 ||
-            mfaCode.length !== 6 ||
+            !isAdminActionPasswordReady(actionPassword) ||
             restore.isPending
           }
           onClick={submit}

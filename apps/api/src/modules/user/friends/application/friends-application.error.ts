@@ -1,3 +1,4 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { FriendsDomainError } from '../domain/friends-domain.error';
 
 export type FriendsApplicationErrorCode =
@@ -13,23 +14,23 @@ export type FriendsApplicationErrorCode =
   | 'FRIENDS_OPERATION_FAILED';
 
 export class FriendsApplicationError extends FriendsDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
-  private constructor(statusCode: number, code: FriendsApplicationErrorCode, message: string) {
+  private constructor(kind: ErrorKind, code: FriendsApplicationErrorCode, message: string) {
     super(code, message);
     this.name = 'FriendsApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
   }
 
   static userNotFound(
     message = 'User was not found or is not available for friend requests'
   ): FriendsApplicationError {
-    return new FriendsApplicationError(404, 'FRIEND_USER_NOT_FOUND', message);
+    return new FriendsApplicationError('missing-resource', 'FRIEND_USER_NOT_FOUND', message);
   }
 
   static cannotFriendSelf(): FriendsApplicationError {
     return new FriendsApplicationError(
-      400,
+      'invalid-input',
       'CANNOT_FRIEND_SELF',
       'You cannot send a friend invite to yourself'
     );
@@ -37,7 +38,7 @@ export class FriendsApplicationError extends FriendsDomainError {
 
   static alreadyFriends(): FriendsApplicationError {
     return new FriendsApplicationError(
-      409,
+      'conflict',
       'ALREADY_FRIENDS',
       'You are already friends with this user'
     );
@@ -45,7 +46,7 @@ export class FriendsApplicationError extends FriendsDomainError {
 
   static requestAlreadyPending(): FriendsApplicationError {
     return new FriendsApplicationError(
-      409,
+      'conflict',
       'FRIEND_REQUEST_ALREADY_PENDING',
       'A friend invite is already pending for this user'
     );
@@ -53,19 +54,19 @@ export class FriendsApplicationError extends FriendsDomainError {
 
   static reverseRequestExists(): FriendsApplicationError {
     return new FriendsApplicationError(
-      409,
+      'conflict',
       'REVERSE_FRIEND_REQUEST_EXISTS',
       'This user has already sent you a friend invite'
     );
   }
 
   static requestNotFound(): FriendsApplicationError {
-    return new FriendsApplicationError(404, 'FRIEND_REQUEST_NOT_FOUND', 'Friend invite not found');
+    return new FriendsApplicationError('missing-resource', 'FRIEND_REQUEST_NOT_FOUND', 'Friend invite not found');
   }
 
   static requestForbidden(): FriendsApplicationError {
     return new FriendsApplicationError(
-      403,
+      'forbidden',
       'FRIEND_REQUEST_FORBIDDEN',
       'You cannot modify this friend invite'
     );
@@ -73,18 +74,18 @@ export class FriendsApplicationError extends FriendsDomainError {
 
   static requestNotPending(): FriendsApplicationError {
     return new FriendsApplicationError(
-      409,
+      'conflict',
       'FRIEND_REQUEST_NOT_PENDING',
       'This friend invite is no longer pending'
     );
   }
 
   static friendshipNotFound(): FriendsApplicationError {
-    return new FriendsApplicationError(404, 'FRIENDSHIP_NOT_FOUND', 'Friendship not found');
+    return new FriendsApplicationError('missing-resource', 'FRIENDSHIP_NOT_FOUND', 'Friendship not found');
   }
 
   static operationFailed(): FriendsApplicationError {
-    return new FriendsApplicationError(500, 'FRIENDS_OPERATION_FAILED', 'Friends operation failed');
+    return new FriendsApplicationError('internal', 'FRIENDS_OPERATION_FAILED', 'Friends operation failed');
   }
 }
 

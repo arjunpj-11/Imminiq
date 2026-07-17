@@ -16,9 +16,9 @@ export const useUpdateAdminUserAppeal = () => {
       id: string;
       payload: AdminUserAppealUpdatePayload;
     }) => {
-      const { mfaCode, ...body } = payload;
+      const { actionPassword, ...body } = payload;
       return api.patch(ADMIN_USERS_ENDPOINTS.appeal(id), body, {
-        headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined,
+        headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
       });
     },
     onMutate: () => ({ toastId: toast.loading("Updating appeal…") }),

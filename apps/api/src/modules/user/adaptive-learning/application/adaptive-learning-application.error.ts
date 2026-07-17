@@ -1,21 +1,22 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { AdaptiveLearningDomainError } from '../domain/adaptive-learning-domain.error';
 
 export class AdaptiveLearningApplicationError extends AdaptiveLearningDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
   private constructor(
-    statusCode: number,
+    kind: ErrorKind,
     code: 'ADAPTIVE_TRACKER_REQUIRED' | 'INVALID_ADVISOR_QUESTION',
     message: string
   ) {
     super(code, message);
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.name = 'AdaptiveLearningApplicationError';
   }
 
   static trackerRequired(): AdaptiveLearningApplicationError {
     return new AdaptiveLearningApplicationError(
-      409,
+      'conflict',
       'ADAPTIVE_TRACKER_REQUIRED',
       'Create and study at least one tracker before requesting an adaptive exam'
     );
@@ -23,7 +24,7 @@ export class AdaptiveLearningApplicationError extends AdaptiveLearningDomainErro
 
   static invalidAdvisorQuestion(): AdaptiveLearningApplicationError {
     return new AdaptiveLearningApplicationError(
-      400,
+      'invalid-input',
       'INVALID_ADVISOR_QUESTION',
       'Ask a complete question'
     );

@@ -22,6 +22,8 @@ export type AdminUser = {
   lastActiveAt: string;
   createdAt: string;
   provider?: string;
+  adminActionPasswordConfigured: boolean;
+  adminActionPasswordSetAt?: string;
 };
 export type AdminUsersData = {
   users: AdminUser[];
@@ -39,7 +41,7 @@ export type AdminUserStatusPayload = {
     | "other";
   reason: string;
   notifyEmail: boolean;
-  mfaCode?: string;
+  actionPassword?: string;
 };
 export type AdminUserMessagePayload = {
   subject: string;
@@ -75,7 +77,7 @@ export type AdminUserAppealUpdatePayload = {
   status: "under_review" | "approved" | "rejected";
   reviewNote: string;
   notifyEmail: boolean;
-  mfaCode?: string;
+  actionPassword?: string;
 };
 export type AdminPrivacyRequest = {
   id: string;

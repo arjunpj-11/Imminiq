@@ -5,9 +5,9 @@ import { AppShellBoundary } from '../../../../components/layout/AppShell';
 import { MicButton } from '../../../../components/input/VoiceInputButton';
 import ConfirmDialog from '../../../../components/overlays/ConfirmDialog';
 import { useVoiceInput } from '../../../../hooks/useVoiceInput';
+import { ROUTES } from '../../../../routes/config/route-paths';
 import AdaptiveMasteryGraph from '../components/AdaptiveMasteryGraph';
-import { useGenerateRoadmap } from '../../onboarding/hooks/useGenerateRoadmap';
-import { useOnboardingStore } from '../../onboarding/store/useOnboardingStore';
+import { useGenerateRoadmap, useOnboardingStore } from '../../tracker-creation';
 import { useGenerateMockTest } from '../../mock-tests/hooks/useMockTests';
 import type { AdaptiveAdvisorAction } from '../types/adaptive-learning.types';
 import {
@@ -88,6 +88,7 @@ export default function AdaptiveLearningPage() {
           topic: advisorAction.topic,
           goal: advisorAction.goal,
           level: advisorAction.level,
+          preferredLanguage: 'English',
         });
         const jobId = response.data?.jobId;
         if (!jobId) throw new Error('Tracker generation did not return a job ID.');
@@ -95,10 +96,11 @@ export default function AdaptiveLearningPage() {
         saveStepOneDraft({
           topic: advisorAction.topic,
           goal: advisorAction.goal,
+          preferredLanguage: 'English',
         });
         saveStepTwoDraft({ level: advisorAction.level });
         setActiveRoadmapJobId(jobId);
-        navigate(`/onboarding/generating/${jobId}`);
+        navigate(ROUTES.trackerCreateGenerating(jobId));
         return;
       }
 

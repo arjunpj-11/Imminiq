@@ -103,7 +103,7 @@ export type AdminMockTestLifecyclePayload = {
     | "other";
   reason: string;
   notifyOwner: boolean;
-  mfaCode?: string;
+  actionPassword?: string;
 };
 
 export type AdminMockTestIssueUpdatePayload = {
@@ -122,7 +122,7 @@ export type AdminMockTestIssueUpdatePayload = {
   correctedDifficulty?: "easy" | "medium" | "hard";
   correctedPoints?: number;
   correctedCoding?: Record<string, unknown>;
-  mfaCode?: string;
+  actionPassword?: string;
 };
 
 export type AdminMockTestQuestionVersion = {

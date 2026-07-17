@@ -3,7 +3,7 @@ import {
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_MAX_LIMIT,
 } from '../../domain/community.constants';
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityVerificationRepository } from '../../domain/repositories/community-verification.repository.interface';
 import type {
   CommunityVerificationDashboardViewDTO,
   VerificationQueuePayloadDTO,
@@ -18,7 +18,7 @@ export interface IGetVerificationDashboardUseCase {
 
 export class GetVerificationDashboardUseCase implements IGetVerificationDashboardUseCase {
   constructor(
-    private readonly _repository: ICommunityRepository,
+    private readonly _repository: ICommunityVerificationRepository,
     private readonly _mapper: ICommunityMapper,
     private readonly _policyReader: ICommunityPolicyReader
   ) {}

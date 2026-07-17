@@ -1,18 +1,19 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { SettingsDomainError } from '../domain/settings-domain.error';
 
 export type SettingsApplicationErrorCode = 'SETTINGS_NOT_FOUND';
 
 export class SettingsApplicationError extends SettingsDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
-  private constructor(statusCode: number, code: SettingsApplicationErrorCode, message: string) {
+  private constructor(kind: ErrorKind, code: SettingsApplicationErrorCode, message: string) {
     super(code, message);
     this.name = 'SettingsApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
   }
 
   static notFound(): SettingsApplicationError {
-    return new SettingsApplicationError(404, 'SETTINGS_NOT_FOUND', 'Settings not found');
+    return new SettingsApplicationError('missing-resource', 'SETTINGS_NOT_FOUND', 'Settings not found');
   }
 }
 

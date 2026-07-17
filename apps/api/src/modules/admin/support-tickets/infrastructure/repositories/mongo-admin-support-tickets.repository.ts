@@ -78,53 +78,61 @@ export class MongoAdminSupportTicketsRepository implements IAdminSupportTicketsR
     return createAdminPage(items, query, total, { open, inProgress, resolved, overdue });
   }
   async update(id: string, input: AdminSupportTicketUpdate, actor: AdminActor) {
-    const current = await SupportTicket.findById(id).lean();
-    if (!current) return null;
-    const update: Record<string, unknown> = {
-      status: input.status,
-      assignedTo: actor.userId,
-      resolutionNote: input.resolutionNote ?? '',
-    };
-    if (!current.firstRespondedAt) update.firstRespondedAt = new Date();
-    if (input.status === 'resolved' || input.status === 'closed') update.resolvedAt = new Date();
-    else update.resolvedAt = null;
-    const ticket = await SupportTicket.findByIdAndUpdate(
-      id,
-      { $set: update },
-      { returnDocument: 'after' }
-    ).lean();
-    if (!ticket) return null;
-    const readableStatus = input.status.replace('_', ' ');
-    const message =
-      input.notificationMessage?.trim() ||
-      `Your support ticket “${ticket.subject}” is now ${readableStatus}.`;
-    let notificationSent = false;
-    if (ticket.userId) {
-      await Notification.create({
-        userId: ticket.userId,
-        type: 'support_ticket_update',
-        message,
-        isRead: false,
-        deepLink: '/support',
-        metadata: { ticketId: id, subject: ticket.subject, status: input.status },
+    const session = await mongoose.startSession();
+    let result: { id: string; status: string; resolutionNote: string; notificationSent: boolean } | null = null;
+    try {
+      await session.withTransaction(async () => {
+        const current = await SupportTicket.findById(id).session(session).lean();
+        if (!current) return;
+        const update: Record<string, unknown> = {
+          status: input.status,
+          assignedTo: actor.userId,
+          resolutionNote: input.resolutionNote ?? '',
+          resolvedAt:
+            input.status === 'resolved' || input.status === 'closed' ? new Date() : null,
+        };
+        if (!current.firstRespondedAt) update.firstRespondedAt = new Date();
+        const ticket = await SupportTicket.findByIdAndUpdate(
+          id,
+          { $set: update },
+          { returnDocument: 'after', session }
+        ).lean();
+        if (!ticket) return;
+        const readableStatus = input.status.replace('_', ' ');
+        const message = input.notificationMessage?.trim() ||
+          `Your support ticket “${ticket.subject}” is now ${readableStatus}.`;
+        const notificationSent = Boolean(ticket.userId);
+        if (ticket.userId) {
+          await Notification.create([{
+            userId: ticket.userId,
+            type: 'support_ticket_update',
+            message,
+            isRead: false,
+            deepLink: '/support',
+            metadata: { ticketId: id, subject: ticket.subject, status: input.status },
+          }], { session });
+        }
+        await recordAdminAction(actor, 'admin_support_ticket_updated', 'admin.support-tickets', {
+          targetType: 'support_ticket',
+          targetId: id,
+          targetTitle: ticket.subject,
+          ownerId: ticket.userId ? String(ticket.userId) : '',
+          previousStatus: current.status,
+          newStatus: input.status,
+          changes: {
+            status: { from: current.status, to: input.status },
+            resolutionNote: input.resolutionNote ?? '',
+          },
+          notificationMessage: message,
+          notificationSent,
+        }, session);
+        result = { id, status: ticket.status, resolutionNote: ticket.resolutionNote, notificationSent };
       });
-      notificationSent = true;
+      return result;
+    } finally {
+      await session.endSession();
     }
-    await recordAdminAction(actor, 'admin_support_ticket_updated', 'admin.support-tickets', {
-      targetType: 'support_ticket',
-      targetId: id,
-      targetTitle: ticket.subject,
-      ownerId: ticket.userId ? String(ticket.userId) : '',
-      previousStatus: current.status,
-      newStatus: input.status,
-      changes: {
-        status: { from: current.status, to: input.status },
-        resolutionNote: input.resolutionNote ?? '',
-      },
-      notificationMessage: message,
-      notificationSent,
-    });
-    return { id, status: ticket.status, resolutionNote: ticket.resolutionNote, notificationSent };
   }
 }
 export const mongoAdminSupportTicketsRepository = new MongoAdminSupportTicketsRepository();
+import mongoose from 'mongoose';

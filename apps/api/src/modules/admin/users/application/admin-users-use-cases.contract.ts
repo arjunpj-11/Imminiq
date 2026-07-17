@@ -6,6 +6,7 @@ import type { IListAdminUserAppealsUseCase } from './use-cases/list-admin-user-a
 import type { IUpdateAdminUserAppealUseCase } from './use-cases/update-admin-user-appeal.usecase';
 import type { IRevokeAdminUserSessionUseCase } from './use-cases/revoke-admin-user-session.usecase';
 import type { IUpdateAdminUserRoleUseCase } from './use-cases/update-admin-user-role.usecase';
+import type { ISetAdminActionPasswordUseCase } from './use-cases/set-admin-action-password.usecase';
 
 export type AdminUsersUseCases = {
   notes: import('./admin-user-notes.service').IAdminUserNotesService;
@@ -19,4 +20,5 @@ export type AdminUsersUseCases = {
   updateAppeal: IUpdateAdminUserAppealUseCase;
   revokeSession: IRevokeAdminUserSessionUseCase;
   updateRole: IUpdateAdminUserRoleUseCase;
+  setActionPassword: ISetAdminActionPasswordUseCase;
 };

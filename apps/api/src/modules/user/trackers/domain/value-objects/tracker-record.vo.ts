@@ -155,6 +155,7 @@ export type TrackerRecord = {
   description?: string;
   domain?: TrackerDomain | string;
   goal?: string;
+  contentLanguage?: string;
   level?: TrackerLevel | string;
   tags?: string[];
   allowClone?: boolean;

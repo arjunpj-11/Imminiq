@@ -16,9 +16,9 @@ export const useUpdateAdminMockTestReport = () => {
       id: string;
       payload: AdminMockTestIssueUpdatePayload;
     }) => {
-      const { mfaCode, ...body } = payload;
+      const { actionPassword, ...body } = payload;
       return api.patch(ADMIN_MOCK_TESTS_ENDPOINTS.report(id), body, {
-        headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined,
+        headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
       });
     },
     onSuccess: async () => {

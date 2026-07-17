@@ -4,6 +4,7 @@ export const STORAGE_KEYS = {
   appShell: 'imminiq_app_shell',
   legacySidebar: 'imminiq_sb',
   onboardingDraft: 'imminiq_onboarding_draft',
+  trackerCreationDraft: 'imminiq_tracker_creation_draft',
   lastOnlinePath: 'last_online_path_before_offline',
   dashboardInsightDismissed: 'imminiq_dashboard_insight_dismissed',
   pendingEmailChangeTimer: 'imminiq_pending_email_change_timer',

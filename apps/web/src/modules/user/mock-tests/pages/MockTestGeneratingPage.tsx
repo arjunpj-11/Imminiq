@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 
 import { AppShellBoundary } from '../../../../components/layout/AppShell';
-import { useRoadmapJobStatus } from '../../onboarding/hooks/useRoadmapJobStatus';
+import { useRoadmapJobStatus } from '../../tracker-creation';
 import { ROUTES } from '../../../../routes/config/route-paths';
 
 export default function MockTestGeneratingPage() {

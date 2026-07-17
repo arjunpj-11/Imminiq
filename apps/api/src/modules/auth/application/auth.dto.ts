@@ -87,12 +87,6 @@ export interface RegisterResponseDTO {
   };
 }
 
-export interface ApiErrorResponseDTO {
-  success: false;
-  message: string;
-  errors?: Record<string, string[]>;
-}
-
 export type RequestMetaDTO = {
   device?: string;
   ipAddress?: string;

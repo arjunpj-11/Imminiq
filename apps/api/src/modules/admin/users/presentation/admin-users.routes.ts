@@ -32,11 +32,11 @@ export const createAdminUsersRoutes = (useCases: AdminUsersUseCases) => {
   );
   router.get(ADMIN_USERS_ROUTE_PATHS.DETAIL, controller.getDetail);
   router.get(ADMIN_USERS_ROUTE_PATHS.NOTES, controller.listNotes);
-  router.post(ADMIN_USERS_ROUTE_PATHS.NOTES, controller.addNote);
-  router.delete(ADMIN_USERS_ROUTE_PATHS.NOTE_DETAIL, controller.removeNote);
-  router.put(ADMIN_USERS_ROUTE_PATHS.TAGS, controller.updateTags);
+  router.post(ADMIN_USERS_ROUTE_PATHS.NOTES, requirePrivilegedMfa, controller.addNote);
+  router.delete(ADMIN_USERS_ROUTE_PATHS.NOTE_DETAIL, requirePrivilegedMfa, controller.removeNote);
+  router.put(ADMIN_USERS_ROUTE_PATHS.TAGS, requirePrivilegedMfa, controller.updateTags);
   router.patch(ADMIN_USERS_ROUTE_PATHS.STATUS, requirePrivilegedMfa, controller.setStatus);
-  router.post(ADMIN_USERS_ROUTE_PATHS.MESSAGE, controller.sendMessage);
+  router.post(ADMIN_USERS_ROUTE_PATHS.MESSAGE, requirePrivilegedMfa, controller.sendMessage);
   router.delete(
     ADMIN_USERS_ROUTE_PATHS.SESSION,
     requirePrivilegedMfa,
@@ -47,6 +47,12 @@ export const createAdminUsersRoutes = (useCases: AdminUsersUseCases) => {
     requireSuperAdmin,
     requirePrivilegedMfa,
     controller.updateRole
+  );
+  router.put(
+    ADMIN_USERS_ROUTE_PATHS.ACTION_PASSWORD,
+    requireSuperAdmin,
+    requirePrivilegedMfa,
+    controller.setActionPassword
   );
   return router;
 };

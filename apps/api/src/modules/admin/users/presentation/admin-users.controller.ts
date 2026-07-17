@@ -12,6 +12,7 @@ import {
   adminUserNoteSchema,
   adminUserTagsSchema,
   adminUserBulkStatusSchema,
+  adminActionPasswordSchema,
 } from './admin-users.schema';
 import { sendAdminResult } from '../../shared/presentation';
 
@@ -175,6 +176,21 @@ export class AdminUsersController {
         ),
       res,
       'User role updated'
+    );
+  };
+  setActionPassword = (req: Request<UserIdParams>, res: Response, next: NextFunction) => {
+    const input = adminActionPasswordSchema.parse(req.body);
+    return sendAdminResult(
+      next,
+      () =>
+        this._useCases.setActionPassword.execute(
+          req.params.userId,
+          input.password,
+          req.user!.userId,
+          { ipAddress: req.ip ?? '', userAgent: req.get('user-agent') ?? '' }
+        ),
+      res,
+      'Admin action password set'
     );
   };
 }

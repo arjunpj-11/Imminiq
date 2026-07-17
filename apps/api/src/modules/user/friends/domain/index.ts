@@ -13,9 +13,3 @@ export type { IFriendRequestRepository } from './repositories/friend-request.rep
 export type { IFriendsRepository } from './repositories/friends.repository.interface';
 
 export * from './friends.types';
-
-export type {
-  FriendRelationshipStatus,
-  FriendRequestStatus,
-  FriendshipStatus,
-} from './friends.types';

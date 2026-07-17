@@ -7,8 +7,10 @@ import { adminTrackersKeys } from "./admin-trackers.query-keys";
 export const useAddAdminTrackerReviewConsensus = () => {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, choice }: { id: string; choice: "pass" | "fail" }) =>
-      api.patch(ADMIN_TRACKERS_ENDPOINTS.reviewConsensus(id), { choice }),
+    mutationFn: ({ id, choice, actionPassword }: { id: string; choice: "pass" | "fail"; actionPassword: string }) =>
+      api.patch(ADMIN_TRACKERS_ENDPOINTS.reviewConsensus(id), { choice }, {
+        headers: { 'x-admin-action-password': actionPassword },
+      }),
     onMutate: () => ({ toastId: toast.loading("Adding consensus vote…") }),
     onSuccess: () =>
       client.invalidateQueries({ queryKey: adminTrackersKeys.reviews() }),

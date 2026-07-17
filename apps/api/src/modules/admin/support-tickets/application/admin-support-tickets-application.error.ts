@@ -1,16 +1,17 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 export class AdminSupportTicketsApplicationError extends Error {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
   readonly code: string;
 
-  private constructor(statusCode: number, code: string, message: string) {
+  private constructor(kind: ErrorKind, code: string, message: string) {
     super(message);
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.code = code;
   }
 
   static notFound() {
     return new AdminSupportTicketsApplicationError(
-      404,
+      'missing-resource',
       'SUPPORT_TICKET_NOT_FOUND',
       'Support ticket not found'
     );

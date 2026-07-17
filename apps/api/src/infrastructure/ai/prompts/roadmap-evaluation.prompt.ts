@@ -84,3 +84,41 @@ Final checks:
 - suggestedParentTitle must match or closely reference the best existing roadmap topic or section title.
 - If the roadmap is already extremely complete, missingTopics may be an empty array.
 `;
+
+export const buildCloneFreshnessEvaluationPrompt = (
+  roadmap: unknown,
+  sourceTrackerCreatedAt: string
+): string => `
+You are an expert curriculum researcher reviewing a cloned learning tracker.
+
+The original community tracker was created on ${sourceTrackerCreatedAt}.
+Today is ${new Date().toISOString().slice(0, 10)}.
+
+Identify only meaningful topics, standards, tools, techniques, or developments that became relevant
+after the original tracker was created and are absent from the cloned roadmap. Do not suggest renamed
+versions of existing topics, speculative trends, or generic filler. Prefer durable additions that a
+learner genuinely needs now.
+
+ROADMAP TO REVIEW:
+${JSON.stringify(roadmap, null, 2)}
+
+Return ONLY valid JSON with this exact structure:
+{
+  "score": 0,
+  "grade": "Poor",
+  "summary": "A concise freshness assessment explaining whether the tracker remains current.",
+  "missingTopics": [
+    {
+      "title": "Exact new topic",
+      "description": "Short checklist-ready description.",
+      "reason": "Why it is newly relevant and why it belongs in this tracker.",
+      "suggestedParentTitle": "Closest existing parent title, or New top-level topic"
+    }
+  ]
+}
+
+Use score as a freshness score: 90-100 Excellent, 75-89 Very Good, 60-74 Good,
+40-59 Fair, 0-39 Poor. If no credible new topics exist, return an empty missingTopics array and a
+high score. Every suggestedParentTitle must closely match an existing section unless a new top-level
+topic is genuinely necessary.
+`;

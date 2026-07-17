@@ -13,4 +13,3 @@ export * from './repositories/community-verification.repository.interface';
 export * from './repositories/community.repository.interface';
 export * from './services/community-coin-ledger.interface';
 export * from './community.types';
-export * from './community.types';

@@ -22,6 +22,7 @@ export const generateLesson = async (input: {
   subtopicTitle: string;
   subtopicDescription?: string;
   level?: 'beginner' | 'intermediate' | 'advanced';
+  preferredLanguage?: string;
 }): Promise<GeneratedLesson> => {
   const lesson = await economyAIStructuredWithFallback(
     [

@@ -79,6 +79,11 @@ export interface IAdminUsersRepository {
     role: 'user' | 'moderator' | 'admin',
     input: { actorId: string; reason: string; ipAddress: string; userAgent: string }
   ): Promise<AdminUserEntity | null>;
+  setAdminActionPassword(
+    userId: string,
+    passwordHash: string,
+    input: { actorId: string; ipAddress: string; userAgent: string }
+  ): Promise<AdminUserEntity | null>;
   recordStatusChange(input: RecordAdminStatusChangeInput): Promise<void>;
   recordAdminMessage(input: RecordAdminMessageInput): Promise<void>;
 }

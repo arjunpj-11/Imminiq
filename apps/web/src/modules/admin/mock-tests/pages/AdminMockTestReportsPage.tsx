@@ -21,6 +21,8 @@ import type {
   AdminMockTestIssueUpdatePayload,
   AdminMockTestQuestionIssue,
 } from "../types/admin-mock-tests.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 const reasonLabel = (value: string) => value.replaceAll("_", " ");
 
@@ -212,7 +214,7 @@ function ReportReviewDialog({
     issue?.questionCoding ? JSON.stringify(issue.questionCoding, null, 2) : "",
   );
   const [correctionError, setCorrectionError] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const submit = () => {
     if (
       !issue ||
@@ -246,7 +248,7 @@ function ReportReviewDialog({
           status,
           resolutionAction: status === "reviewing" ? "none" : resolutionAction,
           resolutionNote: resolutionNote.trim(),
-          mfaCode: mfaCode.trim(),
+          actionPassword,
           ...(resolutionAction === "question_corrected"
             ? {
                 correctedQuestion: correctedQuestion.trim(),
@@ -446,19 +448,11 @@ function ReportReviewDialog({
           placeholder="Explain what was reviewed and why this decision was made…"
         />
       </label>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
       <div className="mt-6 flex flex-wrap justify-between gap-2">
         {issue && (
           <Link
@@ -476,7 +470,7 @@ function ReportReviewDialog({
             className="admin-primary-button"
             disabled={
               resolutionNote.trim().length < 10 ||
-              mfaCode.length !== 6 ||
+              !isAdminActionPasswordReady(actionPassword) ||
               (resolutionAction === "question_corrected" &&
                 correctedQuestion.trim().length < 10) ||
               update.isPending

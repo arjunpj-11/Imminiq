@@ -2,6 +2,8 @@ import { useState } from "react";
 import Modal from "../../shared/components/AdminModal";
 import { useSendAdminUserMessage } from "../hooks/useSendAdminUserMessage";
 import type { AdminUser } from "../types/admin-users.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 export default function AdminUserMessageDialog({
   user,
@@ -14,11 +16,12 @@ export default function AdminUserMessageDialog({
   const [subject, setSubject] = useState("");
   const [message, setMessage] = useState("");
   const [notifyEmail, setNotifyEmail] = useState(true);
+  const [actionPassword, setActionPassword] = useState("");
   const submit = () => {
     if (!user || subject.trim().length < 3 || message.trim().length < 10)
       return;
     mutation.mutate(
-      { subject: subject.trim(), message: message.trim(), notifyEmail },
+      { subject: subject.trim(), message: message.trim(), notifyEmail, actionPassword },
       { onSuccess: onClose },
     );
   };
@@ -46,6 +49,7 @@ export default function AdminUserMessageDialog({
           placeholder="Account or learning update"
         />
       </label>
+      <AdminActionPasswordField value={actionPassword} onChange={setActionPassword} />
       <label className="admin-field mt-4 block">
         <span>Message</span>
         <textarea
@@ -80,6 +84,7 @@ export default function AdminUserMessageDialog({
             subject.trim().length < 3 ||
             message.trim().length < 10 ||
             mutation.isPending
+            || !isAdminActionPasswordReady(actionPassword)
           }
           onClick={submit}
         >

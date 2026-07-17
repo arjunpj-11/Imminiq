@@ -246,8 +246,8 @@ modules/
 ├── leaderboard/
 ├── legal/
 ├── mock-tests/
-├── onboarding/
 ├── settings/
+├── tracker-creation/
 ├── trackers/
 └── users/
 ```
@@ -294,7 +294,7 @@ Routes are separated by behavior.
 routes/
 ├── AppRoutes.tsx
 ├── public.routes.tsx
-├── onboarding.routes.tsx
+├── tracker-creation.routes.tsx
 ├── focused.routes.tsx
 ├── authenticated.routes.tsx
 ├── admin.routes.tsx
@@ -355,9 +355,9 @@ Current focused routes:
 
 They still receive global authenticated behavior such as keyboard navigation because `GlobalNavigationController` is mounted above both normal and focused routes.
 
-## Onboarding routes
+## Tracker-creation routes
 
-Onboarding is protected but has its own workflow presentation and session-persisted draft state.
+Tracker creation is protected, owned by the tracker module, and has its own workflow presentation and session-persisted draft state.
 
 ## Admin routes
 
@@ -508,7 +508,7 @@ Use a module Zustand store.
 
 Current examples:
 
-- Onboarding draft
+- Tracker-creation draft
 - Mock-test generation draft
 - Profile overlay coordination
 
@@ -1508,15 +1508,6 @@ Owns:
 - Result and analysis
 - Generation draft state
 
-## `onboarding`
-
-Owns:
-
-- Initial learning-goal workflow
-- Roadmap generation status
-- Evaluation status/result
-- Session-persisted draft state
-
 ## `settings`
 
 Owns:
@@ -1529,6 +1520,15 @@ Owns:
 - Unsaved settings behavior
 
 Server settings remain in React Query, not a global settings store.
+
+## `tracker-creation`
+
+Owns:
+
+- Personalized tracker-creation intake
+- Roadmap generation status
+- Evaluation status/result
+- Session-persisted creation draft state
 
 ## `trackers`
 
@@ -2424,7 +2424,7 @@ Wordmark                           ImminiqWordmark
 No authentication                  public.routes.tsx
 Protected normal app page          authenticated.routes.tsx
 Protected distraction-free page    focused.routes.tsx
-Protected onboarding workflow      onboarding.routes.tsx
+Protected tracker-creation flow    tracker-creation.routes.tsx
 Admin-only page                    admin.routes.tsx
 ```
 

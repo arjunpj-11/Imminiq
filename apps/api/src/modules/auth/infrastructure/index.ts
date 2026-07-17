@@ -18,7 +18,7 @@ export {
   OtplibTwoFactorCodeVerifier,
   otplibTwoFactorCodeVerifier,
 } from './services/otplib-two-factor-code-verifier.service';
-export { SecurityAuditLogger, securityAuditLogger } from './loggers/security-audit.logger';
+export { AuthSecurityAuditLogger, authSecurityAuditLogger } from './loggers/security-audit.logger';
 
 export {
   MessageCentralPhoneOtpProvider,

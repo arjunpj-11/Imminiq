@@ -11,17 +11,17 @@ export const useRestoreAdminTrackerVersion = () => {
       id,
       version,
       reason,
-      mfaCode,
+      actionPassword,
     }: {
       id: string;
       version: number;
       reason: string;
-      mfaCode: string;
+      actionPassword: string;
     }) =>
       api.post(
         ADMIN_TRACKERS_ENDPOINTS.restoreVersion(id, version),
         { reason },
-        { headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined },
+        { headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined },
       ),
     onSuccess: async () => {
       toast.success("Tracker version restored");

@@ -49,6 +49,15 @@ export const adminUserRoleSchema = z.object({
   reason: z.string().trim().min(10).max(1000),
 });
 
+export const adminActionPasswordSchema = z.object({
+  password: z
+    .string()
+    .min(10, 'Use at least 10 characters')
+    .max(128, 'Use no more than 128 characters')
+    .regex(/[A-Za-z]/, 'Include at least one letter')
+    .regex(/\d/, 'Include at least one number'),
+});
+
 export const adminPrivacyRequestsQuerySchema = z.object({
   search: z.string().trim().max(120).optional().default(''),
   status: z.enum(['all', 'pending', 'in_progress', 'completed', 'rejected', 'cancelled']).optional().default('all'),

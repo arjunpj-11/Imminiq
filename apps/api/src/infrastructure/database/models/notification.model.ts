@@ -65,6 +65,17 @@ notificationSchema.index({
   createdAt: -1,
 });
 
+notificationSchema.index(
+  { userId: 1, type: 1, 'metadata.broadcastId': 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      type: 'admin_broadcast',
+      'metadata.broadcastId': { $type: 'string' },
+    },
+  }
+);
+
 export const Notification: mongoose.Model<INotificationDocument> =
   (mongoose.models.Notification as mongoose.Model<INotificationDocument> | undefined) ??
   mongoose.model<INotificationDocument>('Notification', notificationSchema);

@@ -42,6 +42,7 @@ type UserRecord = {
   lastActiveAt?: Date;
   createdAt?: Date;
   provider?: string;
+  adminActionPasswordSetAt?: Date | null;
 };
 
 const toEntity = (user: UserRecord): AdminUserEntity => ({
@@ -66,6 +67,10 @@ const toEntity = (user: UserRecord): AdminUserEntity => ({
   lastActiveAt: user.lastActiveAt ?? new Date(0),
   createdAt: user.createdAt ?? new Date(0),
   provider: user.provider ?? 'local',
+  adminActionPasswordConfigured: Boolean(user.adminActionPasswordSetAt),
+  ...(user.adminActionPasswordSetAt
+    ? { adminActionPasswordSetAt: user.adminActionPasswordSetAt }
+    : {}),
 });
 
 export class MongoAdminUsersRepository implements IAdminUsersRepository {
@@ -88,7 +93,7 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
     const [records, total, allTotal, active, paused, blocked] = await Promise.all([
       User.find(filter)
         .select(
-          'fullName username email phone avatarUrl role status adminStatusReason adminStatusReasonCode adminStatusChangedAt emailVerified phoneVerified isPremium coins xp level streakCount lastActiveAt createdAt provider'
+          'fullName username email phone avatarUrl role status adminStatusReason adminStatusReasonCode adminStatusChangedAt emailVerified phoneVerified isPremium coins xp level streakCount lastActiveAt createdAt provider adminActionPasswordSetAt'
         )
         .sort({ createdAt: -1 })
         .skip((input.page - 1) * input.limit)
@@ -279,7 +284,7 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
       deletedAt: null,
     })
       .select(
-        'fullName username email phone avatarUrl role status adminStatusReason adminStatusReasonCode adminStatusChangedAt emailVerified phoneVerified isPremium coins xp level streakCount lastActiveAt createdAt provider'
+        'fullName username email phone avatarUrl role status adminStatusReason adminStatusReasonCode adminStatusChangedAt emailVerified phoneVerified isPremium coins xp level streakCount lastActiveAt createdAt provider adminActionPasswordSetAt'
       )
       .lean();
     return user ? toEntity(user) : null;
@@ -405,7 +410,14 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
   ) {
     const previous = await User.findOneAndUpdate(
       { _id: userId, deletedAt: null, role: { $ne: 'superadmin' } },
-      { $set: { role } },
+      {
+        $set: { role },
+        $unset: {
+          adminActionPasswordHash: 1,
+          adminActionPasswordSetAt: 1,
+          adminActionPasswordSetBy: 1,
+        },
+      },
       { returnDocument: 'before' }
     ).lean<UserRecord | null>();
     if (!previous) return null;
@@ -434,6 +446,38 @@ export class MongoAdminUsersRepository implements IAdminUsersRepository {
       }),
     ]);
     return this.findById(userId);
+  }
+
+  async setAdminActionPassword(
+    userId: string,
+    passwordHash: string,
+    input: { actorId: string; ipAddress: string; userAgent: string }
+  ): Promise<AdminUserEntity | null> {
+    const user = await User.findOneAndUpdate(
+      {
+        _id: userId,
+        deletedAt: null,
+        role: { $in: ['admin', 'moderator'] },
+      },
+      {
+        $set: {
+          adminActionPasswordHash: passwordHash,
+          adminActionPasswordSetAt: new Date(),
+          adminActionPasswordSetBy: input.actorId,
+        },
+      },
+      { returnDocument: 'after' }
+    ).lean<UserRecord | null>();
+    if (!user) return null;
+    await SecurityAuditEvent.create({
+      userId,
+      eventType: 'admin_action_password_set',
+      outcome: 'success',
+      ipAddress: input.ipAddress,
+      userAgent: input.userAgent,
+      metadata: { actorId: input.actorId, targetId: userId },
+    });
+    return toEntity(user);
   }
 
   async recordStatusChange(input: RecordAdminStatusChangeInput): Promise<void> {

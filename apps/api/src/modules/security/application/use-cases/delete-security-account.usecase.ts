@@ -1,6 +1,6 @@
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { IAccountSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 import type { DeleteAccountPayloadDTO, DeleteAccountResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
 import type { ISensitiveActionAuthorizer } from '../services/sensitive-action-step-up.service';
@@ -17,7 +17,7 @@ export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCa
   constructor(
     private readonly _securityRepository: DeleteSecurityAccountRepository,
     private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
-    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _accountSecurityAuditLogger: IAccountSecurityAuditLogger,
     private readonly _clock: IClock,
     private readonly _policyReader: ISecurityProductPolicyReader
   ) {}
@@ -58,7 +58,7 @@ export class DeleteSecurityAccountUseCase implements IDeleteSecurityAccountUseCa
       throw SecurityApplicationError.accountDeleteFailed();
     }
 
-    await this._securityAuditLogger.record({
+    await this._accountSecurityAuditLogger.record({
       userId,
       eventType: 'ACCOUNT_DELETION_SCHEDULED',
       outcome: 'success',

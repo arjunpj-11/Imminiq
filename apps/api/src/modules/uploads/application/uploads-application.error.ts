@@ -1,3 +1,4 @@
+import type { ErrorKind } from '../../../shared/errors/error-kind';
 import { UploadsDomainError } from '../domain/uploads-domain.error';
 
 export type UploadsApplicationErrorCode =
@@ -10,49 +11,49 @@ export type UploadsApplicationErrorCode =
   | 'USER_PROFILE_UNAVAILABLE';
 
 export class UploadsApplicationError extends UploadsDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
-  private constructor(statusCode: number, code: UploadsApplicationErrorCode, message: string) {
+  private constructor(kind: ErrorKind, code: UploadsApplicationErrorCode, message: string) {
     super(code, message);
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.name = 'UploadsApplicationError';
   }
 
   static aiImageGenerationFailed(): UploadsApplicationError {
     return new UploadsApplicationError(
-      502,
+      'dependency-failure',
       'AI_IMAGE_GENERATION_FAILED',
       'AI image generation failed'
     );
   }
 
   static imageFileRequired(): UploadsApplicationError {
-    return new UploadsApplicationError(400, 'IMAGE_FILE_REQUIRED', 'Image file is required');
+    return new UploadsApplicationError('invalid-input', 'IMAGE_FILE_REQUIRED', 'Image file is required');
   }
 
   static imageUploadFailed(): UploadsApplicationError {
-    return new UploadsApplicationError(500, 'IMAGE_UPLOAD_FAILED', 'Image upload failed');
+    return new UploadsApplicationError('internal', 'IMAGE_UPLOAD_FAILED', 'Image upload failed');
   }
 
   static profileImageUpdateFailed(): UploadsApplicationError {
     return new UploadsApplicationError(
-      500,
+      'internal',
       'PROFILE_IMAGE_UPDATE_FAILED',
       'Profile image update failed'
     );
   }
 
   static promptRequired(): UploadsApplicationError {
-    return new UploadsApplicationError(400, 'PROMPT_REQUIRED', 'Prompt is required');
+    return new UploadsApplicationError('invalid-input', 'PROMPT_REQUIRED', 'Prompt is required');
   }
 
   static userNotFound(): UploadsApplicationError {
-    return new UploadsApplicationError(404, 'USER_NOT_FOUND', 'User not found');
+    return new UploadsApplicationError('missing-resource', 'USER_NOT_FOUND', 'User not found');
   }
 
   static userProfileUnavailable(): UploadsApplicationError {
     return new UploadsApplicationError(
-      500,
+      'internal',
       'USER_PROFILE_UNAVAILABLE',
       'User profile is unavailable'
     );

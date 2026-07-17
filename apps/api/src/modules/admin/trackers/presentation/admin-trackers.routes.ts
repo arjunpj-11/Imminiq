@@ -27,11 +27,13 @@ export const createAdminTrackersRoutes = (useCases: AdminTrackersUseCases) => {
   router.patch(
     ADMIN_TRACKERS_ROUTE_PATHS.REVIEW_CONSENSUS,
     requireAdminPermission('content:moderate'),
+    requirePrivilegedMfa,
     controller.addReviewConsensus
   );
   router.patch(
     ADMIN_TRACKERS_ROUTE_PATHS.REVIEW_STATUS,
     requireAdminPermission('content:moderate'),
+    requirePrivilegedMfa,
     controller.resolveReview
   );
   router.patch(

@@ -23,6 +23,8 @@ import type {
   AdminUserAppealUpdatePayload,
 } from "../types/admin-users.types";
 import { AdminPrivacyRequestsPanel } from "../components/AdminPrivacyRequestsPanel";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 export default function AdminUserAppealsPage() {
   const [search, setSearch] = useState("");
@@ -205,7 +207,7 @@ function AppealDecisionDialog({
   );
   const [reviewNote, setReviewNote] = useState("");
   const [notifyEmail, setNotifyEmail] = useState(true);
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const submit = () => {
     if (!appeal || reviewNote.trim().length < 10) return;
     update.mutate(
@@ -215,7 +217,7 @@ function AppealDecisionDialog({
           status,
           reviewNote: reviewNote.trim(),
           notifyEmail,
-          mfaCode: mfaCode.trim(),
+          actionPassword,
         },
       },
       { onSuccess: onClose },
@@ -276,19 +278,11 @@ function AppealDecisionDialog({
         />{" "}
         Also send the decision by email
       </label>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
       <div className="mt-6 flex justify-end gap-2">
         <button className="admin-button" onClick={onClose}>
           Cancel
@@ -297,7 +291,7 @@ function AppealDecisionDialog({
           className="admin-primary-button"
           disabled={
             reviewNote.trim().length < 10 ||
-            mfaCode.length !== 6 ||
+            !isAdminActionPasswordReady(actionPassword) ||
             update.isPending
           }
           onClick={submit}

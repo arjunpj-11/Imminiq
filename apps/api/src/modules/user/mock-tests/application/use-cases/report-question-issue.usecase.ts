@@ -1,4 +1,6 @@
-import type { IMockTestsRepository } from '../../domain/repositories/mock-tests.repository.interface';
+import type { IMockTestAttemptRepository } from '../../domain/repositories/mock-test-attempt.repository.interface';
+import type { IMockTestQuestionRepository } from '../../domain/repositories/mock-test-question.repository.interface';
+import type { IMockTestQuestionIssueRepository } from '../../domain/repositories/mock-test-question-issue.repository.interface';
 import type { MockTestQuestionIssueReason } from '../../domain/repositories/mock-test-question-issue.repository.interface';
 import { MockTestsApplicationError } from '../mock-tests-application.error';
 
@@ -16,8 +18,12 @@ export interface IReportQuestionIssueUseCase {
   ): Promise<{ id: string; status: string; reason: string; createdAt: Date; updatedAt: Date }>;
 }
 
+type ReportQuestionIssueRepository = Pick<IMockTestAttemptRepository, 'findAttemptById'> &
+  Pick<IMockTestQuestionRepository, 'findQuestionById'> &
+  Pick<IMockTestQuestionIssueRepository, 'createOrReopenQuestionIssue'>;
+
 export class ReportQuestionIssueUseCase implements IReportQuestionIssueUseCase {
-  constructor(private readonly repository: IMockTestsRepository) {}
+  constructor(private readonly repository: ReportQuestionIssueRepository) {}
 
   async execute(
     attemptId: string,

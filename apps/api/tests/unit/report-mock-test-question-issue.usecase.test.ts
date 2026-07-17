@@ -68,7 +68,7 @@ describe('ReportQuestionIssueUseCase', () => {
         'user-id',
         report
       )
-    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+    ).rejects.toMatchObject({ kind: 'forbidden', code: 'FORBIDDEN' });
     expect(repository.createOrReopenQuestionIssue).not.toHaveBeenCalled();
   });
 
@@ -87,7 +87,7 @@ describe('ReportQuestionIssueUseCase', () => {
         'user-id',
         report
       )
-    ).rejects.toMatchObject({ statusCode: 404, code: 'NOT_FOUND' });
+    ).rejects.toMatchObject({ kind: 'missing-resource', code: 'NOT_FOUND' });
     expect(repository.createOrReopenQuestionIssue).not.toHaveBeenCalled();
   });
 });

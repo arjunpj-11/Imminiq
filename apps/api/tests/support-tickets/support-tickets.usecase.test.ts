@@ -41,7 +41,7 @@ describe('support ticket use cases', () => {
     const useCase = new CreateSupportTicketUseCase(repository, new SupportTicketsMapper());
 
     await expect(useCase.execute('user-1', input)).rejects.toMatchObject({
-      statusCode: 500,
+      kind: 'internal',
       code: 'SUPPORT_TICKET_CREATION_FAILED',
       message: 'We could not create your support ticket. Please try again.',
     });

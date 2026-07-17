@@ -5,7 +5,9 @@ import type { ZodTypeAny } from 'zod';
 import { authenticate } from '../../../../shared/middlewares/auth.middleware';
 import { authenticatedApiIpLimiter } from '../../../../shared/middlewares/security-rate-limit.middleware';
 import { validate, validateIdentifierParam } from '../../../../shared/middlewares/validate';
-import { TrackerController } from './trackers.controller';
+import { TrackerManagementController } from './tracker-management.controller';
+import { TrackerRoadmapController } from './tracker-roadmap.controller';
+import { TrackerLessonsController } from './tracker-lessons.controller';
 import type { TrackerUseCases } from '../application/tracker-use-cases.contract';
 import { TRACKER_ROUTE_PATHS } from './trackers.route.constants';
 import { enforcePlanLimit } from '../../subscriptions';
@@ -34,7 +36,9 @@ import {
 } from './trackers.schema';
 
 export const createTrackerRoutes = (useCases: TrackerUseCases) => {
-  const trackerController = new TrackerController(useCases);
+  const managementController = new TrackerManagementController(useCases);
+  const roadmapController = new TrackerRoadmapController(useCases);
+  const lessonsController = new TrackerLessonsController(useCases);
   const router = Router();
   router.param('trackerId', validateIdentifierParam);
   router.param('topicId', validateIdentifierParam);
@@ -58,107 +62,107 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
 
   // ─── TRACKERS ────────────────────────────────────────────────────────────────
 
-  router.get(TRACKER_ROUTE_PATHS.SUMMARY, trackerController.getSummary);
+  router.get(TRACKER_ROUTE_PATHS.SUMMARY, managementController.getSummary);
 
   router.get(
     TRACKER_ROUTE_PATHS.DOMAINS,
     validateQuery('trackerDomainsQuery', trackerDomainsQuerySchema),
-    trackerController.listDomains
+    managementController.listDomains
   );
 
   router.get(
     TRACKER_ROUTE_PATHS.ROOT,
     validateQuery('trackerListQuery', trackerListQuerySchema),
-    trackerController.listTrackers
+    managementController.listTrackers
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.ROOT,
     validate(createTrackerSchema),
     enforcePlanLimit('tracker_capacity'),
-    trackerController.createTracker
+    managementController.createTracker
   );
 
-  router.get(TRACKER_ROUTE_PATHS.TRACKER_BY_ID, trackerController.getTrackerDetails);
+  router.get(TRACKER_ROUTE_PATHS.TRACKER_BY_ID, managementController.getTrackerDetails);
 
   router.post(
     TRACKER_ROUTE_PATHS.REPORT_TRACKER,
     validate(reportTrackerSchema),
-    trackerController.reportTracker
+    managementController.reportTracker
   );
 
   router.patch(
     TRACKER_ROUTE_PATHS.TRACKER_BY_ID,
     validate(updateTrackerSchema),
-    trackerController.updateTracker
+    managementController.updateTracker
   );
 
-  router.delete(TRACKER_ROUTE_PATHS.TRACKER_BY_ID, trackerController.deleteTracker);
+  router.delete(TRACKER_ROUTE_PATHS.TRACKER_BY_ID, managementController.deleteTracker);
 
-  router.post(TRACKER_ROUTE_PATHS.ARCHIVE_TRACKER, trackerController.archiveTracker);
+  router.post(TRACKER_ROUTE_PATHS.ARCHIVE_TRACKER, managementController.archiveTracker);
 
-  router.post(TRACKER_ROUTE_PATHS.RESTORE_TRACKER, trackerController.restoreTracker);
+  router.post(TRACKER_ROUTE_PATHS.RESTORE_TRACKER, managementController.restoreTracker);
 
   router.post(
     TRACKER_ROUTE_PATHS.PUBLISH_TRACKER,
     validate(publishTrackerSchema),
-    trackerController.publishTracker
+    managementController.publishTracker
   );
 
-  router.post(TRACKER_ROUTE_PATHS.UNPUBLISH_TRACKER, trackerController.unpublishTracker);
+  router.post(TRACKER_ROUTE_PATHS.UNPUBLISH_TRACKER, managementController.unpublishTracker);
 
-  router.get(TRACKER_ROUTE_PATHS.ROADMAP, trackerController.getRoadmap);
+  router.get(TRACKER_ROUTE_PATHS.ROADMAP, roadmapController.getRoadmap);
 
   // ─── ROADMAP CONTENT ─────────────────────────────────────────────────────────
 
   router.post(
     TRACKER_ROUTE_PATHS.TOPICS,
     validate(createTopicSchema),
-    trackerController.createTopic
+    roadmapController.createTopic
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.SUBTOPICS,
     validate(createSubtopicSchema),
-    trackerController.createSubtopic
+    roadmapController.createSubtopic
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.CREATE_TOPIC_CONTRIBUTION,
-    trackerController.createTopicContribution
+    roadmapController.createTopicContribution
   );
 
-  router.get(TRACKER_ROUTE_PATHS.TOPIC_CONTRIBUTIONS, trackerController.listTopicContributions);
+  router.get(TRACKER_ROUTE_PATHS.TOPIC_CONTRIBUTIONS, roadmapController.listTopicContributions);
 
   router.patch(
     TRACKER_ROUTE_PATHS.REVIEW_TOPIC_CONTRIBUTION,
     validate(reviewTopicContributionSchema),
-    trackerController.reviewTopicContribution
+    roadmapController.reviewTopicContribution
   );
 
   router.patch(
     TRACKER_ROUTE_PATHS.SUBTOPIC_PROGRESS,
     validate(updateSubtopicProgressSchema),
-    trackerController.updateSubtopicProgress
+    roadmapController.updateSubtopicProgress
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.VERIFY_TOPIC,
     validate(verifyTopicSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.verifyTopic
+    roadmapController.verifyTopic
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.VERIFY_SUBTOPIC,
     validate(verifySubtopicSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.verifySubtopic
+    roadmapController.verifySubtopic
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.ADD_MISSING_EVALUATION_TOPIC,
-    trackerController.addMissingEvaluationTopic
+    roadmapController.addMissingEvaluationTopic
   );
 
   // ─── LESSONS ─────────────────────────────────────────────────────────────────
@@ -166,108 +170,109 @@ export const createTrackerRoutes = (useCases: TrackerUseCases) => {
   router.get(
     TRACKER_ROUTE_PATHS.LESSON,
     enforcePlanLimit('lesson_generation'),
-    trackerController.getLesson
+    lessonsController.getLesson
   );
 
-  router.get(TRACKER_ROUTE_PATHS.LESSON_CHAT, trackerController.getLessonChatHistory);
+  router.get(TRACKER_ROUTE_PATHS.LESSON_CHAT, lessonsController.getLessonChatHistory);
 
   router.post(
     TRACKER_ROUTE_PATHS.LESSON_CHAT,
     validate(lessonChatSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.chatWithLessonTutor
+    lessonsController.chatWithLessonTutor
   );
 
-  router.delete(TRACKER_ROUTE_PATHS.LESSON_CHAT, trackerController.clearLessonChatHistory);
+  router.delete(TRACKER_ROUTE_PATHS.LESSON_CHAT, lessonsController.clearLessonChatHistory);
 
-  router.get(TRACKER_ROUTE_PATHS.LESSON_QUESTIONS, trackerController.getLessonGeneratedQuestions);
+  router.get(TRACKER_ROUTE_PATHS.LESSON_QUESTIONS, lessonsController.getLessonGeneratedQuestions);
 
   router.post(
     TRACKER_ROUTE_PATHS.GENERATE_LESSON_QUESTIONS,
     validate(generateLessonQuestionsSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.generateLessonQuestions
+    lessonsController.generateLessonQuestions
   );
 
   router.get(
     TRACKER_ROUTE_PATHS.LESSON_QUESTION_SOLUTION,
     validateQuery('lessonQuestionQuery', lessonQuestionSchema),
-    trackerController.getLessonQuestionSolution
+    lessonsController.getLessonQuestionSolution
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.GENERATE_LESSON_QUESTION_SOLUTION,
     validate(lessonQuestionSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.generateLessonQuestionSolution
+    lessonsController.generateLessonQuestionSolution
   );
 
   router.get(
     TRACKER_ROUTE_PATHS.LESSON_QUESTION_SOLUTION_DOUBTS,
     validateQuery('lessonQuestionQuery', lessonQuestionSchema),
-    trackerController.getLessonQuestionSolutionDoubts
+    lessonsController.getLessonQuestionSolutionDoubts
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.LESSON_QUESTION_SOLUTION_DOUBTS,
     validate(askLessonQuestionSolutionDoubtSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.askLessonQuestionSolutionDoubt
+    lessonsController.askLessonQuestionSolutionDoubt
   );
 
   router.delete(
     TRACKER_ROUTE_PATHS.LESSON_QUESTION_SOLUTION_DOUBTS,
     validateQuery('lessonQuestionQuery', lessonQuestionSchema),
-    trackerController.clearLessonQuestionSolutionDoubts
+    lessonsController.clearLessonQuestionSolutionDoubts
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.LESSON_VISUALIZATION,
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.generateLessonVisualization
+    lessonsController.generateLessonVisualization
   );
 
   // ─── PRACTICE ────────────────────────────────────────────────────────────────
 
-  router.get(TRACKER_ROUTE_PATHS.LESSON_ANSWER_ATTEMPTS, trackerController.getLessonAnswerAttempts);
+  router.get(TRACKER_ROUTE_PATHS.LESSON_ANSWER_ATTEMPTS, lessonsController.getLessonAnswerAttempts);
 
   router.post(
     TRACKER_ROUTE_PATHS.VERIFY_LESSON_ANSWER,
     validate(verifyLessonAnswerSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.verifyLessonAnswer
+    lessonsController.verifyLessonAnswer
   );
 
   router.get(
     TRACKER_ROUTE_PATHS.LESSON_CODE_SUBMISSIONS,
-    trackerController.getLessonCodeSubmissions
+    lessonsController.getLessonCodeSubmissions
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.RUN_LESSON_CODE,
     validate(runLessonCodeSchema),
-    trackerController.runLessonCode
+    lessonsController.runLessonCode
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.SUBMIT_LESSON_CODE,
     validate(submitLessonCodeSchema),
-    trackerController.submitLessonCode
+    lessonsController.submitLessonCode
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.CODE_HINT,
     validate(getCodeHintSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.getCodeHint
+    lessonsController.getCodeHint
   );
 
   router.post(
     TRACKER_ROUTE_PATHS.OPTIMIZED_SOLUTION,
     validate(getOptimizedSolutionSchema),
     enforcePlanLimit('ai_tutor_request'),
-    trackerController.getOptimizedSolution
+    lessonsController.getOptimizedSolution
   );
 
   return router;
 };
+

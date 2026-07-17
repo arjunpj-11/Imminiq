@@ -11,6 +11,7 @@ export const ADMIN_USERS_ROUTE_PATHS = {
   MESSAGE: '/:userId/message',
   SESSION: '/:userId/sessions/:sessionId',
   ROLE: '/:userId/role',
+  ACTION_PASSWORD: '/:userId/action-password',
   NOTES: '/:userId/notes',
   NOTE_DETAIL: '/:userId/notes/:noteId',
   TAGS: '/:userId/tags',

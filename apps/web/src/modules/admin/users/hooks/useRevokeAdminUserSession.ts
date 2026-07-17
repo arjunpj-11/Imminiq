@@ -10,13 +10,13 @@ export const useRevokeAdminUserSession = (userId: string) => {
   return useMutation({
     mutationFn: ({
       sessionId,
-      mfaCode,
+      actionPassword,
     }: {
       sessionId: string;
-      mfaCode?: string;
+      actionPassword?: string;
     }) =>
       api.delete(ADMIN_USERS_ENDPOINTS.session(userId, sessionId), {
-        headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined,
+        headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
       }),
     onSuccess: async () => {
       toast.success(

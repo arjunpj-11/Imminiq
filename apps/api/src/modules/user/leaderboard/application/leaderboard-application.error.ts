@@ -1,3 +1,4 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { LeaderboardDomainError } from '../domain/leaderboard-domain.error';
 
 export type LeaderboardApplicationErrorCode =
@@ -9,42 +10,42 @@ export type LeaderboardApplicationErrorCode =
   | 'XP_ACTIVITY_CONFLICT';
 
 export class LeaderboardApplicationError extends LeaderboardDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
-  private constructor(statusCode: number, code: LeaderboardApplicationErrorCode, message: string) {
+  private constructor(kind: ErrorKind, code: LeaderboardApplicationErrorCode, message: string) {
     super(code, message);
     this.name = 'LeaderboardApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
   }
 
   static invalidLimit(message = 'Leaderboard limit is invalid'): LeaderboardApplicationError {
-    return new LeaderboardApplicationError(400, 'INVALID_LEADERBOARD_LIMIT', message);
+    return new LeaderboardApplicationError('invalid-input', 'INVALID_LEADERBOARD_LIMIT', message);
   }
 
   static invalidXpActivity(message = 'XP activity is invalid'): LeaderboardApplicationError {
-    return new LeaderboardApplicationError(400, 'INVALID_XP_ACTIVITY', message);
+    return new LeaderboardApplicationError('invalid-input', 'INVALID_XP_ACTIVITY', message);
   }
 
   static invalidIdempotencyKey(
     message = 'XP activity idempotency key is invalid'
   ): LeaderboardApplicationError {
-    return new LeaderboardApplicationError(400, 'INVALID_IDEMPOTENCY_KEY', message);
+    return new LeaderboardApplicationError('invalid-input', 'INVALID_IDEMPOTENCY_KEY', message);
   }
 
   static userNotFound(message = 'Leaderboard user not found'): LeaderboardApplicationError {
-    return new LeaderboardApplicationError(404, 'LEADERBOARD_USER_NOT_FOUND', message);
+    return new LeaderboardApplicationError('missing-resource', 'LEADERBOARD_USER_NOT_FOUND', message);
   }
 
   static unavailable(
     message = 'Leaderboard is currently unavailable'
   ): LeaderboardApplicationError {
-    return new LeaderboardApplicationError(503, 'LEADERBOARD_UNAVAILABLE', message);
+    return new LeaderboardApplicationError('dependency-unavailable', 'LEADERBOARD_UNAVAILABLE', message);
   }
 
   static xpActivityConflict(
     message = 'The idempotency key is already used by a different XP activity'
   ): LeaderboardApplicationError {
-    return new LeaderboardApplicationError(409, 'XP_ACTIVITY_CONFLICT', message);
+    return new LeaderboardApplicationError('conflict', 'XP_ACTIVITY_CONFLICT', message);
   }
 }
 

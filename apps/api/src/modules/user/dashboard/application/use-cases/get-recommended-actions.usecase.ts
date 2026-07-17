@@ -37,7 +37,7 @@ export class GetRecommendedActionsUseCase implements IGetRecommendedActionsUseCa
           type: 'create_tracker',
           title: 'Create your first tracker',
           description: 'Use AI to build a personalized learning roadmap',
-          link: '/onboarding/step-1',
+          link: '/trackers/create',
         })
       );
     }

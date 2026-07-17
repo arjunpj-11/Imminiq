@@ -1,4 +1,4 @@
-export interface ISecurityAuditLogger {
+export interface IAuthSecurityAuditLogger {
   record(data: {
     userId?: string;
     eventType: string;

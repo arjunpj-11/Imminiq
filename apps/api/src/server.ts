@@ -10,6 +10,7 @@ import { closeSocket } from './infrastructure/realtime/socket';
 // Start BullMQ workers
 import { aiWorker, startAiWorker } from './infrastructure/queue/workers/ai.worker';
 import { emailWorker, startEmailWorker } from './infrastructure/queue/workers/email.worker';
+import { notificationWorker, startNotificationWorker } from './infrastructure/queue/workers/notification.worker';
 
 const httpServer = http.createServer(app);
 initSocket(httpServer);
@@ -19,6 +20,7 @@ const start = async () => {
   await redis.ping();
   await startAiWorker();
   await startEmailWorker();
+  await startNotificationWorker();
 
   httpServer.listen(env.PORT, () => {
     console.log(`🚀 Server running on port ${env.PORT}`);
@@ -49,6 +51,7 @@ const shutdown = async (signal: string) => {
     }
     await aiWorker.close();
     await emailWorker.close();
+    await notificationWorker.close();
     await redis.quit();
     await disconnectDB();
     clearTimeout(forceExit);

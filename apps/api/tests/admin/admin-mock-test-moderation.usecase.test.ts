@@ -99,7 +99,7 @@ describe('admin mock-test moderation', () => {
         input,
         actor
       )
-    ).rejects.toMatchObject({ statusCode: 404, code: 'MOCK_TEST_NOT_FOUND' });
+    ).rejects.toMatchObject({ kind: 'missing-resource', code: 'MOCK_TEST_NOT_FOUND' });
     expect(emailProvider.queueModerationEmail).not.toHaveBeenCalled();
   });
 

@@ -1,6 +1,6 @@
 import type { SecurityUserEntity } from '../../domain/entities/security-user.entity';
 import type { ISecurityTwoFactorRepository } from '../../domain/repositories/security-two-factor.repository.interface';
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { IAccountSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 import type { ISecurityPasswordHasher } from '../../domain/services/security-password-hasher.interface';
 import type { ITwoFactorGateway } from '../../domain/services/two-factor-gateway.interface';
 import type { SensitiveSecurityAction } from '../../domain/security.types';
@@ -20,7 +20,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
     private readonly _twoFactorRepository: ISecurityTwoFactorRepository,
     private readonly _twoFactorGateway: ITwoFactorGateway,
     private readonly _passwordHasher: ISecurityPasswordHasher,
-    private readonly _securityAuditLogger: ISecurityAuditLogger
+    private readonly _accountSecurityAuditLogger: IAccountSecurityAuditLogger
   ) {}
 
   async assertSatisfied(input: {
@@ -68,7 +68,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
       return;
     }
 
-    await this._securityAuditLogger.record({
+    await this._accountSecurityAuditLogger.record({
       userId: input.user.id,
       eventType: 'SENSITIVE_ACTION_PASSWORD_REAUTH_FAILED',
       outcome: 'failure',
@@ -101,7 +101,7 @@ export class SensitiveActionAuthorizer implements ISensitiveActionAuthorizer {
       return;
     }
 
-    await this._securityAuditLogger.record({
+    await this._accountSecurityAuditLogger.record({
       userId: input.userId,
       eventType: 'SENSITIVE_ACTION_TWO_FACTOR_REAUTH_FAILED',
       outcome: 'failure',

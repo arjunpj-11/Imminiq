@@ -135,7 +135,7 @@ describe('subscription use cases', () => {
         razorpayPaymentId: 'pay_test_1',
         razorpaySignature: 'invalid',
       })
-    ).rejects.toMatchObject({ statusCode: 400, code: 'PAYMENT_SIGNATURE_INVALID' });
+    ).rejects.toMatchObject({ kind: 'invalid-input', code: 'PAYMENT_SIGNATURE_INVALID' });
     expect(repository.activate).not.toHaveBeenCalled();
   });
 

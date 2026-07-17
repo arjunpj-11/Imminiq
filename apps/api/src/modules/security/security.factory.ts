@@ -13,7 +13,7 @@ import { VerifyEmailChangeUseCase } from './application/use-cases/verify-email-c
 import { VerifyTwoFactorSetupUseCase } from './application/use-cases/verify-two-factor-setup.usecase';
 
 import { otplibTwoFactorGateway } from './infrastructure/gateways/otplib-two-factor.gateway';
-import { securityAuditLogger } from './infrastructure/loggers/security-audit.logger';
+import { accountSecurityAuditLogger } from './infrastructure/loggers/security-audit.logger';
 import { sharedSecurityEmailProvider } from './infrastructure/providers/shared-security-email.provider';
 import { mongoSecurityRepository } from './infrastructure/repositories/mongo-security.repository';
 import { bcryptSecurityPasswordHasher } from './infrastructure/services/bcrypt-security-password-hasher.service';
@@ -44,7 +44,7 @@ export const createSecurityComposition = (): SecurityComposition => {
   const securityPasswordHasher = bcryptSecurityPasswordHasher;
   const twoFactorGateway = otplibTwoFactorGateway;
   const securityAttemptStore = redisSecurityAttemptStore;
-  const auditLogger = securityAuditLogger;
+  const auditLogger = accountSecurityAuditLogger;
   const emailChangeToken = cryptoSecurityEmailChangeToken;
   const emailChangeUrlBuilder = clientSecurityEmailChangeUrlBuilder;
   const backupCodeManager = cryptoTwoFactorBackupCodeManager;

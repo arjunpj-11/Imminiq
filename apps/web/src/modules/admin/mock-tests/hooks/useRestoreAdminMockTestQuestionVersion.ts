@@ -11,17 +11,17 @@ export const useRestoreAdminMockTestQuestionVersion = () => {
       questionId,
       version,
       reason,
-      mfaCode,
+      actionPassword,
     }: {
       questionId: string;
       version: number;
       reason: string;
-      mfaCode?: string;
+      actionPassword?: string;
     }) =>
       api.post(
         ADMIN_MOCK_TESTS_ENDPOINTS.restoreQuestionVersion(questionId, version),
         { reason },
-        { headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined },
+        { headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined },
       ),
     onSuccess: async () => {
       toast.success(

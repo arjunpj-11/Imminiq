@@ -14,17 +14,19 @@ export const useUpdateAdminSupportTicket = () => {
       status,
       resolutionNote,
       notificationMessage,
+      actionPassword,
     }: {
       id: string;
       status: AdminSupportTicket["status"];
       resolutionNote?: string;
       notificationMessage?: string;
+      actionPassword: string;
     }) =>
       api.patch(ADMIN_SUPPORT_TICKETS_ENDPOINTS.update(id), {
         status,
         resolutionNote,
         notificationMessage,
-      }),
+      }, { headers: { 'x-admin-action-password': actionPassword } }),
     onMutate: () => ({
       toastId: toast.loading(
         "Updating support ticket…",

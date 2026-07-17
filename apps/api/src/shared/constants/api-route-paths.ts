@@ -1,7 +1,7 @@
 export const API_ROUTE_PATHS = {
   auth: '/api/auth',
-  onboarding: '/api/onboarding',
   trackers: '/api/trackers',
+  legacyOnboarding: '/api/onboarding',
   users: '/api/users',
   uploads: '/api/uploads',
   settings: '/api/settings',

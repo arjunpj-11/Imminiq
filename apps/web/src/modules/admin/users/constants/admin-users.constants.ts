@@ -13,6 +13,8 @@ export const ADMIN_USERS_ENDPOINTS = {
   session: (userId: string, sessionId: string) =>
     `/admin/users/${userId}/sessions/${sessionId}`,
   role: (userId: string) => `/admin/users/${userId}/role`,
+  actionPassword: (userId: string) =>
+    `/admin/users/${userId}/action-password`,
   notes: (userId: string) => `/admin/users/${userId}/notes`,
   note: (userId: string, noteId: string) =>
     `/admin/users/${userId}/notes/${noteId}`,

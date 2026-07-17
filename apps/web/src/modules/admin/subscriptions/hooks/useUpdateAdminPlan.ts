@@ -13,7 +13,7 @@ import { adminSubscriptionsKeys } from "./admin-subscriptions.query-keys";
 type UpdateAdminPlanVariables = {
   planId: string;
   input: AdminSubscriptionPlanUpdateInput;
-  mfaCode: string;
+  actionPassword: string;
   changeReason: string;
 };
 
@@ -23,7 +23,7 @@ export const useUpdateAdminPlan = () => {
     mutationFn: async ({
       planId,
       input,
-      mfaCode,
+      actionPassword,
       changeReason,
     }: UpdateAdminPlanVariables) =>
       (
@@ -32,7 +32,7 @@ export const useUpdateAdminPlan = () => {
           input,
           {
             headers: {
-              "X-Admin-MFA-Code": mfaCode,
+              "X-Admin-Action-Password": actionPassword,
               "X-Admin-Change-Reason": encodeURIComponent(changeReason),
             },
           },

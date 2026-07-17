@@ -51,6 +51,16 @@ securityAuditEventSchema.index({
   createdAt: -1,
 });
 
+const rejectSecurityAuditMutation = () => {
+  throw new Error('Security audit events are append-only');
+};
+securityAuditEventSchema.pre('updateOne', rejectSecurityAuditMutation);
+securityAuditEventSchema.pre('updateMany', rejectSecurityAuditMutation);
+securityAuditEventSchema.pre('findOneAndUpdate', rejectSecurityAuditMutation);
+securityAuditEventSchema.pre('deleteOne', rejectSecurityAuditMutation);
+securityAuditEventSchema.pre('deleteMany', rejectSecurityAuditMutation);
+securityAuditEventSchema.pre('findOneAndDelete', rejectSecurityAuditMutation);
+
 securityAuditEventSchema.index({
   eventType: 1,
   createdAt: -1,

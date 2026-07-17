@@ -12,7 +12,7 @@ const adminBroadcastSchema = new Schema(
     },
     sentBy: { type: Schema.Types.ObjectId, ref: 'User', required: true, index: true },
     recipientCount: { type: Number, default: 0, min: 0 },
-    status: { type: String, enum: ['sent', 'failed'], default: 'sent', index: true },
+    status: { type: String, enum: ['queued', 'processing', 'sent', 'failed'], default: 'queued', index: true },
     sentAt: { type: Date, default: Date.now, index: true },
   },
   { timestamps: true, collection: 'admin_broadcasts' }

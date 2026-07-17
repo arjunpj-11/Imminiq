@@ -2,10 +2,7 @@ import mongoose from 'mongoose';
 import { AdminBroadcast } from '../../../../../infrastructure/database/models/admin-broadcast.model';
 import { AdminBroadcastPollVote } from '../../../../../infrastructure/database/models/admin-broadcast-poll-vote.model';
 import { AdminConsoleSettings } from '../../../../../infrastructure/database/models/admin-console-settings.model';
-import { Notification } from '../../../../../infrastructure/database/models/notification.model';
-import { UserSettings } from '../../../../../infrastructure/database/models/user-settings.model';
-import { User } from '../../../../../infrastructure/database/models/user.model';
-import { Subscription } from '../../../../../infrastructure/database/models/subscription.model';
+import { notificationQueue } from '../../../../../infrastructure/queue/queues';
 import type { AdminActor, AdminListQuery } from '../../../shared/domain';
 import { recordAdminAction } from '../../../shared/infrastructure';
 import { createAdminPage, escapeAdminSearch } from '../../../shared/infrastructure';
@@ -57,71 +54,34 @@ export class MongoAdminBroadcastRepository implements IAdminBroadcastRepository 
   async send(input: AdminBroadcastInput, actor: AdminActor) {
     const settings = await AdminConsoleSettings.findOne({ key: 'global' }).lean();
     if (settings?.allowBroadcasts === false) return null;
-    const since = new Date(Date.now() - 30 * 86400000);
-    const userFilter: Record<string, unknown> = {
-      deletedAt: null,
-      status: 'active',
-    };
-    if (input.audience === 'active') userFilter.lastActiveAt = { $gte: since };
-    if (input.audience === 'custom') userFilter._id = { $in: input.userIds ?? [] };
-    if (input.audience === 'pro' || input.audience === 'premium') {
-      userFilter._id = {
-        $in: await Subscription.distinct('userId', {
-          planId: input.audience,
-          status: 'active',
-          $or: [{ endsAt: null }, { endsAt: { $gt: new Date() } }],
-        }),
-      };
-    }
-    if (input.audience === 'free') {
-      userFilter._id = {
-        $nin: await Subscription.distinct('userId', {
-          status: 'active',
-          $or: [{ endsAt: null }, { endsAt: { $gt: new Date() } }],
-        }),
-      };
-    }
-    const [users, optedOut] = await Promise.all([
-      User.find(userFilter).select('_id').lean(),
-      UserSettings.distinct('userId', {
-        $or: [
-          { 'notifications.globalEnabled': false },
-          { 'notifications.types.adminBroadcasts': false },
-        ],
-      }),
-    ]);
-    const optedOutIds = new Set(optedOut.map(String));
-    const recipients = users.filter((user) => !optedOutIds.has(String(user._id)));
     const broadcast = await AdminBroadcast.create({
       ...input,
       sentBy: actor.userId,
-      recipientCount: recipients.length,
-      status: 'sent',
+      recipientCount: 0,
+      status: 'queued',
       sentAt: new Date(),
     });
-    if (recipients.length)
-      await Notification.insertMany(
-        recipients.map((user) => ({
-          userId: user._id,
-          type: 'admin_broadcast',
-          message: `${input.title}: ${input.message}`,
-          isRead: false,
-          deepLink: input.deepLink || undefined,
-          metadata: {
-            title: input.title,
-            audience: input.audience,
-            broadcastId: String(broadcast._id),
-            ...(input.poll ? { poll: input.poll } : {}),
-          },
-        })),
-        { ordered: false }
+    try {
+      await recordAdminAction(actor, 'admin_broadcast_requested', 'admin.broadcast', {
+        broadcastId: String(broadcast._id),
+        audience: input.audience,
+      });
+      await notificationQueue.add(
+        'admin-broadcast',
+        { kind: 'admin_broadcast', broadcastId: String(broadcast._id), input },
+        {
+          jobId: `admin-broadcast-${String(broadcast._id)}`,
+          attempts: 3,
+          backoff: { type: 'exponential', delay: 5000 },
+          removeOnComplete: 100,
+          removeOnFail: 500,
+        }
       );
-    await recordAdminAction(actor, 'admin_broadcast_sent', 'admin.broadcast', {
-      broadcastId: String(broadcast._id),
-      recipientCount: recipients.length,
-      audience: input.audience,
-    });
-    return { id: String(broadcast._id), recipientCount: recipients.length, status: 'sent' };
+    } catch (error) {
+      await AdminBroadcast.updateOne({ _id: broadcast._id }, { $set: { status: 'failed' } });
+      throw error;
+    }
+    return { id: String(broadcast._id), recipientCount: 0, status: 'queued' };
   }
 
   private async getPollSummary(broadcastId: string, question: string, options: string[]) {

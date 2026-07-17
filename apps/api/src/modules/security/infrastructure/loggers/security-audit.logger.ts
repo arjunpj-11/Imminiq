@@ -1,11 +1,11 @@
-import { securityAuditLogger as sharedSecurityAuditLogger } from '../../../../infrastructure/security/security-audit-logger';
+import { securityAuditLogger as sharedAccountSecurityAuditLogger } from '../../../../infrastructure/security/security-audit-logger';
 import { SecurityDomainError } from '../../domain/security-domain.error';
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { IAccountSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 
-export class SecurityAuditLogger implements ISecurityAuditLogger {
-  async record(data: Parameters<ISecurityAuditLogger['record']>[0]): Promise<void> {
+export class AccountSecurityAuditLogger implements IAccountSecurityAuditLogger {
+  async record(data: Parameters<IAccountSecurityAuditLogger['record']>[0]): Promise<void> {
     try {
-      await sharedSecurityAuditLogger.record({
+      await sharedAccountSecurityAuditLogger.record({
         userId: data.userId,
         eventType: data.eventType,
         outcome: data.outcome,
@@ -20,4 +20,4 @@ export class SecurityAuditLogger implements ISecurityAuditLogger {
   }
 }
 
-export const securityAuditLogger = new SecurityAuditLogger();
+export const accountSecurityAuditLogger = new AccountSecurityAuditLogger();

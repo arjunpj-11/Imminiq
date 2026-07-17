@@ -3,7 +3,7 @@ import type { IAuthSessionRepository } from '../../domain/repositories/auth-sess
 import type { IAuthUserRepository } from '../../domain/repositories/auth-user.repository.interface';
 import type { IAuthToken } from '../../domain/services/auth-token.interface';
 import type { IRetiredRefreshTokenStore } from '../../domain/services/retired-refresh-token-store.interface';
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { IAuthSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 import type { RequestMetaDTO, TokenPairDTO } from '../auth.dto';
 import type { IAuthAccountPolicy } from '../auth-account-policy.policy';
 import type { IRefreshTokenHasher } from '../../../../shared/security/refresh-token-hasher.interface';
@@ -19,7 +19,7 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
     private readonly _authRepository: RefreshTokensRepository,
     private readonly _authToken: IAuthToken,
     private readonly _retiredRefreshTokenStore: IRetiredRefreshTokenStore,
-    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _authSecurityAuditLogger: IAuthSecurityAuditLogger,
     private readonly _authAccountPolicy: IAuthAccountPolicy,
     private readonly _refreshTokenHasher: IRefreshTokenHasher
   ) {}
@@ -35,7 +35,7 @@ export class RefreshAuthTokensUseCase implements IRefreshAuthTokensUseCase {
       if (retired) {
         await this._authRepository.revokeAllUserSessions(retired.userId);
 
-        await this._securityAuditLogger.record({
+        await this._authSecurityAuditLogger.record({
           userId: retired.userId,
           eventType: 'REFRESH_TOKEN_REUSE_DETECTED',
           outcome: 'detected',

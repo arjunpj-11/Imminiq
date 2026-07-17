@@ -56,15 +56,16 @@ export const ROUTES = {
     `/trackers/${trackerId}/lessons/${subtopicId}`,
   trackerRevisionPattern: '/trackers/:trackerId/revision',
   trackerRevision: (trackerId: string) => `/trackers/${trackerId}/revision`,
-  onboardingStepOne: '/onboarding/step-1',
-  onboardingGeneratingPattern: '/onboarding/generating/:jobId',
-  onboardingGenerating: (jobId: string) => `/onboarding/generating/${jobId}`,
-  onboardingRoadmapReadyPattern: '/onboarding/roadmap-ready/:jobId',
-  onboardingRoadmapReady: (jobId: string) => `/onboarding/roadmap-ready/${jobId}`,
-  onboardingEvaluationPattern: '/onboarding/roadmap-evaluation/:jobId',
-  onboardingEvaluation: (jobId: string) => `/onboarding/roadmap-evaluation/${jobId}`,
-  onboardingEvaluationScorePattern: '/onboarding/roadmap-evaluation/:jobId/score',
-  onboardingEvaluationScore: (jobId: string) => `/onboarding/roadmap-evaluation/${jobId}/score`,
+  trackerCreate: '/trackers/create',
+  trackerCreateGeneratingPattern: '/trackers/create/generating/:jobId',
+  trackerCreateGenerating: (jobId: string) => `/trackers/create/generating/${jobId}`,
+  trackerCreateReadyPattern: '/trackers/create/ready/:jobId',
+  trackerCreateReady: (jobId: string) => `/trackers/create/ready/${jobId}`,
+  trackerCreateEvaluationPattern: '/trackers/create/evaluation/:jobId',
+  trackerCreateEvaluation: (jobId: string) => `/trackers/create/evaluation/${jobId}`,
+  trackerCreateEvaluationScorePattern: '/trackers/create/evaluation/:jobId/score',
+  trackerCreateEvaluationScore: (jobId: string) =>
+    `/trackers/create/evaluation/${jobId}/score`,
 } as const;
 
 export const ADMIN_ROUTES = {

@@ -2,7 +2,7 @@ import {
   COMMUNITY_VERIFICATION_MAX_DURATION_HOURS,
   COMMUNITY_VERIFICATION_MAX_REQUIRED_VOTES,
 } from '../../domain/community.constants';
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityVerificationRepository } from '../../domain/repositories/community-verification.repository.interface';
 import type {
   CommunityVerificationSubmissionViewDTO,
   SubmitTrackerForVerificationPayloadDTO,
@@ -19,7 +19,7 @@ export interface ISubmitTrackerForVerificationUseCase {
 
 export class SubmitTrackerForVerificationUseCase implements ISubmitTrackerForVerificationUseCase {
   constructor(
-    private readonly _repository: ICommunityRepository,
+    private readonly _repository: ICommunityVerificationRepository,
     private readonly _mapper: ICommunityMapper,
     private readonly _policyReader: ICommunityPolicyReader
   ) {}

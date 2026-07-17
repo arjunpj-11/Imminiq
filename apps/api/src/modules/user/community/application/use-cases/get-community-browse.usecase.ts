@@ -3,7 +3,8 @@ import {
   COMMUNITY_DEFAULT_PAGE,
   COMMUNITY_MAX_LIMIT,
 } from '../../domain/community.constants';
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityTrackerRepository } from '../../domain/repositories/community-tracker.repository.interface';
+import type { ICommunityVerificationRepository } from '../../domain/repositories/community-verification.repository.interface';
 import type { CommunityBrowseViewDTO, CommunityTrackerListPayloadDTO } from '../community.dto';
 import type { ICommunityMapper } from '../community.mapper';
 import type { ICommunityPolicyReader } from '../../../../../shared/platform-policy';
@@ -12,9 +13,12 @@ export interface IGetCommunityBrowseUseCase {
   execute(payload: CommunityTrackerListPayloadDTO): Promise<CommunityBrowseViewDTO>;
 }
 
+type CommunityBrowseRepository = ICommunityTrackerRepository &
+  Pick<ICommunityVerificationRepository, 'getVerificationStats'>;
+
 export class GetCommunityBrowseUseCase implements IGetCommunityBrowseUseCase {
   constructor(
-    private readonly _repository: ICommunityRepository,
+    private readonly _repository: CommunityBrowseRepository,
     private readonly _mapper: ICommunityMapper,
     private readonly _policyReader: ICommunityPolicyReader
   ) {}

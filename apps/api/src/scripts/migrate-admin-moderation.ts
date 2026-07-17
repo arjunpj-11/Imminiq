@@ -14,6 +14,7 @@ import { User } from '../infrastructure/database/models/user.model';
 import { MockTestCreationSessionModel } from '../infrastructure/database/models/mock-test-creation-session.model';
 import { UserSettings } from '../infrastructure/database/models/user-settings.model';
 import { AdminConsoleSettings } from '../infrastructure/database/models/admin-console-settings.model';
+import { Notification } from '../infrastructure/database/models/notification.model';
 
 const migrate = async () => {
   await connectDB();
@@ -85,6 +86,7 @@ const migrate = async () => {
     MockTestCreationSessionModel.createIndexes(),
     UserSettings.createIndexes(),
     AdminConsoleSettings.createIndexes(),
+    Notification.createIndexes(),
   ]);
 
   console.log(

@@ -37,6 +37,8 @@ import type {
   AdminSubscriptionItem,
   AdminSubscriptionPlanInput,
 } from "../types/admin-subscriptions.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 const number = new Intl.NumberFormat("en-IN");
 const money = new Intl.NumberFormat("en-IN", {
@@ -664,7 +666,7 @@ function PlanEditor({
   const [reviewOpen, setReviewOpen] = useState(false);
   const [discardOpen, setDiscardOpen] = useState(false);
   const [changeReason, setChangeReason] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const changes = useMemo(
     () => collectPlanChanges(initialForm, form),
     [initialForm, form],
@@ -704,7 +706,7 @@ function PlanEditor({
       {
         planId: plan.planId,
         input: { plan: form, propagateLimitFields },
-        mfaCode,
+        actionPassword,
         changeReason: changeReason.trim(),
       },
       { onSuccess: onSaved },
@@ -712,7 +714,8 @@ function PlanEditor({
   };
 
   const reviewReady =
-    changeReason.trim().length >= 10 && /^\d{6}$/.test(mfaCode);
+    changeReason.trim().length >= 10 &&
+    isAdminActionPasswordReady(actionPassword);
 
   return (
     <>
@@ -991,19 +994,11 @@ function PlanEditor({
             placeholder="Explain why this plan is changing."
           />
         </label>
-        <label className="admin-field mt-4">
-          <span>6-digit authenticator code</span>
-          <input
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            value={mfaCode}
-            onChange={(event) =>
-              setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-            }
-            placeholder="000000"
-          />
-        </label>
+        <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4"
+      />
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
           <button

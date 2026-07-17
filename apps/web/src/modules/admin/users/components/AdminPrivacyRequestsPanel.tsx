@@ -14,6 +14,8 @@ import {
 import { useAdminPrivacyRequests } from "../hooks/useAdminPrivacyRequests";
 import { useUpdateAdminPrivacyRequest } from "../hooks/useUpdateAdminPrivacyRequest";
 import type { AdminPrivacyRequest } from "../types/admin-users.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 export function AdminPrivacyRequestsPanel() {
   const [status, setStatus] = useState<"all" | AdminPrivacyRequest["status"]>(
@@ -176,7 +178,7 @@ function PrivacyDecisionDialog({
   >("in_progress");
   const [resolutionNote, setResolutionNote] = useState("");
   const [downloadUrl, setDownloadUrl] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   return (
     <Modal
       open={Boolean(request)}
@@ -230,18 +232,11 @@ function PrivacyDecisionDialog({
           onChange={(event) => setResolutionNote(event.target.value)}
         />
       </label>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
       <div className="mt-6 flex justify-end gap-2">
         <button className="admin-button" onClick={onClose}>
           Cancel
@@ -250,7 +245,7 @@ function PrivacyDecisionDialog({
           className="admin-primary-button"
           disabled={
             resolutionNote.trim().length < 10 ||
-            mfaCode.length !== 6 ||
+            !isAdminActionPasswordReady(actionPassword) ||
             update.isPending
           }
           onClick={() =>
@@ -261,7 +256,7 @@ function PrivacyDecisionDialog({
                 status,
                 resolutionNote: resolutionNote.trim(),
                 downloadUrl,
-                mfaCode,
+                actionPassword,
               },
               { onSuccess: onClose },
             )

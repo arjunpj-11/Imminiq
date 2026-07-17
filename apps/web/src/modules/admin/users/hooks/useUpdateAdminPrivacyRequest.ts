@@ -12,18 +12,18 @@ export const useUpdateAdminPrivacyRequest = () => {
       status,
       resolutionNote,
       downloadUrl,
-      mfaCode,
+      actionPassword,
     }: {
       id: string;
       status: "in_progress" | "completed" | "rejected";
       resolutionNote: string;
       downloadUrl?: string;
-      mfaCode?: string;
+      actionPassword?: string;
     }) =>
       api.patch(
         ADMIN_USERS_ENDPOINTS.privacyRequest(id),
         { status, resolutionNote, downloadUrl: downloadUrl || undefined },
-        { headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined },
+        { headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined },
       ),
     onSuccess: async () => {
       toast.success("Privacy request updated");

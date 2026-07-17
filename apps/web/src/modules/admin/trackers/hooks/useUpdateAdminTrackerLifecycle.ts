@@ -16,9 +16,9 @@ export const useUpdateAdminTrackerLifecycle = () => {
       id: string;
       payload: AdminTrackerLifecyclePayload;
     }) => {
-      const { mfaCode, ...body } = payload;
+      const { actionPassword, ...body } = payload;
       return api.patch(ADMIN_TRACKERS_ENDPOINTS.lifecycle(id), body, {
-        headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined,
+        headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
       });
     },
     onSuccess: async () => {

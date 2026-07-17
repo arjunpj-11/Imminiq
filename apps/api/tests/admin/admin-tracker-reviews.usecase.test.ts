@@ -51,7 +51,7 @@ describe('AdminTrackerReviewsUseCase', () => {
         repository,
         new AdminTrackerReviewsMapper()
       ).execute('review-id', 'fail', actor)
-    ).rejects.toMatchObject({ statusCode: 409, code: 'TRACKER_REVIEW_NOT_OPEN' });
+    ).rejects.toMatchObject({ kind: 'conflict', code: 'TRACKER_REVIEW_NOT_OPEN' });
   });
 
   it('accepts only pass or fail consensus choices', () => {

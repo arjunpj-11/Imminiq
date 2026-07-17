@@ -11,16 +11,16 @@ export const useUpdateAdminUserRole = (userId: string) => {
     mutationFn: ({
       role,
       reason,
-      mfaCode,
+      actionPassword,
     }: {
       role: "user" | "moderator" | "admin";
       reason: string;
-      mfaCode?: string;
+      actionPassword?: string;
     }) =>
       api.patch(
         ADMIN_USERS_ENDPOINTS.role(userId),
         { role, reason },
-        { headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined },
+        { headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined },
       ),
     onSuccess: async () => {
       toast.success(

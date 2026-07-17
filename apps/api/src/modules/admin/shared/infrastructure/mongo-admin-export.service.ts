@@ -2,8 +2,15 @@ import { User } from '../../../../infrastructure/database/models/user.model';
 import { Tracker } from '../../../../infrastructure/database/models/tracker.model';
 import { MockTestModel } from '../../../../infrastructure/database/models/mock-test.model';
 
-const csv = (rows: unknown[][]) => rows.map((row) => row.map((value) => `"${String(value ?? '').replaceAll('"', '""')}"`).join(',')).join('\r\n');
-const search = (value: string, fields: string[]) => value ? { $or: fields.map((field) => ({ [field]: { $regex: value, $options: 'i' } })) } : {};
+export const escapeAdminExportSearch = (value: string) =>
+  value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+export const safeAdminCsvValue = (value: unknown) => {
+  const text = String(value ?? '');
+  const neutralized = /^[\t\r\n ]*[=+\-@]/.test(text) ? `'${text}` : text;
+  return `"${neutralized.replaceAll('"', '""')}"`;
+};
+const csv = (rows: unknown[][]) => rows.map((row) => row.map(safeAdminCsvValue).join(',')).join('\r\n');
+const search = (value: string, fields: string[]) => value ? { $or: fields.map((field) => ({ [field]: { $regex: escapeAdminExportSearch(value), $options: 'i' } })) } : {};
 
 export interface IAdminExportService {
   users(query: { search: string; status: string }): Promise<string>;
