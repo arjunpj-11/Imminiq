@@ -199,9 +199,13 @@ export default tseslint.config(
       'no-restricted-imports': [
         'error',
         {
-          patterns: ['**/infrastructure', '**/infrastructure/**'],
-          message:
-            "Module index files must not import or re-export from './infrastructure' — keep concrete implementations behind the module's factory/composition.",
+          patterns: [
+            {
+              group: ['**/infrastructure', '**/infrastructure/**'],
+              message:
+                "Module index files must not import or re-export from './infrastructure' — keep concrete implementations behind the module's factory/composition.",
+            },
+          ],
         },
       ],
     },
