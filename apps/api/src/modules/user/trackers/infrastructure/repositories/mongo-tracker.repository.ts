@@ -308,6 +308,168 @@ export class MongoTrackerRepository implements ITrackerRepository {
   saveLessonVisualization(data: SaveLessonVisualizationInput) {
     return this._lessonRepository.saveLessonVisualization(data);
   }
+  async createTrackerWithNestedContent(input: {
+    userId: string;
+    title: string;
+    slug: string;
+    description?: string;
+    domain?: string;
+    goal?: string;
+    level: 'beginner' | 'intermediate' | 'advanced';
+    isAIGenerated?: boolean;
+    aiJobId?: string;
+    topics: Array<{
+      order: number;
+      title: string;
+      description?: string;
+      learningVideo?: any | null;
+      children?: any[];
+    }>;
+  }): Promise<{ trackerId: string }> {
+    // Implement transactional creation using mongoose session and models used elsewhere.
+    const { Tracker } = await import('../../../../../../infrastructure/database/models/tracker.model');
+    const { TrackerTopic } = await import('../../../../../../infrastructure/database/models/tracker-topic.model');
+    const { TrackerSubtopic } = await import('../../../../../../infrastructure/database/models/tracker-subtopic.model');
+
+    const session = await (await import('mongoose')).startSession();
+
+    let createdTrackerId: any = null;
+
+    try {
+      await session.withTransaction(async () => {
+        const totalSubtopicCount = input.topics.reduce((total, topicItem) => {
+          const countRecursive = (nodes: any[]): number => {
+            return (nodes || []).reduce((t, n) => t + 1 + countRecursive(n.children || []), 0);
+          };
+          return total + countRecursive(topicItem.children || []);
+        }, 0);
+
+        const trackers = await Tracker.create(
+          [
+            {
+              ownerId: input.userId,
+
+              title: input.title,
+              slug: input.slug,
+              description: input.description || '',
+
+              category: input.domain || 'general',
+              field: input.domain || '',
+              goal: input.goal || '',
+
+              level: input.level,
+
+              status: 'draft',
+
+              isAIGenerated: Boolean(input.isAIGenerated),
+              aiJobId: input.aiJobId,
+
+              topicsCount: input.topics.length,
+              subtopicsCount: totalSubtopicCount,
+
+              cloneCount: 0,
+              likeCount: 0,
+              saveCount: 0,
+
+              progressPercent: 0,
+              ratingAverage: 0,
+              ratingCount: 0,
+            },
+          ],
+          { session }
+        );
+
+        const tracker = trackers[0];
+        createdTrackerId = tracker._id;
+
+        const saveNestedSubtopics = async ({
+          trackerId,
+          topicId,
+          parentSubtopicId,
+          nodes,
+          depth,
+          topicOrder,
+          learningVideos,
+        }: any) => {
+          for (const node of nodes) {
+            const createdSubtopics = await TrackerSubtopic.create(
+              [
+                {
+                  trackerId,
+                  topicId,
+                  parentSubtopicId,
+                  title: node.title,
+                  description: node.description || '',
+                  order: node.order,
+                  depth,
+                  isLocked: true,
+                  estimatedMinutes: 0,
+                  learningVideo: depth === 1 ? learningVideos.get(`${topicOrder}:${node.order}`) || null : null,
+                },
+              ],
+              { session }
+            );
+
+            const createdSubtopic = createdSubtopics[0];
+
+            if (node.children?.length) {
+              await saveNestedSubtopics({
+                trackerId,
+                topicId,
+                parentSubtopicId: createdSubtopic._id,
+                nodes: node.children,
+                depth: depth + 1,
+                topicOrder,
+                learningVideos,
+              });
+            }
+          }
+        };
+
+        for (let topicIndex = 0; topicIndex < input.topics.length; topicIndex++) {
+          const topicData = input.topics[topicIndex];
+
+          const savedTopics = await TrackerTopic.create(
+            [
+              {
+                trackerId: tracker._id,
+                title: topicData.title,
+                description: topicData.description || '',
+                order: topicData.order,
+                learningVideo: topicData.learningVideo || null,
+                status: topicIndex === 0 ? 'active' : 'locked',
+                estimatedHours: 0,
+                progressPercent: 0,
+              },
+            ],
+            { session }
+          );
+
+          const savedTopic = savedTopics[0];
+
+          if (topicData.children?.length) {
+            await saveNestedSubtopics({
+              trackerId: tracker._id,
+              topicId: savedTopic._id,
+              parentSubtopicId: null,
+              nodes: topicData.children,
+              depth: 1,
+              topicOrder: topicData.order,
+              learningVideos: topicData.subtopicLearningVideos || new Map(),
+            });
+          }
+        }
+      });
+    } finally {
+      await session.endSession();
+    }
+
+    if (!createdTrackerId) {
+      throw new Error('Tracker was not created');
+    }
+
+    return { trackerId: String(createdTrackerId) };
+  }
 }
 
 export const mongoTrackerRepository = new MongoTrackerRepository();

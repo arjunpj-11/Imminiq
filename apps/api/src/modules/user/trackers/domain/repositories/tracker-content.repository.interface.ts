@@ -50,4 +50,27 @@ export interface ITrackerContentRepository {
   incrementTrackerSubtopicsCount(trackerId: string): Promise<void>;
 
   markMissingEvaluationTopicAsAdded(data: MarkMissingEvaluationTopicAsAddedInput): Promise<void>;
+
+  /**
+   * Create a tracker and its nested topics/subtopics transactionally.
+   * Implementations should use a DB transaction/session to ensure atomicity.
+   */
+  createTrackerWithNestedContent(input: {
+    userId: string;
+    title: string;
+    slug: string;
+    description?: string;
+    domain?: string;
+    goal?: string;
+    level: 'beginner' | 'intermediate' | 'advanced';
+    isAIGenerated?: boolean;
+    aiJobId?: string;
+    topics: Array<{
+      order: number;
+      title: string;
+      description?: string;
+      learningVideo?: unknown | null;
+      children?: any[];
+    }>;
+  }): Promise<{ trackerId: string }>;
 }

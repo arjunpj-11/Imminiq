@@ -19,6 +19,10 @@ import { bullMqAIJobQueueGateway } from './infrastructure/gateways/bullmq-ai-job
 import { mongoOnboardingRepository } from './infrastructure/repositories/mongo-onboarding.repository';
 import { redisAIJobQuotaStore } from './infrastructure/stores/redis-ai-job-quota.store';
 import { langChainTrackerIntakeAgent } from './infrastructure/services/langchain-tracker-intake-agent.service';
+import { mongoTrackerRepository } from '../trackers';
+import { subscriptionLimitService } from '../subscriptions';
+import { createNotificationsComposition } from '../../notifications';
+import { createSaveGeneratedRoadmapUseCase } from './application/use-cases/save-generated-roadmap.usecase';
 
 export type OnboardingServiceHelpers = {
   onboardingAIJobQueueGateway: IAIJobQueueGateway;
@@ -83,6 +87,14 @@ export const createOnboardingComposition = (): OnboardingComposition => {
         onboardingRepository,
         onboardingJobOutputReader
       ),
+
+      // Save generated roadmap use-case: delegates transactional persistence to tracker repository
+      saveGeneratedRoadmap: createSaveGeneratedRoadmapUseCase({
+        onboardingRepository,
+        trackerRepository: mongoTrackerRepository,
+        subscriptionLimitService,
+        createNotificationUseCase: createNotificationsComposition().useCases.createNotification,
+      }),
     },
 
     helpers: {

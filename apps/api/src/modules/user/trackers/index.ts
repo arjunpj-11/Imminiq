@@ -40,5 +40,9 @@ export type {
   TrackerVisibility,
 } from './domain/trackers.types';
 
+export type { ITrackerRepository } from './domain/repositories/tracker.repository.interface';
+
+export { mongoTrackerRepository } from './infrastructure/repositories/mongo-tracker.repository';
+
 export { createTrackerComposition } from './tracker.factory';
 export { createTrackerRoutes } from './presentation/trackers.routes';

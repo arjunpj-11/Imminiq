@@ -13,7 +13,7 @@ import { TrackerSubtopic } from '../../database/models/tracker-subtopic.model';
 import { createActivityComposition } from '../../../modules/user/activity';
 import { createMockTestsComposition } from '../../../modules/user/mock-tests';
 import { createNotificationsComposition } from '../../../modules/notifications';
-import { subscriptionLimitService } from '../../../modules/user/subscriptions';
+import { createOnboardingComposition } from '../../../modules/user/onboarding';
 
 import {
   generateRoadmapStructure,
@@ -377,134 +377,63 @@ const processRoadmapGeneration = async (
 
   await completeStep(jobId, 3);
 
-  // Step 4 — Save tracker tree to MongoDB
+  // Step 4 — Save tracker tree to MongoDB (delegated to use-case)
   await startStep(jobId, 4);
 
-  await subscriptionLimitService.enforce(userId, 'tracker_capacity');
-
-  const session = await mongoose.startSession();
-
-  let createdTrackerId: mongoose.Types.ObjectId | null = null;
-
   try {
-    await session.withTransaction(async () => {
-      const slug = createSlug(roadmap.title);
+    const onboarding = createOnboardingComposition();
 
-      const totalSubtopicCount = roadmap.topics.reduce((total, topicItem) => {
-        return total + countNestedNodes(topicItem.children || []);
-      }, 0);
+    const topicsPayload = roadmap.topics.map((t) => ({
+      order: t.order,
+      title: t.title,
+      description: t.description || '',
+      learningVideo: learningVideos.get(t.order) || null,
+      children: t.children || [],
+      // subtopicLearningVideos map will be passed at top-level; the repository expects a Map on each topic if needed
+      subtopicLearningVideos: subtopicLearningVideos,
+    }));
 
-      const trackers = await Tracker.create(
-        [
-          {
-            ownerId: userId,
-
-            title: roadmap.title,
-            slug,
-            description: roadmap.description,
-
-            category: 'general',
-            field: topic,
-            goal: goal || '',
-
-            level,
-
-            status: 'draft',
-
-            isAIGenerated: true,
-            aiJobId: jobId,
-
-            topicsCount: roadmap.topics.length,
-            subtopicsCount: totalSubtopicCount,
-
-            cloneCount: 0,
-            likeCount: 0,
-            saveCount: 0,
-
-            progressPercent: 0,
-            ratingAverage: 0,
-            ratingCount: 0,
-          },
-        ],
-        {
-          session,
-        }
-      );
-
-      const tracker = trackers[0];
-
-      createdTrackerId = tracker._id as mongoose.Types.ObjectId;
-
-      for (let topicIndex = 0; topicIndex < roadmap.topics.length; topicIndex++) {
-        const topicData = roadmap.topics[topicIndex];
-
-        const savedTopics = await TrackerTopic.create(
-          [
-            {
-              trackerId: tracker._id,
-              title: topicData.title,
-              description: topicData.description || '',
-              order: topicData.order,
-              learningVideo: learningVideos.get(topicData.order) || null,
-              status: topicIndex === 0 ? 'active' : 'locked',
-              estimatedHours: 0,
-              progressPercent: 0,
-            },
-          ],
-          {
-            session,
-          }
-        );
-
-        const savedTopic = savedTopics[0];
-
-        if (topicData.children?.length) {
-          await saveNestedSubtopics({
-            trackerId: tracker._id as mongoose.Types.ObjectId,
-            topicId: savedTopic._id as mongoose.Types.ObjectId,
-            parentSubtopicId: null,
-            nodes: topicData.children,
-            depth: 1,
-            topicOrder: topicData.order,
-            learningVideos: subtopicLearningVideos,
-            session,
-          });
-        }
-      }
+    await onboarding.useCases.saveGeneratedRoadmap.execute({
+      userId,
+      title: roadmap.title,
+      slug: createSlug(roadmap.title),
+      description: roadmap.description,
+      domain: topic,
+      goal: goal || '',
+      level,
+      isAIGenerated: true,
+      aiJobId: jobId,
+      topics: topicsPayload,
+      jobId,
     });
-  } finally {
-    await session.endSession();
+
+    await completeStep(jobId, 4);
+
+    // Step 5 — Finalise
+    await startStep(jobId, 5);
+
+    await AIGenerationJob.findByIdAndUpdate(jobId, {
+      status: 'completed',
+      currentStep: 5,
+      completedAt: new Date(),
+      outputData: {
+        trackerId: null,
+      },
+    });
+
+    await completeStep(jobId, 5);
+
+    await createNotificationsComposition().useCases.createNotification.execute({
+      userId,
+      type: 'tracker_generation_completed',
+      message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
+      deepLink: `/onboarding/roadmap-ready/${jobId}`,
+      metadata: { jobId },
+    });
+  } catch (err) {
+    // Re-throw to be handled by outer catch
+    throw err;
   }
-
-  await completeStep(jobId, 4);
-
-  if (!createdTrackerId) {
-    throw new Error('Tracker was not created');
-  }
-
-  const trackerId = createdTrackerId as mongoose.Types.ObjectId;
-
-  // Step 5 — Finalise
-  await startStep(jobId, 5);
-
-  await AIGenerationJob.findByIdAndUpdate(jobId, {
-    status: 'completed',
-    currentStep: 5,
-    completedAt: new Date(),
-    outputData: {
-      trackerId: trackerId.toString(),
-    },
-  });
-
-  await completeStep(jobId, 5);
-
-  await createNotificationsComposition().useCases.createNotification.execute({
-    userId,
-    type: 'tracker_generation_completed',
-    message: `Your tracker “${roadmap.title}” is ready. Go and check it out.`,
-    deepLink: `/onboarding/roadmap-ready/${jobId}`,
-    metadata: { jobId, trackerId: trackerId.toString() },
-  });
 };
 
 // ============================================================
