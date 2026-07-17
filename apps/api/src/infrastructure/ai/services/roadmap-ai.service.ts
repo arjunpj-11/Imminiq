@@ -12,6 +12,7 @@ import {
 } from '../clients/cerebras.client';
 import {
   buildRoadmapEvaluationPrompt,
+  buildCloneFreshnessEvaluationPrompt,
   ROADMAP_EVALUATION_SYSTEM_PROMPT,
 } from '../prompts/roadmap-evaluation.prompt';
 import {
@@ -39,13 +40,15 @@ export const normalizeTrackerTitle = (generatedTitle: string, requestedTopic: st
 export const generateRoadmapStructure = async (
   topic: string,
   goal: string | undefined,
-  level: 'beginner' | 'intermediate' | 'advanced'
+  level: 'beginner' | 'intermediate' | 'advanced',
+  preferredLanguage = 'English'
 ): Promise<GeneratedRoadmapStructure> => {
   const roadmap = await trackerAIStructuredWithFallback(
     buildRoadmapStructurePrompt({
       topic,
       goal,
       level,
+      preferredLanguage,
     }),
     ROADMAP_STRUCTURE_SYSTEM_PROMPT,
     cerebrasRoadmapStructureChat,
@@ -68,5 +71,19 @@ export const evaluateRoadmap = async (roadmap: unknown): Promise<RoadmapEvaluati
     (response) => parseAIJson(response, roadmapEvaluationSchema),
     'roadmap_evaluation',
     { operation: 'roadmap-evaluation', groqMaxTokens: 4096, temperature: 0.2 }
+  );
+};
+
+export const evaluateCloneFreshness = async (
+  roadmap: unknown,
+  sourceTrackerCreatedAt: string
+): Promise<RoadmapEvaluation> => {
+  return trackerAIStructuredWithFallback(
+    buildCloneFreshnessEvaluationPrompt(roadmap, sourceTrackerCreatedAt),
+    ROADMAP_EVALUATION_SYSTEM_PROMPT,
+    cerebrasRoadmapEvaluationChat,
+    (response) => parseAIJson(response, roadmapEvaluationSchema),
+    'roadmap_evaluation',
+    { operation: 'clone-freshness-evaluation', groqMaxTokens: 4096, temperature: 0.15 }
   );
 };

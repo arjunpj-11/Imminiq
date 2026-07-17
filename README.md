@@ -95,7 +95,7 @@ src/modules/<feature>/
 <details>
 <summary><strong>AI & Learning</strong></summary>
 
-- Learner onboarding with topic and goal setup
+- AI-guided tracker creation with goals, level, learning preferences, and preferred language
 - AI-generated learning level assessment
 - AI roadmap generation via BullMQ background jobs with progress polling
 - Roadmap evaluation and missing-topic detection

@@ -1,4 +1,4 @@
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityVerificationRepository } from '../../domain/repositories/community-verification.repository.interface';
 import type { CommunityVerificationSubmissionViewDTO } from '../community.dto';
 import { CommunityApplicationError } from '../community-application.error';
 import type { ICommunityMapper } from '../community.mapper';
@@ -9,7 +9,7 @@ export interface IGetVerificationSubmissionUseCase {
 
 export class GetVerificationSubmissionUseCase implements IGetVerificationSubmissionUseCase {
   constructor(
-    private readonly _repository: ICommunityRepository,
+    private readonly _repository: ICommunityVerificationRepository,
     private readonly _mapper: ICommunityMapper
   ) {}
 

@@ -1,4 +1,8 @@
-export { generateRoadmapStructure, evaluateRoadmap } from './services/roadmap-ai.service';
+export {
+  generateRoadmapStructure,
+  evaluateRoadmap,
+  evaluateCloneFreshness,
+} from './services/roadmap-ai.service';
 export {
   economyAIChatWithFallback,
   economyAIStructuredWithFallback,

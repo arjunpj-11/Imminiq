@@ -97,6 +97,7 @@ export class GetTrackerLessonUseCase implements IGetTrackerLessonUseCase {
         subtopicTitle: currentSubtopic.title,
         subtopicDescription: currentSubtopic.description,
         level: 'beginner',
+        preferredLanguage: tracker.contentLanguage || 'English',
       });
 
       lesson = await this._trackerRepository.createLesson({

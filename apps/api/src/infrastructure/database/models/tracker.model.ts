@@ -8,6 +8,7 @@ export type TrackerStatus = 'draft' | 'active' | 'archived';
 
 export type TrackerVerificationStatus = 'pending' | 'verified' | 'rejected';
 export type TrackerModerationStatus = 'active' | 'suspended' | 'deleted';
+export type CloneFreshnessAnalysisStatus = 'pending' | 'completed' | 'failed';
 
 export interface ITrackerDocument extends Document {
   ownerId: mongoose.Types.ObjectId;
@@ -19,12 +20,16 @@ export interface ITrackerDocument extends Document {
   category: string;
   field: string;
   goal: string;
+  contentLanguage: string;
 
   level: TrackerLevel;
 
   tags: string[];
   allowClone: boolean;
   sourceTrackerId?: mongoose.Types.ObjectId | null;
+  cloneFreshnessAnalysisStatus?: CloneFreshnessAnalysisStatus | null;
+  cloneFreshnessAnalysisJobId?: mongoose.Types.ObjectId | null;
+  cloneFreshnessAnalyzedAt?: Date | null;
 
   visibility: TrackerVisibility;
   status: TrackerStatus;
@@ -108,6 +113,13 @@ const trackerSchema = new Schema<ITrackerDocument>(
       trim: true,
     },
 
+    contentLanguage: {
+      type: String,
+      default: 'English',
+      trim: true,
+      maxlength: 80,
+    },
+
     level: {
       type: String,
       enum: ['beginner', 'intermediate', 'advanced'],
@@ -131,6 +143,23 @@ const trackerSchema = new Schema<ITrackerDocument>(
     sourceTrackerId: {
       type: Schema.Types.ObjectId,
       ref: 'Tracker',
+      default: null,
+    },
+
+    cloneFreshnessAnalysisStatus: {
+      type: String,
+      enum: ['pending', 'completed', 'failed'],
+      default: null,
+    },
+
+    cloneFreshnessAnalysisJobId: {
+      type: Schema.Types.ObjectId,
+      ref: 'AIGenerationJob',
+      default: null,
+    },
+
+    cloneFreshnessAnalyzedAt: {
+      type: Date,
       default: null,
     },
 
@@ -259,6 +288,7 @@ trackerSchema.index({ category: 1 });
 trackerSchema.index({ level: 1 });
 trackerSchema.index({ tags: 1 });
 trackerSchema.index({ sourceTrackerId: 1 });
+trackerSchema.index({ ownerId: 1, cloneFreshnessAnalysisStatus: 1 });
 trackerSchema.index({ verificationStatus: 1, visibility: 1 });
 trackerSchema.index({ moderationStatus: 1, deletedAt: 1 });
 trackerSchema.index(

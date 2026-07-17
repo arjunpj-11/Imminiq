@@ -1,4 +1,4 @@
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityVerificationRepository } from '../../domain/repositories/community-verification.repository.interface';
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface';
 import type {
   VoteVerificationSubmissionPayloadDTO,
@@ -20,7 +20,7 @@ export interface IVoteVerificationSubmissionUseCase {
 
 export class VoteVerificationSubmissionUseCase implements IVoteVerificationSubmissionUseCase {
   constructor(
-    private readonly _repository: ICommunityRepository,
+    private readonly _repository: ICommunityVerificationRepository,
     private readonly _policy: ICommunityVerificationPolicy,
     private readonly _activityRecorder: ICommunityActivityRecorder,
     private readonly _mapper: ICommunityMapper,

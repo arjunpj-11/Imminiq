@@ -11,4 +11,3 @@ export * from './services/ai-image-generation.interface';
 export * from './services/profile-image-storage.interface';
 export * from './services/random-seed.interface';
 export * from './uploads.types';
-export * from './uploads.types';

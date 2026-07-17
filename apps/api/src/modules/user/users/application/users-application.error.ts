@@ -1,3 +1,4 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { UsersDomainError } from '../domain/users-domain.error';
 
 export type UsersApplicationErrorCode =
@@ -8,40 +9,40 @@ export type UsersApplicationErrorCode =
   | 'UNAUTHORIZED';
 
 export class UsersApplicationError extends UsersDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
-  private constructor(statusCode: number, code: UsersApplicationErrorCode, message: string) {
+  private constructor(kind: ErrorKind, code: UsersApplicationErrorCode, message: string) {
     super(code, message);
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.name = 'UsersApplicationError';
   }
 
   static userNotFound(): UsersApplicationError {
-    return new UsersApplicationError(404, 'USER_NOT_FOUND', 'User not found');
+    return new UsersApplicationError('missing-resource', 'USER_NOT_FOUND', 'User not found');
   }
 
   static publicProfileNotAvailable(): UsersApplicationError {
     return new UsersApplicationError(
-      404,
+      'missing-resource',
       'PUBLIC_PROFILE_NOT_AVAILABLE',
       'Public profile not available'
     );
   }
 
   static profileUpdateFailed(): UsersApplicationError {
-    return new UsersApplicationError(500, 'PROFILE_UPDATE_FAILED', 'Profile update failed');
+    return new UsersApplicationError('internal', 'PROFILE_UPDATE_FAILED', 'Profile update failed');
   }
 
   static userNameUpdateFailed(): UsersApplicationError {
     return new UsersApplicationError(
-      500,
+      'internal',
       'USER_NAME_UPDATE_FAILED',
       'User full name update failed'
     );
   }
 
   static unauthorized(): UsersApplicationError {
-    return new UsersApplicationError(401, 'UNAUTHORIZED', 'Unauthorized');
+    return new UsersApplicationError('unauthenticated', 'UNAUTHORIZED', 'Unauthorized');
   }
 }
 

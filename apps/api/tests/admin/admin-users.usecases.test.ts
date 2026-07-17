@@ -110,7 +110,7 @@ describe('SetAdminUserStatusUseCase', () => {
         { userId, role: 'admin' },
         meta
       )
-    ).rejects.toMatchObject({ code: 'SELF_STATUS_CHANGE', statusCode: 400 });
+    ).rejects.toMatchObject({ code: 'SELF_STATUS_CHANGE', kind: 'invalid-input' });
   });
 
   it('protects superadmins and protects admins from non-superadmins', async () => {
@@ -131,7 +131,7 @@ describe('SetAdminUserStatusUseCase', () => {
         { userId: actorId, role: 'admin' },
         meta
       )
-    ).rejects.toMatchObject({ code: 'PROTECTED_ADMIN', statusCode: 403 });
+    ).rejects.toMatchObject({ code: 'PROTECTED_ADMIN', kind: 'forbidden' });
   });
 
   it('returns not found without attempting a write', async () => {
@@ -143,7 +143,7 @@ describe('SetAdminUserStatusUseCase', () => {
         { userId: actorId, role: 'admin' },
         meta
       )
-    ).rejects.toMatchObject({ code: 'USER_NOT_FOUND', statusCode: 404 });
+    ).rejects.toMatchObject({ code: 'USER_NOT_FOUND', kind: 'missing-resource' });
     expect(repository.updateStatus).not.toHaveBeenCalled();
   });
 });

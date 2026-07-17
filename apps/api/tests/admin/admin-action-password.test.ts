@@ -173,7 +173,7 @@ describe('SetAdminActionPasswordUseCase', () => {
         superAdminId,
         { ipAddress: '127.0.0.1', userAgent: 'vitest' }
       )
-    ).rejects.toMatchObject({ code: 'PROTECTED_ADMIN', statusCode: 403 });
+    ).rejects.toMatchObject({ code: 'PROTECTED_ADMIN', kind: 'forbidden' });
     expect(hasher.hash).not.toHaveBeenCalled();
   });
 });

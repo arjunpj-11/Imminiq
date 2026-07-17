@@ -39,6 +39,7 @@ export interface ITrackerAIGateway {
     subtopicTitle: string;
     subtopicDescription: string;
     level: 'beginner' | 'intermediate' | 'advanced';
+    preferredLanguage?: string;
   }): Promise<GeneratedLessonData>;
 
   chatWithLessonTutor(input: {

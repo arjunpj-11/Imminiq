@@ -41,7 +41,7 @@ import { jwtAuthToken } from './infrastructure/services/jwt-auth-token.service';
 import { jwtPasswordResetToken } from './infrastructure/services/jwt-password-reset-token.service';
 import { jwtModerationAppealToken } from './infrastructure/services/jwt-moderation-appeal-token.service';
 import { otplibTwoFactorCodeVerifier } from './infrastructure/services/otplib-two-factor-code-verifier.service';
-import { securityAuditLogger } from './infrastructure/loggers/security-audit.logger';
+import { authSecurityAuditLogger } from './infrastructure/loggers/security-audit.logger';
 import { messageCentralPhoneOtpProvider } from './infrastructure/providers/message-central-phone-otp.provider';
 import { nodemailerOtpEmailProvider } from './infrastructure/providers/nodemailer-otp-email.provider';
 import { redisOtpStore } from './infrastructure/stores/redis-otp.store';
@@ -94,7 +94,7 @@ export const createAuthComposition = (): AuthComposition => {
   const retiredRefreshTokenStore = redisRetiredRefreshTokenStore;
   const otpStore = redisOtpStore;
   const pendingRegistrationStore = redisPendingRegistrationStore;
-  const auditLogger = securityAuditLogger;
+  const auditLogger = authSecurityAuditLogger;
   const twoFactorCodeVerifier = otplibTwoFactorCodeVerifier;
 
   const authRedirectResolver = new AuthRedirectResolver();

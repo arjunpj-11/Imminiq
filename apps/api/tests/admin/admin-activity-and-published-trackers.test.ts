@@ -80,6 +80,6 @@ describe('published tracker administration', () => {
         'missing-id',
         actor
       )
-    ).rejects.toMatchObject({ statusCode: 404, code: 'PUBLISHED_TRACKER_NOT_FOUND' });
+    ).rejects.toMatchObject({ kind: 'missing-resource', code: 'PUBLISHED_TRACKER_NOT_FOUND' });
   });
 });

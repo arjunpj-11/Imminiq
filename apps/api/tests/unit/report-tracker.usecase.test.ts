@@ -43,7 +43,7 @@ describe('tracker reports', () => {
         userId: 'owner-id',
         reason: 'other',
       })
-    ).rejects.toMatchObject({ statusCode: 403, code: 'FORBIDDEN' });
+    ).rejects.toMatchObject({ kind: 'forbidden', code: 'FORBIDDEN' });
     expect(repository.createOrReopenTrackerReport).not.toHaveBeenCalled();
   });
 

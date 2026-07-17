@@ -66,7 +66,6 @@ import {
   createModerationAppealComposition,
   createModerationAppealRoutes,
 } from '../modules/user/moderation-appeals';
-import { createOnboardingComposition, createOnboardingRoutes } from '../modules/user/onboarding';
 import { createSettingsComposition, createSettingsRoutes } from '../modules/user/settings';
 import {
   createSubscriptionsComposition,
@@ -76,7 +75,14 @@ import {
   createSupportTicketsComposition,
   createSupportTicketsRoutes,
 } from '../modules/user/support-tickets';
-import { createTrackerComposition, createTrackerRoutes } from '../modules/user/trackers';
+import {
+  createTrackerComposition,
+  createTrackerRoutes,
+} from '../modules/user/trackers';
+import {
+  createTrackerCreationComposition,
+  createTrackerCreationRoutes,
+} from '../modules/user/tracker-creation';
 import { createUsersComposition, createUsersRoutes } from '../modules/user/users';
 import { createSecurityComposition, createSecurityRoutes } from '../modules/security';
 import { API_ROUTE_PATHS } from '../shared/constants/api-route-paths';
@@ -88,7 +94,7 @@ export const createApiRouter = () => {
   const authComposition = createAuthComposition();
   const activityComposition = createActivityComposition();
   const usersComposition = createUsersComposition();
-  const onboardingComposition = createOnboardingComposition();
+  const trackerCreationComposition = createTrackerCreationComposition();
   const settingsComposition = createSettingsComposition();
   const securityComposition = createSecurityComposition();
   const dashboardComposition = createDashboardComposition();
@@ -132,7 +138,13 @@ export const createApiRouter = () => {
 
   // 🔹 Routers
   router.use(API_ROUTE_PATHS.auth, createAuthRoutes(authComposition.useCases));
-  router.use(API_ROUTE_PATHS.onboarding, createOnboardingRoutes(onboardingComposition.useCases));
+  const trackerCreationRoutes = createTrackerCreationRoutes(trackerCreationComposition.useCases);
+  router.use(`${API_ROUTE_PATHS.trackers}/create`, trackerCreationRoutes);
+  // Compatibility for already released clients. The feature now belongs to trackers.
+  router.use(
+    API_ROUTE_PATHS.legacyOnboarding,
+    createTrackerCreationRoutes(trackerCreationComposition.useCases)
+  );
   router.use(API_ROUTE_PATHS.trackers, createTrackerRoutes(trackerComposition.useCases));
   router.use(API_ROUTE_PATHS.users, createUsersRoutes(usersComposition.useCases));
   router.use(API_ROUTE_PATHS.uploads, createUploadsRoutes(uploadsComposition.useCases));

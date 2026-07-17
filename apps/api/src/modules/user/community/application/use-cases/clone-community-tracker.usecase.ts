@@ -1,7 +1,7 @@
 // apps/api/src/modules/user/community/application/use-cases/
 // clone-community-tracker.usecase.ts
 
-import type { ICommunityRepository } from '../../domain/repositories/community.repository.interface';
+import type { ICommunityTrackerRepository } from '../../domain/repositories/community-tracker.repository.interface';
 import type { ICommunityActivityRecorder } from '../../domain/services/community-activity.interface';
 import { CommunityApplicationError } from '../community-application.error';
 import type { CommunityTrackerViewDTO } from '../community.dto';
@@ -13,7 +13,7 @@ export interface ICloneCommunityTrackerUseCase {
 
 export class CloneCommunityTrackerUseCase implements ICloneCommunityTrackerUseCase {
   constructor(
-    private readonly _repository: ICommunityRepository,
+    private readonly _repository: ICommunityTrackerRepository,
     private readonly _activityRecorder: ICommunityActivityRecorder,
     private readonly _mapper: ICommunityMapper
   ) {}

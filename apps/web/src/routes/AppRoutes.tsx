@@ -9,7 +9,7 @@ import { ProtectedRoute } from './guards/ProtectedRoute';
 import { adminRoutes } from './groups/admin.routes';
 import { authenticatedRoutes } from './groups/authenticated.routes';
 import { focusedRoutes } from './groups/focused.routes';
-import { onboardingRoutes } from './groups/onboarding.routes';
+import { trackerCreationRoutes } from './groups/tracker-creation.routes';
 import { publicRoutes } from './groups/public.routes';
 
 const routes: RouteObject[] = [
@@ -17,7 +17,7 @@ const routes: RouteObject[] = [
   {
     element: <ProtectedRoute />,
     children: [
-      ...onboardingRoutes,
+      ...trackerCreationRoutes,
       ...focusedRoutes,
       {
         element: <AuthenticatedAppLayout />,

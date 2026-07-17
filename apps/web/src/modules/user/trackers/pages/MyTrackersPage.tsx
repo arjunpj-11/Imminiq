@@ -211,7 +211,7 @@ export default function MyTrackersPage() {
           </button>
           <button
             type="button"
-            onClick={() => navigate(ROUTES.onboardingStepOne)}
+            onClick={() => navigate(ROUTES.trackerCreate)}
             className="inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] transition hover:-translate-y-px hover:bg-(--brand-600) dark:bg-(--brand-500) dark:text-[#141412] max-[560px]:w-full max-[560px]:justify-center"
           >
             <PlusIcon /> Create Tracker
@@ -276,11 +276,11 @@ export default function MyTrackersPage() {
             No trackers yet
           </h2>
           <p className="mx-auto mt-2 max-w-md text-[13px] leading-[1.6] text-(--text-secondary) dark:text-(--text-secondary)">
-            Generate your first zero-to-hero roadmap from onboarding to start learning.
+            Generate your first personalized roadmap to start learning.
           </p>
           <button
             type="button"
-            onClick={() => navigate(ROUTES.onboardingStepOne)}
+            onClick={() => navigate(ROUTES.trackerCreate)}
             className="mt-5 inline-flex items-center gap-2 rounded-md bg-(--brand-500) px-5 py-2.5 text-[13px] font-bold text-[#fdf8f5] dark:bg-(--brand-500) dark:text-[#141412]"
           >
             <PlusIcon /> Create Tracker

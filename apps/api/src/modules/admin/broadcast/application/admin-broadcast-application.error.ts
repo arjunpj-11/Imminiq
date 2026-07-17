@@ -1,17 +1,18 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 export class AdminBroadcastApplicationError extends Error {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
   readonly code: string;
 
-  private constructor(statusCode: number, code: string, message: string) {
+  private constructor(kind: ErrorKind, code: string, message: string) {
     super(message);
     this.name = 'AdminBroadcastApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.code = code;
   }
 
   static disabled() {
     return new AdminBroadcastApplicationError(
-      409,
+      'conflict',
       'BROADCASTS_DISABLED',
       'Broadcasts are disabled in admin settings'
     );

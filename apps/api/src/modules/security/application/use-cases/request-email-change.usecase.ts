@@ -1,6 +1,6 @@
 import type { SecurityRuntimePolicy } from '../../domain/security-runtime-policy';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { IAccountSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface';
 import type { ISecurityEmailChangeUrlBuilder } from '../../domain/services/security-email-change-url.interface';
 import type { ISecurityEmailProvider } from '../../domain/services/security-email-provider.interface';
@@ -19,7 +19,7 @@ export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
     private readonly _sensitiveActionAuthorizer: ISensitiveActionAuthorizer,
     private readonly _emailChangeToken: ISecurityEmailChangeToken,
     private readonly _emailChangeUrlBuilder: ISecurityEmailChangeUrlBuilder,
-    private readonly _securityAuditLogger: ISecurityAuditLogger,
+    private readonly _accountSecurityAuditLogger: IAccountSecurityAuditLogger,
     private readonly _runtimePolicy: SecurityRuntimePolicy
   ) {}
 
@@ -84,7 +84,7 @@ export class RequestEmailChangeUseCase implements IRequestEmailChangeUseCase {
       });
     }
 
-    await this._securityAuditLogger.record({
+    await this._accountSecurityAuditLogger.record({
       userId,
       eventType: 'EMAIL_CHANGE_REQUESTED',
       outcome: 'success',

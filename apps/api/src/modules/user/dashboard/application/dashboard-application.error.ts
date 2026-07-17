@@ -1,23 +1,24 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { DashboardDomainError } from '../domain/dashboard-domain.error';
 
 export type DashboardApplicationErrorCode = 'NOT_FOUND' | 'DASHBOARD_INSIGHT_GENERATION_FAILED';
 
 export class DashboardApplicationError extends DashboardDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
-  private constructor(statusCode: number, code: DashboardApplicationErrorCode, message: string) {
+  private constructor(kind: ErrorKind, code: DashboardApplicationErrorCode, message: string) {
     super(code, message);
     this.name = 'DashboardApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
   }
 
   static userNotFound(): DashboardApplicationError {
-    return new DashboardApplicationError(404, 'NOT_FOUND', 'User not found');
+    return new DashboardApplicationError('missing-resource', 'NOT_FOUND', 'User not found');
   }
 
   static insightGenerationFailed(): DashboardApplicationError {
     return new DashboardApplicationError(
-      503,
+      'dependency-unavailable',
       'DASHBOARD_INSIGHT_GENERATION_FAILED',
       'Dashboard insights are temporarily unavailable'
     );

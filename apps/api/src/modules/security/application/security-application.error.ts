@@ -1,3 +1,4 @@
+import type { ErrorKind } from '../../../shared/errors/error-kind';
 import { SecurityDomainError } from '../domain/security-domain.error';
 
 export type SecurityApplicationErrorCode =
@@ -34,17 +35,17 @@ export type SecurityApplicationErrorCode =
   | 'WRONG_PASSWORD';
 
 export class SecurityApplicationError extends SecurityDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
-  private constructor(statusCode: number, code: SecurityApplicationErrorCode, message: string) {
+  private constructor(kind: ErrorKind, code: SecurityApplicationErrorCode, message: string) {
     super(code, message);
     this.name = 'SecurityApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
   }
 
   static accountDeleteFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
-      500,
+      'internal',
       'ACCOUNT_DELETE_FAILED',
       'Failed to schedule account deletion'
     );
@@ -52,7 +53,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static cannotRevokeCurrentSession(): SecurityApplicationError {
     return new SecurityApplicationError(
-      403,
+      'forbidden',
       'CANNOT_REVOKE_CURRENT_SESSION',
       'Use logout to end your current session'
     );
@@ -60,7 +61,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static emailChangeLinkInvalid(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'EMAIL_CHANGE_LINK_INVALID',
       'This email verification link is invalid or expired'
     );
@@ -68,7 +69,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static emailChangeRequestFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
-      500,
+      'internal',
       'EMAIL_CHANGE_REQUEST_FAILED',
       'Failed to create email change request'
     );
@@ -76,23 +77,23 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static emailChangeVerifyFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
-      500,
+      'internal',
       'EMAIL_CHANGE_VERIFY_FAILED',
       'Failed to verify email change'
     );
   }
 
   static emailRequired(): SecurityApplicationError {
-    return new SecurityApplicationError(400, 'EMAIL_REQUIRED', 'New email is required');
+    return new SecurityApplicationError('invalid-input', 'EMAIL_REQUIRED', 'New email is required');
   }
 
   static emailTaken(message = 'Email is already in use'): SecurityApplicationError {
-    return new SecurityApplicationError(409, 'EMAIL_TAKEN', message);
+    return new SecurityApplicationError('conflict', 'EMAIL_TAKEN', message);
   }
 
   static emailUnchanged(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'EMAIL_UNCHANGED',
       'New email must be different from current email'
     );
@@ -100,7 +101,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static invalidDeleteConfirmation(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'INVALID_DELETE_CONFIRMATION',
       'Type DELETE to confirm account deletion'
     );
@@ -108,35 +109,35 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static invalidTwoFactorCode(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'INVALID_TWO_FACTOR_CODE',
       'Invalid authenticator code'
     );
   }
 
   static notFound(message = 'User not found'): SecurityApplicationError {
-    return new SecurityApplicationError(404, 'NOT_FOUND', message);
+    return new SecurityApplicationError('missing-resource', 'NOT_FOUND', message);
   }
 
   static passwordChangeFailed(): SecurityApplicationError {
-    return new SecurityApplicationError(500, 'PASSWORD_CHANGE_FAILED', 'Unable to change password');
+    return new SecurityApplicationError('internal', 'PASSWORD_CHANGE_FAILED', 'Unable to change password');
   }
 
   static passwordUnavailable(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'PASSWORD_UNAVAILABLE',
       'Password changes are unavailable for this account'
     );
   }
 
   static sessionNotFound(): SecurityApplicationError {
-    return new SecurityApplicationError(404, 'SESSION_NOT_FOUND', 'Session not found');
+    return new SecurityApplicationError('missing-resource', 'SESSION_NOT_FOUND', 'Session not found');
   }
 
   static stepUpPasswordInvalid(): SecurityApplicationError {
     return new SecurityApplicationError(
-      401,
+      'unauthenticated',
       'STEP_UP_PASSWORD_INVALID',
       'Current password is incorrect'
     );
@@ -144,7 +145,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static stepUpPasswordRequired(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'STEP_UP_PASSWORD_REQUIRED',
       'Current password is required for this security action'
     );
@@ -152,7 +153,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static stepUpPasswordUnavailable(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'STEP_UP_PASSWORD_UNAVAILABLE',
       'Password reauthentication is unavailable for this account'
     );
@@ -160,7 +161,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static stepUpRequiresTwoFactorForSocialAccount(): SecurityApplicationError {
     return new SecurityApplicationError(
-      403,
+      'forbidden',
       'STEP_UP_REQUIRES_TWO_FACTOR_FOR_SOCIAL_ACCOUNT',
       'Enable two-factor authentication before performing this security action.'
     );
@@ -168,7 +169,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static stepUpTwoFactorInvalid(): SecurityApplicationError {
     return new SecurityApplicationError(
-      401,
+      'unauthenticated',
       'STEP_UP_TWO_FACTOR_INVALID',
       'Invalid two-factor code'
     );
@@ -176,7 +177,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static stepUpTwoFactorRequired(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'STEP_UP_TWO_FACTOR_REQUIRED',
       'Two-factor code is required for this security action'
     );
@@ -184,7 +185,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorAlreadyEnabled(): SecurityApplicationError {
     return new SecurityApplicationError(
-      409,
+      'conflict',
       'TWO_FACTOR_ALREADY_ENABLED',
       'Two-factor authentication is already enabled'
     );
@@ -192,7 +193,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorDisableFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
-      500,
+      'internal',
       'TWO_FACTOR_DISABLE_FAILED',
       'Unable to disable two-factor authentication'
     );
@@ -200,7 +201,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorDisableTemporarilyBlocked(): SecurityApplicationError {
     return new SecurityApplicationError(
-      429,
+      'rate-limited',
       'TWO_FACTOR_DISABLE_TEMPORARILY_BLOCKED',
       'Too many invalid authenticator codes. Please try again later.'
     );
@@ -208,7 +209,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorEnableFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
-      500,
+      'internal',
       'TWO_FACTOR_ENABLE_FAILED',
       'Unable to enable two-factor authentication'
     );
@@ -216,7 +217,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorNotEnabled(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'TWO_FACTOR_NOT_ENABLED',
       'Two-factor authentication is not enabled'
     );
@@ -224,7 +225,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorSecretMissing(): SecurityApplicationError {
     return new SecurityApplicationError(
-      500,
+      'internal',
       'TWO_FACTOR_SECRET_MISSING',
       'Two-factor secret is missing'
     );
@@ -232,7 +233,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorSetupFailed(): SecurityApplicationError {
     return new SecurityApplicationError(
-      500,
+      'internal',
       'TWO_FACTOR_SETUP_FAILED',
       'Unable to start two-factor setup'
     );
@@ -240,7 +241,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorSetupNotFound(): SecurityApplicationError {
     return new SecurityApplicationError(
-      404,
+      'missing-resource',
       'TWO_FACTOR_SETUP_NOT_FOUND',
       'Two-factor setup was not found'
     );
@@ -248,7 +249,7 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorSetupNotPending(): SecurityApplicationError {
     return new SecurityApplicationError(
-      400,
+      'invalid-input',
       'TWO_FACTOR_SETUP_NOT_PENDING',
       'Start two-factor setup again before verifying'
     );
@@ -256,14 +257,14 @@ export class SecurityApplicationError extends SecurityDomainError {
 
   static twoFactorSetupTemporarilyBlocked(): SecurityApplicationError {
     return new SecurityApplicationError(
-      429,
+      'rate-limited',
       'TWO_FACTOR_SETUP_TEMPORARILY_BLOCKED',
       'Too many invalid authenticator codes. Start setup again or try later.'
     );
   }
 
   static wrongPassword(): SecurityApplicationError {
-    return new SecurityApplicationError(400, 'WRONG_PASSWORD', 'Current password is incorrect');
+    return new SecurityApplicationError('invalid-input', 'WRONG_PASSWORD', 'Current password is incorrect');
   }
 }
 

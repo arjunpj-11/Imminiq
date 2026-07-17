@@ -1,18 +1,18 @@
-import { securityAuditLogger as sharedSecurityAuditLogger } from '../../../../infrastructure/security/security-audit-logger';
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import { securityAuditLogger as sharedAuthSecurityAuditLogger } from '../../../../infrastructure/security/security-audit-logger';
+import type { IAuthSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 
-type SecurityAuditLoggerInput = Parameters<typeof sharedSecurityAuditLogger.record>[0];
+type AuthSecurityAuditLoggerInput = Parameters<typeof sharedAuthSecurityAuditLogger.record>[0];
 
-export class SecurityAuditLogger implements ISecurityAuditLogger {
+export class AuthSecurityAuditLogger implements IAuthSecurityAuditLogger {
   async record(data: {
     userId?: string;
-    eventType: SecurityAuditLoggerInput['eventType'];
-    outcome: SecurityAuditLoggerInput['outcome'];
+    eventType: AuthSecurityAuditLoggerInput['eventType'];
+    outcome: AuthSecurityAuditLoggerInput['outcome'];
     ipAddress?: string;
     userAgent?: string;
     metadata?: Record<string, unknown>;
   }): Promise<void> {
-    const payload: SecurityAuditLoggerInput = {
+    const payload: AuthSecurityAuditLoggerInput = {
       eventType: data.eventType,
       outcome: data.outcome,
       ...(data.userId ? { userId: data.userId } : {}),
@@ -21,8 +21,8 @@ export class SecurityAuditLogger implements ISecurityAuditLogger {
       ...(data.metadata ? { metadata: data.metadata } : {}),
     };
 
-    await sharedSecurityAuditLogger.record(payload);
+    await sharedAuthSecurityAuditLogger.record(payload);
   }
 }
 
-export const securityAuditLogger = new SecurityAuditLogger();
+export const authSecurityAuditLogger = new AuthSecurityAuditLogger();

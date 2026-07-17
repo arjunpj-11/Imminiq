@@ -5,4 +5,3 @@ export * from './repositories/settings-command.repository.interface';
 export * from './repositories/settings.repository.interface';
 export * from './settings-domain.error';
 export * from './settings.constants';
-export * from './settings.types';

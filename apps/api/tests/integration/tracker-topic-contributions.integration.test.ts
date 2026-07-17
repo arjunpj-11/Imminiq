@@ -133,7 +133,7 @@ describe('tracker topic contributions', () => {
         trackerId: clone._id.toString(),
         userId: contributor._id.toString(),
       })
-    ).rejects.toMatchObject({ code: 'CLONED_TRACKER_CANNOT_BE_PUBLISHED', statusCode: 409 });
+    ).rejects.toMatchObject({ code: 'CLONED_TRACKER_CANNOT_BE_PUBLISHED', kind: 'conflict' });
 
     const repository = new MongoTrackerTopicContributionRepository();
     const classifiedTopics = await new MongoTrackerProgressRepository().getTopicsWithUserProgress({

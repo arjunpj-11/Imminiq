@@ -1,21 +1,22 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 export class AdminTrackersApplicationError extends Error {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
   readonly code: string;
 
-  private constructor(statusCode: number, code: string, message: string) {
+  private constructor(kind: ErrorKind, code: string, message: string) {
     super(message);
     this.name = 'AdminTrackersApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.code = code;
   }
 
   static trackerNotFound() {
-    return new AdminTrackersApplicationError(404, 'TRACKER_NOT_FOUND', 'Tracker not found');
+    return new AdminTrackersApplicationError('missing-resource', 'TRACKER_NOT_FOUND', 'Tracker not found');
   }
 
   static publishedTrackerNotFound() {
     return new AdminTrackersApplicationError(
-      404,
+      'missing-resource',
       'PUBLISHED_TRACKER_NOT_FOUND',
       'Published tracker not found'
     );
@@ -23,7 +24,7 @@ export class AdminTrackersApplicationError extends Error {
 
   static reportNotFound() {
     return new AdminTrackersApplicationError(
-      404,
+      'missing-resource',
       'TRACKER_REPORT_NOT_FOUND',
       'Tracker report not found'
     );

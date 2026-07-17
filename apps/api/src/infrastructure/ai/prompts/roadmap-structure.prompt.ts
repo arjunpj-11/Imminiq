@@ -5,6 +5,7 @@ export const buildRoadmapStructurePrompt = (input: {
   topic: string;
   goal?: string;
   level: 'beginner' | 'intermediate' | 'advanced';
+  preferredLanguage: string;
 }): string => `
 You are a senior curriculum architect, interview mentor, and full learning-path designer.
 
@@ -17,6 +18,12 @@ User Input:
 - Topic / Stack: ${input.topic}
 - Goal: ${input.goal || 'Build complete practical mastery'}
 - Current Level: ${input.level}
+- Preferred Content Language: ${input.preferredLanguage}
+
+Language requirement:
+- Write the tracker title, overview, topic titles, checklist titles, and all descriptions in the preferred content language.
+- Keep established technical terms in English where translating them would reduce clarity, but explain them in the preferred language.
+- Do not switch to a different language unless the learner explicitly included that need in the goal.
 
 Core product behavior:
 - The roadmap is stored as a structured tracker.

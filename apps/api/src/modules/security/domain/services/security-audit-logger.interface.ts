@@ -1,6 +1,6 @@
 import type { SecurityAuditEventType, SecurityAuditOutcome } from '../security.types';
 
-export interface ISecurityAuditLogger {
+export interface IAccountSecurityAuditLogger {
   record(data: {
     userId: string;
     eventType: SecurityAuditEventType;

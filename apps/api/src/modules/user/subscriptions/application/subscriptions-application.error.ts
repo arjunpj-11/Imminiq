@@ -1,17 +1,18 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 export class SubscriptionsApplicationError extends Error {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
   readonly code: string;
 
-  private constructor(statusCode: number, code: string, message: string) {
+  private constructor(kind: ErrorKind, code: string, message: string) {
     super(message);
     this.name = 'SubscriptionsApplicationError';
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.code = code;
   }
 
   static invalidPlan() {
     return new SubscriptionsApplicationError(
-      400,
+      'invalid-input',
       'INVALID_SUBSCRIPTION_PLAN',
       'Select a paid subscription plan'
     );
@@ -19,7 +20,7 @@ export class SubscriptionsApplicationError extends Error {
 
   static orderNotFound() {
     return new SubscriptionsApplicationError(
-      404,
+      'missing-resource',
       'SUBSCRIPTION_ORDER_NOT_FOUND',
       'Subscription order not found'
     );
@@ -27,7 +28,7 @@ export class SubscriptionsApplicationError extends Error {
 
   static invalidPaymentSignature() {
     return new SubscriptionsApplicationError(
-      400,
+      'invalid-input',
       'PAYMENT_SIGNATURE_INVALID',
       'Payment verification failed'
     );

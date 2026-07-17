@@ -30,4 +30,7 @@ export {
   RedisSecurityAttemptStore,
   redisSecurityAttemptStore,
 } from './stores/redis-security-attempt.store';
-export { SecurityAuditLogger, securityAuditLogger } from './loggers/security-audit.logger';
+export {
+  AccountSecurityAuditLogger,
+  accountSecurityAuditLogger,
+} from './loggers/security-audit.logger';

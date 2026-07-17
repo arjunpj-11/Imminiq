@@ -1,3 +1,4 @@
+import type { ErrorKind } from '../../../../shared/errors/error-kind';
 import { ModerationAppealDomainError } from '../domain/moderation-appeal-domain.error';
 
 export type ModerationAppealApplicationErrorCode =
@@ -7,21 +8,21 @@ export type ModerationAppealApplicationErrorCode =
   | 'APPEAL_AUTHORIZATION_MISMATCH';
 
 export class ModerationAppealApplicationError extends ModerationAppealDomainError {
-  readonly statusCode: number;
+  readonly kind: ErrorKind;
 
   private constructor(
-    statusCode: number,
+    kind: ErrorKind,
     code: ModerationAppealApplicationErrorCode,
     message: string
   ) {
     super(code, message);
-    this.statusCode = statusCode;
+    this.kind = kind;
     this.name = 'ModerationAppealApplicationError';
   }
 
   static activeAppealAlreadyExists(): ModerationAppealApplicationError {
     return new ModerationAppealApplicationError(
-      409,
+      'conflict',
       'ACTIVE_APPEAL_ALREADY_EXISTS',
       'An appeal is already under review for this account.'
     );
@@ -29,7 +30,7 @@ export class ModerationAppealApplicationError extends ModerationAppealDomainErro
 
   static appealCaseIdGenerationFailed(): ModerationAppealApplicationError {
     return new ModerationAppealApplicationError(
-      500,
+      'internal',
       'APPEAL_CASE_ID_GENERATION_FAILED',
       'Unable to generate an appeal case ID. Please try again.'
     );
@@ -37,7 +38,7 @@ export class ModerationAppealApplicationError extends ModerationAppealDomainErro
 
   static restrictedAccountNotFound(): ModerationAppealApplicationError {
     return new ModerationAppealApplicationError(
-      404,
+      'missing-resource',
       'RESTRICTED_ACCOUNT_NOT_FOUND',
       'No restricted account was found for this email or phone number.'
     );
@@ -45,7 +46,7 @@ export class ModerationAppealApplicationError extends ModerationAppealDomainErro
 
   static authorizationMismatch(): ModerationAppealApplicationError {
     return new ModerationAppealApplicationError(
-      403,
+      'forbidden',
       'APPEAL_AUTHORIZATION_MISMATCH',
       'Appeal authorization does not match this account. Please sign in again.'
     );

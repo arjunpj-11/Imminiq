@@ -2,7 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 
 import api from '../../../../lib/axios';
 import { TRACKER_API_PATHS } from '../constants/tracker-api.constants';
-import { onboardingKeys } from '../../onboarding';
+import { trackerCreationKeys } from '../../tracker-creation';
 import type {
   AddMissingEvaluationTopicPayload,
   AddMissingEvaluationTopicResponse,
@@ -24,7 +24,7 @@ export const useAddMissingEvaluationTopic = () => {
     onSuccess: async (_response, variables) => {
       await Promise.all([
         queryClient.invalidateQueries({
-          queryKey: onboardingKeys.evaluationResult(variables.evaluationJobId),
+          queryKey: trackerCreationKeys.evaluationResult(variables.evaluationJobId),
         }),
         queryClient.invalidateQueries({
           queryKey: trackerKeys.roadmap(variables.trackerId),

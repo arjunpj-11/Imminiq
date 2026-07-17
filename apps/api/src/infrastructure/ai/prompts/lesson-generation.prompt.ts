@@ -7,6 +7,7 @@ export const buildLessonGenerationPrompt = (input: {
   subtopicTitle: string;
   subtopicDescription?: string;
   level?: 'beginner' | 'intermediate' | 'advanced';
+  preferredLanguage?: string;
 }): string =>
   `
 Generate a full lesson for this roadmap node.
@@ -25,6 +26,11 @@ ${input.subtopicDescription || 'No description provided'}
 
 Learner level:
 ${input.level || 'beginner'}
+
+Preferred content language:
+${input.preferredLanguage || 'English'}
+
+Write all learner-facing explanations, summaries, insights, and practice instructions in the preferred content language. Keep code, API names, and established technical terms unchanged where translation would reduce clarity.
 
 Return ONLY valid JSON using this exact structure:
 

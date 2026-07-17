@@ -16,4 +16,3 @@ export * from './services/two-factor-backup-code.interface';
 export * from './services/two-factor-gateway.interface';
 export * from './security-domain.error';
 export * from './security.constants';
-export * from './security.types';

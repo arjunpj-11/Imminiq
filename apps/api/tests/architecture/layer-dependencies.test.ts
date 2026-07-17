@@ -282,13 +282,16 @@ describe('clean architecture boundaries', () => {
     expect(violations).toEqual([]);
   });
 
-  it('keeps HTTP status metadata out of auth application errors', () => {
-    const errorSource = readFileSync(
-      join(modulesRoot, 'auth', 'application', 'auth-application.error.ts'),
-      'utf8'
-    );
+  it('keeps HTTP status metadata out of every domain and application layer', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter((path) => {
+        const normalized = portable(path);
+        return normalized.includes('/domain/') || normalized.includes('/application/');
+      })
+      .filter((path) => /statusCode|HttpStatusCode|ApiError/.test(readFileSync(path, 'utf8')))
+      .map((path) => portable(relative(sourceRoot, path)));
 
-    expect(errorSource).not.toMatch(/statusCode|HttpStatusCode|ApiError/);
+    expect(violations).toEqual([]);
   });
 
   it('keeps auth cookie security and error policy out of the controller', () => {
@@ -509,6 +512,35 @@ describe('clean architecture boundaries', () => {
       .map((path) => portable(relative(sourceRoot, path)));
 
     expect(violations).toEqual([]);
+  });
+
+  it('keeps all use cases independent of aggregate repository interfaces', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter((path) => path.endsWith('.usecase.ts'))
+      .filter((path) =>
+        /:\s*(?:ICommunityRepository|IMockTestsRepository)\b/.test(readFileSync(path, 'utf8'))
+      )
+      .map((path) => portable(relative(sourceRoot, path)));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps HTTP controllers focused by capability', () => {
+    const violations = collectFiles(modulesRoot)
+      .filter((path) => path.endsWith('.controller.ts'))
+      .filter((path) => readFileSync(path, 'utf8').trimEnd().split(/\r?\n/).length > 400)
+      .map((path) => portable(relative(sourceRoot, path)));
+
+    expect(violations).toEqual([]);
+  });
+
+  it('keeps the global AI worker as a thin job dispatcher', () => {
+    const workerPath = join(sourceRoot, 'infrastructure', 'queue', 'workers', 'ai.worker.ts');
+    const source = readFileSync(workerPath, 'utf8');
+
+    expect(source.trimEnd().split(/\r?\n/).length).toBeLessThanOrEqual(300);
+    expect(source).not.toMatch(/tracker-topic\.model|tracker-subtopic\.model/);
+    expect(source).toMatch(/trackerCreationAIJobProcessor/);
   });
 
   it('keeps use-case coordinators below the oversized-workflow threshold', () => {

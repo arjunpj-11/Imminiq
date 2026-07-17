@@ -30,7 +30,7 @@ export type { IPhoneOtpSessionStore } from './services/phone-otp-session-store.i
 export type { IRandomNumberGenerator } from './services/random-number-generator.interface';
 export type { IRetiredRefreshTokenStore } from './services/retired-refresh-token-store.interface';
 export type { ISecurityAttemptStore } from './services/security-attempt-store.interface';
-export type { ISecurityAuditLogger } from './services/security-audit-logger.interface';
+export type { IAuthSecurityAuditLogger } from './services/security-audit-logger.interface';
 export type { ITwoFactorCodeVerifier } from './services/two-factor-code-verifier.interface';
 
 export * from './auth.types';

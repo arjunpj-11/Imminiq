@@ -1,6 +1,6 @@
 import type { ISecuritySessionRepository } from '../../domain/repositories/security-session.repository.interface';
 import type { ISecurityUserRepository } from '../../domain/repositories/security-user.repository.interface';
-import type { ISecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
+import type { IAccountSecurityAuditLogger } from '../../domain/services/security-audit-logger.interface';
 import type { ISecurityEmailChangeToken } from '../../domain/services/security-email-change-token.interface';
 import type { VerifyEmailChangePayloadDTO, VerifyEmailChangeResponseDTO } from '../security.dto';
 import { SecurityApplicationError } from '../security-application.error';
@@ -15,7 +15,7 @@ export class VerifyEmailChangeUseCase implements IVerifyEmailChangeUseCase {
   constructor(
     private readonly _securityRepository: VerifyEmailChangeRepository,
     private readonly _emailChangeToken: ISecurityEmailChangeToken,
-    private readonly _securityAuditLogger: ISecurityAuditLogger
+    private readonly _accountSecurityAuditLogger: IAccountSecurityAuditLogger
   ) {}
 
   async execute(payload: VerifyEmailChangePayloadDTO): Promise<VerifyEmailChangeResponseDTO> {
@@ -48,7 +48,7 @@ export class VerifyEmailChangeUseCase implements IVerifyEmailChangeUseCase {
 
     await this._securityRepository.revokeAllSessions(user.id);
 
-    await this._securityAuditLogger.record({
+    await this._accountSecurityAuditLogger.record({
       userId: user.id,
       eventType: 'EMAIL_CHANGE_VERIFIED',
       outcome: 'success',
