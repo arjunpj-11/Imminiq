@@ -9,12 +9,8 @@ export class NotificationApplicationError extends NotificationDomainError {
     this.name = 'NotificationApplicationError';
     this.statusCode = statusCode;
   }
-  static notFound() {
-    return new NotificationApplicationError(
-      404,
-      'NOTIFICATION_NOT_FOUND',
-      'Notification not found'
-    );
+  static notFound(message = 'Notification not found') {
+    return new NotificationApplicationError(404, 'NOTIFICATION_NOT_FOUND', message);
   }
   static invalid(message: string) {
     return new NotificationApplicationError(400, 'INVALID_NOTIFICATION', message);
