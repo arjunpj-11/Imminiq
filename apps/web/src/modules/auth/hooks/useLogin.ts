@@ -89,7 +89,7 @@ export const useLogin = () => {
 
       const user = data?.user;
       const accessToken = data?.accessToken;
-      const redirectPath = ['admin', 'superadmin'].includes(user?.role || '')
+      const redirectPath = ['admin', 'superadmin', 'moderator'].includes(user?.role || '')
         ? ADMIN_ROUTES.dashboard
         : data?.redirectPath || ROUTES.dashboard;
 
