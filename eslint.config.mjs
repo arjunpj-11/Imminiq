@@ -200,13 +200,17 @@ export default tseslint.config(
       'no-restricted-imports': [
         'error',
         {
+          // Disallow importing infrastructure from other modules via parent-relative paths
           patterns: [
-            {
-              group: ['**/infrastructure', '**/infrastructure/**'],
-              message:
-                "Module root index files must not import or re-export from './infrastructure' — keep concrete implementations behind the module's factory/composition.",
-            },
+            '../**/infrastructure',
+            '../**/infrastructure/**',
+            '../../**/infrastructure',
+            '../../**/infrastructure/**',
+            '../../../**/infrastructure',
+            '../../../**/infrastructure/**',
           ],
+          message:
+            "Module root index files must not import or re-export another module's infrastructure — re-export only own './infrastructure' through the module public API.",
         },
       ],
     },

@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils/ApiError';
 import { TwoFactorAuth } from '../../infrastructure/database/models/two-factor-auth.model';
 import { env } from '../../config/env';
-import { otplibTwoFactorGateway } from '../../modules/security/infrastructure/gateways/otplib-two-factor.gateway';
+import { otplibTwoFactorGateway } from '../../modules/security';
 
 export type AdminPermission =
   | 'content:read'
