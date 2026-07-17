@@ -22,4 +22,3 @@ export type { AuthProvider, TwoFactorStatus } from './domain/security.types';
 
 export { createSecurityComposition } from './security.factory';
 export { createSecurityRoutes } from './presentation/security.routes';
-export { otplibTwoFactorGateway } from './infrastructure/gateways/otplib-two-factor.gateway';
