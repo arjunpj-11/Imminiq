@@ -3,9 +3,6 @@ import type { NotificationsUseCases } from '../application';
 import { ApiResponse } from '../../../shared/utils/ApiResponse';
 import { getAuthUser } from '../../../shared/utils/getAuthUser';
 import { notificationsListQuerySchema } from './notifications.schema';
-import { Notification } from '../../../infrastructure/database/models/notification.model';
-import { AdminBroadcast } from '../../../infrastructure/database/models/admin-broadcast.model';
-import { AdminBroadcastPollVote } from '../../../infrastructure/database/models/admin-broadcast-poll-vote.model';
 
 export class NotificationsController {
   constructor(private readonly _useCases: NotificationsUseCases) {}
@@ -39,24 +36,12 @@ export class NotificationsController {
   };
   voteForPoll = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const userId = getAuthUser(req).userId;
-      const notification = await Notification.findOne({
-        _id: req.params.notificationId,
-        userId,
-        type: 'admin_broadcast',
-      }).lean();
-      const metadata = notification?.metadata as { broadcastId?: string } | undefined;
-      if (!metadata?.broadcastId) return res.status(404).json(new ApiResponse('Poll not found', null));
-      const broadcast = await AdminBroadcast.findById(metadata.broadcastId).lean();
-      const optionIndex = Number(req.body.optionIndex);
-      if (!broadcast?.poll?.options?.[optionIndex]) return res.status(400).json(new ApiResponse('Invalid poll option', null));
-      await AdminBroadcastPollVote.findOneAndUpdate(
-        { broadcastId: broadcast._id, userId },
-        { $set: { optionIndex } },
-        { upsert: true, new: true }
+      const data = await this._useCases.voteForPoll.execute(
+        getAuthUser(req).userId,
+        String(req.params.notificationId),
+        Number(req.body.optionIndex)
       );
-      await this._useCases.markNotificationRead.execute(userId, String(req.params.notificationId));
-      res.json(new ApiResponse('Poll vote recorded', { optionIndex }));
+      res.json(new ApiResponse('Poll vote recorded', data));
     } catch (error) {
       next(error);
     }

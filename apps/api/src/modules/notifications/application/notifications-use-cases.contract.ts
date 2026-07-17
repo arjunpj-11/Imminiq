@@ -4,4 +4,6 @@ export type NotificationsUseCases = {
   createNotification: Application.ICreateNotificationUseCase;
   markNotificationRead: Application.IMarkNotificationReadUseCase;
   markAllNotificationsRead: Application.IMarkAllNotificationsReadUseCase;
+  voteForPoll: Application.IVoteNotificationPollUseCase;
 };
+

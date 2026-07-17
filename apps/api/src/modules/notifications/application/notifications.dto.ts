@@ -32,3 +32,6 @@ export type CreateNotificationPayloadDTO = {
 };
 export type MarkNotificationReadResponseDTO = { updated: boolean };
 export type MarkAllNotificationsReadResponseDTO = { updated: number };
+export type VoteNotificationPollPayloadDTO = { optionIndex: number };
+export type VoteNotificationPollResponseDTO = { optionIndex: number };
+
