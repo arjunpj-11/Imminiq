@@ -322,14 +322,15 @@ export class MongoTrackerRepository implements ITrackerRepository {
       order: number;
       title: string;
       description?: string;
-      learningVideo?: any | null;
+      learningVideo?: unknown | null;
+      subtopicLearningVideos?: Map<string, unknown>;
       children?: any[];
     }>;
   }): Promise<{ trackerId: string }> {
     // Implement transactional creation using mongoose session and models used elsewhere.
-    const { Tracker } = await import('../../../../../../infrastructure/database/models/tracker.model');
-    const { TrackerTopic } = await import('../../../../../../infrastructure/database/models/tracker-topic.model');
-    const { TrackerSubtopic } = await import('../../../../../../infrastructure/database/models/tracker-subtopic.model');
+    const { Tracker } = await import('../../../../../infrastructure/database/models/tracker.model');
+    const { TrackerTopic } = await import('../../../../../infrastructure/database/models/tracker-topic.model');
+    const { TrackerSubtopic } = await import('../../../../../infrastructure/database/models/tracker-subtopic.model');
 
     const session = await (await import('mongoose')).startSession();
 

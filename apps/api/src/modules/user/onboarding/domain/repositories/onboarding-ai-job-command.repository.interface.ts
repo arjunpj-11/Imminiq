@@ -33,4 +33,16 @@ export interface IOnboardingAIJobCommandRepository {
   createEvaluationAIJob(data: CreateEvaluationAIJobInput): Promise<AIGenerationJobEntity>;
 
   createAIJobSteps(data: CreateAIJobStepsInput): Promise<void>;
+
+  /**
+   * Update job fields such as status, currentStep, completedAt and output.
+   */
+  updateJobStatus?(data: {
+    jobId: string;
+    status?: string;
+    currentStep?: number;
+    completedAt?: Date | null;
+    output?: Record<string, unknown> | null;
+    errorMessage?: string | null;
+  }): Promise<void>;
 }

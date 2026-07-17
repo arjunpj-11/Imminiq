@@ -1,14 +1,14 @@
 import { describe, expect, it, vi, beforeEach } from 'vitest';
 
-import { SaveGeneratedRoadmapUseCase } from '../../src/modules/user/onboarding/application/use-cases/save-generated-roadmap.usecase';
+import { SaveGeneratedRoadmapUseCase, type SaveGeneratedRoadmapTopicPayload } from '../../src/modules/user/onboarding/application/use-cases/save-generated-roadmap.usecase';
 import type { ITrackerRepository } from '../../src/modules/user/trackers/domain/repositories/tracker.repository.interface';
 import type { IOnboardingRepository } from '../../src/modules/user/onboarding/domain/repositories/onboarding.repository.interface';
 
 describe('SaveGeneratedRoadmapUseCase', () => {
   let trackerRepository: Partial<ITrackerRepository> & Record<string, any>;
   let onboardingRepository: Partial<IOnboardingRepository> & Record<string, any>;
-  let subscriptionLimitService: Record<string, any> | undefined;
-  let createNotificationUseCase: Record<string, any> | undefined;
+  let subscriptionLimitService: { enforceUsageLimitForUser?: (userId: string, key: string) => Promise<void> } | undefined;
+  let createNotificationUseCase: { execute?: (p: any) => Promise<void> } | undefined;
 
   beforeEach(() => {
     trackerRepository = {

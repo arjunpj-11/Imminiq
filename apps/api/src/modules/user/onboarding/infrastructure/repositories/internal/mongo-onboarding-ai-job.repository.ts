@@ -163,6 +163,32 @@ export class MongoOnboardingAIJobRepository extends MongoOnboardingBaseRepositor
     });
   }
 
+  async updateJobStatus(data: {
+    jobId: string;
+    status?: string;
+    currentStep?: number;
+    completedAt?: Date | null;
+    output?: Record<string, unknown> | null;
+    errorMessage?: string | null;
+  }): Promise<void> {
+    await this.execute('AI_JOB_UPDATE_FAILED', 'Failed to update AI job', async () => {
+      const update: Record<string, unknown> = {};
+      if (data.status !== undefined) update['status'] = data.status;
+      if (data.currentStep !== undefined) update['currentStep'] = data.currentStep;
+      if (data.completedAt !== undefined) update['completedAt'] = data.completedAt;
+      if (data.output !== undefined) update['outputData'] = data.output;
+      if (data.errorMessage !== undefined) update['errorMessage'] = data.errorMessage;
+
+      await AIGenerationJob.findOneAndUpdate(
+        {
+          _id: data.jobId,
+          deletedAt: null,
+        },
+        update
+      );
+    });
+  }
+
   async getJobSteps(jobId: string): Promise<AIGenerationStepEntity[]> {
     return this.execute('AI_JOB_STEPS_QUERY_FAILED', 'Failed to read AI job steps', async () => {
       const steps = await AIGenerationStep.find({

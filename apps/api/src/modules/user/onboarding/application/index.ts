@@ -12,3 +12,4 @@ export * from './use-cases/get-roadmap-job-status.usecase';
 export * from './use-cases/get-active-roadmap-job.usecase';
 export * from './use-cases/save-onboarding-step-one.usecase';
 export * from './use-cases/save-onboarding-step-two.usecase';
+export * from './use-cases/save-generated-roadmap.usecase';

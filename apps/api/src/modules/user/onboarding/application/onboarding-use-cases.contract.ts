@@ -9,4 +9,6 @@ export type OnboardingUseCases = {
   getRoadmapJobResult: Application.IGetRoadmapJobResultUseCase;
   evaluateRoadmap: Application.IEvaluateRoadmapUseCase;
   getRoadmapEvaluationResult: Application.IGetRoadmapEvaluationResultUseCase;
+  // Newly added: save generated roadmap use-case
+  saveGeneratedRoadmap: Application.ISaveGeneratedRoadmapUseCase;
 };

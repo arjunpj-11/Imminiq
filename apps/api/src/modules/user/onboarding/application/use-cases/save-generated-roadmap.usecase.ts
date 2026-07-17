@@ -1,6 +1,15 @@
 import type { IOnboardingRepository } from '../../domain/repositories/onboarding.repository.interface';
 import type { ITrackerRepository } from '../../../trackers';
 
+export type SaveGeneratedRoadmapTopicPayload = {
+  order: number;
+  title: string;
+  description?: string;
+  learningVideo?: unknown | null;
+  subtopicLearningVideos?: Map<string, unknown>;
+  children?: SaveGeneratedRoadmapTopicPayload[];
+};
+
 export interface ISaveGeneratedRoadmapUseCase {
   execute(input: {
     userId: string;
@@ -12,7 +21,7 @@ export interface ISaveGeneratedRoadmapUseCase {
     level: 'beginner' | 'intermediate' | 'advanced';
     isAIGenerated?: boolean;
     aiJobId?: string;
-    topics: Array<any>;
+    topics: SaveGeneratedRoadmapTopicPayload[];
     jobId?: string;
   }): Promise<{ trackerId: string }>;
 }
@@ -21,8 +30,10 @@ export class SaveGeneratedRoadmapUseCase implements ISaveGeneratedRoadmapUseCase
   constructor(
     private readonly onboardingRepository: IOnboardingRepository,
     private readonly trackerRepository: ITrackerRepository,
-    private readonly subscriptionLimitService: any,
-    private readonly createNotificationUseCase: any
+    private readonly subscriptionLimitService: { enforceUsageLimitForUser?: (userId: string, key: string) => Promise<void> } | undefined,
+    private readonly createNotificationUseCase:
+      | { execute?: (payload: { userId: string; type: string; payload: Record<string, unknown> | any; }) => Promise<void> }
+      | undefined
   ) {}
 
   async execute(input: {
@@ -35,7 +46,7 @@ export class SaveGeneratedRoadmapUseCase implements ISaveGeneratedRoadmapUseCase
     level: 'beginner' | 'intermediate' | 'advanced';
     isAIGenerated?: boolean;
     aiJobId?: string;
-    topics: Array<any>;
+    topics: SaveGeneratedRoadmapTopicPayload[];
     jobId?: string;
   }): Promise<{ trackerId: string }> {
     // Enforce subscription limits (if applicable)
