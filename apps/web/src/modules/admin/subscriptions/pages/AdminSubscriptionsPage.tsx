@@ -332,7 +332,7 @@ function PlanDialog({ plan, onClose }: { plan: AdminSubscriptionPlan | null; onC
             </div>
             <button
               type="button"
-              className="admin-button !p-2"
+              className="admin-button p-2!"
               onClick={onClose}
               aria-label="Close plan details"
             >
