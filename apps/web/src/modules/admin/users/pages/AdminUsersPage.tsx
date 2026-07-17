@@ -264,7 +264,7 @@ export default function AdminUsersPage() {
         ) : (
           <>
             <div className="admin-table-scroll overflow-x-auto">
-              <table className="admin-table w-full min-w-[900px] text-left text-sm">
+              <table className="admin-table w-full min-w-225 text-left text-sm">
                 <caption className="sr-only">
                   User accounts matching the current search and status filters
                 </caption>

@@ -77,7 +77,7 @@ export default function AdminUserDetailPage() {
   ] as const;
 
   return (
-    <main className="mx-auto max-w-[1240px] px-5 py-7 sm:px-8">
+    <main className="mx-auto max-w-310 px-5 py-7 sm:px-8">
       <Link
         to={ADMIN_USERS_ROUTES.list}
         className="mb-6 inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-[#aaa59d]"
@@ -331,7 +331,7 @@ export default function AdminUserDetailPage() {
             <div className="text-[9px] uppercase tracking-[.2em] text-[#aaa59d]">
               Account health score
             </div>
-            <div className="mx-auto mt-6 grid h-32 w-32 place-items-center rounded-full border-[8px] border-[#52c58c]">
+            <div className="mx-auto mt-6 grid h-32 w-32 place-items-center rounded-full border-8 border-[#52c58c]">
               <div>
                 <div className="font-editorial text-4xl">
                   {stats.trustScore}
