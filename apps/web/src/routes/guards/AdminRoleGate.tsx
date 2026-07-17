@@ -1,0 +1,11 @@
+import type { ReactNode } from 'react';
+import { Navigate } from 'react-router-dom';
+import { useAuthStore } from '../../store/useAuthStore';
+import { ADMIN_ROUTES } from '../config/route-paths';
+
+export function AdminRoleGate({ children, roles }: { children: ReactNode; roles: string[] }) {
+  const role = useAuthStore((state) => state.user?.role);
+  return role && roles.includes(role)
+    ? <>{children}</>
+    : <Navigate to={ADMIN_ROUTES.dashboard} replace />;
+}

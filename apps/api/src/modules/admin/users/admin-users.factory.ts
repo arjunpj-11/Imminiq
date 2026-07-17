@@ -13,6 +13,8 @@ import { UpdateAdminUserRoleUseCase } from './application/use-cases/update-admin
 import { AdminDataPrivacyRequestService } from './infrastructure/services/mongo-admin-data-privacy-request.service';
 import { AdminExportService } from './infrastructure';
 import { AdminUserNotesService } from './infrastructure/services/mongo-admin-user-notes.service';
+import { SetAdminActionPasswordUseCase } from './application/use-cases/set-admin-action-password.usecase';
+import { bcryptSecurityPasswordHasher } from '../../security';
 
 export type AdminUsersComposition = { useCases: AdminUsersUseCases };
 export const createAdminUsersComposition = (): AdminUsersComposition => {
@@ -39,6 +41,10 @@ export const createAdminUsersComposition = (): AdminUsersComposition => {
       ),
       revokeSession: new RevokeAdminUserSessionUseCase(mongoAdminUsersRepository),
       updateRole: new UpdateAdminUserRoleUseCase(mongoAdminUsersRepository, mapper),
+      setActionPassword: new SetAdminActionPasswordUseCase(
+        mongoAdminUsersRepository,
+        bcryptSecurityPasswordHasher
+      ),
     },
   };
 };

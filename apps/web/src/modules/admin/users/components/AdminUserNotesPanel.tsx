@@ -5,6 +5,8 @@ import api from "../../../../lib/axios";
 import type { ApiEnvelope } from "../../../../lib/api.types";
 import { toast } from "../../../../lib/toast";
 import { ADMIN_USERS_ENDPOINTS } from "../constants/admin-users.constants";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 type NotesData = {
   tags: string[];
@@ -31,6 +33,8 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
   const [note, setNote] = useState("");
   const [noteTags, setNoteTags] = useState("");
   const [accountTags, setAccountTags] = useState<string | null>(null);
+  const [actionPassword, setActionPassword] = useState("");
+  const passwordHeaders = () => ({ headers: { 'x-admin-action-password': actionPassword } });
   const refresh = () => client.invalidateQueries({ queryKey: key });
   const add = useMutation({
     mutationFn: () =>
@@ -40,17 +44,18 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
           .split(",")
           .map((value) => value.trim().toLowerCase())
           .filter(Boolean),
-      }),
+      }, passwordHeaders()),
     onSuccess: async () => {
       setNote("");
       setNoteTags("");
+      setActionPassword("");
       toast.success("Internal note added");
       await refresh();
     },
   });
   const remove = useMutation({
     mutationFn: (noteId: string) =>
-      api.delete(ADMIN_USERS_ENDPOINTS.note(userId, noteId)),
+      api.delete(ADMIN_USERS_ENDPOINTS.note(userId, noteId), passwordHeaders()),
     onSuccess: refresh,
   });
   const tags = useMutation({
@@ -60,10 +65,11 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
           .split(",")
           .map((value) => value.trim().toLowerCase())
           .filter(Boolean),
-      }),
+      }, passwordHeaders()),
     onSuccess: async () => {
       toast.success("Account tags updated");
       setAccountTags(null);
+      setActionPassword("");
       await refresh();
     },
   });
@@ -76,6 +82,7 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
       <p className="mt-1 text-xs text-[#aaa59d]">
         Visible only to authorized administrators; every change is audited.
       </p>
+      <AdminActionPasswordField value={actionPassword} onChange={setActionPassword} />
       <label className="admin-field mt-5 block">
         <span>Account tags (comma separated)</span>
         <div className="flex gap-2">
@@ -86,7 +93,7 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
           />
           <button
             className="admin-button"
-            disabled={tags.isPending}
+            disabled={tags.isPending || !isAdminActionPasswordReady(actionPassword)}
             onClick={() => tags.mutate()}
           >
             Save
@@ -113,7 +120,7 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
       </label>
       <button
         className="admin-primary-button mt-3 inline-flex items-center gap-2"
-        disabled={note.trim().length < 3 || add.isPending}
+        disabled={note.trim().length < 3 || add.isPending || !isAdminActionPasswordReady(actionPassword)}
         onClick={() => add.mutate()}
       >
         <Plus size={15} /> Add note
@@ -131,6 +138,7 @@ export default function AdminUserNotesPanel({ userId }: { userId: string }) {
               <button
                 aria-label="Delete note"
                 className="text-[#e26767]"
+                disabled={!isAdminActionPasswordReady(actionPassword) || remove.isPending}
                 onClick={() => remove.mutate(item.id)}
               >
                 <Trash2 size={15} />

@@ -5,6 +5,8 @@ import type {
   AdminMockTest,
 } from "../types/admin-mock-tests.types";
 import { useUpdateAdminMockTestLifecycle } from "../hooks/useUpdateAdminMockTestLifecycle";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 type Props = {
   test: Pick<
@@ -28,7 +30,7 @@ export default function AdminMockTestModerationDialog({
   >(action === "restore" ? "appeal_accepted" : "broken_assessment");
   const [reason, setReason] = useState("");
   const [notifyOwner, setNotifyOwner] = useState(true);
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
 
   const submit = () => {
     if (!test || reason.trim().length < 15) return;
@@ -40,7 +42,7 @@ export default function AdminMockTestModerationDialog({
           reasonCode,
           reason: reason.trim(),
           notifyOwner,
-          mfaCode: mfaCode.trim(),
+          actionPassword,
         },
       },
       { onSuccess: () => (onComplete ? onComplete() : onClose()) },
@@ -114,19 +116,11 @@ export default function AdminMockTestModerationDialog({
         Queue an email containing this explanation. An in-app notification is
         always sent.
       </label>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
       <div className="mt-6 flex justify-end gap-2">
         <button
           className="admin-button"
@@ -143,7 +137,7 @@ export default function AdminMockTestModerationDialog({
           }
           disabled={
             reason.trim().length < 15 ||
-            mfaCode.length !== 6 ||
+            !isAdminActionPasswordReady(actionPassword) ||
             mutation.isPending
           }
           onClick={submit}

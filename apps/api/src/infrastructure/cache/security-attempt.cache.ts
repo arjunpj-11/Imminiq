@@ -8,7 +8,8 @@ export type SecurityAttemptScope =
   | 'auth_verify_reset_otp'
   | 'auth_two_factor_login'
   | 'security_two_factor_setup'
-  | 'security_two_factor_disable';
+  | 'security_two_factor_disable'
+  | 'admin_action_password';
 
 export type SecurityAttemptPolicy = {
   windowSeconds: number;

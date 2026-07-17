@@ -23,6 +23,8 @@ export type AdminUserEntity = {
   lastActiveAt: Date;
   createdAt: Date;
   provider: string;
+  adminActionPasswordConfigured: boolean;
+  adminActionPasswordSetAt?: Date;
 };
 
 export type AdminUserMessageInput = {

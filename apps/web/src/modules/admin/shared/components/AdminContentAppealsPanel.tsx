@@ -17,6 +17,8 @@ import {
   AdminPanel,
   AdminStatusBadge,
 } from "./AdminPage";
+import AdminActionPasswordField from "./AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../utils/admin-action-password";
 
 type Appeal = {
   id: string;
@@ -45,7 +47,7 @@ type Data = {
 type DecisionInput = {
   decisionStatus: "under_review" | "approved" | "rejected";
   decisionNote: string;
-  mfaCode: string;
+  actionPassword: string;
 };
 
 export function AdminContentAppealsPanel({
@@ -76,12 +78,12 @@ export function AdminContentAppealsPanel({
       id,
       decisionStatus,
       decisionNote,
-      mfaCode,
+      actionPassword,
     }: DecisionInput & { id: string }) =>
       api.patch(
         ADMIN_CONTENT_APPEALS_ENDPOINTS.detail(kind, id),
         { status: decisionStatus, decisionNote },
-        { headers: { "X-Admin-MFA-Code": mfaCode } },
+        { headers: { "X-Admin-Action-Password": actionPassword } },
       ),
     onSuccess: async () => {
       toast.success("Content appeal updated");
@@ -249,8 +251,10 @@ function DecisionDialog({
   const [decisionStatus, setDecisionStatus] =
     useState<DecisionInput["decisionStatus"]>("under_review");
   const [decisionNote, setDecisionNote] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
-  const ready = decisionNote.trim().length >= 10 && /^\d{6}$/.test(mfaCode);
+  const [actionPassword, setActionPassword] = useState("");
+  const ready =
+    decisionNote.trim().length >= 10 &&
+    isAdminActionPasswordReady(actionPassword);
 
   return (
     <Modal
@@ -317,19 +321,11 @@ function DecisionDialog({
           placeholder="Explain the decision and any next step."
         />
       </label>
-      <label className="admin-field mt-4">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4"
+      />
 
       <div className="mt-6 flex flex-wrap justify-end gap-2">
         <button type="button" className="admin-button" onClick={onClose}>
@@ -343,7 +339,7 @@ function DecisionDialog({
             onSubmit({
               decisionStatus,
               decisionNote: decisionNote.trim(),
-              mfaCode,
+              actionPassword,
             })
           }
         >

@@ -1,8 +1,12 @@
 import { Request, Response, NextFunction } from 'express';
 import { ApiError } from '../utils/ApiError';
-import { TwoFactorAuth } from '../../infrastructure/database/models/two-factor-auth.model';
-import { env } from '../../config/env';
-import { otplibTwoFactorGateway } from '../../modules/security';
+import { User } from '../../infrastructure/database/models/user.model';
+import { bcryptSecurityPasswordHasher } from '../../modules/security';
+import {
+  SECURITY_ATTEMPT_POLICIES,
+  securityAttemptCache,
+} from '../../infrastructure/cache/security-attempt.cache';
+import { securityAuditLogger } from '../../infrastructure/security/security-audit-logger';
 
 export type AdminPermission =
   | 'content:read'
@@ -69,37 +73,83 @@ export const requireAdminPermission = (permission: AdminPermission) =>
   };
 
 export const requirePrivilegedMfa = async (req: Request, _res: Response, next: NextFunction) => {
-  if (env.NODE_ENV !== 'production') return next();
+  if (req.user?.role === 'superadmin') {
+    next();
+    return;
+  }
   try {
-    const twoFactor = await TwoFactorAuth.findOne({
-      userId: req.user?.userId,
+    const actorId = req.user?.userId;
+    if (!actorId) {
+      throw new ApiError(401, 'Authentication is required', 'UNAUTHORIZED');
+    }
+    if (await securityAttemptCache.isBlocked('admin_action_password', actorId)) {
+      const retryAfter = await securityAttemptCache.getRetryAfterSeconds(
+        'admin_action_password',
+        actorId
+      );
+      await securityAuditLogger.record({
+        userId: actorId,
+        eventType: 'admin_action_password_blocked',
+        outcome: 'blocked',
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+        metadata: { role: req.user?.role, retryAfterSeconds: retryAfter },
+      });
+      throw new ApiError(
+        429,
+        `Too many incorrect action-password attempts. Try again in ${Math.max(retryAfter, 1)} seconds.`,
+        'ADMIN_ACTION_PASSWORD_BLOCKED'
+      );
+    }
+    const admin = await User.findOne({
+      _id: actorId,
+      role: { $in: ['admin', 'moderator'] },
       status: 'active',
       deletedAt: null,
-    }).select('+totpSecretEncrypted');
-    if (!twoFactor) {
+    }).select('+adminActionPasswordHash');
+    if (!admin?.adminActionPasswordHash) {
       throw new ApiError(
         403,
-        'Enable two-factor authentication before performing this privileged admin action',
-        'ADMIN_MFA_REQUIRED'
+        'Ask a super admin to set your admin action password before making protected changes',
+        'ADMIN_ACTION_PASSWORD_NOT_SET'
       );
     }
 
-    const code = req.get('x-admin-mfa-code')?.trim();
-    if (!code) {
+    const password = req.get('x-admin-action-password');
+    if (!password) {
       throw new ApiError(
         403,
-        'Enter your current authenticator code to confirm this privileged action',
-        'ADMIN_MFA_CODE_REQUIRED'
+        'Enter the admin action password assigned by your super admin',
+        'ADMIN_ACTION_PASSWORD_REQUIRED'
       );
     }
-    const valid = await otplibTwoFactorGateway.verifyToken({
-      encryptedSecret: twoFactor.totpSecretEncrypted,
-      token: code,
-    });
+    const valid = await bcryptSecurityPasswordHasher.compare(
+      password,
+      admin.adminActionPasswordHash
+    );
     if (!valid) {
-      throw new ApiError(403, 'The authenticator code is invalid or expired', 'ADMIN_MFA_INVALID');
+      const attempt = await securityAttemptCache.recordFailure(
+        'admin_action_password',
+        actorId,
+        SECURITY_ATTEMPT_POLICIES.twoFactorVerification
+      );
+      await securityAuditLogger.record({
+        userId: actorId,
+        eventType: 'admin_action_password_failed',
+        outcome: attempt.blocked ? 'blocked' : 'failure',
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+        metadata: { role: req.user?.role, remainingAttempts: attempt.remainingAttempts },
+      });
+      throw new ApiError(
+        attempt.blocked ? 429 : 403,
+        attempt.blocked
+          ? 'Too many incorrect attempts. Action-password verification is temporarily locked.'
+          : `The admin action password is incorrect. ${attempt.remainingAttempts} attempts remaining.`,
+        attempt.blocked ? 'ADMIN_ACTION_PASSWORD_BLOCKED' : 'ADMIN_ACTION_PASSWORD_INVALID'
+      );
     }
-    await TwoFactorAuth.updateOne({ _id: twoFactor._id }, { $set: { lastUsedAt: new Date() } });
+    await securityAttemptCache.clear('admin_action_password', actorId);
     next();
   } catch (error) {
     next(error);

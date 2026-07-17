@@ -19,7 +19,13 @@ export const useCreateAdminBroadcast = () => {
       userIds?: string[];
       deepLink?: string;
       poll?: AdminBroadcastPoll;
-    }) => api.post(ADMIN_BROADCAST_ENDPOINTS.create, input),
+      actionPassword: string;
+    }) => {
+      const { actionPassword, ...body } = input;
+      return api.post(ADMIN_BROADCAST_ENDPOINTS.create, body, {
+        headers: { 'x-admin-action-password': actionPassword },
+      });
+    },
     onMutate: () => ({
       toastId: toast.loading(
         "Sending broadcast…",
@@ -28,9 +34,9 @@ export const useCreateAdminBroadcast = () => {
     }),
     onSuccess: async (_data, _input, context) => {
       toast.update(context.toastId, {
-        title: "Broadcast sent",
+        title: "Broadcast queued",
         description:
-          "The delivery record is now available in broadcast history.",
+          "Delivery is running safely in the background and will update in broadcast history.",
         tone: "success",
       });
       await client.invalidateQueries({ queryKey: adminBroadcastKeys.all });

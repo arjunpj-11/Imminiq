@@ -19,6 +19,8 @@ import { useAdminSupportTickets } from "../hooks/useAdminSupportTickets";
 import { useUpdateAdminSupportTicket } from "../hooks/useUpdateAdminSupportTicket";
 import Modal from "../../shared/components/AdminModal";
 import type { AdminSupportTicket } from "../types/admin-support-tickets.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 const validStatuses = new Set([
   "all",
@@ -214,10 +216,11 @@ function TicketDetail({
     ticket.resolutionNote || "",
   );
   const [notificationMessage, setNotificationMessage] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const submit = (event: FormEvent) => {
     event.preventDefault();
     update.mutate(
-      { id: ticket.id, status, resolutionNote, notificationMessage },
+      { id: ticket.id, status, resolutionNote, notificationMessage, actionPassword },
       { onSuccess: close },
     );
   };
@@ -329,6 +332,7 @@ function TicketDetail({
             Saving sends an in-app notification to the requester with the new
             status and message.
           </p>
+          <AdminActionPasswordField value={actionPassword} onChange={setActionPassword} />
 
           {update.isError && (
             <p
@@ -347,7 +351,7 @@ function TicketDetail({
               Cancel
             </button>
             <button
-              disabled={update.isPending || !hasChanges}
+              disabled={update.isPending || !hasChanges || !isAdminActionPasswordReady(actionPassword)}
               className="admin-primary-button"
             >
               {update.isPending ? "Updating…" : "Update and notify user"}

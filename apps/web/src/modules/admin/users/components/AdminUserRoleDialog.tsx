@@ -15,11 +15,10 @@ export default function AdminUserRoleDialog({
     user?.role === "moderator" || user?.role === "admin" ? user.role : "user",
   );
   const [reason, setReason] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
   const submit = () => {
     if (!user || reason.trim().length < 10) return;
     update.mutate(
-      { role, reason: reason.trim(), mfaCode: mfaCode.trim() },
+      { role, reason: reason.trim() },
       { onSuccess: onClose },
     );
   };
@@ -56,19 +55,6 @@ export default function AdminUserRoleDialog({
           onChange={(event) => setReason(event.target.value)}
         />
       </label>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
       <div className="mt-6 flex justify-end gap-2">
         <button className="admin-button" onClick={onClose}>
           Cancel
@@ -76,9 +62,7 @@ export default function AdminUserRoleDialog({
         <button
           className="admin-primary-button"
           disabled={
-            reason.trim().length < 10 ||
-            mfaCode.length !== 6 ||
-            update.isPending
+            reason.trim().length < 10 || update.isPending
           }
           onClick={submit}
         >

@@ -1,5 +1,9 @@
 export { generateRoadmapStructure, evaluateRoadmap } from './services/roadmap-ai.service';
-export { economyAIStructuredWithFallback, getAIUserMessage } from './ai-fallback.helper';
+export {
+  economyAIChatWithFallback,
+  economyAIStructuredWithFallback,
+  getAIUserMessage,
+} from './ai-fallback.helper';
 
 export { generateLesson, chatWithLessonTutor } from './services/lesson-ai.service';
 

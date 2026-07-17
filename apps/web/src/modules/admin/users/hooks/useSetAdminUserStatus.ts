@@ -12,10 +12,10 @@ export const useSetAdminUserStatus = (userId: string) => {
 
   return useMutation({
     mutationFn: async (input: AdminUserStatusPayload) => {
-      const { mfaCode, ...payload } = input;
+      const { actionPassword, ...payload } = input;
       return (
         await api.patch(ADMIN_USERS_ENDPOINTS.status(userId), payload, {
-          headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined,
+          headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
         })
       ).data;
     },

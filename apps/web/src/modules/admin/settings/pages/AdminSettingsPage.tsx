@@ -24,6 +24,8 @@ import { useAdminSettings } from "../hooks/useAdminSettings";
 import { useUpdateAdminSettings } from "../hooks/useUpdateAdminSettings";
 import type { AdminSettings } from "../types/admin-settings.types";
 import Modal from "../../shared/components/AdminModal";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 export default function AdminSettingsPage() {
   const { data, isLoading, isError, error, refetch } = useAdminSettings();
   return (
@@ -56,7 +58,7 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
   const [form, setForm] = useState(initialForm);
   const [reviewOpen, setReviewOpen] = useState(false);
   const [changeReason, setChangeReason] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
 
   const changes = useMemo(
     () => collectSettingChanges(initialForm, form),
@@ -81,12 +83,12 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
 
   const applyChanges = () => {
     update.mutate(
-      { settings: form, mfaCode, changeReason: changeReason.trim() },
+      { settings: form, actionPassword, changeReason: changeReason.trim() },
       {
         onSuccess: () => {
           setReviewOpen(false);
           setChangeReason("");
-          setMfaCode("");
+          setActionPassword("");
         },
       },
     );
@@ -95,11 +97,12 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
   const reset = () => {
     setForm(initialForm);
     setChangeReason("");
-    setMfaCode("");
+    setActionPassword("");
   };
 
   const reviewReady =
-    changeReason.trim().length >= 10 && /^\d{6}$/.test(mfaCode);
+    changeReason.trim().length >= 10 &&
+    isAdminActionPasswordReady(actionPassword);
 
   return (
     <>
@@ -638,19 +641,11 @@ function SettingsForm({ initial }: { initial: AdminSettings }) {
             placeholder="Explain why these platform settings are changing."
           />
         </label>
-        <label className="admin-field mt-4">
-          <span>6-digit authenticator code</span>
-          <input
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            value={mfaCode}
-            onChange={(event) =>
-              setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-            }
-            placeholder="000000"
-          />
-        </label>
+        <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4"
+      />
 
         <div className="mt-6 flex flex-wrap justify-end gap-2">
           <button

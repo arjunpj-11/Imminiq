@@ -38,7 +38,23 @@ const globalApiLimiter = rateLimit({
 
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_URL, credentials: true }));
-app.use(morgan('dev'));
+app.use(
+  env.NODE_ENV === 'production'
+    ? morgan((tokens, req, res) =>
+        JSON.stringify({
+          level: 'info',
+          event: 'http_request',
+          method: tokens.method(req, res),
+          path: tokens.url(req, res),
+          status: Number(tokens.status(req, res) ?? 0),
+          responseTimeMs: Number(tokens['response-time'](req, res) ?? 0),
+          contentLength: Number(tokens.res(req, res, 'content-length') ?? 0),
+          remoteAddress: tokens['remote-addr'](req, res),
+          userAgent: tokens.req(req, res, 'user-agent'),
+        })
+      )
+    : morgan('dev')
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());

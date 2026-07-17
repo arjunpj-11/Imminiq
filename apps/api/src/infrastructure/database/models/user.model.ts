@@ -20,6 +20,9 @@ export interface IUserDocument extends Document {
   adminStatusChangedAt?: Date | null;
   adminStatusChangedBy?: mongoose.Types.ObjectId | null;
   adminTags?: string[];
+  adminActionPasswordHash?: string | null;
+  adminActionPasswordSetAt?: Date | null;
+  adminActionPasswordSetBy?: mongoose.Types.ObjectId | null;
 
   emailVerified: boolean;
   phoneVerified: boolean;
@@ -155,6 +158,9 @@ const userSchema = new Schema<IUserDocument>(
     adminStatusReason: { type: String, trim: true, maxlength: 1000, default: null },
     adminStatusReasonCode: { type: String, trim: true, maxlength: 80, default: null },
     adminTags: { type: [String], default: [], select: false },
+    adminActionPasswordHash: { type: String, default: null, select: false },
+    adminActionPasswordSetAt: { type: Date, default: null },
+    adminActionPasswordSetBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
     adminStatusChangedAt: { type: Date, default: null },
     adminStatusChangedBy: { type: Schema.Types.ObjectId, ref: 'User', default: null },
 

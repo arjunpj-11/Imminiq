@@ -9,8 +9,10 @@ import { adminUsersKeys } from "./admin-users.query-keys";
 export const useSendAdminUserMessage = (userId: string) => {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (payload: AdminUserMessagePayload) =>
-      api.post(ADMIN_USERS_ENDPOINTS.message(userId), payload),
+    mutationFn: ({ actionPassword, ...payload }: AdminUserMessagePayload & { actionPassword: string }) =>
+      api.post(ADMIN_USERS_ENDPOINTS.message(userId), payload, {
+        headers: { 'x-admin-action-password': actionPassword },
+      }),
     onSuccess: async () => {
       toast.success(
         "Message sent",

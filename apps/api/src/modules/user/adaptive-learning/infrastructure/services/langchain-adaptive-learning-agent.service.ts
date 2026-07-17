@@ -1,7 +1,10 @@
 import { Annotation, END, START, StateGraph } from '@langchain/langgraph';
 import { z } from 'zod';
 
-import { economyAIStructuredWithFallback } from '../../../../../infrastructure/ai/ai.service';
+import {
+  economyAIChatWithFallback,
+  economyAIStructuredWithFallback,
+} from '../../../../../infrastructure/ai/ai.service';
 import { parseAIJson } from '../../../../../infrastructure/ai/ai-json.parser';
 import type {
   AdaptiveAdvisorAnswer,
@@ -185,6 +188,12 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
   async answer(
     input: Parameters<IAdaptiveLearningAgent['answer']>[0]
   ): Promise<AdaptiveAdvisorAnswer> {
+    const learnerContext = JSON.stringify({
+      question: input.question,
+      adaptiveProfile: input.profile,
+      learnerData: input.snapshot,
+      conversation: input.history,
+    });
     let response: z.infer<typeof advisorResponseSchema>;
     try {
       response = await economyAIStructuredWithFallback(
@@ -204,12 +213,7 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
           },
           {
             role: 'user',
-            content: JSON.stringify({
-              question: input.question,
-              adaptiveProfile: input.profile,
-              learnerData: input.snapshot,
-              conversation: input.history,
-            }),
+            content: learnerContext,
           },
         ],
         (rawResponse) => parseAIJson(rawResponse, advisorResponseSchema),
@@ -218,15 +222,27 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
         { operation: 'adaptive-learning-advisor', temperature: 0.3 }
       );
     } catch (error) {
-      console.error('[AdaptiveLearning] All structured advisor responses failed:', error);
-      const tracker = [...input.snapshot.trackers].sort(
-        (a, b) => a.progressPercent - b.progressPercent
-      )[0];
-      return {
-        content: tracker
-          ? `A good next step is to continue “${tracker.title}” and complete one focused lesson today.`
-          : 'Tell me the subject you want to improve, and I’ll recommend a focused next step.',
-      };
+      console.error('[AdaptiveLearning] Structured advisor responses failed:', error);
+      try {
+        const content = await economyAIChatWithFallback(
+          [
+            {
+              role: 'system',
+              content:
+                'You are Immi, a concise adaptive learning advisor. Answer the learner directly in plain text using their question, recent performance, weak topics, and active trackers. Give one concrete next step. Do not return JSON and do not claim you performed an action.',
+            },
+            { role: 'user', content: learnerContext },
+          ],
+          'fast',
+          'adaptive_learning',
+          { operation: 'adaptive-learning-advisor-text-recovery', temperature: 0.3 }
+        );
+        const cleanContent = content.trim().slice(0, 1200);
+        if (cleanContent) return { content: cleanContent };
+      } catch (recoveryError) {
+        console.error('[AdaptiveLearning] Text advisor recovery failed:', recoveryError);
+      }
+      return this.fallbackAnswer(input);
     }
     const validTrackerIds = new Set(input.snapshot.trackers.map((tracker) => tracker.id));
 
@@ -242,6 +258,59 @@ export class LangChainAdaptiveLearningAgent implements IAdaptiveLearningAgent {
         trackerId && validTrackerIds.has(trackerId)
           ? { ...mockTestAction, trackerId }
           : mockTestAction,
+    };
+  }
+
+  private fallbackAnswer(
+    input: Parameters<IAdaptiveLearningAgent['answer']>[0]
+  ): AdaptiveAdvisorAnswer {
+    const question = input.question.trim();
+    const normalizedQuestion = question.toLowerCase();
+    const tracker = [...input.snapshot.trackers].sort(
+      (a, b) => a.progressPercent - b.progressPercent
+    )[0];
+    const recentTest = [...input.snapshot.recentPerformance].sort(
+      (a, b) => b.completedAt.getTime() - a.completedAt.getTime()
+    )[0];
+    const weakTopics = input.snapshot.recentPerformance
+      .flatMap((item) => item.weakTopics)
+      .filter((topic, index, all) => all.indexOf(topic) === index);
+    const focus = weakTopics[0] || tracker?.field || tracker?.title;
+
+    if (!tracker) {
+      return {
+        content: `For “${question.slice(0, 120)}”, start by creating a tracker for the subject you want to improve. Once you complete a few lessons or a mock test, I can make the recommendation more specific.`,
+      };
+    }
+
+    if (/\b(test|exam|quiz|assessment)\b/.test(normalizedQuestion)) {
+      const score = recentTest?.scorePercentage ?? input.snapshot.averageScore ?? 60;
+      const difficulty = score >= 75 ? 'hard' : score >= 50 ? 'medium' : 'easy';
+      const topic = focus || tracker.title;
+      return {
+        content: `Take a short ${difficulty} mock test on ${topic}. Your${recentTest ? ` latest score in “${recentTest.title}” was ${Math.round(recentTest.scorePercentage)}%, so this will check whether the weak area has improved` : ' current learning record needs a fresh baseline'}.`,
+        action: {
+          type: 'create_mock_test',
+          label: `Test ${topic}`,
+          topic,
+          difficulty,
+          questionCount: 10,
+          trackerId: tracker.id,
+        },
+      };
+    }
+
+    if (/\b(weak|mistake|improve|struggl|difficult|hard)\b/.test(normalizedQuestion) && focus) {
+      return {
+        content: `Focus next on ${focus} inside “${tracker.title}”. Review one lesson, solve a few targeted questions, and then use a short mock test to confirm the improvement.`,
+      };
+    }
+
+    const scoreContext = recentTest
+      ? ` Your latest recorded score is ${Math.round(recentTest.scorePercentage)}% in “${recentTest.title}”.`
+      : '';
+    return {
+      content: `For “${question.slice(0, 120)}”, continue “${tracker.title}”, currently ${Math.round(tracker.progressPercent)}% complete, and finish one focused lesson${focus ? ` on ${focus}` : ''}.${scoreContext}`,
     };
   }
 

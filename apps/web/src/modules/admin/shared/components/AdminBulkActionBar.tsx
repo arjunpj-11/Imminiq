@@ -5,6 +5,8 @@ import Modal from "./AdminModal";
 import api from "../../../../lib/axios";
 import { toast } from "../../../../lib/toast";
 import { getUserFacingError } from "../../../../lib/user-facing-error";
+import AdminActionPasswordField from "./AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../utils/admin-action-password";
 
 type Kind = "users" | "trackers" | "mock-tests";
 type Action = "suspend" | "delete" | "restore" | "block";
@@ -27,7 +29,7 @@ export function AdminBulkActionBar({
   const [open, setOpen] = useState(false);
   const [action, setAction] = useState<Action>("suspend");
   const [reason, setReason] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const [eligible, setEligible] = useState<string[] | null>(null);
   const client = useQueryClient();
   const endpoint =
@@ -63,7 +65,7 @@ export function AdminBulkActionBar({
     mutationFn: async (preview: boolean) =>
       (
         await api.post(endpoint, body(preview), {
-          headers: mfaCode ? { "X-Admin-MFA-Code": mfaCode } : undefined,
+          headers: actionPassword ? { "X-Admin-Action-Password": actionPassword } : undefined,
         })
       ).data.data as BulkResult,
     onSuccess: async (data, preview) => {
@@ -78,7 +80,7 @@ export function AdminBulkActionBar({
       setOpen(false);
       setEligible(null);
       setReason("");
-      setMfaCode("");
+      setActionPassword("");
       onClear();
       await client.invalidateQueries({ queryKey: ["admin", kind] });
     },
@@ -94,7 +96,7 @@ export function AdminBulkActionBar({
     setEligible(null);
   };
 
-  const mfaReady = /^\d{6}$/.test(mfaCode);
+  const actionPasswordReady = isAdminActionPasswordReady(actionPassword);
   const reasonReady = reason.trim().length >= 15;
 
   return (
@@ -186,26 +188,11 @@ export function AdminBulkActionBar({
           </span>
         </label>
 
-        <label className="admin-field mt-4 block">
-          <span>6-digit authenticator code</span>
-          <input
-            inputMode="numeric"
-            autoComplete="one-time-code"
-            maxLength={6}
-            value={mfaCode}
-            onChange={(event) =>
-              setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-            }
-            placeholder="000000"
-            aria-describedby="bulk-mfa-help"
-          />
-          <span
-            id="bulk-mfa-help"
-            className="text-xs font-normal text-[#817c75]"
-          >
-            Required before a high-impact action can be previewed or applied.
-          </span>
-        </label>
+        <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
 
         {eligible && (
           <div
@@ -228,7 +215,7 @@ export function AdminBulkActionBar({
             <button
               type="button"
               className="admin-primary-button"
-              disabled={!eligible.length || mutation.isPending || !mfaReady}
+              disabled={!eligible.length || mutation.isPending || !actionPasswordReady}
               onClick={() => mutation.mutate(false)}
             >
               {mutation.isPending ? "Applying…" : `Apply to ${eligible.length}`}
@@ -237,7 +224,7 @@ export function AdminBulkActionBar({
             <button
               type="button"
               className="admin-primary-button"
-              disabled={!reasonReady || !mfaReady || mutation.isPending}
+              disabled={!reasonReady || !actionPasswordReady || mutation.isPending}
               onClick={() => mutation.mutate(true)}
             >
               {mutation.isPending ? "Checking impact…" : "Preview impact"}

@@ -21,6 +21,8 @@ import type {
   AdminTrackerReport,
   AdminTrackerReportUpdatePayload,
 } from "../types/admin-trackers.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 const label = (value: string) => value.replaceAll("_", " ");
 
@@ -175,7 +177,7 @@ function ReportDialog({
   const [status, setStatus] =
     useState<AdminTrackerReportUpdatePayload["status"]>("reviewing");
   const [resolutionNote, setResolutionNote] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const submit = () => {
     if (!report || resolutionNote.trim().length < 10) return;
     update.mutate(
@@ -184,7 +186,7 @@ function ReportDialog({
         payload: {
           status,
           resolutionNote: resolutionNote.trim(),
-          mfaCode: mfaCode.trim(),
+          actionPassword,
         },
       },
       { onSuccess: onClose },
@@ -242,19 +244,11 @@ function ReportDialog({
           onChange={(event) => setResolutionNote(event.target.value)}
         />
       </label>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
       <div className="mt-6 flex justify-between gap-2">
         {report && (
           <Link
@@ -272,7 +266,7 @@ function ReportDialog({
             className="admin-primary-button"
             disabled={
               resolutionNote.trim().length < 10 ||
-              mfaCode.length !== 6 ||
+              !isAdminActionPasswordReady(actionPassword) ||
               update.isPending
             }
             onClick={submit}

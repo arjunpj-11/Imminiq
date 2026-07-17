@@ -1,6 +1,8 @@
 import { useState } from "react";
 import Modal from "../../shared/components/AdminModal";
 import { useRevokeAdminUserSession } from "../hooks/useRevokeAdminUserSession";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 type Session = {
   id: string;
@@ -19,11 +21,11 @@ export default function AdminUserSessionDialog({
   onClose: () => void;
 }) {
   const revoke = useRevokeAdminUserSession(userId);
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const submit = () => {
     if (!session) return;
     revoke.mutate(
-      { sessionId: session.id, mfaCode: mfaCode.trim() },
+      { sessionId: session.id, actionPassword },
       { onSuccess: onClose },
     );
   };
@@ -47,19 +49,11 @@ export default function AdminUserSessionDialog({
           {session?.ipAddress} · {session?.userAgent}
         </div>
       </div>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
       <div className="mt-6 flex justify-end gap-2">
         <button className="admin-button" onClick={onClose}>
           Cancel
@@ -67,7 +61,7 @@ export default function AdminUserSessionDialog({
         <button
           className="admin-button text-[#e26767]"
           onClick={submit}
-          disabled={mfaCode.length !== 6 || revoke.isPending}
+          disabled={!isAdminActionPasswordReady(actionPassword) || revoke.isPending}
         >
           {revoke.isPending ? "Revoking…" : "Revoke session"}
         </button>

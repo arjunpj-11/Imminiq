@@ -10,10 +10,14 @@ export const useResolveAdminTrackerReview = () => {
     mutationFn: ({
       id,
       status,
+      actionPassword,
     }: {
       id: string;
       status: "approved" | "rejected";
-    }) => api.patch(ADMIN_TRACKERS_ENDPOINTS.reviewStatus(id), { status }),
+      actionPassword: string;
+    }) => api.patch(ADMIN_TRACKERS_ENDPOINTS.reviewStatus(id), { status }, {
+      headers: { 'x-admin-action-password': actionPassword },
+    }),
     onMutate: () => ({ toastId: toast.loading("Updating tracker review…") }),
     onSuccess: () =>
       client.invalidateQueries({ queryKey: adminTrackersKeys.reviews() }),

@@ -19,11 +19,14 @@ import { useAdminTrackerReviews } from "../hooks/useAdminTrackerReviews";
 import { useAddAdminTrackerReviewConsensus } from "../hooks/useAddAdminTrackerReviewConsensus";
 import { useResolveAdminTrackerReview } from "../hooks/useResolveAdminTrackerReview";
 import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 export default function AdminTrackerReviewsPanel() {
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [page, setPage] = useState(1);
+  const [actionPassword, setActionPassword] = useState("");
   const query = useAdminTrackerReviews({
     search: useDebouncedValue(search, 300),
     status,
@@ -86,6 +89,14 @@ export default function AdminTrackerReviewsPanel() {
           </div>
         }
       >
+        <div className="border-b border-white/10 px-5 pb-5">
+          <AdminActionPasswordField
+            value={actionPassword}
+            onChange={setActionPassword}
+            className="admin-field block max-w-md"
+          />
+          <p className="mt-2 text-xs text-[#817c75]">Required for consensus votes and final decisions.</p>
+        </div>
         {query.isLoading || query.isPlaceholderData ? (
           <div className="admin-table-scroll overflow-x-auto">
             <AdminTableSkeleton columns={7} rows={7} label="Loading tracker reviews" />
@@ -141,10 +152,10 @@ export default function AdminTrackerReviewsPanel() {
                         {item.status === "open" && (
                           <div className="mt-2 flex gap-2">
                             <button
-                              disabled={consensus.isPending}
+                              disabled={consensus.isPending || !isAdminActionPasswordReady(actionPassword)}
                               onClick={() =>
                                 consensus.mutate(
-                                  { id: item.id, choice: "pass" },
+                                  { id: item.id, choice: "pass", actionPassword },
                                   {
                                     onSuccess: () =>
                                       toast.success("Pass vote added"),
@@ -162,10 +173,10 @@ export default function AdminTrackerReviewsPanel() {
                               <ThumbsUp size={13} /> + Pass
                             </button>
                             <button
-                              disabled={consensus.isPending}
+                              disabled={consensus.isPending || !isAdminActionPasswordReady(actionPassword)}
                               onClick={() =>
                                 consensus.mutate(
-                                  { id: item.id, choice: "fail" },
+                                  { id: item.id, choice: "fail", actionPassword },
                                   {
                                     onSuccess: () =>
                                       toast.success("Fail vote added"),
@@ -201,10 +212,10 @@ export default function AdminTrackerReviewsPanel() {
                         {item.status === "open" ? (
                           <div className="flex gap-2">
                             <button
-                              disabled={resolve.isPending}
+                              disabled={resolve.isPending || !isAdminActionPasswordReady(actionPassword)}
                               onClick={() =>
                                 resolve.mutate(
-                                  { id: item.id, status: "approved" },
+                                  { id: item.id, status: "approved", actionPassword },
                                   {
                                     onSuccess: () =>
                                       toast.success(
@@ -225,10 +236,10 @@ export default function AdminTrackerReviewsPanel() {
                               <Check size={16} />
                             </button>
                             <button
-                              disabled={resolve.isPending}
+                              disabled={resolve.isPending || !isAdminActionPasswordReady(actionPassword)}
                               onClick={() =>
                                 resolve.mutate(
-                                  { id: item.id, status: "rejected" },
+                                  { id: item.id, status: "rejected", actionPassword },
                                   {
                                     onSuccess: () =>
                                       toast.success(

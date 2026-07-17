@@ -9,7 +9,7 @@ import { adminSettingsKeys } from "./admin-settings.query-keys";
 
 type UpdateAdminSettingsInput = {
   settings: Omit<AdminSettings, "updatedAt">;
-  mfaCode: string;
+  actionPassword: string;
   changeReason: string;
 };
 
@@ -18,7 +18,7 @@ export const useUpdateAdminSettings = () => {
   return useMutation({
     mutationFn: async ({
       settings,
-      mfaCode,
+      actionPassword,
       changeReason,
     }: UpdateAdminSettingsInput) =>
       (
@@ -27,7 +27,7 @@ export const useUpdateAdminSettings = () => {
           settings,
           {
             headers: {
-              "X-Admin-MFA-Code": mfaCode,
+              "X-Admin-Action-Password": actionPassword,
               "X-Admin-Change-Reason": encodeURIComponent(changeReason),
             },
           },

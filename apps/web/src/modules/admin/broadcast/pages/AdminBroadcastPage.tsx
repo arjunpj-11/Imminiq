@@ -28,6 +28,8 @@ import type {
   AdminBroadcastAudience,
   AdminBroadcastPoll,
 } from "../types/admin-broadcast.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 export default function AdminBroadcastPage() {
   const [page, setPage] = useState(1);
@@ -45,6 +47,7 @@ export default function AdminBroadcastPage() {
     Array<{ id: string; label: string }>
   >([]);
   const [poll, setPoll] = useState<AdminBroadcastPoll | null>(null);
+  const [actionPassword, setActionPassword] = useState("");
   const recipientOptions = useAdminUsers({
     search: useDebouncedValue(recipientSearch, 250),
     status: "active",
@@ -65,6 +68,7 @@ export default function AdminBroadcastPage() {
           : {}),
         deepLink: deepLink.trim() || undefined,
         ...(poll ? { poll } : {}),
+        actionPassword,
       },
       {
         onSuccess: () => {
@@ -74,6 +78,7 @@ export default function AdminBroadcastPage() {
           setSelectedUsers([]);
           setRecipientSearch("");
           setPoll(null);
+          setActionPassword("");
           setConfirmOpen(false);
           setPage(1);
         },
@@ -321,10 +326,16 @@ export default function AdminBroadcastPage() {
                 )}
               </p>
             )}
+            <AdminActionPasswordField
+              value={actionPassword}
+              onChange={setActionPassword}
+              className="admin-field block"
+            />
             <div className="flex justify-end border-t border-white/10 pt-4">
               <button
                 disabled={
                   create.isPending ||
+                  !isAdminActionPasswordReady(actionPassword) ||
                   (audience === "custom" && selectedUsers.length === 0)
                 }
                 className="admin-primary-button min-w-42.5 shrink-0 whitespace-nowrap"

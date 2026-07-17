@@ -29,6 +29,16 @@ Create a Render environment group named `imminiq-production` and populate every 
 
 The checked-in `render.yaml` builds `apps/api/Dockerfile`. Render should probe `/api/health/ready`; container liveness uses `/api/health/live`.
 
+### Admin action passwords
+
+Superadmins are the password-free recovery authority. Admin and moderator accounts must each receive
+their own action password from a superadmin before they can perform protected mutations. Passwords
+are stored only as hashes and cannot be viewed after assignment. Rotate a staff member's password
+immediately when access may have been shared or compromised.
+
+The notification worker delivers broadcasts in batches. Alert on failed jobs and broadcasts that
+remain in `queued` or `processing` longer than the expected audience delivery window.
+
 ## Frontend deployment
 
 Deploy `apps/web` as the Vercel project root. `VITE_API_URL=/api` uses the rewrite in `apps/web/vercel.json`. If the API hostname changes, update that rewrite in the same release or use an absolute `VITE_API_URL` and remove the proxy dependency.

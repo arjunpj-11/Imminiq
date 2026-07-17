@@ -2,6 +2,8 @@ import { useState } from "react";
 import Modal from "../../shared/components/AdminModal";
 import { useAdminTrackerVersions } from "../hooks/useAdminTrackerVersions";
 import { useRestoreAdminTrackerVersion } from "../hooks/useRestoreAdminTrackerVersion";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 export default function AdminTrackerVersionsDialog({
   trackerId,
   onClose,
@@ -13,7 +15,7 @@ export default function AdminTrackerVersionsDialog({
   const restore = useRestoreAdminTrackerVersion();
   const [selected, setSelected] = useState<number | null>(null);
   const [reason, setReason] = useState("");
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   return (
     <Modal
       open={Boolean(trackerId)}
@@ -72,18 +74,11 @@ export default function AdminTrackerVersionsDialog({
               maxLength={1000}
             />
           </label>
-          <label className="admin-field mt-4 block">
-            <span>6-digit authenticator code</span>
-            <input
-              inputMode="numeric"
-              autoComplete="one-time-code"
-              maxLength={6}
-              value={mfaCode}
-              onChange={(event) =>
-                setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-              }
-            />
-          </label>
+          <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
         </>
       )}
       <div className="mt-6 flex justify-end gap-2">
@@ -96,7 +91,7 @@ export default function AdminTrackerVersionsDialog({
             !trackerId ||
             selected === null ||
             reason.trim().length < 10 ||
-            mfaCode.length !== 6 ||
+            !isAdminActionPasswordReady(actionPassword) ||
             restore.isPending
           }
           onClick={() =>
@@ -107,7 +102,7 @@ export default function AdminTrackerVersionsDialog({
                 id: trackerId,
                 version: selected,
                 reason: reason.trim(),
-                mfaCode,
+                actionPassword,
               },
               { onSuccess: onClose },
             )

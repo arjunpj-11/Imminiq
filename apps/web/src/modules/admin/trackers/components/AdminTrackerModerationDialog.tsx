@@ -5,6 +5,8 @@ import type {
   AdminTracker,
   AdminTrackerLifecyclePayload,
 } from "../types/admin-trackers.types";
+import AdminActionPasswordField from "../../shared/components/AdminActionPasswordField";
+import { isAdminActionPasswordReady } from "../../shared/utils/admin-action-password";
 
 export default function AdminTrackerModerationDialog({
   tracker,
@@ -23,7 +25,7 @@ export default function AdminTrackerModerationDialog({
   >(action === "restore" ? "appeal_accepted" : "broken_learning_path");
   const [reason, setReason] = useState("");
   const [notifyOwner, setNotifyOwner] = useState(true);
-  const [mfaCode, setMfaCode] = useState("");
+  const [actionPassword, setActionPassword] = useState("");
   const label =
     action === "delete"
       ? "Delete"
@@ -40,7 +42,7 @@ export default function AdminTrackerModerationDialog({
           reasonCode,
           reason: reason.trim(),
           notifyOwner,
-          mfaCode: mfaCode.trim(),
+          actionPassword,
         },
       },
       { onSuccess: () => (onComplete ? onComplete() : onClose()) },
@@ -109,19 +111,11 @@ export default function AdminTrackerModerationDialog({
         Queue an email with this explanation. An in-app notification is always
         sent.
       </label>
-      <label className="admin-field mt-4 block">
-        <span>6-digit authenticator code</span>
-        <input
-          inputMode="numeric"
-          autoComplete="one-time-code"
-          maxLength={6}
-          value={mfaCode}
-          onChange={(event) =>
-            setMfaCode(event.target.value.replace(/\D/g, "").slice(0, 6))
-          }
-          placeholder="000000"
-        />
-      </label>
+      <AdminActionPasswordField
+        value={actionPassword}
+        onChange={setActionPassword}
+        className="admin-field mt-4 block"
+      />
       <div className="mt-6 flex justify-end gap-2">
         <button
           className="admin-button"
@@ -138,7 +132,7 @@ export default function AdminTrackerModerationDialog({
           }
           disabled={
             reason.trim().length < 15 ||
-            mfaCode.length !== 6 ||
+            !isAdminActionPasswordReady(actionPassword) ||
             mutation.isPending
           }
           onClick={submit}

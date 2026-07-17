@@ -14,6 +14,7 @@ import {
   Unlock,
   UserRound,
   UserCog,
+  KeyRound,
 } from "lucide-react";
 import { Link, useParams } from "react-router-dom";
 import { AdminError } from "../../shared";
@@ -27,6 +28,7 @@ import AdminUserRoleDialog from "../components/AdminUserRoleDialog";
 import type { AdminUserDetailData } from "../types/admin-users.types";
 import { useAuthStore } from "../../../../store/useAuthStore";
 import AdminUserNotesPanel from "../components/AdminUserNotesPanel";
+import AdminActionPasswordDialog from "../components/AdminActionPasswordDialog";
 
 type UserStatusAction = "suspend" | "block" | "restore";
 
@@ -40,6 +42,7 @@ export default function AdminUserDetailPage() {
     AdminUserDetailData["sessions"][number] | null
   >(null);
   const [roleOpen, setRoleOpen] = useState(false);
+  const [actionPasswordOpen, setActionPasswordOpen] = useState(false);
   const currentUserId = useAuthStore((state) => state.user?._id);
   const currentUserRole = useAuthStore((state) => state.user?.role);
   const { data, isLoading, isError, error, refetch } =
@@ -131,6 +134,18 @@ export default function AdminUserDetailPage() {
           </div>
         </div>
         <div className="flex flex-wrap gap-2">
+          {currentUserRole === "superadmin" &&
+            currentUserId !== user._id &&
+            ["admin", "moderator"].includes(user.role) && (
+              <button
+                type="button"
+                onClick={() => setActionPasswordOpen(true)}
+                className="admin-button inline-flex items-center gap-2"
+              >
+                <KeyRound size={17} />
+                {user.adminActionPasswordConfigured ? "Reset" : "Set"} action password
+              </button>
+            )}
           {currentUserRole === "superadmin" &&
             currentUserId !== user._id &&
             user.role !== "superadmin" && (
@@ -402,6 +417,11 @@ export default function AdminUserDetailPage() {
         key={roleOpen ? `${user._id}-role` : "closed-role"}
         user={roleOpen ? user : null}
         onClose={() => setRoleOpen(false)}
+      />
+      <AdminActionPasswordDialog
+        key={actionPasswordOpen ? `${user._id}-action-password` : "closed-action-password"}
+        user={actionPasswordOpen ? user : null}
+        onClose={() => setActionPasswordOpen(false)}
       />
     </main>
   );
