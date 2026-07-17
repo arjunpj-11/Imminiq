@@ -1,4 +1,4 @@
-import type { AdminPageData } from '../../shared';
+import type { AdminPageData } from "../../shared";
 
 export type AdminSubscriptionItem = {
   id: string;
@@ -24,7 +24,11 @@ export type AdminSubscriptionOverview = {
     monthlyRecurringRevenue: number;
   };
   planBreakdown: Array<{ plan: string; count: number; revenue: number }>;
-  revenueByMonth: Array<{ month: string; revenue: number; subscriptions: number }>;
+  revenueByMonth: Array<{
+    month: string;
+    revenue: number;
+    subscriptions: number;
+  }>;
   subscriptions: AdminPageData<AdminSubscriptionItem>;
   plans: AdminSubscriptionPlan[];
 };
@@ -38,19 +42,22 @@ export type AdminPlanLimits = {
 };
 export type AdminPlanLimitField = keyof AdminPlanLimits;
 export type AdminSubscriptionPlan = {
-  planId: 'free' | 'pro' | 'premium';
+  planId: "free" | "pro" | "premium";
   name: string;
   description: string;
   monthlyAmount: number;
   annualAmount: number;
-  currency: 'INR';
+  currency: "INR";
   features: string[];
   highlighted: boolean;
   limits: AdminPlanLimits;
   updatedAt: string | null;
 };
 
-export type AdminSubscriptionPlanInput = Omit<AdminSubscriptionPlan, 'planId' | 'updatedAt'>;
+export type AdminSubscriptionPlanInput = Omit<
+  AdminSubscriptionPlan,
+  "planId" | "updatedAt"
+>;
 export type AdminSubscriptionPlanUpdateInput = {
   plan: AdminSubscriptionPlanInput;
   propagateLimitFields: AdminPlanLimitField[];

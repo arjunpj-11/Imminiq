@@ -1,4 +1,9 @@
-export type AdminPagination = { page: number; limit: number; total: number; pages: number };
+export type AdminPagination = {
+  page: number;
+  limit: number;
+  total: number;
+  pages: number;
+};
 export type AdminPageData<T> = {
   items: T[];
   pagination: AdminPagination;

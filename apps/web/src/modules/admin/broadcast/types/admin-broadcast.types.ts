@@ -1,5 +1,11 @@
-export type AdminBroadcastAudience = 'all' | 'active' | 'free' | 'pro' | 'premium' | 'custom';
-export type AdminBroadcastPoll = { question: string; options: string[]; votes?: number[]; totalVotes?: number };
+export type AdminBroadcastAudience =
+  "all" | "active" | "free" | "pro" | "premium" | "custom";
+export type AdminBroadcastPoll = {
+  question: string;
+  options: string[];
+  votes?: number[];
+  totalVotes?: number;
+};
 export type AdminBroadcast = {
   id: string;
   title: string;

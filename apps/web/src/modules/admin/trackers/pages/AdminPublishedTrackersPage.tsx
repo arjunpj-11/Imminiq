@@ -1,30 +1,33 @@
-import { useState } from 'react';
-import { ArrowLeft, Eye, Heart, Star } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { useState } from "react";
+import { ArrowLeft, Eye, Heart, Star } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
+  AdminCardSkeleton,
   AdminEmpty,
   AdminError,
-  AdminLoading,
+  AdminTableSkeleton,
   AdminMetricGrid,
   AdminPageHeader,
+  AdminPaginationControls,
   AdminPanel,
   AdminSearch,
-} from '../../shared';
-import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
-import { toast } from '../../../../lib/toast';
-import { getUserFacingError } from '../../../../lib/user-facing-error';
-import { useAdminPublishedTrackers } from '../hooks/useAdminPublishedTrackers';
-import { useLikeAdminPublishedTracker } from '../hooks/useLikeAdminPublishedTracker';
-import { useRateAdminPublishedTracker } from '../hooks/useRateAdminPublishedTracker';
-import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
+} from "../../shared";
+import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
+import { toast } from "../../../../lib/toast";
+import { getUserFacingError } from "../../../../lib/user-facing-error";
+import { useAdminPublishedTrackers } from "../hooks/useAdminPublishedTrackers";
+import { useLikeAdminPublishedTracker } from "../hooks/useLikeAdminPublishedTracker";
+import { useRateAdminPublishedTracker } from "../hooks/useRateAdminPublishedTracker";
+import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
 
 export default function AdminPublishedTrackersPage() {
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
   const [page, setPage] = useState(1);
-  const { data, isLoading, isError, error } = useAdminPublishedTrackers({
-    search: useDebouncedValue(search, 300),
-    page,
-  });
+  const { data, isLoading, isPlaceholderData, isError, error, refetch } =
+    useAdminPublishedTrackers({
+      search: useDebouncedValue(search, 300),
+      page,
+    });
   const like = useLikeAdminPublishedTracker();
   const rate = useRateAdminPublishedTracker();
   return (
@@ -39,13 +42,27 @@ export default function AdminPublishedTrackersPage() {
         title="Published Trackers"
         description="Review every public tracker and its canonical likes, ratings, clones, and learning structure."
       />
-      <AdminMetricGrid
-        metrics={[
-          { label: 'Published trackers', value: data?.stats?.published ?? 0 },
-          { label: 'Total likes', value: data?.stats?.likes ?? 0, tone: 'success' },
-          { label: 'Submitted ratings', value: data?.stats?.ratings ?? 0, tone: 'warning' },
+      {isLoading ? (
+        <div className="mt-7">
+          <AdminCardSkeleton cards={3} label="Loading published tracker metrics" />
+        </div>
+      ) : (
+        <AdminMetricGrid
+          metrics={[
+          { label: "Published trackers", value: data?.stats?.published ?? 0 },
+          {
+            label: "Total likes",
+            value: data?.stats?.likes ?? 0,
+            tone: "success",
+          },
+          {
+            label: "Submitted ratings",
+            value: data?.stats?.ratings ?? 0,
+            tone: "warning",
+          },
         ]}
-      />
+        />
+      )}
       <AdminPanel
         title="Published tracker directory"
         toolbar={
@@ -59,25 +76,28 @@ export default function AdminPublishedTrackersPage() {
           />
         }
       >
-        {isLoading ? (
-          <AdminLoading />
+        {isLoading || isPlaceholderData ? (
+          <div className="admin-table-scroll overflow-x-auto">
+            <AdminTableSkeleton columns={8} rows={8} label="Loading published trackers" />
+          </div>
         ) : isError ? (
-          <AdminError error={error} />
+          <AdminError error={error} onRetry={() => void refetch()} />
         ) : !data?.items.length ? (
           <AdminEmpty>No published trackers match this search.</AdminEmpty>
         ) : (
           <>
-            <div className="overflow-x-auto">
+            <div className="admin-table-scroll overflow-x-auto">
               <table className="admin-table w-full min-w-275 text-left text-sm">
+                <caption className="sr-only">Published trackers</caption>
                 <thead>
                   <tr>
-                    <th>Tracker</th>
-                    <th>Owner</th>
-                    <th>Published</th>
-                    <th>Structure</th>
-                    <th>Engagement</th>
-                    <th>Your admin rating</th>
-                    <th>Actions</th>
+                    <th scope="col">Tracker</th>
+                    <th scope="col">Owner</th>
+                    <th scope="col">Published</th>
+                    <th scope="col">Structure</th>
+                    <th scope="col">Engagement</th>
+                    <th scope="col">Your admin rating</th>
+                    <th scope="col">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -97,16 +117,23 @@ export default function AdminPublishedTrackersPage() {
                       <td>
                         <div className="flex items-center gap-3">
                           <span className="inline-flex items-center gap-1 text-[#e26767]">
-                            <Heart size={14} fill="currentColor" /> {item.likeCount}
+                            <Heart size={14} fill="currentColor" />{" "}
+                            {item.likeCount}
                           </span>
                           <span className="inline-flex items-center gap-1 text-[#e8b85f]">
-                            <Star size={14} fill="currentColor" /> {item.ratingAverage.toFixed(1)}
-                            <span className="text-[#817c75]">({item.ratingCount})</span>
+                            <Star size={14} fill="currentColor" />{" "}
+                            {item.ratingAverage.toFixed(1)}
+                            <span className="text-[#817c75]">
+                              ({item.ratingCount})
+                            </span>
                           </span>
                         </div>
                       </td>
                       <td>
-                        <div className="flex gap-1" aria-label="Set administrator rating">
+                        <div
+                          className="flex gap-1"
+                          aria-label="Set administrator rating"
+                        >
                           {[1, 2, 3, 4, 5].map((rating) => (
                             <button
                               key={rating}
@@ -115,13 +142,16 @@ export default function AdminPublishedTrackersPage() {
                                 rate.mutate(
                                   { id: item.id, rating },
                                   {
-                                    onSuccess: () => toast.success(`${rating}-star rating saved`),
+                                    onSuccess: () =>
+                                      toast.success(
+                                        `${rating}-star rating saved`,
+                                      ),
                                     onError: (error) =>
                                       toast.error(
-                                        'Could not save the rating',
-                                        getUserFacingError(error)
+                                        "Could not save the rating",
+                                        getUserFacingError(error),
                                       ),
-                                  }
+                                  },
                                 )
                               }
                               className="rounded p-1 hover:bg-white/10"
@@ -131,8 +161,8 @@ export default function AdminPublishedTrackersPage() {
                                 size={17}
                                 className={
                                   rating <= (item.adminRating ?? 0)
-                                    ? 'fill-[#e8b85f] text-[#e8b85f]'
-                                    : 'text-[#817c75]'
+                                    ? "fill-[#e8b85f] text-[#e8b85f]"
+                                    : "text-[#817c75]"
                                 }
                               />
                             </button>
@@ -145,18 +175,22 @@ export default function AdminPublishedTrackersPage() {
                             disabled={item.adminLiked || like.isPending}
                             onClick={() =>
                               like.mutate(item.id, {
-                                onSuccess: () => toast.success('Published tracker liked'),
+                                onSuccess: () =>
+                                  toast.success("Published tracker liked"),
                                 onError: (error) =>
                                   toast.error(
-                                    'Could not like the tracker',
-                                    getUserFacingError(error)
+                                    "Could not like the tracker",
+                                    getUserFacingError(error),
                                   ),
                               })
                             }
                             className="admin-button inline-flex items-center gap-2"
                           >
-                            <Heart size={14} fill={item.adminLiked ? 'currentColor' : 'none'} />
-                            {item.adminLiked ? 'Liked' : 'Like'}
+                            <Heart
+                              size={14}
+                              fill={item.adminLiked ? "currentColor" : "none"}
+                            />
+                            {item.adminLiked ? "Liked" : "Like"}
                           </button>
                           <Link
                             to={ADMIN_TRACKERS_ROUTES.detail(item.id)}
@@ -171,25 +205,12 @@ export default function AdminPublishedTrackersPage() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-center justify-end gap-3 border-t border-white/10 p-4">
-              <button
-                className="admin-button"
-                disabled={page <= 1}
-                onClick={() => setPage((current) => current - 1)}
-              >
-                Previous
-              </button>
-              <span className="text-xs text-[#aaa59d]">
-                {page} / {data.pagination.pages}
-              </span>
-              <button
-                className="admin-button"
-                disabled={page >= data.pagination.pages}
-                onClick={() => setPage((current) => current + 1)}
-              >
-                Next
-              </button>
-            </div>
+            <AdminPaginationControls
+              page={page}
+              pages={data.pagination.pages}
+              label="published trackers"
+              onPageChange={setPage}
+            />
           </>
         )}
       </AdminPanel>

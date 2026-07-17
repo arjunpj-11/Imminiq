@@ -1,8 +1,8 @@
-import { ArrowLeft } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { AdminPageHeader } from '../../shared';
-import AdminTrackerReviewsPanel from '../components/AdminTrackerReviewsPanel';
-import { ADMIN_TRACKERS_ROUTES } from '../constants/admin-trackers.constants';
+import { ArrowLeft } from "lucide-react";
+import { Link } from "react-router-dom";
+import { AdminPageHeader } from "../../shared";
+import AdminTrackerReviewsPanel from "../components/AdminTrackerReviewsPanel";
+import { ADMIN_TRACKERS_ROUTES } from "../constants/admin-trackers.constants";
 
 export default function AdminTrackerReviewsPage() {
   return (

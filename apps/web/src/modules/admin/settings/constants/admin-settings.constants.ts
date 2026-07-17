@@ -1,8 +1,8 @@
-import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
+import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
 
 export const ADMIN_SETTINGS_ENDPOINTS = {
-  detail: '/admin/settings',
-  update: '/admin/settings',
+  detail: "/admin/settings",
+  update: "/admin/settings",
 } as const;
 
 export const ADMIN_SETTINGS_ROUTES = {

@@ -1,146 +1,381 @@
+import { Download, Eye, FileText, Scale } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Link, useSearchParams } from "react-router-dom";
 import {
-  Ban,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  Scale,
-  Download,
-} from 'lucide-react';
-import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { AdminBulkActionBar, AdminError, AdminMetricGrid, AdminPageHeader, AdminSearch } from '../../shared';
-import { downloadServerCsv } from '../../shared';
-import { useDebouncedValue } from '../../../../hooks/useDebouncedValue';
-import { useAdminUsers } from '../hooks/useAdminUsers';
+  AdminBulkActionBar,
+  AdminCardSkeleton,
+  AdminEmpty,
+  AdminError,
+  AdminMetricGrid,
+  AdminPageHeader,
+  AdminPaginationControls,
+  AdminPanel,
+  AdminRefreshingIndicator,
+  AdminSearch,
+  AdminStatusBadge,
+  AdminTableSkeleton,
+  downloadServerCsv,
+  downloadTablePdf,
+  fetchAllAdminItems,
+} from "../../shared";
+import { useDebouncedValue } from "../../../../hooks/useDebouncedValue";
+import { getUserFacingError } from "../../../../lib/user-facing-error";
+import { toast } from "../../../../lib/toast";
+import { useAdminUsers } from "../hooks/useAdminUsers";
+import type { AdminUser, AdminUsersData } from "../types/admin-users.types";
 import {
   ADMIN_USER_FILTERS,
+  ADMIN_USERS_ENDPOINTS,
   ADMIN_USERS_ROUTES,
   ADMIN_USERS_SEARCH_DEBOUNCE_MS,
-} from '../constants/admin-users.constants';
+} from "../constants/admin-users.constants";
 
-const number = new Intl.NumberFormat('en-US');
+const number = new Intl.NumberFormat("en-US");
+const validStatuses = new Set<string>(ADMIN_USER_FILTERS);
 
 export default function AdminUsersPage() {
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState<(typeof ADMIN_USER_FILTERS)[number]>('all');
-  const [page, setPage] = useState(1);
-  const [selected, setSelected] = useState<string[]>([]);
-  const debouncedSearch = useDebouncedValue(search, ADMIN_USERS_SEARCH_DEBOUNCE_MS);
-  const { data, isLoading, isError, error, isFetching } = useAdminUsers({
-    search: debouncedSearch,
-    status,
-    page,
-  });
-  const exportCurrentView = () => void downloadServerCsv('/admin/users/export.csv', `imminiq-users-${status}.csv`, { search: debouncedSearch, status });
+  const [searchParams, setSearchParams] = useSearchParams();
+  const [search, setSearch] = useState(() => searchParams.get("q") || "");
+  const [isExportingPdf, setIsExportingPdf] = useState(false);
+  const debouncedSearch = useDebouncedValue(
+    search,
+    ADMIN_USERS_SEARCH_DEBOUNCE_MS,
+  );
+  const requestedStatus = searchParams.get("status") || "all";
+  const status = validStatuses.has(requestedStatus)
+    ? (requestedStatus as (typeof ADMIN_USER_FILTERS)[number])
+    : "all";
+  const requestedPage = Number(searchParams.get("page") || 1);
+  const page =
+    Number.isInteger(requestedPage) && requestedPage > 0 ? requestedPage : 1;
+
+  const [selectedState, setSelectedState] = useState<string[]>([]);
+
+  useEffect(() => {
+    setSelectedState([]); // eslint-disable-line react-hooks/set-state-in-effect
+  }, [debouncedSearch, status, page]);
+
+  const updateParams = (updates: Record<string, string | number | null>) => {
+    const next = new URLSearchParams(searchParams);
+    for (const [key, value] of Object.entries(updates)) {
+      if (value === null || value === "" || value === "all" || value === 1)
+        next.delete(key);
+      else next.set(key, String(value));
+    }
+    setSearchParams(next, { replace: true });
+  };
+
+  useEffect(() => {
+    if ((searchParams.get("q") || "") === debouncedSearch) return;
+    updateParams({ q: debouncedSearch || null, page: null });
+    // The current URL object is intentionally the source of truth for filters.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedSearch]);
+
+  const { data, isLoading, isError, error, isFetching, isPlaceholderData, refetch } =
+    useAdminUsers({
+      search: debouncedSearch,
+      status,
+      page,
+    });
+
+  const exportCurrentView = () =>
+    void downloadServerCsv(
+      "/admin/users/export.csv",
+      `imminiq-users-${status}.csv`,
+      {
+        search: debouncedSearch,
+        status,
+      },
+    );
+
+  const exportPdf = async () => {
+    setIsExportingPdf(true);
+    try {
+      const users = await fetchAllAdminItems<AdminUsersData, AdminUser>({
+        endpoint: ADMIN_USERS_ENDPOINTS.list,
+        params: {
+          search: debouncedSearch || undefined,
+          status,
+        },
+        selectItems: (response) => response.users,
+        selectPageCount: (response) => response.pagination.pages,
+      });
+      const date = new Date().toISOString().slice(0, 10);
+      await downloadTablePdf({
+        filename: `imminiq-users-${status}-${date}.pdf`,
+        title: "User Management",
+        description:
+          "User accounts matching the selected administrator filters.",
+        filters: [
+          `Status: ${status === "all" ? "All statuses" : status}`,
+          `Search: ${debouncedSearch || "All users"}`,
+          `Matching users: ${users.length}`,
+        ],
+        summary: [
+          { label: "Matching users", value: users.length },
+          { label: "Active accounts", value: data?.stats.active ?? 0 },
+          { label: "Suspended", value: data?.stats.paused ?? 0 },
+          { label: "Blocked", value: data?.stats.blocked ?? 0 },
+        ],
+        columns: [
+          { header: "Name", key: "name", width: 92 },
+          { header: "Username", key: "username", width: 68 },
+          { header: "Contact", key: "contact", width: 116 },
+          { header: "Role", key: "role", width: 58 },
+          { header: "Status", key: "status", width: 58 },
+          { header: "Plan", key: "plan", width: 48 },
+          { header: "Verified", key: "verified", width: 55 },
+          { header: "Last active", key: "lastActive", width: 84 },
+          { header: "Joined", key: "joined", width: 76 },
+        ],
+        rows: users.map((user) => ({
+          name: user.fullName,
+          username: `@${user.username}`,
+          contact: user.email || user.phone || "Not provided",
+          role: user.role,
+          status: user.status,
+          plan: user.isPremium ? "Premium" : "Standard",
+          verified: [
+            user.emailVerified ? "Email" : null,
+            user.phoneVerified ? "Phone" : null,
+          ]
+            .filter(Boolean)
+            .join(", ") || "No",
+          lastActive: user.lastActiveAt
+            ? new Date(user.lastActiveAt).toLocaleString()
+            : "Never",
+          joined: new Date(user.createdAt).toLocaleDateString(),
+        })),
+      });
+      toast.success(
+        "User PDF downloaded",
+        `${users.length} matching accounts exported.`,
+      );
+    } catch (error) {
+      toast.error("User PDF export failed", getUserFacingError(error));
+    } finally {
+      setIsExportingPdf(false);
+    }
+  };
 
   return (
     <main className="mx-auto max-w-310 px-5 py-8 sm:px-8">
       <AdminPageHeader
         title="User Management"
         description="Manage account access, user history, privacy requests, appeals, and internal support context."
-        action={<div className="flex flex-wrap gap-2"><button type="button" onClick={exportCurrentView} className="admin-button inline-flex items-center gap-2"><Download size={16} /> Export all CSV</button><Link to={ADMIN_USERS_ROUTES.appeals} className="admin-button inline-flex items-center gap-2"><Scale size={16} /> Account appeals</Link></div>}
-      />
-      <AdminMetricGrid metrics={[
-        { label: 'Total users', value: data?.stats.total ?? 0 },
-        { label: 'Active accounts', value: data?.stats.active ?? 0, tone: 'success' },
-        { label: 'Suspended', value: data?.stats.paused ?? 0, tone: 'warning' },
-        { label: 'Blocked', value: data?.stats.blocked ?? 0, tone: 'error' },
-      ]} />
-      <section className="mt-8 overflow-hidden rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#1c1a18]">
-        <div className="flex flex-wrap items-center gap-5 border-b border-[rgba(255,255,255,0.09)] px-6 py-5">
-          <h2 className="font-editorial mr-2 text-xl font-bold">All Users</h2>
-          <div className="flex rounded-lg bg-[#2a2723] p-1">
-            {ADMIN_USER_FILTERS.map((filter) => (
-              <button
-                key={filter}
-                onClick={() => {
-                  setStatus(filter);
-                  setPage(1);
-                }}
-                className={`rounded-md px-4 py-2 text-xs font-semibold capitalize ${status === filter ? 'bg-[rgba(232,129,106,0.15)] text-[#e8816a] shadow-sm' : 'text-[#aaa59d]'}`}
-              >
-                {filter}
-              </button>
-            ))}
-          </div>
-          <div className="ml-auto"><AdminSearch value={search} onChange={(value) => { setSearch(value); setPage(1); }} placeholder="Search users, names, emails…" /></div>
-        </div>
-        <div className="px-6 pt-4"><AdminBulkActionBar kind="users" selected={selected} onClear={() => setSelected([])} /></div>
-        {isLoading && <div className="p-10 text-center text-sm text-[#aaa59d]">Loading users…</div>}
-        {!isLoading && isFetching && (
-          <div className="h-px animate-pulse bg-[#e8816a]" aria-label="Refreshing users" />
-        )}
-        {isError && <AdminError error={error} />}
-        {data && (
+        action={
           <>
-            <div className="overflow-x-auto">
-              <table className="w-full min-w-[850px] text-left">
-                <thead className="border-b border-[rgba(255,255,255,0.16)] bg-[#141412] text-[9px] uppercase tracking-wider text-[#aaa59d]">
+            <button
+              type="button"
+              onClick={exportCurrentView}
+              className="admin-button"
+            >
+              <Download size={16} aria-hidden="true" />
+              Export all CSV
+            </button>
+            <button
+              type="button"
+              onClick={() => void exportPdf()}
+              disabled={isExportingPdf}
+              className="admin-button"
+            >
+              <FileText size={16} aria-hidden="true" />
+              {isExportingPdf ? "Preparing PDF…" : "Export all PDF"}
+            </button>
+            <Link to={ADMIN_USERS_ROUTES.appeals} className="admin-button">
+              <Scale size={16} aria-hidden="true" />
+              Account appeals
+            </Link>
+          </>
+        }
+      />
+
+      {isLoading ? (
+        <div className="mt-7">
+          <AdminCardSkeleton label="Loading user metrics" />
+        </div>
+      ) : (
+        <AdminMetricGrid
+          metrics={[
+          { label: "Total users", value: data?.stats.total ?? 0 },
+          {
+            label: "Active accounts",
+            value: data?.stats.active ?? 0,
+            tone: "success",
+          },
+          {
+            label: "Suspended",
+            value: data?.stats.paused ?? 0,
+            tone: "warning",
+          },
+          { label: "Blocked", value: data?.stats.blocked ?? 0, tone: "error" },
+          ]}
+        />
+      )}
+
+      <AdminPanel
+        title="All users"
+        toolbar={
+          <div className="flex flex-wrap items-center gap-3">
+            {isFetching && !isLoading && !isPlaceholderData && (
+              <AdminRefreshingIndicator label="Updating users" />
+            )}
+            <div
+              className="admin-segmented-control max-w-full overflow-x-auto"
+              aria-label="Filter users by status"
+            >
+              {ADMIN_USER_FILTERS.map((filter) => (
+                <button
+                  type="button"
+                  key={filter}
+                  aria-pressed={status === filter}
+                  className="whitespace-nowrap capitalize"
+                  onClick={() => updateParams({ status: filter, page: null })}
+                >
+                  {filter}
+                </button>
+              ))}
+            </div>
+            <AdminSearch
+              value={search}
+              onChange={setSearch}
+              placeholder="Search users, names, emails…"
+            />
+          </div>
+        }
+      >
+        <div className="px-4 pt-4 sm:px-6">
+          <AdminBulkActionBar
+            kind="users"
+            selected={selectedState}
+            onClear={() => setSelectedState([])}
+          />
+        </div>
+
+        {isLoading || isPlaceholderData ? (
+          <div className="admin-table-scroll overflow-x-auto">
+            <AdminTableSkeleton columns={7} rows={8} label="Loading users" />
+          </div>
+        ) : isError ? (
+          <AdminError error={error} onRetry={() => void refetch()} />
+        ) : !data?.users.length ? (
+          <AdminEmpty>No users match the selected filters.</AdminEmpty>
+        ) : (
+          <>
+            <div className="admin-table-scroll overflow-x-auto">
+              <table className="admin-table w-full min-w-[900px] text-left text-sm">
+                <caption className="sr-only">
+                  User accounts matching the current search and status filters
+                </caption>
+                <thead>
                   <tr>
-                    <th className="px-6 py-4"><input aria-label="Select visible users" type="checkbox" checked={Boolean(data.users.length) && data.users.every((item) => selected.includes(item._id))} onChange={(event) => setSelected(event.target.checked ? Array.from(new Set([...selected, ...data.users.map((item) => item._id)])) : selected.filter((id) => !data.users.some((item) => item._id === id)))} /></th>
-                    <th className="px-6 py-4">User</th>
-                    <th className="px-6 py-4">Role</th>
-                    <th className="px-6 py-4">Email</th>
-                    <th className="px-6 py-4">Status</th>
-                    <th className="px-6 py-4">Last activity</th>
-                    <th className="px-6 py-4 text-right">Action</th>
+                    <th scope="col">
+                      <input
+                        aria-label="Select visible users"
+                        type="checkbox"
+                        checked={
+                          Boolean(data.users.length) &&
+                          data.users.every((item) =>
+                            selectedState.includes(item._id),
+                          )
+                        }
+                        onChange={(event) =>
+                          setSelectedState(
+                            event.target.checked
+                              ? Array.from(
+                                  new Set([
+                                    ...selectedState,
+                                    ...data.users.map((item) => item._id),
+                                  ]),
+                                )
+                              : selectedState.filter(
+                                  (id) =>
+                                    !data.users.some((item) => item._id === id),
+                                ),
+                          )
+                        }
+                      />
+                    </th>
+                    <th scope="col">User</th>
+                    <th scope="col">Role</th>
+                    <th scope="col">Contact</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Last activity</th>
+                    <th scope="col">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {data.users.map((user) => (
                     <tr
                       key={user._id}
-                      className={`border-t border-[rgba(255,255,255,0.09)] text-sm ${user.status === 'blocked' ? 'bg-[rgba(226,103,103,0.08)]' : user.status === 'paused' ? 'bg-[rgba(240,168,66,0.06)]' : ''}`}
+                      className={
+                        user.status === "blocked"
+                          ? "bg-[rgba(226,103,103,0.06)]"
+                          : user.status === "paused"
+                            ? "bg-[rgba(240,168,66,0.05)]"
+                            : ""
+                      }
                     >
-                      <td className="px-6 py-4"><input aria-label={`Select ${user.fullName}`} type="checkbox" checked={selected.includes(user._id)} onChange={(event) => setSelected(event.target.checked ? [...selected, user._id] : selected.filter((id) => id !== user._id))} /></td>
-                      <td className="px-6 py-4">
+                      <td>
+                        <input
+                          aria-label={`Select ${user.fullName}`}
+                          type="checkbox"
+                          checked={selectedState.includes(user._id)}
+                          onChange={(event) =>
+                            setSelectedState(
+                              event.target.checked
+                                ? Array.from(new Set([...selectedState, user._id]))
+                                : selectedState.filter((id) => id !== user._id),
+                            )
+                          }
+                        />
+                      </td>
+                      <td>
                         <div className="flex items-center gap-3">
                           {user.avatarUrl ? (
                             <img
                               src={user.avatarUrl}
                               alt=""
-                              className="h-10 w-10 rounded-full object-cover"
+                              className="h-10 w-10 rounded-full border border-white/10 object-cover"
                             />
                           ) : (
-                            <div className="grid h-10 w-10 place-items-center rounded-full bg-[#2a2723] font-editorial text-[#e8816a]">
+                            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-white/10 bg-[#2a2723] font-editorial text-[#e8816a]">
                               {user.fullName
-                                .split(' ')
+                                .split(" ")
                                 .map((part) => part[0])
                                 .slice(0, 2)
-                                .join('')}
+                                .join("")}
                             </div>
                           )}
-                          <div>
-                            <div className="font-semibold">{user.fullName}</div>
-                            <div className="text-[11px] text-[#aaa59d]">@{user.username}</div>
+                          <div className="min-w-0">
+                            <div className="max-w-52 truncate font-semibold">
+                              {user.fullName}
+                            </div>
+                            <div className="text-[11px] text-[#aaa59d]">
+                              @{user.username}
+                            </div>
                           </div>
                         </div>
                       </td>
-                      <td className="px-6 py-4">
-                        <span className="rounded border border-[rgba(255,255,255,0.09)] bg-[#2a2723] px-2 py-1 text-[9px] uppercase text-[#aaa59d]">
-                          {user.role}
-                        </span>
+                      <td>
+                        <AdminStatusBadge value={user.role} />
                       </td>
-                      <td className="px-6 py-4 text-[#aaa59d]">
-                        {user.email || user.phone || '—'}
+                      <td className="text-[#aaa59d]">
+                        {user.email || user.phone || "—"}
                       </td>
-                      <td className="px-6 py-4">
-                        <span
-                          className={`inline-flex items-center gap-1.5 font-semibold ${user.status === 'blocked' ? 'text-[#e26767]' : user.status === 'paused' ? 'text-[#f0a842]' : 'text-[#52c58c]'}`}
-                        >
-                          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-                          {user.status}
-                        </span>
+                      <td>
+                        <AdminStatusBadge value={user.status} />
                       </td>
-                      <td className="px-6 py-4 text-[#aaa59d]">
+                      <td className="text-[#aaa59d]">
                         {new Date(user.lastActiveAt).toLocaleDateString()}
                       </td>
-                      <td className="px-6 py-4 text-right">
+                      <td>
                         <Link
                           to={ADMIN_USERS_ROUTES.detail(user._id)}
-                          className="inline-flex items-center gap-2 rounded-md border border-[rgba(255,255,255,0.09)] px-3 py-2 text-xs font-bold hover:bg-[#24211e]"
+                          className="admin-button"
                         >
-                          <Eye size={15} />
+                          <Eye size={15} aria-hidden="true" />
                           View
                         </Link>
                       </td>
@@ -149,39 +384,22 @@ export default function AdminUsersPage() {
                 </tbody>
               </table>
             </div>
-            <div className="flex items-center justify-between border-t border-[rgba(255,255,255,0.09)] bg-[#141412] px-6 py-5 text-xs text-[#aaa59d]">
-              <span>
-                Showing {data.users.length} of {number.format(data.pagination.total)} users
+
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 bg-[#141412] px-4 py-3 sm:px-6">
+              <span className="text-xs text-[#aaa59d]">
+                Showing {data.users.length} of{" "}
+                {number.format(data.pagination.total)} users
               </span>
-              <div className="flex items-center gap-2">
-                <button
-                  disabled={page <= 1}
-                  onClick={() => setPage((value) => value - 1)}
-                  className="rounded border border-[rgba(255,255,255,0.09)] p-2 disabled:opacity-30"
-                >
-                  <ChevronLeft size={15} />
-                </button>
-                <span className="px-2">
-                  {page} / {data.pagination.pages}
-                </span>
-                <button
-                  disabled={page >= data.pagination.pages}
-                  onClick={() => setPage((value) => value + 1)}
-                  className="rounded border border-[rgba(255,255,255,0.09)] p-2 disabled:opacity-30"
-                >
-                  <ChevronRight size={15} />
-                </button>
-              </div>
+              <AdminPaginationControls
+                page={page}
+                pages={data.pagination.pages}
+                label="users"
+                onPageChange={(nextPage) => updateParams({ page: nextPage })}
+              />
             </div>
           </>
         )}
-        {data?.users.length === 0 && (
-          <div className="p-12 text-center">
-            <Ban className="mx-auto mb-3 text-[#aaa59d]" />
-            <div className="font-semibold">No matching users</div>
-          </div>
-        )}
-      </section>
+      </AdminPanel>
     </main>
   );
 }

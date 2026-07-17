@@ -1,8 +1,8 @@
-import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
+import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
 
 export const ADMIN_BROADCAST_ENDPOINTS = {
-  list: '/admin/broadcasts',
-  create: '/admin/broadcasts',
+  list: "/admin/broadcasts",
+  create: "/admin/broadcasts",
 } as const;
 
 export const ADMIN_BROADCAST_ROUTES = {

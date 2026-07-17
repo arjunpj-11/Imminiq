@@ -1,12 +1,13 @@
-import { ADMIN_ROUTES } from '../../../../routes/config/route-paths';
+import { ADMIN_ROUTES } from "../../../../routes/config/route-paths";
 
 export const ADMIN_MOCK_TESTS_ENDPOINTS = {
-  list: '/admin/mock-tests',
+  list: "/admin/mock-tests",
   detail: (testId: string) => `/admin/mock-tests/${testId}`,
-  reports: '/admin/mock-tests/issues',
+  reports: "/admin/mock-tests/issues",
   report: (issueId: string) => `/admin/mock-tests/issues/${issueId}`,
   lifecycle: (testId: string) => `/admin/mock-tests/${testId}/lifecycle`,
-  questionVersions: (questionId: string) => `/admin/mock-tests/questions/${questionId}/versions`,
+  questionVersions: (questionId: string) =>
+    `/admin/mock-tests/questions/${questionId}/versions`,
   restoreQuestionVersion: (questionId: string, version: number) =>
     `/admin/mock-tests/questions/${questionId}/versions/${version}/restore`,
 } as const;
