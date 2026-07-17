@@ -6,7 +6,7 @@ export type { IAuthRedirectResolver };
 
 export class AuthRedirectResolver implements IAuthRedirectResolver {
   async resolveRedirectPath(_userId: string, role: AuthRole): Promise<LoginRedirectPath> {
-    if (role === 'admin' || role === 'superadmin') {
+    if (role === 'admin' || role === 'superadmin' || role === 'moderator') {
       return '/admin';
     }
 

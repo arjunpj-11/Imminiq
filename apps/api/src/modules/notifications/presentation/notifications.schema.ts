@@ -15,4 +15,8 @@ export const notificationsListQuerySchema = z.object({
     .max(NOTIFICATION_MAX_LIMIT)
     .default(NOTIFICATION_DEFAULT_LIMIT),
 });
+
+export const notificationPollVoteSchema = z.object({
+  optionIndex: z.number().int().min(0).max(3),
+});
 export type NotificationsListQueryInput = z.infer<typeof notificationsListQuerySchema>;

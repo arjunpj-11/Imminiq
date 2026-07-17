@@ -4,6 +4,7 @@ import { toast } from '../../../../lib/toast';
 import { getUserFacingError } from '../../../../lib/user-facing-error';
 import { ADMIN_BROADCAST_ENDPOINTS } from '../constants/admin-broadcast.constants';
 import { adminBroadcastKeys } from './admin-broadcast.query-keys';
+import type { AdminBroadcastAudience, AdminBroadcastPoll } from '../types/admin-broadcast.types';
 
 export const useCreateAdminBroadcast = () => {
   const client = useQueryClient();
@@ -11,8 +12,10 @@ export const useCreateAdminBroadcast = () => {
     mutationFn: (input: {
       title: string;
       message: string;
-      audience: 'all' | 'active';
+      audience: AdminBroadcastAudience;
+      userIds?: string[];
       deepLink?: string;
+      poll?: AdminBroadcastPoll;
     }) => api.post(ADMIN_BROADCAST_ENDPOINTS.create, input),
     onMutate: () => ({
       toastId: toast.loading(

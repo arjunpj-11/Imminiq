@@ -65,7 +65,7 @@ export const useVerifyTwoFactorLogin = () => {
     onSuccess: (response) => {
       const user = response.data?.user;
       const accessToken = response.data?.accessToken;
-      const redirectPath = ['admin', 'superadmin'].includes(user?.role || '')
+      const redirectPath = ['admin', 'superadmin', 'moderator'].includes(user?.role || '')
         ? ADMIN_ROUTES.dashboard
         : response.data?.redirectPath || ROUTES.dashboard;
 

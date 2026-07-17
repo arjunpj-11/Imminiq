@@ -23,5 +23,8 @@ export class MongoNotificationsRepository implements INotificationRepository {
   markAllNotificationsRead(userId: string) {
     return this._command.markAllNotificationsRead(userId);
   }
+  voteForPoll(userId: string, notificationId: string, optionIndex: number) {
+    return this._command.voteForPoll(userId, notificationId, optionIndex);
+  }
 }
 export const mongoNotificationsRepository = new MongoNotificationsRepository();

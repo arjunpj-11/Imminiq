@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, Download, LoaderCircle } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Download, LoaderCircle, X } from 'lucide-react';
 import { useState, type FormEvent } from 'react';
 import type { UseQueryResult } from '@tanstack/react-query';
 import {
@@ -18,6 +18,7 @@ import { getUserFacingError } from '../../../../lib/user-facing-error';
 import api from '../../../../lib/axios';
 import type { ApiEnvelope } from '../../../../lib/api.types';
 import { toast } from '../../../../lib/toast';
+import Modal from '../../../../components/overlays/Modal';
 import {
   ADMIN_SUBSCRIPTIONS_ENDPOINTS,
   ADMIN_SUBSCRIPTION_STATUS_OPTIONS,
@@ -88,6 +89,7 @@ function SubscriptionView({
   setPage: (value: number) => void;
 }) {
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<AdminSubscriptionPlan | null>(null);
   if (query.isLoading) return <AdminLoading />;
   if (query.isError || !query.data) return <AdminError error={query.error} />;
   const data = query.data;
@@ -143,16 +145,24 @@ function SubscriptionView({
       />
       <AdminPanel title="Subscription plans">
         <div className="border-b border-[rgba(255,255,255,0.09)] px-6 py-4 text-xs text-[#aaa59d]">
-          Prices are stored in paise. Set a usage limit to 0 for unlimited. Free users always
-          receive the latest free plan. Existing paid subscribers keep purchased limits unless you
-          explicitly select a genuine upgrade; new buyers receive the complete latest plan.
+          Select a plan to review its customer-facing details. Changes to pricing, features, and
+          limits are available only after choosing Edit.
         </div>
-        <div className="grid gap-4 p-6 xl:grid-cols-3">
+        <div className="grid gap-3 p-6 sm:grid-cols-3">
           {data.plans.map((plan) => (
-            <PlanForm key={`${plan.planId}-${plan.updatedAt ?? 'default'}`} plan={plan} />
+            <PlanButton
+              key={`${plan.planId}-${plan.updatedAt ?? 'default'}`}
+              plan={plan}
+              onClick={() => setSelectedPlan(plan)}
+            />
           ))}
         </div>
       </AdminPanel>
+      <PlanDialog
+        key={selectedPlan ? `${selectedPlan.planId}-${selectedPlan.updatedAt ?? 'default'}` : 'closed'}
+        plan={selectedPlan}
+        onClose={() => setSelectedPlan(null)}
+      />
       <section className="mt-7 grid gap-6 lg:grid-cols-2">
         <SummaryPanel
           title="Plans"
@@ -262,7 +272,135 @@ function SubscriptionView({
   );
 }
 
-function PlanForm({ plan }: { plan: AdminSubscriptionPlan }) {
+function PlanButton({ plan, onClick }: { plan: AdminSubscriptionPlan; onClick: () => void }) {
+  const isFree = plan.planId === 'free';
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`group rounded-xl border p-5 text-left transition hover:-translate-y-0.5 hover:border-[#e8816a]/60 hover:bg-[#292622] focus:outline-none focus:ring-2 focus:ring-[#e8816a]/70 ${
+        plan.highlighted ? 'border-[#e8816a]/50 bg-[#e8816a]/8' : 'border-white/10 bg-[#24211e]'
+      }`}
+    >
+      <div className="flex items-start justify-between gap-3">
+        <div>
+          <div className="font-editorial text-xl font-bold">{plan.name}</div>
+          <div className="mt-1 text-xs capitalize text-[#aaa59d]">{plan.planId} plan</div>
+        </div>
+        {plan.highlighted && (
+          <span className="rounded border border-[#e8816a]/40 bg-[#e8816a]/10 px-2 py-1 text-[9px] font-bold uppercase tracking-wide text-[#f0aa98]">
+            Featured
+          </span>
+        )}
+      </div>
+      <p className="mt-4 min-h-10 text-sm leading-5 text-[#aaa59d]">{plan.description}</p>
+      <div className="mt-5 flex items-end justify-between gap-3">
+        <span className="font-editorial text-lg text-[#f2f0eb]">
+          {isFree ? 'Free' : `${formatMoney(plan.monthlyAmount)} / mo`}
+        </span>
+        <span className="text-xs font-semibold text-[#e8816a] group-hover:text-[#f0aa98]">View details</span>
+      </div>
+    </button>
+  );
+}
+
+function PlanDialog({ plan, onClose }: { plan: AdminSubscriptionPlan | null; onClose: () => void }) {
+  const [isEditing, setIsEditing] = useState(false);
+  const fields: Array<[AdminPlanLimitField, string]> = [
+    ['maxTrackers', 'Maximum trackers'],
+    ['trackerGenerationsPerMonth', 'Generated trackers / month'],
+    ['lessonGenerationsPerDay', 'Generated lessons / day'],
+    ['mockTestGenerationsPerMonth', 'Generated mock tests / month'],
+    ['aiTutorRequestsPerDay', 'AI tutor requests / day'],
+  ];
+
+  return (
+    <Modal
+      open={Boolean(plan)}
+      onClose={onClose}
+      ariaLabel="Subscription plan details"
+      contentClassName="max-h-[calc(100dvh-2rem)] max-w-4xl overflow-y-auto bg-[#1c1a18] p-0 text-[#f2f0eb]"
+    >
+      {plan && (
+        <>
+          <div className="flex items-start justify-between gap-5 border-b border-white/10 px-6 py-5">
+            <div>
+              <p className="text-[10px] font-semibold uppercase tracking-[0.18em] text-[#e8816a]">
+                {plan.planId} subscription plan
+              </p>
+              <h2 className="mt-1 font-editorial text-3xl font-bold">{plan.name}</h2>
+            </div>
+            <button
+              type="button"
+              className="admin-button p-2!"
+              onClick={onClose}
+              aria-label="Close plan details"
+            >
+              <X size={16} />
+            </button>
+          </div>
+          {isEditing ? (
+            <PlanEditor plan={plan} onCancel={() => setIsEditing(false)} onSaved={onClose} />
+          ) : (
+            <div className="p-6">
+              <p className="max-w-2xl text-sm leading-6 text-[#aaa59d]">{plan.description}</p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-2">
+                <DetailCard
+                  label="Monthly price"
+                  value={plan.planId === 'free' ? 'Free' : formatMoney(plan.monthlyAmount)}
+                />
+                <DetailCard
+                  label="Annual price"
+                  value={plan.planId === 'free' ? 'Free' : formatMoney(plan.annualAmount)}
+                />
+              </div>
+              <div className="mt-6 grid gap-6 lg:grid-cols-2">
+                <section>
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-[#aaa59d]">Included features</h3>
+                  <ul className="mt-3 space-y-2 text-sm text-[#d7d2ca]">
+                    {plan.features.map((feature) => <li key={feature}>• {feature}</li>)}
+                  </ul>
+                </section>
+                <section>
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-[#aaa59d]">Usage limits</h3>
+                  <div className="mt-3 space-y-2">
+                    {fields.map(([key, label]) => (
+                      <div
+                        key={key}
+                        className="flex justify-between gap-4 rounded-lg border border-white/8 bg-[#24211e] px-3 py-2 text-sm"
+                      >
+                        <span className="text-[#aaa59d]">{label}</span>
+                        <span className="font-semibold">
+                          {plan.limits[key] === 0 ? 'Unlimited' : number.format(plan.limits[key])}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+              <div className="mt-7 flex justify-end border-t border-white/10 pt-5">
+                <button type="button" className="admin-primary-button" onClick={() => setIsEditing(true)}>
+                  Edit plan
+                </button>
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </Modal>
+  );
+}
+
+function DetailCard({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="rounded-lg border border-white/10 bg-[#24211e] p-4">
+      <div className="text-[10px] uppercase tracking-wide text-[#aaa59d]">{label}</div>
+      <div className="mt-1 font-editorial text-xl font-bold">{value}</div>
+    </div>
+  );
+}
+
+function PlanEditor({ plan, onCancel, onSaved }: { plan: AdminSubscriptionPlan; onCancel: () => void; onSaved: () => void }) {
   const update = useUpdateAdminPlan();
   const [propagateLimitFields, setPropagateLimitFields] = useState<AdminPlanLimitField[]>([]);
   const [form, setForm] = useState({
@@ -284,15 +422,17 @@ function PlanForm({ plan }: { plan: AdminSubscriptionPlan }) {
   ];
   const submit = (event: FormEvent) => {
     event.preventDefault();
-    update.mutate({ planId: plan.planId, input: { plan: form, propagateLimitFields } });
+    update.mutate(
+      { planId: plan.planId, input: { plan: form, propagateLimitFields } },
+      { onSuccess: onSaved }
+    );
   };
   return (
-    <form
-      onSubmit={submit}
-      className="rounded-xl border border-[rgba(255,255,255,0.09)] bg-[#24211e] p-5"
-    >
-      <div className="font-editorial text-xl font-bold capitalize">{plan.planId}</div>
-      <div className="mt-4 space-y-3">
+    <form onSubmit={submit} className="p-6">
+      <p className="mb-4 text-xs leading-5 text-[#aaa59d]">
+        Prices are stored in paise. Set a usage limit to 0 for unlimited.
+      </p>
+      <div className="grid gap-3 md:grid-cols-2">
         <PlanTextField
           label="Display name"
           value={form.name}
@@ -359,7 +499,7 @@ function PlanForm({ plan }: { plan: AdminSubscriptionPlan }) {
           Highlight this plan
         </label>
       </div>
-      <div className="mt-5 border-t border-white/10 pt-4 text-xs font-semibold uppercase tracking-wide text-[#aaa59d]">
+      <div className="mt-6 border-t border-white/10 pt-5 text-xs font-semibold uppercase tracking-wide text-[#aaa59d]">
         Usage limits
       </div>
       {plan.planId !== 'free' && (
@@ -369,7 +509,7 @@ function PlanForm({ plan }: { plan: AdminSubscriptionPlan }) {
           are always preserved.
         </p>
       )}
-      <div className="mt-4 space-y-3">
+      <div className="mt-4 grid gap-3 md:grid-cols-2">
         {fields.map(([key, label, maximum]) => {
           const change = getLimitChange(plan.limits[key], form.limits[key]);
           const canPropagate = plan.planId !== 'free' && change !== 'unchanged';
@@ -425,19 +565,25 @@ function PlanForm({ plan }: { plan: AdminSubscriptionPlan }) {
           {getUserFacingError(update.error, 'Plan could not be saved.')}
         </div>
       )}
-      <button
-        type="submit"
-        disabled={update.isPending}
-        className="admin-primary-button mt-5 w-full"
-      >
-        {update.isPending ? (
-          <>
-            <LoaderCircle size={15} className="animate-spin" /> Saving…
-          </>
-        ) : (
-          `Save ${plan.planId} plan`
-        )}
-      </button>
+      <div className="mt-6 flex justify-end gap-3 border-t border-white/10 pt-5">
+        <button
+          type="button"
+          className="admin-button"
+          onClick={onCancel}
+          disabled={update.isPending}
+        >
+          Cancel
+        </button>
+        <button type="submit" disabled={update.isPending} className="admin-primary-button">
+          {update.isPending ? (
+            <>
+              <LoaderCircle size={15} className="animate-spin" /> Saving…
+            </>
+          ) : (
+            `Save ${plan.planId} plan`
+          )}
+        </button>
+      </div>
     </form>
   );
 }

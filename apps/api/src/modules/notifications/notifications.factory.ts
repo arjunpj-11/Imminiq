@@ -3,6 +3,7 @@ import {
   ListNotificationsUseCase,
   MarkAllNotificationsReadUseCase,
   MarkNotificationReadUseCase,
+  VoteNotificationPollUseCase,
   NotificationsMapper,
   type NotificationsUseCases,
 } from './application';
@@ -23,6 +24,7 @@ export const createNotificationsComposition = (): NotificationsComposition => {
       createNotification: new CreateNotificationUseCase(mongoNotificationsRepository),
       markNotificationRead: new MarkNotificationReadUseCase(mongoNotificationsRepository),
       markAllNotificationsRead: new MarkAllNotificationsReadUseCase(mongoNotificationsRepository),
+      voteForPoll: new VoteNotificationPollUseCase(mongoNotificationsRepository),
     },
     helpers: { notificationsMapper },
   };

@@ -34,4 +34,16 @@ export class NotificationsController {
       next(error);
     }
   };
+  voteForPoll = async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const data = await this._useCases.voteForPoll.execute(
+        getAuthUser(req).userId,
+        String(req.params.notificationId),
+        Number(req.body.optionIndex)
+      );
+      res.json(new ApiResponse('Poll vote recorded', data));
+    } catch (error) {
+      next(error);
+    }
+  };
 }
