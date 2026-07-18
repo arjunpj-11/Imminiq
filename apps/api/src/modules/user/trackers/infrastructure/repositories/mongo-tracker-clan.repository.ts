@@ -16,6 +16,8 @@ import type {
   ITrackerClanChallengeRepository,
   TrackerClanOverview,
   TrackerClanChallenge,
+  TrackerClanChallengeQuestion,
+  TrackerClanChallengeQuestionContext,
   TrackerClanRole,
   TrackerClanMessage as TrackerClanMessageRecord,
 } from '../../domain';
@@ -447,12 +449,84 @@ export class MongoTrackerClanRepository
     return this.mapChallenges(refreshed, input.userId);
   }
 
+  async getChallengeQuestionContext(input: {
+    trackerId: string;
+    challengerId: string;
+    opponentId?: string;
+  }): Promise<TrackerClanChallengeQuestionContext | null> {
+    const role = await this.getRole({ trackerId: input.trackerId, userId: input.challengerId });
+    const trackerId = objectId(input.trackerId);
+    const challengerId = objectId(input.challengerId);
+    const opponentId = input.opponentId ? objectId(input.opponentId) : null;
+    if (!role || role === 'outsider' || !trackerId || !challengerId) return null;
+    if (input.opponentId && !opponentId) return null;
+    if (opponentId?.equals(challengerId)) return null;
+    if (input.opponentId) {
+      const opponentRole = await this.getRole({
+        trackerId: input.trackerId,
+        userId: input.opponentId,
+      });
+      if (!opponentRole || opponentRole === 'outsider') return null;
+    }
+
+    const [tracker, topics, subtopics] = await Promise.all([
+      Tracker.findOne({ _id: trackerId, deletedAt: null })
+        .select('title description category field goal level contentLanguage')
+        .lean<{
+          title: string;
+          description?: string;
+          category?: string;
+          field?: string;
+          goal?: string;
+          level?: 'beginner' | 'intermediate' | 'advanced';
+          contentLanguage?: string;
+        }>(),
+      TrackerTopic.find({ trackerId, deletedAt: null })
+        .sort({ order: 1 })
+        .select('_id title description')
+        .lean<Array<{ _id: Types.ObjectId; title: string; description?: string }>>(),
+      TrackerSubtopic.find({ trackerId, deletedAt: null })
+        .sort({ depth: 1, order: 1 })
+        .select('topicId title description')
+        .lean<Array<{
+          topicId: Types.ObjectId;
+          title: string;
+          description?: string;
+        }>>(),
+    ]);
+    if (!tracker || !topics.length) return null;
+
+    const subtopicsByTopic = new Map<string, Array<{ title: string; description: string }>>();
+    for (const subtopic of subtopics) {
+      const key = String(subtopic.topicId);
+      const items = subtopicsByTopic.get(key) ?? [];
+      items.push({ title: subtopic.title, description: subtopic.description?.trim() ?? '' });
+      subtopicsByTopic.set(key, items);
+    }
+
+    return {
+      trackerTitle: tracker.title,
+      trackerDescription: tracker.description?.trim() ?? '',
+      category: tracker.category?.trim() ?? '',
+      field: tracker.field?.trim() ?? '',
+      goal: tracker.goal?.trim() ?? '',
+      level: tracker.level ?? 'beginner',
+      contentLanguage: tracker.contentLanguage?.trim() || 'English',
+      topics: topics.map((topic) => ({
+        title: topic.title,
+        description: topic.description?.trim() ?? '',
+        subtopics: subtopicsByTopic.get(String(topic._id)) ?? [],
+      })),
+    };
+  }
+
   async createChallenge(input: {
     trackerId: string;
     challengerId: string;
     opponentId?: string;
     durationMinutes: number;
     questionCount: number;
+    questions: TrackerClanChallengeQuestion[];
   }) {
     const role = await this.getRole({ trackerId: input.trackerId, userId: input.challengerId });
     if (!role || role === 'outsider') return null;
@@ -461,6 +535,15 @@ export class MongoTrackerClanRepository
     const opponentId = input.opponentId ? objectId(input.opponentId) : null;
     if (!trackerId || !challengerId || (input.opponentId && !opponentId)) return null;
     if (opponentId && opponentId.equals(challengerId)) return null;
+    if (
+      input.questions.length !== input.questionCount ||
+      input.questions.some(
+        (question) =>
+          question.options.length < 2 || !question.options.includes(question.correctAnswer)
+      )
+    ) {
+      return null;
+    }
     if (opponentId) {
       const opponentRole = await this.getRole({
         trackerId: input.trackerId,
@@ -468,8 +551,6 @@ export class MongoTrackerClanRepository
       });
       if (!opponentRole || opponentRole === 'outsider') return null;
     }
-    const questions = await this.buildChallengeQuestions(trackerId, input.questionCount);
-    if (!questions.length) return null;
     const challenge = await TrackerClanChallengeModel.create({
       trackerId,
       challengerId,
@@ -477,7 +558,7 @@ export class MongoTrackerClanRepository
       challengeType: opponentId ? 'direct' : 'open',
       status: opponentId ? 'pending' : 'open',
       durationMinutes: input.durationMinutes,
-      questions,
+      questions: input.questions,
       acceptBy: new Date(Date.now() + 24 * 60 * 60 * 1000),
     });
     return (await this.mapChallenges([challenge.toObject() as unknown as ChallengeLean], input.challengerId))[0] ?? null;
@@ -587,48 +668,6 @@ export class MongoTrackerClanRepository
     ).lean<ChallengeLean>();
     if (!challenge) return null;
     return (await this.mapChallenges([challenge], input.userId))[0] ?? null;
-  }
-
-  private async buildChallengeQuestions(trackerId: Types.ObjectId, count: number) {
-    const [topics, subtopics] = await Promise.all([
-      TrackerTopic.find({ trackerId, deletedAt: null }).sort({ order: 1 }).select('_id title description').lean(),
-      TrackerSubtopic.find({ trackerId, deletedAt: null }).sort({ depth: 1, order: 1 }).select('topicId title description').lean(),
-    ]);
-    if (!topics.length) return [];
-    const topicMap = new Map(topics.map((topic) => [String(topic._id), topic.title]));
-    const topicTitles = topics.map((topic) => topic.title);
-    const candidates = subtopics
-      .map((subtopic) => ({ title: subtopic.title, topicTitle: topicMap.get(String(subtopic.topicId)) }))
-      .filter((item): item is { title: string; topicTitle: string } => Boolean(item.topicTitle));
-    const source = candidates.length
-      ? candidates
-      : topics.map((topic) => ({ title: topic.title, topicTitle: topic.title }));
-    return Array.from({ length: count }, (_, index) => {
-      const item = source[index % source.length]!;
-      if (topicTitles.length === 1) {
-        const reversed = index % 2 === 1;
-        return {
-          prompt: reversed
-            ? `Is “${item.title}” unrelated to the “${item.topicTitle}” roadmap topic?`
-            : `Is “${item.title}” part of the “${item.topicTitle}” roadmap topic?`,
-          options: ['Yes', 'No'],
-          correctAnswer: reversed ? 'No' : 'Yes',
-          topicTitle: item.topicTitle,
-          points: 1,
-        };
-      }
-      const distractors = topicTitles.filter((title) => title !== item.topicTitle).slice(0, 3);
-      const options = [item.topicTitle, ...distractors].sort((a, b) =>
-        `${item.title}:${a}`.localeCompare(`${item.title}:${b}`)
-      );
-      return {
-        prompt: `Which roadmap topic includes “${item.title}”?`,
-        options,
-        correctAnswer: item.topicTitle,
-        topicTitle: item.topicTitle,
-        points: 1,
-      };
-    });
   }
 
   private async refreshChallenge(challenge: ChallengeLean): Promise<ChallengeLean> {

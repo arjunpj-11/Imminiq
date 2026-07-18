@@ -29,6 +29,7 @@ export * from './repositories/tracker-topic-contribution.repository.interface';
 export * from './tracker-topic-contribution.types';
 export * from './tracker-clan.types';
 export * from './services/tracker-clan-challenge-notifier.interface';
+export * from './services/tracker-clan-challenge-question-generator.interface';
 export * from './repositories/tracker-clan.repository.interface';
 export * from './repositories/tracker-clan-challenge.repository.interface';
 

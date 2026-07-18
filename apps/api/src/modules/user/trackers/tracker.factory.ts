@@ -56,6 +56,7 @@ import { cryptoQuestionHasher } from './infrastructure/services/crypto-question-
 import { mongoTrackerTopicContributionRepository } from './infrastructure/repositories/mongo-tracker-topic-contribution.repository';
 import { TrackerContributionNotificationGateway } from './infrastructure/gateways/tracker-contribution-notification.gateway';
 import { trackerClanChallengeGateway } from './infrastructure/gateways/tracker-clan-challenge.gateway';
+import { trackerClanChallengeQuestionGateway } from './infrastructure/gateways/tracker-clan-challenge-question.gateway';
 import { mongoTrackerClanRepository } from './infrastructure/repositories/mongo-tracker-clan.repository';
 
 export type TrackerListInput = Parameters<ListTrackersUseCase['execute']>[0];
@@ -177,6 +178,7 @@ export const createTrackerComposition = (
 
       trackerClanChallenges: new TrackerClanChallengeUseCase(
         mongoTrackerClanRepository,
+        trackerClanChallengeQuestionGateway,
         trackerClanChallengeGateway
       ),
 

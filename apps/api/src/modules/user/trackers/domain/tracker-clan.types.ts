@@ -84,3 +84,26 @@ export type TrackerClanChallengeEvent = {
   challengerId: string;
   opponentId: string | null;
 };
+
+export type TrackerClanChallengeQuestion = {
+  prompt: string;
+  options: string[];
+  correctAnswer: string;
+  topicTitle: string;
+  points: number;
+};
+
+export type TrackerClanChallengeQuestionContext = {
+  trackerTitle: string;
+  trackerDescription: string;
+  category: string;
+  field: string;
+  goal: string;
+  level: 'beginner' | 'intermediate' | 'advanced';
+  contentLanguage: string;
+  topics: Array<{
+    title: string;
+    description: string;
+    subtopics: Array<{ title: string; description: string }>;
+  }>;
+};

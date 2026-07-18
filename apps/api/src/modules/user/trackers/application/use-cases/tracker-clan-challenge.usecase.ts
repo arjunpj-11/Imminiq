@@ -1,5 +1,6 @@
 import type {
   ITrackerClanChallengeNotifier,
+  ITrackerClanChallengeQuestionGenerator,
   ITrackerClanChallengeRepository,
   TrackerClanChallenge,
 } from '../../domain';
@@ -28,6 +29,7 @@ export interface ITrackerClanChallengeUseCase {
 export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase {
   constructor(
     private readonly clans: ITrackerClanChallengeRepository,
+    private readonly questionGenerator: ITrackerClanChallengeQuestionGenerator,
     private readonly notifier: ITrackerClanChallengeNotifier
   ) {}
 
@@ -44,12 +46,28 @@ export class TrackerClanChallengeUseCase implements ITrackerClanChallengeUseCase
     durationMinutes: number;
     questionCount: number;
   }) {
+    const context = await this.clans.getChallengeQuestionContext({
+      trackerId: input.trackerId,
+      challengerId: input.userId,
+      opponentId: input.opponentId,
+    });
+    if (!context) {
+      throw TrackerApplicationError.forbidden(
+        'A guild challenge needs eligible members and at least one roadmap topic'
+      );
+    }
+    const questions = await this.questionGenerator.generate({
+      context,
+      questionCount: input.questionCount,
+      durationMinutes: input.durationMinutes,
+    });
     const challenge = await this.clans.createChallenge({
       trackerId: input.trackerId,
       challengerId: input.userId,
       opponentId: input.opponentId,
       durationMinutes: input.durationMinutes,
       questionCount: input.questionCount,
+      questions,
     });
     return this.announce(
       input.trackerId,
