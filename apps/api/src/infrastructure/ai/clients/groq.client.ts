@@ -11,11 +11,15 @@ export const groqChat = async (
   category: AITokenUsageCategory = 'other',
   options: { maxTokens?: number; temperature?: number } = {}
 ) => {
+  // Treat GROQ_MAX_TOKENS as a deployment-wide safety ceiling. Some callers
+  // ask for 8K outputs, which exceeds the free-tier GPT-OSS TPM allowance once
+  // the prompt is included and causes Groq to reject the request before it runs.
+  const maxTokens = Math.min(options.maxTokens ?? env.GROQ_MAX_TOKENS, env.GROQ_MAX_TOKENS);
   const response = await groq.chat.completions.create({
     model,
     messages,
     temperature: options.temperature ?? 0.7,
-    max_tokens: options.maxTokens ?? env.GROQ_MAX_TOKENS,
+    max_tokens: maxTokens,
   });
 
   recordAITokenUsage('Groq', model, category, {
